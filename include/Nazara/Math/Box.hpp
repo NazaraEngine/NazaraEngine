@@ -63,7 +63,6 @@ namespace Nz
 			Box& Set(T Width, T Height, T Depth);
 			Box& Set(T X, T Y, T Z, T Width, T Height, T Depth);
 			Box& Set(const T box[6]);
-			Box& Set(const Box& box);
 			Box& Set(const Rect<T>& rect);
 			Box& Set(const Vector3<T>& lengths);
 			Box& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);

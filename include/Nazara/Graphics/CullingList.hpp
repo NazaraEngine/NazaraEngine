@@ -136,6 +136,8 @@ namespace Nz
 	{
 		friend CullingList;
 
+		using ParentType = Entry<CullTest::Box>;
+
 		public:
 			BoxEntry();
 			BoxEntry(BoxEntry&&) = default;
@@ -154,6 +156,8 @@ namespace Nz
 	{
 		friend CullingList;
 
+		using ParentType = Entry<CullTest::NoTest>;
+
 		public:
 			NoTestEntry();
 			NoTestEntry(NoTestEntry&&) = default;
@@ -169,6 +173,8 @@ namespace Nz
 	class CullingList<T>::SphereEntry : public CullingList<T>::template Entry<CullTest::Sphere>
 	{
 		friend CullingList;
+
+		using ParentType = Entry<CullTest::Sphere>;
 
 		public:
 			SphereEntry();
@@ -187,6 +193,8 @@ namespace Nz
 	class CullingList<T>::VolumeEntry : public CullingList<T>::template Entry<CullTest::Volume>
 	{
 		friend CullingList;
+
+		using ParentType = Entry<CullTest::Volume>;
 
 		public:
 			VolumeEntry();

@@ -68,7 +68,7 @@ namespace Nz
 
 	void ByteStream::SetStream(ByteArray* byteArray, OpenModeFlags openMode)
 	{
-		std::unique_ptr<Stream> stream(new MemoryStream(byteArray, openMode));
+		std::unique_ptr<MemoryStream> stream = std::make_unique<MemoryStream>(byteArray, openMode);
 
 		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
@@ -86,7 +86,7 @@ namespace Nz
 
 	void ByteStream::SetStream(void* ptr, Nz::UInt64 size)
 	{
-		std::unique_ptr<Stream> stream(new MemoryView(ptr, size));
+		std::unique_ptr<MemoryView> stream = std::make_unique<MemoryView>(ptr, size);
 
 		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it
@@ -104,7 +104,7 @@ namespace Nz
 
 	void ByteStream::SetStream(const void* ptr, Nz::UInt64 size)
 	{
-		std::unique_ptr<Stream> stream(new MemoryView(ptr, size));
+		std::unique_ptr<MemoryView> stream = std::make_unique<MemoryView>(ptr, size);
 
 		SetStream(stream.get());
 		// SetStream reset our smart pointer, set it after calling it

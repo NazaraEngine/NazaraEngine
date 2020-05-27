@@ -417,7 +417,10 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::Set(const T vec[4])
 	{
-		std::memcpy(&x, vec, 4*sizeof(T));
+		x = vec[0];
+		y = vec[1];
+		z = vec[2];
+		w = vec[3];
 
 		return *this;
 	}
@@ -455,21 +458,6 @@ namespace Nz
 		y = vec.y;
 		z = vec.z;
 		w = W;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another vector
-	* \return A reference to this vector
-	*
-	* \param vec The other vector
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const Vector4& vec)
-	{
-		std::memcpy(this, &vec, sizeof(Vector4));
 
 		return *this;
 	}

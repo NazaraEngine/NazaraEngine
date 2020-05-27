@@ -213,21 +213,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the plane from another plane
-	* \return A reference to this plane
-	*
-	* \param plane The other plane
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::Set(const Plane& plane)
-	{
-		std::memcpy(this, &plane, sizeof(Plane));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the plane from a normal and a distance
 	* \return A reference to this plane
 	*

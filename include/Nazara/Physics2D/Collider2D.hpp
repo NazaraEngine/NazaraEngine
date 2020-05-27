@@ -41,8 +41,10 @@ namespace Nz
 			Collider2D(Collider2D&&) = delete;
 			virtual ~Collider2D();
 
-			virtual Nz::Vector2f ComputeCenterOfMass() const = 0;
+			virtual Vector2f ComputeCenterOfMass() const = 0;
 			virtual float ComputeMomentOfInertia(float mass) const = 0;
+
+			virtual void ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const;
 
 			inline UInt32 GetCategoryMask() const;
 			inline UInt32 GetCollisionGroup() const;
@@ -228,13 +230,16 @@ namespace Nz
 	{
 		public:
 			inline SegmentCollider2D(const Vector2f& first, const Vector2f& second, float thickness = 1.f);
+			inline SegmentCollider2D(const Vector2f& first, const Vector2f& firstNeighbor, const Vector2f& second, const Vector2f& secondNeighbor, float thickness = 1.f);
 
 			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline const Vector2f& GetFirstPoint() const;
+			inline const Vector2f& GetFirstPointNeighbor() const;
 			inline float GetLength() const;
 			inline const Vector2f& GetSecondPoint() const;
+			inline const Vector2f& GetSecondPointNeighbor() const;
 			inline float GetThickness() const;
 			ColliderType2D GetType() const override;
 
@@ -244,7 +249,9 @@ namespace Nz
 			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_first;
+			Vector2f m_firstNeighbor;
 			Vector2f m_second;
+			Vector2f m_secondNeighbor;
 			float m_thickness;
 	};
 }

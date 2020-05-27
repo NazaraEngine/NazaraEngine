@@ -84,6 +84,8 @@ namespace Nz
 			bool HandleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			void PrepareWindow(bool fullscreen);
 
+			static bool SetProcessDpiAware();
+
 			static Keyboard::Key ConvertVirtualKey(WPARAM key, LPARAM flags);
 			static LRESULT CALLBACK MessageHandler(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 			static UInt32 RetrieveStyle(HWND window);

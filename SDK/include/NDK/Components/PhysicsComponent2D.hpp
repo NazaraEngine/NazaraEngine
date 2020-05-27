@@ -40,6 +40,7 @@ namespace Ndk
 
 			inline void EnableNodeSynchronization(bool nodeSynchronization);
 
+			inline void ForceSleep();
 			inline void ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback);
 
 			inline Nz::Rectf GetAABB() const;
@@ -83,10 +84,15 @@ namespace Ndk
 
 			inline void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
 
+			inline void Wakeup();
+
 			static ComponentIndex componentIndex;
 
 		private:
+			inline void ApplyPhysicsState(Nz::RigidBody2D& rigidBody) const;
+			inline void CopyPhysicsState(const Nz::RigidBody2D& rigidBody);
 			Nz::RigidBody2D* GetRigidBody();
+			const Nz::RigidBody2D* GetRigidBody() const;
 
 			void OnAttached() override;
 			void OnComponentAttached(BaseComponent& component) override;
@@ -94,7 +100,27 @@ namespace Ndk
 			void OnDetached() override;
 			void OnEntityDestruction() override;
 
+			struct PendingPhysObjectStates
+			{
+				struct ShapeStates
+				{
+					Nz::Vector2f surfaceVelocity;
+					float elasticity;
+					float friction;
+				};
+
+				VelocityFunc velocityFunc;
+				std::vector<ShapeStates> shapes;
+				Nz::RadianAnglef angularVelocity;
+				Nz::Vector2f massCenter;
+				Nz::Vector2f velocity;
+				bool valid = false;
+				float mass;
+				float momentOfInertia;
+			};
+
 			std::unique_ptr<Nz::RigidBody2D> m_object;
+			PendingPhysObjectStates m_pendingStates;
 			bool m_nodeSynchronizationEnabled;
 	};
 }

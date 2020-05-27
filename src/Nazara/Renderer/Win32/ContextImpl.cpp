@@ -67,17 +67,17 @@ namespace Nz
 				UINT numFormats;
 
 				int attributes[] = {
-					WGL_DRAW_TO_WINDOW_ARB,	GL_TRUE,
-					WGL_SUPPORT_OPENGL_ARB,	GL_TRUE,
-					WGL_ACCELERATION_ARB,	WGL_FULL_ACCELERATION_ARB,
-					WGL_COLOR_BITS_ARB,		(parameters.bitsPerPixel == 32) ? 24 : parameters.bitsPerPixel,
-					WGL_ALPHA_BITS_ARB,		(parameters.bitsPerPixel == 32) ? 8 : 0,
-					WGL_DEPTH_BITS_ARB,		parameters.depthBits,
-					WGL_STENCIL_BITS_ARB,	parameters.stencilBits,
-					WGL_DOUBLE_BUFFER_ARB,	(parameters.doubleBuffered) ? GL_TRUE : GL_FALSE,
-					WGL_SAMPLE_BUFFERS_ARB,	GL_TRUE,
-					WGL_SAMPLES_ARB, 		parameters.antialiasingLevel,
-					0,						0
+					WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+					WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+					WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
+					WGL_COLOR_BITS_ARB,     (parameters.bitsPerPixel == 32) ? 24 : parameters.bitsPerPixel,
+					WGL_ALPHA_BITS_ARB,     (parameters.bitsPerPixel == 32) ? 8 : 0,
+					WGL_DEPTH_BITS_ARB,     parameters.depthBits,
+					WGL_STENCIL_BITS_ARB,   parameters.stencilBits,
+					WGL_DOUBLE_BUFFER_ARB,  (parameters.doubleBuffered) ? GL_TRUE : GL_FALSE,
+					WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
+					WGL_SAMPLES_ARB,        parameters.antialiasingLevel,
+					0,                      0
 				};
 
 				do

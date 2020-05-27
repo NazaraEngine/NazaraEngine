@@ -92,10 +92,6 @@ int main()
 	// Ce paramètre sert à indiquer la mise à l'échelle désirée lors du chargement du modèle.
 	params.mesh.matrix.MakeScale(Nz::Vector3f(0.01f)); // Un centième de la taille originelle
 
-	// Les UVs de ce fichier sont retournées (repère OpenGL, origine coin bas-gauche) par rapport à ce que le moteur attend (haut-gauche)
-	// Nous devons donc indiquer au moteur de les retourner lors du chargement
-	params.mesh.texCoordScale.Set(1.f, -1.f);
-
 	// Nazara va par défaut optimiser les modèles pour un rendu plus rapide, cela peut prendre du temps et n'est pas nécessaire ici
 	params.mesh.optimizeIndexBuffers = false;
 

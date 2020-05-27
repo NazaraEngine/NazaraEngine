@@ -233,19 +233,19 @@ namespace Nz
 				break;
 
 			case ShaderAst::ExpressionType::Float1:
-				Append(String::Format("%F", node.values.vec1));
+				Append(String::Number(node.values.vec1));
 				break;
 
 			case ShaderAst::ExpressionType::Float2:
-				Append(String::Format("vec2(%F, %F)", node.values.vec2.x, node.values.vec2.y));
+				Append("vec2(" + String::Number(node.values.vec2.x) + ", " + String::Number(node.values.vec2.y) + ")");
 				break;
 
 			case ShaderAst::ExpressionType::Float3:
-				Append(String::Format("vec3(%F, %F, %F)", node.values.vec3.x, node.values.vec3.y, node.values.vec3.z));
+				Append("vec3(" + String::Number(node.values.vec3.x) + ", " + String::Number(node.values.vec3.y) + ", " + String::Number(node.values.vec3.z) + ")");
 				break;
 
 			case ShaderAst::ExpressionType::Float4:
-				Append(String::Format("vec4(%F, %F, %F, %F)", node.values.vec4.x, node.values.vec4.y, node.values.vec4.z, node.values.vec4.w));
+				Append("vec4(" + String::Number(node.values.vec4.x) + ", " + String::Number(node.values.vec4.y) + ", " + String::Number(node.values.vec4.z) + ", " + String::Number(node.values.vec4.z) + ")");
 				break;
 
 			default:

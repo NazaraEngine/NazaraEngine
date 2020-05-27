@@ -61,7 +61,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent & event)
+	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
 		{
@@ -128,6 +128,19 @@ namespace Ndk
 		}
 	}
 
+	void Canvas::OnEventMouseWheelMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseWheelEvent& event)
+	{
+		if (m_hoveredWidget != InvalidCanvasIndex)
+		{
+			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
+
+			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
+			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+
+			hoveredWidget.widget->OnMouseWheelMoved(x, y, event.delta);
+		}
+	}
+
 	void Canvas::OnEventMouseLeft(const Nz::EventHandler* /*eventHandler*/)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
@@ -137,7 +150,7 @@ namespace Ndk
 		}
 	}
 
-	void Canvas::OnEventKeyPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 		{
@@ -191,12 +204,16 @@ namespace Ndk
 				}
 			}
 		}
+
+		OnUnhandledKeyPressed(eventHandler, event);
 	}
 
-	void Canvas::OnEventKeyReleased(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnKeyReleased(event);
+
+		OnUnhandledKeyReleased(eventHandler, event);
 	}
 
 	void Canvas::OnEventTextEntered(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)

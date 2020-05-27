@@ -53,7 +53,6 @@ namespace Nz
 
 			Sphere& Set(T X, T Y, T Z, T Radius);
 			//Sphere& Set(const Circle<T>& rect);
-			Sphere& Set(const Sphere& sphere);
 			Sphere& Set(const Vector3<T>& center, T Radius);
 			Sphere& Set(const T sphere[4]);
 			template<typename U> Sphere& Set(const Sphere<U>& sphere);

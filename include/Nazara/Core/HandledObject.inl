@@ -105,6 +105,8 @@ namespace Nz
 	{
 		if (m_handleData)
 		{
+			OnHandledObjectDestruction(this);
+
 			m_handleData->object = nullptr;
 			m_handleData.reset();
 		}

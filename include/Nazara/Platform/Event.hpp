@@ -58,6 +58,8 @@ namespace Nz
 		struct MouseWheelEvent
 		{
 			float delta;
+			int x;
+			int y;
 		};
 
 		// Used by:

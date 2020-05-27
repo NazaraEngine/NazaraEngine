@@ -1,3 +1,7 @@
+// Copyright (C) 2019 Jérôme Leclercq
+// This file is part of the "Nazara Development Kit"
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+
 #include <NDK/Components/ConstraintComponent2D.hpp>
 #include <NDK/Components/PhysicsComponent2D.hpp>
 #include <NDK/Components/CollisionComponent2D.hpp>
@@ -5,7 +9,7 @@
 namespace Ndk
 {
 	template<typename T, typename ...Args>
-	Nz::ObjectRef<T> ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle& first, const Ndk::EntityHandle& second, Args && ...args)
+	T* ConstraintComponent2D::CreateConstraint(const Ndk::EntityHandle& first, const Ndk::EntityHandle& second, Args&& ...args)
 	{
 		auto FetchBody = [](const Ndk::EntityHandle& entity) -> Nz::RigidBody2D*
 		{
@@ -23,9 +27,20 @@ namespace Ndk
 		Nz::RigidBody2D* secondBody = FetchBody(second);
 		NazaraAssert(secondBody, "Second entity has no CollisionComponent2D nor PhysicsComponent2D component");
 
-		Nz::ObjectRef<T> constraint = T::New(*firstBody, *secondBody, std::forward<Args>(args)...);
-		m_constraints.push_back(constraint);
+		m_constraints.emplace_back();
+		auto& constraintData = m_constraints.back();
+		constraintData.constraint = std::make_unique<T>(*firstBody, *secondBody, std::forward<Args>(args)...);
 
-		return constraint;
+		constraintData.onBodyADestruction.Connect(first->OnEntityDestruction, [this, constraint = constraintData.constraint.get()](const Ndk::Entity* /*entity*/)
+		{
+			RemoveConstraint(constraint);
+		});
+
+		constraintData.onBodyBDestruction.Connect(second->OnEntityDestruction, [this, constraint = constraintData.constraint.get()](const Ndk::Entity* /*entity*/)
+		{
+			RemoveConstraint(constraint);
+		});
+
+		return static_cast<T*>(constraintData.constraint.get());
 	}
 }

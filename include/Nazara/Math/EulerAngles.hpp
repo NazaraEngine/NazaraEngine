@@ -37,7 +37,6 @@ namespace Nz
 			EulerAngles& Set(T P, T Y, T R);
 			EulerAngles& Set(const T angles[3]);
 			template<AngleUnit Unit> EulerAngles& Set(const Angle<Unit, T>& angles);
-			EulerAngles& Set(const EulerAngles<T>& angles);
 			//EulerAngles& Set(const Matrix3<T>& mat);
 			EulerAngles& Set(const Quaternion<T>& quat);
 			template<typename U> EulerAngles& Set(const EulerAngles<U>& angles);

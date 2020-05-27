@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
+#include <NDK/Systems/PhysicsSystem2D.hpp>
+
 namespace Ndk
 {
 	inline float PhysicsSystem2D::GetDamping() const
@@ -47,6 +49,11 @@ namespace Ndk
 	inline void PhysicsSystem2D::SetMaxStepCount(std::size_t maxStepCount)
 	{
 		GetPhysWorld().SetMaxStepCount(maxStepCount);
+	}
+
+	inline void PhysicsSystem2D::SetSleepTime(float sleepTime)
+	{
+		GetPhysWorld().SetSleepTime(sleepTime);
 	}
 
 	inline void PhysicsSystem2D::SetStepSize(float stepSize)

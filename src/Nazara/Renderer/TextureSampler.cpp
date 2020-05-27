@@ -389,5 +389,5 @@ namespace Nz
 
 	UInt8 TextureSampler::s_defaultAnisotropyLevel = 1;
 	SamplerFilter TextureSampler::s_defaultFilterMode = SamplerFilter_Trilinear;
-	SamplerWrap TextureSampler::s_defaultWrapMode = SamplerWrap_Repeat;
+	SamplerWrap TextureSampler::s_defaultWrapMode = SamplerWrap_Clamp;
 }

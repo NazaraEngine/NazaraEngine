@@ -11,6 +11,9 @@
 
 namespace Nz
 {
+	// Windows 10, version 1607 brought SetThreadDescription in order to name a thread
+	using SetThreadDescriptionFunc = HRESULT(WINAPI*)(HANDLE hThread, PCWSTR lpThreadDescription);
+
 #ifdef NAZARA_COMPILER_MSVC
 	namespace
 	{
@@ -50,12 +53,12 @@ namespace Nz
 
 	void ThreadImpl::SetName(const Nz::String& name)
 	{
-		SetThreadName(m_threadId, name.GetConstBuffer());
+		SetThreadName(m_handle, name);
 	}
 
 	void ThreadImpl::SetCurrentName(const Nz::String& name)
 	{
-		SetThreadName(::GetCurrentThreadId(), name.GetConstBuffer());
+		SetThreadName(::GetCurrentThread(), name);
 	}
 
 	void ThreadImpl::Sleep(UInt32 time)
@@ -63,9 +66,12 @@ namespace Nz
 		::Sleep(time);
 	}
 
-	void ThreadImpl::SetThreadName(DWORD threadId, const char* threadName)
+	void ThreadImpl::RaiseThreadNameException(DWORD threadId, const char* threadName)
 	{
-		#ifdef NAZARA_COMPILER_MSVC
+#ifdef NAZARA_COMPILER_MSVC
+		if (!::IsDebuggerPresent())
+			return;
+
 		// https://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 		constexpr DWORD MS_VC_EXCEPTION = 0x406D1388;
 
@@ -75,8 +81,8 @@ namespace Nz
 		info.dwThreadID = threadId;
 		info.dwFlags = 0;
 
-		#pragma warning(push)
-		#pragma warning(disable: 6320 6322)
+#pragma warning(push)
+#pragma warning(disable: 6320 6322)
 		__try
 		{
 			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
@@ -84,10 +90,20 @@ namespace Nz
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
 		}
-		#pragma warning(pop)
-		#else
-		NazaraWarning("SetThreadName on Windows is only supported with MSVC for now");
-		#endif
+#pragma warning(pop)
+#else
+		NazaraWarning("SetThreadDescription is not supported and threadname exception is only supported with MSVC");
+#endif
+	}
+
+	void ThreadImpl::SetThreadName(HANDLE threadHandle, const Nz::String& name)
+	{
+		// Try to use SetThreadDescription if available
+		static SetThreadDescriptionFunc SetThreadDescription = reinterpret_cast<SetThreadDescriptionFunc>(::GetProcAddress(::GetModuleHandleW(L"Kernel32.dll"), "SetThreadDescription"));
+		if (SetThreadDescription)
+			SetThreadDescription(threadHandle, name.GetWideString().data());
+		else
+			RaiseThreadNameException(::GetThreadId(threadHandle), name.GetConstBuffer());
 	}
 
 	unsigned int __stdcall ThreadImpl::ThreadProc(void* userdata)

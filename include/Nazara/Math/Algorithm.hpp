@@ -35,15 +35,15 @@
 
 namespace Nz
 {
-	template<typename T> /*constexpr*/ T Approach(T value, T objective, T increment);
+	template<typename T> constexpr T Approach(T value, T objective, T increment);
 	template<typename T> constexpr T Clamp(T value, T min, T max);
-	template<typename T> /*constexpr*/ std::size_t CountBits(T value);
+	template<typename T> constexpr std::size_t CountBits(T value);
 	template<typename T> constexpr T FromDegrees(T degrees);
 	template<typename T> constexpr T FromRadians(T radians);
 	template<typename T> constexpr T DegreeToRadian(T degrees);
-	template<typename T> /*constexpr*/ T GetNearestPowerOfTwo(T number);
-	/*constexpr*/ unsigned int GetNumberLength(signed char number);
-	/*constexpr*/ unsigned int GetNumberLength(unsigned char number);
+	template<typename T> constexpr T GetNearestPowerOfTwo(T number);
+	constexpr unsigned int GetNumberLength(signed char number);
+	constexpr unsigned int GetNumberLength(unsigned char number);
 	unsigned int GetNumberLength(int number);
 	/*constexpr*/ unsigned int GetNumberLength(unsigned int number);
 	unsigned int GetNumberLength(long long number);
@@ -53,12 +53,12 @@ namespace Nz
 	unsigned int GetNumberLength(long double number, UInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
 	template<typename T> /*constexpr*/ unsigned int IntegralLog2(T number);
 	template<typename T> /*constexpr*/ unsigned int IntegralLog2Pot(T pot);
-	template<typename T> /*constexpr*/ T IntegralPow(T base, unsigned int exponent);
+	template<typename T> constexpr T IntegralPow(T base, unsigned int exponent);
 	template<typename T, typename T2> constexpr T Lerp(const T& from, const T& to, const T2& interpolation);
 	template<typename T> constexpr T MultiplyAdd(T x, T y, T z);
-	template<typename T> /*constexpr*/ T NormalizeAngle(T angle);
-	template<typename T> /*constexpr*/ bool NumberEquals(T a, T b);
-	template<typename T> /*constexpr*/ bool NumberEquals(T a, T b, T maxDifference);
+	template<typename T> constexpr T NormalizeAngle(T angle);
+	template<typename T> constexpr bool NumberEquals(T a, T b);
+	template<typename T> constexpr bool NumberEquals(T a, T b, T maxDifference);
 	String NumberToString(long long number, UInt8 radix = 10);
 	template<typename T> constexpr T RadianToDegree(T radians);
 	long long StringToNumber(String str, UInt8 radix = 10, bool* ok = nullptr);

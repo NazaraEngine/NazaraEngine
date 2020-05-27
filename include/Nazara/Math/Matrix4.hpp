@@ -44,6 +44,8 @@ namespace Nz
 			Matrix4& Concatenate(const Matrix4& matrix);
 			Matrix4& ConcatenateAffine(const Matrix4& matrix);
 
+			void Decompose(Vector3<T>& translation, Quaternion<T>& rotation, Vector3<T>& scale);
+
 			Vector4<T> GetColumn(unsigned int column) const;
 			T GetDeterminant() const;
 			T GetDeterminantAffine() const;
@@ -82,9 +84,7 @@ namespace Nz
 			             T r21, T r22, T r23, T r24,
 			             T r31, T r32, T r33, T r34,
 			             T r41, T r42, T r43, T r44);
-			Matrix4& Set(const T matrix[16]);
 			//Matrix4(const Matrix3<T>& matrix);
-			Matrix4& Set(const Matrix4& matrix);
 			template<typename U> Matrix4& Set(const Matrix4<U>& matrix);
 			Matrix4& SetRotation(const Quaternion<T>& rotation);
 			Matrix4& SetScale(const Vector3<T>& scale);

@@ -165,21 +165,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the oriented box with components from another
-	* \return A reference to this oriented box
-	*
-	* \param orientedBox The other OrientedBox
-	*/
-
-	template<typename T>
-	OrientedBox<T>& OrientedBox<T>::Set(const OrientedBox& orientedBox)
-	{
-		std::memcpy(this, &orientedBox, sizeof(OrientedBox));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets a OrientedBox object from two vectors representing point of the space
 	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
 	*

@@ -51,9 +51,11 @@ namespace Ndk
 			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, EntityHandle* nearestBody = nullptr);
 			bool NearestBodyQuery(const Nz::Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
 
+			void RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback);
 			bool RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
 			bool RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
+			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const EntityHandle&)>& callback);
 			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<EntityHandle>* bodies);
 
 			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
@@ -63,6 +65,7 @@ namespace Ndk
 			inline void SetGravity(const Nz::Vector2f& gravity);
 			inline void SetIterationCount(std::size_t iterationCount);
 			inline void SetMaxStepCount(std::size_t maxStepCount);
+			inline void SetSleepTime(float sleepTime);
 			inline void SetStepSize(float stepSize);
 
 			inline void UseSpatialHash(float cellSize, std::size_t entityCount);

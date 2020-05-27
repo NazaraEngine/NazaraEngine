@@ -27,7 +27,9 @@ namespace Nz
 			AbstractTextDrawer() = default;
 			virtual ~AbstractTextDrawer();
 
-			virtual const Recti& GetBounds() const = 0;
+			virtual void Clear() = 0;
+
+			virtual const Rectf& GetBounds() const = 0;
 			virtual Font* GetFont(std::size_t index) const = 0;
 			virtual std::size_t GetFontCount() const = 0;
 			virtual const Glyph& GetGlyph(std::size_t index) const = 0;
@@ -35,6 +37,9 @@ namespace Nz
 			virtual const Line& GetLine(std::size_t index) const = 0;
 			virtual std::size_t GetLineCount() const = 0;
 			inline std::size_t GetLineGlyphCount(std::size_t index) const;
+			virtual float GetMaxLineWidth() const = 0;
+
+			virtual void SetMaxLineWidth(float lineWidth) = 0;
 
 			struct Glyph
 			{
@@ -44,6 +49,7 @@ namespace Nz
 				Vector2f corners[4];
 				AbstractImage* atlas;
 				bool flipped;
+				int renderOrder;
 			};
 
 			struct Line

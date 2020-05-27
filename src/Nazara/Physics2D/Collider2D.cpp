@@ -3,13 +3,80 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <chipmunk/chipmunk.h>
-#include <Nazara/Physics3D/Debug.hpp>
+#include <chipmunk/chipmunk_structs.h>
+#include <array>
+#include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {
 	Collider2D::~Collider2D() = default;
+
+	void Collider2D::ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const
+	{
+		// Currently, the only way to get only the polygons of a shape is to create a temporary cpSpace containing only this shape
+		// A better way to do this would be to reimplement this function in every subclass type in the very same way chipmunk does
+
+		PhysWorld2D physWorld;
+		RigidBody2D rigidBody(&physWorld, 0.f);
+
+		std::vector<cpShape*> shapeVector;
+		rigidBody.SetGeom(const_cast<Collider2D*>(this), false, false); //< Won't be used for writing, but still ugly
+
+		PhysWorld2D::DebugDrawOptions drawCallbacks;
+		drawCallbacks.circleCallback = [&](const Vector2f& origin, const RadianAnglef& /*rotation*/, float radius, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		{
+			constexpr std::size_t circleVerticesCount = 20;
+
+			std::array<Vector2f, circleVerticesCount> vertices;
+
+			RadianAnglef angleBetweenVertices = 2.f * float(M_PI) / vertices.size();
+			for (std::size_t i = 0; i < vertices.size(); ++i)
+			{
+				RadianAnglef angle = float(i) * angleBetweenVertices;
+				std::pair<float, float> sincos = angle.GetSinCos();
+
+				vertices[i] = origin + Vector2f(radius * sincos.first, radius * sincos.second);
+			}
+
+			callback(vertices.data(), vertices.size());
+		};
+
+		drawCallbacks.polygonCallback = [&](const Vector2f* vertices, std::size_t vertexCount, float radius, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		{
+			//TODO: Handle radius
+			callback(vertices, vertexCount);
+		};
+
+		drawCallbacks.segmentCallback = [&](const Vector2f& first, const Vector2f& second, Nz::Color /*color*/, void* /*userData*/)
+		{
+			std::array<Vector2f, 2> vertices = { first, second };
+
+			callback(vertices.data(), vertices.size());
+		};
+
+		drawCallbacks.thickSegmentCallback = [&](const Vector2f& first, const Vector2f& second, float thickness, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		{
+			static std::pair<float, float> sincos = Nz::DegreeAnglef(90.f).GetSinCos();
+
+			Vector2f normal = Vector2f::Normalize(second - first);
+			Vector2f thicknessNormal(sincos.second * normal.x - sincos.first * normal.y,
+			                         sincos.first * normal.x + sincos.second * normal.y);
+
+			std::array<Vector2f, 4> vertices;
+			vertices[0] = first + thickness * thicknessNormal;
+			vertices[1] = first - thickness * thicknessNormal;
+			vertices[2] = second - thickness * thicknessNormal;
+			vertices[3] = second + thickness * thicknessNormal;
+
+			callback(vertices.data(), vertices.size());
+		};
+
+		physWorld.DebugDraw(drawCallbacks, true, false, false);
+	}
 
 	std::size_t Collider2D::GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
 	{
@@ -75,7 +142,7 @@ namespace Nz
 
 	Nz::Vector2f CircleCollider2D::ComputeCenterOfMass() const
 	{
-		return m_offset + Nz::Vector2f(m_radius, m_radius);
+		return m_offset;
 	}
 
 	float CircleCollider2D::ComputeMomentOfInertia(float mass) const
@@ -231,7 +298,10 @@ namespace Nz
 
 	std::size_t SegmentCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
 	{
-		shapes->push_back(cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
+		cpShape* segment = cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness);
+		cpSegmentShapeSetNeighbors(segment, cpv(m_firstNeighbor.x, m_firstNeighbor.y), cpv(m_secondNeighbor.x, m_secondNeighbor.y));
+
+		shapes->push_back(segment);
 		return 1;
 	}
 }
