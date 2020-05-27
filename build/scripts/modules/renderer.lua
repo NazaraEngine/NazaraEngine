@@ -30,6 +30,8 @@ MODULE.OsLibraries.Windows = {
 
 MODULE.OsLibraries.Posix = {
     "GL",
-    "X11"
+    "X11",
+    "xcb",
+    "xcb-ewmh",
+    "xcb-keysyms"
 }
-
