@@ -40,7 +40,7 @@ namespace Nz
 	{
 		RendererImpl *rendererImpl = Renderer::GetRendererImpl();
 		auto surface = rendererImpl->CreateRenderSurfaceImpl();
-		if (!surface->Create(GetHandle()))
+		if (!surface->Create(GetSystemHandle()))
 		{
 			NazaraError("Failed to create render surface: " + Error::GetLastError());
 			return false;
@@ -49,26 +49,25 @@ namespace Nz
 		auto impl = rendererImpl->CreateRenderWindowImpl();
 		if (!impl->Create(rendererImpl, surface.get(), GetSize(), m_parameters))
 		{
-			{
-				NazaraError("Failed to create render window implementation: " + Error::GetLastError());
-				return false;
-			}
-
-			m_impl = std::move(impl);
-			m_surface = std::move(surface);
-
-			m_clock.Restart();
-
-			return true;
+			NazaraError("Failed to create render window implementation: " + Error::GetLastError());
+			return false;
 		}
 
-		void RenderWindow::OnWindowDestroy()
-		{
-			m_impl.reset();
-			m_surface.reset();
-		}
+		m_impl = std::move(impl);
+		m_surface = std::move(surface);
 
-		void RenderWindow::OnWindowResized()
-		{
-		}
+		m_clock.Restart();
+
+		return true;
 	}
+
+	void RenderWindow::OnWindowDestroy()
+	{
+		m_impl.reset();
+		m_surface.reset();
+	}
+
+	void RenderWindow::OnWindowResized()
+	{
+	}
+}

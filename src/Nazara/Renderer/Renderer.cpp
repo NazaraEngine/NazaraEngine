@@ -110,6 +110,7 @@ namespace Nz
 
 			chosenImpl = std::move(impl); //< Move (and delete previous) implementation before unloading library
 			chosenLib = std::move(implLib);
+			break;
 		}
 
 		if (!chosenImpl)

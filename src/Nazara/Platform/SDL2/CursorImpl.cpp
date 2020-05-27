@@ -13,7 +13,7 @@ namespace Nz
 	bool CursorImpl::Create(const Image& cursor, int hotSpotX, int hotSpotY)
 	{
 		m_iconImage = cursor;
-		if (!m_iconImage.Convert(PixelFormatType_BGRA8))
+		if (!m_iconImage.Convert(PixelFormat_BGRA8))
 		{
 			NazaraError("Failed to convert icon to BGRA8");
 			return false;

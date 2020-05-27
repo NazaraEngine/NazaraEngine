@@ -29,12 +29,21 @@ namespace Nz::GL
 
 		::ShowWindow(m_window.get(), FALSE);
 
-		return Create(baseContext, params, m_window.get(), shareContext);
+		m_deviceContext = ::GetDC(m_window.get());
+		if (!m_deviceContext)
+		{
+			NazaraError("failed to retrieve dummy window device context: " + Error::GetLastSystemError());
+			return false;
+		}
+
+		return CreateInternal(baseContext, params, shareContext);
 	}
 
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext)
 	{
-		m_deviceContext = ::GetDC(static_cast<HWND>(window));
+		NazaraAssert(window.type == WindowManager::Windows, "expected Windows window");
+
+		m_deviceContext = ::GetDC(static_cast<HWND>(window.windows.window));
 		if (!m_deviceContext)
 		{
 			NazaraError("failed to retrieve window device context: " + Error::GetLastSystemError());

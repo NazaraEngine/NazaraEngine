@@ -4,11 +4,8 @@
 
 #include <cstdio>
 #include <memory>
-#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
