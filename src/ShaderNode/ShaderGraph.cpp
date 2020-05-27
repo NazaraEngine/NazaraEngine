@@ -110,17 +110,19 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 		qDebug() << shaderNode->name() << node->id();
 		auto it = usageCount.find(node->id());
 		if (it == usageCount.end())
+		{
+			for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+			{
+				for (const auto& [uuid, conn] : connectionSet)
+				{
+					DetectVariables(conn->getNode(QtNodes::PortType::Out));
+				}
+			}
+
 			it = usageCount.insert(node->id(), 0);
+		}
 
 		(*it)++;
-
-		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
-		{
-			for (const auto& [uuid, conn] : connectionSet)
-			{
-				DetectVariables(conn->getNode(QtNodes::PortType::Out));
-			}
-		}
 	};
 
 	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
