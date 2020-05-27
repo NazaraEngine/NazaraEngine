@@ -26,7 +26,7 @@ namespace Nz
 		minorVersion(defaultMinorVersion),
 		stencilBits(parameters.stencilBits),
 		shareContext(defaultShareContext),
-		window(0),
+		window(nullptr),
 		compatibilityProfile(defaultCompatibilityProfile),
 		debugMode(defaultDebugMode),
 		doubleBuffered(defaultDoubleBuffered),
@@ -41,7 +41,7 @@ namespace Nz
 		UInt8 minorVersion;
 		UInt8 stencilBits;
 		const Context* shareContext;
-		WindowHandle window;
+		void* window;
 		bool compatibilityProfile;
 		bool debugMode;
 		bool doubleBuffered;

@@ -38,17 +38,18 @@ namespace Nz
 			~WindowImpl() = default;
 
 			bool Create(const VideoMode& mode, const String& title, WindowStyleFlags style);
-			bool Create(WindowHandle handle);
+			bool Create(void* handle);
 
 			void Destroy();
 
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
-			WindowHandle GetHandle() const;
+			SDL_Window* GetHandle() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
+			WindowHandle GetSystemHandle() const;
 			String GetTitle() const;
 
 			bool HasFocus() const;

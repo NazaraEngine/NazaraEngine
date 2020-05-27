@@ -6,6 +6,7 @@
 #include <memory>
 #include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -17,6 +18,7 @@
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 namespace Nz
 {
@@ -124,10 +126,9 @@ namespace Nz
 		return true;
 	}
 
-	bool WindowImpl::Create(WindowHandle handle)
+	bool WindowImpl::Create(void* handle)
 	{
-		m_handle = static_cast<SDL_Window*>(handle);
-
+		m_handle = SDL_CreateWindowFrom(handle);
 		if (!m_handle || !SDL_GetWindowID(m_handle))
 		{
 			NazaraError("Invalid handle");
@@ -171,7 +172,7 @@ namespace Nz
 		m_smoothScrolling = enable;
 	}
 
-	WindowHandle WindowImpl::GetHandle() const
+	SDL_Window* WindowImpl::GetHandle() const
 	{
 		return m_handle;
 	}
@@ -189,6 +190,56 @@ namespace Nz
 	WindowStyleFlags WindowImpl::GetStyle() const
 	{
 		return m_style;
+	}
+	
+	WindowHandle WindowImpl::GetSystemHandle() const
+	{
+		SDL_SysWMinfo wmInfo;
+		if (SDL_GetWindowWMInfo(m_handle, &wmInfo) != SDL_TRUE)
+		{
+			ErrorFlags flags(ErrorFlag_ThrowException, true);
+			NazaraError(std::string("failed to retrieve window manager info: ") + SDL_GetError());
+		}
+
+		WindowHandle handle;
+
+		switch (wmInfo.subsystem)
+		{
+#if defined(SDL_VIDEO_DRIVER_X11)
+			case SDL_SYSWM_X11:
+			{
+				handle.type = WindowManager::X11;
+				handle.x11.display = wmInfo.info.x11.display;
+				handle.x11.window = wmInfo.info.x11.window;
+				break;
+			}
+#endif
+#if defined(SDL_VIDEO_DRIVER_WAYLAND)
+			case SDL_SYSWM_WAYLAND:
+			{
+				handle.type = WindowManager::Wayland;
+				handle.wayland.display = wmInfo.info.wl.display;
+				handle.wayland.surface = wmInfo.info.wl.surface;
+				handle.wayland.shellSurface = wmInfo.info.wl.shell_surface;
+				break;
+			}
+#endif
+#if defined(SDL_VIDEO_DRIVER_WINDOWS)
+			case SDL_SYSWM_WINDOWS:
+			{
+				handle.type = WindowManager::Windows;
+				handle.windows.window = wmInfo.info.win.window;
+				break;
+			}
+#endif
+			default:
+			{
+				ErrorFlags flags(ErrorFlag_ThrowException, true);
+				NazaraError("unhandled window subsystem");
+			}
+		}
+
+		return handle;
 	}
 
 	String WindowImpl::GetTitle() const

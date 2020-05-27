@@ -6,6 +6,7 @@
 #include <Nazara/Platform/Debug.hpp>
 #include <Nazara/Platform/SDL2/InputImpl.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
+#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
@@ -45,21 +46,10 @@ namespace Nz
 
 	Vector2i EventImpl::GetMousePosition(const Window& relativeTo)
 	{
-		auto handle = relativeTo.GetHandle();
-		if (handle)
-		{
-			auto windowPos = relativeTo.GetPosition();
-			auto mousePos = GetMousePosition();
+		auto windowPos = relativeTo.GetPosition();
+		auto mousePos = GetMousePosition();
 
-			return mousePos - windowPos;
-		}
-		else
-		{
-			NazaraError("Invalid window handle");
-
-			// Attention que (-1, -1) est une position tout à fait valide et ne doit pas servir de test
-			return Vector2i(-1, -1);
-		}
+		return mousePos - windowPos;
 	}
 
 	bool EventImpl::IsKeyPressed(Keyboard::Scancode key)
@@ -98,7 +88,7 @@ namespace Nz
 
 	void EventImpl::SetMousePosition(int x, int y, const Window& relativeTo)
 	{
-		auto handle = static_cast<SDL_Window*>(relativeTo.GetHandle());
+		SDL_Window* handle = static_cast<const WindowImpl*>(relativeTo.GetImpl())->GetHandle();
 		if (handle)
 			SDL_WarpMouseInWindow(handle, x, y);
 		else

@@ -8,11 +8,44 @@
 #define NAZARA_WINDOWHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Config.hpp>
 
 namespace Nz
 {
-	// Real type is SDL_Window
-	using WindowHandle = void*;
+	enum class WindowManager
+	{
+		None,
+
+		X11,
+		Wayland,
+		Windows
+	};
+
+	struct WindowHandle
+	{
+		WindowManager type = WindowManager::None;
+
+		union
+		{
+			struct
+			{
+				void* display; //< Display*
+				void* window;  //< Window
+			} x11;
+
+			struct 
+			{
+				void* display;      //< wl_display*
+				void* surface;      //< wl_surface*
+				void* shellSurface; //< wl_shell_surface*
+			} wayland;
+
+			struct
+			{
+				void* window; //< HWND
+			} windows;
+		};
+	};
 }
 
 #endif // NAZARA_WINDOWHANDLE_HPP
