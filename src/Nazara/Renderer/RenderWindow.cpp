@@ -15,7 +15,7 @@ namespace Nz
 	{
 		if (m_framerateLimit > 0)
 		{
-			int remainingTime = 1000/static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
+			int remainingTime = 1000 / static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
 			if (remainingTime > 0)
 				std::this_thread::sleep_for(std::chrono::milliseconds(remainingTime));
 
@@ -38,7 +38,7 @@ namespace Nz
 
 	bool RenderWindow::OnWindowCreated()
 	{
-		RendererImpl* rendererImpl = Renderer::GetRendererImpl();
+		RendererImpl *rendererImpl = Renderer::GetRendererImpl();
 		auto surface = rendererImpl->CreateRenderSurfaceImpl();
 		if (!surface->Create(GetHandle()))
 		{
@@ -49,25 +49,26 @@ namespace Nz
 		auto impl = rendererImpl->CreateRenderWindowImpl();
 		if (!impl->Create(rendererImpl, surface.get(), GetSize(), m_parameters))
 		{
-			NazaraError("Failed to create render window implementation: " + Error::GetLastError());
-			return false;
+			{
+				NazaraError("Failed to create render window implementation: " + Error::GetLastError());
+				return false;
+			}
+
+			m_impl = std::move(impl);
+			m_surface = std::move(surface);
+
+			m_clock.Restart();
+
+			return true;
 		}
 
-		m_impl = std::move(impl);
-		m_surface = std::move(surface);
+		void RenderWindow::OnWindowDestroy()
+		{
+			m_impl.reset();
+			m_surface.reset();
+		}
 
-		m_clock.Restart();
-
-		return true;
+		void RenderWindow::OnWindowResized()
+		{
+		}
 	}
-
-	void RenderWindow::OnWindowDestroy()
-	{
-		m_impl.reset();
-		m_surface.reset();
-	}
-
-	void RenderWindow::OnWindowResized()
-	{
-	}
-}

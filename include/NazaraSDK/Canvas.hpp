@@ -57,6 +57,7 @@ namespace Ndk
 			void OnEventKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
 			void OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
 			void OnEventTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
+			void OnEventTextEdited(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::EditEvent& event);
 
 			struct WidgetEntry
 			{
@@ -73,6 +74,7 @@ namespace Ndk
 			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_mouseMovedSlot);
 			NazaraSlot(Nz::EventHandler, OnMouseWheelMoved, m_mouseWheelMovedSlot);
 			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
+			NazaraSlot(Nz::EventHandler, OnTextEdited, m_textEditedSlot);
 
 			std::size_t m_keyboardOwner;
 			std::size_t m_hoveredWidget;

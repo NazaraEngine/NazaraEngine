@@ -8,21 +8,44 @@
 #define NAZARA_WINDOWHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#if defined(NAZARA_PLATFORM_X11)
-#include <xcb/xcb.h>
-#endif
+#include <Nazara/Utility/Config.hpp>
 
 namespace Nz
 {
-	#if defined(NAZARA_PLATFORM_WINDOWS)
-	// http://msdn.microsoft.com/en-us/library/aa383751(v=vs.85).aspx
-	using WindowHandle = void*;
-	#elif defined(NAZARA_PLATFORM_X11)
-	// http://en.wikipedia.org/wiki/Xlib#Data_types
-	using WindowHandle = xcb_window_t;
-	#else
-		#error Lack of implementation: WindowHandle
-	#endif
+	enum class WindowManager
+	{
+		None,
+
+		X11,
+		Wayland,
+		Windows
+	};
+
+	struct WindowHandle
+	{
+		WindowManager type = WindowManager::None;
+
+		union
+		{
+			struct
+			{
+				void* display; //< Display*
+				void* window;  //< Window
+			} x11;
+
+			struct 
+			{
+				void* display;      //< wl_display*
+				void* surface;      //< wl_surface*
+				void* shellSurface; //< wl_shell_surface*
+			} wayland;
+
+			struct
+			{
+				void* window; //< HWND
+			} windows;
+		};
+	};
 }
 
 #endif // NAZARA_WINDOWHANDLE_HPP

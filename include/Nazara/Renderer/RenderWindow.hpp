@@ -25,26 +25,26 @@ namespace Nz
 	{
 		public:
 			inline RenderWindow();
-			inline RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
-			inline explicit RenderWindow(WindowHandle handle, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline RenderWindow(VideoMode mode, const String &title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters &parameters = RenderWindowParameters());
+			inline explicit RenderWindow(void *handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 			inline ~RenderWindow();
 
-			inline bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
-			inline bool Create(WindowHandle handle, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline bool Create(VideoMode mode, const String &title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters &parameters = RenderWindowParameters());
+			inline bool Create(void *handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 
 			void Display();
 
 			void EnableVerticalSync(bool enabled);
 
-			inline RenderWindowImpl* GetImpl();
+			inline RenderWindowImpl *GetImpl();
 			std::shared_ptr<RenderDevice> GetRenderDevice();
 
 			inline bool IsValid() const;
 
 			inline void SetFramerateLimit(unsigned int limit);
 
-			RenderWindow& operator=(const RenderWindow&) = delete;
-			RenderWindow& operator=(RenderWindow&&) = delete; ///TODO
+			RenderWindow &operator=(const RenderWindow &) = delete;
+			RenderWindow &operator=(RenderWindow &&) = delete; ///TODO
 
 		protected:
 			bool OnWindowCreated() override;
@@ -57,8 +57,8 @@ namespace Nz
 			std::unique_ptr<RenderSurface> m_surface;
 			RenderWindowParameters m_parameters;
 			unsigned int m_framerateLimit;
-	};
-}
+		};
+} // namespace Nz
 
 #include <Nazara/Renderer/RenderWindow.inl>
 
