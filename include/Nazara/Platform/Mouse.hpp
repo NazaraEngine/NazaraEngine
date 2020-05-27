@@ -37,6 +37,7 @@ namespace Nz
 			static Vector2i GetPosition();
 			static Vector2i GetPosition(const Window& relativeTo);
 			static bool IsButtonPressed(Button button);
+			static bool SetRelativeMouseMode(bool relativeMouseMode);
 			static void SetPosition(const Vector2i& position);
 			static void SetPosition(const Vector2i& position, const Window& relativeTo, bool ignoreEvent = true);
 			static void SetPosition(int x, int y);

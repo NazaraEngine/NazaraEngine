@@ -85,6 +85,11 @@ namespace Nz
 		return (SDL_GetGlobalMouseState(nullptr, nullptr) & vButtons[button]) != 0;
 	}
 
+	bool EventImpl::SetRelativeMouseMode(bool relativeMouseMode)
+	{
+		return SDL_SetRelativeMouseMode((relativeMouseMode) ? SDL_TRUE : SDL_FALSE) == 0;
+	}
+
 	void EventImpl::SetMousePosition(int x, int y)
 	{
 		if (SDL_WarpMouseGlobal(x, y) != 0)
