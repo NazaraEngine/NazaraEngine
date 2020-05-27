@@ -1,6 +1,9 @@
 # Nazara build
 build/config.lua
 
+build/gmake*/
+build/vs*/
+
 # Nazara libraries
 lib/*
 
@@ -165,9 +168,3 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
-
-
-
-
-
-
