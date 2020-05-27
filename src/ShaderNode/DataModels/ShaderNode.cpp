@@ -26,6 +26,31 @@ void ShaderNode::BuildNodeEdition(QFormLayout* layout)
 	});
 
 	layout->addRow(tr("Enable preview"), checkbox);
+
+	QComboBox* previewSize = new QComboBox;
+
+	int index = 0;
+	for (int size : { 32, 64, 128, 256, 512 })
+	{
+		QString sizeStr = QString::number(size);
+		previewSize->addItem(sizeStr + "x" + sizeStr, size);
+
+		if (m_previewSize.x == size)
+			previewSize->setCurrentIndex(index);
+
+		index++;
+	}
+	
+	connect(previewSize, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index)
+	{
+		if (index < 0)
+			return;
+
+		int size = previewSize->itemData(index).toInt();
+		SetPreviewSize({ size, size });
+	});
+
+	layout->addRow(tr("Preview size"), previewSize);
 }
 
 void ShaderNode::EnablePreview(bool enable)
