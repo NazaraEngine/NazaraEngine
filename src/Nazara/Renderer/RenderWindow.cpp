@@ -234,7 +234,7 @@ namespace Nz
 	bool RenderWindow::OnWindowCreated()
 	{
 		m_parameters.doubleBuffered = true;
-		m_parameters.window = GetHandle();
+		m_parameters.window = GetSystemHandle();
 
 		std::unique_ptr<Context> context(new Context);
 		if (!context->Create(m_parameters))
