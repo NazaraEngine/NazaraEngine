@@ -107,7 +107,6 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 	{
 		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
 
-		qDebug() << shaderNode->name() << node->id();
 		auto it = usageCount.find(node->id());
 		if (it == usageCount.end())
 		{
@@ -166,8 +165,10 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 			Nz::ShaderAst::ExpressionPtr varExpression;
 			if (expression->GetExpressionCategory() == Nz::ShaderAst::ExpressionCategory::RValue)
 			{
-				varExpression = Nz::ShaderBuilder::Variable("var" + std::to_string(varCount++), expression->GetExpressionType());
-				statements.emplace_back(Nz::ShaderBuilder::ExprStatement(Nz::ShaderBuilder::Assign(varExpression, expression)));
+				auto variable = Nz::ShaderBuilder::Variable("var" + std::to_string(varCount++), expression->GetExpressionType());
+				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, expression));
+
+				varExpression = variable;
 			}
 			else
 				varExpression = expression;

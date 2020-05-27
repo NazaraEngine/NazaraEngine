@@ -193,6 +193,18 @@ namespace Nz
 
 				Nz::String name;
 		};
+		
+		class NAZARA_RENDERER_API DeclareVariable : public Statement
+		{
+			public:
+				inline DeclareVariable(NamedVariablePtr Variable, ExpressionPtr Expression = nullptr);
+
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				NamedVariablePtr variable;
+				ExpressionPtr expression;
+		};
 
 		//////////////////////////////////////////////////////////////////////////
 

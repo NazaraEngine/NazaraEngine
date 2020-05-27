@@ -37,6 +37,7 @@ namespace Nz
 			void Write(const ShaderAst::BuiltinVariable& node) override;
 			void Write(const ShaderAst::Cast& node) override;
 			void Write(const ShaderAst::Constant& node) override;
+			void Write(const ShaderAst::DeclareVariable& node) override;
 			void Write(const ShaderAst::ExpressionStatement& node) override;
 			void Write(const ShaderAst::NamedVariable& node) override;
 			void Write(const ShaderAst::NodePtr& node) override;
@@ -63,7 +64,6 @@ namespace Nz
 
 			struct Function
 			{
-				VariableContainer variables;
 				std::vector<ShaderAst::NamedVariablePtr> parameters;
 				ShaderAst::ExpressionType retType;
 				ShaderAst::StatementPtr node;

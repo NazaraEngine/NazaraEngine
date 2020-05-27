@@ -11,7 +11,7 @@
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <memory>
 
-namespace Nz { namespace ShaderBuilder
+namespace Nz::ShaderBuilder
 {
 	template<ShaderAst::AssignType op>
 	struct AssignOpBuilder
@@ -49,7 +49,7 @@ namespace Nz { namespace ShaderBuilder
 	{
 		constexpr VarBuilder() {}
 
-		template<typename... Args> std::shared_ptr<ShaderAst::Variable> operator()(Args&&... args) const;
+		template<typename... Args> ShaderAst::NamedVariablePtr operator()(Args&&... args) const;
 	};
 
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Add> Add;
@@ -59,6 +59,7 @@ namespace Nz { namespace ShaderBuilder
 	constexpr GenBuilder<ShaderAst::Branch> Branch;
 	constexpr GenBuilder<ShaderAst::ConditionalStatement> ConditionalStatement;
 	constexpr GenBuilder<ShaderAst::Constant> Constant;
+	constexpr GenBuilder<ShaderAst::DeclareVariable> DeclareVariable;
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Divide> Divide;
 	constexpr BinOpBuilder<ShaderAst::BinaryType::Equality> Equal;
 	constexpr GenBuilder<ShaderAst::ExpressionStatement> ExprStatement;
@@ -73,7 +74,7 @@ namespace Nz { namespace ShaderBuilder
 	constexpr VarBuilder<ShaderAst::VariableType::Variable> Variable;
 
 	template<ShaderAst::ExpressionType Type, typename... Args> std::shared_ptr<ShaderAst::Cast> Cast(Args&&... args);
-} }
+}
 
 #include <Nazara/Renderer/ShaderBuilder.inl>
 
