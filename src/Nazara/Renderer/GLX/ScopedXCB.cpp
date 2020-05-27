@@ -4,7 +4,7 @@
 
 #include <Nazara/Renderer/GLX/ScopedXCB.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Platform/GLX/Display.hpp>
+#include <Nazara/Renderer/GLX/Display.hpp>
 #include <xcb/xcb_image.h>
 #include <Nazara/Renderer/Debug.hpp>
 
