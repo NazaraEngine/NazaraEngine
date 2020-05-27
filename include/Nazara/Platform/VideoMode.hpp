@@ -32,12 +32,12 @@ namespace Nz
 			static const std::vector<VideoMode>& GetFullscreenModes();
 	};
 
-	bool operator==(const VideoMode& left, const VideoMode& right);
-	bool operator!=(const VideoMode& left, const VideoMode& right);
-	bool operator<(const VideoMode& left, const VideoMode& right);
-	bool operator<=(const VideoMode& left, const VideoMode& right);
-	bool operator>(const VideoMode& left, const VideoMode& right);
-	bool operator>=(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator==(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator!=(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator<(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator<=(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator>(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator>=(const VideoMode& left, const VideoMode& right);
 }
 
 #endif // NAZARA_VIDEOMODE_HPP

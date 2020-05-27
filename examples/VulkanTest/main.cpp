@@ -3,7 +3,7 @@
 #include <array>
 #include <iostream>
 
-#define SPIRV 0
+#define SPIRV 1
 
 int main()
 {
@@ -266,27 +266,27 @@ int main()
 			float cameraSpeed = 2.f * updateClock.GetSeconds();
 			updateClock.Restart();
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 				viewerPos += camQuat * Nz::Vector3f::Forward() * cameraSpeed;
 
 			// Si la flèche du bas ou la touche S est pressée, on recule
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
 				viewerPos += camQuat * Nz::Vector3f::Backward() * cameraSpeed;
 
 			// Etc...
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
 				viewerPos += camQuat * Nz::Vector3f::Left() * cameraSpeed;
 
 			// Etc...
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
 				viewerPos += camQuat * Nz::Vector3f::Right() * cameraSpeed;
 
 			// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RShift))
 				viewerPos += Nz::Vector3f::Up() * cameraSpeed;
 
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 		}
 

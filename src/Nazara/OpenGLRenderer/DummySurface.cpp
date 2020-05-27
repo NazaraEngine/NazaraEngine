@@ -15,6 +15,6 @@ namespace Nz
 
 	void DummySurface::Destroy()
 	{
-		m_handle = nullptr;
+		m_handle = WindowHandle{};
 	}
 }

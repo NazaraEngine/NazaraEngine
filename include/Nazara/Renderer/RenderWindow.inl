@@ -20,7 +20,7 @@ namespace Nz
 		Create(mode, title, style, parameters);
 	}
 
-	inline RenderWindow::RenderWindow(WindowHandle handle, const RenderWindowParameters& parameters)
+	inline RenderWindow::RenderWindow(void* handle, const RenderWindowParameters& parameters)
 	{
 		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
@@ -39,7 +39,7 @@ namespace Nz
 		return Window::Create(mode, title, style);
 	}
 
-	inline bool RenderWindow::Create(WindowHandle handle, const RenderWindowParameters& parameters)
+	inline bool RenderWindow::Create(void* handle, const RenderWindowParameters& parameters)
 	{
 		m_parameters = parameters;
 

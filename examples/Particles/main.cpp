@@ -123,17 +123,17 @@ int main()
 			{
 				case Nz::WindowEventType_KeyPressed:
 				{
-					switch (event.key.code)
+					switch (event.key.virtualKey)
 					{
-						case Nz::Keyboard::Backspace:
+						case Nz::Keyboard::VKey::Backspace:
 							stateMachine.ChangeState(shared.demos[demoIndex]);
 							break;
 
-						case Nz::Keyboard::Escape:
+						case Nz::Keyboard::VKey::Escape:
 							app.Quit();
 							break;
 
-						case Nz::Keyboard::Left:
+						case Nz::Keyboard::VKey::Left:
 						{
 							if (shared.demos.size() <= 1)
 								break;
@@ -146,7 +146,7 @@ int main()
 							break;
 						}
 
-						case Nz::Keyboard::Right:
+						case Nz::Keyboard::VKey::Right:
 						{
 							if (shared.demos.size() <= 1)
 								break;
@@ -159,14 +159,14 @@ int main()
 							break;
 						}
 
-						case Nz::Keyboard::Pause:
+						case Nz::Keyboard::VKey::Pause:
 						{
 							auto& velocitySystem = shared.world3D->GetSystem<Ndk::VelocitySystem>();
 							velocitySystem.Enable(!velocitySystem.IsEnabled());
 							break;
 						}
 
-						case Nz::Keyboard::F5:
+						case Nz::Keyboard::VKey::F5:
 						{
 							Nz::Image screenshot;
 							screenshot.Create(Nz::ImageType_2D, Nz::PixelFormat_RGBA8, 1920, 1080);
@@ -196,6 +196,8 @@ int main()
 
 		window.Display();
 	}
+
+	shared.target = nullptr;
 
 	return EXIT_SUCCESS;
 }

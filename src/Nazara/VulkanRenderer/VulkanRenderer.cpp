@@ -36,14 +36,6 @@ namespace Nz
 		return Vulkan::SelectDevice(m_physDevices[deviceIndex]);
 	}
 
-	bool VulkanRenderer::IsBetterThan(const RendererImpl* other) const
-	{
-		if (other->QueryAPI() == RenderAPI::Vulkan && QueryAPIVersion() < other->QueryAPIVersion())
-			return false;
-
-		return true; //< Vulkan FTW
-	}
-
 	bool VulkanRenderer::Prepare(const ParameterList& parameters)
 	{
 		return Vulkan::Initialize(APIVersion, parameters);
