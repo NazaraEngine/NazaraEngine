@@ -20,6 +20,17 @@ if (Config.PlatformSDL2) then
 
     table.insert(MODULE.Libraries, "SDL2")
 
+    assert(Config.PlatformSDL2_Path)
+    MODULE.Includes = Config.PlatformSDL2_Path .. "/include"
+    MODULE.LibraryPaths.x64 = {
+        Config.PlatformSDL2_Path .. "/lib/x64/",
+        Config.PlatformSDL2_Path .. "/bin/x64/"
+    }
+    MODULE.LibraryPaths.x86 = {
+        Config.PlatformSDL2_Path .. "/lib/x86/",
+        Config.PlatformSDL2_Path .. "/bin/x86/"
+    }
+
     MODULE.FilesExcluded = {
         "../src/Nazara/Renderer/Win32/**",
         "../src/Nazara/Renderer/GLX/**.cpp"
