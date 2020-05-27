@@ -8,25 +8,11 @@
 #define NAZARA_WINDOWHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#if defined(NAZARA_PLATFORM_SDL2)
-#elif defined(NAZARA_PLATFORM_X11)
-#include <xcb/xcb.h>
-#endif
 
 namespace Nz
 {
-	#if defined(NAZARA_PLATFORM_SDL2)
 	// Real type is SDL_Window
 	using WindowHandle = void*;
-	#elif defined(NAZARA_PLATFORM_WINDOWS)
-	// http://msdn.microsoft.com/en-us/library/aa383751(v=vs.85).aspx
-	using WindowHandle = void*;
-	#elif defined(NAZARA_PLATFORM_X11)
-	// http://en.wikipedia.org/wiki/Xlib#Data_types
-	using WindowHandle = xcb_window_t;
-	#else
-		#error Lack of implementation: WindowHandle
-	#endif
 }
 
 #endif // NAZARA_WINDOWHANDLE_HPP

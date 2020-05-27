@@ -20,20 +20,6 @@
 #include <GL/glcorearb.h>
 #include <GL/glext.h>
 
-#if defined(NAZARA_PLATFORM_SDL2)
-	#include <SDL2/SDL_video.h>
-#endif
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <GL/wglext.h>
-#elif defined(NAZARA_PLATFORM_GLX)
-namespace GLX
-{
-	#include <GL/glx.h> // Defined in a namespace to avoid conflict
-}
-	#include <GL/glxext.h>
-#endif
-
 namespace Nz
 {
 	enum OpenGLExtension
@@ -334,19 +320,6 @@ namespace Nz
 	NAZARA_RENDERER_API extern PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer;
 	NAZARA_RENDERER_API extern PFNGLVERTEXATTRIBLPOINTERPROC glVertexAttribLPointer;
 	NAZARA_RENDERER_API extern PFNGLVIEWPORTPROC glViewport;
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	NAZARA_RENDERER_API extern PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormat;
-	NAZARA_RENDERER_API extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribs;
-	NAZARA_RENDERER_API extern PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB;
-	NAZARA_RENDERER_API extern PFNWGLGETEXTENSIONSSTRINGEXTPROC wglGetExtensionsStringEXT;
-	NAZARA_RENDERER_API extern PFNWGLSWAPINTERVALEXTPROC wglSwapInterval;
-#elif defined(NAZARA_PLATFORM_GLX)
-	NAZARA_RENDERER_API extern GLX::PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribs;
-	NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT;
-	NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALMESAPROC NzglXSwapIntervalMESA;
-	NAZARA_RENDERER_API extern GLX::PFNGLXSWAPINTERVALSGIPROC glXSwapIntervalSGI;
-#endif
-
 }
 
 #undef None

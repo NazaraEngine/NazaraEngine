@@ -5,17 +5,7 @@
 #include <Nazara/Platform/VideoMode.hpp>
 #include <algorithm>
 #include <functional>
-
-#if defined(NAZARA_PLATFORM_SDL2)
-	#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
-#elif defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Platform/Win32/VideoModeImpl.hpp>
-#elif defined(NAZARA_PLATFORM_X11)
-	#include <Nazara/Platform/X11/VideoModeImpl.hpp>
-#else
-	#error Lack of implementation: Window
-#endif
-
+#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

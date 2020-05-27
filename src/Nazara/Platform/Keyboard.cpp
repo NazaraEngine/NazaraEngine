@@ -3,17 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Keyboard.hpp>
-
-#if defined(NAZARA_PLATFORM_SDL2)
-	#include <Nazara/Platform/SDL2/InputImpl.hpp>
-#elif defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Platform/Win32/InputImpl.hpp>
-#elif defined(NAZARA_PLATFORM_X11)
-	#include <Nazara/Platform/X11/InputImpl.hpp>
-#else
-	#error Lack of implementation: Keyboard
-#endif
-
+#include <Nazara/Platform/SDL2/InputImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

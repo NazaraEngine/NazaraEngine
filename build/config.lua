@@ -24,7 +24,3 @@ ServerMode = false
 
 -- Builds modules as one united library (useless on POSIX systems)
 UniteModules = false
-
--- Use SDL2 platform
-PlatformSDL2 = true
-PlatformSDL2_Path = "../../SDL2"
