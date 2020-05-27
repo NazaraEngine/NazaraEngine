@@ -25,7 +25,7 @@ namespace Nz
 
 	bool ContextImpl::Create(ContextParameters& parameters)
 	{
-		if (parameters.window.type != WindowManager::None)
+		if (parameters.window.type != WindowManager::Invalid)
 		{
 			NazaraAssert(parameters.window.type == WindowManager::Windows, "Cannot create a context for a non-win32 window");
 

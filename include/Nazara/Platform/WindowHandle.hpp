@@ -14,7 +14,7 @@ namespace Nz
 {
 	enum class WindowManager
 	{
-		None,
+		Invalid,
 
 		X11,
 		Wayland,
@@ -23,7 +23,7 @@ namespace Nz
 
 	struct WindowHandle
 	{
-		WindowManager type = WindowManager::None;
+		WindowManager type = WindowManager::Invalid;
 
 		union
 		{

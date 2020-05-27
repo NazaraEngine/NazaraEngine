@@ -27,8 +27,9 @@
 namespace GLX
 {
 	#include <GL/glx.h> // Defined in a namespace to avoid conflict
-}
 	#include <GL/glxext.h>
+}
+
 #endif
 
 namespace Nz
