@@ -69,6 +69,19 @@ namespace Nz::ShaderAst
 	}
 
 
+	void DeclareVariable::Register(ShaderWriter& visitor)
+	{
+		variable->Register(visitor);
+
+		if (expression)
+			expression->Register(visitor);
+	}
+
+	void DeclareVariable::Visit(ShaderWriter& visitor)
+	{
+		visitor.Write(*this);
+	}
+
 	void BuiltinVariable::Register(ShaderWriter& /*visitor*/)
 	{
 	}

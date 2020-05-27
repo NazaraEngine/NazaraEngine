@@ -66,6 +66,7 @@ namespace Nz
 		switch (kind)
 		{
 			case ShaderAst::VariableType::Builtin: //< Only there to make compiler happy
+			case ShaderAst::VariableType::Variable:
 				break;
 
 			case ShaderAst::VariableType::Input:
@@ -107,14 +108,6 @@ namespace Nz
 			case ShaderAst::VariableType::Uniform:
 				m_currentState->uniforms.emplace(type, name);
 				break;
-
-			case ShaderAst::VariableType::Variable:
-			{
-				if (m_currentFunction)
-					m_currentFunction->variables.emplace(type, name);
-
-				break;
-			}
 		}
 	}
 
@@ -262,6 +255,22 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Write(const ShaderAst::DeclareVariable& node)
+	{
+		Append(node.variable->GetExpressionType());
+		Append(" ");
+		Append(node.variable->name);
+		if (node.expression)
+		{
+			Append(" ");
+			Append("=");
+			Append(" ");
+			Write(node.expression);
+		}
+
+		AppendLine(";");
+	}
+
 	void GlslWriter::Write(const ShaderAst::ExpressionStatement& node)
 	{
 		Write(node.expression);
@@ -404,8 +413,6 @@ namespace Nz
 
 		EnterScope();
 		{
-			DeclareVariables(func.variables);
-
 			Write(func.node);
 		}
 		LeaveScope();

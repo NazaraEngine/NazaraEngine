@@ -82,6 +82,12 @@ namespace Nz
 		{
 		}
 
+		inline DeclareVariable::DeclareVariable(NamedVariablePtr Variable, ExpressionPtr Expression) :
+		expression(std::move(Expression)),
+		variable(std::move(Variable))
+		{
+		}
+
 		inline AssignOp::AssignOp(AssignType Op, ExpressionPtr Left, ExpressionPtr Right) :
 		op(Op),
 		left(std::move(Left)),
