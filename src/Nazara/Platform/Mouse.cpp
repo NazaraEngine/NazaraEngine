@@ -34,6 +34,11 @@ namespace Nz
 		return EventImpl::IsMouseButtonPressed(button);
 	}
 
+	bool Mouse::SetRelativeMouseMode(bool relativeMouseMode)
+	{
+		return EventImpl::SetRelativeMouseMode(relativeMouseMode);
+	}
+
 	void Mouse::SetPosition(const Vector2i& position)
 	{
 		EventImpl::SetMousePosition(position.x, position.y);

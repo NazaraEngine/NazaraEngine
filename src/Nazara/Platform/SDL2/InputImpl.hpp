@@ -24,6 +24,7 @@ namespace Nz
 			static bool IsKeyPressed(Keyboard::Scancode key);
 			static bool IsKeyPressed(Keyboard::VKey key);
 			static bool IsMouseButtonPressed(Mouse::Button button);
+			static bool SetRelativeMouseMode(bool relativeMouseMode);
 			static void SetMousePosition(int x, int y);
 			static void SetMousePosition(int x, int y, const Window& relativeTo);
 			static void StartTextInput();

@@ -272,6 +272,8 @@ int main()
 	//Gestion des Evenements 
 	Nz::EventHandler& eventHandler = window.GetEventHandler();
 
+	Nz::Mouse::SetRelativeMouseMode(true);
+
 	eventHandler.OnMouseMoved.Connect([&camAngles, &cameraNode, &window](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
 		if (Ndk::Application::Instance()->IsConsoleEnabled())
@@ -291,11 +293,6 @@ int main()
 
 		// On applique les angles d'Euler à notre caméra
 		cameraNode.SetRotation(camAngles);
-
-		// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenétre
-		// Cette fonction est codée de sorte à ne pas provoquer d'événement MouseMoved
-		Nz::Vector2ui size = window.GetSize();
-		Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
 	});
 
 	eventHandler.OnKeyPressed.Connect([&targetPos, &cameraNode, &smoothMovement, &window](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
