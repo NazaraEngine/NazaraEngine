@@ -12,14 +12,15 @@
 #include <Nazara/Core/Thread.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
+#include <Nazara/Platform/Debug.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/Win32/CursorImpl.hpp>
 #include <Nazara/Platform/Win32/IconImpl.hpp>
+#include <Nazara/Platform/Win32/WindowImpl.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <windowsx.h>
 #include <cstdio>
 #include <memory>
-#include <windowsx.h>
-#include <Nazara/Platform/Debug.hpp>
 
 #ifdef _WIN64
 	#define GCL_HCURSOR GCLP_HCURSOR
@@ -42,17 +43,17 @@ namespace Nz
 	}
 
 	WindowImpl::WindowImpl(Window* parent) :
-	m_cursor(nullptr),
-	m_handle(nullptr),
-	m_callback(0),
-	m_style(0),
-	m_maxSize(-1),
-	m_minSize(-1),
-	m_parent(parent),
-	m_keyRepeat(true),
-	m_mouseInside(false),
-	m_smoothScrolling(false),
-	m_scrolling(0)
+		m_cursor(nullptr),
+		m_handle(nullptr),
+		m_callback(0),
+		m_style(0),
+		m_maxSize(-1),
+		m_minSize(-1),
+		m_parent(parent),
+		m_keyRepeat(true),
+		m_mouseInside(false),
+		m_smoothScrolling(false),
+		m_scrolling(0)
 	{
 		m_cursor = static_cast<HCURSOR>(LoadImage(nullptr, IDC_ARROW, IMAGE_CURSOR, 0, 0, LR_SHARED));
 	}
@@ -115,9 +116,8 @@ namespace Nz
 
 			RECT rect = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
 			AdjustWindowRect(&rect, win32Style, false);
-			width = rect.right-rect.left;
-			height = rect.bottom-rect.top;
-
+			width = rect.right - rect.left;
+			height = rect.bottom - rect.top;
 
 			// Grab desktop rect in order to center our window on the main display
 			// TODO: Handle multiple displays
@@ -182,7 +182,7 @@ namespace Nz
 		GetWindowRect(m_handle, &windowRect);
 
 		m_position.Set(windowRect.left, windowRect.top);
-		m_size.Set(clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
+		m_size.Set(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
 
 		return true;
 	}
@@ -201,11 +201,8 @@ namespace Nz
 					m_thread.Join();
 				}
 			}
-			else
-			{
-				if (m_handle)
-					DestroyWindow(m_handle);
-			}
+			else if (m_handle)
+				DestroyWindow(m_handle);
 		}
 		else
 			SetEventListener(false);
@@ -345,12 +342,12 @@ namespace Nz
 		AdjustWindowRect(&rect, static_cast<DWORD>(GetWindowLongPtr(m_handle, GWL_STYLE)), false);
 
 		if (width != -1)
-			m_maxSize.x = rect.right-rect.left;
+			m_maxSize.x = rect.right - rect.left;
 		else
 			m_maxSize.x = -1;
 
 		if (height != -1)
-			m_maxSize.y = rect.bottom-rect.top;
+			m_maxSize.y = rect.bottom - rect.top;
 		else
 			m_maxSize.y = -1;
 	}
@@ -361,12 +358,12 @@ namespace Nz
 		AdjustWindowRect(&rect, static_cast<DWORD>(GetWindowLongPtr(m_handle, GWL_STYLE)), false);
 
 		if (width != -1)
-			m_minSize.x = rect.right-rect.left;
+			m_minSize.x = rect.right - rect.left;
 		else
 			m_minSize.x = -1;
 
 		if (height != -1)
-			m_minSize.y = rect.bottom-rect.top;
+			m_minSize.y = rect.bottom - rect.top;
 		else
 			m_minSize.y = -1;
 	}
@@ -418,11 +415,11 @@ namespace Nz
 				break;
 
 			/*case WM_SETCURSOR:
-				// http://msdn.microsoft.com/en-us/library/windows/desktop/ms648382(v=vs.85).aspx
-				if (LOWORD(lParam) == HTCLIENT)
-					::SetCursor(m_cursor);
+			    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms648382(v=vs.85).aspx
+			    if (LOWORD(lParam) == HTCLIENT)
+			        ::SetCursor(m_cursor);
 
-				break;*/
+			    break;*/
 
 			case WM_WINDOWPOSCHANGING:
 			{
@@ -445,7 +442,6 @@ namespace Nz
 		}
 
 		if (m_eventListener)
-		{
 			switch (message)
 			{
 				case WM_CHAR:
@@ -504,7 +500,7 @@ namespace Nz
 						m_parent->PushEvent(event);
 					}
 
-					Vector2ui size(clientRect.right-clientRect.left, clientRect.bottom-clientRect.top);
+					Vector2ui size(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
 					if (m_size != size)
 					{
 						m_size = size;
@@ -720,7 +716,8 @@ namespace Nz
 						WindowEvent event;
 						event.type = WindowEventType_MouseWheelMoved;
 						event.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / WHEEL_DELTA;
-						event.mouseWheel.x = GET_X_LPARAM(lParam);
+
+            event.mouseWheel.x = GET_X_LPARAM(lParam);
 						event.mouseWheel.y = GET_Y_LPARAM(lParam);
 
 						m_parent->PushEvent(event);
@@ -733,7 +730,8 @@ namespace Nz
 							WindowEvent event;
 							event.type = WindowEventType_MouseWheelMoved;
 							event.mouseWheel.delta = static_cast<float>(m_scrolling / WHEEL_DELTA);
-							event.mouseWheel.x = GET_X_LPARAM(lParam);
+
+              event.mouseWheel.x = GET_X_LPARAM(lParam);
 							event.mouseWheel.y = GET_Y_LPARAM(lParam);
 
 							m_parent->PushEvent(event);
@@ -826,7 +824,7 @@ namespace Nz
 					RECT rect;
 					GetClientRect(m_handle, &rect);
 
-					Vector2ui size(rect.right-rect.left, rect.bottom-rect.top); // On récupère uniquement la taille de la zone client
+					Vector2ui size(rect.right - rect.left, rect.bottom - rect.top); // On récupère uniquement la taille de la zone client
 					if (m_size == size)
 						break;
 
@@ -916,7 +914,6 @@ namespace Nz
 				default:
 					break;
 			}
-		}
 
 		#if NAZARA_PLATFORM_WINDOWS_DISABLE_MENU_KEYS
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646360(v=vs.85).aspx
@@ -1019,8 +1016,9 @@ namespace Nz
 	{
 		switch (key)
 		{
-			case VK_CONTROL:	return (HIWORD(flags) & KF_EXTENDED) ? Keyboard::RControl : Keyboard::LControl;
-			case VK_MENU:		return (HIWORD(flags) & KF_EXTENDED) ? Keyboard::RAlt : Keyboard::LAlt;
+			case VK_CONTROL:    return (HIWORD(flags) & KF_EXTENDED) ? Keyboard::RControl : Keyboard::LControl;
+			case VK_MENU:       return (HIWORD(flags) & KF_EXTENDED) ? Keyboard::RAlt : Keyboard::LAlt;
+			case VK_RETURN:     return (HIWORD(flags) & KF_EXTENDED) ? Keyboard::NumpadReturn : Keyboard::Return; // TODO Check
 			case VK_SHIFT:
 			{
 				static UINT scancode = MapVirtualKey(VK_SHIFT, MAPVK_VK_TO_VSC);
@@ -1119,6 +1117,8 @@ namespace Nz
 			case VK_OEM_1:             return Keyboard::Semicolon;
 			case VK_OEM_2:             return Keyboard::Slash;
 			case VK_OEM_3:             return Keyboard::Tilde;
+			case VK_APPS:              return Keyboard::Menu;
+			case VK_OEM_102:           return Keyboard::ISOBackslash102;
 			case VK_OEM_4:             return Keyboard::LBracket;
 			case VK_OEM_5:             return Keyboard::Backslash;
 			case VK_OEM_6:             return Keyboard::RBracket;
@@ -1134,7 +1134,6 @@ namespace Nz
 			case VK_SCROLL:            return Keyboard::ScrollLock;
 			case VK_SNAPSHOT:          return Keyboard::PrintScreen;
 			case VK_SUBTRACT:          return Keyboard::Subtract;
-			case VK_RETURN:            return Keyboard::Return;
 			case VK_RWIN:              return Keyboard::RSystem;
 			case VK_SPACE:             return Keyboard::Space;
 			case VK_TAB:               return Keyboard::Tab;
@@ -1197,10 +1196,8 @@ namespace Nz
 
 		RECT rect;
 		if (GetWindowRect(handle, &rect))
-		{
-			if (static_cast<DWORD>(rect.right-rect.left) == mode.dmPelsWidth && static_cast<DWORD>(rect.bottom-rect.top) == mode.dmPelsHeight)
+			if (static_cast<DWORD>(rect.right - rect.left) == mode.dmPelsWidth && static_cast<DWORD>(rect.bottom - rect.top) == mode.dmPelsHeight)
 				style |= WindowStyle_Fullscreen;
-		}
 
 		return style;
 	}

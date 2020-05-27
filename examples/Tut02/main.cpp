@@ -33,10 +33,10 @@ int main(int argc, char* argv[])
 	Nz::EventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnKeyPressed.Connect([](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& e)
 	{
-		std::cout << Nz::Keyboard::GetKeyName(e.code) << std::endl;
+		std::cout << Nz::Keyboard::GetKeyName(e.virtualKey) << std::endl;
 
 		// Profitons-en aussi pour nous donner un moyen de quitter le programme
-		if (e.code == Nz::Keyboard::Escape)
+		if (e.virtualKey == Nz::Keyboard::VKey::Escape)
 			Ndk::Application::Instance()->Quit(); // Cette ligne casse la boucle Run() de l'application
 	});
 
