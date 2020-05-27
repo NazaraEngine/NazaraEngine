@@ -30,7 +30,7 @@ namespace Nz
 			struct
 			{
 				void* display; //< Display*
-				void* window;  //< Window
+				unsigned long window;  //< Window
 			} x11;
 
 			struct 
