@@ -7,20 +7,6 @@ ShaderNode(graph)
 {
 	m_output = std::make_shared<Vec4Data>();
 
-	m_onTextureListUpdateSlot.Connect(GetGraph().OnTextureListUpdate, [&](ShaderGraph*) { OnTextureListUpdate(); });
-	m_onTexturePreviewUpdateSlot.Connect(GetGraph().OnTexturePreviewUpdate, [&](ShaderGraph*, std::size_t textureIndex)
-	{
-		if (m_currentTextureIndex == textureIndex)
-			UpdatePreview();
-	});
-
-	if (graph.GetTextureCount() > 0)
-	{
-		auto& firstInput = graph.GetTexture(0);
-		m_currentTextureIndex = 0;
-		m_currentTextureText = firstInput.name;
-	}
-
 	UpdateOutput();
 }
 
@@ -28,45 +14,28 @@ unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
-		case QtNodes::PortType::In:  return 1;
+		case QtNodes::PortType::In:  return 2;
 		case QtNodes::PortType::Out: return 1;
 	}
 
 	return 0;
 }
 
-void SampleTexture::OnTextureListUpdate()
-{
-	m_currentTextureIndex.reset();
-
-	std::size_t inputIndex = 0;
-	for (const auto& textureEntry : GetGraph().GetTextures())
-	{
-		if (textureEntry.name == m_currentTextureText)
-		{
-			m_currentTextureIndex = inputIndex;
-			break;
-		}
-
-		inputIndex++;
-	}
-}
-
 void SampleTexture::UpdateOutput()
 {
 	QImage& output = m_output->preview;
 
-	if (!m_currentTextureIndex || !m_uv)
+	if (!m_texture || !m_uv)
 	{
 		output = QImage(1, 1, QImage::Format_RGBA8888);
 		output.fill(QColor::fromRgb(0, 0, 0, 0));
 		return;
 	}
 
-	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
+	const QImage& texturePreview = m_texture->preview;
 
-	int textureWidth = textureEntry.preview.width();
-	int textureHeight = textureEntry.preview.height();
+	int textureWidth = texturePreview.width();
+	int textureHeight = texturePreview.height();
 
 	const QImage& uv = m_uv->preview;
 
@@ -77,7 +46,7 @@ void SampleTexture::UpdateOutput()
 
 	std::uint8_t* outputPtr = output.bits();
 	const std::uint8_t* uvPtr = uv.constBits();
-	const std::uint8_t* texturePtr = textureEntry.preview.constBits();
+	const std::uint8_t* texturePtr = texturePreview.constBits();
 	for (int y = 0; y < uvHeight; ++y)
 	{
 		for (int x = 0; x < uvWidth; ++x)
@@ -104,57 +73,21 @@ void SampleTexture::UpdateOutput()
 
 bool SampleTexture::ComputePreview(QPixmap& pixmap)
 {
-	if (!m_currentTextureIndex || !m_uv)
+	if (!m_texture || !m_uv)
 		return false;
 
 	pixmap = QPixmap::fromImage(m_output->preview);
 	return true;
 }
 
-void SampleTexture::BuildNodeEdition(QFormLayout* layout)
-{
-	ShaderNode::BuildNodeEdition(layout);
-
-	QComboBox* textureSelection = new QComboBox;
-	connect(textureSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
-	{
-		if (index >= 0)
-			m_currentTextureIndex = static_cast<std::size_t>(index);
-		else
-			m_currentTextureIndex.reset();
-
-		UpdateOutput();
-	});
-
-	for (const auto& textureEntry : GetGraph().GetTextures())
-		textureSelection->addItem(QString::fromStdString(textureEntry.name));
-
-	layout->addRow(tr("Texture"), textureSelection);
-}
-
 Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
 {
-	if (!m_currentTextureIndex || !m_uv)
+	if (!m_texture || !m_uv)
 		throw std::runtime_error("invalid inputs");
 
-	assert(count == 1);
+	assert(count == 2);
 
-	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
-
-	Nz::ShaderAst::ExpressionType expression = [&]
-	{
-		switch (textureEntry.type)
-		{
-			case TextureType::Sampler2D: return Nz::ShaderAst::ExpressionType::Sampler2D;
-		}
-
-		assert(false);
-		throw std::runtime_error("Unhandled texture type");
-	}();
-
-	auto sampler = Nz::ShaderBuilder::Uniform(textureEntry.name, expression);
-
-	return Nz::ShaderBuilder::Sample2D(sampler, expressions[0]);
+	return Nz::ShaderBuilder::Sample2D(expressions[0], expressions[1]);
 }
 
 auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
@@ -163,8 +96,14 @@ auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex port
 	{
 		case QtNodes::PortType::In:
 		{
-			assert(portIndex == 0);
-			return Vec2Data::Type();
+			switch (portIndex)
+			{
+				case 0: return Texture2Data::Type();
+				case 1: return Vec2Data::Type();
+			}
+
+			assert(false);
+			throw std::runtime_error("invalid port index");
 		}
 
 		case QtNodes::PortType::Out:
@@ -175,7 +114,7 @@ auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex port
 
 		default:
 			assert(false);
-			throw std::runtime_error("Invalid PortType");
+			throw std::runtime_error("invalid PortType");
 	}
 }
 
@@ -185,8 +124,14 @@ QString SampleTexture::portCaption(QtNodes::PortType portType, QtNodes::PortInde
 	{
 		case QtNodes::PortType::In:
 		{
-			assert(portIndex == 0);
-			return tr("UV");
+			switch (portIndex)
+			{
+				case 0: return tr("Texture");
+				case 1: return tr("UV");
+			}
+
+			assert(false);
+			throw std::runtime_error("invalid port index");
 		}
 
 		case QtNodes::PortType::Out:
@@ -210,24 +155,45 @@ std::shared_ptr<QtNodes::NodeData> SampleTexture::outData(QtNodes::PortIndex por
 {
 	assert(port == 0);
 
-	if (!m_currentTextureIndex)
-		return nullptr;
-
 	return m_output;
 }
 
 void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
-	assert(index == 0);
-
-	if (value)
+	switch (index)
 	{
-		assert(dynamic_cast<Vec2Data*>(value.get()) != nullptr);
+		case 0:
+		{
+			if (value)
+			{
+				assert(dynamic_cast<Texture2Data*>(value.get()) != nullptr);
 
-		m_uv = std::static_pointer_cast<Vec2Data>(value);
+				m_texture = std::static_pointer_cast<Texture2Data>(value);
+			}
+			else
+				m_texture.reset();
+
+			break;
+		}
+
+		case 1:
+		{
+			if (value)
+			{
+				assert(dynamic_cast<Vec2Data*>(value.get()) != nullptr);
+
+				m_uv = std::static_pointer_cast<Vec2Data>(value);
+			}
+			else
+				m_uv.reset();
+
+			break;
+		}
+
+		default:
+			assert(false);
+			throw std::runtime_error("Invalid PortType");
 	}
-	else
-		m_uv.reset();
 
 	UpdateOutput();
 }
