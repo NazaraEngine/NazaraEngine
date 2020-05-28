@@ -8,6 +8,7 @@
 #include <QtWidgets/QLabel>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataTypes/TextureData.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 
 class SampleTexture : public ShaderNode
@@ -15,8 +16,6 @@ class SampleTexture : public ShaderNode
 	public:
 		SampleTexture(ShaderGraph& graph);
 		~SampleTexture() = default;
-
-		void BuildNodeEdition(QFormLayout* layout) override;
 
 		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 
@@ -37,16 +36,11 @@ class SampleTexture : public ShaderNode
 
 	protected:
 		bool ComputePreview(QPixmap& pixmap) override;
-		void OnTextureListUpdate();
 		void UpdateOutput();
 
-		NazaraSlot(ShaderGraph, OnTextureListUpdate, m_onTextureListUpdateSlot);
-		NazaraSlot(ShaderGraph, OnTexturePreviewUpdate, m_onTexturePreviewUpdateSlot);
-
-		std::optional<std::size_t> m_currentTextureIndex;
+		std::shared_ptr<Texture2Data> m_texture;
 		std::shared_ptr<Vec2Data> m_uv;
 		std::shared_ptr<Vec4Data> m_output;
-		std::string m_currentTextureText;
 };
 
 #include <ShaderNode/DataModels/SampleTexture.inl>

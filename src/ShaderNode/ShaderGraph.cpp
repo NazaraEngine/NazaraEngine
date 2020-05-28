@@ -5,6 +5,7 @@
 #include <ShaderNode/DataModels/InputValue.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
+#include <ShaderNode/DataModels/TextureValue.hpp>
 #include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <ShaderNode/DataModels/VecValue.hpp>
 #include <ShaderNode/Previews/QuadPreview.hpp>
@@ -46,22 +47,26 @@ m_flowScene(BuildRegistry())
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
-	auto& node1 = m_flowScene.createNode(std::make_unique<InputValue>(*this));
+	auto& node1 = m_flowScene.createNode(std::make_unique<TextureValue>(*this));
 	node1.nodeGraphicsObject().setPos(0, 200);
 
-	auto& node2 = m_flowScene.createNode(std::make_unique<SampleTexture>(*this));
-	node2.nodeGraphicsObject().setPos(200, 200);
+	auto& node2 = m_flowScene.createNode(std::make_unique<InputValue>(*this));
+	node2.nodeGraphicsObject().setPos(50, 350);
 
-	auto& node3 = m_flowScene.createNode(std::make_unique<Vec4Mul>(*this));
-	node3.nodeGraphicsObject().setPos(400, 200);
+	auto& node3 = m_flowScene.createNode(std::make_unique<SampleTexture>(*this));
+	node3.nodeGraphicsObject().setPos(200, 200);
 
-	auto& node4 = m_flowScene.createNode(std::make_unique<FragmentOutput>(*this));
-	node4.nodeGraphicsObject().setPos(600, 300);
+	auto& node4 = m_flowScene.createNode(std::make_unique<Vec4Mul>(*this));
+	node4.nodeGraphicsObject().setPos(400, 200);
 
-	m_flowScene.createConnection(node2, 0, node1, 0);
-	m_flowScene.createConnection(node3, 0, node2, 0);
+	auto& node5 = m_flowScene.createNode(std::make_unique<FragmentOutput>(*this));
+	node5.nodeGraphicsObject().setPos(600, 300);
+
+	m_flowScene.createConnection(node3, 0, node1, 0);
 	m_flowScene.createConnection(node3, 1, node2, 0);
 	m_flowScene.createConnection(node4, 0, node3, 0);
+	m_flowScene.createConnection(node4, 1, node3, 0);
+	m_flowScene.createConnection(node5, 0, node4, 0);
 }
 
 ShaderGraph::~ShaderGraph()
@@ -105,8 +110,6 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 	std::function<void(QtNodes::Node*)> DetectVariables;
 	DetectVariables = [&](QtNodes::Node* node)
 	{
-		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
-
 		auto it = usageCount.find(node->id());
 		if (it == usageCount.end())
 		{
@@ -226,6 +229,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<FragmentOutput>(*this, registry, "Outputs");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
+	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
 	RegisterShaderNode<Vec2Add>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec2Mul>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec2Sub>(*this, registry, "Vector operations");
