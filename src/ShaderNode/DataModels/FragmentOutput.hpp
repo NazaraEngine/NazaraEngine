@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_FRAGMENTOUTPUT_HPP
 
 #include <ShaderNode/DataModels/ShaderNode.hpp>
-#include <ShaderNode/DataModels/VecValue.hpp>
+#include <ShaderNode/DataTypes/VecData.hpp>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 

@@ -8,8 +8,7 @@
 #include <QtWidgets/QLabel>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
-#include <ShaderNode/DataModels/VecValue.hpp>
-#include <array>
+#include <ShaderNode/DataTypes/VecData.hpp>
 
 class SampleTexture : public ShaderNode
 {

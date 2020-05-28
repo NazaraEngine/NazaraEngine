@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_VECBINOP_HPP
 
 #include <ShaderNode/DataModels/ShaderNode.hpp>
-#include <ShaderNode/DataModels/VecValue.hpp>
+#include <ShaderNode/DataTypes/VecData.hpp>
 
 template<typename Data, Nz::ShaderAst::BinaryType BinOp>
 class VecBinOp : public ShaderNode
