@@ -8,7 +8,7 @@
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
-#include <ShaderNode/DataModels/VecData.hpp>
+#include <ShaderNode/DataTypes/VecData.hpp>
 #include <array>
 
 template<typename Data>

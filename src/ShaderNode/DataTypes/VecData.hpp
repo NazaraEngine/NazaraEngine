@@ -101,6 +101,6 @@ template<std::size_t N> using VecType = typename VecTypeHelper<N>::template Type
 
 constexpr std::array<char, 4> s_vectorComponents = { 'X', 'Y', 'Z', 'W' };
 
-#include <ShaderNode/DataModels/VecData.inl>
+#include <ShaderNode/DataTypes/VecData.inl>
 
 #endif

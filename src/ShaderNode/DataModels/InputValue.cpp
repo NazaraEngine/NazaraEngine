@@ -1,7 +1,8 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
-#include <ShaderNode/DataModels/VecValue.hpp>
+#include <ShaderNode/DataTypes/VecData.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <QtWidgets/QFormLayout>
 
 InputValue::InputValue(ShaderGraph& graph) :
 ShaderNode(graph)

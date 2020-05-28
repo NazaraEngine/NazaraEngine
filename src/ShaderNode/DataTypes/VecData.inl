@@ -1,4 +1,4 @@
-#include <ShaderNode/DataModels/VecData.hpp>
+#include <ShaderNode/DataTypes/VecData.hpp>
 
 inline VecData::VecData() :
 preview(64, 64, QImage::Format_RGBA8888)

@@ -1,5 +1,7 @@
 #include <ShaderNode/DataModels/Cast.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QFormLayout>
 #include <stdexcept>
 
 template<typename From, typename To>
