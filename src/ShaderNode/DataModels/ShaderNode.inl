@@ -24,3 +24,20 @@ inline void ShaderNode::SetPreviewSize(const Nz::Vector2i& size)
 		embeddedWidgetSizeUpdated();
 	}
 }
+
+inline void ShaderNode::SetVariableName(std::string variableName)
+{
+	m_variableName = std::move(variableName);
+}
+
+inline void ShaderNode::DisableCustomVariableName()
+{
+	return EnableCustomVariableName(false);
+}
+
+inline void ShaderNode::EnableCustomVariableName(bool enable)
+{
+	m_enableCustomVariableName = enable;
+	if (!m_enableCustomVariableName)
+		m_variableName.clear();
+}

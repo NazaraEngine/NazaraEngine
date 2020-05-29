@@ -22,6 +22,7 @@ ShaderNode(graph)
 		m_currentTextureText = firstInput.name;
 	}
 
+	DisableCustomVariableName();
 	EnablePreview(true);
 }
 
