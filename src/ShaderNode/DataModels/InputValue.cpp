@@ -21,6 +21,7 @@ ShaderNode(graph)
 		m_currentInputText = firstInput.name;
 	}
 
+	DisableCustomVariableName();
 	UpdatePreview();
 }
 

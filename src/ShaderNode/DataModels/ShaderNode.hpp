@@ -27,13 +27,16 @@ class ShaderNode : public QtNodes::NodeDataModel
 		inline const ShaderGraph& GetGraph() const;
 		inline const std::string& GetVariableName() const;
 
-		void SetPreviewSize(const Nz::Vector2i& size);
+		inline void SetPreviewSize(const Nz::Vector2i& size);
+		inline void SetVariableName(std::string variableName);
 
 		QWidget* embeddedWidget() final;
 
 		void setInData(std::shared_ptr<QtNodes::NodeData>, int) override;
 
 	protected:
+		inline void DisableCustomVariableName();
+		inline void EnableCustomVariableName(bool enable = true);
 		void UpdatePreview();
 
 	private:
@@ -44,7 +47,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 		std::optional<QPixmap> m_pixmap;
 		std::string m_variableName;
 		ShaderGraph& m_graph;
-		bool m_forceVariable;
+		bool m_enableCustomVariableName;
 		bool m_isPreviewEnabled;
 };
 

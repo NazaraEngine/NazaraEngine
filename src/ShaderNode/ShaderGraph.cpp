@@ -16,6 +16,7 @@
 #include <nodes/FlowScene>
 #include <nodes/FlowView>
 #include <nodes/DataModelRegistry>
+#include <unordered_set>
 
 namespace
 {
@@ -105,8 +106,6 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 	std::vector<Nz::ShaderAst::StatementPtr> statements;
 	QHash<QUuid, unsigned int> usageCount;
 
-	unsigned int varCount = 0;
-
 	std::function<void(QtNodes::Node*)> DetectVariables;
 	DetectVariables = [&](QtNodes::Node* node)
 	{
@@ -134,6 +133,9 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 	});
 
 	QHash<QUuid, Nz::ShaderAst::ExpressionPtr> variableExpressions;
+
+	unsigned int varCount = 0;
+	std::unordered_set<std::string> usedVariableNames;
 
 	std::function<Nz::ShaderAst::ExpressionPtr(QtNodes::Node*)> HandleNode;
 	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderAst::ExpressionPtr
@@ -163,12 +165,24 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 
 		auto expression = shaderNode->GetExpression(expressions.data(), expressions.size());
 
-		if (*it > 1)
+		const std::string& variableName = shaderNode->GetVariableName();
+		if (*it > 1 || !variableName.empty())
 		{
 			Nz::ShaderAst::ExpressionPtr varExpression;
 			if (expression->GetExpressionCategory() == Nz::ShaderAst::ExpressionCategory::RValue)
 			{
-				auto variable = Nz::ShaderBuilder::Variable("var" + std::to_string(varCount++), expression->GetExpressionType());
+				std::string name;
+				if (variableName.empty())
+					name = "var" + std::to_string(varCount++);
+				else
+					name = variableName;
+
+				if (usedVariableNames.find(name) != usedVariableNames.end())
+					throw std::runtime_error("duplicate variable found: " + name);
+
+				usedVariableNames.insert(name);
+
+				auto variable = Nz::ShaderBuilder::Variable(std::move(name), expression->GetExpressionType());
 				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, expression));
 
 				varExpression = variable;

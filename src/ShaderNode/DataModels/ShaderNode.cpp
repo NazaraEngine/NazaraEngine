@@ -3,12 +3,13 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 
 ShaderNode::ShaderNode(ShaderGraph& graph) :
 m_previewSize(64, 64),
 m_pixmapLabel(nullptr),
 m_graph(graph),
-m_forceVariable(false),
+m_enableCustomVariableName(true),
 m_isPreviewEnabled(false)
 {
 	m_pixmapLabel = new QLabel;
@@ -51,6 +52,16 @@ void ShaderNode::BuildNodeEdition(QFormLayout* layout)
 	});
 
 	layout->addRow(tr("Preview size"), previewSize);
+
+	if (m_enableCustomVariableName)
+	{
+		QLineEdit* lineEdit = new QLineEdit(QString::fromStdString(m_variableName));
+		connect(lineEdit, &QLineEdit::textChanged, [&](const QString& text)
+		{
+			SetVariableName(text.toStdString());
+		});
+		layout->addRow(tr("Variable name"), lineEdit);
+	}
 }
 
 void ShaderNode::EnablePreview(bool enable)
