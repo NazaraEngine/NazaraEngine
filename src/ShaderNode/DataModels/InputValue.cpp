@@ -101,11 +101,11 @@ Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::Expression
 	{
 		switch (inputEntry.type)
 		{
-			case InputType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
-			case InputType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
-			case InputType::Float2: return Nz::ShaderAst::ExpressionType::Float2;
-			case InputType::Float3: return Nz::ShaderAst::ExpressionType::Float3;
-			case InputType::Float4: return Nz::ShaderAst::ExpressionType::Float4;
+			case InOutType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
+			case InOutType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
+			case InOutType::Float2: return Nz::ShaderAst::ExpressionType::Float2;
+			case InOutType::Float3: return Nz::ShaderAst::ExpressionType::Float3;
+			case InOutType::Float4: return Nz::ShaderAst::ExpressionType::Float4;
 		}
 
 		assert(false);
@@ -117,20 +117,20 @@ Nz::ShaderAst::ExpressionPtr InputValue::GetExpression(Nz::ShaderAst::Expression
 
 auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
 {
-	if (!m_currentInputIndex)
-		return Vec4Data::Type();
-
 	assert(portType == QtNodes::PortType::Out);
 	assert(portIndex == 0);
+
+	if (!m_currentInputIndex)
+		return Vec4Data::Type();
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
 	switch (inputEntry.type)
 	{
 		//case InputType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
 		//case InputType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
-		case InputType::Float2: return Vec2Data::Type();
-		case InputType::Float3: return Vec3Data::Type();
-		case InputType::Float4: return Vec4Data::Type();
+		case InOutType::Float2: return Vec2Data::Type();
+		case InOutType::Float3: return Vec3Data::Type();
+		case InOutType::Float4: return Vec4Data::Type();
 	}
 
 	assert(false);

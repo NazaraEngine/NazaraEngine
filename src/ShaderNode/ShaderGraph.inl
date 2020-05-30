@@ -16,6 +16,22 @@ inline auto ShaderGraph::GetInputs() const -> const std::vector<InputEntry>&
 	return m_inputs;
 }
 
+inline auto ShaderGraph::GetOutput(std::size_t outputIndex) const -> const OutputEntry&
+{
+	assert(outputIndex < m_outputs.size());
+	return m_outputs[outputIndex];
+}
+
+inline std::size_t ShaderGraph::GetOutputCount() const
+{
+	return m_outputs.size();
+}
+
+inline auto ShaderGraph::GetOutputs() const -> const std::vector<OutputEntry>&
+{
+	return m_outputs;
+}
+
 inline const PreviewModel& ShaderGraph::GetPreviewModel() const
 {
 	return *m_previewModel;

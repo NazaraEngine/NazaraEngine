@@ -1,8 +1,8 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
-#include <ShaderNode/DataModels/FragmentOutput.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
+#include <ShaderNode/DataModels/OutputValue.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataModels/TextureValue.hpp>
@@ -43,7 +43,8 @@ m_flowScene(BuildRegistry())
 	});
 
 	// Test
-	AddInput("UV", InputType::Float2, InputRole::TexCoord, 0);
+	AddInput("UV", InOutType::Float2, InputRole::TexCoord, 0);
+	AddOutput("RenderTarget0", InOutType::Float4);
 	AddTexture("Potato", TextureType::Sampler2D);
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
@@ -60,7 +61,7 @@ m_flowScene(BuildRegistry())
 	auto& node4 = m_flowScene.createNode(std::make_unique<Vec4Mul>(*this));
 	node4.nodeGraphicsObject().setPos(400, 200);
 
-	auto& node5 = m_flowScene.createNode(std::make_unique<FragmentOutput>(*this));
+	auto& node5 = m_flowScene.createNode(std::make_unique<OutputValue>(*this));
 	node5.nodeGraphicsObject().setPos(600, 300);
 
 	m_flowScene.createConnection(node3, 0, node1, 0);
@@ -75,7 +76,7 @@ ShaderGraph::~ShaderGraph()
 	m_flowScene.clearScene();
 }
 
-std::size_t ShaderGraph::AddInput(std::string name, InputType type, InputRole role, std::size_t roleIndex)
+std::size_t ShaderGraph::AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex)
 {
 	std::size_t index = m_inputs.size();
 	auto& inputEntry = m_inputs.emplace_back();
@@ -85,6 +86,18 @@ std::size_t ShaderGraph::AddInput(std::string name, InputType type, InputRole ro
 	inputEntry.type = type;
 
 	OnInputListUpdate(this);
+
+	return index;
+}
+
+std::size_t ShaderGraph::AddOutput(std::string name, InOutType type)
+{
+	std::size_t index = m_outputs.size();
+	auto& outputEntry = m_outputs.emplace_back();
+	outputEntry.name = std::move(name);
+	outputEntry.type = type;
+
+	OnOutputListUpdate(this);
 
 	return index;
 }
@@ -198,18 +211,26 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 			return expression;
 	};
 
-	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+	try
 	{
-		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
+		m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
 		{
-			statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
-		}
-	});
+			if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
+			{
+				statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
+			}
+		});
+	}
+	catch (const std::exception&)
+	{
+
+		return nullptr;
+	}
 
 	return std::make_shared<Nz::ShaderAst::StatementBlock>(std::move(statements));
 }
 
-void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InputType type, InputRole role, std::size_t roleIndex)
+void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex)
 {
 	assert(inputIndex < m_inputs.size());
 	auto& inputEntry = m_inputs[inputIndex];
@@ -219,6 +240,16 @@ void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InputTyp
 	inputEntry.type = type;
 
 	OnInputUpdate(this, inputIndex);
+}
+
+void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, InOutType type)
+{
+	assert(outputIndex < m_outputs.size());
+	auto& outputEntry = m_outputs[outputIndex];
+	outputEntry.name = std::move(name);
+	outputEntry.type = type;
+
+	OnOutputUpdate(this, outputIndex);
 }
 
 void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
@@ -240,8 +271,8 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<CastVec3ToVec4>(*this, registry, "Casts");
 	RegisterShaderNode<CastVec4ToVec2>(*this, registry, "Casts");
 	RegisterShaderNode<CastVec4ToVec3>(*this, registry, "Casts");
-	RegisterShaderNode<FragmentOutput>(*this, registry, "Outputs");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
+	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
 	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
 	RegisterShaderNode<Vec2Add>(*this, registry, "Vector operations");

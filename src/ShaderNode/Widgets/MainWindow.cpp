@@ -2,6 +2,7 @@
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
+#include <ShaderNode/Widgets/OutputEditor.hpp>
 #include <ShaderNode/Widgets/NodeEditor.hpp>
 #include <ShaderNode/Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
@@ -20,6 +21,7 @@ m_shaderGraph(graph)
 	QtNodes::FlowView* flowView = new QtNodes::FlowView(scene);
 	setCentralWidget(flowView);
 
+	// Input editor
 	InputEditor* inputEditor = new InputEditor(m_shaderGraph);
 
 	QDockWidget* inputDock = new QDockWidget(tr("Inputs"));
@@ -28,6 +30,16 @@ m_shaderGraph(graph)
 
 	addDockWidget(Qt::LeftDockWidgetArea, inputDock);
 
+	// Output editor
+	OutputEditor* outputEditor = new OutputEditor(m_shaderGraph);
+
+	QDockWidget* outputDock = new QDockWidget(tr("Outputs"));
+	outputDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	outputDock->setWidget(outputEditor);
+
+	addDockWidget(Qt::LeftDockWidgetArea, outputDock);
+
+	// Texture editor
 	TextureEditor* textureEditor = new TextureEditor(m_shaderGraph);
 
 	QDockWidget* textureDock = new QDockWidget(tr("Textures"));
@@ -36,6 +48,7 @@ m_shaderGraph(graph)
 
 	addDockWidget(Qt::LeftDockWidgetArea, textureDock);
 
+	// Node editor
 	m_nodeEditor = new NodeEditor;
 
 	QDockWidget* nodeEditorDock = new QDockWidget(tr("Node editor"));

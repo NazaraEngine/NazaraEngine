@@ -1,5 +1,10 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 
+inline void ShaderNode::DisablePreview()
+{
+	return EnablePreview(false);
+}
+
 inline ShaderGraph& ShaderNode::GetGraph()
 {
 	return m_graph;

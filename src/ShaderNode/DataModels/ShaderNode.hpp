@@ -20,7 +20,8 @@ class ShaderNode : public QtNodes::NodeDataModel
 
 		virtual void BuildNodeEdition(QFormLayout* layout);
 
-		void EnablePreview(bool enable);
+		inline void DisablePreview();
+		void EnablePreview(bool enable = true);
 
 		virtual Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const = 0;
 		inline ShaderGraph& GetGraph();
