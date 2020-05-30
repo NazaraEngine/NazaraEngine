@@ -16,8 +16,8 @@ QDialog(parent)
 	m_inputName = new QLineEdit;
 
 	m_typeList = new QComboBox;
-	for (std::size_t i = 0; i < InputTypeCount; ++i)
-		m_typeList->addItem(EnumToString(static_cast<InputType>(i)));
+	for (std::size_t i = 0; i < InOutTypeCount; ++i)
+		m_typeList->addItem(EnumToString(static_cast<InOutType>(i)));
 
 	m_roleList = new QComboBox;
 	for (std::size_t i = 0; i < InputRoleCount; ++i)
@@ -57,7 +57,7 @@ InputInfo InputEditDialog::GetInputInfo() const
 	inputInfo.name = m_inputName->text().toStdString();
 	inputInfo.role = static_cast<InputRole>(m_roleList->currentIndex());
 	inputInfo.roleIndex = static_cast<std::size_t>(m_roleIndex->value());
-	inputInfo.type = static_cast<InputType>(m_typeList->currentIndex());
+	inputInfo.type = static_cast<InOutType>(m_typeList->currentIndex());
 
 	return inputInfo;
 }

@@ -17,17 +17,22 @@ class ShaderGraph
 {
 	public:
 		struct InputEntry;
+		struct OutputEntry;
 		struct TextureEntry;
 
 		ShaderGraph();
 		~ShaderGraph();
 
-		std::size_t AddInput(std::string name, InputType type, InputRole role, std::size_t roleIndex);
+		std::size_t AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex);
+		std::size_t AddOutput(std::string name, InOutType type);
 		std::size_t AddTexture(std::string name, TextureType type);
 
 		inline const InputEntry& GetInput(std::size_t inputIndex) const;
 		inline std::size_t GetInputCount() const;
 		inline const std::vector<InputEntry>& GetInputs() const;
+		inline const OutputEntry& GetOutput(std::size_t outputIndex) const;
+		inline std::size_t GetOutputCount() const;
+		inline const std::vector<OutputEntry>& GetOutputs() const;
 		inline const PreviewModel& GetPreviewModel() const;
 		inline QtNodes::FlowScene& GetScene();
 		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
@@ -36,7 +41,8 @@ class ShaderGraph
 
 		Nz::ShaderAst::StatementPtr ToAst();
 
-		void UpdateInput(std::size_t inputIndex, std::string name, InputType type, InputRole role, std::size_t roleIndex);
+		void UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex);
+		void UpdateOutput(std::size_t outputIndex, std::string name, InOutType type);
 		void UpdateTexturePreview(std::size_t texture, QImage preview);
 
 		struct InputEntry
@@ -44,7 +50,13 @@ class ShaderGraph
 			std::size_t roleIndex;
 			std::string name;
 			InputRole role;
-			InputType type;
+			InOutType type;
+		};
+
+		struct OutputEntry
+		{
+			std::string name;
+			InOutType type;
 		};
 
 		struct TextureEntry
@@ -56,6 +68,8 @@ class ShaderGraph
 
 		NazaraSignal(OnInputListUpdate, ShaderGraph*);
 		NazaraSignal(OnInputUpdate, ShaderGraph*, std::size_t /*inputIndex*/);
+		NazaraSignal(OnOutputListUpdate, ShaderGraph*);
+		NazaraSignal(OnOutputUpdate, ShaderGraph*, std::size_t /*outputIndex*/);
 		NazaraSignal(OnSelectedNodeUpdate, ShaderGraph*, ShaderNode* /*node*/);
 		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
@@ -65,6 +79,7 @@ class ShaderGraph
 
 		QtNodes::FlowScene m_flowScene;
 		std::vector<InputEntry> m_inputs;
+		std::vector<OutputEntry> m_outputs;
 		std::vector<TextureEntry> m_textures;
 		std::unique_ptr<PreviewModel> m_previewModel;
 };

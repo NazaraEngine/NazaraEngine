@@ -15,15 +15,15 @@ const char* EnumToString(InputRole role)
 	return "<Unhandled>";
 }
 
-const char* EnumToString(InputType input)
+const char* EnumToString(InOutType input)
 {
 	switch (input)
 	{
-		case InputType::Bool:  return "Bool";
-		case InputType::Float1: return "Float";
-		case InputType::Float2: return "Float2";
-		case InputType::Float3: return "Float3";
-		case InputType::Float4: return "Float4";
+		case InOutType::Bool:   return "Bool";
+		case InOutType::Float1: return "Float";
+		case InOutType::Float2: return "Float2";
+		case InOutType::Float3: return "Float3";
+		case InOutType::Float4: return "Float4";
 	}
 
 	assert(false);

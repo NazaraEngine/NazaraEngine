@@ -17,7 +17,7 @@ enum class InputRole
 
 constexpr std::size_t InputRoleCount = static_cast<std::size_t>(InputRole::Max) + 1;
 
-enum class InputType
+enum class InOutType
 {
 	Bool,
 	Float1,
@@ -28,7 +28,7 @@ enum class InputType
 	Max = Float4
 };
 
-constexpr std::size_t InputTypeCount = static_cast<std::size_t>(InputType::Max) + 1;
+constexpr std::size_t InOutTypeCount = static_cast<std::size_t>(InOutType::Max) + 1;
 
 enum class TextureType
 {
@@ -40,7 +40,7 @@ enum class TextureType
 constexpr std::size_t TextureTypeCount = static_cast<std::size_t>(TextureType::Max) + 1;
 
 const char* EnumToString(InputRole role);
-const char* EnumToString(InputType input);
+const char* EnumToString(InOutType input);
 const char* EnumToString(TextureType textureType);
 
 #include <ShaderNode/Enums.inl>
