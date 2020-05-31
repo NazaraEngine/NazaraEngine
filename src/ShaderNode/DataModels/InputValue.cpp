@@ -121,16 +121,17 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 	assert(portIndex == 0);
 
 	if (!m_currentInputIndex)
-		return Vec4Data::Type();
+		return VecData::Type();
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
 	switch (inputEntry.type)
 	{
 		//case InputType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
 		//case InputType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
-		case InOutType::Float2: return Vec2Data::Type();
-		case InOutType::Float3: return Vec3Data::Type();
-		case InOutType::Float4: return Vec4Data::Type();
+		case InOutType::Float2:
+		case InOutType::Float3:
+		case InOutType::Float4:
+			return VecData::Type();
 	}
 
 	assert(false);
@@ -148,8 +149,24 @@ std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 	const auto& inputEntry = graph.GetInput(*m_currentInputIndex);
 	const auto& preview = graph.GetPreviewModel();
 
-	auto vecData = std::make_shared<Vec2Data>();
+	auto vecData = std::make_shared<VecData>(GetComponentCount(inputEntry.type));
 	vecData->preview = preview.GetImage(inputEntry.role, inputEntry.roleIndex);
 
 	return vecData;
+}
+
+QtNodes::NodeValidationState InputValue::validationState() const
+{
+	if (!m_currentInputIndex)
+		return QtNodes::NodeValidationState::Error;
+
+	return QtNodes::NodeValidationState::Valid;
+}
+
+QString InputValue::validationMessage() const
+{
+	if (!m_currentInputIndex)
+		return "No input selected";
+
+	return QString();
 }

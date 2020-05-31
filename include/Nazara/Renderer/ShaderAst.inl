@@ -169,19 +169,16 @@ namespace Nz
 		exprType(castTo),
 		expressions({ {first, second, third, fourth} })
 		{
-			unsigned int componentCount = 0;
-			unsigned int requiredComponents = GetComponentCount(exprType);
-			for (const auto& exprPtr : expressions)
-			{
-				if (!exprPtr)
-					break;
+			Validate();
+		}
 
-				componentCount += GetComponentCount(exprPtr->GetExpressionType());
-			}
+		inline Cast::Cast(ExpressionType castTo, ExpressionPtr* Expressions, std::size_t expressionCount) :
+		exprType(castTo)
+		{
+			for (std::size_t i = 0; i < expressionCount; ++i)
+				expressions[i] = Expressions[i];
 
-			//TODO: AstParseError
-			if (componentCount != requiredComponents)
-				throw std::runtime_error("Component count doesn't match required component count");
+			Validate();
 		}
 
 		inline Constant::Constant(bool value) :

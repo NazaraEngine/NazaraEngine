@@ -11,7 +11,7 @@
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <array>
 
-template<typename Data>
+template<std::size_t ComponentCount>
 class VecValue : public ShaderNode
 {
 	public:
@@ -34,16 +34,14 @@ class VecValue : public ShaderNode
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
 
-		static constexpr std::size_t ComponentCount = Data::ComponentCount;
-
 		QColor ToColor() const;
 
 		VecType<ComponentCount> m_value;
 };
 
-using Vec2Value = VecValue<Vec2Data>;
-using Vec3Value = VecValue<Vec3Data>;
-using Vec4Value = VecValue<Vec4Data>;
+using Vec2Value = VecValue<2>;
+using Vec3Value = VecValue<3>;
+using Vec4Value = VecValue<4>;
 
 #include <ShaderNode/DataModels/VecValue.inl>
 

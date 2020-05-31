@@ -4,21 +4,32 @@
 #include <QtWidgets/QFormLayout>
 #include <stdexcept>
 
-template<typename From, typename To>
-CastVec<From, To>::CastVec(ShaderGraph& graph) :
+template<std::size_t ToComponentCount>
+CastVec<ToComponentCount>::CastVec(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	static_assert(ComponentDiff <= s_vectorComponents.size());
+	static_assert(ToComponentCount <= s_vectorComponents.size());
+
+	m_overflowComponents.fill(0.f);
+
+	m_output = std::make_shared<VecData>(ToComponentCount);
 }
 
-template<typename From, typename To>
-void CastVec<From, To>::BuildNodeEdition(QFormLayout* layout)
+template<std::size_t ToComponentCount>
+void CastVec<ToComponentCount>::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	if constexpr (ComponentDiff > 0)
+	if (!m_input)
+		return;
+
+	std::size_t fromComponentCount = m_input->componentCount;
+
+	if (ToComponentCount > fromComponentCount)
 	{
-		for (std::size_t i = 0; i < ComponentDiff; ++i)
+		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
+
+		for (std::size_t i = 0; i < overflowComponentCount; ++i)
 		{
 			QDoubleSpinBox* spinbox = new QDoubleSpinBox;
 			spinbox->setDecimals(6);
@@ -30,31 +41,36 @@ void CastVec<From, To>::BuildNodeEdition(QFormLayout* layout)
 				UpdateOutput();
 			});
 
-			layout->addRow(QString::fromUtf8(&s_vectorComponents[FromComponents + i], 1), spinbox);
+			layout->addRow(QString::fromUtf8(&s_vectorComponents[fromComponentCount + i], 1), spinbox);
 		}
 	}
 }
 
-template<typename From, typename To>
-Nz::ShaderAst::ExpressionPtr CastVec<From, To>::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+template<std::size_t ToComponentCount>
+Nz::ShaderAst::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
 {
+	assert(m_input);
 	assert(count == 1);
 
-	if constexpr (ComponentDiff > 0)
-	{
-		std::array<Nz::ShaderAst::ExpressionPtr, ComponentDiff> constants;
-		for (std::size_t i = 0; i < ComponentDiff; ++i)
-			constants[i] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
+	std::size_t fromComponentCount = m_input->componentCount;
 
-		return std::apply([&](auto&&... values)
-		{
-			return Nz::ShaderBuilder::Cast<To::ExpressionType>(expressions[0], values...); //< TODO: Forward
-		}, constants);
-	}
-	else
+	if (ToComponentCount > fromComponentCount)
 	{
-		std::array<Nz::ShaderAst::SwizzleComponent, ToComponents> swizzleComponents;
-		for (std::size_t i = 0; i < ToComponents; ++i)
+		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
+
+		std::array<Nz::ShaderAst::ExpressionPtr, 4> expr;
+		expr[0] = expressions[0];
+		for (std::size_t i = 0; i < overflowComponentCount; ++i)
+			expr[i + 1] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
+
+		constexpr auto ExpressionType = VecExpressionType<ToComponentCount>;
+
+		return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), overflowComponentCount);
+	}
+	else if (ToComponentCount < fromComponentCount)
+	{
+		std::array<Nz::ShaderAst::SwizzleComponent, ToComponentCount> swizzleComponents;
+		for (std::size_t i = 0; i < ToComponentCount; ++i)
 			swizzleComponents[i] = static_cast<Nz::ShaderAst::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderAst::SwizzleComponent::First) + i);
 
 		return std::apply([&](auto... components)
@@ -63,39 +79,41 @@ Nz::ShaderAst::ExpressionPtr CastVec<From, To>::GetExpression(Nz::ShaderAst::Exp
 			return Nz::ShaderBuilder::Swizzle(expressions[0], componentList);
 		}, swizzleComponents);
 	}
+	else
+		return expressions[0]; //< no-op
 }
 
-template<typename From, typename To>
-QString CastVec<From, To>::caption() const
+template<std::size_t ToComponentCount>
+QString CastVec<ToComponentCount>::caption() const
 {
-	static QString caption = From::Type().name + " to " + To::Type().name;
+	static QString caption = "To Vector" + QString::number(ToComponentCount);
 	return caption;
 }
 
-template<typename From, typename To>
-QString CastVec<From, To>::name() const
+template<std::size_t ToComponentCount>
+QString CastVec<ToComponentCount>::name() const
 {
-	static QString name = From::Type().id + "to" + To::Type().id;
+	static QString name = "cast_vec" + QString::number(ToComponentCount);
 	return name;
 }
 
-template<typename From, typename To>
-QtNodes::NodeDataType CastVec<From, To>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+template<std::size_t ToComponentCount>
+QtNodes::NodeDataType CastVec<ToComponentCount>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0);
 
 	switch (portType)
 	{
-		case QtNodes::PortType::In:  return From::Type();
-		case QtNodes::PortType::Out: return To::Type();
+		case QtNodes::PortType::In:  return VecData::Type();
+		case QtNodes::PortType::Out: return VecData::Type();
 	}
 
 	assert(false);
 	throw std::runtime_error("Invalid port type");
 }
 
-template<typename From, typename To>
-unsigned int CastVec<From, To>::nPorts(QtNodes::PortType portType) const
+template<std::size_t ToComponentCount>
+unsigned int CastVec<ToComponentCount>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
@@ -106,8 +124,8 @@ unsigned int CastVec<From, To>::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-template<typename From, typename To>
-std::shared_ptr<QtNodes::NodeData> CastVec<From, To>::outData(QtNodes::PortIndex port)
+template<std::size_t ToComponentCount>
+std::shared_ptr<QtNodes::NodeData> CastVec<ToComponentCount>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 
@@ -117,14 +135,14 @@ std::shared_ptr<QtNodes::NodeData> CastVec<From, To>::outData(QtNodes::PortIndex
 	return m_output;
 }
 
-template<typename From, typename To>
-void CastVec<From, To>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
+template<std::size_t ToComponentCount>
+void CastVec<ToComponentCount>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0);
 	if (value)
 	{
-		assert(dynamic_cast<From*>(value.get()) != nullptr);
-		m_input = std::static_pointer_cast<From>(value);
+		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
+		m_input = std::static_pointer_cast<VecData>(value);
 	}
 	else
 		m_input.reset();
@@ -132,8 +150,26 @@ void CastVec<From, To>::setInData(std::shared_ptr<QtNodes::NodeData> value, int 
 	UpdateOutput();
 }
 
-template<typename From, typename To>
-bool CastVec<From, To>::ComputePreview(QPixmap& pixmap)
+template<std::size_t ToComponentCount>
+QtNodes::NodeValidationState CastVec<ToComponentCount>::validationState() const
+{
+	if (!m_input)
+		return QtNodes::NodeValidationState::Error;
+
+	return QtNodes::NodeValidationState::Valid;
+}
+
+template<std::size_t ToComponentCount>
+QString CastVec<ToComponentCount>::validationMessage() const
+{
+	if (!m_input)
+		return "Missing input";
+
+	return QString();
+}
+
+template<std::size_t ToComponentCount>
+bool CastVec<ToComponentCount>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_input)
 		return false;
@@ -142,8 +178,8 @@ bool CastVec<From, To>::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-template<typename From, typename To>
-void CastVec<From, To>::UpdateOutput()
+template<std::size_t ToComponentCount>
+void CastVec<ToComponentCount>::UpdateOutput()
 {
 	if (!m_input)
 	{
@@ -160,10 +196,15 @@ void CastVec<From, To>::UpdateOutput()
 	QImage& output = m_output->preview;
 	output = QImage(inputWidth, inputHeight, QImage::Format_RGBA8888);
 
-	std::array<std::uint8_t, ComponentDiff> constants;
-	if constexpr (ComponentDiff > 0)
+	std::size_t fromComponentCount = m_input->componentCount;
+	std::size_t commonComponents = std::min(fromComponentCount, ToComponentCount);
+	std::size_t overflowComponentCount = (ToComponentCount > fromComponentCount) ? ToComponentCount - fromComponentCount : 0;
+	std::size_t voidComponents = 4 - overflowComponentCount - commonComponents;
+
+	std::array<std::uint8_t, 4> constants;
+	if (ToComponentCount > fromComponentCount)
 	{
-		for (std::size_t i = 0; i < ComponentDiff; ++i)
+		for (std::size_t i = 0; i < overflowComponentCount; ++i)
 			constants[i] = static_cast<std::uint8_t>(std::clamp(int(m_overflowComponents[i] * 255), 0, 255));
 	}
 
@@ -173,17 +214,14 @@ void CastVec<From, To>::UpdateOutput()
 	{
 		for (int x = 0; x < inputWidth; ++x)
 		{
-			constexpr std::size_t CommonComponents = std::min(FromComponents, ToComponents);
-			constexpr std::size_t VoidComponents = 4 - ComponentDiff - CommonComponents;
-
-			for (std::size_t i = 0; i < CommonComponents; ++i)
+			for (std::size_t i = 0; i < commonComponents; ++i)
 				*outputPtr++ = inputPtr[i];
 
-			for (std::size_t i = 0; i < ComponentDiff; ++i)
+			for (std::size_t i = 0; i < overflowComponentCount; ++i)
 				*outputPtr++ = constants[i];
 
-			for (std::size_t i = 0; i < VoidComponents; ++i)
-				*outputPtr++ = (i == VoidComponents - 1) ? 255 : 0;
+			for (std::size_t i = 0; i < voidComponents; ++i)
+				*outputPtr++ = (i == voidComponents - 1) ? 255 : 0;
 
 			inputPtr += 4;
 		}

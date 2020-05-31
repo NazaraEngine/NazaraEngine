@@ -39,6 +39,8 @@ enum class TextureType
 
 constexpr std::size_t TextureTypeCount = static_cast<std::size_t>(TextureType::Max) + 1;
 
+
+std::size_t GetComponentCount(InOutType type);
 const char* EnumToString(InputRole role);
 const char* EnumToString(InOutType input);
 const char* EnumToString(TextureType textureType);

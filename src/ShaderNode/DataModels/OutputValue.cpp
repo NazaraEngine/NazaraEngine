@@ -87,16 +87,17 @@ QtNodes::NodeDataType OutputValue::dataType(QtNodes::PortType portType, QtNodes:
 	assert(portIndex == 0);
 
 	if (!m_currentOutputIndex)
-		return Vec4Data::Type();
+		return VecData::Type();
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
 	switch (outputEntry.type)
 	{
 		//case InOutType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
 		//case InOutType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
-		case InOutType::Float2: return Vec2Data::Type();
-		case InOutType::Float3: return Vec3Data::Type();
-		case InOutType::Float4: return Vec4Data::Type();
+		case InOutType::Float2:
+		case InOutType::Float3:
+		case InOutType::Float4:
+			return VecData::Type();
 	}
 
 	assert(false);
@@ -124,13 +125,42 @@ void OutputValue::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	assert(index == 0);
 	if (value)
 	{
-		assert(dynamic_cast<Vec4Data*>(value.get()) != nullptr);
-		m_input = std::static_pointer_cast<Vec4Data>(value);
+		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
+		m_input = std::static_pointer_cast<VecData>(value);
 	}
 	else
 		m_input.reset();
 
 	UpdatePreview();
+}
+
+QtNodes::NodeValidationState OutputValue::validationState() const
+{
+	if (!m_currentOutputIndex || !m_input)
+		return QtNodes::NodeValidationState::Error;
+
+	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
+	if (GetComponentCount(outputEntry.type) != m_input->componentCount)
+		return QtNodes::NodeValidationState::Error;
+
+	return QtNodes::NodeValidationState::Valid;
+}
+
+QString OutputValue::validationMessage() const
+{
+	if (!m_currentOutputIndex)
+		return "No output selected";
+
+	if (!m_input)
+		return "Missing input";
+
+	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
+	std::size_t outputComponentCount = GetComponentCount(outputEntry.type);
+
+	if (m_input->componentCount != outputComponentCount)
+		return "Incompatible component count (expected " + QString::number(outputComponentCount) + ", got " + QString::number(m_input->componentCount) + ")";
+
+	return QString();
 }
 
 bool OutputValue::ComputePreview(QPixmap& pixmap)

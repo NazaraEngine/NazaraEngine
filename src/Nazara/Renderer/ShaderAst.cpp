@@ -200,6 +200,23 @@ namespace Nz::ShaderAst
 		visitor.Write(*this);
 	}
 
+	void Cast::Validate() const
+	{
+		unsigned int componentCount = 0;
+		unsigned int requiredComponents = GetComponentCount(exprType);
+		for (const auto& exprPtr : expressions)
+		{
+			if (!exprPtr)
+				break;
+
+			componentCount += GetComponentCount(exprPtr->GetExpressionType());
+		}
+
+		//TODO: AstParseError
+		if (componentCount != requiredComponents)
+			throw std::runtime_error("Component count doesn't match required component count");
+	}
+
 
 	ExpressionCategory SwizzleOp::GetExpressionCategory() const
 	{

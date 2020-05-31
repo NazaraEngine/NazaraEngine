@@ -29,6 +29,9 @@ class OutputValue : public ShaderNode
 
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
+		QtNodes::NodeValidationState validationState() const override;
+		QString validationMessage() const override;
+
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnOutputListUpdate();

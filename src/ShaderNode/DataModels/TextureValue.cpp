@@ -92,7 +92,7 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 Nz::ShaderAst::ExpressionPtr TextureValue::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	if (!m_currentTextureIndex)
-		throw std::runtime_error("invalid inputs");
+		throw std::runtime_error("invalid texture input");
 
 	assert(count == 0);
 
@@ -117,7 +117,7 @@ auto TextureValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portI
 	assert(portType == QtNodes::PortType::Out);
 	assert(portIndex == 0);
 
-	return Vec4Data::Type();
+	return VecData::Type();
 }
 
 std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port)
@@ -144,4 +144,20 @@ std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port
 	textureData->preview = textureEntry.preview;
 
 	return textureData;
+}
+
+QtNodes::NodeValidationState TextureValue::validationState() const
+{
+	if (!m_currentTextureIndex)
+		return QtNodes::NodeValidationState::Error;
+
+	return QtNodes::NodeValidationState::Valid;
+}
+
+QString TextureValue::validationMessage() const
+{
+	if (!m_currentTextureIndex)
+		return "No texture selected";
+
+	return QString();
 }

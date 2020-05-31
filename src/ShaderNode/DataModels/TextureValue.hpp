@@ -29,6 +29,9 @@ class TextureValue : public ShaderNode
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
+		QtNodes::NodeValidationState validationState() const override;
+		QString validationMessage() const override;
+
 	protected:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnTextureListUpdate();

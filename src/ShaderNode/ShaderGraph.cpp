@@ -58,7 +58,7 @@ m_flowScene(BuildRegistry())
 	auto& node3 = m_flowScene.createNode(std::make_unique<SampleTexture>(*this));
 	node3.nodeGraphicsObject().setPos(200, 200);
 
-	auto& node4 = m_flowScene.createNode(std::make_unique<Vec4Mul>(*this));
+	auto& node4 = m_flowScene.createNode(std::make_unique<VecMul>(*this));
 	node4.nodeGraphicsObject().setPos(400, 200);
 
 	auto& node5 = m_flowScene.createNode(std::make_unique<OutputValue>(*this));
@@ -154,6 +154,8 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderAst::ExpressionPtr
 	{
 		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
+		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
+			throw std::runtime_error(shaderNode->validationMessage().toStdString());
 
 		qDebug() << shaderNode->name() << node->id();
 		if (auto it = variableExpressions.find(node->id()); it != variableExpressions.end())
@@ -211,21 +213,13 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 			return expression;
 	};
 
-	try
+	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
 	{
-		m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
 		{
-			if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
-			{
-				statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
-			}
-		});
-	}
-	catch (const std::exception&)
-	{
-
-		return nullptr;
-	}
+			statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
+		}
+	});
 
 	return std::make_shared<Nz::ShaderAst::StatementBlock>(std::move(statements));
 }
@@ -265,25 +259,16 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 {
 	auto registry = std::make_shared<QtNodes::DataModelRegistry>();
-	RegisterShaderNode<CastVec2ToVec3>(*this, registry, "Casts");
-	RegisterShaderNode<CastVec2ToVec4>(*this, registry, "Casts");
-	RegisterShaderNode<CastVec3ToVec2>(*this, registry, "Casts");
-	RegisterShaderNode<CastVec3ToVec4>(*this, registry, "Casts");
-	RegisterShaderNode<CastVec4ToVec2>(*this, registry, "Casts");
-	RegisterShaderNode<CastVec4ToVec3>(*this, registry, "Casts");
+	RegisterShaderNode<CastToVec2>(*this, registry, "Casts");
+	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
+	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
 	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
 	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
-	RegisterShaderNode<Vec2Add>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec2Mul>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec2Sub>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec3Add>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec3Mul>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec3Sub>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec4Add>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec4Mul>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec4Sub>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecAdd>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecMul>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecSub>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
 	RegisterShaderNode<Vec3Value>(*this, registry, "Constants");
 	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");

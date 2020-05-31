@@ -10,7 +10,7 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 
-template<typename From, typename To>
+template<std::size_t ToComponentCount>
 class CastVec : public ShaderNode
 {
 	public:
@@ -31,25 +31,21 @@ class CastVec : public ShaderNode
 
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
-	private:
-		static constexpr std::size_t FromComponents = From::ComponentCount;
-		static constexpr std::size_t ToComponents = To::ComponentCount;
-		static constexpr std::size_t ComponentDiff = (ToComponents >= FromComponents) ? ToComponents - FromComponents : 0;
+		QtNodes::NodeValidationState validationState() const override;
+		QString validationMessage() const override;
 
+	private:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void UpdateOutput();
 
-		VecType<ComponentDiff> m_overflowComponents;
-		std::shared_ptr<From> m_input;
-		std::shared_ptr<To> m_output;
+		std::shared_ptr<VecData> m_input;
+		std::shared_ptr<VecData> m_output;
+		VecType<ToComponentCount> m_overflowComponents;
 };
 
-using CastVec2ToVec3 = CastVec<Vec2Data, Vec3Data>;
-using CastVec2ToVec4 = CastVec<Vec2Data, Vec4Data>;
-using CastVec3ToVec2 = CastVec<Vec3Data, Vec2Data>;
-using CastVec3ToVec4 = CastVec<Vec3Data, Vec4Data>;
-using CastVec4ToVec2 = CastVec<Vec4Data, Vec2Data>;
-using CastVec4ToVec3 = CastVec<Vec4Data, Vec3Data>;
+using CastToVec2 = CastVec<2>;
+using CastToVec3 = CastVec<3>;
+using CastToVec4 = CastVec<4>;
 
 #include <ShaderNode/DataModels/Cast.inl>
 
