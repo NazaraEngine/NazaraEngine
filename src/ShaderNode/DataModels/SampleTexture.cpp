@@ -5,7 +5,7 @@
 SampleTexture::SampleTexture(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	m_output = std::make_shared<Vec4Data>();
+	m_output = std::make_shared<VecData>(4);
 
 	UpdateOutput();
 }
@@ -82,9 +82,8 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 
 Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
 {
-	if (!m_texture || !m_uv)
-		throw std::runtime_error("invalid inputs");
-
+	assert(m_texture);
+	assert(m_uv);
 	assert(count == 2);
 
 	return Nz::ShaderBuilder::Sample2D(expressions[0], expressions[1]);
@@ -99,7 +98,7 @@ auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex port
 			switch (portIndex)
 			{
 				case 0: return Texture2Data::Type();
-				case 1: return Vec2Data::Type();
+				case 1: return VecData::Type();
 			}
 
 			assert(false);
@@ -109,7 +108,7 @@ auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex port
 		case QtNodes::PortType::Out:
 		{
 			assert(portIndex == 0);
-			return Vec4Data::Type();
+			return VecData::Type();
 		}
 
 		default:
@@ -180,9 +179,9 @@ void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int inde
 		{
 			if (value)
 			{
-				assert(dynamic_cast<Vec2Data*>(value.get()) != nullptr);
+				assert(dynamic_cast<VecData*>(value.get()) != nullptr);
 
-				m_uv = std::static_pointer_cast<Vec2Data>(value);
+				m_uv = std::static_pointer_cast<VecData>(value);
 			}
 			else
 				m_uv.reset();
@@ -196,4 +195,29 @@ void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int inde
 	}
 
 	UpdateOutput();
+}
+
+QtNodes::NodeValidationState SampleTexture::validationState() const
+{
+	if (!m_texture || !m_uv)
+		return QtNodes::NodeValidationState::Error;
+
+	if (m_uv->componentCount != 2)
+		return QtNodes::NodeValidationState::Error;
+
+	return QtNodes::NodeValidationState::Valid;
+}
+
+QString SampleTexture::validationMessage() const
+{
+	if (!m_texture)
+		return "Missing texture";
+
+	if (!m_uv)
+		return "Missing uv";
+
+	if (m_uv->componentCount != 2)
+		return "Incompatible UV (expected 2, got " + QString::number(m_uv->componentCount) + ")";
+
+	return QString();
 }

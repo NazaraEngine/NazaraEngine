@@ -34,13 +34,16 @@ class SampleTexture : public ShaderNode
 
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
+		QtNodes::NodeValidationState validationState() const override;
+		QString validationMessage() const override;
+
 	protected:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void UpdateOutput();
 
 		std::shared_ptr<Texture2Data> m_texture;
-		std::shared_ptr<Vec2Data> m_uv;
-		std::shared_ptr<Vec4Data> m_output;
+		std::shared_ptr<VecData> m_uv;
+		std::shared_ptr<VecData> m_output;
 };
 
 #include <ShaderNode/DataModels/SampleTexture.inl>

@@ -5,8 +5,8 @@
 #include <array>
 #include <tuple>
 
-template<typename Data>
-VecValue<Data>::VecValue(ShaderGraph& graph) :
+template<std::size_t ComponentCount>
+VecValue<ComponentCount>::VecValue(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	static_assert(ComponentCount <= s_vectorComponents.size());
@@ -21,55 +21,55 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-template<typename Data>
-QString VecValue<Data>::caption() const
+template<std::size_t ComponentCount>
+QString VecValue<ComponentCount>::caption() const
 {
-	static QString caption = Data::Type().name + " constant";
+	static QString caption = "Vector" + QString::number(ComponentCount) + " constant";
 	return caption;
 }
 
-template<typename Data>
-QString VecValue<Data>::name() const
+template<std::size_t ComponentCount>
+QString VecValue<ComponentCount>::name() const
 {
-	static QString name = Data::Type().id + "Value";
+	static QString name = "vec" + QString::number(ComponentCount) + "_constant";
 	return name;
 }
 
-template<typename Data>
-QtNodes::NodeDataType VecValue<Data>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+template<std::size_t ComponentCount>
+QtNodes::NodeDataType VecValue<ComponentCount>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	assert(portType == QtNodes::PortType::Out);
 	assert(portIndex == 0);
 
-	return Data::Type();
+	return VecData::Type();
 }
 
-template<typename Data>
-unsigned int VecValue<Data>::nPorts(QtNodes::PortType portType) const
+template<std::size_t ComponentCount>
+unsigned int VecValue<ComponentCount>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
-		case QtNodes::PortType::In: return 0;
+		case QtNodes::PortType::In:  return 0;
 		case QtNodes::PortType::Out: return 1;
 	}
 
 	return 0;
 }
 
-template<typename Data>
-std::shared_ptr<QtNodes::NodeData> VecValue<Data>::outData(QtNodes::PortIndex port)
+template<std::size_t ComponentCount>
+std::shared_ptr<QtNodes::NodeData> VecValue<ComponentCount>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 
-	auto out = std::make_shared<Data>();
+	auto out = std::make_shared<VecData>(ComponentCount);
 	out->preview = QImage(1, 1, QImage::Format_RGBA8888);
 	out->preview.fill(ToColor());
 
 	return out;
 }
 
-template<typename Data>
-void VecValue<Data>::BuildNodeEdition(QFormLayout* layout)
+template<std::size_t ComponentCount>
+void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
@@ -91,23 +91,23 @@ void VecValue<Data>::BuildNodeEdition(QFormLayout* layout)
 	}
 }
 
-template<typename Data>
-Nz::ShaderAst::ExpressionPtr VecValue<Data>::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
+template<std::size_t ComponentCount>
+Nz::ShaderAst::ExpressionPtr VecValue<ComponentCount>::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 
 	return Nz::ShaderBuilder::Constant(m_value);
 }
 
-template<typename Data>
-bool VecValue<Data>::ComputePreview(QPixmap& pixmap)
+template<std::size_t ComponentCount>
+bool VecValue<ComponentCount>::ComputePreview(QPixmap& pixmap)
 {
 	pixmap.fill(ToColor());
 	return true;
 }
 
-template<typename Data>
-QColor VecValue<Data>::ToColor() const
+template<std::size_t ComponentCount>
+QColor VecValue<ComponentCount>::ToColor() const
 {
 	std::array<float, 4> values = { 0.f, 0.f, 0.f, 1.f };
 

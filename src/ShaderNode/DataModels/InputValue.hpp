@@ -30,6 +30,9 @@ class InputValue : public ShaderNode
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
+		QtNodes::NodeValidationState validationState() const override;
+		QString validationMessage() const override;
+
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnInputListUpdate();

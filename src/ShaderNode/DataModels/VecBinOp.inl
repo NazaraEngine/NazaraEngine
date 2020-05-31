@@ -1,17 +1,15 @@
 #include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-VecBinOp<Data, BinOp>::VecBinOp(ShaderGraph& graph) :
+template<Nz::ShaderAst::BinaryType BinOp>
+VecBinOp<BinOp>::VecBinOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	m_output = std::make_shared<Data>();
-
 	UpdateOutput();
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-Nz::ShaderAst::ExpressionPtr VecBinOp<Data, BinOp>::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+template<Nz::ShaderAst::BinaryType BinOp>
+Nz::ShaderAst::ExpressionPtr VecBinOp<BinOp>::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
 {
 	assert(count == 2);
 	using BuilderType = typename Nz::ShaderBuilder::template BinOpBuilder<BinOp>;
@@ -19,16 +17,16 @@ Nz::ShaderAst::ExpressionPtr VecBinOp<Data, BinOp>::GetExpression(Nz::ShaderAst:
 	return builder(expressions[0], expressions[1]);
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-QtNodes::NodeDataType VecBinOp<Data, BinOp>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
+template<Nz::ShaderAst::BinaryType BinOp>
+QtNodes::NodeDataType VecBinOp<BinOp>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
 
-	return Data::Type();
+	return VecData::Type();
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-unsigned int VecBinOp<Data, BinOp>::nPorts(QtNodes::PortType portType) const
+template<Nz::ShaderAst::BinaryType BinOp>
+unsigned int VecBinOp<BinOp>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
@@ -39,24 +37,24 @@ unsigned int VecBinOp<Data, BinOp>::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-std::shared_ptr<QtNodes::NodeData> VecBinOp<Data, BinOp>::outData(QtNodes::PortIndex port)
+template<Nz::ShaderAst::BinaryType BinOp>
+std::shared_ptr<QtNodes::NodeData> VecBinOp<BinOp>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-void VecBinOp<Data, BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
+template<Nz::ShaderAst::BinaryType BinOp>
+void VecBinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
 
-	std::shared_ptr<Data> castedValue;
+	std::shared_ptr<VecData> castedValue;
 	if (value)
 	{
-		assert(dynamic_cast<Data*>(value.get()) != nullptr);
+		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
 
-		castedValue = std::static_pointer_cast<Data>(value);
+		castedValue = std::static_pointer_cast<VecData>(value);
 	}
 
 	if (index == 0)
@@ -67,8 +65,8 @@ void VecBinOp<Data, BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, 
 	UpdateOutput();
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-bool VecBinOp<Data, BinOp>::ComputePreview(QPixmap& pixmap)
+template<Nz::ShaderAst::BinaryType BinOp>
+bool VecBinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
 		return false;
@@ -77,15 +75,18 @@ bool VecBinOp<Data, BinOp>::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-template<typename Data, Nz::ShaderAst::BinaryType BinOp>
-void VecBinOp<Data, BinOp>::UpdateOutput()
+template<Nz::ShaderAst::BinaryType BinOp>
+void VecBinOp<BinOp>::UpdateOutput()
 {
-	if (!m_lhs || !m_rhs)
+	if (!m_lhs || !m_rhs || m_lhs->componentCount != m_rhs->componentCount)
 	{
+		m_output = std::make_shared<VecData>(4);
 		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
 		m_output->preview.fill(QColor::fromRgb(0, 0, 0, 0));
 		return;
 	}
+
+	m_output = std::make_shared<VecData>(m_lhs->componentCount);
 
 	const QImage& leftPreview = m_lhs->preview;
 	const QImage& rightPreview = m_rhs->preview;
@@ -107,84 +108,4 @@ void VecBinOp<Data, BinOp>::UpdateOutput()
 	Q_EMIT dataUpdated(0);
 
 	UpdatePreview();
-}
-
-template<typename Data>
-QString VecAdd<Data>::caption() const
-{
-	static QString caption = Data::Type().name + " addition";
-	return caption;
-}
-
-template<typename Data>
-QString VecAdd<Data>::name() const
-{
-	static QString name = Data::Type().name + "add";
-	return name;
-}
-
-template<typename Data>
-void VecAdd<Data>::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
-{
-	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		output[i] = static_cast<std::uint8_t>(std::min(lValue + rValue, 255U));
-	}
-}
-
-template<typename Data>
-QString VecMul<Data>::caption() const
-{
-	static QString caption = Data::Type().name + " multiplication";
-	return caption;
-}
-
-template<typename Data>
-QString VecMul<Data>::name() const
-{
-	static QString name = Data::Type().name + "mul";
-	return name;
-}
-
-template<typename Data>
-void VecMul<Data>::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
-{
-	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		output[i] = static_cast<std::uint8_t>(lValue * rValue / 255);
-	}
-}
-
-template<typename Data>
-QString VecSub<Data>::caption() const
-{
-	static QString caption = Data::Type().name + " subtraction";
-	return caption;
-}
-
-template<typename Data>
-QString VecSub<Data>::name() const
-{
-	static QString name = Data::Type().name + "sub";
-	return name;
-}
-
-template<typename Data>
-void VecSub<Data>::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
-{
-	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		unsigned int sub = (lValue >= rValue) ? lValue - rValue : 0u;
-
-		output[i] = static_cast<std::uint8_t>(sub);
-	}
 }

@@ -8,6 +8,7 @@
 #include <nodes/FlowView>
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QTextEdit>
 #include <iostream>
 
@@ -83,15 +84,22 @@ void MainWindow::BuildMenu()
 
 void MainWindow::OnCompileToGLSL()
 {
-	Nz::GlslWriter writer;
-	Nz::String glsl = writer.Generate(m_shaderGraph.ToAst());
+	try
+	{
+		Nz::GlslWriter writer;
+		Nz::String glsl = writer.Generate(m_shaderGraph.ToAst());
 
-	std::cout << glsl << std::endl;
+		std::cout << glsl << std::endl;
 
-	QTextEdit* output = new QTextEdit;
-	output->setReadOnly(true);
-	output->setText(QString::fromUtf8(glsl.GetConstBuffer(), int(glsl.GetSize())));
-	output->setAttribute(Qt::WA_DeleteOnClose, true);
-	output->setWindowTitle("GLSL Output");
-	output->show();
+		QTextEdit* output = new QTextEdit;
+		output->setReadOnly(true);
+		output->setText(QString::fromUtf8(glsl.GetConstBuffer(), int(glsl.GetSize())));
+		output->setAttribute(Qt::WA_DeleteOnClose, true);
+		output->setWindowTitle("GLSL Output");
+		output->show();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, tr("Compilation failed"), QString("Compilation failed: ") + e.what());
+	}
 }

@@ -9,58 +9,47 @@
 
 struct VecData : public QtNodes::NodeData
 {
-	inline VecData();
+	inline VecData(std::size_t componentCount);
 
+	inline QtNodes::NodeDataType type() const override;
+
+	Nz::ShaderAst::ExpressionType GetExpressionType() const;
+
+	static inline QtNodes::NodeDataType Type();
+
+	std::size_t componentCount;
 	QImage preview;
 };
 
-struct Vec2Data : public VecData
+template<std::size_t N>
+struct VecExpressionTypeHelper;
+
+template<>
+struct VecExpressionTypeHelper<1>
 {
-	static constexpr std::size_t ComponentCount = 2;
+	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float1;
+};
+
+template<>
+struct VecExpressionTypeHelper<2>
+{
 	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float2;
-
-	QtNodes::NodeDataType type() const override
-	{
-		return Type();
-	}
-
-	static QtNodes::NodeDataType Type()
-	{
-		return { "vec2", "Vec2" };
-	}
 };
 
-struct Vec3Data : public VecData
+template<>
+struct VecExpressionTypeHelper<3>
 {
-	static constexpr std::size_t ComponentCount = 3;
 	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float3;
-
-	QtNodes::NodeDataType type() const override
-	{
-		return Type();
-	}
-
-	static QtNodes::NodeDataType Type()
-	{
-		return { "vec3", "Vec3" };
-	}
 };
 
-struct Vec4Data : public VecData
+template<>
+struct VecExpressionTypeHelper<4>
 {
-	static constexpr std::size_t ComponentCount = 4;
 	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float4;
-
-	QtNodes::NodeDataType type() const override
-	{
-		return Type();
-	}
-
-	static QtNodes::NodeDataType Type()
-	{
-		return { "vec4", "Vec4" };
-	}
 };
+
+template<std::size_t N> constexpr Nz::ShaderAst::ExpressionType VecExpressionType = VecExpressionTypeHelper<N>::template ExpressionType;
+
 
 struct VecTypeDummy {};
 
@@ -76,7 +65,7 @@ struct VecTypeHelper<0>
 template<>
 struct VecTypeHelper<1>
 {
-	using Type = std::array<float, 1>;
+	using Type = std::array<float, 1>; //< To allow [0]
 };
 
 template<>

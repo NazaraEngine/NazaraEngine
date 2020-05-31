@@ -258,6 +258,7 @@ namespace Nz
 		{
 			public:
 				inline Cast(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second = nullptr, ExpressionPtr third = nullptr, ExpressionPtr fourth = nullptr);
+				inline Cast(ExpressionType castTo, ExpressionPtr* expressions, std::size_t expressionCount);
 
 				ExpressionType GetExpressionType() const override;
 				void Register(ShaderWriter& visitor) override;
@@ -265,6 +266,9 @@ namespace Nz
 
 				ExpressionType exprType;
 				std::array<ExpressionPtr, 4> expressions;
+
+			private:
+				void Validate() const;
 		};
 
 		class NAZARA_RENDERER_API Constant : public Expression
