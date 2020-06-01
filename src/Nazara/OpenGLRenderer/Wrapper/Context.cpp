@@ -195,12 +195,11 @@ namespace Nz::GL
 			NazaraWarning("Failed to decode OpenGL version: " + std::string(versionString));
 
 		// Load extensions
-		std::string_view extensionList = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-		SplitString(extensionList, " ", [&](std::string_view extension)
-		{
-			m_supportedExtensions.emplace(extension);
-			return true;
-		});
+		GLint extensionCount = 0;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
+
+		for (GLint i = 0; i < extensionCount; ++i)
+			m_supportedExtensions.emplace(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
