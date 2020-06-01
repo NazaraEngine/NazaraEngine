@@ -60,7 +60,10 @@ namespace Nz
 				return false;
 		}
 
-		return func(str.substr(previousPos));
+		if (previousPos < str.size())
+			return func(str.substr(previousPos));
+		else
+			return true;
 	}
 
 	template<typename F>
