@@ -289,7 +289,8 @@ namespace Nz
 
 	void WindowImpl::ProcessEvents(bool block)
 	{
-		SDL_PumpEvents();
+		if (m_ownsWindow)
+			SDL_PumpEvents();
 
 
 		/*if (m_ownsWindow)
