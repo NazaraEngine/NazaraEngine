@@ -10,7 +10,8 @@ ShaderNode(graph)
 {
 	static_assert(ToComponentCount <= s_vectorComponents.size());
 
-	m_overflowComponents.fill(0.f);
+	for (std::size_t i = 0; i < ToComponentCount; ++i)
+		m_overflowComponents[i] = 0.f;
 
 	m_output = std::make_shared<VecData>(ToComponentCount);
 }
