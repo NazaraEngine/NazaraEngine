@@ -54,14 +54,25 @@ void SampleTexture::UpdateOutput()
 			float u = float(uvPtr[0]) / 255;
 			float v = float(uvPtr[1]) / 255;
 
-			int texX = std::clamp(int(u * textureWidth), 0, textureWidth - 1);
-			int texY = std::clamp(int(v * textureHeight), 0, textureHeight - 1);
-			int texPixel = (texY * textureWidth + texX) * 4;
+			if (textureWidth > 0 && textureHeight > 0)
+			{
+				int texX = std::clamp(int(u * textureWidth), 0, textureWidth - 1);
+				int texY = std::clamp(int(v * textureHeight), 0, textureHeight - 1);
+				int texPixel = (texY * textureWidth + texX) * 4;
 
-			*outputPtr++ = texturePtr[texPixel + 0];
-			*outputPtr++ = texturePtr[texPixel + 1];
-			*outputPtr++ = texturePtr[texPixel + 2];
-			*outputPtr++ = texturePtr[texPixel + 3];
+				*outputPtr++ = texturePtr[texPixel + 0];
+				*outputPtr++ = texturePtr[texPixel + 1];
+				*outputPtr++ = texturePtr[texPixel + 2];
+				*outputPtr++ = texturePtr[texPixel + 3];
+			}
+			else
+			{
+				*outputPtr++ = 0;
+				*outputPtr++ = 0;
+				*outputPtr++ = 0;
+				*outputPtr++ = 0xFF;
+			}
+
 			uvPtr += 4;
 		}
 	}

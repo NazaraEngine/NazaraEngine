@@ -4,6 +4,8 @@
 #define NAZARA_SHADERNODES_ENUMS_HPP
 
 #include <cstddef>
+#include <optional>
+#include <string>
 
 enum class InputRole
 {
@@ -40,10 +42,11 @@ enum class TextureType
 constexpr std::size_t TextureTypeCount = static_cast<std::size_t>(TextureType::Max) + 1;
 
 
-std::size_t GetComponentCount(InOutType type);
+template<typename T> std::optional<T> DecodeEnum(const std::string_view& str);
 const char* EnumToString(InputRole role);
 const char* EnumToString(InOutType input);
 const char* EnumToString(TextureType textureType);
+std::size_t GetComponentCount(InOutType type);
 
 #include <ShaderNode/Enums.inl>
 

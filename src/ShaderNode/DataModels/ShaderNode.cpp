@@ -81,8 +81,6 @@ void ShaderNode::EnablePreview(bool enable)
 			m_pixmapLabel->clear();
 			m_pixmap.reset();
 		}
-
-		embeddedWidgetSizeUpdated();
 	}
 }
 
@@ -95,6 +93,29 @@ void ShaderNode::setInData(std::shared_ptr<QtNodes::NodeData>, int)
 {
 }
 
+void ShaderNode::restore(const QJsonObject& data)
+{
+	NodeDataModel::restore(data);
+
+	bool isPreviewEnabled = data["preview_enabled"].toBool(m_isPreviewEnabled);
+	m_previewSize.x = data["preview_width"].toInt(m_previewSize.x);
+	m_previewSize.y = data["preview_height"].toInt(m_previewSize.y);
+	m_variableName = data["variable_name"].toString().toStdString();
+
+	EnablePreview(isPreviewEnabled);
+}
+
+QJsonObject ShaderNode::save() const
+{
+	QJsonObject data = NodeDataModel::save();
+	data["preview_enabled"] = m_isPreviewEnabled;
+	data["preview_width"] = m_previewSize.x;
+	data["preview_height"] = m_previewSize.y;
+	data["variable_name"] = QString::fromStdString(m_variableName);
+
+	return data;
+}
+
 bool ShaderNode::ComputePreview(QPixmap& /*pixmap*/)
 {
 	return false;
@@ -103,7 +124,10 @@ bool ShaderNode::ComputePreview(QPixmap& /*pixmap*/)
 void ShaderNode::UpdatePreview()
 {
 	if (!m_pixmap)
+	{
+		embeddedWidgetSizeUpdated();
 		return;
+	}
 
 	QPixmap& pixmap = *m_pixmap;
 
@@ -116,4 +140,6 @@ void ShaderNode::UpdatePreview()
 		pixmap = pixmap.scaled(m_previewSize.x, m_previewSize.y);
 
 	m_pixmapLabel->setPixmap(pixmap);
+
+	embeddedWidgetSizeUpdated();
 }

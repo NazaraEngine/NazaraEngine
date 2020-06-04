@@ -18,6 +18,8 @@ class MainWindow : public QMainWindow
 	private:
 		void BuildMenu();
 		void OnCompileToGLSL();
+		void OnLoad();
+		void OnSave();
 
 		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);
 
