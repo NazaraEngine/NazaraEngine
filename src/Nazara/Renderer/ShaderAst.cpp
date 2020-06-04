@@ -254,4 +254,31 @@ namespace Nz::ShaderAst
 	{
 		visitor.Write(*this);
 	}
+
+
+	ExpressionType BinaryFunc::GetExpressionType() const
+	{
+		switch (intrinsic)
+		{
+			case BinaryIntrinsic::CrossProduct:
+				return left->GetExpressionType();
+
+			case BinaryIntrinsic::DotProduct:
+				return ExpressionType::Float1;
+		}
+
+		NazaraAssert(false, "Unhandled builtin");
+		return ExpressionType::Void;
+	}
+
+	void BinaryFunc::Register(ShaderWriter& visitor)
+	{
+		left->Register(visitor);
+		right->Register(visitor);
+	}
+
+	void BinaryFunc::Visit(ShaderWriter& visitor)
+	{
+		visitor.Write(*this);
+	}
 }

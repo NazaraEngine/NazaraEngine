@@ -26,13 +26,20 @@ namespace Nz
 			Simple //< =
 		};
 
+		enum class BinaryIntrinsic
+		{
+			CrossProduct,
+			DotProduct
+		};
+
 		enum class BinaryType
 		{
 			Add,       //< +
 			Substract, //< -
 			Multiply,  //< *
 			Divide,    //< /
-			Equality   //< ==
+
+			Equality  //< ==
 		};
 
 		enum class BuiltinEntry
@@ -324,6 +331,22 @@ namespace Nz
 
 				ExpressionPtr sampler;
 				ExpressionPtr coordinates;
+		};
+
+		//////////////////////////////////////////////////////////////////////////
+
+		class NAZARA_RENDERER_API BinaryFunc : public Expression
+		{
+			public:
+				inline BinaryFunc(BinaryIntrinsic Op, ExpressionPtr Left, ExpressionPtr Right);
+
+				ExpressionType GetExpressionType() const override;
+				void Register(ShaderWriter& visitor) override;
+				void Visit(ShaderWriter& visitor) override;
+
+				BinaryIntrinsic intrinsic;
+				ExpressionPtr   left;
+				ExpressionPtr   right;
 		};
 	}
 }
