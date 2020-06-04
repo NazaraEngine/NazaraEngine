@@ -188,3 +188,19 @@ void OutputValue::OnOutputListUpdate()
 		inputIndex++;
 	}
 }
+
+void OutputValue::restore(const QJsonObject& data)
+{
+	m_currentOutputText = data["input"].toString().toStdString();
+	OnOutputListUpdate();
+
+	ShaderNode::restore(data);
+}
+
+QJsonObject OutputValue::save() const
+{
+	QJsonObject data = ShaderNode::save();
+	data["input"] = QString::fromStdString(m_currentOutputText);
+
+	return data;
+}

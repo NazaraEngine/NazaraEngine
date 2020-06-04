@@ -1,5 +1,6 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
+#include <ShaderNode/DataTypes/FloatData.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <QtWidgets/QFormLayout>
@@ -11,7 +12,10 @@ ShaderNode(graph)
 	m_onInputUpdateSlot.Connect(GetGraph().OnInputUpdate, [&](ShaderGraph*, std::size_t inputIndex)
 	{
 		if (m_currentInputIndex == inputIndex)
+		{
 			UpdatePreview();
+			Q_EMIT dataUpdated(0);
+		}
 	});
 
 	if (graph.GetInputCount() > 0)
@@ -171,4 +175,20 @@ QString InputValue::validationMessage() const
 		return "No input selected";
 
 	return QString();
+}
+
+void InputValue::restore(const QJsonObject& data)
+{
+	m_currentInputText = data["input"].toString().toStdString();
+	OnInputListUpdate();
+
+	ShaderNode::restore(data);
+}
+
+QJsonObject InputValue::save() const
+{
+	QJsonObject data = ShaderNode::save();
+	data["input"] = QString::fromStdString(m_currentInputText);
+
+	return data;
 }

@@ -40,6 +40,9 @@ class ShaderNode : public QtNodes::NodeDataModel
 		inline void EnableCustomVariableName(bool enable = true);
 		void UpdatePreview();
 
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
+
 	private:
 		virtual bool ComputePreview(QPixmap& pixmap);
 

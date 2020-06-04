@@ -36,6 +36,9 @@ class TextureValue : public ShaderNode
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnTextureListUpdate();
 
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
+
 		NazaraSlot(ShaderGraph, OnTextureListUpdate, m_onTextureListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnTexturePreviewUpdate, m_onTexturePreviewUpdateSlot);
 

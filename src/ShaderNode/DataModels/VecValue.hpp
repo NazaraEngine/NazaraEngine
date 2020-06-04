@@ -33,8 +33,10 @@ class VecValue : public ShaderNode
 
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
-
 		QColor ToColor() const;
+
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
 
 		VecType<ComponentCount> m_value;
 };

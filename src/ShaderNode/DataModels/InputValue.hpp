@@ -37,6 +37,9 @@ class InputValue : public ShaderNode
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnInputListUpdate();
 
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
+
 		NazaraSlot(ShaderGraph, OnInputListUpdate, m_onInputListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnInputUpdate, m_onInputUpdateSlot);
 

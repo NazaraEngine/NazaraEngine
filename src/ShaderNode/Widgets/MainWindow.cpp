@@ -6,7 +6,10 @@
 #include <ShaderNode/Widgets/NodeEditor.hpp>
 #include <ShaderNode/Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
+#include <QtCore/QFile>
+#include <QtCore/QJsonDocument>
 #include <QtWidgets/QDockWidget>
+#include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QTextEdit>
@@ -77,7 +80,19 @@ m_shaderGraph(graph)
 
 void MainWindow::BuildMenu()
 {
-	QMenu* compileMenu = menuBar()->addMenu(tr("&Compilation"));
+	QMenuBar* menu = menuBar();
+
+	QMenu* shader = menu->addMenu(tr("&Shader"));
+	{
+		QtNodes::FlowScene* scene = &m_shaderGraph.GetScene();
+
+		QAction* loadShader = shader->addAction(tr("Load..."));
+		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
+		QAction* saveShader = shader->addAction(tr("Save..."));
+		QObject::connect(saveShader, &QAction::triggered, this, &MainWindow::OnSave);
+	}
+
+	QMenu* compileMenu = menu->addMenu(tr("&Compilation"));
 	QAction* compileToGlsl = compileMenu->addAction(tr("GLSL"));
 	connect(compileToGlsl, &QAction::triggered, [&](bool) { OnCompileToGLSL(); });
 }
@@ -102,4 +117,49 @@ void MainWindow::OnCompileToGLSL()
 	{
 		QMessageBox::critical(this, tr("Compilation failed"), QString("Compilation failed: ") + e.what());
 	}
+}
+
+void MainWindow::OnLoad()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open shader flow"), QDir::homePath(), tr("Shader Flow Files (*.shaderflow)"));
+	if (fileName.isEmpty())
+		return;
+
+	QFile file(fileName);
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		QMessageBox::critical(this, tr("Failed to open file"), QString("Failed to open shader flow file: ") + file.errorString());
+		return;
+	}
+
+	QJsonObject jsonDocument = QJsonDocument::fromJson(file.readAll()).object();
+	if (jsonDocument.isEmpty())
+	{
+		QMessageBox::critical(this, tr("Invalid file"), tr("Invalid shader flow file"));
+		return;
+	}
+
+	try
+	{
+		m_shaderGraph.Load(jsonDocument);
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, tr("Invalid file"), tr("Invalid shader flow file: ") + e.what());
+		return;
+	}
+}
+
+void MainWindow::OnSave()
+{
+	QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Open shader flow"), QDir::homePath(), tr("Shader Flow Files (*.shaderflow)"));
+	if (fileName.isEmpty())
+		return;
+
+	if (!fileName.endsWith("flow", Qt::CaseInsensitive))
+		fileName += ".shaderflow";
+
+	QFile file(fileName);
+	if (file.open(QIODevice::WriteOnly))
+		file.write(QJsonDocument(m_shaderGraph.Save()).toJson());
 }

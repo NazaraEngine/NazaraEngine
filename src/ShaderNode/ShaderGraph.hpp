@@ -27,6 +27,8 @@ class ShaderGraph
 		std::size_t AddOutput(std::string name, InOutType type);
 		std::size_t AddTexture(std::string name, TextureType type);
 
+		void Clear();
+
 		inline const InputEntry& GetInput(std::size_t inputIndex) const;
 		inline std::size_t GetInputCount() const;
 		inline const std::vector<InputEntry>& GetInputs() const;
@@ -38,6 +40,9 @@ class ShaderGraph
 		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
 		inline std::size_t GetTextureCount() const;
 		inline const std::vector<TextureEntry>& GetTextures() const;
+
+		void Load(const QJsonObject& data);
+		QJsonObject Save();
 
 		Nz::ShaderAst::StatementPtr ToAst();
 

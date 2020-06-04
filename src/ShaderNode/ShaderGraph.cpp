@@ -1,6 +1,7 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
+#include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
 #include <ShaderNode/DataModels/OutputValue.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
@@ -112,6 +113,136 @@ std::size_t ShaderGraph::AddTexture(std::string name, TextureType type)
 	OnTextureListUpdate(this);
 
 	return index;
+}
+
+void ShaderGraph::Clear()
+{
+	m_flowScene.clearScene();
+	m_flowScene.clear();
+
+	m_inputs.clear();
+	m_outputs.clear();
+	m_textures.clear();
+
+	OnInputListUpdate(this);
+	OnOutputListUpdate(this);
+	OnTextureListUpdate(this);
+}
+
+void ShaderGraph::Load(const QJsonObject& data)
+{
+	Clear();
+
+	QJsonArray inputArray = data["inputs"].toArray();
+	for (const auto& inputDocRef : inputArray)
+	{
+		QJsonObject inputDoc = inputDocRef.toObject();
+
+		InputEntry& input = m_inputs.emplace_back();
+		input.name = inputDoc["name"].toString().toStdString();
+		input.role = DecodeEnum<InputRole>(inputDoc["role"].toString().toStdString()).value();
+		input.roleIndex = static_cast<std::size_t>(inputDoc["roleIndex"].toInt(0));
+		input.type = DecodeEnum<InOutType>(inputDoc["type"].toString().toStdString()).value();
+	}
+
+	OnInputListUpdate(this);
+
+	QJsonArray outputArray = data["outputs"].toArray();
+	for (const auto& outputDocRef : outputArray)
+	{
+		QJsonObject outputDoc = outputDocRef.toObject();
+
+		OutputEntry& output = m_outputs.emplace_back();
+		output.name = outputDoc["name"].toString().toStdString();
+		output.type = DecodeEnum<InOutType>(outputDoc["type"].toString().toStdString()).value();
+	}
+
+	OnOutputListUpdate(this);
+
+	QJsonArray textureArray = data["textures"].toArray();
+	for (const auto& textureDocRef : textureArray)
+	{
+		QJsonObject textureDoc = textureDocRef.toObject();
+
+		TextureEntry& texture = m_textures.emplace_back();
+		texture.name = textureDoc["name"].toString().toStdString();
+		texture.type = DecodeEnum<TextureType>(textureDoc["type"].toString().toStdString()).value();
+	}
+
+	OnTextureListUpdate(this);
+
+	for (QJsonValueRef node : data["nodes"].toArray())
+		m_flowScene.restoreNode(node.toObject());
+
+	for (QJsonValueRef connection : data["connections"].toArray())
+		m_flowScene.restoreConnection(connection.toObject());
+}
+
+QJsonObject ShaderGraph::Save()
+{
+	QJsonObject sceneJson;
+
+	QJsonArray inputArray;
+	{
+		for (const auto& input : m_inputs)
+		{
+			QJsonObject inputDoc;
+			inputDoc["name"] = QString::fromStdString(input.name);
+			inputDoc["role"] = QString(EnumToString(input.role));
+			inputDoc["roleIndex"] = int(input.roleIndex);
+			inputDoc["type"] = QString(EnumToString(input.type));
+
+			inputArray.append(inputDoc);
+		}
+	}
+	sceneJson["inputs"] = inputArray;
+
+	QJsonArray outputArray;
+	{
+		for (const auto& output : m_outputs)
+		{
+			QJsonObject outputDoc;
+			outputDoc["name"] = QString::fromStdString(output.name);
+			outputDoc["type"] = QString(EnumToString(output.type));
+
+			outputArray.append(outputDoc);
+		}
+	}
+	sceneJson["outputs"] = outputArray;
+
+	QJsonArray textureArray;
+	{
+		for (const auto& texture : m_textures)
+		{
+			QJsonObject textureDoc;
+			textureDoc["name"] = QString::fromStdString(texture.name);
+			textureDoc["type"] = QString(EnumToString(texture.type));
+
+			textureArray.append(textureDoc);
+		}
+	}
+	sceneJson["textures"] = textureArray;
+
+	QJsonArray nodesJsonArray;
+	{
+		for (auto&& [uuid, node] : m_flowScene.nodes())
+			nodesJsonArray.append(node->save());
+	}
+	sceneJson["nodes"] = nodesJsonArray;
+
+	QJsonArray connectionJsonArray;
+	{
+		for (auto&& [uuid, connection] : m_flowScene.connections())
+		{
+			QJsonObject connectionJson = connection->save();
+
+			if (!connectionJson.isEmpty())
+				connectionJsonArray.append(connectionJson);
+		}
+	}
+	sceneJson["connections"] = connectionJsonArray;
+
+	return sceneJson;
 }
 
 Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()

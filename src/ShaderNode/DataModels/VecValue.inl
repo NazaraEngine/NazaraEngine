@@ -2,6 +2,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
+#include <QtCore/QJsonArray>
 #include <array>
 #include <tuple>
 
@@ -115,4 +116,28 @@ QColor VecValue<ComponentCount>::ToColor() const
 		values[i] = std::clamp(m_value[i], 0.f, 1.f);
 
 	return QColor::fromRgbF(values[0], values[1], values[2], values[3]);
+}
+
+template<std::size_t ComponentCount>
+void VecValue<ComponentCount>::restore(const QJsonObject& data)
+{
+	QJsonArray vecValues = data["value"].toArray();
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+		m_value[i] = vecValues[int(i)].toInt(m_value[i]);
+
+	ShaderNode::restore(data);
+}
+
+template<std::size_t ComponentCount>
+QJsonObject VecValue<ComponentCount>::save() const
+{
+	QJsonObject data = ShaderNode::save();
+
+	QJsonArray vecValues;
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+		vecValues.push_back(m_value[i]);
+
+	data["value"] = vecValues;
+
+	return data;
 }

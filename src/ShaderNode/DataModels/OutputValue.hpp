@@ -36,6 +36,9 @@ class OutputValue : public ShaderNode
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnOutputListUpdate();
 
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
+
 		NazaraSlot(ShaderGraph, OnOutputListUpdate, m_onOutputListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnOutputUpdate, m_onOutputUpdateSlot);
 

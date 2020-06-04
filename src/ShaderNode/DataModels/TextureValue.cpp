@@ -12,7 +12,10 @@ ShaderNode(graph)
 	m_onTexturePreviewUpdateSlot.Connect(GetGraph().OnTexturePreviewUpdate, [&](ShaderGraph*, std::size_t textureIndex)
 	{
 		if (m_currentTextureIndex == textureIndex)
+		{
 			UpdatePreview();
+			Q_EMIT dataUpdated(0);
+		}
 	});
 
 	if (graph.GetTextureCount() > 0)
@@ -160,4 +163,20 @@ QString TextureValue::validationMessage() const
 		return "No texture selected";
 
 	return QString();
+}
+
+void TextureValue::restore(const QJsonObject& data)
+{
+	m_currentTextureText = data["texture"].toString().toStdString();
+	OnTextureListUpdate();
+
+	ShaderNode::restore(data);
+}
+
+QJsonObject TextureValue::save() const
+{
+	QJsonObject data = ShaderNode::save();
+	data["texture"] = QString::fromStdString(m_currentTextureText);
+
+	return data;
 }
