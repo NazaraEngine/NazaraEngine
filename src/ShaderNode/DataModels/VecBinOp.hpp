@@ -67,6 +67,17 @@ class VecSub : public VecBinOp<Nz::ShaderAst::BinaryType::Substract>
 		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
+class VecDiv : public VecBinOp<Nz::ShaderAst::BinaryType::Divide>
+{
+	public:
+		using VecBinOp<Nz::ShaderAst::BinaryType::Divide>::VecBinOp;
+
+		QString caption() const override;
+		QString name() const override;
+
+		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
+};
+
 #include <ShaderNode/DataModels/VecBinOp.inl>
 
 #endif

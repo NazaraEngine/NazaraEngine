@@ -268,6 +268,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
 	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
 	RegisterShaderNode<VecAdd>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecDiv>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecSub>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
