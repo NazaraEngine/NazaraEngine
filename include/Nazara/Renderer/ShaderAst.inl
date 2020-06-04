@@ -243,6 +243,29 @@ namespace Nz
 			if (coordinates->GetExpressionType() != ExpressionType::Float2)
 				throw std::runtime_error("Coordinates must be a Float2");
 		}
+
+		inline BinaryFunc::BinaryFunc(BinaryIntrinsic Op, ExpressionPtr Left, ExpressionPtr Right) :
+		intrinsic(Op),
+		left(Left),
+		right(Right)
+		{
+			ExpressionType leftType = left->GetExpressionType();
+			ExpressionType rightType = right->GetExpressionType();
+
+			if (leftType != rightType)
+				//TODO: AstParseError
+				throw std::runtime_error("Left expression type must match right expression type");
+
+			switch (intrinsic)
+			{
+				case BinaryIntrinsic::CrossProduct:
+				{
+					if (leftType != ExpressionType::Float3)
+						//TODO: AstParseError
+						throw std::runtime_error("CrossProduct only works with Float3 expressions");
+				}
+			}
+		}
 	}
 }
 
