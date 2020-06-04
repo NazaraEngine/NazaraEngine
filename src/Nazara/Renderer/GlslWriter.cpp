@@ -173,6 +173,26 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Write(const ShaderAst::BinaryFunc& node)
+	{
+		switch (node.intrinsic)
+		{
+			case ShaderAst::BinaryIntrinsic::CrossProduct:
+				Append("cross");
+				break;
+
+			case ShaderAst::BinaryIntrinsic::DotProduct:
+				Append("dot");
+				break;
+		}
+
+		Append("(");
+		Write(node.left);
+		Append(", ");
+		Write(node.right);
+		Append(")");
+	}
+
 	void GlslWriter::Write(const ShaderAst::BinaryOp& node)
 	{
 		Write(node.left);

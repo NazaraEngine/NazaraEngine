@@ -34,6 +34,7 @@ namespace Nz
 
 			virtual void Write(const ShaderAst::AssignOp& node) = 0;
 			virtual void Write(const ShaderAst::Branch& node) = 0;
+			virtual void Write(const ShaderAst::BinaryFunc& node) = 0;
 			virtual void Write(const ShaderAst::BinaryOp& node) = 0;
 			virtual void Write(const ShaderAst::BuiltinVariable& node) = 0;
 			virtual void Write(const ShaderAst::Cast& node) = 0;
