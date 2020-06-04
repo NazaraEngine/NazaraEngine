@@ -262,6 +262,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<CastToVec2>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
+	RegisterShaderNode<FloatValue>(*this, registry, "Constants");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
 	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");

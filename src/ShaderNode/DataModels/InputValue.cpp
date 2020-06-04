@@ -127,7 +127,9 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 	switch (inputEntry.type)
 	{
 		//case InputType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
-		//case InputType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
+		case InOutType::Float1:
+			return FloatData::Type();
+
 		case InOutType::Float2:
 		case InOutType::Float3:
 		case InOutType::Float4:
