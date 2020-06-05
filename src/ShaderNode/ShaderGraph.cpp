@@ -352,7 +352,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 		}
 	});
 
-	return std::make_shared<Nz::ShaderAst::StatementBlock>(std::move(statements));
+	return Nz::ShaderAst::StatementBlock::Build(std::move(statements));
 }
 
 void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex)

@@ -31,20 +31,20 @@ namespace Nz
 
 			void SetGlslVersion(unsigned int version);
 
-			void Write(const ShaderAst::AssignOp& node) override;
-			void Write(const ShaderAst::Branch& node) override;
-			void Write(const ShaderAst::BinaryFunc& node) override;
-			void Write(const ShaderAst::BinaryOp& node) override;
-			void Write(const ShaderAst::BuiltinVariable& node) override;
-			void Write(const ShaderAst::Cast& node) override;
-			void Write(const ShaderAst::Constant& node) override;
-			void Write(const ShaderAst::DeclareVariable& node) override;
-			void Write(const ShaderAst::ExpressionStatement& node) override;
-			void Write(const ShaderAst::NamedVariable& node) override;
-			void Write(const ShaderAst::NodePtr& node) override;
-			void Write(const ShaderAst::Sample2D& node) override;
-			void Write(const ShaderAst::StatementBlock& node) override;
-			void Write(const ShaderAst::SwizzleOp& node) override;
+			using ShaderWriter::Visit;
+			void Visit(const ShaderAst::AssignOp& node) override;
+			void Visit(const ShaderAst::Branch& node) override;
+			void Visit(const ShaderAst::BinaryFunc& node) override;
+			void Visit(const ShaderAst::BinaryOp& node) override;
+			void Visit(const ShaderAst::BuiltinVariable& node) override;
+			void Visit(const ShaderAst::Cast& node) override;
+			void Visit(const ShaderAst::Constant& node) override;
+			void Visit(const ShaderAst::DeclareVariable& node) override;
+			void Visit(const ShaderAst::ExpressionStatement& node) override;
+			void Visit(const ShaderAst::NamedVariable& node) override;
+			void Visit(const ShaderAst::Sample2D& node) override;
+			void Visit(const ShaderAst::StatementBlock& node) override;
+			void Visit(const ShaderAst::SwizzleOp& node) override;
 
 		private:
 			struct Function;

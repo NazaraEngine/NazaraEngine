@@ -3,11 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Core/ByteStream.hpp>
+#include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz::ShaderAst
 {
+	Node::~Node() = default;
+
 	ExpressionCategory Expression::GetExpressionCategory() const
 	{
 		return ExpressionCategory::RValue;
@@ -18,9 +22,9 @@ namespace Nz::ShaderAst
 		expression->Register(visitor);
 	}
 
-	void ExpressionStatement::Visit(ShaderWriter& visitor)
+	void ExpressionStatement::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -30,7 +34,7 @@ namespace Nz::ShaderAst
 			statement->Register(visitor);
 	}
 
-	void ConditionalStatement::Visit(ShaderWriter& visitor)
+	void ConditionalStatement::Visit(ShaderVisitor& visitor)
 	{
 		if (visitor.IsConditionEnabled(conditionName))
 			statement->Visit(visitor);
@@ -43,9 +47,9 @@ namespace Nz::ShaderAst
 			statementPtr->Register(visitor);
 	}
 
-	void StatementBlock::Visit(ShaderWriter& visitor)
+	void StatementBlock::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 	ExpressionCategory Variable::GetExpressionCategory() const
@@ -58,14 +62,25 @@ namespace Nz::ShaderAst
 		return type;
 	}
 
+
+	void BuiltinVariable::Register(ShaderWriter& /*visitor*/)
+	{
+	}
+
+	void BuiltinVariable::Visit(ShaderVisitor& visitor)
+	{
+		visitor.Visit(*this);
+	}
+
+
 	void NamedVariable::Register(ShaderWriter& visitor)
 	{
 		visitor.RegisterVariable(kind, name, type);
 	}
 
-	void NamedVariable::Visit(ShaderWriter& visitor)
+	void NamedVariable::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -77,18 +92,9 @@ namespace Nz::ShaderAst
 			expression->Register(visitor);
 	}
 
-	void DeclareVariable::Visit(ShaderWriter& visitor)
+	void DeclareVariable::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
-	}
-
-	void BuiltinVariable::Register(ShaderWriter& /*visitor*/)
-	{
-	}
-
-	void BuiltinVariable::Visit(ShaderWriter& visitor)
-	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -103,9 +109,9 @@ namespace Nz::ShaderAst
 		right->Register(visitor);
 	}
 
-	void AssignOp::Visit(ShaderWriter& visitor)
+	void AssignOp::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -138,9 +144,9 @@ namespace Nz::ShaderAst
 		right->Register(visitor);
 	}
 
-	void BinaryOp::Visit(ShaderWriter& visitor)
+	void BinaryOp::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -156,9 +162,9 @@ namespace Nz::ShaderAst
 			elseStatement->Register(visitor);
 	}
 
-	void Branch::Visit(ShaderWriter& visitor)
+	void Branch::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -171,9 +177,9 @@ namespace Nz::ShaderAst
 	{
 	}
 
-	void Constant::Visit(ShaderWriter& visitor)
+	void Constant::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 	ExpressionType Cast::GetExpressionType() const
@@ -195,26 +201,9 @@ namespace Nz::ShaderAst
 		}
 	}
 
-	void Cast::Visit(ShaderWriter& visitor)
+	void Cast::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
-	}
-
-	void Cast::Validate() const
-	{
-		unsigned int componentCount = 0;
-		unsigned int requiredComponents = GetComponentCount(exprType);
-		for (const auto& exprPtr : expressions)
-		{
-			if (!exprPtr)
-				break;
-
-			componentCount += GetComponentCount(exprPtr->GetExpressionType());
-		}
-
-		//TODO: AstParseError
-		if (componentCount != requiredComponents)
-			throw std::runtime_error("Component count doesn't match required component count");
+		visitor.Visit(*this);
 	}
 
 
@@ -233,9 +222,9 @@ namespace Nz::ShaderAst
 		expression->Register(visitor);
 	}
 
-	void SwizzleOp::Visit(ShaderWriter& visitor)
+	void SwizzleOp::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -250,9 +239,9 @@ namespace Nz::ShaderAst
 		coordinates->Register(visitor);
 	}
 
-	void Sample2D::Visit(ShaderWriter& visitor)
+	void Sample2D::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 
 
@@ -277,8 +266,8 @@ namespace Nz::ShaderAst
 		right->Register(visitor);
 	}
 
-	void BinaryFunc::Visit(ShaderWriter& visitor)
+	void BinaryFunc::Visit(ShaderVisitor& visitor)
 	{
-		visitor.Write(*this);
+		visitor.Visit(*this);
 	}
 }
