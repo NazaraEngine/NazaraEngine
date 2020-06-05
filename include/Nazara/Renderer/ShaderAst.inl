@@ -9,6 +9,16 @@ namespace Nz
 {
 	namespace ShaderAst
 	{
+		inline Node::Node(NodeType type) :
+		m_type(type)
+		{
+		}
+
+		inline NodeType ShaderAst::Node::GetType() const
+		{
+			return m_type;
+		}
+
 		inline unsigned int Node::GetComponentCount(ExpressionType type)
 		{
 			switch (type)
@@ -47,224 +57,264 @@ namespace Nz
 			}
 		}
 
-		inline ExpressionStatement::ExpressionStatement(ExpressionPtr expr) :
-		expression(std::move(expr))
+		inline ExpressionStatement::ExpressionStatement() :
+		Statement(NodeType::ExpressionStatement)
+		{
+		}
+		
+		inline std::shared_ptr<ExpressionStatement> ExpressionStatement::Build(ExpressionPtr expr)
+		{
+			auto node = std::make_shared<ExpressionStatement>();
+			node->expression = std::move(expr);
+
+			return node;
+		}
+
+		inline ConditionalStatement::ConditionalStatement() :
+		Statement(NodeType::ConditionalStatement)
 		{
 		}
 
-		inline ConditionalStatement::ConditionalStatement(const String& condition, StatementPtr statementPtr) :
-		conditionName(condition),
-		statement(std::move(statementPtr))
+		inline std::shared_ptr<ConditionalStatement> ConditionalStatement::Build(std::string condition, StatementPtr statementPtr)
+		{
+			auto node = std::make_shared<ConditionalStatement>();
+			node->conditionName = std::move(condition);
+			node->statement = std::move(statementPtr);
+
+			return node;
+		}
+
+
+		inline StatementBlock::StatementBlock() :
+		Statement(NodeType::StatementBlock)
 		{
 		}
 
 		template<typename... Args>
-		StatementBlock::StatementBlock(Args&& ...args) :
-		statements({std::forward<Args>(args)...})
+		std::shared_ptr<StatementBlock> StatementBlock::Build(Args&&... args)
+		{
+			auto node = std::make_shared<StatementBlock>();
+			node->statements = std::vector<StatementPtr>({ std::forward<Args>(args)... });
+
+			return node;
+		}
+
+
+		inline BuiltinVariable::BuiltinVariable() :
+		Variable(NodeType::BuiltinVariable)
+		{
+			kind = VariableType::Builtin;
+		}
+
+		inline std::shared_ptr<BuiltinVariable> BuiltinVariable::Build(BuiltinEntry variable, ExpressionType varType)
+		{
+			auto node = std::make_shared<BuiltinVariable>();
+			node->type = varType;
+			node->var = variable;
+
+			return node;
+		}
+
+
+		inline NamedVariable::NamedVariable() :
+		Variable(NodeType::NamedVariable)
 		{
 		}
 
-		inline Variable::Variable(VariableType varKind, ExpressionType varType) :
-		type(varType),
-		kind(varKind)
+		inline std::shared_ptr<NamedVariable> NamedVariable::Build(VariableType type, std::string varName, ExpressionType expressionType)
+		{
+			auto node = std::make_shared<NamedVariable>();
+			node->kind = type;
+			node->name = std::move(varName);
+			node->type = expressionType;
+
+			return node;
+		}
+
+
+		inline DeclareVariable::DeclareVariable() :
+		Statement(NodeType::DeclareVariable)
 		{
 		}
 
-		inline BuiltinVariable::BuiltinVariable(BuiltinEntry variable, ExpressionType varType) :
-		Variable(VariableType::Builtin, varType),
-		var(variable)
+		inline std::shared_ptr<DeclareVariable> DeclareVariable::Build(NamedVariablePtr variable, ExpressionPtr expression)
+		{
+			auto node = std::make_shared<DeclareVariable>();
+			node->expression = std::move(expression);
+			node->variable = std::move(variable);
+
+			return node;
+		}
+
+
+		inline AssignOp::AssignOp() :
+		Expression(NodeType::AssignOp)
 		{
 		}
 
-		inline NamedVariable::NamedVariable(VariableType varKind, const Nz::String& varName, ExpressionType varType) :
-		Variable(varKind, varType),
-		name(varName)
+		inline std::shared_ptr<AssignOp> AssignOp::Build(AssignType op, ExpressionPtr left, ExpressionPtr right)
+		{
+			auto node = std::make_shared<AssignOp>();
+			node->op = op;
+			node->left = std::move(left);
+			node->right = std::move(right);
+
+			return node;
+		}
+
+		
+		inline BinaryOp::BinaryOp() :
+		Expression(NodeType::BinaryOp)
 		{
 		}
 
-		inline DeclareVariable::DeclareVariable(NamedVariablePtr Variable, ExpressionPtr Expression) :
-		expression(std::move(Expression)),
-		variable(std::move(Variable))
+		inline std::shared_ptr<BinaryOp> BinaryOp::Build(BinaryType op, ExpressionPtr left, ExpressionPtr right)
+		{
+			auto node = std::make_shared<BinaryOp>();
+			node->op = op;
+			node->left = std::move(left);
+			node->right = std::move(right);
+
+			return node;
+		}
+
+
+		inline Branch::Branch() :
+		Statement(NodeType::Branch)
 		{
 		}
 
-		inline AssignOp::AssignOp(AssignType Op, ExpressionPtr Left, ExpressionPtr Right) :
-		op(Op),
-		left(std::move(Left)),
-		right(std::move(Right))
+		inline std::shared_ptr<Branch> Branch::Build(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement)
 		{
-			if (left->GetExpressionCategory() != ExpressionCategory::LValue)
-				//TODO: AstParseError
-				throw std::runtime_error("Assignation is only possible with lvalues");
+			auto node = std::make_shared<Branch>();
+			node->condStatements.emplace_back(ConditionalStatement{ std::move(condition), std::move(trueStatement) });
+			node->elseStatement = std::move(falseStatement);
+
+			return node;
 		}
 
-		inline BinaryOp::BinaryOp(BinaryType Op, ExpressionPtr Left, ExpressionPtr Right) :
-		op(Op),
-		left(std::move(Left)),
-		right(std::move(Right))
+
+		inline Cast::Cast() :
+		Expression(NodeType::Cast)
 		{
-			ExpressionType leftType = left->GetExpressionType();
-			ExpressionType rightType = right->GetExpressionType();
-
-			if (leftType != rightType)
-			{
-				switch (op)
-				{
-					case BinaryType::Add:
-					case BinaryType::Equality:
-					case BinaryType::Substract:
-					{
-						//TODO: AstParseError
-						throw std::runtime_error("Left expression type must match right expression type");
-					}
-
-					case BinaryType::Multiply:
-					case BinaryType::Divide:
-					{
-						switch (leftType)
-						{
-							case ExpressionType::Float2:
-							case ExpressionType::Float3:
-							case ExpressionType::Float4:
-							{
-								if (rightType != ExpressionType::Float1)
-									throw std::runtime_error("Left expression type is not compatible with right expression type");
-
-								break;
-							}
-
-							case ExpressionType::Mat4x4:
-							{
-								switch (rightType)
-								{
-									case ExpressionType::Float1:
-									case ExpressionType::Float4:
-									case ExpressionType::Mat4x4:
-										break;
-
-									//TODO: AstParseError
-									default:
-										throw std::runtime_error("Left expression type is not compatible with right expression type");
-								}
-
-								break;
-							}
-
-							default:
-								//TODO: AstParseError
-								throw std::runtime_error("Left expression type must match right expression type");
-						}
-					}
-				}
-			}
 		}
 
-		inline Branch::Branch(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement)
+		inline std::shared_ptr<Cast> Cast::Build(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second, ExpressionPtr third, ExpressionPtr fourth)
 		{
-			condStatements.emplace_back(ConditionalStatement{ std::move(condition), std::move(trueStatement) });
-			elseStatement = std::move(falseStatement);
+			auto node = std::make_shared<Cast>();
+			node->exprType = castTo;
+			node->expressions = { {first, second, third, fourth} };
+
+			return node;
 		}
 
-		inline Cast::Cast(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second, ExpressionPtr third, ExpressionPtr fourth) :
-		exprType(castTo),
-		expressions({ {first, second, third, fourth} })
+		inline std::shared_ptr<Cast> Cast::Build(ExpressionType castTo, ExpressionPtr* Expressions, std::size_t expressionCount)
 		{
-			Validate();
-		}
-
-		inline Cast::Cast(ExpressionType castTo, ExpressionPtr* Expressions, std::size_t expressionCount) :
-		exprType(castTo)
-		{
+			auto node = std::make_shared<Cast>();
+			node->exprType = castTo;
 			for (std::size_t i = 0; i < expressionCount; ++i)
-				expressions[i] = Expressions[i];
+				node->expressions[i] = Expressions[i];
 
-			Validate();
+			return node;
 		}
 
-		inline Constant::Constant(bool value) :
-		exprType(ExpressionType::Boolean)
+
+		inline Constant::Constant() :
+		Expression(NodeType::Constant)
 		{
-			values.bool1 = value;
 		}
 
-		inline Constant::Constant(float value) :
-		exprType(ExpressionType::Float1)
+		inline std::shared_ptr<Constant> Constant::Build(bool value)
 		{
-			values.vec1 = value;
+			auto node = std::make_shared<Constant>();
+			node->exprType = ExpressionType::Boolean;
+			node->values.bool1 = value;
+
+			return node;
 		}
 
-		inline Constant::Constant(const Vector2f& value) :
-		exprType(ExpressionType::Float2)
+		inline std::shared_ptr<Constant> Constant::Build(float value)
 		{
-			values.vec2 = value;
+			auto node = std::make_shared<Constant>();
+			node->exprType = ExpressionType::Float1;
+			node->values.vec1 = value;
+
+			return node;
 		}
 
-		inline Constant::Constant(const Vector3f& value) :
-		exprType(ExpressionType::Float3)
+		inline std::shared_ptr<Constant> Constant::Build(const Vector2f& value)
 		{
-			values.vec3 = value;
+			auto node = std::make_shared<Constant>();
+			node->exprType = ExpressionType::Float2;
+			node->values.vec2 = value;
+
+			return node;
 		}
 
-		inline Constant::Constant(const Vector4f& value) :
-		exprType(ExpressionType::Float4)
+		inline std::shared_ptr<Constant> Constant::Build(const Vector3f& value)
 		{
-			values.vec4 = value;
+			auto node = std::make_shared<Constant>();
+			node->exprType = ExpressionType::Float3;
+			node->values.vec3 = value;
+
+			return node;
 		}
 
-		inline SwizzleOp::SwizzleOp(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents) :
-		componentCount(swizzleComponents.size()),
-		expression(expressionPtr)
+		inline std::shared_ptr<Constant> Constant::Build(const Vector4f& value)
 		{
-			if (componentCount > 4)
-				throw std::runtime_error("Cannot swizzle more than four elements");
+			auto node = std::make_shared<Constant>();
+			node->exprType = ExpressionType::Float4;
+			node->values.vec4 = value;
 
-			switch (expressionPtr->GetExpressionType())
-			{
-				case ExpressionType::Float1:
-				case ExpressionType::Float2:
-				case ExpressionType::Float3:
-				case ExpressionType::Float4:
-					break;
-
-				default:
-					throw std::runtime_error("Cannot swizzle this type");
-			}
-
-			std::copy(swizzleComponents.begin(), swizzleComponents.end(), components.begin());
+			return node;
 		}
 
-		inline Sample2D::Sample2D(ExpressionPtr samplerPtr, ExpressionPtr coordinatesPtr) :
-		sampler(std::move(samplerPtr)),
-		coordinates(std::move(coordinatesPtr))
-		{
-			if (sampler->GetExpressionType() != ExpressionType::Sampler2D)
-				throw std::runtime_error("Sampler must be a Sampler2D");
 
-			if (coordinates->GetExpressionType() != ExpressionType::Float2)
-				throw std::runtime_error("Coordinates must be a Float2");
+		inline SwizzleOp::SwizzleOp() :
+		Expression(NodeType::SwizzleOp)
+		{
 		}
 
-		inline BinaryFunc::BinaryFunc(BinaryIntrinsic Op, ExpressionPtr Left, ExpressionPtr Right) :
-		intrinsic(Op),
-		left(Left),
-		right(Right)
+		inline std::shared_ptr<SwizzleOp> SwizzleOp::Build(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents)
 		{
-			ExpressionType leftType = left->GetExpressionType();
-			ExpressionType rightType = right->GetExpressionType();
+			auto node = std::make_shared<SwizzleOp>();
+			node->componentCount = swizzleComponents.size();
+			node->expression = std::move(expressionPtr);
 
-			if (leftType != rightType)
-				//TODO: AstParseError
-				throw std::runtime_error("Left expression type must match right expression type");
+			std::copy(swizzleComponents.begin(), swizzleComponents.end(), node->components.begin());
 
-			switch (intrinsic)
-			{
-				case BinaryIntrinsic::CrossProduct:
-				{
-					if (leftType != ExpressionType::Float3)
-						//TODO: AstParseError
-						throw std::runtime_error("CrossProduct only works with Float3 expressions");
-				}
-			}
+			return node;
+		}
+
+
+		inline Sample2D::Sample2D() :
+		Expression(NodeType::Sample2D)
+		{
+		}
+
+		inline std::shared_ptr<Sample2D> Sample2D::Build(ExpressionPtr samplerPtr, ExpressionPtr coordinatesPtr)
+		{
+			auto node = std::make_shared<Sample2D>();
+			node->coordinates = std::move(coordinatesPtr);
+			node->sampler = std::move(samplerPtr);
+
+			return node;
+		}
+
+
+		inline BinaryFunc::BinaryFunc() :
+		Expression(NodeType::BinaryFunc)
+		{
+		}
+
+		inline std::shared_ptr<BinaryFunc> BinaryFunc::Build(BinaryIntrinsic intrinsic, ExpressionPtr left, ExpressionPtr right)
+		{
+			auto node = std::make_shared<BinaryFunc>();
+			node->intrinsic = intrinsic;
+			node->left = std::move(left);
+			node->right = std::move(right);
+
+			return node;
 		}
 	}
 }

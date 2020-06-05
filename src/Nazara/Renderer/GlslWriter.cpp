@@ -116,23 +116,18 @@ namespace Nz
 		m_glslVersion = version;
 	}
 
-	void GlslWriter::Write(const ShaderAst::NodePtr& node)
-	{
-		node->Visit(*this);
-	}
-
-	void GlslWriter::Write(const ShaderAst::Sample2D& node)
+	void GlslWriter::Visit(const ShaderAst::Sample2D& node)
 	{
 		Append("texture(");
-		Write(node.sampler);
+		Visit(node.sampler);
 		Append(", ");
-		Write(node.coordinates);
+		Visit(node.coordinates);
 		Append(")");
 	}
 
-	void GlslWriter::Write(const ShaderAst::AssignOp& node)
+	void GlslWriter::Visit(const ShaderAst::AssignOp& node)
 	{
-		Write(node.left);
+		Visit(node.left);
 
 		switch (node.op)
 		{
@@ -141,10 +136,10 @@ namespace Nz
 				break;
 		}
 
-		Write(node.right);
+		Visit(node.right);
 	}
 
-	void GlslWriter::Write(const ShaderAst::Branch& node)
+	void GlslWriter::Visit(const ShaderAst::Branch& node)
 	{
 		bool first = true;
 		for (const auto& statement : node.condStatements)
@@ -153,11 +148,11 @@ namespace Nz
 				Append("else ");
 
 			Append("if (");
-			Write(statement.condition);
+			Visit(statement.condition);
 			AppendLine(")");
 
 			EnterScope();
-				Write(statement.statement);
+				Visit(statement.statement);
 			LeaveScope();
 
 			first = false;
@@ -168,12 +163,12 @@ namespace Nz
 			AppendLine("else");
 
 			EnterScope();
-				Write(node.elseStatement);
+				Visit(node.elseStatement);
 			LeaveScope();
 		}
 	}
 
-	void GlslWriter::Write(const ShaderAst::BinaryFunc& node)
+	void GlslWriter::Visit(const ShaderAst::BinaryFunc& node)
 	{
 		switch (node.intrinsic)
 		{
@@ -187,15 +182,15 @@ namespace Nz
 		}
 
 		Append("(");
-		Write(node.left);
+		Visit(node.left);
 		Append(", ");
-		Write(node.right);
+		Visit(node.right);
 		Append(")");
 	}
 
-	void GlslWriter::Write(const ShaderAst::BinaryOp& node)
+	void GlslWriter::Visit(const ShaderAst::BinaryOp& node)
 	{
-		Write(node.left);
+		Visit(node.left);
 
 		switch (node.op)
 		{
@@ -216,15 +211,15 @@ namespace Nz
 				break;
 		}
 
-		Write(node.right);
+		Visit(node.right);
 	}
 
-	void GlslWriter::Write(const ShaderAst::BuiltinVariable& node)
+	void GlslWriter::Visit(const ShaderAst::BuiltinVariable& node)
 	{
 		Append(node.var);
 	}
 
-	void GlslWriter::Write(const ShaderAst::Cast& node)
+	void GlslWriter::Visit(const ShaderAst::Cast& node)
 	{
 		Append(node.exprType);
 		Append("(");
@@ -239,14 +234,14 @@ namespace Nz
 			const auto& exprPtr = node.expressions[i++];
 			NazaraAssert(exprPtr, "Invalid expression");
 
-			Write(exprPtr);
+			Visit(exprPtr);
 			requiredComponents -= ShaderAst::Node::GetComponentCount(exprPtr->GetExpressionType());
 		}
 
 		Append(")");
 	}
 
-	void GlslWriter::Write(const ShaderAst::Constant& node)
+	void GlslWriter::Visit(const ShaderAst::Constant& node)
 	{
 		switch (node.exprType)
 		{
@@ -275,7 +270,7 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Write(const ShaderAst::DeclareVariable& node)
+	void GlslWriter::Visit(const ShaderAst::DeclareVariable& node)
 	{
 		Append(node.variable->GetExpressionType());
 		Append(" ");
@@ -285,24 +280,24 @@ namespace Nz
 			Append(" ");
 			Append("=");
 			Append(" ");
-			Write(node.expression);
+			Visit(node.expression);
 		}
 
 		AppendLine(";");
 	}
 
-	void GlslWriter::Write(const ShaderAst::ExpressionStatement& node)
+	void GlslWriter::Visit(const ShaderAst::ExpressionStatement& node)
 	{
-		Write(node.expression);
+		Visit(node.expression);
 		Append(";");
 	}
 
-	void GlslWriter::Write(const ShaderAst::NamedVariable& node)
+	void GlslWriter::Visit(const ShaderAst::NamedVariable& node)
 	{
 		Append(node.name);
 	}
 
-	void GlslWriter::Write(const ShaderAst::StatementBlock& node)
+	void GlslWriter::Visit(const ShaderAst::StatementBlock& node)
 	{
 		bool first = true;
 		for (const ShaderAst::StatementPtr& statement : node.statements)
@@ -310,15 +305,15 @@ namespace Nz
 			if (!first)
 				AppendLine();
 
-			Write(statement);
+			Visit(statement);
 
 			first = false;
 		}
 	}
 
-	void GlslWriter::Write(const ShaderAst::SwizzleOp& node)
+	void GlslWriter::Visit(const ShaderAst::SwizzleOp& node)
 	{
-		Write(node.expression);
+		Visit(node.expression);
 		Append(".");
 
 		for (std::size_t i = 0; i < node.componentCount; ++i)
@@ -433,7 +428,7 @@ namespace Nz
 
 		EnterScope();
 		{
-			Write(func.node);
+			Visit(func.node);
 		}
 		LeaveScope();
 	}
