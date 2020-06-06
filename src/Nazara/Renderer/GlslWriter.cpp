@@ -4,6 +4,8 @@
 
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Renderer/ShaderValidator.hpp>
+#include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -17,6 +19,10 @@ namespace Nz
 
 	String GlslWriter::Generate(const ShaderAst::StatementPtr& node)
 	{
+		std::string error;
+		if (!ShaderAst::Validate(node, &error))
+			throw std::runtime_error("Invalid shader AST: " + error);
+
 		State state;
 		m_currentState = &state;
 		CallOnExit onExit([this]()
