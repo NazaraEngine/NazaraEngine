@@ -17,9 +17,8 @@ ShaderNode(graph)
 
 	if (graph.GetOutputCount() > 0)
 	{
-		auto& firstOutput = graph.GetOutput(0);
 		m_currentOutputIndex = 0;
-		m_currentOutputText = firstOutput.name;
+		UpdateOutputText();
 	}
 
 	EnablePreview();
@@ -32,7 +31,12 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 	ShaderNode::BuildNodeEdition(layout);
 
 	QComboBox* outputSelection = new QComboBox;
+	for (const auto& outputEntry : GetGraph().GetOutputs())
+		outputSelection->addItem(QString::fromStdString(outputEntry.name));
 
+	if (m_currentOutputIndex)
+		outputSelection->setCurrentIndex(int(*m_currentOutputIndex));
+	
 	connect(outputSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
 	{
 		if (index >= 0)
@@ -40,11 +44,9 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 		else
 			m_currentOutputIndex.reset();
 
+		UpdateOutputText();
 		UpdatePreview();
 	});
-
-	for (const auto& outputEntry : GetGraph().GetOutputs())
-		outputSelection->addItem(QString::fromStdString(outputEntry.name));
 
 	layout->addRow(tr("Output"), outputSelection);
 }
@@ -189,9 +191,20 @@ void OutputValue::OnOutputListUpdate()
 	}
 }
 
+void OutputValue::UpdateOutputText()
+{
+	if (m_currentOutputIndex)
+	{
+		auto& output = GetGraph().GetOutput(*m_currentOutputIndex);
+		m_currentOutputText = output.name;
+	}
+	else
+		m_currentOutputText.clear();
+}
+
 void OutputValue::restore(const QJsonObject& data)
 {
-	m_currentOutputText = data["input"].toString().toStdString();
+	m_currentOutputText = data["output"].toString().toStdString();
 	OnOutputListUpdate();
 
 	ShaderNode::restore(data);
@@ -200,7 +213,7 @@ void OutputValue::restore(const QJsonObject& data)
 QJsonObject OutputValue::save() const
 {
 	QJsonObject data = ShaderNode::save();
-	data["input"] = QString::fromStdString(m_currentOutputText);
+	data["output"] = QString::fromStdString(m_currentOutputText);
 
 	return data;
 }

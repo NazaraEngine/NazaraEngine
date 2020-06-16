@@ -20,9 +20,8 @@ ShaderNode(graph)
 
 	if (graph.GetTextureCount() > 0)
 	{
-		auto& firstInput = graph.GetTexture(0);
 		m_currentTextureIndex = 0;
-		m_currentTextureText = firstInput.name;
+		UpdateOutputTexture();
 	}
 
 	DisableCustomVariableName();
@@ -57,6 +56,17 @@ void TextureValue::OnTextureListUpdate()
 	}
 }
 
+void TextureValue::UpdateOutputTexture()
+{
+	if (m_currentTextureIndex)
+	{
+		auto& texture = GetGraph().GetTexture(*m_currentTextureIndex);
+		m_currentTextureText = texture.name;
+	}
+	else
+		m_currentTextureText.clear();
+}
+
 bool TextureValue::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_currentTextureIndex)
@@ -74,6 +84,12 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 	ShaderNode::BuildNodeEdition(layout);
 
 	QComboBox* textureSelection = new QComboBox;
+	for (const auto& textureEntry : GetGraph().GetTextures())
+		textureSelection->addItem(QString::fromStdString(textureEntry.name));
+
+	if (m_currentTextureIndex)
+		textureSelection->setCurrentIndex(int(*m_currentTextureIndex));
+
 	connect(textureSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
 	{
 		if (index >= 0)
@@ -81,13 +97,11 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 		else
 			m_currentTextureIndex.reset();
 
+		UpdateOutputTexture();
 		UpdatePreview();
 
 		Q_EMIT dataUpdated(0);
 	});
-
-	for (const auto& textureEntry : GetGraph().GetTextures())
-		textureSelection->addItem(QString::fromStdString(textureEntry.name));
 
 	layout->addRow(tr("Texture"), textureSelection);
 }
@@ -120,7 +134,7 @@ auto TextureValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portI
 	assert(portType == QtNodes::PortType::Out);
 	assert(portIndex == 0);
 
-	return VecData::Type();
+	return Texture2Data::Type();
 }
 
 std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port)

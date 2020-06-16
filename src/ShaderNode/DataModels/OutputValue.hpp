@@ -35,6 +35,7 @@ class OutputValue : public ShaderNode
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnOutputListUpdate();
+		void UpdateOutputText();
 
 		void restore(const QJsonObject& data) override;
 		QJsonObject save() const override;

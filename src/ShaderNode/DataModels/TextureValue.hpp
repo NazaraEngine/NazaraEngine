@@ -35,6 +35,7 @@ class TextureValue : public ShaderNode
 	protected:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnTextureListUpdate();
+		void UpdateOutputTexture();
 
 		void restore(const QJsonObject& data) override;
 		QJsonObject save() const override;

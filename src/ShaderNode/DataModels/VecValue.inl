@@ -78,6 +78,7 @@ void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 	{
 		QDoubleSpinBox* spinbox = new QDoubleSpinBox;
 		spinbox->setDecimals(6);
+		spinbox->setRange(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max());
 		spinbox->setValue(m_value[i]);
 
 		connect(spinbox, qOverload<double>(&QDoubleSpinBox::valueChanged), [=](double)
@@ -122,8 +123,10 @@ template<std::size_t ComponentCount>
 void VecValue<ComponentCount>::restore(const QJsonObject& data)
 {
 	QJsonArray vecValues = data["value"].toArray();
-	for (std::size_t i = 0; i < ComponentCount; ++i)
-		m_value[i] = vecValues[int(i)].toInt(m_value[i]);
+	std::size_t commonValues = std::min(static_cast<std::size_t>(vecValues.size()), ComponentCount);
+
+	for (std::size_t i = 0; i < commonValues; ++i)
+		m_value[i] = float(vecValues[int(i)].toDouble(m_value[i]));
 
 	ShaderNode::restore(data);
 }
