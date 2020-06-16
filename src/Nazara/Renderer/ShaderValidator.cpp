@@ -102,6 +102,14 @@ namespace Nz::ShaderAst
 			{
 				switch (leftType)
 				{
+					case ExpressionType::Float1:
+					{
+						if (Node::GetComponentType(rightType) != ExpressionType::Float1)
+							throw AstError{ "Left expression type is not compatible with right expression type" };
+
+						break;
+					}
+
 					case ExpressionType::Float2:
 					case ExpressionType::Float3:
 					case ExpressionType::Float4:

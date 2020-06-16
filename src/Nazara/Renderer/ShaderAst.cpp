@@ -122,10 +122,14 @@ namespace Nz::ShaderAst
 		switch (op)
 		{
 			case ShaderAst::BinaryType::Add:
-			case ShaderAst::BinaryType::Divide:
-			case ShaderAst::BinaryType::Multiply:
 			case ShaderAst::BinaryType::Substract:
 				exprType = left->GetExpressionType();
+				break;
+
+			case ShaderAst::BinaryType::Divide:
+			case ShaderAst::BinaryType::Multiply:
+				//FIXME
+				exprType = static_cast<ExpressionType>(std::max(UnderlyingCast(left->GetExpressionType()), UnderlyingCast(right->GetExpressionType())));
 				break;
 
 			case ShaderAst::BinaryType::Equality:
