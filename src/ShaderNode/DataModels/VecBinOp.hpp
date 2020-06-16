@@ -23,6 +23,9 @@ class VecBinOp : public ShaderNode
 
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 
+		QtNodes::NodeValidationState validationState() const override;
+		QString validationMessage() const override;
+
 	private:
 		virtual void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) = 0;
 
