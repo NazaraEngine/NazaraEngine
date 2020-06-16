@@ -38,6 +38,9 @@ class CastVec : public ShaderNode
 		bool ComputePreview(QPixmap& pixmap) override;
 		void UpdateOutput();
 
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
+
 		std::shared_ptr<VecData> m_input;
 		std::shared_ptr<VecData> m_output;
 		VecType<ToComponentCount> m_overflowComponents;

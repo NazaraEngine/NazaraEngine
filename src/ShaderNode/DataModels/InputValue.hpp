@@ -36,6 +36,7 @@ class InputValue : public ShaderNode
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnInputListUpdate();
+		void UpdateInputText();
 
 		void restore(const QJsonObject& data) override;
 		QJsonObject save() const override;

@@ -34,6 +34,7 @@ void CastVec<ToComponentCount>::BuildNodeEdition(QFormLayout* layout)
 		{
 			QDoubleSpinBox* spinbox = new QDoubleSpinBox;
 			spinbox->setDecimals(6);
+			spinbox->setRange(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max());
 			spinbox->setValue(m_overflowComponents[i]);
 
 			connect(spinbox, qOverload<double>(&QDoubleSpinBox::valueChanged), [=](double)
@@ -66,7 +67,7 @@ Nz::ShaderAst::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::Shader
 
 		constexpr auto ExpressionType = VecExpressionType<ToComponentCount>;
 
-		return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), overflowComponentCount);
+		return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), 1 + overflowComponentCount);
 	}
 	else if (ToComponentCount < fromComponentCount)
 	{
@@ -231,4 +232,30 @@ void CastVec<ToComponentCount>::UpdateOutput()
 	Q_EMIT dataUpdated(0);
 
 	UpdatePreview();
+}
+
+template<std::size_t ToComponentCount>
+void CastVec<ToComponentCount>::restore(const QJsonObject& data)
+{
+	QJsonArray vecValues = data["value"].toArray();
+	std::size_t commonValues = std::min(static_cast<std::size_t>(vecValues.size()), ToComponentCount);
+
+	for (std::size_t i = 0; i < commonValues; ++i)
+		m_overflowComponents[i] = float(vecValues[int(i)].toDouble(m_overflowComponents[i]));
+
+	ShaderNode::restore(data);
+}
+
+template<std::size_t ToComponentCount>
+QJsonObject CastVec<ToComponentCount>::save() const
+{
+	QJsonObject data = ShaderNode::save();
+
+	QJsonArray vecValues;
+	for (std::size_t i = 0; i < ToComponentCount; ++i)
+		vecValues.push_back(m_overflowComponents[i]);
+
+	data["value"] = vecValues;
+
+	return data;
 }

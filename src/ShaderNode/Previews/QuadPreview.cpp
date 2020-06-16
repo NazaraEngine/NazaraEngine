@@ -3,8 +3,12 @@
 
 QImage QuadPreview::GetImage(InputRole role, std::size_t roleIndex) const
 {
-	assert(role == InputRole::TexCoord);
-	assert(roleIndex == 0);
+	if (role != InputRole::TexCoord)
+	{
+		QImage dummy(1, 1, QImage::Format_RGBA8888);
+		dummy.fill(QColor::fromRgb(0, 0, 0, 0));
+		return dummy;
+	}
 
 	QImage uv(128, 128, QImage::Format_RGBA8888);
 

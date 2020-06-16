@@ -20,9 +20,8 @@ ShaderNode(graph)
 
 	if (graph.GetInputCount() > 0)
 	{
-		auto& firstInput = graph.GetInput(0);
 		m_currentInputIndex = 0;
-		m_currentInputText = firstInput.name;
+		UpdateInputText();
 	}
 
 	DisableCustomVariableName();
@@ -70,11 +69,27 @@ void InputValue::OnInputListUpdate()
 	}
 }
 
+void InputValue::UpdateInputText()
+{
+	if (m_currentInputIndex)
+	{
+		auto& input = GetGraph().GetInput(*m_currentInputIndex);
+		m_currentInputText = input.name;
+	}
+	else
+		m_currentInputText.clear();
+}
+
 void InputValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
 	QComboBox* inputSelection = new QComboBox;
+	for (const auto& inputEntry : GetGraph().GetInputs())
+		inputSelection->addItem(QString::fromStdString(inputEntry.name));
+
+	if (m_currentInputIndex)
+		inputSelection->setCurrentIndex(int(*m_currentInputIndex));
 
 	connect(inputSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
 	{
@@ -83,11 +98,11 @@ void InputValue::BuildNodeEdition(QFormLayout* layout)
 		else
 			m_currentInputIndex.reset();
 
+		UpdateInputText();
 		UpdatePreview();
-	});
 
-	for (const auto& inputEntry : GetGraph().GetInputs())
-		inputSelection->addItem(QString::fromStdString(inputEntry.name));
+		Q_EMIT dataUpdated(0);
+	});
 
 	layout->addRow(tr("Input"), inputSelection);
 }
