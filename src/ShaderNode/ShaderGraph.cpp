@@ -9,6 +9,7 @@
 #include <ShaderNode/DataModels/TextureValue.hpp>
 #include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <ShaderNode/DataModels/VecDot.hpp>
+#include <ShaderNode/DataModels/VecFloatMul.hpp>
 #include <ShaderNode/DataModels/VecValue.hpp>
 #include <ShaderNode/Previews/QuadPreview.hpp>
 #include <QtCore/QDebug>
@@ -402,6 +403,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<VecAdd>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDiv>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDot>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecFloatMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecSub>(*this, registry, "Vector operations");
 	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
