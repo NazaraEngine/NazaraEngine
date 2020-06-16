@@ -66,6 +66,30 @@ void VecBinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int in
 }
 
 template<Nz::ShaderAst::BinaryType BinOp>
+QtNodes::NodeValidationState VecBinOp<BinOp>::validationState() const
+{
+	if (!m_lhs || !m_rhs)
+		return QtNodes::NodeValidationState::Error;
+
+	if (m_lhs->componentCount != m_rhs->componentCount)
+		return QtNodes::NodeValidationState::Error;
+
+	return QtNodes::NodeValidationState::Valid;
+}
+
+template<Nz::ShaderAst::BinaryType BinOp>
+QString VecBinOp<BinOp>::validationMessage() const
+{
+	if (!m_lhs || !m_rhs)
+		return "Missing operands";
+
+	if (m_lhs->componentCount != m_rhs->componentCount)
+		return "Incompatible components count (left has " + QString::number(m_lhs->componentCount) + ", right has " + QString::number(m_rhs->componentCount) + ")";
+
+	return QString();
+}
+
+template<Nz::ShaderAst::BinaryType BinOp>
 bool VecBinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
@@ -78,7 +102,7 @@ bool VecBinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 template<Nz::ShaderAst::BinaryType BinOp>
 void VecBinOp<BinOp>::UpdateOutput()
 {
-	if (!m_lhs || !m_rhs || m_lhs->componentCount != m_rhs->componentCount)
+	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
 		m_output = std::make_shared<VecData>(4);
 		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
