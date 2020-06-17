@@ -7,14 +7,20 @@
 
 namespace Nz::ShaderNodes
 {
-	inline Node::Node(NodeType type) :
-	m_type(type)
+	inline Node::Node(NodeType type, bool isStatement) :
+	m_type(type),
+	m_isStatement(isStatement)
 	{
 	}
 
 	inline NodeType ShaderNodes::Node::GetType() const
 	{
 		return m_type;
+	}
+
+	inline bool Node::IsStatement() const
+	{
+		return m_isStatement;
 	}
 
 	inline unsigned int Node::GetComponentCount(ExpressionType type)
@@ -54,6 +60,19 @@ namespace Nz::ShaderNodes
 				return type;
 		}
 	}
+
+
+	inline Expression::Expression(NodeType type) :
+	Node(type, false)
+	{
+	}
+
+	inline Statement::Statement(NodeType type) :
+	Node(type, true)
+	{
+	}
+
+
 
 	inline ExpressionStatement::ExpressionStatement() :
 	Statement(NodeType::ExpressionStatement)

@@ -34,6 +34,7 @@ namespace Nz
 				virtual ~Node();
 
 				inline NodeType GetType() const;
+				inline bool IsStatement() const;
 
 				virtual void Visit(ShaderVisitor& visitor) = 0;
 
@@ -41,10 +42,24 @@ namespace Nz
 				static inline ExpressionType GetComponentType(ExpressionType type);
 
 			protected:
-				inline Node(NodeType type);
+				inline Node(NodeType type, bool isStatement);
 
 			private:
 				NodeType m_type;
+				bool m_isStatement;
+		};
+		
+		class Expression;
+
+		using ExpressionPtr = std::shared_ptr<Expression>;
+
+		class NAZARA_RENDERER_API Expression : public Node
+		{
+			public:
+				inline Expression(NodeType type);
+
+				virtual ExpressionCategory GetExpressionCategory() const;
+				virtual ExpressionType GetExpressionType() const = 0;
 		};
 
 		class Statement;
@@ -54,20 +69,7 @@ namespace Nz
 		class NAZARA_RENDERER_API Statement : public Node
 		{
 			public:
-				using Node::Node;
-		};
-
-		class Expression;
-
-		using ExpressionPtr = std::shared_ptr<Expression>;
-
-		class NAZARA_RENDERER_API Expression : public Node
-		{
-			public:
-				using Node::Node;
-
-				virtual ExpressionCategory GetExpressionCategory() const;
-				virtual ExpressionType GetExpressionType() const = 0;
+				inline Statement(NodeType type);
 		};
 
 		struct NAZARA_RENDERER_API ExpressionStatement : public Statement

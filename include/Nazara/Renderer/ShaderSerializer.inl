@@ -5,7 +5,7 @@
 #include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-namespace Nz::ShaderNodes
+namespace Nz
 {
 	template<typename T>
 	void ShaderSerializerBase::Container(T& container)
@@ -37,11 +37,29 @@ namespace Nz::ShaderNodes
 	}
 
 	template<typename T>
+	void ShaderSerializerBase::OptVal(std::optional<T>& optVal)
+	{
+		bool isWriting = IsWriting();
+
+		bool hasValue;
+		if (isWriting)
+			hasValue = optVal.has_value();
+
+		Value(hasValue);
+
+		if (!isWriting && hasValue)
+			optVal.emplace();
+
+		if (optVal.has_value())
+			Value(optVal.value());
+	}
+
+	template<typename T>
 	void ShaderSerializerBase::Node(std::shared_ptr<T>& node)
 	{
 		bool isWriting = IsWriting();
 
-		NodePtr value;
+		ShaderNodes::NodePtr value;
 		if (isWriting)
 			value = node;
 
@@ -55,7 +73,7 @@ namespace Nz::ShaderNodes
 	{
 		bool isWriting = IsWriting();
 
-		VariablePtr value;
+		ShaderNodes::VariablePtr value;
 		if (isWriting)
 			value = var;
 

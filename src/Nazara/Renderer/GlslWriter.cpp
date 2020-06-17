@@ -330,9 +330,7 @@ namespace Nz
 		Append(node.variable->name);
 		if (node.expression)
 		{
-			Append(" ");
-			Append("=");
-			Append(" ");
+			Append(" = ");
 			Visit(node.expression);
 		}
 

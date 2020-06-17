@@ -103,9 +103,6 @@ void MainWindow::OnCompileToGLSL()
 	{
 		Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
 
-		Nz::File file("shader.shader", Nz::OpenMode_WriteOnly);
-		file.Write(Nz::ShaderNodes::Serialize(shaderAst));
-
 		//TODO: Put in another function
 		auto GetExpressionFromInOut = [&] (InOutType type)
 		{
@@ -144,6 +141,9 @@ void MainWindow::OnCompileToGLSL()
 			shader.AddUniform(uniform.name, GetExpressionFromTexture(uniform.type), uniform.bindingIndex);
 
 		shader.AddFunction("main", shaderAst);
+
+		Nz::File file("shader.shader", Nz::OpenMode_WriteOnly);
+		file.Write(Nz::SerializeShader(shader));
 
 		Nz::GlslWriter writer;
 		Nz::String glsl = writer.Generate(shader);
