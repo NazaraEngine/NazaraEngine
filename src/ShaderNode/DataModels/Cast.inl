@@ -49,7 +49,7 @@ void CastVec<ToComponentCount>::BuildNodeEdition(QFormLayout* layout)
 }
 
 template<std::size_t ToComponentCount>
-Nz::ShaderAst::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
 {
 	assert(m_input);
 	assert(count == 1);
@@ -60,7 +60,7 @@ Nz::ShaderAst::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::Shader
 	{
 		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
 
-		std::array<Nz::ShaderAst::ExpressionPtr, 4> expr;
+		std::array<Nz::ShaderNodes::ExpressionPtr, 4> expr;
 		expr[0] = expressions[0];
 		for (std::size_t i = 0; i < overflowComponentCount; ++i)
 			expr[i + 1] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
@@ -71,13 +71,13 @@ Nz::ShaderAst::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::Shader
 	}
 	else if (ToComponentCount < fromComponentCount)
 	{
-		std::array<Nz::ShaderAst::SwizzleComponent, ToComponentCount> swizzleComponents;
+		std::array<Nz::ShaderNodes::SwizzleComponent, ToComponentCount> swizzleComponents;
 		for (std::size_t i = 0; i < ToComponentCount; ++i)
-			swizzleComponents[i] = static_cast<Nz::ShaderAst::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderAst::SwizzleComponent::First) + i);
+			swizzleComponents[i] = static_cast<Nz::ShaderNodes::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderNodes::SwizzleComponent::First) + i);
 
 		return std::apply([&](auto... components)
 		{
-			std::initializer_list<Nz::ShaderAst::SwizzleComponent> componentList{ components... };
+			std::initializer_list<Nz::ShaderNodes::SwizzleComponent> componentList{ components... };
 			return Nz::ShaderBuilder::Swizzle(expressions[0], componentList);
 		}, swizzleComponents);
 	}

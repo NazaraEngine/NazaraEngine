@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERNODE_HPP
 
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
 #include <nodes/NodeDataModel>
 #include <QtGui/QPixmap>
 #include <optional>
@@ -23,7 +23,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 		inline void DisablePreview();
 		void EnablePreview(bool enable = true);
 
-		virtual Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const = 0;
+		virtual Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const = 0;
 		inline ShaderGraph& GetGraph();
 		inline const ShaderGraph& GetGraph() const;
 		inline const std::string& GetVariableName() const;

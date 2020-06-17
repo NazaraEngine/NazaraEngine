@@ -3,13 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/ShaderSerializer.hpp>
+#include <Nazara/Renderer/ShaderVarVisitor.hpp>
+#include <Nazara/Renderer/ShaderVisitor.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-namespace Nz::ShaderAst
+namespace Nz::ShaderNodes
 {
 	namespace
 	{
-		class ShaderSerializerVisitor : public ShaderVisitor
+		class ShaderSerializerVisitor : public ShaderVisitor, public ShaderVarVisitor
 		{
 			public:
 				ShaderSerializerVisitor(ShaderSerializerBase& serializer) :
@@ -22,22 +24,12 @@ namespace Nz::ShaderAst
 					Serialize(node);
 				}
 
-				void Visit(const BinaryFunc& node) override
-				{
-					Serialize(node);
-				}
-
 				void Visit(const BinaryOp& node) override
 				{
 					Serialize(node);
 				}
 
 				void Visit(const Branch& node) override
-				{
-					Serialize(node);
-				}
-
-				void Visit(const BuiltinVariable& node) override
 				{
 					Serialize(node);
 				}
@@ -62,7 +54,12 @@ namespace Nz::ShaderAst
 					Serialize(node);
 				}
 
-				void Visit(const NamedVariable& node) override
+				void Visit(const Identifier& node) override
+				{
+					Serialize(node);
+				}
+
+				void Visit(const IntrinsicCall& node) override
 				{
 					Serialize(node);
 				}
@@ -82,6 +79,37 @@ namespace Nz::ShaderAst
 					Serialize(node);
 				}
 
+
+				void Visit(const ShaderNodes::BuiltinVariable& var) override
+				{
+					Serialize(var);
+				}
+
+				void Visit(const ShaderNodes::InputVariable& var) override
+				{
+					Serialize(var);
+				}
+
+				void Visit(const ShaderNodes::LocalVariable& var) override
+				{
+					Serialize(var);
+				}
+
+				void Visit(const ShaderNodes::OutputVariable& var) override
+				{
+					Serialize(var);
+				}
+
+				void Visit(const ShaderNodes::ParameterVariable& var) override
+				{
+					Serialize(var);
+				}
+
+				void Visit(const ShaderNodes::UniformVariable& var) override
+				{
+					Serialize(var);
+				}
+
 			private:
 				template<typename T>
 				void Serialize(const T& node)
@@ -97,13 +125,6 @@ namespace Nz::ShaderAst
 	void ShaderSerializerBase::Serialize(AssignOp& node)
 	{
 		Enum(node.op);
-		Node(node.left);
-		Node(node.right);
-	}
-
-	void ShaderSerializerBase::Serialize(BinaryFunc& node)
-	{
-		Enum(node.intrinsic);
 		Node(node.left);
 		Node(node.right);
 	}
@@ -129,7 +150,7 @@ namespace Nz::ShaderAst
 
 	void ShaderSerializerBase::Serialize(BuiltinVariable& node)
 	{
-		Enum(node.var);
+		Enum(node.type);
 		Enum(node.type);
 	}
 
@@ -170,7 +191,7 @@ namespace Nz::ShaderAst
 
 	void ShaderSerializerBase::Serialize(DeclareVariable& node)
 	{
-		Node(node.variable);
+		Variable(node.variable);
 		Node(node.expression);
 	}
 
@@ -179,10 +200,22 @@ namespace Nz::ShaderAst
 		Node(node.expression);
 	}
 
+	void ShaderSerializerBase::Serialize(Identifier& node)
+	{
+		Variable(node.var);
+	}
+
+	void ShaderSerializerBase::Serialize(IntrinsicCall& node)
+	{
+		Enum(node.intrinsic);
+		Container(node.parameters);
+		for (auto& param : node.parameters)
+			Node(param);
+	}
+
 	void ShaderSerializerBase::Serialize(NamedVariable& node)
 	{
 		Value(node.name);
-		Enum(node.kind);
 		Enum(node.type);
 	}
 
@@ -272,6 +305,18 @@ namespace Nz::ShaderAst
 		m_stream << val;
 	}
 
+	void ShaderSerializer::Variable(VariablePtr& var)
+	{
+		VariableType nodeType = (var) ? var->GetType() : VariableType::None;
+		m_stream << static_cast<Int32>(nodeType);
+
+		if (var)
+		{
+			ShaderSerializerVisitor visitor(*this);
+			var->Visit(visitor);
+		}
+	}
+
 	ByteArray Serialize(const StatementPtr& shader)
 	{
 		ByteArray byteArray;
@@ -309,27 +354,26 @@ namespace Nz::ShaderAst
 
 		NodeType nodeType = static_cast<NodeType>(nodeTypeInt);
 
-#define HandleNodeType(Type) case NodeType:: Type : node = std::make_shared<Type>(); break
+#define HandleType(Type) case NodeType:: Type : node = std::make_shared<Type>(); break
 		switch (nodeType)
 		{
 			case NodeType::None: break;
 
-			HandleNodeType(AssignOp);
-			HandleNodeType(BinaryFunc);
-			HandleNodeType(BinaryOp);
-			HandleNodeType(Branch);
-			HandleNodeType(BuiltinVariable);
-			HandleNodeType(Cast);
-			HandleNodeType(Constant);
-			HandleNodeType(ConditionalStatement);
-			HandleNodeType(DeclareVariable);
-			HandleNodeType(ExpressionStatement);
-			HandleNodeType(NamedVariable);
-			HandleNodeType(Sample2D);
-			HandleNodeType(SwizzleOp);
-			HandleNodeType(StatementBlock);
+			HandleType(AssignOp);
+			HandleType(BinaryOp);
+			HandleType(Branch);
+			HandleType(Cast);
+			HandleType(Constant);
+			HandleType(ConditionalStatement);
+			HandleType(DeclareVariable);
+			HandleType(ExpressionStatement);
+			HandleType(Identifier);
+			HandleType(IntrinsicCall);
+			HandleType(Sample2D);
+			HandleType(SwizzleOp);
+			HandleType(StatementBlock);
 		}
-#undef HandleNodeType
+#undef HandleType
 
 		if (node)
 		{
@@ -371,6 +415,33 @@ namespace Nz::ShaderAst
 	void ShaderUnserializer::Value(UInt32& val)
 	{
 		m_stream >> val;
+	}
+
+	void ShaderUnserializer::Variable(VariablePtr& var)
+	{
+		Int32 nodeTypeInt;
+		m_stream >> nodeTypeInt;
+
+		VariableType nodeType = static_cast<VariableType>(nodeTypeInt);
+
+#define HandleType(Type) case VariableType:: Type : var = std::make_shared<Type>(); break
+		switch (nodeType)
+		{
+			case VariableType::None: break;
+
+			HandleType(BuiltinVariable);
+			HandleType(InputVariable);
+			HandleType(LocalVariable);
+			HandleType(OutputVariable);
+			HandleType(UniformVariable);
+		}
+#undef HandleType
+
+		if (var)
+		{
+			ShaderSerializerVisitor visitor(*this);
+			var->Visit(visitor);
+		}
 	}
 }
 

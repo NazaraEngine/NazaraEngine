@@ -14,45 +14,38 @@ namespace Nz::ShaderBuilder
 		return T::Build(std::forward<Args>(args)...);
 	}
 
-	template<ShaderAst::AssignType op>
-	std::shared_ptr<ShaderAst::AssignOp> AssignOpBuilder<op>::operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const
+	template<ShaderNodes::AssignType op>
+	std::shared_ptr<ShaderNodes::AssignOp> AssignOpBuilder<op>::operator()(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right) const
 	{
-		return ShaderAst::AssignOp::Build(op, left, right);
+		return ShaderNodes::AssignOp::Build(op, left, right);
 	}
 
-	template<ShaderAst::BinaryType op>
-	std::shared_ptr<ShaderAst::BinaryOp> BinOpBuilder<op>::operator()(const ShaderAst::ExpressionPtr& left, const ShaderAst::ExpressionPtr& right) const
+	template<ShaderNodes::BinaryType op>
+	std::shared_ptr<ShaderNodes::BinaryOp> BinOpBuilder<op>::operator()(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right) const
 	{
-		return ShaderAst::BinaryOp::Build(op, left, right);
+		return ShaderNodes::BinaryOp::Build(op, left, right);
 	}
 
-	inline std::shared_ptr<ShaderAst::Variable> BuiltinBuilder::operator()(ShaderAst::BuiltinEntry builtin) const
+	inline std::shared_ptr<ShaderNodes::Variable> BuiltinBuilder::operator()(ShaderNodes::BuiltinEntry builtin) const
 	{
-		ShaderAst::ExpressionType exprType = ShaderAst::ExpressionType::Void;
+		ShaderNodes::ExpressionType exprType = ShaderNodes::ExpressionType::Void;
 
 		switch (builtin)
 		{
-			case ShaderAst::BuiltinEntry::VertexPosition:
-				exprType = ShaderAst::ExpressionType::Float4;
+			case ShaderNodes::BuiltinEntry::VertexPosition:
+				exprType = ShaderNodes::ExpressionType::Float4;
 				break;
 		}
 
-		NazaraAssert(exprType != ShaderAst::ExpressionType::Void, "Unhandled builtin");
+		NazaraAssert(exprType != ShaderNodes::ExpressionType::Void, "Unhandled builtin");
 
-		return ShaderAst::BuiltinVariable::Build(builtin, exprType);
+		return ShaderNodes::BuiltinVariable::Build(builtin, exprType);
 	}
 
-	template<ShaderAst::VariableType type>
-	template<typename... Args>
-	ShaderAst::NamedVariablePtr VarBuilder<type>::operator()(Args&&... args) const
+	template<ShaderNodes::ExpressionType Type, typename... Args>
+	std::shared_ptr<ShaderNodes::Cast> Cast(Args&&... args)
 	{
-		return ShaderAst::NamedVariable::Build(type, std::forward<Args>(args)...);
-	}
-
-	template<ShaderAst::ExpressionType Type, typename... Args>
-	std::shared_ptr<ShaderAst::Cast> Cast(Args&&... args)
-	{
-		return ShaderAst::Cast::Build(Type, std::forward<Args>(args)...);
+		return ShaderNodes::Cast::Build(Type, std::forward<Args>(args)...);
 	}
 }
 

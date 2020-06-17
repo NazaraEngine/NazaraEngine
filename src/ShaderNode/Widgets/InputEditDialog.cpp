@@ -23,6 +23,8 @@ QDialog(parent)
 	for (std::size_t i = 0; i < InputRoleCount; ++i)
 		m_roleList->addItem(EnumToString(static_cast<InputRole>(i)));
 
+	m_locationIndex = new QSpinBox;
+
 	m_roleIndex = new QSpinBox;
 
 	QFormLayout* formLayout = new QFormLayout;
@@ -30,6 +32,7 @@ QDialog(parent)
 	formLayout->addRow(tr("Type"), m_typeList);
 	formLayout->addRow(tr("Role"), m_roleList);
 	formLayout->addRow(tr("Role index"), m_roleIndex);
+	formLayout->addRow(tr("Input index"), m_locationIndex);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &InputEditDialog::OnAccept);
@@ -46,6 +49,7 @@ InputEditDialog::InputEditDialog(const InputInfo& input, QWidget* parent) :
 InputEditDialog(parent)
 {
 	m_inputName->setText(QString::fromStdString(input.name));
+	m_locationIndex->setValue(int(input.locationIndex));
 	m_roleIndex->setValue(int(input.roleIndex));
 	m_roleList->setCurrentText(EnumToString(input.role));
 	m_typeList->setCurrentText(EnumToString(input.type));
@@ -54,6 +58,7 @@ InputEditDialog(parent)
 InputInfo InputEditDialog::GetInputInfo() const
 {
 	InputInfo inputInfo;
+	inputInfo.locationIndex = static_cast<std::size_t>(m_locationIndex->value());
 	inputInfo.name = m_inputName->text().toStdString();
 	inputInfo.role = static_cast<InputRole>(m_roleList->currentIndex());
 	inputInfo.roleIndex = static_cast<std::size_t>(m_roleIndex->value());

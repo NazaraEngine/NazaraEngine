@@ -5,7 +5,7 @@
 #include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-namespace Nz::ShaderAst
+namespace Nz::ShaderNodes
 {
 	template<typename T>
 	void ShaderSerializerBase::Container(T& container)
@@ -37,7 +37,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename T>
-	inline void ShaderSerializerBase::Node(std::shared_ptr<T>& node)
+	void ShaderSerializerBase::Node(std::shared_ptr<T>& node)
 	{
 		bool isWriting = IsWriting();
 
@@ -48,6 +48,20 @@ namespace Nz::ShaderAst
 		Node(value);
 		if (!isWriting)
 			node = std::static_pointer_cast<T>(value);
+	}
+
+	template<typename T>
+	void ShaderSerializerBase::Variable(std::shared_ptr<T>& var)
+	{
+		bool isWriting = IsWriting();
+
+		VariablePtr value;
+		if (isWriting)
+			value = var;
+
+		Variable(value);
+		if (!isWriting)
+			var = std::static_pointer_cast<T>(value);
 	}
 
 	inline void ShaderSerializerBase::Value(std::size_t& val)

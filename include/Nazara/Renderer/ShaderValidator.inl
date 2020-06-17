@@ -5,8 +5,12 @@
 #include <Nazara/Renderer/ShaderValidator.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
-namespace Nz::ShaderAst
+namespace Nz
 {
+	ShaderValidator::ShaderValidator(const ShaderAst& shader) :
+	m_shader(shader)
+	{
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

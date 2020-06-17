@@ -1,5 +1,7 @@
 #include <ShaderNode/Widgets/MainWindow.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
 #include <ShaderNode/Widgets/OutputEditor.hpp>
@@ -84,8 +86,6 @@ void MainWindow::BuildMenu()
 
 	QMenu* shader = menu->addMenu(tr("&Shader"));
 	{
-		QtNodes::FlowScene* scene = &m_shaderGraph.GetScene();
-
 		QAction* loadShader = shader->addAction(tr("Load..."));
 		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
 		QAction* saveShader = shader->addAction(tr("Save..."));
@@ -101,8 +101,52 @@ void MainWindow::OnCompileToGLSL()
 {
 	try
 	{
+		Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
+
+		Nz::File file("shader.shader", Nz::OpenMode_WriteOnly);
+		file.Write(Nz::ShaderNodes::Serialize(shaderAst));
+
+		//TODO: Put in another function
+		auto GetExpressionFromInOut = [&] (InOutType type)
+		{
+			switch (type)
+			{
+				case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+				case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
+				case InOutType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
+				case InOutType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
+				case InOutType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+			}
+
+			assert(false);
+			throw std::runtime_error("Unhandled input type");
+		};
+
+		auto GetExpressionFromTexture = [&](TextureType type)
+		{
+			switch (type)
+			{
+				case TextureType::Sampler2D: return Nz::ShaderNodes::ExpressionType::Sampler2D;
+			}
+
+			assert(false);
+			throw std::runtime_error("Unhandled texture type");
+		};
+
+		Nz::ShaderAst shader;
+		for (const auto& input : m_shaderGraph.GetInputs())
+			shader.AddInput(input.name, GetExpressionFromInOut(input.type), input.locationIndex);
+
+		for (const auto& output : m_shaderGraph.GetOutputs())
+			shader.AddOutput(output.name, GetExpressionFromInOut(output.type), output.locationIndex);
+
+		for (const auto& uniform : m_shaderGraph.GetTextures())
+			shader.AddUniform(uniform.name, GetExpressionFromTexture(uniform.type), uniform.bindingIndex);
+
+		shader.AddFunction("main", shaderAst);
+
 		Nz::GlslWriter writer;
-		Nz::String glsl = writer.Generate(m_shaderGraph.ToAst());
+		Nz::String glsl = writer.Generate(shader);
 
 		std::cout << glsl << std::endl;
 

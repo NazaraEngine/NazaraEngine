@@ -4,6 +4,7 @@
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMessageBox>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QVBoxLayout>
 
 OutputEditDialog::OutputEditDialog(QWidget* parent) :
@@ -18,9 +19,12 @@ QDialog(parent)
 	for (std::size_t i = 0; i < InOutTypeCount; ++i)
 		m_typeList->addItem(EnumToString(static_cast<InOutType>(i)));
 
+	m_locationIndex = new QSpinBox;
+
 	QFormLayout* formLayout = new QFormLayout;
 	formLayout->addRow(tr("Name"), m_outputName);
 	formLayout->addRow(tr("Type"), m_typeList);
+	formLayout->addRow(tr("Output index"), m_locationIndex);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &OutputEditDialog::OnAccept);
@@ -33,16 +37,18 @@ QDialog(parent)
 	setLayout(verticalLayout);
 }
 
-OutputEditDialog::OutputEditDialog(const OutputInfo& input, QWidget* parent) :
+OutputEditDialog::OutputEditDialog(const OutputInfo& output, QWidget* parent) :
 OutputEditDialog(parent)
 {
-	m_outputName->setText(QString::fromStdString(input.name));
-	m_typeList->setCurrentText(EnumToString(input.type));
+	m_locationIndex->setValue(int(output.locationIndex));
+	m_outputName->setText(QString::fromStdString(output.name));
+	m_typeList->setCurrentText(EnumToString(output.type));
 }
 
 OutputInfo OutputEditDialog::GetOutputInfo() const
 {
 	OutputInfo inputInfo;
+	inputInfo.locationIndex = static_cast<std::size_t>(m_locationIndex->value());
 	inputInfo.name = m_outputName->text().toStdString();
 	inputInfo.type = static_cast<InOutType>(m_typeList->currentIndex());
 

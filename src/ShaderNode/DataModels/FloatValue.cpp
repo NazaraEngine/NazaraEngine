@@ -71,7 +71,7 @@ void FloatValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), spinbox);
 }
 
-Nz::ShaderAst::ExpressionPtr FloatValue::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr FloatValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 

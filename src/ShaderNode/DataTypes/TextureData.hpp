@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_TEXTUREDATA_HPP
 #define NAZARA_SHADERNODES_TEXTUREDATA_HPP
 
-#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
 #include <nodes/NodeData>
 #include <QtGui/QImage>
 

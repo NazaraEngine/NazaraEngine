@@ -1,15 +1,15 @@
 #include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 VecBinOp<BinOp>::VecBinOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	UpdateOutput();
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
-Nz::ShaderAst::ExpressionPtr VecBinOp<BinOp>::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+template<Nz::ShaderNodes::BinaryType BinOp>
+Nz::ShaderNodes::ExpressionPtr VecBinOp<BinOp>::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
 {
 	assert(count == 2);
 	using BuilderType = typename Nz::ShaderBuilder::template BinOpBuilder<BinOp>;
@@ -17,7 +17,7 @@ Nz::ShaderAst::ExpressionPtr VecBinOp<BinOp>::GetExpression(Nz::ShaderAst::Expre
 	return builder(expressions[0], expressions[1]);
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 QtNodes::NodeDataType VecBinOp<BinOp>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
@@ -25,7 +25,7 @@ QtNodes::NodeDataType VecBinOp<BinOp>::dataType(QtNodes::PortType /*portType*/, 
 	return VecData::Type();
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 unsigned int VecBinOp<BinOp>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -37,14 +37,14 @@ unsigned int VecBinOp<BinOp>::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 std::shared_ptr<QtNodes::NodeData> VecBinOp<BinOp>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 void VecBinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
@@ -65,7 +65,7 @@ void VecBinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int in
 	UpdateOutput();
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 QtNodes::NodeValidationState VecBinOp<BinOp>::validationState() const
 {
 	if (!m_lhs || !m_rhs)
@@ -77,7 +77,7 @@ QtNodes::NodeValidationState VecBinOp<BinOp>::validationState() const
 	return QtNodes::NodeValidationState::Valid;
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 QString VecBinOp<BinOp>::validationMessage() const
 {
 	if (!m_lhs || !m_rhs)
@@ -89,7 +89,7 @@ QString VecBinOp<BinOp>::validationMessage() const
 	return QString();
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 bool VecBinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
@@ -99,7 +99,7 @@ bool VecBinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 void VecBinOp<BinOp>::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)

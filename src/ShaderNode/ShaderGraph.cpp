@@ -46,9 +46,9 @@ m_flowScene(BuildRegistry())
 	});
 
 	// Test
-	AddInput("UV", InOutType::Float2, InputRole::TexCoord, 0);
-	AddOutput("RenderTarget0", InOutType::Float4);
-	AddTexture("Potato", TextureType::Sampler2D);
+	AddInput("UV", InOutType::Float2, InputRole::TexCoord, 0, 0);
+	AddOutput("RenderTarget0", InOutType::Float4, 0);
+	AddTexture("Potato", TextureType::Sampler2D, 1);
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
@@ -79,10 +79,11 @@ ShaderGraph::~ShaderGraph()
 	m_flowScene.clearScene();
 }
 
-std::size_t ShaderGraph::AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex)
+std::size_t ShaderGraph::AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
 {
 	std::size_t index = m_inputs.size();
 	auto& inputEntry = m_inputs.emplace_back();
+	inputEntry.locationIndex = locationIndex;
 	inputEntry.name = std::move(name);
 	inputEntry.role = role;
 	inputEntry.roleIndex = roleIndex;
@@ -93,10 +94,11 @@ std::size_t ShaderGraph::AddInput(std::string name, InOutType type, InputRole ro
 	return index;
 }
 
-std::size_t ShaderGraph::AddOutput(std::string name, InOutType type)
+std::size_t ShaderGraph::AddOutput(std::string name, InOutType type, std::size_t locationIndex)
 {
 	std::size_t index = m_outputs.size();
 	auto& outputEntry = m_outputs.emplace_back();
+	outputEntry.locationIndex = locationIndex;
 	outputEntry.name = std::move(name);
 	outputEntry.type = type;
 
@@ -105,10 +107,11 @@ std::size_t ShaderGraph::AddOutput(std::string name, InOutType type)
 	return index;
 }
 
-std::size_t ShaderGraph::AddTexture(std::string name, TextureType type)
+std::size_t ShaderGraph::AddTexture(std::string name, TextureType type, std::size_t bindingIndex)
 {
 	std::size_t index = m_textures.size();
 	auto& textureEntry = m_textures.emplace_back();
+	textureEntry.bindingIndex = bindingIndex;
 	textureEntry.name = std::move(name);
 	textureEntry.type = type;
 
@@ -141,6 +144,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 		QJsonObject inputDoc = inputDocRef.toObject();
 
 		InputEntry& input = m_inputs.emplace_back();
+		input.locationIndex = static_cast<std::size_t>(inputDoc["locationIndex"].toInt(0));
 		input.name = inputDoc["name"].toString().toStdString();
 		input.role = DecodeEnum<InputRole>(inputDoc["role"].toString().toStdString()).value();
 		input.roleIndex = static_cast<std::size_t>(inputDoc["roleIndex"].toInt(0));
@@ -155,6 +159,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 		QJsonObject outputDoc = outputDocRef.toObject();
 
 		OutputEntry& output = m_outputs.emplace_back();
+		output.locationIndex = static_cast<std::size_t>(outputDoc["locationIndex"].toInt(0));
 		output.name = outputDoc["name"].toString().toStdString();
 		output.type = DecodeEnum<InOutType>(outputDoc["type"].toString().toStdString()).value();
 	}
@@ -167,6 +172,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 		QJsonObject textureDoc = textureDocRef.toObject();
 
 		TextureEntry& texture = m_textures.emplace_back();
+		texture.bindingIndex = static_cast<std::size_t>(textureDoc["bindingIndex"].toInt(0));
 		texture.name = textureDoc["name"].toString().toStdString();
 		texture.type = DecodeEnum<TextureType>(textureDoc["type"].toString().toStdString()).value();
 	}
@@ -189,6 +195,7 @@ QJsonObject ShaderGraph::Save()
 		for (const auto& input : m_inputs)
 		{
 			QJsonObject inputDoc;
+			inputDoc["locationIndex"] = int(input.locationIndex);
 			inputDoc["name"] = QString::fromStdString(input.name);
 			inputDoc["role"] = QString(EnumToString(input.role));
 			inputDoc["roleIndex"] = int(input.roleIndex);
@@ -204,6 +211,7 @@ QJsonObject ShaderGraph::Save()
 		for (const auto& output : m_outputs)
 		{
 			QJsonObject outputDoc;
+			outputDoc["locationIndex"] = int(output.locationIndex);
 			outputDoc["name"] = QString::fromStdString(output.name);
 			outputDoc["type"] = QString(EnumToString(output.type));
 
@@ -217,6 +225,7 @@ QJsonObject ShaderGraph::Save()
 		for (const auto& texture : m_textures)
 		{
 			QJsonObject textureDoc;
+			textureDoc["bindingIndex"] = int(texture.bindingIndex);
 			textureDoc["name"] = QString::fromStdString(texture.name);
 			textureDoc["type"] = QString(EnumToString(texture.type));
 
@@ -247,9 +256,9 @@ QJsonObject ShaderGraph::Save()
 	return sceneJson;
 }
 
-Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
+Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 {
-	std::vector<Nz::ShaderAst::StatementPtr> statements;
+	std::vector<Nz::ShaderNodes::StatementPtr> statements;
 	QHash<QUuid, unsigned int> usageCount;
 
 	std::function<void(QtNodes::Node*)> DetectVariables;
@@ -278,13 +287,13 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 			DetectVariables(node);
 	});
 
-	QHash<QUuid, Nz::ShaderAst::ExpressionPtr> variableExpressions;
+	QHash<QUuid, Nz::ShaderNodes::ExpressionPtr> variableExpressions;
 
 	unsigned int varCount = 0;
 	std::unordered_set<std::string> usedVariableNames;
 
-	std::function<Nz::ShaderAst::ExpressionPtr(QtNodes::Node*)> HandleNode;
-	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderAst::ExpressionPtr
+	std::function<Nz::ShaderNodes::ExpressionPtr(QtNodes::Node*)> HandleNode;
+	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderNodes::ExpressionPtr
 	{
 		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
 		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
@@ -298,7 +307,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 		assert(it != usageCount.end());
 
 		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
-		Nz::StackArray<Nz::ShaderAst::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderAst::ExpressionPtr, inputCount);
+		Nz::StackArray<Nz::ShaderNodes::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderNodes::ExpressionPtr, inputCount);
 		std::size_t i = 0;
 
 		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
@@ -316,8 +325,8 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 		const std::string& variableName = shaderNode->GetVariableName();
 		if (*it > 1 || !variableName.empty())
 		{
-			Nz::ShaderAst::ExpressionPtr varExpression;
-			if (expression->GetExpressionCategory() == Nz::ShaderAst::ExpressionCategory::RValue)
+			Nz::ShaderNodes::ExpressionPtr varExpression;
+			if (expression->GetExpressionCategory() == Nz::ShaderNodes::ExpressionCategory::RValue)
 			{
 				std::string name;
 				if (variableName.empty())
@@ -330,10 +339,10 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 
 				usedVariableNames.insert(name);
 
-				auto variable = Nz::ShaderBuilder::Variable(std::move(name), expression->GetExpressionType());
+				auto variable = Nz::ShaderBuilder::Local(std::move(name), expression->GetExpressionType());
 				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, expression));
 
-				varExpression = variable;
+				varExpression = Nz::ShaderBuilder::Identifier(variable);
 			}
 			else
 				varExpression = expression;
@@ -354,13 +363,14 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst()
 		}
 	});
 
-	return Nz::ShaderAst::StatementBlock::Build(std::move(statements));
+	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
 }
 
-void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex)
+void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
 {
 	assert(inputIndex < m_inputs.size());
 	auto& inputEntry = m_inputs[inputIndex];
+	inputEntry.locationIndex = locationIndex;
 	inputEntry.name = std::move(name);
 	inputEntry.role = role;
 	inputEntry.roleIndex = roleIndex;
@@ -369,10 +379,11 @@ void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutTyp
 	OnInputUpdate(this, inputIndex);
 }
 
-void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, InOutType type)
+void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, InOutType type, std::size_t locationIndex)
 {
 	assert(outputIndex < m_outputs.size());
 	auto& outputEntry = m_outputs[outputIndex];
+	outputEntry.locationIndex = locationIndex;
 	outputEntry.name = std::move(name);
 	outputEntry.type = type;
 

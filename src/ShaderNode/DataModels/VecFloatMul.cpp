@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
 
 VecFloatMul::VecFloatMul(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -7,10 +7,10 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderAst::ExpressionPtr VecFloatMul::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr VecFloatMul::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
 {
 	assert(count == 2);
-	using namespace Nz::ShaderAst;
+	using namespace Nz::ShaderNodes;
 	return BinaryOp::Build(BinaryType::Multiply, expressions[0], expressions[1]);
 }
 

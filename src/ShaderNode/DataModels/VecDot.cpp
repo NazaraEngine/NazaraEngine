@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/VecDot.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
 
 VecDot::VecDot(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -8,11 +8,11 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderAst::ExpressionPtr VecDot::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr VecDot::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
 {
 	assert(count == 2);
-	using namespace Nz::ShaderAst;
-	return BinaryFunc::Build(BinaryIntrinsic::DotProduct, expressions[0], expressions[1]);
+	using namespace Nz::ShaderNodes;
+	return IntrinsicCall::Build(IntrinsicType::DotProduct, { expressions[0], expressions[1] });
 }
 
 QString VecDot::caption() const

@@ -38,8 +38,8 @@ void OutputEditor::OnAddOutput()
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
-		OutputInfo inputInfo = dialog->GetOutputInfo();
-		m_shaderGraph.AddOutput(std::move(inputInfo.name), inputInfo.type);
+		OutputInfo outputInfo = dialog->GetOutputInfo();
+		m_shaderGraph.AddOutput(std::move(outputInfo.name), outputInfo.type, outputInfo.locationIndex);
 	});
 
 	dialog->open();
@@ -57,8 +57,8 @@ void OutputEditor::OnEditOutput(int inputIndex)
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{
-		OutputInfo inputInfo = dialog->GetOutputInfo();
-		m_shaderGraph.UpdateOutput(inputIndex, std::move(inputInfo.name), inputInfo.type);
+		OutputInfo outputInfo = dialog->GetOutputInfo();
+		m_shaderGraph.UpdateOutput(inputIndex, std::move(outputInfo.name), outputInfo.type, outputInfo.locationIndex);
 	});
 
 	dialog->open();
