@@ -368,17 +368,17 @@ namespace Nz
 				break;
 		}
 
-		m_currentState->stream << '(';
+		Append("(");
 		for (std::size_t i = 0; i < node.parameters.size(); ++i)
 		{
 			if (i != 0)
-				m_currentState->stream << ", ";
+				Append(", ");
 
 			Visit(node.parameters[i]);
-			m_currentState->stream << ' ';
+			Append(" ");
 			Visit(node.parameters[i]);
 		}
-		m_currentState->stream << ")\n";
+		Append(")");
 	}
 
 	void GlslWriter::Visit(const ShaderNodes::LocalVariable& var)
