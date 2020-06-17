@@ -17,7 +17,7 @@ class SampleTexture : public ShaderNode
 		SampleTexture(ShaderGraph& graph);
 		~SampleTexture() = default;
 
-		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const override;
+		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 
 		QString caption() const override { return "Sample texture"; }
 		QString name() const override { return "SampleTexture"; }

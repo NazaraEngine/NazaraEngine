@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERGRAPH_HPP
 
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
 #include <ShaderNode/Previews/PreviewModel.hpp>
@@ -23,9 +23,9 @@ class ShaderGraph
 		ShaderGraph();
 		~ShaderGraph();
 
-		std::size_t AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex);
-		std::size_t AddOutput(std::string name, InOutType type);
-		std::size_t AddTexture(std::string name, TextureType type);
+		std::size_t AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
+		std::size_t AddOutput(std::string name, InOutType type, std::size_t locationIndex);
+		std::size_t AddTexture(std::string name, TextureType type, std::size_t bindingIndex);
 
 		void Clear();
 
@@ -44,14 +44,15 @@ class ShaderGraph
 		void Load(const QJsonObject& data);
 		QJsonObject Save();
 
-		Nz::ShaderAst::StatementPtr ToAst();
+		Nz::ShaderNodes::StatementPtr ToAst();
 
-		void UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex);
-		void UpdateOutput(std::size_t outputIndex, std::string name, InOutType type);
+		void UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
+		void UpdateOutput(std::size_t outputIndex, std::string name, InOutType type, std::size_t locationIndex);
 		void UpdateTexturePreview(std::size_t texture, QImage preview);
 
 		struct InputEntry
 		{
+			std::size_t locationIndex;
 			std::size_t roleIndex;
 			std::string name;
 			InputRole role;
@@ -60,12 +61,14 @@ class ShaderGraph
 
 		struct OutputEntry
 		{
+			std::size_t locationIndex;
 			std::string name;
 			InOutType type;
 		};
 
 		struct TextureEntry
 		{
+			std::size_t bindingIndex;
 			std::string name;
 			TextureType type;
 			QImage preview;

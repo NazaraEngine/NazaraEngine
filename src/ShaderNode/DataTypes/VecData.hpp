@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_VECDATA_HPP
 #define NAZARA_SHADERNODES_VECDATA_HPP
 
-#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
 #include <nodes/NodeData>
 #include <QtGui/QImage>
 
@@ -13,7 +13,7 @@ struct VecData : public QtNodes::NodeData
 
 	inline QtNodes::NodeDataType type() const override;
 
-	Nz::ShaderAst::ExpressionType GetExpressionType() const;
+	Nz::ShaderNodes::ExpressionType GetExpressionType() const;
 
 	static inline QtNodes::NodeDataType Type();
 
@@ -27,28 +27,28 @@ struct VecExpressionTypeHelper;
 template<>
 struct VecExpressionTypeHelper<1>
 {
-	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float1;
+	static constexpr Nz::ShaderNodes::ExpressionType ExpressionType = Nz::ShaderNodes::ExpressionType::Float1;
 };
 
 template<>
 struct VecExpressionTypeHelper<2>
 {
-	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float2;
+	static constexpr Nz::ShaderNodes::ExpressionType ExpressionType = Nz::ShaderNodes::ExpressionType::Float2;
 };
 
 template<>
 struct VecExpressionTypeHelper<3>
 {
-	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float3;
+	static constexpr Nz::ShaderNodes::ExpressionType ExpressionType = Nz::ShaderNodes::ExpressionType::Float3;
 };
 
 template<>
 struct VecExpressionTypeHelper<4>
 {
-	static constexpr Nz::ShaderAst::ExpressionType ExpressionType = Nz::ShaderAst::ExpressionType::Float4;
+	static constexpr Nz::ShaderNodes::ExpressionType ExpressionType = Nz::ShaderNodes::ExpressionType::Float4;
 };
 
-template<std::size_t N> constexpr Nz::ShaderAst::ExpressionType VecExpressionType = VecExpressionTypeHelper<N>::template ExpressionType;
+template<std::size_t N> constexpr Nz::ShaderNodes::ExpressionType VecExpressionType = VecExpressionTypeHelper<N>::template ExpressionType;
 
 
 struct VecTypeDummy {};

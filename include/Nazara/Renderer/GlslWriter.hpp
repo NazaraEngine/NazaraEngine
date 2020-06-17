@@ -8,15 +8,19 @@
 #define NAZARA_GLSLWRITER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderVarVisitor.hpp>
+#include <Nazara/Renderer/ShaderVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <set>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API GlslWriter : public ShaderWriter
+	class NAZARA_RENDERER_API GlslWriter : public ShaderWriter, public ShaderVarVisitor, public ShaderVisitor
 	{
 		public:
 			GlslWriter();
@@ -24,67 +28,65 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			Nz::String Generate(const ShaderAst::StatementPtr& node) override;
-
-			void RegisterFunction(const String& name, ShaderAst::StatementPtr statement, std::initializer_list<ShaderAst::NamedVariablePtr> parameters, ShaderAst::ExpressionType ret) override;
-			void RegisterVariable(ShaderAst::VariableType kind, const String& name, ShaderAst::ExpressionType type) override;
+			std::string Generate(const ShaderAst& shader) override;
 
 			void SetGlslVersion(unsigned int version);
 
-			using ShaderWriter::Visit;
-			void Visit(const ShaderAst::AssignOp& node) override;
-			void Visit(const ShaderAst::Branch& node) override;
-			void Visit(const ShaderAst::BinaryFunc& node) override;
-			void Visit(const ShaderAst::BinaryOp& node) override;
-			void Visit(const ShaderAst::BuiltinVariable& node) override;
-			void Visit(const ShaderAst::Cast& node) override;
-			void Visit(const ShaderAst::Constant& node) override;
-			void Visit(const ShaderAst::DeclareVariable& node) override;
-			void Visit(const ShaderAst::ExpressionStatement& node) override;
-			void Visit(const ShaderAst::NamedVariable& node) override;
-			void Visit(const ShaderAst::Sample2D& node) override;
-			void Visit(const ShaderAst::StatementBlock& node) override;
-			void Visit(const ShaderAst::SwizzleOp& node) override;
-
 		private:
-			struct Function;
-			using VariableContainer = std::set<std::pair<ShaderAst::ExpressionType, String>>;
+			void Append(ShaderNodes::BuiltinEntry builtin);
+			void Append(ShaderNodes::ExpressionType type);
+			template<typename T> void Append(const T& param);
+			void AppendCommentSection(const std::string& section);
+			void AppendFunction(const ShaderAst::Function& func);
+			void AppendFunctionPrototype(const ShaderAst::Function& func);
+			void AppendLine(const std::string& txt = {});
 
-			void Append(ShaderAst::BuiltinEntry builtin);
-			void Append(ShaderAst::ExpressionType type);
-			void Append(const String& txt);
-			void AppendCommentSection(const String& section);
-			void AppendFunction(Function& func);
-			void AppendLine(const String& txt = String());
-
-			void DeclareVariables(const VariableContainer& variables, const String& keyword = String(), const String& section = String());
+			template<typename T> void DeclareVariables(const std::vector<T>& variables, const std::string& keyword = {}, const std::string& section = {});
 
 			void EnterScope();
 			void LeaveScope();
 
+			using ShaderVarVisitor::Visit;
+			using ShaderVisitor::Visit;
+			void Visit(const ShaderNodes::AssignOp& node) override;
+			void Visit(const ShaderNodes::Branch& node) override;
+			void Visit(const ShaderNodes::BinaryOp& node) override;
+			void Visit(const ShaderNodes::BuiltinVariable& var) override;
+			void Visit(const ShaderNodes::Cast& node) override;
+			void Visit(const ShaderNodes::Constant& node) override;
+			void Visit(const ShaderNodes::DeclareVariable& node) override;
+			void Visit(const ShaderNodes::ExpressionStatement& node) override;
+			void Visit(const ShaderNodes::Identifier& node) override;
+			void Visit(const ShaderNodes::InputVariable& var) override;
+			void Visit(const ShaderNodes::IntrinsicCall& node) override;
+			void Visit(const ShaderNodes::LocalVariable& var) override;
+			void Visit(const ShaderNodes::ParameterVariable& var) override;
+			void Visit(const ShaderNodes::OutputVariable& var) override;
+			void Visit(const ShaderNodes::Sample2D& node) override;
+			void Visit(const ShaderNodes::StatementBlock& node) override;
+			void Visit(const ShaderNodes::SwizzleOp& node) override;
+			void Visit(const ShaderNodes::UniformVariable& var) override;
 
-			struct Function
+			static bool HasExplicitBinding(const ShaderAst& shader);
+			static bool HasExplicitLocation(const ShaderAst& shader);
+
+			struct Context
 			{
-				std::vector<ShaderAst::NamedVariablePtr> parameters;
-				ShaderAst::ExpressionType retType;
-				ShaderAst::StatementPtr node;
-				String name;
+				const ShaderAst::Function* currentFunction = nullptr;
 			};
 
 			struct State
 			{
-				VariableContainer inputs;
-				VariableContainer outputs;
-				VariableContainer uniforms;
-				StringStream stream;
+				std::stringstream stream;
 				unsigned int indentLevel = 0;
 			};
 
-			std::unordered_map<String, Function> m_functions;
-			Function* m_currentFunction;
+			Context m_context;
 			State* m_currentState;
 			unsigned int m_glslVersion;
 	};
 }
+
+#include <Nazara/Renderer/GlslWriter.inl>
 
 #endif // NAZARA_GLSLWRITER_HPP

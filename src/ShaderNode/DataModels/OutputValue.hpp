@@ -16,7 +16,7 @@ class OutputValue : public ShaderNode
 
 		void BuildNodeEdition(QFormLayout* layout) override;
 
-		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
 
 		QString caption() const override { return "Output"; }
 		QString name() const override { return "Output"; }

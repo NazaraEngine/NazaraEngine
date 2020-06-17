@@ -13,40 +13,47 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderVisitor.hpp>
 
-namespace Nz::ShaderAst
+namespace Nz
 {
+	class ShaderAst;
+
 	class NAZARA_RENDERER_API ShaderValidator : public ShaderVisitor
 	{
 		public:
-			ShaderValidator() = default;
+			inline ShaderValidator(const ShaderAst& shader);
 			ShaderValidator(const ShaderValidator&) = delete;
 			ShaderValidator(ShaderValidator&&) = delete;
 			~ShaderValidator() = default;
 
-			bool Validate(const StatementPtr& shader, std::string* error = nullptr);
+			bool Validate(std::string* error = nullptr);
 
 		private:
-			const ExpressionPtr& MandatoryExpr(const ExpressionPtr& node);
-			const NodePtr& MandatoryNode(const NodePtr& node);
-			void TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right);
+			const ShaderNodes::ExpressionPtr& MandatoryExpr(const ShaderNodes::ExpressionPtr& node);
+			const ShaderNodes::NodePtr& MandatoryNode(const ShaderNodes::NodePtr& node);
+			void TypeMustMatch(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right);
+			void TypeMustMatch(ShaderNodes::ExpressionType left, ShaderNodes::ExpressionType right);
 
 			using ShaderVisitor::Visit;
-			void Visit(const AssignOp& node) override;
-			void Visit(const BinaryFunc& node) override;
-			void Visit(const BinaryOp& node) override;
-			void Visit(const Branch& node) override;
-			void Visit(const BuiltinVariable& node) override;
-			void Visit(const Cast& node) override;
-			void Visit(const Constant& node) override;
-			void Visit(const DeclareVariable& node) override;
-			void Visit(const ExpressionStatement& node) override;
-			void Visit(const NamedVariable& node) override;
-			void Visit(const Sample2D& node) override;
-			void Visit(const StatementBlock& node) override;
-			void Visit(const SwizzleOp& node) override;
+			void Visit(const ShaderNodes::AssignOp& node) override;
+			void Visit(const ShaderNodes::BinaryOp& node) override;
+			void Visit(const ShaderNodes::Branch& node) override;
+			void Visit(const ShaderNodes::Cast& node) override;
+			void Visit(const ShaderNodes::Constant& node) override;
+			void Visit(const ShaderNodes::DeclareVariable& node) override;
+			void Visit(const ShaderNodes::ExpressionStatement& node) override;
+			void Visit(const ShaderNodes::Identifier& node) override;
+			void Visit(const ShaderNodes::IntrinsicCall& node) override;
+			void Visit(const ShaderNodes::Sample2D& node) override;
+			void Visit(const ShaderNodes::StatementBlock& node) override;
+			void Visit(const ShaderNodes::SwizzleOp& node) override;
+
+			struct Context;
+
+			const ShaderAst& m_shader;
+			Context* m_context;
 	};
 
-	NAZARA_RENDERER_API bool Validate(const StatementPtr& shader, std::string* error = nullptr);
+	NAZARA_RENDERER_API bool ValidateShader(const ShaderAst& shader, std::string* error = nullptr);
 }
 
 #include <Nazara/Renderer/ShaderValidator.inl>

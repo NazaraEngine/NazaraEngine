@@ -51,10 +51,10 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Output"), outputSelection);
 }
 
-Nz::ShaderAst::ExpressionPtr OutputValue::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr OutputValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
 {
-	using namespace Nz::ShaderAst;
 	using namespace Nz::ShaderBuilder;
+	using namespace Nz::ShaderNodes;
 
 	assert(count == 1);
 
@@ -63,22 +63,22 @@ Nz::ShaderAst::ExpressionPtr OutputValue::GetExpression(Nz::ShaderAst::Expressio
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
 
-	Nz::ShaderAst::ExpressionType expression = [&]
+	Nz::ShaderNodes::ExpressionType expression = [&]
 	{
 		switch (outputEntry.type)
 		{
-			case InOutType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
-			case InOutType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
-			case InOutType::Float2: return Nz::ShaderAst::ExpressionType::Float2;
-			case InOutType::Float3: return Nz::ShaderAst::ExpressionType::Float3;
-			case InOutType::Float4: return Nz::ShaderAst::ExpressionType::Float4;
+			case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+			case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
+			case InOutType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
+			case InOutType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
+			case InOutType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
 		}
 
 		assert(false);
 		throw std::runtime_error("Unhandled output type");
 	}();
 
-	auto output = Nz::ShaderBuilder::Output(outputEntry.name, expression);
+	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Output(outputEntry.name, expression));
 
 	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);
 }
@@ -94,8 +94,8 @@ QtNodes::NodeDataType OutputValue::dataType(QtNodes::PortType portType, QtNodes:
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
 	switch (outputEntry.type)
 	{
-		//case InOutType::Bool:   return Nz::ShaderAst::ExpressionType::Boolean;
-		//case InOutType::Float1: return Nz::ShaderAst::ExpressionType::Float1;
+		//case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+		//case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
 		case InOutType::Float2:
 		case InOutType::Float3:
 		case InOutType::Float4:

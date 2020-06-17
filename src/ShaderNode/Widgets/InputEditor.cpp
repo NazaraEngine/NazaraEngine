@@ -39,7 +39,7 @@ void InputEditor::OnAddInput()
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
 		InputInfo inputInfo = dialog->GetInputInfo();
-		m_shaderGraph.AddInput(std::move(inputInfo.name), inputInfo.type, inputInfo.role, inputInfo.roleIndex);
+		m_shaderGraph.AddInput(std::move(inputInfo.name), inputInfo.type, inputInfo.role, inputInfo.roleIndex, inputInfo.locationIndex);
 	});
 
 	dialog->open();
@@ -60,7 +60,7 @@ void InputEditor::OnEditInput(int inputIndex)
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{
 		InputInfo inputInfo = dialog->GetInputInfo();
-		m_shaderGraph.UpdateInput(inputIndex, std::move(inputInfo.name), inputInfo.type, inputInfo.role, inputInfo.roleIndex);
+		m_shaderGraph.UpdateInput(inputIndex, std::move(inputInfo.name), inputInfo.type, inputInfo.role, inputInfo.roleIndex, inputInfo.locationIndex);
 	});
 
 	dialog->open();

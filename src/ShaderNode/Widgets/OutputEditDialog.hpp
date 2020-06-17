@@ -8,9 +8,11 @@
 
 class QComboBox;
 class QLineEdit;
+class QSpinBox;
 
 struct OutputInfo
 {
+	std::size_t locationIndex;
 	std::string name;
 	InOutType type;
 };
@@ -19,7 +21,7 @@ class OutputEditDialog : public QDialog
 {
 	public:
 		OutputEditDialog(QWidget* parent = nullptr);
-		OutputEditDialog(const OutputInfo& input, QWidget* parent = nullptr);
+		OutputEditDialog(const OutputInfo& output, QWidget* parent = nullptr);
 		~OutputEditDialog() = default;
 
 		OutputInfo GetOutputInfo() const;
@@ -29,6 +31,7 @@ class OutputEditDialog : public QDialog
 
 		QComboBox* m_typeList;
 		QLineEdit* m_outputName;
+		QSpinBox* m_locationIndex;
 };
 
 #include <ShaderNode/Widgets/OutputEditDialog.inl>

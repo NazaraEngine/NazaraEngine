@@ -94,7 +94,7 @@ void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 }
 
 template<std::size_t ComponentCount>
-Nz::ShaderAst::ExpressionPtr VecValue<ComponentCount>::GetExpression(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr VecValue<ComponentCount>::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
 {
 	assert(count == 0);
 

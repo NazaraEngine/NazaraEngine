@@ -9,7 +9,7 @@ namespace Nz
 {
 	ShaderVisitor::~ShaderVisitor() = default;
 
-	void ShaderVisitor::EnableCondition(const String& name, bool cond)
+	void ShaderVisitor::EnableCondition(const std::string& name, bool cond)
 	{
 		if (cond)
 			m_conditions.insert(name);
@@ -17,12 +17,12 @@ namespace Nz
 			m_conditions.erase(name);
 	}
 
-	bool ShaderVisitor::IsConditionEnabled(const String& name) const
+	bool ShaderVisitor::IsConditionEnabled(const std::string& name) const
 	{
 		return m_conditions.count(name) != 0;
 	}
 
-	void ShaderVisitor::Visit(const ShaderAst::NodePtr& node)
+	void ShaderVisitor::Visit(const ShaderNodes::NodePtr& node)
 	{
 		node->Visit(*this);
 	}

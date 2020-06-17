@@ -11,9 +11,10 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Renderer/ShaderVariables.hpp>
 
-namespace Nz::ShaderAst
+namespace Nz::ShaderNodes
 {
 	class NAZARA_RENDERER_API ShaderSerializerBase
 	{
@@ -24,15 +25,16 @@ namespace Nz::ShaderAst
 			~ShaderSerializerBase() = default;
 
 			void Serialize(AssignOp& node);
-			void Serialize(BinaryFunc& node);
 			void Serialize(BinaryOp& node);
+			void Serialize(BuiltinVariable& var);
 			void Serialize(Branch& node);
-			void Serialize(BuiltinVariable& node);
 			void Serialize(Cast& node);
 			void Serialize(Constant& node);
 			void Serialize(DeclareVariable& node);
 			void Serialize(ExpressionStatement& node);
-			void Serialize(NamedVariable& node);
+			void Serialize(Identifier& node);
+			void Serialize(IntrinsicCall& node);
+			void Serialize(NamedVariable& var);
 			void Serialize(Sample2D& node);
 			void Serialize(StatementBlock& node);
 			void Serialize(SwizzleOp& node);
@@ -54,6 +56,9 @@ namespace Nz::ShaderAst
 			virtual void Value(Vector4f& val) = 0;
 			virtual void Value(UInt32& val) = 0;
 			inline void Value(std::size_t& val);
+
+			virtual void Variable(VariablePtr& var) = 0;
+			template<typename T> void Variable(std::shared_ptr<T>& var);
 	};
 
 	class NAZARA_RENDERER_API ShaderSerializer final : public ShaderSerializerBase
@@ -74,6 +79,7 @@ namespace Nz::ShaderAst
 			void Value(Vector3f& val) override;
 			void Value(Vector4f& val) override;
 			void Value(UInt32& val) override;
+			void Variable(VariablePtr& var) override;
 
 			ByteArray& m_byteArray;
 			ByteStream m_stream;
@@ -89,7 +95,7 @@ namespace Nz::ShaderAst
 
 		private:
 			bool IsWriting() const override;
-			void Node(NodePtr & node) override;
+			void Node(NodePtr& node) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;
@@ -97,6 +103,7 @@ namespace Nz::ShaderAst
 			void Value(Vector3f& val) override;
 			void Value(Vector4f& val) override;
 			void Value(UInt32& val) override;
+			void Variable(VariablePtr& var) override;
 
 			const ByteArray& m_byteArray;
 			ByteStream m_stream;

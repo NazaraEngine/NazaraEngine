@@ -6,14 +6,14 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 
-template<Nz::ShaderAst::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType BinOp>
 class VecBinOp : public ShaderNode
 {
 	public:
 		VecBinOp(ShaderGraph& graph);
 		~VecBinOp() = default;
 
-		Nz::ShaderAst::ExpressionPtr GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
 
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
@@ -37,10 +37,10 @@ class VecBinOp : public ShaderNode
 		std::shared_ptr<VecData> m_output;
 };
 
-class VecAdd : public VecBinOp<Nz::ShaderAst::BinaryType::Add>
+class VecAdd : public VecBinOp<Nz::ShaderNodes::BinaryType::Add>
 {
 	public:
-		using VecBinOp<Nz::ShaderAst::BinaryType::Add>::VecBinOp;
+		using VecBinOp<Nz::ShaderNodes::BinaryType::Add>::VecBinOp;
 
 		QString caption() const override;
 		QString name() const override;
@@ -48,10 +48,10 @@ class VecAdd : public VecBinOp<Nz::ShaderAst::BinaryType::Add>
 		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
-class VecMul : public VecBinOp<Nz::ShaderAst::BinaryType::Multiply>
+class VecMul : public VecBinOp<Nz::ShaderNodes::BinaryType::Multiply>
 {
 	public:
-		using VecBinOp<Nz::ShaderAst::BinaryType::Multiply>::VecBinOp;
+		using VecBinOp<Nz::ShaderNodes::BinaryType::Multiply>::VecBinOp;
 
 		QString caption() const override;
 		QString name() const override;
@@ -59,10 +59,10 @@ class VecMul : public VecBinOp<Nz::ShaderAst::BinaryType::Multiply>
 		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
-class VecSub : public VecBinOp<Nz::ShaderAst::BinaryType::Substract>
+class VecSub : public VecBinOp<Nz::ShaderNodes::BinaryType::Substract>
 {
 	public:
-		using VecBinOp<Nz::ShaderAst::BinaryType::Substract>::VecBinOp;
+		using VecBinOp<Nz::ShaderNodes::BinaryType::Substract>::VecBinOp;
 
 		QString caption() const override;
 		QString name() const override;
@@ -70,10 +70,10 @@ class VecSub : public VecBinOp<Nz::ShaderAst::BinaryType::Substract>
 		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
 };
 
-class VecDiv : public VecBinOp<Nz::ShaderAst::BinaryType::Divide>
+class VecDiv : public VecBinOp<Nz::ShaderNodes::BinaryType::Divide>
 {
 	public:
-		using VecBinOp<Nz::ShaderAst::BinaryType::Divide>::VecBinOp;
+		using VecBinOp<Nz::ShaderNodes::BinaryType::Divide>::VecBinOp;
 
 		QString caption() const override;
 		QString name() const override;

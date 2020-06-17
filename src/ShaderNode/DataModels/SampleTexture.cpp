@@ -91,7 +91,7 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-Nz::ShaderAst::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
 {
 	assert(m_texture);
 	assert(m_uv);

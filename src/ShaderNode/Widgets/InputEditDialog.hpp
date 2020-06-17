@@ -12,6 +12,7 @@ class QSpinBox;
 
 struct InputInfo
 {
+	std::size_t locationIndex;
 	std::size_t roleIndex;
 	std::string name;
 	InputRole role;
@@ -33,6 +34,7 @@ class InputEditDialog : public QDialog
 		QComboBox* m_roleList;
 		QComboBox* m_typeList;
 		QLineEdit* m_inputName;
+		QSpinBox* m_locationIndex;
 		QSpinBox* m_roleIndex;
 };
 
