@@ -14,8 +14,10 @@
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <Nazara/Renderer/ShaderVariables.hpp>
 
-namespace Nz::ShaderNodes
+namespace Nz
 {
+	class ShaderAst;
+
 	class NAZARA_RENDERER_API ShaderSerializerBase
 	{
 		public:
@@ -24,28 +26,29 @@ namespace Nz::ShaderNodes
 			ShaderSerializerBase(ShaderSerializerBase&&) = delete;
 			~ShaderSerializerBase() = default;
 
-			void Serialize(AssignOp& node);
-			void Serialize(BinaryOp& node);
-			void Serialize(BuiltinVariable& var);
-			void Serialize(Branch& node);
-			void Serialize(Cast& node);
-			void Serialize(Constant& node);
-			void Serialize(DeclareVariable& node);
-			void Serialize(ExpressionStatement& node);
-			void Serialize(Identifier& node);
-			void Serialize(IntrinsicCall& node);
-			void Serialize(NamedVariable& var);
-			void Serialize(Sample2D& node);
-			void Serialize(StatementBlock& node);
-			void Serialize(SwizzleOp& node);
+			void Serialize(ShaderNodes::AssignOp& node);
+			void Serialize(ShaderNodes::BinaryOp& node);
+			void Serialize(ShaderNodes::BuiltinVariable& var);
+			void Serialize(ShaderNodes::Branch& node);
+			void Serialize(ShaderNodes::Cast& node);
+			void Serialize(ShaderNodes::Constant& node);
+			void Serialize(ShaderNodes::DeclareVariable& node);
+			void Serialize(ShaderNodes::ExpressionStatement& node);
+			void Serialize(ShaderNodes::Identifier& node);
+			void Serialize(ShaderNodes::IntrinsicCall& node);
+			void Serialize(ShaderNodes::NamedVariable& var);
+			void Serialize(ShaderNodes::Sample2D& node);
+			void Serialize(ShaderNodes::StatementBlock& node);
+			void Serialize(ShaderNodes::SwizzleOp& node);
 
 		protected:
 			template<typename T> void Container(T& container);
 			template<typename T> void Enum(T& enumVal);
+			template<typename T> void OptVal(std::optional<T>& optVal);
 
 			virtual bool IsWriting() const = 0;
 
-			virtual void Node(NodePtr& node) = 0;
+			virtual void Node(ShaderNodes::NodePtr& node) = 0;
 			template<typename T> void Node(std::shared_ptr<T>& node);
 
 			virtual void Value(bool& val) = 0;
@@ -57,7 +60,7 @@ namespace Nz::ShaderNodes
 			virtual void Value(UInt32& val) = 0;
 			inline void Value(std::size_t& val);
 
-			virtual void Variable(VariablePtr& var) = 0;
+			virtual void Variable(ShaderNodes::VariablePtr& var) = 0;
 			template<typename T> void Variable(std::shared_ptr<T>& var);
 	};
 
@@ -67,11 +70,12 @@ namespace Nz::ShaderNodes
 			inline ShaderSerializer(ByteArray& byteArray);
 			~ShaderSerializer() = default;
 
-			void Serialize(const StatementPtr& shader);
+			void Serialize(const ShaderAst& shader);
 
 		private:
 			bool IsWriting() const override;
-			void Node(NodePtr& node) override;
+			void Node(const ShaderNodes::NodePtr& node);
+			void Node(ShaderNodes::NodePtr& node) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;
@@ -79,7 +83,7 @@ namespace Nz::ShaderNodes
 			void Value(Vector3f& val) override;
 			void Value(Vector4f& val) override;
 			void Value(UInt32& val) override;
-			void Variable(VariablePtr& var) override;
+			void Variable(ShaderNodes::VariablePtr& var) override;
 
 			ByteArray& m_byteArray;
 			ByteStream m_stream;
@@ -91,11 +95,11 @@ namespace Nz::ShaderNodes
 			ShaderUnserializer(const ByteArray& byteArray);
 			~ShaderUnserializer() = default;
 
-			StatementPtr Unserialize();
+			ShaderAst Unserialize();
 
 		private:
 			bool IsWriting() const override;
-			void Node(NodePtr& node) override;
+			void Node(ShaderNodes::NodePtr& node) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;
@@ -103,14 +107,14 @@ namespace Nz::ShaderNodes
 			void Value(Vector3f& val) override;
 			void Value(Vector4f& val) override;
 			void Value(UInt32& val) override;
-			void Variable(VariablePtr& var) override;
+			void Variable(ShaderNodes::VariablePtr& var) override;
 
 			const ByteArray& m_byteArray;
 			ByteStream m_stream;
 	};
 	
-	NAZARA_RENDERER_API ByteArray Serialize(const StatementPtr& shader);
-	NAZARA_RENDERER_API StatementPtr Unserialize(const ByteArray& data);
+	NAZARA_RENDERER_API ByteArray SerializeShader(const ShaderAst& shader);
+	NAZARA_RENDERER_API ShaderAst UnserializeShader(const ByteArray& data);
 }
 
 #include <Nazara/Renderer/ShaderSerializer.inl>
