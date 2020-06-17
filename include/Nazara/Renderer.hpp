@@ -55,7 +55,14 @@
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderEnums.hpp>
+#include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <Nazara/Renderer/ShaderStageImpl.hpp>
+#include <Nazara/Renderer/ShaderValidator.hpp>
+#include <Nazara/Renderer/ShaderVariables.hpp>
+#include <Nazara/Renderer/ShaderVarVisitor.hpp>
+#include <Nazara/Renderer/ShaderVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
