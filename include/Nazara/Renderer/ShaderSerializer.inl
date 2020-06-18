@@ -95,15 +95,13 @@ namespace Nz
 			val = static_cast<std::size_t>(value);
 	}
 
-	inline ShaderSerializer::ShaderSerializer(ByteArray& byteArray) :
-	m_byteArray(byteArray),
-	m_stream(&m_byteArray, OpenModeFlags(OpenMode_WriteOnly))
+	inline ShaderSerializer::ShaderSerializer(ByteStream& stream) :
+	m_stream(stream)
 	{
 	}
 
-	inline ShaderUnserializer::ShaderUnserializer(const ByteArray& byteArray) :
-	m_byteArray(byteArray),
-	m_stream(const_cast<ByteArray*>(&m_byteArray), OpenModeFlags(OpenMode_ReadOnly))
+	inline ShaderUnserializer::ShaderUnserializer(ByteStream& stream) :
+	m_stream(stream)
 	{
 	}
 }
