@@ -248,9 +248,6 @@ namespace Nz
 
 	void ShaderSerializer::Serialize(const ShaderAst& shader)
 	{
-		UInt32 magicNumber = s_magicNumber;
-		UInt32 version = s_currentVersion;
-
 		m_stream << s_magicNumber << s_currentVersion;
 
 		auto SerializeInputOutput = [&](auto& inout)
@@ -558,15 +555,17 @@ namespace Nz
 	ByteArray SerializeShader(const ShaderAst& shader)
 	{
 		ByteArray byteArray;
-		ShaderSerializer serializer(byteArray);
+		ByteStream stream(&byteArray, OpenModeFlags(OpenMode_WriteOnly));
+
+		ShaderSerializer serializer(stream);
 		serializer.Serialize(shader);
 
 		return byteArray;
 	}
 
-	ShaderAst UnserializeShader(const ByteArray& data)
+	ShaderAst UnserializeShader(ByteStream& stream)
 	{
-		ShaderUnserializer unserializer(data);
+		ShaderUnserializer unserializer(stream);
 		return unserializer.Unserialize();
 	}
 }

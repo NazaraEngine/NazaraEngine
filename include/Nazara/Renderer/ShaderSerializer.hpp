@@ -67,7 +67,7 @@ namespace Nz
 	class NAZARA_RENDERER_API ShaderSerializer final : public ShaderSerializerBase
 	{
 		public:
-			inline ShaderSerializer(ByteArray& byteArray);
+			inline ShaderSerializer(ByteStream& stream);
 			~ShaderSerializer() = default;
 
 			void Serialize(const ShaderAst& shader);
@@ -85,14 +85,13 @@ namespace Nz
 			void Value(UInt32& val) override;
 			void Variable(ShaderNodes::VariablePtr& var) override;
 
-			ByteArray& m_byteArray;
-			ByteStream m_stream;
+			ByteStream& m_stream;
 	};
 
 	class NAZARA_RENDERER_API ShaderUnserializer final : public ShaderSerializerBase
 	{
 		public:
-			ShaderUnserializer(const ByteArray& byteArray);
+			ShaderUnserializer(ByteStream& stream);
 			~ShaderUnserializer() = default;
 
 			ShaderAst Unserialize();
@@ -109,12 +108,11 @@ namespace Nz
 			void Value(UInt32& val) override;
 			void Variable(ShaderNodes::VariablePtr& var) override;
 
-			const ByteArray& m_byteArray;
-			ByteStream m_stream;
+			ByteStream& m_stream;
 	};
 	
 	NAZARA_RENDERER_API ByteArray SerializeShader(const ShaderAst& shader);
-	NAZARA_RENDERER_API ShaderAst UnserializeShader(const ByteArray& data);
+	NAZARA_RENDERER_API ShaderAst UnserializeShader(ByteStream& stream);
 }
 
 #include <Nazara/Renderer/ShaderSerializer.inl>
