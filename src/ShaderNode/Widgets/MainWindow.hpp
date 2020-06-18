@@ -9,6 +9,11 @@
 
 class NodeEditor;
 
+namespace Nz
+{
+	class ShaderAst;
+}
+
 class MainWindow : public QMainWindow
 {
 	public:
@@ -17,9 +22,11 @@ class MainWindow : public QMainWindow
 
 	private:
 		void BuildMenu();
-		void OnCompileToGLSL();
+		void OnCompile();
+		void OnGenerateGLSL();
 		void OnLoad();
 		void OnSave();
+		Nz::ShaderAst ToShader();
 
 		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);
 
