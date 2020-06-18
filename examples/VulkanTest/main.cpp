@@ -3,7 +3,7 @@
 #include <array>
 #include <iostream>
 
-#define SPIRV 1
+#define SPIRV 0
 
 int main()
 {
@@ -44,7 +44,7 @@ int main()
 		return __LINE__;
 	}
 #else
-	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::GLSL, "resources/shaders/triangle.frag");
+	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, "shader.shader");
 	if (!fragmentShader)
 	{
 		std::cout << "Failed to instantiate fragment shader" << std::endl;

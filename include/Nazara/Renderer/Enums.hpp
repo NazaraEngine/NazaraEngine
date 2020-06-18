@@ -49,6 +49,7 @@ namespace Nz
 		GLSL,
 		HLSL,
 		MSL,
+		NazaraBinary,
 		SpirV
 	};
 

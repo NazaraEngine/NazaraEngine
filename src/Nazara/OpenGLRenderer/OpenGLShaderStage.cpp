@@ -4,7 +4,11 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
+#include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
@@ -21,6 +25,34 @@ namespace Nz
 				m_shader.SetSource(reinterpret_cast<const char*>(source), GLint(sourceSize));
 				m_shader.Compile();
 				break;
+
+			case ShaderLanguage::NazaraBinary:
+			{
+				ByteStream byteStream(source, sourceSize);
+				auto shader = Nz::UnserializeShader(byteStream);
+
+				const auto& context = device.GetReferenceContext();
+				const auto& contextParams = context.GetParams();
+
+				GlslWriter::Environment env;
+				env.glES = false;
+				//env.glES = (contextParams.type == GL::ContextType::OpenGL_ES);
+				env.glMajorVersion = contextParams.glMajorVersion;
+				env.glMinorVersion = contextParams.glMinorVersion;
+				env.extCallback = [&](const std::string_view& ext)
+				{
+					return context.IsExtensionSupported(std::string(ext));
+				};
+
+				GlslWriter writer;
+				writer.SetEnv(env);
+
+				std::string code = writer.Generate(shader);
+
+				m_shader.SetSource(code.data(), code.size());
+				m_shader.Compile();
+				break;
+			}
 
 			case ShaderLanguage::SpirV:
 			{
