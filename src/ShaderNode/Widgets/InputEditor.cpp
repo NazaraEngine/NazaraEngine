@@ -50,6 +50,7 @@ void InputEditor::OnEditInput(int inputIndex)
 	const auto& input = m_shaderGraph.GetInput(inputIndex);
 
 	InputInfo info;
+	info.locationIndex = input.locationIndex;
 	info.name = input.name;
 	info.type = input.type;
 	info.role = input.role;

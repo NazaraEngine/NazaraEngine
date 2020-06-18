@@ -17,7 +17,7 @@ namespace Nz
 	{
 	}
 
-	void OpenGLRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
+	void OpenGLRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags /*queueTypeFlags*/)
 	{
 		OpenGLCommandBuffer commandBuffer;
 		OpenGLCommandBufferBuilder builder(commandBuffer);

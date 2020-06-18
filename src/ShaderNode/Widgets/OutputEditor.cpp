@@ -47,11 +47,12 @@ void OutputEditor::OnAddOutput()
 
 void OutputEditor::OnEditOutput(int inputIndex)
 {
-	const auto& input = m_shaderGraph.GetOutput(inputIndex);
+	const auto& output = m_shaderGraph.GetOutput(inputIndex);
 
 	OutputInfo info;
-	info.name = input.name;
-	info.type = input.type;
+	info.locationIndex = output.locationIndex;
+	info.name = output.name;
+	info.type = output.type;
 
 	OutputEditDialog* dialog = new OutputEditDialog(std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -67,9 +68,7 @@ void OutputEditor::OnEditOutput(int inputIndex)
 void OutputEditor::OnOutputSelectionUpdate(int inputIndex)
 {
 	if (inputIndex >= 0)
-	{
 		m_currentOutputIndex = inputIndex;
-	}
 	else
 		m_currentOutputIndex.reset();
 }
