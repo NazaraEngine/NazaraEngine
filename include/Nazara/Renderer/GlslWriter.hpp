@@ -23,6 +23,9 @@ namespace Nz
 	class NAZARA_RENDERER_API GlslWriter : public ShaderWriter, public ShaderVarVisitor, public ShaderVisitor
 	{
 		public:
+			struct Environment;
+			using ExtSupportCallback = std::function<bool(const std::string_view& name)>;
+
 			GlslWriter();
 			GlslWriter(const GlslWriter&) = delete;
 			GlslWriter(GlslWriter&&) = delete;
@@ -30,7 +33,15 @@ namespace Nz
 
 			std::string Generate(const ShaderAst& shader) override;
 
-			void SetGlslVersion(unsigned int version);
+			void SetEnv(Environment environment);
+
+			struct Environment
+			{
+				ExtSupportCallback extCallback;
+				unsigned int glMajorVersion = 3;
+				unsigned int glMinorVersion = 0;
+				bool glES = false;
+			};
 
 		private:
 			void Append(ShaderNodes::BuiltinEntry builtin);
@@ -82,8 +93,8 @@ namespace Nz
 			};
 
 			Context m_context;
+			Environment m_environment;
 			State* m_currentState;
-			unsigned int m_glslVersion;
 	};
 }
 
