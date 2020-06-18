@@ -68,12 +68,12 @@ namespace Nz::GL
 		context.glSpecializeShaderARB(m_objectId, pEntryPoint, numSpecializationConstants, pConstantIndex, pConstantValue);
 	}
 
-	inline GLuint Shader::CreateHelper(OpenGLDevice& device, const Context& context, GLenum shaderStage)
+	inline GLuint Shader::CreateHelper(OpenGLDevice& /*device*/, const Context& context, GLenum shaderStage)
 	{
 		return context.glCreateShader(shaderStage);
 	}
 
-	inline void Shader::DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId)
+	inline void Shader::DestroyHelper(OpenGLDevice& /*device*/, const Context& context, GLuint objectId)
 	{
 		context.glDeleteShader(objectId);
 	}
