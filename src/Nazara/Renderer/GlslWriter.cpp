@@ -11,8 +11,7 @@
 namespace Nz
 {
 	GlslWriter::GlslWriter() :
-	m_currentState(nullptr),
-	m_glslVersion(110)
+	m_currentState(nullptr)
 	{
 	}
 
@@ -29,22 +28,67 @@ namespace Nz
 			m_currentState = nullptr;
 		});
 
+		unsigned int glslVersion;
+		if (m_environment.glES)
+		{
+			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+				glslVersion = 320;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+				glslVersion = 310;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 0)
+				glslVersion = 300;
+			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 0)
+				glslVersion = 100;
+			else
+				throw std::runtime_error("This version of OpenGL ES does not support shaders");
+		}
+		else
+		{
+			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 3)
+				glslVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+				glslVersion = 150;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+				glslVersion = 140;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 0)
+				glslVersion = 130;
+			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
+				glslVersion = 120;
+			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 0)
+				glslVersion = 110;
+			else
+				throw std::runtime_error("This version of OpenGL does not support shaders");
+		}
+
 		// Header
 		Append("#version ");
-		AppendLine(std::to_string(m_glslVersion));
+		Append(glslVersion);
+		if (m_environment.glES)
+			Append(" es");
+
+		AppendLine();
 		AppendLine();
 
 		// Extensions
 
 		std::vector<std::string> requiredExtensions;
 
-		// GL_ARB_shading_language_420pack (required for layout(binding = X))
-		if (m_glslVersion < 420 && HasExplicitBinding(shader))
-			requiredExtensions.emplace_back("GL_ARB_shading_language_420pack");
+		if (!m_environment.glES && m_environment.extCallback)
+		{
+			// GL_ARB_shading_language_420pack (required for layout(binding = X))
+			if (glslVersion < 420 && HasExplicitBinding(shader))
+			{
+				if (m_environment.extCallback("GL_ARB_shading_language_420pack"))
+					requiredExtensions.emplace_back("GL_ARB_shading_language_420pack");
+			}
 
-		// GL_ARB_explicit_uniform_location (required for layout(location = X))
-		if (m_glslVersion < 430 && HasExplicitLocation(shader))
-			requiredExtensions.emplace_back("GL_ARB_explicit_uniform_location");
+			// GL_ARB_separate_shader_objects (required for layout(location = X))
+			if (glslVersion < 410 && HasExplicitLocation(shader))
+			{
+				if (m_environment.extCallback("GL_ARB_separate_shader_objects"))
+					requiredExtensions.emplace_back("GL_ARB_separate_shader_objects");
+			}
+		}
 
 		if (!requiredExtensions.empty())
 		{
@@ -55,9 +99,12 @@ namespace Nz
 		}
 
 		// Global variables (uniforms, input and outputs)
+		const char* inKeyword = (glslVersion >= 130) ? "in" : "varying";
+		const char* outKeyword = (glslVersion >= 130) ? "out" : "varying";
+
 		DeclareVariables(shader.GetUniforms(), "uniform", "Uniforms");
-		DeclareVariables(shader.GetInputs(),   "in",      "Inputs");
-		DeclareVariables(shader.GetOutputs(),  "out",     "Outputs");
+		DeclareVariables(shader.GetInputs(),   inKeyword,      "Inputs");
+		DeclareVariables(shader.GetOutputs(),  outKeyword,     "Outputs");
 
 		std::size_t functionCount = shader.GetFunctionCount();
 		if (functionCount > 1)
@@ -79,9 +126,9 @@ namespace Nz
 		return state.stream.str();
 	}
 
-	void GlslWriter::SetGlslVersion(unsigned int version)
+	void GlslWriter::SetEnv(Environment environment)
 	{
-		m_glslVersion = version;
+		m_environment = std::move(environment);
 	}
 
 	void GlslWriter::Append(ShaderNodes::BuiltinEntry builtin)
