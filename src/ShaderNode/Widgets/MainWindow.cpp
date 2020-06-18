@@ -90,72 +90,30 @@ void MainWindow::BuildMenu()
 		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
 		QAction* saveShader = shader->addAction(tr("Save..."));
 		QObject::connect(saveShader, &QAction::triggered, this, &MainWindow::OnSave);
+		QAction* compileShader = shader->addAction(tr("Compile..."));
+		QObject::connect(compileShader, &QAction::triggered, this, &MainWindow::OnCompile);
 	}
 
-	QMenu* compileMenu = menu->addMenu(tr("&Compilation"));
-	QAction* compileToGlsl = compileMenu->addAction(tr("GLSL"));
-	connect(compileToGlsl, &QAction::triggered, [&](bool) { OnCompileToGLSL(); });
+	QMenu* generateMenu = menu->addMenu(tr("&Generate"));
+	QAction* generateGlsl = generateMenu->addAction(tr("GLSL"));
+	connect(generateGlsl, &QAction::triggered, [&](bool) { OnGenerateGLSL(); });
 }
 
-void MainWindow::OnCompileToGLSL()
+void MainWindow::OnCompile()
 {
 	try
 	{
-		Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
+		auto shader = ToShader();
 
-		//TODO: Put in another function
-		auto GetExpressionFromInOut = [&] (InOutType type)
-		{
-			switch (type)
-			{
-				case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-				case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
-				case InOutType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
-				case InOutType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
-				case InOutType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
-			}
+		QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save shader"), QString(), tr("Shader Files (*.shader)"));
+		if (fileName.isEmpty())
+			return;
 
-			assert(false);
-			throw std::runtime_error("Unhandled input type");
-		};
+		if (!fileName.endsWith("shader", Qt::CaseInsensitive))
+			fileName += ".shader";
 
-		auto GetExpressionFromTexture = [&](TextureType type)
-		{
-			switch (type)
-			{
-				case TextureType::Sampler2D: return Nz::ShaderNodes::ExpressionType::Sampler2D;
-			}
-
-			assert(false);
-			throw std::runtime_error("Unhandled texture type");
-		};
-
-		Nz::ShaderAst shader;
-		for (const auto& input : m_shaderGraph.GetInputs())
-			shader.AddInput(input.name, GetExpressionFromInOut(input.type), input.locationIndex);
-
-		for (const auto& output : m_shaderGraph.GetOutputs())
-			shader.AddOutput(output.name, GetExpressionFromInOut(output.type), output.locationIndex);
-
-		for (const auto& uniform : m_shaderGraph.GetTextures())
-			shader.AddUniform(uniform.name, GetExpressionFromTexture(uniform.type), uniform.bindingIndex);
-
-		shader.AddFunction("main", shaderAst);
-
-		Nz::File file("shader.shader", Nz::OpenMode_WriteOnly);
+		Nz::File file(fileName.toStdString(), Nz::OpenMode_WriteOnly);
 		file.Write(Nz::SerializeShader(shader));
-
-		Nz::GlslWriter writer;
-		Nz::String glsl = writer.Generate(shader);
-
-		std::cout << glsl << std::endl;
-
-		QTextEdit* output = new QTextEdit;
-		output->setReadOnly(true);
-		output->setText(QString::fromUtf8(glsl.GetConstBuffer(), int(glsl.GetSize())));
-		output->setAttribute(Qt::WA_DeleteOnClose, true);
-		output->setWindowTitle("GLSL Output");
-		output->show();
 	}
 	catch (const std::exception& e)
 	{
@@ -163,9 +121,31 @@ void MainWindow::OnCompileToGLSL()
 	}
 }
 
+void MainWindow::OnGenerateGLSL()
+{
+	try
+	{
+		Nz::GlslWriter writer;
+		std::string glsl = writer.Generate(ToShader());
+
+		std::cout << glsl << std::endl;
+
+		QTextEdit* output = new QTextEdit;
+		output->setReadOnly(true);
+		output->setText(QString::fromStdString(glsl));
+		output->setAttribute(Qt::WA_DeleteOnClose, true);
+		output->setWindowTitle("GLSL Output");
+		output->show();
+	}
+	catch (const std::exception& e)
+	{
+		QMessageBox::critical(this, tr("Generation failed"), QString("Generation failed: ") + e.what());
+	}
+}
+
 void MainWindow::OnLoad()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Open shader flow"), QDir::homePath(), tr("Shader Flow Files (*.shaderflow)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open shader flow"), QString(), tr("Shader Flow Files (*.shaderflow)"));
 	if (fileName.isEmpty())
 		return;
 
@@ -196,14 +176,60 @@ void MainWindow::OnLoad()
 
 void MainWindow::OnSave()
 {
-	QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Open shader flow"), QDir::homePath(), tr("Shader Flow Files (*.shaderflow)"));
+	QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Open shader flow"), QString(), tr("Shader Flow Files (*.shaderflow)"));
 	if (fileName.isEmpty())
 		return;
 
-	if (!fileName.endsWith("flow", Qt::CaseInsensitive))
+	if (!fileName.endsWith("shaderflow", Qt::CaseInsensitive))
 		fileName += ".shaderflow";
 
 	QFile file(fileName);
 	if (file.open(QIODevice::WriteOnly))
 		file.write(QJsonDocument(m_shaderGraph.Save()).toJson());
+}
+
+Nz::ShaderAst MainWindow::ToShader()
+{
+	Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
+
+	//TODO: Put in another function
+	auto GetExpressionFromInOut = [&](InOutType type)
+	{
+		switch (type)
+		{
+			case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+			case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
+			case InOutType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
+			case InOutType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
+			case InOutType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+		}
+
+		assert(false);
+		throw std::runtime_error("Unhandled input type");
+	};
+
+	auto GetExpressionFromTexture = [&](TextureType type)
+	{
+		switch (type)
+		{
+			case TextureType::Sampler2D: return Nz::ShaderNodes::ExpressionType::Sampler2D;
+		}
+
+		assert(false);
+		throw std::runtime_error("Unhandled texture type");
+	};
+
+	Nz::ShaderAst shader;
+	for (const auto& input : m_shaderGraph.GetInputs())
+		shader.AddInput(input.name, GetExpressionFromInOut(input.type), input.locationIndex);
+
+	for (const auto& output : m_shaderGraph.GetOutputs())
+		shader.AddOutput(output.name, GetExpressionFromInOut(output.type), output.locationIndex);
+
+	for (const auto& uniform : m_shaderGraph.GetTextures())
+		shader.AddUniform(uniform.name, GetExpressionFromTexture(uniform.type), uniform.bindingIndex);
+
+	shader.AddFunction("main", shaderAst);
+
+	return shader;
 }
