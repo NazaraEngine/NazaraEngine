@@ -420,8 +420,6 @@ namespace Nz
 				Append(", ");
 
 			Visit(node.parameters[i]);
-			Append(" ");
-			Visit(node.parameters[i]);
 		}
 		Append(")");
 	}
