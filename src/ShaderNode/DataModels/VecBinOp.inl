@@ -95,7 +95,7 @@ bool VecBinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 	if (!m_lhs || !m_rhs)
 		return false;
 
-	pixmap = QPixmap::fromImage(m_output->preview);
+	pixmap = QPixmap::fromImage(m_output->preview.GenerateImage());
 	return true;
 }
 
@@ -105,29 +105,29 @@ void VecBinOp<BinOp>::UpdateOutput()
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
 		m_output = std::make_shared<VecData>(4);
-		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
-		m_output->preview.fill(QColor::fromRgb(0, 0, 0, 0));
+		m_output->preview = PreviewValues(1, 1);
+		m_output->preview.Fill(Nz::Vector4f::Zero());
 		return;
 	}
 
 	m_output = std::make_shared<VecData>(m_lhs->componentCount);
 
-	const QImage& leftPreview = m_lhs->preview;
-	const QImage& rightPreview = m_rhs->preview;
-	int maxWidth = std::max(leftPreview.width(), rightPreview.width());
-	int maxHeight = std::max(leftPreview.height(), rightPreview.height());
+	const PreviewValues& leftPreview = m_lhs->preview;
+	const PreviewValues& rightPreview = m_rhs->preview;
+	std::size_t maxWidth = std::max(leftPreview.GetWidth(), rightPreview.GetWidth());
+	std::size_t maxHeight = std::max(leftPreview.GetHeight(), rightPreview.GetHeight());
 
-	// Exploit COW
-	QImage leftResized = leftPreview;
-	if (leftResized.width() != maxWidth || leftResized.height() != maxHeight)
-		leftResized = leftResized.scaled(maxWidth, maxHeight);
+	// FIXME: Prevent useless copy
+	PreviewValues leftResized = leftPreview;
+	if (leftResized.GetWidth() != maxWidth || leftResized.GetHeight() != maxHeight)
+		leftResized = leftResized.Resized(maxWidth, maxHeight);
 
-	QImage rightResized = rightPreview;
-	if (rightResized.width() != maxWidth || rightResized.height() != maxHeight)
-		rightResized = rightResized.scaled(maxWidth, maxHeight);
+	PreviewValues rightResized = rightPreview;
+	if (rightResized.GetWidth() != maxWidth || rightResized.GetHeight() != maxHeight)
+		rightResized = rightResized.Resized(maxWidth, maxHeight);
 
-	m_output->preview = QImage(maxWidth, maxHeight, QImage::Format_RGBA8888);
-	ApplyOp(leftResized.constBits(), rightResized.constBits(), m_output->preview.bits(), maxWidth * maxHeight * 4);
+	m_output->preview = PreviewValues(maxWidth, maxHeight);
+	ApplyOp(leftResized.GetData(), rightResized.GetData(), m_output->preview.GetData(), maxWidth * maxHeight);
 
 	Q_EMIT dataUpdated(0);
 

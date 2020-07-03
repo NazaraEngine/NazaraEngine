@@ -4,8 +4,8 @@
 #define NAZARA_SHADERNODES_VECDATA_HPP
 
 #include <Nazara/Renderer/ShaderNodes.hpp>
+#include <ShaderNode/Previews/PreviewValues.hpp>
 #include <nodes/NodeData>
-#include <QtGui/QImage>
 
 struct VecData : public QtNodes::NodeData
 {
@@ -18,7 +18,7 @@ struct VecData : public QtNodes::NodeData
 	static inline QtNodes::NodeDataType Type();
 
 	std::size_t componentCount;
-	QImage preview;
+	PreviewValues preview;
 };
 
 template<std::size_t N>

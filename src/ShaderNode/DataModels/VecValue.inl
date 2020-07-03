@@ -63,8 +63,14 @@ std::shared_ptr<QtNodes::NodeData> VecValue<ComponentCount>::outData(QtNodes::Po
 	assert(port == 0);
 
 	auto out = std::make_shared<VecData>(ComponentCount);
-	out->preview = QImage(1, 1, QImage::Format_RGBA8888);
-	out->preview.fill(ToColor());
+
+	std::array<float, 4> values = { 0.f, 0.f, 0.f, 1.f };
+
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+		values[i] = m_value[i];
+
+	out->preview = PreviewValues(1, 1);
+	out->preview(0, 0) = Nz::Vector4f(values[0], values[1], values[2], values[3]);
 
 	return out;
 }

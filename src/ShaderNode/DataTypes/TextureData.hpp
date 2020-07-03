@@ -3,15 +3,15 @@
 #ifndef NAZARA_SHADERNODES_TEXTUREDATA_HPP
 #define NAZARA_SHADERNODES_TEXTUREDATA_HPP
 
+#include <ShaderNode/Previews/PreviewValues.hpp>
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <nodes/NodeData>
-#include <QtGui/QImage>
 
 struct TextureData : public QtNodes::NodeData
 {
 	inline TextureData();
 
-	QImage preview;
+	PreviewValues preview;
 };
 
 struct Texture2Data : public TextureData

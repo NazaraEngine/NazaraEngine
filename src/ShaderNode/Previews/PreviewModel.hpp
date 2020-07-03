@@ -5,7 +5,7 @@
 
 #include <ShaderNode/Enums.hpp>
 
-class QImage;
+class PreviewValues;
 
 class PreviewModel
 {
@@ -13,7 +13,7 @@ class PreviewModel
 		PreviewModel() = default;
 		virtual ~PreviewModel();
 
-		virtual QImage GetImage(InputRole role, std::size_t roleIndex) const = 0;
+		virtual PreviewValues GetPreview(InputRole role, std::size_t roleIndex) const = 0;
 };
 
 #include <ShaderNode/Previews/PreviewModel.inl>
