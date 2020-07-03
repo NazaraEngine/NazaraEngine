@@ -12,15 +12,10 @@ QString VecAdd::name() const
 	return name;
 }
 
-void VecAdd::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+void VecAdd::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		output[i] = static_cast<std::uint8_t>(std::min(lValue + rValue, 255U));
-	}
+		output[i] = left[i] + right[i];
 }
 
 QString VecMul::caption() const
@@ -35,15 +30,10 @@ QString VecMul::name() const
 	return name;
 }
 
-void VecMul::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+void VecMul::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		output[i] = static_cast<std::uint8_t>(lValue * rValue / 255);
-	}
+		output[i] = left[i] * right[i];
 }
 
 QString VecSub::caption() const
@@ -59,17 +49,10 @@ QString VecSub::name() const
 	return name;
 }
 
-void VecSub::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+void VecSub::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		unsigned int sub = (lValue >= rValue) ? lValue - rValue : 0u;
-
-		output[i] = static_cast<std::uint8_t>(sub);
-	}
+		output[i] = left[i] - right[i];
 }
 
 QString VecDiv::caption() const
@@ -85,21 +68,8 @@ QString VecDiv::name() const
 	return name;
 }
 
-void VecDiv::ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount)
+void VecDiv::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
-	{
-		unsigned int lValue = left[i];
-		unsigned int rValue = right[i];
-
-		unsigned res;
-		if (rValue != 0)
-			res = lValue / rValue;
-		else if (lValue != 0)
-			res = 0xFF; //< positive / 0 = +inf, which we clamp to 0xFF
-		else
-			res = 0; //< 0 / 0 = NaN, which we set to zero
-
-		output[i] = static_cast<std::uint8_t>(res);
-	}
+		output[i] = left[i] / right[i];
 }

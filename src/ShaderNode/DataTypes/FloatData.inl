@@ -1,7 +1,7 @@
 #include <ShaderNode/DataTypes/FloatData.hpp>
 
 inline FloatData::FloatData() :
-preview(1, 1, QImage::Format_RGBA8888)
+preview(1, 1)
 {
-	preview.fill(QColor::fromRgb(255, 255, 255, 0));
+	preview(0, 0) = Nz::Vector4f(1.f, 1.f, 1.f, 0.f);
 }

@@ -2,9 +2,9 @@
 
 inline VecData::VecData(std::size_t ComponentCount) :
 componentCount(ComponentCount),
-preview(64, 64, QImage::Format_RGBA8888)
+preview(64, 64)
 {
-	preview.fill(QColor::fromRgb(255, 255, 255, 0));
+	preview.Fill(Nz::Vector4f(1.f, 1.f, 1.f, 0.f));
 }
 
 inline QtNodes::NodeDataType VecData::type() const

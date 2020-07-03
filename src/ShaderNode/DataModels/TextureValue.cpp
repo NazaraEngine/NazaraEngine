@@ -158,7 +158,18 @@ std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port
 
 	assert(textureData);
 
-	textureData->preview = textureEntry.preview;
+	const QImage& previewImage = textureEntry.preview;
+
+	textureData->preview = PreviewValues(previewImage.width(), previewImage.height());
+	for (std::size_t y = 0; y < textureData->preview.GetHeight(); ++y)
+	{
+		for (std::size_t x = 0; x < textureData->preview.GetWidth(); ++x)
+		{
+			QColor pixelColor = previewImage.pixelColor(int(x), int(y));
+
+			textureData->preview(x, y) = Nz::Vector4f(pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF(), pixelColor.alphaF());
+		}
+	}
 
 	return textureData;
 }

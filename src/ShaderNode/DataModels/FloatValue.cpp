@@ -46,7 +46,7 @@ std::shared_ptr<QtNodes::NodeData> FloatValue::outData(QtNodes::PortIndex port)
 	assert(port == 0);
 
 	auto out = std::make_shared<FloatData>();
-	out->preview.fill(ToColor());
+	out->preview(0, 0) = Nz::Vector4f(m_value, m_value, m_value, 1.f);
 
 	return out;
 }

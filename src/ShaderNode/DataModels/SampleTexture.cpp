@@ -23,57 +23,37 @@ unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
 
 void SampleTexture::UpdateOutput()
 {
-	QImage& output = m_output->preview;
+	PreviewValues& output = m_output->preview;
 
 	if (!m_texture || !m_uv)
 	{
-		output = QImage(1, 1, QImage::Format_RGBA8888);
-		output.fill(QColor::fromRgb(0, 0, 0, 0));
+		output = PreviewValues(1, 1);
+		output.Fill(Nz::Vector4f::Zero());
 		return;
 	}
 
-	const QImage& texturePreview = m_texture->preview;
+	const PreviewValues& texturePreview = m_texture->preview;
 
-	int textureWidth = texturePreview.width();
-	int textureHeight = texturePreview.height();
+	std::size_t textureWidth = texturePreview.GetWidth();
+	std::size_t textureHeight = texturePreview.GetHeight();
 
-	const QImage& uv = m_uv->preview;
+	const PreviewValues& uv = m_uv->preview;
 
-	int uvWidth = uv.width();
-	int uvHeight = uv.height();
+	std::size_t uvWidth = uv.GetWidth();
+	std::size_t uvHeight = uv.GetHeight();
 
-	output = QImage(uvWidth, uvHeight, QImage::Format_RGBA8888);
+	output = PreviewValues(uvWidth, uvHeight);
 
-	std::uint8_t* outputPtr = output.bits();
-	const std::uint8_t* uvPtr = uv.constBits();
-	const std::uint8_t* texturePtr = texturePreview.constBits();
-	for (int y = 0; y < uvHeight; ++y)
+	for (std::size_t y = 0; y < uvHeight; ++y)
 	{
-		for (int x = 0; x < uvWidth; ++x)
+		for (std::size_t x = 0; x < uvWidth; ++x)
 		{
-			float u = float(uvPtr[0]) / 255;
-			float v = float(uvPtr[1]) / 255;
+			Nz::Vector4f uvValue = uv(x, y);
 
 			if (textureWidth > 0 && textureHeight > 0)
-			{
-				int texX = std::clamp(int(u * textureWidth), 0, textureWidth - 1);
-				int texY = std::clamp(int(v * textureHeight), 0, textureHeight - 1);
-				int texPixel = (texY * textureWidth + texX) * 4;
-
-				*outputPtr++ = texturePtr[texPixel + 0];
-				*outputPtr++ = texturePtr[texPixel + 1];
-				*outputPtr++ = texturePtr[texPixel + 2];
-				*outputPtr++ = texturePtr[texPixel + 3];
-			}
+				output(x, y) = texturePreview.Sample(uvValue.x, uvValue.y);
 			else
-			{
-				*outputPtr++ = 0;
-				*outputPtr++ = 0;
-				*outputPtr++ = 0;
-				*outputPtr++ = 0xFF;
-			}
-
-			uvPtr += 4;
+				output(x, y) = Nz::Vector4f(0.f, 0.f, 0.f, 1.f);
 		}
 	}
 
@@ -87,7 +67,7 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 	if (!m_texture || !m_uv)
 		return false;
 
-	pixmap = QPixmap::fromImage(m_output->preview);
+	pixmap = QPixmap::fromImage(m_output->preview.GenerateImage());
 	return true;
 }
 

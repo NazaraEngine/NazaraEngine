@@ -112,7 +112,7 @@ bool VecDot::ComputePreview(QPixmap& pixmap)
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 		return false;
 
-	pixmap = QPixmap::fromImage(m_output->preview);
+	pixmap = QPixmap::fromImage(m_output->preview.GenerateImage());
 	return true;
 }
 
@@ -120,45 +120,41 @@ void VecDot::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
-		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
-		m_output->preview.fill(QColor::fromRgb(0, 0, 0, 0));
+		m_output->preview = PreviewValues(1, 1);
+		m_output->preview.Fill(Nz::Vector4f::Zero());
 		return;
 	}
 
-	const QImage& leftPreview = m_lhs->preview;
-	const QImage& rightPreview = m_rhs->preview;
-	int maxWidth = std::max(leftPreview.width(), rightPreview.width());
-	int maxHeight = std::max(leftPreview.height(), rightPreview.height());
+	const PreviewValues& leftPreview = m_lhs->preview;
+	const PreviewValues& rightPreview = m_rhs->preview;
+	std::size_t maxWidth = std::max(leftPreview.GetWidth(), rightPreview.GetWidth());
+	std::size_t maxHeight = std::max(leftPreview.GetHeight(), rightPreview.GetHeight());
 
-	// Exploit COW
-	QImage leftResized = leftPreview;
-	if (leftResized.width() != maxWidth || leftResized.height() != maxHeight)
-		leftResized = leftResized.scaled(maxWidth, maxHeight);
+	// FIXME: Prevent useless copy
+	PreviewValues leftResized = leftPreview;
+	if (leftResized.GetWidth() != maxWidth || leftResized.GetHeight() != maxHeight)
+		leftResized = leftResized.Resized(maxWidth, maxHeight);
 
-	QImage rightResized = rightPreview;
-	if (rightResized.width() != maxWidth || rightResized.height() != maxHeight)
-		rightResized = rightResized.scaled(maxWidth, maxHeight);
+	PreviewValues rightResized = rightPreview;
+	if (rightResized.GetWidth() != maxWidth || rightResized.GetHeight() != maxHeight)
+		rightResized = rightResized.Resized(maxWidth, maxHeight);
 
-	m_output->preview = QImage(maxWidth, maxHeight, QImage::Format_RGBA8888);
+	m_output->preview = PreviewValues(maxWidth, maxHeight);
 
-	const uchar* left = leftResized.constBits();
-	const uchar* right = rightPreview.constBits();
-	uchar* output = m_output->preview.bits();
+	const Nz::Vector4f* left = leftResized.GetData();
+	const Nz::Vector4f* right = rightPreview.GetData();
+	Nz::Vector4f* output = m_output->preview.GetData();
 
 	std::size_t pixelCount = maxWidth * maxHeight;
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
-		unsigned int acc = 0;
+		float acc = 0.f;
 		for (std::size_t j = 0; j < m_lhs->componentCount; ++j)
-			acc += left[j] * right[j] / 255;
+			acc += left[i][j] * right[i][j];
 
-		unsigned int result = static_cast<std::uint8_t>(std::min(acc, 255U));
 		for (std::size_t j = 0; j < 3; ++j)
-			*output++ = result;
-		*output++ = 255; //< leave alpha at maximum
-
-		left += 4;
-		right += 4;
+			output[i][j] = acc;
+		output[i][3] = 1.f; //< leave alpha at maximum
 	}
 
 	Q_EMIT dataUpdated(0);

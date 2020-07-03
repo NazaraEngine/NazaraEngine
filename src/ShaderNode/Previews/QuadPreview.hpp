@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_QUADPREVIEW_HPP
 
 #include <ShaderNode/Previews/PreviewModel.hpp>
-#include <QtGui/QImage>
+#include <ShaderNode/Previews/PreviewValues.hpp>
 
 class QuadPreview : public PreviewModel
 {
@@ -12,7 +12,7 @@ class QuadPreview : public PreviewModel
 		QuadPreview() = default;
 		~QuadPreview() = default;
 
-		QImage GetImage(InputRole role, std::size_t roleIndex) const override;
+		PreviewValues GetPreview(InputRole role, std::size_t roleIndex) const override;
 };
 
 #include <ShaderNode/Previews/QuadPreview.inl>

@@ -3,8 +3,8 @@
 #ifndef NAZARA_SHADERNODES_FLOATDATA_HPP
 #define NAZARA_SHADERNODES_FLOATDATA_HPP
 
+#include <ShaderNode/Previews/PreviewValues.hpp>
 #include <nodes/NodeData>
-#include <QtGui/QImage>
 
 struct FloatData : public QtNodes::NodeData
 {
@@ -20,7 +20,7 @@ struct FloatData : public QtNodes::NodeData
 		return { "float", "Float" };
 	}
 
-	QImage preview;
+	PreviewValues preview;
 };
 
 #include <ShaderNode/DataTypes/FloatData.inl>

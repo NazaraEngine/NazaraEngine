@@ -27,7 +27,7 @@ class VecBinOp : public ShaderNode
 		QString validationMessage() const override;
 
 	private:
-		virtual void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) = 0;
+		virtual void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) = 0;
 
 		bool ComputePreview(QPixmap& pixmap) override;
 		void UpdateOutput();
@@ -45,7 +45,7 @@ class VecAdd : public VecBinOp<Nz::ShaderNodes::BinaryType::Add>
 		QString caption() const override;
 		QString name() const override;
 
-		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
+		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 };
 
 class VecMul : public VecBinOp<Nz::ShaderNodes::BinaryType::Multiply>
@@ -56,7 +56,7 @@ class VecMul : public VecBinOp<Nz::ShaderNodes::BinaryType::Multiply>
 		QString caption() const override;
 		QString name() const override;
 
-		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
+		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 };
 
 class VecSub : public VecBinOp<Nz::ShaderNodes::BinaryType::Substract>
@@ -67,7 +67,7 @@ class VecSub : public VecBinOp<Nz::ShaderNodes::BinaryType::Substract>
 		QString caption() const override;
 		QString name() const override;
 
-		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
+		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 };
 
 class VecDiv : public VecBinOp<Nz::ShaderNodes::BinaryType::Divide>
@@ -78,7 +78,7 @@ class VecDiv : public VecBinOp<Nz::ShaderNodes::BinaryType::Divide>
 		QString caption() const override;
 		QString name() const override;
 
-		void ApplyOp(const std::uint8_t* left, const std::uint8_t* right, std::uint8_t* output, std::size_t pixelCount) override;
+		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 };
 
 #include <ShaderNode/DataModels/VecBinOp.inl>

@@ -170,7 +170,7 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 	if (!m_input)
 		return false;
 
-	pixmap = QPixmap::fromImage(m_input->preview);
+	pixmap = QPixmap::fromImage(m_input->preview.GenerateImage());
 	return true;
 }
 

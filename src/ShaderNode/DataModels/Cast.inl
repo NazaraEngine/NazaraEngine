@@ -176,7 +176,7 @@ bool CastVec<ToComponentCount>::ComputePreview(QPixmap& pixmap)
 	if (!m_input)
 		return false;
 
-	pixmap = QPixmap::fromImage(m_output->preview);
+	pixmap = QPixmap::fromImage(m_output->preview.GenerateImage());
 	return true;
 }
 
@@ -185,47 +185,38 @@ void CastVec<ToComponentCount>::UpdateOutput()
 {
 	if (!m_input)
 	{
-		m_output->preview = QImage(1, 1, QImage::Format_RGBA8888);
-		m_output->preview.fill(QColor::fromRgb(0, 0, 0, 0));
+		m_output->preview = PreviewValues(1, 1);
+		m_output->preview(0, 0) = Nz::Vector4f::Zero();
 		return;
 	}
 
-	const QImage& input = m_input->preview;
+	const PreviewValues& input = m_input->preview;
 
-	int inputWidth = input.width();
-	int inputHeight = input.height();
+	std::size_t inputWidth = input.GetWidth();
+	std::size_t inputHeight = input.GetHeight();
 
-	QImage& output = m_output->preview;
-	output = QImage(inputWidth, inputHeight, QImage::Format_RGBA8888);
+	PreviewValues& output = m_output->preview;
+	output = PreviewValues(inputWidth, inputHeight);
 
 	std::size_t fromComponentCount = m_input->componentCount;
 	std::size_t commonComponents = std::min(fromComponentCount, ToComponentCount);
 	std::size_t overflowComponentCount = (ToComponentCount > fromComponentCount) ? ToComponentCount - fromComponentCount : 0;
 	std::size_t voidComponents = 4 - overflowComponentCount - commonComponents;
 
-	std::array<std::uint8_t, 4> constants;
-	if (ToComponentCount > fromComponentCount)
+	for (std::size_t y = 0; y < inputHeight; ++y)
 	{
-		for (std::size_t i = 0; i < overflowComponentCount; ++i)
-			constants[i] = static_cast<std::uint8_t>(std::clamp(int(m_overflowComponents[i] * 255), 0, 255));
-	}
-
-	std::uint8_t* outputPtr = output.bits();
-	const std::uint8_t* inputPtr = input.constBits();
-	for (int y = 0; y < inputHeight; ++y)
-	{
-		for (int x = 0; x < inputWidth; ++x)
+		for (std::size_t x = 0; x < inputWidth; ++x)
 		{
-			for (std::size_t i = 0; i < commonComponents; ++i)
-				*outputPtr++ = inputPtr[i];
+			Nz::Vector4f color = input(x, y);
 
+			float* colorPtr = &color.x;
 			for (std::size_t i = 0; i < overflowComponentCount; ++i)
-				*outputPtr++ = constants[i];
+				*colorPtr++ = m_overflowComponents[i];
 
 			for (std::size_t i = 0; i < voidComponents; ++i)
-				*outputPtr++ = (i == voidComponents - 1) ? 255 : 0;
+				*colorPtr++ = (i == voidComponents - 1) ? 1.f : 0.f;
 
-			inputPtr += 4;
+			output(x, y) = color;
 		}
 	}
 

@@ -48,7 +48,7 @@ bool InputValue::ComputePreview(QPixmap& pixmap)
 	const auto& inputEntry = graph.GetInput(*m_currentInputIndex);
 	const auto& preview = graph.GetPreviewModel();
 
-	pixmap = QPixmap::fromImage(preview.GetImage(inputEntry.role, inputEntry.roleIndex));
+	pixmap = QPixmap::fromImage(preview.GetPreview(inputEntry.role, inputEntry.roleIndex).GenerateImage());
 	return true;
 }
 
@@ -171,7 +171,7 @@ std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 	const auto& preview = graph.GetPreviewModel();
 
 	auto vecData = std::make_shared<VecData>(GetComponentCount(inputEntry.type));
-	vecData->preview = preview.GetImage(inputEntry.role, inputEntry.roleIndex);
+	vecData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
 
 	return vecData;
 }
