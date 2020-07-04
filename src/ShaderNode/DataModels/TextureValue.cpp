@@ -9,19 +9,23 @@ TextureValue::TextureValue(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	m_onTextureListUpdateSlot.Connect(GetGraph().OnTextureListUpdate, [&](ShaderGraph*) { OnTextureListUpdate(); });
-	m_onTexturePreviewUpdateSlot.Connect(GetGraph().OnTexturePreviewUpdate, [&](ShaderGraph*, std::size_t textureIndex)
+
+	auto HandleTextureUpdate = [&](ShaderGraph*, std::size_t textureIndex)
 	{
 		if (m_currentTextureIndex == textureIndex)
 		{
 			UpdatePreview();
 			Q_EMIT dataUpdated(0);
 		}
-	});
+	};
+
+	m_onTexturePreviewUpdateSlot.Connect(GetGraph().OnTexturePreviewUpdate, HandleTextureUpdate);
+	m_onTextureUpdateSlot.Connect(GetGraph().OnTextureUpdate, HandleTextureUpdate);
 
 	if (graph.GetTextureCount() > 0)
 	{
 		m_currentTextureIndex = 0;
-		UpdateOutputTexture();
+		UpdateTexture();
 	}
 
 	DisableCustomVariableName();
@@ -56,7 +60,7 @@ void TextureValue::OnTextureListUpdate()
 	}
 }
 
-void TextureValue::UpdateOutputTexture()
+void TextureValue::UpdateTexture()
 {
 	if (m_currentTextureIndex)
 	{
@@ -97,7 +101,7 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 		else
 			m_currentTextureIndex.reset();
 
-		UpdateOutputTexture();
+		UpdateTexture();
 		UpdatePreview();
 
 		Q_EMIT dataUpdated(0);

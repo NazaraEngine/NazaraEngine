@@ -13,11 +13,11 @@ TOOL.Includes = {
 	"../include",
 	"../extlibs/include",
 	"../src",
-	[[E:\Qt\5.14.1\msvc2017_64\include]],
-	[[E:\Qt\5.14.1\msvc2017_64\include\QtCore]],
-	[[E:\Qt\5.14.1\msvc2017_64\include\QtGui]],
-	[[E:\Qt\5.14.1\msvc2017_64\include\QtWidgets]],
-	[[C:\Users\Lynix\Documents\GitHub\nodeeditor\include]],
+	[[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\include]],
+	[[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\include\QtCore]],
+	[[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\include\QtGui]],
+	[[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\include\QtWidgets]],
+	[[C:\Projets\Libs\nodeeditor\include]],
 }
 
 TOOL.Files = {
@@ -37,6 +37,6 @@ TOOL.Libraries = {
 }
 
 TOOL.LibraryPaths.x64 = {
-	[[E:\Qt\5.14.1\msvc2017_64\lib]],
-	[[C:\Users\Lynix\Documents\GitHub\nodeeditor\build\lib\Debug]]
+	[[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\lib]],
+	[[C:\Projets\Libs\nodeeditor\build\lib\Debug]]
 }
