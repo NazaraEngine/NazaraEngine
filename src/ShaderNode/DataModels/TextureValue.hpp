@@ -35,13 +35,14 @@ class TextureValue : public ShaderNode
 	protected:
 		bool ComputePreview(QPixmap& pixmap) override;
 		void OnTextureListUpdate();
-		void UpdateOutputTexture();
+		void UpdateTexture();
 
 		void restore(const QJsonObject& data) override;
 		QJsonObject save() const override;
 
 		NazaraSlot(ShaderGraph, OnTextureListUpdate, m_onTextureListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnTexturePreviewUpdate, m_onTexturePreviewUpdateSlot);
+		NazaraSlot(ShaderGraph, OnTextureUpdate, m_onTextureUpdateSlot);
 
 		std::optional<std::size_t> m_currentTextureIndex;
 		std::string m_currentTextureText;

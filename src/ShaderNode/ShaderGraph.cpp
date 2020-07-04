@@ -390,6 +390,17 @@ void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, InOutT
 	OnOutputUpdate(this, outputIndex);
 }
 
+void ShaderGraph::UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex)
+{
+	assert(textureIndex < m_textures.size());
+	auto& textureEntry = m_textures[textureIndex];
+	textureEntry.bindingIndex = bindingIndex;
+	textureEntry.name = std::move(name);
+	textureEntry.type = type;
+
+	OnTextureUpdate(this, textureIndex);
+}
+
 void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 {
 	assert(textureIndex < m_textures.size());

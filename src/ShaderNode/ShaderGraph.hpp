@@ -48,6 +48,7 @@ class ShaderGraph
 
 		void UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
 		void UpdateOutput(std::size_t outputIndex, std::string name, InOutType type, std::size_t locationIndex);
+		void UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex);
 		void UpdateTexturePreview(std::size_t texture, QImage preview);
 
 		struct InputEntry
@@ -81,6 +82,7 @@ class ShaderGraph
 		NazaraSignal(OnSelectedNodeUpdate, ShaderGraph*, ShaderNode* /*node*/);
 		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
+		NazaraSignal(OnTextureUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
