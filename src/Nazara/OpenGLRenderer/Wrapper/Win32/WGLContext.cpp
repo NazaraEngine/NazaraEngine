@@ -119,7 +119,7 @@ namespace Nz::GL
 							WGL_CONTEXT_MAJOR_VERSION_ARB, int(version.major),
 							WGL_CONTEXT_MINOR_VERSION_ARB, int(version.minor),
 
-							WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB | WGL_CONTEXT_ES_PROFILE_BIT_EXT
+							WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_ES_PROFILE_BIT_EXT
 						};
 
 						m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());

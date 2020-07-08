@@ -88,7 +88,7 @@ namespace Nz
 				createInfo.extent.width = params.width;
 				createInfo.extent.height = params.height;
 				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = params.height;
+				createInfo.arrayLayers = params.depth;
 				break;
 
 			case ImageType_3D:
