@@ -35,8 +35,7 @@ namespace Nz
 				const auto& contextParams = context.GetParams();
 
 				GlslWriter::Environment env;
-				env.glES = false;
-				//env.glES = (contextParams.type == GL::ContextType::OpenGL_ES);
+				env.glES = (contextParams.type == GL::ContextType::OpenGL_ES);
 				env.glMajorVersion = contextParams.glMajorVersion;
 				env.glMinorVersion = contextParams.glMinorVersion;
 				env.extCallback = [&](const std::string_view& ext)
