@@ -185,22 +185,21 @@ namespace Nz::GL
 				return -1;
 		};
 
-		std::string_view versionString = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-		if (versionString.size() > 2 && DecodeDigit(versionString[0]) >= 0 && versionString[1] == '.' && DecodeDigit(versionString[2]) >= 0)
-		{
-			m_params.glMajorVersion = DecodeDigit(versionString[0]);
-			m_params.glMinorVersion = DecodeDigit(versionString[2]);
-		}
-		else
-			NazaraWarning("Failed to decode OpenGL version: " + std::string(versionString));
+		GLint majorVersion = 0;
+		glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+
+		GLint minorVersion = 0;
+		glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+
+		m_params.glMajorVersion = majorVersion;
+		m_params.glMinorVersion = minorVersion;
 
 		// Load extensions
-		std::string_view extensionList = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-		SplitString(extensionList, " ", [&](std::string_view extension)
-		{
-			m_supportedExtensions.emplace(extension);
-			return true;
-		});
+		GLint extensionCount = 0;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
+
+		for (GLint i = 0; i < extensionCount; ++i)
+			m_supportedExtensions.emplace(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
