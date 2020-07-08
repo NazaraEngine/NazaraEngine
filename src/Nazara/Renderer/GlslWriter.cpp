@@ -98,6 +98,16 @@ namespace Nz
 			AppendLine();
 		}
 
+		if (m_environment.glES)
+		{
+			AppendLine("#if GL_FRAGMENT_PRECISION_HIGH");
+			AppendLine("precision highp float;");
+			AppendLine("#else");
+			AppendLine("precision mediump float;");
+			AppendLine("#endif");
+			AppendLine();
+		}
+
 		// Global variables (uniforms, input and outputs)
 		const char* inKeyword = (glslVersion >= 130) ? "in" : "varying";
 		const char* outKeyword = (glslVersion >= 130) ? "out" : "varying";
