@@ -8,3 +8,11 @@ LIBRARY.Files = {
 	"../thirdparty/src/Lua/*.h",
 	"../thirdparty/src/Lua/*.cpp"
 }
+
+LIBRARY.OsDefines.Windows = {
+	"LUA_USE_WINDOWS"
+}
+
+LIBRARY.OsDefines.Posix = {
+	"LUA_USE_LINUX"
+}
