@@ -12,10 +12,10 @@ inline const Nz::Vector4f* PreviewValues::GetData() const
 
 inline std::size_t PreviewValues::GetHeight() const
 {
-	return m_width;
+	return m_height;
 }
 
 inline std::size_t PreviewValues::GetWidth() const
 {
-	return m_height;
+	return m_width;
 }

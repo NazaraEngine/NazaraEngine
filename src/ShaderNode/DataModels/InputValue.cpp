@@ -120,11 +120,11 @@ Nz::ShaderNodes::ExpressionPtr InputValue::GetExpression(Nz::ShaderNodes::Expres
 	{
 		switch (inputEntry.type)
 		{
-			case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-			case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
-			case InOutType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
-			case InOutType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
-			case InOutType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+			case PrimitiveType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+			case PrimitiveType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
+			case PrimitiveType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
+			case PrimitiveType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
+			case PrimitiveType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
 		}
 
 		assert(false);
@@ -146,12 +146,12 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 	switch (inputEntry.type)
 	{
 		//case InputType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-		case InOutType::Float1:
+		case PrimitiveType::Float1:
 			return FloatData::Type();
 
-		case InOutType::Float2:
-		case InOutType::Float3:
-		case InOutType::Float4:
+		case PrimitiveType::Float2:
+		case PrimitiveType::Float3:
+		case PrimitiveType::Float4:
 			return VecData::Type();
 	}
 

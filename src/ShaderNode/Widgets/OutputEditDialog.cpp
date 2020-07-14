@@ -16,8 +16,8 @@ QDialog(parent)
 	m_outputName = new QLineEdit;
 
 	m_typeList = new QComboBox;
-	for (std::size_t i = 0; i < InOutTypeCount; ++i)
-		m_typeList->addItem(EnumToString(static_cast<InOutType>(i)));
+	for (std::size_t i = 0; i < PrimitiveTypeCount; ++i)
+		m_typeList->addItem(EnumToString(static_cast<PrimitiveType>(i)));
 
 	m_locationIndex = new QSpinBox;
 
@@ -50,7 +50,7 @@ OutputInfo OutputEditDialog::GetOutputInfo() const
 	OutputInfo inputInfo;
 	inputInfo.locationIndex = static_cast<std::size_t>(m_locationIndex->value());
 	inputInfo.name = m_outputName->text().toStdString();
-	inputInfo.type = static_cast<InOutType>(m_typeList->currentIndex());
+	inputInfo.type = static_cast<PrimitiveType>(m_typeList->currentIndex());
 
 	return inputInfo;
 }
