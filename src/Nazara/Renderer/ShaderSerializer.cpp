@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/ShaderSerializer.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderVarVisitor.hpp>
 #include <Nazara/Renderer/ShaderVisitor.hpp>
 #include <Nazara/Renderer/Debug.hpp>
@@ -250,12 +249,33 @@ namespace Nz
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
+		auto SerializeType = [&](const ShaderAst::Type& type)
+		{
+			std::visit([&](auto&& arg)
+			{
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, ShaderNodes::ExpressionType>)
+				{
+					m_stream << UInt8(0);
+					m_stream << UInt32(arg);
+				}
+				else if constexpr (std::is_same_v<T, std::string>)
+				{
+					m_stream << UInt8(1);
+					m_stream << arg;
+				}
+				else
+					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			}, type);
+		};
+
 		auto SerializeInputOutput = [&](auto& inout)
 		{
 			m_stream << UInt32(inout.size());
 			for (const auto& data : inout)
 			{
-				m_stream << data.name << UInt32(data.type);
+				m_stream << data.name;
+				SerializeType(data.type);
 
 				m_stream << data.locationIndex.has_value();
 				if (data.locationIndex)
@@ -263,17 +283,34 @@ namespace Nz
 			}
 		};
 
+		m_stream << UInt32(shader.GetStructCount());
+		for (const auto& s : shader.GetStructs())
+		{
+			m_stream << s.name;
+			m_stream << UInt32(s.members.size());
+			for (const auto& member : s.members)
+			{
+				m_stream << member.name;
+				SerializeType(member.type);
+			}
+		}
+
 		SerializeInputOutput(shader.GetInputs());
 		SerializeInputOutput(shader.GetOutputs());
 
 		m_stream << UInt32(shader.GetUniformCount());
 		for (const auto& uniform : shader.GetUniforms())
 		{
-			m_stream << uniform.name << UInt32(uniform.type);
+			m_stream << uniform.name;
+			SerializeType(uniform.type);
 
 			m_stream << uniform.bindingIndex.has_value();
 			if (uniform.bindingIndex)
 				m_stream << UInt32(uniform.bindingIndex.value());
+
+			m_stream << uniform.memoryLayout.has_value();
+			if (uniform.memoryLayout)
+				m_stream << UInt32(uniform.memoryLayout.value());
 		}
 
 		m_stream << UInt32(shader.GetFunctionCount());
@@ -283,7 +320,10 @@ namespace Nz
 
 			m_stream << UInt32(func.parameters.size());
 			for (const auto& param : func.parameters)
-				m_stream << param.name << UInt32(param.type);
+			{
+				m_stream << param.name;
+				SerializeType(param.type);
+			}
 
 			Node(func.statement);
 		}
@@ -343,6 +383,16 @@ namespace Nz
 		m_stream << val;
 	}
 
+	void ShaderSerializer::Value(UInt8& val)
+	{
+		m_stream << val;
+	}
+
+	void ShaderSerializer::Value(UInt16& val)
+	{
+		m_stream << val;
+	}
+
 	void ShaderSerializer::Value(UInt32& val)
 	{
 		m_stream << val;
@@ -374,19 +424,38 @@ namespace Nz
 
 		ShaderAst shader;
 
+		UInt32 structCount;
+		m_stream >> structCount;
+		for (UInt32 i = 0; i < structCount; ++i)
+		{
+			std::string structName;
+			std::vector<ShaderAst::StructMember> members;
+
+			Value(structName);
+			Container(members);
+
+			for (auto& member : members)
+			{
+				Value(member.name);
+				Type(member.type);
+			}
+
+			shader.AddStruct(std::move(structName), std::move(members));
+		}
+
 		UInt32 inputCount;
 		m_stream >> inputCount;
 		for (UInt32 i = 0; i < inputCount; ++i)
 		{
 			std::string inputName;
-			ShaderNodes::ExpressionType inputType;
+			ShaderAst::Type inputType;
 			std::optional<std::size_t> location;
 
 			Value(inputName);
-			Enum(inputType);
+			Type(inputType);
 			OptVal(location);
 
-			shader.AddInput(std::move(inputName), inputType, location);
+			shader.AddInput(std::move(inputName), std::move(inputType), location);
 		}
 
 		UInt32 outputCount;
@@ -394,14 +463,14 @@ namespace Nz
 		for (UInt32 i = 0; i < outputCount; ++i)
 		{
 			std::string outputName;
-			ShaderNodes::ExpressionType outputType;
+			ShaderAst::Type outputType;
 			std::optional<std::size_t> location;
 
 			Value(outputName);
-			Enum(outputType);
+			Type(outputType);
 			OptVal(location);
 
-			shader.AddOutput(std::move(outputName), outputType, location);
+			shader.AddOutput(std::move(outputName), std::move(outputType), location);
 		}
 
 		UInt32 uniformCount;
@@ -409,14 +478,16 @@ namespace Nz
 		for (UInt32 i = 0; i < uniformCount; ++i)
 		{
 			std::string name;
-			ShaderNodes::ExpressionType type;
+			ShaderAst::Type type;
 			std::optional<std::size_t> binding;
+			std::optional<ShaderNodes::MemoryLayout> memLayout;
 
 			Value(name);
-			Enum(type);
+			Type(type);
 			OptVal(binding);
+			OptEnum(memLayout);
 
-			shader.AddUniform(std::move(name), type, binding);
+			shader.AddUniform(std::move(name), std::move(type), std::move(binding), std::move(memLayout));
 		}
 
 		UInt32 funcCount;
@@ -433,7 +504,7 @@ namespace Nz
 			for (auto& param : parameters)
 			{
 				Value(param.name);
-				Enum(param.type);
+				Type(param.type);
 			}
 
 			ShaderNodes::NodePtr node;
@@ -489,6 +560,36 @@ namespace Nz
 		}
 	}
 
+	void ShaderUnserializer::Type(ShaderAst::Type& type)
+	{
+		UInt8 typeIndex;
+		Value(typeIndex);
+
+		switch (typeIndex)
+		{
+			case 0: //< Primitive
+			{
+				ShaderNodes::ExpressionType exprType;
+				Enum(exprType);
+
+				type = exprType;
+				break;
+			}
+
+			case 1: //< Struct (name)
+			{
+				std::string structName;
+				Value(structName);
+
+				type = std::move(structName);
+				break;
+			}
+
+			default:
+				break;
+		}
+	}
+
 	void ShaderUnserializer::Value(bool& val)
 	{
 		m_stream >> val;
@@ -515,6 +616,16 @@ namespace Nz
 	}
 
 	void ShaderUnserializer::Value(Vector4f& val)
+	{
+		m_stream >> val;
+	}
+
+	void ShaderUnserializer::Value(UInt8& val)
+	{
+		m_stream >> val;
+	}
+
+	void ShaderUnserializer::Value(UInt16& val)
 	{
 		m_stream >> val;
 	}

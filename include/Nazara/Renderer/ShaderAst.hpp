@@ -11,6 +11,8 @@
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <optional>
 #include <string>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace Nz
@@ -21,16 +23,21 @@ namespace Nz
 			struct Function;
 			struct FunctionParameter;
 			struct InputOutput;
-			struct VariableBase;
+			struct Struct;
+			struct StructMember;
 			struct Uniform;
+			struct VariableBase;
+
+			using Type = std::variant<ShaderNodes::ExpressionType, std::string>;
 
 			ShaderAst() = default;
 			~ShaderAst() = default;
 
 			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderNodes::ExpressionType returnType = ShaderNodes::ExpressionType::Void);
-			void AddInput(std::string name, ShaderNodes::ExpressionType type, std::optional<std::size_t> locationIndex);
-			void AddOutput(std::string name, ShaderNodes::ExpressionType type, std::optional<std::size_t> locationIndex);
-			void AddUniform(std::string name, ShaderNodes::ExpressionType type, std::optional<std::size_t> bindingIndex);
+			void AddInput(std::string name, Type type, std::optional<std::size_t> locationIndex);
+			void AddOutput(std::string name, Type type, std::optional<std::size_t> locationIndex);
+			void AddStruct(std::string name, std::vector<StructMember> members);
+			void AddUniform(std::string name, Type type, std::optional<std::size_t> bindingIndex, std::optional<ShaderNodes::MemoryLayout> memoryLayout);
 
 			inline const Function& GetFunction(std::size_t i) const;
 			inline std::size_t GetFunctionCount() const;
@@ -41,6 +48,9 @@ namespace Nz
 			inline const InputOutput& GetOutput(std::size_t i) const;
 			inline std::size_t GetOutputCount() const;
 			inline const std::vector<InputOutput>& GetOutputs() const;
+			inline const Struct& GetStruct(std::size_t i) const;
+			inline std::size_t GetStructCount() const;
+			inline const std::vector<Struct>& GetStructs() const;
 			inline const Uniform& GetUniform(std::size_t i) const;
 			inline std::size_t GetUniformCount() const;
 			inline const std::vector<Uniform>& GetUniforms() const;
@@ -48,7 +58,7 @@ namespace Nz
 			struct VariableBase
 			{
 				std::string name;
-				ShaderNodes::ExpressionType type;
+				Type type;
 			};
 
 			struct FunctionParameter : VariableBase
@@ -71,12 +81,26 @@ namespace Nz
 			struct Uniform : VariableBase
 			{
 				std::optional<std::size_t> bindingIndex;
+				std::optional<ShaderNodes::MemoryLayout> memoryLayout;
+			};
+
+			struct Struct
+			{
+				std::string name;
+				std::vector<StructMember> members;
+			};
+
+			struct StructMember
+			{
+				std::string name;
+				Type type;
 			};
 
 		private:
 			std::vector<Function> m_functions;
 			std::vector<InputOutput> m_inputs;
 			std::vector<InputOutput> m_outputs;
+			std::vector<Struct> m_structs;
 			std::vector<Uniform> m_uniforms;
 	};
 }

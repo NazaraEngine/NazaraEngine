@@ -37,6 +37,24 @@ namespace Nz
 	}
 
 	template<typename T>
+	void ShaderSerializerBase::OptEnum(std::optional<T>& optVal)
+	{
+		bool isWriting = IsWriting();
+
+		bool hasValue;
+		if (isWriting)
+			hasValue = optVal.has_value();
+
+		Value(hasValue);
+
+		if (!isWriting && hasValue)
+			optVal.emplace();
+
+		if (optVal.has_value())
+			Enum(optVal.value());
+	}
+
+	template<typename T>
 	void ShaderSerializerBase::OptVal(std::optional<T>& optVal)
 	{
 		bool isWriting = IsWriting();

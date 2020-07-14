@@ -11,13 +11,12 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <Nazara/Renderer/ShaderVariables.hpp>
 
 namespace Nz
 {
-	class ShaderAst;
-
 	class NAZARA_RENDERER_API ShaderSerializerBase
 	{
 		public:
@@ -44,6 +43,7 @@ namespace Nz
 		protected:
 			template<typename T> void Container(T& container);
 			template<typename T> void Enum(T& enumVal);
+			template<typename T> void OptEnum(std::optional<T>& optVal);
 			template<typename T> void OptVal(std::optional<T>& optVal);
 
 			virtual bool IsWriting() const = 0;
@@ -57,6 +57,8 @@ namespace Nz
 			virtual void Value(Vector2f& val) = 0;
 			virtual void Value(Vector3f& val) = 0;
 			virtual void Value(Vector4f& val) = 0;
+			virtual void Value(UInt8& val) = 0;
+			virtual void Value(UInt16& val) = 0;
 			virtual void Value(UInt32& val) = 0;
 			inline void Value(std::size_t& val);
 
@@ -82,6 +84,8 @@ namespace Nz
 			void Value(Vector2f& val) override;
 			void Value(Vector3f& val) override;
 			void Value(Vector4f& val) override;
+			void Value(UInt8& val) override;
+			void Value(UInt16& val) override;
 			void Value(UInt32& val) override;
 			void Variable(ShaderNodes::VariablePtr& var) override;
 
@@ -99,12 +103,15 @@ namespace Nz
 		private:
 			bool IsWriting() const override;
 			void Node(ShaderNodes::NodePtr& node) override;
+			void Type(ShaderAst::Type& type);
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;
 			void Value(Vector2f& val) override;
 			void Value(Vector3f& val) override;
 			void Value(Vector4f& val) override;
+			void Value(UInt8& val) override;
+			void Value(UInt16& val) override;
 			void Value(UInt32& val) override;
 			void Variable(ShaderNodes::VariablePtr& var) override;
 
