@@ -16,25 +16,36 @@ class ShaderNode;
 class ShaderGraph
 {
 	public:
+		struct BufferEntry;
 		struct InputEntry;
 		struct OutputEntry;
+		struct StructEntry;
+		struct StructMemberEntry;
 		struct TextureEntry;
 
 		ShaderGraph();
 		~ShaderGraph();
 
-		std::size_t AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
-		std::size_t AddOutput(std::string name, InOutType type, std::size_t locationIndex);
+		std::size_t AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
+		std::size_t AddInput(std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
+		std::size_t AddOutput(std::string name, PrimitiveType type, std::size_t locationIndex);
+		std::size_t AddStruct(std::string name, std::vector<StructMemberEntry> members);
 		std::size_t AddTexture(std::string name, TextureType type, std::size_t bindingIndex);
 
 		void Clear();
 
-		inline const InputEntry& GetInput(std::size_t inputIndex) const;
+		inline const BufferEntry& GetBuffer(std::size_t bufferIndex) const;
+		inline std::size_t GetBufferCount() const;
+		inline const std::vector<BufferEntry>& GetBuffers() const;
+		inline const InputEntry& GetInput(std::size_t bufferIndex) const;
 		inline std::size_t GetInputCount() const;
 		inline const std::vector<InputEntry>& GetInputs() const;
 		inline const OutputEntry& GetOutput(std::size_t outputIndex) const;
 		inline std::size_t GetOutputCount() const;
 		inline const std::vector<OutputEntry>& GetOutputs() const;
+		inline const StructEntry& GetStruct(std::size_t structIndex) const;
+		inline std::size_t GetStructCount() const;
+		inline const std::vector<StructEntry>& GetStructs() const;
 		inline const PreviewModel& GetPreviewModel() const;
 		inline QtNodes::FlowScene& GetScene();
 		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
@@ -46,10 +57,20 @@ class ShaderGraph
 
 		Nz::ShaderNodes::StatementPtr ToAst();
 
-		void UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
-		void UpdateOutput(std::size_t outputIndex, std::string name, InOutType type, std::size_t locationIndex);
+		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
+		void UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
+		void UpdateOutput(std::size_t outputIndex, std::string name, PrimitiveType type, std::size_t locationIndex);
+		void UpdateStruct(std::size_t structIndex, std::string name, std::vector<StructMemberEntry> members);
 		void UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex);
 		void UpdateTexturePreview(std::size_t texture, QImage preview);
+
+		struct BufferEntry
+		{
+			std::size_t bindingIndex;
+			std::size_t structIndex;
+			std::string name;
+			BufferType type;
+		};
 
 		struct InputEntry
 		{
@@ -57,14 +78,26 @@ class ShaderGraph
 			std::size_t roleIndex;
 			std::string name;
 			InputRole role;
-			InOutType type;
+			PrimitiveType type;
 		};
 
 		struct OutputEntry
 		{
 			std::size_t locationIndex;
 			std::string name;
-			InOutType type;
+			PrimitiveType type;
+		};
+
+		struct StructEntry
+		{
+			std::string name;
+			std::vector<StructMemberEntry> members;
+		};
+
+		struct StructMemberEntry
+		{
+			std::string name;
+			std::variant<PrimitiveType, std::size_t /*structIndex*/> type;
 		};
 
 		struct TextureEntry
@@ -75,11 +108,15 @@ class ShaderGraph
 			QImage preview;
 		};
 
+		NazaraSignal(OnBufferListUpdate, ShaderGraph*);
+		NazaraSignal(OnBufferUpdate, ShaderGraph*, std::size_t /*outputIndex*/);
 		NazaraSignal(OnInputListUpdate, ShaderGraph*);
 		NazaraSignal(OnInputUpdate, ShaderGraph*, std::size_t /*inputIndex*/);
 		NazaraSignal(OnOutputListUpdate, ShaderGraph*);
 		NazaraSignal(OnOutputUpdate, ShaderGraph*, std::size_t /*outputIndex*/);
 		NazaraSignal(OnSelectedNodeUpdate, ShaderGraph*, ShaderNode* /*node*/);
+		NazaraSignal(OnStructListUpdate, ShaderGraph*);
+		NazaraSignal(OnStructUpdate, ShaderGraph*, std::size_t /*structIndex*/);
 		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 		NazaraSignal(OnTextureUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
@@ -88,8 +125,10 @@ class ShaderGraph
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
 
 		QtNodes::FlowScene m_flowScene;
+		std::vector<BufferEntry> m_buffers;
 		std::vector<InputEntry> m_inputs;
 		std::vector<OutputEntry> m_outputs;
+		std::vector<StructEntry> m_structs;
 		std::vector<TextureEntry> m_textures;
 		std::unique_ptr<PreviewModel> m_previewModel;
 };

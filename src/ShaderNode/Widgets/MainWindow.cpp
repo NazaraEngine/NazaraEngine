@@ -3,9 +3,11 @@
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/Widgets/BufferEditor.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
 #include <ShaderNode/Widgets/OutputEditor.hpp>
 #include <ShaderNode/Widgets/NodeEditor.hpp>
+#include <ShaderNode/Widgets/StructEditor.hpp>
 #include <ShaderNode/Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
 #include <QtCore/QFile>
@@ -62,6 +64,24 @@ m_shaderGraph(graph)
 	nodeEditorDock->setWidget(m_nodeEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, nodeEditorDock);
+
+	// Buffer editor
+	BufferEditor* bufferEditor = new BufferEditor(m_shaderGraph);
+
+	QDockWidget* bufferDock = new QDockWidget(tr("Buffers"));
+	bufferDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	bufferDock->setWidget(bufferEditor);
+
+	addDockWidget(Qt::RightDockWidgetArea, bufferDock);
+
+	// Struct editor
+	StructEditor* structEditor = new StructEditor(m_shaderGraph);
+
+	QDockWidget* structDock = new QDockWidget(tr("Structs"));
+	structDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	structDock->setWidget(structEditor);
+
+	addDockWidget(Qt::RightDockWidgetArea, structDock);
 
 	m_onSelectedNodeUpdate.Connect(m_shaderGraph.OnSelectedNodeUpdate, [&](ShaderGraph*, ShaderNode* node)
 	{
@@ -193,15 +213,15 @@ Nz::ShaderAst MainWindow::ToShader()
 	Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
 
 	//TODO: Put in another function
-	auto GetExpressionFromInOut = [&](InOutType type)
+	auto GetExpressionFromInOut = [&](PrimitiveType type)
 	{
 		switch (type)
 		{
-			case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-			case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
-			case InOutType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
-			case InOutType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
-			case InOutType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+			case PrimitiveType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+			case PrimitiveType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
+			case PrimitiveType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
+			case PrimitiveType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
+			case PrimitiveType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
 		}
 
 		assert(false);
@@ -226,8 +246,37 @@ Nz::ShaderAst MainWindow::ToShader()
 	for (const auto& output : m_shaderGraph.GetOutputs())
 		shader.AddOutput(output.name, GetExpressionFromInOut(output.type), output.locationIndex);
 
+	for (const auto& buffer : m_shaderGraph.GetBuffers())
+	{
+		const auto& structInfo = m_shaderGraph.GetStruct(buffer.structIndex);
+		shader.AddUniform(buffer.name, structInfo.name, buffer.bindingIndex, Nz::ShaderNodes::MemoryLayout::Std140);
+	}
+
 	for (const auto& uniform : m_shaderGraph.GetTextures())
-		shader.AddUniform(uniform.name, GetExpressionFromTexture(uniform.type), uniform.bindingIndex);
+		shader.AddUniform(uniform.name, GetExpressionFromTexture(uniform.type), uniform.bindingIndex, {});
+
+	for (const auto& s : m_shaderGraph.GetStructs())
+	{
+		std::vector<Nz::ShaderAst::StructMember> members;
+		for (const auto& sMember : s.members)
+		{
+			auto& member = members.emplace_back();
+			member.name = sMember.name;
+
+			std::visit([&](auto&& arg)
+			{
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, PrimitiveType>)
+					member.type = GetExpressionFromInOut(arg);
+				else if constexpr (std::is_same_v<T, std::size_t>)
+					member.type = m_shaderGraph.GetStruct(arg).name;
+				else
+					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			}, sMember.type);
+		}
+
+		shader.AddStruct(s.name, std::move(members));
+	}
 
 	shader.AddFunction("main", shaderAst);
 

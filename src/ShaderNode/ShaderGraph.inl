@@ -1,5 +1,21 @@
 #include <ShaderNode/ShaderGraph.hpp>
 
+inline auto ShaderGraph::GetBuffer(std::size_t bufferIndex) const -> const BufferEntry&
+{
+	assert(bufferIndex < m_buffers.size());
+	return m_buffers[bufferIndex];
+}
+
+inline std::size_t ShaderGraph::GetBufferCount() const
+{
+	return m_buffers.size();
+}
+
+inline auto ShaderGraph::GetBuffers() const -> const std::vector<BufferEntry>&
+{
+	return m_buffers;
+}
+
 inline auto ShaderGraph::GetInput(std::size_t inputIndex) const -> const InputEntry&
 {
 	assert(inputIndex < m_inputs.size());
@@ -30,6 +46,22 @@ inline std::size_t ShaderGraph::GetOutputCount() const
 inline auto ShaderGraph::GetOutputs() const -> const std::vector<OutputEntry>&
 {
 	return m_outputs;
+}
+
+inline auto ShaderGraph::GetStruct(std::size_t structIndex) const -> const StructEntry&
+{
+	assert(structIndex < m_structs.size());
+	return m_structs[structIndex];
+}
+
+inline std::size_t ShaderGraph::GetStructCount() const
+{
+	return m_structs.size();
+}
+
+inline auto ShaderGraph::GetStructs() const -> const std::vector<StructEntry>&
+{
+	return m_structs;
 }
 
 inline const PreviewModel& ShaderGraph::GetPreviewModel() const

@@ -1,19 +1,30 @@
 #include <ShaderNode/Enums.hpp>
 #include <cassert>
 
-std::size_t GetComponentCount(InOutType type)
+std::size_t GetComponentCount(PrimitiveType type)
 {
 	switch (type)
 	{
-		case InOutType::Bool:   return 1;
-		case InOutType::Float1: return 1;
-		case InOutType::Float2: return 2;
-		case InOutType::Float3: return 3;
-		case InOutType::Float4: return 4;
+		case PrimitiveType::Bool:   return 1;
+		case PrimitiveType::Float1: return 1;
+		case PrimitiveType::Float2: return 2;
+		case PrimitiveType::Float3: return 3;
+		case PrimitiveType::Float4: return 4;
 	}
 
 	assert(false);
 	return 0;
+}
+
+const char* EnumToString(BufferType bufferType)
+{
+	switch (bufferType)
+	{
+		case BufferType::UniformBufferObject: return "UniformBufferObject";
+	}
+
+	assert(false);
+	return "<Unhandled>";
 }
 
 const char* EnumToString(InputRole role)
@@ -30,15 +41,15 @@ const char* EnumToString(InputRole role)
 	return "<Unhandled>";
 }
 
-const char* EnumToString(InOutType input)
+const char* EnumToString(PrimitiveType input)
 {
 	switch (input)
 	{
-		case InOutType::Bool:   return "Bool";
-		case InOutType::Float1: return "Float";
-		case InOutType::Float2: return "Float2";
-		case InOutType::Float3: return "Float3";
-		case InOutType::Float4: return "Float4";
+		case PrimitiveType::Bool:   return "Bool";
+		case PrimitiveType::Float1: return "Float";
+		case PrimitiveType::Float2: return "Float2";
+		case PrimitiveType::Float3: return "Float3";
+		case PrimitiveType::Float4: return "Float4";
 	}
 
 	assert(false);

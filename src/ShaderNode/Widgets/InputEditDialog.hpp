@@ -16,7 +16,7 @@ struct InputInfo
 	std::size_t roleIndex;
 	std::string name;
 	InputRole role;
-	InOutType type;
+	PrimitiveType type;
 };
 
 class InputEditDialog : public QDialog

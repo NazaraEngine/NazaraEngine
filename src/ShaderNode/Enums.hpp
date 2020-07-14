@@ -7,6 +7,15 @@
 #include <optional>
 #include <string>
 
+enum class BufferType
+{
+	UniformBufferObject,
+
+	Max = UniformBufferObject
+};
+
+constexpr std::size_t BufferTypeCount = static_cast<std::size_t>(BufferType::Max) + 1;
+
 enum class InputRole
 {
 	None,
@@ -19,7 +28,7 @@ enum class InputRole
 
 constexpr std::size_t InputRoleCount = static_cast<std::size_t>(InputRole::Max) + 1;
 
-enum class InOutType
+enum class PrimitiveType
 {
 	Bool,
 	Float1,
@@ -30,7 +39,7 @@ enum class InOutType
 	Max = Float4
 };
 
-constexpr std::size_t InOutTypeCount = static_cast<std::size_t>(InOutType::Max) + 1;
+constexpr std::size_t PrimitiveTypeCount = static_cast<std::size_t>(PrimitiveType::Max) + 1;
 
 enum class TextureType
 {
@@ -43,10 +52,11 @@ constexpr std::size_t TextureTypeCount = static_cast<std::size_t>(TextureType::M
 
 
 template<typename T> std::optional<T> DecodeEnum(const std::string_view& str);
+const char* EnumToString(BufferType bufferType);
 const char* EnumToString(InputRole role);
-const char* EnumToString(InOutType input);
+const char* EnumToString(PrimitiveType input);
 const char* EnumToString(TextureType textureType);
-std::size_t GetComponentCount(InOutType type);
+std::size_t GetComponentCount(PrimitiveType type);
 
 #include <ShaderNode/Enums.inl>
 

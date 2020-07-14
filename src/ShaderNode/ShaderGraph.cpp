@@ -46,9 +46,23 @@ m_flowScene(BuildRegistry())
 	});
 
 	// Test
-	AddInput("UV", InOutType::Float2, InputRole::TexCoord, 0, 0);
-	AddOutput("RenderTarget0", InOutType::Float4, 0);
+	AddInput("UV", PrimitiveType::Float2, InputRole::TexCoord, 0, 0);
+	AddOutput("RenderTarget0", PrimitiveType::Float4, 0);
 	AddTexture("Potato", TextureType::Sampler2D, 1);
+	AddStruct("TestStruct", {
+		{
+			{ "position", PrimitiveType::Float3 },
+			{ "normal", PrimitiveType::Float3 },
+			{ "uv", PrimitiveType::Float2 },
+		}
+	});
+	AddStruct("TestStruct2", {
+	{
+		{ "position", PrimitiveType::Float3 },
+		{ "normal", PrimitiveType::Float3 },
+		{ "uv", PrimitiveType::Float2 },
+	}
+	});
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
@@ -79,7 +93,21 @@ ShaderGraph::~ShaderGraph()
 	m_flowScene.clearScene();
 }
 
-std::size_t ShaderGraph::AddInput(std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
+std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
+{
+	std::size_t index = m_buffers.size();
+	auto& bufferEntry = m_buffers.emplace_back();
+	bufferEntry.bindingIndex = bindingIndex;
+	bufferEntry.name = std::move(name);
+	bufferEntry.structIndex = structIndex;
+	bufferEntry.type = bufferType;
+
+	OnBufferListUpdate(this);
+
+	return index;
+}
+
+std::size_t ShaderGraph::AddInput(std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
 {
 	std::size_t index = m_inputs.size();
 	auto& inputEntry = m_inputs.emplace_back();
@@ -94,7 +122,7 @@ std::size_t ShaderGraph::AddInput(std::string name, InOutType type, InputRole ro
 	return index;
 }
 
-std::size_t ShaderGraph::AddOutput(std::string name, InOutType type, std::size_t locationIndex)
+std::size_t ShaderGraph::AddOutput(std::string name, PrimitiveType type, std::size_t locationIndex)
 {
 	std::size_t index = m_outputs.size();
 	auto& outputEntry = m_outputs.emplace_back();
@@ -103,6 +131,18 @@ std::size_t ShaderGraph::AddOutput(std::string name, InOutType type, std::size_t
 	outputEntry.type = type;
 
 	OnOutputListUpdate(this);
+
+	return index;
+}
+
+std::size_t ShaderGraph::AddStruct(std::string name, std::vector<StructMemberEntry> members)
+{
+	std::size_t index = m_structs.size();
+	auto& structEntry = m_structs.emplace_back();
+	structEntry.name = std::move(name);
+	structEntry.members = std::move(members);
+
+	OnStructListUpdate(this);
 
 	return index;
 }
@@ -125,11 +165,15 @@ void ShaderGraph::Clear()
 	m_flowScene.clearScene();
 	m_flowScene.clear();
 
+	m_buffers.clear();
 	m_inputs.clear();
+	m_structs.clear();
 	m_outputs.clear();
 	m_textures.clear();
 
+	OnBufferListUpdate(this);
 	OnInputListUpdate(this);
+	OnStructListUpdate(this);
 	OnOutputListUpdate(this);
 	OnTextureListUpdate(this);
 }
@@ -137,6 +181,20 @@ void ShaderGraph::Clear()
 void ShaderGraph::Load(const QJsonObject& data)
 {
 	Clear();
+
+	QJsonArray bufferArray = data["buffers"].toArray();
+	for (const auto& bufferDocRef : bufferArray)
+	{
+		QJsonObject bufferDoc = bufferDocRef.toObject();
+
+		BufferEntry& buffer = m_buffers.emplace_back();
+		buffer.bindingIndex = static_cast<std::size_t>(bufferDoc["bindingIndex"].toInt(0));
+		buffer.name = bufferDoc["name"].toString().toStdString();
+		buffer.structIndex = bufferDoc["structIndex"].toInt();
+		buffer.type = DecodeEnum<BufferType>(bufferDoc["type"].toString().toStdString()).value();
+	}
+
+	OnBufferListUpdate(this);
 
 	QJsonArray inputArray = data["inputs"].toArray();
 	for (const auto& inputDocRef : inputArray)
@@ -148,7 +206,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 		input.name = inputDoc["name"].toString().toStdString();
 		input.role = DecodeEnum<InputRole>(inputDoc["role"].toString().toStdString()).value();
 		input.roleIndex = static_cast<std::size_t>(inputDoc["roleIndex"].toInt(0));
-		input.type = DecodeEnum<InOutType>(inputDoc["type"].toString().toStdString()).value();
+		input.type = DecodeEnum<PrimitiveType>(inputDoc["type"].toString().toStdString()).value();
 	}
 
 	OnInputListUpdate(this);
@@ -161,10 +219,36 @@ void ShaderGraph::Load(const QJsonObject& data)
 		OutputEntry& output = m_outputs.emplace_back();
 		output.locationIndex = static_cast<std::size_t>(outputDoc["locationIndex"].toInt(0));
 		output.name = outputDoc["name"].toString().toStdString();
-		output.type = DecodeEnum<InOutType>(outputDoc["type"].toString().toStdString()).value();
+		output.type = DecodeEnum<PrimitiveType>(outputDoc["type"].toString().toStdString()).value();
 	}
 
 	OnOutputListUpdate(this);
+
+	QJsonArray structArray = data["structs"].toArray();
+	for (const auto& structDocRef : structArray)
+	{
+		QJsonObject structDoc = structDocRef.toObject();
+
+		StructEntry& structInfo = m_structs.emplace_back();
+		structInfo.name = structDoc["name"].toString().toStdString();
+
+		QJsonArray memberArray = structDoc["members"].toArray();
+		for (const auto& memberDocRef : memberArray)
+		{
+			QJsonObject memberDoc = memberDocRef.toObject();
+
+			auto& memberInfo = structInfo.members.emplace_back();
+			memberInfo.name = memberDoc["name"].toString().toStdString();
+
+			const auto& typeDocRef = memberDoc["type"];
+			if (typeDocRef.isString())
+				memberInfo.type = DecodeEnum<PrimitiveType>(typeDocRef.toString().toStdString()).value();
+			else
+				memberInfo.type = typeDocRef.toInt();
+		}
+	}
+
+	OnStructListUpdate(this);
 
 	QJsonArray textureArray = data["textures"].toArray();
 	for (const auto& textureDocRef : textureArray)
@@ -189,6 +273,21 @@ void ShaderGraph::Load(const QJsonObject& data)
 QJsonObject ShaderGraph::Save()
 {
 	QJsonObject sceneJson;
+
+	QJsonArray bufferArray;
+	{
+		for (const auto& buffer : m_buffers)
+		{
+			QJsonObject bufferDoc;
+			bufferDoc["bindingIndex"] = int(buffer.bindingIndex);
+			bufferDoc["name"] = QString::fromStdString(buffer.name);
+			bufferDoc["structIndex"] = int(buffer.structIndex);
+			bufferDoc["type"] = QString(EnumToString(buffer.type));
+
+			bufferArray.append(bufferDoc);
+		}
+	}
+	sceneJson["buffers"] = bufferArray;
 
 	QJsonArray inputArray;
 	{
@@ -219,6 +318,39 @@ QJsonObject ShaderGraph::Save()
 		}
 	}
 	sceneJson["outputs"] = outputArray;
+
+	QJsonArray structArray;
+	{
+		for (const auto& s : m_structs)
+		{
+			QJsonObject structDoc;
+			structDoc["name"] = QString::fromStdString(s.name);
+
+			QJsonArray memberArray;
+			for (const auto& member : s.members)
+			{
+				QJsonObject memberDoc;
+				memberDoc["name"] = QString::fromStdString(member.name);
+
+				std::visit([&](auto&& arg)
+				{
+					using T = std::decay_t<decltype(arg)>;
+					if constexpr (std::is_same_v<T, PrimitiveType>)
+						memberDoc["type"] = QString(EnumToString(arg));
+					else if constexpr (std::is_same_v<T, std::size_t>)
+						memberDoc["type"] = int(arg);
+					else
+						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				}, member.type);
+
+				memberDoc["type"] = QString::fromStdString(member.name);
+			}
+			structDoc["members"] = memberArray;
+
+			structArray.append(structDoc);
+		}
+	}
+	sceneJson["structs"] = structArray;
 
 	QJsonArray textureArray;
 	{
@@ -366,7 +498,19 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
 }
 
-void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
+void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
+{
+	assert(bufferIndex < m_buffers.size());
+	auto& bufferEntry = m_buffers[bufferIndex];
+	bufferEntry.bindingIndex = bindingIndex;
+	bufferEntry.name = std::move(name);
+	bufferEntry.structIndex = structIndex;
+	bufferEntry.type = bufferType;
+
+	OnBufferUpdate(this, bufferIndex);
+}
+
+void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
 {
 	assert(inputIndex < m_inputs.size());
 	auto& inputEntry = m_inputs[inputIndex];
@@ -379,7 +523,7 @@ void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, InOutTyp
 	OnInputUpdate(this, inputIndex);
 }
 
-void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, InOutType type, std::size_t locationIndex)
+void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, PrimitiveType type, std::size_t locationIndex)
 {
 	assert(outputIndex < m_outputs.size());
 	auto& outputEntry = m_outputs[outputIndex];
@@ -388,6 +532,16 @@ void ShaderGraph::UpdateOutput(std::size_t outputIndex, std::string name, InOutT
 	outputEntry.type = type;
 
 	OnOutputUpdate(this, outputIndex);
+}
+
+void ShaderGraph::UpdateStruct(std::size_t structIndex, std::string name, std::vector<StructMemberEntry> members)
+{
+	assert(structIndex < m_structs.size());
+	auto& structEntry = m_structs[structIndex];
+	structEntry.name = std::move(name);
+	structEntry.members = std::move(members);
+
+	OnStructUpdate(this, structIndex);
 }
 
 void ShaderGraph::UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex)

@@ -14,7 +14,7 @@ struct OutputInfo
 {
 	std::size_t locationIndex;
 	std::string name;
-	InOutType type;
+	PrimitiveType type;
 };
 
 class OutputEditDialog : public QDialog
