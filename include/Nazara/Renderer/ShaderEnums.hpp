@@ -56,6 +56,11 @@ namespace Nz::ShaderNodes
 		DotProduct
 	};
 
+	enum class MemoryLayout
+	{
+		Std140
+	};
+
 	enum class NodeType
 	{
 		None = -1,

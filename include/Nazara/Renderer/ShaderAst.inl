@@ -55,6 +55,22 @@ namespace Nz
 		return m_outputs;
 	}
 
+	inline auto ShaderAst::GetStruct(std::size_t i) const -> const Struct&
+	{
+		assert(i < m_structs.size());
+		return m_structs[i];
+	}
+
+	inline std::size_t ShaderAst::GetStructCount() const
+	{
+		return m_structs.size();
+	}
+
+	inline auto ShaderAst::GetStructs() const -> const std::vector<Struct>&
+	{
+		return m_structs;
+	}
+
 	inline auto ShaderAst::GetUniform(std::size_t i) const -> const Uniform&
 	{
 		assert(i < m_uniforms.size());

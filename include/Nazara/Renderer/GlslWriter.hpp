@@ -44,15 +44,17 @@ namespace Nz
 			};
 
 		private:
+			void Append(ShaderAst::Type type);
 			void Append(ShaderNodes::BuiltinEntry builtin);
 			void Append(ShaderNodes::ExpressionType type);
+			void Append(ShaderNodes::MemoryLayout layout);
 			template<typename T> void Append(const T& param);
 			void AppendCommentSection(const std::string& section);
 			void AppendFunction(const ShaderAst::Function& func);
 			void AppendFunctionPrototype(const ShaderAst::Function& func);
 			void AppendLine(const std::string& txt = {});
 
-			template<typename T> void DeclareVariables(const std::vector<T>& variables, const std::string& keyword = {}, const std::string& section = {});
+			template<typename T> void DeclareVariables(const ShaderAst& shader, const std::vector<T>& variables, const std::string& keyword = {}, const std::string& section = {});
 
 			void EnterScope();
 			void LeaveScope();

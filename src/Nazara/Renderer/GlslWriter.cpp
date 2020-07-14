@@ -108,13 +108,35 @@ namespace Nz
 			AppendLine();
 		}
 
+		// Structures
+		/*if (shader.GetStructCount() > 0)
+		{
+			AppendCommentSection("Structures");
+			for (const auto& s : shader.GetStructs())
+			{
+				Append("struct ");
+				AppendLine(s.name);
+				AppendLine("{");
+				for (const auto& m : s.members)
+				{
+					Append("\t");
+					Append(m.type);
+					Append(" ");
+					Append(m.name);
+					AppendLine(";");
+				}
+				AppendLine("};");
+				AppendLine();
+			}
+		}*/
+
 		// Global variables (uniforms, input and outputs)
 		const char* inKeyword = (glslVersion >= 130) ? "in" : "varying";
 		const char* outKeyword = (glslVersion >= 130) ? "out" : "varying";
 
-		DeclareVariables(shader.GetUniforms(), "uniform", "Uniforms");
-		DeclareVariables(shader.GetInputs(),   inKeyword,      "Inputs");
-		DeclareVariables(shader.GetOutputs(),  outKeyword,     "Outputs");
+		DeclareVariables(shader, shader.GetUniforms(), "uniform", "Uniforms");
+		DeclareVariables(shader, shader.GetInputs(),   inKeyword,      "Inputs");
+		DeclareVariables(shader, shader.GetOutputs(),  outKeyword,     "Outputs");
 
 		std::size_t functionCount = shader.GetFunctionCount();
 		if (functionCount > 1)
@@ -139,6 +161,14 @@ namespace Nz
 	void GlslWriter::SetEnv(Environment environment)
 	{
 		m_environment = std::move(environment);
+	}
+
+	void GlslWriter::Append(ShaderAst::Type type)
+	{
+		std::visit([&](auto&& arg)
+		{
+			Append(arg);
+		}, type);
 	}
 
 	void GlslWriter::Append(ShaderNodes::BuiltinEntry builtin)
@@ -178,6 +208,16 @@ namespace Nz
 				break;
 			case ShaderNodes::ExpressionType::Void:
 				Append("void");
+				break;
+		}
+	}
+
+	void GlslWriter::Append(ShaderNodes::MemoryLayout layout)
+	{
+		switch (layout)
+		{
+			case ShaderNodes::MemoryLayout::Std140:
+				Append("std140");
 				break;
 		}
 	}

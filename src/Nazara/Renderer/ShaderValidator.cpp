@@ -77,7 +77,7 @@ namespace Nz
 		return TypeMustMatch(left->GetExpressionType(), right->GetExpressionType());
 	}
 
-	void ShaderValidator::TypeMustMatch(ShaderNodes::ExpressionType left, ShaderNodes::ExpressionType right)
+	void ShaderValidator::TypeMustMatch(const ShaderAst::Type& left, const ShaderAst::Type& right)
 	{
 		if (left != right)
 			throw AstError{ "Left expression type must match right expression type" };
