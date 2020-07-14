@@ -229,6 +229,8 @@ int main()
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
 
+	Nz::Mouse::SetRelativeMouseMode(true);
+
 	while (window.IsOpen())
 	{
 		Nz::WindowEvent event;
@@ -252,10 +254,6 @@ int main()
 					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
-
-					// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenêtre
-					// Cette fonction est codée de sorte à ne pas provoquer d'évènement MouseMoved
-					Nz::Mouse::SetPosition(windowSize.x / 2, windowSize.y / 2, window);
 					break;
 				}
 			}
