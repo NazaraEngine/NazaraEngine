@@ -2,13 +2,13 @@
 #include <cassert>
 #include <stdexcept>
 
-Nz::ShaderNodes::ExpressionType VecData::GetExpressionType() const
+Nz::ShaderNodes::BasicType VecData::GetExpressionType() const
 {
 	switch (componentCount)
 	{
-		case 2: return Nz::ShaderNodes::ExpressionType::Float2;
-		case 3: return Nz::ShaderNodes::ExpressionType::Float3;
-		case 4: return Nz::ShaderNodes::ExpressionType::Float4;
+		case 2: return Nz::ShaderNodes::BasicType::Float2;
+		case 3: return Nz::ShaderNodes::BasicType::Float3;
+		case 4: return Nz::ShaderNodes::BasicType::Float4;
 		default:
 			break;
 	}

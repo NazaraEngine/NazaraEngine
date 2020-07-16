@@ -38,8 +38,8 @@ namespace Nz
 
 				virtual void Visit(ShaderVisitor& visitor) = 0;
 
-				static inline unsigned int GetComponentCount(ExpressionType type);
-				static inline ExpressionType GetComponentType(ExpressionType type);
+				static inline unsigned int GetComponentCount(BasicType type);
+				static inline BasicType GetComponentType(BasicType type);
 
 			protected:
 				inline Node(NodeType type, bool isStatement);
@@ -59,7 +59,7 @@ namespace Nz
 				inline Expression(NodeType type);
 
 				virtual ExpressionCategory GetExpressionCategory() const;
-				virtual ExpressionType GetExpressionType() const = 0;
+				virtual BasicType GetExpressionType() const = 0;
 		};
 
 		class Statement;
@@ -125,7 +125,7 @@ namespace Nz
 			inline Identifier();
 
 			ExpressionCategory GetExpressionCategory() const override;
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			VariablePtr var;
@@ -139,7 +139,7 @@ namespace Nz
 		{
 			inline AssignOp();
 
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			AssignType    op;
@@ -153,7 +153,7 @@ namespace Nz
 		{
 			inline BinaryOp();
 
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			BinaryType    op;
@@ -187,24 +187,24 @@ namespace Nz
 		{
 			inline Cast();
 
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
-			ExpressionType exprType;
+			BasicType exprType;
 			std::array<ExpressionPtr, 4> expressions;
 
-			static inline std::shared_ptr<Cast> Build(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second = nullptr, ExpressionPtr third = nullptr, ExpressionPtr fourth = nullptr);
-			static inline std::shared_ptr<Cast> Build(ExpressionType castTo, ExpressionPtr* expressions, std::size_t expressionCount);
+			static inline std::shared_ptr<Cast> Build(BasicType castTo, ExpressionPtr first, ExpressionPtr second = nullptr, ExpressionPtr third = nullptr, ExpressionPtr fourth = nullptr);
+			static inline std::shared_ptr<Cast> Build(BasicType castTo, ExpressionPtr* expressions, std::size_t expressionCount);
 		};
 
 		struct NAZARA_RENDERER_API Constant : public Expression
 		{
 			inline Constant();
 
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
-			ExpressionType exprType;
+			BasicType exprType;
 
 			union
 			{
@@ -227,7 +227,7 @@ namespace Nz
 			inline SwizzleOp();
 
 			ExpressionCategory GetExpressionCategory() const override;
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			std::array<SwizzleComponent, 4> components;
@@ -243,7 +243,7 @@ namespace Nz
 		{
 			inline Sample2D();
 
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			ExpressionPtr sampler;
@@ -258,7 +258,7 @@ namespace Nz
 		{
 			inline IntrinsicCall();
 
-			ExpressionType GetExpressionType() const override;
+			BasicType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			IntrinsicType intrinsic;

@@ -170,23 +170,23 @@ namespace Nz
 
 		switch (node.exprType)
 		{
-			case ShaderNodes::ExpressionType::Boolean:
+			case ShaderNodes::BasicType::Boolean:
 				Value(node.values.bool1);
 				break;
 
-			case ShaderNodes::ExpressionType::Float1:
+			case ShaderNodes::BasicType::Float1:
 				Value(node.values.vec1);
 				break;
 
-			case ShaderNodes::ExpressionType::Float2:
+			case ShaderNodes::BasicType::Float2:
 				Value(node.values.vec2);
 				break;
 
-			case ShaderNodes::ExpressionType::Float3:
+			case ShaderNodes::BasicType::Float3:
 				Value(node.values.vec3);
 				break;
 
-			case ShaderNodes::ExpressionType::Float4:
+			case ShaderNodes::BasicType::Float4:
 				Value(node.values.vec4);
 				break;
 		}
@@ -249,12 +249,12 @@ namespace Nz
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
-		auto SerializeType = [&](const ShaderAst::Type& type)
+		auto SerializeType = [&](const ShaderExpressionType& type)
 		{
 			std::visit([&](auto&& arg)
 			{
 				using T = std::decay_t<decltype(arg)>;
-				if constexpr (std::is_same_v<T, ShaderNodes::ExpressionType>)
+				if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
 				{
 					m_stream << UInt8(0);
 					m_stream << UInt32(arg);
@@ -448,7 +448,7 @@ namespace Nz
 		for (UInt32 i = 0; i < inputCount; ++i)
 		{
 			std::string inputName;
-			ShaderAst::Type inputType;
+			ShaderExpressionType inputType;
 			std::optional<std::size_t> location;
 
 			Value(inputName);
@@ -463,7 +463,7 @@ namespace Nz
 		for (UInt32 i = 0; i < outputCount; ++i)
 		{
 			std::string outputName;
-			ShaderAst::Type outputType;
+			ShaderExpressionType outputType;
 			std::optional<std::size_t> location;
 
 			Value(outputName);
@@ -478,7 +478,7 @@ namespace Nz
 		for (UInt32 i = 0; i < uniformCount; ++i)
 		{
 			std::string name;
-			ShaderAst::Type type;
+			ShaderExpressionType type;
 			std::optional<std::size_t> binding;
 			std::optional<ShaderNodes::MemoryLayout> memLayout;
 
@@ -495,7 +495,7 @@ namespace Nz
 		for (UInt32 i = 0; i < funcCount; ++i)
 		{
 			std::string name;
-			ShaderNodes::ExpressionType retType;
+			ShaderNodes::BasicType retType;
 			std::vector<ShaderAst::FunctionParameter> parameters;
 
 			Value(name);
@@ -560,7 +560,7 @@ namespace Nz
 		}
 	}
 
-	void ShaderUnserializer::Type(ShaderAst::Type& type)
+	void ShaderUnserializer::Type(ShaderExpressionType& type)
 	{
 		UInt8 typeIndex;
 		Value(typeIndex);
@@ -569,7 +569,7 @@ namespace Nz
 		{
 			case 0: //< Primitive
 			{
-				ShaderNodes::ExpressionType exprType;
+				ShaderNodes::BasicType exprType;
 				Enum(exprType);
 
 				type = exprType;

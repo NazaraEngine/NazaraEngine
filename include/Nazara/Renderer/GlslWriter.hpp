@@ -44,9 +44,9 @@ namespace Nz
 			};
 
 		private:
-			void Append(ShaderAst::Type type);
+			void Append(ShaderExpressionType type);
 			void Append(ShaderNodes::BuiltinEntry builtin);
-			void Append(ShaderNodes::ExpressionType type);
+			void Append(ShaderNodes::BasicType type);
 			void Append(ShaderNodes::MemoryLayout layout);
 			template<typename T> void Append(const T& param);
 			void AppendCommentSection(const std::string& section);

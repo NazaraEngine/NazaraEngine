@@ -21,7 +21,7 @@ namespace Nz
 		struct Local
 		{
 			std::string name;
-			ShaderNodes::ExpressionType type;
+			ShaderNodes::BasicType type;
 		};
 
 		const ShaderAst::Function* currentFunction;
@@ -77,7 +77,7 @@ namespace Nz
 		return TypeMustMatch(left->GetExpressionType(), right->GetExpressionType());
 	}
 
-	void ShaderValidator::TypeMustMatch(const ShaderAst::Type& left, const ShaderAst::Type& right)
+	void ShaderValidator::TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right)
 	{
 		if (left != right)
 			throw AstError{ "Left expression type must match right expression type" };
@@ -101,8 +101,8 @@ namespace Nz
 		MandatoryNode(node.left);
 		MandatoryNode(node.right);
 
-		ShaderNodes::ExpressionType leftType = node.left->GetExpressionType();
-		ShaderNodes::ExpressionType rightType = node.right->GetExpressionType();
+		ShaderNodes::BasicType leftType = node.left->GetExpressionType();
+		ShaderNodes::BasicType rightType = node.right->GetExpressionType();
 
 		switch (node.op)
 		{
@@ -117,31 +117,31 @@ namespace Nz
 			{
 				switch (leftType)
 				{
-					case ShaderNodes::ExpressionType::Float1:
+					case ShaderNodes::BasicType::Float1:
 					{
-						if (ShaderNodes::Node::GetComponentType(rightType) != ShaderNodes::ExpressionType::Float1)
+						if (ShaderNodes::Node::GetComponentType(rightType) != ShaderNodes::BasicType::Float1)
 							throw AstError{ "Left expression type is not compatible with right expression type" };
 
 						break;
 					}
 
-					case ShaderNodes::ExpressionType::Float2:
-					case ShaderNodes::ExpressionType::Float3:
-					case ShaderNodes::ExpressionType::Float4:
+					case ShaderNodes::BasicType::Float2:
+					case ShaderNodes::BasicType::Float3:
+					case ShaderNodes::BasicType::Float4:
 					{
-						if (leftType != rightType && rightType != ShaderNodes::ExpressionType::Float1)
+						if (leftType != rightType && rightType != ShaderNodes::BasicType::Float1)
 							throw AstError{ "Left expression type is not compatible with right expression type" };
 
 						break;
 					}
 
-					case ShaderNodes::ExpressionType::Mat4x4:
+					case ShaderNodes::BasicType::Mat4x4:
 					{
 						switch (rightType)
 						{
-							case ShaderNodes::ExpressionType::Float1:
-							case ShaderNodes::ExpressionType::Float4:
-							case ShaderNodes::ExpressionType::Mat4x4:
+							case ShaderNodes::BasicType::Float1:
+							case ShaderNodes::BasicType::Float4:
+							case ShaderNodes::BasicType::Mat4x4:
 								break;
 
 							default:
@@ -318,7 +318,7 @@ namespace Nz
 				for (auto& param : node.parameters)
 					MandatoryNode(param);
 
-				ShaderNodes::ExpressionType type = node.parameters.front()->GetExpressionType();
+				ShaderNodes::BasicType type = node.parameters.front()->GetExpressionType();
 				for (std::size_t i = 1; i < node.parameters.size(); ++i)
 				{
 					if (type != node.parameters[i]->GetExpressionType())
@@ -333,7 +333,7 @@ namespace Nz
 		{
 			case ShaderNodes::IntrinsicType::CrossProduct:
 			{
-				if (node.parameters[0]->GetExpressionType() != ShaderNodes::ExpressionType::Float3)
+				if (node.parameters[0]->GetExpressionType() != ShaderNodes::BasicType::Float3)
 					throw AstError{ "CrossProduct only works with Float3 expressions" };
 
 				break;
@@ -349,10 +349,10 @@ namespace Nz
 
 	void ShaderValidator::Visit(const ShaderNodes::Sample2D& node)
 	{
-		if (MandatoryExpr(node.sampler)->GetExpressionType() != ShaderNodes::ExpressionType::Sampler2D)
+		if (MandatoryExpr(node.sampler)->GetExpressionType() != ShaderNodes::BasicType::Sampler2D)
 			throw AstError{ "Sampler must be a Sampler2D" };
 
-		if (MandatoryExpr(node.coordinates)->GetExpressionType() != ShaderNodes::ExpressionType::Float2)
+		if (MandatoryExpr(node.coordinates)->GetExpressionType() != ShaderNodes::BasicType::Float2)
 			throw AstError{ "Coordinates must be a Float2" };
 
 		Visit(node.sampler);
@@ -380,10 +380,10 @@ namespace Nz
 
 		switch (MandatoryExpr(node.expression)->GetExpressionType())
 		{
-			case ShaderNodes::ExpressionType::Float1:
-			case ShaderNodes::ExpressionType::Float2:
-			case ShaderNodes::ExpressionType::Float3:
-			case ShaderNodes::ExpressionType::Float4:
+			case ShaderNodes::BasicType::Float1:
+			case ShaderNodes::BasicType::Float2:
+			case ShaderNodes::BasicType::Float3:
+			case ShaderNodes::BasicType::Float4:
 				break;
 
 			default:

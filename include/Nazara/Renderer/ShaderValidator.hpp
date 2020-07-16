@@ -30,7 +30,7 @@ namespace Nz
 			const ShaderNodes::ExpressionPtr& MandatoryExpr(const ShaderNodes::ExpressionPtr& node);
 			const ShaderNodes::NodePtr& MandatoryNode(const ShaderNodes::NodePtr& node);
 			void TypeMustMatch(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right);
-			void TypeMustMatch(const ShaderAst::Type& left, const ShaderAst::Type& right);
+			void TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right);
 
 			using ShaderVisitor::Visit;
 			void Visit(const ShaderNodes::AssignOp& node) override;

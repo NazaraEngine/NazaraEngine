@@ -278,6 +278,8 @@ namespace Nz::GL
 		glGetIntegerv(GL_VIEWPORT, res.data());
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
+		EnableVerticalSync(false);
+
 		return true;
 	}
 

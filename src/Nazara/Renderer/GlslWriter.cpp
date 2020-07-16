@@ -163,7 +163,7 @@ namespace Nz
 		m_environment = std::move(environment);
 	}
 
-	void GlslWriter::Append(ShaderAst::Type type)
+	void GlslWriter::Append(ShaderExpressionType type)
 	{
 		std::visit([&](auto&& arg)
 		{
@@ -181,32 +181,32 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Append(ShaderNodes::ExpressionType type)
+	void GlslWriter::Append(ShaderNodes::BasicType type)
 	{
 		switch (type)
 		{
-			case ShaderNodes::ExpressionType::Boolean:
+			case ShaderNodes::BasicType::Boolean:
 				Append("bool");
 				break;
-			case ShaderNodes::ExpressionType::Float1:
+			case ShaderNodes::BasicType::Float1:
 				Append("float");
 				break;
-			case ShaderNodes::ExpressionType::Float2:
+			case ShaderNodes::BasicType::Float2:
 				Append("vec2");
 				break;
-			case ShaderNodes::ExpressionType::Float3:
+			case ShaderNodes::BasicType::Float3:
 				Append("vec3");
 				break;
-			case ShaderNodes::ExpressionType::Float4:
+			case ShaderNodes::BasicType::Float4:
 				Append("vec4");
 				break;
-			case ShaderNodes::ExpressionType::Mat4x4:
+			case ShaderNodes::BasicType::Mat4x4:
 				Append("mat4");
 				break;
-			case ShaderNodes::ExpressionType::Sampler2D:
+			case ShaderNodes::BasicType::Sampler2D:
 				Append("sampler2D");
 				break;
-			case ShaderNodes::ExpressionType::Void:
+			case ShaderNodes::BasicType::Void:
 				Append("void");
 				break;
 		}
@@ -395,23 +395,23 @@ namespace Nz
 	{
 		switch (node.exprType)
 		{
-			case ShaderNodes::ExpressionType::Boolean:
+			case ShaderNodes::BasicType::Boolean:
 				Append((node.values.bool1) ? "true" : "false");
 				break;
 
-			case ShaderNodes::ExpressionType::Float1:
+			case ShaderNodes::BasicType::Float1:
 				Append(std::to_string(node.values.vec1));
 				break;
 
-			case ShaderNodes::ExpressionType::Float2:
+			case ShaderNodes::BasicType::Float2:
 				Append("vec2(" + std::to_string(node.values.vec2.x) + ", " + std::to_string(node.values.vec2.y) + ")");
 				break;
 
-			case ShaderNodes::ExpressionType::Float3:
+			case ShaderNodes::BasicType::Float3:
 				Append("vec3(" + std::to_string(node.values.vec3.x) + ", " + std::to_string(node.values.vec3.y) + ", " + std::to_string(node.values.vec3.z) + ")");
 				break;
 
-			case ShaderNodes::ExpressionType::Float4:
+			case ShaderNodes::BasicType::Float4:
 				Append("vec4(" + std::to_string(node.values.vec4.x) + ", " + std::to_string(node.values.vec4.y) + ", " + std::to_string(node.values.vec4.z) + ", " + std::to_string(node.values.vec4.w) + ")");
 				break;
 
