@@ -103,7 +103,7 @@ namespace Nz
 		private:
 			bool IsWriting() const override;
 			void Node(ShaderNodes::NodePtr& node) override;
-			void Type(ShaderAst::Type& type);
+			void Type(ShaderExpressionType& type);
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;

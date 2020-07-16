@@ -7,7 +7,7 @@
 
 namespace Nz::ShaderNodes
 {
-	inline std::shared_ptr<BuiltinVariable> BuiltinVariable::Build(BuiltinEntry variable, ExpressionType varType)
+	inline std::shared_ptr<BuiltinVariable> BuiltinVariable::Build(BuiltinEntry variable, BasicType varType)
 	{
 		auto node = std::make_shared<BuiltinVariable>();
 		node->entry = variable;
@@ -16,7 +16,7 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
-	inline std::shared_ptr<InputVariable> InputVariable::Build(std::string varName, ExpressionType varType)
+	inline std::shared_ptr<InputVariable> InputVariable::Build(std::string varName, BasicType varType)
 	{
 		auto node = std::make_shared<InputVariable>();
 		node->name = std::move(varName);
@@ -25,7 +25,7 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
-	inline std::shared_ptr<LocalVariable> LocalVariable::Build(std::string varName, ExpressionType varType)
+	inline std::shared_ptr<LocalVariable> LocalVariable::Build(std::string varName, BasicType varType)
 	{
 		auto node = std::make_shared<LocalVariable>();
 		node->name = std::move(varName);
@@ -34,7 +34,7 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
-	inline std::shared_ptr<OutputVariable> OutputVariable::Build(std::string varName, ExpressionType varType)
+	inline std::shared_ptr<OutputVariable> OutputVariable::Build(std::string varName, BasicType varType)
 	{
 		auto node = std::make_shared<OutputVariable>();
 		node->name = std::move(varName);
@@ -43,7 +43,7 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
-	inline std::shared_ptr<ParameterVariable> ParameterVariable::Build(std::string varName, ExpressionType varType)
+	inline std::shared_ptr<ParameterVariable> ParameterVariable::Build(std::string varName, BasicType varType)
 	{
 		auto node = std::make_shared<ParameterVariable>();
 		node->name = std::move(varName);
@@ -52,7 +52,7 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
-	inline std::shared_ptr<UniformVariable> UniformVariable::Build(std::string varName, ExpressionType varType)
+	inline std::shared_ptr<UniformVariable> UniformVariable::Build(std::string varName, BasicType varType)
 	{
 		auto node = std::make_shared<UniformVariable>();
 		node->name = std::move(varName);

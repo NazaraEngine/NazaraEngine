@@ -217,11 +217,11 @@ Nz::ShaderAst MainWindow::ToShader()
 	{
 		switch (type)
 		{
-			case PrimitiveType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-			case PrimitiveType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
-			case PrimitiveType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
-			case PrimitiveType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
-			case PrimitiveType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+			case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
+			case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
+			case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
+			case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
+			case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
 		}
 
 		assert(false);
@@ -232,7 +232,7 @@ Nz::ShaderAst MainWindow::ToShader()
 	{
 		switch (type)
 		{
-			case TextureType::Sampler2D: return Nz::ShaderNodes::ExpressionType::Sampler2D;
+			case TextureType::Sampler2D: return Nz::ShaderNodes::BasicType::Sampler2D;
 		}
 
 		assert(false);

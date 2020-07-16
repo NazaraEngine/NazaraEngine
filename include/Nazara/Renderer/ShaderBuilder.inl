@@ -28,21 +28,21 @@ namespace Nz::ShaderBuilder
 
 	inline std::shared_ptr<ShaderNodes::Variable> BuiltinBuilder::operator()(ShaderNodes::BuiltinEntry builtin) const
 	{
-		ShaderNodes::ExpressionType exprType = ShaderNodes::ExpressionType::Void;
+		ShaderNodes::BasicType exprType = ShaderNodes::BasicType::Void;
 
 		switch (builtin)
 		{
 			case ShaderNodes::BuiltinEntry::VertexPosition:
-				exprType = ShaderNodes::ExpressionType::Float4;
+				exprType = ShaderNodes::BasicType::Float4;
 				break;
 		}
 
-		NazaraAssert(exprType != ShaderNodes::ExpressionType::Void, "Unhandled builtin");
+		NazaraAssert(exprType != ShaderNodes::BasicType::Void, "Unhandled builtin");
 
 		return ShaderNodes::BuiltinVariable::Build(builtin, exprType);
 	}
 
-	template<ShaderNodes::ExpressionType Type, typename... Args>
+	template<ShaderNodes::BasicType Type, typename... Args>
 	std::shared_ptr<ShaderNodes::Cast> Cast(Args&&... args)
 	{
 		return ShaderNodes::Cast::Build(Type, std::forward<Args>(args)...);

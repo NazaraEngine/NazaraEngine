@@ -116,15 +116,15 @@ Nz::ShaderNodes::ExpressionPtr InputValue::GetExpression(Nz::ShaderNodes::Expres
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
 
-	Nz::ShaderNodes::ExpressionType expression = [&]
+	Nz::ShaderNodes::BasicType expression = [&]
 	{
 		switch (inputEntry.type)
 		{
-			case PrimitiveType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-			case PrimitiveType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
-			case PrimitiveType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
-			case PrimitiveType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
-			case PrimitiveType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+			case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
+			case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
+			case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
+			case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
+			case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
 		}
 
 		assert(false);
@@ -145,7 +145,7 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
 	switch (inputEntry.type)
 	{
-		//case InputType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
+		//case InputType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
 		case PrimitiveType::Float1:
 			return FloatData::Type();
 

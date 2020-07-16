@@ -16,6 +16,19 @@ namespace Nz::ShaderNodes
 		Simple //< =
 	};
 
+	enum class BasicType
+	{
+		Boolean,   // bool
+		Float1,    // float
+		Float2,    // vec2
+		Float3,    // vec3
+		Float4,    // vec4
+		Mat4x4,    // mat4
+		Sampler2D, // sampler2D
+
+		Void       // void
+	};
+
 	enum class BinaryType
 	{
 		Add,       //< +
@@ -35,19 +48,6 @@ namespace Nz::ShaderNodes
 	{
 		LValue,
 		RValue
-	};
-
-	enum class ExpressionType
-	{
-		Boolean,   // bool
-		Float1,    // float
-		Float2,    // vec2
-		Float3,    // vec3
-		Float4,    // vec4
-		Mat4x4,    // mat4
-		Sampler2D, // sampler2D
-
-		Void     // void
 	};
 
 	enum class IntrinsicType

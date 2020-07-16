@@ -47,7 +47,7 @@ namespace Nz::ShaderNodes
 		return ExpressionCategory::LValue;
 	}
 
-	ExpressionType Identifier::GetExpressionType() const
+	BasicType Identifier::GetExpressionType() const
 	{
 		assert(var);
 		return var->type;
@@ -59,7 +59,7 @@ namespace Nz::ShaderNodes
 	}
 
 
-	ExpressionType AssignOp::GetExpressionType() const
+	BasicType AssignOp::GetExpressionType() const
 	{
 		return left->GetExpressionType();
 	}
@@ -70,9 +70,9 @@ namespace Nz::ShaderNodes
 	}
 
 
-	ExpressionType BinaryOp::GetExpressionType() const
+	BasicType BinaryOp::GetExpressionType() const
 	{
-		ShaderNodes::ExpressionType exprType = ShaderNodes::ExpressionType::Void;
+		ShaderNodes::BasicType exprType = ShaderNodes::BasicType::Void;
 
 		switch (op)
 		{
@@ -84,15 +84,15 @@ namespace Nz::ShaderNodes
 			case ShaderNodes::BinaryType::Divide:
 			case ShaderNodes::BinaryType::Multiply:
 				//FIXME
-				exprType = static_cast<ExpressionType>(std::max(UnderlyingCast(left->GetExpressionType()), UnderlyingCast(right->GetExpressionType())));
+				exprType = static_cast<BasicType>(std::max(UnderlyingCast(left->GetExpressionType()), UnderlyingCast(right->GetExpressionType())));
 				break;
 
 			case ShaderNodes::BinaryType::Equality:
-				exprType = ExpressionType::Boolean;
+				exprType = BasicType::Boolean;
 				break;
 		}
 
-		NazaraAssert(exprType != ShaderNodes::ExpressionType::Void, "Unhandled builtin");
+		NazaraAssert(exprType != ShaderNodes::BasicType::Void, "Unhandled builtin");
 
 		return exprType;
 	}
@@ -109,7 +109,7 @@ namespace Nz::ShaderNodes
 	}
 
 
-	ExpressionType Constant::GetExpressionType() const
+	BasicType Constant::GetExpressionType() const
 	{
 		return exprType;
 	}
@@ -119,7 +119,7 @@ namespace Nz::ShaderNodes
 		visitor.Visit(*this);
 	}
 
-	ExpressionType Cast::GetExpressionType() const
+	BasicType Cast::GetExpressionType() const
 	{
 		return exprType;
 	}
@@ -135,9 +135,9 @@ namespace Nz::ShaderNodes
 		return ExpressionCategory::LValue;
 	}
 
-	ExpressionType SwizzleOp::GetExpressionType() const
+	BasicType SwizzleOp::GetExpressionType() const
 	{
-		return static_cast<ExpressionType>(UnderlyingCast(GetComponentType(expression->GetExpressionType())) + componentCount - 1);
+		return static_cast<BasicType>(UnderlyingCast(GetComponentType(expression->GetExpressionType())) + componentCount - 1);
 	}
 
 	void SwizzleOp::Visit(ShaderVisitor& visitor)
@@ -146,9 +146,9 @@ namespace Nz::ShaderNodes
 	}
 
 
-	ExpressionType Sample2D::GetExpressionType() const
+	BasicType Sample2D::GetExpressionType() const
 	{
-		return ExpressionType::Float4;
+		return BasicType::Float4;
 	}
 
 	void Sample2D::Visit(ShaderVisitor& visitor)
@@ -157,7 +157,7 @@ namespace Nz::ShaderNodes
 	}
 
 
-	ExpressionType IntrinsicCall::GetExpressionType() const
+	BasicType IntrinsicCall::GetExpressionType() const
 	{
 		switch (intrinsic)
 		{
@@ -165,11 +165,11 @@ namespace Nz::ShaderNodes
 				return parameters.front()->GetExpressionType();
 
 			case IntrinsicType::DotProduct:
-				return ExpressionType::Float1;
+				return BasicType::Float1;
 		}
 
 		NazaraAssert(false, "Unhandled builtin");
-		return ExpressionType::Void;
+		return BasicType::Void;
 	}
 
 	void IntrinsicCall::Visit(ShaderVisitor& visitor)

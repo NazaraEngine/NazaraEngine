@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	void ShaderAst::AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters, ShaderNodes::ExpressionType returnType)
+	void ShaderAst::AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters, ShaderNodes::BasicType returnType)
 	{
 		auto& functionEntry = m_functions.emplace_back();
 		functionEntry.name = std::move(name);
@@ -16,7 +16,7 @@ namespace Nz
 		functionEntry.statement = std::move(statement);
 	}
 
-	void ShaderAst::AddInput(std::string name, Type type, std::optional<std::size_t> locationIndex)
+	void ShaderAst::AddInput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex)
 	{
 		auto& inputEntry = m_inputs.emplace_back();
 		inputEntry.name = std::move(name);
@@ -24,7 +24,7 @@ namespace Nz
 		inputEntry.type = std::move(type);
 	}
 
-	void ShaderAst::AddOutput(std::string name, Type type, std::optional<std::size_t> locationIndex)
+	void ShaderAst::AddOutput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex)
 	{
 		auto& outputEntry = m_outputs.emplace_back();
 		outputEntry.name = std::move(name);
@@ -39,7 +39,7 @@ namespace Nz
 		structEntry.members = std::move(members);
 	}
 
-	void ShaderAst::AddUniform(std::string name, Type type, std::optional<std::size_t> bindingIndex, std::optional<ShaderNodes::MemoryLayout> memoryLayout)
+	void ShaderAst::AddUniform(std::string name, ShaderExpressionType type, std::optional<std::size_t> bindingIndex, std::optional<ShaderNodes::MemoryLayout> memoryLayout)
 	{
 		auto& uniformEntry = m_uniforms.emplace_back();
 		uniformEntry.bindingIndex = std::move(bindingIndex);

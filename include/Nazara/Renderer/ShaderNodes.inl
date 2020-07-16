@@ -23,20 +23,20 @@ namespace Nz::ShaderNodes
 		return m_isStatement;
 	}
 
-	inline unsigned int Node::GetComponentCount(ExpressionType type)
+	inline unsigned int Node::GetComponentCount(BasicType type)
 	{
 		switch (type)
 		{
-			case ExpressionType::Float2:
+			case BasicType::Float2:
 				return 2;
 
-			case ExpressionType::Float3:
+			case BasicType::Float3:
 				return 3;
 
-			case ExpressionType::Float4:
+			case BasicType::Float4:
 				return 4;
 
-			case ExpressionType::Mat4x4:
+			case BasicType::Mat4x4:
 				return 4;
 
 			default:
@@ -44,17 +44,17 @@ namespace Nz::ShaderNodes
 		}
 	}
 
-	inline ExpressionType Node::GetComponentType(ExpressionType type)
+	inline BasicType Node::GetComponentType(BasicType type)
 	{
 		switch (type)
 		{
-			case ExpressionType::Float2:
-			case ExpressionType::Float3:
-			case ExpressionType::Float4:
-				return ExpressionType::Float1;
+			case BasicType::Float2:
+			case BasicType::Float3:
+			case BasicType::Float4:
+				return BasicType::Float1;
 
-			case ExpressionType::Mat4x4:
-				return ExpressionType::Float4;
+			case BasicType::Mat4x4:
+				return BasicType::Float4;
 
 			default:
 				return type;
@@ -198,7 +198,7 @@ namespace Nz::ShaderNodes
 	{
 	}
 
-	inline std::shared_ptr<Cast> Cast::Build(ExpressionType castTo, ExpressionPtr first, ExpressionPtr second, ExpressionPtr third, ExpressionPtr fourth)
+	inline std::shared_ptr<Cast> Cast::Build(BasicType castTo, ExpressionPtr first, ExpressionPtr second, ExpressionPtr third, ExpressionPtr fourth)
 	{
 		auto node = std::make_shared<Cast>();
 		node->exprType = castTo;
@@ -207,7 +207,7 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
-	inline std::shared_ptr<Cast> Cast::Build(ExpressionType castTo, ExpressionPtr* Expressions, std::size_t expressionCount)
+	inline std::shared_ptr<Cast> Cast::Build(BasicType castTo, ExpressionPtr* Expressions, std::size_t expressionCount)
 	{
 		auto node = std::make_shared<Cast>();
 		node->exprType = castTo;
@@ -226,7 +226,7 @@ namespace Nz::ShaderNodes
 	inline std::shared_ptr<Constant> Constant::Build(bool value)
 	{
 		auto node = std::make_shared<Constant>();
-		node->exprType = ExpressionType::Boolean;
+		node->exprType = BasicType::Boolean;
 		node->values.bool1 = value;
 
 		return node;
@@ -235,7 +235,7 @@ namespace Nz::ShaderNodes
 	inline std::shared_ptr<Constant> Constant::Build(float value)
 	{
 		auto node = std::make_shared<Constant>();
-		node->exprType = ExpressionType::Float1;
+		node->exprType = BasicType::Float1;
 		node->values.vec1 = value;
 
 		return node;
@@ -244,7 +244,7 @@ namespace Nz::ShaderNodes
 	inline std::shared_ptr<Constant> Constant::Build(const Vector2f& value)
 	{
 		auto node = std::make_shared<Constant>();
-		node->exprType = ExpressionType::Float2;
+		node->exprType = BasicType::Float2;
 		node->values.vec2 = value;
 
 		return node;
@@ -253,7 +253,7 @@ namespace Nz::ShaderNodes
 	inline std::shared_ptr<Constant> Constant::Build(const Vector3f& value)
 	{
 		auto node = std::make_shared<Constant>();
-		node->exprType = ExpressionType::Float3;
+		node->exprType = BasicType::Float3;
 		node->values.vec3 = value;
 
 		return node;
@@ -262,7 +262,7 @@ namespace Nz::ShaderNodes
 	inline std::shared_ptr<Constant> Constant::Build(const Vector4f& value)
 	{
 		auto node = std::make_shared<Constant>();
-		node->exprType = ExpressionType::Float4;
+		node->exprType = BasicType::Float4;
 		node->values.vec4 = value;
 
 		return node;

@@ -119,11 +119,11 @@ Nz::ShaderNodes::ExpressionPtr TextureValue::GetExpression(Nz::ShaderNodes::Expr
 
 	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
 
-	Nz::ShaderNodes::ExpressionType expression = [&]
+	Nz::ShaderNodes::BasicType expression = [&]
 	{
 		switch (textureEntry.type)
 		{
-			case TextureType::Sampler2D: return Nz::ShaderNodes::ExpressionType::Sampler2D;
+			case TextureType::Sampler2D: return Nz::ShaderNodes::BasicType::Sampler2D;
 		}
 
 		assert(false);

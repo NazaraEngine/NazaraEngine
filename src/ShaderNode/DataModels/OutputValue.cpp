@@ -63,15 +63,15 @@ Nz::ShaderNodes::ExpressionPtr OutputValue::GetExpression(Nz::ShaderNodes::Expre
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
 
-	Nz::ShaderNodes::ExpressionType expression = [&]
+	Nz::ShaderNodes::BasicType expression = [&]
 	{
 		switch (outputEntry.type)
 		{
-			case PrimitiveType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-			case PrimitiveType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
-			case PrimitiveType::Float2: return Nz::ShaderNodes::ExpressionType::Float2;
-			case PrimitiveType::Float3: return Nz::ShaderNodes::ExpressionType::Float3;
-			case PrimitiveType::Float4: return Nz::ShaderNodes::ExpressionType::Float4;
+			case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
+			case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
+			case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
+			case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
+			case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
 		}
 
 		assert(false);
@@ -94,8 +94,8 @@ QtNodes::NodeDataType OutputValue::dataType(QtNodes::PortType portType, QtNodes:
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
 	switch (outputEntry.type)
 	{
-		//case InOutType::Bool:   return Nz::ShaderNodes::ExpressionType::Boolean;
-		//case InOutType::Float1: return Nz::ShaderNodes::ExpressionType::Float1;
+		//case InOutType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
+		//case InOutType::Float1: return Nz::ShaderNodes::BasicType::Float1;
 		case PrimitiveType::Float2:
 		case PrimitiveType::Float3:
 		case PrimitiveType::Float4:
