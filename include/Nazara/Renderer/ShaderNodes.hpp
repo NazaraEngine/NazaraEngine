@@ -13,6 +13,7 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderEnums.hpp>
+#include <Nazara/Renderer/ShaderExpressionType.hpp>
 #include <Nazara/Renderer/ShaderVariables.hpp>
 #include <array>
 #include <optional>
@@ -59,7 +60,7 @@ namespace Nz
 				inline Expression(NodeType type);
 
 				virtual ExpressionCategory GetExpressionCategory() const;
-				virtual BasicType GetExpressionType() const = 0;
+				virtual ShaderExpressionType GetExpressionType() const = 0;
 		};
 
 		class Statement;
@@ -125,12 +126,27 @@ namespace Nz
 			inline Identifier();
 
 			ExpressionCategory GetExpressionCategory() const override;
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			VariablePtr var;
 
 			static inline std::shared_ptr<Identifier> Build(VariablePtr variable);
+		};
+
+		struct NAZARA_RENDERER_API AccessMember : public Expression
+		{
+			inline AccessMember();
+
+			ExpressionCategory GetExpressionCategory() const override;
+			ShaderExpressionType GetExpressionType() const override;
+			void Visit(ShaderVisitor& visitor) override;
+
+			std::size_t memberIndex;
+			ExpressionPtr structExpr;
+			ShaderExpressionType exprType; //< FIXME: Use ShaderAst to automate
+
+			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::size_t memberIndex, ShaderExpressionType exprType);
 		};
 
 		//////////////////////////////////////////////////////////////////////////
@@ -139,7 +155,7 @@ namespace Nz
 		{
 			inline AssignOp();
 
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			AssignType    op;
@@ -153,7 +169,7 @@ namespace Nz
 		{
 			inline BinaryOp();
 
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			BinaryType    op;
@@ -187,7 +203,7 @@ namespace Nz
 		{
 			inline Cast();
 
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			BasicType exprType;
@@ -201,7 +217,7 @@ namespace Nz
 		{
 			inline Constant();
 
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			BasicType exprType;
@@ -227,7 +243,7 @@ namespace Nz
 			inline SwizzleOp();
 
 			ExpressionCategory GetExpressionCategory() const override;
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			std::array<SwizzleComponent, 4> components;
@@ -243,7 +259,7 @@ namespace Nz
 		{
 			inline Sample2D();
 
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			ExpressionPtr sampler;
@@ -258,7 +274,7 @@ namespace Nz
 		{
 			inline IntrinsicCall();
 
-			BasicType GetExpressionType() const override;
+			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
 			IntrinsicType intrinsic;

@@ -21,6 +21,8 @@ namespace Nz
 		if (!ValidateShader(shader, &error))
 			throw std::runtime_error("Invalid shader AST: " + error);
 
+		m_context.shader = &shader;
+
 		State state;
 		m_currentState = &state;
 		CallOnExit onExit([this]()
@@ -294,7 +296,30 @@ namespace Nz
 		AppendLine();
 		AppendLine("}");
 	}
-	
+
+	void GlslWriter::Visit(const ShaderNodes::AccessMember& node)
+	{
+		Append("(");
+		Visit(node.structExpr);
+		Append(")");
+
+		const ShaderExpressionType& exprType = node.structExpr->GetExpressionType();
+		assert(std::holds_alternative<std::string>(exprType));
+
+		const std::string& structName = std::get<std::string>(exprType);
+
+		const auto& structs = m_context.shader->GetStructs();
+		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
+		assert(it != structs.end());
+
+		const ShaderAst::Struct& s = *it;
+		assert(node.memberIndex < s.members.size());
+
+		const auto& member = s.members[node.memberIndex];
+		Append(".");
+		Append(member.name);
+	}
+
 	void GlslWriter::Visit(const ShaderNodes::AssignOp& node)
 	{
 		Visit(node.left);
@@ -374,9 +399,7 @@ namespace Nz
 		Append(node.exprType);
 		Append("(");
 
-		unsigned int i = 0;
-		unsigned int requiredComponents = ShaderNodes::Node::GetComponentCount(node.exprType);
-		while (requiredComponents > 0)
+		for (std::size_t i = 0; node.expressions[i]; ++i)
 		{
 			if (i != 0)
 				m_currentState->stream << ", ";
@@ -385,7 +408,6 @@ namespace Nz
 			NazaraAssert(exprPtr, "Invalid expression");
 
 			Visit(exprPtr);
-			requiredComponents -= ShaderNodes::Node::GetComponentCount(exprPtr->GetExpressionType());
 		}
 
 		Append(")");

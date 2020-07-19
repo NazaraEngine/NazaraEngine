@@ -22,6 +22,11 @@ namespace Nz
 				{
 				}
 
+				void Visit(const ShaderNodes::AccessMember& node) override
+				{
+					Serialize(node);
+				}
+
 				void Visit(const ShaderNodes::AssignOp& node) override
 				{
 					Serialize(node);
@@ -125,6 +130,13 @@ namespace Nz
 		};
 	}
 
+	void ShaderSerializerBase::Serialize(ShaderNodes::AccessMember& node)
+	{
+		Value(node.memberIndex);
+		Node(node.structExpr);
+		Type(node.exprType);
+	}
+
 	void ShaderSerializerBase::Serialize(ShaderNodes::AssignOp& node)
 	{
 		Enum(node.op);
@@ -153,8 +165,8 @@ namespace Nz
 
 	void ShaderSerializerBase::Serialize(ShaderNodes::BuiltinVariable& node)
 	{
-		Enum(node.type);
-		Enum(node.type);
+		Enum(node.entry);
+		Type(node.type);
 	}
 
 	void ShaderSerializerBase::Serialize(ShaderNodes::Cast& node)
@@ -219,7 +231,7 @@ namespace Nz
 	void ShaderSerializerBase::Serialize(ShaderNodes::NamedVariable& node)
 	{
 		Value(node.name);
-		Enum(node.type);
+		Type(node.type);
 	}
 
 	void ShaderSerializerBase::Serialize(ShaderNodes::Sample2D& node)
@@ -346,6 +358,26 @@ namespace Nz
 			ShaderSerializerVisitor visitor(*this);
 			node->Visit(visitor);
 		}
+	}
+
+	void ShaderSerializer::Type(ShaderExpressionType& type)
+	{
+		std::visit([&](auto&& arg)
+		{
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
+			{
+				m_stream << UInt8(0);
+				m_stream << UInt32(arg);
+			}
+			else if constexpr (std::is_same_v<T, std::string>)
+			{
+				m_stream << UInt8(1);
+				m_stream << arg;
+			}
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		}, type);
 	}
 
 	void ShaderSerializer::Node(const ShaderNodes::NodePtr& node)

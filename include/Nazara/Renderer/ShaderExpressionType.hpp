@@ -8,7 +8,7 @@
 #define NAZARA_SHADER_EXPRESSIONTYPE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Renderer/ShaderEnums.hpp>
 #include <string>
 #include <variant>
 

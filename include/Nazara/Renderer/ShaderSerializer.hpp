@@ -25,6 +25,7 @@ namespace Nz
 			ShaderSerializerBase(ShaderSerializerBase&&) = delete;
 			~ShaderSerializerBase() = default;
 
+			void Serialize(ShaderNodes::AccessMember& node);
 			void Serialize(ShaderNodes::AssignOp& node);
 			void Serialize(ShaderNodes::BinaryOp& node);
 			void Serialize(ShaderNodes::BuiltinVariable& var);
@@ -50,6 +51,8 @@ namespace Nz
 
 			virtual void Node(ShaderNodes::NodePtr& node) = 0;
 			template<typename T> void Node(std::shared_ptr<T>& node);
+
+			virtual void Type(ShaderExpressionType& type) = 0;
 
 			virtual void Value(bool& val) = 0;
 			virtual void Value(float& val) = 0;
@@ -78,6 +81,7 @@ namespace Nz
 			bool IsWriting() const override;
 			void Node(const ShaderNodes::NodePtr& node);
 			void Node(ShaderNodes::NodePtr& node) override;
+			void Type(ShaderExpressionType& type) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;
@@ -103,7 +107,7 @@ namespace Nz
 		private:
 			bool IsWriting() const override;
 			void Node(ShaderNodes::NodePtr& node) override;
-			void Type(ShaderExpressionType& type);
+			void Type(ShaderExpressionType& type) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;

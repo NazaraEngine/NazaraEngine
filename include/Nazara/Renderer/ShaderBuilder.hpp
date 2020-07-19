@@ -44,6 +44,7 @@ namespace Nz::ShaderBuilder
 		template<typename... Args> std::shared_ptr<T> operator()(Args&&... args) const;
 	};
 
+	constexpr GenBuilder<ShaderNodes::AccessMember> AccessMember;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::Add> Add;
 	constexpr AssignOpBuilder<ShaderNodes::AssignType::Simple> Assign;
 	constexpr BuiltinBuilder Builtin;

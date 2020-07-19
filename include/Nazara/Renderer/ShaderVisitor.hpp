@@ -27,6 +27,7 @@ namespace Nz
 
 			bool IsConditionEnabled(const std::string& name) const;
 
+			virtual void Visit(const ShaderNodes::AccessMember& node) = 0;
 			virtual void Visit(const ShaderNodes::AssignOp& node) = 0;
 			virtual void Visit(const ShaderNodes::BinaryOp& node) = 0;
 			virtual void Visit(const ShaderNodes::Branch& node) = 0;
