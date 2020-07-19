@@ -16,7 +16,7 @@ endif()
 add_library(${NAME} ${SRC} ${SRC_PLATFORM})
 
 if(USE_SDL2)
-    target_compile_definitions(${NAME} PRIVATE NAZARA_PLATFORM_SDL2)
+    target_compile_definitions(${NAME} PRIVATE NAZARA_PLATFORM_SDL2 SDL_VIDEO_DRIVER_X11 SDL_VIDEO_DRIVER_WAYLAND)
     target_link_libraries(${NAME} PRIVATE SDL2 PUBLIC NazaraCore PUBLIC NazaraUtility)
 endif()
 

@@ -43,7 +43,14 @@ find_package(OpenAL REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
 #find_package(Lua REQUIRED)
+if(NOT EMSCRIPTEN)
 find_package(Freetype REQUIRED)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
+        SHELL:-s USE_SDL=2
+        SHELL:-s USE_FREETYPE=1")
+    # find_package(Freetype REQUIRED)
+endif()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=cfi -flto -fvisibility=default")
 

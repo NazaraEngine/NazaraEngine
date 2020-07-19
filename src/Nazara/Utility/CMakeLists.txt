@@ -5,10 +5,16 @@ file(GLOB_RECURSE SRC LIST_DIRECTORIES false CONFIGURE_DEPENDS "*.cpp")
 
 add_library(${NAME} ${SRC} ${SRC_PLATFORM})
 
-target_link_libraries(${NAME}
-    PRIVATE stb
-    PRIVATE Freetype::Freetype
-)
+if(NOT EMSCRIPTEN)
+    target_link_libraries(${NAME}
+        PRIVATE stb
+        PRIVATE Freetype::Freetype
+    )
+else()
+    target_link_libraries(${NAME}
+        PRIVATE stb
+    )
+endif()
 
 target_include_directories(${NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(${NAME} PRIVATE "${PROJECT_SOURCE_DIR}/src")

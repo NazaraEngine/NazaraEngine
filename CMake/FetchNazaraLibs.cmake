@@ -11,7 +11,7 @@ if(USE_SDL2 AND FETCH_SDL2)
     )
     FetchContent_Populate(sdl2)
     add_subdirectory(${sdl2_SOURCE_DIR} ${sdl2_BINARY_DIR} EXCLUDE_FROM_ALL)
-else()
+elseif(NOT EMSCRIPTEN)
     find_package(SDL2 REQUIRED)
 endif()
 

@@ -3,9 +3,10 @@ set(NAME "Nazara${NAME}")
 
 file(GLOB SRC LIST_DIRECTORIES false CONFIGURE_DEPENDS "*.cpp")
 
-if(USE_SDL2)
-    file(GLOB SRC_PLATFORM LIST_DIRECTORIES false CONFIGURE_DEPENDS "SDL2/*.cpp")
-elseif(WIN32)
+#if(USE_SDL2)
+#    file(GLOB SRC_PLATFORM LIST_DIRECTORIES false CONFIGURE_DEPENDS "SDL2/*.cpp")
+#elseif(WIN32)
+if(WIN32)
     file(GLOB SRC_PLATFORM LIST_DIRECTORIES false CONFIGURE_DEPENDS "Win32/*.cpp")
 elseif(UNIX)
     file(GLOB SRC_PLATFORM LIST_DIRECTORIES false CONFIGURE_DEPENDS "GLX/*.cpp")
@@ -15,11 +16,24 @@ endif()
 
 add_library(${NAME} ${SRC} ${SRC_PLATFORM})
 
-if(USE_SDL2)
-    target_compile_definitions(${NAME} PRIVATE NAZARA_PLATFORM_SDL2)
+if(UNIX)
+    target_link_libraries(${NAME} PRIVATE X11 xcb xcb-ewmh)
+endif()
+
+target_compile_definitions(${NAME} PRIVATE NAZARA_PLATFORM_SDL2)
+
+if(NOT EMSCRIPTEN)
     target_link_libraries(${NAME}
         PRIVATE SDL2
         PRIVATE OpenGL::GL
+        PUBLIC NazaraCore
+        PUBLIC NazaraUtility
+        PUBLIC NazaraPlatform
+        PUBLIC NazaraGraphics
+    )
+else()
+    target_link_libraries(${NAME}
+        PRIVATE SDL2
         PUBLIC NazaraCore
         PUBLIC NazaraUtility
         PUBLIC NazaraPlatform
