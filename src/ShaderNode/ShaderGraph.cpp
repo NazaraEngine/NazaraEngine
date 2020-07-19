@@ -1,5 +1,6 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <ShaderNode/DataModels/BufferField.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
@@ -54,15 +55,22 @@ m_flowScene(BuildRegistry())
 			{ "position", PrimitiveType::Float3 },
 			{ "normal", PrimitiveType::Float3 },
 			{ "uv", PrimitiveType::Float2 },
+			{ "inner", 2 }
 		}
 	});
-	AddStruct("TestStruct2", {
-	{
-		{ "position", PrimitiveType::Float3 },
-		{ "normal", PrimitiveType::Float3 },
-		{ "uv", PrimitiveType::Float2 },
-	}
+	AddStruct("InnerStruct", {
+		{
+			{ "a", PrimitiveType::Float3 },
+		}
 	});
+	AddStruct("OuterStruct", {
+		{
+			{ "a", 1 },
+			{ "b", PrimitiveType::Float1 }
+		}
+	});
+
+	AddBuffer("testUBO", BufferType::UniformBufferObject, 0, 0);
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
