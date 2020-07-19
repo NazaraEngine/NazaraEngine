@@ -498,6 +498,24 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
 }
 
+Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
+{
+	return std::visit([&](auto&& arg) -> Nz::ShaderExpressionType
+	{
+		using T = std::decay_t<decltype(arg)>;
+		if constexpr (std::is_same_v<T, PrimitiveType>)
+			return ToShaderExpressionType(arg);
+		else if constexpr (std::is_same_v<T, std::size_t>)
+		{
+			assert(arg < m_structs.size());
+			const auto& s = m_structs[arg];
+			return s.name;
+		}
+		else
+			static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+	}, type);
+};
+
 void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
 {
 	assert(bufferIndex < m_buffers.size());
@@ -565,9 +583,36 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 	OnTexturePreviewUpdate(this, textureIndex);
 }
 
+Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
+{
+	switch (type)
+	{
+		case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
+		case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
+		case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
+		case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
+		case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
+	}
+
+	assert(false);
+	throw std::runtime_error("Unhandled primitive type");
+}
+
+Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
+{
+	switch (type)
+	{
+		case TextureType::Sampler2D:   return Nz::ShaderNodes::BasicType::Sampler2D;
+	}
+
+	assert(false);
+	throw std::runtime_error("Unhandled texture type");
+}
+
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 {
 	auto registry = std::make_shared<QtNodes::DataModelRegistry>();
+	RegisterShaderNode<BufferField>(*this, registry, "Inputs");
 	RegisterShaderNode<CastToVec2>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");

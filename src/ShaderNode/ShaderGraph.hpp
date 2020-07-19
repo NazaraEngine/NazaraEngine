@@ -56,6 +56,7 @@ class ShaderGraph
 		QJsonObject Save();
 
 		Nz::ShaderNodes::StatementPtr ToAst();
+		Nz::ShaderExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
 		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
 		void UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
@@ -120,6 +121,9 @@ class ShaderGraph
 		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 		NazaraSignal(OnTextureUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
+
+		static Nz::ShaderExpressionType ToShaderExpressionType(PrimitiveType type);
+		static Nz::ShaderExpressionType ToShaderExpressionType(TextureType type);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
