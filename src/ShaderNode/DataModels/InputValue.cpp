@@ -1,5 +1,5 @@
-#include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
+#include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
@@ -170,10 +170,20 @@ std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 	const auto& inputEntry = graph.GetInput(*m_currentInputIndex);
 	const auto& preview = graph.GetPreviewModel();
 
-	auto vecData = std::make_shared<VecData>(GetComponentCount(inputEntry.type));
-	vecData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
+	if (inputEntry.type == PrimitiveType::Float1)
+	{
+		auto fData = std::make_shared<FloatData>();
+		fData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
 
-	return vecData;
+		return fData;
+	}
+	else
+	{
+		auto vecData = std::make_shared<VecData>(GetComponentCount(inputEntry.type));
+		vecData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
+
+		return vecData;
+	}
 }
 
 QtNodes::NodeValidationState InputValue::validationState() const
