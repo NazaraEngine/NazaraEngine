@@ -12,7 +12,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/ShaderEnums.hpp>
+#include <Nazara/Renderer/ShaderExpressionType.hpp>
 #include <array>
 #include <optional>
 #include <string>
@@ -34,7 +34,7 @@ namespace Nz
 			virtual VariableType GetType() const = 0;
 			virtual void Visit(ShaderVarVisitor& visitor) = 0;
 
-			BasicType type;
+			ShaderExpressionType type;
 		};
 
 		struct BuiltinVariable;
@@ -48,7 +48,7 @@ namespace Nz
 			VariableType GetType() const override;
 			void Visit(ShaderVarVisitor& visitor) override;
 
-			static inline std::shared_ptr<BuiltinVariable> Build(BuiltinEntry entry, BasicType varType);
+			static inline std::shared_ptr<BuiltinVariable> Build(BuiltinEntry entry, ShaderExpressionType varType);
 		};
 
 		struct NamedVariable;
@@ -69,7 +69,7 @@ namespace Nz
 			VariableType GetType() const override;
 			void Visit(ShaderVarVisitor& visitor) override;
 
-			static inline std::shared_ptr<InputVariable> Build(std::string varName, BasicType varType);
+			static inline std::shared_ptr<InputVariable> Build(std::string varName, ShaderExpressionType varType);
 		};
 
 		struct LocalVariable;
@@ -81,7 +81,7 @@ namespace Nz
 			VariableType GetType() const override;
 			void Visit(ShaderVarVisitor& visitor) override;
 
-			static inline std::shared_ptr<LocalVariable> Build(std::string varName, BasicType varType);
+			static inline std::shared_ptr<LocalVariable> Build(std::string varName, ShaderExpressionType varType);
 		};
 
 		struct OutputVariable;
@@ -93,7 +93,7 @@ namespace Nz
 			VariableType GetType() const override;
 			void Visit(ShaderVarVisitor& visitor) override;
 
-			static inline std::shared_ptr<OutputVariable> Build(std::string varName, BasicType varType);
+			static inline std::shared_ptr<OutputVariable> Build(std::string varName, ShaderExpressionType varType);
 		};
 
 		struct ParameterVariable;
@@ -105,7 +105,7 @@ namespace Nz
 			VariableType GetType() const override;
 			void Visit(ShaderVarVisitor& visitor) override;
 
-			static inline std::shared_ptr<ParameterVariable> Build(std::string varName, BasicType varType);
+			static inline std::shared_ptr<ParameterVariable> Build(std::string varName, ShaderExpressionType varType);
 		};
 
 		struct UniformVariable;
@@ -117,7 +117,7 @@ namespace Nz
 			VariableType GetType() const override;
 			void Visit(ShaderVarVisitor& visitor) override;
 
-			static inline std::shared_ptr<UniformVariable> Build(std::string varName, BasicType varType);
+			static inline std::shared_ptr<UniformVariable> Build(std::string varName, ShaderExpressionType varType);
 		};
 	}
 }

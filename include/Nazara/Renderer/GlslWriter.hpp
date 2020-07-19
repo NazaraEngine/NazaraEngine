@@ -61,6 +61,7 @@ namespace Nz
 
 			using ShaderVarVisitor::Visit;
 			using ShaderVisitor::Visit;
+			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;
 			void Visit(const ShaderNodes::Branch& node) override;
 			void Visit(const ShaderNodes::BinaryOp& node) override;
@@ -85,6 +86,7 @@ namespace Nz
 
 			struct Context
 			{
+				const ShaderAst* shader = nullptr;
 				const ShaderAst::Function* currentFunction = nullptr;
 			};
 

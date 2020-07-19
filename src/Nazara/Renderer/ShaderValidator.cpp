@@ -21,7 +21,7 @@ namespace Nz
 		struct Local
 		{
 			std::string name;
-			ShaderNodes::BasicType type;
+			ShaderExpressionType type;
 		};
 
 		const ShaderAst::Function* currentFunction;
@@ -83,6 +83,28 @@ namespace Nz
 			throw AstError{ "Left expression type must match right expression type" };
 	}
 
+	void ShaderValidator::Visit(const ShaderNodes::AccessMember& node)
+	{
+		const ShaderExpressionType& exprType = MandatoryExpr(node.structExpr)->GetExpressionType();
+		if (!std::holds_alternative<std::string>(exprType))
+			throw AstError{ "expression is not a structure" };
+
+		const std::string& structName = std::get<std::string>(exprType);
+
+		const auto& structs = m_shader.GetStructs();
+		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
+		if (it == structs.end())
+			throw AstError{ "invalid structure" };
+
+		const ShaderAst::Struct& s = *it;
+		if (node.memberIndex >= s.members.size())
+			throw AstError{ "member index out of bounds" };
+
+		const auto& member = s.members[node.memberIndex];
+		if (member.type != node.exprType)
+			throw AstError{ "member type does not match node type" };
+	}
+
 	void ShaderValidator::Visit(const ShaderNodes::AssignOp& node)
 	{
 		MandatoryNode(node.left);
@@ -101,8 +123,16 @@ namespace Nz
 		MandatoryNode(node.left);
 		MandatoryNode(node.right);
 
-		ShaderNodes::BasicType leftType = node.left->GetExpressionType();
-		ShaderNodes::BasicType rightType = node.right->GetExpressionType();
+		const ShaderExpressionType& leftExprType = MandatoryExpr(node.left)->GetExpressionType();
+		if (!std::holds_alternative<ShaderNodes::BasicType>(leftExprType))
+			throw AstError{ "left expression type does not support binary operation" };
+
+		const ShaderExpressionType& rightExprType = MandatoryExpr(node.right)->GetExpressionType();
+		if (!std::holds_alternative<ShaderNodes::BasicType>(rightExprType))
+			throw AstError{ "right expression type does not support binary operation" };
+
+		ShaderNodes::BasicType leftType = std::get<ShaderNodes::BasicType>(leftExprType);
+		ShaderNodes::BasicType rightType = std::get<ShaderNodes::BasicType>(rightExprType);
 
 		switch (node.op)
 		{
@@ -179,7 +209,11 @@ namespace Nz
 			if (!exprPtr)
 				break;
 
-			componentCount += node.GetComponentCount(exprPtr->GetExpressionType());
+			const ShaderExpressionType& exprType = exprPtr->GetExpressionType();
+			if (!std::holds_alternative<ShaderNodes::BasicType>(exprType))
+				throw AstError{ "incompatible type" };
+
+			componentCount += node.GetComponentCount(std::get<ShaderNodes::BasicType>(exprType));
 			Visit(exprPtr);
 		}
 
@@ -318,7 +352,7 @@ namespace Nz
 				for (auto& param : node.parameters)
 					MandatoryNode(param);
 
-				ShaderNodes::BasicType type = node.parameters.front()->GetExpressionType();
+				ShaderExpressionType type = node.parameters.front()->GetExpressionType();
 				for (std::size_t i = 1; i < node.parameters.size(); ++i)
 				{
 					if (type != node.parameters[i]->GetExpressionType())
@@ -333,7 +367,7 @@ namespace Nz
 		{
 			case ShaderNodes::IntrinsicType::CrossProduct:
 			{
-				if (node.parameters[0]->GetExpressionType() != ShaderNodes::BasicType::Float3)
+				if (node.parameters[0]->GetExpressionType() != ShaderExpressionType{ ShaderNodes::BasicType::Float3 })
 					throw AstError{ "CrossProduct only works with Float3 expressions" };
 
 				break;
@@ -349,10 +383,10 @@ namespace Nz
 
 	void ShaderValidator::Visit(const ShaderNodes::Sample2D& node)
 	{
-		if (MandatoryExpr(node.sampler)->GetExpressionType() != ShaderNodes::BasicType::Sampler2D)
+		if (MandatoryExpr(node.sampler)->GetExpressionType() != ShaderExpressionType{ ShaderNodes::BasicType::Sampler2D })
 			throw AstError{ "Sampler must be a Sampler2D" };
 
-		if (MandatoryExpr(node.coordinates)->GetExpressionType() != ShaderNodes::BasicType::Float2)
+		if (MandatoryExpr(node.coordinates)->GetExpressionType() != ShaderExpressionType{ ShaderNodes::BasicType::Float2 })
 			throw AstError{ "Coordinates must be a Float2" };
 
 		Visit(node.sampler);
@@ -378,7 +412,11 @@ namespace Nz
 		if (node.componentCount > 4)
 			throw AstError{ "Cannot swizzle more than four elements" };
 
-		switch (MandatoryExpr(node.expression)->GetExpressionType())
+		const ShaderExpressionType& exprType = MandatoryExpr(node.expression)->GetExpressionType();
+		if (!std::holds_alternative<ShaderNodes::BasicType>(exprType))
+			throw AstError{ "Cannot swizzle this type" };
+
+		switch (std::get<ShaderNodes::BasicType>(exprType))
 		{
 			case ShaderNodes::BasicType::Float1:
 			case ShaderNodes::BasicType::Float2:

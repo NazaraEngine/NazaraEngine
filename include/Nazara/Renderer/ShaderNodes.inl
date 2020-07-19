@@ -146,6 +146,22 @@ namespace Nz::ShaderNodes
 	}
 
 
+	inline AccessMember::AccessMember() :
+	Expression(NodeType::AccessMember)
+	{
+	}
+
+	inline std::shared_ptr<AccessMember> AccessMember::Build(ExpressionPtr structExpr, std::size_t memberIndex, ShaderExpressionType exprType)
+	{
+		auto node = std::make_shared<AccessMember>();
+		node->exprType = std::move(exprType);
+		node->memberIndex = memberIndex;
+		node->structExpr = std::move(structExpr);
+
+		return node;
+	}
+
+
 	inline AssignOp::AssignOp() :
 	Expression(NodeType::AssignOp)
 	{

@@ -65,6 +65,7 @@ namespace Nz::ShaderNodes
 	{
 		None = -1,
 
+		AccessMember,
 		AssignOp,
 		BinaryOp,
 		Branch,
