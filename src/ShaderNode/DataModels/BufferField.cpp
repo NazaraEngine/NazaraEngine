@@ -11,7 +11,7 @@
 BufferField::BufferField(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	m_onBufferListUpdateSlot.Connect(GetGraph().OnBufferListUpdate, [&](ShaderGraph*) { UpdateCurrentBufferIndex(); });
+	m_onBufferListUpdateSlot.Connect(GetGraph().OnBufferListUpdate, [&](ShaderGraph*) { UpdateBufferIndex(); });
 	m_onBufferUpdateSlot.Connect(GetGraph().OnBufferUpdate, [&](ShaderGraph*, std::size_t bufferIndex)
 	{
 		if (m_currentBufferIndex == bufferIndex)
@@ -57,102 +57,6 @@ bool BufferField::ComputePreview(QPixmap& pixmap)
 	return true;*/
 }
 
-void BufferField::UpdateCurrentBufferIndex()
-{
-	Nz::CallOnExit resetIfNotFound([&]
-	{
-		m_currentBufferIndex.reset();
-		m_currentBufferText.clear();
-		m_currentFieldIndex.reset();
-		m_currentFieldText.clear();
-	});
-
-	if (m_currentBufferText.empty())
-		return;
-
-	std::size_t bufferIndex = 0;
-	for (const auto& bufferEntry : GetGraph().GetBuffers())
-	{
-		if (bufferEntry.name == m_currentBufferText)
-		{
-			m_currentBufferIndex = bufferIndex;
-			resetIfNotFound.Reset();
-			break;
-		}
-
-		bufferIndex++;
-	}
-}
-
-void BufferField::UpdateCurrentFieldIndex()
-{
-	Nz::CallOnExit resetIfNotFound([&]
-	{
-		m_currentFieldIndex.reset();
-		m_currentFieldText.clear();
-	});
-
-	if (m_currentFieldText.empty())
-		return;
-
-	if (!m_currentFieldIndex)
-		m_currentFieldIndex.emplace();
-
-	CurrentField& currentField = *m_currentFieldIndex;
-	currentField.nestedFields.clear();
-
-	const ShaderGraph& graph = GetGraph();
-	auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
-
-	std::function<bool(std::size_t structIndex, const std::string& prefix)> FetchField;
-	FetchField = [&](std::size_t structIndex, const std::string& prefix) -> bool
-	{
-		const auto& s = graph.GetStruct(structIndex);
-		for (auto it = s.members.begin(); it != s.members.end(); ++it)
-		{
-			const auto& member = *it;
-
-			bool found = std::visit([&](auto&& arg) -> bool
-			{
-				using T = std::decay_t<decltype(arg)>;
-				if constexpr (std::is_same_v<T, PrimitiveType>)
-				{
-					if (prefix + member.name == m_currentFieldText)
-					{
-						currentField.finalFieldIndex = std::distance(s.members.begin(), it);
-						return true;
-					}
-					else
-						return false;
-				}
-				else if constexpr (std::is_same_v<T, std::size_t>)
-				{
-					currentField.nestedFields.push_back(std::distance(s.members.begin(), it));
-					bool found = FetchField(arg, prefix + member.name + ".");
-					if (!found)
-					{
-						currentField.nestedFields.pop_back();
-						return false;
-					}
-
-					return true;
-				}
-				else
-					static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
-			},
-			member.type);
-
-			if (found)
-				return true;
-		}
-
-		return false;
-	};
-
-	if (FetchField(buffer.structIndex, ""))
-		resetIfNotFound.Reset();
-}
-
 void BufferField::PopulateField(QComboBox* fieldList, std::size_t structIndex, const std::string& prefix)
 {
 	const auto& s = GetGraph().GetStruct(structIndex);
@@ -194,6 +98,33 @@ const ShaderGraph::StructMemberEntry& BufferField::RetrieveNestedMember() const
 	return structEntry->members[currentField.finalFieldIndex];
 }
 
+void BufferField::UpdateBufferIndex()
+{
+	Nz::CallOnExit resetIfNotFound([&]
+		{
+			m_currentBufferIndex.reset();
+			m_currentBufferText.clear();
+			m_currentFieldIndex.reset();
+			m_currentFieldText.clear();
+		});
+
+	if (m_currentBufferText.empty())
+		return;
+
+	std::size_t bufferIndex = 0;
+	for (const auto& bufferEntry : GetGraph().GetBuffers())
+	{
+		if (bufferEntry.name == m_currentBufferText)
+		{
+			m_currentBufferIndex = bufferIndex;
+			resetIfNotFound.Reset();
+			break;
+		}
+
+		bufferIndex++;
+	}
+}
+
 void BufferField::UpdateBufferText()
 {
 	if (m_currentBufferIndex)
@@ -217,7 +148,7 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 		else
 			m_currentFieldText.clear();
 
-		UpdateCurrentFieldIndex();
+		UpdateFieldIndex();
 		UpdatePreview();
 
 		Q_EMIT dataUpdated(0);
@@ -264,6 +195,75 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 
 	layout->addRow(tr("Buffer"), bufferSelection);
 	layout->addRow(tr("Field"), fieldSelection);
+}
+
+void BufferField::UpdateFieldIndex()
+{
+	Nz::CallOnExit resetIfNotFound([&]
+		{
+			m_currentFieldIndex.reset();
+			m_currentFieldText.clear();
+		});
+
+	if (m_currentFieldText.empty())
+		return;
+
+	if (!m_currentFieldIndex)
+		m_currentFieldIndex.emplace();
+
+	CurrentField& currentField = *m_currentFieldIndex;
+	currentField.nestedFields.clear();
+
+	const ShaderGraph& graph = GetGraph();
+	auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
+
+	std::function<bool(std::size_t structIndex, const std::string& prefix)> FetchField;
+	FetchField = [&](std::size_t structIndex, const std::string& prefix) -> bool
+	{
+		const auto& s = graph.GetStruct(structIndex);
+		for (auto it = s.members.begin(); it != s.members.end(); ++it)
+		{
+			const auto& member = *it;
+
+			bool found = std::visit([&](auto&& arg) -> bool
+				{
+					using T = std::decay_t<decltype(arg)>;
+					if constexpr (std::is_same_v<T, PrimitiveType>)
+					{
+						if (prefix + member.name == m_currentFieldText)
+						{
+							currentField.finalFieldIndex = std::distance(s.members.begin(), it);
+							return true;
+						}
+						else
+							return false;
+					}
+					else if constexpr (std::is_same_v<T, std::size_t>)
+					{
+						currentField.nestedFields.push_back(std::distance(s.members.begin(), it));
+						bool found = FetchField(arg, prefix + member.name + ".");
+						if (!found)
+						{
+							currentField.nestedFields.pop_back();
+							return false;
+						}
+
+						return true;
+					}
+					else
+						static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
+				},
+				member.type);
+
+			if (found)
+				return true;
+		}
+
+		return false;
+	};
+
+	if (FetchField(buffer.structIndex, ""))
+		resetIfNotFound.Reset();
 }
 
 Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
@@ -394,7 +394,7 @@ void BufferField::restore(const QJsonObject& data)
 {
 	m_currentBufferText = data["buffer"].toString().toStdString();
 	m_currentFieldText = data["field"].toString().toStdString();
-	UpdateCurrentBufferIndex();
+	UpdateBufferIndex();
 
 	ShaderNode::restore(data);
 }

@@ -35,11 +35,11 @@ class BufferField : public ShaderNode
 
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
-		void UpdateCurrentBufferIndex();
-		void UpdateCurrentFieldIndex();
 		void PopulateField(QComboBox* fieldList, std::size_t structIndex, const std::string& prefix = "");
 		const ShaderGraph::StructMemberEntry& RetrieveNestedMember() const;
+		void UpdateBufferIndex();
 		void UpdateBufferText();
+		void UpdateFieldIndex();
 
 		void restore(const QJsonObject& data) override;
 		QJsonObject save() const override;
