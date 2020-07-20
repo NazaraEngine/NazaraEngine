@@ -7,6 +7,7 @@
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <QtWidgets/QFormLayout>
 #include <iostream>
+#include <sstream>
 
 BufferField::BufferField(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -17,18 +18,76 @@ ShaderNode(graph)
 		if (m_currentBufferIndex == bufferIndex)
 		{
 			UpdatePreview();
+
 			Q_EMIT dataUpdated(0);
 		}
 	});
 
-	if (graph.GetBufferCount() > 0)
+	m_onStructListUpdateSlot.Connect(GetGraph().OnStructListUpdate, [&](ShaderGraph*)
 	{
-		m_currentBufferIndex = 0;
-		UpdateBufferText();
-	}
+		UpdateFieldIndex();
+		UpdatePreview();
+
+		Q_EMIT dataUpdated(0);
+	});
+
+	m_onStructUpdateSlot.Connect(GetGraph().OnStructUpdate, [&](ShaderGraph*, std::size_t)
+	{
+		UpdateFieldIndex();
+		UpdatePreview();
+
+		Q_EMIT dataUpdated(0);
+	});
 
 	DisableCustomVariableName();
 	UpdatePreview();
+}
+
+Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
+{
+	assert(count == 0);
+
+	if (!m_currentBufferIndex)
+		throw std::runtime_error("no buffer");
+
+	const ShaderGraph& graph = GetGraph();
+
+	const auto& bufferEntry = graph.GetBuffer(*m_currentBufferIndex);
+	const auto& structEntry = graph.GetStruct(bufferEntry.structIndex);
+
+	Nz::ShaderNodes::VariablePtr varPtr;
+	switch (bufferEntry.type)
+	{
+		case BufferType::UniformBufferObject:
+			varPtr = Nz::ShaderBuilder::Uniform(bufferEntry.name, structEntry.name);
+			break;
+	}
+
+	assert(varPtr);
+
+	assert(m_currentFieldIndex);
+	const CurrentField& currentField = *m_currentFieldIndex;
+
+	Nz::ShaderNodes::ExpressionPtr sourceExpr = Nz::ShaderBuilder::Identifier(varPtr);
+
+	const ShaderGraph::StructEntry* sourceStruct = &structEntry;
+	for (std::size_t nestedIndex : currentField.nestedFields)
+	{
+		assert(nestedIndex < sourceStruct->members.size());
+		const auto& memberEntry = sourceStruct->members[nestedIndex];
+		assert(std::holds_alternative<std::size_t>(memberEntry.type));
+
+		std::size_t nestedStructIndex = std::get<std::size_t>(memberEntry.type);
+		sourceStruct = &graph.GetStruct(nestedStructIndex);
+
+		sourceExpr = Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), 0, graph.ToShaderExpressionType(memberEntry.type));
+	}
+
+	assert(currentField.finalFieldIndex < sourceStruct->members.size());
+	const auto& memberEntry = sourceStruct->members[currentField.finalFieldIndex];
+	assert(std::holds_alternative<PrimitiveType>(memberEntry.type));
+
+	return Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), 0, graph.ToShaderExpressionType(std::get<PrimitiveType>(memberEntry.type)));
 }
 
 unsigned int BufferField::nPorts(QtNodes::PortType portType) const
@@ -40,100 +99,6 @@ unsigned int BufferField::nPorts(QtNodes::PortType portType) const
 	}
 
 	return 0;
-}
-
-bool BufferField::ComputePreview(QPixmap& pixmap)
-{
-	return false;
-
-	/*if (!m_currentBufferIndex)
-		return false;
-
-	const ShaderGraph& graph = GetGraph();
-	const auto& inputEntry = graph.GetBuffer(*m_currentBufferIndex);
-	const auto& preview = graph.GetPreviewModel();
-
-	pixmap = QPixmap::fromImage(preview.GetPreview(inputEntry.role, inputEntry.roleIndex).GenerateImage());
-	return true;*/
-}
-
-void BufferField::PopulateField(QComboBox* fieldList, std::size_t structIndex, const std::string& prefix)
-{
-	const auto& s = GetGraph().GetStruct(structIndex);
-	for (const auto& member : s.members)
-	{
-		std::visit([&](auto&& arg)
-		{
-			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, PrimitiveType>)
-				fieldList->addItem(QString::fromStdString(prefix + member.name));
-			else if constexpr (std::is_same_v<T, std::size_t>)
-				PopulateField(fieldList, arg, prefix + member.name + ".");
-			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-		},
-		member.type);
-	}
-}
-
-const ShaderGraph::StructMemberEntry& BufferField::RetrieveNestedMember() const
-{
-	const ShaderGraph& graph = GetGraph();
-	auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
-
-	assert(m_currentFieldIndex);
-	const CurrentField& currentField = *m_currentFieldIndex;
-
-	const ShaderGraph::StructEntry* structEntry = &graph.GetStruct(buffer.structIndex);
-	for (std::size_t nestedIndex : currentField.nestedFields)
-	{
-		assert(nestedIndex < structEntry->members.size());
-		const auto& memberEntry = structEntry->members[nestedIndex];
-		assert(std::holds_alternative<std::size_t>(memberEntry.type));
-
-		std::size_t nestedStructIndex = std::get<std::size_t>(memberEntry.type);
-		structEntry = &graph.GetStruct(nestedStructIndex);
-	}
-
-	return structEntry->members[currentField.finalFieldIndex];
-}
-
-void BufferField::UpdateBufferIndex()
-{
-	Nz::CallOnExit resetIfNotFound([&]
-		{
-			m_currentBufferIndex.reset();
-			m_currentBufferText.clear();
-			m_currentFieldIndex.reset();
-			m_currentFieldText.clear();
-		});
-
-	if (m_currentBufferText.empty())
-		return;
-
-	std::size_t bufferIndex = 0;
-	for (const auto& bufferEntry : GetGraph().GetBuffers())
-	{
-		if (bufferEntry.name == m_currentBufferText)
-		{
-			m_currentBufferIndex = bufferIndex;
-			resetIfNotFound.Reset();
-			break;
-		}
-
-		bufferIndex++;
-	}
-}
-
-void BufferField::UpdateBufferText()
-{
-	if (m_currentBufferIndex)
-	{
-		auto& buffer = GetGraph().GetBuffer(*m_currentBufferIndex);
-		m_currentBufferText = buffer.name;
-	}
-	else
-		m_currentBufferText.clear();
 }
 
 void BufferField::BuildNodeEdition(QFormLayout* layout)
@@ -197,122 +162,6 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Field"), fieldSelection);
 }
 
-void BufferField::UpdateFieldIndex()
-{
-	Nz::CallOnExit resetIfNotFound([&]
-		{
-			m_currentFieldIndex.reset();
-			m_currentFieldText.clear();
-		});
-
-	if (m_currentFieldText.empty())
-		return;
-
-	if (!m_currentFieldIndex)
-		m_currentFieldIndex.emplace();
-
-	CurrentField& currentField = *m_currentFieldIndex;
-	currentField.nestedFields.clear();
-
-	const ShaderGraph& graph = GetGraph();
-	auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
-
-	std::function<bool(std::size_t structIndex, const std::string& prefix)> FetchField;
-	FetchField = [&](std::size_t structIndex, const std::string& prefix) -> bool
-	{
-		const auto& s = graph.GetStruct(structIndex);
-		for (auto it = s.members.begin(); it != s.members.end(); ++it)
-		{
-			const auto& member = *it;
-
-			bool found = std::visit([&](auto&& arg) -> bool
-				{
-					using T = std::decay_t<decltype(arg)>;
-					if constexpr (std::is_same_v<T, PrimitiveType>)
-					{
-						if (prefix + member.name == m_currentFieldText)
-						{
-							currentField.finalFieldIndex = std::distance(s.members.begin(), it);
-							return true;
-						}
-						else
-							return false;
-					}
-					else if constexpr (std::is_same_v<T, std::size_t>)
-					{
-						currentField.nestedFields.push_back(std::distance(s.members.begin(), it));
-						bool found = FetchField(arg, prefix + member.name + ".");
-						if (!found)
-						{
-							currentField.nestedFields.pop_back();
-							return false;
-						}
-
-						return true;
-					}
-					else
-						static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
-				},
-				member.type);
-
-			if (found)
-				return true;
-		}
-
-		return false;
-	};
-
-	if (FetchField(buffer.structIndex, ""))
-		resetIfNotFound.Reset();
-}
-
-Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
-{
-	assert(count == 0);
-
-	if (!m_currentBufferIndex)
-		throw std::runtime_error("no buffer");
-
-	const ShaderGraph& graph = GetGraph();
-
-	const auto& bufferEntry = graph.GetBuffer(*m_currentBufferIndex);
-	const auto& structEntry = graph.GetStruct(bufferEntry.structIndex);
-
-	Nz::ShaderNodes::VariablePtr varPtr;
-	switch (bufferEntry.type)
-	{
-		case BufferType::UniformBufferObject:
-			varPtr = Nz::ShaderBuilder::Uniform(bufferEntry.name, structEntry.name);
-			break;
-	}
-
-	assert(varPtr);
-
-	assert(m_currentFieldIndex);
-	const CurrentField& currentField = *m_currentFieldIndex;
-
-	Nz::ShaderNodes::ExpressionPtr sourceExpr = Nz::ShaderBuilder::Identifier(varPtr);
-
-	const ShaderGraph::StructEntry* sourceStruct = &structEntry;
-	for (std::size_t nestedIndex : currentField.nestedFields)
-	{
-		assert(nestedIndex < sourceStruct->members.size());
-		const auto& memberEntry = sourceStruct->members[nestedIndex];
-		assert(std::holds_alternative<std::size_t>(memberEntry.type));
-
-		std::size_t nestedStructIndex = std::get<std::size_t>(memberEntry.type);
-		sourceStruct = &graph.GetStruct(nestedStructIndex);
-
-		sourceExpr = Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), 0, graph.ToShaderExpressionType(memberEntry.type));
-	}
-
-	assert(currentField.finalFieldIndex < sourceStruct->members.size());
-	const auto& memberEntry = sourceStruct->members[currentField.finalFieldIndex];
-	assert(std::holds_alternative<PrimitiveType>(memberEntry.type));
-
-	return Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), 0, graph.ToShaderExpressionType(std::get<PrimitiveType>(memberEntry.type)));
-}
-
 auto BufferField::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
 {
 	assert(portType == QtNodes::PortType::Out);
@@ -342,6 +191,55 @@ auto BufferField::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIn
 	throw std::runtime_error("Unhandled primitive type");
 }
 
+QString BufferField::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portType == QtNodes::PortType::Out);
+	assert(portIndex == 0);
+
+	if (!m_currentBufferIndex || !m_currentFieldIndex)
+		return "<No field>";
+
+	std::stringstream ss;
+
+	const ShaderGraph& graph = GetGraph();
+
+	const auto& bufferEntry = graph.GetBuffer(*m_currentBufferIndex);
+	const auto& structEntry = graph.GetStruct(bufferEntry.structIndex);
+
+	ss << bufferEntry.name << ".";
+
+	const CurrentField& currentField = *m_currentFieldIndex;
+
+	const ShaderGraph::StructEntry* sourceStruct = &structEntry;
+	for (std::size_t nestedIndex : currentField.nestedFields)
+	{
+		assert(nestedIndex < sourceStruct->members.size());
+		const auto& memberEntry = sourceStruct->members[nestedIndex];
+		assert(std::holds_alternative<std::size_t>(memberEntry.type));
+
+		std::size_t nestedStructIndex = std::get<std::size_t>(memberEntry.type);
+		sourceStruct = &graph.GetStruct(nestedStructIndex);
+
+		ss << memberEntry.name << ".";
+	}
+
+	assert(currentField.finalFieldIndex < sourceStruct->members.size());
+	const auto& memberEntry = sourceStruct->members[currentField.finalFieldIndex];
+	assert(std::holds_alternative<PrimitiveType>(memberEntry.type));
+
+	ss << memberEntry.name;
+
+	return QString::fromStdString(ss.str());
+}
+
+bool BufferField::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portType == QtNodes::PortType::Out);
+	assert(portIndex == 0);
+
+	return true;
+}
+
 std::shared_ptr<QtNodes::NodeData> BufferField::outData(QtNodes::PortIndex port)
 {
 	if (!m_currentBufferIndex)
@@ -368,6 +266,24 @@ std::shared_ptr<QtNodes::NodeData> BufferField::outData(QtNodes::PortIndex port)
 	throw std::runtime_error("Unhandled primitive type");
 }
 
+void BufferField::restore(const QJsonObject& data)
+{
+	m_currentBufferText = data["buffer"].toString().toStdString();
+	m_currentFieldText = data["field"].toString().toStdString();
+	UpdateBufferIndex();
+
+	ShaderNode::restore(data);
+}
+
+QJsonObject BufferField::save() const
+{
+	QJsonObject data = ShaderNode::save();
+	data["buffer"] = QString::fromStdString(m_currentBufferText);
+	data["field"] = QString::fromStdString(m_currentFieldText);
+
+	return data;
+}
+
 QtNodes::NodeValidationState BufferField::validationState() const
 {
 	if (!m_currentBufferIndex)
@@ -390,20 +306,165 @@ QString BufferField::validationMessage() const
 	return QString();
 }
 
-void BufferField::restore(const QJsonObject& data)
+bool BufferField::ComputePreview(QPixmap& pixmap)
 {
-	m_currentBufferText = data["buffer"].toString().toStdString();
-	m_currentFieldText = data["field"].toString().toStdString();
-	UpdateBufferIndex();
+	return false;
 
-	ShaderNode::restore(data);
+	/*if (!m_currentBufferIndex)
+		return false;
+
+	const ShaderGraph& graph = GetGraph();
+	const auto& inputEntry = graph.GetBuffer(*m_currentBufferIndex);
+	const auto& preview = graph.GetPreviewModel();
+
+	pixmap = QPixmap::fromImage(preview.GetPreview(inputEntry.role, inputEntry.roleIndex).GenerateImage());
+	return true;*/
 }
 
-QJsonObject BufferField::save() const
+void BufferField::PopulateField(QComboBox* fieldList, std::size_t structIndex, const std::string& prefix)
 {
-	QJsonObject data = ShaderNode::save();
-	data["buffer"] = QString::fromStdString(m_currentBufferText);
-	data["field"] = QString::fromStdString(m_currentFieldText);
+	const auto& s = GetGraph().GetStruct(structIndex);
+	for (const auto& member : s.members)
+	{
+		std::visit([&](auto&& arg)
+		{
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, PrimitiveType>)
+				fieldList->addItem(QString::fromStdString(prefix + member.name));
+			else if constexpr (std::is_same_v<T, std::size_t>)
+				PopulateField(fieldList, arg, prefix + member.name + ".");
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		},
+		member.type);
+	}
+}
 
-	return data;
+const ShaderGraph::StructMemberEntry& BufferField::RetrieveNestedMember() const
+{
+	const ShaderGraph& graph = GetGraph();
+	auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
+
+	assert(m_currentFieldIndex);
+	const CurrentField& currentField = *m_currentFieldIndex;
+
+	const ShaderGraph::StructEntry* structEntry = &graph.GetStruct(buffer.structIndex);
+	for (std::size_t nestedIndex : currentField.nestedFields)
+	{
+		assert(nestedIndex < structEntry->members.size());
+		const auto& memberEntry = structEntry->members[nestedIndex];
+		assert(std::holds_alternative<std::size_t>(memberEntry.type));
+
+		std::size_t nestedStructIndex = std::get<std::size_t>(memberEntry.type);
+		structEntry = &graph.GetStruct(nestedStructIndex);
+	}
+
+	return structEntry->members[currentField.finalFieldIndex];
+}
+
+void BufferField::UpdateBufferIndex()
+{
+	Nz::CallOnExit resetIfNotFound([&]
+	{
+		m_currentBufferIndex.reset();
+		m_currentBufferText.clear();
+		m_currentFieldIndex.reset();
+		m_currentFieldText.clear();
+	});
+
+	if (m_currentBufferText.empty())
+		return;
+
+	std::size_t bufferIndex = 0;
+	for (const auto& bufferEntry : GetGraph().GetBuffers())
+	{
+		if (bufferEntry.name == m_currentBufferText)
+		{
+			m_currentBufferIndex = bufferIndex;
+			resetIfNotFound.Reset();
+			break;
+		}
+
+		bufferIndex++;
+	}
+}
+
+void BufferField::UpdateBufferText()
+{
+	if (m_currentBufferIndex)
+	{
+		auto& buffer = GetGraph().GetBuffer(*m_currentBufferIndex);
+		m_currentBufferText = buffer.name;
+	}
+	else
+		m_currentBufferText.clear();
+}
+
+void BufferField::UpdateFieldIndex()
+{
+	Nz::CallOnExit resetIfNotFound([&]
+	{
+		m_currentFieldIndex.reset();
+		m_currentFieldText.clear();
+	});
+
+	if (m_currentFieldText.empty())
+		return;
+
+	if (!m_currentFieldIndex)
+		m_currentFieldIndex.emplace();
+
+	CurrentField& currentField = *m_currentFieldIndex;
+	currentField.nestedFields.clear();
+
+	const ShaderGraph& graph = GetGraph();
+	auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
+
+	std::function<bool(std::size_t structIndex, const std::string& prefix)> FetchField;
+	FetchField = [&](std::size_t structIndex, const std::string& prefix) -> bool
+	{
+		const auto& s = graph.GetStruct(structIndex);
+		for (auto it = s.members.begin(); it != s.members.end(); ++it)
+		{
+			const auto& member = *it;
+
+			bool found = std::visit([&](auto&& arg) -> bool
+			{
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, PrimitiveType>)
+				{
+					if (prefix + member.name == m_currentFieldText)
+					{
+						currentField.finalFieldIndex = std::distance(s.members.begin(), it);
+						return true;
+					}
+					else
+						return false;
+				}
+				else if constexpr (std::is_same_v<T, std::size_t>)
+				{
+					currentField.nestedFields.push_back(std::distance(s.members.begin(), it));
+					bool found = FetchField(arg, prefix + member.name + ".");
+					if (!found)
+					{
+						currentField.nestedFields.pop_back();
+						return false;
+					}
+
+					return true;
+				}
+				else
+					static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
+			},
+			member.type);
+
+			if (found)
+				return true;
+		}
+
+		return false;
+	};
+
+	if (FetchField(buffer.structIndex, ""))
+		resetIfNotFound.Reset();
 }

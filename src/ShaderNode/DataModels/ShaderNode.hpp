@@ -33,15 +33,15 @@ class ShaderNode : public QtNodes::NodeDataModel
 
 		QWidget* embeddedWidget() final;
 
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
+
 		void setInData(std::shared_ptr<QtNodes::NodeData>, int) override;
 
 	protected:
 		inline void DisableCustomVariableName();
 		inline void EnableCustomVariableName(bool enable = true);
 		void UpdatePreview();
-
-		void restore(const QJsonObject& data) override;
-		QJsonObject save() const override;
 
 	private:
 		virtual bool ComputePreview(QPixmap& pixmap);
