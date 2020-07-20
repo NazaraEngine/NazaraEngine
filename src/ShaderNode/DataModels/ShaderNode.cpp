@@ -89,10 +89,6 @@ QWidget* ShaderNode::embeddedWidget()
 	return m_pixmapLabel;
 }
 
-void ShaderNode::setInData(std::shared_ptr<QtNodes::NodeData>, int)
-{
-}
-
 void ShaderNode::restore(const QJsonObject& data)
 {
 	NodeDataModel::restore(data);
@@ -114,6 +110,10 @@ QJsonObject ShaderNode::save() const
 	data["variable_name"] = QString::fromStdString(m_variableName);
 
 	return data;
+}
+
+void ShaderNode::setInData(std::shared_ptr<QtNodes::NodeData>, int)
+{
 }
 
 bool ShaderNode::ComputePreview(QPixmap& /*pixmap*/)

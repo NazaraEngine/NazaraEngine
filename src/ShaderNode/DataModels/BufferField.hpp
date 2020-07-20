@@ -28,7 +28,13 @@ class BufferField : public ShaderNode
 
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
+		QString portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
+		bool portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
+
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
+
+		void restore(const QJsonObject& data) override;
+		QJsonObject save() const override;
 
 		QtNodes::NodeValidationState validationState() const override;
 		QString validationMessage() const override;
@@ -40,9 +46,6 @@ class BufferField : public ShaderNode
 		void UpdateBufferIndex();
 		void UpdateBufferText();
 		void UpdateFieldIndex();
-
-		void restore(const QJsonObject& data) override;
-		QJsonObject save() const override;
 
 		NazaraSlot(ShaderGraph, OnBufferListUpdate, m_onBufferListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnBufferUpdate, m_onBufferUpdateSlot);
