@@ -61,6 +61,7 @@ namespace Nz
 
 			using ShaderVarVisitor::Visit;
 			using ShaderVisitor::Visit;
+			void Visit(const ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired = false);
 			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;
 			void Visit(const ShaderNodes::Branch& node) override;

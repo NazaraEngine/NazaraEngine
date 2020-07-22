@@ -297,11 +297,22 @@ namespace Nz
 		AppendLine("}");
 	}
 
+	void GlslWriter::Visit(const ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired)
+	{
+		bool enclose = encloseIfRequired && (expr->GetExpressionCategory() != ShaderNodes::ExpressionCategory::LValue);
+
+		if (enclose)
+			Append("(");
+
+		ShaderVisitor::Visit(expr);
+
+		if (enclose)
+			Append(")");
+	}
+
 	void GlslWriter::Visit(const ShaderNodes::AccessMember& node)
 	{
-		Append("(");
-		Visit(node.structExpr);
-		Append(")");
+		Visit(node.structExpr, true);
 
 		const ShaderExpressionType& exprType = node.structExpr->GetExpressionType();
 		assert(std::holds_alternative<std::string>(exprType));
@@ -365,7 +376,7 @@ namespace Nz
 
 	void GlslWriter::Visit(const ShaderNodes::BinaryOp& node)
 	{
-		Visit(node.left);
+		Visit(node.left, true);
 
 		switch (node.op)
 		{
@@ -386,7 +397,7 @@ namespace Nz
 				break;
 		}
 
-		Visit(node.right);
+		Visit(node.right, true);
 	}
 
 	void GlslWriter::Visit(const ShaderNodes::BuiltinVariable& var)
