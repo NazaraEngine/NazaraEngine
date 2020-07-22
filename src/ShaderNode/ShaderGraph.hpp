@@ -122,6 +122,7 @@ class ShaderGraph
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 		NazaraSignal(OnTextureUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 
+		static QtNodes::NodeDataType ToNodeDataType(PrimitiveType type);
 		static Nz::ShaderExpressionType ToShaderExpressionType(PrimitiveType type);
 		static Nz::ShaderExpressionType ToShaderExpressionType(TextureType type);
 

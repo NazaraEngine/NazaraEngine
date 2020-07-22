@@ -173,22 +173,7 @@ auto BufferField::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIn
 	const auto& member = RetrieveNestedMember();
 	assert(std::holds_alternative<PrimitiveType>(member.type));
 
-	switch (std::get<PrimitiveType>(member.type))
-	{
-		case PrimitiveType::Bool:
-			return BoolData::Type();
-
-		case PrimitiveType::Float1:
-			return FloatData::Type();
-
-		case PrimitiveType::Float2:
-		case PrimitiveType::Float3:
-		case PrimitiveType::Float4:
-			return VecData::Type();
-	}
-
-	assert(false);
-	throw std::runtime_error("Unhandled primitive type");
+	return ShaderGraph::ToNodeDataType(std::get<PrimitiveType>(member.type));
 }
 
 QString BufferField::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
@@ -260,6 +245,7 @@ std::shared_ptr<QtNodes::NodeData> BufferField::outData(QtNodes::PortIndex port)
 		case PrimitiveType::Float2: return std::make_shared<VecData>(2);
 		case PrimitiveType::Float3: return std::make_shared<VecData>(3);
 		case PrimitiveType::Float4: return std::make_shared<VecData>(4);
+		case PrimitiveType::Mat4x4: return std::make_shared<Matrix4Data>();
 	}
 
 	assert(false);

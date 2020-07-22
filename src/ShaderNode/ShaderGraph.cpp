@@ -8,11 +8,18 @@
 #include <ShaderNode/DataModels/SampleTexture.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataModels/TextureValue.hpp>
+#include <ShaderNode/DataModels/Mat4BinOp.hpp>
+#include <ShaderNode/DataModels/Mat4VecMul.hpp>
 #include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <ShaderNode/DataModels/VecDot.hpp>
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
 #include <ShaderNode/DataModels/VecValue.hpp>
 #include <ShaderNode/Previews/QuadPreview.hpp>
+#include <ShaderNode/DataTypes/BoolData.hpp>
+#include <ShaderNode/DataTypes/FloatData.hpp>
+#include <ShaderNode/DataTypes/Matrix4Data.hpp>
+#include <ShaderNode/DataTypes/TextureData.hpp>
+#include <ShaderNode/DataTypes/VecData.hpp>
 #include <QtCore/QDebug>
 #include <nodes/Node>
 #include <nodes/NodeData>
@@ -591,6 +598,29 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 	OnTexturePreviewUpdate(this, textureIndex);
 }
 
+QtNodes::NodeDataType ShaderGraph::ToNodeDataType(PrimitiveType type)
+{
+	switch (type)
+	{
+		case PrimitiveType::Bool:
+			return BoolData::Type();
+
+		case PrimitiveType::Float1:
+			return FloatData::Type();
+
+		case PrimitiveType::Float2:
+		case PrimitiveType::Float3:
+		case PrimitiveType::Float4:
+			return VecData::Type();
+
+		case PrimitiveType::Mat4x4:
+			return Matrix4Data::Type();
+	}
+
+	assert(false);
+	throw std::runtime_error("Unhandled input type");
+}
+
 Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
 {
 	switch (type)
@@ -600,6 +630,7 @@ Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
 		case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
 		case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
 		case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
+		case PrimitiveType::Mat4x4: return Nz::ShaderNodes::BasicType::Mat4x4;
 	}
 
 	assert(false);
@@ -629,6 +660,10 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
 	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
+	RegisterShaderNode<Mat4Add>(*this, registry, "Matrix operations");
+	RegisterShaderNode<Mat4Mul>(*this, registry, "Matrix operations");
+	RegisterShaderNode<Mat4Sub>(*this, registry, "Matrix operations");
+	RegisterShaderNode<Mat4VecMul>(*this, registry, "Matrix operations");
 	RegisterShaderNode<VecAdd>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDiv>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDot>(*this, registry, "Vector operations");

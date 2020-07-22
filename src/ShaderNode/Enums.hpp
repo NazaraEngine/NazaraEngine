@@ -35,8 +35,9 @@ enum class PrimitiveType
 	Float2,
 	Float3,
 	Float4,
+	Mat4x4,
 
-	Max = Float4
+	Max = Mat4x4
 };
 
 constexpr std::size_t PrimitiveTypeCount = static_cast<std::size_t>(PrimitiveType::Max) + 1;
