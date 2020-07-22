@@ -10,6 +10,7 @@
 #include <ShaderNode/DataModels/TextureValue.hpp>
 #include <ShaderNode/DataModels/Mat4BinOp.hpp>
 #include <ShaderNode/DataModels/Mat4VecMul.hpp>
+#include <ShaderNode/DataModels/PositionOutputValue.hpp>
 #include <ShaderNode/DataModels/VecBinOp.hpp>
 #include <ShaderNode/DataModels/VecDot.hpp>
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
@@ -657,6 +658,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
 	RegisterShaderNode<FloatValue>(*this, registry, "Constants");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
+	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");
 	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
 	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
 	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
