@@ -3,8 +3,10 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
+#include <ShaderNode/DataTypes/Matrix4Data.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
 #include <iostream>
 #include <sstream>
@@ -12,6 +14,8 @@
 BufferField::BufferField(ShaderGraph& graph) :
 ShaderNode(graph)
 {
+	UpdateFieldList();
+
 	m_onBufferListUpdateSlot.Connect(GetGraph().OnBufferListUpdate, [&](ShaderGraph*) { UpdateBufferIndex(); });
 	m_onBufferUpdateSlot.Connect(GetGraph().OnBufferUpdate, [&](ShaderGraph*, std::size_t bufferIndex)
 	{
@@ -25,6 +29,7 @@ ShaderNode(graph)
 
 	m_onStructListUpdateSlot.Connect(GetGraph().OnStructListUpdate, [&](ShaderGraph*)
 	{
+		UpdateFieldList();
 		UpdateFieldIndex();
 		UpdatePreview();
 
@@ -33,6 +38,7 @@ ShaderNode(graph)
 
 	m_onStructUpdateSlot.Connect(GetGraph().OnStructUpdate, [&](ShaderGraph*, std::size_t)
 	{
+		UpdateFieldList();
 		UpdateFieldIndex();
 		UpdatePreview();
 
@@ -87,7 +93,7 @@ Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::Expre
 	const auto& memberEntry = sourceStruct->members[currentField.finalFieldIndex];
 	assert(std::holds_alternative<PrimitiveType>(memberEntry.type));
 
-	return Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), 0, graph.ToShaderExpressionType(std::get<PrimitiveType>(memberEntry.type)));
+	return Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), currentField.finalFieldIndex, graph.ToShaderExpressionType(std::get<PrimitiveType>(memberEntry.type)));
 }
 
 unsigned int BufferField::nPorts(QtNodes::PortType portType) const
@@ -109,7 +115,7 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 	connect(fieldSelection, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index)
 	{
 		if (index >= 0)
-			m_currentFieldText = fieldSelection->itemText(index).toStdString();
+			m_currentFieldText = m_fieldList[index];
 		else
 			m_currentFieldText.clear();
 
@@ -132,9 +138,9 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 		{
 			m_currentBufferIndex = static_cast<std::size_t>(index);
 
-			const ShaderGraph& graph = GetGraph();
-			const auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
-			PopulateField(fieldSelection, buffer.structIndex);
+			UpdateFieldList();
+			for (const std::string& field : m_fieldList)
+				fieldSelection->addItem(QString::fromStdString(field));
 		}
 		else
 			m_currentBufferIndex.reset();
@@ -257,6 +263,7 @@ void BufferField::restore(const QJsonObject& data)
 	m_currentBufferText = data["buffer"].toString().toStdString();
 	m_currentFieldText = data["field"].toString().toStdString();
 	UpdateBufferIndex();
+	UpdateFieldIndex();
 
 	ShaderNode::restore(data);
 }
@@ -307,7 +314,7 @@ bool BufferField::ComputePreview(QPixmap& pixmap)
 	return true;*/
 }
 
-void BufferField::PopulateField(QComboBox* fieldList, std::size_t structIndex, const std::string& prefix)
+void BufferField::PopulateFieldList(std::size_t structIndex, const std::string& prefix)
 {
 	const auto& s = GetGraph().GetStruct(structIndex);
 	for (const auto& member : s.members)
@@ -316,9 +323,9 @@ void BufferField::PopulateField(QComboBox* fieldList, std::size_t structIndex, c
 		{
 			using T = std::decay_t<decltype(arg)>;
 			if constexpr (std::is_same_v<T, PrimitiveType>)
-				fieldList->addItem(QString::fromStdString(prefix + member.name));
+				m_fieldList.push_back(prefix + member.name);
 			else if constexpr (std::is_same_v<T, std::size_t>)
-				PopulateField(fieldList, arg, prefix + member.name + ".");
+				PopulateFieldList(arg, prefix + member.name + ".");
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		},
@@ -453,4 +460,16 @@ void BufferField::UpdateFieldIndex()
 
 	if (FetchField(buffer.structIndex, ""))
 		resetIfNotFound.Reset();
+}
+
+void BufferField::UpdateFieldList()
+{
+	m_fieldList.clear();
+	if (!m_currentBufferIndex)
+		return;
+
+	const ShaderGraph& graph = GetGraph();
+	const auto& buffer = graph.GetBuffer(*m_currentBufferIndex);
+
+	PopulateFieldList(buffer.structIndex);
 }
