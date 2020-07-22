@@ -3,13 +3,11 @@
 #ifndef NAZARA_SHADERNODES_BUFFERFIELD_HPP
 #define NAZARA_SHADERNODES_BUFFERFIELD_HPP
 
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QLabel>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
-#include <array>
 #include <optional>
+#include <string>
+#include <vector>
 
 class BufferField : public ShaderNode
 {
@@ -41,11 +39,12 @@ class BufferField : public ShaderNode
 
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
-		void PopulateField(QComboBox* fieldList, std::size_t structIndex, const std::string& prefix = "");
+		void PopulateFieldList(std::size_t structIndex, const std::string& prefix = "");
 		const ShaderGraph::StructMemberEntry& RetrieveNestedMember() const;
 		void UpdateBufferIndex();
 		void UpdateBufferText();
 		void UpdateFieldIndex();
+		void UpdateFieldList();
 
 		NazaraSlot(ShaderGraph, OnBufferListUpdate, m_onBufferListUpdateSlot);
 		NazaraSlot(ShaderGraph, OnBufferUpdate, m_onBufferUpdateSlot);
@@ -63,6 +62,7 @@ class BufferField : public ShaderNode
 		std::optional<CurrentField> m_currentFieldIndex;
 		std::string m_currentBufferText;
 		std::string m_currentFieldText;
+		std::vector<std::string> m_fieldList;
 };
 
 #include <ShaderNode/DataModels/BufferField.inl>
