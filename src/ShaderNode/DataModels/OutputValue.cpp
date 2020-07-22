@@ -1,6 +1,9 @@
 #include <ShaderNode/DataModels/OutputValue.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataTypes/BoolData.hpp>
+#include <ShaderNode/DataTypes/FloatData.hpp>
+#include <ShaderNode/DataTypes/Matrix4Data.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
@@ -62,23 +65,7 @@ Nz::ShaderNodes::ExpressionPtr OutputValue::GetExpression(Nz::ShaderNodes::Expre
 		throw std::runtime_error("no output");
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-
-	Nz::ShaderNodes::BasicType expression = [&]
-	{
-		switch (outputEntry.type)
-		{
-			case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
-			case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
-			case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
-			case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
-			case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
-		}
-
-		assert(false);
-		throw std::runtime_error("Unhandled output type");
-	}();
-
-	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Output(outputEntry.name, expression));
+	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Output(outputEntry.name, ShaderGraph::ToShaderExpressionType(outputEntry.type)));
 
 	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);
 }
@@ -92,18 +79,7 @@ QtNodes::NodeDataType OutputValue::dataType(QtNodes::PortType portType, QtNodes:
 		return VecData::Type();
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-	switch (outputEntry.type)
-	{
-		//case InOutType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
-		//case InOutType::Float1: return Nz::ShaderNodes::BasicType::Float1;
-		case PrimitiveType::Float2:
-		case PrimitiveType::Float3:
-		case PrimitiveType::Float4:
-			return VecData::Type();
-	}
-
-	assert(false);
-	throw std::runtime_error("Unhandled output type");
+	return ShaderGraph::ToNodeDataType(outputEntry.type);
 }
 
 unsigned int OutputValue::nPorts(QtNodes::PortType portType) const
@@ -124,14 +100,11 @@ std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*por
 
 void OutputValue::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
+	if (!m_currentOutputIndex)
+		return;
+
 	assert(index == 0);
-	if (value)
-	{
-		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-		m_input = std::static_pointer_cast<VecData>(value);
-	}
-	else
-		m_input.reset();
+	m_input = std::move(value);
 
 	UpdatePreview();
 }
@@ -142,8 +115,23 @@ QtNodes::NodeValidationState OutputValue::validationState() const
 		return QtNodes::NodeValidationState::Error;
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-	if (GetComponentCount(outputEntry.type) != m_input->componentCount)
-		return QtNodes::NodeValidationState::Error;
+	switch (outputEntry.type)
+	{
+		case PrimitiveType::Bool:
+		case PrimitiveType::Float1:
+		case PrimitiveType::Mat4x4:
+			break;
+
+		case PrimitiveType::Float2:
+		case PrimitiveType::Float3:
+		case PrimitiveType::Float4:
+		{
+			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
+			const VecData& vec = static_cast<const VecData&>(*m_input);
+			if (GetComponentCount(outputEntry.type) != vec.componentCount)
+				return QtNodes::NodeValidationState::Error;
+		}
+	}
 
 	return QtNodes::NodeValidationState::Valid;
 }
@@ -157,10 +145,26 @@ QString OutputValue::validationMessage() const
 		return "Missing input";
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-	std::size_t outputComponentCount = GetComponentCount(outputEntry.type);
+	switch (outputEntry.type)
+	{
+		case PrimitiveType::Bool:
+		case PrimitiveType::Float1:
+		case PrimitiveType::Mat4x4:
+			break;
 
-	if (m_input->componentCount != outputComponentCount)
-		return "Incompatible component count (expected " + QString::number(outputComponentCount) + ", got " + QString::number(m_input->componentCount) + ")";
+		case PrimitiveType::Float2:
+		case PrimitiveType::Float3:
+		case PrimitiveType::Float4:
+		{
+			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
+			const VecData& vec = static_cast<const VecData&>(*m_input);
+
+			std::size_t outputComponentCount = GetComponentCount(outputEntry.type);
+
+			if (outputComponentCount != vec.componentCount)
+				return "Incompatible component count (expected " + QString::number(outputComponentCount) + ", got " + QString::number(vec.componentCount) + ")";
+		}
+	}
 
 	return QString();
 }
@@ -170,8 +174,49 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 	if (!m_input)
 		return false;
 
-	pixmap = QPixmap::fromImage(m_input->preview.GenerateImage());
-	return true;
+	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
+	switch (outputEntry.type)
+	{
+		case PrimitiveType::Bool:
+		{
+			assert(dynamic_cast<BoolData*>(m_input.get()) != nullptr);
+			const BoolData& data = static_cast<const BoolData&>(*m_input);
+
+			pixmap = QPixmap::fromImage(data.preview.GenerateImage());
+			return true;
+		}
+
+		case PrimitiveType::Float1:
+		{
+			assert(dynamic_cast<FloatData*>(m_input.get()) != nullptr);
+			const FloatData& data = static_cast<const FloatData&>(*m_input);
+
+			pixmap = QPixmap::fromImage(data.preview.GenerateImage());
+			return true;
+		}
+
+		case PrimitiveType::Mat4x4:
+		{
+			//TODO
+			/*assert(dynamic_cast<Matrix4Data*>(m_input.get()) != nullptr);
+			const Matrix4Data& data = static_cast<const Matrix4Data&>(*m_input);*/
+
+			return false;
+		}
+
+		case PrimitiveType::Float2:
+		case PrimitiveType::Float3:
+		case PrimitiveType::Float4:
+		{
+			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
+			const VecData& data = static_cast<const VecData&>(*m_input);
+
+			pixmap = QPixmap::fromImage(data.preview.GenerateImage());
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void OutputValue::OnOutputListUpdate()

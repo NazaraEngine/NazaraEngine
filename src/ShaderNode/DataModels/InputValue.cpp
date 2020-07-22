@@ -1,6 +1,8 @@
 #include <ShaderNode/DataModels/InputValue.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
+#include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
+#include <ShaderNode/DataTypes/Matrix4Data.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <Nazara/Renderer/ShaderBuilder.hpp>
 #include <QtWidgets/QFormLayout>
@@ -115,23 +117,7 @@ Nz::ShaderNodes::ExpressionPtr InputValue::GetExpression(Nz::ShaderNodes::Expres
 		throw std::runtime_error("no input");
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
-
-	Nz::ShaderNodes::BasicType expression = [&]
-	{
-		switch (inputEntry.type)
-		{
-			case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
-			case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
-			case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
-			case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
-			case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
-		}
-
-		assert(false);
-		throw std::runtime_error("Unhandled input type");
-	}();
-
-	return Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Input(inputEntry.name, expression));
+	return Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Input(inputEntry.name, ShaderGraph::ToShaderExpressionType(inputEntry.type)));
 }
 
 auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
@@ -143,20 +129,7 @@ auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portInd
 		return VecData::Type();
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
-	switch (inputEntry.type)
-	{
-		//case InputType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
-		case PrimitiveType::Float1:
-			return FloatData::Type();
-
-		case PrimitiveType::Float2:
-		case PrimitiveType::Float3:
-		case PrimitiveType::Float4:
-			return VecData::Type();
-	}
-
-	assert(false);
-	throw std::runtime_error("Unhandled input type");
+	return ShaderGraph::ToNodeDataType(inputEntry.type);
 }
 
 std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
@@ -170,20 +143,45 @@ std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 	const auto& inputEntry = graph.GetInput(*m_currentInputIndex);
 	const auto& preview = graph.GetPreviewModel();
 
-	if (inputEntry.type == PrimitiveType::Float1)
+	switch (inputEntry.type)
 	{
-		auto fData = std::make_shared<FloatData>();
-		fData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
+		case PrimitiveType::Bool:
+		{
+			auto bData = std::make_shared<BoolData>();
+			bData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
 
-		return fData;
-	}
-	else
-	{
-		auto vecData = std::make_shared<VecData>(GetComponentCount(inputEntry.type));
-		vecData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
+			return bData;
+		}
 
-		return vecData;
+		case PrimitiveType::Float1:
+		{
+			auto fData = std::make_shared<FloatData>();
+			fData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
+
+			return fData;
+		}
+
+		case PrimitiveType::Float2:
+		case PrimitiveType::Float3:
+		case PrimitiveType::Float4:
+		{
+			auto vecData = std::make_shared<VecData>(GetComponentCount(inputEntry.type));
+			vecData->preview = preview.GetPreview(inputEntry.role, inputEntry.roleIndex);
+
+			return vecData;
+		}
+
+		case PrimitiveType::Mat4x4:
+		{
+			auto matData = std::make_shared<Matrix4Data>();
+			//TODO: Handle preview
+
+			return matData;
+		}
 	}
+
+	assert(false);
+	throw std::runtime_error("Unhandled input type");
 }
 
 QtNodes::NodeValidationState InputValue::validationState() const

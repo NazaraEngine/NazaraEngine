@@ -10,6 +10,7 @@ std::size_t GetComponentCount(PrimitiveType type)
 		case PrimitiveType::Float2: return 2;
 		case PrimitiveType::Float3: return 3;
 		case PrimitiveType::Float4: return 4;
+		case PrimitiveType::Mat4x4: return 16;
 	}
 
 	assert(false);
@@ -50,6 +51,7 @@ const char* EnumToString(PrimitiveType input)
 		case PrimitiveType::Float2: return "Float2";
 		case PrimitiveType::Float3: return "Float3";
 		case PrimitiveType::Float4: return "Float4";
+		case PrimitiveType::Mat4x4: return "Mat4x4";
 	}
 
 	assert(false);
