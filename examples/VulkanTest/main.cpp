@@ -44,14 +44,14 @@ int main()
 		return __LINE__;
 	}
 #else
-	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, "shader.shader");
+	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, "frag.shader");
 	if (!fragmentShader)
 	{
 		std::cout << "Failed to instantiate fragment shader" << std::endl;
 		return __LINE__;
 	}
 
-	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::GLSL, "resources/shaders/triangle.vert");
+	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, "vert.shader");
 	if (!vertexShader)
 	{
 		std::cout << "Failed to instantiate fragment shader" << std::endl;
