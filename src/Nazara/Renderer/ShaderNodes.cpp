@@ -104,8 +104,25 @@ namespace Nz::ShaderNodes
 				const ShaderExpressionType& rightExprType = right->GetExpressionType();
 				assert(std::holds_alternative<BasicType>(rightExprType));
 
-				//FIXME
-				exprType = static_cast<BasicType>(std::max(UnderlyingCast(std::get<BasicType>(leftExprType)), UnderlyingCast(std::get<BasicType>(rightExprType))));
+				switch (std::get<BasicType>(leftExprType))
+				{
+					case BasicType::Boolean:
+					case BasicType::Float2:
+					case BasicType::Float3:
+					case BasicType::Float4:
+						exprType = leftExprType;
+						break;
+
+					case BasicType::Float1:
+					case BasicType::Mat4x4:
+						exprType = rightExprType;
+						break;
+
+					case BasicType::Sampler2D:
+					case BasicType::Void:
+						break;
+				}
+
 				break;
 			}
 
