@@ -391,7 +391,7 @@ namespace Nz
 
 	void GlslWriter::Visit(const ShaderNodes::BuiltinVariable& var)
 	{
-		Append(var.type);
+		Append(var.entry);
 	}
 
 	void GlslWriter::Visit(const ShaderNodes::Cast& node)
@@ -404,7 +404,7 @@ namespace Nz
 			if (i != 0)
 				m_currentState->stream << ", ";
 
-			const auto& exprPtr = node.expressions[i++];
+			const auto& exprPtr = node.expressions[i];
 			NazaraAssert(exprPtr, "Invalid expression");
 
 			Visit(exprPtr);
