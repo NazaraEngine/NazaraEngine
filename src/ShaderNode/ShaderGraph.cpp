@@ -359,7 +359,7 @@ QJsonObject ShaderGraph::Save()
 						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 				}, member.type);
 
-				memberDoc["type"] = QString::fromStdString(member.name);
+				memberArray.append(std::move(memberDoc));
 			}
 			structDoc["members"] = memberArray;
 
