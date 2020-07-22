@@ -569,6 +569,7 @@ namespace Nz
 		{
 			case ShaderNodes::NodeType::None: break;
 
+			HandleType(AccessMember);
 			HandleType(AssignOp);
 			HandleType(BinaryOp);
 			HandleType(Branch);
