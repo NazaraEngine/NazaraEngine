@@ -70,7 +70,7 @@ namespace Nz
 	* \param error Optional argument to get the error
 	*/
 
-	bool RUdpConnection::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error)
+	bool RUdpConnection::Connect(const std::string& hostName, NetProtocol protocol, const std::string& service, ResolveError* error)
 	{
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())

@@ -37,7 +37,7 @@ namespace Nz
 			inline void Close();
 
 			bool Connect(const IpAddress& remoteAddress);
-			bool Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr);
+			bool Connect(const std::string& hostName, NetProtocol protocol = NetProtocol_Any, const std::string& service = "http", ResolveError* error = nullptr);
 			inline void Disconnect();
 
 			inline IpAddress GetBoundAddress() const;

@@ -199,7 +199,6 @@ namespace Nz
 	* \param out The stream
 	* \param address The address to output
 	*/
-
 	inline std::ostream& operator<<(std::ostream& out, const IpAddress& address)
 	{
 		out << "IpAddress(" << address.ToString() << ')';

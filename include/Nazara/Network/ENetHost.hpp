@@ -51,7 +51,7 @@ namespace Nz
 			bool CheckEvents(ENetEvent* event);
 
 			ENetPeer* Connect(const IpAddress& remoteAddress, std::size_t channelCount = 0, UInt32 data = 0);
-			ENetPeer* Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
+			ENetPeer* Connect(const std::string& hostName, NetProtocol protocol = NetProtocol_Any, const std::string& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
 
 			inline bool Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount = 0);
 			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount = 0);

@@ -12,6 +12,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -28,7 +29,7 @@ namespace Nz
 			~TcpClient() = default;
 
 			SocketState Connect(const IpAddress& remoteAddress);
-			SocketState Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr);
+			SocketState Connect(const std::string& hostName, NetProtocol protocol = NetProtocol_Any, const std::string& service = "http", ResolveError* error = nullptr);
 			inline void Disconnect();
 
 			void EnableLowDelay(bool lowDelay);
