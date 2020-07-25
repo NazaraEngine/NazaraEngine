@@ -115,7 +115,7 @@ namespace Nz
 		return &peer;
 	}
 
-	ENetPeer* ENetHost::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error, std::size_t channelCount, UInt32 data)
+	ENetPeer* ENetHost::Connect(const std::string& hostName, NetProtocol protocol, const std::string& service, ResolveError* error, std::size_t channelCount, UInt32 data)
 	{
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())

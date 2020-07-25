@@ -47,7 +47,7 @@ namespace Nz
 
 			inline IPv4 ToIPv4() const;
 			inline IPv6 ToIPv6() const;
-			String ToString() const;
+			std::string ToString() const;
 			inline UInt32 ToUInt32() const;
 
 			inline explicit operator bool() const;
@@ -55,8 +55,8 @@ namespace Nz
 			IpAddress& operator=(const IpAddress&) = default;
 			IpAddress& operator=(IpAddress&&) noexcept = default;
 
-			static String ResolveAddress(const IpAddress& address, String* service = nullptr, ResolveError* error = nullptr);
-			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& protocol = "http", ResolveError* error = nullptr);
+			static std::string ResolveAddress(const IpAddress& address, std::string* service = nullptr, ResolveError* error = nullptr);
+			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const std::string& hostname, const std::string& protocol = "http", ResolveError* error = nullptr);
 
 			inline friend std::ostream& operator<<(std::ostream& out, const IpAddress& address);
 
@@ -91,7 +91,7 @@ namespace Nz
 		IpAddress address;
 		NetProtocol protocol;
 		SocketType socketType;
-		String canonicalName;
+		std::string canonicalName;
 	};
 
 }

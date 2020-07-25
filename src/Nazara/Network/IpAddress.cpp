@@ -4,10 +4,10 @@
 
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <algorithm>
 #include <limits>
+#include <sstream>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
@@ -99,9 +99,9 @@ namespace Nz
 	* \remark Produces a NazaraAssert if internal protocol is invalid (should never happen)
 	*/
 
-	String IpAddress::ToString() const
+	std::string IpAddress::ToString() const
 	{
-		StringStream stream;
+		std::ostringstream stream;
 
 		if (m_isValid)
 		{
@@ -176,7 +176,7 @@ namespace Nz
 				stream << ':' << m_port;
 		}
 
-		return stream;
+		return stream.str();
 	}
 
 	/*!
@@ -189,12 +189,11 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if address is invalid
 	*/
-
-	String IpAddress::ResolveAddress(const IpAddress& address, String* service, ResolveError* error)
+	std::string IpAddress::ResolveAddress(const IpAddress& address, std::string* service, ResolveError* error)
 	{
 		NazaraAssert(address.IsValid(), "Invalid address");
 
-		String hostname;
+		std::string hostname;
 		IpAddressImpl::ResolveAddress(address, &hostname, service, error);
 
 		return hostname;
@@ -211,8 +210,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if net protocol is set to unknown
 	*/
-
-	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const String& hostname, const String& service, ResolveError* error)
+	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const std::string& hostname, const std::string& service, ResolveError* error)
 	{
 		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
 

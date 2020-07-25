@@ -8,6 +8,7 @@
 #define NAZARA_IPADDRESSIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
+#include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -29,8 +30,8 @@ namespace Nz
 			static IpAddress FromSockAddr(const sockaddr_in* addressv4);
 			static IpAddress FromSockAddr(const sockaddr_in6* addressv6);
 
-			static bool ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service, ResolveError* error);
-			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& service, ResolveError* error);
+			static bool ResolveAddress(const IpAddress& ipAddress, std::string* hostname, std::string* service, ResolveError* error);
+			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const std::string& hostname, const std::string& service, ResolveError* error);
 
 			static socklen_t ToSockAddr(const IpAddress& ipAddress, void* buffer);
 			static NetProtocol TranslatePFToNetProtocol(int family);

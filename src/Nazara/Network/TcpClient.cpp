@@ -72,7 +72,7 @@ namespace Nz
 	* \param error Optional argument to get the error
 	*/
 
-	SocketState TcpClient::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error)
+	SocketState TcpClient::Connect(const std::string& hostName, NetProtocol protocol, const std::string& service, ResolveError* error)
 	{
 		UpdateState(SocketState_Resolving);
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);

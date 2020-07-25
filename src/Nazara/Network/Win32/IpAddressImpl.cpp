@@ -5,6 +5,7 @@
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
@@ -25,12 +26,12 @@ namespace Nz
 		#if NAZARA_CORE_WINDOWS_NT6
 		using addrinfoImpl = addrinfoW;
 
-		int GetAddressInfo(const String& hostname, const String& service, const addrinfoImpl* hints, addrinfoImpl** results)
+		int GetAddressInfo(const std::string& hostname, const std::string& service, const addrinfoImpl* hints, addrinfoImpl** results)
 		{
-			return GetAddrInfoW(hostname.GetWideString().c_str(), service.GetWideString().c_str(), hints, results);
+			return GetAddrInfoW(ToWideString(hostname).c_str(), ToWideString(service).c_str(), hints, results);
 		}
 
-		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service, INT flags)
+		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, std::string* hostname, std::string* service, INT flags)
 		{
 			std::array<wchar_t, NI_MAXHOST> hostnameBuffer;
 			std::array<wchar_t, NI_MAXSERV> serviceBuffer;
@@ -39,10 +40,10 @@ namespace Nz
 			if (result == 0)
 			{
 				if (hostname)
-					*hostname = std::move(String::Unicode(hostnameBuffer.data()));
+					*hostname = FromWideString(hostnameBuffer.data());
 
 				if (service)
-					*service = std::move(String::Unicode(serviceBuffer.data()));
+					*service = FromWideString(serviceBuffer.data());
 			}
 
 			return result;
@@ -52,15 +53,20 @@ namespace Nz
 		{
 			FreeAddrInfoW(results);
 		}
+
+		std::string TranslateCanonicalName(const wchar_t* str)
+		{
+			return FromWideString(str);
+		}
 		#else
 		using addrinfoImpl = addrinfo;
 
-		int GetAddressInfo(const String& hostname, const String& service, const addrinfoImpl* hints, addrinfoImpl** results)
+		int GetAddressInfo(const std::string& hostname, const std::string& service, const addrinfoImpl* hints, addrinfoImpl** results)
 		{
-			return getaddrinfo(hostname.GetConstBuffer(), service.GetConstBuffer(), hints, results);
+			return getaddrinfo(hostname.c_str(), service.c_str(), hints, results);
 		}
 
-		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, String* hostname, String* service, INT flags)
+		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, std::string* hostname, std::string* service, INT flags)
 		{
 			std::array<char, NI_MAXHOST> hostnameBuffer;
 			std::array<char, NI_MAXSERV> serviceBuffer;
@@ -69,10 +75,10 @@ namespace Nz
 			if (result == 0)
 			{
 				if (hostname)
-					hostname->Set(hostnameBuffer.data());
+					hostname->assign(hostnameBuffer.data());
 
 				if (service)
-					service->Set(serviceBuffer.data());
+					service->assign(serviceBuffer.data());
 			}
 
 			return result;
@@ -81,6 +87,11 @@ namespace Nz
 		void FreeAddressInfo(addrinfoImpl* results)
 		{
 			freeaddrinfo(results);
+		}
+
+		std::string TranslateCanonicalName(const char* str)
+		{
+			return str;
 		}
 		#endif
 	}
@@ -162,7 +173,7 @@ namespace Nz
 		return IpAddress(ipv6, ntohs(addressv6->sin6_port));
 	}
 
-	bool IpAddressImpl::ResolveAddress(const IpAddress& ipAddress, String* hostname, String* service, ResolveError* error)
+	bool IpAddressImpl::ResolveAddress(const IpAddress& ipAddress, std::string* hostname, std::string* service, ResolveError* error)
 	{
 		SockAddrBuffer socketAddress;
 		socklen_t socketAddressLen = ToSockAddr(ipAddress, socketAddress.data());
@@ -181,7 +192,7 @@ namespace Nz
 		return true;
 	}
 
-	std::vector<HostnameInfo> IpAddressImpl::ResolveHostname(NetProtocol procol, const String& hostname, const String& service, ResolveError* error)
+	std::vector<HostnameInfo> IpAddressImpl::ResolveHostname(NetProtocol procol, const std::string& hostname, const std::string& service, ResolveError* error)
 	{
 		std::vector<HostnameInfo> results;
 
@@ -209,7 +220,7 @@ namespace Nz
 		{
 			HostnameInfo result;
 			result.address = FromAddrinfo(p);
-			result.canonicalName = String::Unicode(p->ai_canonname);
+			result.canonicalName = Detail::TranslateCanonicalName(p->ai_canonname);
 			result.protocol = TranslatePFToNetProtocol(p->ai_family);
 			result.socketType = TranslateSockToNetProtocol(p->ai_socktype);
 
