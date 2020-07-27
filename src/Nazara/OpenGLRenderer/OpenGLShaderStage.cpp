@@ -31,6 +31,9 @@ namespace Nz
 				ByteStream byteStream(source, sourceSize);
 				auto shader = Nz::UnserializeShader(byteStream);
 
+				if (shader.GetStage() != type)
+					throw std::runtime_error("incompatible shader stage");
+
 				const auto& context = device.GetReferenceContext();
 				const auto& contextParams = context.GetParams();
 

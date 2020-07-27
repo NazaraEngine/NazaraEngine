@@ -26,6 +26,7 @@ class MainWindow : public QMainWindow
 		void OnGenerateGLSL();
 		void OnLoad();
 		void OnSave();
+		void OnUpdateInfo();
 		Nz::ShaderAst ToShader();
 
 		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);

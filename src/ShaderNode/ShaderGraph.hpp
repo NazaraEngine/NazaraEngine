@@ -4,6 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERGRAPH_HPP
 
 #include <Nazara/Core/Signal.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
@@ -51,6 +52,7 @@ class ShaderGraph
 		inline const TextureEntry& GetTexture(std::size_t textureIndex) const;
 		inline std::size_t GetTextureCount() const;
 		inline const std::vector<TextureEntry>& GetTextures() const;
+		inline ShaderType GetType() const;
 
 		void Load(const QJsonObject& data);
 		QJsonObject Save();
@@ -64,6 +66,7 @@ class ShaderGraph
 		void UpdateStruct(std::size_t structIndex, std::string name, std::vector<StructMemberEntry> members);
 		void UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex);
 		void UpdateTexturePreview(std::size_t texture, QImage preview);
+		void UpdateType(ShaderType type);
 
 		struct BufferEntry
 		{
@@ -121,10 +124,12 @@ class ShaderGraph
 		NazaraSignal(OnTextureListUpdate, ShaderGraph*);
 		NazaraSignal(OnTexturePreviewUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
 		NazaraSignal(OnTextureUpdate, ShaderGraph*, std::size_t /*textureIndex*/);
+		NazaraSignal(OnTypeUpdated, ShaderGraph*);
 
 		static QtNodes::NodeDataType ToNodeDataType(PrimitiveType type);
 		static Nz::ShaderExpressionType ToShaderExpressionType(PrimitiveType type);
 		static Nz::ShaderExpressionType ToShaderExpressionType(TextureType type);
+		static Nz::ShaderStageType ToShaderStageType(ShaderType type);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
@@ -136,6 +141,7 @@ class ShaderGraph
 		std::vector<StructEntry> m_structs;
 		std::vector<TextureEntry> m_textures;
 		std::unique_ptr<PreviewModel> m_previewModel;
+		ShaderType m_type;
 };
 
 #include <ShaderNode/ShaderGraph.inl>

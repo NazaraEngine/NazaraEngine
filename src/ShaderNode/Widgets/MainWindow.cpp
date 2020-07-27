@@ -7,6 +7,7 @@
 #include <ShaderNode/Widgets/InputEditor.hpp>
 #include <ShaderNode/Widgets/OutputEditor.hpp>
 #include <ShaderNode/Widgets/NodeEditor.hpp>
+#include <ShaderNode/Widgets/ShaderInfoDialog.hpp>
 #include <ShaderNode/Widgets/StructEditor.hpp>
 #include <ShaderNode/Widgets/TextureEditor.hpp>
 #include <nodes/FlowView>
@@ -104,19 +105,27 @@ void MainWindow::BuildMenu()
 {
 	QMenuBar* menu = menuBar();
 
+	QMenu* file = menu->addMenu(tr("&File"));
+	{
+		QAction* loadShader = file->addAction(tr("Load..."));
+		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
+		QAction* saveShader = file->addAction(tr("Save..."));
+		QObject::connect(saveShader, &QAction::triggered, this, &MainWindow::OnSave);
+	}
+
 	QMenu* shader = menu->addMenu(tr("&Shader"));
 	{
-		QAction* loadShader = shader->addAction(tr("Load..."));
-		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
-		QAction* saveShader = shader->addAction(tr("Save..."));
-		QObject::connect(saveShader, &QAction::triggered, this, &MainWindow::OnSave);
+		QAction* settings = shader->addAction(tr("Settings..."));
+		QObject::connect(settings, &QAction::triggered, this, &MainWindow::OnUpdateInfo);
 		QAction* compileShader = shader->addAction(tr("Compile..."));
 		QObject::connect(compileShader, &QAction::triggered, this, &MainWindow::OnCompile);
 	}
 
 	QMenu* generateMenu = menu->addMenu(tr("&Generate"));
-	QAction* generateGlsl = generateMenu->addAction(tr("GLSL"));
-	connect(generateGlsl, &QAction::triggered, [&](bool) { OnGenerateGLSL(); });
+	{
+		QAction* generateGlsl = generateMenu->addAction(tr("GLSL"));
+		connect(generateGlsl, &QAction::triggered, [&](bool) { OnGenerateGLSL(); });
+	}
 }
 
 void MainWindow::OnCompile()
@@ -208,11 +217,27 @@ void MainWindow::OnSave()
 		file.write(QJsonDocument(m_shaderGraph.Save()).toJson());
 }
 
+void MainWindow::OnUpdateInfo()
+{
+	ShaderInfo info;
+	info.type = m_shaderGraph.GetType();
+
+	ShaderInfoDialog* dialog = new ShaderInfoDialog(std::move(info), this);
+	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+	connect(dialog, &QDialog::accepted, [this, dialog]
+	{
+		ShaderInfo shaderInfo = dialog->GetShaderInfo();
+		m_shaderGraph.UpdateType(shaderInfo.type);
+	});
+
+	dialog->open();
+}
+
 Nz::ShaderAst MainWindow::ToShader()
 {
 	Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
 
-	Nz::ShaderAst shader;
+	Nz::ShaderAst shader(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType())); //< FIXME
 	for (const auto& input : m_shaderGraph.GetInputs())
 		shader.AddInput(input.name, m_shaderGraph.ToShaderExpressionType(input.type), input.locationIndex);
 

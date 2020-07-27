@@ -90,3 +90,8 @@ inline auto ShaderGraph::GetTextures() const -> const std::vector<TextureEntry>&
 	return m_textures;
 }
 
+inline ShaderType ShaderGraph::GetType() const
+{
+	return m_type;
+}
+
