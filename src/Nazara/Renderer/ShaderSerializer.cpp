@@ -261,6 +261,8 @@ namespace Nz
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
+		m_stream << UInt32(shader.GetStage());
+
 		auto SerializeType = [&](const ShaderExpressionType& type)
 		{
 			std::visit([&](auto&& arg)
@@ -454,7 +456,10 @@ namespace Nz
 		if (version > s_currentVersion)
 			throw std::runtime_error("unsupported version");
 
-		ShaderAst shader;
+		UInt32 shaderStage;
+		m_stream >> shaderStage;
+
+		ShaderAst shader(static_cast<ShaderStageType>(shaderStage));
 
 		UInt32 structCount;
 		m_stream >> structCount;

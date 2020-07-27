@@ -41,7 +41,8 @@ namespace
 }
 
 ShaderGraph::ShaderGraph() :
-m_flowScene(BuildRegistry())
+m_flowScene(BuildRegistry()),
+m_type(ShaderType::NotSet)
 {
 	m_previewModel = std::make_unique<QuadPreview>();
 
@@ -178,6 +179,8 @@ std::size_t ShaderGraph::AddTexture(std::string name, TextureType type, std::siz
 
 void ShaderGraph::Clear()
 {
+	m_type = ShaderType::NotSet;
+
 	m_flowScene.clearScene();
 	m_flowScene.clear();
 
@@ -197,6 +200,9 @@ void ShaderGraph::Clear()
 void ShaderGraph::Load(const QJsonObject& data)
 {
 	Clear();
+
+	if (auto typeOpt = DecodeEnum<ShaderType>(data["type"].toString().toStdString()))
+		m_type = typeOpt.value();
 
 	QJsonArray bufferArray = data["buffers"].toArray();
 	for (const auto& bufferDocRef : bufferArray)
@@ -289,6 +295,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 QJsonObject ShaderGraph::Save()
 {
 	QJsonObject sceneJson;
+	sceneJson["type"] = QString(EnumToString(m_type));
 
 	QJsonArray bufferArray;
 	{
@@ -599,6 +606,15 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 	OnTexturePreviewUpdate(this, textureIndex);
 }
 
+void ShaderGraph::UpdateType(ShaderType type)
+{
+	if (m_type != type)
+	{
+		m_type = type;
+		OnTypeUpdated(this);
+	}
+}
+
 QtNodes::NodeDataType ShaderGraph::ToNodeDataType(PrimitiveType type)
 {
 	switch (type)
@@ -647,6 +663,21 @@ Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
 
 	assert(false);
 	throw std::runtime_error("Unhandled texture type");
+}
+
+Nz::ShaderStageType ShaderGraph::ToShaderStageType(ShaderType type)
+{
+	switch (type)
+	{
+		case ShaderType::NotSet:
+			throw std::runtime_error("Invalid shader type");
+
+		case ShaderType::Fragment: return Nz::ShaderStageType::Fragment;
+		case ShaderType::Vertex: return Nz::ShaderStageType::Vertex;
+	}
+
+	assert(false);
+	throw std::runtime_error("Unhandled shader type");
 }
 
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()

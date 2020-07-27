@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	inline ShaderAst::ShaderAst(ShaderStageType shaderStage) :
+	m_stage(shaderStage)
+	{
+	}
+
 	inline auto ShaderAst::GetFunction(std::size_t i) const -> const Function&
 	{
 		assert(i < m_functions.size());
@@ -53,6 +58,11 @@ namespace Nz
 	inline auto ShaderAst::GetOutputs() const -> const std::vector<InputOutput>&
 	{
 		return m_outputs;
+	}
+
+	inline ShaderStageType ShaderAst::GetStage() const
+	{
+		return m_stage;
 	}
 
 	inline auto ShaderAst::GetStruct(std::size_t i) const -> const Struct&

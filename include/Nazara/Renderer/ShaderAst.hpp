@@ -8,6 +8,7 @@
 #define NAZARA_SHADER_AST_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderExpressionType.hpp>
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <optional>
@@ -27,7 +28,9 @@ namespace Nz
 			struct Uniform;
 			struct VariableBase;
 
-			ShaderAst() = default;
+			inline ShaderAst(ShaderStageType shaderStage);
+			ShaderAst(const ShaderAst&) = default;
+			ShaderAst(ShaderAst&&) = default;
 			~ShaderAst() = default;
 
 			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderNodes::BasicType returnType = ShaderNodes::BasicType::Void);
@@ -45,12 +48,16 @@ namespace Nz
 			inline const InputOutput& GetOutput(std::size_t i) const;
 			inline std::size_t GetOutputCount() const;
 			inline const std::vector<InputOutput>& GetOutputs() const;
+			inline ShaderStageType GetStage() const;
 			inline const Struct& GetStruct(std::size_t i) const;
 			inline std::size_t GetStructCount() const;
 			inline const std::vector<Struct>& GetStructs() const;
 			inline const Uniform& GetUniform(std::size_t i) const;
 			inline std::size_t GetUniformCount() const;
 			inline const std::vector<Uniform>& GetUniforms() const;
+
+			ShaderAst& operator=(const ShaderAst&) = default;
+			ShaderAst& operator=(ShaderAst&&) = default;
 
 			struct VariableBase
 			{
@@ -99,6 +106,7 @@ namespace Nz
 			std::vector<InputOutput> m_outputs;
 			std::vector<Struct> m_structs;
 			std::vector<Uniform> m_uniforms;
+			ShaderStageType m_stage;
 	};
 }
 

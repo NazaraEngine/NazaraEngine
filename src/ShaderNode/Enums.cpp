@@ -58,6 +58,19 @@ const char* EnumToString(PrimitiveType input)
 	return "<Unhandled>";
 }
 
+const char* EnumToString(ShaderType type)
+{
+	switch (type)
+	{
+		case ShaderType::NotSet:   return "NotSet";
+		case ShaderType::Fragment: return "Fragment";
+		case ShaderType::Vertex:   return "Vertex";
+	}
+
+	assert(false);
+	return "<Unhandled>";
+}
+
 const char* EnumToString(TextureType textureType)
 {
 	switch (textureType)

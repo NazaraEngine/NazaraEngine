@@ -19,8 +19,8 @@ namespace Nz
 	{
 		public:
 			ShaderWriter() = default;
-			ShaderWriter(const ShaderWriter&) = delete;
-			ShaderWriter(ShaderWriter&&) = delete;
+			ShaderWriter(const ShaderWriter&) = default;
+			ShaderWriter(ShaderWriter&&) = default;
 			virtual ~ShaderWriter();
 
 			virtual std::string Generate(const ShaderAst& shader) = 0;

@@ -42,6 +42,18 @@ enum class PrimitiveType
 
 constexpr std::size_t PrimitiveTypeCount = static_cast<std::size_t>(PrimitiveType::Max) + 1;
 
+enum class ShaderType
+{
+	NotSet = -1,
+
+	Fragment,
+	Vertex,
+
+	Max = Vertex
+};
+
+constexpr std::size_t ShaderTypeCount = static_cast<std::size_t>(ShaderType::Max) + 1;
+
 enum class TextureType
 {
 	Sampler2D,
@@ -56,6 +68,7 @@ template<typename T> std::optional<T> DecodeEnum(const std::string_view& str);
 const char* EnumToString(BufferType bufferType);
 const char* EnumToString(InputRole role);
 const char* EnumToString(PrimitiveType input);
+const char* EnumToString(ShaderType type);
 const char* EnumToString(TextureType textureType);
 std::size_t GetComponentCount(PrimitiveType type);
 
