@@ -1,5 +1,6 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Renderer.hpp>
+#include <Nazara/Renderer/SpirvWriter.hpp>
 #include <array>
 #include <iostream>
 
@@ -7,6 +8,38 @@
 
 int main()
 {
+	{
+		Nz::File file("frag.shader");
+		if (!file.Open(Nz::OpenMode_ReadOnly))
+			return __LINE__;
+
+		std::size_t length = static_cast<std::size_t>(file.GetSize());
+
+		std::vector<Nz::UInt8> source(length);
+		if (file.Read(&source[0], length) != length)
+		{
+			NazaraError("Failed to read program file");
+			return {};
+		}
+
+
+
+		Nz::SpirvWriter writer;
+
+		Nz::ByteStream byteStream(source.data(), source.size());
+		auto shader = Nz::UnserializeShader(byteStream);
+
+		std::vector<Nz::UInt32> result = writer.Generate(shader);
+
+		Nz::File target("test.spirv");
+		if (!target.Open(Nz::OpenMode_WriteOnly | Nz::OpenMode_Truncate))
+			return __LINE__;
+
+		target.Write(result.data(), result.size() * sizeof(Nz::UInt32));
+
+		return 0;
+	}
+
 	Nz::Initializer<Nz::Renderer> loader;
 	if (!loader)
 	{

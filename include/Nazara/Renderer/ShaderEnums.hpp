@@ -81,6 +81,15 @@ namespace Nz::ShaderNodes
 		StatementBlock
 	};
 
+	enum class SsaInstruction
+	{
+		OpAdd,
+		OpDiv,
+		OpMul,
+		OpSub,
+		OpSample
+	};
+
 	enum class SwizzleComponent
 	{
 		First,
