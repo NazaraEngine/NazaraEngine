@@ -12,11 +12,11 @@
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderRecursiveVisitor.hpp>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderValidator : public ShaderVisitor
+	class NAZARA_RENDERER_API ShaderValidator : public ShaderRecursiveVisitor
 	{
 		public:
 			inline ShaderValidator(const ShaderAst& shader);
@@ -32,7 +32,7 @@ namespace Nz
 			void TypeMustMatch(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right);
 			void TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right);
 
-			using ShaderVisitor::Visit;
+			using ShaderRecursiveVisitor::Visit;
 			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;
 			void Visit(const ShaderNodes::BinaryOp& node) override;
