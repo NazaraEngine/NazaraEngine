@@ -13,10 +13,11 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderRecursiveVisitor.hpp>
+#include <Nazara/Renderer/ShaderVarVisitor.hpp>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderValidator : public ShaderRecursiveVisitor
+	class NAZARA_RENDERER_API ShaderValidator : public ShaderRecursiveVisitor, public ShaderVarVisitor
 	{
 		public:
 			inline ShaderValidator(const ShaderAst& shader);
@@ -46,6 +47,14 @@ namespace Nz
 			void Visit(const ShaderNodes::Sample2D& node) override;
 			void Visit(const ShaderNodes::StatementBlock& node) override;
 			void Visit(const ShaderNodes::SwizzleOp& node) override;
+
+			using ShaderVarVisitor::Visit;
+			void Visit(const ShaderNodes::BuiltinVariable& var) override;
+			void Visit(const ShaderNodes::InputVariable& var) override;
+			void Visit(const ShaderNodes::LocalVariable& var) override;
+			void Visit(const ShaderNodes::OutputVariable& var) override;
+			void Visit(const ShaderNodes::ParameterVariable& var) override;
+			void Visit(const ShaderNodes::UniformVariable& var) override;
 
 			struct Context;
 
