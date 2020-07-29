@@ -114,8 +114,7 @@ namespace Nz
 		if (node.left->GetExpressionCategory() != ShaderNodes::ExpressionCategory::LValue)
 			throw AstError { "Assignation is only possible with a l-value" };
 
-		Visit(node.left);
-		Visit(node.right);
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::BinaryOp& node)
@@ -187,17 +186,18 @@ namespace Nz
 			}
 		}
 
-		Visit(node.left);
-		Visit(node.right);
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::Branch& node)
 	{
 		for (const auto& condStatement : node.condStatements)
 		{
-			Visit(MandatoryNode(condStatement.condition));
-			Visit(MandatoryNode(condStatement.statement));
+			MandatoryNode(condStatement.condition);
+			MandatoryNode(condStatement.statement);
 		}
+
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::Cast& node)
@@ -214,11 +214,12 @@ namespace Nz
 				throw AstError{ "incompatible type" };
 
 			componentCount += node.GetComponentCount(std::get<ShaderNodes::BasicType>(exprType));
-			Visit(exprPtr);
 		}
 
 		if (componentCount != requiredComponents)
 			throw AstError{ "Component count doesn't match required component count" };
+
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::Constant& /*node*/)
@@ -229,17 +230,18 @@ namespace Nz
 	{
 		assert(m_context);
 
-		if (node.expression)
-			Visit(node.expression);
-
 		auto& local = m_context->declaredLocals.emplace_back();
 		local.name = node.variable->name;
 		local.type = node.variable->type;
+
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::ExpressionStatement& node)
 	{
-		Visit(MandatoryNode(node.expression));
+		MandatoryNode(node.expression);
+
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::Identifier& node)
@@ -377,8 +379,7 @@ namespace Nz
 				break;
 		}
 
-		for (auto& param : node.parameters)
-			Visit(param);
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::Sample2D& node)
@@ -389,8 +390,7 @@ namespace Nz
 		if (MandatoryExpr(node.coordinates)->GetExpressionType() != ShaderExpressionType{ ShaderNodes::BasicType::Float2 })
 			throw AstError{ "Coordinates must be a Float2" };
 
-		Visit(node.sampler);
-		Visit(node.coordinates);
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::StatementBlock& node)
@@ -400,11 +400,13 @@ namespace Nz
 		m_context->blockLocalIndex.push_back(m_context->declaredLocals.size());
 
 		for (const auto& statement : node.statements)
-			Visit(MandatoryNode(statement));
+			MandatoryNode(statement);
 
 		assert(m_context->declaredLocals.size() >= m_context->blockLocalIndex.back());
 		m_context->declaredLocals.resize(m_context->blockLocalIndex.back());
 		m_context->blockLocalIndex.pop_back();
+
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	void ShaderValidator::Visit(const ShaderNodes::SwizzleOp& node)
@@ -428,7 +430,7 @@ namespace Nz
 				throw AstError{ "Cannot swizzle this type" };
 		}
 
-		Visit(node.expression);
+		ShaderRecursiveVisitor::Visit(node);
 	}
 
 	bool ValidateShader(const ShaderAst& shader, std::string* error)
