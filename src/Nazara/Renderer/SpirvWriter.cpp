@@ -40,10 +40,6 @@ namespace Nz
 
 		AppendHeader();
 
-		// OpImageSampleImplicitLod %23 %31 %35
-
-		//Append("BONJOUR PRAETONUS");
-
 		std::vector<UInt32> ret = std::move(state.output);
 		return ret;
 	}
@@ -58,17 +54,13 @@ namespace Nz
 		std::size_t size4 = CountWord(str);
 		for (std::size_t i = 0; i < size4; ++i)
 		{
-			auto GetChar = [&](std::size_t pos) -> UInt32
-			{
-				if (pos < str.size())
-					return static_cast<UInt32>(str[pos]);
-				else
-					return 0;
-			};
-
 			UInt32 codepoint = 0;
 			for (std::size_t j = 0; j < 4; ++j)
-				codepoint |= GetChar(i * 4 + j) << (j * 8);
+			{
+				std::size_t pos = i * 4 + j;
+				if (pos < str.size())
+					codepoint |= UInt32(str[pos]) << (j * 8);
+			}
 
 			Append(codepoint);
 		}
