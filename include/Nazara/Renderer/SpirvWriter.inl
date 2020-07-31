@@ -49,7 +49,7 @@ namespace Nz
 
 	inline unsigned int SpirvWriter::CountWord(const std::string_view& str)
 	{
-		return (str.size() + 1 + 4 - 1) / 4; //< + 1 for null character
+		return (static_cast<unsigned int>(str.size() + 1) + sizeof(UInt32) - 1) / sizeof(UInt32); //< + 1 for null character
 	}
 }
 
