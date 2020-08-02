@@ -14,6 +14,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderExpressionType.hpp>
 #include <array>
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -27,7 +28,7 @@ namespace Nz
 
 		using VariablePtr = std::shared_ptr<Variable>;
 
-		struct NAZARA_RENDERER_API Variable
+		struct NAZARA_RENDERER_API Variable : std::enable_shared_from_this<Variable>
 		{
 			virtual ~Variable();
 
