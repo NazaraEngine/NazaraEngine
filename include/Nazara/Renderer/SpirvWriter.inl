@@ -9,25 +9,62 @@
 
 namespace Nz
 {
-	inline void SpirvWriter::Append(const char* str)
+	inline std::size_t SpirvWriter::Append(const char* str)
 	{
 		return Append(std::string_view(str));
 	}
 
-	template<typename T>
-	void SpirvWriter::Append(T value)
+	inline std::size_t SpirvWriter::Append(const std::string_view& str)
 	{
-		assert(m_currentState);
-		m_currentState->output.push_back(static_cast<UInt32>(value));
+		std::size_t offset = GetOutputOffset();
+
+		std::size_t size4 = CountWord(str);
+		for (std::size_t i = 0; i < size4; ++i)
+		{
+			UInt32 codepoint = 0;
+			for (std::size_t j = 0; j < 4; ++j)
+			{
+				std::size_t pos = i * 4 + j;
+				if (pos < str.size())
+					codepoint |= UInt32(str[pos]) << (j * 8);
+			}
+
+			Append(codepoint);
+		}
+
+		return offset;
+	}
+
+	inline std::size_t SpirvWriter::Append(const std::string& str)
+	{
+		return Append(std::string_view(str));
+	}
+
+	inline std::size_t SpirvWriter::Append(std::initializer_list<UInt32> codepoints)
+	{
+		std::size_t offset = GetOutputOffset();
+
+		for (UInt32 cp : codepoints)
+			Append(cp);
+
+		return offset;
 	}
 
 	template<typename ...Args>
-	inline void SpirvWriter::Append(Opcode opcode, const Args&... args)
+	inline std::size_t SpirvWriter::Append(Opcode opcode, const Args&... args)
 	{
 		unsigned int wordCount = 1 + (CountWord(args) + ... + 0);
-		Append(opcode, wordCount);
+		std::size_t offset = Append(opcode, wordCount);
 		if constexpr (sizeof...(args) > 0)
 			(Append(args), ...);
+
+		return offset;
+	}
+
+	template<typename T>
+	inline std::size_t SpirvWriter::Append(T value)
+	{
+		return Append(static_cast<UInt32>(value));
 	}
 
 	template<typename T>
@@ -43,6 +80,11 @@ namespace Nz
 	}
 
 	inline unsigned int SpirvWriter::CountWord(const char* str)
+	{
+		return CountWord(std::string_view(str));
+	}
+
+	inline unsigned int Nz::SpirvWriter::CountWord(const std::string& str)
 	{
 		return CountWord(std::string_view(str));
 	}
