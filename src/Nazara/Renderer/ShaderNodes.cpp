@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/ShaderSerializer.hpp>
 #include <Nazara/Renderer/ShaderVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
@@ -150,7 +151,23 @@ namespace Nz::ShaderNodes
 
 	ShaderExpressionType Constant::GetExpressionType() const
 	{
-		return exprType;
+		return std::visit([&](auto&& arg)
+		{
+			using T = std::decay_t<decltype(arg)>;
+
+			if constexpr (std::is_same_v<T, bool>)
+				return ShaderNodes::BasicType::Boolean;
+			else if constexpr (std::is_same_v<T, float>)
+				return ShaderNodes::BasicType::Float1;
+			else if constexpr (std::is_same_v<T, Vector2f>)
+				return ShaderNodes::BasicType::Float2;
+			else if constexpr (std::is_same_v<T, Vector3f>)
+				return ShaderNodes::BasicType::Float3;
+			else if constexpr (std::is_same_v<T, Vector4f>)
+				return ShaderNodes::BasicType::Float4;
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		}, value);
 	}
 
 	void Constant::Visit(ShaderVisitor& visitor)
