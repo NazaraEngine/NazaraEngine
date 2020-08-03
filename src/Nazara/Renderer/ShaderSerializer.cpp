@@ -178,29 +178,30 @@ namespace Nz
 
 	void ShaderSerializerBase::Serialize(ShaderNodes::Constant& node)
 	{
-		Enum(node.exprType);
+		UInt32 typeIndex;
+		if (IsWriting())
+			typeIndex = UInt32(node.value.index());
 
-		switch (node.exprType)
+		Value(typeIndex);
+
+		// Waiting for template lambda in C++20
+		auto SerializeValue = [&](auto dummyType)
 		{
-			case ShaderNodes::BasicType::Boolean:
-				Value(node.values.bool1);
-				break;
+			using T = std::decay_t<decltype(dummyType)>;
 
-			case ShaderNodes::BasicType::Float1:
-				Value(node.values.vec1);
-				break;
+			auto& value = (IsWriting()) ? std::get<T>(node.value) : node.value.emplace<T>();
+			Value(value);
+		};
 
-			case ShaderNodes::BasicType::Float2:
-				Value(node.values.vec2);
-				break;
-
-			case ShaderNodes::BasicType::Float3:
-				Value(node.values.vec3);
-				break;
-
-			case ShaderNodes::BasicType::Float4:
-				Value(node.values.vec4);
-				break;
+		static_assert(std::variant_size_v<decltype(node.value)> == 5);
+		switch (typeIndex)
+		{
+			case 0: SerializeValue(bool()); break;
+			case 1: SerializeValue(float()); break;
+			case 2: SerializeValue(Vector2f()); break;
+			case 3: SerializeValue(Vector3f()); break;
+			case 4: SerializeValue(Vector4f()); break;
+			default: throw std::runtime_error("unexpected data type");
 		}
 	}
 

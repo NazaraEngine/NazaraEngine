@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/GlslWriter.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Renderer/ShaderValidator.hpp>
 #include <stdexcept>
@@ -426,31 +427,23 @@ namespace Nz
 
 	void GlslWriter::Visit(const ShaderNodes::Constant& node)
 	{
-		switch (node.exprType)
+		std::visit([&](auto&& arg)
 		{
-			case ShaderNodes::BasicType::Boolean:
-				Append((node.values.bool1) ? "true" : "false");
-				break;
+			using T = std::decay_t<decltype(arg)>;
 
-			case ShaderNodes::BasicType::Float1:
-				Append(std::to_string(node.values.vec1));
-				break;
-
-			case ShaderNodes::BasicType::Float2:
-				Append("vec2(" + std::to_string(node.values.vec2.x) + ", " + std::to_string(node.values.vec2.y) + ")");
-				break;
-
-			case ShaderNodes::BasicType::Float3:
-				Append("vec3(" + std::to_string(node.values.vec3.x) + ", " + std::to_string(node.values.vec3.y) + ", " + std::to_string(node.values.vec3.z) + ")");
-				break;
-
-			case ShaderNodes::BasicType::Float4:
-				Append("vec4(" + std::to_string(node.values.vec4.x) + ", " + std::to_string(node.values.vec4.y) + ", " + std::to_string(node.values.vec4.z) + ", " + std::to_string(node.values.vec4.w) + ")");
-				break;
-
-			default:
-				throw std::runtime_error("Unhandled expression type");
-		}
+			if constexpr (std::is_same_v<T, bool>)
+				Append((arg) ? "true" : "false");
+			else if constexpr (std::is_same_v<T, float>)
+				Append(std::to_string(arg));
+			else if constexpr (std::is_same_v<T, Vector2f>)
+				Append("vec2(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
+			else if constexpr (std::is_same_v<T, Vector3f>)
+				Append("vec3(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ")");
+			else if constexpr (std::is_same_v<T, Vector4f>)
+				Append("vec4(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ", " + std::to_string(arg.w) + ")");
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		}, node.value);
 	}
 
 	void GlslWriter::Visit(const ShaderNodes::DeclareVariable& node)

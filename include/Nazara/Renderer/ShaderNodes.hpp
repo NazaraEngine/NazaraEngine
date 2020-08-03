@@ -220,22 +220,17 @@ namespace Nz
 			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderVisitor& visitor) override;
 
-			BasicType exprType;
+			using Variant = std::variant<
+				bool,
+				float,
+				Vector2f,
+				Vector3f,
+				Vector4f
+			>;
 
-			union
-			{
-				bool bool1;
-				float vec1;
-				Vector2f vec2;
-				Vector3f vec3;
-				Vector4f vec4;
-			} values;
+			Variant value;
 
-			static inline std::shared_ptr<Constant> Build(bool value);
-			static inline std::shared_ptr<Constant> Build(float value);
-			static inline std::shared_ptr<Constant> Build(const Vector2f& value);
-			static inline std::shared_ptr<Constant> Build(const Vector3f& value);
-			static inline std::shared_ptr<Constant> Build(const Vector4f& value);
+			template<typename T> static std::shared_ptr<Constant> Build(const T& value);
 		};
 
 		struct NAZARA_RENDERER_API SwizzleOp : public Expression

@@ -239,47 +239,11 @@ namespace Nz::ShaderNodes
 	{
 	}
 
-	inline std::shared_ptr<Constant> Constant::Build(bool value)
+	template<typename T>
+	std::shared_ptr<Constant> Nz::ShaderNodes::Constant::Build(const T& value)
 	{
 		auto node = std::make_shared<Constant>();
-		node->exprType = BasicType::Boolean;
-		node->values.bool1 = value;
-
-		return node;
-	}
-
-	inline std::shared_ptr<Constant> Constant::Build(float value)
-	{
-		auto node = std::make_shared<Constant>();
-		node->exprType = BasicType::Float1;
-		node->values.vec1 = value;
-
-		return node;
-	}
-
-	inline std::shared_ptr<Constant> Constant::Build(const Vector2f& value)
-	{
-		auto node = std::make_shared<Constant>();
-		node->exprType = BasicType::Float2;
-		node->values.vec2 = value;
-
-		return node;
-	}
-
-	inline std::shared_ptr<Constant> Constant::Build(const Vector3f& value)
-	{
-		auto node = std::make_shared<Constant>();
-		node->exprType = BasicType::Float3;
-		node->values.vec3 = value;
-
-		return node;
-	}
-
-	inline std::shared_ptr<Constant> Constant::Build(const Vector4f& value)
-	{
-		auto node = std::make_shared<Constant>();
-		node->exprType = BasicType::Float4;
-		node->values.vec4 = value;
+		node->value = value;
 
 		return node;
 	}
