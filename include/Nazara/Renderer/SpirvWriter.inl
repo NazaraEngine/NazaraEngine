@@ -9,12 +9,12 @@
 
 namespace Nz
 {
-	inline std::size_t SpirvWriter::Append(const char* str)
+	inline std::size_t SpirvWriter::Section::Append(const char* str)
 	{
 		return Append(std::string_view(str));
 	}
 
-	inline std::size_t SpirvWriter::Append(const std::string_view& str)
+	inline std::size_t SpirvWriter::Section::Append(const std::string_view& str)
 	{
 		std::size_t offset = GetOutputOffset();
 
@@ -35,12 +35,20 @@ namespace Nz
 		return offset;
 	}
 
-	inline std::size_t SpirvWriter::Append(const std::string& str)
+	inline std::size_t SpirvWriter::Section::Append(const std::string& str)
 	{
 		return Append(std::string_view(str));
 	}
 
-	inline std::size_t SpirvWriter::Append(std::initializer_list<UInt32> codepoints)
+	inline std::size_t SpirvWriter::Section::Append(UInt32 value)
+	{
+		std::size_t offset = GetOutputOffset();
+		data.push_back(value);
+
+		return offset;
+	}
+
+	inline std::size_t SpirvWriter::Section::Append(std::initializer_list<UInt32> codepoints)
 	{
 		std::size_t offset = GetOutputOffset();
 
@@ -51,10 +59,10 @@ namespace Nz
 	}
 
 	template<typename ...Args>
-	inline std::size_t SpirvWriter::Append(Opcode opcode, const Args&... args)
+	std::size_t SpirvWriter::Section::Append(Opcode opcode, const Args&... args)
 	{
 		unsigned int wordCount = 1 + (CountWord(args) + ... + 0);
-		std::size_t offset = Append(opcode, wordCount);
+		std::size_t offset = Append(opcode, WordCount{ wordCount });
 		if constexpr (sizeof...(args) > 0)
 			(Append(args), ...);
 
@@ -62,36 +70,41 @@ namespace Nz
 	}
 
 	template<typename T>
-	inline std::size_t SpirvWriter::Append(T value)
+	std::size_t SpirvWriter::Section::Append(T value)
 	{
 		return Append(static_cast<UInt32>(value));
 	}
 
 	template<typename T>
-	inline unsigned int SpirvWriter::CountWord(const T& value)
+	unsigned int SpirvWriter::Section::CountWord(const T& value)
 	{
 		return 1;
 	}
 
 	template<typename T1, typename T2, typename ...Args>
-	unsigned int SpirvWriter::CountWord(const T1& value, const T2& value2, const Args&... rest)
+	unsigned int SpirvWriter::Section::CountWord(const T1& value, const T2& value2, const Args&... rest)
 	{
 		return CountWord(value) + CountWord(value2) + (CountWord(rest) + ...);
 	}
 
-	inline unsigned int SpirvWriter::CountWord(const char* str)
+	inline unsigned int SpirvWriter::Section::CountWord(const char* str)
 	{
 		return CountWord(std::string_view(str));
 	}
 
-	inline unsigned int Nz::SpirvWriter::CountWord(const std::string& str)
+	inline unsigned int Nz::SpirvWriter::Section::CountWord(const std::string& str)
 	{
 		return CountWord(std::string_view(str));
 	}
 
-	inline unsigned int SpirvWriter::CountWord(const std::string_view& str)
+	inline unsigned int SpirvWriter::Section::CountWord(const std::string_view& str)
 	{
 		return (static_cast<unsigned int>(str.size() + 1) + sizeof(UInt32) - 1) / sizeof(UInt32); //< + 1 for null character
+	}
+
+	std::size_t SpirvWriter::Section::GetOutputOffset() const
+	{
+		return data.size();
 	}
 }
 
