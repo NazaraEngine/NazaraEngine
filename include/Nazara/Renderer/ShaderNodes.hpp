@@ -21,7 +21,7 @@
 
 namespace Nz
 {
-	class ShaderVisitor;
+	class ShaderAstVisitor;
 
 	namespace ShaderNodes
 	{
@@ -37,7 +37,7 @@ namespace Nz
 				inline NodeType GetType() const;
 				inline bool IsStatement() const;
 
-				virtual void Visit(ShaderVisitor& visitor) = 0;
+				virtual void Visit(ShaderAstVisitor& visitor) = 0;
 
 				static inline unsigned int GetComponentCount(BasicType type);
 				static inline BasicType GetComponentType(BasicType type);
@@ -77,7 +77,7 @@ namespace Nz
 		{
 			inline ExpressionStatement();
 
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			ExpressionPtr expression;
 
@@ -90,7 +90,7 @@ namespace Nz
 		{
 			inline ConditionalStatement();
 
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			std::string conditionName;
 			StatementPtr statement;
@@ -102,7 +102,7 @@ namespace Nz
 		{
 			inline StatementBlock();
 
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			std::vector<StatementPtr> statements;
 
@@ -113,7 +113,7 @@ namespace Nz
 		{
 			inline DeclareVariable();
 
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			LocalVariablePtr variable;
 			ExpressionPtr expression;
@@ -127,7 +127,7 @@ namespace Nz
 
 			ExpressionCategory GetExpressionCategory() const override;
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			VariablePtr var;
 
@@ -140,7 +140,7 @@ namespace Nz
 
 			ExpressionCategory GetExpressionCategory() const override;
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			std::size_t memberIndex;
 			ExpressionPtr structExpr;
@@ -156,7 +156,7 @@ namespace Nz
 			inline AssignOp();
 
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			AssignType    op;
 			ExpressionPtr left;
@@ -170,7 +170,7 @@ namespace Nz
 			inline BinaryOp();
 
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			BinaryType    op;
 			ExpressionPtr left;
@@ -185,7 +185,7 @@ namespace Nz
 
 			inline Branch();
 
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			std::vector<ConditionalStatement> condStatements;
 			StatementPtr elseStatement;
@@ -204,7 +204,7 @@ namespace Nz
 			inline Cast();
 
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			BasicType exprType;
 			std::array<ExpressionPtr, 4> expressions;
@@ -218,7 +218,7 @@ namespace Nz
 			inline Constant();
 
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			using Variant = std::variant<
 				bool,
@@ -239,7 +239,7 @@ namespace Nz
 
 			ExpressionCategory GetExpressionCategory() const override;
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			std::array<SwizzleComponent, 4> components;
 			std::size_t componentCount;
@@ -255,7 +255,7 @@ namespace Nz
 			inline Sample2D();
 
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			ExpressionPtr sampler;
 			ExpressionPtr coordinates;
@@ -270,7 +270,7 @@ namespace Nz
 			inline IntrinsicCall();
 
 			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderVisitor& visitor) override;
+			void Visit(ShaderAstVisitor& visitor) override;
 
 			IntrinsicType intrinsic;
 			std::vector<ExpressionPtr> parameters;

@@ -15,13 +15,13 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderVisitor
+	class NAZARA_RENDERER_API ShaderAstVisitor
 	{
 		public:
-			ShaderVisitor() = default;
-			ShaderVisitor(const ShaderVisitor&) = delete;
-			ShaderVisitor(ShaderVisitor&&) = delete;
-			virtual ~ShaderVisitor();
+			ShaderAstVisitor() = default;
+			ShaderAstVisitor(const ShaderAstVisitor&) = delete;
+			ShaderAstVisitor(ShaderAstVisitor&&) = delete;
+			virtual ~ShaderAstVisitor();
 
 			void EnableCondition(const std::string& name, bool cond);
 

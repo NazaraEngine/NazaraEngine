@@ -2,14 +2,14 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstVisitor.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
-	ShaderVisitor::~ShaderVisitor() = default;
+	ShaderAstVisitor::~ShaderAstVisitor() = default;
 
-	void ShaderVisitor::EnableCondition(const std::string& name, bool cond)
+	void ShaderAstVisitor::EnableCondition(const std::string& name, bool cond)
 	{
 		if (cond)
 			m_conditions.insert(name);
@@ -17,12 +17,12 @@ namespace Nz
 			m_conditions.erase(name);
 	}
 
-	bool ShaderVisitor::IsConditionEnabled(const std::string& name) const
+	bool ShaderAstVisitor::IsConditionEnabled(const std::string& name) const
 	{
 		return m_conditions.count(name) != 0;
 	}
 
-	void ShaderVisitor::Visit(const ShaderNodes::NodePtr& node)
+	void ShaderAstVisitor::Visit(const ShaderNodes::NodePtr& node)
 	{
 		node->Visit(*this);
 	}

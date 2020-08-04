@@ -4,8 +4,8 @@
 
 #include <Nazara/Renderer/ShaderNodes.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Renderer/ShaderSerializer.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstSerializer.hpp>
+#include <Nazara/Renderer/ShaderAstVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -18,26 +18,26 @@ namespace Nz::ShaderNodes
 		return ExpressionCategory::RValue;
 	}
 
-	void ExpressionStatement::Visit(ShaderVisitor& visitor)
+	void ExpressionStatement::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
 
 
-	void ConditionalStatement::Visit(ShaderVisitor& visitor)
+	void ConditionalStatement::Visit(ShaderAstVisitor& visitor)
 	{
 		if (visitor.IsConditionEnabled(conditionName))
 			statement->Visit(visitor);
 	}
 
 
-	void StatementBlock::Visit(ShaderVisitor& visitor)
+	void StatementBlock::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
 
 
-	void DeclareVariable::Visit(ShaderVisitor& visitor)
+	void DeclareVariable::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -54,7 +54,7 @@ namespace Nz::ShaderNodes
 		return var->type;
 	}
 
-	void Identifier::Visit(ShaderVisitor& visitor)
+	void Identifier::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -69,7 +69,7 @@ namespace Nz::ShaderNodes
 		return exprType;
 	}
 
-	void AccessMember::Visit(ShaderVisitor& visitor)
+	void AccessMember::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -79,7 +79,7 @@ namespace Nz::ShaderNodes
 		return left->GetExpressionType();
 	}
 
-	void AssignOp::Visit(ShaderVisitor& visitor)
+	void AssignOp::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -137,13 +137,13 @@ namespace Nz::ShaderNodes
 		return *exprType;
 	}
 
-	void BinaryOp::Visit(ShaderVisitor& visitor)
+	void BinaryOp::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
 
 
-	void Branch::Visit(ShaderVisitor& visitor)
+	void Branch::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -170,7 +170,7 @@ namespace Nz::ShaderNodes
 		}, value);
 	}
 
-	void Constant::Visit(ShaderVisitor& visitor)
+	void Constant::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -180,7 +180,7 @@ namespace Nz::ShaderNodes
 		return exprType;
 	}
 
-	void Cast::Visit(ShaderVisitor& visitor)
+	void Cast::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -199,7 +199,7 @@ namespace Nz::ShaderNodes
 		return static_cast<BasicType>(UnderlyingCast(GetComponentType(std::get<BasicType>(exprType))) + componentCount - 1);
 	}
 
-	void SwizzleOp::Visit(ShaderVisitor& visitor)
+	void SwizzleOp::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -210,7 +210,7 @@ namespace Nz::ShaderNodes
 		return BasicType::Float4;
 	}
 
-	void Sample2D::Visit(ShaderVisitor& visitor)
+	void Sample2D::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
@@ -231,7 +231,7 @@ namespace Nz::ShaderNodes
 		return BasicType::Void;
 	}
 
-	void IntrinsicCall::Visit(ShaderVisitor& visitor)
+	void IntrinsicCall::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}
