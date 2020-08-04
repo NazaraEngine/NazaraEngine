@@ -2,13 +2,13 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/ShaderSerializer.hpp>
+#include <Nazara/Renderer/ShaderAstSerializer.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
 	template<typename T>
-	void ShaderSerializerBase::Container(T& container)
+	void ShaderAstSerializerBase::Container(T& container)
 	{
 		bool isWriting = IsWriting();
 
@@ -23,7 +23,7 @@ namespace Nz
 
 
 	template<typename T>
-	void ShaderSerializerBase::Enum(T& enumVal)
+	void ShaderAstSerializerBase::Enum(T& enumVal)
 	{
 		bool isWriting = IsWriting();
 
@@ -37,7 +37,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void ShaderSerializerBase::OptEnum(std::optional<T>& optVal)
+	void ShaderAstSerializerBase::OptEnum(std::optional<T>& optVal)
 	{
 		bool isWriting = IsWriting();
 
@@ -55,7 +55,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void ShaderSerializerBase::OptVal(std::optional<T>& optVal)
+	void ShaderAstSerializerBase::OptVal(std::optional<T>& optVal)
 	{
 		bool isWriting = IsWriting();
 
@@ -73,7 +73,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void ShaderSerializerBase::Node(std::shared_ptr<T>& node)
+	void ShaderAstSerializerBase::Node(std::shared_ptr<T>& node)
 	{
 		bool isWriting = IsWriting();
 
@@ -87,7 +87,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void ShaderSerializerBase::Variable(std::shared_ptr<T>& var)
+	void ShaderAstSerializerBase::Variable(std::shared_ptr<T>& var)
 	{
 		bool isWriting = IsWriting();
 
@@ -100,7 +100,7 @@ namespace Nz
 			var = std::static_pointer_cast<T>(value);
 	}
 
-	inline void ShaderSerializerBase::Value(std::size_t& val)
+	inline void ShaderAstSerializerBase::Value(std::size_t& val)
 	{
 		bool isWriting = IsWriting();
 
@@ -113,12 +113,12 @@ namespace Nz
 			val = static_cast<std::size_t>(value);
 	}
 
-	inline ShaderSerializer::ShaderSerializer(ByteStream& stream) :
+	inline ShaderAstSerializer::ShaderAstSerializer(ByteStream& stream) :
 	m_stream(stream)
 	{
 	}
 
-	inline ShaderUnserializer::ShaderUnserializer(ByteStream& stream) :
+	inline ShaderAstUnserializer::ShaderAstUnserializer(ByteStream& stream) :
 	m_stream(stream)
 	{
 	}

@@ -11,7 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderVarVisitor.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <set>
 #include <sstream>
@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API GlslWriter : public ShaderWriter, public ShaderVarVisitor, public ShaderVisitor
+	class NAZARA_RENDERER_API GlslWriter : public ShaderWriter, public ShaderVarVisitor, public ShaderAstVisitor
 	{
 		public:
 			struct Environment;
@@ -60,7 +60,7 @@ namespace Nz
 			void LeaveScope();
 
 			using ShaderVarVisitor::Visit;
-			using ShaderVisitor::Visit;
+			using ShaderAstVisitor::Visit;
 			void Visit(const ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired = false);
 			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;

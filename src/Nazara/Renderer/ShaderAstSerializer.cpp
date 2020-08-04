@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/ShaderSerializer.hpp>
+#include <Nazara/Renderer/ShaderAstSerializer.hpp>
 #include <Nazara/Renderer/ShaderVarVisitor.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstVisitor.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -14,10 +14,10 @@ namespace Nz
 		constexpr UInt32 s_magicNumber = 0x4E534852;
 		constexpr UInt32 s_currentVersion = 1;
 
-		class ShaderSerializerVisitor : public ShaderVisitor, public ShaderVarVisitor
+		class ShaderSerializerVisitor : public ShaderAstVisitor, public ShaderVarVisitor
 		{
 			public:
-				ShaderSerializerVisitor(ShaderSerializerBase& serializer) :
+				ShaderSerializerVisitor(ShaderAstSerializerBase& serializer) :
 				m_serializer(serializer)
 				{
 				}
@@ -126,32 +126,32 @@ namespace Nz
 					m_serializer.Serialize(const_cast<T&>(node));
 				}
 
-				ShaderSerializerBase& m_serializer;
+				ShaderAstSerializerBase& m_serializer;
 		};
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::AccessMember& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::AccessMember& node)
 	{
 		Value(node.memberIndex);
 		Node(node.structExpr);
 		Type(node.exprType);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::AssignOp& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::AssignOp& node)
 	{
 		Enum(node.op);
 		Node(node.left);
 		Node(node.right);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::BinaryOp& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::BinaryOp& node)
 	{
 		Enum(node.op);
 		Node(node.left);
 		Node(node.right);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::Branch& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::Branch& node)
 	{
 		Container(node.condStatements);
 		for (auto& condStatement : node.condStatements)
@@ -163,20 +163,20 @@ namespace Nz
 		Node(node.elseStatement);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::BuiltinVariable& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::BuiltinVariable& node)
 	{
 		Enum(node.entry);
 		Type(node.type);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::Cast& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::Cast& node)
 	{
 		Enum(node.exprType);
 		for (auto& expr : node.expressions)
 			Node(expr);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::Constant& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::Constant& node)
 	{
 		UInt32 typeIndex;
 		if (IsWriting())
@@ -205,23 +205,23 @@ namespace Nz
 		}
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::DeclareVariable& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::DeclareVariable& node)
 	{
 		Variable(node.variable);
 		Node(node.expression);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::ExpressionStatement& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::ExpressionStatement& node)
 	{
 		Node(node.expression);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::Identifier& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::Identifier& node)
 	{
 		Variable(node.var);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::IntrinsicCall& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::IntrinsicCall& node)
 	{
 		Enum(node.intrinsic);
 		Container(node.parameters);
@@ -229,26 +229,26 @@ namespace Nz
 			Node(param);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::NamedVariable& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::NamedVariable& node)
 	{
 		Value(node.name);
 		Type(node.type);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::Sample2D& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::Sample2D& node)
 	{
 		Node(node.sampler);
 		Node(node.coordinates);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::StatementBlock& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::StatementBlock& node)
 	{
 		Container(node.statements);
 		for (auto& statement : node.statements)
 			Node(statement);
 	}
 
-	void ShaderSerializerBase::Serialize(ShaderNodes::SwizzleOp& node)
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::SwizzleOp& node)
 	{
 		Value(node.componentCount);
 		Node(node.expression);
@@ -258,7 +258,7 @@ namespace Nz
 	}
 
 
-	void ShaderSerializer::Serialize(const ShaderAst& shader)
+	void ShaderAstSerializer::Serialize(const ShaderAst& shader)
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
@@ -346,12 +346,12 @@ namespace Nz
 		m_stream.FlushBits();
 	}
 
-	bool ShaderSerializer::IsWriting() const
+	bool ShaderAstSerializer::IsWriting() const
 	{
 		return true;
 	}
 
-	void ShaderSerializer::Node(ShaderNodes::NodePtr& node)
+	void ShaderAstSerializer::Node(ShaderNodes::NodePtr& node)
 	{
 		ShaderNodes::NodeType nodeType = (node) ? node->GetType() : ShaderNodes::NodeType::None;
 		m_stream << static_cast<Int32>(nodeType);
@@ -363,7 +363,7 @@ namespace Nz
 		}
 	}
 
-	void ShaderSerializer::Type(ShaderExpressionType& type)
+	void ShaderAstSerializer::Type(ShaderExpressionType& type)
 	{
 		std::visit([&](auto&& arg)
 		{
@@ -383,57 +383,57 @@ namespace Nz
 		}, type);
 	}
 
-	void ShaderSerializer::Node(const ShaderNodes::NodePtr& node)
+	void ShaderAstSerializer::Node(const ShaderNodes::NodePtr& node)
 	{
 		Node(const_cast<ShaderNodes::NodePtr&>(node)); //< Yes const_cast is ugly but it won't be used for writing
 	}
 
-	void ShaderSerializer::Value(bool& val)
+	void ShaderAstSerializer::Value(bool& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(float& val)
+	void ShaderAstSerializer::Value(float& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(std::string& val)
+	void ShaderAstSerializer::Value(std::string& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(Vector2f& val)
+	void ShaderAstSerializer::Value(Vector2f& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(Vector3f& val)
+	void ShaderAstSerializer::Value(Vector3f& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(Vector4f& val)
+	void ShaderAstSerializer::Value(Vector4f& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(UInt8& val)
+	void ShaderAstSerializer::Value(UInt8& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(UInt16& val)
+	void ShaderAstSerializer::Value(UInt16& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Value(UInt32& val)
+	void ShaderAstSerializer::Value(UInt32& val)
 	{
 		m_stream << val;
 	}
 
-	void ShaderSerializer::Variable(ShaderNodes::VariablePtr& var)
+	void ShaderAstSerializer::Variable(ShaderNodes::VariablePtr& var)
 	{
 		ShaderNodes::VariableType nodeType = (var) ? var->GetType() : ShaderNodes::VariableType::None;
 		m_stream << static_cast<Int32>(nodeType);
@@ -445,7 +445,7 @@ namespace Nz
 		}
 	}
 
-	ShaderAst ShaderUnserializer::Unserialize()
+	ShaderAst ShaderAstUnserializer::Unserialize()
 	{
 		UInt32 magicNumber;
 		UInt32 version;
@@ -558,12 +558,12 @@ namespace Nz
 		return shader;
 	}
 
-	bool ShaderUnserializer::IsWriting() const
+	bool ShaderAstUnserializer::IsWriting() const
 	{
 		return false;
 	}
 
-	void ShaderUnserializer::Node(ShaderNodes::NodePtr& node)
+	void ShaderAstUnserializer::Node(ShaderNodes::NodePtr& node)
 	{
 		Int32 nodeTypeInt;
 		m_stream >> nodeTypeInt;
@@ -599,7 +599,7 @@ namespace Nz
 		}
 	}
 
-	void ShaderUnserializer::Type(ShaderExpressionType& type)
+	void ShaderAstUnserializer::Type(ShaderExpressionType& type)
 	{
 		UInt8 typeIndex;
 		Value(typeIndex);
@@ -629,52 +629,52 @@ namespace Nz
 		}
 	}
 
-	void ShaderUnserializer::Value(bool& val)
+	void ShaderAstUnserializer::Value(bool& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(float& val)
+	void ShaderAstUnserializer::Value(float& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(std::string& val)
+	void ShaderAstUnserializer::Value(std::string& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(Vector2f& val)
+	void ShaderAstUnserializer::Value(Vector2f& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(Vector3f& val)
+	void ShaderAstUnserializer::Value(Vector3f& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(Vector4f& val)
+	void ShaderAstUnserializer::Value(Vector4f& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(UInt8& val)
+	void ShaderAstUnserializer::Value(UInt8& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(UInt16& val)
+	void ShaderAstUnserializer::Value(UInt16& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Value(UInt32& val)
+	void ShaderAstUnserializer::Value(UInt32& val)
 	{
 		m_stream >> val;
 	}
 
-	void ShaderUnserializer::Variable(ShaderNodes::VariablePtr& var)
+	void ShaderAstUnserializer::Variable(ShaderNodes::VariablePtr& var)
 	{
 		Int32 nodeTypeInt;
 		m_stream >> nodeTypeInt;
@@ -707,7 +707,7 @@ namespace Nz
 		ByteArray byteArray;
 		ByteStream stream(&byteArray, OpenModeFlags(OpenMode_WriteOnly));
 
-		ShaderSerializer serializer(stream);
+		ShaderAstSerializer serializer(stream);
 		serializer.Serialize(shader);
 
 		return byteArray;
@@ -715,7 +715,7 @@ namespace Nz
 
 	ShaderAst UnserializeShader(ByteStream& stream)
 	{
-		ShaderUnserializer unserializer(stream);
+		ShaderAstUnserializer unserializer(stream);
 		return unserializer.Unserialize();
 	}
 }

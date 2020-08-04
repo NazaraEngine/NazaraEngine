@@ -5,7 +5,7 @@
 #include <Nazara/Renderer/SpirvWriter.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Renderer/ShaderValidator.hpp>
+#include <Nazara/Renderer/ShaderAstValidator.hpp>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
 #include <SpirV/spirv.h>
@@ -22,7 +22,7 @@ namespace Nz
 	{
 		using ConstantVariant = ShaderNodes::Constant::Variant;
 
-		class PreVisitor : public ShaderRecursiveVisitor, public ShaderVarVisitor
+		class PreVisitor : public ShaderAstRecursiveVisitor, public ShaderVarVisitor
 		{
 			public:
 				using BuiltinContainer = std::unordered_set<std::shared_ptr<const ShaderNodes::BuiltinVariable>>;
@@ -31,7 +31,7 @@ namespace Nz
 				using LocalContainer = std::unordered_set<std::shared_ptr<const ShaderNodes::LocalVariable>>;
 				using ParameterContainer = std::unordered_set< std::shared_ptr<const ShaderNodes::ParameterVariable>>;
 
-				using ShaderRecursiveVisitor::Visit;
+				using ShaderAstRecursiveVisitor::Visit;
 				using ShaderVarVisitor::Visit;
 
 				void Visit(const ShaderNodes::Constant& node) override
@@ -68,26 +68,26 @@ namespace Nz
 					},
 					node.value);
 
-					ShaderRecursiveVisitor::Visit(node);
+					ShaderAstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(const ShaderNodes::DeclareVariable& node) override
 				{
 					Visit(node.variable);
 
-					ShaderRecursiveVisitor::Visit(node);
+					ShaderAstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(const ShaderNodes::Identifier& node) override
 				{
 					Visit(node.var);
 
-					ShaderRecursiveVisitor::Visit(node);
+					ShaderAstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(const ShaderNodes::IntrinsicCall& node) override
 				{
-					ShaderRecursiveVisitor::Visit(node);
+					ShaderAstRecursiveVisitor::Visit(node);
 
 					switch (node.intrinsic)
 					{

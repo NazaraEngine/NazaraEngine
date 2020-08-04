@@ -12,18 +12,18 @@
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
-#include <Nazara/Renderer/ShaderRecursiveVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstRecursiveVisitor.hpp>
 #include <Nazara/Renderer/ShaderVarVisitor.hpp>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderValidator : public ShaderRecursiveVisitor, public ShaderVarVisitor
+	class NAZARA_RENDERER_API ShaderAstValidator : public ShaderAstRecursiveVisitor, public ShaderVarVisitor
 	{
 		public:
-			inline ShaderValidator(const ShaderAst& shader);
-			ShaderValidator(const ShaderValidator&) = delete;
-			ShaderValidator(ShaderValidator&&) = delete;
-			~ShaderValidator() = default;
+			inline ShaderAstValidator(const ShaderAst& shader);
+			ShaderAstValidator(const ShaderAstValidator&) = delete;
+			ShaderAstValidator(ShaderAstValidator&&) = delete;
+			~ShaderAstValidator() = default;
 
 			bool Validate(std::string* error = nullptr);
 
@@ -33,7 +33,7 @@ namespace Nz
 			void TypeMustMatch(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right);
 			void TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right);
 
-			using ShaderRecursiveVisitor::Visit;
+			using ShaderAstRecursiveVisitor::Visit;
 			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;
 			void Visit(const ShaderNodes::BinaryOp& node) override;
@@ -65,6 +65,6 @@ namespace Nz
 	NAZARA_RENDERER_API bool ValidateShader(const ShaderAst& shader, std::string* error = nullptr);
 }
 
-#include <Nazara/Renderer/ShaderValidator.inl>
+#include <Nazara/Renderer/ShaderAstValidator.inl>
 
 #endif

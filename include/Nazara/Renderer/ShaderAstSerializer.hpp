@@ -17,13 +17,13 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderSerializerBase
+	class NAZARA_RENDERER_API ShaderAstSerializerBase
 	{
 		public:
-			ShaderSerializerBase() = default;
-			ShaderSerializerBase(const ShaderSerializerBase&) = delete;
-			ShaderSerializerBase(ShaderSerializerBase&&) = delete;
-			~ShaderSerializerBase() = default;
+			ShaderAstSerializerBase() = default;
+			ShaderAstSerializerBase(const ShaderAstSerializerBase&) = delete;
+			ShaderAstSerializerBase(ShaderAstSerializerBase&&) = delete;
+			~ShaderAstSerializerBase() = default;
 
 			void Serialize(ShaderNodes::AccessMember& node);
 			void Serialize(ShaderNodes::AssignOp& node);
@@ -69,11 +69,11 @@ namespace Nz
 			template<typename T> void Variable(std::shared_ptr<T>& var);
 	};
 
-	class NAZARA_RENDERER_API ShaderSerializer final : public ShaderSerializerBase
+	class NAZARA_RENDERER_API ShaderAstSerializer final : public ShaderAstSerializerBase
 	{
 		public:
-			inline ShaderSerializer(ByteStream& stream);
-			~ShaderSerializer() = default;
+			inline ShaderAstSerializer(ByteStream& stream);
+			~ShaderAstSerializer() = default;
 
 			void Serialize(const ShaderAst& shader);
 
@@ -96,11 +96,11 @@ namespace Nz
 			ByteStream& m_stream;
 	};
 
-	class NAZARA_RENDERER_API ShaderUnserializer final : public ShaderSerializerBase
+	class NAZARA_RENDERER_API ShaderAstUnserializer final : public ShaderAstSerializerBase
 	{
 		public:
-			ShaderUnserializer(ByteStream& stream);
-			~ShaderUnserializer() = default;
+			ShaderAstUnserializer(ByteStream& stream);
+			~ShaderAstUnserializer() = default;
 
 			ShaderAst Unserialize();
 
@@ -126,6 +126,6 @@ namespace Nz
 	NAZARA_RENDERER_API ShaderAst UnserializeShader(ByteStream& stream);
 }
 
-#include <Nazara/Renderer/ShaderSerializer.inl>
+#include <Nazara/Renderer/ShaderAstSerializer.inl>
 
 #endif

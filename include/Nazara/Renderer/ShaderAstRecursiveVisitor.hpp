@@ -9,17 +9,17 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstVisitor.hpp>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderRecursiveVisitor : public ShaderVisitor
+	class NAZARA_RENDERER_API ShaderAstRecursiveVisitor : public ShaderAstVisitor
 	{
 		public:
-			ShaderRecursiveVisitor() = default;
-			~ShaderRecursiveVisitor() = default;
+			ShaderAstRecursiveVisitor() = default;
+			~ShaderAstRecursiveVisitor() = default;
 
-			using ShaderVisitor::Visit;
+			using ShaderAstVisitor::Visit;
 
 			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;
@@ -37,6 +37,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Renderer/ShaderRecursiveVisitor.inl>
+#include <Nazara/Renderer/ShaderAstRecursiveVisitor.inl>
 
 #endif

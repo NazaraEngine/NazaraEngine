@@ -8,7 +8,7 @@
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
-#include <Nazara/Renderer/ShaderSerializer.hpp>
+#include <Nazara/Renderer/ShaderAstSerializer.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

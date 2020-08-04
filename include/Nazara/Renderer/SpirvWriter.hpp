@@ -11,7 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
 #include <Nazara/Renderer/ShaderVarVisitor.hpp>
-#include <Nazara/Renderer/ShaderVisitor.hpp>
+#include <Nazara/Renderer/ShaderAstVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <string>
@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API SpirvWriter : public ShaderVisitor
+	class NAZARA_RENDERER_API SpirvWriter : public ShaderAstVisitor
 	{
 		public:
 			struct Environment;
@@ -84,7 +84,7 @@ namespace Nz
 
 			UInt32 RegisterType(ShaderExpressionType type);
 
-			using ShaderVisitor::Visit;
+			using ShaderAstVisitor::Visit;
 			void Visit(const ShaderNodes::AccessMember& node) override;
 			void Visit(const ShaderNodes::AssignOp& node) override;
 			void Visit(const ShaderNodes::Branch& node) override;

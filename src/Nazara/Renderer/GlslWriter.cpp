@@ -5,7 +5,7 @@
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Renderer/ShaderValidator.hpp>
+#include <Nazara/Renderer/ShaderAstValidator.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
@@ -305,7 +305,7 @@ namespace Nz
 		if (enclose)
 			Append("(");
 
-		ShaderVisitor::Visit(expr);
+		ShaderAstVisitor::Visit(expr);
 
 		if (enclose)
 			Append(")");
