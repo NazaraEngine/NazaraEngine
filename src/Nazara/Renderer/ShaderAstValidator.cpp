@@ -230,9 +230,14 @@ namespace Nz
 	{
 		assert(m_context);
 
+		if (node.variable->GetType() != ShaderNodes::VariableType::LocalVariable)
+			throw AstError{ "Only local variables can be declared in a statement" };
+
+		const auto& localVar = static_cast<const ShaderNodes::LocalVariable&>(*node.variable);
+
 		auto& local = m_context->declaredLocals.emplace_back();
-		local.name = node.variable->name;
-		local.type = node.variable->type;
+		local.name = localVar.name;
+		local.type = localVar.type;
 
 		ShaderAstRecursiveVisitor::Visit(node);
 	}

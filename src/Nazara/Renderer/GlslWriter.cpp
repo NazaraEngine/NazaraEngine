@@ -448,9 +448,13 @@ namespace Nz
 
 	void GlslWriter::Visit(const ShaderNodes::DeclareVariable& node)
 	{
-		Append(node.variable->type);
+		assert(node.variable->GetType() == ShaderNodes::VariableType::LocalVariable);
+
+		const auto& localVar = static_cast<const ShaderNodes::LocalVariable&>(*node.variable);
+
+		Append(localVar.type);
 		Append(" ");
-		Append(node.variable->name);
+		Append(localVar.name);
 		if (node.expression)
 		{
 			Append(" = ");
