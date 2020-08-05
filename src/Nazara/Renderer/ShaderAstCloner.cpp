@@ -13,91 +13,80 @@ namespace Nz
 		ShaderAstVisitor::Visit(statement);
 
 		if (!m_expressionStack.empty() || !m_variableStack.empty() || m_statementStack.size() != 1)
-			throw std::runtime_error("An error occured during clone");
+			throw std::runtime_error("An error occurred during clone");
 
 		return PopStatement();
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::ExpressionPtr& expr)
+	ShaderNodes::ExpressionPtr ShaderAstCloner::CloneExpression(const ShaderNodes::ExpressionPtr& expr)
 	{
-		if (expr)
-			ShaderAstVisitor::Visit(expr);
-		else
-			PushExpression(nullptr);
+		if (!expr)
+			return nullptr;
+
+		ShaderAstVisitor::Visit(expr);
+		return PopExpression();
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::StatementPtr& statement)
+	ShaderNodes::StatementPtr ShaderAstCloner::CloneStatement(const ShaderNodes::StatementPtr& statement)
 	{
-		if (statement)
-			ShaderAstVisitor::Visit(statement);
-		else
-			PushStatement(nullptr);
+		if (!statement)
+			return nullptr;
+
+		ShaderAstVisitor::Visit(statement);
+		return PopStatement();
+	}
+
+	ShaderNodes::VariablePtr ShaderAstCloner::CloneVariable(const ShaderNodes::VariablePtr& variable)
+	{
+		if (!variable)
+			return nullptr;
+
+		ShaderVarVisitor::Visit(variable);
+		return PopVariable();
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::AccessMember& node)
 	{
-		Visit(node.structExpr);
-
-		PushExpression(ShaderNodes::AccessMember::Build(PopExpression(), node.memberIndex, node.exprType));
+		PushExpression(ShaderNodes::AccessMember::Build(CloneExpression(node.structExpr), node.memberIndex, node.exprType));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::AssignOp& node)
 	{
-		Visit(node.left);
-		Visit(node.right);
-
-		auto right = PopExpression();
-		auto left = PopExpression();
-
-		PushExpression(ShaderNodes::AssignOp::Build(node.op, std::move(left), std::move(right)));
+		PushExpression(ShaderNodes::AssignOp::Build(node.op, CloneExpression(node.left), CloneExpression(node.right)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::BinaryOp& node)
 	{
-		Visit(node.left);
-		Visit(node.right);
-
-		auto right = PopExpression();
-		auto left = PopExpression();
-
-		PushExpression(ShaderNodes::BinaryOp::Build(node.op, std::move(left), std::move(right)));
+		PushExpression(ShaderNodes::BinaryOp::Build(node.op, CloneExpression(node.left), CloneExpression(node.right)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::Branch& node)
 	{
+		std::vector<ShaderNodes::Branch::ConditionalStatement> condStatements;
+		condStatements.reserve(node.condStatements.size());
+
 		for (auto& cond : node.condStatements)
 		{
-			Visit(cond.condition);
-			Visit(cond.statement);
+			auto& condStatement = condStatements.emplace_back();
+			condStatement.condition = CloneExpression(cond.condition);
+			condStatement.statement = CloneStatement(cond.statement);
 		}
 
-		Visit(node.elseStatement);
-
-		auto elseStatement = PopStatement();
-
-		std::vector<ShaderNodes::Branch::ConditionalStatement> condStatements(node.condStatements.size());
-		for (std::size_t i = 0; i < condStatements.size(); ++i)
-		{
-			auto& condStatement = condStatements[condStatements.size() - i - 1];
-			condStatement.condition = PopExpression();
-			condStatement.statement = PopStatement();
-		}
-
-		PushStatement(ShaderNodes::Branch::Build(std::move(condStatements), std::move(elseStatement)));
+		PushStatement(ShaderNodes::Branch::Build(std::move(condStatements), CloneStatement(node.elseStatement)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::Cast& node)
 	{
 		std::size_t expressionCount = 0;
 		std::array<ShaderNodes::ExpressionPtr, 4> expressions;
-		for (const auto& expr : node.expressions)
+		for (auto& expr : node.expressions)
 		{
-			Visit(expr);
+			if (!expr)
+				break;
+
+			expressions[expressionCount] = CloneExpression(expr);
 			expressionCount++;
 		}
-
-		for (std::size_t i = 0; i < expressionCount; ++i)
-			expressions[expressionCount - i - 1] = PopExpression();
 
 		PushExpression(ShaderNodes::Cast::Build(node.exprType, expressions.data(), expressionCount));
 	}
@@ -109,57 +98,42 @@ namespace Nz
 
 	void ShaderAstCloner::Visit(const ShaderNodes::DeclareVariable& node)
 	{
-		Visit(node.expression);
-		Visit(node.variable);
-
-		PushStatement(ShaderNodes::DeclareVariable::Build(PopVariable(), PopExpression()));
+		PushStatement(ShaderNodes::DeclareVariable::Build(CloneVariable(node.variable), CloneExpression(node.expression)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::ExpressionStatement& node)
 	{
-		Visit(node.expression);
-
-		PushStatement(ShaderNodes::ExpressionStatement::Build(PopExpression()));
+		PushStatement(ShaderNodes::ExpressionStatement::Build(CloneExpression(node.expression)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::Identifier& node)
 	{
-		Visit(node.var);
-
-		PushExpression(ShaderNodes::Identifier::Build(PopVariable()));
+		PushExpression(ShaderNodes::Identifier::Build(CloneVariable(node.var)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::IntrinsicCall& node)
 	{
-		for (auto& parameter : node.parameters)
-			Visit(parameter);
+		std::vector<ShaderNodes::ExpressionPtr> parameters;
+		parameters.reserve(node.parameters.size());
 
-		std::vector<ShaderNodes::ExpressionPtr> parameters(node.parameters.size());
-		for (std::size_t i = 0; i < parameters.size(); ++i)
-			parameters[parameters.size() - i - 1] = PopExpression();
+		for (auto& parameter : node.parameters)
+			parameters.push_back(CloneExpression(parameter));
 
 		PushExpression(ShaderNodes::IntrinsicCall::Build(node.intrinsic, std::move(parameters)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::Sample2D& node)
 	{
-		Visit(node.coordinates);
-		Visit(node.sampler);
-
-		auto sampler = PopExpression();
-		auto coordinates = PopExpression();
-
-		PushExpression(ShaderNodes::Sample2D::Build(std::move(sampler), std::move(coordinates)));
+		PushExpression(ShaderNodes::Sample2D::Build(CloneExpression(node.sampler), CloneExpression(node.coordinates)));
 	}
 
 	void ShaderAstCloner::Visit(const ShaderNodes::StatementBlock& node)
 	{
-		for (auto& statement : node.statements)
-			Visit(statement);
+		std::vector<ShaderNodes::StatementPtr> statements;
+		statements.reserve(node.statements.size());
 
-		std::vector<ShaderNodes::StatementPtr> statements(node.statements.size());
-		for (std::size_t i = 0; i < statements.size(); ++i)
-			statements[statements.size() - i - 1] = PopStatement();
+		for (auto& statement : node.statements)
+			statements.push_back(CloneStatement(statement));
 
 		PushStatement(ShaderNodes::StatementBlock::Build(std::move(statements)));
 	}
