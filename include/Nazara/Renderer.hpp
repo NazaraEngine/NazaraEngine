@@ -53,6 +53,7 @@
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
+#include <Nazara/Renderer/ShaderAstCloner.hpp>
 #include <Nazara/Renderer/ShaderAstRecursiveVisitor.hpp>
 #include <Nazara/Renderer/ShaderAstSerializer.hpp>
 #include <Nazara/Renderer/ShaderAstValidator.hpp>

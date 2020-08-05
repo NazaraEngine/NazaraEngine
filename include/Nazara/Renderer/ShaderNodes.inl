@@ -107,6 +107,14 @@ namespace Nz::ShaderNodes
 	{
 	}
 
+	inline std::shared_ptr<StatementBlock> StatementBlock::Build(std::vector<StatementPtr> statements)
+	{
+		auto node = std::make_shared<StatementBlock>();
+		node->statements = std::move(statements);
+
+		return node;
+	}
+
 	template<typename... Args>
 	std::shared_ptr<StatementBlock> StatementBlock::Build(Args&&... args)
 	{
@@ -122,7 +130,7 @@ namespace Nz::ShaderNodes
 	{
 	}
 
-	inline std::shared_ptr<DeclareVariable> DeclareVariable::Build(LocalVariablePtr variable, ExpressionPtr expression)
+	inline std::shared_ptr<DeclareVariable> DeclareVariable::Build(VariablePtr variable, ExpressionPtr expression)
 	{
 		auto node = std::make_shared<DeclareVariable>();
 		node->expression = std::move(expression);
@@ -208,6 +216,15 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
+	inline std::shared_ptr<Branch> Branch::Build(std::vector<ConditionalStatement> statements, StatementPtr elseStatement)
+	{
+		auto node = std::make_shared<Branch>();
+		node->condStatements = std::move(statements);
+		node->elseStatement = std::move(elseStatement);
+
+		return node;
+	}
+
 
 	inline Cast::Cast() :
 	Expression(NodeType::Cast)
@@ -261,6 +278,20 @@ namespace Nz::ShaderNodes
 		node->expression = std::move(expressionPtr);
 
 		std::copy(swizzleComponents.begin(), swizzleComponents.end(), node->components.begin());
+
+		return node;
+	}
+
+	inline std::shared_ptr<SwizzleOp> SwizzleOp::Build(ExpressionPtr expressionPtr, const SwizzleComponent* components, std::size_t componentCount)
+	{
+		auto node = std::make_shared<SwizzleOp>();
+
+		assert(componentCount < node->components.size());
+
+		node->componentCount = componentCount;
+		node->expression = std::move(expressionPtr);
+
+		std::copy(components, components + componentCount, node->components.begin());
 
 		return node;
 	}

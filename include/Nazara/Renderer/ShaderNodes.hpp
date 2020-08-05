@@ -106,6 +106,7 @@ namespace Nz
 
 			std::vector<StatementPtr> statements;
 
+			static inline std::shared_ptr<StatementBlock> Build(std::vector<StatementPtr> statements);
 			template<typename... Args> static std::shared_ptr<StatementBlock> Build(Args&&... args);
 		};
 
@@ -115,10 +116,10 @@ namespace Nz
 
 			void Visit(ShaderAstVisitor& visitor) override;
 
-			LocalVariablePtr variable;
 			ExpressionPtr expression;
+			VariablePtr variable;
 
-			static inline std::shared_ptr<DeclareVariable> Build(LocalVariablePtr variable, ExpressionPtr expression = nullptr);
+			static inline std::shared_ptr<DeclareVariable> Build(VariablePtr variable, ExpressionPtr expression = nullptr);
 		};
 
 		struct NAZARA_RENDERER_API Identifier : public Expression
@@ -196,7 +197,8 @@ namespace Nz
 				StatementPtr  statement;
 			};
 
-			inline std::shared_ptr<Branch> Build(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement = nullptr);
+			static inline std::shared_ptr<Branch> Build(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement = nullptr);
+			static inline std::shared_ptr<Branch> Build(std::vector<ConditionalStatement> statements, StatementPtr elseStatement = nullptr);
 		};
 
 		struct NAZARA_RENDERER_API Cast : public Expression
@@ -246,6 +248,7 @@ namespace Nz
 			ExpressionPtr expression;
 
 			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents);
+			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, const SwizzleComponent* components, std::size_t componentCount);
 		};
 
 		//////////////////////////////////////////////////////////////////////////
