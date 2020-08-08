@@ -57,7 +57,7 @@ namespace Nz
 		String appName = "Another application made with Nazara Engine";
 		String engineName = "Nazara Engine - Vulkan Renderer";
 
-		constexpr UInt32 appVersion = VK_MAKE_VERSION(1, 0, 0);
+		UInt32 appVersion = VK_MAKE_VERSION(1, 0, 0);
 		UInt32 engineVersion = VK_MAKE_VERSION(1, 0, 0);
 
 		parameters.GetStringParameter("VkAppInfo_OverrideApplicationName", &appName);

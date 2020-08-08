@@ -33,26 +33,26 @@ namespace Nz
 			ShaderNodes::StatementPtr CloneStatement(const ShaderNodes::StatementPtr& statement);
 			ShaderNodes::VariablePtr CloneVariable(const ShaderNodes::VariablePtr& statement);
 
-			void Visit(const ShaderNodes::AccessMember& node) override;
-			void Visit(const ShaderNodes::AssignOp& node) override;
-			void Visit(const ShaderNodes::BinaryOp& node) override;
-			void Visit(const ShaderNodes::Branch& node) override;
-			void Visit(const ShaderNodes::Cast& node) override;
-			void Visit(const ShaderNodes::Constant& node) override;
-			void Visit(const ShaderNodes::DeclareVariable& node) override;
-			void Visit(const ShaderNodes::ExpressionStatement& node) override;
-			void Visit(const ShaderNodes::Identifier& node) override;
-			void Visit(const ShaderNodes::IntrinsicCall& node) override;
-			void Visit(const ShaderNodes::Sample2D& node) override;
-			void Visit(const ShaderNodes::StatementBlock& node) override;
-			void Visit(const ShaderNodes::SwizzleOp& node) override;
+			void Visit(ShaderNodes::AccessMember& node) override;
+			void Visit(ShaderNodes::AssignOp& node) override;
+			void Visit(ShaderNodes::BinaryOp& node) override;
+			void Visit(ShaderNodes::Branch& node) override;
+			void Visit(ShaderNodes::Cast& node) override;
+			void Visit(ShaderNodes::Constant& node) override;
+			void Visit(ShaderNodes::DeclareVariable& node) override;
+			void Visit(ShaderNodes::ExpressionStatement& node) override;
+			void Visit(ShaderNodes::Identifier& node) override;
+			void Visit(ShaderNodes::IntrinsicCall& node) override;
+			void Visit(ShaderNodes::Sample2D& node) override;
+			void Visit(ShaderNodes::StatementBlock& node) override;
+			void Visit(ShaderNodes::SwizzleOp& node) override;
 
-			void Visit(const ShaderNodes::BuiltinVariable& var) override;
-			void Visit(const ShaderNodes::InputVariable& var) override;
-			void Visit(const ShaderNodes::LocalVariable& var) override;
-			void Visit(const ShaderNodes::OutputVariable& var) override;
-			void Visit(const ShaderNodes::ParameterVariable& var) override;
-			void Visit(const ShaderNodes::UniformVariable& var) override;
+			void Visit(ShaderNodes::BuiltinVariable& var) override;
+			void Visit(ShaderNodes::InputVariable& var) override;
+			void Visit(ShaderNodes::LocalVariable& var) override;
+			void Visit(ShaderNodes::OutputVariable& var) override;
+			void Visit(ShaderNodes::ParameterVariable& var) override;
+			void Visit(ShaderNodes::UniformVariable& var) override;
 
 			void PushExpression(ShaderNodes::ExpressionPtr expression);
 			void PushStatement(ShaderNodes::StatementPtr statement);

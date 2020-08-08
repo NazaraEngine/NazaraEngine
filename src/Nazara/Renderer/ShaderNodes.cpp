@@ -59,7 +59,7 @@ namespace Nz::ShaderNodes
 		visitor.Visit(*this);
 	}
 
-	ExpressionCategory ShaderNodes::AccessMember::GetExpressionCategory() const
+	ExpressionCategory AccessMember::GetExpressionCategory() const
 	{
 		return ExpressionCategory::LValue;
 	}
@@ -111,10 +111,14 @@ namespace Nz::ShaderNodes
 					case BasicType::Float2:
 					case BasicType::Float3:
 					case BasicType::Float4:
+					case BasicType::Int2:
+					case BasicType::Int3:
+					case BasicType::Int4:
 						exprType = leftExprType;
 						break;
 
 					case BasicType::Float1:
+					case BasicType::Int1:
 					case BasicType::Mat4x4:
 						exprType = rightExprType;
 						break;
@@ -159,12 +163,20 @@ namespace Nz::ShaderNodes
 				return ShaderNodes::BasicType::Boolean;
 			else if constexpr (std::is_same_v<T, float>)
 				return ShaderNodes::BasicType::Float1;
+			else if constexpr (std::is_same_v<T, Int32>)
+				return ShaderNodes::BasicType::Int1;
 			else if constexpr (std::is_same_v<T, Vector2f>)
 				return ShaderNodes::BasicType::Float2;
 			else if constexpr (std::is_same_v<T, Vector3f>)
 				return ShaderNodes::BasicType::Float3;
 			else if constexpr (std::is_same_v<T, Vector4f>)
 				return ShaderNodes::BasicType::Float4;
+			else if constexpr (std::is_same_v<T, Vector2i32>)
+				return ShaderNodes::BasicType::Int2;
+			else if constexpr (std::is_same_v<T, Vector3i32>)
+				return ShaderNodes::BasicType::Int3;
+			else if constexpr (std::is_same_v<T, Vector4i32>)
+				return ShaderNodes::BasicType::Int4;
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, value);

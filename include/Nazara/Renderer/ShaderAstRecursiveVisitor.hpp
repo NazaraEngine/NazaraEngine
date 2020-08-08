@@ -21,19 +21,19 @@ namespace Nz
 
 			using ShaderAstVisitor::Visit;
 
-			void Visit(const ShaderNodes::AccessMember& node) override;
-			void Visit(const ShaderNodes::AssignOp& node) override;
-			void Visit(const ShaderNodes::BinaryOp& node) override;
-			void Visit(const ShaderNodes::Branch& node) override;
-			void Visit(const ShaderNodes::Cast& node) override;
-			void Visit(const ShaderNodes::Constant& node) override;
-			void Visit(const ShaderNodes::DeclareVariable& node) override;
-			void Visit(const ShaderNodes::ExpressionStatement& node) override;
-			void Visit(const ShaderNodes::Identifier& node) override;
-			void Visit(const ShaderNodes::IntrinsicCall& node) override;
-			void Visit(const ShaderNodes::Sample2D& node) override;
-			void Visit(const ShaderNodes::StatementBlock& node) override;
-			void Visit(const ShaderNodes::SwizzleOp& node) override;
+			void Visit(ShaderNodes::AccessMember& node) override;
+			void Visit(ShaderNodes::AssignOp& node) override;
+			void Visit(ShaderNodes::BinaryOp& node) override;
+			void Visit(ShaderNodes::Branch& node) override;
+			void Visit(ShaderNodes::Cast& node) override;
+			void Visit(ShaderNodes::Constant& node) override;
+			void Visit(ShaderNodes::DeclareVariable& node) override;
+			void Visit(ShaderNodes::ExpressionStatement& node) override;
+			void Visit(ShaderNodes::Identifier& node) override;
+			void Visit(ShaderNodes::IntrinsicCall& node) override;
+			void Visit(ShaderNodes::Sample2D& node) override;
+			void Visit(ShaderNodes::StatementBlock& node) override;
+			void Visit(ShaderNodes::SwizzleOp& node) override;
 	};
 }
 

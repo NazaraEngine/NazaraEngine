@@ -18,15 +18,19 @@ namespace Nz::ShaderNodes
 
 	enum class BasicType
 	{
-		Boolean,   // bool
-		Float1,    // float
-		Float2,    // vec2
-		Float3,    // vec3
-		Float4,    // vec4
-		Mat4x4,    // mat4
-		Sampler2D, // sampler2D
+		Boolean,   //< bool
+		Float1,    //< float
+		Float2,    //< vec2
+		Float3,    //< vec3
+		Float4,    //< vec4
+		Int1,      //< int
+		Int2,      //< ivec2
+		Int3,      //< ivec3
+		Int4,      //< ivec4
+		Mat4x4,    //< mat4
+		Sampler2D, //< sampler2D
 
-		Void       // void
+		Void       //< void
 	};
 
 	enum class BinaryType

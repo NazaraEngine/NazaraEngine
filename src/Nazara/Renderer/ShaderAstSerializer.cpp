@@ -22,98 +22,98 @@ namespace Nz
 				{
 				}
 
-				void Visit(const ShaderNodes::AccessMember& node) override
+				void Visit(ShaderNodes::AccessMember& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::AssignOp& node) override
+				void Visit(ShaderNodes::AssignOp& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::BinaryOp& node) override
+				void Visit(ShaderNodes::BinaryOp& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::Branch& node) override
+				void Visit(ShaderNodes::Branch& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::Cast& node) override
+				void Visit(ShaderNodes::Cast& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::Constant& node) override
+				void Visit(ShaderNodes::Constant& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::DeclareVariable& node) override
+				void Visit(ShaderNodes::DeclareVariable& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::ExpressionStatement& node) override
+				void Visit(ShaderNodes::ExpressionStatement& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::Identifier& node) override
+				void Visit(ShaderNodes::Identifier& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::IntrinsicCall& node) override
+				void Visit(ShaderNodes::IntrinsicCall& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::Sample2D& node) override
+				void Visit(ShaderNodes::Sample2D& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::StatementBlock& node) override
+				void Visit(ShaderNodes::StatementBlock& node) override
 				{
 					Serialize(node);
 				}
 
-				void Visit(const ShaderNodes::SwizzleOp& node) override
+				void Visit(ShaderNodes::SwizzleOp& node) override
 				{
 					Serialize(node);
 				}
 
 
-				void Visit(const ShaderNodes::BuiltinVariable& var) override
+				void Visit(ShaderNodes::BuiltinVariable& var) override
 				{
 					Serialize(var);
 				}
 
-				void Visit(const ShaderNodes::InputVariable& var) override
+				void Visit(ShaderNodes::InputVariable& var) override
 				{
 					Serialize(var);
 				}
 
-				void Visit(const ShaderNodes::LocalVariable& var) override
+				void Visit(ShaderNodes::LocalVariable& var) override
 				{
 					Serialize(var);
 				}
 
-				void Visit(const ShaderNodes::OutputVariable& var) override
+				void Visit(ShaderNodes::OutputVariable& var) override
 				{
 					Serialize(var);
 				}
 
-				void Visit(const ShaderNodes::ParameterVariable& var) override
+				void Visit(ShaderNodes::ParameterVariable& var) override
 				{
 					Serialize(var);
 				}
 
-				void Visit(const ShaderNodes::UniformVariable& var) override
+				void Visit(ShaderNodes::UniformVariable& var) override
 				{
 					Serialize(var);
 				}
@@ -193,14 +193,18 @@ namespace Nz
 			Value(value);
 		};
 
-		static_assert(std::variant_size_v<decltype(node.value)> == 5);
+		static_assert(std::variant_size_v<decltype(node.value)> == 9);
 		switch (typeIndex)
 		{
 			case 0: SerializeValue(bool()); break;
 			case 1: SerializeValue(float()); break;
-			case 2: SerializeValue(Vector2f()); break;
-			case 3: SerializeValue(Vector3f()); break;
-			case 4: SerializeValue(Vector4f()); break;
+			case 2: SerializeValue(Int32()); break;
+			case 3: SerializeValue(Vector2f()); break;
+			case 4: SerializeValue(Vector3f()); break;
+			case 5: SerializeValue(Vector4f()); break;
+			case 6: SerializeValue(Vector2i32()); break;
+			case 7: SerializeValue(Vector3i32()); break;
+			case 8: SerializeValue(Vector4i32()); break;
 			default: throw std::runtime_error("unexpected data type");
 		}
 	}
@@ -403,6 +407,11 @@ namespace Nz
 		m_stream << val;
 	}
 
+	void ShaderAstSerializer::Value(Int32& val)
+	{
+		m_stream << val;
+	}
+
 	void ShaderAstSerializer::Value(Vector2f& val)
 	{
 		m_stream << val;
@@ -414,6 +423,21 @@ namespace Nz
 	}
 
 	void ShaderAstSerializer::Value(Vector4f& val)
+	{
+		m_stream << val;
+	}
+
+	void ShaderAstSerializer::Value(Vector2i32& val)
+	{
+		m_stream << val;
+	}
+
+	void ShaderAstSerializer::Value(Vector3i32& val)
+	{
+		m_stream << val;
+	}
+
+	void ShaderAstSerializer::Value(Vector4i32& val)
 	{
 		m_stream << val;
 	}
@@ -644,6 +668,11 @@ namespace Nz
 		m_stream >> val;
 	}
 
+	void ShaderAstUnserializer::Value(Int32& val)
+	{
+		m_stream >> val;
+	}
+
 	void ShaderAstUnserializer::Value(Vector2f& val)
 	{
 		m_stream >> val;
@@ -655,6 +684,21 @@ namespace Nz
 	}
 
 	void ShaderAstUnserializer::Value(Vector4f& val)
+	{
+		m_stream >> val;
+	}
+
+	void ShaderAstUnserializer::Value(Vector2i32& val)
+	{
+		m_stream >> val;
+	}
+
+	void ShaderAstUnserializer::Value(Vector3i32& val)
+	{
+		m_stream >> val;
+	}
+
+	void ShaderAstUnserializer::Value(Vector4i32& val)
 	{
 		m_stream >> val;
 	}
@@ -689,6 +733,7 @@ namespace Nz
 			HandleType(BuiltinVariable);
 			HandleType(InputVariable);
 			HandleType(LocalVariable);
+			HandleType(ParameterVariable);
 			HandleType(OutputVariable);
 			HandleType(UniformVariable);
 		}

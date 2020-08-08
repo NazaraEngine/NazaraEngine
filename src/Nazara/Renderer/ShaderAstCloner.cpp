@@ -45,22 +45,22 @@ namespace Nz
 		return PopVariable();
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::AccessMember& node)
+	void ShaderAstCloner::Visit(ShaderNodes::AccessMember& node)
 	{
 		PushExpression(ShaderNodes::AccessMember::Build(CloneExpression(node.structExpr), node.memberIndex, node.exprType));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::AssignOp& node)
+	void ShaderAstCloner::Visit(ShaderNodes::AssignOp& node)
 	{
 		PushExpression(ShaderNodes::AssignOp::Build(node.op, CloneExpression(node.left), CloneExpression(node.right)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::BinaryOp& node)
+	void ShaderAstCloner::Visit(ShaderNodes::BinaryOp& node)
 	{
 		PushExpression(ShaderNodes::BinaryOp::Build(node.op, CloneExpression(node.left), CloneExpression(node.right)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::Branch& node)
+	void ShaderAstCloner::Visit(ShaderNodes::Branch& node)
 	{
 		std::vector<ShaderNodes::Branch::ConditionalStatement> condStatements;
 		condStatements.reserve(node.condStatements.size());
@@ -75,7 +75,7 @@ namespace Nz
 		PushStatement(ShaderNodes::Branch::Build(std::move(condStatements), CloneStatement(node.elseStatement)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::Cast& node)
+	void ShaderAstCloner::Visit(ShaderNodes::Cast& node)
 	{
 		std::size_t expressionCount = 0;
 		std::array<ShaderNodes::ExpressionPtr, 4> expressions;
@@ -91,27 +91,27 @@ namespace Nz
 		PushExpression(ShaderNodes::Cast::Build(node.exprType, expressions.data(), expressionCount));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::Constant& node)
+	void ShaderAstCloner::Visit(ShaderNodes::Constant& node)
 	{
 		PushExpression(ShaderNodes::Constant::Build(node.value));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::DeclareVariable& node)
+	void ShaderAstCloner::Visit(ShaderNodes::DeclareVariable& node)
 	{
 		PushStatement(ShaderNodes::DeclareVariable::Build(CloneVariable(node.variable), CloneExpression(node.expression)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::ExpressionStatement& node)
+	void ShaderAstCloner::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		PushStatement(ShaderNodes::ExpressionStatement::Build(CloneExpression(node.expression)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::Identifier& node)
+	void ShaderAstCloner::Visit(ShaderNodes::Identifier& node)
 	{
 		PushExpression(ShaderNodes::Identifier::Build(CloneVariable(node.var)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::IntrinsicCall& node)
+	void ShaderAstCloner::Visit(ShaderNodes::IntrinsicCall& node)
 	{
 		std::vector<ShaderNodes::ExpressionPtr> parameters;
 		parameters.reserve(node.parameters.size());
@@ -122,12 +122,12 @@ namespace Nz
 		PushExpression(ShaderNodes::IntrinsicCall::Build(node.intrinsic, std::move(parameters)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::Sample2D& node)
+	void ShaderAstCloner::Visit(ShaderNodes::Sample2D& node)
 	{
 		PushExpression(ShaderNodes::Sample2D::Build(CloneExpression(node.sampler), CloneExpression(node.coordinates)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::StatementBlock& node)
+	void ShaderAstCloner::Visit(ShaderNodes::StatementBlock& node)
 	{
 		std::vector<ShaderNodes::StatementPtr> statements;
 		statements.reserve(node.statements.size());
@@ -138,37 +138,37 @@ namespace Nz
 		PushStatement(ShaderNodes::StatementBlock::Build(std::move(statements)));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::SwizzleOp& node)
+	void ShaderAstCloner::Visit(ShaderNodes::SwizzleOp& node)
 	{
 		PushExpression(ShaderNodes::SwizzleOp::Build(PopExpression(), node.components.data(), node.componentCount));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::BuiltinVariable& var)
+	void ShaderAstCloner::Visit(ShaderNodes::BuiltinVariable& var)
 	{
 		PushVariable(ShaderNodes::BuiltinVariable::Build(var.entry, var.type));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::InputVariable& var)
+	void ShaderAstCloner::Visit(ShaderNodes::InputVariable& var)
 	{
 		PushVariable(ShaderNodes::InputVariable::Build(var.name, var.type));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::LocalVariable& var)
+	void ShaderAstCloner::Visit(ShaderNodes::LocalVariable& var)
 	{
 		PushVariable(ShaderNodes::LocalVariable::Build(var.name, var.type));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::OutputVariable& var)
+	void ShaderAstCloner::Visit(ShaderNodes::OutputVariable& var)
 	{
 		PushVariable(ShaderNodes::OutputVariable::Build(var.name, var.type));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::ParameterVariable& var)
+	void ShaderAstCloner::Visit(ShaderNodes::ParameterVariable& var)
 	{
 		PushVariable(ShaderNodes::ParameterVariable::Build(var.name, var.type));
 	}
 
-	void ShaderAstCloner::Visit(const ShaderNodes::UniformVariable& var)
+	void ShaderAstCloner::Visit(ShaderNodes::UniformVariable& var)
 	{
 		PushVariable(ShaderNodes::UniformVariable::Build(var.name, var.type));
 	}
