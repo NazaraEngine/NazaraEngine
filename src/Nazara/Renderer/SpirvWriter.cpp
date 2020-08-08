@@ -5,6 +5,8 @@
 #include <Nazara/Renderer/SpirvWriter.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Core/StackVector.hpp>
+#include <Nazara/Renderer/ShaderAstCloner.hpp>
 #include <Nazara/Renderer/ShaderAstValidator.hpp>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
@@ -34,28 +36,35 @@ namespace Nz
 				using ShaderAstRecursiveVisitor::Visit;
 				using ShaderVarVisitor::Visit;
 
-				void Visit(const ShaderNodes::Constant& node) override
+				void Visit(ShaderNodes::AccessMember& node) override
+				{
+					constants.emplace(Int32(node.memberIndex));
+
+					ShaderAstRecursiveVisitor::Visit(node);
+				}
+
+				void Visit(ShaderNodes::Constant& node) override
 				{
 					std::visit([&](auto&& arg)
 					{
 						using T = std::decay_t<decltype(arg)>;
 
-						if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float>)
+						if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, Int32>)
 							constants.emplace(arg);
-						else if constexpr (std::is_same_v<T, Vector2f>)
+						else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
 						{
 							constants.emplace(arg.x);
 							constants.emplace(arg.y);
 							constants.emplace(arg);
 						}
-						else if constexpr (std::is_same_v<T, Vector3f>)
+						else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i32>)
 						{
 							constants.emplace(arg.x);
 							constants.emplace(arg.y);
 							constants.emplace(arg.z);
 							constants.emplace(arg);
 						}
-						else if constexpr (std::is_same_v<T, Vector4f>)
+						else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i32>)
 						{
 							constants.emplace(arg.x);
 							constants.emplace(arg.y);
@@ -71,21 +80,21 @@ namespace Nz
 					ShaderAstRecursiveVisitor::Visit(node);
 				}
 
-				void Visit(const ShaderNodes::DeclareVariable& node) override
+				void Visit(ShaderNodes::DeclareVariable& node) override
 				{
 					Visit(node.variable);
 
 					ShaderAstRecursiveVisitor::Visit(node);
 				}
 
-				void Visit(const ShaderNodes::Identifier& node) override
+				void Visit(ShaderNodes::Identifier& node) override
 				{
 					Visit(node.var);
 
 					ShaderAstRecursiveVisitor::Visit(node);
 				}
 
-				void Visit(const ShaderNodes::IntrinsicCall& node) override
+				void Visit(ShaderNodes::IntrinsicCall& node) override
 				{
 					ShaderAstRecursiveVisitor::Visit(node);
 
@@ -102,32 +111,32 @@ namespace Nz
 					}
 				}
 
-				void Visit(const ShaderNodes::BuiltinVariable& var) override
+				void Visit(ShaderNodes::BuiltinVariable& var) override
 				{
 					builtinVars.insert(std::static_pointer_cast<const ShaderNodes::BuiltinVariable>(var.shared_from_this()));
 				}
 
-				void Visit(const ShaderNodes::InputVariable& var) override
+				void Visit(ShaderNodes::InputVariable& var) override
 				{
 					/* Handled by ShaderAst */
 				}
 
-				void Visit(const ShaderNodes::LocalVariable& var) override
+				void Visit(ShaderNodes::LocalVariable& var) override
 				{
 					localVars.insert(std::static_pointer_cast<const ShaderNodes::LocalVariable>(var.shared_from_this()));
 				}
 
-				void Visit(const ShaderNodes::OutputVariable& var) override
+				void Visit(ShaderNodes::OutputVariable& var) override
 				{
 					/* Handled by ShaderAst */
 				}
 
-				void Visit(const ShaderNodes::ParameterVariable& var) override
+				void Visit(ShaderNodes::ParameterVariable& var) override
 				{
 					paramVars.insert(std::static_pointer_cast<const ShaderNodes::ParameterVariable>(var.shared_from_this()));
 				}
 
-				void Visit(const ShaderNodes::UniformVariable& var) override
+				void Visit(ShaderNodes::UniformVariable& var) override
 				{
 					/* Handled by ShaderAst */
 				}
@@ -138,7 +147,56 @@ namespace Nz
 				LocalContainer localVars;
 				ParameterContainer paramVars;
 		};
+
+		class AssignVisitor : public ShaderAstRecursiveVisitor
+		{
+			public:
+				void Visit(ShaderNodes::AccessMember& node) override
+				{
+				}
+
+				void Visit(ShaderNodes::Identifier& node) override
+				{
+				}
+
+				void Visit(ShaderNodes::SwizzleOp& node) override
+				{
+				}
+		};
+
+		template<typename T>
+		constexpr ShaderNodes::BasicType GetBasicType()
+		{
+			if constexpr (std::is_same_v<T, bool>)
+				return ShaderNodes::BasicType::Boolean;
+			else if constexpr (std::is_same_v<T, float>)
+				return(ShaderNodes::BasicType::Float1);
+			else if constexpr (std::is_same_v<T, Int32>)
+				return(ShaderNodes::BasicType::Int1);
+			else if constexpr (std::is_same_v<T, Vector2f>)
+				return(ShaderNodes::BasicType::Float2);
+			else if constexpr (std::is_same_v<T, Vector3f>)
+				return(ShaderNodes::BasicType::Float3);
+			else if constexpr (std::is_same_v<T, Vector4f>)
+				return(ShaderNodes::BasicType::Float4);
+			else if constexpr (std::is_same_v<T, Vector2i32>)
+				return(ShaderNodes::BasicType::Int2);
+			else if constexpr (std::is_same_v<T, Vector3i32>)
+				return(ShaderNodes::BasicType::Int3);
+			else if constexpr (std::is_same_v<T, Vector4i32>)
+				return(ShaderNodes::BasicType::Int4);
+			else
+				static_assert(AlwaysFalse<T>::value, "unhandled type");
+		}
 	}
+
+	struct SpirvWriter::ExtVar
+	{
+		UInt32 pointerTypeId;
+		UInt32 typeId;
+		UInt32 varId;
+		std::optional<UInt32> valueId;
+	};
 
 	struct SpirvWriter::Opcode
 	{
@@ -165,20 +223,15 @@ namespace Nz
 			std::vector<UInt32> paramsId;
 		};
 
-		struct ExtVar
-		{
-			UInt32 pointerTypeId;
-			UInt32 varId;
-		};
-
 		std::unordered_map<std::string, UInt32> extensionInstructions;
-		std::unordered_map<ShaderNodes::BuiltinEntry, UInt32> builtinIds;
+		std::unordered_map<ShaderNodes::BuiltinEntry, ExtVar> builtinIds;
+		std::unordered_map<std::string, UInt32> varToResult;
 		tsl::ordered_map<ConstantVariant, UInt32> constantIds;
 		tsl::ordered_map<ShaderExpressionType, UInt32> typeIds;
 		std::vector<Func> funcs;
-		std::vector<ExtVar> inputIds;
-		std::vector<ExtVar> outputIds;
-		std::vector<ExtVar> uniformIds;
+		tsl::ordered_map<std::string, ExtVar> inputIds;
+		tsl::ordered_map<std::string, ExtVar> outputIds;
+		tsl::ordered_map<std::string, ExtVar> uniformIds;
 		std::vector<std::optional<FieldOffsets>> structFields;
 		std::vector<UInt32> resultIds;
 		UInt32 nextVarIndex = 1;
@@ -213,14 +266,17 @@ namespace Nz
 		});
 
 		state.structFields.resize(shader.GetStructCount());
-		state.annotations.Append(Opcode{ SpvOpNop });
-		state.constants.Append(Opcode{ SpvOpNop });
-		state.debugInfo.Append(Opcode{ SpvOpNop });
-		state.types.Append(Opcode{ SpvOpNop });
+
+		std::vector<ShaderNodes::StatementPtr> functionStatements;
+
+		ShaderAstCloner cloner;
 
 		PreVisitor preVisitor;
 		for (const auto& func : shader.GetFunctions())
+		{
+			functionStatements.emplace_back(cloner.Clone(func.statement));
 			preVisitor.Visit(func.statement);
+		}
 
 		// Register all extended instruction sets
 		for (const std::string& extInst : preVisitor.extInsts)
@@ -246,39 +302,67 @@ namespace Nz
 		for (const auto& local : preVisitor.localVars)
 			RegisterType(local->type);
 
+		for (const auto& builtin : preVisitor.builtinVars)
+			RegisterType(builtin->type);
+
 		// Register constant types
 		for (const auto& constant : preVisitor.constants)
 		{
 			std::visit([&](auto&& arg)
 			{
 				using T = std::decay_t<decltype(arg)>;
-
-				if constexpr (std::is_same_v<T, bool>)
-					RegisterType(ShaderNodes::BasicType::Boolean);
-				else if constexpr (std::is_same_v<T, float>)
-					RegisterType(ShaderNodes::BasicType::Float1);
-				else if constexpr (std::is_same_v<T, Vector2f>)
-					RegisterType(ShaderNodes::BasicType::Float2);
-				else if constexpr (std::is_same_v<T, Vector3f>)
-					RegisterType(ShaderNodes::BasicType::Float3);
-				else if constexpr (std::is_same_v<T, Vector4f>)
-					RegisterType(ShaderNodes::BasicType::Float4);
-				else
-					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				RegisterType(GetBasicType<T>());
 			}, constant);
 		}
 
 		AppendTypes();
 
 		// Register result id and debug infos for global variables/functions
+		for (const auto& builtin : preVisitor.builtinVars)
+		{
+			const ShaderExpressionType& builtinExprType = builtin->type;
+			assert(std::holds_alternative<ShaderNodes::BasicType>(builtinExprType));
+
+			ShaderNodes::BasicType builtinType = std::get<ShaderNodes::BasicType>(builtinExprType);
+
+			ExtVar builtinData;
+			builtinData.pointerTypeId = AllocateResultId();
+			builtinData.typeId = GetTypeId(builtinType);
+			builtinData.varId = AllocateResultId();
+
+			SpvBuiltIn spvBuiltin;
+			std::string debugName;
+			switch (builtin->entry)
+			{
+				case ShaderNodes::BuiltinEntry::VertexPosition:
+					debugName = "builtin_VertexPosition";
+					spvBuiltin = SpvBuiltInPosition;
+					break;
+
+				default:
+					throw std::runtime_error("unexpected builtin type");
+			}
+
+			state.debugInfo.Append(Opcode{ SpvOpName }, builtinData.varId, debugName);
+			state.types.Append(Opcode{ SpvOpTypePointer }, builtinData.pointerTypeId, SpvStorageClassOutput, builtinData.typeId);
+			state.types.Append(Opcode{ SpvOpVariable }, builtinData.pointerTypeId, builtinData.varId, SpvStorageClassOutput);
+
+			state.annotations.Append(Opcode{ SpvOpDecorate }, builtinData.varId, SpvDecorationBuiltIn, spvBuiltin);
+
+			state.builtinIds.emplace(builtin->entry, builtinData);
+		}
+
 		for (const auto& input : shader.GetInputs())
 		{
-			auto& inputData = state.inputIds.emplace_back();
+			ExtVar inputData;
 			inputData.pointerTypeId = AllocateResultId();
+			inputData.typeId = GetTypeId(input.type);
 			inputData.varId = AllocateResultId();
 
+			state.inputIds.emplace(input.name, inputData);
+
 			state.debugInfo.Append(Opcode{ SpvOpName }, inputData.varId, input.name);
-			state.types.Append(Opcode{ SpvOpTypePointer }, inputData.pointerTypeId, SpvStorageClassInput, GetTypeId(input.type));
+			state.types.Append(Opcode{ SpvOpTypePointer }, inputData.pointerTypeId, SpvStorageClassInput, inputData.typeId);
 			state.types.Append(Opcode{ SpvOpVariable }, inputData.pointerTypeId, inputData.varId, SpvStorageClassInput);
 
 			if (input.locationIndex)
@@ -287,12 +371,15 @@ namespace Nz
 
 		for (const auto& output : shader.GetOutputs())
 		{
-			auto& outputData = state.outputIds.emplace_back();
+			ExtVar outputData;
 			outputData.pointerTypeId = AllocateResultId();
+			outputData.typeId = GetTypeId(output.type);
 			outputData.varId = AllocateResultId();
 
+			state.outputIds.emplace(output.name, outputData);
+
 			state.debugInfo.Append(Opcode{ SpvOpName }, outputData.varId, output.name);
-			state.types.Append(Opcode{ SpvOpTypePointer }, outputData.pointerTypeId, SpvStorageClassOutput, GetTypeId(output.type));
+			state.types.Append(Opcode{ SpvOpTypePointer }, outputData.pointerTypeId, SpvStorageClassOutput, outputData.typeId);
 			state.types.Append(Opcode{ SpvOpVariable }, outputData.pointerTypeId, outputData.varId, SpvStorageClassOutput);
 
 			if (output.locationIndex)
@@ -301,12 +388,15 @@ namespace Nz
 
 		for (const auto& uniform : shader.GetUniforms())
 		{
-			auto& uniformData = state.uniformIds.emplace_back();
+			ExtVar uniformData;
 			uniformData.pointerTypeId = AllocateResultId();
+			uniformData.typeId = GetTypeId(uniform.type);
 			uniformData.varId = AllocateResultId();
 
+			state.uniformIds.emplace(uniform.name, uniformData);
+
 			state.debugInfo.Append(Opcode{ SpvOpName }, uniformData.varId, uniform.name);
-			state.types.Append(Opcode{ SpvOpTypePointer }, uniformData.pointerTypeId, SpvStorageClassUniform, GetTypeId(uniform.type));
+			state.types.Append(Opcode{ SpvOpTypePointer }, uniformData.pointerTypeId, SpvStorageClassUniform, uniformData.typeId);
 			state.types.Append(Opcode{ SpvOpVariable }, uniformData.pointerTypeId, uniformData.varId, SpvStorageClassUniform);
 
 			if (uniform.bindingIndex)
@@ -338,15 +428,19 @@ namespace Nz
 
 		AppendConstants();
 
+		std::size_t entryPointIndex = std::numeric_limits<std::size_t>::max();
+
 		for (std::size_t funcIndex = 0; funcIndex < shader.GetFunctionCount(); ++funcIndex)
 		{
 			const auto& func = shader.GetFunction(funcIndex);
+			if (func.name == "main")
+				entryPointIndex = funcIndex;
 
 			auto& funcData = state.funcs[funcIndex];
 
-			state.instructions.Append(Opcode{ SpvOpNop });
-
 			state.instructions.Append(Opcode{ SpvOpFunction }, GetTypeId(func.returnType), funcData.id, 0, funcData.typeId);
+
+			state.instructions.Append(Opcode{ SpvOpLabel }, AllocateResultId());
 
 			for (const auto& param : func.parameters)
 			{
@@ -356,24 +450,56 @@ namespace Nz
 				state.instructions.Append(Opcode{ SpvOpFunctionParameter }, GetTypeId(param.type), paramResultId);
 			}
 
-			Visit(func.statement);
+			Visit(functionStatements[funcIndex]);
+
+			if (func.returnType == ShaderNodes::BasicType::Void)
+				state.instructions.Append(Opcode{ SpvOpReturn });
 
 			state.instructions.Append(Opcode{ SpvOpFunctionEnd });
 		}
 
+		assert(entryPointIndex != std::numeric_limits<std::size_t>::max());
+
 		AppendHeader();
 
-		/*assert(m_context.shader);
+		SpvExecutionModel execModel;
+		const auto& entryFuncData = shader.GetFunction(entryPointIndex);
+		const auto& entryFunc = m_currentState->funcs[entryPointIndex];
+
+		assert(m_context.shader);
 		switch (m_context.shader->GetStage())
 		{
 			case ShaderStageType::Fragment:
+				execModel = SpvExecutionModelFragment;
 				break;
+
 			case ShaderStageType::Vertex:
+				execModel = SpvExecutionModelVertex;
 				break;
 
 			default:
-				break;
-		}*/
+				throw std::runtime_error("not yet implemented");
+		}
+
+		// OpEntryPoint Vertex %main "main" %outNormal %inNormals %outTexCoords %inTexCoord %_ %inPos
+
+		std::size_t nameSize = state.header.CountWord(entryFuncData.name);
+
+		state.header.Append(Opcode{ SpvOpEntryPoint }, WordCount{ static_cast<unsigned int>(3 + nameSize + m_currentState->builtinIds.size() + m_currentState->inputIds.size() + m_currentState->outputIds.size()) });
+		state.header.Append(execModel);
+		state.header.Append(entryFunc.id);
+		state.header.Append(entryFuncData.name);
+		for (const auto& [name, varData] : m_currentState->builtinIds)
+			state.header.Append(varData.varId);
+
+		for (const auto& [name, varData] : m_currentState->inputIds)
+			state.header.Append(varData.varId);
+
+		for (const auto& [name, varData] : m_currentState->outputIds)
+			state.header.Append(varData.varId);
+
+		if (m_context.shader->GetStage() == ShaderStageType::Fragment)
+			state.header.Append(Opcode{ SpvOpExecutionMode }, entryFunc.id, SpvExecutionModeOriginUpperLeft);
 
 		std::vector<UInt32> ret;
 		MergeBlocks(ret, state.header);
@@ -407,14 +533,14 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, bool>)
 					m_currentState->constants.Append(Opcode{ (arg) ? SpvOpConstantTrue : SpvOpConstantFalse }, constantId);
-				else if constexpr (std::is_same_v<T, float>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstant }, GetTypeId(ShaderNodes::BasicType::Float1), constantId, Raw{ &arg, sizeof(arg) });
-				else if constexpr (std::is_same_v<T, Vector2f>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(ShaderNodes::BasicType::Float2), constantId, GetConstantId(arg.x), GetConstantId(arg.y));
-				else if constexpr (std::is_same_v<T, Vector3f>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(ShaderNodes::BasicType::Float3), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z));
-				else if constexpr (std::is_same_v<T, Vector4f>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(ShaderNodes::BasicType::Float3), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z), GetConstantId(arg.w));
+				else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int>)
+					m_currentState->constants.Append(Opcode{ SpvOpConstant }, GetTypeId(GetBasicType<T>()), constantId, Raw{ &arg, sizeof(arg) });
+				else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i>)
+					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y));
+				else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i>)
+					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z));
+				else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i>)
+					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z), GetConstantId(arg.w));
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 			}, value);
@@ -467,14 +593,18 @@ namespace Nz
 					std::size_t offset = [&] {
 						switch (arg)
 						{
-							case ShaderNodes::BasicType::Boolean: return structOffsets.AddField(StructFieldType_Bool1);
-							case ShaderNodes::BasicType::Float1:  return structOffsets.AddField(StructFieldType_Float1);
-							case ShaderNodes::BasicType::Float2:  return structOffsets.AddField(StructFieldType_Float2);
-							case ShaderNodes::BasicType::Float3:  return structOffsets.AddField(StructFieldType_Float3);
-							case ShaderNodes::BasicType::Float4:  return structOffsets.AddField(StructFieldType_Float4);
-							case ShaderNodes::BasicType::Mat4x4:  return structOffsets.AddMatrix(StructFieldType_Float1, 4, 4, true);
+							case ShaderNodes::BasicType::Boolean:   return structOffsets.AddField(StructFieldType_Bool1);
+							case ShaderNodes::BasicType::Float1:    return structOffsets.AddField(StructFieldType_Float1);
+							case ShaderNodes::BasicType::Float2:    return structOffsets.AddField(StructFieldType_Float2);
+							case ShaderNodes::BasicType::Float3:    return structOffsets.AddField(StructFieldType_Float3);
+							case ShaderNodes::BasicType::Float4:    return structOffsets.AddField(StructFieldType_Float4);
+							case ShaderNodes::BasicType::Int1:      return structOffsets.AddField(StructFieldType_Int1);
+							case ShaderNodes::BasicType::Int2:      return structOffsets.AddField(StructFieldType_Int2);
+							case ShaderNodes::BasicType::Int3:      return structOffsets.AddField(StructFieldType_Int3);
+							case ShaderNodes::BasicType::Int4:      return structOffsets.AddField(StructFieldType_Int4);
+							case ShaderNodes::BasicType::Mat4x4:    return structOffsets.AddMatrix(StructFieldType_Float1, 4, 4, true);
 							case ShaderNodes::BasicType::Sampler2D: throw std::runtime_error("unexpected sampler2D as struct member");
-							case ShaderNodes::BasicType::Void: throw std::runtime_error("unexpected void as struct member");
+							case ShaderNodes::BasicType::Void:      throw std::runtime_error("unexpected void as struct member");
 						}
 
 						assert(false);
@@ -537,12 +667,21 @@ namespace Nz
 						case ShaderNodes::BasicType::Float2:
 						case ShaderNodes::BasicType::Float3:
 						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
 						{
-							UInt32 vecSize = UInt32(arg) - UInt32(ShaderNodes::BasicType::Float2) + 1;
+							ShaderNodes::BasicType baseType = ShaderNodes::Node::GetComponentType(arg);
 
-							m_currentState->types.Append(Opcode{ SpvOpTypeVector }, resultId, GetTypeId(ShaderNodes::BasicType::Float1), vecSize);
+							UInt32 vecSize = UInt32(arg) - UInt32(baseType) + 1;
+
+							m_currentState->types.Append(Opcode{ SpvOpTypeVector }, resultId, GetTypeId(baseType), vecSize);
 							break;
 						}
+
+						case ShaderNodes::BasicType::Int1:
+							m_currentState->types.Append(Opcode{ SpvOpTypeInt }, resultId, 32, 1);
+							break;
 
 						case ShaderNodes::BasicType::Mat4x4:
 						{
@@ -581,6 +720,12 @@ namespace Nz
 		}
 	}
 
+	UInt32 SpirvWriter::EvaluateExpression(const ShaderNodes::ExpressionPtr& expr)
+	{
+		Visit(expr);
+		return PopResultId();
+	}
+
 	UInt32 SpirvWriter::GetConstantId(const ShaderNodes::Constant::Variant& value) const
 	{
 		auto typeIt = m_currentState->constantIds.find(value);
@@ -613,6 +758,19 @@ namespace Nz
 		return resultId;
 	}
 
+	UInt32 SpirvWriter::ReadVariable(ExtVar& var)
+	{
+		if (!var.valueId.has_value())
+		{
+			UInt32 resultId = AllocateResultId();
+			m_currentState->instructions.Append(Opcode{ SpvOpLoad }, var.typeId, resultId, var.varId);
+
+			var.valueId = resultId;
+		}
+
+		return var.valueId.value();
+	}
+
 	UInt32 SpirvWriter::RegisterType(ShaderExpressionType type)
 	{
 		auto it = m_currentState->typeIds.find(type);
@@ -628,6 +786,7 @@ namespace Nz
 					{
 						case ShaderNodes::BasicType::Boolean:
 						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Int1:
 						case ShaderNodes::BasicType::Void:
 							break; //< Nothing to do
 
@@ -635,11 +794,11 @@ namespace Nz
 						case ShaderNodes::BasicType::Float2:
 						case ShaderNodes::BasicType::Float3:
 						case ShaderNodes::BasicType::Float4:
-							RegisterType(ShaderNodes::BasicType::Float1);
-							break;
-
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
 						case ShaderNodes::BasicType::Mat4x4:
-							RegisterType(ShaderNodes::BasicType::Float4);
+							RegisterType(ShaderNodes::Node::GetComponentType(arg));
 							break;
 
 						case ShaderNodes::BasicType::Sampler2D:
@@ -670,60 +829,392 @@ namespace Nz
 		return it->second;
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::AccessMember& node)
+	void SpirvWriter::Visit(ShaderNodes::AccessMember& node)
 	{
-		Visit(node.structExpr);
+		UInt32 pointerId;
+		SpvStorageClass storage;
+
+		switch (node.structExpr->GetType())
+		{
+			case ShaderNodes::NodeType::Identifier:
+			{
+				auto& identifier = static_cast<ShaderNodes::Identifier&>(*node.structExpr);
+				switch (identifier.var->GetType())
+				{
+					case ShaderNodes::VariableType::BuiltinVariable:
+					{
+						auto& builtinvar = static_cast<ShaderNodes::BuiltinVariable&>(*identifier.var);
+						auto it = m_currentState->builtinIds.find(builtinvar.entry);
+						assert(it != m_currentState->builtinIds.end());
+
+						pointerId = it->second.varId;
+						break;
+					}
+
+					case ShaderNodes::VariableType::InputVariable:
+					{
+						auto& inputVar = static_cast<ShaderNodes::InputVariable&>(*identifier.var);
+						auto it = m_currentState->inputIds.find(inputVar.name);
+						assert(it != m_currentState->inputIds.end());
+
+						storage = SpvStorageClassInput;
+
+						pointerId = it->second.varId;
+						break;
+					}
+
+					case ShaderNodes::VariableType::OutputVariable:
+					{
+						auto& outputVar = static_cast<ShaderNodes::OutputVariable&>(*identifier.var);
+						auto it = m_currentState->outputIds.find(outputVar.name);
+						assert(it != m_currentState->outputIds.end());
+
+						storage = SpvStorageClassOutput;
+
+						pointerId = it->second.varId;
+						break;
+					}
+
+					case ShaderNodes::VariableType::UniformVariable:
+					{
+						auto& uniformVar = static_cast<ShaderNodes::UniformVariable&>(*identifier.var);
+						auto it = m_currentState->uniformIds.find(uniformVar.name);
+						assert(it != m_currentState->uniformIds.end());
+
+						storage = SpvStorageClassUniform;
+
+						pointerId = it->second.varId;
+						break;
+					}
+
+					case ShaderNodes::VariableType::LocalVariable:
+					case ShaderNodes::VariableType::ParameterVariable:
+					default:
+						throw std::runtime_error("not yet implemented");
+				}
+				break;
+			}
+
+			case ShaderNodes::NodeType::SwizzleOp: //< TODO
+			default:
+				throw std::runtime_error("not yet implemented");
+		}
+
+		UInt32 memberPointerId = AllocateResultId();
+		UInt32 pointerType = AllocateResultId();
+		UInt32 typeId = GetTypeId(node.exprType);
+		UInt32 indexId = GetConstantId(Int32(node.memberIndex));
+
+		m_currentState->types.Append(Opcode{ SpvOpTypePointer }, pointerType, storage, typeId);
+
+		m_currentState->instructions.Append(Opcode{ SpvOpAccessChain }, pointerType, memberPointerId, pointerId, indexId);
+
+		UInt32 resultId = AllocateResultId();
+
+		m_currentState->instructions.Append(Opcode{ SpvOpLoad }, typeId, resultId, memberPointerId);
+
+		PushResultId(resultId);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::AssignOp& node)
+	void SpirvWriter::Visit(ShaderNodes::AssignOp& node)
 	{
-		Visit(node.left);
-		Visit(node.right);
+		UInt32 result = EvaluateExpression(node.right);
+
+		switch (node.left->GetType())
+		{
+			case ShaderNodes::NodeType::Identifier:
+			{
+				auto& identifier = static_cast<ShaderNodes::Identifier&>(*node.left);
+				switch (identifier.var->GetType())
+				{
+					case ShaderNodes::VariableType::BuiltinVariable:
+					{
+						auto& builtinvar = static_cast<ShaderNodes::BuiltinVariable&>(*identifier.var);
+						auto it = m_currentState->builtinIds.find(builtinvar.entry);
+						assert(it != m_currentState->builtinIds.end());
+
+						m_currentState->instructions.Append(Opcode{ SpvOpStore }, it->second.varId, result);
+						PushResultId(result);
+						break;
+					}
+
+					case ShaderNodes::VariableType::OutputVariable:
+					{
+						auto& outputVar = static_cast<ShaderNodes::OutputVariable&>(*identifier.var);
+						auto it = m_currentState->outputIds.find(outputVar.name);
+						assert(it != m_currentState->outputIds.end());
+
+						m_currentState->instructions.Append(Opcode{ SpvOpStore }, it->second.varId, result);
+						PushResultId(result);
+						break;
+					}
+
+					case ShaderNodes::VariableType::InputVariable:
+					case ShaderNodes::VariableType::LocalVariable:
+					case ShaderNodes::VariableType::ParameterVariable:
+					case ShaderNodes::VariableType::UniformVariable:
+					default:
+						throw std::runtime_error("not yet implemented");
+				}
+				break;
+			}
+
+			case ShaderNodes::NodeType::SwizzleOp: //< TODO
+			default:
+				throw std::runtime_error("not yet implemented");
+		}
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::Branch& node)
+	void SpirvWriter::Visit(ShaderNodes::Branch& node)
 	{
 		throw std::runtime_error("not yet implemented");
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::BinaryOp& node)
+	void SpirvWriter::Visit(ShaderNodes::BinaryOp& node)
 	{
-		Visit(node.left);
-		Visit(node.right);
+		ShaderExpressionType resultExprType = node.GetExpressionType();
+		assert(std::holds_alternative<ShaderNodes::BasicType>(resultExprType));
 
+		const ShaderExpressionType& leftExprType = node.left->GetExpressionType();
+		assert(std::holds_alternative<ShaderNodes::BasicType>(leftExprType));
+
+		const ShaderExpressionType& rightExprType = node.right->GetExpressionType();
+		assert(std::holds_alternative<ShaderNodes::BasicType>(rightExprType));
+
+		ShaderNodes::BasicType resultType = std::get<ShaderNodes::BasicType>(resultExprType);
+		ShaderNodes::BasicType leftType = std::get<ShaderNodes::BasicType>(leftExprType);
+		ShaderNodes::BasicType rightType = std::get<ShaderNodes::BasicType>(rightExprType);
+
+
+		UInt32 leftOperand = EvaluateExpression(node.left);
+		UInt32 rightOperand = EvaluateExpression(node.right);
 		UInt32 resultId = AllocateResultId();
-		UInt32 leftOperand = PopResultId();
-		UInt32 rightOperand = PopResultId();
 
-		SpvOp op = [&] {
+		bool swapOperands = false;
+
+		SpvOp op = [&]
+		{
 			switch (node.op)
 			{
-				case ShaderNodes::BinaryType::Add: return SpvOpFAdd;
-				case ShaderNodes::BinaryType::Substract: return SpvOpFSub;
-				case ShaderNodes::BinaryType::Multiply: return SpvOpFMul;
-				case ShaderNodes::BinaryType::Divide: return SpvOpFDiv;
-				case ShaderNodes::BinaryType::Equality: return SpvOpFOrdEqual;
+				case ShaderNodes::BinaryType::Add:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpvOpFAdd;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpvOpIAdd;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+				}
+
+				case ShaderNodes::BinaryType::Substract:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpvOpFSub;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpvOpISub;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+				}
+
+				case ShaderNodes::BinaryType::Divide:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpvOpFDiv;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpvOpSDiv;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+				}
+
+				case ShaderNodes::BinaryType::Equality:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Boolean:
+							return SpvOpLogicalEqual;
+
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpvOpFOrdEqual;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpvOpIEqual;
+
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+				}
+
+				case ShaderNodes::BinaryType::Multiply:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						{
+							switch (rightType)
+							{
+								case ShaderNodes::BasicType::Float1:
+									return SpvOpFMul;
+
+								case ShaderNodes::BasicType::Float2:
+								case ShaderNodes::BasicType::Float3:
+								case ShaderNodes::BasicType::Float4:
+									swapOperands = true;
+									return SpvOpVectorTimesScalar;
+
+								case ShaderNodes::BasicType::Mat4x4:
+									swapOperands = true;
+									return SpvOpMatrixTimesScalar;
+
+								default:
+									break;
+							}
+
+							break;
+						}
+
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						{
+							switch (rightType)
+							{
+								case ShaderNodes::BasicType::Float1:
+									return SpvOpVectorTimesScalar;
+
+								case ShaderNodes::BasicType::Float2:
+								case ShaderNodes::BasicType::Float3:
+								case ShaderNodes::BasicType::Float4:
+									return SpvOpFMul;
+
+								case ShaderNodes::BasicType::Mat4x4:
+									return SpvOpVectorTimesMatrix;
+
+								default:
+									break;
+							}
+
+							break;
+						}
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpvOpIMul;
+
+						case ShaderNodes::BasicType::Mat4x4:
+						{
+							switch (rightType)
+							{
+								case ShaderNodes::BasicType::Float1: return SpvOpMatrixTimesScalar;
+								case ShaderNodes::BasicType::Float4: return SpvOpMatrixTimesVector;
+								case ShaderNodes::BasicType::Mat4x4: return SpvOpMatrixTimesMatrix;
+
+								default:
+									break;
+							}
+
+							break;
+						}
+
+						default:
+							break;
+					}
+					break;
+				}
 			}
 
 			assert(false);
 			throw std::runtime_error("unexpected binary operation");
 		}();
 
-		m_currentState->instructions.Append(Opcode{ op }, GetTypeId(ShaderNodes::BasicType::Float3), resultId, leftOperand, rightOperand);
+		if (swapOperands)
+			std::swap(leftOperand, rightOperand);
+
+		m_currentState->instructions.Append(Opcode{ op }, GetTypeId(resultType), resultId, leftOperand, rightOperand);
+		PushResultId(resultId);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::Cast& node)
+	void SpirvWriter::Visit(ShaderNodes::Cast& node)
 	{
-		for (auto& expr : node.expressions)
+		const ShaderExpressionType& targetExprType = node.exprType;
+		assert(std::holds_alternative<ShaderNodes::BasicType>(targetExprType));
+
+		ShaderNodes::BasicType targetType = std::get<ShaderNodes::BasicType>(targetExprType);
+
+		StackVector<UInt32> exprResults = NazaraStackVector(UInt32, node.expressions.size());
+
+		for (const auto& exprPtr : node.expressions)
 		{
-			if (!expr)
+			if (!exprPtr)
 				break;
 
-			Visit(expr);
+			exprResults.push_back(EvaluateExpression(exprPtr));
 		}
+
+		UInt32 resultId = AllocateResultId();
+
+		m_currentState->instructions.Append(Opcode{ SpvOpCompositeConstruct }, WordCount { static_cast<unsigned int>(3 + exprResults.size()) });
+		m_currentState->instructions.Append(GetTypeId(targetType));
+		m_currentState->instructions.Append(resultId);
+
+		for (UInt32 resultId : exprResults)
+			m_currentState->instructions.Append(resultId);
+
+		PushResultId(resultId);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::Constant& node)
+	void SpirvWriter::Visit(ShaderNodes::Constant& node)
 	{
 		std::visit([&] (const auto& value)
 		{
@@ -731,43 +1222,150 @@ namespace Nz
 		}, node.value);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::DeclareVariable& node)
+	void SpirvWriter::Visit(ShaderNodes::DeclareVariable& node)
 	{
 		if (node.expression)
-			Visit(node.expression);
+		{
+			assert(node.variable->GetType() == ShaderNodes::VariableType::LocalVariable);
+
+			const auto& localVar = static_cast<const ShaderNodes::LocalVariable&>(*node.variable);
+			m_currentState->varToResult[localVar.name] = EvaluateExpression(node.expression);
+		}
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::ExpressionStatement& node)
+	void SpirvWriter::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		Visit(node.expression);
+		PopResultId();
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::Identifier& node)
+	void SpirvWriter::Visit(ShaderNodes::Identifier& node)
 	{
-		PushResultId(42);
+		Visit(node.var);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::IntrinsicCall& node)
+	void SpirvWriter::Visit(ShaderNodes::IntrinsicCall& node)
 	{
-		for (auto& param : node.parameters)
-			Visit(param);
+		switch (node.intrinsic)
+		{
+			case ShaderNodes::IntrinsicType::DotProduct:
+			{
+				const ShaderExpressionType& vecExprType = node.parameters[0]->GetExpressionType();
+				assert(std::holds_alternative<ShaderNodes::BasicType>(vecExprType));
+
+				ShaderNodes::BasicType vecType = std::get<ShaderNodes::BasicType>(vecExprType);
+
+				UInt32 typeId = GetTypeId(node.GetComponentType(vecType));
+
+				UInt32 vec1 = EvaluateExpression(node.parameters[0]);
+				UInt32 vec2 = EvaluateExpression(node.parameters[1]);
+
+				UInt32 resultId = AllocateResultId();
+
+				m_currentState->instructions.Append(Opcode{ SpvOpDot }, typeId, resultId, vec1, vec2);
+				PushResultId(resultId);
+				break;
+			}
+
+			case ShaderNodes::IntrinsicType::CrossProduct:
+			default:
+				throw std::runtime_error("not yet implemented");
+		}
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::Sample2D& node)
+	void SpirvWriter::Visit(ShaderNodes::Sample2D& node)
 	{
-		Visit(node.sampler);
-		Visit(node.coordinates);
+		// OpImageSampleImplicitLod %v4float %31 %35
+
+		UInt32 typeId = GetTypeId(ShaderNodes::BasicType::Float4);
+
+		UInt32 samplerId = EvaluateExpression(node.sampler);
+		UInt32 coordinatesId = EvaluateExpression(node.coordinates);
+		UInt32 resultId = AllocateResultId();
+
+		m_currentState->instructions.Append(Opcode{ SpvOpImageSampleImplicitLod }, typeId, resultId, samplerId, coordinatesId);
+		PushResultId(resultId);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::StatementBlock& node)
+	void SpirvWriter::Visit(ShaderNodes::StatementBlock& node)
 	{
 		for (auto& statement : node.statements)
 			Visit(statement);
 	}
 
-	void SpirvWriter::Visit(const ShaderNodes::SwizzleOp& node)
+	void SpirvWriter::Visit(ShaderNodes::SwizzleOp& node)
 	{
-		Visit(node.expression);
+		const ShaderExpressionType& targetExprType = node.GetExpressionType();
+		assert(std::holds_alternative<ShaderNodes::BasicType>(targetExprType));
+
+		ShaderNodes::BasicType targetType = std::get<ShaderNodes::BasicType>(targetExprType);
+
+		UInt32 exprResultId = EvaluateExpression(node.expression);
+		UInt32 resultId = AllocateResultId();
+
+		if (node.componentCount > 1)
+		{
+			// Swizzling is implemented via SpvOpVectorShuffle using the same vector twice as operands
+			m_currentState->instructions.Append(Opcode{ SpvOpVectorShuffle }, WordCount{ static_cast<unsigned int>(5 + node.componentCount) });
+			m_currentState->instructions.Append(GetTypeId(targetType));
+			m_currentState->instructions.Append(resultId);
+			m_currentState->instructions.Append(exprResultId);
+			m_currentState->instructions.Append(exprResultId);
+
+			for (std::size_t i = 0; i < node.componentCount; ++i)
+				m_currentState->instructions.Append(UInt32(node.components[0]) - UInt32(node.components[i]));
+		}
+		else
+		{
+			// Extract a single component from the vector
+			assert(node.componentCount == 1);
+
+			m_currentState->instructions.Append(Opcode{ SpvOpCompositeExtract }, GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderNodes::SwizzleComponent::First) );
+		}
+
+		PushResultId(resultId);
+	}
+
+	void SpirvWriter::Visit(ShaderNodes::BuiltinVariable& var)
+	{
+		throw std::runtime_error("not implemented yet");
+	}
+
+	void SpirvWriter::Visit(ShaderNodes::InputVariable& var)
+	{
+		auto it = m_currentState->inputIds.find(var.name);
+		assert(it != m_currentState->inputIds.end());
+
+		PushResultId(ReadVariable(it.value()));
+	}
+
+	void SpirvWriter::Visit(ShaderNodes::LocalVariable& var)
+	{
+		auto it = m_currentState->varToResult.find(var.name);
+		assert(it != m_currentState->varToResult.end());
+
+		PushResultId(it->second);
+	}
+
+	void SpirvWriter::Visit(ShaderNodes::OutputVariable& var)
+	{
+		auto it = m_currentState->outputIds.find(var.name);
+		assert(it != m_currentState->outputIds.end());
+
+		PushResultId(ReadVariable(it.value()));
+	}
+
+	void SpirvWriter::Visit(ShaderNodes::ParameterVariable& var)
+	{
+		throw std::runtime_error("not implemented yet");
+	}
+
+	void SpirvWriter::Visit(ShaderNodes::UniformVariable& var)
+	{
+		auto it = m_currentState->uniformIds.find(var.name);
+		assert(it != m_currentState->uniformIds.end());
+
+		PushResultId(ReadVariable(it.value()));
 	}
 
 	void SpirvWriter::MergeBlocks(std::vector<UInt32>& output, const Section& from)
@@ -794,14 +1392,15 @@ namespace Nz
 			UInt32 codepoint = 0;
 			for (std::size_t j = 0; j < 4; ++j)
 			{
+#ifdef NAZARA_BIG_ENDIAN
+				std::size_t pos = i * 4 + (3 - j);
+#else
 				std::size_t pos = i * 4 + j;
+#endif
+
 				if (pos < raw.size)
 					codepoint |= UInt32(ptr[pos]) << (j * 8);
 			}
-
-#ifdef NAZARA_BIG_ENDIAN
-			SwapBytes(codepoint);
-#endif
 
 			Append(codepoint);
 		}

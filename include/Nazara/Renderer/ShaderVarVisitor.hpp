@@ -21,13 +21,14 @@ namespace Nz
 			ShaderVarVisitor(ShaderVarVisitor&&) = delete;
 			virtual ~ShaderVarVisitor();
 
-			virtual void Visit(const ShaderNodes::BuiltinVariable& var) = 0;
-			virtual void Visit(const ShaderNodes::InputVariable& var) = 0;
-			virtual void Visit(const ShaderNodes::LocalVariable& var) = 0;
-			virtual void Visit(const ShaderNodes::OutputVariable& var) = 0;
-			virtual void Visit(const ShaderNodes::ParameterVariable& var) = 0;
-			virtual void Visit(const ShaderNodes::UniformVariable& var) = 0;
 			void Visit(const ShaderNodes::VariablePtr& node);
+
+			virtual void Visit(ShaderNodes::BuiltinVariable& var) = 0;
+			virtual void Visit(ShaderNodes::InputVariable& var) = 0;
+			virtual void Visit(ShaderNodes::LocalVariable& var) = 0;
+			virtual void Visit(ShaderNodes::OutputVariable& var) = 0;
+			virtual void Visit(ShaderNodes::ParameterVariable& var) = 0;
+			virtual void Visit(ShaderNodes::UniformVariable& var) = 0;
 	};
 }
 

@@ -28,12 +28,15 @@ namespace Nz::ShaderNodes
 		switch (type)
 		{
 			case BasicType::Float2:
+			case BasicType::Int2:
 				return 2;
 
 			case BasicType::Float3:
+			case BasicType::Int3:
 				return 3;
 
 			case BasicType::Float4:
+			case BasicType::Int4:
 				return 4;
 
 			case BasicType::Mat4x4:
@@ -52,6 +55,11 @@ namespace Nz::ShaderNodes
 			case BasicType::Float3:
 			case BasicType::Float4:
 				return BasicType::Float1;
+
+			case BasicType::Int2:
+			case BasicType::Int3:
+			case BasicType::Int4:
+				return BasicType::Int1;
 
 			case BasicType::Mat4x4:
 				return BasicType::Float4;

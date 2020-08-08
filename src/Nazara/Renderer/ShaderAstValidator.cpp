@@ -83,7 +83,7 @@ namespace Nz
 			throw AstError{ "Left expression type must match right expression type" };
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::AccessMember& node)
+	void ShaderAstValidator::Visit(ShaderNodes::AccessMember& node)
 	{
 		const ShaderExpressionType& exprType = MandatoryExpr(node.structExpr)->GetExpressionType();
 		if (!std::holds_alternative<std::string>(exprType))
@@ -105,7 +105,7 @@ namespace Nz
 			throw AstError{ "member type does not match node type" };
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::AssignOp& node)
+	void ShaderAstValidator::Visit(ShaderNodes::AssignOp& node)
 	{
 		MandatoryNode(node.left);
 		MandatoryNode(node.right);
@@ -117,7 +117,7 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::BinaryOp& node)
+	void ShaderAstValidator::Visit(ShaderNodes::BinaryOp& node)
 	{
 		MandatoryNode(node.left);
 		MandatoryNode(node.right);
@@ -147,8 +147,9 @@ namespace Nz
 				switch (leftType)
 				{
 					case ShaderNodes::BasicType::Float1:
+					case ShaderNodes::BasicType::Int1:
 					{
-						if (ShaderNodes::Node::GetComponentType(rightType) != ShaderNodes::BasicType::Float1)
+						if (ShaderNodes::Node::GetComponentType(rightType) != leftType)
 							throw AstError{ "Left expression type is not compatible with right expression type" };
 
 						break;
@@ -157,8 +158,11 @@ namespace Nz
 					case ShaderNodes::BasicType::Float2:
 					case ShaderNodes::BasicType::Float3:
 					case ShaderNodes::BasicType::Float4:
+					case ShaderNodes::BasicType::Int2:
+					case ShaderNodes::BasicType::Int3:
+					case ShaderNodes::BasicType::Int4:
 					{
-						if (leftType != rightType && rightType != ShaderNodes::BasicType::Float1)
+						if (leftType != rightType && rightType != ShaderNodes::Node::GetComponentType(leftType))
 							throw AstError{ "Left expression type is not compatible with right expression type" };
 
 						break;
@@ -189,7 +193,7 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::Branch& node)
+	void ShaderAstValidator::Visit(ShaderNodes::Branch& node)
 	{
 		for (const auto& condStatement : node.condStatements)
 		{
@@ -200,7 +204,7 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::Cast& node)
+	void ShaderAstValidator::Visit(ShaderNodes::Cast& node)
 	{
 		unsigned int componentCount = 0;
 		unsigned int requiredComponents = node.GetComponentCount(node.exprType);
@@ -222,11 +226,11 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::Constant& /*node*/)
+	void ShaderAstValidator::Visit(ShaderNodes::Constant& /*node*/)
 	{
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::DeclareVariable& node)
+	void ShaderAstValidator::Visit(ShaderNodes::DeclareVariable& node)
 	{
 		assert(m_context);
 
@@ -242,14 +246,14 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::ExpressionStatement& node)
+	void ShaderAstValidator::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		MandatoryNode(node.expression);
 
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::Identifier& node)
+	void ShaderAstValidator::Visit(ShaderNodes::Identifier& node)
 	{
 		assert(m_context);
 
@@ -259,7 +263,7 @@ namespace Nz
 		Visit(node.var);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::IntrinsicCall& node)
+	void ShaderAstValidator::Visit(ShaderNodes::IntrinsicCall& node)
 	{
 		switch (node.intrinsic)
 		{
@@ -300,7 +304,7 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::Sample2D& node)
+	void ShaderAstValidator::Visit(ShaderNodes::Sample2D& node)
 	{
 		if (MandatoryExpr(node.sampler)->GetExpressionType() != ShaderExpressionType{ ShaderNodes::BasicType::Sampler2D })
 			throw AstError{ "Sampler must be a Sampler2D" };
@@ -311,7 +315,7 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::StatementBlock& node)
+	void ShaderAstValidator::Visit(ShaderNodes::StatementBlock& node)
 	{
 		assert(m_context);
 
@@ -327,7 +331,7 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::SwizzleOp& node)
+	void ShaderAstValidator::Visit(ShaderNodes::SwizzleOp& node)
 	{
 		if (node.componentCount > 4)
 			throw AstError{ "Cannot swizzle more than four elements" };
@@ -342,6 +346,10 @@ namespace Nz
 			case ShaderNodes::BasicType::Float2:
 			case ShaderNodes::BasicType::Float3:
 			case ShaderNodes::BasicType::Float4:
+			case ShaderNodes::BasicType::Int1:
+			case ShaderNodes::BasicType::Int2:
+			case ShaderNodes::BasicType::Int3:
+			case ShaderNodes::BasicType::Int4:
 				break;
 
 			default:
@@ -351,12 +359,23 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::BuiltinVariable& /*var*/)
+	void ShaderAstValidator::Visit(ShaderNodes::BuiltinVariable& var)
 	{
-		/* Nothing to do */
+		switch (var.entry)
+		{
+			case ShaderNodes::BuiltinEntry::VertexPosition:
+				if (!std::holds_alternative<ShaderNodes::BasicType>(var.type) ||
+				    std::get<ShaderNodes::BasicType>(var.type) != ShaderNodes::BasicType::Float4)
+					throw AstError{ "Builtin is not of the expected type" };
+
+				break;
+
+			default:
+				break;
+		}
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::InputVariable& var)
+	void ShaderAstValidator::Visit(ShaderNodes::InputVariable& var)
 	{
 		for (std::size_t i = 0; i < m_shader.GetInputCount(); ++i)
 		{
@@ -371,7 +390,7 @@ namespace Nz
 		throw AstError{ "Input not found" };
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::LocalVariable& var)
+	void ShaderAstValidator::Visit(ShaderNodes::LocalVariable& var)
 	{
 		const auto& vars = m_context->declaredLocals;
 
@@ -382,7 +401,7 @@ namespace Nz
 		TypeMustMatch(it->type, var.type);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::OutputVariable& var)
+	void ShaderAstValidator::Visit(ShaderNodes::OutputVariable& var)
 	{
 		for (std::size_t i = 0; i < m_shader.GetOutputCount(); ++i)
 		{
@@ -397,7 +416,7 @@ namespace Nz
 		throw AstError{ "Output not found" };
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::ParameterVariable& var)
+	void ShaderAstValidator::Visit(ShaderNodes::ParameterVariable& var)
 	{
 		assert(m_context->currentFunction);
 
@@ -410,7 +429,7 @@ namespace Nz
 		TypeMustMatch(it->type, var.type);
 	}
 
-	void ShaderAstValidator::Visit(const ShaderNodes::UniformVariable& var)
+	void ShaderAstValidator::Visit(ShaderNodes::UniformVariable& var)
 	{
 		for (std::size_t i = 0; i < m_shader.GetUniformCount(); ++i)
 		{

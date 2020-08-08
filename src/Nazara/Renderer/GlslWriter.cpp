@@ -188,30 +188,18 @@ namespace Nz
 	{
 		switch (type)
 		{
-			case ShaderNodes::BasicType::Boolean:
-				Append("bool");
-				break;
-			case ShaderNodes::BasicType::Float1:
-				Append("float");
-				break;
-			case ShaderNodes::BasicType::Float2:
-				Append("vec2");
-				break;
-			case ShaderNodes::BasicType::Float3:
-				Append("vec3");
-				break;
-			case ShaderNodes::BasicType::Float4:
-				Append("vec4");
-				break;
-			case ShaderNodes::BasicType::Mat4x4:
-				Append("mat4");
-				break;
-			case ShaderNodes::BasicType::Sampler2D:
-				Append("sampler2D");
-				break;
-			case ShaderNodes::BasicType::Void:
-				Append("void");
-				break;
+			case ShaderNodes::BasicType::Boolean:   return Append("bool");
+			case ShaderNodes::BasicType::Float1:    return Append("float");
+			case ShaderNodes::BasicType::Float2:    return Append("vec2");
+			case ShaderNodes::BasicType::Float3:    return Append("vec3");
+			case ShaderNodes::BasicType::Float4:    return Append("vec4");
+			case ShaderNodes::BasicType::Int1:      return Append("int");
+			case ShaderNodes::BasicType::Int2:      return Append("ivec2");
+			case ShaderNodes::BasicType::Int3:      return Append("ivec3");
+			case ShaderNodes::BasicType::Int4:      return Append("ivec4");
+			case ShaderNodes::BasicType::Mat4x4:    return Append("mat4");
+			case ShaderNodes::BasicType::Sampler2D: return Append("sampler2D");
+			case ShaderNodes::BasicType::Void:      return Append("void");
 		}
 	}
 
@@ -298,7 +286,7 @@ namespace Nz
 		AppendLine("}");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired)
+	void GlslWriter::Visit(ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired)
 	{
 		bool enclose = encloseIfRequired && (expr->GetExpressionCategory() != ShaderNodes::ExpressionCategory::LValue);
 
@@ -311,7 +299,7 @@ namespace Nz
 			Append(")");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::AccessMember& node)
+	void GlslWriter::Visit(ShaderNodes::AccessMember& node)
 	{
 		Visit(node.structExpr, true);
 
@@ -332,7 +320,7 @@ namespace Nz
 		Append(member.name);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::AssignOp& node)
+	void GlslWriter::Visit(ShaderNodes::AssignOp& node)
 	{
 		Visit(node.left);
 
@@ -346,7 +334,7 @@ namespace Nz
 		Visit(node.right);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::Branch& node)
+	void GlslWriter::Visit(ShaderNodes::Branch& node)
 	{
 		bool first = true;
 		for (const auto& statement : node.condStatements)
@@ -375,7 +363,7 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::BinaryOp& node)
+	void GlslWriter::Visit(ShaderNodes::BinaryOp& node)
 	{
 		Visit(node.left, true);
 
@@ -401,12 +389,12 @@ namespace Nz
 		Visit(node.right, true);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::BuiltinVariable& var)
+	void GlslWriter::Visit(ShaderNodes::BuiltinVariable& var)
 	{
 		Append(var.entry);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::Cast& node)
+	void GlslWriter::Visit(ShaderNodes::Cast& node)
 	{
 		Append(node.exprType);
 		Append("(");
@@ -425,28 +413,31 @@ namespace Nz
 		Append(")");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::Constant& node)
+	void GlslWriter::Visit(ShaderNodes::Constant& node)
 	{
 		std::visit([&](auto&& arg)
 		{
 			using T = std::decay_t<decltype(arg)>;
 
+			if constexpr (std::is_same_v<T, Vector2i32> || std::is_same_v<T, Vector3i32> || std::is_same_v<T, Vector4i32>)
+				Append("i"); //< for ivec
+
 			if constexpr (std::is_same_v<T, bool>)
 				Append((arg) ? "true" : "false");
-			else if constexpr (std::is_same_v<T, float>)
+			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32>)
 				Append(std::to_string(arg));
-			else if constexpr (std::is_same_v<T, Vector2f>)
+			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
 				Append("vec2(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
-			else if constexpr (std::is_same_v<T, Vector3f>)
+			else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i32>)
 				Append("vec3(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ")");
-			else if constexpr (std::is_same_v<T, Vector4f>)
+			else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i32>)
 				Append("vec4(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ", " + std::to_string(arg.w) + ")");
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, node.value);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::DeclareVariable& node)
+	void GlslWriter::Visit(ShaderNodes::DeclareVariable& node)
 	{
 		assert(node.variable->GetType() == ShaderNodes::VariableType::LocalVariable);
 
@@ -464,23 +455,23 @@ namespace Nz
 		AppendLine(";");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::ExpressionStatement& node)
+	void GlslWriter::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		Visit(node.expression);
 		Append(";");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::Identifier& node)
+	void GlslWriter::Visit(ShaderNodes::Identifier& node)
 	{
 		Visit(node.var);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::InputVariable& var)
+	void GlslWriter::Visit(ShaderNodes::InputVariable& var)
 	{
 		Append(var.name);
 	}
 	
-	void GlslWriter::Visit(const ShaderNodes::IntrinsicCall& node)
+	void GlslWriter::Visit(ShaderNodes::IntrinsicCall& node)
 	{
 		switch (node.intrinsic)
 		{
@@ -504,22 +495,22 @@ namespace Nz
 		Append(")");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::LocalVariable& var)
+	void GlslWriter::Visit(ShaderNodes::LocalVariable& var)
 	{
 		Append(var.name);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::ParameterVariable& var)
+	void GlslWriter::Visit(ShaderNodes::ParameterVariable& var)
 	{
 		Append(var.name);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::OutputVariable& var)
+	void GlslWriter::Visit(ShaderNodes::OutputVariable& var)
 	{
 		Append(var.name);
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::Sample2D& node)
+	void GlslWriter::Visit(ShaderNodes::Sample2D& node)
 	{
 		Append("texture(");
 		Visit(node.sampler);
@@ -528,7 +519,7 @@ namespace Nz
 		Append(")");
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::StatementBlock& node)
+	void GlslWriter::Visit(ShaderNodes::StatementBlock& node)
 	{
 		bool first = true;
 		for (const ShaderNodes::StatementPtr& statement : node.statements)
@@ -542,7 +533,7 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::SwizzleOp& node)
+	void GlslWriter::Visit(ShaderNodes::SwizzleOp& node)
 	{
 		Visit(node.expression);
 		Append(".");
@@ -570,7 +561,7 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Visit(const ShaderNodes::UniformVariable& var)
+	void GlslWriter::Visit(ShaderNodes::UniformVariable& var)
 	{
 		Append(var.name);
 	}

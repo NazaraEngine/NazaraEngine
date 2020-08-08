@@ -1,5 +1,6 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Renderer.hpp>
+#include <Nazara/Renderer/ShaderAstCloner.hpp>
 #include <Nazara/Renderer/SpirvWriter.hpp>
 #include <array>
 #include <iostream>
@@ -7,8 +8,8 @@
 #define SPIRV 0
 
 int main()
-{
-	{
+{	
+	/*{
 		Nz::File file("frag.shader");
 		if (!file.Open(Nz::OpenMode_ReadOnly))
 			return __LINE__;
@@ -39,7 +40,7 @@ int main()
 
 		return 0;
 	}
-
+	*/
 	Nz::Initializer<Nz::Renderer> loader;
 	if (!loader)
 	{

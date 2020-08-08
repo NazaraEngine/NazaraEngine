@@ -145,7 +145,7 @@ namespace Nz
 
 			std::size_t memberIndex;
 			ExpressionPtr structExpr;
-			ShaderExpressionType exprType; //< FIXME: Use ShaderAst to automate
+			ShaderExpressionType exprType;
 
 			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::size_t memberIndex, ShaderExpressionType exprType);
 		};
@@ -225,9 +225,13 @@ namespace Nz
 			using Variant = std::variant<
 				bool,
 				float,
+				Int32,
 				Vector2f,
 				Vector3f,
-				Vector4f
+				Vector4f,
+				Vector2i32,
+				Vector3i32,
+				Vector4i32
 			>;
 
 			Variant value;

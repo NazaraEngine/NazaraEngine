@@ -7,24 +7,24 @@
 
 namespace Nz
 {
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::AccessMember& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::AccessMember& node)
 	{
 		Visit(node.structExpr);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::AssignOp& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::AssignOp& node)
 	{
 		Visit(node.left);
 		Visit(node.right);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::BinaryOp& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::BinaryOp& node)
 	{
 		Visit(node.left);
 		Visit(node.right);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::Branch& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Branch& node)
 	{
 		for (auto& cond : node.condStatements)
 		{
@@ -36,7 +36,7 @@ namespace Nz
 			Visit(node.elseStatement);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::Cast& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Cast& node)
 	{
 		for (auto& expr : node.expressions)
 		{
@@ -47,46 +47,46 @@ namespace Nz
 		}
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::Constant& /*node*/)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Constant& /*node*/)
 	{
 		/* Nothing to do */
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::DeclareVariable& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::DeclareVariable& node)
 	{
 		if (node.expression)
 			Visit(node.expression);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::ExpressionStatement& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		Visit(node.expression);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::Identifier& /*node*/)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Identifier& /*node*/)
 	{
 		/* Nothing to do */
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::IntrinsicCall& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::IntrinsicCall& node)
 	{
 		for (auto& param : node.parameters)
 			Visit(param);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::Sample2D& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Sample2D& node)
 	{
 		Visit(node.sampler);
 		Visit(node.coordinates);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::StatementBlock& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::StatementBlock& node)
 	{
 		for (auto& statement : node.statements)
 			Visit(statement);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(const ShaderNodes::SwizzleOp& node)
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::SwizzleOp& node)
 	{
 		Visit(node.expression);
 	}

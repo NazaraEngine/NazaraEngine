@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/ShaderAst.hpp>
-#include <Nazara/Renderer/ShaderVarVisitor.hpp>
 #include <Nazara/Renderer/ShaderAstVisitor.hpp>
+#include <Nazara/Renderer/ShaderVarVisitor.hpp>
 #include <Nazara/Renderer/ShaderWriter.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <string>
@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API SpirvWriter : public ShaderAstVisitor
+	class NAZARA_RENDERER_API SpirvWriter : public ShaderAstVisitor, public ShaderVarVisitor
 	{
 		public:
 			struct Environment;
@@ -41,6 +41,7 @@ namespace Nz
 			};
 
 		private:
+			struct ExtVar;
 			struct Opcode;
 			struct Raw;
 			struct WordCount;
@@ -76,28 +77,39 @@ namespace Nz
 			void AppendStructType(std::size_t structIndex, UInt32 resultId);
 			void AppendTypes();
 
+			UInt32 EvaluateExpression(const ShaderNodes::ExpressionPtr& expr);
+
 			UInt32 GetConstantId(const ShaderNodes::Constant::Variant& value) const;
 			UInt32 GetTypeId(const ShaderExpressionType& type) const;
 
 			void PushResultId(UInt32 value);
 			UInt32 PopResultId();
 
+			UInt32 ReadVariable(ExtVar& var);
 			UInt32 RegisterType(ShaderExpressionType type);
 
 			using ShaderAstVisitor::Visit;
-			void Visit(const ShaderNodes::AccessMember& node) override;
-			void Visit(const ShaderNodes::AssignOp& node) override;
-			void Visit(const ShaderNodes::Branch& node) override;
-			void Visit(const ShaderNodes::BinaryOp& node) override;
-			void Visit(const ShaderNodes::Cast& node) override;
-			void Visit(const ShaderNodes::Constant& node) override;
-			void Visit(const ShaderNodes::DeclareVariable& node) override;
-			void Visit(const ShaderNodes::ExpressionStatement& node) override;
-			void Visit(const ShaderNodes::Identifier& node) override;
-			void Visit(const ShaderNodes::IntrinsicCall& node) override;
-			void Visit(const ShaderNodes::Sample2D& node) override;
-			void Visit(const ShaderNodes::StatementBlock& node) override;
-			void Visit(const ShaderNodes::SwizzleOp& node) override;
+			void Visit(ShaderNodes::AccessMember& node) override;
+			void Visit(ShaderNodes::AssignOp& node) override;
+			void Visit(ShaderNodes::Branch& node) override;
+			void Visit(ShaderNodes::BinaryOp& node) override;
+			void Visit(ShaderNodes::Cast& node) override;
+			void Visit(ShaderNodes::Constant& node) override;
+			void Visit(ShaderNodes::DeclareVariable& node) override;
+			void Visit(ShaderNodes::ExpressionStatement& node) override;
+			void Visit(ShaderNodes::Identifier& node) override;
+			void Visit(ShaderNodes::IntrinsicCall& node) override;
+			void Visit(ShaderNodes::Sample2D& node) override;
+			void Visit(ShaderNodes::StatementBlock& node) override;
+			void Visit(ShaderNodes::SwizzleOp& node) override;
+
+			using ShaderVarVisitor::Visit;
+			void Visit(ShaderNodes::BuiltinVariable& var) override;
+			void Visit(ShaderNodes::InputVariable& var) override;
+			void Visit(ShaderNodes::LocalVariable& var) override;
+			void Visit(ShaderNodes::OutputVariable& var) override;
+			void Visit(ShaderNodes::ParameterVariable& var) override;
+			void Visit(ShaderNodes::UniformVariable& var) override;
 
 			static void MergeBlocks(std::vector<UInt32>& output, const Section& from);
 
