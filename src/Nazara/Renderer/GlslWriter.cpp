@@ -5,12 +5,44 @@
 #include <Nazara/Renderer/GlslWriter.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Renderer/ShaderAstCloner.hpp>
 #include <Nazara/Renderer/ShaderAstValidator.hpp>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
+	namespace
+	{
+		struct AstAdapter : ShaderAstCloner
+		{
+			void Visit(ShaderNodes::AssignOp& node) override
+			{
+				if (!flipYPosition)
+					return ShaderAstCloner::Visit(node);
+
+				if (node.left->GetType() != ShaderNodes::NodeType::Identifier)
+					return ShaderAstCloner::Visit(node);
+
+				const auto& identifier = static_cast<const ShaderNodes::Identifier&>(*node.left);
+				if (identifier.var->GetType() != ShaderNodes::VariableType::BuiltinVariable)
+					return ShaderAstCloner::Visit(node);
+
+				const auto& builtinVar = static_cast<const ShaderNodes::BuiltinVariable&>(*identifier.var);
+				if (builtinVar.entry != ShaderNodes::BuiltinEntry::VertexPosition)
+					return ShaderAstCloner::Visit(node);
+
+				auto fixYConstant = ShaderBuilder::Constant(Nz::Vector4f(1.f, -1.f, 1.f, 1.f));
+				auto mulFix = ShaderBuilder::Multiply(CloneExpression(node.right), fixYConstant);
+
+				PushExpression(ShaderNodes::AssignOp::Build(node.op, CloneExpression(node.left), mulFix));
+			}
+
+			bool flipYPosition = false;
+		};
+	}
+
 	GlslWriter::GlslWriter() :
 	m_currentState(nullptr)
 	{
@@ -237,7 +269,10 @@ namespace Nz
 
 		EnterScope();
 		{
-			Visit(func.statement);
+			AstAdapter adapter;
+			adapter.flipYPosition = m_environment.flipYPosition;
+
+			Visit(adapter.Clone(func.statement));
 		}
 		LeaveScope();
 	}
