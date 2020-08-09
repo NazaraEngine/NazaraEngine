@@ -29,7 +29,7 @@ namespace Nz::GL
 			inline void SetParameterfv(GLenum pname, const GLfloat* param);
 			inline void SetParameteriv(GLenum pname, const GLint* param);
 
-			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border);
+			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type);
 			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data);
 			inline void TexSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data);
 
@@ -39,6 +39,8 @@ namespace Nz::GL
 		private:
 			static inline GLuint CreateHelper(OpenGLDevice& device, const Context& context);
 			static inline void DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId);
+
+			TextureTarget m_target;
 	};
 }
 
