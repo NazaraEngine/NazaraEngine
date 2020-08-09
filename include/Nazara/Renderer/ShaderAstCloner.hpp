@@ -28,7 +28,7 @@ namespace Nz
 			ShaderAstCloner& operator=(const ShaderAstCloner&) = default;
 			ShaderAstCloner& operator=(ShaderAstCloner&&) = default;
 
-		private:
+		protected:
 			ShaderNodes::ExpressionPtr CloneExpression(const ShaderNodes::ExpressionPtr& expr);
 			ShaderNodes::StatementPtr CloneStatement(const ShaderNodes::StatementPtr& statement);
 			ShaderNodes::VariablePtr CloneVariable(const ShaderNodes::VariablePtr& statement);
@@ -62,6 +62,7 @@ namespace Nz
 			ShaderNodes::StatementPtr PopStatement();
 			ShaderNodes::VariablePtr PopVariable();
 
+		private:
 			std::vector<ShaderNodes::ExpressionPtr> m_expressionStack;
 			std::vector<ShaderNodes::StatementPtr>  m_statementStack;
 			std::vector<ShaderNodes::VariablePtr>   m_variableStack;

@@ -41,6 +41,7 @@ namespace Nz
 				unsigned int glMajorVersion = 3;
 				unsigned int glMinorVersion = 0;
 				bool glES = false;
+				bool flipYPosition = false;
 			};
 
 		private:
