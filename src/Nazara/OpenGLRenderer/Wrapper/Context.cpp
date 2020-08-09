@@ -633,6 +633,10 @@ namespace Nz::GL
 				ss << "Low";
 				break;
 
+			case GL_DEBUG_SEVERITY_NOTIFICATION:
+				ss << "Notification";
+				break;
+
 			default:
 				ss << "Unknown";
 				break;
