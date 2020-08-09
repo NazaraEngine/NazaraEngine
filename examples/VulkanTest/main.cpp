@@ -5,42 +5,8 @@
 #include <array>
 #include <iostream>
 
-#define SPIRV 0
-
 int main()
-{	
-	/*{
-		Nz::File file("frag.shader");
-		if (!file.Open(Nz::OpenMode_ReadOnly))
-			return __LINE__;
-
-		std::size_t length = static_cast<std::size_t>(file.GetSize());
-
-		std::vector<Nz::UInt8> source(length);
-		if (file.Read(&source[0], length) != length)
-		{
-			NazaraError("Failed to read program file");
-			return {};
-		}
-
-
-
-		Nz::SpirvWriter writer;
-
-		Nz::ByteStream byteStream(source.data(), source.size());
-		auto shader = Nz::UnserializeShader(byteStream);
-
-		std::vector<Nz::UInt32> result = writer.Generate(shader);
-
-		Nz::File target("test.spirv");
-		if (!target.Open(Nz::OpenMode_WriteOnly | Nz::OpenMode_Truncate))
-			return __LINE__;
-
-		target.Write(result.data(), result.size() * sizeof(Nz::UInt32));
-
-		return 0;
-	}
-	*/
+{
 	Nz::Initializer<Nz::Renderer> loader;
 	if (!loader)
 	{
@@ -63,21 +29,6 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
-#if SPIRV
-	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::SpirV, "resources/shaders/triangle.frag.spv");
-	if (!fragmentShader)
-	{
-		std::cout << "Failed to instantiate fragment shader" << std::endl;
-		return __LINE__;
-	}
-
-	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::SpirV, "resources/shaders/triangle.vert.spv");
-	if (!vertexShader)
-	{
-		std::cout << "Failed to instantiate fragment shader" << std::endl;
-		return __LINE__;
-	}
-#else
 	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, "frag.shader");
 	if (!fragmentShader)
 	{
@@ -91,7 +42,6 @@ int main()
 		std::cout << "Failed to instantiate fragment shader" << std::endl;
 		return __LINE__;
 	}
-#endif
 
 	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/Spaceship/spaceship.obj", meshParams);
 
