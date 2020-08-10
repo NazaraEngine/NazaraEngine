@@ -400,7 +400,7 @@ namespace Nz
 		if (squaredDistance > squaredRadius)
 			return false; // if the ray is further than the radius
 
-		// Calcul des points d'intersection si besoin
+		// Compute intersections points if required
 		if (closestHit || furthestHit)
 		{
 			T deltaLambda = std::sqrt(squaredRadius - squaredDistance);
