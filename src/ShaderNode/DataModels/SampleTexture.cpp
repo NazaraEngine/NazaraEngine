@@ -1,6 +1,6 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 
 SampleTexture::SampleTexture(ShaderGraph& graph) :
 ShaderNode(graph)

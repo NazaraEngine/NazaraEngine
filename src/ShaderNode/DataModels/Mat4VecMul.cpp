@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/Mat4VecMul.hpp>
-#include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Shader/ShaderNodes.hpp>
 
 Mat4VecMul::Mat4VecMul(ShaderGraph& graph) :
 ShaderNode(graph)

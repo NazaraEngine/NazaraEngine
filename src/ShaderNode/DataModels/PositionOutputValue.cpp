@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/PositionOutputValue.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>

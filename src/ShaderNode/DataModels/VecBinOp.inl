@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/VecBinOp.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 
 template<Nz::ShaderNodes::BinaryType BinOp>
 VecBinOp<BinOp>::VecBinOp(ShaderGraph& graph) :

@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <cassert>
 
 FloatValue::FloatValue(ShaderGraph& graph) :

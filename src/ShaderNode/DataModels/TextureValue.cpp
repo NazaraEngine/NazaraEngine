@@ -2,7 +2,7 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/TextureData.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <QtWidgets/QFormLayout>
 
 TextureValue::TextureValue(ShaderGraph& graph) :

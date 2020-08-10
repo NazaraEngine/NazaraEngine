@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_TEXTUREDATA_HPP
 
 #include <ShaderNode/Previews/PreviewValues.hpp>
-#include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Shader/ShaderNodes.hpp>
 #include <nodes/NodeData>
 
 struct TextureData : public QtNodes::NodeData
