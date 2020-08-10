@@ -2,12 +2,9 @@ MODULE.Name = "Renderer"
 
 MODULE.ClientOnly = true
 
-MODULE.Defines = {
-	"NAZARA_RENDERER_OPENGL"
-}
-
 MODULE.Libraries = {
 	"NazaraCore",
+	"NazaraShader",
 	"NazaraUtility",
 	"NazaraPlatform"
 }
@@ -20,16 +17,5 @@ MODULE.OsFiles.Windows = {
 MODULE.OsFiles.Posix = {
     "../src/Nazara/Renderer/GLX/**.hpp",
     "../src/Nazara/Renderer/GLX/**.cpp"
-}
-
-MODULE.OsLibraries.Windows = {
-    "gdi32",
-    "opengl32",
-    "winmm"
-}
-
-MODULE.OsLibraries.Posix = {
-    "GL",
-    "X11"
 }
 

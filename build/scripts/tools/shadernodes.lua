@@ -28,7 +28,7 @@ TOOL.Files = {
 
 TOOL.Libraries = {
 	"NazaraCore",
-	"NazaraRenderer",
+	"NazaraShader",
 	"NazaraUtility",
 	"Qt5Cored",
 	"Qt5Guid",

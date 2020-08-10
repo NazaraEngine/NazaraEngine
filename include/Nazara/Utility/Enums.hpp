@@ -309,6 +309,24 @@ namespace Nz
 		SamplerWrap_Max = SamplerWrap_Repeat
 	};
 
+	enum class ShaderStageType
+	{
+		Fragment,
+		Vertex,
+
+		Max = Vertex
+	};
+
+	template<>
+	struct EnumAsFlags<ShaderStageType>
+	{
+		static constexpr ShaderStageType max = ShaderStageType::Max;
+	};
+
+	using ShaderStageTypeFlags = Flags<ShaderStageType>;
+
+	constexpr ShaderStageTypeFlags ShaderStageType_All = ShaderStageType::Fragment | ShaderStageType::Vertex;
+
 	enum StructFieldType
 	{
 		StructFieldType_Bool1,

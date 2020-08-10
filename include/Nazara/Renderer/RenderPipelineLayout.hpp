@@ -10,6 +10,7 @@
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <memory>
 #include <string>
 #include <vector>

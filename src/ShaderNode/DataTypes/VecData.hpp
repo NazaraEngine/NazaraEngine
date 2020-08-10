@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_VECDATA_HPP
 #define NAZARA_SHADERNODES_VECDATA_HPP
 
-#include <Nazara/Renderer/ShaderNodes.hpp>
+#include <Nazara/Shader/ShaderNodes.hpp>
 #include <ShaderNode/Previews/PreviewValues.hpp>
 #include <nodes/NodeData>
 

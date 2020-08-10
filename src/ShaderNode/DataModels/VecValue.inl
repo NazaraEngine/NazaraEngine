@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/VecValue.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <QtCore/QJsonArray>
 #include <array>

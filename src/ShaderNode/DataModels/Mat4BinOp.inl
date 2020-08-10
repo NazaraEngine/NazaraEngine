@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/Mat4BinOp.hpp>
-#include <Nazara/Renderer/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 
 template<Nz::ShaderNodes::BinaryType BinOp>
 Mat4BinOp<BinOp>::Mat4BinOp(ShaderGraph& graph) :

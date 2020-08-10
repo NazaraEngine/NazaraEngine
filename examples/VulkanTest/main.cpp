@@ -1,7 +1,5 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Renderer/ShaderAstCloner.hpp>
-#include <Nazara/Renderer/SpirvWriter.hpp>
 #include <array>
 #include <iostream>
 

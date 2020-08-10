@@ -1,7 +1,7 @@
 #include <ShaderNode/Widgets/MainWindow.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Renderer/GlslWriter.hpp>
-#include <Nazara/Renderer/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/BufferEditor.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
