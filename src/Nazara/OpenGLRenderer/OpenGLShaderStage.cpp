@@ -6,9 +6,9 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <Nazara/Renderer/GlslWriter.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
-#include <Nazara/Renderer/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/ShaderAst.hpp>
+#include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
-#include <Nazara/Renderer/ShaderAst.hpp>
-#include <Nazara/Renderer/ShaderAstSerializer.hpp>
-#include <Nazara/Renderer/SpirvWriter.hpp>
+#include <Nazara/Shader/ShaderAst.hpp>
+#include <Nazara/Shader/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/SpirvWriter.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
