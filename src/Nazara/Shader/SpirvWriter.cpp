@@ -8,6 +8,8 @@
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
+#include <Nazara/Shader/SpirvData.hpp>
+#include <Nazara/Shader/SpirvSection.hpp>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
 #include <SpirV/spirv.h>
@@ -198,22 +200,6 @@ namespace Nz
 		std::optional<UInt32> valueId;
 	};
 
-	struct SpirvWriter::Opcode
-	{
-		SpvOp op;
-	};
-
-	struct SpirvWriter::Raw
-	{
-		const void* ptr;
-		std::size_t size;
-	};
-
-	struct SpirvWriter::WordCount
-	{
-		unsigned int wc;
-	};
-
 	struct SpirvWriter::State
 	{
 		struct Func
@@ -237,12 +223,12 @@ namespace Nz
 		UInt32 nextVarIndex = 1;
 
 		// Output
-		Section header;
-		Section constants;
-		Section debugInfo;
-		Section annotations;
-		Section types;
-		Section instructions;
+		SpirvSection header;
+		SpirvSection constants;
+		SpirvSection debugInfo;
+		SpirvSection annotations;
+		SpirvSection types;
+		SpirvSection instructions;
 	};
 
 	SpirvWriter::SpirvWriter() :
@@ -343,11 +329,11 @@ namespace Nz
 					throw std::runtime_error("unexpected builtin type");
 			}
 
-			state.debugInfo.Append(Opcode{ SpvOpName }, builtinData.varId, debugName);
-			state.types.Append(Opcode{ SpvOpTypePointer }, builtinData.pointerTypeId, SpvStorageClassOutput, builtinData.typeId);
-			state.types.Append(Opcode{ SpvOpVariable }, builtinData.pointerTypeId, builtinData.varId, SpvStorageClassOutput);
+			state.debugInfo.Append(SpirvOp::OpName, builtinData.varId, debugName);
+			state.types.Append(SpirvOp::OpTypePointer, builtinData.pointerTypeId, SpvStorageClassOutput, builtinData.typeId);
+			state.types.Append(SpirvOp::OpVariable, builtinData.pointerTypeId, builtinData.varId, SpvStorageClassOutput);
 
-			state.annotations.Append(Opcode{ SpvOpDecorate }, builtinData.varId, SpvDecorationBuiltIn, spvBuiltin);
+			state.annotations.Append(SpirvOp::OpDecorate, builtinData.varId, SpvDecorationBuiltIn, spvBuiltin);
 
 			state.builtinIds.emplace(builtin->entry, builtinData);
 		}
@@ -361,12 +347,12 @@ namespace Nz
 
 			state.inputIds.emplace(input.name, inputData);
 
-			state.debugInfo.Append(Opcode{ SpvOpName }, inputData.varId, input.name);
-			state.types.Append(Opcode{ SpvOpTypePointer }, inputData.pointerTypeId, SpvStorageClassInput, inputData.typeId);
-			state.types.Append(Opcode{ SpvOpVariable }, inputData.pointerTypeId, inputData.varId, SpvStorageClassInput);
+			state.debugInfo.Append(SpirvOp::OpName, inputData.varId, input.name);
+			state.types.Append(SpirvOp::OpTypePointer, inputData.pointerTypeId, SpvStorageClassInput, inputData.typeId);
+			state.types.Append(SpirvOp::OpVariable, inputData.pointerTypeId, inputData.varId, SpvStorageClassInput);
 
 			if (input.locationIndex)
-				state.annotations.Append(Opcode{ SpvOpDecorate }, inputData.varId, SpvDecorationLocation, *input.locationIndex);
+				state.annotations.Append(SpirvOp::OpDecorate, inputData.varId, SpvDecorationLocation, *input.locationIndex);
 		}
 
 		for (const auto& output : shader.GetOutputs())
@@ -378,12 +364,12 @@ namespace Nz
 
 			state.outputIds.emplace(output.name, outputData);
 
-			state.debugInfo.Append(Opcode{ SpvOpName }, outputData.varId, output.name);
-			state.types.Append(Opcode{ SpvOpTypePointer }, outputData.pointerTypeId, SpvStorageClassOutput, outputData.typeId);
-			state.types.Append(Opcode{ SpvOpVariable }, outputData.pointerTypeId, outputData.varId, SpvStorageClassOutput);
+			state.debugInfo.Append(SpirvOp::OpName, outputData.varId, output.name);
+			state.types.Append(SpirvOp::OpTypePointer, outputData.pointerTypeId, SpvStorageClassOutput, outputData.typeId);
+			state.types.Append(SpirvOp::OpVariable, outputData.pointerTypeId, outputData.varId, SpvStorageClassOutput);
 
 			if (output.locationIndex)
-				state.annotations.Append(Opcode{ SpvOpDecorate }, outputData.varId, SpvDecorationLocation, *output.locationIndex);
+				state.annotations.Append(SpirvOp::OpDecorate, outputData.varId, SpvDecorationLocation, *output.locationIndex);
 		}
 
 		for (const auto& uniform : shader.GetUniforms())
@@ -395,14 +381,14 @@ namespace Nz
 
 			state.uniformIds.emplace(uniform.name, uniformData);
 
-			state.debugInfo.Append(Opcode{ SpvOpName }, uniformData.varId, uniform.name);
-			state.types.Append(Opcode{ SpvOpTypePointer }, uniformData.pointerTypeId, SpvStorageClassUniform, uniformData.typeId);
-			state.types.Append(Opcode{ SpvOpVariable }, uniformData.pointerTypeId, uniformData.varId, SpvStorageClassUniform);
+			state.debugInfo.Append(SpirvOp::OpName, uniformData.varId, uniform.name);
+			state.types.Append(SpirvOp::OpTypePointer, uniformData.pointerTypeId, SpvStorageClassUniform, uniformData.typeId);
+			state.types.Append(SpirvOp::OpVariable, uniformData.pointerTypeId, uniformData.varId, SpvStorageClassUniform);
 
 			if (uniform.bindingIndex)
 			{
-				state.annotations.Append(Opcode{ SpvOpDecorate }, uniformData.varId, SpvDecorationBinding, *uniform.bindingIndex);
-				state.annotations.Append(Opcode{ SpvOpDecorate }, uniformData.varId, SpvDecorationDescriptorSet, 0);
+				state.annotations.Append(SpirvOp::OpDecorate, uniformData.varId, SpvDecorationBinding, *uniform.bindingIndex);
+				state.annotations.Append(SpirvOp::OpDecorate, uniformData.varId, SpvDecorationDescriptorSet, 0);
 			}
 		}
 
@@ -412,14 +398,16 @@ namespace Nz
 			funcData.id = AllocateResultId();
 			funcData.typeId = AllocateResultId();
 
-			state.debugInfo.Append(Opcode{ SpvOpName }, funcData.id, func.name);
+			state.debugInfo.Append(SpirvOp::OpName, funcData.id, func.name);
 
-			state.types.Append(Opcode{ SpvOpTypeFunction }, WordCount{ 3 + static_cast<unsigned int>(func.parameters.size()) });
-			state.types.Append(funcData.typeId);
-			state.types.Append(GetTypeId(func.returnType));
+			state.types.AppendVariadic(SpirvOp::OpTypeFunction, [&](const auto& appender)
+			{
+				appender(funcData.typeId);
+				appender(GetTypeId(func.returnType));
 
-			for (const auto& param : func.parameters)
-				state.types.Append(GetTypeId(param.type));
+				for (const auto& param : func.parameters)
+					appender(GetTypeId(param.type));
+			});
 		}
 
 		// Register constants
@@ -438,24 +426,24 @@ namespace Nz
 
 			auto& funcData = state.funcs[funcIndex];
 
-			state.instructions.Append(Opcode{ SpvOpFunction }, GetTypeId(func.returnType), funcData.id, 0, funcData.typeId);
+			state.instructions.Append(SpirvOp::OpFunction, GetTypeId(func.returnType), funcData.id, 0, funcData.typeId);
 
-			state.instructions.Append(Opcode{ SpvOpLabel }, AllocateResultId());
+			state.instructions.Append(SpirvOp::OpLabel, AllocateResultId());
 
 			for (const auto& param : func.parameters)
 			{
 				UInt32 paramResultId = AllocateResultId();
 				funcData.paramsId.push_back(paramResultId);
 
-				state.instructions.Append(Opcode{ SpvOpFunctionParameter }, GetTypeId(param.type), paramResultId);
+				state.instructions.Append(SpirvOp::OpFunctionParameter, GetTypeId(param.type), paramResultId);
 			}
 
 			Visit(functionStatements[funcIndex]);
 
 			if (func.returnType == ShaderNodes::BasicType::Void)
-				state.instructions.Append(Opcode{ SpvOpReturn });
+				state.instructions.Append(SpirvOp::OpReturn);
 
-			state.instructions.Append(Opcode{ SpvOpFunctionEnd });
+			state.instructions.Append(SpirvOp::OpFunctionEnd);
 		}
 
 		assert(entryPointIndex != std::numeric_limits<std::size_t>::max());
@@ -485,21 +473,24 @@ namespace Nz
 
 		std::size_t nameSize = state.header.CountWord(entryFuncData.name);
 
-		state.header.Append(Opcode{ SpvOpEntryPoint }, WordCount{ static_cast<unsigned int>(3 + nameSize + m_currentState->builtinIds.size() + m_currentState->inputIds.size() + m_currentState->outputIds.size()) });
-		state.header.Append(execModel);
-		state.header.Append(entryFunc.id);
-		state.header.Append(entryFuncData.name);
-		for (const auto& [name, varData] : m_currentState->builtinIds)
-			state.header.Append(varData.varId);
+		state.header.AppendVariadic(SpirvOp::OpEntryPoint, [&](const auto& appender)
+		{
+			appender(execModel);
+			appender(entryFunc.id);
+			appender(entryFuncData.name);
 
-		for (const auto& [name, varData] : m_currentState->inputIds)
-			state.header.Append(varData.varId);
+			for (const auto& [name, varData] : m_currentState->builtinIds)
+				appender(varData.varId);
 
-		for (const auto& [name, varData] : m_currentState->outputIds)
-			state.header.Append(varData.varId);
+			for (const auto& [name, varData] : m_currentState->inputIds)
+				appender(varData.varId);
+
+			for (const auto& [name, varData] : m_currentState->outputIds)
+				appender(varData.varId);
+		});
 
 		if (m_context.shader->GetStage() == ShaderStageType::Fragment)
-			state.header.Append(Opcode{ SpvOpExecutionMode }, entryFunc.id, SpvExecutionModeOriginUpperLeft);
+			state.header.Append(SpirvOp::OpExecutionMode, entryFunc.id, SpvExecutionModeOriginUpperLeft);
 
 		std::vector<UInt32> ret;
 		MergeBlocks(ret, state.header);
@@ -532,15 +523,15 @@ namespace Nz
 				using T = std::decay_t<decltype(arg)>;
 
 				if constexpr (std::is_same_v<T, bool>)
-					m_currentState->constants.Append(Opcode{ (arg) ? SpvOpConstantTrue : SpvOpConstantFalse }, constantId);
+					m_currentState->constants.Append((arg) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, constantId);
 				else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, int>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstant }, GetTypeId(GetBasicType<T>()), constantId, Raw{ &arg, sizeof(arg) });
+					m_currentState->constants.Append(SpirvOp::OpConstant, GetTypeId(GetBasicType<T>()), constantId, SpirvSection::Raw{ &arg, sizeof(arg) });
 				else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y));
+					m_currentState->constants.Append(SpirvOp::OpConstantComposite, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y));
 				else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z));
+					m_currentState->constants.Append(SpirvOp::OpConstantComposite, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z));
 				else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i>)
-					m_currentState->constants.Append(Opcode{ SpvOpConstantComposite }, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z), GetConstantId(arg.w));
+					m_currentState->constants.Append(SpirvOp::OpConstantComposite, GetTypeId(GetBasicType<T>()), constantId, GetConstantId(arg.x), GetConstantId(arg.y), GetConstantId(arg.z), GetConstantId(arg.w));
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 			}, value);
@@ -558,24 +549,24 @@ namespace Nz
 		m_currentState->header.Append(m_currentState->nextVarIndex); //< Bound (ID count)
 		m_currentState->header.Append(0); //< Instruction schema (required to be 0 for now)
 
-		m_currentState->header.Append(Opcode{ SpvOpCapability }, SpvCapabilityShader);
+		m_currentState->header.Append(SpirvOp::OpCapability, SpvCapabilityShader);
 
 		for (const auto& [extInst, resultId] : m_currentState->extensionInstructions)
-			m_currentState->header.Append(Opcode{ SpvOpExtInstImport }, resultId, extInst);
+			m_currentState->header.Append(SpirvOp::OpExtInstImport, resultId, extInst);
 
-		m_currentState->header.Append(Opcode{ SpvOpMemoryModel }, SpvAddressingModelLogical, SpvMemoryModelGLSL450);
+		m_currentState->header.Append(SpirvOp::OpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450);
 	}
 
 	void SpirvWriter::AppendStructType(std::size_t structIndex, UInt32 resultId)
 	{
 		const ShaderAst::Struct& s = m_context.shader->GetStruct(structIndex);
 
-		m_currentState->types.Append(Opcode{ SpvOpTypeStruct }, WordCount{ static_cast<unsigned int>(1 + 1 + s.members.size()) });
+		m_currentState->types.Append(SpirvOp::OpTypeStruct, SpirvSection::OpSize{ static_cast<unsigned int>(1 + 1 + s.members.size()) });
 		m_currentState->types.Append(resultId);
 
-		m_currentState->debugInfo.Append(Opcode{ SpvOpName }, resultId, s.name);
+		m_currentState->debugInfo.Append(SpirvOp::OpName, resultId, s.name);
 
-		m_currentState->annotations.Append(Opcode{ SpvOpDecorate }, resultId, SpvDecorationBlock);
+		m_currentState->annotations.Append(SpirvOp::OpDecorate, resultId, SpvDecorationBlock);
 
 		FieldOffsets structOffsets(StructLayout_Std140);
 
@@ -583,7 +574,7 @@ namespace Nz
 		{
 			const auto& member = s.members[memberIndex];
 			m_currentState->types.Append(GetTypeId(member.type));
-			m_currentState->debugInfo.Append(Opcode{ SpvOpMemberName }, resultId, memberIndex, member.name);
+			m_currentState->debugInfo.Append(SpirvOp::OpMemberName, resultId, memberIndex, member.name);
 
 			std::visit([&](auto&& arg)
 			{
@@ -611,12 +602,12 @@ namespace Nz
 						throw std::runtime_error("unhandled type");
 					}();
 
-					m_currentState->annotations.Append(Opcode{ SpvOpMemberDecorate }, resultId, memberIndex, SpvDecorationOffset, offset);
+					m_currentState->annotations.Append(SpirvOp::OpMemberDecorate, resultId, memberIndex, SpvDecorationOffset, offset);
 
 					if (arg == ShaderNodes::BasicType::Mat4x4)
 					{
-						m_currentState->annotations.Append(Opcode{ SpvOpMemberDecorate }, resultId, memberIndex, SpvDecorationColMajor);
-						m_currentState->annotations.Append(Opcode{ SpvOpMemberDecorate }, resultId, memberIndex, SpvDecorationMatrixStride, 16);
+						m_currentState->annotations.Append(SpirvOp::OpMemberDecorate, resultId, memberIndex, SpvDecorationColMajor);
+						m_currentState->annotations.Append(SpirvOp::OpMemberDecorate, resultId, memberIndex, SpvDecorationMatrixStride, 16);
 					}
 				}
 				else if constexpr (std::is_same_v<T, std::string>)
@@ -657,11 +648,11 @@ namespace Nz
 					switch (arg)
 					{
 						case ShaderNodes::BasicType::Boolean:
-							m_currentState->types.Append(Opcode{ SpvOpTypeBool }, resultId);
+							m_currentState->types.Append(SpirvOp::OpTypeBool, resultId);
 							break;
 
 						case ShaderNodes::BasicType::Float1:
-							m_currentState->types.Append(Opcode{ SpvOpTypeFloat }, resultId, 32);
+							m_currentState->types.Append(SpirvOp::OpTypeFloat, resultId, 32);
 							break;
 
 						case ShaderNodes::BasicType::Float2:
@@ -675,17 +666,17 @@ namespace Nz
 
 							UInt32 vecSize = UInt32(arg) - UInt32(baseType) + 1;
 
-							m_currentState->types.Append(Opcode{ SpvOpTypeVector }, resultId, GetTypeId(baseType), vecSize);
+							m_currentState->types.Append(SpirvOp::OpTypeVector, resultId, GetTypeId(baseType), vecSize);
 							break;
 						}
 
 						case ShaderNodes::BasicType::Int1:
-							m_currentState->types.Append(Opcode{ SpvOpTypeInt }, resultId, 32, 1);
+							m_currentState->types.Append(SpirvOp::OpTypeInt, resultId, 32, 1);
 							break;
 
 						case ShaderNodes::BasicType::Mat4x4:
 						{
-							m_currentState->types.Append(Opcode{ SpvOpTypeMatrix }, resultId, GetTypeId(ShaderNodes::BasicType::Float4), 4);
+							m_currentState->types.Append(SpirvOp::OpTypeMatrix, resultId, GetTypeId(ShaderNodes::BasicType::Float4), 4);
 							break;
 						}
 
@@ -693,13 +684,13 @@ namespace Nz
 						{
 							UInt32 imageTypeId = resultId - 1;
 
-							m_currentState->types.Append(Opcode{ SpvOpTypeImage }, imageTypeId, GetTypeId(ShaderNodes::BasicType::Float1), SpvDim2D, 0, 0, 0, 1, SpvImageFormatUnknown);
-							m_currentState->types.Append(Opcode{ SpvOpTypeSampledImage }, resultId, imageTypeId);
+							m_currentState->types.Append(SpirvOp::OpTypeImage, imageTypeId, GetTypeId(ShaderNodes::BasicType::Float1), SpvDim2D, 0, 0, 0, 1, SpvImageFormatUnknown);
+							m_currentState->types.Append(SpirvOp::OpTypeSampledImage, resultId, imageTypeId);
 							break;
 						}
 
 						case ShaderNodes::BasicType::Void:
-							m_currentState->types.Append(Opcode{ SpvOpTypeVoid }, resultId);
+							m_currentState->types.Append(SpirvOp::OpTypeVoid, resultId);
 							break;
 					}
 				}
@@ -763,7 +754,7 @@ namespace Nz
 		if (!var.valueId.has_value())
 		{
 			UInt32 resultId = AllocateResultId();
-			m_currentState->instructions.Append(Opcode{ SpvOpLoad }, var.typeId, resultId, var.varId);
+			m_currentState->instructions.Append(SpirvOp::OpLoad, var.typeId, resultId, var.varId);
 
 			var.valueId = resultId;
 		}
@@ -905,13 +896,13 @@ namespace Nz
 		UInt32 typeId = GetTypeId(node.exprType);
 		UInt32 indexId = GetConstantId(Int32(node.memberIndex));
 
-		m_currentState->types.Append(Opcode{ SpvOpTypePointer }, pointerType, storage, typeId);
+		m_currentState->types.Append(SpirvOp::OpTypePointer, pointerType, storage, typeId);
 
-		m_currentState->instructions.Append(Opcode{ SpvOpAccessChain }, pointerType, memberPointerId, pointerId, indexId);
+		m_currentState->instructions.Append(SpirvOp::OpAccessChain, pointerType, memberPointerId, pointerId, indexId);
 
 		UInt32 resultId = AllocateResultId();
 
-		m_currentState->instructions.Append(Opcode{ SpvOpLoad }, typeId, resultId, memberPointerId);
+		m_currentState->instructions.Append(SpirvOp::OpLoad, typeId, resultId, memberPointerId);
 
 		PushResultId(resultId);
 	}
@@ -933,7 +924,7 @@ namespace Nz
 						auto it = m_currentState->builtinIds.find(builtinvar.entry);
 						assert(it != m_currentState->builtinIds.end());
 
-						m_currentState->instructions.Append(Opcode{ SpvOpStore }, it->second.varId, result);
+						m_currentState->instructions.Append(SpirvOp::OpStore, it->second.varId, result);
 						PushResultId(result);
 						break;
 					}
@@ -944,7 +935,7 @@ namespace Nz
 						auto it = m_currentState->outputIds.find(outputVar.name);
 						assert(it != m_currentState->outputIds.end());
 
-						m_currentState->instructions.Append(Opcode{ SpvOpStore }, it->second.varId, result);
+						m_currentState->instructions.Append(SpirvOp::OpStore, it->second.varId, result);
 						PushResultId(result);
 						break;
 					}
@@ -992,7 +983,7 @@ namespace Nz
 
 		bool swapOperands = false;
 
-		SpvOp op = [&]
+		SpirvOp op = [&]
 		{
 			switch (node.op)
 			{
@@ -1005,13 +996,13 @@ namespace Nz
 						case ShaderNodes::BasicType::Float3:
 						case ShaderNodes::BasicType::Float4:
 						case ShaderNodes::BasicType::Mat4x4:
-							return SpvOpFAdd;
+							return SpirvOp::OpFAdd;
 
 						case ShaderNodes::BasicType::Int1:
 						case ShaderNodes::BasicType::Int2:
 						case ShaderNodes::BasicType::Int3:
 						case ShaderNodes::BasicType::Int4:
-							return SpvOpIAdd;
+							return SpirvOp::OpIAdd;
 
 						case ShaderNodes::BasicType::Boolean:
 						case ShaderNodes::BasicType::Sampler2D:
@@ -1029,13 +1020,13 @@ namespace Nz
 						case ShaderNodes::BasicType::Float3:
 						case ShaderNodes::BasicType::Float4:
 						case ShaderNodes::BasicType::Mat4x4:
-							return SpvOpFSub;
+							return SpirvOp::OpFSub;
 
 						case ShaderNodes::BasicType::Int1:
 						case ShaderNodes::BasicType::Int2:
 						case ShaderNodes::BasicType::Int3:
 						case ShaderNodes::BasicType::Int4:
-							return SpvOpISub;
+							return SpirvOp::OpISub;
 
 						case ShaderNodes::BasicType::Boolean:
 						case ShaderNodes::BasicType::Sampler2D:
@@ -1053,13 +1044,13 @@ namespace Nz
 						case ShaderNodes::BasicType::Float3:
 						case ShaderNodes::BasicType::Float4:
 						case ShaderNodes::BasicType::Mat4x4:
-							return SpvOpFDiv;
+							return SpirvOp::OpFDiv;
 
 						case ShaderNodes::BasicType::Int1:
 						case ShaderNodes::BasicType::Int2:
 						case ShaderNodes::BasicType::Int3:
 						case ShaderNodes::BasicType::Int4:
-							return SpvOpSDiv;
+							return SpirvOp::OpSDiv;
 
 						case ShaderNodes::BasicType::Boolean:
 						case ShaderNodes::BasicType::Sampler2D:
@@ -1073,20 +1064,20 @@ namespace Nz
 					switch (leftType)
 					{
 						case ShaderNodes::BasicType::Boolean:
-							return SpvOpLogicalEqual;
+							return SpirvOp::OpLogicalEqual;
 
 						case ShaderNodes::BasicType::Float1:
 						case ShaderNodes::BasicType::Float2:
 						case ShaderNodes::BasicType::Float3:
 						case ShaderNodes::BasicType::Float4:
 						case ShaderNodes::BasicType::Mat4x4:
-							return SpvOpFOrdEqual;
+							return SpirvOp::OpFOrdEqual;
 
 						case ShaderNodes::BasicType::Int1:
 						case ShaderNodes::BasicType::Int2:
 						case ShaderNodes::BasicType::Int3:
 						case ShaderNodes::BasicType::Int4:
-							return SpvOpIEqual;
+							return SpirvOp::OpIEqual;
 
 						case ShaderNodes::BasicType::Sampler2D:
 						case ShaderNodes::BasicType::Void:
@@ -1103,17 +1094,17 @@ namespace Nz
 							switch (rightType)
 							{
 								case ShaderNodes::BasicType::Float1:
-									return SpvOpFMul;
+									return SpirvOp::OpFMul;
 
 								case ShaderNodes::BasicType::Float2:
 								case ShaderNodes::BasicType::Float3:
 								case ShaderNodes::BasicType::Float4:
 									swapOperands = true;
-									return SpvOpVectorTimesScalar;
+									return SpirvOp::OpVectorTimesScalar;
 
 								case ShaderNodes::BasicType::Mat4x4:
 									swapOperands = true;
-									return SpvOpMatrixTimesScalar;
+									return SpirvOp::OpMatrixTimesScalar;
 
 								default:
 									break;
@@ -1129,15 +1120,15 @@ namespace Nz
 							switch (rightType)
 							{
 								case ShaderNodes::BasicType::Float1:
-									return SpvOpVectorTimesScalar;
+									return SpirvOp::OpVectorTimesScalar;
 
 								case ShaderNodes::BasicType::Float2:
 								case ShaderNodes::BasicType::Float3:
 								case ShaderNodes::BasicType::Float4:
-									return SpvOpFMul;
+									return SpirvOp::OpFMul;
 
 								case ShaderNodes::BasicType::Mat4x4:
-									return SpvOpVectorTimesMatrix;
+									return SpirvOp::OpVectorTimesMatrix;
 
 								default:
 									break;
@@ -1150,15 +1141,15 @@ namespace Nz
 						case ShaderNodes::BasicType::Int2:
 						case ShaderNodes::BasicType::Int3:
 						case ShaderNodes::BasicType::Int4:
-							return SpvOpIMul;
+							return SpirvOp::OpIMul;
 
 						case ShaderNodes::BasicType::Mat4x4:
 						{
 							switch (rightType)
 							{
-								case ShaderNodes::BasicType::Float1: return SpvOpMatrixTimesScalar;
-								case ShaderNodes::BasicType::Float4: return SpvOpMatrixTimesVector;
-								case ShaderNodes::BasicType::Mat4x4: return SpvOpMatrixTimesMatrix;
+								case ShaderNodes::BasicType::Float1: return SpirvOp::OpMatrixTimesScalar;
+								case ShaderNodes::BasicType::Float4: return SpirvOp::OpMatrixTimesVector;
+								case ShaderNodes::BasicType::Mat4x4: return SpirvOp::OpMatrixTimesMatrix;
 
 								default:
 									break;
@@ -1181,7 +1172,7 @@ namespace Nz
 		if (swapOperands)
 			std::swap(leftOperand, rightOperand);
 
-		m_currentState->instructions.Append(Opcode{ op }, GetTypeId(resultType), resultId, leftOperand, rightOperand);
+		m_currentState->instructions.Append(op, GetTypeId(resultType), resultId, leftOperand, rightOperand);
 		PushResultId(resultId);
 	}
 
@@ -1204,12 +1195,14 @@ namespace Nz
 
 		UInt32 resultId = AllocateResultId();
 
-		m_currentState->instructions.Append(Opcode{ SpvOpCompositeConstruct }, WordCount { static_cast<unsigned int>(3 + exprResults.size()) });
-		m_currentState->instructions.Append(GetTypeId(targetType));
-		m_currentState->instructions.Append(resultId);
+		m_currentState->instructions.AppendVariadic(SpirvOp::OpCompositeConstruct, [&](const auto& appender)
+		{
+			appender(GetTypeId(targetType));
+			appender(resultId);
 
-		for (UInt32 resultId : exprResults)
-			m_currentState->instructions.Append(resultId);
+			for (UInt32 exprResultId : exprResults)
+				appender(exprResultId);
+		});
 
 		PushResultId(resultId);
 	}
@@ -1262,7 +1255,7 @@ namespace Nz
 
 				UInt32 resultId = AllocateResultId();
 
-				m_currentState->instructions.Append(Opcode{ SpvOpDot }, typeId, resultId, vec1, vec2);
+				m_currentState->instructions.Append(SpirvOp::OpDot, typeId, resultId, vec1, vec2);
 				PushResultId(resultId);
 				break;
 			}
@@ -1283,7 +1276,7 @@ namespace Nz
 		UInt32 coordinatesId = EvaluateExpression(node.coordinates);
 		UInt32 resultId = AllocateResultId();
 
-		m_currentState->instructions.Append(Opcode{ SpvOpImageSampleImplicitLod }, typeId, resultId, samplerId, coordinatesId);
+		m_currentState->instructions.Append(SpirvOp::OpImageSampleImplicitLod, typeId, resultId, samplerId, coordinatesId);
 		PushResultId(resultId);
 	}
 
@@ -1305,22 +1298,24 @@ namespace Nz
 
 		if (node.componentCount > 1)
 		{
-			// Swizzling is implemented via SpvOpVectorShuffle using the same vector twice as operands
-			m_currentState->instructions.Append(Opcode{ SpvOpVectorShuffle }, WordCount{ static_cast<unsigned int>(5 + node.componentCount) });
-			m_currentState->instructions.Append(GetTypeId(targetType));
-			m_currentState->instructions.Append(resultId);
-			m_currentState->instructions.Append(exprResultId);
-			m_currentState->instructions.Append(exprResultId);
+			// Swizzling is implemented via SpirvOp::OpVectorShuffle using the same vector twice as operands
+			m_currentState->instructions.AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
+			{
+				appender(GetTypeId(targetType));
+				appender(resultId);
+				appender(exprResultId);
+				appender(exprResultId);
 
-			for (std::size_t i = 0; i < node.componentCount; ++i)
-				m_currentState->instructions.Append(UInt32(node.components[0]) - UInt32(node.components[i]));
+				for (std::size_t i = 0; i < node.componentCount; ++i)
+					appender(UInt32(node.components[0]) - UInt32(node.components[i]));
+			});
 		}
 		else
 		{
 			// Extract a single component from the vector
 			assert(node.componentCount == 1);
 
-			m_currentState->instructions.Append(Opcode{ SpvOpCompositeExtract }, GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderNodes::SwizzleComponent::First) );
+			m_currentState->instructions.Append(SpirvOp::OpCompositeExtract, GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderNodes::SwizzleComponent::First) );
 		}
 
 		PushResultId(resultId);
@@ -1368,48 +1363,12 @@ namespace Nz
 		PushResultId(ReadVariable(it.value()));
 	}
 
-	void SpirvWriter::MergeBlocks(std::vector<UInt32>& output, const Section& from)
+	void SpirvWriter::MergeBlocks(std::vector<UInt32>& output, const SpirvSection& from)
 	{
+		const std::vector<UInt32>& bytecode = from.GetBytecode();
+
 		std::size_t prevSize = output.size();
-		output.resize(prevSize + from.data.size());
-		std::copy(from.data.begin(), from.data.end(), output.begin() + prevSize);
-	}
-
-	std::size_t SpirvWriter::Section::Append(const Opcode& opcode, const WordCount& wordCount)
-	{
-		return Append(UInt32(opcode.op) | UInt32(wordCount.wc) << 16);
-	}
-
-	std::size_t SpirvWriter::Section::Append(const Raw& raw)
-	{
-		std::size_t offset = GetOutputOffset();
-
-		const UInt8* ptr = static_cast<const UInt8*>(raw.ptr);
-
-		std::size_t size4 = CountWord(raw);
-		for (std::size_t i = 0; i < size4; ++i)
-		{
-			UInt32 codepoint = 0;
-			for (std::size_t j = 0; j < 4; ++j)
-			{
-#ifdef NAZARA_BIG_ENDIAN
-				std::size_t pos = i * 4 + (3 - j);
-#else
-				std::size_t pos = i * 4 + j;
-#endif
-
-				if (pos < raw.size)
-					codepoint |= UInt32(ptr[pos]) << (j * 8);
-			}
-
-			Append(codepoint);
-		}
-
-		return offset;
-	}
-
-	unsigned int SpirvWriter::Section::CountWord(const Raw& raw)
-	{
-		return (raw.size + sizeof(UInt32) - 1) / sizeof(UInt32);
+		output.resize(prevSize + bytecode.size());
+		std::copy(bytecode.begin(), bytecode.end(), output.begin() + prevSize);
 	}
 }
