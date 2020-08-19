@@ -96,7 +96,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	unsigned int SpirvSection::CountWord(const T& value)
+	unsigned int SpirvSection::CountWord(const T& /*value*/)
 	{
 		return 1;
 	}

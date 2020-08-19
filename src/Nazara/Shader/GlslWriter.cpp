@@ -231,6 +231,10 @@ namespace Nz
 			case ShaderNodes::BasicType::Int4:      return Append("ivec4");
 			case ShaderNodes::BasicType::Mat4x4:    return Append("mat4");
 			case ShaderNodes::BasicType::Sampler2D: return Append("sampler2D");
+			case ShaderNodes::BasicType::UInt1:     return Append("uint");
+			case ShaderNodes::BasicType::UInt2:     return Append("uvec2");
+			case ShaderNodes::BasicType::UInt3:     return Append("uvec3");
+			case ShaderNodes::BasicType::UInt4:     return Append("uvec4");
 			case ShaderNodes::BasicType::Void:      return Append("void");
 		}
 	}
@@ -459,7 +463,7 @@ namespace Nz
 
 			if constexpr (std::is_same_v<T, bool>)
 				Append((arg) ? "true" : "false");
-			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32>)
+			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 				Append(std::to_string(arg));
 			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
 				Append("vec2(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
