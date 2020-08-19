@@ -12,6 +12,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
 #include <Nazara/Shader/ShaderExpressionType.hpp>
 #include <Nazara/Shader/ShaderVariables.hpp>
@@ -222,19 +223,7 @@ namespace Nz
 			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderAstVisitor& visitor) override;
 
-			using Variant = std::variant<
-				bool,
-				float,
-				Int32,
-				Vector2f,
-				Vector3f,
-				Vector4f,
-				Vector2i32,
-				Vector3i32,
-				Vector4i32
-			>;
-
-			Variant value;
+			ShaderConstantValue value;
 
 			template<typename T> static std::shared_ptr<Constant> Build(const T& value);
 		};

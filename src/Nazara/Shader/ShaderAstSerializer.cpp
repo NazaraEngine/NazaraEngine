@@ -193,18 +193,19 @@ namespace Nz
 			Value(value);
 		};
 
-		static_assert(std::variant_size_v<decltype(node.value)> == 9);
+		static_assert(std::variant_size_v<decltype(node.value)> == 10);
 		switch (typeIndex)
 		{
 			case 0: SerializeValue(bool()); break;
 			case 1: SerializeValue(float()); break;
 			case 2: SerializeValue(Int32()); break;
-			case 3: SerializeValue(Vector2f()); break;
-			case 4: SerializeValue(Vector3f()); break;
-			case 5: SerializeValue(Vector4f()); break;
-			case 6: SerializeValue(Vector2i32()); break;
-			case 7: SerializeValue(Vector3i32()); break;
-			case 8: SerializeValue(Vector4i32()); break;
+			case 3: SerializeValue(UInt32()); break;
+			case 4: SerializeValue(Vector2f()); break;
+			case 5: SerializeValue(Vector3f()); break;
+			case 6: SerializeValue(Vector4f()); break;
+			case 7: SerializeValue(Vector2i32()); break;
+			case 8: SerializeValue(Vector3i32()); break;
+			case 9: SerializeValue(Vector4i32()); break;
 			default: throw std::runtime_error("unexpected data type");
 		}
 	}

@@ -29,8 +29,11 @@ namespace Nz::ShaderNodes
 		Int4,      //< ivec4
 		Mat4x4,    //< mat4
 		Sampler2D, //< sampler2D
-
-		Void       //< void
+		Void,      //< void
+		UInt1,     //< uint
+		UInt2,     //< uvec2
+		UInt3,     //< uvec3
+		UInt4     //< uvec4
 	};
 
 	enum class BinaryType

@@ -114,12 +114,16 @@ namespace Nz::ShaderNodes
 					case BasicType::Int2:
 					case BasicType::Int3:
 					case BasicType::Int4:
+					case BasicType::UInt2:
+					case BasicType::UInt3:
+					case BasicType::UInt4:
 						exprType = leftExprType;
 						break;
 
 					case BasicType::Float1:
 					case BasicType::Int1:
 					case BasicType::Mat4x4:
+					case BasicType::UInt1:
 						exprType = rightExprType;
 						break;
 
@@ -164,6 +168,8 @@ namespace Nz::ShaderNodes
 			else if constexpr (std::is_same_v<T, float>)
 				return ShaderNodes::BasicType::Float1;
 			else if constexpr (std::is_same_v<T, Int32>)
+				return ShaderNodes::BasicType::Int1;
+			else if constexpr (std::is_same_v<T, UInt32>)
 				return ShaderNodes::BasicType::Int1;
 			else if constexpr (std::is_same_v<T, Vector2f>)
 				return ShaderNodes::BasicType::Float2;

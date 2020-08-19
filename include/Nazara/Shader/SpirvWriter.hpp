@@ -11,9 +11,10 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/ShaderAstVisitor.hpp>
+#include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderVarVisitor.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
-#include <Nazara/Utility/FieldOffsets.hpp>
+#include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -47,20 +48,22 @@ namespace Nz
 
 			UInt32 AllocateResultId();
 
-			void AppendConstants();
 			void AppendHeader();
-			void AppendStructType(std::size_t structIndex, UInt32 resultId);
-			void AppendTypes();
 
 			UInt32 EvaluateExpression(const ShaderNodes::ExpressionPtr& expr);
 
-			UInt32 GetConstantId(const ShaderNodes::Constant::Variant& value) const;
+			UInt32 GetConstantId(const ShaderConstantValue& value) const;
+			UInt32 GetFunctionTypeId(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
+			UInt32 GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const;
 			UInt32 GetTypeId(const ShaderExpressionType& type) const;
 
 			void PushResultId(UInt32 value);
 			UInt32 PopResultId();
 
 			UInt32 ReadVariable(ExtVar& var);
+			UInt32 RegisterConstant(const ShaderConstantValue& value);
+			UInt32 RegisterFunctionType(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
+			UInt32 RegisterPointerType(ShaderExpressionType type, SpirvStorageClass storageClass);
 			UInt32 RegisterType(ShaderExpressionType type);
 
 			using ShaderAstVisitor::Visit;
