@@ -51,6 +51,7 @@ namespace Nz
 			void Append(ShaderNodes::MemoryLayout layout);
 			template<typename T> void Append(const T& param);
 			void AppendCommentSection(const std::string& section);
+			void AppendField(const std::string& structName, std::size_t* memberIndex, std::size_t remainingMembers);
 			void AppendFunction(const ShaderAst::Function& func);
 			void AppendFunctionPrototype(const ShaderAst::Function& func);
 			void AppendLine(const std::string& txt = {});

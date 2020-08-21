@@ -42,7 +42,8 @@ namespace Nz
 
 				void Visit(ShaderNodes::AccessMember& node) override
 				{
-					m_constantCache.Register(*SpirvConstantCache::BuildConstant(UInt32(node.memberIndex)));
+					for (std::size_t index : node.memberIndices)
+						m_constantCache.Register(*SpirvConstantCache::BuildConstant(Int32(index)));
 
 					ShaderAstRecursiveVisitor::Visit(node);
 				}
@@ -653,9 +654,16 @@ namespace Nz
 		UInt32 memberPointerId = AllocateResultId();
 		UInt32 pointerType = RegisterPointerType(node.exprType, storage); //< FIXME
 		UInt32 typeId = GetTypeId(node.exprType);
-		UInt32 indexId = GetConstantId(UInt32(node.memberIndex));
 
-		m_currentState->instructions.Append(SpirvOp::OpAccessChain, pointerType, memberPointerId, pointerId, indexId);
+		m_currentState->instructions.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
+		{
+			appender(pointerType);
+			appender(memberPointerId);
+			appender(pointerId);
+
+			for (std::size_t index : node.memberIndices)
+				appender(GetConstantId(Int32(index)));
+		});
 
 		UInt32 resultId = AllocateResultId();
 
@@ -1047,8 +1055,6 @@ namespace Nz
 
 	void SpirvWriter::Visit(ShaderNodes::Sample2D& node)
 	{
-		// OpImageSampleImplicitLod %v4float %31 %35
-
 		UInt32 typeId = GetTypeId(ShaderNodes::BasicType::Float4);
 
 		UInt32 samplerId = EvaluateExpression(node.sampler);

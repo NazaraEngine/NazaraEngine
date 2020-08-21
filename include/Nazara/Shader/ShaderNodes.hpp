@@ -144,11 +144,12 @@ namespace Nz
 			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderAstVisitor& visitor) override;
 
-			std::size_t memberIndex;
 			ExpressionPtr structExpr;
 			ShaderExpressionType exprType;
+			std::vector<std::size_t> memberIndices;
 
 			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::size_t memberIndex, ShaderExpressionType exprType);
+			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::vector<std::size_t> memberIndices, ShaderExpressionType exprType);
 		};
 
 		//////////////////////////////////////////////////////////////////////////

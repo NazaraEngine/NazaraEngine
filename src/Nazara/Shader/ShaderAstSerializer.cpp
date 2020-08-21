@@ -132,9 +132,12 @@ namespace Nz
 
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::AccessMember& node)
 	{
-		Value(node.memberIndex);
 		Node(node.structExpr);
 		Type(node.exprType);
+
+		Container(node.memberIndices);
+		for (std::size_t& index : node.memberIndices)
+			Value(index);
 	}
 
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::AssignOp& node)
