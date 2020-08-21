@@ -83,6 +83,30 @@ namespace Nz
 			throw AstError{ "Left expression type must match right expression type" };
 	}
 
+	const ShaderAst::StructMember& ShaderAstValidator::CheckField(const std::string& structName, std::size_t* memberIndex, std::size_t remainingMembers)
+	{
+		const auto& structs = m_shader.GetStructs();
+		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
+		if (it == structs.end())
+			throw AstError{ "invalid structure" };
+
+		const ShaderAst::Struct& s = *it;
+		if (*memberIndex >= s.members.size())
+			throw AstError{ "member index out of bounds" };
+
+		const auto& member = s.members[*memberIndex];
+
+		if (remainingMembers > 1)
+		{
+			if (!std::holds_alternative<std::string>(member.type))
+				throw AstError{ "member type does not match node type" };
+
+			return CheckField(std::get<std::string>(member.type), memberIndex + 1, remainingMembers - 1);
+		}
+		else
+			return member;
+	}
+
 	void ShaderAstValidator::Visit(ShaderNodes::AccessMember& node)
 	{
 		const ShaderExpressionType& exprType = MandatoryExpr(node.structExpr)->GetExpressionType();
@@ -91,16 +115,7 @@ namespace Nz
 
 		const std::string& structName = std::get<std::string>(exprType);
 
-		const auto& structs = m_shader.GetStructs();
-		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
-		if (it == structs.end())
-			throw AstError{ "invalid structure" };
-
-		const ShaderAst::Struct& s = *it;
-		if (node.memberIndex >= s.members.size())
-			throw AstError{ "member index out of bounds" };
-
-		const auto& member = s.members[node.memberIndex];
+		const auto& member = CheckField(structName, node.memberIndices.data(), node.memberIndices.size());
 		if (member.type != node.exprType)
 			throw AstError{ "member type does not match node type" };
 	}

@@ -258,6 +258,26 @@ namespace Nz
 		AppendLine();
 	}
 
+	void GlslWriter::AppendField(const std::string& structName, std::size_t* memberIndex, std::size_t remainingMembers)
+	{
+		const auto& structs = m_context.shader->GetStructs();
+		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
+		assert(it != structs.end());
+
+		const ShaderAst::Struct& s = *it;
+		assert(*memberIndex < s.members.size());
+
+		const auto& member = s.members[*memberIndex];
+		Append(".");
+		Append(member.name);
+
+		if (remainingMembers > 1)
+		{
+			assert(std::holds_alternative<std::string>(member.type));
+			AppendField(std::get<std::string>(member.type), memberIndex + 1, remainingMembers - 1);
+		}
+	}
+
 	void GlslWriter::AppendFunction(const ShaderAst::Function& func)
 	{
 		NazaraAssert(!m_context.currentFunction, "A function is already being processed");
@@ -345,18 +365,7 @@ namespace Nz
 		const ShaderExpressionType& exprType = node.structExpr->GetExpressionType();
 		assert(std::holds_alternative<std::string>(exprType));
 
-		const std::string& structName = std::get<std::string>(exprType);
-
-		const auto& structs = m_context.shader->GetStructs();
-		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
-		assert(it != structs.end());
-
-		const ShaderAst::Struct& s = *it;
-		assert(node.memberIndex < s.members.size());
-
-		const auto& member = s.members[node.memberIndex];
-		Append(".");
-		Append(member.name);
+		AppendField(std::get<std::string>(exprType), node.memberIndices.data(), node.memberIndices.size());
 	}
 
 	void GlslWriter::Visit(ShaderNodes::AssignOp& node)

@@ -76,6 +76,9 @@ Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::Expre
 
 	Nz::ShaderNodes::ExpressionPtr sourceExpr = Nz::ShaderBuilder::Identifier(varPtr);
 
+	std::vector<std::size_t> memberIndices;
+	memberIndices.reserve(currentField.nestedFields.size() + 1);
+
 	const ShaderGraph::StructEntry* sourceStruct = &structEntry;
 	for (std::size_t nestedIndex : currentField.nestedFields)
 	{
@@ -86,14 +89,16 @@ Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::Expre
 		std::size_t nestedStructIndex = std::get<std::size_t>(memberEntry.type);
 		sourceStruct = &graph.GetStruct(nestedStructIndex);
 
-		sourceExpr = Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), 0, graph.ToShaderExpressionType(memberEntry.type));
+		memberIndices.push_back(nestedIndex);
 	}
+
+	memberIndices.push_back(currentField.finalFieldIndex);
 
 	assert(currentField.finalFieldIndex < sourceStruct->members.size());
 	const auto& memberEntry = sourceStruct->members[currentField.finalFieldIndex];
 	assert(std::holds_alternative<PrimitiveType>(memberEntry.type));
 
-	return Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), currentField.finalFieldIndex, graph.ToShaderExpressionType(std::get<PrimitiveType>(memberEntry.type)));
+	return Nz::ShaderBuilder::AccessMember(std::move(sourceExpr), std::move(memberIndices), graph.ToShaderExpressionType(std::get<PrimitiveType>(memberEntry.type)));
 }
 
 unsigned int BufferField::nPorts(QtNodes::PortType portType) const

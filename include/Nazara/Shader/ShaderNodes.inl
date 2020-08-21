@@ -169,9 +169,14 @@ namespace Nz::ShaderNodes
 
 	inline std::shared_ptr<AccessMember> AccessMember::Build(ExpressionPtr structExpr, std::size_t memberIndex, ShaderExpressionType exprType)
 	{
+		return Build(std::move(structExpr), std::vector<std::size_t>{ memberIndex }, exprType);
+	}
+
+	inline std::shared_ptr<AccessMember> AccessMember::Build(ExpressionPtr structExpr, std::vector<std::size_t> memberIndices, ShaderExpressionType exprType)
+	{
 		auto node = std::make_shared<AccessMember>();
 		node->exprType = std::move(exprType);
-		node->memberIndex = memberIndex;
+		node->memberIndices = std::move(memberIndices);
 		node->structExpr = std::move(structExpr);
 
 		return node;

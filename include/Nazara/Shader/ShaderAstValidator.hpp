@@ -33,6 +33,8 @@ namespace Nz
 			void TypeMustMatch(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right);
 			void TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right);
 
+			const ShaderAst::StructMember& CheckField(const std::string& structName, std::size_t* memberIndex, std::size_t remainingMembers);
+
 			using ShaderAstRecursiveVisitor::Visit;
 			void Visit(ShaderNodes::AccessMember& node) override;
 			void Visit(ShaderNodes::AssignOp& node) override;

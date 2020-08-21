@@ -47,7 +47,7 @@ namespace Nz
 
 	void ShaderAstCloner::Visit(ShaderNodes::AccessMember& node)
 	{
-		PushExpression(ShaderNodes::AccessMember::Build(CloneExpression(node.structExpr), node.memberIndex, node.exprType));
+		PushExpression(ShaderNodes::AccessMember::Build(CloneExpression(node.structExpr), node.memberIndices, node.exprType));
 	}
 
 	void ShaderAstCloner::Visit(ShaderNodes::AssignOp& node)
