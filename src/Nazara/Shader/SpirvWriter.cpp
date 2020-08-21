@@ -192,7 +192,6 @@ namespace Nz
 		SpirvSection constants;
 		SpirvSection debugInfo;
 		SpirvSection annotations;
-		SpirvSection types;
 		SpirvSection instructions;
 	};
 
@@ -398,7 +397,7 @@ namespace Nz
 
 		assert(entryPointIndex != std::numeric_limits<std::size_t>::max());
 
-		m_currentState->constantTypeCache.Write(m_currentState->annotations, m_currentState->constants, m_currentState->debugInfo, m_currentState->types);
+		m_currentState->constantTypeCache.Write(m_currentState->annotations, m_currentState->constants, m_currentState->debugInfo);
 
 		AppendHeader();
 
@@ -446,7 +445,6 @@ namespace Nz
 		MergeBlocks(ret, state.header);
 		MergeBlocks(ret, state.debugInfo);
 		MergeBlocks(ret, state.annotations);
-		MergeBlocks(ret, state.types);
 		MergeBlocks(ret, state.constants);
 		MergeBlocks(ret, state.instructions);
 

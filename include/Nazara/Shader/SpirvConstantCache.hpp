@@ -167,7 +167,7 @@ namespace Nz
 			UInt32 Register(Type t);
 			UInt32 Register(Variable v);
 
-			void Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos, SpirvSection& types);
+			void Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos);
 
 			SpirvConstantCache& operator=(const SpirvConstantCache& cache) = delete;
 			SpirvConstantCache& operator=(SpirvConstantCache&& cache) noexcept;
@@ -183,7 +183,10 @@ namespace Nz
 			struct Eq;
 			struct Internal;
 
-			void WriteStruct(const Structure& structData, UInt32 resultId, SpirvSection& annotations, SpirvSection& debugInfos, SpirvSection& types);
+			void Write(const AnyConstant& constant, UInt32 resultId, SpirvSection& constants);
+			void Write(const AnyType& type, UInt32 resultId, SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos);
+
+			void WriteStruct(const Structure& structData, UInt32 resultId, SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos);
 
 			std::unique_ptr<Internal> m_internal;
 	};
