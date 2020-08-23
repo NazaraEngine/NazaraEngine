@@ -23,8 +23,13 @@ namespace Nz
 {
 	class SpirvSection;
 
-	class NAZARA_SHADER_API SpirvWriter : public ShaderAstVisitor, public ShaderVarVisitor
+	class NAZARA_SHADER_API SpirvWriter
 	{
+		friend class SpirvExpressionLoad;
+		friend class SpirvExpressionLoadAccessMember;
+		friend class SpirvExpressionStore;
+		friend class SpirvStatementVisitor;
+
 		public:
 			struct Environment;
 
@@ -45,49 +50,37 @@ namespace Nz
 
 		private:
 			struct ExtVar;
+			struct OnlyCache {};
 
 			UInt32 AllocateResultId();
 
 			void AppendHeader();
 
-			UInt32 EvaluateExpression(const ShaderNodes::ExpressionPtr& expr);
-
 			UInt32 GetConstantId(const ShaderConstantValue& value) const;
 			UInt32 GetFunctionTypeId(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
+			const ExtVar& GetBuiltinVariable(ShaderNodes::BuiltinEntry builtin) const;
+			const ExtVar& GetInputVariable(const std::string& name) const;
+			const ExtVar& GetOutputVariable(const std::string& name) const;
+			const ExtVar& GetUniformVariable(const std::string& name) const;
+			SpirvSection& GetInstructions();
 			UInt32 GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const;
 			UInt32 GetTypeId(const ShaderExpressionType& type) const;
 
-			void PushResultId(UInt32 value);
-			UInt32 PopResultId();
-
+			UInt32 ReadInputVariable(const std::string& name);
+			std::optional<UInt32> ReadInputVariable(const std::string& name, OnlyCache);
+			UInt32 ReadLocalVariable(const std::string& name);
+			std::optional<UInt32> ReadLocalVariable(const std::string& name, OnlyCache);
+			UInt32 ReadUniformVariable(const std::string& name);
+			std::optional<UInt32> ReadUniformVariable(const std::string& name, OnlyCache);
 			UInt32 ReadVariable(ExtVar& var);
+			std::optional<UInt32> ReadVariable(const ExtVar& var, OnlyCache);
+
 			UInt32 RegisterConstant(const ShaderConstantValue& value);
 			UInt32 RegisterFunctionType(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
 			UInt32 RegisterPointerType(ShaderExpressionType type, SpirvStorageClass storageClass);
 			UInt32 RegisterType(ShaderExpressionType type);
 
-			using ShaderAstVisitor::Visit;
-			void Visit(ShaderNodes::AccessMember& node) override;
-			void Visit(ShaderNodes::AssignOp& node) override;
-			void Visit(ShaderNodes::Branch& node) override;
-			void Visit(ShaderNodes::BinaryOp& node) override;
-			void Visit(ShaderNodes::Cast& node) override;
-			void Visit(ShaderNodes::Constant& node) override;
-			void Visit(ShaderNodes::DeclareVariable& node) override;
-			void Visit(ShaderNodes::ExpressionStatement& node) override;
-			void Visit(ShaderNodes::Identifier& node) override;
-			void Visit(ShaderNodes::IntrinsicCall& node) override;
-			void Visit(ShaderNodes::Sample2D& node) override;
-			void Visit(ShaderNodes::StatementBlock& node) override;
-			void Visit(ShaderNodes::SwizzleOp& node) override;
-
-			using ShaderVarVisitor::Visit;
-			void Visit(ShaderNodes::BuiltinVariable& var) override;
-			void Visit(ShaderNodes::InputVariable& var) override;
-			void Visit(ShaderNodes::LocalVariable& var) override;
-			void Visit(ShaderNodes::OutputVariable& var) override;
-			void Visit(ShaderNodes::ParameterVariable& var) override;
-			void Visit(ShaderNodes::UniformVariable& var) override;
+			void WriteLocalVariable(std::string name, UInt32 resultId);
 
 			static void MergeBlocks(std::vector<UInt32>& output, const SpirvSection& from);
 
@@ -95,6 +88,14 @@ namespace Nz
 			{
 				const ShaderAst* shader = nullptr;
 				const ShaderAst::Function* currentFunction = nullptr;
+			};
+
+			struct ExtVar
+			{
+				UInt32 pointerTypeId;
+				UInt32 typeId;
+				UInt32 varId;
+				std::optional<UInt32> valueId;
 			};
 
 			struct State;

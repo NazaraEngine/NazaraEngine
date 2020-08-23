@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERVISITOR_HPP
-#define NAZARA_SHADERVISITOR_HPP
+#ifndef NAZARA_SHADERASTVISITOR_HPP
+#define NAZARA_SHADERASTVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
