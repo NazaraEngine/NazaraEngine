@@ -7,10 +7,10 @@
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
+#include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
-#include <Nazara/Shader/SpirvStatementVisitor.hpp>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
 #include <SpirV/spirv.h>
@@ -380,7 +380,7 @@ namespace Nz
 				state.instructions.Append(SpirvOp::OpFunctionParameter, GetTypeId(param.type), paramResultId);
 			}
 
-			SpirvStatementVisitor visitor(*this);
+			SpirvAstVisitor visitor(*this);
 			visitor.Visit(functionStatements[funcIndex]);
 
 			if (func.returnType == ShaderNodes::BasicType::Void)
