@@ -25,10 +25,10 @@ namespace Nz
 
 	class NAZARA_SHADER_API SpirvWriter
 	{
+		friend class SpirvAstVisitor;
 		friend class SpirvExpressionLoad;
-		friend class SpirvExpressionLoadAccessMember;
 		friend class SpirvExpressionStore;
-		friend class SpirvStatementVisitor;
+		friend class SpirvVisitor;
 
 		public:
 			struct Environment;
