@@ -15,6 +15,8 @@ namespace Nz
 	UInt32 SpirvAstVisitor::EvaluateExpression(const ShaderNodes::ExpressionPtr& expr)
 	{
 		Visit(expr);
+
+		assert(m_resultIds.size() == 1);
 		return PopResultId();
 	}
 
