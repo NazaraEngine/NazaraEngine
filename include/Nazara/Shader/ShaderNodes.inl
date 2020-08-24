@@ -284,6 +284,11 @@ namespace Nz::ShaderNodes
 	{
 	}
 
+	inline std::shared_ptr<SwizzleOp> SwizzleOp::Build(ExpressionPtr expressionPtr, SwizzleComponent swizzleComponent)
+	{
+		return Build(std::move(expressionPtr), { swizzleComponent });
+	}
+
 	inline std::shared_ptr<SwizzleOp> SwizzleOp::Build(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents)
 	{
 		auto node = std::make_shared<SwizzleOp>();

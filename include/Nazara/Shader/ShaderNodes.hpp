@@ -241,6 +241,7 @@ namespace Nz
 			std::size_t componentCount;
 			ExpressionPtr expression;
 
+			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, SwizzleComponent swizzleComponent);
 			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents);
 			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, const SwizzleComponent* components, std::size_t componentCount);
 		};
