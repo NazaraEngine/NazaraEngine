@@ -16,15 +16,23 @@ namespace Nz
 	class NAZARA_SHADER_API SpirvPrinter
 	{
 		public:
+			struct Settings;
+
 			inline SpirvPrinter();
 			SpirvPrinter(const SpirvPrinter&) = default;
 			SpirvPrinter(SpirvPrinter&&) = default;
 			~SpirvPrinter() = default;
 
-			std::string Print(const UInt32* codepoints, std::size_t count);
+			std::string Print(const UInt32* codepoints, std::size_t count, const Settings& settings = Settings());
 
 			SpirvPrinter& operator=(const SpirvPrinter&) = default;
 			SpirvPrinter& operator=(SpirvPrinter&&) = default;
+
+			struct Settings
+			{
+				bool printHeader = true;
+				bool printParameters = true;
+			};
 
 		private:
 			void AppendInstruction();

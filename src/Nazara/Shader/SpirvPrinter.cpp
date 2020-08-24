@@ -19,13 +19,18 @@ namespace Nz
 		std::size_t index = 0;
 		std::size_t count;
 		std::ostringstream stream;
+		const Settings& settings;
 	};
 
-	std::string SpirvPrinter::Print(const UInt32* codepoints, std::size_t count)
+	std::string SpirvPrinter::Print(const UInt32* codepoints, std::size_t count, const Settings& settings)
 	{
-		State state;
-		state.codepoints = codepoints;
-		state.count = count;
+		State state = {
+			codepoints,
+			0,
+			count,
+			{},
+			settings
+		};
 
 		m_currentState = &state;
 		CallOnExit resetOnExit([&] { m_currentState = nullptr; });
@@ -34,7 +39,8 @@ namespace Nz
 		if (magicNumber != SpvMagicNumber)
 			throw std::runtime_error("invalid Spir-V: magic number didn't match");
 
-		m_currentState->stream << "Spir-V module\n";
+		if (m_currentState->settings.printHeader)
+			m_currentState->stream << "Spir-V module\n";
 
 		UInt32 versionNumber = ReadWord();
 		if (versionNumber > SpvVersion)
@@ -43,17 +49,17 @@ namespace Nz
 		UInt8 majorVersion = ((versionNumber) >> 16) & 0xFF;
 		UInt8 minorVersion = ((versionNumber) >>  8) & 0xFF;
 
-		m_currentState->stream << "Version " + std::to_string(+majorVersion) << "." << std::to_string(+minorVersion) << "\n";
-
 		UInt32 generatorId = ReadWord();
-
-		m_currentState->stream << "Generator: " << std::to_string(generatorId) << "\n";
-
 		UInt32 bound = ReadWord();
-		m_currentState->stream << "Bound: " << std::to_string(bound) << "\n";
-
 		UInt32 schema = ReadWord();
-		m_currentState->stream << "Schema: " << std::to_string(schema) << "\n";
+
+		if (m_currentState->settings.printHeader)
+		{
+			m_currentState->stream << "Version " + std::to_string(+majorVersion) << "." << std::to_string(+minorVersion) << "\n";
+			m_currentState->stream << "Generator: " << std::to_string(generatorId) << "\n";
+			m_currentState->stream << "Bound: " << std::to_string(bound) << "\n";
+			m_currentState->stream << "Schema: " << std::to_string(schema) << "\n";
+		}
 
 		while (m_currentState->index < m_currentState->count)
 			AppendInstruction();
@@ -76,126 +82,135 @@ namespace Nz
 
 		m_currentState->stream << inst->name;
 
-		std::size_t currentOperand = 0;
-		std::size_t instructionEnd = startIndex + wordCount;
-		while (m_currentState->index < instructionEnd)
+		if (m_currentState->settings.printParameters)
 		{
-			const SpirvInstruction::Operand* operand = &inst->operands[currentOperand];
-
-			m_currentState->stream << " " << operand->name << "(";
-
-			switch (operand->kind)
+			std::size_t currentOperand = 0;
+			std::size_t instructionEnd = startIndex + wordCount;
+			while (m_currentState->index < instructionEnd)
 			{
-				case SpirvOperandKind::ImageOperands:
-				case SpirvOperandKind::FPFastMathMode:
-				case SpirvOperandKind::SelectionControl:
-				case SpirvOperandKind::LoopControl:
-				case SpirvOperandKind::FunctionControl:
-				case SpirvOperandKind::MemorySemantics:
-				case SpirvOperandKind::MemoryAccess:
-				case SpirvOperandKind::KernelProfilingInfo:
-				case SpirvOperandKind::RayFlags:
-				case SpirvOperandKind::SourceLanguage:
-				case SpirvOperandKind::ExecutionModel:
-				case SpirvOperandKind::AddressingModel:
-				case SpirvOperandKind::MemoryModel:
-				case SpirvOperandKind::ExecutionMode:
-				case SpirvOperandKind::StorageClass:
-				case SpirvOperandKind::Dim:
-				case SpirvOperandKind::SamplerAddressingMode:
-				case SpirvOperandKind::SamplerFilterMode:
-				case SpirvOperandKind::ImageFormat:
-				case SpirvOperandKind::ImageChannelOrder:
-				case SpirvOperandKind::ImageChannelDataType:
-				case SpirvOperandKind::FPRoundingMode:
-				case SpirvOperandKind::LinkageType:
-				case SpirvOperandKind::AccessQualifier:
-				case SpirvOperandKind::FunctionParameterAttribute:
-				case SpirvOperandKind::Decoration:
-				case SpirvOperandKind::BuiltIn:
-				case SpirvOperandKind::Scope:
-				case SpirvOperandKind::GroupOperation:
-				case SpirvOperandKind::KernelEnqueueFlags:
-				case SpirvOperandKind::Capability:
-				case SpirvOperandKind::RayQueryIntersection:
-				case SpirvOperandKind::RayQueryCommittedIntersectionType:
-				case SpirvOperandKind::RayQueryCandidateIntersectionType:
-				case SpirvOperandKind::IdResultType:
-				case SpirvOperandKind::IdResult:
-				case SpirvOperandKind::IdMemorySemantics:
-				case SpirvOperandKind::IdScope:
-				case SpirvOperandKind::IdRef:
-				case SpirvOperandKind::LiteralInteger:
-				case SpirvOperandKind::LiteralExtInstInteger:
-				case SpirvOperandKind::LiteralSpecConstantOpInteger:
-				case SpirvOperandKind::LiteralContextDependentNumber: //< FIXME
+				const SpirvInstruction::Operand* operand = &inst->operands[currentOperand];
+
+				m_currentState->stream << " " << operand->name << "(";
+
+				switch (operand->kind)
 				{
-					UInt32 value = ReadWord();
-					m_currentState->stream << value;
-					break;
-				}
-
-				case SpirvOperandKind::LiteralString:
-				{
-					std::string str = ReadString();
-					m_currentState->stream << "\"" << str << "\"";
-
-					/*
-					std::size_t offset = GetOutputOffset();
-
-					std::size_t size4 = CountWord(str);
-					for (std::size_t i = 0; i < size4; ++i)
+					case SpirvOperandKind::ImageOperands:
+					case SpirvOperandKind::FPFastMathMode:
+					case SpirvOperandKind::SelectionControl:
+					case SpirvOperandKind::LoopControl:
+					case SpirvOperandKind::FunctionControl:
+					case SpirvOperandKind::MemorySemantics:
+					case SpirvOperandKind::MemoryAccess:
+					case SpirvOperandKind::KernelProfilingInfo:
+					case SpirvOperandKind::RayFlags:
+					case SpirvOperandKind::SourceLanguage:
+					case SpirvOperandKind::ExecutionModel:
+					case SpirvOperandKind::AddressingModel:
+					case SpirvOperandKind::MemoryModel:
+					case SpirvOperandKind::ExecutionMode:
+					case SpirvOperandKind::StorageClass:
+					case SpirvOperandKind::Dim:
+					case SpirvOperandKind::SamplerAddressingMode:
+					case SpirvOperandKind::SamplerFilterMode:
+					case SpirvOperandKind::ImageFormat:
+					case SpirvOperandKind::ImageChannelOrder:
+					case SpirvOperandKind::ImageChannelDataType:
+					case SpirvOperandKind::FPRoundingMode:
+					case SpirvOperandKind::LinkageType:
+					case SpirvOperandKind::AccessQualifier:
+					case SpirvOperandKind::FunctionParameterAttribute:
+					case SpirvOperandKind::Decoration:
+					case SpirvOperandKind::BuiltIn:
+					case SpirvOperandKind::Scope:
+					case SpirvOperandKind::GroupOperation:
+					case SpirvOperandKind::KernelEnqueueFlags:
+					case SpirvOperandKind::Capability:
+					case SpirvOperandKind::RayQueryIntersection:
+					case SpirvOperandKind::RayQueryCommittedIntersectionType:
+					case SpirvOperandKind::RayQueryCandidateIntersectionType:
+					case SpirvOperandKind::IdResultType:
+					case SpirvOperandKind::IdResult:
+					case SpirvOperandKind::IdMemorySemantics:
+					case SpirvOperandKind::IdScope:
+					case SpirvOperandKind::IdRef:
+					case SpirvOperandKind::LiteralInteger:
+					case SpirvOperandKind::LiteralExtInstInteger:
+					case SpirvOperandKind::LiteralSpecConstantOpInteger:
+					case SpirvOperandKind::LiteralContextDependentNumber: //< FIXME
 					{
-						UInt32 codepoint = 0;
-						for (std::size_t j = 0; j < 4; ++j)
-						{
-							std::size_t pos = i * 4 + j;
-							if (pos < str.size())
-								codepoint |= UInt32(str[pos]) << (j * 8);
-						}
-
-						Append(codepoint);
+						UInt32 value = ReadWord();
+						m_currentState->stream << value;
+						break;
 					}
-					*/
-					break;
-				}
+
+					case SpirvOperandKind::LiteralString:
+					{
+						std::string str = ReadString();
+						m_currentState->stream << "\"" << str << "\"";
+
+						/*
+						std::size_t offset = GetOutputOffset();
+
+						std::size_t size4 = CountWord(str);
+						for (std::size_t i = 0; i < size4; ++i)
+						{
+							UInt32 codepoint = 0;
+							for (std::size_t j = 0; j < 4; ++j)
+							{
+								std::size_t pos = i * 4 + j;
+								if (pos < str.size())
+									codepoint |= UInt32(str[pos]) << (j * 8);
+							}
+
+							Append(codepoint);
+						}
+						*/
+						break;
+					}
 
 				
-				case SpirvOperandKind::PairLiteralIntegerIdRef:
-				{
-					ReadWord();
-					ReadWord();
-					break;
+					case SpirvOperandKind::PairLiteralIntegerIdRef:
+					{
+						ReadWord();
+						ReadWord();
+						break;
+					}
+
+					case SpirvOperandKind::PairIdRefLiteralInteger:
+					{
+						ReadWord();
+						ReadWord();
+						break;
+					}
+
+					case SpirvOperandKind::PairIdRefIdRef:
+					{
+						ReadWord();
+						ReadWord();
+						break;
+					}
+
+					/*case SpirvOperandKind::LiteralContextDependentNumber:
+					{
+						throw std::runtime_error("not yet implemented");
+					}*/
+
+					default:
+						break;
+
 				}
 
-				case SpirvOperandKind::PairIdRefLiteralInteger:
-				{
-					ReadWord();
-					ReadWord();
-					break;
-				}
+				m_currentState->stream << ")";
 
-				case SpirvOperandKind::PairIdRefIdRef:
-				{
-					ReadWord();
-					ReadWord();
-					break;
-				}
-
-				/*case SpirvOperandKind::LiteralContextDependentNumber:
-				{
-					throw std::runtime_error("not yet implemented");
-				}*/
-
-				default:
-					break;
-
+				if (currentOperand < inst->minOperandCount - 1)
+					currentOperand++;
 			}
-
-			m_currentState->stream << ")";
-
-			if (currentOperand < inst->minOperandCount - 1)
-				currentOperand++;
+		}
+		else
+		{
+			m_currentState->index += wordCount - 1;
+			if (m_currentState->index > m_currentState->count)
+				throw std::runtime_error("unexpected end of stream");
 		}
 
 		m_currentState->stream << "\n";
