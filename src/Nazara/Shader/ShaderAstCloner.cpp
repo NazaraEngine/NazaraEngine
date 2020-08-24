@@ -140,7 +140,7 @@ namespace Nz
 
 	void ShaderAstCloner::Visit(ShaderNodes::SwizzleOp& node)
 	{
-		PushExpression(ShaderNodes::SwizzleOp::Build(PopExpression(), node.components.data(), node.componentCount));
+		PushExpression(ShaderNodes::SwizzleOp::Build(CloneExpression(node.expression), node.components.data(), node.componentCount));
 	}
 
 	void ShaderAstCloner::Visit(ShaderNodes::BuiltinVariable& var)
