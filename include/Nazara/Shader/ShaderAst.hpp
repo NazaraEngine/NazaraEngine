@@ -34,10 +34,10 @@ namespace Nz
 			~ShaderAst() = default;
 
 			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderNodes::BasicType returnType = ShaderNodes::BasicType::Void);
-			void AddInput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex);
-			void AddOutput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex);
+			void AddInput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex = {});
+			void AddOutput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex = {});
 			void AddStruct(std::string name, std::vector<StructMember> members);
-			void AddUniform(std::string name, ShaderExpressionType type, std::optional<std::size_t> bindingIndex, std::optional<ShaderNodes::MemoryLayout> memoryLayout);
+			void AddUniform(std::string name, ShaderExpressionType type, std::optional<std::size_t> bindingIndex = {}, std::optional<ShaderNodes::MemoryLayout> memoryLayout = {});
 
 			inline const Function& GetFunction(std::size_t i) const;
 			inline std::size_t GetFunctionCount() const;
