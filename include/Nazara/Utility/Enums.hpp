@@ -309,6 +309,58 @@ namespace Nz
 		SamplerWrap_Max = SamplerWrap_Repeat
 	};
 
+	enum class ShaderStageType
+	{
+		Fragment,
+		Vertex,
+
+		Max = Vertex
+	};
+
+	template<>
+	struct EnumAsFlags<ShaderStageType>
+	{
+		static constexpr ShaderStageType max = ShaderStageType::Max;
+	};
+
+	using ShaderStageTypeFlags = Flags<ShaderStageType>;
+
+	constexpr ShaderStageTypeFlags ShaderStageType_All = ShaderStageType::Fragment | ShaderStageType::Vertex;
+
+	enum StructFieldType
+	{
+		StructFieldType_Bool1,
+		StructFieldType_Bool2,
+		StructFieldType_Bool3,
+		StructFieldType_Bool4,
+		StructFieldType_Float1,
+		StructFieldType_Float2,
+		StructFieldType_Float3,
+		StructFieldType_Float4,
+		StructFieldType_Double1,
+		StructFieldType_Double2,
+		StructFieldType_Double3,
+		StructFieldType_Double4,
+		StructFieldType_Int1,
+		StructFieldType_Int2,
+		StructFieldType_Int3,
+		StructFieldType_Int4,
+		StructFieldType_UInt1,
+		StructFieldType_UInt2,
+		StructFieldType_UInt3,
+		StructFieldType_UInt4,
+
+		StructFieldType_Max = StructFieldType_UInt4
+	};
+
+	enum StructLayout
+	{
+		StructLayout_Packed,
+		StructLayout_Std140,
+
+		StructLayout_Max = StructLayout_Std140
+	};
+
 	enum StencilOperation
 	{
 		StencilOperation_Decrement,

@@ -67,6 +67,13 @@ namespace Nz::GL
 
 	void WGLContext::EnableVerticalSync(bool enabled)
 	{
+		if (wglSwapIntervalEXT)
+		{
+			if (!SetCurrentContext(this))
+				return;
+
+			wglSwapIntervalEXT(enabled);
+		}
 	}
 
 	void WGLContext::SwapBuffers()

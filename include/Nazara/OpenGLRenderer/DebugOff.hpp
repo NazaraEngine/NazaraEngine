@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // On suppose que Debug.hpp a déjà été inclus, tout comme Config.hpp
-#if NAZARA_MODULENAME_MANAGE_MEMORY
+#if NAZARA_OPENGLRENDERER_MANAGE_MEMORY
 	#undef delete
 	#undef new
 #endif

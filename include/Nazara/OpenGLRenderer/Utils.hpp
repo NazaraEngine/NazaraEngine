@@ -12,10 +12,24 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <optional>
 #include <string>
 
 namespace Nz
 {
+	struct GLTextureFormat
+	{
+		GLint internalFormat;
+		GLenum format;
+		GLenum type;
+		GLenum swizzleR;
+		GLenum swizzleG;
+		GLenum swizzleB;
+		GLenum swizzleA;
+	};
+
+	inline std::optional<GLTextureFormat> DescribeTextureFormat(PixelFormat pixelFormat);
+
 	inline GLenum ToOpenGL(BlendFunc blendFunc);
 	inline GLenum ToOpenGL(FaceSide filter);
 	inline GLenum ToOpenGL(SamplerFilter filter);

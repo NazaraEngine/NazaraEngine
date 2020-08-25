@@ -3,6 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Config.hpp>
-#if NAZARA_MODULENAME_MANAGE_MEMORY
+#if NAZARA_VULKANRENDERER_MANAGE_MEMORY
 	#include <Nazara/Core/Debug/NewRedefinition.hpp>
 #endif

@@ -27,6 +27,7 @@ TOOL.Files = {
 TOOL.Libraries = {
 	"NazaraCore",
 	"NazaraRenderer",
+	"NazaraShader",
 	"NazaraUtility"
 }
 
