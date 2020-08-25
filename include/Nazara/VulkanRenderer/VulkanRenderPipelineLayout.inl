@@ -27,10 +27,12 @@ namespace Nz
 		std::size_t poolCount = m_descriptorPools.size();
 		if (poolCount >= 2 && m_descriptorPools.back().freeBindings.TestAll())
 		{
-			for (std::size_t i = poolCount - 1; i > 0; ++i)
+			for (std::size_t i = poolCount - 1; i > 0; --i)
 			{
-				if (m_descriptorPools[i].freeBindings.TestAll())
-					poolCount--;
+				if (!m_descriptorPools[i].freeBindings.TestAll())
+					break;
+
+				poolCount--;
 			}
 
 			m_descriptorPools.resize(poolCount);
