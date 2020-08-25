@@ -166,8 +166,8 @@ namespace Nz
 
 			std::vector<MD2_Vertex> vertices(header.num_vertices);
 			Vector3f scale, translate;
-			stream.Read(scale, sizeof(Vector3f));
-			stream.Read(translate, sizeof(Vector3f));
+			stream.Read(&scale, sizeof(Vector3f));
+			stream.Read(&translate, sizeof(Vector3f));
 			stream.Read(nullptr, 16*sizeof(char)); //< Frame name, unused
 			stream.Read(vertices.data(), header.num_vertices*sizeof(MD2_Vertex));
 

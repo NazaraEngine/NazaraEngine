@@ -1,6 +1,10 @@
 # Nazara build
 build/config.lua
 
+# Nazara binaries
+bin/*
+
+# Build files
 build/gmake*/
 build/vs*/
 

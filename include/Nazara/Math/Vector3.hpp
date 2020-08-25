@@ -65,7 +65,7 @@ namespace Nz
 			Vector3& Set(T X, T Y, T Z);
 			Vector3& Set(T X, const Vector2<T>& vec);
 			Vector3& Set(T scale);
-			Vector3& Set(const T vec[3]);
+			Vector3& Set(const T* vec);
 			Vector3& Set(const Vector2<T>& vec, T Z = 0.0);
 			template<typename U> Vector3& Set(const Vector3<U>& vec);
 			Vector3& Set(const Vector4<T>& vec);
@@ -74,8 +74,8 @@ namespace Nz
 
 			String ToString() const;
 
-			operator T* ();
-			operator const T* () const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			const Vector3& operator+() const;
 			Vector3 operator-() const;

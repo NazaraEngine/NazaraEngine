@@ -38,6 +38,10 @@
 	extBegin(WGL_EXT_extensions_string) \
 		extFunc(wglGetExtensionsStringEXT, PFNWGLGETEXTENSIONSSTRINGEXTPROC) \
 	extEnd() \
+	\
+	extBegin(WGL_EXT_swap_control) \
+		extFunc(wglSwapIntervalEXT, PFNWGLSWAPINTERVALEXTPROC) \
+	extEnd()
 
 #define NAZARA_OPENGLRENDERER_FOREACH_GDI32_FUNC(func) \
 	func(ChoosePixelFormat, PFNCHOOSEPIXELFORMATPROC) \

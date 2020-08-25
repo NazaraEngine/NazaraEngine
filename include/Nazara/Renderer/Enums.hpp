@@ -49,26 +49,9 @@ namespace Nz
 		GLSL,
 		HLSL,
 		MSL,
+		NazaraBinary,
 		SpirV
 	};
-
-	enum class ShaderStageType
-	{
-		Fragment,
-		Vertex,
-
-		Max = Vertex
-	};
-
-	template<>
-	struct EnumAsFlags<ShaderStageType>
-	{
-		static constexpr ShaderStageType max = ShaderStageType::Max;
-	};
-
-	using ShaderStageTypeFlags = Flags<ShaderStageType>;
-
-	constexpr ShaderStageTypeFlags ShaderStageType_All = ShaderStageType::Fragment | ShaderStageType::Vertex;
 
 	enum class QueueType
 	{
