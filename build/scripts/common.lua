@@ -699,6 +699,24 @@ local PosixOSes = {
 	["solaris"] = true
 }
 
+local function ProcessOption(libName, option, enable)
+	return libName:gsub("%%" .. option .. "%((.+)%)", enable and "%1" or "")
+end
+
+local function HandleLib(infoTable, libName)
+	local debugDynamic = ProcessOption(ProcessOption(libName, "d", true), "s", false)
+	local debugStatic = ProcessOption(ProcessOption(libName, "d", true), "s", true)
+	local releaseStatic = ProcessOption(ProcessOption(libName, "d", false), "s", true)
+	local releaseDynamic = ProcessOption(ProcessOption(libName, "d", false), "s", false)
+
+	table.insert(infoTable.ConfigurationLibraries.DebugStatic, debugStatic)
+	table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, releaseStatic)
+	table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, releaseStatic)
+	table.insert(infoTable.ConfigurationLibraries.DebugDynamic, debugDynamic)
+	table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, releaseDynamic)
+	table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, releaseDynamic)
+end
+
 function NazaraBuild:Process(infoTable)
 	if (infoTable.Excluded) then
 		return false
@@ -718,16 +736,11 @@ function NazaraBuild:Process(infoTable)
 				if (_OPTIONS["united"]) then
 					library = "NazaraEngine"
 				else
-					library = "Nazara" .. libraryTable.Name
+					library = "Nazara" .. libraryTable.Name .. "%s(-s)%d(-d)"
 				end
 
 				if (not self.Config["UniteModules"] or infoTable.Type ~= "Module") then
-					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
-					table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
-					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library)
+					HandleLib(infoTable, library)
 				end
 			elseif (libraryTable.Type == "ExternLib") then
 				library = libraryTable.Name
@@ -735,15 +748,10 @@ function NazaraBuild:Process(infoTable)
 				if (self.Config["BuildDependencies"]) then
 					table.insert(libraries, library)
 				else
-					table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
-					table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-s-d")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library .. "-s")
-					table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library .. "-s")
+					HandleLib(infoTable, library)
 				end
 			elseif (libraryTable.Type == "Tool") then
-				library = "Nazara" .. libraryTable.Name
+				library = "Nazara" .. libraryTable.Name .. "%s(-s)%d(-d)"
 
 				-- Import tools includes
 				for k,v in ipairs(libraryTable.Includes) do
@@ -761,19 +769,14 @@ function NazaraBuild:Process(infoTable)
 					end
 				end
 
-				table.insert(infoTable.ConfigurationLibraries.DebugStatic, library .. "-s-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseStatic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugStatic, library .. "-s")
-				table.insert(infoTable.ConfigurationLibraries.DebugDynamic, library .. "-d")
-				table.insert(infoTable.ConfigurationLibraries.ReleaseDynamic, library)
-				table.insert(infoTable.ConfigurationLibraries.ReleaseWithDebugDynamic, library)
+				HandleLib(infoTable, library)
 			else
 				infoTable.Excluded = true
 				infoTable.ExcludeReason = "dependency " .. library .. " has invalid type \"" .. libraryTable.Type .. "\""
 				return false
 			end		
 		else
-			table.insert(libraries, library)
+			HandleLib(infoTable, library)
 		end
 	end
 	infoTable.Libraries = libraries
@@ -881,9 +884,11 @@ function NazaraBuild:PreconfigGenericProject()
 	filter("configurations:*Dynamic")
 		kind("SharedLib")
 
-	-- Enable MSVC conformance (not required but better)
+	-- Enable MSVC conformance (not required but better) and some extra warnings
 	filter("action:vs*")
 		buildoptions({"/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew"})
+		--enablewarnings("4062") -- switch case not handled
+		buildoptions("/w44062") -- looks like enablewarnings is broken currently for msvc
 
 	-- Enable SSE math and vectorization optimizations
 	filter({"configurations:Release*", clangGccActions})

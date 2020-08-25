@@ -24,3 +24,18 @@ ServerMode = false
 
 -- Builds modules as one united library (useless on POSIX systems)
 UniteModules = false
+
+-- Qt5 directories (required for ShaderNodes editor)
+--Qt5IncludeDir = [[C:\Projets\Libs\Qt\5.15.0\msvc2019\include]]
+--Qt5BinDir_x86 = [[C:\Projets\Libs\Qt\5.15.0\msvc2019\bin]]
+--Qt5BinDir_x64 = [[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\bin]]
+--Qt5LibDir_x86 = [[C:\Projets\Libs\Qt\5.15.0\msvc2019\lib]]
+--Qt5LibDir_x64 = [[C:\Projets\Libs\Qt\5.15.0\msvc2019_64\lib]]
+
+
+-- QtNodes directories (required for ShaderNodes editor)
+--QtNodesIncludeDir = [[C:\Projets\Libs\nodeeditor\include]]
+--QtNodesBinDir_x86 = [[C:\Projets\Libs\nodeeditor\build32\bin\Release]]
+--QtNodesBinDir_x64 = [[C:\Projets\Libs\nodeeditor\build64\bin\Release]]
+--QtNodesLibDir_x86 = [[C:\Projets\Libs\nodeeditor\build32\lib\Release]]
+--QtNodesLibDir_x64 = [[C:\Projets\Libs\nodeeditor\build64\lib\Release]]
