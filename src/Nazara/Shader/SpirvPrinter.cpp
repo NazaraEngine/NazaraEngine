@@ -15,6 +15,11 @@ namespace Nz
 {
 	struct SpirvPrinter::State
 	{
+		State(const Settings& Settings) :
+		settings(settings)
+		{
+		}
+
 		const UInt32* codepoints;
 		std::size_t index = 0;
 		std::size_t count;
@@ -24,13 +29,9 @@ namespace Nz
 
 	std::string SpirvPrinter::Print(const UInt32* codepoints, std::size_t count, const Settings& settings)
 	{
-		State state = {
-			codepoints,
-			0,
-			count,
-			{},
-			settings
-		};
+		State state(settings);
+		state.codepoints = codepoints;
+		state.count = count;
 
 		m_currentState = &state;
 		CallOnExit resetOnExit([&] { m_currentState = nullptr; });
