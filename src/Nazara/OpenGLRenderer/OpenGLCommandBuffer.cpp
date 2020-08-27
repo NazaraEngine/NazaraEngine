@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
@@ -138,5 +139,11 @@ namespace Nz
 
 		const GL::VertexArray& vao = context.GetVaoCache().Get(vaoSetup);
 		context.BindVertexArray(vao.GetObjectId(), true);
+	}
+
+	void OpenGLCommandBuffer::Release()
+	{
+		assert(m_owner);
+		m_owner->Release(*this);
 	}
 }

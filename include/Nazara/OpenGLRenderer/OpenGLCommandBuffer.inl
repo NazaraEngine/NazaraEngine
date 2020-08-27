@@ -4,11 +4,24 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
+#include <cassert>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
+	inline OpenGLCommandBuffer::OpenGLCommandBuffer() :
+	m_owner(nullptr)
+	{
+	}
+
+	inline OpenGLCommandBuffer::OpenGLCommandBuffer(OpenGLCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex) :
+	m_bindingIndex(bindingIndex),
+	m_poolIndex(poolIndex),
+	m_owner(&owner)
+	{
+	}
+
 	inline void OpenGLCommandBuffer::BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color)
 	{
 		BeginDebugRegionData beginDebugRegion;
@@ -102,6 +115,22 @@ namespace Nz
 	inline void OpenGLCommandBuffer::EndDebugRegion()
 	{
 		m_commands.emplace_back(EndDebugRegionData{});
+	}
+
+	inline std::size_t Nz::OpenGLCommandBuffer::GetBindingIndex() const
+	{
+		return m_bindingIndex;
+	}
+
+	inline std::size_t Nz::OpenGLCommandBuffer::GetPoolIndex() const
+	{
+		return m_poolIndex;
+	}
+
+	inline const OpenGLCommandPool& OpenGLCommandBuffer::GetOwner() const
+	{
+		assert(m_owner);
+		return *m_owner;
 	}
 
 	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& /*renderPass*/, std::initializer_list<CommandBufferBuilder::ClearValues> clearValues)

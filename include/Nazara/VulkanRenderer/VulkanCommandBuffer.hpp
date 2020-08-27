@@ -15,22 +15,34 @@
 
 namespace Nz
 {
+	class VulkanCommandPool;
+
 	class NAZARA_VULKANRENDERER_API VulkanCommandBuffer final : public CommandBuffer
 	{
 		public:
-			inline VulkanCommandBuffer(Vk::AutoCommandBuffer commandBuffer);
-			inline VulkanCommandBuffer(std::vector<Vk::AutoCommandBuffer> commandBuffers);
+			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::AutoCommandBuffer commandBuffer);
+			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, std::vector<Vk::AutoCommandBuffer> commandBuffers);
 			VulkanCommandBuffer(const VulkanCommandBuffer&) = delete;
 			VulkanCommandBuffer(VulkanCommandBuffer&&) noexcept = default;
 			~VulkanCommandBuffer() = default;
 
+			inline std::size_t GetBindingIndex() const;
 			inline Vk::CommandBuffer& GetCommandBuffer(std::size_t imageIndex = 0);
+			inline std::size_t GetPoolIndex() const;
+			inline const VulkanCommandPool& GetOwner() const;
 
 			VulkanCommandBuffer& operator=(const VulkanCommandBuffer&) = delete;
 			VulkanCommandBuffer& operator=(VulkanCommandBuffer&&) = delete;
 
 		private:
+			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex);
+
+			void Release() override;
+
+			std::size_t m_bindingIndex;
+			std::size_t m_poolIndex;
 			std::vector<Vk::AutoCommandBuffer> m_commandBuffers;
+			VulkanCommandPool& m_owner;
 	};
 }
 

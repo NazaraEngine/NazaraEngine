@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline void CommandBufferDeleter::operator()(CommandBuffer* commandBuffer)
+	{
+		commandBuffer->Release();
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

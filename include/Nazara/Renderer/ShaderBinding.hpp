@@ -30,9 +30,14 @@ namespace Nz
 			struct Binding;
 
 			ShaderBinding() = default;
+			ShaderBinding(const ShaderBinding&) = delete;
+			ShaderBinding(ShaderBinding&&) = delete;
 			virtual ~ShaderBinding();
 
 			virtual void Update(std::initializer_list<Binding> bindings) = 0;
+
+			ShaderBinding& operator=(const ShaderBinding&) = delete;
+			ShaderBinding& operator=(ShaderBinding&&) = delete;
 
 			struct TextureBinding
 			{
@@ -55,9 +60,6 @@ namespace Nz
 
 		protected:
 			virtual void Release() = 0;
-
-			ShaderBinding(const ShaderBinding&) = delete;
-			ShaderBinding(ShaderBinding&&) = default;
 	};
 
 	class ShaderBindingDeleter

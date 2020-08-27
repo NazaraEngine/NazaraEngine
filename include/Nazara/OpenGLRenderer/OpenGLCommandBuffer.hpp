@@ -22,12 +22,14 @@
 
 namespace Nz
 {
+	class OpenGLCommandPool;
 	class OpenGLFramebuffer;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBuffer final : public CommandBuffer
 	{
 		public:
-			OpenGLCommandBuffer() = default;
+			inline OpenGLCommandBuffer();
+			inline OpenGLCommandBuffer(OpenGLCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex);
 			OpenGLCommandBuffer(const OpenGLCommandBuffer&) = delete;
 			OpenGLCommandBuffer(OpenGLCommandBuffer&&) noexcept = default;
 			~OpenGLCommandBuffer() = default;
@@ -49,6 +51,10 @@ namespace Nz
 
 			void Execute();
 
+			inline std::size_t GetBindingIndex() const;
+			inline std::size_t GetPoolIndex() const;
+			inline const OpenGLCommandPool& GetOwner() const;
+
 			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& renderPass, std::initializer_list<CommandBufferBuilder::ClearValues> clearValues);
 			inline void SetScissor(Nz::Recti scissorRegion);
 			inline void SetViewport(Nz::Recti viewportRegion);
@@ -60,6 +66,7 @@ namespace Nz
 			struct DrawStates;
 
 			void ApplyStates(const GL::Context& context, const DrawStates& states);
+			void Release();
 
 			struct BeginDebugRegionData
 			{
@@ -139,7 +146,10 @@ namespace Nz
 			>;
 
 			DrawStates m_currentStates;
+			std::size_t m_bindingIndex;
+			std::size_t m_poolIndex;
 			std::vector<CommandData> m_commands;
+			OpenGLCommandPool* m_owner;
 	};
 }
 
