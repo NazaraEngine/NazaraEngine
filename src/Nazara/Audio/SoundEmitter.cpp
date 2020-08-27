@@ -142,7 +142,7 @@ namespace Nz
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
 		Vector3f position;
-		alGetSourcefv(m_source, AL_POSITION, position);
+		alGetSourcefv(m_source, AL_POSITION, &position.x);
 
 		return position;
 	}
@@ -157,7 +157,7 @@ namespace Nz
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
 		Vector3f velocity;
-		alGetSourcefv(m_source, AL_VELOCITY, velocity);
+		alGetSourcefv(m_source, AL_VELOCITY, &velocity.x);
 
 		return velocity;
 	}
@@ -241,7 +241,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		alSourcefv(m_source, AL_POSITION, position);
+		alSourcefv(m_source, AL_POSITION, &position.x);
 	}
 
 	/*!
@@ -267,7 +267,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		alSourcefv(m_source, AL_VELOCITY, velocity);
+		alSourcefv(m_source, AL_VELOCITY, &velocity.x);
 	}
 
 	/*!

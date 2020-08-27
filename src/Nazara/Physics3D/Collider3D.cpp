@@ -57,12 +57,12 @@ namespace Nz
 
 			NewtonCollision* collision = CreateHandle(&world);
 			{
-				NewtonCollisionCalculateAABB(collision, offsetMatrix, min, max);
+				NewtonCollisionCalculateAABB(collision, offsetMatrix, &min.x, &max.x);
 			}
 			NewtonDestroyCollision(collision);
 		}
 		else
-			NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, min, max);
+			NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, &min.x, &max.x);
 
 		return Boxf(scale * min, scale * max);
 	}

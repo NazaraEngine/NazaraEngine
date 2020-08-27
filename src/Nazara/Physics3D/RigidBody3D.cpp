@@ -144,7 +144,7 @@ namespace Nz
 	Boxf RigidBody3D::GetAABB() const
 	{
 		Vector3f min, max;
-		NewtonBodyGetAABB(m_body, min, max);
+		NewtonBodyGetAABB(m_body, &min.x, &max.x);
 
 		return Boxf(min, max);
 	}
@@ -152,7 +152,7 @@ namespace Nz
 	Vector3f RigidBody3D::GetAngularDamping() const
 	{
 		Vector3f angularDamping;
-		NewtonBodyGetAngularDamping(m_body, angularDamping);
+		NewtonBodyGetAngularDamping(m_body, &angularDamping.x);
 
 		return angularDamping;
 	}
@@ -160,7 +160,7 @@ namespace Nz
 	Vector3f RigidBody3D::GetAngularVelocity() const
 	{
 		Vector3f angularVelocity;
-		NewtonBodyGetOmega(m_body, angularVelocity);
+		NewtonBodyGetOmega(m_body, &angularVelocity.x);
 
 		return angularVelocity;
 	}
@@ -188,7 +188,7 @@ namespace Nz
 	Vector3f RigidBody3D::GetLinearVelocity() const
 	{
 		Vector3f velocity;
-		NewtonBodyGetVelocity(m_body, velocity);
+		NewtonBodyGetVelocity(m_body, &velocity.x);
 
 		return velocity;
 	}
@@ -201,7 +201,7 @@ namespace Nz
 	Vector3f RigidBody3D::GetMassCenter(CoordSys coordSys) const
 	{
 		Vector3f center;
-		NewtonBodyGetCentreOfMass(m_body, center);
+		NewtonBodyGetCentreOfMass(m_body, &center.x);
 
 		switch (coordSys)
 		{
@@ -268,12 +268,12 @@ namespace Nz
 
 	void RigidBody3D::SetAngularDamping(const Vector3f& angularDamping)
 	{
-		NewtonBodySetAngularDamping(m_body, angularDamping);
+		NewtonBodySetAngularDamping(m_body, &angularDamping.x);
 	}
 
 	void RigidBody3D::SetAngularVelocity(const Vector3f& angularVelocity)
 	{
-		NewtonBodySetOmega(m_body, angularVelocity);
+		NewtonBodySetOmega(m_body, &angularVelocity.x);
 	}
 
 	void RigidBody3D::SetGeom(Collider3DRef geom)
@@ -301,7 +301,7 @@ namespace Nz
 
 	void RigidBody3D::SetLinearVelocity(const Vector3f& velocity)
 	{
-		NewtonBodySetVelocity(m_body, velocity);
+		NewtonBodySetVelocity(m_body, &velocity.x);
 	}
 
 	void RigidBody3D::SetMass(float mass)
@@ -342,7 +342,7 @@ namespace Nz
 	void RigidBody3D::SetMassCenter(const Vector3f& center)
 	{
 		if (m_mass > 0.f)
-			NewtonBodySetCentreOfMass(m_body, center);
+			NewtonBodySetCentreOfMass(m_body, &center.x);
 	}
 
 	void RigidBody3D::SetMaterial(const String& materialName)
@@ -389,9 +389,9 @@ namespace Nz
 			// Moving a static body in Newton does not update bodies at the target location
 			// http://newtondynamics.com/wiki/index.php5?title=Can_i_dynamicly_move_a_TriMesh%3F
 			Vector3f min, max;
-			NewtonBodyGetAABB(m_body, min, max);
+			NewtonBodyGetAABB(m_body, &min.x, &max.x);
 
-			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData) -> int
+			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), &min.x, &max.x, [](const NewtonBody* const body, void* const userData) -> int
 			{
 				NazaraUnused(userData);
 				NewtonBodySetSleepState(body, 0);
@@ -430,8 +430,8 @@ namespace Nz
 		if (!NumberEquals(me->m_gravityFactor, 0.f))
 			me->m_forceAccumulator += me->m_world->GetGravity() * me->m_gravityFactor * me->m_mass;
 
-		NewtonBodySetForce(body, me->m_forceAccumulator);
-		NewtonBodySetTorque(body, me->m_torqueAccumulator);
+		NewtonBodySetForce(body, &me->m_forceAccumulator.x);
+		NewtonBodySetTorque(body, &me->m_torqueAccumulator.x);
 
 		me->m_torqueAccumulator.Set(0.f);
 		me->m_forceAccumulator.Set(0.f);
