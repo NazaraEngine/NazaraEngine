@@ -37,24 +37,25 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VkRenderWindow : public VkRenderTarget, public RenderWindowImpl
 	{
 		public:
-			VkRenderWindow();
+			VkRenderWindow(RenderWindow& owner);
 			VkRenderWindow(const VkRenderWindow&) = delete;
 			VkRenderWindow(VkRenderWindow&&) = delete; ///TODO
 			~VkRenderWindow();
 
-			VulkanRenderImage& Acquire() override;
+			RenderFrame Acquire() override;
 
-			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
+			bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) override;
+
 			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline const VulkanMultipleFramebuffer& GetFramebuffer() const override;
 			inline VulkanDevice& GetDevice();
 			inline const VulkanDevice& GetDevice() const;
 			inline Vk::QueueHandle& GetGraphicsQueue();
-			const VulkanRenderPass& GetRenderPass() const override;
+			inline const VulkanRenderPass& GetRenderPass() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
-			std::shared_ptr<RenderDevice> GetRenderDevice() override;
+			inline std::shared_ptr<RenderDevice> GetRenderDevice() override;
 
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
@@ -62,17 +63,16 @@ namespace Nz
 			VkRenderWindow& operator=(VkRenderWindow&&) = delete; ///TODO
 
 		private:
+			bool CreateSwapchain(Vk::Surface& surface, const Vector2ui& size);
 			bool SetupDepthBuffer(const Vector2ui& size);
+			bool SetupFrameBuffers(const Vector2ui& size);
 			bool SetupRenderPass();
 			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size);
 
-			std::size_t m_currentFrame;
-			Clock m_clock;
-			VkFormat m_depthStencilFormat;
-			VkSurfaceFormatKHR m_surfaceFormat;
 			std::optional<VulkanMultipleFramebuffer> m_framebuffer;
 			std::optional<VulkanRenderPass> m_renderPass;
 			std::shared_ptr<VulkanDevice> m_device;
+			std::size_t m_currentFrame;
 			std::vector<Vk::Fence*> m_inflightFences;
 			std::vector<VulkanRenderImage> m_concurrentImageData;
 			Vk::DeviceMemory m_depthBufferMemory;
@@ -82,6 +82,12 @@ namespace Nz
 			Vk::QueueHandle m_presentQueue;
 			Vk::QueueHandle m_transferQueue;
 			Vk::Swapchain m_swapchain;
+			Clock m_clock;
+			RenderWindow& m_owner;
+			Vector2ui m_swapchainSize;
+			VkFormat m_depthStencilFormat;
+			VkSurfaceFormatKHR m_surfaceFormat;
+			bool m_shouldRecreateSwapchain;
 	};
 }
 

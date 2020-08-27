@@ -26,7 +26,7 @@ namespace Nz
 			~VulkanRenderer();
 
 			std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() override;
-			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() override;
+			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl(RenderWindow& owner) override;
 
 			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) override;
 

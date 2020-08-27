@@ -12,6 +12,7 @@
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
 
 namespace Nz
@@ -19,7 +20,6 @@ namespace Nz
 	class CommandPool;
 	class Framebuffer;
 	class RendererImpl;
-	class RenderImage;
 	class RenderPass;
 	class RenderSurface;
 
@@ -29,9 +29,9 @@ namespace Nz
 			RenderWindowImpl() = default;
 			virtual ~RenderWindowImpl();
 
-			virtual RenderImage& Acquire() = 0;
+			virtual RenderFrame Acquire() = 0;
 
-			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) = 0;
+			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) = 0;
 			virtual std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
 			virtual const Framebuffer& GetFramebuffer() const = 0;

@@ -25,9 +25,9 @@ namespace Nz
 		return std::make_unique<VulkanSurface>();
 	}
 
-	std::unique_ptr<RenderWindowImpl> VulkanRenderer::CreateRenderWindowImpl()
+	std::unique_ptr<RenderWindowImpl> VulkanRenderer::CreateRenderWindowImpl(RenderWindow& owner)
 	{
-		return std::make_unique<VkRenderWindow>();
+		return std::make_unique<VkRenderWindow>(owner);
 	}
 
 	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)

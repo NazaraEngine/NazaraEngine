@@ -21,7 +21,6 @@ namespace Nz
 	class NAZARA_RENDERER_API RenderImage
 	{
 		public:
-			RenderImage() = default;
 			virtual ~RenderImage();
 
 			virtual void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) = 0;
@@ -33,6 +32,7 @@ namespace Nz
 			virtual void Present() = 0;
 
 		protected:
+			RenderImage() = default;
 			RenderImage(const RenderImage&) = delete;
 			RenderImage(RenderImage&&) = default;
 	};

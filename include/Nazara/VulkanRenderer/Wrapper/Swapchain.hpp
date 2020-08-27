@@ -38,7 +38,7 @@ namespace Nz
 				inline bool IsSupported() const;
 
 				Swapchain& operator=(const Swapchain&) = delete;
-				Swapchain& operator=(Swapchain&&) = delete;
+				Swapchain& operator=(Swapchain&&) = default;
 
 				struct Buffer
 				{

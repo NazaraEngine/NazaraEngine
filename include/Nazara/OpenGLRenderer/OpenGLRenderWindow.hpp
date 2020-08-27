@@ -20,15 +20,17 @@
 
 namespace Nz
 {
+	class RenderWindow;
+
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderWindow : public RenderWindowImpl
 	{
 		public:
-			OpenGLRenderWindow();
+			OpenGLRenderWindow(RenderWindow& owner);
 			~OpenGLRenderWindow() = default;
 
-			OpenGLRenderImage& Acquire() override;
+			RenderFrame Acquire() override;
 
-			bool Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters) override;
+			bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) override;
 			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline GL::Context& GetContext();
@@ -46,6 +48,7 @@ namespace Nz
 			std::unique_ptr<GL::Context> m_context;
 			OpenGLRenderPass m_renderPass;
 			OpenGLWindowFramebuffer m_framebuffer;
+			RenderWindow& m_owner;
 	};
 }
 

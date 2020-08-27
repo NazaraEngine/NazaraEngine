@@ -46,8 +46,8 @@ namespace Nz
 			return false;
 		}
 
-		auto impl = rendererImpl->CreateRenderWindowImpl();
-		if (!impl->Create(rendererImpl, surface.get(), GetSize(), m_parameters))
+		auto impl = rendererImpl->CreateRenderWindowImpl(*this);
+		if (!impl->Create(rendererImpl, surface.get(), m_parameters))
 		{
 			NazaraError("Failed to create render window implementation: " + Error::GetLastError());
 			return false;

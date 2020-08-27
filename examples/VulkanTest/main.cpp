@@ -8,7 +8,7 @@ int main()
 	Nz::Initializer<Nz::Renderer> loader;
 	if (!loader)
 	{
-		std::cout << "Failed to initialize Vulkan" << std::endl;;
+		std::cout << "Failed to initialize Vulkan" << std::endl;
 		return __LINE__;
 	}
 
@@ -172,33 +172,41 @@ int main()
 	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(renderDevice);
 	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(renderDevice);
 
-	std::unique_ptr<Nz::CommandBuffer> drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
+	std::unique_ptr<Nz::CommandBuffer> drawCommandBuffer;
+	auto RebuildCommandBuffer = [&]
 	{
-		Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
+		Nz::Vector2ui windowSize = window.GetSize();
 
-		Nz::CommandBufferBuilder::ClearValues clearValues[2];
-		clearValues[0].color = Nz::Color::Black;
-		clearValues[1].depth = 1.f;
-		clearValues[1].stencil = 0;
-
-		builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+		drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
 		{
-			builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
+
+			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			clearValues[0].color = Nz::Color::Black;
+			clearValues[1].depth = 1.f;
+			clearValues[1].stencil = 0;
+
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
 			{
-				builder.BindIndexBuffer(indexBufferImpl);
-				builder.BindPipeline(*pipeline);
-				builder.BindVertexBuffer(0, vertexBufferImpl);
-				builder.BindShaderBinding(*shaderBinding);
+				builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				{
+					builder.BindIndexBuffer(indexBufferImpl);
+					builder.BindPipeline(*pipeline);
+					builder.BindVertexBuffer(0, vertexBufferImpl);
+					builder.BindShaderBinding(*shaderBinding);
 
-				builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-				builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-				builder.DrawIndexed(drfreakIB->GetIndexCount());
+					builder.DrawIndexed(drfreakIB->GetIndexCount());
+				}
+				builder.EndRenderPass();
 			}
-			builder.EndRenderPass();
-		}
-		builder.EndDebugRegion();
-	});
+			builder.EndDebugRegion();
+		});
+	};
+	RebuildCommandBuffer();
+
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -210,6 +218,7 @@ int main()
 	Nz::Clock updateClock;
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
+	bool uboUpdate = true;
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
@@ -236,8 +245,20 @@ int main()
 					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
+					
+					uboUpdate = true;
+					break;
+
+				case Nz::WindowEventType_Resized:
+				{
+					Nz::Vector2ui windowSize = window.GetSize();
+					ubo.projectionMatrix = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
+					uboUpdate = true;
 					break;
 				}
+
+				default:
+					break;
 			}
 		}
 
@@ -268,30 +289,44 @@ int main()
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
+
+			uboUpdate = true;
 		}
 
-		Nz::RenderImage& renderImage = windowImpl->Acquire();
+		Nz::RenderFrame frame = windowImpl->Acquire();
+		if (!frame)
+			continue;
+
+		if (frame.IsFramebufferInvalidated())
+			RebuildCommandBuffer();
 
 		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
-		auto& allocation = renderImage.GetUploadPool().Allocate(uniformSize);
-
-		std::memcpy(allocation.mappedPtr, &ubo, sizeof(ubo));
-
-		renderImage.Execute([&](Nz::CommandBufferBuilder& builder)
+		if (uboUpdate)
 		{
-			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
+			auto& allocation = frame.GetUploadPool().Allocate(uniformSize);
+
+			std::memcpy(allocation.mappedPtr, &ubo, sizeof(ubo));
+
+			frame.Execute([&](Nz::CommandBufferBuilder& builder)
 			{
-				builder.PreTransferBarrier();
-				builder.CopyBuffer(allocation, uniformBuffer.get());
-				builder.PostTransferBarrier();
-			}
-			builder.EndDebugRegion();
-		}, Nz::QueueType::Transfer);
+				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
+				{
+					builder.PreTransferBarrier();
+					builder.CopyBuffer(allocation, uniformBuffer.get());
+					builder.PostTransferBarrier();
+				}
+				builder.EndDebugRegion();
+			}, Nz::QueueType::Transfer);
 
-		renderImage.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
+			uboUpdate = false;
+		}
 
-		renderImage.Present();
+		frame.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
+
+		frame.Present();
+
+		window.Display();
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;

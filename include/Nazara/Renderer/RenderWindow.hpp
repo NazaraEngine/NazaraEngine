@@ -36,8 +36,9 @@ namespace Nz
 
 			void EnableVerticalSync(bool enabled);
 
-			inline RenderWindowImpl *GetImpl();
+			inline RenderWindowImpl* GetImpl();
 			std::shared_ptr<RenderDevice> GetRenderDevice();
+			inline RenderSurface* GetSurface();
 
 			inline bool IsValid() const;
 

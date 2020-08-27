@@ -46,9 +46,14 @@ namespace Nz
 		return Window::Create(handle);
 	}
 
-	inline RenderWindowImpl* Nz::RenderWindow::GetImpl()
+	inline RenderWindowImpl* RenderWindow::GetImpl()
 	{
 		return m_impl.get();
+	}
+
+	inline RenderSurface* RenderWindow::GetSurface()
+	{
+		return m_surface.get();
 	}
 
 	inline bool RenderWindow::IsValid() const

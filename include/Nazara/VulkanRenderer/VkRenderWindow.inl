@@ -27,23 +27,19 @@ namespace Nz
 		return m_graphicsQueue;
 	}
 
+	inline const VulkanRenderPass& VkRenderWindow::GetRenderPass() const
+	{
+		return *m_renderPass;
+	}
+
 	inline const Vk::Swapchain& VkRenderWindow::GetSwapchain() const
 	{
 		return m_swapchain;
 	}
 
-	inline std::shared_ptr<RenderDevice> Nz::VkRenderWindow::GetRenderDevice()
+	inline std::shared_ptr<RenderDevice> VkRenderWindow::GetRenderDevice()
 	{
 		return m_device;
-	}
-
-	inline void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
-	{
-		NazaraAssert(imageIndex < m_inflightFences.size(), "Invalid image index");
-
-		m_presentQueue.Present(m_swapchain, imageIndex, waitSemaphore);
-
-		m_currentFrame = (m_currentFrame + 1) % m_inflightFences.size();
 	}
 }
 

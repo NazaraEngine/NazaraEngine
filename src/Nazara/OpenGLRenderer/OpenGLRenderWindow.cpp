@@ -7,22 +7,24 @@
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
+#include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
-	OpenGLRenderWindow::OpenGLRenderWindow() :
+	OpenGLRenderWindow::OpenGLRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
-	m_framebuffer(*this)
+	m_framebuffer(*this),
+	m_owner(owner)
 	{
 	}
 
-	OpenGLRenderImage& OpenGLRenderWindow::Acquire()
+	RenderFrame OpenGLRenderWindow::Acquire()
 	{
-		return m_renderImage[m_currentFrame];
+		return RenderFrame(&m_renderImage[m_currentFrame], false);
 	}
 
-	bool OpenGLRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
+	bool OpenGLRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
 		DummySurface* dummySurface = static_cast<DummySurface*>(surface);
 		OpenGLRenderer* glRenderer = static_cast<OpenGLRenderer*>(renderer);
