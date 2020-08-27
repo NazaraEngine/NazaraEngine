@@ -9,12 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/CommandBuffer.hpp>
 #include <functional>
-#include <memory> //< temporary
 
 namespace Nz
 {
-	class CommandBuffer;
 	class CommandBufferBuilder;
 
 	class NAZARA_RENDERER_API CommandPool
@@ -25,7 +24,7 @@ namespace Nz
 			CommandPool(CommandPool&&) = default;
 			virtual ~CommandPool();
 
-			virtual std::unique_ptr<CommandBuffer> BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) = 0;
+			virtual CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) = 0;
 
 			CommandPool& operator=(const CommandPool&) = delete;
 			CommandPool& operator=(CommandPool&&) = default;

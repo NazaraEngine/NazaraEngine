@@ -19,7 +19,7 @@ namespace Nz
 
 	void OpenGLRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags /*queueTypeFlags*/)
 	{
-		OpenGLCommandBuffer commandBuffer;
+		OpenGLCommandBuffer commandBuffer; //< TODO: Use a pool and remove default constructor
 		OpenGLCommandBufferBuilder builder(commandBuffer);
 		callback(builder);
 

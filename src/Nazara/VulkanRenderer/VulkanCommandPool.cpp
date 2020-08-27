@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
+#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
@@ -10,14 +11,14 @@
 
 namespace Nz
 {
-	std::unique_ptr<CommandBuffer> VulkanCommandPool::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
+	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
 	{
 		std::vector<Vk::AutoCommandBuffer> commandBuffers;
 		auto BuildCommandBuffer = [&](std::size_t imageIndex)
 		{
 			Vk::AutoCommandBuffer& commandBuffer = commandBuffers.emplace_back(m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY));
 
-			if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
+			if (!commandBuffer->Begin())
 				throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
 			VulkanCommandBufferBuilder builder(commandBuffer.Get(), imageIndex);
@@ -33,6 +34,50 @@ namespace Nz
 		for (std::size_t i = 1; i < maxFramebufferCount; ++i)
 			BuildCommandBuffer(i);
 
-		return std::make_unique<VulkanCommandBuffer>(std::move(commandBuffers));
+		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
+		{
+			if (m_commandPools[i].freeCommands.TestNone())
+				continue;
+
+			return AllocateFromPool(i, std::move(commandBuffers));
+		}
+
+		// No allocation could be made, time to allocate a new pool
+		std::size_t newPoolIndex = m_commandPools.size();
+		AllocatePool();
+
+		return AllocateFromPool(newPoolIndex, std::move(commandBuffers));
+	}
+	
+	auto VulkanCommandPool::AllocatePool() -> CommandPool&
+	{
+		constexpr UInt32 MaxSet = 128;
+
+		CommandPool pool;
+		pool.freeCommands.Resize(MaxSet, true);
+		pool.storage = std::make_unique<CommandPool::BindingStorage[]>(MaxSet);
+
+		return m_commandPools.emplace_back(std::move(pool));
+	}
+
+	void VulkanCommandPool::Release(CommandBuffer& binding)
+	{
+		VulkanCommandBuffer& vulkanBinding = static_cast<VulkanCommandBuffer&>(binding);
+
+		std::size_t poolIndex = vulkanBinding.GetPoolIndex();
+		std::size_t bindingIndex = vulkanBinding.GetBindingIndex();
+
+		assert(poolIndex < m_commandPools.size());
+		auto& pool = m_commandPools[poolIndex];
+		assert(!pool.freeCommands.Test(bindingIndex));
+
+		VulkanCommandBuffer* bindingMemory = reinterpret_cast<VulkanCommandBuffer*>(&pool.storage[bindingIndex]);
+		PlacementDestroy(bindingMemory);
+
+		pool.freeCommands.Set(bindingIndex);
+
+		// Try to free pool if it's one of the last one
+		if (poolIndex >= m_commandPools.size() - 1 && poolIndex <= m_commandPools.size())
+			TryToShrink();
 	}
 }
