@@ -29,7 +29,7 @@ namespace Nz
 			{
 				m_writer.WriteLocalVariable(value.varName, resultId);
 			},
-			[this](std::monostate)
+			[](std::monostate)
 			{
 				throw std::runtime_error("an internal error occurred");
 			}
@@ -62,11 +62,11 @@ namespace Nz
 
 				return resultId;
 			},
-			[&](const LocalVar& value) -> UInt32
+			[](const LocalVar& value) -> UInt32
 			{
 				throw std::runtime_error("not yet implemented");
 			},
-			[this](std::monostate) -> UInt32
+			[](std::monostate) -> UInt32
 			{
 				throw std::runtime_error("an internal error occurred");
 			}
