@@ -81,7 +81,7 @@ SCENARIO("Color", "[CORE][COLOR]")
 	{
 		struct ColorData
 		{
-			const char* name;
+			std::string name;
 			Nz::Color rgb;
 			float cyan, magenta, yellow;
 			float cyanK, magentaK, yellowK, black;
