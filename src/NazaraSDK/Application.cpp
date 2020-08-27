@@ -7,12 +7,8 @@
 #include <regex>
 
 #ifndef NDK_SERVER
-#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
-#include <NazaraSDK/Components/CameraComponent.hpp>
-#include <NazaraSDK/Components/GraphicsComponent.hpp>
 #include <NazaraSDK/Components/NodeComponent.hpp>
-#include <NazaraSDK/Systems/RenderSystem.hpp>
 #endif
 
 namespace Ndk
@@ -63,14 +59,6 @@ namespace Ndk
 			else
 				NazaraWarning("Ignored command-line argument #" + Nz::String::Number(i) + " \"" + argument + '"');
 		}
-
-		#ifndef NDK_SERVER
-		if (HasOption("console"))
-			EnableConsole(true);
-
-		if (HasOption("fpscounter"))
-			EnableFPSCounter(true);
-		#endif
 	}
 
 	/*!
@@ -111,119 +99,8 @@ namespace Ndk
 		for (World& world : m_worlds)
 			world.Update(m_updateTime);
 
-		#ifndef NDK_SERVER
-		for (WindowInfo& info : m_windows)
-		{
-			if (!info.overlayWorld)
-				continue;
-
-			if (info.fpsCounter)
-			{
-				FPSCounterOverlay& fpsCounter = *info.fpsCounter;
-
-				fpsCounter.frameCount++;
-
-				fpsCounter.elapsedTime += m_updateTime;
-				if (fpsCounter.elapsedTime >= 1.f)
-				{
-					fpsCounter.sprite->Update(Nz::SimpleTextDrawer::Draw("FPS: " + Nz::String::Number(fpsCounter.frameCount), 36));
-					fpsCounter.frameCount = 0;
-					fpsCounter.elapsedTime = 0.f;
-				}
-			}
-
-			info.overlayWorld->Update(m_updateTime);
-		}
-		#endif
-
 		return true;
 	}
-
-	#ifndef NDK_SERVER
-	void Application::SetupConsole(WindowInfo& info)
-	{
-		std::unique_ptr<ConsoleOverlay> overlay = std::make_unique<ConsoleOverlay>();
-
-		Nz::Vector2ui windowDimensions;
-		if (info.window->IsValid())
-			windowDimensions = info.window->GetSize();
-		else
-			windowDimensions.MakeZero();
-
-		overlay->console = info.canvas->Add<Console>();
-
-		Console& consoleRef = *overlay->console;
-		consoleRef.Resize({float(windowDimensions.x), windowDimensions.y / 4.f});
-		consoleRef.Show(false);
-
-		// Redirect logs toward the console
-		overlay->logSlot.Connect(Nz::Log::OnLogWrite, [&consoleRef] (const Nz::String& str)
-		{
-			consoleRef.AddLine(str);
-		});
-
-		// Setup a few event callback to handle the console
-		Nz::EventHandler& eventHandler = info.window->GetEventHandler();
-
-		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
-		{
-			if (event.virtualKey == Nz::Keyboard::VKey::F9)
-			{
-				// Toggle console visibility and focus
-				if (consoleRef.IsVisible())
-				{
-					consoleRef.ClearFocus();
-					consoleRef.Show(false);
-				}
-				else
-				{
-					consoleRef.Show(true);
-					consoleRef.SetFocus();
-				}
-			}
-		});
-
-		overlay->resizedSlot.Connect(info.renderTarget->OnRenderTargetSizeChange, [&consoleRef] (const Nz::RenderTarget* renderTarget)
-		{
-			Nz::Vector2ui size = renderTarget->GetSize();
-			consoleRef.Resize({float(size.x), size.y / 4.f});
-		});
-
-		info.console = std::move(overlay);
-	}
-
-	void Application::SetupFPSCounter(WindowInfo& info)
-	{
-		std::unique_ptr<FPSCounterOverlay> fpsCounter = std::make_unique<FPSCounterOverlay>();
-		fpsCounter->sprite = Nz::TextSprite::New();
-
-		fpsCounter->entity = info.overlayWorld->CreateEntity();
-		fpsCounter->entity->AddComponent<NodeComponent>();
-		fpsCounter->entity->AddComponent<GraphicsComponent>().Attach(fpsCounter->sprite);
-
-		info.fpsCounter = std::move(fpsCounter);
-	}
-
-	void Application::SetupOverlay(WindowInfo& info)
-	{
-		info.overlayWorld = std::make_unique<World>(false); //< No default system
-
-		if (info.window->IsValid())
-			info.canvas = std::make_unique<Canvas>(info.overlayWorld->CreateHandle(), info.window->GetEventHandler(), info.window->GetCursorController().CreateHandle());
-
-		RenderSystem& renderSystem = info.overlayWorld->AddSystem<RenderSystem>();
-		renderSystem.ChangeRenderTechnique<Nz::ForwardRenderTechnique>();
-		renderSystem.SetDefaultBackground(nullptr);
-		renderSystem.SetGlobalUp(Nz::Vector3f::Down());
-
-		EntityHandle viewer = info.overlayWorld->CreateEntity();
-		CameraComponent& camComponent = viewer->AddComponent<CameraComponent>();
-		viewer->AddComponent<NodeComponent>();
-
-		camComponent.SetProjectionType(Nz::ProjectionType_Orthogonal);
-		camComponent.SetTarget(info.renderTarget);
-	}
-	#endif
 
 	Application* Application::s_application = nullptr;
 }

@@ -12,10 +12,7 @@
 #include <NazaraSDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
-#include <NazaraSDK/Systems/DebugSystem.hpp>
 #include <NazaraSDK/Systems/ListenerSystem.hpp>
-#include <NazaraSDK/Systems/ParticleSystem.hpp>
-#include <NazaraSDK/Systems/RenderSystem.hpp>
 #endif
 
 namespace Ndk
@@ -50,10 +47,7 @@ namespace Ndk
 		AddSystem<VelocitySystem>();
 
 		#ifndef NDK_SERVER
-		AddSystem<DebugSystem>();
 		AddSystem<ListenerSystem>();
-		AddSystem<ParticleSystem>();
-		AddSystem<RenderSystem>();
 		#endif
 	}
 

@@ -6,7 +6,6 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Platform/Platform.hpp>
@@ -27,18 +26,8 @@
 #include <NazaraSDK/Systems/VelocitySystem.hpp>
 
 #ifndef NDK_SERVER
-#include <NazaraSDK/Components/CameraComponent.hpp>
-#include <NazaraSDK/Components/DebugComponent.hpp>
-#include <NazaraSDK/Components/LightComponent.hpp>
 #include <NazaraSDK/Components/ListenerComponent.hpp>
-#include <NazaraSDK/Components/GraphicsComponent.hpp>
-#include <NazaraSDK/Components/ParticleEmitterComponent.hpp>
-#include <NazaraSDK/Components/ParticleGroupComponent.hpp>
-#include <NazaraSDK/Systems/DebugSystem.hpp>
-#include <NazaraSDK/Systems/ParticleSystem.hpp>
 #include <NazaraSDK/Systems/ListenerSystem.hpp>
-#include <NazaraSDK/Systems/RenderSystem.hpp>
-#include <NazaraSDK/Widgets/CheckboxWidget.hpp>
 #endif
 
 namespace Ndk
@@ -75,7 +64,6 @@ namespace Ndk
 			#ifndef NDK_SERVER
 			// Client modules
 			Nz::Audio::Initialize();
-			Nz::Graphics::Initialize();
 			#endif
 
 			// SDK Initialization
@@ -95,13 +83,7 @@ namespace Ndk
 
 			#ifndef NDK_SERVER
 			// Client components
-			InitializeComponent<CameraComponent>("NdkCam");
-			InitializeComponent<DebugComponent>("NdkDebug");
-			InitializeComponent<LightComponent>("NdkLight");
 			InitializeComponent<ListenerComponent>("NdkList");
-			InitializeComponent<GraphicsComponent>("NdkGfx");
-			InitializeComponent<ParticleEmitterComponent>("NdkPaEmi");
-			InitializeComponent<ParticleGroupComponent>("NdkPaGrp");
 			#endif
 
 			// Systems
@@ -116,17 +98,7 @@ namespace Ndk
 
 			#ifndef NDK_SERVER
 			// Client systems
-			InitializeSystem<DebugSystem>();
 			InitializeSystem<ListenerSystem>();
-			InitializeSystem<ParticleSystem>();
-			InitializeSystem<RenderSystem>();
-
-			// Widgets
-			if (!CheckboxWidget::Initialize())
-			{
-				NazaraError("Failed to initialize Checkbox Widget");
-				return false;
-			}
 			#endif
 
 			NazaraNotice("Initialized: SDK");
@@ -170,7 +142,6 @@ namespace Ndk
 		#ifndef NDK_SERVER
 		// Client modules
 		Nz::Audio::Uninitialize();
-		Nz::Graphics::Uninitialize();
 		#endif
 
 		// Shared modules
@@ -179,8 +150,6 @@ namespace Ndk
 		Nz::Utility::Uninitialize();
 
 		#ifndef NDK_SERVER
-		// Widgets
-		CheckboxWidget::Uninitialize();
 		#endif
 
 		NazaraNotice("Uninitialized: SDK");
