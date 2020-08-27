@@ -26,7 +26,7 @@ namespace Nz
 			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
 
 			const UInt8* GetData() const;
-			UInt64 GetSize() const;
+			UInt64 GetSize() const override;
 			DataStorage GetStorage() const override;
 
 			void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) override;

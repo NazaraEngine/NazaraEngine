@@ -100,19 +100,6 @@ namespace Nz
 			var = std::static_pointer_cast<T>(value);
 	}
 
-	inline void ShaderAstSerializerBase::Value(std::size_t& val)
-	{
-		bool isWriting = IsWriting();
-
-		UInt32 value;
-		if (isWriting)
-			value = static_cast<UInt32>(val);
-
-		Value(value);
-		if (!isWriting)
-			val = static_cast<std::size_t>(value);
-	}
-
 	inline ShaderAstSerializer::ShaderAstSerializer(ByteStream& stream) :
 	m_stream(stream)
 	{
