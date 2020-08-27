@@ -126,7 +126,7 @@ namespace Nz
 		template<typename T>
 		void SinCos(std::enable_if_t<std::is_same<T, long double>::value, long double> x, long double* s, long double* c)
 		{
-			::sincosl(x, sin, cos);
+			::sincosl(x, s, c);
 		}
 #else
 		// Naive implementation, hopefully optimized by the compiler
