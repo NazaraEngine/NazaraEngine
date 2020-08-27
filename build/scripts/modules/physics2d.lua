@@ -6,3 +6,7 @@ MODULE.Libraries = {
 	"NazaraCore",
 	"chipmunk"
 }
+
+MODULE.DynLib = {
+	"chipmunk"
+}
