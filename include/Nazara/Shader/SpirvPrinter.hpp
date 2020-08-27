@@ -23,6 +23,7 @@ namespace Nz
 			SpirvPrinter(SpirvPrinter&&) = default;
 			~SpirvPrinter() = default;
 
+			std::string Print(const UInt32* codepoints, std::size_t count);
 			std::string Print(const UInt32* codepoints, std::size_t count, const Settings& settings = {});
 
 			SpirvPrinter& operator=(const SpirvPrinter&) = default;
