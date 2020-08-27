@@ -497,23 +497,33 @@ function NazaraBuild:Initialize()
 	end
 end
 
-function NazaraBuild:LoadConfig()
-    local f = io.open("config.lua", "r")
+function NazaraBuild:LoadConfigFile(path, configTable)
+	local f = io.open(path, "r")
 	if (f) then
 	    local content = f:read("*a")
 		f:close()
 
-		local func, err = load(content, "Config file", "t", self.Config)
+		local func, err = load(content, "Config file", "t", configTable)
 		if (func) then
 			local status, err = pcall(func)
-			if (not status) then
-				print("Failed to load config.lua: " .. err)
+			if (status) then
+				return true
+			else
+				print("Failed to load " .. path .. ": " .. err)
 			end
 		else
-			print("Failed to parse config.lua: " .. err)
+			print("Failed to parse " .. path .. ": " .. err)
 		end
 	else
-		print("Failed to open config.lua")
+		print("Failed to open " .. path)
+	end
+
+	return false
+end
+
+function NazaraBuild:LoadConfig()
+	if (not self:LoadConfigFile("config.lua", self.Config) and not self:LoadConfigFile("config.lua.default", self.Config)) then
+		error("Failed to load config file")
 	end
 
 	local configTable = self.Config
