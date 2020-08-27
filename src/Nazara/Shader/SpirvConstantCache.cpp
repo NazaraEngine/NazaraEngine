@@ -501,14 +501,16 @@ namespace Nz
 			if (!variable.debugName.empty())
 				debugInfos.Append(SpirvOp::OpName, resultId, variable.debugName);
 
+			const auto& var = variable;
+
 			constants.AppendVariadic(SpirvOp::OpVariable, [&](const auto& appender)
 			{
-				appender(GetId(*variable.type));
+				appender(GetId(*var.type));
 				appender(resultId);
-				appender(variable.storageClass);
+				appender(var.storageClass);
 
-				if (variable.initializer)
-					appender(GetId((*variable.initializer)->constant));
+				if (var.initializer)
+					appender(GetId((*var.initializer)->constant));
 			});
 		}
 	}
