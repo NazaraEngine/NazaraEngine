@@ -15,11 +15,7 @@
 #include <set>
 
 #ifndef NDK_SERVER
-#include <NazaraSDK/Canvas.hpp>
-#include <NazaraSDK/Console.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Platform/Window.hpp>
 #endif
 
@@ -28,11 +24,6 @@ namespace Ndk
 	class NDK_API Application
 	{
 		public:
-			#ifndef NDK_SERVER
-			struct ConsoleOverlay;
-			struct FPSCounterOverlay;
-			#endif
-
 			inline Application();
 			Application(int argc, char* argv[]);
 			Application(const Application&) = delete;
@@ -43,14 +34,6 @@ namespace Ndk
 			template<typename T, typename... Args> T& AddWindow(Args&&... args);
 			#endif
 			template<typename... Args> World& AddWorld(Args&&... args);
-
-			#ifndef NDK_SERVER
-			inline void EnableConsole(bool enable);
-			inline void EnableFPSCounter(bool enable);
-
-			inline ConsoleOverlay& GetConsoleOverlay(std::size_t windowIndex = 0U);
-			inline FPSCounterOverlay& GetFPSCounterOverlay(std::size_t windowIndex = 0U);
-			#endif
 
 			inline const std::set<Nz::String>& GetOptions() const;
 			inline const std::map<Nz::String, Nz::String>& GetParameters() const;
@@ -78,52 +61,14 @@ namespace Ndk
 
 			inline static Application* Instance();
 
-			#ifndef NDK_SERVER
-			struct ConsoleOverlay
-			{
-				Console* console;
-
-				NazaraSlot(Nz::EventHandler, OnEvent, eventSlot);
-				NazaraSlot(Nz::EventHandler, OnKeyPressed, keyPressedSlot);
-				NazaraSlot(Nz::RenderTarget, OnRenderTargetSizeChange, resizedSlot);
-				NazaraSlot(Nz::Log, OnLogWrite, logSlot);
-			};
-
-			struct FPSCounterOverlay
-			{
-				Nz::TextSpriteRef sprite;
-				EntityOwner entity;
-				float elapsedTime = 0.f;
-				unsigned int frameCount = 0;
-			};
-			#endif
-
 		private:
 			#ifndef NDK_SERVER
-			enum OverlayFlags
-			{
-				OverlayFlags_Console    = 0x1,
-				OverlayFlags_FPSCounter = 0x2
-			};
-
 			struct WindowInfo
 			{
 				inline WindowInfo(std::unique_ptr<Nz::Window>&& window);
 
-				Nz::RenderTarget* renderTarget;
 				std::unique_ptr<Nz::Window> window;
-				std::unique_ptr<ConsoleOverlay> console;
-				std::unique_ptr<Canvas> canvas;
-				std::unique_ptr<FPSCounterOverlay> fpsCounter;
-				std::unique_ptr<World> overlayWorld;
 			};
-
-			void SetupConsole(WindowInfo& info);
-			void SetupFPSCounter(WindowInfo& info);
-			void SetupOverlay(WindowInfo& info);
-
-			template<typename T> void SetupWindow(WindowInfo& info, T* renderTarget, std::true_type /*isRenderTarget*/);
-			template<typename T> void SetupWindow(WindowInfo& /*info*/, T* /*renderTarget*/, std::false_type /*isNotRenderTarget*/);
 
 			std::vector<WindowInfo> m_windows;
 			#endif
@@ -134,7 +79,6 @@ namespace Ndk
 			Nz::Clock m_updateClock;
 
 			#ifndef NDK_SERVER
-			Nz::UInt32 m_overlayFlags;
 			bool m_exitOnClosedWindows;
 			#endif
 			bool m_shouldQuit;

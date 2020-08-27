@@ -381,25 +381,25 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 						if (wrapKey)
 						{
-							SamplerWrap wrap = SamplerWrap_Default;
+							SamplerWrap wrap = SamplerWrap_Clamp;
 							switch (mapMode[0])
 							{
-							case aiTextureMapMode_Clamp:
-							case aiTextureMapMode_Decal:
-								wrap = SamplerWrap_Clamp;
-								break;
+								case aiTextureMapMode_Clamp:
+								case aiTextureMapMode_Decal:
+									wrap = SamplerWrap_Clamp;
+									break;
 
-							case aiTextureMapMode_Mirror:
-								wrap = SamplerWrap_MirroredRepeat;
-								break;
+								case aiTextureMapMode_Mirror:
+									wrap = SamplerWrap_MirroredRepeat;
+									break;
 
-							case aiTextureMapMode_Wrap:
-								wrap = SamplerWrap_Repeat;
-								break;
+								case aiTextureMapMode_Wrap:
+									wrap = SamplerWrap_Repeat;
+									break;
 
-							default:
-								NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
-								break;
+								default:
+									NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
+									break;
 							}
 
 							matData.SetParameter(wrapKey, static_cast<long long>(wrap));
@@ -567,7 +567,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 							if (wrapKey)
 							{
-								SamplerWrap wrap = SamplerWrap_Default;
+								SamplerWrap wrap = SamplerWrap_Clamp;
 								switch (mapMode[0])
 								{
 									case aiTextureMapMode_Clamp:
