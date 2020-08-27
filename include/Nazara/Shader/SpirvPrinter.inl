@@ -11,6 +11,12 @@ namespace Nz
 	m_currentState(nullptr)
 	{
 	}
+
+	inline std::string SpirvPrinter::Print(const UInt32* codepoints, std::size_t count)
+	{
+		Settings settings;
+		return Print(codepoints, count, settings);
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>
