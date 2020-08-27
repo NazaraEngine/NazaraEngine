@@ -45,7 +45,9 @@ namespace Nz
 			return bodyIterator(*static_cast<RigidBody3D*>(NewtonBodyGetUserData(body)));
 		};
 
-		NewtonWorldForEachBodyInAABBDo(m_world, box.GetMinimum(), box.GetMaximum(), NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
+		Vector3f min = box.GetMinimum();
+		Vector3f max = box.GetMaximum();
+		NewtonWorldForEachBodyInAABBDo(m_world, &min.x, &max.x, NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
 	}
 
 	Vector3f PhysWorld3D::GetGravity() const

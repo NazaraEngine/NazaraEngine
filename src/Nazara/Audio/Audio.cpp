@@ -97,7 +97,7 @@ namespace Nz
 	Vector3f Audio::GetListenerPosition()
 	{
 		Vector3f position;
-		alGetListenerfv(AL_POSITION, position);
+		alGetListenerfv(AL_POSITION, &position.x);
 
 		return position;
 	}
@@ -127,7 +127,7 @@ namespace Nz
 	Vector3f Audio::GetListenerVelocity()
 	{
 		Vector3f velocity;
-		alGetListenerfv(AL_VELOCITY, velocity);
+		alGetListenerfv(AL_VELOCITY, &velocity.x);
 
 		return velocity;
 	}
@@ -294,7 +294,7 @@ namespace Nz
 
 	void Audio::SetListenerPosition(const Vector3f& position)
 	{
-		alListenerfv(AL_POSITION, position);
+		alListenerfv(AL_POSITION, &position.x);
 	}
 
 	/*!
@@ -340,7 +340,7 @@ namespace Nz
 
 	void Audio::SetListenerVelocity(const Vector3f& velocity)
 	{
-		alListenerfv(AL_VELOCITY, velocity);
+		alListenerfv(AL_VELOCITY, &velocity.x);
 	}
 
 	/*!
