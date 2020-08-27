@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,117 +7,68 @@
 #ifndef NAZARA_ENUMS_RENDERER_HPP
 #define NAZARA_ENUMS_RENDERER_HPP
 
+#include <Nazara/Core/Flags.hpp>
+
 namespace Nz
 {
-	enum AttachmentPoint
+	enum class RenderAPI
 	{
-		AttachmentPoint_Color,
-		AttachmentPoint_Depth,
-		AttachmentPoint_DepthStencil,
-		AttachmentPoint_Stencil,
+		Direct3D, ///< Microsoft Render API, only works on MS platforms
+		Mantle,   ///< AMD Render API, Vulkan predecessor, only works on AMD GPUs
+		Metal,    ///< Apple Render API, only works on OS X platforms
+		OpenGL,   ///< Khronos Render API, works on Web/Desktop/Mobile and some consoles
+		Vulkan,   ///< New Khronos Render API, made to replace OpenGL, works on desktop (Windows/Linux) and mobile (Android), and Apple platform using MoltenVK
 
-		AttachmentPoint_Max = AttachmentPoint_Stencil
+		Unknown,    ///< RenderAPI not corresponding to an entry of the enum, or result of a failed query
+
+		Max = Unknown
 	};
 
-	enum GpuQueryCondition
+	enum class RenderDeviceType
 	{
-		GpuQueryCondition_Region_NoWait,
-		GpuQueryCondition_Region_Wait,
-		GpuQueryCondition_NoWait,
-		GpuQueryCondition_Wait,
+		Integrated, ///< Hardware-accelerated chipset integrated to a CPU (ex: Intel Graphics HD 4000)
+		Dedicated,  ///< Hardware-accelerated GPU (ex: AMD R9 390)
+		Software,   ///< Software-renderer
+		Virtual,    ///< Proxy renderer relaying instructions to another unknown device
 
-		GpuQueryCondition_Max = GpuQueryCondition_Wait
+		Unknown,    ///< Device type not corresponding to an entry of the enum, or result of a failed query
+
+		Max = Unknown
 	};
 
-	enum GpuQueryMode
+	enum class ShaderBindingType
 	{
-		GpuQueryMode_AnySamplesPassed,
-		GpuQueryMode_AnySamplesPassedConservative,
-		GpuQueryMode_PrimitiveGenerated,
-		GpuQueryMode_SamplesPassed,
-		GpuQueryMode_TimeElapsed,
-		GpuQueryMode_TransformFeedbackPrimitivesWritten,
+		Texture,
+		UniformBuffer,
 
-		GpuQueryMode_Max = GpuQueryMode_TransformFeedbackPrimitivesWritten
+		Max = UniformBuffer
 	};
 
-	enum MatrixType
+	enum class ShaderLanguage
 	{
-		// Matrices de base
-		MatrixType_Projection,
-		MatrixType_View,
-		MatrixType_World,
-
-		// Matrices combinées
-		MatrixType_ViewProj,
-		MatrixType_WorldView,
-		MatrixType_WorldViewProj,
-
-		// Matrice inversées
-		MatrixType_InvProjection,
-		MatrixType_InvView,
-		MatrixType_InvViewProj,
-		MatrixType_InvWorld,
-		MatrixType_InvWorldView,
-		MatrixType_InvWorldViewProj,
-
-		MatrixType_Max = MatrixType_InvWorldViewProj
+		GLSL,
+		HLSL,
+		MSL,
+		NazaraBinary,
+		SpirV
 	};
 
-	enum PixelBufferType
+	enum class QueueType
 	{
-		PixelBufferType_Pack,
-		PixelBufferType_Unpack,
+		Compute,
+		Graphics,
+		Transfer,
 
-		PixelBufferType_Max = PixelBufferType_Unpack
+		Max = Transfer
 	};
 
-	enum RendererCap
+	template<>
+	struct EnumAsFlags<QueueType>
 	{
-		RendererCap_AnisotropicFilter,
-		RendererCap_FP64,
-		RendererCap_Instancing,
-
-		RendererCap_Max = RendererCap_Instancing
+		static constexpr QueueType max = QueueType::Max;
 	};
 
-	enum RendererBufferFlags
-	{
-		RendererBuffer_Color   = 0x1,
-		RendererBuffer_Depth   = 0x2,
-		RendererBuffer_Stencil = 0x4,
-
-		RendererBuffer_Max = RendererBuffer_Stencil*2-1
-	};
-
-	enum ShaderUniform
-	{
-		ShaderUniform_InvProjMatrix,
-		ShaderUniform_InvTargetSize,
-		ShaderUniform_InvViewMatrix,
-		ShaderUniform_InvViewProjMatrix,
-		ShaderUniform_InvWorldMatrix,
-		ShaderUniform_InvWorldViewMatrix,
-		ShaderUniform_InvWorldViewProjMatrix,
-		ShaderUniform_ProjMatrix,
-		ShaderUniform_TargetSize,
-		ShaderUniform_ViewMatrix,
-		ShaderUniform_ViewProjMatrix,
-		ShaderUniform_WorldMatrix,
-		ShaderUniform_WorldViewMatrix,
-		ShaderUniform_WorldViewProjMatrix,
-
-		ShaderUniform_Max = ShaderUniform_WorldViewProjMatrix
-	};
-
-	enum ShaderStageType
-	{
-		ShaderStageType_Fragment,
-		ShaderStageType_Geometry,
-		ShaderStageType_Vertex,
-
-		ShaderStageType_Max = ShaderStageType_Vertex
-	};
+	using QueueTypeFlags = Flags<QueueType>;
 }
 
 #endif // NAZARA_ENUMS_RENDERER_HPP

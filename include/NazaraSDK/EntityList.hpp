@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -55,7 +55,7 @@ namespace Ndk
 			World* m_world;
 	};
 
-	class NDK_API EntityList::iterator : public std::iterator<std::forward_iterator_tag, const EntityHandle>
+	class NDK_API EntityList::iterator
 	{
 		friend EntityList;
 
@@ -72,6 +72,12 @@ namespace Ndk
 			friend inline bool operator!=(const iterator& lhs, const iterator& rhs);
 
 			friend inline void swap(iterator& lhs, iterator& rhs);
+
+			using difference_type = std::ptrdiff_t;
+			using iterator_category = std::forward_iterator_tag;
+			using pointer = EntityHandle*;
+			using reference = EntityHandle&;
+			using value_type = EntityHandle;
 
 		private:
 			inline iterator(const EntityList* world, std::size_t nextId);

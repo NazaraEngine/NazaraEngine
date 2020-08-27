@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -75,6 +75,7 @@ namespace Ndk
 
 			bool HasFocus() const;
 
+			inline void Hide();
 			inline bool IsVisible() const;
 
 			void Resize(const Nz::Vector2f& size);
@@ -125,8 +126,11 @@ namespace Ndk
 			virtual void OnMouseExit();
 			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
+			virtual void OnTextEdited(const std::array<char, 32>& characters, int length);
 
 			inline void SetPreferredSize(const Nz::Vector2f& preferredSize);
+
+			virtual void ShowChildren(bool show);
 
 		private:
 			inline BaseWidget();

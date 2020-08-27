@@ -1,133 +1,102 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Renderer/Context.hpp>
-#include <Nazara/Renderer/OpenGL.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
-	RenderBuffer::RenderBuffer() :
-	m_id(0)
+	bool RenderBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
+		if (m_softwareBuffer.Fill(data, offset, size))
+		{
+			for (auto& bufferPair : m_hardwareBuffers)
+				bufferPair.second.synchronized = false;
+
+			return true;
+		}
+		else
+			return false;
 	}
 
-	RenderBuffer::~RenderBuffer()
+	bool RenderBuffer::Initialize(UInt64 size, BufferUsageFlags usage)
 	{
-		OnRenderBufferRelease(this);
-
-		Destroy();
-	}
-
-	bool RenderBuffer::Create(PixelFormatType format, unsigned int width, unsigned int height)
-	{
-		Destroy();
-
-		#if NAZARA_RENDERER_SAFE
-		if (width == 0 || height == 0)
-		{
-			NazaraError("Invalid size");
-			return false;
-		}
-
-		if (!PixelFormat::IsValid(format))
-		{
-			NazaraError("Invalid pixel format");
-			return false;
-		}
-		#endif
-
-		OpenGL::Format openglFormat;
-		if (!OpenGL::TranslateFormat(format, &openglFormat, OpenGL::FormatType_RenderBuffer))
-		{
-			NazaraError("Failed to translate pixel format \"" + PixelFormat::GetName(format) + "\" into OpenGL format");
-			return false;
-		}
-
-		GLuint renderBuffer = 0;
-
-		glGenRenderbuffers(1, &renderBuffer);
-		if (!renderBuffer)
-		{
-			NazaraError("Failed to create renderbuffer");
-			return false;
-		}
-
-		GLint previous;
-		glGetIntegerv(GL_RENDERBUFFER_BINDING, &previous);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, openglFormat.internalFormat, width, height);
-
-		if (previous != 0)
-			glBindRenderbuffer(GL_RENDERBUFFER, previous);
-
-		m_pixelFormat = format;
-		m_height = height;
-		m_id = renderBuffer;
-		m_width = width;
+		m_size = size;
+		m_softwareBuffer.Initialize(size, usage);
 
 		return true;
 	}
 
-	void RenderBuffer::Destroy()
+	AbstractBuffer* RenderBuffer::GetHardwareBuffer(RenderDevice* device)
 	{
-		if (m_id)
+		if (HardwareBuffer* hwBuffer = GetHardwareBufferData(device))
+			return hwBuffer->buffer.get();
+
+		return nullptr;
+	}
+
+	UInt64 RenderBuffer::GetSize() const
+	{
+		return m_size;
+	}
+
+	DataStorage RenderBuffer::GetStorage() const
+	{
+		return DataStorage::DataStorage_Hardware;
+	}
+
+	void* RenderBuffer::Map(BufferAccess access, UInt64 offset, UInt64 size)
+	{
+		if (void* ptr = m_softwareBuffer.Map(access, offset, size))
 		{
-			OnRenderBufferDestroy(this);
+			if (access != BufferAccess_ReadOnly)
+			{
+				for (auto& bufferPair : m_hardwareBuffers)
+					bufferPair.second.synchronized = false;
+			}
 
-			Context::EnsureContext();
-
-			GLuint renderBuffer = m_id;
-			glDeleteRenderbuffers(1, &renderBuffer); // Les Renderbuffers sont partagés entre les contextes: Ne posera pas de problème
-			m_id = 0;
+			return ptr;
 		}
+		else
+			return nullptr;
 	}
 
-	unsigned int RenderBuffer::GetHeight() const
+	bool RenderBuffer::Unmap()
 	{
-		return m_height;
+		return m_softwareBuffer.Unmap();
 	}
 
-	PixelFormatType RenderBuffer::GetFormat() const
+	bool RenderBuffer::Synchronize(RenderDevice* device)
 	{
-		return m_pixelFormat;
-	}
-
-	unsigned int RenderBuffer::GetWidth() const
-	{
-		return m_width;
-	}
-
-	unsigned int RenderBuffer::GetOpenGLID() const
-	{
-		return m_id;
-	}
-
-	bool RenderBuffer::IsValid() const
-	{
-		return m_id != 0;
-	}
-
-	bool RenderBuffer::Initialize()
-	{
-		if (!RenderBufferLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
+		HardwareBuffer* hwBuffer = GetHardwareBufferData(device);
+		if (!hwBuffer)
 			return false;
+
+		if (hwBuffer->synchronized)
+			return true;
+
+		return hwBuffer->buffer->Fill(m_softwareBuffer.GetData(), 0, m_size);
+	}
+
+	auto RenderBuffer::GetHardwareBufferData(RenderDevice* device) -> HardwareBuffer*
+	{
+		auto it = m_hardwareBuffers.find(device);
+		if (it == m_hardwareBuffers.end())
+		{
+			HardwareBuffer hwBuffer;
+			hwBuffer.buffer = device->InstantiateBuffer(m_type);
+			if (!hwBuffer.buffer->Initialize(m_size, m_usage))
+			{
+				NazaraError("Failed to initialize hardware buffer");
+				return nullptr;
+			}
+
+			it = m_hardwareBuffers.emplace(device, std::move(hwBuffer)).first;
 		}
 
-		return true;
+		return &it->second;
 	}
 
-	void RenderBuffer::Uninitialize()
-	{
-		RenderBufferLibrary::Uninitialize();
-	}
-
-	RenderBufferLibrary::LibraryMap RenderBuffer::s_library;
 }

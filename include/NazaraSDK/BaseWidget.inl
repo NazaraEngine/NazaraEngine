@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -170,6 +170,11 @@ namespace Ndk
 	inline std::size_t BaseWidget::GetWidgetChildCount() const
 	{
 		return m_children.size();
+	}
+
+	inline void BaseWidget::Hide()
+	{
+		return Show(false);
 	}
 
 	inline bool BaseWidget::IsVisible() const

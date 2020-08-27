@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -49,6 +49,7 @@ namespace Nz
 			NazaraSignal(OnQuit, const EventHandler* /*eventHandler*/);
 			NazaraSignal(OnResized, const EventHandler* /*eventHandler*/, const WindowEvent::SizeEvent& /*event*/);
 			NazaraSignal(OnTextEntered, const EventHandler* /*eventHandler*/, const WindowEvent::TextEvent& /*event*/);
+			NazaraSignal(OnTextEdited, const EventHandler* /*eventHandler*/, const WindowEvent::EditEvent& /*event*/);
 	};
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -118,6 +118,57 @@ namespace Nz
 		return WideConverter<sizeof(wchar_t)>::From(wstr.data(), wstr.size());
 	}
 
+	bool MatchPattern(const std::string_view& str, const std::string_view& pattern)
+	{
+		if (str.empty() || pattern.empty())
+			return false;
+
+		// Par Jack Handy - akkhandy@hotmail.com
+		// From : http://www.codeproject.com/Articles/1088/Wildcard-string-compare-globbing
+		const char* ptr = str.data();
+		const char* ptrEnd = str.data() + str.size();
+
+		const char* patternPtr = pattern.data();
+		const char* patternPtrEnd = pattern.data() + pattern.size();
+
+		while (ptr < ptrEnd && *patternPtr != '*')
+		{
+			if (patternPtr < patternPtrEnd && *patternPtr != *ptr && *patternPtr != '?')
+				return false;
+
+			patternPtr++;
+			ptr++;
+		}
+
+		const char* cp = nullptr;
+		const char* mp = nullptr;
+		while (*ptr)
+		{
+			if (*patternPtr == '*')
+			{
+				if (patternPtr + 1 >= patternPtrEnd)
+					return true;
+
+				mp = ++patternPtr;
+				cp = ptr + 1;
+			}
+			else if (*patternPtr == *ptr || *patternPtr == '?')
+			{
+				patternPtr++;
+				ptr++;
+			}
+			else
+			{
+				patternPtr = mp;
+				ptr = cp++;
+			}
+		}
+
+		while (patternPtr < patternPtrEnd && *patternPtr == '*')
+			patternPtr++;
+
+		return patternPtr >= patternPtrEnd;
+	}
 	bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent)
 	{
 		if (s.size() > str.size())

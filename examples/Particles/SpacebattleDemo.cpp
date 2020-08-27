@@ -294,7 +294,7 @@ ParticleDemo("Space battle", sharedData)
 	}
 
 	Nz::TextureRef skyboxCubemap = Nz::Texture::New();
-	if (skyboxCubemap->Create(Nz::ImageType_Cubemap, Nz::PixelFormatType_RGBA8, 2048, 2048))
+	if (skyboxCubemap->Create(Nz::ImageType_Cubemap, Nz::PixelFormat_RGBA8, 2048, 2048))
 	{
 		skyboxCubemap->LoadFaceFromFile(Nz::CubemapFace_PositiveX, "resources/purple_nebula_skybox/purple_nebula_skybox_right1.png");
 		skyboxCubemap->LoadFaceFromFile(Nz::CubemapFace_PositiveY, "resources/purple_nebula_skybox/purple_nebula_skybox_top3.png");
@@ -680,7 +680,8 @@ void SpacebattleExample::Leave(Ndk::StateMachine& fsm)
 {
 	m_ambientMusic.Stop();
 	m_onMouseMoved.Disconnect();
-	m_shared.target->SetCursor(Nz::SystemCursor_Default);
+	if (m_shared.target)
+		m_shared.target->SetCursor(Nz::SystemCursor_Default);
 	m_shared.world3D->RemoveSystem<LaserBeamSystem>();
 	m_shared.world3D->RemoveSystem<SpaceshipSystem>();
 	m_turretFireSound.Stop();

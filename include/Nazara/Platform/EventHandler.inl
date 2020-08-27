@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -77,6 +77,10 @@ namespace Nz
 
 			case WindowEventType_TextEntered:
 				OnTextEntered(this, event.text);
+				break;
+
+			case WindowEventType_TextEdited:
+				OnTextEdited(this, event.edit);
 				break;
 		}
 	}

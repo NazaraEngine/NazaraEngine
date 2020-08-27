@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,11 +14,7 @@ namespace Nz
 	{
 	}
 
-	SoftwareBuffer::~SoftwareBuffer()
-	{
-	}
-
-	bool SoftwareBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
+	bool SoftwareBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
 		NazaraAssert(!m_mapped, "Buffer is already mapped");
 
@@ -26,7 +22,7 @@ namespace Nz
 		return true;
 	}
 
-	bool SoftwareBuffer::Initialize(UInt32 size, BufferUsageFlags /*usage*/)
+	bool SoftwareBuffer::Initialize(UInt64 size, BufferUsageFlags /*usage*/)
 	{
 		// Protect the allocation to prevent a memory exception to escape the function
 		try
@@ -44,12 +40,22 @@ namespace Nz
 		return true;
 	}
 
+	const UInt8* SoftwareBuffer::GetData() const
+	{
+		return m_buffer.data();
+	}
+
+	UInt64 SoftwareBuffer::GetSize() const
+	{
+		return UInt64(m_buffer.size());
+	}
+
 	DataStorage SoftwareBuffer::GetStorage() const
 	{
 		return DataStorage_Software;
 	}
 
-	void* SoftwareBuffer::Map(BufferAccess /*access*/, UInt32 offset, UInt32 /*size*/)
+	void* SoftwareBuffer::Map(BufferAccess /*access*/, UInt64 offset, UInt64 /*size*/)
 	{
 		NazaraAssert(!m_mapped, "Buffer is already mapped");
 

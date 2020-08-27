@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -51,6 +51,7 @@ namespace Nz
 		WindowEventType_Moved,
 		WindowEventType_Quit,
 		WindowEventType_Resized,
+		WindowEventType_TextEdited,
 		WindowEventType_TextEntered,
 
 		WindowEventType_Max = WindowEventType_TextEntered

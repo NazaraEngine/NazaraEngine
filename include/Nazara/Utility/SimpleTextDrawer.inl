@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,11 +24,11 @@ namespace Nz
 
 	inline SimpleTextDrawer::SimpleTextDrawer(const SimpleTextDrawer& drawer) :
 	m_color(drawer.m_color),
+	m_outlineColor(drawer.m_outlineColor),
 	m_text(drawer.m_text),
 	m_style(drawer.m_style),
 	m_colorUpdated(false),
 	m_glyphUpdated(false),
-	m_outlineColor(drawer.m_outlineColor),
 	m_characterSpacingOffset(drawer.m_characterSpacingOffset),
 	m_lineSpacingOffset(drawer.m_lineSpacingOffset),
 	m_maxLineWidth(drawer.m_maxLineWidth),

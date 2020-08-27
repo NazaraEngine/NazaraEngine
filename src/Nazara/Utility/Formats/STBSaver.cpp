@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,30 +21,30 @@ namespace Nz
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormatType_R32F:
+				case PixelFormat_R32F:
 					return 1;
 
-				case PixelFormatType_RG32F:
+				case PixelFormat_RG32F:
 					return 2;
 
-				case PixelFormatType_RGB32F:
+				case PixelFormat_RGB32F:
 					return 3;
 
-				case PixelFormatType_RGBA32F:
+				case PixelFormat_RGBA32F:
 					return 4;
 
 				default:
 				{
-					if (PixelFormat::HasAlpha(image.GetFormat()))
+					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormatType_RGBA32F))
+						if (!image.Convert(PixelFormat_RGBA32F))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormatType_RGB32F))
+						if (!image.Convert(PixelFormat_RGB32F))
 							break;
 
 						return 3;
@@ -59,32 +59,32 @@ namespace Nz
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormatType_L8:
-				case PixelFormatType_R8:
+				case PixelFormat_L8:
+				case PixelFormat_R8:
 					return 1;
 
-				case PixelFormatType_LA8:
-				case PixelFormatType_RG8:
+				case PixelFormat_LA8:
+				case PixelFormat_RG8:
 					return 2;
 
-				case PixelFormatType_RGB8:
+				case PixelFormat_RGB8:
 					return 3;
 
-				case PixelFormatType_RGBA8:
+				case PixelFormat_RGBA8:
 					return 4;
 
 				default:
 				{
-					if (PixelFormat::HasAlpha(image.GetFormat()))
+					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormatType_RGBA8))
+						if (!image.Convert(PixelFormat_RGBA8))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormatType_RGB8))
+						if (!image.Convert(PixelFormat_RGB8))
 							break;
 
 						return 3;

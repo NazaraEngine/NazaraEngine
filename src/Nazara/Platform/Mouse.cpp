@@ -1,18 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/Window.hpp>
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Platform/Win32/InputImpl.hpp>
-#elif defined(NAZARA_PLATFORM_X11)
-	#include <Nazara/Platform/X11/InputImpl.hpp>
-#else
-	#error Lack of implementation: Mouse
-#endif
-
+#include <Nazara/Platform/SDL2/InputImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
@@ -30,6 +22,11 @@ namespace Nz
 	bool Mouse::IsButtonPressed(Button button)
 	{
 		return EventImpl::IsMouseButtonPressed(button);
+	}
+
+	bool Mouse::SetRelativeMouseMode(bool relativeMouseMode)
+	{
+		return EventImpl::SetRelativeMouseMode(relativeMouseMode);
 	}
 
 	void Mouse::SetPosition(const Vector2i& position)

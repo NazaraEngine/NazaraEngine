@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -363,9 +363,8 @@ namespace Nz
 	*
 	* \param vec[2] vec[0] is X component and vec[1] is Y component
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::Set(const T vec[2])
+	Vector2<T>& Vector2<T>::Set(const T* vec)
 	{
 		x = vec[0];
 		y = vec[1];
@@ -451,29 +450,25 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Converts vector to pointer to its own data
-	* \return A pointer to the own data
-	*
-	* \remark Access to index greather than 1 is undefined behavior
+	* \brief Access a vector component by index
+	* \return X, Y depending on index (0, 1)
 	*/
-
 	template<typename T>
-	Vector2<T>::operator T* ()
+	T& Vector2<T>::operator[](std::size_t i)
 	{
-		return &x;
+		NazaraAssert(i < 2, "index out of range");
+		return *(&x + i);
 	}
 
 	/*!
-	* \brief Converts vector to const pointer to its own data
-	* \return A constant pointer to the own data
-	*
-	* \remark Access to index greather than 1 is undefined behavior
+	* \brief Access a vector component by index
+	* \return X, Y depending on index (0, 1)
 	*/
-
 	template<typename T>
-	Vector2<T>::operator const T* () const
+	T Vector2<T>::operator[](std::size_t i) const
 	{
-		return &x;
+		NazaraAssert(i < 2, "index out of range");
+		return *(&x + i);
 	}
 
 	/*!

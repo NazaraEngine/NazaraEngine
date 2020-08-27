@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,13 +32,14 @@ namespace Nz
 	class NAZARA_PLATFORM_API Window
 	{
 		friend WindowImpl;
+		friend class EventImpl;
 		friend class Mouse;
 		friend class Platform;
 
 		public:
 			Window();
 			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
-			inline explicit Window(WindowHandle handle);
+			inline explicit Window(void* handle);
 			Window(const Window&) = delete;
 			Window(Window&& window);
 			virtual ~Window();
@@ -46,7 +47,7 @@ namespace Nz
 			inline void Close();
 
 			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
-			bool Create(WindowHandle handle);
+			bool Create(void* handle);
 
 			void Destroy();
 
@@ -61,10 +62,10 @@ namespace Nz
 			inline const CursorRef& GetCursor() const;
 			inline CursorController& GetCursorController();
 			inline EventHandler& GetEventHandler();
-			WindowHandle GetHandle() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
+			WindowHandle GetSystemHandle() const;
 			String GetTitle() const;
 
 			bool HasFocus() const;
@@ -106,6 +107,8 @@ namespace Nz
 			Window& operator=(Window&& window);
 
 		protected:
+			void* GetHandle();
+
 			virtual bool OnWindowCreated();
 			virtual void OnWindowDestroy();
 			virtual void OnWindowResized();
@@ -115,6 +118,9 @@ namespace Nz
 		private:
 			void ConnectSlots();
 			void DisconnectSlots();
+
+			inline WindowImpl* GetImpl();
+			inline const WindowImpl* GetImpl() const;
 
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
 			void HandleEvent(const WindowEvent& event);

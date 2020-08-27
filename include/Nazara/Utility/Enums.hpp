@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -49,16 +49,18 @@ namespace Nz
 	{
 		BufferType_Index,
 		BufferType_Vertex,
+		BufferType_Uniform,
 
-		BufferType_Max = BufferType_Vertex
+		BufferType_Max = BufferType_Uniform
 	};
 
 	enum BufferUsage
 	{
-		BufferUsage_Dynamic,
-		BufferUsage_FastRead,
+		BufferUsage_DeviceLocal,
+		BufferUsage_DirectMapping,
+		BufferUsage_PersistentMapping,
 
-		BufferUsage_Max = BufferUsage_FastRead
+		BufferUsage_Max = BufferUsage_DirectMapping
 	};
 
 	template<>
@@ -122,6 +124,8 @@ namespace Nz
 
 	enum FaceSide
 	{
+		FaceSide_None,
+
 		FaceSide_Back,
 		FaceSide_Front,
 		FaceSide_FrontAndBack,
@@ -161,64 +165,64 @@ namespace Nz
 		PixelFormatContent_Max = PixelFormatContent_Stencil
 	};
 
-	enum PixelFormatType
+	enum PixelFormat
 	{
-		PixelFormatType_Undefined = -1,
+		PixelFormat_Undefined = -1,
 
-		PixelFormatType_A8,              // 1*uint8
-		PixelFormatType_BGR8,            // 3*uint8
-		PixelFormatType_BGRA8,           // 4*uint8
-		PixelFormatType_DXT1,
-		PixelFormatType_DXT3,
-		PixelFormatType_DXT5,
-		PixelFormatType_L8,              // 1*uint8
-		PixelFormatType_LA8,             // 2*uint8
-		PixelFormatType_R8,              // 1*uint8
-		PixelFormatType_R8I,             // 1*int8
-		PixelFormatType_R8UI,            // 1*uint8
-		PixelFormatType_R16,             // 1*uint16
-		PixelFormatType_R16F,            // 1*half
-		PixelFormatType_R16I,            // 1*int16
-		PixelFormatType_R16UI,           // 1*uint16
-		PixelFormatType_R32F,            // 1*float
-		PixelFormatType_R32I,            // 1*uint16
-		PixelFormatType_R32UI,           // 1*uint32
-		PixelFormatType_RG8,             // 2*int8
-		PixelFormatType_RG8I,            // 2*int8
-		PixelFormatType_RG8UI,           // 2*uint8
-		PixelFormatType_RG16,            // 2*uint16
-		PixelFormatType_RG16F,           // 2*half
-		PixelFormatType_RG16I,           // 2*int16
-		PixelFormatType_RG16UI,          // 2*uint16
-		PixelFormatType_RG32F,           // 2*float
-		PixelFormatType_RG32I,           // 2*uint16
-		PixelFormatType_RG32UI,          // 2*uint32
-		PixelFormatType_RGB5A1,          // 3*uint5 + alpha bit
-		PixelFormatType_RGB8,            // 3*uint8
-		PixelFormatType_RGB16F,          // 3*half
-		PixelFormatType_RGB16I,          // 4*int16
-		PixelFormatType_RGB16UI,         // 4*uint16
-		PixelFormatType_RGB32F,          // 3*float
-		PixelFormatType_RGB32I,          // 4*int32
-		PixelFormatType_RGB32UI,         // 4*uint32
-		PixelFormatType_RGBA4,           // 4*uint4
-		PixelFormatType_RGBA8,           // 4*uint8
-		PixelFormatType_RGBA16F,         // 4*half
-		PixelFormatType_RGBA16I,         // 4*int16
-		PixelFormatType_RGBA16UI,        // 4*uint16
-		PixelFormatType_RGBA32F,         // 4*float
-		PixelFormatType_RGBA32I,         // 4*int32
-		PixelFormatType_RGBA32UI,        // 4*uint32
-		PixelFormatType_Depth16,
-		PixelFormatType_Depth24,
-		PixelFormatType_Depth24Stencil8,
-		PixelFormatType_Depth32,
-		PixelFormatType_Stencil1,
-		PixelFormatType_Stencil4,
-		PixelFormatType_Stencil8,
-		PixelFormatType_Stencil16,
+		PixelFormat_A8,              // 1*uint8
+		PixelFormat_BGR8,            // 3*uint8
+		PixelFormat_BGRA8,           // 4*uint8
+		PixelFormat_DXT1,
+		PixelFormat_DXT3,
+		PixelFormat_DXT5,
+		PixelFormat_L8,              // 1*uint8
+		PixelFormat_LA8,             // 2*uint8
+		PixelFormat_R8,              // 1*uint8
+		PixelFormat_R8I,             // 1*int8
+		PixelFormat_R8UI,            // 1*uint8
+		PixelFormat_R16,             // 1*uint16
+		PixelFormat_R16F,            // 1*half
+		PixelFormat_R16I,            // 1*int16
+		PixelFormat_R16UI,           // 1*uint16
+		PixelFormat_R32F,            // 1*float
+		PixelFormat_R32I,            // 1*uint16
+		PixelFormat_R32UI,           // 1*uint32
+		PixelFormat_RG8,             // 2*int8
+		PixelFormat_RG8I,            // 2*int8
+		PixelFormat_RG8UI,           // 2*uint8
+		PixelFormat_RG16,            // 2*uint16
+		PixelFormat_RG16F,           // 2*half
+		PixelFormat_RG16I,           // 2*int16
+		PixelFormat_RG16UI,          // 2*uint16
+		PixelFormat_RG32F,           // 2*float
+		PixelFormat_RG32I,           // 2*uint16
+		PixelFormat_RG32UI,          // 2*uint32
+		PixelFormat_RGB5A1,          // 3*uint5 + alpha bit
+		PixelFormat_RGB8,            // 3*uint8
+		PixelFormat_RGB16F,          // 3*half
+		PixelFormat_RGB16I,          // 4*int16
+		PixelFormat_RGB16UI,         // 4*uint16
+		PixelFormat_RGB32F,          // 3*float
+		PixelFormat_RGB32I,          // 4*int32
+		PixelFormat_RGB32UI,         // 4*uint32
+		PixelFormat_RGBA4,           // 4*uint4
+		PixelFormat_RGBA8,           // 4*uint8
+		PixelFormat_RGBA16F,         // 4*half
+		PixelFormat_RGBA16I,         // 4*int16
+		PixelFormat_RGBA16UI,        // 4*uint16
+		PixelFormat_RGBA32F,         // 4*float
+		PixelFormat_RGBA32I,         // 4*int32
+		PixelFormat_RGBA32UI,        // 4*uint32
+		PixelFormat_Depth16,
+		PixelFormat_Depth24,
+		PixelFormat_Depth24Stencil8,
+		PixelFormat_Depth32,
+		PixelFormat_Stencil1,
+		PixelFormat_Stencil4,
+		PixelFormat_Stencil8,
+		PixelFormat_Stencil16,
 
-		PixelFormatType_Max = PixelFormatType_Stencil16
+		PixelFormat_Max = PixelFormat_Stencil16
 	};
 
 	enum PixelFormatSubType
@@ -282,28 +286,79 @@ namespace Nz
 
 	enum SamplerFilter
 	{
-		SamplerFilter_Unknown = -1,
-
-		SamplerFilter_Bilinear,
+		SamplerFilter_Linear,
 		SamplerFilter_Nearest,
-		SamplerFilter_Trilinear,
 
-		SamplerFilter_Default,
+		SamplerFilter_Max = SamplerFilter_Nearest
+	};
 
-		SamplerFilter_Max = SamplerFilter_Default
+	enum SamplerMipmapMode
+	{
+		SamplerMipmapMode_Linear,
+		SamplerMipmapMode_Nearest,
+
+		SamplerMipmapMode_Max = SamplerMipmapMode_Nearest
 	};
 
 	enum SamplerWrap
 	{
-		SamplerWrap_Unknown = -1,
-
 		SamplerWrap_Clamp,
 		SamplerWrap_MirroredRepeat,
 		SamplerWrap_Repeat,
 
-		SamplerWrap_Default,
-
 		SamplerWrap_Max = SamplerWrap_Repeat
+	};
+
+	enum class ShaderStageType
+	{
+		Fragment,
+		Vertex,
+
+		Max = Vertex
+	};
+
+	template<>
+	struct EnumAsFlags<ShaderStageType>
+	{
+		static constexpr ShaderStageType max = ShaderStageType::Max;
+	};
+
+	using ShaderStageTypeFlags = Flags<ShaderStageType>;
+
+	constexpr ShaderStageTypeFlags ShaderStageType_All = ShaderStageType::Fragment | ShaderStageType::Vertex;
+
+	enum StructFieldType
+	{
+		StructFieldType_Bool1,
+		StructFieldType_Bool2,
+		StructFieldType_Bool3,
+		StructFieldType_Bool4,
+		StructFieldType_Float1,
+		StructFieldType_Float2,
+		StructFieldType_Float3,
+		StructFieldType_Float4,
+		StructFieldType_Double1,
+		StructFieldType_Double2,
+		StructFieldType_Double3,
+		StructFieldType_Double4,
+		StructFieldType_Int1,
+		StructFieldType_Int2,
+		StructFieldType_Int3,
+		StructFieldType_Int4,
+		StructFieldType_UInt1,
+		StructFieldType_UInt2,
+		StructFieldType_UInt3,
+		StructFieldType_UInt4,
+
+		StructFieldType_Max = StructFieldType_UInt4
+	};
+
+	enum StructLayout
+	{
+		StructLayout_Packed,
+		StructLayout_Std140,
+
+		StructLayout_Max = StructLayout_Std140
 	};
 
 	enum StencilOperation
@@ -353,35 +408,25 @@ namespace Nz
 	{
 		VertexComponent_Unused = -1,
 
-		// We limit to 16 components by vertex since it's the minimal number supported by the GPU
-		VertexComponent_InstanceData0,
-		VertexComponent_InstanceData1,
-		VertexComponent_InstanceData2,
-		VertexComponent_InstanceData3,
-		VertexComponent_InstanceData4,
-		VertexComponent_InstanceData5,
 		VertexComponent_Color,
 		VertexComponent_Normal,
 		VertexComponent_Position,
 		VertexComponent_Tangent,
 		VertexComponent_TexCoord,
-		VertexComponent_Userdata0,
-		VertexComponent_Userdata1,
-		VertexComponent_Userdata2,
-		VertexComponent_Userdata3,
-		VertexComponent_Userdata4,
+		VertexComponent_Userdata,
 
-		VertexComponent_FirstInstanceData = VertexComponent_InstanceData0,
-		VertexComponent_FirstVertexData = VertexComponent_Color,
-		VertexComponent_LastInstanceData = VertexComponent_InstanceData5,
-		VertexComponent_LastVertexData = VertexComponent_Userdata4,
+		VertexComponent_Max = VertexComponent_Userdata
+	};
 
-		VertexComponent_Max = VertexComponent_Userdata4
+	enum class VertexInputRate
+	{
+		Instance,
+		Vertex
 	};
 
 	enum VertexLayout
 	{
-		// Declarations meant for the rendering
+		// Predefined declarations for rendering
 		VertexLayout_XY,
 		VertexLayout_XY_Color,
 		VertexLayout_XY_UV,
@@ -394,7 +439,7 @@ namespace Nz
 		VertexLayout_XYZ_Normal_UV_Tangent_Skinning,
 		VertexLayout_XYZ_UV,
 
-		// Declarations meant for the instancing
+		// Predefined declarations for instancing
 		VertexLayout_Matrix4,
 
 		VertexLayout_Max = VertexLayout_Matrix4

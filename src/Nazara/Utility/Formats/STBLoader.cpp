@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -74,7 +74,7 @@ namespace Nz
 			});
 
 			ImageRef image = Image::New();
-			if (!image->Create(ImageType_2D, PixelFormatType_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			if (!image->Create(ImageType_2D, PixelFormat_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
 				return nullptr;
@@ -84,7 +84,7 @@ namespace Nz
 
 			freeStbiImage.CallAndReset();
 
-			if (parameters.loadFormat != PixelFormatType_Undefined)
+			if (parameters.loadFormat != PixelFormat_Undefined)
 				image->Convert(parameters.loadFormat);
 
 			return image;

@@ -124,7 +124,7 @@ LogoExample::LogoExample(ExampleShared& sharedData) :
 ParticleDemo("Logo", sharedData)
 {
 	Nz::ImageParams params;
-	params.loadFormat = Nz::PixelFormatType_RGBA8;
+	params.loadFormat = Nz::PixelFormat_RGBA8;
 
 	m_logo = Nz::Image::LoadFromFile("E:/Twitch/avatar_interested.png", params);
 	if (!m_logo)

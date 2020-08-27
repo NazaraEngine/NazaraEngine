@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,58 +9,33 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
+#include <memory>
+#include <vector>
 
 namespace Nz
 {
+	class ShaderStageImpl;
+
 	struct RenderStates
 	{
 		BlendFunc dstBlend = BlendFunc_Zero;
 		BlendFunc srcBlend = BlendFunc_One;
 		FaceFilling faceFilling = FaceFilling_Fill;
 		FaceSide cullingSide = FaceSide_Back;
-		RendererComparison depthFunc = RendererComparison_Less;
+		RendererComparison depthCompare = RendererComparison_Less;
+		PrimitiveMode primitiveMode = PrimitiveMode_TriangleList;
 
 		struct
 		{
-			RendererComparison back  = RendererComparison_Always;
-			RendererComparison front = RendererComparison_Always;
-		} stencilCompare;
-
-		struct
-		{
-			UInt32 back  = 0xFFFFFFFF;
-			UInt32 front = 0xFFFFFFFF;
-		} stencilCompareMask;
-
-		struct
-		{
-			StencilOperation back  = StencilOperation_Keep;
-			StencilOperation front = StencilOperation_Keep;
-		} stencilDepthFail;
-
-		struct
-		{
-			StencilOperation back  = StencilOperation_Keep;
-			StencilOperation front = StencilOperation_Keep;
-		} stencilFail;
-
-		struct
-		{
-			StencilOperation back  = StencilOperation_Keep;
-			StencilOperation front = StencilOperation_Keep;
-		} stencilPass;
-
-		struct
-		{
-			UInt32 back  = 0U;
-			UInt32 front = 0U;
-		} stencilReference;
-
-		struct
-		{
-			UInt32 back  = 0xFFFFFFFF;
-			UInt32 front = 0xFFFFFFFF;
-		} stencilWriteMask;
+			RendererComparison compare = RendererComparison_Always;
+			StencilOperation depthFail = StencilOperation_Keep;
+			StencilOperation fail = StencilOperation_Keep;
+			StencilOperation pass = StencilOperation_Keep;
+			UInt32 compareMask = 0xFFFFFFFF;
+			UInt32 reference = 0;
+			UInt32 writeMask = 0xFFFFFFFF;
+		} stencilBack, stencilFront;
 
 		bool blending    = false;
 		bool colorWrite  = true;

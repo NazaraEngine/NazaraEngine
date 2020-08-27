@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -20,7 +20,8 @@ namespace Ndk
 	*
 	* \param physics PhysicsComponent2D to copy
 	*/
-	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics)
+	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics) :
+	m_nodeSynchronizationEnabled(physics.m_nodeSynchronizationEnabled)
 	{
 		CopyPhysicsState(*physics.GetRigidBody());
 	}

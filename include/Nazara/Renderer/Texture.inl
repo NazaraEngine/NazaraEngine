@@ -1,20 +1,19 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <memory>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
-	template<typename... Args>
-	TextureRef Texture::New(Args&&... args)
+	inline unsigned int Texture::GetLevelSize(unsigned int size, unsigned int level)
 	{
-		std::unique_ptr<Texture> object(new Texture(std::forward<Args>(args)...));
-		object->SetPersistent(false);
+		if (size == 0) // Possible dans le cas d'une image invalide
+			return 0;
 
-		return object.release();
+		return std::max(size >> level, 1U);
 	}
-
 }
+
 #include <Nazara/Renderer/DebugOff.hpp>

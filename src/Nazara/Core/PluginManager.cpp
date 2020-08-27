@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -113,7 +113,7 @@ namespace Nz
 		}
 
 		std::filesystem::path path = pluginPath;
-		if (appendExtension && path.extension() == NAZARA_DYNLIB_EXTENSION)
+		if (appendExtension && path.extension() != NAZARA_DYNLIB_EXTENSION)
 			path += NAZARA_DYNLIB_EXTENSION;
 
 		bool exists = false;
@@ -159,7 +159,7 @@ namespace Nz
 			return false;
 		}
 
-		std::filesystem::path canonicalPath = std::filesystem::canonical(pluginPath);
+		std::filesystem::path canonicalPath = std::filesystem::canonical(path);
 		s_plugins[canonicalPath] = std::move(library);
 
 		return true;

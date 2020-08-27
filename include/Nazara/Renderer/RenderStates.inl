@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -35,27 +35,28 @@ namespace Nz
 		}
 
 		if (lhs.depthBuffer)
-			NazaraRenderStateMember(depthFunc);
+			NazaraRenderStateMember(depthCompare);
 
 		if (lhs.faceCulling)
 			NazaraRenderStateMember(cullingSide);
 
 		if (lhs.stencilTest)
 		{
-			NazaraRenderStateMember(stencilCompare.back);
-			NazaraRenderStateMember(stencilCompare.front);
-			NazaraRenderStateMember(stencilCompareMask.back);
-			NazaraRenderStateMember(stencilCompareMask.front);
-			NazaraRenderStateMember(stencilDepthFail.back);
-			NazaraRenderStateMember(stencilDepthFail.front);
-			NazaraRenderStateMember(stencilFail.back);
-			NazaraRenderStateMember(stencilFail.front);
-			NazaraRenderStateMember(stencilPass.back);
-			NazaraRenderStateMember(stencilPass.front);
-			NazaraRenderStateMember(stencilReference.back);
-			NazaraRenderStateMember(stencilReference.front);
-			NazaraRenderStateMember(stencilWriteMask.back);
-			NazaraRenderStateMember(stencilWriteMask.front);
+			NazaraRenderStateMember(stencilBack.compare);
+			NazaraRenderStateMember(stencilBack.compareMask);
+			NazaraRenderStateMember(stencilBack.depthFail);
+			NazaraRenderStateMember(stencilBack.fail);
+			NazaraRenderStateMember(stencilBack.pass);
+			NazaraRenderStateMember(stencilBack.reference);
+			NazaraRenderStateMember(stencilBack.writeMask);
+
+			NazaraRenderStateMember(stencilFront.compare);
+			NazaraRenderStateMember(stencilFront.compareMask);
+			NazaraRenderStateMember(stencilFront.depthFail);
+			NazaraRenderStateMember(stencilFront.fail);
+			NazaraRenderStateMember(stencilFront.pass);
+			NazaraRenderStateMember(stencilFront.reference);
+			NazaraRenderStateMember(stencilFront.writeMask);
 		}
 
 		NazaraRenderStateFloatMember(lineWidth, 0.001f);
@@ -85,6 +86,7 @@ namespace std
 			#define NazaraRenderStateBoolDep(dependency, member) parameterHash |= ((pipelineInfo.dependency && pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
 			#define NazaraRenderStateEnum(member) Nz::HashCombine(seed, static_cast<Nz::UInt8>(pipelineInfo.member))
 			#define NazaraRenderStateFloat(member, maxDiff) Nz::HashCombine(seed, std::floor(pipelineInfo.member / maxDiff) * maxDiff)
+			#define NazaraRenderStateUInt32(member) Nz::HashCombine(seed, pipelineInfo.member)
 
 			NazaraRenderStateBool(blending);
 			NazaraRenderStateBool(colorWrite);
@@ -104,27 +106,28 @@ namespace std
 			}
 
 			if (pipelineInfo.depthBuffer)
-				NazaraRenderStateEnum(depthFunc);
+				NazaraRenderStateEnum(depthCompare);
 
 			if (pipelineInfo.faceCulling)
 				NazaraRenderStateEnum(cullingSide);
 
 			if (pipelineInfo.stencilTest)
 			{
-				NazaraRenderStateEnum(stencilCompare.back);
-				NazaraRenderStateEnum(stencilCompare.front);
-				NazaraRenderStateEnum(stencilCompareMask.back);
-				NazaraRenderStateEnum(stencilCompareMask.front);
-				NazaraRenderStateEnum(stencilDepthFail.back);
-				NazaraRenderStateEnum(stencilDepthFail.front);
-				NazaraRenderStateEnum(stencilFail.back);
-				NazaraRenderStateEnum(stencilFail.front);
-				NazaraRenderStateEnum(stencilPass.back);
-				NazaraRenderStateEnum(stencilPass.front);
-				NazaraRenderStateEnum(stencilReference.back);
-				NazaraRenderStateEnum(stencilReference.front);
-				NazaraRenderStateEnum(stencilWriteMask.back);
-				NazaraRenderStateEnum(stencilWriteMask.front);
+				NazaraRenderStateEnum(stencilBack.compare);
+				NazaraRenderStateUInt32(stencilBack.compareMask);
+				NazaraRenderStateEnum(stencilBack.depthFail);
+				NazaraRenderStateEnum(stencilBack.fail);
+				NazaraRenderStateEnum(stencilBack.pass);
+				NazaraRenderStateUInt32(stencilBack.reference);
+				NazaraRenderStateUInt32(stencilBack.writeMask);
+
+				NazaraRenderStateEnum(stencilFront.compare);
+				NazaraRenderStateUInt32(stencilFront.compareMask);
+				NazaraRenderStateEnum(stencilFront.depthFail);
+				NazaraRenderStateEnum(stencilFront.fail);
+				NazaraRenderStateEnum(stencilFront.pass);
+				NazaraRenderStateUInt32(stencilFront.reference);
+				NazaraRenderStateUInt32(stencilFront.writeMask);
 			}
 
 			NazaraRenderStateFloat(lineWidth, 0.001f);
@@ -134,6 +137,7 @@ namespace std
 			#undef NazaraRenderStateBoolDep
 			#undef NazaraRenderStateEnum
 			#undef NazaraRenderStateFloat
+			#undef NazaraRenderStateUInt32
 
 			Nz::HashCombine(seed, parameterHash);
 

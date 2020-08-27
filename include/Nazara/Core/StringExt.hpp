@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,10 +29,16 @@ namespace Nz
 	inline bool IsNumber(const char* str);
 	inline bool IsNumber(const std::string_view& str);
 
+	inline bool MatchPattern(const std::string_view& str, const char* pattern);
+	NAZARA_CORE_API bool MatchPattern(const std::string_view& str, const std::string_view& pattern);
+
 	template<typename... Args> bool StartsWith(const std::string_view& str, const char* s, Args&&... args);
 	inline bool StartsWith(const std::string_view& str, const std::string_view& s);
 	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent);
 	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent, UnicodeAware);
+
+	template<typename F> bool SplitString(const std::string_view& str, const std::string_view& token, F&& func);
+	template<typename F> bool SplitStringAny(const std::string_view& str, const std::string_view& token, F&& func);
 
 	inline std::string ToLower(const char* str);
 	NAZARA_CORE_API std::string ToLower(const std::string_view& str);

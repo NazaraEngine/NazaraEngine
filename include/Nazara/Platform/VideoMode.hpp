@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,12 +32,12 @@ namespace Nz
 			static const std::vector<VideoMode>& GetFullscreenModes();
 	};
 
-	bool operator==(const VideoMode& left, const VideoMode& right);
-	bool operator!=(const VideoMode& left, const VideoMode& right);
-	bool operator<(const VideoMode& left, const VideoMode& right);
-	bool operator<=(const VideoMode& left, const VideoMode& right);
-	bool operator>(const VideoMode& left, const VideoMode& right);
-	bool operator>=(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator==(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator!=(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator<(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator<=(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator>(const VideoMode& left, const VideoMode& right);
+	bool NAZARA_PLATFORM_API operator>=(const VideoMode& left, const VideoMode& right);
 }
 
 #endif // NAZARA_VIDEOMODE_HPP
