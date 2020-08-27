@@ -172,7 +172,7 @@ int main()
 	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(renderDevice);
 	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(renderDevice);
 
-	std::unique_ptr<Nz::CommandBuffer> drawCommandBuffer;
+	Nz::CommandBufferPtr drawCommandBuffer;
 	auto RebuildCommandBuffer = [&]
 	{
 		Nz::Vector2ui windowSize = window.GetSize();
