@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -31,7 +31,7 @@ namespace Nz
 
 			UInt8 GetBytesPerPixel() const;
 			virtual unsigned int GetDepth(UInt8 level = 0) const = 0;
-			virtual PixelFormatType GetFormat() const = 0;
+			virtual PixelFormat GetFormat() const = 0;
 			virtual unsigned int GetHeight(UInt8 level = 0) const = 0;
 			virtual UInt8 GetLevelCount() const = 0;
 			virtual UInt8 GetMaxLevel() const = 0;

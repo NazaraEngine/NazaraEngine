@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,6 +21,8 @@ namespace Nz
 	class AbstractHash;
 	class ByteArray;
 
+	template<typename T> constexpr T Align(T offset, T alignment);
+	template<typename T> constexpr T AlignPow2(T offset, T alignment);
 	template<typename F, typename Tuple> decltype(auto) Apply(F&& fn, Tuple&& t);
 	template<typename O, typename F, typename Tuple> decltype(auto) Apply(O& object, F&& fn, Tuple&& t);
 	template<typename T> constexpr std::size_t BitCount();
@@ -29,7 +31,9 @@ namespace Nz
 	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
 	template<typename T> std::size_t CountOf(const T& c);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
+	template<typename T> bool IsPowerOfTwo(T value);
 	template<typename T> T ReverseBits(T integer);
+	template<typename T> constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>;
 
 	template<typename T>
 	struct AlwaysFalse : std::false_type {};

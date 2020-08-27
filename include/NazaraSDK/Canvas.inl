@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -28,6 +28,7 @@ namespace Ndk
 		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
 		m_mouseWheelMovedSlot.Connect(eventHandler.OnMouseWheelMoved, this, &Canvas::OnEventMouseWheelMoved);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnEventTextEntered);
+		m_textEditedSlot.Connect(eventHandler.OnTextEdited, this, &Canvas::OnEventTextEdited);
 	}
 
 	inline Canvas::~Canvas()

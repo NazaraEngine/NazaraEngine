@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -98,6 +98,7 @@ namespace Nz
 	void VertexBuffer::Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(buffer->GetType() == BufferType_Vertex, "Buffer must be a vertex buffer");
 
 		std::size_t size = buffer->GetSize();
 		Reset(std::move(vertexDeclaration), std::move(buffer), 0, size);

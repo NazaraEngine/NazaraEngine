@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,7 +29,7 @@ namespace Nz
 
 	Light::Light(LightType type) :
 	m_type(type),
-	m_shadowMapFormat(PixelFormatType_Depth16),
+	m_shadowMapFormat(PixelFormat_Depth16),
 	m_shadowMapSize(512, 512),
 	m_shadowCastingEnabled(false),
 	m_shadowMapUpdated(false)

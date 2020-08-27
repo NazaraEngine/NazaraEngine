@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -19,15 +19,17 @@ namespace Nz
 	{
 		public:
 			SoftwareBuffer(Buffer* parent, BufferType type);
-			~SoftwareBuffer();
+			~SoftwareBuffer() = default;
 
-			bool Fill(const void* data, UInt32 offset, UInt32 size) override;
+			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
 
-			bool Initialize(UInt32 size, BufferUsageFlags usage) override;
+			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
 
+			const UInt8* GetData() const;
+			UInt64 GetSize() const;
 			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) override;
+			void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) override;
 			bool Unmap() override;
 
 		private:

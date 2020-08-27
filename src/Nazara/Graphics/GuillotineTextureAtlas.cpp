@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -37,7 +37,7 @@ namespace Nz
 	AbstractImage* GuillotineTextureAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
 	{
 		std::unique_ptr<Texture> newTexture(new Texture);
-		if (newTexture->Create(ImageType_2D, PixelFormatType_A8, size.x, size.y, 1))
+		if (newTexture->Create(ImageType_2D, PixelFormat_A8, size.x, size.y, 1))
 		{
 			if (oldImage)
 			{

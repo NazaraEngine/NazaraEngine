@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -27,7 +27,7 @@ namespace Nz
 	struct NAZARA_UTILITY_API ImageParams : ResourceParameters
 	{
 		// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
-		PixelFormatType loadFormat = PixelFormatType_Undefined;
+		PixelFormat loadFormat = PixelFormat_Undefined;
 
 		// Le nombre de niveaux de mipmaps maximum devant être créé
 		UInt8 levelCount = 0;
@@ -56,16 +56,16 @@ namespace Nz
 			struct SharedImage;
 
 			Image();
-			Image(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
+			Image(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
 			Image(const Image& image);
 			Image(SharedImage* sharedImage);
 			~Image();
 
-			bool Convert(PixelFormatType format);
+			bool Convert(PixelFormat format);
 
 			void Copy(const Image* source, const Boxui& srcBox, const Vector3ui& dstPos);
 
-			bool Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
+			bool Create(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
 			void Destroy();
 
 			bool Fill(const Color& color);
@@ -77,7 +77,7 @@ namespace Nz
 
 			const UInt8* GetConstPixels(unsigned int x = 0, unsigned int y = 0, unsigned int z = 0, UInt8 level = 0) const;
 			unsigned int GetDepth(UInt8 level = 0) const override;
-			PixelFormatType GetFormat() const override;
+			PixelFormat GetFormat() const override;
 			unsigned int GetHeight(UInt8 level = 0) const override;
 			UInt8 GetLevelCount() const override;
 			UInt8 GetMaxLevel() const override;
@@ -113,7 +113,7 @@ namespace Nz
 
 			Image& operator=(const Image& image);
 
-			static void Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
+			static void Copy(UInt8* destination, const UInt8* source, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			static UInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 
@@ -140,7 +140,7 @@ namespace Nz
 			{
 				using PixelContainer = std::vector<std::unique_ptr<UInt8[]>>;
 
-				SharedImage(unsigned short RefCount, ImageType Type, PixelFormatType Format, PixelContainer&& Levels, unsigned int Width, unsigned int Height, unsigned int Depth) :
+				SharedImage(unsigned short RefCount, ImageType Type, PixelFormat Format, PixelContainer&& Levels, unsigned int Width, unsigned int Height, unsigned int Depth) :
 				type(Type),
 				format(Format),
 				levels(std::move(Levels)),
@@ -152,7 +152,7 @@ namespace Nz
 				}
 
 				ImageType type;
-				PixelFormatType format;
+				PixelFormat format;
 				PixelContainer levels;
 				unsigned int depth;
 				unsigned int height;

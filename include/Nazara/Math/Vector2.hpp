@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -54,7 +54,7 @@ namespace Nz
 
 			Vector2& Set(T X, T Y);
 			Vector2& Set(T scale);
-			Vector2& Set(const T vec[2]);
+			Vector2& Set(const T* vec);
 			Vector2& Set(const Vector3<T>& vec);
 			Vector2& Set(const Vector4<T>& vec);
 			template<typename U> Vector2& Set(const Vector2<U>& vec);
@@ -63,8 +63,8 @@ namespace Nz
 
 			String ToString() const;
 
-			operator T* ();
-			operator const T* () const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			const Vector2& operator+() const;
 			Vector2 operator-() const;

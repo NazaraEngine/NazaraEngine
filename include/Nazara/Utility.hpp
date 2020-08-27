@@ -40,6 +40,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
@@ -63,6 +64,7 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/TriangleIterator.hpp>
+#include <Nazara/Utility/UniformBuffer.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>

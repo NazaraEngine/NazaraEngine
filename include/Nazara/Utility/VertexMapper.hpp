@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -26,7 +26,7 @@ namespace Nz
 			VertexMapper(const VertexBuffer* vertexBuffer, BufferAccess access = BufferAccess_ReadOnly);
 			~VertexMapper();
 
-			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component);
+			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component, std::size_t componentIndex = 0);
 			inline const VertexBuffer* GetVertexBuffer() const;
 			inline std::size_t GetVertexCount() const;
 			

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,11 +20,6 @@ namespace Nz
 	inline std::size_t IndexBuffer::GetIndexCount() const
 	{
 		return m_indexCount;
-	}
-
-	inline DataStorage IndexBuffer::GetStorage() const
-	{
-		return DataStorage();
 	}
 
 	inline std::size_t IndexBuffer::GetStride() const

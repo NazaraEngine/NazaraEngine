@@ -1,17 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Icon.hpp>
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Platform/Win32/IconImpl.hpp>
-#elif defined(NAZARA_PLATFORM_X11)
-	#include <Nazara/Platform/X11/IconImpl.hpp>
-#else
-	#error Lack of implementation: Icon
-#endif
-
+#include <Nazara/Platform/SDL2/IconImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

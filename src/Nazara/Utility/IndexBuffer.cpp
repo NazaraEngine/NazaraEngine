@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -106,10 +106,11 @@ namespace Nz
 	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(buffer->GetType() == BufferType_Index, "Buffer must be an index buffer");
 		NazaraAssert(size > 0, "Invalid size");
 		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
-		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
+		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
 		m_buffer = buffer;
 		m_endOffset = offset + size;
@@ -120,7 +121,7 @@ namespace Nz
 
 	void IndexBuffer::Reset(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
-		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
+		std::size_t stride = static_cast<std::size_t>((largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 
 		m_endOffset = length * stride;
 		m_indexCount = length;

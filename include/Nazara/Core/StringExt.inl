@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -21,6 +21,14 @@ namespace Nz
 		return !str.empty() && std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
 	}
 
+	bool MatchPattern(const std::string_view& str, const char* pattern)
+	{
+		if (!pattern)
+			return false;
+
+		return MatchPattern(str, std::string_view(pattern, std::strlen(pattern)));
+	}
+
 	template<typename... Args> bool StartsWith(const std::string_view& str, const char* s, Args&&... args)
 	{
 		std::size_t size = std::strlen(s);
@@ -36,6 +44,43 @@ namespace Nz
 #else
 		return str.compare(0, s.size(), s.data()) == 0;
 #endif
+	}
+
+	template<typename F>
+	bool SplitString(const std::string_view& str, const std::string_view& token, F&& func)
+	{
+		std::size_t pos = 0;
+		std::size_t previousPos = 0;
+		while ((pos = str.find(token, previousPos)) != std::string::npos)
+		{
+			std::size_t splitPos = previousPos;
+			previousPos = pos + token.size();
+
+			if (!func(str.substr(splitPos, pos - splitPos)))
+				return false;
+		}
+
+		if (previousPos < str.size())
+			return func(str.substr(previousPos));
+		else
+			return true;
+	}
+
+	template<typename F>
+	bool SplitStringAny(const std::string_view& str, const std::string_view& token, F&& func)
+	{
+		std::size_t pos = 0;
+		std::size_t previousPos = 0;
+		while ((pos = str.find_first_of(token, previousPos)) != std::string::npos)
+		{
+			std::size_t splitPos = previousPos;
+			previousPos = pos + 1;
+
+			if (!func(str.substr(splitPos, pos - splitPos)))
+				return false;
+		}
+
+		return func(str.substr(previousPos));
 	}
 
 	inline std::string ToLower(const char* str)

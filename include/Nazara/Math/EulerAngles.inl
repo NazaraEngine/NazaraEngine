@@ -1,7 +1,8 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
@@ -406,4 +407,3 @@ std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles)
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "EulerAngles.hpp"

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -157,7 +157,7 @@ namespace Ndk
 			if (m_widgetEntries[m_keyboardOwner].widget->OnKeyPressed(event))
 				return;
 
-			if (event.code == Nz::Keyboard::Tab)
+			if (event.virtualKey == Nz::Keyboard::VKey::Tab)
 			{
 				if (!event.shift)
 				{
@@ -220,5 +220,11 @@ namespace Ndk
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnTextEntered(event.character, event.repeated);
+	}
+
+	void Canvas::OnEventTextEdited(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::EditEvent& event)
+	{
+		if (m_keyboardOwner != InvalidCanvasIndex)
+			m_widgetEntries[m_keyboardOwner].widget->OnTextEdited(event.text, event.length);
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -424,13 +424,13 @@ namespace Nz
 
 	template<typename T>
 	CullingList<T>::BoxEntry::BoxEntry() :
-	Entry<CullTest::Box>()
+	ParentType()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::BoxEntry::BoxEntry(CullingList* parent, std::size_t index) :
-	Entry<CullTest::Box>(parent, index)
+	ParentType(parent, index)
 	{
 	}
 
@@ -444,13 +444,13 @@ namespace Nz
 
 	template<typename T>
 	CullingList<T>::NoTestEntry::NoTestEntry() :
-	Entry<CullTest::NoTest>()
+	ParentType()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::NoTestEntry::NoTestEntry(CullingList* parent, std::size_t index) :
-	Entry<CullTest::NoTest>(parent, index)
+	ParentType(parent, index)
 	{
 	}
 
@@ -458,13 +458,13 @@ namespace Nz
 
 	template<typename T>
 	CullingList<T>::SphereEntry::SphereEntry() :
-	Entry<CullTest::Sphere>()
+	ParentType()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::SphereEntry::SphereEntry(CullingList* parent, std::size_t index) :
-	Entry<CullTest::Sphere>(parent, index)
+	ParentType(parent, index)
 	{
 	}
 
@@ -478,13 +478,13 @@ namespace Nz
 
 	template<typename T>
 	CullingList<T>::VolumeEntry::VolumeEntry() :
-	Entry<CullTest::Volume>()
+	ParentType()
 	{
 	}
 
 	template<typename T>
 	CullingList<T>::VolumeEntry::VolumeEntry(CullingList* parent, std::size_t index) :
-	Entry<CullTest::Volume>(parent, index)
+	ParentType(parent, index)
 	{
 	}
 

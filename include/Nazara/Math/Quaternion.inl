@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
@@ -896,4 +897,3 @@ std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat)
 #undef F
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Quaternion.hpp"

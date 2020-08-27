@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq - 2009 Cruden BV
+// Copyright (C) 2020 Jérôme Leclercq - 2009 Cruden BV
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -201,7 +201,7 @@ namespace Nz
 
 					if (width > 0 && height > 0)
 					{
-						dst->image.Create(ImageType_2D, PixelFormatType_A8, width, height);
+						dst->image.Create(ImageType_2D, PixelFormat_A8, width, height);
 						UInt8* pixels = dst->image.GetPixels();
 
 						const UInt8* data = bitmap.buffer;

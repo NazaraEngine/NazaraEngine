@@ -1,0 +1,39 @@
+// Copyright (C) 2020 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Vulkan Renderer"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
+#include <Nazara/VulkanRenderer/Debug.hpp>
+
+namespace Nz
+{
+	inline Vk::Fence& Nz::VulkanRenderImage::GetInFlightFence()
+	{
+		return m_inFlightFence;
+	}
+
+	inline Vk::Semaphore& VulkanRenderImage::GetImageAvailableSemaphore()
+	{
+		return m_imageAvailableSemaphore;
+	}
+
+	inline UInt32 VulkanRenderImage::GetImageIndex()
+	{
+		return m_imageIndex;
+	}
+
+	inline Vk::Semaphore& VulkanRenderImage::GetRenderFinishedSemaphore()
+	{
+		return m_renderFinishedSemaphore;
+	}
+
+	inline void VulkanRenderImage::Reset(UInt32 imageIndex)
+	{
+		m_graphicalCommandsBuffers.clear();
+		m_currentCommandBuffer = 0;
+		m_imageIndex = imageIndex;
+		m_uploadPool.Reset();
+	}
+}
+
+#include <Nazara/VulkanRenderer/DebugOff.hpp>

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -151,9 +151,9 @@ namespace Ndk
 	{
 		const Nz::AbstractTextDrawer& textDrawer = GetTextDrawer();
 
-		switch (key.code)
+		switch (key.virtualKey)
 		{
-			case Nz::Keyboard::Backspace:
+			case Nz::Keyboard::VKey::Backspace:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyBackspace(this, &ignoreDefaultAction);
@@ -175,7 +175,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Delete:
+			case Nz::Keyboard::VKey::Delete:
 			{
 				if (HasSelection())
 					EraseSelection();
@@ -185,7 +185,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Down:
+			case Nz::Keyboard::VKey::Down:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyDown(this, &ignoreDefaultAction);
@@ -200,7 +200,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::End:
+			case Nz::Keyboard::VKey::End:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyEnd(this, &ignoreDefaultAction);
@@ -217,7 +217,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Home:
+			case Nz::Keyboard::VKey::Home:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyHome(this, &ignoreDefaultAction);
@@ -229,7 +229,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Left:
+			case Nz::Keyboard::VKey::Left:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyLeft(this, &ignoreDefaultAction);
@@ -247,7 +247,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Return:
+			case Nz::Keyboard::VKey::Return:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyReturn(this, &ignoreDefaultAction);
@@ -265,7 +265,7 @@ namespace Ndk
 				return true;;
 			}
 
-			case Nz::Keyboard::Right:
+			case Nz::Keyboard::VKey::Right:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyRight(this, &ignoreDefaultAction);
@@ -283,7 +283,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Up:
+			case Nz::Keyboard::VKey::Up:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyUp(this, &ignoreDefaultAction);
@@ -298,7 +298,7 @@ namespace Ndk
 				return true;
 			}
 
-			case Nz::Keyboard::Tab:
+			case Nz::Keyboard::VKey::Tab:
 			{
 				if (!m_tabEnabled)
 					return false;
@@ -331,7 +331,7 @@ namespace Ndk
 			Nz::Vector2ui hoveredGlyph = GetHoveredGlyph(float(x), float(y));
 
 			// Shift extends selection
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RShift))
 				SetSelection(hoveredGlyph, m_selectionCursor);
 			else
 			{

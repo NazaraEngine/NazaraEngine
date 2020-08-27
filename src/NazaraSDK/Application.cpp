@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -167,7 +167,7 @@ namespace Ndk
 
 		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 		{
-			if (event.code == Nz::Keyboard::F9)
+			if (event.virtualKey == Nz::Keyboard::VKey::F9)
 			{
 				// Toggle console visibility and focus
 				if (consoleRef.IsVisible())

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -161,7 +161,7 @@ namespace Nz
 
 	AbstractImage* GuillotineImageAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
 	{
-		std::unique_ptr<Image> newImage(new Image(ImageType_2D, PixelFormatType_A8, size.x, size.y));
+		std::unique_ptr<Image> newImage(new Image(ImageType_2D, PixelFormat_A8, size.x, size.y));
 		if (oldImage)
 		{
 			newImage->Copy(static_cast<Image*>(oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
