@@ -31,9 +31,9 @@ namespace Nz
 		return std::make_unique<DummySurface>();
 	}
 
-	std::unique_ptr<RenderWindowImpl> OpenGLRenderer::CreateRenderWindowImpl()
+	std::unique_ptr<RenderWindowImpl> OpenGLRenderer::CreateRenderWindowImpl(RenderWindow& owner)
 	{
-		return std::make_unique<OpenGLRenderWindow>();
+		return std::make_unique<OpenGLRenderWindow>(owner);
 	}
 
 	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex)

@@ -23,6 +23,7 @@ namespace Nz
 	class RendererImpl;
 	class RenderDevice;
 	class RenderSurface;
+	class RenderWindow;
 	class RenderWindowImpl;
 
 	using CreateRendererImplFunc = RendererImpl*(*)();
@@ -34,7 +35,7 @@ namespace Nz
 			virtual ~RendererImpl();
 
 			virtual std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() = 0;
-			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl() = 0;
+			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl(RenderWindow& owner) = 0;
 
 			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) = 0;
 

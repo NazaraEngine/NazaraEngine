@@ -7,6 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
@@ -18,9 +19,11 @@
 
 namespace Nz
 {
-	VkRenderWindow::VkRenderWindow() :
+	VkRenderWindow::VkRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
-	m_depthStencilFormat(VK_FORMAT_MAX_ENUM)
+	m_depthStencilFormat(VK_FORMAT_MAX_ENUM),
+	m_owner(owner),
+	m_shouldRecreateSwapchain(false)
 	{
 	}
 
@@ -35,8 +38,26 @@ namespace Nz
 		m_swapchain.Destroy();
 	}
 
-	VulkanRenderImage& VkRenderWindow::Acquire()
+	RenderFrame VkRenderWindow::Acquire()
 	{
+		bool invalidateFramebuffer = false;
+
+		Vector2ui size = m_owner.GetSize();
+		// Special case: window is minimized
+		if (size == Nz::Vector2ui::Zero() || m_owner.IsMinimized())
+			return RenderFrame();
+
+		if (m_shouldRecreateSwapchain || size != m_swapchainSize)
+		{
+			Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(m_owner.GetSurface())->GetSurface();
+
+			if (!CreateSwapchain(vulkanSurface, size))
+				throw std::runtime_error("failed to recreate swapchain");
+
+			m_shouldRecreateSwapchain = false;
+			invalidateFramebuffer = true;
+		}
+
 		VulkanRenderImage& currentFrame = m_concurrentImageData[m_currentFrame];
 		Vk::Fence& inFlightFence = currentFrame.GetInFlightFence();
 
@@ -44,8 +65,33 @@ namespace Nz
 		inFlightFence.Wait();
 
 		UInt32 imageIndex;
-		if (!m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), currentFrame.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex))
-			throw std::runtime_error("Failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+		m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), currentFrame.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex);
+
+		switch (m_swapchain.GetLastErrorCode())
+		{
+			case VK_SUCCESS:
+				break;
+
+			case VK_SUBOPTIMAL_KHR:
+				m_shouldRecreateSwapchain = true; //< Recreate swapchain next time
+				break;
+
+			case VK_ERROR_OUT_OF_DATE_KHR:
+				m_shouldRecreateSwapchain = true;
+				return Acquire();
+
+			// Not expected (since timeout is infinite)
+			case VK_TIMEOUT:
+			case VK_NOT_READY:
+			// Unhandled errors
+			case VK_ERROR_DEVICE_LOST:
+			case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+			case VK_ERROR_OUT_OF_HOST_MEMORY:
+			case VK_ERROR_SURFACE_LOST_KHR: //< TODO: Handle it by recreating the surface?
+			case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
+			default:
+				throw std::runtime_error("Failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+		}
 
 		if (m_inflightFences[imageIndex])
 			m_inflightFences[imageIndex]->Wait();
@@ -55,10 +101,10 @@ namespace Nz
 
 		currentFrame.Reset(imageIndex);
 
-		return currentFrame;
+		return RenderFrame(&currentFrame, invalidateFramebuffer);
 	}
 
-	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const Vector2ui& size, const RenderWindowParameters& parameters)
+	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
 		const auto& deviceInfo = Vulkan::GetPhysicalDevices()[0];
 
@@ -156,60 +202,17 @@ namespace Nz
 			}
 		}
 
-		if (!SetupSwapchain(deviceInfo, vulkanSurface, size))
-		{
-			NazaraError("Failed to create swapchain");
-			return false;
-		}
-
-		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer(size))
-		{
-			NazaraError("Failed to create depth buffer");
-			return false;
-		}
-
 		if (!SetupRenderPass())
 		{
 			NazaraError("Failed to create render pass");
 			return false;
 		}
 
-		UInt32 imageCount = m_swapchain.GetBufferCount();
-
-		// Framebuffers
-		m_inflightFences.resize(imageCount);
-
-		Nz::StackArray<Vk::Framebuffer> framebuffers = NazaraStackArray(Vk::Framebuffer, imageCount);
-		for (UInt32 i = 0; i < imageCount; ++i)
+		if (!CreateSwapchain(vulkanSurface, m_owner.GetSize()))
 		{
-			std::array<VkImageView, 2> attachments = { m_swapchain.GetBuffer(i).view, m_depthBufferView };
-
-			VkFramebufferCreateInfo frameBufferCreate = {
-				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-				nullptr,
-				0,
-				m_renderPass->GetRenderPass(),
-				(attachments[1] != VK_NULL_HANDLE) ? 2U : 1U,
-				attachments.data(),
-				size.x,
-				size.y,
-				1U
-			};
-
-			if (!framebuffers[i].Create(*m_device, frameBufferCreate))
-			{
-				NazaraError("Failed to create framebuffer for image #" + String::Number(i) + ": " + TranslateVulkanError(framebuffers[i].GetLastErrorCode()));
-				return false;
-			}
+			NazaraError("failed to create swapchain");
+			return false;
 		}
-
-		m_framebuffer.emplace(framebuffers.data(), framebuffers.size());
-
-		const std::size_t MaxConcurrentImage = imageCount;
-		m_concurrentImageData.reserve(MaxConcurrentImage);
-
-		for (std::size_t i = 0; i < MaxConcurrentImage; ++i)
-			m_concurrentImageData.emplace_back(*this);
 
 		m_clock.Restart();
 
@@ -237,9 +240,60 @@ namespace Nz
 		return std::make_unique<VulkanCommandPool>(*m_device, queueFamilyIndex);
 	}
 
-	const VulkanRenderPass& VkRenderWindow::GetRenderPass() const
+	void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
-		return *m_renderPass;
+		NazaraAssert(imageIndex < m_inflightFences.size(), "Invalid image index");
+
+		m_currentFrame = (m_currentFrame + 1) % m_inflightFences.size();
+
+		m_presentQueue.Present(m_swapchain, imageIndex, waitSemaphore);
+
+		switch (m_presentQueue.GetLastErrorCode())
+		{
+			case VK_SUCCESS:
+				break;
+
+			case VK_ERROR_OUT_OF_DATE_KHR:
+			case VK_SUBOPTIMAL_KHR:
+			{
+				// Recreate swapchain next time
+				m_shouldRecreateSwapchain = true;
+				break;
+			}
+
+			// Unhandled errors
+			case VK_ERROR_DEVICE_LOST:
+			case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+			case VK_ERROR_OUT_OF_HOST_MEMORY:
+			case VK_ERROR_SURFACE_LOST_KHR: //< TODO: Handle it by recreating the surface?
+			case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
+			default:
+				throw std::runtime_error("Failed to present image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+		}
+	}
+
+	bool VkRenderWindow::CreateSwapchain(Vk::Surface& surface, const Vector2ui& size)
+	{
+		assert(m_device);
+		if (!SetupSwapchain(m_device->GetPhysicalDeviceInfo(), surface, size))
+		{
+			NazaraError("Failed to create swapchain");
+			return false;
+		}
+
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer(size))
+		{
+			NazaraError("Failed to create depth buffer");
+			return false;
+		}
+
+		if (!SetupFrameBuffers(size))
+		{
+			NazaraError("failed to create framebuffers");
+			return false;
+		}
+
+		return true;
 	}
 
 	bool VkRenderWindow::SetupDepthBuffer(const Vector2ui& size)
@@ -309,6 +363,38 @@ namespace Nz
 			return false;
 		}
 
+		return true;
+	}
+
+	bool VkRenderWindow::SetupFrameBuffers(const Vector2ui& size)
+	{
+		UInt32 imageCount = m_swapchain.GetBufferCount();
+
+		Nz::StackArray<Vk::Framebuffer> framebuffers = NazaraStackArray(Vk::Framebuffer, imageCount);
+		for (UInt32 i = 0; i < imageCount; ++i)
+		{
+			std::array<VkImageView, 2> attachments = { m_swapchain.GetBuffer(i).view, m_depthBufferView };
+
+			VkFramebufferCreateInfo frameBufferCreate = {
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				nullptr,
+				0,
+				m_renderPass->GetRenderPass(),
+				(attachments[1] != VK_NULL_HANDLE) ? 2U : 1U,
+				attachments.data(),
+				size.x,
+				size.y,
+				1U
+			};
+
+			if (!framebuffers[i].Create(*m_device, frameBufferCreate))
+			{
+				NazaraError("Failed to create framebuffer for image #" + String::Number(i) + ": " + TranslateVulkanError(framebuffers[i].GetLastErrorCode()));
+				return false;
+			}
+		}
+
+		m_framebuffer.emplace(framebuffers.data(), framebuffers.size());
 		return true;
 	}
 
@@ -468,13 +554,29 @@ namespace Nz
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			swapchainPresentMode,
 			VK_TRUE,
-			VK_NULL_HANDLE
+			m_swapchain
 		};
 
-		if (!m_swapchain.Create(*m_device, swapchainInfo))
+		Vk::Swapchain newSwapchain;
+		if (!newSwapchain.Create(*m_device, swapchainInfo))
 		{
-			NazaraError("Failed to create swapchain");
+			NazaraError("failed to create swapchain: " + TranslateVulkanError(newSwapchain.GetLastErrorCode()));
 			return false;
+		}
+
+		m_swapchain = std::move(newSwapchain);
+		m_swapchainSize = size;
+
+		// Framebuffers
+		m_inflightFences.resize(imageCount);
+
+		if (m_concurrentImageData.size() != imageCount)
+		{
+			m_concurrentImageData.clear();
+			m_concurrentImageData.reserve(imageCount);
+
+			for (std::size_t i = 0; i < imageCount; ++i)
+				m_concurrentImageData.emplace_back(*this);
 		}
 
 		return true;
