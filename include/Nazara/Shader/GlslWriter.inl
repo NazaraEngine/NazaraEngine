@@ -85,14 +85,14 @@ namespace Nz
 
 					std::visit([&](auto&& arg)
 					{
-						using T = std::decay_t<decltype(arg)>;
-						if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
+						using U = std::decay_t<decltype(arg)>;
+						if constexpr (std::is_same_v<U, ShaderNodes::BasicType>)
 						{
 							Append(arg);
 							Append(" ");
 							Append(var.name);
 						}
-						else if constexpr (std::is_same_v<T, std::string>)
+						else if constexpr (std::is_same_v<U, std::string>)
 						{
 							const auto& structs = shader.GetStructs();
 							auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == arg; });
@@ -115,7 +115,7 @@ namespace Nz
 							Append(var.name);
 						}
 						else
-							static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+							static_assert(AlwaysFalse<U>::value, "non-exhaustive visitor");
 
 					}, var.type);
 
