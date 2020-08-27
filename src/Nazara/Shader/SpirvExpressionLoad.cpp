@@ -22,7 +22,7 @@ namespace Nz
 
 		return std::visit(overloaded
 		{
-			[&](const Pointer& pointer) -> UInt32
+			[this](const Pointer& pointer) -> UInt32
 			{
 				UInt32 resultId = m_writer.AllocateResultId();
 
@@ -30,11 +30,11 @@ namespace Nz
 
 				return resultId;
 			},
-			[&](const Value& value) -> UInt32
+			[](const Value& value) -> UInt32
 			{
 				return value.resultId;
 			},
-			[this](std::monostate) -> UInt32
+			[](std::monostate) -> UInt32
 			{
 				throw std::runtime_error("an internal error occurred");
 			}
