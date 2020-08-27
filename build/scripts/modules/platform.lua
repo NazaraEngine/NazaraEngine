@@ -25,3 +25,7 @@ MODULE.OsDefines.Posix = {
 	"SDL_VIDEO_DRIVER_X11=1",
 	"SDL_VIDEO_DRIVER_WAYLAND=1",
 }
+
+MODULE.DynLib = {
+	"SDL2"
+}

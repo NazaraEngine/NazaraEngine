@@ -31,3 +31,7 @@ MODULE.OsFiles.Posix = {
 	"../src/Nazara/Audio/Posix/**.hpp",
 	"../src/Nazara/Audio/Posix/**.cpp"
 }
+
+MODULE.DynLib = {
+	"soft_oal"
+}
