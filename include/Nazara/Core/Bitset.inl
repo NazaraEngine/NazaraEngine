@@ -1219,7 +1219,8 @@ namespace Nz
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::ResetExtraBits()
 	{
-		m_blocks.back() &= GetLastBlockMask();
+		if (!m_blocks.empty())
+			m_blocks.back() &= GetLastBlockMask();
 	}
 
 	/*!
