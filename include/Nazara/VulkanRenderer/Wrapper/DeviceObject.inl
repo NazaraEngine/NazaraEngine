@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <type_traits>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -90,8 +91,12 @@ namespace Nz
 			{
 				VkDebugUtilsObjectNameInfoEXT debugName = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
 				debugName.objectType = ObjectType;
-				debugName.objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
 				debugName.pObjectName = name;
+
+				if constexpr (std::is_pointer_v<VkType>)
+					debugName.objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
+				else
+					debugName.objectHandle = static_cast<UInt64>(m_handle);
 
 				m_device->vkSetDebugUtilsObjectNameEXT(*m_device, &debugName);
 			}
