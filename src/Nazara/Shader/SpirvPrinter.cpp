@@ -15,8 +15,8 @@ namespace Nz
 {
 	struct SpirvPrinter::State
 	{
-		State(const Settings& Settings) :
-		settings(settings)
+		State(const Settings& s) :
+		settings(s)
 		{
 		}
 

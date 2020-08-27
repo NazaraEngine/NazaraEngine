@@ -496,12 +496,11 @@ namespace Nz
 
 		for (auto&& [variable, id] : m_internal->variableIds)
 		{
+			const auto& var = variable;
 			UInt32 resultId = id;
 
 			if (!variable.debugName.empty())
 				debugInfos.Append(SpirvOp::OpName, resultId, variable.debugName);
-
-			const auto& var = variable;
 
 			constants.AppendVariadic(SpirvOp::OpVariable, [&](const auto& appender)
 			{
