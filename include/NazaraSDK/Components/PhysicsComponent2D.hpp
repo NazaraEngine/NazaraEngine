@@ -99,6 +99,8 @@ namespace Ndk
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 			void OnEntityDestruction() override;
+			void OnEntityDisabled() override;
+			void OnEntityEnabled() override;
 
 			struct PendingPhysObjectStates
 			{

@@ -126,7 +126,7 @@ namespace Nz
 	bool WindowImpl::Create(void* handle)
 	{
 		m_handle = SDL_CreateWindowFrom(handle);
-		if (!m_handle || !SDL_GetWindowID(m_handle))
+		if (!m_handle)
 		{
 			NazaraError("Invalid handle");
 			return false;
@@ -286,7 +286,8 @@ namespace Nz
 
 	void WindowImpl::ProcessEvents(bool block)
 	{
-		SDL_PumpEvents();
+		if (m_ownsWindow)
+			SDL_PumpEvents();
 
 
 		/*if (m_ownsWindow)

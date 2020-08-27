@@ -18,4 +18,3 @@ MODULE.OsFiles.Posix = {
     "../src/Nazara/Renderer/GLX/**.hpp",
     "../src/Nazara/Renderer/GLX/**.cpp"
 }
-

@@ -60,6 +60,7 @@ namespace Nz
 
 			T SquaredMagnitude() const;
 
+			RadianAngle<T> To2DAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			//Matrix3<T> ToRotationMatrix() const;
 			String ToString() const;

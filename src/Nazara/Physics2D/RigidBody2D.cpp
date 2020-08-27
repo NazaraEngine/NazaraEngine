@@ -168,9 +168,9 @@ namespace Nz
 
 	void RigidBody2D::EnableSimulation(bool simulation)
 	{
-		if (m_isRegistered != simulation)
+		if (m_isSimulationEnabled != simulation)
 		{
-			m_isRegistered = simulation;
+			m_isSimulationEnabled = simulation;
 
 			if (simulation)
 				RegisterToSpace();
@@ -325,7 +325,7 @@ namespace Nz
 
 	bool RigidBody2D::IsSimulationEnabled() const
 	{
-		return m_isRegistered;
+		return m_isSimulationEnabled;
 	}
 
 	bool RigidBody2D::IsSleeping() const

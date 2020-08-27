@@ -464,12 +464,26 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Returns the "roll angle" of this quaternion
+	* \return Roll rotation
+	*
+	* \remark This function only has sense when quaternion only represents a "roll rotation"
+	*/
+	template<typename T>
+	RadianAngle<T> Quaternion<T>::To2DAngle() const
+	{
+		T siny_cosp = T(2.0) * (w * z + x * y);
+		T cosy_cosp = T(1.0) - T(2.0) * (y * y + z * z);
+
+		return std::atan2(siny_cosp, cosy_cosp);
+	}
+
+	/*!
 	* \brief Converts this quaternion to Euler angles representation
 	* \return EulerAngles which is the representation of this rotation
 	*
 	* \remark Rotation are "left-handed"
 	*/
-
 	template<typename T>
 	EulerAngles<T> Quaternion<T>::ToEulerAngles() const
 	{

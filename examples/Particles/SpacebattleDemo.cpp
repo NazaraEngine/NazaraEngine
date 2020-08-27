@@ -674,10 +674,14 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 
 	Nz::Boxf introAABB = introGfx.GetAABB();
 	introNode.SetPosition(cannonNode.GetForward() * 500.f + introNode.GetLeft() * introAABB.width / 2.f + introNode.GetUp() * introAABB.height / 2.f);
+
+	Nz::Mouse::SetRelativeMouseMode(true);
 }
 
 void SpacebattleExample::Leave(Ndk::StateMachine& fsm)
 {
+	Nz::Mouse::SetRelativeMouseMode(false);
+
 	m_ambientMusic.Stop();
 	m_onMouseMoved.Disconnect();
 	if (m_shared.target)
@@ -836,7 +840,4 @@ void SpacebattleExample::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, 
 
 	m_turretCannonBaseRotation = Nz::Clamp(m_turretCannonBaseRotation + speed * event.deltaY, -65.f, 40.f);
 	m_turretBaseRotation -= event.deltaX * speed;
-
-	Nz::Vector2ui size = m_shared.target->GetSize();
-	Nz::Mouse::SetPosition(size.x / 2, size.y / 2, *m_shared.target);
 }
