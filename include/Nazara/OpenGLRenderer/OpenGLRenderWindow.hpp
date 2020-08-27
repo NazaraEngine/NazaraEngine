@@ -49,6 +49,7 @@ namespace Nz
 			OpenGLRenderPass m_renderPass;
 			OpenGLWindowFramebuffer m_framebuffer;
 			RenderWindow& m_owner;
+			Vector2ui m_size;
 	};
 }
 

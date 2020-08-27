@@ -21,7 +21,18 @@ namespace Nz
 
 	RenderFrame OpenGLRenderWindow::Acquire()
 	{
-		return RenderFrame(&m_renderImage[m_currentFrame], false);
+		if (m_owner.IsMinimized())
+			return RenderFrame();
+
+		bool invalidateFramebuffer = false;
+		Vector2ui size = m_owner.GetSize();
+		if (m_size != size)
+		{
+			invalidateFramebuffer = true;
+			m_size = size;
+		}
+
+		return RenderFrame(&m_renderImage[m_currentFrame], invalidateFramebuffer);
 	}
 
 	bool OpenGLRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters)
@@ -36,6 +47,8 @@ namespace Nz
 		m_context = m_device->CreateContext(contextParams, dummySurface->GetWindowHandle());
 		if (!m_context)
 			return false;
+
+		m_size = m_owner.GetSize();
 
 		constexpr std::size_t RenderImageCount = 2;
 
