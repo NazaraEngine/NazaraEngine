@@ -1,4 +1,4 @@
-EXAMPLE.Name = "VulkanTest"
+EXAMPLE.Name = "RenderTest"
 
 EXAMPLE.EnableConsole = true
 

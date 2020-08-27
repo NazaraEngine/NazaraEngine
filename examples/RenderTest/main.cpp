@@ -1,5 +1,8 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Renderer.hpp>
+#include <Nazara/Shader.hpp>
+#include <Nazara/Shader/SpirvConstantCache.hpp>
+#include <Nazara/Shader/SpirvPrinter.hpp>
 #include <array>
 #include <iostream>
 
@@ -220,7 +223,7 @@ int main()
 	unsigned int fps = 0;
 	bool uboUpdate = true;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	//Nz::Mouse::SetRelativeMouseMode(true);
 
 	while (window.IsOpen())
 	{
@@ -233,7 +236,7 @@ int main()
 					window.Close();
 					break;
 
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
+				/*case Nz::WindowEventType_MouseMoved: // La souris a bougé
 				{
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
@@ -248,6 +251,7 @@ int main()
 					
 					uboUpdate = true;
 					break;
+				}*/
 
 				case Nz::WindowEventType_Resized:
 				{
