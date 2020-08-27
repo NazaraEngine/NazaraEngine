@@ -46,5 +46,6 @@ TOOL.Libraries = {
 	"NazaraNetwork",
 	"NazaraPhysics2D",
 	"NazaraPhysics3D",
+	"NazaraShader",
 	"NazaraUtility"
 }
