@@ -70,9 +70,9 @@ namespace Nz
 				glslVersion = 320;
 			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
 				glslVersion = 310;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 0)
+			else if (m_environment.glMajorVersion >= 3)
 				glslVersion = 300;
-			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 0)
+			else if (m_environment.glMajorVersion >= 2)
 				glslVersion = 100;
 			else
 				throw std::runtime_error("This version of OpenGL ES does not support shaders");
@@ -85,11 +85,11 @@ namespace Nz
 				glslVersion = 150;
 			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
 				glslVersion = 140;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 0)
+			else if (m_environment.glMajorVersion >= 3)
 				glslVersion = 130;
 			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
 				glslVersion = 120;
-			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 0)
+			else if (m_environment.glMajorVersion >= 2)
 				glslVersion = 110;
 			else
 				throw std::runtime_error("This version of OpenGL does not support shaders");

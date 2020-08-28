@@ -8,32 +8,32 @@
 
 namespace Nz
 {
-	void ShaderVarVisitorExcept::Visit(ShaderNodes::BuiltinVariable& var)
+	void ShaderVarVisitorExcept::Visit(ShaderNodes::BuiltinVariable& /*var*/)
 	{
 		throw std::runtime_error("unhandled BuiltinVariable");
 	}
 
-	void ShaderVarVisitorExcept::Visit(ShaderNodes::InputVariable& var)
+	void ShaderVarVisitorExcept::Visit(ShaderNodes::InputVariable& /*var*/)
 	{
 		throw std::runtime_error("unhandled InputVariable");
 	}
 
-	void ShaderVarVisitorExcept::Visit(ShaderNodes::LocalVariable& var)
+	void ShaderVarVisitorExcept::Visit(ShaderNodes::LocalVariable& /*var*/)
 	{
 		throw std::runtime_error("unhandled LocalVariable");
 	}
 
-	void ShaderVarVisitorExcept::Visit(ShaderNodes::OutputVariable& var)
+	void ShaderVarVisitorExcept::Visit(ShaderNodes::OutputVariable& /*var*/)
 	{
 		throw std::runtime_error("unhandled OutputVariable");
 	}
 
-	void ShaderVarVisitorExcept::Visit(ShaderNodes::ParameterVariable& var)
+	void ShaderVarVisitorExcept::Visit(ShaderNodes::ParameterVariable& /*var*/)
 	{
 		throw std::runtime_error("unhandled ParameterVariable");
 	}
 
-	void ShaderVarVisitorExcept::Visit(ShaderNodes::UniformVariable& var)
+	void ShaderVarVisitorExcept::Visit(ShaderNodes::UniformVariable& /*var*/)
 	{
 		throw std::runtime_error("unhandled UniformVariable");
 	}

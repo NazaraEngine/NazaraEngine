@@ -56,7 +56,7 @@ namespace Nz
 	*
 	* \param offset Offset according to the beginning of the stream
 	*/
-	bool EmptyStream::SetCursorPos(UInt64 offset)
+	bool EmptyStream::SetCursorPos(UInt64 /*offset*/)
 	{
 		return true;
 	}
@@ -78,7 +78,7 @@ namespace Nz
 	* \param buffer Preallocated buffer to contain information read
 	* \param size Size of the read and thus of the buffer
 	*/
-	std::size_t EmptyStream::ReadBlock(void* buffer, std::size_t size)
+	std::size_t EmptyStream::ReadBlock(void* /*buffer*/, std::size_t /*size*/)
 	{
 		return 0;
 	}

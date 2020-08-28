@@ -9,7 +9,7 @@
 namespace Nz::GL
 {
 	template<typename F>
-	static VertexArray VertexArray::Build(const Context& context, F&& callback)
+	VertexArray VertexArray::Build(const Context& context, F&& callback)
 	{
 		VertexArray vao;
 		if (!vao.Create(context))

@@ -97,11 +97,11 @@ namespace Nz
 		m_buffer = Buffer::New(BufferType_Uniform, m_endOffset, storage, usage);
 	}
 
-	void UniformBuffer::Reset(const UniformBuffer& UniformBuffer)
+	void UniformBuffer::Reset(const UniformBuffer& uniformBuffer)
 	{
-		m_buffer = UniformBuffer.m_buffer;
-		m_endOffset = UniformBuffer.m_endOffset;
-		m_startOffset = UniformBuffer.m_startOffset;
+		m_buffer = uniformBuffer.m_buffer;
+		m_endOffset = uniformBuffer.m_endOffset;
+		m_startOffset = uniformBuffer.m_startOffset;
 	}
 
 	void UniformBuffer::Unmap() const

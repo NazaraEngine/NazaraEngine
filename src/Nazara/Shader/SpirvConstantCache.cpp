@@ -483,7 +483,7 @@ namespace Nz
 
 	void SpirvConstantCache::Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos)
 	{
-		for (auto&& [type, id] : m_internal->ids)
+		for (auto&& [object, id] : m_internal->ids)
 		{
 			UInt32 resultId = id;
 
@@ -491,7 +491,7 @@ namespace Nz
 			{
 				[&](const AnyConstant& constant) { Write(constant, resultId, constants); },
 				[&](const AnyType& type) { Write(type, resultId, annotations, constants, debugInfos); },
-			}, type);
+			}, object);
 		}
 
 		for (auto&& [variable, id] : m_internal->variableIds)
@@ -677,51 +677,51 @@ namespace Nz
 
 	void SpirvConstantCache::Write(const AnyConstant& constant, UInt32 resultId, SpirvSection& constants)
 	{
-		std::visit([&](auto&& arg)
+		std::visit([&](auto&& constant)
 		{
-			using T = std::decay_t<decltype(arg)>;
+			using ConstantType = std::decay_t<decltype(constant)>;
 
-			if constexpr (std::is_same_v<T, ConstantBool>)
-				constants.Append((arg.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, resultId);
-			else if constexpr (std::is_same_v<T, ConstantComposite>)
+			if constexpr (std::is_same_v<ConstantType, ConstantBool>)
+				constants.Append((constant.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, resultId);
+			else if constexpr (std::is_same_v<ConstantType, ConstantComposite>)
 			{
 				constants.AppendVariadic(SpirvOp::OpConstantComposite, [&](const auto& appender)
 				{
-					appender(GetId(arg.type->type));
+					appender(GetId(constant.type->type));
 					appender(resultId);
 
-					for (const auto& value : arg.values)
+					for (const auto& value : constant.values)
 						appender(GetId(value->constant));
 				});
 			}
-			else if constexpr (std::is_same_v<T, ConstantScalar>)
+			else if constexpr (std::is_same_v<ConstantType, ConstantScalar>)
 			{
-				std::visit([&](auto&& arg)
+				std::visit([&](auto&& value)
 				{
-					using T = std::decay_t<decltype(arg)>;
+					using ValueType = std::decay_t<decltype(value)>;
 
 					UInt32 typeId;
-					if constexpr (std::is_same_v<T, double>)
+					if constexpr (std::is_same_v<ValueType, double>)
 						typeId = GetId({ Float{ 64 } });
-					else if constexpr (std::is_same_v<T, float>)
+					else if constexpr (std::is_same_v<ValueType, float>)
 						typeId = GetId({ Float{ 32 } });
-					else if constexpr (std::is_same_v<T, Int32>)
+					else if constexpr (std::is_same_v<ValueType, Int32>)
 						typeId = GetId({ Integer{ 32, 1 } });
-					else if constexpr (std::is_same_v<T, Int64>)
+					else if constexpr (std::is_same_v<ValueType, Int64>)
 						typeId = GetId({ Integer{ 64, 1 } });
-					else if constexpr (std::is_same_v<T, UInt32>)
+					else if constexpr (std::is_same_v<ValueType, UInt32>)
 						typeId = GetId({ Integer{ 32, 0 } });
-					else if constexpr (std::is_same_v<T, UInt64>)
+					else if constexpr (std::is_same_v<ValueType, UInt64>)
 						typeId = GetId({ Integer{ 64, 0 } });
 					else
-						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+						static_assert(AlwaysFalse<ValueType>::value, "non-exhaustive visitor");
 
-					constants.Append(SpirvOp::OpConstant, typeId, resultId, SpirvSection::Raw{ &arg, sizeof(arg) });
+					constants.Append(SpirvOp::OpConstant, typeId, resultId, SpirvSection::Raw{ &value, sizeof(value) });
 
-				}, arg.value);
+				}, constant.value);
 			}
 			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				static_assert(AlwaysFalse<ConstantType>::value, "non-exhaustive visitor");
 		}, constant);
 	}
 

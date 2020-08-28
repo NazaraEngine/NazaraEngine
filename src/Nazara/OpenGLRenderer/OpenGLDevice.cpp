@@ -5,6 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
@@ -52,9 +53,9 @@ namespace Nz
 		return std::make_unique<OpenGLBuffer>(*this, type);
 	}
 
-	std::unique_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType queueType)
+	std::unique_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
 	{
-		return {};
+		return std::make_unique<OpenGLCommandPool>(*this);
 	}
 
 	std::unique_ptr<RenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)

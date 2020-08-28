@@ -33,6 +33,11 @@ namespace Nz
 		return m_components.size();
 	}
 
+	inline auto VertexDeclaration::GetComponents() const -> const std::vector<Component>&
+	{
+		return m_components;
+	}
+
 	inline VertexInputRate VertexDeclaration::GetInputRate() const
 	{
 		return m_inputRate;
@@ -81,21 +86,6 @@ namespace Nz
 		object->SetPersistent(false);
 
 		return object.release();
-	}
-}
-
-namespace std
-{
-	inline const Nz::VertexDeclaration::Component* begin(const Nz::VertexDeclaration& declaration)
-	{
-		assert(declaration.GetComponentCount() != 0);
-		return &declaration.GetComponent(0);
-	}
-
-	inline const Nz::VertexDeclaration::Component* end(const Nz::VertexDeclaration& declaration)
-	{
-		assert(declaration.GetComponentCount() != 0);
-		return (&declaration.GetComponent(declaration.GetComponentCount() - 1) + 1);
 	}
 }
 

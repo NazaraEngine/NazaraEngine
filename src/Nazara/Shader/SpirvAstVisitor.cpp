@@ -88,6 +88,8 @@ namespace Nz
 						case ShaderNodes::BasicType::Void:
 							break;
 					}
+
+					break;
 				}
 
 				case ShaderNodes::BinaryType::Substract:
@@ -116,6 +118,8 @@ namespace Nz
 						case ShaderNodes::BasicType::Void:
 							break;
 					}
+
+					break;
 				}
 
 				case ShaderNodes::BinaryType::Divide:
@@ -146,6 +150,8 @@ namespace Nz
 						case ShaderNodes::BasicType::Void:
 							break;
 					}
+
+					break;
 				}
 
 				case ShaderNodes::BinaryType::Equality:
@@ -176,6 +182,8 @@ namespace Nz
 						case ShaderNodes::BasicType::Void:
 							break;
 					}
+
+					break;
 				}
 
 				case ShaderNodes::BinaryType::Multiply:
@@ -258,6 +266,7 @@ namespace Nz
 						default:
 							break;
 					}
+
 					break;
 				}
 			}

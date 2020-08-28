@@ -8,67 +8,67 @@
 
 namespace Nz
 {
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::AccessMember& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::AccessMember& /*node*/)
 	{
 		throw std::runtime_error("unhandled AccessMember node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::AssignOp& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::AssignOp& /*node*/)
 	{
 		throw std::runtime_error("unhandled AssignOp node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::BinaryOp& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::BinaryOp& /*node*/)
 	{
 		throw std::runtime_error("unhandled AccessMember node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::Branch& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::Branch& /*node*/)
 	{
 		throw std::runtime_error("unhandled Branch node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::Cast& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::Cast& /*node*/)
 	{
 		throw std::runtime_error("unhandled Cast node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::Constant& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::Constant& /*node*/)
 	{
 		throw std::runtime_error("unhandled Constant node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::DeclareVariable& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::DeclareVariable& /*node*/)
 	{
 		throw std::runtime_error("unhandled DeclareVariable node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::ExpressionStatement& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::ExpressionStatement& /*node*/)
 	{
 		throw std::runtime_error("unhandled ExpressionStatement node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::Identifier& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::Identifier& /*node*/)
 	{
 		throw std::runtime_error("unhandled Identifier node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::IntrinsicCall& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::IntrinsicCall& /*node*/)
 	{
 		throw std::runtime_error("unhandled IntrinsicCall node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::Sample2D& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::Sample2D& /*node*/)
 	{
 		throw std::runtime_error("unhandled Sample2D node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::StatementBlock& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::StatementBlock& /*node*/)
 	{
 		throw std::runtime_error("unhandled StatementBlock node");
 	}
 
-	void ShaderAstVisitorExcept::Visit(ShaderNodes::SwizzleOp& node)
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::SwizzleOp& /*node*/)
 	{
 		throw std::runtime_error("unhandled SwizzleOp node");
 	}

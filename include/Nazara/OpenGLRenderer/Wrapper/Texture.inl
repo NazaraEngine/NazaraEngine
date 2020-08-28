@@ -67,7 +67,7 @@ namespace Nz::GL
 		//< TODO: Handle errors
 	}
 
-	inline GLuint Texture::CreateHelper(OpenGLDevice& device, const Context& context)
+	inline GLuint Texture::CreateHelper(OpenGLDevice& /*device*/, const Context& context)
 	{
 		GLuint texture = 0;
 		context.glGenTextures(1U, &texture);

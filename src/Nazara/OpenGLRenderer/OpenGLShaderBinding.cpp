@@ -15,20 +15,17 @@ namespace Nz
 {
 	void OpenGLShaderBinding::Apply(const GL::Context& context) const
 	{
-		std::size_t textureDescriptorCount = m_owner.GetTextureDescriptorCount();
-		std::size_t uniformBufferDescriptorCount = m_owner.GetUniformBufferDescriptorCount();
-
-		for (std::size_t i = 0; i < textureDescriptorCount; ++i)
+		for (std::size_t i = 0; i < m_owner.GetTextureDescriptorCount(); ++i)
 		{
 			const auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, i);
 
 			UInt32 textureIndex = textureDescriptor.bindingIndex;
 
 			context.BindSampler(textureIndex, textureDescriptor.sampler);
-			context.BindTexture(textureIndex, textureDescriptor.textureTarget,  textureDescriptor.texture);
+			context.BindTexture(textureIndex, textureDescriptor.textureTarget, textureDescriptor.texture);
 		}
 
-		for (std::size_t i = 0; i < textureDescriptorCount; ++i)
+		for (std::size_t i = 0; i < m_owner.GetUniformBufferDescriptorCount(); ++i)
 		{
 			const auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, i);
 
@@ -62,8 +59,8 @@ namespace Nz
 
 					const TextureBinding& texBinding = std::get<TextureBinding>(binding.content);
 
-					OpenGLTexture& glTexture = *static_cast<OpenGLTexture*>(texBinding.texture);
-					OpenGLTextureSampler& glSampler = *static_cast<OpenGLTextureSampler*>(texBinding.sampler);
+					OpenGLTexture& glTexture = static_cast<OpenGLTexture&>(*texBinding.texture);
+					OpenGLTextureSampler& glSampler = static_cast<OpenGLTextureSampler&>(*texBinding.sampler);
 
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
 					textureDescriptor.bindingIndex = binding.bindingIndex;

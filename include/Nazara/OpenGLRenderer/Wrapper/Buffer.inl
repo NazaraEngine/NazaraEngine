@@ -40,7 +40,7 @@ namespace Nz::GL
 		return context.glUnmapBuffer(ToOpenGL(m_target)) == GL_TRUE;
 	}
 
-	inline GLuint Buffer::CreateHelper(OpenGLDevice& device, const Context& context)
+	inline GLuint Buffer::CreateHelper(OpenGLDevice& /*device*/, const Context& context)
 	{
 		GLuint sampler = 0;
 		context.glGenBuffers(1U, &sampler);
