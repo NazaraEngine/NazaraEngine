@@ -44,6 +44,7 @@ namespace Nz
 
 			inline const Component& GetComponent(std::size_t componentIndex) const;
 			inline std::size_t GetComponentCount() const;
+			inline const std::vector<Component>& GetComponents() const;
 			inline VertexInputRate GetInputRate() const;
 			inline std::size_t GetStride() const;
 

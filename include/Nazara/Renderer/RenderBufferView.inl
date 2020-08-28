@@ -14,9 +14,9 @@ namespace Nz
 	}
 
 	inline RenderBufferView::RenderBufferView(AbstractBuffer* buffer, UInt64 offset, UInt64 size) :
-	m_buffer(buffer),
 	m_offset(offset),
-	m_size(size)
+	m_size(size),
+	m_buffer(buffer)
 	{
 	}
 

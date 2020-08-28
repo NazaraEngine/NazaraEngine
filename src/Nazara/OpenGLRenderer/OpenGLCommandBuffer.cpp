@@ -57,7 +57,7 @@ namespace Nz
 	{
 		const GL::Context* context = GL::Context::GetCurrentContext();
 
-		for (const auto& command : m_commands)
+		for (const auto& commandVariant : m_commands)
 		{
 			std::visit([&](auto&& command)
 			{
@@ -98,7 +98,7 @@ namespace Nz
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 
-			}, command);
+			}, commandVariant);
 		}
 	}
 
@@ -126,7 +126,7 @@ namespace Nz
 
 			GLsizei stride = GLsizei(bufferData.declaration->GetStride());
 
-			for (const auto& componentInfo : *bufferData.declaration)
+			for (const auto& componentInfo : bufferData.declaration->GetComponents())
 			{
 				auto& bufferAttribute = vaoSetup.vertexAttribs[locationIndex++].emplace();
 				BuildAttrib(bufferAttribute, componentInfo.type);

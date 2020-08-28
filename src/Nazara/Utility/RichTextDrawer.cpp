@@ -14,10 +14,10 @@ namespace Nz
 	m_defaultOutlineColor(Color::Black),
 	m_defaultStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
-	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_defaultCharacterSpacingOffset(0.f),
 	m_defaultLineSpacingOffset(0.f),
 	m_defaultOutlineThickness(0.f),
+	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_defaultCharacterSize(24)
 	{
 		SetDefaultFont(Font::GetDefault());

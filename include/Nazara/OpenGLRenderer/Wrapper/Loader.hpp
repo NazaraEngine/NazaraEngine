@@ -22,7 +22,7 @@ namespace Nz::GL
 {
 	class Context;
 
-	using GLFunction = int(*)();
+	using GLFunction = void(*)(void);
 
 	class NAZARA_OPENGLRENDERER_API Loader
 	{
