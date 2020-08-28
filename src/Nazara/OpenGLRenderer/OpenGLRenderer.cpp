@@ -13,7 +13,7 @@
 #include <sstream>
 
 #ifdef NAZARA_PLATFORM_WINDOWS
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLLoader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.hpp>
 #endif
 
 #include <Nazara/OpenGLRenderer/Debug.hpp>
