@@ -21,7 +21,7 @@ namespace Nz
 		public:
 			inline OpenGLShaderBinding(OpenGLRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex);
 			OpenGLShaderBinding(const OpenGLShaderBinding&) = default;
-			OpenGLShaderBinding(OpenGLShaderBinding&&) noexcept = default;
+			OpenGLShaderBinding(OpenGLShaderBinding&&) = default;
 			~OpenGLShaderBinding() = default;
 
 			void Apply(const GL::Context& context) const;
