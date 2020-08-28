@@ -118,7 +118,9 @@ namespace Nz
 
 #ifdef NAZARA_DEBUG
 			// Enable Vulkan validation if available in debug mode
-			if (availableLayers.count("VK_LAYER_LUNARG_standard_validation"))
+			if (availableLayers.count("VK_LAYER_KHRONOS_validation"))
+				enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
+			else if (availableLayers.count("VK_LAYER_LUNARG_standard_validation"))
 				enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
 #endif
 		}
