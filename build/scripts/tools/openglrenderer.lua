@@ -33,6 +33,8 @@ TOOL.Libraries = {
 }
 
 TOOL.OsFiles.Windows = {
-	"../src/Nazara/OpenGLRenderer/Win32/**.hpp",
-	"../src/Nazara/OpenGLRenderer/Win32/**.cpp"
+	"../include/Nazara/OpenGLRenderer/Wrapper/WGL/**.hpp",
+	"../include/Nazara/OpenGLRenderer/Wrapper/WGL/**.inl",
+	"../src/Nazara/OpenGLRenderer/Wrapper/WGL/**.hpp",
+	"../src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp"
 }

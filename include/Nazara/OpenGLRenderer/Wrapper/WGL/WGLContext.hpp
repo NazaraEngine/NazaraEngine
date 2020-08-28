@@ -11,13 +11,13 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/WGL/Win32Helper.hpp>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
 
 #undef WIN32_LEAN_AND_MEAN //< Redefined by OpenGL header (ty Khronos)
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLFunctions.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
 
 namespace Nz::GL
 {
@@ -80,6 +80,6 @@ namespace Nz::GL
 	};
 }
 
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLContext.inl>
+#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.inl>
 
 #endif

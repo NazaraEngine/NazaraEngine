@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLLoader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/WGLContext.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
