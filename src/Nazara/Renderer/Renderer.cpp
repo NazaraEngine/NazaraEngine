@@ -15,6 +15,12 @@
 #include <filesystem>
 #include <Nazara/Renderer/Debug.hpp>
 
+#ifdef NAZARA_PLATFORM_WINDOWS
+#define NazaraRendererPrefix ""
+#else
+#define NazaraRendererPrefix "lib"
+#endif
+
 #ifdef NAZARA_DEBUG
 	#define NazaraRendererDebugSuffix "-d"
 #else
@@ -68,8 +74,8 @@ namespace Nz
 			}
 		};
 
-		RegisterImpl("NazaraOpenGLRenderer" NazaraRendererDebugSuffix, [] { return 50; });
-		RegisterImpl("NazaraVulkanRenderer" NazaraRendererDebugSuffix, [] { return 100; });
+		RegisterImpl(NazaraRendererPrefix "NazaraOpenGLRenderer" NazaraRendererDebugSuffix, [] { return 50; });
+		RegisterImpl(NazaraRendererPrefix "NazaraVulkanRenderer" NazaraRendererDebugSuffix, [] { return 100; });
 
 		std::sort(implementations.begin(), implementations.end(), [](const auto& lhs, const auto& rhs) { return lhs.score > rhs.score; });
 
