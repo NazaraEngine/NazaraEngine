@@ -77,6 +77,7 @@ build/**/*.VC.db*
 build/**/*.json
 build/**/*.sqlite
 build/**/*.FileListAbsolute.txt
+build/**/*.recipe
 
 # Compiled Object files
 build/**/*.slo
