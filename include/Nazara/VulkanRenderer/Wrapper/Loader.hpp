@@ -11,6 +11,7 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <vulkan/vulkan.h>
+#include <vector>
 
 namespace Nz
 {
