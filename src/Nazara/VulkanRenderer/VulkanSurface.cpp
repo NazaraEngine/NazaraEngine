@@ -29,7 +29,8 @@ namespace Nz
 		{
 			switch (handle.type)
 			{
-				case WindowManager::Wayland:
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+			case WindowManager::Wayland:
 				{
 					wl_display* display = static_cast<wl_display*>(handle.wayland.display);
 					wl_surface* surface = static_cast<wl_surface*>(handle.wayland.surface);
@@ -37,7 +38,9 @@ namespace Nz
 					success = m_surface.Create(display, surface);
 					break;
 				}
+#endif
 
+#ifdef VK_USE_PLATFORM_XLIB_KHR
 				case WindowManager::X11:
 				{
 					Display* display = static_cast<Display*>(handle.x11.display);
@@ -46,10 +49,11 @@ namespace Nz
 					success = m_surface.Create(display, window);
 					break;
 				}
+#endif
 
 				default:
 				{
-					NazaraError("unexpected window type");
+					NazaraError("unhandled window type");
 					return false;
 				}
 			}
