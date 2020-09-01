@@ -75,7 +75,7 @@ namespace Nz
 		};
 
 		RegisterImpl(NazaraRendererPrefix "NazaraOpenGLRenderer" NazaraRendererDebugSuffix, [] { return 50; });
-		RegisterImpl(NazaraRendererPrefix "NazaraVulkanRenderer" NazaraRendererDebugSuffix, [] { return 100; });
+		//RegisterImpl(NazaraRendererPrefix "NazaraVulkanRenderer" NazaraRendererDebugSuffix, [] { return 100; });
 
 		std::sort(implementations.begin(), implementations.end(), [](const auto& lhs, const auto& rhs) { return lhs.score > rhs.score; });
 

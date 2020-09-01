@@ -22,7 +22,7 @@ namespace Nz::GL
 	class NAZARA_OPENGLRENDERER_API WGLLoader : public Loader
 	{
 		public:
-			WGLLoader(DynLib& openglLib);
+			WGLLoader();
 			~WGLLoader() = default;
 
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
@@ -43,7 +43,7 @@ namespace Nz::GL
 
 		private:
 			DynLib m_gdi32Lib;
-			DynLib& m_opengl32Lib;
+			DynLib m_opengl32Lib;
 			WGLContext m_baseContext;
 	};
 }

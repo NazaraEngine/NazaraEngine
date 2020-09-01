@@ -19,7 +19,7 @@
 
 namespace Nz::GL
 {
-	EGLLoader::EGLLoader(DynLib& /*openglLib*/)
+	EGLLoader::EGLLoader()
 	{
 		if (!m_eglLib.Load("libEGL"))
 			throw std::runtime_error("failed to load gdi32.dll: " + m_eglLib.GetLastError());

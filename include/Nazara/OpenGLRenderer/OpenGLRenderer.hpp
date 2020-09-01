@@ -8,7 +8,6 @@
 #define NAZARA_OPENGLRENDERER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
