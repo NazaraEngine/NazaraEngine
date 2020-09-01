@@ -8,6 +8,8 @@
 #define NAZARA_OPENGLRENDERER_WIN32HELPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <memory>
+#include <type_traits>
 #include <windows.h>
 
 namespace Nz::GL

@@ -20,23 +20,27 @@ namespace Nz::GL
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext)
 	{
 		// Creating a context requires a device context, create window to get one
-		m_window.reset(::CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr));
-		if (!m_window)
+		HWNDHandle window(::CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr));
+		if (!window)
 		{
 			NazaraError("failed to create dummy window: " + Error::GetLastSystemError());
 			return false;
 		}
 
-		::ShowWindow(m_window.get(), FALSE);
+		::ShowWindow(window.get(), FALSE);
 
-		m_deviceContext = ::GetDC(m_window.get());
+		m_deviceContext = ::GetDC(window.get());
 		if (!m_deviceContext)
 		{
 			NazaraError("failed to retrieve dummy window device context: " + Error::GetLastSystemError());
 			return false;
 		}
 
-		return CreateInternal(baseContext, params, shareContext);
+		if (!CreateInternal(baseContext, params, shareContext))
+			return false;
+
+		m_window = std::move(window);
+		return true;
 	}
 
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext)

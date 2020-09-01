@@ -33,8 +33,22 @@ TOOL.Libraries = {
 }
 
 TOOL.OsFiles.Windows = {
+	"../include/Nazara/OpenGLRenderer/Wrapper/Win32/**.hpp",
+	"../include/Nazara/OpenGLRenderer/Wrapper/Win32/**.inl",
 	"../include/Nazara/OpenGLRenderer/Wrapper/WGL/**.hpp",
 	"../include/Nazara/OpenGLRenderer/Wrapper/WGL/**.inl",
+	"../src/Nazara/OpenGLRenderer/Wrapper/Win32/**.hpp",
+	"../src/Nazara/OpenGLRenderer/Wrapper/Win32/**.inl",
+	"../src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp",
 	"../src/Nazara/OpenGLRenderer/Wrapper/WGL/**.hpp",
+	"../src/Nazara/OpenGLRenderer/Wrapper/WGL/**.inl",
 	"../src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp"
+}
+
+TOOL.OsFiles.Linux = {
+	"../include/Nazara/OpenGLRenderer/Wrapper/Linux/**.hpp",
+	"../include/Nazara/OpenGLRenderer/Wrapper/Linux/**.inl",
+	"../src/Nazara/OpenGLRenderer/Wrapper/Linux/**.hpp",
+	"../src/Nazara/OpenGLRenderer/Wrapper/Linux/**.inl",
+	"../src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp"
 }

@@ -12,6 +12,10 @@
 #include <cassert>
 #include <sstream>
 
+#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
+#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
+#endif
+
 #ifdef NAZARA_PLATFORM_WINDOWS
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.hpp>
 #endif
@@ -50,19 +54,7 @@ namespace Nz
 			return false;
 		}
 
-		std::unique_ptr<GL::Loader> loader;
-
-#ifdef NAZARA_PLATFORM_WINDOWS
-		try
-		{
-			loader = std::make_unique<GL::WGLLoader>(m_opengl32Lib);
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning(std::string("Failed to load WGL: ") + e.what());
-		}
-#endif
-
+		std::unique_ptr<GL::Loader> loader = SelectLoader();
 		if (!loader)
 		{
 			NazaraError("Failed to initialize OpenGL loader");
@@ -74,6 +66,33 @@ namespace Nz
 		m_device = std::make_shared<OpenGLDevice>(*m_loader);
 
 		return true;
+	}
+
+	std::unique_ptr<GL::Loader> OpenGLRenderer::SelectLoader()
+	{
+#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
+		try
+		{
+			return std::make_unique<GL::EGLLoader>(m_opengl32Lib);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning(std::string("Failed to load EGL: ") + e.what());
+		}
+#endif
+
+#ifdef NAZARA_PLATFORM_WINDOWS
+		try
+		{
+			return std::make_unique<GL::WGLLoader>(m_opengl32Lib);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning(std::string("Failed to load WGL: ") + e.what());
+		}
+#endif
+
+		return {};
 	}
 
 	RenderAPI OpenGLRenderer::QueryAPI() const
