@@ -113,7 +113,7 @@ namespace Nz::GL
 			return {};
 		}
 
-		if (!context->Create(params, handle, /*static_cast<EGLContextBase*>(shareContext)*/nullptr))
+		if (!context->Create(params, handle, static_cast<EGLContextBase*>(shareContext)))
 		{
 			NazaraError("failed to create context");
 			return {};
