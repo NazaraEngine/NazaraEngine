@@ -37,7 +37,6 @@ namespace Nz
 		private:
 			std::unique_ptr<GL::Loader> SelectLoader();
 
-			DynLib m_opengl32Lib;
 			std::shared_ptr<OpenGLDevice> m_device;
 			std::unique_ptr<GL::Loader> m_loader;
 	};
