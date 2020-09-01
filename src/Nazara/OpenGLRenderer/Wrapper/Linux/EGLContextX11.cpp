@@ -12,8 +12,37 @@ namespace Nz::GL
 	{
 		assert(window.type == WindowManager::X11);
 
-		NazaraError("X11 is not yet supported");
-		return false;
+		Destroy(); //< In case a previous display or surface hasn't been released
+
+		m_params = params;
+
+		if (!BindAPI())
+			return false;
+
+		m_display = m_loader.eglGetDisplay(static_cast<Display*>(window.x11.display));
+		if (!InitDisplay())
+			return false;
+
+		std::size_t configCount;
+		std::array<EGLConfig, 0xFF> configs;
+		if (!ChooseConfig(configs.data(), configs.size(), &configCount))
+			return false;
+
+		EGLint surfaceAttributes[] = {
+			EGL_NONE
+		};
+
+		::Window winHandle = static_cast<::Window>(window.x11.window);
+
+		std::size_t configIndex = 0;
+		for (; configIndex < configCount; ++configIndex)
+		{
+			m_surface = m_loader.eglCreateWindowSurface(m_display, configs[configIndex], winHandle, surfaceAttributes);
+			if (m_surface)
+				break;
+		}
+
+		return CreateInternal(configs[configIndex], shareContext);
 	}
 
 	void EGLContextX11::Destroy()
