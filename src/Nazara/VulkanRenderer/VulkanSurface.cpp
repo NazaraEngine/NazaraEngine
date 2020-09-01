@@ -25,6 +25,35 @@ namespace Nz
 
 			success = m_surface.Create(instance, winHandle);
 		}
+		#elif defined(NAZARA_PLATFORM_LINUX)
+		{
+			switch (handle.type)
+			{
+				case WindowManager::Wayland:
+				{
+					wl_display* display = static_cast<wl_display*>(handle.wayland.display);
+					wl_surface* surface = static_cast<wl_surface*>(handle.wayland.surface);
+
+					success = m_surface.Create(display, surface);
+					break;
+				}
+
+				case WindowManager::X11:
+				{
+					Display* display = static_cast<Display*>(handle.x11.display);
+					::Window window = static_cast<::Window>(handle.x11.window);
+
+					success = m_surface.Create(display, window);
+					break;
+				}
+
+				default:
+				{
+					NazaraError("unexpected window type");
+					return false;
+				}
+			}
+		}
 		#else
 		#error This OS is not supported by Vulkan
 		#endif
