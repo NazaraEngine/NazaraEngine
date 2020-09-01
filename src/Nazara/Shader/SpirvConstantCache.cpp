@@ -677,20 +677,20 @@ namespace Nz
 
 	void SpirvConstantCache::Write(const AnyConstant& constant, UInt32 resultId, SpirvSection& constants)
 	{
-		std::visit([&](auto&& constant)
+		std::visit([&](auto&& arg)
 		{
-			using ConstantType = std::decay_t<decltype(constant)>;
+			using ConstantType = std::decay_t<decltype(arg)>;
 
 			if constexpr (std::is_same_v<ConstantType, ConstantBool>)
-				constants.Append((constant.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, resultId);
+				constants.Append((arg.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, resultId);
 			else if constexpr (std::is_same_v<ConstantType, ConstantComposite>)
 			{
 				constants.AppendVariadic(SpirvOp::OpConstantComposite, [&](const auto& appender)
 				{
-					appender(GetId(constant.type->type));
+					appender(GetId(arg.type->type));
 					appender(resultId);
 
-					for (const auto& value : constant.values)
+					for (const auto& value : arg.values)
 						appender(GetId(value->constant));
 				});
 			}
@@ -718,7 +718,7 @@ namespace Nz
 
 					constants.Append(SpirvOp::OpConstant, typeId, resultId, SpirvSection::Raw{ &value, sizeof(value) });
 
-				}, constant.value);
+				}, arg.value);
 			}
 			else
 				static_assert(AlwaysFalse<ConstantType>::value, "non-exhaustive visitor");

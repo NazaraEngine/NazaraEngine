@@ -55,7 +55,7 @@ namespace Nz
 
 	std::unique_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
 	{
-		return std::make_unique<OpenGLCommandPool>(*this);
+		return std::make_unique<OpenGLCommandPool>();
 	}
 
 	std::unique_ptr<RenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)

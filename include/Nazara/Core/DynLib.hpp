@@ -23,7 +23,7 @@
 
 namespace Nz
 {
-	using DynLibFunc = int (*)(); // "Generic" type of pointer to function
+	using DynLibFunc = void (*)(void); // "Generic" type of pointer to function
 
 	class DynLibImpl;
 

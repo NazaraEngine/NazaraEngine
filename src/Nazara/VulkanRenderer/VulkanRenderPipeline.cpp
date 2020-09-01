@@ -188,7 +188,7 @@ namespace Nz
 		{
 			std::uint32_t binding = std::uint32_t(bufferData.binding);
 
-			for (const auto& componentInfo : *bufferData.declaration)
+			for (const auto& componentInfo : bufferData.declaration->GetComponents())
 			{
 				auto& bufferAttribute = vertexAttributes.emplace_back();
 				bufferAttribute.binding = binding;

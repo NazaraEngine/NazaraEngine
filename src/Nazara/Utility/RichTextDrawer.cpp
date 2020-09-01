@@ -25,15 +25,15 @@ namespace Nz
 
 	RichTextDrawer::RichTextDrawer(const RichTextDrawer& drawer) :
 	m_defaultColor(drawer.m_defaultColor),
+	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
 	m_defaultStyle(drawer.m_defaultStyle),
 	m_fontIndexes(drawer.m_fontIndexes),
 	m_blocks(drawer.m_blocks),
 	m_glyphUpdated(false),
-	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
-	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_defaultCharacterSpacingOffset(drawer.m_defaultCharacterSpacingOffset),
 	m_defaultLineSpacingOffset(drawer.m_defaultLineSpacingOffset),
 	m_defaultOutlineThickness(drawer.m_defaultOutlineThickness),
+	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_defaultCharacterSize(drawer.m_defaultCharacterSize)
 	{
 		m_fonts.resize(drawer.m_fonts.size());
