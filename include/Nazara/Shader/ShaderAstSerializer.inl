@@ -69,7 +69,12 @@ namespace Nz
 			optVal.emplace();
 
 		if (optVal.has_value())
-			Value(optVal.value());
+		{
+			if constexpr (std::is_same_v<T, std::size_t>)
+				SizeT(optVal.value());
+			else
+				Value(optVal.value());
+		}
 	}
 
 	template<typename T>
@@ -84,6 +89,20 @@ namespace Nz
 		Node(value);
 		if (!isWriting)
 			node = std::static_pointer_cast<T>(value);
+	}
+
+	inline void ShaderAstSerializerBase::SizeT(std::size_t& val)
+	{
+		bool isWriting = IsWriting();
+
+		UInt32 fixedVal;
+		if (isWriting)
+			fixedVal = static_cast<UInt32>(val);
+
+		Value(fixedVal);
+
+		if (!isWriting)
+			val = static_cast<std::size_t>(fixedVal);
 	}
 
 	template<typename T>
