@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -90,7 +91,7 @@ namespace Nz::GL
 
 	class Loader;
 
-	class Context
+	class NAZARA_OPENGLRENDERER_API Context
 	{
 		public:
 			inline Context(const OpenGLDevice* device);

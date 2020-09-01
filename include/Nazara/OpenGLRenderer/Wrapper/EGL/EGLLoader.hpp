@@ -4,26 +4,24 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_WGLLOADER_HPP
-#define NAZARA_OPENGLRENDERER_WGLLOADER_HPP
+#ifndef NAZARA_OPENGLRENDERER_EGLLOADER_HPP
+#define NAZARA_OPENGLRENDERER_EGLLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLFunctions.hpp>
 #include <string>
-
-#undef WIN32_LEAN_AND_MEAN //< Redefined by OpenGL header (ty Khronos)
-#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
 
 namespace Nz::GL
 {
-	class NAZARA_OPENGLRENDERER_API WGLLoader : public Loader
+	class NAZARA_OPENGLRENDERER_API EGLLoader : public Loader
 	{
 		public:
-			WGLLoader(DynLib& openglLib);
-			~WGLLoader() = default;
+			EGLLoader(DynLib& openglLib);
+			~EGLLoader() = default;
 
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
@@ -34,20 +32,19 @@ namespace Nz::GL
 #define NAZARA_OPENGLRENDERER_EXT_BEGIN(ext)
 #define NAZARA_OPENGLRENDERER_EXT_END()
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig)
-			NAZARA_OPENGLRENDERER_FOREACH_GDI32_FUNC(NAZARA_OPENGLRENDERER_FUNC)
-			NAZARA_OPENGLRENDERER_FOREACH_WGL_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_BEGIN, NAZARA_OPENGLRENDERER_EXT_END, NAZARA_OPENGLRENDERER_EXT_FUNC)
+			NAZARA_OPENGLRENDERER_FOREACH_EGL_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_BEGIN, NAZARA_OPENGLRENDERER_EXT_END, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_BEGIN
 #undef NAZARA_OPENGLRENDERER_EXT_END
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
 
+			static const char* TranslateError(EGLint errorId);
+
 		private:
-			DynLib m_gdi32Lib;
-			DynLib& m_opengl32Lib;
-			WGLContext m_baseContext;
+			DynLib m_eglLib;
 	};
 }
 
-#include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.inl>
+#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.inl>
 
 #endif
