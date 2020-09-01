@@ -8,7 +8,6 @@
 #define NAZARA_OPENGLRENDERER_EGLLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
@@ -20,7 +19,7 @@ namespace Nz::GL
 	class NAZARA_OPENGLRENDERER_API EGLLoader : public Loader
 	{
 		public:
-			EGLLoader(DynLib& openglLib);
+			EGLLoader();
 			~EGLLoader() = default;
 
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;

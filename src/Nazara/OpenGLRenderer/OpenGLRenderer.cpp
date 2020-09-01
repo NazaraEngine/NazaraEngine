@@ -48,12 +48,6 @@ namespace Nz
 
 	bool OpenGLRenderer::Prepare(const ParameterList& parameters)
 	{
-		if (!m_opengl32Lib.Load("opengl32" NAZARA_DYNLIB_EXTENSION))
-		{
-			NazaraError("Failed to load opengl32 library, is OpenGL installed on your system?");
-			return false;
-		}
-
 		std::unique_ptr<GL::Loader> loader = SelectLoader();
 		if (!loader)
 		{
@@ -73,7 +67,7 @@ namespace Nz
 #if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
 		try
 		{
-			return std::make_unique<GL::EGLLoader>(m_opengl32Lib);
+			return std::make_unique<GL::EGLLoader>();
 		}
 		catch (const std::exception& e)
 		{
@@ -84,7 +78,7 @@ namespace Nz
 #ifdef NAZARA_PLATFORM_WINDOWS
 		try
 		{
-			return std::make_unique<GL::WGLLoader>(m_opengl32Lib);
+			return std::make_unique<GL::WGLLoader>();
 		}
 		catch (const std::exception& e)
 		{
