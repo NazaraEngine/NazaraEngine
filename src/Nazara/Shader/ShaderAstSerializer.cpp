@@ -137,7 +137,7 @@ namespace Nz
 
 		Container(node.memberIndices);
 		for (std::size_t& index : node.memberIndices)
-			Value(index);
+			SizeT(index);
 	}
 
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::AssignOp& node)

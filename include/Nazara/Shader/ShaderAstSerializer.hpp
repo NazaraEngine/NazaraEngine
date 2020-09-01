@@ -17,8 +17,6 @@
 
 namespace Nz
 {
-	static_assert(std::is_same_v<std::size_t, UInt32> || std::is_same_v<std::size_t, UInt64>);
-
 	class NAZARA_SHADER_API ShaderAstSerializerBase
 	{
 		public:
@@ -70,6 +68,7 @@ namespace Nz
 			virtual void Value(UInt16& val) = 0;
 			virtual void Value(UInt32& val) = 0;
 			virtual void Value(UInt64& val) = 0;
+			inline void SizeT(std::size_t& val);
 
 			virtual void Variable(ShaderNodes::VariablePtr& var) = 0;
 			template<typename T> void Variable(std::shared_ptr<T>& var);
