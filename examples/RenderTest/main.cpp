@@ -118,7 +118,7 @@ int main()
 	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
 	std::unique_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal))
+	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
 	{
 		NazaraError("Failed to create uniform buffer");
 		return __LINE__;
