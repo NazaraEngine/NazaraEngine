@@ -27,15 +27,7 @@ namespace Nz::GL
 		if (!BindAPI())
 			return false;
 
-		m_display = m_loader.eglGetDisplay(EGL_DEFAULT_DISPLAY);
-		if (!m_display)
-		{
-			NazaraError("failed to retrieve default EGL display");
-			return false;
-		}
-
-		if (!InitDisplay())
-			return false;
+		m_display = m_loader.GetDefaultDisplay();
 
 		std::size_t configCount;
 		std::array<EGLConfig, 0xFF> configs;
@@ -67,26 +59,32 @@ namespace Nz::GL
 
 	void EGLContextBase::Destroy()
 	{
-		if (m_handle)
+		if (m_handle != EGL_NO_CONTEXT)
 		{
-			assert(m_display);
+			assert(m_display != EGL_NO_DISPLAY);
 
 			OnContextRelease();
 			NotifyContextDestruction(this);
 
 			m_loader.eglDestroyContext(m_display, m_handle);
-			m_handle = nullptr;
+			m_handle = EGL_NO_CONTEXT;
 		}
 
-		if (m_surface)
+		if (m_surface != EGL_NO_SURFACE)
 		{
-			assert(m_display);
+			assert(m_display != EGL_NO_DISPLAY);
 			m_loader.eglDestroySurface(m_display, m_surface);
-			m_surface = nullptr;
+			m_surface = EGL_NO_SURFACE;
 		}
 
 		if (m_display)
-			m_loader.eglTerminate(m_display);
+		{
+			if (m_ownsDisplay)
+				m_loader.eglTerminate(m_display);
+
+			m_display = EGL_NO_DISPLAY;
+			m_ownsDisplay = false;
+		}
 	}
 
 	void EGLContextBase::EnableVerticalSync(bool enabled)
@@ -97,7 +95,6 @@ namespace Nz::GL
 	void EGLContextBase::SwapBuffers()
 	{
 		m_loader.eglSwapBuffers(m_display, m_surface);
-		// TODO
 	}
 
 	bool EGLContextBase::BindAPI()
@@ -133,7 +130,7 @@ namespace Nz::GL
 		EGLint configAttributes[] =
 		{
 			EGL_BUFFER_SIZE, EGLint(m_params.bitsPerPixel),
-			EGL_DEPTH_SIZE, m_params.depthBits,
+			EGL_DEPTH_SIZE, EGLint(m_params.depthBits),
 			EGL_RENDERABLE_TYPE, (m_params.type == ContextType::OpenGL_ES) ? EGL_OPENGL_ES3_BIT : EGL_OPENGL_BIT,
 			EGL_SAMPLE_BUFFERS, EGLint((m_params.sampleCount > 1) ? 1 : 0),
 			EGL_SAMPLES, EGLint((m_params.sampleCount > 1) ? m_params.sampleCount : 0),
@@ -263,6 +260,8 @@ namespace Nz::GL
 			NazaraError("failed to retrieve default EGL display");
 			return false;
 		}
+
+		m_ownsDisplay = true;
 
 		const char* vendor = m_loader.eglQueryString(m_display, EGL_VENDOR);
 		NazaraNotice("Initialized EGL " + std::to_string(major) + "." + std::to_string(minor) + " display (" + vendor + ")");

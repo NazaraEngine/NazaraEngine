@@ -71,6 +71,7 @@ namespace Nz::GL
 
 			std::unordered_set<std::string> m_supportedPlatformExtensions;
 			EGLContext m_handle;
+			bool m_ownsDisplay;
 	};
 }
 
