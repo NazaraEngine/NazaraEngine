@@ -6,6 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <tsl/ordered_map.h>
 #include <cctype>
 #include <memory>
 #include <unordered_map>
@@ -120,7 +121,7 @@ namespace Nz
 
 		// Sort meshes by material and group
 		using MatPair = std::pair<Mesh, unsigned int>;
-		std::unordered_map<std::string, std::unordered_map<std::string, MatPair>> meshesByName;
+		tsl::ordered_map<std::string, tsl::ordered_map<std::string, MatPair>> meshesByName;
 
 		UInt32 faceReserve = 0;
 		UInt32 vertexReserve = 0;
@@ -132,14 +133,14 @@ namespace Nz
 			if (it == map.end())
 				it = map.insert(std::make_pair(mat, MatPair(Mesh(), matCount++))).first;
 
-			Mesh& meshData = it->second.first;
+			Mesh& meshData = it.value().first;
 
 			meshData.faces.reserve(faceReserve);
 			meshData.vertices.reserve(vertexReserve);
 			faceReserve = 0;
 			vertexReserve = 0;
 
-			return &(it->second.first);
+			return &meshData;
 		};
 
 		// On prépare le mesh par défaut
@@ -448,22 +449,26 @@ namespace Nz
 		std::unordered_map<std::string, unsigned int> materials;
 		m_materials.resize(matCount);
 
-		for (auto& meshPair : meshesByName)
+		for (auto meshIt = meshesByName.begin(); meshIt != meshesByName.end(); ++meshIt)
 		{
-			for (auto& matPair : meshPair.second)
+			auto& matMap = meshIt.value();
+			for (auto matIt = matMap.begin(); matIt != matMap.end(); ++matIt)
 			{
-				Mesh& mesh = matPair.second.first;
-				unsigned int index = matPair.second.second;
+				MatPair& matPair = matIt.value();
+				Mesh& mesh = matPair.first;
+				unsigned int index = matPair.second;
+
 				if (!mesh.faces.empty())
 				{
-					mesh.name = meshPair.first;
+					mesh.name = meshIt.key();
 
-					auto it = materials.find(matPair.first);
+					const std::string& matName = matIt.key();
+					auto it = materials.find(matName);
 					if (it == materials.end())
 					{
 						mesh.material = index;
-						materials[matPair.first] = index;
-						m_materials[index] = matPair.first;
+						materials[matName] = index;
+						m_materials[index] = matName;
 					}
 					else
 						mesh.material = it->second;
