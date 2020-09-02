@@ -42,7 +42,9 @@ namespace Nz
 
 		GLenum hint = GL_STREAM_COPY;
 
-		if (usage & BufferUsage_DeviceLocal)
+		if (usage & BufferUsage_Dynamic)
+			hint = GL_DYNAMIC_DRAW;
+		else if (usage & BufferUsage_DeviceLocal)
 			hint = GL_STATIC_DRAW;
 
 		if (usage & BufferUsage_DirectMapping)
