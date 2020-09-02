@@ -44,16 +44,18 @@ namespace Nz::GL
 			return false;
 
 		HWND windowHandle = static_cast<HWND>(window.windows.window);
-		HDC deviceContext = ::GetDC(windowHandle);
+		/*HDC deviceContext = ::GetDC(windowHandle);
 		if (!deviceContext)
 		{
 			NazaraError("failed to retrieve window device context: " + Error::GetLastSystemError());
 			return false;
 		}
 
-		m_display = m_loader.eglGetDisplay(deviceContext);
+		m_display = m_loader.GetDefaultDisplay();
 		if (!InitDisplay())
-			return false;
+			return false;*/
+
+		m_display = m_loader.GetDefaultDisplay();
 
 		std::size_t configCount;
 		std::array<EGLConfig, 0xFF> configs;

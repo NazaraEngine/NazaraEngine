@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
 
 #ifdef NAZARA_PLATFORM_LINUX
@@ -19,7 +20,8 @@
 
 namespace Nz::GL
 {
-	EGLLoader::EGLLoader()
+	EGLLoader::EGLLoader() :
+	m_defaultDisplay(nullptr)
 	{
 		if (!m_eglLib.Load("libEGL"))
 			throw std::runtime_error("failed to load gdi32.dll: " + m_eglLib.GetLastError());
@@ -45,14 +47,33 @@ namespace Nz::GL
 #undef NAZARA_OPENGLRENDERER_EXT_END
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 
+		EGLDisplay defaultDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+		if (!defaultDisplay)
+			throw std::runtime_error("failed to retrieve default EGL display");
+
+		EGLint major, minor;
+		if (eglInitialize(defaultDisplay, &major, &minor) != EGL_TRUE)
+			throw std::runtime_error("failed to initialize default EGL display");
+
+		m_defaultDisplay = defaultDisplay;
+
+		const char* vendor = eglQueryString(m_defaultDisplay, EGL_VENDOR);
+		NazaraNotice("Initialized EGL " + std::to_string(major) + "." + std::to_string(minor) + " display (" + vendor + ")");
+
 		// Try to create a dummy context in order to check EGL support (FIXME: is this really necessary?)
-		ContextParams params;
+		/*ContextParams params;
 		EGLContextBase baseContext(nullptr, *this);
 		if (!baseContext.Create(params))
 			throw std::runtime_error("failed to create load context");
 
 		if (!baseContext.Initialize(params))
-			throw std::runtime_error("failed to load OpenGL functions");
+			throw std::runtime_error("failed to load OpenGL functions");*/
+	}
+
+	EGLLoader::~EGLLoader()
+	{
+		if (m_defaultDisplay)
+			eglTerminate(m_defaultDisplay);
 	}
 
 	std::unique_ptr<Context> EGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const

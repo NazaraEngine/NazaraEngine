@@ -17,22 +17,7 @@ namespace Nz::GL
 		if (!BindAPI())
 			return false;
 
-		m_xdisplay = XOpenDisplay(nullptr);
-		if (!m_xdisplay)
-		{
-			NazaraError("failed to connect to X server");
-			return false;
-		}
-
-		m_display = m_loader.eglGetDisplay(m_xdisplay);
-		if (!m_display)
-		{
-			NazaraError("failed to retrieve default EGL display");
-			return false;
-		}
-
-		if (!InitDisplay())
-			return false;
+		m_display = m_loader.GetDefaultDisplay();
 
 		std::size_t configCount;
 		std::array<EGLConfig, 0xFF> configs;
@@ -67,9 +52,7 @@ namespace Nz::GL
 		if (!BindAPI())
 			return false;
 
-		m_display = m_loader.eglGetDisplay(static_cast<Display*>(window.x11.display));
-		if (!InitDisplay())
-			return false;
+		m_display = m_loader.GetDefaultDisplay();
 
 		std::size_t configCount;
 		std::array<EGLConfig, 0xFF> configs;

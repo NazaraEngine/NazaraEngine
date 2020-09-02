@@ -20,10 +20,12 @@ namespace Nz::GL
 	{
 		public:
 			EGLLoader();
-			~EGLLoader() = default;
+			~EGLLoader();
 
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
+
+			inline EGLDisplay GetDefaultDisplay() const;
 
 			GLFunction LoadFunction(const char* name) const override;
 
@@ -40,6 +42,7 @@ namespace Nz::GL
 			static const char* TranslateError(EGLint errorId);
 
 		private:
+			EGLDisplay m_defaultDisplay;
 			DynLib m_eglLib;
 	};
 }

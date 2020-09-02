@@ -5,8 +5,12 @@
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-namespace Nz::Vk
+namespace Nz::GL
 {
+	inline EGLDisplay EGLLoader::GetDefaultDisplay() const
+	{
+		return m_defaultDisplay;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

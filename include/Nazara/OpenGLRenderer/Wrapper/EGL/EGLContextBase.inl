@@ -12,7 +12,8 @@ namespace Nz::GL
 	m_loader(loader),
 	m_display(EGL_NO_DISPLAY),
 	m_surface(EGL_NO_SURFACE),
-	m_handle(EGL_NO_CONTEXT)
+	m_handle(EGL_NO_CONTEXT),
+	m_ownsDisplay(false)
 	{
 	}
 
