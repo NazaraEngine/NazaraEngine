@@ -9,6 +9,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <cstring>
 #include <sstream>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -16,6 +17,88 @@
 namespace Nz::GL
 {
 	thread_local const Context* s_currentContext = nullptr;
+
+	namespace
+	{
+		template<typename>
+		struct GLWrapper;
+
+		template<typename Ret, typename... Args>
+		struct GLWrapper<Ret(Args...)>
+		{
+			template<typename FuncType>
+			static auto WrapErrorHandling(FuncType funcPtr)
+			{
+				return [funcPtr](Args&&... args) -> Ret
+				{
+					const Context* context = s_currentContext; //< pay TLS cost once
+					assert(context);
+
+					context->ClearErrorStack();
+
+					if constexpr (std::is_same_v<Ret, void>)
+					{
+						funcPtr(std::forward<Args>(args)...);
+
+						context->ProcessErrorStack();
+					}
+					else
+					{
+						Ret r = funcPtr(std::forward<Args>(args)...);
+
+						context->ProcessErrorStack();
+
+						return r;
+					}
+				};
+			}
+		};
+	}
+
+	struct Context::SymbolLoader
+	{
+		SymbolLoader(Context& parent) :
+		context(parent)
+		{
+		}
+
+		template<typename FuncType, typename Func>
+		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = true)
+		{
+			FuncType funcPtr = LoadRaw<FuncType>(funcName);
+			if (funcPtr)
+			{
+#if NAZARA_OPENGLRENDERER_DEBUG
+				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
+					func = GLWrapper<std::remove_pointer_t<FuncType>>::template WrapErrorHandling(funcPtr);
+				else
+					func = funcPtr;
+#else
+				func = funcPtr;
+#endif
+			}
+
+			if (!func)
+			{
+				if (!implementFallback || (!context.ImplementFallback(funcName) && !func)) //< double-check
+				{
+					if (mandatory)
+						throw std::runtime_error("failed to load core function " + std::string(funcName));
+				}
+			}
+
+			return func != nullptr;
+		}
+
+		template<typename FuncType>
+		FuncType LoadRaw(const char* funcName)
+		{
+			const Loader& loader = context.GetLoader();
+			return reinterpret_cast<FuncType>(loader.LoadFunction(funcName));
+		}
+
+		Context& context;
+	};
 
 	Context::~Context()
 	{
@@ -145,6 +228,15 @@ namespace Nz::GL
 		}
 	}
 
+	bool Context::ClearErrorStack() const
+	{
+		assert(GetCurrentContext() == this);
+
+		while (glGetError() != GL_NO_ERROR);
+
+		return true;
+	}
+
 	bool Context::Initialize(const ContextParams& params)
 	{
 		if (!SetCurrentContext(this))
@@ -153,18 +245,11 @@ namespace Nz::GL
 			return false;
 		}
 
-		const Loader& loader = GetLoader();
-
-		auto LoadSymbol = [&](auto& func, const char* funcName, bool mandatory)
-		{
-			func = reinterpret_cast<std::decay_t<decltype(func)>>(loader.LoadFunction(funcName));
-			if (!func && !ImplementFallback(funcName) && !func && mandatory) //< Not a mistake
-				throw std::runtime_error("failed to load core function " + std::string(funcName));
-		};
+		SymbolLoader loader(*this);
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) LoadSymbol(name, #name, true);
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig>(name, #name, true);
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
@@ -214,7 +299,7 @@ namespace Nz::GL
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
-#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) LoadSymbol(name, #name, false);
+#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig>(name, #name, false);
 		NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
@@ -286,6 +371,58 @@ namespace Nz::GL
 		EnableVerticalSync(false);
 
 		return true;
+	}
+
+	bool Context::ProcessErrorStack() const
+	{
+		assert(GetCurrentContext() == this);
+
+		bool hasAnyError = false;
+
+		GLuint lastError;
+		while ((lastError = glGetError()) != GL_NO_ERROR)
+		{
+			hasAnyError = true;
+
+			switch (lastError)
+			{
+				// OpenGL/OpenGL ES error codes
+				case GL_INVALID_ENUM:
+					NazaraError("OpenGL error: an unacceptable value is specified for an enumerated argument");
+					break;
+
+				case GL_INVALID_VALUE:
+					NazaraError("OpenGL error: a numeric argument is out of range");
+					break;
+
+				case GL_INVALID_OPERATION:
+					NazaraError("OpenGL error: the specified operation is not allowed in the current state");
+					break;
+
+				case GL_INVALID_FRAMEBUFFER_OPERATION:
+					NazaraError("OpenGL error: the framebuffer object is not complete");
+					break;
+
+				case GL_OUT_OF_MEMORY:
+					NazaraError("OpenGL error: there is not enough memory left to execute the command");
+					break;
+
+				// OpenGL error codes
+				case GL_STACK_UNDERFLOW:
+					NazaraError("OpenGL error: an attempt has been made to perform an operation that would cause an internal stack to underflow.");
+					break;
+
+				case GL_STACK_OVERFLOW:
+					NazaraError("OpenGL error: an attempt has been made to perform an operation that would cause an internal stack to overflow.");
+					break;
+
+				default:
+					NazaraError("OpenGL error: an unknown error was reported (code: " + std::to_string(lastError) + ")");
+					break;
+			}
+		}
+
+		return hasAnyError;
 	}
 
 	void Context::SetCurrentTextureUnit(UInt32 textureUnit) const
@@ -524,18 +661,12 @@ namespace Nz::GL
 
 	bool Context::ImplementFallback(const std::string_view& function)
 	{
-		const Loader& loader = GetLoader();
-
-		auto LoadSymbol = [&](auto& func, const char* funcName) -> bool
-		{
-			func = reinterpret_cast<std::decay_t<decltype(func)>>(loader.LoadFunction(funcName));
-			return func;
-		};
+		SymbolLoader loader(*this);
 
 		if (function == "glDebugMessageCallback")
 		{
-			if (!LoadSymbol(glDebugMessageCallback, "glDebugMessageCallbackARB"))
-				return LoadSymbol(glDebugMessageCallback, "DebugMessageCallbackAMD");
+			if (!loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC>(glDebugMessageCallback, "glDebugMessageCallbackARB", false, false))
+				return loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC>(glDebugMessageCallback, "DebugMessageCallbackAMD", false, false);
 
 			return true;
 		}
