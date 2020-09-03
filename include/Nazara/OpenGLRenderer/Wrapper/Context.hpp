@@ -17,6 +17,8 @@
 #include <string>
 #include <unordered_set>
 
+#define NAZARA_OPENGLRENDERER_DEBUG 1
+
 namespace Nz
 {
 	class OpenGLDevice;
@@ -93,6 +95,9 @@ namespace Nz::GL
 
 	class NAZARA_OPENGLRENDERER_API Context
 	{
+		struct SymbolLoader;
+		friend SymbolLoader;
+
 		public:
 			inline Context(const OpenGLDevice* device);
 			virtual ~Context();
@@ -106,6 +111,8 @@ namespace Nz::GL
 			void BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const;
 			void BindUniformBuffer(UInt32 uboUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
 			void BindVertexArray(GLuint vertexArray, bool force = false) const;
+
+			bool ClearErrorStack() const;
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
@@ -125,6 +132,8 @@ namespace Nz::GL
 			inline void NotifyTextureDestruction(GLuint texture) const;
 			inline void NotifyVertexArrayDestruction(GLuint vao) const;
 
+			bool ProcessErrorStack() const;
+
 			void SetCurrentTextureUnit(UInt32 textureUnit) const;
 			void SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const;
 			void SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const;
@@ -133,7 +142,11 @@ namespace Nz::GL
 
 			void UpdateStates(const RenderStates& renderStates) const;
 
+#if NAZARA_OPENGLRENDERER_DEBUG
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) std::function<std::remove_pointer_t<sig>> name;
+#else
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
+#endif
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
 #undef NAZARA_OPENGLRENDERER_FUNC
 
