@@ -29,7 +29,7 @@ namespace Nz::GL
 		struct GLWrapper<Ret(Args...)>
 		{
 			template<typename FuncType, std::size_t FuncIndex>
-			static auto WrapErrorHandling()
+			auto WrapErrorHandling()
 			{
 				return [](Args... args) -> Ret
 				{
@@ -78,7 +78,10 @@ namespace Nz::GL
 			if (func)
 			{
 				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
-					func = GLWrapper<std::remove_pointer_t<FuncType>>::template WrapErrorHandling<FuncType, FuncIndex>();
+				{
+					GLWrapper<std::remove_pointer_t<FuncType>> wrapper;
+					func = wrapper.template WrapErrorHandling<FuncType, FuncIndex>();
+				}
 			}
 #endif
 
