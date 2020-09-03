@@ -321,7 +321,7 @@ namespace Nz::GL
 
 	bool EGLContextBase::LoadEGLExt()
 	{
-		if (!Activate())
+		if (!SetCurrentContext(this))
 			return false;
 
 		const char* extensionString = m_loader.eglQueryString(m_display, EGL_EXTENSIONS);

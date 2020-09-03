@@ -20,32 +20,53 @@
 
 namespace Nz::GL
 {
+	struct EGLLoader::SymbolLoader
+	{
+		SymbolLoader(EGLLoader& parent) :
+		loader(parent)
+		{
+		}
+
+		template<typename FuncType, typename Func>
+		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = true)
+		{
+			FuncType funcPtr = LoadRaw<FuncType>(funcName);
+			if (funcPtr)
+				func = funcPtr;
+
+			if (!func)
+			{
+				if (!implementFallback || (!loader.ImplementFallback(funcName) && !func)) //< double-check
+				{
+					if (mandatory)
+						throw std::runtime_error("failed to load core function " + std::string(funcName));
+				}
+			}
+
+			return func != nullptr;
+		}
+
+		template<typename FuncType>
+		FuncType LoadRaw(const char* funcName)
+		{
+			return reinterpret_cast<FuncType>(loader.LoadFunction(funcName));
+		}
+
+		EGLLoader& loader;
+	};
+
 	EGLLoader::EGLLoader() :
 	m_defaultDisplay(nullptr)
 	{
 		if (!m_eglLib.Load("libEGL"))
-			throw std::runtime_error("failed to load gdi32.dll: " + m_eglLib.GetLastError());
+			throw std::runtime_error("failed to load libEGL: " + m_eglLib.GetLastError());
 
-		auto LoadSymbol = [](DynLib& lib, auto& func, const char* funcName)
-		{
-			func = reinterpret_cast<std::decay_t<decltype(func)>>(lib.GetSymbol(funcName));
-			if (!func)
-				throw std::runtime_error("failed to load core function " + std::string(funcName));
-		};
+		SymbolLoader loader(*this);
 
-		// Load gdi32 functions
-#define NAZARA_OPENGLRENDERER_EXT_BEGIN(ext)
-#define NAZARA_OPENGLRENDERER_EXT_END()
-#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Ignore extensions
+#define NAZARA_OPENGLRENDERER_EGL_FUNC(name, sig) loader.Load<sig>(name, #name, true);
+#define NAZARA_OPENGLRENDERER_EGL_FUNC_OPT(name, sig) loader.Load<sig>(name, #name, false);
 
-		// Load base WGL functions
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) LoadSymbol(m_eglLib, name, #name);
-		NAZARA_OPENGLRENDERER_FOREACH_EGL_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_BEGIN, NAZARA_OPENGLRENDERER_EXT_END, NAZARA_OPENGLRENDERER_EXT_FUNC)
-#undef NAZARA_OPENGLRENDERER_FUNC
-
-#undef NAZARA_OPENGLRENDERER_EXT_BEGIN
-#undef NAZARA_OPENGLRENDERER_EXT_END
-#undef NAZARA_OPENGLRENDERER_EXT_FUNC
+#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLFunctions.hpp>
 
 		EGLDisplay defaultDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 		if (!defaultDisplay)
@@ -151,7 +172,11 @@ namespace Nz::GL
 
 	GLFunction EGLLoader::LoadFunction(const char* name) const
 	{
-		return eglGetProcAddress(name);
+		GLFunction func = reinterpret_cast<GLFunction>(m_eglLib.GetSymbol(name));
+		if (!func && eglGetProcAddress)
+			func = reinterpret_cast<GLFunction>(eglGetProcAddress(name));
+
+		return func;
 	}
 
 	const char* EGLLoader::TranslateError(EGLint errorId)
@@ -175,5 +200,10 @@ namespace Nz::GL
 			case EGL_CONTEXT_LOST: return "A power management event has occurred.";
 			default: return "Invalid or unknown error.";
 		}
+	}
+
+	bool EGLLoader::ImplementFallback(const std::string_view& function)
+	{
+		return false;
 	}
 }
