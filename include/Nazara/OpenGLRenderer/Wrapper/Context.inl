@@ -23,6 +23,12 @@ namespace Nz::GL
 		return m_extensionStatus[UnderlyingCast(extension)];
 	}
 
+	inline GLFunction Context::GetFunctionByIndex(std::size_t funcIndex) const
+	{
+		assert(funcIndex < m_originalFunctionPointer.size());
+		return m_originalFunctionPointer[funcIndex];
+	}
+
 	inline const OpenGLVaoCache& Context::GetVaoCache() const
 	{
 		return m_vaoCache;

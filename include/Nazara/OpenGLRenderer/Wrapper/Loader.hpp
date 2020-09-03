@@ -10,7 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <memory>
 
 namespace Nz
@@ -20,9 +19,10 @@ namespace Nz
 
 namespace Nz::GL
 {
-	class Context;
-
 	using GLFunction = void(*)(void);
+
+	class Context;
+	struct ContextParams;
 
 	class NAZARA_OPENGLRENDERER_API Loader
 	{

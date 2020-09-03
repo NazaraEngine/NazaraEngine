@@ -9,15 +9,15 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <array>
 #include <string>
 #include <unordered_set>
-
-#define NAZARA_OPENGLRENDERER_DEBUG 1
 
 namespace Nz
 {
@@ -91,8 +91,6 @@ namespace Nz::GL
 		unsigned int stencilBits = 8;
 	};
 
-	class Loader;
-
 	class NAZARA_OPENGLRENDERER_API Context
 	{
 		struct SymbolLoader;
@@ -118,6 +116,7 @@ namespace Nz::GL
 
 			inline const OpenGLDevice* GetDevice() const;
 			inline ExtensionStatus GetExtensionStatus(Extension extension) const;
+			inline GLFunction GetFunctionByIndex(std::size_t funcIndex) const;
 			inline const OpenGLVaoCache& GetVaoCache() const;
 			inline const ContextParams& GetParams() const;
 
@@ -142,11 +141,7 @@ namespace Nz::GL
 
 			void UpdateStates(const RenderStates& renderStates) const;
 
-#if NAZARA_OPENGLRENDERER_DEBUG
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) std::function<std::remove_pointer_t<sig>> name;
-#else
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
-#endif
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
 #undef NAZARA_OPENGLRENDERER_FUNC
 
@@ -167,6 +162,15 @@ namespace Nz::GL
 
 		private:
 			void GL_APIENTRY HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
+
+			enum class FunctionIndex
+			{
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) name,
+				NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
+#undef NAZARA_OPENGLRENDERER_FUNC
+
+				Count
+			};
 
 			struct State
 			{
@@ -203,6 +207,7 @@ namespace Nz::GL
 			};
 
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
+			std::array<GLFunction, UnderlyingCast(FunctionIndex::Count)> m_originalFunctionPointer;
 			std::unordered_set<std::string> m_supportedExtensions;
 			OpenGLVaoCache m_vaoCache;
 			const OpenGLDevice* m_device;
