@@ -11,13 +11,15 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLFunctions.hpp>
 #include <string>
 
 namespace Nz::GL
 {
 	class NAZARA_OPENGLRENDERER_API EGLLoader : public Loader
 	{
+		struct SymbolLoader;
+		friend SymbolLoader;
+
 		public:
 			EGLLoader();
 			~EGLLoader();
@@ -29,19 +31,16 @@ namespace Nz::GL
 
 			GLFunction LoadFunction(const char* name) const override;
 
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
-#define NAZARA_OPENGLRENDERER_EXT_BEGIN(ext)
-#define NAZARA_OPENGLRENDERER_EXT_END()
-#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig)
-			NAZARA_OPENGLRENDERER_FOREACH_EGL_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_BEGIN, NAZARA_OPENGLRENDERER_EXT_END, NAZARA_OPENGLRENDERER_EXT_FUNC)
-#undef NAZARA_OPENGLRENDERER_EXT_BEGIN
-#undef NAZARA_OPENGLRENDERER_EXT_END
-#undef NAZARA_OPENGLRENDERER_EXT_FUNC
-#undef NAZARA_OPENGLRENDERER_FUNC
+#define NAZARA_OPENGLRENDERER_EGL_FUNC(name, sig) sig name = nullptr;
+#define NAZARA_OPENGLRENDERER_EGL_FUNC_OPT(name, sig) NAZARA_OPENGLRENDERER_EGL_FUNC(name, sig)
+
+#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLFunctions.hpp>
 
 			static const char* TranslateError(EGLint errorId);
 
 		private:
+			bool ImplementFallback(const std::string_view& function);
+
 			EGLDisplay m_defaultDisplay;
 			DynLib m_eglLib;
 	};

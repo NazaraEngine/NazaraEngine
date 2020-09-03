@@ -12,7 +12,8 @@
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLFunctions.hpp>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
