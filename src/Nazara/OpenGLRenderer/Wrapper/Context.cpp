@@ -14,6 +14,8 @@
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
+#define NAZARA_OPENGLRENDERER_DEBUG 1
+
 namespace Nz::GL
 {
 	thread_local const Context* s_currentContext = nullptr;
@@ -26,13 +28,15 @@ namespace Nz::GL
 		template<typename Ret, typename... Args>
 		struct GLWrapper<Ret(Args...)>
 		{
-			template<typename FuncType>
-			static auto WrapErrorHandling(FuncType funcPtr)
+			template<typename FuncType, std::size_t FuncIndex>
+			static auto WrapErrorHandling()
 			{
-				return [funcPtr](Args&&... args) -> Ret
+				return [](Args... args) -> Ret
 				{
 					const Context* context = s_currentContext; //< pay TLS cost once
 					assert(context);
+
+					FuncType funcPtr = reinterpret_cast<FuncType>(context->GetFunctionByIndex(FuncIndex));
 
 					context->ClearErrorStack();
 
@@ -62,21 +66,19 @@ namespace Nz::GL
 		{
 		}
 
-		template<typename FuncType, typename Func>
+		template<typename FuncType, std::size_t FuncIndex, typename Func>
 		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = true)
 		{
-			FuncType funcPtr = LoadRaw<FuncType>(funcName);
-			if (funcPtr)
-			{
+			FuncType originalFunc = LoadRaw<FuncType>(funcName);
+			func = originalFunc;
+
 #if NAZARA_OPENGLRENDERER_DEBUG
+			if (originalFunc)
+			{
 				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
-					func = GLWrapper<std::remove_pointer_t<FuncType>>::template WrapErrorHandling(funcPtr);
-				else
-					func = funcPtr;
-#else
-				func = funcPtr;
-#endif
+					func = GLWrapper<std::remove_pointer_t<FuncType>>::template WrapErrorHandling<FuncType, FuncIndex>();
 			}
+#endif
 
 			if (!func)
 			{
@@ -86,6 +88,8 @@ namespace Nz::GL
 						throw std::runtime_error("failed to load core function " + std::string(funcName));
 				}
 			}
+
+			context.m_originalFunctionPointer[FuncIndex] = reinterpret_cast<GLFunction>(originalFunc);
 
 			return func != nullptr;
 		}
@@ -249,7 +253,7 @@ namespace Nz::GL
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig>(name, #name, true);
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true);
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
@@ -299,7 +303,7 @@ namespace Nz::GL
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
-#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig>(name, #name, false);
+#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false);
 		NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
@@ -665,8 +669,10 @@ namespace Nz::GL
 
 		if (function == "glDebugMessageCallback")
 		{
-			if (!loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC>(glDebugMessageCallback, "glDebugMessageCallbackARB", false, false))
-				return loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC>(glDebugMessageCallback, "DebugMessageCallbackAMD", false, false);
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glDebugMessageCallback);
+
+			if (!loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackARB", false, false))
+				return loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "DebugMessageCallbackAMD", false, false);
 
 			return true;
 		}
