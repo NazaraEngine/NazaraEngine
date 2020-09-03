@@ -69,11 +69,13 @@ namespace Nz::GL
 		template<typename FuncType, std::size_t FuncIndex, typename Func>
 		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = true)
 		{
-			FuncType originalFunc = LoadRaw<FuncType>(funcName);
-			func = originalFunc;
+			const Loader& loader = context.GetLoader();
+			GLFunction originalFuncPtr = loader.LoadFunction(funcName);
+
+			func = reinterpret_cast<FuncType>(originalFuncPtr);
 
 #if NAZARA_OPENGLRENDERER_DEBUG
-			if (originalFunc)
+			if (func)
 			{
 				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
 					func = GLWrapper<std::remove_pointer_t<FuncType>>::template WrapErrorHandling<FuncType, FuncIndex>();
@@ -89,16 +91,9 @@ namespace Nz::GL
 				}
 			}
 
-			context.m_originalFunctionPointer[FuncIndex] = reinterpret_cast<GLFunction>(originalFunc);
+			context.m_originalFunctionPointer[FuncIndex] = originalFuncPtr;
 
 			return func != nullptr;
-		}
-
-		template<typename FuncType>
-		FuncType LoadRaw(const char* funcName)
-		{
-			const Loader& loader = context.GetLoader();
-			return reinterpret_cast<FuncType>(loader.LoadFunction(funcName));
 		}
 
 		Context& context;
