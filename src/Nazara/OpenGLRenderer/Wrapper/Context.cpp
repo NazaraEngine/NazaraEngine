@@ -147,7 +147,7 @@ namespace Nz::GL
 
 	bool Context::Initialize(const ContextParams& params)
 	{
-		if (!Activate())
+		if (!SetCurrentContext(this))
 		{
 			NazaraError("failed to activate context");
 			return false;

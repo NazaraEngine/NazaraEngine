@@ -265,7 +265,7 @@ namespace Nz::GL
 
 	bool WGLContext::LoadWGLExt()
 	{
-		if (!Activate())
+		if (!SetCurrentContext(this))
 			return false;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
