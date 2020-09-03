@@ -35,7 +35,7 @@ namespace Nz
 
 			VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components);
 			VertexDeclaration(const VertexDeclaration&) = delete;
-			VertexDeclaration(VertexDeclaration&&) = default;
+			VertexDeclaration(VertexDeclaration&&) = delete;
 			~VertexDeclaration() = default;
 
 			inline const Component* FindComponent(VertexComponent vertexComponent, std::size_t componentIndex) const;
@@ -52,7 +52,7 @@ namespace Nz
 			template<typename T> bool HasComponentOfType(VertexComponent vertexComponent, std::size_t componentIndex = 0) const;
 
 			VertexDeclaration& operator=(const VertexDeclaration&) = delete;
-			VertexDeclaration& operator=(VertexDeclaration&&) = default;
+			VertexDeclaration& operator=(VertexDeclaration&&) = delete;
 
 			static inline const VertexDeclarationRef& Get(VertexLayout layout);
 			static bool IsTypeSupported(ComponentType type);
