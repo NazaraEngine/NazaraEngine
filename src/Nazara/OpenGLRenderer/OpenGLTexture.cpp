@@ -6,7 +6,6 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <stdexcept>
-#include <vma/vk_mem_alloc.h>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
