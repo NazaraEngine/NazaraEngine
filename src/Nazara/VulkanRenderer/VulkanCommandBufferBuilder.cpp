@@ -49,12 +49,6 @@ namespace Nz
 			throw std::runtime_error("Unhandled framebuffer type " + std::to_string(UnderlyingCast(vkFramebuffer.GetType())));
 		}();
 
-		VkRect2D renderArea;
-		renderArea.offset.x = renderRect.x;
-		renderArea.offset.y = renderRect.y;
-		renderArea.extent.width = renderRect.width;
-		renderArea.extent.height = renderRect.height;
-
 		StackArray<VkClearValue> vkClearValues = NazaraStackArray(VkClearValue, clearValues.size());
 
 		std::size_t index = 0;

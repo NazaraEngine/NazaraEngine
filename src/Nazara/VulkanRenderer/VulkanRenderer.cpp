@@ -89,6 +89,7 @@ namespace Nz
 
 				default:
 					NazaraWarning("Device " + device.name + " has handled device type (0x" + String::Number(physDevice.properties.deviceType, 16) + ')');
+					// fallthrough
 				case VK_PHYSICAL_DEVICE_TYPE_OTHER:
 					device.type = RenderDeviceType::Unknown;
 					break;

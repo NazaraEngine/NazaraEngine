@@ -21,8 +21,8 @@ namespace Nz
 {
 	VkRenderWindow::VkRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
-	m_depthStencilFormat(VK_FORMAT_MAX_ENUM),
 	m_owner(owner),
+	m_depthStencilFormat(VK_FORMAT_MAX_ENUM),
 	m_shouldRecreateSwapchain(false)
 	{
 	}
@@ -221,21 +221,21 @@ namespace Nz
 
 	std::unique_ptr<CommandPool> VkRenderWindow::CreateCommandPool(QueueType queueType)
 	{
-		UInt32 queueFamilyIndex;
-		switch (queueType)
-		{
-			case QueueType::Compute:
-				queueFamilyIndex = m_device->GetDefaultFamilyIndex(QueueType::Compute);
-				break;
+		UInt32 queueFamilyIndex = [&] {
+			switch (queueType)
+			{
+				case QueueType::Compute:
+					return m_device->GetDefaultFamilyIndex(QueueType::Compute);
 
-			case QueueType::Graphics:
-				queueFamilyIndex = m_graphicsQueue.GetQueueFamilyIndex();
-				break;
+				case QueueType::Graphics:
+					return m_graphicsQueue.GetQueueFamilyIndex();
 
-			case QueueType::Transfer:
-				queueFamilyIndex = m_transferQueue.GetQueueFamilyIndex();
-				break;
-		}
+				case QueueType::Transfer:
+					return m_transferQueue.GetQueueFamilyIndex();
+			}
+
+			throw std::runtime_error("invalid queue type " + std::to_string(UnderlyingCast(queueType)));
+		}();
 
 		return std::make_unique<VulkanCommandPool>(*m_device, queueFamilyIndex);
 	}
@@ -509,7 +509,7 @@ namespace Nz
 			imageCount = surfaceCapabilities.maxImageCount;
 
 		VkExtent2D extent;
-		if (surfaceCapabilities.currentExtent.width == -1)
+		if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF)
 		{
 			extent.width = Nz::Clamp<Nz::UInt32>(size.x, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
 			extent.height = Nz::Clamp<Nz::UInt32>(size.y, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);

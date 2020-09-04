@@ -120,14 +120,7 @@ namespace Nz
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label)
 		{
-			Vk::Device* device = m_pool->GetDevice();
-			if (device->vkCmdBeginDebugUtilsLabelEXT)
-			{
-				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
-				debugLabel.pLabelName = label;
-
-				device->vkCmdBeginDebugUtilsLabelEXT(m_handle, &debugLabel);
-			}
+			return BeginDebugRegion(label, Nz::Color(0, 0, 0, 0));
 		}
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label, Nz::Color color)
@@ -135,12 +128,17 @@ namespace Nz
 			Vk::Device* device = m_pool->GetDevice();
 			if (device->vkCmdBeginDebugUtilsLabelEXT)
 			{
-				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
-				debugLabel.pLabelName = label;
-				debugLabel.color[0] = color.r / 255.f;
-				debugLabel.color[1] = color.g / 255.f;
-				debugLabel.color[2] = color.b / 255.f;
-				debugLabel.color[3] = color.a / 255.f;
+				VkDebugUtilsLabelEXT debugLabel = {
+					VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+					nullptr,
+					label,
+					{
+						color.r / 255.f,
+						color.g / 255.f,
+						color.b / 255.f,
+						color.a / 255.f
+					}
+				};
 
 				device->vkCmdBeginDebugUtilsLabelEXT(m_handle, &debugLabel);
 			}
@@ -299,14 +297,7 @@ namespace Nz
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label)
 		{
-			Vk::Device* device = m_pool->GetDevice();
-			if (device->vkCmdInsertDebugUtilsLabelEXT)
-			{
-				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
-				debugLabel.pLabelName = label;
-
-				device->vkCmdInsertDebugUtilsLabelEXT(m_handle, &debugLabel);
-			}
+			return InsertDebugLabel(label, Nz::Color(0, 0, 0, 0));
 		}
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label, Nz::Color color)
@@ -314,12 +305,17 @@ namespace Nz
 			Vk::Device* device = m_pool->GetDevice();
 			if (device->vkCmdInsertDebugUtilsLabelEXT)
 			{
-				VkDebugUtilsLabelEXT debugLabel = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
-				debugLabel.pLabelName = label;
-				debugLabel.color[0] = color.r / 255.f;
-				debugLabel.color[1] = color.g / 255.f;
-				debugLabel.color[2] = color.b / 255.f;
-				debugLabel.color[3] = color.a / 255.f;
+				VkDebugUtilsLabelEXT debugLabel = {
+					VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+					nullptr,
+					label,
+					{
+						color.r / 255.f,
+						color.g / 255.f,
+						color.b / 255.f,
+						color.a / 255.f
+					}
+				};
 
 				device->vkCmdInsertDebugUtilsLabelEXT(m_handle, &debugLabel);
 			}

@@ -8,8 +8,8 @@
 namespace Nz
 {
 	inline VulkanBuffer::VulkanBuffer(Vk::Device& device, BufferType type) :
-	m_device(device),
-	m_type(type)
+	m_type(type),
+	m_device(device)
 	{
 	}
 
