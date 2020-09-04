@@ -262,15 +262,6 @@ namespace Nz::GL
 			return false;
 		}
 
-		// Retrieve OpenGL version
-		auto DecodeDigit = [](char c) -> int
-		{
-			if (c >= '0' && c <= '9')
-				return c - '0';
-			else
-				return -1;
-		};
-
 		GLint majorVersion = 0;
 		glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
 
