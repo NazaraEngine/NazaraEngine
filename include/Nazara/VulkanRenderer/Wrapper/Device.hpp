@@ -13,7 +13,7 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <array>
 #include <memory>
 #include <unordered_set>

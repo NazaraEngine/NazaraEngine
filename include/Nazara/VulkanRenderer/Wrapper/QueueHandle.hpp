@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 namespace Nz 
 {

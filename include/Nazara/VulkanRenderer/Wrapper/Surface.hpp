@@ -11,7 +11,6 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
-#include <vulkan/vulkan.h>
 
 namespace Nz 
 {

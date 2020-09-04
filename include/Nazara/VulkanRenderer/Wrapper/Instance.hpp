@@ -10,9 +10,38 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <string>
 #include <unordered_set>
+
+// Don't include vulkan.h because it does includes X11 headers which has some defines like "None", breaking compilation
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#include <vulkan/vulkan_android.h>
+#endif
+
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+#include <wayland-client.h>
+#include <vulkan/vulkan_wayland.h>
+#endif
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#include <windows.h>
+#include <vulkan/vulkan_win32.h>
+#endif
+
+#ifdef VK_USE_PLATFORM_XCB_KHR
+#include <xcb/xcb.h>
+#include <vulkan/vulkan_xcb.h>
+#endif
+
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+typedef struct _XDisplay Display;
+typedef unsigned long XID;
+typedef XID Window;
+typedef unsigned long VisualID;
+
+#include <vulkan/vulkan_xlib.h>
+#endif
 
 namespace Nz 
 {
