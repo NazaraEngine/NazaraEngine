@@ -20,7 +20,7 @@ namespace Nz
 			friend DeviceObject;
 
 			public:
-				struct Buffer;
+				struct Image;
 				
 				Swapchain() = default;
 				Swapchain(const Swapchain&) = delete;
@@ -31,16 +31,16 @@ namespace Nz
 
 				inline bool Create(Device& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 
-				inline const Buffer& GetBuffer(UInt32 index) const;
-				inline const std::vector<Buffer>& GetBuffers() const;
-				inline UInt32 GetBufferCount() const;
+				inline const Image& GetImage(UInt32 index) const;
+				inline const std::vector<Image>& GetImages() const;
+				inline UInt32 GetImageCount() const;
 
 				inline bool IsSupported() const;
 
 				Swapchain& operator=(const Swapchain&) = delete;
 				Swapchain& operator=(Swapchain&&) = default;
 
-				struct Buffer
+				struct Image
 				{
 					VkImage image;
 					ImageView view;
@@ -50,7 +50,7 @@ namespace Nz
 				static inline VkResult CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
 				static inline void DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
 
-				std::vector<Buffer> m_buffers;
+				std::vector<Image> m_images;
 		};
 	}
 }

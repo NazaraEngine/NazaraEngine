@@ -50,16 +50,16 @@ namespace Nz
 				return false;
 			}
 
-			m_buffers.resize(imageCount);
+			m_images.resize(imageCount);
 			for (UInt32 i = 0; i < imageCount; ++i)
 			{
-				m_buffers[i].image = images[i];
+				m_images[i].image = images[i];
 
 				VkImageViewCreateInfo imageViewCreateInfo = {
 					VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // VkStructureType            sType;
 					nullptr,                                  // const void*                pNext;
 					0,                                        // VkImageViewCreateFlags     flags;
-					m_buffers[i].image,                       // VkImage                    image;
+					m_images[i].image,                       // VkImage                    image;
 					VK_IMAGE_VIEW_TYPE_2D,                    // VkImageViewType            viewType;
 					createInfo.imageFormat,                   // VkFormat                   format;
 					{                                         // VkComponentMapping         components;
@@ -77,7 +77,7 @@ namespace Nz
 					}
 				};
 
-				if (!m_buffers[i].view.Create(*m_device, imageViewCreateInfo))
+				if (!m_images[i].view.Create(*m_device, imageViewCreateInfo))
 				{
 					NazaraError("Failed to create image view for image #" + String::Number(i));
 					return false;
@@ -87,24 +87,24 @@ namespace Nz
 			return true;
 		}
 
-		inline const Swapchain::Buffer& Swapchain::GetBuffer(UInt32 index) const
+		inline const Swapchain::Image& Swapchain::GetImage(UInt32 index) const
 		{
-			return m_buffers[index];
+			return m_images[index];
 		}
 
-		inline const std::vector<Swapchain::Buffer>& Swapchain::GetBuffers() const
+		inline const std::vector<Swapchain::Image>& Swapchain::GetImages() const
 		{
-			return m_buffers;
+			return m_images;
 		}
 
-		inline UInt32 Swapchain::GetBufferCount() const
+		inline UInt32 Swapchain::GetImageCount() const
 		{
-			return static_cast<UInt32>(m_buffers.size());
+			return static_cast<UInt32>(m_images.size());
 		}
 
 		inline bool Swapchain::IsSupported() const
 		{
-			if (!m_device->IsExtensionLoaded("VK_KHR_swapchain"))
+			if (!m_device->IsExtensionLoaded(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
 				return false;
 
 			return true;
