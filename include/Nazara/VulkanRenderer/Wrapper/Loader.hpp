@@ -39,9 +39,6 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
 
-#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT
-#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
-
 			private:
 				static DynLib s_vulkanLib;
 				static VkResult s_lastErrorCode;
