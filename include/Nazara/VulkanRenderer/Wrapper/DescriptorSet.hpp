@@ -11,7 +11,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 namespace Nz 
 {

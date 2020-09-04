@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP
 #define NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <unordered_set>
 #include <vector>
 

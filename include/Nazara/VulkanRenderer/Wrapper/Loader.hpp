@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <vector>
 
 namespace Nz

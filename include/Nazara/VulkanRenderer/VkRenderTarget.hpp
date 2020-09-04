@@ -14,7 +14,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Semaphore.hpp>
 #include <unordered_map>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 namespace Nz
 {
