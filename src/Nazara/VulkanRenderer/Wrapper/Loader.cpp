@@ -106,8 +106,6 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
 
-#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT
-#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 			}
 			catch (const std::exception& e)
 			{
@@ -126,9 +124,6 @@ namespace Nz
 #define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
 #include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
-
-#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT
-#undef NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
 		DynLib Loader::s_vulkanLib;
 		VkResult Loader::s_lastErrorCode;
