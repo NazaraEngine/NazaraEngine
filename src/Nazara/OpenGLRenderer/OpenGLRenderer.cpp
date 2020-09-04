@@ -64,17 +64,6 @@ namespace Nz
 
 	std::unique_ptr<GL::Loader> OpenGLRenderer::SelectLoader()
 	{
-#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
-		try
-		{
-			return std::make_unique<GL::EGLLoader>();
-		}
-		catch (const std::exception& e)
-		{
-			NazaraWarning(std::string("Failed to load EGL: ") + e.what());
-		}
-#endif
-
 #ifdef NAZARA_PLATFORM_WINDOWS
 		try
 		{
@@ -83,6 +72,17 @@ namespace Nz
 		catch (const std::exception& e)
 		{
 			NazaraWarning(std::string("Failed to load WGL: ") + e.what());
+		}
+#endif
+
+#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
+		try
+		{
+			return std::make_unique<GL::EGLLoader>();
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning(std::string("Failed to load EGL: ") + e.what());
 		}
 #endif
 
