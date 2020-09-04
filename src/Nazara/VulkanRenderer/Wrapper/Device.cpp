@@ -11,6 +11,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 
 #define VMA_IMPLEMENTATION
+#define VMA_USE_STL_CONTAINERS 1
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #include <vma/vk_mem_alloc.h>
 
@@ -150,7 +151,7 @@ namespace Nz
 				std::size_t queueIndex = static_cast<std::size_t>(queueType);
 				for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
 				{
-					if (familyInfo.flags & QueueTypeToFlags(queueType) == 0)
+					if ((familyInfo.flags & QueueTypeToFlags(queueType)) == 0)
 						continue;
 
 					m_defaultQueues[queueIndex] = familyInfo.familyIndex;
