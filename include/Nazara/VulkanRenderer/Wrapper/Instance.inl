@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool Instance::Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
+		inline bool Instance::Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
 		{
 			VkApplicationInfo appInfo = 
 			{
@@ -21,7 +21,8 @@ namespace Nz
 				appName.data(),
 				appVersion,
 				engineName.data(),
-				engineVersion
+				engineVersion,
+				apiVersion
 			};
 
 			VkInstanceCreateInfo instanceInfo = 
