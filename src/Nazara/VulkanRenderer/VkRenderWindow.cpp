@@ -368,12 +368,12 @@ namespace Nz
 
 	bool VkRenderWindow::SetupFrameBuffers(const Vector2ui& size)
 	{
-		UInt32 imageCount = m_swapchain.GetBufferCount();
+		UInt32 imageCount = m_swapchain.GetImageCount();
 
 		Nz::StackArray<Vk::Framebuffer> framebuffers = NazaraStackArray(Vk::Framebuffer, imageCount);
 		for (UInt32 i = 0; i < imageCount; ++i)
 		{
-			std::array<VkImageView, 2> attachments = { m_swapchain.GetBuffer(i).view, m_depthBufferView };
+			std::array<VkImageView, 2> attachments = { m_swapchain.GetImage(i).view, m_depthBufferView };
 
 			VkFramebufferCreateInfo frameBufferCreate = {
 				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
