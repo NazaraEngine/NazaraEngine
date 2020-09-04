@@ -568,6 +568,8 @@ namespace Nz
 		m_swapchainSize = size;
 
 		// Framebuffers
+		imageCount = m_swapchain.GetImageCount();
+
 		m_inflightFences.resize(imageCount);
 
 		if (m_concurrentImageData.size() != imageCount)
