@@ -695,6 +695,8 @@ namespace Nz
 		cpBodySetVelocity(to, cpBodyGetVelocity(from));
 
 		cpBodySetType(to, cpBodyGetType(from));
+
+		to->velocity_func = from->velocity_func;
 	}
 
 	void RigidBody2D::CopyShapeData(cpShape* from, cpShape* to)
