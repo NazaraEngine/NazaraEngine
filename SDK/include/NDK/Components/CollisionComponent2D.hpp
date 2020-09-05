@@ -35,7 +35,7 @@ namespace Ndk
 
 			void Recenter(const Nz::Vector2f& origin);
 
-			void SetGeom(Nz::Collider2DRef geom);
+			void SetGeom(Nz::Collider2DRef geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
 			void SetGeomOffset(const Nz::Vector2f& geomOffset);
 
 			CollisionComponent2D& operator=(Nz::Collider2DRef geom);

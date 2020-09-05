@@ -77,7 +77,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent2D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(static_cast<CollisionComponent2D&>(component).GetGeom());
+			m_object->SetGeom(static_cast<CollisionComponent2D&>(component).GetGeom(), false, false);
 		}
 	}
 
@@ -94,7 +94,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent2D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(Nz::NullCollider2D::New());
+			m_object->SetGeom(Nz::NullCollider2D::New(), false, false);
 		}
 	}
 
