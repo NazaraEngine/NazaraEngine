@@ -91,11 +91,6 @@ namespace Nz
 		m_maxStepCount = maxStepCount;
 	}
 
-	void PhysWorld3D::SetSolverModel(unsigned int model)
-	{
-		NewtonSetSolverModel(m_world, model);
-	}
-
 	void PhysWorld3D::SetStepSize(float stepSize)
 	{
 		m_stepSize = stepSize;
@@ -114,7 +109,8 @@ namespace Nz
 		callbackPtr->aabbOverlapCallback = std::move(aabbOverlapCallback);
 		callbackPtr->collisionCallback = std::move(collisionCallback);
 
-		NewtonMaterialSetCollisionCallback(m_world, firstMaterial, secondMaterial, callbackPtr.get(), (callbackPtr->aabbOverlapCallback) ? OnAABBOverlap : nullptr, (callbackPtr->collisionCallback) ? ProcessContact : nullptr);
+		NewtonMaterialSetCollisionCallback(m_world, firstMaterial, secondMaterial, (callbackPtr->aabbOverlapCallback) ? OnAABBOverlap : nullptr, (callbackPtr->collisionCallback) ? ProcessContact : nullptr);
+		NewtonMaterialSetCallbackUserData(m_world, firstMaterial, secondMaterial, callbackPtr.get());
 
 		UInt64 firstMaterialId(firstMaterial);
 		UInt64 secondMaterialId(secondMaterial);
@@ -161,17 +157,31 @@ namespace Nz
 		}
 	}
 
-	int PhysWorld3D::OnAABBOverlap(const NewtonMaterial* const material, const NewtonBody* const body0, const NewtonBody* const body1, int threadIndex)
+	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, dFloat timestep, int threadIndex)
 	{
-		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body0));
-		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body1));
+		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
+		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
 		assert(bodyA && bodyB);
 
-		Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
-		assert(callbackData);
-		assert(callbackData->aabbOverlapCallback);
+		using ContactJoint = void*;
 
-		return callbackData->aabbOverlapCallback(*bodyA, *bodyB);
+		// Query all joints first, to prevent removing a joint from the list while iterating on it
+		StackVector<ContactJoint> contacts = NazaraStackVector(ContactJoint, NewtonContactJointGetContactCount(contactJoint));
+		for (ContactJoint contact = NewtonContactJointGetFirstContact(contactJoint); contact; contact = NewtonContactJointGetNextContact(contactJoint, contact))
+			contacts.push_back(contact);
+
+		for (ContactJoint contact : contacts)
+		{
+			NewtonMaterial* material = NewtonContactGetMaterial(contact);
+			Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
+			assert(callbackData);
+			assert(callbackData->collisionCallback);
+
+			if (!callbackData->collisionCallback(*bodyA, *bodyB))
+				return 0;
+		}
+
+		return 1;
 	}
 
 	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float timestep, int threadIndex)

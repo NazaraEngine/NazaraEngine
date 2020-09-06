@@ -315,7 +315,7 @@ namespace Nz
 			{
 				// If we already have a mass, we already have an inertial matrix as well, just rescale it
 				float Ix, Iy, Iz;
-				NewtonBodyGetMassMatrix(m_body, &m_mass, &Ix, &Iy, &Iz);
+				NewtonBodyGetMass(m_body, &m_mass, &Ix, &Iy, &Iz);
 
 				float scale = mass / m_mass;
 				NewtonBodySetMassMatrix(m_body, mass, Ix*scale, Iy*scale, Iz*scale);

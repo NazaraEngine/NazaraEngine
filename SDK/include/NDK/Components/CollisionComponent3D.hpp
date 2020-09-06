@@ -32,7 +32,7 @@ namespace Ndk
 			void SetGeom(Nz::Collider3DRef geom);
 
 			CollisionComponent3D& operator=(Nz::Collider3DRef geom);
-			CollisionComponent3D& operator=(CollisionComponent3D&& collision) = default;
+			CollisionComponent3D& operator=(CollisionComponent3D&& collision) = delete;
 
 			static ComponentIndex componentIndex;
 
