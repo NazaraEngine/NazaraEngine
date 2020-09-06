@@ -71,7 +71,7 @@ namespace Nz
 	* \brief Closes the socket
 	*/
 
-	void AbstractSocket::Close()
+	void AbstractSocket::Close() noexcept
 	{
 		if (m_handle != SocketImpl::InvalidHandle)
 		{
@@ -237,7 +237,7 @@ namespace Nz
 	* \param abstractSocket AbstractSocket to move in this
 	*/
 
-	AbstractSocket& AbstractSocket::operator=(AbstractSocket&& abstractSocket)
+	AbstractSocket& AbstractSocket::operator=(AbstractSocket&& abstractSocket) noexcept
 	{
 		Close();
 

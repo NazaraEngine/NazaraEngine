@@ -26,7 +26,7 @@ namespace Nz
 	{
 		public:
 			AbstractBackground() = default;
-			AbstractBackground(const AbstractBackground&) = default;
+			AbstractBackground(const AbstractBackground&) = delete;
 			AbstractBackground(AbstractBackground&&) = delete;
 			virtual ~AbstractBackground();
 
@@ -34,7 +34,7 @@ namespace Nz
 
 			virtual BackgroundType GetBackgroundType() const = 0;
 
-			AbstractBackground& operator=(const AbstractBackground&) = default;
+			AbstractBackground& operator=(const AbstractBackground&) = delete;
 			AbstractBackground& operator=(AbstractBackground&&) = delete;
 
 		private:
