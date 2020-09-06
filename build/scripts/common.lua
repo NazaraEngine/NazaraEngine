@@ -122,6 +122,10 @@ function NazaraBuild:Execute()
 				end
 
 				filter({})
+				
+				if (libTable.Custom) then
+					libTable.Custom()
+				end
 			end
 		end
 		
@@ -180,6 +184,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (moduleTable.Custom) then
+				moduleTable.Custom()
+			end
 		end
 
 		-- Tools
@@ -251,6 +259,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (toolTable.Custom) then
+				toolTable.Custom()
+			end
 		end
 
 		group("Examples")
@@ -301,6 +313,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (exampleTable.Custom) then
+				exampleTable.Custom()
+			end
 		end
 	end
 end
