@@ -39,7 +39,7 @@ namespace Ndk
 			void SetGeomOffset(const Nz::Vector2f& geomOffset);
 
 			CollisionComponent2D& operator=(Nz::Collider2DRef geom);
-			CollisionComponent2D& operator=(CollisionComponent2D&& collision) = default;
+			CollisionComponent2D& operator=(CollisionComponent2D&& collision) = delete;
 
 			static ComponentIndex componentIndex;
 

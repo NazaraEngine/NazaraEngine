@@ -22,7 +22,7 @@ namespace Nz
 			AbstractSocket(AbstractSocket&& abstractSocket) noexcept;
 			virtual ~AbstractSocket();
 
-			void Close();
+			void Close() noexcept;
 
 			void EnableBlocking(bool blocking);
 
@@ -41,7 +41,7 @@ namespace Nz
 			void SetSendBufferSize(std::size_t size);
 
 			AbstractSocket& operator=(const AbstractSocket&) = delete;
-			AbstractSocket& operator=(AbstractSocket&& abstractSocket);
+			AbstractSocket& operator=(AbstractSocket&& abstractSocket) noexcept;
 
 			// Signals:
 			NazaraSignal(OnStateChanged, const AbstractSocket* /*socket*/, SocketState /*oldState*/, SocketState /*newState*/);

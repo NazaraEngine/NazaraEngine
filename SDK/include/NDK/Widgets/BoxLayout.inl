@@ -6,10 +6,4 @@
 
 namespace Ndk
 {
-	BoxLayout::BoxLayout(BaseWidget* parent, BoxLayoutOrientation orientation) :
-	BaseWidget(parent),
-	m_orientation(orientation),
-	m_spacing(5.f)
-	{
-	}
 }

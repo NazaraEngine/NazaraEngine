@@ -10,34 +10,27 @@
 #include <NDK/Prerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>
-#include <vector>
+#include <memory>
 
 namespace Ndk
 {
 	class NDK_API BoxLayout : public BaseWidget
 	{
 		public:
-			inline BoxLayout(BaseWidget* parent, BoxLayoutOrientation orientation);
+			BoxLayout(BaseWidget* parent, BoxLayoutOrientation orientation);
 			BoxLayout(const BoxLayout&) = delete;
-			BoxLayout(BoxLayout&&) = default;
-			~BoxLayout() = default;
+			BoxLayout(BoxLayout&&) = delete;
+			~BoxLayout();
 
 			void Layout() override;
 
 			BoxLayout& operator=(const BoxLayout&) = delete;
-			BoxLayout& operator=(BoxLayout&&) = default;
+			BoxLayout& operator=(BoxLayout&&) = delete;
 
 		private:
-			struct ChildInfo
-			{
-				BaseWidget* widget;
-				bool isConstrained;
-				float maximumSize;
-				float minimumSize;
-				float size;
-			};
+			struct State;
 
-			std::vector<ChildInfo> m_childInfos;
+			std::unique_ptr<State> m_state;
 			BoxLayoutOrientation m_orientation;
 			float m_spacing;
 	};

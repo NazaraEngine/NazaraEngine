@@ -24,8 +24,6 @@ namespace Ndk
 			LightComponent(const LightComponent& light) = default;
 			~LightComponent() = default;
 
-			LightComponent& operator=(const LightComponent& light) = default;
-
 			static ComponentIndex componentIndex;
 	};
 }
