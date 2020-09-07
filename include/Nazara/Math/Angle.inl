@@ -156,6 +156,28 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs an Angle object from a angle in degrees, converting if required
+	*
+	* \param value Angle object to copy
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T>::Angle(const Angle<AngleUnit::Degree, T>& angle) :
+	value(Detail::AngleUtils<Unit>::FromDegrees(angle.value))
+	{
+	}
+
+	/*!
+	* \brief Constructs an Angle object from a angle in radians, converting if required
+	*
+	* \param value Angle object to copy
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T>::Angle(const Angle<AngleUnit::Radian, T>& angle) :
+	value(Detail::AngleUtils<Unit>::FromRadians(angle.value))
+	{
+	}
+
+	/*!
 	* \brief Computes the cosine of the angle
 	* \return Cosine of angle
 	*
