@@ -8,26 +8,25 @@
 #define NAZARA_PHYSICS3D_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PHYSICS3D_API Physics3D
+	class NAZARA_PHYSICS3D_API Physics3D : public Module<Physics3D>
 	{
+		friend Module;
+
 		public:
-			Physics3D() = delete;
-			~Physics3D() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static unsigned int GetMemoryUsed();
+			Physics3D();
+			~Physics3D();
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			unsigned int GetMemoryUsed();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Physics3D* s_instance;
 	};
 }
 

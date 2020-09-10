@@ -12,6 +12,7 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
@@ -21,6 +22,32 @@ namespace Nz
 	* \class Nz::Audio
 	* \brief Audio class that represents the module initializer of Audio
 	*/
+
+	Audio::Audio() :
+	Module("Audio", this)
+	{
+		// Initialisation of OpenAL
+		if (!OpenAL::Initialize())
+			throw std::runtime_error("failed to initialize OpenAL");
+
+		if (!SoundBuffer::Initialize())
+			throw std::runtime_error("failed to initialize sound buffers");
+
+		// Definition of the orientation by default
+		SetListenerDirection(Vector3f::Forward());
+
+		// Loaders
+		Loaders::Register_sndfile();
+	}
+
+	Audio::~Audio()
+	{
+		// Loaders
+		Loaders::Unregister_sndfile();
+
+		SoundBuffer::Uninitialize();
+		OpenAL::Uninitialize();
+	}
 
 	/*!
 	* \brief Gets the format of the audio
@@ -143,59 +170,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Initializes the Audio module
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraError if initialization of modules Core, OpenAL or SoundBuffer failed
-	* \remark Produces a NazaraNotice
-	*/
-
-	bool Audio::Initialize()
-	{
-		if (IsInitialized())
-		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		// Initialisation of dependencies
-		if (!Core::Initialize())
-		{
-			NazaraError("Failed to initialize core module");
-			return false;
-		}
-
-		s_moduleReferenceCounter++;
-
-		// Initialisation of the module
-		CallOnExit onExit(Audio::Uninitialize);
-
-		// Initialisation of OpenAL
-		if (!OpenAL::Initialize())
-		{
-			NazaraError("Failed to initialize OpenAL");
-			return false;
-		}
-
-		if (!SoundBuffer::Initialize())
-		{
-			NazaraError("Failed to initialize sound buffers");
-			return false;
-		}
-
-		// Definition of the orientation by default
-		SetListenerDirection(Vector3f::Forward());
-
-		// Loaders
-		Loaders::Register_sndfile();
-
-		onExit.Reset();
-
-		NazaraNotice("Initialized: Audio module");
-		return true;
-	}
-
-	/*!
 	* \brief Checks whether the format is supported by the engine
 	* \return true if it is the case
 	*
@@ -208,16 +182,6 @@ namespace Nz
 			return false;
 
 		return OpenAL::AudioFormat[format] != 0;
-	}
-
-	/*!
-	* \brief Checks whether the module is initialized
-	* \return true if module is initialized
-	*/
-
-	bool Audio::IsInitialized()
-	{
-		return s_moduleReferenceCounter != 0;
 	}
 
 	/*!
@@ -367,37 +331,5 @@ namespace Nz
 		alSpeedOfSound(speed);
 	}
 
-	/*!
-	* \brief Uninitializes the Audio module
-	*
-	* \remark Produces a NazaraNotice
-	*/
-
-	void Audio::Uninitialize()
-	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// The module is still in use, or can not be uninitialized
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		// Free of module
-		s_moduleReferenceCounter = 0;
-
-		// Loaders
-		Loaders::Unregister_sndfile();
-
-		SoundBuffer::Uninitialize();
-		OpenAL::Uninitialize();
-
-		NazaraNotice("Uninitialized: Audio module");
-
-		// Free of dependencies
-		Core::Uninitialize();
-	}
-
-	unsigned int Audio::s_moduleReferenceCounter = 0;
+	Audio* Audio::s_instance = nullptr;
 }

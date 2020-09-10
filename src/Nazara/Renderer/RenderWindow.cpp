@@ -38,7 +38,7 @@ namespace Nz
 
 	bool RenderWindow::OnWindowCreated()
 	{
-		RendererImpl *rendererImpl = Renderer::GetRendererImpl();
+		RendererImpl *rendererImpl = Renderer::Instance()->GetRendererImpl();
 		auto surface = rendererImpl->CreateRenderSurfaceImpl();
 		if (!surface->Create(GetSystemHandle()))
 		{

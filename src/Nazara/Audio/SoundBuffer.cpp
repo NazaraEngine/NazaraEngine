@@ -259,7 +259,7 @@ namespace Nz
 	*/
 	bool SoundBuffer::IsFormatSupported(AudioFormat format)
 	{
-		return Audio::IsFormatSupported(format);
+		return Audio::Instance()->IsFormatSupported(format);
 	}
 
 	/*!

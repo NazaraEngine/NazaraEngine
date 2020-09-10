@@ -152,7 +152,7 @@ namespace Nz
 						m_handle = nullptr;
 					});
 
-					m_format = Audio::GetAudioFormat(infos.channels);
+					m_format = Audio::Instance()->GetAudioFormat(infos.channels);
 					if (m_format == AudioFormat_Unknown)
 					{
 						NazaraError("Channel count not handled");
@@ -327,7 +327,7 @@ namespace Nz
 				sf_close(file);
 			});
 
-			AudioFormat format = Audio::GetAudioFormat(info.channels);
+			AudioFormat format = Audio::Instance()->GetAudioFormat(info.channels);
 			if (format == AudioFormat_Unknown)
 			{
 				NazaraError("Channel count not handled");
