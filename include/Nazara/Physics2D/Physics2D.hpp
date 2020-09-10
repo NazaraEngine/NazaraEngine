@@ -8,24 +8,23 @@
 #define NAZARA_PHYSICS2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PHYSICS2D_API Physics2D
+	class NAZARA_PHYSICS2D_API Physics2D : public Module<Physics2D>
 	{
+		friend Module;
+
 		public:
-			Physics2D() = delete;
-			~Physics2D() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Physics2D();
+			~Physics2D() = default;
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Physics2D* s_instance;
 	};
 }
 

@@ -119,8 +119,6 @@
 	#define NAZARA_PLATFORM_LINUX
 	#define NAZARA_PLATFORM_POSIX
 
-	#define NAZARA_PLATFORM_GLX
-
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
 /*#elif defined(__APPLE__) && defined(__MACH__)

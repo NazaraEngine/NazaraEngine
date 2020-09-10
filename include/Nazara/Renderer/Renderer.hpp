@@ -9,38 +9,32 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
-#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
 	class AbstractBuffer;
 	class Buffer;
 
-	class NAZARA_RENDERER_API Renderer
+	class NAZARA_RENDERER_API Renderer : public Module<Renderer>
 	{
+		friend Module;
+
 		public:
-			Renderer() = delete;
-			~Renderer() = delete;
+			using Dependencies = TypeList<Platform>;
 
-			static inline RendererImpl* GetRendererImpl();
+			Renderer();
+			~Renderer();
 
-			static bool Initialize();
-
-			static inline bool IsInitialized();
-
-			static inline void SetParameters(const ParameterList& parameters);
-
-			static void Uninitialize();
+			inline RendererImpl* GetRendererImpl();
 
 		private:
-			static AbstractBuffer* CreateHardwareBufferImpl(Buffer* parent, BufferType type);
+			std::unique_ptr<RendererImpl> m_rendererImpl;
+			DynLib m_rendererLib;
 
-			static std::unique_ptr<RendererImpl> s_rendererImpl;
-			static DynLib s_rendererLib;
-			static ParameterList s_initializationParameters;
-			static unsigned int s_moduleReferenceCounter;
+			static Renderer* s_instance;
 	};
 }
 

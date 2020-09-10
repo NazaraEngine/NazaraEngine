@@ -14,6 +14,26 @@
 
 namespace Nz
 {
+	namespace
+	{
+		std::size_t s_componentStride[ComponentType_Max + 1] =
+		{
+			4 * sizeof(UInt8),    // ComponentType_Color
+			1 * sizeof(double),   // ComponentType_Double1
+			2 * sizeof(double),   // ComponentType_Double2
+			3 * sizeof(double),   // ComponentType_Double3
+			4 * sizeof(double),   // ComponentType_Double4
+			1 * sizeof(float),    // ComponentType_Float1
+			2 * sizeof(float),    // ComponentType_Float2
+			3 * sizeof(float),    // ComponentType_Float3
+			4 * sizeof(float),    // ComponentType_Float4
+			1 * sizeof(UInt32),   // ComponentType_Int1
+			2 * sizeof(UInt32),   // ComponentType_Int2
+			3 * sizeof(UInt32),   // ComponentType_Int3
+			4 * sizeof(UInt32),   // ComponentType_Int4
+			4 * sizeof(float)     // ComponentType_Quaternion
+		};
+	}
 	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components) :
 	m_inputRate(inputRate)
 	{
@@ -42,7 +62,7 @@ namespace Nz
 			component.offset = offset;
 			component.type = entry.type;
 
-			offset += Utility::ComponentStride[component.type];
+			offset += s_componentStride[component.type];
 		}
 
 		m_stride = offset;

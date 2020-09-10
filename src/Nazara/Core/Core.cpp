@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/PluginManager.hpp>
@@ -15,69 +16,24 @@ namespace Nz
 	/*!
 	* \ingroup core
 	* \class Nz::Core
-	* \brief Core class that represents the module initializer of Core
+	* \brief Core class that represents the Core module
 	*/
 
-	/*!
-	* \brief Initializes the Core module
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraNotice
-	*/
-
-	bool Core::Initialize()
+	Core::Core() :
+	Module("Core", this, Module::NoLog{})
 	{
-		if (IsInitialized())
-		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		s_moduleReferenceCounter++;
-
 		Log::Initialize();
 
-		NazaraNotice("Initialized: Core");
-		return true;
+		LogInit();
 	}
 
-	/*!
-	* \brief Checks whether the module is initialized
-	* \return true if module is initialized
-	*/
-
-	bool Core::IsInitialized()
+	Core::~Core()
 	{
-		return s_moduleReferenceCounter != 0;
-	}
-
-	/*!
-	* \brief Uninitializes the Core module
-	*
-	* \remark Produces a NazaraNotice
-	*/
-
-	void Core::Uninitialize()
-	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// The module is still in use, or can not be uninitialized
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		// Free of module
-		s_moduleReferenceCounter = 0;
-
 		HardwareInfo::Uninitialize();
 		Log::Uninitialize();
 		PluginManager::Uninitialize();
 		TaskScheduler::Uninitialize();
-
-		NazaraNotice("Uninitialized: Core");
 	}
 
-	unsigned int Core::s_moduleReferenceCounter = 0;
+	Core* Core::s_instance = nullptr;
 }

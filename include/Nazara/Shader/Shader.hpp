@@ -8,25 +8,23 @@
 #define NAZARA_SHADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Initializer.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Shader/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_SHADER_API Shader
+	class NAZARA_SHADER_API Shader : public Module<Shader>
 	{
+		friend Module;
+
 		public:
-			Shader() = delete;
-			~Shader() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Shader();
+			~Shader() = default;
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Shader* s_instance;
 	};	
 }
 

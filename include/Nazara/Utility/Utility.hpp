@@ -8,28 +8,23 @@
 #define NAZARA_UTILITY_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
-	class NAZARA_UTILITY_API Utility
+	class NAZARA_UTILITY_API Utility : public Module<Utility>
 	{
+		friend Module;
+
 		public:
-			Utility() = delete;
-			~Utility() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
-
-			static unsigned int ComponentCount[ComponentType_Max+1];
-			static std::size_t ComponentStride[ComponentType_Max+1];
+			Utility();
+			~Utility();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Utility* s_instance;
 	};
 }
 

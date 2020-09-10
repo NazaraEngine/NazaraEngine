@@ -8,24 +8,26 @@
 #define NAZARA_CORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Module.hpp>
+#include <Nazara/Core/TypeList.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API Core
+	class NAZARA_CORE_API Core : public Module<Core>
 	{
+		friend Module;
+
 		public:
-			Core() = delete;
-			~Core() = delete;
+			using Dependencies = TypeList<>;
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Core();
+			~Core();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Core* s_instance;
 	};
 }
+
+#include <Nazara/Core/Core.inl>
 
 #endif // NAZARA_CORE_HPP

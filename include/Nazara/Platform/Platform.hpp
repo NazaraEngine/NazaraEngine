@@ -8,24 +8,23 @@
 #define NAZARA_PLATFORM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Platform/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PLATFORM_API Platform
+	class NAZARA_PLATFORM_API Platform : public Module<Platform>
 	{
+		friend Module;
+
 		public:
-			Platform() = delete;
-			~Platform() = delete;
+			using Dependencies = TypeList<Utility>;
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Platform();
+			~Platform();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Platform* s_instance;
 	};
 }
 

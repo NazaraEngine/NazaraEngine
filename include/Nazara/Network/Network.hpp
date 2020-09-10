@@ -8,25 +8,24 @@
 #define NAZARA_MODULENAME_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Network/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_NETWORK_API Network
+	class NAZARA_NETWORK_API Network : public Module<Network>
 	{
+		friend Module;
+
 		public:
-			Network() = delete;
-			~Network() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static bool Initialize();
-
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Network();
+			~Network();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
-    };
+			static Network* s_instance;
+	};
 }
 
 #endif // NAZARA_MODULENAME_HPP

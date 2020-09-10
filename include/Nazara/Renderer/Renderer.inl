@@ -9,17 +9,7 @@ namespace Nz
 {
 	inline RendererImpl* Renderer::GetRendererImpl()
 	{
-		return s_rendererImpl.get();
-	}
-
-	inline bool Renderer::IsInitialized()
-	{
-		return s_moduleReferenceCounter != 0;
-	}
-
-	void Renderer::SetParameters(const ParameterList& parameters)
-	{
-		s_initializationParameters = parameters;
+		return m_rendererImpl.get();
 	}
 }
 

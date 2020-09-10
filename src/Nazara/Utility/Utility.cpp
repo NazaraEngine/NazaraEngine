@@ -25,6 +25,7 @@
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
+#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -35,81 +36,32 @@ namespace Nz
 	* \brief Utility class that represents the module initializer of Utility
 	*/
 
-	/*!
-	* \brief Initializes the Utility module
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraNotice
-	* \remark Produces a NazaraError if one submodule failed
-	*/
-
-	bool Utility::Initialize()
+	Utility::Utility() :
+	Module("Utility", this)
 	{
-		if (s_moduleReferenceCounter > 0)
-		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		// Initialisation of dependencies
-		if (!Core::Initialize())
-		{
-			NazaraError("Failed to initialize core module");
-			return false;
-		}
-
-		s_moduleReferenceCounter++;
-
-		// Initialisation du module
-		CallOnExit onExit(Utility::Uninitialize);
-
 		if (!Animation::Initialize())
-		{
-			NazaraError("Failed to initialize animations");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize animations");
 
 		if (!Buffer::Initialize())
-		{
-			NazaraError("Failed to initialize buffers");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize buffers");
 
 		if (!Font::Initialize())
-		{
-			NazaraError("Failed to initialize fonts");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize fonts");
 
 		if (!Image::Initialize())
-		{
-			NazaraError("Failed to initialize images");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize images");
 
 		if (!Mesh::Initialize())
-		{
-			NazaraError("Failed to initialize meshes");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize meshes");
 
 		if (!PixelFormatInfo::Initialize())
-		{
-			NazaraError("Failed to initialize pixel formats");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize pixel formats");
 
 		if (!Skeleton::Initialize())
-		{
-			NazaraError("Failed to initialize skeletons");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize skeletons");
 
 		if (!VertexDeclaration::Initialize())
-		{
-			NazaraError("Failed to initialize vertex declarations");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize vertex declarations");
 
 		// On enregistre les loaders pour les extensions
 		// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
@@ -138,32 +90,10 @@ namespace Nz
 
 		// Image
 		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
-
-		onExit.Reset();
-
-		NazaraNotice("Initialized: Utility module");
-		return true;
 	}
 
-	bool Utility::IsInitialized()
+	Utility::~Utility()
 	{
-		return s_moduleReferenceCounter != 0;
-	}
-
-	void Utility::Uninitialize()
-	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// Le module est soit encore utilisé, soit pas initialisé
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		// Libération du module
-		s_moduleReferenceCounter = 0;
-
 		Loaders::UnregisterFreeType();
 		Loaders::UnregisterMD2();
 		Loaders::UnregisterMD5Anim();
@@ -182,52 +112,7 @@ namespace Nz
 		Font::Uninitialize();
 		Buffer::Uninitialize();
 		Animation::Uninitialize();
-
-		NazaraNotice("Uninitialized: Utility module");
-
-		// Libération des dépendances
-		Core::Uninitialize();
 	}
 
-	unsigned int Utility::ComponentCount[ComponentType_Max+1] =
-	{
-		4, // ComponentType_Color
-		1, // ComponentType_Double1
-		2, // ComponentType_Double2
-		3, // ComponentType_Double3
-		4, // ComponentType_Double4
-		1, // ComponentType_Float1
-		2, // ComponentType_Float2
-		3, // ComponentType_Float3
-		4, // ComponentType_Float4
-		1, // ComponentType_Int1
-		2, // ComponentType_Int2
-		3, // ComponentType_Int3
-		4, // ComponentType_Int4
-		4  // ComponentType_Quaternion
-	};
-
-	static_assert(ComponentType_Max+1 == 14, "Component count array is incomplete");
-
-	std::size_t Utility::ComponentStride[ComponentType_Max+1] =
-	{
-		4*sizeof(UInt8),    // ComponentType_Color
-		1*sizeof(double),   // ComponentType_Double1
-		2*sizeof(double),   // ComponentType_Double2
-		3*sizeof(double),   // ComponentType_Double3
-		4*sizeof(double),   // ComponentType_Double4
-		1*sizeof(float),    // ComponentType_Float1
-		2*sizeof(float),    // ComponentType_Float2
-		3*sizeof(float),    // ComponentType_Float3
-		4*sizeof(float),    // ComponentType_Float4
-		1*sizeof(UInt32),   // ComponentType_Int1
-		2*sizeof(UInt32),   // ComponentType_Int2
-		3*sizeof(UInt32),   // ComponentType_Int3
-		4*sizeof(UInt32),   // ComponentType_Int4
-		4*sizeof(float)     // ComponentType_Quaternion
-	};
-
-	static_assert(ComponentType_Max+1 == 14, "Component stride array is incomplete");
-
-	unsigned int Utility::s_moduleReferenceCounter = 0;
+	Utility* Utility::s_instance = nullptr;
 }
