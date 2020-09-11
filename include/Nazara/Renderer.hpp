@@ -42,6 +42,7 @@
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>

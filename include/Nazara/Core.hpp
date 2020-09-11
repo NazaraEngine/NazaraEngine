@@ -61,6 +61,8 @@
 #include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Core/ModuleBase.hpp>
+#include <Nazara/Core/Modules.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/MovableValue.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
@@ -89,6 +91,7 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
+#include <Nazara/Core/TypeList.hpp>
 #include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Updatable.hpp>
