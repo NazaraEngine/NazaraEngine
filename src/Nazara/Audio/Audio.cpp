@@ -24,7 +24,7 @@ namespace Nz
 	*/
 
 	Audio::Audio() :
-	Module("Audio", this)
+	ModuleBase("Audio", this)
 	{
 		// Initialisation of OpenAL
 		if (!OpenAL::Initialize())

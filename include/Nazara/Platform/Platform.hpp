@@ -13,9 +13,9 @@
 
 namespace Nz
 {
-	class NAZARA_PLATFORM_API Platform : public Module<Platform>
+	class NAZARA_PLATFORM_API Platform : public ModuleBase<Platform>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		public:
 			using Dependencies = TypeList<Utility>;

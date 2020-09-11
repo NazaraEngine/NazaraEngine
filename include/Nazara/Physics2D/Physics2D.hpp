@@ -13,9 +13,9 @@
 
 namespace Nz
 {
-	class NAZARA_PHYSICS2D_API Physics2D : public Module<Physics2D>
+	class NAZARA_PHYSICS2D_API Physics2D : public ModuleBase<Physics2D>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		public:
 			using Dependencies = TypeList<Core>;

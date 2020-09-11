@@ -32,7 +32,7 @@ namespace Nz
 	*/
 
 	Network::Network() :
-	Module("Network", this)
+	ModuleBase("Network", this)
 	{
 		// Initialize module here
 		if (!SocketImpl::Initialize())

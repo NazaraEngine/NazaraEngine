@@ -13,9 +13,9 @@
 
 namespace Nz
 {
-	class NAZARA_UTILITY_API Utility : public Module<Utility>
+	class NAZARA_UTILITY_API Utility : public ModuleBase<Utility>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		public:
 			using Dependencies = TypeList<Core>;

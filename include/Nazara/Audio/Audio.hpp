@@ -16,9 +16,9 @@
 
 namespace Nz
 {
-	class NAZARA_AUDIO_API Audio : public Module<Audio>
+	class NAZARA_AUDIO_API Audio : public ModuleBase<Audio>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		using Dependencies = TypeList<Core>;
 

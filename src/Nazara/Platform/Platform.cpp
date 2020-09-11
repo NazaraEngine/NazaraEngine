@@ -18,7 +18,7 @@ namespace Nz
 	*/
 
 	Platform::Platform() :
-	Module("Platform", this)
+	ModuleBase("Platform", this)
 	{
 		if (!Window::Initialize())
 			throw std::runtime_error("failed to initialize window system");
