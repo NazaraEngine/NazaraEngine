@@ -51,6 +51,5 @@
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLWindowFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper.hpp>
 
 #endif // NAZARA_GLOBAL_OPENGLRENDERER_HPP
