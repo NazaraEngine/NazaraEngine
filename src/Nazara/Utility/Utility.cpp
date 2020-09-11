@@ -37,7 +37,7 @@ namespace Nz
 	*/
 
 	Utility::Utility() :
-	Module("Utility", this)
+	ModuleBase("Utility", this)
 	{
 		if (!Animation::Initialize())
 			throw std::runtime_error("failed to initialize animations");

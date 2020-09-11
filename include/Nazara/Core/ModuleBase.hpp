@@ -13,7 +13,7 @@
 namespace Nz
 {
 	template<typename T>
-	class Module
+	class ModuleBase
 	{
 		friend class Core;
 
@@ -21,13 +21,13 @@ namespace Nz
 			static T* Instance();
 
 		protected:
-			Module(std::string moduleName, T* pointer);
-			~Module();
+			ModuleBase(std::string moduleName, T* pointer);
+			~ModuleBase();
 
 		private:
 			struct NoLog {};
 
-			Module(std::string moduleName, T* pointer, NoLog);
+			ModuleBase(std::string moduleName, T* pointer, NoLog);
 
 			void LogInit();
 
@@ -35,6 +35,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Core/Module.inl>
+#include <Nazara/Core/ModuleBase.inl>
 
 #endif // NAZARA_MODULE_HPP

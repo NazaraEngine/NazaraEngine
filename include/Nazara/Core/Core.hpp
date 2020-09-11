@@ -8,14 +8,14 @@
 #define NAZARA_CORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Module.hpp>
+#include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/TypeList.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API Core : public Module<Core>
+	class NAZARA_CORE_API Core : public ModuleBase<Core>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		public:
 			using Dependencies = TypeList<>;

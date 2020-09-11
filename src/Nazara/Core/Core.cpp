@@ -20,7 +20,7 @@ namespace Nz
 	*/
 
 	Core::Core() :
-	Module("Core", this, Module::NoLog{})
+	ModuleBase("Core", this, ModuleBase::NoLog{})
 	{
 		Log::Initialize();
 

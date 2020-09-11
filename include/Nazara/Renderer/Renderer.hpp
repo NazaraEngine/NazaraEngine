@@ -18,9 +18,9 @@ namespace Nz
 	class AbstractBuffer;
 	class Buffer;
 
-	class NAZARA_RENDERER_API Renderer : public Module<Renderer>
+	class NAZARA_RENDERER_API Renderer : public ModuleBase<Renderer>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		public:
 			using Dependencies = TypeList<Platform>;

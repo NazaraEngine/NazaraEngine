@@ -14,7 +14,7 @@
 namespace Nz
 {
 	Physics3D::Physics3D() :
-	Module("Physics3D", this)
+	ModuleBase("Physics3D", this)
 	{
 		if (!Collider3D::Initialize())
 			throw std::runtime_error("failed to initialize colliders");

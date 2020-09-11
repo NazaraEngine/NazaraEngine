@@ -31,7 +31,7 @@
 namespace Nz
 {
 	Renderer::Renderer() :
-	Module("Renderer", this)
+	ModuleBase("Renderer", this)
 	{
 		struct RendererImplementations
 		{

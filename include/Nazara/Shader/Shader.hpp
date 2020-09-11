@@ -13,9 +13,9 @@
 
 namespace Nz
 {
-	class NAZARA_SHADER_API Shader : public Module<Shader>
+	class NAZARA_SHADER_API Shader : public ModuleBase<Shader>
 	{
-		friend Module;
+		friend ModuleBase;
 
 		public:
 			using Dependencies = TypeList<Core>;

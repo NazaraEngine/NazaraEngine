@@ -8,7 +8,7 @@
 namespace Nz
 {
 	Shader::Shader() :
-	Module("Shader", this)
+	ModuleBase("Shader", this)
 	{
 	}
 

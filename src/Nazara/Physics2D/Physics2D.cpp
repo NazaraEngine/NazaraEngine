@@ -8,7 +8,7 @@
 namespace Nz
 {
 	Physics2D::Physics2D() :
-	Module("Physics2D", this)
+	ModuleBase("Physics2D", this)
 	{
 	}
 
