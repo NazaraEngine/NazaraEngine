@@ -30,7 +30,20 @@
 
 namespace Nz
 {
-	Renderer::Renderer(Config /*config*/) :
+	namespace
+	{
+		std::array<const char*, UnderlyingCast(RenderAPI::Max) + 1> s_rendererPaths = {
+			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
+			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
+			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
+			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL
+			NazaraRendererPrefix "NazaraVulkanRenderer"   NazaraRendererDebugSuffix, // Vulkan
+
+			nullptr // Unknown
+		};
+	}
+
+	Renderer::Renderer(Config config) :
 	ModuleBase("Renderer", this)
 	{
 		struct RendererImplementations
@@ -40,8 +53,12 @@ namespace Nz
 		};
 		std::vector<RendererImplementations> implementations;
 
-		auto RegisterImpl = [&](std::filesystem::path fileName, auto ComputeScore)
+		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore)
 		{
+			const char* rendererName = s_rendererPaths[UnderlyingCast(api)];
+			assert(rendererName);
+
+			std::filesystem::path fileName(rendererName);
 			fileName.replace_extension(NAZARA_DYNLIB_EXTENSION);
 
 			int score = ComputeScore();
@@ -49,12 +66,12 @@ namespace Nz
 			{
 				auto& impl = implementations.emplace_back();
 				impl.fileName = std::move(fileName);
-				impl.score = score;
+				impl.score = (config.preferredAPI == api) ? std::numeric_limits<int>::max() : score;
 			}
 		};
 
-		RegisterImpl(NazaraRendererPrefix "NazaraOpenGLRenderer" NazaraRendererDebugSuffix, [] { return 50; });
-		RegisterImpl(NazaraRendererPrefix "NazaraVulkanRenderer" NazaraRendererDebugSuffix, [] { return 100; });
+		RegisterImpl(RenderAPI::OpenGL, [] { return 50; });
+		RegisterImpl(RenderAPI::Vulkan, [] { return 100; });
 
 		std::sort(implementations.begin(), implementations.end(), [](const auto& lhs, const auto& rhs) { return lhs.score > rhs.score; });
 
