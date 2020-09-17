@@ -36,7 +36,7 @@ namespace Nz
 	* \brief Utility class that represents the module initializer of Utility
 	*/
 
-	Utility::Utility() :
+	Utility::Utility(Config /*config*/) :
 	ModuleBase("Utility", this)
 	{
 		if (!Animation::Initialize())

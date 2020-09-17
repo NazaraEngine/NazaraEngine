@@ -31,7 +31,7 @@ namespace Nz
 	* \brief Network class that represents the module initializer of Network
 	*/
 
-	Network::Network() :
+	Network::Network(Config /*config*/) :
 	ModuleBase("Network", this)
 	{
 		// Initialize module here

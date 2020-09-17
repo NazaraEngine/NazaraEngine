@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	Shader::Shader() :
+	Shader::Shader(Config /*config*/) :
 	ModuleBase("Shader", this)
 	{
 	}

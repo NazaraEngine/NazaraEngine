@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	Physics2D::Physics2D() :
+	Physics2D::Physics2D(Config /*config*/) :
 	ModuleBase("Physics2D", this)
 	{
 	}

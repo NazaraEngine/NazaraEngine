@@ -30,7 +30,7 @@
 
 namespace Nz
 {
-	Renderer::Renderer() :
+	Renderer::Renderer(Config /*config*/) :
 	ModuleBase("Renderer", this)
 	{
 		struct RendererImplementations

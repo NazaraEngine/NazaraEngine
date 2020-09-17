@@ -26,7 +26,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Platform, Shader>;
 
-			Renderer();
+			struct Config {};
+
+			Renderer(Config /*config*/);
 			~Renderer();
 
 			inline RendererImpl* GetRendererImpl();

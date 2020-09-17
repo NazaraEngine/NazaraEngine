@@ -20,7 +20,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			Physics3D();
+			struct Config {};
+
+			Physics3D(Config /*config*/);
 			~Physics3D();
 
 			unsigned int GetMemoryUsed();

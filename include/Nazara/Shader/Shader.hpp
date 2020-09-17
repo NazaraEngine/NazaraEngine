@@ -20,7 +20,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			Shader();
+			struct Config {};
+
+			Shader(Config /*config*/);
 			~Shader() = default;
 
 		private:

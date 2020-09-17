@@ -23,7 +23,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			Audio();
+			struct Config {};
+
+			Audio(Config /*config*/);
 			~Audio();
 
 			AudioFormat GetAudioFormat(unsigned int channelCount);

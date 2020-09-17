@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	Physics3D::Physics3D() :
+	Physics3D::Physics3D(Config /*config*/) :
 	ModuleBase("Physics3D", this)
 	{
 		if (!Collider3D::Initialize())

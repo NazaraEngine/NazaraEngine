@@ -32,7 +32,7 @@ namespace Ndk
 	* \brief NDK class that represents the software development kit, a set of tools made to ease the conception of application
 	*/
 
-	Sdk::Sdk() :
+	Sdk::Sdk(Config /*config*/) :
 	ModuleBase("SDK", this)
 	{
 		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);

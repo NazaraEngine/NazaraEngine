@@ -19,11 +19,16 @@ namespace Nz
 		template<typename Module, typename... Modules>
 		struct ModuleTuple : ModuleTuple<Module>, ModuleTuple<Modules...>
 		{
+			template<typename... ModuleConfig>
+			ModuleTuple(ModuleConfig&&... configs);
 		};
 
 		template<typename Module>
 		struct ModuleTuple<Module>
 		{
+			template<typename... ModuleConfig>
+			ModuleTuple(ModuleConfig&&... configs);
+
 			Module m;
 		};
 	}
@@ -32,7 +37,8 @@ namespace Nz
 	class Modules
 	{
 		public:
-			Modules() = default;
+			template<typename... ModuleConfig>
+			Modules(ModuleConfig&&... configs);
 			~Modules() = default;
 
 		private:

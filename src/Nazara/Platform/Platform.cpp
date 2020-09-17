@@ -17,7 +17,7 @@ namespace Nz
 	* \brief Platform class that represents the module initializer of Platform
 	*/
 
-	Platform::Platform() :
+	Platform::Platform(Config /*config*/) :
 	ModuleBase("Platform", this)
 	{
 		if (!Window::Initialize())
