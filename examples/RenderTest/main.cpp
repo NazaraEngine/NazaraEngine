@@ -8,12 +8,7 @@
 
 int main()
 {
-	Nz::Initializer<Nz::Renderer> loader;
-	if (!loader)
-	{
-		std::cout << "Failed to initialize Vulkan" << std::endl;
-		return __LINE__;
-	}
+	Nz::Modules<Nz::Renderer> nazara;
 
 	Nz::RenderWindow window;
 

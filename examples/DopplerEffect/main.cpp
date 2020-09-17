@@ -10,6 +10,7 @@
 
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Core/Modules.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
@@ -20,13 +21,13 @@
 int main()
 {
 	// NzKeyboard nécessite l'initialisation du module Utilitaire
-	Nz::Initializer<Nz::Audio, Nz::Platform> audio;
-	if (!audio)
+	Nz::Modules<Nz::Audio, Nz::Platform> audio;
+	/*if (!audio)
 	{
 		std::cout << "Failed to initialize audio module" << std::endl;
 		std::getchar();
 		return 1;
-	}
+	}*/
 
 	Nz::Sound sound;
 	if (!sound.LoadFromFile("resources/siren.wav"))

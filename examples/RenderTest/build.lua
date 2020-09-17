@@ -10,5 +10,6 @@ EXAMPLE.Libraries = {
 	"NazaraCore",
 	"NazaraPlatform",
 	"NazaraRenderer",
+	"NazaraShader",
 	"NazaraUtility"
 }

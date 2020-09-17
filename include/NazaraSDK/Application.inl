@@ -23,11 +23,6 @@ namespace Ndk
 	{
 		NazaraAssert(s_application == nullptr, "You can create only one application instance per program");
 		s_application = this;
-
-		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
-
-		// Initialisation du SDK
-		Sdk::Initialize();
 	}
 
 	/*!
@@ -41,9 +36,6 @@ namespace Ndk
 		#ifndef NDK_SERVER
 		m_windows.clear();
 		#endif
-
-		// Free of SDK
-		Sdk::Uninitialize();
 
 		// Automatic free of modules
 		s_application = nullptr;
