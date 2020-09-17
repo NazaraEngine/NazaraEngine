@@ -38,7 +38,7 @@ namespace Nz
 		template<typename Module>
 		template<typename... ModuleConfig>
 		ModuleTuple<Module>::ModuleTuple(ModuleConfig&&... configs) :
-		m(Pick<Module::Config>::Get(std::forward<ModuleConfig>(configs)...))
+		m(Pick<typename Module::Config>::Get(std::forward<ModuleConfig>(configs)...))
 		{
 		}
 
