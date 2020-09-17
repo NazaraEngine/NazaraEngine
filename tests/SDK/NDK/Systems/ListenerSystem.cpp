@@ -25,8 +25,8 @@ SCENARIO("ListenerSystem", "[NDK][LISTENERSYSTEM]")
 
 			THEN("Our listener should have moved")
 			{
-				REQUIRE(Nz::Audio::GetListenerPosition() == position);
-				REQUIRE(Nz::Audio::GetListenerRotation() == rotation);
+				REQUIRE(Nz::Audio::Instance()->GetListenerPosition() == position);
+				REQUIRE(Nz::Audio::Instance()->GetListenerRotation() == rotation);
 			}
 
 			THEN("With a component of velocity")
@@ -36,7 +36,7 @@ SCENARIO("ListenerSystem", "[NDK][LISTENERSYSTEM]")
 				velocityComponent.linearVelocity = velocity;
 
 				world.Update(1.f);
-				REQUIRE(Nz::Audio::GetListenerVelocity() == velocity);
+				REQUIRE(Nz::Audio::Instance()->GetListenerVelocity() == velocity);
 			}
 		}
 	}

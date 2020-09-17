@@ -12,6 +12,7 @@
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Shader/Shader.hpp>
 
 namespace Nz
 {
@@ -23,7 +24,7 @@ namespace Nz
 		friend ModuleBase;
 
 		public:
-			using Dependencies = TypeList<Platform>;
+			using Dependencies = TypeList<Platform, Shader>;
 
 			Renderer();
 			~Renderer();

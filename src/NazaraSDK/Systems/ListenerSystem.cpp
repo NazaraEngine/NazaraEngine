@@ -6,6 +6,7 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <NazaraSDK/Components/ListenerComponent.hpp>
 #include <NazaraSDK/Components/NodeComponent.hpp>
+#include <cassert>
 
 namespace Ndk
 {
@@ -37,6 +38,9 @@ namespace Ndk
 	{
 		std::size_t activeListenerCount = 0;
 
+		Nz::Audio* audio = Nz::Audio::Instance();
+		assert(audio);
+
 		for (const Ndk::EntityHandle& entity : GetEntities())
 		{
 			// Is the listener actif ?
@@ -44,18 +48,18 @@ namespace Ndk
 			if (!listener.IsActive())
 				continue;
 
-			Nz::Vector3f oldPos = Nz::Audio::GetListenerPosition();
+			Nz::Vector3f oldPos = audio->GetListenerPosition();
 
 			// We get the position and the rotation to affect these to the listener
 			const NodeComponent& node = entity->GetComponent<NodeComponent>();
 			Nz::Vector3f newPos = node.GetPosition(Nz::CoordSys_Global);
 
-			Nz::Audio::SetListenerPosition(newPos);
-			Nz::Audio::SetListenerRotation(node.GetRotation(Nz::CoordSys_Global));
+			audio->SetListenerPosition(newPos);
+			audio->SetListenerRotation(node.GetRotation(Nz::CoordSys_Global));
 
 			// Compute listener velocity based on their old/new position
 			Nz::Vector3f velocity = (newPos - oldPos) / elapsedTime;
-			Nz::Audio::SetListenerVelocity(velocity);
+			audio->SetListenerVelocity(velocity);
 
 			activeListenerCount++;
 		}

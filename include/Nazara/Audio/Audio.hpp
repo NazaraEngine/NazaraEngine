@@ -20,9 +20,9 @@ namespace Nz
 	{
 		friend ModuleBase;
 
-		using Dependencies = TypeList<Core>;
-
 		public:
+			using Dependencies = TypeList<Core>;
+
 			Audio();
 			~Audio();
 
