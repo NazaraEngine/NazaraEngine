@@ -23,7 +23,7 @@ namespace Nz
 	* \brief Audio class that represents the module initializer of Audio
 	*/
 
-	Audio::Audio() :
+	Audio::Audio(Config /*config*/) :
 	ModuleBase("Audio", this)
 	{
 		// Initialisation of OpenAL

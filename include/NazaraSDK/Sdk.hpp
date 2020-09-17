@@ -37,7 +37,9 @@ namespace Ndk
 			using Dependencies = Nz::TypeListConcat<CommonDependencies, ClientDependencies>;
 #endif
 
-			Sdk();
+			struct Config {};
+
+			Sdk(Config /*config*/);
 			~Sdk();
 
 		private:

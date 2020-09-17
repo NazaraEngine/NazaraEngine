@@ -19,7 +19,7 @@ namespace Nz
 	* \brief Core class that represents the Core module
 	*/
 
-	Core::Core() :
+	Core::Core(Config /*config*/) :
 	ModuleBase("Core", this, ModuleBase::NoLog{})
 	{
 		Log::Initialize();

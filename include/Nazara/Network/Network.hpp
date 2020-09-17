@@ -20,7 +20,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			Network();
+			struct Config {};
+
+			Network(Config /*config*/);
 			~Network();
 
 		private:

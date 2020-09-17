@@ -20,7 +20,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			Physics2D();
+			struct Config {};
+
+			Physics2D(Config /*config*/);
 			~Physics2D() = default;
 
 		private:

@@ -20,7 +20,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Utility>;
 
-			Platform();
+			struct Config {};
+
+			Platform(Config /*config*/);
 			~Platform();
 
 		private:
