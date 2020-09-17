@@ -11,6 +11,7 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Shader/Shader.hpp>
 
@@ -26,12 +27,17 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Platform, Shader>;
 
-			struct Config {};
+			struct Config;
 
 			Renderer(Config /*config*/);
 			~Renderer();
 
 			inline RendererImpl* GetRendererImpl();
+
+			struct Config
+			{
+				Nz::RenderAPI preferredAPI = Nz::RenderAPI::Unknown;
+			};
 
 		private:
 			std::unique_ptr<RendererImpl> m_rendererImpl;
