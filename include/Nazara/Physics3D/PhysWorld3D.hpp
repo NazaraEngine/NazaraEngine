@@ -49,7 +49,6 @@ namespace Nz
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
-			void SetSolverModel(unsigned int model);
 			void SetStepSize(float stepSize);
 			void SetThreadCount(unsigned int threadCount);
 
@@ -72,7 +71,7 @@ namespace Nz
 				CollisionCallback collisionCallback;
 			};
 
-			static int OnAABBOverlap(const NewtonMaterial* const material, const NewtonBody* const body0, const NewtonBody* const body1, int threadIndex);
+			static int OnAABBOverlap(const NewtonJoint* const contact, float timestep, int threadIndex);
 			static void ProcessContact(const NewtonJoint* const contact, float timestep, int threadIndex);
 
 			std::unordered_map<Nz::UInt64, std::unique_ptr<Callback>> m_callbacks;

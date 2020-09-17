@@ -126,6 +126,10 @@ function NazaraBuild:Execute()
 				end
 
 				filter({})
+				
+				if (libTable.Custom) then
+					libTable.Custom()
+				end
 
 				self:PostconfigGenericProject()
 			end
@@ -186,6 +190,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (moduleTable.Custom) then
+				moduleTable.Custom()
+			end
 
 			if (not _OPTIONS["united"]) then
 				self:PostconfigNazaraProject()
@@ -267,6 +275,10 @@ function NazaraBuild:Execute()
 			filter({})
 
 			self:PostconfigNazaraProject()
+				
+			if (toolTable.Custom) then
+				toolTable.Custom()
+			end
 		end
 
 		group("Examples")
@@ -320,6 +332,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+
+			if (exampleTable.Custom) then
+				exampleTable.Custom()
+			end
 
 			self:PostconfigNazaraProject()
 		end

@@ -27,8 +27,9 @@ namespace Nz
 		public:
 			Angle() = default;
 			Angle(T angle);
+			Angle(const Angle<AngleUnit::Degree, T>& angle);
+			Angle(const Angle<AngleUnit::Radian, T>& angle);
 			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
-			Angle(const Angle&) = default;
 			~Angle() = default;
 
 			T GetCos() const;
@@ -50,9 +51,6 @@ namespace Nz
 			T ToRadians() const;
 			Angle<AngleUnit::Radian, T> ToRadianAngle() const;
 			String ToString() const;
-
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U != AngleUnit::Degree>> operator Angle<AngleUnit::Degree, T>() const { return ToDegreeAngle(); } // GCC < 8 bug
-			template<AngleUnit U = Unit, typename = std::enable_if_t<U != AngleUnit::Radian>> operator Angle<AngleUnit::Radian, T>() const { return ToRadianAngle(); } // GCC < 8 bug
 
 			Angle& operator=(const Angle&) = default;
 
