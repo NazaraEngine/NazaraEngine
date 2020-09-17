@@ -51,7 +51,7 @@ namespace Nz::GL
 			it = m_vertexArrays.emplace(setup, std::make_unique<VertexArray>(std::move(vao))).first;
 		}
 
-		return *it->second;
+		return *(it->second);
 	}
 
 	void OpenGLVaoCache::NotifyBufferDestruction(GLuint buffer)
