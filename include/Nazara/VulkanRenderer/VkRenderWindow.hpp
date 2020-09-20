@@ -46,7 +46,7 @@ namespace Nz
 
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) override;
 
-			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
+			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline const VulkanMultipleFramebuffer& GetFramebuffer() const override;
 			inline VulkanDevice& GetDevice();

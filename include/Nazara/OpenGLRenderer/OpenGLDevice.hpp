@@ -32,13 +32,13 @@ namespace Nz
 
 			inline const GL::Context& GetReferenceContext() const;
 
-			std::unique_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
-			std::unique_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
-			std::unique_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
+			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
+			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
+			std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
 			std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) override;
 			std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) override;
-			std::unique_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
-			std::unique_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
+			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
+			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
 			inline void NotifyBufferDestruction(GLuint buffer) const;
 			inline void NotifyProgramDestruction(GLuint program) const;

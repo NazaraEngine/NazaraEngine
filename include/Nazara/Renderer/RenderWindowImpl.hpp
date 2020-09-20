@@ -32,7 +32,7 @@ namespace Nz
 			virtual RenderFrame Acquire() = 0;
 
 			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) = 0;
-			virtual std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
+			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
 			virtual const Framebuffer& GetFramebuffer() const = 0;
 			virtual std::shared_ptr<RenderDevice> GetRenderDevice() = 0;
