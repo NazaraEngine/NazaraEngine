@@ -29,18 +29,24 @@ namespace Ndk
 
 			inline unsigned int GetCharacterSize() const;
 			inline const Nz::String& GetDisplayText() const;
+			inline float GetCharacterSpacingOffset() const;
+			inline float GetLineSpacingOffset() const;
 			inline const Nz::String& GetText() const;
 			inline const Nz::Color& GetTextColor() const;
 			inline Nz::Font* GetTextFont() const;
 			inline const Nz::Color& GetTextOulineColor() const;
 			inline float GetTextOulineThickness() const;
+			inline Nz::TextStyleFlags GetTextStyle() const;
 
-			void SetCharacterSize(unsigned int characterSize);
+			inline void SetCharacterSize(unsigned int characterSize);
+			inline void SetCharacterSpacingOffset(float offset);
+			inline void SetLineSpacingOffset(float offset);
 			inline void SetText(const Nz::String& text);
 			inline void SetTextColor(const Nz::Color& text);
 			inline void SetTextFont(Nz::FontRef font);
 			inline void SetTextOutlineColor(const Nz::Color& color);
 			inline void SetTextOutlineThickness(float thickness);
+			inline void SetTextStyle(Nz::TextStyleFlags style);
 
 			using AbstractTextAreaWidget::Write;
 			void Write(const Nz::String& text, std::size_t glyphPosition) override;
@@ -58,7 +64,8 @@ namespace Ndk
 			void HandleSelectionIndentation(bool add) override;
 			void HandleWordCursorMove(bool left) override;
 
-			void UpdateDisplayText();
+			void UpdateDisplayText() override;
+			void UpdateMinimumSize();
 
 			Nz::SimpleTextDrawer m_drawer;
 			Nz::String m_text;

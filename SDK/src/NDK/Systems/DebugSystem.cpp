@@ -154,151 +154,28 @@ namespace Ndk
 	/*!
 	* \brief Constructs an DebugSystem object by default
 	*/
-	DebugSystem::DebugSystem()
+	DebugSystem::DebugSystem() :
+	m_isDepthBufferEnabled(true)
 	{
 		Requires<DebugComponent, GraphicsComponent, NodeComponent>();
 		SetUpdateOrder(1000); //< Update last
 	}
 
-	std::pair<Nz::IndexBufferRef, Nz::VertexBufferRef> DebugSystem::GetBoxMesh()
+	void DebugSystem::EnableDepthBuffer(bool enable)
 	{
-		if (!m_boxMeshIndexBuffer)
-		{
-			std::array<Nz::UInt16, 24> indices = {
-				{
-					0, 1,
-					1, 2,
-					2, 3,
-					3, 0,
+		m_isDepthBufferEnabled = enable;
 
-					4, 5,
-					5, 6,
-					6, 7,
-					7, 4,
+		if (m_collisionMaterial)
+			m_collisionMaterial->EnableDepthBuffer(enable);
 
-					0, 4,
-					1, 5,
-					2, 6,
-					3, 7
-				}
-			};
+		if (m_globalAabbMaterial)
+			m_globalAabbMaterial->EnableDepthBuffer(enable);
 
-			m_boxMeshIndexBuffer = Nz::IndexBuffer::New(false, Nz::UInt32(indices.size()), Nz::DataStorage_Hardware, 0);
-			m_boxMeshIndexBuffer->Fill(indices.data(), 0, Nz::UInt32(indices.size()));
-		}
+		if (m_localAabbMaterial)
+			m_localAabbMaterial->EnableDepthBuffer(enable);
 
-		if (!m_boxMeshVertexBuffer)
-		{
-			Nz::Boxf box(-0.5f, -0.5f, -0.5f, 1.f, 1.f, 1.f);
-
-			std::array<Nz::Vector3f, 8> positions = {
-				{
-					box.GetCorner(Nz::BoxCorner_FarLeftBottom),
-					box.GetCorner(Nz::BoxCorner_NearLeftBottom),
-					box.GetCorner(Nz::BoxCorner_NearRightBottom),
-					box.GetCorner(Nz::BoxCorner_FarRightBottom),
-					box.GetCorner(Nz::BoxCorner_FarLeftTop),
-					box.GetCorner(Nz::BoxCorner_NearLeftTop),
-					box.GetCorner(Nz::BoxCorner_NearRightTop),
-					box.GetCorner(Nz::BoxCorner_FarRightTop)
-				}
-			};
-
-			m_boxMeshVertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), Nz::UInt32(positions.size()), Nz::DataStorage_Hardware, 0);
-			m_boxMeshVertexBuffer->Fill(positions.data(), 0, Nz::UInt32(positions.size()));
-		}
-
-		return { m_boxMeshIndexBuffer, m_boxMeshVertexBuffer };
-	}
-
-	void DebugSystem::OnEntityValidation(Entity* entity, bool /*justAdded*/)
-	{
-		static constexpr int DebugDrawOrder = 1'000;
-
-		DebugComponent& entityDebug = entity->GetComponent<DebugComponent>();
-		GraphicsComponent& entityGfx = entity->GetComponent<GraphicsComponent>();
-		NodeComponent& entityNode = entity->GetComponent<NodeComponent>();
-
-		DebugDrawFlags enabledFlags = entityDebug.GetEnabledFlags();
-		DebugDrawFlags flags = entityDebug.GetFlags();
-
-		DebugDrawFlags flagsToEnable = flags & ~enabledFlags;
-		for (std::size_t i = 0; i <= static_cast<std::size_t>(DebugDraw::Max); ++i)
-		{
-			DebugDraw option = static_cast<DebugDraw>(i);
-			if (flagsToEnable & option)
-			{
-				switch (option)
-				{
-					case DebugDraw::Collider2D:
-					{
-						Nz::Vector3f offset;
-						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &offset);
-						if (renderable)
-							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(offset), DebugDrawOrder);
-
-						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
-						break;
-					}
-
-					case DebugDraw::Collider3D:
-					{
-						const Nz::Boxf& obb = entityGfx.GetAABB();
-
-						Nz::InstancedRenderableRef renderable = GenerateCollision3DMesh(entity);
-						if (renderable)
-							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter() - entityNode.GetPosition()), DebugDrawOrder);
-
-						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
-						break;
-					}
-
-					case DebugDraw::GraphicsAABB:
-					{
-						auto indexVertexBuffers = GetBoxMesh();
-
-						Nz::InstancedRenderableRef renderable = new AABBDebugRenderable(entity, GetGlobalAABBMaterial(), GetLocalAABBMaterial(), indexVertexBuffers.first, indexVertexBuffers.second);
-						renderable->SetPersistent(false);
-
-						entityGfx.Attach(renderable, Nz::Matrix4f::Identity(), DebugDrawOrder);
-
-						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
-						break;
-					}
-
-					case DebugDraw::GraphicsOBB:
-					{
-						auto indexVertexBuffers = GetBoxMesh();
-
-						Nz::InstancedRenderableRef renderable = new OBBDebugRenderable(entity, GetOBBMaterial(), indexVertexBuffers.first, indexVertexBuffers.second);
-						renderable->SetPersistent(false);
-
-						entityGfx.Attach(renderable, Nz::Matrix4f::Identity(), DebugDrawOrder);
-
-						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
-						break;
-					}
-
-					default:
-						break;
-				}
-			}
-		}
-
-		DebugDrawFlags flagsToDisable = enabledFlags & ~flags;
-		for (std::size_t i = 0; i <= static_cast<std::size_t>(DebugDraw::Max); ++i)
-		{
-			DebugDraw option = static_cast<DebugDraw>(i);
-			if (flagsToDisable & option)
-				entityGfx.Detach(entityDebug.GetDebugRenderable(option));
-		}
-
-		entityDebug.UpdateEnabledFlags(flags);
-	}
-
-	void DebugSystem::OnUpdate(float elapsedTime)
-	{
-		// Nothing to do
+		if (m_obbMaterial)
+			m_obbMaterial->EnableDepthBuffer(enable);
 	}
 
 	Nz::InstancedRenderableRef DebugSystem::GenerateBox(Nz::Boxf box)
@@ -445,6 +322,57 @@ namespace Ndk
 			return nullptr;
 	}
 
+	std::pair<Nz::IndexBufferRef, Nz::VertexBufferRef> DebugSystem::GetBoxMesh()
+	{
+		if (!m_boxMeshIndexBuffer)
+		{
+			std::array<Nz::UInt16, 24> indices = {
+				{
+					0, 1,
+					1, 2,
+					2, 3,
+					3, 0,
+
+					4, 5,
+					5, 6,
+					6, 7,
+					7, 4,
+
+					0, 4,
+					1, 5,
+					2, 6,
+					3, 7
+				}
+			};
+
+			m_boxMeshIndexBuffer = Nz::IndexBuffer::New(false, Nz::UInt32(indices.size()), Nz::DataStorage_Hardware, 0);
+			m_boxMeshIndexBuffer->Fill(indices.data(), 0, Nz::UInt32(indices.size()));
+		}
+
+		if (!m_boxMeshVertexBuffer)
+		{
+			Nz::Boxf box(-0.5f, -0.5f, -0.5f, 1.f, 1.f, 1.f);
+
+			std::array<Nz::Vector3f, 8> positions = {
+				{
+					box.GetCorner(Nz::BoxCorner_FarLeftBottom),
+					box.GetCorner(Nz::BoxCorner_NearLeftBottom),
+					box.GetCorner(Nz::BoxCorner_NearRightBottom),
+					box.GetCorner(Nz::BoxCorner_FarRightBottom),
+					box.GetCorner(Nz::BoxCorner_FarLeftTop),
+					box.GetCorner(Nz::BoxCorner_NearLeftTop),
+					box.GetCorner(Nz::BoxCorner_NearRightTop),
+					box.GetCorner(Nz::BoxCorner_FarRightTop)
+				}
+			};
+
+			m_boxMeshVertexBuffer = Nz::VertexBuffer::New(Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ), Nz::UInt32(positions.size()), Nz::DataStorage_Hardware, 0);
+			m_boxMeshVertexBuffer->Fill(positions.data(), 0, Nz::UInt32(positions.size()));
+		}
+
+		return { m_boxMeshIndexBuffer, m_boxMeshVertexBuffer };
+	}
+
 	Nz::MaterialRef DebugSystem::GetGlobalAABBMaterial()
 	{
 		if (!m_globalAabbMaterial)
@@ -507,6 +435,96 @@ namespace Ndk
 		}
 
 		return m_obbMaterial;
+	}
+	
+	void DebugSystem::OnEntityValidation(Entity* entity, bool /*justAdded*/)
+	{
+		static constexpr int DebugDrawOrder = 1'000;
+
+		DebugComponent& entityDebug = entity->GetComponent<DebugComponent>();
+		GraphicsComponent& entityGfx = entity->GetComponent<GraphicsComponent>();
+		NodeComponent& entityNode = entity->GetComponent<NodeComponent>();
+
+		DebugDrawFlags enabledFlags = entityDebug.GetEnabledFlags();
+		DebugDrawFlags flags = entityDebug.GetFlags();
+
+		DebugDrawFlags flagsToEnable = flags & ~enabledFlags;
+		for (std::size_t i = 0; i <= static_cast<std::size_t>(DebugDraw::Max); ++i)
+		{
+			DebugDraw option = static_cast<DebugDraw>(i);
+			if (flagsToEnable & option)
+			{
+				switch (option)
+				{
+					case DebugDraw::Collider2D:
+					{
+						Nz::Vector3f offset;
+						Nz::InstancedRenderableRef renderable = GenerateCollision2DMesh(entity, &offset);
+						if (renderable)
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(offset), DebugDrawOrder);
+
+						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
+						break;
+					}
+
+					case DebugDraw::Collider3D:
+					{
+						const Nz::Boxf& obb = entityGfx.GetAABB();
+
+						Nz::InstancedRenderableRef renderable = GenerateCollision3DMesh(entity);
+						if (renderable)
+							entityGfx.Attach(renderable, Nz::Matrix4f::Translate(obb.GetCenter() - entityNode.GetPosition()), DebugDrawOrder);
+
+						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
+						break;
+					}
+
+					case DebugDraw::GraphicsAABB:
+					{
+						auto indexVertexBuffers = GetBoxMesh();
+
+						Nz::InstancedRenderableRef renderable = new AABBDebugRenderable(entity, GetGlobalAABBMaterial(), GetLocalAABBMaterial(), indexVertexBuffers.first, indexVertexBuffers.second);
+						renderable->SetPersistent(false);
+
+						entityGfx.Attach(renderable, Nz::Matrix4f::Identity(), DebugDrawOrder);
+
+						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
+						break;
+					}
+
+					case DebugDraw::GraphicsOBB:
+					{
+						auto indexVertexBuffers = GetBoxMesh();
+
+						Nz::InstancedRenderableRef renderable = new OBBDebugRenderable(entity, GetOBBMaterial(), indexVertexBuffers.first, indexVertexBuffers.second);
+						renderable->SetPersistent(false);
+
+						entityGfx.Attach(renderable, Nz::Matrix4f::Identity(), DebugDrawOrder);
+
+						entityDebug.UpdateDebugRenderable(option, std::move(renderable));
+						break;
+					}
+
+					default:
+						break;
+				}
+			}
+		}
+
+		DebugDrawFlags flagsToDisable = enabledFlags & ~flags;
+		for (std::size_t i = 0; i <= static_cast<std::size_t>(DebugDraw::Max); ++i)
+		{
+			DebugDraw option = static_cast<DebugDraw>(i);
+			if (flagsToDisable & option)
+				entityGfx.Detach(entityDebug.GetDebugRenderable(option));
+		}
+
+		entityDebug.UpdateEnabledFlags(flags);
+	}
+
+	void DebugSystem::OnUpdate(float elapsedTime)
+	{
+		// Nothing to do
 	}
 
 	SystemIndex DebugSystem::systemIndex;

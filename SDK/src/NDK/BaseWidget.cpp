@@ -40,16 +40,16 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Frees the widget, unregistering it from its canvas
-	*/
+	 * \brief Frees the widget, unregistering it from its canvas
+	 */
 	BaseWidget::~BaseWidget()
 	{
 		UnregisterFromCanvas();
 	}
 
 	/*!
-	* \brief Clears keyboard focus if and only if this widget owns it.
-	*/
+	 * \brief Clears keyboard focus if and only if this widget owns it.
+	 */
 	void BaseWidget::ClearFocus()
 	{
 		if (IsRegisteredToCanvas())
@@ -57,10 +57,10 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Destroy the widget, deleting it in the process.
-	*
-	* Calling this function immediately destroys the widget, freeing its memory.
-	*/
+	 * \brief Destroy the widget, deleting it in the process.
+	 *
+	 * Calling this function immediately destroys the widget, freeing its memory.
+	 */
 	void BaseWidget::Destroy()
 	{
 		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
@@ -69,8 +69,8 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Enable or disables the widget background.
-	*/
+	 * \brief Enable or disables the widget background.
+	 */
 	void BaseWidget::EnableBackground(bool enable)
 	{
 		if (m_backgroundEntity.IsValid() == enable)
@@ -102,9 +102,9 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Checks if this widget has keyboard focus
-	* \return true if widget has keyboard focus, false otherwise
-	*/
+	 * \brief Checks if this widget has keyboard focus
+	 * \return true if widget has keyboard focus, false otherwise
+	 */
 	bool BaseWidget::HasFocus() const
 	{
 		if (!IsRegisteredToCanvas())
@@ -170,6 +170,8 @@ namespace Ndk
 		m_renderingRect = renderingRect;
 
 		UpdatePositionAndSize();
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->UpdatePositionAndSize();
 	}
 
 	void BaseWidget::Show(bool show)
@@ -192,8 +194,7 @@ namespace Ndk
 				}
 			}
 
-			for (const auto& widgetPtr : m_children)
-				widgetPtr->Show(show);
+			ShowChildren(show);
 		}
 	}
 
@@ -250,6 +251,19 @@ namespace Ndk
 		UpdatePositionAndSize();
 	}
 
+	Nz::Rectf BaseWidget::GetScissorRect() const
+	{
+		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition(Nz::CoordSys_Global));
+		Nz::Vector2f widgetSize = GetSize();
+
+		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
+		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+
+		widgetRect.Intersect(widgetRenderingRect, &widgetRect);
+
+		return widgetRect;
+	}
+
 	bool BaseWidget::IsFocusable() const
 	{
 		return false;
@@ -304,6 +318,16 @@ namespace Ndk
 	{
 	}
 
+	void BaseWidget::OnTextEdited(const std::array<char, 32>& /*characters*/, int /*length*/)
+	{
+  }
+
+  void BaseWidget::ShowChildren(bool show)
+	{
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->Show(show);
+	}
+
 	void BaseWidget::DestroyChild(BaseWidget* widget)
 	{
 		auto it = std::find_if(m_children.begin(), m_children.end(), [widget] (const std::unique_ptr<BaseWidget>& widgetPtr) -> bool
@@ -342,16 +366,17 @@ namespace Ndk
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 
-		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition());
-		Nz::Vector2f widgetSize = GetSize();
+		Nz::Rectf scissorRect = GetScissorRect();
 
-		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
-		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+		if (m_widgetParent)
+		{
+			Nz::Rectf parentScissorRect = m_widgetParent->GetScissorRect();
 
-		Nz::Rectf widgetBounds;
-		widgetRect.Intersect(widgetRenderingRect, &widgetBounds);
+			if (!scissorRect.Intersect(parentScissorRect, &scissorRect))
+				scissorRect = parentScissorRect;
+		}
 
-		Nz::Recti fullBounds(widgetBounds);
+		Nz::Recti fullBounds(scissorRect);
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;

@@ -11,11 +11,13 @@ namespace Nz
 {
 	RichTextDrawer::RichTextDrawer() :
 	m_defaultColor(Color::White),
-	//m_outlineColor(Color::Black),
+	m_defaultOutlineColor(Color::Black),
 	m_defaultStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
-	//m_maxLineWidth(std::numeric_limits<float>::infinity()),
-	//m_outlineThickness(0.f),
+	m_maxLineWidth(std::numeric_limits<float>::infinity()),
+	m_defaultCharacterSpacingOffset(0.f),
+	m_defaultLineSpacingOffset(0.f),
+	m_defaultOutlineThickness(0.f),
 	m_defaultCharacterSize(24)
 	{
 		SetDefaultFont(Font::GetDefault());
@@ -27,9 +29,11 @@ namespace Nz
 	m_fontIndexes(drawer.m_fontIndexes),
 	m_blocks(drawer.m_blocks),
 	m_glyphUpdated(false),
-	//m_outlineColor(drawer.m_outlineColor),
-	//m_maxLineWidth(drawer.m_maxLineWidth),
-	//m_outlineThickness(drawer.m_outlineThickness),
+	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
+	m_maxLineWidth(drawer.m_maxLineWidth),
+	m_defaultCharacterSpacingOffset(drawer.m_defaultCharacterSpacingOffset),
+	m_defaultLineSpacingOffset(drawer.m_defaultLineSpacingOffset),
+	m_defaultOutlineThickness(drawer.m_defaultOutlineThickness),
 	m_defaultCharacterSize(drawer.m_defaultCharacterSize)
 	{
 		m_fonts.resize(drawer.m_fonts.size());
@@ -59,10 +63,14 @@ namespace Nz
 
 		auto HasDefaultProperties = [&](const Block& block)
 		{
-			return block.characterSize == m_defaultCharacterSize &&
-			       block.color         == m_defaultColor &&
-			       block.fontIndex     == defaultFontIndex &&
-			       block.style         == m_defaultStyle;
+			return block.characterSize          == m_defaultCharacterSize &&
+			       block.color                  == m_defaultColor &&
+			       block.fontIndex              == defaultFontIndex &&
+			       block.characterSpacingOffset == m_defaultCharacterSpacingOffset &&
+			       block.lineSpacingOffset      == m_defaultLineSpacingOffset &&
+			       block.outlineColor           == m_defaultOutlineColor &&
+			       block.outlineThickness       == m_defaultOutlineThickness &&
+			       block.style                  == m_defaultStyle;
 		};
 
 		// Check if last block has the same property as default, else create a new block
@@ -80,9 +88,13 @@ namespace Nz
 			m_blocks.emplace_back();
 			Block& newBlock = m_blocks.back();
 			newBlock.characterSize = m_defaultCharacterSize;
+			newBlock.characterSpacingOffset = m_defaultCharacterSpacingOffset;
 			newBlock.color = m_defaultColor;
 			newBlock.fontIndex = defaultFontIndex;
 			newBlock.glyphIndex = glyphIndex;
+			newBlock.lineSpacingOffset = m_defaultLineSpacingOffset;
+			newBlock.outlineColor = m_defaultOutlineColor;
+			newBlock.outlineThickness = m_defaultOutlineThickness;
 			newBlock.style = m_defaultStyle;
 			newBlock.text = str;
 
@@ -106,7 +118,7 @@ namespace Nz
 		ClearGlyphs();
 	}
 
-	const Recti& RichTextDrawer::GetBounds() const
+	const Rectf& RichTextDrawer::GetBounds() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
@@ -168,10 +180,14 @@ namespace Nz
 	{
 		auto TestBlockProperties = [](const Block& lhs, const Block& rhs)
 		{
-			return lhs.characterSize == rhs.characterSize &&
-			       lhs.color == rhs.color &&
-			       lhs.fontIndex == rhs.fontIndex &&
-			       lhs.style == rhs.style;
+			return lhs.characterSize          == rhs.characterSize &&
+			       lhs.color                  == rhs.color &&
+			       lhs.fontIndex              == rhs.fontIndex &&
+			       lhs.characterSpacingOffset == rhs.characterSpacingOffset &&
+			       lhs.lineSpacingOffset      == rhs.lineSpacingOffset &&
+			       lhs.outlineColor           == rhs.outlineColor &&
+			       lhs.outlineThickness       == rhs.outlineThickness &&
+			       lhs.style                  == rhs.style;
 		};
 
 		std::size_t previousBlockIndex = 0;
@@ -179,6 +195,8 @@ namespace Nz
 		{
 			if (TestBlockProperties(m_blocks[previousBlockIndex], m_blocks[i]))
 			{
+				m_blocks[previousBlockIndex].text += m_blocks[i].text;
+
 				RemoveBlock(i);
 				--i;
 			}
@@ -209,7 +227,7 @@ namespace Nz
 	{
 		m_maxLineWidth = lineWidth;
 
-		//TODO: Implement max line width
+		InvalidateGlyphs();
 	}
 
 	RichTextDrawer& RichTextDrawer::operator=(const RichTextDrawer& drawer)
@@ -218,8 +236,12 @@ namespace Nz
 
 		m_blocks = drawer.m_blocks;
 		m_defaultCharacterSize = drawer.m_defaultCharacterSize;
+		m_defaultCharacterSpacingOffset = drawer.m_defaultCharacterSpacingOffset;
 		m_defaultColor = drawer.m_defaultColor;
 		m_defaultFont = drawer.m_defaultFont;
+		m_defaultLineSpacingOffset = drawer.m_defaultLineSpacingOffset;
+		m_defaultOutlineColor = drawer.m_defaultOutlineColor;
+		m_defaultOutlineThickness = drawer.m_defaultOutlineThickness;
 		m_defaultStyle = drawer.m_defaultStyle;
 		m_fontIndexes = drawer.m_fontIndexes;
 
@@ -238,11 +260,17 @@ namespace Nz
 
 	RichTextDrawer& RichTextDrawer::operator=(RichTextDrawer&& drawer)
 	{
+		DisconnectFontSlots();
+
 		m_blocks = std::move(drawer.m_blocks);
 		m_bounds = std::move(m_bounds);
 		m_defaultCharacterSize = std::move(drawer.m_defaultCharacterSize);
+		m_defaultCharacterSpacingOffset = std::move(drawer.m_defaultCharacterSpacingOffset);
 		m_defaultColor = std::move(drawer.m_defaultColor);
 		m_defaultFont = std::move(drawer.m_defaultFont);
+		m_defaultLineSpacingOffset = std::move(drawer.m_defaultLineSpacingOffset);
+		m_defaultOutlineColor = std::move(drawer.m_defaultOutlineColor);
+		m_defaultOutlineThickness = std::move(drawer.m_defaultOutlineThickness);
 		m_defaultStyle = std::move(drawer.m_defaultStyle);
 		m_drawPos = std::move(m_drawPos);
 		m_fontIndexes = std::move(drawer.m_fontIndexes);
@@ -250,7 +278,6 @@ namespace Nz
 		m_glyphs = std::move(m_glyphs);
 		m_lines = std::move(m_lines);
 		m_glyphUpdated = std::move(m_glyphUpdated);
-		m_workingBounds = std::move(m_workingBounds);
 
 		drawer.DisconnectFontSlots();
 		ConnectFontSlots();
@@ -258,7 +285,58 @@ namespace Nz
 		return *this;
 	}
 
-	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, int renderOrder, int* advance) const
+	void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, float lineSpacingOffset, std::size_t glyphIndex, float glyphPosition) const
+	{
+		// Ensure we're appending from last line
+		Line& lastLine = m_lines.back();
+
+		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+
+		float previousDrawPos = m_drawPos.x;
+
+		float lineHeight = GetLineHeight(lineSpacingOffset, sizeInfo);
+
+		// Reset cursor
+		m_drawPos.x = 0;
+		m_drawPos.y += lineHeight;
+		m_lastSeparatorGlyph = InvalidGlyph;
+
+		m_bounds.ExtendTo(lastLine.bounds);
+		m_lines.emplace_back(Line{ Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), m_glyphs.size() + 1 });
+
+		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
+		{
+			Line& newLine = m_lines.back();
+			newLine.glyphIndex = glyphIndex;
+
+			for (std::size_t i = glyphIndex; i < m_glyphs.size(); ++i)
+			{
+				Glyph& glyph = m_glyphs[i];
+				glyph.bounds.x -= glyphPosition;
+				glyph.bounds.y += lineHeight;
+
+				for (auto& corner : glyph.corners)
+				{
+					corner.x -= glyphPosition;
+					corner.y += lineHeight;
+				}
+
+				newLine.bounds.ExtendTo(glyph.bounds);
+			}
+
+			assert(previousDrawPos >= glyphPosition);
+			m_drawPos.x += previousDrawPos - glyphPosition;
+
+			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - glyphPosition;
+
+			// Regenerate bounds
+			m_bounds.MakeZero();
+			for (auto& line : m_lines)
+				m_bounds.ExtendTo(line.bounds);
+		}
+	}
+
+	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
 	{
 		const Font::Glyph& fontGlyph = font->GetGlyph(characterSize, style, outlineThickness, character);
 		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
@@ -271,8 +349,8 @@ namespace Nz
 
 			glyph.bounds.Set(fontGlyph.aabb);
 
-			//if (lineWrap && ShouldLineWrap(glyph, glyph.bounds.width))
-			//	AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
+				AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 			glyph.bounds.x += m_drawPos.x;
 			glyph.bounds.y += m_drawPos.y;
@@ -298,7 +376,7 @@ namespace Nz
 			return false;
 	};
 
-	void RichTextDrawer::GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float outlineThickness, const String& text) const
+	void RichTextDrawer::GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const String& text) const
 	{
 		if (text.IsEmpty())
 			return;
@@ -314,8 +392,9 @@ namespace Nz
 		char32_t previousCharacter = 0;
 
 		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+		float lineHeight = GetLineHeight(lineSpacingOffset, sizeInfo);
 
-		float heightDifference = sizeInfo.lineHeight - m_lines.back().bounds.height;
+		float heightDifference = lineHeight - m_lines.back().bounds.height;
 		if (heightDifference > 0.f)
 		{
 			for (std::size_t glyphIndex = m_lines.back().glyphIndex; glyphIndex < m_glyphs.size(); ++glyphIndex)
@@ -330,10 +409,6 @@ namespace Nz
 			m_drawPos.y += heightDifference;
 			m_lines.back().bounds.height += heightDifference;
 		}
-		/*if (firstFont.font)
-			m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, float(font->GetSizeInfo(firstBlock.characterSize).lineHeight)), 0 });
-		else
-			m_lines.emplace_back(Line{ Rectf::Zero(), 0 });*/
 
 		m_glyphs.reserve(m_glyphs.size() + characters.size() * ((outlineThickness > 0.f) ? 2 : 1));
 		for (char32_t character : characters)
@@ -344,16 +419,16 @@ namespace Nz
 			previousCharacter = character;
 
 			bool whitespace = true;
-			int advance = 0;
+			float advance = characterSpacingOffset;
 			switch (character)
 			{
 				case ' ':
 				case '\n':
-					advance = sizeInfo.spaceAdvance;
+					advance += float(sizeInfo.spaceAdvance);
 					break;
 
 				case '\t':
-					advance = sizeInfo.spaceAdvance * 4;
+					advance += float(sizeInfo.spaceAdvance) * 4.f;
 					break;
 
 				default:
@@ -364,27 +439,26 @@ namespace Nz
 			Glyph glyph;
 			if (!whitespace)
 			{
-				if (!GenerateGlyph(glyph, character, 0.f, true, font, color, style, characterSize, 0, &advance))
+				int iAdvance;
+				if (!GenerateGlyph(glyph, character, 0.f, true, font, color, style, lineSpacingOffset, characterSize, 0, &iAdvance))
 					continue; // Glyph failed to load, just skip it (can't do much)
+
+				advance += float(iAdvance);
 
 				if (outlineThickness > 0.f)
 				{
 					Glyph outlineGlyph;
-					if (GenerateGlyph(outlineGlyph, character, outlineThickness, false, font, outlineColor, style, characterSize, -1, nullptr))
-					{
+					if (GenerateGlyph(outlineGlyph, character, outlineThickness, false, font, outlineColor, style, lineSpacingOffset, characterSize, -1, nullptr))
 						m_glyphs.push_back(outlineGlyph);
-					}
 				}
 			}
 			else
 			{
-				float glyphAdvance = advance;
-
-				//if (ShouldLineWrap(glyph, glyphAdvance))
-				//	AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+				if (ShouldLineWrap(advance))
+					AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
-				glyph.bounds.Set(float(m_drawPos.x), m_lines.back().bounds.y, glyphAdvance, float(sizeInfo.lineHeight));
+				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, lineHeight);
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
@@ -398,7 +472,7 @@ namespace Nz
 			{
 				case '\n':
 				{
-					AppendNewLine(font, characterSize);
+					AppendNewLine(font, characterSize, lineSpacingOffset);
 					break;
 				}
 
@@ -407,18 +481,16 @@ namespace Nz
 					break;
 			}
 
-			/*if (whitespace)
+			if (whitespace)
 			{
 				m_lastSeparatorGlyph = m_glyphs.size();
 				m_lastSeparatorPosition = m_drawPos.x;
-			}*/
+			}
 
 			m_glyphs.push_back(glyph);
 		}
 
-		m_workingBounds.ExtendTo(m_lines.back().bounds);
-
-		m_bounds.Set(Rectf(std::floor(m_workingBounds.x), std::floor(m_workingBounds.y), std::ceil(m_workingBounds.width), std::ceil(m_workingBounds.height)));
+		m_bounds.ExtendTo(m_lines.back().bounds);
 
 		m_glyphUpdated = true;
 	}
@@ -490,18 +562,18 @@ namespace Nz
 			const auto& firstFont = m_fonts[firstBlock.fontIndex];
 
 			if (firstFont.font)
-				m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, float(firstFont.font->GetSizeInfo(firstBlock.characterSize).lineHeight)), 0 });
+				m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, GetLineHeight(firstBlock)), 0 });
 			else
 				m_lines.emplace_back(Line{ Rectf::Zero(), 0 });
 
-			m_drawPos.Set(0, firstBlock.characterSize);
+			m_drawPos.Set(0, float(firstBlock.characterSize));
 
 			for (const Block& block : m_blocks)
 			{
 				assert(block.fontIndex < m_fonts.size());
 				const auto& fontData = m_fonts[block.fontIndex];
 
-				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.color, 0.f, block.text);
+				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.characterSpacingOffset, block.lineSpacingOffset, block.text);
 			}
 		}
 		else

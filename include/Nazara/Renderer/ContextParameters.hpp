@@ -26,7 +26,6 @@ namespace Nz
 		minorVersion(defaultMinorVersion),
 		stencilBits(parameters.stencilBits),
 		shareContext(defaultShareContext),
-		window(0),
 		compatibilityProfile(defaultCompatibilityProfile),
 		debugMode(defaultDebugMode),
 		doubleBuffered(defaultDoubleBuffered),

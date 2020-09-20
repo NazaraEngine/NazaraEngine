@@ -74,10 +74,10 @@ namespace Ndk
 		Nz::String newText;
 		if (firstGlyph > 0)
 		{
-			std::size_t characterPosition = m_text.GetCharacterPosition(firstGlyph - 1);
+			std::size_t characterPosition = m_text.GetCharacterPosition(firstGlyph);
 			NazaraAssert(characterPosition != Nz::String::npos, "Invalid character position");
 
-			newText.Append(m_text.SubString(0, characterPosition));
+			newText.Append(m_text.SubString(0, characterPosition - 1));
 		}
 
 		if (lastGlyph < textLength)
@@ -89,26 +89,6 @@ namespace Ndk
 		}
 
 		SetText(newText);
-	}
-
-	void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
-	{
-		m_drawer.SetCharacterSize(characterSize);
-
-		std::size_t fontCount = m_drawer.GetFontCount();
-		unsigned int lineHeight = 0;
-		int spaceAdvance = 0;
-		for (std::size_t i = 0; i < fontCount; ++i)
-		{
-			Nz::Font* font = m_drawer.GetFont(i);
-
-			const Nz::Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
-			lineHeight = std::max(lineHeight, sizeInfo.lineHeight);
-			spaceAdvance = std::max(spaceAdvance, sizeInfo.spaceAdvance);
-		}
-
-		Nz::Vector2f size = { float(spaceAdvance), float(lineHeight) + 5.f };
-		SetMinimumSize(size);
 	}
 
 	void TextAreaWidget::Write(const Nz::String& text, std::size_t glyphPosition)
@@ -251,5 +231,23 @@ namespace Ndk
 		UpdateTextSprite();
 
 		SetCursorPosition(m_cursorPositionBegin); //< Refresh cursor position (prevent it from being outside of the text)
+	}
+
+	void TextAreaWidget::UpdateMinimumSize()
+	{
+		std::size_t fontCount = m_drawer.GetFontCount();
+		float lineHeight = 0;
+		int spaceAdvance = 0;
+		for (std::size_t i = 0; i < fontCount; ++i)
+		{
+			Nz::Font* font = m_drawer.GetFont(i);
+
+			const Nz::Font::SizeInfo& sizeInfo = font->GetSizeInfo(m_drawer.GetCharacterSize());
+			lineHeight = std::max(lineHeight, m_drawer.GetLineHeight());
+			spaceAdvance = std::max(spaceAdvance, sizeInfo.spaceAdvance);
+		}
+
+		Nz::Vector2f size = { float(spaceAdvance), lineHeight + 5.f };
+		SetMinimumSize(size);
 	}
 }

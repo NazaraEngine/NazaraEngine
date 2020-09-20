@@ -46,6 +46,9 @@ namespace Nz
 			bool SendMultiple(const IpAddress& to, const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
 			bool SendPacket(const IpAddress& to, const NetPacket& packet);
 
+			UdpSocket& operator=(const UdpSocket& udpSocket) = delete;
+			UdpSocket& operator=(UdpSocket && udpSocket) noexcept = default;
+
 		private:
 			void OnClose() override;
 			void OnOpened() override;

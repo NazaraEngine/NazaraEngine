@@ -28,6 +28,7 @@ namespace Ndk
 		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
 		m_mouseWheelMovedSlot.Connect(eventHandler.OnMouseWheelMoved, this, &Canvas::OnEventMouseWheelMoved);
 		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnEventTextEntered);
+		m_textEditedSlot.Connect(eventHandler.OnTextEdited, this, &Canvas::OnEventTextEdited);
 	}
 
 	inline Canvas::~Canvas()
@@ -59,7 +60,7 @@ namespace Ndk
 	{
 		WidgetEntry& entry = m_widgetEntries[index];
 
-		Nz::Vector3f pos = entry.widget->GetPosition();
+		Nz::Vector3f pos = entry.widget->GetPosition(Nz::CoordSys_Global);
 		Nz::Vector2f size = entry.widget->GetSize();
 
 		entry.box.Set(pos.x, pos.y, pos.z, size.x, size.y, 1.f);

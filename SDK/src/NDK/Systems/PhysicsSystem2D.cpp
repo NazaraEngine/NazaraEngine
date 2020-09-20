@@ -196,7 +196,7 @@ namespace Ndk
 				auto& node = entity->GetComponent<NodeComponent>();
 
 				Nz::RigidBody2D* physObj = collision.GetStaticBody();
-				physObj->SetPosition(Nz::Vector2f(node.GetPosition()));
+				physObj->SetPosition(Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global)));
 				//physObj->SetRotation(node.GetRotation());
 			}
 		}
@@ -249,19 +249,16 @@ namespace Ndk
 			else
 				body->SetVelocity(Nz::Vector2f::Zero());
 
-			/*if (newRotation != oldRotation)
-			{
-				Nz::Quaternionf transition = newRotation * oldRotation.GetConjugate();
-				Nz::EulerAnglesf angles = transition.ToEulerAngles();
-				Nz::Vector3f angularVelocity(Nz::ToRadians(angles.pitch * invElapsedTime),
-				                             Nz::ToRadians(angles.yaw * invElapsedTime),
-				                             Nz::ToRadians(angles.roll * invElapsedTime));
+			Nz::RadianAnglef oldRotation = body->GetRotation();
+			Nz::RadianAnglef newRotation = node.GetRotation(Nz::CoordSys_Global).To2DAngle();
 
-				physObj->SetRotation(oldRotation);
-				physObj->SetAngularVelocity(angularVelocity);
+			if (newRotation != oldRotation)
+			{
+				body->SetRotation(oldRotation);
+				body->SetAngularVelocity((newRotation - oldRotation) * invElapsedTime);
 			}
 			else
-				physObj->SetAngularVelocity(Nz::Vector3f::Zero());*/
+				body->SetAngularVelocity(Nz::RadianAnglef::Zero());
 		}
 	}
 

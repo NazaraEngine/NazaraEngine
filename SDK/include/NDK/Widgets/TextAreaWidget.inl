@@ -16,6 +16,16 @@ namespace Ndk
 		return m_drawer.GetText();
 	}
 
+	inline float TextAreaWidget::GetCharacterSpacingOffset() const
+	{
+		return m_drawer.GetCharacterSpacingOffset();
+	}
+
+	inline float TextAreaWidget::GetLineSpacingOffset() const
+	{
+		return m_drawer.GetLineSpacingOffset();
+	}
+
 	inline const Nz::String& TextAreaWidget::GetText() const
 	{
 		return m_text;
@@ -39,6 +49,34 @@ namespace Ndk
 	inline float TextAreaWidget::GetTextOulineThickness() const
 	{
 		return m_drawer.GetOutlineThickness();
+	}
+
+	inline Nz::TextStyleFlags TextAreaWidget::GetTextStyle() const
+	{
+		return m_drawer.GetStyle();
+	}
+
+	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
+	{
+		m_drawer.SetCharacterSize(characterSize);
+
+		UpdateMinimumSize();
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetCharacterSpacingOffset(float offset)
+	{
+		m_drawer.SetCharacterSpacingOffset(offset);
+
+		UpdateMinimumSize();
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetLineSpacingOffset(float offset)
+	{
+		m_drawer.SetLineSpacingOffset(offset);
+
+		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetText(const Nz::String& text)
@@ -73,6 +111,13 @@ namespace Ndk
 	inline void TextAreaWidget::SetTextOutlineThickness(float thickness)
 	{
 		m_drawer.SetOutlineThickness(thickness);
+
+		UpdateDisplayText();
+	}
+
+	inline void TextAreaWidget::SetTextStyle(Nz::TextStyleFlags style)
+	{
+		m_drawer.SetStyle(style);
 
 		UpdateDisplayText();
 	}

@@ -230,6 +230,8 @@ ParticleDemo("Space battle", sharedData)
 	Ndk::InitializeSystem<SpaceshipSystem>();
 
 	Nz::ModelParameters parameters;
+	parameters.mesh.texCoordOffset.Set(0.f, 1.f);
+	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 	parameters.mesh.optimizeIndexBuffers = false;
 
 	Nz::Color grey(100, 100, 100);
@@ -266,7 +268,8 @@ ParticleDemo("Space battle", sharedData)
 	m_turret.cannonModel->GetMaterial(0)->SetNormalMap("resources/Turret/198_norm.jpg");
 
 	parameters.mesh.matrix.MakeIdentity();
-	parameters.mesh.texCoordScale.Set(1.f, 1.f);
+	parameters.mesh.texCoordOffset.Set(0.f, 1.f);
+	parameters.mesh.texCoordScale.Set(1.f, -1.f);
 
 	parameters.mesh.center = true;
 	m_spacestationModel = Nz::Model::LoadFromFile("resources/SpaceStation/space_station.obj", parameters);
@@ -275,7 +278,8 @@ ParticleDemo("Space battle", sharedData)
 
 	m_spacestationModel->GetMesh()->GenerateNormalsAndTangents();
 
-	parameters.mesh.texCoordScale.Set(1.f, -1.f);
+	parameters.mesh.texCoordOffset.Set(0.f, 0.f);
+	parameters.mesh.texCoordScale.Set(1.f, 1.f);
 	parameters.mesh.matrix.MakeRotation(Nz::EulerAnglesf(0.f, -90.f, 0.f));
 
 	m_spaceshipModel = Nz::Model::LoadFromFile("resources/space_frigate_6/space_frigate_6.obj", parameters);
@@ -592,7 +596,6 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 		auto colorPtr = mapper.GetComponentPtr<Nz::Color>(Nz::ParticleComponent_Color);
 		auto lifePtr = mapper.GetComponentPtr<float>(Nz::ParticleComponent_Life);
 
-		float velFactor = std::pow(0.9f, elapsedTime / 0.1f);
 		for (unsigned int i = startId; i <= endId; ++i)
 			colorPtr[i].a = static_cast<Nz::UInt8>(Nz::Clamp(lifePtr[i] * 255.f, 0.f, 255.f));
 	}));
@@ -671,13 +674,18 @@ void SpacebattleExample::Enter(Ndk::StateMachine& fsm)
 
 	Nz::Boxf introAABB = introGfx.GetAABB();
 	introNode.SetPosition(cannonNode.GetForward() * 500.f + introNode.GetLeft() * introAABB.width / 2.f + introNode.GetUp() * introAABB.height / 2.f);
+
+	Nz::Mouse::SetRelativeMouseMode(true);
 }
 
 void SpacebattleExample::Leave(Ndk::StateMachine& fsm)
 {
+	Nz::Mouse::SetRelativeMouseMode(false);
+
 	m_ambientMusic.Stop();
 	m_onMouseMoved.Disconnect();
-	m_shared.target->SetCursor(Nz::SystemCursor_Default);
+	if (m_shared.target)
+		m_shared.target->SetCursor(Nz::SystemCursor_Default);
 	m_shared.world3D->RemoveSystem<LaserBeamSystem>();
 	m_shared.world3D->RemoveSystem<SpaceshipSystem>();
 	m_turretFireSound.Stop();
@@ -832,7 +840,4 @@ void SpacebattleExample::OnMouseMoved(const Nz::EventHandler* /*eventHandler*/, 
 
 	m_turretCannonBaseRotation = Nz::Clamp(m_turretCannonBaseRotation + speed * event.deltaY, -65.f, 40.f);
 	m_turretBaseRotation -= event.deltaX * speed;
-
-	Nz::Vector2ui size = m_shared.target->GetSize();
-	Nz::Mouse::SetPosition(size.x / 2, size.y / 2, *m_shared.target);
 }

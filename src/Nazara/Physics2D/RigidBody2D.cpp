@@ -168,9 +168,9 @@ namespace Nz
 
 	void RigidBody2D::EnableSimulation(bool simulation)
 	{
-		if (m_isRegistered != simulation)
+		if (m_isSimulationEnabled != simulation)
 		{
-			m_isRegistered = simulation;
+			m_isSimulationEnabled = simulation;
 
 			if (simulation)
 				RegisterToSpace();
@@ -192,6 +192,15 @@ namespace Nz
 		};
 
 		cpBodyEachArbiter(m_handle, RealCallback, &callback);
+	}
+
+	void RigidBody2D::ForceSleep()
+	{
+		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		{
+			if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_DYNAMIC)
+				cpBodySleep(body->GetHandle());
+		});
 	}
 
 	Rectf RigidBody2D::GetAABB() const
@@ -316,7 +325,7 @@ namespace Nz
 
 	bool RigidBody2D::IsSimulationEnabled() const
 	{
-		return m_isRegistered;
+		return m_isSimulationEnabled;
 	}
 
 	bool RigidBody2D::IsSleeping() const
@@ -564,6 +573,17 @@ namespace Nz
 		cpBodyUpdateVelocity(m_handle, cpv(gravity.x, gravity.y), damping, deltaTime);
 	}
 
+	void RigidBody2D::Wakeup()
+	{
+		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		{
+			if (cpBodyGetType(body->GetHandle()) != CP_BODY_TYPE_STATIC)
+				cpBodyActivate(body->GetHandle());
+			else
+				cpBodyActivateStatic(body->GetHandle(), nullptr);
+		});
+	}
+
 	RigidBody2D& RigidBody2D::operator=(const RigidBody2D& object)
 	{
 		RigidBody2D physObj(object);
@@ -675,6 +695,8 @@ namespace Nz
 		cpBodySetVelocity(to, cpBodyGetVelocity(from));
 
 		cpBodySetType(to, cpBodyGetType(from));
+
+		to->velocity_func = from->velocity_func;
 	}
 
 	void RigidBody2D::CopyShapeData(cpShape* from, cpShape* to)

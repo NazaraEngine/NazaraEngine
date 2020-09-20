@@ -9,6 +9,8 @@
 #ifndef NAZARA_EVENT_HPP
 #define NAZARA_EVENT_HPP
 
+#include <array>
+
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Mouse.hpp>
@@ -22,7 +24,8 @@ namespace Nz
 		// -WindowEventType_KeyReleased
 		struct KeyEvent
 		{
-			Keyboard::Key code;
+			Keyboard::Scancode scancode;
+			Keyboard::VKey virtualKey;
 			bool alt;
 			bool control;
 			bool repeated;
@@ -83,6 +86,14 @@ namespace Nz
 			char32_t character;
 		};
 
+		// Used by:
+		// -WindowEventType_TextEdited
+		struct EditEvent
+		{
+			int length;
+			std::array<char, 32> text;
+		};
+
 		WindowEventType type;
 
 		union
@@ -116,6 +127,10 @@ namespace Nz
 			// Used by:
 			// -WindowEventType_TextEntered
 			TextEvent text;
+
+			// Used by:
+			// -WindowEventType_TextEntered
+			EditEvent edit;
 		};
 	};
 }

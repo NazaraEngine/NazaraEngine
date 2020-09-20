@@ -8,15 +8,7 @@
 #include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Platform/Win32/WindowImpl.hpp>
-#elif defined(NAZARA_PLATFORM_X11)
-	#include <Nazara/Platform/X11/WindowImpl.hpp>
-#else
-	#error Lack of implementation: Window
-#endif
-
+	#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
@@ -132,7 +124,7 @@ namespace Nz
 		return true;
 	}
 
-	bool Window::Create(WindowHandle handle)
+	bool Window::Create(void* handle)
 	{
 		Destroy();
 
@@ -205,19 +197,6 @@ namespace Nz
 		m_impl->EnableSmoothScrolling(enable);
 	}
 
-	WindowHandle Window::GetHandle() const
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return static_cast<WindowHandle>(0);
-		}
-		#endif
-
-		return m_impl->GetHandle();
-	}
-
 	Vector2i Window::GetPosition() const
 	{
 		#if NAZARA_PLATFORM_SAFE
@@ -255,6 +234,19 @@ namespace Nz
 		#endif
 
 		return m_impl->GetStyle();
+	}
+
+	WindowHandle Window::GetSystemHandle() const
+	{
+#if NAZARA_PLATFORM_SAFE
+		if (!m_impl)
+		{
+			NazaraError("Window not created");
+			return {};
+		}
+#endif
+
+		return m_impl->GetSystemHandle();
 	}
 
 	String Window::GetTitle() const
@@ -619,6 +611,11 @@ namespace Nz
 		ConnectSlots();
 
 		return *this;
+	}
+
+	void* Window::GetHandle()
+	{
+		return (m_impl) ? m_impl->GetHandle() : nullptr;
 	}
 
 	bool Window::OnWindowCreated()

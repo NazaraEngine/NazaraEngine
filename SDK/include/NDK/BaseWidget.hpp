@@ -75,6 +75,7 @@ namespace Ndk
 
 			bool HasFocus() const;
 
+			inline void Hide();
 			inline bool IsVisible() const;
 
 			void Resize(const Nz::Vector2f& size);
@@ -110,6 +111,8 @@ namespace Ndk
 
 			void InvalidateNode() override;
 
+			Nz::Rectf GetScissorRect() const;
+
 			virtual bool IsFocusable() const;
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
@@ -123,8 +126,11 @@ namespace Ndk
 			virtual void OnMouseExit();
 			virtual void OnParentResized(const Nz::Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
+			virtual void OnTextEdited(const std::array<char, 32>& characters, int length);
 
 			inline void SetPreferredSize(const Nz::Vector2f& preferredSize);
+
+			virtual void ShowChildren(bool show);
 
 		private:
 			inline BaseWidget();

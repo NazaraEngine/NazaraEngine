@@ -2,32 +2,26 @@ MODULE.Name = "Platform"
 
 MODULE.ClientOnly = true
 
+MODULE.Defines = {
+	"NAZARA_PLATFORM_SDL2"
+}
+
 MODULE.Libraries = {
 	"NazaraCore",
-	"NazaraUtility"
+	"NazaraUtility",
+	"SDL2"
 }
 
-MODULE.OsFiles.Windows = {
-	"../src/Nazara/Platform/Win32/**.hpp",
-	"../src/Nazara/Platform/Win32/**.cpp"
+MODULE.Files = {
+	"../src/Nazara/Platform/SDL2/**.hpp",
+	"../src/Nazara/Platform/SDL2/**.cpp"
 }
 
-MODULE.OsFiles.Posix = {
-	"../src/Nazara/Platform/X11/**.hpp",
-	"../src/Nazara/Platform/X11/**.cpp"
+MODULE.OsDefines.Windows = {
+	"SDL_VIDEO_DRIVER_WINDOWS=1"
 }
 
-MODULE.OsLibraries.Windows = {
-	"gdi32"
+MODULE.OsDefines.Posix = {
+	"SDL_VIDEO_DRIVER_X11=1",
+	"SDL_VIDEO_DRIVER_WAYLAND=1",
 }
-
-MODULE.OsLibraries.Posix = {
-	"X11",
-	"xcb",
-	"xcb-cursor",
-	"xcb-ewmh",
-	"xcb-icccm",
-	"xcb-keysyms",
-	"xcb-randr"
-}
-

@@ -19,9 +19,9 @@ void MenuState::Enter(Ndk::StateMachine& fsm)
 	Nz::EventHandler& eventHandler = m_context.window.GetEventHandler();
 	m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, [this] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& key)
 	{
-		if (key.code >= Nz::Keyboard::Key::A && key.code < (Nz::Keyboard::Key::A + static_cast<int>(EventStatus::Max) - 1))
+		if (key.virtualKey >= Nz::Keyboard::VKey::A && key.virtualKey < static_cast<Nz::Keyboard::VKey>(static_cast<int>(Nz::Keyboard::VKey::A) + static_cast<int>(EventStatus::Max) - 1))
 		{
-			m_selectedNextState = key.code - static_cast<int>(Nz::Keyboard::Key::A);
+			m_selectedNextState = static_cast<int>(key.virtualKey) - static_cast<int>(Nz::Keyboard::VKey::A);
 		}
 	});
 }

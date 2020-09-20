@@ -20,6 +20,8 @@ Miscellaneous:
 - Fixed .dll copy when building Nazara occuring on Linux when targeting Windows (MinGW)
 - ⚠ Appveyor nightlies are now compiled with VS2017
 - Set libraries' rpath to current folder (.)
+- Add ReleaseWithDebug target
+- ⚠ **Default font has been changed from Cabin to OpenSans**
 
 Nazara Engine:
 - VertexMapper:GetComponentPtr no longer throw an error if component is disabled or incompatible with template type, instead a null pointer is returned.
@@ -200,6 +202,26 @@ Nazara Engine:
 - Add Flags<E>::Clear(Flags) helper method, to clear one or more flags.
 - Add Flags<E>::Clear() helper method, to reset flags
 - Add Flags<E>::Set(Flags) helper method, to enable flags
+- ⚠ Constraint2D are no longer managed by references and are now handled objects
+- ⚠ Removed all Set methods from math classes taking their own type (e.g. Box::Set(Box))
+- Added Matrix4::Decompose
+- ⚠ Node::Get[Position|Rotation|Scale] now defaults to local space
+- Fixed Node rotation when using a negative scale
+- Added HandledObject::OnHandledObjectDestruction signal
+- Added physics function to control sleeping behavior
+- String::Number is now locale-independent
+- Added ENetPeer::GetTotalByte[Received|Sent]
+- Added ENetPeer::GetTotalPacketSent
+- ⚠ ENetHost::GetTotalReceivedPackets now returns the number of commands received (instead of the number of UDP packets received)
+- Added EmptyStream class, useful to measure how many bytes some writing operations will take
+- SegmentCollider2D: Add support for neighbors (aka "ghost vertices"), allowing to prevent seams collisions
+- ⚠ OBJLoader flips UV by default, fixing a lot of models UV
+- On Windows, Thread::Set(Current)Name now uses `SetThreadDescription` Win32 function if possible instead of triggering a debugger exception. MinGW builds will use this if available too.
+- ⚠ Removed Texture(const Image\*) constructor, use Texture::LoadFromImage instead
+- ⚠ TextDrawers now use floating-point internally and to exposes their Bounds (AbstractTextDrawer::GetBounds() now returns a Rectf)
+- Added [SimpleTextDrawer|RichTextDrawer] character and line spacing offset properties
+- Added ENetHost::AllowsIncomingConnections(bool) to disable/re-enable server peers connection
+- Added ByteArrayPool and PoolByteStream classes
 
 Nazara Development Kit:
 - Added ImageWidget (#139)
@@ -297,6 +319,11 @@ Nazara Development Kit:
 - Added World::CloneEntity overload taking an EntityHandle const reference, allowing to copy entities from other worlds
 - Fixed PhysicsComponent2D copy not copying physics attributes
 - Added Entity::DropComponent which detaches a component without necessarily destroying it
+- ⚠ ConstraintComponent2D has been reworked to handle entity destruction and remove constraints at will
+- Fixed crash when pressing up/down key with no history in the console
+- (Rich)TextAreaWidget text style is now alterable
+- Added CameraComponent::SetProjectionScale
+- Added (Rich)TextAreaWidget character and line spacing offset properties
 
 # 0.4:
 

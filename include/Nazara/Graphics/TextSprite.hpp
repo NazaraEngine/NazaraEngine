@@ -102,7 +102,7 @@ namespace Nz
 			mutable std::unordered_map<RenderKey, RenderIndices, HashRenderKey> m_renderInfos;
 			mutable std::vector<VertexStruct_XY_Color_UV> m_localVertices;
 			Color m_color;
-			Recti m_localBounds;
+			Rectf m_localBounds;
 			float m_scale;
 
 			static TextSpriteLibrary::LibraryMap s_library;

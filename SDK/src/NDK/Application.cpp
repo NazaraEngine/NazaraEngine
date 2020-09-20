@@ -209,7 +209,7 @@ namespace Ndk
 
 		overlay->keyPressedSlot.Connect(eventHandler.OnKeyPressed, [&consoleRef] (const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 		{
-			if (event.code == Nz::Keyboard::F9)
+			if (event.virtualKey == Nz::Keyboard::VKey::F9)
 			{
 				// Toggle console visibility and focus
 				if (consoleRef.IsVisible())

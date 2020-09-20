@@ -20,7 +20,7 @@ namespace Nz
 		Create(mode, title, style, parameters);
 	}
 
-	RenderWindow::RenderWindow(WindowHandle handle, const ContextParameters& parameters) :
+	RenderWindow::RenderWindow(void* handle, const ContextParameters& parameters) :
 	RenderTarget(), Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);
@@ -125,7 +125,7 @@ namespace Nz
 		return Window::Create(mode, title, style);
 	}
 
-	bool RenderWindow::Create(WindowHandle handle, const ContextParameters& parameters)
+	bool RenderWindow::Create(void* handle, const ContextParameters& parameters)
 	{
 		m_parameters = parameters;
 		return Window::Create(handle);
@@ -234,7 +234,7 @@ namespace Nz
 	bool RenderWindow::OnWindowCreated()
 	{
 		m_parameters.doubleBuffered = true;
-		m_parameters.window = GetHandle();
+		m_parameters.window = GetSystemHandle();
 
 		std::unique_ptr<Context> context(new Context);
 		if (!context->Create(m_parameters))

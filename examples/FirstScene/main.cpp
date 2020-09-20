@@ -293,6 +293,8 @@ int main()
 	//Gestion des Evenements 
 	Nz::EventHandler& eventHandler = window.GetEventHandler();
 
+	Nz::Mouse::SetRelativeMouseMode(true);
+
 	eventHandler.OnMouseMoved.Connect([&camAngles, &cameraNode, &window](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
 		if (Ndk::Application::Instance()->IsConsoleEnabled())
@@ -312,19 +314,14 @@ int main()
 
 		// On applique les angles d'Euler à notre caméra
 		cameraNode.SetRotation(camAngles);
-
-		// Pour éviter que le curseur ne sorte de l'écran, nous le renvoyons au centre de la fenétre
-		// Cette fonction est codée de sorte à ne pas provoquer d'événement MouseMoved
-		Nz::Vector2ui size = window.GetSize();
-		Nz::Mouse::SetPosition(size.x / 2, size.y / 2, window);
 	});
 
 	eventHandler.OnKeyPressed.Connect([&targetPos, &cameraNode, &smoothMovement, &window](const Nz::EventHandler*, const Nz::WindowEvent::KeyEvent& event)
 	{
 		// Une touche a été pressée !
-		if (event.code == Nz::Keyboard::Key::Escape)
+		if (event.virtualKey == Nz::Keyboard::VKey::Escape)
 			window.Close();
-		else if (event.code == Nz::Keyboard::F1)
+		else if (event.virtualKey == Nz::Keyboard::VKey::F1)
 		{
 			if (smoothMovement)
 			{
@@ -365,34 +362,34 @@ int main()
 			if (move)
 			{
 				// Si la touche espace est enfoncée, notre vitesse de déplacement est multipliée par deux
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Space))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
 					cameraSpeed *= 2.f;
 
 				// Pour que nos déplacement soient liés à la rotation de la caméra, nous allons utiliser
 				// les directions locales de la caméra
 
 				// Si la flèche du haut ou la touche Z (vive ZQSD !!) est pressée, on avance
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Z))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 					targetPos += cameraNode.GetForward() * cameraSpeed;
 
 				// Si la flèche du bas ou la touche S est pressée, on recule
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::S))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
 					targetPos += cameraNode.GetBackward() * cameraSpeed;
 
 				// Etc...
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Q))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
 					targetPos += cameraNode.GetLeft() * cameraSpeed;
 
 				// Etc...
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::D))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
 					targetPos += cameraNode.GetRight() * cameraSpeed;
 
 				// Majuscule pour monter, notez l'utilisation d'une direction globale (Non-affectée par la rotation)
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RShift))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RShift))
 					targetPos += Nz::Vector3f::Up() * cameraSpeed;
 
 				// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
-				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::RControl))
+				if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 					targetPos += Nz::Vector3f::Down() * cameraSpeed;
 			}
 

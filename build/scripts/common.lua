@@ -122,6 +122,10 @@ function NazaraBuild:Execute()
 				end
 
 				filter({})
+				
+				if (libTable.Custom) then
+					libTable.Custom()
+				end
 			end
 		end
 		
@@ -180,6 +184,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (moduleTable.Custom) then
+				moduleTable.Custom()
+			end
 		end
 
 		-- Tools
@@ -251,6 +259,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (toolTable.Custom) then
+				toolTable.Custom()
+			end
 		end
 
 		group("Examples")
@@ -301,6 +313,10 @@ function NazaraBuild:Execute()
 			end
 
 			filter({})
+				
+			if (exampleTable.Custom) then
+				exampleTable.Custom()
+			end
 		end
 	end
 end
@@ -388,6 +404,7 @@ function NazaraBuild:Initialize()
 		if (f) then
 			MODULE = {}
 			self:SetupModuleTable(MODULE)
+			Config = self.Config
 
 			f()
 
@@ -530,6 +547,7 @@ function NazaraBuild:LoadConfig()
 	AddBoolOption("PremakeProject", "premakeproject", "Add a PremakeProject as a shortcut to call Premake")
 	AddBoolOption("ServerMode", "server", "Excludes client-only modules/tools/examples")
 	AddBoolOption("UniteModules", "united", "Builds all the modules as one united library")
+	AddBoolOption("PlatformSDL2", "platform-sdl2", "Use SDL2 instead of native APIs")
 
 	-- AdditionalCompilationOptions
 	do
@@ -839,6 +857,7 @@ function NazaraBuild:PrepareGeneric()
 		targetsuffix("-d")
 
 	filter("configurations:*Debug*")
+		optimize("Debug")
 		symbols("On")
 
 	filter("configurations:not *Debug*")

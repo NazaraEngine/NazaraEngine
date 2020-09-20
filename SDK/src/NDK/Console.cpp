@@ -73,7 +73,7 @@ namespace Ndk
 
 		m_input->OnTextAreaKeyBackspace.Connect([](const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
-			if (textArea->GetGlyphIndex() <= s_inputPrefixSize)
+			if (textArea->GetGlyphIndex() < s_inputPrefixSize)
 				*ignoreDefaultAction = true;
 		});
 
@@ -81,6 +81,9 @@ namespace Ndk
 		m_input->OnTextAreaKeyUp.Connect([&] (const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
 			*ignoreDefaultAction = true;
+
+			if (m_commandHistory.empty())
+				return;
 
 			if (m_historyPosition > 0)
 				m_historyPosition--;
@@ -91,6 +94,9 @@ namespace Ndk
 		m_input->OnTextAreaKeyDown.Connect([&] (const AbstractTextAreaWidget* textArea, bool* ignoreDefaultAction)
 		{
 			*ignoreDefaultAction = true;
+
+			if (m_commandHistory.empty())
+				return;
 
 			if (++m_historyPosition >= m_commandHistory.size())
 				m_historyPosition = 0;
@@ -140,7 +146,7 @@ namespace Ndk
 	void Console::ClearFocus()
 	{
 		m_input->ClearFocus();
-	}
+  }
 
 	/*!
 	* \brief Sets the character size

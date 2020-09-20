@@ -13,8 +13,8 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_cabinRegular[] = {
-			#include <Nazara/Utility/Resources/Fonts/Cabin-Regular.ttf.h>
+		const UInt8 r_sansationRegular[] = {
+			#include <Nazara/Utility/Resources/Fonts/OpenSans-Regular.ttf.h>
 		};
 	}
 
@@ -336,7 +336,7 @@ namespace Nz
 
 		if (!s_defaultFont)
 		{
-			s_defaultFont = Font::OpenFromMemory(r_cabinRegular, sizeof(r_cabinRegular));
+			s_defaultFont = Font::OpenFromMemory(r_sansationRegular, sizeof(r_sansationRegular));
 			if (!s_defaultFont)
 				NazaraError("Failed to open default font");
 		}

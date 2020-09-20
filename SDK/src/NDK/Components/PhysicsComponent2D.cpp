@@ -51,8 +51,14 @@ namespace Ndk
 
 		m_object = std::make_unique<Nz::RigidBody2D>(&world, 1.f, geom);
 		m_object->SetPositionOffset(positionOffset);
-		m_object->SetPosition(Nz::Vector2f(matrix.GetTranslation()));
 		m_object->SetUserdata(reinterpret_cast<void*>(static_cast<std::ptrdiff_t>(m_entity->GetId())));
+
+		if (m_entity->HasComponent<NodeComponent>())
+		{
+			auto& entityNode = m_entity->GetComponent<NodeComponent>();
+			m_object->SetPosition(Nz::Vector2f(entityNode.GetPosition()));
+			m_object->SetRotation(entityNode.GetRotation().To2DAngle());
+		}
 
 		if (m_pendingStates.valid)
 			ApplyPhysicsState(*m_object);
@@ -71,7 +77,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent2D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(static_cast<CollisionComponent2D&>(component).GetGeom());
+			m_object->SetGeom(static_cast<CollisionComponent2D&>(component).GetGeom(), false, false);
 		}
 	}
 
@@ -88,7 +94,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent2D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(Nz::NullCollider2D::New());
+			m_object->SetGeom(Nz::NullCollider2D::New(), false, false);
 		}
 	}
 
@@ -109,6 +115,20 @@ namespace Ndk
 	{
 		// Kill rigidbody before entity destruction to force contact callbacks to be called while the entity is still valid
 		m_object.reset();
+	}
+
+	void PhysicsComponent2D::OnEntityDisabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(false);
+	}
+
+	void PhysicsComponent2D::OnEntityEnabled()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		m_object->EnableSimulation(true);
 	}
 
 	ComponentIndex PhysicsComponent2D::componentIndex;

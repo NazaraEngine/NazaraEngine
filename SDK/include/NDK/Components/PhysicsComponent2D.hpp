@@ -40,6 +40,7 @@ namespace Ndk
 
 			inline void EnableNodeSynchronization(bool nodeSynchronization);
 
+			inline void ForceSleep();
 			inline void ForEachArbiter(const std::function<void(Nz::Arbiter2D&)>& callback);
 
 			inline Nz::Rectf GetAABB() const;
@@ -83,6 +84,8 @@ namespace Ndk
 
 			inline void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
 
+			inline void Wakeup();
+
 			static ComponentIndex componentIndex;
 
 		private:
@@ -96,6 +99,8 @@ namespace Ndk
 			void OnComponentDetached(BaseComponent& component) override;
 			void OnDetached() override;
 			void OnEntityDestruction() override;
+			void OnEntityDisabled() override;
+			void OnEntityEnabled() override;
 
 			struct PendingPhysObjectStates
 			{

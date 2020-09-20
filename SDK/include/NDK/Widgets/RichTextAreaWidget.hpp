@@ -27,12 +27,22 @@ namespace Ndk
 			void Erase(std::size_t firstGlyph, std::size_t lastGlyph) override;
 
 			inline unsigned int GetCharacterSize() const;
+			inline float GetCharacterSpacingOffset() const;
+			inline float GetLineSpacingOffset() const;
 			inline const Nz::Color& GetTextColor() const;
 			inline Nz::Font* GetTextFont() const;
+			inline const Nz::Color& GetTextOutlineColor() const;
+			inline float GetTextOutlineThickness() const;
+			inline Nz::TextStyleFlags GetTextStyle() const;
 
 			inline void SetCharacterSize(unsigned int characterSize);
+			inline void SetCharacterSpacingOffset(float offset);
+			inline void SetLineSpacingOffset(float offset);
 			inline void SetTextColor(const Nz::Color& color);
 			inline void SetTextFont(Nz::FontRef font);
+			inline void SetTextOutlineColor(const Nz::Color& color);
+			inline void SetTextOutlineThickness(float thickness);
+			inline void SetTextStyle(Nz::TextStyleFlags style);
 
 			void Write(const Nz::String& text, std::size_t glyphPosition) override;
 
@@ -47,7 +57,7 @@ namespace Ndk
 			void HandleSelectionIndentation(bool add) override;
 			void HandleWordCursorMove(bool left) override;
 
-			void UpdateDisplayText();
+			void UpdateDisplayText() override;
 
 			Nz::RichTextDrawer m_drawer;
 	};

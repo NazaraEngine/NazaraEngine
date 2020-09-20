@@ -4,25 +4,43 @@
 
 #include <NDK/Widgets/BoxLayout.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackVector.hpp>
+#include <kiwi/kiwi.h>
 #include <cassert>
+#include <vector>
 
 namespace Ndk
 {
+	struct BoxLayout::State
+	{
+		std::vector<kiwi::Variable> sizeVar;
+		kiwi::Solver solver;
+	};
+
+	BoxLayout::BoxLayout(BaseWidget* parent, BoxLayoutOrientation orientation) :
+	BaseWidget(parent),
+	m_orientation(orientation),
+	m_spacing(5.f)
+	{
+		m_state = std::make_unique<State>();
+	}
+
+	BoxLayout::~BoxLayout() = default;
+
 	void BoxLayout::Layout()
 	{
-		std::size_t axis1, axis2;
+		BaseWidget::Layout();
+
+		std::size_t axis;
 
 		switch (m_orientation)
 		{
 			case BoxLayoutOrientation_Horizontal:
-				axis1 = 0; //< x
-				axis2 = 1; //< y
+				axis = 0; //< x
 				break;
 
 			case BoxLayoutOrientation_Vertical:
-				axis1 = 1; //< y
-				axis2 = 0; //< x
+				axis = 1; //< y
 				break;
 
 			default:
@@ -30,7 +48,21 @@ namespace Ndk
 				break;
 		}
 
-		m_childInfos.clear();
+		//TODO: Keep solver state when widgets don't change
+		std::size_t widgetChildCount = GetWidgetChildCount();
+		if (widgetChildCount == 0)
+			return;
+
+		m_state->solver.reset();
+
+		m_state->sizeVar.clear();
+		m_state->sizeVar.reserve(widgetChildCount);
+
+		kiwi::Expression sizeSum;
+
+		Nz::Vector2f layoutSize = GetSize();
+		float availableSpace = layoutSize[axis] - m_spacing * (widgetChildCount - 1);
+		float perfectSpacePerWidget = availableSpace / widgetChildCount;
 
 		// Handle size
 		ForEachWidgetChild([&](BaseWidget* child)
@@ -38,73 +70,55 @@ namespace Ndk
 			if (!child->IsVisible())
 				return;
 
-			m_childInfos.emplace_back();
-			auto& info = m_childInfos.back();
-			info.isConstrained = false;
-			info.maximumSize = child->GetMaximumSize()[axis1];
-			info.minimumSize = child->GetMinimumSize()[axis1];
-			info.size = info.minimumSize;
-			info.widget = child;
+			float maximumSize = child->GetMaximumSize()[axis];
+			float minimumSize = child->GetMinimumSize()[axis];
+
+			m_state->sizeVar.emplace_back();
+			auto& sizeVar = m_state->sizeVar.back();
+
+			m_state->solver.addConstraint({ sizeVar >= minimumSize | kiwi::strength::required });
+
+			if (maximumSize < std::numeric_limits<float>::infinity())
+				m_state->solver.addConstraint({ sizeVar <= maximumSize | kiwi::strength::required });
+
+			m_state->solver.addConstraint({ sizeVar == perfectSpacePerWidget | kiwi::strength::medium });
+
+			sizeSum = sizeSum + sizeVar;
 		});
 
-		Nz::Vector2f layoutSize = GetSize();
+		kiwi::Variable targetSize("LayoutSize");
 
-		float availableSpace = layoutSize[axis1] - m_spacing * (m_childInfos.size() - 1);
+		m_state->solver.addConstraint(sizeSum <= targetSize | kiwi::strength::strong);
+
+		m_state->solver.addEditVariable(targetSize, kiwi::strength::strong);
+		m_state->solver.suggestValue(targetSize, availableSpace);
+
+		m_state->solver.updateVariables();
+
+		std::size_t varIndex = 0;
+
 		float remainingSize = availableSpace;
-		for (auto& info : m_childInfos)
-			remainingSize -= info.minimumSize;
 
-		// Okay this algorithm is FAR from perfect but I couldn't figure a way other than this one
-		std::size_t unconstrainedChildCount = m_childInfos.size();
-
-		bool hasUnconstrainedChilds = false;
-		for (std::size_t i = 0; i < m_childInfos.size(); ++i)
+		ForEachWidgetChild([&](BaseWidget* child)
 		{
-			if (remainingSize <= 0.0001f)
-				break;
+			if (!child->IsVisible())
+				return;
 
-			float evenSize = remainingSize / unconstrainedChildCount;
+			Nz::Vector2f newSize = layoutSize;
+			newSize[axis] = m_state->sizeVar[varIndex].value();
 
-			for (auto& info : m_childInfos)
-			{
-				if (info.isConstrained)
-					continue;
+			child->Resize(newSize);
+			remainingSize -= newSize[axis];
 
-				float previousSize = info.size;
+			varIndex++;
+		});
 
-				info.size += evenSize;
-				if (info.size > info.maximumSize)
-				{
-					unconstrainedChildCount--;
-
-					evenSize += (info.size - info.maximumSize) / unconstrainedChildCount;
-					info.isConstrained = true;
-					info.size = info.maximumSize;
-				}
-				else
-					hasUnconstrainedChilds = true;
-
-				remainingSize -= info.size - previousSize;
-			}
-
-			if (!hasUnconstrainedChilds)
-				break;
-		}
-
-		float spacing = m_spacing + remainingSize / (m_childInfos.size() - 1);
-
-		for (auto& info : m_childInfos)
-		{
-			Nz::Vector2f newSize = info.widget->GetSize();
-			newSize[axis1] = info.size;
-
-			info.widget->Resize(newSize);
-		}
+		float spacing = m_spacing + remainingSize / (widgetChildCount - 1);
 
 		// Handle position
 		float cursor = 0.f;
 		bool first = true;
-		for (auto& info : m_childInfos)
+		ForEachWidgetChild([&](BaseWidget* child)
 		{
 			if (first)
 				first = false;
@@ -112,11 +126,11 @@ namespace Ndk
 				cursor += spacing;
 
 			Nz::Vector2f position = Nz::Vector2f(0.f, 0.f);
-			position[axis1] = cursor;
+			position[axis] = cursor;
 
-			info.widget->SetPosition(position);
+			child->SetPosition(position);
 
-			cursor += info.size;
-		};
+			cursor += child->GetSize()[axis];
+		});
 	}
 }

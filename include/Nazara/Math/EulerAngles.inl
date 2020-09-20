@@ -170,20 +170,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the euler angle from another euler angle
-	* \return A reference to this euler angle
-	*
-	* \param angles The other euler angle
-	*/
-	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles& angles)
-	{
-		std::memcpy(this, &angles, sizeof(EulerAngles));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the euler angle from a quaternion
 	* \return A reference to this euler angle
 	*

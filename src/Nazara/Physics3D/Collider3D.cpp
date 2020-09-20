@@ -259,7 +259,7 @@ namespace Nz
 
 	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_length, 0, m_matrix);
+		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_radius, m_length, 0, m_matrix);
 	}
 
 	/******************************* CompoundCollider3D ********************************/
@@ -396,7 +396,7 @@ namespace Nz
 
 	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_length, 0, m_matrix);
+		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_radius, m_length, 0, m_matrix);
 	}
 
 	/********************************* NullCollider3D **********************************/

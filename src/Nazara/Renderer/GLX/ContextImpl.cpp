@@ -141,9 +141,11 @@ namespace Nz
 		}
 
 		// If context is shared by multiple windows
-		if (parameters.window)
+		if (parameters.window.type != WindowManager::Invalid)
 		{
-			m_window = parameters.window;
+			NazaraAssert(parameters.window.type == WindowManager::X11, "Cannot create a context for a non-x11 window");
+
+			m_window = static_cast<GLX::Window>(parameters.window.x11.window);
 			m_ownsWindow = false;
 		}
 		else

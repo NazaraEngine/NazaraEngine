@@ -20,7 +20,8 @@ namespace Ndk
 	*
 	* \param physics PhysicsComponent2D to copy
 	*/
-	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics)
+	inline PhysicsComponent2D::PhysicsComponent2D(const PhysicsComponent2D& physics) :
+	m_nodeSynchronizationEnabled(physics.m_nodeSynchronizationEnabled)
 	{
 		CopyPhysicsState(*physics.GetRigidBody());
 	}
@@ -135,6 +136,16 @@ namespace Ndk
 
 		if (m_entity)
 			m_entity->Invalidate();
+	}
+
+	/*!
+	TODO
+	*/
+	inline void PhysicsComponent2D::ForceSleep()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->ForceSleep();
 	}
 
 	/*!
@@ -646,6 +657,16 @@ namespace Ndk
 		NazaraAssert(m_object, "Invalid physics object");
 
 		m_object->UpdateVelocity(gravity, damping, deltaTime);
+	}
+
+	/*!
+	TODO
+	*/
+	inline void PhysicsComponent2D::Wakeup()
+	{
+		NazaraAssert(m_object, "Invalid physics object");
+
+		return m_object->Wakeup();
 	}
 
 	inline void PhysicsComponent2D::ApplyPhysicsState(Nz::RigidBody2D& rigidBody) const

@@ -126,7 +126,7 @@ namespace Nz
 		template<typename T>
 		void SinCos(std::enable_if_t<std::is_same<T, long double>::value, long double> x, long double* s, long double* c)
 		{
-			::sincosl(x, sin, cos);
+			::sincosl(x, s, c);
 		}
 #else
 		// Naive implementation, hopefully optimized by the compiler
@@ -152,6 +152,28 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	Angle<Unit, T>::Angle(T angle) :
 	value(angle)
+	{
+	}
+
+	/*!
+	* \brief Constructs an Angle object from a angle in degrees, converting if required
+	*
+	* \param value Angle object to copy
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T>::Angle(const Angle<AngleUnit::Degree, T>& angle) :
+	value(Detail::AngleUtils<Unit>::FromDegrees(angle.value))
+	{
+	}
+
+	/*!
+	* \brief Constructs an Angle object from a angle in radians, converting if required
+	*
+	* \param value Angle object to copy
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T>::Angle(const Angle<AngleUnit::Radian, T>& angle) :
+	value(Detail::AngleUtils<Unit>::FromRadians(angle.value))
 	{
 	}
 

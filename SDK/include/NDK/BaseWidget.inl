@@ -15,10 +15,10 @@ namespace Ndk
 	m_backgroundColor(Nz::Color(230, 230, 230, 255)),
 	m_renderingRect(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()),
 	m_cursor(Nz::SystemCursor_Default),
-	m_size(50.f, 50.f),
 	m_maximumSize(std::numeric_limits<float>::infinity()),
 	m_minimumSize(0.f),
 	m_preferredSize(-1),
+	m_size(50.f, 50.f),
 	m_widgetParent(nullptr),
 	m_visible(true)
 	{
@@ -170,6 +170,11 @@ namespace Ndk
 	inline std::size_t BaseWidget::GetWidgetChildCount() const
 	{
 		return m_children.size();
+	}
+
+	inline void BaseWidget::Hide()
+	{
+		return Show(false);
 	}
 
 	inline bool BaseWidget::IsVisible() const

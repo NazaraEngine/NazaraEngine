@@ -17,8 +17,8 @@ namespace Ndk
 		/*********************************** Nz::Keyboard **********************************/
 		keyboard.Reset("Keyboard");
 		{
-			keyboard.BindStaticMethod("GetKeyName", &Nz::Keyboard::GetKeyName);
-			keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
+			//keyboard.BindStaticMethod("GetKeyName", &Nz::Keyboard::GetKeyName);
+			//keyboard.BindStaticMethod("IsKeyPressed", &Nz::Keyboard::IsKeyPressed);
 		}
 	}
 
@@ -31,9 +31,9 @@ namespace Ndk
 	{
 		keyboard.Register(state);
 
-		keyboard.PushGlobalTable(state);
+		/*keyboard.PushGlobalTable(state);
 		{
-			static_assert(Nz::Keyboard::Count == 121, "Nz::Keyboard::Key has been updated but change was not reflected to Lua binding");
+			static_assert(Nz::Keyboard::Max == 123, "Nz::Keyboard::Key has been updated but change was not reflected to Lua binding");
 
 			state.PushField("Undefined", Nz::Keyboard::Undefined);
 
@@ -63,6 +63,7 @@ namespace Ndk
 			state.PushField("Divide",            Nz::Keyboard::Divide);
 			state.PushField("Multiply",          Nz::Keyboard::Multiply);
 			state.PushField("Subtract",          Nz::Keyboard::Subtract);
+			state.PushField("NumpadReturn",      Nz::Keyboard::NumpadReturn);
 
 			state.PushField("Backslash",         Nz::Keyboard::Backslash);
 			state.PushField("Backspace",         Nz::Keyboard::Backspace);
@@ -98,6 +99,8 @@ namespace Ndk
 			state.PushField("Space",             Nz::Keyboard::Space);
 			state.PushField("Tab",               Nz::Keyboard::Tab);
 			state.PushField("Tilde",             Nz::Keyboard::Tilde);
+			state.PushField("Menu",              Nz::Keyboard::Menu);
+			state.PushField("ISOBackslash102",   Nz::Keyboard::ISOBackslash102);
 			state.PushField("Browser_Back",      Nz::Keyboard::Browser_Back);
 			state.PushField("Browser_Favorites", Nz::Keyboard::Browser_Favorites);
 			state.PushField("Browser_Forward",   Nz::Keyboard::Browser_Forward);
@@ -116,7 +119,7 @@ namespace Ndk
 			state.PushField("NumLock",           Nz::Keyboard::NumLock);
 			state.PushField("ScrollLock",        Nz::Keyboard::ScrollLock);
 		}
-		state.Pop();
+		state.Pop();*/
 
 		static_assert(Nz::WindowStyle_Max + 1 == 6, "Nz::WindowStyle has been updated but change was not reflected to Lua binding");
 		state.PushTable(0, Nz::WindowStyle_Max + 1);

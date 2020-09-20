@@ -594,21 +594,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the ray with components from another
-	* \return A reference to this ray
-	*
-	* \param ray The other ray
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::Set(const Ray& ray)
-	{
-		std::memcpy(this, &ray, sizeof(Ray));
-
-		return *this;
-	}
-
-	/*!
 	* \brief Sets the components of the ray from another type of Ray
 	* \return A reference to this ray
 	*

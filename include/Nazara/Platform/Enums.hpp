@@ -51,6 +51,7 @@ namespace Nz
 		WindowEventType_Moved,
 		WindowEventType_Quit,
 		WindowEventType_Resized,
+		WindowEventType_TextEdited,
 		WindowEventType_TextEntered,
 
 		WindowEventType_Max = WindowEventType_TextEntered
