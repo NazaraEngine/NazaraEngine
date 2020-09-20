@@ -81,14 +81,14 @@ int main()
 	texParams.height = drfreakImage->GetHeight();
 	texParams.depth = drfreakImage->GetDepth();
 
-	std::unique_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
+	std::shared_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
 	if (!texture->Update(drfreakImage->GetConstPixels()))
 	{
 		NazaraError("Failed to update texture");
 		return __LINE__;
 	}
 
-	std::unique_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
+	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 	struct
 	{
@@ -120,7 +120,7 @@ int main()
 
 	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
-	std::unique_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
+	std::shared_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
 	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
 	{
 		NazaraError("Failed to create uniform buffer");
@@ -153,12 +153,12 @@ int main()
 	vertexBuffer.binding = 0;
 	vertexBuffer.declaration = drfreakVB->GetVertexDeclaration();
 
-	std::unique_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
 	Nz::RenderDevice* renderDevice = window.GetRenderDevice().get();
 
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
-	std::unique_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
+	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
 
 	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
 	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());

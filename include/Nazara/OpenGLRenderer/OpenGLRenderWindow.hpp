@@ -31,7 +31,7 @@ namespace Nz
 			RenderFrame Acquire() override;
 
 			bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) override;
-			std::unique_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
+			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline GL::Context& GetContext();
 			const OpenGLFramebuffer& GetFramebuffer() const override;

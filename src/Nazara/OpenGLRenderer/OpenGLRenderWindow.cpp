@@ -59,7 +59,7 @@ namespace Nz
 		return true;
 	}
 
-	std::unique_ptr<CommandPool> OpenGLRenderWindow::CreateCommandPool(QueueType /*queueType*/)
+	std::shared_ptr<CommandPool> OpenGLRenderWindow::CreateCommandPool(QueueType /*queueType*/)
 	{
 		return std::make_unique<OpenGLCommandPool>();
 	}

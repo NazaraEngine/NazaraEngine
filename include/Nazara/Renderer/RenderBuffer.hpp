@@ -51,7 +51,7 @@ namespace Nz
 
 			struct HardwareBuffer
 			{
-				std::unique_ptr<AbstractBuffer> buffer;
+				std::shared_ptr<AbstractBuffer> buffer;
 				bool synchronized = false;
 			};
 

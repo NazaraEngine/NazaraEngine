@@ -219,7 +219,7 @@ namespace Nz
 		return true;
 	}
 
-	std::unique_ptr<CommandPool> VkRenderWindow::CreateCommandPool(QueueType queueType)
+	std::shared_ptr<CommandPool> VkRenderWindow::CreateCommandPool(QueueType queueType)
 	{
 		UInt32 queueFamilyIndex = [&] {
 			switch (queueType)
@@ -237,7 +237,7 @@ namespace Nz
 			throw std::runtime_error("invalid queue type " + std::to_string(UnderlyingCast(queueType)));
 		}();
 
-		return std::make_unique<VulkanCommandPool>(*m_device, queueFamilyIndex);
+		return std::make_shared<VulkanCommandPool>(*m_device, queueFamilyIndex);
 	}
 
 	void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)

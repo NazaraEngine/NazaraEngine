@@ -48,19 +48,19 @@ namespace Nz
 		return contextPtr;
 	}
 
-	std::unique_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)
+	std::shared_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)
 	{
-		return std::make_unique<OpenGLBuffer>(*this, type);
+		return std::make_shared<OpenGLBuffer>(*this, type);
 	}
 
-	std::unique_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
+	std::shared_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
 	{
-		return std::make_unique<OpenGLCommandPool>();
+		return std::make_shared<OpenGLCommandPool>();
 	}
 
-	std::unique_ptr<RenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
+	std::shared_ptr<RenderPipeline> OpenGLDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
-		return std::make_unique<OpenGLRenderPipeline>(*this, std::move(pipelineInfo));
+		return std::make_shared<OpenGLRenderPipeline>(*this, std::move(pipelineInfo));
 	}
 
 	std::shared_ptr<RenderPipelineLayout> OpenGLDevice::InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo)
@@ -73,14 +73,14 @@ namespace Nz
 		return std::make_shared<OpenGLShaderStage>(*this, type, lang, source, sourceSize);
 	}
 
-	std::unique_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)
+	std::shared_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)
 	{
-		return std::make_unique<OpenGLTexture>(*this, params);
+		return std::make_shared<OpenGLTexture>(*this, params);
 	}
 
-	std::unique_ptr<TextureSampler> OpenGLDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
+	std::shared_ptr<TextureSampler> OpenGLDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
 	{
-		return std::make_unique<OpenGLTextureSampler>(*this, params);
+		return std::make_shared<OpenGLTextureSampler>(*this, params);
 	}
 	
 }

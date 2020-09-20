@@ -29,14 +29,14 @@ namespace Nz
 			RenderDevice() = default;
 			virtual ~RenderDevice();
 
-			virtual std::unique_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) = 0;
-			virtual std::unique_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
-			virtual std::unique_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
+			virtual std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) = 0;
+			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
+			virtual std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) = 0;
 			virtual std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) = 0;
 			std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath);
-			virtual std::unique_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;
-			virtual std::unique_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
+			virtual std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;
+			virtual std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
 	};
 }
 

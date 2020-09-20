@@ -15,19 +15,19 @@ namespace Nz
 {
 	VulkanDevice::~VulkanDevice() = default;
 
-	std::unique_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
+	std::shared_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
 	{
-		return std::make_unique<VulkanBuffer>(*this, type);
+		return std::make_shared<VulkanBuffer>(*this, type);
 	}
 
-	std::unique_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
+	std::shared_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
 	{
-		return std::make_unique<VulkanCommandPool>(*this, queueType);
+		return std::make_shared<VulkanCommandPool>(*this, queueType);
 	}
 
-	std::unique_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
+	std::shared_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
 	{
-		return std::make_unique<VulkanRenderPipeline>(*this, std::move(pipelineInfo));
+		return std::make_shared<VulkanRenderPipeline>(*this, std::move(pipelineInfo));
 	}
 
 	std::shared_ptr<RenderPipelineLayout> VulkanDevice::InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo)
@@ -48,13 +48,13 @@ namespace Nz
 		return stage;
 	}
 
-	std::unique_ptr<Texture> VulkanDevice::InstantiateTexture(const TextureInfo& params)
+	std::shared_ptr<Texture> VulkanDevice::InstantiateTexture(const TextureInfo& params)
 	{
-		return std::make_unique<VulkanTexture>(*this, params);
+		return std::make_shared<VulkanTexture>(*this, params);
 	}
 
-	std::unique_ptr<TextureSampler> VulkanDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
+	std::shared_ptr<TextureSampler> VulkanDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
 	{
-		return std::make_unique<VulkanTextureSampler>(*this, params);
+		return std::make_shared<VulkanTextureSampler>(*this, params);
 	}
 }
