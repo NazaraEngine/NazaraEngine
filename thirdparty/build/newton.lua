@@ -10,6 +10,7 @@ LIBRARY.OsDefines.Windows = {
 }
 
 LIBRARY.Language = "C++"
+LIBRARY.DisableWarnings = true -- Newton has many warnings we can't really fix
 
 LIBRARY.Files = {
 	"../thirdparty/include/newton/**.h",
