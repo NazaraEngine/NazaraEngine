@@ -15,6 +15,13 @@
 namespace Nz
 {
 	using ShaderExpressionType = std::variant<ShaderNodes::BasicType, std::string>;
+
+	inline bool IsBasicType(const ShaderExpressionType& type);
+	inline bool IsMatrixType(const ShaderExpressionType& type);
+	inline bool IsSamplerType(const ShaderExpressionType& type);
+	inline bool IsStructType(const ShaderExpressionType& type);
 }
+
+#include <Nazara/Shader/ShaderExpressionType.inl>
 
 #endif // NAZARA_SHADER_EXPRESSIONTYPE_HPP

@@ -273,7 +273,7 @@ namespace Nz
 
 		if (remainingMembers > 1)
 		{
-			assert(std::holds_alternative<std::string>(member.type));
+			assert(IsStructType(member.type));
 			AppendField(std::get<std::string>(member.type), memberIndex + 1, remainingMembers - 1);
 		}
 	}
@@ -363,7 +363,7 @@ namespace Nz
 		Visit(node.structExpr, true);
 
 		const ShaderExpressionType& exprType = node.structExpr->GetExpressionType();
-		assert(std::holds_alternative<std::string>(exprType));
+		assert(IsStructType(exprType));
 
 		AppendField(std::get<std::string>(exprType), node.memberIndices.data(), node.memberIndices.size());
 	}

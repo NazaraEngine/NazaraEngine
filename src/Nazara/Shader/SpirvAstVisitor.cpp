@@ -39,13 +39,13 @@ namespace Nz
 	void SpirvAstVisitor::Visit(ShaderNodes::BinaryOp& node)
 	{
 		ShaderExpressionType resultExprType = node.GetExpressionType();
-		assert(std::holds_alternative<ShaderNodes::BasicType>(resultExprType));
+		assert(IsBasicType(resultExprType));
 
 		const ShaderExpressionType& leftExprType = node.left->GetExpressionType();
-		assert(std::holds_alternative<ShaderNodes::BasicType>(leftExprType));
+		assert(IsBasicType(leftExprType));
 
 		const ShaderExpressionType& rightExprType = node.right->GetExpressionType();
-		assert(std::holds_alternative<ShaderNodes::BasicType>(rightExprType));
+		assert(IsBasicType(rightExprType));
 
 		ShaderNodes::BasicType resultType = std::get<ShaderNodes::BasicType>(resultExprType);
 		ShaderNodes::BasicType leftType = std::get<ShaderNodes::BasicType>(leftExprType);
@@ -285,7 +285,7 @@ namespace Nz
 	void SpirvAstVisitor::Visit(ShaderNodes::Cast& node)
 	{
 		const ShaderExpressionType& targetExprType = node.exprType;
-		assert(std::holds_alternative<ShaderNodes::BasicType>(targetExprType));
+		assert(IsBasicType(targetExprType));
 
 		ShaderNodes::BasicType targetType = std::get<ShaderNodes::BasicType>(targetExprType);
 
@@ -351,7 +351,7 @@ namespace Nz
 			case ShaderNodes::IntrinsicType::DotProduct:
 			{
 				const ShaderExpressionType& vecExprType = node.parameters[0]->GetExpressionType();
-				assert(std::holds_alternative<ShaderNodes::BasicType>(vecExprType));
+				assert(IsBasicType(vecExprType));
 
 				ShaderNodes::BasicType vecType = std::get<ShaderNodes::BasicType>(vecExprType);
 
@@ -394,7 +394,7 @@ namespace Nz
 	void SpirvAstVisitor::Visit(ShaderNodes::SwizzleOp& node)
 	{
 		const ShaderExpressionType& targetExprType = node.GetExpressionType();
-		assert(std::holds_alternative<ShaderNodes::BasicType>(targetExprType));
+		assert(IsBasicType(targetExprType));
 
 		ShaderNodes::BasicType targetType = std::get<ShaderNodes::BasicType>(targetExprType);
 
