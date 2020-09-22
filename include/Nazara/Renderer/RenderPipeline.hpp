@@ -10,7 +10,6 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-//#include <Nazara/Renderer/Shader.hpp>
 
 namespace Nz
 {

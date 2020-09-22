@@ -9,6 +9,24 @@
 
 namespace Nz
 {
+	enum class CullTest
+	{
+		Box,
+		NoTest,
+		Sphere,
+		Volume
+	};
+
+	enum PredefinedShaderBinding
+	{
+		PredefinedShaderBinding_TexOverlay,
+		PredefinedShaderBinding_UboInstanceData,
+		PredefinedShaderBinding_UboLighData,
+		PredefinedShaderBinding_UboViewerData,
+
+		PredefinedShaderBinding_Max = PredefinedShaderBinding_UboViewerData
+	};
+
 }
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

@@ -10,9 +10,12 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderDevice.hpp>
 
 namespace Nz
 {
+	class RenderDevice;
+
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
 	{
 		friend ModuleBase;
@@ -20,14 +23,25 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Renderer>;
 
-			struct Config {};
+			struct Config;
 
-			Graphics(Config /*config*/);
-			~Graphics();
+			Graphics(Config config);
+			~Graphics() = default;
+
+			inline RenderDevice& GetRenderDevice();
+
+			struct Config
+			{
+				bool useDedicatedRenderDevice = true;
+			};
 
 		private:
+			std::shared_ptr<RenderDevice> m_renderDevice;
+
 			static Graphics* s_instance;
 	};
 }
+
+#include <Nazara/Graphics/Graphics.inl>
 
 #endif

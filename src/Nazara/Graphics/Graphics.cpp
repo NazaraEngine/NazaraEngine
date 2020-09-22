@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -13,13 +14,29 @@ namespace Nz
 	* \brief Audio class that represents the module initializer of Graphics
 	*/
 
-	Graphics::Graphics(Config /*config*/) :
+	Graphics::Graphics(Config config) :
 	ModuleBase("Graphics", this)
 	{
-	}
+		Renderer* renderer = Renderer::Instance();
+		RendererImpl* rendererImpl = renderer->GetRendererImpl(); //< FIXME
+		std::vector<RenderDeviceInfo> renderDeviceInfo = rendererImpl->QueryRenderDevices();
+		if (renderDeviceInfo.empty())
+			throw std::runtime_error("no render device available");
 
-	Graphics::~Graphics()
-	{
+		std::size_t bestRenderDeviceIndex = 0;
+		for (std::size_t i = 0; i < renderDeviceInfo.size(); ++i)
+		{
+			const auto& deviceInfo = renderDeviceInfo[i];
+			if (config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Dedicated)
+			{
+				bestRenderDeviceIndex = i;
+				break;
+			}
+		}
+
+		m_renderDevice = rendererImpl->InstanciateRenderDevice(bestRenderDeviceIndex);
+		if (!m_renderDevice)
+			throw std::runtime_error("failed to instantiate render device");
 	}
 
 	Graphics* Graphics::s_instance = nullptr;
