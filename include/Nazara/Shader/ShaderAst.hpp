@@ -30,7 +30,7 @@ namespace Nz
 
 			inline ShaderAst(ShaderStageType shaderStage);
 			ShaderAst(const ShaderAst&) = default;
-			ShaderAst(ShaderAst&&) = default;
+			ShaderAst(ShaderAst&&) noexcept = default;
 			~ShaderAst() = default;
 
 			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderNodes::BasicType returnType = ShaderNodes::BasicType::Void);
@@ -57,7 +57,7 @@ namespace Nz
 			inline const std::vector<Uniform>& GetUniforms() const;
 
 			ShaderAst& operator=(const ShaderAst&) = default;
-			ShaderAst& operator=(ShaderAst&&) = default;
+			ShaderAst& operator=(ShaderAst&&) noexcept = default;
 
 			struct VariableBase
 			{
