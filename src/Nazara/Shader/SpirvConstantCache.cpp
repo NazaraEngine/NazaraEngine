@@ -293,13 +293,13 @@ namespace Nz
 				else if constexpr (std::is_same_v<T, float>)
 					cache.Register({ Float{ 32 } });
 				else if constexpr (std::is_same_v<T, Int32>)
-					cache.Register({ Integer{ 32, 1 } });
+					cache.Register({ Integer{ 32, true } });
 				else if constexpr (std::is_same_v<T, Int64>)
-					cache.Register({ Integer{ 64, 1 } });
+					cache.Register({ Integer{ 64, true } });
 				else if constexpr (std::is_same_v<T, UInt32>)
-					cache.Register({ Integer{ 32, 0 } });
+					cache.Register({ Integer{ 32, false } });
 				else if constexpr (std::is_same_v<T, UInt64>)
-					cache.Register({ Integer{ 64, 0 } });
+					cache.Register({ Integer{ 64, false } });
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 
@@ -593,7 +593,7 @@ namespace Nz
 					return Float{ 32 };
 
 				case ShaderNodes::BasicType::Int1:
-					return Integer{ 32, 1 };
+					return Integer{ 32, true };
 
 				case ShaderNodes::BasicType::Float2:
 				case ShaderNodes::BasicType::Float3:
@@ -615,7 +615,7 @@ namespace Nz
 					return Matrix{ BuildType(ShaderNodes::BasicType::Float4), 4u };
 
 				case ShaderNodes::BasicType::UInt1:
-					return Integer{ 32, 0 };
+					return Integer{ 32, false };
 
 				case ShaderNodes::BasicType::Void:
 					return Void{};
@@ -706,13 +706,13 @@ namespace Nz
 					else if constexpr (std::is_same_v<ValueType, float>)
 						typeId = GetId({ Float{ 32 } });
 					else if constexpr (std::is_same_v<ValueType, Int32>)
-						typeId = GetId({ Integer{ 32, 1 } });
+						typeId = GetId({ Integer{ 32, true } });
 					else if constexpr (std::is_same_v<ValueType, Int64>)
-						typeId = GetId({ Integer{ 64, 1 } });
+						typeId = GetId({ Integer{ 64, true } });
 					else if constexpr (std::is_same_v<ValueType, UInt32>)
-						typeId = GetId({ Integer{ 32, 0 } });
+						typeId = GetId({ Integer{ 32, false } });
 					else if constexpr (std::is_same_v<ValueType, UInt64>)
-						typeId = GetId({ Integer{ 64, 0 } });
+						typeId = GetId({ Integer{ 64, false } });
 					else
 						static_assert(AlwaysFalse<ValueType>::value, "non-exhaustive visitor");
 

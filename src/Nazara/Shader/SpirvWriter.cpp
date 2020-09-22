@@ -268,7 +268,7 @@ namespace Nz
 			}
 
 			const ShaderExpressionType& builtinExprType = builtin->type;
-			assert(std::holds_alternative<ShaderNodes::BasicType>(builtinExprType));
+			assert(IsBasicType(builtinExprType));
 
 			ShaderNodes::BasicType builtinType = std::get<ShaderNodes::BasicType>(builtinExprType);
 

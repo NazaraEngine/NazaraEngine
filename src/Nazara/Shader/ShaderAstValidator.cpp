@@ -98,7 +98,7 @@ namespace Nz
 
 		if (remainingMembers > 1)
 		{
-			if (!std::holds_alternative<std::string>(member.type))
+			if (!IsStructType(member.type))
 				throw AstError{ "member type does not match node type" };
 
 			return CheckField(std::get<std::string>(member.type), memberIndex + 1, remainingMembers - 1);
@@ -110,7 +110,7 @@ namespace Nz
 	void ShaderAstValidator::Visit(ShaderNodes::AccessMember& node)
 	{
 		const ShaderExpressionType& exprType = MandatoryExpr(node.structExpr)->GetExpressionType();
-		if (!std::holds_alternative<std::string>(exprType))
+		if (!IsStructType(exprType))
 			throw AstError{ "expression is not a structure" };
 
 		const std::string& structName = std::get<std::string>(exprType);
@@ -138,11 +138,11 @@ namespace Nz
 		MandatoryNode(node.right);
 
 		const ShaderExpressionType& leftExprType = MandatoryExpr(node.left)->GetExpressionType();
-		if (!std::holds_alternative<ShaderNodes::BasicType>(leftExprType))
+		if (!IsBasicType(leftExprType))
 			throw AstError{ "left expression type does not support binary operation" };
 
 		const ShaderExpressionType& rightExprType = MandatoryExpr(node.right)->GetExpressionType();
-		if (!std::holds_alternative<ShaderNodes::BasicType>(rightExprType))
+		if (!IsBasicType(rightExprType))
 			throw AstError{ "right expression type does not support binary operation" };
 
 		ShaderNodes::BasicType leftType = std::get<ShaderNodes::BasicType>(leftExprType);
@@ -229,7 +229,7 @@ namespace Nz
 				break;
 
 			const ShaderExpressionType& exprType = exprPtr->GetExpressionType();
-			if (!std::holds_alternative<ShaderNodes::BasicType>(exprType))
+			if (!IsBasicType(exprType))
 				throw AstError{ "incompatible type" };
 
 			componentCount += node.GetComponentCount(std::get<ShaderNodes::BasicType>(exprType));
@@ -352,7 +352,7 @@ namespace Nz
 			throw AstError{ "Cannot swizzle more than four elements" };
 
 		const ShaderExpressionType& exprType = MandatoryExpr(node.expression)->GetExpressionType();
-		if (!std::holds_alternative<ShaderNodes::BasicType>(exprType))
+		if (!IsBasicType(exprType))
 			throw AstError{ "Cannot swizzle this type" };
 
 		switch (std::get<ShaderNodes::BasicType>(exprType))
@@ -379,7 +379,7 @@ namespace Nz
 		switch (var.entry)
 		{
 			case ShaderNodes::BuiltinEntry::VertexPosition:
-				if (!std::holds_alternative<ShaderNodes::BasicType>(var.type) ||
+				if (!IsBasicType(var.type) ||
 				    std::get<ShaderNodes::BasicType>(var.type) != ShaderNodes::BasicType::Float4)
 					throw AstError{ "Builtin is not of the expected type" };
 

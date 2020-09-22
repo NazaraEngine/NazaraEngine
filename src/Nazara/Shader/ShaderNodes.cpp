@@ -100,10 +100,10 @@ namespace Nz::ShaderNodes
 			case BinaryType::Multiply:
 			{
 				const ShaderExpressionType& leftExprType = left->GetExpressionType();
-				assert(std::holds_alternative<BasicType>(leftExprType));
+				assert(IsBasicType(leftExprType));
 
 				const ShaderExpressionType& rightExprType = right->GetExpressionType();
-				assert(std::holds_alternative<BasicType>(rightExprType));
+				assert(IsBasicType(rightExprType));
 
 				switch (std::get<BasicType>(leftExprType))
 				{
@@ -212,7 +212,7 @@ namespace Nz::ShaderNodes
 	ShaderExpressionType SwizzleOp::GetExpressionType() const
 	{
 		const ShaderExpressionType& exprType = expression->GetExpressionType();
-		assert(std::holds_alternative<BasicType>(exprType));
+		assert(IsBasicType(exprType));
 
 		return static_cast<BasicType>(UnderlyingCast(GetComponentType(std::get<BasicType>(exprType))) + componentCount - 1);
 	}
