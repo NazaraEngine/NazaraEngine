@@ -238,7 +238,7 @@ namespace Nz
 			RegisterPointerType(output.type, SpirvStorageClass::Output);
 
 		for (const auto& uniform : shader.GetUniforms())
-			RegisterPointerType(uniform.type, SpirvStorageClass::Uniform);
+			RegisterPointerType(uniform.type, (IsSamplerType(uniform.type)) ? SpirvStorageClass::UniformConstant : SpirvStorageClass::Uniform);
 
 		for (const auto& func : shader.GetFunctions())
 			RegisterFunctionType(func.returnType, func.parameters);
@@ -330,7 +330,7 @@ namespace Nz
 		{
 			SpirvConstantCache::Variable variable;
 			variable.debugName = uniform.name;
-			variable.storageClass = SpirvStorageClass::Uniform;
+			variable.storageClass = (IsSamplerType(uniform.type)) ? SpirvStorageClass::UniformConstant : SpirvStorageClass::Uniform;
 			variable.type = SpirvConstantCache::BuildPointerType(shader, uniform.type, variable.storageClass);
 
 			UInt32 varId = m_currentState->constantTypeCache.Register(variable);
