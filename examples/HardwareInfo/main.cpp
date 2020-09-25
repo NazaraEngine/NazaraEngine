@@ -14,7 +14,7 @@
 #include <iostream>
 #include <sstream>
 
-void printCap(std::ostream& o, const Nz::String& cap, bool b);
+void printCap(std::ostream& o, const std::string& cap, bool b);
 
 int main()
 {
@@ -65,7 +65,7 @@ int main()
 	Nz::File reportFile("HardwareInfo.txt");
 	if (reportFile.Open(Nz::OpenMode_Text | Nz::OpenMode_Truncate | Nz::OpenMode_WriteOnly))
 	{
-		reportFile.Write(oss.str()); // Conversion implicite en Nz::String
+		reportFile.Write(oss.str()); // Conversion implicite en std::string
 		reportFile.Close();
 
 		char accentAigu = static_cast<char>(130); // C'est crade, mais ça marche chez 95% des Windowsiens
@@ -79,7 +79,7 @@ int main()
 	return 0;
 }
 
-void printCap(std::ostream& o, const Nz::String& cap, bool b)
+void printCap(std::ostream& o, const std::string& cap, bool b)
 {
 	if (b)
 		o << cap << ": Oui" << std::endl;

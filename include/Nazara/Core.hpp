@@ -87,9 +87,7 @@
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Core/StdLogger.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/TypeList.hpp>
 #include <Nazara/Core/TypeTag.hpp>

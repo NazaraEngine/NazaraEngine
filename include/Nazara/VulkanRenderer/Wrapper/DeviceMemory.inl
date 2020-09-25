@@ -41,7 +41,7 @@ namespace Nz
 				typeMask <<= 1;
 			}
 
-			NazaraError("Failed to find a memory type suitable for typeBits: " + String::Number(typeBits) + " and properties: 0x" + String::Number(properties, 16));
+			NazaraError("Failed to find a memory type suitable for typeBits: " + NumberToString(typeBits) + " and properties: 0x" + NumberToString(properties, 16));
 			return false;
 		}
 

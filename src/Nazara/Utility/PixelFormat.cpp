@@ -1440,7 +1440,7 @@ namespace Nz
 		for (unsigned int i = 0; i <= PixelFormat_Max; ++i)
 		{
 			if (!s_pixelFormatInfos[i].Validate())
-				NazaraWarning("Pixel format 0x" + String::Number(i, 16) + " (" + GetName(static_cast<Nz::PixelFormat>(i)) + ") failed validation tests");
+				NazaraWarning("Pixel format 0x" + NumberToString(i, 16) + " (" + GetName(static_cast<Nz::PixelFormat>(i)) + ") failed validation tests");
 		}
 
 		// Reset functions

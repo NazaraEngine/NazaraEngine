@@ -4,6 +4,7 @@
 
 #include <Nazara/Network/Linux/SocketPollerImpl.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <cstring>
 #include <unistd.h>
@@ -60,7 +61,7 @@ namespace Nz
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_ADD, socket, &entry) != 0)
 		{
-			NazaraError("Failed to add socket to epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
+			NazaraError("Failed to add socket to epoll structure (errno " + NumberToString(errno) + ": " + Error::GetLastSystemError() + ')');
 			return false;
 		}
 
@@ -78,7 +79,7 @@ namespace Nz
 		m_sockets.erase(socket);
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_DEL, socket, nullptr) != 0)
-			NazaraWarning("An error occured while removing socket from epoll structure (errno " + String::Number(errno) + ": " + Error::GetLastSystemError() + ')');
+			NazaraWarning("An error occured while removing socket from epoll structure (errno " + NumberToString(errno) + ": " + Error::GetLastSystemError() + ')');
 	}
 
 	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
@@ -115,7 +116,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Descriptor " + String::Number(m_events[i].data.fd) + " was returned by epoll without EPOLLIN nor EPOLLOUT flags (events: 0x" + String::Number(m_events[i].events, 16) + ')');
+					NazaraWarning("Descriptor " + NumberToString(m_events[i].data.fd) + " was returned by epoll without EPOLLIN nor EPOLLOUT flags (events: 0x" + NumberToString(m_events[i].events, 16) + ')');
 					activeSockets--;
 				}
 			}

@@ -98,14 +98,24 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs a Bitset object from a Nz::String
+	* \brief Constructs a Bitset object from a std::string_view
 	*
 	* \param bits String containing only '0' and '1'
 	*/
-
 	template<typename Block, class Allocator>
-	Bitset<Block, Allocator>::Bitset(const String& bits) :
-	Bitset(bits.GetConstBuffer(), bits.GetSize())
+	Bitset<Block, Allocator>::Bitset(const std::string_view& bits) :
+	Bitset(bits.data(), bits.size())
+	{
+	}
+
+	/*!
+	* \brief Constructs a Bitset object from a std::string
+	*
+	* \param bits String containing only '0' and '1'
+	*/
+	template<typename Block, class Allocator>
+	Bitset<Block, Allocator>::Bitset(const std::string& bits) :
+	Bitset(bits.data(), bits.size())
 	{
 	}
 
@@ -883,9 +893,9 @@ namespace Nz
 	*/
 
 	template<typename Block, class Allocator>
-	String Bitset<Block, Allocator>::ToString() const
+	std::string Bitset<Block, Allocator>::ToString() const
 	{
-		String str(m_bitCount, '0');
+		std::string str(m_bitCount, '0');
 
 		for (std::size_t i = 0; i < m_bitCount; ++i)
 		{
@@ -991,14 +1001,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets this bitset from a Nz::String
+	* \brief Sets this bitset from a std::string
 	* \return A reference to this
 	*
 	* \param bits String containing only '0' and '1'
 	*/
 
 	template<typename Block, class Allocator>
-	Bitset<Block, Allocator>& Bitset<Block, Allocator>::operator=(const String& bits)
+	Bitset<Block, Allocator>& Bitset<Block, Allocator>::operator=(const std::string_view& bits)
 	{
 		Bitset bitset(bits);
 		std::swap(*this, bitset);

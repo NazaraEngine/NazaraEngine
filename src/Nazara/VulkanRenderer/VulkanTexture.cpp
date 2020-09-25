@@ -270,7 +270,7 @@ namespace Nz
 			}
 
 			default:
-				throw std::runtime_error(("Unsupported pixel format " + PixelFormatInfo::GetName(pixelFormat)).ToStdString());
+				throw std::runtime_error("Unsupported pixel format " + PixelFormatInfo::GetName(pixelFormat));
 		}
 	}
 }

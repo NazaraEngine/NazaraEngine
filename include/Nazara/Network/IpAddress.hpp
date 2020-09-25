@@ -8,11 +8,12 @@
 #define NAZARA_IPADDRESS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <array>
 #include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace Nz
 {
@@ -30,12 +31,13 @@ namespace Nz
 			inline IpAddress(const UInt8& a, const UInt8& b, const UInt8& c, const UInt8& d, UInt16 port = 0);
 			inline IpAddress(const UInt16& a, const UInt16& b, const UInt16& c, const UInt16& d, const UInt16& e, const UInt16& f, const UInt16& g, const UInt16& h, UInt16 port = 0);
 			inline explicit IpAddress(const char* address);
-			inline explicit IpAddress(const String& address);
+			inline explicit IpAddress(const std::string& address);
 			IpAddress(const IpAddress&) = default;
 			IpAddress(IpAddress&&) noexcept = default;
 			~IpAddress() = default;
 
 			bool BuildFromAddress(const char* address);
+			inline bool BuildFromAddress(const std::string& address);
 
 			inline UInt16 GetPort() const;
 			inline NetProtocol GetProtocol() const;

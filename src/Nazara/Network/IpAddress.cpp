@@ -4,6 +4,7 @@
 
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <algorithm>
 #include <limits>
@@ -88,7 +89,7 @@ namespace Nz
 				return m_ipv6 == LoopbackIpV6.m_ipv6; // Only compare the ip value
 		}
 
-		NazaraInternalError("Invalid protocol for IpAddress (0x" + String::Number(m_protocol) + ')');
+		NazaraInternalError("Invalid protocol for IpAddress (0x" + NumberToString(m_protocol) + ')');
 		return false;
 	}
 
@@ -164,7 +165,7 @@ namespace Nz
 						else if (i != 0)
 							stream << ':';
 
-						stream << String::Number(m_ipv6[i], 16).ToLower();
+						stream << ToLower(NumberToString(m_ipv6[i], 16));
 					}
 
 					if (m_port != 0)

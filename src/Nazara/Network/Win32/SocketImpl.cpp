@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
@@ -163,7 +164,7 @@ namespace Nz
 			return false;
 		}
 
-		NazaraDebug("Initialized Windows Socket " + String::Number(LOBYTE(s_WSA.wVersion)) + '.' + String::Number(HIBYTE(s_WSA.wVersion)) + " (" + String(s_WSA.szDescription) + ')');
+		NazaraDebug("Initialized Windows Socket " + NumberToString(LOBYTE(s_WSA.wVersion)) + '.' + NumberToString(HIBYTE(s_WSA.wVersion)) + " (" + std::string(s_WSA.szDescription) + ')');
 		return true;
 	}
 
@@ -955,7 +956,7 @@ namespace Nz
 			case WSAEALREADY:
 			case WSAEISCONN:
 			case WSAEWOULDBLOCK:
-				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
 				return SocketError_Internal;
 
 			case WSAEADDRNOTAVAIL:
@@ -1000,7 +1001,7 @@ namespace Nz
 				return SocketError_TimedOut;
 		}
 
-		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
+		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
 		return SocketError_Unknown;
 	}
 

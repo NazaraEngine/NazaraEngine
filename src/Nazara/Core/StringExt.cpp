@@ -13,7 +13,18 @@ namespace Nz
 	{
 		bool IsSpace(char32_t character)
 		{
-			return character == '\t' || Unicode::GetCategory(character) & Unicode::Category_Separator;
+			switch (character)
+			{
+				case '\f':
+				case '\n':
+				case '\r':
+				case '\t':
+				case '\v':
+					return true;
+
+				default:
+					return Unicode::GetCategory(character) & Unicode::Category_Separator;
+			}
 		}
 
 		char ToLower(char character)
@@ -79,24 +90,12 @@ namespace Nz
 		};
 	}
 
-	std::string FromUtf16String(const char16_t* u16str)
-	{
-		std::size_t size = std::char_traits<char16_t>::length(u16str);
-		return FromUtf16String(std::u16string_view(u16str, size));
-	}
-
 	std::string FromUtf16String(const std::u16string_view& u16str)
 	{
 		std::string result;
 		utf8::utf16to8(u16str.begin(), u16str.end(), std::back_inserter(result));
 
 		return result;
-	}
-
-	std::string FromUtf32String(const char32_t* u32str)
-	{
-		std::size_t size = std::char_traits<char32_t>::length(u32str);
-		return FromUtf32String(std::u32string_view(u32str, size));
 	}
 
 	std::string FromUtf32String(const std::u32string_view& u32str)
@@ -107,15 +106,54 @@ namespace Nz
 		return result;
 	}
 
-	std::string FromWideString(const wchar_t* wstr)
-	{
-		std::size_t size = std::char_traits<wchar_t>::length(wstr);
-		return WideConverter<sizeof(wchar_t)>::From(wstr, size);
-	}
-
 	std::string FromWideString(const std::wstring_view& wstr)
 	{
 		return WideConverter<sizeof(wchar_t)>::From(wstr.data(), wstr.size());
+	}
+
+	std::string_view GetWord(const std::string_view& str, std::size_t wordIndex)
+	{
+		std::size_t pos = 0;
+		std::size_t previousPos = 0;
+		while ((pos = str.find_first_of(" \f\n\r\t\v", previousPos)) != std::string::npos)
+		{
+			std::size_t splitPos = previousPos;
+			previousPos = pos + 1;
+
+			if (pos != splitPos && wordIndex-- == 0)
+				return str.substr(splitPos, pos - splitPos);
+		}
+
+		return {};
+	}
+
+	std::string_view GetWord(const std::string_view& str, std::size_t wordIndex, UnicodeAware)
+	{
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+
+		auto FindNextSeparator = [&]() -> std::size_t
+		{
+			for (; it != end; ++it)
+			{
+				if (IsSpace(*it))
+					return true;
+			}
+
+			return false;
+		};
+
+		utf8::unchecked::iterator<const char*> lastSplit = it;
+		while (FindNextSeparator())
+		{
+			if (it != lastSplit && wordIndex-- == 0)
+				return std::string_view(lastSplit.base(), it.base() - lastSplit.base());
+
+			++it;
+			lastSplit = it;
+		}
+
+		return {};
 	}
 
 	bool MatchPattern(const std::string_view& str, const std::string_view& pattern)
@@ -169,27 +207,60 @@ namespace Nz
 
 		return patternPtr >= patternPtrEnd;
 	}
-	bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent)
+
+	std::string PointerToString(const void* ptr)
 	{
-		if (s.size() > str.size())
+		constexpr std::size_t capacity = sizeof(void*) * 2 + 2;
+
+		std::string str(capacity, '\0');
+		str.resize(std::sprintf(str.data(), "0x%p", ptr));
+
+		return str;
+	}
+
+	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
+	{
+		if (rhs.size() > lhs.size())
 			return false;
 
-		return std::equal(str.begin(), str.begin() + s.size(), s.begin(), s.end(), [](char c1, char c2)
+		return std::equal(lhs.begin(), lhs.begin() + rhs.size(), rhs.begin(), rhs.end(), [](char c1, char c2)
 		{
 			return ToLower(c1) == ToLower(c2);
 		});
 	}
 
-	bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent, UnicodeAware)
+	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
 	{
-		if (str.empty() || s.empty())
-			return str == s;
+		if (lhs.empty() || rhs.empty())
+			return lhs == rhs;
 
-		utf8::iterator<const char*> it(str.data(), str.data(), str.data() + str.size());
-		utf8::iterator<const char*> it2(s.data(), s.data(), s.data() + s.size());
+		utf8::iterator<const char*> it(lhs.data(), lhs.data(), lhs.data() + lhs.size());
+		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
 		do
 		{
-			if (it2.base() >= s.data() + s.size())
+			if (it2.base() >= rhs.data() + rhs.size())
+				return true;
+
+			if (*it != *it2)
+				return false;
+
+			++it2;
+		}
+		while (*it++);
+
+		return true;
+	}
+
+	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
+	{
+		if (lhs.empty() || rhs.empty())
+			return lhs == rhs;
+
+		utf8::iterator<const char*> it(lhs.data(), lhs.data(), lhs.data() + lhs.size());
+		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
+		do
+		{
+			if (it2.base() >= rhs.data() + rhs.size())
 				return true;
 
 			if (Unicode::GetLowercase(*it) != Unicode::GetLowercase(*it2))
@@ -198,6 +269,40 @@ namespace Nz
 			++it2;
 		}
 		while (*it++);
+
+		return true;
+	}
+
+	bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
+	{
+		if (lhs.empty() || rhs.empty())
+			return lhs == rhs;
+
+		utf8::iterator<const char*> it(lhs.data(), lhs.data(), lhs.data() + lhs.size());
+		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
+
+		for (; it.base() < lhs.data() + lhs.size(); ++it, ++it2)
+		{
+			if (*it != *it2)
+				return false;
+		}
+
+		return true;
+	}
+
+	bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
+	{
+		if (lhs.empty() || rhs.empty())
+			return lhs == rhs;
+
+		utf8::iterator<const char*> it(lhs.data(), lhs.data(), lhs.data() + lhs.size());
+		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
+
+		for (; it.base() < lhs.data() + lhs.size(); ++it, ++it2)
+		{
+			if (Unicode::GetLowercase(*it) != Unicode::GetLowercase(*it2))
+				return false;
+		}
 
 		return true;
 	}
@@ -220,9 +325,9 @@ namespace Nz
 		result.reserve(str.size());
 
 		utf8::unchecked::iterator<const char*> it(str.data());
-		do
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+		for (; it != end; ++it)
 			utf8::append(Unicode::GetLowercase(*it), std::back_inserter(result));
-		while (*++it);
 
 		return result;
 	}
@@ -244,10 +349,10 @@ namespace Nz
 		std::string result;
 		result.reserve(str.size());
 
-		utf8::iterator<const char*> it(str.data(), str.data(), str.data() + str.size());
-		do
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+		for (; it != end; ++it)
 			utf8::append(Unicode::GetUppercase(*it), std::back_inserter(result));
-		while (*++it);
 
 		return result;
 	}
@@ -271,6 +376,151 @@ namespace Nz
 	std::wstring ToWideString(const std::string_view& str)
 	{
 		return WideConverter<sizeof(wchar_t)>::To(str);
+	}
+
+	std::string_view TrimLeft(std::string_view str)
+	{
+		while (!str.empty() && IsSpace(str.front()))
+			str.remove_prefix(1);
+
+		return str;
+	}
+
+	std::string_view TrimLeft(std::string_view str, UnicodeAware)
+	{
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+		while (it != end && IsSpace(*it))
+			++it;
+
+		return std::string_view(it.base(), end.base() - it.base());
+	}
+
+	std::string_view TrimLeft(std::string_view str, char32_t c, UnicodeAware)
+	{
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+		while (it != end && *it == c)
+			++it;
+
+		return std::string_view(it.base(), end.base() - it.base());
+	}
+
+	std::string_view TrimLeft(std::string_view str, char32_t c, CaseIndependent, UnicodeAware)
+	{
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+
+		c = Unicode::GetLowercase(c);
+
+		while (it != end && Unicode::GetLowercase(*it) == c)
+			++it;
+
+		return std::string_view(it.base(), end.base() - it.base());
+	}
+
+	std::string_view TrimLeft(std::string_view str, Unicode::Category category, UnicodeAware)
+	{
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+		while (it != end && (Unicode::GetCategory(*it) & category) == category)
+			++it;
+
+		return std::string_view(it.base(), end.base() - it.base());
+	}
+
+	std::string_view TrimRight(std::string_view str)
+	{
+		while (!str.empty() && IsSpace(str.back()))
+			str.remove_suffix(1);
+
+		return str;
+	}
+
+	std::string_view TrimRight(std::string_view str, UnicodeAware)
+	{
+		if (str.empty())
+			return str;
+
+		// Find last character head
+		const char* lastCharacter = str.data() + str.size() - 1;
+		while (utf8::internal::is_trail(*lastCharacter) && lastCharacter != str.data())
+			--lastCharacter;
+
+		utf8::unchecked::iterator<const char*> start(str.data());
+		utf8::unchecked::iterator<const char*> it(lastCharacter);
+
+		while (it != start && IsSpace(*it))
+			--it;
+
+		++it;
+
+		return std::string_view(start.base(), it.base() - start.base());
+	}
+
+	std::string_view TrimRight(std::string_view str, char32_t c, UnicodeAware)
+	{
+		if (str.empty())
+			return str;
+
+		// Find last character head
+		const char* lastCharacter = str.data() + str.size() - 1;
+		while (utf8::internal::is_trail(*lastCharacter) && lastCharacter != str.data())
+			--lastCharacter;
+
+		utf8::unchecked::iterator<const char*> start(str.data());
+		utf8::unchecked::iterator<const char*> it(lastCharacter);
+
+		while (it != start && *it == c)
+			--it;
+
+		++it;
+
+		return std::string_view(start.base(), it.base() - start.base());
+	}
+
+	std::string_view TrimRight(std::string_view str, char32_t c, CaseIndependent, UnicodeAware)
+	{
+		if (str.empty())
+			return str;
+
+		// Find last character head
+		const char* lastCharacter = str.data() + str.size() - 1;
+		while (utf8::internal::is_trail(*lastCharacter) && lastCharacter != str.data())
+			--lastCharacter;
+
+		utf8::unchecked::iterator<const char*> start(str.data());
+		utf8::unchecked::iterator<const char*> it(lastCharacter);
+
+		c = Unicode::GetLowercase(c);
+
+		while (it != start && Unicode::GetLowercase(*it) == c)
+			--it;
+
+		++it;
+
+		return std::string_view(start.base(), it.base() - start.base());
+	}
+
+	std::string_view TrimRight(std::string_view str, Unicode::Category category, UnicodeAware)
+	{
+		if (str.empty())
+			return str;
+
+		// Find last character head
+		const char* lastCharacter = str.data() + str.size() - 1;
+		while (utf8::internal::is_trail(*lastCharacter) && lastCharacter != str.data())
+			--lastCharacter;
+
+		utf8::unchecked::iterator<const char*> start(str.data());
+		utf8::unchecked::iterator<const char*> it(lastCharacter);
+
+		while (it != start && (Unicode::GetCategory(*it) & category) == category)
+			--it;
+
+		++it;
+
+		return std::string_view(start.base(), it.base() - start.base());
 	}
 }
 

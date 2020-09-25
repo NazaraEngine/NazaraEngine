@@ -253,7 +253,7 @@ namespace Nz
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
-		String stars((section.size() < 33) ? (36 - section.size()) / 2 : 3, '*');
+		std::string stars((section.size() < 33) ? (36 - section.size()) / 2 : 3, '*');
 		m_currentState->stream << "/*" << stars << ' ' << section << ' ' << stars << "*/";
 		AppendLine();
 	}

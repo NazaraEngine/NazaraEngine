@@ -118,7 +118,7 @@ namespace Nz
 		return m_blocks[index].style;
 	}
 
-	inline const String& RichTextDrawer::GetBlockText(std::size_t index) const
+	inline const std::string& RichTextDrawer::GetBlockText(std::size_t index) const
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 		return m_blocks[index].text;
@@ -341,15 +341,15 @@ namespace Nz
 		InvalidateGlyphs();
 	}
 
-	inline void RichTextDrawer::SetBlockText(std::size_t index, String str)
+	inline void RichTextDrawer::SetBlockText(std::size_t index, std::string str)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 
-		std::size_t previousLength = m_blocks[index].text.GetLength();
+		std::size_t previousLength = m_blocks[index].text.size(); //< FIXME: Count Unicode glyphs
 
 		m_blocks[index].text = std::move(str);
 
-		std::size_t newLength = m_blocks[index].text.GetLength();
+		std::size_t newLength = m_blocks[index].text.size(); //< FIXME: Count Unicode glyphs
 		if (newLength != previousLength)
 		{
 			std::size_t delta = newLength - previousLength; //< Underflow allowed
@@ -523,7 +523,7 @@ namespace Nz
 	*
 	* \see GetCharacterSize, GetColor, GetFont, GetStyle, SetText
 	*/
-	inline const String& RichTextDrawer::BlockRef::GetText() const
+	inline const std::string& RichTextDrawer::BlockRef::GetText() const
 	{
 		return m_drawer.GetBlockText(m_blockIndex);
 	}
@@ -622,9 +622,9 @@ namespace Nz
 	*
 	* \see GetText, SetCharacterSize, SetColor, SetFont, SetStyle
 	*/
-	inline void RichTextDrawer::BlockRef::SetText(const String& text)
+	inline void RichTextDrawer::BlockRef::SetText(std::string text)
 	{
-		m_drawer.SetBlockText(m_blockIndex, text);
+		m_drawer.SetBlockText(m_blockIndex, std::move(text));
 	}
 }
 

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ByteArray.hpp>
+#include <ostream>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -18,11 +19,11 @@ namespace Nz
 	* \return String in base 16
 	*/
 
-	String ByteArray::ToHex() const
+	std::string ByteArray::ToHex() const
 	{
 		std::size_t length = m_array.size() * 2;
 
-		String hexOutput(length, '\0');
+		std::string hexOutput(length, '\0');
 		for (std::size_t i = 0; i < m_array.size(); ++i)
 			std::sprintf(&hexOutput[i * 2], "%02x", m_array[i]);
 

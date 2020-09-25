@@ -410,7 +410,7 @@ namespace Ndk
 	*
 	* \remark materialName must exists in PhysWorld before this call
 	*/
-	inline void PhysicsComponent3D::SetMaterial(const Nz::String& materialName)
+	inline void PhysicsComponent3D::SetMaterial(const std::string& materialName)
 	{
 		NazaraAssert(m_object, "Invalid physics object");
 

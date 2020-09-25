@@ -16,7 +16,7 @@ SCENARIO("ByteStream", "[CORE][BYTESTREAM]")
 		{
 			int value = 5;
 			byteStream << value;
-			Nz::String string = "string";
+			std::string string = "string";
 			byteStream << string;
 
 			byteStream.FlushBits();
@@ -29,7 +29,7 @@ SCENARIO("ByteStream", "[CORE][BYTESTREAM]")
 				readStream = Nz::ByteStream(ptrData, byteStream.GetSize());
 				int retrievedValue = 0;
 				readStream >> retrievedValue;
-				Nz::String retrievedString;
+				std::string retrievedString;
 				readStream >> retrievedString;
 
 				CHECK(value == retrievedValue);

@@ -4,9 +4,9 @@
 
 #include <NazaraSDK/Entity.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <algorithm>
 #include <cassert>
+#include <sstream>
 #include <type_traits>
 
 namespace Ndk
@@ -245,10 +245,12 @@ namespace Ndk
 	* \return A string representation of the object: "Entity(GetId())"
 	*/
 
-	inline Nz::String Entity::ToString() const
+	inline std::string Entity::ToString() const
 	{
-		Nz::StringStream ss;
-		return ss << "Entity(" << GetId() << ')';
+		std::ostringstream ss;
+		ss << "Entity(" << GetId() << ')';
+
+		return ss.str();
 	}
 
 	/*!

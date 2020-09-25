@@ -7,7 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-	#include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
@@ -50,7 +50,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Window::Create(VideoMode mode, const String& title, WindowStyleFlags style)
+	bool Window::Create(VideoMode mode, const std::string& title, WindowStyleFlags style)
 	{
 		// If the window is already open, we keep its position
 		bool opened = IsOpen();
@@ -65,7 +65,7 @@ namespace Nz
 		{
 			if (fullscreenWindow)
 			{
-				NazaraError("Window " + String::Pointer(fullscreenWindow) + " already in fullscreen mode");
+				NazaraError("Window " + PointerToString(fullscreenWindow) + " already in fullscreen mode");
 				style &= ~WindowStyle_Fullscreen;
 			}
 			else
@@ -245,13 +245,13 @@ namespace Nz
 		return m_impl->GetSystemHandle();
 	}
 
-	String Window::GetTitle() const
+	std::string Window::GetTitle() const
 	{
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
 			NazaraError("Window not created");
-			return String();
+			return {};
 		}
 		#endif
 
@@ -508,7 +508,7 @@ namespace Nz
 		m_impl->SetStayOnTop(stayOnTop);
 	}
 
-	void Window::SetTitle(const String& title)
+	void Window::SetTitle(const std::string& title)
 	{
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)

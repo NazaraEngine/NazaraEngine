@@ -60,9 +60,9 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void StdLogger::Write(const String& string)
+	void StdLogger::Write(const std::string_view& error)
 	{
-		fputs(string.GetConstBuffer(), stdout);
+		fwrite(error.data(), sizeof(char), error.size(), stdout);
 		fputc('\n', stdout);
 	}
 
@@ -78,9 +78,10 @@ namespace Nz
 	* \see Write
 	*/
 
-	void StdLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void StdLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
 	{
-		fprintf(stderr, "%s: %s", errorType[type], error.GetConstBuffer());
+		fprintf(stderr, "%s: ", errorType[type]);
+		fwrite(error.data(), sizeof(char), error.size(), stdout);
 
 		if (line != 0 && file && function)
 			fprintf(stderr, " (in %s at %s:%d)", function, file, line);

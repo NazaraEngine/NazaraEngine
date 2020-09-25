@@ -166,7 +166,7 @@ int main()
 			{
 				const Nz::ParameterList& matData = mesh->GetMaterialData(i);
 
-				Nz::String data;
+				std::string data;
 				if (!matData.GetStringParameter(Nz::MaterialData::FilePath, &data))
 					data = "<Custom>";
 

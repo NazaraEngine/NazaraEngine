@@ -11,7 +11,7 @@ namespace Nz
 {
 	void SimpleTextDrawer::Clear()
 	{
-		m_text.Clear(true);
+		m_text.clear();
 		ClearGlyphs();
 	}
 
@@ -182,13 +182,13 @@ namespace Nz
 			return false;
 	};
 
-	void SimpleTextDrawer::GenerateGlyphs(const String& text) const
+	void SimpleTextDrawer::GenerateGlyphs(const std::string_view& text) const
 	{
-		if (text.IsEmpty())
+		if (text.empty())
 			return;
 
 		///TODO: Allow iteration on Unicode characters without allocating any buffer
-		std::u32string characters = text.GetUtf32String();
+		std::u32string characters = ToUtf32String(text);
 		if (characters.empty())
 		{
 			NazaraError("Invalid character set");
@@ -290,7 +290,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (m_font != font)
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 		#endif
@@ -311,7 +311,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (m_font != font)
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 		#endif
@@ -327,7 +327,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (m_font != font)
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 		#endif

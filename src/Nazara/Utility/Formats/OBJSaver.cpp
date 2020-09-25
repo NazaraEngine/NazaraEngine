@@ -101,11 +101,8 @@ namespace Nz
 			{
 				const ParameterList& matData = mesh.GetMaterialData(i);
 
-				String nzname;
 				std::string name;
-				if (matData.GetStringParameter(MaterialData::Name, &nzname))
-					name = nzname.ToStdString();
-				else
+				if (!matData.GetStringParameter(MaterialData::Name, &name))
 					name = "material_" + std::to_string(i);
 
 				// Makes sure we only have one material of that name
@@ -117,10 +114,7 @@ namespace Nz
 
 				MTLParser::Material* material = mtlFormat.AddMaterial(name);
 
-				String strVal;
-				if (matData.GetStringParameter(MaterialData::FilePath, &strVal))
-					material->diffuseMap = strVal.ToStdString();
-				else
+				if (!matData.GetStringParameter(MaterialData::FilePath, &material->diffuseMap))
 				{
 					Color colorVal;
 					double dValue;
@@ -137,14 +131,9 @@ namespace Nz
 					if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
 						material->shininess = float(dValue);
 
-					if (matData.GetStringParameter(MaterialData::AlphaTexturePath, &strVal))
-						material->alphaMap = strVal.ToStdString();
-
-					if (matData.GetStringParameter(MaterialData::DiffuseTexturePath, &strVal))
-						material->diffuseMap = strVal.ToStdString();
-
-					if (matData.GetStringParameter(MaterialData::SpecularTexturePath, &strVal))
-						material->specularMap = strVal.ToStdString();
+					matData.GetStringParameter(MaterialData::AlphaTexturePath, &material->alphaMap);
+					matData.GetStringParameter(MaterialData::DiffuseTexturePath, &material->diffuseMap);
+					matData.GetStringParameter(MaterialData::SpecularTexturePath, &material->specularMap);
 				}
 			}
 

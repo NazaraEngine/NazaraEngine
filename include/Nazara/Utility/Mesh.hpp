@@ -16,7 +16,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>

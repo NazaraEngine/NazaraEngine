@@ -4,6 +4,7 @@
 
 #include <NazaraSDK/StateMachine.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <algorithm>
 #include <utility>
 
 namespace Ndk

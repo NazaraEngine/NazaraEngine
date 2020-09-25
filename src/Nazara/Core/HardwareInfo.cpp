@@ -107,7 +107,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not Initialize
 	*/
 
-	String HardwareInfo::GetProcessorBrandString()
+	std::string_view HardwareInfo::GetProcessorBrandString()
 	{
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");
@@ -150,7 +150,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not Initialize
 	*/
 
-	String HardwareInfo::GetProcessorVendorName()
+	std::string_view HardwareInfo::GetProcessorVendorName()
 	{
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");

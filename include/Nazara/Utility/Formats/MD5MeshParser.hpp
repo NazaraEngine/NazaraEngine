@@ -8,11 +8,11 @@
 #define NAZARA_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -22,9 +22,9 @@ namespace Nz
 		public:
 			struct Joint
 			{
+				std::string name;
 				Int32 parent;
 				Quaternionf bindOrient;
-				String name;
 				Vector3f bindPos;
 			};
 

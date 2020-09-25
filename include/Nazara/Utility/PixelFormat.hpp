@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <functional>
@@ -25,9 +24,9 @@ namespace Nz
 	{
 		inline PixelFormatDescription();
 		inline PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(const String& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(const String& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType);
-		inline PixelFormatDescription(const String& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp = 0);
+		inline PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
+		inline PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType);
+		inline PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp = 0);
 
 		inline void Clear();
 
@@ -38,6 +37,7 @@ namespace Nz
 
 		inline bool Validate() const;
 
+		std::string name;
 		// Warning: Masks bit order is reversed
 		Bitset<> redMask;
 		Bitset<> greenMask;
@@ -48,7 +48,6 @@ namespace Nz
 		PixelFormatSubType greenType;
 		PixelFormatSubType blueType;
 		PixelFormatSubType alphaType;
-		String name;
 		UInt8 bitsPerPixel;
 	};
 
@@ -71,7 +70,7 @@ namespace Nz
 			static inline PixelFormatContent GetContent(PixelFormat format);
 			static inline UInt8 GetBytesPerPixel(PixelFormat format);
 			static inline const PixelFormatDescription& GetInfo(PixelFormat format);
-			static inline const String& GetName(PixelFormat format);
+			static inline const std::string& GetName(PixelFormat format);
 
 			static inline bool HasAlpha(PixelFormat format);
 

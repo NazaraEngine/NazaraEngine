@@ -10,9 +10,9 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/String.hpp>
 #include <filesystem>
 #include <list>
+#include <string>
 #include <tuple>
 #include <type_traits>
 

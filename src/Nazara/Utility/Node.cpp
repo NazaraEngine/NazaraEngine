@@ -158,7 +158,7 @@ namespace Nz
 				return m_position;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + String::Number(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(coordSys, 16) + ')');
 		return Vector3f();
 	}
 
@@ -184,7 +184,7 @@ namespace Nz
 				return m_rotation;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + String::Number(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(coordSys, 16) + ')');
 		return Quaternionf();
 	}
 
@@ -202,7 +202,7 @@ namespace Nz
 				return m_scale;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + String::Number(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(coordSys, 16) + ')');
 		return Vector3f();
 	}
 

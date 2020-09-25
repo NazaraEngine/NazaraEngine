@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/String.hpp>
 #include <filesystem>
+#include <string>
 
 namespace Nz
 {
@@ -49,7 +49,7 @@ namespace Nz
 			virtual bool SetCursorPos(UInt64 offset) = 0;
 
 			bool Write(const ByteArray& byteArray);
-			bool Write(const String& string);
+			bool Write(const std::string_view& string);
 			inline std::size_t Write(const void* buffer, std::size_t size);
 
 			Stream& operator=(const Stream&) = default;

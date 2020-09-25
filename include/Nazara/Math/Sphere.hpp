@@ -7,8 +7,8 @@
 #ifndef NAZARA_SPHERE_HPP
 #define NAZARA_SPHERE_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -57,7 +57,7 @@ namespace Nz
 			Sphere& Set(const T sphere[4]);
 			template<typename U> Sphere& Set(const Sphere<U>& sphere);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			T& operator[](std::size_t i);
 			T operator[](std::size_t i) const;

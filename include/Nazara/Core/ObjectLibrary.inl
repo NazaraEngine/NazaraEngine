@@ -32,7 +32,7 @@ namespace Nz
 	* \remark Produces a NazaraError if object not found
 	*/
 	template<typename Type>
-	ObjectRef<Type> ObjectLibrary<Type>::Get(const String& name)
+	ObjectRef<Type> ObjectLibrary<Type>::Get(const std::string& name)
 	{
 		ObjectRef<Type> ref = Query(name);
 		if (!ref)
@@ -46,7 +46,7 @@ namespace Nz
 	* \return true if it the case
 	*/
 	template<typename Type>
-	bool ObjectLibrary<Type>::Has(const String& name)
+	bool ObjectLibrary<Type>::Has(const std::string& name)
 	{
 		return Type::s_library.find(name) != Type::s_library.end();
 	}
@@ -58,7 +58,7 @@ namespace Nz
 	* \param object Object to stock
 	*/
 	template<typename Type>
-	void ObjectLibrary<Type>::Register(const String& name, ObjectRef<Type> object)
+	void ObjectLibrary<Type>::Register(const std::string& name, ObjectRef<Type> object)
 	{
 		Type::s_library.emplace(name, object);
 	}
@@ -70,7 +70,7 @@ namespace Nz
 	* \param name Name of the object
 	*/
 	template<typename Type>
-	ObjectRef<Type> ObjectLibrary<Type>::Query(const String& name)
+	ObjectRef<Type> ObjectLibrary<Type>::Query(const std::string& name)
 	{
 		auto it = Type::s_library.find(name);
 		if (it != Type::s_library.end())
@@ -85,7 +85,7 @@ namespace Nz
 	* \param name Name of the object
 	*/
 	template<typename Type>
-	void ObjectLibrary<Type>::Unregister(const String& name)
+	void ObjectLibrary<Type>::Unregister(const std::string& name)
 	{
 		Type::s_library.erase(name);
 	}

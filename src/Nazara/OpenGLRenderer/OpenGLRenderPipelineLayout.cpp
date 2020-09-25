@@ -31,7 +31,7 @@ namespace Nz
 					break;
 
 				default:
-					throw std::runtime_error(("unknown binding type 0x" + String::Number(UnderlyingCast(bindingInfo.type), 16)).ToStdString());
+					throw std::runtime_error("unknown binding type 0x" + NumberToString(UnderlyingCast(bindingInfo.type), 16));
 			}
 		}
 	}

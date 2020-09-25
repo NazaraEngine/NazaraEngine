@@ -6,6 +6,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -613,7 +614,7 @@ namespace Nz
 			if (matIndex >= matCount)
 			{
 				data.subMesh->SetMaterialIndex(0); // To prevent a crash
-				NazaraWarning("SubMesh " + String::Pointer(data.subMesh) + " material index is over mesh new material count (" + String::Number(matIndex) + " >= " + String::Number(matCount) + "), setting it to first material");
+				NazaraWarning("SubMesh " + PointerToString(data.subMesh) + " material index is over mesh new material count (" + NumberToString(matIndex) + " >= " + NumberToString(matCount) + "), setting it to first material");
 			}
 		}
 		#endif

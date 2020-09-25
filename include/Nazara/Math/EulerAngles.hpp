@@ -7,10 +7,10 @@
 #ifndef NAZARA_EULERANGLES_HPP
 #define NAZARA_EULERANGLES_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -43,7 +43,7 @@ namespace Nz
 
 			//Matrix3<T> ToRotationMatrix() const;
 			Quaternion<T> ToQuaternion() const;
-			String ToString() const;
+			std::string ToString() const;
 
 			EulerAngles operator+(const EulerAngles& angles) const;
 			EulerAngles operator-(const EulerAngles& angles) const;

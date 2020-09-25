@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Math/Algorithm.hpp> //< FIXME
 #include <string>
 
 namespace Nz
@@ -17,49 +18,70 @@ namespace Nz
 	struct UnicodeAware {};
 
 	// std::string is assumed to contains UTF-8
-	NAZARA_CORE_API std::string FromUtf16String(const char16_t* u16str);
 	NAZARA_CORE_API std::string FromUtf16String(const std::u16string_view& u16str);
-
-	NAZARA_CORE_API std::string FromUtf32String(const char32_t* u32str);
 	NAZARA_CORE_API std::string FromUtf32String(const std::u32string_view& u32str);
-
-	NAZARA_CORE_API std::string FromWideString(const wchar_t* wstr);
 	NAZARA_CORE_API std::string FromWideString(const std::wstring_view& str);
 
-	inline bool IsNumber(const char* str);
-	inline bool IsNumber(const std::string_view& str);
+	NAZARA_CORE_API std::string_view GetWord(const std::string_view& str, std::size_t wordIndex);
+	NAZARA_CORE_API std::string_view GetWord(const std::string_view& str, std::size_t wordIndex, UnicodeAware);
 
-	inline bool MatchPattern(const std::string_view& str, const char* pattern);
+	inline bool IsNumber(std::string_view str);
+
 	NAZARA_CORE_API bool MatchPattern(const std::string_view& str, const std::string_view& pattern);
 
-	template<typename... Args> bool StartsWith(const std::string_view& str, const char* s, Args&&... args);
+	NAZARA_CORE_API std::string PointerToString(const void* ptr);
+
+	inline std::string& ReplaceStr(std::string& str, const std::string_view& from, const std::string_view& to);
+
 	inline bool StartsWith(const std::string_view& str, const std::string_view& s);
-	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent);
-	NAZARA_CORE_API bool StartsWith(const std::string_view& str, const std::string_view& s, CaseIndependent, UnicodeAware);
+	NAZARA_CORE_API bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent);
+	NAZARA_CORE_API bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware);
+	NAZARA_CORE_API bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware);
 
 	template<typename F> bool SplitString(const std::string_view& str, const std::string_view& token, F&& func);
 	template<typename F> bool SplitStringAny(const std::string_view& str, const std::string_view& token, F&& func);
 
-	inline std::string ToLower(const char* str);
-	NAZARA_CORE_API std::string ToLower(const std::string_view& str);
+	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs);
+	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent);
+	NAZARA_CORE_API bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware);
+	NAZARA_CORE_API bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware);
 
-	inline std::string ToLower(const char* str, UnicodeAware);
+	NAZARA_CORE_API std::string ToLower(const std::string_view& str);
 	NAZARA_CORE_API std::string ToLower(const std::string_view& str, UnicodeAware);
 
-	inline std::string ToUpper(const char* str);
 	NAZARA_CORE_API std::string ToUpper(const std::string_view& str);
-
-	inline std::string ToUpper(const char* str, UnicodeAware);
 	NAZARA_CORE_API std::string ToUpper(const std::string_view& str, UnicodeAware);
 
-	inline std::u16string ToUtf16String(const char* str);
 	NAZARA_CORE_API std::u16string ToUtf16String(const std::string_view& str);
-
-	inline std::u32string ToUtf32String(const char* str);
 	NAZARA_CORE_API std::u32string ToUtf32String(const std::string_view& str);
-
-	inline std::wstring ToWideString(const char* str);
 	NAZARA_CORE_API std::wstring ToWideString(const std::string_view& str);
+
+	inline std::string_view Trim(std::string_view str);
+	inline std::string_view Trim(std::string_view str, char c);
+	inline std::string_view Trim(std::string_view str, char c, CaseIndependent);
+	inline std::string_view Trim(std::string_view str, Unicode::Category category);
+	inline std::string_view Trim(std::string_view str, UnicodeAware);
+	inline std::string_view Trim(std::string_view str, char32_t c, UnicodeAware);
+	inline std::string_view Trim(std::string_view str, char32_t c, CaseIndependent, UnicodeAware);
+	inline std::string_view Trim(std::string_view str, Unicode::Category category, UnicodeAware);
+
+	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str);
+	inline std::string_view TrimLeft(std::string_view str, char c);
+	inline std::string_view TrimLeft(std::string_view str, char c, CaseIndependent);
+	inline std::string_view TrimLeft(std::string_view str, Unicode::Category category);
+	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str, UnicodeAware);
+	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str, char32_t c, UnicodeAware);
+	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str, char32_t c, CaseIndependent, UnicodeAware);
+	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str, Unicode::Category category, UnicodeAware);
+
+	NAZARA_CORE_API std::string_view TrimRight(std::string_view str);
+	inline std::string_view TrimRight(std::string_view str, char c);
+	inline std::string_view TrimRight(std::string_view str, char c, CaseIndependent);
+	inline std::string_view TrimRight(std::string_view str, Unicode::Category category);
+	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, UnicodeAware);
+	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, char32_t c, UnicodeAware);
+	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, char32_t c, CaseIndependent, UnicodeAware);
+	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, Unicode::Category category, UnicodeAware);
 }
 
 #include <Nazara/Core/StringExt.inl>

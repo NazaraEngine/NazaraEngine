@@ -25,7 +25,7 @@ int main()
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
 
-	Nz::String windowTitle = "Render Test";
+	std::string windowTitle = "Render Test";
 	if (!window.Create(Nz::VideoMode(800, 600, 32), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
@@ -341,7 +341,7 @@ int main()
 		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
 		{
 			// Et on insère ces données dans le titre de la fenêtre
-			window.SetTitle(windowTitle + " - " + Nz::String::Number(fps) + " FPS");
+			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
 
 			/*
 			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,

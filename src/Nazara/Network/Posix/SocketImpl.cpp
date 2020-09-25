@@ -5,6 +5,7 @@
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <netinet/tcp.h>
@@ -955,7 +956,7 @@ namespace Nz
 			case EALREADY:
 			case EISCONN:
 			case EWOULDBLOCK:
-				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + NumberToString(error)+')');
 				return SocketError_Internal;
 
 			case EADDRNOTAVAIL:
@@ -1001,7 +1002,7 @@ namespace Nz
 				return SocketError_TimedOut;
 		}
 
-		NazaraWarning("Unhandled POSIX error: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
+		NazaraWarning("Unhandled POSIX error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
 		return SocketError_Unknown;
 	}
 

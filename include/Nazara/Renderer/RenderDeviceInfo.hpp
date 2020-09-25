@@ -8,7 +8,6 @@
 #define NAZARA_RENDERDEVICE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 
 namespace Nz
@@ -16,7 +15,7 @@ namespace Nz
 	struct RenderDeviceInfo
 	{
 		RenderDeviceType type;
-		String name;
+		std::string name;
 	};
 }
 

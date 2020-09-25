@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/String.hpp>
+#include <string>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
 	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, __FILE__, NAZARA_FUNCTION)
@@ -31,20 +31,20 @@ namespace Nz
 			~Error() = delete;
 
 			static UInt32 GetFlags();
-			static String GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
+			static std::string GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
 			static unsigned int GetLastSystemErrorCode();
 			static std::string GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
 
 			static void SetFlags(UInt32 flags);
 
-			static void Trigger(ErrorType type, const String& error);
-			static void Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function);
+			static void Trigger(ErrorType type, std::string error);
+			static void Trigger(ErrorType type, std::string error, unsigned int line, const char* file, const char* function);
 
 		private:
 			static const char* GetCurrentFileRelativeToEngine(const char* file);
 
 			static UInt32 s_flags;
-			static String s_lastError;
+			static std::string s_lastError;
 			static const char* s_lastErrorFunction;
 			static const char* s_lastErrorFile;
 			static unsigned int s_lastErrorLine;

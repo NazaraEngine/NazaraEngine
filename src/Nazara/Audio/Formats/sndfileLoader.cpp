@@ -141,7 +141,7 @@ namespace Nz
 					m_handle = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
 					if (!m_handle)
 					{
-						NazaraError("Failed to open sound: " + String(sf_strerror(m_handle)));
+						NazaraError("Failed to open sound: " + std::string(sf_strerror(m_handle)));
 						return false;
 					}
 
@@ -315,7 +315,7 @@ namespace Nz
 			SNDFILE* file = sf_open_virtual(&callbacks, SFM_READ, &info, &stream);
 			if (!file)
 			{
-				NazaraError("Failed to load sound file: " + String(sf_strerror(file)));
+				NazaraError("Failed to load sound file: " + std::string(sf_strerror(file)));
 				return nullptr;
 			}
 

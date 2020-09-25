@@ -9,7 +9,6 @@
 #ifndef NAZARA_WINDOWIMPL_HPP
 #define NAZARA_WINDOWIMPL_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -21,6 +20,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_video.h>
+#include <string>
 
 namespace Nz
 {
@@ -34,7 +34,7 @@ namespace Nz
 			WindowImpl(WindowImpl&&) = delete; ///TODO?
 			~WindowImpl() = default;
 
-			bool Create(const VideoMode& mode, const String& title, WindowStyleFlags style);
+			bool Create(const VideoMode& mode, const std::string& title, WindowStyleFlags style);
 			bool Create(void* handle);
 
 			void Destroy();
@@ -47,7 +47,7 @@ namespace Nz
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			WindowHandle GetSystemHandle() const;
-			String GetTitle() const;
+			std::string GetTitle() const;
 
 			bool HasFocus() const;
 
@@ -69,7 +69,7 @@ namespace Nz
 			void SetPosition(int x, int y);
 			void SetSize(unsigned int width, unsigned int height);
 			void SetStayOnTop(bool stayOnTop);
-			void SetTitle(const String& title);
+			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);
 
 			WindowImpl& operator=(const WindowImpl&) = delete;

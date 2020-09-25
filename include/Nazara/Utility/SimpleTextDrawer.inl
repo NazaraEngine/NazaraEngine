@@ -23,9 +23,9 @@ namespace Nz
 	}
 
 	inline SimpleTextDrawer::SimpleTextDrawer(const SimpleTextDrawer& drawer) :
+	m_text(drawer.m_text),
 	m_color(drawer.m_color),
 	m_outlineColor(drawer.m_outlineColor),
-	m_text(drawer.m_text),
 	m_style(drawer.m_style),
 	m_colorUpdated(false),
 	m_glyphUpdated(false),
@@ -43,9 +43,9 @@ namespace Nz
 		operator=(std::move(drawer));
 	}
 
-	inline void SimpleTextDrawer::AppendText(const String& str)
+	inline void SimpleTextDrawer::AppendText(const std::string_view& str)
 	{
-		m_text.Append(str);
+		m_text.append(str);
 		if (m_glyphUpdated)
 			GenerateGlyphs(str);
 	}
@@ -96,7 +96,7 @@ namespace Nz
 		return m_style;
 	}
 
-	inline const String& SimpleTextDrawer::GetText() const
+	inline const std::string& SimpleTextDrawer::GetText() const
 	{
 		return m_text;
 	}
@@ -200,11 +200,11 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetText(const String& str)
+	inline void SimpleTextDrawer::SetText(std::string str)
 	{
 		if (m_text != str)
 		{
-			m_text = str;
+			m_text = std::move(str);
 
 			InvalidateGlyphs();
 		}
@@ -257,7 +257,7 @@ namespace Nz
 		return *this;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -268,7 +268,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -281,7 +281,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -293,7 +293,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);

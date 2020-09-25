@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -159,7 +160,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled (0x" + String::Number(pos, 16) + ')');
+				NazaraInternalError("Cursor position not handled (0x" + NumberToString(pos, 16) + ')');
 				return false;
 		}
 

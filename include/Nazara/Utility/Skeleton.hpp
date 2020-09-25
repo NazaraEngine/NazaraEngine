@@ -14,6 +14,7 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -41,14 +42,14 @@ namespace Nz
 			void Destroy();
 
 			const Boxf& GetAABB() const;
-			Joint* GetJoint(const String& jointName);
+			Joint* GetJoint(const std::string& jointName);
 			Joint* GetJoint(std::size_t index);
-			const Joint* GetJoint(const String& jointName) const;
+			const Joint* GetJoint(const std::string& jointName) const;
 			const Joint* GetJoint(std::size_t index) const;
 			Joint* GetJoints();
 			const Joint* GetJoints() const;
 			std::size_t GetJointCount() const;
-			int GetJointIndex(const String& jointName) const;
+			int GetJointIndex(const std::string& jointName) const;
 
 			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation);
 			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, std::size_t* indices, std::size_t indiceCount);

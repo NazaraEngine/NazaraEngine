@@ -35,7 +35,7 @@ namespace Nz
 		}
 
 		// This cannot happen if physDevice is valid, as we retrieved every physical device
-		NazaraInternalError("Invalid physical device: " + String::Pointer(physDevice));
+		NazaraInternalError("Invalid physical device: " + PointerToString(physDevice));
 
 		static Vk::PhysicalDevice dummy;
 		return dummy;
@@ -54,8 +54,8 @@ namespace Nz
 
 		CallOnExit onExit(Vulkan::Uninitialize);
 
-		String appName = "Another application made with Nazara Engine";
-		String engineName = "Nazara Engine - Vulkan Renderer";
+		std::string appName = "Another application made with Nazara Engine";
+		std::string engineName = "Nazara Engine - Vulkan Renderer";
 
 		UInt32 appVersion = VK_MAKE_VERSION(1, 0, 0);
 		UInt32 engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -89,9 +89,9 @@ namespace Nz
 		VkApplicationInfo appInfo = {
 			VK_STRUCTURE_TYPE_APPLICATION_INFO,
 			nullptr,
-			appName.GetConstBuffer(),
+			appName.c_str(),
 			appVersion,
-			engineName.GetConstBuffer(),
+			engineName.c_str(),
 			engineVersion,
 			targetApiVersion
 		};
@@ -126,18 +126,18 @@ namespace Nz
 		}
 
 		std::vector<const char*> enabledExtensions;
-		std::vector<String> additionalLayers; // Just to keep the String alive
+		std::vector<std::string> additionalLayers; // Just to keep the String alive
 		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
 		{
 			additionalLayers.reserve(iParam);
 			for (long long i = 0; i < iParam; ++i)
 			{
-				Nz::String parameterName = "VkInstanceInfo_EnabledLayer" + String::Number(i);
-				Nz::String layer;
+				std::string parameterName = "VkInstanceInfo_EnabledLayer" + NumberToString(i);
+				std::string layer;
 				if (parameters.GetStringParameter(parameterName, &layer))
 				{
 					additionalLayers.emplace_back(std::move(layer));
-					enabledLayers.push_back(additionalLayers.back().GetConstBuffer());
+					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
 					NazaraWarning("Parameter " + parameterName + " expected");
@@ -184,18 +184,18 @@ namespace Nz
 				enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
 
-		std::vector<String> additionalExtensions; // Just to keep the String alive
+		std::vector<std::string> additionalExtensions; // Just to keep the String alive
 		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount", &iParam))
 		{
 			additionalExtensions.reserve(iParam);
 			for (int i = 0; i < iParam; ++i)
 			{
-				Nz::String parameterName = "VkInstanceInfo_EnabledExtension" + String::Number(i);
-				Nz::String extension;
+				std::string parameterName = "VkInstanceInfo_EnabledExtension" + NumberToString(i);
+				std::string extension;
 				if (parameters.GetStringParameter(parameterName, &extension))
 				{
 					additionalExtensions.emplace_back(std::move(extension));
-					enabledExtensions.push_back(additionalExtensions.back().GetConstBuffer());
+					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
 					NazaraWarning("Parameter " + parameterName + " expected");
@@ -232,7 +232,7 @@ namespace Nz
 			Vk::PhysicalDevice deviceInfo;
 			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queueFamilies))
 			{
-				NazaraWarning("Failed to query physical device queue family properties for " + String(deviceInfo.properties.deviceName) + " (0x" + String::Number(deviceInfo.properties.deviceID, 16) + ')');
+				NazaraWarning("Failed to query physical device queue family properties for " + std::string(deviceInfo.properties.deviceName) + " (0x" + NumberToString(deviceInfo.properties.deviceID, 16) + ')');
 				continue;
 			}
 
@@ -249,7 +249,7 @@ namespace Nz
 					deviceInfo.extensions.emplace(extProperty.extensionName);
 			}
 			else
-				NazaraWarning("Failed to query physical device extensions for " + String(deviceInfo.properties.deviceName) + " (0x" + String::Number(deviceInfo.properties.deviceID, 16) + ')');
+				NazaraWarning("Failed to query physical device extensions for " + std::string(deviceInfo.properties.deviceName) + " (0x" + NumberToString(deviceInfo.properties.deviceID, 16) + ')');
 
 			s_physDevices.emplace_back(std::move(deviceInfo));
 		}
@@ -322,7 +322,7 @@ namespace Nz
 		{
 			bool supportPresentation = false;
 			if (!surface.GetSupportPresentation(deviceInfo.physDevice, i, &supportPresentation))
-				NazaraWarning("Failed to get presentation support of queue family #" + String::Number(i));
+				NazaraWarning("Failed to get presentation support of queue family #" + NumberToString(i));
 
 			if (deviceInfo.queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
@@ -422,18 +422,18 @@ namespace Nz
 			//< Nazara default layers goes here
 		}
 
-		std::vector<String> additionalLayers; // Just to keep the String alive
+		std::vector<std::string> additionalLayers; // Just to keep the string alive
 		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledLayerCount", &iParam))
 		{
 			additionalLayers.reserve(iParam);
 			for (long long i = 0; i < iParam; ++i)
 			{
-				Nz::String parameterName = "VkDeviceInfo_EnabledLayer" + String::Number(i);
-				Nz::String layer;
+				std::string parameterName = "VkDeviceInfo_EnabledLayer" + NumberToString(i);
+				std::string layer;
 				if (s_initializationParameters.GetStringParameter(parameterName, &layer))
 				{
 					additionalLayers.emplace_back(std::move(layer));
-					enabledLayers.push_back(additionalLayers.back().GetConstBuffer());
+					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
 					NazaraWarning("Parameter " + parameterName + " expected");
@@ -457,17 +457,17 @@ namespace Nz
 			EnableIfSupported(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
 		}
 
-		std::vector<String> additionalExtensions; // Just to keep the String alive
+		std::vector<std::string> additionalExtensions; // Just to keep the String alive
 		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount", &iParam))
 		{
 			for (long long i = 0; i < iParam; ++i)
 			{
-				Nz::String parameterName = "VkDeviceInfo_EnabledExtension" + String::Number(i);
-				Nz::String extension;
+				std::string parameterName = "VkDeviceInfo_EnabledExtension" + NumberToString(i);
+				std::string extension;
 				if (s_initializationParameters.GetStringParameter(parameterName, &extension))
 				{
 					additionalExtensions.emplace_back(std::move(extension));
-					enabledExtensions.push_back(additionalExtensions.back().GetConstBuffer());
+					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
 					NazaraWarning("Parameter " + parameterName + " expected");

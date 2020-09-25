@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/String.hpp>
 #include <atomic>
+#include <string>
 #include <unordered_map>
 
 namespace Nz
@@ -28,33 +28,33 @@ namespace Nz
 
 			void Clear();
 
-			inline void ForEach(const std::function<bool(const ParameterList& list, const String& name)>& callback);
-			inline void ForEach(const std::function<void(const ParameterList& list, const String& name)>& callback) const;
+			inline void ForEach(const std::function<bool(const ParameterList& list, const std::string& name)>& callback);
+			inline void ForEach(const std::function<void(const ParameterList& list, const std::string& name)>& callback) const;
 
-			bool GetBooleanParameter(const String& name, bool* value) const;
-			bool GetColorParameter(const String& name, Color* value) const;
-			bool GetDoubleParameter(const String& name, double* value) const;
-			bool GetIntegerParameter(const String& name, long long* value) const;
-			bool GetParameterType(const String& name, ParameterType* type) const;
-			bool GetPointerParameter(const String& name, void** value) const;
-			bool GetStringParameter(const String& name, String* value) const;
-			bool GetUserdataParameter(const String& name, void** value) const;
+			bool GetBooleanParameter(const std::string& name, bool* value) const;
+			bool GetColorParameter(const std::string& name, Color* value) const;
+			bool GetDoubleParameter(const std::string& name, double* value) const;
+			bool GetIntegerParameter(const std::string& name, long long* value) const;
+			bool GetParameterType(const std::string& name, ParameterType* type) const;
+			bool GetPointerParameter(const std::string& name, void** value) const;
+			bool GetStringParameter(const std::string& name, std::string* value) const;
+			bool GetUserdataParameter(const std::string& name, void** value) const;
 
-			bool HasParameter(const String& name) const;
+			bool HasParameter(const std::string& name) const;
 
-			void RemoveParameter(const String& name);
+			void RemoveParameter(const std::string& name);
 
-			void SetParameter(const String& name);
-			void SetParameter(const String& name, const Color& value);
-			void SetParameter(const String& name, const String& value);
-			void SetParameter(const String& name, const char* value);
-			void SetParameter(const String& name, bool value);
-			void SetParameter(const String& name, double value);
-			void SetParameter(const String& name, long long value);
-			void SetParameter(const String& name, void* value);
-			void SetParameter(const String& name, void* value, Destructor destructor);
+			void SetParameter(const std::string& name);
+			void SetParameter(const std::string& name, const Color& value);
+			void SetParameter(const std::string& name, const std::string& value);
+			void SetParameter(const std::string& name, const char* value);
+			void SetParameter(const std::string& name, bool value);
+			void SetParameter(const std::string& name, double value);
+			void SetParameter(const std::string& name, long long value);
+			void SetParameter(const std::string& name, void* value);
+			void SetParameter(const std::string& name, void* value, Destructor destructor);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			ParameterList& operator=(const ParameterList& list);
 			ParameterList& operator=(ParameterList&&) = default;
@@ -90,17 +90,17 @@ namespace Nz
 					long long intVal;
 					void* ptrVal;
 					Color colorVal;
-					String stringVal;
+					std::string stringVal;
 					UserdataValue* userdataVal;
 				};
 
 				Value value;
 			};
 
-			Parameter& CreateValue(const String& name);
+			Parameter& CreateValue(const std::string& name);
 			void DestroyValue(Parameter& parameter);
 
-			using ParameterMap = std::unordered_map<String, Parameter>;
+			using ParameterMap = std::unordered_map<std::string, Parameter>;
 			ParameterMap m_parameters;
 	};
 }

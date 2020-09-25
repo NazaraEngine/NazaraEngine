@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/String.hpp>
+#include <string>
 
 #ifdef NAZARA_DEBUG
 	#define NazaraDebug(txt) NazaraNotice(txt)
@@ -36,11 +36,11 @@ namespace Nz
 
 			static void SetLogger(AbstractLogger* logger);
 
-			static void Write(const String& string);
-			static void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
+			static void Write(const std::string_view& string);
+			static void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
-			NazaraStaticSignal(OnLogWrite, const String& /*string*/);
-			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const String& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
+			NazaraStaticSignal(OnLogWrite, const std::string_view& /*string*/);
+			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const std::string_view& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
 
 		private:
 			static bool Initialize();

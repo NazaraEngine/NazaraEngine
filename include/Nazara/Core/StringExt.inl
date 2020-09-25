@@ -10,32 +10,33 @@
 
 namespace Nz
 {
-	bool IsNumber(const char* str)
+	inline bool IsNumber(std::string_view str)
 	{
-		std::size_t size = std::strlen(str);
-		return IsNumber(std::string_view(str, size));
-	}
-
-	bool IsNumber(const std::string_view& str)
-	{
-		return !str.empty() && std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
-	}
-
-	bool MatchPattern(const std::string_view& str, const char* pattern)
-	{
-		if (!pattern)
+		if (str.empty())
 			return false;
 
-		return MatchPattern(str, std::string_view(pattern, std::strlen(pattern)));
+		if (str.front() == '-')
+			str.remove_prefix(1);
+
+		return std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
 	}
 
-	template<typename... Args> bool StartsWith(const std::string_view& str, const char* s, Args&&... args)
+	inline std::string& ReplaceStr(std::string& str, const std::string_view& from, const std::string_view& to)
 	{
-		std::size_t size = std::strlen(s);
-		return StartsWith(str, std::string_view(s, size), std::forward<Args>(args)...);
+		if (str.empty())
+			return str;
+
+		std::size_t startPos = 0;
+		while ((startPos = str.find(from, startPos)) != std::string::npos)
+		{
+			str.replace(startPos, from.length(), to);
+			startPos += to.length();
+		}
+
+		return str;
 	}
 
-	bool StartsWith(const std::string_view& str, const std::string_view& s)
+	inline bool StartsWith(const std::string_view& str, const std::string_view& s)
 	{
 		//FIXME: Replace with proper C++20 value once it's available
 #if __cplusplus > 201703L
@@ -83,48 +84,116 @@ namespace Nz
 		return func(str.substr(previousPos));
 	}
 
-	inline std::string ToLower(const char* str)
+	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs)
 	{
-		std::size_t size = std::strlen(str);
-		return ToLower(std::string_view(str, size));
+		return lhs == rhs;
 	}
 
-	inline std::string ToLower(const char* str, UnicodeAware)
+	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
 	{
-		std::size_t size = std::strlen(str);
-		return ToLower(std::string_view(str, size), UnicodeAware{});
+		if (lhs.size() != rhs.size())
+			return false;
+
+		for (std::size_t i = 0; i < lhs.size(); ++i)
+		{
+			if (std::tolower(lhs[i]) != std::tolower(rhs[i]))
+				return false;
+		}
+
+		return true;
 	}
 
-	inline std::string ToUpper(const char* str)
+	inline std::string_view Trim(std::string_view str)
 	{
-		std::size_t size = std::strlen(str);
-		return ToUpper(std::string_view(str, size));
+		return TrimRight(TrimLeft(str));
 	}
 
-	inline std::string ToUpper(const char* str, UnicodeAware)
+	inline std::string_view Trim(std::string_view str, char c)
 	{
-		std::size_t size = std::strlen(str);
-		return ToUpper(std::string_view(str, size), UnicodeAware{});
+		return TrimRight(TrimLeft(str, c), c);
 	}
 
-	inline std::u16string ToUtf16String(const char* str)
+	inline std::string_view Trim(std::string_view str, char c, CaseIndependent)
 	{
-		std::size_t size = std::strlen(str);
-		return ToUtf16String(std::string_view(str, size));
+		return TrimRight(TrimLeft(str, c, CaseIndependent{}), c, CaseIndependent{});
 	}
 
-	inline std::u32string ToUtf32String(const char* str)
+	inline std::string_view Trim(std::string_view str, Unicode::Category category)
 	{
-		std::size_t size = std::strlen(str);
-		return ToUtf32String(std::string_view(str, size));
+		return TrimRight(TrimLeft(str, category), category);
 	}
 
-	inline std::wstring ToWideString(const char* str)
+	inline std::string_view Trim(std::string_view str, UnicodeAware)
 	{
-		std::size_t size = std::strlen(str);
-		return ToWideString(std::string_view(str, size));
+		return TrimRight(TrimLeft(str, UnicodeAware{}), UnicodeAware{});
 	}
 
+	inline std::string_view Trim(std::string_view str, char32_t c, UnicodeAware)
+	{
+		return TrimRight(TrimLeft(str, c, UnicodeAware{}), c, UnicodeAware{});
+	}
+
+	inline std::string_view Trim(std::string_view str, char32_t c, CaseIndependent, UnicodeAware)
+	{
+		return TrimRight(TrimLeft(str, c, CaseIndependent{}, UnicodeAware{}), c, CaseIndependent{}, UnicodeAware{});
+	}
+
+	inline std::string_view Trim(std::string_view str, Unicode::Category category, UnicodeAware)
+	{
+		return TrimRight(TrimLeft(str, category, UnicodeAware{}), category, UnicodeAware{});
+	}
+
+	inline std::string_view TrimLeft(std::string_view str, char c)
+	{
+		while (!str.empty() && str.front() == c)
+			str.remove_prefix(1);
+
+		return str;
+	}
+
+	inline std::string_view TrimLeft(std::string_view str, char c, CaseIndependent)
+	{
+		c = char(std::tolower(c));
+
+		while (!str.empty() && std::tolower(str.front()) == c)
+			str.remove_prefix(1);
+
+		return str;
+	}
+
+	inline std::string_view TrimLeft(std::string_view str, Unicode::Category category)
+	{
+		while (!str.empty() && (Unicode::GetCategory(str.front()) & category) == category)
+			str.remove_prefix(1);
+
+		return str;
+	}
+
+	inline std::string_view TrimRight(std::string_view str, char c)
+	{
+		while (!str.empty() && str.back() == c)
+			str.remove_suffix(1);
+
+		return str;
+	}
+
+	inline std::string_view TrimRight(std::string_view str, char c, CaseIndependent)
+	{
+		c = char(std::tolower(c));
+
+		while (!str.empty() && std::tolower(str.back()) == c)
+			str.remove_suffix(1);
+
+		return str;
+	}
+
+	inline std::string_view TrimRight(std::string_view str, Unicode::Category category)
+	{
+		while (!str.empty() && (Unicode::GetCategory(str.back()) & category) == category)
+			str.remove_suffix(1);
+
+		return str;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -55,9 +56,9 @@ namespace Nz
 	* \remark In case of failure, the variable pointed by value keep its value
 	* \remark If the parameter is not a boolean, a conversion will be performed, compatibles types are:
 	          Integer: 0 is interpreted as false, any other value is interpreted as true
-	          String:  Conversion obeys the rule as described by String::ToBool
+	          std::string:  Conversion obeys the rule as described by std::string::ToBool
 	*/
-	bool ParameterList::GetBooleanParameter(const String& name, bool* value) const
+	bool ParameterList::GetBooleanParameter(const std::string& name, bool* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -82,10 +83,14 @@ namespace Nz
 
 			case ParameterType_String:
 			{
-				bool converted;
-				if (it->second.value.stringVal.ToBool(&converted, String::CaseInsensitive))
+				if (it->second.value.stringVal == "1" || it->second.value.stringVal == "yes" || it->second.value.stringVal == "true")
 				{
-					*value = converted;
+					*value = true;
+					return true;
+				}
+				else if (it->second.value.stringVal == "0" || it->second.value.stringVal == "no" || it->second.value.stringVal == "false")
+				{
+					*value = false;
 					return true;
 				}
 
@@ -115,7 +120,7 @@ namespace Nz
 	* \remark In case of failure, the variable pointed by value keep its value
 	* \remark If the parameter is not a color, the function fails
 	*/
-	bool ParameterList::GetColorParameter(const String& name, Color* value) const
+	bool ParameterList::GetColorParameter(const std::string& name, Color* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -159,9 +164,9 @@ namespace Nz
 	* \remark In case of failure, the variable pointed by value keep its value
 	* \remark If the parameter is not a double, a conversion will be performed, compatibles types are:
 	          Integer: The integer value is converted to its double representation
-	          String:  Conversion obeys the rule as described by String::ToDouble
+	          std::string:  Conversion obeys the rule as described by std::string::ToDouble
 	*/
-	bool ParameterList::GetDoubleParameter(const String& name, double* value) const
+	bool ParameterList::GetDoubleParameter(const std::string& name, double* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -185,16 +190,21 @@ namespace Nz
 				return true;
 
 			case ParameterType_String:
-				{
-					double converted;
-					if (it->second.value.stringVal.ToDouble(&converted))
-					{
-						*value = converted;
-						return true;
-					}
+			{
+				const std::string& str = it->second.value.stringVal;
 
+				int& err = errno;
+				err = 0;
+
+				char* endStr;
+				double ret = std::strtod(str.data(), &endStr);
+
+				if (str.data() == endStr || err == ERANGE)
 					break;
-				}
+
+				*value = ret;
+				return true;
+			}
 
 			case ParameterType_Boolean:
 			case ParameterType_Color:
@@ -220,9 +230,9 @@ namespace Nz
 	* \remark If the parameter is not an integer, a conversion will be performed, compatibles types are:
 	          Boolean: The boolean is represented as 1 if true and 0 if false
 	          Double:  The floating-point value is truncated and converted to a integer
-	          String:  Conversion obeys the rule as described by String::ToInteger
+	          std::string:  Conversion obeys the rule as described by std::string::ToInteger
 	*/
-	bool ParameterList::GetIntegerParameter(const String& name, long long* value) const
+	bool ParameterList::GetIntegerParameter(const std::string& name, long long* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -250,15 +260,21 @@ namespace Nz
 				return true;
 
 			case ParameterType_String:
-				{
-					long long converted;
-					if (it->second.value.stringVal.ToInteger(&converted))
-					{
-						*value = converted;
-						return true;
-					}
+			{
+				const std::string& str = it->second.value.stringVal;
+
+				int& err = errno;
+				err = 0;
+
+				char* endStr;
+				long long ret = std::strtoll(str.data(), &endStr, 0);
+
+				if (str.data() == endStr || err == ERANGE)
 					break;
-				}
+
+				*value = ret;
+				return true;
+			}
 
 			case ParameterType_Color:
 			case ParameterType_None:
@@ -280,7 +296,7 @@ namespace Nz
 	*
 	* \remark type must be a valid pointer to a ParameterType variable
 	*/
-	bool ParameterList::GetParameterType(const String& name, ParameterType* type) const
+	bool ParameterList::GetParameterType(const std::string& name, ParameterType* type) const
 	{
 		NazaraAssert(type, "Invalid pointer");
 
@@ -305,7 +321,7 @@ namespace Nz
 	* \remark If the parameter is not a pointer, a conversion will be performed, compatibles types are:
 	          Userdata: The pointer part of the userdata is returned
 	*/
-	bool ParameterList::GetPointerParameter(const String& name, void** value) const
+	bool ParameterList::GetPointerParameter(const std::string& name, void** value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -351,15 +367,15 @@ namespace Nz
 	* \remark value must be a valid pointer
 	* \remark In case of failure, the variable pointed by value keep its value
 	* \remark If the parameter is not a string, a conversion will be performed, all types are compatibles:
-	          Boolean:  Conversion obeys the rules of String::Boolean
+	          Boolean:  Conversion obeys the rules of std::string::Boolean
 	          Color:    Conversion obeys the rules of Color::ToString
-	          Double:   Conversion obeys the rules of String::Number
-	          Integer:  Conversion obeys the rules of String::Number
+	          Double:   Conversion obeys the rules of std::string::Number
+	          Integer:  Conversion obeys the rules of std::string::Number
 	          None:     An empty string is returned
-	          Pointer:  Conversion obeys the rules of String::Pointer
-	          Userdata: Conversion obeys the rules of String::Pointer
+	          Pointer:  Conversion obeys the rules of PointerToString
+	          Userdata: Conversion obeys the rules of PointerToString
 	*/
-	bool ParameterList::GetStringParameter(const String& name, String* value) const
+	bool ParameterList::GetStringParameter(const std::string& name, std::string* value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -375,7 +391,7 @@ namespace Nz
 		switch (it->second.type)
 		{
 			case ParameterType_Boolean:
-				*value = String::Boolean(it->second.value.boolVal);
+				*value = (it->second.value.boolVal) ? "true" : "false";
 				return true;
 
 			case ParameterType_Color:
@@ -383,11 +399,11 @@ namespace Nz
 				return true;
 
 			case ParameterType_Double:
-				*value = String::Number(it->second.value.doubleVal);
+				*value = std::to_string(it->second.value.doubleVal);
 				return true;
 
 			case ParameterType_Integer:
-				*value = String::Number(it->second.value.intVal);
+				*value = std::to_string(it->second.value.intVal);
 				return true;
 
 			case ParameterType_String:
@@ -395,15 +411,15 @@ namespace Nz
 				return true;
 
 			case ParameterType_Pointer:
-				*value = String::Pointer(it->second.value.ptrVal);
+				*value = PointerToString(it->second.value.ptrVal);
 				return true;
 
 			case ParameterType_Userdata:
-				*value = String::Pointer(it->second.value.userdataVal->ptr);
+				*value = PointerToString(it->second.value.userdataVal->ptr);
 				return true;
 
 			case ParameterType_None:
-				*value = String();
+				*value = std::string();
 				return true;
 		}
 
@@ -424,7 +440,7 @@ namespace Nz
 	*
 	* \see GetPointerParameter
 	*/
-	bool ParameterList::GetUserdataParameter(const String& name, void** value) const
+	bool ParameterList::GetUserdataParameter(const std::string& name, void** value) const
 	{
 		NazaraAssert(value, "Invalid pointer");
 
@@ -437,9 +453,11 @@ namespace Nz
 			return false;
 		}
 
-		if (it->second.type == ParameterType_Userdata)
+		const auto& parameter = it->second;
+
+		if (parameter.type == ParameterType_Userdata)
 		{
-			*value = it->second.value.userdataVal->ptr;
+			*value = parameter.value.userdataVal->ptr;
 			return true;
 		}
 		else
@@ -455,7 +473,7 @@ namespace Nz
 	*
 	* \param name Name of the parameter
 	*/
-	bool ParameterList::HasParameter(const String& name) const
+	bool ParameterList::HasParameter(const std::string& name) const
 	{
 		return m_parameters.find(name) != m_parameters.end();
 	}
@@ -468,7 +486,7 @@ namespace Nz
 	*
 	* \param name Name of the parameter
 	*/
-	void ParameterList::RemoveParameter(const String& name)
+	void ParameterList::RemoveParameter(const std::string& name)
 	{
 		auto it = m_parameters.find(name);
 		if (it != m_parameters.end())
@@ -485,7 +503,7 @@ namespace Nz
 	*
 	* \param name Name of the parameter
 	*/
-	void ParameterList::SetParameter(const String& name)
+	void ParameterList::SetParameter(const std::string& name)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_None;
@@ -499,7 +517,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The color value
 	*/
-	void ParameterList::SetParameter(const String& name, const Color& value)
+	void ParameterList::SetParameter(const std::string& name, const Color& value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Color;
@@ -515,7 +533,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The string value
 	*/
-	void ParameterList::SetParameter(const String& name, const String& value)
+	void ParameterList::SetParameter(const std::string& name, const std::string& value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_String;
@@ -531,7 +549,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The string value
 	*/
-	void ParameterList::SetParameter(const String& name, const char* value)
+	void ParameterList::SetParameter(const std::string& name, const char* value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_String;
@@ -547,7 +565,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The boolean value
 	*/
-	void ParameterList::SetParameter(const String& name, bool value)
+	void ParameterList::SetParameter(const std::string& name, bool value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Boolean;
@@ -562,7 +580,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The double value
 	*/
-	void ParameterList::SetParameter(const String& name, double value)
+	void ParameterList::SetParameter(const std::string& name, double value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Double;
@@ -577,7 +595,7 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The integer value
 	*/
-	void ParameterList::SetParameter(const String& name, long long value)
+	void ParameterList::SetParameter(const std::string& name, long long value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Integer;
@@ -595,7 +613,7 @@ namespace Nz
 	* \remark This sets a raw pointer, this class takes no responsibility toward it,
 	          if you wish to destroy the pointed variable along with the parameter list, you should set a userdata
 	*/
-	void ParameterList::SetParameter(const String& name, void* value)
+	void ParameterList::SetParameter(const std::string& name, void* value)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Pointer;
@@ -606,36 +624,39 @@ namespace Nz
 	* \brief Gives a string representation
 	* \return A string representation of the object: "ParameterList(Name: Type(value), ...)"
 	*/
-	String ParameterList::ToString() const
+	std::string ParameterList::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << std::boolalpha;
 
 		ss << "ParameterList(";
 		for (auto it = m_parameters.cbegin(); it != m_parameters.cend();)
 		{
+			const auto& parameter = it->second;
+
 			ss << it->first << ": ";
 			switch (it->second.type)
 			{
 				case ParameterType_Boolean:
-					ss << "Boolean(" << String::Boolean(it->second.value.boolVal) << ")";
+					ss << "Boolean(" << parameter.value.boolVal << ")";
 					break;
 				case ParameterType_Color:
-					ss << "Color(" << it->second.value.colorVal.ToString() << ")";
+					ss << "Color(" << parameter.value.colorVal << ")";
 					break;
 				case ParameterType_Double:
-					ss << "Double(" << it->second.value.doubleVal << ")";
+					ss << "Double(" << parameter.value.doubleVal << ")";
 					break;
 				case ParameterType_Integer:
-					ss << "Integer(" << it->second.value.intVal << ")";
+					ss << "Integer(" << parameter.value.intVal << ")";
 					break;
 				case ParameterType_String:
-					ss << "String(" << it->second.value.stringVal << ")";
+					ss << "std::string(" << parameter.value.stringVal << ")";
 					break;
 				case ParameterType_Pointer:
-					ss << "Pointer(" << String::Pointer(it->second.value.ptrVal) << ")";
+					ss << "Pointer(" << parameter.value.ptrVal << ")";
 					break;
 				case ParameterType_Userdata:
-					ss << "Userdata(" << String::Pointer(it->second.value.userdataVal->ptr) << ")";
+					ss << "Userdata(" << parameter.value.userdataVal->ptr << ")";
 					break;
 				case ParameterType_None:
 					ss << "None";
@@ -647,7 +668,7 @@ namespace Nz
 		}
 		ss << ")";
 
-		return ss;
+		return ss.str();
 	}
 
 	/*!
@@ -662,7 +683,7 @@ namespace Nz
 	* \remark The destructor is called once when all copies of the userdata are destroyed, which means
 	          you can safely copy the parameter list around.
 	*/
-	void ParameterList::SetParameter(const String& name, void* value, Destructor destructor)
+	void ParameterList::SetParameter(const std::string& name, void* value, Destructor destructor)
 	{
 		Parameter& parameter = CreateValue(name);
 		parameter.type = ParameterType_Userdata;
@@ -721,7 +742,7 @@ namespace Nz
 	*
 	* \remark The previous value if any gets destroyed
 	*/
-	ParameterList::Parameter& ParameterList::CreateValue(const String& name)
+	ParameterList::Parameter& ParameterList::CreateValue(const std::string& name)
 	{
 		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
 		Parameter& parameter = pair.first->second;
@@ -742,7 +763,7 @@ namespace Nz
 		switch (parameter.type)
 		{
 			case ParameterType_String:
-				parameter.value.stringVal.~String();
+				PlacementDestroy(&parameter.value.stringVal);
 				break;
 
 			case ParameterType_Userdata:

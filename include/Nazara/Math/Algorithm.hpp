@@ -9,9 +9,9 @@
 #define NAZARA_ALGORITHM_MATH_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <cmath>
 #include <limits>
+#include <string>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643
@@ -59,9 +59,9 @@ namespace Nz
 	template<typename T> constexpr T NormalizeAngle(T angle);
 	template<typename T> constexpr bool NumberEquals(T a, T b);
 	template<typename T> constexpr bool NumberEquals(T a, T b, T maxDifference);
-	String NumberToString(long long number, UInt8 radix = 10);
+	inline std::string NumberToString(long long number, UInt8 radix = 10);
 	template<typename T> constexpr T RadianToDegree(T radians);
-	long long StringToNumber(String str, UInt8 radix = 10, bool* ok = nullptr);
+	inline long long StringToNumber(const std::string_view& str, UInt8 radix = 10, bool* ok = nullptr);
 	template<typename T> constexpr T ToDegrees(T angle);
 	template<typename T> constexpr T ToRadians(T angle);
 }

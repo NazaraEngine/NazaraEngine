@@ -9,8 +9,9 @@
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Math/Config.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -90,7 +91,7 @@ namespace Nz
 			Matrix4& SetScale(const Vector3<T>& scale);
 			Matrix4& SetTranslation(const Vector3<T>& translation);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			Vector2<T> Transform(const Vector2<T>& vector, T z = 0.0, T w = 1.0) const;
 			Vector3<T> Transform(const Vector3<T>& vector, T w = 1.0) const;

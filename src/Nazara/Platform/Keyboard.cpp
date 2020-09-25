@@ -8,12 +8,12 @@
 
 namespace Nz
 {
-	String Keyboard::GetKeyName(Scancode scancode)
+	std::string Keyboard::GetKeyName(Scancode scancode)
 	{
 		return EventImpl::GetKeyName(scancode);
 	}
 
-	String Keyboard::GetKeyName(VKey key)
+	std::string Keyboard::GetKeyName(VKey key)
 	{
 		return EventImpl::GetKeyName(key);
 	}

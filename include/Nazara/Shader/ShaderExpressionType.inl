@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/ShaderExpressionType.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz
@@ -17,7 +18,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, std::string>)
 				return false;
 			else
-				static_assert(AlwaysFalse<U>::value, "non-exhaustive visitor");
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 
 		}, type);
 	}
@@ -98,7 +99,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, std::string>)
 				return true;
 			else
-				static_assert(AlwaysFalse<U>::value, "non-exhaustive visitor");
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 
 		}, type);
 	}

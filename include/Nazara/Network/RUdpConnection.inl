@@ -191,7 +191,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraError("PacketReliability not handled (0x" + String::Number(reliability, 16) + ')');
+		NazaraError("PacketReliability not handled (0x" + NumberToString(reliability, 16) + ')');
 		return false;
 	}
 

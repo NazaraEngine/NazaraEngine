@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <cstdio>
 #include <memory>
 #include <Nazara/Core/Error.hpp>
@@ -12,7 +13,6 @@
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
 #include <Nazara/Platform/SDL2/IconImpl.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
-#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
@@ -60,7 +60,7 @@ namespace Nz
 		m_cursor = SDL_GetDefaultCursor();
 	}
 
-	bool WindowImpl::Create(const VideoMode& mode, const String& title, WindowStyleFlags style)
+	bool WindowImpl::Create(const VideoMode& mode, const std::string& title, WindowStyleFlags style)
 	{
 		bool async = (style & WindowStyle_Threaded) != 0;
 		if (async)
@@ -108,7 +108,7 @@ namespace Nz
 		m_sizemove = false;
 		m_style = style;
 
-		m_handle = SDL_CreateWindow(title.GetConstBuffer(), x, y, width, height, winStyle);
+		m_handle = SDL_CreateWindow(title.c_str(), x, y, width, height, winStyle);
 
 		if (!m_handle)
 		{
@@ -240,9 +240,9 @@ namespace Nz
 		return handle;
 	}
 
-	String WindowImpl::GetTitle() const
+	std::string WindowImpl::GetTitle() const
 	{
-		return String::Unicode(SDL_GetWindowTitle(m_handle));
+		return SDL_GetWindowTitle(m_handle);
 	}
 
 	bool WindowImpl::HasFocus() const
@@ -491,7 +491,7 @@ namespace Nz
 					evt.type = WindowEventType_TextEntered;
 					evt.text.repeated = false;
 
-					for (decltype(evt.text.character) codepoint : String::Unicode(event->text.text).Simplify().GetUtf32String())
+					for (decltype(evt.text.character) codepoint : ToUtf32String(event->text.text))
 					{
 						evt.text.character = codepoint;
 
@@ -589,9 +589,9 @@ namespace Nz
 		NazaraDebug("Stay on top isn't supported by SDL2 backend for now");
 	}
 
-	void WindowImpl::SetTitle(const String& title)
+	void WindowImpl::SetTitle(const std::string& title)
 	{
-		SDL_SetWindowTitle(m_handle, title.GetConstBuffer());
+		SDL_SetWindowTitle(m_handle, title.c_str());
 	}
 
 	void WindowImpl::SetVisible(bool visible)

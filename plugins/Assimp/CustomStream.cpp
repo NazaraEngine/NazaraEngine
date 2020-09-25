@@ -6,7 +6,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
@@ -45,7 +44,7 @@ aiReturn StreamSeek(aiFile* file, size_t offset, aiOrigin origin)
 			break;
 	}
 
-	NazaraWarning("Unhandled aiOrigin enum (value: 0x" + String(origin, 16) + ')');
+	NazaraWarning("Unhandled aiOrigin enum (value: 0x" + std::string(origin, 16) + ')');
 	return aiReturn_FAILURE;
 }
 
@@ -105,7 +104,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		}
 		else
 		{
-			NazaraError(String("Unhandled/Invalid openmode: ") + openMode + String(" for file ") + filePath);
+			NazaraError(std::string("Unhandled/Invalid openmode: ") + openMode + std::string(" for file ") + filePath);
 			return nullptr;
 		}
 

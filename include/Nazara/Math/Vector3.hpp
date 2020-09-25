@@ -7,8 +7,10 @@
 #ifndef NAZARA_VECTOR3_HPP
 #define NAZARA_VECTOR3_HPP
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 #include <functional>
+#include <string>
 
 namespace Nz
 {
@@ -72,7 +74,7 @@ namespace Nz
 
 			T SquaredDistance(const Vector3& vec) const;
 
-			String ToString() const;
+			std::string ToString() const;
 
 			T& operator[](std::size_t i);
 			T operator[](std::size_t i) const;

@@ -17,6 +17,7 @@
 #include <Nazara/Utility/FontGlyph.hpp>
 #include <memory>
 #include <set>
+#include <string>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -243,12 +244,12 @@ namespace Nz
 					return true;
 				}
 
-				String GetFamilyName() const override
+				std::string GetFamilyName() const override
 				{
 					return m_face->family_name;
 				}
 
-				String GetStyleName() const override
+				std::string GetStyleName() const override
 				{
 					return m_face->style_name;
 				}

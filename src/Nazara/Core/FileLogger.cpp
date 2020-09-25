@@ -5,7 +5,6 @@
 #include <Nazara/Core/FileLogger.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <array>
 #include <ctime>
 #include <filesystem>
@@ -26,8 +25,8 @@ namespace Nz
 	* \param logPath Path to log
 	*/
 
-	FileLogger::FileLogger(const String& logPath) :
-	m_outputPath(logPath.ToStdString()),
+	FileLogger::FileLogger(std::filesystem::path logPath) :
+	m_outputPath(std::move(logPath)),
 	m_forceStdOutput(false),
 	m_stdReplicationEnabled(true),
 	m_timeLoggingEnabled(true)
@@ -92,7 +91,7 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void FileLogger::Write(const String& string)
+	void FileLogger::Write(const std::string_view& string)
 	{
 		if (m_forceStdOutput || m_stdReplicationEnabled)
 		{
@@ -148,7 +147,7 @@ namespace Nz
 	* \see Write
 	*/
 
-	void FileLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void FileLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
 	{
 		AbstractLogger::WriteError(type, error, line, file, function);
 		m_outputFile.flush();

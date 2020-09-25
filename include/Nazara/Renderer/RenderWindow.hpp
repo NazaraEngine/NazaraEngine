@@ -25,11 +25,11 @@ namespace Nz
 	{
 		public:
 			inline RenderWindow();
-			inline RenderWindow(VideoMode mode, const String &title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters &parameters = RenderWindowParameters());
+			inline RenderWindow(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
 			inline explicit RenderWindow(void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 			inline ~RenderWindow();
 
-			inline bool Create(VideoMode mode, const String &title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters &parameters = RenderWindowParameters());
+			inline bool Create(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
 			inline bool Create(void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 
 			void Display();

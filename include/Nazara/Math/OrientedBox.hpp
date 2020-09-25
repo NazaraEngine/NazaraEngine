@@ -7,10 +7,11 @@
 #ifndef NAZARA_ORIENTEDBOX_HPP
 #define NAZARA_ORIENTEDBOX_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
+#include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -29,6 +30,7 @@ namespace Nz
 			~OrientedBox() = default;
 
 			const Vector3<T>& GetCorner(BoxCorner corner) const;
+			const Vector3<T>* GetCorners() const;
 
 			bool IsValid() const;
 
@@ -39,13 +41,10 @@ namespace Nz
 			OrientedBox& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			template<typename U> OrientedBox& Set(const OrientedBox<U>& orientedBox);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			void Update(const Matrix4<T>& transformMatrix);
 			void Update(const Vector3<T>& transformMatrix);
-
-			operator Vector3<T>* ();
-			operator const Vector3<T>* () const;
 
 			Vector3<T>& operator()(unsigned int i);
 			Vector3<T> operator()(unsigned int i) const;

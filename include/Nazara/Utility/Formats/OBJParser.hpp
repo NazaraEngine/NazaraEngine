@@ -94,7 +94,7 @@ namespace Nz
 			mutable Stream* m_currentStream;
 			std::string m_currentLine;
 			std::filesystem::path m_mtlLib;
-			mutable StringStream m_outputStream;
+			mutable std::ostringstream m_outputStream;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
 			unsigned int m_errorCount;

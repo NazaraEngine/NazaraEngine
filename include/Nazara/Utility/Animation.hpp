@@ -17,9 +17,9 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -67,23 +67,23 @@ namespace Nz
 
 			std::size_t GetFrameCount() const;
 			std::size_t GetJointCount() const;
-			Sequence* GetSequence(const String& sequenceName);
+			Sequence* GetSequence(const std::string& sequenceName);
 			Sequence* GetSequence(std::size_t index);
-			const Sequence* GetSequence(const String& sequenceName) const;
+			const Sequence* GetSequence(const std::string& sequenceName) const;
 			const Sequence* GetSequence(std::size_t index) const;
 			std::size_t GetSequenceCount() const;
-			std::size_t GetSequenceIndex(const String& sequenceName) const;
+			std::size_t GetSequenceIndex(const std::string& sequenceName) const;
 			SequenceJoint* GetSequenceJoints(std::size_t frameIndex = 0);
 			const SequenceJoint* GetSequenceJoints(std::size_t frameIndex = 0) const;
 			AnimationType GetType() const;
 
-			bool HasSequence(const String& sequenceName) const;
+			bool HasSequence(const std::string& sequenceName) const;
 			bool HasSequence(std::size_t index = 0) const;
 
 			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
 
-			void RemoveSequence(const String& sequenceName);
+			void RemoveSequence(const std::string& sequenceName);
 			void RemoveSequence(std::size_t index);
 
 			template<typename... Args> static AnimationRef New(Args&&... args);

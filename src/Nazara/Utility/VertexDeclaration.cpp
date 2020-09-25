@@ -43,7 +43,7 @@ namespace Nz
 		m_components.reserve(components.size());
 		for (const ComponentEntry& entry : components)
 		{
-			NazaraAssert(IsTypeSupported(entry.type), "Component type 0x" + String::Number(entry.type, 16) + " is not supported by vertex declarations");
+			NazaraAssert(IsTypeSupported(entry.type), "Component type 0x" + NumberToString(entry.type, 16) + " is not supported by vertex declarations");
 			NazaraAssert(entry.componentIndex == 0 || entry.component == VertexComponent_Userdata, "Only userdata components can have non-zero component indexes");
 
 			if (entry.component != VertexComponent_Unused)
@@ -91,7 +91,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraError("Component type not handled (0x" + String::Number(type, 16) + ')');
+		NazaraError("Component type not handled (0x" + NumberToString(type, 16) + ')');
 		return false;
 	}
 
@@ -350,7 +350,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to initialize vertex declaration: " + String(e.what()));
+			NazaraError("Failed to initialize vertex declaration: " + std::string(e.what()));
 			return false;
 		}
 

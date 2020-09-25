@@ -229,7 +229,7 @@ namespace Nz
 				return false;
 
 			std::size_t pos = m_currentLine.find(' ');
-			if (pos == String::npos)
+			if (pos == std::string::npos)
 			{
 				UnrecognizedLine(true);
 				return false;
@@ -250,8 +250,7 @@ namespace Nz
 				return false;
 			}
 
-			m_joints[i].name = name;
-			m_joints[i].name.Trim('"');
+			m_joints[i].name = Trim(name, '"');
 
 			Int32 parent = m_joints[i].parent;
 			if (parent >= 0)

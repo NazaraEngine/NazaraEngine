@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
 #include <NazaraSDK/EntityOwner.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <functional>
 #include <limits>
 

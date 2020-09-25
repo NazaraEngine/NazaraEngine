@@ -5,6 +5,7 @@
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <limits>
 #include <Nazara/Network/NetPacket.hpp>
 
@@ -213,7 +214,7 @@ namespace Nz
 				break;
 		}
 
-		NazaraInternalError("Unexpected socket state (0x" + String::Number(m_state, 16) + ')');
+		NazaraInternalError("Unexpected socket state (0x" + NumberToString(m_state, 16) + ')');
 		return m_state;
 	}
 
@@ -520,7 +521,7 @@ namespace Nz
 				break;
 		}
 
-		NazaraInternalError("Unhandled socket state (0x" + String::Number(m_state, 16) + ')');
+		NazaraInternalError("Unhandled socket state (0x" + NumberToString(m_state, 16) + ')');
 		return m_state;
 	}
 
@@ -557,10 +558,10 @@ namespace Nz
 		SocketError errorCode;
 
 		if (!SocketImpl::SetNoDelay(m_handle, m_isLowDelayEnabled, &errorCode))
-			NazaraWarning("Failed to set socket no delay mode (0x" + String::Number(errorCode, 16) + ')');
+			NazaraWarning("Failed to set socket no delay mode (0x" + NumberToString(errorCode, 16) + ')');
 
 		if (!SocketImpl::SetKeepAlive(m_handle, m_isKeepAliveEnabled, m_keepAliveTime, m_keepAliveInterval, &errorCode))
-			NazaraWarning("Failed to set socket keep alive mode (0x" + String::Number(errorCode, 16) + ')');
+			NazaraWarning("Failed to set socket keep alive mode (0x" + NumberToString(errorCode, 16) + ')');
 
 		m_peerAddress = IpAddress::Invalid;
 		m_openMode = OpenMode_ReadWrite;

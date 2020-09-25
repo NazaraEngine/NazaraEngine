@@ -36,7 +36,7 @@ namespace Nz
 
 		if (!buffer)
 		{
-			NazaraInternalError("Animation type not handled (0x" + String::Number(subMesh->GetAnimationType(), 16) + ')');
+			NazaraInternalError("Animation type not handled (0x" + NumberToString(subMesh->GetAnimationType(), 16) + ')');
 		}
 
 		m_mapper.Map(buffer, access);
@@ -72,7 +72,7 @@ namespace Nz
 
 		if (!buffer)
 		{
-			NazaraInternalError("Animation type not handled (0x" + String::Number(subMesh->GetAnimationType(), 16) + ')');
+			NazaraInternalError("Animation type not handled (0x" + NumberToString(subMesh->GetAnimationType(), 16) + ')');
 		}
 
 		m_mapper.Map(buffer, access);

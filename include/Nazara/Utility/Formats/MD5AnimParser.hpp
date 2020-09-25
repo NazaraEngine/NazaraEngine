@@ -35,7 +35,7 @@ namespace Nz
 			{
 				Int32 parent;
 				Quaternionf bindOrient;
-				String name;
+				std::string name;
 				Vector3f bindPos;
 				UInt32 flags;
 				UInt32 index;
@@ -57,12 +57,12 @@ namespace Nz
 
 		private:
 			bool Advance(bool required = true);
-			void Error(const String& message);
+			void Error(const std::string& message);
 			bool ParseBaseframe();
 			bool ParseBounds();
 			bool ParseFrame();
 			bool ParseHierarchy();
-			void Warning(const String& message);
+			void Warning(const std::string& message);
 			void UnrecognizedLine(bool error = false);
 
 			std::vector<float> m_animatedComponents;
@@ -70,7 +70,7 @@ namespace Nz
 			std::vector<Joint> m_joints;
 			Stream& m_stream;
 			StreamOptionFlags m_streamFlags;
-			String m_currentLine;
+			std::string m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_frameIndex;
 			unsigned int m_frameRate;

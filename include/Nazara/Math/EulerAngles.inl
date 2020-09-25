@@ -4,15 +4,13 @@
 
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -96,7 +94,7 @@ namespace Nz
 	template<typename T>
 	void EulerAngles<T>::MakeZero()
 	{
-		Set(F(0.0), F(0.0), F(0.0));
+		Set(T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -194,9 +192,9 @@ namespace Nz
 	template<typename U>
 	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles<U>& angles)
 	{
-		pitch = F(angles.pitch);
-		yaw = F(angles.yaw);
-		roll = F(angles.roll);
+		pitch = T(angles.pitch);
+		yaw = T(angles.yaw);
+		roll = T(angles.roll);
 
 		return *this;
 	}
@@ -210,13 +208,13 @@ namespace Nz
 	Quaternion<T> EulerAngles<T>::ToQuaternion() const
 	{
 		// XYZ
-		T c1 = std::cos(ToRadians(yaw) / F(2.0));
-		T c2 = std::cos(ToRadians(roll) / F(2.0));
-		T c3 = std::cos(ToRadians(pitch) / F(2.0));
+		T c1 = std::cos(ToRadians(yaw) / T(2.0));
+		T c2 = std::cos(ToRadians(roll) / T(2.0));
+		T c3 = std::cos(ToRadians(pitch) / T(2.0));
 
-		T s1 = std::sin(ToRadians(yaw) / F(2.0));
-		T s2 = std::sin(ToRadians(roll) / F(2.0));
-		T s3 = std::sin(ToRadians(pitch) / F(2.0));
+		T s1 = std::sin(ToRadians(yaw) / T(2.0));
+		T s2 = std::sin(ToRadians(roll) / T(2.0));
+		T s3 = std::sin(ToRadians(pitch) / T(2.0));
 
 		return Quaternion<T>(c1 * c2 * c3 - s1 * s2 * s3,
 		                     s1 * s2 * c3 + c1 * c2 * s3,
@@ -230,11 +228,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String EulerAngles<T>::ToString() const
+	std::string EulerAngles<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "EulerAngles(" << pitch << ", " << yaw << ", " << roll << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -401,9 +400,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles)
 {
-	return out << angles.ToString();
+	return out << "EulerAngles(" << angles.pitch << ", " << angles.yaw << ", " << angles.roll << ')';
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

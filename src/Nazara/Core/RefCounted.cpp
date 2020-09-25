@@ -37,7 +37,7 @@ namespace Nz
 	{
 		#if NAZARA_CORE_SAFE
 		if (m_referenceCount > 0)
-			NazaraWarning("Resource destroyed while still referenced " + String::Number(m_referenceCount) + " time(s)");
+			NazaraWarning("Resource destroyed while still referenced " + std::to_string(m_referenceCount) + " time(s)");
 		#endif
 	}
 

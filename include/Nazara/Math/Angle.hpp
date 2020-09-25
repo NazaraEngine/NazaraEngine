@@ -7,10 +7,11 @@
 #ifndef NAZARA_ANGLE_HPP
 #define NAZARA_ANGLE_HPP
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <ostream>
+#include <string>
 #include <type_traits>
 #include <utility>
 
@@ -50,7 +51,7 @@ namespace Nz
 			Quaternion<T> ToQuaternion() const;
 			T ToRadians() const;
 			Angle<AngleUnit::Radian, T> ToRadianAngle() const;
-			String ToString() const;
+			std::string ToString() const;
 
 			Angle& operator=(const Angle&) = default;
 

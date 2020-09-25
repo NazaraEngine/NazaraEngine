@@ -35,7 +35,7 @@ namespace Nz
 	void MTLParser::Emit(const T& text) const
 	{
 		m_outputStream << text;
-		if (m_outputStream.GetBufferSize() > 1024 * 1024)
+		if (m_outputStream.rdbuf()->str().size() > 1024 * 1024)
 			Flush();
 	}
 
@@ -58,8 +58,8 @@ namespace Nz
 
 	inline void MTLParser::Flush() const
 	{
-		m_currentStream->Write(m_outputStream);
-		m_outputStream.Clear();
+		m_currentStream->Write(std::move(m_outputStream).str());
+		m_outputStream.str({});
 	}
 
 	inline void MTLParser::Warning(const std::string& message)

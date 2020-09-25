@@ -8,6 +8,7 @@
 #define NAZARA_ALGORITHM_CORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/TypeTag.hpp>
@@ -18,7 +19,6 @@
 
 namespace Nz
 {
-	class AbstractHash;
 	class ByteArray;
 
 	template<typename T> constexpr T Align(T offset, T alignment);
@@ -30,6 +30,7 @@ namespace Nz
 	template<typename T> ByteArray ComputeHash(AbstractHash* hash, const T& v);
 	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
 	template<typename T> std::size_t CountOf(const T& c);
+	inline bool HashAppend(AbstractHash* hash, const std::string_view& v);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> bool IsPowerOfTwo(T value);
 	template<typename T> T ReverseBits(T integer);

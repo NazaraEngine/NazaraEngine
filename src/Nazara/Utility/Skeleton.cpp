@@ -11,7 +11,7 @@ namespace Nz
 {
 	struct SkeletonImpl
 	{
-		std::unordered_map<String, std::size_t> jointMap;
+		std::unordered_map<std::string, std::size_t> jointMap;
 		std::vector<Joint> joints;
 		Boxf aabb;
 		bool aabbUpdated = false;
@@ -90,7 +90,7 @@ namespace Nz
 		return m_impl->aabb;
 	}
 
-	Joint* Skeleton::GetJoint(const String& jointName)
+	Joint* Skeleton::GetJoint(const std::string& jointName)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -129,7 +129,7 @@ namespace Nz
 
 		if (index >= m_impl->joints.size())
 		{
-			NazaraError("Joint index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
+			NazaraError("Joint index out of range (" + NumberToString(index) + " >= " + NumberToString(m_impl->joints.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -139,7 +139,7 @@ namespace Nz
 		return &m_impl->joints[index];
 	}
 
-	const Joint* Skeleton::GetJoint(const String& jointName) const
+	const Joint* Skeleton::GetJoint(const std::string& jointName) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -176,7 +176,7 @@ namespace Nz
 
 		if (index >= m_impl->joints.size())
 		{
-			NazaraError("Joint index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
+			NazaraError("Joint index out of range (" + NumberToString(index) + " >= " + NumberToString(m_impl->joints.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -223,7 +223,7 @@ namespace Nz
 		return static_cast<std::size_t>(m_impl->joints.size());
 	}
 
-	int Skeleton::GetJointIndex(const String& jointName) const
+	int Skeleton::GetJointIndex(const std::string& jointName) const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!m_impl)
@@ -322,7 +322,7 @@ namespace Nz
 			#if NAZARA_UTILITY_SAFE
 			if (index >= m_impl->joints.size())
 			{
-				NazaraError("Index #" + String::Number(i) + " out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
+				NazaraError("Index #" + NumberToString(i) + " out of range (" + NumberToString(index) + " >= " + NumberToString(m_impl->joints.size()) + ')');
 				return;
 			}
 			#endif
@@ -409,8 +409,8 @@ namespace Nz
 		m_impl->jointMap.clear();
 		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
 		{
-			String name = m_impl->joints[i].GetName();
-			if (!name.IsEmpty())
+			const std::string& name = m_impl->joints[i].GetName();
+			if (!name.empty())
 			{
 				NazaraAssert(m_impl->jointMap.find(name) == m_impl->jointMap.end(), "Joint name \"" + name + "\" is already present in joint map");
 

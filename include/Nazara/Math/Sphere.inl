@@ -3,14 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <algorithm>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -306,7 +304,7 @@ namespace Nz
 	template<typename T>
 	bool Sphere<T>::IsValid() const
 	{
-		return radius > F(0.0);
+		return radius > T(0.0);
 	}
 
 	/*!
@@ -319,10 +317,10 @@ namespace Nz
 	template<typename T>
 	Sphere<T>& Sphere<T>::MakeUnit()
 	{
-		x = F(0.0);
-		y = F(0.0);
-		z = F(0.0);
-		radius = F(1.0);
+		x = T(0.0);
+		y = T(0.0);
+		z = T(0.0);
+		radius = T(1.0);
 
 		return *this;
 	}
@@ -337,10 +335,10 @@ namespace Nz
 	template<typename T>
 	Sphere<T>& Sphere<T>::MakeZero()
 	{
-		x = F(0.0);
-		y = F(0.0);
-		z = F(0.0);
-		radius = F(0.0);
+		x = T(0.0);
+		y = T(0.0);
+		z = T(0.0);
+		radius = T(0.0);
 
 		return *this;
 	}
@@ -390,7 +388,7 @@ namespace Nz
 	{
 		x = circle.x;
 		y = circle.y;
-		z = F(0.0);
+		z = T(0.0);
 		radius = circle.radius;
 
 		return *this;
@@ -426,10 +424,10 @@ namespace Nz
 	template<typename U>
 	Sphere<T>& Sphere<T>::Set(const Sphere<U>& sphere)
 	{
-		x = F(sphere.x);
-		y = F(sphere.y);
-		z = F(sphere.z);
-		radius = F(sphere.radius);
+		x = T(sphere.x);
+		y = T(sphere.y);
+		z = T(sphere.z);
+		radius = T(sphere.radius);
 
 		return *this;
 	}
@@ -440,11 +438,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Sphere<T>::ToString() const
+	std::string Sphere<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Sphere(" << x << ", " << y << ", " << z << "; " << radius << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -568,9 +567,9 @@ namespace Nz
 	Sphere<T> Sphere<T>::Lerp(const Sphere& from, const Sphere& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Zero();
 		}
 		#endif
@@ -662,9 +661,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere)
 {
-	return out << sphere.ToString();
+	return out << "Sphere(" << sphere.x << ", " << sphere.y << ", " << sphere.z << "; " << sphere.radius << ')';
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

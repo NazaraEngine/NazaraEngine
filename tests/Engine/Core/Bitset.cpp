@@ -198,9 +198,9 @@ void CheckConstructor(const char* title)
 
 		GIVEN("Iterator and default constructor")
 		{
-			Nz::String anotherDataString("0101");
+			std::string anotherDataString("0101");
 			Nz::Bitset<Block> defaultByte;
-			Nz::Bitset<Block> anotherData(anotherDataString.GetConstBuffer());
+			Nz::Bitset<Block> anotherData(anotherDataString.c_str());
 
 			WHEN("We assign 'anotherData'")
 			{
@@ -344,7 +344,7 @@ void CheckReverse(const char* title)
 	{
 		GIVEN("A bitset")
 		{
-			Nz::String bits = "010011100010001101001111";
+			std::string bits = "010011100010001101001111";
 			Nz::Bitset<Block> expected(bits);
 
 			WHEN("We reverse the order of bits")
@@ -354,7 +354,9 @@ void CheckReverse(const char* title)
 
 				THEN("The order of bits should be reversed")
 				{
-					CHECK(bitset == Nz::Bitset<Block>(bits.Reversed()));
+					std::string reversedBits = bits;
+					std::reverse(reversedBits.begin(), reversedBits.end());
+					CHECK(bitset == Nz::Bitset<Block>(reversedBits));
 				}
 				AND_WHEN("We reverse the bit order again")
 				{

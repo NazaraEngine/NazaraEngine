@@ -30,7 +30,7 @@ namespace Nz
 					return SphereCollider3D::New(primitive.sphere.size, primitive.matrix.GetTranslation());
 			}
 
-			NazaraError("Primitive type not handled (0x" + String::Number(primitive.type, 16) + ')');
+			NazaraError("Primitive type not handled (0x" + NumberToString(primitive.type, 16) + ')');
 			return Collider3DRef();
 		}
 	}

@@ -4,7 +4,6 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/String.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
@@ -37,7 +36,7 @@ namespace Nz
 			case BufferType_Vertex: target = GL::BufferTarget::Array; break;
 
 			default:
-				throw std::runtime_error("unknown buffer type 0x" + String::Number(UnderlyingCast(m_type), 16).ToStdString());
+				throw std::runtime_error("unknown buffer type 0x" + NumberToString(UnderlyingCast(m_type), 16));
 		}
 
 		GLenum hint = GL_STREAM_COPY;

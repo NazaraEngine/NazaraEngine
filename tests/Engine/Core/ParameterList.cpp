@@ -1,8 +1,6 @@
 #include <Nazara/Core/ParameterList.hpp>
 #include <Catch/catch.hpp>
 
-#include <Nazara/Core/String.hpp>
-
 void nullAction(void*)
 {
 }
@@ -23,9 +21,9 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 			long long intFalse = 0;
 			parameterList.SetParameter("intFalse", intFalse);
 
-			Nz::String strTrue = "true";
+			std::string strTrue = "true";
 			parameterList.SetParameter("strTrue", strTrue);
-			Nz::String strFalse = "false";
+			std::string strFalse = "false";
 			parameterList.SetParameter("strFalse", strFalse);
 
 			THEN("We can get it back")
@@ -75,7 +73,7 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 			long long intDouble = 3;
 			parameterList.SetParameter("intDouble", intDouble);
 
-			Nz::String strDouble = "3.0";
+			std::string strDouble = "3.0";
 			parameterList.SetParameter("strDouble", strDouble);
 
 			THEN("We can get it back")
@@ -113,7 +111,7 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 			double doubleInt = 3;
 			parameterList.SetParameter("doubleInt", doubleInt);
 
-			Nz::String strInt = "3";
+			std::string strInt = "3";
 			parameterList.SetParameter("strInt", strInt);
 
 			THEN("We can get it back")
@@ -149,7 +147,7 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 		WHEN("We add String 'string' and analogous")
 		{
-			Nz::String string("string");
+			std::string string("string");
 			parameterList.SetParameter("string", string);
 
 			bool trueString = 1;
@@ -168,14 +166,14 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				Nz::String newString;
+				std::string newString;
 				CHECK(parameterList.GetStringParameter("string", &newString));
 				CHECK(newString == string);
 			}
 
 			THEN("Conversion from bool to str should also work")
 			{
-				Nz::String retrievedValue;
+				std::string retrievedValue;
 				CHECK(parameterList.GetStringParameter("trueString", &retrievedValue));
 				CHECK(retrievedValue == "true");
 				CHECK(parameterList.GetStringParameter("falseString", &retrievedValue));
@@ -184,21 +182,21 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("Conversion from color to string should also work")
 			{
-				Nz::String retrievedValue;
+				std::string retrievedValue;
 				CHECK(parameterList.GetStringParameter("colorString", &retrievedValue));
 				CHECK(retrievedValue == colorString.ToString());
 			}
 
 			THEN("Conversion from string to double should also work")
 			{
-				Nz::String retrievedValue;
+				std::string retrievedValue;
 				CHECK(parameterList.GetStringParameter("doubleString", &retrievedValue));
-				CHECK(retrievedValue == "3");
+				CHECK(retrievedValue == "3.000000");
 			}
 
 			THEN("Conversion from string to int should also work")
 			{
-				Nz::String retrievedValue;
+				std::string retrievedValue;
 				CHECK(parameterList.GetStringParameter("intString", &retrievedValue));
 				CHECK(retrievedValue == "3");
 			}
