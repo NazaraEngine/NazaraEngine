@@ -3,13 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -224,7 +222,7 @@ namespace Nz
 	template<typename T>
 	Vector2<T> Rect<T>::GetCenter() const
 	{
-		return GetPosition() + GetLengths() / F(2.0);
+		return GetPosition() + GetLengths() / T(2.0);
 	}
 
 	/*!
@@ -254,7 +252,7 @@ namespace Nz
 				return Vector2<T>(x + width, y);
 		}
 
-		NazaraError("Corner not handled (0x" + String::Number(corner, 16) + ')');
+		NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
 		return Vector2<T>();
 	}
 
@@ -309,10 +307,10 @@ namespace Nz
 	{
 		Vector2<T> neg(GetPosition());
 
-		if (normal.x < F(0.0))
+		if (normal.x < T(0.0))
 			neg.x += width;
 
-		if (normal.y < F(0.0))
+		if (normal.y < T(0.0))
 			neg.y += height;
 
 		return neg;
@@ -345,10 +343,10 @@ namespace Nz
 	{
 		Vector2<T> pos(GetPosition());
 
-		if (normal.x > F(0.0))
+		if (normal.x > T(0.0))
 			pos.x += width;
 
-		if (normal.y > F(0.0))
+		if (normal.y > T(0.0))
 			pos.y += height;
 
 		return pos;
@@ -394,7 +392,7 @@ namespace Nz
 	template<typename T>
 	bool Rect<T>::IsValid() const
 	{
-		return width > F(0.0) && height > F(0.0);
+		return width > T(0.0) && height > T(0.0);
 	}
 
 	/*!
@@ -407,10 +405,10 @@ namespace Nz
 	template<typename T>
 	Rect<T>& Rect<T>::MakeZero()
 	{
-		x = F(0.0);
-		y = F(0.0);
-		width = F(0.0);
-		height = F(0.0);
+		x = T(0.0);
+		y = T(0.0);
+		width = T(0.0);
+		height = T(0.0);
 
 		return *this;
 	}
@@ -428,8 +426,8 @@ namespace Nz
 	template<typename T>
 	Rect<T>& Rect<T>::Set(T Width, T Height)
 	{
-		x = F(0.0);
-		y = F(0.0);
+		x = T(0.0);
+		y = T(0.0);
 		width = Width;
 		height = Height;
 
@@ -521,10 +519,10 @@ namespace Nz
 	template<typename U>
 	Rect<T>& Rect<T>::Set(const Rect<U>& rect)
 	{
-		x = F(rect.x);
-		y = F(rect.y);
-		width = F(rect.width);
-		height = F(rect.height);
+		x = T(rect.x);
+		y = T(rect.y);
+		width = T(rect.width);
+		height = T(rect.height);
 
 		return *this;
 	}
@@ -535,11 +533,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Rect<T>::ToString() const
+	std::string Rect<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Rect(" << x << ", " << y << ", " << width << ", " << height << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -753,9 +752,9 @@ namespace Nz
 	Rect<T> Rect<T>::Lerp(const Rect& from, const Rect& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Zero();
 		}
 		#endif
@@ -847,9 +846,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect)
 {
-	return out << rect.ToString();
+	return out << "Rect(" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << ')';
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

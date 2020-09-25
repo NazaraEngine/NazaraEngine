@@ -7,7 +7,6 @@
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <memory>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

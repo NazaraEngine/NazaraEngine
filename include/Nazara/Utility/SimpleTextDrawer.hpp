@@ -8,7 +8,6 @@
 #define NAZARA_SIMPLETEXTDRAWER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -24,7 +23,7 @@ namespace Nz
 			inline SimpleTextDrawer(SimpleTextDrawer&& drawer);
 			~SimpleTextDrawer() = default;
 
-			inline void AppendText(const String& str);
+			inline void AppendText(const std::string_view& str);
 
 			void Clear() override;
 
@@ -45,7 +44,7 @@ namespace Nz
 			inline const Color& GetOutlineColor() const;
 			inline float GetOutlineThickness() const;
 			inline TextStyleFlags GetStyle() const;
-			inline const String& GetText() const;
+			inline const std::string& GetText() const;
 
 			inline void SetCharacterSpacingOffset(float offset);
 			inline void SetCharacterSize(unsigned int characterSize);
@@ -56,15 +55,15 @@ namespace Nz
 			inline void SetOutlineColor(const Color& color);
 			inline void SetOutlineThickness(float thickness);
 			inline void SetStyle(TextStyleFlags style);
-			inline void SetText(const String& str);
+			inline void SetText(std::string str);
 
 			inline SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
 			inline SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
 
-			static inline SimpleTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
-			static inline SimpleTextDrawer Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
-			static inline SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
-			static inline SimpleTextDrawer Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
+			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
+			static inline SimpleTextDrawer Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
 
 		private:
 			inline void AppendNewLine() const;
@@ -76,7 +75,7 @@ namespace Nz
 			inline void DisconnectFontSlots();
 
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const;
-			void GenerateGlyphs(const String& text) const;
+			void GenerateGlyphs(const std::string_view& text) const;
 
 			inline float GetLineHeight(const Font::SizeInfo& sizeInfo) const;
 
@@ -102,11 +101,11 @@ namespace Nz
 			mutable std::size_t m_lastSeparatorGlyph;
 			mutable std::vector<Glyph> m_glyphs;
 			mutable std::vector<Line> m_lines;
+			std::string m_text;
 			Color m_color;
 			Color m_outlineColor;
 			FontRef m_font;
 			mutable Rectf m_bounds;
-			String m_text;
 			TextStyleFlags m_style;
 			mutable UInt32 m_previousCharacter;
 			mutable Vector2f m_drawPos;

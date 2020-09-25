@@ -9,7 +9,7 @@
 
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/String.hpp>
+#include <string>
 #include <unordered_map>
 
 namespace Nz
@@ -25,18 +25,18 @@ namespace Nz
 
 			static void Clear();
 
-			static ObjectRef<Type> Get(const String& name);
-			static bool Has(const String& name);
+			static ObjectRef<Type> Get(const std::string& name);
+			static bool Has(const std::string& name);
 
-			static void Register(const String& name, ObjectRef<Type> object);
-			static ObjectRef<Type> Query(const String& name);
-			static void Unregister(const String& name);
+			static void Register(const std::string& name, ObjectRef<Type> object);
+			static ObjectRef<Type> Query(const std::string& name);
+			static void Unregister(const std::string& name);
 
 		private:
 			static bool Initialize();
 			static void Uninitialize();
 
-			using LibraryMap = std::unordered_map<String, ObjectRef<Type>>;
+			using LibraryMap = std::unordered_map<std::string, ObjectRef<Type>>;
 	};
 }
 

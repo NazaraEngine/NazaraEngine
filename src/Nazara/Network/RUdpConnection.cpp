@@ -421,7 +421,7 @@ namespace Nz
 
 	void RUdpConnection::OnPacketLost(PeerData& peer, PendingAckPacket&& packet)
 	{
-		//NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + String::Number(packet.sequenceId));
+		//NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + NumberToString(packet.sequenceId));
 
 		if (IsReliable(packet.reliability))
 			EnqueuePacketInternal(peer, packet.priority, packet.reliability, std::move(packet.data));
@@ -465,7 +465,7 @@ namespace Nz
 					UInt64 token;
 					packet >> token;
 
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_RequestConnection from " + peerIp.ToString() + ": " + String::Number(token));
+					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_RequestConnection from " + peerIp.ToString() + ": " + NumberToString(token));
 					if (!m_shouldAcceptConnections)
 						return; //< Ignore
 
@@ -487,7 +487,7 @@ namespace Nz
 
 			if (m_isSimulationEnabled && m_packetLossProbability(s_randomGenerator))
 			{
-				NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + String::Number(sequenceId) + " from " + peerIp.ToString() + " for simulation purpose");
+				NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Lost packet " + NumberToString(sequenceId) + " from " + peerIp.ToString() + " for simulation purpose");
 				return;
 			}
 
@@ -519,7 +519,7 @@ namespace Nz
 					UInt64 token;
 					packet /*>> externalAddress*/ >> token;
 
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_AcknowledgeConnection from " + peerIp.ToString() + ": " + String::Number(token));
+					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received NetCode_AcknowledgeConnection from " + peerIp.ToString() + ": " + NumberToString(token));
 					if (token == ~peer.stateData1)
 					{
 						peer.state = PeerState_Connected;
@@ -527,7 +527,7 @@ namespace Nz
 					}
 					else
 					{
-						NazaraNotice("Received wrong token (" + String::Number(token) + " instead of " + String::Number(~peer.stateData1) + ") from client " + peer.address.ToString());
+						NazaraNotice("Received wrong token (" + NumberToString(token) + " instead of " + NumberToString(~peer.stateData1) + ") from client " + peer.address.ToString());
 						return; //< Ignore
 					}
 
@@ -553,7 +553,7 @@ namespace Nz
 
 				default:
 				{
-					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received 0x" + String::Number(packet.GetNetCode(), 16) + " from " + peerIp.ToString());
+					NazaraNotice(m_socket.GetBoundAddress().ToString() + ": Received 0x" + NumberToString(packet.GetNetCode(), 16) + " from " + peerIp.ToString());
 					RUdpMessage receivedMessage;
 					receivedMessage.from = peerIp;
 					receivedMessage.data = std::move(packet);

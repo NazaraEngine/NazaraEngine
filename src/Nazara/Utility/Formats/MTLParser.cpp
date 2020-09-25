@@ -499,7 +499,7 @@ namespace Nz
 			});
 		}
 
-		m_outputStream.Clear();
+		m_outputStream.str({});
 
 		EmitLine("# Exported by Nazara Engine");
 		EmitLine();
@@ -510,7 +510,7 @@ namespace Nz
 
 		for (auto& pair : m_materials)
 		{
-			const String& matName = pair.first;
+			const std::string& matName = pair.first;
 			const Material& mat = pair.second;
 
 			Emit("newmtl ");

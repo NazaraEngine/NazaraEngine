@@ -3,14 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -126,17 +124,17 @@ namespace Nz
 		T divisor = std::sqrt(GetSquaredLength() * vec.GetSquaredLength());
 
 		#if NAZARA_MATH_SAFE
-		if (NumberEquals(divisor, F(0.0)))
+		if (NumberEquals(divisor, T(0.0)))
 		{
-			String error("Division by zero");
+			std::string error("Division by zero");
 
 			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
+			throw std::domain_error(std::move(error));
 		}
 		#endif
 
 		T alpha = DotProduct(vec) / divisor;
-		return FromRadians(std::acos(Clamp(alpha, F(-1.0), F(1.0))));
+		return FromRadians(std::acos(Clamp(alpha, T(-1.0), T(1.0))));
 	}
 
 	/*!
@@ -244,7 +242,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeBackward()
 	{
-		return Set(F(0.0), F(0.0), F(1.0));
+		return Set(T(0.0), T(0.0), T(1.0));
 	}
 
 	/*!
@@ -256,7 +254,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeDown()
 	{
-		return Set(F(0.0), F(-1.0), F(0.0));
+		return Set(T(0.0), T(-1.0), T(0.0));
 	}
 
 	/*!
@@ -268,7 +266,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeForward()
 	{
-		return Set(F(0.0), F(0.0), F(-1.0));
+		return Set(T(0.0), T(0.0), T(-1.0));
 	}
 
 	/*!
@@ -280,7 +278,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeLeft()
 	{
-		return Set(F(-1.0), F(0.0), F(0.0));
+		return Set(T(-1.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -292,7 +290,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeRight()
 	{
-		return Set(F(1.0), F(0.0), F(0.0));
+		return Set(T(1.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -304,7 +302,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnit()
 	{
-		return Set(F(1.0), F(1.0), F(1.0));
+		return Set(T(1.0), T(1.0), T(1.0));
 	}
 
 	/*!
@@ -316,7 +314,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnitX()
 	{
-		return Set(F(1.0), F(0.0), F(0.0));
+		return Set(T(1.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -328,7 +326,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnitY()
 	{
-		return Set(F(0.0), F(1.0), F(0.0));
+		return Set(T(0.0), T(1.0), T(0.0));
 	}
 
 	/*!
@@ -340,7 +338,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUnitZ()
 	{
-		return Set(F(0.0), F(0.0), F(1.0));
+		return Set(T(0.0), T(0.0), T(1.0));
 	}
 
 	/*!
@@ -352,7 +350,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeUp()
 	{
-		return Set(F(0.0), F(1.0), F(0.0));
+		return Set(T(0.0), T(1.0), T(0.0));
 	}
 
 	/*!
@@ -364,7 +362,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& Vector3<T>::MakeZero()
 	{
-		return Set(F(0.0), F(0.0), F(0.0));
+		return Set(T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -427,9 +425,9 @@ namespace Nz
 	Vector3<T>& Vector3<T>::Normalize(T* length)
 	{
 		T norm = GetLength();
-		if (norm > F(0.0))
+		if (norm > T(0.0))
 		{
-			T invNorm = F(1.0) / norm;
+			T invNorm = T(1.0) / norm;
 			x *= invNorm;
 			y *= invNorm;
 			z *= invNorm;
@@ -533,9 +531,9 @@ namespace Nz
 	template<typename U>
 	Vector3<T>& Vector3<T>::Set(const Vector3<U>& vec)
 	{
-		x = F(vec.x);
-		y = F(vec.y);
-		z = F(vec.z);
+		x = T(vec.x);
+		y = T(vec.y);
+		z = T(vec.z);
 
 		return *this;
 	}
@@ -575,11 +573,12 @@ namespace Nz
 	* \return A string representation of the object: "Vector3(x, y, z)"
 	*/
 	template<typename T>
-	String Vector3<T>::ToString() const
+	std::string Vector3<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Vector3(" << x << ", " << y << ", " << z <<')';
+		return ss.str();
 	}
 
 	/*!
@@ -677,23 +676,10 @@ namespace Nz
 	* \return A vector where components are the quotient of this vector and the other one
 	*
 	* \param vec The other vector to divide components with
-	*
-	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*/
 	template<typename T>
 	Vector3<T> Vector3<T>::operator/(const Vector3& vec) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-		#endif
-
 		return Vector3(x / vec.x, y / vec.y, z / vec.z);
 	}
 
@@ -702,23 +688,10 @@ namespace Nz
 	* \return A vector where components are the quotient of this vector and the scalar
 	*
 	* \param scale The scalar to divide components with
-	*
-	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 	*/
 	template<typename T>
 	Vector3<T> Vector3<T>::operator/(T scale) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(scale, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-		#endif
-
 		return Vector3(x / scale, y / scale, z / scale);
 	}
 
@@ -791,21 +764,10 @@ namespace Nz
 	* \return A reference to this vector where components are the quotient of this vector and the other one
 	*
 	* \param vec The other vector to multiply components with
-	*
-	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*/
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator/=(const Vector3& vec)
 	{
-		if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-
 		x /= vec.x;
 		y /= vec.y;
 		z /= vec.z;
@@ -818,21 +780,10 @@ namespace Nz
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
 	* \param scale The scalar to divide components with
-	*
-	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 	*/
 	template<typename T>
 	Vector3<T>& Vector3<T>::operator/=(T scale)
 	{
-		if (NumberEquals(scale, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-
 		x /= scale;
 		y /= scale;
 		z /= scale;
@@ -1253,7 +1204,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec)
 {
-	return out << vec.ToString();
+	return out << "Vector3(" << vec.x << ", " << vec.y << ", " << vec.z << ')';
 }
 
 /*!
@@ -1274,24 +1225,11 @@ Nz::Vector3<T> operator*(T scale, const Nz::Vector3<T>& vec)
 * \return A vector where components are the quotient of this vector and the scalar
 *
 * \param scale The scalar to divide components with
-*
-* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
-* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 */
 
 template<typename T>
 Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
 {
-	#if NAZARA_MATH_SAFE
-	if (Nz::NumberEquals(vec.x, F(0.0)) || Nz::NumberEquals(vec.y, F(0.0)) || Nz::NumberEquals(vec.z, F(0.0)))
-	{
-		Nz::String error("Division by zero");
-
-		NazaraError(error);
-		throw std::domain_error(error.ToStdString());
-	}
-	#endif
-
 	return Nz::Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
 }
 
@@ -1319,7 +1257,5 @@ namespace std
 		}
 	};
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

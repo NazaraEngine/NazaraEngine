@@ -192,6 +192,12 @@ namespace Nz
 		return c.size();
 	}
 
+	inline bool HashAppend(AbstractHash* hash, const std::string_view& v)
+	{
+		hash->Append(reinterpret_cast<const UInt8*>(v.data()), v.size());
+		return true;
+	}
+
 	/*!
 	* \ingroup core
 	* \brief Combines two hash in one

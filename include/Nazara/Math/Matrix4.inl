@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
@@ -14,10 +13,9 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <cstring>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -202,22 +200,22 @@ namespace Nz
 		return Set(m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31,
 		           m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32,
 		           m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33,
-		           F(0.0),
+		           T(0.0),
 
 		           m21*matrix.m11 + m22*matrix.m21 + m23*matrix.m31,
 		           m21*matrix.m12 + m22*matrix.m22 + m23*matrix.m32,
 		           m21*matrix.m13 + m22*matrix.m23 + m23*matrix.m33,
-		           F(0.0),
+		           T(0.0),
 
 		           m31*matrix.m11 + m32*matrix.m21 + m33*matrix.m31,
 		           m31*matrix.m12 + m32*matrix.m22 + m33*matrix.m32,
 		           m31*matrix.m13 + m32*matrix.m23 + m33*matrix.m33,
-		           F(0.0),
+		           T(0.0),
 
 		           m41*matrix.m11 + m42*matrix.m21 + m43*matrix.m31 + matrix.m41,
 		           m41*matrix.m12 + m42*matrix.m22 + m43*matrix.m32 + matrix.m42,
 		           m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
-		           F(1.0));
+		           T(1.0));
 	}
 
 	template<typename T>
@@ -257,10 +255,10 @@ namespace Nz
 		#if NAZARA_MATH_SAFE
 		if (column > 3)
 		{
-			String error("Column out of range: (" + String::Number(column) + ") > 3");
+			std::string error("Column out of range: (" + std::to_string(column) + ") > 3");
 
 			NazaraError(error);
-			throw std::out_of_range(error.ToStdString());
+			throw std::out_of_range(error);
 		}
 		#endif
 
@@ -466,7 +464,7 @@ namespace Nz
 			          m31 * m12 * m23 -
 			          m31 * m13 * m22;
 
-			T invDet = F(1.0) / det;
+			T invDet = T(1.0) / det;
 			for (unsigned int i = 0; i < 16; ++i)
 				inv[i] *= invDet;
 
@@ -508,7 +506,7 @@ namespace Nz
 		#endif
 
 		T det = GetDeterminantAffine();
-		if (det != F(0.0))
+		if (det != T(0.0))
 		{
 			// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
 			T inv[16];
@@ -521,7 +519,7 @@ namespace Nz
 			inv[2] = m12 * m23 -
 			         m22 * m13;
 
-			inv[3] = F(0.0);
+			inv[3] = T(0.0);
 
 			inv[4] = -m21 * m33 +
 			         m31 * m23;
@@ -532,7 +530,7 @@ namespace Nz
 			inv[6] = -m11 * m23 +
 			         m21 * m13;
 
-			inv[7] = F(0.0);
+			inv[7] = T(0.0);
 
 			inv[8] = m21 * m32 -
 			         m31 * m22;
@@ -543,7 +541,7 @@ namespace Nz
 			inv[10] = m11 * m22 -
 			          m21 * m12;
 
-			inv[11] = F(0.0);
+			inv[11] = T(0.0);
 
 			inv[12] = -m21 * m32 * m43 +
 			          m21 * m33 * m42 +
@@ -566,11 +564,11 @@ namespace Nz
 			          m41 * m12 * m23 +
 			          m41 * m13 * m22;
 
-			T invDet = F(1.0) / det;
+			T invDet = T(1.0) / det;
 			for (unsigned int i = 0; i < 16; ++i)
 				inv[i] *= invDet;
 
-			inv[15] = F(1.0);
+			inv[15] = T(1.0);
 
 			*dest = inv;
 			return true;
@@ -591,10 +589,10 @@ namespace Nz
 		Quaternion<T> quat;
 
 		T trace = m11 + m22 + m33;
-		if (trace > F(0.0))
+		if (trace > T(0.0))
 		{
-			T s = F(0.5) / std::sqrt(trace + F(1.0));
-			quat.w = F(0.25) / s;
+			T s = T(0.5) / std::sqrt(trace + T(1.0));
+			quat.w = T(0.25) / s;
 			quat.x = (m23 - m32) * s;
 			quat.y = (m31 - m13) * s;
 			quat.z = (m12 - m21) * s;
@@ -603,30 +601,30 @@ namespace Nz
 		{
 			if (m11 > m22 && m11 > m33)
 			{
-				T s = F(2.0) * std::sqrt(F(1.0) + m11 - m22 - m33);
+				T s = T(2.0) * std::sqrt(T(1.0) + m11 - m22 - m33);
 
 				quat.w = (m23 - m32) / s;
-				quat.x = F(0.25) * s;
+				quat.x = T(0.25) * s;
 				quat.y = (m21 + m12) / s;
 				quat.z = (m31 + m13) / s;
 			}
 			else if (m22 > m33)
 			{
-				T s = F(2.0) * std::sqrt(F(1.0) + m22 - m11 - m33);
+				T s = T(2.0) * std::sqrt(T(1.0) + m22 - m11 - m33);
 
 				quat.w = (m31 - m13) / s;
 				quat.x = (m21 + m12) / s;
-				quat.y = F(0.25) * s;
+				quat.y = T(0.25) * s;
 				quat.z = (m32 + m23) / s;
 			}
 			else
 			{
-				T s = F(2.0) * std::sqrt(F(1.0) + m33 - m11 - m22);
+				T s = T(2.0) * std::sqrt(T(1.0) + m33 - m11 - m22);
 
 				quat.w = (m12 - m21) / s;
 				quat.x = (m31 + m13) / s;
 				quat.y = (m32 + m23) / s;
-				quat.z = F(0.25) * s;
+				quat.z = T(0.25) * s;
 			}
 		}
 
@@ -651,10 +649,10 @@ namespace Nz
 		#if NAZARA_MATH_SAFE
 		if (row > 3)
 		{
-			String error("Row out of range: (" + String::Number(row) + ") > 3");
+			std::string error("Row out of range: (" + NumberToString(row) + ") > 3");
 
 			NazaraError(error);
-			throw std::out_of_range(error.ToStdString());
+			throw std::out_of_range(error);
 		}
 		#endif
 
@@ -740,7 +738,7 @@ namespace Nz
 	template<typename T>
 	bool Matrix4<T>::HasNegativeScale() const
 	{
-		return GetDeterminant() < F(0.0);
+		return GetDeterminant() < T(0.0);
 	}
 
 	/*!
@@ -754,15 +752,15 @@ namespace Nz
 	bool Matrix4<T>::HasScale() const
 	{
 		T t = m11*m11 + m21*m21 + m31*m31;
-		if (!NumberEquals(t, F(1.0)))
+		if (!NumberEquals(t, T(1.0)))
 			return true;
 
 		t = m12*m12 + m22*m22 + m32*m32;
-		if (!NumberEquals(t, F(1.0)))
+		if (!NumberEquals(t, T(1.0)))
 			return true;
 
 		t = m13*m13 + m23*m23 + m33*m33;
-		if (!NumberEquals(t, F(1.0)))
+		if (!NumberEquals(t, T(1.0)))
 			return true;
 
 		return false;
@@ -814,7 +812,7 @@ namespace Nz
 	template<typename T>
 	bool Matrix4<T>::IsAffine() const
 	{
-		return NumberEquals(m14, F(0.0)) && NumberEquals(m24, F(0.0)) && NumberEquals(m34, F(0.0)) && NumberEquals(m44, F(1.0));
+		return NumberEquals(m14, T(0.0)) && NumberEquals(m24, T(0.0)) && NumberEquals(m34, T(0.0)) && NumberEquals(m44, T(1.0));
 	}
 
 	/*!
@@ -825,10 +823,10 @@ namespace Nz
 	template<typename T>
 	bool Matrix4<T>::IsIdentity() const
 	{
-		return (NumberEquals(m11, F(1.0)) && NumberEquals(m12, F(0.0)) && NumberEquals(m13, F(0.0)) && NumberEquals(m14, F(0.0)) &&
-		        NumberEquals(m21, F(0.0)) && NumberEquals(m22, F(1.0)) && NumberEquals(m23, F(0.0)) && NumberEquals(m24, F(0.0)) &&
-		        NumberEquals(m31, F(0.0)) && NumberEquals(m32, F(0.0)) && NumberEquals(m33, F(1.0)) && NumberEquals(m34, F(0.0)) &&
-		        NumberEquals(m41, F(0.0)) && NumberEquals(m42, F(0.0)) && NumberEquals(m43, F(0.0)) && NumberEquals(m44, F(1.0)));
+		return (NumberEquals(m11, T(1.0)) && NumberEquals(m12, T(0.0)) && NumberEquals(m13, T(0.0)) && NumberEquals(m14, T(0.0)) &&
+		        NumberEquals(m21, T(0.0)) && NumberEquals(m22, T(1.0)) && NumberEquals(m23, T(0.0)) && NumberEquals(m24, T(0.0)) &&
+		        NumberEquals(m31, T(0.0)) && NumberEquals(m32, T(0.0)) && NumberEquals(m33, T(1.0)) && NumberEquals(m34, T(0.0)) &&
+		        NumberEquals(m41, T(0.0)) && NumberEquals(m42, T(0.0)) && NumberEquals(m43, T(0.0)) && NumberEquals(m44, T(1.0)));
 	}
 
 	/*!
@@ -841,10 +839,10 @@ namespace Nz
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakeIdentity()
 	{
-		Set(F(1.0), F(0.0), F(0.0), F(0.0),
-		    F(0.0), F(1.0), F(0.0), F(0.0),
-		    F(0.0), F(0.0), F(1.0), F(0.0),
-		    F(0.0), F(0.0), F(0.0), F(1.0));
+		Set(T(1.0), T(0.0), T(0.0), T(0.0),
+		    T(0.0), T(1.0), T(0.0), T(0.0),
+		    T(0.0), T(0.0), T(1.0), T(0.0),
+		    T(0.0), T(0.0), T(0.0), T(1.0));
 
 		return *this;
 	}
@@ -893,10 +891,10 @@ namespace Nz
 	Matrix4<T>& Matrix4<T>::MakeOrtho(T left, T right, T top, T bottom, T zNear, T zFar)
 	{
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204942(v=vs.85).aspx
-		Set(F(2.0) / (right - left), F(0.0), F(0.0), F(0.0),
-		    F(0.0), F(2.0) / (top - bottom), F(0.0), F(0.0),
-		    F(0.0), F(0.0), F(1.0) / (zNear - zFar), F(0.0),
-		    (left + right) / (left - right), (top + bottom) / (bottom - top), zNear/(zNear - zFar), F(1.0));
+		Set(T(2.0) / (right - left), T(0.0), T(0.0), T(0.0),
+		    T(0.0), T(2.0) / (top - bottom), T(0.0), T(0.0),
+		    T(0.0), T(0.0), T(1.0) / (zNear - zFar), T(0.0),
+		    (left + right) / (left - right), (top + bottom) / (bottom - top), zNear/(zNear - zFar), T(1.0));
 
 		return *this;
 	}
@@ -918,17 +916,17 @@ namespace Nz
 	{
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204945(v=vs.85).aspx
 		#if NAZARA_MATH_ANGLE_RADIAN
-		angle /= F(2.0);
+		angle /= T(2.0);
 		#else
-		angle = DegreeToRadian(angle/F(2.0));
+		angle = DegreeToRadian(angle / T(2.0));
 		#endif
 
 		T yScale = std::tan(static_cast<T>(M_PI_2) - angle);
 
-		Set(yScale / ratio, F(0.0), F(0.0), F(0.0),
-		    F(0.0), yScale, F(0.0), F(0.0),
-		    F(0.0), F(0.0), - (zFar + zNear) / (zFar - zNear), F(-1.0),
-		    F(0.0), F(0.0), F(-2.0) * (zNear * zFar) / (zFar - zNear), F(0.0));
+		Set(yScale / ratio, T(0.0), T(0.0), T(0.0),
+		    T(0.0), yScale, T(0.0), T(0.0),
+		    T(0.0), T(0.0), - (zFar + zNear) / (zFar - zNear), T(-1.0),
+		    T(0.0), T(0.0), T(-2.0) * (zNear * zFar) / (zFar - zNear), T(0.0));
 
 		return *this;
 	}
@@ -948,13 +946,13 @@ namespace Nz
 		SetRotation(rotation);
 
 		// We complete the matrix
-		m14 = F(0.0);
-		m24 = F(0.0);
-		m34 = F(0.0);
-		m41 = F(0.0);
-		m42 = F(0.0);
-		m43 = F(0.0);
-		m44 = F(1.0);
+		m14 = T(0.0);
+		m24 = T(0.0);
+		m34 = T(0.0);
+		m41 = T(0.0);
+		m42 = T(0.0);
+		m43 = T(0.0);
+		m44 = T(1.0);
 
 		return *this;
 	}
@@ -971,10 +969,10 @@ namespace Nz
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakeScale(const Vector3<T>& scale)
 	{
-		Set(scale.x, F(0.0),  F(0.0),  F(0.0),
-		    F(0.0),  scale.y, F(0.0),  F(0.0),
-		    F(0.0),  F(0.0),  scale.z, F(0.0),
-		    F(0.0),  F(0.0),  F(0.0),  F(1.0));
+		Set(scale.x, T(0.0),  T(0.0),  T(0.0),
+		    T(0.0),  scale.y, T(0.0),  T(0.0),
+		    T(0.0),  T(0.0),  scale.z, T(0.0),
+		    T(0.0),  T(0.0),  T(0.0),  T(1.0));
 
 		return *this;
 	}
@@ -991,10 +989,10 @@ namespace Nz
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakeTranslation(const Vector3<T>& translation)
 	{
-		Set(F(1.0), F(0.0), F(0.0), F(0.0),
-		    F(0.0), F(1.0), F(0.0), F(0.0),
-		    F(0.0), F(0.0), F(1.0), F(0.0),
-		    translation.x, translation.y, translation.z, F(1.0));
+		Set(T(1.0), T(0.0), T(0.0), T(0.0),
+		    T(0.0), T(1.0), T(0.0), T(0.0),
+		    T(0.0), T(0.0), T(1.0), T(0.0),
+		    translation.x, translation.y, translation.z, T(1.0));
 
 		return *this;
 	}
@@ -1019,10 +1017,10 @@ namespace Nz
 		SetTranslation(translation);
 
 		// We complete the matrix (the transformations are affine)
-		m14 = F(0.0);
-		m24 = F(0.0);
-		m34 = F(0.0);
-		m44 = F(1.0);
+		m14 = T(0.0);
+		m24 = T(0.0);
+		m34 = T(0.0);
+		m44 = T(1.0);
 
 		return *this;
 	}
@@ -1078,10 +1076,10 @@ namespace Nz
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakeZero()
 	{
-		Set(F(0.0), F(0.0), F(0.0), F(0.0),
-		    F(0.0), F(0.0), F(0.0), F(0.0),
-		    F(0.0), F(0.0), F(0.0), F(0.0),
-		    F(0.0), F(0.0), F(0.0), F(0.0));
+		Set(T(0.0), T(0.0), T(0.0), T(0.0),
+		    T(0.0), T(0.0), T(0.0), T(0.0),
+		    T(0.0), T(0.0), T(0.0), T(0.0),
+		    T(0.0), T(0.0), T(0.0), T(0.0));
 
 		return *this;
 	}
@@ -1130,10 +1128,10 @@ namespace Nz
 	template<typename U>
 	Matrix4<T>& Matrix4<T>::Set(const Matrix4<U>& matrix)
 	{
-		Set(F(matrix[ 0]), F(matrix[ 1]), F(matrix[ 2]), F(matrix[ 3]),
-		    F(matrix[ 4]), F(matrix[ 5]), F(matrix[ 6]), F(matrix[ 7]),
-		    F(matrix[ 8]), F(matrix[ 9]), F(matrix[10]), F(matrix[11]),
-		    F(matrix[12]), F(matrix[13]), F(matrix[14]), F(matrix[15]));
+		Set(T(matrix[ 0]), T(matrix[ 1]), T(matrix[ 2]), T(matrix[ 3]),
+		    T(matrix[ 4]), T(matrix[ 5]), T(matrix[ 6]), T(matrix[ 7]),
+		    T(matrix[ 8]), T(matrix[ 9]), T(matrix[10]), T(matrix[11]),
+		    T(matrix[12]), T(matrix[13]), T(matrix[14]), T(matrix[15]));
 
 		return *this;
 	}
@@ -1159,17 +1157,17 @@ namespace Nz
 		T qy2 = qy * qy;
 		T qz2 = qz * qz;
 
-		m11 = F(1.0) - F(2.0) * qy2 - F(2.0) * qz2;
-		m21 = F(2.0) * qx * qy - F(2.0) * qz * qw;
-		m31 = F(2.0) * qx * qz + F(2.0) * qy * qw;
+		m11 = T(1.0) - T(2.0) * qy2 - T(2.0) * qz2;
+		m21 = T(2.0) * qx * qy - T(2.0) * qz * qw;
+		m31 = T(2.0) * qx * qz + T(2.0) * qy * qw;
 
-		m12 = F(2.0) * qx * qy + F(2.0) * qz * qw;
-		m22 = F(1.0) - F(2.0) * qx2 - F(2.0) * qz2;
-		m32 = F(2.0) * qy * qz - F(2.0) * qx * qw;
+		m12 = T(2.0) * qx * qy + T(2.0) * qz * qw;
+		m22 = T(1.0) - T(2.0) * qx2 - T(2.0) * qz2;
+		m32 = T(2.0) * qy * qz - T(2.0) * qx * qw;
 
-		m13 = F(2.0) * qx * qz - F(2.0) * qy * qw;
-		m23 = F(2.0) * qy * qz + F(2.0) * qx * qw;
-		m33 = F(1.0) - F(2.0) * qx2 - F(2.0) * qy2;
+		m13 = T(2.0) * qx * qz - T(2.0) * qy * qw;
+		m23 = T(2.0) * qy * qz + T(2.0) * qx * qw;
+		m33 = T(1.0) - T(2.0) * qx2 - T(2.0) * qy2;
 
 		return *this;
 	}
@@ -1218,13 +1216,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Matrix4<T>::ToString() const
+	std::string Matrix4<T>::ToString() const
 	{
-		StringStream ss;
-		return ss << "Matrix4(" << m11 << ", " << m12 << ", " << m13 << ", " << m14 << ",\n"
-		       << "        " << m21 << ", " << m22 << ", " << m23 << ", " << m24 << ",\n"
-		       << "        " << m31 << ", " << m32 << ", " << m33 << ", " << m34 << ",\n"
-		       << "        " << m41 << ", " << m42 << ", " << m43 << ", " << m44 << ')';
+		std::ostringstream ss;
+		ss << *this;
+
+		return ss.str();
 	}
 
 	/*!
@@ -1335,10 +1332,10 @@ namespace Nz
 		#if NAZARA_MATH_SAFE
 		if (x > 3 || y > 3)
 		{
-			String error("Index out of range: (" + String::Number(x) + ", " + String::Number(y) +") > (3, 3)");
+			std::string error("Index out of range: (" + NumberToString(x) + ", " + NumberToString(y) +") > (3, 3)");
 
 			NazaraError(error);
-			throw std::out_of_range(error.ToStdString());
+			throw std::out_of_range(error);
 		}
 		#endif
 
@@ -1359,10 +1356,10 @@ namespace Nz
 		#if NAZARA_MATH_SAFE
 		if (x > 3 || y > 3)
 		{
-			String error("Index out of range: (" + String::Number(x) + ", " + String::Number(y) +") > (3, 3)");
+			std::string error("Index out of range: (" + NumberToString(x) + ", " + NumberToString(y) +") > (3, 3)");
 
 			NazaraError(error);
-			throw std::out_of_range(error.ToStdString());
+			throw std::out_of_range(error);
 		}
 		#endif
 
@@ -1801,7 +1798,10 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix)
 {
-	return out << matrix.ToString();
+	return out << "Matrix4(" << matrix.m11 << ", " << matrix.m12 << ", " << matrix.m13 << ", " << matrix.m14 << ",\n"
+	           << "        " << matrix.m21 << ", " << matrix.m22 << ", " << matrix.m23 << ", " << matrix.m24 << ",\n"
+	           << "        " << matrix.m31 << ", " << matrix.m32 << ", " << matrix.m33 << ", " << matrix.m34 << ",\n"
+	           << "        " << matrix.m41 << ", " << matrix.m42 << ", " << matrix.m43 << ", " << matrix.m44 << ')';
 }
 
 /*!
@@ -1817,7 +1817,5 @@ Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix)
 {
 	return matrix * scale;
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

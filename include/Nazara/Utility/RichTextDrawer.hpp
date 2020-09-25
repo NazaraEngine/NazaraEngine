@@ -8,10 +8,10 @@
 #define NAZARA_RICHTEXTDRAWER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -26,7 +26,7 @@ namespace Nz
 			RichTextDrawer(RichTextDrawer&& drawer);
 			~RichTextDrawer();
 
-			BlockRef AppendText(const String& str, bool forceNewBlock = false);
+			BlockRef AppendText(const std::string& str, bool forceNewBlock = false);
 
 			void Clear() override;
 
@@ -43,7 +43,7 @@ namespace Nz
 			inline const Color& GetBlockOutlineColor(std::size_t index) const;
 			inline float GetBlockOutlineThickness(std::size_t index) const;
 			inline TextStyleFlags GetBlockStyle(std::size_t index) const;
-			inline const String& GetBlockText(std::size_t index) const;
+			inline const std::string& GetBlockText(std::size_t index) const;
 
 			inline BlockRef GetBlock(std::size_t index);
 			const Rectf& GetBounds() const override;
@@ -77,7 +77,7 @@ namespace Nz
 			inline void SetBlockOutlineColor(std::size_t index, const Color& color);
 			inline void SetBlockOutlineThickness(std::size_t index, float thickness);
 			inline void SetBlockStyle(std::size_t index, TextStyleFlags style);
-			inline void SetBlockText(std::size_t index, String str);
+			inline void SetBlockText(std::size_t index, std::string str);
 
 			inline void SetDefaultCharacterSize(unsigned int characterSize);
 			inline void SetDefaultCharacterSpacingOffset(float offset);
@@ -104,7 +104,7 @@ namespace Nz
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const;
-			void GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const String& text) const;
+			void GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const std::string& text) const;
 			inline float GetLineHeight(const Block& block) const;
 			inline float GetLineHeight(float lineSpacingOffset, const Font::SizeInfo& sizeInfo) const;
 			inline std::size_t HandleFontAddition(const FontRef& font);
@@ -124,9 +124,9 @@ namespace Nz
 			{
 				std::size_t fontIndex;
 				std::size_t glyphIndex;
+				std::string text;
 				Color color;
 				Color outlineColor;
-				String text;
 				TextStyleFlags style;
 				float characterSpacingOffset;
 				float lineSpacingOffset;
@@ -184,7 +184,7 @@ namespace Nz
 			inline Color GetOutlineColor() const;
 			inline float GetOutlineThickness() const;
 			inline TextStyleFlags GetStyle() const;
-			inline const String& GetText() const;
+			inline const std::string& GetText() const;
 
 			inline void SetCharacterSpacingOffset(float offset);
 			inline void SetCharacterSize(unsigned int size);
@@ -194,7 +194,7 @@ namespace Nz
 			inline void SetOutlineColor(Color color);
 			inline void SetOutlineThickness(float thickness);
 			inline void SetStyle(TextStyleFlags style);
-			inline void SetText(const String& text);
+			inline void SetText(std::string text);
 
 			BlockRef& operator=(const BlockRef&) = default;
 			BlockRef& operator=(BlockRef&&) = default;

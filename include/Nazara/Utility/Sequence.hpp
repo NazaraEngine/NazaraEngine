@@ -7,15 +7,15 @@
 #ifndef NAZARA_SEQUENCE_HPP
 #define NAZARA_SEQUENCE_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
 	struct Sequence
 	{
-		String name;
+		std::string name;
 		UInt32 firstFrame;
 		UInt32 frameCount;
 		UInt32 frameRate;

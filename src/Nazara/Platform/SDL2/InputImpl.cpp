@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Platform/SDL2/InputImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Debug.hpp>
-#include <Nazara/Platform/SDL2/InputImpl.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Platform/Window.hpp>
@@ -14,26 +14,30 @@
 
 namespace Nz
 {
-	String EventImpl::GetKeyName(Keyboard::Scancode key)
+	std::string EventImpl::GetKeyName(Keyboard::Scancode key)
 	{
 		SDL_Scancode scancode = SDLHelper::ToSDL(key);
 
-		String name;
+		std::string name;
 		if (scancode != SDL_SCANCODE_UNKNOWN)
 			name = SDL_GetScancodeName(scancode);
+		else
+			name = "Unknown";
 
-		return !name.IsEmpty() ? name : String::Unicode("Unknown");
+		return name;
 	}
 
-	String EventImpl::GetKeyName(Keyboard::VKey key)
+	std::string EventImpl::GetKeyName(Keyboard::VKey key)
 	{
 		SDL_Keycode vkey = SDLHelper::ToSDL(key);
 
-		String name;
+		std::string name;
 		if (vkey != SDLK_UNKNOWN)
 			name = SDL_GetKeyName(vkey);
+		else
+			name = "Unknown";
 
-		return !name.IsEmpty() ? name : String::Unicode("Unknown");
+		return name;
 	}
 
 	Vector2i EventImpl::GetMousePosition()

@@ -14,6 +14,7 @@
 #include <NazaraSDK/Algorithm.hpp>
 #include <NazaraSDK/Prerequisites.hpp>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace Ndk
@@ -72,7 +73,7 @@ namespace Ndk
 			inline void RemoveComponent(ComponentIndex index);
 			template<typename ComponentType> void RemoveComponent();
 
-			inline Nz::String ToString() const;
+			inline std::string ToString() const;
 
 			Entity& operator=(const Entity&) = delete;
 			Entity& operator=(Entity&&) = delete;

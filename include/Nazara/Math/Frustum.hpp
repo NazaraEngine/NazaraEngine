@@ -7,7 +7,6 @@
 #ifndef NAZARA_FRUSTUM_HPP
 #define NAZARA_FRUSTUM_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -15,6 +14,7 @@
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -54,7 +54,7 @@ namespace Nz
 
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			template<typename U>
 			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);

@@ -31,7 +31,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to allocate software buffer (" + String(e.what()) + ')');
+			NazaraError("Failed to allocate software buffer (" + std::string(e.what()) + ')');
 			return false;
 		}
 

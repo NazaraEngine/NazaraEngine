@@ -12,7 +12,7 @@ namespace Nz
 	* \class Nz::Window
 	*/
 
-	inline Window::Window(VideoMode mode, const String& title, WindowStyleFlags style) :
+	inline Window::Window(VideoMode mode, const std::string& title, WindowStyleFlags style) :
 	Window()
 	{
 		ErrorFlags flags(ErrorFlag_ThrowException, true);

@@ -58,7 +58,7 @@ namespace Nz
 				return false;
 			}
 
-			std::unordered_map<String, ParameterList> materialCache;
+			std::unordered_map<std::string, ParameterList> materialCache;
 			std::filesystem::path baseDir = file.GetDirectory();
 			for (std::size_t i = 0; i < meshCount; ++i)
 			{

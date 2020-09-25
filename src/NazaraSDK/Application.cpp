@@ -4,6 +4,7 @@
 
 #include <NazaraSDK/Application.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <regex>
 
 #ifndef NDK_SERVER
@@ -43,21 +44,21 @@ namespace Ndk
 			std::string argument(argv[i]);
 			if (std::regex_match(argument, results, valueRegex))
 			{
-				Nz::String key(results[1].str());
-				Nz::String value(results[2].str());
+				std::string key = Nz::ToLower(results[1].str());
+				std::string value(results[2].str());
 
-				m_parameters[key.ToLower()] = value;
-				NazaraDebug("Registred parameter from command-line: " + key.ToLower() + "=" + value);
+				m_parameters[key] = value;
+				NazaraDebug("Registred parameter from command-line: " + key + "=" + value);
 			}
 			else if (std::regex_match(argument, results, optionRegex))
 			{
-				Nz::String option(results[1].str());
+				std::string option(results[1].str());
 
 				m_options.insert(option);
 				NazaraDebug("Registred option from command-line: " + option);
 			}
 			else
-				NazaraWarning("Ignored command-line argument #" + Nz::String::Number(i) + " \"" + argument + '"');
+				NazaraWarning("Ignored command-line argument #" + Nz::NumberToString(i) + " \"" + argument + '"');
 		}
 	}
 

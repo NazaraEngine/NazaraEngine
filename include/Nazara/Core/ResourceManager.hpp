@@ -9,7 +9,7 @@
 
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/String.hpp>
+#include <filesystem>
 #include <unordered_map>
 
 namespace Nz

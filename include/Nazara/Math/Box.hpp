@@ -7,12 +7,12 @@
 #ifndef NAZARA_BOX_HPP
 #define NAZARA_BOX_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -68,7 +68,7 @@ namespace Nz
 			Box& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			template<typename U> Box& Set(const Box<U>& box);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			Box& Transform(const Matrix4<T>& matrix, bool applyTranslation = true);
 			Box& Translate(const Vector3<T>& translation);

@@ -249,8 +249,8 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 			THEN("String")
 			{
 				context.stream->SetCursorPos(0);
-				Nz::String string = "string";
-				Nz::String copy(string);
+				std::string string = "string";
+				std::string copy(string);
 				REQUIRE(Serialize(context, string));
 				string = "another";
 				REQUIRE(string != copy);

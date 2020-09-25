@@ -9,10 +9,10 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
+#include <string>
 #include <unordered_map>
 
 class NewtonBody;
@@ -36,13 +36,13 @@ namespace Nz
 			PhysWorld3D(PhysWorld3D&&) noexcept = default;
 			~PhysWorld3D();
 
-			int CreateMaterial(String name = String());
+			int CreateMaterial(std::string name = {});
 
 			void ForEachBodyInAABB(const Boxf& box, const BodyIterator& iterator);
 
 			Vector3f GetGravity() const;
 			NewtonWorld* GetHandle() const;
-			int GetMaterial(const String& name);
+			int GetMaterial(const std::string& name);
 			std::size_t GetMaxStepCount() const;
 			float GetStepSize() const;
 			unsigned int GetThreadCount() const;
@@ -75,7 +75,7 @@ namespace Nz
 			static void ProcessContact(const NewtonJoint* const contact, float timestep, int threadIndex);
 
 			std::unordered_map<Nz::UInt64, std::unique_ptr<Callback>> m_callbacks;
-			std::unordered_map<Nz::String, int> m_materialIds;
+			std::unordered_map<std::string, int> m_materialIds;
 			std::size_t m_maxStepCount;
 			MovablePtr<NewtonWorld> m_world;
 			Vector3f m_gravity;

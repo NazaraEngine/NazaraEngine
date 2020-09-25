@@ -78,7 +78,8 @@ namespace Nz
 	* \param address Hostname or textual IP address
 	*/
 
-	inline IpAddress::IpAddress(const char* address)
+	inline IpAddress::IpAddress(const char* address) :
+	IpAddress()
 	{
 		BuildFromAddress(address);
 	}
@@ -88,17 +89,21 @@ namespace Nz
 	*
 	* \param address Hostname or textual IP address
 	*/
-
-	inline IpAddress::IpAddress(const String& address)
+	inline IpAddress::IpAddress(const std::string& address) :
+	IpAddress()
 	{
-		BuildFromAddress(address.GetConstBuffer());
+		BuildFromAddress(address);
+	}
+
+	inline bool IpAddress::BuildFromAddress(const std::string& address)
+	{
+		return BuildFromAddress(address.c_str());
 	}
 
 	/*!
 	* \brief Gets the port
 	* \return Port attached to the IP address
 	*/
-
 	inline UInt16 IpAddress::GetPort() const
 	{
 		return m_port;

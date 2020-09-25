@@ -5,7 +5,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -147,22 +147,24 @@ namespace Nz
 	* \param string String to write
 	*/
 
-	bool Stream::Write(const String& string)
+	bool Stream::Write(const std::string_view& string)
 	{
-		String temp(string);
-
 		if (m_streamOptions & StreamOption_Text)
 		{
-			#if defined(NAZARA_PLATFORM_WINDOWS)
-			temp.Replace("\n", "\r\n");
-			#elif defined(NAZARA_PLATFORM_LINUX)
+#if defined(NAZARA_PLATFORM_WINDOWS)
+			std::string temp(string);
+			ReplaceStr(temp, "\n", "\r\n");
+#elif defined(NAZARA_PLATFORM_LINUX)
+			std::string_view temp(string);
 			// Nothing to do
-			#elif defined(NAZARA_PLATFORM_MACOS)
-			temp.Replace('\n', '\r');
-			#endif
-		}
+#elif defined(NAZARA_PLATFORM_MACOS)
+			std::string temp(string);
+			ReplaceStr(temp, "\n", "\r");
+#endif
 
-		std::size_t size = temp.GetSize();
-		return Write(temp.GetConstBuffer(), size) == size;
+			return Write(temp.data(), temp.size()) == temp.size();
+		}
+		else
+			return Write(string.data(), string.size()) == string.size();
 	}
 }

@@ -27,7 +27,7 @@ namespace Nz
 		NewtonDestroy(m_world);
 	}
 
-	int PhysWorld3D::CreateMaterial(String name)
+	int PhysWorld3D::CreateMaterial(std::string name)
 	{
 		NazaraAssert(m_materialIds.find(name) == m_materialIds.end(), "Material \"" + name + "\" already exists");
 
@@ -60,7 +60,7 @@ namespace Nz
 		return m_world;
 	}
 
-	int PhysWorld3D::GetMaterial(const String& name)
+	int PhysWorld3D::GetMaterial(const std::string& name)
 	{
 		auto it = m_materialIds.find(name);
 		NazaraAssert(it != m_materialIds.end(), "Material \"" + name + "\" does not exists");
@@ -159,7 +159,7 @@ namespace Nz
 		}
 	}
 
-	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, dFloat timestep, int threadIndex)
+	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, float timestep, int threadIndex)
 	{
 		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
 		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));

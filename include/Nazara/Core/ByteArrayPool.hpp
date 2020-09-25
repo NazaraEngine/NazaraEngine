@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/String.hpp>
 #include <vector>
 
 namespace Nz

@@ -119,7 +119,7 @@ namespace Nz
 							{
 								if (!stream.Read(&rle_value, 1))
 								{
-									NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+									NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 									return nullptr;
 								}
 
@@ -130,7 +130,7 @@ namespace Nz
 									rle_count = rle_value - 0xc0;
 									if (!stream.Read(&rle_value, 1))
 									{
-										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
 									}
 								}
@@ -174,7 +174,7 @@ namespace Nz
 								{
 									if (!stream.Read(&rle_value, 1))
 									{
-										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
 									}
 
@@ -185,7 +185,7 @@ namespace Nz
 										rle_count = rle_value - 0xc0;
 										if (!stream.Read(&rle_value, 1))
 										{
-											NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+											NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 											return nullptr;
 										}
 									}
@@ -225,14 +225,14 @@ namespace Nz
 					UInt8 magic;
 					if (!stream.Read(&magic, 1))
 					{
-						NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+						NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 						return nullptr;
 					}
 
 					/* first byte must be equal to 0x0c (12) */
 					if (magic != 0x0c)
 					{
-						NazaraError("Colormap's first byte must be 0x0c (0x" + String::Number(magic, 16) + ')');
+						NazaraError("Colormap's first byte must be 0x0c (0x" + NumberToString(magic, 16) + ')');
 						return nullptr;
 					}
 
@@ -258,7 +258,7 @@ namespace Nz
 							{
 								if (!stream.Read(&rle_value, 1))
 								{
-									NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+									NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 									return nullptr;
 								}
 
@@ -269,7 +269,7 @@ namespace Nz
 									rle_count = rle_value - 0xc0;
 									if (!stream.Read(&rle_value, 1))
 									{
-										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
 									}
 								}
@@ -302,7 +302,7 @@ namespace Nz
 								{
 									if (!stream.Read(&rle_value, 1))
 									{
-										NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
 									}
 
@@ -313,7 +313,7 @@ namespace Nz
 										rle_count = rle_value - 0xc0;
 										if (!stream.Read(&rle_value, 1))
 										{
-											NazaraError("Failed to read stream (byte " + String::Number(stream.GetCursorPos()) + ')');
+											NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 											return nullptr;
 										}
 									}
@@ -329,7 +329,7 @@ namespace Nz
 				}
 
 				default:
-					NazaraError("Unsupported " + String::Number(bitCount) + " bitcount for pcx files");
+					NazaraError("Unsupported " + NumberToString(bitCount) + " bitcount for pcx files");
 					return nullptr;
 			}
 

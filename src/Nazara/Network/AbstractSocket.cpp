@@ -4,6 +4,7 @@
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -177,7 +178,7 @@ namespace Nz
 	{
 		SocketError errorCode;
 		if (!SocketImpl::SetBlocking(m_handle, m_isBlockingEnabled, &errorCode))
-			NazaraWarning("Failed to set socket blocking mode (0x" + String::Number(errorCode, 16) + ')');
+			NazaraWarning("Failed to set socket blocking mode (0x" + NumberToString(errorCode, 16) + ')');
 	}
 
 	/*!
@@ -199,7 +200,7 @@ namespace Nz
 				{
 					SocketImpl::Close(handle);
 
-					NazaraError("Failed to open a dual-stack socket: " + Nz::String(ErrorToString(m_lastError)));
+					NazaraError("Failed to open a dual-stack socket: " + std::string(ErrorToString(m_lastError)));
 					return false;
 				}
 

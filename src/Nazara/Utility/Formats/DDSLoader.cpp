@@ -99,7 +99,7 @@ namespace Nz
 
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
-						NazaraError("Failed to read level #" + String::Number(i));
+						NazaraError("Failed to read level #" + NumberToString(i));
 						return nullptr;
 					}
 
@@ -245,7 +245,7 @@ namespace Nz
 							buf[3] = (header.format.fourCC >> 24) & 255;
 							buf[4] = '\0';
 
-							NazaraError("Unhandled format \"" + String(buf) + "\"");
+							NazaraError("Unhandled format \"" + std::string(buf) + "\"");
 							return false;
 						}
 					}

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Posix/SocketPollerImpl.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <poll.h>
 #include <Nazara/Network/Debug.hpp>
 
@@ -103,7 +104,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by poll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
+					NazaraWarning("Socket " + NumberToString(entry.fd) + " was returned by poll without POLLRDNORM nor POLLWRNORM events (events: 0x" + NumberToString(entry.revents, 16) + ')');
 					activeSockets--;
 				}
 

@@ -10,8 +10,8 @@
 #define NAZARA_KEYBOARD_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Platform/Config.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -319,8 +319,8 @@ namespace Nz
 			Keyboard() = delete;
 			~Keyboard() = delete;
 
-			static String GetKeyName(Scancode scancode);
-			static String GetKeyName(VKey key);
+			static std::string GetKeyName(Scancode scancode);
+			static std::string GetKeyName(VKey key);
 			static bool IsKeyPressed(Scancode scancode);
 			static bool IsKeyPressed(VKey key);
 			static void StartTextInput();

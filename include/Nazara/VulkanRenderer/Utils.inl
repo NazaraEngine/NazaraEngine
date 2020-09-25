@@ -5,7 +5,7 @@
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -19,7 +19,7 @@ namespace Nz
 			case BufferType_Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
 
-		NazaraError("Unhandled BufferType 0x" + String::Number(bufferType, 16));
+		NazaraError("Unhandled BufferType 0x" + NumberToString(bufferType, 16));
 		return 0;
 	}
 
@@ -43,7 +43,7 @@ namespace Nz
 			case ComponentType_Quaternion: return VK_FORMAT_R32G32B32A32_SFLOAT;
 		}
 
-		NazaraError("Unhandled ComponentType 0x" + String::Number(componentType, 16));
+		NazaraError("Unhandled ComponentType 0x" + NumberToString(componentType, 16));
 		return VK_FORMAT_UNDEFINED;
 	}
 
@@ -57,7 +57,7 @@ namespace Nz
 			case FaceSide_FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 		}
 
-		NazaraError("Unhandled FaceSide 0x" + String::Number(faceSide, 16));
+		NazaraError("Unhandled FaceSide 0x" + NumberToString(faceSide, 16));
 		return VK_CULL_MODE_BACK_BIT;
 	}
 
@@ -70,7 +70,7 @@ namespace Nz
 			case FaceFilling_Point: return VK_POLYGON_MODE_POINT;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + String::Number(faceFilling, 16));
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(faceFilling, 16));
 		return VK_POLYGON_MODE_FILL;
 	}
 
@@ -86,7 +86,7 @@ namespace Nz
 			case PrimitiveMode_TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + String::Number(primitiveMode, 16));
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(primitiveMode, 16));
 		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	}
 
@@ -104,7 +104,7 @@ namespace Nz
 			case RendererComparison_Always:         return VK_COMPARE_OP_ALWAYS; 
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + String::Number(comparison, 16));
+		NazaraError("Unhandled RendererComparison 0x" + NumberToString(comparison, 16));
 		return VK_COMPARE_OP_NEVER;
 	}
 
@@ -116,7 +116,7 @@ namespace Nz
 			case SamplerFilter_Nearest: return VK_FILTER_NEAREST;
 		}
 
-		NazaraError("Unhandled SamplerFilter 0x" + String::Number(UnderlyingCast(samplerFilter), 16));
+		NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(samplerFilter), 16));
 		return VK_FILTER_NEAREST;
 	}
 
@@ -128,7 +128,7 @@ namespace Nz
 			case SamplerMipmapMode_Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 		}
 
-		NazaraError("Unhandled SamplerMipmapMode 0x" + String::Number(UnderlyingCast(samplerMipmap), 16));
+		NazaraError("Unhandled SamplerMipmapMode 0x" + NumberToString(UnderlyingCast(samplerMipmap), 16));
 		return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	}
 
@@ -141,7 +141,7 @@ namespace Nz
 			case SamplerWrap_Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		}
 
-		NazaraError("Unhandled SamplerWrap 0x" + String::Number(UnderlyingCast(samplerWrap), 16));
+		NazaraError("Unhandled SamplerWrap 0x" + NumberToString(UnderlyingCast(samplerWrap), 16));
 		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	}
 
@@ -153,7 +153,7 @@ namespace Nz
 			case ShaderBindingType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		}
 
-		NazaraError("Unhandled ShaderBindingType 0x" + String::Number(UnderlyingCast(bindingType), 16));
+		NazaraError("Unhandled ShaderBindingType 0x" + NumberToString(UnderlyingCast(bindingType), 16));
 		return VK_DESCRIPTOR_TYPE_SAMPLER;
 	}
 
@@ -165,7 +165,7 @@ namespace Nz
 			case ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
 		}
 
-		NazaraError("Unhandled ShaderStageType 0x" + String::Number(UnderlyingCast(stageType), 16));
+		NazaraError("Unhandled ShaderStageType 0x" + NumberToString(UnderlyingCast(stageType), 16));
 		return {};
 	}
 
@@ -198,7 +198,7 @@ namespace Nz
 			case StencilOperation_Zero:             return VK_STENCIL_OP_ZERO;
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + String::Number(stencilOp, 16));
+		NazaraError("Unhandled RendererComparison 0x" + NumberToString(stencilOp, 16));
 		return VK_STENCIL_OP_KEEP;
 	}
 
@@ -210,7 +210,7 @@ namespace Nz
 			case VertexInputRate::Vertex:   return VK_VERTEX_INPUT_RATE_VERTEX;
 		}
 
-		NazaraError("Unhandled VertexInputRate 0x" + String::Number(UnderlyingCast(inputRate), 16));
+		NazaraError("Unhandled VertexInputRate 0x" + NumberToString(UnderlyingCast(inputRate), 16));
 		return VK_VERTEX_INPUT_RATE_VERTEX;
 	}
 }

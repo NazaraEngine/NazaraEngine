@@ -9,7 +9,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <set>
+#include <unordered_set>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -38,7 +38,7 @@ namespace Nz
 
 		bool IsSupported(const std::string& extension)
 		{
-			static std::set<String> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
+			static std::unordered_set<std::string> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
@@ -64,7 +64,7 @@ namespace Nz
 			UInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 			if (!ptr)
 			{
-				NazaraError("Failed to load image: " + String(stbi_failure_reason()));
+				NazaraError("Failed to load image: " + std::string(stbi_failure_reason()));
 				return nullptr;
 			}
 

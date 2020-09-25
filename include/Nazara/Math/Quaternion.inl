@@ -4,16 +4,14 @@
 
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <cstring>
 #include <limits>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -119,10 +117,10 @@ namespace Nz
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::ComputeW()
 	{
-		T t = F(1.0) - SquaredMagnitude();
+		T t = T(1.0) - SquaredMagnitude();
 
-		if (t < F(0.0))
-			w = F(0.0);
+		if (t < T(0.0))
+			w = T(0.0);
 		else
 			w = -std::sqrt(t);
 
@@ -230,9 +228,9 @@ namespace Nz
 	Quaternion<T>& Quaternion<T>::Inverse()
 	{
 		T norm = SquaredMagnitude();
-		if (norm > F(0.0))
+		if (norm > T(0.0))
 		{
-			T invNorm = F(1.0) / std::sqrt(norm);
+			T invNorm = T(1.0) / std::sqrt(norm);
 
 			w *= invNorm;
 			x *= -invNorm;
@@ -253,7 +251,7 @@ namespace Nz
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::MakeIdentity()
 	{
-		return Set(F(1.0), F(0.0), F(0.0), F(0.0));
+		return Set(T(1.0), T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -288,7 +286,7 @@ namespace Nz
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::MakeZero()
 	{
-		return Set(F(0.0), F(0.0), F(0.0), F(0.0));
+		return Set(T(0.0), T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -319,9 +317,9 @@ namespace Nz
 	Quaternion<T>& Quaternion<T>::Normalize(T* length)
 	{
 		T norm = std::sqrt(SquaredMagnitude());
-		if (norm > F(0.0))
+		if (norm > T(0.0))
 		{
-			T invNorm = F(1.0) / norm;
+			T invNorm = T(1.0) / norm;
 			w *= invNorm;
 			x *= invNorm;
 			y *= invNorm;
@@ -399,7 +397,7 @@ namespace Nz
 		angle = DegreeToRadian(angle);
 		#endif
 
-		angle /= F(2.0);
+		angle /= T(2.0);
 
 		Vector3<T> normalizedAxis = axis.GetNormal();
 
@@ -442,10 +440,10 @@ namespace Nz
 	template<typename U>
 	Quaternion<T>& Quaternion<T>::Set(const Quaternion<U>& quat)
 	{
-		w = F(quat.w);
-		x = F(quat.x);
-		y = F(quat.y);
-		z = F(quat.z);
+		w = T(quat.w);
+		x = T(quat.x);
+		y = T(quat.y);
+		z = T(quat.z);
 
 		return *this;
 	}
@@ -488,17 +486,17 @@ namespace Nz
 	EulerAngles<T> Quaternion<T>::ToEulerAngles() const
 	{
 		T test = x * y + z * w;
-		if (test > F(0.499))
+		if (test > T(0.499))
 			// singularity at north pole
-			return EulerAngles<T>(F(0.0), FromRadians(F(2.0) * std::atan2(x, w)), FromDegrees(F(90.0)));
+			return EulerAngles<T>(T(0.0), FromRadians(T(2.0) * std::atan2(x, w)), FromDegrees(T(90.0)));
 
-		if (test < F(-0.499))
+		if (test < T(-0.499))
 			// singularity at south pole
-			return EulerAngles<T>(F(0.0), FromRadians(F(-2.0) * std::atan2(x, w)), FromDegrees(F(-90.0)));
+			return EulerAngles<T>(T(0.0), FromRadians(T(-2.0) * std::atan2(x, w)), FromDegrees(T(-90.0)));
 
-		return EulerAngles<T>(FromRadians(std::atan2(F(2.0) * x * w - F(2.0) * y * z, F(1.0) - F(2.0) * x * x - F(2.0) * z * z)),
-		                      FromRadians(std::atan2(F(2.0) * y * w - F(2.0) * x * z, F(1.0) - F(2.0) * y * y - F(2.0) * z * z)),
-		                      FromRadians(std::asin(F(2.0) * test)));
+		return EulerAngles<T>(FromRadians(std::atan2(T(2.0) * x * w - T(2.0) * y * z, T(1.0) - T(2.0) * x * x - T(2.0) * z * z)),
+		                      FromRadians(std::atan2(T(2.0) * y * w - T(2.0) * x * z, T(1.0) - T(2.0) * y * y - T(2.0) * z * z)),
+		                      FromRadians(std::asin(T(2.0) * test)));
 	}
 
 	/*!
@@ -507,11 +505,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Quaternion<T>::ToString() const
+	std::string Quaternion<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Quaternion(" << w << " | " << x << ", " << y << ", " << z << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -565,8 +564,8 @@ namespace Nz
 		Vector3<T> quatVec(x, y, z);
 		Vector3<T> uv = quatVec.CrossProduct(vec);
 		Vector3<T> uuv = quatVec.CrossProduct(uv);
-		uv *= F(2.0) * w;
-		uuv *= F(2.0);
+		uv *= T(2.0) * w;
+		uuv *= T(2.0);
 
 		return vec + uv + uuv;
 	}
@@ -715,9 +714,9 @@ namespace Nz
 	Quaternion<T> Quaternion<T>::Lerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Zero();
 		}
 		#endif
@@ -784,9 +783,9 @@ namespace Nz
 	Quaternion<T> Quaternion<T>::Slerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Zero();
 		}
 		#endif
@@ -794,7 +793,7 @@ namespace Nz
 		Quaternion q;
 
 		T cosOmega = from.DotProduct(to);
-		if (cosOmega < F(0.0))
+		if (cosOmega < T(0.0))
 		{
 			// We invert everything
 			q.Set(-to.w, -to.x, -to.y, -to.z);
@@ -804,21 +803,21 @@ namespace Nz
 			q.Set(to);
 
 		T k0, k1;
-		if (cosOmega > F(0.9999))
+		if (cosOmega > T(0.9999))
 		{
 			// Linear interpolation to avoid division by zero
-			k0 = F(1.0) - interpolation;
+			k0 = T(1.0) - interpolation;
 			k1 = interpolation;
 		}
 		else
 		{
-			T sinOmega = std::sqrt(F(1.0) - cosOmega*cosOmega);
+			T sinOmega = std::sqrt(T(1.0) - cosOmega*cosOmega);
 			T omega = std::atan2(sinOmega, cosOmega);
 
 			// To avoid two divisions
-			sinOmega = F(1.0)/sinOmega;
+			sinOmega = T(1.0)/sinOmega;
 
-			k0 = std::sin((F(1.0) - interpolation) * omega) * sinOmega;
+			k0 = std::sin((T(1.0) - interpolation) * omega) * sinOmega;
 			k1 = std::sin(interpolation*omega) * sinOmega;
 		}
 
@@ -905,9 +904,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat)
 {
-	return out << quat.ToString();
+	return out << "Quaternion(" << quat.w << " | " << quat.x << ", " << quat.y << ", " << quat.z << ')';
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

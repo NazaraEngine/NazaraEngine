@@ -45,7 +45,7 @@ namespace Nz
 	* \param function Optional argument to set last error function
 	*/
 
-	String Error::GetLastError(const char** file, unsigned int* line, const char** function)
+	std::string Error::GetLastError(const char** file, unsigned int* line, const char** function)
 	{
 		if (file)
 			*file = s_lastErrorFile;
@@ -103,7 +103,7 @@ namespace Nz
 		#else
 			#error GetLastSystemError is not implemented on this platform
 
-		return String("GetLastSystemError is not implemented on this platform");
+		return "GetLastSystemError is not implemented on this platform";
 		#endif
 	}
 
@@ -128,12 +128,12 @@ namespace Nz
 	* \remark Produces a std::runtime_error on AssertFailed or throwing exception
 	*/
 
-	void Error::Trigger(ErrorType type, const String& error)
+	void Error::Trigger(ErrorType type, std::string error)
 	{
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
 			Log::WriteError(type, error);
 
-		s_lastError = error;
+		s_lastError = std::move(error);
 		s_lastErrorFile = "";
 		s_lastErrorFunction = "";
 		s_lastErrorLine = 0;
@@ -145,7 +145,7 @@ namespace Nz
 
 		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
 			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(error.ToStdString());
+			throw std::runtime_error(s_lastError);
 	}
 
 	/*!
@@ -161,14 +161,14 @@ namespace Nz
 	* \remark Produces a std::runtime_error on AssertFailed or throwing exception
 	*/
 
-	void Error::Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void Error::Trigger(ErrorType type, std::string error, unsigned int line, const char* file, const char* function)
 	{
 		file = GetCurrentFileRelativeToEngine(file);
 
 		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
 			Log::WriteError(type, error, line, file, function);
 
-		s_lastError = error;
+		s_lastError = std::move(error);
 		s_lastErrorFile = file;
 		s_lastErrorFunction = function;
 		s_lastErrorLine = line;
@@ -180,7 +180,7 @@ namespace Nz
 
 		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
 			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(error.ToStdString());
+			throw std::runtime_error(s_lastError);
 	}
 
 	const char* Error::GetCurrentFileRelativeToEngine(const char* file)
@@ -195,7 +195,7 @@ namespace Nz
 	}
 
 	UInt32 Error::s_flags = ErrorFlag_None;
-	String Error::s_lastError;
+	std::string Error::s_lastError;
 	const char* Error::s_lastErrorFunction = "";
 	const char* Error::s_lastErrorFile = "";
 	unsigned int Error::s_lastErrorLine = 0;

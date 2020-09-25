@@ -24,7 +24,6 @@ SOFTWARE.
 
 #include <CustomStream.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -46,9 +45,9 @@ SOFTWARE.
 
 using namespace Nz;
 
-void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<Nz::String>& joints)
+void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<std::string>& joints)
 {
-	Nz::String jointName(node->mName.data, node->mName.length);
+	std::string jointName(node->mName.data, node->mName.length);
 	if (joints.count(jointName))
 	{
 		Joint* joint = skeleton->GetJoint(jointName);
@@ -121,7 +120,7 @@ AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
 
 	if (!scene)
 	{
-		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
 		return nullptr;
 	}
 
@@ -246,11 +245,11 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 	if (!scene)
 	{
-		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
 		return nullptr;
 	}
 
-	std::set<Nz::String> joints;
+	std::set<std::string> joints;
 
 	bool animatedMesh = false;
 	if (parameters.animated)
@@ -276,7 +275,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 		// First, assign names
 		unsigned int jointIndex = 0;
-		for (const Nz::String& jointName : joints)
+		for (const std::string& jointName : joints)
 			skeleton->GetJoint(jointIndex++)->SetName(jointName);
 
 		ProcessJoints(scene->mRootNode, skeleton, joints);
@@ -398,7 +397,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 									break;
 
 								default:
-									NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
+									NazaraWarning("Assimp texture map mode 0x" + NumberToString(mapMode[0], 16) + " not handled");
 									break;
 							}
 
@@ -420,7 +419,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 				aiString name;
 				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
-					matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+					matData.SetParameter(MaterialData::Name, std::string(name.data, name.length));
 
 				int iValue;
 				if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
@@ -584,7 +583,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 										break;
 
 									default:
-										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
+										NazaraWarning("Assimp texture map mode 0x" + NumberToString(mapMode[0], 16) + " not handled");
 										break;
 								}
 
@@ -606,7 +605,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 					aiString name;
 					if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
-						matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+						matData.SetParameter(MaterialData::Name, std::string(name.data, name.length));
 
 					int iValue;
 					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)

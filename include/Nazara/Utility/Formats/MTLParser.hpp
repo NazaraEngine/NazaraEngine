@@ -68,7 +68,7 @@ namespace Nz
 			std::unordered_map<std::string, Material> m_materials;
 			mutable Stream* m_currentStream;
 			std::string m_currentLine;
-			mutable StringStream m_outputStream;
+			mutable std::ostringstream m_outputStream;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
 	};

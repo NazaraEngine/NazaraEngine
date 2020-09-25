@@ -7,8 +7,8 @@
 #ifndef NAZARA_QUATERNION_HPP
 #define NAZARA_QUATERNION_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Angle.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -63,7 +63,7 @@ namespace Nz
 			RadianAngle<T> To2DAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			//Matrix3<T> ToRotationMatrix() const;
-			String ToString() const;
+			std::string ToString() const;
 
 			Quaternion& operator=(const Quaternion& quat) = default;
 

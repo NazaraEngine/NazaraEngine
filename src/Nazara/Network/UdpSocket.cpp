@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/UdpSocket.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -193,7 +195,7 @@ namespace Nz
 		if (packetSize != received)
 		{
 			m_lastError = SocketError_Packet;
-			NazaraWarning("Invalid packet size (packet size is " + String::Number(packetSize) + " bytes, received " + Nz::String::Number(received) + " bytes)");
+			NazaraWarning("Invalid packet size (packet size is " + NumberToString(packetSize) + " bytes, received " + NumberToString(received) + " bytes)");
 			return false;
 		}
 

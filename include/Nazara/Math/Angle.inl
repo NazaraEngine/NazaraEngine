@@ -5,6 +5,7 @@
 #include <Nazara/Math/Angle.hpp>
 #include <algorithm>
 #include <cstring>
+#include <sstream>
 
 #ifdef NAZARA_PLATFORM_POSIX
 #include <math.h> //< sincos
@@ -51,11 +52,6 @@ namespace Nz
 				return DegreeToRadian(degrees);
 			}
 
-			template<typename T> static String ToString(T value)
-			{
-				return "Angle(" + String::Number(value) + "deg)";
-			}
-
 			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
 			{
 				return out << "Angle(" << value << "deg)";
@@ -93,11 +89,6 @@ namespace Nz
 			template<typename T> static T ToRadians(T radians)
 			{
 				return radians;
-			}
-
-			template<typename T> static String ToString(T value)
-			{
-				return "Angle(" + String::Number(value) + "rad)";
 			}
 
 			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
@@ -358,9 +349,12 @@ namespace Nz
 	* \return String representation of the angle
 	*/
 	template<AngleUnit Unit, typename T>
-	String Angle<Unit, T>::ToString() const
+	std::string Angle<Unit, T>::ToString() const
 	{
-		return Detail::AngleUtils<Unit>::ToString(value);
+		std::ostringstream oss;
+		Detail::AngleUtils<Unit>::ToString(oss, value);
+
+		return oss.str();
 	}
 
 	/*!

@@ -13,6 +13,7 @@
 #include <map>
 #include <list>
 #include <set>
+#include <string>
 
 #ifndef NDK_SERVER
 #include <Nazara/Core/Log.hpp>
@@ -35,13 +36,13 @@ namespace Ndk
 			#endif
 			template<typename... Args> World& AddWorld(Args&&... args);
 
-			inline const std::set<Nz::String>& GetOptions() const;
-			inline const std::map<Nz::String, Nz::String>& GetParameters() const;
+			inline const std::set<std::string>& GetOptions() const;
+			inline const std::map<std::string, std::string>& GetParameters() const;
 
 			inline float GetUpdateTime() const;
 
-			inline bool HasOption(const Nz::String& option) const;
-			inline bool HasParameter(const Nz::String& key, Nz::String* value) const;
+			inline bool HasOption(const std::string& option) const;
+			inline bool HasParameter(const std::string& key, std::string* value) const;
 
 			#ifndef NDK_SERVER
 			inline bool IsConsoleEnabled() const;
@@ -73,8 +74,8 @@ namespace Ndk
 			std::vector<WindowInfo> m_windows;
 			#endif
 
-			std::map<Nz::String, Nz::String> m_parameters;
-			std::set<Nz::String> m_options;
+			std::map<std::string, std::string> m_parameters;
+			std::set<std::string> m_options;
 			std::list<World> m_worlds;
 			Nz::Clock m_updateClock;
 

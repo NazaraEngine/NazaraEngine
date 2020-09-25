@@ -503,7 +503,7 @@ namespace Nz
 			});
 		}
 
-		m_outputStream.Clear();
+		m_outputStream.str({});
 
 		EmitLine("# Exported by Nazara Engine");
 		EmitLine();

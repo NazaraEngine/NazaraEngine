@@ -11,7 +11,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
@@ -38,7 +37,7 @@ namespace Nz
 
 		public:
 			Window();
-			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
+			inline Window(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default);
 			inline explicit Window(void* handle);
 			Window(const Window&) = delete;
 			Window(Window&& window);
@@ -46,7 +45,7 @@ namespace Nz
 
 			inline void Close();
 
-			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
+			bool Create(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default);
 			bool Create(void* handle);
 
 			void Destroy();
@@ -66,7 +65,7 @@ namespace Nz
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			WindowHandle GetSystemHandle() const;
-			String GetTitle() const;
+			std::string GetTitle() const;
 
 			bool HasFocus() const;
 
@@ -97,7 +96,7 @@ namespace Nz
 			void SetSize(const Vector2i& size);
 			void SetSize(unsigned int width, unsigned int height);
 			void SetStayOnTop(bool stayOnTop);
-			void SetTitle(const String& title);
+			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);
 
 			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")

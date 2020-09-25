@@ -5,6 +5,7 @@
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
@@ -216,7 +217,7 @@ namespace Nz
 				}
 
 				default:
-					NazaraInternalError("Unhandled ip protocol (0x" + String::Number(ipAddress.GetProtocol()) + ')');
+					NazaraInternalError("Unhandled ip protocol (0x" + NumberToString(ipAddress.GetProtocol(), 16) + ')');
 					break;
 			}
 		}
@@ -292,7 +293,7 @@ namespace Nz
 				return ResolveError_TemporaryFailure;
 		}
 
-		NazaraWarning("Unhandled EAI error: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ") as " + gai_strerror(error));
+		NazaraWarning("Unhandled EAI error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ") as " + gai_strerror(error));
 		return ResolveError_Unknown;
 	}
 }

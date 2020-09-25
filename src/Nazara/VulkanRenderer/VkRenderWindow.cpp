@@ -389,7 +389,7 @@ namespace Nz
 
 			if (!framebuffers[i].Create(*m_device, frameBufferCreate))
 			{
-				NazaraError("Failed to create framebuffer for image #" + String::Number(i) + ": " + TranslateVulkanError(framebuffers[i].GetLastErrorCode()));
+				NazaraError("Failed to create framebuffer for image #" + NumberToString(i) + ": " + TranslateVulkanError(framebuffers[i].GetLastErrorCode()));
 				return false;
 			}
 		}

@@ -32,7 +32,7 @@ namespace Nz
 			#ifdef NAZARA_DEBUG
 			if (layers[i] >= m_layers.size())
 			{
-				NazaraWarning("Rectangle #" + String::Number(i) + " belong to an out-of-bounds layer (" + String::Number(i) + " >= " + String::Number(m_layers.size()) + ")");
+				NazaraWarning("Rectangle #" + NumberToString(i) + " belong to an out-of-bounds layer (" + NumberToString(i) + " >= " + NumberToString(m_layers.size()) + ")");
 				continue;
 			}
 			#endif
@@ -57,7 +57,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (layerIndex >= m_layers.size())
 		{
-			NazaraError("Layer index out of range (" + String::Number(layerIndex) + " >= " + String::Number(m_layers.size()) + ')');
+			NazaraError("Layer index out of range (" + NumberToString(layerIndex) + " >= " + NumberToString(m_layers.size()) + ')');
 			return nullptr;
 		}
 		#endif

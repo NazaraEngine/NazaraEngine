@@ -65,7 +65,7 @@ namespace Ndk
 		}
 
 		if (activeListenerCount > 1)
-			NazaraWarning(Nz::String::Number(activeListenerCount) + " listeners were active in the same update loop");
+			NazaraWarning(Nz::NumberToString(activeListenerCount) + " listeners were active in the same update loop");
 	}
 
 	SystemIndex ListenerSystem::systemIndex;

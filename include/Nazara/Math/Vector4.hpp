@@ -7,8 +7,10 @@
 #ifndef NAZARA_VECTOR4_HPP
 #define NAZARA_VECTOR4_HPP
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/TypeTag.hpp>
 #include <functional>
+#include <string>
 
 namespace Nz
 {
@@ -59,7 +61,7 @@ namespace Nz
 			Vector4& Set(const Vector3<T>& vec, T W = 1.0);
 			template<typename U> Vector4& Set(const Vector4<U>& vec);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			T& operator[](std::size_t i);
 			T operator[](std::size_t i) const;

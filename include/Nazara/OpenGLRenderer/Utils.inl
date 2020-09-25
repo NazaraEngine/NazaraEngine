@@ -5,7 +5,7 @@
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
@@ -20,7 +20,7 @@ namespace Nz
 			default: break;
 		}
 
-		NazaraError("Unhandled PixelFormat 0x" + String::Number(UnderlyingCast(pixelFormat), 16));
+		NazaraError("Unhandled PixelFormat 0x" + NumberToString(UnderlyingCast(pixelFormat), 16));
 		return {};
 	}
 
@@ -40,7 +40,7 @@ namespace Nz
 			case BlendFunc_Zero:         return GL_ZERO;
 		}
 
-		NazaraError("Unhandled BlendFunc 0x" + String::Number(UnderlyingCast(blendFunc), 16));
+		NazaraError("Unhandled BlendFunc 0x" + NumberToString(UnderlyingCast(blendFunc), 16));
 		return {};
 	}
 
@@ -56,7 +56,7 @@ namespace Nz
 			case FaceSide_FrontAndBack: return GL_FRONT_AND_BACK;
 		}
 
-		NazaraError("Unhandled FaceSide 0x" + String::Number(UnderlyingCast(filter), 16));
+		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(filter), 16));
 		return {};
 	}
 
@@ -74,7 +74,7 @@ namespace Nz
 			case RendererComparison_NotEqual:       return GL_NOTEQUAL;
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + String::Number(UnderlyingCast(comparison), 16));
+		NazaraError("Unhandled RendererComparison 0x" + NumberToString(UnderlyingCast(comparison), 16));
 		return {};
 	}
 
@@ -86,7 +86,7 @@ namespace Nz
 			case SamplerFilter::SamplerFilter_Nearest: return GL_NEAREST;
 		}
 
-		NazaraError("Unhandled SamplerFilter 0x" + String::Number(UnderlyingCast(filter), 16));
+		NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(filter), 16));
 		return {};
 	}
 
@@ -102,7 +102,7 @@ namespace Nz
 					case SamplerMipmapMode_Nearest: return GL_LINEAR_MIPMAP_NEAREST;
 				}
 
-				NazaraError("Unhandled SamplerFilter 0x" + String::Number(UnderlyingCast(mipmapFilter), 16));
+				NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(mipmapFilter), 16));
 				return {};
 			}
 
@@ -114,12 +114,12 @@ namespace Nz
 					case SamplerMipmapMode_Nearest: return GL_NEAREST_MIPMAP_NEAREST;
 				}
 
-				NazaraError("Unhandled SamplerFilter 0x" + String::Number(UnderlyingCast(mipmapFilter), 16));
+				NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(mipmapFilter), 16));
 				return {};
 			}
 		}
 
-		NazaraError("Unhandled SamplerFilter 0x" + String::Number(UnderlyingCast(minFilter), 16));
+		NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(minFilter), 16));
 		return {};
 	}
 
@@ -132,7 +132,7 @@ namespace Nz
 			case SamplerWrap::SamplerWrap_Repeat:         return GL_REPEAT;
 		}
 
-		NazaraError("Unhandled SamplerWrap 0x" + String::Number(UnderlyingCast(wrapMode), 16));
+		NazaraError("Unhandled SamplerWrap 0x" + NumberToString(UnderlyingCast(wrapMode), 16));
 		return {};
 	}
 
@@ -144,7 +144,7 @@ namespace Nz
 			case ShaderStageType::Vertex:   return GL_VERTEX_SHADER;
 		}
 
-		NazaraError("Unhandled ShaderStageType 0x" + String::Number(UnderlyingCast(stageType), 16));
+		NazaraError("Unhandled ShaderStageType 0x" + NumberToString(UnderlyingCast(stageType), 16));
 		return {};
 	}
 
@@ -162,7 +162,7 @@ namespace Nz
 			case StencilOperation_Zero:             return GL_ZERO;
 		}
 
-		NazaraError("Unhandled StencilOperation 0x" + String::Number(UnderlyingCast(stencilOp), 16));
+		NazaraError("Unhandled StencilOperation 0x" + NumberToString(UnderlyingCast(stencilOp), 16));
 		return {};
 	}
 
@@ -180,7 +180,7 @@ namespace Nz
 			case GL::BufferTarget::Uniform:           return GL_UNIFORM_BUFFER;
 		}
 
-		NazaraError("Unhandled GL::BufferTarget 0x" + String::Number(UnderlyingCast(bufferTarget), 16));
+		NazaraError("Unhandled GL::BufferTarget 0x" + NumberToString(UnderlyingCast(bufferTarget), 16));
 		return {};
 	}
 
@@ -194,7 +194,7 @@ namespace Nz
 			case GL::TextureTarget::Target3D:       return GL_TEXTURE_3D;
 		}
 
-		NazaraError("Unhandled GL::TextureTarget 0x" + String::Number(UnderlyingCast(textureTarget), 16));
+		NazaraError("Unhandled GL::TextureTarget 0x" + NumberToString(UnderlyingCast(textureTarget), 16));
 		return {};
 	}
 }

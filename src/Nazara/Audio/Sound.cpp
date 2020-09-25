@@ -177,7 +177,7 @@ namespace Nz
 		SoundBufferRef buffer = SoundBuffer::LoadFromMemory(data, size, params);
 		if (!buffer)
 		{
-			NazaraError("Failed to load buffer from memory (" + String::Pointer(data) + ')');
+			NazaraError("Failed to load buffer from memory (" + PointerToString(data) + ')');
 			return false;
 		}
 

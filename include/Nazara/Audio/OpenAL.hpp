@@ -12,7 +12,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/String.hpp>
+#include <string>
 #include <vector>
 
 // Inclusion of OpenAL headers
@@ -64,19 +64,19 @@ namespace Nz
 	class NAZARA_AUDIO_API OpenAL
 	{
 		public:
-			static OpenALFunc GetEntry(const String& entryPoint);
-			static String GetRendererName();
-			static String GetVendorName();
+			static OpenALFunc GetEntry(const std::string& entryPoint);
+			static std::string GetRendererName();
+			static std::string GetVendorName();
 			static unsigned int GetVersion();
 
 			static bool Initialize(bool openDevice = true);
 
 			static bool IsInitialized();
 
-			static std::size_t QueryInputDevices(std::vector<String>& devices);
-			static std::size_t QueryOutputDevices(std::vector<String>& devices);
+			static std::size_t QueryInputDevices(std::vector<std::string>& devices);
+			static std::size_t QueryOutputDevices(std::vector<std::string>& devices);
 
-			static bool SetDevice(const String& deviceName);
+			static bool SetDevice(const std::string& deviceName);
 
 			static void Uninitialize();
 

@@ -4,7 +4,6 @@
 
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/TriangleIterator.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
@@ -195,7 +194,7 @@ namespace Nz
 				return indexCount - 2;
 		}
 
-		NazaraError("Primitive mode not handled (0x" + String::Number(m_primitiveMode, 16) + ')');
+		NazaraError("Primitive mode not handled (0x" + NumberToString(m_primitiveMode, 16) + ')');
 		return 0;
 	}
 

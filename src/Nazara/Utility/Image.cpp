@@ -5,6 +5,7 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <memory>
@@ -268,7 +269,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError("Failed to allocate image's level " + String::Number(i) + " (" + String(e.what()) + ')');
+				NazaraError("Failed to allocate image's level " + NumberToString(i) + " (" + std::string(e.what()) + ')');
 				return false;
 			}
 		}
@@ -448,7 +449,7 @@ namespace Nz
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return false;
 		}
 		#endif
@@ -574,7 +575,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -583,7 +584,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(width) + ')');
 			return nullptr;
 		}
 		#endif
@@ -592,14 +593,14 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(height) + ')');
 			return nullptr;
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return nullptr;
 		}
 		#endif
@@ -612,7 +613,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return 0;
 		}
 		#endif
@@ -630,7 +631,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return 0;
 		}
 		#endif
@@ -697,20 +698,20 @@ namespace Nz
 
 		if (x >= m_sharedImage->width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(m_sharedImage->width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(m_sharedImage->width) + ')');
 			return Color();
 		}
 
 		if (y >= m_sharedImage->height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(m_sharedImage->height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(m_sharedImage->height) + ')');
 			return Color();
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return Color();
 		}
 		#endif
@@ -735,7 +736,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -744,7 +745,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(width) + ')');
 			return nullptr;
 		}
 		#endif
@@ -753,20 +754,20 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(height) + ')');
 			return nullptr;
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return nullptr;
 		}
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -781,7 +782,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return Vector3ui::Zero();
 		}
 		#endif
@@ -799,7 +800,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return 0;
 		}
 		#endif
@@ -885,7 +886,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (type != ImageType_1D && type != ImageType_2D)
 		{
-			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
+			NazaraError("Image type not handled (0x" + NumberToString(type, 16) + ')');
 			return nullptr;
 		}
 		#endif
@@ -894,12 +895,12 @@ namespace Nz
 
 		if (imageSize.x % atlasSize.x != 0)
 		{
-			NazaraWarning("Image width is not divisible by atlas width (" + String::Number(imageSize.x) + " mod " + String::Number(atlasSize.x) + " != 0)");
+			NazaraWarning("Image width is not divisible by atlas width (" + NumberToString(imageSize.x) + " mod " + NumberToString(atlasSize.x) + " != 0)");
 		}
 
 		if (imageSize.y % atlasSize.y != 0)
 		{
-			NazaraWarning("Image height is not divisible by atlas height (" + String::Number(imageSize.y) + " mod " + String::Number(atlasSize.y) + " != 0)");
+			NazaraWarning("Image height is not divisible by atlas height (" + NumberToString(imageSize.y) + " mod " + NumberToString(atlasSize.y) + " != 0)");
 		}
 
 		Vector2ui faceSize = imageSize/atlasSize;
@@ -971,7 +972,7 @@ namespace Nz
 		ImageType type = image->GetType();
 		if (type != ImageType_2D)
 		{
-			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
+			NazaraError("Image type not handled (0x" + NumberToString(type, 16) + ')');
 			return nullptr;
 		}
 		#endif
@@ -1216,20 +1217,20 @@ namespace Nz
 
 		if (x >= m_sharedImage->width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(m_sharedImage->width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(m_sharedImage->width) + ')');
 			return false;
 		}
 
 		if (y >= m_sharedImage->height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(m_sharedImage->height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(m_sharedImage->height) + ')');
 			return false;
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return false;
 		}
 		#endif
@@ -1262,7 +1263,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return false;
 		}
 		#endif
@@ -1296,7 +1297,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return false;
 		}
 		#endif
@@ -1425,7 +1426,7 @@ namespace Nz
 				return GetMaxLevel(width, height, depth);
 		}
 
-		NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
+		NazaraError("Image type not handled (0x" + NumberToString(type, 16) + ')');
 		return 0;
 	}
 

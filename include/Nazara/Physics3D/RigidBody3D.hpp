@@ -67,7 +67,7 @@ namespace Nz
 			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
-			void SetMaterial(const String& materialName);
+			void SetMaterial(const std::string& materialName);
 			void SetMaterial(int materialIndex);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);

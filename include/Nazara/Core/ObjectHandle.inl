@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ObjectHandle.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <functional>
 #include <limits>
+#include <sstream>
 
 namespace Nz
 {
@@ -135,18 +135,12 @@ namespace Nz
 	* \return A string representation of the object "ObjectHandle(object representation) or Null"
 	*/
 	template<typename T>
-	Nz::String ObjectHandle<T>::ToString() const
+	std::string ObjectHandle<T>::ToString() const
 	{
-		Nz::StringStream ss;
-		ss << "ObjectHandle(";
-		if (IsValid())
-			ss << GetObject()->ToString();
-		else
-			ss << "Null";
+		std::ostringstream ss;
+		ss << *this;
 
-		ss << ')';
-
-		return ss;
+		return ss.str();
 	}
 
 	/*!
@@ -219,7 +213,14 @@ namespace Nz
 	template<typename T>
 	std::ostream& operator<<(std::ostream& out, const ObjectHandle<T>& handle)
 	{
-		out << handle.ToString();
+		out << "ObjectHandle(";
+		if (handle.IsValid())
+			out << handle->ToString();
+		else
+			out << "Null";
+
+		out << ')';
+
 		return out;
 	}
 

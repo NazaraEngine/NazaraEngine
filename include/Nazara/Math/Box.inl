@@ -3,13 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -261,7 +259,7 @@ namespace Nz
 	template<typename T>
 	Vector3<T> Box<T>::GetCenter() const
 	{
-		return GetPosition() + GetLengths() / F(2.0);
+		return GetPosition() + GetLengths() / T(2.0);
 	}
 
 	/*!
@@ -303,7 +301,7 @@ namespace Nz
 				return Vector3<T>(x + width, y + height, z + depth);
 		}
 
-		NazaraError("Corner not handled (0x" + String::Number(corner, 16) + ')');
+		NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
 		return Vector3<T>();
 	}
 
@@ -358,13 +356,13 @@ namespace Nz
 	{
 		Vector3<T> neg(GetPosition());
 
-		if (normal.x < F(0.0))
+		if (normal.x < T(0.0))
 			neg.x += width;
 
-		if (normal.y < F(0.0))
+		if (normal.y < T(0.0))
 			neg.y += height;
 
-		if (normal.z < F(0.0))
+		if (normal.z < T(0.0))
 			neg.z += depth;
 
 		return neg;
@@ -397,13 +395,13 @@ namespace Nz
 	{
 		Vector3<T> pos(GetPosition());
 
-		if (normal.x > F(0.0))
+		if (normal.x > T(0.0))
 			pos.x += width;
 
-		if (normal.y > F(0.0))
+		if (normal.y > T(0.0))
 			pos.y += height;
 
-		if (normal.z > F(0.0))
+		if (normal.z > T(0.0))
 			pos.z += depth;
 
 		return pos;
@@ -442,7 +440,7 @@ namespace Nz
 	T Box<T>::GetSquaredRadius() const
 	{
 		Vector3<T> size(GetLengths());
-		size /= F(2.0); // The size only depends on the lengths and not the center
+		size /= T(2.0); // The size only depends on the lengths and not the center
 
 		return size.GetSquaredLength();
 	}
@@ -494,7 +492,7 @@ namespace Nz
 	template<typename T>
 	bool Box<T>::IsValid() const
 	{
-		return width > F(0.0) && height > F(0.0) && depth > F(0.0);
+		return width > T(0.0) && height > T(0.0) && depth > T(0.0);
 	}
 
 	/*!
@@ -507,12 +505,12 @@ namespace Nz
 	template<typename T>
 	Box<T>& Box<T>::MakeZero()
 	{
-		x = F(0.0);
-		y = F(0.0);
-		z = F(0.0);
-		width = F(0.0);
-		height = F(0.0);
-		depth = F(0.0);
+		x = T(0.0);
+		y = T(0.0);
+		z = T(0.0);
+		width = T(0.0);
+		height = T(0.0);
+		depth = T(0.0);
 
 		return *this;
 	}
@@ -531,9 +529,9 @@ namespace Nz
 	template<typename T>
 	Box<T>& Box<T>::Set(T Width, T Height, T Depth)
 	{
-		x = F(0.0);
-		y = F(0.0);
-		z = F(0.0);
+		x = T(0.0);
+		y = T(0.0);
+		z = T(0.0);
 		width = Width;
 		height = Height;
 		depth = Depth;
@@ -599,10 +597,10 @@ namespace Nz
 	{
 		x = rect.x;
 		y = rect.y;
-		z = F(0.0);
+		z = T(0.0);
 		width = rect.width;
 		height = rect.height;
-		depth = F(1.0);
+		depth = T(1.0);
 
 		return *this;
 	}
@@ -655,12 +653,12 @@ namespace Nz
 	template<typename U>
 	Box<T>& Box<T>::Set(const Box<U>& box)
 	{
-		x = F(box.x);
-		y = F(box.y);
-		z = F(box.z);
-		width = F(box.width);
-		height = F(box.height);
-		depth = F(box.depth);
+		x = T(box.x);
+		y = T(box.y);
+		z = T(box.z);
+		width = T(box.width);
+		height = T(box.height);
+		depth = T(box.depth);
 
 		return *this;
 	}
@@ -671,11 +669,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Box<T>::ToString() const
+	std::string Box<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Box(" << x << ", " << y << ", " << z << ", " << width << ", " << height << ", " << depth << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -689,8 +688,8 @@ namespace Nz
 	template<typename T>
 	Box<T>& Box<T>::Transform(const Matrix4<T>& matrix, bool applyTranslation)
 	{
-		Vector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? F(1.0) : F(0.0)); // Value multiplying the translation
-		Vector3<T> halfSize = GetLengths() / F(2.0);
+		Vector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? T(1.0) : T(0.0)); // Value multiplying the translation
+		Vector3<T> halfSize = GetLengths() / T(2.0);
 
 		halfSize.Set(std::abs(matrix(0,0)) * halfSize.x + std::abs(matrix(1,0)) * halfSize.y + std::abs(matrix(2,0)) * halfSize.z,
 		             std::abs(matrix(0,1)) * halfSize.x + std::abs(matrix(1,1)) * halfSize.y + std::abs(matrix(2,1)) * halfSize.z,
@@ -855,9 +854,9 @@ namespace Nz
 	Box<T> Box<T>::Lerp(const Box& from, const Box& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Zero();
 		}
 		#endif
@@ -963,9 +962,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box)
 {
-	return out << box.ToString();
+	return out << "Box(" << box.x << ", " << box.y << ", " << box.z << ", " << box.width << ", " << box.height << ", " << box.depth << ')';
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

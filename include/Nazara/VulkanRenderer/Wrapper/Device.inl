@@ -90,7 +90,7 @@ namespace Nz
 		{
 			PFN_vkVoidFunction func = m_instance.GetDeviceProcAddr(m_device, name);
 			if (!func)
-				NazaraError("Failed to get " + String(name) + " address");
+				NazaraError("Failed to get " + std::string(name) + " address");
 			
 			return func;
 		}

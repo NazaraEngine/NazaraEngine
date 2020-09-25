@@ -25,23 +25,24 @@ namespace Nz
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(const String& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
+	name(formatName),
 	content(formatContent),
 	redType(subType),
 	greenType(subType),
 	blueType(subType),
 	alphaType(subType),
-	name(formatName),
 	bitsPerPixel(bpp)
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(const String& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType) :
 	PixelFormatDescription(formatName, formatContent, subType, rMask, subType, gMask, subType, bMask, subType, aMask)
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(const String& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp) :
+	inline PixelFormatDescription::PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp) :
+	name(formatName),
 	redMask(rMask),
 	greenMask(gMask),
 	blueMask(bMask),
@@ -50,8 +51,7 @@ namespace Nz
 	redType(rType),
 	greenType(gType),
 	blueType(bType),
-	alphaType(aType),
-	name(formatName)
+	alphaType(aType)
 	{
 		redMask.Reverse();
 		greenMask.Reverse();
@@ -69,7 +69,7 @@ namespace Nz
 		blueMask.Clear();
 		greenMask.Clear();
 		redMask.Clear();
-		name.Clear();
+		name.clear();
 	}
 
 	inline bool PixelFormatDescription::IsCompressed() const
@@ -245,7 +245,7 @@ namespace Nz
 		return s_pixelFormatInfos[format];
 	}
 
-	inline const String& PixelFormatInfo::GetName(PixelFormat format)
+	inline const std::string& PixelFormatInfo::GetName(PixelFormat format)
 	{
 		return s_pixelFormatInfos[format].name;
 	}

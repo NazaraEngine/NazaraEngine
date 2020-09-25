@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/SocketPoller.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -195,7 +197,7 @@ namespace Nz
 		if (waitError != SocketError_NoError)
 		{
 			if (waitError != SocketError_Interrupted) //< Do not log interrupted error
-				NazaraError("SocketPoller encountered an error (code: 0x" + String::Number(waitError, 16) + "): " + ErrorToString(waitError));
+				NazaraError("SocketPoller encountered an error (code: 0x" + NumberToString(waitError, 16) + "): " + ErrorToString(waitError));
 
 			return 0;
 		}

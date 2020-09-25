@@ -11,6 +11,7 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <memory>
 #include <ostream>
+#include <string>
 
 namespace Nz
 {
@@ -36,7 +37,7 @@ namespace Nz
 
 			ObjectHandle& Swap(ObjectHandle& handle);
 
-			Nz::String ToString() const;
+			std::string ToString() const;
 
 			explicit operator bool() const;
 			operator T*() const;

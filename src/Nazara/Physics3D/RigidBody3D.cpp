@@ -345,7 +345,7 @@ namespace Nz
 			NewtonBodySetCentreOfMass(m_body, &center.x);
 	}
 
-	void RigidBody3D::SetMaterial(const String& materialName)
+	void RigidBody3D::SetMaterial(const std::string& materialName)
 	{
 		SetMaterial(m_world->GetMaterial(materialName));
 	}

@@ -8,7 +8,6 @@
 #define NAZARA_UTILS_OPENGL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>

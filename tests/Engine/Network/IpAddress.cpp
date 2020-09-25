@@ -10,10 +10,10 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 
 		WHEN("We parse localhost")
 		{
-			Nz::String localhostIPv4 = "127.0.0.1";
-			Nz::String localhostIPv6 = "::1";
-			REQUIRE(ipAddressV4.BuildFromAddress(localhostIPv4.GetConstBuffer()));
-			REQUIRE(ipAddressV6.BuildFromAddress(localhostIPv6.GetConstBuffer()));
+			std::string localhostIPv4 = "127.0.0.1";
+			std::string localhostIPv6 = "::1";
+			REQUIRE(ipAddressV4.BuildFromAddress(localhostIPv4));
+			REQUIRE(ipAddressV6.BuildFromAddress(localhostIPv6));
 
 			THEN("It's the loop back")
 			{
@@ -40,7 +40,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 			Nz::IpAddress google(8, 8, 8, 8);
 			THEN("Google (DNS) is 8.8.8.8")
 			{
-				Nz::String dnsAddress = Nz::IpAddress::ResolveAddress(google);
+				std::string dnsAddress = Nz::IpAddress::ResolveAddress(google);
 				bool dnsCheck = dnsAddress == "google-public-dns-a.google.com" || dnsAddress == "dns.google";
 				CHECK(dnsCheck);
 			}

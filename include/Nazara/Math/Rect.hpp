@@ -7,9 +7,9 @@
 #ifndef NAZARA_RECT_HPP
 #define NAZARA_RECT_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -59,7 +59,7 @@ namespace Nz
 			Rect& Set(const Vector2<T>& vec1, const Vector2<T>& vec2);
 			template<typename U> Rect& Set(const Rect<U>& rect);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			Rect& Translate(const Vector2<T>& translation);
 

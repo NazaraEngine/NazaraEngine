@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -135,7 +136,7 @@ namespace Nz
 	void OBJParser::Emit(const T& text) const
 	{
 		m_outputStream << text;
-		if (m_outputStream.GetBufferSize() > 1024 * 1024)
+		if (m_outputStream.rdbuf()->str().size() > 1024 * 1024)
 			Flush();
 	}
 
@@ -158,8 +159,8 @@ namespace Nz
 
 	inline void OBJParser::Flush() const
 	{
-		m_currentStream->Write(m_outputStream);
-		m_outputStream.Clear();
+		m_currentStream->Write(std::move(m_outputStream).str());
+		m_outputStream.str({});
 	}
 
 	inline void OBJParser::Warning(const std::string& message)

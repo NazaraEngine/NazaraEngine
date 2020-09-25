@@ -71,7 +71,7 @@ namespace Nz
 				return static_cast<AudioFormat>(channelCount);
 
 			default:
-				NazaraError("Invalid channel count: " + String::Number(channelCount));
+				NazaraError("Invalid channel count: " + NumberToString(channelCount));
 				return AudioFormat_Unknown;
 		}
 	}

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Font.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
@@ -146,13 +147,13 @@ namespace Nz
 		return count;
 	}
 
-	String Font::GetFamilyName() const
+	std::string Font::GetFamilyName() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
 			NazaraError("Invalid font");
-			return String("Invalid font");
+			return std::string("Invalid font");
 		}
 		#endif
 
@@ -237,13 +238,13 @@ namespace Nz
 		return it->second;
 	}
 
-	String Font::GetStyleName() const
+	std::string Font::GetStyleName() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
 			NazaraError("Invalid font");
-			return String("Invalid font");
+			return std::string("Invalid font");
 		}
 		#endif
 
@@ -261,10 +262,10 @@ namespace Nz
 		return PrecacheGlyph(m_glyphes[key], characterSize, style, outlineThickness, character).valid;
 	}
 
-	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const String& characterSet) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const
 	{
 		///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
-		std::u32string set = characterSet.GetUtf32String();
+		std::u32string set = ToUtf32String(characterSet);
 		if (set.empty())
 		{
 			NazaraError("Invalid character set");
@@ -548,7 +549,7 @@ namespace Nz
 				glyph.valid = true;
 			}
 			else
-				NazaraWarning("Failed to extract glyph \"" + String::Unicode(character) + "\"");
+				NazaraWarning("Failed to extract glyph \"" + FromUtf32String(std::u32string_view(&character, 1)) + "\"");
 		}
 		else
 		{

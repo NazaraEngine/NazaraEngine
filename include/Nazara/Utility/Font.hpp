@@ -64,18 +64,18 @@ namespace Nz
 			const std::shared_ptr<AbstractAtlas>& GetAtlas() const;
 			std::size_t GetCachedGlyphCount(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const;
 			std::size_t GetCachedGlyphCount() const;
-			String GetFamilyName() const;
+			std::string GetFamilyName() const;
 			int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
 			const Glyph& GetGlyph(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
 			unsigned int GetGlyphBorder() const;
 			unsigned int GetMinimumStepSize() const;
 			const SizeInfo& GetSizeInfo(unsigned int characterSize) const;
-			String GetStyleName() const;
+			std::string GetStyleName() const;
 
 			bool IsValid() const;
 
 			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
-			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const String& characterSet) const;
+			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const;
 
 			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
 			void SetGlyphBorder(unsigned int borderSize);

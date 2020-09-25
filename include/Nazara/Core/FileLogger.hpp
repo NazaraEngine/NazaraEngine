@@ -18,7 +18,7 @@ namespace Nz
 	class NAZARA_CORE_API FileLogger : public AbstractLogger
 	{
 		public:
-			FileLogger(const String& logPath = "NazaraLog.log");
+			FileLogger(std::filesystem::path logPath = "NazaraLog.log");
 			FileLogger(const FileLogger&) = default;
 			FileLogger(FileLogger&&) = default;
 			~FileLogger();
@@ -29,8 +29,8 @@ namespace Nz
 			bool IsStdReplicationEnabled() const override;
 			bool IsTimeLoggingEnabled() const;
 
-			void Write(const String& string) override;
-			void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
+			void Write(const std::string_view& string) override;
+			void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			FileLogger& operator=(const FileLogger&) = default;
 			FileLogger& operator=(FileLogger&&) = default;

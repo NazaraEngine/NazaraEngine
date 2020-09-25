@@ -99,7 +99,7 @@ namespace Nz
 				break;
 		}
 
-		return "Unknown OpenGL error (0x" + String::Number(code, 16).ToStdString() + ')';
+		return "Unknown OpenGL error (0x" + NumberToString(code, 16) + ')';
 	}
 }
 

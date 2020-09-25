@@ -12,7 +12,6 @@
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Core/String.hpp>
 #include <ctime>
 #include <filesystem>
 #include <fstream>

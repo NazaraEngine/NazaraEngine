@@ -8,9 +8,9 @@
 #define NAZARA_FONTDATA_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -24,8 +24,8 @@ namespace Nz
 
 			virtual bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* dst) = 0;
 
-			virtual String GetFamilyName() const = 0;
-			virtual String GetStyleName() const = 0;
+			virtual std::string GetFamilyName() const = 0;
+			virtual std::string GetStyleName() const = 0;
 
 			virtual bool HasKerning() const = 0;
 

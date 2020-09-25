@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/String.hpp>
 #include <limits>
 #include <memory>
+#include <string>
 #include <type_traits>
 
 namespace Nz
@@ -32,7 +32,8 @@ namespace Nz
 			explicit Bitset(const char* bits);
 			Bitset(const char* bits, std::size_t bitCount);
 			Bitset(const Bitset& bitset) = default;
-			explicit Bitset(const String& bits);
+			explicit Bitset(const std::string_view& bits);
+			explicit Bitset(const std::string& bits);
 			template<typename T> Bitset(T value);
 			Bitset(Bitset&& bitset) noexcept = default;
 			~Bitset() noexcept = default;
@@ -81,7 +82,7 @@ namespace Nz
 			bool TestNone() const;
 
 			template<typename T> T To() const;
-			String ToString() const;
+			std::string ToString() const;
 
 			void UnboundedReset(std::size_t bit);
 			void UnboundedSet(std::size_t bit, bool val = true);
@@ -96,7 +97,7 @@ namespace Nz
 			Bitset operator~() const;
 
 			Bitset& operator=(const Bitset& bitset) = default;
-			Bitset& operator=(const String& bits);
+			Bitset& operator=(const std::string_view& bits);
 			template<typename T> Bitset& operator=(T value);
 			Bitset& operator=(Bitset&& bitset) noexcept = default;
 

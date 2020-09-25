@@ -3,11 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <limits>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -166,7 +164,7 @@ namespace Nz
 			case Extend_Infinite:
 			{
 				if (closestHit)
-					*closestHit = F(0.0);
+					*closestHit = T(0.0);
 
 				if (furthestHit)
 					*furthestHit = std::numeric_limits<T>::infinity();
@@ -178,7 +176,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraError("Invalid extend type (0x" + String::Number(volume.extend, 16) + ')');
+		NazaraError("Invalid extend type (0x" + NumberToString(volume.extend, 16) + ')');
 		return false;
 	}
 
@@ -197,7 +195,7 @@ namespace Nz
 	bool Ray<T>::Intersect(const Box<T>& box, T* closestHit, T* furthestHit) const
 	{
 		// http://www.gamedev.net/topic/429443-obb-ray-and-obb-plane-intersection/
-		T tfirst = F(0.0);
+		T tfirst = T(0.0);
 		T tlast = std::numeric_limits<T>::infinity();
 
 		Vector3<T> boxMin = box.GetMinimum();
@@ -210,7 +208,7 @@ namespace Nz
 			T max = boxMax[i];
 			T min = boxMin[i];
 
-			if (NumberEquals(dir, F(0.0)))
+			if (NumberEquals(dir, T(0.0)))
 			{
 				if (ori < max && ori > min)
 					continue;
@@ -256,7 +254,7 @@ namespace Nz
 	{
 		// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
 		// Intersection method from Real-Time Rendering and Essential Mathematics for Games
-		T tMin = F(0.0);
+		T tMin = T(0.0);
 		T tMax = std::numeric_limits<T>::infinity();
 
 		Vector3<T> boxMin = box.GetMinimum();
@@ -270,7 +268,7 @@ namespace Nz
 			T e = axis.DotProduct(delta);
 			T f = direction.DotProduct(axis);
 
-			if (!NumberEquals(f, F(0.0)))
+			if (!NumberEquals(f, T(0.0)))
 			{
 				T t1 = (e + boxMin[i]) / f; // Intersection with the "left" plane
 				T t2 = (e + boxMax[i]) / f; // Intersection with the "right" plane
@@ -296,7 +294,7 @@ namespace Nz
 			}
 			else
 				// Rare case : the ray is almost parallel to the planes, so they don't have any "intersection"
-				if (-e + boxMin[i] > F(0.0) || -e + boxMax[i] < F(0.0))
+				if (-e + boxMin[i] > T(0.0) || -e + boxMax[i] < T(0.0))
 					return false;
 		}
 
@@ -334,7 +332,7 @@ namespace Nz
 		Matrix4<T> matrix(width.x, height.x, depth.x, corner.x,
 		                  width.y, height.y, depth.y, corner.y,
 		                  width.z, height.z, depth.z, corner.z,
-		                  F(0.0),  F(0.0),   F(0.0),  F(1.0));
+		                  T(0.0),  T(0.0),   T(0.0),  T(1.0));
 
 		matrix.InverseAffine();
 
@@ -361,11 +359,11 @@ namespace Nz
 	bool Ray<T>::Intersect(const Plane<T>& plane, T* hit) const
 	{
 		T divisor = plane.normal.DotProduct(direction);
-		if (NumberEquals(divisor, F(0.0)))
+		if (NumberEquals(divisor, T(0.0)))
 			return false; // Perpendicular
 
 		T lambda = -(plane.normal.DotProduct(origin) - plane.distance) / divisor; // The plane is ax + by + cz = d
-		if (lambda < F(0.0))
+		if (lambda < T(0.0))
 			return false; // The plane is 'behind' the ray.
 
 		if (hit)
@@ -391,7 +389,7 @@ namespace Nz
 		Vector3<T> sphereRay = sphere.GetPosition() - origin;
 		T length = sphereRay.DotProduct(direction);
 
-		if (length < F(0.0))
+		if (length < T(0.0))
 			return false; // ray is perpendicular to the vector origin - center
 
 		T squaredDistance = sphereRay.GetSquaredLength() - length * length;
@@ -436,21 +434,21 @@ namespace Nz
 
 		Vector3<T> P = Vector3<T>::CrossProduct(direction, secondEdge);
 		const T divisor = firstEdge.DotProduct(P);
-		if (NumberEquals(divisor, F(0.0)))
+		if (NumberEquals(divisor, T(0.0)))
 			return false; // Ray lies in plane of triangle
 
 		Vector3<T> directionToPoint = origin - firstPoint;
 		T u = directionToPoint.DotProduct(P) / divisor;
-		if (u < F(0.0) || u > F(1.0))
+		if (u < T(0.0) || u > T(1.0))
 			return 0; // The intersection lies outside of the triangle
 
 		Vector3<T> Q = Vector3<T>::CrossProduct(directionToPoint, firstEdge);
 		T v = directionToPoint.DotProduct(Q) / divisor;
-		if (v < F(0.0) || u + v > F(1.0))
+		if (v < T(0.0) || u + v > T(1.0))
 			return 0; // The intersection lies outside of the triangle
 
 		T t = secondEdge.DotProduct(Q) / divisor;
-		if (t > F(0.0))
+		if (t > T(0.0))
 		{
 			if (hit)
 				*hit = t;
@@ -574,16 +572,16 @@ namespace Nz
 		T det = termOne * termFour - termTwo * termTwo;
 
 		#if NAZARA_MATH_SAFE
-		if (NumberEquals(det, F(0.0)))
+		if (NumberEquals(det, T(0.0)))
 		{
-			String error("Planes are parallel");
+			std::string error("Planes are parallel");
 
 			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
+			throw std::domain_error(error);
 		}
 		#endif
 
-		T invdet = F(1.0) / det;
+		T invdet = T(1.0) / det;
 		T fc0 = (termFour * -planeOne.distance + termTwo * planeTwo.distance) * invdet;
 		T fc1 = (termOne * -planeTwo.distance + termTwo * planeOne.distance) * invdet;
 
@@ -634,11 +632,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Ray<T>::ToString() const
+	std::string Ray<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Ray(origin: " << origin.ToString() << ", direction: " << direction.ToString() << ")";
+		return ss.str();
 	}
 
 	/*!
@@ -799,9 +798,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& ray)
 {
-	return out << ray.ToString();
+	return out << "Ray(origin: " << ray.origin << ", direction: " << ray.direction << ")";
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

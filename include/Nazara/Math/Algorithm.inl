@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <algorithm>
 #include <cstdlib>
@@ -571,20 +570,18 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and String() is returned
 	*/
-	inline String NumberToString(long long number, UInt8 radix)
+	inline std::string NumberToString(long long number, UInt8 radix)
 	{
 		#if NAZARA_MATH_SAFE
 		if (radix < 2 || radix > 36)
 		{
 			NazaraError("Base must be between 2 and 36");
-			return String();
+			return {};
 		}
 		#endif
 
 		if (number == 0)
-			return String('0');
-
-		static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			return "0";
 
 		bool negative;
 		if (number < 0)
@@ -595,20 +592,23 @@ namespace Nz
 		else
 			negative = false;
 
-		String str;
-		str.Reserve(GetNumberLength(number)); // Prends en compte le signe négatif
+		std::string str;
+
+		const char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		do
 		{
-			str.Append(symbols[number % radix]);
+			str.push_back(symbols[number % radix]);
 			number /= radix;
 		}
 		while (number > 0);
 
 		if (negative)
-			str.Append('-');
+			str.push_back('-');
 
-		return str.Reverse();
+		std::reverse(str.begin(), str.end());
+
+		return str;
 	}
 
 	/*!
@@ -636,7 +636,7 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
 	*/
-	inline long long StringToNumber(String str, UInt8 radix, bool* ok)
+	inline long long StringToNumber(const std::string_view& str, UInt8 radix, bool* ok)
 	{
 		#if NAZARA_MATH_SAFE
 		if (radix < 2 || radix > 36)
@@ -650,15 +650,19 @@ namespace Nz
 		}
 		#endif
 
-		static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		if (str.empty())
+		{
+			if (ok)
+				*ok = false;
 
-		str.Simplify();
-		if (radix > 10)
-			str = str.ToUpper();
+			return 0;
+		}
 
-		bool negative = str.StartsWith('-');
+		const char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-		char* digit = &str[(negative) ? 1 : 0];
+		bool negative = (str.front() == '-');
+
+		const char* digit = &str[(negative) ? 1 : 0];
 		unsigned long long total = 0;
 		do
 		{

@@ -49,7 +49,7 @@ namespace Nz
 					break;
 			}
 
-			throw std::runtime_error(("component type 0x" + String::Number(component, 16) + " is not handled").ToStdString());
+			throw std::runtime_error("component type 0x" + NumberToString(component, 16) + " is not handled");
 		}
 	}
 

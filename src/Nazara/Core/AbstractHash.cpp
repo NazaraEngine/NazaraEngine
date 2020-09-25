@@ -14,6 +14,7 @@
 #include <Nazara/Core/Hash/SHA384.hpp>
 #include <Nazara/Core/Hash/SHA512.hpp>
 #include <Nazara/Core/Hash/Whirlpool.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -74,7 +75,7 @@ namespace Nz
 				return std::make_unique<HashWhirlpool>();
 		}
 
-		NazaraInternalError("Hash type not handled (0x" + String::Number(type, 16) + ')');
+		NazaraInternalError("Hash type not handled (0x" + NumberToString(type, 16) + ')');
 		return nullptr;
 	}
 }

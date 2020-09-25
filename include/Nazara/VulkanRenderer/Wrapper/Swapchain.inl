@@ -79,7 +79,7 @@ namespace Nz
 
 				if (!m_images[i].view.Create(*m_device, imageViewCreateInfo))
 				{
-					NazaraError("Failed to create image view for image #" + String::Number(i));
+					NazaraError("Failed to create image view for image #" + NumberToString(i));
 					return false;
 				}
 			}

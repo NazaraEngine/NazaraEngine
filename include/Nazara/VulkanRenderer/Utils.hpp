@@ -8,7 +8,6 @@
 #define NAZARA_UTILS_VULKAN_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>

@@ -8,7 +8,8 @@
 #define NAZARA_ABSTRACTLOGGER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/Enums.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -22,8 +23,8 @@ namespace Nz
 
 			virtual bool IsStdReplicationEnabled() const = 0;
 
-			virtual void Write(const String& string) = 0;
-			virtual void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
+			virtual void Write(const std::string_view& string) = 0;
+			virtual void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 	};
 }
 

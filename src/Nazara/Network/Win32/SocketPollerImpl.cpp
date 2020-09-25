@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Win32/SocketPollerImpl.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -89,7 +91,7 @@ namespace Nz
 			fd_set& targetSet = (i == 0) ? m_readSockets : m_writeSockets;
 			if (targetSet.fd_count > FD_SETSIZE)
 			{
-				NazaraError("Socket count exceeding hard-coded FD_SETSIZE (" + String::Number(FD_SETSIZE) + ")");
+				NazaraError("Socket count exceeding hard-coded FD_SETSIZE (" + NumberToString(FD_SETSIZE) + ")");
 				return false;
 			}
 
@@ -157,7 +159,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
+					NazaraWarning("Socket " + NumberToString(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + NumberToString(entry.revents, 16) + ')');
 					activeSockets--;
 				}
 

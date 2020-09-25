@@ -25,11 +25,11 @@ SCENARIO("File", "[CORE][FILE]")
 				char message[12];
 				REQUIRE(file.Read(message, 11) == 11);
 				message[11] = '\0';
-				REQUIRE(Nz::String(message) == "Test String");
+				REQUIRE(std::string(message) == "Test String");
 
 				REQUIRE(file.Read(message, 11) == 11);
 				message[11] = '\0';
-				REQUIRE(Nz::String(message) == "Test String");
+				REQUIRE(std::string(message) == "Test String");
 			}
 
 			AND_THEN("We can get its size")
@@ -70,7 +70,7 @@ SCENARIO("File", "[CORE][FILE]")
 		WHEN("We read the first line of the file")
 		{
 			REQUIRE(fileTest.IsOpen());
-			Nz::String content = fileTest.ReadLine();
+			std::string content = fileTest.ReadLine();
 
 			THEN("The content must be 'Test'")
 			{

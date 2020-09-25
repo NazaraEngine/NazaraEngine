@@ -120,7 +120,7 @@ namespace Nz
 			ImageType type = image.GetType();
 			if (type != ImageType_1D && type != ImageType_2D)
 			{
-				NazaraError("Image type 0x" + String::Number(type, 16) + " is not in a supported format");
+				NazaraError("Image type 0x" + NumberToString(type, 16) + " is not in a supported format");
 				return false;
 			}
 
@@ -177,7 +177,7 @@ namespace Nz
 			{
 				if (imageQuality <= 0 || imageQuality > 100)
 				{
-					NazaraError("NativeJPEGSaver_Quality value (" + Nz::String::Number(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
+					NazaraError("NativeJPEGSaver_Quality value (" + Nz::NumberToString(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
 					imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
 				}
 			}

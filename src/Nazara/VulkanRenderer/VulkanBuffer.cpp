@@ -4,7 +4,6 @@
 
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <vma/vk_mem_alloc.h>

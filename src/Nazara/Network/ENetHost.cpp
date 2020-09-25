@@ -153,7 +153,7 @@ namespace Nz
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
-			NazaraError("Peer count exceeds maximum peer count supported by protocol (" + String::Number(ENetConstants::ENetProtocol_MaximumPeerId) + ")");
+			NazaraError("Peer count exceeds maximum peer count supported by protocol (" + NumberToString(ENetConstants::ENetProtocol_MaximumPeerId) + ")");
 			return false;
 		}
 
