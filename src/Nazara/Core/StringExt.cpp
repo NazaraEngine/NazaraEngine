@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <cinttypes>
 #include <Utfcpp/utf8.h>
 #include <Nazara/Core/Debug.hpp>
 
@@ -210,10 +211,10 @@ namespace Nz
 
 	std::string PointerToString(const void* ptr)
 	{
-		constexpr std::size_t capacity = sizeof(void*) * 2 + 2;
+		constexpr int width = static_cast<int>(sizeof(uintptr_t) * 2);
 
-		std::string str(capacity, '\0');
-		str.resize(std::sprintf(str.data(), "0x%p", ptr));
+		std::string str(width + 2, '\0');
+		str.resize(std::sprintf(str.data(), "0x%0*" PRIXPTR, width, reinterpret_cast<uintptr_t>(ptr)));
 
 		return str;
 	}
