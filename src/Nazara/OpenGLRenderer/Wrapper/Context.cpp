@@ -73,6 +73,7 @@ namespace Nz::GL
 
 			func = reinterpret_cast<FuncType>(originalFuncPtr);
 
+#if !defined(NAZARA_COMPILER_MSVC) || NAZARA_PLATFORM_x64
 #if NAZARA_OPENGLRENDERER_DEBUG
 			if (func)
 			{
@@ -82,6 +83,7 @@ namespace Nz::GL
 					func = Wrapper::WrapErrorHandling();
 				}
 			}
+#endif
 #endif
 
 			if (!func)
