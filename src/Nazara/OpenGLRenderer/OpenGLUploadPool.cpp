@@ -27,7 +27,6 @@ namespace Nz
 
 		for (Block& block : m_blocks)
 		{
-			UInt64 alignedOffset = block.freeOffset;
 			if (block.freeOffset + size > m_blockSize)
 				continue; //< Not enough space
 

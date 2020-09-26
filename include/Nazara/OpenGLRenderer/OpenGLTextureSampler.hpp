@@ -18,8 +18,8 @@ namespace Nz
 	{
 		public:
 			OpenGLTextureSampler(OpenGLDevice& device, const TextureSamplerInfo& samplerInfo);
-			OpenGLTextureSampler(const OpenGLTextureSampler&) = default;
-			OpenGLTextureSampler(OpenGLTextureSampler&&) noexcept = default;
+			OpenGLTextureSampler(const OpenGLTextureSampler&) = delete;
+			OpenGLTextureSampler(OpenGLTextureSampler&&) = delete;
 			~OpenGLTextureSampler() = default;
 
 			inline const GL::Sampler& GetSampler(bool mipmaps) const;

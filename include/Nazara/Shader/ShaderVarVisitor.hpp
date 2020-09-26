@@ -29,6 +29,9 @@ namespace Nz
 			virtual void Visit(ShaderNodes::OutputVariable& var) = 0;
 			virtual void Visit(ShaderNodes::ParameterVariable& var) = 0;
 			virtual void Visit(ShaderNodes::UniformVariable& var) = 0;
+
+			ShaderVarVisitor& operator=(const ShaderVarVisitor&) = delete;
+			ShaderVarVisitor& operator=(ShaderVarVisitor&&) = delete;
 	};
 }
 

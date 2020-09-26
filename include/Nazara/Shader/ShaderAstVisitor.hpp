@@ -42,6 +42,9 @@ namespace Nz
 			virtual void Visit(ShaderNodes::StatementBlock& node) = 0;
 			virtual void Visit(ShaderNodes::SwizzleOp& node) = 0;
 
+			ShaderAstVisitor& operator=(const ShaderAstVisitor&) = delete;
+			ShaderAstVisitor& operator=(ShaderAstVisitor&&) = delete;
+
 		private:
 			std::unordered_set<std::string> m_conditions;
 	};

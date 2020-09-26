@@ -217,7 +217,7 @@ namespace Nz
 							for (unsigned int y = 0; y < height; ++y)
 							{
 								for (unsigned int x = 0; x < width; ++x)
-									*pixels++ = (data[x/8] & ((1 << (7 - x%8)) ? 255 : 0));
+									*pixels++ = (data[x/8] & ((1 << (7 - x%8) != 0) ? 255 : 0));
 
 								data += bitmap.pitch;
 							}

@@ -460,15 +460,15 @@ namespace Nz
 
 				if (!mesh.faces.empty())
 				{
+					const std::string& matKey = matIt.key();
 					mesh.name = meshIt.key();
 
-					const std::string& matName = matIt.key();
-					auto it = materials.find(matName);
+					auto it = materials.find(matKey);
 					if (it == materials.end())
 					{
 						mesh.material = index;
-						materials[matName] = index;
-						m_materials[index] = matName;
+						materials[matKey] = index;
+						m_materials[index] = matKey;
 					}
 					else
 						mesh.material = it->second;

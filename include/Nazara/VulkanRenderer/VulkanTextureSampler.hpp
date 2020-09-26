@@ -17,8 +17,8 @@ namespace Nz
 	{
 		public:
 			VulkanTextureSampler(Vk::Device& device, TextureSamplerInfo samplerInfo);
-			VulkanTextureSampler(const VulkanTextureSampler&) = default;
-			VulkanTextureSampler(VulkanTextureSampler&&) noexcept = default;
+			VulkanTextureSampler(const VulkanTextureSampler&) = delete;
+			VulkanTextureSampler(VulkanTextureSampler&&) = delete;
 			~VulkanTextureSampler() = default;
 
 			inline VkSampler GetSampler() const;

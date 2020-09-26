@@ -263,7 +263,7 @@ namespace Nz
 		DisconnectFontSlots();
 
 		m_blocks = std::move(drawer.m_blocks);
-		m_bounds = std::move(m_bounds);
+		m_bounds = std::move(drawer.m_bounds);
 		m_defaultCharacterSize = std::move(drawer.m_defaultCharacterSize);
 		m_defaultCharacterSpacingOffset = std::move(drawer.m_defaultCharacterSpacingOffset);
 		m_defaultColor = std::move(drawer.m_defaultColor);
@@ -272,12 +272,12 @@ namespace Nz
 		m_defaultOutlineColor = std::move(drawer.m_defaultOutlineColor);
 		m_defaultOutlineThickness = std::move(drawer.m_defaultOutlineThickness);
 		m_defaultStyle = std::move(drawer.m_defaultStyle);
-		m_drawPos = std::move(m_drawPos);
+		m_drawPos = std::move(drawer.m_drawPos);
 		m_fontIndexes = std::move(drawer.m_fontIndexes);
 		m_fonts = std::move(drawer.m_fonts);
-		m_glyphs = std::move(m_glyphs);
-		m_lines = std::move(m_lines);
-		m_glyphUpdated = std::move(m_glyphUpdated);
+		m_glyphs = std::move(drawer.m_glyphs);
+		m_lines = std::move(drawer.m_lines);
+		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
 
 		drawer.DisconnectFontSlots();
 		ConnectFontSlots();

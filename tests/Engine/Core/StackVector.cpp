@@ -174,9 +174,10 @@ SCENARIO("StackVector", "[CORE][STACKVECTOR]")
 
 				CHECK(!vector.empty());
 				CHECK(vector.size() == 3);
-
-				std::array<int, 3> expectedValues = { 0, 1, 2 };
-				CHECK(std::equal(vector.begin(), vector.end(), expectedValues.begin(), expectedValues.end()));
+				{
+					std::array<int, 3> expectedValues = { 0, 1, 2 };
+					CHECK(std::equal(vector.begin(), vector.end(), expectedValues.begin(), expectedValues.end()));
+				}
 
 				THEN("We resize to five")
 				{
@@ -212,9 +213,11 @@ SCENARIO("StackVector", "[CORE][STACKVECTOR]")
 				for (std::size_t i = 0; i < vector.size(); ++i)
 					vector[i] = DestructionCounter(&counter, -5 + int(i));
 
-				std::array<int, 10> expectedValues = { -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 };
-				CHECK(vector.size() == expectedValues.size());
-				CHECK(std::equal(vector.begin(), vector.end(), expectedValues.begin(), expectedValues.end()));
+				{
+					std::array<int, 10> expectedValues = { -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 };
+					CHECK(vector.size() == expectedValues.size());
+					CHECK(std::equal(vector.begin(), vector.end(), expectedValues.begin(), expectedValues.end()));
+				}
 
 				AND_WHEN("We pop back some elements")
 				{

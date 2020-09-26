@@ -19,8 +19,8 @@ namespace Nz
 	{
 		public:
 			OpenGLTexture(OpenGLDevice& device, const TextureInfo& params);
-			OpenGLTexture(const OpenGLTexture&) = default;
-			OpenGLTexture(OpenGLTexture&&) noexcept = default;
+			OpenGLTexture(const OpenGLTexture&) = delete;
+			OpenGLTexture(OpenGLTexture&&) = delete;
 			~OpenGLTexture() = default;
 
 			PixelFormat GetFormat() const override;

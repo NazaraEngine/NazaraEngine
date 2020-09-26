@@ -183,7 +183,7 @@ namespace Nz
 	{
 		using CallbackType = decltype(callback);
 
-		auto RealCallback = [](cpBody* body, cpArbiter* arbiter, void* data)
+		auto RealCallback = [](cpBody* /*body*/, cpArbiter* arbiter, void* data)
 		{
 			CallbackType& cb = *static_cast<CallbackType*>(data);
 
@@ -399,7 +399,6 @@ namespace Nz
 
 		m_geom->GenerateShapes(this, &m_shapes);
 
-		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
 			cpShapeSetUserData(shape, this);
 
@@ -643,7 +642,6 @@ namespace Nz
 	{
 		UnregisterFromSpace();
 
-		cpSpace* space = m_world->GetHandle();
 		for (cpShape* shape : m_shapes)
 			cpShapeFree(shape);
 

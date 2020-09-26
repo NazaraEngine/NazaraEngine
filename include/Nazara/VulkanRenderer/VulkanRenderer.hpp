@@ -44,7 +44,6 @@ namespace Nz
 			std::vector<Vk::PhysicalDevice> m_physDevices;
 			ParameterList m_initializationParameters;
 			Vk::Instance m_instance;
-			UInt32 m_apiVersion;
 	};
 }
 
