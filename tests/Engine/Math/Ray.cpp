@@ -32,22 +32,22 @@ SCENARIO("Ray", "[MATH][RAY]")
 				float tmpClosest;
 				float tmpFurthest;
 
-				CHECK(ray.Intersect(Nz::Boxf(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
-				REQUIRE(ray.GetPoint(tmpClosest) == Nz::Vector3f::UnitY());
-				REQUIRE(ray.GetPoint(tmpFurthest) == (Nz::Vector3f::UnitY() * 2.f));
-				CHECK(!ray.Intersect(Nz::Boxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
+				REQUIRE(ray.Intersect(Nz::Boxf(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
+				CHECK(ray.GetPoint(tmpClosest) == Nz::Vector3f::UnitY());
+				CHECK(ray.GetPoint(tmpFurthest) == (Nz::Vector3f::UnitY() * 2.f));
+				REQUIRE(!ray.Intersect(Nz::Boxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f), &tmpClosest, &tmpFurthest));
 			}
 
 			THEN("For the Nz::Plane collision's")
 			{
-				float tmpHit;
+				float tmpHit = -1.f;
 
-				CHECK(ray.Intersect(Nz::Planef(Nz::Vector3f::UnitY(), 1.f), &tmpHit));
-				REQUIRE(ray.GetPoint(tmpHit) == Nz::Vector3f::UnitY());
-				CHECK(ray.Intersect(Nz::Planef::XZ(), &tmpHit));
-				REQUIRE(ray.GetPoint(tmpHit) == Nz::Vector3f::Zero());
-				CHECK(ray.Intersect(Nz::Planef(Nz::Vector3f::UnitY(), 2.f), &tmpHit));
-				REQUIRE(ray.GetPoint(tmpHit) == 2.f * Nz::Vector3f::UnitY());
+				REQUIRE(ray.Intersect(Nz::Planef(Nz::Vector3f::UnitY(), 1.f), &tmpHit));
+				CHECK(ray.GetPoint(tmpHit) == Nz::Vector3f::UnitY());
+				REQUIRE(ray.Intersect(Nz::Planef::XZ(), &tmpHit));
+				CHECK(ray.GetPoint(tmpHit) == Nz::Vector3f::Zero());
+				REQUIRE(ray.Intersect(Nz::Planef(Nz::Vector3f::UnitY(), 2.f), &tmpHit));
+				CHECK(ray.GetPoint(tmpHit) == 2.f * Nz::Vector3f::UnitY());
 
 				CHECK(!ray.Intersect(Nz::Planef(Nz::Vector3f::UnitX(), 1.f)));
 			}
