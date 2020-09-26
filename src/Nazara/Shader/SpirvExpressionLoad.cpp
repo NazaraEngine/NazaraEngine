@@ -82,7 +82,7 @@ namespace Nz
 
 				m_value = Value { resultId };
 			},
-			[this](std::monostate)
+			[](std::monostate)
 			{
 				throw std::runtime_error("an internal error occurred");
 			}

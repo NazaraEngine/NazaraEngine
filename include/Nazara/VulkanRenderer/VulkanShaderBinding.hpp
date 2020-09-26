@@ -19,8 +19,8 @@ namespace Nz
 	{
 		public:
 			inline VulkanShaderBinding(VulkanRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::DescriptorSet descriptorSet);
-			VulkanShaderBinding(const VulkanShaderBinding&) = default;
-			VulkanShaderBinding(VulkanShaderBinding&&) noexcept = default;
+			VulkanShaderBinding(const VulkanShaderBinding&) = delete;
+			VulkanShaderBinding(VulkanShaderBinding&&) = delete;
 			~VulkanShaderBinding() = default;
 
 			inline std::size_t GetBindingIndex() const;

@@ -11,8 +11,8 @@
 namespace Nz
 {
 	PhysWorld3D::PhysWorld3D() :
-	m_gravity(Vector3f::Zero()),
 	m_maxStepCount(50),
+	m_gravity(Vector3f::Zero()),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
 	{
@@ -159,7 +159,7 @@ namespace Nz
 		}
 	}
 
-	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, float timestep, int threadIndex)
+	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
 	{
 		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
 		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
@@ -186,7 +186,7 @@ namespace Nz
 		return 1;
 	}
 
-	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float timestep, int threadIndex)
+	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
 	{
 		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
 		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));

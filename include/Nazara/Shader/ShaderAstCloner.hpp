@@ -19,14 +19,14 @@ namespace Nz
 	{
 		public:
 			ShaderAstCloner() = default;
-			ShaderAstCloner(const ShaderAstCloner&) = default;
-			ShaderAstCloner(ShaderAstCloner&&) = default;
+			ShaderAstCloner(const ShaderAstCloner&) = delete;
+			ShaderAstCloner(ShaderAstCloner&&) = delete;
 			~ShaderAstCloner() = default;
 
 			ShaderNodes::StatementPtr Clone(const ShaderNodes::StatementPtr& statement);
 
-			ShaderAstCloner& operator=(const ShaderAstCloner&) = default;
-			ShaderAstCloner& operator=(ShaderAstCloner&&) = default;
+			ShaderAstCloner& operator=(const ShaderAstCloner&) = delete;
+			ShaderAstCloner& operator=(ShaderAstCloner&&) = delete;
 
 		protected:
 			ShaderNodes::ExpressionPtr CloneExpression(const ShaderNodes::ExpressionPtr& expr);

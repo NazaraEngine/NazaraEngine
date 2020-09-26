@@ -418,7 +418,7 @@ namespace Nz
 		}
 		else
 		{
-			handler->beginFunc = [](cpArbiter* arb, cpSpace* space, void*) -> cpBool
+			handler->beginFunc = [](cpArbiter*, cpSpace*, void*) -> cpBool
 			{
 				return cpTrue;
 			};
@@ -444,7 +444,7 @@ namespace Nz
 		}
 		else
 		{
-			handler->separateFunc = [](cpArbiter* arb, cpSpace* space, void*)
+			handler->separateFunc = [](cpArbiter*, cpSpace*, void*)
 			{
 			};
 		}
@@ -472,7 +472,7 @@ namespace Nz
 		}
 		else
 		{
-			handler->preSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data) -> cpBool
+			handler->preSolveFunc = [](cpArbiter*, cpSpace*, void*) -> cpBool
 			{
 				return cpTrue;
 			};
@@ -498,7 +498,7 @@ namespace Nz
 		}
 		else
 		{
-			handler->postSolveFunc = [](cpArbiter* arb, cpSpace* space, void* data)
+			handler->postSolveFunc = [](cpArbiter*, cpSpace*, void*)
 			{
 			};
 		}

@@ -16,14 +16,14 @@ namespace Nz
 		public:
 			inline VulkanSingleFramebuffer(Vk::Framebuffer renderPass);
 			VulkanSingleFramebuffer(const VulkanSingleFramebuffer&) = delete;
-			VulkanSingleFramebuffer(VulkanSingleFramebuffer&&) noexcept = default;
+			VulkanSingleFramebuffer(VulkanSingleFramebuffer&&) = delete;
 			~VulkanSingleFramebuffer() = default;
 
 			inline Vk::Framebuffer& GetFramebuffer();
 			inline const Vk::Framebuffer& GetFramebuffer() const;
 
 			VulkanSingleFramebuffer& operator=(const VulkanSingleFramebuffer&) = delete;
-			VulkanSingleFramebuffer& operator=(VulkanSingleFramebuffer&&) noexcept = default;
+			VulkanSingleFramebuffer& operator=(VulkanSingleFramebuffer&&) = delete;
 
 		private:
 			Vk::Framebuffer m_framebuffer;

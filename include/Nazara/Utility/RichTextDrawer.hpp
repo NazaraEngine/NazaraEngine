@@ -172,7 +172,7 @@ namespace Nz
 
 		public:
 			BlockRef(const BlockRef&) = default;
-			BlockRef(BlockRef&&) = default;
+			BlockRef(BlockRef&&) = delete;
 			~BlockRef() = default;
 
 			inline float GetCharacterSpacingOffset() const;
@@ -196,8 +196,8 @@ namespace Nz
 			inline void SetStyle(TextStyleFlags style);
 			inline void SetText(std::string text);
 
-			BlockRef& operator=(const BlockRef&) = default;
-			BlockRef& operator=(BlockRef&&) = default;
+			BlockRef& operator=(const BlockRef&) = delete;
+			BlockRef& operator=(BlockRef&&) = delete;
 
 		private:
 			inline BlockRef(RichTextDrawer& drawer, std::size_t index);

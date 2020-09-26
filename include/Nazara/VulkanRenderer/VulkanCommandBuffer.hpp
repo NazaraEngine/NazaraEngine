@@ -23,7 +23,7 @@ namespace Nz
 			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::AutoCommandBuffer commandBuffer);
 			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, std::vector<Vk::AutoCommandBuffer> commandBuffers);
 			VulkanCommandBuffer(const VulkanCommandBuffer&) = delete;
-			VulkanCommandBuffer(VulkanCommandBuffer&&) noexcept = default;
+			VulkanCommandBuffer(VulkanCommandBuffer&&) = delete;
 			~VulkanCommandBuffer() = default;
 
 			inline std::size_t GetBindingIndex() const;

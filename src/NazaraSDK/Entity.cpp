@@ -24,8 +24,8 @@ namespace Ndk
 	* \param id Identifier of the entity
 	*/
 	Entity::Entity(World* world, EntityId id) :
-	m_id(id),
-	m_world(world)
+	m_world(world),
+	m_id(id)
 	{
 	}
 

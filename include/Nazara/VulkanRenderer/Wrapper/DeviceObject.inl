@@ -89,9 +89,13 @@ namespace Nz
 		{
 			if (m_device->vkSetDebugUtilsObjectNameEXT)
 			{
-				VkDebugUtilsObjectNameInfoEXT debugName = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
-				debugName.objectType = ObjectType;
-				debugName.pObjectName = name;
+				VkDebugUtilsObjectNameInfoEXT debugName = {
+					VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+					nullptr,
+					ObjectType,
+					0,
+					name
+				};
 
 				if constexpr (std::is_pointer_v<VkType>)
 					debugName.objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));

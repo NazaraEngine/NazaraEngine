@@ -19,8 +19,8 @@ namespace Nz
 	{
 		public:
 			VulkanTexture(Vk::Device& device, const TextureInfo& params);
-			VulkanTexture(const VulkanTexture&) = default;
-			VulkanTexture(VulkanTexture&&) noexcept = default;
+			VulkanTexture(const VulkanTexture&) = delete;
+			VulkanTexture(VulkanTexture&&) = delete;
 			~VulkanTexture();
 
 			PixelFormat GetFormat() const override;

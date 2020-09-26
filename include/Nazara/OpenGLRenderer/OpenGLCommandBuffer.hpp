@@ -31,7 +31,7 @@ namespace Nz
 			inline OpenGLCommandBuffer();
 			inline OpenGLCommandBuffer(OpenGLCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex);
 			OpenGLCommandBuffer(const OpenGLCommandBuffer&) = delete;
-			OpenGLCommandBuffer(OpenGLCommandBuffer&&) noexcept = default;
+			OpenGLCommandBuffer(OpenGLCommandBuffer&&) = delete;
 			~OpenGLCommandBuffer() = default;
 
 			inline void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color);

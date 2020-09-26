@@ -46,7 +46,6 @@ namespace Nz
 			{
 				UInt32 resultId = m_writer.AllocateResultId();
 				UInt32 pointerType = m_writer.RegisterPointerType(node.exprType, pointer.storage); //< FIXME
-				UInt32 typeId = m_writer.GetTypeId(node.exprType);
 
 				m_writer.GetInstructions().AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
 				{

@@ -25,7 +25,7 @@ namespace Nz
 			void Activate() const override;
 
 			OpenGLWindowFramebuffer& operator=(const OpenGLWindowFramebuffer&) = delete;
-			OpenGLWindowFramebuffer& operator=(OpenGLWindowFramebuffer&&) noexcept = default;
+			OpenGLWindowFramebuffer& operator=(OpenGLWindowFramebuffer&&) = delete;
 
 		private:
 			OpenGLRenderWindow& m_renderWindow;
