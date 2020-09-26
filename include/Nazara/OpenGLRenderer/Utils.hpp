@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <optional>
 #include <string>
 
@@ -39,7 +39,7 @@ namespace Nz
 	inline GLenum ToOpenGL(GL::BufferTarget bufferTarget);
 	inline GLenum ToOpenGL(GL::TextureTarget bufferTarget);
 
-	//NAZARA_OPENGLRENDERER_API std::string TranslateOpenGLError(GLenum code);
+	NAZARA_OPENGLRENDERER_API std::string TranslateOpenGLError(GLenum code);
 }
 
 #include <Nazara/OpenGLRenderer/Utils.inl>
