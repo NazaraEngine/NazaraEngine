@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			FileLogger(std::filesystem::path logPath = "NazaraLog.log");
 			FileLogger(const FileLogger&) = delete;
-			FileLogger(FileLogger&&) noexcept = default;
+			FileLogger(FileLogger&&) = default;
 			~FileLogger();
 
 			void EnableTimeLogging(bool enable);
@@ -33,7 +33,7 @@ namespace Nz
 			void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			FileLogger& operator=(const FileLogger&) = delete;
-			FileLogger& operator=(FileLogger&&) noexcept = default;
+			FileLogger& operator=(FileLogger&&) = default;
 
 		private:
 			std::fstream m_outputFile;
