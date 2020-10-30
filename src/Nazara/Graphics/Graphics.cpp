@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -11,9 +12,8 @@ namespace Nz
 	/*!
 	* \ingroup graphics
 	* \class Nz::Graphics
-	* \brief Audio class that represents the module initializer of Graphics
+	* \brief Graphics class that represents the module initializer of Graphics
 	*/
-
 	Graphics::Graphics(Config config) :
 	ModuleBase("Graphics", this)
 	{
@@ -37,6 +37,13 @@ namespace Nz
 		m_renderDevice = rendererImpl->InstanciateRenderDevice(bestRenderDeviceIndex);
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
+
+		MaterialPipeline::Initialize();
+	}
+
+	Graphics::~Graphics()
+	{
+		MaterialPipeline::Uninitialize();
 	}
 
 	Graphics* Graphics::s_instance = nullptr;

@@ -10,14 +10,15 @@
 namespace Nz
 {
 	inline MaterialSettings::MaterialSettings() :
-	MaterialSettings({}, {}, {}, { InvalidIndex })
+	MaterialSettings({}, {}, {}, { InvalidIndex }, {})
 	{
 	}
 
-	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBindings) :
+	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBindings, DefaultShaders defaultShaders) :
 	m_sharedUniformBlocks(std::move(sharedUniformBlocks)),
 	m_textures(std::move(textures)),
 	m_uniformBlocks(std::move(uniformBlocks)),
+	m_defaultShaders(std::move(defaultShaders)),
 	m_predefinedBinding(predefinedBindings)
 	{
 		RenderPipelineLayoutInfo info;
@@ -27,7 +28,7 @@ namespace Nz
 		for (const Texture& textureInfo : m_textures)
 		{
 			info.bindings.push_back({
-				textureInfo.bindingPoint,
+				//textureInfo.bindingPoint,
 				ShaderBindingType::Texture,
 				ShaderStageType_All,
 				bindingIndex++
@@ -37,7 +38,7 @@ namespace Nz
 		for (const UniformBlock& ubo : m_uniformBlocks)
 		{
 			info.bindings.push_back({
-				ubo.bindingPoint,
+				//ubo.bindingPoint,
 				ShaderBindingType::UniformBuffer,
 				ShaderStageType_All,
 				bindingIndex++
@@ -47,7 +48,7 @@ namespace Nz
 		for (const SharedUniformBlock& ubo : m_sharedUniformBlocks)
 		{
 			info.bindings.push_back({
-				ubo.bindingPoint,
+				//ubo.bindingPoint,
 				ShaderBindingType::UniformBuffer,
 				ShaderStageType_All,
 				bindingIndex++
@@ -57,9 +58,19 @@ namespace Nz
 		m_pipelineLayout = Graphics::Instance()->GetRenderDevice().InstantiateRenderPipelineLayout(std::move(info));
 	}
 
+	inline const std::shared_ptr<ShaderStage>& MaterialSettings::GetDefaultShader(ShaderStageType stage) const
+	{
+		return m_defaultShaders[UnderlyingCast(stage)];
+	}
+
+	inline auto MaterialSettings::GetDefaultShaders() const -> const DefaultShaders&
+	{
+		return m_defaultShaders;
+	}
+
 	inline std::size_t MaterialSettings::GetPredefinedBindingIndex(PredefinedShaderBinding binding) const
 	{
-		return m_predefinedBinding[static_cast<std::size_t>(binding)];
+		return m_predefinedBinding[UnderlyingCast(binding)];
 	}
 
 	inline const std::shared_ptr<RenderPipelineLayout>& MaterialSettings::GetRenderPipelineLayout() const

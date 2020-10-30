@@ -10,18 +10,6 @@
 namespace Nz
 {
 	/*!
-	* \brief Constructs a Material object by assignation
-	*
-	* \param material Material to copy into this
-	*/
-	inline Material::Material(const Material& material) :
-	RefCounted(),
-	Resource(material)
-	{
-		operator=(material);
-	}
-
-	/*!
 	* \brief Destructs the object and calls OnMaterialRelease
 	*
 	* \see OnMaterialRelease
@@ -40,11 +28,11 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline void Material::Configure(const MaterialPipeline* pipeline)
+	inline void Material::Configure(std::shared_ptr<MaterialPipeline> pipeline)
 	{
 		NazaraAssert(pipeline, "Invalid material pipeline");
 
-		m_pipeline = pipeline;
+		m_pipeline = std::move(pipeline);
 		m_pipelineInfo = m_pipeline->GetInfo();
 		m_pipelineUpdated = true;
 	}
@@ -63,28 +51,6 @@ namespace Nz
 		m_pipelineInfo = pipelineInfo;
 
 		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Reset material pipeline state
-	*
-	* Sets the material pipeline using a name to lookup in the MaterialPipelineLibrary
-	*
-	* \return True if the material pipeline was found in the library
-	*
-	* \see Configure
-	*/
-	inline bool Material::Configure(const String& pipelineName)
-	{
-		MaterialPipelineRef pipeline = MaterialPipelineLibrary::Query(pipelineName);
-		if (!pipeline)
-		{
-			NazaraError("Failed to get pipeline \"" + pipelineName + "\"");
-			return false;
-		}
-
-		Configure(std::move(pipeline));
-		return true;
 	}
 
 	/*!
@@ -377,21 +343,9 @@ namespace Nz
 	* \see EnableDepthTest
 	* \see SetAmbientColor
 	*/
-	inline RendererComparison Material::GetDepthFunc() const
+	inline RendererComparison Material::GetDepthCompareFunc() const
 	{
 		return m_pipelineInfo.depthCompare;
-	}
-
-	/*!
-	* \brief Gets the depth material
-	*
-	* \return Constant reference to the depth material
-	*
-	* \see EnableShadowCasting
-	*/
-	inline const MaterialRef& Material::GetDepthMaterial() const
-	{
-		return m_depthMaterial;
 	}
 
 	/*!
@@ -440,7 +394,7 @@ namespace Nz
 	* \brief Gets the render states
 	* \return Constant reference to the render states
 	*/
-	inline const MaterialPipeline* Material::GetPipeline() const
+	inline const std::shared_ptr<MaterialPipeline>& Material::GetPipeline() const
 	{
 		EnsurePipelineUpdate();
 
@@ -465,18 +419,6 @@ namespace Nz
 		return m_pipelineInfo.pointSize;
 	}
 
-	/*!
-	* \brief Gets the reflection mode of the material
-	*
-	* \return Current reflection mode
-	*
-	* \see SetReflectionMode
-	*/
-	inline ReflectionMode Material::GetReflectionMode() const
-	{
-		return m_reflectionMode;
-	}
-
 	inline const std::shared_ptr<const MaterialSettings>& Material::GetSettings() const
 	{
 		return m_settings;
@@ -486,9 +428,9 @@ namespace Nz
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
-	inline const UberShader* Material::GetShader() const
+	inline const std::shared_ptr<ShaderStage>& Material::GetShader(ShaderStageType shaderStage) const
 	{
-		return m_pipelineInfo.uberShader;
+		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)];
 	}
 
 	/*!
@@ -500,19 +442,13 @@ namespace Nz
 		return m_pipelineInfo.srcBlend;
 	}
 
-	inline const TextureRef& Material::GetTexture(std::size_t textureIndex) const
+	inline const std::shared_ptr<Texture>& Material::GetTexture(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		return m_textures[textureIndex].texture;
 	}
 
-	inline TextureSampler& Material::GetTextureSampler(std::size_t textureIndex)
-	{
-		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		return m_textures[textureIndex].sampler;
-	}
-
-	inline const TextureSampler& Material::GetTextureSampler(std::size_t textureIndex) const
+	inline const std::shared_ptr<TextureSampler>& Material::GetTextureSampler(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		return m_textures[textureIndex].sampler;
@@ -530,15 +466,9 @@ namespace Nz
 		return m_uniformBuffers[bufferIndex];
 	}
 
-	inline bool Material::HasDepthMaterial() const
-	{
-		return m_depthMaterial.IsValid();
-	}
-
 	inline bool Material::HasTexture(std::size_t textureIndex) const
 	{
-		Texture* texture = GetTexture(textureIndex);
-		return texture && texture->IsValid();
+		return GetTexture(textureIndex) != nullptr;
 	}
 
 	/*!
@@ -667,22 +597,11 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void Material::SetDepthFunc(RendererComparison depthFunc)
+	inline void Material::SetDepthCompareFunc(RendererComparison depthFunc)
 	{
-		m_pipelineInfo.depthFunc = depthFunc;
+		m_pipelineInfo.depthCompare = depthFunc;
 
 		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the depth material
-	* \return true If successful
-	*
-	* \param depthMaterial Material for depth
-	*/
-	inline void Material::SetDepthMaterial(MaterialRef depthMaterial)
-	{
-		m_depthMaterial = std::move(depthMaterial);
 	}
 
 	/*!
@@ -764,34 +683,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Changes reflection mode of the material
-	*
-	* When reflections are enabled, the material will render reflections from the object environment according to the reflection mode.
-	* This function does change the reflection mode used by the material.
-	*
-	* Skyboxes reflections are the cheapest but are static and thus can't reflect other objects.
-	* Probes reflections are cheap, depending on probes reflection mode, but require regular probe finding from objects using it.
-	* Real-time reflections are expensive but provide the most accurate reflection map (and can reflect other objects around).
-	*
-	* \param reflectionMode The new reflection mode this material should use
-	*
-	* \remark May invalidates the pipeline
-	*
-	* \see EnableReflectionMapping
-	* \see IsReflectionMappingEnabled
-	* \see SetReflectionSize
-	*/
-	inline void Material::SetReflectionMode(ReflectionMode reflectionMode)
-	{
-		if (m_reflectionMode != reflectionMode)
-		{
-			OnMaterialReflectionModeChange(this, reflectionMode);
-
-			m_reflectionMode = reflectionMode;
-		}
-	}
-
-	/*!
 	* \brief Sets the shader with a constant reference to a ubershader
 	*
 	* \param uberShader Uber shader to apply
@@ -800,52 +691,29 @@ namespace Nz
 	*
 	* \see GetShader
 	*/
-	inline void Material::SetShader(UberShaderConstRef uberShader)
+	inline void Material::SetShader(ShaderStageType shaderStage, std::shared_ptr<ShaderStage> shader)
 	{
-		m_pipelineInfo.uberShader = std::move(uberShader);
+		m_pipelineInfo.shaders[UnderlyingCast(shaderStage)] = std::move(shader);
 
 		InvalidatePipeline();
 	}
 
-	/*!
-	* \brief Sets the shader by name
-	* \return true If successful
-	*
-	* \param uberShaderName Named shader
-	*/
-	inline bool Material::SetShader(const String& uberShaderName)
-	{
-		UberShaderConstRef uberShader = UberShaderLibrary::Get(uberShaderName);
-		if (!uberShader)
-			return false;
-
-		SetShader(std::move(uberShader));
-		return true;
-	}
-
-	inline void Material::SetUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer)
+	inline void Material::SetUniformBuffer(std::size_t bufferIndex, UniformBufferRef uniformBuffer)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
-		m_uniformBuffers[bufferIndex] = uniformBuffer;
+		m_uniformBuffers[bufferIndex] = std::move(uniformBuffer);
 	}
 
-	inline void Material::SetTexture(std::size_t textureIndex, Texture* texture)
+	inline void Material::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		m_textures[textureIndex].texture = texture;
-
-		if (texture)
-			m_pipelineInfo.textures |= UInt64(1) << UInt64(textureIndex);
-		else
-			m_pipelineInfo.textures &= ~(UInt64(1) << UInt64(textureIndex));
-
-		InvalidatePipeline();
+		m_textures[textureIndex].texture = std::move(texture);
 	}
 
-	inline void Material::SetTextureSampler(std::size_t textureIndex, const TextureSampler& sampler)
+	inline void Material::SetTextureSampler(std::size_t textureIndex, std::shared_ptr<TextureSampler> sampler)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		m_textures[textureIndex].sampler = sampler;
+		m_textures[textureIndex].sampler = std::move(sampler);
 	}
 
 	/*!
@@ -864,93 +732,6 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	/*!
-	* \brief Sets the current material with the content of the other one
-	* \return A reference to this
-	*
-	* \param material The other Material
-	*/
-	inline Material& Material::operator=(const Material& material)
-	{
-		Resource::operator=(material);
-
-		m_settings = material.m_settings;
-		m_textures = material.m_textures;
-		m_depthMaterial = material.m_depthMaterial;
-		m_pipeline = material.m_pipeline;
-		m_pipelineInfo = material.m_pipelineInfo;
-		m_pipelineUpdated = material.m_pipelineUpdated;
-		m_shadowCastingEnabled = material.m_shadowCastingEnabled;
-		m_reflectionSize = material.m_reflectionSize;
-
-		m_pipelineInfo.settings = m_settings;
-
-		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
-		{
-			const UniformBuffer* sourceBuffer = material.GetUniformBuffer(i);
-			UniformBuffer* targetBuffer = m_uniformBuffers[i] = UniformBuffer::New(sourceBuffer->GetEndOffset() - sourceBuffer->GetStartOffset(), DataStorage_Hardware, BufferUsage_Dynamic);
-			if (!targetBuffer->CopyContent(sourceBuffer))
-				NazaraError("Failed to copy uniform buffer content");
-		}
-
-		SetReflectionMode(material.GetReflectionMode());
-		return *this;
-	}
-
-	/*!
-	* \brief Gets the default material
-	*
-	* \return Reference to the default material
-	*
-	* \remark This material should NOT be modified as it would affect all objects using it
-	*/
-	inline MaterialRef Material::GetDefault()
-	{
-		return s_defaultMaterial;
-	}
-
-	inline int Material::GetTextureUnit(TextureMap textureMap)
-	{
-		return s_textureUnits[textureMap];
-	}
-
-	/*!
-	* \brief Loads the material from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the material
-	*/
-	inline MaterialRef Material::LoadFromFile(const String& filePath, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromFile(filePath, params);
-	}
-
-	/*!
-	* \brief Loads the material from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the material
-	*/
-	inline MaterialRef Material::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromMemory(data, size, params);
-	}
-
-	/*!
-	* \brief Loads the material from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the material
-	* \param params Parameters for the material
-	*/
-	inline MaterialRef Material::LoadFromStream(Stream& stream, const MaterialParams& params)
-	{
-		return MaterialLoader::LoadFromStream(stream, params);
-	}
-
 	inline void Material::InvalidatePipeline()
 	{
 		m_pipelineUpdated = false;
@@ -958,23 +739,8 @@ namespace Nz
 
 	inline void Material::UpdatePipeline() const
 	{
-		m_pipeline = MaterialPipeline::GetPipeline(m_pipelineInfo);
+		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
 		m_pipelineUpdated = true;
-	}
-
-	/*!
-	* \brief Creates a new material from the arguments
-	* \return A reference to the newly created material
-	*
-	* \param args Arguments for the material
-	*/
-	template<typename... Args>
-	MaterialRef Material::New(Args&&... args)
-	{
-		std::unique_ptr<Material> object(new Material(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
 	}
 }
 

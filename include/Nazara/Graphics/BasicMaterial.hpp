@@ -17,24 +17,22 @@ namespace Nz
 		friend class MaterialPipeline;
 
 		public:
-			BasicMaterial(Material* material);
+			BasicMaterial(Material& material);
 
-			inline const TextureRef& GetAlphaMap() const;
+			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
 			float GetAlphaThreshold() const;
 			Color GetDiffuseColor() const;
-			inline const TextureRef& GetDiffuseMap() const;
+			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
 
 			inline bool HasAlphaMap() const;
 			inline bool HasAlphaThreshold() const;
 			inline bool HasDiffuseColor() const;
 			inline bool HasDiffuseMap() const;
 
-			inline bool SetAlphaMap(const String& textureName);
-			inline void SetAlphaMap(TextureRef alphaMap);
+			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
 			void SetAlphaThreshold(float alphaThreshold);
 			void SetDiffuseColor(const Color& diffuse);
-			inline bool SetDiffuseMap(const String& textureName);
-			inline void SetDiffuseMap(TextureRef diffuseMap);
+			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
 
 			static const std::shared_ptr<MaterialSettings>& GetSettings();
 
@@ -54,14 +52,13 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			MaterialRef m_material;
+			Material& m_material;
 			std::size_t m_uniformBlockIndex;
 			TextureIndexes m_textureIndexes;
 			UniformOffsets m_uniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static std::size_t s_uniformBlockIndex;
-			static RenderPipelineLayoutRef s_renderPipelineLayout;
 			static TextureIndexes s_textureIndexes;
 			static UniformOffsets s_uniformOffsets;
 	};

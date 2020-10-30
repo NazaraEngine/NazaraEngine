@@ -318,6 +318,8 @@ namespace Nz
 		Max = Vertex
 	};
 
+	constexpr std::size_t ShaderStageTypeCount = static_cast<std::size_t>(ShaderStageType::Max) + 1;
+
 	template<>
 	struct EnumAsFlags<ShaderStageType>
 	{

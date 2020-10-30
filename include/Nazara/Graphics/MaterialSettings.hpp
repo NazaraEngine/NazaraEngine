@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <array>
 #include <limits>
@@ -21,6 +22,7 @@ namespace Nz
 	class MaterialSettings
 	{
 		public:
+			using DefaultShaders = std::array<std::shared_ptr<ShaderStage>, ShaderStageTypeCount>;
 			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBinding_Max + 1>;
 
 			struct SharedUniformBlock;
@@ -28,11 +30,13 @@ namespace Nz
 			struct UniformBlock;
 
 			inline MaterialSettings();
-			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBinding);
+			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBinding, DefaultShaders defaultShaders);
 			MaterialSettings(const MaterialSettings&) = default;
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
 
+			inline const std::shared_ptr<ShaderStage>& GetDefaultShader(ShaderStageType stage) const;
+			inline const DefaultShaders& GetDefaultShaders() const;
 			inline std::size_t GetPredefinedBindingIndex(PredefinedShaderBinding binding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
@@ -83,6 +87,7 @@ namespace Nz
 			std::vector<SharedUniformBlock> m_sharedUniformBlocks;
 			std::vector<Texture> m_textures;
 			std::vector<UniformBlock> m_uniformBlocks;
+			DefaultShaders m_defaultShaders;
 			PredefinedBinding m_predefinedBinding;
 	};
 }

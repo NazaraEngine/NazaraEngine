@@ -1,0 +1,392 @@
+{
+    "buffers": [
+        {
+            "bindingIndex": 5,
+            "name": "viewerData",
+            "structIndex": 2,
+            "type": "UniformBufferObject"
+        },
+        {
+            "bindingIndex": 4,
+            "name": "instanceData",
+            "structIndex": 1,
+            "type": "UniformBufferObject"
+        },
+        {
+            "bindingIndex": 3,
+            "name": "settings",
+            "structIndex": 0,
+            "type": "UniformBufferObject"
+        }
+    ],
+    "connections": [
+        {
+            "in_id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
+            "in_index": 1,
+            "out_id": "{a2fff9e2-af6e-4c7f-80ee-ca3492f3c5ab}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
+            "in_index": 1,
+            "out_id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
+            "in_index": 0,
+            "out_id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{43ce1867-629f-442b-a672-540fa67f1446}",
+            "in_index": 0,
+            "out_id": "{33840c70-4e37-4127-bab0-23c4a4cb6d7f}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
+            "in_index": 0,
+            "out_id": "{c3b906bc-d230-4026-a32e-34c00eaf4481}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
+            "in_index": 0,
+            "out_id": "{d32dfb1d-c8a4-4315-a710-90d2a51f68e8}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
+            "in_index": 0,
+            "out_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
+            "in_index": 0,
+            "out_id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{0fc53363-dbce-4874-8de5-5ca05ae038b7}",
+            "in_index": 0,
+            "out_id": "{412684ce-0ec2-4db5-964c-10e5b68d43e8}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
+            "in_index": 1,
+            "out_id": "{c6058af1-6913-4218-a9b9-11adb5cdffa0}",
+            "out_index": 0
+        }
+    ],
+    "inputs": [
+        {
+            "locationIndex": 0,
+            "name": "inPos",
+            "role": "Position",
+            "roleIndex": 0,
+            "type": "Float3"
+        },
+        {
+            "locationIndex": 1,
+            "name": "inNormals",
+            "role": "Normal",
+            "roleIndex": 0,
+            "type": "Float3"
+        },
+        {
+            "locationIndex": 2,
+            "name": "inTexCoord",
+            "role": "TexCoord",
+            "roleIndex": 0,
+            "type": "Float2"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{43ce1867-629f-442b-a672-540fa67f1446}",
+            "model": {
+                "name": "Output",
+                "output": "vertUV",
+                "preview_enabled": false,
+                "preview_height": 128,
+                "preview_width": 128,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 243,
+                "y": 292
+            }
+        },
+        {
+            "id": "{412684ce-0ec2-4db5-964c-10e5b68d43e8}",
+            "model": {
+                "input": "inNormals",
+                "name": "Input",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 79,
+                "y": 184
+            }
+        },
+        {
+            "id": "{0fc53363-dbce-4874-8de5-5ca05ae038b7}",
+            "model": {
+                "name": "Output",
+                "output": "vertNormal",
+                "preview_enabled": false,
+                "preview_height": 128,
+                "preview_width": 128,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 240,
+                "y": 192
+            }
+        },
+        {
+            "id": "{33840c70-4e37-4127-bab0-23c4a4cb6d7f}",
+            "model": {
+                "input": "inTexCoord",
+                "name": "Input",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 82,
+                "y": 287
+            }
+        },
+        {
+            "id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
+            "model": {
+                "name": "mat4_mul",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 248,
+                "y": 424
+            }
+        },
+        {
+            "id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
+            "model": {
+                "name": "mat4_mul",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 463,
+                "y": 496
+            }
+        },
+        {
+            "id": "{c3b906bc-d230-4026-a32e-34c00eaf4481}",
+            "model": {
+                "input": "inPos",
+                "name": "Input",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 54,
+                "y": 675
+            }
+        },
+        {
+            "id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
+            "model": {
+                "name": "mat4vec_mul",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 699,
+                "y": 512
+            }
+        },
+        {
+            "id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
+            "model": {
+                "name": "cast_vec4",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "value": [
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                "variable_name": ""
+            },
+            "position": {
+                "x": 345,
+                "y": 668
+            }
+        },
+        {
+            "id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
+            "model": {
+                "name": "PositionOutputValue",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 930,
+                "y": 524
+            }
+        },
+        {
+            "id": "{d32dfb1d-c8a4-4315-a710-90d2a51f68e8}",
+            "model": {
+                "buffer": "viewerData",
+                "field": "projectionMatrix",
+                "name": "BufferField",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 21,
+                "y": 374
+            }
+        },
+        {
+            "id": "{c6058af1-6913-4218-a9b9-11adb5cdffa0}",
+            "model": {
+                "buffer": "viewerData",
+                "field": "viewMatrix",
+                "name": "BufferField",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 25,
+                "y": 456
+            }
+        },
+        {
+            "id": "{a2fff9e2-af6e-4c7f-80ee-ca3492f3c5ab}",
+            "model": {
+                "buffer": "instanceData",
+                "field": "worldMatrix",
+                "name": "BufferField",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 27,
+                "y": 538
+            }
+        }
+    ],
+    "outputs": [
+        {
+            "locationIndex": 0,
+            "name": "vertNormal",
+            "type": "Float3"
+        },
+        {
+            "locationIndex": 1,
+            "name": "vertUV",
+            "type": "Float2"
+        }
+    ],
+    "structs": [
+        {
+            "members": [
+                {
+                    "name": "AlphaThreshold",
+                    "type": "Float"
+                },
+                {
+                    "name": "DiffuseColor",
+                    "type": "Float3"
+                }
+            ],
+            "name": "BasicSettings"
+        },
+        {
+            "members": [
+                {
+                    "name": "worldMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "invWorldMatrix",
+                    "type": "Mat4x4"
+                }
+            ],
+            "name": "InstanceData"
+        },
+        {
+            "members": [
+                {
+                    "name": "projectionMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "invProjectionMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "viewMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "invViewMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "viewProjMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "invViewProjMatrix",
+                    "type": "Mat4x4"
+                },
+                {
+                    "name": "renderTargetSize",
+                    "type": "Float2"
+                },
+                {
+                    "name": "invRenderTargetSize",
+                    "type": "Float2"
+                },
+                {
+                    "name": "eyePosition",
+                    "type": "Float3"
+                }
+            ],
+            "name": "ViewerData"
+        }
+    ],
+    "textures": [
+    ],
+    "type": "Vertex"
+}

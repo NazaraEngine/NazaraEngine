@@ -54,7 +54,7 @@ namespace Nz
 		return uniformBlock;
 	}
 
-	PredefinedInstanceData PredefinedInstanceData::GetOffset()
+	PredefinedInstanceData PredefinedInstanceData::GetOffsets()
 	{
 		FieldOffsets viewerStruct(StructLayout_Std140);
 
@@ -69,7 +69,7 @@ namespace Nz
 
 	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock()
 	{
-		PredefinedInstanceData instanceData = GetOffset();
+		PredefinedInstanceData instanceData = GetOffsets();
 
 		std::vector<MaterialSettings::UniformVariable> instanceDataVariables;
 		instanceDataVariables.assign({
@@ -92,7 +92,7 @@ namespace Nz
 		return uniformBlock;
 	}
 
-	PredefinedViewerData PredefinedViewerData::GetOffset()
+	PredefinedViewerData PredefinedViewerData::GetOffsets()
 	{
 		FieldOffsets viewerStruct(StructLayout_Std140);
 
@@ -114,7 +114,7 @@ namespace Nz
 
 	MaterialSettings::SharedUniformBlock PredefinedViewerData::GetUniformBlock()
 	{
-		PredefinedViewerData viewerData = GetOffset();
+		PredefinedViewerData viewerData = GetOffsets();
 
 		std::vector<MaterialSettings::UniformVariable> viewerDataVariables;
 		viewerDataVariables.assign({

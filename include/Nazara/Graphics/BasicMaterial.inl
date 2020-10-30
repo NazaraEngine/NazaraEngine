@@ -9,16 +9,16 @@
 
 namespace Nz
 {
-	inline const TextureRef& BasicMaterial::GetAlphaMap() const
+	inline const std::shared_ptr<Texture>& BasicMaterial::GetAlphaMap() const
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.alpha);
+		return m_material.GetTexture(m_textureIndexes.alpha);
 	}
 
-	inline const TextureRef& BasicMaterial::GetDiffuseMap() const
+	inline const std::shared_ptr<Texture>& BasicMaterial::GetDiffuseMap() const
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.diffuse);
+		return m_material.GetTexture(m_textureIndexes.diffuse);
 	}
 
 	inline bool BasicMaterial::HasAlphaMap() const
@@ -41,50 +41,16 @@ namespace Nz
 		return m_textureIndexes.diffuse != MaterialSettings::InvalidIndex;
 	}
 
-	inline bool BasicMaterial::SetAlphaMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get alpha map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetAlphaMap(std::move(texture));
-		return true;
-	}
-
-	inline void BasicMaterial::SetAlphaMap(TextureRef alphaMap)
+	inline void BasicMaterial::SetAlphaMap(std::shared_ptr<Texture> alphaMap)
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
-		m_material->SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
+		m_material.SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
 	}
 
-	inline bool BasicMaterial::SetDiffuseMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get diffuse map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetDiffuseMap(std::move(texture));
-		return true;
-	}
-
-	inline void BasicMaterial::SetDiffuseMap(TextureRef diffuseMap)
+	inline void BasicMaterial::SetDiffuseMap(std::shared_ptr<Texture> diffuseMap)
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
-		m_material->SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
+		m_material.SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
 	}
 }
 

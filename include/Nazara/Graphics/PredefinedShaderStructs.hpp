@@ -41,7 +41,7 @@ namespace Nz
 		std::size_t totalSize;
 		std::size_t worldMatrixOffset;
 
-		static PredefinedInstanceData GetOffset();
+		static PredefinedInstanceData GetOffsets();
 		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 
@@ -58,7 +58,7 @@ namespace Nz
 		std::size_t viewMatrixOffset;
 		std::size_t viewProjMatrixOffset;
 
-		static PredefinedViewerData GetOffset();
+		static PredefinedViewerData GetOffsets();
 		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 }

@@ -3,30 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <functional>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	inline MaterialPipeline::MaterialPipeline(const MaterialPipelineInfo& pipelineInfo) :
+	inline MaterialPipeline::MaterialPipeline(const MaterialPipelineInfo& pipelineInfo, Token) :
 	m_pipelineInfo(pipelineInfo)
 	{
-	}
-
-	/*!
-	* \brief Enable pipeline states for rendering
-	*
-	* \param flags Shader flags
-	*/
-	inline const MaterialPipeline::Instance& MaterialPipeline::Apply(UInt32 flags) const
-	{
-		const Instance& instance = GetInstance(flags);
-		instance.uberInstance->Activate();
-
-		Renderer::SetRenderStates(m_pipelineInfo);
-
-		return instance;
 	}
 
 	/*!
@@ -37,22 +21,6 @@ namespace Nz
 	const MaterialPipelineInfo& MaterialPipeline::GetInfo() const
 	{
 		return m_pipelineInfo;
-	}
-
-	/*!
-	* \brief Retrieve (and generate if required) a pipeline instance using shader flags without applying it
-	*
-	* \param flags Shader flags
-	*
-	* \return Pipeline instance
-	*/
-	inline const MaterialPipeline::Instance& MaterialPipeline::GetInstance(UInt32 flags) const
-	{
-		const Instance& instance = m_instances[flags];
-		if (!instance.uberInstance)
-			GenerateRenderPipeline(flags);
-
-		return instance;
 	}
 
 	bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs)
@@ -68,9 +36,13 @@ namespace Nz
 		NazaraPipelineBoolMember(reflectionMapping);
 		NazaraPipelineBoolMember(shadowReceive);
 
-		NazaraPipelineMember(pipelineLayout);
 		NazaraPipelineMember(settings);
-		NazaraPipelineMember(shader);
+
+		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
+		{
+			if (lhs.shaders[i] != rhs.shaders[i])
+				return false;
+		}
 
 		#undef NazaraPipelineMember
 		#undef NazaraPipelineBoolMember
@@ -81,20 +53,6 @@ namespace Nz
 	bool operator!=(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs)
 	{
 		return !operator==(lhs, rhs);
-	}
-
-	/*!
-	* \brief Creates a new MaterialPipeline from the arguments
-	* \return A reference to the newly created material pipeline
-	*
-	* \param args Arguments for the material pipeline
-	*/
-	template<typename... Args>
-	MaterialPipelineRef MaterialPipeline::New(Args&&... args)
-	{
-		std::unique_ptr<MaterialPipeline> object(new MaterialPipeline(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-		return object.release();
 	}
 }
 
@@ -121,9 +79,10 @@ namespace std
 			NazaraPipelineBoolMember(reflectionMapping);
 			NazaraPipelineBoolMember(shadowReceive);
 
-			NazaraPipelineMember(pipelineLayout.get()); //< Hash pointer
 			NazaraPipelineMember(settings.get()); //< Hash pointer
-			NazaraPipelineMember(shader.get());
+
+			for (const auto& shader : pipelineInfo.shaders)
+				Nz::HashCombine(seed, shader.get());
 
 			#undef NazaraPipelineMember
 			#undef NazaraPipelineBoolMember
