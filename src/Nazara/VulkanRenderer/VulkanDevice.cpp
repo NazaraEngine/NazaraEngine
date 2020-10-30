@@ -39,7 +39,7 @@ namespace Nz
 		return pipelineLayout;
 	}
 
-	std::shared_ptr<ShaderStageImpl> VulkanDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	std::shared_ptr<ShaderStage> VulkanDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
 		auto stage = std::make_shared<VulkanShaderStage>();
 		if (!stage->Create(*this, type, lang, source, sourceSize))

@@ -68,7 +68,7 @@ namespace Nz
 		return std::make_shared<OpenGLRenderPipelineLayout>(std::move(pipelineLayoutInfo));
 	}
 
-	std::shared_ptr<ShaderStageImpl> OpenGLDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	std::shared_ptr<ShaderStage> OpenGLDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
 		return std::make_shared<OpenGLShaderStage>(*this, type, lang, source, sourceSize);
 	}
