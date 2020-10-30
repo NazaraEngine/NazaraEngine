@@ -19,7 +19,7 @@ namespace Nz
 
 	bool OpenGLBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
-		m_buffer.SubData(offset, size, data);
+		m_buffer.SubData(GLintptr(offset), GLsizeiptr(size), data);
 		return true;
 	}
 
