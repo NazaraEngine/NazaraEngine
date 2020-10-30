@@ -32,8 +32,10 @@ namespace Nz
 
 	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
 	{
-		assert(deviceIndex < m_physDevices.size());
-		return Vulkan::SelectDevice(m_physDevices[deviceIndex]);
+		const auto& physDevices = Vulkan::GetPhysicalDevices();
+
+		assert(deviceIndex < physDevices.size());
+		return Vulkan::SelectDevice(physDevices[deviceIndex]);
 	}
 
 	bool VulkanRenderer::Prepare(const ParameterList& parameters)
@@ -61,10 +63,12 @@ namespace Nz
 
 	std::vector<RenderDeviceInfo> VulkanRenderer::QueryRenderDevices() const
 	{
-		std::vector<RenderDeviceInfo> devices;
-		devices.reserve(m_physDevices.size());
+		const auto& physDevices = Vulkan::GetPhysicalDevices();
 
-		for (const Vk::PhysicalDevice& physDevice : m_physDevices)
+		std::vector<RenderDeviceInfo> devices;
+		devices.reserve(physDevices.size());
+
+		for (const Vk::PhysicalDevice& physDevice : physDevices)
 		{
 			RenderDeviceInfo& device = devices.emplace_back();
 			device.name = physDevice.properties.deviceName;

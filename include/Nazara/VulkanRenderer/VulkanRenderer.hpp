@@ -41,7 +41,6 @@ namespace Nz
 
 		private:
 			std::list<Vk::Device> m_devices;
-			std::vector<Vk::PhysicalDevice> m_physDevices;
 			ParameterList m_initializationParameters;
 			Vk::Instance m_instance;
 	};
