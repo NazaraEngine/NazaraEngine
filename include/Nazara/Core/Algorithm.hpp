@@ -21,6 +21,8 @@ namespace Nz
 {
 	class ByteArray;
 
+	template<typename T> decltype(auto) AccessByOffset(void* basePtr, std::size_t offset);
+	template<typename T> decltype(auto) AccessByOffset(const void* basePtr, std::size_t offset);
 	template<typename T> constexpr T Align(T offset, T alignment);
 	template<typename T> constexpr T AlignPow2(T offset, T alignment);
 	template<typename F, typename Tuple> decltype(auto) Apply(F&& fn, Tuple&& t);
