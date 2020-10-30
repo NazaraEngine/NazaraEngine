@@ -141,7 +141,7 @@ template<std::size_t ToComponentCount>
 void CastVec<ToComponentCount>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0);
-	if (value)
+	if (value && value->type().id == VecData::Type().id)
 	{
 		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
 		m_input = std::static_pointer_cast<VecData>(value);

@@ -77,7 +77,7 @@ void Mat4VecMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	{
 		case 0:
 		{
-			if (value)
+			if (value && value->type().id == Matrix4Data::Type().id)
 			{
 				assert(dynamic_cast<Matrix4Data*>(value.get()) != nullptr);
 				m_lhs = std::static_pointer_cast<Matrix4Data>(value);
@@ -90,7 +90,7 @@ void Mat4VecMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 
 		case 1:
 		{
-			if (value)
+			if (value && value->type().id == VecData::Type().id)
 			{
 				assert(dynamic_cast<VecData*>(value.get()) != nullptr);
 				m_rhs = std::static_pointer_cast<VecData>(value);

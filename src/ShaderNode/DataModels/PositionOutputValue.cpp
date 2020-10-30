@@ -52,7 +52,7 @@ std::shared_ptr<QtNodes::NodeData> PositionOutputValue::outData(QtNodes::PortInd
 void PositionOutputValue::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0);
-	if (value)
+	if (value && value->type().id == VecData::Type().id)
 	{
 		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
 		m_input = std::static_pointer_cast<VecData>(value);

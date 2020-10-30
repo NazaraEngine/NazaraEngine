@@ -77,10 +77,9 @@ void VecFloatMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	{
 		case 0:
 		{
-			if (value)
+			if (value && value->type().id == FloatData::Type().id)
 			{
 				assert(dynamic_cast<FloatData*>(value.get()) != nullptr);
-
 				m_lhs = std::static_pointer_cast<FloatData>(value);
 			}
 			else
@@ -91,10 +90,9 @@ void VecFloatMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 
 		case 1:
 		{
-			if (value)
+			if (value && value->type().id == VecData::Type().id)
 			{
 				assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-
 				m_rhs = std::static_pointer_cast<VecData>(value);
 			}
 			else
