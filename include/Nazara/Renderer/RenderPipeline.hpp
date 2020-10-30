@@ -22,7 +22,7 @@ namespace Nz
 		};
 
 		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
-		std::vector<std::shared_ptr<ShaderStageImpl>> shaderStages;
+		std::vector<std::shared_ptr<ShaderStage>> shaderStages;
 		std::vector<VertexBufferData> vertexBuffers;
 	};
 
@@ -31,6 +31,8 @@ namespace Nz
 		public:
 			RenderPipeline() = default;
 			virtual ~RenderPipeline();
+
+			virtual const RenderPipelineInfo& GetPipelineInfo() const = 0;
 	};
 }
 

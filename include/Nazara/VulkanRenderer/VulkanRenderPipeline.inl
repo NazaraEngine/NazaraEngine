@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline const RenderPipelineInfo& VulkanRenderPipeline::GetPipelineInfo() const
+	{
+		return m_pipelineInfo;
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
