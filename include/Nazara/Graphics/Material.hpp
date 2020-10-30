@@ -23,38 +23,20 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/UniformBuffer.hpp>
+#include <array>
 #include <string>
 #include <vector>
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API MaterialParams : ResourceParameters
-	{
-		bool loadAlphaMap = true;
-		bool loadDiffuseMap = true;
-		bool loadEmissiveMap = true;
-		bool loadHeightMap = true;
-		bool loadNormalMap = true;
-		bool loadSpecularMap = true;
-		std::string shaderName = "Basic";
-
-		bool IsValid() const;
-	};
-
 	class NAZARA_GRAPHICS_API Material : public RefCounted, public Resource
 	{
 		public:
 			Material(std::shared_ptr<const MaterialSettings> settings);
-			inline Material(const Material& material);
 			inline ~Material();
 
-			void Apply(const MaterialPipeline::Instance& instance) const;
-
-			void BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams = MaterialParams());
-
-			inline void Configure(const MaterialPipeline* pipeline);
+			inline void Configure(std::shared_ptr<MaterialPipeline> pipeline);
 			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
-			inline bool Configure(const String& pipelineName);
 
 			inline void EnableAlphaTest(bool alphaTest);
 			inline void EnableBlending(bool blending);
@@ -71,25 +53,23 @@ namespace Nz
 			inline void EnableVertexColor(bool vertexColor);
 
 			inline void EnsurePipelineUpdate() const;
-
-			inline RendererComparison GetDepthFunc() const;
+			
+			inline RendererComparison GetDepthCompareFunc() const;
 			inline BlendFunc GetDstBlend() const;
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
 			inline float GetLineWidth() const;
-			inline const MaterialPipeline* GetPipeline() const;
+			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
 			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
-			inline const std::shared_ptr<Shader>& GetShader() const;
+			inline const std::shared_ptr<ShaderStage>& GetShader(ShaderStageType shaderStage) const;
 			inline BlendFunc GetSrcBlend() const;
-			inline UniformBuffer* GetSharedUniformBuffer(std::size_t bufferIndex) const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const std::shared_ptr<TextureSampler>& GetTextureSampler(std::size_t textureIndex) const;
 			inline UniformBufferRef& GetUniformBuffer(std::size_t bufferIndex);
 			inline const UniformBufferRef& GetUniformBuffer(std::size_t bufferIndex) const;
 
-			inline bool HasDepthMaterial() const;
 			inline bool HasTexture(std::size_t textureIndex) const;
 			inline bool HasVertexColor() const;
 
@@ -106,21 +86,17 @@ namespace Nz
 			inline bool IsShadowCastingEnabled() const;
 			inline bool IsShadowReceiveEnabled() const;
 
-			void SaveToParameters(ParameterList* matData);
-
-			inline void SetDepthFunc(RendererComparison depthFunc);
+			inline void SetDepthCompareFunc(RendererComparison depthFunc);
 			inline void SetDstBlend(BlendFunc func);
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
 			inline void SetPointSize(float pointSize);
-			inline void SetShader(std::shared_ptr<Shader> shader);
-			inline void SetUniformBuffer(std::size_t bufferIndex, UniformBuffer* uniformBuffer);
+			inline void SetShader(ShaderStageType shaderStage, std::shared_ptr<ShaderStage> shader);
+			inline void SetUniformBuffer(std::size_t bufferIndex, UniformBufferRef uniformBuffer);
 			inline void SetSrcBlend(BlendFunc func);
-			inline void SetTexture(std::size_t textureIndex, Texture* texture);
-			inline void SetTextureSampler(std::size_t textureIndex, const TextureSampler& sampler);
-
-			inline Material& operator=(const Material& material);
+			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
+			inline void SetTextureSampler(std::size_t textureIndex, std::shared_ptr<TextureSampler> sampler);
 
 			// Signals:
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
@@ -138,7 +114,7 @@ namespace Nz
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<UniformBufferRef> m_uniformBuffers;
-			mutable const MaterialPipeline* m_pipeline;
+			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			MaterialPipelineInfo m_pipelineInfo;
 			mutable bool m_pipelineUpdated;
 			bool m_shadowCastingEnabled;

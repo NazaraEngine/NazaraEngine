@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class Shader;
+	class ShaderStage;
 
 	struct MaterialPipelineInfo : RenderStates
 	{
@@ -26,11 +26,9 @@ namespace Nz
 		bool hasVertexColor    = false;
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;
-		Nz::UInt64 textures    = 0;
 
-		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
 		std::shared_ptr<const MaterialSettings> settings;
-		std::shared_ptr<Shader> shader;
+		std::array<std::shared_ptr<ShaderStage>, ShaderStageTypeCount> shaders;
 	};
 
 	inline bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);
@@ -39,46 +37,33 @@ namespace Nz
 
 	class NAZARA_GRAPHICS_API MaterialPipeline
 	{
-		public:
-			struct Instance;
+		friend class Graphics;
 
+		struct Token {};
+
+		public:
+			inline MaterialPipeline(const MaterialPipelineInfo& pipelineInfo, Token);
 			MaterialPipeline(const MaterialPipeline&) = delete;
 			MaterialPipeline(MaterialPipeline&&) = delete;
 			~MaterialPipeline() = default;
-
-			inline const Instance& Apply(UInt32 flags = ShaderFlags_None) const;
 
 			MaterialPipeline& operator=(const MaterialPipeline&) = delete;
 			MaterialPipeline& operator=(MaterialPipeline&&) = delete;
 
 			inline const MaterialPipelineInfo& GetInfo() const;
-			inline const Instance& GetInstance(UInt32 flags = ShaderFlags_None) const;
+			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers) const;
 
-			static MaterialPipelineRef GetPipeline(const MaterialPipelineInfo& pipelineInfo);
-
-			struct Instance
-			{
-				RenderPipeline renderPipeline;
-				//Shader::LayoutBindings bindings;
-				//UberShaderInstance* uberInstance = nullptr;
-			};
+			static const std::shared_ptr<MaterialPipeline>& Get(const MaterialPipelineInfo& pipelineInfo);
 
 		private:
-			inline MaterialPipeline(const MaterialPipelineInfo& pipelineInfo);
-
-			void GenerateRenderPipeline(UInt32 flags) const;
-
 			static bool Initialize();
-			template<typename... Args> static MaterialPipelineRef New(Args&&... args);
 			static void Uninitialize();
 
+			mutable std::vector<std::shared_ptr<RenderPipeline>> m_renderPipelines;
 			MaterialPipelineInfo m_pipelineInfo;
-			mutable std::array<Instance, ShaderFlags_Max + 1> m_instances;
 
-			using PipelineCache = std::unordered_map<MaterialPipelineInfo, MaterialPipelineRef>;
+			using PipelineCache = std::unordered_map<MaterialPipelineInfo, std::shared_ptr<MaterialPipeline>>;
 			static PipelineCache s_pipelineCache;
-
-			static MaterialPipelineLibrary::LibraryMap s_library;
 	};
 }
 

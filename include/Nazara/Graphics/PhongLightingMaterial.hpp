@@ -17,21 +17,21 @@ namespace Nz
 		friend class MaterialPipeline;
 
 		public:
-			PhongLightingMaterial(Material* material);
+			PhongLightingMaterial(Material& material);
 
-			inline const TextureRef& GetAlphaMap() const;
+			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
 			float GetAlphaThreshold() const;
 			Color GetAmbientColor() const;
 			Color GetDiffuseColor() const;
-			inline const TextureRef& GetDiffuseMap() const;
+			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
 			inline TextureSampler& GetDiffuseSampler();
 			inline const TextureSampler& GetDiffuseSampler() const;
-			inline const TextureRef& GetEmissiveMap() const;
-			inline const TextureRef& GetHeightMap() const;
-			inline const TextureRef& GetNormalMap() const;
+			inline const std::shared_ptr<Texture>& GetEmissiveMap() const;
+			inline const std::shared_ptr<Texture>& GetHeightMap() const;
+			inline const std::shared_ptr<Texture>& GetNormalMap() const;
 			float GetShininess() const;
 			Color GetSpecularColor() const;
-			inline const TextureRef& GetSpecularMap() const;
+			inline const std::shared_ptr<Texture>& GetSpecularMap() const;
 			inline TextureSampler& GetSpecularSampler();
 			inline const TextureSampler& GetSpecularSampler() const;
 
@@ -47,24 +47,18 @@ namespace Nz
 			inline bool HasSpecularColor() const;
 			inline bool HasSpecularMap() const;
 
-			inline bool SetAlphaMap(const String& textureName);
-			inline void SetAlphaMap(TextureRef alphaMap);
+			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
 			void SetAlphaThreshold(float alphaThreshold);
 			void SetAmbientColor(const Color& ambient);
 			void SetDiffuseColor(const Color& diffuse);
-			inline bool SetDiffuseMap(const String& textureName);
-			inline void SetDiffuseMap(TextureRef diffuseMap);
+			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
 			inline void SetDiffuseSampler(const TextureSampler& sampler);
-			inline bool SetEmissiveMap(const String& textureName);
-			inline void SetEmissiveMap(TextureRef textureName);
-			inline bool SetHeightMap(const String& textureName);
-			inline void SetHeightMap(TextureRef textureName);
-			inline bool SetNormalMap(const String& textureName);
-			inline void SetNormalMap(TextureRef textureName);
+			inline void SetEmissiveMap(std::shared_ptr<Texture> textureName);
+			inline void SetHeightMap(std::shared_ptr<Texture> textureName);
+			inline void SetNormalMap(std::shared_ptr<Texture> textureName);
 			void SetShininess(float shininess);
 			void SetSpecularColor(const Color& specular);
-			inline bool SetSpecularMap(const String& textureName);
-			inline void SetSpecularMap(TextureRef specularMap);
+			inline void SetSpecularMap(std::shared_ptr<Texture> specularMap);
 			inline void SetSpecularSampler(const TextureSampler& sampler);
 
 			static const std::shared_ptr<MaterialSettings>& GetSettings();
@@ -92,14 +86,13 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			MaterialRef m_material;
+			Material& m_material;
 			std::size_t m_phongUniformIndex;
 			TextureIndexes m_textureIndexes;
 			PhongUniformOffsets m_phongUniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static std::size_t s_phongUniformBlockIndex;
-			static RenderPipelineLayoutRef s_renderPipelineLayout;
 			static TextureIndexes s_textureIndexes;
 			static PhongUniformOffsets s_phongUniformOffsets;
 	};

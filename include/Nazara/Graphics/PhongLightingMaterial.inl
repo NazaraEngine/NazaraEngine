@@ -9,40 +9,40 @@
 
 namespace Nz
 {
-	inline const TextureRef& PhongLightingMaterial::GetAlphaMap() const
+	inline const std::shared_ptr<Texture>& PhongLightingMaterial::GetAlphaMap() const
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.alpha);
+		return m_material.GetTexture(m_textureIndexes.alpha);
 	}
 
-	inline const TextureRef& PhongLightingMaterial::GetDiffuseMap() const
+	inline const std::shared_ptr<Texture>& PhongLightingMaterial::GetDiffuseMap() const
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.diffuse);
+		return m_material.GetTexture(m_textureIndexes.diffuse);
 	}
 
-	inline const TextureRef& PhongLightingMaterial::GetEmissiveMap() const
+	inline const std::shared_ptr<Texture>& PhongLightingMaterial::GetEmissiveMap() const
 	{
 		NazaraAssert(HasEmissiveMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.emissive);
+		return m_material.GetTexture(m_textureIndexes.emissive);
 	}
 
-	inline const TextureRef& PhongLightingMaterial::GetHeightMap() const
+	inline const std::shared_ptr<Texture>& PhongLightingMaterial::GetHeightMap() const
 	{
 		NazaraAssert(HasHeightMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.height);
+		return m_material.GetTexture(m_textureIndexes.height);
 	}
 
-	inline const TextureRef& PhongLightingMaterial::GetNormalMap() const
+	inline const std::shared_ptr<Texture>& PhongLightingMaterial::GetNormalMap() const
 	{
 		NazaraAssert(HasNormalMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.normal);
+		return m_material.GetTexture(m_textureIndexes.normal);
 	}
 
-	inline const TextureRef& PhongLightingMaterial::GetSpecularMap() const
+	inline const std::shared_ptr<Texture>& PhongLightingMaterial::GetSpecularMap() const
 	{
 		NazaraAssert(HasSpecularMap(), "Material has no alpha map slot");
-		return m_material->GetTexture(m_textureIndexes.specular);
+		return m_material.GetTexture(m_textureIndexes.specular);
 	}
 
 	inline bool PhongLightingMaterial::HasAlphaMap() const
@@ -100,56 +100,22 @@ namespace Nz
 		return m_textureIndexes.specular != MaterialSettings::InvalidIndex;
 	}
 
-	inline void PhongLightingMaterial::SetAlphaMap(TextureRef alphaMap)
+	inline void PhongLightingMaterial::SetAlphaMap(std::shared_ptr<Texture> alphaMap)
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
-		m_material->SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
+		m_material.SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
 	}
 
-	inline bool PhongLightingMaterial::SetDiffuseMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get diffuse map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetDiffuseMap(std::move(texture));
-		return true;
-	}
-
-	inline void PhongLightingMaterial::SetDiffuseMap(TextureRef diffuseMap)
+	inline void PhongLightingMaterial::SetDiffuseMap(std::shared_ptr<Texture> diffuseMap)
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
-		m_material->SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
+		m_material.SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
 	}
 
-	inline bool PhongLightingMaterial::SetNormalMap(const String& textureName)
-	{
-		TextureRef texture = TextureLibrary::Query(textureName);
-		if (!texture)
-		{
-			texture = TextureManager::Get(textureName);
-			if (!texture)
-			{
-				NazaraError("Failed to get normal map \"" + textureName + "\"");
-				return false;
-			}
-		}
-
-		SetNormalMap(std::move(texture));
-		return true;
-	}
-
-	inline void PhongLightingMaterial::SetNormalMap(TextureRef normalMap)
+	inline void PhongLightingMaterial::SetNormalMap(std::shared_ptr<Texture> normalMap)
 	{
 		NazaraAssert(HasNormalMap(), "Material has no normal map slot");
-		m_material->SetTexture(m_textureIndexes.normal, std::move(normalMap));
+		m_material.SetTexture(m_textureIndexes.normal, std::move(normalMap));
 	}
 }
 

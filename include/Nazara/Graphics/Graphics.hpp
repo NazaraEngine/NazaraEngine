@@ -26,7 +26,7 @@ namespace Nz
 			struct Config;
 
 			Graphics(Config config);
-			~Graphics() = default;
+			~Graphics();
 
 			inline RenderDevice& GetRenderDevice();
 
