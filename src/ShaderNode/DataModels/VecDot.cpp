@@ -71,10 +71,9 @@ void VecDot::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	assert(index == 0 || index == 1);
 
 	std::shared_ptr<VecData> castedValue;
-	if (value)
+	if (value && value->type().id == VecData::Type().id)
 	{
 		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-
 		castedValue = std::static_pointer_cast<VecData>(value);
 	}
 

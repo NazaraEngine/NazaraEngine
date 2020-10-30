@@ -154,10 +154,9 @@ void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int inde
 	{
 		case 0:
 		{
-			if (value)
+			if (value && value->type().id == Texture2Data::Type().id)
 			{
 				assert(dynamic_cast<Texture2Data*>(value.get()) != nullptr);
-
 				m_texture = std::static_pointer_cast<Texture2Data>(value);
 			}
 			else
@@ -168,10 +167,9 @@ void SampleTexture::setInData(std::shared_ptr<QtNodes::NodeData> value, int inde
 
 		case 1:
 		{
-			if (value)
+			if (value && value->type().id == VecData::Type().id)
 			{
 				assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-
 				m_uv = std::static_pointer_cast<VecData>(value);
 			}
 			else

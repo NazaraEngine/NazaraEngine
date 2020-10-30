@@ -50,10 +50,9 @@ void Mat4BinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int i
 	assert(index == 0 || index == 1);
 
 	std::shared_ptr<Matrix4Data> castedValue;
-	if (value)
+	if (value && value->type().id == Matrix4Data::Type().id)
 	{
 		assert(dynamic_cast<Matrix4Data*>(value.get()) != nullptr);
-
 		castedValue = std::static_pointer_cast<Matrix4Data>(value);
 	}
 

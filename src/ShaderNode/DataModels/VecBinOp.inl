@@ -50,12 +50,8 @@ void VecBinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int in
 	assert(index == 0 || index == 1);
 
 	std::shared_ptr<VecData> castedValue;
-	if (value)
-	{
-		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-
+	if (value && value->type().id == VecData::Type().id)
 		castedValue = std::static_pointer_cast<VecData>(value);
-	}
 
 	if (index == 0)
 		m_lhs = std::move(castedValue);
