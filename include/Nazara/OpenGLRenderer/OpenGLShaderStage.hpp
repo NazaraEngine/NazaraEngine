@@ -9,14 +9,14 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/ShaderStageImpl.hpp>
+#include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLShaderStage : public ShaderStageImpl
+	class NAZARA_OPENGLRENDERER_API OpenGLShaderStage : public ShaderStage
 	{
 		public:
 			OpenGLShaderStage(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);

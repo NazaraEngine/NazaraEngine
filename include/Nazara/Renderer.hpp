@@ -53,7 +53,7 @@
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Renderer/ShaderStageImpl.hpp>
+#include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>

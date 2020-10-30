@@ -11,7 +11,7 @@ namespace Nz
 {
 	RenderDevice::~RenderDevice() = default;
 
-	std::shared_ptr<ShaderStageImpl> RenderDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath)
+	std::shared_ptr<ShaderStage> RenderDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath)
 	{
 		File file(sourcePath);
 		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
