@@ -28,6 +28,8 @@ namespace Nz
 
 			VkPipeline Get(const Vk::RenderPass& renderPass) const;
 
+			inline const RenderPipelineInfo& GetPipelineInfo() const override;
+
 			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineColorBlendStateCreateInfo BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState);
 			static VkPipelineDepthStencilStateCreateInfo BuildDepthStencilInfo(const RenderPipelineInfo& pipelineInfo);

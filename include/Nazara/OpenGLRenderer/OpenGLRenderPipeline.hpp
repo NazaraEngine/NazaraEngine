@@ -24,7 +24,7 @@ namespace Nz
 
 			void Apply(const GL::Context& context) const;
 
-			inline const RenderPipelineInfo& GetPipelineInfo() const;
+			inline const RenderPipelineInfo& GetPipelineInfo() const override;
 
 		private:
 			RenderPipelineInfo m_pipelineInfo;
