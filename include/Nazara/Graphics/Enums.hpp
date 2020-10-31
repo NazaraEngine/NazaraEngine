@@ -17,16 +17,17 @@ namespace Nz
 		Volume
 	};
 
-	enum PredefinedShaderBinding
+	enum class PredefinedShaderBinding
 	{
-		PredefinedShaderBinding_TexOverlay,
-		PredefinedShaderBinding_UboInstanceData,
-		PredefinedShaderBinding_UboLighData,
-		PredefinedShaderBinding_UboViewerData,
+		TexOverlay,
+		UboInstanceData,
+		UboLighData,
+		UboViewerData,
 
-		PredefinedShaderBinding_Max = PredefinedShaderBinding_UboViewerData
+		Max = UboViewerData
 	};
 
+	constexpr std::size_t PredefinedShaderBindingCount = static_cast<std::size_t>(PredefinedShaderBinding::Max) + 1;
 }
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

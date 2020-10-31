@@ -135,7 +135,7 @@ namespace Nz
 			ImageType_2D
 		});
 
-		predefinedBinding[PredefinedShaderBinding_TexOverlay] = textures.size();
+		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = textures.size();
 		textures.push_back({
 			"TextureOverlay",
 			"Overlay",
@@ -156,9 +156,9 @@ namespace Nz
 
 		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
 
-		predefinedBinding[PredefinedShaderBinding_UboInstanceData] = textures.size() + uniformBlocks.size() + sharedUniformBlock.size();
+		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = textures.size() + uniformBlocks.size() + sharedUniformBlock.size();
 		sharedUniformBlock.push_back(PredefinedInstanceData::GetUniformBlock());
-		predefinedBinding[PredefinedShaderBinding_UboViewerData] = textures.size() + uniformBlocks.size() + sharedUniformBlock.size();
+		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = textures.size() + uniformBlocks.size() + sharedUniformBlock.size();
 		sharedUniformBlock.push_back(PredefinedViewerData::GetUniformBlock());
 
 		// Shaders
