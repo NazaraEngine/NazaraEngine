@@ -94,6 +94,7 @@ int main()
 	Nz::Material material(Nz::BasicMaterial::GetSettings());
 	//material.SetShader(Nz::ShaderStageType::Fragment, fragmentShader);
 	//material.SetShader(Nz::ShaderStageType::Vertex, vertexShader);
+	material.EnableDepthBuffer(true);
 	material.SetTexture(0, texture);
 	material.SetTextureSampler(0, textureSampler);
 
@@ -109,32 +110,7 @@ int main()
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 
-	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
-	{
-		auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
-		uboBinding.index = 0;
-		uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
-		uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
-	}
-
-	{
-		auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
-		uboBinding.index = 1;
-		uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
-		uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
-	}
-
-	{
-		auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
-		textureBinding.index = 2;
-		textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
-		textureBinding.type = Nz::ShaderBindingType::Texture;
-	}
-
-	//std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = material.GetSettings()->GetRenderPipelineLayout();
-
-	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
 	std::shared_ptr<Nz::AbstractBuffer> instanceDataUbo = device->InstantiateBuffer(Nz::BufferType_Uniform);
 	if (!instanceDataUbo->Initialize(instanceDataBuffer.size(), Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
@@ -152,15 +128,16 @@ int main()
 		return __LINE__;
 	}
 
+	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 	shaderBinding->Update({
 		{
-			5,
+			material.GetSettings()->GetPredefinedBindingIndex(Nz::PredefinedShaderBinding::UboViewerData),
 			Nz::ShaderBinding::UniformBufferBinding {
 				viewerDataUbo.get(), 0, viewerDataBuffer.size()
 			}
 		},
 		{
-			4,
+			material.GetSettings()->GetPredefinedBindingIndex(Nz::PredefinedShaderBinding::UboInstanceData),
 			Nz::ShaderBinding::UniformBufferBinding {
 				instanceDataUbo.get(), 0, instanceDataBuffer.size()
 			}
@@ -173,20 +150,14 @@ int main()
 		}
 	});
 
-	Nz::RenderPipelineInfo pipelineInfo;
-	pipelineInfo.pipelineLayout = renderPipelineLayout;
+	std::vector<Nz::RenderPipelineInfo::VertexBufferData> vertexBuffers = {
+		{
+			0,
+			drfreakVB->GetVertexDeclaration()
+		}
+	};
 
-	pipelineInfo.depthBuffer = true;
-	pipelineInfo.shaderStages.emplace_back(material.GetShader(Nz::ShaderStageType::Fragment));
-	pipelineInfo.shaderStages.emplace_back(material.GetShader(Nz::ShaderStageType::Vertex));
-
-	auto& vertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
-	vertexBuffer.binding = 0;
-	vertexBuffer.declaration = drfreakVB->GetVertexDeclaration();
-
-	//std::shared_ptr<Nz::RenderPipeline> pipeline = material.GetPipeline()->GetRenderPipeline(pipelineInfo.vertexBuffers);
-
-	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+	std::shared_ptr<Nz::RenderPipeline> pipeline = material.GetPipeline()->GetRenderPipeline(vertexBuffers);
 
 	Nz::RenderDevice* renderDevice = window.GetRenderDevice().get();
 
