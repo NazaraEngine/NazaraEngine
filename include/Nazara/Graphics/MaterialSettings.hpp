@@ -23,7 +23,7 @@ namespace Nz
 	{
 		public:
 			using DefaultShaders = std::array<std::shared_ptr<ShaderStage>, ShaderStageTypeCount>;
-			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBinding_Max + 1>;
+			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
 
 			struct SharedUniformBlock;
 			struct Texture;
