@@ -53,6 +53,8 @@ namespace Nz
 				renderPipelineInfo.shaderStages.push_back(shaderStage);
 		}
 
+		renderPipelineInfo.vertexBuffers = vertexBuffers;
+
 		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice().InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
 	/*!
