@@ -25,7 +25,7 @@ namespace Nz
 			m_iconImage.GetHeight(),
 			32,
 			4 * m_iconImage.GetWidth(),
-			SDL_PIXELFORMAT_BGRA8888
+			SDL_PIXELFORMAT_BGRA32
 		);
 
 		if (!m_icon)
