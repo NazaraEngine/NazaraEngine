@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <cstdio>
-#include <memory>
 #include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
@@ -19,6 +17,9 @@
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <Utfcpp/utf8.h>
+#include <cstdio>
+#include <memory>
 
 namespace Nz
 {
@@ -488,23 +489,26 @@ namespace Nz
 					break;
 
 				case SDL_TEXTINPUT:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->text.windowID)
 						return 0;
 
 					evt.type = WindowEventType_TextEntered;
 					evt.text.repeated = false;
 
-					for (decltype(evt.text.character) codepoint : String::Unicode(event->text.text).Simplify().GetUtf32String())
+					utf8::unchecked::iterator<const char*> it(event->text.text);
+					do
 					{
-						evt.text.character = codepoint;
+						evt.text.character = *it;
 
 						window->m_parent->PushEvent(evt);
-					}
+					} while (*it++);
 
 					// prevent post switch event
 					evt.type = WindowEventType::WindowEventType_Max;
 
 					break;
+				}
 
 				case SDL_TEXTEDITING:
 					if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
