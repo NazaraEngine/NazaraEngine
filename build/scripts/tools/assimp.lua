@@ -4,9 +4,12 @@ TOOL.Directory = "../plugins/Assimp"
 TOOL.Kind = "Plugin"
 
 TOOL.Includes = {
-	"../thirdparty/include",
 	"../include",
     "../plugins/Assimp"
+}
+
+TOOL.ExtIncludes = {
+	"../thirdparty/include"
 }
 
 TOOL.Files = {

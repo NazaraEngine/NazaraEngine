@@ -13,7 +13,10 @@ TOOL.Defines = {
 
 TOOL.Includes = {
 	"../include",
-	"../src/",
+	"../src/"
+}
+
+TOOL.ExtIncludes = {
 	"../extlibs/include"
 }
 
