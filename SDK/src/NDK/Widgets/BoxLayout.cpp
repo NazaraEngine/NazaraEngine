@@ -81,7 +81,7 @@ namespace Ndk
 			if (maximumSize < std::numeric_limits<float>::infinity())
 				m_state->solver.addConstraint({ sizeVar <= maximumSize | kiwi::strength::required });
 
-			m_state->solver.addConstraint({ sizeVar == perfectSpacePerWidget | kiwi::strength::medium });
+			m_state->solver.addConstraint({ sizeVar >= perfectSpacePerWidget | kiwi::strength::medium });
 
 			sizeSum = sizeSum + sizeVar;
 		});
