@@ -8,6 +8,7 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 
 class NodeEditor;
+class QTextEdit;
 
 namespace Nz
 {
@@ -18,7 +19,7 @@ class MainWindow : public QMainWindow
 {
 	public:
 		MainWindow(ShaderGraph& graph);
-		~MainWindow() = default;
+		~MainWindow();
 
 	private:
 		void BuildMenu();
@@ -29,10 +30,12 @@ class MainWindow : public QMainWindow
 		void OnUpdateInfo();
 		Nz::ShaderAst ToShader();
 
+		NazaraSlot(ShaderGraph, OnConditionUpdate, m_onConditionUpdate);
 		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);
 
 		NodeEditor* m_nodeEditor;
 		ShaderGraph& m_shaderGraph;
+		QTextEdit* m_codeOutput;
 };
 
 #include <ShaderNode/Widgets/MainWindow.inl>

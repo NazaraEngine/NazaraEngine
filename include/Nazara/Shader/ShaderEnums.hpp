@@ -78,6 +78,7 @@ namespace Nz::ShaderNodes
 		Branch,
 		Cast,
 		Constant,
+		ConditionalExpression,
 		ConditionalStatement,
 		DeclareVariable,
 		ExpressionStatement,

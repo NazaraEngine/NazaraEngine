@@ -9,19 +9,6 @@ namespace Nz
 {
 	ShaderAstVisitor::~ShaderAstVisitor() = default;
 
-	void ShaderAstVisitor::EnableCondition(const std::string& name, bool cond)
-	{
-		if (cond)
-			m_conditions.insert(name);
-		else
-			m_conditions.erase(name);
-	}
-
-	bool ShaderAstVisitor::IsConditionEnabled(const std::string& name) const
-	{
-		return m_conditions.count(name) != 0;
-	}
-
 	void ShaderAstVisitor::Visit(const ShaderNodes::NodePtr& node)
 	{
 		node->Visit(*this);

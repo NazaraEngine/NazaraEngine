@@ -2,6 +2,7 @@
 #include <Nazara/Core/StackArray.hpp>
 #include <ShaderNode/DataModels/BufferField.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
+#include <ShaderNode/DataModels/ConditionalExpression.hpp>
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
 #include <ShaderNode/DataModels/OutputValue.hpp>
@@ -124,6 +125,17 @@ std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std:
 	return index;
 }
 
+std::size_t ShaderGraph::AddCondition(std::string name)
+{
+	std::size_t index = m_conditions.size();
+	auto& conditionEntry = m_conditions.emplace_back();
+	conditionEntry.name = std::move(name);
+
+	OnConditionListUpdate(this);
+
+	return index;
+}
+
 std::size_t ShaderGraph::AddInput(std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
 {
 	std::size_t index = m_inputs.size();
@@ -185,6 +197,7 @@ void ShaderGraph::Clear()
 	m_flowScene.clear();
 
 	m_buffers.clear();
+	m_conditions.clear();
 	m_inputs.clear();
 	m_structs.clear();
 	m_outputs.clear();
@@ -195,6 +208,15 @@ void ShaderGraph::Clear()
 	OnStructListUpdate(this);
 	OnOutputListUpdate(this);
 	OnTextureListUpdate(this);
+}
+
+void ShaderGraph::EnableCondition(std::size_t conditionIndex, bool enable)
+{
+	assert(conditionIndex < m_conditions.size());
+	auto& conditionEntry = m_conditions[conditionIndex];
+	conditionEntry.enabled = enable;
+
+	OnConditionUpdate(this, conditionIndex);
 }
 
 void ShaderGraph::Load(const QJsonObject& data)
@@ -217,6 +239,17 @@ void ShaderGraph::Load(const QJsonObject& data)
 	}
 
 	OnBufferListUpdate(this);
+
+	QJsonArray conditionArray = data["conditions"].toArray();
+	for (const auto& conditionDocRef : conditionArray)
+	{
+		QJsonObject conditionDoc = conditionDocRef.toObject();
+
+		ConditionEntry& condition = m_conditions.emplace_back();
+		condition.name = conditionDoc["name"].toString().toStdString();
+	}
+
+	OnConditionListUpdate(this);
 
 	QJsonArray inputArray = data["inputs"].toArray();
 	for (const auto& inputDocRef : inputArray)
@@ -311,6 +344,18 @@ QJsonObject ShaderGraph::Save()
 		}
 	}
 	sceneJson["buffers"] = bufferArray;
+
+	QJsonArray conditionArray;
+	{
+		for (const auto& condition : m_conditions)
+		{
+			QJsonObject inputDoc;
+			inputDoc["name"] = QString::fromStdString(condition.name);
+
+			conditionArray.append(inputDoc);
+		}
+	}
+	sceneJson["conditions"] = conditionArray;
 
 	QJsonArray inputArray;
 	{
@@ -436,10 +481,15 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 		(*it)++;
 	};
 
+	std::vector<QtNodes::Node*> outputNodes;
+
 	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
 	{
 		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
+		{
 			DetectVariables(node);
+			outputNodes.push_back(node);
+		}
 	});
 
 	QHash<QUuid, Nz::ShaderNodes::ExpressionPtr> variableExpressions;
@@ -510,13 +560,8 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 			return expression;
 	};
 
-	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
-	{
-		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
-		{
-			statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
-		}
-	});
+	for (QtNodes::Node* node : outputNodes)
+		statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
 
 	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
 }
@@ -549,6 +594,15 @@ void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, Buffer
 	bufferEntry.type = bufferType;
 
 	OnBufferUpdate(this, bufferIndex);
+}
+
+void ShaderGraph::UpdateCondition(std::size_t conditionIndex, std::string condition)
+{
+	assert(conditionIndex < m_conditions.size());
+	auto& conditionEntry = m_conditions[conditionIndex];
+	conditionEntry.name = std::move(condition);
+
+	OnConditionUpdate(this, conditionIndex);
 }
 
 void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
@@ -687,6 +741,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<CastToVec2>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
+	RegisterShaderNode<ConditionalExpression>(*this, registry, "Shader");
 	RegisterShaderNode<FloatValue>(*this, registry, "Constants");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
 	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");

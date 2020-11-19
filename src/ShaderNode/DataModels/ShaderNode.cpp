@@ -8,6 +8,7 @@
 ShaderNode::ShaderNode(ShaderGraph& graph) :
 m_previewSize(64, 64),
 m_pixmapLabel(nullptr),
+m_embeddedWidget(nullptr),
 m_graph(graph),
 m_enableCustomVariableName(true),
 m_isPreviewEnabled(false)
@@ -86,7 +87,24 @@ void ShaderNode::EnablePreview(bool enable)
 
 QWidget* ShaderNode::embeddedWidget()
 {
-	return m_pixmapLabel;
+	if (!m_embeddedWidget)
+	{
+		QWidget* embedded = EmbeddedWidget();
+		if (embedded)
+		{
+			QVBoxLayout* layout = new QVBoxLayout;
+			layout->addWidget(embedded);
+			layout->addWidget(m_pixmapLabel);
+
+			m_embeddedWidget = new QWidget;
+			m_embeddedWidget->setStyleSheet("background-color: rgba(0,0,0,0)");
+			m_embeddedWidget->setLayout(layout);
+		}
+		else
+			m_embeddedWidget = m_pixmapLabel;
+	}
+
+	return m_embeddedWidget;
 }
 
 void ShaderNode::restore(const QJsonObject& data)
@@ -119,6 +137,11 @@ void ShaderNode::setInData(std::shared_ptr<QtNodes::NodeData>, int)
 bool ShaderNode::ComputePreview(QPixmap& /*pixmap*/)
 {
 	return false;
+}
+
+QWidget* ShaderNode::EmbeddedWidget()
+{
+	return nullptr;
 }
 
 void ShaderNode::UpdatePreview()

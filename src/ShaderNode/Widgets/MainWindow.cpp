@@ -4,6 +4,7 @@
 #include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/BufferEditor.hpp>
+#include <ShaderNode/Widgets/ConditionEditor.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
 #include <ShaderNode/Widgets/OutputEditor.hpp>
 #include <ShaderNode/Widgets/NodeEditor.hpp>
@@ -84,6 +85,15 @@ m_shaderGraph(graph)
 
 	addDockWidget(Qt::RightDockWidgetArea, structDock);
 
+	// Condition editor
+	ConditionEditor* conditionEditor = new ConditionEditor(m_shaderGraph);
+
+	QDockWidget* conditionDock = new QDockWidget(tr("Conditions"));
+	conditionDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
+	conditionDock->setWidget(conditionEditor);
+
+	addDockWidget(Qt::RightDockWidgetArea, conditionDock);
+
 	m_onSelectedNodeUpdate.Connect(m_shaderGraph.OnSelectedNodeUpdate, [&](ShaderGraph*, ShaderNode* node)
 	{
 		if (node)
@@ -99,6 +109,21 @@ m_shaderGraph(graph)
 
 
 	BuildMenu();
+
+	m_codeOutput = new QTextEdit;
+	m_codeOutput->setReadOnly(true);
+	m_codeOutput->setWindowTitle("GLSL Output");
+
+	m_onConditionUpdate.Connect(m_shaderGraph.OnConditionUpdate, [&](ShaderGraph*, std::size_t conditionIndex)
+	{
+		if (m_codeOutput->isVisible())
+			OnGenerateGLSL();
+	});
+}
+
+MainWindow::~MainWindow()
+{
+	delete m_codeOutput;
 }
 
 void MainWindow::BuildMenu()
@@ -109,6 +134,7 @@ void MainWindow::BuildMenu()
 	{
 		QAction* loadShader = file->addAction(tr("Load..."));
 		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
+
 		QAction* saveShader = file->addAction(tr("Save..."));
 		QObject::connect(saveShader, &QAction::triggered, this, &MainWindow::OnSave);
 	}
@@ -117,6 +143,7 @@ void MainWindow::BuildMenu()
 	{
 		QAction* settings = shader->addAction(tr("Settings..."));
 		QObject::connect(settings, &QAction::triggered, this, &MainWindow::OnUpdateInfo);
+
 		QAction* compileShader = shader->addAction(tr("Compile..."));
 		QObject::connect(compileShader, &QAction::triggered, this, &MainWindow::OnCompile);
 	}
@@ -155,16 +182,20 @@ void MainWindow::OnGenerateGLSL()
 	try
 	{
 		Nz::GlslWriter writer;
-		std::string glsl = writer.Generate(ToShader());
+
+		Nz::GlslWriter::States states;
+		for (const auto& condition : m_shaderGraph.GetConditions())
+		{
+			if (condition.enabled)
+				states.enabledConditions.insert(condition.name);
+		}
+
+		std::string glsl = writer.Generate(ToShader(), states);
 
 		std::cout << glsl << std::endl;
 
-		QTextEdit* output = new QTextEdit;
-		output->setReadOnly(true);
-		output->setText(QString::fromStdString(glsl));
-		output->setAttribute(Qt::WA_DeleteOnClose, true);
-		output->setWindowTitle("GLSL Output");
-		output->show();
+		m_codeOutput->setText(QString::fromStdString(glsl));
+		m_codeOutput->show();
 	}
 	catch (const std::exception& e)
 	{
@@ -238,6 +269,9 @@ Nz::ShaderAst MainWindow::ToShader()
 	Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
 
 	Nz::ShaderAst shader(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType())); //< FIXME
+	for (const auto& condition : m_shaderGraph.GetConditions())
+		shader.AddCondition(condition.name);
+
 	for (const auto& input : m_shaderGraph.GetInputs())
 		shader.AddInput(input.name, m_shaderGraph.ToShaderExpressionType(input.type), input.locationIndex);
 

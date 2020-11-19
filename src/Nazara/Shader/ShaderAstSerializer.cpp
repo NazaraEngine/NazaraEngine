@@ -47,6 +47,16 @@ namespace Nz
 					Serialize(node);
 				}
 
+				void Visit(ShaderNodes::ConditionalExpression& node) override
+				{
+					Serialize(node);
+				}
+
+				void Visit(ShaderNodes::ConditionalStatement& node) override
+				{
+					Serialize(node);
+				}
+
 				void Visit(ShaderNodes::Constant& node) override
 				{
 					Serialize(node);
@@ -179,6 +189,19 @@ namespace Nz
 			Node(expr);
 	}
 
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::ConditionalExpression& node)
+	{
+		Value(node.conditionName);
+		Node(node.truePath);
+		Node(node.falsePath);
+	}
+
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::ConditionalStatement& node)
+	{
+		Value(node.conditionName);
+		Node(node.statement);
+	}
+
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::Constant& node)
 	{
 		UInt32 typeIndex;
@@ -306,6 +329,12 @@ namespace Nz
 			}
 		};
 
+		// Conditions
+		m_stream << UInt32(shader.GetConditionCount());
+		for (const auto& cond : shader.GetConditions())
+			m_stream << cond.name;
+
+		// Structs
 		m_stream << UInt32(shader.GetStructCount());
 		for (const auto& s : shader.GetStructs())
 		{
@@ -318,9 +347,11 @@ namespace Nz
 			}
 		}
 
+		// Inputs / Outputs
 		SerializeInputOutput(shader.GetInputs());
 		SerializeInputOutput(shader.GetOutputs());
 
+		// Uniforms
 		m_stream << UInt32(shader.GetUniformCount());
 		for (const auto& uniform : shader.GetUniforms())
 		{
@@ -336,6 +367,7 @@ namespace Nz
 				m_stream << UInt32(uniform.memoryLayout.value());
 		}
 
+		// Functions
 		m_stream << UInt32(shader.GetFunctionCount());
 		for (const auto& func : shader.GetFunctions())
 		{
@@ -495,6 +527,18 @@ namespace Nz
 
 		ShaderAst shader(static_cast<ShaderStageType>(shaderStage));
 
+		// Conditions
+		UInt32 conditionCount;
+		m_stream >> conditionCount;
+		for (UInt32 i = 0; i < conditionCount; ++i)
+		{
+			std::string conditionName;
+			Value(conditionName);
+
+			shader.AddCondition(std::move(conditionName));
+		}
+
+		// Structs
 		UInt32 structCount;
 		m_stream >> structCount;
 		for (UInt32 i = 0; i < structCount; ++i)
@@ -514,6 +558,7 @@ namespace Nz
 			shader.AddStruct(std::move(structName), std::move(members));
 		}
 
+		// Inputs
 		UInt32 inputCount;
 		m_stream >> inputCount;
 		for (UInt32 i = 0; i < inputCount; ++i)
@@ -529,6 +574,7 @@ namespace Nz
 			shader.AddInput(std::move(inputName), std::move(inputType), location);
 		}
 
+		// Outputs
 		UInt32 outputCount;
 		m_stream >> outputCount;
 		for (UInt32 i = 0; i < outputCount; ++i)
@@ -544,6 +590,7 @@ namespace Nz
 			shader.AddOutput(std::move(outputName), std::move(outputType), location);
 		}
 
+		// Uniforms
 		UInt32 uniformCount;
 		m_stream >> uniformCount;
 		for (UInt32 i = 0; i < uniformCount; ++i)
@@ -561,6 +608,7 @@ namespace Nz
 			shader.AddUniform(std::move(name), std::move(type), std::move(binding), std::move(memLayout));
 		}
 
+		// Functions
 		UInt32 funcCount;
 		m_stream >> funcCount;
 		for (UInt32 i = 0; i < funcCount; ++i)
@@ -614,6 +662,7 @@ namespace Nz
 			HandleType(Branch);
 			HandleType(Cast);
 			HandleType(Constant);
+			HandleType(ConditionalExpression);
 			HandleType(ConditionalStatement);
 			HandleType(DeclareVariable);
 			HandleType(ExpressionStatement);

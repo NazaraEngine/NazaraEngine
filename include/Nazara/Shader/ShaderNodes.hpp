@@ -217,6 +217,20 @@ namespace Nz
 			static inline std::shared_ptr<Cast> Build(BasicType castTo, ExpressionPtr* expressions, std::size_t expressionCount);
 		};
 
+		struct NAZARA_SHADER_API ConditionalExpression : public Expression
+		{
+			inline ConditionalExpression();
+
+			ShaderExpressionType GetExpressionType() const override;
+			void Visit(ShaderAstVisitor& visitor) override;
+
+			std::string conditionName;
+			ExpressionPtr falsePath;
+			ExpressionPtr truePath;
+
+			static inline std::shared_ptr<ConditionalExpression> Build(std::string condition, ExpressionPtr truePath, ExpressionPtr falsePath);
+		};
+
 		struct NAZARA_SHADER_API Constant : public Expression
 		{
 			inline Constant();

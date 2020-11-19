@@ -26,8 +26,7 @@ namespace Nz::ShaderNodes
 
 	void ConditionalStatement::Visit(ShaderAstVisitor& visitor)
 	{
-		if (visitor.IsConditionEnabled(conditionName))
-			statement->Visit(visitor);
+		visitor.Visit(*this);
 	}
 
 
@@ -199,6 +198,18 @@ namespace Nz::ShaderNodes
 	}
 
 	void Cast::Visit(ShaderAstVisitor& visitor)
+	{
+		visitor.Visit(*this);
+	}
+
+
+	ShaderExpressionType ConditionalExpression::GetExpressionType() const
+	{
+		assert(truePath->GetExpressionType() == falsePath->GetExpressionType());
+		return truePath->GetExpressionType();
+	}
+
+	void ConditionalExpression::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
 	}

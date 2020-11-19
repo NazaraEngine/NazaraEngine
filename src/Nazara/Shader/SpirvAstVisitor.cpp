@@ -313,6 +313,20 @@ namespace Nz
 		PushResultId(resultId);
 	}
 
+	void SpirvAstVisitor::Visit(ShaderNodes::ConditionalExpression& node)
+	{
+		if (m_writer.IsConditionEnabled(node.conditionName))
+			Visit(node.truePath);
+		else
+			Visit(node.falsePath);
+	}
+
+	void SpirvAstVisitor::Visit(ShaderNodes::ConditionalStatement& node)
+	{
+		if (m_writer.IsConditionEnabled(node.conditionName))
+			Visit(node.statement);
+	}
+
 	void SpirvAstVisitor::Visit(ShaderNodes::Constant& node)
 	{
 		std::visit([&] (const auto& value)

@@ -48,12 +48,13 @@ namespace Nz
 	{
 	}
 
-	std::string GlslWriter::Generate(const ShaderAst& shader)
+	std::string GlslWriter::Generate(const ShaderAst& shader, const States& conditions)
 	{
 		std::string error;
 		if (!ValidateShader(shader, &error))
 			throw std::runtime_error("Invalid shader AST: " + error);
 
+		m_context.states = &conditions;
 		m_context.shader = &shader;
 
 		State state;
@@ -459,6 +460,21 @@ namespace Nz
 		}
 
 		Append(")");
+	}
+
+
+	void GlslWriter::Visit(ShaderNodes::ConditionalExpression& node)
+	{
+		if (m_context.states->enabledConditions.count(node.conditionName) != 0)
+			Visit(node.truePath);
+		else
+			Visit(node.falsePath);
+	}
+
+	void GlslWriter::Visit(ShaderNodes::ConditionalStatement& node)
+	{
+		if (m_context.states->enabledConditions.count(node.conditionName) != 0)
+			Visit(node.statement);
 	}
 
 	void GlslWriter::Visit(ShaderNodes::Constant& node)
