@@ -104,8 +104,9 @@ function NazaraBuild:Execute()
 				defines(libTable.Defines)
 				flags(libTable.Flags)
 				kind("StaticLib") -- Force them as static libs
-				includedirs("../thirdparty/include")
+				sysincludedirs("../thirdparty/include")
 				includedirs(libTable.Includes)
+				sysincludedirs(libTable.ExtIncludes)
 				links(libTable.Libraries)
 				libdirs("../thirdparty/lib/common")
 
@@ -155,9 +156,9 @@ function NazaraBuild:Execute()
 
 			includedirs({
 				"../include",
-				"../src/",
-				"../thirdparty/include"
+				"../src/"
 			})
+			sysincludedirs("../thirdparty/include")
 
 			files(moduleTable.Files)
 			excludes(moduleTable.FilesExcluded)
@@ -165,6 +166,7 @@ function NazaraBuild:Execute()
 			defines(moduleTable.Defines)
 			flags(moduleTable.Flags)
 			includedirs(moduleTable.Includes)
+			sysincludedirs(moduleTable.ExtIncludes)
 			links(moduleTable.Libraries)
 
 			libdirs({
@@ -236,10 +238,8 @@ function NazaraBuild:Execute()
 				assert(false, "Invalid tool kind")
 			end
 
-			includedirs({
-				"../include",
-				"../thirdparty/include"
-			})
+			includedirs("../include")
+			sysincludedirs("../thirdparty/include")
 
 			libdirs({
 				"../thirdparty/lib/common",
@@ -252,6 +252,7 @@ function NazaraBuild:Execute()
 			defines(toolTable.Defines)
 			flags(toolTable.Flags)
 			includedirs(toolTable.Includes)
+			sysincludedirs(toolTable.ExtIncludes)
 			links(toolTable.Libraries)
 
 			-- Output to lib/conf/arch
@@ -308,11 +309,10 @@ function NazaraBuild:Execute()
 			end
 
 			debugdir(destPath)
-			includedirs({
-				"../include",
-				"../thirdparty/include",
-				exampleTable.Includes
-			})
+			includedirs("../include")
+			includedirs(exampleTable.Includes)
+			sysincludedirs("../thirdparty/include")
+			sysincludedirs(exampleTable.ExtIncludes)
 			libdirs({
 				"../lib",
 				exampleTable.LibDir
@@ -784,6 +784,10 @@ function NazaraBuild:Process(infoTable)
 					table.insert(infoTable.Includes, v)
 				end
 
+				for k,v in ipairs(libraryTable.ExtIncludes) do
+					table.insert(infoTable.ExtIncludes, v)
+				end
+
 				-- And libraries
 				for k, v in pairs(libraryTable.Libraries) do
 					table.insert(infoTable.Libraries, v)
@@ -1180,7 +1184,7 @@ function NazaraBuild:SetupInfoTable(infoTable)
 	infoTable.LibraryPaths.x86 = {}
 	infoTable.LibraryPaths.x64 = {}
 
-	local infos = {"Defines", "DynLib", "Files", "FilesExcluded", "Flags", "Includes", "Libraries"}
+	local infos = {"Defines", "DynLib", "Files", "FilesExcluded", "Flags", "Includes", "Libraries", "ExtIncludes"}
 	for k,v in ipairs(infos) do
 		infoTable[v] = {}
 		infoTable["Os" .. v] = {}
