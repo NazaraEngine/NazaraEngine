@@ -238,16 +238,16 @@ void OutputValue::OnOutputListUpdate()
 {
 	m_currentOutputIndex.reset();
 
-	std::size_t inputIndex = 0;
-	for (const auto& inputEntry : GetGraph().GetOutputs())
+	std::size_t outputIndex = 0;
+	for (const auto& outputEntry : GetGraph().GetOutputs())
 	{
-		if (inputEntry.name == m_currentOutputText)
+		if (outputEntry.name == m_currentOutputText)
 		{
-			m_currentOutputIndex = inputIndex;
+			m_currentOutputIndex = outputIndex;
 			break;
 		}
 
-		inputIndex++;
+		outputIndex++;
 	}
 }
 

@@ -50,6 +50,7 @@ namespace Nz::ShaderBuilder
 	constexpr BuiltinBuilder Builtin;
 	constexpr GenBuilder<ShaderNodes::StatementBlock> Block;
 	constexpr GenBuilder<ShaderNodes::Branch> Branch;
+	constexpr GenBuilder<ShaderNodes::ConditionalExpression> ConditionalExpression;
 	constexpr GenBuilder<ShaderNodes::ConditionalStatement> ConditionalStatement;
 	constexpr GenBuilder<ShaderNodes::Constant> Constant;
 	constexpr GenBuilder<ShaderNodes::DeclareVariable> DeclareVariable;

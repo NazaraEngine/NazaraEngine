@@ -33,7 +33,8 @@ namespace Nz
 				using LocalContainer = std::unordered_set<std::shared_ptr<const ShaderNodes::LocalVariable>>;
 				using ParameterContainer = std::unordered_set< std::shared_ptr<const ShaderNodes::ParameterVariable>>;
 
-				PreVisitor(SpirvConstantCache& constantCache) :
+				PreVisitor(const SpirvWriter::States& conditions, SpirvConstantCache& constantCache) :
+				m_conditions(conditions),
 				m_constantCache(constantCache)
 				{
 				}
@@ -47,6 +48,20 @@ namespace Nz
 						m_constantCache.Register(*SpirvConstantCache::BuildConstant(Int32(index)));
 
 					ShaderAstRecursiveVisitor::Visit(node);
+				}
+
+				void Visit(ShaderNodes::ConditionalExpression& node) override
+				{
+					if (m_conditions.enabledConditions.count(node.conditionName) != 0)
+						Visit(node.truePath);
+					else
+						Visit(node.falsePath);
+				}
+
+				void Visit(ShaderNodes::ConditionalStatement& node) override
+				{
+					if (m_conditions.enabledConditions.count(node.conditionName) != 0)
+						Visit(node.statement);
 				}
 
 				void Visit(ShaderNodes::Constant& node) override
@@ -126,6 +141,7 @@ namespace Nz
 				ParameterContainer paramVars;
 
 			private:
+				const SpirvWriter::States& m_conditions;
 				SpirvConstantCache& m_constantCache;
 		};
 
@@ -193,13 +209,14 @@ namespace Nz
 	{
 	}
 
-	std::vector<UInt32> SpirvWriter::Generate(const ShaderAst& shader)
+	std::vector<UInt32> SpirvWriter::Generate(const ShaderAst& shader, const States& conditions)
 	{
 		std::string error;
 		if (!ValidateShader(shader, &error))
 			throw std::runtime_error("Invalid shader AST: " + error);
 
 		m_context.shader = &shader;
+		m_context.states = &conditions;
 
 		State state;
 		m_currentState = &state;
@@ -212,7 +229,7 @@ namespace Nz
 
 		ShaderAstCloner cloner;
 
-		PreVisitor preVisitor(state.constantTypeCache);
+		PreVisitor preVisitor(conditions, state.constantTypeCache);
 		for (const auto& func : shader.GetFunctions())
 		{
 			functionStatements.emplace_back(cloner.Clone(func.statement));
@@ -450,7 +467,7 @@ namespace Nz
 		m_environment = std::move(environment);
 	}
 
-	UInt32 Nz::SpirvWriter::AllocateResultId()
+	UInt32 SpirvWriter::AllocateResultId()
 	{
 		return m_currentState->nextVarIndex++;
 	}

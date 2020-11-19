@@ -20,6 +20,7 @@ namespace Nz
 	class NAZARA_SHADER_API ShaderAst
 	{
 		public:
+			struct Condition;
 			struct Function;
 			struct FunctionParameter;
 			struct InputOutput;
@@ -33,12 +34,16 @@ namespace Nz
 			ShaderAst(ShaderAst&&) noexcept = default;
 			~ShaderAst() = default;
 
+			void AddCondition(std::string name);
 			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderNodes::BasicType returnType = ShaderNodes::BasicType::Void);
 			void AddInput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex = {});
 			void AddOutput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex = {});
 			void AddStruct(std::string name, std::vector<StructMember> members);
 			void AddUniform(std::string name, ShaderExpressionType type, std::optional<std::size_t> bindingIndex = {}, std::optional<ShaderNodes::MemoryLayout> memoryLayout = {});
 
+			inline const Condition& GetCondition(std::size_t i) const;
+			inline std::size_t GetConditionCount() const;
+			inline const std::vector<Condition>& GetConditions() const;
 			inline const Function& GetFunction(std::size_t i) const;
 			inline std::size_t GetFunctionCount() const;
 			inline const std::vector<Function>& GetFunctions() const;
@@ -58,6 +63,11 @@ namespace Nz
 
 			ShaderAst& operator=(const ShaderAst&) = default;
 			ShaderAst& operator=(ShaderAst&&) noexcept = default;
+
+			struct Condition
+			{
+				std::string name;
+			};
 
 			struct VariableBase
 			{
@@ -101,6 +111,7 @@ namespace Nz
 			};
 
 		private:
+			std::vector<Condition> m_conditions;
 			std::vector<Function> m_functions;
 			std::vector<InputOutput> m_inputs;
 			std::vector<InputOutput> m_outputs;

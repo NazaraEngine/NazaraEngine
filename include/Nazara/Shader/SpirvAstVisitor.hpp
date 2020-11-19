@@ -32,6 +32,8 @@ namespace Nz
 			void Visit(ShaderNodes::AssignOp& node) override;
 			void Visit(ShaderNodes::BinaryOp& node) override;
 			void Visit(ShaderNodes::Cast& node) override;
+			void Visit(ShaderNodes::ConditionalExpression& node) override;
+			void Visit(ShaderNodes::ConditionalStatement& node) override;
 			void Visit(ShaderNodes::Constant& node) override;
 			void Visit(ShaderNodes::DeclareVariable& node) override;
 			void Visit(ShaderNodes::ExpressionStatement& node) override;

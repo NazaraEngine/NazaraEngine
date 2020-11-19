@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <string>
+#include <unordered_set>
 
 namespace Nz
 {
@@ -18,12 +19,17 @@ namespace Nz
 	class NAZARA_SHADER_API ShaderWriter
 	{
 		public:
+			struct States;
+
 			ShaderWriter() = default;
 			ShaderWriter(const ShaderWriter&) = default;
 			ShaderWriter(ShaderWriter&&) = default;
 			virtual ~ShaderWriter();
 
-			virtual std::string Generate(const ShaderAst& shader) = 0;
+			struct States
+			{
+				std::unordered_set<std::string> enabledConditions;
+			};
 	};
 }
 

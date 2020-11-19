@@ -47,6 +47,17 @@ namespace Nz
 		}
 	}
 
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ConditionalExpression& node)
+	{
+		Visit(node.truePath);
+		Visit(node.falsePath);
+	}
+
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ConditionalStatement& node)
+	{
+		Visit(node.statement);
+	}
+
 	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Constant& /*node*/)
 	{
 		/* Nothing to do */

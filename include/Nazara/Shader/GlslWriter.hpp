@@ -16,7 +16,6 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 
 namespace Nz
 {
@@ -31,7 +30,7 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			std::string Generate(const ShaderAst& shader) override;
+			std::string Generate(const ShaderAst& shader, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 
@@ -70,6 +69,8 @@ namespace Nz
 			void Visit(ShaderNodes::BinaryOp& node) override;
 			void Visit(ShaderNodes::BuiltinVariable& var) override;
 			void Visit(ShaderNodes::Cast& node) override;
+			void Visit(ShaderNodes::ConditionalExpression& node) override;
+			void Visit(ShaderNodes::ConditionalStatement& node) override;
 			void Visit(ShaderNodes::Constant& node) override;
 			void Visit(ShaderNodes::DeclareVariable& node) override;
 			void Visit(ShaderNodes::ExpressionStatement& node) override;
@@ -91,6 +92,7 @@ namespace Nz
 			{
 				const ShaderAst* shader = nullptr;
 				const ShaderAst::Function* currentFunction = nullptr;
+				const States* states = nullptr;
 			};
 
 			struct State

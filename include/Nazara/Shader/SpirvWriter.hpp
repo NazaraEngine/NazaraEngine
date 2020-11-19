@@ -23,7 +23,7 @@ namespace Nz
 {
 	class SpirvSection;
 
-	class NAZARA_SHADER_API SpirvWriter
+	class NAZARA_SHADER_API SpirvWriter : public ShaderWriter
 	{
 		friend class SpirvAstVisitor;
 		friend class SpirvExpressionLoad;
@@ -38,7 +38,7 @@ namespace Nz
 			SpirvWriter(SpirvWriter&&) = delete;
 			~SpirvWriter() = default;
 
-			std::vector<UInt32> Generate(const ShaderAst& shader);
+			std::vector<UInt32> Generate(const ShaderAst& shader, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 
@@ -66,6 +66,8 @@ namespace Nz
 			UInt32 GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const;
 			UInt32 GetTypeId(const ShaderExpressionType& type) const;
 
+			inline bool IsConditionEnabled(const std::string& condition) const;
+
 			UInt32 ReadInputVariable(const std::string& name);
 			std::optional<UInt32> ReadInputVariable(const std::string& name, OnlyCache);
 			UInt32 ReadLocalVariable(const std::string& name);
@@ -88,6 +90,7 @@ namespace Nz
 			{
 				const ShaderAst* shader = nullptr;
 				const ShaderAst::Function* currentFunction = nullptr;
+				const States* states = nullptr;
 			};
 
 			struct ExtVar

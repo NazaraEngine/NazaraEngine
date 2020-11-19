@@ -16,6 +16,22 @@ inline auto ShaderGraph::GetBuffers() const -> const std::vector<BufferEntry>&
 	return m_buffers;
 }
 
+inline auto ShaderGraph::GetCondition(std::size_t conditionIndex) const -> const ConditionEntry&
+{
+	assert(conditionIndex < m_conditions.size());
+	return m_conditions[conditionIndex];
+}
+
+inline std::size_t ShaderGraph::GetConditionCount() const
+{
+	return m_conditions.size();
+}
+
+inline auto ShaderGraph::GetConditions() const -> const std::vector<ConditionEntry>&
+{
+	return m_conditions;
+}
+
 inline auto ShaderGraph::GetInput(std::size_t inputIndex) const -> const InputEntry&
 {
 	assert(inputIndex < m_inputs.size());
@@ -93,5 +109,11 @@ inline auto ShaderGraph::GetTextures() const -> const std::vector<TextureEntry>&
 inline ShaderType ShaderGraph::GetType() const
 {
 	return m_type;
+}
+
+inline bool ShaderGraph::IsConditionEnabled(std::size_t conditionIndex) const
+{
+	assert(conditionIndex < m_conditions.size());
+	return m_conditions[conditionIndex].enabled;
 }
 

@@ -12,6 +12,22 @@ namespace Nz
 	{
 	}
 
+	inline auto Nz::ShaderAst::GetCondition(std::size_t i) const -> const Condition&
+	{
+		assert(i < m_functions.size());
+		return m_conditions[i];
+	}
+
+	inline std::size_t ShaderAst::GetConditionCount() const
+	{
+		return m_conditions.size();
+	}
+
+	inline auto ShaderAst::GetConditions() const -> const std::vector<Condition>&
+	{
+		return m_conditions;
+	}
+
 	inline auto ShaderAst::GetFunction(std::size_t i) const -> const Function&
 	{
 		assert(i < m_functions.size());

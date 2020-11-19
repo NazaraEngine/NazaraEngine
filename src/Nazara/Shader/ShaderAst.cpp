@@ -7,6 +7,12 @@
 
 namespace Nz
 {
+	void ShaderAst::AddCondition(std::string name)
+	{
+		auto& conditionEntry = m_conditions.emplace_back();
+		conditionEntry.name = std::move(name);
+	}
+
 	void ShaderAst::AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters, ShaderNodes::BasicType returnType)
 	{
 		auto& functionEntry = m_functions.emplace_back();

@@ -263,6 +263,20 @@ namespace Nz::ShaderNodes
 		return node;
 	}
 
+	inline ConditionalExpression::ConditionalExpression() :
+	Expression(NodeType::ConditionalExpression)
+	{
+	}
+
+	inline std::shared_ptr<ConditionalExpression> ShaderNodes::ConditionalExpression::Build(std::string condition, ExpressionPtr truePath, ExpressionPtr falsePath)
+	{
+		auto node = std::make_shared<ConditionalExpression>();
+		node->conditionName = std::move(condition);
+		node->falsePath = std::move(falsePath);
+		node->truePath = std::move(truePath);
+
+		return node;
+	}
 
 	inline Constant::Constant() :
 	Expression(NodeType::Constant)

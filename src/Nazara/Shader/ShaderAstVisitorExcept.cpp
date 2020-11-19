@@ -33,6 +33,16 @@ namespace Nz
 		throw std::runtime_error("unhandled Cast node");
 	}
 
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::ConditionalExpression& /*node*/)
+	{
+		throw std::runtime_error("unhandled ConditionalExpression node");
+	}
+
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::ConditionalStatement& /*node*/)
+	{
+		throw std::runtime_error("unhandled ConditionalStatement node");
+	}
+
 	void ShaderAstVisitorExcept::Visit(ShaderNodes::Constant& /*node*/)
 	{
 		throw std::runtime_error("unhandled Constant node");

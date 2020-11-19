@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline bool SpirvWriter::IsConditionEnabled(const std::string& condition) const
+	{
+		return m_context.states->enabledConditions.find(condition) != m_context.states->enabledConditions.end();
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>

@@ -91,6 +91,16 @@ namespace Nz
 		PushExpression(ShaderNodes::Cast::Build(node.exprType, expressions.data(), expressionCount));
 	}
 
+	void ShaderAstCloner::Visit(ShaderNodes::ConditionalExpression& node)
+	{
+		PushExpression(ShaderNodes::ConditionalExpression::Build(node.conditionName, CloneExpression(node.truePath), CloneExpression(node.falsePath)));
+	}
+
+	void ShaderAstCloner::Visit(ShaderNodes::ConditionalStatement& node)
+	{
+		PushStatement(ShaderNodes::ConditionalStatement::Build(node.conditionName, CloneStatement(node.statement)));
+	}
+
 	void ShaderAstCloner::Visit(ShaderNodes::Constant& node)
 	{
 		PushExpression(ShaderNodes::Constant::Build(node.value));

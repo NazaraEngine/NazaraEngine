@@ -241,6 +241,35 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
+	void ShaderAstValidator::Visit(ShaderNodes::ConditionalExpression& node)
+	{
+		MandatoryNode(node.truePath);
+		MandatoryNode(node.falsePath);
+
+		for (std::size_t i = 0; i < m_shader.GetConditionCount(); ++i)
+		{
+			const auto& condition = m_shader.GetCondition(i);
+			if (condition.name == node.conditionName)
+				return;
+		}
+
+		throw AstError{ "Condition not found" };
+	}
+
+	void ShaderAstValidator::Visit(ShaderNodes::ConditionalStatement& node)
+	{
+		MandatoryNode(node.statement);
+
+		for (std::size_t i = 0; i < m_shader.GetConditionCount(); ++i)
+		{
+			const auto& condition = m_shader.GetCondition(i);
+			if (condition.name == node.conditionName)
+				return;
+		}
+
+		throw AstError{ "Condition not found" };
+	}
+
 	void ShaderAstValidator::Visit(ShaderNodes::Constant& /*node*/)
 	{
 	}
