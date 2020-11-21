@@ -68,7 +68,6 @@ namespace Nz
 			virtual void Value(UInt16& val) = 0;
 			virtual void Value(UInt32& val) = 0;
 			virtual void Value(UInt64& val) = 0;
-			virtual void Value(std::size_t& val) = 0;
 			inline void SizeT(std::size_t& val);
 
 			virtual void Variable(ShaderNodes::VariablePtr& var) = 0;
@@ -102,7 +101,6 @@ namespace Nz
 			void Value(UInt16& val) override;
 			void Value(UInt32& val) override;
 			void Value(UInt64& val) override;
-			void Value(std::size_t& val) override;
 			void Variable(ShaderNodes::VariablePtr& var) override;
 
 			ByteStream& m_stream;
@@ -134,7 +132,6 @@ namespace Nz
 			void Value(UInt16& val) override;
 			void Value(UInt32& val) override;
 			void Value(UInt64& val) override;
-			void Value(std::size_t& val) override;
 			void Variable(ShaderNodes::VariablePtr& var) override;
 
 			ByteStream& m_stream;
