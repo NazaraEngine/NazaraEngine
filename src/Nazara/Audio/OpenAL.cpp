@@ -132,7 +132,11 @@ namespace Nz
 			"libopenal.so.0",
 			"libopenal.so"
 		};
-		//#elif defined(NAZARA_PLATFORM_MACOSX)
+		#elif defined(NAZARA_PLATFORM_MACOSX)
+		const char* libs[] = {
+			"libopenal.dylib",
+			"libopenal.1.dylib",
+		};
 		#else
 		NazaraError("Unknown OS");
 		return false;

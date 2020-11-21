@@ -465,6 +465,11 @@ namespace Nz
 	{
 		m_stream << val;
 	}
+	
+	void ShaderAstSerializer::Value(std::size_t& val)
+	{
+		m_stream << val;
+	}
 
 	void ShaderAstSerializer::Variable(ShaderNodes::VariablePtr& var)
 	{
@@ -728,6 +733,11 @@ namespace Nz
 	}
 
 	void ShaderAstUnserializer::Value(UInt64& val)
+	{
+		m_stream >> val;
+	}
+	
+	void ShaderAstUnserializer::Value(std::size_t& val)
 	{
 		m_stream >> val;
 	}
