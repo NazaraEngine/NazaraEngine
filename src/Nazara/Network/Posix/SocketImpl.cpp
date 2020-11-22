@@ -273,6 +273,9 @@ namespace Nz
 		unsigned int code;
 		socklen_t codeLength = sizeof(code);
 
+#if defined(NAZARA_PLATFORM_MACOSX)
+		return 0; //No IP_MTU on macosx
+#else
 		if (getsockopt(handle, IPPROTO_IP, IP_MTU, &code, &codeLength) == SOCKET_ERROR)
 		{
 			if (error)
@@ -280,6 +283,7 @@ namespace Nz
 
 			return 0;
 		}
+#endif
 
 		if (error)
 			*error = SocketError_NoError;
