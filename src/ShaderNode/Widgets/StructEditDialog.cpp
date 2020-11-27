@@ -97,7 +97,7 @@ QString StructEditDialog::GetMemberName(const StructInfo::Member& member)
 		else if constexpr (std::is_same_v<T, std::size_t>)
 			name += QString::fromStdString(m_shaderGraph.GetStruct(arg).name);
 		else
-			static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
 	},
 	member.type);
 
