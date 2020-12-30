@@ -346,6 +346,11 @@ namespace Nz
 		}
 	}
 
+	void SpirvAstVisitor::Visit(ShaderNodes::Discard& /*node*/)
+	{
+		m_writer.GetInstructions().Append(SpirvOp::OpKill);
+	}
+
 	void SpirvAstVisitor::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		Visit(node.expression);

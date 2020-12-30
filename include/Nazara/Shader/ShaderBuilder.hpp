@@ -54,6 +54,7 @@ namespace Nz::ShaderBuilder
 	constexpr GenBuilder<ShaderNodes::ConditionalStatement> ConditionalStatement;
 	constexpr GenBuilder<ShaderNodes::Constant> Constant;
 	constexpr GenBuilder<ShaderNodes::DeclareVariable> DeclareVariable;
+	constexpr GenBuilder<ShaderNodes::Discard> Discard;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::Divide> Divide;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::Equality> Equal;
 	constexpr GenBuilder<ShaderNodes::ExpressionStatement> ExprStatement;

@@ -111,6 +111,11 @@ namespace Nz
 		PushStatement(ShaderNodes::DeclareVariable::Build(CloneVariable(node.variable), CloneExpression(node.expression)));
 	}
 
+	void ShaderAstCloner::Visit(ShaderNodes::Discard& /*node*/)
+	{
+		PushStatement(ShaderNodes::Discard::Build());
+	}
+
 	void ShaderAstCloner::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		PushStatement(ShaderNodes::ExpressionStatement::Build(CloneExpression(node.expression)));

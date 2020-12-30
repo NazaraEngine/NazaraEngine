@@ -81,6 +81,7 @@ namespace Nz::ShaderNodes
 		ConditionalExpression,
 		ConditionalStatement,
 		DeclareVariable,
+		Discard,
 		ExpressionStatement,
 		Identifier,
 		IntrinsicCall,

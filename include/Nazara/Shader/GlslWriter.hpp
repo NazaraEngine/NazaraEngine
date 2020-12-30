@@ -73,6 +73,7 @@ namespace Nz
 			void Visit(ShaderNodes::ConditionalStatement& node) override;
 			void Visit(ShaderNodes::Constant& node) override;
 			void Visit(ShaderNodes::DeclareVariable& node) override;
+			void Visit(ShaderNodes::Discard& node) override;
 			void Visit(ShaderNodes::ExpressionStatement& node) override;
 			void Visit(ShaderNodes::Identifier& node) override;
 			void Visit(ShaderNodes::InputVariable& var) override;

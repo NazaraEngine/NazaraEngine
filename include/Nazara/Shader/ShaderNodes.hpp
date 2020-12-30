@@ -123,6 +123,15 @@ namespace Nz
 			static inline std::shared_ptr<DeclareVariable> Build(VariablePtr variable, ExpressionPtr expression = nullptr);
 		};
 
+		struct NAZARA_SHADER_API Discard : public Statement
+		{
+			inline Discard();
+
+			void Visit(ShaderAstVisitor& visitor) override;
+
+			static inline std::shared_ptr<Discard> Build();
+		};
+
 		struct NAZARA_SHADER_API Identifier : public Expression
 		{
 			inline Identifier();

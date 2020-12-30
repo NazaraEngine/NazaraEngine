@@ -519,6 +519,11 @@ namespace Nz
 		AppendLine(";");
 	}
 
+	void GlslWriter::Visit(ShaderNodes::Discard& /*node*/)
+	{
+		Append("discard;");
+	}
+
 	void GlslWriter::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		Visit(node.expression);
