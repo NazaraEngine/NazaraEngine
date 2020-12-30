@@ -624,6 +624,13 @@ namespace Nz
 		return radians * T(180.0/M_PI);
 	}
 
+	template<typename T>
+	T SetBit(T number, T bit)
+	{
+		NazaraAssert(bit < sizeof(number)* CHAR_BIT, "bit index out of range");
+		return number |= (T(1) << bit);
+	}
+
 	/*!
 	* \ingroup math
 	* \brief Converts the string to number
@@ -687,6 +694,13 @@ namespace Nz
 			*ok = true;
 
 		return (negative) ? -static_cast<long long>(total) : total;
+	}
+
+	template<typename T>
+	bool TestBit(T number, T bit)
+	{
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number & (T(1) << bit);
 	}
 
 	/*!
