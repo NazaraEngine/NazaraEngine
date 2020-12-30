@@ -61,7 +61,9 @@ namespace Nz
 	template<typename T> constexpr bool NumberEquals(T a, T b, T maxDifference);
 	inline std::string NumberToString(long long number, UInt8 radix = 10);
 	template<typename T> constexpr T RadianToDegree(T radians);
+	template<typename T> T SetBit(T number, T bit);
 	inline long long StringToNumber(const std::string_view& str, UInt8 radix = 10, bool* ok = nullptr);
+	template<typename T> bool TestBit(T number, T bit);
 	template<typename T> constexpr T ToDegrees(T angle);
 	template<typename T> constexpr T ToRadians(T angle);
 }
