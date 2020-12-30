@@ -53,6 +53,11 @@ namespace Nz
 		throw std::runtime_error("unhandled DeclareVariable node");
 	}
 
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::Discard& /*node*/)
+	{
+		throw std::runtime_error("unhandled Discard node");
+	}
+
 	void ShaderAstVisitorExcept::Visit(ShaderNodes::ExpressionStatement& /*node*/)
 	{
 		throw std::runtime_error("unhandled ExpressionStatement node");

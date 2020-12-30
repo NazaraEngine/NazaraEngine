@@ -3,6 +3,7 @@
 #include <ShaderNode/DataModels/BufferField.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
 #include <ShaderNode/DataModels/ConditionalExpression.hpp>
+#include <ShaderNode/DataModels/Discard.hpp>
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
 #include <ShaderNode/DataModels/OutputValue.hpp>
@@ -742,6 +743,7 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
 	RegisterShaderNode<ConditionalExpression>(*this, registry, "Shader");
+	RegisterShaderNode<Discard>(*this, registry, "Outputs");
 	RegisterShaderNode<FloatValue>(*this, registry, "Constants");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
 	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");

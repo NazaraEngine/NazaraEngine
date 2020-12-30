@@ -42,6 +42,12 @@ namespace Nz::ShaderNodes
 	}
 
 
+	void Discard::Visit(ShaderAstVisitor& visitor)
+	{
+		visitor.Visit(*this);
+	}
+
+
 	ExpressionCategory Identifier::GetExpressionCategory() const
 	{
 		return ExpressionCategory::LValue;

@@ -69,6 +69,11 @@ namespace Nz
 			Visit(node.expression);
 	}
 
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Discard& /*node*/)
+	{
+		/* Nothing to do */
+	}
+
 	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ExpressionStatement& node)
 	{
 		Visit(node.expression);

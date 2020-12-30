@@ -67,6 +67,11 @@ namespace Nz
 					Serialize(node);
 				}
 
+				void Visit(ShaderNodes::Discard& node) override
+				{
+					Serialize(node);
+				}
+
 				void Visit(ShaderNodes::ExpressionStatement& node) override
 				{
 					Serialize(node);
@@ -240,6 +245,11 @@ namespace Nz
 	{
 		Variable(node.variable);
 		Node(node.expression);
+	}
+
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::Discard& /*node*/)
+	{
+		/* Nothing to do */
 	}
 
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::ExpressionStatement& node)
@@ -665,6 +675,7 @@ namespace Nz
 			HandleType(ConditionalExpression);
 			HandleType(ConditionalStatement);
 			HandleType(DeclareVariable);
+			HandleType(Discard);
 			HandleType(ExpressionStatement);
 			HandleType(Identifier);
 			HandleType(IntrinsicCall);

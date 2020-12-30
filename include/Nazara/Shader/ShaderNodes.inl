@@ -148,6 +148,17 @@ namespace Nz::ShaderNodes
 	}
 
 
+	inline Discard::Discard() :
+	Statement(NodeType::DeclareVariable)
+	{
+	}
+
+	inline std::shared_ptr<Discard> Discard::Build()
+	{
+		return std::make_shared<Discard>();
+	}
+
+
 	inline Identifier::Identifier() :
 	Expression(NodeType::Identifier)
 	{

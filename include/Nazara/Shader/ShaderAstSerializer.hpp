@@ -35,6 +35,7 @@ namespace Nz
 			void Serialize(ShaderNodes::ConditionalStatement& node);
 			void Serialize(ShaderNodes::Constant& node);
 			void Serialize(ShaderNodes::DeclareVariable& node);
+			void Serialize(ShaderNodes::Discard& node);
 			void Serialize(ShaderNodes::ExpressionStatement& node);
 			void Serialize(ShaderNodes::Identifier& node);
 			void Serialize(ShaderNodes::IntrinsicCall& node);
