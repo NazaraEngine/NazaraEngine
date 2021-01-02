@@ -5,5 +5,6 @@ MODULE.ClientOnly = true
 MODULE.Libraries = {
 	"NazaraCore",
 	"NazaraRenderer",
+	"NazaraShader",
 	"NazaraUtility"
 }

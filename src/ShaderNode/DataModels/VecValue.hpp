@@ -18,6 +18,9 @@ class VecValue : public ShaderNode
 		VecValue(ShaderGraph& graph);
 		~VecValue() = default;
 
+		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
+		void BuildNodeEdition(QFormLayout* layout) override;
+
 		QString caption() const override;
 		QString name() const override;
 
@@ -27,9 +30,8 @@ class VecValue : public ShaderNode
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
-		void BuildNodeEdition(QFormLayout* layout) override;
-
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		QString portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
+		bool portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;

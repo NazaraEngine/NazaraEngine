@@ -10,22 +10,18 @@
 namespace Nz
 {
 	inline MaterialSettings::MaterialSettings() :
-	MaterialSettings({}, {}, {}, { InvalidIndex }, {})
+	MaterialSettings(Builder{})
 	{
 	}
 
-	inline MaterialSettings::MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBindings, DefaultShaders defaultShaders) :
-	m_sharedUniformBlocks(std::move(sharedUniformBlocks)),
-	m_textures(std::move(textures)),
-	m_uniformBlocks(std::move(uniformBlocks)),
-	m_defaultShaders(std::move(defaultShaders)),
-	m_predefinedBinding(predefinedBindings)
+	inline MaterialSettings::MaterialSettings(Builder data) :
+	m_data(std::move(data))
 	{
 		RenderPipelineLayoutInfo info;
 
 		unsigned int bindingIndex = 0;
 
-		for (const Texture& textureInfo : m_textures)
+		for (const Texture& textureInfo : m_data.textures)
 		{
 			info.bindings.push_back({
 				//textureInfo.bindingPoint,
@@ -35,7 +31,7 @@ namespace Nz
 			});
 		}
 
-		for (const UniformBlock& ubo : m_uniformBlocks)
+		for (const UniformBlock& ubo : m_data.uniformBlocks)
 		{
 			info.bindings.push_back({
 				//ubo.bindingPoint,
@@ -45,7 +41,7 @@ namespace Nz
 			});
 		}
 
-		for (const SharedUniformBlock& ubo : m_sharedUniformBlocks)
+		for (const SharedUniformBlock& ubo : m_data.sharedUniformBlocks)
 		{
 			info.bindings.push_back({
 				//ubo.bindingPoint,
@@ -58,19 +54,25 @@ namespace Nz
 		m_pipelineLayout = Graphics::Instance()->GetRenderDevice().InstantiateRenderPipelineLayout(std::move(info));
 	}
 
-	inline const std::shared_ptr<ShaderStage>& MaterialSettings::GetDefaultShader(ShaderStageType stage) const
+	inline auto MaterialSettings::GetConditions() const -> const std::vector<Condition>&
 	{
-		return m_defaultShaders[UnderlyingCast(stage)];
+		return m_data.conditions;
 	}
 
-	inline auto MaterialSettings::GetDefaultShaders() const -> const DefaultShaders&
+	inline std::size_t MaterialSettings::GetConditionIndex(const std::string_view& name) const
 	{
-		return m_defaultShaders;
+		for (std::size_t i = 0; i < m_data.conditions.size(); ++i)
+		{
+			if (m_data.conditions[i].name == name)
+				return i;
+		}
+
+		return InvalidIndex;
 	}
 
 	inline std::size_t MaterialSettings::GetPredefinedBindingIndex(PredefinedShaderBinding binding) const
 	{
-		return m_predefinedBinding[UnderlyingCast(binding)];
+		return m_data.predefinedBinding[UnderlyingCast(binding)];
 	}
 
 	inline const std::shared_ptr<RenderPipelineLayout>& MaterialSettings::GetRenderPipelineLayout() const
@@ -78,32 +80,37 @@ namespace Nz
 		return m_pipelineLayout;
 	}
 
+	inline const std::shared_ptr<UberShader>& MaterialSettings::GetShader(ShaderStageType stage) const
+	{
+		return m_data.shaders[UnderlyingCast(stage)];
+	}
+
+	inline auto MaterialSettings::GetShaders() const -> const Shaders&
+	{
+		return m_data.shaders;
+	}
+
 	inline auto MaterialSettings::GetSharedUniformBlocks() const -> const std::vector<SharedUniformBlock>&
 	{
-		return m_sharedUniformBlocks;
+		return m_data.sharedUniformBlocks;
 	}
 
 	inline std::size_t MaterialSettings::GetSharedUniformBlockIndex(const std::string_view& name) const
 	{
-		for (std::size_t i = 0; i < m_sharedUniformBlocks.size(); ++i)
+		for (std::size_t i = 0; i < m_data.sharedUniformBlocks.size(); ++i)
 		{
-			if (m_sharedUniformBlocks[i].name == name)
+			if (m_data.sharedUniformBlocks[i].name == name)
 				return i;
 		}
 
 		return InvalidIndex;
 	}
 
-	inline auto MaterialSettings::GetTextures() const -> const std::vector<Texture>&
-	{
-		return m_textures;
-	}
-
 	inline std::size_t MaterialSettings::GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const
 	{
-		assert(uniformBlockIndex < m_sharedUniformBlocks.size());
+		assert(uniformBlockIndex < m_data.sharedUniformBlocks.size());
 
-		const std::vector<UniformVariable>& variables = m_sharedUniformBlocks[uniformBlockIndex].uniforms;
+		const std::vector<UniformVariable>& variables = m_data.sharedUniformBlocks[uniformBlockIndex].uniforms;
 		for (std::size_t i = 0; i < variables.size(); ++i)
 		{
 			if (variables[i].name == name)
@@ -113,11 +120,16 @@ namespace Nz
 		return InvalidIndex;
 	}
 
+	inline auto MaterialSettings::GetTextures() const -> const std::vector<Texture>&
+	{
+		return m_data.textures;
+	}
+
 	inline std::size_t MaterialSettings::GetTextureIndex(const std::string_view& name) const
 	{
-		for (std::size_t i = 0; i < m_textures.size(); ++i)
+		for (std::size_t i = 0; i < m_data.textures.size(); ++i)
 		{
-			if (m_textures[i].name == name)
+			if (m_data.textures[i].name == name)
 				return i;
 		}
 
@@ -126,14 +138,14 @@ namespace Nz
 
 	inline auto MaterialSettings::GetUniformBlocks() const -> const std::vector<UniformBlock>&
 	{
-		return m_uniformBlocks;
+		return m_data.uniformBlocks;
 	}
 
 	inline std::size_t MaterialSettings::GetUniformBlockIndex(const std::string_view& name) const
 	{
-		for (std::size_t i = 0; i < m_uniformBlocks.size(); ++i)
+		for (std::size_t i = 0; i < m_data.uniformBlocks.size(); ++i)
 		{
-			if (m_uniformBlocks[i].name == name)
+			if (m_data.uniformBlocks[i].name == name)
 				return i;
 		}
 
@@ -142,9 +154,9 @@ namespace Nz
 
 	inline std::size_t MaterialSettings::GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const
 	{
-		assert(uniformBlockIndex < m_uniformBlocks.size());
+		assert(uniformBlockIndex < m_data.uniformBlocks.size());
 
-		const std::vector<UniformVariable>& variables = m_uniformBlocks[uniformBlockIndex].uniforms;
+		const std::vector<UniformVariable>& variables = m_data.uniformBlocks[uniformBlockIndex].uniforms;
 		for (std::size_t i = 0; i < variables.size(); ++i)
 		{
 			if (variables[i].name == name)

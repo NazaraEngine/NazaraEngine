@@ -17,6 +17,44 @@ ShaderNode(graph)
 }
 
 template<std::size_t ToComponentCount>
+Nz::ShaderNodes::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+{
+	assert(m_input);
+	assert(count == 1);
+	assert(outputIndex == 0);
+
+	std::size_t fromComponentCount = m_input->componentCount;
+
+	if (ToComponentCount > fromComponentCount)
+	{
+		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
+
+		std::array<Nz::ShaderNodes::ExpressionPtr, 4> expr;
+		expr[0] = expressions[0];
+		for (std::size_t i = 0; i < overflowComponentCount; ++i)
+			expr[i + 1] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
+
+		constexpr auto ExpressionType = VecExpressionType<ToComponentCount>;
+
+		return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), 1 + overflowComponentCount);
+	}
+	else if (ToComponentCount < fromComponentCount)
+	{
+		std::array<Nz::ShaderNodes::SwizzleComponent, ToComponentCount> swizzleComponents;
+		for (std::size_t i = 0; i < ToComponentCount; ++i)
+			swizzleComponents[i] = static_cast<Nz::ShaderNodes::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderNodes::SwizzleComponent::First) + i);
+
+		return std::apply([&](auto... components)
+			{
+				std::initializer_list<Nz::ShaderNodes::SwizzleComponent> componentList{ components... };
+				return Nz::ShaderBuilder::Swizzle(expressions[0], componentList);
+			}, swizzleComponents);
+	}
+	else
+		return expressions[0]; //< no-op
+}
+
+template<std::size_t ToComponentCount>
 void CastVec<ToComponentCount>::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
@@ -46,43 +84,6 @@ void CastVec<ToComponentCount>::BuildNodeEdition(QFormLayout* layout)
 			layout->addRow(QString::fromUtf8(&s_vectorComponents[fromComponentCount + i], 1), spinbox);
 		}
 	}
-}
-
-template<std::size_t ToComponentCount>
-Nz::ShaderNodes::ExpressionPtr CastVec<ToComponentCount>::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
-{
-	assert(m_input);
-	assert(count == 1);
-
-	std::size_t fromComponentCount = m_input->componentCount;
-
-	if (ToComponentCount > fromComponentCount)
-	{
-		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
-
-		std::array<Nz::ShaderNodes::ExpressionPtr, 4> expr;
-		expr[0] = expressions[0];
-		for (std::size_t i = 0; i < overflowComponentCount; ++i)
-			expr[i + 1] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
-
-		constexpr auto ExpressionType = VecExpressionType<ToComponentCount>;
-
-		return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), 1 + overflowComponentCount);
-	}
-	else if (ToComponentCount < fromComponentCount)
-	{
-		std::array<Nz::ShaderNodes::SwizzleComponent, ToComponentCount> swizzleComponents;
-		for (std::size_t i = 0; i < ToComponentCount; ++i)
-			swizzleComponents[i] = static_cast<Nz::ShaderNodes::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderNodes::SwizzleComponent::First) + i);
-
-		return std::apply([&](auto... components)
-		{
-			std::initializer_list<Nz::ShaderNodes::SwizzleComponent> componentList{ components... };
-			return Nz::ShaderBuilder::Swizzle(expressions[0], componentList);
-		}, swizzleComponents);
-	}
-	else
-		return expressions[0]; //< no-op
 }
 
 template<std::size_t ToComponentCount>

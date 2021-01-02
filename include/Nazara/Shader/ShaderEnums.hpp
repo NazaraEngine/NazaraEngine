@@ -33,7 +33,7 @@ namespace Nz::ShaderNodes
 		UInt1,     //< uint
 		UInt2,     //< uvec2
 		UInt3,     //< uvec3
-		UInt4     //< uvec4
+		UInt4      //< uvec4
 	};
 
 	enum class BinaryType
@@ -43,7 +43,12 @@ namespace Nz::ShaderNodes
 		Multiply,  //< *
 		Divide,    //< /
 
-		Equality  //< ==
+		CompEq,    //< ==
+		CompGe,    //< >=
+		CompGt,    //< >
+		CompLe,    //< <=
+		CompLt,    //< <
+		CompNe     //< <=
 	};
 
 	enum class BuiltinEntry
@@ -87,7 +92,9 @@ namespace Nz::ShaderNodes
 		IntrinsicCall,
 		Sample2D,
 		SwizzleOp,
-		StatementBlock
+		StatementBlock,
+
+		Max = StatementBlock
 	};
 
 	enum class SsaInstruction

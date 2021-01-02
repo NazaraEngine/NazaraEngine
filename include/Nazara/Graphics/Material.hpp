@@ -41,6 +41,7 @@ namespace Nz
 			inline void EnableAlphaTest(bool alphaTest);
 			inline void EnableBlending(bool blending);
 			inline void EnableColorWrite(bool colorWrite);
+			inline void EnableCondition(std::size_t conditionIndex, bool enable);
 			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthSorting(bool depthSorting);
 			inline void EnableDepthWrite(bool depthWrite);
@@ -53,7 +54,7 @@ namespace Nz
 			inline void EnableVertexColor(bool vertexColor);
 
 			inline void EnsurePipelineUpdate() const;
-			
+
 			inline RendererComparison GetDepthCompareFunc() const;
 			inline BlendFunc GetDstBlend() const;
 			inline FaceSide GetFaceCulling() const;
@@ -63,7 +64,7 @@ namespace Nz
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
 			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
-			inline const std::shared_ptr<ShaderStage>& GetShader(ShaderStageType shaderStage) const;
+			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
 			inline BlendFunc GetSrcBlend() const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const std::shared_ptr<TextureSampler>& GetTextureSampler(std::size_t textureIndex) const;
@@ -76,6 +77,7 @@ namespace Nz
 			inline bool IsAlphaTestEnabled() const;
 			inline bool IsBlendingEnabled() const;
 			inline bool IsColorWriteEnabled() const;
+			inline bool IsConditionEnabled(std::size_t conditionIndex) const;
 			inline bool IsDepthBufferEnabled() const;
 			inline bool IsDepthSortingEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
@@ -92,7 +94,6 @@ namespace Nz
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
 			inline void SetPointSize(float pointSize);
-			inline void SetShader(ShaderStageType shaderStage, std::shared_ptr<ShaderStage> shader);
 			inline void SetUniformBuffer(std::size_t bufferIndex, UniformBufferRef uniformBuffer);
 			inline void SetSrcBlend(BlendFunc func);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
@@ -115,7 +116,8 @@ namespace Nz
 			std::vector<MaterialTexture> m_textures;
 			std::vector<UniformBufferRef> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
-			MaterialPipelineInfo m_pipelineInfo;
+			UInt32 m_enabledConditions;
+			mutable MaterialPipelineInfo m_pipelineInfo;
 			mutable bool m_pipelineUpdated;
 			bool m_shadowCastingEnabled;
 	};

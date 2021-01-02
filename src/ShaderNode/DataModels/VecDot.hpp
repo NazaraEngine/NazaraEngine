@@ -13,7 +13,7 @@ class VecDot : public ShaderNode
 		VecDot(ShaderGraph& graph);
 		~VecDot() = default;
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override;
 		QString name() const override;

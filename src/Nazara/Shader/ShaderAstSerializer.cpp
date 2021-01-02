@@ -659,6 +659,9 @@ namespace Nz
 		Int32 nodeTypeInt;
 		m_stream >> nodeTypeInt;
 
+		if (nodeTypeInt < static_cast<Int32>(ShaderNodes::NodeType::None) || nodeTypeInt > static_cast<Int32>(ShaderNodes::NodeType::Max))
+			throw std::runtime_error("invalid node type");
+
 		ShaderNodes::NodeType nodeType = static_cast<ShaderNodes::NodeType>(nodeTypeInt);
 
 #define HandleType(Type) case ShaderNodes::NodeType:: Type : node = std::make_shared<ShaderNodes:: Type>(); break

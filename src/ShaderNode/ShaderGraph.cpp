@@ -1,19 +1,23 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <ShaderNode/DataModels/BinOp.hpp>
+#include <ShaderNode/DataModels/BoolValue.hpp>
 #include <ShaderNode/DataModels/BufferField.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
+#include <ShaderNode/DataModels/CompOp.hpp>
 #include <ShaderNode/DataModels/ConditionalExpression.hpp>
 #include <ShaderNode/DataModels/Discard.hpp>
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
+#include <ShaderNode/DataModels/Mat4BinOp.hpp>
+#include <ShaderNode/DataModels/Mat4VecMul.hpp>
 #include <ShaderNode/DataModels/OutputValue.hpp>
+#include <ShaderNode/DataModels/PositionOutputValue.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataModels/TextureValue.hpp>
-#include <ShaderNode/DataModels/Mat4BinOp.hpp>
-#include <ShaderNode/DataModels/Mat4VecMul.hpp>
-#include <ShaderNode/DataModels/PositionOutputValue.hpp>
-#include <ShaderNode/DataModels/VecBinOp.hpp>
+#include <ShaderNode/DataModels/VecComposition.hpp>
+#include <ShaderNode/DataModels/VecDecomposition.hpp>
 #include <ShaderNode/DataModels/VecDot.hpp>
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
 #include <ShaderNode/DataModels/VecValue.hpp>
@@ -61,27 +65,6 @@ m_type(ShaderType::NotSet)
 	AddInput("UV", PrimitiveType::Float2, InputRole::TexCoord, 0, 0);
 	AddOutput("RenderTarget0", PrimitiveType::Float4, 0);
 	AddTexture("Potato", TextureType::Sampler2D, 1);
-	AddStruct("TestStruct", {
-		{
-			{ "position", PrimitiveType::Float3 },
-			{ "normal", PrimitiveType::Float3 },
-			{ "uv", PrimitiveType::Float2 },
-			{ "inner", 2 }
-		}
-	});
-	AddStruct("InnerStruct", {
-		{
-			{ "a", PrimitiveType::Float3 },
-		}
-	});
-	AddStruct("OuterStruct", {
-		{
-			{ "a", 1 },
-			{ "b", PrimitiveType::Float1 }
-		}
-	});
-
-	AddBuffer("testUBO", BufferType::UniformBufferObject, 0, 0);
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
@@ -460,23 +443,30 @@ QJsonObject ShaderGraph::Save()
 Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 {
 	std::vector<Nz::ShaderNodes::StatementPtr> statements;
-	QHash<QUuid, unsigned int> usageCount;
 
-	std::function<void(QtNodes::Node*)> DetectVariables;
-	DetectVariables = [&](QtNodes::Node* node)
+	using Key = QPair<QUuid, std::size_t>;
+	auto BuildKey = [](QUuid uuid, std::size_t index)
 	{
-		auto it = usageCount.find(node->id());
+		return Key(uuid, index);
+	};
+
+	QHash<Key, unsigned int> usageCount;
+
+	std::function<void(QtNodes::Node*, std::size_t)> DetectVariables;
+	DetectVariables = [&](QtNodes::Node* node, std::size_t outputIndex)
+	{
+		auto it = usageCount.find(BuildKey(node->id(), outputIndex));
 		if (it == usageCount.end())
 		{
 			for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
 			{
 				for (const auto& [uuid, conn] : connectionSet)
 				{
-					DetectVariables(conn->getNode(QtNodes::PortType::Out));
+					DetectVariables(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
 				}
 			}
 
-			it = usageCount.insert(node->id(), 0);
+			it = usageCount.insert(BuildKey(node->id(), outputIndex), 0);
 		}
 
 		(*it)++;
@@ -488,28 +478,28 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 	{
 		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
 		{
-			DetectVariables(node);
+			DetectVariables(node, 0);
 			outputNodes.push_back(node);
 		}
 	});
 
-	QHash<QUuid, Nz::ShaderNodes::ExpressionPtr> variableExpressions;
+	QHash<Key, Nz::ShaderNodes::ExpressionPtr> variableExpressions;
 
 	unsigned int varCount = 0;
 	std::unordered_set<std::string> usedVariableNames;
 
-	std::function<Nz::ShaderNodes::ExpressionPtr(QtNodes::Node*)> HandleNode;
-	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderNodes::ExpressionPtr
+	std::function<Nz::ShaderNodes::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
+	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> Nz::ShaderNodes::NodePtr
 	{
 		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
 		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
 			throw std::runtime_error(shaderNode->validationMessage().toStdString());
 
 		qDebug() << shaderNode->name() << node->id();
-		if (auto it = variableExpressions.find(node->id()); it != variableExpressions.end())
+		if (auto it = variableExpressions.find(BuildKey(node->id(), portIndex)); it != variableExpressions.end())
 			return *it;
 
-		auto it = usageCount.find(node->id());
+		auto it = usageCount.find(BuildKey(node->id(), portIndex));
 		assert(it != usageCount.end());
 
 		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
@@ -521,16 +511,25 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 			for (const auto& [uuid, conn] : connectionSet)
 			{
 				assert(i < expressions.size());
-				expressions[i] = HandleNode(conn->getNode(QtNodes::PortType::Out));
+				Nz::ShaderNodes::NodePtr inputNode = HandleNode(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
+				if (inputNode->IsStatement())
+					throw std::runtime_error("unexpected statement");
+
+				expressions[i] = std::static_pointer_cast<Nz::ShaderNodes::Expression>(inputNode);
 				i++;
 			}
 		}
 
-		auto expression = shaderNode->GetExpression(expressions.data(), expressions.size());
+		auto astNode = shaderNode->BuildNode(expressions.data(), expressions.size(), portIndex);
 
 		const std::string& variableName = shaderNode->GetVariableName();
 		if (*it > 1 || !variableName.empty())
 		{
+			if (astNode->IsStatement())
+				throw std::runtime_error("unexpected statement");
+
+			auto expression = std::static_pointer_cast<Nz::ShaderNodes::Expression>(astNode);
+
 			Nz::ShaderNodes::ExpressionPtr varExpression;
 			if (expression->GetExpressionCategory() == Nz::ShaderNodes::ExpressionCategory::RValue)
 			{
@@ -546,23 +545,37 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 				usedVariableNames.insert(name);
 
 				auto variable = Nz::ShaderBuilder::Local(std::move(name), expression->GetExpressionType());
-				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, expression));
+				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, std::move(expression)));
 
 				varExpression = Nz::ShaderBuilder::Identifier(variable);
 			}
 			else
-				varExpression = expression;
+				varExpression = std::move(expression);
 
-			variableExpressions.insert(node->id(), varExpression);
+			variableExpressions.insert(BuildKey(node->id(), portIndex), varExpression);
 
 			return varExpression;
 		}
 		else
-			return expression;
+			return astNode;
 	};
 
+	std::sort(outputNodes.begin(), outputNodes.end(), [](QtNodes::Node* lhs, QtNodes::Node* rhs)
+	{
+		ShaderNode* leftNode = static_cast<ShaderNode*>(lhs->nodeDataModel());
+		ShaderNode* rightNode = static_cast<ShaderNode*>(rhs->nodeDataModel());
+
+		return leftNode->GetOutputOrder() < rightNode->GetOutputOrder();
+	});
+
 	for (QtNodes::Node* node : outputNodes)
-		statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
+	{
+		auto astNode = HandleNode(node, 0);
+		if (!astNode->IsStatement())
+			statements.emplace_back(Nz::ShaderBuilder::ExprStatement(std::static_pointer_cast<Nz::ShaderNodes::Expression>(astNode)));
+		else
+			statements.emplace_back(std::static_pointer_cast<Nz::ShaderNodes::Statement>(astNode));
+	}
 
 	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
 }
@@ -738,31 +751,74 @@ Nz::ShaderStageType ShaderGraph::ToShaderStageType(ShaderType type)
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 {
 	auto registry = std::make_shared<QtNodes::DataModelRegistry>();
-	RegisterShaderNode<BufferField>(*this, registry, "Inputs");
+
+	// Casts
 	RegisterShaderNode<CastToVec2>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
-	RegisterShaderNode<ConditionalExpression>(*this, registry, "Shader");
-	RegisterShaderNode<Discard>(*this, registry, "Outputs");
+
+	// Constants
+	RegisterShaderNode<BoolValue>(*this, registry, "Constants");
 	RegisterShaderNode<FloatValue>(*this, registry, "Constants");
+	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
+	RegisterShaderNode<Vec3Value>(*this, registry, "Constants");
+	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");
+
+	// Inputs
+	RegisterShaderNode<BufferField>(*this, registry, "Inputs");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
-	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");
+
+	// Outputs
+	RegisterShaderNode<Discard>(*this, registry, "Outputs");
 	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
-	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
-	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
+	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");
+
+	// Float comparison
+	RegisterShaderNode<FloatEq>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatGe>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatGt>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatLe>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatLt>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatNe>(*this, registry, "Float comparisons");
+
+	// Float operations
+	RegisterShaderNode<FloatAdd>(*this, registry, "Float operations");
+	RegisterShaderNode<FloatDiv>(*this, registry, "Float operations");
+	RegisterShaderNode<FloatMul>(*this, registry, "Float operations");
+	RegisterShaderNode<FloatSub>(*this, registry, "Float operations");
+
+	// Matrix operations
 	RegisterShaderNode<Mat4Add>(*this, registry, "Matrix operations");
 	RegisterShaderNode<Mat4Mul>(*this, registry, "Matrix operations");
 	RegisterShaderNode<Mat4Sub>(*this, registry, "Matrix operations");
 	RegisterShaderNode<Mat4VecMul>(*this, registry, "Matrix operations");
+
+	// Shader
+	RegisterShaderNode<ConditionalExpression>(*this, registry, "Shader");
+
+	// Texture
+	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
+	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
+
+	// Vector comparison
+	RegisterShaderNode<VecEq>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecGe>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecGt>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecLe>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecLt>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecNe>(*this, registry, "Vector comparisons");
+
+	// Vector operations
 	RegisterShaderNode<VecAdd>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec2Composition>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec3Composition>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec4Composition>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecDecomposition>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDiv>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDot>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecFloatMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecSub>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
-	RegisterShaderNode<Vec3Value>(*this, registry, "Constants");
-	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");
 
 	return registry;
 }

@@ -40,7 +40,10 @@ namespace Nz
 
 		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
 		{
-			if (lhs.shaders[i] != rhs.shaders[i])
+			if (lhs.shaders[i].enabledConditions != rhs.shaders[i].enabledConditions)
+				return false;
+
+			if (lhs.shaders[i].uberShader != rhs.shaders[i].uberShader)
 				return false;
 		}
 
@@ -82,7 +85,10 @@ namespace std
 			NazaraPipelineMember(settings.get()); //< Hash pointer
 
 			for (const auto& shader : pipelineInfo.shaders)
-				Nz::HashCombine(seed, shader.get());
+			{
+				Nz::HashCombine(seed, shader.enabledConditions);
+				Nz::HashCombine(seed, shader.uberShader.get());
+			}
 
 			#undef NazaraPipelineMember
 			#undef NazaraPipelineBoolMember

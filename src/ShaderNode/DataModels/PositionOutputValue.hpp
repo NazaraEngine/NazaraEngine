@@ -14,7 +14,7 @@ class PositionOutputValue : public ShaderNode
 	public:
 		PositionOutputValue(ShaderGraph& graph);
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override { return "PositionOutputValue"; }
 		QString name() const override { return "PositionOutputValue"; }

@@ -10,6 +10,26 @@
 
 namespace Nz
 {
+	bool VulkanShaderStage::Create(Vk::Device& device, const ShaderAst& shader, const ShaderWriter::States& states)
+	{
+		m_stage = shader.GetStage();
+
+		SpirvWriter::Environment env;
+
+		SpirvWriter writer;
+		writer.SetEnv(env);
+
+		std::vector<UInt32> code = writer.Generate(shader, states);
+
+		if (!m_shaderModule.Create(device, code.data(), code.size() * sizeof(UInt32)))
+		{
+			NazaraError("Failed to create shader module");
+			return false;
+		}
+
+		return true;
+	}
+
 	bool VulkanShaderStage::Create(Vk::Device& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
 		m_stage = type;
@@ -18,24 +38,12 @@ namespace Nz
 		{
 			case ShaderLanguage::NazaraBinary:
 			{
-				ByteStream byteStream(source, sourceSize);
-				auto shader = Nz::UnserializeShader(byteStream);
-
+				auto shader = UnserializeShader(source, sourceSize);
 				if (shader.GetStage() != type)
 					throw std::runtime_error("incompatible shader stage");
 
-				SpirvWriter::Environment env;
-
-				SpirvWriter writer;
-				writer.SetEnv(env);
-
-				std::vector<UInt32> code = writer.Generate(shader);
-
-				if (!m_shaderModule.Create(device, code.data(), code.size() * sizeof(UInt32)))
-				{
-					NazaraError("Failed to create shader module");
+				if (!Create(device, shader, {}))
 					return false;
-				}
 
 				break;
 			}

@@ -17,18 +17,24 @@
 
 namespace Nz
 {
-	class ShaderStage;
+	class UberShader;
 
 	struct MaterialPipelineInfo : RenderStates
 	{
+		struct ShaderStage
+		{
+			std::shared_ptr<UberShader> uberShader;
+			Nz::UInt64 enabledConditions = 0;
+		};
+
 		bool alphaTest         = false;
 		bool depthSorting      = false;
 		bool hasVertexColor    = false;
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;
 
+		std::array<ShaderStage, ShaderStageTypeCount> shaders;
 		std::shared_ptr<const MaterialSettings> settings;
-		std::array<std::shared_ptr<ShaderStage>, ShaderStageTypeCount> shaders;
 	};
 
 	inline bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);

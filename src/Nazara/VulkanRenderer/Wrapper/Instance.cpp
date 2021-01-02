@@ -49,7 +49,11 @@ namespace Nz
 					ss << "[Validation]";
 
 
-				ss << "[" << pCallbackData->messageIdNumber << ":" << pCallbackData->pMessageIdName << "]: " << pCallbackData->pMessage;
+				ss << "[" << pCallbackData->messageIdNumber;
+				if (pCallbackData->pMessageIdName)
+					ss << ":" << pCallbackData->pMessageIdName;
+
+				ss << "]: " << pCallbackData->pMessage;
 
 				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 					NazaraError(ss.str());

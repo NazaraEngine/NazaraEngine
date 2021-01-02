@@ -14,12 +14,13 @@ ShaderNode(graph)
 	DisableCustomVariableName();
 }
 
-Nz::ShaderNodes::ExpressionPtr PositionOutputValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::NodePtr PositionOutputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	using namespace Nz::ShaderBuilder;
 	using namespace Nz::ShaderNodes;
 
 	assert(count == 1);
+	assert(outputIndex == 0);
 
 	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Builtin(BuiltinEntry::VertexPosition));
 	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);

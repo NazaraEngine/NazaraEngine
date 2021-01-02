@@ -184,10 +184,10 @@ void MainWindow::OnGenerateGLSL()
 		Nz::GlslWriter writer;
 
 		Nz::GlslWriter::States states;
-		for (const auto& condition : m_shaderGraph.GetConditions())
+		for (std::size_t i = 0; i < m_shaderGraph.GetConditionCount(); ++i)
 		{
-			if (condition.enabled)
-				states.enabledConditions.insert(condition.name);
+			if (m_shaderGraph.IsConditionEnabled(i))
+				states.enabledConditions = Nz::SetBit<Nz::UInt64>(states.enabledConditions, i);
 		}
 
 		std::string glsl = writer.Generate(ToShader(), states);

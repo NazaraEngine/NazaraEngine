@@ -28,7 +28,7 @@ namespace Nz
 
 			struct States
 			{
-				std::unordered_set<std::string> enabledConditions;
+				Nz::UInt64 enabledConditions = 0;
 			};
 	};
 }

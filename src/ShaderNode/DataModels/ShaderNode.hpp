@@ -18,14 +18,15 @@ class ShaderNode : public QtNodes::NodeDataModel
 	public:
 		ShaderNode(ShaderGraph& graph);
 
+		virtual Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const = 0;
 		virtual void BuildNodeEdition(QFormLayout* layout);
 
 		inline void DisablePreview();
 		void EnablePreview(bool enable = true);
 
-		virtual Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const = 0;
 		inline ShaderGraph& GetGraph();
 		inline const ShaderGraph& GetGraph() const;
+		virtual int GetOutputOrder() const;
 		inline const std::string& GetVariableName() const;
 
 		inline void SetPreviewSize(const Nz::Vector2i& size);

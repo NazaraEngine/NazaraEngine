@@ -41,6 +41,8 @@ namespace Nz
 			void AddStruct(std::string name, std::vector<StructMember> members);
 			void AddUniform(std::string name, ShaderExpressionType type, std::optional<std::size_t> bindingIndex = {}, std::optional<ShaderNodes::MemoryLayout> memoryLayout = {});
 
+			inline std::size_t FindConditionByName(const std::string_view& conditionName) const;
+
 			inline const Condition& GetCondition(std::size_t i) const;
 			inline std::size_t GetConditionCount() const;
 			inline const std::vector<Condition>& GetConditions() const;
@@ -109,6 +111,8 @@ namespace Nz
 				std::string name;
 				ShaderExpressionType type;
 			};
+
+			static constexpr std::size_t InvalidCondition = std::numeric_limits<std::size_t>::max();
 
 		private:
 			std::vector<Condition> m_conditions;
