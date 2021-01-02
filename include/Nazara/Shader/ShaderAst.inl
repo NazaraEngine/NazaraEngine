@@ -12,6 +12,17 @@ namespace Nz
 	{
 	}
 
+	inline std::size_t ShaderAst::FindConditionByName(const std::string_view& conditionName) const
+	{
+		for (std::size_t i = 0; i < m_conditions.size(); ++i)
+		{
+			if (m_conditions[i].name == conditionName)
+				return i;
+		}
+
+		return InvalidCondition;
+	}
+
 	inline auto Nz::ShaderAst::GetCondition(std::size_t i) const -> const Condition&
 	{
 		assert(i < m_functions.size());

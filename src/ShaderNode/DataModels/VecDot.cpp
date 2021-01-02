@@ -8,9 +8,11 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderNodes::ExpressionPtr VecDot::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::NodePtr VecDot::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
+	assert(outputIndex == 0);
+
 	using namespace Nz::ShaderNodes;
 	return IntrinsicCall::Build(IntrinsicType::DotProduct, { expressions[0], expressions[1] });
 }

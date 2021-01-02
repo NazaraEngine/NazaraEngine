@@ -151,8 +151,8 @@ namespace Nz
 		s_phongUniformOffsets.diffuseColor = phongUniformStruct.AddField(StructFieldType_Float4);
 		s_phongUniformOffsets.specularColor = phongUniformStruct.AddField(StructFieldType_Float4);
 
-		MaterialSettings::PredefinedBinding predefinedBinding;
-		predefinedBinding.fill(MaterialSettings::InvalidIndex);
+		MaterialSettings::Builder settings;
+		settings.predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
 		std::vector<MaterialSettings::UniformVariable> phongVariables;
 		phongVariables.assign({
@@ -187,10 +187,8 @@ namespace Nz
 		AccessByOffset<float&>(defaultValues.data(), s_phongUniformOffsets.alphaThreshold) = 0.2f;
 		AccessByOffset<float&>(defaultValues.data(), s_phongUniformOffsets.shininess) = 50.f;
 
-		std::vector<MaterialSettings::UniformBlock> uniformBlocks;
-
-		s_phongUniformBlockIndex = uniformBlocks.size();
-		uniformBlocks.push_back({
+		s_phongUniformBlockIndex = settings.uniformBlocks.size();
+		settings.uniformBlocks.push_back({
 			phongUniformStruct.GetSize(),
 			"PhongSettings",
 			"MaterialPhongSettings",
@@ -198,65 +196,63 @@ namespace Nz
 			std::move(defaultValues)
 		});
 
-		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = sharedUniformBlock.size();
-		sharedUniformBlock.push_back(PredefinedInstanceData::GetUniformBlock());
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboLighData)] = sharedUniformBlock.size();
-		sharedUniformBlock.push_back(PredefinedLightData::GetUniformBlock());
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = sharedUniformBlock.size();
-		sharedUniformBlock.push_back(PredefinedViewerData::GetUniformBlock());
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = settings.sharedUniformBlocks.size();
+		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock());
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboLighData)] = settings.sharedUniformBlocks.size();
+		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock());
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = settings.sharedUniformBlocks.size();
+		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock());
 
-		std::vector<MaterialSettings::Texture> textures;
-		s_textureIndexes.alpha = textures.size();
-		textures.push_back({
+		s_textureIndexes.alpha = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialAlphaMap",
 			"Alpha",
 			ImageType_2D
 		});
 		
-		s_textureIndexes.diffuse = textures.size();
-		textures.push_back({
+		s_textureIndexes.diffuse = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialDiffuseMap",
 			"Diffuse",
 			ImageType_2D
 		});
 
-		s_textureIndexes.emissive = textures.size();
-		textures.push_back({
+		s_textureIndexes.emissive = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialEmissiveMap",
 			"Emissive",
 			ImageType_2D
 		});
 
-		s_textureIndexes.height = textures.size();
-		textures.push_back({
+		s_textureIndexes.height = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialHeightMap",
 			"Height",
 			ImageType_2D
 		});
 
-		s_textureIndexes.normal = textures.size();
-		textures.push_back({
+		s_textureIndexes.normal = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialNormalMap",
 			"Normal",
 			ImageType_2D
 		});
 
-		s_textureIndexes.specular = textures.size();
-		textures.push_back({
+		s_textureIndexes.specular = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialSpecularMap",
 			"Specular",
 			ImageType_2D
 		});
 
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = textures.size();
-		textures.push_back({
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = settings.textures.size();
+		settings.textures.push_back({
 			"TextureOverlay",
 			"Overlay",
 			ImageType_2D,
 		});
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::move(sharedUniformBlock), predefinedBinding, MaterialSettings::DefaultShaders{});
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(settings));
 
 		return true;
 	}

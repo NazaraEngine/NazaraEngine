@@ -36,9 +36,13 @@ unsigned int FloatValue::nPorts(QtNodes::PortType portType) const
 	{
 		case QtNodes::PortType::In:  return 0;
 		case QtNodes::PortType::Out: return 1;
+
+		default:
+			break;
 	}
 
-	return 0;
+	assert(false);
+	throw std::runtime_error("Invalid port type");
 }
 
 std::shared_ptr<QtNodes::NodeData> FloatValue::outData(QtNodes::PortIndex port)
@@ -49,6 +53,20 @@ std::shared_ptr<QtNodes::NodeData> FloatValue::outData(QtNodes::PortIndex port)
 	out->preview(0, 0) = Nz::Vector4f(m_value, m_value, m_value, 1.f);
 
 	return out;
+}
+
+QString FloatValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+	assert(portType == QtNodes::PortType::Out);
+
+	return QString::number(m_value);
+}
+
+bool FloatValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+	return portType == QtNodes::PortType::Out;
 }
 
 void FloatValue::BuildNodeEdition(QFormLayout* layout)
@@ -71,9 +89,10 @@ void FloatValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), spinbox);
 }
 
-Nz::ShaderNodes::ExpressionPtr FloatValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderNodes::NodePtr FloatValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
+	assert(outputIndex == 0);
 
 	return Nz::ShaderBuilder::Constant(m_value);
 }

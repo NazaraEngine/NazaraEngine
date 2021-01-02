@@ -14,6 +14,7 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <memory>
 #include <string>
@@ -21,6 +22,7 @@
 namespace Nz
 {
 	class CommandPool;
+	class ShaderAst;
 	class ShaderStage;
 
 	class NAZARA_RENDERER_API RenderDevice
@@ -33,6 +35,7 @@ namespace Nz
 			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
 			virtual std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) = 0;
+			virtual std::shared_ptr<ShaderStage> InstantiateShaderStage(const ShaderAst& shaderAst, const ShaderWriter::States& states) = 0;
 			virtual std::shared_ptr<ShaderStage> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) = 0;
 			std::shared_ptr<ShaderStage> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath);
 			virtual std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;

@@ -140,7 +140,12 @@ namespace Nz::ShaderNodes
 				break;
 			}
 
-			case BinaryType::Equality:
+			case BinaryType::CompEq:
+			case BinaryType::CompGe:
+			case BinaryType::CompGt:
+			case BinaryType::CompLe:
+			case BinaryType::CompLt:
+			case BinaryType::CompNe:
 				exprType = BasicType::Boolean;
 				break;
 		}

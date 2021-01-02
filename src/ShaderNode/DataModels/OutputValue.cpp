@@ -54,12 +54,13 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Output"), outputSelection);
 }
 
-Nz::ShaderNodes::ExpressionPtr OutputValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::NodePtr OutputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	using namespace Nz::ShaderBuilder;
 	using namespace Nz::ShaderNodes;
 
 	assert(count == 1);
+	assert(outputIndex == 0);
 
 	if (!m_currentOutputIndex)
 		throw std::runtime_error("no output");
@@ -68,6 +69,11 @@ Nz::ShaderNodes::ExpressionPtr OutputValue::GetExpression(Nz::ShaderNodes::Expre
 	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Output(outputEntry.name, ShaderGraph::ToShaderExpressionType(outputEntry.type)));
 
 	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);
+}
+
+std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*port*/)
+{
+	return {};
 }
 
 QtNodes::NodeDataType OutputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
@@ -88,14 +94,40 @@ unsigned int OutputValue::nPorts(QtNodes::PortType portType) const
 	{
 		case QtNodes::PortType::In: return 1;
 		case QtNodes::PortType::Out: return 0;
+		default: break;
 	}
 
-	return 0;
+	assert(false);
+	throw std::runtime_error("invalid port type");
 }
 
-std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*port*/)
+QString OutputValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
-	return {};
+	assert(portType == QtNodes::PortType::In);
+	assert(portIndex == 0);
+
+	if (!m_currentOutputIndex)
+		return QString();
+
+	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
+	return QString::fromStdString(outputEntry.name);
+}
+
+bool OutputValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+
+	switch (portType)
+	{
+		case QtNodes::PortType::In: return m_currentOutputIndex.has_value();
+		case QtNodes::PortType::Out: return false;
+
+		default:
+			break;
+	}
+
+	assert(false);
+	throw std::runtime_error("Invalid port type");
 }
 
 void OutputValue::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)

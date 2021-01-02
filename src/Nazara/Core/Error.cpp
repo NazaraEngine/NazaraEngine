@@ -88,13 +88,16 @@ namespace Nz
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		wchar_t* buffer = nullptr;
 
-		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+		DWORD length = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
 		               nullptr,
 		               code,
 		               0,
 		               reinterpret_cast<LPWSTR>(&buffer),
 		               0,
 		               nullptr);
+
+		if (length == 0)
+			return "<internal error: FormatMessageW failed with " + std::to_string(::GetLastError()) + ">";
 
 		CallOnExit freeOnExit([buffer] { LocalFree(buffer); });
 		return FromWideString(buffer);

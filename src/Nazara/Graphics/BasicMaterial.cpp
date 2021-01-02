@@ -6,7 +6,9 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
@@ -33,12 +35,17 @@ namespace Nz
 		const std::shared_ptr<const MaterialSettings>& materialSettings = material.GetSettings();
 		if (materialSettings == s_materialSettings)
 		{
+			m_conditionIndexes = s_conditionIndexes;
 			m_textureIndexes = s_textureIndexes;
 			m_uniformBlockIndex = s_uniformBlockIndex;
 			m_uniformOffsets = s_uniformOffsets;
 		}
 		else
 		{
+			m_conditionIndexes.alphaTest = materialSettings->GetConditionIndex("AlphaTest");
+			m_conditionIndexes.hasAlphaMap = materialSettings->GetConditionIndex("HasAlphaMap");
+			m_conditionIndexes.hasDiffuseMap = materialSettings->GetConditionIndex("HasDiffuseMap");
+
 			m_textureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
 			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
 
@@ -49,9 +56,9 @@ namespace Nz
 		}
 	}
 
-	float BasicMaterial::GetAlphaThreshold() const
+	float BasicMaterial::GetAlphaTestThreshold() const
 	{
-		NazaraAssert(HasAlphaThreshold(), "Material has no alpha threshold uniform");
+		NazaraAssert(HasAlphaTestThreshold(), "Material has no alpha threshold uniform");
 
 		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_uniformBlockIndex), BufferAccess_ReadOnly);
 		return AccessByOffset<const float&>(mapper.GetPointer(), m_uniformOffsets.alphaThreshold);
@@ -67,9 +74,9 @@ namespace Nz
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
-	void BasicMaterial::SetAlphaThreshold(float alphaThreshold)
+	void BasicMaterial::SetAlphaTestThreshold(float alphaThreshold)
 	{
-		NazaraAssert(HasAlphaThreshold(), "Material has no alpha threshold uniform");
+		NazaraAssert(HasAlphaTestThreshold(), "Material has no alpha threshold uniform");
 
 		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_uniformBlockIndex), BufferAccess_WriteOnly);
 		AccessByOffset<float&>(mapper.GetPointer(), m_uniformOffsets.alphaThreshold) = alphaThreshold;
@@ -87,20 +94,16 @@ namespace Nz
 		colorPtr[3] = diffuse.a / 255.f;
 	}
 
-	const std::shared_ptr<MaterialSettings>& BasicMaterial::GetSettings()
-	{
-		return s_materialSettings;
-	}
-
 	bool BasicMaterial::Initialize()
 	{
 		FieldOffsets fieldOffsets(StructLayout_Std140);
 
-		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
 		s_uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
+		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
+		s_uniformOffsets.totalSize = fieldOffsets.GetSize();
 
-		MaterialSettings::PredefinedBinding predefinedBinding;
-		predefinedBinding.fill(MaterialSettings::InvalidIndex);
+		MaterialSettings::Builder settings;
+		settings.predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
 		std::vector<MaterialSettings::UniformVariable> variables;
 		variables.assign({
@@ -120,31 +123,29 @@ namespace Nz
 		AccessByOffset<Vector4f&>(defaultValues.data(), s_uniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 		AccessByOffset<float&>(defaultValues.data(), s_uniformOffsets.alphaThreshold) = 0.2f;
 		
-		std::vector<MaterialSettings::Texture> textures;
-		s_textureIndexes.alpha = textures.size();
-		textures.push_back({
+		s_textureIndexes.alpha = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialAlphaMap",
 			"Alpha",
 			ImageType_2D
 		});
-		
-		s_textureIndexes.diffuse = textures.size();
-		textures.push_back({
+
+		s_textureIndexes.diffuse = settings.textures.size();
+		settings.textures.push_back({
 			"MaterialDiffuseMap",
 			"Diffuse",
 			ImageType_2D
 		});
 
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = textures.size();
-		textures.push_back({
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = settings.textures.size();
+		settings.textures.push_back({
 			"TextureOverlay",
 			"Overlay",
 			ImageType_2D
 		});
 
-		std::vector<MaterialSettings::UniformBlock> uniformBlocks;
-		s_uniformBlockIndex = uniformBlocks.size();
-		uniformBlocks.assign({
+		s_uniformBlockIndex = settings.uniformBlocks.size();
+		settings.uniformBlocks.assign({
 			{
 				fieldOffsets.GetSize(),
 				"BasicSettings",
@@ -154,19 +155,61 @@ namespace Nz
 			}
 		});
 
-		std::vector<MaterialSettings::SharedUniformBlock> sharedUniformBlock;
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = settings.textures.size() + settings.uniformBlocks.size() + settings.sharedUniformBlocks.size();
+		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock());
 
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = textures.size() + uniformBlocks.size() + sharedUniformBlock.size();
-		sharedUniformBlock.push_back(PredefinedInstanceData::GetUniformBlock());
-		predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = textures.size() + uniformBlocks.size() + sharedUniformBlock.size();
-		sharedUniformBlock.push_back(PredefinedViewerData::GetUniformBlock());
+		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = settings.textures.size() + settings.uniformBlocks.size() + settings.sharedUniformBlocks.size();
+		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock());
 
 		// Shaders
-		MaterialSettings::DefaultShaders defaultShaders;
-		defaultShaders[UnderlyingCast(ShaderStageType::Fragment)] = Graphics::Instance()->GetRenderDevice().InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, r_fragmentShader, sizeof(r_fragmentShader));
-		defaultShaders[UnderlyingCast(ShaderStageType::Vertex)] = Graphics::Instance()->GetRenderDevice().InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, r_vertexShader, sizeof(r_vertexShader));
+		auto& fragmentShader = settings.shaders[UnderlyingCast(ShaderStageType::Fragment)];
+		auto& vertexShader = settings.shaders[UnderlyingCast(ShaderStageType::Vertex)];
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(textures), std::move(uniformBlocks), std::move(sharedUniformBlock), predefinedBinding, std::move(defaultShaders));
+		fragmentShader = std::make_shared<UberShader>(UnserializeShader(r_fragmentShader, sizeof(r_fragmentShader)));
+		vertexShader = std::make_shared<UberShader>(UnserializeShader(r_vertexShader, sizeof(r_vertexShader)));
+
+		// Conditions
+
+		// HasDiffuseMap
+		{
+			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
+			shaderConditions.fill(0);
+			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetConditionFlagByName("HAS_DIFFUSE_TEXTURE");
+
+			s_conditionIndexes.hasDiffuseMap = settings.conditions.size();
+			settings.conditions.push_back({
+				"HasDiffuseMap",
+				shaderConditions
+			});
+		}
+
+		// HasAlphaMap
+		{
+			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
+			shaderConditions.fill(0);
+			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetConditionFlagByName("HAS_ALPHA_TEXTURE");
+
+			s_conditionIndexes.hasAlphaMap = settings.conditions.size();
+			settings.conditions.push_back({
+				"HasAlphaMap",
+				shaderConditions
+			});
+		}
+
+		// AlphaTest
+		{
+			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
+			shaderConditions.fill(0);
+			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetConditionFlagByName("ALPHA_TEST");
+
+			s_conditionIndexes.alphaTest = settings.conditions.size();
+			settings.conditions.push_back({
+				"AlphaTest",
+				shaderConditions
+			});
+		}
+
+		s_materialSettings = std::make_shared<MaterialSettings>(std::move(settings));
 
 		return true;
 	}
@@ -178,6 +221,7 @@ namespace Nz
 
 	std::shared_ptr<MaterialSettings> BasicMaterial::s_materialSettings;
 	std::size_t BasicMaterial::s_uniformBlockIndex;
+	BasicMaterial::ConditionIndexes BasicMaterial::s_conditionIndexes;
 	BasicMaterial::TextureIndexes BasicMaterial::s_textureIndexes;
 	BasicMaterial::UniformOffsets BasicMaterial::s_uniformOffsets;
 }

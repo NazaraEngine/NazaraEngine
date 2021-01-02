@@ -141,6 +141,7 @@ namespace Nz
 	};
 	
 	NAZARA_SHADER_API ByteArray SerializeShader(const ShaderAst& shader);
+	inline ShaderAst UnserializeShader(const void* data, std::size_t size);
 	NAZARA_SHADER_API ShaderAst UnserializeShader(ByteStream& stream);
 }
 

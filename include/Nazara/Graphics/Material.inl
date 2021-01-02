@@ -111,6 +111,15 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
+	inline void Material::EnableCondition(std::size_t conditionIndex, bool enable)
+	{
+		if (TestBit<UInt64>(m_enabledConditions, conditionIndex) != enable)
+		{
+			m_enabledConditions = SetBit<UInt64>(m_enabledConditions, conditionIndex);
+			InvalidatePipeline();
+		}
+	}
+
 	/*!
 	* \brief Enable/Disable depth buffer for this material
 	*
@@ -428,9 +437,9 @@ namespace Nz
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
-	inline const std::shared_ptr<ShaderStage>& Material::GetShader(ShaderStageType shaderStage) const
+	inline const std::shared_ptr<UberShader>& Material::GetShader(ShaderStageType shaderStage) const
 	{
-		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)];
+		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
 	}
 
 	/*!
@@ -505,6 +514,11 @@ namespace Nz
 	inline bool Material::IsColorWriteEnabled() const
 	{
 		return m_pipelineInfo.colorWrite;
+	}
+
+	inline bool Material::IsConditionEnabled(std::size_t conditionIndex) const
+	{
+		return TestBit<UInt64>(m_enabledConditions, conditionIndex);
 	}
 
 	/*!
@@ -682,22 +696,6 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	/*!
-	* \brief Sets the shader with a constant reference to a ubershader
-	*
-	* \param uberShader Uber shader to apply
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetShader
-	*/
-	inline void Material::SetShader(ShaderStageType shaderStage, std::shared_ptr<ShaderStage> shader)
-	{
-		m_pipelineInfo.shaders[UnderlyingCast(shaderStage)] = std::move(shader);
-
-		InvalidatePipeline();
-	}
-
 	inline void Material::SetUniformBuffer(std::size_t bufferIndex, UniformBufferRef uniformBuffer)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
@@ -739,6 +737,19 @@ namespace Nz
 
 	inline void Material::UpdatePipeline() const
 	{
+		for (auto& shader : m_pipelineInfo.shaders)
+			shader.enabledConditions = 0;
+
+		const auto& conditions = m_settings->GetConditions();
+		for (std::size_t conditionIndex = 0; conditionIndex < conditions.size(); ++conditionIndex)
+		{
+			if (TestBit<UInt64>(m_enabledConditions, conditionIndex))
+			{
+				for (std::size_t shaderStage = 0; shaderStage < ShaderStageTypeCount; ++shaderStage)
+					m_pipelineInfo.shaders[shaderStage].enabledConditions |= conditions[conditionIndex].enabledConditions[shaderStage];
+			}
+		}
+
 		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
 		m_pipelineUpdated = true;
 	}

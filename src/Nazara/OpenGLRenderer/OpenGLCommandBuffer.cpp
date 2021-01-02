@@ -93,6 +93,7 @@ namespace Nz
 					command.framebuffer->Activate();
 
 					context = GL::Context::GetCurrentContext();
+					context->glClearColor(0.5, 0.5, 0.5, 1.0);
 					context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				}
 				else

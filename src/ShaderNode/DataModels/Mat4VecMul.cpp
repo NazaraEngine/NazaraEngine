@@ -7,9 +7,11 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderNodes::ExpressionPtr Mat4VecMul::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::NodePtr Mat4VecMul::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
+	assert(outputIndex == 0);
+
 	using namespace Nz::ShaderNodes;
 	return BinaryOp::Build(BinaryType::Multiply, expressions[0], expressions[1]);
 }

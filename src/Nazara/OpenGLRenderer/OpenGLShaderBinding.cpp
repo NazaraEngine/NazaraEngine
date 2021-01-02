@@ -20,6 +20,8 @@ namespace Nz
 			const auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, i);
 
 			UInt32 textureIndex = textureDescriptor.bindingIndex;
+			if (textureIndex == OpenGLRenderPipelineLayout::InvalidIndex)
+				continue;
 
 			context.BindSampler(textureIndex, textureDescriptor.sampler);
 			context.BindTexture(textureIndex, textureDescriptor.textureTarget, textureDescriptor.texture);
@@ -28,6 +30,10 @@ namespace Nz
 		for (std::size_t i = 0; i < m_owner.GetUniformBufferDescriptorCount(); ++i)
 		{
 			const auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, i);
+
+			UInt32 uboIndex = uboDescriptor.bindingIndex;
+			if (uboIndex == OpenGLRenderPipelineLayout::InvalidIndex)
+				continue;
 
 			context.BindUniformBuffer(uboDescriptor.bindingIndex, uboDescriptor.buffer, uboDescriptor.offset, uboDescriptor.size);
 		}

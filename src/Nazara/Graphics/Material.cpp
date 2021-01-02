@@ -24,11 +24,15 @@ namespace Nz
 	*/
 	Material::Material(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
+	m_enabledConditions(0),
 	m_pipelineUpdated(false),
 	m_shadowCastingEnabled(true)
 	{
 		m_pipelineInfo.settings = m_settings;
-		m_pipelineInfo.shaders = m_settings->GetDefaultShaders();
+
+		const auto& shaders = m_settings->GetShaders();
+		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
+			m_pipelineInfo.shaders[i].uberShader = shaders[i];
 
 		m_textures.resize(m_settings->GetTextures().size());
 

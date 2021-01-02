@@ -6,14 +6,14 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataTypes/Matrix4Data.hpp>
 
-template<Nz::ShaderNodes::BinaryType BinOp>
+template<Nz::ShaderNodes::BinaryType Op>
 class Mat4BinOp : public ShaderNode
 {
 	public:
 		Mat4BinOp(ShaderGraph& graph);
 		~Mat4BinOp() = default;
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const;
 
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 

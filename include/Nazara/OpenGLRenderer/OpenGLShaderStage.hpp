@@ -12,13 +12,17 @@
 #include <Nazara/Renderer/ShaderStage.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
+#include <Nazara/Shader/ShaderWriter.hpp>
 #include <vector>
 
 namespace Nz
 {
+	class ShaderAst;
+
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderStage : public ShaderStage
 	{
 		public:
+			OpenGLShaderStage(OpenGLDevice& device, const ShaderAst& shaderAst, const ShaderWriter::States& states);
 			OpenGLShaderStage(OpenGLDevice& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize);
 			OpenGLShaderStage(const OpenGLShaderStage&) = delete;
 			OpenGLShaderStage(OpenGLShaderStage&&) noexcept = default;
@@ -30,6 +34,9 @@ namespace Nz
 			OpenGLShaderStage& operator=(OpenGLShaderStage&&) noexcept = default;
 
 		private:
+			void CheckCompilationStatus();
+			void Create(OpenGLDevice& device, const ShaderAst& shaderAst, const ShaderWriter::States& states);
+
 			GL::Shader m_shader;
 	};
 }

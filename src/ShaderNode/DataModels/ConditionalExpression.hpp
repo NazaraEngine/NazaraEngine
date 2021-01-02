@@ -15,9 +15,8 @@ class ConditionalExpression : public ShaderNode
 		ConditionalExpression(ShaderGraph& graph);
 		~ConditionalExpression() = default;
 
+		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 		void BuildNodeEdition(QFormLayout* layout) override;
-
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 
 		QString caption() const override;
 		QString name() const override;

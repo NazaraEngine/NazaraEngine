@@ -35,9 +35,10 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-Nz::ShaderNodes::ExpressionPtr ConditionalExpression::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::NodePtr ConditionalExpression::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
+	assert(outputIndex == 0);
 
 	if (!m_currentConditionIndex)
 		throw std::runtime_error("no condition");
@@ -100,15 +101,48 @@ void ConditionalExpression::BuildNodeEdition(QFormLayout* layout)
 
 auto ConditionalExpression::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
 {
+	switch (portType)
+	{
+		case QtNodes::PortType::In:
+		{
+			switch (portIndex)
+			{
+				case 0:
+				{
+					if (!m_truePath && !m_falsePath)
+						return VecData::Type();
+
+					return (m_truePath) ? m_truePath->type() : m_falsePath->type();
+				}
+
+				case 1:
+				{
+					if (!m_truePath && !m_falsePath)
+						return VecData::Type();
+
+					return (m_falsePath) ? m_falsePath->type() : m_truePath->type();
+				}
+
+				default:
+					break;
+			}
+		}
+
+		case QtNodes::PortType::Out:
+		{
+			assert(portIndex == 0);
+
+			if (!m_truePath && !m_falsePath)
+				return VecData::Type();
+
+			return (m_truePath) ? m_truePath->type() : m_falsePath->type();
+		}
+
+		default:
+			break;
+	}
+
 	return VecData::Type();
-
-	assert(portType == QtNodes::PortType::Out);
-	assert(portIndex == 0);
-
-	if (!m_truePath && !m_falsePath)
-		return VecData::Type();
-
-	return (m_truePath) ? m_truePath->type() : m_falsePath->type();
 }
 
 QString ConditionalExpression::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
@@ -120,10 +154,10 @@ QString ConditionalExpression::portCaption(QtNodes::PortType portType, QtNodes::
 			switch (portIndex)
 			{
 				case 0:
-					return "True path";
+					return "True expression";
 
 				case 1:
-					return "False path";
+					return "False expression";
 
 				default:
 					break;
@@ -189,6 +223,9 @@ QtNodes::NodeValidationState ConditionalExpression::validationState() const
 
 QString ConditionalExpression::validationMessage() const
 {
+	if (!m_currentConditionIndex)
+		return "Invalid condition";
+
 	if (!m_truePath || !m_falsePath)
 		return "Missing input";
 

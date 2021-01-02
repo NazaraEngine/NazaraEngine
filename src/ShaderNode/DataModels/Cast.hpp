@@ -17,9 +17,8 @@ class CastVec : public ShaderNode
 		CastVec(ShaderGraph& graph);
 		~CastVec() = default;
 
+		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const;
 		void BuildNodeEdition(QFormLayout* layout) override;
-
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
 
 		QString caption() const override;
 		QString name() const override;

@@ -150,8 +150,17 @@ namespace Nz
 
 		switch (node.op)
 		{
+			case ShaderNodes::BinaryType::CompGe:
+			case ShaderNodes::BinaryType::CompGt:
+			case ShaderNodes::BinaryType::CompLe:
+			case ShaderNodes::BinaryType::CompLt:
+				if (leftType == ShaderNodes::BasicType::Boolean)
+					throw AstError{ "this operation is not supported for booleans" };
+
+				[[fallthrough]];
 			case ShaderNodes::BinaryType::Add:
-			case ShaderNodes::BinaryType::Equality:
+			case ShaderNodes::BinaryType::CompEq:
+			case ShaderNodes::BinaryType::CompNe:
 			case ShaderNodes::BinaryType::Substract:
 				TypeMustMatch(node.left, node.right);
 				break;
@@ -236,7 +245,7 @@ namespace Nz
 		}
 
 		if (componentCount != requiredComponents)
-			throw AstError{ "Component count doesn't match required component count" };
+			throw AstError{ "component count doesn't match required component count" };
 
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
@@ -246,28 +255,16 @@ namespace Nz
 		MandatoryNode(node.truePath);
 		MandatoryNode(node.falsePath);
 
-		for (std::size_t i = 0; i < m_shader.GetConditionCount(); ++i)
-		{
-			const auto& condition = m_shader.GetCondition(i);
-			if (condition.name == node.conditionName)
-				return;
-		}
-
-		throw AstError{ "Condition not found" };
+		if (m_shader.FindConditionByName(node.conditionName) == ShaderAst::InvalidCondition)
+			throw AstError{ "condition not found" };
 	}
 
 	void ShaderAstValidator::Visit(ShaderNodes::ConditionalStatement& node)
 	{
 		MandatoryNode(node.statement);
 
-		for (std::size_t i = 0; i < m_shader.GetConditionCount(); ++i)
-		{
-			const auto& condition = m_shader.GetCondition(i);
-			if (condition.name == node.conditionName)
-				return;
-		}
-
-		throw AstError{ "Condition not found" };
+		if (m_shader.FindConditionByName(node.conditionName) == ShaderAst::InvalidCondition)
+			throw AstError{ "condition not found" };
 	}
 
 	void ShaderAstValidator::Visit(ShaderNodes::Constant& /*node*/)

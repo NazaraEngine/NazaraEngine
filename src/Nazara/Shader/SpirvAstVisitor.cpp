@@ -154,7 +154,7 @@ namespace Nz
 					break;
 				}
 
-				case ShaderNodes::BinaryType::Equality:
+				case ShaderNodes::BinaryType::CompEq:
 				{
 					switch (leftType)
 					{
@@ -177,6 +177,166 @@ namespace Nz
 						case ShaderNodes::BasicType::UInt3:
 						case ShaderNodes::BasicType::UInt4:
 							return SpirvOp::OpIEqual;
+
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+
+					break;
+				}
+				
+				case ShaderNodes::BinaryType::CompGe:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpirvOp::OpFOrdGreaterThan;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpirvOp::OpSGreaterThan;
+
+						case ShaderNodes::BasicType::UInt1:
+						case ShaderNodes::BasicType::UInt2:
+						case ShaderNodes::BasicType::UInt3:
+						case ShaderNodes::BasicType::UInt4:
+							return SpirvOp::OpUGreaterThan;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+
+					break;
+				}
+				
+				case ShaderNodes::BinaryType::CompGt:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpirvOp::OpFOrdGreaterThanEqual;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpirvOp::OpSGreaterThanEqual;
+
+						case ShaderNodes::BasicType::UInt1:
+						case ShaderNodes::BasicType::UInt2:
+						case ShaderNodes::BasicType::UInt3:
+						case ShaderNodes::BasicType::UInt4:
+							return SpirvOp::OpUGreaterThanEqual;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+
+					break;
+				}
+				
+				case ShaderNodes::BinaryType::CompLe:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpirvOp::OpFOrdLessThanEqual;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpirvOp::OpSLessThanEqual;
+
+						case ShaderNodes::BasicType::UInt1:
+						case ShaderNodes::BasicType::UInt2:
+						case ShaderNodes::BasicType::UInt3:
+						case ShaderNodes::BasicType::UInt4:
+							return SpirvOp::OpULessThanEqual;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+
+					break;
+				}
+				
+				case ShaderNodes::BinaryType::CompLt:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpirvOp::OpFOrdLessThan;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+							return SpirvOp::OpSLessThan;
+
+						case ShaderNodes::BasicType::UInt1:
+						case ShaderNodes::BasicType::UInt2:
+						case ShaderNodes::BasicType::UInt3:
+						case ShaderNodes::BasicType::UInt4:
+							return SpirvOp::OpULessThan;
+
+						case ShaderNodes::BasicType::Boolean:
+						case ShaderNodes::BasicType::Sampler2D:
+						case ShaderNodes::BasicType::Void:
+							break;
+					}
+
+					break;
+				}
+				
+				case ShaderNodes::BinaryType::CompNe:
+				{
+					switch (leftType)
+					{
+						case ShaderNodes::BasicType::Boolean:
+							return SpirvOp::OpLogicalNotEqual;
+
+						case ShaderNodes::BasicType::Float1:
+						case ShaderNodes::BasicType::Float2:
+						case ShaderNodes::BasicType::Float3:
+						case ShaderNodes::BasicType::Float4:
+						case ShaderNodes::BasicType::Mat4x4:
+							return SpirvOp::OpFOrdNotEqual;
+
+						case ShaderNodes::BasicType::Int1:
+						case ShaderNodes::BasicType::Int2:
+						case ShaderNodes::BasicType::Int3:
+						case ShaderNodes::BasicType::Int4:
+						case ShaderNodes::BasicType::UInt1:
+						case ShaderNodes::BasicType::UInt2:
+						case ShaderNodes::BasicType::UInt3:
+						case ShaderNodes::BasicType::UInt4:
+							return SpirvOp::OpINotEqual;
 
 						case ShaderNodes::BasicType::Sampler2D:
 						case ShaderNodes::BasicType::Void:

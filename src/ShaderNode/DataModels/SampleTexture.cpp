@@ -71,11 +71,12 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-Nz::ShaderNodes::ExpressionPtr SampleTexture::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderNodes::NodePtr SampleTexture::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(m_texture);
 	assert(m_uv);
 	assert(count == 2);
+	assert(outputIndex == 0);
 
 	return Nz::ShaderBuilder::Sample2D(expressions[0], expressions[1]);
 }

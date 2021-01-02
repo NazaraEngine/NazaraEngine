@@ -5,6 +5,7 @@
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
@@ -418,21 +419,17 @@ namespace Nz
 
 		switch (node.op)
 		{
-			case ShaderNodes::BinaryType::Add:
-				Append(" + ");
-				break;
-			case ShaderNodes::BinaryType::Substract:
-				Append(" - ");
-				break;
-			case ShaderNodes::BinaryType::Multiply:
-				Append(" * ");
-				break;
-			case ShaderNodes::BinaryType::Divide:
-				Append(" / ");
-				break;
-			case ShaderNodes::BinaryType::Equality:
-				Append(" == ");
-				break;
+			case ShaderNodes::BinaryType::Add:       Append(" + "); break;
+			case ShaderNodes::BinaryType::Substract: Append(" - "); break;
+			case ShaderNodes::BinaryType::Multiply:  Append(" * "); break;
+			case ShaderNodes::BinaryType::Divide:    Append(" / "); break;
+
+			case ShaderNodes::BinaryType::CompEq:    Append(" == "); break;
+			case ShaderNodes::BinaryType::CompGe:    Append(" >= "); break;
+			case ShaderNodes::BinaryType::CompGt:    Append(" > ");  break;
+			case ShaderNodes::BinaryType::CompLe:    Append(" <= "); break;
+			case ShaderNodes::BinaryType::CompLt:    Append(" < ");  break;
+			case ShaderNodes::BinaryType::CompNe:    Append(" != "); break;
 		}
 
 		Visit(node.right, true);
@@ -448,15 +445,17 @@ namespace Nz
 		Append(node.exprType);
 		Append("(");
 
-		for (std::size_t i = 0; node.expressions[i]; ++i)
+		bool first = true;
+		for (const auto& exprPtr : node.expressions)
 		{
-			if (i != 0)
+			if (!exprPtr)
+				break;
+
+			if (!first)
 				m_currentState->stream << ", ";
 
-			const auto& exprPtr = node.expressions[i];
-			NazaraAssert(exprPtr, "Invalid expression");
-
 			Visit(exprPtr);
+			first = false;
 		}
 
 		Append(")");
@@ -465,7 +464,10 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderNodes::ConditionalExpression& node)
 	{
-		if (m_context.states->enabledConditions.count(node.conditionName) != 0)
+		std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
+		assert(conditionIndex != ShaderAst::InvalidCondition);
+
+		if (TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex))
 			Visit(node.truePath);
 		else
 			Visit(node.falsePath);
@@ -473,7 +475,10 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderNodes::ConditionalStatement& node)
 	{
-		if (m_context.states->enabledConditions.count(node.conditionName) != 0)
+		std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
+		assert(conditionIndex != ShaderAst::InvalidCondition);
+
+		if (TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex))
 			Visit(node.statement);
 	}
 
@@ -604,7 +609,7 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderNodes::SwizzleOp& node)
 	{
-		Visit(node.expression);
+		Visit(node.expression, true);
 		Append(".");
 
 		for (std::size_t i = 0; i < node.componentCount; ++i)

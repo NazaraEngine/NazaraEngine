@@ -35,20 +35,6 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
-	/*auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, "frag.shader");
-	if (!fragmentShader)
-	{
-		std::cout << "Failed to instantiate fragment shader" << std::endl;
-		return __LINE__;
-	}
-
-	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, "vert.shader");
-	if (!vertexShader)
-	{
-		std::cout << "Failed to instantiate fragment shader" << std::endl;
-		return __LINE__;
-	}*/
-
 	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/Spaceship/spaceship.obj", meshParams);
 	if (!drfreak)
 	{
@@ -89,26 +75,58 @@ int main()
 		return __LINE__;
 	}
 
+	// Texture (alpha-map)
+	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile("alphatest.png");
+	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat_RGBA8))
+	{
+		NazaraError("Failed to load image");
+		return __LINE__;
+	}
+
+	Nz::TextureInfo alphaTexParams;
+	alphaTexParams.pixelFormat = alphaImage->GetFormat();
+	alphaTexParams.type = alphaImage->GetType();
+	alphaTexParams.width = alphaImage->GetWidth();
+	alphaTexParams.height = alphaImage->GetHeight();
+	alphaTexParams.depth = alphaImage->GetDepth();
+
+	std::shared_ptr<Nz::Texture> alphaTexture = device->InstantiateTexture(alphaTexParams);
+	if (!alphaTexture->Update(alphaImage->GetConstPixels()))
+	{
+		NazaraError("Failed to update texture");
+		return __LINE__;
+	}
+
+
+
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 	Nz::Material material(Nz::BasicMaterial::GetSettings());
-	//material.SetShader(Nz::ShaderStageType::Fragment, fragmentShader);
-	//material.SetShader(Nz::ShaderStageType::Vertex, vertexShader);
 	material.EnableDepthBuffer(true);
-	material.SetTexture(0, texture);
-	material.SetTextureSampler(0, textureSampler);
+
+	Nz::BasicMaterial basicMat(material);
+	basicMat.EnableAlphaTest(true);
+	basicMat.SetAlphaMap(alphaTexture);
+	basicMat.SetAlphaSampler(textureSampler);
+	basicMat.SetDiffuseMap(alphaTexture);
+	basicMat.SetDiffuseSampler(textureSampler);
 
 	Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();
 	Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
+	const Nz::BasicMaterial::UniformOffsets& materialSettingOffsets = Nz::BasicMaterial::GetOffsets();
 
 	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 	std::vector<std::uint8_t> viewerDataBuffer(viewerUboOffsets.totalSize);
+	std::vector<std::uint8_t> materialSettings(materialSettingOffsets.totalSize);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
+
+	Nz::AccessByOffset<float&>(materialSettings.data(), materialSettingOffsets.alphaThreshold) = 0.5f;
+	Nz::AccessByOffset<Nz::Vector4f&>(materialSettings.data(), materialSettingOffsets.diffuseColor) = Nz::Vector4f(1.f, 1.f, 1.f, 1.f);
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = material.GetSettings()->GetRenderPipelineLayout();
 
@@ -128,6 +146,15 @@ int main()
 		return __LINE__;
 	}
 
+	std::shared_ptr<Nz::AbstractBuffer> matSettingUBO = device->InstantiateBuffer(Nz::BufferType_Uniform);
+	if (!matSettingUBO->Initialize(materialSettings.size(), Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
+	{
+		NazaraError("Failed to create mat setting UBO");
+		return __LINE__;
+	}
+
+	matSettingUBO->Fill(materialSettings.data(), 0, materialSettings.size());
+
 	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 	shaderBinding->Update({
 		{
@@ -140,6 +167,18 @@ int main()
 			material.GetSettings()->GetPredefinedBindingIndex(Nz::PredefinedShaderBinding::UboInstanceData),
 			Nz::ShaderBinding::UniformBufferBinding {
 				instanceDataUbo.get(), 0, instanceDataBuffer.size()
+			}
+		},
+		{
+			3,
+			Nz::ShaderBinding::UniformBufferBinding {
+				matSettingUBO.get(), 0, materialSettings.size()
+			}
+		},
+		{
+			0,
+			Nz::ShaderBinding::TextureBinding {
+				alphaTexture.get(), textureSampler.get()
 			}
 		},
 		{

@@ -85,6 +85,11 @@ void ShaderNode::EnablePreview(bool enable)
 	}
 }
 
+int ShaderNode::GetOutputOrder() const
+{
+	return 0;
+}
+
 QWidget* ShaderNode::embeddedWidget()
 {
 	if (!m_embeddedWidget)

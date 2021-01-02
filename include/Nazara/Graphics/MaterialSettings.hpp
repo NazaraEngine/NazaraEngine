@@ -19,29 +19,35 @@
 
 namespace Nz
 {
+	class UberShader;
+
 	class MaterialSettings
 	{
 		public:
-			using DefaultShaders = std::array<std::shared_ptr<ShaderStage>, ShaderStageTypeCount>;
 			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
+			using Shaders = std::array<std::shared_ptr<UberShader>, ShaderStageTypeCount>;
 
+			struct Builder;
+			struct Condition;
 			struct SharedUniformBlock;
 			struct Texture;
 			struct UniformBlock;
 
 			inline MaterialSettings();
-			inline MaterialSettings(std::vector<Texture> textures, std::vector<UniformBlock> uniformBlocks, std::vector<SharedUniformBlock> sharedUniformBlocks, const PredefinedBinding& predefinedBinding, DefaultShaders defaultShaders);
+			inline MaterialSettings(Builder builder);
 			MaterialSettings(const MaterialSettings&) = default;
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
 
-			inline const std::shared_ptr<ShaderStage>& GetDefaultShader(ShaderStageType stage) const;
-			inline const DefaultShaders& GetDefaultShaders() const;
+			inline const std::vector<Condition>& GetConditions() const;
+			inline std::size_t GetConditionIndex(const std::string_view& name) const;
 			inline std::size_t GetPredefinedBindingIndex(PredefinedShaderBinding binding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
+			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType stage) const;
+			inline const Shaders& GetShaders() const;
 			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
-			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
 			inline std::size_t GetSharedUniformBlockIndex(const std::string_view& name) const;
+			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
 			inline const std::vector<Texture>& GetTextures() const;
 			inline std::size_t GetTextureIndex(const std::string_view& name) const;
 			inline const std::vector<UniformBlock>& GetUniformBlocks() const;
@@ -52,6 +58,22 @@ namespace Nz
 			MaterialSettings& operator=(MaterialSettings&&) = delete;
 
 			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
+
+			struct Builder
+			{
+				PredefinedBinding predefinedBinding;
+				Shaders shaders;
+				std::vector<Condition> conditions;
+				std::vector<Texture> textures;
+				std::vector<UniformBlock> uniformBlocks;
+				std::vector<SharedUniformBlock> sharedUniformBlocks;
+			};
+
+			struct Condition
+			{
+				std::string name;
+				std::array<UInt64, ShaderStageTypeCount> enabledConditions;
+			};
 
 			struct UniformVariable
 			{
@@ -84,11 +106,7 @@ namespace Nz
 
 		private:
 			std::shared_ptr<RenderPipelineLayout> m_pipelineLayout;
-			std::vector<SharedUniformBlock> m_sharedUniformBlocks;
-			std::vector<Texture> m_textures;
-			std::vector<UniformBlock> m_uniformBlocks;
-			DefaultShaders m_defaultShaders;
-			PredefinedBinding m_predefinedBinding;
+			Builder m_data;
 	};
 }
 

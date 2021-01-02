@@ -113,5 +113,7 @@ void ConditionEditor::RefreshConditions()
 		checkbox->setCheckState((conditionEntry.enabled) ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
 
 		m_model->setItem(rowIndex, 1, checkbox);
+
+		rowIndex++;
 	}
 }

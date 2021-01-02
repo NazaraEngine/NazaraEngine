@@ -17,30 +17,48 @@ namespace Nz
 		friend class MaterialPipeline;
 
 		public:
+			struct UniformOffsets;
+
 			BasicMaterial(Material& material);
 
+			inline void EnableAlphaTest(bool alphaTest);
+
 			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
-			float GetAlphaThreshold() const;
+			inline const std::shared_ptr<TextureSampler>& GetAlphaSampler() const;
+			float GetAlphaTestThreshold() const;
 			Color GetDiffuseColor() const;
 			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
+			inline const std::shared_ptr<TextureSampler>& GetDiffuseSampler() const;
 
 			inline bool HasAlphaMap() const;
-			inline bool HasAlphaThreshold() const;
+			inline bool HasAlphaTest() const;
+			inline bool HasAlphaTestThreshold() const;
 			inline bool HasDiffuseColor() const;
 			inline bool HasDiffuseMap() const;
 
 			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
-			void SetAlphaThreshold(float alphaThreshold);
+			inline void SetAlphaSampler(std::shared_ptr<TextureSampler> alphaSampler);
+			void SetAlphaTestThreshold(float alphaThreshold);
 			void SetDiffuseColor(const Color& diffuse);
 			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
+			inline void SetDiffuseSampler(std::shared_ptr<TextureSampler> diffuseSampler);
 
-			static const std::shared_ptr<MaterialSettings>& GetSettings();
+			static inline const UniformOffsets& GetOffsets();
+			static inline const std::shared_ptr<MaterialSettings>& GetSettings();
 
-		private:
 			struct UniformOffsets
 			{
 				std::size_t alphaThreshold;
 				std::size_t diffuseColor;
+				std::size_t totalSize;
+			};
+
+		private:
+			struct ConditionIndexes
+			{
+				std::size_t alphaTest;
+				std::size_t hasAlphaMap;
+				std::size_t hasDiffuseMap;
 			};
 
 			struct TextureIndexes
@@ -54,11 +72,13 @@ namespace Nz
 
 			Material& m_material;
 			std::size_t m_uniformBlockIndex;
+			ConditionIndexes m_conditionIndexes;
 			TextureIndexes m_textureIndexes;
 			UniformOffsets m_uniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static std::size_t s_uniformBlockIndex;
+			static ConditionIndexes s_conditionIndexes;
 			static TextureIndexes s_textureIndexes;
 			static UniformOffsets s_uniformOffsets;
 	};

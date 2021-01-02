@@ -149,7 +149,7 @@ namespace Nz::ShaderNodes
 
 
 	inline Discard::Discard() :
-	Statement(NodeType::DeclareVariable)
+	Statement(NodeType::Discard)
 	{
 	}
 

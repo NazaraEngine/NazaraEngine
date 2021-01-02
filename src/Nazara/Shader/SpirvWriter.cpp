@@ -33,7 +33,8 @@ namespace Nz
 				using LocalContainer = std::unordered_set<std::shared_ptr<const ShaderNodes::LocalVariable>>;
 				using ParameterContainer = std::unordered_set< std::shared_ptr<const ShaderNodes::ParameterVariable>>;
 
-				PreVisitor(const SpirvWriter::States& conditions, SpirvConstantCache& constantCache) :
+				PreVisitor(const ShaderAst& shader, const SpirvWriter::States& conditions, SpirvConstantCache& constantCache) :
+				m_shader(shader),
 				m_conditions(conditions),
 				m_constantCache(constantCache)
 				{
@@ -52,7 +53,10 @@ namespace Nz
 
 				void Visit(ShaderNodes::ConditionalExpression& node) override
 				{
-					if (m_conditions.enabledConditions.count(node.conditionName) != 0)
+					std::size_t conditionIndex = m_shader.FindConditionByName(node.conditionName);
+					assert(conditionIndex != ShaderAst::InvalidCondition);
+
+					if (TestBit<Nz::UInt64>(m_conditions.enabledConditions, conditionIndex))
 						Visit(node.truePath);
 					else
 						Visit(node.falsePath);
@@ -60,7 +64,10 @@ namespace Nz
 
 				void Visit(ShaderNodes::ConditionalStatement& node) override
 				{
-					if (m_conditions.enabledConditions.count(node.conditionName) != 0)
+					std::size_t conditionIndex = m_shader.FindConditionByName(node.conditionName);
+					assert(conditionIndex != ShaderAst::InvalidCondition);
+
+					if (TestBit<Nz::UInt64>(m_conditions.enabledConditions, conditionIndex))
 						Visit(node.statement);
 				}
 
@@ -141,6 +148,7 @@ namespace Nz
 				ParameterContainer paramVars;
 
 			private:
+				const ShaderAst& m_shader;
 				const SpirvWriter::States& m_conditions;
 				SpirvConstantCache& m_constantCache;
 		};
@@ -229,7 +237,7 @@ namespace Nz
 
 		ShaderAstCloner cloner;
 
-		PreVisitor preVisitor(conditions, state.constantTypeCache);
+		PreVisitor preVisitor(shader, conditions, state.constantTypeCache);
 		for (const auto& func : shader.GetFunctions())
 		{
 			functionStatements.emplace_back(cloner.Clone(func.statement));

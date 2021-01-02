@@ -39,7 +39,7 @@ namespace Nz
 
 	float Arbiter2D::GetContactDepth(std::size_t i) const
 	{
-		return cpArbiterGetDepth(m_arbiter, int(i));
+		return float(cpArbiterGetDepth(m_arbiter, int(i)));
 	}
 
 	Nz::Vector2f Arbiter2D::GetContactPointA(std::size_t i) const

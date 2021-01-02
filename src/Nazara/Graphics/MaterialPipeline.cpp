@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -47,10 +48,10 @@ namespace Nz
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
-		for (const auto& shaderStage : m_pipelineInfo.shaders)
+		for (const auto& shaderEntry : m_pipelineInfo.shaders)
 		{
-			if (shaderStage)
-				renderPipelineInfo.shaderStages.push_back(shaderStage);
+			if (shaderEntry.uberShader)
+				renderPipelineInfo.shaderStages.push_back(shaderEntry.uberShader->Get(shaderEntry.enabledConditions));
 		}
 
 		renderPipelineInfo.vertexBuffers = vertexBuffers;

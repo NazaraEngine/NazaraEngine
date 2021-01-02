@@ -49,9 +49,10 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-Nz::ShaderNodes::ExpressionPtr BufferField::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderNodes::NodePtr BufferField::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
+	assert(outputIndex == 0);
 
 	if (!m_currentBufferIndex)
 		throw std::runtime_error("no buffer");

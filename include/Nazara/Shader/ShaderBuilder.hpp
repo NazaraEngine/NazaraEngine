@@ -56,7 +56,12 @@ namespace Nz::ShaderBuilder
 	constexpr GenBuilder<ShaderNodes::DeclareVariable> DeclareVariable;
 	constexpr GenBuilder<ShaderNodes::Discard> Discard;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::Divide> Divide;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Equality> Equal;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompEq> Equal;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompGt> GreaterThan;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompGe> GreaterThanOrEqual;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompLt> LessThan;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompLe> LessThanOrEqual;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompNe> NotEqual;
 	constexpr GenBuilder<ShaderNodes::ExpressionStatement> ExprStatement;
 	constexpr GenBuilder<ShaderNodes::Identifier> Identifier;
 	constexpr GenBuilder<ShaderNodes::IntrinsicCall> IntrinsicCall;

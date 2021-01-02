@@ -128,6 +128,12 @@ namespace Nz
 	m_stream(stream)
 	{
 	}
+
+	inline ShaderAst UnserializeShader(const void* data, std::size_t size)
+	{
+		ByteStream byteStream(data, size);
+		return UnserializeShader(byteStream);
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>
