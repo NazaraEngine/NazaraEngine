@@ -461,11 +461,11 @@ namespace Nz
 			state.header.Append(SpirvOp::OpExecutionMode, entryFunc.id, SpvExecutionModeOriginUpperLeft);
 
 		std::vector<UInt32> ret;
-		MergeBlocks(ret, state.header);
-		MergeBlocks(ret, state.debugInfo);
-		MergeBlocks(ret, state.annotations);
-		MergeBlocks(ret, state.constants);
-		MergeBlocks(ret, state.instructions);
+		MergeSections(ret, state.header);
+		MergeSections(ret, state.debugInfo);
+		MergeSections(ret, state.annotations);
+		MergeSections(ret, state.constants);
+		MergeSections(ret, state.instructions);
 
 		return ret;
 	}
@@ -675,7 +675,7 @@ namespace Nz
 		m_currentState->varToResult.insert_or_assign(std::move(name), resultId);
 	}
 
-	void SpirvWriter::MergeBlocks(std::vector<UInt32>& output, const SpirvSection& from)
+	void SpirvWriter::MergeSections(std::vector<UInt32>& output, const SpirvSection& from)
 	{
 		const std::vector<UInt32>& bytecode = from.GetBytecode();
 

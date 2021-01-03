@@ -84,7 +84,7 @@ namespace Nz
 
 			void WriteLocalVariable(std::string name, UInt32 resultId);
 
-			static void MergeBlocks(std::vector<UInt32>& output, const SpirvSection& from);
+			static void MergeSections(std::vector<UInt32>& output, const SpirvSection& from);
 
 			struct Context
 			{
