@@ -20,7 +20,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API UberShader
 	{
 		public:
-			inline UberShader(ShaderAst shaderAst);
+			UberShader(ShaderAst shaderAst);
 			~UberShader() = default;
 
 			UInt64 GetConditionFlagByName(const std::string_view& condition) const;
