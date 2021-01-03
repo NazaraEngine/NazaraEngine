@@ -54,27 +54,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Enable/Disable alpha test for this material
-	*
-	* When enabled, all objects using this material will be rendered using alpha testing,
-	* rejecting pixels if their alpha component is under a defined threshold.
-	* This allows some kind of transparency with a much cheaper cost as it doesn't prevent any optimization (as deferred rendering or batching).
-	*
-	* \param alphaTest Defines if this material will use alpha testing
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see IsAlphaTestEnabled
-	* \see SetAlphaThreshold
-	*/
-	inline void Material::EnableAlphaTest(bool alphaTest)
-	{
-		m_pipelineInfo.alphaTest = alphaTest;
-
-		InvalidatePipeline();
-	}
-
-	/*!
 	* \brief Enable/Disable blending for this material
 	*
 	* When enabled, all objects using this material will be rendered using blending, obeying the dstBlend and srcBlend parameters
@@ -487,15 +466,6 @@ namespace Nz
 	inline bool Material::HasVertexColor() const
 	{
 		return m_pipelineInfo.hasVertexColor;
-	}
-
-	/*!
-	* \brief Checks whether this material has alpha test enabled
-	* \return true If it is the case
-	*/
-	inline bool Material::IsAlphaTestEnabled() const
-	{
-		return m_pipelineInfo.alphaTest;
 	}
 
 	/*!

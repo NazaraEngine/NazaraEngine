@@ -38,7 +38,6 @@ namespace Nz
 			inline void Configure(std::shared_ptr<MaterialPipeline> pipeline);
 			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
 
-			inline void EnableAlphaTest(bool alphaTest);
 			inline void EnableBlending(bool blending);
 			inline void EnableColorWrite(bool colorWrite);
 			inline void EnableCondition(std::size_t conditionIndex, bool enable);

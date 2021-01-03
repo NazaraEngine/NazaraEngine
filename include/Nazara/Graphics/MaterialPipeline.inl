@@ -76,7 +76,6 @@ namespace std
 			#define NazaraPipelineMember(member) Nz::HashCombine(seed, pipelineInfo.member)
 			#define NazaraPipelineBoolMember(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
 
-			NazaraPipelineBoolMember(alphaTest);
 			NazaraPipelineBoolMember(depthSorting);
 			NazaraPipelineBoolMember(hasVertexColor);
 			NazaraPipelineBoolMember(reflectionMapping);

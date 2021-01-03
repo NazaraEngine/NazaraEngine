@@ -9,6 +9,20 @@
 
 namespace Nz
 {
+	/*!
+	* \brief Enable/Disable alpha test for this material
+	*
+	* When enabled, all objects using this material will be rendered using alpha testing,
+	* rejecting pixels if their alpha component is under a defined threshold.
+	* This allows some kind of transparency with a much cheaper cost as it doesn't prevent any optimization (as deferred rendering or batching).
+	*
+	* \param alphaTest Defines if this material will use alpha testing
+	*
+	* \remark Invalidates the pipeline
+	*
+	* \see IsAlphaTestEnabled
+	* \see SetAlphaThreshold
+	*/
 	inline void BasicMaterial::EnableAlphaTest(bool alphaTest)
 	{
 		NazaraAssert(HasAlphaTest(), "Material has no alpha test condition");
