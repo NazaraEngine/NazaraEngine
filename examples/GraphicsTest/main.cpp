@@ -76,7 +76,7 @@ int main()
 	}
 
 	// Texture (alpha-map)
-	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile("alphatest.png");
+	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile("alphatile.png");
 	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat_RGBA8))
 	{
 		NazaraError("Failed to load image");
