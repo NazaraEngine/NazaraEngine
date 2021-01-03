@@ -27,7 +27,6 @@ namespace Nz
 			Nz::UInt64 enabledConditions = 0;
 		};
 
-		bool alphaTest         = false;
 		bool depthSorting      = false;
 		bool hasVertexColor    = false;
 		bool reflectionMapping = false;
