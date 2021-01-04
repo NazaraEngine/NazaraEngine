@@ -4,13 +4,14 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVEXPRESSIONLOAD_HPP
-#define NAZARA_SPIRVEXPRESSIONLOAD_HPP
+#ifndef NAZARA_SPIRVASTVISITOR_HPP
+#define NAZARA_SPIRVASTVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderAstVisitorExcept.hpp>
 #include <Nazara/Shader/ShaderVarVisitorExcept.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <vector>
 
 namespace Nz
@@ -20,7 +21,7 @@ namespace Nz
 	class NAZARA_SHADER_API SpirvAstVisitor : public ShaderAstVisitorExcept
 	{
 		public:
-			inline SpirvAstVisitor(SpirvWriter& writer);
+			inline SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks);
 			SpirvAstVisitor(const SpirvAstVisitor&) = delete;
 			SpirvAstVisitor(SpirvAstVisitor&&) = delete;
 			~SpirvAstVisitor() = default;
@@ -31,6 +32,7 @@ namespace Nz
 			void Visit(ShaderNodes::AccessMember& node) override;
 			void Visit(ShaderNodes::AssignOp& node) override;
 			void Visit(ShaderNodes::BinaryOp& node) override;
+			void Visit(ShaderNodes::Branch& node) override;
 			void Visit(ShaderNodes::Cast& node) override;
 			void Visit(ShaderNodes::ConditionalExpression& node) override;
 			void Visit(ShaderNodes::ConditionalStatement& node) override;
@@ -51,6 +53,8 @@ namespace Nz
 			void PushResultId(UInt32 value);
 			UInt32 PopResultId();
 
+			SpirvBlock* m_currentBlock;
+			std::vector<SpirvBlock>& m_blocks;
 			std::vector<UInt32> m_resultIds;
 			SpirvWriter& m_writer;
 	};

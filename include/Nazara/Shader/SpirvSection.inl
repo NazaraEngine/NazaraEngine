@@ -61,6 +61,17 @@ namespace Nz
 		return offset;
 	}
 
+	inline std::size_t SpirvSection::Append(const SpirvSection& section)
+	{
+		const std::vector<UInt32>& bytecode = section.GetBytecode();
+
+		std::size_t offset = GetOutputOffset();
+		m_bytecode.resize(offset + bytecode.size());
+		std::copy(bytecode.begin(), bytecode.end(), m_bytecode.begin() + offset);
+
+		return offset;
+	}
+
 	template<typename ...Args>
 	std::size_t SpirvSection::Append(SpirvOp opcode, const Args&... args)
 	{
@@ -89,13 +100,13 @@ namespace Nz
 		return offset;
 	}
 
-	template<typename T>
+	template<typename T, typename>
 	std::size_t SpirvSection::Append(T value)
 	{
 		return Append(static_cast<UInt32>(value));
 	}
 
-	template<typename T>
+	template<typename T, typename>
 	unsigned int SpirvSection::CountWord(const T& /*value*/)
 	{
 		return 1;

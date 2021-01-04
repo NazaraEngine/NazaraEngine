@@ -26,6 +26,7 @@ namespace Nz
 	class NAZARA_SHADER_API SpirvWriter : public ShaderWriter
 	{
 		friend class SpirvAstVisitor;
+		friend class SpirvBlock;
 		friend class SpirvExpressionLoad;
 		friend class SpirvExpressionStore;
 		friend class SpirvVisitor;
@@ -62,7 +63,6 @@ namespace Nz
 			const ExtVar& GetInputVariable(const std::string& name) const;
 			const ExtVar& GetOutputVariable(const std::string& name) const;
 			const ExtVar& GetUniformVariable(const std::string& name) const;
-			SpirvSection& GetInstructions();
 			UInt32 GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const;
 			UInt32 GetTypeId(const ShaderExpressionType& type) const;
 

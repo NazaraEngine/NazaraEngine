@@ -22,8 +22,8 @@ namespace Nz
 			struct Raw;
 
 			SpirvSection() = default;
-			SpirvSection(const SpirvSection& cache) = default;
-			SpirvSection(SpirvSection&& cache) = default;
+			SpirvSection(const SpirvSection&) = default;
+			SpirvSection(SpirvSection&&) = default;
 			~SpirvSection() = default;
 
 			inline std::size_t Append(const char* str);
@@ -35,20 +35,21 @@ namespace Nz
 			inline std::size_t Append(std::initializer_list<UInt32> codepoints);
 			template<typename... Args> std::size_t Append(SpirvOp opcode, const Args&... args);
 			template<typename F> std::size_t AppendVariadic(SpirvOp opcode, F&& callback);
-			template<typename T> std::size_t Append(T value);
+			inline std::size_t Append(const SpirvSection& section);
+			template<typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>> std::size_t Append(T value);
 
 			inline unsigned int CountWord(const char* str);
 			inline unsigned int CountWord(const std::string_view& str);
 			inline unsigned int CountWord(const std::string& str);
 			inline unsigned int CountWord(const Raw& raw);
-			template<typename T> unsigned int CountWord(const T& value);
+			template<typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>> unsigned int CountWord(const T& value);
 			template<typename T1, typename T2, typename... Args> unsigned int CountWord(const T1& value, const T2& value2, const Args&... rest);
 
 			inline const std::vector<UInt32>& GetBytecode() const;
 			inline std::size_t GetOutputOffset() const;
 
-			SpirvSection& operator=(const SpirvSection& cache) = delete;
-			SpirvSection& operator=(SpirvSection&& cache) = default;
+			SpirvSection& operator=(const SpirvSection&) = delete;
+			SpirvSection& operator=(SpirvSection&&) = default;
 
 			struct OpSize
 			{

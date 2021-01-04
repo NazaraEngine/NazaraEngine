@@ -682,7 +682,7 @@ namespace Nz
 			using ConstantType = std::decay_t<decltype(arg)>;
 
 			if constexpr (std::is_same_v<ConstantType, ConstantBool>)
-				constants.Append((arg.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, resultId);
+				constants.Append((arg.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, GetId({ Bool{} }), resultId);
 			else if constexpr (std::is_same_v<ConstantType, ConstantComposite>)
 			{
 				constants.AppendVariadic(SpirvOp::OpConstantComposite, [&](const auto& appender)

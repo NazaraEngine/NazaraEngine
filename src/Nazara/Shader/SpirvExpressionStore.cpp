@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
-#include <Nazara/Shader/SpirvSection.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -23,7 +23,7 @@ namespace Nz
 		{
 			[&](const Pointer& pointer)
 			{
-				m_writer.GetInstructions().Append(SpirvOp::OpStore, pointer.resultId, resultId);
+				m_block.Append(SpirvOp::OpStore, pointer.resultId, resultId);
 			},
 			[&](const LocalVar& value)
 			{
@@ -47,7 +47,7 @@ namespace Nz
 				UInt32 resultId = m_writer.AllocateResultId();
 				UInt32 pointerType = m_writer.RegisterPointerType(node.exprType, pointer.storage); //< FIXME
 
-				m_writer.GetInstructions().AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
+				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
 				{
 					appender(pointerType);
 					appender(resultId);
