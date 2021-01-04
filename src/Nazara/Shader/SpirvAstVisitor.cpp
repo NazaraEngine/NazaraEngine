@@ -22,7 +22,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderNodes::AccessMember& node)
 	{
-		SpirvExpressionLoad accessMemberVisitor(m_writer);
+		SpirvExpressionLoad accessMemberVisitor(m_writer, *m_currentBlock);
 		PushResultId(accessMemberVisitor.Evaluate(node));
 	}
 
@@ -30,7 +30,7 @@ namespace Nz
 	{
 		UInt32 resultId = EvaluateExpression(node.right);
 
-		SpirvExpressionStore storeVisitor(m_writer);
+		SpirvExpressionStore storeVisitor(m_writer, *m_currentBlock);
 		storeVisitor.Store(node.left, resultId);
 
 		PushResultId(resultId);
@@ -438,8 +438,61 @@ namespace Nz
 		if (swapOperands)
 			std::swap(leftOperand, rightOperand);
 
-		m_writer.GetInstructions().Append(op, m_writer.GetTypeId(resultType), resultId, leftOperand, rightOperand);
+		m_currentBlock->Append(op, m_writer.GetTypeId(resultType), resultId, leftOperand, rightOperand);
 		PushResultId(resultId);
+	}
+
+	void SpirvAstVisitor::Visit(ShaderNodes::Branch& node)
+	{
+		assert(!node.condStatements.empty());
+		auto& firstCond = node.condStatements.front();
+
+		UInt32 previousConditionId = EvaluateExpression(firstCond.condition);
+		SpirvBlock previousContentBlock(m_writer);
+		m_currentBlock = &previousContentBlock;
+		Visit(firstCond.statement);
+
+		std::optional<std::size_t> nextBlock;
+		for (std::size_t statementIndex = 1; statementIndex < node.condStatements.size(); ++statementIndex)
+		{
+			const auto& statement = node.condStatements[statementIndex];
+
+			SpirvBlock contentBlock(m_writer);
+
+			m_blocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), contentBlock.GetLabelId());
+
+			previousConditionId = EvaluateExpression(statement.condition);
+			m_blocks.emplace_back(std::move(previousContentBlock));
+			previousContentBlock = std::move(contentBlock);
+
+			m_currentBlock = &previousContentBlock;
+			Visit(statement.statement);
+		}
+
+		SpirvBlock mergeBlock(m_writer);
+
+		if (node.elseStatement)
+		{
+			SpirvBlock elseBlock(m_writer);
+
+			m_currentBlock = &elseBlock;
+			Visit(node.elseStatement);
+
+			elseBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
+
+			m_blocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), elseBlock.GetLabelId());
+			m_blocks.emplace_back(std::move(previousContentBlock));
+			m_blocks.emplace_back(std::move(elseBlock));
+		}
+		else
+		{
+			m_blocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), mergeBlock.GetLabelId());
+			m_blocks.emplace_back(std::move(previousContentBlock));
+		}
+
+		m_blocks.emplace_back(std::move(mergeBlock));
+
+		m_currentBlock = &m_blocks.back();
 	}
 
 	void SpirvAstVisitor::Visit(ShaderNodes::Cast& node)
@@ -461,7 +514,7 @@ namespace Nz
 
 		UInt32 resultId = m_writer.AllocateResultId();
 
-		m_writer.GetInstructions().AppendVariadic(SpirvOp::OpCompositeConstruct, [&](const auto& appender)
+		m_currentBlock->AppendVariadic(SpirvOp::OpCompositeConstruct, [&](const auto& appender)
 		{
 			appender(m_writer.GetTypeId(targetType));
 			appender(resultId);
@@ -508,7 +561,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderNodes::Discard& /*node*/)
 	{
-		m_writer.GetInstructions().Append(SpirvOp::OpKill);
+		m_currentBlock->Append(SpirvOp::OpKill);
 	}
 
 	void SpirvAstVisitor::Visit(ShaderNodes::ExpressionStatement& node)
@@ -519,7 +572,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderNodes::Identifier& node)
 	{
-		SpirvExpressionLoad loadVisitor(m_writer);
+		SpirvExpressionLoad loadVisitor(m_writer, *m_currentBlock);
 		PushResultId(loadVisitor.Evaluate(node));
 	}
 
@@ -541,7 +594,7 @@ namespace Nz
 
 				UInt32 resultId = m_writer.AllocateResultId();
 
-				m_writer.GetInstructions().Append(SpirvOp::OpDot, typeId, resultId, vec1, vec2);
+				m_currentBlock->Append(SpirvOp::OpDot, typeId, resultId, vec1, vec2);
 				PushResultId(resultId);
 				break;
 			}
@@ -560,7 +613,7 @@ namespace Nz
 		UInt32 coordinatesId = EvaluateExpression(node.coordinates);
 		UInt32 resultId = m_writer.AllocateResultId();
 
-		m_writer.GetInstructions().Append(SpirvOp::OpImageSampleImplicitLod, typeId, resultId, samplerId, coordinatesId);
+		m_currentBlock->Append(SpirvOp::OpImageSampleImplicitLod, typeId, resultId, samplerId, coordinatesId);
 		PushResultId(resultId);
 	}
 
@@ -583,7 +636,7 @@ namespace Nz
 		if (node.componentCount > 1)
 		{
 			// Swizzling is implemented via SpirvOp::OpVectorShuffle using the same vector twice as operands
-			m_writer.GetInstructions().AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
+			m_currentBlock->AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
 			{
 				appender(m_writer.GetTypeId(targetType));
 				appender(resultId);
@@ -599,7 +652,7 @@ namespace Nz
 			// Extract a single component from the vector
 			assert(node.componentCount == 1);
 
-			m_writer.GetInstructions().Append(SpirvOp::OpCompositeExtract, m_writer.GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderNodes::SwizzleComponent::First) );
+			m_currentBlock->Append(SpirvOp::OpCompositeExtract, m_writer.GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderNodes::SwizzleComponent::First) );
 		}
 
 		PushResultId(resultId);

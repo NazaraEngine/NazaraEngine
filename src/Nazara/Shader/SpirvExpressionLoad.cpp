@@ -4,7 +4,7 @@
 
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Nazara/Shader/SpirvSection.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -26,7 +26,7 @@ namespace Nz
 			{
 				UInt32 resultId = m_writer.AllocateResultId();
 
-				m_writer.GetInstructions().Append(SpirvOp::OpLoad, pointer.pointedTypeId, resultId, pointer.resultId);
+				m_block.Append(SpirvOp::OpLoad, pointer.pointedTypeId, resultId, pointer.resultId);
 
 				return resultId;
 			},
@@ -53,7 +53,7 @@ namespace Nz
 				UInt32 pointerType = m_writer.RegisterPointerType(node.exprType, pointer.storage); //< FIXME
 				UInt32 typeId = m_writer.GetTypeId(node.exprType);
 
-				m_writer.GetInstructions().AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
+				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
 				{
 					appender(pointerType);
 					appender(resultId);
@@ -70,7 +70,7 @@ namespace Nz
 				UInt32 resultId = m_writer.AllocateResultId();
 				UInt32 typeId = m_writer.GetTypeId(node.exprType);
 
-				m_writer.GetInstructions().AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
+				m_block.AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
 				{
 					appender(typeId);
 					appender(resultId);

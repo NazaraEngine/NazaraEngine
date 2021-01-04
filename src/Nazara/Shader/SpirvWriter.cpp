@@ -8,6 +8,7 @@
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
@@ -395,23 +396,29 @@ namespace Nz
 
 			state.instructions.Append(SpirvOp::OpFunction, GetTypeId(func.returnType), funcData.id, 0, funcData.typeId);
 
-			state.instructions.Append(SpirvOp::OpLabel, AllocateResultId());
+			std::vector<SpirvBlock> blocks;
+			blocks.emplace_back(*this);
 
 			for (const auto& param : func.parameters)
 			{
 				UInt32 paramResultId = AllocateResultId();
 				funcData.paramsId.push_back(paramResultId);
 
-				state.instructions.Append(SpirvOp::OpFunctionParameter, GetTypeId(param.type), paramResultId);
+				blocks.back().Append(SpirvOp::OpFunctionParameter, GetTypeId(param.type), paramResultId);
 			}
 
-			SpirvAstVisitor visitor(*this);
+			SpirvAstVisitor visitor(*this, blocks);
 			visitor.Visit(functionStatements[funcIndex]);
 
 			if (func.returnType == ShaderNodes::BasicType::Void)
-				state.instructions.Append(SpirvOp::OpReturn);
+				blocks.back().Append(SpirvOp::OpReturn);
+			else
+				throw std::runtime_error("returning values from functions is not yet supported"); //< TODO
 
-			state.instructions.Append(SpirvOp::OpFunctionEnd);
+			blocks.back().Append(SpirvOp::OpFunctionEnd);
+
+			for (SpirvBlock& block : blocks)
+				state.instructions.Append(block);
 		}
 
 		assert(entryPointIndex != std::numeric_limits<std::size_t>::max());
@@ -550,11 +557,6 @@ namespace Nz
 		assert(it != m_currentState->uniformIds.end());
 
 		return it.value();
-	}
-
-	SpirvSection& SpirvWriter::GetInstructions()
-	{
-		return m_currentState->instructions;
 	}
 
 	UInt32 SpirvWriter::GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const

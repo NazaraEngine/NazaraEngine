@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVEXPRESSIONLOADACCESSMEMBER_HPP
-#define NAZARA_SPIRVEXPRESSIONLOADACCESSMEMBER_HPP
+#ifndef NAZARA_SPIRVEXPRESSIONLOAD_HPP
+#define NAZARA_SPIRVEXPRESSIONLOAD_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -16,12 +16,13 @@
 
 namespace Nz
 {
+	class SpirvBlock;
 	class SpirvWriter;
 
 	class NAZARA_SHADER_API SpirvExpressionLoad : public ShaderAstVisitorExcept, public ShaderVarVisitorExcept
 	{
 		public:
-			inline SpirvExpressionLoad(SpirvWriter& writer);
+			inline SpirvExpressionLoad(SpirvWriter& writer, SpirvBlock& block);
 			SpirvExpressionLoad(const SpirvExpressionLoad&) = delete;
 			SpirvExpressionLoad(SpirvExpressionLoad&&) = delete;
 			~SpirvExpressionLoad() = default;
@@ -53,6 +54,7 @@ namespace Nz
 				UInt32 resultId;
 			};
 
+			SpirvBlock& m_block;
 			SpirvWriter& m_writer;
 			std::variant<std::monostate, Pointer, Value> m_value;
 	};

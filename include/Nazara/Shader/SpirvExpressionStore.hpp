@@ -15,13 +15,13 @@
 
 namespace Nz
 {
-	class SpirvSection;
+	class SpirvBlock;
 	class SpirvWriter;
 
 	class NAZARA_SHADER_API SpirvExpressionStore : public ShaderAstVisitorExcept, public ShaderVarVisitorExcept
 	{
 		public:
-			inline SpirvExpressionStore(SpirvWriter& writer);
+			inline SpirvExpressionStore(SpirvWriter& writer, SpirvBlock& block);
 			SpirvExpressionStore(const SpirvExpressionStore&) = delete;
 			SpirvExpressionStore(SpirvExpressionStore&&) = delete;
 			~SpirvExpressionStore() = default;
@@ -53,6 +53,7 @@ namespace Nz
 				UInt32 resultId;
 			};
 
+			SpirvBlock& m_block;
 			SpirvWriter& m_writer;
 			std::variant<std::monostate, LocalVar, Pointer> m_value;
 	};
