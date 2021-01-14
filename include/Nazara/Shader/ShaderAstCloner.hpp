@@ -33,6 +33,7 @@ namespace Nz
 			ShaderNodes::StatementPtr CloneStatement(const ShaderNodes::StatementPtr& statement);
 			ShaderNodes::VariablePtr CloneVariable(const ShaderNodes::VariablePtr& statement);
 
+			using ShaderAstVisitor::Visit;
 			void Visit(ShaderNodes::AccessMember& node) override;
 			void Visit(ShaderNodes::AssignOp& node) override;
 			void Visit(ShaderNodes::BinaryOp& node) override;
@@ -51,6 +52,7 @@ namespace Nz
 			void Visit(ShaderNodes::StatementBlock& node) override;
 			void Visit(ShaderNodes::SwizzleOp& node) override;
 
+			using ShaderVarVisitor::Visit;
 			void Visit(ShaderNodes::BuiltinVariable& var) override;
 			void Visit(ShaderNodes::InputVariable& var) override;
 			void Visit(ShaderNodes::LocalVariable& var) override;
