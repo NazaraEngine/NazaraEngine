@@ -605,6 +605,11 @@ namespace Nz
 		}
 	}
 
+	void SpirvAstVisitor::Visit(ShaderNodes::NoOp& /*node*/)
+	{
+		// nothing to do
+	}
+
 	void SpirvAstVisitor::Visit(ShaderNodes::Sample2D& node)
 	{
 		UInt32 typeId = m_writer.GetTypeId(ShaderNodes::BasicType::Float4);

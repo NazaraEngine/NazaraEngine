@@ -194,6 +194,17 @@ namespace Nz::ShaderNodes
 	}
 
 
+	inline ShaderNodes::NoOp::NoOp() :
+	Statement(NodeType::NoOp)
+	{
+	}
+
+	inline std::shared_ptr<NoOp> NoOp::Build()
+	{
+		return std::make_shared<NoOp>();
+	}
+
+
 	inline AssignOp::AssignOp() :
 	Expression(NodeType::AssignOp)
 	{

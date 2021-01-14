@@ -87,6 +87,11 @@ namespace Nz
 					Serialize(node);
 				}
 
+				void Visit(ShaderNodes::NoOp& node) override
+				{
+					Serialize(node);
+				}
+
 				void Visit(ShaderNodes::Sample2D& node) override
 				{
 					Serialize(node);
@@ -274,6 +279,11 @@ namespace Nz
 	{
 		Value(node.name);
 		Type(node.type);
+	}
+
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::NoOp& /*node*/)
+	{
+		/* Nothing to do */
 	}
 
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::Sample2D& node)
@@ -682,6 +692,7 @@ namespace Nz
 			HandleType(ExpressionStatement);
 			HandleType(Identifier);
 			HandleType(IntrinsicCall);
+			HandleType(NoOp);
 			HandleType(Sample2D);
 			HandleType(SwizzleOp);
 			HandleType(StatementBlock);

@@ -574,6 +574,11 @@ namespace Nz
 		Append(var.name);
 	}
 
+	void GlslWriter::Visit(ShaderNodes::NoOp& /*node*/)
+	{
+		/* nothing to do */
+	}
+
 	void GlslWriter::Visit(ShaderNodes::ParameterVariable& var)
 	{
 		Append(var.name);
@@ -598,7 +603,7 @@ namespace Nz
 		bool first = true;
 		for (const ShaderNodes::StatementPtr& statement : node.statements)
 		{
-			if (!first)
+			if (!first && statement->GetType() != ShaderNodes::NodeType::NoOp)
 				AppendLine();
 
 			Visit(statement);

@@ -137,6 +137,11 @@ namespace Nz
 		PushExpression(ShaderNodes::IntrinsicCall::Build(node.intrinsic, std::move(parameters)));
 	}
 
+	void ShaderAstCloner::Visit(ShaderNodes::NoOp& /*node*/)
+	{
+		PushStatement(ShaderNodes::NoOp::Build());
+	}
+
 	void ShaderAstCloner::Visit(ShaderNodes::Sample2D& node)
 	{
 		PushExpression(ShaderNodes::Sample2D::Build(CloneExpression(node.sampler), CloneExpression(node.coordinates)));

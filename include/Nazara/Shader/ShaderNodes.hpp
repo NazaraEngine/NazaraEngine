@@ -161,6 +161,15 @@ namespace Nz
 			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::vector<std::size_t> memberIndices, ShaderExpressionType exprType);
 		};
 
+		struct NAZARA_SHADER_API NoOp : public Statement
+		{
+			inline NoOp();
+
+			void Visit(ShaderAstVisitor& visitor) override;
+
+			static inline std::shared_ptr<NoOp> Build();
+		};
+
 		//////////////////////////////////////////////////////////////////////////
 
 		struct NAZARA_SHADER_API AssignOp : public Expression
