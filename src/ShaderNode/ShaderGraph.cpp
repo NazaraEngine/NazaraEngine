@@ -531,7 +531,7 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 			auto expression = std::static_pointer_cast<Nz::ShaderNodes::Expression>(astNode);
 
 			Nz::ShaderNodes::ExpressionPtr varExpression;
-			if (expression->GetExpressionCategory() == Nz::ShaderNodes::ExpressionCategory::RValue)
+			if (Nz::GetExpressionCategory(expression) == Nz::ShaderNodes::ExpressionCategory::RValue)
 			{
 				std::string name;
 				if (variableName.empty())

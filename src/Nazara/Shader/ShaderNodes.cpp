@@ -13,11 +13,6 @@ namespace Nz::ShaderNodes
 {
 	Node::~Node() = default;
 
-	ExpressionCategory Expression::GetExpressionCategory() const
-	{
-		return ExpressionCategory::RValue;
-	}
-
 	void ExpressionStatement::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
@@ -48,11 +43,6 @@ namespace Nz::ShaderNodes
 	}
 
 
-	ExpressionCategory Identifier::GetExpressionCategory() const
-	{
-		return ExpressionCategory::LValue;
-	}
-
 	ShaderExpressionType Identifier::GetExpressionType() const
 	{
 		assert(var);
@@ -62,11 +52,6 @@ namespace Nz::ShaderNodes
 	void Identifier::Visit(ShaderAstVisitor& visitor)
 	{
 		visitor.Visit(*this);
-	}
-
-	ExpressionCategory AccessMember::GetExpressionCategory() const
-	{
-		return structExpr->GetExpressionCategory();
 	}
 
 	ShaderExpressionType AccessMember::GetExpressionType() const
@@ -230,11 +215,6 @@ namespace Nz::ShaderNodes
 		visitor.Visit(*this);
 	}
 
-
-	ExpressionCategory SwizzleOp::GetExpressionCategory() const
-	{
-		return expression->GetExpressionCategory();
-	}
 
 	ShaderExpressionType SwizzleOp::GetExpressionType() const
 	{

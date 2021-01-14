@@ -17,6 +17,7 @@
 #include <Nazara/Shader/ShaderExpressionType.hpp>
 #include <Nazara/Shader/ShaderVariables.hpp>
 #include <array>
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -55,12 +56,11 @@ namespace Nz
 
 		using ExpressionPtr = std::shared_ptr<Expression>;
 
-		class NAZARA_SHADER_API Expression : public Node
+		class NAZARA_SHADER_API Expression : public Node, public std::enable_shared_from_this<Expression>
 		{
 			public:
 				inline Expression(NodeType type);
 
-				virtual ExpressionCategory GetExpressionCategory() const;
 				virtual ShaderExpressionType GetExpressionType() const = 0;
 		};
 
@@ -68,7 +68,7 @@ namespace Nz
 
 		using StatementPtr = std::shared_ptr<Statement>;
 
-		class NAZARA_SHADER_API Statement : public Node
+		class NAZARA_SHADER_API Statement : public Node, public std::enable_shared_from_this<Statement>
 		{
 			public:
 				inline Statement(NodeType type);
@@ -136,7 +136,6 @@ namespace Nz
 		{
 			inline Identifier();
 
-			ExpressionCategory GetExpressionCategory() const override;
 			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderAstVisitor& visitor) override;
 
@@ -149,7 +148,6 @@ namespace Nz
 		{
 			inline AccessMember();
 
-			ExpressionCategory GetExpressionCategory() const override;
 			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderAstVisitor& visitor) override;
 
@@ -265,7 +263,6 @@ namespace Nz
 		{
 			inline SwizzleOp();
 
-			ExpressionCategory GetExpressionCategory() const override;
 			ShaderExpressionType GetExpressionType() const override;
 			void Visit(ShaderAstVisitor& visitor) override;
 
