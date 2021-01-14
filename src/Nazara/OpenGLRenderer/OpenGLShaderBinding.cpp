@@ -65,38 +65,49 @@ namespace Nz
 
 					const TextureBinding& texBinding = std::get<TextureBinding>(binding.content);
 
-					OpenGLTexture& glTexture = static_cast<OpenGLTexture&>(*texBinding.texture);
-					OpenGLTextureSampler& glSampler = static_cast<OpenGLTextureSampler&>(*texBinding.sampler);
-
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
 					textureDescriptor.bindingIndex = binding.bindingIndex;
 
-					textureDescriptor.texture = glTexture.GetTexture().GetObjectId();
-					textureDescriptor.sampler = glSampler.GetSampler(glTexture.GetLevelCount() > 1).GetObjectId();
-
-					switch (glTexture.GetType())
+					if (OpenGLTexture* glTexture = static_cast<OpenGLTexture*>(texBinding.texture))
 					{
-						case ImageType_2D:
-							textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
-							break;
+						textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
 
-						case ImageType_2D_Array:
-							textureDescriptor.textureTarget = GL::TextureTarget::Target2D_Array;
-							break;
+						if (OpenGLTextureSampler* glSampler = static_cast<OpenGLTextureSampler*>(texBinding.sampler))
+							textureDescriptor.sampler = glSampler->GetSampler(glTexture->GetLevelCount() > 1).GetObjectId();
+						else
+							textureDescriptor.sampler = 0;
 
-						case ImageType_3D:
-							textureDescriptor.textureTarget = GL::TextureTarget::Target3D;
-							break;
+						switch (glTexture->GetType())
+						{
+							case ImageType_2D:
+								textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
+								break;
 
-						case ImageType_Cubemap:
-							textureDescriptor.textureTarget = GL::TextureTarget::Cubemap;
-							break;
+							case ImageType_2D_Array:
+								textureDescriptor.textureTarget = GL::TextureTarget::Target2D_Array;
+								break;
 
-						case ImageType_1D:
-						case ImageType_1D_Array:
-						default:
-							throw std::runtime_error("unsupported texture type");
+							case ImageType_3D:
+								textureDescriptor.textureTarget = GL::TextureTarget::Target3D;
+								break;
+
+							case ImageType_Cubemap:
+								textureDescriptor.textureTarget = GL::TextureTarget::Cubemap;
+								break;
+
+							case ImageType_1D:
+							case ImageType_1D_Array:
+							default:
+								throw std::runtime_error("unsupported texture type");
+						}
 					}
+					else
+					{
+						textureDescriptor.sampler = 0;
+						textureDescriptor.texture = 0;
+						textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
+					}
+
 					break;
 				}
 
@@ -107,15 +118,21 @@ namespace Nz
 
 					const UniformBufferBinding& uboBinding = std::get<UniformBufferBinding>(binding.content);
 
-					OpenGLBuffer& glBuffer = *static_cast<OpenGLBuffer*>(uboBinding.buffer);
-					if (glBuffer.GetType() != BufferType_Uniform)
-						throw std::runtime_error("expected uniform buffer");
-
 					auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
 					uboDescriptor.bindingIndex = binding.bindingIndex;
-					uboDescriptor.buffer = glBuffer.GetBuffer().GetObjectId();
 					uboDescriptor.offset = uboBinding.offset;
 					uboDescriptor.size = uboBinding.range;
+
+					if (OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(uboBinding.buffer))
+					{
+						if (glBuffer->GetType() != BufferType_Uniform)
+							throw std::runtime_error("expected uniform buffer");
+
+						uboDescriptor.buffer = glBuffer->GetBuffer().GetObjectId();
+					}
+					else
+						uboDescriptor.buffer = 0;
+
 					break;
 				}
 			}
