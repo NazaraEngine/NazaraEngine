@@ -8,6 +8,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
+#include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
@@ -349,7 +350,7 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired)
 	{
-		bool enclose = encloseIfRequired && (expr->GetExpressionCategory() != ShaderNodes::ExpressionCategory::LValue);
+		bool enclose = encloseIfRequired && (GetExpressionCategory(expr) != ShaderNodes::ExpressionCategory::LValue);
 
 		if (enclose)
 			Append("(");
@@ -460,7 +461,6 @@ namespace Nz
 
 		Append(")");
 	}
-
 
 	void GlslWriter::Visit(ShaderNodes::ConditionalExpression& node)
 	{

@@ -5,6 +5,7 @@
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Shader/ShaderAst.hpp>
+#include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderVariables.hpp>
 #include <vector>
 #include <Nazara/Shader/Debug.hpp>
@@ -126,7 +127,7 @@ namespace Nz
 		MandatoryNode(node.right);
 		TypeMustMatch(node.left, node.right);
 
-		if (node.left->GetExpressionCategory() != ShaderNodes::ExpressionCategory::LValue)
+		if (GetExpressionCategory(node.left) != ShaderNodes::ExpressionCategory::LValue)
 			throw AstError { "Assignation is only possible with a l-value" };
 
 		ShaderAstRecursiveVisitor::Visit(node);
@@ -221,7 +222,10 @@ namespace Nz
 	{
 		for (const auto& condStatement : node.condStatements)
 		{
-			MandatoryNode(condStatement.condition);
+			const ShaderExpressionType& condType = MandatoryExpr(condStatement.condition)->GetExpressionType();
+			if (!IsBasicType(condType) || std::get<ShaderNodes::BasicType>(condType) != ShaderNodes::BasicType::Boolean)
+				throw AstError{ "if expression must resolve to boolean type" };
+
 			MandatoryNode(condStatement.statement);
 		}
 
