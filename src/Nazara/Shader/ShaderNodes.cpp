@@ -97,7 +97,7 @@ namespace Nz::ShaderNodes
 		switch (op)
 		{
 			case BinaryType::Add:
-			case BinaryType::Substract:
+			case BinaryType::Subtract:
 				exprType = left->GetExpressionType();
 				break;
 

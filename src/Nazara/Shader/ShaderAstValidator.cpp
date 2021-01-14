@@ -161,7 +161,7 @@ namespace Nz
 			case ShaderNodes::BinaryType::Add:
 			case ShaderNodes::BinaryType::CompEq:
 			case ShaderNodes::BinaryType::CompNe:
-			case ShaderNodes::BinaryType::Substract:
+			case ShaderNodes::BinaryType::Subtract:
 				TypeMustMatch(node.left, node.right);
 				break;
 

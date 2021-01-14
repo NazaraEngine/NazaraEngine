@@ -92,7 +92,7 @@ namespace Nz
 					break;
 				}
 
-				case ShaderNodes::BinaryType::Substract:
+				case ShaderNodes::BinaryType::Subtract:
 				{
 					switch (leftType)
 					{

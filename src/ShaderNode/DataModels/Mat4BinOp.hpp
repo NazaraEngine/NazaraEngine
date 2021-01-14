@@ -53,10 +53,10 @@ class Mat4Mul : public Mat4BinOp<Nz::ShaderNodes::BinaryType::Multiply>
 		QString name() const override;
 };
 
-class Mat4Sub : public Mat4BinOp<Nz::ShaderNodes::BinaryType::Substract>
+class Mat4Sub : public Mat4BinOp<Nz::ShaderNodes::BinaryType::Subtract>
 {
 	public:
-		using Mat4BinOp<Nz::ShaderNodes::BinaryType::Substract>::Mat4BinOp;
+		using Mat4BinOp<Nz::ShaderNodes::BinaryType::Subtract>::Mat4BinOp;
 
 		QString caption() const override;
 		QString name() const override;

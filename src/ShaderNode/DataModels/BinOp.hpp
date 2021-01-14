@@ -65,10 +65,10 @@ class BinMul : public BinOp<DataType, Nz::ShaderNodes::BinaryType::Multiply>
 };
 
 template<typename DataType>
-class BinSub : public BinOp<DataType, Nz::ShaderNodes::BinaryType::Substract>
+class BinSub : public BinOp<DataType, Nz::ShaderNodes::BinaryType::Subtract>
 {
 	public:
-		using BinOp<DataType, Nz::ShaderNodes::BinaryType::Substract>::BinOp;
+		using BinOp<DataType, Nz::ShaderNodes::BinaryType::Subtract>::BinOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
