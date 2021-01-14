@@ -1,5 +1,6 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <ShaderNode/DataModels/BinOp.hpp>
 #include <ShaderNode/DataModels/BoolValue.hpp>
 #include <ShaderNode/DataModels/BufferField.hpp>
@@ -62,6 +63,7 @@ m_type(ShaderType::NotSet)
 	});
 
 	// Test
+	m_type = ShaderType::Fragment;
 	AddInput("UV", PrimitiveType::Float2, InputRole::TexCoord, 0, 0);
 	AddOutput("RenderTarget0", PrimitiveType::Float4, 0);
 	AddTexture("Potato", TextureType::Sampler2D, 1);
@@ -440,7 +442,7 @@ QJsonObject ShaderGraph::Save()
 	return sceneJson;
 }
 
-Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
+Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst() const
 {
 	std::vector<Nz::ShaderNodes::StatementPtr> statements;
 
@@ -578,6 +580,61 @@ Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
 	}
 
 	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
+}
+
+Nz::ShaderAst ShaderGraph::ToShader() const
+{
+	Nz::ShaderAst shader(ShaderGraph::ToShaderStageType(m_type)); //< FIXME
+	for (const auto& condition : m_conditions)
+		shader.AddCondition(condition.name);
+
+	for (const auto& input : m_inputs)
+		shader.AddInput(input.name, ToShaderExpressionType(input.type), input.locationIndex);
+
+	for (const auto& output : m_outputs)
+		shader.AddOutput(output.name, ToShaderExpressionType(output.type), output.locationIndex);
+
+	for (const auto& buffer : m_buffers)
+	{
+		if (buffer.structIndex >= m_structs.size())
+			throw std::runtime_error("buffer " + buffer.name + " references out-of-bounds struct #" + std::to_string(buffer.structIndex));
+
+		const auto& structInfo = m_structs[buffer.structIndex];
+		shader.AddUniform(buffer.name, structInfo.name, buffer.bindingIndex, Nz::ShaderNodes::MemoryLayout::Std140);
+	}
+
+	for (const auto& uniform : m_textures)
+		shader.AddUniform(uniform.name, ToShaderExpressionType(uniform.type), uniform.bindingIndex, {});
+
+	for (const auto& s : m_structs)
+	{
+		std::vector<Nz::ShaderAst::StructMember> members;
+		for (const auto& sMember : s.members)
+		{
+			auto& member = members.emplace_back();
+			member.name = sMember.name;
+
+			std::visit([&](auto&& arg)
+			{
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, PrimitiveType>)
+					member.type = ToShaderExpressionType(arg);
+				else if constexpr (std::is_same_v<T, std::size_t>)
+				{
+					if (arg >= m_structs.size())
+						throw std::runtime_error("struct " + s.name + " references out-of-bounds struct #" + std::to_string(arg));
+
+					member.type = m_structs[arg].name;
+				}
+				else
+					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			}, sMember.type);
+		}
+
+		shader.AddStruct(s.name, std::move(members));
+	}
+
+	return shader;
 }
 
 Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
