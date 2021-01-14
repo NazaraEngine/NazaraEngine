@@ -35,6 +35,7 @@ namespace Nz
 			virtual void Visit(ShaderNodes::ExpressionStatement& node) = 0;
 			virtual void Visit(ShaderNodes::Identifier& node) = 0;
 			virtual void Visit(ShaderNodes::IntrinsicCall& node) = 0;
+			virtual void Visit(ShaderNodes::NoOp& node) = 0;
 			virtual void Visit(ShaderNodes::Sample2D& node) = 0;
 			virtual void Visit(ShaderNodes::StatementBlock& node) = 0;
 			virtual void Visit(ShaderNodes::SwizzleOp& node) = 0;

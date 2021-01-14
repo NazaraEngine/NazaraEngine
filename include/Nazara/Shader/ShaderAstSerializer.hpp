@@ -40,6 +40,7 @@ namespace Nz
 			void Serialize(ShaderNodes::Identifier& node);
 			void Serialize(ShaderNodes::IntrinsicCall& node);
 			void Serialize(ShaderNodes::NamedVariable& var);
+			void Serialize(ShaderNodes::NoOp& node);
 			void Serialize(ShaderNodes::Sample2D& node);
 			void Serialize(ShaderNodes::StatementBlock& node);
 			void Serialize(ShaderNodes::SwizzleOp& node);

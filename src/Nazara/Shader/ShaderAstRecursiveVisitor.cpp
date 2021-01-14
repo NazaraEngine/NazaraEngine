@@ -90,6 +90,11 @@ namespace Nz
 			Visit(param);
 	}
 
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::NoOp& /*node*/)
+	{
+		/* Nothing to do */
+	}
+
 	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Sample2D& node)
 	{
 		Visit(node.sampler);
