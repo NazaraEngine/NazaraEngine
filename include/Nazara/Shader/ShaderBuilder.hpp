@@ -55,7 +55,7 @@ namespace Nz::ShaderBuilder
 	constexpr GenBuilder<ShaderNodes::Constant> Constant;
 	constexpr GenBuilder<ShaderNodes::DeclareVariable> DeclareVariable;
 	constexpr GenBuilder<ShaderNodes::Discard> Discard;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Divide> Divide;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::Divide> Division;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompEq> Equal;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompGt> GreaterThan;
 	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompGe> GreaterThanOrEqual;
@@ -71,8 +71,9 @@ namespace Nz::ShaderBuilder
 	constexpr GenBuilder<ShaderNodes::OutputVariable> Output;
 	constexpr GenBuilder<ShaderNodes::ParameterVariable> Parameter;
 	constexpr GenBuilder<ShaderNodes::Sample2D> Sample2D;
+	constexpr GenBuilder<ShaderNodes::StatementBlock> StatementBlock;
 	constexpr GenBuilder<ShaderNodes::SwizzleOp> Swizzle;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Substract> Substract;
+	constexpr BinOpBuilder<ShaderNodes::BinaryType::Subtract> Subtract;
 	constexpr GenBuilder<ShaderNodes::UniformVariable> Uniform;
 
 	template<ShaderNodes::BasicType Type, typename... Args> std::shared_ptr<ShaderNodes::Cast> Cast(Args&&... args);

@@ -420,7 +420,7 @@ namespace Nz
 		switch (node.op)
 		{
 			case ShaderNodes::BinaryType::Add:       Append(" + "); break;
-			case ShaderNodes::BinaryType::Substract: Append(" - "); break;
+			case ShaderNodes::BinaryType::Subtract: Append(" - "); break;
 			case ShaderNodes::BinaryType::Multiply:  Append(" * "); break;
 			case ShaderNodes::BinaryType::Divide:    Append(" / "); break;
 

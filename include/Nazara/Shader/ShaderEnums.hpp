@@ -39,7 +39,7 @@ namespace Nz::ShaderNodes
 	enum class BinaryType
 	{
 		Add,       //< +
-		Substract, //< -
+		Subtract, //< -
 		Multiply,  //< *
 		Divide,    //< /
 
