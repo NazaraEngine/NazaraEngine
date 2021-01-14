@@ -32,31 +32,29 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, TextureBinding>)
 				{
-					VulkanTexture& vkTexture = *static_cast<VulkanTexture*>(arg.texture);
-					VulkanTextureSampler& vkSampler = *static_cast<VulkanTextureSampler*>(arg.sampler);
+					VulkanTexture* vkTexture = static_cast<VulkanTexture*>(arg.texture);
+					VulkanTextureSampler* vkSampler = static_cast<VulkanTextureSampler*>(arg.sampler);
 
 					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfo.imageView = vkTexture.GetImageView();
-					imageInfo.sampler = vkSampler.GetSampler();
+					imageInfo.imageView = (vkTexture) ? vkTexture->GetImageView() : VK_NULL_HANDLE;
+					imageInfo.sampler = (vkSampler) ? vkSampler->GetSampler() : VK_NULL_HANDLE;
 
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-
 					writeOp.pImageInfo = &imageInfo;
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{
-					VulkanBuffer& vkBuffer = *static_cast<VulkanBuffer*>(arg.buffer);
+					VulkanBuffer* vkBuffer = static_cast<VulkanBuffer*>(arg.buffer);
 
 					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
-					bufferInfo.buffer = vkBuffer.GetBuffer();
+					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;
 					bufferInfo.offset = arg.offset;
 					bufferInfo.range = arg.range;
 
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
 					writeOp.pBufferInfo = &bufferInfo;
 				}
 				else
