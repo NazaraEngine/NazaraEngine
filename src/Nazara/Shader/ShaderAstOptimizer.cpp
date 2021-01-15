@@ -470,6 +470,12 @@ namespace Nz
 					break;
 				}
 			}
+			else
+			{
+				auto& c = statements.emplace_back();
+				c.condition = std::move(cond);
+				c.statement = CloneStatement(condStatement.statement);
+			}
 		}
 
 		if (statements.empty())
