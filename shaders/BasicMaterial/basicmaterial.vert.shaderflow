@@ -19,6 +19,8 @@
             "type": "UniformBufferObject"
         }
     ],
+    "conditions": [
+    ],
     "connections": [
         {
             "in_id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
@@ -45,6 +47,12 @@
             "out_index": 0
         },
         {
+            "in_id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
+            "in_index": 0,
+            "out_id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
+            "out_index": 0
+        },
+        {
             "in_id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
             "in_index": 0,
             "out_id": "{c3b906bc-d230-4026-a32e-34c00eaf4481}",
@@ -60,12 +68,6 @@
             "in_id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
             "in_index": 0,
             "out_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
-            "out_index": 0
-        },
-        {
-            "in_id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
-            "in_index": 0,
-            "out_id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
             "out_index": 0
         },
         {
@@ -326,7 +328,7 @@
                 },
                 {
                     "name": "DiffuseColor",
-                    "type": "Float3"
+                    "type": "Float4"
                 }
             ],
             "name": "BasicSettings"

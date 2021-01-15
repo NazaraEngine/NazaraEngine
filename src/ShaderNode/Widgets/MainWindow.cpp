@@ -182,6 +182,7 @@ void MainWindow::OnCompile()
 	try
 	{
 		auto shader = m_shaderGraph.ToShader();
+		shader.AddFunction("main", m_shaderGraph.ToAst());
 
 		QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save shader"), QString(), tr("Shader Files (*.shader)"));
 		if (fileName.isEmpty())
