@@ -80,12 +80,12 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, DrawData>)
 				{
-					ApplyStates(*context, m_currentStates);
+					ApplyStates(*context, command.states);
 					context->glDrawArraysInstanced(GL_TRIANGLES, command.firstVertex, command.vertexCount, command.instanceCount);
 				}
 				else if constexpr (std::is_same_v<T, DrawIndexedData>)
 				{
-					ApplyStates(*context, m_currentStates);
+					ApplyStates(*context, command.states);
 					context->glDrawElementsInstanced(GL_TRIANGLES, command.indexCount, GL_UNSIGNED_SHORT, nullptr, command.instanceCount);
 				}
 				else if constexpr (std::is_same_v<T, SetFrameBufferData>)
