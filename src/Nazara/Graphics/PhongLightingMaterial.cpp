@@ -49,17 +49,17 @@ namespace Nz
 	{
 		NazaraAssert(HasAlphaThreshold(), "Material has no alpha threshold uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
-		return AccessByOffset<const float&>(mapper.GetPointer(), m_phongUniformOffsets.alphaThreshold);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_phongUniformIndex);
+		return AccessByOffset<const float&>(bufferData.data(), m_phongUniformOffsets.alphaThreshold);
 	}
 
 	Color PhongLightingMaterial::GetAmbientColor() const
 	{
 		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_phongUniformIndex);
 
-		const float* colorPtr = AccessByOffset<const float*>(mapper.GetPointer(), m_phongUniformOffsets.ambientColor);
+		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.ambientColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
@@ -67,9 +67,9 @@ namespace Nz
 	{
 		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_phongUniformIndex);
 
-		const float* colorPtr = AccessByOffset<const float*>(mapper.GetPointer(), m_phongUniformOffsets.diffuseColor);
+		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.diffuseColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
@@ -77,17 +77,17 @@ namespace Nz
 	{
 		NazaraAssert(HasShininess(), "Material has no shininess uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
-		return AccessByOffset<const float&>(mapper.GetPointer(), m_phongUniformOffsets.shininess);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_phongUniformIndex);
+		return AccessByOffset<const float&>(bufferData.data(), m_phongUniformOffsets.shininess);
 	}
 
 	Color PhongLightingMaterial::GetSpecularColor() const
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_ReadOnly);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_phongUniformIndex);
 
-		const float* colorPtr = AccessByOffset<const float*>(mapper.GetPointer(), m_phongUniformOffsets.specularColor);
+		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.specularColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
@@ -95,16 +95,16 @@ namespace Nz
 	{
 		NazaraAssert(HasAlphaThreshold(), "Material has no alpha threshold uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
-		AccessByOffset<float&>(mapper.GetPointer(), m_phongUniformOffsets.alphaThreshold) = alphaThreshold;
+		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_phongUniformIndex);
+		AccessByOffset<float&>(bufferData.data(), m_phongUniformOffsets.alphaThreshold) = alphaThreshold;
 	}
 
 	void PhongLightingMaterial::SetAmbientColor(const Color& ambient)
 	{
 		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
-		float* colorPtr = AccessByOffset<float*>(mapper.GetPointer(), m_phongUniformOffsets.ambientColor);
+		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_phongUniformIndex);
+		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.ambientColor);
 		colorPtr[0] = ambient.r / 255.f;
 		colorPtr[1] = ambient.g / 255.f;
 		colorPtr[2] = ambient.b / 255.f;
@@ -115,8 +115,8 @@ namespace Nz
 	{
 		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
-		float* colorPtr = AccessByOffset<float*>(mapper.GetPointer(), m_phongUniformOffsets.diffuseColor);
+		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_phongUniformIndex);
+		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.diffuseColor);
 		colorPtr[0] = diffuse.r / 255.f;
 		colorPtr[1] = diffuse.g / 255.f;
 		colorPtr[2] = diffuse.b / 255.f;
@@ -127,8 +127,8 @@ namespace Nz
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_phongUniformIndex), BufferAccess_WriteOnly);
-		float* colorPtr = AccessByOffset<float*>(mapper.GetPointer(), m_phongUniformOffsets.specularColor);
+		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_phongUniformIndex);
+		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.specularColor);
 		colorPtr[0] = diffuse.r / 255.f;
 		colorPtr[1] = diffuse.g / 255.f;
 		colorPtr[2] = diffuse.b / 255.f;

@@ -60,17 +60,18 @@ namespace Nz
 	{
 		NazaraAssert(HasAlphaTestThreshold(), "Material has no alpha threshold uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_uniformBlockIndex), BufferAccess_ReadOnly);
-		return AccessByOffset<const float&>(mapper.GetPointer(), m_uniformOffsets.alphaThreshold);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_uniformBlockIndex);
+
+		return AccessByOffset<const float&>(bufferData.data(), m_uniformOffsets.alphaThreshold);
 	}
 
 	Color BasicMaterial::GetDiffuseColor() const
 	{
 		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_uniformBlockIndex), BufferAccess_ReadOnly);
+		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_uniformBlockIndex);
 
-		const float* colorPtr = AccessByOffset<const float*>(mapper.GetPointer(), m_uniformOffsets.diffuseColor);
+		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_uniformOffsets.diffuseColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
@@ -78,16 +79,17 @@ namespace Nz
 	{
 		NazaraAssert(HasAlphaTestThreshold(), "Material has no alpha threshold uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_uniformBlockIndex), BufferAccess_WriteOnly);
-		AccessByOffset<float&>(mapper.GetPointer(), m_uniformOffsets.alphaThreshold) = alphaThreshold;
+		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_uniformBlockIndex);
+		AccessByOffset<float&>(bufferData.data(), m_uniformOffsets.alphaThreshold) = alphaThreshold;
 	}
 
 	void BasicMaterial::SetDiffuseColor(const Color& diffuse)
 	{
 		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
 
-		BufferMapper<UniformBuffer> mapper(m_material.GetUniformBuffer(m_uniformBlockIndex), BufferAccess_WriteOnly);
-		float* colorPtr = AccessByOffset<float*>(mapper.GetPointer(), m_uniformOffsets.diffuseColor);
+		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_uniformBlockIndex);
+
+		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_uniformOffsets.diffuseColor);
 		colorPtr[0] = diffuse.r / 255.f;
 		colorPtr[1] = diffuse.g / 255.f;
 		colorPtr[2] = diffuse.b / 255.f;
