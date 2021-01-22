@@ -115,7 +115,7 @@ namespace Nz
 			std::vector<MaterialTexture> m_textures;
 			std::vector<UniformBufferRef> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
-			UInt32 m_enabledConditions;
+			UInt64 m_enabledConditions;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			mutable bool m_pipelineUpdated;
 			bool m_shadowCastingEnabled;

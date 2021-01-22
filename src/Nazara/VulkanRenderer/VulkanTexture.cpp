@@ -227,8 +227,23 @@ namespace Nz
 			VK_COMPONENT_SWIZZLE_A
 		};
 
+		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
+			case PixelFormat_BGR8:
+			{
+				createImage.format = VK_FORMAT_B8G8R8_SRGB;
+				createImageView.format = createImage.format;
+				break;
+			}
+
+			case PixelFormat_BGRA8:
+			{
+				createImage.format = VK_FORMAT_B8G8R8A8_SRGB;
+				createImageView.format = createImage.format;
+				break;
+			}
+
 			case PixelFormat_L8:
 			{
 				createImage.format = VK_FORMAT_R8_SRGB;

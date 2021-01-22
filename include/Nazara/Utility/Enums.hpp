@@ -146,6 +146,8 @@ namespace Nz
 		ImageType_Max = ImageType_Cubemap
 	};
 
+	constexpr std::size_t ImageTypeCount = static_cast<std::size_t>(ImageType_Max) + 1;
+
 	enum NodeType
 	{
 		NodeType_Default,  // Node

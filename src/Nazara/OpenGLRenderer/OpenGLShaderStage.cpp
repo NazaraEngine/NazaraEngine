@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
@@ -88,8 +87,6 @@ namespace Nz
 		writer.SetEnv(env);
 
 		std::string code = writer.Generate(shaderAst, states);
-
-		NazaraError(code);
 
 		m_shader.SetSource(code.data(), code.size());
 		m_shader.Compile();

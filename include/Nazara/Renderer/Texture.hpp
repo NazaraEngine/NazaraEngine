@@ -19,9 +19,9 @@ namespace Nz
 	{
 		PixelFormat pixelFormat;
 		ImageType type;
+		UInt8 mipmapLevel = 1;
 		unsigned int depth = 1;
 		unsigned int height;
-		unsigned int mipmapLevel = 1;
 		unsigned int width;
 	};
 
