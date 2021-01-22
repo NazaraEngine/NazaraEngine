@@ -21,13 +21,13 @@ namespace Nz
 		lightData.innerOffsets.parameter3 = lightStruct.AddField(StructFieldType_Float2);
 		lightData.innerOffsets.shadowMappingFlag = lightStruct.AddField(StructFieldType_Bool1);
 
-		lightData.innerOffsets.totalSize = lightStruct.GetSize();
+		lightData.innerOffsets.totalSize = lightStruct.GetAlignedSize();
 
 		FieldOffsets lightDataStruct(StructLayout_Std140);
 		for (std::size_t& lightOffset : lightData.lightArray)
 			lightOffset = lightDataStruct.AddStruct(lightStruct);
 
-		lightData.lightArraySize = lightDataStruct.GetSize();
+		lightData.lightArraySize = lightDataStruct.GetAlignedSize();
 
 		return lightData;
 	}
@@ -62,7 +62,7 @@ namespace Nz
 		instanceData.worldMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
 		instanceData.invWorldMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
 
-		instanceData.totalSize = viewerStruct.GetSize();
+		instanceData.totalSize = viewerStruct.GetAlignedSize();
 
 		return instanceData;
 	}
@@ -107,7 +107,7 @@ namespace Nz
 		viewerData.invTargetSizeOffset = viewerStruct.AddField(StructFieldType_Float2);
 		viewerData.eyePositionOffset = viewerStruct.AddField(StructFieldType_Float3);
 
-		viewerData.totalSize = viewerStruct.GetSize();
+		viewerData.totalSize = viewerStruct.GetAlignedSize();
 
 		return viewerData;
 	}
