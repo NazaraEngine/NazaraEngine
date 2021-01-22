@@ -14,6 +14,7 @@
 
 namespace Nz
 {
+	class AbstractBuffer;
 	class RenderDevice;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
@@ -29,6 +30,7 @@ namespace Nz
 			~Graphics();
 
 			inline RenderDevice& GetRenderDevice();
+			inline const std::shared_ptr<AbstractBuffer>& GetViewerDataUBO();
 
 			struct Config
 			{
@@ -36,6 +38,7 @@ namespace Nz
 			};
 
 		private:
+			std::shared_ptr<AbstractBuffer> m_viewerDataUBO;
 			std::shared_ptr<RenderDevice> m_renderDevice;
 
 			static Graphics* s_instance;
