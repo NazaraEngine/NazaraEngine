@@ -115,13 +115,11 @@ int main()
 	Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
 	const Nz::BasicMaterial::UniformOffsets& materialSettingOffsets = Nz::BasicMaterial::GetOffsets();
 
-	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 	std::vector<std::uint8_t> viewerDataBuffer(viewerUboOffsets.totalSize);
 	std::vector<std::uint8_t> materialSettings(materialSettingOffsets.totalSize);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 
@@ -129,22 +127,6 @@ int main()
 	Nz::AccessByOffset<Nz::Vector4f&>(materialSettings.data(), materialSettingOffsets.diffuseColor) = Nz::Vector4f(1.f, 1.f, 1.f, 1.f);
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = material.GetSettings()->GetRenderPipelineLayout();
-
-	std::shared_ptr<Nz::AbstractBuffer> instanceDataUbo = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!instanceDataUbo->Initialize(instanceDataBuffer.size(), Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
-	{
-		NazaraError("Failed to create instance UBO");
-		return __LINE__;
-	}
-
-	instanceDataUbo->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
-
-	std::shared_ptr<Nz::AbstractBuffer> viewerDataUbo = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!viewerDataUbo->Initialize(viewerDataBuffer.size(), Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
-	{
-		NazaraError("Failed to create viewer UBO");
-		return __LINE__;
-	}
 
 	std::shared_ptr<Nz::AbstractBuffer> matSettingUBO = device->InstantiateBuffer(Nz::BufferType_Uniform);
 	if (!matSettingUBO->Initialize(materialSettings.size(), Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
@@ -155,46 +137,36 @@ int main()
 
 	matSettingUBO->Fill(materialSettings.data(), 0, materialSettings.size());
 
-	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
-	shaderBinding->Update({
-		{
-			material.GetSettings()->GetPredefinedBindingIndex(Nz::PredefinedShaderBinding::UboViewerData),
-			Nz::ShaderBinding::UniformBufferBinding {
-				viewerDataUbo.get(), 0, viewerDataBuffer.size()
-			}
-		},
-		{
-			material.GetSettings()->GetPredefinedBindingIndex(Nz::PredefinedShaderBinding::UboInstanceData),
-			Nz::ShaderBinding::UniformBufferBinding {
-				instanceDataUbo.get(), 0, instanceDataBuffer.size()
-			}
-		},
-		{
-			3,
-			Nz::ShaderBinding::UniformBufferBinding {
-				matSettingUBO.get(), 0, materialSettings.size()
-			}
-		},
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				alphaTexture.get(), textureSampler.get()
-			}
-		},
-		{
-			1,
-			Nz::ShaderBinding::TextureBinding {
-				texture.get(), textureSampler.get()
-			}
-		}
-	});
-
 	std::vector<Nz::RenderPipelineInfo::VertexBufferData> vertexBuffers = {
 		{
 			0,
 			drfreakVB->GetVertexDeclaration()
 		}
 	};
+
+	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
+
+	Nz::ModelInstance modelInstance(material.GetSettings());
+	{
+		material.UpdateShaderBinding(modelInstance.GetShaderBinding());
+
+		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
+
+		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = modelInstance.GetInstanceBuffer();
+		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
+	}
+
+	Nz::ModelInstance modelInstance2(material.GetSettings());
+	{
+		material.UpdateShaderBinding(modelInstance2.GetShaderBinding());
+
+		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right() * 3.f);
+
+		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = modelInstance2.GetInstanceBuffer();
+		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
+	}
+
+	std::shared_ptr<Nz::AbstractBuffer> viewerDataUBO = Nz::Graphics::Instance()->GetViewerDataUBO();
 
 	std::shared_ptr<Nz::RenderPipeline> pipeline = material.GetPipeline()->GetRenderPipeline(vertexBuffers);
 
@@ -239,13 +211,18 @@ int main()
 			{
 				builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
+					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+
 					builder.BindIndexBuffer(indexBufferImpl);
 					builder.BindPipeline(*pipeline);
 					builder.BindVertexBuffer(0, vertexBufferImpl);
-					builder.BindShaderBinding(*shaderBinding);
 
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.BindShaderBinding(modelInstance.GetShaderBinding());
+
+					builder.DrawIndexed(drfreakIB->GetIndexCount());
+
+					builder.BindShaderBinding(modelInstance2.GetShaderBinding());
 
 					builder.DrawIndexed(drfreakIB->GetIndexCount());
 				}
@@ -363,7 +340,7 @@ int main()
 				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
 				{
 					builder.PreTransferBarrier();
-					builder.CopyBuffer(allocation, viewerDataUbo.get());
+					builder.CopyBuffer(allocation, viewerDataUBO.get());
 					builder.PostTransferBarrier();
 				}
 				builder.EndDebugRegion();
