@@ -30,7 +30,7 @@ namespace Nz
 			inline std::size_t GetPoolIndex() const;
 			inline const OpenGLRenderPipelineLayout& GetOwner() const;
 
-			void Update(std::initializer_list<Binding> bindings) override;
+			void Update(const Binding* bindings, std::size_t bindingCount) override;
 
 			OpenGLShaderBinding& operator=(const OpenGLShaderBinding&) = delete;
 			OpenGLShaderBinding& operator=(OpenGLShaderBinding&&) = delete;
