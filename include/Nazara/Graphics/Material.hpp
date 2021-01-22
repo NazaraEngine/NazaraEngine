@@ -67,13 +67,13 @@ namespace Nz
 			inline BlendFunc GetSrcBlend() const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const std::shared_ptr<TextureSampler>& GetTextureSampler(std::size_t textureIndex) const;
-			inline UniformBufferRef& GetUniformBuffer(std::size_t bufferIndex);
-			inline const UniformBufferRef& GetUniformBuffer(std::size_t bufferIndex) const;
+			inline const std::shared_ptr<AbstractBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
+			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
+			inline const std::vector<UInt8>& GetUniformBufferConstData(std::size_t bufferIndex);
 
 			inline bool HasTexture(std::size_t textureIndex) const;
 			inline bool HasVertexColor() const;
 
-			inline bool IsAlphaTestEnabled() const;
 			inline bool IsBlendingEnabled() const;
 			inline bool IsColorWriteEnabled() const;
 			inline bool IsConditionEnabled(std::size_t conditionIndex) const;
@@ -93,16 +93,19 @@ namespace Nz
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
 			inline void SetPointSize(float pointSize);
-			inline void SetUniformBuffer(std::size_t bufferIndex, UniformBufferRef uniformBuffer);
+			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer);
 			inline void SetSrcBlend(BlendFunc func);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
 			inline void SetTextureSampler(std::size_t textureIndex, std::shared_ptr<TextureSampler> sampler);
+
+			void UpdateShaderBinding(ShaderBinding& shaderBinding) const;
 
 			// Signals:
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
 
 		private:
 			inline void InvalidatePipeline();
+			inline void InvalidateShaderBinding();
 			inline void UpdatePipeline() const;
 
 			struct MaterialTexture
@@ -111,9 +114,16 @@ namespace Nz
 				std::shared_ptr<Texture> texture;
 			};
 
+			struct UniformBuffer
+			{
+				std::shared_ptr<AbstractBuffer> buffer;
+				std::vector<UInt8> data;
+				bool dataInvalidated = true;
+			};
+
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
-			std::vector<UniformBufferRef> m_uniformBuffers;
+			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			UInt64 m_enabledConditions;
 			mutable MaterialPipelineInfo m_pipelineInfo;

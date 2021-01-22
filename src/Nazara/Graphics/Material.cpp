@@ -39,11 +39,53 @@ namespace Nz
 		m_uniformBuffers.reserve(m_settings->GetUniformBlocks().size());
 		for (const auto& uniformBufferInfo : m_settings->GetUniformBlocks())
 		{
-			//TODO: Use pools
-			UniformBufferRef ubo = UniformBuffer::New(static_cast<UInt32>(uniformBufferInfo.blockSize), DataStorage_Hardware, BufferUsage_Dynamic);
-			ubo->Fill(uniformBufferInfo.defaultValues.data(), 0, uniformBufferInfo.defaultValues.size());
+			auto& uniformBuffer = m_uniformBuffers.emplace_back();
 
-			m_uniformBuffers.emplace_back(std::move(ubo));
+			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice().InstantiateBuffer(Nz::BufferType_Uniform);
+			if (!uniformBuffer.buffer->Initialize(uniformBufferInfo.blockSize, BufferUsage_Dynamic))
+				throw std::runtime_error("failed to initialize UBO memory");
+
+			assert(uniformBufferInfo.defaultValues.size() <= uniformBufferInfo.blockSize);
+
+			uniformBuffer.buffer->Fill(uniformBufferInfo.defaultValues.data(), 0, uniformBufferInfo.defaultValues.size());
+			uniformBuffer.data.resize(uniformBufferInfo.blockSize);
+			std::memcpy(uniformBuffer.data.data(), uniformBufferInfo.defaultValues.data(), uniformBufferInfo.defaultValues.size());
 		}
+	}
+
+	void Material::UpdateShaderBinding(ShaderBinding& shaderBinding) const
+	{
+		// TODO: Use StackVector
+		std::vector<ShaderBinding::Binding> bindings;
+
+
+		std::size_t bindingIndex = 0;
+
+		for (const auto& textureSlot : m_textures)
+		{
+			if (textureSlot.texture && textureSlot.sampler)
+			{
+				bindings.push_back({
+					bindingIndex,
+					ShaderBinding::TextureBinding {
+						textureSlot.texture.get(), textureSlot.sampler.get()
+					}
+				});
+			}
+
+			bindingIndex++;
+		}
+
+		for (const auto& ubo : m_uniformBuffers)
+		{
+			bindings.push_back({
+				bindingIndex++,
+				ShaderBinding::UniformBufferBinding {
+					ubo.buffer.get(), 0, ubo.buffer->GetSize()
+				}
+			});
+		}
+
+		shaderBinding.Update(bindings.data(), bindings.size());
 	}
 }
