@@ -56,7 +56,6 @@ namespace Nz::GL
 		const Context& context = EnsureDeviceContext();
 		context.BindTexture(m_target, m_objectId);
 		context.glTexImage2D(ToOpenGL(m_target), level, internalFormat, width, height, border, format, type, data);
-		//< TODO: Handle errors
 	}
 
 	inline void Texture::TexSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data)

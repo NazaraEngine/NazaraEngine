@@ -105,10 +105,10 @@ int main()
 	material.EnableDepthBuffer(true);
 
 	Nz::BasicMaterial basicMat(material);
-	basicMat.EnableAlphaTest(true);
+	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(alphaTexture);
 	basicMat.SetAlphaSampler(textureSampler);
-	basicMat.SetDiffuseMap(alphaTexture);
+	basicMat.SetDiffuseMap(texture);
 	basicMat.SetDiffuseSampler(textureSampler);
 
 	Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();

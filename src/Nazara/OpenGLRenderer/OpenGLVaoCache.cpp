@@ -30,7 +30,7 @@ namespace Nz::GL
 				if (setup.indexBuffer != 0)
 					m_context.BindBuffer(BufferTarget::ElementArray, setup.indexBuffer, true);
 
-				std::size_t bindingIndex = 0;
+				GLuint bindingIndex = 0;
 				for (const auto& attribOpt : setup.vertexAttribs)
 				{
 					if (attribOpt)
