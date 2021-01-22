@@ -22,6 +22,14 @@ namespace Nz
 		return m_largestFieldAlignment;
 	}
 
+	inline std::size_t FieldOffsets::GetAlignedSize() const
+	{
+		if (m_layout == StructLayout_Std140)
+			return Align(m_size, m_largestFieldAlignment);
+		else
+			return m_size;
+	}
+
 	inline std::size_t FieldOffsets::GetSize() const
 	{
 		return m_size;
