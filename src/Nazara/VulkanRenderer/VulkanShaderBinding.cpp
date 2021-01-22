@@ -13,14 +13,16 @@
 
 namespace Nz
 {
-	void VulkanShaderBinding::Update(std::initializer_list<Binding> bindings)
+	void VulkanShaderBinding::Update(const Binding* bindings, std::size_t bindingCount)
 	{
-		StackVector<VkDescriptorBufferInfo> bufferBinding = NazaraStackVector(VkDescriptorBufferInfo, bindings.size());
-		StackVector<VkDescriptorImageInfo> imageBinding = NazaraStackVector(VkDescriptorImageInfo, bindings.size());
-		StackVector<VkWriteDescriptorSet> writeOps = NazaraStackVector(VkWriteDescriptorSet, bindings.size());
+		StackVector<VkDescriptorBufferInfo> bufferBinding = NazaraStackVector(VkDescriptorBufferInfo, bindingCount);
+		StackVector<VkDescriptorImageInfo> imageBinding = NazaraStackVector(VkDescriptorImageInfo, bindingCount);
+		StackVector<VkWriteDescriptorSet> writeOps = NazaraStackVector(VkWriteDescriptorSet, bindingCount);
 
-		for (const Binding& binding : bindings)
+		for (std::size_t i = 0; i < bindingCount; ++i)
 		{
+			const Binding& binding = bindings[i];
+			
 			VkWriteDescriptorSet& writeOp = writeOps.emplace_back();
 			writeOp.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writeOp.dstSet = m_descriptorSet;

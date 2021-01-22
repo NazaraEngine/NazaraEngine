@@ -39,12 +39,14 @@ namespace Nz
 		}
 	}
 
-	void OpenGLShaderBinding::Update(std::initializer_list<Binding> bindings)
+	void OpenGLShaderBinding::Update(const Binding* bindings, std::size_t bindingCount)
 	{
 		const auto& layoutInfo = m_owner.GetLayoutInfo();
 
-		for (const Binding& binding : bindings)
+		for (std::size_t i = 0; i < bindingCount; ++i)
 		{
+			const Binding& binding = bindings[i];
+
 			assert(binding.bindingIndex < layoutInfo.bindings.size());
 			const auto& bindingDesc = layoutInfo.bindings[binding.bindingIndex];
 
