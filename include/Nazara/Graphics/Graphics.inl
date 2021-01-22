@@ -11,6 +11,11 @@ namespace Nz
 	{
 		return *m_renderDevice;
 	}
+
+	inline const std::shared_ptr<AbstractBuffer>& Graphics::GetViewerDataUBO()
+	{
+		return m_viewerDataUBO;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

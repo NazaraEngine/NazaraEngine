@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -39,6 +40,12 @@ namespace Nz
 			throw std::runtime_error("failed to instantiate render device");
 
 		MaterialPipeline::Initialize();
+
+		Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
+
+		m_viewerDataUBO = m_renderDevice->InstantiateBuffer(Nz::BufferType_Uniform);
+		if (!m_viewerDataUBO->Initialize(viewerUboOffsets.totalSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
+			throw std::runtime_error("failed to initialize viewer data UBO");
 	}
 
 	Graphics::~Graphics()
