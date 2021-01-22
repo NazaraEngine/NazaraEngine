@@ -133,7 +133,7 @@ namespace Nz::GL
 							WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_ES_PROFILE_BIT_EXT
 						};
 
-						m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());
+						m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, (shareContext) ? shareContext->m_handle : nullptr, attributes.data());
 						if (m_handle)
 							break;
 					}
