@@ -13,6 +13,17 @@
 #include <pthread.h>
 #include <queue>
 
+#if defined(NAZARA_PLATFORM_MACOSX)
+	typedef int pthread_barrierattr_t;
+	typedef struct
+	{
+		pthread_mutex_t mutex;
+		pthread_cond_t cond;
+		int count;
+		int tripCount;
+	} pthread_barrier_t;
+#endif
+
 namespace Nz
 {
 	struct Functor;
@@ -45,6 +56,12 @@ namespace Nz
 			static pthread_cond_t s_cvEmpty;
 			static pthread_cond_t s_cvNotEmpty;
 			static pthread_barrier_t s_barrier;
+
+#if defined(NAZARA_PLATFORM_MACOSX)
+			static int pthread_barrier_init(pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, unsigned int count);
+			static int pthread_barrier_destroy(pthread_barrier_t *barrier);
+			static int pthread_barrier_wait(pthread_barrier_t *barrier);
+#endif
 	};
 }
 

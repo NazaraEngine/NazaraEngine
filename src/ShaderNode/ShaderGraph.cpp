@@ -64,7 +64,7 @@ m_type(ShaderType::NotSet)
 			{ "position", PrimitiveType::Float3 },
 			{ "normal", PrimitiveType::Float3 },
 			{ "uv", PrimitiveType::Float2 },
-			{ "inner", 2 }
+			{ "inner", 2u }
 		}
 	});
 	AddStruct("InnerStruct", {
@@ -74,7 +74,7 @@ m_type(ShaderType::NotSet)
 	});
 	AddStruct("OuterStruct", {
 		{
-			{ "a", 1 },
+			{ "a", 1u },
 			{ "b", PrimitiveType::Float1 }
 		}
 	});
@@ -266,7 +266,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 			if (typeDocRef.isString())
 				memberInfo.type = DecodeEnum<PrimitiveType>(typeDocRef.toString().toStdString()).value();
 			else
-				memberInfo.type = typeDocRef.toInt();
+				memberInfo.type = static_cast<std::size_t>(typeDocRef.toInt());
 		}
 	}
 
@@ -363,7 +363,7 @@ QJsonObject ShaderGraph::Save()
 					else if constexpr (std::is_same_v<T, std::size_t>)
 						memberDoc["type"] = int(arg);
 					else
-						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+						static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
 				}, member.type);
 
 				memberArray.append(std::move(memberDoc));
@@ -535,7 +535,7 @@ Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<
 			return s.name;
 		}
 		else
-			static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
 	}, type);
 };
 
