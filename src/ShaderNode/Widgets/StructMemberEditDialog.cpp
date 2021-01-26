@@ -50,7 +50,7 @@ StructMemberEditDialog(shaderGraph, parent)
 		else if constexpr (std::is_same_v<T, std::size_t>)
 			m_typeList->setCurrentIndex(static_cast<int>(PrimitiveTypeCount + arg));
 		else
-			static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
 	},
 	member.type);
 }

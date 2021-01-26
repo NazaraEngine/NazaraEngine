@@ -48,7 +48,7 @@ struct VecExpressionTypeHelper<4>
 	static constexpr Nz::ShaderNodes::BasicType ExpressionType = Nz::ShaderNodes::BasicType::Float4;
 };
 
-template<std::size_t N> constexpr Nz::ShaderNodes::BasicType VecExpressionType = VecExpressionTypeHelper<N>::template ExpressionType;
+template<std::size_t N> constexpr Nz::ShaderNodes::BasicType VecExpressionType = VecExpressionTypeHelper<N>::ExpressionType;
 
 
 struct VecTypeDummy {};
@@ -86,7 +86,7 @@ struct VecTypeHelper<4>
 	using Type = Nz::Vector4f;
 };
 
-template<std::size_t N> using VecType = typename VecTypeHelper<N>::template Type;
+template<std::size_t N> using VecType = typename VecTypeHelper<N>::Type;
 
 constexpr std::array<char, 4> s_vectorComponents = { 'X', 'Y', 'Z', 'W' };
 

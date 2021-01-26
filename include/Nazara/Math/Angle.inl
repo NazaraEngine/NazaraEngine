@@ -97,7 +97,7 @@ namespace Nz
 			}
 		};
 
-#ifdef NAZARA_PLATFORM_POSIX
+#ifdef NAZARA_PLATFORM_LINUX
 		template<typename T>
 		void SinCos(std::enable_if_t<!std::is_same<T, float>::value && !std::is_same<T, long double>::value, double> x, T* sin, T* cos)
 		{

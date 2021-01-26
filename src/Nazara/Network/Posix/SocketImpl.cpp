@@ -17,6 +17,10 @@
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
+#if !defined(TCP_KEEPIDLE) && defined(TCP_KEEPALIVE)
+#define TCP_KEEPIDLE TCP_KEEPALIVE // see -> https://gitlab.freedesktop.org/spice/usbredir/-/issues/9
+#endif
+
 namespace Nz
 {
 	constexpr int SOCKET_ERROR = -1;
@@ -269,6 +273,9 @@ namespace Nz
 		unsigned int code;
 		socklen_t codeLength = sizeof(code);
 
+#if defined(NAZARA_PLATFORM_MACOSX)
+		return 0; //No IP_MTU on macosx
+#else
 		if (getsockopt(handle, IPPROTO_IP, IP_MTU, &code, &codeLength) == SOCKET_ERROR)
 		{
 			if (error)
@@ -276,6 +283,7 @@ namespace Nz
 
 			return 0;
 		}
+#endif
 
 		if (error)
 			*error = SocketError_NoError;
@@ -597,8 +605,11 @@ namespace Nz
 		}
 
 		IpAddress senderIp;
-
+#if defined(MSG_NOSIGNAL)
 		int byteRead = recvmsg(handle, &msgHdr, MSG_NOSIGNAL);
+#else
+		int byteRead = recvmsg(handle, &msgHdr, 0);
+#endif
 		if (byteRead == -1)
 		{
 			int errorCode = GetLastErrorCode();
@@ -714,7 +725,12 @@ namespace Nz
 		msgHdr.msg_iov = sysBuffers.data();
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
+#if defined(MSG_NOSIGNAL)
 		int byteSent = sendmsg(handle, &msgHdr, MSG_NOSIGNAL);
+#else
+		int byteSent = sendmsg(handle, &msgHdr, 0);
+#endif
+		
 		if (byteSent == SOCKET_ERROR)
 		{
 			int errorCode = GetLastErrorCode();
@@ -896,6 +912,18 @@ namespace Nz
 
 		if (error)
 			*error = SocketError_NoError;
+			
+#if not defined(MSG_NOSIGNAL) // -> https://github.com/intel/parameter-framework/pull/133/files
+        //There is no MSG_NOSIGNAL on macos
+        const int set = 1;
+        if (setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &set, sizeof(set)) == SOCKET_ERROR)
+		{
+			if (error)
+				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+
+			return false; //< Error
+		}
+#endif
 
 		return true;
 	}

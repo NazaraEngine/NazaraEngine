@@ -21,11 +21,15 @@ MODULE.OsDefines.Windows = {
 	"SDL_VIDEO_DRIVER_WINDOWS=1"
 }
 
-MODULE.OsDefines.Posix = {
-	"SDL_VIDEO_DRIVER_X11=1",
-	"SDL_VIDEO_DRIVER_WAYLAND=1",
-}
-
 MODULE.DynLib = {
 	"SDL2"
 }
+
+MODULE.Custom = function()
+	filter("system:linux")
+		defines("SDL_VIDEO_DRIVER_X11=1")
+		defines("SDL_VIDEO_DRIVER_WAYLAND=1")
+
+	filter("system:macosx")
+		defines("SDL_VIDEO_DRIVER_COCOA=1")
+end

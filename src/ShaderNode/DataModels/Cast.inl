@@ -2,6 +2,7 @@
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
+#include <QtCore/QJsonArray>
 #include <stdexcept>
 
 template<std::size_t ToComponentCount>
