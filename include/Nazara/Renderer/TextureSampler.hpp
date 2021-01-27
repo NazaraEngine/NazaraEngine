@@ -22,6 +22,9 @@ namespace Nz
 		SamplerWrap wrapModeU = SamplerWrap_Clamp;
 		SamplerWrap wrapModeV = SamplerWrap_Clamp;
 		SamplerWrap wrapModeW = SamplerWrap_Clamp;
+
+		inline bool operator==(const TextureSamplerInfo& samplerInfo) const;
+		inline bool operator!=(const TextureSamplerInfo& samplerInfo) const;
 	};
 
 	class NAZARA_RENDERER_API TextureSampler
@@ -36,6 +39,9 @@ namespace Nz
 			TextureSampler& operator=(TextureSampler&&) = delete;
 	};
 }
+
+template<>
+struct std::hash<Nz::TextureSamplerInfo>;
 
 #include <Nazara/Renderer/TextureSampler.inl>
 

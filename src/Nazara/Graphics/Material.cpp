@@ -63,7 +63,14 @@ namespace Nz
 
 		for (const auto& textureSlot : m_textures)
 		{
-			if (textureSlot.texture && textureSlot.sampler)
+			if (!textureSlot.sampler)
+			{
+				TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
+				textureSlot.sampler = samplerCache.Get(textureSlot.samplerInfo);
+			}
+
+			//TODO: Use "missing" texture
+			if (textureSlot.texture)
 			{
 				bindings.push_back({
 					bindingIndex,

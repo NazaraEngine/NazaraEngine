@@ -9,8 +9,10 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <optional>
 
 namespace Nz
 {
@@ -30,6 +32,7 @@ namespace Nz
 			~Graphics();
 
 			inline RenderDevice& GetRenderDevice();
+			inline TextureSamplerCache& GetSamplerCache();
 			inline const std::shared_ptr<AbstractBuffer>& GetViewerDataUBO();
 
 			struct Config
@@ -38,6 +41,7 @@ namespace Nz
 			};
 
 		private:
+			std::optional<TextureSamplerCache> m_samplerCache;
 			std::shared_ptr<AbstractBuffer> m_viewerDataUBO;
 			std::shared_ptr<RenderDevice> m_renderDevice;
 

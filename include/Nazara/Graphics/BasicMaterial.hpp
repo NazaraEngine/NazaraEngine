@@ -24,11 +24,11 @@ namespace Nz
 			inline void EnableAlphaTest(bool alphaTest);
 
 			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
-			inline const std::shared_ptr<TextureSampler>& GetAlphaSampler() const;
+			inline const TextureSamplerInfo& GetAlphaSampler() const;
 			float GetAlphaTestThreshold() const;
 			Color GetDiffuseColor() const;
 			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
-			inline const std::shared_ptr<TextureSampler>& GetDiffuseSampler() const;
+			inline const TextureSamplerInfo& GetDiffuseSampler() const;
 
 			inline bool HasAlphaMap() const;
 			inline bool HasAlphaTest() const;
@@ -37,11 +37,11 @@ namespace Nz
 			inline bool HasDiffuseMap() const;
 
 			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
-			inline void SetAlphaSampler(std::shared_ptr<TextureSampler> alphaSampler);
+			inline void SetAlphaSampler(TextureSamplerInfo alphaSampler);
 			void SetAlphaTestThreshold(float alphaThreshold);
 			void SetDiffuseColor(const Color& diffuse);
 			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
-			inline void SetDiffuseSampler(std::shared_ptr<TextureSampler> diffuseSampler);
+			inline void SetDiffuseSampler(TextureSamplerInfo diffuseSampler);
 
 			static inline const UniformOffsets& GetOffsets();
 			static inline const std::shared_ptr<MaterialSettings>& GetSettings();
