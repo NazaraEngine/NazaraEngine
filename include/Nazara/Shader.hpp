@@ -34,8 +34,10 @@
 #include <Nazara/Shader/Shader.hpp>
 #include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
+#include <Nazara/Shader/ShaderAstOptimizer.hpp>
 #include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
 #include <Nazara/Shader/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Shader/ShaderAstVisitor.hpp>
 #include <Nazara/Shader/ShaderAstVisitorExcept.hpp>
@@ -49,6 +51,7 @@
 #include <Nazara/Shader/ShaderVarVisitorExcept.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
