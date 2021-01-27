@@ -674,15 +674,20 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void Material::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer)
+	/*!
+	* \brief Sets the src in blend
+	*
+	* \param func Function for src blending
+	*
+	* \remark Invalidates the pipeline
+	*
+	* \see GetSrcBlend
+	*/
+	inline void Material::SetSrcBlend(BlendFunc func)
 	{
-		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
-		if (m_uniformBuffers[bufferIndex].buffer != uniformBuffer)
-		{
-			m_uniformBuffers[bufferIndex].buffer = std::move(uniformBuffer);
-			m_uniformBuffers[bufferIndex].dataInvalidated = true;
-			InvalidateShaderBinding();
-		}
+		m_pipelineInfo.srcBlend = func;
+
+		InvalidatePipeline();
 	}
 
 	inline void Material::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
@@ -705,20 +710,15 @@ namespace Nz
 		}
 	}
 
-	/*!
-	* \brief Sets the src in blend
-	*
-	* \param func Function for src blending
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetSrcBlend
-	*/
-	inline void Material::SetSrcBlend(BlendFunc func)
+	inline void Material::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer)
 	{
-		m_pipelineInfo.srcBlend = func;
-
-		InvalidatePipeline();
+		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
+		if (m_uniformBuffers[bufferIndex].buffer != uniformBuffer)
+		{
+			m_uniformBuffers[bufferIndex].buffer = std::move(uniformBuffer);
+			m_uniformBuffers[bufferIndex].dataInvalidated = true;
+			InvalidateShaderBinding();
+		}
 	}
 
 	inline void Material::InvalidatePipeline()
