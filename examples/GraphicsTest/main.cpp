@@ -89,19 +89,13 @@ int main()
 		return __LINE__;
 	}
 
-
-
-	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
-
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
 	material->EnableDepthBuffer(true);
 
 	Nz::BasicMaterial basicMat(*material);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(alphaTexture);
-	basicMat.SetAlphaSampler(textureSampler);
 	basicMat.SetDiffuseMap(texture);
-	basicMat.SetDiffuseSampler(textureSampler);
 
 	Nz::Model model(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)

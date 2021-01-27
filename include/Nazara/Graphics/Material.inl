@@ -436,10 +436,10 @@ namespace Nz
 		return m_textures[textureIndex].texture;
 	}
 
-	inline const std::shared_ptr<TextureSampler>& Material::GetTextureSampler(std::size_t textureIndex) const
+	inline const TextureSamplerInfo& Material::GetTextureSampler(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		return m_textures[textureIndex].sampler;
+		return m_textures[textureIndex].samplerInfo;
 	}
 
 	inline const std::shared_ptr<AbstractBuffer>& Material::GetUniformBuffer(std::size_t bufferIndex) const
@@ -695,13 +695,13 @@ namespace Nz
 		}
 	}
 
-	inline void Material::SetTextureSampler(std::size_t textureIndex, std::shared_ptr<TextureSampler> sampler)
+	inline void Material::SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		if (m_textures[textureIndex].sampler != sampler)
+		if (m_textures[textureIndex].samplerInfo != samplerInfo)
 		{
-			m_textures[textureIndex].sampler = std::move(sampler);
-			InvalidateShaderBinding();
+			m_textures[textureIndex].samplerInfo = std::move(samplerInfo);
+			InvalidateTextureSampler(textureIndex);
 		}
 	}
 
@@ -729,6 +729,14 @@ namespace Nz
 	inline void Material::InvalidateShaderBinding()
 	{
 		//TODO
+	}
+
+	inline void Material::InvalidateTextureSampler(std::size_t textureIndex)
+	{
+		assert(textureIndex < m_textures.size());
+		m_textures[textureIndex].sampler.reset();
+
+		InvalidateShaderBinding();
 	}
 
 	inline void Material::UpdatePipeline() const

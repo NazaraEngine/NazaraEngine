@@ -66,7 +66,7 @@ namespace Nz
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
 			inline BlendFunc GetSrcBlend() const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
-			inline const std::shared_ptr<TextureSampler>& GetTextureSampler(std::size_t textureIndex) const;
+			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
 			inline const std::shared_ptr<AbstractBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
 			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
 			inline const std::vector<UInt8>& GetUniformBufferConstData(std::size_t bufferIndex);
@@ -96,7 +96,7 @@ namespace Nz
 			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer);
 			inline void SetSrcBlend(BlendFunc func);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
-			inline void SetTextureSampler(std::size_t textureIndex, std::shared_ptr<TextureSampler> sampler);
+			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 
 			void UpdateShaderBinding(ShaderBinding& shaderBinding) const;
 
@@ -106,12 +106,14 @@ namespace Nz
 		private:
 			inline void InvalidatePipeline();
 			inline void InvalidateShaderBinding();
+			inline void InvalidateTextureSampler(std::size_t textureIndex);
 			inline void UpdatePipeline() const;
 
 			struct MaterialTexture
 			{
-				std::shared_ptr<TextureSampler> sampler;
+				mutable std::shared_ptr<TextureSampler> sampler;
 				std::shared_ptr<Texture> texture;
+				TextureSamplerInfo samplerInfo;
 			};
 
 			struct UniformBuffer

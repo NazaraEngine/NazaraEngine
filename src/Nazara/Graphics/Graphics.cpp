@@ -39,6 +39,8 @@ namespace Nz
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
 
+		m_samplerCache.emplace(m_renderDevice);
+
 		MaterialPipeline::Initialize();
 
 		Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();

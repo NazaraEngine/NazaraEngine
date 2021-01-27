@@ -12,6 +12,11 @@ namespace Nz
 		return *m_renderDevice;
 	}
 
+	inline TextureSamplerCache& Graphics::GetSamplerCache()
+	{
+		return *m_samplerCache;
+	}
+
 	inline const std::shared_ptr<AbstractBuffer>& Graphics::GetViewerDataUBO()
 	{
 		return m_viewerDataUBO;

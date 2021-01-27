@@ -55,13 +55,13 @@ namespace Nz
 			VkMemoryRequirements requirement = newBlock.buffer.GetMemoryRequirements();
 
 			if (!newBlock.blockMemory.Create(m_device, requirement.size, requirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
-				throw std::runtime_error("Failed to allocate block memory: " + TranslateVulkanError(newBlock.blockMemory.GetLastErrorCode()));
+				throw std::runtime_error("failed to allocate block memory: " + TranslateVulkanError(newBlock.blockMemory.GetLastErrorCode()));
 
 			if (!newBlock.buffer.BindBufferMemory(newBlock.blockMemory))
-				throw std::runtime_error("Failed to bind buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
+				throw std::runtime_error("failed to bind buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			if (!newBlock.blockMemory.Map())
-				throw std::runtime_error("Failed to map buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
+				throw std::runtime_error("failed to map buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			bestBlock.block = &m_blocks.emplace_back(std::move(newBlock));
 			bestBlock.alignedOffset = 0;
