@@ -24,7 +24,7 @@ namespace Nz
 
 	inline std::size_t IndexBuffer::GetStride() const
 	{
-		return static_cast<std::size_t>((m_largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
+		return static_cast<std::size_t>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 	}
 
 	inline std::size_t IndexBuffer::GetStartOffset() const
