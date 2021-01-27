@@ -23,6 +23,7 @@ int main()
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
+	meshParams.storage = Nz::DataStorage_Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
 
@@ -42,16 +43,7 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::StaticMesh* drfreakMesh = static_cast<Nz::StaticMesh*>(drfreak->GetSubMesh(0));
-
-	const Nz::VertexBuffer* drfreakVB = drfreakMesh->GetVertexBuffer();
-	const Nz::IndexBuffer* drfreakIB = drfreakMesh->GetIndexBuffer();
-
-	// Index buffer
-	std::cout << "Index count: " << drfreakIB->GetIndexCount() << std::endl;
-
-	// Vertex buffer
-	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(drfreak);
 
 	// Texture
 	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile("resources/Spaceship/Texture/diffuse.png");
@@ -101,15 +93,19 @@ int main()
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
-	Nz::Material material(Nz::BasicMaterial::GetSettings());
-	material.EnableDepthBuffer(true);
+	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
+	material->EnableDepthBuffer(true);
 
-	Nz::BasicMaterial basicMat(material);
+	Nz::BasicMaterial basicMat(*material);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(alphaTexture);
 	basicMat.SetAlphaSampler(textureSampler);
 	basicMat.SetDiffuseMap(texture);
 	basicMat.SetDiffuseSampler(textureSampler);
+
+	Nz::Model model(std::move(gfxMesh));
+	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+		model.SetMaterial(i, material);
 
 	Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();
 	Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
@@ -126,29 +122,11 @@ int main()
 	Nz::AccessByOffset<float&>(materialSettings.data(), materialSettingOffsets.alphaThreshold) = 0.5f;
 	Nz::AccessByOffset<Nz::Vector4f&>(materialSettings.data(), materialSettingOffsets.diffuseColor) = Nz::Vector4f(1.f, 1.f, 1.f, 1.f);
 
-	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = material.GetSettings()->GetRenderPipelineLayout();
-
-	std::shared_ptr<Nz::AbstractBuffer> matSettingUBO = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!matSettingUBO->Initialize(materialSettings.size(), Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
-	{
-		NazaraError("Failed to create mat setting UBO");
-		return __LINE__;
-	}
-
-	matSettingUBO->Fill(materialSettings.data(), 0, materialSettings.size());
-
-	std::vector<Nz::RenderPipelineInfo::VertexBufferData> vertexBuffers = {
-		{
-			0,
-			drfreakVB->GetVertexDeclaration()
-		}
-	};
-
 	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 
-	Nz::ModelInstance modelInstance(material.GetSettings());
+	Nz::ModelInstance modelInstance(material->GetSettings());
 	{
-		material.UpdateShaderBinding(modelInstance.GetShaderBinding());
+		material->UpdateShaderBinding(modelInstance.GetShaderBinding());
 
 		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
 
@@ -156,9 +134,9 @@ int main()
 		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
 	}
 
-	Nz::ModelInstance modelInstance2(material.GetSettings());
+	Nz::ModelInstance modelInstance2(material->GetSettings());
 	{
-		material.UpdateShaderBinding(modelInstance2.GetShaderBinding());
+		material->UpdateShaderBinding(modelInstance2.GetShaderBinding());
 
 		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right() * 3.f);
 
@@ -168,30 +146,8 @@ int main()
 
 	std::shared_ptr<Nz::AbstractBuffer> viewerDataUBO = Nz::Graphics::Instance()->GetViewerDataUBO();
 
-	std::shared_ptr<Nz::RenderPipeline> pipeline = material.GetPipeline()->GetRenderPipeline(vertexBuffers);
-
-	Nz::RenderDevice* renderDevice = window.GetRenderDevice().get();
-
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
 	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
-
-	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
-	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
-
-	if (!renderBufferIB->Synchronize(renderDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
-
-	if (!renderBufferVB->Synchronize(renderDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
-
-	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(renderDevice);
-	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(renderDevice);
 
 	Nz::CommandBufferPtr drawCommandBuffer;
 	auto RebuildCommandBuffer = [&]
@@ -214,17 +170,19 @@ int main()
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-					builder.BindIndexBuffer(indexBufferImpl);
-					builder.BindPipeline(*pipeline);
-					builder.BindVertexBuffer(0, vertexBufferImpl);
+					for (Nz::ModelInstance& modelInstance : { std::ref(modelInstance), std::ref(modelInstance2) })
+					{
+						builder.BindShaderBinding(modelInstance.GetShaderBinding());
 
-					builder.BindShaderBinding(modelInstance.GetShaderBinding());
+						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+						{
+							builder.BindIndexBuffer(model.GetIndexBuffer(i).get());
+							builder.BindVertexBuffer(0, model.GetVertexBuffer(i).get());
+							builder.BindPipeline(*model.GetRenderPipeline(i));
 
-					builder.DrawIndexed(drfreakIB->GetIndexCount());
-
-					builder.BindShaderBinding(modelInstance2.GetShaderBinding());
-
-					builder.DrawIndexed(drfreakIB->GetIndexCount());
+							builder.DrawIndexed(model.GetIndexCount(i));
+						}
+					}
 				}
 				builder.EndRenderPass();
 			}
