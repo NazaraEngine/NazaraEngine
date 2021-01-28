@@ -52,6 +52,8 @@ namespace Nz
 		allocationData.mappedPtr = static_cast<UInt8*>(bestBlock.block->memory.data()) + bestBlock.offset;
 		allocationData.size = size;
 
+		bestBlock.block->freeOffset += size;
+
 		return allocationData;
 	}
 

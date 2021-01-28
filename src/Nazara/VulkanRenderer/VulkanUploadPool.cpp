@@ -50,7 +50,7 @@ namespace Nz
 		{
 			Block newBlock;
 			if (!newBlock.buffer.Create(m_device, 0U, m_blockSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
-				throw std::runtime_error("Failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
+				throw std::runtime_error("failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			VkMemoryRequirements requirement = newBlock.buffer.GetMemoryRequirements();
 
@@ -73,6 +73,8 @@ namespace Nz
 		allocationData.mappedPtr = static_cast<UInt8*>(bestBlock.block->blockMemory.GetMappedPointer()) + bestBlock.alignedOffset;
 		allocationData.offset = bestBlock.alignedOffset;
 		allocationData.size = size;
+
+		bestBlock.block->freeOffset += size;
 
 		return allocationData;
 	}
