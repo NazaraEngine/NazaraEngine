@@ -157,7 +157,7 @@ namespace Nz
 #elif defined(NAZARA_PLATFORM_LINUX)
 			std::string_view temp(string);
 			// Nothing to do
-#elif defined(NAZARA_PLATFORM_MACOS)
+#elif defined(NAZARA_PLATFORM_MACOSX)
 			std::string temp(string);
 			ReplaceStr(temp, "\n", "\r");
 #endif

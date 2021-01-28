@@ -31,8 +31,8 @@ namespace Nz
 	{
 		if (!m_endOfFileUpdated)
 		{
-			struct stat64 fileSize;
-			if (fstat64(m_fileDescriptor, &fileSize) == -1)
+			struct Stat fileSize;
+			if (Fstat(m_fileDescriptor, &fileSize) == -1)
 				fileSize.st_size = 0;
 
 			m_endOfFile = (GetCursorPos() >= static_cast<UInt64>(fileSize.st_size));
@@ -50,7 +50,7 @@ namespace Nz
 
 	UInt64 FileImpl::GetCursorPos() const
 	{
-		off64_t position = lseek64(m_fileDescriptor, 0, SEEK_CUR);
+		Off_t position = Lseek(m_fileDescriptor, 0, SEEK_CUR);
 		return static_cast<UInt64>(position);
 	}
 
@@ -77,7 +77,7 @@ namespace Nz
 		if (mode & OpenMode_Truncate)
 			flags |= O_TRUNC;
 
-		int fileDescriptor = open64(filePath.generic_u8string().data(), flags, permissions);
+		int fileDescriptor = Open_def(filePath.generic_u8string().data(), flags, permissions);
 		if (fileDescriptor == -1)
 		{
 			NazaraError("Failed to open \"" + filePath.generic_u8string() + "\" : " + Error::GetLastSystemError());
@@ -166,12 +166,12 @@ namespace Nz
 
 		m_endOfFileUpdated = false;
 
-		return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
+		return Lseek(m_fileDescriptor, offset, moveMethod) != -1;
 	}
 
 	bool FileImpl::SetSize(UInt64 size)
 	{
-		return ftruncate64(m_fileDescriptor, size) != 0;
+		return Ftruncate(m_fileDescriptor, size) != 0;
 	}
 
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)

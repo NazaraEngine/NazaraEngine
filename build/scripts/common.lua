@@ -158,7 +158,8 @@ function NazaraBuild:Execute()
 				"../include",
 				"../src/"
 			})
-			sysincludedirs("../thirdparty/include")
+
+			sysincludedirs("../thirdparty/include", "/usr/local/include/")
 
 			files(moduleTable.Files)
 			excludes(moduleTable.FilesExcluded)
@@ -173,6 +174,14 @@ function NazaraBuild:Execute()
 				"../thirdparty/lib/common",
 				"../lib"
 			})
+			
+			if (os.ishost("macosx")) then
+				libdirs({
+					"../thirdparty/lib/common",
+					"../lib",
+					"/usr/local/lib" --brew
+				})
+			end
 
 			-- Output to lib/conf/arch
 			self:FilterLibDirectory("../lib/", targetdir)
@@ -932,7 +941,10 @@ end
 
 function NazaraBuild:PostconfigGenericProject()
 	-- Add options required for C++17 thread and filesystem (have to be linked last)
-	filter("action:gmake*")
+	filter({"action:gmake*", "system:macosx"})
+		links("pthread")
+		
+	filter({"action:gmake*", "system:not macosx"})
 		links("stdc++fs")
 		links("pthread")
 
