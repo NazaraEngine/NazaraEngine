@@ -36,4 +36,7 @@ LIBRARY.Custom = function()
 
 	filter({"architecture:x86", "system:linux"})
 		defines("_POSIX_VER")
+		
+	filter({"architecture:x86_64", "system:macosx"})
+		defines("_MACOSX_VER")
 end

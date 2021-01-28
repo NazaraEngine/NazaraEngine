@@ -301,7 +301,7 @@ namespace Nz
 
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::SwizzleOp& node)
 	{
-		Value(node.componentCount);
+		SizeT(node.componentCount);
 		Node(node.expression);
 
 		for (std::size_t i = 0; i < node.componentCount; ++i)
@@ -805,7 +805,7 @@ namespace Nz
 	{
 		m_stream >> val;
 	}
-
+	
 	void ShaderAstUnserializer::Variable(ShaderNodes::VariablePtr& var)
 	{
 		Int32 nodeTypeInt;
