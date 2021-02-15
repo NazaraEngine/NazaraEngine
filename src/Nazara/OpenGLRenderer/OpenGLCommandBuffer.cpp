@@ -93,7 +93,24 @@ namespace Nz
 					command.framebuffer->Activate();
 
 					context = GL::Context::GetCurrentContext();
-					context->glClearColor(0.5, 0.5, 0.5, 1.0);
+
+					if (command.framebuffer->GetType() == OpenGLFramebuffer::Type::FBO)
+					{
+						std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
+						for (std::size_t i = 0; i < colorBufferCount; ++i)
+						{
+							Nz::Color color = command.clearValues[i].color;
+							std::array<GLuint, 4> clearColor = { color.r, color.g, color.b, color.a };
+
+							context->glClearBufferuiv(GL_COLOR, GLint(i), clearColor.data());
+						}
+					}
+					else
+					{
+						Nz::Color color = command.clearValues[0].color;
+						context->glClearColor(color.r, color.g, color.b, color.a);
+					}
+
 					context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				}
 				else

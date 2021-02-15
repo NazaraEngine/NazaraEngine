@@ -138,6 +138,9 @@ namespace Nz
 		SetFrameBufferData setFramebuffer;
 		setFramebuffer.framebuffer = &framebuffer;
 
+		assert(clearValues.size() < setFramebuffer.clearValues.size());
+		std::copy(clearValues.begin(), clearValues.end(), setFramebuffer.clearValues.begin());
+
 		m_commands.emplace_back(std::move(setFramebuffer));
 	}
 
