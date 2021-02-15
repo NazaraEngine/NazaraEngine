@@ -89,7 +89,7 @@ namespace Nz
 			case VK_ERROR_SURFACE_LOST_KHR: //< TODO: Handle it by recreating the surface?
 			case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
 			default:
-				throw std::runtime_error("Failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+				throw std::runtime_error("failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
 		}
 
 		if (m_inflightFences[imageIndex])

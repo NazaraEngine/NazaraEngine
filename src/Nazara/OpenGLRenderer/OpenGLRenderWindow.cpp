@@ -14,6 +14,7 @@ namespace Nz
 {
 	OpenGLRenderWindow::OpenGLRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
+	m_renderPass({}, {}, {}),
 	m_framebuffer(*this),
 	m_owner(owner)
 	{

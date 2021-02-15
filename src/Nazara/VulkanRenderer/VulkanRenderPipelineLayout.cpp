@@ -84,7 +84,7 @@ namespace Nz
 
 		DescriptorPool pool;
 		if (!pool.descriptorPool.Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
-			throw std::runtime_error("Failed to allocate new descriptor pool: " + TranslateVulkanError(pool.descriptorPool.GetLastErrorCode()));
+			throw std::runtime_error("failed to allocate new descriptor pool: " + TranslateVulkanError(pool.descriptorPool.GetLastErrorCode()));
 
 		pool.freeBindings.Resize(MaxSet, true);
 		pool.storage = std::make_unique<DescriptorPool::BindingStorage[]>(MaxSet);

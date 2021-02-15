@@ -43,6 +43,7 @@
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
+#include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP
