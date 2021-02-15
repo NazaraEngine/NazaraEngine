@@ -106,15 +106,11 @@ int main()
 	const Nz::BasicMaterial::UniformOffsets& materialSettingOffsets = Nz::BasicMaterial::GetOffsets();
 
 	std::vector<std::uint8_t> viewerDataBuffer(viewerUboOffsets.totalSize);
-	std::vector<std::uint8_t> materialSettings(materialSettingOffsets.totalSize);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
-
-	Nz::AccessByOffset<float&>(materialSettings.data(), materialSettingOffsets.alphaThreshold) = 0.5f;
-	Nz::AccessByOffset<Nz::Vector4f&>(materialSettings.data(), materialSettingOffsets.diffuseColor) = Nz::Vector4f(1.f, 1.f, 1.f, 1.f);
 
 	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 
@@ -283,7 +279,8 @@ int main()
 
 		if (viewerUboUpdate)
 		{
-			auto& allocation = frame.GetUploadPool().Allocate(viewerDataBuffer.size());
+			Nz::UploadPool& uploadPool = frame.GetUploadPool();
+			auto& allocation = uploadPool.Allocate(viewerDataBuffer.size());
 
 			std::memcpy(allocation.mappedPtr, viewerDataBuffer.data(), viewerDataBuffer.size());
 
@@ -293,6 +290,9 @@ int main()
 				{
 					builder.PreTransferBarrier();
 					builder.CopyBuffer(allocation, viewerDataUBO.get());
+
+					material->UpdateBuffers(uploadPool, builder);
+
 					builder.PostTransferBarrier();
 				}
 				builder.EndDebugRegion();
