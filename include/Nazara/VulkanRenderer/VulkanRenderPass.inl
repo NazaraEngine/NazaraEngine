@@ -7,17 +7,6 @@
 
 namespace Nz
 {
-	inline VulkanRenderPass::VulkanRenderPass(Vk::RenderPass renderPass, std::initializer_list<PixelFormat> formats) :
-	m_formats(std::begin(formats), std::end(formats)),
-	m_renderPass(std::move(renderPass))
-	{
-	}
-
-	inline PixelFormat VulkanRenderPass::GetAttachmentFormat(std::size_t attachmentIndex) const
-	{
-		return m_formats[attachmentIndex];
-	}
-
 	inline Vk::RenderPass& VulkanRenderPass::GetRenderPass()
 	{
 		return m_renderPass;

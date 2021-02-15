@@ -10,6 +10,45 @@
 
 namespace Nz
 {
+	std::optional<PixelFormat> FromVulkan(VkFormat format)
+	{
+		switch (format)
+		{
+			case VK_FORMAT_B8G8R8A8_UNORM: return PixelFormat::PixelFormat_BGRA8;
+			case VK_FORMAT_D24_UNORM_S8_UINT: return PixelFormat::PixelFormat_Depth24Stencil8;
+			case VK_FORMAT_D32_SFLOAT: return PixelFormat::PixelFormat_Depth32;
+			case VK_FORMAT_R8G8B8A8_UNORM: return PixelFormat::PixelFormat_RGBA8;
+			default: break;
+		}
+
+		return std::nullopt;
+	}
+
+	VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp)
+	{
+		switch (loadOp)
+		{
+			case AttachmentLoadOp::Clear:   return VK_ATTACHMENT_LOAD_OP_CLEAR;
+			case AttachmentLoadOp::Discard: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			case AttachmentLoadOp::Load:    return VK_ATTACHMENT_LOAD_OP_LOAD;
+		}
+
+		NazaraError("Unhandled AttachmentLoadOp 0x" + NumberToString(UnderlyingCast(loadOp), 16));
+		return {};
+	}
+
+	VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp)
+	{
+		switch (storeOp)
+		{
+			case AttachmentStoreOp::Discard: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			case AttachmentStoreOp::Store:   return VK_ATTACHMENT_STORE_OP_STORE;
+		}
+
+		NazaraError("Unhandled AttachmentStoreOp 0x" + NumberToString(UnderlyingCast(storeOp), 16));
+		return {};
+	}
+
 	inline VkBufferUsageFlags ToVulkan(BufferType bufferType)
 	{
 		switch (bufferType)
@@ -72,6 +111,97 @@ namespace Nz
 
 		NazaraError("Unhandled FaceFilling 0x" + NumberToString(faceFilling, 16));
 		return VK_POLYGON_MODE_FILL;
+	}
+	
+	inline VkAccessFlagBits ToVulkan(MemoryAccess memoryAccess)
+	{
+		switch (memoryAccess)
+		{
+			case MemoryAccess::ColorRead:           return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			case MemoryAccess::ColorWrite:          return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			case MemoryAccess::DepthStencilRead:    return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			case MemoryAccess::DepthStencilWrite:   return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			case MemoryAccess::IndexBufferRead:     return VK_ACCESS_INDEX_READ_BIT;
+			case MemoryAccess::IndirectCommandRead: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+			case MemoryAccess::HostRead:            return VK_ACCESS_HOST_READ_BIT;
+			case MemoryAccess::HostWrite:           return VK_ACCESS_HOST_WRITE_BIT;
+			case MemoryAccess::MemoryRead:          return VK_ACCESS_MEMORY_READ_BIT;
+			case MemoryAccess::MemoryWrite:         return VK_ACCESS_MEMORY_WRITE_BIT;
+			case MemoryAccess::ShaderRead:          return VK_ACCESS_SHADER_READ_BIT;
+			case MemoryAccess::ShaderWrite:         return VK_ACCESS_SHADER_WRITE_BIT;
+			case MemoryAccess::TransferRead:        return VK_ACCESS_TRANSFER_READ_BIT;
+			case MemoryAccess::TransferWrite:       return VK_ACCESS_TRANSFER_WRITE_BIT;
+			case MemoryAccess::UniformBufferRead:   return VK_ACCESS_UNIFORM_READ_BIT;
+			case MemoryAccess::VertexBufferRead:    return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+		}
+
+		NazaraError("Unhandled MemoryAccess 0x" + NumberToString(UnderlyingCast(memoryAccess), 16));
+		return {};
+	}
+
+	inline VkAccessFlags ToVulkan(MemoryAccessFlags memoryAccessFlags)
+	{
+		VkShaderStageFlags accessBits = 0;
+		for (int i = 0; i <= UnderlyingCast(MemoryAccess::Max); ++i)
+		{
+			MemoryAccess memoryAccess = static_cast<MemoryAccess>(i);
+			if (memoryAccessFlags.Test(memoryAccess))
+				accessBits |= ToVulkan(memoryAccess);
+		}
+
+		return accessBits;
+	}
+
+	VkPipelineStageFlagBits ToVulkan(PipelineStage pipelineStage)
+	{
+		switch (pipelineStage)
+		{
+			case PipelineStage::TopOfPipe:                    return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			case PipelineStage::ColorOutput:                  return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case PipelineStage::DrawIndirect:                 return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+			case PipelineStage::FragmentShader:               return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			case PipelineStage::FragmentTestsEarly:           return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			case PipelineStage::FragmentTestsLate:            return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+			case PipelineStage::GeometryShader:               return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			case PipelineStage::TessellationControlShader:    return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+			case PipelineStage::TessellationEvaluationShader: return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			case PipelineStage::Transfer:                     return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case PipelineStage::TransformFeedback:            return VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT;
+			case PipelineStage::VertexInput:                  return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case PipelineStage::VertexShader:                 return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+			case PipelineStage::BottomOfPipe:                 return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		}
+
+		NazaraError("Unhandled PipelineStage 0x" + NumberToString(UnderlyingCast(pipelineStage), 16));
+		return {};
+	}
+
+	VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages)
+	{
+		VkShaderStageFlags pipelineStageBits = 0;
+		for (int i = 0; i <= UnderlyingCast(PipelineStage::Max); ++i)
+		{
+			PipelineStage pipelineStage = static_cast<PipelineStage>(i);
+			if (pipelineStages.Test(pipelineStage))
+				pipelineStageBits |= ToVulkan(pipelineStage);
+		}
+
+		return pipelineStageBits;
+	}
+
+	VkFormat ToVulkan(PixelFormat pixelFormat)
+	{
+		switch (pixelFormat)
+		{
+			case PixelFormat::PixelFormat_BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
+			case PixelFormat::PixelFormat_Depth24Stencil8: return VK_FORMAT_D24_UNORM_S8_UINT;
+			case PixelFormat::PixelFormat_Depth32: return VK_FORMAT_D32_SFLOAT;
+			case PixelFormat::PixelFormat_RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
+			default: break;
+		}
+
+		NazaraError("Unhandled PixelFormat 0x" + NumberToString(pixelFormat, 16));
+		return {};
 	}
 
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
@@ -172,14 +302,12 @@ namespace Nz
 	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType)
 	{
 		VkShaderStageFlags shaderStageBits = 0;
-
-		if (stageType.Test(ShaderStageType::Fragment))
-			shaderStageBits |= VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		if (stageType.Test(ShaderStageType::Vertex))
-			shaderStageBits |= VK_SHADER_STAGE_VERTEX_BIT;
-
-		static_assert(UnderlyingCast(ShaderStageType::Max) + 1 == 2);
+		for (int i = 0; i <= UnderlyingCast(ShaderStageType::Max); ++i)
+		{
+			ShaderStageType shaderStage = static_cast<ShaderStageType>(i);
+			if (stageType.Test(shaderStage))
+				shaderStageBits |= ToVulkan(shaderStage);
+		}
 
 		return shaderStageBits;
 	}
@@ -198,8 +326,26 @@ namespace Nz
 			case StencilOperation_Zero:             return VK_STENCIL_OP_ZERO;
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + NumberToString(stencilOp, 16));
-		return VK_STENCIL_OP_KEEP;
+		NazaraError("Unhandled StencilOperation 0x" + NumberToString(stencilOp, 16));
+		return {};
+	}
+
+	VkImageLayout ToVulkan(TextureLayout textureLayout)
+	{
+		switch (textureLayout)
+		{
+			case TextureLayout::ColorInput:          return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case TextureLayout::ColorOutput:         return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
+			case TextureLayout::DepthStencilInput:   return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+			case TextureLayout::DepthStencilOutput:  return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			case TextureLayout::Present:             return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			case TextureLayout::TransferSource:      return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case TextureLayout::TransferDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case TextureLayout::Undefined:           return VK_IMAGE_LAYOUT_UNDEFINED;
+		}
+
+		NazaraError("Unhandled TextureLayout 0x" + NumberToString(UnderlyingCast(textureLayout), 16));
+		return {};
 	}
 
 	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate)

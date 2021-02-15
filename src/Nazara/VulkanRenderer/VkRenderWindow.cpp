@@ -22,7 +22,6 @@ namespace Nz
 	VkRenderWindow::VkRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
 	m_owner(owner),
-	m_depthStencilFormat(VK_FORMAT_MAX_ENUM),
 	m_shouldRecreateSwapchain(false)
 	{
 	}
@@ -151,6 +150,7 @@ namespace Nz
 			}
 		}();
 
+		m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
 		if (!parameters.depthFormats.empty())
 		{
 			for (PixelFormat format : parameters.depthFormats)
@@ -177,8 +177,7 @@ namespace Nz
 						break;
 
 					case PixelFormat_Stencil16:
-						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
-						break;
+						continue;
 
 					default:
 					{
@@ -400,98 +399,92 @@ namespace Nz
 
 	bool VkRenderWindow::SetupRenderPass()
 	{
-		std::array<VkAttachmentDescription, 2> attachments = {
-			{
-				{
-					0,                                        // VkAttachmentDescriptionFlags    flags;
-					m_surfaceFormat.format,                   // VkFormat                        format;
-					VK_SAMPLE_COUNT_1_BIT,                    // VkSampleCountFlagBits           samples;
-					VK_ATTACHMENT_LOAD_OP_CLEAR,              // VkAttachmentLoadOp              loadOp;
-					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              stencilLoadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,         // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_UNDEFINED,                // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR           // VkImageLayout                   finalLayout;
-				},
-				{
-					0,                                                // VkAttachmentDescriptionFlags    flags;
-					m_depthStencilFormat,                             // VkFormat                        format;
-					VK_SAMPLE_COUNT_1_BIT,                            // VkSampleCountFlagBits           samples;
-					VK_ATTACHMENT_LOAD_OP_CLEAR,                      // VkAttachmentLoadOp              loadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             storeOp;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,                  // VkAttachmentLoadOp              stencilLoadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_UNDEFINED,                        // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
-				},
-			}
-		};
-
-		VkAttachmentReference colorReference = {
-			0,                                       // uint32_t         attachment;
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL // VkImageLayout    layout;
-		};
-
-		VkAttachmentReference depthReference = {
-			1,                                               // uint32_t         attachment;
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL // VkImageLayout    layout;
-		};
-
-		VkSubpassDescription subpass = {
-			0,                                                                        // VkSubpassDescriptionFlags       flags;
-			VK_PIPELINE_BIND_POINT_GRAPHICS,                                          // VkPipelineBindPoint             pipelineBindPoint;
-			0U,                                                                       // uint32_t                        inputAttachmentCount;
-			nullptr,                                                                  // const VkAttachmentReference*    pInputAttachments;
-			1U,                                                                       // uint32_t                        colorAttachmentCount;
-			&colorReference,                                                          // const VkAttachmentReference*    pColorAttachments;
-			nullptr,                                                                  // const VkAttachmentReference*    pResolveAttachments;
-			(m_depthStencilFormat != VK_FORMAT_MAX_ENUM) ? &depthReference : nullptr, // const VkAttachmentReference*    pDepthStencilAttachment;
-			0U,                                                                       // uint32_t                        preserveAttachmentCount;
-			nullptr                                                                   // const uint32_t*                 pPreserveAttachments;
-		};
-
-		std::array<VkSubpassDependency, 2> dependencies;
-		// First dependency at the start of the render pass
-		// Does the transition from final to initial layout 
-		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL; // Producer of the dependency 
-		dependencies[0].dstSubpass = 0; // Consumer is our single subpass that will wait for the execution dependency
-		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[0].srcAccessMask = 0;
-		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		// Second dependency at the end the render pass
-		// Does the transition from the initial to the final layout
-		dependencies[1].srcSubpass = 0; // Producer of the dependency is our single subpass
-		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL; // Consumer are all commands outside of the render pass
-		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		VkRenderPassCreateInfo createInfo = {
-			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,              // VkStructureType                   sType;
-			nullptr,                                                // const void*                       pNext;
-			0,                                                      // VkRenderPassCreateFlags           flags;
-			(m_depthStencilFormat != VK_FORMAT_MAX_ENUM) ? 2U : 1U, // uint32_t                          attachmentCount;
-			attachments.data(),                                     // const VkAttachmentDescription*    pAttachments;
-			1U,                                                     // uint32_t                          subpassCount;
-			&subpass,                                               // const VkSubpassDescription*       pSubpasses;
-			UInt32(dependencies.size()),                            // uint32_t                          dependencyCount;
-			dependencies.data()                                     // const VkSubpassDependency*        pDependencies;
-		};
-
-		Vk::RenderPass renderPass;
-		if (!renderPass.Create(*m_device, createInfo))
+		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
+		if (!colorFormat)
 		{
-			NazaraError("Failed to create render pass: " + TranslateVulkanError(renderPass.GetLastErrorCode()));
+			NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_surfaceFormat.format, 16) + ")");
 			return false;
 		}
 
-		std::initializer_list<PixelFormat> fixmeplease = { PixelFormat::PixelFormat_RGB8, PixelFormat::PixelFormat_Depth24Stencil8 };
-		m_renderPass.emplace(std::move(renderPass), fixmeplease);
+		std::vector<RenderPass::Attachment> attachments;
+		attachments.push_back({
+			*colorFormat,
+			AttachmentLoadOp::Clear,
+			AttachmentLoadOp::Discard,
+			AttachmentStoreOp::Store,
+			AttachmentStoreOp::Discard,
+			TextureLayout::Undefined,
+			TextureLayout::Present
+		});
+
+		RenderPass::AttachmentReference colorReference = {
+			0,
+			TextureLayout::ColorInput
+		};
+
+		std::vector<RenderPass::SubpassDescription> subpasses = {
+			{
+				{
+					{ colorReference },
+					{},
+					std::nullopt
+				}
+			}
+		};
+
+		std::vector<RenderPass::SubpassDependency> subpassDependencies = {
+			{
+				{
+					RenderPass::ExternalSubpassIndex,
+					PipelineStage::ColorOutput,
+					{},
+
+					0,
+					PipelineStage::ColorOutput,
+					MemoryAccess::ColorWrite,
+
+					true //< tilable
+				},
+				{
+					0,
+					PipelineStage::ColorOutput,
+					MemoryAccess::ColorWrite,
+
+					RenderPass::ExternalSubpassIndex,
+					PipelineStage::BottomOfPipe,
+					MemoryAccess::MemoryRead,
+
+					true //< tilable
+				}
+			}
+		};
+
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
+		{
+			std::optional<PixelFormat> depthStencilFormat = FromVulkan(m_depthStencilFormat);
+			if (!depthStencilFormat)
+			{
+				NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_depthStencilFormat, 16) + ")");
+				return false;
+			}
+
+			attachments.push_back({
+				*depthStencilFormat,
+				AttachmentLoadOp::Clear,
+				AttachmentLoadOp::Discard,
+				AttachmentStoreOp::Discard,
+				AttachmentStoreOp::Discard,
+				TextureLayout::Undefined,
+				TextureLayout::DepthStencilInput
+			});
+
+			subpasses.front().depthStencilAttachment = RenderPass::AttachmentReference{
+				1,
+				TextureLayout::DepthStencilInput
+			};
+		}
+
+		m_renderPass.emplace(*m_device, std::move(attachments), std::move(subpasses), std::move(subpassDependencies));
 		return true;
 	}
 
