@@ -29,6 +29,9 @@
 
 namespace Nz
 {
+	class CommandBufferBuilder;
+	class UploadPool;
+
 	class NAZARA_GRAPHICS_API Material : public RefCounted, public Resource
 	{
 		public:
@@ -98,6 +101,7 @@ namespace Nz
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer);
 
+			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			void UpdateShaderBinding(ShaderBinding& shaderBinding) const;
 
 			// Signals:

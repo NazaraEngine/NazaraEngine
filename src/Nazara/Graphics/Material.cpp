@@ -5,7 +5,9 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -50,6 +52,22 @@ namespace Nz
 			uniformBuffer.buffer->Fill(uniformBufferInfo.defaultValues.data(), 0, uniformBufferInfo.defaultValues.size());
 			uniformBuffer.data.resize(uniformBufferInfo.blockSize);
 			std::memcpy(uniformBuffer.data.data(), uniformBufferInfo.defaultValues.data(), uniformBufferInfo.defaultValues.size());
+		}
+	}
+
+	void Material::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	{
+		for (auto& ubo : m_uniformBuffers)
+		{
+			if (ubo.dataInvalidated)
+			{
+				auto& allocation = uploadPool.Allocate(ubo.data.size());
+				std::memcpy(allocation.mappedPtr, ubo.data.data(), ubo.data.size());
+
+				builder.CopyBuffer(allocation, ubo.buffer.get());
+
+				ubo.dataInvalidated = false;
+			}
 		}
 	}
 
