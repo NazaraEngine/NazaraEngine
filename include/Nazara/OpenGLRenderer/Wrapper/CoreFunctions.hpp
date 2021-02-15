@@ -35,6 +35,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glBufferData, PFNGLBUFFERDATAPROC) \
 	cb(glBufferSubData, PFNGLBUFFERSUBDATAPROC) \
 	cb(glClear, PFNGLCLEARPROC) \
+	cb(glClearBufferfi, PFNGLCLEARBUFFERFIPROC) \
+	cb(glClearBufferuiv, PFNGLCLEARBUFFERUIVPROC) \
 	cb(glClearColor, PFNGLCLEARCOLORPROC) \
 	cb(glClearDepthf, PFNGLCLEARDEPTHFPROC) \
 	cb(glClearStencil, PFNGLCLEARSTENCILPROC) \

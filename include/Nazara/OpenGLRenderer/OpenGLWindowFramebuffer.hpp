@@ -24,6 +24,8 @@ namespace Nz
 
 			void Activate() const override;
 
+			std::size_t GetColorBufferCount() const override;
+
 			OpenGLWindowFramebuffer& operator=(const OpenGLWindowFramebuffer&) = delete;
 			OpenGLWindowFramebuffer& operator=(OpenGLWindowFramebuffer&&) = delete;
 

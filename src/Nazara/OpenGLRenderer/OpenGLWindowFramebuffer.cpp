@@ -17,4 +17,9 @@ namespace Nz
 
 		context.BindFramebuffer(GL::FramebufferTarget::Draw, 0);
 	}
+
+	std::size_t OpenGLWindowFramebuffer::GetColorBufferCount() const
+	{
+		return 1;
+	}
 }

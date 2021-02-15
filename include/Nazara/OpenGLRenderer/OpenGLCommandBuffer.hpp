@@ -132,6 +132,7 @@ namespace Nz
 
 			struct SetFrameBufferData
 			{
+				std::array<CommandBufferBuilder::ClearValues, 16> clearValues; //< TODO: Remove hard limit?
 				const OpenGLFramebuffer* framebuffer;
 			};
 
