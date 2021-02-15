@@ -18,12 +18,11 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanRenderPass final : public RenderPass
 	{
 		public:
-			inline VulkanRenderPass(Vk::RenderPass renderPass, std::initializer_list<PixelFormat> formats); //< FIXME
+			VulkanRenderPass(Vk::Device& device, std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies);
 			VulkanRenderPass(const VulkanRenderPass&) = delete;
 			VulkanRenderPass(VulkanRenderPass&&) noexcept = default;
 			~VulkanRenderPass() = default;
 
-			inline PixelFormat GetAttachmentFormat(std::size_t attachmentIndex) const;
 			inline Vk::RenderPass& GetRenderPass();
 			inline const Vk::RenderPass& GetRenderPass() const;
 
@@ -31,7 +30,6 @@ namespace Nz
 			VulkanRenderPass& operator=(VulkanRenderPass&&) noexcept = default;
 
 		private:
-			std::vector<PixelFormat> m_formats;
 			Vk::RenderPass m_renderPass;
 	};
 }

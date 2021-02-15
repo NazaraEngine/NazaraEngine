@@ -56,7 +56,7 @@ namespace Nz
 		{
 			auto& vkValues = vkClearValues[index];
 
-			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachmentFormat(index)) == PixelFormatContent_ColorRGBA)
+			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(index).format) == PixelFormatContent_ColorRGBA)
 			{
 				vkValues.color.float32[0] = values.color.r / 255.f;
 				vkValues.color.float32[1] = values.color.g / 255.f;

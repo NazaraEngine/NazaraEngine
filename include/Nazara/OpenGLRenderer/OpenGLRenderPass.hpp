@@ -17,7 +17,7 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderPass final : public RenderPass
 	{
 		public:
-			OpenGLRenderPass() = default;
+			using RenderPass::RenderPass;
 			OpenGLRenderPass(const OpenGLRenderPass&) = delete;
 			OpenGLRenderPass(OpenGLRenderPass&&) noexcept = default;
 			~OpenGLRenderPass() = default;
