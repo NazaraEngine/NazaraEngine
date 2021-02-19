@@ -18,33 +18,29 @@ namespace Nz
 	{
 	};
 
+
 	template<typename, typename = void>
 	struct IsEnumFlag : std::false_type {};
 
 	template<typename T>
 	struct IsEnumFlag<T, std::void_t<decltype(EnumAsFlags<T>::max)>> : std::true_type {};
 
+
 	template<typename, typename = void>
-	struct GetEnumAutoFlag : std::false_type
-	{
-		static constexpr bool value = true;
-	};
+	struct GetEnumAutoFlag : std::integral_constant<bool, true> {};
 
 	template<typename T>
-	struct GetEnumAutoFlag<T, std::void_t<decltype(T::AutoFlag)>> : std::true_type
-	{
-		static constexpr bool value = T::AutoFlag;
-	};
+	struct GetEnumAutoFlag<T, std::void_t<decltype(T::AutoFlag)>> : std::integral_constant<bool, T::AutoFlag> {};
 
 	template<typename E>
 	class Flags
 	{
-		static_assert(std::is_enum<E>::value, "Type must be an enumeration");
-		static_assert(IsEnumFlag<E>::value, "Enum has not been enabled as flags by an EnumAsFlags specialization");
+		static_assert(std::is_enum_v<E>, "Type must be an enumeration");
+		static_assert(IsEnumFlag<E>(), "Enum has not been enabled as flags by an EnumAsFlags specialization");
 		static_assert(std::is_same_v<std::remove_cv_t<decltype(EnumAsFlags<E>::max)>, E>, "EnumAsFlags field max should be of the same type as the enum");
 
 		static constexpr std::size_t MaxValue = static_cast<std::size_t>(EnumAsFlags<E>::max);
-		static constexpr bool AutoFlag = GetEnumAutoFlag<E>::value;
+		static constexpr bool AutoFlag = GetEnumAutoFlag<E>();
 
 		using BitField16 = std::conditional_t<(MaxValue >= 8), UInt16, UInt8>;
 		using BitField32 = std::conditional_t<(MaxValue >= 16), UInt32, BitField16>;
