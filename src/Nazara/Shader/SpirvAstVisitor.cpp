@@ -452,6 +452,9 @@ namespace Nz
 		m_currentBlock = &previousContentBlock;
 		Visit(firstCond.statement);
 
+		SpirvBlock mergeBlock(m_writer);
+		m_blocks.back().Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
+
 		std::optional<std::size_t> nextBlock;
 		for (std::size_t statementIndex = 1; statementIndex < node.condStatements.size(); ++statementIndex)
 		{
@@ -468,8 +471,6 @@ namespace Nz
 			m_currentBlock = &previousContentBlock;
 			Visit(statement.statement);
 		}
-
-		SpirvBlock mergeBlock(m_writer);
 
 		if (node.elseStatement)
 		{
