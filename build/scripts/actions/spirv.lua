@@ -60,6 +60,7 @@ ACTION.Function = function()
 #define NAZARA_SPIRVDATA_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Flags.hpp>
 #include <Nazara/Shader/Config.hpp>
 
 namespace Nz
@@ -90,7 +91,7 @@ headerFile:write([[
 	for _, operand in pairs(result.operand_kinds) do
 		headerFile:write("\t\t" .. operand.kind .. ",\n")
 	end
-	
+
 	headerFile:write([[
 	};
 
@@ -98,24 +99,46 @@ headerFile:write([[
 
 	-- SpirV enums
 	for _, operand in pairs(result.operand_kinds) do
-		if (operand.category == "ValueEnum") then
+		if (operand.category == "ValueEnum" or operand.category == "BitEnum") then
+			local enumName = "Spirv" .. operand.kind
 			headerFile:write([[
-	enum class Spirv]] .. operand.kind .. [[
+	enum class ]] .. enumName .. [[
 
 	{
 ]])
 
+			local maxName
+			local maxValue
 			for _, enumerant in pairs(operand.enumerants) do
+				local value = enumerant.value
+
 				local eName = enumerant.enumerant:match("^%d") and operand.kind .. enumerant.enumerant or enumerant.enumerant
 				headerFile:write([[
-		]] .. eName .. [[ = ]] .. enumerant.value .. [[,
+		]] .. eName .. [[ = ]] .. value .. [[,
 ]])
+
+				if (not maxValue or value > maxValue) then
+					maxName = eName
+				end
 			end
 
 			headerFile:write([[
 	};
 
 ]])
+			if (operand.category == "BitEnum") then
+				headerFile:write([[
+	template<>
+	struct EnumAsFlags<]] .. enumName .. [[>
+	{
+		static constexpr ]] .. enumName .. [[ max = ]] .. enumName .. "::" .. maxName .. [[;
+
+		static constexpr bool AutoFlag = false;
+	};
+
+
+]])
+			end
 		end
 	end
 
