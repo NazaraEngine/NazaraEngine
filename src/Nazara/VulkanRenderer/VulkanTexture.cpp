@@ -231,13 +231,19 @@ namespace Nz
 		switch (pixelFormat)
 		{
 			case PixelFormat_BGR8:
+			case PixelFormat_BGR8_SRGB:
+			case PixelFormat_BGRA8:
+			case PixelFormat_BGRA8_SRGB:
+			case PixelFormat_RGB8:
+			case PixelFormat_RGB8_SRGB:
+			case PixelFormat_RGBA8:
+			case PixelFormat_RGBA8_SRGB:
 			{
-				createImage.format = VK_FORMAT_B8G8R8_SRGB;
+				createImage.format = ToVulkan(pixelFormat);
 				createImageView.format = createImage.format;
 				break;
 			}
 
-			case PixelFormat_BGRA8:
 			{
 				createImage.format = VK_FORMAT_B8G8R8A8_SRGB;
 				createImageView.format = createImage.format;
@@ -246,7 +252,7 @@ namespace Nz
 
 			case PixelFormat_L8:
 			{
-				createImage.format = VK_FORMAT_R8_SRGB;
+				createImage.format = VK_FORMAT_R8_UNORM;
 				createImageView.format = createImage.format;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_R,
@@ -259,7 +265,7 @@ namespace Nz
 
 			case PixelFormat_LA8:
 			{
-				createImage.format = VK_FORMAT_R8G8_SRGB;
+				createImage.format = VK_FORMAT_R8G8_UNORM;
 				createImageView.format = createImage.format;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_R,
@@ -267,20 +273,6 @@ namespace Nz
 					VK_COMPONENT_SWIZZLE_R,
 					VK_COMPONENT_SWIZZLE_G
 				};
-				break;
-			}
-
-			case PixelFormat_RGB8:
-			{
-				createImage.format = VK_FORMAT_R8G8B8_SRGB;
-				createImageView.format = createImage.format;
-				break;
-			}
-
-			case PixelFormat_RGBA8:
-			{
-				createImage.format = VK_FORMAT_R8G8B8A8_SRGB;
-				createImageView.format = createImage.format;
 				break;
 			}
 

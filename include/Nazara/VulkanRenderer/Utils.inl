@@ -15,9 +15,11 @@ namespace Nz
 		switch (format)
 		{
 			case VK_FORMAT_B8G8R8A8_UNORM: return PixelFormat::PixelFormat_BGRA8;
+			case VK_FORMAT_B8G8R8A8_SRGB: return PixelFormat::PixelFormat_BGRA8_SRGB;
 			case VK_FORMAT_D24_UNORM_S8_UINT: return PixelFormat::PixelFormat_Depth24Stencil8;
 			case VK_FORMAT_D32_SFLOAT: return PixelFormat::PixelFormat_Depth32;
 			case VK_FORMAT_R8G8B8A8_UNORM: return PixelFormat::PixelFormat_RGBA8;
+			case VK_FORMAT_R8G8B8A8_SRGB: return PixelFormat::PixelFormat_RGBA8_SRGB;
 			default: break;
 		}
 
