@@ -196,9 +196,11 @@ namespace Nz
 		switch (pixelFormat)
 		{
 			case PixelFormat::PixelFormat_BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
+			case PixelFormat::PixelFormat_BGRA8_SRGB: return VK_FORMAT_B8G8R8A8_SRGB;
 			case PixelFormat::PixelFormat_Depth24Stencil8: return VK_FORMAT_D24_UNORM_S8_UINT;
 			case PixelFormat::PixelFormat_Depth32: return VK_FORMAT_D32_SFLOAT;
 			case PixelFormat::PixelFormat_RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
+			case PixelFormat::PixelFormat_RGBA8_SRGB: return VK_FORMAT_R8G8B8A8_SRGB;
 			default: break;
 		}
 
@@ -336,10 +338,10 @@ namespace Nz
 	{
 		switch (textureLayout)
 		{
-			case TextureLayout::ColorInput:          return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			case TextureLayout::ColorOutput:         return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL_KHR;
-			case TextureLayout::DepthStencilInput:   return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
-			case TextureLayout::DepthStencilOutput:  return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+			case TextureLayout::ColorInput:          return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case TextureLayout::ColorOutput:         return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case TextureLayout::DepthStencilInput:   return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case TextureLayout::DepthStencilOutput:  return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 			case TextureLayout::Present:             return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			case TextureLayout::TransferSource:      return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 			case TextureLayout::TransferDestination: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -348,6 +350,35 @@ namespace Nz
 
 		NazaraError("Unhandled TextureLayout 0x" + NumberToString(UnderlyingCast(textureLayout), 16));
 		return {};
+	}
+
+	VkImageUsageFlagBits ToVulkan(TextureUsage textureLayout)
+	{
+		switch (textureLayout)
+		{
+			case TextureUsage::ColorOutput:         return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			case TextureUsage::DepthStencilOutput:  return VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			case TextureUsage::InputAttachment:     return VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+			case TextureUsage::ShaderSampling:      return VK_IMAGE_USAGE_SAMPLED_BIT;
+			case TextureUsage::TransferSource:      return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			case TextureUsage::TransferDestination: return VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		}
+
+		NazaraError("Unhandled TextureUsage 0x" + NumberToString(UnderlyingCast(textureLayout), 16));
+		return {};
+	}
+
+	VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout)
+	{
+		VkImageUsageFlags imageUsageBits = 0;
+		for (int i = 0; i <= UnderlyingCast(TextureUsage::Max); ++i)
+		{
+			TextureUsage textureUsage = static_cast<TextureUsage>(i);
+			if (textureLayout.Test(textureUsage))
+				imageUsageBits |= ToVulkan(textureUsage);
+		}
+
+		return imageUsageBits;
 	}
 
 	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate)
@@ -359,7 +390,7 @@ namespace Nz
 		}
 
 		NazaraError("Unhandled VertexInputRate 0x" + NumberToString(UnderlyingCast(inputRate), 16));
-		return VK_VERTEX_INPUT_RATE_VERTEX;
+		return {};
 	}
 }
 

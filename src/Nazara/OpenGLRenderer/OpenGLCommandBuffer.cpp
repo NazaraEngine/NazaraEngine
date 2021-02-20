@@ -106,18 +106,19 @@ namespace Nz
 						for (std::size_t i = 0; i < colorBufferCount; ++i)
 						{
 							Nz::Color color = command.clearValues[i].color;
-							std::array<GLuint, 4> clearColor = { color.r, color.g, color.b, color.a };
+							std::array<GLfloat, 4> clearColor = { color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f };
 
-							context->glClearBufferuiv(GL_COLOR, GLint(i), clearColor.data());
+							context->glClearBufferfv(GL_COLOR, GLint(i), clearColor.data());
 						}
+
+						context->glClear(GL_DEPTH_BUFFER_BIT);
 					}
 					else
 					{
 						Nz::Color color = command.clearValues[0].color;
-						context->glClearColor(color.r, color.g, color.b, color.a);
+						context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
+						context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 					}
-
-					context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				}
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
@@ -130,6 +131,8 @@ namespace Nz
 	{
 		states.shaderBindings->Apply(context);
 		states.pipeline->Apply(context);
+
+		states.pipeline->FlipY(states.shouldFlipY);
 
 		if (states.scissorRegion)
 			context.SetScissorBox(states.scissorRegion->x, states.scissorRegion->y, states.scissorRegion->width, states.scissorRegion->height);

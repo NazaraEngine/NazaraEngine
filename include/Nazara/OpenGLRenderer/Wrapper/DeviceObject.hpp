@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/MovableValue.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <string>
 
@@ -26,6 +27,8 @@ namespace Nz::GL
 			bool Create(OpenGLDevice& device, CreateArgs... args);
 			void Destroy();
 
+			const Context& EnsureDeviceContext() const;
+
 			bool IsValid() const;
 
 			OpenGLDevice* GetDevice() const;
@@ -39,8 +42,6 @@ namespace Nz::GL
 			static constexpr GLuint InvalidObject = 0;
 
 		protected:
-			const Context& EnsureDeviceContext();
-
 			MovablePtr<OpenGLDevice> m_device;
 			MovableValue<GLuint> m_objectId;
 	};

@@ -39,6 +39,8 @@ namespace Nz
 	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType);
 	inline VkStencilOp ToVulkan(StencilOperation stencilOp);
 	inline VkImageLayout ToVulkan(TextureLayout textureLayout);
+	inline VkImageUsageFlagBits ToVulkan(TextureUsage textureLayout);
+	inline VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout);
 	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate);
 
 	NAZARA_VULKANRENDERER_API std::string TranslateVulkanError(VkResult code);

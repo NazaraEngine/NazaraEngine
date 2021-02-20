@@ -34,6 +34,8 @@ namespace Nz
 
 			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
+			std::shared_ptr<Framebuffer> InstantiateFramebuffer(unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
+			std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) override;
 			std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
 			std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) override;
 			std::shared_ptr<ShaderStage> InstantiateShaderStage(const ShaderAst& shaderAst, const ShaderWriter::States& states) override;
@@ -42,6 +44,7 @@ namespace Nz
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
 			inline void NotifyBufferDestruction(GLuint buffer) const;
+			inline void NotifyFramebufferDestruction(GLuint fbo) const;
 			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;

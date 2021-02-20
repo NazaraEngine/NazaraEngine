@@ -162,6 +162,7 @@ namespace Nz
 		PixelFormatContent_Undefined = -1,
 
 		PixelFormatContent_ColorRGBA,
+		PixelFormatContent_Depth,
 		PixelFormatContent_DepthStencil,
 		PixelFormatContent_Stencil,
 

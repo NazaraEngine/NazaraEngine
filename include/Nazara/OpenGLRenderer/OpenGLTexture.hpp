@@ -34,6 +34,8 @@ namespace Nz
 			OpenGLTexture& operator=(const OpenGLTexture&) = delete;
 			OpenGLTexture& operator=(OpenGLTexture&&) = delete;
 
+			static inline GL::TextureTarget ToTextureTarget(ImageType imageType);
+
 		private:
 			GL::Texture m_texture;
 			TextureInfo m_params;

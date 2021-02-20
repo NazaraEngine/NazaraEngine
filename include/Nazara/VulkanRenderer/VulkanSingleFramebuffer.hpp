@@ -8,13 +8,17 @@
 #define NAZARA_VULKANRENDERER_VULKANSINGLEFRAMEBUFFER_HPP
 
 #include <Nazara/VulkanRenderer/VulkanFramebuffer.hpp>
+#include <memory>
 
 namespace Nz
 {
+	class RenderPass;
+	class Texture;
+
 	class NAZARA_VULKANRENDERER_API VulkanSingleFramebuffer final : public VulkanFramebuffer
 	{
 		public:
-			inline VulkanSingleFramebuffer(Vk::Framebuffer renderPass);
+			VulkanSingleFramebuffer(Vk::Device& device, unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments);
 			VulkanSingleFramebuffer(const VulkanSingleFramebuffer&) = delete;
 			VulkanSingleFramebuffer(VulkanSingleFramebuffer&&) = delete;
 			~VulkanSingleFramebuffer() = default;

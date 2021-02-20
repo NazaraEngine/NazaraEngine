@@ -68,7 +68,7 @@ namespace Nz
 					const TextureBinding& texBinding = std::get<TextureBinding>(binding.content);
 
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
-					textureDescriptor.bindingIndex = binding.bindingIndex;
+					textureDescriptor.bindingIndex = UInt32(binding.bindingIndex);
 
 					if (OpenGLTexture* glTexture = static_cast<OpenGLTexture*>(texBinding.texture))
 					{
@@ -79,29 +79,7 @@ namespace Nz
 						else
 							textureDescriptor.sampler = 0;
 
-						switch (glTexture->GetType())
-						{
-							case ImageType_2D:
-								textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
-								break;
-
-							case ImageType_2D_Array:
-								textureDescriptor.textureTarget = GL::TextureTarget::Target2D_Array;
-								break;
-
-							case ImageType_3D:
-								textureDescriptor.textureTarget = GL::TextureTarget::Target3D;
-								break;
-
-							case ImageType_Cubemap:
-								textureDescriptor.textureTarget = GL::TextureTarget::Cubemap;
-								break;
-
-							case ImageType_1D:
-							case ImageType_1D_Array:
-							default:
-								throw std::runtime_error("unsupported texture type");
-						}
+						textureDescriptor.textureTarget = OpenGLTexture::ToTextureTarget(glTexture->GetType());
 					}
 					else
 					{

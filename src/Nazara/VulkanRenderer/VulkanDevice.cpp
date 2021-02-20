@@ -4,9 +4,11 @@
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
+#include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -23,6 +25,16 @@ namespace Nz
 	std::shared_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
 	{
 		return std::make_shared<VulkanCommandPool>(*this, queueType);
+	}
+
+	std::shared_ptr<Framebuffer> VulkanDevice::InstantiateFramebuffer(unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments)
+	{
+		return std::make_shared<VulkanSingleFramebuffer>(*this, width, height, renderPass, attachments);
+	}
+
+	std::shared_ptr<RenderPass> VulkanDevice::InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies)
+	{
+		return std::make_shared<VulkanRenderPass>(*this, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 	}
 
 	std::shared_ptr<RenderPipeline> VulkanDevice::InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo)
