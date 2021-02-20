@@ -63,9 +63,10 @@ namespace Nz
 			{
 				using T = std::decay_t<decltype(command)>;
 
-				if constexpr (std::is_same_v<T, BeginDebugRegionData> || std::is_same_v<T, EndDebugRegionData>)
+				if constexpr (std::is_same_v<T, BeginDebugRegionData>)
 				{
-					// TODO
+					if (context->glPushDebugGroup)
+						context->glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, command.regionName.size(), command.regionName.data());
 				}
 				else if constexpr (std::is_same_v<T, CopyBufferData>)
 				{
@@ -87,6 +88,11 @@ namespace Nz
 				{
 					ApplyStates(*context, command.states);
 					context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, GL_UNSIGNED_SHORT, nullptr, command.instanceCount);
+				}
+				else if constexpr (std::is_same_v<T, EndDebugRegionData>)
+				{
+					if (context->glPopDebugGroup)
+						context->glPopDebugGroup();
 				}
 				else if constexpr (std::is_same_v<T, SetFrameBufferData>)
 				{
