@@ -419,7 +419,7 @@ namespace Nz
 
 		RenderPass::AttachmentReference colorReference = {
 			0,
-			TextureLayout::ColorInput
+			TextureLayout::ColorOutput
 		};
 
 		std::vector<RenderPass::SubpassDescription> subpasses = {
@@ -475,12 +475,12 @@ namespace Nz
 				AttachmentStoreOp::Discard,
 				AttachmentStoreOp::Discard,
 				TextureLayout::Undefined,
-				TextureLayout::DepthStencilInput
+				TextureLayout::DepthStencilOutput
 			});
 
 			subpasses.front().depthStencilAttachment = RenderPass::AttachmentReference{
 				1,
-				TextureLayout::DepthStencilInput
+				TextureLayout::DepthStencilOutput
 			};
 		}
 

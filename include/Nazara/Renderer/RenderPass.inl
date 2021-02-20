@@ -15,7 +15,7 @@ namespace Nz
 	{
 	}
 
-	inline auto Nz::RenderPass::GetAttachment(std::size_t attachmentIndex) const -> const Attachment&
+	inline auto RenderPass::GetAttachment(std::size_t attachmentIndex) const -> const Attachment&
 	{
 		assert(attachmentIndex < m_attachments.size());
 		return m_attachments[attachmentIndex];

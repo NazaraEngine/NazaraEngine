@@ -58,6 +58,15 @@ namespace Nz::GL
 		}
 	}
 
+	inline void Context::NotifyFramebufferDestruction(GLuint fbo) const
+	{
+		if (m_state.boundDrawFBO == fbo)
+			m_state.boundDrawFBO = 0;
+
+		if (m_state.boundReadFBO == fbo)
+			m_state.boundReadFBO = 0;
+	}
+
 	inline void Context::NotifyProgramDestruction(GLuint program) const
 	{
 		if (m_state.boundProgram == program)

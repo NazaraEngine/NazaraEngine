@@ -36,6 +36,7 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glBufferSubData, PFNGLBUFFERSUBDATAPROC) \
 	cb(glClear, PFNGLCLEARPROC) \
 	cb(glClearBufferfi, PFNGLCLEARBUFFERFIPROC) \
+	cb(glClearBufferfv, PFNGLCLEARBUFFERFVPROC) \
 	cb(glClearBufferuiv, PFNGLCLEARBUFFERUIVPROC) \
 	cb(glClearColor, PFNGLCLEARCOLORPROC) \
 	cb(glClearDepthf, PFNGLCLEARDEPTHFPROC) \
@@ -155,6 +156,9 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glViewport, PFNGLVIEWPORTPROC) \
 	\
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
+	\
+	extCb(glMemoryBarrier, PFNGLMEMORYBARRIERPROC) \
+	extCb(glMemoryBarrierByRegion, PFNGLMEMORYBARRIERBYREGIONPROC) \
 	\
 	extCb(glObjectLabel, PFNGLOBJECTLABELPROC) \
 	extCb(glPopDebugGroup, PFNGLPOPDEBUGGROUPPROC) \

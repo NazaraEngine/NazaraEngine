@@ -7,12 +7,6 @@
 
 namespace Nz
 {
-	inline VulkanSingleFramebuffer::VulkanSingleFramebuffer(Vk::Framebuffer framebuffer) :
-	VulkanFramebuffer(Type::Single),
-	m_framebuffer(std::move(framebuffer))
-	{
-	}
-
 	inline Vk::Framebuffer& VulkanSingleFramebuffer::GetFramebuffer()
 	{
 		return m_framebuffer;
