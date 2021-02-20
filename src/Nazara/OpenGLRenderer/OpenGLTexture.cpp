@@ -29,8 +29,7 @@ namespace Nz
 				break;
 
 			case ImageType_2D:
-				for (unsigned int level = 0; level < m_params.mipmapLevel; ++level)
-					m_texture.TexImage2D(0, format->internalFormat, GetLevelSize(params.width, level), GetLevelSize(params.height, level), 0, format->format, format->type);
+				m_texture.TexStorage2D(params.mipmapLevel, format->internalFormat, params.width, params.height);
 				break;
 
 			case ImageType_2D_Array:

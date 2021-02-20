@@ -58,6 +58,15 @@ namespace Nz::GL
 		context.glTexImage2D(ToOpenGL(m_target), level, internalFormat, width, height, border, format, type, data);
 	}
 
+	inline void Texture::TexStorage2D(GLint levels, GLint internalFormat, GLsizei width, GLsizei height)
+	{
+		m_target = TextureTarget::Target2D;
+
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glTexStorage2D(ToOpenGL(m_target), levels, internalFormat, width, height);
+	}
+
 	inline void Texture::TexSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data)
 	{
 		const Context& context = EnsureDeviceContext();
