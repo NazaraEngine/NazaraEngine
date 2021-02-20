@@ -11,6 +11,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
@@ -19,6 +20,7 @@ namespace Nz
 	{
 		PixelFormat pixelFormat;
 		ImageType type;
+		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
 		UInt8 mipmapLevel = 1;
 		unsigned int depth = 1;
 		unsigned int height;
