@@ -16,7 +16,7 @@ namespace Nz::GL
 		context.glAttachShader(m_objectId, shader);
 	}
 
-	inline bool Program::GetLinkStatus(std::string* error)
+	inline bool Program::GetLinkStatus(std::string* error) const
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
@@ -45,12 +45,34 @@ namespace Nz::GL
 		return true;
 	}
 
+	inline GLint Program::GetUniformLocation(const char* uniformName) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+
+		return context.glGetUniformLocation(m_objectId, uniformName);
+	}
+
+	inline GLint Program::GetUniformLocation(const std::string& uniformName) const
+	{
+		return GetUniformLocation(uniformName.c_str());
+	}
+
 	inline void Program::Link()
 	{
 		assert(m_objectId);
 
 		const Context& context = EnsureDeviceContext();
 		context.glLinkProgram(m_objectId);
+	}
+
+	inline void Program::Uniform(GLint uniformLocation, float value) const
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.BindProgram(m_objectId);
+		context.glUniform1f(uniformLocation, value);
 	}
 
 	inline GLuint Program::CreateHelper(OpenGLDevice& /*device*/, const Context& context)

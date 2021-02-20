@@ -10,6 +10,7 @@
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
+#include <optional>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -17,6 +18,8 @@ namespace Nz
 {
 	namespace
 	{
+		static const char* flipYUniformName = "_NzFlipValue";
+
 		struct AstAdapter : ShaderAstCloner
 		{
 			void Visit(ShaderNodes::AssignOp& node) override
@@ -35,8 +38,11 @@ namespace Nz
 				if (builtinVar.entry != ShaderNodes::BuiltinEntry::VertexPosition)
 					return ShaderAstCloner::Visit(node);
 
-				auto fixYConstant = ShaderBuilder::Constant(Nz::Vector4f(1.f, -1.f, 1.f, 1.f));
-				auto mulFix = ShaderBuilder::Multiply(CloneExpression(node.right), fixYConstant);
+				auto flipVar = ShaderBuilder::Uniform(flipYUniformName, ShaderNodes::BasicType::Float1);
+
+				auto oneConstant = ShaderBuilder::Constant(1.f);
+				auto fixYValue = ShaderBuilder::Cast<ShaderNodes::BasicType::Float4>(oneConstant, ShaderBuilder::Identifier(flipVar), oneConstant, oneConstant);
+				auto mulFix = ShaderBuilder::Multiply(CloneExpression(node.right), fixYValue);
 
 				PushExpression(ShaderNodes::AssignOp::Build(node.op, CloneExpression(node.left), mulFix));
 			}
@@ -50,8 +56,21 @@ namespace Nz
 	{
 	}
 
-	std::string GlslWriter::Generate(const ShaderAst& shader, const States& conditions)
+	std::string GlslWriter::Generate(const ShaderAst& inputShader, const States& conditions)
 	{
+		const ShaderAst* selectedShader = &inputShader;
+		std::optional<ShaderAst> modifiedShader;
+		if (inputShader.GetStage() == ShaderStageType::Vertex && m_environment.flipYPosition)
+		{
+			modifiedShader.emplace(inputShader);
+
+			modifiedShader->AddUniform(flipYUniformName, ShaderNodes::BasicType::Float1);
+
+			selectedShader = &modifiedShader.value();
+		}
+
+		const ShaderAst& shader = *selectedShader;
+
 		std::string error;
 		if (!ValidateShader(shader, &error))
 			throw std::runtime_error("Invalid shader AST: " + error);
@@ -172,9 +191,9 @@ namespace Nz
 		const char* inKeyword = (glslVersion >= 130) ? "in" : "varying";
 		const char* outKeyword = (glslVersion >= 130) ? "out" : "varying";
 
-		DeclareVariables(shader, shader.GetUniforms(), "uniform", "Uniforms");
-		DeclareVariables(shader, shader.GetInputs(),   inKeyword,      "Inputs");
-		DeclareVariables(shader, shader.GetOutputs(),  outKeyword,     "Outputs");
+		DeclareVariables(shader, shader.GetUniforms(), "uniform",  "Uniforms");
+		DeclareVariables(shader, shader.GetInputs(),   inKeyword,  "Inputs");
+		DeclareVariables(shader, shader.GetOutputs(),  outKeyword, "Outputs");
 
 		std::size_t functionCount = shader.GetFunctionCount();
 		if (functionCount > 1)
@@ -199,6 +218,11 @@ namespace Nz
 	void GlslWriter::SetEnv(Environment environment)
 	{
 		m_environment = std::move(environment);
+	}
+
+	const char* GlslWriter::GetFlipYUniformName()
+	{
+		return flipYUniformName;
 	}
 
 	void GlslWriter::Append(ShaderExpressionType type)

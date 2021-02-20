@@ -43,6 +43,8 @@ namespace Nz
 				bool flipYPosition = false;
 			};
 
+			static const char* GetFlipYUniformName();
+
 		private:
 			void Append(ShaderExpressionType type);
 			void Append(ShaderNodes::BuiltinEntry builtin);

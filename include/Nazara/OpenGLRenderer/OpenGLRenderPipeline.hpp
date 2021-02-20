@@ -24,11 +24,15 @@ namespace Nz
 
 			void Apply(const GL::Context& context) const;
 
+			void FlipY(bool shouldFlipY) const;
+
 			inline const RenderPipelineInfo& GetPipelineInfo() const override;
 
 		private:
 			RenderPipelineInfo m_pipelineInfo;
 			GL::Program m_program;
+			GLint m_flipYUniformLocation;
+			mutable bool m_isYFlipped;
 	};
 }
 
