@@ -68,6 +68,22 @@ namespace Nz
 		return {};
 	}
 
+	GLenum ToOpenGL(PrimitiveMode primitiveMode)
+	{
+		switch (primitiveMode)
+		{
+			case PrimitiveMode_LineList:      return GL_LINES;
+			case PrimitiveMode_LineStrip:     return GL_LINE_STRIP;
+			case PrimitiveMode_PointList:     return GL_POINTS;
+			case PrimitiveMode_TriangleList:  return GL_TRIANGLES;
+			case PrimitiveMode_TriangleStrip: return GL_TRIANGLE_STRIP;
+			case PrimitiveMode_TriangleFan:   return GL_TRIANGLE_FAN;
+		}
+
+		NazaraError("Unhandled PrimitiveMode 0x" + NumberToString(UnderlyingCast(primitiveMode), 16));
+		return {};
+	}
+
 	inline GLenum ToOpenGL(RendererComparison comparison)
 	{
 		switch (comparison)

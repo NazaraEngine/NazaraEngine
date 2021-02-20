@@ -31,6 +31,7 @@ namespace Nz
 
 	inline GLenum ToOpenGL(BlendFunc blendFunc);
 	inline GLenum ToOpenGL(FaceSide filter);
+	inline GLenum ToOpenGL(PrimitiveMode primitiveMode);
 	inline GLenum ToOpenGL(SamplerFilter filter);
 	inline GLenum ToOpenGL(SamplerFilter minFilter, SamplerMipmapMode mipmapFilter);
 	inline GLenum ToOpenGL(SamplerWrap wrapMode);
