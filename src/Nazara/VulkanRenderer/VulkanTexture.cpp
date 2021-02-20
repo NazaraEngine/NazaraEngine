@@ -244,9 +244,11 @@ namespace Nz
 				break;
 			}
 
+			case PixelFormat_Depth24Stencil8:
 			{
-				createImage.format = VK_FORMAT_B8G8R8A8_SRGB;
+				createImage.format = VK_FORMAT_D24_UNORM_S8_UINT;
 				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 				break;
 			}
 
