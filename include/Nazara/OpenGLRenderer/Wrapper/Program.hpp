@@ -26,9 +26,13 @@ namespace Nz::GL
 
 			inline void AttachShader(GLuint shader);
 
-			inline bool GetLinkStatus(std::string* error = nullptr);
+			inline bool GetLinkStatus(std::string* error = nullptr) const;
+			inline GLint GetUniformLocation(const char* uniformName) const;
+			inline GLint GetUniformLocation(const std::string& uniformName) const;
 
 			inline void Link();
+
+			inline void Uniform(GLint uniformLocation, float value) const;
 
 			Program& operator=(const Program&) = delete;
 			Program& operator=(Program&&) noexcept = default;

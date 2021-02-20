@@ -142,6 +142,8 @@ namespace Nz
 		std::copy(clearValues.begin(), clearValues.end(), setFramebuffer.clearValues.begin());
 
 		m_commands.emplace_back(std::move(setFramebuffer));
+
+		m_currentStates.shouldFlipY = (framebuffer.GetType() == OpenGLFramebuffer::Type::Window);
 	}
 
 	inline void OpenGLCommandBuffer::SetScissor(Nz::Recti scissorRegion)

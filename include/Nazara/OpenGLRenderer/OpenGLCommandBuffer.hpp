@@ -106,6 +106,7 @@ namespace Nz
 				std::optional<Nz::Recti> scissorRegion;
 				std::optional<Nz::Recti> viewportRegion;
 				std::vector<VertexBuffer> vertexBuffers;
+				bool shouldFlipY = false;
 			};
 
 			struct DrawData
