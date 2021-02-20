@@ -31,6 +31,7 @@ namespace Nz::GL
 
 			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type);
 			inline void TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data);
+			inline void TexStorage2D(GLint levels, GLint internalFormat, GLsizei width, GLsizei height);
 			inline void TexSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data);
 
 			Texture& operator=(const Texture&) = delete;
