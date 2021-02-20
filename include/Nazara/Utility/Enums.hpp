@@ -174,7 +174,9 @@ namespace Nz
 
 		PixelFormat_A8,              // 1*uint8
 		PixelFormat_BGR8,            // 3*uint8
+		PixelFormat_BGR8_SRGB,       // 3*uint8
 		PixelFormat_BGRA8,           // 4*uint8
+		PixelFormat_BGRA8_SRGB,      // 4*uint8
 		PixelFormat_DXT1,
 		PixelFormat_DXT3,
 		PixelFormat_DXT5,
@@ -202,6 +204,7 @@ namespace Nz
 		PixelFormat_RG32UI,          // 2*uint32
 		PixelFormat_RGB5A1,          // 3*uint5 + alpha bit
 		PixelFormat_RGB8,            // 3*uint8
+		PixelFormat_RGB8_SRGB,       // 3*uint8
 		PixelFormat_RGB16F,          // 3*half
 		PixelFormat_RGB16I,          // 4*int16
 		PixelFormat_RGB16UI,         // 4*uint16
@@ -210,6 +213,7 @@ namespace Nz
 		PixelFormat_RGB32UI,         // 4*uint32
 		PixelFormat_RGBA4,           // 4*uint4
 		PixelFormat_RGBA8,           // 4*uint8
+		PixelFormat_RGBA8_SRGB,      // 4*uint8
 		PixelFormat_RGBA16F,         // 4*half
 		PixelFormat_RGBA16I,         // 4*int16
 		PixelFormat_RGBA16UI,        // 4*uint16
