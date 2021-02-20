@@ -644,8 +644,11 @@ namespace Nz::GL
 
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
 	{
+		if (id == 0)
+			return;
+
 		std::stringstream ss;
-		ss << "OpenGL debug message (ID: 0x" << std::to_string(id) << "):\n";
+		ss << "OpenGL debug message (ID: 0x" << id << "):\n";
 		ss << "Sent by context: " << this;
 		ss << "\n-Source: ";
 		switch (source)
