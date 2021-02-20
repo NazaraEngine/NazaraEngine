@@ -24,7 +24,7 @@ namespace Nz
 		createInfo.mipLevels = params.mipmapLevel;
 		createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		createInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		createInfo.usage = ToVulkan(params.usageFlags);
 
 		VkImageViewCreateInfo createInfoView = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		createInfoView.subresourceRange = {

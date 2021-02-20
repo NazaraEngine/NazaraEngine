@@ -154,6 +154,26 @@ namespace Nz
 		TransferDestination,
 		Undefined
 	};
+
+	enum class TextureUsage
+	{
+		ColorOutput,
+		DepthStencilOutput,
+		InputAttachment,
+		ShaderSampling,
+		TransferSource,
+		TransferDestination,
+
+		Max = TransferDestination
+	};
+
+	template<>
+	struct EnumAsFlags<TextureUsage>
+	{
+		static constexpr TextureUsage max = TextureUsage::Max;
+	};
+
+	using TextureUsageFlags = Flags<TextureUsage>;
 }
 
 #endif // NAZARA_ENUMS_RENDERER_HPP
