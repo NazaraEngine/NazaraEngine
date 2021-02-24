@@ -157,8 +157,8 @@ namespace Nz
 
 	enum class TextureUsage
 	{
-		ColorOutput,
-		DepthStencilOutput,
+		ColorAttachment,
+		DepthStencilAttachment,
 		InputAttachment,
 		ShaderSampling,
 		TransferSource,

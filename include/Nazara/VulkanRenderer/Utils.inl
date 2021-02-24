@@ -356,12 +356,12 @@ namespace Nz
 	{
 		switch (textureLayout)
 		{
-			case TextureUsage::ColorOutput:         return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			case TextureUsage::DepthStencilOutput:  return VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-			case TextureUsage::InputAttachment:     return VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-			case TextureUsage::ShaderSampling:      return VK_IMAGE_USAGE_SAMPLED_BIT;
-			case TextureUsage::TransferSource:      return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-			case TextureUsage::TransferDestination: return VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+			case TextureUsage::ColorAttachment:        return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			case TextureUsage::DepthStencilAttachment: return VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			case TextureUsage::InputAttachment:        return VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+			case TextureUsage::ShaderSampling:         return VK_IMAGE_USAGE_SAMPLED_BIT;
+			case TextureUsage::TransferSource:         return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			case TextureUsage::TransferDestination:    return VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		}
 
 		NazaraError("Unhandled TextureUsage 0x" + NumberToString(UnderlyingCast(textureLayout), 16));
