@@ -12,10 +12,20 @@ namespace Nz
 	{
 	}
 
+	inline std::string SpirvPrinter::Print(const std::vector<UInt32>& codepoints)
+	{
+		return Print(codepoints.data(), codepoints.size());
+	}
+
 	inline std::string SpirvPrinter::Print(const UInt32* codepoints, std::size_t count)
 	{
 		Settings settings;
 		return Print(codepoints, count, settings);
+	}
+
+	inline std::string SpirvPrinter::Print(const std::vector<UInt32>& codepoints, const Settings& settings)
+	{
+		return Print(codepoints.data(), codepoints.size(), settings);
 	}
 }
 

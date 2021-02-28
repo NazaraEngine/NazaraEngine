@@ -2,13 +2,13 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/SpirvSection.hpp>
+#include <Nazara/Shader/SpirvSectionBase.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz
 {
-	std::size_t SpirvSection::Append(const Raw& raw)
+	std::size_t SpirvSectionBase::AppendRaw(const Raw& raw)
 	{
 		std::size_t offset = GetOutputOffset();
 
@@ -30,7 +30,7 @@ namespace Nz
 					codepoint |= UInt32(ptr[pos]) << (j * 8);
 			}
 
-			Append(codepoint);
+			AppendRaw(codepoint);
 		}
 
 		return offset;

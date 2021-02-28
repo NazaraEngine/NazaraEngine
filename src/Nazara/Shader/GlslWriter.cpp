@@ -608,6 +608,18 @@ namespace Nz
 		Append(var.name);
 	}
 
+	void GlslWriter::Visit(ShaderNodes::ReturnStatement& node)
+	{
+		if (node.returnExpr)
+		{
+			Append("return ");
+			Visit(node.returnExpr);
+			Append(";");
+		}
+		else
+			Append("return;");
+	}
+
 	void GlslWriter::Visit(ShaderNodes::OutputVariable& var)
 	{
 		Append(var.name);

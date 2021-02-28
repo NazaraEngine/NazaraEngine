@@ -13,7 +13,7 @@ namespace Nz
 		conditionEntry.name = std::move(name);
 	}
 
-	void ShaderAst::AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters, ShaderNodes::BasicType returnType)
+	void ShaderAst::AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters, ShaderExpressionType returnType)
 	{
 		auto& functionEntry = m_functions.emplace_back();
 		functionEntry.name = std::move(name);

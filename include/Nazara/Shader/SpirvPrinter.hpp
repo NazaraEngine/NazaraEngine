@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <string>
+#include <vector>
 
 namespace Nz
 {
@@ -23,7 +24,9 @@ namespace Nz
 			SpirvPrinter(SpirvPrinter&&) = default;
 			~SpirvPrinter() = default;
 
+			inline std::string Print(const std::vector<UInt32>& codepoints);
 			inline std::string Print(const UInt32* codepoints, std::size_t count);
+			inline std::string Print(const std::vector<UInt32>& codepoints, const Settings& settings);
 			std::string Print(const UInt32* codepoints, std::size_t count, const Settings& settings);
 
 			SpirvPrinter& operator=(const SpirvPrinter&) = default;

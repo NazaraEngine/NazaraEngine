@@ -35,7 +35,7 @@ namespace Nz
 			~ShaderAst() = default;
 
 			void AddCondition(std::string name);
-			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderNodes::BasicType returnType = ShaderNodes::BasicType::Void);
+			void AddFunction(std::string name, ShaderNodes::StatementPtr statement, std::vector<FunctionParameter> parameters = {}, ShaderExpressionType returnType = ShaderNodes::BasicType::Void);
 			void AddInput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex = {});
 			void AddOutput(std::string name, ShaderExpressionType type, std::optional<std::size_t> locationIndex = {});
 			void AddStruct(std::string name, std::vector<StructMember> members);
@@ -85,7 +85,7 @@ namespace Nz
 			{
 				std::string name;
 				std::vector<FunctionParameter> parameters;
-				ShaderNodes::BasicType returnType;
+				ShaderExpressionType returnType;
 				ShaderNodes::StatementPtr statement;
 			};
 

@@ -194,7 +194,7 @@ namespace Nz::ShaderNodes
 	}
 
 
-	inline ShaderNodes::NoOp::NoOp() :
+	inline NoOp::NoOp() :
 	Statement(NodeType::NoOp)
 	{
 	}
@@ -202,6 +202,20 @@ namespace Nz::ShaderNodes
 	inline std::shared_ptr<NoOp> NoOp::Build()
 	{
 		return std::make_shared<NoOp>();
+	}
+
+
+	inline ReturnStatement::ReturnStatement() :
+	Statement(NodeType::ReturnStatement)
+	{
+	}
+
+	inline std::shared_ptr<ReturnStatement> ShaderNodes::ReturnStatement::Build(ExpressionPtr expr)
+	{
+		auto node = std::make_shared<ReturnStatement>();
+		node->returnExpr = std::move(expr);
+
+		return node;
 	}
 
 

@@ -91,6 +91,7 @@ namespace Nz::ShaderNodes
 		Identifier,
 		IntrinsicCall,
 		NoOp,
+		ReturnStatement,
 		Sample2D,
 		SwizzleOp,
 		StatementBlock,

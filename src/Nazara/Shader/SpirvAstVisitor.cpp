@@ -611,6 +611,14 @@ namespace Nz
 		// nothing to do
 	}
 
+	void SpirvAstVisitor::Visit(ShaderNodes::ReturnStatement& node)
+	{
+		if (node.returnExpr)
+			m_currentBlock->Append(SpirvOp::OpReturnValue, EvaluateExpression(node.returnExpr));
+		else
+			m_currentBlock->Append(SpirvOp::OpReturn);
+	}
+
 	void SpirvAstVisitor::Visit(ShaderNodes::Sample2D& node)
 	{
 		UInt32 typeId = m_writer.GetTypeId(ShaderNodes::BasicType::Float4);

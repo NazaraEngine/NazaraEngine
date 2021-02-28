@@ -349,6 +349,22 @@ namespace Nz
 		ShaderAstRecursiveVisitor::Visit(node);
 	}
 
+	void ShaderAstValidator::Visit(ShaderNodes::ReturnStatement& node)
+	{
+		if (m_context->currentFunction->returnType != ShaderExpressionType(ShaderNodes::BasicType::Void))
+		{
+			if (MandatoryExpr(node.returnExpr)->GetExpressionType() != m_context->currentFunction->returnType)
+				throw AstError{ "Return type doesn't match function return type" };
+		}
+		else
+		{
+			if (node.returnExpr)
+				throw AstError{ "Unexpected expression for return (function doesn't return)" };
+		}
+
+		ShaderAstRecursiveVisitor::Visit(node);
+	}
+
 	void ShaderAstValidator::Visit(ShaderNodes::Sample2D& node)
 	{
 		if (MandatoryExpr(node.sampler)->GetExpressionType() != ShaderExpressionType{ ShaderNodes::BasicType::Sampler2D })

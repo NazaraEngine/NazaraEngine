@@ -36,6 +36,7 @@ namespace Nz
 			using ShaderVarVisitor::Visit;
 			void Visit(ShaderNodes::InputVariable& var) override;
 			void Visit(ShaderNodes::LocalVariable& var) override;
+			void Visit(ShaderNodes::ParameterVariable& var) override;
 			void Visit(ShaderNodes::UniformVariable& var) override;
 
 			SpirvExpressionLoad& operator=(const SpirvExpressionLoad&) = delete;

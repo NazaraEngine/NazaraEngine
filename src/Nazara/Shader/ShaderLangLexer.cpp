@@ -103,7 +103,7 @@ namespace Nz::ShaderLang
 						break;
 					}
 
-					tokenType = TokenType::Subtract;
+					tokenType = TokenType::Minus;
 					break;
 				}
 
@@ -193,7 +193,7 @@ namespace Nz::ShaderLang
 
 						char* end;
 						double value = std::strtod(valueStr.c_str(), &end);
-						if (end != &str[currentPos])
+						if (end != &str[currentPos + 1])
 							throw BadNumber{};
 
 						token.data = value;
@@ -204,7 +204,7 @@ namespace Nz::ShaderLang
 
 						long long value;
 						std::from_chars_result r = std::from_chars(&str[start], &str[currentPos + 1], value);
-						if (r.ptr != &str[currentPos])
+						if (r.ptr != &str[currentPos + 1])
 						{
 							if (r.ec == std::errc::result_out_of_range)
 								throw NumberOutOfRange{};
@@ -218,7 +218,7 @@ namespace Nz::ShaderLang
 					break;
 				}
 
-				case '+': tokenType = TokenType::Add; break;
+				case '+': tokenType = TokenType::Plus; break;
 				case '*': tokenType = TokenType::Multiply; break;
 				case ':': tokenType = TokenType::Colon; break;
 				case ';': tokenType = TokenType::Semicolon; break;

@@ -83,6 +83,7 @@ namespace Nz
 			void Visit(ShaderNodes::LocalVariable& var) override;
 			void Visit(ShaderNodes::NoOp& node) override;
 			void Visit(ShaderNodes::ParameterVariable& var) override;
+			void Visit(ShaderNodes::ReturnStatement& node) override;
 			void Visit(ShaderNodes::OutputVariable& var) override;
 			void Visit(ShaderNodes::Sample2D& node) override;
 			void Visit(ShaderNodes::StatementBlock& node) override;
