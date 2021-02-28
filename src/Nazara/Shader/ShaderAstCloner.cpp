@@ -142,6 +142,11 @@ namespace Nz
 		PushStatement(ShaderNodes::NoOp::Build());
 	}
 
+	void ShaderAstCloner::Visit(ShaderNodes::ReturnStatement& node)
+	{
+		PushStatement(ShaderNodes::ReturnStatement::Build(CloneExpression(node.returnExpr)));
+	}
+
 	void ShaderAstCloner::Visit(ShaderNodes::Sample2D& node)
 	{
 		PushExpression(ShaderNodes::Sample2D::Build(CloneExpression(node.sampler), CloneExpression(node.coordinates)));

@@ -57,6 +57,8 @@ namespace Nz
 
 			void AppendHeader();
 
+			SpirvConstantCache::Function BuildFunctionType(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
+
 			UInt32 GetConstantId(const ShaderConstantValue& value) const;
 			UInt32 GetFunctionTypeId(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
 			const ExtVar& GetBuiltinVariable(ShaderNodes::BuiltinEntry builtin) const;
@@ -72,6 +74,8 @@ namespace Nz
 			std::optional<UInt32> ReadInputVariable(const std::string& name, OnlyCache);
 			UInt32 ReadLocalVariable(const std::string& name);
 			std::optional<UInt32> ReadLocalVariable(const std::string& name, OnlyCache);
+			UInt32 ReadParameterVariable(const std::string& name);
+			std::optional<UInt32> ReadParameterVariable(const std::string& name, OnlyCache);
 			UInt32 ReadUniformVariable(const std::string& name);
 			std::optional<UInt32> ReadUniformVariable(const std::string& name, OnlyCache);
 			UInt32 ReadVariable(ExtVar& var);
@@ -89,8 +93,8 @@ namespace Nz
 			struct Context
 			{
 				const ShaderAst* shader = nullptr;
-				const ShaderAst::Function* currentFunction = nullptr;
 				const States* states = nullptr;
+				std::vector<SpirvBlock> functionBlocks;
 			};
 
 			struct ExtVar

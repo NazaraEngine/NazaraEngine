@@ -18,6 +18,7 @@ namespace Nz
 
 		template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 	}
+
 	struct SpirvConstantCache::Eq
 	{
 		bool Compare(const ConstantBool& lhs, const ConstantBool& rhs) const
@@ -351,6 +352,12 @@ namespace Nz
 			{
 				return Register(arg);
 			}, v);
+		}
+
+		void Register(const std::vector<TypePtr>& lhs)
+		{
+			for (std::size_t i = 0; i < lhs.size(); ++i)
+				cache.Register(*lhs[i]);
 		}
 
 		template<typename T>

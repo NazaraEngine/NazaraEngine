@@ -95,6 +95,12 @@ namespace Nz
 		/* Nothing to do */
 	}
 
+	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ReturnStatement& node)
+	{
+		if (node.returnExpr)
+			Visit(node.returnExpr);
+	}
+
 	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Sample2D& node)
 	{
 		Visit(node.sampler);
