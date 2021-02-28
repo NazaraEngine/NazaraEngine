@@ -78,6 +78,11 @@ namespace Nz
 		throw std::runtime_error("unhandled NoOp node");
 	}
 
+	void ShaderAstVisitorExcept::Visit(ShaderNodes::ReturnStatement& node)
+	{
+		throw std::runtime_error("unhandled ReturnStatement node");
+	}
+
 	void ShaderAstVisitorExcept::Visit(ShaderNodes::Sample2D& /*node*/)
 	{
 		throw std::runtime_error("unhandled Sample2D node");

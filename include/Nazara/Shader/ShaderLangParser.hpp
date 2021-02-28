@@ -10,10 +10,23 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
+#include <Nazara/Shader/ShaderAst.hpp>
 
 namespace Nz::ShaderLang
 {
 	class ExpectedToken : public std::exception
+	{
+		public:
+			using exception::exception;
+	};
+
+	class ReservedKeyword : public std::exception
+	{
+		public:
+			using exception::exception;
+	};
+
+	class UnknownType : public std::exception
 	{
 		public:
 			using exception::exception;
@@ -31,19 +44,39 @@ namespace Nz::ShaderLang
 			inline Parser();
 			~Parser() = default;
 
-			void Parse(const std::vector<Token>& tokens);
+			ShaderAst Parse(const std::vector<Token>& tokens);
 
 		private:
+			// Flow control
 			const Token& Advance();
 			void Expect(const Token& token, TokenType type);
-			void ExpectNext(TokenType type);
-			void ParseFunctionBody();
-			void ParseFunctionDeclaration();
-			void ParseFunctionParameter();
+			const Token& ExpectNext(TokenType type);
 			const Token& PeekNext();
+
+			// Statements
+			ShaderNodes::StatementPtr ParseFunctionBody();
+			void ParseFunctionDeclaration();
+			ShaderAst::FunctionParameter ParseFunctionParameter();
+			ShaderNodes::StatementPtr ParseReturnStatement();
+			ShaderNodes::StatementPtr ParseStatement();
+			ShaderNodes::StatementPtr ParseStatementList();
+
+			// Expressions
+			ShaderNodes::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderNodes::ExpressionPtr lhs);
+			ShaderNodes::ExpressionPtr ParseExpression();
+			ShaderNodes::ExpressionPtr ParseIdentifier();
+			ShaderNodes::ExpressionPtr ParseIntegerExpression();
+			ShaderNodes::ExpressionPtr ParseParenthesisExpression();
+			ShaderNodes::ExpressionPtr ParsePrimaryExpression();
+
+			std::string ParseIdentifierAsName();
+			ShaderExpressionType ParseIdentifierAsType();
+
+			static int GetTokenPrecedence(TokenType token);
 
 			struct Context
 			{
+				ShaderAst result;
 				std::size_t tokenCount;
 				std::size_t tokenIndex = 0;
 				const Token* tokens;

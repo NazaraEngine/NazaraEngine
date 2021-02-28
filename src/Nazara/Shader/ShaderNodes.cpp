@@ -69,6 +69,11 @@ namespace Nz::ShaderNodes
 		visitor.Visit(*this);
 	}
 
+	void ReturnStatement::Visit(ShaderAstVisitor& visitor)
+	{
+		visitor.Visit(*this);
+	}
+
 	ShaderExpressionType AssignOp::GetExpressionType() const
 	{
 		return left->GetExpressionType();

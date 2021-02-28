@@ -168,6 +168,17 @@ namespace Nz
 			static inline std::shared_ptr<NoOp> Build();
 		};
 
+		struct NAZARA_SHADER_API ReturnStatement : public Statement
+		{
+			inline ReturnStatement();
+
+			void Visit(ShaderAstVisitor& visitor) override;
+
+			ExpressionPtr returnExpr;
+
+			static inline std::shared_ptr<ReturnStatement> Build(ExpressionPtr expr = nullptr);
+		};
+
 		//////////////////////////////////////////////////////////////////////////
 
 		struct NAZARA_SHADER_API AssignOp : public Expression

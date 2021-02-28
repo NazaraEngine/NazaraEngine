@@ -92,6 +92,11 @@ namespace Nz
 					Serialize(node);
 				}
 
+				void Visit(ShaderNodes::ReturnStatement& node) override
+				{
+					Serialize(node);
+				}
+
 				void Visit(ShaderNodes::Sample2D& node) override
 				{
 					Serialize(node);
@@ -286,6 +291,11 @@ namespace Nz
 		/* Nothing to do */
 	}
 
+	void ShaderAstSerializerBase::Serialize(ShaderNodes::ReturnStatement& node)
+	{
+		Node(node.returnExpr);
+	}
+
 	void ShaderAstSerializerBase::Serialize(ShaderNodes::Sample2D& node)
 	{
 		Node(node.sampler);
@@ -391,7 +401,8 @@ namespace Nz
 		m_stream << UInt32(shader.GetFunctionCount());
 		for (const auto& func : shader.GetFunctions())
 		{
-			m_stream << func.name << UInt32(func.returnType);
+			m_stream << func.name;
+			SerializeType(func.returnType);
 
 			m_stream << UInt32(func.parameters.size());
 			for (const auto& param : func.parameters)
@@ -634,11 +645,12 @@ namespace Nz
 		for (UInt32 i = 0; i < funcCount; ++i)
 		{
 			std::string name;
-			ShaderNodes::BasicType retType;
+			ShaderExpressionType retType;
 			std::vector<ShaderAst::FunctionParameter> parameters;
 
 			Value(name);
-			Enum(retType);
+			Type(retType);
+
 			Container(parameters);
 			for (auto& param : parameters)
 			{
@@ -653,7 +665,7 @@ namespace Nz
 
 			ShaderNodes::StatementPtr statement = std::static_pointer_cast<ShaderNodes::Statement>(node);
 
-			shader.AddFunction(std::move(name), std::move(statement), std::move(parameters), retType);
+			shader.AddFunction(std::move(name), std::move(statement), std::move(parameters), std::move(retType));
 		}
 
 		return shader;
@@ -693,6 +705,7 @@ namespace Nz
 			HandleType(Identifier);
 			HandleType(IntrinsicCall);
 			HandleType(NoOp);
+			HandleType(ReturnStatement);
 			HandleType(Sample2D);
 			HandleType(SwizzleOp);
 			HandleType(StatementBlock);

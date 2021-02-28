@@ -48,6 +48,7 @@ namespace Nz
 			void Visit(ShaderNodes::Identifier& node) override;
 			void Visit(ShaderNodes::IntrinsicCall& node) override;
 			void Visit(ShaderNodes::NoOp& node) override;
+			void Visit(ShaderNodes::ReturnStatement& node) override;
 			void Visit(ShaderNodes::Sample2D& node) override;
 			void Visit(ShaderNodes::StatementBlock& node) override;
 			void Visit(ShaderNodes::SwizzleOp& node) override;

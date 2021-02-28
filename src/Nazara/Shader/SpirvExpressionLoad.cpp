@@ -109,6 +109,11 @@ namespace Nz
 		m_value = Value{ m_writer.ReadLocalVariable(var.name) };
 	}
 
+	void SpirvExpressionLoad::Visit(ShaderNodes::ParameterVariable& var)
+	{
+		m_value = Value{ m_writer.ReadParameterVariable(var.name) };
+	}
+
 	void SpirvExpressionLoad::Visit(ShaderNodes::UniformVariable& var)
 	{
 		auto uniformVar = m_writer.GetUniformVariable(var.name);
