@@ -5,69 +5,65 @@
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	ShaderNodes::ExpressionCategory ShaderAstValueCategory::GetExpressionCategory(const ShaderNodes::ExpressionPtr& expression)
+	ExpressionCategory ShaderAstValueCategory::GetExpressionCategory(Expression& expression)
 	{
-		Visit(expression);
+		expression.Visit(*this);
 		return m_expressionCategory;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::AccessMember& node)
+	void ShaderAstValueCategory::Visit(AccessMemberExpression& node)
 	{
-		Visit(node.structExpr);
+		node.structExpr->Visit(*this);
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::AssignOp& node)
+	void ShaderAstValueCategory::Visit(AssignExpression& /*node*/)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
+		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::BinaryOp& node)
+	void ShaderAstValueCategory::Visit(BinaryExpression& /*node*/)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
+		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::Cast& node)
+	void ShaderAstValueCategory::Visit(CastExpression& /*node*/)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
+		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::ConditionalExpression& node)
+	void ShaderAstValueCategory::Visit(ConditionalExpression& node)
 	{
-		Visit(node.truePath);
-		ShaderNodes::ExpressionCategory trueExprCategory = m_expressionCategory;
-		Visit(node.falsePath);
-		ShaderNodes::ExpressionCategory falseExprCategory = m_expressionCategory;
+		node.truePath->Visit(*this);
+		ExpressionCategory trueExprCategory = m_expressionCategory;
 
-		if (trueExprCategory == ShaderNodes::ExpressionCategory::RValue || falseExprCategory == ShaderNodes::ExpressionCategory::RValue)
-			m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
+		node.falsePath->Visit(*this);
+		ExpressionCategory falseExprCategory = m_expressionCategory;
+
+		if (trueExprCategory == ExpressionCategory::RValue || falseExprCategory == ExpressionCategory::RValue)
+			m_expressionCategory = ExpressionCategory::RValue;
 		else
-			m_expressionCategory = ShaderNodes::ExpressionCategory::LValue;
+			m_expressionCategory = ExpressionCategory::LValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::Constant& node)
+	void ShaderAstValueCategory::Visit(ConstantExpression& /*node*/)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
+		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::Identifier& node)
+	void ShaderAstValueCategory::Visit(IdentifierExpression& /*node*/)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::LValue;
+		m_expressionCategory = ExpressionCategory::LValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::IntrinsicCall& node)
+	void ShaderAstValueCategory::Visit(IntrinsicExpression& /*node*/)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
+		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ShaderNodes::Sample2D& node)
+	void ShaderAstValueCategory::Visit(SwizzleExpression& node)
 	{
-		m_expressionCategory = ShaderNodes::ExpressionCategory::RValue;
-	}
-
-	void ShaderAstValueCategory::Visit(ShaderNodes::SwizzleOp& node)
-	{
-		Visit(node.expression);
+		node.expression->Visit(*this);
 	}
 }

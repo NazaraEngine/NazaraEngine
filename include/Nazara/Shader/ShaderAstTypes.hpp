@@ -4,17 +4,30 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_EXPRESSIONTYPE_HPP
-#define NAZARA_SHADER_EXPRESSIONTYPE_HPP
+#ifndef NAZARA_SHADER_ASTTYPES_HPP
+#define NAZARA_SHADER_ASTTYPES_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
 #include <string>
 #include <variant>
+#include <vector>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	using ShaderExpressionType = std::variant<ShaderNodes::BasicType, std::string>;
+	using ShaderExpressionType = std::variant<BasicType, std::string>;
+
+	struct StructDescription
+	{
+		struct StructMember
+		{
+			std::string name;
+			ShaderExpressionType type;
+		};
+
+		std::string name;
+		std::vector<StructMember> members;
+	};
 
 	inline bool IsBasicType(const ShaderExpressionType& type);
 	inline bool IsMatrixType(const ShaderExpressionType& type);
@@ -22,6 +35,6 @@ namespace Nz
 	inline bool IsStructType(const ShaderExpressionType& type);
 }
 
-#include <Nazara/Shader/ShaderExpressionType.inl>
+#include <Nazara/Shader/ShaderAstTypes.inl>
 
-#endif // NAZARA_SHADER_EXPRESSIONTYPE_HPP
+#endif // NAZARA_SHADER_ASTTYPES_HPP

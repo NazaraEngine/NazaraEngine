@@ -7,45 +7,87 @@
 
 namespace Nz::ShaderBuilder
 {
+	inline std::unique_ptr<ShaderAst::BinaryExpression> Impl::Binary::operator()(ShaderAst::BinaryType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const
+	{
+		auto constantNode = std::make_unique<ShaderAst::BinaryExpression>();
+		constantNode->op = op;
+		constantNode->left = std::move(left);
+		constantNode->right = std::move(right);
+
+		return constantNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr truePath, ShaderAst::StatementPtr falsePath) const
+	{
+		auto branchNode = std::make_unique<ShaderAst::BranchStatement>();
+
+		auto& condStatement = branchNode->condStatements.emplace_back();
+		condStatement.condition = std::move(condition);
+		condStatement.statement = std::move(truePath);
+
+		branchNode->elseStatement = std::move(falsePath);
+
+		return branchNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch::operator()(std::vector<ShaderAst::BranchStatement::ConditionalStatement> condStatements, ShaderAst::StatementPtr elseStatement) const
+	{
+		auto branchNode = std::make_unique<ShaderAst::BranchStatement>();
+		branchNode->condStatements = std::move(condStatements);
+		branchNode->elseStatement = std::move(elseStatement);
+
+		return branchNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::ConstantExpression> Impl::Constant::operator()(ShaderConstantValue value) const
+	{
+		auto constantNode = std::make_unique<ShaderAst::ConstantExpression>();
+		constantNode->value = std::move(value);
+
+		return constantNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType) const
+	{
+		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
+		declareFunctionNode->name = std::move(name);
+		declareFunctionNode->parameters = std::move(parameters);
+		declareFunctionNode->returnType = std::move(returnType);
+		declareFunctionNode->statements = std::move(statements);
+
+		return declareFunctionNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareVariableStatement> Nz::ShaderBuilder::Impl::DeclareVariable::operator()(std::string name, ShaderAst::ShaderExpressionType type, ShaderAst::ExpressionPtr initialValue) const
+	{
+		auto declareVariableNode = std::make_unique<ShaderAst::DeclareVariableStatement>();
+		declareVariableNode->varName = std::move(name);
+		declareVariableNode->varType = std::move(type);
+		declareVariableNode->initialExpression = std::move(initialValue);
+
+		return declareVariableNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::IdentifierExpression> Impl::Identifier::operator()(std::string name) const
+	{
+		auto identifierNode = std::make_unique<ShaderAst::IdentifierExpression>();
+		identifierNode->identifier = std::move(name);
+
+		return identifierNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::ReturnStatement> Impl::Return::operator()(ShaderAst::ExpressionPtr expr) const
+	{
+		auto returnNode = std::make_unique<ShaderAst::ReturnStatement>();
+		returnNode->returnExpr = std::move(expr);
+
+		return returnNode;
+	}
+
 	template<typename T>
-	template<typename... Args>
-	std::shared_ptr<T> GenBuilder<T>::operator()(Args&&... args) const
+	std::unique_ptr<T> Impl::NoParam<T>::operator()() const
 	{
-		return T::Build(std::forward<Args>(args)...);
-	}
-
-	template<ShaderNodes::AssignType op>
-	std::shared_ptr<ShaderNodes::AssignOp> AssignOpBuilder<op>::operator()(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right) const
-	{
-		return ShaderNodes::AssignOp::Build(op, left, right);
-	}
-
-	template<ShaderNodes::BinaryType op>
-	std::shared_ptr<ShaderNodes::BinaryOp> BinOpBuilder<op>::operator()(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right) const
-	{
-		return ShaderNodes::BinaryOp::Build(op, left, right);
-	}
-
-	inline std::shared_ptr<ShaderNodes::Variable> BuiltinBuilder::operator()(ShaderNodes::BuiltinEntry builtin) const
-	{
-		ShaderNodes::BasicType exprType = ShaderNodes::BasicType::Void;
-
-		switch (builtin)
-		{
-			case ShaderNodes::BuiltinEntry::VertexPosition:
-				exprType = ShaderNodes::BasicType::Float4;
-				break;
-		}
-
-		NazaraAssert(exprType != ShaderNodes::BasicType::Void, "Unhandled builtin");
-
-		return ShaderNodes::BuiltinVariable::Build(builtin, exprType);
-	}
-
-	template<ShaderNodes::BasicType Type, typename... Args>
-	std::shared_ptr<ShaderNodes::Cast> Cast(Args&&... args)
-	{
-		return ShaderNodes::Cast::Build(Type, std::forward<Args>(args)...);
+		return std::make_unique<T>();
 	}
 }
 

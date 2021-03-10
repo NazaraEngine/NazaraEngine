@@ -9,8 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstVisitorExcept.hpp>
-#include <Nazara/Shader/ShaderVarVisitorExcept.hpp>
+#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <vector>
 
@@ -19,7 +18,7 @@ namespace Nz
 	class SpirvBlock;
 	class SpirvWriter;
 
-	class NAZARA_SHADER_API SpirvExpressionLoad : public ShaderAstVisitorExcept, public ShaderVarVisitorExcept
+	class NAZARA_SHADER_API SpirvExpressionLoad : public ShaderAst::ExpressionVisitorExcept
 	{
 		public:
 			inline SpirvExpressionLoad(SpirvWriter& writer, SpirvBlock& block);
@@ -27,17 +26,11 @@ namespace Nz
 			SpirvExpressionLoad(SpirvExpressionLoad&&) = delete;
 			~SpirvExpressionLoad() = default;
 
-			UInt32 Evaluate(ShaderNodes::Expression& node);
+			UInt32 Evaluate(ShaderAst::Expression& node);
 
-			using ShaderAstVisitor::Visit;
-			void Visit(ShaderNodes::AccessMember& node) override;
-			void Visit(ShaderNodes::Identifier& node) override;
-
-			using ShaderVarVisitor::Visit;
-			void Visit(ShaderNodes::InputVariable& var) override;
-			void Visit(ShaderNodes::LocalVariable& var) override;
-			void Visit(ShaderNodes::ParameterVariable& var) override;
-			void Visit(ShaderNodes::UniformVariable& var) override;
+			using ExpressionVisitorExcept::Visit;
+			//void Visit(ShaderAst::AccessMemberExpression& node) override;
+			void Visit(ShaderAst::IdentifierExpression& node) override;
 
 			SpirvExpressionLoad& operator=(const SpirvExpressionLoad&) = delete;
 			SpirvExpressionLoad& operator=(SpirvExpressionLoad&&) = delete;

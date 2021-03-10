@@ -15,9 +15,9 @@ namespace Nz
 		template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 	}
 
-	void SpirvExpressionStore::Store(const ShaderNodes::ExpressionPtr& node, UInt32 resultId)
+	void SpirvExpressionStore::Store(ShaderAst::ExpressionPtr& node, UInt32 resultId)
 	{
-		Visit(node);
+		node->Visit(*this);
 		
 		std::visit(overloaded
 		{
@@ -36,7 +36,7 @@ namespace Nz
 		}, m_value);
 	}
 
-	void SpirvExpressionStore::Visit(ShaderNodes::AccessMember& node)
+	/*void SpirvExpressionStore::Visit(ShaderAst::AccessMemberExpression& node)
 	{
 		Visit(node.structExpr);
 
@@ -70,34 +70,15 @@ namespace Nz
 				throw std::runtime_error("an internal error occurred");
 			}
 		}, m_value);
-	}
+	}*/
 
-	void SpirvExpressionStore::Visit(ShaderNodes::Identifier& node)
+	void SpirvExpressionStore::Visit(ShaderAst::IdentifierExpression& node)
 	{
-		Visit(node.var);
+		m_value = LocalVar{ node.identifier };
 	}
 
-	void SpirvExpressionStore::Visit(ShaderNodes::SwizzleOp& node)
+	void SpirvExpressionStore::Visit(ShaderAst::SwizzleExpression& node)
 	{
 		throw std::runtime_error("not yet implemented");
-	}
-
-	void SpirvExpressionStore::Visit(ShaderNodes::BuiltinVariable& var)
-	{
-		const auto& outputVar = m_writer.GetBuiltinVariable(var.entry);
-
-		m_value = Pointer{ SpirvStorageClass::Output, outputVar.varId };
-	}
-
-	void SpirvExpressionStore::Visit(ShaderNodes::LocalVariable& var)
-	{
-		m_value = LocalVar{ var.name };
-	}
-
-	void SpirvExpressionStore::Visit(ShaderNodes::OutputVariable& var)
-	{
-		const auto& outputVar = m_writer.GetOutputVariable(var.name);
-
-		m_value = Pointer{ SpirvStorageClass::Output, outputVar.varId };
 	}
 }

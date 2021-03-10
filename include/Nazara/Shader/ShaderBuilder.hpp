@@ -13,70 +13,60 @@
 
 namespace Nz::ShaderBuilder
 {
-	template<ShaderNodes::AssignType op>
-	struct AssignOpBuilder
+	namespace Impl
 	{
-		constexpr AssignOpBuilder() = default;
+		struct Binary
+		{
+			inline std::unique_ptr<ShaderAst::BinaryExpression> operator()(ShaderAst::BinaryType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const;
+		};
 
-		std::shared_ptr<ShaderNodes::AssignOp> operator()(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right) const;
-	};
+		struct Branch
+		{
+			inline std::unique_ptr<ShaderAst::BranchStatement> operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr truePath, ShaderAst::StatementPtr falsePath = nullptr) const;
+			inline std::unique_ptr<ShaderAst::BranchStatement> operator()(std::vector<ShaderAst::BranchStatement::ConditionalStatement> condStatements, ShaderAst::StatementPtr elseStatement = nullptr) const;
+		};
 
-	template<ShaderNodes::BinaryType op>
-	struct BinOpBuilder
-	{
-		constexpr BinOpBuilder() = default;
+		struct Constant
+		{
+			inline std::unique_ptr<ShaderAst::ConstantExpression> operator()(ShaderConstantValue value) const;
+		};
 
-		std::shared_ptr<ShaderNodes::BinaryOp> operator()(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right) const;
-	};
+		struct DeclareFunction
+		{
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void) const;
+		};
 
-	struct BuiltinBuilder
-	{
-		constexpr BuiltinBuilder() = default;
+		struct DeclareVariable
+		{
+			inline std::unique_ptr<ShaderAst::DeclareVariableStatement> operator()(std::string name, ShaderAst::ShaderExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
+		};
 
-		inline std::shared_ptr<ShaderNodes::Variable> operator()(ShaderNodes::BuiltinEntry builtin) const;
-	};
+		struct Identifier
+		{
+			inline std::unique_ptr<ShaderAst::IdentifierExpression> operator()(std::string name) const;
+		};
 
-	template<typename T>
-	struct GenBuilder
-	{
-		constexpr GenBuilder() = default;
+		struct Return
+		{
+			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
+		};
 
-		template<typename... Args> std::shared_ptr<T> operator()(Args&&... args) const;
-	};
+		template<typename T>
+		struct NoParam
+		{
+			std::unique_ptr<T> operator()() const;
+		};
+	}
 
-	constexpr GenBuilder<ShaderNodes::AccessMember> AccessMember;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Add> Add;
-	constexpr AssignOpBuilder<ShaderNodes::AssignType::Simple> Assign;
-	constexpr BuiltinBuilder Builtin;
-	constexpr GenBuilder<ShaderNodes::StatementBlock> Block;
-	constexpr GenBuilder<ShaderNodes::Branch> Branch;
-	constexpr GenBuilder<ShaderNodes::ConditionalExpression> ConditionalExpression;
-	constexpr GenBuilder<ShaderNodes::ConditionalStatement> ConditionalStatement;
-	constexpr GenBuilder<ShaderNodes::Constant> Constant;
-	constexpr GenBuilder<ShaderNodes::DeclareVariable> DeclareVariable;
-	constexpr GenBuilder<ShaderNodes::Discard> Discard;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Divide> Division;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompEq> Equal;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompGt> GreaterThan;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompGe> GreaterThanOrEqual;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompLt> LessThan;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompLe> LessThanOrEqual;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::CompNe> NotEqual;
-	constexpr GenBuilder<ShaderNodes::ExpressionStatement> ExprStatement;
-	constexpr GenBuilder<ShaderNodes::Identifier> Identifier;
-	constexpr GenBuilder<ShaderNodes::IntrinsicCall> IntrinsicCall;
-	constexpr GenBuilder<ShaderNodes::InputVariable> Input;
-	constexpr GenBuilder<ShaderNodes::LocalVariable> Local;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Multiply> Multiply;
-	constexpr GenBuilder<ShaderNodes::OutputVariable> Output;
-	constexpr GenBuilder<ShaderNodes::ParameterVariable> Parameter;
-	constexpr GenBuilder<ShaderNodes::Sample2D> Sample2D;
-	constexpr GenBuilder<ShaderNodes::StatementBlock> StatementBlock;
-	constexpr GenBuilder<ShaderNodes::SwizzleOp> Swizzle;
-	constexpr BinOpBuilder<ShaderNodes::BinaryType::Subtract> Subtract;
-	constexpr GenBuilder<ShaderNodes::UniformVariable> Uniform;
-
-	template<ShaderNodes::BasicType Type, typename... Args> std::shared_ptr<ShaderNodes::Cast> Cast(Args&&... args);
+	constexpr Impl::Binary Binary;
+	constexpr Impl::Branch Branch;
+	constexpr Impl::Constant Constant;
+	constexpr Impl::DeclareFunction DeclareFunction;
+	constexpr Impl::DeclareVariable DeclareVariable;
+	constexpr Impl::NoParam<ShaderAst::DiscardStatement> Discard;
+	constexpr Impl::Identifier Identifier;
+	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
+	constexpr Impl::Return Return;
 }
 
 #include <Nazara/Shader/ShaderBuilder.inl>

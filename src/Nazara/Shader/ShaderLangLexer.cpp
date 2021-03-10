@@ -42,6 +42,7 @@ namespace Nz::ShaderLang
 		std::unordered_map<std::string, TokenType> reservedKeywords = {
 			{ "false",  TokenType::BoolFalse },
 			{ "fn",     TokenType::FunctionDeclaration },
+			{ "let",    TokenType::Let },
 			{ "return", TokenType::Return },
 			{ "true",   TokenType::BoolTrue }
 		};
@@ -143,7 +144,7 @@ namespace Nz::ShaderLang
 						while (next != -1);
 					}
 					else
-						tokenType == TokenType::Divide;
+						tokenType = TokenType::Divide;
 
 					break;
 				}
@@ -191,9 +192,11 @@ namespace Nz::ShaderLang
 
 						std::string valueStr(str.substr(start, currentPos - start + 1));
 
+						const char* ptr = valueStr.c_str();
+
 						char* end;
-						double value = std::strtod(valueStr.c_str(), &end);
-						if (end != &str[currentPos + 1])
+						double value = std::strtod(ptr, &end);
+						if (end != &ptr[valueStr.size()])
 							throw BadNumber{};
 
 						token.data = value;
@@ -218,6 +221,7 @@ namespace Nz::ShaderLang
 					break;
 				}
 
+				case '=': tokenType = TokenType::Assign; break;
 				case '+': tokenType = TokenType::Plus; break;
 				case '*': tokenType = TokenType::Multiply; break;
 				case ':': tokenType = TokenType::Colon; break;
