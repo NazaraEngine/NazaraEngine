@@ -167,8 +167,8 @@ namespace Nz
 		auto& fragmentShader = settings.shaders[UnderlyingCast(ShaderStageType::Fragment)];
 		auto& vertexShader = settings.shaders[UnderlyingCast(ShaderStageType::Vertex)];
 
-		fragmentShader = std::make_shared<UberShader>(UnserializeShader(r_fragmentShader, sizeof(r_fragmentShader)));
-		vertexShader = std::make_shared<UberShader>(UnserializeShader(r_vertexShader, sizeof(r_vertexShader)));
+		fragmentShader = std::make_shared<UberShader>(ShaderAst::UnserializeShader(r_fragmentShader, sizeof(r_fragmentShader)));
+		vertexShader = std::make_shared<UberShader>(ShaderAst::UnserializeShader(r_vertexShader, sizeof(r_vertexShader)));
 
 		// Conditions
 

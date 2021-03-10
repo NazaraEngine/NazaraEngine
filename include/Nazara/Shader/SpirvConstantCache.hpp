@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderExpressionType.hpp>
+#include <Nazara/Shader/ShaderAstTypes.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <memory>
 #include <optional>
@@ -20,7 +20,6 @@
 
 namespace Nz
 {
-	class ShaderAst;
 	class SpirvSection;
 
 	class NAZARA_SHADER_API SpirvConstantCache
@@ -173,10 +172,10 @@ namespace Nz
 			SpirvConstantCache& operator=(SpirvConstantCache&& cache) noexcept;
 
 			static ConstantPtr BuildConstant(const ShaderConstantValue& value);
-			static TypePtr BuildPointerType(const ShaderNodes::BasicType& type, SpirvStorageClass storageClass);
-			static TypePtr BuildPointerType(const ShaderAst& shader, const ShaderExpressionType& type, SpirvStorageClass storageClass);
-			static TypePtr BuildType(const ShaderNodes::BasicType& type);
-			static TypePtr BuildType(const ShaderAst& shader, const ShaderExpressionType& type);
+			static TypePtr BuildPointerType(const ShaderAst::BasicType& type, SpirvStorageClass storageClass);
+			static TypePtr BuildPointerType(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass);
+			static TypePtr BuildType(const ShaderAst::BasicType& type);
+			static TypePtr BuildType(const ShaderAst::ShaderExpressionType& type);
 
 		private:
 			struct DepRegisterer;

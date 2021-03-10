@@ -16,7 +16,7 @@ namespace Nz
 		template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 	}
 
-	UInt32 SpirvExpressionLoad::Evaluate(ShaderNodes::Expression& node)
+	UInt32 SpirvExpressionLoad::Evaluate(ShaderAst::Expression& node)
 	{
 		node.Visit(*this);
 
@@ -41,7 +41,7 @@ namespace Nz
 		}, m_value);
 	}
 
-	void SpirvExpressionLoad::Visit(ShaderNodes::AccessMember& node)
+	/*void SpirvExpressionLoad::Visit(ShaderAst::AccessMemberExpression& node)
 	{
 		Visit(node.structExpr);
 
@@ -49,6 +49,8 @@ namespace Nz
 		{
 			[&](const Pointer& pointer)
 			{
+				ShaderAst::ShaderExpressionType exprType = GetExpressionType(node.structExpr);
+
 				UInt32 resultId = m_writer.AllocateResultId();
 				UInt32 pointerType = m_writer.RegisterPointerType(node.exprType, pointer.storage); //< FIXME
 				UInt32 typeId = m_writer.GetTypeId(node.exprType);
@@ -87,40 +89,15 @@ namespace Nz
 				throw std::runtime_error("an internal error occurred");
 			}
 		}, m_value);
-	}
+	}*/
 
-	void SpirvExpressionLoad::Visit(ShaderNodes::Identifier& node)
+	void SpirvExpressionLoad::Visit(ShaderAst::IdentifierExpression& node)
 	{
-		Visit(node.var);
-	}
-
-	void SpirvExpressionLoad::Visit(ShaderNodes::InputVariable& var)
-	{
-		auto inputVar = m_writer.GetInputVariable(var.name);
-
-		if (auto resultIdOpt = m_writer.ReadVariable(inputVar, SpirvWriter::OnlyCache{}))
-			m_value = Value{ *resultIdOpt };
+		if (node.identifier == "d")
+			m_value = Value{ m_writer.ReadLocalVariable(node.identifier) };
 		else
-			m_value = Pointer{ SpirvStorageClass::Input, inputVar.varId, inputVar.typeId };
-	}
+			m_value = Value{ m_writer.ReadParameterVariable(node.identifier) };
 
-	void SpirvExpressionLoad::Visit(ShaderNodes::LocalVariable& var)
-	{
-		m_value = Value{ m_writer.ReadLocalVariable(var.name) };
-	}
-
-	void SpirvExpressionLoad::Visit(ShaderNodes::ParameterVariable& var)
-	{
-		m_value = Value{ m_writer.ReadParameterVariable(var.name) };
-	}
-
-	void SpirvExpressionLoad::Visit(ShaderNodes::UniformVariable& var)
-	{
-		auto uniformVar = m_writer.GetUniformVariable(var.name);
-
-		if (auto resultIdOpt = m_writer.ReadVariable(uniformVar, SpirvWriter::OnlyCache{}))
-			m_value = Value{ *resultIdOpt };
-		else
-			m_value = Pointer{ SpirvStorageClass::Uniform, uniformVar.varId, uniformVar.typeId };
+		//Visit(node.var);
 	}
 }

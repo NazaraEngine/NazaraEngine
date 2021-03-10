@@ -12,35 +12,32 @@
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <vector>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	class ShaderAst;
-
-	class NAZARA_SHADER_API ShaderAstOptimizer : public ShaderAstCloner
+	class NAZARA_SHADER_API AstOptimizer : public AstCloner
 	{
 		public:
-			ShaderAstOptimizer() = default;
-			ShaderAstOptimizer(const ShaderAstOptimizer&) = delete;
-			ShaderAstOptimizer(ShaderAstOptimizer&&) = delete;
-			~ShaderAstOptimizer() = default;
+			AstOptimizer() = default;
+			AstOptimizer(const AstOptimizer&) = delete;
+			AstOptimizer(AstOptimizer&&) = delete;
+			~AstOptimizer() = default;
 
-			ShaderNodes::StatementPtr Optimise(const ShaderNodes::StatementPtr& statement);
-			ShaderNodes::StatementPtr Optimise(const ShaderNodes::StatementPtr& statement, const ShaderAst& shader, UInt64 enabledConditions);
+			StatementPtr Optimise(StatementPtr& statement);
+			StatementPtr Optimise(StatementPtr& statement, UInt64 enabledConditions);
 
-			ShaderAstOptimizer& operator=(const ShaderAstOptimizer&) = delete;
-			ShaderAstOptimizer& operator=(ShaderAstOptimizer&&) = delete;
+			AstOptimizer& operator=(const AstOptimizer&) = delete;
+			AstOptimizer& operator=(AstOptimizer&&) = delete;
 
 		protected:
-			using ShaderAstCloner::Visit;
-			void Visit(ShaderNodes::BinaryOp& node) override;
-			void Visit(ShaderNodes::Branch& node) override;
-			void Visit(ShaderNodes::ConditionalExpression& node) override;
-			void Visit(ShaderNodes::ConditionalStatement& node) override;
+			using AstCloner::Visit;
+			void Visit(BinaryExpression& node) override;
+			void Visit(ConditionalExpression& node) override;
+			void Visit(BranchStatement& node) override;
+			void Visit(ConditionalStatement& node) override;
 
-			template<ShaderNodes::BinaryType Type> void PropagateConstant(const std::shared_ptr<ShaderNodes::Constant>& lhs, const std::shared_ptr<ShaderNodes::Constant>& rhs);
+			template<BinaryType Type> void PropagateConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs);
 
 		private:
-			const ShaderAst* m_shaderAst;
 			UInt64 m_enabledConditions;
 	};
 }

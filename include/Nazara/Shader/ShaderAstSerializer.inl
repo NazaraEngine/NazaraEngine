@@ -5,10 +5,10 @@
 #include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
 	template<typename T>
-	void ShaderAstSerializerBase::Container(T& container)
+	void AstSerializerBase::Container(T& container)
 	{
 		bool isWriting = IsWriting();
 
@@ -23,7 +23,7 @@ namespace Nz
 
 
 	template<typename T>
-	void ShaderAstSerializerBase::Enum(T& enumVal)
+	void AstSerializerBase::Enum(T& enumVal)
 	{
 		bool isWriting = IsWriting();
 
@@ -37,7 +37,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void ShaderAstSerializerBase::OptEnum(std::optional<T>& optVal)
+	void AstSerializerBase::OptEnum(std::optional<T>& optVal)
 	{
 		bool isWriting = IsWriting();
 
@@ -55,7 +55,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void ShaderAstSerializerBase::OptVal(std::optional<T>& optVal)
+	void AstSerializerBase::OptVal(std::optional<T>& optVal)
 	{
 		bool isWriting = IsWriting();
 
@@ -77,21 +77,7 @@ namespace Nz
 		}
 	}
 
-	template<typename T>
-	void ShaderAstSerializerBase::Node(std::shared_ptr<T>& node)
-	{
-		bool isWriting = IsWriting();
-
-		ShaderNodes::NodePtr value;
-		if (isWriting)
-			value = node;
-
-		Node(value);
-		if (!isWriting)
-			node = std::static_pointer_cast<T>(value);
-	}
-
-	inline void ShaderAstSerializerBase::SizeT(std::size_t& val)
+	inline void AstSerializerBase::SizeT(std::size_t& val)
 	{
 		bool isWriting = IsWriting();
 
@@ -105,20 +91,6 @@ namespace Nz
 			val = static_cast<std::size_t>(fixedVal);
 	}
 
-	template<typename T>
-	void ShaderAstSerializerBase::Variable(std::shared_ptr<T>& var)
-	{
-		bool isWriting = IsWriting();
-
-		ShaderNodes::VariablePtr value;
-		if (isWriting)
-			value = var;
-
-		Variable(value);
-		if (!isWriting)
-			var = std::static_pointer_cast<T>(value);
-	}
-
 	inline ShaderAstSerializer::ShaderAstSerializer(ByteStream& stream) :
 	m_stream(stream)
 	{
@@ -129,7 +101,7 @@ namespace Nz
 	{
 	}
 
-	inline ShaderAst UnserializeShader(const void* data, std::size_t size)
+	inline StatementPtr UnserializeShader(const void* data, std::size_t size)
 	{
 		ByteStream byteStream(data, size);
 		return UnserializeShader(byteStream);

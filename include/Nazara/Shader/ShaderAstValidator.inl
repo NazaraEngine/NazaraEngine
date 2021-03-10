@@ -5,10 +5,10 @@
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	ShaderAstValidator::ShaderAstValidator(const ShaderAst& shader) :
-	m_shader(shader)
+	AstValidator::AstValidator() :
+	m_context(nullptr)
 	{
 	}
 }

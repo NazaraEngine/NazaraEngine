@@ -8,66 +8,62 @@
 #define NAZARA_SHADERVALIDATOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
+#include <Nazara/Shader/ShaderAstCache.hpp>
 #include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
-#include <Nazara/Shader/ShaderVarVisitor.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	class NAZARA_SHADER_API ShaderAstValidator : public ShaderAstRecursiveVisitor, public ShaderVarVisitor
+	class NAZARA_SHADER_API AstValidator : public AstRecursiveVisitor
 	{
 		public:
-			inline ShaderAstValidator(const ShaderAst& shader);
-			ShaderAstValidator(const ShaderAstValidator&) = delete;
-			ShaderAstValidator(ShaderAstValidator&&) = delete;
-			~ShaderAstValidator() = default;
+			inline AstValidator();
+			AstValidator(const AstValidator&) = delete;
+			AstValidator(AstValidator&&) = delete;
+			~AstValidator() = default;
 
-			bool Validate(std::string* error = nullptr);
+			bool Validate(StatementPtr& node, std::string* error = nullptr, AstCache* cache = nullptr);
 
 		private:
-			const ShaderNodes::ExpressionPtr& MandatoryExpr(const ShaderNodes::ExpressionPtr& node);
-			const ShaderNodes::NodePtr& MandatoryNode(const ShaderNodes::NodePtr& node);
-			void TypeMustMatch(const ShaderNodes::ExpressionPtr& left, const ShaderNodes::ExpressionPtr& right);
+			Expression& MandatoryExpr(ExpressionPtr& node);
+			Statement& MandatoryStatement(StatementPtr& node);
+			void TypeMustMatch(ExpressionPtr& left, ExpressionPtr& right);
 			void TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right);
 
-			const ShaderAst::StructMember& CheckField(const std::string& structName, std::size_t* memberIndex, std::size_t remainingMembers);
+			ShaderExpressionType CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
 
-			using ShaderAstRecursiveVisitor::Visit;
-			void Visit(ShaderNodes::AccessMember& node) override;
-			void Visit(ShaderNodes::AssignOp& node) override;
-			void Visit(ShaderNodes::BinaryOp& node) override;
-			void Visit(ShaderNodes::Branch& node) override;
-			void Visit(ShaderNodes::Cast& node) override;
-			void Visit(ShaderNodes::ConditionalExpression& node) override;
-			void Visit(ShaderNodes::ConditionalStatement& node) override;
-			void Visit(ShaderNodes::Constant& node) override;
-			void Visit(ShaderNodes::DeclareVariable& node) override;
-			void Visit(ShaderNodes::ExpressionStatement& node) override;
-			void Visit(ShaderNodes::Identifier& node) override;
-			void Visit(ShaderNodes::IntrinsicCall& node) override;
-			void Visit(ShaderNodes::ReturnStatement& node) override;
-			void Visit(ShaderNodes::Sample2D& node) override;
-			void Visit(ShaderNodes::StatementBlock& node) override;
-			void Visit(ShaderNodes::SwizzleOp& node) override;
+			AstCache::Scope& EnterScope();
+			void ExitScope();
 
-			using ShaderVarVisitor::Visit;
-			void Visit(ShaderNodes::BuiltinVariable& var) override;
-			void Visit(ShaderNodes::InputVariable& var) override;
-			void Visit(ShaderNodes::LocalVariable& var) override;
-			void Visit(ShaderNodes::OutputVariable& var) override;
-			void Visit(ShaderNodes::ParameterVariable& var) override;
-			void Visit(ShaderNodes::UniformVariable& var) override;
+			void RegisterExpressionType(Expression& node, ShaderExpressionType expressionType);
+			void RegisterScope(Node& node);
+
+			void Visit(AccessMemberExpression& node) override;
+			void Visit(AssignExpression& node) override;
+			void Visit(BinaryExpression& node) override;
+			void Visit(CastExpression& node) override;
+			void Visit(ConditionalExpression& node) override;
+			void Visit(ConstantExpression& node) override;
+			void Visit(IdentifierExpression& node) override;
+			void Visit(IntrinsicExpression& node) override;
+			void Visit(SwizzleExpression& node) override;
+
+			void Visit(BranchStatement& node) override;
+			void Visit(ConditionalStatement& node) override;
+			void Visit(DeclareFunctionStatement& node) override;
+			void Visit(DeclareStructStatement& node) override;
+			void Visit(DeclareVariableStatement& node) override;
+			void Visit(ExpressionStatement& node) override;
+			void Visit(MultiStatement& node) override;
+			void Visit(ReturnStatement& node) override;
 
 			struct Context;
 
-			const ShaderAst& m_shader;
 			Context* m_context;
 	};
 
-	NAZARA_SHADER_API bool ValidateShader(const ShaderAst& shader, std::string* error = nullptr);
+	NAZARA_SHADER_API bool ValidateAst(StatementPtr& node, std::string* error = nullptr, AstCache* cache = nullptr);
 }
 
 #include <Nazara/Shader/ShaderAstValidator.inl>

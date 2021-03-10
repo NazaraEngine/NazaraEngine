@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstVisitorExcept.hpp>
-#include <Nazara/Shader/ShaderVarVisitorExcept.hpp>
+#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
+#include <Nazara/Shader/ShaderAstStatementVisitorExcept.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
 #include <vector>
 
@@ -18,7 +18,7 @@ namespace Nz
 {
 	class SpirvWriter;
 
-	class NAZARA_SHADER_API SpirvAstVisitor : public ShaderAstVisitorExcept
+	class NAZARA_SHADER_API SpirvAstVisitor : public ShaderAst::ExpressionVisitorExcept, public ShaderAst::StatementVisitorExcept
 	{
 		public:
 			inline SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks);
@@ -26,27 +26,28 @@ namespace Nz
 			SpirvAstVisitor(SpirvAstVisitor&&) = delete;
 			~SpirvAstVisitor() = default;
 
-			UInt32 EvaluateExpression(const ShaderNodes::ExpressionPtr& expr);
+			UInt32 EvaluateExpression(ShaderAst::ExpressionPtr& expr);
 
-			using ShaderAstVisitorExcept::Visit;
-			void Visit(ShaderNodes::AccessMember& node) override;
-			void Visit(ShaderNodes::AssignOp& node) override;
-			void Visit(ShaderNodes::BinaryOp& node) override;
-			void Visit(ShaderNodes::Branch& node) override;
-			void Visit(ShaderNodes::Cast& node) override;
-			void Visit(ShaderNodes::ConditionalExpression& node) override;
-			void Visit(ShaderNodes::ConditionalStatement& node) override;
-			void Visit(ShaderNodes::Constant& node) override;
-			void Visit(ShaderNodes::DeclareVariable& node) override;
-			void Visit(ShaderNodes::Discard& node) override;
-			void Visit(ShaderNodes::ExpressionStatement& node) override;
-			void Visit(ShaderNodes::Identifier& node) override;
-			void Visit(ShaderNodes::IntrinsicCall& node) override;
-			void Visit(ShaderNodes::NoOp& node) override;
-			void Visit(ShaderNodes::ReturnStatement& node) override;
-			void Visit(ShaderNodes::Sample2D& node) override;
-			void Visit(ShaderNodes::StatementBlock& node) override;
-			void Visit(ShaderNodes::SwizzleOp& node) override;
+			using ExpressionVisitorExcept::Visit;
+			using StatementVisitorExcept::Visit;
+
+			void Visit(ShaderAst::AccessMemberExpression& node) override;
+			void Visit(ShaderAst::AssignExpression& node) override;
+			void Visit(ShaderAst::BinaryExpression& node) override;
+			void Visit(ShaderAst::BranchStatement& node) override;
+			void Visit(ShaderAst::CastExpression& node) override;
+			void Visit(ShaderAst::ConditionalExpression& node) override;
+			void Visit(ShaderAst::ConditionalStatement& node) override;
+			void Visit(ShaderAst::ConstantExpression& node) override;
+			void Visit(ShaderAst::DeclareVariableStatement& node) override;
+			void Visit(ShaderAst::DiscardStatement& node) override;
+			void Visit(ShaderAst::ExpressionStatement& node) override;
+			void Visit(ShaderAst::IdentifierExpression& node) override;
+			void Visit(ShaderAst::IntrinsicExpression& node) override;
+			void Visit(ShaderAst::MultiStatement& node) override;
+			void Visit(ShaderAst::NoOpStatement& node) override;
+			void Visit(ShaderAst::ReturnStatement& node) override;
+			void Visit(ShaderAst::SwizzleExpression& node) override;
 
 			SpirvAstVisitor& operator=(const SpirvAstVisitor&) = delete;
 			SpirvAstVisitor& operator=(SpirvAstVisitor&&) = delete;

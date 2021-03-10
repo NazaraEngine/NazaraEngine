@@ -3,16 +3,22 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/ShaderAstOptimizer.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
 	namespace
 	{
+		template<typename T, typename U>
+		std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
+		{
+			return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
+		}
+
 		template <typename T>
 		struct is_complete_helper
 		{
@@ -29,14 +35,14 @@ namespace Nz
 		inline constexpr bool is_complete_v = is_complete<T>::value;
 
 
-		template<ShaderNodes::BinaryType Type, typename T1, typename T2>
+		template<BinaryType Type, typename T1, typename T2>
 		struct PropagateConstantType;
 
 		// CompEq
 		template<typename T1, typename T2>
 		struct CompEqBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs == rhs);
 			}
@@ -46,7 +52,7 @@ namespace Nz
 		struct CompEq;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::CompEq, T1, T2>
+		struct PropagateConstantType<BinaryType::CompEq, T1, T2>
 		{
 			using Op = typename CompEq<T1, T2>;
 		};
@@ -55,7 +61,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct CompGeBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs >= rhs);
 			}
@@ -65,7 +71,7 @@ namespace Nz
 		struct CompGe;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::CompGe, T1, T2>
+		struct PropagateConstantType<BinaryType::CompGe, T1, T2>
 		{
 			using Op = typename CompGe<T1, T2>;
 		};
@@ -74,7 +80,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct CompGtBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs > rhs);
 			}
@@ -84,7 +90,7 @@ namespace Nz
 		struct CompGt;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::CompGt, T1, T2>
+		struct PropagateConstantType<BinaryType::CompGt, T1, T2>
 		{
 			using Op = typename CompGt<T1, T2>;
 		};
@@ -93,7 +99,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct CompLeBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs <= rhs);
 			}
@@ -103,7 +109,7 @@ namespace Nz
 		struct CompLe;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::CompLe, T1, T2>
+		struct PropagateConstantType<BinaryType::CompLe, T1, T2>
 		{
 			using Op = typename CompLe<T1, T2>;
 		};
@@ -112,7 +118,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct CompLtBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs < rhs);
 			}
@@ -122,7 +128,7 @@ namespace Nz
 		struct CompLt;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::CompLt, T1, T2>
+		struct PropagateConstantType<BinaryType::CompLt, T1, T2>
 		{
 			using Op = typename CompLe<T1, T2>;
 		};
@@ -131,7 +137,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct CompNeBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs != rhs);
 			}
@@ -141,7 +147,7 @@ namespace Nz
 		struct CompNe;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::CompNe, T1, T2>
+		struct PropagateConstantType<BinaryType::CompNe, T1, T2>
 		{
 			using Op = typename CompNe<T1, T2>;
 		};
@@ -150,7 +156,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct AdditionBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs + rhs);
 			}
@@ -160,7 +166,7 @@ namespace Nz
 		struct Addition;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::Add, T1, T2>
+		struct PropagateConstantType<BinaryType::Add, T1, T2>
 		{
 			using Op = typename Addition<T1, T2>;
 		};
@@ -169,7 +175,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct DivisionBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs / rhs);
 			}
@@ -179,7 +185,7 @@ namespace Nz
 		struct Division;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::Divide, T1, T2>
+		struct PropagateConstantType<BinaryType::Divide, T1, T2>
 		{
 			using Op = typename Division<T1, T2>;
 		};
@@ -188,7 +194,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct MultiplicationBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs * rhs);
 			}
@@ -198,7 +204,7 @@ namespace Nz
 		struct Multiplication;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::Multiply, T1, T2>
+		struct PropagateConstantType<BinaryType::Multiply, T1, T2>
 		{
 			using Op = typename Multiplication<T1, T2>;
 		};
@@ -207,7 +213,7 @@ namespace Nz
 		template<typename T1, typename T2>
 		struct SubtractionBase
 		{
-			ShaderNodes::ExpressionPtr operator()(const T1& lhs, const T2& rhs)
+			ExpressionPtr operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs - rhs);
 			}
@@ -217,7 +223,7 @@ namespace Nz
 		struct Subtraction;
 
 		template<typename T1, typename T2>
-		struct PropagateConstantType<ShaderNodes::BinaryType::Subtract, T1, T2>
+		struct PropagateConstantType<BinaryType::Subtract, T1, T2>
 		{
 			using Op = typename Subtraction<T1, T2>;
 		};
@@ -375,92 +381,89 @@ namespace Nz
 #undef EnableOptimisation
 	}
 
-	ShaderNodes::StatementPtr ShaderAstOptimizer::Optimise(const ShaderNodes::StatementPtr& statement)
+	StatementPtr AstOptimizer::Optimise(StatementPtr& statement)
 	{
-		m_shaderAst = nullptr;
-
 		return CloneStatement(statement);
 	}
 
-	ShaderNodes::StatementPtr ShaderAstOptimizer::Optimise(const ShaderNodes::StatementPtr& statement, const ShaderAst& shader, UInt64 enabledConditions)
+	StatementPtr AstOptimizer::Optimise(StatementPtr& statement, UInt64 enabledConditions)
 	{
-		m_shaderAst = &shader;
 		m_enabledConditions = enabledConditions;
 
 		return CloneStatement(statement);
 	}
 
-	void ShaderAstOptimizer::Visit(ShaderNodes::BinaryOp& node)
+	void AstOptimizer::Visit(BinaryExpression& node)
 	{
 		auto lhs = CloneExpression(node.left);
 		auto rhs = CloneExpression(node.right);
 
-		if (lhs->GetType() == ShaderNodes::NodeType::Constant && rhs->GetType() == ShaderNodes::NodeType::Constant)
+		if (lhs->GetType() == NodeType::ConstantExpression && rhs->GetType() == NodeType::ConstantExpression)
 		{
-			auto lhsConstant = std::static_pointer_cast<ShaderNodes::Constant>(lhs);
-			auto rhsConstant = std::static_pointer_cast<ShaderNodes::Constant>(rhs);
+			auto lhsConstant = static_unique_pointer_cast<ConstantExpression>(std::move(lhs));
+			auto rhsConstant = static_unique_pointer_cast<ConstantExpression>(std::move(rhs));
 
 			switch (node.op)
 			{
-				case ShaderNodes::BinaryType::Add:
-					return PropagateConstant<ShaderNodes::BinaryType::Add>(lhsConstant, rhsConstant);
+				case BinaryType::Add:
+					return PropagateConstant<BinaryType::Add>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::Subtract:
-					return PropagateConstant<ShaderNodes::BinaryType::Subtract>(lhsConstant, rhsConstant);
+				case BinaryType::Subtract:
+					return PropagateConstant<BinaryType::Subtract>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::Multiply:
-					return PropagateConstant<ShaderNodes::BinaryType::Multiply>(lhsConstant, rhsConstant);
+				case BinaryType::Multiply:
+					return PropagateConstant<BinaryType::Multiply>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::Divide:
-					return PropagateConstant<ShaderNodes::BinaryType::Divide>(lhsConstant, rhsConstant);
+				case BinaryType::Divide:
+					return PropagateConstant<BinaryType::Divide>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::CompEq:
-					return PropagateConstant<ShaderNodes::BinaryType::CompEq>(lhsConstant, rhsConstant);
+				case BinaryType::CompEq:
+					return PropagateConstant<BinaryType::CompEq>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::CompGe:
-					return PropagateConstant<ShaderNodes::BinaryType::CompGe>(lhsConstant, rhsConstant);
+				case BinaryType::CompGe:
+					return PropagateConstant<BinaryType::CompGe>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::CompGt:
-					return PropagateConstant<ShaderNodes::BinaryType::CompGt>(lhsConstant, rhsConstant);
+				case BinaryType::CompGt:
+					return PropagateConstant<BinaryType::CompGt>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::CompLe:
-					return PropagateConstant<ShaderNodes::BinaryType::CompLe>(lhsConstant, rhsConstant);
+				case BinaryType::CompLe:
+					return PropagateConstant<BinaryType::CompLe>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::CompLt:
-					return PropagateConstant<ShaderNodes::BinaryType::CompLt>(lhsConstant, rhsConstant);
+				case BinaryType::CompLt:
+					return PropagateConstant<BinaryType::CompLt>(std::move(lhsConstant), std::move(rhsConstant));
 
-				case ShaderNodes::BinaryType::CompNe:
-					return PropagateConstant<ShaderNodes::BinaryType::CompNe>(lhsConstant, rhsConstant);
+				case BinaryType::CompNe:
+					return PropagateConstant<BinaryType::CompNe>(std::move(lhsConstant), std::move(rhsConstant));
 			}
 		}
 
-		ShaderAstCloner::Visit(node);
+		AstCloner::Visit(node);
 	}
 
-	void ShaderAstOptimizer::Visit(ShaderNodes::Branch& node)
+	void AstOptimizer::Visit(BranchStatement& node)
 	{
-		std::vector<ShaderNodes::Branch::ConditionalStatement> statements;
-		ShaderNodes::StatementPtr elseStatement;
+		std::vector<BranchStatement::ConditionalStatement> statements;
+		StatementPtr elseStatement;
 
 		for (auto& condStatement : node.condStatements)
 		{
 			auto cond = CloneExpression(condStatement.condition);
 
-			if (cond->GetType() == ShaderNodes::NodeType::Constant)
+			if (cond->GetType() == NodeType::ConstantExpression)
 			{
-				auto constant = std::static_pointer_cast<ShaderNodes::Constant>(cond);
+				auto& constant = static_cast<ConstantExpression&>(*cond);
 
-				assert(IsBasicType(cond->GetExpressionType()));
-				assert(std::get<ShaderNodes::BasicType>(cond->GetExpressionType()) == ShaderNodes::BasicType::Boolean);
+				assert(IsBasicType(GetExpressionType(constant)));
+				assert(std::get<BasicType>(GetExpressionType(constant)) == BasicType::Boolean);
 
-				bool cValue = std::get<bool>(constant->value);
+				bool cValue = std::get<bool>(constant.value);
 				if (!cValue)
 					continue;
 
 				if (statements.empty())
 				{
 					// First condition is true, dismiss the branch
-					Visit(condStatement.statement);
+					condStatement.statement->Visit(*this);
 					return;
 				}
 				else
@@ -482,47 +485,54 @@ namespace Nz
 		{
 			// All conditions have been removed, replace by else statement or no-op
 			if (node.elseStatement)
-				return Visit(node.elseStatement);
+			{
+				node.elseStatement->Visit(*this);
+				return;
+			}
 			else
-				return PushStatement(ShaderNodes::NoOp::Build());
+				return PushStatement(ShaderBuilder::NoOp());
 		}
 
 		if (!elseStatement)
 			elseStatement = CloneStatement(node.elseStatement);
 
-		PushStatement(ShaderNodes::Branch::Build(std::move(statements), std::move(elseStatement)));
+		PushStatement(ShaderBuilder::Branch(std::move(statements), std::move(elseStatement)));
 	}
 
-	void ShaderAstOptimizer::Visit(ShaderNodes::ConditionalExpression& node)
+	void AstOptimizer::Visit(ConditionalExpression& node)
 	{
-		if (!m_shaderAst)
+		return AstCloner::Visit(node);
+
+		/*if (!m_shaderAst)
 			return ShaderAstCloner::Visit(node);
 
 		std::size_t conditionIndex = m_shaderAst->FindConditionByName(node.conditionName);
-		assert(conditionIndex != ShaderAst::InvalidCondition);
+		assert(conditionIndex != InvalidCondition);
 
 		if (TestBit<Nz::UInt64>(m_enabledConditions, conditionIndex))
 			Visit(node.truePath);
 		else
-			Visit(node.falsePath);
+			Visit(node.falsePath);*/
 	}
 
-	void ShaderAstOptimizer::Visit(ShaderNodes::ConditionalStatement& node)
+	void AstOptimizer::Visit(ConditionalStatement& node)
 	{
-		if (!m_shaderAst)
+		return AstCloner::Visit(node);
+
+		/*if (!m_shaderAst)
 			return ShaderAstCloner::Visit(node);
 
 		std::size_t conditionIndex = m_shaderAst->FindConditionByName(node.conditionName);
-		assert(conditionIndex != ShaderAst::InvalidCondition);
+		assert(conditionIndex != InvalidCondition);
 
 		if (TestBit<Nz::UInt64>(m_enabledConditions, conditionIndex))
-			Visit(node.statement);
+			Visit(node.statement);*/
 	}
 
-	template<ShaderNodes::BinaryType Type>
-	void ShaderAstOptimizer::PropagateConstant(const std::shared_ptr<ShaderNodes::Constant>& lhs, const std::shared_ptr<ShaderNodes::Constant>& rhs)
+	template<BinaryType Type>
+	void AstOptimizer::PropagateConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs)
 	{
-		ShaderNodes::ExpressionPtr optimized;
+		ExpressionPtr optimized;
 		std::visit([&](auto&& arg1)
 		{
 			using T1 = std::decay_t<decltype(arg1)>;
@@ -543,8 +553,8 @@ namespace Nz
 		}, lhs->value);
 
 		if (optimized)
-			PushExpression(optimized);
+			PushExpression(std::move(optimized));
 		else
-			PushExpression(ShaderNodes::BinaryOp::Build(Type, lhs, rhs));
+			PushExpression(ShaderBuilder::Binary(Type, std::move(lhs), std::move(rhs)));
 	}
 }

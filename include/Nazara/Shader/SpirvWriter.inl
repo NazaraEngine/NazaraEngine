@@ -10,10 +10,11 @@ namespace Nz
 {
 	inline bool SpirvWriter::IsConditionEnabled(const std::string& condition) const
 	{
-		std::size_t conditionIndex = m_context.shader->FindConditionByName(condition);
+		/*std::size_t conditionIndex = m_context.shader->FindConditionByName(condition);
 		assert(conditionIndex != ShaderAst::InvalidCondition);
 
-		return TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex);
+		return TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex);*/
+		return false;
 	}
 }
 
