@@ -14,308 +14,245 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderExpressionType.hpp>
-#include <Nazara/Shader/ShaderVariables.hpp>
+#include <Nazara/Shader/ShaderAstTypes.hpp>
 #include <array>
 #include <memory>
 #include <optional>
 #include <string>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	class ShaderAstVisitor;
+	class AstExpressionVisitor;
+	class AstStatementVisitor;
 
-	namespace ShaderNodes
+	struct NAZARA_SHADER_API Node
 	{
-		class Node;
+		Node() = default;
+		Node(const Node&) = delete;
+		Node(Node&&) noexcept = default;
+		virtual ~Node();
 
-		using NodePtr = std::shared_ptr<Node>;
+		virtual NodeType GetType() const = 0;
 
-		class NAZARA_SHADER_API Node
+		Node& operator=(const Node&) = delete;
+		Node& operator=(Node&&) noexcept = default;
+	};
+
+	// Expressions
+
+	struct Expression;
+
+	using ExpressionPtr = std::unique_ptr<Expression>;
+
+	struct NAZARA_SHADER_API Expression : Node
+	{
+		Expression() = default;
+		Expression(const Expression&) = delete;
+		Expression(Expression&&) noexcept = default;
+		~Expression() = default;
+
+		virtual void Visit(AstExpressionVisitor& visitor) = 0;
+
+		Expression& operator=(const Expression&) = delete;
+		Expression& operator=(Expression&&) noexcept = default;
+	};
+
+	struct NAZARA_SHADER_API AccessMemberExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		ExpressionPtr structExpr;
+		std::vector<std::string> memberIdentifiers;
+	};
+
+	struct NAZARA_SHADER_API AssignExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		AssignType    op;
+		ExpressionPtr left;
+		ExpressionPtr right;
+	};
+
+	struct NAZARA_SHADER_API BinaryExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		BinaryType    op;
+		ExpressionPtr left;
+		ExpressionPtr right;
+	};
+
+	struct NAZARA_SHADER_API CastExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		BasicType targetType;
+		std::array<ExpressionPtr, 4> expressions;
+	};
+
+	struct NAZARA_SHADER_API ConditionalExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::string conditionName;
+		ExpressionPtr falsePath;
+		ExpressionPtr truePath;
+	};
+
+	struct NAZARA_SHADER_API ConstantExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		ShaderConstantValue value;
+	};
+
+	struct NAZARA_SHADER_API IdentifierExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::string identifier;
+	};
+
+	struct NAZARA_SHADER_API IntrinsicExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		IntrinsicType intrinsic;
+		std::vector<ExpressionPtr> parameters;
+	};
+
+	struct NAZARA_SHADER_API SwizzleExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::array<SwizzleComponent, 4> components;
+		std::size_t componentCount;
+		ExpressionPtr expression;
+	};
+
+	// Statements
+
+	struct Statement;
+
+	using StatementPtr = std::unique_ptr<Statement>;
+
+	struct NAZARA_SHADER_API Statement : Node
+	{
+		Statement() = default;
+		Statement(const Statement&) = delete;
+		Statement(Statement&&) noexcept = default;
+		~Statement() = default;
+
+		virtual void Visit(AstStatementVisitor& visitor) = 0;
+
+		Statement& operator=(const Statement&) = delete;
+		Statement& operator=(Statement&&) noexcept = default;
+	};
+
+	struct NAZARA_SHADER_API BranchStatement : public Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		struct ConditionalStatement
 		{
-			public:
-				virtual ~Node();
-
-				inline NodeType GetType() const;
-				inline bool IsStatement() const;
-
-				virtual void Visit(ShaderAstVisitor& visitor) = 0;
-
-				static inline unsigned int GetComponentCount(BasicType type);
-				static inline BasicType GetComponentType(BasicType type);
-
-			protected:
-				inline Node(NodeType type, bool isStatement);
-
-			private:
-				NodeType m_type;
-				bool m_isStatement;
-		};
-		
-		class Expression;
-
-		using ExpressionPtr = std::shared_ptr<Expression>;
-
-		class NAZARA_SHADER_API Expression : public Node, public std::enable_shared_from_this<Expression>
-		{
-			public:
-				inline Expression(NodeType type);
-
-				virtual ShaderExpressionType GetExpressionType() const = 0;
-		};
-
-		class Statement;
-
-		using StatementPtr = std::shared_ptr<Statement>;
-
-		class NAZARA_SHADER_API Statement : public Node, public std::enable_shared_from_this<Statement>
-		{
-			public:
-				inline Statement(NodeType type);
-		};
-
-		struct NAZARA_SHADER_API ExpressionStatement : public Statement
-		{
-			inline ExpressionStatement();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			ExpressionPtr expression;
-
-			static inline std::shared_ptr<ExpressionStatement> Build(ExpressionPtr expr);
-		};
-
-		//////////////////////////////////////////////////////////////////////////
-
-		struct NAZARA_SHADER_API ConditionalStatement : public Statement
-		{
-			inline ConditionalStatement();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			std::string conditionName;
-			StatementPtr statement;
-
-			static inline std::shared_ptr<ConditionalStatement> Build(std::string condition, StatementPtr statementPtr);
-		};
-
-		struct NAZARA_SHADER_API StatementBlock : public Statement
-		{
-			inline StatementBlock();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			std::vector<StatementPtr> statements;
-
-			static inline std::shared_ptr<StatementBlock> Build(std::vector<StatementPtr> statements);
-			template<typename... Args> static std::shared_ptr<StatementBlock> Build(Args&&... args);
-		};
-
-		struct NAZARA_SHADER_API DeclareVariable : public Statement
-		{
-			inline DeclareVariable();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			ExpressionPtr expression;
-			VariablePtr variable;
-
-			static inline std::shared_ptr<DeclareVariable> Build(VariablePtr variable, ExpressionPtr expression = nullptr);
-		};
-
-		struct NAZARA_SHADER_API Discard : public Statement
-		{
-			inline Discard();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			static inline std::shared_ptr<Discard> Build();
-		};
-
-		struct NAZARA_SHADER_API Identifier : public Expression
-		{
-			inline Identifier();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			VariablePtr var;
-
-			static inline std::shared_ptr<Identifier> Build(VariablePtr variable);
-		};
-
-		struct NAZARA_SHADER_API AccessMember : public Expression
-		{
-			inline AccessMember();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			ExpressionPtr structExpr;
-			ShaderExpressionType exprType;
-			std::vector<std::size_t> memberIndices;
-
-			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::size_t memberIndex, ShaderExpressionType exprType);
-			static inline std::shared_ptr<AccessMember> Build(ExpressionPtr structExpr, std::vector<std::size_t> memberIndices, ShaderExpressionType exprType);
-		};
-
-		struct NAZARA_SHADER_API NoOp : public Statement
-		{
-			inline NoOp();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			static inline std::shared_ptr<NoOp> Build();
-		};
-
-		struct NAZARA_SHADER_API ReturnStatement : public Statement
-		{
-			inline ReturnStatement();
-
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			ExpressionPtr returnExpr;
-
-			static inline std::shared_ptr<ReturnStatement> Build(ExpressionPtr expr = nullptr);
+			ExpressionPtr condition;
+			StatementPtr  statement;
 		};
 
-		//////////////////////////////////////////////////////////////////////////
+		std::vector<ConditionalStatement> condStatements;
+		StatementPtr elseStatement;
+	};
 
-		struct NAZARA_SHADER_API AssignOp : public Expression
+	struct NAZARA_SHADER_API ConditionalStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		std::string conditionName;
+		StatementPtr statement;
+	};
+
+	struct NAZARA_SHADER_API DeclareFunctionStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		struct Parameter
 		{
-			inline AssignOp();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			AssignType    op;
-			ExpressionPtr left;
-			ExpressionPtr right;
-
-			static inline std::shared_ptr<AssignOp> Build(AssignType op, ExpressionPtr left, ExpressionPtr right);
+			std::string name;
+			ShaderExpressionType type;
 		};
 
-		struct NAZARA_SHADER_API BinaryOp : public Expression
-		{
-			inline BinaryOp();
+		std::string name;
+		std::vector<Parameter> parameters;
+		std::vector<StatementPtr> statements;
+		ShaderExpressionType returnType = BasicType::Void;
+	};
 
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
+	struct NAZARA_SHADER_API DeclareStructStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
 
-			BinaryType    op;
-			ExpressionPtr left;
-			ExpressionPtr right;
+		StructDescription description;
+	};
 
-			static inline std::shared_ptr<BinaryOp> Build(BinaryType op, ExpressionPtr left, ExpressionPtr right);
-		};
+	struct NAZARA_SHADER_API DeclareVariableStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
 
-		struct NAZARA_SHADER_API Branch : public Statement
-		{
-			struct ConditionalStatement;
+		std::string varName;
+		ExpressionPtr initialExpression;
+		ShaderExpressionType varType;
+	};
 
-			inline Branch();
+	struct NAZARA_SHADER_API DiscardStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+	};
 
-			void Visit(ShaderAstVisitor& visitor) override;
+	struct NAZARA_SHADER_API ExpressionStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
 
-			std::vector<ConditionalStatement> condStatements;
-			StatementPtr elseStatement;
+		ExpressionPtr expression;
+	};
 
-			struct ConditionalStatement
-			{
-				ExpressionPtr condition;
-				StatementPtr  statement;
-			};
+	struct NAZARA_SHADER_API MultiStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
 
-			static inline std::shared_ptr<Branch> Build(ExpressionPtr condition, StatementPtr trueStatement, StatementPtr falseStatement = nullptr);
-			static inline std::shared_ptr<Branch> Build(std::vector<ConditionalStatement> statements, StatementPtr elseStatement = nullptr);
-		};
+		std::vector<StatementPtr> statements;
+	};
 
-		struct NAZARA_SHADER_API Cast : public Expression
-		{
-			inline Cast();
+	struct NAZARA_SHADER_API NoOpStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+	};
 
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
+	struct NAZARA_SHADER_API ReturnStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
 
-			BasicType exprType;
-			std::array<ExpressionPtr, 4> expressions;
-
-			static inline std::shared_ptr<Cast> Build(BasicType castTo, ExpressionPtr first, ExpressionPtr second = nullptr, ExpressionPtr third = nullptr, ExpressionPtr fourth = nullptr);
-			static inline std::shared_ptr<Cast> Build(BasicType castTo, ExpressionPtr* expressions, std::size_t expressionCount);
-		};
-
-		struct NAZARA_SHADER_API ConditionalExpression : public Expression
-		{
-			inline ConditionalExpression();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			std::string conditionName;
-			ExpressionPtr falsePath;
-			ExpressionPtr truePath;
-
-			static inline std::shared_ptr<ConditionalExpression> Build(std::string condition, ExpressionPtr truePath, ExpressionPtr falsePath);
-		};
-
-		struct NAZARA_SHADER_API Constant : public Expression
-		{
-			inline Constant();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			ShaderConstantValue value;
-
-			template<typename T> static std::shared_ptr<Constant> Build(const T& value);
-		};
-
-		struct NAZARA_SHADER_API SwizzleOp : public Expression
-		{
-			inline SwizzleOp();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			std::array<SwizzleComponent, 4> components;
-			std::size_t componentCount;
-			ExpressionPtr expression;
-
-			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, SwizzleComponent swizzleComponent);
-			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, std::initializer_list<SwizzleComponent> swizzleComponents);
-			static inline std::shared_ptr<SwizzleOp> Build(ExpressionPtr expressionPtr, const SwizzleComponent* components, std::size_t componentCount);
-		};
-
-		//////////////////////////////////////////////////////////////////////////
-
-		struct NAZARA_SHADER_API Sample2D : public Expression
-		{
-			inline Sample2D();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			ExpressionPtr sampler;
-			ExpressionPtr coordinates;
-
-			static inline std::shared_ptr<Sample2D> Build(ExpressionPtr samplerPtr, ExpressionPtr coordinatesPtr);
-		};
-
-		//////////////////////////////////////////////////////////////////////////
-
-		struct NAZARA_SHADER_API IntrinsicCall : public Expression
-		{
-			inline IntrinsicCall();
-
-			ShaderExpressionType GetExpressionType() const override;
-			void Visit(ShaderAstVisitor& visitor) override;
-
-			IntrinsicType intrinsic;
-			std::vector<ExpressionPtr> parameters;
-
-			static inline std::shared_ptr<IntrinsicCall> Build(IntrinsicType intrinsic, std::vector<ExpressionPtr> parameters);
-		};
-	}
+		ExpressionPtr returnExpr;
+	};
 }
 
 #include <Nazara/Shader/ShaderNodes.inl>

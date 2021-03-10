@@ -4,6 +4,7 @@
 
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Core/StackVector.hpp>
+#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
@@ -12,21 +13,21 @@
 
 namespace Nz
 {
-	UInt32 SpirvAstVisitor::EvaluateExpression(const ShaderNodes::ExpressionPtr& expr)
+	UInt32 SpirvAstVisitor::EvaluateExpression(ShaderAst::ExpressionPtr& expr)
 	{
-		Visit(expr);
+		expr->Visit(*this);
 
 		assert(m_resultIds.size() == 1);
 		return PopResultId();
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::AccessMember& node)
+	void SpirvAstVisitor::Visit(ShaderAst::AccessMemberExpression& node)
 	{
 		SpirvExpressionLoad accessMemberVisitor(m_writer, *m_currentBlock);
 		PushResultId(accessMemberVisitor.Evaluate(node));
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::AssignOp& node)
+	void SpirvAstVisitor::Visit(ShaderAst::AssignExpression& node)
 	{
 		UInt32 resultId = EvaluateExpression(node.right);
 
@@ -36,20 +37,20 @@ namespace Nz
 		PushResultId(resultId);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::BinaryOp& node)
+	void SpirvAstVisitor::Visit(ShaderAst::BinaryExpression& node)
 	{
-		ShaderExpressionType resultExprType = node.GetExpressionType();
+		ShaderAst::ShaderExpressionType resultExprType = ShaderAst::GetExpressionType(node);
 		assert(IsBasicType(resultExprType));
 
-		const ShaderExpressionType& leftExprType = node.left->GetExpressionType();
+		ShaderAst::ShaderExpressionType leftExprType = ShaderAst::GetExpressionType(*node.left);
 		assert(IsBasicType(leftExprType));
 
-		const ShaderExpressionType& rightExprType = node.right->GetExpressionType();
+		ShaderAst::ShaderExpressionType rightExprType = ShaderAst::GetExpressionType(*node.right);
 		assert(IsBasicType(rightExprType));
 
-		ShaderNodes::BasicType resultType = std::get<ShaderNodes::BasicType>(resultExprType);
-		ShaderNodes::BasicType leftType = std::get<ShaderNodes::BasicType>(leftExprType);
-		ShaderNodes::BasicType rightType = std::get<ShaderNodes::BasicType>(rightExprType);
+		ShaderAst::BasicType resultType = std::get<ShaderAst::BasicType>(resultExprType);
+		ShaderAst::BasicType leftType = std::get<ShaderAst::BasicType>(leftExprType);
+		ShaderAst::BasicType rightType = std::get<ShaderAst::BasicType>(rightExprType);
 
 
 		UInt32 leftOperand = EvaluateExpression(node.left);
@@ -62,308 +63,308 @@ namespace Nz
 		{
 			switch (node.op)
 			{
-				case ShaderNodes::BinaryType::Add:
+				case ShaderAst::BinaryType::Add:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFAdd;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpIAdd;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 
-				case ShaderNodes::BinaryType::Subtract:
+				case ShaderAst::BinaryType::Subtract:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFSub;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpISub;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 
-				case ShaderNodes::BinaryType::Divide:
+				case ShaderAst::BinaryType::Divide:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFDiv;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
 							return SpirvOp::OpSDiv;
 
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpUDiv;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 
-				case ShaderNodes::BinaryType::CompEq:
+				case ShaderAst::BinaryType::CompEq:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Boolean:
+						case ShaderAst::BasicType::Boolean:
 							return SpirvOp::OpLogicalEqual;
 
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFOrdEqual;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpIEqual;
 
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 				
-				case ShaderNodes::BinaryType::CompGe:
+				case ShaderAst::BinaryType::CompGe:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFOrdGreaterThan;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
 							return SpirvOp::OpSGreaterThan;
 
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpUGreaterThan;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 				
-				case ShaderNodes::BinaryType::CompGt:
+				case ShaderAst::BinaryType::CompGt:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFOrdGreaterThanEqual;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
 							return SpirvOp::OpSGreaterThanEqual;
 
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpUGreaterThanEqual;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 				
-				case ShaderNodes::BinaryType::CompLe:
+				case ShaderAst::BinaryType::CompLe:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFOrdLessThanEqual;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
 							return SpirvOp::OpSLessThanEqual;
 
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpULessThanEqual;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 				
-				case ShaderNodes::BinaryType::CompLt:
+				case ShaderAst::BinaryType::CompLt:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFOrdLessThan;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
 							return SpirvOp::OpSLessThan;
 
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpULessThan;
 
-						case ShaderNodes::BasicType::Boolean:
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 				
-				case ShaderNodes::BinaryType::CompNe:
+				case ShaderAst::BinaryType::CompNe:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Boolean:
+						case ShaderAst::BasicType::Boolean:
 							return SpirvOp::OpLogicalNotEqual;
 
-						case ShaderNodes::BasicType::Float1:
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Float1:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
+						case ShaderAst::BasicType::Mat4x4:
 							return SpirvOp::OpFOrdNotEqual;
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpINotEqual;
 
-						case ShaderNodes::BasicType::Sampler2D:
-						case ShaderNodes::BasicType::Void:
+						case ShaderAst::BasicType::Sampler2D:
+						case ShaderAst::BasicType::Void:
 							break;
 					}
 
 					break;
 				}
 
-				case ShaderNodes::BinaryType::Multiply:
+				case ShaderAst::BinaryType::Multiply:
 				{
 					switch (leftType)
 					{
-						case ShaderNodes::BasicType::Float1:
+						case ShaderAst::BasicType::Float1:
 						{
 							switch (rightType)
 							{
-								case ShaderNodes::BasicType::Float1:
+								case ShaderAst::BasicType::Float1:
 									return SpirvOp::OpFMul;
 
-								case ShaderNodes::BasicType::Float2:
-								case ShaderNodes::BasicType::Float3:
-								case ShaderNodes::BasicType::Float4:
+								case ShaderAst::BasicType::Float2:
+								case ShaderAst::BasicType::Float3:
+								case ShaderAst::BasicType::Float4:
 									swapOperands = true;
 									return SpirvOp::OpVectorTimesScalar;
 
-								case ShaderNodes::BasicType::Mat4x4:
+								case ShaderAst::BasicType::Mat4x4:
 									swapOperands = true;
 									return SpirvOp::OpMatrixTimesScalar;
 
@@ -374,21 +375,21 @@ namespace Nz
 							break;
 						}
 
-						case ShaderNodes::BasicType::Float2:
-						case ShaderNodes::BasicType::Float3:
-						case ShaderNodes::BasicType::Float4:
+						case ShaderAst::BasicType::Float2:
+						case ShaderAst::BasicType::Float3:
+						case ShaderAst::BasicType::Float4:
 						{
 							switch (rightType)
 							{
-								case ShaderNodes::BasicType::Float1:
+								case ShaderAst::BasicType::Float1:
 									return SpirvOp::OpVectorTimesScalar;
 
-								case ShaderNodes::BasicType::Float2:
-								case ShaderNodes::BasicType::Float3:
-								case ShaderNodes::BasicType::Float4:
+								case ShaderAst::BasicType::Float2:
+								case ShaderAst::BasicType::Float3:
+								case ShaderAst::BasicType::Float4:
 									return SpirvOp::OpFMul;
 
-								case ShaderNodes::BasicType::Mat4x4:
+								case ShaderAst::BasicType::Mat4x4:
 									return SpirvOp::OpVectorTimesMatrix;
 
 								default:
@@ -398,23 +399,23 @@ namespace Nz
 							break;
 						}
 
-						case ShaderNodes::BasicType::Int1:
-						case ShaderNodes::BasicType::Int2:
-						case ShaderNodes::BasicType::Int3:
-						case ShaderNodes::BasicType::Int4:
-						case ShaderNodes::BasicType::UInt1:
-						case ShaderNodes::BasicType::UInt2:
-						case ShaderNodes::BasicType::UInt3:
-						case ShaderNodes::BasicType::UInt4:
+						case ShaderAst::BasicType::Int1:
+						case ShaderAst::BasicType::Int2:
+						case ShaderAst::BasicType::Int3:
+						case ShaderAst::BasicType::Int4:
+						case ShaderAst::BasicType::UInt1:
+						case ShaderAst::BasicType::UInt2:
+						case ShaderAst::BasicType::UInt3:
+						case ShaderAst::BasicType::UInt4:
 							return SpirvOp::OpIMul;
 
-						case ShaderNodes::BasicType::Mat4x4:
+						case ShaderAst::BasicType::Mat4x4:
 						{
 							switch (rightType)
 							{
-								case ShaderNodes::BasicType::Float1: return SpirvOp::OpMatrixTimesScalar;
-								case ShaderNodes::BasicType::Float4: return SpirvOp::OpMatrixTimesVector;
-								case ShaderNodes::BasicType::Mat4x4: return SpirvOp::OpMatrixTimesMatrix;
+								case ShaderAst::BasicType::Float1: return SpirvOp::OpMatrixTimesScalar;
+								case ShaderAst::BasicType::Float4: return SpirvOp::OpMatrixTimesVector;
+								case ShaderAst::BasicType::Mat4x4: return SpirvOp::OpMatrixTimesMatrix;
 
 								default:
 									break;
@@ -442,7 +443,7 @@ namespace Nz
 		PushResultId(resultId);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::Branch& node)
+	void SpirvAstVisitor::Visit(ShaderAst::BranchStatement& node)
 	{
 		assert(!node.condStatements.empty());
 		auto& firstCond = node.condStatements.front();
@@ -450,7 +451,8 @@ namespace Nz
 		UInt32 previousConditionId = EvaluateExpression(firstCond.condition);
 		SpirvBlock previousContentBlock(m_writer);
 		m_currentBlock = &previousContentBlock;
-		Visit(firstCond.statement);
+
+		firstCond.statement->Visit(*this);
 
 		SpirvBlock mergeBlock(m_writer);
 		m_blocks.back().Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
@@ -458,7 +460,7 @@ namespace Nz
 		std::optional<std::size_t> nextBlock;
 		for (std::size_t statementIndex = 1; statementIndex < node.condStatements.size(); ++statementIndex)
 		{
-			const auto& statement = node.condStatements[statementIndex];
+			auto& statement = node.condStatements[statementIndex];
 
 			SpirvBlock contentBlock(m_writer);
 
@@ -469,7 +471,8 @@ namespace Nz
 			previousContentBlock = std::move(contentBlock);
 
 			m_currentBlock = &previousContentBlock;
-			Visit(statement.statement);
+
+			statement.statement->Visit(*this);
 		}
 
 		if (node.elseStatement)
@@ -477,7 +480,7 @@ namespace Nz
 			SpirvBlock elseBlock(m_writer);
 
 			m_currentBlock = &elseBlock;
-			Visit(node.elseStatement);
+			node.elseStatement->Visit(*this);
 
 			elseBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
 
@@ -496,16 +499,16 @@ namespace Nz
 		m_currentBlock = &m_blocks.back();
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::Cast& node)
+	void SpirvAstVisitor::Visit(ShaderAst::CastExpression& node)
 	{
-		const ShaderExpressionType& targetExprType = node.exprType;
+		const ShaderAst::ShaderExpressionType& targetExprType = node.targetType;
 		assert(IsBasicType(targetExprType));
 
-		ShaderNodes::BasicType targetType = std::get<ShaderNodes::BasicType>(targetExprType);
+		ShaderAst::BasicType targetType = std::get<ShaderAst::BasicType>(targetExprType);
 
 		StackVector<UInt32> exprResults = NazaraStackVector(UInt32, node.expressions.size());
 
-		for (const auto& exprPtr : node.expressions)
+		for (auto& exprPtr : node.expressions)
 		{
 			if (!exprPtr)
 				break;
@@ -527,21 +530,21 @@ namespace Nz
 		PushResultId(resultId);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::ConditionalExpression& node)
+	void SpirvAstVisitor::Visit(ShaderAst::ConditionalExpression& node)
 	{
 		if (m_writer.IsConditionEnabled(node.conditionName))
-			Visit(node.truePath);
+			node.truePath->Visit(*this);
 		else
-			Visit(node.falsePath);
+			node.falsePath->Visit(*this);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::ConditionalStatement& node)
+	void SpirvAstVisitor::Visit(ShaderAst::ConditionalStatement& node)
 	{
 		if (m_writer.IsConditionEnabled(node.conditionName))
-			Visit(node.statement);
+			node.statement->Visit(*this);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::Constant& node)
+	void SpirvAstVisitor::Visit(ShaderAst::ConstantExpression& node)
 	{
 		std::visit([&] (const auto& value)
 		{
@@ -549,46 +552,42 @@ namespace Nz
 		}, node.value);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::DeclareVariable& node)
+	void SpirvAstVisitor::Visit(ShaderAst::DeclareVariableStatement& node)
 	{
-		if (node.expression)
-		{
-			assert(node.variable->GetType() == ShaderNodes::VariableType::LocalVariable);
-
-			const auto& localVar = static_cast<const ShaderNodes::LocalVariable&>(*node.variable);
-			m_writer.WriteLocalVariable(localVar.name, EvaluateExpression(node.expression));
-		}
+		if (node.initialExpression)
+			m_writer.WriteLocalVariable(node.varName, EvaluateExpression(node.initialExpression));
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::Discard& /*node*/)
+	void SpirvAstVisitor::Visit(ShaderAst::DiscardStatement& /*node*/)
 	{
 		m_currentBlock->Append(SpirvOp::OpKill);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::ExpressionStatement& node)
+	void SpirvAstVisitor::Visit(ShaderAst::ExpressionStatement& node)
 	{
-		Visit(node.expression);
+		node.expression->Visit(*this);
+
 		PopResultId();
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::Identifier& node)
+	void SpirvAstVisitor::Visit(ShaderAst::IdentifierExpression& node)
 	{
 		SpirvExpressionLoad loadVisitor(m_writer, *m_currentBlock);
 		PushResultId(loadVisitor.Evaluate(node));
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::IntrinsicCall& node)
+	void SpirvAstVisitor::Visit(ShaderAst::IntrinsicExpression& node)
 	{
 		switch (node.intrinsic)
 		{
-			case ShaderNodes::IntrinsicType::DotProduct:
+			case ShaderAst::IntrinsicType::DotProduct:
 			{
-				const ShaderExpressionType& vecExprType = node.parameters[0]->GetExpressionType();
+				const ShaderAst::ShaderExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
 				assert(IsBasicType(vecExprType));
 
-				ShaderNodes::BasicType vecType = std::get<ShaderNodes::BasicType>(vecExprType);
+				ShaderAst::BasicType vecType = std::get<ShaderAst::BasicType>(vecExprType);
 
-				UInt32 typeId = m_writer.GetTypeId(node.GetComponentType(vecType));
+				UInt32 typeId = m_writer.GetTypeId(ShaderAst::GetComponentType(vecType));
 
 				UInt32 vec1 = EvaluateExpression(node.parameters[0]);
 				UInt32 vec2 = EvaluateExpression(node.parameters[1]);
@@ -600,18 +599,18 @@ namespace Nz
 				break;
 			}
 
-			case ShaderNodes::IntrinsicType::CrossProduct:
+			case ShaderAst::IntrinsicType::CrossProduct:
 			default:
 				throw std::runtime_error("not yet implemented");
 		}
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::NoOp& /*node*/)
+	void SpirvAstVisitor::Visit(ShaderAst::NoOpStatement& /*node*/)
 	{
 		// nothing to do
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::ReturnStatement& node)
+	void SpirvAstVisitor::Visit(ShaderAst::ReturnStatement& node)
 	{
 		if (node.returnExpr)
 			m_currentBlock->Append(SpirvOp::OpReturnValue, EvaluateExpression(node.returnExpr));
@@ -619,30 +618,18 @@ namespace Nz
 			m_currentBlock->Append(SpirvOp::OpReturn);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::Sample2D& node)
-	{
-		UInt32 typeId = m_writer.GetTypeId(ShaderNodes::BasicType::Float4);
-
-		UInt32 samplerId = EvaluateExpression(node.sampler);
-		UInt32 coordinatesId = EvaluateExpression(node.coordinates);
-		UInt32 resultId = m_writer.AllocateResultId();
-
-		m_currentBlock->Append(SpirvOp::OpImageSampleImplicitLod, typeId, resultId, samplerId, coordinatesId);
-		PushResultId(resultId);
-	}
-
-	void SpirvAstVisitor::Visit(ShaderNodes::StatementBlock& node)
+	void SpirvAstVisitor::Visit(ShaderAst::MultiStatement& node)
 	{
 		for (auto& statement : node.statements)
-			Visit(statement);
+			statement->Visit(*this);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderNodes::SwizzleOp& node)
+	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		const ShaderExpressionType& targetExprType = node.GetExpressionType();
+		const ShaderAst::ShaderExpressionType& targetExprType = ShaderAst::GetExpressionType(node);
 		assert(IsBasicType(targetExprType));
 
-		ShaderNodes::BasicType targetType = std::get<ShaderNodes::BasicType>(targetExprType);
+		ShaderAst::BasicType targetType = std::get<ShaderAst::BasicType>(targetExprType);
 
 		UInt32 exprResultId = EvaluateExpression(node.expression);
 		UInt32 resultId = m_writer.AllocateResultId();
@@ -666,7 +653,7 @@ namespace Nz
 			// Extract a single component from the vector
 			assert(node.componentCount == 1);
 
-			m_currentBlock->Append(SpirvOp::OpCompositeExtract, m_writer.GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderNodes::SwizzleComponent::First) );
+			m_currentBlock->Append(SpirvOp::OpCompositeExtract, m_writer.GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderAst::SwizzleComponent::First) );
 		}
 
 		PushResultId(resultId);

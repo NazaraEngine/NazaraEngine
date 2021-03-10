@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 
-namespace Nz::ShaderNodes
+namespace Nz::ShaderAst
 {
 	enum class AssignType
 	{
@@ -77,35 +77,9 @@ namespace Nz::ShaderNodes
 	{
 		None = -1,
 
-		AccessMember,
-		AssignOp,
-		BinaryOp,
-		Branch,
-		Cast,
-		Constant,
-		ConditionalExpression,
-		ConditionalStatement,
-		DeclareVariable,
-		Discard,
-		ExpressionStatement,
-		Identifier,
-		IntrinsicCall,
-		NoOp,
-		ReturnStatement,
-		Sample2D,
-		SwizzleOp,
-		StatementBlock,
-
-		Max = StatementBlock
-	};
-
-	enum class SsaInstruction
-	{
-		OpAdd,
-		OpDiv,
-		OpMul,
-		OpSub,
-		OpSample
+#define NAZARA_SHADERAST_NODE(Node) Node,
+#define NAZARA_SHADERAST_STATEMENT_LAST(Node) Node, Max = Node
+#include <Nazara/Shader/ShaderAstNodes.hpp>
 	};
 
 	enum class SwizzleComponent
@@ -127,6 +101,11 @@ namespace Nz::ShaderNodes
 		ParameterVariable,
 		UniformVariable
 	};
+
+	inline std::size_t GetComponentCount(BasicType type);
+	inline BasicType GetComponentType(BasicType type);
 }
+
+#include <Nazara/Shader/ShaderEnums.inl>
 
 #endif // NAZARA_SHADER_ENUMS_HPP

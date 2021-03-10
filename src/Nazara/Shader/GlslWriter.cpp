@@ -8,6 +8,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
+#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <optional>
@@ -20,70 +21,77 @@ namespace Nz
 	{
 		static const char* flipYUniformName = "_NzFlipValue";
 
-		struct AstAdapter : ShaderAstCloner
+		struct AstAdapter : ShaderAst::AstCloner
 		{
-			void Visit(ShaderNodes::AssignOp& node) override
+			void Visit(ShaderAst::AssignExpression& node) override
 			{
 				if (!flipYPosition)
+					return AstCloner::Visit(node);
+
+				if (node.left->GetType() != ShaderAst::NodeType::IdentifierExpression)
+					return AstCloner::Visit(node);
+
+				/*
+				FIXME:
+				const auto& identifier = static_cast<const ShaderAst::Identifier&>(*node.left);
+				if (identifier.var->GetType() != ShaderAst::VariableType::BuiltinVariable)
 					return ShaderAstCloner::Visit(node);
 
-				if (node.left->GetType() != ShaderNodes::NodeType::Identifier)
+				const auto& builtinVar = static_cast<const ShaderAst::BuiltinVariable&>(*identifier.var);
+				if (builtinVar.entry != ShaderAst::BuiltinEntry::VertexPosition)
 					return ShaderAstCloner::Visit(node);
 
-				const auto& identifier = static_cast<const ShaderNodes::Identifier&>(*node.left);
-				if (identifier.var->GetType() != ShaderNodes::VariableType::BuiltinVariable)
-					return ShaderAstCloner::Visit(node);
-
-				const auto& builtinVar = static_cast<const ShaderNodes::BuiltinVariable&>(*identifier.var);
-				if (builtinVar.entry != ShaderNodes::BuiltinEntry::VertexPosition)
-					return ShaderAstCloner::Visit(node);
-
-				auto flipVar = ShaderBuilder::Uniform(flipYUniformName, ShaderNodes::BasicType::Float1);
+				auto flipVar = ShaderBuilder::Uniform(flipYUniformName, ShaderAst::BasicType::Float1);
 
 				auto oneConstant = ShaderBuilder::Constant(1.f);
-				auto fixYValue = ShaderBuilder::Cast<ShaderNodes::BasicType::Float4>(oneConstant, ShaderBuilder::Identifier(flipVar), oneConstant, oneConstant);
+				auto fixYValue = ShaderBuilder::Cast<ShaderAst::BasicType::Float4>(oneConstant, ShaderBuilder::Identifier(flipVar), oneConstant, oneConstant);
 				auto mulFix = ShaderBuilder::Multiply(CloneExpression(node.right), fixYValue);
 
-				PushExpression(ShaderNodes::AssignOp::Build(node.op, CloneExpression(node.left), mulFix));
+				PushExpression(ShaderAst::AssignOp::Build(node.op, CloneExpression(node.left), mulFix));*/
 			}
 
 			bool flipYPosition = false;
 		};
 	}
 
+
+	struct GlslWriter::State
+	{
+		const States* states = nullptr;
+		ShaderAst::AstCache cache;
+		std::stringstream stream;
+		unsigned int indentLevel = 0;
+	};
+
+
 	GlslWriter::GlslWriter() :
 	m_currentState(nullptr)
 	{
 	}
 
-	std::string GlslWriter::Generate(const ShaderAst& inputShader, const States& conditions)
+	std::string GlslWriter::Generate(ShaderAst::StatementPtr& shader, const States& conditions)
 	{
-		const ShaderAst* selectedShader = &inputShader;
+		/*const ShaderAst* selectedShader = &inputShader;
 		std::optional<ShaderAst> modifiedShader;
 		if (inputShader.GetStage() == ShaderStageType::Vertex && m_environment.flipYPosition)
 		{
 			modifiedShader.emplace(inputShader);
 
-			modifiedShader->AddUniform(flipYUniformName, ShaderNodes::BasicType::Float1);
+			modifiedShader->AddUniform(flipYUniformName, ShaderAst::BasicType::Float1);
 
 			selectedShader = &modifiedShader.value();
-		}
-
-		const ShaderAst& shader = *selectedShader;
-
-		std::string error;
-		if (!ValidateShader(shader, &error))
-			throw std::runtime_error("Invalid shader AST: " + error);
-
-		m_context.states = &conditions;
-		m_context.shader = &shader;
-
+		}*/
+		
 		State state;
 		m_currentState = &state;
 		CallOnExit onExit([this]()
 		{
 			m_currentState = nullptr;
 		});
+
+		std::string error;
+		if (!ShaderAst::ValidateAst(shader, &error, &state.cache))
+			throw std::runtime_error("Invalid shader AST: " + error);
 
 		unsigned int glslVersion;
 		if (m_environment.glES)
@@ -165,52 +173,7 @@ namespace Nz
 			AppendLine();
 		}
 
-		// Structures
-		/*if (shader.GetStructCount() > 0)
-		{
-			AppendCommentSection("Structures");
-			for (const auto& s : shader.GetStructs())
-			{
-				Append("struct ");
-				AppendLine(s.name);
-				AppendLine("{");
-				for (const auto& m : s.members)
-				{
-					Append("\t");
-					Append(m.type);
-					Append(" ");
-					Append(m.name);
-					AppendLine(";");
-				}
-				AppendLine("};");
-				AppendLine();
-			}
-		}*/
-
-		// Global variables (uniforms, input and outputs)
-		const char* inKeyword = (glslVersion >= 130) ? "in" : "varying";
-		const char* outKeyword = (glslVersion >= 130) ? "out" : "varying";
-
-		DeclareVariables(shader, shader.GetUniforms(), "uniform",  "Uniforms");
-		DeclareVariables(shader, shader.GetInputs(),   inKeyword,  "Inputs");
-		DeclareVariables(shader, shader.GetOutputs(),  outKeyword, "Outputs");
-
-		std::size_t functionCount = shader.GetFunctionCount();
-		if (functionCount > 1)
-		{
-			AppendCommentSection("Prototypes");
-			for (const auto& func : shader.GetFunctions())
-			{
-				if (func.name != "main")
-				{
-					AppendFunctionPrototype(func);
-					AppendLine(";");
-				}
-			}
-		}
-
-		for (const auto& func : shader.GetFunctions())
-			AppendFunction(func);
+		shader->Visit(*this);
 
 		return state.stream.str();
 	}
@@ -225,7 +188,7 @@ namespace Nz
 		return flipYUniformName;
 	}
 
-	void GlslWriter::Append(ShaderExpressionType type)
+	void GlslWriter::Append(ShaderAst::ShaderExpressionType type)
 	{
 		std::visit([&](auto&& arg)
 		{
@@ -233,47 +196,55 @@ namespace Nz
 		}, type);
 	}
 
-	void GlslWriter::Append(ShaderNodes::BuiltinEntry builtin)
+	void GlslWriter::Append(ShaderAst::BuiltinEntry builtin)
 	{
 		switch (builtin)
 		{
-			case ShaderNodes::BuiltinEntry::VertexPosition:
+			case ShaderAst::BuiltinEntry::VertexPosition:
 				Append("gl_Position");
 				break;
 		}
 	}
 
-	void GlslWriter::Append(ShaderNodes::BasicType type)
+	void GlslWriter::Append(ShaderAst::BasicType type)
 	{
 		switch (type)
 		{
-			case ShaderNodes::BasicType::Boolean:   return Append("bool");
-			case ShaderNodes::BasicType::Float1:    return Append("float");
-			case ShaderNodes::BasicType::Float2:    return Append("vec2");
-			case ShaderNodes::BasicType::Float3:    return Append("vec3");
-			case ShaderNodes::BasicType::Float4:    return Append("vec4");
-			case ShaderNodes::BasicType::Int1:      return Append("int");
-			case ShaderNodes::BasicType::Int2:      return Append("ivec2");
-			case ShaderNodes::BasicType::Int3:      return Append("ivec3");
-			case ShaderNodes::BasicType::Int4:      return Append("ivec4");
-			case ShaderNodes::BasicType::Mat4x4:    return Append("mat4");
-			case ShaderNodes::BasicType::Sampler2D: return Append("sampler2D");
-			case ShaderNodes::BasicType::UInt1:     return Append("uint");
-			case ShaderNodes::BasicType::UInt2:     return Append("uvec2");
-			case ShaderNodes::BasicType::UInt3:     return Append("uvec3");
-			case ShaderNodes::BasicType::UInt4:     return Append("uvec4");
-			case ShaderNodes::BasicType::Void:      return Append("void");
+			case ShaderAst::BasicType::Boolean:   return Append("bool");
+			case ShaderAst::BasicType::Float1:    return Append("float");
+			case ShaderAst::BasicType::Float2:    return Append("vec2");
+			case ShaderAst::BasicType::Float3:    return Append("vec3");
+			case ShaderAst::BasicType::Float4:    return Append("vec4");
+			case ShaderAst::BasicType::Int1:      return Append("int");
+			case ShaderAst::BasicType::Int2:      return Append("ivec2");
+			case ShaderAst::BasicType::Int3:      return Append("ivec3");
+			case ShaderAst::BasicType::Int4:      return Append("ivec4");
+			case ShaderAst::BasicType::Mat4x4:    return Append("mat4");
+			case ShaderAst::BasicType::Sampler2D: return Append("sampler2D");
+			case ShaderAst::BasicType::UInt1:     return Append("uint");
+			case ShaderAst::BasicType::UInt2:     return Append("uvec2");
+			case ShaderAst::BasicType::UInt3:     return Append("uvec3");
+			case ShaderAst::BasicType::UInt4:     return Append("uvec4");
+			case ShaderAst::BasicType::Void:      return Append("void");
 		}
 	}
 
-	void GlslWriter::Append(ShaderNodes::MemoryLayout layout)
+	void GlslWriter::Append(ShaderAst::MemoryLayout layout)
 	{
 		switch (layout)
 		{
-			case ShaderNodes::MemoryLayout::Std140:
+			case ShaderAst::MemoryLayout::Std140:
 				Append("std140");
 				break;
 		}
+	}
+
+	template<typename T>
+	void GlslWriter::Append(const T& param)
+	{
+		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
+
+		m_currentState->stream << param;
 	}
 
 	void GlslWriter::AppendCommentSection(const std::string& section)
@@ -285,67 +256,24 @@ namespace Nz
 		AppendLine();
 	}
 
-	void GlslWriter::AppendField(const std::string& structName, std::size_t* memberIndex, std::size_t remainingMembers)
+	void GlslWriter::AppendField(std::size_t scopeId, const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers)
 	{
-		const auto& structs = m_context.shader->GetStructs();
-		auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == structName; });
-		assert(it != structs.end());
-
-		const ShaderAst::Struct& s = *it;
-		assert(*memberIndex < s.members.size());
-
-		const auto& member = s.members[*memberIndex];
 		Append(".");
-		Append(member.name);
+		Append(memberIdentifier[0]);
+
+		const ShaderAst::AstCache::Identifier* identifier = m_currentState->cache.FindIdentifier(scopeId, structName);
+		assert(identifier);
+
+		assert(std::holds_alternative<ShaderAst::StructDescription>(identifier->value));
+		const auto& s = std::get<ShaderAst::StructDescription>(identifier->value);
+
+		auto memberIt = std::find_if(s.members.begin(), s.members.begin(), [&](const auto& field) { return field.name == memberIdentifier[0]; });
+		assert(memberIt != s.members.end());
+
+		const auto& member = *memberIt;
 
 		if (remainingMembers > 1)
-		{
-			assert(IsStructType(member.type));
-			AppendField(std::get<std::string>(member.type), memberIndex + 1, remainingMembers - 1);
-		}
-	}
-
-	void GlslWriter::AppendFunction(const ShaderAst::Function& func)
-	{
-		NazaraAssert(!m_context.currentFunction, "A function is already being processed");
-		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
-
-		AppendFunctionPrototype(func);
-
-		m_context.currentFunction = &func;
-		CallOnExit onExit([this] ()
-		{
-			m_context.currentFunction = nullptr;
-		});
-
-		EnterScope();
-		{
-			AstAdapter adapter;
-			adapter.flipYPosition = m_environment.flipYPosition;
-
-			Visit(adapter.Clone(func.statement));
-		}
-		LeaveScope();
-	}
-
-	void GlslWriter::AppendFunctionPrototype(const ShaderAst::Function& func)
-	{
-		Append(func.returnType);
-
-		Append(" ");
-		Append(func.name);
-
-		Append("(");
-		for (std::size_t i = 0; i < func.parameters.size(); ++i)
-		{
-			if (i != 0)
-				Append(", ");
-
-			Append(func.parameters[i].type);
-			Append(" ");
-			Append(func.parameters[i].name);
-		}
-		Append(")\n");
+			AppendField(scopeId, std::get<std::string>(member.type), memberIdentifier + 1, remainingMembers - 1);
 	}
 
 	void GlslWriter::AppendLine(const std::string& txt)
@@ -372,44 +300,46 @@ namespace Nz
 		AppendLine("}");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::ExpressionPtr& expr, bool encloseIfRequired)
+	void GlslWriter::Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired)
 	{
-		bool enclose = encloseIfRequired && (GetExpressionCategory(expr) != ShaderNodes::ExpressionCategory::LValue);
+		bool enclose = encloseIfRequired && (GetExpressionCategory(*expr) != ShaderAst::ExpressionCategory::LValue);
 
 		if (enclose)
 			Append("(");
 
-		ShaderAstVisitor::Visit(expr);
+		expr->Visit(*this);
 
 		if (enclose)
 			Append(")");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::AccessMember& node)
+	void GlslWriter::Visit(ShaderAst::AccessMemberExpression& node)
 	{
 		Visit(node.structExpr, true);
 
-		const ShaderExpressionType& exprType = node.structExpr->GetExpressionType();
+		const ShaderAst::ShaderExpressionType& exprType = GetExpressionType(*node.structExpr, &m_currentState->cache);
 		assert(IsStructType(exprType));
 
-		AppendField(std::get<std::string>(exprType), node.memberIndices.data(), node.memberIndices.size());
+		std::size_t scopeId = m_currentState->cache.GetScopeId(&node);
+
+		AppendField(scopeId, std::get<std::string>(exprType), node.memberIdentifiers.data(), node.memberIdentifiers.size());
 	}
 
-	void GlslWriter::Visit(ShaderNodes::AssignOp& node)
+	void GlslWriter::Visit(ShaderAst::AssignExpression& node)
 	{
-		Visit(node.left);
+		node.left->Visit(*this);
 
 		switch (node.op)
 		{
-			case ShaderNodes::AssignType::Simple:
+			case ShaderAst::AssignType::Simple:
 				Append(" = ");
 				break;
 		}
 
-		Visit(node.right);
+		node.left->Visit(*this);
 	}
 
-	void GlslWriter::Visit(ShaderNodes::Branch& node)
+	void GlslWriter::Visit(ShaderAst::BranchStatement& node)
 	{
 		bool first = true;
 		for (const auto& statement : node.condStatements)
@@ -418,11 +348,11 @@ namespace Nz
 				Append("else ");
 
 			Append("if (");
-			Visit(statement.condition);
+			statement.condition->Visit(*this);
 			AppendLine(")");
 
 			EnterScope();
-				Visit(statement.statement);
+			statement.statement->Visit(*this);
 			LeaveScope();
 
 			first = false;
@@ -433,41 +363,36 @@ namespace Nz
 			AppendLine("else");
 
 			EnterScope();
-				Visit(node.elseStatement);
+			node.elseStatement->Visit(*this);
 			LeaveScope();
 		}
 	}
 
-	void GlslWriter::Visit(ShaderNodes::BinaryOp& node)
+	void GlslWriter::Visit(ShaderAst::BinaryExpression& node)
 	{
 		Visit(node.left, true);
 
 		switch (node.op)
 		{
-			case ShaderNodes::BinaryType::Add:       Append(" + "); break;
-			case ShaderNodes::BinaryType::Subtract: Append(" - "); break;
-			case ShaderNodes::BinaryType::Multiply:  Append(" * "); break;
-			case ShaderNodes::BinaryType::Divide:    Append(" / "); break;
+			case ShaderAst::BinaryType::Add:       Append(" + "); break;
+			case ShaderAst::BinaryType::Subtract:  Append(" - "); break;
+			case ShaderAst::BinaryType::Multiply:  Append(" * "); break;
+			case ShaderAst::BinaryType::Divide:    Append(" / "); break;
 
-			case ShaderNodes::BinaryType::CompEq:    Append(" == "); break;
-			case ShaderNodes::BinaryType::CompGe:    Append(" >= "); break;
-			case ShaderNodes::BinaryType::CompGt:    Append(" > ");  break;
-			case ShaderNodes::BinaryType::CompLe:    Append(" <= "); break;
-			case ShaderNodes::BinaryType::CompLt:    Append(" < ");  break;
-			case ShaderNodes::BinaryType::CompNe:    Append(" != "); break;
+			case ShaderAst::BinaryType::CompEq:    Append(" == "); break;
+			case ShaderAst::BinaryType::CompGe:    Append(" >= "); break;
+			case ShaderAst::BinaryType::CompGt:    Append(" > ");  break;
+			case ShaderAst::BinaryType::CompLe:    Append(" <= "); break;
+			case ShaderAst::BinaryType::CompLt:    Append(" < ");  break;
+			case ShaderAst::BinaryType::CompNe:    Append(" != "); break;
 		}
 
 		Visit(node.right, true);
 	}
 
-	void GlslWriter::Visit(ShaderNodes::BuiltinVariable& var)
+	void GlslWriter::Visit(ShaderAst::CastExpression& node)
 	{
-		Append(var.entry);
-	}
-
-	void GlslWriter::Visit(ShaderNodes::Cast& node)
-	{
-		Append(node.exprType);
+		Append(node.targetType);
 		Append("(");
 
 		bool first = true;
@@ -479,34 +404,34 @@ namespace Nz
 			if (!first)
 				m_currentState->stream << ", ";
 
-			Visit(exprPtr);
+			exprPtr->Visit(*this);
 			first = false;
 		}
 
 		Append(")");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::ConditionalExpression& node)
+	void GlslWriter::Visit(ShaderAst::ConditionalExpression& node)
 	{
-		std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
+		/*std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
 		assert(conditionIndex != ShaderAst::InvalidCondition);
 
 		if (TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex))
 			Visit(node.truePath);
 		else
-			Visit(node.falsePath);
+			Visit(node.falsePath);*/
 	}
 
-	void GlslWriter::Visit(ShaderNodes::ConditionalStatement& node)
+	void GlslWriter::Visit(ShaderAst::ConditionalStatement& node)
 	{
-		std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
+		/*std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
 		assert(conditionIndex != ShaderAst::InvalidCondition);
 
 		if (TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex))
-			Visit(node.statement);
+			Visit(node.statement);*/
 	}
 
-	void GlslWriter::Visit(ShaderNodes::Constant& node)
+	void GlslWriter::Visit(ShaderAst::ConstantExpression& node)
 	{
 		std::visit([&](auto&& arg)
 		{
@@ -530,54 +455,74 @@ namespace Nz
 		}, node.value);
 	}
 
-	void GlslWriter::Visit(ShaderNodes::DeclareVariable& node)
+	void GlslWriter::Visit(ShaderAst::DeclareFunctionStatement& node)
 	{
-		assert(node.variable->GetType() == ShaderNodes::VariableType::LocalVariable);
+		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
-		const auto& localVar = static_cast<const ShaderNodes::LocalVariable&>(*node.variable);
-
-		Append(localVar.type);
+		Append(node.returnType);
 		Append(" ");
-		Append(localVar.name);
-		if (node.expression)
+		Append(node.name);
+		Append("(");
+		for (std::size_t i = 0; i < node.parameters.size(); ++i)
+		{
+			if (i != 0)
+				Append(", ");
+			Append(node.parameters[i].type);
+			Append(" ");
+			Append(node.parameters[i].name);
+		}
+		Append(")\n");
+
+		EnterScope();
+		{
+			AstAdapter adapter;
+			adapter.flipYPosition = m_environment.flipYPosition;
+
+			for (auto& statement : node.statements)
+				adapter.Clone(statement)->Visit(*this);
+		}
+		LeaveScope();
+	}
+
+	void GlslWriter::Visit(ShaderAst::DeclareVariableStatement& node)
+	{
+		Append(node.varType);
+		Append(" ");
+		Append(node.varName);
+		if (node.initialExpression)
 		{
 			Append(" = ");
-			Visit(node.expression);
+			node.initialExpression->Visit(*this);
 		}
 
 		AppendLine(";");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::Discard& /*node*/)
+	void GlslWriter::Visit(ShaderAst::DiscardStatement& /*node*/)
 	{
 		Append("discard;");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::ExpressionStatement& node)
+	void GlslWriter::Visit(ShaderAst::ExpressionStatement& node)
 	{
-		Visit(node.expression);
+		node.expression->Visit(*this);
 		Append(";");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::Identifier& node)
+	void GlslWriter::Visit(ShaderAst::IdentifierExpression& node)
 	{
-		Visit(node.var);
+		Append(node.identifier);
 	}
 
-	void GlslWriter::Visit(ShaderNodes::InputVariable& var)
-	{
-		Append(var.name);
-	}
-	
-	void GlslWriter::Visit(ShaderNodes::IntrinsicCall& node)
+	void GlslWriter::Visit(ShaderAst::IntrinsicExpression& node)
 	{
 		switch (node.intrinsic)
 		{
-			case ShaderNodes::IntrinsicType::CrossProduct:
+			case ShaderAst::IntrinsicType::CrossProduct:
 				Append("cross");
 				break;
 
-			case ShaderNodes::IntrinsicType::DotProduct:
+			case ShaderAst::IntrinsicType::DotProduct:
 				Append("dot");
 				break;
 		}
@@ -588,67 +533,43 @@ namespace Nz
 			if (i != 0)
 				Append(", ");
 
-			Visit(node.parameters[i]);
+			node.parameters[i]->Visit(*this);
 		}
 		Append(")");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::LocalVariable& var)
+	void GlslWriter::Visit(ShaderAst::MultiStatement& node)
 	{
-		Append(var.name);
+		bool first = true;
+		for (const ShaderAst::StatementPtr& statement : node.statements)
+		{
+			if (!first && statement->GetType() != ShaderAst::NodeType::NoOpStatement)
+				AppendLine();
+
+			statement->Visit(*this);
+
+			first = false;
+		}
 	}
 
-	void GlslWriter::Visit(ShaderNodes::NoOp& /*node*/)
+	void GlslWriter::Visit(ShaderAst::NoOpStatement& /*node*/)
 	{
 		/* nothing to do */
 	}
 
-	void GlslWriter::Visit(ShaderNodes::ParameterVariable& var)
-	{
-		Append(var.name);
-	}
-
-	void GlslWriter::Visit(ShaderNodes::ReturnStatement& node)
+	void GlslWriter::Visit(ShaderAst::ReturnStatement& node)
 	{
 		if (node.returnExpr)
 		{
 			Append("return ");
-			Visit(node.returnExpr);
+			node.returnExpr->Visit(*this);
 			Append(";");
 		}
 		else
 			Append("return;");
 	}
 
-	void GlslWriter::Visit(ShaderNodes::OutputVariable& var)
-	{
-		Append(var.name);
-	}
-
-	void GlslWriter::Visit(ShaderNodes::Sample2D& node)
-	{
-		Append("texture(");
-		Visit(node.sampler);
-		Append(", ");
-		Visit(node.coordinates);
-		Append(")");
-	}
-
-	void GlslWriter::Visit(ShaderNodes::StatementBlock& node)
-	{
-		bool first = true;
-		for (const ShaderNodes::StatementPtr& statement : node.statements)
-		{
-			if (!first && statement->GetType() != ShaderNodes::NodeType::NoOp)
-				AppendLine();
-
-			Visit(statement);
-
-			first = false;
-		}
-	}
-
-	void GlslWriter::Visit(ShaderNodes::SwizzleOp& node)
+	void GlslWriter::Visit(ShaderAst::SwizzleExpression& node)
 	{
 		Visit(node.expression, true);
 		Append(".");
@@ -657,44 +578,39 @@ namespace Nz
 		{
 			switch (node.components[i])
 			{
-				case ShaderNodes::SwizzleComponent::First:
+				case ShaderAst::SwizzleComponent::First:
 					Append("x");
 					break;
 
-				case ShaderNodes::SwizzleComponent::Second:
+				case ShaderAst::SwizzleComponent::Second:
 					Append("y");
 					break;
 
-				case ShaderNodes::SwizzleComponent::Third:
+				case ShaderAst::SwizzleComponent::Third:
 					Append("z");
 					break;
 
-				case ShaderNodes::SwizzleComponent::Fourth:
+				case ShaderAst::SwizzleComponent::Fourth:
 					Append("w");
 					break;
 			}
 		}
 	}
 
-	void GlslWriter::Visit(ShaderNodes::UniformVariable& var)
+	bool GlslWriter::HasExplicitBinding(ShaderAst::StatementPtr& shader)
 	{
-		Append(var.name);
-	}
-
-	bool GlslWriter::HasExplicitBinding(const ShaderAst& shader)
-	{
-		for (const auto& uniform : shader.GetUniforms())
+		/*for (const auto& uniform : shader.GetUniforms())
 		{
 			if (uniform.bindingIndex.has_value())
 				return true;
-		}
+		}*/
 
 		return false;
 	}
 
-	bool GlslWriter::HasExplicitLocation(const ShaderAst& shader)
+	bool GlslWriter::HasExplicitLocation(ShaderAst::StatementPtr& shader)
 	{
-		for (const auto& input : shader.GetInputs())
+		/*for (const auto& input : shader.GetInputs())
 		{
 			if (input.locationIndex.has_value())
 				return true;
@@ -704,7 +620,7 @@ namespace Nz
 		{
 			if (output.locationIndex.has_value())
 				return true;
-		}
+		}*/
 
 		return false;
 	}

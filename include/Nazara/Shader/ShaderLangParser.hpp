@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
+#include <Nazara/Shader/ShaderNodes.hpp>
 
 namespace Nz::ShaderLang
 {
@@ -44,7 +44,7 @@ namespace Nz::ShaderLang
 			inline Parser();
 			~Parser() = default;
 
-			ShaderAst Parse(const std::vector<Token>& tokens);
+			ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens);
 
 		private:
 			// Flow control
@@ -54,29 +54,30 @@ namespace Nz::ShaderLang
 			const Token& PeekNext();
 
 			// Statements
-			ShaderNodes::StatementPtr ParseFunctionBody();
-			void ParseFunctionDeclaration();
-			ShaderAst::FunctionParameter ParseFunctionParameter();
-			ShaderNodes::StatementPtr ParseReturnStatement();
-			ShaderNodes::StatementPtr ParseStatement();
-			ShaderNodes::StatementPtr ParseStatementList();
+			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
+			ShaderAst::StatementPtr ParseFunctionDeclaration();
+			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
+			ShaderAst::StatementPtr ParseReturnStatement();
+			ShaderAst::StatementPtr ParseStatement();
+			std::vector<ShaderAst::StatementPtr> ParseStatementList();
+			ShaderAst::StatementPtr ParseVariableDeclaration();
 
 			// Expressions
-			ShaderNodes::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderNodes::ExpressionPtr lhs);
-			ShaderNodes::ExpressionPtr ParseExpression();
-			ShaderNodes::ExpressionPtr ParseIdentifier();
-			ShaderNodes::ExpressionPtr ParseIntegerExpression();
-			ShaderNodes::ExpressionPtr ParseParenthesisExpression();
-			ShaderNodes::ExpressionPtr ParsePrimaryExpression();
+			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);
+			ShaderAst::ExpressionPtr ParseExpression();
+			ShaderAst::ExpressionPtr ParseIdentifier();
+			ShaderAst::ExpressionPtr ParseIntegerExpression();
+			ShaderAst::ExpressionPtr ParseParenthesisExpression();
+			ShaderAst::ExpressionPtr ParsePrimaryExpression();
 
 			std::string ParseIdentifierAsName();
-			ShaderExpressionType ParseIdentifierAsType();
+			ShaderAst::ShaderExpressionType ParseIdentifierAsType();
 
 			static int GetTokenPrecedence(TokenType token);
 
 			struct Context
 			{
-				ShaderAst result;
+				std::unique_ptr<ShaderAst::MultiStatement> root;
 				std::size_t tokenCount;
 				std::size_t tokenIndex = 0;
 				const Token* tokens;

@@ -9,10 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
-#include <Nazara/Shader/ShaderAstVisitor.hpp>
+#include <Nazara/Shader/ShaderAstCache.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
-#include <Nazara/Shader/ShaderVarVisitor.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <string>
@@ -39,7 +37,7 @@ namespace Nz
 			SpirvWriter(SpirvWriter&&) = delete;
 			~SpirvWriter() = default;
 
-			std::vector<UInt32> Generate(const ShaderAst& shader, const States& conditions = {});
+			std::vector<UInt32> Generate(ShaderAst::StatementPtr& shader, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 
@@ -51,22 +49,23 @@ namespace Nz
 
 		private:
 			struct ExtVar;
+			struct FunctionParameter;
 			struct OnlyCache {};
 
 			UInt32 AllocateResultId();
 
 			void AppendHeader();
 
-			SpirvConstantCache::Function BuildFunctionType(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
+			SpirvConstantCache::Function BuildFunctionType(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters);
 
 			UInt32 GetConstantId(const ShaderConstantValue& value) const;
-			UInt32 GetFunctionTypeId(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
-			const ExtVar& GetBuiltinVariable(ShaderNodes::BuiltinEntry builtin) const;
+			UInt32 GetFunctionTypeId(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters);
+			const ExtVar& GetBuiltinVariable(ShaderAst::BuiltinEntry builtin) const;
 			const ExtVar& GetInputVariable(const std::string& name) const;
 			const ExtVar& GetOutputVariable(const std::string& name) const;
 			const ExtVar& GetUniformVariable(const std::string& name) const;
-			UInt32 GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const;
-			UInt32 GetTypeId(const ShaderExpressionType& type) const;
+			UInt32 GetPointerTypeId(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass) const;
+			UInt32 GetTypeId(const ShaderAst::ShaderExpressionType& type) const;
 
 			inline bool IsConditionEnabled(const std::string& condition) const;
 
@@ -82,9 +81,9 @@ namespace Nz
 			std::optional<UInt32> ReadVariable(const ExtVar& var, OnlyCache);
 
 			UInt32 RegisterConstant(const ShaderConstantValue& value);
-			UInt32 RegisterFunctionType(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
-			UInt32 RegisterPointerType(ShaderExpressionType type, SpirvStorageClass storageClass);
-			UInt32 RegisterType(ShaderExpressionType type);
+			UInt32 RegisterFunctionType(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters);
+			UInt32 RegisterPointerType(ShaderAst::ShaderExpressionType type, SpirvStorageClass storageClass);
+			UInt32 RegisterType(ShaderAst::ShaderExpressionType type);
 
 			void WriteLocalVariable(std::string name, UInt32 resultId);
 
@@ -92,7 +91,7 @@ namespace Nz
 
 			struct Context
 			{
-				const ShaderAst* shader = nullptr;
+				ShaderAst::AstCache cache;
 				const States* states = nullptr;
 				std::vector<SpirvBlock> functionBlocks;
 			};
@@ -103,6 +102,12 @@ namespace Nz
 				UInt32 typeId;
 				UInt32 varId;
 				std::optional<UInt32> valueId;
+			};
+
+			struct FunctionParameter
+			{
+				std::string name;
+				ShaderAst::ShaderExpressionType type;
 			};
 
 			struct State;

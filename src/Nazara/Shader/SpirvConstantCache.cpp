@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <tsl/ordered_map.h>
@@ -536,7 +535,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i>)
 			{
 				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector2f>) ? ShaderNodes::BasicType::Float2 : ShaderNodes::BasicType::Int2),
+					BuildType((std::is_same_v<T, Vector2f>) ? ShaderAst::BasicType::Float2 : ShaderAst::BasicType::Int2),
 					{
 						BuildConstant(arg.x),
 						BuildConstant(arg.y)
@@ -546,7 +545,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i>)
 			{
 				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector3f>) ? ShaderNodes::BasicType::Float3 : ShaderNodes::BasicType::Int3),
+					BuildType((std::is_same_v<T, Vector3f>) ? ShaderAst::BasicType::Float3 : ShaderAst::BasicType::Int3),
 					{
 						BuildConstant(arg.x),
 						BuildConstant(arg.y),
@@ -557,7 +556,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i>)
 			{
 				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector4f>) ? ShaderNodes::BasicType::Float4 : ShaderNodes::BasicType::Int4),
+					BuildType((std::is_same_v<T, Vector4f>) ? ShaderAst::BasicType::Float4 : ShaderAst::BasicType::Int4),
 					{
 						BuildConstant(arg.x),
 						BuildConstant(arg.y),
@@ -571,7 +570,7 @@ namespace Nz
 		}, value));
 	}
 
-	auto SpirvConstantCache::BuildPointerType(const ShaderNodes::BasicType& type, SpirvStorageClass storageClass) -> TypePtr
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::BasicType& type, SpirvStorageClass storageClass) -> TypePtr
 	{
 		return std::make_shared<Type>(SpirvConstantCache::Pointer{
 			SpirvConstantCache::BuildType(type),
@@ -579,55 +578,55 @@ namespace Nz
 		});
 	}
 
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst& shader, const ShaderExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
 	{
 		return std::make_shared<Type>(SpirvConstantCache::Pointer{
-			SpirvConstantCache::BuildType(shader, type),
+			SpirvConstantCache::BuildType(type),
 			storageClass
 		});
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderNodes::BasicType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::BasicType& type) -> TypePtr
 	{
 		return std::make_shared<Type>([&]() -> AnyType
 		{
 			switch (type)
 			{
-				case ShaderNodes::BasicType::Boolean:
+				case ShaderAst::BasicType::Boolean:
 					return Bool{};
 
-				case ShaderNodes::BasicType::Float1:
+				case ShaderAst::BasicType::Float1:
 					return Float{ 32 };
 
-				case ShaderNodes::BasicType::Int1:
+				case ShaderAst::BasicType::Int1:
 					return Integer{ 32, true };
 
-				case ShaderNodes::BasicType::Float2:
-				case ShaderNodes::BasicType::Float3:
-				case ShaderNodes::BasicType::Float4:
-				case ShaderNodes::BasicType::Int2:
-				case ShaderNodes::BasicType::Int3:
-				case ShaderNodes::BasicType::Int4:
-				case ShaderNodes::BasicType::UInt2:
-				case ShaderNodes::BasicType::UInt3:
-				case ShaderNodes::BasicType::UInt4:
+				case ShaderAst::BasicType::Float2:
+				case ShaderAst::BasicType::Float3:
+				case ShaderAst::BasicType::Float4:
+				case ShaderAst::BasicType::Int2:
+				case ShaderAst::BasicType::Int3:
+				case ShaderAst::BasicType::Int4:
+				case ShaderAst::BasicType::UInt2:
+				case ShaderAst::BasicType::UInt3:
+				case ShaderAst::BasicType::UInt4:
 				{
-					auto vecType = BuildType(ShaderNodes::Node::GetComponentType(type));
-					UInt32 componentCount = ShaderNodes::Node::GetComponentCount(type);
+					auto vecType = BuildType(ShaderAst::GetComponentType(type));
+					UInt32 componentCount = ShaderAst::GetComponentCount(type);
 
 					return Vector{ vecType, componentCount };
 				}
 
-				case ShaderNodes::BasicType::Mat4x4:
-					return Matrix{ BuildType(ShaderNodes::BasicType::Float4), 4u };
+				case ShaderAst::BasicType::Mat4x4:
+					return Matrix{ BuildType(ShaderAst::BasicType::Float4), 4u };
 
-				case ShaderNodes::BasicType::UInt1:
+				case ShaderAst::BasicType::UInt1:
 					return Integer{ 32, false };
 
-				case ShaderNodes::BasicType::Void:
+				case ShaderAst::BasicType::Void:
 					return Void{};
 
-				case ShaderNodes::BasicType::Sampler2D:
+				case ShaderAst::BasicType::Sampler2D:
 				{
 					auto imageType = Image{
 						{}, //< qualifier
@@ -635,7 +634,7 @@ namespace Nz
 						{}, //< sampled
 						SpirvDim::Dim2D, //< dim
 						SpirvImageFormat::Unknown, //< format
-						BuildType(ShaderNodes::BasicType::Float1), //< sampledType
+						BuildType(ShaderAst::BasicType::Float1), //< sampledType
 						false, //< arrayed,
 						false  //< multisampled
 					};
@@ -648,16 +647,16 @@ namespace Nz
 		}());
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst& shader, const ShaderExpressionType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::ShaderExpressionType& type) -> TypePtr
 	{
 		return std::visit([&](auto&& arg) -> TypePtr
 		{
 			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
+			if constexpr (std::is_same_v<T, ShaderAst::BasicType>)
 				return BuildType(arg);
 			else if constexpr (std::is_same_v<T, std::string>)
 			{
-				// Register struct members type
+				/*// Register struct members type
 				const auto& structs = shader.GetStructs();
 				auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == arg; });
 				if (it == structs.end())
@@ -675,7 +674,8 @@ namespace Nz
 					sMembers.type = BuildType(shader, member.type);
 				}
 
-				return std::make_shared<Type>(std::move(sType));
+				return std::make_shared<Type>(std::move(sType));*/
+				return nullptr;
 			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");

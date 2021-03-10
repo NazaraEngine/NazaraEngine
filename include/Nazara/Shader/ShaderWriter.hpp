@@ -14,8 +14,6 @@
 
 namespace Nz
 {
-	class ShaderAst;
-
 	class NAZARA_SHADER_API ShaderWriter
 	{
 		public:

@@ -5,17 +5,17 @@
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <limits>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	UberShader::UberShader(ShaderAst shaderAst) :
+	UberShader::UberShader(ShaderAst::StatementPtr shaderAst) :
 	m_shaderAst(std::move(shaderAst))
 	{
-		std::size_t conditionCount = m_shaderAst.GetConditionCount();
+		//std::size_t conditionCount = m_shaderAst.GetConditionCount();
+		std::size_t conditionCount = 0;
 
 		if (conditionCount >= 64)
 			throw std::runtime_error("Too many conditions");
@@ -27,10 +27,10 @@ namespace Nz
 
 	UInt64 UberShader::GetConditionFlagByName(const std::string_view& condition) const
 	{
-		std::size_t conditionIndex = m_shaderAst.FindConditionByName(condition);
+		/*std::size_t conditionIndex = m_shaderAst.FindConditionByName(condition);
 		if (conditionIndex != ShaderAst::InvalidCondition)
 			return SetBit<UInt64>(0, conditionIndex);
-		else
+		else*/
 			return 0;
 	}
 

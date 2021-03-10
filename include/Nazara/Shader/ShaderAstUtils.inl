@@ -5,9 +5,9 @@
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	ShaderNodes::ExpressionCategory GetExpressionCategory(const ShaderNodes::ExpressionPtr& expression)
+	ExpressionCategory GetExpressionCategory(Expression& expression)
 	{
 		ShaderAstValueCategory visitor;
 		return visitor.GetExpressionCategory(expression);

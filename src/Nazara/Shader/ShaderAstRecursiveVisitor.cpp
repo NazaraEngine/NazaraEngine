@@ -5,116 +5,121 @@
 #include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::AccessMember& node)
+	void AstRecursiveVisitor::Visit(AccessMemberExpression& node)
 	{
-		Visit(node.structExpr);
+		node.structExpr->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::AssignOp& node)
+	void AstRecursiveVisitor::Visit(AssignExpression& node)
 	{
-		Visit(node.left);
-		Visit(node.right);
+		node.left->Visit(*this);
+		node.right->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::BinaryOp& node)
+	void AstRecursiveVisitor::Visit(BinaryExpression& node)
 	{
-		Visit(node.left);
-		Visit(node.right);
+		node.left->Visit(*this);
+		node.right->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Branch& node)
-	{
-		for (auto& cond : node.condStatements)
-		{
-			Visit(cond.condition);
-			Visit(cond.statement);
-		}
-
-		if (node.elseStatement)
-			Visit(node.elseStatement);
-	}
-
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Cast& node)
+	void AstRecursiveVisitor::Visit(CastExpression& node)
 	{
 		for (auto& expr : node.expressions)
 		{
 			if (!expr)
 				break;
 
-			Visit(expr);
+			expr->Visit(*this);
 		}
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ConditionalExpression& node)
+	void AstRecursiveVisitor::Visit(ConditionalExpression& node)
 	{
-		Visit(node.truePath);
-		Visit(node.falsePath);
+		node.truePath->Visit(*this);
+		node.falsePath->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ConditionalStatement& node)
-	{
-		Visit(node.statement);
-	}
-
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Constant& /*node*/)
+	void AstRecursiveVisitor::Visit(ConstantExpression& /*node*/)
 	{
 		/* Nothing to do */
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::DeclareVariable& node)
-	{
-		if (node.expression)
-			Visit(node.expression);
-	}
-
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Discard& /*node*/)
+	void AstRecursiveVisitor::Visit(IdentifierExpression& /*node*/)
 	{
 		/* Nothing to do */
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ExpressionStatement& node)
-	{
-		Visit(node.expression);
-	}
-
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Identifier& /*node*/)
-	{
-		/* Nothing to do */
-	}
-
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::IntrinsicCall& node)
+	void AstRecursiveVisitor::Visit(IntrinsicExpression& node)
 	{
 		for (auto& param : node.parameters)
-			Visit(param);
+			param->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::NoOp& /*node*/)
+	void AstRecursiveVisitor::Visit(SwizzleExpression& node)
+	{
+		node.expression->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(BranchStatement& node)
+	{
+		for (auto& cond : node.condStatements)
+		{
+			cond.condition->Visit(*this);
+			cond.statement->Visit(*this);
+		}
+
+		if (node.elseStatement)
+			node.elseStatement->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(ConditionalStatement& node)
+	{
+		node.statement->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(DeclareFunctionStatement& node)
+	{
+		for (auto& statement : node.statements)
+			statement->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(DeclareStructStatement& /*node*/)
 	{
 		/* Nothing to do */
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::ReturnStatement& node)
+	void AstRecursiveVisitor::Visit(DeclareVariableStatement& node)
 	{
-		if (node.returnExpr)
-			Visit(node.returnExpr);
+		if (node.initialExpression)
+			node.initialExpression->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::Sample2D& node)
+	void AstRecursiveVisitor::Visit(DiscardStatement& /*node*/)
 	{
-		Visit(node.sampler);
-		Visit(node.coordinates);
+		/* Nothing to do */
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::StatementBlock& node)
+	void AstRecursiveVisitor::Visit(ExpressionStatement& node)
+	{
+		node.expression->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(MultiStatement& node)
 	{
 		for (auto& statement : node.statements)
-			Visit(statement);
+			statement->Visit(*this);
 	}
 
-	void ShaderAstRecursiveVisitor::Visit(ShaderNodes::SwizzleOp& node)
+	void AstRecursiveVisitor::Visit(NoOpStatement& /*node*/)
 	{
-		Visit(node.expression);
+		/* Nothing to do */
+	}
+
+	void AstRecursiveVisitor::Visit(ReturnStatement& node)
+	{
+		if (node.returnExpr)
+			node.returnExpr->Visit(*this);
 	}
 }

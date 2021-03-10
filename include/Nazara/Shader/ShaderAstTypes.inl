@@ -2,18 +2,18 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderExpressionType.hpp>
+#include <Nazara/Shader/ShaderAstTypes.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
 	inline bool IsBasicType(const ShaderExpressionType& type)
 	{
 		return std::visit([&](auto&& arg)
 		{
 			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
+			if constexpr (std::is_same_v<T, BasicType>)
 				return true;
 			else if constexpr (std::is_same_v<T, std::string>)
 				return false;
@@ -25,8 +25,6 @@ namespace Nz
 
 	inline bool IsMatrixType(const ShaderExpressionType& type)
 	{
-		using namespace ShaderNodes;
-
 		if (!IsBasicType(type))
 			return false;
 
@@ -58,8 +56,6 @@ namespace Nz
 
 	inline bool IsSamplerType(const ShaderExpressionType& type)
 	{
-		using namespace ShaderNodes;
-
 		if (!IsBasicType(type))
 			return false;
 
@@ -94,7 +90,7 @@ namespace Nz
 		return std::visit([&](auto&& arg)
 		{
 			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
+			if constexpr (std::is_same_v<T, BasicType>)
 				return false;
 			else if constexpr (std::is_same_v<T, std::string>)
 				return true;
