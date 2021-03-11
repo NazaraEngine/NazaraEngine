@@ -21,7 +21,7 @@ namespace Nz
 	class NAZARA_SHADER_API SpirvAstVisitor : public ShaderAst::ExpressionVisitorExcept, public ShaderAst::StatementVisitorExcept
 	{
 		public:
-			inline SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks);
+			inline SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks, ShaderAst::AstCache* cache);
 			SpirvAstVisitor(const SpirvAstVisitor&) = delete;
 			SpirvAstVisitor(SpirvAstVisitor&&) = delete;
 			~SpirvAstVisitor() = default;
@@ -56,9 +56,10 @@ namespace Nz
 			void PushResultId(UInt32 value);
 			UInt32 PopResultId();
 
-			SpirvBlock* m_currentBlock;
+			ShaderAst::AstCache* m_cache;
 			std::vector<SpirvBlock>& m_blocks;
 			std::vector<UInt32> m_resultIds;
+			SpirvBlock* m_currentBlock;
 			SpirvWriter& m_writer;
 	};
 }

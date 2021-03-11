@@ -172,6 +172,7 @@ namespace Nz
 			SpirvConstantCache& operator=(SpirvConstantCache&& cache) noexcept;
 
 			static ConstantPtr BuildConstant(const ShaderConstantValue& value);
+			static TypePtr BuildFunctionType(const ShaderAst::ShaderExpressionType& retType, const std::vector<ShaderAst::ShaderExpressionType>& parameters);
 			static TypePtr BuildPointerType(const ShaderAst::BasicType& type, SpirvStorageClass storageClass);
 			static TypePtr BuildPointerType(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass);
 			static TypePtr BuildType(const ShaderAst::BasicType& type);
