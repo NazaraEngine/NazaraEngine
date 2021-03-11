@@ -49,9 +49,9 @@ namespace Nz::ShaderLang
 		private:
 			// Flow control
 			const Token& Advance();
-			void Expect(const Token& token, TokenType type);
-			const Token& ExpectNext(TokenType type);
-			const Token& PeekNext();
+			const Token& Expect(const Token& token, TokenType type);
+			const Token& Expect(TokenType type);
+			const Token& Peek(std::size_t advance = 0);
 
 			// Statements
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
@@ -70,7 +70,7 @@ namespace Nz::ShaderLang
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
 
-			std::string ParseIdentifierAsName();
+			const std::string& ParseIdentifierAsName();
 			ShaderAst::ShaderExpressionType ParseIdentifierAsType();
 
 			static int GetTokenPrecedence(TokenType token);

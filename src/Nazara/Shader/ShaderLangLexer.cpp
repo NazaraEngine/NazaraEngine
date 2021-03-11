@@ -36,7 +36,7 @@ namespace Nz::ShaderLang
 
 	std::vector<Token> Tokenize(const std::string_view& str)
 	{
-		// Can't use std::from_chars for double thanks to libc++ and libstdc++ developers being lazy
+		// Can't use std::from_chars for double thanks to libc++ and libstdc++ developers for being lazy
 		ForceCLocale forceCLocale;
 
 		std::unordered_map<std::string, TokenType> reservedKeywords = {
