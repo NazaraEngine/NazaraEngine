@@ -25,6 +25,12 @@ namespace Nz::ShaderLang
 		public:
 			using exception::exception;
 	};
+	
+	class UnknownAttribute : public std::exception
+	{
+		public:
+			using exception::exception;
+	};
 
 	class UnknownType : public std::exception
 	{
@@ -49,9 +55,12 @@ namespace Nz::ShaderLang
 		private:
 			// Flow control
 			const Token& Advance();
+			void Consume(std::size_t count = 1);
 			const Token& Expect(const Token& token, TokenType type);
 			const Token& Expect(TokenType type);
 			const Token& Peek(std::size_t advance = 0);
+
+			std::vector<ShaderAst::Attribute> ParseAttributes();
 
 			// Statements
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
@@ -70,6 +79,7 @@ namespace Nz::ShaderLang
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
 
+			ShaderAst::AttributeType ParseIdentifierAsAttributeType();
 			const std::string& ParseIdentifierAsName();
 			ShaderAst::ShaderExpressionType ParseIdentifierAsType();
 
@@ -77,6 +87,7 @@ namespace Nz::ShaderLang
 
 			struct Context
 			{
+				std::vector<ShaderAst::Attribute> pendingAttributes;
 				std::unique_ptr<ShaderAst::MultiStatement> root;
 				std::size_t tokenCount;
 				std::size_t tokenIndex = 0;

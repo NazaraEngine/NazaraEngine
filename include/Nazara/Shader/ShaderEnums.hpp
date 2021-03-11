@@ -16,6 +16,12 @@ namespace Nz::ShaderAst
 		Simple //< =
 	};
 
+	enum class AttributeType
+	{
+		Entry, //< Entry point (function only) - has argument type
+		Layout //< Struct layout (struct only) - has argument style
+	};
+
 	enum class BasicType
 	{
 		Boolean,   //< bool
