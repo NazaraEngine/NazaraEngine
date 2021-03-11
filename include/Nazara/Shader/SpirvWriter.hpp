@@ -56,10 +56,8 @@ namespace Nz
 
 			void AppendHeader();
 
-			SpirvConstantCache::Function BuildFunctionType(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters);
-
 			UInt32 GetConstantId(const ShaderConstantValue& value) const;
-			UInt32 GetFunctionTypeId(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters);
+			UInt32 GetFunctionTypeId(const ShaderAst::DeclareFunctionStatement& functionNode);
 			const ExtVar& GetBuiltinVariable(ShaderAst::BuiltinEntry builtin) const;
 			const ExtVar& GetInputVariable(const std::string& name) const;
 			const ExtVar& GetOutputVariable(const std::string& name) const;
@@ -81,12 +79,13 @@ namespace Nz
 			std::optional<UInt32> ReadVariable(const ExtVar& var, OnlyCache);
 
 			UInt32 RegisterConstant(const ShaderConstantValue& value);
-			UInt32 RegisterFunctionType(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters);
+			UInt32 RegisterFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
 			UInt32 RegisterPointerType(ShaderAst::ShaderExpressionType type, SpirvStorageClass storageClass);
 			UInt32 RegisterType(ShaderAst::ShaderExpressionType type);
 
 			void WriteLocalVariable(std::string name, UInt32 resultId);
 
+			static SpirvConstantCache::TypePtr BuildFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
 			static void MergeSections(std::vector<UInt32>& output, const SpirvSection& from);
 
 			struct Context

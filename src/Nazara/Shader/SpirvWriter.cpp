@@ -31,6 +31,7 @@ namespace Nz
 			public:
 				using ExtInstList = std::unordered_set<std::string>;
 				using LocalContainer = std::unordered_set<ShaderAst::ShaderExpressionType>;
+				using FunctionContainer = std::vector<std::reference_wrapper<ShaderAst::DeclareFunctionStatement>>;
 
 				PreVisitor(ShaderAst::AstCache* cache, const SpirvWriter::States& conditions, SpirvConstantCache& constantCache) :
 				m_cache(cache),
@@ -79,9 +80,15 @@ namespace Nz
 
 				void Visit(ShaderAst::DeclareFunctionStatement& node) override
 				{
-					m_constantCache.Register(*SpirvConstantCache::BuildType(node.returnType));
+					funcs.emplace_back(node);
+
+					std::vector<ShaderAst::ShaderExpressionType> parameterTypes;
 					for (auto& parameter : node.parameters)
-						m_constantCache.Register(*SpirvConstantCache::BuildType(parameter.type));
+						parameterTypes.push_back(parameter.type);
+
+					m_constantCache.Register(*SpirvConstantCache::BuildFunctionType(node.returnType, parameterTypes));
+
+					AstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(ShaderAst::DeclareStructStatement& node) override
@@ -92,14 +99,14 @@ namespace Nz
 
 				void Visit(ShaderAst::DeclareVariableStatement& node) override
 				{
-					variableTypes.insert(node.varType);
+					m_constantCache.Register(*SpirvConstantCache::BuildType(node.varType));
 
 					AstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(ShaderAst::IdentifierExpression& node) override
 				{
-					variableTypes.insert(GetExpressionType(node, m_cache));
+					m_constantCache.Register(*SpirvConstantCache::BuildType(GetExpressionType(node, m_cache)));
 
 					AstRecursiveVisitor::Visit(node);
 				}
@@ -122,7 +129,7 @@ namespace Nz
 				}
 
 				ExtInstList extInsts;
-				LocalContainer variableTypes;
+				FunctionContainer funcs;
 
 			private:
 				ShaderAst::AstCache* m_cache;
@@ -209,8 +216,6 @@ namespace Nz
 		{
 			m_currentState = nullptr;
 		});
-
-		std::vector<ShaderAst::StatementPtr> functionStatements;
 
 		ShaderAst::AstCloner cloner;
 
@@ -345,26 +350,22 @@ namespace Nz
 				state.annotations.Append(SpirvOp::OpDecorate, varId, SpirvDecoration::Binding, *uniform.bindingIndex);
 				state.annotations.Append(SpirvOp::OpDecorate, varId, SpirvDecoration::DescriptorSet, 0);
 			}
-		}
+		}*/
 
-		for (const auto& func : shader.GetFunctions())
+		for (const ShaderAst::DeclareFunctionStatement& func : preVisitor.funcs)
 		{
 			auto& funcData = state.funcs.emplace_back();
 			funcData.id = AllocateResultId();
-			funcData.typeId = GetFunctionTypeId(func.returnType, func.parameters);
+			funcData.typeId = GetFunctionTypeId(func);
 
 			state.debugInfo.Append(SpirvOp::OpName, funcData.id, func.name);
 		}
 
-		std::size_t entryPointIndex = std::numeric_limits<std::size_t>::max();
+		std::size_t funcIndex = 0;
 
-		for (std::size_t funcIndex = 0; funcIndex < shader.GetFunctionCount(); ++funcIndex)
+		for (const ShaderAst::DeclareFunctionStatement& func : preVisitor.funcs)
 		{
-			const auto& func = shader.GetFunction(funcIndex);
-			if (func.name == "main")
-				entryPointIndex = funcIndex;
-
-			auto& funcData = state.funcs[funcIndex];
+			auto& funcData = state.funcs[funcIndex++];
 
 			state.instructions.Append(SpirvOp::OpFunction, GetTypeId(func.returnType), funcData.id, 0, funcData.typeId);
 
@@ -386,8 +387,9 @@ namespace Nz
 				state.parameterIds.emplace(param.name, std::move(parameterData));
 			}
 
-			SpirvAstVisitor visitor(*this, state.functionBlocks);
-			visitor.Visit(functionStatements[funcIndex]);
+			SpirvAstVisitor visitor(*this, state.functionBlocks, &m_context.cache);
+			for (const auto& statement : func.statements)
+				statement->Visit(visitor);
 
 			if (!state.functionBlocks.back().IsTerminated())
 			{
@@ -405,7 +407,7 @@ namespace Nz
 
 		AppendHeader();
 
-		if (entryPointIndex != std::numeric_limits<std::size_t>::max())
+		/*if (entryPointIndex != std::numeric_limits<std::size_t>::max())
 		{
 			SpvExecutionModel execModel;
 			const auto& entryFuncData = shader.GetFunction(entryPointIndex);
@@ -415,11 +417,11 @@ namespace Nz
 			switch (m_context.shader->GetStage())
 			{
 				case ShaderStageType::Fragment:
-					execModel = SpvExecutionModelFragment;
+					execModel = SpirvExecutionModel::Fragment;
 					break;
 
 				case ShaderStageType::Vertex:
-					execModel = SpvExecutionModelVertex;
+					execModel = SpirvExecutionModel::Vertex;
 					break;
 
 				default:
@@ -445,15 +447,15 @@ namespace Nz
 			});
 
 			if (m_context.shader->GetStage() == ShaderStageType::Fragment)
-				state.header.Append(SpirvOp::OpExecutionMode, entryFunc.id, SpvExecutionModeOriginUpperLeft);
+				state.header.Append(SpirvOp::OpExecutionMode, entryFunc.id, SpirvExecutionMode::OriginUpperLeft);
 		}*/
 
 		std::vector<UInt32> ret;
-		/*MergeSections(ret, state.header);
+		MergeSections(ret, state.header);
 		MergeSections(ret, state.debugInfo);
 		MergeSections(ret, state.annotations);
 		MergeSections(ret, state.constants);
-		MergeSections(ret, state.instructions);*/
+		MergeSections(ret, state.instructions);
 
 		return ret;
 	}
@@ -479,26 +481,12 @@ namespace Nz
 		m_currentState->header.AppendRaw(m_currentState->nextVarIndex); //< Bound (ID count)
 		m_currentState->header.AppendRaw(0); //< Instruction schema (required to be 0 for now)
 
-		m_currentState->header.Append(SpirvOp::OpCapability, SpvCapabilityShader);
+		m_currentState->header.Append(SpirvOp::OpCapability, SpirvCapability::Shader);
 
 		for (const auto& [extInst, resultId] : m_currentState->extensionInstructions)
 			m_currentState->header.Append(SpirvOp::OpExtInstImport, resultId, extInst);
 
-		m_currentState->header.Append(SpirvOp::OpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450);
-	}
-
-	SpirvConstantCache::Function SpirvWriter::BuildFunctionType(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters)
-	{
-		std::vector<SpirvConstantCache::TypePtr> parameterTypes;
-		parameterTypes.reserve(parameters.size());
-
-		for (const auto& parameter : parameters)
-			parameterTypes.push_back(SpirvConstantCache::BuildPointerType(parameter.type, SpirvStorageClass::Function));
-
-		return SpirvConstantCache::Function{
-			SpirvConstantCache::BuildType(retType),
-			std::move(parameterTypes)
-		};
+		m_currentState->header.Append(SpirvOp::OpMemoryModel, SpirvAddressingModel::Logical, SpirvMemoryModel::GLSL450);
 	}
 
 	UInt32 SpirvWriter::GetConstantId(const ShaderConstantValue& value) const
@@ -506,9 +494,9 @@ namespace Nz
 		return m_currentState->constantTypeCache.GetId(*SpirvConstantCache::BuildConstant(value));
 	}
 
-	UInt32 SpirvWriter::GetFunctionTypeId(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters)
+	UInt32 SpirvWriter::GetFunctionTypeId(const ShaderAst::DeclareFunctionStatement& functionNode)
 	{
-		return m_currentState->constantTypeCache.GetId({ BuildFunctionType(retType, parameters) });
+		return m_currentState->constantTypeCache.GetId({ *BuildFunctionType(functionNode) });
 	}
 
 	auto SpirvWriter::GetBuiltinVariable(ShaderAst::BuiltinEntry builtin) const -> const ExtVar&
@@ -644,9 +632,9 @@ namespace Nz
 		return m_currentState->constantTypeCache.Register(*SpirvConstantCache::BuildConstant(value));
 	}
 
-	UInt32 SpirvWriter::RegisterFunctionType(ShaderAst::ShaderExpressionType retType, const std::vector<FunctionParameter>& parameters)
+	UInt32 SpirvWriter::RegisterFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode)
 	{
-		return m_currentState->constantTypeCache.Register({ BuildFunctionType(retType, parameters) });
+		return m_currentState->constantTypeCache.Register({ *BuildFunctionType(functionNode) });
 	}
 
 	UInt32 SpirvWriter::RegisterPointerType(ShaderAst::ShaderExpressionType type, SpirvStorageClass storageClass)
@@ -664,6 +652,17 @@ namespace Nz
 	{
 		assert(m_currentState);
 		m_currentState->varToResult.insert_or_assign(std::move(name), resultId);
+	}
+
+	SpirvConstantCache::TypePtr SpirvWriter::BuildFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode)
+	{
+		std::vector<ShaderAst::ShaderExpressionType> parameterTypes;
+		parameterTypes.reserve(functionNode.parameters.size());
+
+		for (const auto& parameter : functionNode.parameters)
+			parameterTypes.push_back(parameter.type);
+
+		return SpirvConstantCache::BuildFunctionType(functionNode.returnType, parameterTypes);
 	}
 
 	void SpirvWriter::MergeSections(std::vector<UInt32>& output, const SpirvSection& from)

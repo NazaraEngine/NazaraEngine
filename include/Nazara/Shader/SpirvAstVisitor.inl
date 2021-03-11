@@ -7,7 +7,8 @@
 
 namespace Nz
 {
-	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks) :
+	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks, ShaderAst::AstCache* cache) :
+	m_cache(cache),
 	m_blocks(blocks),
 	m_writer(writer)
 	{
