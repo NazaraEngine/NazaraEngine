@@ -100,6 +100,7 @@ namespace Nz::ShaderLang
 				{
 					if (Peek() == '>')
 					{
+						currentPos++;
 						tokenType = TokenType::FunctionReturn;
 						break;
 					}
@@ -225,7 +226,10 @@ namespace Nz::ShaderLang
 				{
 					char next = Peek();
 					if (next == '[')
+					{
+						currentPos++;
 						tokenType = TokenType::OpenAttribute;
+					}
 					else
 						tokenType = TokenType::OpenSquareBracket;
 
@@ -236,7 +240,10 @@ namespace Nz::ShaderLang
 				{
 					char next = Peek();
 					if (next == ']')
+					{
+						currentPos++;
 						tokenType = TokenType::ClosingAttribute;
+					}
 					else
 						tokenType = TokenType::ClosingSquareBracket;
 
@@ -255,26 +262,28 @@ namespace Nz::ShaderLang
 				case '(': tokenType = TokenType::OpenParenthesis; break;
 				case ')': tokenType = TokenType::ClosingParenthesis; break;
 
-				default: break;
-			}
-
-			if (!tokenType)
-			{
-				if (IsAlphaNum(c))
+				default:
 				{
-					std::size_t start = currentPos;
-
-					while (IsAlphaNum(Peek()))
-						currentPos++;
-
-					std::string identifier(str.substr(start, currentPos - start + 1));
-					if (auto it = reservedKeywords.find(identifier); it == reservedKeywords.end())
+					if (IsAlphaNum(c))
 					{
-						tokenType = TokenType::Identifier;
-						token.data = std::move(identifier);
+						std::size_t start = currentPos;
+
+						while (IsAlphaNum(Peek()))
+							currentPos++;
+
+						std::string identifier(str.substr(start, currentPos - start + 1));
+						if (auto it = reservedKeywords.find(identifier); it == reservedKeywords.end())
+						{
+							tokenType = TokenType::Identifier;
+							token.data = std::move(identifier);
+						}
+						else
+							tokenType = it->second;
+
+						break;
 					}
 					else
-						tokenType = it->second;
+						throw UnrecognizedToken{};
 				}
 			}
 
