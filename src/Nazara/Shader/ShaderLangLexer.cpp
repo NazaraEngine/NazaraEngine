@@ -221,6 +221,28 @@ namespace Nz::ShaderLang
 					break;
 				}
 
+				case '[':
+				{
+					char next = Peek();
+					if (next == '[')
+						tokenType = TokenType::OpenAttribute;
+					else
+						tokenType = TokenType::OpenSquareBracket;
+
+					break;
+				}
+
+				case ']':
+				{
+					char next = Peek();
+					if (next == ']')
+						tokenType = TokenType::ClosingAttribute;
+					else
+						tokenType = TokenType::ClosingSquareBracket;
+
+					break;
+				}
+
 				case '=': tokenType = TokenType::Assign; break;
 				case '+': tokenType = TokenType::Plus; break;
 				case '*': tokenType = TokenType::Multiply; break;
