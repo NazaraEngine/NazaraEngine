@@ -233,7 +233,7 @@ namespace Nz
 
 		void Register(const Function& func)
 		{
-			Register(func.returnType);
+			cache.Register(*func.returnType);
 			Register(func.parameters);
 		}
 
