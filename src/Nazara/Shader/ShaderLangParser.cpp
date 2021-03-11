@@ -33,6 +33,11 @@ namespace Nz::ShaderLang
 			{ "vec3u32", ShaderAst::BasicType::UInt3 },
 			{ "vec4u32", ShaderAst::BasicType::UInt4 },
 		};
+
+		std::unordered_map<std::string, ShaderAst::AttributeType> identifierToAttributeType = {
+			{ "entry",  ShaderAst::AttributeType::Entry },
+			{ "layout", ShaderAst::AttributeType::Layout },
+		};
 	}
 
 	ShaderAst::StatementPtr Parser::Parse(const std::vector<Token>& tokens)
@@ -51,6 +56,10 @@ namespace Nz::ShaderLang
 			const Token& nextToken = Peek();
 			switch (nextToken.type)
 			{
+				case TokenType::OpenAttribute:
+					context.pendingAttributes = ParseAttributes();
+					break;
+
 				case TokenType::FunctionDeclaration:
 					context.root->statements.push_back(ParseFunctionDeclaration());
 					break;
@@ -75,6 +84,12 @@ namespace Nz::ShaderLang
 		return token;
 	}
 
+	void Parser::Consume(std::size_t count)
+	{
+		assert(m_context->tokenIndex + count < m_context->tokenCount);
+		m_context->tokenIndex += count;
+	}
+
 	const Token& Parser::Expect(const Token& token, TokenType type)
 	{
 		if (token.type != type)
@@ -95,6 +110,58 @@ namespace Nz::ShaderLang
 	{
 		assert(m_context->tokenIndex + advance < m_context->tokenCount);
 		return m_context->tokens[m_context->tokenIndex + advance];
+	}
+
+	std::vector<ShaderAst::Attribute> Parser::ParseAttributes()
+	{
+		std::vector<ShaderAst::Attribute> attributes;
+
+		Expect(Advance(), TokenType::OpenAttribute);
+
+		bool expectComma = false;
+		for (;;)
+		{
+			const Token& t = Peek();
+			if (t.type == TokenType::ClosingAttribute)
+			{
+				// Parse [[attribute1]] [[attribute2]] the same as [[attribute1, attribute2]]
+				if (Peek(1).type == TokenType::OpenAttribute)
+				{
+					Consume(2);
+					expectComma = false;
+					continue;
+				}
+
+				break;
+			}
+
+			if (expectComma)
+				Expect(Advance(), TokenType::Comma);
+
+			ShaderAst::AttributeType attributeType = ParseIdentifierAsAttributeType();
+
+			std::string arg;
+			if (Peek().type == TokenType::OpenParenthesis)
+			{
+				Consume();
+
+				if (Peek().type == TokenType::Identifier)
+					arg = std::get<std::string>(Advance().data);
+
+				Expect(Advance(), TokenType::ClosingParenthesis);
+			}
+
+			expectComma = true;
+
+			attributes.push_back({
+				attributeType,
+				std::move(arg)
+			});
+		}
+
+		Expect(Advance(), TokenType::ClosingAttribute);
+
+		return attributes;
 	}
 
 	std::vector<ShaderAst::StatementPtr> Parser::ParseFunctionBody()
@@ -120,10 +187,7 @@ namespace Nz::ShaderLang
 				break;
 
 			if (!firstParameter)
-			{
-				Expect(t, TokenType::Comma);
-				Advance();
-			}
+				Expect(Advance(), TokenType::Comma);
 
 			parameters.push_back(ParseFunctionParameter());
 			firstParameter = false;
@@ -134,8 +198,7 @@ namespace Nz::ShaderLang
 		ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void;
 		if (Peek().type == TokenType::FunctionReturn)
 		{
-			Advance(); //< Consume ->
-
+			Consume();
 			returnType = ParseIdentifierAsType();
 		}
 
@@ -218,7 +281,7 @@ namespace Nz::ShaderLang
 		ShaderAst::ExpressionPtr expression;
 		if (Peek().type == TokenType::Assign)
 		{
-			Advance();
+			Consume();
 			expression = ParseExpression();
 		}
 
@@ -235,7 +298,7 @@ namespace Nz::ShaderLang
 			if (tokenPrecedence < exprPrecedence)
 				return lhs;
 
-			Advance();
+			Consume();
 			ShaderAst::ExpressionPtr rhs = ParsePrimaryExpression();
 
 			const Token& nextOp = Peek();
@@ -255,7 +318,6 @@ namespace Nz::ShaderLang
 					default: throw UnexpectedToken{};
 				}
 			}
-			
 
 			lhs = ShaderBuilder::Binary(binaryType, std::move(lhs), std::move(rhs));
 		}
@@ -295,15 +357,15 @@ namespace Nz::ShaderLang
 		switch (token.type)
 		{
 			case TokenType::BoolFalse:
-				Advance();
+				Consume();
 				return ShaderBuilder::Constant(false);
 
 			case TokenType::BoolTrue:
-				Advance();
+				Consume();
 				return ShaderBuilder::Constant(true);
 
 			case TokenType::FloatingPointValue:
-				Advance();
+				Consume();
 				return ShaderBuilder::Constant(float(std::get<double>(token.data))); //< FIXME
 
 			case TokenType::Identifier:
@@ -318,6 +380,18 @@ namespace Nz::ShaderLang
 			default:
 				throw UnexpectedToken{};
 		}
+	}
+
+	ShaderAst::AttributeType Parser::ParseIdentifierAsAttributeType()
+	{
+		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
+		const std::string& identifier = std::get<std::string>(identifierToken.data);
+
+		auto it = identifierToAttributeType.find(identifier);
+		if (it == identifierToAttributeType.end())
+			throw UnknownAttribute{};
+
+		return it->second;
 	}
 
 	const std::string& Parser::ParseIdentifierAsName()

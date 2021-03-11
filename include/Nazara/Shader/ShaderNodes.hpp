@@ -12,9 +12,9 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderAstTypes.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderAstTypes.hpp>
 #include <array>
 #include <memory>
 #include <optional>
@@ -24,6 +24,12 @@ namespace Nz::ShaderAst
 {
 	class AstExpressionVisitor;
 	class AstStatementVisitor;
+
+	struct Attribute
+	{
+		AttributeType type;
+		std::string args;
+	};
 
 	struct NAZARA_SHADER_API Node
 	{
