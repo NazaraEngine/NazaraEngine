@@ -39,13 +39,13 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::BinaryExpression& node)
 	{
-		ShaderAst::ShaderExpressionType resultExprType = ShaderAst::GetExpressionType(node);
+		ShaderAst::ShaderExpressionType resultExprType = ShaderAst::GetExpressionType(node, m_cache);
 		assert(IsBasicType(resultExprType));
 
-		ShaderAst::ShaderExpressionType leftExprType = ShaderAst::GetExpressionType(*node.left);
+		ShaderAst::ShaderExpressionType leftExprType = ShaderAst::GetExpressionType(*node.left, m_cache);
 		assert(IsBasicType(leftExprType));
 
-		ShaderAst::ShaderExpressionType rightExprType = ShaderAst::GetExpressionType(*node.right);
+		ShaderAst::ShaderExpressionType rightExprType = ShaderAst::GetExpressionType(*node.right, m_cache);
 		assert(IsBasicType(rightExprType));
 
 		ShaderAst::BasicType resultType = std::get<ShaderAst::BasicType>(resultExprType);
@@ -582,7 +582,7 @@ namespace Nz
 		{
 			case ShaderAst::IntrinsicType::DotProduct:
 			{
-				const ShaderAst::ShaderExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
+				ShaderAst::ShaderExpressionType vecExprType = GetExpressionType(*node.parameters[0], m_cache);
 				assert(IsBasicType(vecExprType));
 
 				ShaderAst::BasicType vecType = std::get<ShaderAst::BasicType>(vecExprType);
@@ -626,7 +626,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		const ShaderAst::ShaderExpressionType& targetExprType = ShaderAst::GetExpressionType(node);
+		ShaderAst::ShaderExpressionType targetExprType = ShaderAst::GetExpressionType(node, m_cache);
 		assert(IsBasicType(targetExprType));
 
 		ShaderAst::BasicType targetType = std::get<ShaderAst::BasicType>(targetExprType);

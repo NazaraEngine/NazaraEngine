@@ -570,18 +570,32 @@ namespace Nz
 		}, value));
 	}
 
+	auto SpirvConstantCache::BuildFunctionType(const ShaderAst::ShaderExpressionType& retType, const std::vector<ShaderAst::ShaderExpressionType>& parameters) -> TypePtr
+	{
+		std::vector<SpirvConstantCache::TypePtr> parameterTypes;
+		parameterTypes.reserve(parameters.size());
+
+		for (const auto& parameterType : parameters)
+			parameterTypes.push_back(BuildPointerType(parameterType, SpirvStorageClass::Function));
+
+		return std::make_shared<Type>(Function{
+			BuildType(retType),
+			std::move(parameterTypes)
+		});
+	}
+
 	auto SpirvConstantCache::BuildPointerType(const ShaderAst::BasicType& type, SpirvStorageClass storageClass) -> TypePtr
 	{
-		return std::make_shared<Type>(SpirvConstantCache::Pointer{
-			SpirvConstantCache::BuildType(type),
+		return std::make_shared<Type>(Pointer{
+			BuildType(type),
 			storageClass
 		});
 	}
 
 	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
 	{
-		return std::make_shared<Type>(SpirvConstantCache::Pointer{
-			SpirvConstantCache::BuildType(type),
+		return std::make_shared<Type>(Pointer{
+			BuildType(type),
 			storageClass
 		});
 	}

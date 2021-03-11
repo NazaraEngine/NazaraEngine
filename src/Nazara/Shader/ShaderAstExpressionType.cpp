@@ -163,6 +163,8 @@ namespace Nz::ShaderAst
 
 	void ExpressionTypeVisitor::Visit(IdentifierExpression& node)
 	{
+		assert(m_cache);
+
 		auto scopeIt = m_cache->scopeIdByNode.find(&node);
 		if (scopeIt == m_cache->scopeIdByNode.end())
 			throw std::runtime_error("internal error");
