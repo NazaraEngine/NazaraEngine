@@ -192,7 +192,7 @@ namespace Nz::ShaderAst
 
 	void ExpressionTypeVisitor::Visit(SwizzleExpression& node)
 	{
-		const ShaderExpressionType& exprType = GetExpressionTypeInternal(*node.expression);
+		ShaderExpressionType exprType = GetExpressionTypeInternal(*node.expression);
 		assert(IsBasicType(exprType));
 
 		m_lastExpressionType = static_cast<BasicType>(UnderlyingCast(GetComponentType(std::get<BasicType>(exprType))) + node.componentCount - 1);

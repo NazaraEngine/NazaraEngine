@@ -201,6 +201,7 @@ namespace Nz::ShaderAst
 		};
 
 		std::string name;
+		std::vector<Attribute> attributes;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
 		ShaderExpressionType returnType = BasicType::Void;

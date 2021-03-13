@@ -57,7 +57,7 @@ namespace Nz::ShaderLang
 			switch (nextToken.type)
 			{
 				case TokenType::OpenAttribute:
-					context.pendingAttributes = ParseAttributes();
+					HandleAttributes();
 					break;
 
 				case TokenType::FunctionDeclaration:
@@ -98,6 +98,14 @@ namespace Nz::ShaderLang
 		return token;
 	}
 
+	const Token& Parser::ExpectNot(const Token& token, TokenType type)
+	{
+		if (token.type == type)
+			throw ExpectedToken{};
+
+		return token;
+	}
+
 	const Token& Parser::Expect(TokenType type)
 	{
 		const Token& token = Peek();
@@ -112,7 +120,7 @@ namespace Nz::ShaderLang
 		return m_context->tokens[m_context->tokenIndex + advance];
 	}
 
-	std::vector<ShaderAst::Attribute> Parser::ParseAttributes()
+	void Parser::HandleAttributes()
 	{
 		std::vector<ShaderAst::Attribute> attributes;
 
@@ -122,6 +130,8 @@ namespace Nz::ShaderLang
 		for (;;)
 		{
 			const Token& t = Peek();
+			ExpectNot(t, TokenType::EndOfStream);
+
 			if (t.type == TokenType::ClosingAttribute)
 			{
 				// Parse [[attribute1]] [[attribute2]] the same as [[attribute1, attribute2]]
@@ -161,7 +171,16 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingAttribute);
 
-		return attributes;
+		const Token& nextToken = Peek();
+		switch (nextToken.type)
+		{
+			case TokenType::FunctionDeclaration:
+				m_context->root->statements.push_back(ParseFunctionDeclaration(std::move(attributes)));
+				break;
+
+			default:
+				throw UnexpectedToken{};
+		}
 	}
 
 	std::vector<ShaderAst::StatementPtr> Parser::ParseFunctionBody()
@@ -169,7 +188,7 @@ namespace Nz::ShaderLang
 		return ParseStatementList();
 	}
 
-	ShaderAst::StatementPtr Parser::ParseFunctionDeclaration()
+	ShaderAst::StatementPtr Parser::ParseFunctionDeclaration(std::vector<ShaderAst::Attribute> attributes)
 	{
 		Expect(Advance(), TokenType::FunctionDeclaration);
 
@@ -183,6 +202,8 @@ namespace Nz::ShaderLang
 		for (;;)
 		{
 			const Token& t = Peek();
+			ExpectNot(t, TokenType::EndOfStream);
+
 			if (t.type == TokenType::ClosingParenthesis)
 				break;
 
@@ -208,7 +229,7 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
-		return ShaderBuilder::DeclareFunction(std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
+		return ShaderBuilder::DeclareFunction(std::move(attributes), std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
 	}
 
 	ShaderAst::DeclareFunctionStatement::Parameter Parser::ParseFunctionParameter()
@@ -262,6 +283,7 @@ namespace Nz::ShaderLang
 		std::vector<ShaderAst::StatementPtr> statements;
 		while (Peek().type != TokenType::ClosingCurlyBracket)
 		{
+			ExpectNot(Peek(), TokenType::EndOfStream);
 			statements.push_back(ParseStatement());
 		}
 
@@ -293,6 +315,7 @@ namespace Nz::ShaderLang
 		for (;;)
 		{
 			const Token& currentOp = Peek();
+			ExpectNot(currentOp, TokenType::EndOfStream);
 
 			int tokenPrecedence = GetTokenPrecedence(currentOp.type);
 			if (tokenPrecedence < exprPrecedence)

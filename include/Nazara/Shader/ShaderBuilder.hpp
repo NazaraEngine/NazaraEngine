@@ -34,6 +34,7 @@ namespace Nz::ShaderBuilder
 		struct DeclareFunction
 		{
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void) const;
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void) const;
 		};
 
 		struct DeclareVariable
