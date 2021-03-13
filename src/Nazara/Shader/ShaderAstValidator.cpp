@@ -6,11 +6,21 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderAstExpressionType.hpp>
+#include <unordered_set>
 #include <vector>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
 {
+	namespace
+	{
+		std::unordered_map<std::string, ShaderStageType> entryPoints = {
+			{ "frag", ShaderStageType::Fragment },
+			{ "vert", ShaderStageType::Vertex },
+		};
+
+	}
+
 	struct AstError
 	{
 		std::string errMsg;
@@ -135,7 +145,7 @@ namespace Nz::ShaderAst
 	{
 		RegisterScope(node);
 
-		const ShaderExpressionType& exprType = GetExpressionType(MandatoryExpr(node.structExpr), m_context->cache);
+		ShaderExpressionType exprType = GetExpressionType(MandatoryExpr(node.structExpr), m_context->cache);
 		if (!IsStructType(exprType))
 			throw AstError{ "expression is not a structure" };
 
@@ -165,11 +175,11 @@ namespace Nz::ShaderAst
 		// Register expression type
 		AstRecursiveVisitor::Visit(node);
 
-		const ShaderExpressionType& leftExprType = GetExpressionType(MandatoryExpr(node.left), m_context->cache);
+		ShaderExpressionType leftExprType = GetExpressionType(MandatoryExpr(node.left), m_context->cache);
 		if (!IsBasicType(leftExprType))
 			throw AstError{ "left expression type does not support binary operation" };
 
-		const ShaderExpressionType& rightExprType = GetExpressionType(MandatoryExpr(node.right), m_context->cache);
+		ShaderExpressionType rightExprType = GetExpressionType(MandatoryExpr(node.right), m_context->cache);
 		if (!IsBasicType(rightExprType))
 			throw AstError{ "right expression type does not support binary operation" };
 
@@ -349,7 +359,7 @@ namespace Nz::ShaderAst
 		if (node.componentCount > 4)
 			throw AstError{ "Cannot swizzle more than four elements" };
 
-		const ShaderExpressionType& exprType = GetExpressionType(MandatoryExpr(node.expression), m_context->cache);
+		ShaderExpressionType exprType = GetExpressionType(MandatoryExpr(node.expression), m_context->cache);
 		if (!IsBasicType(exprType))
 			throw AstError{ "Cannot swizzle this type" };
 
@@ -378,7 +388,7 @@ namespace Nz::ShaderAst
 
 		for (auto& condStatement : node.condStatements)
 		{
-			const ShaderExpressionType& condType = GetExpressionType(MandatoryExpr(condStatement.condition), m_context->cache);
+			ShaderExpressionType condType = GetExpressionType(MandatoryExpr(condStatement.condition), m_context->cache);
 			if (!IsBasicType(condType) || std::get<BasicType>(condType) != BasicType::Boolean)
 				throw AstError{ "if expression must resolve to boolean type" };
 
@@ -401,8 +411,40 @@ namespace Nz::ShaderAst
 
 	void AstValidator::Visit(DeclareFunctionStatement& node)
 	{
-		auto& scope = EnterScope();
+		bool hasEntry = false;
+		for (const auto& [attributeType, arg] : node.attributes)
+		{
+			switch (attributeType)
+			{
+				case AttributeType::Entry:
+				{
+					if (hasEntry)
+						throw AstError{ "attribute entry must be present once" };
 
+					if (arg.empty())
+						throw AstError{ "attribute entry requires a parameter" };
+
+					auto it = entryPoints.find(arg);
+					if (it == entryPoints.end())
+						throw AstError{ "invalid parameter " + arg + " for entry attribute" };
+
+					ShaderStageType stageType = it->second;
+
+					if (m_context->cache->entryFunctions[UnderlyingCast(stageType)])
+						throw AstError{ "the same entry type has been defined multiple times" };
+
+					m_context->cache->entryFunctions[UnderlyingCast(it->second)] = &node;
+
+					hasEntry = true;
+					break;
+				}
+
+				default:
+					throw AstError{ "unhandled attribute for function" };
+			}
+		}
+
+		auto& scope = EnterScope();
 		RegisterScope(node);
 
 		for (auto& parameter : node.parameters)

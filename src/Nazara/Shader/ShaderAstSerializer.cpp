@@ -157,6 +157,13 @@ namespace Nz::ShaderAst
 		Value(node.name);
 		Type(node.returnType);
 
+		Container(node.attributes);
+		for (auto& attribute : node.attributes)
+		{
+			Enum(attribute.type);
+			Value(attribute.args);
+		}
+
 		Container(node.parameters);
 		for (auto& parameter : node.parameters)
 		{

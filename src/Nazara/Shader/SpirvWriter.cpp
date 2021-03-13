@@ -14,7 +14,6 @@
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
-#include <SpirV/spirv.h>
 #include <SpirV/GLSL.std.450.h>
 #include <cassert>
 #include <stdexcept>
@@ -172,6 +171,7 @@ namespace Nz
 
 		struct Func
 		{
+			const ShaderAst::DeclareFunctionStatement* statement = nullptr;
 			UInt32 typeId;
 			UInt32 id;
 		};
@@ -355,6 +355,7 @@ namespace Nz
 		for (const ShaderAst::DeclareFunctionStatement& func : preVisitor.funcs)
 		{
 			auto& funcData = state.funcs.emplace_back();
+			funcData.statement = &func;
 			funcData.id = AllocateResultId();
 			funcData.typeId = GetFunctionTypeId(func);
 
@@ -407,14 +408,21 @@ namespace Nz
 
 		AppendHeader();
 
-		/*if (entryPointIndex != std::numeric_limits<std::size_t>::max())
+		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
 		{
-			SpvExecutionModel execModel;
-			const auto& entryFuncData = shader.GetFunction(entryPointIndex);
-			const auto& entryFunc = state.funcs[entryPointIndex];
+			const ShaderAst::DeclareFunctionStatement* statement = m_context.cache.entryFunctions[i];
+			if (!statement)
+				continue;
 
-			assert(m_context.shader);
-			switch (m_context.shader->GetStage())
+			auto it = std::find_if(state.funcs.begin(), state.funcs.end(), [&](const auto& funcData) { return funcData.statement == statement; });
+			assert(it != state.funcs.end());
+
+			const auto& entryFunc = *it;
+
+			SpirvExecutionModel execModel;
+
+			ShaderStageType stage = static_cast<ShaderStageType>(i);
+			switch (stage)
 			{
 				case ShaderStageType::Fragment:
 					execModel = SpirvExecutionModel::Fragment;
@@ -427,14 +435,12 @@ namespace Nz
 				default:
 					throw std::runtime_error("not yet implemented");
 			}
-
-			// OpEntryPoint Vertex %main "main" %outNormal %inNormals %outTexCoords %inTexCoord %_ %inPos
-
+			
 			state.header.AppendVariadic(SpirvOp::OpEntryPoint, [&](const auto& appender)
 			{
 				appender(execModel);
 				appender(entryFunc.id);
-				appender(entryFuncData.name);
+				appender(statement->name);
 
 				for (const auto& [name, varData] : state.builtinIds)
 					appender(varData.varId);
@@ -446,9 +452,9 @@ namespace Nz
 					appender(varData.varId);
 			});
 
-			if (m_context.shader->GetStage() == ShaderStageType::Fragment)
+			if (stage == ShaderStageType::Fragment)
 				state.header.Append(SpirvOp::OpExecutionMode, entryFunc.id, SpirvExecutionMode::OriginUpperLeft);
-		}*/
+		}
 
 		std::vector<UInt32> ret;
 		MergeSections(ret, state.header);
@@ -472,7 +478,7 @@ namespace Nz
 
 	void SpirvWriter::AppendHeader()
 	{
-		m_currentState->header.AppendRaw(SpvMagicNumber); //< Spir-V magic number
+		m_currentState->header.AppendRaw(SpirvMagicNumber); //< Spir-V magic number
 
 		UInt32 version = (m_environment.spvMajorVersion << 16) | m_environment.spvMinorVersion << 8;
 		m_currentState->header.AppendRaw(version); //< Spir-V version number (1.0 for compatibility)

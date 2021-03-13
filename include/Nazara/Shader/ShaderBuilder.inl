@@ -58,6 +58,18 @@ namespace Nz::ShaderBuilder
 		return declareFunctionNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType) const
+	{
+		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
+		declareFunctionNode->attributes = std::move(attributes);
+		declareFunctionNode->name = std::move(name);
+		declareFunctionNode->parameters = std::move(parameters);
+		declareFunctionNode->returnType = std::move(returnType);
+		declareFunctionNode->statements = std::move(statements);
+
+		return declareFunctionNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::DeclareVariableStatement> Nz::ShaderBuilder::Impl::DeclareVariable::operator()(std::string name, ShaderAst::ShaderExpressionType type, ShaderAst::ExpressionPtr initialValue) const
 	{
 		auto declareVariableNode = std::make_unique<ShaderAst::DeclareVariableStatement>();

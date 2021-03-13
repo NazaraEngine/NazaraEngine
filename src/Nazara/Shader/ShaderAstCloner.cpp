@@ -165,6 +165,7 @@ namespace Nz::ShaderAst
 	void AstCloner::Visit(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
+		clone->attributes = node.attributes;
 		clone->name = node.name;
 		clone->parameters = node.parameters;
 		clone->returnType = node.returnType;

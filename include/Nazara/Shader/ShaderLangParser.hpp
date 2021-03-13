@@ -57,14 +57,15 @@ namespace Nz::ShaderLang
 			const Token& Advance();
 			void Consume(std::size_t count = 1);
 			const Token& Expect(const Token& token, TokenType type);
+			const Token& ExpectNot(const Token& token, TokenType type);
 			const Token& Expect(TokenType type);
 			const Token& Peek(std::size_t advance = 0);
 
-			std::vector<ShaderAst::Attribute> ParseAttributes();
+			void HandleAttributes();
 
 			// Statements
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
-			ShaderAst::StatementPtr ParseFunctionDeclaration();
+			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
 			ShaderAst::StatementPtr ParseReturnStatement();
 			ShaderAst::StatementPtr ParseStatement();
@@ -87,7 +88,6 @@ namespace Nz::ShaderLang
 
 			struct Context
 			{
-				std::vector<ShaderAst::Attribute> pendingAttributes;
 				std::unique_ptr<ShaderAst::MultiStatement> root;
 				std::size_t tokenCount;
 				std::size_t tokenIndex = 0;
