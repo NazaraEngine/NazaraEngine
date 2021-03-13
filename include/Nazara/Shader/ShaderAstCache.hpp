@@ -37,6 +37,7 @@ namespace Nz::ShaderAst
 		inline std::size_t GetScopeId(const Node* node) const;
 
 		ShaderStageType stageType = ShaderStageType::Undefined;
+		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::unordered_map<const Expression*, ShaderExpressionType> nodeExpressionType;
 		std::unordered_map<const Node*, std::size_t> scopeIdByNode;
 		std::vector<Scope> scopes;
