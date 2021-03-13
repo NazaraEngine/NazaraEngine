@@ -15,6 +15,8 @@ ACTION.Function = function()
 
 	print("Done")
 
+	io.write("Parsing... ")
+
 	local result, err = json.decode(content)
 	assert(result, err)
 
@@ -34,15 +36,25 @@ ACTION.Function = function()
 	local operandByInstruction = {}
 	for _, instruction in pairs(instructions) do
 		if (instruction.operands) then
+			local resultId
 			local firstId = #operands
 			local operandCount = #instruction.operands
-			for _, operand in pairs(instruction.operands) do
+			for i, operand in pairs(instruction.operands) do
 				table.insert(operands, operand)
+
+				if (operand.kind == "IdResult") then
+					assert(not resultId, "unexpected operand with two IdResult")
+					resultId = i - 1
+				end
 			end
 
-			operandByInstruction[instruction.opcode] = { firstId = firstId, count = operandCount }
+			operandByInstruction[instruction.opcode] = { firstId = firstId, count = operandCount, resultId = resultId }
 		end
 	end
+
+	print("Done")
+
+	io.write("Generating... ")
 
 	local headerFile = io.open("../include/Nazara/Shader/SpirvData.hpp", "w+")
 	assert(headerFile, "failed to open Spir-V header")
@@ -65,6 +77,15 @@ ACTION.Function = function()
 
 namespace Nz
 {
+]])
+
+	headerFile:write([[
+	constexpr UInt32 SpirvMagicNumber = ]] .. result.magic_number .. [[;
+	constexpr UInt32 SpirvMajorVersion = ]] .. result.major_version .. [[;
+	constexpr UInt32 SpirvMinorVersion = ]] .. result.minor_version .. [[;
+	constexpr UInt32 SpirvRevision = ]] .. result.revision .. [[;
+	constexpr UInt32 SpirvVersion = (SpirvMajorVersion << 16) | (SpirvMinorVersion << 8);
+
 ]])
 
 	-- SpirV operations
@@ -155,6 +176,7 @@ headerFile:write([[
 		SpirvOp op;
 		const char* name;
 		const Operand* operands;
+		const Operand* resultOperand;
 		std::size_t minOperandCount;
 	};
 
@@ -210,12 +232,14 @@ namespace Nz
 
 	for _, instruction in pairs(instructions) do
 		local opByInstruction = operandByInstruction[instruction.opcode]
+		local resultId = opByInstruction and opByInstruction.resultId or nil
 
 		sourceFile:write([[
 			{
 				SpirvOp::]] .. instruction.opname .. [[,
 				R"(]] .. instruction.opname .. [[)",
 				]] .. (opByInstruction and "&s_operands[" .. opByInstruction.firstId .. "]" or "nullptr") .. [[,
+				]] .. (resultId and "&s_operands[" .. opByInstruction.firstId + resultId .. "]" or "nullptr") .. [[,
 				]] .. (opByInstruction and opByInstruction.count or "0") .. [[,
 			},
 ]])
@@ -243,4 +267,5 @@ namespace Nz
 }
 ]])
 
+	print("Done")
 end

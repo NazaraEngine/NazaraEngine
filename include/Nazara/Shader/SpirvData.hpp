@@ -15,6 +15,12 @@
 
 namespace Nz
 {
+	constexpr UInt32 SpirvMagicNumber = 0x07230203;
+	constexpr UInt32 SpirvMajorVersion = 1;
+	constexpr UInt32 SpirvMinorVersion = 5;
+	constexpr UInt32 SpirvRevision = 4;
+	constexpr UInt32 SpirvVersion = (SpirvMajorVersion << 16) | (SpirvMinorVersion << 8);
+
 	enum class SpirvOp
 	{
 		OpNop = 0,
@@ -442,6 +448,8 @@ namespace Nz
 		OpAsmCallINTEL = 5611,
 		OpAtomicFMinEXT = 5614,
 		OpAtomicFMaxEXT = 5615,
+		OpAssumeTrueKHR = 5630,
+		OpExpectKHR = 5631,
 		OpDecorateString = 5632,
 		OpDecorateStringGOOGLE = 5632,
 		OpMemberDecorateString = 5633,
@@ -1178,6 +1186,7 @@ namespace Nz
 	{
 		Export = 0,
 		Import = 1,
+		LinkOnceODR = 2,
 	};
 
 	enum class SpirvAccessQualifier
@@ -1636,6 +1645,7 @@ namespace Nz
 		AtomicFloat16MinMaxEXT = 5616,
 		VectorComputeINTEL = 5617,
 		VectorAnyINTEL = 5619,
+		ExpectAssumeKHR = 5629,
 		SubgroupAvcMotionEstimationINTEL = 5696,
 		SubgroupAvcMotionEstimationIntraINTEL = 5697,
 		SubgroupAvcMotionEstimationChromaINTEL = 5698,
@@ -1691,6 +1701,7 @@ namespace Nz
 		SpirvOp op;
 		const char* name;
 		const Operand* operands;
+		const Operand* resultOperand;
 		std::size_t minOperandCount;
 	};
 
