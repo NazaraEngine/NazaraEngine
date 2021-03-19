@@ -37,7 +37,10 @@ namespace Nz
 			HandledObject(HandledObject&& object) noexcept;
 			~HandledObject();
 
-			ObjectHandle<T> CreateHandle();
+			template<typename U = T>
+			ObjectHandle<U> CreateHandle();
+
+			std::shared_ptr<const Detail::HandleData> GetHandleData();
 
 			HandledObject& operator=(const HandledObject& object);
 			HandledObject& operator=(HandledObject&& object) noexcept;
@@ -48,7 +51,6 @@ namespace Nz
 			void UnregisterAllHandles() noexcept;
 
 		private:
-			std::shared_ptr<const Detail::HandleData> GetHandleData();
 			void InitHandleData();
 
 			std::shared_ptr<Detail::HandleData> m_handleData;

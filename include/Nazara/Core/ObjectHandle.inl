@@ -26,15 +26,34 @@ namespace Nz
 	{
 	}
 
+	template<typename T>
+	template<typename U>
+	ObjectHandle<T>::ObjectHandle(const ObjectHandle<U>& ref) :
+	m_handleData(ref.m_handleData)
+	{
+		static_assert(std::is_base_of_v<T, U>, "Can only implicitly convert from a derived to a base");
+	}
+
+	template<typename T>
+	template<typename U>
+	ObjectHandle<T>::ObjectHandle(ObjectHandle<U>&& ref) :
+	m_handleData(std::move(ref.m_handleData))
+	{
+		ref.m_handleData = Detail::HandleData::GetEmptyObject();
+
+		static_assert(std::is_base_of_v<T, U>, "Can only implicitly convert from a derived to a base");
+	}
+
 	/*!
 	* \brief Constructs a ObjectHandle object by move semantic
 	*
 	* \param handle ObjectHandle to move into this
 	*/
 	template<typename T>
-	ObjectHandle<T>::ObjectHandle(ObjectHandle&& handle) noexcept
+	ObjectHandle<T>::ObjectHandle(ObjectHandle&& handle) noexcept :
+	m_handleData(std::move(handle.m_handleData))
 	{
-		Reset(std::move(handle));
+		handle.m_handleData = Detail::HandleData::GetEmptyObject();
 	}
 
 	/*!
@@ -455,6 +474,60 @@ namespace Nz
 	bool operator>=(const ObjectHandle<T>& lhs, const T& rhs)
 	{
 		return !(lhs < rhs);
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> ConstRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(const_cast<T*>(ref.GetObject()));
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> DynamicRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(dynamic_cast<T*>(ref.GetObject()));
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> ReinterpretRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(static_cast<T*>(ref.GetObject()));
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> StaticRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(static_cast<T*>(ref.GetObject()));
 	}
 
 	template<typename T>
