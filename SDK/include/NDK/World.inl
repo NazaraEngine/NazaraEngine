@@ -443,15 +443,19 @@ namespace Ndk
 		m_dirtyEntities         = std::move(world.m_dirtyEntities);
 		m_entityBlocks          = std::move(world.m_entityBlocks);
 		m_freeEntityIds         = std::move(world.m_freeEntityIds);
+		m_isProfilerEnabled     = world.m_isProfilerEnabled;
 		m_killedEntities        = std::move(world.m_killedEntities);
 		m_orderedSystems        = std::move(world.m_orderedSystems);
 		m_orderedSystemsUpdated = world.m_orderedSystemsUpdated;
 		m_profilerData          = std::move(world.m_profilerData);
-		m_isProfilerEnabled     = world.m_isProfilerEnabled;
+		m_referencedByLists     = std::move(world.m_referencedByLists);
 
 		m_entities = std::move(world.m_entities);
 		for (EntityBlock& block : m_entities)
 			block.entity.SetWorld(this);
+
+		for (EntityList* list : m_referencedByLists)
+			list->SetWorld(this);
 
 		m_waitingEntities = std::move(world.m_waitingEntities);
 		for (auto& blockPtr : m_waitingEntities)
@@ -459,9 +463,11 @@ namespace Ndk
 
 		m_systems = std::move(world.m_systems);
 		for (const auto& systemPtr : m_systems)
+		{
 			if (systemPtr)
 				systemPtr->SetWorld(this);
-
+		}
+			
 		return *this;
 	}
 
@@ -479,5 +485,20 @@ namespace Ndk
 	inline void World::InvalidateSystemOrder()
 	{
 		m_orderedSystemsUpdated = false;
+	}
+
+	inline void World::RegisterEntityList(EntityList* list)
+	{
+		m_referencedByLists.push_back(list);
+	}
+
+	inline void World::UnregisterEntityList(EntityList* list)
+	{
+		auto it = std::find(m_referencedByLists.begin(), m_referencedByLists.end(), list);
+		assert(it != m_referencedByLists.end());
+
+		// Swap and pop idiom
+		*it = m_referencedByLists.back();
+		m_referencedByLists.pop_back();
 	}
 }

@@ -26,6 +26,7 @@ namespace Ndk
 	{
 		friend BaseSystem;
 		friend Entity;
+		friend EntityList;
 
 		public:
 			using EntityVector = std::vector<EntityHandle>;
@@ -97,7 +98,9 @@ namespace Ndk
 			inline void Invalidate();
 			inline void Invalidate(EntityId id);
 			inline void InvalidateSystemOrder();
+			inline void RegisterEntityList(EntityList* list);
 			void ReorderSystems();
+			inline void UnregisterEntityList(EntityList* list);
 
 			struct DoubleBitset
 			{
@@ -123,6 +126,7 @@ namespace Ndk
 			std::vector<BaseSystem*> m_orderedSystems;
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityBlock*> m_entityBlocks;
+			std::vector<EntityList*> m_referencedByLists;
 			std::vector<std::unique_ptr<EntityBlock>> m_waitingEntities;
 			EntityList m_aliveEntities;
 			ProfilerData m_profilerData;
