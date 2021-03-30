@@ -183,7 +183,7 @@ namespace Ndk
 			{
 				if (entity.isEnabled)
 				{
-					entity.handle->Enable(show); //< This will override isEnabled
+					entity.handle->Enable(show); //< This will override isEnabled, so reset it next line
 					entity.isEnabled = true;
 				}
 			}
