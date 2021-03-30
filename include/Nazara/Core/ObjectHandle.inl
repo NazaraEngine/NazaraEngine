@@ -31,7 +31,7 @@ namespace Nz
 	ObjectHandle<T>::ObjectHandle(const ObjectHandle<U>& ref) :
 	m_handleData(ref.m_handleData)
 	{
-		static_assert(std::is_base_of_v<T, U>, "Can only implicitly convert from a derived to a base");
+		static_assert(std::is_base_of<T, U>::value, "Can only implicitly convert from a derived to a base");
 	}
 
 	template<typename T>
@@ -41,7 +41,7 @@ namespace Nz
 	{
 		ref.m_handleData = Detail::HandleData::GetEmptyObject();
 
-		static_assert(std::is_base_of_v<T, U>, "Can only implicitly convert from a derived to a base");
+		static_assert(std::is_base_of<T, U>::value, "Can only implicitly convert from a derived to a base");
 	}
 
 	/*!
