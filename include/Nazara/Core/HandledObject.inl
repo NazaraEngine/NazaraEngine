@@ -61,7 +61,7 @@ namespace Nz
 	template<typename U>
 	ObjectHandle<U> HandledObject<T>::CreateHandle()
 	{
-		static_assert(std::is_base_of_v<T, U>, "Cannot retrieve a handle for a non-related class");
+		static_assert(std::is_base_of<T, U>::value, "Cannot retrieve a handle for a non-related class");
 		return ObjectHandle<U>(static_cast<U*>(this));
 	}
 
