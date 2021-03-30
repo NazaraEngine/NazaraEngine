@@ -131,6 +131,11 @@ namespace Ndk
 		}
 		m_entityBlocks.clear();
 
+		// Reset world for entity lists
+		for (EntityList* list : m_referencedByLists)
+			list->SetWorld(nullptr);
+		m_referencedByLists.clear();
+
 		m_entities.clear();
 		m_waitingEntities.clear();
 
