@@ -51,7 +51,7 @@ namespace Nz
 		for (const auto& shaderEntry : m_pipelineInfo.shaders)
 		{
 			if (shaderEntry.uberShader)
-				renderPipelineInfo.shaderStages.push_back(shaderEntry.uberShader->Get(shaderEntry.enabledConditions));
+				renderPipelineInfo.shaderModules.push_back(shaderEntry.uberShader->Get(shaderEntry.enabledConditions));
 		}
 
 		renderPipelineInfo.vertexBuffers = vertexBuffers;

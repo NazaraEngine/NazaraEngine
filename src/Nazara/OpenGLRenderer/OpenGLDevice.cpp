@@ -10,7 +10,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
@@ -80,14 +80,14 @@ namespace Nz
 		return std::make_shared<OpenGLRenderPipelineLayout>(std::move(pipelineLayoutInfo));
 	}
 
-	std::shared_ptr<ShaderStage> OpenGLDevice::InstantiateShaderStage(const ShaderAst& shaderAst, const ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states)
 	{
-		return std::make_shared<OpenGLShaderStage>(*this, shaderAst, states);
+		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, shaderAst, states);
 	}
 
-	std::shared_ptr<ShaderStage> OpenGLDevice::InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
-		return std::make_shared<OpenGLShaderStage>(*this, type, lang, source, sourceSize);
+		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, lang, source, sourceSize);
 	}
 
 	std::shared_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)

@@ -164,7 +164,7 @@ namespace Nz
 	{
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 
-		for (auto&& stagePtr : pipelineInfo.shaderStages)
+		for (auto&& stagePtr : pipelineInfo.shaderModules)
 		{
 			Nz::VulkanShaderStage& vulkanStage = *static_cast<Nz::VulkanShaderStage*>(stagePtr.get());
 
