@@ -12,9 +12,10 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstTypes.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
+#include <Nazara/Shader/Ast/Attribute.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <array>
 #include <memory>
 #include <optional>
@@ -24,12 +25,6 @@ namespace Nz::ShaderAst
 {
 	class AstExpressionVisitor;
 	class AstStatementVisitor;
-
-	struct Attribute
-	{
-		AttributeType type;
-		std::string args;
-	};
 
 	struct NAZARA_SHADER_API Node
 	{
@@ -97,7 +92,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		BasicType targetType;
+		ExpressionType targetType;
 		std::array<ExpressionPtr, 4> expressions;
 	};
 
@@ -189,6 +184,22 @@ namespace Nz::ShaderAst
 		StatementPtr statement;
 	};
 
+	struct NAZARA_SHADER_API DeclareExternalStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		struct ExternalVar
+		{
+			std::vector<Attribute> attributes;
+			std::string name;
+			ExpressionType type;
+		};
+
+		std::vector<Attribute> attributes;
+		std::vector<ExternalVar> externalVars;
+	};
+
 	struct NAZARA_SHADER_API DeclareFunctionStatement : Statement
 	{
 		NodeType GetType() const override;
@@ -197,14 +208,14 @@ namespace Nz::ShaderAst
 		struct Parameter
 		{
 			std::string name;
-			ShaderExpressionType type;
+			ExpressionType type;
 		};
 
 		std::string name;
 		std::vector<Attribute> attributes;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
-		ShaderExpressionType returnType = BasicType::Void;
+		ExpressionType returnType;
 	};
 
 	struct NAZARA_SHADER_API DeclareStructStatement : Statement
@@ -212,6 +223,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		std::vector<Attribute> attributes;
 		StructDescription description;
 	};
 
@@ -222,7 +234,7 @@ namespace Nz::ShaderAst
 
 		std::string varName;
 		ExpressionPtr initialExpression;
-		ShaderExpressionType varType;
+		ExpressionType varType;
 	};
 
 	struct NAZARA_SHADER_API DiscardStatement : Statement

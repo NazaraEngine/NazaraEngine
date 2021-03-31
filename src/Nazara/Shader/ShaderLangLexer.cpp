@@ -36,22 +36,24 @@ namespace Nz::ShaderLang
 
 	std::vector<Token> Tokenize(const std::string_view& str)
 	{
-		// Can't use std::from_chars for double thanks to libc++ and libstdc++ developers for being lazy
+		// Can't use std::from_chars for double, thanks to libc++ and libstdc++ developers for being lazy
 		ForceCLocale forceCLocale;
 
 		std::unordered_map<std::string, TokenType> reservedKeywords = {
-			{ "false",  TokenType::BoolFalse },
-			{ "fn",     TokenType::FunctionDeclaration },
-			{ "let",    TokenType::Let },
-			{ "return", TokenType::Return },
-			{ "true",   TokenType::BoolTrue }
+			{ "external", TokenType::External },
+			{ "false",    TokenType::BoolFalse },
+			{ "fn",       TokenType::FunctionDeclaration },
+			{ "let",      TokenType::Let },
+			{ "return",   TokenType::Return },
+			{ "struct",   TokenType::Struct },
+			{ "true",     TokenType::BoolTrue }
 		};
 
 		std::size_t currentPos = 0;
 
 		auto Peek = [&](std::size_t advance = 1) -> char
 		{
-			if (currentPos + advance < str.size())
+			if (currentPos + advance < str.size() && str[currentPos + advance] != '\0')
 				return str[currentPos + advance];
 			else
 				return char(-1);
@@ -134,7 +136,10 @@ namespace Nz::ShaderLang
 							{
 								currentPos++;
 								if (Peek() == '/')
+								{
+									currentPos++;
 									break;
+								}
 							}
 							else if (next == '\n')
 							{
@@ -250,7 +255,48 @@ namespace Nz::ShaderLang
 					break;
 				}
 
-				case '=': tokenType = TokenType::Assign; break;
+				case '=':
+				{
+					char next = Peek();
+					if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::Equal;
+					}
+					else
+						tokenType = TokenType::Assign;
+
+					break;
+				}
+
+				case '<':
+				{
+					char next = Peek();
+					if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::LessThanEqual;
+					}
+					else
+						tokenType = TokenType::LessThan;
+
+					break;
+				}
+
+				case '>':
+				{
+					char next = Peek();
+					if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::GreatherThanEqual;
+					}
+					else
+						tokenType = TokenType::GreatherThan;
+
+					break;
+				}
+
 				case '+': tokenType = TokenType::Plus; break;
 				case '*': tokenType = TokenType::Multiply; break;
 				case ':': tokenType = TokenType::Colon; break;

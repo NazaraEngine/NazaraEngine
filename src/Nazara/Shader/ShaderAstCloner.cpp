@@ -42,6 +42,21 @@ namespace Nz::ShaderAst
 		return PopStatement();
 	}
 
+	std::unique_ptr<DeclareFunctionStatement> AstCloner::Clone(DeclareFunctionStatement& node)
+	{
+		auto clone = std::make_unique<DeclareFunctionStatement>();
+		clone->attributes = node.attributes;
+		clone->name = node.name;
+		clone->parameters = node.parameters;
+		clone->returnType = node.returnType;
+
+		clone->statements.reserve(node.statements.size());
+		for (auto& statement : node.statements)
+			clone->statements.push_back(CloneStatement(statement));
+
+		return clone;
+	}
+
 	void AstCloner::Visit(AccessMemberExpression& node)
 	{
 		auto clone = std::make_unique<AccessMemberExpression>();
@@ -162,19 +177,18 @@ namespace Nz::ShaderAst
 		PushStatement(std::move(clone));
 	}
 
-	void AstCloner::Visit(DeclareFunctionStatement& node)
+	void AstCloner::Visit(DeclareExternalStatement& node)
 	{
-		auto clone = std::make_unique<DeclareFunctionStatement>();
+		auto clone = std::make_unique<DeclareExternalStatement>();
 		clone->attributes = node.attributes;
-		clone->name = node.name;
-		clone->parameters = node.parameters;
-		clone->returnType = node.returnType;
-
-		clone->statements.reserve(node.statements.size());
-		for (auto& statement : node.statements)
-			clone->statements.push_back(CloneStatement(statement));
+		clone->externalVars = node.externalVars;
 
 		PushStatement(std::move(clone));
+	}
+
+	void AstCloner::Visit(DeclareFunctionStatement& node)
+	{
+		PushStatement(Clone(node));
 	}
 
 	void AstCloner::Visit(DeclareStructStatement& node)

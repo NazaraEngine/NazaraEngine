@@ -62,8 +62,8 @@ namespace Nz
 			const ExtVar& GetInputVariable(const std::string& name) const;
 			const ExtVar& GetOutputVariable(const std::string& name) const;
 			const ExtVar& GetUniformVariable(const std::string& name) const;
-			UInt32 GetPointerTypeId(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass) const;
-			UInt32 GetTypeId(const ShaderAst::ShaderExpressionType& type) const;
+			UInt32 GetPointerTypeId(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
+			UInt32 GetTypeId(const ShaderAst::ExpressionType& type) const;
 
 			inline bool IsConditionEnabled(const std::string& condition) const;
 
@@ -80,8 +80,8 @@ namespace Nz
 
 			UInt32 RegisterConstant(const ShaderConstantValue& value);
 			UInt32 RegisterFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
-			UInt32 RegisterPointerType(ShaderAst::ShaderExpressionType type, SpirvStorageClass storageClass);
-			UInt32 RegisterType(ShaderAst::ShaderExpressionType type);
+			UInt32 RegisterPointerType(ShaderAst::ExpressionType type, SpirvStorageClass storageClass);
+			UInt32 RegisterType(ShaderAst::ExpressionType type);
 
 			void WriteLocalVariable(std::string name, UInt32 resultId);
 
@@ -106,7 +106,7 @@ namespace Nz
 			struct FunctionParameter
 			{
 				std::string name;
-				ShaderAst::ShaderExpressionType type;
+				ShaderAst::ExpressionType type;
 			};
 
 			struct State;

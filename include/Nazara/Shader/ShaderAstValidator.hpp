@@ -29,14 +29,14 @@ namespace Nz::ShaderAst
 			Expression& MandatoryExpr(ExpressionPtr& node);
 			Statement& MandatoryStatement(StatementPtr& node);
 			void TypeMustMatch(ExpressionPtr& left, ExpressionPtr& right);
-			void TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right);
+			void TypeMustMatch(const ExpressionType& left, const ExpressionType& right);
 
-			ShaderExpressionType CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
+			ExpressionType CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
 
 			AstCache::Scope& EnterScope();
 			void ExitScope();
 
-			void RegisterExpressionType(Expression& node, ShaderExpressionType expressionType);
+			void RegisterExpressionType(Expression& node, ExpressionType expressionType);
 			void RegisterScope(Node& node);
 
 			void Visit(AccessMemberExpression& node) override;
@@ -51,6 +51,7 @@ namespace Nz::ShaderAst
 
 			void Visit(BranchStatement& node) override;
 			void Visit(ConditionalStatement& node) override;
+			void Visit(DeclareExternalStatement& node) override;
 			void Visit(DeclareFunctionStatement& node) override;
 			void Visit(DeclareStructStatement& node) override;
 			void Visit(DeclareVariableStatement& node) override;

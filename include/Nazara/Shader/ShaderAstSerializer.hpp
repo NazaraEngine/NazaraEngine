@@ -35,6 +35,7 @@ namespace Nz::ShaderAst
 
 			void Serialize(BranchStatement& node);
 			void Serialize(ConditionalStatement& node);
+			void Serialize(DeclareExternalStatement& node);
 			void Serialize(DeclareFunctionStatement& node);
 			void Serialize(DeclareStructStatement& node);
 			void Serialize(DeclareVariableStatement& node);
@@ -45,6 +46,7 @@ namespace Nz::ShaderAst
 			void Serialize(ReturnStatement& node);
 
 		protected:
+			void Attributes(std::vector<Attribute>& attributes);
 			template<typename T> void Container(T& container);
 			template<typename T> void Enum(T& enumVal);
 			template<typename T> void OptEnum(std::optional<T>& optVal);
@@ -55,7 +57,7 @@ namespace Nz::ShaderAst
 			virtual void Node(ExpressionPtr& node) = 0;
 			virtual void Node(StatementPtr& node) = 0;
 
-			virtual void Type(ShaderExpressionType& type) = 0;
+			virtual void Type(ExpressionType& type) = 0;
 
 			virtual void Value(bool& val) = 0;
 			virtual void Value(float& val) = 0;
@@ -86,7 +88,7 @@ namespace Nz::ShaderAst
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
-			void Type(ShaderExpressionType& type) override;
+			void Type(ExpressionType& type) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;
@@ -117,7 +119,7 @@ namespace Nz::ShaderAst
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
-			void Type(ShaderExpressionType& type) override;
+			void Type(ExpressionType& type) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
 			void Value(std::string& val) override;

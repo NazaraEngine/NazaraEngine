@@ -18,28 +18,19 @@ namespace Nz::ShaderAst
 
 	enum class AttributeType
 	{
-		Entry, //< Entry point (function only) - has argument type
-		Layout //< Struct layout (struct only) - has argument style
+		Binding,  //< Binding (external var only) - has argument index
+		Builtin,  //< Builtin (struct member only) - has argument type
+		Entry,    //< Entry point (function only) - has argument type
+		Layout,   //< Struct layout (struct only) - has argument style
+		Location   //< Location (struct member only) - has argument index
 	};
 
-	enum class BasicType
+	enum class PrimitiveType
 	{
-		Boolean,   //< bool
-		Float1,    //< float
-		Float2,    //< vec2
-		Float3,    //< vec3
-		Float4,    //< vec4
-		Int1,      //< int
-		Int2,      //< ivec2
-		Int3,      //< ivec3
-		Int4,      //< ivec4
-		Mat4x4,    //< mat4
-		Sampler2D, //< sampler2D
-		Void,      //< void
-		UInt1,     //< uint
-		UInt2,     //< uvec2
-		UInt3,     //< uvec3
-		UInt4      //< uvec4
+		Boolean, //< bool
+		Float32, //< f32
+		Int32,   //< i32
+		UInt32,  //< ui32
 	};
 
 	enum class BinaryType
@@ -71,7 +62,8 @@ namespace Nz::ShaderAst
 	enum class IntrinsicType
 	{
 		CrossProduct,
-		DotProduct
+		DotProduct,
+		SampleTexture
 	};
 
 	enum class MemoryLayout
@@ -107,9 +99,6 @@ namespace Nz::ShaderAst
 		ParameterVariable,
 		UniformVariable
 	};
-
-	inline std::size_t GetComponentCount(BasicType type);
-	inline BasicType GetComponentType(BasicType type);
 }
 
 #include <Nazara/Shader/ShaderEnums.inl>

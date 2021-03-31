@@ -79,6 +79,11 @@ namespace Nz::ShaderAst
 		node.statement->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(DeclareExternalStatement& node)
+	{
+		/* Nothing to do */
+	}
+
 	void AstRecursiveVisitor::Visit(DeclareFunctionStatement& node)
 	{
 		for (auto& statement : node.statements)

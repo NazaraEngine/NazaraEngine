@@ -58,7 +58,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(CastExpression& node)
 	{
-		Enum(node.targetType);
+		Type(node.targetType);
 		for (auto& expr : node.expressions)
 			Node(expr);
 	}
@@ -152,17 +152,25 @@ namespace Nz::ShaderAst
 		Node(node.statement);
 	}
 
+	void AstSerializerBase::Serialize(DeclareExternalStatement& node)
+	{
+		Attributes(node.attributes);
+
+		Container(node.externalVars);
+		for (auto& extVar : node.externalVars)
+		{
+			Attributes(extVar.attributes);
+			Value(extVar.name);
+			Type(extVar.type);
+		}
+	}
+
 	void AstSerializerBase::Serialize(DeclareFunctionStatement& node)
 	{
 		Value(node.name);
 		Type(node.returnType);
 
-		Container(node.attributes);
-		for (auto& attribute : node.attributes)
-		{
-			Enum(attribute.type);
-			Value(attribute.args);
-		}
+		Attributes(node.attributes);
 
 		Container(node.parameters);
 		for (auto& parameter : node.parameters)
@@ -223,6 +231,78 @@ namespace Nz::ShaderAst
 
 		m_stream.FlushBits();
 	}
+	
+	void AstSerializerBase::Attributes(std::vector<Attribute>& attributes)
+	{
+		Container(attributes);
+		for (auto& attribute : attributes)
+		{
+			Enum(attribute.type);
+
+			if (IsWriting())
+			{
+				std::visit([&](auto&& arg)
+				{
+					using T = std::decay_t<decltype(arg)>;
+
+					if constexpr (std::is_same_v<T, std::monostate>)
+					{
+						UInt8 typeId = 0;
+						Value(typeId);
+					}
+					else if constexpr (std::is_same_v<T, long long>)
+					{
+						UInt8 typeId = 1;
+						UInt64 v = UInt64(arg);
+						Value(typeId);
+						Value(v);
+					}
+					else if constexpr (std::is_same_v<T, std::string>)
+					{
+						UInt8 typeId = 2;
+						Value(typeId);
+						Value(arg);
+					}
+					else
+						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+
+				}, attribute.args);
+			}
+			else
+			{
+				UInt8 typeId;
+				Value(typeId);
+
+				switch (typeId)
+				{
+					case 0:
+						attribute.args.emplace<std::monostate>();
+						break;
+
+					case 1:
+					{
+						UInt64 arg;
+						Value(arg);
+
+						attribute.args = static_cast<long long>(arg);
+						break;
+					}
+
+					case 2:
+					{
+						std::string arg;
+						Value(arg);
+
+						attribute.args = std::move(arg);
+						break;
+					}
+
+					default:
+						throw std::runtime_error("invalid attribute type id");
+				}
+			}
+		}
+	}
 
 	bool ShaderAstSerializer::IsWriting() const
 	{
@@ -253,20 +333,47 @@ namespace Nz::ShaderAst
 		}
 	}
 
-	void ShaderAstSerializer::Type(ShaderExpressionType& type)
+	void ShaderAstSerializer::Type(ExpressionType& type)
 	{
 		std::visit([&](auto&& arg)
 		{
 			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, BasicType>)
-			{
+
+			if constexpr (std::is_same_v<T, NoType>)
 				m_stream << UInt8(0);
-				m_stream << UInt32(arg);
-			}
-			else if constexpr (std::is_same_v<T, std::string>)
+			else if constexpr (std::is_same_v<T, PrimitiveType>)
 			{
 				m_stream << UInt8(1);
-				m_stream << arg;
+				m_stream << UInt32(arg);
+			}
+			else if constexpr (std::is_same_v<T, IdentifierType>)
+			{
+				m_stream << UInt8(2);
+				m_stream << arg.name;
+			}
+			else if constexpr (std::is_same_v<T, MatrixType>)
+			{
+				m_stream << UInt8(3);
+				m_stream << UInt32(arg.columnCount);
+				m_stream << UInt32(arg.rowCount);
+				m_stream << UInt32(arg.type);
+			}
+			else if constexpr (std::is_same_v<T, SamplerType>)
+			{
+				m_stream << UInt8(4);
+				m_stream << UInt32(arg.dim);
+				m_stream << UInt32(arg.sampledType);
+			}
+			else if constexpr (std::is_same_v<T, UniformType>)
+			{
+				m_stream << UInt8(5);
+				m_stream << arg.containedType.name;
+			}
+			else if constexpr (std::is_same_v<T, VectorType>)
+			{
+				m_stream << UInt8(6);
+				m_stream << UInt32(arg.componentCount);
+				m_stream << UInt32(arg.type);
 			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
@@ -421,28 +528,123 @@ namespace Nz::ShaderAst
 		}
 	}
 
-	void ShaderAstUnserializer::Type(ShaderExpressionType& type)
+	void ShaderAstUnserializer::Type(ExpressionType& type)
 	{
 		UInt8 typeIndex;
 		Value(typeIndex);
 
 		switch (typeIndex)
 		{
-			case 0: //< Primitive
+			/*
+			if constexpr (std::is_same_v<T, NoType>)
+				m_stream << UInt8(0);
+			else if constexpr (std::is_same_v<T, PrimitiveType>)
 			{
-				BasicType exprType;
-				Enum(exprType);
+				m_stream << UInt8(1);
+				m_stream << UInt32(arg);
+			}
+			else if constexpr (std::is_same_v<T, IdentifierType>)
+			{
+				m_stream << UInt8(2);
+				m_stream << arg.name;
+			}
+			else if constexpr (std::is_same_v<T, MatrixType>)
+			{
+				m_stream << UInt8(3);
+				m_stream << UInt32(arg.columnCount);
+				m_stream << UInt32(arg.rowCount);
+				m_stream << UInt32(arg.type);
+			}
+			else if constexpr (std::is_same_v<T, SamplerType>)
+			{
+				m_stream << UInt8(4);
+				m_stream << UInt32(arg.dim);
+				m_stream << UInt32(arg.sampledType);
+			}
+			else if constexpr (std::is_same_v<T, VectorType>)
+			{
+				m_stream << UInt8(5);
+				m_stream << UInt32(arg.componentCount);
+				m_stream << UInt32(arg.type);
+			}
+			*/
 
-				type = exprType;
+			case 0: //< NoType
+				type = NoType{};
+				break;
+
+			case 1: //< PrimitiveType
+			{
+				PrimitiveType primitiveType;
+				Enum(primitiveType);
+
+				type = primitiveType;
 				break;
 			}
 
-			case 1: //< Struct (name)
+			case 2: //< Identifier
 			{
-				std::string structName;
-				Value(structName);
+				std::string identifier;
+				Value(identifier);
 
-				type = std::move(structName);
+				type = IdentifierType{ std::move(identifier) };
+				break;
+			}
+
+			case 3: //< MatrixType
+			{
+				UInt32 columnCount, rowCount;
+				PrimitiveType primitiveType;
+				Value(columnCount);
+				Value(rowCount);
+				Enum(primitiveType);
+
+				type = MatrixType {
+					columnCount,
+					rowCount,
+					primitiveType
+				};
+				break;
+			}
+
+			case 4: //< SamplerType
+			{
+				ImageType dim;
+				PrimitiveType sampledType;
+				Enum(dim);
+				Enum(sampledType);
+
+				type = SamplerType {
+					dim,
+					sampledType
+				};
+				break;
+			}
+
+			case 5: //< UniformType
+			{
+				std::string containedType;
+				Value(containedType);
+
+				type = UniformType {
+					IdentifierType {
+						containedType
+					}
+				};
+				break;
+			}
+
+			case 6: //< VectorType
+			{
+				UInt32 componentCount;
+				PrimitiveType componentType;
+				Value(componentCount);
+				Enum(componentType);
+
+				type = VectorType{
+					componentCount,
+					componentType
+				};
 				break;
 			}
 
