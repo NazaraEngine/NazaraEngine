@@ -11,32 +11,24 @@ namespace Nz::ShaderLang
 {
 	namespace
 	{
-		std::unordered_map<std::string, ShaderAst::BasicType> identifierToBasicType = {
-			{ "bool",    ShaderAst::BasicType::Boolean },
+		std::unordered_map<std::string, ShaderAst::PrimitiveType> identifierToBasicType = {
+			{ "bool", ShaderAst::PrimitiveType::Boolean },
+			{ "i32",  ShaderAst::PrimitiveType::Int32 },
+			{ "f32",  ShaderAst::PrimitiveType::Float32 },
+			{ "u32",  ShaderAst::PrimitiveType::UInt32 }
+		};
 
-			{ "i32",     ShaderAst::BasicType::Int1 },
-			{ "vec2i32", ShaderAst::BasicType::Int2 },
-			{ "vec3i32", ShaderAst::BasicType::Int3 },
-			{ "vec4i32", ShaderAst::BasicType::Int4 },
-
-			{ "f32",     ShaderAst::BasicType::Float1 },
-			{ "vec2f32", ShaderAst::BasicType::Float2 },
-			{ "vec3f32", ShaderAst::BasicType::Float3 },
-			{ "vec4f32", ShaderAst::BasicType::Float4 },
-
-			{ "mat4x4f32", ShaderAst::BasicType::Mat4x4 },
-			{ "sampler2D", ShaderAst::BasicType::Sampler2D },
-			{ "void",      ShaderAst::BasicType::Void },
-
-			{ "u32",     ShaderAst::BasicType::UInt1 },
-			{ "vec2u32", ShaderAst::BasicType::UInt3 },
-			{ "vec3u32", ShaderAst::BasicType::UInt3 },
-			{ "vec4u32", ShaderAst::BasicType::UInt4 },
+		std::unordered_map<std::string, ShaderAst::IntrinsicType> identifierToIntrinsic = {
+			{ "cross", ShaderAst::IntrinsicType::CrossProduct },
+			{ "dot", ShaderAst::IntrinsicType::DotProduct },
 		};
 
 		std::unordered_map<std::string, ShaderAst::AttributeType> identifierToAttributeType = {
-			{ "entry",  ShaderAst::AttributeType::Entry },
-			{ "layout", ShaderAst::AttributeType::Layout },
+			{ "binding",  ShaderAst::AttributeType::Binding  },
+			{ "builtin",  ShaderAst::AttributeType::Builtin  },
+			{ "entry",    ShaderAst::AttributeType::Entry    },
+			{ "layout",   ShaderAst::AttributeType::Layout   },
+			{ "location", ShaderAst::AttributeType::Location },
 		};
 	}
 
@@ -50,28 +42,49 @@ namespace Nz::ShaderLang
 
 		m_context = &context;
 
+		std::vector<ShaderAst::Attribute> attributes;
+
+		EnterScope();
+
 		bool reachedEndOfStream = false;
 		while (!reachedEndOfStream)
 		{
 			const Token& nextToken = Peek();
 			switch (nextToken.type)
 			{
+				case TokenType::EndOfStream:
+					if (!attributes.empty())
+						throw UnexpectedToken{};
+
+					reachedEndOfStream = true;
+					break;
+
+				case TokenType::External:
+					context.root->statements.push_back(ParseExternalBlock(std::move(attributes)));
+					attributes.clear();
+					break;
+
 				case TokenType::OpenAttribute:
-					HandleAttributes();
+					assert(attributes.empty());
+					attributes = ParseAttributes();
 					break;
 
 				case TokenType::FunctionDeclaration:
-					context.root->statements.push_back(ParseFunctionDeclaration());
+					context.root->statements.push_back(ParseFunctionDeclaration(std::move(attributes)));
+					attributes.clear();
 					break;
 
-				case TokenType::EndOfStream:
-					reachedEndOfStream = true;
+				case TokenType::Struct:
+					context.root->statements.push_back(ParseStructDeclaration(std::move(attributes)));
+					attributes.clear();
 					break;
 
 				default:
 					throw UnexpectedToken{};
 			}
 		}
+
+		LeaveScope();
 
 		return std::move(context.root);
 	}
@@ -88,6 +101,92 @@ namespace Nz::ShaderLang
 	{
 		assert(m_context->tokenIndex + count < m_context->tokenCount);
 		m_context->tokenIndex += count;
+	}
+
+	ShaderAst::ExpressionType Parser::DecodeType(const std::string& identifier)
+	{
+		if (auto it = identifierToBasicType.find(identifier); it != identifierToBasicType.end())
+			return it->second;
+
+		//FIXME: Handle this better
+		if (identifier == "mat4")
+		{
+			ShaderAst::MatrixType matrixType;
+			matrixType.columnCount = 4;
+			matrixType.rowCount = 4;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			matrixType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return matrixType;
+		}
+		else if (identifier == "sampler2D")
+		{
+			ShaderAst::SamplerType samplerType;
+			samplerType.dim = ImageType_2D;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			samplerType.sampledType = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return samplerType;
+		}
+		else if (identifier == "uniform")
+		{
+			ShaderAst::UniformType uniformType;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			uniformType.containedType = ShaderAst::IdentifierType{ ParseIdentifierAsName() };
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return uniformType;
+		}
+		else if (identifier == "vec2")
+		{
+			ShaderAst::VectorType vectorType;
+			vectorType.componentCount = 2;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			vectorType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return vectorType;
+		}
+		else if (identifier == "vec3")
+		{
+			ShaderAst::VectorType vectorType;
+			vectorType.componentCount = 3;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			vectorType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return vectorType;
+		}
+		else if (identifier == "vec4")
+		{
+			ShaderAst::VectorType vectorType;
+			vectorType.componentCount = 4;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			vectorType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return vectorType;
+		}
+		else
+		{
+			ShaderAst::IdentifierType identifierType;
+			identifierType.name = identifier;
+
+			return identifierType;
+		}
+	}
+
+	void Parser::EnterScope()
+	{
+		m_context->scopeSizes.push_back(m_context->identifiersInScope.size());
 	}
 
 	const Token& Parser::Expect(const Token& token, TokenType type)
@@ -114,13 +213,34 @@ namespace Nz::ShaderLang
 		return token;
 	}
 
+	void Parser::LeaveScope()
+	{
+		assert(!m_context->scopeSizes.empty());
+		m_context->identifiersInScope.resize(m_context->scopeSizes.back());
+		m_context->scopeSizes.pop_back();
+	}
+
+	bool Parser::IsVariableInScope(const std::string_view& identifier) const
+	{
+		return std::find(m_context->identifiersInScope.rbegin(), m_context->identifiersInScope.rend(), identifier) != m_context->identifiersInScope.rend();
+	}
+
+	void Parser::RegisterVariable(std::string identifier)
+	{
+		if (IsVariableInScope(identifier))
+			throw DuplicateIdentifier{ ("identifier name " + identifier + " is already taken").c_str() };
+
+		assert(!m_context->scopeSizes.empty());
+		m_context->identifiersInScope.push_back(std::move(identifier));
+	}
+
 	const Token& Parser::Peek(std::size_t advance)
 	{
 		assert(m_context->tokenIndex + advance < m_context->tokenCount);
 		return m_context->tokens[m_context->tokenIndex + advance];
 	}
 
-	void Parser::HandleAttributes()
+	std::vector<ShaderAst::Attribute> Parser::ParseAttributes()
 	{
 		std::vector<ShaderAst::Attribute> attributes;
 
@@ -150,13 +270,22 @@ namespace Nz::ShaderLang
 
 			ShaderAst::AttributeType attributeType = ParseIdentifierAsAttributeType();
 
-			std::string arg;
+			ShaderAst::Attribute::Param arg;
 			if (Peek().type == TokenType::OpenParenthesis)
 			{
 				Consume();
 
-				if (Peek().type == TokenType::Identifier)
-					arg = std::get<std::string>(Advance().data);
+				const Token& n = Peek();
+				if (n.type == TokenType::Identifier)
+				{
+					arg = std::get<std::string>(n.data);
+					Consume();
+				}
+				else if (n.type == TokenType::IntegerValue)
+				{
+					arg = std::get<long long>(n.data);
+					Consume();
+				}
 
 				Expect(Advance(), TokenType::ClosingParenthesis);
 			}
@@ -171,16 +300,54 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingAttribute);
 
-		const Token& nextToken = Peek();
-		switch (nextToken.type)
+		return attributes;
+	}
+
+	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes)
+	{
+		Expect(Advance(), TokenType::External);
+		Expect(Advance(), TokenType::OpenCurlyBracket);
+
+		std::unique_ptr<ShaderAst::DeclareExternalStatement> externalStatement = std::make_unique<ShaderAst::DeclareExternalStatement>();
+		externalStatement->attributes = std::move(attributes);
+
+		bool first = true;
+
+		for (;;)
 		{
-			case TokenType::FunctionDeclaration:
-				m_context->root->statements.push_back(ParseFunctionDeclaration(std::move(attributes)));
+			if (!first)
+			{
+				const Token& nextToken = Peek();
+				if (nextToken.type == TokenType::Comma)
+					Consume();
+				else
+				{
+					Expect(nextToken, TokenType::ClosingCurlyBracket);
+					break;
+				}
+			}
+
+			first = false;
+
+			const Token& token = Peek();
+			if (token.type == TokenType::ClosingCurlyBracket)
 				break;
 
-			default:
-				throw UnexpectedToken{};
+			auto& extVar = externalStatement->externalVars.emplace_back();
+
+			if (token.type == TokenType::OpenAttribute)
+				extVar.attributes = ParseAttributes();
+
+			extVar.name = ParseIdentifierAsName();
+			Expect(Advance(), TokenType::Colon);
+			extVar.type = ParseType();
+
+			RegisterVariable(extVar.name);
 		}
+
+		Expect(Advance(), TokenType::ClosingCurlyBracket);
+
+		return externalStatement;
 	}
 
 	std::vector<ShaderAst::StatementPtr> Parser::ParseFunctionBody()
@@ -216,16 +383,22 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingParenthesis);
 
-		ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void;
+		ShaderAst::ExpressionType returnType;
 		if (Peek().type == TokenType::FunctionReturn)
 		{
 			Consume();
-			returnType = ParseIdentifierAsType();
+			returnType = ParseType();
 		}
 
 		Expect(Advance(), TokenType::OpenCurlyBracket);
 
+		EnterScope();
+		for (const auto& parameter : parameters)
+			RegisterVariable(parameter.name);
+
 		std::vector<ShaderAst::StatementPtr> functionBody = ParseFunctionBody();
+
+		LeaveScope();
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
@@ -238,9 +411,57 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::Colon);
 
-		ShaderAst::ShaderExpressionType parameterType = ParseIdentifierAsType();
+		ShaderAst::ExpressionType parameterType = ParseType();
 
 		return { parameterName, parameterType };
+	}
+
+	ShaderAst::StatementPtr Parser::ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes)
+	{
+		Expect(Advance(), TokenType::Struct);
+
+		ShaderAst::StructDescription description;
+		description.name = ParseIdentifierAsName();
+
+		Expect(Advance(), TokenType::OpenCurlyBracket);
+
+		bool first = true;
+
+		for (;;)
+		{
+			if (!first)
+			{
+				const Token& nextToken = Peek();
+				if (nextToken.type == TokenType::Comma)
+					Consume();
+				else
+				{
+					Expect(nextToken, TokenType::ClosingCurlyBracket);
+					break;
+				}
+			}
+
+			first = false;
+
+			const Token& token = Peek();
+			if (token.type == TokenType::ClosingCurlyBracket)
+				break;
+
+			auto& structField = description.members.emplace_back();
+
+			if (token.type == TokenType::OpenAttribute)
+				structField.attributes = ParseAttributes();
+
+			structField.name = ParseIdentifierAsName();
+
+			Expect(Advance(), TokenType::Colon);
+
+			structField.type = ParseType();
+		}
+
+		Expect(Advance(), TokenType::ClosingCurlyBracket);
+
+		return ShaderBuilder::DeclareStruct(std::move(attributes), std::move(description));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseReturnStatement()
@@ -263,6 +484,10 @@ namespace Nz::ShaderLang
 		{
 			case TokenType::Let:
 				statement = ParseVariableDeclaration();
+				break;
+
+			case TokenType::Identifier:
+				statement = ShaderBuilder::ExpressionStatement(ParseVariableAssignation());
 				break;
 
 			case TokenType::Return:
@@ -290,15 +515,26 @@ namespace Nz::ShaderLang
 		return statements;
 	}
 
+	ShaderAst::ExpressionPtr Parser::ParseVariableAssignation()
+	{
+		ShaderAst::ExpressionPtr left = ParseIdentifier();
+		Expect(Advance(), TokenType::Assign);
+
+		ShaderAst::ExpressionPtr right = ParseExpression();
+
+		return ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(left), std::move(right));
+	}
+
 	ShaderAst::StatementPtr Parser::ParseVariableDeclaration()
 	{
 		Expect(Advance(), TokenType::Let);
 
 		std::string variableName = ParseIdentifierAsName();
+		RegisterVariable(variableName);
 
 		Expect(Advance(), TokenType::Colon);
 
-		ShaderAst::ShaderExpressionType variableType = ParseIdentifierAsType();
+		ShaderAst::ExpressionType variableType = ParseType();
 
 		ShaderAst::ExpressionPtr expression;
 		if (Peek().type == TokenType::Assign)
@@ -351,18 +587,61 @@ namespace Nz::ShaderLang
 		return ParseBinOpRhs(0, ParsePrimaryExpression());
 	}
 
+	ShaderAst::ExpressionPtr Parser::ParseFloatingPointExpression(bool minus)
+	{
+		const Token& floatingPointToken = Expect(Advance(), TokenType::FloatingPointValue);
+		return ShaderBuilder::Constant(((minus) ? -1.f : 1.f) * float(std::get<double>(floatingPointToken.data))); //< FIXME
+	}
+
 	ShaderAst::ExpressionPtr Parser::ParseIdentifier()
 	{
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-		return ShaderBuilder::Identifier(identifier);
+		ShaderAst::ExpressionPtr identifierExpr = ShaderBuilder::Identifier(identifier);
+
+		if (Peek().type == TokenType::Dot)
+		{
+			std::unique_ptr<ShaderAst::AccessMemberExpression> accessMemberNode = std::make_unique<ShaderAst::AccessMemberExpression>();
+			accessMemberNode->structExpr = std::move(identifierExpr);
+
+			do
+			{
+				Consume();
+
+				accessMemberNode->memberIdentifiers.push_back(ParseIdentifierAsName());
+			} while (Peek().type == TokenType::Dot);
+
+			identifierExpr = std::move(accessMemberNode);
+		}
+
+		return identifierExpr;
 	}
 
-	ShaderAst::ExpressionPtr Parser::ParseIntegerExpression()
+	ShaderAst::ExpressionPtr Parser::ParseIntegerExpression(bool minus)
 	{
-		const Token& integerToken = Expect(Advance(), TokenType::Identifier);
-		return ShaderBuilder::Constant(static_cast<Nz::Int32>(std::get<long long>(integerToken.data)));
+		const Token& integerToken = Expect(Advance(), TokenType::IntegerValue);
+		return ShaderBuilder::Constant(((minus) ? -1 : 1) * static_cast<Nz::Int32>(std::get<long long>(integerToken.data)));
+	}
+
+	std::vector<ShaderAst::ExpressionPtr> Parser::ParseParameters()
+	{
+		Expect(Advance(), TokenType::OpenParenthesis);
+
+		std::vector<ShaderAst::ExpressionPtr> parameters;
+		bool first = true;
+		while (Peek().type != TokenType::ClosingParenthesis)
+		{
+			if (!first)
+				Expect(Advance(), TokenType::Comma);
+
+			first = false;
+			parameters.push_back(ParseExpression());
+		}
+
+		Expect(Advance(), TokenType::ClosingParenthesis);
+
+		return parameters;
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseParenthesisExpression()
@@ -388,14 +667,68 @@ namespace Nz::ShaderLang
 				return ShaderBuilder::Constant(true);
 
 			case TokenType::FloatingPointValue:
-				Consume();
-				return ShaderBuilder::Constant(float(std::get<double>(token.data))); //< FIXME
+				return ParseFloatingPointExpression();
 
 			case TokenType::Identifier:
-				return ParseIdentifier();
+			{
+				const std::string& identifier = std::get<std::string>(token.data);
+
+				if (auto it = identifierToIntrinsic.find(identifier); it != identifierToIntrinsic.end())
+				{
+					if (Peek(1).type == TokenType::OpenParenthesis)
+					{
+						Consume();
+						return ShaderBuilder::Intrinsic(it->second, ParseParameters());
+					}
+				}
+
+				if (IsVariableInScope(identifier))
+				{
+					auto node = ParseIdentifier();
+					if (node->GetType() == ShaderAst::NodeType::AccessMemberExpression)
+					{
+						ShaderAst::AccessMemberExpression* memberExpr = static_cast<ShaderAst::AccessMemberExpression*>(node.get());
+						if (!memberExpr->memberIdentifiers.empty() && memberExpr->memberIdentifiers.front() == "Sample")
+						{
+							if (Peek().type == TokenType::OpenParenthesis)
+							{
+								auto parameters = ParseParameters();
+								parameters.insert(parameters.begin(), std::move(memberExpr->structExpr));
+
+								return ShaderBuilder::Intrinsic(ShaderAst::IntrinsicType::SampleTexture, std::move(parameters));
+							}
+						}
+					}
+
+					return node;
+				}
+
+				Consume();
+
+				ShaderAst::ExpressionType exprType = DecodeType(identifier);
+
+				return ShaderBuilder::Cast(std::move(exprType), ParseParameters());
+			}
 
 			case TokenType::IntegerValue:
 				return ParseIntegerExpression();
+
+			case TokenType::Minus:
+				//< FIXME: Handle this with an unary node
+				if (Peek(1).type == TokenType::FloatingPointValue)
+				{
+					Consume();
+					return ParseFloatingPointExpression(true);
+				}
+				else if (Peek(1).type == TokenType::IntegerValue)
+				{
+					Consume();
+					return ParseIntegerExpression(true);
+				}
+				else
+					throw UnexpectedToken{};
+
+				break;
 
 			case TokenType::OpenParenthesis:
 				return ParseParenthesisExpression();
@@ -429,7 +762,7 @@ namespace Nz::ShaderLang
 		return identifier;
 	}
 
-	ShaderAst::ShaderExpressionType Parser::ParseIdentifierAsType()
+	ShaderAst::PrimitiveType Parser::ParsePrimitiveType()
 	{
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
@@ -439,6 +772,23 @@ namespace Nz::ShaderLang
 			throw UnknownType{};
 
 		return it->second;
+	}
+
+	ShaderAst::ExpressionType Parser::ParseType()
+	{
+		// Handle () as no type
+		if (Peek().type == TokenType::OpenParenthesis)
+		{
+			Consume();
+			Expect(Advance(), TokenType::ClosingParenthesis);
+
+			return ShaderAst::NoType{};
+		}
+
+		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
+		const std::string& identifier = std::get<std::string>(identifierToken.data);
+
+		return DecodeType(identifier);
 	}
 
 	int Parser::GetTokenPrecedence(TokenType token)
@@ -452,4 +802,5 @@ namespace Nz::ShaderLang
 			default: return -1;
 		}
 	}
+
 }

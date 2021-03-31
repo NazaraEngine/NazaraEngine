@@ -7,14 +7,24 @@
 
 namespace Nz::ShaderBuilder
 {
+	inline std::unique_ptr<ShaderAst::AssignExpression> Impl::Assign::operator()(ShaderAst::AssignType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const
+	{
+		auto assignNode = std::make_unique<ShaderAst::AssignExpression>();
+		assignNode->op = op;
+		assignNode->left = std::move(left);
+		assignNode->right = std::move(right);
+
+		return assignNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::BinaryExpression> Impl::Binary::operator()(ShaderAst::BinaryType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const
 	{
-		auto constantNode = std::make_unique<ShaderAst::BinaryExpression>();
-		constantNode->op = op;
-		constantNode->left = std::move(left);
-		constantNode->right = std::move(right);
+		auto binaryNode = std::make_unique<ShaderAst::BinaryExpression>();
+		binaryNode->op = op;
+		binaryNode->left = std::move(left);
+		binaryNode->right = std::move(right);
 
-		return constantNode;
+		return binaryNode;
 	}
 
 	inline std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr truePath, ShaderAst::StatementPtr falsePath) const
@@ -39,6 +49,18 @@ namespace Nz::ShaderBuilder
 		return branchNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::CastExpression> Impl::Cast::operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const
+	{
+		auto castNode = std::make_unique<ShaderAst::CastExpression>();
+		castNode->targetType = std::move(targetType);
+
+		assert(expressions.size() <= castNode->expressions.size());
+		for (std::size_t i = 0; i < expressions.size(); ++i)
+			castNode->expressions[i] = std::move(expressions[i]);
+
+		return castNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::ConstantExpression> Impl::Constant::operator()(ShaderConstantValue value) const
 	{
 		auto constantNode = std::make_unique<ShaderAst::ConstantExpression>();
@@ -47,7 +69,7 @@ namespace Nz::ShaderBuilder
 		return constantNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType) const
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType) const
 	{
 		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
 		declareFunctionNode->name = std::move(name);
@@ -58,7 +80,7 @@ namespace Nz::ShaderBuilder
 		return declareFunctionNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType) const
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType) const
 	{
 		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
 		declareFunctionNode->attributes = std::move(attributes);
@@ -70,7 +92,24 @@ namespace Nz::ShaderBuilder
 		return declareFunctionNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::DeclareVariableStatement> Nz::ShaderBuilder::Impl::DeclareVariable::operator()(std::string name, ShaderAst::ShaderExpressionType type, ShaderAst::ExpressionPtr initialValue) const
+	inline std::unique_ptr<ShaderAst::DeclareStructStatement> Impl::DeclareStruct::operator()(ShaderAst::StructDescription description) const
+	{
+		auto declareStructNode = std::make_unique<ShaderAst::DeclareStructStatement>();
+		declareStructNode->description = std::move(description);
+
+		return declareStructNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareStructStatement> Impl::DeclareStruct::operator()(std::vector<ShaderAst::Attribute> attributes, ShaderAst::StructDescription description) const
+	{
+		auto declareStructNode = std::make_unique<ShaderAst::DeclareStructStatement>();
+		declareStructNode->attributes = std::move(attributes);
+		declareStructNode->description = std::move(description);
+
+		return declareStructNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareVariableStatement> Nz::ShaderBuilder::Impl::DeclareVariable::operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue) const
 	{
 		auto declareVariableNode = std::make_unique<ShaderAst::DeclareVariableStatement>();
 		declareVariableNode->varName = std::move(name);
@@ -80,12 +119,29 @@ namespace Nz::ShaderBuilder
 		return declareVariableNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::ExpressionStatement> Impl::ExpressionStatement::operator()(ShaderAst::ExpressionPtr expression) const
+	{
+		auto expressionStatementNode = std::make_unique<ShaderAst::ExpressionStatement>();
+		expressionStatementNode->expression = std::move(expression);
+
+		return expressionStatementNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::IdentifierExpression> Impl::Identifier::operator()(std::string name) const
 	{
 		auto identifierNode = std::make_unique<ShaderAst::IdentifierExpression>();
 		identifierNode->identifier = std::move(name);
 
 		return identifierNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::IntrinsicExpression> Impl::Intrinsic::operator()(ShaderAst::IntrinsicType intrinsicType, std::vector<ShaderAst::ExpressionPtr> parameters) const
+	{
+		auto intrinsicExpression = std::make_unique<ShaderAst::IntrinsicExpression>();
+		intrinsicExpression->intrinsic = intrinsicType;
+		intrinsicExpression->parameters = std::move(parameters);
+
+		return intrinsicExpression;
 	}
 
 	inline std::unique_ptr<ShaderAst::ReturnStatement> Impl::Return::operator()(ShaderAst::ExpressionPtr expr) const

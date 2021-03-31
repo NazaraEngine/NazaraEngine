@@ -7,7 +7,7 @@
 
 namespace Nz::ShaderAst
 {
-	inline ShaderExpressionType GetExpressionType(Expression& expression, AstCache* cache)
+	inline ExpressionType GetExpressionType(Expression& expression, AstCache* cache)
 	{
 		ExpressionTypeVisitor visitor;
 		return visitor.GetExpressionType(expression, cache);

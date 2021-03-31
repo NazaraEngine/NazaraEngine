@@ -9,16 +9,16 @@
 
 namespace Nz::ShaderAst
 {
-	ShaderExpressionType ExpressionTypeVisitor::GetExpressionType(Expression& expression, AstCache* cache = nullptr)
+	ExpressionType ExpressionTypeVisitor::GetExpressionType(Expression& expression, AstCache* cache)
 	{
 		m_cache = cache;
-		ShaderExpressionType type = GetExpressionTypeInternal(expression);
+		ExpressionType type = GetExpressionTypeInternal(expression);
 		m_cache = nullptr;
 
 		return type;
 	}
 
-	ShaderExpressionType ExpressionTypeVisitor::GetExpressionTypeInternal(Expression& expression)
+	ExpressionType ExpressionTypeVisitor::GetExpressionTypeInternal(Expression& expression)
 	{
 		m_lastExpressionType.reset();
 
@@ -26,6 +26,33 @@ namespace Nz::ShaderAst
 
 		assert(m_lastExpressionType.has_value());
 		return std::move(*m_lastExpressionType);
+	}
+
+	ExpressionType ExpressionTypeVisitor::ResolveAlias(Expression& expression, ExpressionType expressionType)
+	{
+		if (IsIdentifierType(expressionType))
+		{
+			auto scopeIt = m_cache->scopeIdByNode.find(&expression);
+			if (scopeIt == m_cache->scopeIdByNode.end())
+				throw std::runtime_error("internal error");
+
+			const AstCache::Identifier* identifier = m_cache->FindIdentifier(scopeIt->second, std::get<IdentifierType>(expressionType).name);
+			if (identifier && std::holds_alternative<AstCache::Alias>(identifier->value))
+			{
+				const AstCache::Alias& alias = std::get<AstCache::Alias>(identifier->value);
+				return std::visit([&](auto&& arg) -> ShaderAst::ExpressionType
+				{
+					using T = std::decay_t<decltype(arg)>;
+
+					if constexpr (std::is_same_v<T, ExpressionType>)
+						return arg;
+					else
+						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				}, alias.value);
+			}
+		}
+
+		return expressionType;
 	}
 
 	void ExpressionTypeVisitor::Visit(Expression& expression)
@@ -51,6 +78,16 @@ namespace Nz::ShaderAst
 
 	void ExpressionTypeVisitor::Visit(AccessMemberExpression& node)
 	{
+		auto scopeIt = m_cache->scopeIdByNode.find(&node);
+		if (scopeIt == m_cache->scopeIdByNode.end())
+			throw std::runtime_error("internal error");
+
+		ExpressionType expressionType = ResolveAlias(node, GetExpressionTypeInternal(*node.structExpr));
+		if (!IsIdentifierType(expressionType))
+			throw std::runtime_error("internal error");
+
+		const AstCache::Identifier* identifier = m_cache->FindIdentifier(scopeIt->second, std::get<IdentifierType>(expressionType).name);
+
 		throw std::runtime_error("unhandled accessmember expression");
 	}
 
@@ -70,38 +107,35 @@ namespace Nz::ShaderAst
 			case BinaryType::Divide:
 			case BinaryType::Multiply:
 			{
-				ShaderExpressionType leftExprType = GetExpressionTypeInternal(*node.left);
-				assert(IsBasicType(leftExprType));
+				ExpressionType leftExprType = ResolveAlias(node, GetExpressionTypeInternal(*node.left));
+				ExpressionType rightExprType = ResolveAlias(node, GetExpressionTypeInternal(*node.right));
 
-				ShaderExpressionType rightExprType = GetExpressionTypeInternal(*node.right);
-				assert(IsBasicType(rightExprType));
-
-				switch (std::get<BasicType>(leftExprType))
+				if (IsPrimitiveType(leftExprType))
 				{
-					case BasicType::Boolean:
-					case BasicType::Float2:
-					case BasicType::Float3:
-					case BasicType::Float4:
-					case BasicType::Int2:
-					case BasicType::Int3:
-					case BasicType::Int4:
-					case BasicType::UInt2:
-					case BasicType::UInt3:
-					case BasicType::UInt4:
-						m_lastExpressionType = std::move(leftExprType);
-						break;
+					switch (std::get<PrimitiveType>(leftExprType))
+					{
+						case PrimitiveType::Boolean:
+							m_lastExpressionType = std::move(leftExprType);
+							break;
 
-					case BasicType::Float1:
-					case BasicType::Int1:
-					case BasicType::Mat4x4:
-					case BasicType::UInt1:
-						m_lastExpressionType = std::move(rightExprType);
-						break;
-
-					case BasicType::Sampler2D:
-					case BasicType::Void:
-						break;
+						case PrimitiveType::Float32:
+						case PrimitiveType::Int32:
+						case PrimitiveType::UInt32:
+							m_lastExpressionType = std::move(rightExprType);
+							break;
+					}
 				}
+				else if (IsMatrixType(leftExprType))
+				{
+					if (IsVectorType(rightExprType))
+						m_lastExpressionType = std::move(rightExprType);
+					else
+						m_lastExpressionType = std::move(leftExprType);
+				}
+				else if (IsVectorType(leftExprType))
+					m_lastExpressionType = std::move(leftExprType);
+				else
+					throw std::runtime_error("validation failure");
 
 				break;
 			}
@@ -112,7 +146,7 @@ namespace Nz::ShaderAst
 			case BinaryType::CompLe:
 			case BinaryType::CompLt:
 			case BinaryType::CompNe:
-				m_lastExpressionType = BasicType::Boolean;
+				m_lastExpressionType = PrimitiveType::Boolean;
 				break;
 		}
 	}
@@ -124,38 +158,38 @@ namespace Nz::ShaderAst
 
 	void ExpressionTypeVisitor::Visit(ConditionalExpression& node)
 	{
-		ShaderExpressionType leftExprType = GetExpressionTypeInternal(*node.truePath);
-		assert(leftExprType == GetExpressionTypeInternal(*node.falsePath));
+		ExpressionType leftExprType = ResolveAlias(node, GetExpressionTypeInternal(*node.truePath));
+		assert(leftExprType == ResolveAlias(node, GetExpressionTypeInternal(*node.falsePath)));
 
 		m_lastExpressionType = std::move(leftExprType);
 	}
 
 	void ExpressionTypeVisitor::Visit(ConstantExpression& node)
 	{
-		m_lastExpressionType = std::visit([&](auto&& arg)
+		m_lastExpressionType = std::visit([&](auto&& arg) -> ShaderAst::ExpressionType
 		{
 			using T = std::decay_t<decltype(arg)>;
 
 			if constexpr (std::is_same_v<T, bool>)
-				return BasicType::Boolean;
+				return PrimitiveType::Boolean;
 			else if constexpr (std::is_same_v<T, float>)
-				return BasicType::Float1;
+				return PrimitiveType::Float32;
 			else if constexpr (std::is_same_v<T, Int32>)
-				return BasicType::Int1;
+				return PrimitiveType::Int32;
 			else if constexpr (std::is_same_v<T, UInt32>)
-				return BasicType::Int1;
+				return PrimitiveType::UInt32;
 			else if constexpr (std::is_same_v<T, Vector2f>)
-				return BasicType::Float2;
+				return VectorType{ 2, PrimitiveType::Float32 };
 			else if constexpr (std::is_same_v<T, Vector3f>)
-				return BasicType::Float3;
+				return VectorType{ 3, PrimitiveType::Float32 };
 			else if constexpr (std::is_same_v<T, Vector4f>)
-				return BasicType::Float4;
+				return VectorType{ 4, PrimitiveType::Float32 };
 			else if constexpr (std::is_same_v<T, Vector2i32>)
-				return BasicType::Int2;
+				return VectorType{ 2, PrimitiveType::Int32 };
 			else if constexpr (std::is_same_v<T, Vector3i32>)
-				return BasicType::Int3;
+				return VectorType{ 3, PrimitiveType::Int32 };
 			else if constexpr (std::is_same_v<T, Vector4i32>)
-				return BasicType::Int4;
+				return VectorType{ 4, PrimitiveType::Int32 };
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, node.value);
@@ -173,7 +207,7 @@ namespace Nz::ShaderAst
 		if (!identifier || !std::holds_alternative<AstCache::Variable>(identifier->value))
 			throw std::runtime_error("internal error");
 
-		m_lastExpressionType = std::get<AstCache::Variable>(identifier->value).type;
+		m_lastExpressionType = ResolveAlias(node, std::get<AstCache::Variable>(identifier->value).type);
 	}
 
 	void ExpressionTypeVisitor::Visit(IntrinsicExpression& node)
@@ -185,16 +219,40 @@ namespace Nz::ShaderAst
 				break;
 
 			case IntrinsicType::DotProduct:
-				m_lastExpressionType = BasicType::Float1;
+				m_lastExpressionType = PrimitiveType::Float32;
 				break;
+
+			case IntrinsicType::SampleTexture:
+			{
+				if (node.parameters.empty())
+					throw std::runtime_error("validation failure");
+
+				ExpressionType firstParamType = ResolveAlias(node, GetExpressionTypeInternal(*node.parameters.front()));
+
+				if (!IsSamplerType(firstParamType))
+					throw std::runtime_error("validation failure");
+
+				const auto& sampler = std::get<SamplerType>(firstParamType);
+
+				m_lastExpressionType = VectorType{
+					4,
+					sampler.sampledType
+				};
+
+				break;
+			}
 		}
 	}
 
 	void ExpressionTypeVisitor::Visit(SwizzleExpression& node)
 	{
-		ShaderExpressionType exprType = GetExpressionTypeInternal(*node.expression);
-		assert(IsBasicType(exprType));
+		ExpressionType exprType = GetExpressionTypeInternal(*node.expression);
 
-		m_lastExpressionType = static_cast<BasicType>(UnderlyingCast(GetComponentType(std::get<BasicType>(exprType))) + node.componentCount - 1);
+		if (IsMatrixType(exprType))
+			m_lastExpressionType = std::get<MatrixType>(exprType).type;
+		else if (IsVectorType(exprType))
+			m_lastExpressionType = std::get<VectorType>(exprType).type;
+		else
+			throw std::runtime_error("validation failure");
 	}
 }

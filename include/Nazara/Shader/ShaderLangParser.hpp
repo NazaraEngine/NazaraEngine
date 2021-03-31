@@ -19,6 +19,12 @@ namespace Nz::ShaderLang
 		public:
 			using exception::exception;
 	};
+	
+	class DuplicateIdentifier : public std::exception
+	{
+		public:
+			using exception::exception;
+	};
 
 	class ReservedKeyword : public std::exception
 	{
@@ -56,17 +62,24 @@ namespace Nz::ShaderLang
 			// Flow control
 			const Token& Advance();
 			void Consume(std::size_t count = 1);
+			ShaderAst::ExpressionType DecodeType(const std::string& identifier);
+			void EnterScope();
 			const Token& Expect(const Token& token, TokenType type);
 			const Token& ExpectNot(const Token& token, TokenType type);
 			const Token& Expect(TokenType type);
+			void LeaveScope();
+			bool IsVariableInScope(const std::string_view& identifier) const;
+			void RegisterVariable(std::string identifier);
 			const Token& Peek(std::size_t advance = 0);
 
-			void HandleAttributes();
+			std::vector<ShaderAst::Attribute> ParseAttributes();
 
 			// Statements
+			ShaderAst::StatementPtr ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes = {});
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
+			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseReturnStatement();
 			ShaderAst::StatementPtr ParseStatement();
 			std::vector<ShaderAst::StatementPtr> ParseStatementList();
@@ -75,22 +88,28 @@ namespace Nz::ShaderLang
 			// Expressions
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);
 			ShaderAst::ExpressionPtr ParseExpression();
+			ShaderAst::ExpressionPtr ParseFloatingPointExpression(bool minus = false);
 			ShaderAst::ExpressionPtr ParseIdentifier();
-			ShaderAst::ExpressionPtr ParseIntegerExpression();
+			ShaderAst::ExpressionPtr ParseIntegerExpression(bool minus = false);
+			std::vector<ShaderAst::ExpressionPtr> ParseParameters();
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
+			ShaderAst::ExpressionPtr ParseVariableAssignation();
 
 			ShaderAst::AttributeType ParseIdentifierAsAttributeType();
 			const std::string& ParseIdentifierAsName();
-			ShaderAst::ShaderExpressionType ParseIdentifierAsType();
+			ShaderAst::PrimitiveType ParsePrimitiveType();
+			ShaderAst::ExpressionType ParseType();
 
 			static int GetTokenPrecedence(TokenType token);
 
 			struct Context
 			{
-				std::unique_ptr<ShaderAst::MultiStatement> root;
 				std::size_t tokenCount;
 				std::size_t tokenIndex = 0;
+				std::vector<std::size_t> scopeSizes;
+				std::vector<std::string> identifiersInScope;
+				std::unique_ptr<ShaderAst::MultiStatement> root;
 				const Token* tokens;
 			};
 

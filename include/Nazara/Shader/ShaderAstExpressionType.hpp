@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
-#include <Nazara/Shader/ShaderAstTypes.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -25,13 +25,14 @@ namespace Nz::ShaderAst
 			ExpressionTypeVisitor(ExpressionTypeVisitor&&) = delete;
 			~ExpressionTypeVisitor() = default;
 
-			ShaderExpressionType GetExpressionType(Expression& expression, AstCache* cache);
+			ExpressionType GetExpressionType(Expression& expression, AstCache* cache);
 
 			ExpressionTypeVisitor& operator=(const ExpressionTypeVisitor&) = delete;
 			ExpressionTypeVisitor& operator=(ExpressionTypeVisitor&&) = delete;
 
 		private:
-			ShaderExpressionType GetExpressionTypeInternal(Expression& expression);
+			ExpressionType GetExpressionTypeInternal(Expression& expression);
+			ExpressionType ResolveAlias(Expression& expression, ExpressionType expressionType);
 
 			void Visit(Expression& expression);
 
@@ -46,10 +47,10 @@ namespace Nz::ShaderAst
 			void Visit(SwizzleExpression& node) override;
 
 			AstCache* m_cache;
-			std::optional<ShaderExpressionType> m_lastExpressionType;
+			std::optional<ExpressionType> m_lastExpressionType;
 	};
 
-	inline ShaderExpressionType GetExpressionType(Expression& expression, AstCache* cache = nullptr);
+	inline ExpressionType GetExpressionType(Expression& expression, AstCache* cache = nullptr);
 }
 
 #include <Nazara/Shader/ShaderAstExpressionType.inl>

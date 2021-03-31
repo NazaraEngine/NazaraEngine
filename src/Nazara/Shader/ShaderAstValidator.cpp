@@ -18,7 +18,6 @@ namespace Nz::ShaderAst
 			{ "frag", ShaderStageType::Fragment },
 			{ "vert", ShaderStageType::Vertex },
 		};
-
 	}
 
 	struct AstError
@@ -30,6 +29,8 @@ namespace Nz::ShaderAst
 	{
 		//const ShaderAst::Function* currentFunction;
 		std::optional<std::size_t> activeScopeId;
+		std::unordered_set<std::string> declaredExternalVar;
+		std::unordered_set<long long> usedBindingIndexes;;
 		AstCache* cache;
 	};
 
@@ -81,31 +82,31 @@ namespace Nz::ShaderAst
 		return TypeMustMatch(GetExpressionType(*left, m_context->cache), GetExpressionType(*right, m_context->cache));
 	}
 
-	void AstValidator::TypeMustMatch(const ShaderExpressionType& left, const ShaderExpressionType& right)
+	void AstValidator::TypeMustMatch(const ExpressionType& left, const ExpressionType& right)
 	{
 		if (left != right)
 			throw AstError{ "Left expression type must match right expression type" };
 	}
 
-	ShaderExpressionType AstValidator::CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers)
+	ExpressionType AstValidator::CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers)
 	{
 		const AstCache::Identifier* identifier = m_context->cache->FindIdentifier(*m_context->activeScopeId, structName);
 		if (!identifier)
 			throw AstError{ "unknown identifier " + structName };
 
-		if (std::holds_alternative<StructDescription>(identifier->value))
+		if (!std::holds_alternative<StructDescription>(identifier->value))
 			throw AstError{ "identifier is not a struct" };
 
 		const StructDescription& s = std::get<StructDescription>(identifier->value);
 
-		auto memberIt = std::find_if(s.members.begin(), s.members.begin(), [&](const auto& field) { return field.name == memberIdentifier[0]; });
+		auto memberIt = std::find_if(s.members.begin(), s.members.end(), [&](const auto& field) { return field.name == memberIdentifier[0]; });
 		if (memberIt == s.members.end())
 			throw AstError{ "unknown field " + memberIdentifier[0]};
 
 		const auto& member = *memberIt;
 
 		if (remainingMembers > 1)
-			return CheckField(std::get<std::string>(member.type), memberIdentifier + 1, remainingMembers - 1);
+			return CheckField(std::get<IdentifierType>(member.type).name, memberIdentifier + 1, remainingMembers - 1);
 		else
 			return member.type;
 	}
@@ -130,7 +131,7 @@ namespace Nz::ShaderAst
 		m_context->activeScopeId = previousScope.parentScopeIndex;
 	}
 
-	void AstValidator::RegisterExpressionType(Expression& node, ShaderExpressionType expressionType)
+	void AstValidator::RegisterExpressionType(Expression& node, ExpressionType expressionType)
 	{
 		m_context->cache->nodeExpressionType[&node] = std::move(expressionType);
 	}
@@ -145,11 +146,14 @@ namespace Nz::ShaderAst
 	{
 		RegisterScope(node);
 
-		ShaderExpressionType exprType = GetExpressionType(MandatoryExpr(node.structExpr), m_context->cache);
-		if (!IsStructType(exprType))
+		// Register expressions types
+		AstRecursiveVisitor::Visit(node);
+
+		ExpressionType exprType = GetExpressionType(MandatoryExpr(node.structExpr), m_context->cache);
+		if (!IsIdentifierType(exprType))
 			throw AstError{ "expression is not a structure" };
 
-		const std::string& structName = std::get<std::string>(exprType);
+		const std::string& structName = std::get<IdentifierType>(exprType).name;
 
 		RegisterExpressionType(node, CheckField(structName, node.memberIdentifiers.data(), node.memberIdentifiers.size()));
 	}
@@ -160,12 +164,14 @@ namespace Nz::ShaderAst
 
 		MandatoryExpr(node.left);
 		MandatoryExpr(node.right);
+
+		// Register expressions types
+		AstRecursiveVisitor::Visit(node);
+
 		TypeMustMatch(node.left, node.right);
 
 		if (GetExpressionCategory(*node.left) != ExpressionCategory::LValue)
 			throw AstError { "Assignation is only possible with a l-value" };
-
-		AstRecursiveVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(BinaryExpression& node)
@@ -175,80 +181,121 @@ namespace Nz::ShaderAst
 		// Register expression type
 		AstRecursiveVisitor::Visit(node);
 
-		ShaderExpressionType leftExprType = GetExpressionType(MandatoryExpr(node.left), m_context->cache);
-		if (!IsBasicType(leftExprType))
+		ExpressionType leftExprType = GetExpressionType(MandatoryExpr(node.left), m_context->cache);
+		if (!IsPrimitiveType(leftExprType) && !IsMatrixType(leftExprType) && !IsVectorType(leftExprType))
 			throw AstError{ "left expression type does not support binary operation" };
 
-		ShaderExpressionType rightExprType = GetExpressionType(MandatoryExpr(node.right), m_context->cache);
-		if (!IsBasicType(rightExprType))
+		ExpressionType rightExprType = GetExpressionType(MandatoryExpr(node.right), m_context->cache);
+		if (!IsPrimitiveType(rightExprType) && !IsMatrixType(rightExprType) && !IsVectorType(rightExprType))
 			throw AstError{ "right expression type does not support binary operation" };
 
-		BasicType leftType = std::get<BasicType>(leftExprType);
-		BasicType rightType = std::get<BasicType>(rightExprType);
-
-		switch (node.op)
+		if (IsPrimitiveType(leftExprType))
 		{
-			case BinaryType::CompGe:
-			case BinaryType::CompGt:
-			case BinaryType::CompLe:
-			case BinaryType::CompLt:
-				if (leftType == BasicType::Boolean)
-					throw AstError{ "this operation is not supported for booleans" };
-
-				[[fallthrough]];
-			case BinaryType::Add:
-			case BinaryType::CompEq:
-			case BinaryType::CompNe:
-			case BinaryType::Subtract:
-				TypeMustMatch(node.left, node.right);
-				break;
-
-			case BinaryType::Multiply:
-			case BinaryType::Divide:
+			PrimitiveType leftType = std::get<PrimitiveType>(leftExprType);
+			switch (node.op)
 			{
-				switch (leftType)
+				case BinaryType::CompGe:
+				case BinaryType::CompGt:
+				case BinaryType::CompLe:
+				case BinaryType::CompLt:
+					if (leftType == PrimitiveType::Boolean)
+						throw AstError{ "this operation is not supported for booleans" };
+
+					[[fallthrough]];
+				case BinaryType::Add:
+				case BinaryType::CompEq:
+				case BinaryType::CompNe:
+				case BinaryType::Subtract:
+					TypeMustMatch(node.left, node.right);
+					break;
+
+				case BinaryType::Multiply:
+				case BinaryType::Divide:
 				{
-					case BasicType::Float1:
-					case BasicType::Int1:
+					switch (leftType)
 					{
-						if (GetComponentType(rightType) != leftType)
-							throw AstError{ "Left expression type is not compatible with right expression type" };
-
-						break;
-					}
-
-					case BasicType::Float2:
-					case BasicType::Float3:
-					case BasicType::Float4:
-					case BasicType::Int2:
-					case BasicType::Int3:
-					case BasicType::Int4:
-					{
-						if (leftType != rightType && rightType != GetComponentType(leftType))
-							throw AstError{ "Left expression type is not compatible with right expression type" };
-
-						break;
-					}
-
-					case BasicType::Mat4x4:
-					{
-						switch (rightType)
+						case PrimitiveType::Float32:
+						case PrimitiveType::Int32:
+						case PrimitiveType::UInt32:
 						{
-							case BasicType::Float1:
-							case BasicType::Float4:
-							case BasicType::Mat4x4:
-								break;
+							if (IsMatrixType(rightExprType))
+								TypeMustMatch(leftType, std::get<MatrixType>(rightExprType).type);
+							else if (IsVectorType(rightExprType))
+								TypeMustMatch(leftType, std::get<VectorType>(rightExprType).type);
+							else
+								throw AstError{ "incompatible types" };
 
-							default:
-								TypeMustMatch(node.left, node.right);
+							break;
 						}
 
-						break;
-					}
+						case PrimitiveType::Boolean:
+							throw AstError{ "this operation is not supported for booleans" };
 
-					default:
-						TypeMustMatch(node.left, node.right);
-						break;
+						default:
+							throw AstError{ "incompatible types" };
+					}
+				}
+			}
+		}
+		else if (IsMatrixType(leftExprType))
+		{
+			const MatrixType& leftType = std::get<MatrixType>(leftExprType);
+			switch (node.op)
+			{
+				case BinaryType::CompGe:
+				case BinaryType::CompGt:
+				case BinaryType::CompLe:
+				case BinaryType::CompLt:
+				case BinaryType::CompEq:
+				case BinaryType::CompNe:
+				case BinaryType::Add:
+				case BinaryType::Subtract:
+					TypeMustMatch(node.left, node.right);
+					break;
+
+				case BinaryType::Multiply:
+				case BinaryType::Divide:
+				{
+					if (IsMatrixType(rightExprType))
+						TypeMustMatch(leftExprType, rightExprType);
+					else if (IsPrimitiveType(rightExprType))
+						TypeMustMatch(leftType.type, rightExprType);
+					else if (IsVectorType(rightExprType))
+					{
+						const VectorType& rightType = std::get<VectorType>(rightExprType);
+						TypeMustMatch(leftType.type, rightType.type);
+
+						if (leftType.columnCount != rightType.componentCount)
+							throw AstError{ "incompatible types" };
+					}
+					else
+						throw AstError{ "incompatible types" };
+				}
+			}
+		}
+		else if (IsVectorType(leftExprType))
+		{
+			const MatrixType& leftType = std::get<MatrixType>(leftExprType);
+			switch (node.op)
+			{
+				case BinaryType::CompGe:
+				case BinaryType::CompGt:
+				case BinaryType::CompLe:
+				case BinaryType::CompLt:
+				case BinaryType::CompEq:
+				case BinaryType::CompNe:
+				case BinaryType::Add:
+				case BinaryType::Subtract:
+					TypeMustMatch(node.left, node.right);
+					break;
+
+				case BinaryType::Multiply:
+				case BinaryType::Divide:
+				{
+					if (IsPrimitiveType(rightExprType))
+						TypeMustMatch(leftType.type, rightExprType);
+					else
+						throw AstError{ "incompatible types" };
 				}
 			}
 		}
@@ -258,24 +305,35 @@ namespace Nz::ShaderAst
 	{
 		RegisterScope(node);
 
+		AstRecursiveVisitor::Visit(node);
+
+		auto GetComponentCount = [](const ExpressionType& exprType) -> unsigned int
+		{
+			if (IsPrimitiveType(exprType))
+				return 1;
+			else if (IsVectorType(exprType))
+				return std::get<VectorType>(exprType).componentCount;
+			else
+				throw AstError{ "wut" };
+		};
+
 		unsigned int componentCount = 0;
 		unsigned int requiredComponents = GetComponentCount(node.targetType);
+
 		for (auto& exprPtr : node.expressions)
 		{
 			if (!exprPtr)
 				break;
 
-			ShaderExpressionType exprType = GetExpressionType(*exprPtr, m_context->cache);
-			if (!IsBasicType(exprType))
+			ExpressionType exprType = GetExpressionType(*exprPtr, m_context->cache);
+			if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
 				throw AstError{ "incompatible type" };
 
-			componentCount += GetComponentCount(std::get<BasicType>(exprType));
+			componentCount += GetComponentCount(exprType);
 		}
 
 		if (componentCount != requiredComponents)
 			throw AstError{ "component count doesn't match required component count" };
-
-		AstRecursiveVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(ConditionalExpression& node)
@@ -313,25 +371,42 @@ namespace Nz::ShaderAst
 	{
 		RegisterScope(node);
 
+		AstRecursiveVisitor::Visit(node);
+
 		switch (node.intrinsic)
 		{
 			case IntrinsicType::CrossProduct:
 			case IntrinsicType::DotProduct:
 			{
 				if (node.parameters.size() != 2)
-					throw AstError { "Expected 2 parameters" };
+					throw AstError { "Expected two parameters" };
 
 				for (auto& param : node.parameters)
 					MandatoryExpr(param);
 
-				ShaderExpressionType type = GetExpressionType(*node.parameters.front(), m_context->cache);
+				ExpressionType type = GetExpressionType(*node.parameters.front(), m_context->cache);
 				for (std::size_t i = 1; i < node.parameters.size(); ++i)
 				{
-					if (type != GetExpressionType(MandatoryExpr(node.parameters[i])), m_context->cache)
+					if (type != GetExpressionType(MandatoryExpr(node.parameters[i]), m_context->cache))
 						throw AstError{ "All type must match" };
 				}
 
 				break;
+			}
+
+			case IntrinsicType::SampleTexture:
+			{
+				if (node.parameters.size() != 2)
+					throw AstError{ "Expected two parameters" };
+
+				for (auto& param : node.parameters)
+					MandatoryExpr(param);
+
+				if (!IsSamplerType(GetExpressionType(*node.parameters[0], m_context->cache)))
+					throw AstError{ "First parameter must be a sampler" };
+
+				if (!IsVectorType(GetExpressionType(*node.parameters[1], m_context->cache)))
+					throw AstError{ "First parameter must be a vector" };
 			}
 		}
 
@@ -339,8 +414,8 @@ namespace Nz::ShaderAst
 		{
 			case IntrinsicType::CrossProduct:
 			{
-				if (GetExpressionType(*node.parameters[0]) != ShaderExpressionType{ BasicType::Float3 }, m_context->cache)
-					throw AstError{ "CrossProduct only works with Float3 expressions" };
+				if (GetExpressionType(*node.parameters[0]) != ExpressionType{ VectorType{ 3, PrimitiveType::Float32 } })
+					throw AstError{ "CrossProduct only works with vec3<f32> expressions" };
 
 				break;
 			}
@@ -348,8 +423,6 @@ namespace Nz::ShaderAst
 			case IntrinsicType::DotProduct:
 				break;
 		}
-
-		AstRecursiveVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(SwizzleExpression& node)
@@ -359,25 +432,9 @@ namespace Nz::ShaderAst
 		if (node.componentCount > 4)
 			throw AstError{ "Cannot swizzle more than four elements" };
 
-		ShaderExpressionType exprType = GetExpressionType(MandatoryExpr(node.expression), m_context->cache);
-		if (!IsBasicType(exprType))
+		ExpressionType exprType = GetExpressionType(MandatoryExpr(node.expression), m_context->cache);
+		if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
 			throw AstError{ "Cannot swizzle this type" };
-
-		switch (std::get<BasicType>(exprType))
-		{
-			case BasicType::Float1:
-			case BasicType::Float2:
-			case BasicType::Float3:
-			case BasicType::Float4:
-			case BasicType::Int1:
-			case BasicType::Int2:
-			case BasicType::Int3:
-			case BasicType::Int4:
-				break;
-
-			default:
-				throw AstError{ "Cannot swizzle this type" };
-		}
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -388,8 +445,8 @@ namespace Nz::ShaderAst
 
 		for (auto& condStatement : node.condStatements)
 		{
-			ShaderExpressionType condType = GetExpressionType(MandatoryExpr(condStatement.condition), m_context->cache);
-			if (!IsBasicType(condType) || std::get<BasicType>(condType) != BasicType::Boolean)
+			ExpressionType condType = GetExpressionType(MandatoryExpr(condStatement.condition), m_context->cache);
+			if (!IsPrimitiveType(condType) || std::get<PrimitiveType>(condType) != PrimitiveType::Boolean)
 				throw AstError{ "if expression must resolve to boolean type" };
 
 			MandatoryStatement(condStatement.statement);
@@ -409,6 +466,78 @@ namespace Nz::ShaderAst
 		//	throw AstError{ "condition not found" };
 	}
 
+	void AstValidator::Visit(DeclareExternalStatement& node)
+	{
+		RegisterScope(node);
+		auto& scope = m_context->cache->scopes[*m_context->activeScopeId];
+
+		for (const auto& [attributeType, arg] : node.attributes)
+		{
+			switch (attributeType)
+			{
+				default:
+					throw AstError{ "unhandled attribute for external block" };
+			}
+		}
+
+		for (const auto& extVar : node.externalVars)
+		{
+			bool hasBinding = false;
+			bool hasLayout = false;
+			for (const auto& [attributeType, arg] : extVar.attributes)
+			{
+				switch (attributeType)
+				{
+					case AttributeType::Binding:
+					{
+						if (hasBinding)
+							throw AstError{ "attribute binding must be present once" };
+
+						if (!std::holds_alternative<long long>(arg))
+							throw AstError{ "attribute binding requires a string parameter" };
+
+						long long bindingIndex = std::get<long long>(arg);
+						if (m_context->usedBindingIndexes.find(bindingIndex) != m_context->usedBindingIndexes.end())
+							throw AstError{ "Binding #" + std::to_string(bindingIndex) + " is already in use" };
+
+						m_context->usedBindingIndexes.insert(bindingIndex);
+						break;
+					}
+
+					case AttributeType::Layout:
+					{
+						if (hasLayout)
+							throw AstError{ "attribute layout must be present once" };
+
+						if (!std::holds_alternative<std::string>(arg))
+							throw AstError{ "attribute layout requires a string parameter" };
+
+						if (std::get<std::string>(arg) != "std140")
+							throw AstError{ "unknow layout type" };
+
+						hasLayout = true;
+						break;
+					}
+
+					default:
+						throw AstError{ "unhandled attribute for external variable" };
+				}
+			}
+
+			if (m_context->declaredExternalVar.find(extVar.name) != m_context->declaredExternalVar.end())
+				throw AstError{ "External variable " + extVar.name + " is already declared" };
+
+			m_context->declaredExternalVar.insert(extVar.name);
+
+			ExpressionType subType = extVar.type;
+			if (IsUniformType(subType))
+				subType = IdentifierType{ std::get<UniformType>(subType).containedType };
+
+			auto& identifier = scope.identifiers.emplace_back();
+			identifier = AstCache::Identifier{ extVar.name, AstCache::Variable { std::move(subType) } };
+		}
+	}
+
 	void AstValidator::Visit(DeclareFunctionStatement& node)
 	{
 		bool hasEntry = false;
@@ -421,12 +550,14 @@ namespace Nz::ShaderAst
 					if (hasEntry)
 						throw AstError{ "attribute entry must be present once" };
 
-					if (arg.empty())
-						throw AstError{ "attribute entry requires a parameter" };
+					if (!std::holds_alternative<std::string>(arg))
+						throw AstError{ "attribute entry requires a string parameter" };
 
-					auto it = entryPoints.find(arg);
+					const std::string& argStr = std::get<std::string>(arg);
+
+					auto it = entryPoints.find(argStr);
 					if (it == entryPoints.end())
-						throw AstError{ "invalid parameter " + arg + " for entry attribute" };
+						throw AstError{ "invalid parameter " + argStr + " for entry attribute" };
 
 					ShaderStageType stageType = it->second;
 
@@ -434,6 +565,9 @@ namespace Nz::ShaderAst
 						throw AstError{ "the same entry type has been defined multiple times" };
 
 					m_context->cache->entryFunctions[UnderlyingCast(it->second)] = &node;
+
+					if (node.parameters.size() > 1)
+						throw AstError{ "entry functions can either take one struct parameter or no parameter" };
 
 					hasEntry = true;
 					break;
@@ -467,6 +601,8 @@ namespace Nz::ShaderAst
 			throw AstError{ "cannot declare variable without scope" };
 
 		RegisterScope(node);
+
+		//TODO: check members attributes
 
 		auto& scope = m_context->cache->scopes[*m_context->activeScopeId];
 

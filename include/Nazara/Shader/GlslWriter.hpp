@@ -28,7 +28,7 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			std::string Generate(ShaderAst::StatementPtr& shader, const States& conditions = {});
+			std::string Generate(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 
@@ -44,17 +44,26 @@ namespace Nz
 			static const char* GetFlipYUniformName();
 
 		private:
-			void Append(ShaderAst::ShaderExpressionType type);
+			void Append(const ShaderAst::ExpressionType& type);
 			void Append(ShaderAst::BuiltinEntry builtin);
-			void Append(ShaderAst::BasicType type);
+			void Append(const ShaderAst::IdentifierType& identifierType);
+			void Append(const ShaderAst::MatrixType& matrixType);
 			void Append(ShaderAst::MemoryLayout layout);
+			void Append(ShaderAst::NoType);
+			void Append(ShaderAst::PrimitiveType type);
+			void Append(const ShaderAst::SamplerType& samplerType);
+			void Append(const ShaderAst::UniformType& uniformType);
+			void Append(const ShaderAst::VectorType& vecType);
 			template<typename T> void Append(const T& param);
+			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			void AppendCommentSection(const std::string& section);
+			void AppendEntryPoint(ShaderStageType shaderStage);
 			void AppendField(std::size_t scopeId, const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
 			void AppendLine(const std::string& txt = {});
+			template<typename... Args> void AppendLine(Args&&... params);
 
 			void EnterScope();
-			void LeaveScope();
+			void LeaveScope(bool skipLine = true);
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
@@ -70,7 +79,9 @@ namespace Nz
 
 			void Visit(ShaderAst::BranchStatement& node) override;
 			void Visit(ShaderAst::ConditionalStatement& node) override;
+			void Visit(ShaderAst::DeclareExternalStatement& node) override;
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override;
+			void Visit(ShaderAst::DeclareStructStatement& node) override;
 			void Visit(ShaderAst::DeclareVariableStatement& node) override;
 			void Visit(ShaderAst::DiscardStatement& node) override;
 			void Visit(ShaderAst::ExpressionStatement& node) override;

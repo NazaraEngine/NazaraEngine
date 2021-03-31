@@ -39,18 +39,18 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::BinaryExpression& node)
 	{
-		ShaderAst::ShaderExpressionType resultExprType = ShaderAst::GetExpressionType(node, m_cache);
-		assert(IsBasicType(resultExprType));
+		ShaderAst::ExpressionType resultExprType = ShaderAst::GetExpressionType(node, m_cache);
+		assert(IsPrimitiveType(resultExprType));
 
-		ShaderAst::ShaderExpressionType leftExprType = ShaderAst::GetExpressionType(*node.left, m_cache);
-		assert(IsBasicType(leftExprType));
+		ShaderAst::ExpressionType leftExprType = ShaderAst::GetExpressionType(*node.left, m_cache);
+		assert(IsPrimitiveType(leftExprType));
 
-		ShaderAst::ShaderExpressionType rightExprType = ShaderAst::GetExpressionType(*node.right, m_cache);
-		assert(IsBasicType(rightExprType));
+		ShaderAst::ExpressionType rightExprType = ShaderAst::GetExpressionType(*node.right, m_cache);
+		assert(IsPrimitiveType(rightExprType));
 
-		ShaderAst::BasicType resultType = std::get<ShaderAst::BasicType>(resultExprType);
-		ShaderAst::BasicType leftType = std::get<ShaderAst::BasicType>(leftExprType);
-		ShaderAst::BasicType rightType = std::get<ShaderAst::BasicType>(rightExprType);
+		ShaderAst::PrimitiveType resultType = std::get<ShaderAst::PrimitiveType>(resultExprType);
+		ShaderAst::PrimitiveType leftType = std::get<ShaderAst::PrimitiveType>(leftExprType);
+		ShaderAst::PrimitiveType rightType = std::get<ShaderAst::PrimitiveType>(rightExprType);
 
 
 		UInt32 leftOperand = EvaluateExpression(node.left);
@@ -67,26 +67,26 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFAdd;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpIAdd;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -97,26 +97,26 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFSub;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpISub;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -127,28 +127,28 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFDiv;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
 							return SpirvOp::OpSDiv;
 
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpUDiv;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -159,29 +159,29 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::PrimitiveType::Boolean:
 							return SpirvOp::OpLogicalEqual;
 
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFOrdEqual;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpIEqual;
 
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
-							break;
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
+// 							break;
 					}
 
 					break;
@@ -191,28 +191,28 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFOrdGreaterThan;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
 							return SpirvOp::OpSGreaterThan;
 
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpUGreaterThan;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -223,28 +223,28 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFOrdGreaterThanEqual;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
 							return SpirvOp::OpSGreaterThanEqual;
 
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpUGreaterThanEqual;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -255,28 +255,28 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFOrdLessThanEqual;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
 							return SpirvOp::OpSLessThanEqual;
 
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpULessThanEqual;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -287,28 +287,28 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFOrdLessThan;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
 							return SpirvOp::OpSLessThan;
 
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpULessThan;
 
-						case ShaderAst::BasicType::Boolean:
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
+						case ShaderAst::PrimitiveType::Boolean:
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
 							break;
 					}
 
@@ -319,29 +319,29 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Boolean:
+						case ShaderAst::PrimitiveType::Boolean:
 							return SpirvOp::OpLogicalNotEqual;
 
-						case ShaderAst::BasicType::Float1:
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						case ShaderAst::BasicType::Mat4x4:
+						case ShaderAst::PrimitiveType::Float32:
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						case ShaderAst::PrimitiveType::Mat4x4:
 							return SpirvOp::OpFOrdNotEqual;
 
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::Int32:
+// 						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpINotEqual;
 
-						case ShaderAst::BasicType::Sampler2D:
-						case ShaderAst::BasicType::Void:
-							break;
+// 						case ShaderAst::PrimitiveType::Sampler2D:
+// 						case ShaderAst::PrimitiveType::Void:
+// 							break;
 					}
 
 					break;
@@ -351,22 +351,22 @@ namespace Nz
 				{
 					switch (leftType)
 					{
-						case ShaderAst::BasicType::Float1:
+						case ShaderAst::PrimitiveType::Float32:
 						{
 							switch (rightType)
 							{
-								case ShaderAst::BasicType::Float1:
+								case ShaderAst::PrimitiveType::Float32:
 									return SpirvOp::OpFMul;
 
-								case ShaderAst::BasicType::Float2:
-								case ShaderAst::BasicType::Float3:
-								case ShaderAst::BasicType::Float4:
-									swapOperands = true;
-									return SpirvOp::OpVectorTimesScalar;
-
-								case ShaderAst::BasicType::Mat4x4:
-									swapOperands = true;
-									return SpirvOp::OpMatrixTimesScalar;
+// 								case ShaderAst::PrimitiveType::Float2:
+// 								case ShaderAst::PrimitiveType::Float3:
+// 								case ShaderAst::PrimitiveType::Float4:
+// 									swapOperands = true;
+// 									return SpirvOp::OpVectorTimesScalar;
+// 
+// 								case ShaderAst::PrimitiveType::Mat4x4:
+// 									swapOperands = true;
+// 									return SpirvOp::OpMatrixTimesScalar;
 
 								default:
 									break;
@@ -375,54 +375,54 @@ namespace Nz
 							break;
 						}
 
-						case ShaderAst::BasicType::Float2:
-						case ShaderAst::BasicType::Float3:
-						case ShaderAst::BasicType::Float4:
-						{
-							switch (rightType)
-							{
-								case ShaderAst::BasicType::Float1:
-									return SpirvOp::OpVectorTimesScalar;
+// 						case ShaderAst::PrimitiveType::Float2:
+// 						case ShaderAst::PrimitiveType::Float3:
+// 						case ShaderAst::PrimitiveType::Float4:
+// 						{
+// 							switch (rightType)
+// 							{
+// 								case ShaderAst::PrimitiveType::Float32:
+// 									return SpirvOp::OpVectorTimesScalar;
+// 
+// 								case ShaderAst::PrimitiveType::Float2:
+// 								case ShaderAst::PrimitiveType::Float3:
+// 								case ShaderAst::PrimitiveType::Float4:
+// 									return SpirvOp::OpFMul;
+// 
+// 								case ShaderAst::PrimitiveType::Mat4x4:
+// 									return SpirvOp::OpVectorTimesMatrix;
+// 
+// 								default:
+// 									break;
+// 							}
+// 
+// 							break;
+// 						}
 
-								case ShaderAst::BasicType::Float2:
-								case ShaderAst::BasicType::Float3:
-								case ShaderAst::BasicType::Float4:
-									return SpirvOp::OpFMul;
-
-								case ShaderAst::BasicType::Mat4x4:
-									return SpirvOp::OpVectorTimesMatrix;
-
-								default:
-									break;
-							}
-
-							break;
-						}
-
-						case ShaderAst::BasicType::Int1:
-						case ShaderAst::BasicType::Int2:
-						case ShaderAst::BasicType::Int3:
-						case ShaderAst::BasicType::Int4:
-						case ShaderAst::BasicType::UInt1:
-						case ShaderAst::BasicType::UInt2:
-						case ShaderAst::BasicType::UInt3:
-						case ShaderAst::BasicType::UInt4:
+						case ShaderAst::PrimitiveType::Int32:
+//						case ShaderAst::PrimitiveType::Int2:
+// 						case ShaderAst::PrimitiveType::Int3:
+// 						case ShaderAst::PrimitiveType::Int4:
+						case ShaderAst::PrimitiveType::UInt32:
+// 						case ShaderAst::PrimitiveType::UInt2:
+// 						case ShaderAst::PrimitiveType::UInt3:
+// 						case ShaderAst::PrimitiveType::UInt4:
 							return SpirvOp::OpIMul;
 
-						case ShaderAst::BasicType::Mat4x4:
-						{
-							switch (rightType)
-							{
-								case ShaderAst::BasicType::Float1: return SpirvOp::OpMatrixTimesScalar;
-								case ShaderAst::BasicType::Float4: return SpirvOp::OpMatrixTimesVector;
-								case ShaderAst::BasicType::Mat4x4: return SpirvOp::OpMatrixTimesMatrix;
-
-								default:
-									break;
-							}
-
-							break;
-						}
+// 						case ShaderAst::PrimitiveType::Mat4x4:
+// 						{
+// 							switch (rightType)
+// 							{
+// 								case ShaderAst::PrimitiveType::Float32: return SpirvOp::OpMatrixTimesScalar;
+// 								case ShaderAst::PrimitiveType::Float4: return SpirvOp::OpMatrixTimesVector;
+// 								case ShaderAst::PrimitiveType::Mat4x4: return SpirvOp::OpMatrixTimesMatrix;
+// 
+// 								default:
+// 									break;
+// 							}
+// 
+// 							break;
+// 						}
 
 						default:
 							break;
@@ -501,10 +501,10 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::CastExpression& node)
 	{
-		const ShaderAst::ShaderExpressionType& targetExprType = node.targetType;
-		assert(IsBasicType(targetExprType));
+		const ShaderAst::ExpressionType& targetExprType = node.targetType;
+		assert(IsPrimitiveType(targetExprType));
 
-		ShaderAst::BasicType targetType = std::get<ShaderAst::BasicType>(targetExprType);
+		ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
 
 		StackVector<UInt32> exprResults = NazaraStackVector(UInt32, node.expressions.size());
 
@@ -582,12 +582,12 @@ namespace Nz
 		{
 			case ShaderAst::IntrinsicType::DotProduct:
 			{
-				ShaderAst::ShaderExpressionType vecExprType = GetExpressionType(*node.parameters[0], m_cache);
-				assert(IsBasicType(vecExprType));
+				ShaderAst::ExpressionType vecExprType = GetExpressionType(*node.parameters[0], m_cache);
+				assert(IsVectorType(vecExprType));
 
-				ShaderAst::BasicType vecType = std::get<ShaderAst::BasicType>(vecExprType);
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
 
-				UInt32 typeId = m_writer.GetTypeId(ShaderAst::GetComponentType(vecType));
+				UInt32 typeId = m_writer.GetTypeId(vecType.type);
 
 				UInt32 vec1 = EvaluateExpression(node.parameters[0]);
 				UInt32 vec2 = EvaluateExpression(node.parameters[1]);
@@ -626,10 +626,10 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		ShaderAst::ShaderExpressionType targetExprType = ShaderAst::GetExpressionType(node, m_cache);
-		assert(IsBasicType(targetExprType));
+		ShaderAst::ExpressionType targetExprType = ShaderAst::GetExpressionType(node, m_cache);
+		assert(IsPrimitiveType(targetExprType));
 
-		ShaderAst::BasicType targetType = std::get<ShaderAst::BasicType>(targetExprType);
+		ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
 
 		UInt32 exprResultId = EvaluateExpression(node.expression);
 		UInt32 resultId = m_writer.AllocateResultId();

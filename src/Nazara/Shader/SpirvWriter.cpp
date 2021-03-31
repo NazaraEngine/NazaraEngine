@@ -29,7 +29,7 @@ namespace Nz
 		{
 			public:
 				using ExtInstList = std::unordered_set<std::string>;
-				using LocalContainer = std::unordered_set<ShaderAst::ShaderExpressionType>;
+				using LocalContainer = std::unordered_set<ShaderAst::ExpressionType>;
 				using FunctionContainer = std::vector<std::reference_wrapper<ShaderAst::DeclareFunctionStatement>>;
 
 				PreVisitor(ShaderAst::AstCache* cache, const SpirvWriter::States& conditions, SpirvConstantCache& constantCache) :
@@ -81,7 +81,7 @@ namespace Nz
 				{
 					funcs.emplace_back(node);
 
-					std::vector<ShaderAst::ShaderExpressionType> parameterTypes;
+					std::vector<ShaderAst::ExpressionType> parameterTypes;
 					for (auto& parameter : node.parameters)
 						parameterTypes.push_back(parameter.type);
 
@@ -92,8 +92,17 @@ namespace Nz
 
 				void Visit(ShaderAst::DeclareStructStatement& node) override
 				{
-					for (auto& field : node.description.members)
-						m_constantCache.Register(*SpirvConstantCache::BuildType(field.type));
+					SpirvConstantCache::Structure sType;
+					sType.name = node.description.name;
+
+					for (const auto& [name, attribute, type] : node.description.members)
+					{
+						auto& sMembers = sType.members.emplace_back();
+						sMembers.name = name;
+						sMembers.type = SpirvConstantCache::BuildType(type);
+					}
+
+					m_constantCache.Register(SpirvConstantCache::Type{ std::move(sType) });
 				}
 
 				void Visit(ShaderAst::DeclareVariableStatement& node) override
@@ -137,26 +146,26 @@ namespace Nz
 		};
 
 		template<typename T>
-		constexpr ShaderAst::BasicType GetBasicType()
+		constexpr ShaderAst::PrimitiveType GetBasicType()
 		{
 			if constexpr (std::is_same_v<T, bool>)
-				return ShaderAst::BasicType::Boolean;
+				return ShaderAst::PrimitiveType::Boolean;
 			else if constexpr (std::is_same_v<T, float>)
-				return(ShaderAst::BasicType::Float1);
+				return(ShaderAst::PrimitiveType::Float32);
 			else if constexpr (std::is_same_v<T, Int32>)
-				return(ShaderAst::BasicType::Int1);
+				return(ShaderAst::PrimitiveType::Int32);
 			else if constexpr (std::is_same_v<T, Vector2f>)
-				return(ShaderAst::BasicType::Float2);
+				return(ShaderAst::PrimitiveType::Float2);
 			else if constexpr (std::is_same_v<T, Vector3f>)
-				return(ShaderAst::BasicType::Float3);
+				return(ShaderAst::PrimitiveType::Float3);
 			else if constexpr (std::is_same_v<T, Vector4f>)
-				return(ShaderAst::BasicType::Float4);
+				return(ShaderAst::PrimitiveType::Float4);
 			else if constexpr (std::is_same_v<T, Vector2i32>)
-				return(ShaderAst::BasicType::Int2);
+				return(ShaderAst::PrimitiveType::Int2);
 			else if constexpr (std::is_same_v<T, Vector3i32>)
-				return(ShaderAst::BasicType::Int3);
+				return(ShaderAst::PrimitiveType::Int3);
 			else if constexpr (std::is_same_v<T, Vector4i32>)
-				return(ShaderAst::BasicType::Int4);
+				return(ShaderAst::PrimitiveType::Int4);
 			else
 				static_assert(AlwaysFalse<T>::value, "unhandled type");
 		}
@@ -394,7 +403,7 @@ namespace Nz
 
 			if (!state.functionBlocks.back().IsTerminated())
 			{
-				assert(func.returnType == ShaderAst::ShaderExpressionType(ShaderAst::BasicType::Void));
+				assert(func.returnType == ShaderAst::ExpressionType{ ShaderAst::NoType{} });
 				state.functionBlocks.back().Append(SpirvOp::OpReturn);
 			}
 
@@ -537,12 +546,12 @@ namespace Nz
 		return it.value();
 	}
 
-	UInt32 SpirvWriter::GetPointerTypeId(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass) const
+	UInt32 SpirvWriter::GetPointerTypeId(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const
 	{
 		return m_currentState->constantTypeCache.GetId(*SpirvConstantCache::BuildPointerType(type, storageClass));
 	}
 
-	UInt32 SpirvWriter::GetTypeId(const ShaderAst::ShaderExpressionType& type) const
+	UInt32 SpirvWriter::GetTypeId(const ShaderAst::ExpressionType& type) const
 	{
 		return m_currentState->constantTypeCache.GetId(*SpirvConstantCache::BuildType(type));
 	}
@@ -643,12 +652,12 @@ namespace Nz
 		return m_currentState->constantTypeCache.Register({ *BuildFunctionType(functionNode) });
 	}
 
-	UInt32 SpirvWriter::RegisterPointerType(ShaderAst::ShaderExpressionType type, SpirvStorageClass storageClass)
+	UInt32 SpirvWriter::RegisterPointerType(ShaderAst::ExpressionType type, SpirvStorageClass storageClass)
 	{
 		return m_currentState->constantTypeCache.Register(*SpirvConstantCache::BuildPointerType(type, storageClass));
 	}
 
-	UInt32 SpirvWriter::RegisterType(ShaderAst::ShaderExpressionType type)
+	UInt32 SpirvWriter::RegisterType(ShaderAst::ExpressionType type)
 	{
 		assert(m_currentState);
 		return m_currentState->constantTypeCache.Register(*SpirvConstantCache::BuildType(type));
@@ -662,7 +671,7 @@ namespace Nz
 
 	SpirvConstantCache::TypePtr SpirvWriter::BuildFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode)
 	{
-		std::vector<ShaderAst::ShaderExpressionType> parameterTypes;
+		std::vector<ShaderAst::ExpressionType> parameterTypes;
 		parameterTypes.reserve(functionNode.parameters.size());
 
 		for (const auto& parameter : functionNode.parameters)

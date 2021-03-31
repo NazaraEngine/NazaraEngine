@@ -16,15 +16,22 @@ namespace Nz::ShaderAst
 {
 	struct AstCache
 	{
+		struct Identifier;
+
+		struct Alias
+		{
+			std::variant<ExpressionType> value;
+		};
+
 		struct Variable
 		{
-			ShaderExpressionType type;
+			ExpressionType type;
 		};
 
 		struct Identifier
 		{
 			std::string name;
-			std::variant<Variable, StructDescription> value;
+			std::variant<Alias, Variable, StructDescription> value;
 		};
 
 		struct Scope
@@ -33,12 +40,12 @@ namespace Nz::ShaderAst
 			std::vector<Identifier> identifiers;
 		};
 
+		inline void Clear();
 		inline const Identifier* FindIdentifier(std::size_t startingScopeId, const std::string& identifierName) const;
 		inline std::size_t GetScopeId(const Node* node) const;
 
-		ShaderStageType stageType = ShaderStageType::Undefined;
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
-		std::unordered_map<const Expression*, ShaderExpressionType> nodeExpressionType;
+		std::unordered_map<const Expression*, ExpressionType> nodeExpressionType;
 		std::unordered_map<const Node*, std::size_t> scopeIdByNode;
 		std::vector<Scope> scopes;
 	};

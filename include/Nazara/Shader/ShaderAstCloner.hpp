@@ -33,6 +33,8 @@ namespace Nz::ShaderAst
 			ExpressionPtr CloneExpression(ExpressionPtr& expr);
 			StatementPtr CloneStatement(StatementPtr& statement);
 
+			virtual std::unique_ptr<DeclareFunctionStatement> Clone(DeclareFunctionStatement& node);
+
 			using AstExpressionVisitor::Visit;
 			using AstStatementVisitor::Visit;
 
@@ -45,8 +47,10 @@ namespace Nz::ShaderAst
 			void Visit(IdentifierExpression& node) override;
 			void Visit(IntrinsicExpression& node) override;
 			void Visit(SwizzleExpression& node) override;
+
 			void Visit(BranchStatement& node) override;
 			void Visit(ConditionalStatement& node) override;
+			void Visit(DeclareExternalStatement& node) override;
 			void Visit(DeclareFunctionStatement& node) override;
 			void Visit(DeclareStructStatement& node) override;
 			void Visit(DeclareVariableStatement& node) override;
