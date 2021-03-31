@@ -8,6 +8,64 @@
 #include <array>
 #include <iostream>
 
+const char shaderSource[] = R"(
+[[layout(std140)]]
+struct Data
+{
+	projectionMatrix: mat4<f32>,
+	worldMatrix: mat4<f32>,
+	viewMatrix: mat4<f32>
+}
+
+external
+{
+	[[binding(0), layout(std140)]] viewerData: uniform<Data>,
+	[[binding(1)]] tex: sampler2D<f32>
+}
+
+struct VertIn
+{
+	[[location(0)]] position: vec3<f32>,
+	[[location(1)]] normal: vec3<f32>,
+	[[location(2)]] uv: vec2<f32>
+}
+
+struct VertOut
+{
+	[[builtin(position)]] position: vec4<f32>,
+	[[location(0)]] normal: vec3<f32>,
+	[[location(1)]] uv: vec2<f32>
+}
+
+struct FragOut
+{
+	[[location(0)]] color: vec4<f32>
+}
+
+[[entry(frag)]]
+fn main(fragIn: VertOut) -> FragOut
+{
+	let lightDir: vec3<f32> = vec3<f32>(0.0, -0.707, 0.707);
+	let lightFactor: f32 = dot(fragIn.normal, lightDir);
+
+	let fragOut: FragOut;
+	fragOut.color = lightFactor * tex.Sample(fragIn.uv);
+
+	return fragOut;
+}
+
+[[entry(vert)]]
+fn main(vertIn: VertIn) -> VertOut
+{
+	let vertOut: VertOut;
+	vertOut.position = viewerData.projectionMatrix * viewerData.viewMatrix * viewerData.worldMatrix * vec4<f32>(vertIn.position, 1.0);
+	vertOut.normal = vertIn.normal;
+	vertOut.uv = vertIn.uv;
+
+	return vertOut;
+}
+)";
+
 int main()
 {
 	Nz::Renderer::Config rendererConfig;
@@ -34,17 +92,10 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
-	auto fragmentShader = device->InstantiateShaderStage(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, "frag.shader");
-	if (!fragmentShader)
+	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderSource, sizeof(shaderSource));
+	if (!fragVertShader)
 	{
-		std::cout << "Failed to instantiate fragment shader" << std::endl;
-		return __LINE__;
-	}
-
-	auto vertexShader = device->InstantiateShaderStage(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, "vert.shader");
-	if (!vertexShader)
-	{
-		std::cout << "Failed to instantiate fragment shader" << std::endl;
+		std::cout << "Failed to instantiate shader" << std::endl;
 		return __LINE__;
 	}
 
@@ -146,8 +197,7 @@ int main()
 	pipelineInfo.pipelineLayout = renderPipelineLayout;
 
 	pipelineInfo.depthBuffer = true;
-	pipelineInfo.shaderStages.emplace_back(fragmentShader);
-	pipelineInfo.shaderStages.emplace_back(vertexShader);
+	pipelineInfo.shaderModules.emplace_back(fragVertShader);
 
 	auto& vertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
 	vertexBuffer.binding = 0;
