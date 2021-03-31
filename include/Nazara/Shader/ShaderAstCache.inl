@@ -7,6 +7,14 @@
 
 namespace Nz::ShaderAst
 {
+	inline void AstCache::Clear()
+	{
+		entryFunctions.fill(nullptr);
+		nodeExpressionType.clear();
+		scopeIdByNode.clear();
+		scopes.clear();
+	}
+
 	inline auto AstCache::FindIdentifier(std::size_t startingScopeId, const std::string& identifierName) const -> const Identifier*
 	{
 		assert(startingScopeId < scopes.size());
@@ -28,7 +36,7 @@ namespace Nz::ShaderAst
 	inline std::size_t AstCache::GetScopeId(const Node* node) const
 	{
 		auto it = scopeIdByNode.find(node);
-		assert(it == scopeIdByNode.end());
+		assert(it != scopeIdByNode.end());
 
 		return it->second;
 	}

@@ -15,6 +15,11 @@ namespace Nz::ShaderBuilder
 {
 	namespace Impl
 	{
+		struct Assign
+		{
+			inline std::unique_ptr<ShaderAst::AssignExpression> operator()(ShaderAst::AssignType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const;
+		};
+
 		struct Binary
 		{
 			inline std::unique_ptr<ShaderAst::BinaryExpression> operator()(ShaderAst::BinaryType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const;
@@ -26,6 +31,11 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::BranchStatement> operator()(std::vector<ShaderAst::BranchStatement::ConditionalStatement> condStatements, ShaderAst::StatementPtr elseStatement = nullptr) const;
 		};
 
+		struct Cast
+		{
+			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const;
+		};
+
 		struct Constant
 		{
 			inline std::unique_ptr<ShaderAst::ConstantExpression> operator()(ShaderConstantValue value) const;
@@ -33,13 +43,24 @@ namespace Nz::ShaderBuilder
 
 		struct DeclareFunction
 		{
-			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void) const;
-			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ShaderExpressionType returnType = ShaderAst::BasicType::Void) const;
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
+		};
+
+		struct DeclareStruct
+		{
+			inline std::unique_ptr<ShaderAst::DeclareStructStatement> operator()(ShaderAst::StructDescription description) const;
+			inline std::unique_ptr<ShaderAst::DeclareStructStatement> operator()(std::vector<ShaderAst::Attribute> attributes, ShaderAst::StructDescription description) const;
 		};
 
 		struct DeclareVariable
 		{
-			inline std::unique_ptr<ShaderAst::DeclareVariableStatement> operator()(std::string name, ShaderAst::ShaderExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
+			inline std::unique_ptr<ShaderAst::DeclareVariableStatement> operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
+		};
+
+		struct ExpressionStatement
+		{
+			inline std::unique_ptr<ShaderAst::ExpressionStatement> operator()(ShaderAst::ExpressionPtr expression) const;
 		};
 
 		struct Identifier
@@ -47,9 +68,9 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::IdentifierExpression> operator()(std::string name) const;
 		};
 
-		struct Return
+		struct Intrinsic
 		{
-			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
+			inline std::unique_ptr<ShaderAst::IntrinsicExpression> operator()(ShaderAst::IntrinsicType intrinsicType, std::vector<ShaderAst::ExpressionPtr> parameters) const;
 		};
 
 		template<typename T>
@@ -57,15 +78,25 @@ namespace Nz::ShaderBuilder
 		{
 			std::unique_ptr<T> operator()() const;
 		};
+
+		struct Return
+		{
+			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
+		};
 	}
 
+	constexpr Impl::Assign Assign;
 	constexpr Impl::Binary Binary;
 	constexpr Impl::Branch Branch;
+	constexpr Impl::Cast Cast;
 	constexpr Impl::Constant Constant;
 	constexpr Impl::DeclareFunction DeclareFunction;
+	constexpr Impl::DeclareStruct DeclareStruct;
 	constexpr Impl::DeclareVariable DeclareVariable;
+	constexpr Impl::ExpressionStatement ExpressionStatement;
 	constexpr Impl::NoParam<ShaderAst::DiscardStatement> Discard;
 	constexpr Impl::Identifier Identifier;
+	constexpr Impl::Intrinsic Intrinsic;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
 }

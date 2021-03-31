@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderAstTypes.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <memory>
 #include <optional>
@@ -172,11 +172,16 @@ namespace Nz
 			SpirvConstantCache& operator=(SpirvConstantCache&& cache) noexcept;
 
 			static ConstantPtr BuildConstant(const ShaderConstantValue& value);
-			static TypePtr BuildFunctionType(const ShaderAst::ShaderExpressionType& retType, const std::vector<ShaderAst::ShaderExpressionType>& parameters);
-			static TypePtr BuildPointerType(const ShaderAst::BasicType& type, SpirvStorageClass storageClass);
-			static TypePtr BuildPointerType(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass);
-			static TypePtr BuildType(const ShaderAst::BasicType& type);
-			static TypePtr BuildType(const ShaderAst::ShaderExpressionType& type);
+			static TypePtr BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters);
+			static TypePtr BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass);
+			static TypePtr BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass);
+			static TypePtr BuildType(const ShaderAst::ExpressionType& type);
+			static TypePtr BuildType(const ShaderAst::IdentifierType& type);
+			static TypePtr BuildType(const ShaderAst::MatrixType& type);
+			static TypePtr BuildType(const ShaderAst::NoType& type);
+			static TypePtr BuildType(const ShaderAst::PrimitiveType& type);
+			static TypePtr BuildType(const ShaderAst::SamplerType& type);
+			static TypePtr BuildType(const ShaderAst::VectorType& type);
 
 		private:
 			struct DepRegisterer;

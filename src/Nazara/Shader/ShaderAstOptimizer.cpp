@@ -453,8 +453,8 @@ namespace Nz::ShaderAst
 			{
 				auto& constant = static_cast<ConstantExpression&>(*cond);
 
-				assert(IsBasicType(GetExpressionType(constant)));
-				assert(std::get<BasicType>(GetExpressionType(constant)) == BasicType::Boolean);
+				assert(IsPrimitiveType(GetExpressionType(constant)));
+				assert(std::get<PrimitiveType>(GetExpressionType(constant)) == PrimitiveType::Boolean);
 
 				bool cValue = std::get<bool>(constant.value);
 				if (!cValue)

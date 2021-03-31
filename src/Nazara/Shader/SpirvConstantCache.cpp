@@ -535,7 +535,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i>)
 			{
 				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector2f>) ? ShaderAst::BasicType::Float2 : ShaderAst::BasicType::Int2),
+					BuildType(ShaderAst::VectorType{ 2, (std::is_same_v<T, Vector2f>) ? ShaderAst::PrimitiveType::Float32 : ShaderAst::PrimitiveType::Int32 }),
 					{
 						BuildConstant(arg.x),
 						BuildConstant(arg.y)
@@ -545,7 +545,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i>)
 			{
 				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector3f>) ? ShaderAst::BasicType::Float3 : ShaderAst::BasicType::Int3),
+					BuildType(ShaderAst::VectorType{ 3, (std::is_same_v<T, Vector3f>) ? ShaderAst::PrimitiveType::Float32 : ShaderAst::PrimitiveType::Int32 }),
 					{
 						BuildConstant(arg.x),
 						BuildConstant(arg.y),
@@ -556,7 +556,7 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i>)
 			{
 				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector4f>) ? ShaderAst::BasicType::Float4 : ShaderAst::BasicType::Int4),
+					BuildType(ShaderAst::VectorType{ 4, (std::is_same_v<T, Vector4f>) ? ShaderAst::PrimitiveType::Float32 : ShaderAst::PrimitiveType::Int32 }),
 					{
 						BuildConstant(arg.x),
 						BuildConstant(arg.y),
@@ -570,7 +570,7 @@ namespace Nz
 		}, value));
 	}
 
-	auto SpirvConstantCache::BuildFunctionType(const ShaderAst::ShaderExpressionType& retType, const std::vector<ShaderAst::ShaderExpressionType>& parameters) -> TypePtr
+	auto SpirvConstantCache::BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) -> TypePtr
 	{
 		std::vector<SpirvConstantCache::TypePtr> parameterTypes;
 		parameterTypes.reserve(parameters.size());
@@ -584,7 +584,7 @@ namespace Nz
 		});
 	}
 
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst::BasicType& type, SpirvStorageClass storageClass) -> TypePtr
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
 	{
 		return std::make_shared<Type>(Pointer{
 			BuildType(type),
@@ -592,85 +592,22 @@ namespace Nz
 		});
 	}
 
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ShaderExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) -> TypePtr
 	{
 		return std::make_shared<Type>(Pointer{
 			BuildType(type),
 			storageClass
-		});
+			});
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::BasicType& type) -> TypePtr
-	{
-		return std::make_shared<Type>([&]() -> AnyType
-		{
-			switch (type)
-			{
-				case ShaderAst::BasicType::Boolean:
-					return Bool{};
-
-				case ShaderAst::BasicType::Float1:
-					return Float{ 32 };
-
-				case ShaderAst::BasicType::Int1:
-					return Integer{ 32, true };
-
-				case ShaderAst::BasicType::Float2:
-				case ShaderAst::BasicType::Float3:
-				case ShaderAst::BasicType::Float4:
-				case ShaderAst::BasicType::Int2:
-				case ShaderAst::BasicType::Int3:
-				case ShaderAst::BasicType::Int4:
-				case ShaderAst::BasicType::UInt2:
-				case ShaderAst::BasicType::UInt3:
-				case ShaderAst::BasicType::UInt4:
-				{
-					auto vecType = BuildType(ShaderAst::GetComponentType(type));
-					UInt32 componentCount = ShaderAst::GetComponentCount(type);
-
-					return Vector{ vecType, componentCount };
-				}
-
-				case ShaderAst::BasicType::Mat4x4:
-					return Matrix{ BuildType(ShaderAst::BasicType::Float4), 4u };
-
-				case ShaderAst::BasicType::UInt1:
-					return Integer{ 32, false };
-
-				case ShaderAst::BasicType::Void:
-					return Void{};
-
-				case ShaderAst::BasicType::Sampler2D:
-				{
-					auto imageType = Image{
-						{}, //< qualifier
-						{}, //< depth
-						{}, //< sampled
-						SpirvDim::Dim2D, //< dim
-						SpirvImageFormat::Unknown, //< format
-						BuildType(ShaderAst::BasicType::Float1), //< sampledType
-						false, //< arrayed,
-						false  //< multisampled
-					};
-
-					return SampledImage{ std::make_shared<Type>(imageType) };
-				}
-			}
-
-			throw std::runtime_error("unexpected type");
-		}());
-	}
-
-	auto SpirvConstantCache::BuildType(const ShaderAst::ShaderExpressionType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) -> TypePtr
 	{
 		return std::visit([&](auto&& arg) -> TypePtr
 		{
-			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, ShaderAst::BasicType>)
-				return BuildType(arg);
-			else if constexpr (std::is_same_v<T, std::string>)
+			return BuildType(arg);
+			/*else if constexpr (std::is_same_v<T, std::string>)
 			{
-				/*// Register struct members type
+				// Register struct members type
 				const auto& structs = shader.GetStructs();
 				auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == arg; });
 				if (it == structs.end())
@@ -688,12 +625,75 @@ namespace Nz
 					sMembers.type = BuildType(shader, member.type);
 				}
 
-				return std::make_shared<Type>(std::move(sType));*/
+				return std::make_shared<Type>(std::move(sType));
 				return nullptr;
 			}
 			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");*/
 		}, type);
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& type) -> TypePtr
+	{
+		throw std::runtime_error("unexpected type");
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::PrimitiveType& type) -> TypePtr
+	{
+		return std::make_shared<Type>([&]() -> AnyType
+		{
+			switch (type)
+			{
+				case ShaderAst::PrimitiveType::Boolean:
+					return Bool{};
+
+				case ShaderAst::PrimitiveType::Float32:
+					return Float{ 32 };
+
+				case ShaderAst::PrimitiveType::Int32:
+					return Integer{ 32, true };
+			}
+
+			throw std::runtime_error("unexpected type");
+		}());
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::MatrixType& type) -> TypePtr
+	{
+		return std::make_shared<Type>(
+			Matrix{
+				BuildType(ShaderAst::VectorType {
+					UInt32(type.rowCount), type.type
+				}),
+				UInt32(type.columnCount)
+			});
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::NoType& type) -> TypePtr
+	{
+		return std::make_shared<Type>(Void{});
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::SamplerType& type) -> TypePtr
+	{
+		//TODO
+		auto imageType = Image{
+			{}, //< qualifier
+			{}, //< depth
+			{}, //< sampled
+			SpirvDim::Dim2D, //< dim
+			SpirvImageFormat::Unknown, //< format
+			BuildType(ShaderAst::PrimitiveType::Float32), //< sampledType
+			false, //< arrayed,
+			false  //< multisampled
+		};
+
+		return std::make_shared<Type>(SampledImage{ std::make_shared<Type>(imageType) });
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::VectorType& type) -> TypePtr
+	{
+		return std::make_shared<Type>(Vector{ BuildType(type.type), UInt32(type.componentCount) });
 	}
 
 	void SpirvConstantCache::Write(const AnyConstant& constant, UInt32 resultId, SpirvSection& constants)
