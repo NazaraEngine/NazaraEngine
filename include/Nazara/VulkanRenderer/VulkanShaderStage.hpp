@@ -9,14 +9,14 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/ShaderStage.hpp>
+#include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanShaderStage : public ShaderStage
+	class NAZARA_VULKANRENDERER_API VulkanShaderStage : public ShaderModule
 	{
 		public:
 			VulkanShaderStage() = default;

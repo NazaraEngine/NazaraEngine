@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_SHADERSTAGE_HPP
-#define NAZARA_RENDERER_SHADERSTAGE_HPP
+#ifndef NAZARA_RENDERER_SHADERMODULE_HPP
+#define NAZARA_RENDERER_SHADERMODULE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API ShaderStage
+	class NAZARA_RENDERER_API ShaderModule
 	{
 		public:
-			ShaderStage() = default;
-			virtual ~ShaderStage();
+			ShaderModule() = default;
+			virtual ~ShaderModule();
 	};
 }
 

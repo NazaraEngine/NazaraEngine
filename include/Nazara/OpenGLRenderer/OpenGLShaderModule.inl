@@ -2,14 +2,14 @@
 // This file is part of the "Nazara Engine - OpenGL Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
-	inline const GL::Shader& OpenGLShaderStage::GetShader() const
+	inline const std::vector<GL::Shader>& OpenGLShaderModule::GetShaders() const
 	{
-		return m_shader;
+		return m_shaders;
 	}
 }
 

@@ -25,7 +25,7 @@
 namespace Nz
 {
 	class CommandPool;
-	class ShaderStage;
+	class ShaderModule;
 
 	class NAZARA_RENDERER_API RenderDevice
 	{
@@ -39,9 +39,9 @@ namespace Nz
 			virtual std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) = 0;
 			virtual std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) = 0;
-			virtual std::shared_ptr<ShaderStage> InstantiateShaderStage(const ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states) = 0;
-			virtual std::shared_ptr<ShaderStage> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) = 0;
-			std::shared_ptr<ShaderStage> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const std::filesystem::path& sourcePath);
+			virtual std::shared_ptr<ShaderModule> InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states) = 0;
+			virtual std::shared_ptr<ShaderModule> InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize) = 0;
+			std::shared_ptr<ShaderModule> InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath);
 			virtual std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;
 			virtual std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
 	};
