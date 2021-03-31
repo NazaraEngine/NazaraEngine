@@ -22,7 +22,7 @@ namespace Nz
 		};
 
 		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
-		std::vector<std::shared_ptr<ShaderStage>> shaderStages;
+		std::vector<std::shared_ptr<ShaderModule>> shaderModules;
 		std::vector<VertexBufferData> vertexBuffers;
 	};
 

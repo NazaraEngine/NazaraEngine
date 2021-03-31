@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	class ShaderStage;
+	class ShaderModule;
 
 	struct RenderStates
 	{

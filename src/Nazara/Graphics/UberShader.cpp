@@ -11,8 +11,9 @@
 
 namespace Nz
 {
-	UberShader::UberShader(ShaderAst::StatementPtr shaderAst) :
-	m_shaderAst(std::move(shaderAst))
+	UberShader::UberShader(ShaderStageType shaderStage, ShaderAst::StatementPtr shaderAst) :
+	m_shaderAst(std::move(shaderAst)),
+	m_shaderStage(shaderStage)
 	{
 		//std::size_t conditionCount = m_shaderAst.GetConditionCount();
 		std::size_t conditionCount = 0;
@@ -34,7 +35,7 @@ namespace Nz
 			return 0;
 	}
 
-	const std::shared_ptr<ShaderStage>& UberShader::Get(UInt64 combination)
+	const std::shared_ptr<ShaderModule>& UberShader::Get(UInt64 combination)
 	{
 		combination &= m_combinationMask;
 
@@ -44,7 +45,7 @@ namespace Nz
 			ShaderWriter::States states;
 			states.enabledConditions = combination;
 
-			std::shared_ptr<ShaderStage> stage = Graphics::Instance()->GetRenderDevice().InstantiateShaderStage(m_shaderAst, std::move(states));
+			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice().InstantiateShaderModule(m_shaderStage, m_shaderAst, std::move(states));
 
 			it = m_combinations.emplace(combination, std::move(stage)).first;
 		}

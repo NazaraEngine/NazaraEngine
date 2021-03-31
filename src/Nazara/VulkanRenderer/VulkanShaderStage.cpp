@@ -20,14 +20,7 @@ namespace Nz
 		writer.SetEnv(env);
 
 		std::vector<UInt32> code = writer.Generate(shader, states);
-
-		if (!m_shaderModule.Create(device, code.data(), code.size() * sizeof(UInt32)))
-		{
-			NazaraError("Failed to create shader module");
-			return false;
-		}
-
-		return true;
+		return Create(device, m_stage, ShaderLanguage::SpirV, code.data(), code.size() * sizeof(UInt32));
 	}
 
 	bool VulkanShaderStage::Create(Vk::Device& device, ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)

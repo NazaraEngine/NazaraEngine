@@ -6,7 +6,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <cassert>
 #include <stdexcept>
@@ -21,10 +21,11 @@ namespace Nz
 		if (!m_program.Create(device))
 			throw std::runtime_error("failed to create program");
 
-		for (const auto& shaderStagePtr : m_pipelineInfo.shaderStages)
+		for (const auto& shaderModulePtr : m_pipelineInfo.shaderModules)
 		{
-			OpenGLShaderStage& shaderStage = static_cast<OpenGLShaderStage&>(*shaderStagePtr);
-			m_program.AttachShader(shaderStage.GetShader().GetObjectId());
+			OpenGLShaderModule& shaderModule = static_cast<OpenGLShaderModule&>(*shaderModulePtr);
+			for (const GL::Shader& shader : shaderModule.GetShaders())
+				m_program.AttachShader(shader.GetObjectId());
 		}
 
 		m_program.Link();

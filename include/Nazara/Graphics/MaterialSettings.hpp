@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
-#include <Nazara/Renderer/ShaderStage.hpp>
+#include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <array>
 #include <limits>

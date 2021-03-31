@@ -10,26 +10,27 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
+#include <Nazara/Shader/ShaderNodes.hpp>
 #include <unordered_map>
 
 namespace Nz
 {
-	class ShaderStage;
+	class ShaderModule;
 
 	class NAZARA_GRAPHICS_API UberShader
 	{
 		public:
-			UberShader(ShaderAst shaderAst);
+			UberShader(ShaderStageType shaderStage, ShaderAst::StatementPtr shaderAst);
 			~UberShader() = default;
 
 			UInt64 GetConditionFlagByName(const std::string_view& condition) const;
 
-			const std::shared_ptr<ShaderStage>& Get(UInt64 combination);
+			const std::shared_ptr<ShaderModule>& Get(UInt64 combination);
 
 		private:
-			std::unordered_map<UInt64 /*combination*/, std::shared_ptr<ShaderStage>> m_combinations;
-			ShaderAst m_shaderAst;
+			std::unordered_map<UInt64 /*combination*/, std::shared_ptr<ShaderModule>> m_combinations;
+			ShaderAst::StatementPtr m_shaderAst;
+			ShaderStageType m_shaderStage;
 			UInt64 m_combinationMask;
 	};
 }
