@@ -50,7 +50,7 @@ artifacts:
     name: 'NazaraEngine-$(CONFIGURATION)-$(PLATFORM)-$(APPVEYOR_REPO_COMMIT)'
 
 on_success:
-  - cd tests && "./NazaraUnitTestsServer.exe"
+  - cd tests && "./NazaraUnitTests.exe"
 
 notifications:
   - provider: Slack
