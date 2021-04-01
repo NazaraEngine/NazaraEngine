@@ -11,7 +11,6 @@
 #include <NDK/Components/GraphicsComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Systems/RenderSystem.hpp>
-#include <NDK/LuaAPI.hpp>
 #include <Nazara/Graphics/ForwardRenderTechnique.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
 #endif
@@ -199,10 +198,6 @@ namespace Ndk
 			return 0;
 		});
 		lua.SetGlobal("print");
-
-		// Define a few base variables to allow our interface to interact with the application
-		lua.PushGlobal("Application", Ndk::Application::Instance());
-		lua.PushGlobal("Console", consoleRef.CreateHandle());
 
 		// Setup a few event callback to handle the console
 		Nz::EventHandler& eventHandler = info.window->GetEventHandler();
