@@ -4,11 +4,11 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_PARTICLEEMITTERCOMPONENT_HPP
 #define NDK_COMPONENTS_PARTICLEEMITTERCOMPONENT_HPP
 
 #include <Nazara/Graphics/ParticleEmitter.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
@@ -17,7 +17,7 @@ namespace Ndk
 
 	using ParticleEmitterComponentHandle = Nz::ObjectHandle<ParticleEmitterComponent>;
 
-	class NDK_API ParticleEmitterComponent : public Component<ParticleEmitterComponent>, public Nz::ParticleEmitter
+	class NDK_CLIENT_API ParticleEmitterComponent : public Component<ParticleEmitterComponent>, public Nz::ParticleEmitter
 	{
 		public:
 			using SetupFunc = std::function<void(const EntityHandle& /*entity*/, Nz::ParticleMapper& /*mapper*/, unsigned int /*count*/)>;
@@ -46,4 +46,3 @@ namespace Ndk
 #include <NDK/Components/ParticleEmitterComponent.inl>
 
 #endif // NDK_COMPONENTS_PARTICLEEMITTERCOMPONENT_HPP
-#endif // NDK_SERVER

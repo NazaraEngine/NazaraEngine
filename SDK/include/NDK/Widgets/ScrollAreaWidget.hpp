@@ -7,13 +7,13 @@
 #ifndef NDK_WIDGETS_SCROLLAREAWIDGET_HPP
 #define NDK_WIDGETS_SCROLLAREAWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 
 namespace Ndk
 {
-	class NDK_API ScrollAreaWidget : public BaseWidget
+	class NDK_CLIENT_API ScrollAreaWidget : public BaseWidget
 	{
 		public:
 			ScrollAreaWidget(BaseWidget* parent, BaseWidget* content);

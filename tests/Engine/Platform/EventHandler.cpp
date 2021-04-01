@@ -1,7 +1,7 @@
 #include <Nazara/Graphics/ColorBackground.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 
-#include <NDK/Application.hpp>
+#include <NDK/ClientApplication.hpp>
 #include <NDK/StateMachine.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/CameraComponent.hpp>
@@ -29,7 +29,7 @@ SCENARIO("EventHandler", "[PLATFORM][EVENTHANDLER][INTERACTIVE][.]")
 {
 	GIVEN("An application")
 	{
-		Ndk::Application& app = *Ndk::Application::Instance();
+		Ndk::ClientApplication& app = *Ndk::ClientApplication::Instance();
 		auto& window = app.AddWindow<Nz::RenderWindow>();
 		if (!window.Create(Nz::VideoMode(1024, 768, 32), "EventHandler"))
 		{

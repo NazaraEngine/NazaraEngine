@@ -4,11 +4,11 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 #define NDK_COMPONENTS_LIGHTCOMPONENT_HPP
 
 #include <Nazara/Graphics/Light.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
@@ -17,7 +17,7 @@ namespace Ndk
 
 	using LightComponentHandle = Nz::ObjectHandle<LightComponent>;
 
-	class NDK_API LightComponent : public Component<LightComponent>, public Nz::Light
+	class NDK_CLIENT_API LightComponent : public Component<LightComponent>, public Nz::Light
 	{
 		public:
 			inline LightComponent(Nz::LightType lightType = Nz::LightType_Point);
@@ -31,4 +31,3 @@ namespace Ndk
 #include <NDK/Components/LightComponent.inl>
 
 #endif // NDK_COMPONENTS_LIGHTCOMPONENT_HPP
-#endif // NDK_SERVER

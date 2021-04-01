@@ -7,7 +7,7 @@
 #ifndef NDK_WIDGETS_CHECKBOXWIDGET_HPP
 #define NDK_WIDGETS_CHECKBOXWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Components/NodeComponent.hpp>
 #include <NDK/Widgets/Enums.hpp>
@@ -23,9 +23,9 @@ namespace Nz
 
 namespace Ndk
 {
-	class NDK_API CheckboxWidget : public BaseWidget
+	class NDK_CLIENT_API CheckboxWidget : public BaseWidget
 	{
-		friend class Sdk;
+		friend class ClientSdk;
 
 		public:
 			CheckboxWidget(BaseWidget* parent);

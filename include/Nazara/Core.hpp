@@ -34,6 +34,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/ByteArray.hpp>
+#include <Nazara/Core/ByteArrayPool.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Clock.hpp>
@@ -71,6 +72,7 @@
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/PluginManager.hpp>
+#include <Nazara/Core/PoolByteStream.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/RefCounted.hpp>

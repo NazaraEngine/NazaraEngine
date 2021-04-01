@@ -18,11 +18,10 @@
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Network.hpp> // Module utilitaire
 #include <Nazara/Utility.hpp> // Module utilitaire
-#include <NDK/Application.hpp>
+#include <NDK/ClientApplication.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Console.hpp>
 #include <NDK/Systems.hpp>
-#include <NDK/LuaAPI.hpp>
 #include <NDK/Sdk.hpp>
 #include <NDK/World.hpp>
 #include <iostream>
@@ -33,7 +32,7 @@ Nz::Vector3f DampedString(const Nz::Vector3f& currentPos, const Nz::Vector3f& ta
 int main()
 {
 	// Ndk::Application est une classe s'occupant de l'initialisation du moteur ainsi que de la gestion de beaucoup de choses
-	Ndk::Application application;
+	Ndk::ClientApplication application;
 
 	// Nazara étant initialisé, nous pouvons créer le monde pour contenir notre scène.
 	// Dans un ECS, le monde représente bien ce que son nom indique, c'est l'ensemble de ce qui existe au niveau de l'application.
@@ -41,6 +40,7 @@ int main()
 	// Il est possible d'utiliser plusieurs mondes au sein d'une même application, par exemple pour gérer un mélange de 2D et de 3D,
 	// mais nous verrons cela dans un prochain exemple.
 	Ndk::WorldHandle world = application.AddWorld().CreateHandle();
+	world->AddSystem<Ndk::RenderSystem>();
 
 	// Nous pouvons maintenant ajouter des systèmes, mais dans cet exemple nous nous contenterons de ceux de base.
 
@@ -264,9 +264,7 @@ int main()
 	application.EnableConsole(true);
 	application.EnableFPSCounter(true);
 
-	Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
-	consoleOverlay.lua.PushGlobal("Spaceship", spaceship->CreateHandle());
-	consoleOverlay.lua.PushGlobal("World", world->CreateHandle());
+	Ndk::ClientApplication::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
 
 
 	//Gestion des Evenements 
@@ -276,9 +274,9 @@ int main()
 
 	eventHandler.OnMouseMoved.Connect([&camAngles, &cameraNode, &window](const Nz::EventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
-		if (Ndk::Application::Instance()->IsConsoleEnabled())
+		if (Ndk::ClientApplication::Instance()->IsConsoleEnabled())
 		{
-			Ndk::Application::ConsoleOverlay& consoleOverlay = Ndk::Application::Instance()->GetConsoleOverlay();
+			Ndk::ClientApplication::ConsoleOverlay& consoleOverlay = Ndk::ClientApplication::Instance()->GetConsoleOverlay();
 			if (consoleOverlay.console->IsVisible())
 				return;
 		}
@@ -333,7 +331,7 @@ int main()
 
 			if (application.IsConsoleEnabled())
 			{
-				Ndk::Application::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
+				Ndk::ClientApplication::ConsoleOverlay& consoleOverlay = application.GetConsoleOverlay();
 				if (consoleOverlay.console->IsVisible())
 					move = false;
 			}

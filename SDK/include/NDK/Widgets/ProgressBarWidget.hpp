@@ -7,7 +7,7 @@
 #ifndef NDK_WIDGETS_PROGRESSBARWIDGET_HPP
 #define NDK_WIDGETS_PROGRESSBARWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -18,7 +18,7 @@
 
 namespace Ndk
 {
-	class NDK_API ProgressBarWidget : public BaseWidget
+	class NDK_CLIENT_API ProgressBarWidget : public BaseWidget
 	{
 		friend class Sdk;
 

@@ -1,4 +1,4 @@
-TOOL.Name = "UnitTestsServer"
+TOOL.Name = "ClientUnitTests"
 
 TOOL.Category = "Test"
 TOOL.Directory = "../tests"
@@ -7,7 +7,6 @@ TOOL.Kind = "Application"
 TOOL.TargetDirectory = TOOL.Directory
 
 TOOL.Defines = {
-	"NDK_SERVER"
 }
 
 TOOL.Includes = {
@@ -15,15 +14,7 @@ TOOL.Includes = {
 }
 
 TOOL.Files = {
-	"../tests/main.cpp",
-	"../tests/Engine/**.hpp",
-	"../tests/Engine/**.cpp",
-	"../tests/SDK/**.hpp",
-	"../tests/SDK/**.cpp"
-}
-
--- Excludes client-only files
-TOOL.FilesExcluded = {
+	"../tests/main_client.cpp",
 	"../tests/Engine/Audio/**",
 	"../tests/Engine/Graphics/**",
 	"../tests/Engine/Platform/**",
@@ -34,5 +25,5 @@ TOOL.FilesExcluded = {
 
 TOOL.Libraries = {
 	"NazaraNetwork",
-	"NazaraSDKServer"
+	"NazaraClientSDK"
 }

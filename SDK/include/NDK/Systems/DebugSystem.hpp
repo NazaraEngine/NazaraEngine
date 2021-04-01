@@ -4,7 +4,6 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_DEBUGSYSTEM_HPP
 #define NDK_SYSTEMS_DEBUGSYSTEM_HPP
 
@@ -12,11 +11,12 @@
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/System.hpp>
 
 namespace Ndk
 {
-	class NDK_API DebugSystem : public System<DebugSystem>
+	class NDK_CLIENT_API DebugSystem : public System<DebugSystem>
 	{
 		public:
 			DebugSystem();
@@ -55,4 +55,3 @@ namespace Ndk
 #include <NDK/Systems/DebugSystem.inl>
 
 #endif // NDK_SYSTEMS_DEBUGSYSTEM_HPP
-#endif // NDK_SERVER

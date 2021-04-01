@@ -10,13 +10,14 @@
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <NDK/BaseWidget.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Widgets/Enums.hpp>
 #include <functional>
 #include <vector>
 
 namespace Ndk
 {
-	class NDK_API AbstractTextAreaWidget : public BaseWidget
+	class NDK_CLIENT_API AbstractTextAreaWidget : public BaseWidget
 	{
 		public:
 			using CharacterFilter = std::function<bool(char32_t)>;

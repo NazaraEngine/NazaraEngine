@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_LISTENERCOMPONENT_HPP
 #define NDK_COMPONENTS_LISTENERCOMPONENT_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
@@ -16,7 +16,7 @@ namespace Ndk
 
 	using ListenerComponentHandle = Nz::ObjectHandle<ListenerComponent>;
 
-	class NDK_API ListenerComponent : public Component<ListenerComponent>
+	class NDK_CLIENT_API ListenerComponent : public Component<ListenerComponent>
 	{
 		public:
 			inline ListenerComponent();
@@ -35,4 +35,3 @@ namespace Ndk
 #include <NDK/Components/ListenerComponent.inl>
 
 #endif // NDK_COMPONENTS_LISTENERCOMPONENT_HPP
-#endif // NDK_SERVER

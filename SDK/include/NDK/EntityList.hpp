@@ -44,8 +44,8 @@ namespace Ndk
 			inline iterator end() const;
 			inline size_type size() const;
 
-			inline EntityList& operator=(const EntityList& entityList);
-			inline EntityList& operator=(EntityList&& entityList) noexcept;
+			EntityList& operator=(const EntityList& entityList);
+			EntityList& operator=(EntityList&& entityList) noexcept;
 
 		private:
 			inline std::size_t FindNext(std::size_t currentId) const;

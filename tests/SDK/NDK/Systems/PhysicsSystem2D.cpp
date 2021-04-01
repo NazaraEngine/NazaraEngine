@@ -13,6 +13,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	GIVEN("A world and an entity")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
 
 		Nz::Vector2f position(2.f, 3.f);
 		Nz::Rectf movingAABB(0.f, 0.f, 16.f, 18.f);
@@ -74,6 +75,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	GIVEN("A world and a simple entity")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
 
 		Nz::Vector2f position(0.f, 0.f);
 		Nz::Rectf movingAABB(0.f, 0.f, 1.f, 2.f);
@@ -120,6 +122,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	GIVEN("A world and a simple entity not at the origin")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
 
 		Nz::Vector2f position(3.f, 4.f);
 		Nz::Rectf movingAABB(0.f, 0.f, 1.f, 2.f);

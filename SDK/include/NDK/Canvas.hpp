@@ -7,14 +7,14 @@
 #ifndef NDK_CANVAS_HPP
 #define NDK_CANVAS_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/EventHandler.hpp>
 
 namespace Ndk
 {
-	class NDK_API Canvas : public BaseWidget
+	class NDK_CLIENT_API Canvas : public BaseWidget
 	{
 		friend BaseWidget;
 

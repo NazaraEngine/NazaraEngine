@@ -13,6 +13,8 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 	GIVEN("A world with a camera, a drawable, a light and some particles")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::RenderSystem>();
+
 		const Ndk::EntityHandle& cameraEntity = world.CreateEntity();
 		Ndk::CameraComponent& cameraComponentCamera = cameraEntity->AddComponent<Ndk::CameraComponent>();
 		Ndk::NodeComponent& nodeComponentCamera = cameraEntity->AddComponent<Ndk::NodeComponent>();
@@ -45,6 +47,9 @@ SCENARIO("RenderSystem", "[NDK][RenderSystem]")
 	GIVEN("A world with 2D coordinates (upper-left) and an entity with graphics and physics")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
+		world.AddSystem<Ndk::RenderSystem>();
+
 		world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
 		const Ndk::EntityHandle& entity = world.CreateEntity();
 

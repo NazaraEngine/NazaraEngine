@@ -10,16 +10,11 @@ namespace Ndk
 {
 	/*!
 	* \brief Constructs a World object
-	*
-	* \param addDefaultSystems Should default provided systems be used
 	*/
-
-	inline World::World(bool addDefaultSystems) :
+	inline World::World() :
 	m_orderedSystemsUpdated(false),
 	m_isProfilerEnabled(false)
 	{
-		if (addDefaultSystems)
-			AddDefaultSystems();
 	}
 
 	/*!

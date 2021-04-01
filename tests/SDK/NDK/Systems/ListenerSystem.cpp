@@ -1,4 +1,5 @@
 #include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/VelocitySystem.hpp>
 #include <NDK/World.hpp>
 #include <NDK/Components/ListenerComponent.hpp>
 #include <NDK/Components/NodeComponent.hpp>
@@ -11,6 +12,9 @@ SCENARIO("ListenerSystem", "[NDK][LISTENERSYSTEM]")
 	GIVEN("A world and an entity with listener & node components")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::ListenerSystem>();
+		world.AddSystem<Ndk::VelocitySystem>();
+
 		Ndk::EntityHandle entity = world.CreateEntity();
 		Ndk::ListenerComponent& listenerComponent = entity->AddComponent<Ndk::ListenerComponent>();
 		Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();

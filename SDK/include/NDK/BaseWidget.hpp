@@ -7,7 +7,7 @@
 #ifndef NDK_BASEWIDGET_HPP
 #define NDK_BASEWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Entity.hpp>
 #include <NDK/EntityOwner.hpp>
 #include <NDK/World.hpp>
@@ -21,7 +21,7 @@ namespace Ndk
 {
 	class Canvas;
 
-	class NDK_API BaseWidget : public Nz::Node
+	class NDK_CLIENT_API BaseWidget : public Nz::Node
 	{
 		friend Canvas;
 

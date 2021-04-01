@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_CAMERACOMPONENT_HPP
 #define NDK_COMPONENTS_CAMERACOMPONENT_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -22,7 +22,7 @@ namespace Ndk
 
 	using CameraComponentHandle = Nz::ObjectHandle<CameraComponent>;
 
-	class NDK_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
+	class NDK_CLIENT_API CameraComponent : public Component<CameraComponent>, public Nz::AbstractViewer
 	{
 		public:
 			inline CameraComponent();
@@ -117,4 +117,3 @@ namespace Ndk
 #include <NDK/Components/CameraComponent.inl>
 
 #endif // NDK_COMPONENTS_CAMERACOMPONENT_HPP
-#endif // NDK_SERVER

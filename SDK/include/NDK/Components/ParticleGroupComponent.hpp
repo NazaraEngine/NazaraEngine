@@ -4,11 +4,11 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_PARTICLEGROUPCOMPONENT_HPP
 #define NDK_COMPONENTS_PARTICLEGROUPCOMPONENT_HPP
 
 #include <Nazara/Graphics/ParticleGroup.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Component.hpp>
 
 namespace Ndk
@@ -17,7 +17,7 @@ namespace Ndk
 
 	using ParticleGroupComponentHandle = Nz::ObjectHandle<ParticleGroupComponent>;
 
-	class NDK_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup
+	class NDK_CLIENT_API ParticleGroupComponent : public Component<ParticleGroupComponent>, public Nz::ParticleGroup
 	{
 		public:
 			inline ParticleGroupComponent(unsigned int maxParticleCount, Nz::ParticleLayout layout);
@@ -38,4 +38,3 @@ namespace Ndk
 #include <NDK/Components/ParticleGroupComponent.inl>
 
 #endif // NDK_COMPONENTS_PARTICLEGROUPCOMPONENT_HPP
-#endif // NDK_SERVER

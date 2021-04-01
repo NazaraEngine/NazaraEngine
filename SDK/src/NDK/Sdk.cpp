@@ -28,21 +28,6 @@
 #include <NDK/Systems/PhysicsSystem3D.hpp>
 #include <NDK/Systems/VelocitySystem.hpp>
 
-#ifndef NDK_SERVER
-#include <NDK/Components/CameraComponent.hpp>
-#include <NDK/Components/DebugComponent.hpp>
-#include <NDK/Components/LightComponent.hpp>
-#include <NDK/Components/ListenerComponent.hpp>
-#include <NDK/Components/GraphicsComponent.hpp>
-#include <NDK/Components/ParticleEmitterComponent.hpp>
-#include <NDK/Components/ParticleGroupComponent.hpp>
-#include <NDK/Systems/DebugSystem.hpp>
-#include <NDK/Systems/ParticleSystem.hpp>
-#include <NDK/Systems/ListenerSystem.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
-#include <NDK/Widgets/CheckboxWidget.hpp>
-#endif
-
 namespace Ndk
 {
 	/*!
@@ -76,12 +61,6 @@ namespace Ndk
 			Nz::Physics3D::Initialize();
 			Nz::Utility::Initialize();
 
-			#ifndef NDK_SERVER
-			// Client modules
-			Nz::Audio::Initialize();
-			Nz::Graphics::Initialize();
-			#endif
-
 			// SDK Initialization
 
 			// Components
@@ -97,17 +76,6 @@ namespace Ndk
 			InitializeComponent<VelocityComponent>("NdkVeloc");
 			InitializeComponent<VelocityComponent>("NdkCons2");
 
-			#ifndef NDK_SERVER
-			// Client components
-			InitializeComponent<CameraComponent>("NdkCam");
-			InitializeComponent<DebugComponent>("NdkDebug");
-			InitializeComponent<LightComponent>("NdkLight");
-			InitializeComponent<ListenerComponent>("NdkList");
-			InitializeComponent<GraphicsComponent>("NdkGfx");
-			InitializeComponent<ParticleEmitterComponent>("NdkPaEmi");
-			InitializeComponent<ParticleGroupComponent>("NdkPaGrp");
-			#endif
-
 			// Systems
 
 			BaseSystem::Initialize();
@@ -117,21 +85,6 @@ namespace Ndk
 			InitializeSystem<PhysicsSystem2D>();
 			InitializeSystem<PhysicsSystem3D>();
 			InitializeSystem<VelocitySystem>();
-
-			#ifndef NDK_SERVER
-			// Client systems
-			InitializeSystem<DebugSystem>();
-			InitializeSystem<ListenerSystem>();
-			InitializeSystem<ParticleSystem>();
-			InitializeSystem<RenderSystem>();
-
-			// Widgets
-			if (!CheckboxWidget::Initialize())
-			{
-				NazaraError("Failed to initialize Checkbox Widget");
-				return false;
-			}
-			#endif
 
 			NazaraNotice("Initialized: SDK");
 			return true;
@@ -171,23 +124,12 @@ namespace Ndk
 
 		// Uninitialize the engine
 
-		#ifndef NDK_SERVER
-		// Client modules
-		Nz::Audio::Uninitialize();
-		Nz::Graphics::Uninitialize();
-		#endif
-
 		// Shared modules
 		Nz::Lua::Uninitialize();
 		Nz::Noise::Uninitialize();
 		Nz::Physics2D::Uninitialize();
 		Nz::Physics3D::Uninitialize();
 		Nz::Utility::Uninitialize();
-
-		#ifndef NDK_SERVER
-		// Widgets
-		CheckboxWidget::Uninitialize();
-		#endif
 
 		NazaraNotice("Uninitialized: SDK");
 	}

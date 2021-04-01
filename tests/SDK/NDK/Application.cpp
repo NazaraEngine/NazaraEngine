@@ -1,11 +1,11 @@
-#include <NDK/Application.hpp>
+#include <NDK/ClientApplication.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("Application", "[NDK][APPLICATION]")
 {
 	GIVEN("An application")
 	{
-		Nz::Window& window = Ndk::Application::Instance()->AddWindow<Nz::Window>();
+		Nz::Window& window = Ndk::ClientApplication::Instance()->AddWindow<Nz::Window>();
 
 		WHEN("We open a window")
 		{
@@ -17,7 +17,7 @@ SCENARIO("Application", "[NDK][APPLICATION]")
 
 				THEN("Application should close")
 				{
-					REQUIRE(!Ndk::Application::Instance()->Run());
+					REQUIRE(!Ndk::ClientApplication::Instance()->Run());
 				}
 			}
 		}

@@ -21,14 +21,32 @@ TOOL.Files = {
 	"../SDK/src/NDK/**.cpp"
 }
 
-TOOL.Libraries = function()
-    local libraries = {}
-    for k,v in pairs(NazaraBuild.Modules) do
-        table.insert(libraries, "Nazara" .. v.Name)
-    end
+-- Excludes client-only files
+TOOL.FilesExcluded = {
+	"../SDK/**/CameraComponent.*",
+	"../SDK/**/Canvas.*",
+	"../SDK/**/Client*.*",
+	"../SDK/**/Console.*",
+	"../SDK/**/DebugComponent.*",
+	"../SDK/**/DebugSystem.*",
+	"../SDK/**/GraphicsComponent.*",
+	"../SDK/**/LightComponent.*",
+	"../SDK/**/ListenerComponent.*",
+	"../SDK/**/ListenerSystem.*",
+	"../SDK/**/Particle*Component.*",
+	"../SDK/**/ParticleSystem.*",
+	"../SDK/**/RenderSystem.*",
+	"../SDK/**/*Layout*.*",
+	"../SDK/**/*Widget*.*"
+}
 
-	-- Keep libraries in the same order to prevent useless premake regeneration
-	table.sort(libraries)
 
-    return libraries
-end
+TOOL.Libraries = {
+	"NazaraCore",
+	"NazaraLua",
+	"NazaraNetwork",
+	"NazaraNoise",
+	"NazaraPhysics2D",
+	"NazaraPhysics3D",
+	"NazaraUtility"
+}

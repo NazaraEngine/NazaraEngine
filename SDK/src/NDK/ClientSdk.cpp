@@ -1,0 +1,141 @@
+// Copyright (C) 2017 Jérôme Leclercq
+// This file is part of the "Nazara Development Kit"
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+
+#include <NDK/ClientSdk.hpp>
+#include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/Log.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Lua/Lua.hpp>
+#include <Nazara/Noise/Noise.hpp>
+#include <Nazara/Physics2D/Physics2D.hpp>
+#include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Platform/Platform.hpp>
+#include <Nazara/Utility/Utility.hpp>
+#include <NDK/Algorithm.hpp>
+#include <NDK/BaseSystem.hpp>
+#include <NDK/Sdk.hpp>
+#include <NDK/Components/CameraComponent.hpp>
+#include <NDK/Components/DebugComponent.hpp>
+#include <NDK/Components/LightComponent.hpp>
+#include <NDK/Components/ListenerComponent.hpp>
+#include <NDK/Components/GraphicsComponent.hpp>
+#include <NDK/Components/ParticleEmitterComponent.hpp>
+#include <NDK/Components/ParticleGroupComponent.hpp>
+#include <NDK/Systems/DebugSystem.hpp>
+#include <NDK/Systems/ParticleSystem.hpp>
+#include <NDK/Systems/ListenerSystem.hpp>
+#include <NDK/Systems/RenderSystem.hpp>
+#include <NDK/Widgets/CheckboxWidget.hpp>
+
+namespace Ndk
+{
+	/*!
+	* \ingroup NDK
+	* \class Ndk::Sdk
+	* \brief NDK class that represents the software development kit, a set of tools made to ease the conception of application
+	*/
+
+	/*!
+	* \brief Initializes the Sdk module
+	* \return true if initialization is successful
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
+	bool ClientSdk::Initialize()
+	{
+		if (IsInitialized())
+		{
+			s_referenceCounter++;
+			return true; // Already initialized
+		}
+
+		// Initialisation of dependencies
+		if (!Sdk::Initialize())
+		{
+			NazaraError("Failed to initialize SDK");
+			return false;
+		}
+
+		s_referenceCounter++;
+
+		try
+		{
+			Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
+
+			// Initialize the engine first
+
+			// Client modules
+			Nz::Audio::Initialize();
+			Nz::Graphics::Initialize();
+
+			// SDK Initialization
+
+			// Client components
+			InitializeComponent<CameraComponent>("NdkCam");
+			InitializeComponent<DebugComponent>("NdkDebug");
+			InitializeComponent<LightComponent>("NdkLight");
+			InitializeComponent<ListenerComponent>("NdkList");
+			InitializeComponent<GraphicsComponent>("NdkGfx");
+			InitializeComponent<ParticleEmitterComponent>("NdkPaEmi");
+			InitializeComponent<ParticleGroupComponent>("NdkPaGrp");
+
+			// Systems
+
+			// Client systems
+			InitializeSystem<DebugSystem>();
+			InitializeSystem<ListenerSystem>();
+			InitializeSystem<ParticleSystem>();
+			InitializeSystem<RenderSystem>();
+
+			// Widgets
+			if (!CheckboxWidget::Initialize())
+			{
+				NazaraError("Failed to initialize Checkbox Widget");
+				return false;
+			}
+
+			NazaraNotice("Initialized: SDK (Client)");
+			return true;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("Failed to initialize NDK: " + Nz::String(e.what()));
+			return false;
+		}
+	}
+
+	/*!
+	* \brief Uninitializes the Sdk module
+	*
+	* \remark Produces a NazaraNotice
+	*/
+
+	void ClientSdk::Uninitialize()
+	{
+		if (s_referenceCounter != 1)
+		{
+			// Either the module is not initialized, either it was initialized multiple times
+			if (s_referenceCounter > 1)
+				s_referenceCounter--;
+
+			return;
+		}
+
+		// Uninitialize the SDK
+		s_referenceCounter = 0;
+
+		// Client modules
+		Nz::Audio::Uninitialize();
+		Nz::Graphics::Uninitialize();
+
+		// Widgets
+		CheckboxWidget::Uninitialize();
+
+		NazaraNotice("Uninitialized: SDK (Client)");
+	}
+
+	unsigned int ClientSdk::s_referenceCounter = 0;
+}

@@ -7,7 +7,7 @@ EXAMPLE.Files = {
 }
 
 EXAMPLE.Libraries = {
-	"NazaraSDK"
+	"NazaraClientSDK"
 }
 
 if Config.PlatformSDL2 then

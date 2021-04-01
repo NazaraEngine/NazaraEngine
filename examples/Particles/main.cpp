@@ -7,7 +7,7 @@
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Application.hpp>
+#include <NDK/ClientApplication.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Systems.hpp>
 #include <NDK/StateMachine.hpp>
@@ -17,7 +17,7 @@
 
 int main()
 {
-	Ndk::Application app;
+	Ndk::ClientApplication app;
 
 	// Mix all sounds in mono (in order to give them 3D position)
 	Nz::SoundBufferParams soundParams;
@@ -39,7 +39,16 @@ int main()
 	//Nz::RenderWindow& window = app.AddWindow<Nz::RenderWindow>(Nz::VideoMode(1920, 1080), "Nazara demo - Particles", Nz::WindowStyle_Fullscreen, targetParams);
 
 	Ndk::World& world3D = app.AddWorld();
+	world3D.AddSystem<Ndk::ListenerSystem>();
+	world3D.AddSystem<Ndk::ParticleSystem>();
+	world3D.AddSystem<Ndk::RenderSystem>();
+	world3D.AddSystem<Ndk::VelocitySystem>();
+
 	Ndk::World& world2D = app.AddWorld();
+	world2D.AddSystem<Ndk::ListenerSystem>();
+	world2D.AddSystem<Ndk::ParticleSystem>();
+	world2D.AddSystem<Ndk::RenderSystem>();
+	world2D.AddSystem<Ndk::VelocitySystem>();
 
 	std::random_device randomDevice;
 
@@ -112,6 +121,7 @@ int main()
 	std::size_t demoIndex = 0;
 	Ndk::StateMachine stateMachine(shared.demos[demoIndex]);
 
+	window.EnableVerticalSync(true);
 	window.EnableEventPolling(true);
 
 	while (app.Run())

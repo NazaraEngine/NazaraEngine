@@ -7,7 +7,7 @@
 #ifndef NDK_WIDGETS_IMAGEWIDGET_HPP
 #define NDK_WIDGETS_IMAGEWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Entity.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -16,7 +16,7 @@
 
 namespace Ndk
 {
-	class NDK_API ImageWidget : public BaseWidget
+	class NDK_CLIENT_API ImageWidget : public BaseWidget
 	{
 		public:
 			ImageWidget(BaseWidget* parent);

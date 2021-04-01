@@ -9,6 +9,8 @@ SCENARIO("VelocitySystem", "[NDK][VELOCITYSYSTEM]")
 	GIVEN("A world and an entity with velocity & node components")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::VelocitySystem>();
+
 		const Ndk::EntityHandle& entity = world.CreateEntity();
 		Ndk::VelocityComponent& velocityComponent = entity->AddComponent<Ndk::VelocityComponent>();
 		Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();

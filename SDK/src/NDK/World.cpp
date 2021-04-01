@@ -6,17 +6,6 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NDK/BaseComponent.hpp>
-#include <NDK/Systems/LifetimeSystem.hpp>
-#include <NDK/Systems/PhysicsSystem2D.hpp>
-#include <NDK/Systems/PhysicsSystem3D.hpp>
-#include <NDK/Systems/VelocitySystem.hpp>
-
-#ifndef NDK_SERVER
-#include <NDK/Systems/DebugSystem.hpp>
-#include <NDK/Systems/ListenerSystem.hpp>
-#include <NDK/Systems/ParticleSystem.hpp>
-#include <NDK/Systems/RenderSystem.hpp>
-#endif
 
 namespace Ndk
 {
@@ -36,25 +25,6 @@ namespace Ndk
 	{
 		// The destruct must be done in an ordered way
 		Clear();
-	}
-
-	/*!
-	* \brief Adds default systems to the world
-	*/
-
-	void World::AddDefaultSystems()
-	{
-		AddSystem<LifetimeSystem>();
-		AddSystem<PhysicsSystem2D>();
-		AddSystem<PhysicsSystem3D>();
-		AddSystem<VelocitySystem>();
-
-		#ifndef NDK_SERVER
-		AddSystem<DebugSystem>();
-		AddSystem<ListenerSystem>();
-		AddSystem<ParticleSystem>();
-		AddSystem<RenderSystem>();
-		#endif
 	}
 
 	/*!

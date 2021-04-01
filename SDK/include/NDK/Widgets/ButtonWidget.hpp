@@ -7,7 +7,7 @@
 #ifndef NDK_WIDGETS_BUTTONWIDGET_HPP
 #define NDK_WIDGETS_BUTTONWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -20,7 +20,7 @@ namespace Nz
 
 namespace Ndk
 {
-	class NDK_API ButtonWidget : public BaseWidget
+	class NDK_CLIENT_API ButtonWidget : public BaseWidget
 	{
 		public:
 			ButtonWidget(BaseWidget* parent);

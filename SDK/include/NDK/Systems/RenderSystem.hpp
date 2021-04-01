@@ -4,7 +4,6 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_RENDERSYSTEM_HPP
 #define NDK_SYSTEMS_RENDERSYSTEM_HPP
 
@@ -12,6 +11,7 @@
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DepthRenderTechnique.hpp>
 #include <Nazara/Renderer/RenderTexture.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/EntityList.hpp>
 #include <NDK/System.hpp>
 #include <NDK/Components/GraphicsComponent.hpp>
@@ -21,7 +21,7 @@ namespace Ndk
 {
 	class AbstractViewer;
 
-	class NDK_API RenderSystem : public System<RenderSystem>
+	class NDK_CLIENT_API RenderSystem : public System<RenderSystem>
 	{
 		public:
 			RenderSystem();
@@ -82,4 +82,3 @@ namespace Ndk
 #include <NDK/Systems/RenderSystem.inl>
 
 #endif // NDK_SYSTEMS_RENDERSYSTEM_HPP
-#endif // NDK_SERVER

@@ -7,7 +7,7 @@
 #ifndef NDK_WIDGETS_LABELWIDGET_HPP
 #define NDK_WIDGETS_LABELWIDGET_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 
@@ -18,7 +18,7 @@ namespace Nz
 
 namespace Ndk
 {
-	class NDK_API LabelWidget : public BaseWidget
+	class NDK_CLIENT_API LabelWidget : public BaseWidget
 	{
 		public:
 			LabelWidget(BaseWidget* parent);

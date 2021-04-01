@@ -8,11 +8,12 @@
 #define NDK_WIDGETS_TEXTAREAWIDGET_HPP
 
 #include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/Widgets/AbstractTextAreaWidget.hpp>
 
 namespace Ndk
 {
-	class NDK_API TextAreaWidget : public AbstractTextAreaWidget
+	class NDK_CLIENT_API TextAreaWidget : public AbstractTextAreaWidget
 	{
 		public:
 			TextAreaWidget(BaseWidget* parent);

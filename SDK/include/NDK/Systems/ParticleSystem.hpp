@@ -4,15 +4,15 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_PARTICLESYSTEM_HPP
 #define NDK_SYSTEMS_PARTICLESYSTEM_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/System.hpp>
 
 namespace Ndk
 {
-	class NDK_API ParticleSystem : public System<ParticleSystem>
+	class NDK_CLIENT_API ParticleSystem : public System<ParticleSystem>
 	{
 		public:
 			ParticleSystem();
@@ -28,4 +28,3 @@ namespace Ndk
 #include <NDK/Systems/ParticleSystem.inl>
 
 #endif // NDK_SYSTEMS_PARTICLESYSTEM_HPP
-#endif // NDK_SERVER

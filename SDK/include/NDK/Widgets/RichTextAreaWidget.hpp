@@ -7,12 +7,13 @@
 #ifndef NDK_WIDGETS_RICHTEXTAREAWIDGET_HPP
 #define NDK_WIDGETS_RICHTEXTAREAWIDGET_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <Nazara/Utility/RichTextDrawer.hpp>
 #include <NDK/Widgets/AbstractTextAreaWidget.hpp>
 
 namespace Ndk
 {
-	class NDK_API RichTextAreaWidget : public AbstractTextAreaWidget
+	class NDK_CLIENT_API RichTextAreaWidget : public AbstractTextAreaWidget
 	{
 		public:
 			RichTextAreaWidget(BaseWidget* parent);

@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -22,7 +22,7 @@ namespace Ndk
 	using GraphicsComponentCullingList = Nz::CullingList<GraphicsComponent>;
 	using GraphicsComponentHandle = Nz::ObjectHandle<GraphicsComponent>;
 
-	class NDK_API GraphicsComponent : public Component<GraphicsComponent>
+	class NDK_CLIENT_API GraphicsComponent : public Component<GraphicsComponent>
 	{
 		friend class RenderSystem;
 
@@ -167,4 +167,3 @@ namespace Ndk
 #include <NDK/Components/GraphicsComponent.inl>
 
 #endif // NDK_COMPONENTS_GRAPHICSCOMPONENT_HPP
-#endif // NDK_SERVER

@@ -3,7 +3,7 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Application.hpp>
+#include <NDK/ClientApplication.hpp>
 #include <NDK/Components.hpp>
 #include <NDK/Systems.hpp>
 #include <NDK/World.hpp>
@@ -11,7 +11,7 @@
 
 int main(int argc, char* argv[])
 {
-	Ndk::Application application(argc, argv);
+	Ndk::ClientApplication application(argc, argv);
 
 	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>();
 	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Test");

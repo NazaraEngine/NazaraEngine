@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_COMPONENTS_DEBUGCOMPONENT_HPP
 #define NDK_COMPONENTS_DEBUGCOMPONENT_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <Nazara/Core/Flags.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <NDK/Component.hpp>
@@ -45,7 +45,7 @@ namespace Ndk
 
 	using DebugComponentHandle = Nz::ObjectHandle<DebugComponent>;
 
-	class NDK_API DebugComponent : public Component<DebugComponent>
+	class NDK_CLIENT_API DebugComponent : public Component<DebugComponent>
 	{
 		friend class DebugSystem;
 
@@ -88,4 +88,3 @@ namespace Ndk
 #include <NDK/Components/DebugComponent.inl>
 
 #endif // NDK_COMPONENTS_DEBUGCOMPONENT_HPP
-#endif // NDK_SERVER

@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_CONSOLE_HPP
 #define NDK_CONSOLE_HPP
 
+#include <NDK/ClientPrerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -33,7 +33,7 @@ namespace Ndk
 
 	using ConsoleHandle = Nz::ObjectHandle<Console>;
 
-	class NDK_API Console : public BaseWidget, public Nz::HandledObject<Console>
+	class NDK_CLIENT_API Console : public BaseWidget, public Nz::HandledObject<Console>
 	{
 		public:
 			Console(BaseWidget* parent);
@@ -85,4 +85,3 @@ namespace Ndk
 #include <NDK/Console.inl>
 
 #endif // NDK_CONSOLE_HPP
-#endif // NDK_SERVER

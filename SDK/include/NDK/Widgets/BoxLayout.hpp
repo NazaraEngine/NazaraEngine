@@ -7,14 +7,14 @@
 #ifndef NDK_WIDGETS_BOXLAYOUT_HPP
 #define NDK_WIDGETS_BOXLAYOUT_HPP
 
-#include <NDK/Prerequisites.hpp>
+#include <NDK/ClientPrerequisites.hpp>
 #include <NDK/BaseWidget.hpp>
 #include <NDK/Widgets/Enums.hpp>
 #include <memory>
 
 namespace Ndk
 {
-	class NDK_API BoxLayout : public BaseWidget
+	class NDK_CLIENT_API BoxLayout : public BaseWidget
 	{
 		public:
 			BoxLayout(BaseWidget* parent, BoxLayoutOrientation orientation);
