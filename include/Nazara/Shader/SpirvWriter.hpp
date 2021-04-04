@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstCache.hpp>
 #include <Nazara/Shader/ShaderConstantValue.hpp>
+#include <Nazara/Shader/ShaderNodes.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <string>
@@ -90,9 +90,7 @@ namespace Nz
 
 			struct Context
 			{
-				ShaderAst::AstCache cache;
 				const States* states = nullptr;
-				std::vector<SpirvBlock> functionBlocks;
 			};
 
 			struct ExtVar
