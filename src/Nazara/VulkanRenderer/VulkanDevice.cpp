@@ -7,7 +7,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
@@ -46,25 +46,25 @@ namespace Nz
 	{
 		auto pipelineLayout = std::make_shared<VulkanRenderPipelineLayout>();
 		if (!pipelineLayout->Create(*this, std::move(pipelineLayoutInfo)))
-			return {};
+			throw std::runtime_error("failed to instanciate vulkan render pipeline layout");
 
 		return pipelineLayout;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(const ShaderAst& shaderAst, const ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states)
 	{
-		auto stage = std::make_shared<VulkanShaderStage>();
-		if (!stage->Create(*this, shaderAst, states))
-			return {};
+		auto stage = std::make_shared<VulkanShaderModule>();
+		if (!stage->Create(*this, stages, shaderAst, states))
+			throw std::runtime_error("failed to instanciate vulkan shader module");
 
 		return stage;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize)
 	{
-		auto stage = std::make_shared<VulkanShaderStage>();
-		if (!stage->Create(*this, type, lang, source, sourceSize))
-			return {};
+		auto stage = std::make_shared<VulkanShaderModule>();
+		if (!stage->Create(*this, stages, lang, source, sourceSize))
+			throw std::runtime_error("failed to instanciate vulkan shader module");
 
 		return stage;
 	}
