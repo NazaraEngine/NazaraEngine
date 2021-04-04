@@ -6,7 +6,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -166,13 +166,15 @@ namespace Nz
 
 		for (auto&& stagePtr : pipelineInfo.shaderModules)
 		{
-			Nz::VulkanShaderStage& vulkanStage = *static_cast<Nz::VulkanShaderStage*>(stagePtr.get());
-
-			VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
-			createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			createInfo.module = vulkanStage.GetHandle();
-			createInfo.pName = "main";
-			createInfo.stage = ToVulkan(vulkanStage.GetStageType());
+			Nz::VulkanShaderModule& vulkanModule = *static_cast<Nz::VulkanShaderModule*>(stagePtr.get());
+			for (auto& stage : vulkanModule.GetStages())
+			{
+				VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
+				createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				createInfo.module = vulkanModule.GetHandle();
+				createInfo.pName = stage.name.data();
+				createInfo.stage = ToVulkan(stage.stage);
+			}
 		}
 
 		return shaderStageCreateInfos;
