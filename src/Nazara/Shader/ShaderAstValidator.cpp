@@ -5,7 +5,6 @@
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Shader/ShaderAstUtils.hpp>
-#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <unordered_set>
 #include <vector>
 #include <Nazara/Shader/Debug.hpp>
@@ -27,29 +26,21 @@ namespace Nz::ShaderAst
 
 	struct AstValidator::Context
 	{
-		//const ShaderAst::Function* currentFunction;
-		std::optional<std::size_t> activeScopeId;
+		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::unordered_set<std::string> declaredExternalVar;
-		std::unordered_set<long long> usedBindingIndexes;;
-		AstCache* cache;
+		std::unordered_set<long long> usedBindingIndexes;
 	};
 
-	bool AstValidator::Validate(StatementPtr& node, std::string* error, AstCache* cache)
+	bool AstValidator::Validate(StatementPtr& node, std::string* error)
 	{
 		try
 		{
-			AstCache dummy;
-
 			Context currentContext;
-			currentContext.cache = (cache) ? cache : &dummy;
 
 			m_context = &currentContext;
 			CallOnExit resetContext([&] { m_context = nullptr; });
 
-			EnterScope();
-			node->Visit(*this);
-			ExitScope();
-
+			ScopedVisit(node);
 			return true;
 		}
 		catch (const AstError& e)
@@ -59,6 +50,12 @@ namespace Nz::ShaderAst
 
 			return false;
 		}
+	}
+
+	const ExpressionType& AstValidator::GetExpressionType(Expression& expression)
+	{
+		assert(expression.cachedExpressionType);
+		return ResolveAlias(expression.cachedExpressionType.value());
 	}
 
 	Expression& AstValidator::MandatoryExpr(ExpressionPtr& node)
@@ -79,7 +76,7 @@ namespace Nz::ShaderAst
 
 	void AstValidator::TypeMustMatch(ExpressionPtr& left, ExpressionPtr& right)
 	{
-		return TypeMustMatch(GetExpressionType(*left, m_context->cache), GetExpressionType(*right, m_context->cache));
+		return TypeMustMatch(GetExpressionType(*left), GetExpressionType(*right));
 	}
 
 	void AstValidator::TypeMustMatch(const ExpressionType& left, const ExpressionType& right)
@@ -90,7 +87,7 @@ namespace Nz::ShaderAst
 
 	ExpressionType AstValidator::CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers)
 	{
-		const AstCache::Identifier* identifier = m_context->cache->FindIdentifier(*m_context->activeScopeId, structName);
+		const Identifier* identifier = FindIdentifier(structName);
 		if (!identifier)
 			throw AstError{ "unknown identifier " + structName };
 
@@ -111,81 +108,69 @@ namespace Nz::ShaderAst
 			return member.type;
 	}
 
-	AstCache::Scope& AstValidator::EnterScope()
+	const ExpressionType& AstValidator::ResolveAlias(const ExpressionType& expressionType)
 	{
-		std::size_t newScopeId = m_context->cache->scopes.size();
+		if (!IsIdentifierType(expressionType))
+			return expressionType;
 
-		std::optional<std::size_t> previousScope = m_context->activeScopeId;
+		const Identifier* identifier = FindIdentifier(std::get<IdentifierType>(expressionType).name);
+		if (identifier && std::holds_alternative<Alias>(identifier->value))
+		{
+			const Alias& alias = std::get<Alias>(identifier->value);
+			return std::visit([&](auto&& arg) -> const ShaderAst::ExpressionType&
+			{
+				using T = std::decay_t<decltype(arg)>;
 
-		auto& newScope = m_context->cache->scopes.emplace_back();
-		newScope.parentScopeIndex = previousScope;
+				if constexpr (std::is_same_v<T, ExpressionType>)
+					return arg;
+				else
+					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+			}, alias.value);
+		}
 
-		m_context->activeScopeId = newScopeId;
-		return m_context->cache->scopes[newScopeId];
-	}
-
-	void AstValidator::ExitScope()
-	{
-		assert(m_context->activeScopeId);
-		auto& previousScope = m_context->cache->scopes[*m_context->activeScopeId];
-		m_context->activeScopeId = previousScope.parentScopeIndex;
-	}
-
-	void AstValidator::RegisterExpressionType(Expression& node, ExpressionType expressionType)
-	{
-		m_context->cache->nodeExpressionType[&node] = std::move(expressionType);
-	}
-
-	void AstValidator::RegisterScope(Node& node)
-	{
-		if (m_context->activeScopeId)
-			m_context->cache->scopeIdByNode[&node] = *m_context->activeScopeId;
+		return expressionType;
 	}
 
 	void AstValidator::Visit(AccessMemberExpression& node)
 	{
-		RegisterScope(node);
-
 		// Register expressions types
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 
-		ExpressionType exprType = GetExpressionType(MandatoryExpr(node.structExpr), m_context->cache);
+		ExpressionType exprType = GetExpressionType(MandatoryExpr(node.structExpr));
 		if (!IsIdentifierType(exprType))
 			throw AstError{ "expression is not a structure" };
 
 		const std::string& structName = std::get<IdentifierType>(exprType).name;
 
-		RegisterExpressionType(node, CheckField(structName, node.memberIdentifiers.data(), node.memberIdentifiers.size()));
+		node.cachedExpressionType = CheckField(structName, node.memberIdentifiers.data(), node.memberIdentifiers.size());
 	}
 
 	void AstValidator::Visit(AssignExpression& node)
 	{
-		RegisterScope(node);
-
 		MandatoryExpr(node.left);
 		MandatoryExpr(node.right);
 
 		// Register expressions types
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 
 		TypeMustMatch(node.left, node.right);
 
 		if (GetExpressionCategory(*node.left) != ExpressionCategory::LValue)
 			throw AstError { "Assignation is only possible with a l-value" };
+
+		node.cachedExpressionType = GetExpressionType(*node.right);
 	}
 
 	void AstValidator::Visit(BinaryExpression& node)
 	{
-		RegisterScope(node);
-
 		// Register expression type
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 
-		ExpressionType leftExprType = GetExpressionType(MandatoryExpr(node.left), m_context->cache);
+		ExpressionType leftExprType = GetExpressionType(MandatoryExpr(node.left));
 		if (!IsPrimitiveType(leftExprType) && !IsMatrixType(leftExprType) && !IsVectorType(leftExprType))
 			throw AstError{ "left expression type does not support binary operation" };
 
-		ExpressionType rightExprType = GetExpressionType(MandatoryExpr(node.right), m_context->cache);
+		ExpressionType rightExprType = GetExpressionType(MandatoryExpr(node.right));
 		if (!IsPrimitiveType(rightExprType) && !IsMatrixType(rightExprType) && !IsVectorType(rightExprType))
 			throw AstError{ "right expression type does not support binary operation" };
 
@@ -201,12 +186,18 @@ namespace Nz::ShaderAst
 					if (leftType == PrimitiveType::Boolean)
 						throw AstError{ "this operation is not supported for booleans" };
 
-					[[fallthrough]];
+					TypeMustMatch(node.left, node.right);
+
+					node.cachedExpressionType = PrimitiveType::Boolean;
+					break;
+
 				case BinaryType::Add:
 				case BinaryType::CompEq:
 				case BinaryType::CompNe:
 				case BinaryType::Subtract:
 					TypeMustMatch(node.left, node.right);
+
+					node.cachedExpressionType = leftExprType;
 					break;
 
 				case BinaryType::Multiply:
@@ -219,9 +210,20 @@ namespace Nz::ShaderAst
 						case PrimitiveType::UInt32:
 						{
 							if (IsMatrixType(rightExprType))
+							{
 								TypeMustMatch(leftType, std::get<MatrixType>(rightExprType).type);
+								node.cachedExpressionType = rightExprType;
+							}
+							else if (IsPrimitiveType(rightExprType))
+							{
+								TypeMustMatch(leftType, rightExprType);
+								node.cachedExpressionType = leftExprType;
+							}
 							else if (IsVectorType(rightExprType))
+							{
 								TypeMustMatch(leftType, std::get<VectorType>(rightExprType).type);
+								node.cachedExpressionType = rightExprType;
+							}
 							else
 								throw AstError{ "incompatible types" };
 
@@ -248,18 +250,29 @@ namespace Nz::ShaderAst
 				case BinaryType::CompLt:
 				case BinaryType::CompEq:
 				case BinaryType::CompNe:
+					TypeMustMatch(node.left, node.right);
+					node.cachedExpressionType = PrimitiveType::Boolean;
+					break;
+
 				case BinaryType::Add:
 				case BinaryType::Subtract:
 					TypeMustMatch(node.left, node.right);
+					node.cachedExpressionType = leftExprType;
 					break;
 
 				case BinaryType::Multiply:
 				case BinaryType::Divide:
 				{
 					if (IsMatrixType(rightExprType))
+					{
 						TypeMustMatch(leftExprType, rightExprType);
+						node.cachedExpressionType = leftExprType; //< FIXME
+					}
 					else if (IsPrimitiveType(rightExprType))
+					{
 						TypeMustMatch(leftType.type, rightExprType);
+						node.cachedExpressionType = leftExprType;
+					}
 					else if (IsVectorType(rightExprType))
 					{
 						const VectorType& rightType = std::get<VectorType>(rightExprType);
@@ -267,6 +280,8 @@ namespace Nz::ShaderAst
 
 						if (leftType.columnCount != rightType.componentCount)
 							throw AstError{ "incompatible types" };
+
+						node.cachedExpressionType = rightExprType;
 					}
 					else
 						throw AstError{ "incompatible types" };
@@ -275,7 +290,7 @@ namespace Nz::ShaderAst
 		}
 		else if (IsVectorType(leftExprType))
 		{
-			const MatrixType& leftType = std::get<MatrixType>(leftExprType);
+			const VectorType& leftType = std::get<VectorType>(leftExprType);
 			switch (node.op)
 			{
 				case BinaryType::CompGe:
@@ -284,16 +299,29 @@ namespace Nz::ShaderAst
 				case BinaryType::CompLt:
 				case BinaryType::CompEq:
 				case BinaryType::CompNe:
+					TypeMustMatch(node.left, node.right);
+					node.cachedExpressionType = PrimitiveType::Boolean;
+					break;
+
 				case BinaryType::Add:
 				case BinaryType::Subtract:
 					TypeMustMatch(node.left, node.right);
+					node.cachedExpressionType = leftExprType;
 					break;
 
 				case BinaryType::Multiply:
 				case BinaryType::Divide:
 				{
 					if (IsPrimitiveType(rightExprType))
+					{
 						TypeMustMatch(leftType.type, rightExprType);
+						node.cachedExpressionType = rightExprType;
+					}
+					else if (IsVectorType(rightExprType))
+					{
+						TypeMustMatch(leftType, rightExprType);
+						node.cachedExpressionType = rightExprType;
+					}
 					else
 						throw AstError{ "incompatible types" };
 				}
@@ -303,11 +331,9 @@ namespace Nz::ShaderAst
 
 	void AstValidator::Visit(CastExpression& node)
 	{
-		RegisterScope(node);
+		AstScopedVisitor::Visit(node);
 
-		AstRecursiveVisitor::Visit(node);
-
-		auto GetComponentCount = [](const ExpressionType& exprType) -> unsigned int
+		auto GetComponentCount = [](const ExpressionType& exprType) -> std::size_t
 		{
 			if (IsPrimitiveType(exprType))
 				return 1;
@@ -317,15 +343,15 @@ namespace Nz::ShaderAst
 				throw AstError{ "wut" };
 		};
 
-		unsigned int componentCount = 0;
-		unsigned int requiredComponents = GetComponentCount(node.targetType);
+		std::size_t componentCount = 0;
+		std::size_t requiredComponents = GetComponentCount(node.targetType);
 
 		for (auto& exprPtr : node.expressions)
 		{
 			if (!exprPtr)
 				break;
 
-			ExpressionType exprType = GetExpressionType(*exprPtr, m_context->cache);
+			ExpressionType exprType = GetExpressionType(*exprPtr);
 			if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
 				throw AstError{ "incompatible type" };
 
@@ -334,6 +360,40 @@ namespace Nz::ShaderAst
 
 		if (componentCount != requiredComponents)
 			throw AstError{ "component count doesn't match required component count" };
+
+		node.cachedExpressionType = node.targetType;
+	}
+
+	void AstValidator::Visit(ConstantExpression& node)
+	{
+		node.cachedExpressionType = std::visit([&](auto&& arg) -> ShaderAst::ExpressionType
+		{
+			using T = std::decay_t<decltype(arg)>;
+
+			if constexpr (std::is_same_v<T, bool>)
+				return PrimitiveType::Boolean;
+			else if constexpr (std::is_same_v<T, float>)
+				return PrimitiveType::Float32;
+			else if constexpr (std::is_same_v<T, Int32>)
+				return PrimitiveType::Int32;
+			else if constexpr (std::is_same_v<T, UInt32>)
+				return PrimitiveType::UInt32;
+			else if constexpr (std::is_same_v<T, Vector2f>)
+				return VectorType{ 2, PrimitiveType::Float32 };
+			else if constexpr (std::is_same_v<T, Vector3f>)
+				return VectorType{ 3, PrimitiveType::Float32 };
+			else if constexpr (std::is_same_v<T, Vector4f>)
+				return VectorType{ 4, PrimitiveType::Float32 };
+			else if constexpr (std::is_same_v<T, Vector2i32>)
+				return VectorType{ 2, PrimitiveType::Int32 };
+			else if constexpr (std::is_same_v<T, Vector3i32>)
+				return VectorType{ 3, PrimitiveType::Int32 };
+			else if constexpr (std::is_same_v<T, Vector4i32>)
+				return VectorType{ 4, PrimitiveType::Int32 };
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		}, node.value);
+
 	}
 
 	void AstValidator::Visit(ConditionalExpression& node)
@@ -341,37 +401,31 @@ namespace Nz::ShaderAst
 		MandatoryExpr(node.truePath);
 		MandatoryExpr(node.falsePath);
 
-		RegisterScope(node);
+		AstScopedVisitor::Visit(node);
 
-		AstRecursiveVisitor::Visit(node);
+		ExpressionType leftExprType = GetExpressionType(*node.truePath);
+		if (leftExprType != GetExpressionType(*node.falsePath))
+			throw AstError{ "true path type must match false path type" };
+
+		node.cachedExpressionType = leftExprType;
 		//if (m_shader.FindConditionByName(node.conditionName) == ShaderAst::InvalidCondition)
 		//	throw AstError{ "condition not found" };
-	}
-
-	void AstValidator::Visit(ConstantExpression& node)
-	{
-		RegisterScope(node);
 	}
 
 	void AstValidator::Visit(IdentifierExpression& node)
 	{
 		assert(m_context);
 
-		if (!m_context->activeScopeId)
-			throw AstError{ "no scope" };
-
-		RegisterScope(node);
-
-		const AstCache::Identifier* identifier = m_context->cache->FindIdentifier(*m_context->activeScopeId, node.identifier);
+		const Identifier* identifier = FindIdentifier(node.identifier);
 		if (!identifier)
-			throw AstError{ "Unknown variable " + node.identifier };
+			throw AstError{ "Unknown identifier " + node.identifier };
+
+		node.cachedExpressionType = ResolveAlias(std::get<Variable>(identifier->value).type);
 	}
 	
 	void AstValidator::Visit(IntrinsicExpression& node)
 	{
-		RegisterScope(node);
-
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 
 		switch (node.intrinsic)
 		{
@@ -384,10 +438,11 @@ namespace Nz::ShaderAst
 				for (auto& param : node.parameters)
 					MandatoryExpr(param);
 
-				ExpressionType type = GetExpressionType(*node.parameters.front(), m_context->cache);
+				ExpressionType type = GetExpressionType(*node.parameters.front());
+
 				for (std::size_t i = 1; i < node.parameters.size(); ++i)
 				{
-					if (type != GetExpressionType(MandatoryExpr(node.parameters[i]), m_context->cache))
+					if (type != GetExpressionType(MandatoryExpr(node.parameters[i])))
 						throw AstError{ "All type must match" };
 				}
 
@@ -402,11 +457,11 @@ namespace Nz::ShaderAst
 				for (auto& param : node.parameters)
 					MandatoryExpr(param);
 
-				if (!IsSamplerType(GetExpressionType(*node.parameters[0], m_context->cache)))
+				if (!IsSamplerType(GetExpressionType(*node.parameters[0])))
 					throw AstError{ "First parameter must be a sampler" };
 
-				if (!IsVectorType(GetExpressionType(*node.parameters[1], m_context->cache)))
-					throw AstError{ "First parameter must be a vector" };
+				if (!IsVectorType(GetExpressionType(*node.parameters[1])))
+					throw AstError{ "Second parameter must be a vector" };
 			}
 		}
 
@@ -414,63 +469,89 @@ namespace Nz::ShaderAst
 		{
 			case IntrinsicType::CrossProduct:
 			{
-				if (GetExpressionType(*node.parameters[0]) != ExpressionType{ VectorType{ 3, PrimitiveType::Float32 } })
+				ExpressionType type = GetExpressionType(*node.parameters.front());
+				if (type != ExpressionType{ VectorType{ 3, PrimitiveType::Float32 } })
 					throw AstError{ "CrossProduct only works with vec3<f32> expressions" };
 
+				node.cachedExpressionType = std::move(type);
 				break;
 			}
 
 			case IntrinsicType::DotProduct:
+			{
+				ExpressionType type = GetExpressionType(*node.parameters.front());
+				if (!IsVectorType(type))
+					throw AstError{ "DotProduct expects vector types" };
+
+				node.cachedExpressionType = std::get<VectorType>(type).type;
 				break;
+			}
+
+			case IntrinsicType::SampleTexture:
+			{
+				node.cachedExpressionType = VectorType{ 4, std::get<SamplerType>(GetExpressionType(*node.parameters.front())).sampledType };
+				break;
+			}
 		}
 	}
 
 	void AstValidator::Visit(SwizzleExpression& node)
 	{
-		RegisterScope(node);
-
 		if (node.componentCount > 4)
 			throw AstError{ "Cannot swizzle more than four elements" };
 
-		ExpressionType exprType = GetExpressionType(MandatoryExpr(node.expression), m_context->cache);
-		if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
-			throw AstError{ "Cannot swizzle this type" };
+		MandatoryExpr(node.expression);
 
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
+
+		ExpressionType exprType = GetExpressionType(*node.expression);
+		if (IsPrimitiveType(exprType) || IsVectorType(exprType))
+		{
+			PrimitiveType baseType;
+			if (IsPrimitiveType(exprType))
+				baseType = std::get<PrimitiveType>(exprType);
+			else
+				baseType = std::get<VectorType>(exprType).type;
+
+			if (node.componentCount > 1)
+			{
+				node.cachedExpressionType = VectorType{
+					node.componentCount,
+					baseType
+				};
+			}
+			else
+				node.cachedExpressionType = baseType;
+		}
+		else
+			throw AstError{ "Cannot swizzle this type" };
 	}
 
 	void AstValidator::Visit(BranchStatement& node)
 	{
-		RegisterScope(node);
-
 		for (auto& condStatement : node.condStatements)
 		{
-			ExpressionType condType = GetExpressionType(MandatoryExpr(condStatement.condition), m_context->cache);
+			ExpressionType condType = GetExpressionType(MandatoryExpr(condStatement.condition));
 			if (!IsPrimitiveType(condType) || std::get<PrimitiveType>(condType) != PrimitiveType::Boolean)
 				throw AstError{ "if expression must resolve to boolean type" };
 
 			MandatoryStatement(condStatement.statement);
 		}
 
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(ConditionalStatement& node)
 	{
 		MandatoryStatement(node.statement);
 
-		RegisterScope(node);
-
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 		//if (m_shader.FindConditionByName(node.conditionName) == ShaderAst::InvalidCondition)
 		//	throw AstError{ "condition not found" };
 	}
 
 	void AstValidator::Visit(DeclareExternalStatement& node)
 	{
-		RegisterScope(node);
-		auto& scope = m_context->cache->scopes[*m_context->activeScopeId];
-
 		for (const auto& [attributeType, arg] : node.attributes)
 		{
 			switch (attributeType)
@@ -513,7 +594,7 @@ namespace Nz::ShaderAst
 							throw AstError{ "attribute layout requires a string parameter" };
 
 						if (std::get<std::string>(arg) != "std140")
-							throw AstError{ "unknow layout type" };
+							throw AstError{ "unknown layout type" };
 
 						hasLayout = true;
 						break;
@@ -528,14 +609,9 @@ namespace Nz::ShaderAst
 				throw AstError{ "External variable " + extVar.name + " is already declared" };
 
 			m_context->declaredExternalVar.insert(extVar.name);
-
-			ExpressionType subType = extVar.type;
-			if (IsUniformType(subType))
-				subType = IdentifierType{ std::get<UniformType>(subType).containedType };
-
-			auto& identifier = scope.identifiers.emplace_back();
-			identifier = AstCache::Identifier{ extVar.name, AstCache::Variable { std::move(subType) } };
 		}
+
+		AstScopedVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(DeclareFunctionStatement& node)
@@ -561,10 +637,10 @@ namespace Nz::ShaderAst
 
 					ShaderStageType stageType = it->second;
 
-					if (m_context->cache->entryFunctions[UnderlyingCast(stageType)])
+					if (m_context->entryFunctions[UnderlyingCast(stageType)])
 						throw AstError{ "the same entry type has been defined multiple times" };
 
-					m_context->cache->entryFunctions[UnderlyingCast(it->second)] = &node;
+					m_context->entryFunctions[UnderlyingCast(it->second)] = &node;
 
 					if (node.parameters.size() > 1)
 						throw AstError{ "entry functions can either take one struct parameter or no parameter" };
@@ -578,103 +654,41 @@ namespace Nz::ShaderAst
 			}
 		}
 
-		auto& scope = EnterScope();
-		RegisterScope(node);
-
-		for (auto& parameter : node.parameters)
-		{
-			auto& identifier = scope.identifiers.emplace_back();
-			identifier = AstCache::Identifier{ parameter.name, AstCache::Variable { parameter.type } };
-		}
-
 		for (auto& statement : node.statements)
-			MandatoryStatement(statement).Visit(*this);
+			MandatoryStatement(statement);
 
-		ExitScope();
+		AstScopedVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(DeclareStructStatement& node)
 	{
 		assert(m_context);
 
-		if (!m_context->activeScopeId)
-			throw AstError{ "cannot declare variable without scope" };
-
-		RegisterScope(node);
-
 		//TODO: check members attributes
 
-		auto& scope = m_context->cache->scopes[*m_context->activeScopeId];
-
-		auto& identifier = scope.identifiers.emplace_back();
-		identifier = AstCache::Identifier{ node.description.name, node.description };
-
-		AstRecursiveVisitor::Visit(node);
-	}
-
-	void AstValidator::Visit(DeclareVariableStatement& node)
-	{
-		assert(m_context);
-
-		if (!m_context->activeScopeId)
-			throw AstError{ "cannot declare variable without scope" };
-
-		RegisterScope(node);
-
-		auto& scope = m_context->cache->scopes[*m_context->activeScopeId];
-
-		auto& identifier = scope.identifiers.emplace_back();
-		identifier = AstCache::Identifier{ node.varName, AstCache::Variable { node.varType } };
-
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(ExpressionStatement& node)
 	{
-		RegisterScope(node);
-
 		MandatoryExpr(node.expression);
 
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 	}
 
 	void AstValidator::Visit(MultiStatement& node)
 	{
 		assert(m_context);
 
-		EnterScope();
-
-		RegisterScope(node);
-
 		for (auto& statement : node.statements)
 			MandatoryStatement(statement);
 
-		ExitScope();
-
-		AstRecursiveVisitor::Visit(node);
+		AstScopedVisitor::Visit(node);
 	}
 
-	void AstValidator::Visit(ReturnStatement& node)
-	{
-		RegisterScope(node);
-
-		/*if (m_context->currentFunction->returnType != ShaderExpressionType(BasicType::Void))
-		{
-			if (GetExpressionType(MandatoryExpr(node.returnExpr)) != m_context->currentFunction->returnType)
-				throw AstError{ "Return type doesn't match function return type" };
-		}
-		else
-		{
-			if (node.returnExpr)
-				throw AstError{ "Unexpected expression for return (function doesn't return)" };
-		}*/
-
-		AstRecursiveVisitor::Visit(node);
-	}
-
-	bool ValidateAst(StatementPtr& node, std::string* error, AstCache* cache)
+	bool ValidateAst(StatementPtr& node, std::string* error)
 	{
 		AstValidator validator;
-		return validator.Validate(node, error, cache);
+		return validator.Validate(node, error);
 	}
 }

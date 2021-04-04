@@ -42,7 +42,7 @@ namespace Nz::ShaderAst
 		return PopStatement();
 	}
 
-	std::unique_ptr<DeclareFunctionStatement> AstCloner::Clone(DeclareFunctionStatement& node)
+	StatementPtr AstCloner::Clone(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
 		clone->attributes = node.attributes;
@@ -63,6 +63,8 @@ namespace Nz::ShaderAst
 		clone->memberIdentifiers = node.memberIdentifiers;
 		clone->structExpr = CloneExpression(node.structExpr);
 
+		clone->cachedExpressionType = node.cachedExpressionType;
+
 		PushExpression(std::move(clone));
 	}
 
@@ -73,6 +75,8 @@ namespace Nz::ShaderAst
 		clone->left = CloneExpression(node.left);
 		clone->right = CloneExpression(node.right);
 
+		clone->cachedExpressionType = node.cachedExpressionType;
+
 		PushExpression(std::move(clone));
 	}
 
@@ -82,6 +86,8 @@ namespace Nz::ShaderAst
 		clone->op = node.op;
 		clone->left = CloneExpression(node.left);
 		clone->right = CloneExpression(node.right);
+
+		clone->cachedExpressionType = node.cachedExpressionType;
 
 		PushExpression(std::move(clone));
 	}
@@ -100,6 +106,8 @@ namespace Nz::ShaderAst
 			clone->expressions[expressionCount++] = CloneExpression(expr);
 		}
 
+		clone->cachedExpressionType = node.cachedExpressionType;
+
 		PushExpression(std::move(clone));
 	}
 
@@ -110,6 +118,8 @@ namespace Nz::ShaderAst
 		clone->falsePath = CloneExpression(node.falsePath);
 		clone->truePath = CloneExpression(node.truePath);
 
+		clone->cachedExpressionType = node.cachedExpressionType;
+
 		PushExpression(std::move(clone));
 	}
 
@@ -118,6 +128,8 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<ConstantExpression>();
 		clone->value = node.value;
 
+		clone->cachedExpressionType = node.cachedExpressionType;
+
 		PushExpression(std::move(clone));
 	}
 
@@ -125,6 +137,8 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<IdentifierExpression>();
 		clone->identifier = node.identifier;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
 
 		PushExpression(std::move(clone));
 	}
@@ -138,6 +152,8 @@ namespace Nz::ShaderAst
 		for (auto& parameter : node.parameters)
 			clone->parameters.push_back(CloneExpression(parameter));
 
+		clone->cachedExpressionType = node.cachedExpressionType;
+
 		PushExpression(std::move(clone));
 	}
 
@@ -147,6 +163,8 @@ namespace Nz::ShaderAst
 		clone->componentCount = node.componentCount;
 		clone->components = node.components;
 		clone->expression = CloneExpression(node.expression);
+
+		clone->cachedExpressionType = node.cachedExpressionType;
 
 		PushExpression(std::move(clone));
 	}

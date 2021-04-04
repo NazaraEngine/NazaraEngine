@@ -7,12 +7,17 @@
 
 namespace Nz
 {
-	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks, ShaderAst::AstCache* cache) :
-	m_cache(cache),
+	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks) :
 	m_blocks(blocks),
 	m_writer(writer)
 	{
 		m_currentBlock = &m_blocks.back();
+	}
+
+	inline const ShaderAst::ExpressionType& SpirvAstVisitor::GetExpressionType(ShaderAst::Expression& expr) const
+	{
+		assert(expr.cachedExpressionType);
+		return expr.cachedExpressionType.value();
 	}
 }
 

@@ -56,6 +56,8 @@ namespace Nz::ShaderAst
 
 		Expression& operator=(const Expression&) = delete;
 		Expression& operator=(Expression&&) noexcept = default;
+
+		std::optional<ExpressionType> cachedExpressionType;
 	};
 
 	struct NAZARA_SHADER_API AccessMemberExpression : public Expression
