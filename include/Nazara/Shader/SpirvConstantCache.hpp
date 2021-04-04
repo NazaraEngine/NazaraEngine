@@ -31,10 +31,13 @@ namespace Nz
 			~SpirvConstantCache();
 
 			struct Constant;
+			struct Identifier;
 			struct Type;
 
 			using ConstantPtr = std::shared_ptr<Constant>;
 			using TypePtr = std::shared_ptr<Type>;
+
+			using IdentifierCallback = std::function<TypePtr(const std::string& identifier)>;
 
 			struct Bool {};
 
@@ -61,6 +64,11 @@ namespace Nz
 			{
 				TypePtr columnType;
 				UInt32 columnCount;
+			};
+
+			struct Identifier
+			{
+				std::string name;
 			};
 
 			struct Image
@@ -104,7 +112,7 @@ namespace Nz
 				std::vector<Member> members;
 			};
 
-			using AnyType = std::variant<Bool, Float, Function, Image, Integer, Matrix, Pointer, SampledImage, Structure, Vector, Void>;
+			using AnyType = std::variant<Bool, Float, Function, Identifier, Image, Integer, Matrix, Pointer, SampledImage, Structure, Vector, Void>;
 
 			struct ConstantBool
 			{
@@ -166,6 +174,8 @@ namespace Nz
 			UInt32 Register(Type t);
 			UInt32 Register(Variable v);
 
+			void SetIdentifierCallback(IdentifierCallback callback);
+
 			void Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos);
 
 			SpirvConstantCache& operator=(const SpirvConstantCache& cache) = delete;
@@ -181,6 +191,7 @@ namespace Nz
 			static TypePtr BuildType(const ShaderAst::NoType& type);
 			static TypePtr BuildType(const ShaderAst::PrimitiveType& type);
 			static TypePtr BuildType(const ShaderAst::SamplerType& type);
+			static TypePtr BuildType(const ShaderAst::StructDescription& structDesc);
 			static TypePtr BuildType(const ShaderAst::VectorType& type);
 
 		private:
@@ -193,6 +204,7 @@ namespace Nz
 
 			void WriteStruct(const Structure& structData, UInt32 resultId, SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos);
 
+			IdentifierCallback m_identifierCallback;
 			std::unique_ptr<Internal> m_internal;
 	};
 }

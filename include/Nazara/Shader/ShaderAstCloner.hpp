@@ -33,7 +33,7 @@ namespace Nz::ShaderAst
 			ExpressionPtr CloneExpression(ExpressionPtr& expr);
 			StatementPtr CloneStatement(StatementPtr& statement);
 
-			virtual std::unique_ptr<DeclareFunctionStatement> Clone(DeclareFunctionStatement& node);
+			virtual StatementPtr Clone(DeclareFunctionStatement& node);
 
 			using AstExpressionVisitor::Visit;
 			using AstStatementVisitor::Visit;

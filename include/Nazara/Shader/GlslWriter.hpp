@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
+#include <Nazara/Shader/ShaderAstScopedVisitor.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <set>
 #include <sstream>
@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class NAZARA_SHADER_API GlslWriter : public ShaderWriter, public ShaderAst::AstRecursiveVisitor
+	class NAZARA_SHADER_API GlslWriter : public ShaderWriter, public ShaderAst::AstScopedVisitor
 	{
 		public:
 			struct Environment;
@@ -57,8 +57,8 @@ namespace Nz
 			template<typename T> void Append(const T& param);
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			void AppendCommentSection(const std::string& section);
-			void AppendEntryPoint(ShaderStageType shaderStage);
-			void AppendField(std::size_t scopeId, const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
+			void AppendEntryPoint(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader);
+			void AppendField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 

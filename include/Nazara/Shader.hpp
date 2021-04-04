@@ -32,12 +32,9 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/Shader.hpp>
-#include <Nazara/Shader/ShaderAstCache.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
-#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
 #include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
-#include <Nazara/Shader/ShaderAstNodes.hpp>
 #include <Nazara/Shader/ShaderAstOptimizer.hpp>
 #include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
 #include <Nazara/Shader/ShaderAstSerializer.hpp>
