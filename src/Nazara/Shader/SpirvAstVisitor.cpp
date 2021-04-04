@@ -4,7 +4,6 @@
 
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
@@ -39,13 +38,13 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::BinaryExpression& node)
 	{
-		ShaderAst::ExpressionType resultExprType = ShaderAst::GetExpressionType(node, m_cache);
+		ShaderAst::ExpressionType resultExprType = GetExpressionType(node);
 		assert(IsPrimitiveType(resultExprType));
 
-		ShaderAst::ExpressionType leftExprType = ShaderAst::GetExpressionType(*node.left, m_cache);
+		ShaderAst::ExpressionType leftExprType = GetExpressionType(*node.left);
 		assert(IsPrimitiveType(leftExprType));
 
-		ShaderAst::ExpressionType rightExprType = ShaderAst::GetExpressionType(*node.right, m_cache);
+		ShaderAst::ExpressionType rightExprType = GetExpressionType(*node.right);
 		assert(IsPrimitiveType(rightExprType));
 
 		ShaderAst::PrimitiveType resultType = std::get<ShaderAst::PrimitiveType>(resultExprType);
@@ -582,7 +581,7 @@ namespace Nz
 		{
 			case ShaderAst::IntrinsicType::DotProduct:
 			{
-				ShaderAst::ExpressionType vecExprType = GetExpressionType(*node.parameters[0], m_cache);
+				ShaderAst::ExpressionType vecExprType = GetExpressionType(*node.parameters[0]);
 				assert(IsVectorType(vecExprType));
 
 				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
@@ -626,7 +625,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		ShaderAst::ExpressionType targetExprType = ShaderAst::GetExpressionType(node, m_cache);
+		ShaderAst::ExpressionType targetExprType = GetExpressionType(node);
 		assert(IsPrimitiveType(targetExprType));
 
 		ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);

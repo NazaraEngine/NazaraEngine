@@ -4,7 +4,6 @@
 
 #include <Nazara/Shader/ShaderAstOptimizer.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/ShaderAstExpressionType.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
@@ -453,8 +452,11 @@ namespace Nz::ShaderAst
 			{
 				auto& constant = static_cast<ConstantExpression&>(*cond);
 
-				assert(IsPrimitiveType(GetExpressionType(constant)));
-				assert(std::get<PrimitiveType>(GetExpressionType(constant)) == PrimitiveType::Boolean);
+				assert(constant.cachedExpressionType);
+				const ExpressionType& constantType = constant.cachedExpressionType.value();
+
+				assert(IsPrimitiveType(constantType));
+				assert(std::get<PrimitiveType>(constantType) == PrimitiveType::Boolean);
 
 				bool cValue = std::get<bool>(constant.value);
 				if (!cValue)

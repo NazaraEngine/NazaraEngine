@@ -50,6 +50,11 @@ namespace Nz
 			return Compare(lhs.parameters, rhs.parameters) && Compare(lhs.returnType, rhs.returnType);
 		}
 
+		bool Compare(const Identifier& lhs, const Identifier& rhs) const
+		{
+			return lhs.name == rhs.name;
+		}
+
 		bool Compare(const Image& lhs, const Image& rhs) const
 		{
 			return lhs.arrayed == rhs.arrayed
@@ -225,6 +230,11 @@ namespace Nz
 		void Register(const Float&) {}
 		void Register(const Integer&) {}
 		void Register(const Void&) {}
+
+		void Register(const Identifier& identifier)
+		{
+			Register(identifier);
+		}
 
 		void Register(const Image& image)
 		{
@@ -456,6 +466,11 @@ namespace Nz
 	UInt32 SpirvConstantCache::Register(Type t)
 	{
 		AnyType& type = t.type;
+		if (std::holds_alternative<Identifier>(type))
+		{
+			assert(m_identifierCallback);
+			return Register(*m_identifierCallback(std::get<Identifier>(type).name));
+		}
 
 		DepRegisterer registerer(*this);
 		registerer.Register(type);
@@ -485,6 +500,11 @@ namespace Nz
 		}
 
 		return it.value();
+	}
+
+	void SpirvConstantCache::SetIdentifierCallback(IdentifierCallback callback)
+	{
+		m_identifierCallback = std::move(callback);
 	}
 
 	void SpirvConstantCache::Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos)
@@ -597,7 +617,7 @@ namespace Nz
 		return std::make_shared<Type>(Pointer{
 			BuildType(type),
 			storageClass
-			});
+		});
 	}
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) -> TypePtr
@@ -605,37 +625,16 @@ namespace Nz
 		return std::visit([&](auto&& arg) -> TypePtr
 		{
 			return BuildType(arg);
-			/*else if constexpr (std::is_same_v<T, std::string>)
-			{
-				// Register struct members type
-				const auto& structs = shader.GetStructs();
-				auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == arg; });
-				if (it == structs.end())
-					throw std::runtime_error("struct " + arg + " has not been defined");
-
-				const ShaderAst::Struct& s = *it;
-
-				Structure sType;
-				sType.name = s.name;
-
-				for (const auto& member : s.members)
-				{
-					auto& sMembers = sType.members.emplace_back();
-					sMembers.name = member.name;
-					sMembers.type = BuildType(shader, member.type);
-				}
-
-				return std::make_shared<Type>(std::move(sType));
-				return nullptr;
-			}
-			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");*/
 		}, type);
 	}
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& type) -> TypePtr
 	{
-		throw std::runtime_error("unexpected type");
+		return std::make_shared<Type>(
+			Identifier{
+				type.name
+			}
+		);
 	}
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::PrimitiveType& type) -> TypePtr
@@ -689,6 +688,21 @@ namespace Nz
 		};
 
 		return std::make_shared<Type>(SampledImage{ std::make_shared<Type>(imageType) });
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::StructDescription& structDesc) -> TypePtr
+	{
+		Structure sType;
+		sType.name = structDesc.name;
+
+		for (const auto& member : structDesc.members)
+		{
+			auto& sMembers = sType.members.emplace_back();
+			sMembers.name = member.name;
+			sMembers.type = BuildType(member.type);
+		}
+
+		return std::make_shared<Type>(std::move(sType));
 	}
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::VectorType& type) -> TypePtr
@@ -767,6 +781,8 @@ namespace Nz
 						appender(GetId(*param));
 				});
 			}
+			else if constexpr (std::is_same_v<T, Identifier>)
+				throw std::runtime_error("unexpected identifier");
 			else if constexpr (std::is_same_v<T, Image>)
 			{
 				UInt32 depth;
@@ -915,6 +931,8 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, Function>)
 					throw std::runtime_error("unexpected function as struct member");
+				else if constexpr (std::is_same_v<T, Identifier>)
+					throw std::runtime_error("unexpected identifier");
 				else if constexpr (std::is_same_v<T, Image> || std::is_same_v<T, SampledImage>)
 					throw std::runtime_error("unexpected opaque type as struct member");
 				else if constexpr (std::is_same_v<T, Void>)
