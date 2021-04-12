@@ -38,6 +38,7 @@ namespace Nz
 					case SpirvOp::OpEntryPoint:
 					{
 						SpirvExecutionModel executionModel = static_cast<SpirvExecutionModel>(ReadWord());
+						ReadWord(); // func id
 						std::string name = ReadString();
 
 						entryPoints.push_back({
