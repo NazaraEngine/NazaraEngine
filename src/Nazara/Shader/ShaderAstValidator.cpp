@@ -131,7 +131,7 @@ namespace Nz::ShaderAst
 		return expressionType;
 	}
 
-	void AstValidator::Visit(AccessMemberExpression& node)
+	void AstValidator::Visit(AccessMemberIdentifierExpression& node)
 	{
 		// Register expressions types
 		AstScopedVisitor::Visit(node);
@@ -351,7 +351,7 @@ namespace Nz::ShaderAst
 			if (!exprPtr)
 				break;
 
-			ExpressionType exprType = GetExpressionType(*exprPtr);
+			const ExpressionType& exprType = GetExpressionType(*exprPtr);
 			if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
 				throw AstError{ "incompatible type" };
 
@@ -552,14 +552,17 @@ namespace Nz::ShaderAst
 
 	void AstValidator::Visit(DeclareExternalStatement& node)
 	{
-		for (const auto& [attributeType, arg] : node.attributes)
+		if (!node.attributes.empty())
+			throw AstError{ "unhandled attribute for external block" };
+
+		/*for (const auto& [attributeType, arg] : node.attributes)
 		{
 			switch (attributeType)
 			{
 				default:
 					throw AstError{ "unhandled attribute for external block" };
 			}
-		}
+		}*/
 
 		for (const auto& extVar : node.externalVars)
 		{

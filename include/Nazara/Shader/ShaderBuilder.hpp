@@ -15,6 +15,11 @@ namespace Nz::ShaderBuilder
 {
 	namespace Impl
 	{
+		struct AccessMember
+		{
+			inline std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::string> memberIdentifiers) const;
+		};
+
 		struct Assign
 		{
 			inline std::unique_ptr<ShaderAst::AssignExpression> operator()(ShaderAst::AssignType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const;
@@ -36,9 +41,19 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const;
 		};
 
+		struct ConditionalExpression
+		{
+			inline std::unique_ptr<ShaderAst::ConditionalExpression> operator()(std::string conditionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
+		};
+
+		struct ConditionalStatement
+		{
+			inline std::unique_ptr<ShaderAst::ConditionalStatement> operator()(std::string conditionName, ShaderAst::StatementPtr statement) const;
+		};
+
 		struct Constant
 		{
-			inline std::unique_ptr<ShaderAst::ConstantExpression> operator()(ShaderConstantValue value) const;
+			inline std::unique_ptr<ShaderAst::ConstantExpression> operator()(ShaderAst::ConstantValue value) const;
 		};
 
 		struct DeclareFunction
@@ -83,12 +98,20 @@ namespace Nz::ShaderBuilder
 		{
 			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
 		};
+
+		struct Swizzle
+		{
+			inline std::unique_ptr<ShaderAst::SwizzleExpression> operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const;
+		};
 	}
 
+	constexpr Impl::AccessMember AccessMember;
 	constexpr Impl::Assign Assign;
 	constexpr Impl::Binary Binary;
 	constexpr Impl::Branch Branch;
 	constexpr Impl::Cast Cast;
+	constexpr Impl::ConditionalExpression ConditionalExpression;
+	constexpr Impl::ConditionalStatement ConditionalStatement;
 	constexpr Impl::Constant Constant;
 	constexpr Impl::DeclareFunction DeclareFunction;
 	constexpr Impl::DeclareStruct DeclareStruct;
@@ -99,6 +122,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Intrinsic Intrinsic;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
+	constexpr Impl::Swizzle Swizzle;
 }
 
 #include <Nazara/Shader/ShaderBuilder.inl>

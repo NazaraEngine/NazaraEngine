@@ -53,7 +53,7 @@ namespace Nz::ShaderAst
 		{
 			ExpressionType subType = extVar.type;
 			if (IsUniformType(subType))
-				subType = IdentifierType{ std::get<UniformType>(subType).containedType };
+				subType = std::get<IdentifierType>(std::get<UniformType>(subType).containedType);
 
 			RegisterVariable(extVar.name, std::move(subType));
 		}

@@ -43,7 +43,6 @@
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/ShaderConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>

@@ -7,7 +7,12 @@
 
 namespace Nz::ShaderAst
 {
-	void AstRecursiveVisitor::Visit(AccessMemberExpression& node)
+	void AstRecursiveVisitor::Visit(AccessMemberIdentifierExpression& node)
+	{
+		node.structExpr->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(AccessMemberIndexExpression& node)
 	{
 		node.structExpr->Visit(*this);
 	}
@@ -60,6 +65,11 @@ namespace Nz::ShaderAst
 	void AstRecursiveVisitor::Visit(SwizzleExpression& node)
 	{
 		node.expression->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(VariableExpression& node)
+	{
+		/* Nothing to do */
 	}
 
 	void AstRecursiveVisitor::Visit(BranchStatement& node)

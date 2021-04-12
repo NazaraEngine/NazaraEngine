@@ -31,7 +31,8 @@ namespace Nz::ShaderAst
 		private:
 			using AstExpressionVisitor::Visit;
 
-			void Visit(AccessMemberExpression& node) override;
+			void Visit(AccessMemberIdentifierExpression& node) override;
+			void Visit(AccessMemberIndexExpression& node) override;
 			void Visit(AssignExpression& node) override;
 			void Visit(BinaryExpression& node) override;
 			void Visit(CastExpression& node) override;
@@ -40,6 +41,7 @@ namespace Nz::ShaderAst
 			void Visit(IdentifierExpression& node) override;
 			void Visit(IntrinsicExpression& node) override;
 			void Visit(SwizzleExpression& node) override;
+			void Visit(VariableExpression& node) override;
 
 			ExpressionCategory m_expressionCategory;
 	};

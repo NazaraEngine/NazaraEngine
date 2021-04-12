@@ -7,17 +7,42 @@
 
 namespace Nz
 {
-	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, std::vector<SpirvBlock>& blocks) :
-	m_blocks(blocks),
+	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, SpirvSection& instructions, std::vector<FuncData>& funcData) :
+	m_extVarIndex(0),
+	m_funcIndex(0),
+	m_funcData(funcData),
+	m_currentBlock(nullptr),
+	m_instructions(instructions),
 	m_writer(writer)
 	{
-		m_currentBlock = &m_blocks.back();
 	}
 
-	inline const ShaderAst::ExpressionType& SpirvAstVisitor::GetExpressionType(ShaderAst::Expression& expr) const
+	void SpirvAstVisitor::RegisterExternalVariable(std::size_t varIndex, const ShaderAst::ExpressionType& type)
 	{
-		assert(expr.cachedExpressionType);
-		return expr.cachedExpressionType.value();
+		UInt32 pointerId = m_writer.GetExtVarPointerId(varIndex);
+		SpirvStorageClass storageClass = (IsSamplerType(type)) ? SpirvStorageClass::UniformConstant : SpirvStorageClass::Uniform;
+
+		RegisterVariable(varIndex, m_writer.GetTypeId(type), pointerId, storageClass);
+	}
+
+	inline void SpirvAstVisitor::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription structDesc)
+	{
+		if (structIndex >= m_structs.size())
+			m_structs.resize(structIndex + 1);
+
+		m_structs[structIndex] = std::move(structDesc);
+	}
+
+	inline void SpirvAstVisitor::RegisterVariable(std::size_t varIndex, UInt32 typeId, UInt32 pointerId, SpirvStorageClass storageClass)
+	{
+		if (varIndex >= m_variables.size())
+			m_variables.resize(varIndex + 1);
+
+		m_variables[varIndex] = Variable{
+			storageClass,
+			pointerId,
+			typeId
+		};
 	}
 }
 

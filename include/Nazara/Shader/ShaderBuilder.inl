@@ -7,6 +7,15 @@
 
 namespace Nz::ShaderBuilder
 {
+	inline std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> Impl::AccessMember::operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::string> memberIdentifiers) const
+	{
+		auto accessMemberNode = std::make_unique<ShaderAst::AccessMemberIdentifierExpression>();
+		accessMemberNode->structExpr = std::move(structExpr);
+		accessMemberNode->memberIdentifiers = std::move(memberIdentifiers);
+
+		return accessMemberNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::AssignExpression> Impl::Assign::operator()(ShaderAst::AssignType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const
 	{
 		auto assignNode = std::make_unique<ShaderAst::AssignExpression>();
@@ -61,7 +70,26 @@ namespace Nz::ShaderBuilder
 		return castNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ConstantExpression> Impl::Constant::operator()(ShaderConstantValue value) const
+	inline std::unique_ptr<ShaderAst::ConditionalExpression> Impl::ConditionalExpression::operator()(std::string conditionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
+	{
+		auto condExprNode = std::make_unique<ShaderAst::ConditionalExpression>();
+		condExprNode->conditionName = std::move(conditionName);
+		condExprNode->falsePath = std::move(falsePath);
+		condExprNode->truePath = std::move(truePath);
+
+		return condExprNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::ConditionalStatement> Impl::ConditionalStatement::operator()(std::string conditionName, ShaderAst::StatementPtr statement) const
+	{
+		auto condStatementNode = std::make_unique<ShaderAst::ConditionalStatement>();
+		condStatementNode->conditionName = std::move(conditionName);
+		condStatementNode->statement = std::move(statement);
+
+		return condStatementNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::ConstantExpression> Impl::Constant::operator()(ShaderAst::ConstantValue value) const
 	{
 		auto constantNode = std::make_unique<ShaderAst::ConstantExpression>();
 		constantNode->value = std::move(value);
@@ -156,6 +184,18 @@ namespace Nz::ShaderBuilder
 	std::unique_ptr<T> Impl::NoParam<T>::operator()() const
 	{
 		return std::make_unique<T>();
+	}
+
+	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const
+	{
+		auto swizzleNode = std::make_unique<ShaderAst::SwizzleExpression>();
+		swizzleNode->expression = std::move(expression);
+
+		assert(swizzleComponents.size() <= swizzleNode->components.size());
+		for (std::size_t i = 0; i < swizzleComponents.size(); ++i)
+			swizzleNode->components[i] = swizzleComponents[i];
+
+		return swizzleNode;
 	}
 }
 

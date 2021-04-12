@@ -12,7 +12,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderConstantValue.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/ExpressionType.hpp>
@@ -60,13 +60,22 @@ namespace Nz::ShaderAst
 		std::optional<ExpressionType> cachedExpressionType;
 	};
 
-	struct NAZARA_SHADER_API AccessMemberExpression : public Expression
+	struct NAZARA_SHADER_API AccessMemberIdentifierExpression : public Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
 		ExpressionPtr structExpr;
 		std::vector<std::string> memberIdentifiers;
+	};
+
+	struct NAZARA_SHADER_API AccessMemberIndexExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		ExpressionPtr structExpr;
+		std::vector<std::size_t> memberIndices;
 	};
 
 	struct NAZARA_SHADER_API AssignExpression : public Expression
@@ -113,7 +122,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ShaderConstantValue value;
+		ShaderAst::ConstantValue value;
 	};
 
 	struct NAZARA_SHADER_API IdentifierExpression : public Expression
@@ -141,6 +150,14 @@ namespace Nz::ShaderAst
 		std::array<SwizzleComponent, 4> components;
 		std::size_t componentCount;
 		ExpressionPtr expression;
+	};
+
+	struct NAZARA_SHADER_API VariableExpression : Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::size_t variableId;
 	};
 
 	// Statements
@@ -193,11 +210,12 @@ namespace Nz::ShaderAst
 
 		struct ExternalVar
 		{
-			std::vector<Attribute> attributes;
 			std::string name;
+			std::vector<Attribute> attributes;
 			ExpressionType type;
 		};
 
+		std::optional<std::size_t> varIndex;
 		std::vector<Attribute> attributes;
 		std::vector<ExternalVar> externalVars;
 	};
@@ -213,6 +231,8 @@ namespace Nz::ShaderAst
 			ExpressionType type;
 		};
 
+		std::optional<std::size_t> funcIndex;
+		std::optional<std::size_t> varIndex;
 		std::string name;
 		std::vector<Attribute> attributes;
 		std::vector<Parameter> parameters;
@@ -225,6 +245,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		std::optional<std::size_t> structIndex;
 		std::vector<Attribute> attributes;
 		StructDescription description;
 	};
@@ -234,6 +255,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr initialExpression;
 		ExpressionType varType;
@@ -274,6 +296,8 @@ namespace Nz::ShaderAst
 
 		ExpressionPtr returnExpr;
 	};
+
+	inline const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr);
 }
 
 #include <Nazara/Shader/ShaderNodes.inl>

@@ -330,6 +330,11 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Append(const ShaderAst::StructType& structType)
+	{
+		throw std::runtime_error("unexpected struct type");
+	}
+
 	void GlslWriter::Append(const ShaderAst::UniformType& uniformType)
 	{
 		/* TODO */
@@ -371,6 +376,7 @@ namespace Nz
 
 		m_currentState->stream << param;
 	}
+
 	template<typename T1, typename T2, typename... Args>
 	void GlslWriter::Append(const T1& firstParam, const T2& secondParam, Args&&... params)
 	{
@@ -595,7 +601,7 @@ namespace Nz
 			Append(")");
 	}
 
-	void GlslWriter::Visit(ShaderAst::AccessMemberExpression& node)
+	void GlslWriter::Visit(ShaderAst::AccessMemberIdentifierExpression& node)
 	{
 		Visit(node.structExpr, true);
 
@@ -741,8 +747,6 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::DeclareExternalStatement& node)
 	{
-		
-
 		for (const auto& externalVar : node.externalVars)
 		{
 			std::optional<long long> bindingIndex;
@@ -774,7 +778,7 @@ namespace Nz
 
 					EnterScope();
 					{
-						const Identifier* identifier = FindIdentifier(std::get<ShaderAst::UniformType>(externalVar.type).containedType.name);
+						const Identifier* identifier = FindIdentifier(std::get<ShaderAst::IdentifierType>(std::get<ShaderAst::UniformType>(externalVar.type).containedType).name);
 						assert(identifier);
 
 						assert(std::holds_alternative<ShaderAst::StructDescription>(identifier->value));

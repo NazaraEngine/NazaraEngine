@@ -13,7 +13,12 @@ namespace Nz::ShaderAst
 		return m_expressionCategory;
 	}
 
-	void ShaderAstValueCategory::Visit(AccessMemberExpression& node)
+	void ShaderAstValueCategory::Visit(AccessMemberIdentifierExpression& node)
+	{
+		node.structExpr->Visit(*this);
+	}
+
+	void ShaderAstValueCategory::Visit(AccessMemberIndexExpression& node)
 	{
 		node.structExpr->Visit(*this);
 	}
@@ -65,5 +70,10 @@ namespace Nz::ShaderAst
 	void ShaderAstValueCategory::Visit(SwizzleExpression& node)
 	{
 		node.expression->Visit(*this);
+	}
+
+	void ShaderAstValueCategory::Visit(VariableExpression& node)
+	{
+		m_expressionCategory = ExpressionCategory::LValue;
 	}
 }

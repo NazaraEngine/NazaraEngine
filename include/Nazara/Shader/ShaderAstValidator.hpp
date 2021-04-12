@@ -34,7 +34,7 @@ namespace Nz::ShaderAst
 			ExpressionType CheckField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
 			const ExpressionType& ResolveAlias(const ExpressionType& expressionType);
 
-			void Visit(AccessMemberExpression& node) override;
+			void Visit(AccessMemberIdentifierExpression& node) override;
 			void Visit(AssignExpression& node) override;
 			void Visit(BinaryExpression& node) override;
 			void Visit(CastExpression& node) override;

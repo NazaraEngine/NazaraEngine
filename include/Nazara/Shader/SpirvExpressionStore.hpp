@@ -14,13 +14,14 @@
 
 namespace Nz
 {
+	class SpirvAstVisitor;
 	class SpirvBlock;
 	class SpirvWriter;
 
 	class NAZARA_SHADER_API SpirvExpressionStore : public ShaderAst::ExpressionVisitorExcept
 	{
 		public:
-			inline SpirvExpressionStore(SpirvWriter& writer, SpirvBlock& block);
+			inline SpirvExpressionStore(SpirvWriter& writer, SpirvAstVisitor& visitor, SpirvBlock& block);
 			SpirvExpressionStore(const SpirvExpressionStore&) = delete;
 			SpirvExpressionStore(SpirvExpressionStore&&) = delete;
 			~SpirvExpressionStore() = default;
@@ -28,9 +29,9 @@ namespace Nz
 			void Store(ShaderAst::ExpressionPtr& node, UInt32 resultId);
 
 			using ExpressionVisitorExcept::Visit;
-			//void Visit(ShaderAst::AccessMemberExpression& node) override;
-			void Visit(ShaderAst::IdentifierExpression& node) override;
+			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
+			void Visit(ShaderAst::VariableExpression& node) override;
 
 			SpirvExpressionStore& operator=(const SpirvExpressionStore&) = delete;
 			SpirvExpressionStore& operator=(SpirvExpressionStore&&) = delete;
@@ -44,9 +45,10 @@ namespace Nz
 			struct Pointer
 			{
 				SpirvStorageClass storage;
-				UInt32 resultId;
+				UInt32 pointerId;
 			};
 
+			SpirvAstVisitor& m_visitor;
 			SpirvBlock& m_block;
 			SpirvWriter& m_writer;
 			std::variant<std::monostate, LocalVar, Pointer> m_value;

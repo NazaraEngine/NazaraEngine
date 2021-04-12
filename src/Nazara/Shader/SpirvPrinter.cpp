@@ -68,7 +68,7 @@ namespace Nz
 			UInt32 resultId = 0;
 
 			std::size_t currentOperand = 0;
-			const UInt32* endPtr = startPtr + wordCount;
+			const UInt32* endPtr = startPtr + wordCount - 1;
 			while (GetCurrentPtr() < endPtr)
 			{
 				const SpirvInstruction::Operand* operand = &instruction.operands[currentOperand];
@@ -209,7 +209,7 @@ namespace Nz
 
 		m_currentState->stream << "\n";
 
-		assert(GetCurrentPtr() == startPtr + wordCount);
+		assert(GetCurrentPtr() == startPtr + wordCount - 1);
 
 		return true;
 	}

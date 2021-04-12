@@ -42,13 +42,25 @@ namespace Nz::ShaderAst
 		return PopStatement();
 	}
 
+	StatementPtr AstCloner::Clone(DeclareExternalStatement& node)
+	{
+		auto clone = std::make_unique<DeclareExternalStatement>();
+		clone->attributes = node.attributes;
+		clone->externalVars = node.externalVars;
+		clone->varIndex = node.varIndex;
+
+		return clone;
+	}
+
 	StatementPtr AstCloner::Clone(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
 		clone->attributes = node.attributes;
+		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;
 		clone->parameters = node.parameters;
 		clone->returnType = node.returnType;
+		clone->varIndex = node.varIndex;
 
 		clone->statements.reserve(node.statements.size());
 		for (auto& statement : node.statements)
@@ -57,15 +69,95 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	void AstCloner::Visit(AccessMemberExpression& node)
+	StatementPtr AstCloner::Clone(DeclareStructStatement& node)
 	{
-		auto clone = std::make_unique<AccessMemberExpression>();
+		auto clone = std::make_unique<DeclareStructStatement>();
+		clone->structIndex = node.structIndex;
+		clone->description = node.description;
+
+		return clone;
+	}
+
+	StatementPtr AstCloner::Clone(DeclareVariableStatement& node)
+	{
+		auto clone = std::make_unique<DeclareVariableStatement>();
+		clone->varIndex = node.varIndex;
+		clone->varName = node.varName;
+		clone->varType = node.varType;
+		clone->initialExpression = CloneExpression(node.initialExpression);
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(AccessMemberIdentifierExpression& node)
+	{
+		auto clone = std::make_unique<AccessMemberIdentifierExpression>();
 		clone->memberIdentifiers = node.memberIdentifiers;
 		clone->structExpr = CloneExpression(node.structExpr);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 
-		PushExpression(std::move(clone));
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(AccessMemberIndexExpression& node)
+	{
+		auto clone = std::make_unique<AccessMemberIndexExpression>();
+		clone->memberIndices = node.memberIndices;
+		clone->structExpr = CloneExpression(node.structExpr);
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(CastExpression& node)
+	{
+		auto clone = std::make_unique<CastExpression>();
+		clone->targetType = node.targetType;
+
+		std::size_t expressionCount = 0;
+		for (auto& expr : node.expressions)
+		{
+			if (!expr)
+				break;
+
+			clone->expressions[expressionCount++] = CloneExpression(expr);
+		}
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(IdentifierExpression& node)
+	{
+		auto clone = std::make_unique<IdentifierExpression>();
+		clone->identifier = node.identifier;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(VariableExpression& node)
+	{
+		auto clone = std::make_unique<VariableExpression>();
+		clone->variableId = node.variableId;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	void AstCloner::Visit(AccessMemberIdentifierExpression& node)
+	{
+		return PushExpression(Clone(node));
+	}
+
+	void AstCloner::Visit(AccessMemberIndexExpression& node)
+	{
+		return PushExpression(Clone(node));
 	}
 
 	void AstCloner::Visit(AssignExpression& node)
@@ -94,21 +186,7 @@ namespace Nz::ShaderAst
 
 	void AstCloner::Visit(CastExpression& node)
 	{
-		auto clone = std::make_unique<CastExpression>();
-		clone->targetType = node.targetType;
-
-		std::size_t expressionCount = 0;
-		for (auto& expr : node.expressions)
-		{
-			if (!expr)
-				break;
-
-			clone->expressions[expressionCount++] = CloneExpression(expr);
-		}
-
-		clone->cachedExpressionType = node.cachedExpressionType;
-
-		PushExpression(std::move(clone));
+		PushExpression(Clone(node));
 	}
 
 	void AstCloner::Visit(ConditionalExpression& node)
@@ -135,12 +213,7 @@ namespace Nz::ShaderAst
 
 	void AstCloner::Visit(IdentifierExpression& node)
 	{
-		auto clone = std::make_unique<IdentifierExpression>();
-		clone->identifier = node.identifier;
-
-		clone->cachedExpressionType = node.cachedExpressionType;
-
-		PushExpression(std::move(clone));
+		PushExpression(Clone(node));
 	}
 
 	void AstCloner::Visit(IntrinsicExpression& node)
@@ -167,6 +240,11 @@ namespace Nz::ShaderAst
 		clone->cachedExpressionType = node.cachedExpressionType;
 
 		PushExpression(std::move(clone));
+	}
+
+	void AstCloner::Visit(VariableExpression& node)
+	{
+		PushExpression(Clone(node));
 	}
 
 	void AstCloner::Visit(BranchStatement& node)
@@ -197,11 +275,7 @@ namespace Nz::ShaderAst
 
 	void AstCloner::Visit(DeclareExternalStatement& node)
 	{
-		auto clone = std::make_unique<DeclareExternalStatement>();
-		clone->attributes = node.attributes;
-		clone->externalVars = node.externalVars;
-
-		PushStatement(std::move(clone));
+		PushStatement(Clone(node));
 	}
 
 	void AstCloner::Visit(DeclareFunctionStatement& node)
@@ -211,20 +285,12 @@ namespace Nz::ShaderAst
 
 	void AstCloner::Visit(DeclareStructStatement& node)
 	{
-		auto clone = std::make_unique<DeclareStructStatement>();
-		clone->description = node.description;
-
-		PushStatement(std::move(clone));
+		PushStatement(Clone(node));
 	}
 
 	void AstCloner::Visit(DeclareVariableStatement& node)
 	{
-		auto clone = std::make_unique<DeclareVariableStatement>();
-		clone->varName = node.varName;
-		clone->varType = node.varType;
-		clone->initialExpression = CloneExpression(node.initialExpression);
-
-		PushStatement(std::move(clone));
+		PushStatement(Clone(node));
 	}
 
 	void AstCloner::Visit(DiscardStatement& /*node*/)
