@@ -9,7 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstScopedVisitor.hpp>
+#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
+#include <Nazara/Shader/ShaderAstStatementVisitorExcept.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <set>
 #include <sstream>
@@ -17,7 +18,7 @@
 
 namespace Nz
 {
-	class NAZARA_SHADER_API GlslWriter : public ShaderWriter, public ShaderAst::AstScopedVisitor
+	class NAZARA_SHADER_API GlslWriter : public ShaderWriter, public ShaderAst::ExpressionVisitorExcept, public ShaderAst::StatementVisitorExcept
 	{
 		public:
 			struct Environment;
@@ -59,24 +60,27 @@ namespace Nz
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			void AppendCommentSection(const std::string& section);
 			void AppendEntryPoint(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader);
-			void AppendField(const std::string& structName, const std::string* memberIdentifier, std::size_t remainingMembers);
+			void AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers);
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 
 			void EnterScope();
 			void LeaveScope(bool skipLine = true);
 
+			void RegisterStruct(std::size_t structIndex, bool isStd140, ShaderAst::StructDescription desc);
+			void RegisterVariable(std::size_t varIndex, std::string varName);
+
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
-			void Visit(ShaderAst::AccessMemberIdentifierExpression& node) override;
+			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
 			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
-			void Visit(ShaderAst::IdentifierExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
+			void Visit(ShaderAst::VariableExpression& node) override;
 
 			void Visit(ShaderAst::BranchStatement& node) override;
 			void Visit(ShaderAst::ConditionalStatement& node) override;

@@ -95,6 +95,7 @@ namespace Nz::ShaderAst
 	inline bool IsNoType(const ExpressionType& type);
 	inline bool IsPrimitiveType(const ExpressionType& type);
 	inline bool IsSamplerType(const ExpressionType& type);
+	inline bool IsStructType(const ExpressionType& type);
 	inline bool IsUniformType(const ExpressionType& type);
 	inline bool IsVectorType(const ExpressionType& type);
 }
