@@ -52,6 +52,7 @@ namespace Nz
 			void Append(ShaderAst::NoType);
 			void Append(ShaderAst::PrimitiveType type);
 			void Append(const ShaderAst::SamplerType& samplerType);
+			void Append(const ShaderAst::StructType& structType);
 			void Append(const ShaderAst::UniformType& uniformType);
 			void Append(const ShaderAst::VectorType& vecType);
 			template<typename T> void Append(const T& param);
@@ -67,7 +68,7 @@ namespace Nz
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
-			void Visit(ShaderAst::AccessMemberExpression& node) override;
+			void Visit(ShaderAst::AccessMemberIdentifierExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;

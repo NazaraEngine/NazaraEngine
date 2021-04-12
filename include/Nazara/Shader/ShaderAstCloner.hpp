@@ -30,15 +30,25 @@ namespace Nz::ShaderAst
 			AstCloner& operator=(AstCloner&&) = delete;
 
 		protected:
-			ExpressionPtr CloneExpression(ExpressionPtr& expr);
-			StatementPtr CloneStatement(StatementPtr& statement);
+			virtual ExpressionPtr CloneExpression(ExpressionPtr& expr);
+			virtual StatementPtr CloneStatement(StatementPtr& statement);
 
+			virtual StatementPtr Clone(DeclareExternalStatement& node);
 			virtual StatementPtr Clone(DeclareFunctionStatement& node);
+			virtual StatementPtr Clone(DeclareStructStatement& node);
+			virtual StatementPtr Clone(DeclareVariableStatement& node);
+
+			virtual ExpressionPtr Clone(AccessMemberIdentifierExpression& node);
+			virtual ExpressionPtr Clone(AccessMemberIndexExpression& node);
+			virtual ExpressionPtr Clone(CastExpression& node);
+			virtual ExpressionPtr Clone(IdentifierExpression& node);
+			virtual ExpressionPtr Clone(VariableExpression& node);
 
 			using AstExpressionVisitor::Visit;
 			using AstStatementVisitor::Visit;
 
-			void Visit(AccessMemberExpression& node) override;
+			void Visit(AccessMemberIdentifierExpression& node) override;
+			void Visit(AccessMemberIndexExpression& node) override;
 			void Visit(AssignExpression& node) override;
 			void Visit(BinaryExpression& node) override;
 			void Visit(CastExpression& node) override;
@@ -47,6 +57,7 @@ namespace Nz::ShaderAst
 			void Visit(IdentifierExpression& node) override;
 			void Visit(IntrinsicExpression& node) override;
 			void Visit(SwizzleExpression& node) override;
+			void Visit(VariableExpression& node) override;
 
 			void Visit(BranchStatement& node) override;
 			void Visit(ConditionalStatement& node) override;

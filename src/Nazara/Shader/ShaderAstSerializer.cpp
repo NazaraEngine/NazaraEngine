@@ -33,13 +33,22 @@ namespace Nz::ShaderAst
 		};
 	}
 
-	void AstSerializerBase::Serialize(AccessMemberExpression& node)
+	void AstSerializerBase::Serialize(AccessMemberIdentifierExpression& node)
 	{
 		Node(node.structExpr);
 
 		Container(node.memberIdentifiers);
 		for (std::string& identifier : node.memberIdentifiers)
 			Value(identifier);
+	}
+
+	void AstSerializerBase::Serialize(AccessMemberIndexExpression& node)
+	{
+		Node(node.structExpr);
+
+		Container(node.memberIndices);
+		for (std::size_t& identifier : node.memberIndices)
+			SizeT(identifier);
 	}
 
 	void AstSerializerBase::Serialize(AssignExpression& node)
@@ -131,6 +140,11 @@ namespace Nz::ShaderAst
 
 		for (std::size_t i = 0; i < node.componentCount; ++i)
 			Enum(node.components[i]);
+	}
+
+	void AstSerializerBase::Serialize(VariableExpression& node)
+	{
+		SizeT(node.variableId);
 	}
 
 
@@ -364,14 +378,19 @@ namespace Nz::ShaderAst
 				m_stream << UInt32(arg.dim);
 				m_stream << UInt32(arg.sampledType);
 			}
-			else if constexpr (std::is_same_v<T, UniformType>)
+			else if constexpr (std::is_same_v<T, StructType>)
 			{
 				m_stream << UInt8(5);
-				m_stream << arg.containedType.name;
+				m_stream << UInt32(arg.structIndex);
+			}
+			else if constexpr (std::is_same_v<T, UniformType>)
+			{
+				m_stream << UInt8(6);
+				m_stream << std::get<IdentifierType>(arg.containedType).name;
 			}
 			else if constexpr (std::is_same_v<T, VectorType>)
 			{
-				m_stream << UInt8(6);
+				m_stream << UInt8(7);
 				m_stream << UInt32(arg.componentCount);
 				m_stream << UInt32(arg.type);
 			}
@@ -621,7 +640,18 @@ namespace Nz::ShaderAst
 				break;
 			}
 
-			case 5: //< UniformType
+			case 5: //< StructType
+			{
+				UInt32 structIndex;
+				Value(structIndex);
+
+				type = StructType{
+					structIndex
+				};
+				break;
+			}
+
+			case 6: //< UniformType
 			{
 				std::string containedType;
 				Value(containedType);
@@ -634,7 +664,7 @@ namespace Nz::ShaderAst
 				break;
 			}
 
-			case 6: //< VectorType
+			case 7: //< VectorType
 			{
 				UInt32 componentCount;
 				PrimitiveType componentType;

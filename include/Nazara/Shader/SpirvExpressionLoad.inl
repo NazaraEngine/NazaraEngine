@@ -7,9 +7,10 @@
 
 namespace Nz
 {
-	inline SpirvExpressionLoad::SpirvExpressionLoad(SpirvWriter& writer, SpirvBlock& block) :
+	inline SpirvExpressionLoad::SpirvExpressionLoad(SpirvWriter& writer, SpirvAstVisitor& visitor, SpirvBlock& block) :
 	m_block(block),
-	m_writer(writer)
+	m_writer(writer),
+	m_visitor(visitor)
 	{
 	}
 }

@@ -140,6 +140,7 @@ namespace Nz
 		HLSL,
 		MSL,
 		NazaraBinary,
+		NazaraShader,
 		SpirV
 	};
 

@@ -38,6 +38,8 @@ namespace Nz
 
 		while (m_currentCodepoint < m_codepointEnd)
 		{
+			const UInt32* instructionBegin = m_currentCodepoint;
+
 			UInt32 firstWord = ReadWord();
 
 			UInt16 wordCount = static_cast<UInt16>((firstWord >> 16) & 0xFFFF);
@@ -50,7 +52,7 @@ namespace Nz
 			if (!HandleOpcode(*inst, wordCount))
 				break;
 
-			m_currentCodepoint += wordCount - 1;
+			m_currentCodepoint = instructionBegin + wordCount;
 		}
 	}
 

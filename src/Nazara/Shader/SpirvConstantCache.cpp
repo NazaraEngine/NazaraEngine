@@ -50,11 +50,6 @@ namespace Nz
 			return Compare(lhs.parameters, rhs.parameters) && Compare(lhs.returnType, rhs.returnType);
 		}
 
-		bool Compare(const Identifier& lhs, const Identifier& rhs) const
-		{
-			return lhs.name == rhs.name;
-		}
-
 		bool Compare(const Image& lhs, const Image& rhs) const
 		{
 			return lhs.arrayed == rhs.arrayed
@@ -112,6 +107,9 @@ namespace Nz
 		bool Compare(const Variable& lhs, const Variable& rhs) const
 		{
 			if (lhs.debugName != rhs.debugName)
+				return false;
+
+			if (lhs.funcId != rhs.funcId)
 				return false;
 
 			if (!Compare(lhs.initializer, rhs.initializer))
@@ -230,11 +228,6 @@ namespace Nz
 		void Register(const Float&) {}
 		void Register(const Integer&) {}
 		void Register(const Void&) {}
-
-		void Register(const Identifier& identifier)
-		{
-			Register(identifier);
-		}
 
 		void Register(const Image& image)
 		{
@@ -406,6 +399,7 @@ namespace Nz
 		tsl::ordered_map<std::variant<AnyConstant, AnyType>, UInt32 /*id*/, AnyHasher, Eq> ids;
 		tsl::ordered_map<Variable, UInt32 /*id*/, AnyHasher, Eq> variableIds;
 		tsl::ordered_map<Structure, FieldOffsets /*fieldOffsets*/, AnyHasher, Eq> structureSizes;
+		StructCallback structCallback;
 		UInt32& nextResultId;
 	};
 
@@ -417,132 +411,8 @@ namespace Nz
 	SpirvConstantCache::SpirvConstantCache(SpirvConstantCache&& cache) noexcept = default;
 
 	SpirvConstantCache::~SpirvConstantCache() = default;
-
-	UInt32 SpirvConstantCache::GetId(const Constant& c)
-	{
-		auto it = m_internal->ids.find(c.constant);
-		if (it == m_internal->ids.end())
-			throw std::runtime_error("constant is not registered");
-
-		return it->second;
-	}
-
-	UInt32 SpirvConstantCache::GetId(const Type& t)
-	{
-		auto it = m_internal->ids.find(t.type);
-		if (it == m_internal->ids.end())
-			throw std::runtime_error("constant is not registered");
-
-		return it->second;
-	}
-
-	UInt32 SpirvConstantCache::GetId(const Variable& v)
-	{
-		auto it = m_internal->variableIds.find(v);
-		if (it == m_internal->variableIds.end())
-			throw std::runtime_error("variable is not registered");
-
-		return it->second;
-	}
-
-	UInt32 SpirvConstantCache::Register(Constant c)
-	{
-		AnyConstant& constant = c.constant;
-
-		DepRegisterer registerer(*this);
-		registerer.Register(constant);
-
-		std::size_t h = m_internal->ids.hash_function()(constant);
-		auto it = m_internal->ids.find(constant, h);
-		if (it == m_internal->ids.end())
-		{
-			UInt32 resultId = m_internal->nextResultId++;
-			it = m_internal->ids.emplace(std::move(constant), resultId).first;
-		}
-
-		return it.value();
-	}
-
-	UInt32 SpirvConstantCache::Register(Type t)
-	{
-		AnyType& type = t.type;
-		if (std::holds_alternative<Identifier>(type))
-		{
-			assert(m_identifierCallback);
-			return Register(*m_identifierCallback(std::get<Identifier>(type).name));
-		}
-
-		DepRegisterer registerer(*this);
-		registerer.Register(type);
-
-		std::size_t h = m_internal->ids.hash_function()(type);
-		auto it = m_internal->ids.find(type, h);
-		if (it == m_internal->ids.end())
-		{
-			UInt32 resultId = m_internal->nextResultId++;
-			it = m_internal->ids.emplace(std::move(type), resultId).first;
-		}
-
-		return it.value();
-	}
-
-	UInt32 SpirvConstantCache::Register(Variable v)
-	{
-		DepRegisterer registerer(*this);
-		registerer.Register(v);
-
-		std::size_t h = m_internal->variableIds.hash_function()(v);
-		auto it = m_internal->variableIds.find(v, h);
-		if (it == m_internal->variableIds.end())
-		{
-			UInt32 resultId = m_internal->nextResultId++;
-			it = m_internal->variableIds.emplace(std::move(v), resultId).first;
-		}
-
-		return it.value();
-	}
-
-	void SpirvConstantCache::SetIdentifierCallback(IdentifierCallback callback)
-	{
-		m_identifierCallback = std::move(callback);
-	}
-
-	void SpirvConstantCache::Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos)
-	{
-		for (auto&& [object, id] : m_internal->ids)
-		{
-			UInt32 resultId = id;
-
-			std::visit(overloaded
-			{
-				[&](const AnyConstant& constant) { Write(constant, resultId, constants); },
-				[&](const AnyType& type) { Write(type, resultId, annotations, constants, debugInfos); },
-			}, object);
-		}
-
-		for (auto&& [variable, id] : m_internal->variableIds)
-		{
-			const auto& var = variable;
-			UInt32 resultId = id;
-
-			if (!variable.debugName.empty())
-				debugInfos.Append(SpirvOp::OpName, resultId, variable.debugName);
-
-			constants.AppendVariadic(SpirvOp::OpVariable, [&](const auto& appender)
-			{
-				appender(GetId(*var.type));
-				appender(resultId);
-				appender(var.storageClass);
-
-				if (var.initializer)
-					appender(GetId((*var.initializer)->constant));
-			});
-		}
-	}
-
-	SpirvConstantCache& SpirvConstantCache::operator=(SpirvConstantCache&& cache) noexcept = default;
-
-	auto SpirvConstantCache::BuildConstant(const ShaderConstantValue& value) -> ConstantPtr
+	
+	auto SpirvConstantCache::BuildConstant(const ShaderAst::ConstantValue& value) const -> ConstantPtr
 	{
 		return std::make_shared<Constant>(std::visit([&](auto&& arg) -> SpirvConstantCache::AnyConstant
 		{
@@ -590,7 +460,7 @@ namespace Nz
 		}, value));
 	}
 
-	auto SpirvConstantCache::BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) -> TypePtr
+	auto SpirvConstantCache::BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) const -> TypePtr
 	{
 		std::vector<SpirvConstantCache::TypePtr> parameterTypes;
 		parameterTypes.reserve(parameters.size());
@@ -604,7 +474,7 @@ namespace Nz
 		});
 	}
 
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const -> TypePtr
 	{
 		return std::make_shared<Type>(Pointer{
 			BuildType(type),
@@ -612,7 +482,7 @@ namespace Nz
 		});
 	}
 
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) -> TypePtr
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const -> TypePtr
 	{
 		return std::make_shared<Type>(Pointer{
 			BuildType(type),
@@ -620,7 +490,7 @@ namespace Nz
 		});
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) const -> TypePtr
 	{
 		return std::visit([&](auto&& arg) -> TypePtr
 		{
@@ -628,16 +498,13 @@ namespace Nz
 		}, type);
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& type) const -> TypePtr
 	{
-		return std::make_shared<Type>(
-			Identifier{
-				type.name
-			}
-		);
+		// No IdentifierType is expected (as they should have been resolved by now)
+		throw std::runtime_error("unexpected identifier");
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::PrimitiveType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::PrimitiveType& type) const -> TypePtr
 	{
 		return std::make_shared<Type>([&]() -> AnyType
 		{
@@ -657,7 +524,7 @@ namespace Nz
 		}());
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::MatrixType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::MatrixType& type) const -> TypePtr
 	{
 		return std::make_shared<Type>(
 			Matrix{
@@ -668,12 +535,12 @@ namespace Nz
 			});
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::NoType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::NoType& type) const -> TypePtr
 	{
 		return std::make_shared<Type>(Void{});
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::SamplerType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::SamplerType& type) const -> TypePtr
 	{
 		//TODO
 		auto imageType = Image{
@@ -690,7 +557,13 @@ namespace Nz
 		return std::make_shared<Type>(SampledImage{ std::make_shared<Type>(imageType) });
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::StructDescription& structDesc) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::StructType& type) const -> TypePtr
+	{
+		assert(m_internal->structCallback);
+		return BuildType(m_internal->structCallback(type.structIndex));
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::StructDescription& structDesc) const -> TypePtr
 	{
 		Structure sType;
 		sType.name = structDesc.name;
@@ -705,10 +578,135 @@ namespace Nz
 		return std::make_shared<Type>(std::move(sType));
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::VectorType& type) -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::VectorType& type) const -> TypePtr
 	{
 		return std::make_shared<Type>(Vector{ BuildType(type.type), UInt32(type.componentCount) });
 	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::UniformType& type) const -> TypePtr
+	{
+		assert(std::holds_alternative<ShaderAst::StructType>(type.containedType));
+		return BuildType(std::get<ShaderAst::StructType>(type.containedType));
+	}
+
+	UInt32 SpirvConstantCache::GetId(const Constant& c)
+	{
+		auto it = m_internal->ids.find(c.constant);
+		if (it == m_internal->ids.end())
+			throw std::runtime_error("constant is not registered");
+
+		return it->second;
+	}
+
+	UInt32 SpirvConstantCache::GetId(const Type& t)
+	{
+		auto it = m_internal->ids.find(t.type);
+		if (it == m_internal->ids.end())
+			throw std::runtime_error("type is not registered");
+
+		return it->second;
+	}
+
+	UInt32 SpirvConstantCache::GetId(const Variable& v)
+	{
+		auto it = m_internal->variableIds.find(v);
+		if (it == m_internal->variableIds.end())
+			throw std::runtime_error("variable is not registered");
+
+		return it->second;
+	}
+
+	UInt32 SpirvConstantCache::Register(Constant c)
+	{
+		AnyConstant& constant = c.constant;
+
+		DepRegisterer registerer(*this);
+		registerer.Register(constant);
+
+		std::size_t h = m_internal->ids.hash_function()(constant);
+		auto it = m_internal->ids.find(constant, h);
+		if (it == m_internal->ids.end())
+		{
+			UInt32 resultId = m_internal->nextResultId++;
+			it = m_internal->ids.emplace(std::move(constant), resultId).first;
+		}
+
+		return it.value();
+	}
+
+	UInt32 SpirvConstantCache::Register(Type t)
+	{
+		AnyType& type = t.type;
+
+		DepRegisterer registerer(*this);
+		registerer.Register(type);
+
+		std::size_t h = m_internal->ids.hash_function()(type);
+		auto it = m_internal->ids.find(type, h);
+		if (it == m_internal->ids.end())
+		{
+			UInt32 resultId = m_internal->nextResultId++;
+			it = m_internal->ids.emplace(std::move(type), resultId).first;
+		}
+
+		return it.value();
+	}
+
+	UInt32 SpirvConstantCache::Register(Variable v)
+	{
+		DepRegisterer registerer(*this);
+		registerer.Register(v);
+
+		std::size_t h = m_internal->variableIds.hash_function()(v);
+		auto it = m_internal->variableIds.find(v, h);
+		if (it == m_internal->variableIds.end())
+		{
+			UInt32 resultId = m_internal->nextResultId++;
+			it = m_internal->variableIds.emplace(std::move(v), resultId).first;
+		}
+
+		return it.value();
+	}
+
+	void SpirvConstantCache::SetStructCallback(StructCallback callback)
+	{
+		m_internal->structCallback = std::move(callback);
+	}
+
+	void SpirvConstantCache::Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos)
+	{
+		for (auto&& [object, id] : m_internal->ids)
+		{
+			UInt32 resultId = id;
+
+			std::visit(overloaded
+			{
+				[&](const AnyConstant& constant) { Write(constant, resultId, constants); },
+				[&](const AnyType& type) { Write(type, resultId, annotations, constants, debugInfos); },
+			}, object);
+		}
+
+		for (auto&& [variable, id] : m_internal->variableIds)
+		{
+			const auto& var = variable;
+			UInt32 resultId = id;
+
+			if (!variable.debugName.empty())
+				debugInfos.Append(SpirvOp::OpName, resultId, variable.debugName);
+
+			constants.AppendVariadic(SpirvOp::OpVariable, [&](const auto& appender)
+			{
+				appender(GetId(*var.type));
+				appender(resultId);
+				appender(var.storageClass);
+
+				if (var.initializer)
+					appender(GetId((*var.initializer)->constant));
+			});
+		}
+	}
+
+	SpirvConstantCache& SpirvConstantCache::operator=(SpirvConstantCache&& cache) noexcept = default;
 
 	void SpirvConstantCache::Write(const AnyConstant& constant, UInt32 resultId, SpirvSection& constants)
 	{

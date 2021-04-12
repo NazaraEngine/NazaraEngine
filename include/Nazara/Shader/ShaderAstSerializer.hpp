@@ -23,7 +23,8 @@ namespace Nz::ShaderAst
 			AstSerializerBase(AstSerializerBase&&) = delete;
 			~AstSerializerBase() = default;
 
-			void Serialize(AccessMemberExpression& node);
+			void Serialize(AccessMemberIdentifierExpression& node);
+			void Serialize(AccessMemberIndexExpression& node);
 			void Serialize(AssignExpression& node);
 			void Serialize(BinaryExpression& node);
 			void Serialize(CastExpression& node);
@@ -32,6 +33,7 @@ namespace Nz::ShaderAst
 			void Serialize(IdentifierExpression& node);
 			void Serialize(IntrinsicExpression& node);
 			void Serialize(SwizzleExpression& node);
+			void Serialize(VariableExpression& node);
 
 			void Serialize(BranchStatement& node);
 			void Serialize(ConditionalStatement& node);
