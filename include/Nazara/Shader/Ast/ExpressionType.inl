@@ -109,6 +109,11 @@ namespace Nz::ShaderAst
 		return std::holds_alternative<SamplerType>(type);
 	}
 
+	bool IsStructType(const ExpressionType& type)
+	{
+		return std::holds_alternative<StructType>(type);
+	}
+
 	bool IsUniformType(const ExpressionType& type)
 	{
 		return std::holds_alternative<UniformType>(type);

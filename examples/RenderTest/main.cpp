@@ -19,7 +19,7 @@ struct Data
 
 external
 {
-	[[binding(0), layout(std140)]] viewerData: uniform<Data>,
+	[[binding(0)]] viewerData: uniform<Data>,
 	[[binding(1)]] tex: sampler2D<f32>
 }
 
