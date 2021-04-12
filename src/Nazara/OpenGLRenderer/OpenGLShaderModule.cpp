@@ -6,6 +6,7 @@
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
@@ -122,7 +123,9 @@ namespace Nz
 				if (!shader.Create(device, ToOpenGL(shaderStage)))
 					throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
 
-				std::string code = writer.Generate(shaderStage, shaderAst, states);
+				ShaderAst::AstCloner cloner; //< FIXME: Required because writer may update AST
+				ShaderAst::StatementPtr clonedAst = cloner.Clone(shaderAst);
+				std::string code = writer.Generate(shaderStage, clonedAst, states);
 
 				shader.SetSource(code.data(), code.size());
 				shader.Compile();

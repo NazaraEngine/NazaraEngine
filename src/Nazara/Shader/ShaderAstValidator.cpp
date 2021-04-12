@@ -567,7 +567,6 @@ namespace Nz::ShaderAst
 		for (const auto& extVar : node.externalVars)
 		{
 			bool hasBinding = false;
-			bool hasLayout = false;
 			for (const auto& [attributeType, arg] : extVar.attributes)
 			{
 				switch (attributeType)
@@ -585,21 +584,6 @@ namespace Nz::ShaderAst
 							throw AstError{ "Binding #" + std::to_string(bindingIndex) + " is already in use" };
 
 						m_context->usedBindingIndexes.insert(bindingIndex);
-						break;
-					}
-
-					case AttributeType::Layout:
-					{
-						if (hasLayout)
-							throw AstError{ "attribute layout must be present once" };
-
-						if (!std::holds_alternative<std::string>(arg))
-							throw AstError{ "attribute layout requires a string parameter" };
-
-						if (std::get<std::string>(arg) != "std140")
-							throw AstError{ "unknown layout type" };
-
-						hasLayout = true;
 						break;
 					}
 

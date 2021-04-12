@@ -238,7 +238,7 @@ namespace Nz
 										Int32(memberIndex),
 										m_constantCache.Register(*m_constantCache.BuildType(member.type)),
 										varId
-										});
+									});
 								}
 
 								memberIndex++;
