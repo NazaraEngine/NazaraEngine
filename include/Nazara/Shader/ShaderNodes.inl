@@ -7,6 +7,11 @@
 
 namespace Nz::ShaderAst
 {
+	const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr)
+	{
+		assert(expr.cachedExpressionType);
+		return expr.cachedExpressionType.value();
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>

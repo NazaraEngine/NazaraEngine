@@ -13,9 +13,9 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <variant>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
-	using ShaderConstantValue = std::variant<
+	using ConstantValue = std::variant<
 		bool,
 		float,
 		Int32,

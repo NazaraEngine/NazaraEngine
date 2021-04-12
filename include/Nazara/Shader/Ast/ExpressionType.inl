@@ -51,6 +51,17 @@ namespace Nz::ShaderAst
 		return !operator==(rhs);
 	}
 
+
+	inline bool StructType::operator==(const StructType& rhs) const
+	{
+		return structIndex == rhs.structIndex;
+	}
+
+	inline bool StructType::operator!=(const StructType& rhs) const
+	{
+		return !operator==(rhs);
+	}
+
 	inline bool UniformType::operator==(const UniformType& rhs) const
 	{
 		return containedType == rhs.containedType;
@@ -60,6 +71,7 @@ namespace Nz::ShaderAst
 	{
 		return !operator==(rhs);
 	}
+
 
 	inline bool VectorType::operator==(const VectorType& rhs) const
 	{

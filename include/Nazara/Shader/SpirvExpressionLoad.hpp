@@ -15,13 +15,14 @@
 
 namespace Nz
 {
+	class SpirvAstVisitor;
 	class SpirvBlock;
 	class SpirvWriter;
 
 	class NAZARA_SHADER_API SpirvExpressionLoad : public ShaderAst::ExpressionVisitorExcept
 	{
 		public:
-			inline SpirvExpressionLoad(SpirvWriter& writer, SpirvBlock& block);
+			inline SpirvExpressionLoad(SpirvWriter& writer, SpirvAstVisitor& visitor, SpirvBlock& block);
 			SpirvExpressionLoad(const SpirvExpressionLoad&) = delete;
 			SpirvExpressionLoad(SpirvExpressionLoad&&) = delete;
 			~SpirvExpressionLoad() = default;
@@ -29,8 +30,8 @@ namespace Nz
 			UInt32 Evaluate(ShaderAst::Expression& node);
 
 			using ExpressionVisitorExcept::Visit;
-			//void Visit(ShaderAst::AccessMemberExpression& node) override;
-			void Visit(ShaderAst::IdentifierExpression& node) override;
+			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
+			void Visit(ShaderAst::VariableExpression& node) override;
 
 			SpirvExpressionLoad& operator=(const SpirvExpressionLoad&) = delete;
 			SpirvExpressionLoad& operator=(SpirvExpressionLoad&&) = delete;
@@ -39,7 +40,7 @@ namespace Nz
 			struct Pointer
 			{
 				SpirvStorageClass storage;
-				UInt32 resultId;
+				UInt32 pointerId;
 				UInt32 pointedTypeId;
 			};
 
@@ -48,6 +49,7 @@ namespace Nz
 				UInt32 resultId;
 			};
 
+			SpirvAstVisitor& m_visitor;
 			SpirvBlock& m_block;
 			SpirvWriter& m_writer;
 			std::variant<std::monostate, Pointer, Value> m_value;

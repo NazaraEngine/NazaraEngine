@@ -602,7 +602,7 @@ namespace Nz::ShaderLang
 
 		if (Peek().type == TokenType::Dot)
 		{
-			std::unique_ptr<ShaderAst::AccessMemberExpression> accessMemberNode = std::make_unique<ShaderAst::AccessMemberExpression>();
+			std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessMemberIdentifierExpression>();
 			accessMemberNode->structExpr = std::move(identifierExpr);
 
 			do
@@ -685,9 +685,9 @@ namespace Nz::ShaderLang
 				if (IsVariableInScope(identifier))
 				{
 					auto node = ParseIdentifier();
-					if (node->GetType() == ShaderAst::NodeType::AccessMemberExpression)
+					if (node->GetType() == ShaderAst::NodeType::AccessMemberIdentifierExpression)
 					{
-						ShaderAst::AccessMemberExpression* memberExpr = static_cast<ShaderAst::AccessMemberExpression*>(node.get());
+						ShaderAst::AccessMemberIdentifierExpression* memberExpr = static_cast<ShaderAst::AccessMemberIdentifierExpression*>(node.get());
 						if (!memberExpr->memberIdentifiers.empty() && memberExpr->memberIdentifiers.front() == "Sample")
 						{
 							if (Peek().type == TokenType::OpenParenthesis)

@@ -50,9 +50,17 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const SamplerType& rhs) const;
 	};
 
+	struct StructType
+	{
+		std::size_t structIndex;
+
+		inline bool operator==(const StructType& rhs) const;
+		inline bool operator!=(const StructType& rhs) const;
+	};
+
 	struct UniformType
 	{
-		IdentifierType containedType;
+		std::variant<IdentifierType, StructType> containedType;
 
 		inline bool operator==(const UniformType& rhs) const;
 		inline bool operator!=(const UniformType& rhs) const;
@@ -67,7 +75,7 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const VectorType& rhs) const;
 	};
 
-	using ExpressionType = std::variant<NoType, IdentifierType, PrimitiveType, MatrixType, SamplerType, UniformType, VectorType>;
+	using ExpressionType = std::variant<NoType, IdentifierType, PrimitiveType, MatrixType, SamplerType, StructType, UniformType, VectorType>;
 
 	struct StructDescription
 	{

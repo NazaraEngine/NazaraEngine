@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
+#include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <Nazara/Shader/Debug.hpp>
@@ -23,11 +24,11 @@ namespace Nz
 		{
 			[&](const Pointer& pointer)
 			{
-				m_block.Append(SpirvOp::OpStore, pointer.resultId, resultId);
+				m_block.Append(SpirvOp::OpStore, pointer.pointerId, resultId);
 			},
 			[&](const LocalVar& value)
 			{
-				m_writer.WriteLocalVariable(value.varName, resultId);
+				throw std::runtime_error("not yet implemented");
 			},
 			[](std::monostate)
 			{
@@ -36,49 +37,50 @@ namespace Nz
 		}, m_value);
 	}
 
-	/*void SpirvExpressionStore::Visit(ShaderAst::AccessMemberExpression& node)
+	void SpirvExpressionStore::Visit(ShaderAst::AccessMemberIndexExpression& node)
 	{
-		Visit(node.structExpr);
+		node.structExpr->Visit(*this);
+
+		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
 
 		std::visit(overloaded
 		{
-			[&](const Pointer& pointer) -> UInt32
+			[&](const Pointer& pointer)
 			{
-				UInt32 resultId = m_writer.AllocateResultId();
-				UInt32 pointerType = m_writer.RegisterPointerType(node.exprType, pointer.storage); //< FIXME
+				UInt32 resultId = m_visitor.AllocateResultId();
+				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
 
 				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
 				{
 					appender(pointerType);
 					appender(resultId);
-					appender(pointer.resultId);
+					appender(pointer.pointerId);
 
 					for (std::size_t index : node.memberIndices)
 						appender(m_writer.GetConstantId(Int32(index)));
 				});
 
-				m_value = Pointer{ pointer.storage, resultId };
-
-				return resultId;
+				m_value = Pointer { pointer.storage, resultId };
 			},
-			[](const LocalVar& value) -> UInt32
+			[&](const LocalVar& value)
 			{
 				throw std::runtime_error("not yet implemented");
 			},
-			[](std::monostate) -> UInt32
+			[](std::monostate)
 			{
 				throw std::runtime_error("an internal error occurred");
 			}
 		}, m_value);
-	}*/
-
-	void SpirvExpressionStore::Visit(ShaderAst::IdentifierExpression& node)
-	{
-		m_value = LocalVar{ node.identifier };
 	}
 
 	void SpirvExpressionStore::Visit(ShaderAst::SwizzleExpression& node)
 	{
 		throw std::runtime_error("not yet implemented");
+	}
+
+	void SpirvExpressionStore::Visit(ShaderAst::VariableExpression& node)
+	{
+		const auto& var = m_visitor.GetVariable(node.variableId);
+		m_value = Pointer{ var.storage, var.pointerId };
 	}
 }
