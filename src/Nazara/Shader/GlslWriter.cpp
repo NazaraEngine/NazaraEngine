@@ -19,14 +19,23 @@ namespace Nz
 {
 	namespace
 	{
-		static const char* flipYUniformName = "_NzFlipValue";
-		static const char* overridenMain = "_NzMain";
+		static const char* s_flipYUniformName = "_NzFlipYValue";
+		static const char* s_inputPrefix = "_NzIn_";
+		static const char* s_outputPrefix = "_NzOut_";
+		static const char* s_outputVarName = "_nzOutput";
 
 		//FIXME: Have this only once
 		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
 			{ "frag", ShaderStageType::Fragment },
 			{ "vert", ShaderStageType::Vertex },
 		};
+
+		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
+		{
+			auto it = map.find(id);
+			assert(it != map.end());
+			return it->second;
+		}
 
 		struct PreVisitor : ShaderAst::AstCloner
 		{
@@ -39,8 +48,8 @@ namespace Nz
 
 				ShaderAst::DeclareFunctionStatement* func = static_cast<ShaderAst::DeclareFunctionStatement*>(clone.get());
 
-				bool hasEntryPoint = false;
-
+				// Remove function if it's an entry point of another type than the one selected
+				bool isEntryPoint = false;
 				for (auto& attribute : func->attributes)
 				{
 					if (attribute.type == ShaderAst::AttributeType::Entry)
@@ -48,21 +57,16 @@ namespace Nz
 						auto it = s_entryPoints.find(std::get<std::string>(attribute.args));
 						assert(it != s_entryPoints.end());
 
-						if (it->second == selectedEntryPoint)
-						{
-							hasEntryPoint = true;
-							break;
-						}
+						if (it->second != selectedEntryPoint)
+							return ShaderBuilder::NoOp();
+
+						isEntryPoint = true;
+						break;
 					}
 				}
 
-				if (!hasEntryPoint)
-					return ShaderBuilder::NoOp();
-
-				entryPoint = func;
-
-				if (func->name == "main")
-					func->name = "_NzMain";
+				if (isEntryPoint)
+					entryPoint = func;
 
 				return clone;
 			}
@@ -85,17 +89,27 @@ namespace Nz
 
 	struct GlslWriter::State
 	{
+		struct InOutField
+		{
+			std::string memberName;
+			std::string targetName;
+		};
+
 		struct StructInfo
 		{
 			ShaderAst::StructDescription structDesc;
 			bool isStd140 = false;
 		};
 
+		ShaderStageType stage;
 		const States* states = nullptr;
 		ShaderAst::DeclareFunctionStatement* entryFunc = nullptr;
 		std::stringstream stream;
 		std::unordered_map<std::size_t, StructInfo> structs;
 		std::unordered_map<std::size_t, std::string> variableNames;
+		std::vector<InOutField> inputFields;
+		std::vector<InOutField> outputFields;
+		bool isInEntryPoint = false;
 		unsigned int indentLevel = 0;
 	};
 
@@ -108,6 +122,8 @@ namespace Nz
 	std::string GlslWriter::Generate(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader, const States& conditions)
 	{
 		State state;
+		state.stage = shaderStage;
+
 		m_currentState = &state;
 		CallOnExit onExit([this]()
 		{
@@ -131,90 +147,9 @@ namespace Nz
 
 		state.entryFunc = previsitor.entryPoint;
 
-		unsigned int glslVersion;
-		if (m_environment.glES)
-		{
-			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
-				glslVersion = 320;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
-				glslVersion = 310;
-			else if (m_environment.glMajorVersion >= 3)
-				glslVersion = 300;
-			else if (m_environment.glMajorVersion >= 2)
-				glslVersion = 100;
-			else
-				throw std::runtime_error("This version of OpenGL ES does not support shaders");
-		}
-		else
-		{
-			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 3)
-				glslVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
-				glslVersion = 150;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
-				glslVersion = 140;
-			else if (m_environment.glMajorVersion >= 3)
-				glslVersion = 130;
-			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
-				glslVersion = 120;
-			else if (m_environment.glMajorVersion >= 2)
-				glslVersion = 110;
-			else
-				throw std::runtime_error("This version of OpenGL does not support shaders");
-		}
-
-		// Header
-		Append("#version ");
-		Append(glslVersion);
-		if (m_environment.glES)
-			Append(" es");
-
-		AppendLine();
-		AppendLine();
-
-		// Extensions
-
-		std::vector<std::string> requiredExtensions;
-
-		if (!m_environment.glES && m_environment.extCallback)
-		{
-			// GL_ARB_shading_language_420pack (required for layout(binding = X))
-			if (glslVersion < 420 && HasExplicitBinding(adaptedShader))
-			{
-				if (m_environment.extCallback("GL_ARB_shading_language_420pack"))
-					requiredExtensions.emplace_back("GL_ARB_shading_language_420pack");
-			}
-
-			// GL_ARB_separate_shader_objects (required for layout(location = X))
-			if (glslVersion < 410 && HasExplicitLocation(adaptedShader))
-			{
-				if (m_environment.extCallback("GL_ARB_separate_shader_objects"))
-					requiredExtensions.emplace_back("GL_ARB_separate_shader_objects");
-			}
-		}
-
-		if (!requiredExtensions.empty())
-		{
-			for (const std::string& ext : requiredExtensions)
-				AppendLine("#extension " + ext + " : require");
-
-			AppendLine();
-		}
-
-		if (m_environment.glES)
-		{
-			AppendLine("#if GL_FRAGMENT_PRECISION_HIGH");
-			AppendLine("precision highp float;");
-			AppendLine("#else");
-			AppendLine("precision mediump float;");
-			AppendLine("#endif");
-			AppendLine();
-		}
+		AppendHeader();
 
 		adaptedShader->Visit(*this);
-
-		// Append true GLSL entry point
-		AppendEntryPoint(shaderStage, adaptedShader);
 
 		return state.stream.str();
 	}
@@ -226,7 +161,7 @@ namespace Nz
 
 	const char* GlslWriter::GetFlipYUniformName()
 	{
-		return flipYUniformName;
+		return s_flipYUniformName;
 	}
 
 	void GlslWriter::Append(const ShaderAst::ExpressionType& type)
@@ -306,7 +241,7 @@ namespace Nz
 
 	void GlslWriter::Append(const ShaderAst::StructType& structType)
 	{
-		const auto& structDesc = m_currentState->structs[structType.structIndex].structDesc;
+		const auto& structDesc = Retrieve(m_currentState->structs, structType.structIndex).structDesc;
 		Append(structDesc.name);
 	}
 
@@ -368,163 +303,9 @@ namespace Nz
 		AppendLine();
 	}
 
-	void GlslWriter::AppendEntryPoint(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader)
-	{
-		ShaderAst::DeclareFunctionStatement& entryFunc = *m_currentState->entryFunc;
-
-		std::optional<std::size_t> inputStructIndex;
-		if (!entryFunc.parameters.empty())
-		{
-			assert(entryFunc.parameters.size() == 1);
-			auto& parameter = entryFunc.parameters.front();
-			assert(std::holds_alternative<ShaderAst::StructType>(parameter.type));
-
-			inputStructIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
-		}
-
-		std::optional<std::size_t> outputStructIndex;
-		if (!IsNoType(entryFunc.returnType))
-		{
-			assert(std::holds_alternative<ShaderAst::StructType>(entryFunc.returnType));
-			outputStructIndex = std::get<ShaderAst::StructType>(entryFunc.returnType).structIndex;
-		}
-
-		AppendLine();
-		AppendLine("// Entry point handling");
-
-		struct InOutField
-		{
-			std::string name;
-			std::string targetName;
-		};
-
-		std::vector<InOutField> inputFields;
-		const ShaderAst::StructDescription* inputStruct = nullptr;
-
-		auto HandleInOutStructs = [this, shaderStage](std::size_t structIndex, std::vector<InOutField>& fields, const char* keyword, const char* fromPrefix, const char* targetPrefix) -> const ShaderAst::StructDescription*
-		{
-			const auto& structDesc = m_currentState->structs[structIndex].structDesc;
-
-			for (const auto& member : structDesc.members)
-			{
-				bool skip = false;
-				std::optional<std::string> builtinName;
-				std::optional<long long> attributeLocation;
-				for (const auto& [attributeType, attributeParam] : member.attributes)
-				{
-					if (attributeType == ShaderAst::AttributeType::Builtin)
-					{
-						auto it = builtinMapping.find(std::get<std::string>(attributeParam));
-						if (it != builtinMapping.end())
-						{
-							const Builtin& builtin = it->second;
-							if (!builtin.stageFlags.Test(shaderStage))
-							{
-								skip = true;
-								break;
-							}
-
-							builtinName = builtin.identifier;
-							break;
-						}
-					}
-					else if (attributeType == ShaderAst::AttributeType::Location)
-					{
-						attributeLocation = std::get<long long>(attributeParam);
-						break;
-					}
-				}
-
-				if (!skip && attributeLocation)
-				{
-					Append("layout(location = ");
-					Append(*attributeLocation);
-					Append(") ");
-					Append(keyword);
-					Append(" ");
-					Append(member.type);
-					Append(" ");
-					Append(targetPrefix);
-					Append(member.name);
-					AppendLine(";");
-
-					fields.push_back({
-						fromPrefix + member.name,
-						targetPrefix + member.name
-					});
-				}
-				else if (builtinName)
-				{
-					fields.push_back({
-						fromPrefix + member.name,
-						*builtinName
-					});
-				}
-			}
-			AppendLine();
-
-			return &structDesc;
-		};
-
-		if (inputStructIndex)
-			inputStruct = HandleInOutStructs(*inputStructIndex, inputFields, "in", "_nzInput.", "_NzIn_");
-
-		std::vector<InOutField> outputFields;
-		const ShaderAst::StructDescription* outputStruct = nullptr;
-		if (outputStructIndex)
-			outputStruct = HandleInOutStructs(*outputStructIndex, outputFields, "out", "_nzOutput.", "_NzOut_");
-
-		if (shaderStage == ShaderStageType::Vertex && m_environment.flipYPosition)
-			AppendLine("uniform float ", flipYUniformName, ";");
-
-		AppendLine("void main()");
-		EnterScope();
-		{
-			if (inputStruct)
-			{
-				Append(inputStruct->name);
-				AppendLine(" _nzInput;");
-				for (const auto& [name, targetName] : inputFields)
-				{
-					AppendLine(name, " = ", targetName, ";");
-				}
-				AppendLine();
-			}
-
-			if (outputStruct)
-				Append(outputStruct->name, " _nzOutput = ");
-
-			Append(m_currentState->entryFunc->name);
-
-			Append("(");
-			if (m_currentState->entryFunc)
-				Append("_nzInput");
-			Append(");");
-
-			if (outputStruct)
-			{
-				AppendLine();
-
-				for (const auto& [name, targetName] : outputFields)
-				{
-					bool isOutputPosition = (shaderStage == ShaderStageType::Vertex && m_environment.flipYPosition && targetName == "gl_Position");
-
-					AppendLine();
-
-					Append(targetName, " = ", name);
-					if (isOutputPosition)
-						Append(" * vec4(1.0, ", flipYUniformName, ", 1.0, 1.0)");
-
-					Append(";");
-				}
-			}
-		}
-		LeaveScope();
-	}
-
 	void GlslWriter::AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers)
 	{
-		const auto& structDesc = m_currentState->structs[structIndex].structDesc;
+		const auto& structDesc = Retrieve(m_currentState->structs, structIndex).structDesc;
 
 		const auto& member = structDesc.members[*memberIndices];
 
@@ -571,6 +352,144 @@ namespace Nz
 			AppendLine("}");
 		else
 			Append("}");
+	}
+
+	void GlslWriter::HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node)
+	{
+		HandleInOut();
+		AppendLine("void main()");
+		EnterScope();
+		{
+			if (!m_currentState->inputFields.empty())
+			{
+				assert(node.varIndex);
+				assert(!node.parameters.empty());
+
+				auto& parameter = node.parameters.front();
+				const std::string& varName = parameter.name;
+				RegisterVariable(*node.varIndex, varName);
+
+				assert(IsStructType(parameter.type));
+				std::size_t structIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
+				const ShaderAst::StructDescription& structDesc = Retrieve(m_currentState->structs, structIndex).structDesc;
+
+				AppendLine(structDesc.name, " ", varName, ";");
+				for (const auto& [memberName, targetName] : m_currentState->inputFields)
+					AppendLine(varName, ".", memberName, " = ", targetName, ";");
+
+				AppendLine();
+			}
+
+			// Output struct is handled on return node
+			m_currentState->isInEntryPoint = true;
+
+			for (auto& statement : node.statements)
+				statement->Visit(*this);
+
+			m_currentState->isInEntryPoint = false;
+		}
+		LeaveScope();
+	}
+
+	void GlslWriter::HandleInOut()
+	{
+		auto AppendInOut = [this](const ShaderAst::StructDescription& structDesc, std::vector<State::InOutField>& fields, const char* keyword, const char* targetPrefix)
+		{
+			for (const auto& member : structDesc.members)
+			{
+				bool skip = false;
+				std::optional<std::string> builtinName;
+				std::optional<long long> attributeLocation;
+				for (const auto& [attributeType, attributeParam] : member.attributes)
+				{
+					if (attributeType == ShaderAst::AttributeType::Builtin)
+					{
+						auto it = builtinMapping.find(std::get<std::string>(attributeParam));
+						if (it != builtinMapping.end())
+						{
+							const Builtin& builtin = it->second;
+							if (!builtin.stageFlags.Test(m_currentState->stage))
+							{
+								skip = true;
+								break;
+							}
+
+							builtinName = builtin.identifier;
+							break;
+						}
+					}
+					else if (attributeType == ShaderAst::AttributeType::Location)
+					{
+						attributeLocation = std::get<long long>(attributeParam);
+						break;
+					}
+				}
+
+				if (skip)
+					continue;
+
+				if (attributeLocation)
+				{
+					Append("layout(location = ");
+					Append(*attributeLocation);
+					Append(") ");
+					Append(keyword);
+					Append(" ");
+					Append(member.type);
+					Append(" ");
+					Append(targetPrefix);
+					Append(member.name);
+					AppendLine(";");
+
+					fields.push_back({
+						member.name,
+						targetPrefix + member.name
+					});
+				}
+				else if (builtinName)
+				{
+					fields.push_back({
+						member.name,
+						*builtinName
+					});
+				}
+			}
+			AppendLine();
+		};
+
+		const ShaderAst::DeclareFunctionStatement& node = *m_currentState->entryFunc;
+
+		const ShaderAst::StructDescription* inputStruct = nullptr;
+
+		if (!node.parameters.empty())
+		{
+			assert(node.parameters.size() == 1);
+			auto& parameter = node.parameters.front();
+			assert(std::holds_alternative<ShaderAst::StructType>(parameter.type));
+
+			std::size_t inputStructIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
+			inputStruct = &Retrieve(m_currentState->structs, inputStructIndex).structDesc;
+
+			AppendCommentSection("Inputs");
+			AppendInOut(*inputStruct, m_currentState->inputFields, "in", s_inputPrefix);
+		}
+
+		if (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition)
+		{
+			AppendLine("uniform float ", s_flipYUniformName, ";");
+			AppendLine();
+		}
+
+		if (!IsNoType(node.returnType))
+		{
+			assert(std::holds_alternative<ShaderAst::StructType>(node.returnType));
+			std::size_t outputStructIndex = std::get<ShaderAst::StructType>(node.returnType).structIndex;
+
+			const ShaderAst::StructDescription& outputStruct = Retrieve(m_currentState->structs, outputStructIndex).structDesc;
+
+			AppendCommentSection("Outputs");
+			AppendInOut(outputStruct, m_currentState->outputFields, "out", s_outputPrefix);
+		}
 	}
 
 	void GlslWriter::RegisterStruct(std::size_t structIndex, bool isStd140, ShaderAst::StructDescription desc)
@@ -765,7 +684,7 @@ namespace Nz
 				assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
 
 				std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
-				auto& structInfo = m_currentState->structs[structIndex];
+				auto& structInfo = Retrieve(m_currentState->structs, structIndex);
 				isStd140 = structInfo.isStd140;
 			}
 
@@ -780,7 +699,6 @@ namespace Nz
 
 				if (IsUniformType(externalVar.type))
 				{
-
 					Append("_NzBinding_");
 					AppendLine(externalVar.name);
 
@@ -790,7 +708,7 @@ namespace Nz
 						assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
 
 						std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
-						auto& structInfo = m_currentState->structs[structIndex];
+						auto& structInfo = Retrieve(m_currentState->structs, structIndex);
 
 						bool first = true;
 						for (const auto& [name, attribute, type] : structInfo.structDesc.members)
@@ -814,6 +732,9 @@ namespace Nz
 				Append(" ");
 				Append(externalVar.name);
 				AppendLine(";");
+
+				if (IsUniformType(externalVar.type))
+					AppendLine();
 			}
 
 			RegisterVariable(varIndex++, externalVar.name);
@@ -823,6 +744,9 @@ namespace Nz
 	void GlslWriter::Visit(ShaderAst::DeclareFunctionStatement& node)
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
+
+		if (m_currentState->entryFunc == &node)
+			return HandleEntryPoint(node);
 
 		assert(node.varIndex);
 		std::size_t varIndex = *node.varIndex;
@@ -835,6 +759,7 @@ namespace Nz
 		{
 			if (i != 0)
 				Append(", ");
+
 			Append(node.parameters[i].type);
 			Append(" ");
 			Append(node.parameters[i].name);
@@ -862,7 +787,7 @@ namespace Nz
 				break;
 			}
 		}
-	
+
 		assert(node.structIndex);
 		RegisterStruct(*node.structIndex, isStd140, node.description);
 
@@ -965,14 +890,55 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::ReturnStatement& node)
 	{
-		if (node.returnExpr)
+		if (m_currentState->isInEntryPoint)
 		{
-			Append("return ");
-			node.returnExpr->Visit(*this);
-			Append(";");
+			assert(node.returnExpr);
+
+			const ShaderAst::ExpressionType& returnType = GetExpressionType(*node.returnExpr);
+			assert(IsStructType(returnType));
+			std::size_t structIndex = std::get<ShaderAst::StructType>(returnType).structIndex;
+			const ShaderAst::StructDescription& structDesc = Retrieve(m_currentState->structs, structIndex).structDesc;
+
+			std::string outputStructVarName;
+			if (node.returnExpr->GetType() == ShaderAst::NodeType::VariableExpression)
+				outputStructVarName = Retrieve(m_currentState->variableNames, static_cast<ShaderAst::VariableExpression&>(*node.returnExpr).variableId);
+			else
+			{
+				AppendLine();
+				Append(structDesc.name, " ", s_outputVarName, " = ");
+				node.returnExpr->Visit(*this);
+				AppendLine(";");
+
+				outputStructVarName = s_outputVarName;
+			}
+
+			for (const auto& [name, targetName] : m_currentState->outputFields)
+			{
+				bool isOutputPosition = (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition && targetName == "gl_Position");
+
+				AppendLine();
+
+				Append(targetName, " = ", outputStructVarName, ".", name);
+				if (isOutputPosition)
+					Append(" * vec4(1.0, ", s_flipYUniformName, ", 1.0, 1.0)");
+
+				Append(";");
+			}
+
+			AppendLine();
+			Append("return;"); //< TODO: Don't return if it's the last statement of the function
 		}
 		else
-			Append("return;");
+		{
+			if (node.returnExpr)
+			{
+				Append("return ");
+				node.returnExpr->Visit(*this);
+				Append(";");
+			}
+			else
+				Append("return;");
+		}
 	}
 
 	void GlslWriter::Visit(ShaderAst::SwizzleExpression& node)
@@ -1005,7 +971,7 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::VariableExpression& node)
 	{
-		const std::string& varName = m_currentState->variableNames[node.variableId];
+		const std::string& varName = Retrieve(m_currentState->variableNames, node.variableId);
 		Append(varName);
 	}
 
@@ -1035,6 +1001,89 @@ namespace Nz
 		}*/
 
 		return false;
+	}
+
+	void GlslWriter::AppendHeader()
+	{
+		unsigned int glslVersion;
+		if (m_environment.glES)
+		{
+			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+				glslVersion = 320;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+				glslVersion = 310;
+			else if (m_environment.glMajorVersion >= 3)
+				glslVersion = 300;
+			else if (m_environment.glMajorVersion >= 2)
+				glslVersion = 100;
+			else
+				throw std::runtime_error("This version of OpenGL ES does not support shaders");
+		}
+		else
+		{
+			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 3)
+				glslVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+				glslVersion = 150;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+				glslVersion = 140;
+			else if (m_environment.glMajorVersion >= 3)
+				glslVersion = 130;
+			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
+				glslVersion = 120;
+			else if (m_environment.glMajorVersion >= 2)
+				glslVersion = 110;
+			else
+				throw std::runtime_error("This version of OpenGL does not support shaders");
+		}
+
+		// Header
+		Append("#version ");
+		Append(glslVersion);
+		if (m_environment.glES)
+			Append(" es");
+
+		AppendLine();
+		AppendLine();
+
+		// Extensions
+
+		std::vector<std::string> requiredExtensions;
+
+		if (!m_environment.glES && m_environment.extCallback)
+		{
+			// GL_ARB_shading_language_420pack (required for layout(binding = X))
+			if (glslVersion < 420)
+			{
+				if (m_environment.extCallback("GL_ARB_shading_language_420pack"))
+					requiredExtensions.emplace_back("GL_ARB_shading_language_420pack");
+			}
+
+			// GL_ARB_separate_shader_objects (required for layout(location = X))
+			if (glslVersion < 410)
+			{
+				if (m_environment.extCallback("GL_ARB_separate_shader_objects"))
+					requiredExtensions.emplace_back("GL_ARB_separate_shader_objects");
+			}
+		}
+
+		if (!requiredExtensions.empty())
+		{
+			for (const std::string& ext : requiredExtensions)
+				AppendLine("#extension " + ext + " : require");
+
+			AppendLine();
+		}
+
+		if (m_environment.glES)
+		{
+			AppendLine("#if GL_FRAGMENT_PRECISION_HIGH");
+			AppendLine("precision highp float;");
+			AppendLine("#else");
+			AppendLine("precision mediump float;");
+			AppendLine("#endif");
+			AppendLine();
+		}
 	}
 
 }

@@ -61,11 +61,15 @@ namespace Nz
 			void AppendCommentSection(const std::string& section);
 			void AppendEntryPoint(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader);
 			void AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers);
+			void AppendHeader();
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 
 			void EnterScope();
 			void LeaveScope(bool skipLine = true);
+
+			void HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node);
+			void HandleInOut();
 
 			void RegisterStruct(std::size_t structIndex, bool isStd140, ShaderAst::StructDescription desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
