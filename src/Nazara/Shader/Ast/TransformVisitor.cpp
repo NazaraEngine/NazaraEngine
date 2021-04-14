@@ -127,6 +127,9 @@ namespace Nz::ShaderAst
 
 	void TransformVisitor::Visit(DeclareStructStatement& node)
 	{
+		for (auto& member : node.description.members)
+			member.type = ResolveType(member.type);
+
 		node.structIndex = RegisterStruct(node.description.name, node.description);
 
 		AstCloner::Visit(node);
