@@ -227,34 +227,6 @@ namespace Nz::ShaderLang
 					break;
 				}
 
-				case '[':
-				{
-					char next = Peek();
-					if (next == '[')
-					{
-						currentPos++;
-						tokenType = TokenType::OpenAttribute;
-					}
-					else
-						tokenType = TokenType::OpenSquareBracket;
-
-					break;
-				}
-
-				case ']':
-				{
-					char next = Peek();
-					if (next == ']')
-					{
-						currentPos++;
-						tokenType = TokenType::ClosingAttribute;
-					}
-					else
-						tokenType = TokenType::ClosingSquareBracket;
-
-					break;
-				}
-
 				case '=':
 				{
 					char next = Peek();
@@ -307,6 +279,8 @@ namespace Nz::ShaderLang
 				case '}': tokenType = TokenType::ClosingCurlyBracket; break;
 				case '(': tokenType = TokenType::OpenParenthesis; break;
 				case ')': tokenType = TokenType::ClosingParenthesis; break;
+				case '[': tokenType = TokenType::OpenSquareBracket; break;
+				case ']': tokenType = TokenType::ClosingSquareBracket; break;
 
 				default:
 				{
