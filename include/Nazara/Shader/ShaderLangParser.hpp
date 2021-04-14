@@ -14,6 +14,12 @@
 
 namespace Nz::ShaderLang
 {
+	class AttributeError : public std::exception
+	{
+		public:
+			using exception::exception;
+	};
+	
 	class ExpectedToken : public std::exception
 	{
 		public:

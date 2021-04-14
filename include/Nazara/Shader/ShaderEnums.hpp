@@ -25,14 +25,6 @@ namespace Nz::ShaderAst
 		Location   //< Location (struct member only) - has argument index
 	};
 
-	enum class PrimitiveType
-	{
-		Boolean, //< bool
-		Float32, //< f32
-		Int32,   //< i32
-		UInt32,  //< ui32
-	};
-
 	enum class BinaryType
 	{
 		Add,       //< +
@@ -78,6 +70,14 @@ namespace Nz::ShaderAst
 #define NAZARA_SHADERAST_NODE(Node) Node,
 #define NAZARA_SHADERAST_STATEMENT_LAST(Node) Node, Max = Node
 #include <Nazara/Shader/ShaderAstNodes.hpp>
+	};
+
+	enum class PrimitiveType
+	{
+		Boolean, //< bool
+		Float32, //< f32
+		Int32,   //< i32
+		UInt32,  //< ui32
 	};
 
 	enum class SwizzleComponent

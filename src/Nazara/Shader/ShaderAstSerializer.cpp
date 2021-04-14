@@ -115,6 +115,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(DeclareVariableStatement& node)
 	{
+		OptVal(node.varIndex);
 		Value(node.varName);
 		Type(node.varType);
 		Node(node.initialExpression);
@@ -168,14 +169,14 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(DeclareExternalStatement& node)
 	{
-		Attributes(node.attributes);
+		OptVal(node.varIndex);
 
 		Container(node.externalVars);
 		for (auto& extVar : node.externalVars)
 		{
-			Attributes(extVar.attributes);
 			Value(extVar.name);
 			Type(extVar.type);
+			OptVal(extVar.bindingIndex);
 		}
 	}
 
@@ -183,8 +184,9 @@ namespace Nz::ShaderAst
 	{
 		Value(node.name);
 		Type(node.returnType);
-
-		Attributes(node.attributes);
+		OptEnum(node.entryStage);
+		OptVal(node.funcIndex);
+		OptVal(node.varIndex);
 
 		Container(node.parameters);
 		for (auto& parameter : node.parameters)
@@ -200,13 +202,18 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(DeclareStructStatement& node)
 	{
+		OptVal(node.structIndex);
+
 		Value(node.description.name);
+		OptEnum(node.description.layout);
 
 		Container(node.description.members);
 		for (auto& member : node.description.members)
 		{
 			Value(member.name);
 			Type(member.type);
+			OptEnum(member.builtin);
+			OptVal(member.locationIndex);
 		}
 	}
 
@@ -246,78 +253,6 @@ namespace Nz::ShaderAst
 		m_stream.FlushBits();
 	}
 	
-	void AstSerializerBase::Attributes(std::vector<Attribute>& attributes)
-	{
-		Container(attributes);
-		for (auto& attribute : attributes)
-		{
-			Enum(attribute.type);
-
-			if (IsWriting())
-			{
-				std::visit([&](auto&& arg)
-				{
-					using T = std::decay_t<decltype(arg)>;
-
-					if constexpr (std::is_same_v<T, std::monostate>)
-					{
-						UInt8 typeId = 0;
-						Value(typeId);
-					}
-					else if constexpr (std::is_same_v<T, long long>)
-					{
-						UInt8 typeId = 1;
-						UInt64 v = UInt64(arg);
-						Value(typeId);
-						Value(v);
-					}
-					else if constexpr (std::is_same_v<T, std::string>)
-					{
-						UInt8 typeId = 2;
-						Value(typeId);
-						Value(arg);
-					}
-					else
-						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-
-				}, attribute.args);
-			}
-			else
-			{
-				UInt8 typeId;
-				Value(typeId);
-
-				switch (typeId)
-				{
-					case 0:
-						attribute.args.emplace<std::monostate>();
-						break;
-
-					case 1:
-					{
-						UInt64 arg;
-						Value(arg);
-
-						attribute.args = static_cast<long long>(arg);
-						break;
-					}
-
-					case 2:
-					{
-						std::string arg;
-						Value(arg);
-
-						attribute.args = std::move(arg);
-						break;
-					}
-
-					default:
-						throw std::runtime_error("invalid attribute type id");
-				}
-			}
-		}
-	}
-
 	bool ShaderAstSerializer::IsWriting() const
 	{
 		return true;

@@ -27,12 +27,6 @@ namespace Nz
 {
 	namespace
 	{
-		//FIXME: Have this only once
-		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
-			{ "frag", ShaderStageType::Fragment },
-			{ "vert", ShaderStageType::Vertex },
-		};
-
 		struct Builtin
 		{
 			const char* debugName;
@@ -40,8 +34,8 @@ namespace Nz
 			SpirvBuiltIn decoration;
 		};
 
-		std::unordered_map<std::string, Builtin> s_builtinMapping = {
-			{ "position", { "VertexPosition", ShaderStageType::Vertex, SpirvBuiltIn::Position } }
+		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
+			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition", ShaderStageType::Vertex, SpirvBuiltIn::Position } }
 		};
 
 		class PreVisitor : public ShaderAst::AstScopedVisitor
@@ -129,32 +123,13 @@ namespace Nz
 
 						UniformVar& uniformVar = extVars[varIndex++];
 						uniformVar.pointerId = m_constantCache.Register(variable);
-
-						for (const auto& [attributeType, attributeParam] : extVar.attributes)
-						{
-							if (attributeType == ShaderAst::AttributeType::Binding)
-							{
-								uniformVar.bindingIndex = std::get<long long>(attributeParam);
-								break;
-							}
-						}
+						uniformVar.bindingIndex = extVar.bindingIndex;
 					}
 				}
 
 				void Visit(ShaderAst::DeclareFunctionStatement& node) override
 				{
-					std::optional<ShaderStageType> entryPointType;
-					for (auto& attribute : node.attributes)
-					{
-						if (attribute.type == ShaderAst::AttributeType::Entry)
-						{
-							auto it = s_entryPoints.find(std::get<std::string>(attribute.args));
-							assert(it != s_entryPoints.end());
-
-							entryPointType = it->second;
-							break;
-						}
-					}
+					std::optional<ShaderStageType> entryPointType = node.entryStage;
 
 					assert(node.funcIndex);
 					std::size_t funcIndex = *node.funcIndex;
@@ -325,29 +300,12 @@ namespace Nz
 
 				UInt32 HandleEntryInOutType(ShaderStageType entryPointType, std::size_t funcIndex, const ShaderAst::StructDescription::StructMember& member, SpirvStorageClass storageClass)
 				{
-					std::optional<std::reference_wrapper<Builtin>> builtinOpt;
-					std::optional<long long> attributeLocation;
-					for (const auto& [attributeType, attributeParam] : member.attributes)
+					if (member.builtin)
 					{
-						if (attributeType == ShaderAst::AttributeType::Builtin)
-						{
-							auto it = s_builtinMapping.find(std::get<std::string>(attributeParam));
-							if (it != s_builtinMapping.end())
-							{
-								builtinOpt = it->second;
-								break;
-							}
-						}
-						else if (attributeType == ShaderAst::AttributeType::Location)
-						{
-							attributeLocation = std::get<long long>(attributeParam);
-							break;
-						}
-					}
+						auto it = s_builtinMapping.find(*member.builtin);
+						assert(it != s_builtinMapping.end());
 
-					if (builtinOpt)
-					{
-						Builtin& builtin = *builtinOpt;
+						Builtin& builtin = it->second;
 						if ((builtin.compatibleStages & entryPointType) == 0)
 							return 0;
 
@@ -364,7 +322,7 @@ namespace Nz
 
 						return varId;
 					}
-					else if (attributeLocation)
+					else if (member.locationIndex)
 					{
 						SpirvConstantCache::Variable variable;
 						variable.debugName = member.name;
@@ -373,7 +331,7 @@ namespace Nz
 						variable.type = m_constantCache.BuildPointerType(member.type, storageClass);
 
 						UInt32 varId = m_constantCache.Register(variable);
-						locationDecorations[varId] = *attributeLocation;
+						locationDecorations[varId] = *member.locationIndex;
 
 						return varId;
 					}
