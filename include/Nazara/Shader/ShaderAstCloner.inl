@@ -5,8 +5,19 @@
 #include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
-namespace Nz
+namespace Nz::ShaderAst
 {
+	inline ExpressionPtr Clone(ExpressionPtr& node)
+	{
+		AstCloner cloner;
+		return cloner.Clone(node);
+	}
+
+	inline StatementPtr Clone(StatementPtr& node)
+	{
+		AstCloner cloner;
+		return cloner.Clone(node);
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>
