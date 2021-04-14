@@ -30,6 +30,24 @@ namespace Nz::ShaderLang
 			{ "layout",   ShaderAst::AttributeType::Layout   },
 			{ "location", ShaderAst::AttributeType::Location },
 		};
+
+		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
+			{ "frag", ShaderStageType::Fragment },
+			{ "vert", ShaderStageType::Vertex },
+		};
+
+		std::unordered_map<std::string, ShaderAst::BuiltinEntry> s_builtinMapping = {
+			{ "position", ShaderAst::BuiltinEntry::VertexPosition }
+		};
+
+		template<typename T, typename U>
+		std::optional<T> BoundCast(U val)
+		{
+			if (val < std::numeric_limits<T>::min() || val > std::numeric_limits<T>::max())
+				return std::nullopt;
+
+			return static_cast<T>(val);
+		}
 	}
 
 	ShaderAst::StatementPtr Parser::Parse(const std::vector<Token>& tokens)
@@ -305,14 +323,15 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes)
 	{
+		if (!attributes.empty())
+			throw AttributeError{ "unhandled attribute for external block" };
+
 		Expect(Advance(), TokenType::External);
 		Expect(Advance(), TokenType::OpenCurlyBracket);
 
 		std::unique_ptr<ShaderAst::DeclareExternalStatement> externalStatement = std::make_unique<ShaderAst::DeclareExternalStatement>();
-		externalStatement->attributes = std::move(attributes);
 
 		bool first = true;
-
 		for (;;)
 		{
 			if (!first)
@@ -336,7 +355,32 @@ namespace Nz::ShaderLang
 			auto& extVar = externalStatement->externalVars.emplace_back();
 
 			if (token.type == TokenType::OpenAttribute)
-				extVar.attributes = ParseAttributes();
+			{
+				for (const auto& [attributeType, arg] : ParseAttributes())
+				{
+					switch (attributeType)
+					{
+						case ShaderAst::AttributeType::Binding:
+						{
+							if (extVar.bindingIndex)
+								throw AttributeError{ "attribute binding must be present once" };
+
+							if (!std::holds_alternative<long long>(arg))
+								throw AttributeError{ "attribute binding requires a string parameter" };
+
+							std::optional<unsigned int> bindingIndex = BoundCast<unsigned int>(std::get<long long>(arg));
+							if (!bindingIndex)
+								throw AttributeError{ "invalid binding index" };
+
+							extVar.bindingIndex = bindingIndex.value();
+							break;
+						}
+
+						default:
+							throw AttributeError{ "unhandled attribute for external variable" };
+					}
+				}
+			}
 
 			extVar.name = ParseIdentifierAsName();
 			Expect(Advance(), TokenType::Colon);
@@ -402,7 +446,35 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
-		return ShaderBuilder::DeclareFunction(std::move(attributes), std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
+		std::optional<ShaderStageType> entryPoint;
+		for (const auto& [attributeType, arg] : attributes)
+		{
+			switch (attributeType)
+			{
+				case ShaderAst::AttributeType::Entry:
+				{
+					if (entryPoint)
+						throw AttributeError{ "attribute entry must be present once" };
+
+					if (!std::holds_alternative<std::string>(arg))
+						throw AttributeError{ "attribute entry requires a string parameter" };
+
+					const std::string& argStr = std::get<std::string>(arg);
+
+					auto it = s_entryPoints.find(argStr);
+					if (it == s_entryPoints.end())
+						throw AttributeError{ ("invalid parameter " + argStr + " for entry attribute").c_str() };
+
+					entryPoint = it->second;
+					break;
+				}
+
+				default:
+					throw AttributeError{ "unhandled attribute for function" };
+			}
+		}
+
+		return ShaderBuilder::DeclareFunction(entryPoint, std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
 	}
 
 	ShaderAst::DeclareFunctionStatement::Parameter Parser::ParseFunctionParameter()
@@ -450,7 +522,41 @@ namespace Nz::ShaderLang
 			auto& structField = description.members.emplace_back();
 
 			if (token.type == TokenType::OpenAttribute)
-				structField.attributes = ParseAttributes();
+			{
+				for (const auto& [attributeType, attributeParam] : ParseAttributes())
+				{
+					switch (attributeType)
+					{
+						case ShaderAst::AttributeType::Builtin:
+						{
+							if (structField.builtin)
+								throw AttributeError{ "attribute builtin must be present once" };
+
+							auto it = s_builtinMapping.find(std::get<std::string>(attributeParam));
+							if (it == s_builtinMapping.end())
+								throw AttributeError{ "unknown builtin" };
+
+							structField.builtin = it->second;
+							break;
+						}
+
+						case ShaderAst::AttributeType::Location:
+						{
+							if (structField.locationIndex)
+								throw AttributeError{ "attribute location must be present once" };
+
+							structField.locationIndex = BoundCast<unsigned int>(std::get<long long>(attributeParam));
+							if (!structField.locationIndex)
+								throw AttributeError{ "invalid location index" };
+
+							break;
+						}
+					}
+				}
+
+				if (structField.builtin && structField.locationIndex)
+					throw AttributeError{ "A struct field cannot have both builtin and location attributes" };
+			}
 
 			structField.name = ParseIdentifierAsName();
 
@@ -461,7 +567,7 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
-		return ShaderBuilder::DeclareStruct(std::move(attributes), std::move(description));
+		return ShaderBuilder::DeclareStruct(std::move(description));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseReturnStatement()

@@ -11,6 +11,7 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -81,11 +82,13 @@ namespace Nz::ShaderAst
 	{
 		struct StructMember
 		{
+			std::optional<BuiltinEntry> builtin;
+			std::optional<unsigned int> locationIndex;
 			std::string name;
-			std::vector<Attribute> attributes;
 			ExpressionType type;
 		};
 
+		std::optional<StructLayout> layout;
 		std::string name;
 		std::vector<StructMember> members;
 	};

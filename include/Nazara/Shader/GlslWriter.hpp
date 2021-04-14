@@ -71,7 +71,7 @@ namespace Nz
 			void HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node);
 			void HandleInOut();
 
-			void RegisterStruct(std::size_t structIndex, bool isStd140, ShaderAst::StructDescription desc);
+			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
