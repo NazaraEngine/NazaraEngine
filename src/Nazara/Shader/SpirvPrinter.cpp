@@ -203,13 +203,13 @@ namespace Nz
 				m_currentState->stream << std::string(m_currentState->resultOffset, ' ');
 
 			m_currentState->stream << instructionStream.str();
+
+			assert(GetCurrentPtr() == startPtr + wordCount - 1);
 		}
 		else
 			m_currentState->stream << instruction.name;
 
 		m_currentState->stream << "\n";
-
-		assert(GetCurrentPtr() == startPtr + wordCount - 1);
 
 		return true;
 	}

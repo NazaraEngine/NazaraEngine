@@ -97,6 +97,15 @@ namespace Nz::ShaderBuilder
 		return constantNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::string name, ShaderAst::StatementPtr statement) const
+	{
+		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
+		declareFunctionNode->name = std::move(name);
+		declareFunctionNode->statements.push_back(std::move(statement));
+
+		return declareFunctionNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType) const
 	{
 		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
@@ -200,7 +209,8 @@ namespace Nz::ShaderBuilder
 		swizzleNode->expression = std::move(expression);
 
 		assert(swizzleComponents.size() <= swizzleNode->components.size());
-		for (std::size_t i = 0; i < swizzleComponents.size(); ++i)
+		swizzleNode->componentCount = swizzleComponents.size();
+		for (std::size_t i = 0; i < swizzleNode->componentCount; ++i)
 			swizzleNode->components[i] = swizzleComponents[i];
 
 		return swizzleNode;
