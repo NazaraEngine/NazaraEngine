@@ -43,19 +43,27 @@ namespace Nz
 				ShaderAst::DeclareFunctionStatement* func = static_cast<ShaderAst::DeclareFunctionStatement*>(clone.get());
 
 				// Remove function if it's an entry point of another type than the one selected
-				if (node.entryStage)
+				if (selectedStage)
 				{
-					ShaderStageType stage = *node.entryStage;
-					if (stage != selectedStage)
-						return ShaderBuilder::NoOp();
+					if (node.entryStage)
+					{
+						ShaderStageType stage = *node.entryStage;
+						if (stage != *selectedStage)
+							return ShaderBuilder::NoOp();
 
+						entryPoint = func;
+					}
+				}
+				else
+				{
+					assert(!entryPoint);
 					entryPoint = func;
 				}
 
 				return clone;
 			}
 
-			ShaderStageType selectedStage;
+			std::optional<ShaderStageType> selectedStage;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
 		};
 
@@ -79,7 +87,7 @@ namespace Nz
 			std::string targetName;
 		};
 
-		ShaderStageType stage;
+		std::optional<ShaderStageType> stage;
 		const States* states = nullptr;
 		ShaderAst::DeclareFunctionStatement* entryFunc = nullptr;
 		std::stringstream stream;
@@ -97,7 +105,12 @@ namespace Nz
 	{
 	}
 
-	std::string GlslWriter::Generate(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader, const States& conditions)
+	std::string GlslWriter::Generate(ShaderAst::StatementPtr& shader, const States& conditions)
+	{
+		return Generate(std::nullopt, shader, conditions);
+	}
+
+	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::StatementPtr& shader, const States& conditions)
 	{
 		State state;
 		state.stage = shaderStage;
@@ -394,7 +407,7 @@ namespace Nz
 					assert(it != s_builtinMapping.end());
 
 					const Builtin& builtin = it->second;
-					if (!builtin.stageFlags.Test(m_currentState->stage))
+					if (m_currentState->stage && !builtin.stageFlags.Test(*m_currentState->stage))
 						continue; //< This builtin is not active in this stage, skip it
 
 					fields.push_back({
@@ -852,8 +865,6 @@ namespace Nz
 			{
 				bool isOutputPosition = (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition && targetName == "gl_Position");
 
-				AppendLine();
-
 				Append(targetName, " = ", outputStructVarName, ".", name);
 				if (isOutputPosition)
 					Append(" * vec4(1.0, ", s_flipYUniformName, ", 1.0, 1.0)");
@@ -861,7 +872,6 @@ namespace Nz
 				AppendLine(";");
 			}
 
-			AppendLine();
 			Append("return;"); //< TODO: Don't return if it's the last statement of the function
 		}
 		else
