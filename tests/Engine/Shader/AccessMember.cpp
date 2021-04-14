@@ -1,6 +1,5 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
@@ -18,7 +17,7 @@ std::string_view Trim(std::string_view str)
 	return str;
 }
 
-void ExpectingGLSL(const Nz::ShaderAst& shader, std::string_view expectedOutput)
+void ExpectingGLSL(Nz::ShaderAst::StatementPtr& shader, std::string_view expectedOutput)
 {
 	Nz::GlslWriter writer;
 
@@ -30,7 +29,7 @@ void ExpectingGLSL(const Nz::ShaderAst& shader, std::string_view expectedOutput)
 	REQUIRE(subset == expectedOutput);
 }
 
-void ExpectingSpirV(const Nz::ShaderAst& shader, std::string_view expectedOutput)
+void ExpectingSpirV(Nz::ShaderAst::StatementPtr& shader, std::string_view expectedOutput)
 {
 	Nz::SpirvWriter writer;
 	auto spirv = writer.Generate(shader);
@@ -53,42 +52,53 @@ SCENARIO("Shader generation", "[Shader]")
 {
 	SECTION("Nested member loading")
 	{
-		Nz::ShaderAst baseShader(Nz::ShaderStageType::Vertex);
-		baseShader.AddStruct("innerStruct", {
-			{
-				"field",
-				Nz::ShaderNodes::BasicType::Float3
-			}
-		});
-		
-		baseShader.AddStruct("outerStruct", {
-			{
-				"s",
-				"innerStruct"
-			}
-		});
+		std::vector<Nz::ShaderAst::StatementPtr> statements;
 
-		baseShader.AddUniform("ubo", "outerStruct");
-		baseShader.AddOutput("result", Nz::ShaderNodes::BasicType::Float1);
+		Nz::ShaderAst::StructDescription innerStructDesc;
+		{
+			innerStructDesc.name = "innerStruct";
+			auto& member = innerStructDesc.members.emplace_back();
+			member.name = "field";
+			member.type = Nz::ShaderAst::VectorType{ 3, Nz::ShaderAst::PrimitiveType::Float32 };
+		}
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(innerStructDesc)));
+
+		Nz::ShaderAst::StructDescription outerStruct;
+		{
+			outerStruct.name = "outerStruct";
+			auto& member = outerStruct.members.emplace_back();
+			member.name = "s";
+			member.type = Nz::ShaderAst::IdentifierType{ "innerStruct" };
+		}
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(outerStruct)));
+
+		auto external = std::make_unique<Nz::ShaderAst::DeclareExternalStatement>();
+		external->externalVars.push_back({
+			std::nullopt,
+			"ubo",
+			Nz::ShaderAst::IdentifierType{ "outerStruct" }
+		});
+		statements.push_back(std::move(external));
 
 		SECTION("Nested AccessMember")
 		{
-			Nz::ShaderAst shader = baseShader;
+			auto ubo = Nz::ShaderBuilder::Identifier("ubo");
+			auto firstAccess = Nz::ShaderBuilder::AccessMember(std::move(ubo), { "s" });
+			auto secondAccess = Nz::ShaderBuilder::AccessMember(std::move(firstAccess), { "field" });
 
-			auto uniform = Nz::ShaderBuilder::Uniform("ubo", "outerStruct");
-			auto output = Nz::ShaderBuilder::Output("result", Nz::ShaderNodes::BasicType::Float1);
+			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(secondAccess), { Nz::ShaderAst::SwizzleComponent::Third });
+			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::PrimitiveType::Float32, std::move(swizzle));
 
-			auto access = Nz::ShaderBuilder::Swizzle(Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier(uniform), 0, "innerStruct"), 0, Nz::ShaderNodes::BasicType::Float3), Nz::ShaderNodes::SwizzleComponent::Third);
-			auto assign = Nz::ShaderBuilder::Assign(Nz::ShaderBuilder::Identifier(output), access);
+			statements.push_back(Nz::ShaderBuilder::DeclareFunction("main", std::move(varDecl)));
 
-			shader.AddFunction("main", Nz::ShaderBuilder::ExprStatement(assign));
+			Nz::ShaderAst::StatementPtr shader = Nz::ShaderBuilder::MultiStatement(std::move(statements));
 
 			SECTION("Generating GLSL")
 			{
 				ExpectingGLSL(shader, R"(
 void main()
 {
-	result = ubo.s.field.z;
+	float result = ubo.s.field.z;
 }
 )");
 			}
@@ -97,6 +107,7 @@ void main()
 				ExpectingSpirV(shader, R"(
 OpFunction
 OpLabel
+OpVariable
 OpAccessChain
 OpAccessChain
 OpLoad
@@ -109,22 +120,22 @@ OpFunctionEnd)");
 
 		SECTION("AccessMember with multiples fields")
 		{
-			Nz::ShaderAst shader = baseShader;
+			auto ubo = Nz::ShaderBuilder::Identifier("ubo");
+			auto access = Nz::ShaderBuilder::AccessMember(std::move(ubo), { "s", "field" });
 
-			auto uniform = Nz::ShaderBuilder::Uniform("ubo", "outerStruct");
-			auto output = Nz::ShaderBuilder::Output("result", Nz::ShaderNodes::BasicType::Float1);
+			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(access), { Nz::ShaderAst::SwizzleComponent::Third });
+			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::PrimitiveType::Float32, std::move(swizzle));
 
-			auto access = Nz::ShaderBuilder::Swizzle(Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier(uniform), std::vector<std::size_t>{ 0, 0 }, Nz::ShaderNodes::BasicType::Float3), Nz::ShaderNodes::SwizzleComponent::Third);
-			auto assign = Nz::ShaderBuilder::Assign(Nz::ShaderBuilder::Identifier(output), access);
+			statements.push_back(Nz::ShaderBuilder::DeclareFunction("main", std::move(varDecl)));
 
-			shader.AddFunction("main", Nz::ShaderBuilder::ExprStatement(assign));
+			Nz::ShaderAst::StatementPtr shader = Nz::ShaderBuilder::MultiStatement(std::move(statements));
 
 			SECTION("Generating GLSL")
 			{
 				ExpectingGLSL(shader, R"(
 void main()
 {
-	result = ubo.s.field.z;
+	float result = ubo.s.field.z;
 }
 )");
 			}
@@ -133,6 +144,7 @@ void main()
 				ExpectingSpirV(shader, R"(
 OpFunction
 OpLabel
+OpVariable
 OpAccessChain
 OpLoad
 OpCompositeExtract
