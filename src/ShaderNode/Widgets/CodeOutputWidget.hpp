@@ -3,7 +3,6 @@
 #ifndef NAZARA_SHADERNODES_CODEOUTPUTWIDGET_HPP
 #define NAZARA_SHADERNODES_CODEOUTPUTWIDGET_HPP
 
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <ShaderNode/Enums.hpp>
 #include <QtWidgets/QWidget>
 

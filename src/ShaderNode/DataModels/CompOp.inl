@@ -1,25 +1,23 @@
 #include <ShaderNode/DataModels/CompOp.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 CompOp<DataType, Op>::CompOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	UpdateOutput();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
-Nz::ShaderNodes::NodePtr CompOp<DataType, Op>::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
+Nz::ShaderAst::NodePtr CompOp<DataType, Op>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	using BuilderType = typename Nz::ShaderBuilder::template BinOpBuilder<Op>;
-	constexpr BuilderType builder;
-	return builder(expressions[0], expressions[1]);
+	return Nz::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QtNodes::NodeDataType CompOp<DataType, Op>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {	
 	switch (portType)
@@ -43,7 +41,7 @@ QtNodes::NodeDataType CompOp<DataType, Op>::dataType(QtNodes::PortType portType,
 	throw std::runtime_error("invalid port type");
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 unsigned int CompOp<DataType, Op>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -57,14 +55,14 @@ unsigned int CompOp<DataType, Op>::nPorts(QtNodes::PortType portType) const
 	throw std::runtime_error("invalid port type");
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 std::shared_ptr<QtNodes::NodeData> CompOp<DataType, Op>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QString CompOp<DataType, Op>::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	switch (portType)
@@ -97,14 +95,14 @@ QString CompOp<DataType, Op>::portCaption(QtNodes::PortType portType, QtNodes::P
 	return QString{};
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 bool CompOp<DataType, Op>::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
 	return portType == QtNodes::PortType::In || portType == QtNodes::PortType::Out;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 void CompOp<DataType, Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
@@ -121,7 +119,7 @@ void CompOp<DataType, Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, i
 	UpdateOutput();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QtNodes::NodeValidationState CompOp<DataType, Op>::validationState() const
 {
 	if (!m_lhs || !m_rhs)
@@ -136,7 +134,7 @@ QtNodes::NodeValidationState CompOp<DataType, Op>::validationState() const
 	return QtNodes::NodeValidationState::Valid;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QString CompOp<DataType, Op>::validationMessage() const
 {
 	if (!m_lhs || !m_rhs)
@@ -151,7 +149,7 @@ QString CompOp<DataType, Op>::validationMessage() const
 	return QString();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 bool CompOp<DataType, Op>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
@@ -161,7 +159,7 @@ bool CompOp<DataType, Op>::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 void CompOp<DataType, Op>::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)

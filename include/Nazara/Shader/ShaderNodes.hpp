@@ -26,6 +26,10 @@ namespace Nz::ShaderAst
 	class AstExpressionVisitor;
 	class AstStatementVisitor;
 
+	struct Node;
+
+	using NodePtr = std::unique_ptr<Node>;
+
 	struct NAZARA_SHADER_API Node
 	{
 		Node() = default;

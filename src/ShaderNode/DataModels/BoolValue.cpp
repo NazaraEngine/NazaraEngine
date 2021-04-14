@@ -89,7 +89,7 @@ void BoolValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), checkbox);
 }
 
-Nz::ShaderNodes::NodePtr BoolValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr BoolValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);

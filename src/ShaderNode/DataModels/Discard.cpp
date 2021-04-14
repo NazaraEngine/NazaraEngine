@@ -16,14 +16,15 @@ ShaderNode(graph)
 	DisableCustomVariableName();
 }
 
-Nz::ShaderNodes::NodePtr Discard::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr Discard::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
-	using namespace Nz::ShaderBuilder;
-
 	assert(count == 1);
 	assert(outputIndex == 0);
 
-	return Branch(Equal(expressions[0], Constant(true)), Nz::ShaderBuilder::Discard(), nullptr);
+	using namespace Nz;
+
+	auto condition = ShaderBuilder::Binary(ShaderAst::BinaryType::CompEq, std::move(expressions[0]), ShaderBuilder::Constant(true));
+	return ShaderBuilder::Branch(std::move(condition), ShaderBuilder::Discard());
 }
 
 int Discard::GetOutputOrder() const

@@ -58,16 +58,13 @@ void CodeOutputWidget::Refresh()
 				enabledConditions = Nz::SetBit<Nz::UInt64>(enabledConditions, i);
 		}
 
-		Nz::ShaderAst shaderAst = m_shaderGraph.ToShader();
+		Nz::ShaderAst::StatementPtr shaderAst = m_shaderGraph.ToAst();
 
-		Nz::ShaderNodes::StatementPtr mainAst = m_shaderGraph.ToAst();
 		if (m_optimisationCheckbox->isChecked())
 		{
-			Nz::ShaderAstOptimizer optimiser;
-			mainAst = optimiser.Optimise(mainAst, shaderAst, enabledConditions);
+			Nz::ShaderAst::AstOptimizer optimiser;
+			shaderAst = optimiser.Optimise(shaderAst, enabledConditions);
 		}
-
-		shaderAst.AddFunction("main", mainAst);
 
 		Nz::ShaderWriter::States states;
 		states.enabledConditions = enabledConditions;
@@ -79,7 +76,7 @@ void CodeOutputWidget::Refresh()
 			case OutputLanguage::GLSL:
 			{
 				Nz::GlslWriter writer;
-				output = writer.Generate(shaderAst, states);
+				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), shaderAst, states);
 				break;
 			}
 

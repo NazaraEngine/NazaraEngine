@@ -35,7 +35,7 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-Nz::ShaderNodes::NodePtr ConditionalExpression::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr ConditionalExpression::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
@@ -46,7 +46,7 @@ Nz::ShaderNodes::NodePtr ConditionalExpression::BuildNode(Nz::ShaderNodes::Expre
 	const ShaderGraph& graph = GetGraph();
 
 	const auto& conditionEntry = graph.GetCondition(*m_currentConditionIndex);
-	return Nz::ShaderBuilder::ConditionalExpression(conditionEntry.name, expressions[0], expressions[1]);
+	return Nz::ShaderBuilder::ConditionalExpression(conditionEntry.name, std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString ConditionalExpression::caption() const

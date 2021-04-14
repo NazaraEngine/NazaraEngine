@@ -5,7 +5,6 @@
 
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/ShaderNodes.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
@@ -67,9 +66,8 @@ class ShaderGraph
 		void Load(const QJsonObject& data);
 		QJsonObject Save();
 
-		Nz::ShaderNodes::StatementPtr ToAst() const;
-		Nz::ShaderAst ToShader() const;
-		Nz::ShaderExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
+		Nz::ShaderAst::StatementPtr ToAst() const;
+		Nz::ShaderAst::ExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
 		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
 		void UpdateCondition(std::size_t conditionIndex, std::string condition);
@@ -147,12 +145,13 @@ class ShaderGraph
 		NazaraSignal(OnTypeUpdated, ShaderGraph*);
 
 		static QtNodes::NodeDataType ToNodeDataType(PrimitiveType type);
-		static Nz::ShaderExpressionType ToShaderExpressionType(PrimitiveType type);
-		static Nz::ShaderExpressionType ToShaderExpressionType(TextureType type);
+		static Nz::ShaderAst::ExpressionType ToShaderExpressionType(PrimitiveType type);
+		static Nz::ShaderAst::ExpressionType ToShaderExpressionType(TextureType type);
 		static Nz::ShaderStageType ToShaderStageType(ShaderType type);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
+		std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ToFunction() const;
 
 		mutable QtNodes::FlowScene m_flowScene;
 		std::vector<BufferEntry> m_buffers;

@@ -54,11 +54,8 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Output"), outputSelection);
 }
 
-Nz::ShaderNodes::NodePtr OutputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr OutputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
-	using namespace Nz::ShaderBuilder;
-	using namespace Nz::ShaderNodes;
-
 	assert(count == 1);
 	assert(outputIndex == 0);
 
@@ -66,9 +63,10 @@ Nz::ShaderNodes::NodePtr OutputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* 
 		throw std::runtime_error("no output");
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Output(outputEntry.name, ShaderGraph::ToShaderExpressionType(outputEntry.type)));
+	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("output"), { outputEntry.name });
 
-	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);
+	using namespace Nz;
+	return Nz::ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(output), std::move(expressions[0]));
 }
 
 std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*port*/)

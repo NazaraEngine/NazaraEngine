@@ -89,10 +89,15 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::IntrinsicExpression> operator()(ShaderAst::IntrinsicType intrinsicType, std::vector<ShaderAst::ExpressionPtr> parameters) const;
 		};
 
+		struct Multi
+		{
+			inline std::unique_ptr<ShaderAst::MultiStatement> operator()(std::vector<ShaderAst::StatementPtr> statements) const;
+		};
+
 		template<typename T>
 		struct NoParam
 		{
-			std::unique_ptr<T> operator()() const;
+			inline std::unique_ptr<T> operator()() const;
 		};
 
 		struct Return
@@ -121,6 +126,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::NoParam<ShaderAst::DiscardStatement> Discard;
 	constexpr Impl::Identifier Identifier;
 	constexpr Impl::Intrinsic Intrinsic;
+	constexpr Impl::Multi MultiStatement;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
 	constexpr Impl::Swizzle Swizzle;

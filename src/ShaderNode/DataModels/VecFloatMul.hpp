@@ -13,7 +13,7 @@ class VecFloatMul : public ShaderNode
 		VecFloatMul(ShaderGraph& graph);
 		~VecFloatMul() = default;
 
-		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override;
 		QString name() const override;

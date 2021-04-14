@@ -16,15 +16,15 @@ ShaderNode(graph)
 	DisableCustomVariableName();
 }
 
-Nz::ShaderNodes::NodePtr VecDecomposition::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr VecDecomposition::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 1);
 	assert(outputIndex < m_outputs.size());
 
-	using namespace Nz::ShaderBuilder;
-	using namespace Nz::ShaderNodes;
+	using namespace Nz;
 
-	return Nz::ShaderBuilder::Swizzle(expressions[0], static_cast<SwizzleComponent>(Nz::UnderlyingCast(SwizzleComponent::First) + outputIndex));
+	ShaderAst::SwizzleComponent swizzleComponent = static_cast<ShaderAst::SwizzleComponent>(Nz::UnderlyingCast(ShaderAst::SwizzleComponent::First) + outputIndex);
+	return ShaderBuilder::Swizzle(std::move(expressions[0]), { swizzleComponent });
 }
 
 QString VecDecomposition::caption() const

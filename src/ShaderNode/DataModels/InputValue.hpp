@@ -19,7 +19,7 @@ class InputValue : public ShaderNode
 
 		void BuildNodeEdition(QFormLayout* layout) override;
 
-		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override { return "Input"; }
 		QString name() const override { return "Input"; }

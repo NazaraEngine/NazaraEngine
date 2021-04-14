@@ -1,25 +1,23 @@
 #include <ShaderNode/DataModels/BinOp.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 BinOp<DataType, Op>::BinOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	UpdateOutput();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
-Nz::ShaderNodes::NodePtr BinOp<DataType, Op>::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
+Nz::ShaderAst::NodePtr BinOp<DataType, Op>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	using BuilderType = typename Nz::ShaderBuilder::template BinOpBuilder<Op>;
-	constexpr BuilderType builder;
-	return builder(expressions[0], expressions[1]);
+	return Nz::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QtNodes::NodeDataType BinOp<DataType, Op>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
@@ -27,7 +25,7 @@ QtNodes::NodeDataType BinOp<DataType, Op>::dataType(QtNodes::PortType /*portType
 	return DataType::Type();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 unsigned int BinOp<DataType, Op>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -41,14 +39,14 @@ unsigned int BinOp<DataType, Op>::nPorts(QtNodes::PortType portType) const
 	throw std::runtime_error("invalid port type");
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 std::shared_ptr<QtNodes::NodeData> BinOp<DataType, Op>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QString BinOp<DataType, Op>::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	switch (portType)
@@ -81,14 +79,14 @@ QString BinOp<DataType, Op>::portCaption(QtNodes::PortType portType, QtNodes::Po
 	return QString{};
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 bool BinOp<DataType, Op>::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
 	return portType == QtNodes::PortType::In || portType == QtNodes::PortType::Out;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 void BinOp<DataType, Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
@@ -105,7 +103,7 @@ void BinOp<DataType, Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, in
 	UpdateOutput();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QtNodes::NodeValidationState BinOp<DataType, Op>::validationState() const
 {
 	if (!m_lhs || !m_rhs)
@@ -120,7 +118,7 @@ QtNodes::NodeValidationState BinOp<DataType, Op>::validationState() const
 	return QtNodes::NodeValidationState::Valid;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 QString BinOp<DataType, Op>::validationMessage() const
 {
 	if (!m_lhs || !m_rhs)
@@ -135,7 +133,7 @@ QString BinOp<DataType, Op>::validationMessage() const
 	return QString();
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 bool BinOp<DataType, Op>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
@@ -145,7 +143,7 @@ bool BinOp<DataType, Op>::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 void BinOp<DataType, Op>::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)
