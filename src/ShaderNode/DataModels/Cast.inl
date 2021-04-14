@@ -18,7 +18,7 @@ ShaderNode(graph)
 }
 
 template<std::size_t ToComponentCount>
-Nz::ShaderNodes::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(m_input);
 	assert(count == 1);
@@ -30,29 +30,27 @@ Nz::ShaderNodes::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderNodes::E
 	{
 		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
 
-		std::array<Nz::ShaderNodes::ExpressionPtr, 4> expr;
-		expr[0] = expressions[0];
+		std::vector<Nz::ShaderAst::ExpressionPtr> params;
+		params.emplace_back(std::move(params[0]));
 		for (std::size_t i = 0; i < overflowComponentCount; ++i)
-			expr[i + 1] = Nz::ShaderBuilder::Constant(m_overflowComponents[i]);
+			params.emplace_back(Nz::ShaderBuilder::Constant(m_overflowComponents[i]));
 
-		constexpr auto ExpressionType = VecExpressionType<ToComponentCount>;
-
-		return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), 1 + overflowComponentCount);
+		return Nz::ShaderBuilder::Cast(Nz::ShaderAst::VectorType{ ToComponentCount, Nz::ShaderAst::PrimitiveType::Float32 }, std::move(params));
 	}
 	else if (ToComponentCount < fromComponentCount)
 	{
-		std::array<Nz::ShaderNodes::SwizzleComponent, ToComponentCount> swizzleComponents;
+		std::array<Nz::ShaderAst::SwizzleComponent, ToComponentCount> swizzleComponents;
 		for (std::size_t i = 0; i < ToComponentCount; ++i)
-			swizzleComponents[i] = static_cast<Nz::ShaderNodes::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderNodes::SwizzleComponent::First) + i);
+			swizzleComponents[i] = static_cast<Nz::ShaderAst::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderAst::SwizzleComponent::First) + i);
 
 		return std::apply([&](auto... components)
-			{
-				std::initializer_list<Nz::ShaderNodes::SwizzleComponent> componentList{ components... };
-				return Nz::ShaderBuilder::Swizzle(expressions[0], componentList);
-			}, swizzleComponents);
+		{
+			std::initializer_list<Nz::ShaderAst::SwizzleComponent> componentList{ components... };
+			return Nz::ShaderBuilder::Swizzle(std::move(expressions[0]), componentList);
+		}, swizzleComponents);
 	}
 	else
-		return expressions[0]; //< no-op
+		return std::move(expressions[0]); //< no-op
 }
 
 template<std::size_t ToComponentCount>
@@ -110,6 +108,7 @@ QtNodes::NodeDataType CastVec<ToComponentCount>::dataType(QtNodes::PortType port
 	{
 		case QtNodes::PortType::In:  return VecData::Type();
 		case QtNodes::PortType::Out: return VecData::Type();
+		default: break;
 	}
 
 	assert(false);

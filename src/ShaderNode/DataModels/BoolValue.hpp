@@ -17,7 +17,7 @@ class BoolValue : public ShaderNode
 		BoolValue(ShaderGraph& graph);
 		~BoolValue() = default;
 
-		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 		void BuildNodeEdition(QFormLayout* layout) override;
 
 		QString caption() const override;

@@ -18,7 +18,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 	public:
 		ShaderNode(ShaderGraph& graph);
 
-		virtual Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const = 0;
+		virtual Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const = 0;
 		virtual void BuildNodeEdition(QFormLayout* layout);
 
 		inline void DisablePreview();

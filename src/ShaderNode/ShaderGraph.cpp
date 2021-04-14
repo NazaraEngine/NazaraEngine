@@ -1,5 +1,7 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
+#include <Nazara/Shader/ShaderAstCloner.hpp>
 #include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <ShaderNode/DataModels/BinOp.hpp>
 #include <ShaderNode/DataModels/BoolValue.hpp>
@@ -44,6 +46,12 @@ namespace
 	{
 		auto creator = [&] { return std::make_unique<T>(graph); };
 		registry->registerModel<T>(category, std::move(creator));
+	}
+
+	template<typename T, typename U>
+	std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
+	{
+		return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
 	}
 }
 
@@ -442,157 +450,29 @@ QJsonObject ShaderGraph::Save()
 	return sceneJson;
 }
 
-Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst() const
+Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 {
-	std::vector<Nz::ShaderNodes::StatementPtr> statements;
+	std::vector<Nz::ShaderAst::StatementPtr> statements;
 
-	using Key = QPair<QUuid, std::size_t>;
-	auto BuildKey = [](QUuid uuid, std::size_t index)
+	// Declare all structures
+	for (const auto& structInfo : m_structs)
 	{
-		return Key(uuid, index);
-	};
+		Nz::ShaderAst::StructDescription structDesc;
+		structDesc.layout = Nz::StructLayout_Std140;
+		structDesc.name = structInfo.name;
 
-	QHash<Key, unsigned int> usageCount;
-
-	std::function<void(QtNodes::Node*, std::size_t)> DetectVariables;
-	DetectVariables = [&](QtNodes::Node* node, std::size_t outputIndex)
-	{
-		auto it = usageCount.find(BuildKey(node->id(), outputIndex));
-		if (it == usageCount.end())
+		for (const auto& memberInfo : structInfo.members)
 		{
-			for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
-			{
-				for (const auto& [uuid, conn] : connectionSet)
-				{
-					DetectVariables(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
-				}
-			}
-
-			it = usageCount.insert(BuildKey(node->id(), outputIndex), 0);
+			auto& structMember = structDesc.members.emplace_back();
+			structMember.name = memberInfo.name;
+			structMember.type = ToShaderExpressionType(memberInfo.type);
 		}
 
-		(*it)++;
-	};
-
-	std::vector<QtNodes::Node*> outputNodes;
-
-	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
-	{
-		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
-		{
-			DetectVariables(node, 0);
-			outputNodes.push_back(node);
-		}
-	});
-
-	QHash<Key, Nz::ShaderNodes::ExpressionPtr> variableExpressions;
-
-	unsigned int varCount = 0;
-	std::unordered_set<std::string> usedVariableNames;
-
-	std::function<Nz::ShaderNodes::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
-	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> Nz::ShaderNodes::NodePtr
-	{
-		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
-		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
-			throw std::runtime_error(shaderNode->validationMessage().toStdString());
-
-		qDebug() << shaderNode->name() << node->id();
-		if (auto it = variableExpressions.find(BuildKey(node->id(), portIndex)); it != variableExpressions.end())
-			return *it;
-
-		auto it = usageCount.find(BuildKey(node->id(), portIndex));
-		assert(it != usageCount.end());
-
-		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
-		Nz::StackArray<Nz::ShaderNodes::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderNodes::ExpressionPtr, inputCount);
-		std::size_t i = 0;
-
-		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
-		{
-			for (const auto& [uuid, conn] : connectionSet)
-			{
-				assert(i < expressions.size());
-				Nz::ShaderNodes::NodePtr inputNode = HandleNode(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
-				if (inputNode->IsStatement())
-					throw std::runtime_error("unexpected statement");
-
-				expressions[i] = std::static_pointer_cast<Nz::ShaderNodes::Expression>(inputNode);
-				i++;
-			}
-		}
-
-		auto astNode = shaderNode->BuildNode(expressions.data(), expressions.size(), portIndex);
-
-		const std::string& variableName = shaderNode->GetVariableName();
-		if (*it > 1 || !variableName.empty())
-		{
-			if (astNode->IsStatement())
-				throw std::runtime_error("unexpected statement");
-
-			auto expression = std::static_pointer_cast<Nz::ShaderNodes::Expression>(astNode);
-
-			Nz::ShaderNodes::ExpressionPtr varExpression;
-			if (Nz::GetExpressionCategory(expression) == Nz::ShaderNodes::ExpressionCategory::RValue)
-			{
-				std::string name;
-				if (variableName.empty())
-					name = "var" + std::to_string(varCount++);
-				else
-					name = variableName;
-
-				if (usedVariableNames.find(name) != usedVariableNames.end())
-					throw std::runtime_error("duplicate variable found: " + name);
-
-				usedVariableNames.insert(name);
-
-				auto variable = Nz::ShaderBuilder::Local(std::move(name), expression->GetExpressionType());
-				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, std::move(expression)));
-
-				varExpression = Nz::ShaderBuilder::Identifier(variable);
-			}
-			else
-				varExpression = std::move(expression);
-
-			variableExpressions.insert(BuildKey(node->id(), portIndex), varExpression);
-
-			return varExpression;
-		}
-		else
-			return astNode;
-	};
-
-	std::sort(outputNodes.begin(), outputNodes.end(), [](QtNodes::Node* lhs, QtNodes::Node* rhs)
-	{
-		ShaderNode* leftNode = static_cast<ShaderNode*>(lhs->nodeDataModel());
-		ShaderNode* rightNode = static_cast<ShaderNode*>(rhs->nodeDataModel());
-
-		return leftNode->GetOutputOrder() < rightNode->GetOutputOrder();
-	});
-
-	for (QtNodes::Node* node : outputNodes)
-	{
-		auto astNode = HandleNode(node, 0);
-		if (!astNode->IsStatement())
-			statements.emplace_back(Nz::ShaderBuilder::ExprStatement(std::static_pointer_cast<Nz::ShaderNodes::Expression>(astNode)));
-		else
-			statements.emplace_back(std::static_pointer_cast<Nz::ShaderNodes::Statement>(astNode));
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
 	}
 
-	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
-}
-
-Nz::ShaderAst ShaderGraph::ToShader() const
-{
-	Nz::ShaderAst shader(ShaderGraph::ToShaderStageType(m_type)); //< FIXME
-	for (const auto& condition : m_conditions)
-		shader.AddCondition(condition.name);
-
-	for (const auto& input : m_inputs)
-		shader.AddInput(input.name, ToShaderExpressionType(input.type), input.locationIndex);
-
-	for (const auto& output : m_outputs)
-		shader.AddOutput(output.name, ToShaderExpressionType(output.type), output.locationIndex);
+	// External block
+	auto external = std::make_unique<Nz::ShaderAst::DeclareExternalStatement>();
 
 	for (const auto& buffer : m_buffers)
 	{
@@ -600,46 +480,74 @@ Nz::ShaderAst ShaderGraph::ToShader() const
 			throw std::runtime_error("buffer " + buffer.name + " references out-of-bounds struct #" + std::to_string(buffer.structIndex));
 
 		const auto& structInfo = m_structs[buffer.structIndex];
-		shader.AddUniform(buffer.name, structInfo.name, buffer.bindingIndex, Nz::ShaderNodes::MemoryLayout::Std140);
+
+		auto& extVar = external->externalVars.emplace_back();
+		extVar.bindingIndex = buffer.bindingIndex;
+		extVar.name = buffer.name;
+		extVar.type = Nz::ShaderAst::IdentifierType{ structInfo.name };
 	}
 
-	for (const auto& uniform : m_textures)
-		shader.AddUniform(uniform.name, ToShaderExpressionType(uniform.type), uniform.bindingIndex, {});
-
-	for (const auto& s : m_structs)
+	for (const auto& texture : m_textures)
 	{
-		std::vector<Nz::ShaderAst::StructMember> members;
-		for (const auto& sMember : s.members)
+		auto& extVar = external->externalVars.emplace_back();
+		extVar.bindingIndex = texture.bindingIndex;
+		extVar.name = texture.name;
+		extVar.type = ToShaderExpressionType(texture.type);
+	}
+
+	if (!external->externalVars.empty())
+		statements.push_back(std::move(external));
+
+	// Inputs / outputs
+	if (!m_inputs.empty())
+	{
+		Nz::ShaderAst::StructDescription structDesc;
+		structDesc.name = "InputData";
+
+		for (const auto& input : m_inputs)
 		{
-			auto& member = members.emplace_back();
-			member.name = sMember.name;
-
-			std::visit([&](auto&& arg)
-			{
-				using T = std::decay_t<decltype(arg)>;
-				if constexpr (std::is_same_v<T, PrimitiveType>)
-					member.type = ToShaderExpressionType(arg);
-				else if constexpr (std::is_same_v<T, std::size_t>)
-				{
-					if (arg >= m_structs.size())
-						throw std::runtime_error("struct " + s.name + " references out-of-bounds struct #" + std::to_string(arg));
-
-					member.type = m_structs[arg].name;
-				}
-				else
-					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-			}, sMember.type);
+			auto& structMember = structDesc.members.emplace_back();
+			structMember.name = input.name;
+			structMember.type = ToShaderExpressionType(input.type);
+			structMember.locationIndex = input.locationIndex;
 		}
 
-		shader.AddStruct(s.name, std::move(members));
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
 	}
 
-	return shader;
+	Nz::ShaderAst::ExpressionType returnType;
+	if (!m_outputs.empty())
+	{
+		Nz::ShaderAst::StructDescription structDesc;
+		structDesc.name = "OutputData";
+
+		for (const auto& output : m_outputs)
+		{
+			auto& structMember = structDesc.members.emplace_back();
+			structMember.name = output.name;
+			structMember.type = ToShaderExpressionType(output.type);
+			structMember.locationIndex = output.locationIndex;
+		}
+
+		if (m_type == ShaderType::Vertex)
+		{
+			auto& position = structDesc.members.emplace_back();
+			position.name = "position";
+			position.type = Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
+		}
+
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+	}
+
+	// Functions
+	statements.push_back(ToFunction());
+
+	return Nz::ShaderBuilder::MultiStatement(std::move(statements));
 }
 
-Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
+Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
 {
-	return std::visit([&](auto&& arg) -> Nz::ShaderExpressionType
+	return std::visit([&](auto&& arg) -> Nz::ShaderAst::ExpressionType
 	{
 		using T = std::decay_t<decltype(arg)>;
 		if constexpr (std::is_same_v<T, PrimitiveType>)
@@ -648,7 +556,7 @@ Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<
 		{
 			assert(arg < m_structs.size());
 			const auto& s = m_structs[arg];
-			return s.name;
+			return Nz::ShaderAst::IdentifierType{ s.name };
 		}
 		else
 			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
@@ -763,27 +671,27 @@ QtNodes::NodeDataType ShaderGraph::ToNodeDataType(PrimitiveType type)
 	throw std::runtime_error("Unhandled input type");
 }
 
-Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
+Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
 {
 	switch (type)
 	{
-		case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
-		case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
-		case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
-		case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
-		case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
-		case PrimitiveType::Mat4x4: return Nz::ShaderNodes::BasicType::Mat4x4;
+		case PrimitiveType::Bool:   return Nz::ShaderAst::PrimitiveType::Boolean;
+		case PrimitiveType::Float1: return Nz::ShaderAst::PrimitiveType::Float32;
+		case PrimitiveType::Float2: return Nz::ShaderAst::VectorType{ 2, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Float3: return Nz::ShaderAst::VectorType{ 3, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Float4: return Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Mat4x4: return Nz::ShaderAst::MatrixType{ 4, 4, Nz::ShaderAst::PrimitiveType::Float32 };
 	}
 
 	assert(false);
 	throw std::runtime_error("Unhandled primitive type");
 }
 
-Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
+Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
 {
 	switch (type)
 	{
-		case TextureType::Sampler2D:   return Nz::ShaderNodes::BasicType::Sampler2D;
+		case TextureType::Sampler2D: return Nz::ShaderAst::SamplerType{ Nz::ImageType_2D, Nz::ShaderAst::PrimitiveType::Float32 };
 	}
 
 	assert(false);
@@ -878,4 +786,159 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	RegisterShaderNode<VecSub>(*this, registry, "Vector operations");
 
 	return registry;
+}
+
+std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction() const
+{
+	std::vector<Nz::ShaderAst::StatementPtr> statements;
+
+	std::vector<Nz::ShaderAst::DeclareFunctionStatement::Parameter> parameters;
+	if (!m_inputs.empty())
+	{
+		parameters.push_back({
+			"input",
+			Nz::ShaderAst::IdentifierType{ "InputData" }
+			});
+	}
+
+	Nz::ShaderAst::ExpressionType returnType;
+	if (!m_outputs.empty())
+	{
+		returnType = Nz::ShaderAst::IdentifierType{ "OutputData" };
+
+		statements.push_back(Nz::ShaderBuilder::DeclareVariable("output", returnType));
+	}
+
+	using Key = QPair<QUuid, std::size_t>;
+	auto BuildKey = [](QUuid uuid, std::size_t index)
+	{
+		return Key(uuid, index);
+	};
+
+	std::map<Key, unsigned int> usageCount;
+
+	std::function<void(QtNodes::Node*, std::size_t)> DetectVariables;
+	DetectVariables = [&](QtNodes::Node* node, std::size_t outputIndex)
+	{
+		auto it = usageCount.find(BuildKey(node->id(), outputIndex));
+		if (it == usageCount.end())
+		{
+			for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+			{
+				for (const auto& [uuid, conn] : connectionSet)
+				{
+					DetectVariables(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
+				}
+			}
+
+			it = usageCount.emplace(BuildKey(node->id(), outputIndex), 0).first;
+		}
+
+		it->second++;
+	};
+
+	std::vector<QtNodes::Node*> outputNodes;
+
+	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+	{
+		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
+		{
+			DetectVariables(node, 0);
+			outputNodes.push_back(node);
+		}
+	});
+
+	std::map<Key, Nz::ShaderAst::ExpressionPtr> variableExpressions;
+
+	unsigned int varCount = 0;
+	std::unordered_set<std::string> usedVariableNames;
+
+	std::function<Nz::ShaderAst::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
+	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> Nz::ShaderAst::NodePtr
+	{
+		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
+		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
+			throw std::runtime_error(shaderNode->validationMessage().toStdString());
+
+		qDebug() << shaderNode->name() << node->id();
+		if (auto it = variableExpressions.find(BuildKey(node->id(), portIndex)); it != variableExpressions.end())
+			return Nz::ShaderAst::Clone(it->second);
+
+		auto it = usageCount.find(BuildKey(node->id(), portIndex));
+		assert(it != usageCount.end());
+
+		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
+		Nz::StackArray<Nz::ShaderAst::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderAst::ExpressionPtr, inputCount);
+		std::size_t i = 0;
+
+		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+		{
+			for (const auto& [uuid, conn] : connectionSet)
+			{
+				assert(i < expressions.size());
+				Nz::ShaderAst::NodePtr inputNode = HandleNode(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
+				if (!Nz::ShaderAst::IsExpression(inputNode->GetType()))
+					throw std::runtime_error("unexpected statement");
+
+				expressions[i] = static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(inputNode));
+				i++;
+			}
+		}
+
+		auto astNode = shaderNode->BuildNode(expressions.data(), expressions.size(), portIndex);
+		if (!Nz::ShaderAst::IsExpression(astNode->GetType()))
+			return astNode;
+
+		Nz::ShaderAst::ExpressionPtr expression = static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(astNode));
+
+		const std::string& variableName = shaderNode->GetVariableName();
+		if (it->second > 1 || !variableName.empty())
+		{
+			Nz::ShaderAst::ExpressionPtr varExpression;
+			if (Nz::ShaderAst::GetExpressionCategory(*expression) == Nz::ShaderAst::ExpressionCategory::RValue)
+			{
+				std::string name;
+				if (variableName.empty())
+					name = "var" + std::to_string(varCount++);
+				else
+					name = variableName;
+
+				if (usedVariableNames.find(name) != usedVariableNames.end())
+					throw std::runtime_error("duplicate variable found: " + name);
+
+				usedVariableNames.insert(name);
+
+				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(name, std::move(expression)));
+
+				varExpression = Nz::ShaderBuilder::Identifier(name);
+			}
+			else
+				varExpression = std::move(expression);
+
+			variableExpressions[BuildKey(node->id(), portIndex)] = Nz::ShaderAst::Clone(varExpression);
+
+			return varExpression;
+		}
+		else
+			return expression;
+	};
+
+	std::sort(outputNodes.begin(), outputNodes.end(), [](QtNodes::Node* lhs, QtNodes::Node* rhs)
+	{
+		ShaderNode* leftNode = static_cast<ShaderNode*>(lhs->nodeDataModel());
+		ShaderNode* rightNode = static_cast<ShaderNode*>(rhs->nodeDataModel());
+
+		return leftNode->GetOutputOrder() < rightNode->GetOutputOrder();
+	});
+
+	for (QtNodes::Node* node : outputNodes)
+	{
+		auto astNode = HandleNode(node, 0);
+		if (!Nz::ShaderAst::IsStatement(astNode->GetType()))
+			statements.emplace_back(Nz::ShaderBuilder::ExpressionStatement(static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(astNode))));
+		else
+			statements.emplace_back(static_unique_pointer_cast<Nz::ShaderAst::Statement>(std::move(astNode)));
+	}
+
+	return Nz::ShaderBuilder::DeclareFunction(ToShaderStageType(m_type), "main", std::move(parameters), std::move(statements), std::move(returnType));
 }

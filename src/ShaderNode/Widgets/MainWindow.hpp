@@ -9,11 +9,6 @@
 
 class NodeEditor;
 
-namespace Nz
-{
-	class ShaderAst;
-}
-
 class MainWindow : public QMainWindow
 {
 	public:

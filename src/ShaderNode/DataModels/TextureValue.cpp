@@ -110,7 +110,7 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Texture"), textureSelection);
 }
 
-Nz::ShaderNodes::NodePtr TextureValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr TextureValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	if (!m_currentTextureIndex)
 		throw std::runtime_error("invalid texture input");
@@ -119,19 +119,7 @@ Nz::ShaderNodes::NodePtr TextureValue::BuildNode(Nz::ShaderNodes::ExpressionPtr*
 	assert(outputIndex == 0);
 
 	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
-
-	Nz::ShaderNodes::BasicType expression = [&]
-	{
-		switch (textureEntry.type)
-		{
-			case TextureType::Sampler2D: return Nz::ShaderNodes::BasicType::Sampler2D;
-		}
-
-		assert(false);
-		throw std::runtime_error("Unhandled texture type");
-	}();
-
-	return Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Uniform(textureEntry.name, expression));
+	return Nz::ShaderBuilder::Identifier(textureEntry.name);
 }
 
 auto TextureValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType

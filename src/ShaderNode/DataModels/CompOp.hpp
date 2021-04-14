@@ -8,14 +8,14 @@
 #include <ShaderNode/DataTypes/FloatData.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 
-template<typename DataType, Nz::ShaderNodes::BinaryType Op>
+template<typename DataType, Nz::ShaderAst::BinaryType Op>
 class CompOp : public ShaderNode
 {
 	public:
 		CompOp(ShaderGraph& graph);
 		~CompOp() = default;
 
-		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		virtual QString GetOperationString() const = 0;
 
@@ -46,60 +46,60 @@ class CompOp : public ShaderNode
 
 
 template<typename DataType>
-class CompEq : public CompOp<DataType, Nz::ShaderNodes::BinaryType::CompEq>
+class CompEq : public CompOp<DataType, Nz::ShaderAst::BinaryType::CompEq>
 {
 	public:
-		using CompOp<DataType, Nz::ShaderNodes::BinaryType::CompEq>::CompOp;
+		using CompOp<DataType, Nz::ShaderAst::BinaryType::CompEq>::CompOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
 template<typename DataType>
-class CompGe : public CompOp<DataType, Nz::ShaderNodes::BinaryType::CompGe>
+class CompGe : public CompOp<DataType, Nz::ShaderAst::BinaryType::CompGe>
 {
 	public:
-		using CompOp<DataType, Nz::ShaderNodes::BinaryType::CompGe>::CompOp;
+		using CompOp<DataType, Nz::ShaderAst::BinaryType::CompGe>::CompOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
 template<typename DataType>
-class CompGt : public CompOp<DataType, Nz::ShaderNodes::BinaryType::CompGt>
+class CompGt : public CompOp<DataType, Nz::ShaderAst::BinaryType::CompGt>
 {
 	public:
-		using CompOp<DataType, Nz::ShaderNodes::BinaryType::CompGt>::CompOp;
+		using CompOp<DataType, Nz::ShaderAst::BinaryType::CompGt>::CompOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
 template<typename DataType>
-class CompLe : public CompOp<DataType, Nz::ShaderNodes::BinaryType::CompLe>
+class CompLe : public CompOp<DataType, Nz::ShaderAst::BinaryType::CompLe>
 {
 	public:
-		using CompOp<DataType, Nz::ShaderNodes::BinaryType::CompLe>::CompOp;
+		using CompOp<DataType, Nz::ShaderAst::BinaryType::CompLe>::CompOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
 template<typename DataType>
-class CompLt : public CompOp<DataType, Nz::ShaderNodes::BinaryType::CompLt>
+class CompLt : public CompOp<DataType, Nz::ShaderAst::BinaryType::CompLt>
 {
 	public:
-		using CompOp<DataType, Nz::ShaderNodes::BinaryType::CompLt>::CompOp;
+		using CompOp<DataType, Nz::ShaderAst::BinaryType::CompLt>::CompOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
 template<typename DataType>
-class CompNe : public CompOp<DataType, Nz::ShaderNodes::BinaryType::CompNe>
+class CompNe : public CompOp<DataType, Nz::ShaderAst::BinaryType::CompNe>
 {
 	public:
-		using CompOp<DataType, Nz::ShaderNodes::BinaryType::CompNe>::CompOp;
+		using CompOp<DataType, Nz::ShaderAst::BinaryType::CompNe>::CompOp;
 
 		void ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;

@@ -109,7 +109,7 @@ void InputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Input"), inputSelection);
 }
 
-Nz::ShaderNodes::NodePtr InputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr InputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
@@ -118,7 +118,7 @@ Nz::ShaderNodes::NodePtr InputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* /
 		throw std::runtime_error("no input");
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
-	return Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Input(inputEntry.name, ShaderGraph::ToShaderExpressionType(inputEntry.type)));
+	return Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("input"), { inputEntry.name });
 }
 
 auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType

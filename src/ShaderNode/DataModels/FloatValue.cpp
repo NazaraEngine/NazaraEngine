@@ -89,7 +89,7 @@ void FloatValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), spinbox);
 }
 
-Nz::ShaderNodes::NodePtr FloatValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr FloatValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
