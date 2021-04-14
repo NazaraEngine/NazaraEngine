@@ -128,6 +128,15 @@ namespace Nz::ShaderBuilder
 		return declareStructNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::DeclareVariableStatement> Nz::ShaderBuilder::Impl::DeclareVariable::operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const
+	{
+		auto declareVariableNode = std::make_unique<ShaderAst::DeclareVariableStatement>();
+		declareVariableNode->varName = std::move(name);
+		declareVariableNode->initialExpression = std::move(initialValue);
+
+		return declareVariableNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::DeclareVariableStatement> Nz::ShaderBuilder::Impl::DeclareVariable::operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue) const
 	{
 		auto declareVariableNode = std::make_unique<ShaderAst::DeclareVariableStatement>();

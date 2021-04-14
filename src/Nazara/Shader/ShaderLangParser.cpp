@@ -638,14 +638,18 @@ namespace Nz::ShaderLang
 		std::string variableName = ParseIdentifierAsName();
 		RegisterVariable(variableName);
 
-		Expect(Advance(), TokenType::Colon);
+		ShaderAst::ExpressionType variableType = ShaderAst::NoType{};
+		if (Peek().type == TokenType::Colon)
+		{
+			Expect(Advance(), TokenType::Colon);
 
-		ShaderAst::ExpressionType variableType = ParseType();
+			variableType = ParseType();
+		}
 
 		ShaderAst::ExpressionPtr expression;
-		if (Peek().type == TokenType::Assign)
+		if (IsNoType(variableType) || Peek().type == TokenType::Assign)
 		{
-			Consume();
+			Expect(Advance(), TokenType::Assign);
 			expression = ParseExpression();
 		}
 
