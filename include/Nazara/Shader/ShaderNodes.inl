@@ -12,6 +12,30 @@ namespace Nz::ShaderAst
 		assert(expr.cachedExpressionType);
 		return expr.cachedExpressionType.value();
 	}
+
+	inline bool IsExpression(NodeType nodeType)
+	{
+		switch (nodeType)
+		{
+#define NAZARA_SHADERAST_EXPRESSION(Node) case NodeType::Node: return true;
+#include <Nazara/Shader/ShaderAstNodes.hpp>
+
+		default:
+			return false;
+		}
+	}
+
+	inline bool IsStatement(NodeType nodeType)
+	{
+		switch (nodeType)
+		{
+#define NAZARA_SHADERAST_STATEMENT(Node) case NodeType::Node: return true;
+#include <Nazara/Shader/ShaderAstNodes.hpp>
+
+		default:
+			return false;
+		}
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>
