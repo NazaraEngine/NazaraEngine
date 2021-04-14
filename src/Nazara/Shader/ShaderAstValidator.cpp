@@ -589,7 +589,15 @@ namespace Nz::ShaderAst
 	{
 		assert(m_context);
 
-		//TODO: check members attributes
+		std::unordered_set<std::string> declaredMembers;
+
+		for (auto& member : node.description.members)
+		{
+			if (declaredMembers.find(member.name) != declaredMembers.end())
+				throw AstError{ "struct member " + member.name + " found multiple time" };
+
+			declaredMembers.insert(member.name);
+		}
 
 		AstScopedVisitor::Visit(node);
 	}
