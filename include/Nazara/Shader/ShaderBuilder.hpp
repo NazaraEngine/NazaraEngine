@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/ShaderNodes.hpp>
 #include <memory>
+#include <optional>
 
 namespace Nz::ShaderBuilder
 {
@@ -59,13 +60,12 @@ namespace Nz::ShaderBuilder
 		struct DeclareFunction
 		{
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
-			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::vector<ShaderAst::Attribute> attributes, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
 		};
 
 		struct DeclareStruct
 		{
 			inline std::unique_ptr<ShaderAst::DeclareStructStatement> operator()(ShaderAst::StructDescription description) const;
-			inline std::unique_ptr<ShaderAst::DeclareStructStatement> operator()(std::vector<ShaderAst::Attribute> attributes, ShaderAst::StructDescription description) const;
 		};
 
 		struct DeclareVariable

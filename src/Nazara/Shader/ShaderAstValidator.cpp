@@ -11,14 +11,6 @@
 
 namespace Nz::ShaderAst
 {
-	namespace
-	{
-		std::unordered_map<std::string, ShaderStageType> entryPoints = {
-			{ "frag", ShaderStageType::Fragment },
-			{ "vert", ShaderStageType::Vertex },
-		};
-	}
-
 	struct AstError
 	{
 		std::string errMsg;
@@ -28,7 +20,7 @@ namespace Nz::ShaderAst
 	{
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::unordered_set<std::string> declaredExternalVar;
-		std::unordered_set<long long> usedBindingIndexes;
+		std::unordered_set<unsigned int> usedBindingIndexes;
 	};
 
 	bool AstValidator::Validate(StatementPtr& node, std::string* error)
@@ -552,44 +544,15 @@ namespace Nz::ShaderAst
 
 	void AstValidator::Visit(DeclareExternalStatement& node)
 	{
-		if (!node.attributes.empty())
-			throw AstError{ "unhandled attribute for external block" };
-
-		/*for (const auto& [attributeType, arg] : node.attributes)
-		{
-			switch (attributeType)
-			{
-				default:
-					throw AstError{ "unhandled attribute for external block" };
-			}
-		}*/
-
 		for (const auto& extVar : node.externalVars)
 		{
-			bool hasBinding = false;
-			for (const auto& [attributeType, arg] : extVar.attributes)
+			if (extVar.bindingIndex)
 			{
-				switch (attributeType)
-				{
-					case AttributeType::Binding:
-					{
-						if (hasBinding)
-							throw AstError{ "attribute binding must be present once" };
+				unsigned int bindingIndex = extVar.bindingIndex.value();
+				if (m_context->usedBindingIndexes.find(bindingIndex) != m_context->usedBindingIndexes.end())
+					throw AstError{ "Binding #" + std::to_string(bindingIndex) + " is already in use" };
 
-						if (!std::holds_alternative<long long>(arg))
-							throw AstError{ "attribute binding requires a string parameter" };
-
-						long long bindingIndex = std::get<long long>(arg);
-						if (m_context->usedBindingIndexes.find(bindingIndex) != m_context->usedBindingIndexes.end())
-							throw AstError{ "Binding #" + std::to_string(bindingIndex) + " is already in use" };
-
-						m_context->usedBindingIndexes.insert(bindingIndex);
-						break;
-					}
-
-					default:
-						throw AstError{ "unhandled attribute for external variable" };
-				}
+				m_context->usedBindingIndexes.insert(bindingIndex);
 			}
 
 			if (m_context->declaredExternalVar.find(extVar.name) != m_context->declaredExternalVar.end())
@@ -603,42 +566,17 @@ namespace Nz::ShaderAst
 
 	void AstValidator::Visit(DeclareFunctionStatement& node)
 	{
-		bool hasEntry = false;
-		for (const auto& [attributeType, arg] : node.attributes)
+		if (node.entryStage)
 		{
-			switch (attributeType)
-			{
-				case AttributeType::Entry:
-				{
-					if (hasEntry)
-						throw AstError{ "attribute entry must be present once" };
+			ShaderStageType stageType = *node.entryStage;
 
-					if (!std::holds_alternative<std::string>(arg))
-						throw AstError{ "attribute entry requires a string parameter" };
+			if (m_context->entryFunctions[UnderlyingCast(stageType)])
+				throw AstError{ "the same entry type has been defined multiple times" };
 
-					const std::string& argStr = std::get<std::string>(arg);
+			m_context->entryFunctions[UnderlyingCast(stageType)] = &node;
 
-					auto it = entryPoints.find(argStr);
-					if (it == entryPoints.end())
-						throw AstError{ "invalid parameter " + argStr + " for entry attribute" };
-
-					ShaderStageType stageType = it->second;
-
-					if (m_context->entryFunctions[UnderlyingCast(stageType)])
-						throw AstError{ "the same entry type has been defined multiple times" };
-
-					m_context->entryFunctions[UnderlyingCast(it->second)] = &node;
-
-					if (node.parameters.size() > 1)
-						throw AstError{ "entry functions can either take one struct parameter or no parameter" };
-
-					hasEntry = true;
-					break;
-				}
-
-				default:
-					throw AstError{ "unhandled attribute for function" };
-			}
+			if (node.parameters.size() > 1)
+				throw AstError{ "entry functions can either take one struct parameter or no parameter" };
 		}
 
 		for (auto& statement : node.statements)

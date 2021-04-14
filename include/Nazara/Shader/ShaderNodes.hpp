@@ -210,13 +210,12 @@ namespace Nz::ShaderAst
 
 		struct ExternalVar
 		{
+			std::optional<unsigned int> bindingIndex;
 			std::string name;
-			std::vector<Attribute> attributes;
 			ExpressionType type;
 		};
 
 		std::optional<std::size_t> varIndex;
-		std::vector<Attribute> attributes;
 		std::vector<ExternalVar> externalVars;
 	};
 
@@ -231,10 +230,10 @@ namespace Nz::ShaderAst
 			ExpressionType type;
 		};
 
+		std::optional<ShaderStageType> entryStage;
 		std::optional<std::size_t> funcIndex;
 		std::optional<std::size_t> varIndex;
 		std::string name;
-		std::vector<Attribute> attributes;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
 		ExpressionType returnType;
@@ -246,7 +245,6 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> structIndex;
-		std::vector<Attribute> attributes;
 		StructDescription description;
 	};
 

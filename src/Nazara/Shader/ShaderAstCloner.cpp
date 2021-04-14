@@ -45,7 +45,6 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareExternalStatement& node)
 	{
 		auto clone = std::make_unique<DeclareExternalStatement>();
-		clone->attributes = node.attributes;
 		clone->externalVars = node.externalVars;
 		clone->varIndex = node.varIndex;
 
@@ -55,7 +54,7 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
-		clone->attributes = node.attributes;
+		clone->entryStage = node.entryStage;
 		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;
 		clone->parameters = node.parameters;
