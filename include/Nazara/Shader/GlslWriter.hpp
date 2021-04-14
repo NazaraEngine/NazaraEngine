@@ -29,7 +29,8 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			std::string Generate(ShaderStageType shaderStage, ShaderAst::StatementPtr& shader, const States& conditions = {});
+			std::string Generate(ShaderAst::StatementPtr& shader, const States& conditions = {});
+			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::StatementPtr& shader, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 
