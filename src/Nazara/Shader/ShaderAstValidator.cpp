@@ -594,6 +594,21 @@ namespace Nz::ShaderAst
 		AstScopedVisitor::Visit(node);
 	}
 
+	void AstValidator::Visit(DeclareVariableStatement& node)
+	{
+		if (IsNoType(node.varType))
+		{
+			if (!node.initialExpression)
+				throw AstError{ "variable must either have a type or an initial value" };
+
+			node.initialExpression->Visit(*this);
+
+			node.varType = GetExpressionType(*node.initialExpression);
+		}
+
+		AstScopedVisitor::Visit(node);
+	}
+
 	void AstValidator::Visit(ExpressionStatement& node)
 	{
 		MandatoryExpr(node.expression);
