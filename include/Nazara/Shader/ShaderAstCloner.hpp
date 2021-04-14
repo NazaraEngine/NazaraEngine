@@ -81,6 +81,9 @@ namespace Nz::ShaderAst
 			std::vector<ExpressionPtr> m_expressionStack;
 			std::vector<StatementPtr>  m_statementStack;
 	};
+
+	inline ExpressionPtr Clone(ExpressionPtr& node);
+	inline StatementPtr Clone(StatementPtr& node);
 }
 
 #include <Nazara/Shader/ShaderAstCloner.inl>
