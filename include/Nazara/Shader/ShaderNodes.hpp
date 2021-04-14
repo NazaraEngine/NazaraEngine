@@ -296,6 +296,8 @@ namespace Nz::ShaderAst
 	};
 
 	inline const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr);
+	inline bool IsExpression(NodeType nodeType);
+	inline bool IsStatement(NodeType nodeType);
 }
 
 #include <Nazara/Shader/ShaderNodes.inl>
