@@ -64,6 +64,7 @@ namespace Nz
 			void AppendHeader();
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
+			void AppendStatementList(std::vector<ShaderAst::StatementPtr>& statements);
 
 			void EnterScope();
 			void LeaveScope(bool skipLine = true);

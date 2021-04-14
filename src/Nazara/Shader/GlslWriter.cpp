@@ -311,6 +311,20 @@ namespace Nz
 		AppendLine();
 	}
 
+	void GlslWriter::AppendStatementList(std::vector<ShaderAst::StatementPtr>& statements)
+	{
+		bool first = true;
+		for (const ShaderAst::StatementPtr& statement : statements)
+		{
+			if (!first && statement->GetType() != ShaderAst::NodeType::NoOpStatement)
+				AppendLine();
+
+			statement->Visit(*this);
+
+			first = false;
+		}
+	}
+
 	void GlslWriter::EnterScope()
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
@@ -361,8 +375,7 @@ namespace Nz
 			// Output struct is handled on return node
 			m_currentState->isInEntryPoint = true;
 
-			for (auto& statement : node.statements)
-				statement->Visit(*this);
+			AppendStatementList(node.statements);
 
 			m_currentState->isInEntryPoint = false;
 		}
@@ -711,8 +724,7 @@ namespace Nz
 
 		EnterScope();
 		{
-			for (auto& statement : node.statements)
-				statement->Visit(*this);
+			AppendStatementList(node.statements);
 		}
 		LeaveScope();
 	}
@@ -758,7 +770,7 @@ namespace Nz
 			node.initialExpression->Visit(*this);
 		}
 
-		AppendLine(";");
+		Append(";");
 	}
 
 	void GlslWriter::Visit(ShaderAst::DiscardStatement& /*node*/)
@@ -769,7 +781,7 @@ namespace Nz
 	void GlslWriter::Visit(ShaderAst::ExpressionStatement& node)
 	{
 		node.expression->Visit(*this);
-		AppendLine(";");
+		Append(";");
 	}
 
 	void GlslWriter::Visit(ShaderAst::IntrinsicExpression& node)
@@ -802,16 +814,7 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::MultiStatement& node)
 	{
-		bool first = true;
-		for (const ShaderAst::StatementPtr& statement : node.statements)
-		{
-			if (!first && statement->GetType() != ShaderAst::NodeType::NoOpStatement)
-				AppendLine();
-
-			statement->Visit(*this);
-
-			first = false;
-		}
+		AppendStatementList(node.statements);
 	}
 
 	void GlslWriter::Visit(ShaderAst::NoOpStatement& /*node*/)
@@ -843,6 +846,8 @@ namespace Nz
 				outputStructVarName = s_outputVarName;
 			}
 
+			AppendLine();
+
 			for (const auto& [name, targetName] : m_currentState->outputFields)
 			{
 				bool isOutputPosition = (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition && targetName == "gl_Position");
@@ -853,7 +858,7 @@ namespace Nz
 				if (isOutputPosition)
 					Append(" * vec4(1.0, ", s_flipYUniformName, ", 1.0, 1.0)");
 
-				Append(";");
+				AppendLine(";");
 			}
 
 			AppendLine();
