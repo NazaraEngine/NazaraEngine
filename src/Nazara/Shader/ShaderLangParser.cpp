@@ -82,7 +82,7 @@ namespace Nz::ShaderLang
 					attributes.clear();
 					break;
 
-				case TokenType::OpenAttribute:
+				case TokenType::OpenSquareBracket:
 					assert(attributes.empty());
 					attributes = ParseAttributes();
 					break;
@@ -262,7 +262,7 @@ namespace Nz::ShaderLang
 	{
 		std::vector<ShaderAst::Attribute> attributes;
 
-		Expect(Advance(), TokenType::OpenAttribute);
+		Expect(Advance(), TokenType::OpenSquareBracket);
 
 		bool expectComma = false;
 		for (;;)
@@ -270,10 +270,10 @@ namespace Nz::ShaderLang
 			const Token& t = Peek();
 			ExpectNot(t, TokenType::EndOfStream);
 
-			if (t.type == TokenType::ClosingAttribute)
+			if (t.type == TokenType::ClosingSquareBracket)
 			{
-				// Parse [[attribute1]] [[attribute2]] the same as [[attribute1, attribute2]]
-				if (Peek(1).type == TokenType::OpenAttribute)
+				// Parse [attribute1] [attribute2] the same as [attribute1, attribute2]
+				if (Peek(1).type == TokenType::OpenSquareBracket)
 				{
 					Consume(2);
 					expectComma = false;
@@ -316,7 +316,7 @@ namespace Nz::ShaderLang
 			});
 		}
 
-		Expect(Advance(), TokenType::ClosingAttribute);
+		Expect(Advance(), TokenType::ClosingSquareBracket);
 
 		return attributes;
 	}
@@ -354,7 +354,7 @@ namespace Nz::ShaderLang
 
 			auto& extVar = externalStatement->externalVars.emplace_back();
 
-			if (token.type == TokenType::OpenAttribute)
+			if (token.type == TokenType::OpenSquareBracket)
 			{
 				for (const auto& [attributeType, arg] : ParseAttributes())
 				{
@@ -521,7 +521,7 @@ namespace Nz::ShaderLang
 
 			auto& structField = description.members.emplace_back();
 
-			if (token.type == TokenType::OpenAttribute)
+			if (token.type == TokenType::OpenSquareBracket)
 			{
 				for (const auto& [attributeType, attributeParam] : ParseAttributes())
 				{
