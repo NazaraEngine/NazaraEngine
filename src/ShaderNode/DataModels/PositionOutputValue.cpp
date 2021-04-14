@@ -14,16 +14,15 @@ ShaderNode(graph)
 	DisableCustomVariableName();
 }
 
-Nz::ShaderNodes::NodePtr PositionOutputValue::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr PositionOutputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
-	using namespace Nz::ShaderBuilder;
-	using namespace Nz::ShaderNodes;
+	using namespace Nz;
 
 	assert(count == 1);
 	assert(outputIndex == 0);
 
-	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Builtin(BuiltinEntry::VertexPosition));
-	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);
+	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("OutputData"), { "position" });
+	return ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(output), std::move(expressions[0]));
 }
 
 QtNodes::NodeDataType PositionOutputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const

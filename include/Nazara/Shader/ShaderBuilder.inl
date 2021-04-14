@@ -172,18 +172,26 @@ namespace Nz::ShaderBuilder
 		return intrinsicExpression;
 	}
 
-	inline std::unique_ptr<ShaderAst::ReturnStatement> Impl::Return::operator()(ShaderAst::ExpressionPtr expr) const
+	inline std::unique_ptr<ShaderAst::MultiStatement> Impl::Multi::operator()(std::vector<ShaderAst::StatementPtr> statements) const
 	{
-		auto returnNode = std::make_unique<ShaderAst::ReturnStatement>();
-		returnNode->returnExpr = std::move(expr);
+		auto multiStatement = std::make_unique<ShaderAst::MultiStatement>();
+		multiStatement->statements = std::move(statements);
 
-		return returnNode;
+		return multiStatement;
 	}
 
 	template<typename T>
 	std::unique_ptr<T> Impl::NoParam<T>::operator()() const
 	{
 		return std::make_unique<T>();
+	}
+
+	inline std::unique_ptr<ShaderAst::ReturnStatement> Impl::Return::operator()(ShaderAst::ExpressionPtr expr) const
+	{
+		auto returnNode = std::make_unique<ShaderAst::ReturnStatement>();
+		returnNode->returnExpr = std::move(expr);
+
+		return returnNode;
 	}
 
 	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const

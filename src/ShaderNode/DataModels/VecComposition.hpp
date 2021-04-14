@@ -17,7 +17,7 @@ class VecComposition : public ShaderNode
 		VecComposition(ShaderGraph& graph);
 		~VecComposition() = default;
 
-		Nz::ShaderNodes::NodePtr BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override;
 		QString name() const override;

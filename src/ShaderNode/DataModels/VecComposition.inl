@@ -14,17 +14,16 @@ ShaderNode(graph)
 }
 
 template<std::size_t ComponentCount>
-Nz::ShaderNodes::NodePtr VecComposition<ComponentCount>::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr VecComposition<ComponentCount>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == ComponentCount);
 	assert(outputIndex == 0);
 
-	std::array<Nz::ShaderNodes::ExpressionPtr, ComponentCount> expr;
+	std::vector<Nz::ShaderAst::ExpressionPtr> params;
 	for (std::size_t i = 0; i < count; ++i)
-		expr[i] = expressions[i];
+		params.emplace_back(std::move(expressions[i]));
 
-	constexpr auto ExpressionType = VecExpressionType<ComponentCount>;
-	return Nz::ShaderBuilder::Cast<ExpressionType>(expr.data(), expr.size());
+	return Nz::ShaderBuilder::Cast(Nz::ShaderAst::VectorType{ ComponentCount, Nz::ShaderAst::PrimitiveType::Float32 }, std::move(params));
 }
 
 template<std::size_t ComponentCount>

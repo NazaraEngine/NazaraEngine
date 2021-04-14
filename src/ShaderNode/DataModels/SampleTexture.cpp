@@ -71,14 +71,18 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-Nz::ShaderNodes::NodePtr SampleTexture::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr SampleTexture::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(m_texture);
 	assert(m_uv);
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Sample2D(expressions[0], expressions[1]);
+	std::vector<Nz::ShaderAst::ExpressionPtr> params;
+	params.push_back(std::move(expressions[0]));
+	params.push_back(std::move(expressions[1]));
+
+	return Nz::ShaderBuilder::Intrinsic(Nz::ShaderAst::IntrinsicType::SampleTexture, std::move(params));
 }
 
 auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType

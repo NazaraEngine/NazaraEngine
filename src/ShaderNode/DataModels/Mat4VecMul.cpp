@@ -1,4 +1,5 @@
 #include <ShaderNode/DataModels/Mat4VecMul.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderNodes.hpp>
 
 Mat4VecMul::Mat4VecMul(ShaderGraph& graph) :
@@ -7,13 +8,12 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderNodes::NodePtr Mat4VecMul::BuildNode(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr Mat4VecMul::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	using namespace Nz::ShaderNodes;
-	return BinaryOp::Build(BinaryType::Multiply, expressions[0], expressions[1]);
+	return Nz::ShaderBuilder::Binary(Nz::ShaderAst::BinaryType::Multiply, std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString Mat4VecMul::caption() const
