@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -22,7 +22,7 @@ namespace Nz::ShaderAst
 			virtual ~AstStatementVisitor();
 
 #define NAZARA_SHADERAST_STATEMENT(NodeType) virtual void Visit(ShaderAst::NodeType& node) = 0;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 			AstStatementVisitor& operator=(const AstStatementVisitor&) = delete;
 			AstStatementVisitor& operator=(AstStatementVisitor&&) = delete;

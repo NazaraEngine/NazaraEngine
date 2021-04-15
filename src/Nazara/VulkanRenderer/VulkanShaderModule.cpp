@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Shader/SpirvDecoder.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderAstCloner.hpp>
+#include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -287,7 +287,7 @@ namespace Nz::ShaderAst
 		PushStatement(Clone(node)); \
 	}
 
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 	void AstCloner::PushExpression(ExpressionPtr expression)
 	{

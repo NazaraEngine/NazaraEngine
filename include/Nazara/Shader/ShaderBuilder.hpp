@@ -8,7 +8,7 @@
 #define NAZARA_SHADER_BUILDER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <memory>
 #include <optional>
 

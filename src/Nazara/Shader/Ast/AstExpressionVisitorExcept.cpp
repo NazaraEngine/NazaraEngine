@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -11,5 +11,5 @@ namespace Nz::ShaderAst
 	{ \
 		throw std::runtime_error("unexpected " #Node " node"); \
 	}
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 }

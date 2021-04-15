@@ -11,7 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -144,6 +144,6 @@ namespace Nz::ShaderAst
 	NAZARA_SHADER_API StatementPtr UnserializeShader(ByteStream& stream);
 }
 
-#include <Nazara/Shader/ShaderAstSerializer.inl>
+#include <Nazara/Shader/Ast/AstSerializer.inl>
 
 #endif

@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/VecDot.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 VecDot::VecDot(ShaderGraph& graph) :
 ShaderNode(graph)

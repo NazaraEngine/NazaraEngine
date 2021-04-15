@@ -1,6 +1,6 @@
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/ShaderAstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>

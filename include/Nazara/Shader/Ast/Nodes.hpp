@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_NODES_HPP
-#define NAZARA_SHADER_NODES_HPP
+#ifndef NAZARA_SHADER_AST_NODES_HPP
+#define NAZARA_SHADER_AST_NODES_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -13,7 +13,7 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <array>
@@ -304,6 +304,6 @@ namespace Nz::ShaderAst
 	inline bool IsStatement(NodeType nodeType);
 }
 
-#include <Nazara/Shader/ShaderNodes.inl>
+#include <Nazara/Shader/Ast/Nodes.inl>
 
 #endif

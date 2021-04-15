@@ -4,13 +4,13 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERASTUTILS_HPP
-#define NAZARA_SHADERASTUTILS_HPP
+#ifndef NAZARA_SHADER_AST_UTILS_HPP
+#define NAZARA_SHADER_AST_UTILS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -49,6 +49,6 @@ namespace Nz::ShaderAst
 	inline ExpressionCategory GetExpressionCategory(Expression& expression);
 }
 
-#include <Nazara/Shader/ShaderAstUtils.inl>
+#include <Nazara/Shader/Ast/AstUtils.inl>
 
 #endif

@@ -8,7 +8,7 @@
 #define NAZARA_SHADERAST_ATTRIBUTES_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 
 namespace Nz::ShaderAst
 {

@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstCloner.hpp>
+#include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
