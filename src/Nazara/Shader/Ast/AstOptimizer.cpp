@@ -53,7 +53,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::CompEq, T1, T2>
 		{
-			using Op = typename CompEq<T1, T2>;
+			using Op = CompEq<T1, T2>;
 		};
 
 		// CompGe
@@ -72,7 +72,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::CompGe, T1, T2>
 		{
-			using Op = typename CompGe<T1, T2>;
+			using Op = CompGe<T1, T2>;
 		};
 
 		// CompGt
@@ -91,7 +91,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::CompGt, T1, T2>
 		{
-			using Op = typename CompGt<T1, T2>;
+			using Op = CompGt<T1, T2>;
 		};
 
 		// CompLe
@@ -110,7 +110,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::CompLe, T1, T2>
 		{
-			using Op = typename CompLe<T1, T2>;
+			using Op = CompLe<T1, T2>;
 		};
 
 		// CompLt
@@ -129,7 +129,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::CompLt, T1, T2>
 		{
-			using Op = typename CompLe<T1, T2>;
+			using Op = CompLe<T1, T2>;
 		};
 
 		// CompNe
@@ -148,7 +148,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::CompNe, T1, T2>
 		{
-			using Op = typename CompNe<T1, T2>;
+			using Op = CompNe<T1, T2>;
 		};
 
 		// Addition
@@ -167,7 +167,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::Add, T1, T2>
 		{
-			using Op = typename Addition<T1, T2>;
+			using Op = Addition<T1, T2>;
 		};
 
 		// Division
@@ -186,7 +186,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::Divide, T1, T2>
 		{
-			using Op = typename Division<T1, T2>;
+			using Op = Division<T1, T2>;
 		};
 
 		// Multiplication
@@ -205,7 +205,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::Multiply, T1, T2>
 		{
-			using Op = typename Multiplication<T1, T2>;
+			using Op = Multiplication<T1, T2>;
 		};
 
 		// Subtraction
@@ -224,7 +224,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct PropagateConstantType<BinaryType::Subtract, T1, T2>
 		{
-			using Op = typename Subtraction<T1, T2>;
+			using Op = Subtraction<T1, T2>;
 		};
 
 #define EnableOptimisation(Op, T1, T2) template<> struct Op<T1, T2> : Op##Base<T1, T2> {}

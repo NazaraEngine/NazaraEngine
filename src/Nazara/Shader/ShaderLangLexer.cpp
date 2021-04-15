@@ -73,7 +73,7 @@ namespace Nz::ShaderLang
 			char c = Peek(0);
 
 			Token token;
-			token.column = currentPos - lastLineFeed;
+			token.column = static_cast<unsigned int>(currentPos - lastLineFeed);
 			token.line = lineNumber;
 
 			if (c == -1)

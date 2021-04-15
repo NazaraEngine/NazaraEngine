@@ -14,10 +14,10 @@
 
 namespace Nz::ShaderLang
 {
-	class AttributeError : public std::exception
+	class AttributeError : public std::runtime_error
 	{
 		public:
-			using exception::exception;
+			using runtime_error::runtime_error;
 	};
 	
 	class ExpectedToken : public std::exception
@@ -26,10 +26,10 @@ namespace Nz::ShaderLang
 			using exception::exception;
 	};
 	
-	class DuplicateIdentifier : public std::exception
+	class DuplicateIdentifier : public std::runtime_error
 	{
 		public:
-			using exception::exception;
+			using runtime_error::runtime_error;
 	};
 
 	class ReservedKeyword : public std::exception
