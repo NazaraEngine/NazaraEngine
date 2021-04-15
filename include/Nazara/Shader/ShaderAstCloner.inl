@@ -7,6 +7,22 @@
 
 namespace Nz::ShaderAst
 {
+	ExpressionPtr AstCloner::CloneExpression(ExpressionPtr& expr)
+	{
+		if (!expr)
+			return nullptr;
+
+		return CloneExpression(*expr);
+	}
+
+	StatementPtr AstCloner::CloneStatement(StatementPtr& statement)
+	{
+		if (!statement)
+			return nullptr;
+
+		return CloneStatement(*statement);
+	}
+
 	inline ExpressionPtr Clone(ExpressionPtr& node)
 	{
 		AstCloner cloner;

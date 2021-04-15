@@ -2,18 +2,17 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/Ast/TransformVisitor.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
 {
-	inline TransformVisitor::TransformVisitor() :
-	m_nextFuncIndex(0),
-	m_nextVarIndex(0)
+	inline SanitizeVisitor::SanitizeVisitor() :
+	m_nextFuncIndex(0)
 	{
 	}
 
-	inline auto TransformVisitor::FindIdentifier(const std::string_view& identifierName) const -> const Identifier*
+	inline auto SanitizeVisitor::FindIdentifier(const std::string_view& identifierName) const -> const Identifier*
 	{
 		auto it = std::find_if(m_identifiersInScope.rbegin(), m_identifiersInScope.rend(), [&](const Identifier& identifier) { return identifier.name == identifierName; });
 		if (it == m_identifiersInScope.rend())
@@ -22,14 +21,14 @@ namespace Nz::ShaderAst
 		return &*it;
 	}
 
-	inline std::size_t TransformVisitor::RegisterFunction(std::string name)
+	inline std::size_t SanitizeVisitor::RegisterFunction(std::string name)
 	{
 		std::size_t funcIndex = m_nextFuncIndex++;
 		return funcIndex;
 	}
 
 
-	inline std::size_t TransformVisitor::RegisterStruct(std::string name, StructDescription description)
+	inline std::size_t SanitizeVisitor::RegisterStruct(std::string name, StructDescription description)
 	{
 		std::size_t structIndex = m_structs.size();
 		m_structs.emplace_back(std::move(description));
@@ -44,9 +43,10 @@ namespace Nz::ShaderAst
 		return structIndex;
 	}
 
-	inline std::size_t TransformVisitor::RegisterVariable(std::string name)
+	inline std::size_t SanitizeVisitor::RegisterVariable(std::string name, ExpressionType type)
 	{
-		std::size_t varIndex = m_nextVarIndex++;
+		std::size_t varIndex = m_variables.size();
+		m_variables.emplace_back(std::move(type));
 
 		m_identifiersInScope.push_back({
 			std::move(name),
@@ -56,6 +56,12 @@ namespace Nz::ShaderAst
 		});
 
 		return varIndex;
+	}
+
+	StatementPtr Sanitize(StatementPtr& ast, std::string* error)
+	{
+		SanitizeVisitor sanitizer;
+		return sanitizer.Sanitize(ast, error);
 	}
 }
 
