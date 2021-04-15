@@ -9,7 +9,7 @@
 #include <iostream>
 
 const char shaderSource[] = R"(
-[[layout(std140)]]
+[layout(std140)]
 struct Data
 {
 	projectionMatrix: mat4<f32>,
@@ -19,30 +19,30 @@ struct Data
 
 external
 {
-	[[binding(0)]] viewerData: uniform<Data>,
-	[[binding(1)]] tex: sampler2D<f32>
+	[binding(0)] viewerData: uniform<Data>,
+	[binding(1)] tex: sampler2D<f32>
 }
 
 struct VertIn
 {
-	[[location(0)]] position: vec3<f32>,
-	[[location(1)]] normal: vec3<f32>,
-	[[location(2)]] uv: vec2<f32>
+	[location(0)] position: vec3<f32>,
+	[location(1)] normal: vec3<f32>,
+	[location(2)] uv: vec2<f32>
 }
 
 struct VertOut
 {
-	[[builtin(position)]] position: vec4<f32>,
-	[[location(0)]] normal: vec3<f32>,
-	[[location(1)]] uv: vec2<f32>
+	[builtin(position)] position: vec4<f32>,
+	[location(0)] normal: vec3<f32>,
+	[location(1)] uv: vec2<f32>
 }
 
 struct FragOut
 {
-	[[location(0)]] color: vec4<f32>
+	[location(0)] color: vec4<f32>
 }
 
-[[entry(frag)]]
+[entry(frag)]
 fn main(fragIn: VertOut) -> FragOut
 {
 	let lightDir = vec3<f32>(0.0, -0.707, 0.707);
@@ -54,7 +54,7 @@ fn main(fragIn: VertOut) -> FragOut
 	return fragOut;
 }
 
-[[entry(vert)]]
+[entry(vert)]
 fn main(vertIn: VertIn) -> VertOut
 {
 	let vertOut: VertOut;
