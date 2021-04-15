@@ -24,21 +24,15 @@ namespace Nz::ShaderAst
 		return PopStatement();
 	}
 
-	ExpressionPtr AstCloner::CloneExpression(ExpressionPtr& expr)
+	ExpressionPtr AstCloner::CloneExpression(Expression& expr)
 	{
-		if (!expr)
-			return nullptr;
-
-		expr->Visit(*this);
+		expr.Visit(*this);
 		return PopExpression();
 	}
 
-	StatementPtr AstCloner::CloneStatement(StatementPtr& statement)
+	StatementPtr AstCloner::CloneStatement(Statement& statement)
 	{
-		if (!statement)
-			return nullptr;
-
-		statement->Visit(*this);
+		statement.Visit(*this);
 		return PopStatement();
 	}
 
