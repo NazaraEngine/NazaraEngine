@@ -33,43 +33,33 @@ namespace Nz::ShaderAst
 			virtual ExpressionPtr CloneExpression(ExpressionPtr& expr);
 			virtual StatementPtr CloneStatement(StatementPtr& statement);
 
+
+			virtual ExpressionPtr Clone(AccessMemberIdentifierExpression& node);
+			virtual ExpressionPtr Clone(AccessMemberIndexExpression& node);
+			virtual ExpressionPtr Clone(AssignExpression& node);
+			virtual ExpressionPtr Clone(BinaryExpression& node);
+			virtual ExpressionPtr Clone(CastExpression& node);
+			virtual ExpressionPtr Clone(ConditionalExpression& node);
+			virtual ExpressionPtr Clone(ConstantExpression& node);
+			virtual ExpressionPtr Clone(IdentifierExpression& node);
+			virtual ExpressionPtr Clone(IntrinsicExpression& node);
+			virtual ExpressionPtr Clone(SwizzleExpression& node);
+			virtual ExpressionPtr Clone(VariableExpression& node);
+
+			virtual StatementPtr Clone(BranchStatement& node);
+			virtual StatementPtr Clone(ConditionalStatement& node);
 			virtual StatementPtr Clone(DeclareExternalStatement& node);
 			virtual StatementPtr Clone(DeclareFunctionStatement& node);
 			virtual StatementPtr Clone(DeclareStructStatement& node);
 			virtual StatementPtr Clone(DeclareVariableStatement& node);
+			virtual StatementPtr Clone(DiscardStatement& node);
+			virtual StatementPtr Clone(ExpressionStatement& node);
+			virtual StatementPtr Clone(MultiStatement& node);
+			virtual StatementPtr Clone(NoOpStatement& node);
+			virtual StatementPtr Clone(ReturnStatement& node);
 
-			virtual ExpressionPtr Clone(AccessMemberIdentifierExpression& node);
-			virtual ExpressionPtr Clone(AccessMemberIndexExpression& node);
-			virtual ExpressionPtr Clone(CastExpression& node);
-			virtual ExpressionPtr Clone(IdentifierExpression& node);
-			virtual ExpressionPtr Clone(VariableExpression& node);
-
-			using AstExpressionVisitor::Visit;
-			using AstStatementVisitor::Visit;
-
-			void Visit(AccessMemberIdentifierExpression& node) override;
-			void Visit(AccessMemberIndexExpression& node) override;
-			void Visit(AssignExpression& node) override;
-			void Visit(BinaryExpression& node) override;
-			void Visit(CastExpression& node) override;
-			void Visit(ConditionalExpression& node) override;
-			void Visit(ConstantExpression& node) override;
-			void Visit(IdentifierExpression& node) override;
-			void Visit(IntrinsicExpression& node) override;
-			void Visit(SwizzleExpression& node) override;
-			void Visit(VariableExpression& node) override;
-
-			void Visit(BranchStatement& node) override;
-			void Visit(ConditionalStatement& node) override;
-			void Visit(DeclareExternalStatement& node) override;
-			void Visit(DeclareFunctionStatement& node) override;
-			void Visit(DeclareStructStatement& node) override;
-			void Visit(DeclareVariableStatement& node) override;
-			void Visit(DiscardStatement& node) override;
-			void Visit(ExpressionStatement& node) override;
-			void Visit(MultiStatement& node) override;
-			void Visit(NoOpStatement& node) override;
-			void Visit(ReturnStatement& node) override;
+#define NAZARA_SHADERAST_NODE(NodeType) void Visit(NodeType& node) override;
+#include <Nazara/Shader/ShaderAstNodes.hpp>
 
 			void PushExpression(ExpressionPtr expression);
 			void PushStatement(StatementPtr statement);
