@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst

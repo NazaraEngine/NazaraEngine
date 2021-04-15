@@ -8,7 +8,7 @@
 #define NAZARA_SPIRVSECTIONBASE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <string>
 #include <vector>

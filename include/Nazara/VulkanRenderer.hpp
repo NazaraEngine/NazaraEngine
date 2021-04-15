@@ -47,7 +47,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
-#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>

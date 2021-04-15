@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERNODE_HPP
 
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <nodes/NodeDataModel>
 #include <QtGui/QPixmap>
 #include <optional>

@@ -2,10 +2,10 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -16,7 +16,7 @@ namespace Nz::ShaderAst
 	{ \
 		return NodeType:: Node; \
 	}
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 #define NAZARA_SHADERAST_EXPRESSION(Node) void Node::Visit(AstExpressionVisitor& visitor) \
 	{\
@@ -28,5 +28,5 @@ namespace Nz::ShaderAst
 		visitor.Visit(*this); \
 	}
 
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 }

@@ -7,9 +7,9 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/ShaderAstCloner.hpp>
-#include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
-#include <Nazara/Shader/ShaderAstUtils.hpp>
+#include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
+#include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <optional>
 #include <stdexcept>

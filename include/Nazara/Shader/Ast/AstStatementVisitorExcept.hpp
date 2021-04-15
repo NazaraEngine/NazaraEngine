@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -19,7 +19,7 @@ namespace Nz::ShaderAst
 			using AstStatementVisitor::Visit;
 
 #define NAZARA_SHADERAST_STATEMENT(Node) void Visit(ShaderAst::Node& node) override;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 	};
 }
 

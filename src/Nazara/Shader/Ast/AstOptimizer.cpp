@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderAstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <cassert>
 #include <stdexcept>

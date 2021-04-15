@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 VecFloatMul::VecFloatMul(ShaderGraph& graph) :
 ShaderNode(graph)
