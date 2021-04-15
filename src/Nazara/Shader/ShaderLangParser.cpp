@@ -40,6 +40,10 @@ namespace Nz::ShaderLang
 			{ "position", ShaderAst::BuiltinEntry::VertexPosition }
 		};
 
+		std::unordered_map<std::string, StructLayout> s_layoutMapping = {
+			{ "std140", StructLayout_Std140 }
+		};
+
 		template<typename T, typename U>
 		std::optional<T> BoundCast(U val)
 		{
@@ -494,6 +498,28 @@ namespace Nz::ShaderLang
 
 		ShaderAst::StructDescription description;
 		description.name = ParseIdentifierAsName();
+
+		for (const auto& [attributeType, attributeParam] : attributes)
+		{
+			switch (attributeType)
+			{
+				case ShaderAst::AttributeType::Layout:
+				{
+					if (description.layout)
+						throw AttributeError{ "attribute layout must be present once" };
+
+					auto it = s_layoutMapping.find(std::get<std::string>(attributeParam));
+					if (it == s_layoutMapping.end())
+						throw AttributeError{ "unknown layout" };
+
+					description.layout = it->second;
+					break;
+				}
+
+				default:
+					throw AttributeError{ "unexpected attribute" };
+			}
+		}
 
 		Expect(Advance(), TokenType::OpenCurlyBracket);
 
