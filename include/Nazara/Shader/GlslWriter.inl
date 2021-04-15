@@ -7,6 +7,15 @@
 
 namespace Nz
 {
+	inline GlslWriter::GlslWriter() :
+	m_currentState(nullptr)
+	{
+	}
+
+	inline std::string GlslWriter::Generate(ShaderAst::StatementPtr& shader, const States& conditions)
+	{
+		return Generate(std::nullopt, shader, conditions);
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>

@@ -6,13 +6,13 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Shader/ShaderAstCloner.hpp>
-#include <Nazara/Shader/ShaderAstValidator.hpp>
+#include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
-#include <Nazara/Shader/Ast/TransformVisitor.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
 #include <SpirV/GLSL.std.450.h>
@@ -38,7 +38,7 @@ namespace Nz
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition", ShaderStageType::Vertex, SpirvBuiltIn::Position } }
 		};
 
-		class PreVisitor : public ShaderAst::AstScopedVisitor
+		class PreVisitor : public ShaderAst::AstRecursiveVisitor
 		{
 			public:
 				struct UniformVar
@@ -107,7 +107,7 @@ namespace Nz
 						m_constantCache.Register(*m_constantCache.BuildConstant(arg));
 					}, node.value);
 
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(ShaderAst::DeclareExternalStatement& node) override
@@ -233,13 +233,13 @@ namespace Nz
 					}
 
 					m_funcIndex = funcIndex;
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 					m_funcIndex.reset();
 				}
 
 				void Visit(ShaderAst::DeclareStructStatement& node) override
 				{
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 
 					assert(node.structIndex);
 					std::size_t structIndex = *node.structIndex;
@@ -253,7 +253,7 @@ namespace Nz
 
 				void Visit(ShaderAst::DeclareVariableStatement& node) override
 				{
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 
 					assert(m_funcIndex);
 					auto& func = m_funcs[*m_funcIndex];
@@ -269,12 +269,12 @@ namespace Nz
 				{
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 				}
 
 				void Visit(ShaderAst::IntrinsicExpression& node) override
 				{
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 
 					switch (node.intrinsic)
 					{
@@ -285,6 +285,7 @@ namespace Nz
 
 						// Part of SPIR-V core
 						case ShaderAst::IntrinsicType::DotProduct:
+						case ShaderAst::IntrinsicType::SampleTexture:
 							break;
 					}
 
@@ -293,7 +294,7 @@ namespace Nz
 
 				void Visit(ShaderAst::SwizzleExpression& node) override
 				{
-					AstScopedVisitor::Visit(node);
+					AstRecursiveVisitor::Visit(node);
 
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 				}
@@ -391,12 +392,7 @@ namespace Nz
 
 	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::StatementPtr& shader, const States& conditions)
 	{
-		std::string error;
-		if (!ShaderAst::ValidateAst(shader, &error))
-			throw std::runtime_error("Invalid shader AST: " + error);
-
-		ShaderAst::TransformVisitor transformVisitor;
-		ShaderAst::StatementPtr transformedShader = transformVisitor.Transform(shader);
+		ShaderAst::StatementPtr sanitizedAst = ShaderAst::Sanitize(shader);
 
 		m_context.states = &conditions;
 
@@ -409,7 +405,7 @@ namespace Nz
 
 		// Register all extended instruction sets
 		PreVisitor preVisitor(conditions, state.constantTypeCache, state.funcs);
-		transformedShader->Visit(preVisitor);
+		sanitizedAst->Visit(preVisitor);
 
 		m_currentState->preVisitor = &preVisitor;
 
@@ -417,7 +413,7 @@ namespace Nz
 			state.extensionInstructions[extInst] = AllocateResultId();
 
 		SpirvAstVisitor visitor(*this, state.instructions, state.funcs);
-		transformedShader->Visit(visitor);
+		sanitizedAst->Visit(visitor);
 
 		AppendHeader();
 

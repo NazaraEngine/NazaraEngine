@@ -30,9 +30,11 @@ namespace Nz::ShaderAst
 			AstCloner& operator=(AstCloner&&) = delete;
 
 		protected:
-			virtual ExpressionPtr CloneExpression(ExpressionPtr& expr);
-			virtual StatementPtr CloneStatement(StatementPtr& statement);
+			inline ExpressionPtr CloneExpression(ExpressionPtr& expr);
+			inline StatementPtr CloneStatement(StatementPtr& statement);
 
+			virtual ExpressionPtr CloneExpression(Expression& expr);
+			virtual StatementPtr CloneStatement(Statement& statement);
 
 			virtual ExpressionPtr Clone(AccessMemberIdentifierExpression& node);
 			virtual ExpressionPtr Clone(AccessMemberIndexExpression& node);

@@ -24,12 +24,12 @@ namespace Nz
 			struct Environment;
 			using ExtSupportCallback = std::function<bool(const std::string_view& name)>;
 
-			GlslWriter();
+			inline GlslWriter();
 			GlslWriter(const GlslWriter&) = delete;
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			std::string Generate(ShaderAst::StatementPtr& shader, const States& conditions = {});
+			inline std::string Generate(ShaderAst::StatementPtr& shader, const States& conditions = {});
 			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::StatementPtr& shader, const States& conditions = {});
 
 			void SetEnv(Environment environment);

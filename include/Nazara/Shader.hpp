@@ -41,7 +41,6 @@
 #include <Nazara/Shader/ShaderAstStatementVisitor.hpp>
 #include <Nazara/Shader/ShaderAstStatementVisitorExcept.hpp>
 #include <Nazara/Shader/ShaderAstUtils.hpp>
-#include <Nazara/Shader/ShaderAstValidator.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderEnums.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
