@@ -11,19 +11,19 @@ namespace Nz::ShaderLang
 {
 	namespace
 	{
-		std::unordered_map<std::string, ShaderAst::PrimitiveType> identifierToBasicType = {
+		std::unordered_map<std::string, ShaderAst::PrimitiveType> s_identifierToBasicType = {
 			{ "bool", ShaderAst::PrimitiveType::Boolean },
 			{ "i32",  ShaderAst::PrimitiveType::Int32 },
 			{ "f32",  ShaderAst::PrimitiveType::Float32 },
 			{ "u32",  ShaderAst::PrimitiveType::UInt32 }
 		};
 
-		std::unordered_map<std::string, ShaderAst::IntrinsicType> identifierToIntrinsic = {
+		std::unordered_map<std::string, ShaderAst::IntrinsicType> s_identifierToIntrinsic = {
 			{ "cross", ShaderAst::IntrinsicType::CrossProduct },
 			{ "dot", ShaderAst::IntrinsicType::DotProduct },
 		};
 
-		std::unordered_map<std::string, ShaderAst::AttributeType> identifierToAttributeType = {
+		std::unordered_map<std::string, ShaderAst::AttributeType> s_identifierToAttributeType = {
 			{ "binding",  ShaderAst::AttributeType::Binding  },
 			{ "builtin",  ShaderAst::AttributeType::Builtin  },
 			{ "entry",    ShaderAst::AttributeType::Entry    },
@@ -127,7 +127,7 @@ namespace Nz::ShaderLang
 
 	ShaderAst::ExpressionType Parser::DecodeType(const std::string& identifier)
 	{
-		if (auto it = identifierToBasicType.find(identifier); it != identifierToBasicType.end())
+		if (auto it = s_identifierToBasicType.find(identifier); it != s_identifierToBasicType.end())
 			return it->second;
 
 		//FIXME: Handle this better
@@ -577,6 +577,9 @@ namespace Nz::ShaderLang
 
 							break;
 						}
+
+						default:
+							throw AttributeError{ "unexpected attribute" };
 					}
 				}
 
@@ -809,7 +812,7 @@ namespace Nz::ShaderLang
 			{
 				const std::string& identifier = std::get<std::string>(token.data);
 
-				if (auto it = identifierToIntrinsic.find(identifier); it != identifierToIntrinsic.end())
+				if (auto it = s_identifierToIntrinsic.find(identifier); it != s_identifierToIntrinsic.end())
 				{
 					if (Peek(1).type == TokenType::OpenParenthesis)
 					{
@@ -879,8 +882,8 @@ namespace Nz::ShaderLang
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-		auto it = identifierToAttributeType.find(identifier);
-		if (it == identifierToAttributeType.end())
+		auto it = s_identifierToAttributeType.find(identifier);
+		if (it == s_identifierToAttributeType.end())
 			throw UnknownAttribute{};
 
 		return it->second;
@@ -891,8 +894,8 @@ namespace Nz::ShaderLang
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-		auto it = identifierToBasicType.find(identifier);
-		if (it != identifierToBasicType.end())
+		auto it = s_identifierToBasicType.find(identifier);
+		if (it != s_identifierToBasicType.end())
 			throw ReservedKeyword{};
 
 		return identifier;
@@ -903,8 +906,8 @@ namespace Nz::ShaderLang
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-		auto it = identifierToBasicType.find(identifier);
-		if (it == identifierToBasicType.end())
+		auto it = s_identifierToBasicType.find(identifier);
+		if (it == s_identifierToBasicType.end())
 			throw UnknownType{};
 
 		return it->second;
