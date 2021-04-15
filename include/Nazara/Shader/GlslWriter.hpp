@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitorExcept.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitorExcept.hpp>
 #include <set>
 #include <sstream>
 #include <string>

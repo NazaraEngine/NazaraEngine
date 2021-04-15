@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -46,6 +46,6 @@ namespace Nz::ShaderAst
 	};
 }
 
-#include <Nazara/Shader/ShaderAstRecursiveVisitor.inl>
+#include <Nazara/Shader/Ast/AstRecursiveVisitor.inl>
 
 #endif

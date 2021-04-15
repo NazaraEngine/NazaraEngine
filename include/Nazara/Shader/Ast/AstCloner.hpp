@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -61,7 +61,7 @@ namespace Nz::ShaderAst
 			virtual StatementPtr Clone(ReturnStatement& node);
 
 #define NAZARA_SHADERAST_NODE(NodeType) void Visit(NodeType& node) override;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 			void PushExpression(ExpressionPtr expression);
 			void PushStatement(StatementPtr statement);
@@ -78,6 +78,6 @@ namespace Nz::ShaderAst
 	inline StatementPtr Clone(StatementPtr& node);
 }
 
-#include <Nazara/Shader/ShaderAstCloner.inl>
+#include <Nazara/Shader/Ast/AstCloner.inl>
 
 #endif

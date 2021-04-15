@@ -1,8 +1,8 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/ExpressionType.hpp>
-#include <Nazara/Shader/ShaderAstCloner.hpp>
-#include <Nazara/Shader/ShaderAstUtils.hpp>
 #include <ShaderNode/DataModels/BinOp.hpp>
 #include <ShaderNode/DataModels/BoolValue.hpp>
 #include <ShaderNode/DataModels/BufferField.hpp>

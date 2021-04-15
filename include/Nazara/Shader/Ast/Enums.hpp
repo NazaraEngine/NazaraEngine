@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_ENUMS_HPP
-#define NAZARA_SHADER_ENUMS_HPP
+#ifndef NAZARA_SHADER_AST_ENUMS_HPP
+#define NAZARA_SHADER_AST_ENUMS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -69,7 +69,7 @@ namespace Nz::ShaderAst
 
 #define NAZARA_SHADERAST_NODE(Node) Node,
 #define NAZARA_SHADERAST_STATEMENT_LAST(Node) Node, Max = Node
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 	};
 
 	enum class PrimitiveType
@@ -87,20 +87,6 @@ namespace Nz::ShaderAst
 		Third,
 		Fourth
 	};
-
-	enum class VariableType
-	{
-		None = -1,
-
-		BuiltinVariable,
-		InputVariable,
-		LocalVariable,
-		OutputVariable,
-		ParameterVariable,
-		UniformVariable
-	};
 }
-
-#include <Nazara/Shader/ShaderEnums.inl>
 
 #endif // NAZARA_SHADER_ENUMS_HPP

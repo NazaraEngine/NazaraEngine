@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
 #include <optional>
 #include <string>

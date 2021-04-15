@@ -5,7 +5,7 @@
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
-#include <Nazara/Shader/ShaderAstUtils.hpp>
+#include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <stdexcept>
 #include <unordered_set>
 #include <Nazara/Shader/Debug.hpp>

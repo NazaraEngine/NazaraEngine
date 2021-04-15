@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
 #include <vector>
 
 namespace Nz

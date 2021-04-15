@@ -6,10 +6,10 @@
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/ShaderAstCloner.hpp>
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

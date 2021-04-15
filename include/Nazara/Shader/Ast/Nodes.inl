@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -18,7 +18,7 @@ namespace Nz::ShaderAst
 		switch (nodeType)
 		{
 #define NAZARA_SHADERAST_EXPRESSION(Node) case NodeType::Node: return true;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 		default:
 			return false;
@@ -30,7 +30,7 @@ namespace Nz::ShaderAst
 		switch (nodeType)
 		{
 #define NAZARA_SHADERAST_STATEMENT(Node) case NodeType::Node: return true;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 		default:
 			return false;

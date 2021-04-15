@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Shader generator"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitor.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -26,7 +26,7 @@ namespace Nz::ShaderAst
 				{ \
 					m_serializer.Serialize(node); \
 				}
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 			private:
 				AstSerializerBase& m_serializer;
@@ -444,7 +444,7 @@ namespace Nz::ShaderAst
 			case NodeType::None: break;
 
 #define NAZARA_SHADERAST_EXPRESSION(Node) case NodeType:: Node : node = std::make_unique<Node>(); break;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 			default: throw std::runtime_error("unexpected node type");
 		}
@@ -470,7 +470,7 @@ namespace Nz::ShaderAst
 			case NodeType::None: break;
 
 #define NAZARA_SHADERAST_STATEMENT(Node) case NodeType:: Node : node = std::make_unique<Node>(); break;
-#include <Nazara/Shader/ShaderAstNodes.hpp>
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
 
 			default: throw std::runtime_error("unexpected node type");
 		}

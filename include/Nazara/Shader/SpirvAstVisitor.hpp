@@ -9,10 +9,10 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAstExpressionVisitorExcept.hpp>
-#include <Nazara/Shader/ShaderAstStatementVisitorExcept.hpp>
-#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
+#include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/AstStatementVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <unordered_map>
 #include <vector>
 
