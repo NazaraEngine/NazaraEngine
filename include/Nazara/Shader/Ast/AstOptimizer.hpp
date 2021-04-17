@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <optional>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -29,16 +30,15 @@ namespace Nz::ShaderAst
 			AstOptimizer& operator=(AstOptimizer&&) = delete;
 
 		protected:
-			using AstCloner::Visit;
-			void Visit(BinaryExpression& node) override;
-			void Visit(ConditionalExpression& node) override;
-			void Visit(BranchStatement& node) override;
-			void Visit(ConditionalStatement& node) override;
+			ExpressionPtr Clone(BinaryExpression& node) override;
+			ExpressionPtr Clone(ConditionalExpression& node) override;
+			StatementPtr Clone(BranchStatement& node) override;
+			StatementPtr Clone(ConditionalStatement& node) override;
 
-			template<BinaryType Type> void PropagateConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs);
+			template<BinaryType Type> ExpressionPtr PropagateConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs);
 
 		private:
-			UInt64 m_enabledConditions;
+			std::optional<UInt64> m_enabledOptions;
 	};
 }
 

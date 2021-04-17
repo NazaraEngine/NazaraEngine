@@ -502,7 +502,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::ConditionalExpression& node)
 	{
-		if (m_writer.IsConditionEnabled(node.conditionName))
+		if (m_writer.IsOptionEnabled(node.optionIndex))
 			node.truePath->Visit(*this);
 		else
 			node.falsePath->Visit(*this);
@@ -510,7 +510,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::ConditionalStatement& node)
 	{
-		if (m_writer.IsConditionEnabled(node.conditionName))
+		if (m_writer.IsOptionEnabled(node.optionIndex))
 			node.statement->Visit(*this);
 	}
 

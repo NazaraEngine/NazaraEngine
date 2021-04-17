@@ -9,6 +9,9 @@
 #include <iostream>
 
 const char shaderSource[] = R"(
+
+option red: bool;
+
 [layout(std140)]
 struct Data
 {
@@ -49,7 +52,7 @@ fn main(fragIn: VertOut) -> FragOut
 	let lightFactor = dot(fragIn.normal, lightDir);
 
 	let fragOut: FragOut;
-	fragOut.color = lightFactor * tex.Sample(fragIn.uv);
+	fragOut.color = lightFactor * tex.Sample(fragIn.uv) * select_opt(red, vec4<f32>(1.0, 0.0, 0.0, 1.0), vec4<f32>(1.0, 1.0, 1.0, 1.0));
 
 	return fragOut;
 }
@@ -92,7 +95,10 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
-	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderSource, sizeof(shaderSource));
+	Nz::ShaderWriter::States states;
+	states.enabledOptions = 0;
+
+	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderSource, sizeof(shaderSource), states);
 	if (!fragVertShader)
 	{
 		std::cout << "Failed to instantiate shader" << std::endl;

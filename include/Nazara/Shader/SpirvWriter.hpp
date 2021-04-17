@@ -36,7 +36,7 @@ namespace Nz
 			SpirvWriter(SpirvWriter&&) = delete;
 			~SpirvWriter() = default;
 
-			std::vector<UInt32> Generate(ShaderAst::StatementPtr& shader, const States& conditions = {});
+			std::vector<UInt32> Generate(ShaderAst::StatementPtr& shader, const States& states = {});
 
 			void SetEnv(Environment environment);
 
@@ -62,7 +62,7 @@ namespace Nz
 			UInt32 GetPointerTypeId(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
 			UInt32 GetTypeId(const ShaderAst::ExpressionType& type) const;
 
-			inline bool IsConditionEnabled(const std::string& condition) const;
+			bool IsOptionEnabled(std::size_t optionIndex) const;
 
 			UInt32 RegisterConstant(const ShaderAst::ConstantValue& value);
 			UInt32 RegisterFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);

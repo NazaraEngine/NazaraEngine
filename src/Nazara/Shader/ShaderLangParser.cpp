@@ -29,6 +29,7 @@ namespace Nz::ShaderLang
 			{ "entry",    ShaderAst::AttributeType::Entry    },
 			{ "layout",   ShaderAst::AttributeType::Layout   },
 			{ "location", ShaderAst::AttributeType::Location },
+			{ "opt",      ShaderAst::AttributeType::Option   },
 		};
 
 		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
@@ -89,6 +90,13 @@ namespace Nz::ShaderLang
 				case TokenType::OpenSquareBracket:
 					assert(attributes.empty());
 					attributes = ParseAttributes();
+					break;
+
+				case TokenType::Option:
+					if (!attributes.empty())
+						throw UnexpectedToken{};
+
+					context.root->statements.push_back(ParseOptionDeclaration());
 					break;
 
 				case TokenType::FunctionDeclaration:
@@ -450,14 +458,15 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
-		std::optional<ShaderStageType> entryPoint;
+		auto func = ShaderBuilder::DeclareFunction(std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
+
 		for (const auto& [attributeType, arg] : attributes)
 		{
 			switch (attributeType)
 			{
 				case ShaderAst::AttributeType::Entry:
 				{
-					if (entryPoint)
+					if (func->entryStage)
 						throw AttributeError{ "attribute entry must be present once" };
 
 					if (!std::holds_alternative<std::string>(arg))
@@ -469,7 +478,19 @@ namespace Nz::ShaderLang
 					if (it == s_entryPoints.end())
 						throw AttributeError{ ("invalid parameter " + argStr + " for entry attribute").c_str() };
 
-					entryPoint = it->second;
+					func->entryStage = it->second;
+					break;
+				}
+
+				case ShaderAst::AttributeType::Option:
+				{
+					if (!func->optionName.empty())
+						throw AttributeError{ "attribute option must be present once" };
+
+					if (!std::holds_alternative<std::string>(arg))
+						throw AttributeError{ "attribute option requires a string parameter" };
+
+					func->optionName = std::get<std::string>(arg);
 					break;
 				}
 
@@ -478,7 +499,7 @@ namespace Nz::ShaderLang
 			}
 		}
 
-		return ShaderBuilder::DeclareFunction(entryPoint, std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
+		return func;
 	}
 
 	ShaderAst::DeclareFunctionStatement::Parameter Parser::ParseFunctionParameter()
@@ -490,6 +511,29 @@ namespace Nz::ShaderLang
 		ShaderAst::ExpressionType parameterType = ParseType();
 
 		return { parameterName, parameterType };
+	}
+
+	ShaderAst::StatementPtr Parser::ParseOptionDeclaration()
+	{
+		Expect(Advance(), TokenType::Option);
+
+		std::string optionName = ParseIdentifierAsName();
+
+		Expect(Advance(), TokenType::Colon);
+
+		ShaderAst::ExpressionType optionType = ParseType();
+
+		ShaderAst::ExpressionPtr initialValue;
+		if (Peek().type == TokenType::Assign)
+		{
+			Consume();
+
+			initialValue = ParseExpression();
+		}
+
+		Expect(Advance(), TokenType::Semicolon);
+
+		return ShaderBuilder::DeclareOption(std::move(optionName), std::move(optionType), std::move(initialValue));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes)
@@ -872,9 +916,32 @@ namespace Nz::ShaderLang
 			case TokenType::OpenParenthesis:
 				return ParseParenthesisExpression();
 
+			case TokenType::SelectOpt:
+				return ParseSelectOptExpression();
+
 			default:
 				throw UnexpectedToken{};
 		}
+	}
+
+	ShaderAst::ExpressionPtr Parser::ParseSelectOptExpression()
+	{
+		Expect(Advance(), TokenType::SelectOpt);
+		Expect(Advance(), TokenType::OpenParenthesis);
+
+		std::string optionName = ParseIdentifierAsName();
+
+		Expect(Advance(), TokenType::Comma);
+
+		ShaderAst::ExpressionPtr trueExpr = ParseExpression();
+
+		Expect(Advance(), TokenType::Comma);
+
+		ShaderAst::ExpressionPtr falseExpr = ParseExpression();
+
+		Expect(Advance(), TokenType::ClosingParenthesis);
+
+		return ShaderBuilder::SelectOption(std::move(optionName), std::move(trueExpr), std::move(falseExpr));
 	}
 
 	ShaderAst::AttributeType Parser::ParseIdentifierAsAttributeType()

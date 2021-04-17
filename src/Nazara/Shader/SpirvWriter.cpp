@@ -56,7 +56,7 @@ namespace Nz
 				using StructContainer = std::vector<ShaderAst::StructDescription>;
 
 				PreVisitor(const SpirvWriter::States& conditions, SpirvConstantCache& constantCache, std::vector<SpirvAstVisitor::FuncData>& funcs) :
-				m_conditions(conditions),
+				m_states(conditions),
 				m_constantCache(constantCache),
 				m_externalBlockIndex(0),
 				m_funcs(funcs)
@@ -80,24 +80,18 @@ namespace Nz
 
 				void Visit(ShaderAst::ConditionalExpression& node) override
 				{
-					/*std::size_t conditionIndex = m_shader.FindConditionByName(node.conditionName);
-					assert(conditionIndex != ShaderAst::InvalidCondition);
-
-					if (TestBit<Nz::UInt64>(m_conditions.enabledConditions, conditionIndex))
-						Visit(node.truePath);
+					if (TestBit<Nz::UInt64>(m_states.enabledOptions, node.optionIndex))
+						node.truePath->Visit(*this);
 					else
-						Visit(node.falsePath);*/
+						node.falsePath->Visit(*this);
 
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 				}
 
 				void Visit(ShaderAst::ConditionalStatement& node) override
 				{
-					/*std::size_t conditionIndex = m_shader.FindConditionByName(node.conditionName);
-					assert(conditionIndex != ShaderAst::InvalidCondition);
-
-					if (TestBit<Nz::UInt64>(m_conditions.enabledConditions, conditionIndex))
-						Visit(node.statement);*/
+					if (TestBit<Nz::UInt64>(m_states.enabledOptions, node.optionIndex))
+						node.statement->Visit(*this);
 				}
 
 				void Visit(ShaderAst::ConstantExpression& node) override
@@ -347,7 +341,7 @@ namespace Nz
 				StructContainer declaredStructs;
 
 			private:
-				const SpirvWriter::States& m_conditions;
+				const SpirvWriter::States& m_states;
 				SpirvConstantCache& m_constantCache;
 				std::optional<std::size_t> m_funcIndex;
 				std::size_t m_externalBlockIndex;
@@ -390,11 +384,11 @@ namespace Nz
 	{
 	}
 
-	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::StatementPtr& shader, const States& conditions)
+	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::StatementPtr& shader, const States& states)
 	{
 		ShaderAst::StatementPtr sanitizedAst = ShaderAst::Sanitize(shader);
 
-		m_context.states = &conditions;
+		m_context.states = &states;
 
 		State state;
 		m_currentState = &state;
@@ -404,7 +398,7 @@ namespace Nz
 		});
 
 		// Register all extended instruction sets
-		PreVisitor preVisitor(conditions, state.constantTypeCache, state.funcs);
+		PreVisitor preVisitor(states, state.constantTypeCache, state.funcs);
 		sanitizedAst->Visit(preVisitor);
 
 		m_currentState->preVisitor = &preVisitor;
@@ -557,6 +551,11 @@ namespace Nz
 	UInt32 SpirvWriter::GetTypeId(const ShaderAst::ExpressionType& type) const
 	{
 		return m_currentState->constantTypeCache.GetId(*m_currentState->constantTypeCache.BuildType(type));
+	}
+
+	bool SpirvWriter::IsOptionEnabled(std::size_t optionIndex) const
+	{
+		return TestBit<Nz::UInt64>(m_context.states->enabledOptions, optionIndex);
 	}
 
 	UInt32 SpirvWriter::RegisterConstant(const ShaderAst::ConstantValue& value)

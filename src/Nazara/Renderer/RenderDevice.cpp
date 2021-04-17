@@ -11,7 +11,7 @@ namespace Nz
 {
 	RenderDevice::~RenderDevice() = default;
 
-	std::shared_ptr<ShaderModule> RenderDevice::InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath)
+	std::shared_ptr<ShaderModule> RenderDevice::InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const ShaderWriter::States& states)
 	{
 		File file(sourcePath);
 		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
@@ -29,6 +29,6 @@ namespace Nz
 			return {};
 		}
 
-		return InstantiateShaderModule(shaderStages, lang, source.data(), source.size());
+		return InstantiateShaderModule(shaderStages, lang, source.data(), source.size(), states);
 	}
 }

@@ -85,6 +85,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
+			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseReturnStatement();
 			ShaderAst::StatementPtr ParseStatement();
@@ -100,6 +101,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::ExpressionPtr> ParseParameters();
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
+			ShaderAst::ExpressionPtr ParseSelectOptExpression();
 			ShaderAst::ExpressionPtr ParseVariableAssignation();
 
 			ShaderAst::AttributeType ParseIdentifierAsAttributeType();

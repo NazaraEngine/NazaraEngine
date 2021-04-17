@@ -35,6 +35,12 @@ namespace Nz
 		{
 			using AstRecursiveVisitor::Visit;
 
+			void Visit(ShaderAst::ConditionalStatement& node) override
+			{
+				if (TestBit<UInt64>(enabledOptions, node.optionIndex))
+					node.statement->Visit(*this);
+			}
+
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override
 			{
 				// Dismiss function if it's an entry point of another type than the one selected
@@ -46,6 +52,7 @@ namespace Nz
 						if (stage != *selectedStage)
 							return;
 
+						assert(!entryPoint);
 						entryPoint = &node;
 					}
 				}
@@ -58,6 +65,7 @@ namespace Nz
 
 			std::optional<ShaderStageType> selectedStage;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
+			UInt64 enabledOptions = 0;
 		};
 
 		struct Builtin
@@ -88,13 +96,15 @@ namespace Nz
 		std::unordered_map<std::size_t, std::string> variableNames;
 		std::vector<InOutField> inputFields;
 		std::vector<InOutField> outputFields;
+		UInt64 enabledOptions = 0;
 		bool isInEntryPoint = false;
 		unsigned int indentLevel = 0;
 	};
 
-	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::StatementPtr& shader, const States& conditions)
+	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::StatementPtr& shader, const States& states)
 	{
 		State state;
+		state.enabledOptions = states.enabledOptions;
 		state.stage = shaderStage;
 
 		m_currentState = &state;
@@ -106,6 +116,7 @@ namespace Nz
 		ShaderAst::StatementPtr sanitizedAst = ShaderAst::Sanitize(shader);
 
 		PreVisitor previsitor;
+		previsitor.enabledOptions = states.enabledOptions;
 		previsitor.selectedStage = shaderStage;
 		sanitizedAst->Visit(previsitor);
 
@@ -574,22 +585,16 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::ConditionalExpression& node)
 	{
-		/*std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
-		assert(conditionIndex != ShaderAst::InvalidCondition);
-
-		if (TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex))
+		if (TestBit<Nz::UInt64>(m_currentState->enabledOptions, node.optionIndex))
 			Visit(node.truePath);
 		else
-			Visit(node.falsePath);*/
+			Visit(node.falsePath);
 	}
 
 	void GlslWriter::Visit(ShaderAst::ConditionalStatement& node)
 	{
-		/*std::size_t conditionIndex = m_context.shader->FindConditionByName(node.conditionName);
-		assert(conditionIndex != ShaderAst::InvalidCondition);
-
-		if (TestBit<Nz::UInt64>(m_context.states->enabledConditions, conditionIndex))
-			Visit(node.statement);*/
+		if (TestBit<Nz::UInt64>(m_currentState->enabledOptions, node.optionIndex))
+			node.statement->Visit(*this);
 	}
 
 	void GlslWriter::Visit(ShaderAst::ConstantExpression& node)
