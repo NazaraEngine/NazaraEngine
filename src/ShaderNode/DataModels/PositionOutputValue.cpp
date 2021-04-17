@@ -21,7 +21,7 @@ Nz::ShaderAst::NodePtr PositionOutputValue::BuildNode(Nz::ShaderAst::ExpressionP
 	assert(count == 1);
 	assert(outputIndex == 0);
 
-	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("OutputData"), { "position" });
+	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("output"), { "position" });
 	return ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(output), std::move(expressions[0]));
 }
 
