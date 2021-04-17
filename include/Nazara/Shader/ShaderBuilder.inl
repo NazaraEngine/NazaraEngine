@@ -70,20 +70,20 @@ namespace Nz::ShaderBuilder
 		return castNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ConditionalExpression> Impl::ConditionalExpression::operator()(std::string conditionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
+	inline std::unique_ptr<ShaderAst::ConditionalExpression> Impl::ConditionalExpression::operator()(std::size_t optionIndex, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
 	{
 		auto condExprNode = std::make_unique<ShaderAst::ConditionalExpression>();
-		condExprNode->conditionName = std::move(conditionName);
+		condExprNode->optionIndex = optionIndex;
 		condExprNode->falsePath = std::move(falsePath);
 		condExprNode->truePath = std::move(truePath);
 
 		return condExprNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ConditionalStatement> Impl::ConditionalStatement::operator()(std::string conditionName, ShaderAst::StatementPtr statement) const
+	inline std::unique_ptr<ShaderAst::ConditionalStatement> Impl::ConditionalStatement::operator()(std::size_t optionIndex, ShaderAst::StatementPtr statement) const
 	{
 		auto condStatementNode = std::make_unique<ShaderAst::ConditionalStatement>();
-		condStatementNode->conditionName = std::move(conditionName);
+		condStatementNode->optionIndex = optionIndex;
 		condStatementNode->statement = std::move(statement);
 
 		return condStatementNode;
@@ -127,6 +127,16 @@ namespace Nz::ShaderBuilder
 		declareFunctionNode->statements = std::move(statements);
 
 		return declareFunctionNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareOptionStatement> Nz::ShaderBuilder::Impl::DeclareOption::operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue) const
+	{
+		auto declareOptionNode = std::make_unique<ShaderAst::DeclareOptionStatement>();
+		declareOptionNode->optName = std::move(name);
+		declareOptionNode->optType = std::move(type);
+		declareOptionNode->initialValue = std::move(initialValue);
+
+		return declareOptionNode;
 	}
 
 	inline std::unique_ptr<ShaderAst::DeclareStructStatement> Impl::DeclareStruct::operator()(ShaderAst::StructDescription description) const
@@ -201,6 +211,16 @@ namespace Nz::ShaderBuilder
 		returnNode->returnExpr = std::move(expr);
 
 		return returnNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::SelectOptionExpression> Impl::SelectOption::operator()(std::string optionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
+	{
+		auto selectOptNode = std::make_unique<ShaderAst::SelectOptionExpression>();
+		selectOptNode->optionName = std::move(optionName);
+		selectOptNode->falsePath = std::move(falsePath);
+		selectOptNode->truePath = std::move(truePath);
+
+		return selectOptNode;
 	}
 
 	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const

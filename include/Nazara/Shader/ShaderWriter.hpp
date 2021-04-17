@@ -26,7 +26,7 @@ namespace Nz
 
 			struct States
 			{
-				Nz::UInt64 enabledConditions = 0;
+				Nz::UInt64 enabledOptions = 0;
 			};
 	};
 }

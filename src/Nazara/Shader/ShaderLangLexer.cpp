@@ -40,13 +40,15 @@ namespace Nz::ShaderLang
 		ForceCLocale forceCLocale;
 
 		std::unordered_map<std::string, TokenType> reservedKeywords = {
-			{ "external", TokenType::External },
-			{ "false",    TokenType::BoolFalse },
-			{ "fn",       TokenType::FunctionDeclaration },
-			{ "let",      TokenType::Let },
-			{ "return",   TokenType::Return },
-			{ "struct",   TokenType::Struct },
-			{ "true",     TokenType::BoolTrue }
+			{ "external",   TokenType::External },
+			{ "false",      TokenType::BoolFalse },
+			{ "fn",         TokenType::FunctionDeclaration },
+			{ "let",        TokenType::Let },
+			{ "option",     TokenType::Option },
+			{ "return",     TokenType::Return },
+			{ "select_opt", TokenType::SelectOpt },
+			{ "struct",     TokenType::Struct },
+			{ "true",       TokenType::BoolTrue }
 		};
 
 		std::size_t currentPos = 0;

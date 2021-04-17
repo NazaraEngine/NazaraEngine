@@ -85,9 +85,9 @@ namespace Nz
 		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, shaderAst, states);
 	}
 
-	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states)
 	{
-		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, lang, source, sourceSize);
+		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, lang, source, sourceSize, states);
 	}
 
 	std::shared_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)

@@ -12,6 +12,11 @@ namespace Nz::ShaderAst
 	{
 	}
 
+	inline StatementPtr SanitizeVisitor::Sanitize(StatementPtr& statement, std::string* error)
+	{
+		return Sanitize(statement, {}, error);
+	}
+
 	inline auto SanitizeVisitor::FindIdentifier(const std::string_view& identifierName) const -> const Identifier*
 	{
 		auto it = std::find_if(m_identifiersInScope.rbegin(), m_identifiersInScope.rend(), [&](const Identifier& identifier) { return identifier.name == identifierName; });
@@ -23,10 +28,23 @@ namespace Nz::ShaderAst
 
 	inline std::size_t SanitizeVisitor::RegisterFunction(std::string name)
 	{
-		std::size_t funcIndex = m_nextFuncIndex++;
-		return funcIndex;
+		return m_nextFuncIndex++;
 	}
 
+	inline std::size_t SanitizeVisitor::RegisterOption(std::string name, ExpressionType type)
+	{
+		std::size_t optionIndex = m_options.size();
+		m_options.emplace_back(std::move(type));
+
+		m_identifiersInScope.push_back({
+			std::move(name),
+			Option {
+				optionIndex
+			}
+		});
+
+		return optionIndex;
+	}
 
 	inline std::size_t SanitizeVisitor::RegisterStruct(std::string name, StructDescription description)
 	{
@@ -62,6 +80,12 @@ namespace Nz::ShaderAst
 	{
 		SanitizeVisitor sanitizer;
 		return sanitizer.Sanitize(ast, error);
+	}
+
+	StatementPtr Sanitize(StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error)
+	{
+		SanitizeVisitor sanitizer;
+		return sanitizer.Sanitize(ast, options, error);
 	}
 }
 

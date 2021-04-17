@@ -74,7 +74,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ConditionalExpression& node)
 	{
-		Value(node.conditionName);
+		SizeT(node.optionIndex);
 		Node(node.truePath);
 		Node(node.falsePath);
 	}
@@ -113,14 +113,6 @@ namespace Nz::ShaderAst
 		}
 	}
 
-	void AstSerializerBase::Serialize(DeclareVariableStatement& node)
-	{
-		OptVal(node.varIndex);
-		Value(node.varName);
-		Type(node.varType);
-		Node(node.initialExpression);
-	}
-
 	void AstSerializerBase::Serialize(IdentifierExpression& node)
 	{
 		Value(node.identifier);
@@ -132,6 +124,13 @@ namespace Nz::ShaderAst
 		Container(node.parameters);
 		for (auto& param : node.parameters)
 			Node(param);
+	}
+
+	void AstSerializerBase::Serialize(SelectOptionExpression& node)
+	{
+		Value(node.optionName);
+		Node(node.truePath);
+		Node(node.falsePath);
 	}
 
 	void AstSerializerBase::Serialize(SwizzleExpression& node)
@@ -163,7 +162,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ConditionalStatement& node)
 	{
-		Value(node.conditionName);
+		SizeT(node.optionIndex);
 		Node(node.statement);
 	}
 
@@ -186,6 +185,7 @@ namespace Nz::ShaderAst
 		Type(node.returnType);
 		OptEnum(node.entryStage);
 		OptVal(node.funcIndex);
+		Value(node.optionName);
 		OptVal(node.varIndex);
 
 		Container(node.parameters);
@@ -198,6 +198,14 @@ namespace Nz::ShaderAst
 		Container(node.statements);
 		for (auto& statement : node.statements)
 			Node(statement);
+	}
+
+	void AstSerializerBase::Serialize(DeclareOptionStatement& node)
+	{
+		OptVal(node.optIndex);
+		Value(node.optName);
+		Type(node.optType);
+		Node(node.initialValue);
 	}
 
 	void AstSerializerBase::Serialize(DeclareStructStatement& node)
@@ -215,6 +223,14 @@ namespace Nz::ShaderAst
 			OptEnum(member.builtin);
 			OptVal(member.locationIndex);
 		}
+	}
+	
+	void AstSerializerBase::Serialize(DeclareVariableStatement& node)
+	{
+		OptVal(node.varIndex);
+		Value(node.varName);
+		Type(node.varType);
+		Node(node.initialExpression);
 	}
 
 	void AstSerializerBase::Serialize(DiscardStatement& /*node*/)

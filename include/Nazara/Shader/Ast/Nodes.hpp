@@ -116,7 +116,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		std::string conditionName;
+		std::size_t optionIndex;
 		ExpressionPtr falsePath;
 		ExpressionPtr truePath;
 	};
@@ -144,6 +144,16 @@ namespace Nz::ShaderAst
 
 		IntrinsicType intrinsic;
 		std::vector<ExpressionPtr> parameters;
+	};
+
+	struct NAZARA_SHADER_API SelectOptionExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::string optionName;
+		ExpressionPtr falsePath;
+		ExpressionPtr truePath;
 	};
 
 	struct NAZARA_SHADER_API SwizzleExpression : public Expression
@@ -203,7 +213,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		std::string conditionName;
+		std::size_t optionIndex;
 		StatementPtr statement;
 	};
 
@@ -237,10 +247,22 @@ namespace Nz::ShaderAst
 		std::optional<ShaderStageType> entryStage;
 		std::optional<std::size_t> funcIndex;
 		std::optional<std::size_t> varIndex;
+		std::string optionName;
 		std::string name;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
 		ExpressionType returnType;
+	};
+
+	struct NAZARA_SHADER_API DeclareOptionStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		std::optional<std::size_t> optIndex;
+		std::string optName;
+		ExpressionPtr initialValue;
+		ExpressionType optType;
 	};
 
 	struct NAZARA_SHADER_API DeclareStructStatement : Statement

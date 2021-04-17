@@ -22,7 +22,8 @@ namespace Nz::ShaderAst
 		Builtin,  //< Builtin (struct member only) - has argument type
 		Entry,    //< Entry point (function only) - has argument type
 		Layout,   //< Struct layout (struct only) - has argument style
-		Location   //< Location (struct member only) - has argument index
+		Location, //< Location (struct member only) - has argument index
+		Option,   //< Conditional compilation option - has argument expr
 	};
 
 	enum class BinaryType

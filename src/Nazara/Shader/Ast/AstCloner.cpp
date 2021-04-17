@@ -56,7 +56,7 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(ConditionalStatement& node)
 	{
 		auto clone = std::make_unique<ConditionalStatement>();
-		clone->conditionName = node.conditionName;
+		clone->optionIndex = node.optionIndex;
 		clone->statement = CloneStatement(node.statement);
 
 		return clone;
@@ -77,6 +77,7 @@ namespace Nz::ShaderAst
 		clone->entryStage = node.entryStage;
 		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;
+		clone->optionName = node.optionName;
 		clone->parameters = node.parameters;
 		clone->returnType = node.returnType;
 		clone->varIndex = node.varIndex;
@@ -84,6 +85,17 @@ namespace Nz::ShaderAst
 		clone->statements.reserve(node.statements.size());
 		for (auto& statement : node.statements)
 			clone->statements.push_back(CloneStatement(statement));
+
+		return clone;
+	}
+
+	StatementPtr AstCloner::Clone(DeclareOptionStatement& node)
+	{
+		auto clone = std::make_unique<DeclareOptionStatement>();
+		clone->initialValue = CloneExpression(node.initialValue);
+		clone->optIndex = node.optIndex;
+		clone->optName = node.optName;
+		clone->optType = node.optType;
 
 		return clone;
 	}
@@ -212,7 +224,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr AstCloner::Clone(ConditionalExpression& node)
 	{
 		auto clone = std::make_unique<ConditionalExpression>();
-		clone->conditionName = node.conditionName;
+		clone->optionIndex = node.optionIndex;
 		clone->falsePath = CloneExpression(node.falsePath);
 		clone->truePath = CloneExpression(node.truePath);
 
@@ -249,6 +261,18 @@ namespace Nz::ShaderAst
 		clone->parameters.reserve(node.parameters.size());
 		for (auto& parameter : node.parameters)
 			clone->parameters.push_back(CloneExpression(parameter));
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(SelectOptionExpression& node)
+	{
+		auto clone = std::make_unique<SelectOptionExpression>();
+		clone->optionName = node.optionName;
+		clone->falsePath = CloneExpression(node.falsePath);
+		clone->truePath = CloneExpression(node.truePath);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 
