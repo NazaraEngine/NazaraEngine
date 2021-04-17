@@ -1,6 +1,8 @@
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
@@ -14,6 +16,7 @@
 enum class OutputLanguage
 {
 	GLSL,
+	Nazalang,
 	SpirV
 };
 
@@ -24,6 +27,7 @@ m_shaderGraph(shaderGraph)
 
 	m_outputLang = new QComboBox;
 	m_outputLang->addItem("GLSL", int(OutputLanguage::GLSL));
+	m_outputLang->addItem("Nazalang", int(OutputLanguage::Nazalang));
 	m_outputLang->addItem("SPIR-V", int(OutputLanguage::SpirV));
 	connect(m_outputLang, qOverload<int>(&QComboBox::currentIndexChanged), [this](int)
 	{
@@ -62,12 +66,14 @@ void CodeOutputWidget::Refresh()
 
 		if (m_optimisationCheckbox->isChecked())
 		{
+			shaderAst = Nz::ShaderAst::Sanitize(shaderAst);
+
 			Nz::ShaderAst::AstOptimizer optimiser;
 			shaderAst = optimiser.Optimise(shaderAst, enabledConditions);
 		}
 
 		Nz::ShaderWriter::States states;
-		states.enabledConditions = enabledConditions;
+		states.enabledOptions = enabledConditions;
 
 		std::string output;
 		OutputLanguage outputLang = static_cast<OutputLanguage>(m_outputLang->currentIndex());
@@ -77,6 +83,13 @@ void CodeOutputWidget::Refresh()
 			{
 				Nz::GlslWriter writer;
 				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), shaderAst, states);
+				break;
+			}
+
+			case OutputLanguage::Nazalang:
+			{
+				Nz::LangWriter writer;
+				output = writer.Generate(shaderAst, states);
 				break;
 			}
 
