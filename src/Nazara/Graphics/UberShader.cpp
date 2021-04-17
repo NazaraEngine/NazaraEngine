@@ -43,7 +43,7 @@ namespace Nz
 		if (it == m_combinations.end())
 		{
 			ShaderWriter::States states;
-			states.enabledConditions = combination;
+			states.enabledOptions = combination;
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice().InstantiateShaderModule(m_shaderStage, m_shaderAst, std::move(states));
 
