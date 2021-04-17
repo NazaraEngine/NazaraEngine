@@ -72,6 +72,7 @@ namespace Nz
 						else
 							UnrecognizedLine();
 #endif
+						break;
 					}
 				}
 
