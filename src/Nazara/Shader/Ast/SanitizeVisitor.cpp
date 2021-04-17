@@ -587,6 +587,8 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<DeclareExternalStatement>(AstCloner::Clone(node));
 		for (auto& extVar : clone->externalVars)
 		{
+			SanitizeIdentifier(extVar.name);
+
 			extVar.type = ResolveType(extVar.type);
 
 			ExpressionType varType;
@@ -628,6 +630,8 @@ namespace Nz::ShaderAst
 		clone->parameters = node.parameters;
 		clone->returnType = ResolveType(node.returnType);
 
+		SanitizeIdentifier(clone->name);
+
 		PushScope();
 		{
 			for (auto& parameter : clone->parameters)
@@ -636,6 +640,8 @@ namespace Nz::ShaderAst
 				std::size_t varIndex = RegisterVariable(parameter.name, parameter.type);
 				if (!clone->varIndex)
 					clone->varIndex = varIndex; //< First parameter variable index is node variable index
+
+				SanitizeIdentifier(parameter.name);
 			}
 
 			clone->statements.reserve(node.statements.size());
@@ -696,6 +702,8 @@ namespace Nz::ShaderAst
 
 		clone->structIndex = RegisterStruct(clone->description.name, clone->description);
 
+		SanitizeIdentifier(clone->description.name);
+
 		return clone;
 	}
 
@@ -713,6 +721,8 @@ namespace Nz::ShaderAst
 			clone->varType = ResolveType(clone->varType);
 
 		clone->varIndex = RegisterVariable(clone->varName, clone->varType);
+
+		SanitizeIdentifier(clone->varName);
 
 		return clone;
 	}
@@ -856,6 +866,19 @@ namespace Nz::ShaderAst
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, exprType);
+	}
+
+	void SanitizeVisitor::SanitizeIdentifier(std::string& identifier)
+	{
+		// Append _ until the identifier is no longer found
+		while (m_context->options.reservedIdentifiers.find(identifier) != m_context->options.reservedIdentifiers.end())
+		{
+			do 
+			{
+				identifier += "_";
+			}
+			while (FindIdentifier(identifier) != nullptr);
+		}
 	}
 
 	void SanitizeVisitor::TypeMustMatch(ExpressionPtr& left, ExpressionPtr& right)
