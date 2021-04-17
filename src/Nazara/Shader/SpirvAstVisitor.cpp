@@ -600,6 +600,11 @@ namespace Nz
 		m_instructions.Append(SpirvOp::OpFunctionEnd);
 	}
 
+	void SpirvAstVisitor::Visit(ShaderAst::DeclareOptionStatement& node)
+	{
+		/* nothing to do */
+	}
+
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareStructStatement& node)
 	{
 		assert(node.structIndex);
