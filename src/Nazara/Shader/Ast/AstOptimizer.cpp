@@ -380,13 +380,13 @@ namespace Nz::ShaderAst
 #undef EnableOptimisation
 	}
 
-	StatementPtr AstOptimizer::Optimise(StatementPtr& statement)
+	StatementPtr AstOptimizer::Optimise(const StatementPtr& statement)
 	{
 		m_enabledOptions.reset();
 		return CloneStatement(statement);
 	}
 
-	StatementPtr AstOptimizer::Optimise(StatementPtr& statement, UInt64 enabledConditions)
+	StatementPtr AstOptimizer::Optimise(const StatementPtr& statement, UInt64 enabledConditions)
 	{
 		m_enabledOptions = enabledConditions;
 

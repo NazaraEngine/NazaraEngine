@@ -25,8 +25,8 @@ namespace Nz::ShaderAst
 			SanitizeVisitor(SanitizeVisitor&&) = delete;
 			~SanitizeVisitor() = default;
 
-			inline StatementPtr Sanitize(StatementPtr& statement, std::string* error = nullptr);
-			StatementPtr Sanitize(StatementPtr& statement, const Options& options, std::string* error = nullptr);
+			inline StatementPtr Sanitize(const StatementPtr& statement, std::string* error = nullptr);
+			StatementPtr Sanitize(const StatementPtr& statement, const Options& options, std::string* error = nullptr);
 
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
@@ -125,8 +125,8 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr Sanitize(StatementPtr& ast, std::string* error = nullptr);
-	inline StatementPtr Sanitize(StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error = nullptr);
+	inline StatementPtr Sanitize(const StatementPtr& ast, std::string* error = nullptr);
+	inline StatementPtr Sanitize(const StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error = nullptr);
 }
 
 #include <Nazara/Shader/Ast/SanitizeVisitor.inl>

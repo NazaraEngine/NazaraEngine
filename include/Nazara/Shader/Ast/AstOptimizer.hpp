@@ -23,8 +23,8 @@ namespace Nz::ShaderAst
 			AstOptimizer(AstOptimizer&&) = delete;
 			~AstOptimizer() = default;
 
-			StatementPtr Optimise(StatementPtr& statement);
-			StatementPtr Optimise(StatementPtr& statement, UInt64 enabledConditions);
+			StatementPtr Optimise(const StatementPtr& statement);
+			StatementPtr Optimise(const StatementPtr& statement, UInt64 enabledConditions);
 
 			AstOptimizer& operator=(const AstOptimizer&) = delete;
 			AstOptimizer& operator=(AstOptimizer&&) = delete;
