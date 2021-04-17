@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <unordered_set>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -32,6 +33,7 @@ namespace Nz::ShaderAst
 
 			struct Options
 			{
+				std::unordered_set<std::string> reservedIdentifiers;
 				bool removeOptionDeclaration = true;
 			};
 
@@ -83,6 +85,8 @@ namespace Nz::ShaderAst
 			std::size_t ResolveStruct(const StructType& structType);
 			std::size_t ResolveStruct(const UniformType& uniformType);
 			ExpressionType ResolveType(const ExpressionType& exprType);
+
+			void SanitizeIdentifier(std::string& identifier);
 
 			struct Alias
 			{
