@@ -113,6 +113,7 @@ namespace Nz
 			m_currentState = nullptr;
 		});
 
+		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
 		options.reservedIdentifiers = {
 			// All reserved GLSL keywords as of GLSL ES 3.2

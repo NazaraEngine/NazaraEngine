@@ -386,7 +386,11 @@ namespace Nz
 
 	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::StatementPtr& shader, const States& states)
 	{
-		ShaderAst::StatementPtr sanitizedAst = ShaderAst::Sanitize(shader);
+		ShaderAst::StatementPtr sanitizedAst;
+		if (!states.sanitized)
+			sanitizedAst = ShaderAst::Sanitize(shader);
+
+		ShaderAst::StatementPtr& targetAst = (states.sanitized) ? shader : sanitizedAst;
 
 		m_context.states = &states;
 
@@ -399,7 +403,7 @@ namespace Nz
 
 		// Register all extended instruction sets
 		PreVisitor preVisitor(states, state.constantTypeCache, state.funcs);
-		sanitizedAst->Visit(preVisitor);
+		targetAst->Visit(preVisitor);
 
 		m_currentState->preVisitor = &preVisitor;
 
@@ -407,7 +411,7 @@ namespace Nz
 			state.extensionInstructions[extInst] = AllocateResultId();
 
 		SpirvAstVisitor visitor(*this, state.instructions, state.funcs);
-		sanitizedAst->Visit(visitor);
+		targetAst->Visit(visitor);
 
 		AppendHeader();
 
