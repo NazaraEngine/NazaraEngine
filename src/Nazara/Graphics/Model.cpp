@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	inline Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
+	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
 		m_subMeshes.reserve(m_graphicalMesh->GetSubMeshCount());
