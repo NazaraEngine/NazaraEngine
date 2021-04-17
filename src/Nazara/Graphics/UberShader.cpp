@@ -5,34 +5,49 @@
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Shader/Ast/AstReflect.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <limits>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	UberShader::UberShader(ShaderStageType shaderStage, ShaderAst::StatementPtr shaderAst) :
-	m_shaderAst(std::move(shaderAst)),
+	UberShader::UberShader(ShaderStageType shaderStage, const ShaderAst::StatementPtr& shaderAst) :
 	m_shaderStage(shaderStage)
 	{
-		//std::size_t conditionCount = m_shaderAst.GetConditionCount();
-		std::size_t conditionCount = 0;
+		ShaderAst::SanitizeVisitor::Options options;
+		options.removeOptionDeclaration = false;
 
-		if (conditionCount >= 64)
+		m_shaderAst = ShaderAst::Sanitize(shaderAst, options);
+
+		std::size_t optionCount = 0;
+
+		ShaderAst::AstReflect::Callbacks callbacks;
+		callbacks.onOptionDeclaration = [&](const std::string& optionName, const ShaderAst::ExpressionType& optionType)
+		{
+			m_optionIndexByName[optionName] = optionCount;
+			optionCount++;
+		};
+
+		ShaderAst::AstReflect reflect;
+		reflect.Reflect(m_shaderAst, callbacks);
+
+		if (optionCount >= 64)
 			throw std::runtime_error("Too many conditions");
 
 		m_combinationMask = std::numeric_limits<UInt64>::max();
-		m_combinationMask <<= conditionCount;
+		m_combinationMask <<= optionCount;
 		m_combinationMask = ~m_combinationMask;
 	}
 
-	UInt64 UberShader::GetConditionFlagByName(const std::string_view& condition) const
+	UInt64 UberShader::GetOptionFlagByName(const std::string& optionName) const
 	{
-		/*std::size_t conditionIndex = m_shaderAst.FindConditionByName(condition);
-		if (conditionIndex != ShaderAst::InvalidCondition)
-			return SetBit<UInt64>(0, conditionIndex);
-		else*/
+		auto it = m_optionIndexByName.find(optionName);
+		if (it == m_optionIndexByName.end())
 			return 0;
+
+		return SetBit<UInt64>(0, it->second);
 	}
 
 	const std::shared_ptr<ShaderModule>& UberShader::Get(UInt64 combination)
@@ -44,6 +59,7 @@ namespace Nz
 		{
 			ShaderWriter::States states;
 			states.enabledOptions = combination;
+			states.sanitized = true;
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice().InstantiateShaderModule(m_shaderStage, m_shaderAst, std::move(states));
 
