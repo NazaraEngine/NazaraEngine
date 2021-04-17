@@ -8,7 +8,7 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
@@ -167,8 +167,8 @@ namespace Nz
 		auto& fragmentShader = settings.shaders[UnderlyingCast(ShaderStageType::Fragment)];
 		auto& vertexShader = settings.shaders[UnderlyingCast(ShaderStageType::Vertex)];
 
-		fragmentShader = std::make_shared<UberShader>(ShaderAst::UnserializeShader(r_fragmentShader, sizeof(r_fragmentShader)));
-		vertexShader = std::make_shared<UberShader>(ShaderAst::UnserializeShader(r_vertexShader, sizeof(r_vertexShader)));
+		fragmentShader = std::make_shared<UberShader>(ShaderStageType::Fragment, ShaderAst::UnserializeShader(r_fragmentShader, sizeof(r_fragmentShader)));
+		vertexShader = std::make_shared<UberShader>(ShaderStageType::Vertex, ShaderAst::UnserializeShader(r_vertexShader, sizeof(r_vertexShader)));
 
 		// Conditions
 
