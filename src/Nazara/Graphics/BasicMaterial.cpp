@@ -176,7 +176,7 @@ namespace Nz
 		{
 			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
 			shaderConditions.fill(0);
-			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetConditionFlagByName("HAS_DIFFUSE_TEXTURE");
+			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
 
 			s_conditionIndexes.hasDiffuseMap = settings.conditions.size();
 			settings.conditions.push_back({
@@ -189,7 +189,7 @@ namespace Nz
 		{
 			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
 			shaderConditions.fill(0);
-			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetConditionFlagByName("HAS_ALPHA_TEXTURE");
+			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
 
 			s_conditionIndexes.hasAlphaMap = settings.conditions.size();
 			settings.conditions.push_back({
@@ -202,7 +202,7 @@ namespace Nz
 		{
 			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
 			shaderConditions.fill(0);
-			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetConditionFlagByName("ALPHA_TEST");
+			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetOptionFlagByName("ALPHA_TEST");
 
 			s_conditionIndexes.alphaTest = settings.conditions.size();
 			settings.conditions.push_back({
