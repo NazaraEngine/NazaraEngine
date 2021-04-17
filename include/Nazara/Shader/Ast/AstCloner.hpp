@@ -23,15 +23,15 @@ namespace Nz::ShaderAst
 			AstCloner(AstCloner&&) = delete;
 			~AstCloner() = default;
 
-			ExpressionPtr Clone(ExpressionPtr& statement);
-			StatementPtr Clone(StatementPtr& statement);
+			ExpressionPtr Clone(const ExpressionPtr& statement);
+			StatementPtr Clone(const StatementPtr& statement);
 
 			AstCloner& operator=(const AstCloner&) = delete;
 			AstCloner& operator=(AstCloner&&) = delete;
 
 		protected:
-			inline ExpressionPtr CloneExpression(ExpressionPtr& expr);
-			inline StatementPtr CloneStatement(StatementPtr& statement);
+			inline ExpressionPtr CloneExpression(const ExpressionPtr& expr);
+			inline StatementPtr CloneStatement(const StatementPtr& statement);
 
 			virtual ExpressionPtr CloneExpression(Expression& expr);
 			virtual StatementPtr CloneStatement(Statement& statement);

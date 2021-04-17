@@ -12,7 +12,7 @@ namespace Nz::ShaderAst
 	{
 	}
 
-	inline StatementPtr SanitizeVisitor::Sanitize(StatementPtr& statement, std::string* error)
+	inline StatementPtr SanitizeVisitor::Sanitize(const StatementPtr& statement, std::string* error)
 	{
 		return Sanitize(statement, {}, error);
 	}
@@ -76,13 +76,13 @@ namespace Nz::ShaderAst
 		return varIndex;
 	}
 
-	StatementPtr Sanitize(StatementPtr& ast, std::string* error)
+	StatementPtr Sanitize(const StatementPtr& ast, std::string* error)
 	{
 		SanitizeVisitor sanitizer;
 		return sanitizer.Sanitize(ast, error);
 	}
 
-	StatementPtr Sanitize(StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error)
+	StatementPtr Sanitize(const StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error)
 	{
 		SanitizeVisitor sanitizer;
 		return sanitizer.Sanitize(ast, options, error);

@@ -8,7 +8,7 @@
 
 namespace Nz::ShaderAst
 {
-	ExpressionPtr AstCloner::Clone(ExpressionPtr& expr)
+	ExpressionPtr AstCloner::Clone(const ExpressionPtr& expr)
 	{
 		expr->Visit(*this);
 
@@ -16,7 +16,7 @@ namespace Nz::ShaderAst
 		return PopExpression();
 	}
 
-	StatementPtr AstCloner::Clone(StatementPtr& statement)
+	StatementPtr AstCloner::Clone(const StatementPtr& statement)
 	{
 		statement->Visit(*this);
 

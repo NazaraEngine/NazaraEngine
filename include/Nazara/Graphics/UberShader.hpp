@@ -20,15 +20,16 @@ namespace Nz
 	class NAZARA_GRAPHICS_API UberShader
 	{
 		public:
-			UberShader(ShaderStageType shaderStage, ShaderAst::StatementPtr shaderAst);
+			UberShader(ShaderStageType shaderStage, const ShaderAst::StatementPtr& shaderAst);
 			~UberShader() = default;
 
-			UInt64 GetConditionFlagByName(const std::string_view& condition) const;
+			UInt64 GetOptionFlagByName(const std::string& optionName) const;
 
 			const std::shared_ptr<ShaderModule>& Get(UInt64 combination);
 
 		private:
 			std::unordered_map<UInt64 /*combination*/, std::shared_ptr<ShaderModule>> m_combinations;
+			std::unordered_map<std::string, std::size_t> m_optionIndexByName;
 			ShaderAst::StatementPtr m_shaderAst;
 			ShaderStageType m_shaderStage;
 			UInt64 m_combinationMask;

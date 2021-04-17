@@ -35,7 +35,7 @@ namespace Nz::ShaderAst
 		std::unordered_set<unsigned int> usedBindingIndexes;
 	};
 
-	StatementPtr SanitizeVisitor::Sanitize(StatementPtr& nodePtr, const Options& options, std::string* error)
+	StatementPtr SanitizeVisitor::Sanitize(const StatementPtr& nodePtr, const Options& options, std::string* error)
 	{
 		StatementPtr clone;
 
