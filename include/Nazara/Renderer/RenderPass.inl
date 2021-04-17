@@ -10,8 +10,8 @@ namespace Nz
 {
 	inline RenderPass::RenderPass(std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies) :
 	m_attachments(std::move(attachments)),
-	m_subpassDescriptions(std::move(subpassDescriptions)),
-	m_subpassDependencies(std::move(subpassDependencies))
+	m_subpassDependencies(std::move(subpassDependencies)),
+	m_subpassDescriptions(std::move(subpassDescriptions))
 	{
 	}
 
