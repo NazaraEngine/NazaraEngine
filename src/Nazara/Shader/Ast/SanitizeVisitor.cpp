@@ -5,6 +5,7 @@
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <stdexcept>
 #include <unordered_set>
@@ -28,16 +29,18 @@ namespace Nz::ShaderAst
 
 	struct SanitizeVisitor::Context
 	{
+		Options options;
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::unordered_set<std::string> declaredExternalVar;
 		std::unordered_set<unsigned int> usedBindingIndexes;
 	};
 
-	StatementPtr SanitizeVisitor::Sanitize(StatementPtr& nodePtr, std::string* error)
+	StatementPtr SanitizeVisitor::Sanitize(StatementPtr& nodePtr, const Options& options, std::string* error)
 	{
 		StatementPtr clone;
 
 		Context currentContext;
+		currentContext.options = options;
 
 		m_context = &currentContext;
 		CallOnExit resetContext([&] { m_context = nullptr; });
@@ -483,6 +486,33 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr SanitizeVisitor::Clone(SelectOptionExpression& node)
+	{
+		MandatoryExpr(node.truePath);
+		MandatoryExpr(node.falsePath);
+
+		auto condExpr = std::make_unique<ConditionalExpression>();
+		condExpr->truePath = CloneExpression(node.truePath);
+		condExpr->falsePath = CloneExpression(node.falsePath);
+
+		const Identifier* identifier = FindIdentifier(node.optionName);
+		if (!identifier)
+			throw AstError{ "unknown option " + node.optionName };
+
+		if (!std::holds_alternative<Option>(identifier->value))
+			throw AstError{ "expected option identifier" };
+
+		condExpr->optionIndex = std::get<Option>(identifier->value).optionIndex;
+
+		const ExpressionType& leftExprType = GetExpressionType(*condExpr->truePath);
+		if (leftExprType != GetExpressionType(*condExpr->falsePath))
+			throw AstError{ "true path type must match false path type" };
+
+		condExpr->cachedExpressionType = leftExprType;
+
+		return condExpr;
+	}
+
 	ExpressionPtr SanitizeVisitor::Clone(SwizzleExpression& node)
 	{
 		if (node.componentCount > 4)
@@ -585,9 +615,13 @@ namespace Nz::ShaderAst
 		{
 			extVar.type = ResolveType(extVar.type);
 
-			ExpressionType varType = extVar.type;
+			ExpressionType varType;
 			if (IsUniformType(extVar.type))
-				varType = std::get<StructType>(std::get<UniformType>(varType).containedType);
+				varType = std::get<StructType>(std::get<UniformType>(extVar.type).containedType);
+			else if (IsSamplerType(extVar.type))
+				varType = extVar.type;
+			else
+				throw AstError{ "External variable " + extVar.name + " is of wrong type: only uniform and sampler are allowed in external blocks" };
 
 			std::size_t varIndex = RegisterVariable(extVar.name, std::move(varType));
 			if (!clone->varIndex)
@@ -616,6 +650,7 @@ namespace Nz::ShaderAst
 		clone->entryStage = node.entryStage;
 		clone->name = node.name;
 		clone->funcIndex = m_nextFuncIndex++;
+		clone->optionName = node.optionName;
 		clone->parameters = node.parameters;
 		clone->returnType = ResolveType(node.returnType);
 
@@ -634,6 +669,36 @@ namespace Nz::ShaderAst
 				clone->statements.push_back(CloneStatement(MandatoryStatement(statement)));
 		}
 		PopScope();
+
+		if (!clone->optionName.empty())
+		{
+			const Identifier* identifier = FindIdentifier(node.optionName);
+			if (!identifier)
+				throw AstError{ "unknown option " + node.optionName };
+
+			if (!std::holds_alternative<Option>(identifier->value))
+				throw AstError{ "expected option identifier" };
+
+			std::size_t optionIndex = std::get<Option>(identifier->value).optionIndex;
+
+			return ShaderBuilder::ConditionalStatement(optionIndex, std::move(clone));
+		}
+
+		return clone;
+	}
+
+	StatementPtr SanitizeVisitor::Clone(DeclareOptionStatement& node)
+	{
+		auto clone = static_unique_pointer_cast<DeclareOptionStatement>(AstCloner::Clone(node));
+		clone->optType = ResolveType(clone->optType);
+
+		if (clone->initialValue && clone->optType != GetExpressionType(*clone->initialValue))
+			throw AstError{ "option " + clone->optName + " initial expression must be of the same type than the option" };
+
+		clone->optIndex = RegisterOption(clone->optName, clone->optType);
+
+		if (m_context->options.removeOptionDeclaration)
+			return ShaderBuilder::NoOp();
 
 		return clone;
 	}

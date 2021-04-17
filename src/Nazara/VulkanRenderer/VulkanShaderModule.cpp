@@ -65,10 +65,10 @@ namespace Nz
 		writer.SetEnv(env);
 
 		std::vector<UInt32> code = writer.Generate(shaderAst, states);
-		return Create(device, shaderStages, ShaderLanguage::SpirV, code.data(), code.size() * sizeof(UInt32));
+		return Create(device, shaderStages, ShaderLanguage::SpirV, code.data(), code.size() * sizeof(UInt32), {});
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states)
 	{
 		switch (lang)
 		{
@@ -89,7 +89,7 @@ namespace Nz
 
 				Nz::ShaderLang::Parser parser;
 				Nz::ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
-				return Create(device, shaderStages, shaderAst, {});
+				return Create(device, shaderStages, shaderAst, states);
 			}
 
 			case ShaderLanguage::SpirV:

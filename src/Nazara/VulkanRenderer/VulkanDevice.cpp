@@ -60,10 +60,10 @@ namespace Nz
 		return stage;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states)
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
-		if (!stage->Create(*this, stages, lang, source, sourceSize))
+		if (!stage->Create(*this, stages, lang, source, sourceSize, states))
 			throw std::runtime_error("failed to instanciate vulkan shader module");
 
 		return stage;

@@ -12,9 +12,9 @@ namespace Nz
 	{
 	}
 
-	inline std::string GlslWriter::Generate(ShaderAst::StatementPtr& shader, const States& conditions)
+	inline std::string GlslWriter::Generate(ShaderAst::StatementPtr& shader, const States& states)
 	{
-		return Generate(std::nullopt, shader, conditions);
+		return Generate(std::nullopt, shader, states);
 	}
 }
 

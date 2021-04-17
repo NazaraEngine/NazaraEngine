@@ -17,15 +17,23 @@ namespace Nz::ShaderAst
 	class NAZARA_SHADER_API SanitizeVisitor final : AstCloner
 	{
 		public:
+			struct Options;
+
 			inline SanitizeVisitor();
 			SanitizeVisitor(const SanitizeVisitor&) = delete;
 			SanitizeVisitor(SanitizeVisitor&&) = delete;
 			~SanitizeVisitor() = default;
 
-			StatementPtr Sanitize(StatementPtr& statement, std::string* error = nullptr);
+			inline StatementPtr Sanitize(StatementPtr& statement, std::string* error = nullptr);
+			StatementPtr Sanitize(StatementPtr& statement, const Options& options, std::string* error = nullptr);
 
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
+
+			struct Options
+			{
+				bool removeOptionDeclaration = true;
+			};
 
 		private:
 			struct Identifier;
@@ -42,12 +50,14 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(ConstantExpression& node) override;
 			ExpressionPtr Clone(IdentifierExpression& node) override;
 			ExpressionPtr Clone(IntrinsicExpression& node) override;
+			ExpressionPtr Clone(SelectOptionExpression& node) override;
 			ExpressionPtr Clone(SwizzleExpression& node) override;
 
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
 			StatementPtr Clone(DeclareExternalStatement& node) override;
 			StatementPtr Clone(DeclareFunctionStatement& node) override;
+			StatementPtr Clone(DeclareOptionStatement& node) override;
 			StatementPtr Clone(DeclareStructStatement& node) override;
 			StatementPtr Clone(DeclareVariableStatement& node) override;
 			StatementPtr Clone(ExpressionStatement& node) override;
@@ -64,6 +74,7 @@ namespace Nz::ShaderAst
 			void PopScope();
 
 			inline std::size_t RegisterFunction(std::string name);
+			inline std::size_t RegisterOption(std::string name, ExpressionType type);
 			inline std::size_t RegisterStruct(std::string name, StructDescription description);
 			inline std::size_t RegisterVariable(std::string name, ExpressionType type);
 
@@ -76,6 +87,11 @@ namespace Nz::ShaderAst
 			struct Alias
 			{
 				std::variant<ExpressionType> value;
+			};
+
+			struct Option
+			{
+				std::size_t optionIndex;
 			};
 
 			struct Struct
@@ -91,11 +107,12 @@ namespace Nz::ShaderAst
 			struct Identifier
 			{
 				std::string name;
-				std::variant<Alias, Struct, Variable> value;
+				std::variant<Alias, Option, Struct, Variable> value;
 			};
 
 			std::size_t m_nextFuncIndex;
 			std::vector<Identifier> m_identifiersInScope;
+			std::vector<ExpressionType> m_options;
 			std::vector<StructDescription> m_structs;
 			std::vector<ExpressionType> m_variables;
 			std::vector<std::size_t> m_scopeSizes;
@@ -105,6 +122,7 @@ namespace Nz::ShaderAst
 	};
 
 	inline StatementPtr Sanitize(StatementPtr& ast, std::string* error = nullptr);
+	inline StatementPtr Sanitize(StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error = nullptr);
 }
 
 #include <Nazara/Shader/Ast/SanitizeVisitor.inl>

@@ -454,6 +454,10 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 {
 	std::vector<Nz::ShaderAst::StatementPtr> statements;
 
+	// Declare all options
+	for (const auto& condition : m_conditions)
+		statements.push_back(Nz::ShaderBuilder::DeclareOption(condition.name, Nz::ShaderAst::PrimitiveType::Boolean));
+
 	// Declare all structures
 	for (const auto& structInfo : m_structs)
 	{

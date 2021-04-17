@@ -44,12 +44,12 @@ namespace Nz::ShaderBuilder
 
 		struct ConditionalExpression
 		{
-			inline std::unique_ptr<ShaderAst::ConditionalExpression> operator()(std::string conditionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
+			inline std::unique_ptr<ShaderAst::ConditionalExpression> operator()(std::size_t optionIndex, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
 		};
 
 		struct ConditionalStatement
 		{
-			inline std::unique_ptr<ShaderAst::ConditionalStatement> operator()(std::string conditionName, ShaderAst::StatementPtr statement) const;
+			inline std::unique_ptr<ShaderAst::ConditionalStatement> operator()(std::size_t optionIndex, ShaderAst::StatementPtr statement) const;
 		};
 
 		struct Constant
@@ -62,6 +62,11 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, ShaderAst::StatementPtr statement) const;
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
+		};
+
+		struct DeclareOption
+		{
+			inline std::unique_ptr<ShaderAst::DeclareOptionStatement> operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
 		};
 
 		struct DeclareStruct
@@ -106,6 +111,11 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
 		};
 
+		struct SelectOption
+		{
+			inline std::unique_ptr<ShaderAst::SelectOptionExpression> operator()(std::string optionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
+		};
+
 		struct Swizzle
 		{
 			inline std::unique_ptr<ShaderAst::SwizzleExpression> operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const;
@@ -121,6 +131,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::ConditionalStatement ConditionalStatement;
 	constexpr Impl::Constant Constant;
 	constexpr Impl::DeclareFunction DeclareFunction;
+	constexpr Impl::DeclareOption DeclareOption;
 	constexpr Impl::DeclareStruct DeclareStruct;
 	constexpr Impl::DeclareVariable DeclareVariable;
 	constexpr Impl::ExpressionStatement ExpressionStatement;
@@ -130,6 +141,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Multi MultiStatement;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
+	constexpr Impl::SelectOption SelectOption;
 	constexpr Impl::Swizzle Swizzle;
 }
 
