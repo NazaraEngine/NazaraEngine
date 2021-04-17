@@ -123,9 +123,7 @@ namespace Nz
 				if (!shader.Create(device, ToOpenGL(shaderStage)))
 					throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
 
-				ShaderAst::AstCloner cloner; //< FIXME: Required because writer may update AST
-				ShaderAst::StatementPtr clonedAst = cloner.Clone(shaderAst);
-				std::string code = writer.Generate(shaderStage, clonedAst, states);
+				std::string code = writer.Generate(shaderStage, shaderAst, states);
 
 				shader.SetSource(code.data(), code.size());
 				shader.Compile();

@@ -76,7 +76,7 @@ SCENARIO("Shader generation", "[Shader]")
 		external->externalVars.push_back({
 			std::nullopt,
 			"ubo",
-			Nz::ShaderAst::IdentifierType{ "outerStruct" }
+			Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ "outerStruct" } }
 		});
 		statements.push_back(std::move(external));
 
