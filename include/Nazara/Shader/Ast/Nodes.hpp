@@ -126,6 +126,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
+		ExpressionType GetExpressionType() const;
+
 		ShaderAst::ConstantValue value;
 	};
 
