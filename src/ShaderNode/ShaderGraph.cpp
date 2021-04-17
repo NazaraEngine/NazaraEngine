@@ -488,7 +488,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 		auto& extVar = external->externalVars.emplace_back();
 		extVar.bindingIndex = buffer.bindingIndex;
 		extVar.name = buffer.name;
-		extVar.type = Nz::ShaderAst::IdentifierType{ structInfo.name };
+		extVar.type = Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ structInfo.name } };
 	}
 
 	for (const auto& texture : m_textures)
@@ -536,6 +536,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 		if (m_type == ShaderType::Vertex)
 		{
 			auto& position = structDesc.members.emplace_back();
+			position.builtin = Nz::ShaderAst::BuiltinEntry::VertexPosition;
 			position.name = "position";
 			position.type = Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
 		}
@@ -802,7 +803,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 		parameters.push_back({
 			"input",
 			Nz::ShaderAst::IdentifierType{ "InputData" }
-			});
+		});
 	}
 
 	Nz::ShaderAst::ExpressionType returnType;
@@ -943,6 +944,9 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 		else
 			statements.emplace_back(static_unique_pointer_cast<Nz::ShaderAst::Statement>(std::move(astNode)));
 	}
+
+	if (!m_outputs.empty())
+		statements.push_back(Nz::ShaderBuilder::Return(Nz::ShaderBuilder::Identifier("output")));
 
 	return Nz::ShaderBuilder::DeclareFunction(ToShaderStageType(m_type), "main", std::move(parameters), std::move(statements), std::move(returnType));
 }
