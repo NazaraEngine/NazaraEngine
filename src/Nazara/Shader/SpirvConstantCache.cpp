@@ -231,7 +231,7 @@ namespace Nz
 
 		void Register(const Image& image)
 		{
-			Register(image.sampledType);
+			cache.Register(*image.sampledType);
 		}
 
 		void Register(const Function& func)
