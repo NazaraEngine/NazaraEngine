@@ -734,6 +734,11 @@ namespace Nz
 		LeaveScope();
 	}
 
+	void GlslWriter::Visit(ShaderAst::DeclareOptionStatement& node)
+	{
+		/* nothing to do */
+	}
+
 	void GlslWriter::Visit(ShaderAst::DeclareStructStatement& node)
 	{
 		assert(node.structIndex);
