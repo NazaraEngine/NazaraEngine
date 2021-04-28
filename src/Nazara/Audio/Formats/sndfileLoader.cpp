@@ -18,7 +18,7 @@
 #include <memory>
 #include <set>
 #include <vector>
-#include <sndfile/sndfile.h>
+#include <sndfile.h>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
