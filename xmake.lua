@@ -1,0 +1,185 @@
+local modules = {
+	Audio = {
+		Deps = {"NazaraCore"},
+		Packages = {"libsndfile"}
+	},
+	Core = {},
+	Graphics = {
+		Deps = {"NazaraRenderer"}
+	},
+	Network = {
+		Deps = {"NazaraCore"},
+		Custom = function()
+			if is_plat("windows") then 
+				add_syslinks("ws2_32")
+			end
+		end
+	},
+	OpenGLRenderer = {
+		Deps = {"NazaraRenderer"},
+		Custom = function()
+			if is_plat("windows") then
+				add_syslinks("gdi32", "user32")
+			else
+				del_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
+				del_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
+			end
+
+			if not is_plat("linux") then
+				del_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
+			end
+		end
+	},
+	Physics2D = {
+		Deps = {"NazaraUtility"},
+		Packages = {"chipmunk2d"}
+	},
+	Physics3D = {
+		Deps = {"NazaraUtility"},
+		Packages = {"newtondynamics"}
+	},
+	Platform = {
+		Deps = {"NazaraUtility"},
+		Packages = {"libsdl"},
+		Custom = function()
+			if is_plat("windows") then
+				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")
+			elseif is_plat("linux") then
+				add_defines("SDL_VIDEO_DRIVER_X11=1")
+				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
+			elseif is_plat("macosx") then
+				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
+			end
+		end
+	},
+	Renderer = {
+		Deps = {"NazaraPlatform", "NazaraShader"}
+	},
+	Shader = {
+		Deps = {"NazaraUtility"}
+	},
+	Utility = {
+		Deps = {"stb_image", "NazaraCore"},
+		Packages = {"freetype"}
+	},
+	VulkanRenderer = {
+		Deps = {"NazaraRenderer"},
+		Custom = function()
+			add_defines("VK_NO_PROTOTYPES")
+			if is_plat("windows") then
+				add_defines("VK_USE_PLATFORM_WIN32_KHR")
+				add_syslinks("user32")
+			elseif is_plat("linux") then
+				add_defines("VK_USE_PLATFORM_XLIB_KHR")
+				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
+			elseif is_plat("macosx") then
+				add_defines("VK_USE_PLATFORM_MACOS_MVK")
+			end
+		end
+	}
+}
+
+add_requires("assimp", "chipmunk2d", "libsndfile")
+add_requires("freetype", "libsdl", { configs = { shared = true }})
+add_requires("newtondynamics", { debug = is_mode("debug") })
+
+set_project("NazaraEngine")
+
+add_rules("mode.debug", "mode.releasedbg")
+add_rules("plugin.vsxmake.autoupdate")
+
+if is_mode("debug") then
+	add_rules("debug_suffix")
+end
+
+add_includedirs("include")
+add_sysincludedirs("thirdparty/include")
+
+set_languages("c89", "cxx17")
+set_rundir("./bin/$(os)_$(arch)_$(mode)")
+set_runtimes(is_mode("debug") and "MDd" or "MD")
+set_symbols("debug", "hidden")
+set_targetdir("./bin/$(os)_$(arch)_$(mode)")
+set_warnings("allextra")
+
+if is_mode("releasedbg") then
+	set_fpmodels("fast")
+	add_vectorexts("sse", "sse2", "sse3", "ssse3")
+end
+
+if is_plat("windows") then
+	add_defines("_CRT_SECURE_NO_WARNINGS")
+	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew")
+	add_cxxflags("/FC")
+	add_cxflags("/w44062") -- Enable warning: switch case not handled
+	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
+end
+
+target("stb_image")
+	set_kind("static")
+	set_group("Thirdparties")
+	add_files("thirdparty/src/stb/*.cpp")
+
+for name, module in pairs(modules) do
+	target("Nazara" .. name)
+	set_kind("shared")
+	set_group("Modules")
+
+	if module.Deps then
+		add_deps(module.Deps)
+	end
+
+	if module.Packages then
+		add_packages(module.Packages)
+	end
+
+	add_defines("NAZARA_BUILD")
+	add_defines("NAZARA_" .. name:upper() .. "_BUILD")
+
+	if is_mode("debug") then
+		add_defines("NAZARA_DEBUG")
+		add_defines("NAZARA_" .. name:upper() .. "_BUILD")
+	end
+
+	add_headerfiles("include/Nazara/" .. name .. "/**.hpp")
+	add_headerfiles("include/Nazara/" .. name .. "/**.inl")
+	add_files("src/Nazara/" .. name .. "/**.cpp")
+	add_includedirs("src")
+
+	if is_plat("windows") then
+		del_files("src/Nazara/" .. name .. "/Posix/**.cpp")
+	else
+		del_files("src/Nazara/" .. name .. "/Win32/**.cpp")
+	end
+
+	if not is_plat("linux") then
+		del_files("src/Nazara/" .. name .. "/Linux/**.cpp")
+	end
+
+	if module.Custom then
+		module.Custom()
+	end
+end
+
+target("PluginAssimp")
+	set_kind("shared")
+	set_group("Plugins")
+
+	add_deps("NazaraUtility")
+	add_packages("assimp")
+
+	add_headerfiles("plugins/Assimp/**.hpp")
+	add_headerfiles("plugins/Assimp/**.inl")
+	add_includedirs("plugins/Assimp")
+	add_files("plugins/Assimp/**.cpp")
+
+target_end()
+
+includes("examples/*/xmake.lua")
+
+rule("debug_suffix")
+    on_load(function (target)
+		if target:kind() ~= "binary" then
+        	target:set("basename", target:basename() .. "-d")
+		end
+    end)
