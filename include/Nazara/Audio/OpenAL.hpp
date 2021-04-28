@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENAL_HPP
 #define NAZARA_OPENAL_HPP
 
-#ifdef NAZARA_AUDIO_OPENAL
+#if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
