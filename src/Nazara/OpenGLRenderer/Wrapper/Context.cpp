@@ -73,8 +73,7 @@ namespace Nz::GL
 
 			func = reinterpret_cast<FuncType>(originalFuncPtr);
 
-#if !defined(NAZARA_COMPILER_MSVC) || NAZARA_PLATFORM_x64
-#if NAZARA_OPENGLRENDERER_DEBUG
+#if defined(NAZARA_OPENGLRENDERER_DEBUG) && (!defined(NAZARA_COMPILER_MSVC) || defined(NAZARA_PLATFORM_x64))
 			if (func)
 			{
 				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
@@ -83,7 +82,6 @@ namespace Nz::GL
 					func = Wrapper::WrapErrorHandling();
 				}
 			}
-#endif
 #endif
 
 			if (!func)
