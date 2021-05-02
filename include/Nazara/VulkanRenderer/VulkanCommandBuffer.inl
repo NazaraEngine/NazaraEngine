@@ -33,6 +33,10 @@ namespace Nz
 
 	inline Vk::CommandBuffer& VulkanCommandBuffer::GetCommandBuffer(std::size_t imageIndex)
 	{
+		if (m_commandBuffers.size() == 1)
+			return m_commandBuffers.front();
+
+		assert(imageIndex < m_commandBuffers.size());
 		return m_commandBuffers[imageIndex].Get();
 	}
 

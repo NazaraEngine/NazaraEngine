@@ -24,7 +24,7 @@ namespace Nz
 			~OpenGLCommandBufferBuilder() = default;
 
 			void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) override;
-			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues) override;
+			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
 			void BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset = 0) override;
 			void BindPipeline(const RenderPipeline& pipeline) override;
@@ -40,11 +40,15 @@ namespace Nz
 			void EndDebugRegion() override;
 			void EndRenderPass() override;
 
+			void NextSubpass() override;
+
 			void PreTransferBarrier() override;
 			void PostTransferBarrier() override;
 
 			void SetScissor(Nz::Recti scissorRegion) override;
 			void SetViewport(Nz::Recti viewportRegion) override;
+
+			void TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture) override;
 
 			OpenGLCommandBufferBuilder& operator=(const OpenGLCommandBufferBuilder&) = delete;
 			OpenGLCommandBufferBuilder& operator=(OpenGLCommandBufferBuilder&&) = delete;

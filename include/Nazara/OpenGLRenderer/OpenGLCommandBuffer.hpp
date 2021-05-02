@@ -55,7 +55,7 @@ namespace Nz
 			inline std::size_t GetPoolIndex() const;
 			inline const OpenGLCommandPool& GetOwner() const;
 
-			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& renderPass, std::initializer_list<CommandBufferBuilder::ClearValues> clearValues);
+			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
 			inline void SetScissor(Nz::Recti scissorRegion);
 			inline void SetViewport(Nz::Recti viewportRegion);
 

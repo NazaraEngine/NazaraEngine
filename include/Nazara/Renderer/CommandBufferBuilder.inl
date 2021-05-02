@@ -7,6 +7,16 @@
 
 namespace Nz
 {
+	inline void CommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect)
+	{
+		return BeginRenderPass(framebuffer, renderPass, renderRect, nullptr, 0);
+	}
+
+	inline void CommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues)
+	{
+		return BeginRenderPass(framebuffer, renderPass, renderRect, clearValues.begin(), clearValues.size());
+	}
+
 	inline void CommandBufferBuilder::CopyBuffer(const RenderBufferView& from, const RenderBufferView& to)
 	{
 		return CopyBuffer(from, to, from.GetSize());

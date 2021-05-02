@@ -133,13 +133,13 @@ namespace Nz
 		return *m_owner;
 	}
 
-	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& /*renderPass*/, std::initializer_list<CommandBufferBuilder::ClearValues> clearValues)
+	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& /*renderPass*/, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		SetFrameBufferData setFramebuffer;
 		setFramebuffer.framebuffer = &framebuffer;
 
-		assert(clearValues.size() < setFramebuffer.clearValues.size());
-		std::copy(clearValues.begin(), clearValues.end(), setFramebuffer.clearValues.begin());
+		assert(clearValueCount < setFramebuffer.clearValues.size());
+		std::copy(clearValues, clearValues + clearValueCount, setFramebuffer.clearValues.begin());
 
 		m_commands.emplace_back(std::move(setFramebuffer));
 

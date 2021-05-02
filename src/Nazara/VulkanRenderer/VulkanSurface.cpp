@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <vulkan/vk_sdk_platform.h>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
