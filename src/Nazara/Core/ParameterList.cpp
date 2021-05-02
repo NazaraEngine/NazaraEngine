@@ -39,8 +39,8 @@ namespace Nz
 	*/
 	void ParameterList::Clear()
 	{
-		for (auto it = m_parameters.begin(); it != m_parameters.end(); ++it)
-			DestroyValue(it->second);
+		for (auto& parameter : m_parameters)
+			DestroyValue(parameter.second);
 
 		m_parameters.clear();
 	}

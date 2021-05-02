@@ -18,7 +18,7 @@ namespace Nz
 		{
 			Vk::AutoCommandBuffer& commandBuffer = commandBuffers.emplace_back(m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY));
 
-			if (!commandBuffer->Begin())
+			if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
 				throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
 			VulkanCommandBufferBuilder builder(commandBuffer.Get(), imageIndex);
