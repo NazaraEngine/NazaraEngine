@@ -427,6 +427,7 @@ namespace Nz
 				{
 					{ colorReference },
 					{},
+					{},
 					std::nullopt
 				}
 			}
@@ -475,12 +476,12 @@ namespace Nz
 				AttachmentStoreOp::Discard,
 				AttachmentStoreOp::Discard,
 				TextureLayout::Undefined,
-				TextureLayout::DepthStencilOutput
+				TextureLayout::DepthStencilReadWrite
 			});
 
 			subpasses.front().depthStencilAttachment = RenderPass::AttachmentReference{
 				1,
-				TextureLayout::DepthStencilOutput
+				TextureLayout::DepthStencilReadWrite
 			};
 		}
 

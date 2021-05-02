@@ -148,8 +148,8 @@ namespace Nz
 	{
 		ColorInput,
 		ColorOutput,
-		DepthStencilInput,
-		DepthStencilOutput,
+		DepthStencilReadOnly,
+		DepthStencilReadWrite,
 		Present,
 		TransferSource,
 		TransferDestination,
