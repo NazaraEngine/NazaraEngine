@@ -40,6 +40,7 @@ namespace Nz
 		}
 
 		StackVector<VkAttachmentReference> vkAttachmentReferences = NazaraStackVector(VkAttachmentReference, totalAttachmentReference);
+		StackVector<UInt32> vkPreserveAttachments = NazaraStackVector(UInt32, attachments.size());
 
 		StackVector<VkSubpassDescription> vkSubpassDescs = NazaraStackVector(VkSubpassDescription, m_subpassDescriptions.size());
 		for (const SubpassDescription& subpassInfo : m_subpassDescriptions)
@@ -72,6 +73,10 @@ namespace Nz
 				});
 			}
 
+			assert(subpassInfo.preserveAttachments.size() <= vkPreserveAttachments.size());
+			for (std::size_t attachmentIndex : subpassInfo.preserveAttachments)
+				vkPreserveAttachments.push_back(UInt32(attachmentIndex));
+
 			vkSubpassDescs.push_back({
 				VkSubpassDescriptionFlags(0),
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -81,17 +86,25 @@ namespace Nz
 				(!subpassInfo.colorAttachment.empty()) ? &vkAttachmentReferences[colorAttachmentIndex] : nullptr,
 				nullptr,
 				(subpassInfo.depthStencilAttachment) ? &vkAttachmentReferences[depthStencilAttachmentIndex] : nullptr,
-				0,
-				nullptr
+				UInt32(vkPreserveAttachments.size()),
+				(!vkPreserveAttachments.empty()) ? &vkPreserveAttachments[0] : nullptr
 			});
 		}
 
 		StackVector<VkSubpassDependency> vkSubpassDeps = NazaraStackVector(VkSubpassDependency, m_subpassDependencies.size());
 		for (const SubpassDependency& subpassDependency : m_subpassDependencies)
 		{
+			auto ToSubPassIndex = [](std::size_t subpassIndex) -> UInt32
+			{
+				if (subpassIndex == ExternalSubpassIndex)
+					return VK_SUBPASS_EXTERNAL;
+
+				return UInt32(subpassIndex);
+			};
+
 			vkSubpassDeps.push_back({
-				UInt32(subpassDependency.fromSubpassIndex),
-				UInt32(subpassDependency.toSubpassIndex),
+				ToSubPassIndex(subpassDependency.fromSubpassIndex),
+				ToSubPassIndex(subpassDependency.toSubpassIndex),
 				ToVulkan(subpassDependency.fromStages),
 				ToVulkan(subpassDependency.toStages),
 				ToVulkan(subpassDependency.fromAccessFlags),

@@ -36,7 +36,7 @@ namespace Nz
 		return m_subpassDescriptions;
 	}
 
-	inline auto RenderPass::GetsubpassDependencies() const -> const std::vector<SubpassDependency>&
+	inline auto RenderPass::GetSubpassDependencies() const -> const std::vector<SubpassDependency>&
 	{
 		return m_subpassDependencies;
 	}

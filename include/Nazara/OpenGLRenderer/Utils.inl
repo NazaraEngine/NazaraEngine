@@ -15,12 +15,12 @@ namespace Nz
 		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
-			case PixelFormat_A8:              return GLTextureFormat{ GL_R8,               GL_RED,           GL_UNSIGNED_BYTE,     GL_ZERO,  GL_ZERO,  GL_ZERO, GL_RED };
+			case PixelFormat_A8:              return GLTextureFormat{ GL_R8,                GL_RED,           GL_UNSIGNED_BYTE,     GL_ZERO,  GL_ZERO,  GL_ZERO, GL_RED };
 			case PixelFormat_BGR8:            return GLTextureFormat{ GL_RGB8,              GL_RGB,           GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
 			case PixelFormat_BGR8_SRGB:       return GLTextureFormat{ GL_SRGB8,             GL_RGB,           GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
 			case PixelFormat_BGRA8:           return GLTextureFormat{ GL_SRGB8_ALPHA8,      GL_RGBA,          GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
 			case PixelFormat_BGRA8_SRGB:      return GLTextureFormat{ GL_SRGB8_ALPHA8,      GL_RGBA,          GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
-			case PixelFormat_Depth24Stencil8: return GLTextureFormat{ GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
+			case PixelFormat_Depth24Stencil8: return GLTextureFormat{ GL_DEPTH24_STENCIL8,  GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
 			case PixelFormat_RGB8:            return GLTextureFormat{ GL_RGB8,              GL_RGB,           GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
 			case PixelFormat_RGB8_SRGB:       return GLTextureFormat{ GL_SRGB8,             GL_RGB,           GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
 			case PixelFormat_RGBA8:           return GLTextureFormat{ GL_RGBA8,             GL_RGBA,          GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };

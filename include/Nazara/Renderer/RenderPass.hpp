@@ -33,7 +33,7 @@ namespace Nz
 			inline std::size_t GetAttachmentCount() const;
 			inline const std::vector<Attachment>& GetAttachments() const;
 			inline const std::vector<SubpassDescription>& GetSubpassDescriptions() const;
-			inline const std::vector<SubpassDependency>& GetsubpassDependencies() const;
+			inline const std::vector<SubpassDependency>& GetSubpassDependencies() const;
 
 			RenderPass& operator=(const RenderPass&) = delete;
 			RenderPass& operator=(RenderPass&&) noexcept = default;
@@ -60,6 +60,7 @@ namespace Nz
 				std::size_t fromSubpassIndex;
 				PipelineStageFlags fromStages;
 				MemoryAccessFlags fromAccessFlags;
+
 				std::size_t toSubpassIndex;
 				PipelineStageFlags toStages;
 				MemoryAccessFlags toAccessFlags;
@@ -70,6 +71,7 @@ namespace Nz
 			{
 				std::vector<AttachmentReference> colorAttachment;
 				std::vector<AttachmentReference> inputAttachments;
+				std::vector<std::size_t> preserveAttachments;
 				std::optional<AttachmentReference> depthStencilAttachment;
 			};
 
