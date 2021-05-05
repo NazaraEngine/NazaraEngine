@@ -1,5 +1,6 @@
 # xmake-related files
-.xmake
+.xmake/*
+.vscode/*
 CMakeLists.txt
 Makefile
 vs/*
