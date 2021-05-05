@@ -149,6 +149,7 @@ namespace Nz
 
 			DrawStates m_currentStates;
 			std::size_t m_bindingIndex;
+			std::size_t m_maxColorBufferCount;
 			std::size_t m_poolIndex;
 			std::vector<CommandData> m_commands;
 			OpenGLCommandPool* m_owner;
