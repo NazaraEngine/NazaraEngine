@@ -435,28 +435,15 @@ namespace Nz
 
 		std::vector<RenderPass::SubpassDependency> subpassDependencies = {
 			{
-				{
-					RenderPass::ExternalSubpassIndex,
-					PipelineStage::ColorOutput,
-					{},
+				RenderPass::ExternalSubpassIndex,
+				PipelineStage::ColorOutput,
+				{},
 
-					0,
-					PipelineStage::ColorOutput,
-					MemoryAccess::ColorWrite,
+				0,
+				PipelineStage::ColorOutput,
+				MemoryAccess::ColorWrite,
 
-					true //< tilable
-				},
-				{
-					0,
-					PipelineStage::ColorOutput,
-					MemoryAccess::ColorWrite,
-
-					RenderPass::ExternalSubpassIndex,
-					PipelineStage::BottomOfPipe,
-					MemoryAccess::MemoryRead,
-
-					true //< tilable
-				}
+				true //< tilable
 			}
 		};
 
@@ -477,12 +464,17 @@ namespace Nz
 				AttachmentStoreOp::Discard,
 				TextureLayout::Undefined,
 				TextureLayout::DepthStencilReadWrite
-			});
+				});
 
 			subpasses.front().depthStencilAttachment = RenderPass::AttachmentReference{
 				1,
 				TextureLayout::DepthStencilReadWrite
 			};
+
+			auto& subpassDependency = subpassDependencies.front();
+			subpassDependency.fromStages |= PipelineStage::FragmentTestsEarly;
+			subpassDependency.toStages |= PipelineStage::FragmentTestsEarly;
+			subpassDependency.toAccessFlags |= MemoryAccess::DepthStencilWrite;
 		}
 
 		m_renderPass.emplace(*m_device, std::move(attachments), std::move(subpasses), std::move(subpassDependencies));
