@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <cassert>
 #include <Nazara/Shader/Debug.hpp>
@@ -696,7 +697,7 @@ namespace Nz::ShaderLang
 
 	ShaderAst::ExpressionPtr Parser::ParseVariableAssignation()
 	{
-		ShaderAst::ExpressionPtr left = ParseIdentifier();
+		ShaderAst::ExpressionPtr left = ParseExpression();
 		Expect(Advance(), TokenType::Assign);
 
 		ShaderAst::ExpressionPtr right = ParseExpression();
@@ -740,6 +741,36 @@ namespace Nz::ShaderLang
 			if (tokenPrecedence < exprPrecedence)
 				return lhs;
 
+			if (currentOp.type == TokenType::Dot)
+			{
+				std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessMemberIdentifierExpression>();
+				accessMemberNode->structExpr = std::move(lhs);
+
+				do
+				{
+					Consume();
+
+					accessMemberNode->memberIdentifiers.push_back(ParseIdentifierAsName());
+				}
+				while (Peek().type == TokenType::Dot);
+
+				// FIXME
+				if (!accessMemberNode->memberIdentifiers.empty() && accessMemberNode->memberIdentifiers.front() == "Sample")
+				{
+					if (Peek().type == TokenType::OpenParenthesis)
+					{
+						auto parameters = ParseParameters();
+						parameters.insert(parameters.begin(), std::move(accessMemberNode->structExpr));
+
+						lhs = ShaderBuilder::Intrinsic(ShaderAst::IntrinsicType::SampleTexture, std::move(parameters));
+						continue;
+					}
+				}
+
+				lhs = std::move(accessMemberNode);
+				continue;
+			}
+
 			Consume();
 			ShaderAst::ExpressionPtr rhs = ParsePrimaryExpression();
 
@@ -781,24 +812,7 @@ namespace Nz::ShaderLang
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-		ShaderAst::ExpressionPtr identifierExpr = ShaderBuilder::Identifier(identifier);
-
-		if (Peek().type == TokenType::Dot)
-		{
-			std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessMemberIdentifierExpression>();
-			accessMemberNode->structExpr = std::move(identifierExpr);
-
-			do
-			{
-				Consume();
-
-				accessMemberNode->memberIdentifiers.push_back(ParseIdentifierAsName());
-			} while (Peek().type == TokenType::Dot);
-
-			identifierExpr = std::move(accessMemberNode);
-		}
-
-		return identifierExpr;
+		return ShaderBuilder::Identifier(identifier);
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseIntegerExpression(bool minus)
@@ -866,25 +880,7 @@ namespace Nz::ShaderLang
 				}
 
 				if (IsVariableInScope(identifier))
-				{
-					auto node = ParseIdentifier();
-					if (node->GetType() == ShaderAst::NodeType::AccessMemberIdentifierExpression)
-					{
-						ShaderAst::AccessMemberIdentifierExpression* memberExpr = static_cast<ShaderAst::AccessMemberIdentifierExpression*>(node.get());
-						if (!memberExpr->memberIdentifiers.empty() && memberExpr->memberIdentifiers.front() == "Sample")
-						{
-							if (Peek().type == TokenType::OpenParenthesis)
-							{
-								auto parameters = ParseParameters();
-								parameters.insert(parameters.begin(), std::move(memberExpr->structExpr));
-
-								return ShaderBuilder::Intrinsic(ShaderAst::IntrinsicType::SampleTexture, std::move(parameters));
-							}
-						}
-					}
-
-					return node;
-				}
+					return ParseIdentifier();
 
 				Consume();
 
@@ -1001,10 +997,11 @@ namespace Nz::ShaderLang
 	{
 		switch (token)
 		{
-			case TokenType::Plus: return 20;
-			case TokenType::Divide: return 40;
+			case TokenType::Plus:     return 20;
+			case TokenType::Divide:   return 40;
 			case TokenType::Multiply: return 40;
-			case TokenType::Minus: return 20;
+			case TokenType::Minus:    return 20;
+			case TokenType::Dot:      return 50;
 			default: return -1;
 		}
 	}
