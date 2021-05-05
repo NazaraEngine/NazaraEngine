@@ -90,6 +90,61 @@ namespace Nz::ShaderAst
 		auto structExpr = CloneExpression(MandatoryExpr(node.structExpr));
 
 		const ExpressionType& exprType = GetExpressionType(*structExpr);
+		if (IsVectorType(exprType))
+		{
+			const VectorType& swizzledVec = std::get<VectorType>(exprType);
+
+			// Swizzle expression
+			auto swizzle = std::make_unique<SwizzleExpression>();
+			swizzle->expression = std::move(structExpr);
+
+			// FIXME: Handle properly multiple identifiers (treat recursively)
+			if (node.memberIdentifiers.size() != 1)
+				throw AstError{ "invalid swizzle" };
+
+			const std::string& swizzleStr = node.memberIdentifiers.front();
+			if (swizzleStr.empty() || swizzleStr.size() > swizzle->components.size())
+				throw AstError{ "invalid swizzle" };
+
+			swizzle->componentCount = swizzleStr.size();
+
+			if (swizzle->componentCount > 1)
+				swizzle->cachedExpressionType = VectorType{ swizzle->componentCount, swizzledVec.type };
+			else
+				swizzle->cachedExpressionType = swizzledVec.type;
+
+			for (std::size_t i = 0; i < swizzle->componentCount; ++i)
+			{
+				switch (swizzleStr[i])
+				{
+					case 'r':
+					case 'x':
+					case 's':
+						swizzle->components[i] = SwizzleComponent::First;
+						break;
+
+					case 'g':
+					case 'y':
+					case 't':
+						swizzle->components[i] = SwizzleComponent::Second;
+						break;
+
+					case 'b':
+					case 'z':
+					case 'p':
+						swizzle->components[i] = SwizzleComponent::Third;
+						break;
+
+					case 'a':
+					case 'w':
+					case 'q':
+						swizzle->components[i] = SwizzleComponent::Fourth;
+						break;
+				}
+			}
+
+			return swizzle;
+		}
 
 		// Transform to AccessMemberIndexExpression
 		auto accessMemberIndex = std::make_unique<AccessMemberIndexExpression>();
@@ -284,7 +339,7 @@ namespace Nz::ShaderAst
 					if (IsPrimitiveType(rightExprType))
 					{
 						TypeMustMatch(leftType.type, rightExprType);
-						clone->cachedExpressionType = rightExprType;
+						clone->cachedExpressionType = leftExprType;
 					}
 					else if (IsVectorType(rightExprType))
 					{
