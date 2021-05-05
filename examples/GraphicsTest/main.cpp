@@ -11,6 +11,10 @@
 
 int main()
 {
+	std::filesystem::path resourceDir = "resources";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
+		resourceDir = ".." / resourceDir;
+
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
@@ -36,7 +40,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/Spaceship/spaceship.obj", meshParams);
+	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!drfreak)
 	{
 		NazaraError("Failed to load model");
@@ -46,8 +50,8 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(drfreak);
 
 	// Texture
-	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile("resources/Spaceship/Texture/diffuse.png");
-	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8))
+	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
+	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8_SRGB))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
@@ -68,7 +72,7 @@ int main()
 	}
 
 	// Texture (alpha-map)
-	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile("alphatile.png");
+	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
 	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat_RGBA8))
 	{
 		NazaraError("Failed to load image");
