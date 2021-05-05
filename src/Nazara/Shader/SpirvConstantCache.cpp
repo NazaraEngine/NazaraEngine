@@ -546,7 +546,7 @@ namespace Nz
 		auto imageType = Image{
 			{}, //< qualifier
 			{}, //< depth
-			{}, //< sampled
+			true, //< sampled
 			SpirvDim::Dim2D, //< dim
 			SpirvImageFormat::Unknown, //< format
 			BuildType(ShaderAst::PrimitiveType::Float32), //< sampledType
@@ -791,9 +791,9 @@ namespace Nz
 
 				UInt32 sampled;
 				if (arg.sampled.has_value())
-					sampled = (*arg.sampled) ? 1 : 0;
+					sampled = (*arg.sampled) ? 1 : 2; //< Yes/No
 				else
-					sampled = 2;
+					sampled = 0; //< Dunno
 
 				constants.AppendVariadic(SpirvOp::OpTypeImage, [&](const auto& appender)
 				{

@@ -727,16 +727,17 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		const ShaderAst::ExpressionType& targetExprType = GetExpressionType(node);
-		assert(IsPrimitiveType(targetExprType));
-
-		ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
-
 		UInt32 exprResultId = EvaluateExpression(node.expression);
 		UInt32 resultId = m_writer.AllocateResultId();
 
+		const ShaderAst::ExpressionType& targetExprType = GetExpressionType(node);
+
 		if (node.componentCount > 1)
 		{
+			assert(IsVectorType(targetExprType));
+
+			const ShaderAst::VectorType& targetType = std::get<ShaderAst::VectorType>(targetExprType);
+
 			// Swizzling is implemented via SpirvOp::OpVectorShuffle using the same vector twice as operands
 			m_currentBlock->AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
 			{
@@ -751,6 +752,10 @@ namespace Nz
 		}
 		else
 		{
+			assert(IsPrimitiveType(targetExprType));
+
+			ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
+
 			// Extract a single component from the vector
 			assert(node.componentCount == 1);
 
