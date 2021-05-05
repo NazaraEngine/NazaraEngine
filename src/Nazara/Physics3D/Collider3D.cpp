@@ -5,7 +5,7 @@
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
