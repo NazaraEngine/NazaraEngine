@@ -13,6 +13,11 @@ local modules = {
 			if is_plat("windows") then 
 				add_syslinks("ws2_32")
 			end
+
+			if is_plat("linux") then
+				del_files("src/Nazara/Network/Posix/SocketPollerImpl.hpp")
+				del_files("src/Nazara/Network/Posix/SocketPollerImpl.cpp")
+			end
 		end
 	},
 	OpenGLRenderer = {
@@ -79,8 +84,7 @@ local modules = {
 	}
 }
 
-add_requires("assimp", "chipmunk2d", "libsndfile")
-add_requires("freetype", "libsdl", { configs = { shared = true }})
+add_requires("chipmunk2d", "freetype", "libsndfile", "libsdl")
 add_requires("newtondynamics", { debug = is_mode("debug") })
 
 set_project("NazaraEngine")
@@ -97,7 +101,6 @@ add_sysincludedirs("thirdparty/include")
 
 set_languages("c89", "cxx17")
 set_rundir("./bin/$(os)_$(arch)_$(mode)")
-set_runtimes(is_mode("debug") and "MDd" or "MD")
 set_symbols("debug", "hidden")
 set_targetdir("./bin/$(os)_$(arch)_$(mode)")
 set_warnings("allextra")
@@ -108,6 +111,8 @@ if is_mode("releasedbg") then
 end
 
 if is_plat("windows") then
+	set_runtimes(is_mode("debug") and "MDd" or "MD")
+
 	add_defines("_CRT_SECURE_NO_WARNINGS")
 	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew")
 	add_cxxflags("/FC")
@@ -115,10 +120,7 @@ if is_plat("windows") then
 	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
 end
 
-target("stb_image")
-	set_kind("static")
-	set_group("Thirdparties")
-	add_files("thirdparty/src/stb/*.cpp")
+includes("thirdparty/xmake.lua")
 
 for name, module in pairs(modules) do
 	target("Nazara" .. name)
@@ -161,20 +163,7 @@ for name, module in pairs(modules) do
 	end
 end
 
-target("PluginAssimp")
-	set_kind("shared")
-	set_group("Plugins")
-
-	add_deps("NazaraUtility")
-	add_packages("assimp")
-
-	add_headerfiles("plugins/Assimp/**.hpp")
-	add_headerfiles("plugins/Assimp/**.inl")
-	add_includedirs("plugins/Assimp")
-	add_files("plugins/Assimp/**.cpp")
-
-target_end()
-
+includes("plugins/*/xmake.lua")
 includes("examples/*/xmake.lua")
 
 rule("debug_suffix")
