@@ -4,7 +4,7 @@
 
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <algorithm>
 #include <cmath>
 #include <Nazara/Physics3D/Debug.hpp>
