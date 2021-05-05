@@ -85,6 +85,7 @@ namespace Nz
 		m_commandBuffer.BeginRenderPass(beginInfo);
 
 		m_currentRenderPass = &vkRenderPass;
+		m_currentSubpassIndex = 0;
 	}
 
 	void VulkanCommandBufferBuilder::BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset)
@@ -101,7 +102,7 @@ namespace Nz
 
 		const VulkanRenderPipeline& vkBinding = static_cast<const VulkanRenderPipeline&>(pipeline);
 
-		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkBinding.Get(m_currentRenderPass->GetRenderPass()));
+		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkBinding.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
 	void VulkanCommandBufferBuilder::BindShaderBinding(const ShaderBinding& binding)
@@ -160,6 +161,7 @@ namespace Nz
 	void VulkanCommandBufferBuilder::NextSubpass()
 	{
 		m_commandBuffer.NextSubpass();
+		m_currentSubpassIndex++;
 	}
 
 	void VulkanCommandBufferBuilder::PreTransferBarrier()

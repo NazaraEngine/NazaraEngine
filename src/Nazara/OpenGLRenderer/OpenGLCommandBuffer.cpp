@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
@@ -57,6 +58,10 @@ namespace Nz
 	{
 		const GL::Context* context = GL::Context::GetCurrentContext();
 
+		StackArray<GLenum> fboDrawBuffers = NazaraStackArrayNoInit(GLenum, m_maxColorBufferCount);
+		for (std::size_t i = 0; i < m_maxColorBufferCount; ++i)
+			fboDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0 + i);
+
 		for (const auto& commandVariant : m_commands)
 		{
 			std::visit([&](auto&& command)
@@ -103,6 +108,10 @@ namespace Nz
 					if (command.framebuffer->GetType() == OpenGLFramebuffer::Type::FBO)
 					{
 						std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
+						assert(colorBufferCount <= fboDrawBuffers.size());
+
+						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
+
 						for (std::size_t i = 0; i < colorBufferCount; ++i)
 						{
 							Nz::Color color = command.clearValues[i].color;
@@ -115,6 +124,9 @@ namespace Nz
 					}
 					else
 					{
+						GLenum buffer = GL_BACK;
+						context->glDrawBuffers(1, &buffer);
+
 						Nz::Color color = command.clearValues[0].color;
 						context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
 						context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

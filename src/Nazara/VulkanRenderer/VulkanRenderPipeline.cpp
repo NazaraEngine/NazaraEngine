@@ -19,20 +19,31 @@ namespace Nz
 		m_pipelineCreateInfo = BuildCreateInfo(m_pipelineInfo);
 	}
 
-	VkPipeline VulkanRenderPipeline::Get(const Vk::RenderPass& renderPass) const
+	VkPipeline VulkanRenderPipeline::Get(const VulkanRenderPass& renderPass, std::size_t subpassIndex) const
 	{
-		if (auto it = m_pipelines.find(renderPass); it != m_pipelines.end())
+		const Vk::RenderPass& renderPassHandle = renderPass.GetRenderPass();
+
+		// Use color attachment count as a key
+		const auto& subpasses = renderPass.GetSubpassDescriptions();
+		assert(subpassIndex < subpasses.size());
+
+		std::size_t colorAttachmentCount = subpasses[subpassIndex].colorAttachment.size();
+
+		std::pair<VkRenderPass, std::size_t> key = { renderPassHandle, colorAttachmentCount };
+
+		if (auto it = m_pipelines.find(key); it != m_pipelines.end())
 			return it->second;
 
-		// Copy create info to make Get re-entrant
+		UpdateCreateInfo(colorAttachmentCount);
+
 		VkGraphicsPipelineCreateInfo pipelineCreateInfo = m_pipelineCreateInfo.pipelineInfo;
-		pipelineCreateInfo.renderPass = renderPass;
+		pipelineCreateInfo.renderPass = renderPassHandle;
 
 		Vk::Pipeline newPipeline;
 		if (!newPipeline.CreateGraphics(*m_device, pipelineCreateInfo))
 			return VK_NULL_HANDLE;
 
-		auto it = m_pipelines.emplace(renderPass, std::move(newPipeline)).first;
+		auto it = m_pipelines.emplace(key, std::move(newPipeline)).first;
 		return it->second;
 	}
 
@@ -268,5 +279,21 @@ namespace Nz
 		createInfo.pipelineInfo.layout = pipelineLayout.GetPipelineLayout();
 
 		return createInfo;
+	}
+
+	void VulkanRenderPipeline::UpdateCreateInfo(std::size_t colorBufferCount) const
+	{
+		// TODO: Add support for independent blend
+		std::size_t previousSize = m_pipelineCreateInfo.colorBlendAttachmentState.size();
+		if (previousSize < colorBufferCount)
+		{
+			assert(!m_pipelineCreateInfo.colorBlendAttachmentState.empty());
+
+			m_pipelineCreateInfo.colorBlendAttachmentState.resize(colorBufferCount);
+			for (std::size_t i = previousSize; i < colorBufferCount; ++i)
+				m_pipelineCreateInfo.colorBlendAttachmentState[i] = m_pipelineCreateInfo.colorBlendAttachmentState.front();
+		}
+
+		m_pipelineCreateInfo.stateData->colorBlendState = BuildColorBlendInfo(m_pipelineInfo, m_pipelineCreateInfo.colorBlendAttachmentState);
 	}
 }

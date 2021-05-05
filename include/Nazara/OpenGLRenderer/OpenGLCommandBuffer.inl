@@ -11,12 +11,14 @@
 namespace Nz
 {
 	inline OpenGLCommandBuffer::OpenGLCommandBuffer() :
+	m_maxColorBufferCount(0),
 	m_owner(nullptr)
 	{
 	}
 
 	inline OpenGLCommandBuffer::OpenGLCommandBuffer(OpenGLCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex) :
 	m_bindingIndex(bindingIndex),
+	m_maxColorBufferCount(0),
 	m_poolIndex(poolIndex),
 	m_owner(&owner)
 	{
@@ -135,6 +137,8 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& /*renderPass*/, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
 	{
+		m_maxColorBufferCount = std::max(m_maxColorBufferCount, framebuffer.GetColorBufferCount());
+
 		SetFrameBufferData setFramebuffer;
 		setFramebuffer.framebuffer = &framebuffer;
 

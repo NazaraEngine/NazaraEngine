@@ -60,6 +60,7 @@ namespace Nz
 		private:
 			Vk::CommandBuffer& m_commandBuffer;
 			const VulkanRenderPass* m_currentRenderPass;
+			std::size_t m_currentSubpassIndex;
 			std::size_t m_framebufferCount;
 			std::size_t m_imageIndex;
 	};
