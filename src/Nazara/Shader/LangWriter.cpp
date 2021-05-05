@@ -556,9 +556,9 @@ namespace Nz
 			if (i != 0)
 				Append(", ");
 
-			Append(node.parameters[i].type);
-			Append(" ");
 			Append(node.parameters[i].name);
+			Append(": ");
+			Append(node.parameters[i].type);
 
 			assert(varIndexOpt);
 			std::size_t& varIndex = *varIndexOpt;
@@ -609,7 +609,7 @@ namespace Nz
 
 				first = false;
 
-				AppendAttributes(false, BindingAttribute{ member.locationIndex }, BuiltinAttribute{ member.builtin });
+				AppendAttributes(false, LocationAttribute{ member.locationIndex }, BuiltinAttribute{ member.builtin });
 				Append(member.name, ": ", member.type);
 			}
 		}
