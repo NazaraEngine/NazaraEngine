@@ -202,16 +202,37 @@ namespace Nz
 			}
 		}
 
-		VkInstanceCreateInfo instanceInfo = {
-			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-			nullptr,
-			createFlags,
-			&appInfo,
-			UInt32(enabledLayers.size()),
-			enabledLayers.data(),
-			UInt32(enabledExtensions.size()),
-			enabledExtensions.data()
+		VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
+
+#ifdef NAZARA_DEBUG
+		VkValidationFeaturesEXT features = {};
+
+		std::vector<VkValidationFeatureEnableEXT> enabledFeatures = {
+			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
+			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+			VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
 		};
+
+		if (availableLayers.count("VK_LAYER_KHRONOS_validation"))
+		{
+			enabledExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
+
+			features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+			features.enabledValidationFeatureCount = UInt32(enabledFeatures.size());
+			features.pEnabledValidationFeatures = enabledFeatures.data();
+
+			instanceInfo.pNext = &features;
+		}
+#endif
+
+		instanceInfo.flags = createFlags;
+		instanceInfo.pApplicationInfo = &appInfo;
+
+		instanceInfo.enabledExtensionCount = UInt32(enabledExtensions.size());
+		instanceInfo.ppEnabledExtensionNames = enabledExtensions.data();
+
+		instanceInfo.enabledLayerCount = UInt32(enabledLayers.size());
+		instanceInfo.ppEnabledLayerNames = enabledLayers.data();
 
 		if (!s_instance.Create(instanceInfo))
 		{
