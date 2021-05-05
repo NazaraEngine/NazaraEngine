@@ -20,6 +20,10 @@
 
 int main()
 {
+	std::filesystem::path resourceDir = "resources";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
+		resourceDir = ".." / resourceDir;
+
 	// NzKeyboard nécessite l'initialisation du module Utilitaire
 	Nz::Modules<Nz::Audio, Nz::Platform> audio;
 	/*if (!audio)
@@ -30,7 +34,7 @@ int main()
 	}*/
 
 	Nz::Sound sound;
-	if (!sound.LoadFromFile("resources/siren.wav"))
+	if (!sound.LoadFromFile(resourceDir / "siren.wav"))
 	{
 		std::cout << "Failed to load sound" << std::endl;
 		std::getchar();

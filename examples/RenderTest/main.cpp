@@ -71,6 +71,10 @@ fn main(vertIn: VertIn) -> VertOut
 
 int main()
 {
+	std::filesystem::path resourceDir = "resources";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
+		resourceDir = ".." / resourceDir;
+
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
@@ -105,7 +109,7 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile("resources/Spaceship/spaceship.obj", meshParams);
+	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!drfreak)
 	{
 		NazaraError("Failed to load model");
@@ -124,7 +128,7 @@ int main()
 	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
 
 	// Texture
-	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile("resources/Spaceship/Texture/diffuse.png");
+	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
 	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8))
 	{
 		NazaraError("Failed to load image");
