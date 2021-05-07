@@ -84,6 +84,8 @@ local modules = {
 	}
 }
 
+add_repositories("local-repo xmake-repo")
+
 add_requires("chipmunk2d", "freetype", "libsndfile", "libsdl")
 add_requires("newtondynamics", { debug = is_mode("debug") })
 
@@ -163,9 +165,11 @@ for name, module in pairs(modules) do
 	end
 end
 
+includes("tools/xmake.lua")
 includes("plugins/*/xmake.lua")
 includes("examples/*/xmake.lua")
 
+-- Adds -d as a debug suffix
 rule("debug_suffix")
     on_load(function (target)
 		if target:kind() ~= "binary" then
