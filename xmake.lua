@@ -93,6 +93,7 @@ set_project("NazaraEngine")
 
 add_rules("mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
+add_rules("build_rendererplugins")
 
 if is_mode("debug") then
 	add_rules("debug_suffix")
@@ -176,3 +177,15 @@ rule("debug_suffix")
         	target:set("basename", target:basename() .. "-d")
 		end
     end)
+
+-- Builds renderer plugins if linked to NazaraRenderer
+rule("build_rendererplugins")
+	after_load(function (target)
+		if target:kind() == "binary" and target:dep("NazaraRenderer") then
+			for name, _ in pairs(modules) do
+				if name:match("^.+Renderer$") then
+					target:add("deps", "Nazara" .. name, {inherit = false})
+				end
+			end
+		end
+	end)
