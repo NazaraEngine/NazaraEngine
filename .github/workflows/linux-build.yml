@@ -40,7 +40,7 @@ jobs:
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
-      run: echo "XMAKE_GLOBALDIR=$(pwd)/../xmake-global" >> $GITHUB_ENV
+      run: echo "XMAKE_GLOBALDIR=${{ env.RUNNER_WORKSPACE }}/xmake-global" >> $GITHUB_ENV
 
     # Install xmake
     - name: Setup xmake
