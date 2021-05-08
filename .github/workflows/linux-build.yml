@@ -40,7 +40,7 @@ jobs:
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
-      run: echo "XMAKE_GLOBALDIR=$(pwd)/xmake-global" >> $GITHUB_ENV
+      run: echo "XMAKE_GLOBALDIR=$(pwd)/../xmake-global" >> $GITHUB_ENV
 
     # Install xmake
     - name: Setup xmake
@@ -59,7 +59,7 @@ jobs:
     - name: Retrieve cached xmake dependencies
       uses: actions/cache@v2
       with:
-        path: xmake-global/.xmake/packages
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}
 
     # Setup compilation mode and install project dependencies
