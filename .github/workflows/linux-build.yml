@@ -68,11 +68,11 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake.exe
+      run: xmake
 
     # Install the result files
     - name: Install Nazara
-      run: xmake.exe install -vo package
+      run: xmake install -vo package
 
     # Upload artifacts
     - uses: actions/upload-artifact@v2
