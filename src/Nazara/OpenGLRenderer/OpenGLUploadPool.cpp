@@ -48,11 +48,24 @@ namespace Nz
 			bestBlock.offset = 0;
 		}
 
-		Allocation& allocationData = m_allocations.emplace_back();
+		// Now find the proper allocation buffer
+		std::size_t allocationBlockIndex = m_nextAllocationIndex / AllocationPerBlock;
+		std::size_t allocationIndex = m_nextAllocationIndex % AllocationPerBlock;
+
+		if (allocationBlockIndex >= m_allocationBlocks.size())
+		{
+			assert(allocationBlockIndex == m_allocationBlocks.size());
+			m_allocationBlocks.emplace_back(std::make_unique<AllocationBlock>());
+		}
+
+		auto& allocationBlock = *m_allocationBlocks[allocationBlockIndex];
+
+		Allocation& allocationData = allocationBlock[allocationIndex];
 		allocationData.mappedPtr = static_cast<UInt8*>(bestBlock.block->memory.data()) + bestBlock.offset;
 		allocationData.size = size;
 
 		bestBlock.block->freeOffset += size;
+		m_nextAllocationIndex++;
 
 		return allocationData;
 	}
@@ -62,6 +75,6 @@ namespace Nz
 		for (Block& block : m_blocks)
 			block.freeOffset = 0;
 
-		m_allocations.clear();
+		m_nextAllocationIndex = 0;
 	}
 }

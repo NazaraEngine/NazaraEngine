@@ -11,7 +11,8 @@
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <optional>
+#include <array>
+#include <memory>
 #include <vector>
 
 namespace Nz
@@ -33,14 +34,19 @@ namespace Nz
 			OpenGLUploadPool& operator=(OpenGLUploadPool&&) = delete;
 
 		private:
+			static constexpr std::size_t AllocationPerBlock = 2048;
+
+			using AllocationBlock = std::array<Allocation, AllocationPerBlock>;
+
 			struct Block
 			{
 				std::vector<UInt8> memory;
 				UInt64 freeOffset = 0;
 			};
 
+			std::size_t m_nextAllocationIndex;
+			std::vector<std::unique_ptr<AllocationBlock>> m_allocationBlocks;
 			std::vector<Block> m_blocks;
-			std::vector<Allocation> m_allocations;
 			UInt64 m_blockSize;
 	};
 }
