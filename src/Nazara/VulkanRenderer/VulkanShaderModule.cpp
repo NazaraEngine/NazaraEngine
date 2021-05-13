@@ -24,7 +24,7 @@ namespace Nz
 
 			std::vector<EntryPoint> entryPoints;
 
-			bool HandleOpcode(const SpirvInstruction& instruction, UInt32 wordCount) override
+			bool HandleOpcode(const SpirvInstruction& instruction, UInt32 /*wordCount*/) override
 			{
 				switch (instruction.op)
 				{

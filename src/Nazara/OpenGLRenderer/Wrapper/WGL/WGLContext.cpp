@@ -377,7 +377,7 @@ namespace Nz::GL
 			return false;
 		}
 
-		if (DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
+		if (m_loader.DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
 		{
 			m_params.bitsPerPixel = descriptor.cColorBits + descriptor.cAlphaBits;
 			m_params.depthBits = descriptor.cDepthBits;

@@ -9,6 +9,7 @@
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
 #include <ShaderNode/Previews/PreviewModel.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -153,7 +154,7 @@ class ShaderGraph
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
 		std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ToFunction() const;
 
-		mutable QtNodes::FlowScene m_flowScene;
+		mutable std::optional<QtNodes::FlowScene> m_flowScene;
 		std::vector<BufferEntry> m_buffers;
 		std::vector<ConditionEntry> m_conditions;
 		std::vector<InputEntry> m_inputs;

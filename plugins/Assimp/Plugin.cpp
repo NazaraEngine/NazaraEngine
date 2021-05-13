@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -233,6 +234,8 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 		excludedComponents |= aiComponent_TEXCOORDS;
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
+	CallOnExit releaseProperties([&] { aiReleasePropertyStore(properties); });
+
 	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE,              ~aiPrimitiveType_TRIANGLE); //< We only want triangles
@@ -241,7 +244,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               excludedComponents);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
-	aiReleasePropertyStore(properties);
+	CallOnExit releaseScene([&] { aiReleaseImport(scene); });
+
+	releaseProperties.CallAndReset();
 
 	if (!scene)
 	{
@@ -627,8 +632,6 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 		if (parameters.center)
 			mesh->Recenter();
 	}
-
-	aiReleaseImport(scene);
 
 	return mesh;
 }

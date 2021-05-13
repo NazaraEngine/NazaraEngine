@@ -906,6 +906,8 @@ namespace Nz
 			std::size_t passIndex = *itRead;
 			if (seen.find(passIndex) == seen.end())
 			{
+				seen.insert(passIndex);
+
 				if (itRead != itWrite)
 					*itWrite++ = passIndex;
 				else

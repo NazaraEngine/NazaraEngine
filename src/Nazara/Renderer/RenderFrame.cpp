@@ -25,14 +25,6 @@ namespace Nz
 		return m_image->GetUploadPool();
 	}
 
-	void RenderFrame::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
-	{
-		if (!m_image)
-			throw std::runtime_error("frame is either invalid or has already been presented");
-
-		m_image->SubmitCommandBuffer(commandBuffer, queueTypeFlags);
-	}
-
 	void RenderFrame::Present()
 	{
 		if (!m_image)
@@ -40,5 +32,13 @@ namespace Nz
 
 		m_image->Present();
 		m_image = nullptr;
+	}
+
+	void RenderFrame::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
+	{
+		if (!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		m_image->SubmitCommandBuffer(commandBuffer, queueTypeFlags);
 	}
 }

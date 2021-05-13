@@ -76,7 +76,7 @@ namespace Nz
 		return colorBlendStates;
 	}
 
-	VkPipelineColorBlendStateCreateInfo VulkanRenderPipeline::BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState)
+	VkPipelineColorBlendStateCreateInfo VulkanRenderPipeline::BuildColorBlendInfo(const RenderPipelineInfo& /*pipelineInfo*/, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState)
 	{
 		VkPipelineColorBlendStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -100,7 +100,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	VkPipelineDynamicStateCreateInfo VulkanRenderPipeline::BuildDynamicStateInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkDynamicState>& dynamicStates)
+	VkPipelineDynamicStateCreateInfo VulkanRenderPipeline::BuildDynamicStateInfo(const RenderPipelineInfo& /*pipelineInfo*/, const std::vector<VkDynamicState>& dynamicStates)
 	{
 		VkPipelineDynamicStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -110,7 +110,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& pipelineInfo)
+	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& /*pipelineInfo*/)
 	{
 		return { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 	}
@@ -124,7 +124,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	VkPipelineMultisampleStateCreateInfo VulkanRenderPipeline::BuildMultisampleInfo(const RenderPipelineInfo& pipelineInfo)
+	VkPipelineMultisampleStateCreateInfo VulkanRenderPipeline::BuildMultisampleInfo(const RenderPipelineInfo& /*pipelineInfo*/)
 	{
 		VkPipelineMultisampleStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -146,7 +146,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& pipelineInfo)
+	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& /*pipelineInfo*/)
 	{
 		VkPipelineViewportStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -229,7 +229,7 @@ namespace Nz
 		return vertexBindings;
 	}
 
-	VkPipelineVertexInputStateCreateInfo VulkanRenderPipeline::BuildVertexInputInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkVertexInputAttributeDescription>& vertexAttributes, const std::vector<VkVertexInputBindingDescription>& bindingDescriptions)
+	VkPipelineVertexInputStateCreateInfo VulkanRenderPipeline::BuildVertexInputInfo(const RenderPipelineInfo& /*pipelineInfo*/, const std::vector<VkVertexInputAttributeDescription>& vertexAttributes, const std::vector<VkVertexInputBindingDescription>& bindingDescriptions)
 	{
 		VkPipelineVertexInputStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
