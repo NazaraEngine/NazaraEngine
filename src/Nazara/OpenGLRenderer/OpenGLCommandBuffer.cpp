@@ -112,6 +112,7 @@ namespace Nz
 
 						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
 
+						//FIXME: Don't clear when not needed
 						for (std::size_t i = 0; i < colorBufferCount; ++i)
 						{
 							Nz::Color color = command.clearValues[i].color;
@@ -127,6 +128,7 @@ namespace Nz
 						GLenum buffer = GL_BACK;
 						context->glDrawBuffers(1, &buffer);
 
+						//FIXME: Don't clear when not needed
 						Nz::Color color = command.clearValues[0].color;
 						context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
 						context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

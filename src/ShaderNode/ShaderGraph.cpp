@@ -56,14 +56,15 @@ namespace
 }
 
 ShaderGraph::ShaderGraph() :
-m_flowScene(BuildRegistry()),
 m_type(ShaderType::NotSet)
 {
+	m_flowScene.emplace(BuildRegistry());
+
 	m_previewModel = std::make_unique<QuadPreview>();
 
-	QObject::connect(&m_flowScene, &QGraphicsScene::selectionChanged, [&]
+	QObject::connect(&m_flowScene.value(), &QGraphicsScene::selectionChanged, [&]
 	{
-		auto selectedNodes = m_flowScene.selectedNodes();
+		auto selectedNodes = m_flowScene->selectedNodes();
 		if (selectedNodes.size() == 1)
 			OnSelectedNodeUpdate(this, static_cast<ShaderNode*>(selectedNodes.front()->nodeDataModel()));
 		else
@@ -78,31 +79,31 @@ m_type(ShaderType::NotSet)
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
-	auto& node1 = m_flowScene.createNode(std::make_unique<TextureValue>(*this));
+	auto& node1 = m_flowScene->createNode(std::make_unique<TextureValue>(*this));
 	node1.nodeGraphicsObject().setPos(0, 200);
 
-	auto& node2 = m_flowScene.createNode(std::make_unique<InputValue>(*this));
+	auto& node2 = m_flowScene->createNode(std::make_unique<InputValue>(*this));
 	node2.nodeGraphicsObject().setPos(50, 350);
 
-	auto& node3 = m_flowScene.createNode(std::make_unique<SampleTexture>(*this));
+	auto& node3 = m_flowScene->createNode(std::make_unique<SampleTexture>(*this));
 	node3.nodeGraphicsObject().setPos(200, 200);
 
-	auto& node4 = m_flowScene.createNode(std::make_unique<VecMul>(*this));
+	auto& node4 = m_flowScene->createNode(std::make_unique<VecMul>(*this));
 	node4.nodeGraphicsObject().setPos(400, 200);
 
-	auto& node5 = m_flowScene.createNode(std::make_unique<OutputValue>(*this));
+	auto& node5 = m_flowScene->createNode(std::make_unique<OutputValue>(*this));
 	node5.nodeGraphicsObject().setPos(600, 300);
 
-	m_flowScene.createConnection(node3, 0, node1, 0);
-	m_flowScene.createConnection(node3, 1, node2, 0);
-	m_flowScene.createConnection(node4, 0, node3, 0);
-	m_flowScene.createConnection(node4, 1, node3, 0);
-	m_flowScene.createConnection(node5, 0, node4, 0);
+	m_flowScene->createConnection(node3, 0, node1, 0);
+	m_flowScene->createConnection(node3, 1, node2, 0);
+	m_flowScene->createConnection(node4, 0, node3, 0);
+	m_flowScene->createConnection(node4, 1, node3, 0);
+	m_flowScene->createConnection(node5, 0, node4, 0);
 }
 
 ShaderGraph::~ShaderGraph()
 {
-	m_flowScene.clearScene();
+	m_flowScene.reset();
 }
 
 std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
@@ -187,8 +188,8 @@ void ShaderGraph::Clear()
 {
 	m_type = ShaderType::NotSet;
 
-	m_flowScene.clearScene();
-	m_flowScene.clear();
+	m_flowScene->clearScene();
+	m_flowScene->clear();
 
 	m_buffers.clear();
 	m_conditions.clear();
@@ -313,10 +314,10 @@ void ShaderGraph::Load(const QJsonObject& data)
 	OnTextureListUpdate(this);
 
 	for (QJsonValueRef node : data["nodes"].toArray())
-		m_flowScene.restoreNode(node.toObject());
+		m_flowScene->restoreNode(node.toObject());
 
 	for (QJsonValueRef connection : data["connections"].toArray())
-		m_flowScene.restoreConnection(connection.toObject());
+		m_flowScene->restoreConnection(connection.toObject());
 }
 
 QJsonObject ShaderGraph::Save()
@@ -430,14 +431,14 @@ QJsonObject ShaderGraph::Save()
 
 	QJsonArray nodesJsonArray;
 	{
-		for (auto&& [uuid, node] : m_flowScene.nodes())
+		for (auto&& [uuid, node] : m_flowScene->nodes())
 			nodesJsonArray.append(node->save());
 	}
 	sceneJson["nodes"] = nodesJsonArray;
 
 	QJsonArray connectionJsonArray;
 	{
-		for (auto&& [uuid, connection] : m_flowScene.connections())
+		for (auto&& [uuid, connection] : m_flowScene->connections())
 		{
 			QJsonObject connectionJson = connection->save();
 
@@ -638,8 +639,12 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 {
 	assert(textureIndex < m_textures.size());
 	auto& textureEntry = m_textures[textureIndex];
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
 	textureEntry.preview = std::move(preview);
 	textureEntry.preview.convertTo(QImage::Format_RGBA8888);
+#else
+	textureEntry.preview = preview.convertToFormat(QImage::Format_RGBA8888);
+#endif
 
 	OnTexturePreviewUpdate(this, textureIndex);
 }
@@ -844,7 +849,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 
 	std::vector<QtNodes::Node*> outputNodes;
 
-	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+	m_flowScene->iterateOverNodes([&](QtNodes::Node* node)
 	{
 		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
 		{

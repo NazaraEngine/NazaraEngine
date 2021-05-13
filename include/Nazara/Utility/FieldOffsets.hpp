@@ -39,8 +39,6 @@ namespace Nz
 			static std::size_t GetSize(StructFieldType fieldType);
 
 		private:
-			static inline std::size_t Align(std::size_t source, std::size_t alignment);
-
 			std::size_t m_largestFieldAlignment;
 			std::size_t m_offsetRounding;
 			std::size_t m_size;

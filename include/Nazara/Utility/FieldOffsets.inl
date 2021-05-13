@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/FieldOffsets.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <cassert>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
@@ -162,15 +163,6 @@ namespace Nz
 		}
 
 		return 0;
-	}
-
-	inline std::size_t FieldOffsets::Align(std::size_t source, std::size_t alignment)
-	{
-		if (source == 0)
-			return source;
-
-		assert(alignment > 0);
-		return ((source + alignment - 1) / alignment) * alignment;
 	}
 }
 

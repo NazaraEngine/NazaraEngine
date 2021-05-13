@@ -68,7 +68,7 @@ namespace Nz
 		const ShaderAst::ExpressionType& rightType = GetExpressionType(*node.right);
 
 		ShaderAst::PrimitiveType leftTypeBase = RetrieveBaseType(leftType);
-		ShaderAst::PrimitiveType rightTypeBase = RetrieveBaseType(rightType);
+		//ShaderAst::PrimitiveType rightTypeBase = RetrieveBaseType(rightType);
 
 
 		UInt32 leftOperand = EvaluateExpression(node.left);

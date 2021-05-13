@@ -112,7 +112,7 @@ namespace Nz
 		m_commandBuffer.SetViewport(viewportRegion);
 	}
 
-	void OpenGLCommandBufferBuilder::TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture)
+	void OpenGLCommandBufferBuilder::TextureBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags /*srcAccessMask*/, MemoryAccessFlags /*dstAccessMask*/, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/, const Texture& /*texture*/)
 	{
 		/* nothing to do */
 	}

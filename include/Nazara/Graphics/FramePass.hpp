@@ -57,7 +57,7 @@ namespace Nz
 			inline void SetCommandCallback(CommandCallback callback);
 			inline void SetClearColor(std::size_t outputIndex, const std::optional<Color>& color);
 			inline void SetDepthStencilClear(float depth, UInt32 stencil);
-			inline void SetExecutionCallback(CommandCallback callback);
+			inline void SetExecutionCallback(ExecutionCallback callback);
 
 			inline void SetDepthStencilInput(std::size_t attachmentId);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);

@@ -63,6 +63,15 @@ namespace Nz
 		return m_uploadPool;
 	}
 
+	void VulkanRenderImage::Present()
+	{
+		Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
+		if (!graphicsQueue.Submit(UInt32(m_graphicalCommandsBuffers.size()), m_graphicalCommandsBuffers.data(), m_imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, m_renderFinishedSemaphore, m_inFlightFence))
+			throw std::runtime_error("Failed to submit command buffers: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
+
+		m_owner.Present(m_imageIndex, m_renderFinishedSemaphore);
+	}
+
 	void VulkanRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
 		VulkanCommandBuffer& vkCommandBuffer = *static_cast<VulkanCommandBuffer*>(commandBuffer);
@@ -80,14 +89,5 @@ namespace Nz
 			if (!graphicsQueue.Submit(commandBuffer))
 				throw std::runtime_error("Failed to submit command buffer: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
 		}
-	}
-
-	void VulkanRenderImage::Present()
-	{
-		Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
-		if (!graphicsQueue.Submit(UInt32(m_graphicalCommandsBuffers.size()), m_graphicalCommandsBuffers.data(), m_imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, m_renderFinishedSemaphore, m_inFlightFence))
-			throw std::runtime_error("Failed to submit command buffers: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
-
-		m_owner.Present(m_imageIndex, m_renderFinishedSemaphore);
 	}
 }

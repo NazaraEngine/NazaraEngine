@@ -102,9 +102,9 @@ namespace Nz
 		dsClear.stencil = stencil;
 	}
 
-	inline void FramePass::SetExecutionCallback(CommandCallback callback)
+	inline void FramePass::SetExecutionCallback(ExecutionCallback callback)
 	{
-		m_commandCallback = std::move(callback);
+		m_executionCallback = std::move(callback);
 	}
 
 	inline void FramePass::SetDepthStencilInput(std::size_t attachmentId)

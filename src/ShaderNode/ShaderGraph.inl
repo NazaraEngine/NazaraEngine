@@ -87,7 +87,7 @@ inline const PreviewModel& ShaderGraph::GetPreviewModel() const
 
 inline QtNodes::FlowScene& ShaderGraph::GetScene()
 {
-	return m_flowScene;
+	return *m_flowScene;
 }
 
 inline auto ShaderGraph::GetTexture(std::size_t textureIndex) const -> const TextureEntry&

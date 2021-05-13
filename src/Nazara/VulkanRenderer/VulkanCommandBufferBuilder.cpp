@@ -79,7 +79,7 @@ namespace Nz
 		beginInfo.renderArea.offset.y = renderRect.y;
 		beginInfo.renderArea.extent.width = renderRect.width;
 		beginInfo.renderArea.extent.height = renderRect.height;
-		beginInfo.clearValueCount = vkClearValues.size();
+		beginInfo.clearValueCount = UInt32(vkClearValues.size());
 		beginInfo.pClearValues = vkClearValues.data();
 
 		m_commandBuffer.BeginRenderPass(beginInfo);
