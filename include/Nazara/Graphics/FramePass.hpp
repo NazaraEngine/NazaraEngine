@@ -50,6 +50,7 @@ namespace Nz
 			inline std::size_t GetDepthStencilOutput() const;
 			inline const ExecutionCallback& GetExecutionCallback() const;
 			inline const std::vector<Input>& GetInputs() const;
+			inline const std::string& GetName() const;
 			inline const std::vector<Output>& GetOutputs() const;
 			inline std::size_t GetPassId() const;
 

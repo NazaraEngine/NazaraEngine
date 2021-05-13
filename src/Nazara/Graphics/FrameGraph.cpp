@@ -75,6 +75,7 @@ namespace Nz
 		for (auto& physicalPass : m_pending.physicalPasses)
 		{
 			auto& bakedPass = bakedPasses.emplace_back();
+			bakedPass.name = std::move(physicalPass.name);
 			bakedPass.renderPass = std::move(m_pending.renderPasses[renderPassIndex++]);
 			bakedPass.transitions = std::move(physicalPass.textureTransitions);
 
@@ -140,13 +141,19 @@ namespace Nz
 			std::size_t physPassIndex = m_pending.physicalPasses.size();
 			PhysicalPassData& currentPass = m_pending.physicalPasses.emplace_back();
 
-			auto begin = m_pending.passList.begin() + passIndex;
+			auto it = m_pending.passList.begin() + passIndex;
 			auto end = m_pending.passList.begin() + mergeEnd;
 
-			for (; begin < end; ++begin)
+			for (; it < end; ++it)
 			{
+				const FramePass& pass = m_framePasses[*it];
+				if (currentPass.name.empty())
+					currentPass.name = pass.GetName();
+				else
+					currentPass.name += " + " + pass.GetName();
+
 				auto& subpass = currentPass.passes.emplace_back();
-				subpass.passIndex = *begin;
+				subpass.passIndex = *it;
 				m_pending.passIdToPhysicalPassIndex.emplace(subpass.passIndex, physPassIndex);
 			}
 

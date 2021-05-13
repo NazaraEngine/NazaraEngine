@@ -71,6 +71,7 @@ namespace Nz
 					std::size_t passIndex;
 				};
 
+				std::string name;
 				std::vector<TextureTransition> textureTransitions;
 				std::vector<Subpass> passes;
 			};

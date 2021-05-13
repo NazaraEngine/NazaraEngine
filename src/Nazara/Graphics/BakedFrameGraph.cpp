@@ -54,6 +54,9 @@ namespace Nz
 					builder.TextureBarrier(textureTransition.srcStageMask, textureTransition.dstStageMask, textureTransition.srcAccessMask, textureTransition.dstAccessMask, textureTransition.oldLayout, textureTransition.newLayout, *texture);
 				}
 
+				if (!passData.name.empty())
+					builder.BeginDebugRegion(passData.name, Nz::Color::Green);
+
 				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect);
 
 				bool first = true;
@@ -68,6 +71,9 @@ namespace Nz
 				}
 
 				builder.EndRenderPass();
+
+				if (!passData.name.empty())
+					builder.EndDebugRegion();
 			});
 		}
 
