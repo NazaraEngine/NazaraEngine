@@ -69,6 +69,11 @@ namespace Nz
 		return m_inputs;
 	}
 
+	inline const std::string& FramePass::GetName() const
+	{
+		return m_name;
+	}
+
 	inline auto FramePass::GetOutputs() const -> const std::vector<Output>&
 	{
 		return m_outputs;

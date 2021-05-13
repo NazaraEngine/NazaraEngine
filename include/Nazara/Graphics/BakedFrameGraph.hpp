@@ -69,6 +69,7 @@ namespace Nz
 				CommandBufferPtr commandBuffer;
 				std::shared_ptr<Framebuffer> framebuffer;
 				std::shared_ptr<RenderPass> renderPass;
+				std::string name;
 				std::vector<std::size_t> outputTextureIndices;
 				std::vector<SubpassData> subpasses;
 				std::vector<TextureTransition> transitions;
