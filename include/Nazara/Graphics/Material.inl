@@ -336,16 +336,34 @@ namespace Nz
 		return m_pipelineInfo.depthCompare;
 	}
 
-	/*!
-	* \brief Gets the dst in blend
-	*
-	* \return Function for dst blending
-	*
-	* \see SetDstBlend
-	*/
-	inline BlendFunc Material::GetDstBlend() const
+	inline BlendEquation Material::GetBlendAlphaModeEquation() const
 	{
-		return m_pipelineInfo.dstBlend;
+		return m_pipelineInfo.blend.modeAlpha;
+	}
+
+	inline BlendEquation Material::GetBlendColorModeEquation() const
+	{
+		return m_pipelineInfo.blend.modeColor;
+	}
+
+	inline BlendFunc Material::GetBlendDstAlphaFunc() const
+	{
+		return m_pipelineInfo.blend.dstAlpha;
+	}
+
+	inline BlendFunc Material::GetBlendDstColorFunc() const
+	{
+		return m_pipelineInfo.blend.dstColor;
+	}
+
+	inline BlendFunc Material::GetBlendSrcAlphaFunc() const
+	{
+		return m_pipelineInfo.blend.srcAlpha;
+	}
+
+	inline BlendFunc Material::GetBlendSrcColorFunc() const
+	{
+		return m_pipelineInfo.blend.srcColor;
 	}
 
 	/*!
@@ -419,15 +437,6 @@ namespace Nz
 	inline const std::shared_ptr<UberShader>& Material::GetShader(ShaderStageType shaderStage) const
 	{
 		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
-	}
-
-	/*!
-	* \brief Gets the src in blend
-	* \return Function for src blending
-	*/
-	inline BlendFunc Material::GetSrcBlend() const
-	{
-		return m_pipelineInfo.srcBlend;
 	}
 
 	inline const std::shared_ptr<Texture>& Material::GetTexture(std::size_t textureIndex) const
@@ -596,16 +605,20 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	/*!
-	* \brief Sets the dst in blend
-	*
-	* \param func Function for dst blending
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline void Material::SetDstBlend(BlendFunc func)
+	inline void Material::SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode)
 	{
-		m_pipelineInfo.dstBlend = func;
+		m_pipelineInfo.blend.modeAlpha = alphaMode;
+		m_pipelineInfo.blend.modeColor = colorMode;
+
+		InvalidatePipeline();
+	}
+
+	inline void Material::SetBlendFunc(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha)
+	{
+		m_pipelineInfo.blend.dstAlpha = dstAlpha;
+		m_pipelineInfo.blend.dstColor = dstColor;
+		m_pipelineInfo.blend.srcAlpha = srcAlpha;
+		m_pipelineInfo.blend.srcColor = srcColor;
 
 		InvalidatePipeline();
 	}
@@ -670,22 +683,6 @@ namespace Nz
 	inline void Material::SetPointSize(float pointSize)
 	{
 		m_pipelineInfo.pointSize = pointSize;
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Sets the src in blend
-	*
-	* \param func Function for src blending
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see GetSrcBlend
-	*/
-	inline void Material::SetSrcBlend(BlendFunc func)
-	{
-		m_pipelineInfo.srcBlend = func;
 
 		InvalidatePipeline();
 	}

@@ -19,12 +19,20 @@ namespace Nz
 
 	struct RenderStates
 	{
-		BlendFunc dstBlend = BlendFunc_Zero;
-		BlendFunc srcBlend = BlendFunc_One;
 		FaceFilling faceFilling = FaceFilling_Fill;
 		FaceSide cullingSide = FaceSide_Back;
 		RendererComparison depthCompare = RendererComparison_Less;
 		PrimitiveMode primitiveMode = PrimitiveMode_TriangleList;
+
+		struct 
+		{
+			BlendEquation modeAlpha = BlendEquation::Add;
+			BlendEquation modeColor = BlendEquation::Add;
+			BlendFunc dstAlpha = BlendFunc::Zero;
+			BlendFunc dstColor = BlendFunc::Zero;
+			BlendFunc srcAlpha = BlendFunc::One;
+			BlendFunc srcColor = BlendFunc::One;
+		} blend;
 
 		struct
 		{

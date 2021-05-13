@@ -30,8 +30,12 @@ namespace Nz
 
 		if (lhs.blending) //< Remember, at this time we know lhs.blending == rhs.blending
 		{
-			NazaraRenderStateMember(dstBlend);
-			NazaraRenderStateMember(srcBlend);
+			NazaraRenderStateMember(blend.dstAlpha);
+			NazaraRenderStateMember(blend.dstColor);
+			NazaraRenderStateMember(blend.modeAlpha);
+			NazaraRenderStateMember(blend.modeColor);
+			NazaraRenderStateMember(blend.srcAlpha);
+			NazaraRenderStateMember(blend.srcColor);
 		}
 
 		if (lhs.depthBuffer)
@@ -101,8 +105,12 @@ namespace std
 
 			if (pipelineInfo.blending) //< Remember, at this time we know lhs.blending == rhs.blending
 			{
-				NazaraRenderStateEnum(dstBlend);
-				NazaraRenderStateEnum(srcBlend);
+				NazaraRenderStateEnum(blend.dstAlpha);
+				NazaraRenderStateEnum(blend.dstColor);
+				NazaraRenderStateEnum(blend.modeAlpha);
+				NazaraRenderStateEnum(blend.modeColor);
+				NazaraRenderStateEnum(blend.srcAlpha);
+				NazaraRenderStateEnum(blend.srcColor);
 			}
 
 			if (pipelineInfo.depthBuffer)

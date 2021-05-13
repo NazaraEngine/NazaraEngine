@@ -57,11 +57,12 @@ namespace Nz
 
 		if (pipelineInfo.blending)
 		{
-			//TODO
-			/*switch (pipelineInfo.dstBlend)
-			{
-				blendState.dstAlphaBlendFactor
-			}*/
+			colorBlendState.srcColorBlendFactor = ToVulkan(pipelineInfo.blend.srcColor);
+			colorBlendState.dstColorBlendFactor = ToVulkan(pipelineInfo.blend.dstColor);
+			colorBlendState.colorBlendOp        = ToVulkan(pipelineInfo.blend.modeColor);
+			colorBlendState.srcAlphaBlendFactor = ToVulkan(pipelineInfo.blend.srcAlpha);
+			colorBlendState.dstAlphaBlendFactor = ToVulkan(pipelineInfo.blend.dstAlpha);
+			colorBlendState.alphaBlendOp        = ToVulkan(pipelineInfo.blend.modeAlpha);
 		}
 		else
 		{
