@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/ParameterList.hpp>
+#include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
@@ -35,6 +36,8 @@ namespace Nz
 			Vulkan() = delete;
 			~Vulkan() = delete;
 
+			static RenderDeviceInfo BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice);
+
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo);
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);
 			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const QueueFamily* queueFamilies, std::size_t queueFamilyCount);
@@ -43,7 +46,7 @@ namespace Nz
 
 			static const std::vector<Vk::PhysicalDevice>& GetPhysicalDevices();
 			static const Vk::PhysicalDevice& GetPhysicalDeviceInfo(VkPhysicalDevice physDevice);
-			
+
 			static bool Initialize(UInt32 targetApiVersion, const ParameterList& parameters);
 
 			static bool IsInitialized();

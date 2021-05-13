@@ -12,6 +12,7 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <unordered_set>
 #include <vector>
 
@@ -30,6 +31,7 @@ namespace Nz
 			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params) const;
 			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params, WindowHandle handle) const;
 
+			const RenderDeviceInfo& GetDeviceInfo() const override;
 			inline const GL::Context& GetReferenceContext() const;
 
 			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
@@ -57,6 +59,7 @@ namespace Nz
 
 			std::unique_ptr<GL::Context> m_referenceContext;
 			mutable std::unordered_set<const GL::Context*> m_contexts;
+			RenderDeviceInfo m_deviceInfo;
 			GL::Loader& m_loader;
 	};
 }

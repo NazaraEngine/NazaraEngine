@@ -17,6 +17,11 @@ namespace Nz
 {
 	VulkanDevice::~VulkanDevice() = default;
 
+	const RenderDeviceInfo& VulkanDevice::GetDeviceInfo() const
+	{
+		return m_renderDeviceInfo;
+	}
+
 	std::shared_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
 	{
 		return std::make_shared<VulkanBuffer>(*this, type);

@@ -26,6 +26,35 @@ namespace Nz
 		if (!m_referenceContext)
 			throw std::runtime_error("failed to create reference context");
 
+		if (!GL::Context::SetCurrentContext(m_referenceContext.get()))
+			throw std::runtime_error("failed to activate reference context");
+
+		const GLubyte* vendorStr = m_referenceContext->glGetString(GL_VENDOR);
+		const GLubyte* rendererStr = m_referenceContext->glGetString(GL_RENDERER);
+
+		m_deviceInfo.name = "OpenGL Device (";
+
+		if (vendorStr)
+			m_deviceInfo.name.append(reinterpret_cast<const char*>(vendorStr));
+
+		if (rendererStr)
+		{
+			if (vendorStr)
+				m_deviceInfo.name += " - ";
+
+			m_deviceInfo.name.append(reinterpret_cast<const char*>(rendererStr));
+		}
+
+		m_deviceInfo.name += ')';
+
+		m_deviceInfo.type = RenderDeviceType::Unknown;
+
+		GLint minUboOffsetAlignment;
+		m_referenceContext->glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &minUboOffsetAlignment);
+
+		assert(minUboOffsetAlignment >= 1);
+		m_deviceInfo.limits.minUniformBufferOffsetAlignment = static_cast<UInt64>(minUboOffsetAlignment);
+
 		m_contexts.insert(m_referenceContext.get());
 	}
 
@@ -48,6 +77,11 @@ namespace Nz
 		m_contexts.insert(contextPtr.get());
 
 		return contextPtr;
+	}
+
+	const RenderDeviceInfo& OpenGLDevice::GetDeviceInfo() const
+	{
+		return m_deviceInfo;
 	}
 
 	std::shared_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)

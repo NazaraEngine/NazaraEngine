@@ -69,36 +69,7 @@ namespace Nz
 		devices.reserve(physDevices.size());
 
 		for (const Vk::PhysicalDevice& physDevice : physDevices)
-		{
-			RenderDeviceInfo& device = devices.emplace_back();
-			device.name = physDevice.properties.deviceName;
-
-			switch (physDevice.properties.deviceType)
-			{
-				case VK_PHYSICAL_DEVICE_TYPE_CPU:
-					device.type = RenderDeviceType::Software;
-					break;
-
-				case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-					device.type = RenderDeviceType::Dedicated;
-					break;
-
-				case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-					device.type = RenderDeviceType::Integrated;
-					break;
-
-				case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-					device.type = RenderDeviceType::Virtual;
-					break;
-
-				default:
-					NazaraWarning("Device " + device.name + " has handled device type (0x" + NumberToString(physDevice.properties.deviceType, 16) + ')');
-					// fallthrough
-				case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-					device.type = RenderDeviceType::Unknown;
-					break;
-			}
-		}
+			devices.push_back(Vulkan::BuildRenderDeviceInfo(physDevice));
 
 		return devices;
 	}
