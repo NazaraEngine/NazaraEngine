@@ -25,6 +25,7 @@ namespace Nz
 			case PixelFormat_RGB8_SRGB:       return GLTextureFormat{ GL_SRGB8,             GL_RGB,           GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
 			case PixelFormat_RGBA8:           return GLTextureFormat{ GL_RGBA8,             GL_RGBA,          GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat_RGBA8_SRGB:      return GLTextureFormat{ GL_SRGB8_ALPHA8,      GL_RGBA,          GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat_RGBA32F:         return GLTextureFormat{ GL_RGBA32F,           GL_RGBA,          GL_FLOAT,             GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			default: break;
 		}
 
