@@ -58,7 +58,12 @@ namespace Nz
 			inline void EnsurePipelineUpdate() const;
 
 			inline RendererComparison GetDepthCompareFunc() const;
-			inline BlendFunc GetDstBlend() const;
+			inline BlendEquation GetBlendAlphaModeEquation() const;
+			inline BlendEquation GetBlendColorModeEquation() const;
+			inline BlendFunc GetBlendDstAlphaFunc() const;
+			inline BlendFunc GetBlendDstColorFunc() const;
+			inline BlendFunc GetBlendSrcAlphaFunc() const;
+			inline BlendFunc GetBlendSrcColorFunc() const;
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
 			inline float GetLineWidth() const;
@@ -67,7 +72,6 @@ namespace Nz
 			inline float GetPointSize() const;
 			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
-			inline BlendFunc GetSrcBlend() const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
 			inline const std::shared_ptr<AbstractBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
@@ -91,12 +95,12 @@ namespace Nz
 			inline bool IsShadowReceiveEnabled() const;
 
 			inline void SetDepthCompareFunc(RendererComparison depthFunc);
-			inline void SetDstBlend(BlendFunc func);
+			inline void SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode);
+			inline void SetBlendFunc(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha);
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
 			inline void SetPointSize(float pointSize);
-			inline void SetSrcBlend(BlendFunc func);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer);

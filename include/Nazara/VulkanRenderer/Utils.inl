@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	std::optional<PixelFormat> FromVulkan(VkFormat format)
+	inline std::optional<PixelFormat> FromVulkan(VkFormat format)
 	{
 		switch (format)
 		{
@@ -26,7 +26,7 @@ namespace Nz
 		return std::nullopt;
 	}
 
-	VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp)
+	inline VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp)
 	{
 		switch (loadOp)
 		{
@@ -39,7 +39,7 @@ namespace Nz
 		return {};
 	}
 
-	VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp)
+	inline VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp)
 	{
 		switch (storeOp)
 		{
@@ -48,6 +48,45 @@ namespace Nz
 		}
 
 		NazaraError("Unhandled AttachmentStoreOp 0x" + NumberToString(UnderlyingCast(storeOp), 16));
+		return {};
+	}
+
+	inline VkBlendOp ToVulkan(BlendEquation blendEquation)
+	{
+		switch (blendEquation)
+		{
+			case BlendEquation::Add:             return VK_BLEND_OP_ADD;
+			case BlendEquation::Max:             return VK_BLEND_OP_MAX;
+			case BlendEquation::Min:             return VK_BLEND_OP_MIN;
+			case BlendEquation::ReverseSubtract: return VK_BLEND_OP_REVERSE_SUBTRACT;
+			case BlendEquation::Subtract:        return VK_BLEND_OP_SUBTRACT;
+		}
+
+		NazaraError("Unhandled BlendEquation 0x" + NumberToString(UnderlyingCast(blendEquation), 16));
+		return {};
+	}
+
+	inline VkBlendFactor ToVulkan(BlendFunc blendFunc)
+	{
+		switch (blendFunc)
+		{
+			case BlendFunc::ConstantAlpha:    return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+			case BlendFunc::ConstantColor:    return VK_BLEND_FACTOR_CONSTANT_COLOR;
+			case BlendFunc::DstAlpha:         return VK_BLEND_FACTOR_DST_ALPHA;
+			case BlendFunc::DstColor:         return VK_BLEND_FACTOR_DST_COLOR;
+			case BlendFunc::InvConstantAlpha: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+			case BlendFunc::InvConstantColor: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+			case BlendFunc::InvDstAlpha:      return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+			case BlendFunc::InvDstColor:      return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+			case BlendFunc::InvSrcAlpha:      return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			case BlendFunc::InvSrcColor:      return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+			case BlendFunc::SrcAlpha:         return VK_BLEND_FACTOR_SRC_ALPHA;
+			case BlendFunc::SrcColor:         return VK_BLEND_FACTOR_SRC_COLOR;
+			case BlendFunc::One:              return VK_BLEND_FACTOR_ONE;
+			case BlendFunc::Zero:             return VK_BLEND_FACTOR_ZERO;
+		}
+
+		NazaraError("Unhandled BlendFunc 0x" + NumberToString(UnderlyingCast(blendFunc), 16));
 		return {};
 	}
 
@@ -154,7 +193,7 @@ namespace Nz
 		return accessBits;
 	}
 
-	VkPipelineStageFlagBits ToVulkan(PipelineStage pipelineStage)
+	inline VkPipelineStageFlagBits ToVulkan(PipelineStage pipelineStage)
 	{
 		switch (pipelineStage)
 		{
@@ -178,7 +217,7 @@ namespace Nz
 		return {};
 	}
 
-	VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages)
+	inline VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages)
 	{
 		VkShaderStageFlags pipelineStageBits = 0;
 		for (int i = 0; i <= UnderlyingCast(PipelineStage::Max); ++i)
@@ -191,7 +230,7 @@ namespace Nz
 		return pipelineStageBits;
 	}
 
-	VkFormat ToVulkan(PixelFormat pixelFormat)
+	inline VkFormat ToVulkan(PixelFormat pixelFormat)
 	{
 		switch (pixelFormat)
 		{
@@ -334,7 +373,7 @@ namespace Nz
 		return {};
 	}
 
-	VkImageLayout ToVulkan(TextureLayout textureLayout)
+	inline VkImageLayout ToVulkan(TextureLayout textureLayout)
 	{
 		switch (textureLayout)
 		{
@@ -352,7 +391,7 @@ namespace Nz
 		return {};
 	}
 
-	VkImageUsageFlagBits ToVulkan(TextureUsage textureLayout)
+	inline VkImageUsageFlagBits ToVulkan(TextureUsage textureLayout)
 	{
 		switch (textureLayout)
 		{
@@ -368,7 +407,7 @@ namespace Nz
 		return {};
 	}
 
-	VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout)
+	inline VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout)
 	{
 		VkImageUsageFlags imageUsageBits = 0;
 		for (int i = 0; i <= UnderlyingCast(TextureUsage::Max); ++i)

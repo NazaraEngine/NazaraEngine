@@ -29,6 +29,7 @@ namespace Nz
 
 	inline std::optional<GLTextureFormat> DescribeTextureFormat(PixelFormat pixelFormat);
 
+	inline GLenum ToOpenGL(BlendEquation blendEquation);
 	inline GLenum ToOpenGL(BlendFunc blendFunc);
 	inline GLenum ToOpenGL(FaceSide filter);
 	inline GLenum ToOpenGL(PrimitiveMode primitiveMode);

@@ -19,20 +19,31 @@ namespace Nz
 		AnimationType_Max = AnimationType_Static
 	};
 
-	enum BlendFunc
+	enum class BlendEquation
 	{
-		BlendFunc_DestAlpha,
-		BlendFunc_DestColor,
-		BlendFunc_SrcAlpha,
-		BlendFunc_SrcColor,
-		BlendFunc_InvDestAlpha,
-		BlendFunc_InvDestColor,
-		BlendFunc_InvSrcAlpha,
-		BlendFunc_InvSrcColor,
-		BlendFunc_One,
-		BlendFunc_Zero,
+		Add,
+		Max,
+		Min,
+		ReverseSubtract,
+		Subtract,
+	};
 
-		BlendFunc_Max = BlendFunc_Zero
+	enum class BlendFunc
+	{
+		ConstantColor,
+		ConstantAlpha,
+		DstAlpha,
+		DstColor,
+		SrcAlpha,
+		SrcColor,
+		InvConstantColor,
+		InvConstantAlpha,
+		InvDstAlpha,
+		InvDstColor,
+		InvSrcAlpha,
+		InvSrcColor,
+		One,
+		Zero
 	};
 
 	enum BufferAccess

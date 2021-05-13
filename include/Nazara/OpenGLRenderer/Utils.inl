@@ -32,20 +32,39 @@ namespace Nz
 		return {};
 	}
 
+	inline GLenum ToOpenGL(BlendEquation blendEquation)
+	{
+		switch (blendEquation)
+		{
+			case BlendEquation::Add:             return GL_FUNC_ADD;
+			case BlendEquation::Max:             return GL_MAX;
+			case BlendEquation::Min:             return GL_MIN;
+			case BlendEquation::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
+			case BlendEquation::Subtract:        return GL_FUNC_SUBTRACT;
+		}
+
+		NazaraError("Unhandled BlendEquation 0x" + NumberToString(UnderlyingCast(blendEquation), 16));
+		return {};
+	}
+
 	inline GLenum ToOpenGL(BlendFunc blendFunc)
 	{
 		switch (blendFunc)
 		{
-			case BlendFunc_DestAlpha:    return GL_DST_ALPHA;
-			case BlendFunc_DestColor:    return GL_DST_COLOR;
-			case BlendFunc_SrcAlpha:     return GL_SRC_ALPHA;
-			case BlendFunc_SrcColor:     return GL_SRC_COLOR;
-			case BlendFunc_InvDestAlpha: return GL_ONE_MINUS_DST_ALPHA;
-			case BlendFunc_InvDestColor: return GL_ONE_MINUS_DST_COLOR;
-			case BlendFunc_InvSrcAlpha:  return GL_ONE_MINUS_SRC_ALPHA;
-			case BlendFunc_InvSrcColor:  return GL_ONE_MINUS_SRC_COLOR;
-			case BlendFunc_One:          return GL_ONE;
-			case BlendFunc_Zero:         return GL_ZERO;
+			case BlendFunc::ConstantAlpha:    return GL_CONSTANT_ALPHA;
+			case BlendFunc::ConstantColor:    return GL_CONSTANT_COLOR;
+			case BlendFunc::DstAlpha:         return GL_DST_ALPHA;
+			case BlendFunc::DstColor:         return GL_DST_COLOR;
+			case BlendFunc::InvConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+			case BlendFunc::InvConstantColor: return GL_ONE_MINUS_CONSTANT_COLOR;
+			case BlendFunc::InvDstAlpha:      return GL_ONE_MINUS_DST_ALPHA;
+			case BlendFunc::InvDstColor:      return GL_ONE_MINUS_DST_COLOR;
+			case BlendFunc::InvSrcAlpha:      return GL_ONE_MINUS_SRC_ALPHA;
+			case BlendFunc::InvSrcColor:      return GL_ONE_MINUS_SRC_COLOR;
+			case BlendFunc::SrcAlpha:         return GL_SRC_ALPHA;
+			case BlendFunc::SrcColor:         return GL_SRC_COLOR;
+			case BlendFunc::One:              return GL_ONE;
+			case BlendFunc::Zero:             return GL_ZERO;
 		}
 
 		NazaraError("Unhandled BlendFunc 0x" + NumberToString(UnderlyingCast(blendFunc), 16));

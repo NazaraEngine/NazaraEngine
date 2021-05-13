@@ -439,12 +439,24 @@ namespace Nz::GL
 
 		if (renderStates.blending)
 		{
-			if (m_state.renderStates.dstBlend != renderStates.dstBlend ||
-			    m_state.renderStates.srcBlend != renderStates.srcBlend)
+			auto& currentBlend = m_state.renderStates.blend;
+			const auto& targetBlend = renderStates.blend;
+
+			if (currentBlend.modeColor != targetBlend.modeColor || currentBlend.modeAlpha != targetBlend.modeAlpha)
 			{
-				glBlendFunc(ToOpenGL(renderStates.srcBlend), ToOpenGL(renderStates.dstBlend));
-				m_state.renderStates.dstBlend = renderStates.dstBlend;
-				m_state.renderStates.srcBlend = renderStates.srcBlend;
+				glBlendEquationSeparate(ToOpenGL(targetBlend.modeColor), ToOpenGL(targetBlend.modeAlpha));
+				currentBlend.modeAlpha = targetBlend.modeAlpha;
+				currentBlend.modeColor = targetBlend.modeColor;
+			}
+
+			if (currentBlend.dstAlpha != targetBlend.dstAlpha || currentBlend.dstColor != targetBlend.dstColor ||
+			    currentBlend.srcAlpha != targetBlend.srcAlpha || currentBlend.srcColor != targetBlend.srcColor)
+			{
+				glBlendFuncSeparate(ToOpenGL(targetBlend.srcColor), ToOpenGL(targetBlend.dstColor), ToOpenGL(targetBlend.srcAlpha), ToOpenGL(targetBlend.dstAlpha));
+				currentBlend.dstAlpha = targetBlend.dstAlpha;
+				currentBlend.dstColor = targetBlend.dstColor;
+				currentBlend.srcAlpha = targetBlend.srcAlpha;
+				currentBlend.srcColor = targetBlend.srcColor;
 			}
 		}
 

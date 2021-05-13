@@ -140,8 +140,12 @@ namespace Nz
 						// Some default settings
 						data.SetParameter(MaterialData::Blending, true);
 						data.SetParameter(MaterialData::DepthWrite, true);
-						data.SetParameter(MaterialData::DstBlend, static_cast<long long>(BlendFunc_InvSrcAlpha));
-						data.SetParameter(MaterialData::SrcBlend, static_cast<long long>(BlendFunc_SrcAlpha));
+						data.SetParameter(MaterialData::BlendDstAlpha, static_cast<long long>(BlendFunc::Zero));
+						data.SetParameter(MaterialData::BlendDstColor, static_cast<long long>(BlendFunc::InvSrcAlpha));
+						data.SetParameter(MaterialData::BlendModeAlpha, static_cast<long long>(BlendEquation::Add));
+						data.SetParameter(MaterialData::BlendModeColor, static_cast<long long>(BlendEquation::Add));
+						data.SetParameter(MaterialData::BlendSrcAlpha, static_cast<long long>(BlendFunc::One));
+						data.SetParameter(MaterialData::BlendSrcColor, static_cast<long long>(BlendFunc::SrcAlpha));
 					}
 
 					it = materialCache.emplace(matName, std::move(data)).first;
