@@ -9,11 +9,18 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <string>
 
 namespace Nz
 {
+	struct RenderDeviceLimits
+	{
+		UInt64 minUniformBufferOffsetAlignment;
+	};
+
 	struct RenderDeviceInfo
 	{
+		RenderDeviceLimits limits;
 		RenderDeviceType type;
 		std::string name;
 	};

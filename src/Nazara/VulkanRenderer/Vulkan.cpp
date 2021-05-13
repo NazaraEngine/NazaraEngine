@@ -16,6 +16,42 @@
 
 namespace Nz
 {
+	RenderDeviceInfo Vulkan::BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice)
+	{
+		RenderDeviceInfo deviceInfo;
+		deviceInfo.name = physDevice.properties.deviceName;
+
+		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
+
+		switch (physDevice.properties.deviceType)
+		{
+			case VK_PHYSICAL_DEVICE_TYPE_CPU:
+				deviceInfo.type = RenderDeviceType::Software;
+				break;
+
+			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+				deviceInfo.type = RenderDeviceType::Dedicated;
+				break;
+
+			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+				deviceInfo.type = RenderDeviceType::Integrated;
+				break;
+
+			case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+				deviceInfo.type = RenderDeviceType::Virtual;
+				break;
+
+			default:
+				NazaraWarning("Device " + deviceInfo.name + " has handled device type (0x" + NumberToString(physDevice.properties.deviceType, 16) + ')');
+				// fallthrough
+			case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+				deviceInfo.type = RenderDeviceType::Unknown;
+				break;
+		}
+
+		return deviceInfo;
+	}
+
 	Vk::Instance& Vulkan::GetInstance()
 	{
 		return s_instance;
@@ -508,7 +544,7 @@ namespace Nz
 			nullptr
 		};
 
-		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance);
+		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, BuildRenderDeviceInfo(deviceInfo));
 		if (!device->Create(deviceInfo, createInfo))
 		{
 			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));

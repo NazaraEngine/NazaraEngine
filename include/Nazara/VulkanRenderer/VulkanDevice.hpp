@@ -18,10 +18,12 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanDevice : public RenderDevice, public Vk::Device
 	{
 		public:
-			using Device::Device;
+			inline VulkanDevice(Vk::Instance& instance, RenderDeviceInfo renderDeviceInfo);
 			VulkanDevice(const VulkanDevice&) = delete;
 			VulkanDevice(VulkanDevice&&) = delete; ///TODO?
 			~VulkanDevice();
+
+			const RenderDeviceInfo& GetDeviceInfo() const override;
 
 			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
@@ -36,6 +38,9 @@ namespace Nz
 
 			VulkanDevice& operator=(const VulkanDevice&) = delete;
 			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?
+
+		private:
+			RenderDeviceInfo m_renderDeviceInfo;
 	};
 }
 

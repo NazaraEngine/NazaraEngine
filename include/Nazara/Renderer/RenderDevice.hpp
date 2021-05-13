@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
@@ -32,6 +33,8 @@ namespace Nz
 		public:
 			RenderDevice() = default;
 			virtual ~RenderDevice();
+
+			virtual const RenderDeviceInfo& GetDeviceInfo() const = 0;
 
 			virtual std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) = 0;
 			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;

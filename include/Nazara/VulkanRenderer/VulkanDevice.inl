@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	inline VulkanDevice::VulkanDevice(Vk::Instance& instance, RenderDeviceInfo renderDeviceInfo) :
+	Device(instance),
+	m_renderDeviceInfo(std::move(renderDeviceInfo))
+	{
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
