@@ -238,6 +238,7 @@ namespace Nz
 			case PixelFormat_RGB8_SRGB:
 			case PixelFormat_RGBA8:
 			case PixelFormat_RGBA8_SRGB:
+			case PixelFormat_RGBA32F:
 			{
 				createImage.format = ToVulkan(pixelFormat);
 				createImageView.format = createImage.format;
