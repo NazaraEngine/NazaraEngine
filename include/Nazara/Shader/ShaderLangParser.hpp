@@ -11,6 +11,7 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
+#include <filesystem>
 
 namespace Nz::ShaderLang
 {
@@ -123,6 +124,9 @@ namespace Nz::ShaderLang
 
 			Context* m_context;
 	};
+
+	inline ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens);
+	NAZARA_SHADER_API ShaderAst::StatementPtr Parse(const std::filesystem::path& sourcePath);
 }
 
 #include <Nazara/Shader/ShaderLangParser.inl>

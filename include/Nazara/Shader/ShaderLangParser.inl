@@ -11,6 +11,12 @@ namespace Nz::ShaderLang
 	m_context(nullptr)
 	{
 	}
+
+	inline ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens)
+	{
+		Parser parser;
+		return parser.Parse(tokens);
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>

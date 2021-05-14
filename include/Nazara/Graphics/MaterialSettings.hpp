@@ -39,6 +39,7 @@ namespace Nz
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
 
+			inline const Builder& GetBuilderData() const;
 			inline const std::vector<Condition>& GetConditions() const;
 			inline std::size_t GetConditionIndex(const std::string_view& name) const;
 			inline std::size_t GetPredefinedBindingIndex(PredefinedShaderBinding binding) const;

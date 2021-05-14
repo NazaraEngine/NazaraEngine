@@ -54,6 +54,11 @@ namespace Nz
 		m_pipelineLayout = Graphics::Instance()->GetRenderDevice().InstantiateRenderPipelineLayout(std::move(info));
 	}
 
+	inline auto MaterialSettings::GetBuilderData() const -> const Builder&
+	{
+		return m_data;
+	}
+
 	inline auto MaterialSettings::GetConditions() const -> const std::vector<Condition>&
 	{
 		return m_data.conditions;
