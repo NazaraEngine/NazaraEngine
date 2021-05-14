@@ -616,7 +616,6 @@ namespace Nz
 	{
 		const auto& func = m_funcData[m_funcIndex];
 
-		UInt32 pointerTypeId = m_writer.GetPointerTypeId(node.varType, SpirvStorageClass::Function);
 		UInt32 typeId = m_writer.GetTypeId(node.varType);
 
 		assert(node.varIndex);
@@ -767,7 +766,7 @@ namespace Nz
 				appender(exprResultId);
 
 				for (std::size_t i = 0; i < node.componentCount; ++i)
-					appender(UInt32(node.components[0]) - UInt32(node.components[i]));
+					appender(UInt32(node.components[i]));
 			});
 		}
 		else
