@@ -2,6 +2,10 @@ version: '{branch}-rev{build}'
 
 shallow_clone: true
 
+branches:
+  only:
+    - master
+
 skip_commits:
   files:
     - .travis.yml
