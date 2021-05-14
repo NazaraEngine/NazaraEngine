@@ -167,6 +167,7 @@ for name, module in pairs(modules) do
 	end
 end
 
+includes("xmake/actions/*.lua")
 includes("tools/xmake.lua")
 includes("plugins/*/xmake.lua")
 includes("examples/*/xmake.lua")
