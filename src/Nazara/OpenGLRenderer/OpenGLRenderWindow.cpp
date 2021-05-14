@@ -33,7 +33,7 @@ namespace Nz
 			m_size = size;
 		}
 
-		return RenderFrame(&m_renderImage[m_currentFrame], invalidateFramebuffer);
+		return RenderFrame(m_renderImage[m_currentFrame].get(), invalidateFramebuffer);
 	}
 
 	bool OpenGLRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters)
@@ -55,7 +55,7 @@ namespace Nz
 
 		m_renderImage.reserve(RenderImageCount);
 		for (std::size_t i = 0; i < RenderImageCount; ++i)
-			m_renderImage.emplace_back(*this);
+			m_renderImage.emplace_back(std::make_unique<OpenGLRenderImage>(*this));
 
 		return true;
 	}

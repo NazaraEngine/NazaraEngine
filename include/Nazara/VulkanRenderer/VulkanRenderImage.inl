@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline Vk::Fence& Nz::VulkanRenderImage::GetInFlightFence()
+	inline Vk::Fence& VulkanRenderImage::GetInFlightFence()
 	{
 		return m_inFlightFence;
 	}
@@ -29,6 +29,8 @@ namespace Nz
 
 	inline void VulkanRenderImage::Reset(UInt32 imageIndex)
 	{
+		FlushReleaseQueue();
+
 		m_graphicalCommandsBuffers.clear();
 		m_currentCommandBuffer = 0;
 		m_imageIndex = imageIndex;

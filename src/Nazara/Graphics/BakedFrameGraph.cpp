@@ -45,7 +45,7 @@ namespace Nz
 			if (!regenerateCommandBuffer)
 				continue;
 
-			passData.commandBuffer.reset(); //< Release command buffer resources before reallocating it
+			renderFrame.PushForRelease(std::move(passData.commandBuffer));
 			passData.commandBuffer = m_commandPool->BuildCommandBuffer([&](CommandBufferBuilder& builder)
 			{
 				for (auto& textureTransition : passData.transitions)

@@ -10,13 +10,13 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/RenderImage.hpp>
 #include <functional>
 
 namespace Nz
 {
 	class CommandBuffer;
 	class CommandBufferBuilder;
-	class RenderImage;
 	class UploadPool;
 
 	class NAZARA_RENDERER_API RenderFrame
@@ -34,9 +34,12 @@ namespace Nz
 
 			inline bool IsFramebufferInvalidated() const;
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) ;
+			template<typename T> void PushForRelease(T&& value);
+			template<typename F> void PushReleaseCallback(F&& releaseCallback);
 
 			void Present();
+
+			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) ;
 
 			inline explicit operator bool();
 

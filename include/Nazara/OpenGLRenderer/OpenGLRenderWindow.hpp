@@ -44,7 +44,7 @@ namespace Nz
 		private:
 			std::size_t m_currentFrame;
 			std::shared_ptr<OpenGLDevice> m_device;
-			std::vector<OpenGLRenderImage> m_renderImage;
+			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
 			std::unique_ptr<GL::Context> m_context;
 			OpenGLRenderPass m_renderPass;
 			OpenGLWindowFramebuffer m_framebuffer;
