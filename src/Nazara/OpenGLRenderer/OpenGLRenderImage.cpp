@@ -35,6 +35,7 @@ namespace Nz
 	{
 		m_owner.Present();
 		m_uploadPool.Reset();
+		FlushReleaseQueue();
 	}
 
 	void OpenGLRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags /*queueTypeFlags*/)

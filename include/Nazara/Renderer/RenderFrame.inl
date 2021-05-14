@@ -23,6 +23,21 @@ namespace Nz
 		return m_framebufferInvalidation;
 	}
 
+	template<typename T>
+	void RenderFrame::PushForRelease(T&& value)
+	{
+		return PushReleaseCallback([v = std::forward<T>(value)] {});
+	}
+
+	template<typename F>
+	void RenderFrame::PushReleaseCallback(F&& releaseCallback)
+	{
+		if (!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		m_image->PushReleaseCallback(std::forward<F>(releaseCallback));
+	}
+
 	inline RenderFrame::operator bool()
 	{
 		return m_image != nullptr;

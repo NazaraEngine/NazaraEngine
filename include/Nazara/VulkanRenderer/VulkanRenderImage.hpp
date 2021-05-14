@@ -36,12 +36,12 @@ namespace Nz
 			inline Vk::Semaphore& GetRenderFinishedSemaphore();
 			VulkanUploadPool& GetUploadPool() override;
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
-			void SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags);
-
 			void Present() override;
 
 			inline void Reset(UInt32 imageIndex);
+
+			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
+			void SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags);
 
 			VulkanRenderImage& operator=(const VulkanRenderImage&) = delete;
 			VulkanRenderImage& operator=(VulkanRenderImage&&) = delete;

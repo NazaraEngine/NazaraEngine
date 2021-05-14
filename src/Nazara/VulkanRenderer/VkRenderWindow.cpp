@@ -57,7 +57,7 @@ namespace Nz
 			invalidateFramebuffer = true;
 		}
 
-		VulkanRenderImage& currentFrame = m_concurrentImageData[m_currentFrame];
+		VulkanRenderImage& currentFrame = *m_concurrentImageData[m_currentFrame];
 		Vk::Fence& inFlightFence = currentFrame.GetInFlightFence();
 
 		// Wait until previous rendering to this image has been done
@@ -564,7 +564,7 @@ namespace Nz
 			m_concurrentImageData.reserve(imageCount);
 
 			for (std::size_t i = 0; i < imageCount; ++i)
-				m_concurrentImageData.emplace_back(*this);
+				m_concurrentImageData.emplace_back(std::make_unique<VulkanRenderImage>(*this));
 		}
 
 		return true;
