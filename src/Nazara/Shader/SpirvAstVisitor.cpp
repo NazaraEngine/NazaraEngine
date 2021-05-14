@@ -316,6 +316,31 @@ namespace Nz
 		if (swapOperands)
 			std::swap(leftOperand, rightOperand);
 
+		if (node.op == ShaderAst::BinaryType::Divide)
+		{
+			//TODO: Handle other cases
+			if (IsVectorType(leftType) && IsPrimitiveType(rightType))
+			{
+				const ShaderAst::VectorType& leftVec = std::get<ShaderAst::VectorType>(leftType);
+
+				UInt32 vecType = m_writer.GetTypeId(leftType);
+
+				UInt32 rightAsVec = m_writer.AllocateResultId();
+				m_currentBlock->AppendVariadic(SpirvOp::OpCompositeConstruct, [&](auto&& append)
+				{
+					append(vecType);
+					append(rightAsVec);
+
+					for (std::size_t i = 0; i < leftVec.componentCount; ++i)
+						append(rightOperand);
+				});
+
+				rightOperand = rightAsVec;
+			}
+			else if (!IsPrimitiveType(leftType) || !IsPrimitiveType(rightType))
+				throw std::runtime_error("unexpected division operands");
+		}
+
 		m_currentBlock->Append(op, m_writer.GetTypeId(resultType), resultId, leftOperand, rightOperand);
 		PushResultId(resultId);
 	}
