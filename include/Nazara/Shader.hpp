@@ -31,6 +31,7 @@
 
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Shader.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
