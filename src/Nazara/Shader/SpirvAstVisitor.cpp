@@ -9,6 +9,7 @@
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
+#include <SpirV/GLSL.std.450.h>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz
@@ -600,7 +601,7 @@ namespace Nz
 		m_instructions.Append(SpirvOp::OpFunctionEnd);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::DeclareOptionStatement& node)
+	void SpirvAstVisitor::Visit(ShaderAst::DeclareOptionStatement& /*node*/)
 	{
 		/* nothing to do */
 	}
@@ -662,6 +663,25 @@ namespace Nz
 				UInt32 resultId = m_writer.AllocateResultId();
 
 				m_currentBlock->Append(SpirvOp::OpDot, typeId, resultId, vec1, vec2);
+				PushResultId(resultId);
+				break;
+			}
+
+			case ShaderAst::IntrinsicType::Length:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
+				assert(IsVectorType(vecExprType));
+
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
+				UInt32 typeId = m_writer.GetTypeId(vecType.type);
+
+				UInt32 vec = EvaluateExpression(node.parameters[0]);
+
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Length, vec);
 				PushResultId(resultId);
 				break;
 			}

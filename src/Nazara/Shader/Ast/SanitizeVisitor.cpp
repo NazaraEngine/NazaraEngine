@@ -466,6 +466,21 @@ namespace Nz::ShaderAst
 				break;
 			}
 
+			case IntrinsicType::Length:
+			{
+				if (clone->parameters.size() != 1)
+					throw AstError{ "Expected only one parameters" };
+
+				for (auto& param : clone->parameters)
+					MandatoryExpr(param);
+
+				const ExpressionType& type = GetExpressionType(*clone->parameters.front());
+				if (!IsVectorType(type))
+					throw AstError{ "Expected a vector" };
+
+				break;
+			}
+
 			case IntrinsicType::SampleTexture:
 			{
 				if (clone->parameters.size() != 2)
@@ -479,6 +494,8 @@ namespace Nz::ShaderAst
 
 				if (!IsVectorType(GetExpressionType(*clone->parameters[1])))
 					throw AstError{ "Second parameter must be a vector" };
+
+				break;
 			}
 		}
 
@@ -496,6 +513,7 @@ namespace Nz::ShaderAst
 			}
 
 			case IntrinsicType::DotProduct:
+			case IntrinsicType::Length:
 			{
 				ExpressionType type = GetExpressionType(*clone->parameters.front());
 				if (!IsVectorType(type))

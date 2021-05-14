@@ -57,6 +57,7 @@ namespace Nz
 			SpirvConstantCache::TypePtr BuildFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
 
 			UInt32 GetConstantId(const ShaderAst::ConstantValue& value) const;
+			UInt32 GetExtendedInstructionSet(const std::string& instructionSetName) const;
 			UInt32 GetExtVarPointerId(std::size_t varIndex) const;
 			UInt32 GetFunctionTypeId(const ShaderAst::DeclareFunctionStatement& functionNode);
 			UInt32 GetPointerTypeId(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;

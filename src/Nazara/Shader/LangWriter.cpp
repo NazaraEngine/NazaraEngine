@@ -654,6 +654,10 @@ namespace Nz
 				Append("dot");
 				break;
 
+			case ShaderAst::IntrinsicType::Length:
+				Append("length");
+				break;
+
 			case ShaderAst::IntrinsicType::SampleTexture:
 				Append("texture");
 				break;

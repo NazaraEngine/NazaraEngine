@@ -274,6 +274,7 @@ namespace Nz
 					{
 						// Require GLSL.std.450
 						case ShaderAst::IntrinsicType::CrossProduct:
+						case ShaderAst::IntrinsicType::Length:
 							extInsts.emplace("GLSL.std.450");
 							break;
 
@@ -363,7 +364,7 @@ namespace Nz
 			UInt32 id;
 		};
 
-		std::unordered_map<std::string, UInt32> extensionInstructions;
+		std::unordered_map<std::string, UInt32> extensionInstructionSet;
 		std::unordered_map<std::string, UInt32> varToResult;
 		std::vector<SpirvAstVisitor::FuncData> funcs;
 		std::vector<UInt32> resultIds;
@@ -408,7 +409,7 @@ namespace Nz
 		m_currentState->preVisitor = &preVisitor;
 
 		for (const std::string& extInst : preVisitor.extInsts)
-			state.extensionInstructions[extInst] = AllocateResultId();
+			state.extensionInstructionSet[extInst] = AllocateResultId();
 
 		SpirvAstVisitor visitor(*this, state.instructions, state.funcs);
 		targetAst->Visit(visitor);
@@ -465,7 +466,7 @@ namespace Nz
 
 		m_currentState->header.Append(SpirvOp::OpCapability, SpirvCapability::Shader);
 
-		for (const auto& [extInst, resultId] : m_currentState->extensionInstructions)
+		for (const auto& [extInst, resultId] : m_currentState->extensionInstructionSet)
 			m_currentState->header.Append(SpirvOp::OpExtInstImport, resultId, extInst);
 
 		m_currentState->header.Append(SpirvOp::OpMemoryModel, SpirvAddressingModel::Logical, SpirvMemoryModel::GLSL450);
@@ -532,6 +533,14 @@ namespace Nz
 	UInt32 SpirvWriter::GetConstantId(const ShaderAst::ConstantValue& value) const
 	{
 		return m_currentState->constantTypeCache.GetId(*m_currentState->constantTypeCache.BuildConstant(value));
+	}
+
+	UInt32 SpirvWriter::GetExtendedInstructionSet(const std::string& instructionSetName) const
+	{
+		auto it = m_currentState->extensionInstructionSet.find(instructionSetName);
+		assert(it != m_currentState->extensionInstructionSet.end());
+
+		return it->second;
 	}
 
 	UInt32 SpirvWriter::GetExtVarPointerId(std::size_t extVarIndex) const
