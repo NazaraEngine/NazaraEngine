@@ -54,9 +54,10 @@ namespace Nz::ShaderAst
 
 	enum class IntrinsicType
 	{
-		CrossProduct,
-		DotProduct,
-		SampleTexture
+		CrossProduct = 0,
+		DotProduct = 1,
+		Length = 3,
+		SampleTexture = 2,
 	};
 
 	enum class MemoryLayout
