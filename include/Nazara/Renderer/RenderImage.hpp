@@ -32,11 +32,11 @@ namespace Nz
 
 			virtual UploadPool& GetUploadPool() = 0;
 
+			virtual void Present() = 0;
+
 			template<typename F> void PushReleaseCallback(F&& callback);
 
 			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
-
-			virtual void Present() = 0;
 
 		protected:
 			RenderImage() = default;
