@@ -27,7 +27,7 @@ namespace Nz
 
 		for (Block& block : m_blocks)
 		{
-			if (block.freeOffset + size > m_blockSize)
+			if (block.freeOffset + size > block.size)
 				continue; //< Not enough space
 
 			if (!bestBlock.block)
@@ -41,7 +41,12 @@ namespace Nz
 		// No block found, allocate a new one
 		if (!bestBlock.block)
 		{
+			// Handle really big allocations (TODO: Handle them separately as they shouldn't be common and can consume a lot of memory)
+			UInt64 blockSize = std::max(m_blockSize, size);
+
 			Block newBlock;
+			newBlock.size = blockSize;
+
 			newBlock.memory.resize(m_blockSize);
 
 			bestBlock.block = &m_blocks.emplace_back(std::move(newBlock));

@@ -49,6 +49,7 @@ namespace Nz
 				Vk::DeviceMemory blockMemory;
 				Vk::Buffer buffer;
 				UInt64 freeOffset = 0;
+				UInt64 size;
 			};
 
 			UInt64 m_blockSize;
