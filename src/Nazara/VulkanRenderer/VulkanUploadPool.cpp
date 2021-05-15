@@ -19,8 +19,6 @@ namespace Nz
 
 	auto VulkanUploadPool::Allocate(UInt64 size, UInt64 alignment) -> VulkanAllocation&
 	{
-		assert(size <= m_blockSize);
-
 		// Try to minimize lost space
 		struct
 		{
@@ -32,7 +30,7 @@ namespace Nz
 		for (Block& block : m_blocks)
 		{
 			UInt64 alignedOffset = AlignPow2(block.freeOffset, alignment);
-			if (alignedOffset + size > m_blockSize)
+			if (alignedOffset + size > block.size)
 				continue; //< Not enough space
 
 			UInt64 lostSpace = alignedOffset - block.freeOffset;
@@ -48,8 +46,13 @@ namespace Nz
 		// No block found, allocate a new one
 		if (!bestBlock.block)
 		{
+			// Handle really big allocations (TODO: Handle them separately as they shouldn't be common and can consume a lot of memory)
+			UInt64 blockSize = std::max(m_blockSize, size);
+
 			Block newBlock;
-			if (!newBlock.buffer.Create(m_device, 0U, m_blockSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
+			newBlock.size = blockSize;
+
+			if (!newBlock.buffer.Create(m_device, 0U, blockSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
 				throw std::runtime_error("failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			VkMemoryRequirements requirement = newBlock.buffer.GetMemoryRequirements();

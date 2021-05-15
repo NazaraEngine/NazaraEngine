@@ -42,6 +42,7 @@ namespace Nz
 			{
 				std::vector<UInt8> memory;
 				UInt64 freeOffset = 0;
+				UInt64 size;
 			};
 
 			std::size_t m_nextAllocationIndex;
