@@ -76,13 +76,13 @@ namespace Nz::ShaderAst
 		return varIndex;
 	}
 
-	StatementPtr Sanitize(const StatementPtr& ast, std::string* error)
+	inline StatementPtr Sanitize(const StatementPtr& ast, std::string* error)
 	{
 		SanitizeVisitor sanitizer;
 		return sanitizer.Sanitize(ast, error);
 	}
 
-	StatementPtr Sanitize(const StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error)
+	inline StatementPtr Sanitize(const StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error)
 	{
 		SanitizeVisitor sanitizer;
 		return sanitizer.Sanitize(ast, options, error);

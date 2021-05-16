@@ -498,7 +498,7 @@ namespace Nz
 		}, type);
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& type) const -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& /*type*/) const -> TypePtr
 	{
 		// No IdentifierType is expected (as they should have been resolved by now)
 		throw std::runtime_error("unexpected identifier");
@@ -518,6 +518,9 @@ namespace Nz
 
 				case ShaderAst::PrimitiveType::Int32:
 					return Integer{ 32, true };
+
+				case ShaderAst::PrimitiveType::UInt32:
+					return Integer{ 32, false };
 			}
 
 			throw std::runtime_error("unexpected type");
@@ -535,7 +538,7 @@ namespace Nz
 			});
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::NoType& type) const -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::NoType& /*type*/) const -> TypePtr
 	{
 		return std::make_shared<Type>(Void{});
 	}
