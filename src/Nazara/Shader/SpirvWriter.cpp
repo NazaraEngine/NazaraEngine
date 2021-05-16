@@ -78,6 +78,13 @@ namespace Nz
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 				}
 
+				void Visit(ShaderAst::BinaryExpression& node) override
+				{
+					AstRecursiveVisitor::Visit(node);
+
+					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
+				}
+
 				void Visit(ShaderAst::ConditionalExpression& node) override
 				{
 					if (TestBit<Nz::UInt64>(m_states.enabledOptions, node.optionIndex))
@@ -288,6 +295,13 @@ namespace Nz
 				}
 
 				void Visit(ShaderAst::SwizzleExpression& node) override
+				{
+					AstRecursiveVisitor::Visit(node);
+
+					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
+				}
+
+				void Visit(ShaderAst::UnaryExpression& node) override
 				{
 					AstRecursiveVisitor::Visit(node);
 

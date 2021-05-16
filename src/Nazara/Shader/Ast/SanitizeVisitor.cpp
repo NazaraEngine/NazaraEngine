@@ -592,6 +592,41 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr SanitizeVisitor::Clone(UnaryExpression& node)
+	{
+		auto clone = static_unique_pointer_cast<UnaryExpression>(AstCloner::Clone(node));
+
+		const ExpressionType& exprType = GetExpressionType(MandatoryExpr(clone->expression));
+		if (!IsPrimitiveType(exprType))
+			throw AstError{ "unary expression operand type does not support unary operation" };
+
+		PrimitiveType primitiveType = std::get<PrimitiveType>(exprType);
+
+		switch (node.op)
+		{
+			case UnaryType::LogicalNot:
+			{
+				if (primitiveType != PrimitiveType::Boolean)
+					throw AstError{ "logical not is only supported on booleans" };
+
+				break;
+			}
+
+			case UnaryType::Minus:
+			case UnaryType::Plus:
+			{
+				if (primitiveType != PrimitiveType::Float32 && primitiveType != PrimitiveType::Int32 && primitiveType != PrimitiveType::UInt32)
+					throw AstError{ "plus and minus unary expressions are only supported on floating points and integers types" };
+
+				break;
+			}
+		}
+
+		clone->cachedExpressionType = primitiveType;
+
+		return clone;
+	}
+
 	StatementPtr SanitizeVisitor::Clone(BranchStatement& node)
 	{
 		auto clone = std::make_unique<BranchStatement>();

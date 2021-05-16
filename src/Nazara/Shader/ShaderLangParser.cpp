@@ -802,10 +802,10 @@ namespace Nz::ShaderLang
 		return ParseBinOpRhs(0, ParsePrimaryExpression());
 	}
 
-	ShaderAst::ExpressionPtr Parser::ParseFloatingPointExpression(bool minus)
+	ShaderAst::ExpressionPtr Parser::ParseFloatingPointExpression()
 	{
 		const Token& floatingPointToken = Expect(Advance(), TokenType::FloatingPointValue);
-		return ShaderBuilder::Constant(((minus) ? -1.f : 1.f) * float(std::get<double>(floatingPointToken.data))); //< FIXME
+		return ShaderBuilder::Constant(float(std::get<double>(floatingPointToken.data))); //< FIXME
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseIdentifier()
@@ -816,10 +816,10 @@ namespace Nz::ShaderLang
 		return ShaderBuilder::Identifier(identifier);
 	}
 
-	ShaderAst::ExpressionPtr Parser::ParseIntegerExpression(bool minus)
+	ShaderAst::ExpressionPtr Parser::ParseIntegerExpression()
 	{
 		const Token& integerToken = Expect(Advance(), TokenType::IntegerValue);
-		return ShaderBuilder::Constant(((minus) ? -1 : 1) * static_cast<Nz::Int32>(std::get<long long>(integerToken.data)));
+		return ShaderBuilder::Constant(static_cast<Nz::Int32>(std::get<long long>(integerToken.data))); //< FIXME
 	}
 
 	std::vector<ShaderAst::ExpressionPtr> Parser::ParseParameters()
@@ -894,21 +894,20 @@ namespace Nz::ShaderLang
 				return ParseIntegerExpression();
 
 			case TokenType::Minus:
-				//< FIXME: Handle this with an unary node
-				if (Peek(1).type == TokenType::FloatingPointValue)
-				{
-					Consume();
-					return ParseFloatingPointExpression(true);
-				}
-				else if (Peek(1).type == TokenType::IntegerValue)
-				{
-					Consume();
-					return ParseIntegerExpression(true);
-				}
-				else
-					throw UnexpectedToken{};
+			{
+				Consume();
+				ShaderAst::ExpressionPtr expr = ParsePrimaryExpression();
 
-				break;
+				return ShaderBuilder::Unary(ShaderAst::UnaryType::Minus, std::move(expr));
+			}
+
+			case TokenType::Plus:
+			{
+				Consume();
+				ShaderAst::ExpressionPtr expr = ParsePrimaryExpression();
+
+				return ShaderBuilder::Unary(ShaderAst::UnaryType::Plus, std::move(expr));
+			}
 
 			case TokenType::OpenParenthesis:
 				return ParseParenthesisExpression();

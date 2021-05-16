@@ -120,6 +120,11 @@ namespace Nz::ShaderBuilder
 		{
 			inline std::unique_ptr<ShaderAst::SwizzleExpression> operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const;
 		};
+
+		struct Unary
+		{
+			inline std::unique_ptr<ShaderAst::UnaryExpression> operator()(ShaderAst::UnaryType op, ShaderAst::ExpressionPtr expression) const;
+		};
 	}
 
 	constexpr Impl::AccessMember AccessMember;
@@ -143,6 +148,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Return Return;
 	constexpr Impl::SelectOption SelectOption;
 	constexpr Impl::Swizzle Swizzle;
+	constexpr Impl::Unary Unary;
 }
 
 #include <Nazara/Shader/ShaderBuilder.inl>

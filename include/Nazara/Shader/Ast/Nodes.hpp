@@ -176,6 +176,15 @@ namespace Nz::ShaderAst
 		std::size_t variableId;
 	};
 
+	struct NAZARA_SHADER_API UnaryExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		UnaryType op;
+		ExpressionPtr expression;
+	};
+
 	// Statements
 
 	struct Statement;

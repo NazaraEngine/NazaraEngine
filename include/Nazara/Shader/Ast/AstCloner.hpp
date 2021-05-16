@@ -48,6 +48,7 @@ namespace Nz::ShaderAst
 			virtual ExpressionPtr Clone(SelectOptionExpression& node);
 			virtual ExpressionPtr Clone(SwizzleExpression& node);
 			virtual ExpressionPtr Clone(VariableExpression& node);
+			virtual ExpressionPtr Clone(UnaryExpression& node);
 
 			virtual StatementPtr Clone(BranchStatement& node);
 			virtual StatementPtr Clone(ConditionalStatement& node);

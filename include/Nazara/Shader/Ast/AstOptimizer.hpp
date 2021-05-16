@@ -32,10 +32,12 @@ namespace Nz::ShaderAst
 		protected:
 			ExpressionPtr Clone(BinaryExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
+			ExpressionPtr Clone(UnaryExpression& node) override;
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
 
 			template<BinaryType Type> ExpressionPtr PropagateConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs);
+			template<UnaryType Type> ExpressionPtr PropagateConstant(std::unique_ptr<ConstantExpression>&& operand);
 
 		private:
 			std::optional<UInt64> m_enabledOptions;

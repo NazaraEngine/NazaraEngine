@@ -85,6 +85,7 @@ namespace Nz
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;
+			void Visit(ShaderAst::UnaryExpression& node) override;
 
 			void Visit(ShaderAst::BranchStatement& node) override;
 			void Visit(ShaderAst::ConditionalStatement& node) override;
