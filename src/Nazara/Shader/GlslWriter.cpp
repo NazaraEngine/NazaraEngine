@@ -8,6 +8,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
@@ -122,10 +123,21 @@ namespace Nz
 
 		ShaderAst::StatementPtr sanitizedAst = ShaderAst::Sanitize(shader, options);
 
+		ShaderAst::StatementPtr* targetAstPtr = &sanitizedAst;
+
+		ShaderAst::StatementPtr optimizedAst;
+		if (states.optimize)
+		{
+			optimizedAst = ShaderAst::Optimize(*targetAstPtr);
+			targetAstPtr = &optimizedAst;
+		}
+
+		ShaderAst::StatementPtr& targetAst = *targetAstPtr;
+
 		PreVisitor previsitor;
 		previsitor.enabledOptions = states.enabledOptions;
 		previsitor.selectedStage = shaderStage;
-		sanitizedAst->Visit(previsitor);
+		targetAst->Visit(previsitor);
 
 		if (!previsitor.entryPoint)
 			throw std::runtime_error("missing entry point");
@@ -167,7 +179,7 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Append(const ShaderAst::IdentifierType& identifierType)
+	void GlslWriter::Append(const ShaderAst::IdentifierType& /*identifierType*/)
 	{
 		throw std::runtime_error("unexpected identifier type");
 	}
@@ -230,7 +242,7 @@ namespace Nz
 		Append(structDesc.name);
 	}
 
-	void GlslWriter::Append(const ShaderAst::UniformType& uniformType)
+	void GlslWriter::Append(const ShaderAst::UniformType& /*uniformType*/)
 	{
 		throw std::runtime_error("unexpected UniformType");
 	}
@@ -734,7 +746,7 @@ namespace Nz
 		LeaveScope();
 	}
 
-	void GlslWriter::Visit(ShaderAst::DeclareOptionStatement& node)
+	void GlslWriter::Visit(ShaderAst::DeclareOptionStatement& /*node*/)
 	{
 		/* nothing to do */
 	}
