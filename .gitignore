@@ -1,5 +1,6 @@
 # xmake-related files
 .xmake/*
+.vs/*
 .vscode/*
 CMakeLists.txt
 Makefile
@@ -8,6 +9,7 @@ vsxmake*/*
 
 # Nazara binaries
 bin/*
+!bin/resources/*
 
 # Build files
 build/*
