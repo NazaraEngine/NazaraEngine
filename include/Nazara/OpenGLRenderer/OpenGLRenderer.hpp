@@ -19,7 +19,7 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderer : public RendererImpl
 	{
 		public:
-			OpenGLRenderer() = default;
+			OpenGLRenderer();
 			~OpenGLRenderer();
 
 			std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() override;
@@ -30,7 +30,7 @@ namespace Nz
 			RenderAPI QueryAPI() const override;
 			std::string QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
-			std::vector<RenderDeviceInfo> QueryRenderDevices() const override;
+			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const override;
 
 			bool Prepare(const ParameterList& parameters) override;
 
@@ -39,6 +39,7 @@ namespace Nz
 
 			std::shared_ptr<OpenGLDevice> m_device;
 			std::unique_ptr<GL::Loader> m_loader;
+			std::vector<RenderDeviceInfo> m_deviceInfos;
 	};
 }
 

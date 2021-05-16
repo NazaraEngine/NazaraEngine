@@ -33,7 +33,7 @@ namespace Nz
 			RenderAPI QueryAPI() const override;
 			std::string QueryAPIString() const override;
 			UInt32 QueryAPIVersion() const override;
-			std::vector<RenderDeviceInfo> QueryRenderDevices() const override;
+			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const override;
 
 			bool Prepare(const ParameterList& parameters) override;
 
@@ -41,6 +41,7 @@ namespace Nz
 
 		private:
 			std::list<Vk::Device> m_devices;
+			std::vector<RenderDeviceInfo> m_deviceInfos;
 			ParameterList m_initializationParameters;
 			Vk::Instance m_instance;
 	};

@@ -90,14 +90,14 @@ int main()
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
 
+	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
+
 	std::string windowTitle = "Render Test";
-	if (!window.Create(Nz::VideoMode(800, 600, 32), windowTitle))
+	if (!window.Create(device, Nz::VideoMode(800, 600, 32), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		return __LINE__;
 	}
-
-	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
 	Nz::ShaderWriter::States states;
 	states.enabledOptions = 0;

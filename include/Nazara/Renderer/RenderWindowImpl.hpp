@@ -20,6 +20,7 @@ namespace Nz
 	class CommandPool;
 	class Framebuffer;
 	class RendererImpl;
+	class RenderDevice;
 	class RenderPass;
 	class RenderSurface;
 
@@ -35,7 +36,6 @@ namespace Nz
 			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
 			virtual const Framebuffer& GetFramebuffer() const = 0;
-			virtual std::shared_ptr<RenderDevice> GetRenderDevice() = 0;
 			virtual const RenderPass& GetRenderPass() const = 0;
 	};
 }

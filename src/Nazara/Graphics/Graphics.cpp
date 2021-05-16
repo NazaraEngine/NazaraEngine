@@ -19,7 +19,6 @@ namespace Nz
 	ModuleBase("Graphics", this)
 	{
 		Renderer* renderer = Renderer::Instance();
-		RendererImpl* rendererImpl = renderer->GetRendererImpl(); //< FIXME
 		std::vector<RenderDeviceInfo> renderDeviceInfo = rendererImpl->QueryRenderDevices();
 		if (renderDeviceInfo.empty())
 			throw std::runtime_error("no render device available");
@@ -35,7 +34,7 @@ namespace Nz
 			}
 		}
 
-		m_renderDevice = rendererImpl->InstanciateRenderDevice(bestRenderDeviceIndex);
+		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex);
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
 

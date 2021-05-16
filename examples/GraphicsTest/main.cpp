@@ -31,14 +31,14 @@ int main()
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
 
+	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+
 	std::string windowTitle = "Graphics Test";
-	if (!window.Create(Nz::VideoMode(800, 600, 32), windowTitle))
+	if (!window.Create(device, Nz::VideoMode(800, 600, 32), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		return __LINE__;
 	}
-
-	std::shared_ptr<Nz::RenderDevice> device = window.GetRenderDevice();
 
 	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!drfreak)

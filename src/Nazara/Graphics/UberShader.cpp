@@ -61,7 +61,7 @@ namespace Nz
 			states.enabledOptions = combination;
 			states.sanitized = true;
 
-			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice().InstantiateShaderModule(m_shaderStage, m_shaderAst, std::move(states));
+			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStage, m_shaderAst, std::move(states));
 
 			it = m_combinations.emplace(combination, std::move(stage)).first;
 		}

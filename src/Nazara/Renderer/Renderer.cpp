@@ -134,5 +134,30 @@ namespace Nz
 		m_rendererImpl.reset();
 	}
 
+	std::shared_ptr<RenderDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	{
+		return m_rendererImpl->InstanciateRenderDevice(deviceIndex);
+	}
+
+	RenderAPI Renderer::QueryAPI() const
+	{
+		return m_rendererImpl->QueryAPI();
+	}
+
+	std::string Renderer::QueryAPIString() const
+	{
+		return m_rendererImpl->QueryAPIString();
+	}
+
+	UInt32 Renderer::QueryAPIVersion() const
+	{
+		return m_rendererImpl->QueryAPIVersion();
+	}
+
+	const std::vector<RenderDeviceInfo>& Renderer::QueryRenderDevices() const
+	{
+		return m_rendererImpl->QueryRenderDevices();
+	}
+
 	Renderer* Renderer::s_instance = nullptr;
 }

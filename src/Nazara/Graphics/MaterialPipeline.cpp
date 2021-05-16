@@ -56,7 +56,7 @@ namespace Nz
 
 		renderPipelineInfo.vertexBuffers = vertexBuffers;
 
-		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice().InstantiateRenderPipeline(std::move(renderPipelineInfo)));
+		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
 	/*!
 	* \brief Returns a reference to a MaterialPipeline built with MaterialPipelineInfo

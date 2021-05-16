@@ -40,7 +40,16 @@ namespace Nz
 
 	bool VulkanRenderer::Prepare(const ParameterList& parameters)
 	{
-		return Vulkan::Initialize(APIVersion, parameters);
+		if (!Vulkan::Initialize(APIVersion, parameters))
+			return false;
+
+		const auto& physDevices = Vulkan::GetPhysicalDevices();
+
+		m_deviceInfos.reserve(physDevices.size());
+		for (const Vk::PhysicalDevice& physDevice : physDevices)
+			m_deviceInfos.push_back(Vulkan::BuildRenderDeviceInfo(physDevice));
+
+		return true;
 	}
 
 	RenderAPI VulkanRenderer::QueryAPI() const
@@ -61,16 +70,8 @@ namespace Nz
 		return APIVersion;
 	}
 
-	std::vector<RenderDeviceInfo> VulkanRenderer::QueryRenderDevices() const
+	const std::vector<RenderDeviceInfo>& VulkanRenderer::QueryRenderDevices() const
 	{
-		const auto& physDevices = Vulkan::GetPhysicalDevices();
-
-		std::vector<RenderDeviceInfo> devices;
-		devices.reserve(physDevices.size());
-
-		for (const Vk::PhysicalDevice& physDevice : physDevices)
-			devices.push_back(Vulkan::BuildRenderDeviceInfo(physDevice));
-
-		return devices;
+		return m_deviceInfos;
 	}
 }

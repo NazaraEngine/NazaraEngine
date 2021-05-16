@@ -41,11 +41,11 @@ namespace Nz
 		DummySurface* dummySurface = static_cast<DummySurface*>(surface);
 		OpenGLRenderer* glRenderer = static_cast<OpenGLRenderer*>(renderer);
 
-		m_device = std::static_pointer_cast<OpenGLDevice>(glRenderer->InstanciateRenderDevice(0));
+		OpenGLDevice& device = static_cast<OpenGLDevice&>(*m_owner.GetRenderDevice());
 
 		GL::ContextParams contextParams;
 
-		m_context = m_device->CreateContext(contextParams, dummySurface->GetWindowHandle());
+		m_context = device.CreateContext(contextParams, dummySurface->GetWindowHandle());
 		if (!m_context)
 			return false;
 
@@ -73,11 +73,6 @@ namespace Nz
 	const OpenGLRenderPass& OpenGLRenderWindow::GetRenderPass() const
 	{
 		return m_renderPass;
-	}
-
-	std::shared_ptr<RenderDevice> OpenGLRenderWindow::GetRenderDevice()
-	{
-		return m_device;
 	}
 
 	void OpenGLRenderWindow::Present()

@@ -25,19 +25,19 @@ namespace Nz
 	{
 		public:
 			inline RenderWindow();
-			inline RenderWindow(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
-			inline explicit RenderWindow(void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
+			inline RenderWindow(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline RenderWindow(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters& parameters = RenderWindowParameters());
 			inline ~RenderWindow();
 
-			inline bool Create(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
-			inline bool Create(void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
+			bool Create(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
+			bool Create(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 
 			void Display();
 
 			void EnableVerticalSync(bool enabled);
 
 			inline RenderWindowImpl* GetImpl();
-			std::shared_ptr<RenderDevice> GetRenderDevice();
+			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline RenderSurface* GetSurface();
 
 			inline bool IsValid() const;
@@ -53,9 +53,10 @@ namespace Nz
 			void OnWindowResized() override;
 
 		private:
+			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::unique_ptr<RenderSurface> m_surface;
 			std::unique_ptr<RenderWindowImpl> m_impl;
 			Clock m_clock;
-			std::unique_ptr<RenderSurface> m_surface;
 			RenderWindowParameters m_parameters;
 			unsigned int m_framerateLimit;
 		};

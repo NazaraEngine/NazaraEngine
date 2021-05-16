@@ -43,7 +43,7 @@ namespace Nz
 		{
 			auto& uniformBuffer = m_uniformBuffers.emplace_back();
 
-			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice().InstantiateBuffer(Nz::BufferType_Uniform);
+			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(Nz::BufferType_Uniform);
 			if (!uniformBuffer.buffer->Initialize(uniformBufferInfo.blockSize, BufferUsage_Dynamic))
 				throw std::runtime_error("failed to initialize UBO memory");
 

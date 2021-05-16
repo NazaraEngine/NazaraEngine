@@ -15,7 +15,7 @@ namespace Nz
 	{
 		assert(mesh->GetAnimationType() == AnimationType_Static);
 
-		RenderDevice& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		m_subMeshes.reserve(mesh->GetSubMeshCount());
 		for (std::size_t i = 0; i < mesh->GetSubMeshCount(); ++i)
@@ -34,7 +34,7 @@ namespace Nz
 			const SoftwareBuffer* vertexBufferContent = static_cast<const SoftwareBuffer*>(vertexBuffer->GetBuffer()->GetImpl());
 
 			auto& submeshData = m_subMeshes.emplace_back();
-			submeshData.indexBuffer = renderDevice.InstantiateBuffer(BufferType_Index);
+			submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType_Index);
 			if (!submeshData.indexBuffer->Initialize(indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage_DeviceLocal))
 				throw std::runtime_error("failed to create index buffer");
 
@@ -43,7 +43,7 @@ namespace Nz
 
 			submeshData.indexCount = indexBuffer->GetIndexCount();
 
-			submeshData.vertexBuffer = renderDevice.InstantiateBuffer(BufferType_Vertex);
+			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(BufferType_Vertex);
 			if (!submeshData.vertexBuffer->Initialize(vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage_DeviceLocal))
 				throw std::runtime_error("failed to create vertex buffer");
 
