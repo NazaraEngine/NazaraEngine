@@ -131,6 +131,8 @@ for name, module in pairs(modules) do
 	set_kind("shared")
 	set_group("Modules")
 
+	add_rules("embed_resources")
+
 	if module.Deps then
 		add_deps(module.Deps)
 	end
@@ -151,6 +153,10 @@ for name, module in pairs(modules) do
 	add_headerfiles("include/Nazara/" .. name .. "/**.inl")
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
+
+	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|*.h")) do
+		add_files(filepath, {rule="embed_resources"})
+	end
 
 	if is_plat("windows") then
 		del_files("src/Nazara/" .. name .. "/Posix/**.cpp")
@@ -174,11 +180,11 @@ includes("examples/*/xmake.lua")
 
 -- Adds -d as a debug suffix
 rule("debug_suffix")
-    on_load(function (target)
+	on_load(function (target)
 		if target:kind() ~= "binary" then
-        	target:set("basename", target:basename() .. "-d")
+			target:set("basename", target:basename() .. "-d")
 		end
-    end)
+	end)
 
 -- Builds renderer plugins if linked to NazaraRenderer
 rule("build_rendererplugins")
@@ -187,6 +193,57 @@ rule("build_rendererplugins")
 			for name, _ in pairs(modules) do
 				if name:match("^.+Renderer$") then
 					target:add("deps", "Nazara" .. name, {inherit = false})
+				end
+			end
+		end
+	end)
+
+-- Turns resources into includables headers
+rule("embed_resources")
+	before_build(function (target, opt)
+		import("core.base.option")
+		import("private.utils.progress")
+
+		local function GenerateEmbedHeader(filepath, targetpath)
+			local bufferSize = 1024 * 1024
+
+			progress.show(opt.progress, "${color.build.object}embedding %s", filepath)
+
+			local resource = assert(io.open(filepath, "rb"))
+			local targetFile = assert(io.open(targetpath, "w+"))
+
+			local resourceSize = resource:size()
+
+			local remainingSize = resourceSize
+			local headerSize = 0
+
+			while remainingSize > 0 do
+				local readSize = math.min(remainingSize, bufferSize)
+				local data = resource:read(readSize)
+				remainingSize = remainingSize - readSize
+
+				local headerContentTable = {}
+				for i = 1, #data do
+					table.insert(headerContentTable, string.format("%d,", data:byte(i)))
+				end
+				local content = table.concat(headerContentTable)
+
+				headerSize = headerSize + #content
+
+				targetFile:write(content)
+			end
+
+			resource:close()
+			targetFile:close()
+		end
+
+		for _, sourcebatch in pairs(target:sourcebatches()) do
+			if sourcebatch.rulename == "embed_resources" then
+				for _, sourcefile in ipairs(sourcebatch.sourcefiles) do
+					local targetpath = sourcefile .. ".h"
+					if option.get("rebuild") or os.mtime(sourcefile) >= os.mtime(targetpath) then
+						GenerateEmbedHeader(sourcefile, targetpath)
+					end
 				end
 			end
 		end
