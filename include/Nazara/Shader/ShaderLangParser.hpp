@@ -96,9 +96,9 @@ namespace Nz::ShaderLang
 			// Expressions
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);
 			ShaderAst::ExpressionPtr ParseExpression();
-			ShaderAst::ExpressionPtr ParseFloatingPointExpression(bool minus = false);
+			ShaderAst::ExpressionPtr ParseFloatingPointExpression();
 			ShaderAst::ExpressionPtr ParseIdentifier();
-			ShaderAst::ExpressionPtr ParseIntegerExpression(bool minus = false);
+			ShaderAst::ExpressionPtr ParseIntegerExpression();
 			std::vector<ShaderAst::ExpressionPtr> ParseParameters();
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();

@@ -235,6 +235,15 @@ namespace Nz::ShaderBuilder
 
 		return swizzleNode;
 	}
+
+	inline std::unique_ptr<ShaderAst::UnaryExpression> Impl::Unary::operator()(ShaderAst::UnaryType op, ShaderAst::ExpressionPtr expression) const
+	{
+		auto unaryNode = std::make_unique<ShaderAst::UnaryExpression>();
+		unaryNode->expression = std::move(expression);
+		unaryNode->op = op;
+
+		return unaryNode;
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>

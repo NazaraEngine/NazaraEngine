@@ -35,6 +35,7 @@ namespace Nz::ShaderAst
 			void Serialize(SelectOptionExpression& node);
 			void Serialize(SwizzleExpression& node);
 			void Serialize(VariableExpression& node);
+			void Serialize(UnaryExpression& node);
 
 			void Serialize(BranchStatement& node);
 			void Serialize(ConditionalStatement& node);

@@ -301,6 +301,17 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr AstCloner::Clone(UnaryExpression& node)
+	{
+		auto clone = std::make_unique<UnaryExpression>();
+		clone->expression = CloneExpression(node.expression);
+		clone->op = node.op;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
 #define NAZARA_SHADERAST_EXPRESSION(NodeType) void AstCloner::Visit(NodeType& node) \
 	{ \
 		PushExpression(Clone(node)); \

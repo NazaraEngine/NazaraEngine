@@ -107,7 +107,7 @@ namespace Nz
 		}, type);
 	}
 
-	void LangWriter::Append(const ShaderAst::IdentifierType& identifierType)
+	void LangWriter::Append(const ShaderAst::IdentifierType& /*identifierType*/)
 	{
 		throw std::runtime_error("unexpected identifier type");
 	}
@@ -728,6 +728,26 @@ namespace Nz
 	{
 		const std::string& varName = Retrieve(m_currentState->variableNames, node.variableId);
 		Append(varName);
+	}
+
+	void LangWriter::Visit(ShaderAst::UnaryExpression& node)
+	{
+		switch (node.op)
+		{
+			case ShaderAst::UnaryType::LogicalNot:
+				Append("!");
+				break;
+
+			case ShaderAst::UnaryType::Minus:
+				Append("-");
+				break;
+
+			case ShaderAst::UnaryType::Plus:
+				Append("+");
+				break;
+		}
+
+		Append(node.expression);
 	}
 
 	void LangWriter::AppendHeader()

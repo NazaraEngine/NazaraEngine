@@ -815,6 +815,61 @@ namespace Nz
 		PushResultId(loadVisitor.Evaluate(node));
 	}
 
+	void SpirvAstVisitor::Visit(ShaderAst::UnaryExpression& node)
+	{
+		const ShaderAst::ExpressionType& resultType = GetExpressionType(node);
+		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expression);
+
+		UInt32 operand = EvaluateExpression(node.expression);
+
+		UInt32 resultId = [&]
+		{
+			switch (node.op)
+			{
+				case ShaderAst::UnaryType::LogicalNot:
+				{
+					assert(IsPrimitiveType(exprType));
+					assert(std::get<ShaderAst::PrimitiveType>(resultType) == ShaderAst::PrimitiveType::Boolean);
+
+					UInt32 resultId = m_writer.AllocateResultId();
+					m_currentBlock->Append(SpirvOp::OpLogicalNot, m_writer.GetTypeId(resultType), resultId, operand);
+
+					return resultId;
+				}
+
+				case ShaderAst::UnaryType::Minus:
+				{
+					assert(IsPrimitiveType(exprType));
+
+					UInt32 resultId = m_writer.AllocateResultId();
+
+					switch (std::get<ShaderAst::PrimitiveType>(resultType))
+					{
+						case ShaderAst::PrimitiveType::Float32:
+							m_currentBlock->Append(SpirvOp::OpFNegate, m_writer.GetTypeId(resultType), resultId, operand);
+							return resultId;
+
+						case ShaderAst::PrimitiveType::Int32:
+						case ShaderAst::PrimitiveType::UInt32:
+							m_currentBlock->Append(SpirvOp::OpSNegate, m_writer.GetTypeId(resultType), resultId, operand);
+							return resultId;
+
+						default:
+							break;
+					}
+				}
+
+				case ShaderAst::UnaryType::Plus:
+					PushResultId(operand); //< No-op
+					break;
+			}
+
+			throw std::runtime_error("unexpected unary operation");
+		}();
+
+		PushResultId(resultId);
+	}
+
 	void SpirvAstVisitor::PushResultId(UInt32 value)
 	{
 		m_resultIds.push_back(value);

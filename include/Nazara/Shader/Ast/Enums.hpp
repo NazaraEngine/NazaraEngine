@@ -29,7 +29,7 @@ namespace Nz::ShaderAst
 	enum class BinaryType
 	{
 		Add,       //< +
-		Subtract, //< -
+		Subtract,  //< -
 		Multiply,  //< *
 		Divide,    //< /
 
@@ -88,6 +88,13 @@ namespace Nz::ShaderAst
 		Second,
 		Third,
 		Fourth
+	};
+
+	enum class UnaryType
+	{
+		LogicalNot, //< !v
+		Minus,      //< -v
+		Plus,       //< +v
 	};
 }
 

@@ -922,6 +922,26 @@ namespace Nz
 		Append(varName);
 	}
 
+	void GlslWriter::Visit(ShaderAst::UnaryExpression& node)
+	{
+		switch (node.op)
+		{
+			case ShaderAst::UnaryType::LogicalNot:
+				Append("!");
+				break;
+
+			case ShaderAst::UnaryType::Minus:
+				Append("-");
+				break;
+
+			case ShaderAst::UnaryType::Plus:
+				Append("+");
+				break;
+		}
+
+		Visit(node.expression);
+	}
+
 	bool GlslWriter::HasExplicitBinding(ShaderAst::StatementPtr& shader)
 	{
 		/*for (const auto& uniform : shader.GetUniforms())

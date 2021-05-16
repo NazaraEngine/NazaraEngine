@@ -73,9 +73,14 @@ namespace Nz::ShaderAst
 		node.expression->Visit(*this);
 	}
 
-	void AstRecursiveVisitor::Visit(VariableExpression& node)
+	void AstRecursiveVisitor::Visit(VariableExpression& /*node*/)
 	{
 		/* Nothing to do */
+	}
+
+	void AstRecursiveVisitor::Visit(UnaryExpression& node)
+	{
+		node.expression->Visit(*this);
 	}
 
 	void AstRecursiveVisitor::Visit(BranchStatement& node)
@@ -95,7 +100,7 @@ namespace Nz::ShaderAst
 		node.statement->Visit(*this);
 	}
 
-	void AstRecursiveVisitor::Visit(DeclareExternalStatement& node)
+	void AstRecursiveVisitor::Visit(DeclareExternalStatement& /*node*/)
 	{
 		/* Nothing to do */
 	}

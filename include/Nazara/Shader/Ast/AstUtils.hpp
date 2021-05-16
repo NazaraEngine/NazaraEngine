@@ -43,6 +43,7 @@ namespace Nz::ShaderAst
 			void Visit(SelectOptionExpression& node) override;
 			void Visit(SwizzleExpression& node) override;
 			void Visit(VariableExpression& node) override;
+			void Visit(UnaryExpression& node) override;
 
 			ExpressionCategory m_expressionCategory;
 	};
