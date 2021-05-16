@@ -16,6 +16,38 @@
 
 namespace Nz
 {
+	namespace
+	{
+		struct AvailableLayer
+		{
+			VkLayerProperties layerProperties;
+			std::unordered_map<std::string, std::size_t> extensionByName;
+			std::vector<VkExtensionProperties> extensionList;
+		};
+
+		void EnumerateLayers(std::vector<AvailableLayer>& availableLayers, std::unordered_map<std::string, std::size_t>& layerByName)
+		{
+			std::vector<VkLayerProperties> layerList;
+			if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
+			{
+				for (VkLayerProperties& layerProperties : layerList)
+				{
+					std::size_t layerIndex = availableLayers.size();
+					auto& layerData = availableLayers.emplace_back();
+					layerData.layerProperties = layerProperties;
+
+					if (Vk::Loader::EnumerateInstanceExtensionProperties(&layerData.extensionList, layerProperties.layerName))
+					{
+						for (VkExtensionProperties& extProperty : layerData.extensionList)
+							layerData.extensionByName.emplace(extProperty.extensionName, layerData.extensionByName.size());
+					}
+
+					layerByName.emplace(layerProperties.layerName, layerIndex);
+				}
+			}
+		}
+	}
+
 	RenderDeviceInfo Vulkan::BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice)
 	{
 		RenderDeviceInfo deviceInfo;
@@ -139,14 +171,9 @@ namespace Nz
 
 		std::vector<const char*> enabledLayers;
 
-		// Get supported layer list
-		std::unordered_set<std::string> availableLayers;
-		std::vector<VkLayerProperties> layerList;
-		if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
-		{
-			for (VkLayerProperties& extProperty : layerList)
-				availableLayers.insert(extProperty.layerName);
-		}
+		std::vector<AvailableLayer> availableLayers;
+		std::unordered_map<std::string, std::size_t> availableLayerByName;
+		EnumerateLayers(availableLayers, availableLayerByName);
 
 		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
 		{
@@ -154,9 +181,9 @@ namespace Nz
 
 #ifdef NAZARA_DEBUG
 			// Enable Vulkan validation if available in debug mode
-			if (availableLayers.count("VK_LAYER_KHRONOS_validation"))
+			if (availableLayerByName.count("VK_LAYER_KHRONOS_validation"))
 				enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
-			else if (availableLayers.count("VK_LAYER_LUNARG_standard_validation"))
+			else if (availableLayerByName.count("VK_LAYER_LUNARG_standard_validation"))
 				enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
 #endif
 		}
@@ -241,7 +268,9 @@ namespace Nz
 		VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
 
 #ifdef NAZARA_DEBUG
-		VkValidationFeaturesEXT features = {};
+		// Handle VK_LAYER_KHRONOS_validation extended features
+
+		VkValidationFeaturesEXT features = { VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT };
 
 		std::vector<VkValidationFeatureEnableEXT> enabledFeatures = {
 			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
@@ -249,15 +278,26 @@ namespace Nz
 			VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
 		};
 
-		if (availableLayers.count("VK_LAYER_KHRONOS_validation"))
+		auto validationIt = std::find_if(enabledLayers.begin(), enabledLayers.end(), [&](const char* layerName)
 		{
-			enabledExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
+			return std::strcmp(layerName, "VK_LAYER_KHRONOS_validation") == 0;
+		});
+		if (validationIt != enabledLayers.end())
+		{
+			auto layerIt = availableLayerByName.find("VK_LAYER_KHRONOS_validation");
+			assert(layerIt != availableLayerByName.end());
 
-			features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-			features.enabledValidationFeatureCount = UInt32(enabledFeatures.size());
-			features.pEnabledValidationFeatures = enabledFeatures.data();
+			auto& validationLayer = availableLayers[layerIt->second];
+			if (validationLayer.extensionByName.find(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME) != validationLayer.extensionByName.end())
+			{
+				enabledExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 
-			instanceInfo.pNext = &features;
+				features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+				features.enabledValidationFeatureCount = UInt32(enabledFeatures.size());
+				features.pEnabledValidationFeatures = enabledFeatures.data();
+
+				instanceInfo.pNext = &features;
+			}
 		}
 #endif
 
