@@ -11,6 +11,22 @@
 
 namespace Nz
 {
+	bool RenderWindow::Create(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style, const RenderWindowParameters& parameters)
+	{
+		m_parameters = parameters;
+		m_renderDevice = std::move(renderDevice);
+
+		return Window::Create(mode, title, style);
+	}
+
+	bool RenderWindow::Create(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters& parameters)
+	{
+		m_parameters = parameters;
+		m_renderDevice = std::move(renderDevice);
+
+		return Window::Create(handle);
+	}
+
 	void RenderWindow::Display()
 	{
 		if (m_framerateLimit > 0)
@@ -28,17 +44,9 @@ namespace Nz
 		///TODO
 	}
 
-	std::shared_ptr<RenderDevice> RenderWindow::GetRenderDevice()
-	{
-		if (!m_impl)
-			return std::shared_ptr<RenderDevice>();
-
-		return m_impl->GetRenderDevice();
-	}
-
 	bool RenderWindow::OnWindowCreated()
 	{
-		RendererImpl *rendererImpl = Renderer::Instance()->GetRendererImpl();
+		RendererImpl* rendererImpl = Renderer::Instance()->GetRendererImpl();
 		auto surface = rendererImpl->CreateRenderSurfaceImpl();
 		if (!surface->Create(GetSystemHandle()))
 		{
@@ -64,6 +72,7 @@ namespace Nz
 	void RenderWindow::OnWindowDestroy()
 	{
 		m_impl.reset();
+		m_renderDevice.reset();
 		m_surface.reset();
 	}
 

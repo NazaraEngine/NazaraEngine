@@ -55,8 +55,6 @@ namespace Nz
 			inline const VulkanRenderPass& GetRenderPass() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
-			inline std::shared_ptr<RenderDevice> GetRenderDevice() override;
-
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
 			VkRenderWindow& operator=(const VkRenderWindow&) = delete;

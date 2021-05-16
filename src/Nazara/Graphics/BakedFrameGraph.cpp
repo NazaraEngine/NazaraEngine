@@ -16,8 +16,8 @@ namespace Nz
 	m_attachmentToTextureMapping(std::move(attachmentIdToTextureMapping)),
 	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping))
 	{
-		RenderDevice& renderDevice = Graphics::Instance()->GetRenderDevice();
-		m_commandPool = renderDevice.InstantiateCommandPool(QueueType::Graphics);
+		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		m_commandPool = renderDevice->InstantiateCommandPool(QueueType::Graphics);
 	}
 
 	void BakedFrameGraph::Execute(RenderFrame& renderFrame)
@@ -115,7 +115,7 @@ namespace Nz
 
 	void BakedFrameGraph::Resize(unsigned int width, unsigned int height)
 	{
-		RenderDevice& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		// Delete previous textures to make some room in VRAM
 		for (auto& passData : m_passes)
@@ -136,7 +136,7 @@ namespace Nz
 			textureCreationParams.usageFlags = textureData.usage;
 			textureCreationParams.pixelFormat = textureData.format;
 
-			textureData.texture = renderDevice.InstantiateTexture(textureCreationParams);
+			textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
 		}
 
 		std::vector<std::shared_ptr<Texture>> textures;
@@ -160,7 +160,7 @@ namespace Nz
 
 			passData.renderRect.Set(0, 0, int(framebufferWidth), int(framebufferHeight));
 
-			passData.framebuffer = renderDevice.InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
+			passData.framebuffer = renderDevice->InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
 		}
 	}
 }

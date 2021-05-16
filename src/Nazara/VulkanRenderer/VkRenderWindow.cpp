@@ -105,14 +105,16 @@ namespace Nz
 
 	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
-		const auto& deviceInfo = Vulkan::GetPhysicalDevices()[0];
+		VulkanDevice& referenceDevice = static_cast<VulkanDevice&>(*m_owner.GetRenderDevice());
+
+		const auto& physDeviceInfo = referenceDevice.GetPhysicalDeviceInfo();
 
 		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
 
 		UInt32 graphicsFamilyQueueIndex;
 		UInt32 presentableFamilyQueueIndex;
 		UInt32 transferFamilyQueueIndex;
-		m_device = Vulkan::SelectDevice(deviceInfo, vulkanSurface, &graphicsFamilyQueueIndex, &presentableFamilyQueueIndex, &transferFamilyQueueIndex);
+		m_device = Vulkan::SelectDevice(physDeviceInfo, vulkanSurface, &graphicsFamilyQueueIndex, &presentableFamilyQueueIndex, &transferFamilyQueueIndex);
 		if (!m_device)
 		{
 			NazaraError("Failed to get compatible Vulkan device");
@@ -124,7 +126,7 @@ namespace Nz
 		m_transferQueue = m_device->GetQueue(transferFamilyQueueIndex, 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
-		if (!vulkanSurface.GetFormats(deviceInfo.physDevice, &surfaceFormats))
+		if (!vulkanSurface.GetFormats(physDeviceInfo.physDevice, &surfaceFormats))
 		{
 			NazaraError("Failed to query supported surface formats");
 			return false;
@@ -192,7 +194,7 @@ namespace Nz
 
 				if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 				{
-					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(deviceInfo.physDevice, m_depthStencilFormat);
+					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(physDeviceInfo.physDevice, m_depthStencilFormat);
 					if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 						break; //< Found it
 

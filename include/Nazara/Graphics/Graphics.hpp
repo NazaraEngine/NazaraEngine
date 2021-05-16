@@ -31,7 +31,7 @@ namespace Nz
 			Graphics(Config config);
 			~Graphics();
 
-			inline RenderDevice& GetRenderDevice();
+			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline TextureSamplerCache& GetSamplerCache();
 			inline const std::shared_ptr<AbstractBuffer>& GetViewerDataUBO();
 

@@ -12,19 +12,19 @@ namespace Nz
 	{
 	}
 
-	inline RenderWindow::RenderWindow(VideoMode mode, const std::string& title, WindowStyleFlags style, const RenderWindowParameters& parameters) :
+	inline RenderWindow::RenderWindow(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style, const RenderWindowParameters& parameters) :
 	RenderWindow()
 	{
 		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
-		Create(mode, title, style, parameters);
+		Create(std::move(renderDevice), mode, title, style, parameters);
 	}
 
-	inline RenderWindow::RenderWindow(void* handle, const RenderWindowParameters& parameters)
+	inline RenderWindow::RenderWindow(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters& parameters)
 	{
 		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
 
-		Create(handle, parameters);
+		Create(std::move(renderDevice), handle, parameters);
 	}
 
 	inline RenderWindow::~RenderWindow()
@@ -32,23 +32,14 @@ namespace Nz
 		Destroy();
 	}
 
-	inline bool RenderWindow::Create(VideoMode mode, const std::string& title, WindowStyleFlags style, const RenderWindowParameters& parameters)
-	{
-		m_parameters = parameters;
-
-		return Window::Create(mode, title, style);
-	}
-
-	inline bool RenderWindow::Create(void* handle, const RenderWindowParameters& parameters)
-	{
-		m_parameters = parameters;
-
-		return Window::Create(handle);
-	}
-
 	inline RenderWindowImpl* RenderWindow::GetImpl()
 	{
 		return m_impl.get();
+	}
+
+	inline const std::shared_ptr<RenderDevice>& RenderWindow::GetRenderDevice() const
+	{
+		return m_renderDevice;
 	}
 
 	inline RenderSurface* RenderWindow::GetSurface()

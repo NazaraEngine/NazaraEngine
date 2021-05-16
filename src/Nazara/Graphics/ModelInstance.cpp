@@ -15,7 +15,7 @@ namespace Nz
 	{
 		Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();
 
-		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice().InstantiateBuffer(BufferType_Uniform);
+		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType_Uniform);
 		if (!m_instanceDataBuffer->Initialize(instanceUboOffsets.totalSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
 			throw std::runtime_error("failed to initialize viewer data UBO");
 

@@ -612,7 +612,7 @@ namespace Nz
 
 	void FrameGraph::BuildPhysicalPasses()
 	{
-		RenderDevice& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		std::unordered_map<std::size_t /*textureId*/, TextureLayout> textureLayouts;
 
@@ -845,7 +845,7 @@ namespace Nz
 
 			BuildPhysicalPassDependencies(colorAttachmentCount, depthStencilAttachmentIndex.has_value(), renderPassAttachments, subpassesDesc, subpassesDeps);
 
-			m_pending.renderPasses.push_back(renderDevice.InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
+			m_pending.renderPasses.push_back(renderDevice->InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
 
 			physicalPassIndex++;
 		}

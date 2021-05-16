@@ -37,13 +37,10 @@ namespace Nz
 			const OpenGLFramebuffer& GetFramebuffer() const override;
 			const OpenGLRenderPass& GetRenderPass() const override;
 
-			std::shared_ptr<RenderDevice> GetRenderDevice() override;
-
 			void Present();
 
 		private:
 			std::size_t m_currentFrame;
-			std::shared_ptr<OpenGLDevice> m_device;
 			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
 			std::unique_ptr<GL::Context> m_context;
 			OpenGLRenderPass m_renderPass;

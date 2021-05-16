@@ -51,7 +51,7 @@ namespace Nz
 			});
 		}
 
-		m_pipelineLayout = Graphics::Instance()->GetRenderDevice().InstantiateRenderPipelineLayout(std::move(info));
+		m_pipelineLayout = Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipelineLayout(std::move(info));
 	}
 
 	inline auto MaterialSettings::GetBuilderData() const -> const Builder&

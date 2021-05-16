@@ -24,6 +24,13 @@
 
 namespace Nz
 {
+	OpenGLRenderer::OpenGLRenderer()
+	{
+		auto& dummyDevice = m_deviceInfos.emplace_back();
+		dummyDevice.name = "OpenGL Default Device";
+		dummyDevice.type = RenderDeviceType::Unknown;
+	}
+
 	OpenGLRenderer::~OpenGLRenderer()
 	{
 		m_device.reset();
@@ -107,13 +114,8 @@ namespace Nz
 		return 300;
 	}
 
-	std::vector<RenderDeviceInfo> OpenGLRenderer::QueryRenderDevices() const
+	const std::vector<RenderDeviceInfo>& OpenGLRenderer::QueryRenderDevices() const
 	{
-		std::vector<RenderDeviceInfo> devices;
-		auto& dummyDevice = devices.emplace_back();
-		dummyDevice.name = "OpenGL Default Device";
-		dummyDevice.type = RenderDeviceType::Unknown;
-
-		return devices;
+		return m_deviceInfos;
 	}
 }

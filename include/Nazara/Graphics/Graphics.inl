@@ -7,9 +7,9 @@
 
 namespace Nz
 {
-	inline RenderDevice& Graphics::GetRenderDevice()
+	inline const std::shared_ptr<RenderDevice>& Graphics::GetRenderDevice() const
 	{
-		return *m_renderDevice;
+		return m_renderDevice;
 	}
 
 	inline TextureSamplerCache& Graphics::GetSamplerCache()
