@@ -19,7 +19,8 @@ namespace Nz
 	ModuleBase("Graphics", this)
 	{
 		Renderer* renderer = Renderer::Instance();
-		std::vector<RenderDeviceInfo> renderDeviceInfo = rendererImpl->QueryRenderDevices();
+
+		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
 		if (renderDeviceInfo.empty())
 			throw std::runtime_error("no render device available");
 
@@ -28,6 +29,11 @@ namespace Nz
 		{
 			const auto& deviceInfo = renderDeviceInfo[i];
 			if (config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Dedicated)
+			{
+				bestRenderDeviceIndex = i;
+				break;
+			}
+			else if (!config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Integrated)
 			{
 				bestRenderDeviceIndex = i;
 				break;
