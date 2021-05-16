@@ -42,6 +42,9 @@ namespace Nz::ShaderAst
 		private:
 			std::optional<UInt64> m_enabledOptions;
 	};
+
+	inline StatementPtr Optimize(const StatementPtr& ast);
+	inline StatementPtr Optimize(const StatementPtr& ast, UInt64 enabledConditions);
 }
 
 #include <Nazara/Shader/Ast/AstOptimizer.inl>

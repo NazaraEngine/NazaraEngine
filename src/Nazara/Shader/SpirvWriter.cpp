@@ -11,6 +11,7 @@
 #include <Nazara/Shader/SpirvData.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <tsl/ordered_map.h>
@@ -401,11 +402,23 @@ namespace Nz
 
 	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::StatementPtr& shader, const States& states)
 	{
+		ShaderAst::StatementPtr* targetAstPtr = &shader;
+
 		ShaderAst::StatementPtr sanitizedAst;
 		if (!states.sanitized)
+		{
 			sanitizedAst = ShaderAst::Sanitize(shader);
+			targetAstPtr = &sanitizedAst;
+		}
 
-		ShaderAst::StatementPtr& targetAst = (states.sanitized) ? shader : sanitizedAst;
+		ShaderAst::StatementPtr optimizedAst;
+		if (states.optimize)
+		{
+			optimizedAst = ShaderAst::Optimize(*targetAstPtr);
+			targetAstPtr = &optimizedAst;
+		}
+
+		ShaderAst::StatementPtr& targetAst = *targetAstPtr;
 
 		m_context.states = &states;
 

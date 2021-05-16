@@ -101,6 +101,7 @@ int main()
 
 	Nz::ShaderWriter::States states;
 	states.enabledOptions = 0;
+	states.optimize = true;
 
 	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderSource, sizeof(shaderSource), states);
 	if (!fragVertShader)

@@ -27,6 +27,7 @@ namespace Nz
 			struct States
 			{
 				Nz::UInt64 enabledOptions = 0;
+				bool optimize = false;
 				bool sanitized = false;
 			};
 	};
