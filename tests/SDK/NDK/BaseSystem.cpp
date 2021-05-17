@@ -32,7 +32,7 @@ SCENARIO("BaseSystem", "[NDK][BASESYSTEM]")
 {
 	GIVEN("Our TestSystem")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		Ndk::BaseSystem& system = world.AddSystem<TestSystem>();
 		REQUIRE(&system.GetWorld() == &world);

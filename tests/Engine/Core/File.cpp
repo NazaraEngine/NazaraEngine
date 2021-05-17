@@ -1,6 +1,8 @@
 #include <Nazara/Core/File.hpp>
 #include <Catch/catch.hpp>
 
+std::filesystem::path GetResourceDir();
+
 SCENARIO("File", "[CORE][FILE]")
 {
 	GIVEN("One file")
@@ -63,9 +65,9 @@ SCENARIO("File", "[CORE][FILE]")
 
 	GIVEN("The test file")
 	{
-		REQUIRE(std::filesystem::exists("resources/Engine/Core/FileTest.txt"));
+		REQUIRE(std::filesystem::exists(GetResourceDir() / "Engine/Core/FileTest.txt"));
 
-		Nz::File fileTest("resources/Engine/Core/FileTest.txt", Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
+		Nz::File fileTest(GetResourceDir() / "Engine/Core/FileTest.txt", Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
 
 		WHEN("We read the first line of the file")
 		{

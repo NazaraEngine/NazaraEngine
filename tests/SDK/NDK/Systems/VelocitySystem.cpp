@@ -13,7 +13,7 @@ SCENARIO("VelocitySystem", "[NDK][VELOCITYSYSTEM]")
 		Ndk::VelocityComponent& velocityComponent = entity->AddComponent<Ndk::VelocityComponent>();
 		Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();
 
-		world.GetSystem<Ndk::VelocitySystem>().SetFixedUpdateRate(30.f);
+		world.AddSystem<Ndk::VelocitySystem>().SetFixedUpdateRate(30.f);
 
 		WHEN("We give a speed to our entity")
 		{

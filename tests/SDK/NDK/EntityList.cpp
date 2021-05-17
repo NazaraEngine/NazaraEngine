@@ -6,7 +6,7 @@ SCENARIO("EntityList", "[NDK][ENTITYLIST]")
 {
 	GIVEN("A world & a set of entities")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		const Ndk::EntityHandle& entity = world.CreateEntity();
 		Ndk::EntityList entityList;

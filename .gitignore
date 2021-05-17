@@ -9,6 +9,7 @@ vsxmake*/*
 
 # Nazara binaries
 bin/*
+!bin/resources
 !bin/resources/*
 
 # Build files

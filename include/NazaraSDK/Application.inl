@@ -15,9 +15,6 @@ namespace Ndk
 	* \remark Only one Application instance can exist at a time
 	*/
 	inline Application::Application() :
-	#ifndef NDK_SERVER
-	m_exitOnClosedWindows(true),
-	#endif
 	m_shouldQuit(false),
 	m_updateTime(0.f)
 	{
@@ -33,32 +30,10 @@ namespace Ndk
 	inline Application::~Application()
 	{
 		m_worlds.clear();
-		#ifndef NDK_SERVER
-		m_windows.clear();
-		#endif
 
 		// Automatic free of modules
 		s_application = nullptr;
 	}
-
-	/*!
-	* \brief Adds a window to the application
-	* \return A reference to the newly created windows
-	*
-	* \param args Arguments used to create the window
-	*/
-	#ifndef NDK_SERVER
-	template<typename T, typename... Args>
-	T& Application::AddWindow(Args&&... args)
-	{
-		static_assert(std::is_base_of<Nz::Window, T>::value, "Type must inherit Window");
-
-		m_windows.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
-		WindowInfo& info = m_windows.back();
-
-		return static_cast<T&>(*info.window.get()); //< Warning: ugly
-	}
-	#endif
 
 	/*!
 	* \brief Adds a world to the application
@@ -148,18 +123,6 @@ namespace Ndk
 	}
 
 	/*!
-	* \brief Makes the application exit when there's no more open window
-	*
-	* \param exitOnClosedWindows Should exit be called when no more window is open
-	*/
-	#ifndef NDK_SERVER
-	inline void Application::MakeExitOnLastWindowClosed(bool exitOnClosedWindows)
-	{
-		m_exitOnClosedWindows = exitOnClosedWindows;
-	}
-	#endif
-
-	/*!
 	* \brief Quits the application
 	*/
 
@@ -177,11 +140,4 @@ namespace Ndk
 	{
 		return s_application;
 	}
-
-	#ifndef NDK_SERVER
-	inline Application::WindowInfo::WindowInfo(std::unique_ptr<Nz::Window>&& windowPtr) :
-	window(std::move(windowPtr))
-	{
-	}
-	#endif
 }

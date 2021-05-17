@@ -17,11 +17,6 @@
 #include <Nazara/Shader/Shader.hpp>
 #include <Nazara/Utility/Utility.hpp>
 
-#ifndef NDK_SERVER
-#include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#endif
-
 namespace Ndk
 {
 	class NDK_API Sdk : public Nz::ModuleBase<Sdk>
@@ -29,13 +24,7 @@ namespace Ndk
 		friend ModuleBase;
 
 		public:
-			using CommonDependencies = Nz::TypeList<Nz::Network, Nz::Physics2D, Nz::Physics3D, Nz::Utility>;
-#ifdef NDK_SERVER
-			using Dependencies = CommonDependencies;
-#else
-			using ClientDependencies = Nz::TypeList<Nz::Audio, Nz::Renderer>;
-			using Dependencies = Nz::TypeListConcat<CommonDependencies, ClientDependencies>;
-#endif
+			using Dependencies = Nz::TypeList<Nz::Network, Nz::Physics2D, Nz::Physics3D, Nz::Utility>;
 
 			struct Config {};
 

@@ -4,15 +4,15 @@
 
 #pragma once
 
-#ifndef NDK_SERVER
 #ifndef NDK_SYSTEMS_LISTENERSYSTEM_HPP
 #define NDK_SYSTEMS_LISTENERSYSTEM_HPP
 
-#include <NazaraSDK/System.hpp>
+ #include <NazaraSDK/ClientPrerequisites.hpp>
+ #include <NazaraSDK/System.hpp>
 
 namespace Ndk
 {
-	class NDK_API ListenerSystem : public System<ListenerSystem>
+	class NDK_CLIENT_API ListenerSystem : public System<ListenerSystem>
 	{
 		public:
 			ListenerSystem();
@@ -28,4 +28,3 @@ namespace Ndk
 #include <NazaraSDK/Systems/ListenerSystem.inl>
 
 #endif // NDK_SYSTEMS_LISTENERSYSTEM_HPP
-#endif // NDK_SERVER

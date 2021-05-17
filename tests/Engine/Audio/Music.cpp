@@ -4,6 +4,8 @@
 #include <chrono>
 #include <thread>
 
+std::filesystem::path GetResourceDir();
+
 SCENARIO("Music", "[AUDIO][MUSIC]")
 {
 	GIVEN("A music")
@@ -12,7 +14,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 		WHEN("We load our music")
 		{
-			REQUIRE(music.OpenFromFile("resources/Engine/Audio/The_Brabanconne.ogg"));
+			REQUIRE(music.OpenFromFile(GetResourceDir() / "Engine/Audio/The_Brabanconne.ogg"));
 
 			THEN("We can ask the informations of the file")
 			{
