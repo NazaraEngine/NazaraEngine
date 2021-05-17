@@ -5,7 +5,7 @@ Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/Na
 
 # Nazara Engine  
 
-Nazara Engine is a fast, complete, cross-platform, object-oriented API which can help you in your daily developper life.  
+Nazara Engine is a fast, complete, cross-platform, object-oriented API which can help you in your daily developer life.  
 Its goal is to provide a set of useful classes : Its core provides unicode strings, filesystem access, hashs, threads, ...
 
 It also provide a set of libraries, such as audio, network, physics, renderer, 2D and 3D graphics engines, ...

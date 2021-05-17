@@ -16,6 +16,9 @@
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#include <Utfcpp/utf8.h>
+#include <cstdio>
+#include <memory>
 
 namespace Nz
 {
@@ -485,23 +488,26 @@ namespace Nz
 					break;
 
 				case SDL_TEXTINPUT:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->text.windowID)
 						return 0;
 
 					evt.type = WindowEventType_TextEntered;
 					evt.text.repeated = false;
 
-					for (decltype(evt.text.character) codepoint : ToUtf32String(event->text.text))
+					utf8::unchecked::iterator<const char*> it(event->text.text);
+					do
 					{
-						evt.text.character = codepoint;
+						evt.text.character = *it;
 
 						window->m_parent->PushEvent(evt);
-					}
+					} while (*it++);
 
 					// prevent post switch event
 					evt.type = WindowEventType::WindowEventType_Max;
 
 					break;
+				}
 
 				case SDL_TEXTEDITING:
 					if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
