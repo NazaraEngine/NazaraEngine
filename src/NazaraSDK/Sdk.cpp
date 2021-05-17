@@ -19,11 +19,6 @@
 #include <NazaraSDK/Systems/PhysicsSystem3D.hpp>
 #include <NazaraSDK/Systems/VelocitySystem.hpp>
 
-#ifndef NDK_SERVER
-#include <NazaraSDK/Components/ListenerComponent.hpp>
-#include <NazaraSDK/Systems/ListenerSystem.hpp>
-#endif
-
 namespace Ndk
 {
 	/*!
@@ -52,11 +47,6 @@ namespace Ndk
 		InitializeComponent<VelocityComponent>("NdkVeloc");
 		InitializeComponent<VelocityComponent>("NdkCons2");
 
-		#ifndef NDK_SERVER
-		// Client components
-		InitializeComponent<ListenerComponent>("NdkList");
-		#endif
-
 		// Systems
 
 		BaseSystem::Initialize();
@@ -66,11 +56,6 @@ namespace Ndk
 		InitializeSystem<PhysicsSystem2D>();
 		InitializeSystem<PhysicsSystem3D>();
 		InitializeSystem<VelocitySystem>();
-
-		#ifndef NDK_SERVER
-		// Client systems
-		InitializeSystem<ListenerSystem>();
-		#endif
 	}
 
 	Sdk::~Sdk()

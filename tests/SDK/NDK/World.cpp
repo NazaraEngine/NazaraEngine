@@ -55,7 +55,7 @@ SCENARIO("World", "[NDK][WORLD]")
 {
 	GIVEN("A brave new world and the update system")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 		Ndk::BaseSystem& system = world.AddSystem<UpdateSystem>();
 
 		WHEN("We had a new entity with an updatable component and a system")
@@ -103,7 +103,7 @@ SCENARIO("World", "[NDK][WORLD]")
 
 	GIVEN("A newly created entity")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 		Ndk::EntityHandle entity = world.CreateEntity();
 
 		REQUIRE(entity.IsValid());
@@ -129,7 +129,7 @@ SCENARIO("World", "[NDK][WORLD]")
 
 	GIVEN("An empty world")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		WHEN("We create two entities")
 		{

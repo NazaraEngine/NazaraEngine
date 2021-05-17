@@ -32,12 +32,10 @@ namespace Ndk
 			using EntityVector = std::vector<EntityHandle>;
 			struct ProfilerData;
 
-			inline World(bool addDefaultSystems = true);
+			inline World();
 			World(const World&) = delete;
 			inline World(World&& world) noexcept;
 			~World() noexcept;
-
-			void AddDefaultSystems();
 
 			inline BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
 			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);

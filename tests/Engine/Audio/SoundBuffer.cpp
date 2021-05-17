@@ -1,13 +1,15 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Catch/catch.hpp>
 
+std::filesystem::path GetResourceDir();
+
 SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 {
 	GIVEN("A sound buffer")
 	{
 		WHEN("We load our sound")
 		{
-			Nz::SoundBufferRef soundBuffer = Nz::SoundBuffer::LoadFromFile("resources/Engine/Audio/Cat.flac");
+			Nz::SoundBufferRef soundBuffer = Nz::SoundBuffer::LoadFromFile(GetResourceDir() / "Engine/Audio/Cat.flac");
 			REQUIRE(soundBuffer.IsValid());
 
 			THEN("We can ask the informations of the file")
