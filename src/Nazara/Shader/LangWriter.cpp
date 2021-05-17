@@ -747,7 +747,7 @@ namespace Nz
 				break;
 		}
 
-		Append(node.expression);
+		node.expression->Visit(*this);
 	}
 
 	void LangWriter::AppendHeader()
