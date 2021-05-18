@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
+#include <array>
 #include <memory>
 #include <optional>
 
@@ -39,6 +40,7 @@ namespace Nz::ShaderBuilder
 
 		struct Cast
 		{
+			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const;
 			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const;
 		};
 

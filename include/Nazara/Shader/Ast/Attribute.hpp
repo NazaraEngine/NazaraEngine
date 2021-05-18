@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
+#include <variant>
 
 namespace Nz::ShaderAst
 {
