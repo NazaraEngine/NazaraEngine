@@ -1,0 +1,135 @@
+{
+    "buffers": [
+    ],
+    "conditions": [
+    ],
+    "connections": [
+        {
+            "in_id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
+            "in_index": 0,
+            "out_id": "{c3b906bc-d230-4026-a32e-34c00eaf4481}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
+            "in_index": 0,
+            "out_id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{f8e2a7b7-6780-4014-a803-34020084ceed}",
+            "in_index": 0,
+            "out_id": "{6d6b0d04-46ea-4f5f-8e0b-0502adfdc149}",
+            "out_index": 0
+        }
+    ],
+    "inputs": [
+        {
+            "locationIndex": 0,
+            "name": "inPos",
+            "role": "Position",
+            "roleIndex": 0,
+            "type": "Float3"
+        },
+        {
+            "locationIndex": 1,
+            "name": "inTexCoord",
+            "role": "TexCoord",
+            "roleIndex": 0,
+            "type": "Float2"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{c3b906bc-d230-4026-a32e-34c00eaf4481}",
+            "model": {
+                "input": "inPos",
+                "name": "Input",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 216.49999999999997,
+                "y": 664.1666666666667
+            }
+        },
+        {
+            "id": "{7ac65f09-7f55-4a6e-9380-1bee5213f079}",
+            "model": {
+                "name": "cast_vec4",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "value": [
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                "variable_name": ""
+            },
+            "position": {
+                "x": 345,
+                "y": 668
+            }
+        },
+        {
+            "id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
+            "model": {
+                "name": "PositionOutputValue",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 521.6666666666667,
+                "y": 668.1666666666667
+            }
+        },
+        {
+            "id": "{6d6b0d04-46ea-4f5f-8e0b-0502adfdc149}",
+            "model": {
+                "input": "inTexCoord",
+                "name": "Input",
+                "preview_enabled": false,
+                "preview_height": 64,
+                "preview_width": 64,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 208.33333333333334,
+                "y": 761.666666666667
+            }
+        },
+        {
+            "id": "{f8e2a7b7-6780-4014-a803-34020084ceed}",
+            "model": {
+                "name": "Output",
+                "output": "vertUV",
+                "preview_enabled": false,
+                "preview_height": 128,
+                "preview_width": 128,
+                "variable_name": ""
+            },
+            "position": {
+                "x": 492.5,
+                "y": 765
+            }
+        }
+    ],
+    "outputs": [
+        {
+            "locationIndex": 0,
+            "name": "vertUV",
+            "type": "Float2"
+        }
+    ],
+    "structs": [
+    ],
+    "textures": [
+    ],
+    "type": "Vertex"
+}
