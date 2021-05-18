@@ -11,6 +11,8 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
+#include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <variant>
 
 namespace Nz::ShaderAst
@@ -27,6 +29,8 @@ namespace Nz::ShaderAst
 		Vector3i32,
 		Vector4i32
 	>;
+
+	NAZARA_SHADER_API ExpressionType GetExpressionType(const ConstantValue& constant);
 }
 
 #endif

@@ -58,6 +58,15 @@ namespace Nz::ShaderBuilder
 		return branchNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::CastExpression> Impl::Cast::operator()(ShaderAst::ExpressionType targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const
+	{
+		auto castNode = std::make_unique<ShaderAst::CastExpression>();
+		castNode->expressions = std::move(expressions);
+		castNode->targetType = std::move(targetType);
+
+		return castNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::CastExpression> Impl::Cast::operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const
 	{
 		auto castNode = std::make_unique<ShaderAst::CastExpression>();

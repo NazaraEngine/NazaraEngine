@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <optional>
 #include <string>
 #include <variant>

@@ -227,7 +227,27 @@ namespace Nz::ShaderAst
 		{
 			using Op = BinarySubtraction<T1, T2>;
 		};
-		
+
+		/*************************************************************************************************/
+
+		template<typename T, typename... Args>
+		struct CastConstantBase
+		{
+			std::unique_ptr<ConstantExpression> operator()(const Args&... args)
+			{
+				return ShaderBuilder::Constant(T(args...));
+			}
+		};
+
+		template<typename T, typename... Args>
+		struct CastConstant;
+
+		template<typename T, typename... Args>
+		struct CastConstantPropagation
+		{
+			using Op = CastConstant<T, Args...>;
+		};
+
 		/*************************************************************************************************/
 
 		template<UnaryType Type, typename T>
@@ -319,13 +339,13 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinaryCompGt, bool, bool);
 		EnableOptimisation(BinaryCompGt, double, double);
 		EnableOptimisation(BinaryCompGt, float, float);
-		EnableOptimisation(BinaryCompGt, Nz::Int32, Nz::Int32);
-		EnableOptimisation(BinaryCompGt, Nz::Vector2f, Nz::Vector2f);
-		EnableOptimisation(BinaryCompGt, Nz::Vector3f, Nz::Vector3f);
-		EnableOptimisation(BinaryCompGt, Nz::Vector4f, Nz::Vector4f);
-		EnableOptimisation(BinaryCompGt, Nz::Vector2i32, Nz::Vector2i32);
-		EnableOptimisation(BinaryCompGt, Nz::Vector3i32, Nz::Vector3i32);
-		EnableOptimisation(BinaryCompGt, Nz::Vector4i32, Nz::Vector4i32);
+		EnableOptimisation(BinaryCompGt, Int32, Int32);
+		EnableOptimisation(BinaryCompGt, Vector2f, Vector2f);
+		EnableOptimisation(BinaryCompGt, Vector3f, Vector3f);
+		EnableOptimisation(BinaryCompGt, Vector4f, Vector4f);
+		EnableOptimisation(BinaryCompGt, Vector2i32, Vector2i32);
+		EnableOptimisation(BinaryCompGt, Vector3i32, Vector3i32);
+		EnableOptimisation(BinaryCompGt, Vector4i32, Vector4i32);
 
 		EnableOptimisation(BinaryCompLe, bool, bool);
 		EnableOptimisation(BinaryCompLe, double, double);
@@ -442,6 +462,48 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinarySubtraction, Nz::Vector3i32, Nz::Vector3i32);
 		EnableOptimisation(BinarySubtraction, Nz::Vector4i32, Nz::Vector4i32);
 
+		// Cast
+
+		EnableOptimisation(CastConstant, bool, bool);
+		EnableOptimisation(CastConstant, bool, Int32);
+		EnableOptimisation(CastConstant, bool, UInt32);
+
+		EnableOptimisation(CastConstant, double, double);
+		EnableOptimisation(CastConstant, double, float);
+		EnableOptimisation(CastConstant, double, Int32);
+		EnableOptimisation(CastConstant, double, UInt32);
+
+		EnableOptimisation(CastConstant, float, double);
+		EnableOptimisation(CastConstant, float, float);
+		EnableOptimisation(CastConstant, float, Int32);
+		EnableOptimisation(CastConstant, float, UInt32);
+
+		EnableOptimisation(CastConstant, Int32, double);
+		EnableOptimisation(CastConstant, Int32, float);
+		EnableOptimisation(CastConstant, Int32, Int32);
+		EnableOptimisation(CastConstant, Int32, UInt32);
+
+		EnableOptimisation(CastConstant, UInt32, double);
+		EnableOptimisation(CastConstant, UInt32, float);
+		EnableOptimisation(CastConstant, UInt32, Int32);
+		EnableOptimisation(CastConstant, UInt32, UInt32);
+
+		//EnableOptimisation(CastConstant, Vector2d, double, double);
+		//EnableOptimisation(CastConstant, Vector3d, double, double, double);
+		//EnableOptimisation(CastConstant, Vector4d, double, double, double, double);
+
+		EnableOptimisation(CastConstant, Vector2f, float, float);
+		EnableOptimisation(CastConstant, Vector3f, float, float, float);
+		EnableOptimisation(CastConstant, Vector4f, float, float, float, float);
+
+		EnableOptimisation(CastConstant, Vector2i32, Int32, Int32);
+		EnableOptimisation(CastConstant, Vector3i32, Int32, Int32, Int32);
+		EnableOptimisation(CastConstant, Vector4i32, Int32, Int32, Int32, Int32);
+
+		//EnableOptimisation(CastConstant, Vector2ui32, UInt32, UInt32);
+		//EnableOptimisation(CastConstant, Vector3ui32, UInt32, UInt32, UInt32);
+		//EnableOptimisation(CastConstant, Vector4ui32, UInt32, UInt32, UInt32, UInt32);
+
 		// Unary
 
 		EnableOptimisation(UnaryLogicalNot, bool);
@@ -496,42 +558,43 @@ namespace Nz::ShaderAst
 			switch (node.op)
 			{
 				case BinaryType::Add:
-					optimized = PropagateConstant<BinaryType::Add>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::Add>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::Subtract:
-					optimized = PropagateConstant<BinaryType::Subtract>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::Subtract>(std::move(lhsConstant), std::move(rhsConstant));
+					break;
 
 				case BinaryType::Multiply:
-					optimized = PropagateConstant<BinaryType::Multiply>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::Multiply>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::Divide:
-					optimized = PropagateConstant<BinaryType::Divide>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::Divide>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::CompEq:
-					optimized = PropagateConstant<BinaryType::CompEq>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::CompEq>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::CompGe:
-					optimized = PropagateConstant<BinaryType::CompGe>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::CompGe>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::CompGt:
-					optimized = PropagateConstant<BinaryType::CompGt>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::CompGt>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::CompLe:
-					optimized = PropagateConstant<BinaryType::CompLe>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::CompLe>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::CompLt:
-					optimized = PropagateConstant<BinaryType::CompLt>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::CompLt>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 
 				case BinaryType::CompNe:
-					optimized = PropagateConstant<BinaryType::CompNe>(std::move(lhsConstant), std::move(rhsConstant));
+					optimized = PropagateBinaryConstant<BinaryType::CompNe>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 			}
 
@@ -543,6 +606,123 @@ namespace Nz::ShaderAst
 		binary->cachedExpressionType = node.cachedExpressionType;
 
 		return binary;
+	}
+
+	ExpressionPtr AstOptimizer::Clone(CastExpression& node)
+	{
+		std::array<ExpressionPtr, 4> expressions;
+
+		std::size_t expressionCount = 0;
+		for (const auto& expression : node.expressions)
+		{
+			if (!expression)
+				break;
+
+			expressions[expressionCount] = CloneExpression(expression);
+			expressionCount++;
+		}
+
+		ExpressionPtr optimized;
+		if (IsPrimitiveType(node.targetType))
+		{
+			if (expressionCount == 1 && expressions.front()->GetType() == NodeType::ConstantExpression)
+			{
+				auto constantExpr = static_unique_pointer_cast<ConstantExpression>(std::move(expressions.front()));
+
+				switch (std::get<PrimitiveType>(node.targetType))
+				{
+					case PrimitiveType::Boolean: optimized = PropagateSingleValueCast<bool>(std::move(constantExpr)); break;
+					case PrimitiveType::Float32: optimized = PropagateSingleValueCast<float>(std::move(constantExpr)); break;
+					case PrimitiveType::Int32:   optimized = PropagateSingleValueCast<Int32>(std::move(constantExpr)); break;
+					case PrimitiveType::UInt32:  optimized = PropagateSingleValueCast<UInt32>(std::move(constantExpr)); break;
+				}
+			}
+		}
+		else if (IsVectorType(node.targetType))
+		{
+			const auto& vecType = std::get<VectorType>(node.targetType);
+
+			// Decompose vector into values (cast(vec3, float) => cast(float, float, float, float))
+			std::vector<ConstantValue> constantValues;
+			for (std::size_t i = 0; i < expressionCount; ++i)
+			{
+				if (expressions[i]->GetType() != NodeType::ConstantExpression)
+				{
+					constantValues.clear();
+					break;
+				}
+
+				const auto& constantExpr = static_cast<ConstantExpression&>(*expressions[i]);
+
+				if (!constantValues.empty() && GetExpressionType(constantValues.front()) != GetExpressionType(constantExpr.value))
+				{
+					// Unhandled case, all cast parameters are expected to be of the same type
+					constantValues.clear();
+					break;
+				}
+
+				std::visit([&](auto&& arg)
+				{
+					using T = std::decay_t<decltype(arg)>;
+
+					if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
+						constantValues.push_back(arg);
+					else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
+					{
+						constantValues.push_back(arg.x);
+						constantValues.push_back(arg.y);
+					}
+					else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i32>)
+					{
+						constantValues.push_back(arg.x);
+						constantValues.push_back(arg.y);
+						constantValues.push_back(arg.z);
+					}
+					else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i32>)
+					{
+						constantValues.push_back(arg.x);
+						constantValues.push_back(arg.y);
+						constantValues.push_back(arg.z);
+						constantValues.push_back(arg.w);
+					}
+					else
+						static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				}, constantExpr.value);
+			}
+
+			if (!constantValues.empty())
+			{
+				assert(constantValues.size() == vecType.componentCount);
+
+				std::visit([&](auto&& arg)
+				{
+					using T = std::decay_t<decltype(arg)>;
+
+					switch (vecType.componentCount)
+					{
+						case 2:
+							optimized = PropagateVec2Cast(std::get<T>(constantValues[0]), std::get<T>(constantValues[1]));
+							break;
+
+						case 3:
+							optimized = PropagateVec3Cast(std::get<T>(constantValues[0]), std::get<T>(constantValues[1]), std::get<T>(constantValues[2]));
+							break;
+
+						case 4:
+							optimized = PropagateVec4Cast(std::get<T>(constantValues[0]), std::get<T>(constantValues[1]), std::get<T>(constantValues[2]), std::get<T>(constantValues[3]));
+							break;
+					}
+				}, constantValues.front());
+			}
+		}
+
+		if (optimized)
+			return optimized;
+		
+		auto cast = ShaderBuilder::Cast(node.targetType, std::move(expressions));
+		cast->cachedExpressionType = node.cachedExpressionType;
+
+		return cast;
 	}
 
 	StatementPtr AstOptimizer::Clone(BranchStatement& node)
@@ -626,15 +806,15 @@ namespace Nz::ShaderAst
 			switch (node.op)
 			{
 				case UnaryType::LogicalNot:
-					optimized = PropagateConstant<UnaryType::LogicalNot>(std::move(constantExpr));
+					optimized = PropagateUnaryConstant<UnaryType::LogicalNot>(std::move(constantExpr));
 					break;
 
 				case UnaryType::Minus:
-					optimized = PropagateConstant<UnaryType::Minus>(std::move(constantExpr));
+					optimized = PropagateUnaryConstant<UnaryType::Minus>(std::move(constantExpr));
 					break;
 
 				case UnaryType::Plus:
-					optimized = PropagateConstant<UnaryType::Plus>(std::move(constantExpr));
+					optimized = PropagateUnaryConstant<UnaryType::Plus>(std::move(constantExpr));
 					break;
 			}
 
@@ -660,7 +840,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<BinaryType Type>
-	ExpressionPtr AstOptimizer::PropagateConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs)
+	ExpressionPtr AstOptimizer::PropagateBinaryConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs)
 	{
 		std::unique_ptr<ConstantExpression> optimized;
 		std::visit([&](auto&& arg1)
@@ -683,13 +863,34 @@ namespace Nz::ShaderAst
 		}, lhs->value);
 
 		if (optimized)
-			optimized->cachedExpressionType = optimized->GetExpressionType();
+			optimized->cachedExpressionType = GetExpressionType(optimized->value);
+
+		return optimized;
+	}
+
+	template<typename TargetType>
+	ExpressionPtr AstOptimizer::PropagateSingleValueCast(std::unique_ptr<ConstantExpression>&& operand)
+	{
+		std::unique_ptr<ConstantExpression> optimized;
+
+		std::visit([&](auto&& arg)
+		{
+			using T = std::decay_t<decltype(arg)>;
+			using CCType = CastConstantPropagation<TargetType, T>;
+
+			if constexpr (is_complete_v<CCType>)
+			{
+				using Op = typename CCType::Op;
+				if constexpr (is_complete_v<Op>)
+					optimized = Op{}(arg);
+			}
+		}, operand->value);
 
 		return optimized;
 	}
 
 	template<UnaryType Type>
-	ExpressionPtr AstOptimizer::PropagateConstant(std::unique_ptr<ConstantExpression>&& operand)
+	ExpressionPtr AstOptimizer::PropagateUnaryConstant(std::unique_ptr<ConstantExpression>&& operand)
 	{
 		std::unique_ptr<ConstantExpression> optimized;
 		std::visit([&](auto&& arg)
@@ -706,7 +907,58 @@ namespace Nz::ShaderAst
 		}, operand->value);
 
 		if (optimized)
-			optimized->cachedExpressionType = optimized->GetExpressionType();
+			optimized->cachedExpressionType = GetExpressionType(optimized->value);
+
+		return optimized;
+	}
+
+	template<typename TargetType>
+	ExpressionPtr AstOptimizer::PropagateVec2Cast(TargetType v1, TargetType v2)
+	{
+		std::unique_ptr<ConstantExpression> optimized;
+
+		using CCType = CastConstantPropagation<Vector2<TargetType>, TargetType, TargetType>;
+
+		if constexpr (is_complete_v<CCType>)
+		{
+			using Op = typename CCType::Op;
+			if constexpr (is_complete_v<Op>)
+				optimized = Op{}(v1, v2);
+		}
+
+		return optimized;
+	}
+
+	template<typename TargetType>
+	ExpressionPtr AstOptimizer::PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3)
+	{
+		std::unique_ptr<ConstantExpression> optimized;
+
+		using CCType = CastConstantPropagation<Vector3<TargetType>, TargetType, TargetType, TargetType>;
+
+		if constexpr (is_complete_v<CCType>)
+		{
+			using Op = typename CCType::Op;
+			if constexpr (is_complete_v<Op>)
+				optimized = Op{}(v1, v2, v3);
+		}
+
+		return optimized;
+	}
+
+	template<typename TargetType>
+	ExpressionPtr AstOptimizer::PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4)
+	{
+		std::unique_ptr<ConstantExpression> optimized;
+
+		using CCType = CastConstantPropagation<Vector3<TargetType>, TargetType, TargetType, TargetType, TargetType>;
+
+		if constexpr (is_complete_v<CCType>)
+		{
+			using Op = typename CCType::Op;
+			if constexpr (is_complete_v<Op>)
+				optimized = Op{}(v1, v2, v3, v4);
+		}
 
 		return optimized;
 	}

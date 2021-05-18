@@ -413,7 +413,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr SanitizeVisitor::Clone(ConstantExpression& node)
 	{
 		auto clone = static_unique_pointer_cast<ConstantExpression>(AstCloner::Clone(node));
-		clone->cachedExpressionType = clone->GetExpressionType();
+		clone->cachedExpressionType = GetExpressionType(clone->value);
 
 		return clone;
 	}
