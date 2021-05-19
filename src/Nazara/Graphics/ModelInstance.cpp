@@ -21,7 +21,6 @@ namespace Nz
 
 		m_shaderBinding = settings->GetRenderPipelineLayout()->AllocateShaderBinding();
 
-		// TODO: Use StackVector
 		StackVector<ShaderBinding::Binding> bindings = NazaraStackVector(ShaderBinding::Binding, 2);
 
 		if (std::size_t bindingIndex = settings->GetPredefinedBindingIndex(PredefinedShaderBinding::UboInstanceData); bindingIndex != MaterialSettings::InvalidIndex)

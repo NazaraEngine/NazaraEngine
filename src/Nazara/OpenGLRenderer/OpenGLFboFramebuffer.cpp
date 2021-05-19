@@ -31,7 +31,7 @@ namespace Nz
 			switch (PixelFormatInfo::GetContent(textureFormat))
 			{
 				case PixelFormatContent_ColorRGBA:
-					attachment = GL_COLOR_ATTACHMENT0 + colorAttachmentCount;
+					attachment = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + colorAttachmentCount);
 					colorAttachmentCount++;
 					break;
 
