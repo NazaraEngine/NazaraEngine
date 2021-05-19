@@ -597,16 +597,12 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<UnaryExpression>(AstCloner::Clone(node));
 
 		const ExpressionType& exprType = GetExpressionType(MandatoryExpr(clone->expression));
-		if (!IsPrimitiveType(exprType))
-			throw AstError{ "unary expression operand type does not support unary operation" };
-
-		PrimitiveType primitiveType = std::get<PrimitiveType>(exprType);
 
 		switch (node.op)
 		{
 			case UnaryType::LogicalNot:
 			{
-				if (primitiveType != PrimitiveType::Boolean)
+				if (exprType != ExpressionType(PrimitiveType::Boolean))
 					throw AstError{ "logical not is only supported on booleans" };
 
 				break;
@@ -615,14 +611,22 @@ namespace Nz::ShaderAst
 			case UnaryType::Minus:
 			case UnaryType::Plus:
 			{
-				if (primitiveType != PrimitiveType::Float32 && primitiveType != PrimitiveType::Int32 && primitiveType != PrimitiveType::UInt32)
+				ShaderAst::PrimitiveType basicType;
+				if (IsPrimitiveType(exprType))
+					basicType = std::get<ShaderAst::PrimitiveType>(exprType);
+				else if (IsVectorType(exprType))
+					basicType = std::get<ShaderAst::VectorType>(exprType).type;
+				else
+					throw AstError{ "plus and minus unary expressions are only supported on primitive/vectors types" };
+
+				if (basicType != PrimitiveType::Float32 && basicType != PrimitiveType::Int32 && basicType != PrimitiveType::UInt32)
 					throw AstError{ "plus and minus unary expressions are only supported on floating points and integers types" };
 
 				break;
 			}
 		}
 
-		clone->cachedExpressionType = primitiveType;
+		clone->cachedExpressionType = exprType;
 
 		return clone;
 	}
