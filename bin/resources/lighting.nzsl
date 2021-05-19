@@ -9,12 +9,48 @@ struct PointLight
 	quadratic: f32,
 }
 
+[layout(std140)]
+struct SpotLight
+{
+	color: vec3<f32>,
+	position: vec3<f32>,
+	direction: vec3<f32>,
+
+	constant: f32,
+	linear: f32,
+	quadratic: f32,
+
+	innerAngle: f32,
+	outerAngle: f32,
+}
+
 external
 {
 	[binding(0)] colorTexture: sampler2D<f32>,
 	[binding(1)] normalTexture: sampler2D<f32>,
 	[binding(2)] positionTexture: sampler2D<f32>,
-	[binding(3)] lightParameters: uniform<PointLight>
+	[binding(3)] lightParameters: uniform<SpotLight>
+	//[binding(3)] lightParameters: uniform<PointLight>
+}
+
+[layout(std140)]
+struct FragOut
+{
+	[location(0)] color: vec4<f32>
+}
+
+[layout(std140)]
+struct VertIn
+{
+	[location(0)] pos: vec3<f32>,
+	[location(1)] uv: vec2<f32>
+}
+
+[layout(std140)]
+struct VertOut
+{
+	[location(0)] uv: vec2<f32>,
+	[builtin(position)] position: vec4<f32>
 }
 
 [entry(frag)]
@@ -24,12 +60,28 @@ fn main(input: VertOut) -> FragOut
 	let position = positionTexture.Sample(input.uv).xyz;
 
 	let distance = length(lightParameters.position - position);
-	let lightDir = (lightParameters.position - position) / distance;
-	let lightFactor = dot(normal, lightDir);
 	let attenuation = 1.0 / (lightParameters.constant + lightParameters.linear * distance + lightParameters.quadratic * (distance * distance));
 
+	let posToLight = (lightParameters.position - position) / distance;
+	let lambert = dot(normal, posToLight);
+
+	let curAngle = dot(lightParameters.direction, -posToLight);
+	let innerMinusOuterAngle = lightParameters.innerAngle - lightParameters.outerAngle;
+
+	attenuation = attenuation * max((curAngle - lightParameters.outerAngle) / innerMinusOuterAngle, 0.0);
+
 	let output: FragOut;
-	output.color = vec4<f32>(lightParameters.color, 1.0) * lightFactor * attenuation * colorTexture.Sample(input.uv);
+	output.color = vec4<f32>(lightParameters.color, 1.0) * lambert * attenuation * colorTexture.Sample(input.uv);
+
+	return output;
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.uv = input.uv;
+	output.position = vec4<f32>(input.pos, 1.0);
 
 	return output;
 }

@@ -14,6 +14,7 @@
 #include <random>
 
 /*
+[layout(std140)]
 struct PointLight
 {
 	color: vec3<f32>,
@@ -22,6 +23,21 @@ struct PointLight
 	constant: f32,
 	linear: f32,
 	quadratic: f32,
+}
+
+[layout(std140)]
+struct SpotLight
+{
+	color: vec3<f32>,
+	position: vec3<f32>,
+	direction: vec3<f32>,
+
+	constant: f32,
+	linear: f32,
+	quadratic: f32,
+
+	innerAngle: f32,
+	outerAngle: f32,
 }
 */
 
@@ -35,6 +51,20 @@ struct PointLight
 	float quadraticAttenuation = 0.01f;
 };
 
+struct SpotLight
+{
+	Nz::Color color = Nz::Color::White;
+	Nz::Vector3f position = Nz::Vector3f::Zero();
+	Nz::Vector3f direction = Nz::Vector3f::Forward();
+
+	float constantAttenuation = 1.f;
+	float linearAttenuation = 0.1f;
+	float quadraticAttenuation = 0.01f;
+
+	float innerAngle = std::cos(Nz::DegreeToRadian(15.f));
+	float outerAngle = std::cos(Nz::DegreeToRadian(20.f));
+};
+
 int main()
 {
 	std::filesystem::path resourceDir = "resources";
@@ -43,10 +73,10 @@ int main()
 
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
-	if (std::getchar() == 'y')
+	//if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
-	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	//else
+	//	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
@@ -61,38 +91,60 @@ int main()
 	const Nz::RenderDeviceInfo& deviceInfo = device->GetDeviceInfo();
 
 	std::string windowTitle = "Graphics Test";
-	if (!window.Create(device, Nz::VideoMode(1280, 720, 32), windowTitle))
+	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		return __LINE__;
 	}
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
-	if (!drfreak)
+	Nz::MeshRef spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
+	if (!spaceship)
 	{
 		NazaraError("Failed to load model");
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(drfreak);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(spaceship);
 
-	// Texture
-	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8_SRGB))
+	// Spaceship texture
+	Nz::ImageRef spaceshipDiffuse = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
+	if (!spaceshipDiffuse || !spaceshipDiffuse->Convert(Nz::PixelFormat_RGBA8_SRGB))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
 	}
 
 	Nz::TextureInfo texParams;
-	texParams.pixelFormat = drfreakImage->GetFormat();
-	texParams.type = drfreakImage->GetType();
-	texParams.width = drfreakImage->GetWidth();
-	texParams.height = drfreakImage->GetHeight();
-	texParams.depth = drfreakImage->GetDepth();
+	texParams.pixelFormat = spaceshipDiffuse->GetFormat();
+	texParams.type = spaceshipDiffuse->GetType();
+	texParams.width = spaceshipDiffuse->GetWidth();
+	texParams.height = spaceshipDiffuse->GetHeight();
+	texParams.depth = spaceshipDiffuse->GetDepth();
 
-	std::shared_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
-	if (!texture->Update(drfreakImage->GetConstPixels()))
+	std::shared_ptr<Nz::Texture> spaceshipTexture = device->InstantiateTexture(texParams);
+	if (!spaceshipTexture->Update(spaceshipDiffuse->GetConstPixels()))
+	{
+		NazaraError("Failed to update texture");
+		return __LINE__;
+	}
+
+	// Plane texture
+	Nz::ImageRef devImage = Nz::Image::LoadFromFile(resourceDir / "dev_grey.png");
+	if (!devImage || !devImage->Convert(Nz::PixelFormat_RGBA8_SRGB))
+	{
+		NazaraError("Failed to load image");
+		return __LINE__;
+	}
+
+	Nz::TextureInfo devTexParams;
+	devTexParams.pixelFormat = devImage->GetFormat();
+	devTexParams.type = devImage->GetType();
+	devTexParams.width = devImage->GetWidth();
+	devTexParams.height = devImage->GetHeight();
+	devTexParams.depth = devImage->GetDepth();
+
+	std::shared_ptr<Nz::Texture> planeTexture = device->InstantiateTexture(devTexParams);
+	if (!planeTexture->Update(devImage->GetConstPixels()))
 	{
 		NazaraError("Failed to update texture");
 		return __LINE__;
@@ -120,21 +172,51 @@ int main()
 		return __LINE__;
 	}
 
+	Nz::MeshParams planeParams;
+	planeParams.storage = Nz::DataStorage_Software;
+
+	Nz::MeshRef planeMesh = Nz::Mesh::New();
+	planeMesh->CreateStatic();
+	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(20.f, 20.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), planeParams);
+	planeMesh->SetMaterialCount(1);
+
+	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(planeMesh);
+
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders[UnderlyingCast(Nz::ShaderStageType::Fragment)] = std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::Parse(resourceDir / "deferred_frag.nzsl"));
 	customSettings.shaders[UnderlyingCast(Nz::ShaderStageType::Vertex)] = std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::Parse(resourceDir / "deferred_vert.nzsl"));
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(std::make_shared<Nz::MaterialSettings>(std::move(customSettings)));
-	material->EnableDepthBuffer(true);
+	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
-	Nz::BasicMaterial basicMat(*material);
-	basicMat.EnableAlphaTest(false);
-	basicMat.SetAlphaMap(alphaTexture);
-	basicMat.SetDiffuseMap(texture);
+	std::shared_ptr<Nz::Material> spaceshipMat = std::make_shared<Nz::Material>(customMatSettings);
+	spaceshipMat->EnableDepthBuffer(true);
+	{
+		Nz::BasicMaterial basicMat(*spaceshipMat);
+		basicMat.EnableAlphaTest(false);
+		basicMat.SetAlphaMap(alphaTexture);
+		basicMat.SetDiffuseMap(spaceshipTexture);
+	}
 
-	Nz::Model model(std::move(gfxMesh));
-	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-		model.SetMaterial(i, material);
+	std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>(customMatSettings);
+	planeMat->EnableDepthBuffer(true);
+	{
+		Nz::BasicMaterial basicMat(*planeMat);
+		basicMat.SetDiffuseMap(planeTexture);
+
+		Nz::TextureSamplerInfo planeSampler;
+		planeSampler.anisotropyLevel = 8;
+		planeSampler.wrapModeU = Nz::SamplerWrap_Repeat;
+		planeSampler.wrapModeV = Nz::SamplerWrap_Repeat;
+		basicMat.SetDiffuseSampler(planeSampler);
+	}
+
+	Nz::Model spaceshipModel(std::move(gfxMesh));
+	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
+		spaceshipModel.SetMaterial(i, spaceshipMat);
+
+	Nz::Model planeModel(std::move(planeMeshGfx));
+	for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
+		planeModel.SetMaterial(i, planeMat);
 
 	Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();
 	Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
@@ -148,9 +230,9 @@ int main()
 
 	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 
-	Nz::ModelInstance modelInstance1(material->GetSettings());
+	Nz::ModelInstance modelInstance1(spaceshipMat->GetSettings());
 	{
-		material->UpdateShaderBinding(modelInstance1.GetShaderBinding());
+		spaceshipMat->UpdateShaderBinding(modelInstance1.GetShaderBinding());
 
 		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
 
@@ -158,13 +240,23 @@ int main()
 		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
 	}
 
-	Nz::ModelInstance modelInstance2(material->GetSettings());
+	Nz::ModelInstance modelInstance2(spaceshipMat->GetSettings());
 	{
-		material->UpdateShaderBinding(modelInstance2.GetShaderBinding());
+		spaceshipMat->UpdateShaderBinding(modelInstance2.GetShaderBinding());
 
 		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right() * 3.f);
 
 		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = modelInstance2.GetInstanceBuffer();
+		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
+	}
+
+	Nz::ModelInstance planeInstance(planeMat->GetSettings());
+	{
+		planeMat->UpdateShaderBinding(planeInstance.GetShaderBinding());
+
+		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 2.f);
+
+		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = planeInstance.GetInstanceBuffer();
 		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
 	}
 
@@ -196,36 +288,69 @@ int main()
 		3
 	});
 
-	Nz::FieldOffsets pointLightOffsets(Nz::StructLayout_Std140);
+	/*Nz::FieldOffsets pointLightOffsets(Nz::StructLayout_Std140);
 	std::size_t colorOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float3);
 	std::size_t positionOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float3);
 	std::size_t constantOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float1);
 	std::size_t linearOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float1);
 	std::size_t quadraticOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float1);
 
-	std::size_t alignedPointLightSize = Nz::Align(pointLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
+	std::size_t alignedPointLightSize = Nz::Align(pointLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));*/
 
-	constexpr std::size_t MaxPointLight = 100;
+	/*
+	[layout(std140)]
+	struct SpotLight
+	{
+		color: vec3<f32>,
+		position: vec3<f32>,
+		direction: vec3<f32>,
+
+		constant: f32,
+		linear: f32,
+		quadratic: f32,
+
+		innerAngle: f32,
+		outerAngle: f32,
+	}
+	*/
+
+	Nz::FieldOffsets spotLightOffsets(Nz::StructLayout_Std140);
+	std::size_t colorOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float3);
+	std::size_t positionOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float3);
+	std::size_t directionOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float3);
+	std::size_t constantOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
+	std::size_t linearOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
+	std::size_t quadraticOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
+	std::size_t innerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
+	std::size_t outerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
+
+	std::size_t alignedSpotLightSize = Nz::Align(spotLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
+
+	constexpr std::size_t MaxPointLight = 1000;
 
 	std::shared_ptr<Nz::AbstractBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!lightUbo->Initialize(MaxPointLight * alignedPointLightSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
+	if (!lightUbo->Initialize(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
 		return __LINE__;
 
-	std::vector<PointLight> pointLights;
+	std::vector<SpotLight> spotLights;
+	/*auto& firstSpot = spotLights.emplace_back();
+	firstSpot.position = Nz::Vector3f::Right() + Nz::Vector3f::Forward();
+	firstSpot.direction = Nz::Vector3f::Up();*/
 
 	std::random_device rng;
 	std::mt19937 randomEngine(rng());
 	std::uniform_int_distribution<unsigned int> colorDis(0, 255);
-	std::uniform_real_distribution<float> posDis(-5.f, 5.f);
+	std::uniform_real_distribution<float> heightDis(1.5f, 1.95f);
+	std::uniform_real_distribution<float> posDis(-10.f, 10.f);
+	std::uniform_real_distribution<float> dirDis(-1.f, 1.f);
+	std::uniform_real_distribution<float> dirYDis(0.5f, 1.f);
 
-	for (std::size_t i = 0; i < 50; ++i)
+	for (std::size_t i = 0; i < 500; ++i)
 	{
-		auto& light = pointLights.emplace_back();
+		auto& light = spotLights.emplace_back();
 		light.color = Nz::Color(colorDis(randomEngine), colorDis(randomEngine), colorDis(randomEngine));
-		light.position = Nz::Vector3f(posDis(randomEngine), posDis(randomEngine), posDis(randomEngine));
-		light.constantAttenuation = 0.7f;
-		light.linearAttenuation = 0.0f;
-		light.quadraticAttenuation = 0.2f;
+		light.position = Nz::Vector3f(posDis(randomEngine), heightDis(randomEngine), posDis(randomEngine));
+		light.direction = Nz::Vector3f(dirDis(randomEngine), dirYDis(randomEngine), dirDis(randomEngine)).GetNormal();
 	}
 
 
@@ -377,14 +502,26 @@ int main()
 			{
 				builder.BindShaderBinding(modelInstance.GetShaderBinding());
 
-				for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+				for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
 				{
-					builder.BindIndexBuffer(model.GetIndexBuffer(i).get());
-					builder.BindVertexBuffer(0, model.GetVertexBuffer(i).get());
-					builder.BindPipeline(*model.GetRenderPipeline(i));
+					builder.BindIndexBuffer(spaceshipModel.GetIndexBuffer(i).get());
+					builder.BindVertexBuffer(0, spaceshipModel.GetVertexBuffer(i).get());
+					builder.BindPipeline(*spaceshipModel.GetRenderPipeline(i));
 
-					builder.DrawIndexed(static_cast<Nz::UInt32>(model.GetIndexCount(i)));
+					builder.DrawIndexed(static_cast<Nz::UInt32>(spaceshipModel.GetIndexCount(i)));
 				}
+			}
+
+			// Plane
+			builder.BindShaderBinding(planeInstance.GetShaderBinding());
+
+			for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
+			{
+				builder.BindIndexBuffer(planeModel.GetIndexBuffer(i).get());
+				builder.BindVertexBuffer(0, planeModel.GetVertexBuffer(i).get());
+				builder.BindPipeline(*planeModel.GetRenderPipeline(i));
+
+				builder.DrawIndexed(static_cast<Nz::UInt32>(planeModel.GetIndexCount(i)));
 			}
 		});
 
@@ -402,7 +539,7 @@ int main()
 			builder.BindPipeline(*lightingPipeline);
 			builder.BindVertexBuffer(0, vertexBuffer.get());
 
-			for (std::size_t i = 0; i < pointLights.size(); ++i)
+			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
 				builder.BindShaderBinding(*lightingShaderBindings[i]);
 				builder.Draw(4);
@@ -454,7 +591,7 @@ int main()
 				3,
 				Nz::ShaderBinding::UniformBufferBinding {
 					lightUbo.get(),
-					i * alignedPointLightSize, pointLightOffsets.GetSize()
+					i * alignedSpotLightSize, spotLightOffsets.GetSize()
 				}
 			}
 		});
@@ -551,9 +688,10 @@ int main()
 				{
 					if (event.key.scancode == Nz::Keyboard::Scancode::Space)
 					{
-						auto& whiteLight = pointLights.emplace_back();
+						auto& whiteLight = spotLights.emplace_back();
 						whiteLight.constantAttenuation = 0.8f;
 						whiteLight.position = viewerPos;
+						whiteLight.direction = camQuat * Nz::Vector3f::Forward();
 
 						viewerUboUpdate = true;
 					}
@@ -629,25 +767,28 @@ int main()
 					std::memcpy(viewerDataAllocation.mappedPtr, viewerDataBuffer.data(), viewerDataBuffer.size());
 					builder.CopyBuffer(viewerDataAllocation, viewerDataUBO.get());
 
-					if (!pointLights.empty())
+					if (!spotLights.empty())
 					{
-						auto& lightDataAllocation = uploadPool.Allocate(alignedPointLightSize * pointLights.size());
+						auto& lightDataAllocation = uploadPool.Allocate(alignedSpotLightSize * spotLights.size());
 						Nz::UInt8* lightDataPtr = static_cast<Nz::UInt8*>(lightDataAllocation.mappedPtr);
-						for (const PointLight& pointLight : pointLights)
+						for (const SpotLight& spotLight : spotLights)
 						{
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(pointLight.color.r / 255.f, pointLight.color.g / 255.f, pointLight.color.b / 255.f);
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = pointLight.position;
-							Nz::AccessByOffset<float&>(lightDataPtr, constantOffset) = pointLight.constantAttenuation;
-							Nz::AccessByOffset<float&>(lightDataPtr, linearOffset) = pointLight.linearAttenuation;
-							Nz::AccessByOffset<float&>(lightDataPtr, quadraticOffset) = pointLight.quadraticAttenuation;
+							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
+							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = spotLight.position;
+							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = spotLight.direction;
+							Nz::AccessByOffset<float&>(lightDataPtr, constantOffset) = spotLight.constantAttenuation;
+							Nz::AccessByOffset<float&>(lightDataPtr, linearOffset) = spotLight.linearAttenuation;
+							Nz::AccessByOffset<float&>(lightDataPtr, quadraticOffset) = spotLight.quadraticAttenuation;
+							Nz::AccessByOffset<float&>(lightDataPtr, innerAngleOffset) = spotLight.innerAngle;
+							Nz::AccessByOffset<float&>(lightDataPtr, outerAngleOffset) = spotLight.outerAngle;
 
-							lightDataPtr += alignedPointLightSize;
+							lightDataPtr += alignedSpotLightSize;
 						}
 
 						builder.CopyBuffer(lightDataAllocation, lightUbo.get());
 					}
 
-					material->UpdateBuffers(uploadPool, builder);
+					spaceshipMat->UpdateBuffers(uploadPool, builder);
 
 					builder.PostTransferBarrier();
 				}
