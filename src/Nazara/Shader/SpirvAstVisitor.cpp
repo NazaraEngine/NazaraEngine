@@ -839,11 +839,17 @@ namespace Nz
 
 				case ShaderAst::UnaryType::Minus:
 				{
-					assert(IsPrimitiveType(exprType));
+					ShaderAst::PrimitiveType basicType;
+					if (IsPrimitiveType(exprType))
+						basicType = std::get<ShaderAst::PrimitiveType>(exprType);
+					else if (IsVectorType(exprType))
+						basicType = std::get<ShaderAst::VectorType>(exprType).type;
+					else
+						throw std::runtime_error("unexpected expression type");
 
 					UInt32 resultId = m_writer.AllocateResultId();
 
-					switch (std::get<ShaderAst::PrimitiveType>(resultType))
+					switch (basicType)
 					{
 						case ShaderAst::PrimitiveType::Float32:
 							m_currentBlock->Append(SpirvOp::OpFNegate, m_writer.GetTypeId(resultType), resultId, operand);
