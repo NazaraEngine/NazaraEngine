@@ -448,6 +448,8 @@ namespace Nz::ShaderAst
 		{
 			case IntrinsicType::CrossProduct:
 			case IntrinsicType::DotProduct:
+			case IntrinsicType::Max:
+			case IntrinsicType::Min:
 			{
 				if (clone->parameters.size() != 2)
 					throw AstError { "Expected two parameters" };
@@ -520,6 +522,21 @@ namespace Nz::ShaderAst
 					throw AstError{ "DotProduct expects vector types" };
 
 				clone->cachedExpressionType = std::get<VectorType>(type).type;
+				break;
+			}
+
+			case IntrinsicType::Max:
+			case IntrinsicType::Min:
+			{
+				const ExpressionType& type = GetExpressionType(*clone->parameters.front());
+				if (!IsPrimitiveType(type) && !IsVectorType(type))
+					throw AstError{ "max and min only work with primitive and vector types" };
+
+				if ((IsPrimitiveType(type) && std::get<PrimitiveType>(type) == PrimitiveType::Boolean) ||
+				    (IsVectorType(type) && std::get<VectorType>(type).type == PrimitiveType::Boolean))
+					throw AstError{ "max and min do not work with booleans" };
+
+				clone->cachedExpressionType = type;
 				break;
 			}
 

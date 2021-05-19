@@ -658,6 +658,14 @@ namespace Nz
 				Append("length");
 				break;
 
+			case ShaderAst::IntrinsicType::Max:
+				Append("max");
+				break;
+
+			case ShaderAst::IntrinsicType::Min:
+				Append("min");
+				break;
+
 			case ShaderAst::IntrinsicType::SampleTexture:
 				Append("texture");
 				break;

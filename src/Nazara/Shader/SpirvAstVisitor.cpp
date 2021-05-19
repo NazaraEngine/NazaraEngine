@@ -710,6 +710,51 @@ namespace Nz
 				break;
 			}
 
+			case ShaderAst::IntrinsicType::Max:
+			case ShaderAst::IntrinsicType::Min:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
+				assert(IsPrimitiveType(parameterType) || IsVectorType(parameterType));
+				UInt32 typeId = m_writer.GetTypeId(parameterType);
+
+				ShaderAst::PrimitiveType basicType;
+				if (IsPrimitiveType(parameterType))
+					basicType = std::get<ShaderAst::PrimitiveType>(parameterType);
+				else if (IsVectorType(parameterType))
+					basicType = std::get<ShaderAst::VectorType>(parameterType).type;
+				else
+					throw std::runtime_error("unexpected expression type");
+
+				GLSLstd450 op;
+				switch (basicType)
+				{
+					case ShaderAst::PrimitiveType::Boolean:
+						throw std::runtime_error("unexpected boolean for max/min intrinsic");
+
+					case ShaderAst::PrimitiveType::Float32:
+						op = (node.intrinsic == ShaderAst::IntrinsicType::Max) ? GLSLstd450FMax : GLSLstd450FMin;
+						break;
+
+					case ShaderAst::PrimitiveType::Int32:
+						op = (node.intrinsic == ShaderAst::IntrinsicType::Max) ? GLSLstd450SMax : GLSLstd450SMin;
+						break;
+
+					case ShaderAst::PrimitiveType::UInt32:
+						op = (node.intrinsic == ShaderAst::IntrinsicType::Max) ? GLSLstd450UMax : GLSLstd450UMin;
+						break;
+				}
+
+				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
+				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, op, firstParam, secondParam);
+				PushResultId(resultId);
+				break;
+			}
+
 			case ShaderAst::IntrinsicType::SampleTexture:
 			{
 				UInt32 typeId = m_writer.GetTypeId(ShaderAst::VectorType{4, ShaderAst::PrimitiveType::Float32});
