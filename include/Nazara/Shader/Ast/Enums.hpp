@@ -57,6 +57,8 @@ namespace Nz::ShaderAst
 		CrossProduct = 0,
 		DotProduct = 1,
 		Length = 3,
+		Max = 4,
+		Min = 5,
 		SampleTexture = 2,
 	};
 

@@ -22,6 +22,8 @@ namespace Nz::ShaderLang
 		std::unordered_map<std::string, ShaderAst::IntrinsicType> s_identifierToIntrinsic = {
 			{ "cross", ShaderAst::IntrinsicType::CrossProduct },
 			{ "dot", ShaderAst::IntrinsicType::DotProduct },
+			{ "max", ShaderAst::IntrinsicType::Max },
+			{ "min", ShaderAst::IntrinsicType::Min },
 			{ "length", ShaderAst::IntrinsicType::Length },
 		};
 
