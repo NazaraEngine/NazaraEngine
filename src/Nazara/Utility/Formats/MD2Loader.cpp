@@ -29,7 +29,7 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD2Loader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			UInt32 magic[2];
 			if (stream.Read(&magic[0], 2*sizeof(UInt32)) == 2*sizeof(UInt32))
@@ -40,10 +40,10 @@ namespace Nz
 				#endif
 
 				if (magic[0] == md2Ident && magic[1] == 8)
-					return Ternary_True;
+					return Ternary::True;
 			}
 
-			return Ternary_False;
+			return Ternary::False;
 		}
 
 		MeshRef Load(Stream& stream, const MeshParams& parameters)

@@ -84,9 +84,9 @@ Ternary CheckAnimation(Stream& /*stream*/, const AnimationParams& parameters)
 {
 	bool skip;
 	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-		return Ternary_False;
+		return Ternary::False;
 
-	return Ternary_Unknown;
+	return Ternary::Unknown;
 }
 
 AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
@@ -179,9 +179,9 @@ Ternary CheckMesh(Stream& /*stream*/, const MeshParams& parameters)
 {
 	bool skip;
 	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-		return Ternary_False;
+		return Ternary::False;
 
-	return Ternary_Unknown;
+	return Ternary::Unknown;
 }
 
 MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)

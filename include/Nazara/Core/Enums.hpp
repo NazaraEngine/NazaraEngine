@@ -202,13 +202,13 @@ namespace Nz
 
 	using StreamOptionFlags = Flags<StreamOption>;
 
-	enum Ternary
+	enum class Ternary
 	{
-		Ternary_False,
-		Ternary_True,
-		Ternary_Unknown,
+		False,
+		True,
+		Unknown,
 
-		Ternary_Max = Ternary_Unknown
+		Max = Unknown
 	};
 }
 

@@ -21,7 +21,7 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD5AnimLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			MD5AnimParser parser(stream);
 			return parser.Check();

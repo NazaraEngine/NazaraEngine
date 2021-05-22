@@ -49,16 +49,16 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativePCXLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			UInt8 manufacturer;
 			if (stream.Read(&manufacturer, 1) == 1)
 			{
 				if (manufacturer == 0x0a)
-					return Ternary_True;
+					return Ternary::True;
 			}
 
-			return Ternary_False;
+			return Ternary::False;
 		}
 
 		ImageRef Load(Stream& stream, const ImageParams& parameters)

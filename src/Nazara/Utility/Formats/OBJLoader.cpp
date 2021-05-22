@@ -33,13 +33,13 @@ namespace Nz
 
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeOBJLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			OBJParser parser;
 			if (!parser.Check(stream))
-				return Ternary_False;
+				return Ternary::False;
 
-			return Ternary_Unknown;
+			return Ternary::Unknown;
 		}
 
 		bool ParseMTL(Mesh* mesh, const std::filesystem::path& filePath, const std::string* materials, const OBJParser::Mesh* meshes, std::size_t meshCount)

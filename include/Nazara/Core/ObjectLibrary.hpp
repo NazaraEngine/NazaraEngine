@@ -7,8 +7,7 @@
 #ifndef NAZARA_OBJECTLIBRARY_HPP
 #define NAZARA_OBJECTLIBRARY_HPP
 
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -20,23 +19,20 @@ namespace Nz
 		friend Type;
 
 		public:
-			ObjectLibrary() = delete;
-			~ObjectLibrary() = delete;
+			ObjectLibrary() = default;
+			~ObjectLibrary() = default;
 
-			static void Clear();
+			void Clear();
 
-			static ObjectRef<Type> Get(const std::string& name);
-			static bool Has(const std::string& name);
+			std::shared_ptr<Type> Get(const std::string& name);
+			bool Has(const std::string& name);
 
-			static void Register(const std::string& name, ObjectRef<Type> object);
-			static ObjectRef<Type> Query(const std::string& name);
-			static void Unregister(const std::string& name);
+			void Register(const std::string& name, std::shared_ptr<Type> object);
+			std::shared_ptr<Type> Query(const std::string& name);
+			void Unregister(const std::string& name);
 
 		private:
-			static bool Initialize();
-			static void Uninitialize();
-
-			using LibraryMap = std::unordered_map<std::string, ObjectRef<Type>>;
+			std::unordered_map<std::string, std::shared_ptr<Type>> m_library;
 	};
 }
 
