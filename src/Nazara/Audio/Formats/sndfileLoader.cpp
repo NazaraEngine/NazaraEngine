@@ -17,6 +17,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <memory>
 #include <set>
+#include <string_view>
 #include <vector>
 #include <sndfile.h>
 #include <Nazara/Audio/Debug.hpp>
@@ -223,9 +224,9 @@ namespace Nz
 				UInt64 m_sampleCount;
 		};
 
-		bool IsSupported(const std::string& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
-			static std::set<std::string> supportedExtensions = {
+			static std::set<std::string_view> supportedExtensions = {
 				"aiff", "au", "avr", "caf", "flac", "htk", "ircam", "mat4", "mat5", "mpc2k",
 				"nist","ogg", "pvf", "raw", "rf64", "sd2", "sds", "svx", "voc", "w64", "wav", "wve"
 			};
@@ -251,43 +252,40 @@ namespace Nz
 				return Ternary::False;
 		}
 
-		SoundStreamRef LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> soundStream = std::make_unique<sndfileStream>();
+			std::shared_ptr<sndfileStream> soundStream = std::make_shared<sndfileStream>();
 			if (!soundStream->Open(filePath, parameters.forceMono))
 			{
 				NazaraError("Failed to open sound stream");
-				return nullptr;
+				return {};
 			}
 
-			soundStream->SetPersistent(false);
-			return soundStream.release();
+			return soundStream;
 		}
 
-		SoundStreamRef LoadSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
+			std::shared_ptr<sndfileStream> soundStream = std::make_shared<sndfileStream>();
 			if (!soundStream->Open(data, size, parameters.forceMono))
 			{
 				NazaraError("Failed to open music stream");
-				return nullptr;
+				return {};
 			}
 
-			soundStream->SetPersistent(false);
-			return soundStream.release();
+			return soundStream;
 		}
 
-		SoundStreamRef LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
 			if (!soundStream->Open(stream, parameters.forceMono))
 			{
 				NazaraError("Failed to open music stream");
-				return nullptr;
+				return {};
 			}
 
-			soundStream->SetPersistent(false);
-			return soundStream.release();
+			return soundStream;
 		}
 
 		Ternary CheckSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
@@ -307,7 +305,7 @@ namespace Nz
 				return Ternary::False;
 		}
 
-		SoundBufferRef LoadSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		std::shared_ptr<SoundBuffer> LoadSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			SF_INFO info;
 			info.format = 0;
@@ -318,10 +316,7 @@ namespace Nz
 				NazaraError("Failed to load sound file: " + std::string(sf_strerror(file)));
 				return nullptr;
 			}
-
-			// Lynix utilise RAII...
-			// C'est très efficace !
-			// MemoryLeak est confus...
+			
 			CallOnExit onExit([file]
 			{
 				sf_close(file);
@@ -336,12 +331,12 @@ namespace Nz
 
 			// https://github.com/LaurentGomila/SFML/issues/271
 			// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
-			///FIXME: Seulement le Vorbis ?
+			///FIXME: Only Vorbis?
 			if (info.format & SF_FORMAT_VORBIS)
 				sf_command(file, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
-			unsigned int sampleCount = static_cast<unsigned int>(info.frames * info.channels);
-			std::unique_ptr<Int16[]> samples(new Int16[sampleCount]);
+			sf_count_t sampleCount = static_cast<sf_count_t>(info.frames * info.channels);
+			std::unique_ptr<Int16[]> samples = std::make_unique<Int16[]>(sampleCount); //< std::vector would default-init to zero
 
 			if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
 			{
@@ -349,32 +344,41 @@ namespace Nz
 				return nullptr;
 			}
 
-			// Une conversion en mono est-elle nécessaire ?
+			// Convert to mono if required
 			if (parameters.forceMono && format != AudioFormat_Mono)
 			{
-				// Nous effectuons la conversion en mono dans le même buffer (il va de toute façon être copié)
-				MixToMono(samples.get(), samples.get(), static_cast<unsigned int>(info.channels), static_cast<unsigned int>(info.frames));
+				MixToMono(samples.get(), samples.get(), static_cast<UInt32>(info.channels), static_cast<UInt64>(info.frames));
 
 				format = AudioFormat_Mono;
 				sampleCount = static_cast<unsigned int>(info.frames);
 			}
 
-			return SoundBuffer::New(format, sampleCount, info.samplerate, samples.get());
+			return std::make_shared<SoundBuffer>(format, sampleCount, info.samplerate, samples.get());
 		}
 	}
 
 	namespace Loaders
 	{
-		void Register_sndfile()
+		SoundBufferLoader::Entry GetSoundBufferLoader_sndfile()
 		{
-			SoundBufferLoader::RegisterLoader(Detail::IsSupported, Detail::CheckSoundBuffer, Detail::LoadSoundBuffer);
-			SoundStreamLoader::RegisterLoader(Detail::IsSupported, Detail::CheckSoundStream, Detail::LoadSoundStreamStream, Detail::LoadSoundStreamFile, Detail::LoadSoundStreamMemory);
+			SoundBufferLoader::Entry loaderEntry;
+			loaderEntry.extensionSupport = Detail::IsSupported;
+			loaderEntry.streamChecker = Detail::CheckSoundBuffer;
+			loaderEntry.streamLoader = Detail::LoadSoundBuffer;
+
+			return loaderEntry;
 		}
 
-		void Unregister_sndfile()
+		SoundStreamLoader::Entry GetSoundStreamLoader_sndfile()
 		{
-			SoundBufferLoader::UnregisterLoader(Detail::IsSupported, Detail::CheckSoundBuffer, Detail::LoadSoundBuffer);
-			SoundStreamLoader::UnregisterLoader(Detail::IsSupported, Detail::CheckSoundStream, Detail::LoadSoundStreamStream, Detail::LoadSoundStreamFile, Detail::LoadSoundStreamMemory);
+			SoundStreamLoader::Entry loaderEntry;
+			loaderEntry.extensionSupport = Detail::IsSupported;
+			loaderEntry.streamChecker = Detail::CheckSoundStream;
+			loaderEntry.fileLoader = Detail::LoadSoundStreamFile;
+			loaderEntry.memoryLoader = Detail::LoadSoundStreamMemory;
+			loaderEntry.streamLoader = Detail::LoadSoundStreamStream;
+
+			return loaderEntry;
 		}
 	}
 }

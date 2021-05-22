@@ -8,14 +8,13 @@
 #define NAZARA_LOADERS_SNDFILE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio/SoundStream.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void Register_sndfile();
-		void Unregister_sndfile();
-	}
+	SoundBufferLoader::Entry GetSoundBufferLoader_sndfile();
+	SoundStreamLoader::Entry GetSoundStreamLoader_sndfile();
 }
 
 #endif // NAZARA_LOADERS_SNDFILE_HPP
