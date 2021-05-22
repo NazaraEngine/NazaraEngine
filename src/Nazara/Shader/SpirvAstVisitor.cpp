@@ -617,7 +617,7 @@ namespace Nz
 			for (const auto& param : func.parameters)
 			{
 				UInt32 paramResultId = m_writer.AllocateResultId();
-				m_instructions.Append(SpirvOp::OpFunctionParameter, param.typeId, paramResultId);
+				m_instructions.Append(SpirvOp::OpFunctionParameter, param.pointerTypeId, paramResultId);
 
 				RegisterVariable(varIndex++, param.typeId, paramResultId, SpirvStorageClass::Function);
 			}
