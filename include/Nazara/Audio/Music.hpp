@@ -11,7 +11,6 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
 
 namespace Nz
 {
@@ -20,12 +19,12 @@ namespace Nz
 	class NAZARA_AUDIO_API Music : public Resource, public SoundEmitter
 	{
 		public:
-			Music() = default;
+			Music();
 			Music(const Music&) = delete;
-			Music(Music&&) noexcept = default;
+			Music(Music&&) noexcept;
 			~Music();
 
-			bool Create(SoundStream* soundStream);
+			bool Create(std::shared_ptr<SoundStream> soundStream);
 			void Destroy();
 
 			void EnableLooping(bool loop) override;
@@ -51,10 +50,10 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) noexcept = default;
+			Music& operator=(Music&&) noexcept;
 
 		private:
-			MovablePtr<MusicImpl> m_impl;
+			std::unique_ptr<MusicImpl> m_impl;
 
 			bool FillAndQueueBuffer(unsigned int buffer);
 			void MusicThread();

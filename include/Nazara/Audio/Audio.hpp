@@ -10,6 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -26,18 +28,23 @@ namespace Nz
 			struct Config {};
 
 			Audio(Config /*config*/);
+			Audio(const Audio&) = delete;
+			Audio(Audio&&) = delete;
 			~Audio();
 
-			AudioFormat GetAudioFormat(unsigned int channelCount);
-			float GetDopplerFactor();
-			float GetGlobalVolume();
-			Vector3f GetListenerDirection();
-			Vector3f GetListenerPosition();
-			Quaternionf GetListenerRotation();
-			Vector3f GetListenerVelocity();
-			float GetSpeedOfSound();
+			AudioFormat GetAudioFormat(unsigned int channelCount) const;
+			float GetDopplerFactor() const;
+			float GetGlobalVolume() const;
+			Vector3f GetListenerDirection() const;
+			Vector3f GetListenerPosition() const;
+			Quaternionf GetListenerRotation() const;
+			Vector3f GetListenerVelocity() const;
+			const SoundBufferLoader& GetSoundBufferLoader() const;
+			const SoundStreamLoader& GetSoundStreamLoader() const;
+			float GetSpeedOfSound() const;
 
-			bool IsFormatSupported(AudioFormat format);
+			bool IsFormatSupported(AudioFormat format) const;
+
 			void SetDopplerFactor(float dopplerFactor);
 			void SetGlobalVolume(float volume);
 			void SetListenerDirection(const Vector3f& direction);
@@ -49,7 +56,13 @@ namespace Nz
 			void SetListenerVelocity(float velX, float velY, float velZ);
 			void SetSpeedOfSound(float speed);
 
+			Audio& operator=(const Audio&) = delete;
+			Audio& operator=(Audio&&) = delete;
+
 		private:
+			SoundBufferLoader m_soundBufferLoader;
+			SoundStreamLoader m_soundStreamLoader;
+
 			static Audio* s_instance;
 	};
 }
