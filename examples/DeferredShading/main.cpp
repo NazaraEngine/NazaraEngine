@@ -177,7 +177,7 @@ int main()
 
 	Nz::MeshRef planeMesh = Nz::Mesh::New();
 	planeMesh->CreateStatic();
-	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(20.f, 20.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), planeParams);
+	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(10.f, 10.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), planeParams);
 	planeMesh->SetMaterialCount(1);
 
 	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(planeMesh);
@@ -204,7 +204,7 @@ int main()
 		basicMat.SetDiffuseMap(planeTexture);
 
 		Nz::TextureSamplerInfo planeSampler;
-		planeSampler.anisotropyLevel = 8;
+		planeSampler.anisotropyLevel = 16;
 		planeSampler.wrapModeU = Nz::SamplerWrap_Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap_Repeat;
 		basicMat.SetDiffuseSampler(planeSampler);
@@ -341,11 +341,11 @@ int main()
 	std::mt19937 randomEngine(rng());
 	std::uniform_int_distribution<unsigned int> colorDis(0, 255);
 	std::uniform_real_distribution<float> heightDis(1.5f, 1.95f);
-	std::uniform_real_distribution<float> posDis(-10.f, 10.f);
+	std::uniform_real_distribution<float> posDis(-5.f, 5.f);
 	std::uniform_real_distribution<float> dirDis(-1.f, 1.f);
-	std::uniform_real_distribution<float> dirYDis(0.5f, 1.f);
+	std::uniform_real_distribution<float> dirYDis(0.f, 0.75f);
 
-	for (std::size_t i = 0; i < 500; ++i)
+	for (std::size_t i = 0; i < 100; ++i)
 	{
 		auto& light = spotLights.emplace_back();
 		light.color = Nz::Color(colorDis(randomEngine), colorDis(randomEngine), colorDis(randomEngine));
@@ -393,7 +393,6 @@ int main()
 
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> lightingShaderBindings;
 
-	/*
 	std::array<Nz::VertexStruct_XYZ_UV, 3> vertexData = {
 		{
 			{
@@ -410,9 +409,8 @@ int main()
 			}
 		}
 	};
-	*/
 
-	std::array<Nz::VertexStruct_XYZ_UV, 4> vertexData = {
+	/*std::array<Nz::VertexStruct_XYZ_UV, 4> vertexData = {
 		{
 			{
 				Nz::Vector3f(-1.f, -1.f, 0.0f),
@@ -431,7 +429,7 @@ int main()
 				Nz::Vector2f(1.0f, 1.0f),
 			},
 		}
-	};
+	};*/
 
 	std::shared_ptr<Nz::AbstractBuffer> vertexBuffer = device->InstantiateBuffer(Nz::BufferType_Vertex);
 	if (!vertexBuffer->Initialize(vertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage_DeviceLocal))
@@ -542,7 +540,7 @@ int main()
 			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
 				builder.BindShaderBinding(*lightingShaderBindings[i]);
-				builder.Draw(4);
+				builder.Draw(3);
 			}
 		});
 
@@ -631,7 +629,7 @@ int main()
 					builder.BindShaderBinding(*finalBlitBinding);
 					builder.BindPipeline(*fullscreenPipeline);
 					builder.BindVertexBuffer(0, vertexBuffer.get());
-					builder.Draw(4);
+					builder.Draw(3);
 				}
 				builder.EndRenderPass();
 			}
