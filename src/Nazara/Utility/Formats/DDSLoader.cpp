@@ -27,7 +27,7 @@ namespace Nz
 			{
 				bool skip;
 				if (parameters.custom.GetBooleanParameter("SkipNativeDDSLoader", &skip) && skip)
-					return Ternary_False;
+					return Ternary::False;
 
 				ByteStream byteStream(&stream);
 				byteStream.SetDataEndianness(Endianness_LittleEndian);
@@ -35,7 +35,7 @@ namespace Nz
 				UInt32 magic;
 				byteStream >> magic;
 
-				return (magic == DDS_Magic) ? Ternary_True : Ternary_False;
+				return (magic == DDS_Magic) ? Ternary::True : Ternary::False;
 			}
 
 			static ImageRef Load(Stream& stream, const ImageParams& parameters)

@@ -7,9 +7,9 @@
 #ifndef NAZARA_RESOURCEMANAGER_HPP
 #define NAZARA_RESOURCEMANAGER_HPP
 
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <filesystem>
+#include <memory>
 #include <unordered_map>
 
 namespace Nz
@@ -17,26 +17,27 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	class ResourceManager
 	{
-		friend Type;
-
 		public:
-			ResourceManager() = delete;
-			~ResourceManager() = delete;
+			using Loader = ResourceLoader<Type, Parameters>;
 
-			static void Clear();
+			ResourceManager(Loader& loader);
+			explicit ResourceManager(const ResourceManager&) = default;
+			ResourceManager(ResourceManager&&) noexcept = default;
+			~ResourceManager() = default;
 
-			static ObjectRef<Type> Get(const std::filesystem::path& filePath);
-			static const Parameters& GetDefaultParameters();
+			void Clear();
 
-			static void Purge();
-			static void Register(const std::filesystem::path& filePath, ObjectRef<Type> resource);
-			static void SetDefaultParameters(const Parameters& params);
-			static void Unregister(const std::filesystem::path& filePath);
+			std::shared_ptr<Type> Get(const std::filesystem::path& filePath);
+			const Parameters& GetDefaultParameters();
+
+			void Register(const std::filesystem::path& filePath, std::shared_ptr<Type> resource);
+			void SetDefaultParameters(Parameters params);
+			void Unregister(const std::filesystem::path& filePath);
+
+			ResourceManager& operator=(const ResourceManager&) = delete;
+			ResourceManager& operator=(ResourceManager&&) = delete;
 
 		private:
-			static bool Initialize();
-			static void Uninitialize();
-
 			// https://stackoverflow.com/questions/51065244/is-there-no-standard-hash-for-stdfilesystempath
 			struct PathHash
 			{
@@ -46,8 +47,9 @@ namespace Nz
 				}
 			};
 
-			using ManagerMap = std::unordered_map<std::filesystem::path, ObjectRef<Type>, PathHash>;
-			using ManagerParams = Parameters;
+			std::unordered_map<std::filesystem::path, std::shared_ptr<Type>, PathHash> m_resources;
+			Loader& m_loader;
+			Parameters m_defaultParameters;
 	};
 }
 

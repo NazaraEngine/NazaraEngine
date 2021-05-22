@@ -37,11 +37,11 @@ namespace Nz
 			if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
 			{
 				if (version == 10)
-					return Ternary_True;
+					return Ternary::True;
 			}
 		}
 
-		return Ternary_False;
+		return Ternary::False;
 	}
 
 	const MD5MeshParser::Joint* MD5MeshParser::GetJoints() const
