@@ -29,6 +29,20 @@ namespace Nz::ShaderAst
 		node.right->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(CallFunctionExpression& node)
+	{
+		for (auto& param : node.parameters)
+			param->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(CallMethodExpression& node)
+	{
+		node.object->Visit(*this);
+
+		for (auto& param : node.parameters)
+			param->Visit(*this);
+	}
+
 	void AstRecursiveVisitor::Visit(CastExpression& node)
 	{
 		for (auto& expr : node.expressions)

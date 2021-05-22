@@ -38,6 +38,11 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::BranchStatement> operator()(std::vector<ShaderAst::BranchStatement::ConditionalStatement> condStatements, ShaderAst::StatementPtr elseStatement = nullptr) const;
 		};
 
+		struct CallFunction
+		{
+			inline std::unique_ptr<ShaderAst::CallFunctionExpression> operator()(std::string functionName, std::vector<ShaderAst::ExpressionPtr> parameters) const;
+		};
+
 		struct Cast
 		{
 			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const;
@@ -133,6 +138,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Assign Assign;
 	constexpr Impl::Binary Binary;
 	constexpr Impl::Branch Branch;
+	constexpr Impl::CallFunction CallFunction;
 	constexpr Impl::Cast Cast;
 	constexpr Impl::ConditionalExpression ConditionalExpression;
 	constexpr Impl::ConditionalStatement ConditionalStatement;

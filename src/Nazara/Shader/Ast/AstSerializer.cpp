@@ -65,6 +65,45 @@ namespace Nz::ShaderAst
 		Node(node.right);
 	}
 
+	void AstSerializerBase::Serialize(CallFunctionExpression& node)
+	{
+		UInt32 typeIndex;
+		if (IsWriting())
+			typeIndex = UInt32(node.targetFunction.index());
+
+		Value(typeIndex);
+
+		// Waiting for template lambda in C++20
+		auto SerializeValue = [&](auto dummyType)
+		{
+			using T = std::decay_t<decltype(dummyType)>;
+
+			auto& value = (IsWriting()) ? std::get<T>(node.targetFunction) : node.targetFunction.emplace<T>();
+			Value(value);
+		};
+
+		static_assert(std::variant_size_v<decltype(node.targetFunction)> == 2);
+		switch (typeIndex)
+		{
+			case 0: SerializeValue(std::string()); break;
+			case 1: SerializeValue(std::size_t()); break;
+		}
+
+		Container(node.parameters);
+		for (auto& param : node.parameters)
+			Node(param);
+	}
+
+	void AstSerializerBase::Serialize(CallMethodExpression& node)
+	{
+		Node(node.object);
+		Value(node.methodName);
+
+		Container(node.parameters);
+		for (auto& param : node.parameters)
+			Node(param);
+	}
+
 	void AstSerializerBase::Serialize(CastExpression& node)
 	{
 		Type(node.targetType);

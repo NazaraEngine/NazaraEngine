@@ -141,6 +141,7 @@ namespace Nz
 
 					auto& funcData = m_funcs[funcIndex];
 					funcData.name = node.name;
+					funcData.funcIndex = funcIndex;
 
 					if (!entryPointType)
 					{
@@ -228,7 +229,6 @@ namespace Nz
 							*entryPointType,
 							inputStruct,
 							outputStructId,
-							funcIndex,
 							std::move(inputs),
 							std::move(outputs)
 						};
@@ -251,6 +251,23 @@ namespace Nz
 					declaredStructs[structIndex] = node.description;
 
 					m_constantCache.Register(*m_constantCache.BuildType(node.description));
+				}
+
+				void Visit(ShaderAst::CallFunctionExpression& node) override
+				{
+					AstRecursiveVisitor::Visit(node);
+
+					assert(m_funcIndex);
+					auto& func = m_funcs[*m_funcIndex];
+
+					auto& funcCall = func.funcCalls.emplace_back();
+					funcCall.firstVarIndex = func.variables.size();
+
+					for (const auto& parameter : node.parameters)
+					{
+						auto& var = func.variables.emplace_back();
+						var.typeId = m_constantCache.Register(*m_constantCache.BuildPointerType(GetExpressionType(*parameter), SpirvStorageClass::Function));
+					}
 				}
 
 				void Visit(ShaderAst::DeclareVariableStatement& node) override
@@ -439,6 +456,10 @@ namespace Nz
 
 		for (const std::string& extInst : preVisitor.extInsts)
 			state.extensionInstructionSet[extInst] = AllocateResultId();
+
+		// Assign function ID (required for forward declaration)
+		for (auto& func : state.funcs)
+			func.funcId = AllocateResultId();
 
 		SpirvAstVisitor visitor(*this, state.instructions, state.funcs);
 		targetAst->Visit(visitor);

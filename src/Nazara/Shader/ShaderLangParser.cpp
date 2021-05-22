@@ -19,14 +19,6 @@ namespace Nz::ShaderLang
 			{ "u32",  ShaderAst::PrimitiveType::UInt32 }
 		};
 
-		std::unordered_map<std::string, ShaderAst::IntrinsicType> s_identifierToIntrinsic = {
-			{ "cross", ShaderAst::IntrinsicType::CrossProduct },
-			{ "dot", ShaderAst::IntrinsicType::DotProduct },
-			{ "max", ShaderAst::IntrinsicType::Max },
-			{ "min", ShaderAst::IntrinsicType::Min },
-			{ "length", ShaderAst::IntrinsicType::Length },
-		};
-
 		std::unordered_map<std::string, ShaderAst::AttributeType> s_identifierToAttributeType = {
 			{ "binding",  ShaderAst::AttributeType::Binding  },
 			{ "builtin",  ShaderAst::AttributeType::Builtin  },
@@ -137,14 +129,19 @@ namespace Nz::ShaderLang
 		m_context->tokenIndex += count;
 	}
 
-	ShaderAst::ExpressionType Parser::DecodeType(const std::string& identifier)
+	std::optional<ShaderAst::ExpressionType> Parser::DecodeType(const std::string& identifier)
 	{
 		if (auto it = s_identifierToBasicType.find(identifier); it != s_identifierToBasicType.end())
+		{
+			Consume();
 			return it->second;
+		}
 
 		//FIXME: Handle this better
 		if (identifier == "mat4")
 		{
+			Consume();
+
 			ShaderAst::MatrixType matrixType;
 			matrixType.columnCount = 4;
 			matrixType.rowCount = 4;
@@ -157,6 +154,8 @@ namespace Nz::ShaderLang
 		}
 		else if (identifier == "sampler2D")
 		{
+			Consume();
+
 			ShaderAst::SamplerType samplerType;
 			samplerType.dim = ImageType_2D;
 
@@ -168,6 +167,8 @@ namespace Nz::ShaderLang
 		}
 		else if (identifier == "uniform")
 		{
+			Consume();
+
 			ShaderAst::UniformType uniformType;
 
 			Expect(Advance(), TokenType::LessThan); //< '<'
@@ -178,6 +179,8 @@ namespace Nz::ShaderLang
 		}
 		else if (identifier == "vec2")
 		{
+			Consume();
+
 			ShaderAst::VectorType vectorType;
 			vectorType.componentCount = 2;
 
@@ -189,6 +192,8 @@ namespace Nz::ShaderLang
 		}
 		else if (identifier == "vec3")
 		{
+			Consume();
+
 			ShaderAst::VectorType vectorType;
 			vectorType.componentCount = 3;
 
@@ -200,6 +205,8 @@ namespace Nz::ShaderLang
 		}
 		else if (identifier == "vec4")
 		{
+			Consume();
+
 			ShaderAst::VectorType vectorType;
 			vectorType.componentCount = 4;
 
@@ -210,12 +217,7 @@ namespace Nz::ShaderLang
 			return vectorType;
 		}
 		else
-		{
-			ShaderAst::IdentifierType identifierType;
-			identifierType.name = identifier;
-
-			return identifierType;
-		}
+			return std::nullopt;
 	}
 
 	void Parser::EnterScope()
@@ -873,23 +875,19 @@ namespace Nz::ShaderLang
 			{
 				const std::string& identifier = std::get<std::string>(token.data);
 
-				if (auto it = s_identifierToIntrinsic.find(identifier); it != s_identifierToIntrinsic.end())
+				// Is it a cast? 
+				std::optional<ShaderAst::ExpressionType> exprType = DecodeType(identifier);
+				if (exprType)
+					return ShaderBuilder::Cast(std::move(*exprType), ParseParameters());
+
+				if (Peek(1).type == TokenType::OpenParenthesis)
 				{
-					if (Peek(1).type == TokenType::OpenParenthesis)
-					{
-						Consume();
-						return ShaderBuilder::Intrinsic(it->second, ParseParameters());
-					}
+					// Function call
+					Consume();
+					return ShaderBuilder::CallFunction(identifier, ParseParameters());
 				}
-
-				if (IsVariableInScope(identifier))
+				else
 					return ParseIdentifier();
-
-				Consume();
-
-				ShaderAst::ExpressionType exprType = DecodeType(identifier);
-
-				return ShaderBuilder::Cast(std::move(exprType), ParseParameters());
 			}
 
 			case TokenType::IntegerValue:
@@ -989,10 +987,17 @@ namespace Nz::ShaderLang
 			return ShaderAst::NoType{};
 		}
 
-		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
+		const Token& identifierToken = Expect(Peek(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-		return DecodeType(identifier);
+		auto type = DecodeType(identifier);
+		if (!type)
+		{
+			Consume();
+			return ShaderAst::IdentifierType{ identifier };
+		}
+
+		return *type;
 	}
 
 	int Parser::GetTokenPrecedence(TokenType token)

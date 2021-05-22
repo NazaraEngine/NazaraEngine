@@ -24,6 +24,8 @@ namespace Nz::ShaderAst
 			void Visit(AccessMemberIndexExpression& node) override;
 			void Visit(AssignExpression& node) override;
 			void Visit(BinaryExpression& node) override;
+			void Visit(CallFunctionExpression& node) override;
+			void Visit(CallMethodExpression& node) override;
 			void Visit(CastExpression& node) override;
 			void Visit(ConditionalExpression& node) override;
 			void Visit(ConstantExpression& node) override;

@@ -95,7 +95,7 @@ namespace Nz
 			case ShaderLanguage::SpirV:
 			{
 				SpirvEntryPointExtractor extractor;
-				extractor.Decode(reinterpret_cast<const Nz::UInt32*>(source), sourceSize);
+				extractor.Decode(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32));
 
 				ShaderStageTypeFlags remainingStages = shaderStages;
 				for (auto& entryPoint : extractor.entryPoints)
