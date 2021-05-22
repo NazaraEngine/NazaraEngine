@@ -57,15 +57,14 @@ struct OutputData
 [entry(frag)]
 fn main(input: InputData) -> OutputData
 {
-	let output: OutputData;
-
 	let textureColor = select_opt(HAS_DIFFUSE_TEXTURE, MaterialDiffuseMap.Sample(input.vertUV) * settings.DiffuseColor, settings.DiffuseColor);
 	let alpha = select_opt(HAS_ALPHA_TEXTURE, MaterialAlphaMap.Sample(input.vertUV).x * textureColor.w, 1.0);
 	/*if ((select_opt(ALPHA_TEST, var0.w < settings.AlphaThreshold, false)) == (true))
 	{
 		discard;
 	}*/
-	
+
+	let output: OutputData;
 	output.diffuseMap = textureColor;
 	output.normalMap = vec4<f32>((vec3<f32>(1.0, 1.0, 1.0) + input.vertNormal) * 0.5, 1.0);
 	output.positionMap = vec4<f32>(input.vertPos, 1.0);
