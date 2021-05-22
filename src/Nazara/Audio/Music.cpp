@@ -29,7 +29,7 @@ namespace Nz
 		std::atomic<UInt64> processedSamples;
 		std::vector<Int16> chunkSamples;
 		std::mutex bufferLock;
-		SoundStreamRef stream;
+		std::shared_ptr<SoundStream> stream;
 		std::thread thread;
 		UInt64 playingOffset;
 		bool loop = false;
@@ -37,12 +37,14 @@ namespace Nz
 		unsigned int sampleRate;
 	};
 
+	Music::Music() = default;
+	Music::Music(Music&&) noexcept = default;
+
 	/*!
 	* \brief Destructs the object and calls Destroy
 	*
 	* \see Destroy
 	*/
-
 	Music::~Music()
 	{
 		Destroy();
@@ -55,7 +57,7 @@ namespace Nz
 	* \param soundStream Sound stream which is the source for the music
 	*/
 
-	bool Music::Create(SoundStream* soundStream)
+	bool Music::Create(std::shared_ptr<SoundStream> soundStream)
 	{
 		NazaraAssert(soundStream, "Invalid stream");
 
@@ -63,11 +65,11 @@ namespace Nz
 
 		AudioFormat format = soundStream->GetFormat();
 
-		m_impl = new MusicImpl;
+		m_impl = std::make_unique<MusicImpl>();
 		m_impl->sampleRate = soundStream->GetSampleRate();
 		m_impl->audioFormat = OpenAL::AudioFormat[format];
 		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // One second of samples
-		m_impl->stream = soundStream;
+		m_impl->stream = std::move(soundStream);
 
 		SetPlayingOffset(0);
 
@@ -85,8 +87,7 @@ namespace Nz
 		{
 			StopThread();
 
-			delete m_impl;
-			m_impl = nullptr;
+			m_impl.reset();
 		}
 	}
 
@@ -216,8 +217,8 @@ namespace Nz
 	*/
 	bool Music::OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params)
 	{
-		if (SoundStreamRef soundStream = SoundStream::OpenFromFile(filePath, params))
-			return Create(soundStream);
+		if (std::shared_ptr<SoundStream> soundStream = SoundStream::OpenFromFile(filePath, params))
+			return Create(std::move(soundStream));
 		else
 			return false;
 	}
@@ -234,8 +235,8 @@ namespace Nz
 	*/
 	bool Music::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
 	{
-		if (SoundStreamRef soundStream = SoundStream::OpenFromMemory(data, size, params))
-			return Create(soundStream);
+		if (std::shared_ptr<SoundStream> soundStream = SoundStream::OpenFromMemory(data, size, params))
+			return Create(std::move(soundStream));
 		else
 			return false;
 	}
@@ -251,8 +252,8 @@ namespace Nz
 	*/
 	bool Music::OpenFromStream(Stream& stream, const SoundStreamParams& params)
 	{
-		if (SoundStreamRef soundStream = SoundStream::OpenFromStream(stream, params))
-			return Create(soundStream);
+		if (std::shared_ptr<SoundStream> soundStream = SoundStream::OpenFromStream(stream, params))
+			return Create(std::move(soundStream));
 		else
 			return false;
 	}
@@ -345,6 +346,8 @@ namespace Nz
 		StopThread();
 		SetPlayingOffset(0);
 	}
+
+	Music& Music::operator=(Music&&) noexcept = default;
 
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
 	{
