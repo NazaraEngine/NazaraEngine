@@ -59,19 +59,10 @@ fn main(input: VertOut) -> FragOut
 	let normal = normalTexture.Sample(input.uv).xyz * 2.0 - vec3<f32>(1.0, 1.0, 1.0);
 	let position = positionTexture.Sample(input.uv).xyz;
 
-	let distance = length(lightParameters.position - position);
-
-	let posToLight = (lightParameters.position - position) / distance;
-	let lambert = dot(normal, posToLight);
-
-	let curAngle = dot(lightParameters.direction, -posToLight);
-	let innerMinusOuterAngle = lightParameters.innerAngle - lightParameters.outerAngle;
-
-	let attenuation = compute_attenuation(distance);
-	attenuation = attenuation * max((curAngle - lightParameters.outerAngle) / innerMinusOuterAngle, 0.0);
+	let attenuation = compute_attenuation(position, normal);
 
 	let output: FragOut;
-	output.color = vec4<f32>(lightParameters.color, 1.0) * lambert * attenuation * colorTexture.Sample(input.uv);
+	output.color = vec4<f32>(lightParameters.color, 1.0) * attenuation * colorTexture.Sample(input.uv);
 
 	return output;
 }
@@ -86,7 +77,18 @@ fn main(input: VertIn) -> VertOut
 	return output;
 }
 
-fn compute_attenuation(distance: f32) -> f32
+fn compute_attenuation(worldPos: vec3<f32>, normal: vec3<f32>) -> f32
 {
-	return 1.0 / (lightParameters.constant + lightParameters.linear * distance + lightParameters.quadratic * (distance * distance));
+	let distance = length(lightParameters.position - worldPos);
+
+	let posToLight = (lightParameters.position - worldPos) / distance;
+	let lambert = dot(normal, posToLight);
+
+	let curAngle = dot(lightParameters.direction, -posToLight);
+	let innerMinusOuterAngle = lightParameters.innerAngle - lightParameters.outerAngle;
+
+	let attenuation = 1.0 / (lightParameters.constant + lightParameters.linear * distance + lightParameters.quadratic * (distance * distance));
+	attenuation = attenuation * lambert * max((curAngle - lightParameters.outerAngle) / innerMinusOuterAngle, 0.0);
+
+	return attenuation;
 }
