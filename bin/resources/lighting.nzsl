@@ -60,7 +60,6 @@ fn main(input: VertOut) -> FragOut
 	let position = positionTexture.Sample(input.uv).xyz;
 
 	let distance = length(lightParameters.position - position);
-	let attenuation = 1.0 / (lightParameters.constant + lightParameters.linear * distance + lightParameters.quadratic * (distance * distance));
 
 	let posToLight = (lightParameters.position - position) / distance;
 	let lambert = dot(normal, posToLight);
@@ -68,6 +67,7 @@ fn main(input: VertOut) -> FragOut
 	let curAngle = dot(lightParameters.direction, -posToLight);
 	let innerMinusOuterAngle = lightParameters.innerAngle - lightParameters.outerAngle;
 
+	let attenuation = compute_attenuation(distance);
 	attenuation = attenuation * max((curAngle - lightParameters.outerAngle) / innerMinusOuterAngle, 0.0);
 
 	let output: FragOut;
@@ -84,4 +84,9 @@ fn main(input: VertIn) -> VertOut
 	output.position = vec4<f32>(input.pos, 1.0);
 
 	return output;
+}
+
+fn compute_attenuation(distance: f32) -> f32
+{
+	return 1.0 / (lightParameters.constant + lightParameters.linear * distance + lightParameters.quadratic * (distance * distance));
 }

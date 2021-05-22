@@ -45,6 +45,7 @@ namespace Nz
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::BranchStatement& node) override;
+			void Visit(ShaderAst::CallFunctionExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
 			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConditionalStatement& node) override;
@@ -92,7 +93,6 @@ namespace Nz
 				ShaderStageType stageType;
 				std::optional<InputStruct> inputStruct;
 				std::optional<UInt32> outputStructTypeId;
-				std::size_t funcIndex;
 				std::vector<Input> inputs;
 				std::vector<Output> outputs;
 			};
@@ -100,6 +100,11 @@ namespace Nz
 			struct FuncData
 			{
 				std::optional<EntryPoint> entryPointData;
+
+				struct FuncCall
+				{
+					std::size_t firstVarIndex;
+				};
 
 				struct Parameter
 				{
@@ -113,7 +118,9 @@ namespace Nz
 					UInt32 varId;
 				};
 
+				std::size_t funcIndex;
 				std::string name;
+				std::vector<FuncCall> funcCalls;
 				std::vector<Parameter> parameters;
 				std::vector<Variable> variables;
 				std::unordered_map<std::size_t, std::size_t> varIndexToVarId;
@@ -138,6 +145,7 @@ namespace Nz
 			inline void RegisterVariable(std::size_t varIndex, UInt32 typeId, UInt32 pointerId, SpirvStorageClass storageClass);
 
 			std::size_t m_extVarIndex;
+			std::size_t m_funcCallIndex;
 			std::size_t m_funcIndex;
 			std::vector<std::size_t> m_scopeSizes;
 			std::vector<FuncData>& m_funcData;

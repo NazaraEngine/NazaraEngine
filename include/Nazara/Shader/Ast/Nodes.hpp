@@ -102,6 +102,25 @@ namespace Nz::ShaderAst
 		ExpressionPtr right;
 	};
 
+	struct NAZARA_SHADER_API CallFunctionExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::variant<std::string, std::size_t> targetFunction;
+		std::vector<ExpressionPtr> parameters;
+	};
+
+	struct NAZARA_SHADER_API CallMethodExpression : public Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		ExpressionPtr object;
+		std::string methodName;
+		std::vector<ExpressionPtr> parameters;
+	};
+
 	struct NAZARA_SHADER_API CastExpression : public Expression
 	{
 		NodeType GetType() const override;

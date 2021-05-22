@@ -40,6 +40,8 @@ namespace Nz::ShaderAst
 			virtual ExpressionPtr Clone(AccessMemberIndexExpression& node);
 			virtual ExpressionPtr Clone(AssignExpression& node);
 			virtual ExpressionPtr Clone(BinaryExpression& node);
+			virtual ExpressionPtr Clone(CallFunctionExpression& node);
+			virtual ExpressionPtr Clone(CallMethodExpression& node);
 			virtual ExpressionPtr Clone(CastExpression& node);
 			virtual ExpressionPtr Clone(ConditionalExpression& node);
 			virtual ExpressionPtr Clone(ConstantExpression& node);

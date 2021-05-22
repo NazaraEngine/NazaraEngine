@@ -12,6 +12,7 @@
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
 #include <filesystem>
+#include <optional>
 
 namespace Nz::ShaderLang
 {
@@ -69,7 +70,7 @@ namespace Nz::ShaderLang
 			// Flow control
 			const Token& Advance();
 			void Consume(std::size_t count = 1);
-			ShaderAst::ExpressionType DecodeType(const std::string& identifier);
+			std::optional<ShaderAst::ExpressionType> DecodeType(const std::string& identifier);
 			void EnterScope();
 			const Token& Expect(const Token& token, TokenType type);
 			const Token& ExpectNot(const Token& token, TokenType type);

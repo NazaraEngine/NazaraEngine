@@ -45,9 +45,9 @@ namespace Nz
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override
 			{
 				// Dismiss function if it's an entry point of another type than the one selected
-				if (selectedStage)
+				if (node.entryStage)
 				{
-					if (node.entryStage)
+					if (selectedStage)
 					{
 						ShaderStageType stage = *node.entryStage;
 						if (stage != *selectedStage)
@@ -56,15 +56,22 @@ namespace Nz
 						assert(!entryPoint);
 						entryPoint = &node;
 					}
+					else
+					{
+						assert(!entryPoint);
+						entryPoint = &node;
+					}
 				}
 				else
-				{
-					assert(!entryPoint);
-					entryPoint = &node;
-				}
+					forwardFunctionDeclarations.push_back(&node);
+
+				assert(node.funcIndex);
+				functionNames[node.funcIndex.value()] = node.name;
 			}
 
 			std::optional<ShaderStageType> selectedStage;
+			std::unordered_map<std::size_t, std::string> functionNames;
+			std::vector<ShaderAst::DeclareFunctionStatement*> forwardFunctionDeclarations;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
 			UInt64 enabledOptions = 0;
 		};
@@ -94,6 +101,7 @@ namespace Nz
 		ShaderAst::DeclareFunctionStatement* entryFunc = nullptr;
 		std::stringstream stream;
 		std::unordered_map<std::size_t, ShaderAst::StructDescription> structs;
+		std::unordered_map<std::size_t, std::string> functionNames;
 		std::unordered_map<std::size_t, std::string> variableNames;
 		std::vector<InOutField> inputFields;
 		std::vector<InOutField> outputFields;
@@ -143,8 +151,9 @@ namespace Nz
 			throw std::runtime_error("missing entry point");
 
 		state.entryFunc = previsitor.entryPoint;
+		state.functionNames = std::move(previsitor.functionNames);
 
-		AppendHeader();
+		AppendHeader(previsitor.forwardFunctionDeclarations);
 
 		sanitizedAst->Visit(*this);
 
@@ -300,6 +309,23 @@ namespace Nz
 		AppendLine();
 	}
 
+	void GlslWriter::AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, bool forward)
+	{
+		Append(node.returnType, " ", node.name, "(");
+
+		bool first = true;
+		for (const auto& parameter : node.parameters)
+		{
+			if (!first)
+				Append(", ");
+
+			first = false;
+
+			Append(parameter.type, " ", parameter.name);
+		}
+		AppendLine((forward) ? ");" : ")");
+	}
+
 	void GlslWriter::AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers)
 	{
 		const auto& structDesc = Retrieve(m_currentState->structs, structIndex);
@@ -313,6 +339,98 @@ namespace Nz
 		{
 			assert(IsStructType(member.type));
 			AppendField(std::get<ShaderAst::StructType>(member.type).structIndex, memberIndices + 1, remainingMembers - 1);
+		}
+	}
+	
+	void GlslWriter::AppendHeader(const std::vector<ShaderAst::DeclareFunctionStatement*>& forwardFunctionDeclarations)
+	{
+		unsigned int glslVersion;
+		if (m_environment.glES)
+		{
+			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+				glslVersion = 320;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+				glslVersion = 310;
+			else if (m_environment.glMajorVersion >= 3)
+				glslVersion = 300;
+			else if (m_environment.glMajorVersion >= 2)
+				glslVersion = 100;
+			else
+				throw std::runtime_error("This version of OpenGL ES does not support shaders");
+		}
+		else
+		{
+			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 3)
+				glslVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+				glslVersion = 150;
+			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+				glslVersion = 140;
+			else if (m_environment.glMajorVersion >= 3)
+				glslVersion = 130;
+			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
+				glslVersion = 120;
+			else if (m_environment.glMajorVersion >= 2)
+				glslVersion = 110;
+			else
+				throw std::runtime_error("This version of OpenGL does not support shaders");
+		}
+
+		// Header
+		Append("#version ");
+		Append(glslVersion);
+		if (m_environment.glES)
+			Append(" es");
+
+		AppendLine();
+		AppendLine();
+
+		// Extensions
+
+		std::vector<std::string> requiredExtensions;
+
+		if (!m_environment.glES && m_environment.extCallback)
+		{
+			// GL_ARB_shading_language_420pack (required for layout(binding = X))
+			if (glslVersion < 420)
+			{
+				if (m_environment.extCallback("GL_ARB_shading_language_420pack"))
+					requiredExtensions.emplace_back("GL_ARB_shading_language_420pack");
+			}
+
+			// GL_ARB_separate_shader_objects (required for layout(location = X))
+			if (glslVersion < 410)
+			{
+				if (m_environment.extCallback("GL_ARB_separate_shader_objects"))
+					requiredExtensions.emplace_back("GL_ARB_separate_shader_objects");
+			}
+		}
+
+		if (!requiredExtensions.empty())
+		{
+			for (const std::string& ext : requiredExtensions)
+				AppendLine("#extension " + ext + " : require");
+
+			AppendLine();
+		}
+
+		if (m_environment.glES)
+		{
+			AppendLine("#if GL_FRAGMENT_PRECISION_HIGH");
+			AppendLine("precision highp float;");
+			AppendLine("#else");
+			AppendLine("precision mediump float;");
+			AppendLine("#endif");
+			AppendLine();
+		}
+
+		if (!forwardFunctionDeclarations.empty())
+		{
+			AppendCommentSection("function declarations");
+			for (const ShaderAst::DeclareFunctionStatement* node : forwardFunctionDeclarations)
+				AppendFunctionDeclaration(*node, true);
+
+			AppendLine();
 		}
 	}
 
@@ -481,6 +599,12 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::RegisterFunction(std::size_t funcIndex, std::string funcName)
+	{
+		assert(m_currentState->functionNames.find(funcIndex) == m_currentState->functionNames.end());
+		m_currentState->functionNames.emplace(funcIndex, std::move(funcName));
+	}
+
 	void GlslWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc)
 	{
 		assert(m_currentState->structs.find(structIndex) == m_currentState->structs.end());
@@ -579,6 +703,22 @@ namespace Nz
 		}
 
 		Visit(node.right, true);
+	}
+
+	void GlslWriter::Visit(ShaderAst::CallFunctionExpression& node)
+	{
+		assert(std::holds_alternative<std::size_t>(node.targetFunction));
+		const std::string& targetName = Retrieve(m_currentState->functionNames, std::get<std::size_t>(node.targetFunction));
+
+		Append(targetName, "(");
+		for (std::size_t i = 0; i < node.parameters.size(); ++i)
+		{
+			if (i != 0)
+				Append(", ");
+
+			node.parameters[i]->Visit(*this);
+		}
+		Append(")");
 	}
 
 	void GlslWriter::Visit(ShaderAst::CastExpression& node)
@@ -720,25 +860,14 @@ namespace Nz
 
 		std::optional<std::size_t> varIndexOpt = node.varIndex;
 
-		Append(node.returnType);
-		Append(" ");
-		Append(node.name);
-		Append("(");
-		for (std::size_t i = 0; i < node.parameters.size(); ++i)
+		for (const auto& parameter : node.parameters)
 		{
-			if (i != 0)
-				Append(", ");
-
-			Append(node.parameters[i].type);
-			Append(" ");
-			Append(node.parameters[i].name);
-
 			assert(varIndexOpt);
 			std::size_t& varIndex = *varIndexOpt;
-			RegisterVariable(varIndex++, node.parameters[i].name);
+			RegisterVariable(varIndex++, parameter.name);
 		}
-		Append(")\n");
 
+		AppendFunctionDeclaration(node);
 		EnterScope();
 		{
 			AppendStatementList(node.statements);
@@ -989,88 +1118,4 @@ namespace Nz
 
 		return false;
 	}
-
-	void GlslWriter::AppendHeader()
-	{
-		unsigned int glslVersion;
-		if (m_environment.glES)
-		{
-			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
-				glslVersion = 320;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
-				glslVersion = 310;
-			else if (m_environment.glMajorVersion >= 3)
-				glslVersion = 300;
-			else if (m_environment.glMajorVersion >= 2)
-				glslVersion = 100;
-			else
-				throw std::runtime_error("This version of OpenGL ES does not support shaders");
-		}
-		else
-		{
-			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 3)
-				glslVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
-				glslVersion = 150;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
-				glslVersion = 140;
-			else if (m_environment.glMajorVersion >= 3)
-				glslVersion = 130;
-			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
-				glslVersion = 120;
-			else if (m_environment.glMajorVersion >= 2)
-				glslVersion = 110;
-			else
-				throw std::runtime_error("This version of OpenGL does not support shaders");
-		}
-
-		// Header
-		Append("#version ");
-		Append(glslVersion);
-		if (m_environment.glES)
-			Append(" es");
-
-		AppendLine();
-		AppendLine();
-
-		// Extensions
-
-		std::vector<std::string> requiredExtensions;
-
-		if (!m_environment.glES && m_environment.extCallback)
-		{
-			// GL_ARB_shading_language_420pack (required for layout(binding = X))
-			if (glslVersion < 420)
-			{
-				if (m_environment.extCallback("GL_ARB_shading_language_420pack"))
-					requiredExtensions.emplace_back("GL_ARB_shading_language_420pack");
-			}
-
-			// GL_ARB_separate_shader_objects (required for layout(location = X))
-			if (glslVersion < 410)
-			{
-				if (m_environment.extCallback("GL_ARB_separate_shader_objects"))
-					requiredExtensions.emplace_back("GL_ARB_separate_shader_objects");
-			}
-		}
-
-		if (!requiredExtensions.empty())
-		{
-			for (const std::string& ext : requiredExtensions)
-				AppendLine("#extension " + ext + " : require");
-
-			AppendLine();
-		}
-
-		if (m_environment.glES)
-		{
-			AppendLine("#if GL_FRAGMENT_PRECISION_HIGH");
-			AppendLine("precision highp float;");
-			AppendLine("#else");
-			AppendLine("precision mediump float;");
-			AppendLine("#endif");
-			AppendLine();
-		}
-	}
-
 }

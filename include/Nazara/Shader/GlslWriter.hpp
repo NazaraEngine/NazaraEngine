@@ -15,6 +15,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace Nz
 {
@@ -60,8 +61,9 @@ namespace Nz
 			template<typename T> void Append(const T& param);
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			void AppendCommentSection(const std::string& section);
+			void AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, bool forward = false);
 			void AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers);
-			void AppendHeader();
+			void AppendHeader(const std::vector<ShaderAst::DeclareFunctionStatement*>& forwardFunctionDeclarations);
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 			void AppendStatementList(std::vector<ShaderAst::StatementPtr>& statements);
@@ -72,6 +74,7 @@ namespace Nz
 			void HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node);
 			void HandleInOut();
 
+			void RegisterFunction(std::size_t funcIndex, std::string funcName);
 			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
@@ -80,6 +83,7 @@ namespace Nz
 			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
+			void Visit(ShaderAst::CallFunctionExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
 			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;

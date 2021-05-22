@@ -202,6 +202,36 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr AstCloner::Clone(CallFunctionExpression& node)
+	{
+		auto clone = std::make_unique<CallFunctionExpression>();
+		clone->targetFunction = node.targetFunction;
+
+		clone->parameters.reserve(node.parameters.size());
+		for (auto& parameter : node.parameters)
+			clone->parameters.push_back(CloneExpression(parameter));
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(CallMethodExpression& node)
+	{
+		auto clone = std::make_unique<CallMethodExpression>();
+		clone->methodName = node.methodName;
+
+		clone->object = CloneExpression(node.object);
+
+		clone->parameters.reserve(node.parameters.size());
+		for (auto& parameter : node.parameters)
+			clone->parameters.push_back(CloneExpression(parameter));
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
 	ExpressionPtr AstCloner::Clone(CastExpression& node)
 	{
 		auto clone = std::make_unique<CastExpression>();

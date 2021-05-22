@@ -33,6 +33,16 @@ namespace Nz::ShaderAst
 		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
+	void ShaderAstValueCategory::Visit(CallFunctionExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::RValue;
+	}
+
+	void ShaderAstValueCategory::Visit(CallMethodExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::RValue;
+	}
+
 	void ShaderAstValueCategory::Visit(CastExpression& /*node*/)
 	{
 		m_expressionCategory = ExpressionCategory::RValue;

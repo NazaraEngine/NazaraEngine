@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -20,7 +21,7 @@ namespace Nz::ShaderAst
 		public:
 			struct Options;
 
-			inline SanitizeVisitor();
+			SanitizeVisitor() = default;
 			SanitizeVisitor(const SanitizeVisitor&) = delete;
 			SanitizeVisitor(SanitizeVisitor&&) = delete;
 			~SanitizeVisitor() = default;
@@ -47,6 +48,7 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(AccessMemberIdentifierExpression& node) override;
 			ExpressionPtr Clone(AssignExpression& node) override;
 			ExpressionPtr Clone(BinaryExpression& node) override;
+			ExpressionPtr Clone(CallFunctionExpression& node) override;
 			ExpressionPtr Clone(CastExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
 			ExpressionPtr Clone(ConstantExpression& node) override;
@@ -76,10 +78,11 @@ namespace Nz::ShaderAst
 			void PushScope();
 			void PopScope();
 
-			inline std::size_t RegisterFunction(std::string name);
-			inline std::size_t RegisterOption(std::string name, ExpressionType type);
-			inline std::size_t RegisterStruct(std::string name, StructDescription description);
-			inline std::size_t RegisterVariable(std::string name, ExpressionType type);
+			std::size_t RegisterFunction(DeclareFunctionStatement* funcDecl);
+			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type);
+			std::size_t RegisterOption(std::string name, ExpressionType type);
+			std::size_t RegisterStruct(std::string name, StructDescription description);
+			std::size_t RegisterVariable(std::string name, ExpressionType type);
 
 			std::size_t ResolveStruct(const ExpressionType& exprType);
 			std::size_t ResolveStruct(const IdentifierType& identifierType);
@@ -89,37 +92,33 @@ namespace Nz::ShaderAst
 
 			void SanitizeIdentifier(std::string& identifier);
 
-			struct Alias
-			{
-				std::variant<ExpressionType> value;
-			};
-
-			struct Option
-			{
-				std::size_t optionIndex;
-			};
-
-			struct Struct
-			{
-				std::size_t structIndex;
-			};
-
-			struct Variable
-			{
-				std::size_t varIndex;
-			};
+			void Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration);
+			void Validate(IntrinsicExpression& node);
 
 			struct Identifier
 			{
+				enum class Type
+				{
+					Alias,
+					Function,
+					Intrinsic,
+					Option,
+					Struct,
+					Variable
+				};
+
 				std::string name;
-				std::variant<Alias, Option, Struct, Variable> value;
+				std::size_t index;
+				Type type;
 			};
 
-			std::size_t m_nextFuncIndex;
+			std::unordered_map<std::string /*functionName*/, std::pair<const DeclareFunctionStatement*, std::size_t>> m_functionDeclarations;
 			std::vector<Identifier> m_identifiersInScope;
+			std::vector<DeclareFunctionStatement*> m_functions;
+			std::vector<IntrinsicType> m_intrinsics;
 			std::vector<ExpressionType> m_options;
 			std::vector<StructDescription> m_structs;
-			std::vector<ExpressionType> m_variables;
+			std::vector<ExpressionType> m_variableTypes;
 			std::vector<std::size_t> m_scopeSizes;
 
 			struct Context;

@@ -4,6 +4,7 @@
 
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
@@ -402,6 +403,49 @@ namespace Nz
 		m_currentBlock = &m_functionBlocks.back();
 	}
 
+	void SpirvAstVisitor::Visit(ShaderAst::CallFunctionExpression& node)
+	{
+		assert(std::holds_alternative<std::size_t>(node.targetFunction));
+		std::size_t functionIndex = std::get<std::size_t>(node.targetFunction);
+
+		UInt32 funcId = 0;
+		for (const auto& func : m_funcData)
+		{
+			if (func.funcIndex == functionIndex)
+			{
+				funcId = func.funcId;
+				break;
+			}
+		}
+		assert(funcId != 0);
+
+		const FuncData& funcData = m_funcData[m_funcIndex];
+		const auto& funcCall = funcData.funcCalls[m_funcCallIndex++];
+
+		StackArray<UInt32> parameterIds = NazaraStackArrayNoInit(UInt32, node.parameters.size());
+		for (std::size_t i = 0; i < node.parameters.size(); ++i)
+		{
+			UInt32 resultId = EvaluateExpression(node.parameters[i]);
+			UInt32 varId = funcData.variables[funcCall.firstVarIndex + i].varId;
+			m_currentBlock->Append(SpirvOp::OpStore, varId, resultId);
+
+			parameterIds[i] = varId;
+		}
+
+		UInt32 resultId = AllocateResultId();
+		m_currentBlock->AppendVariadic(SpirvOp::OpFunctionCall, [&](auto&& appender)
+		{
+			appender(m_writer.GetTypeId(ShaderAst::GetExpressionType(node)));
+			appender(resultId);
+			appender(funcId);
+
+			for (std::size_t i = 0; i < node.parameters.size(); ++i)
+				appender(parameterIds[i]);
+		});
+
+		PushResultId(resultId);
+	}
+
 	void SpirvAstVisitor::Visit(ShaderAst::CastExpression& node)
 	{
 		const ShaderAst::ExpressionType& targetExprType = node.targetType;
@@ -561,9 +605,9 @@ namespace Nz
 	{
 		assert(node.funcIndex);
 		m_funcIndex = *node.funcIndex;
+		m_funcCallIndex = 0;
 
 		auto& func = m_funcData[m_funcIndex];
-		func.funcId = m_writer.AllocateResultId();
 
 		m_instructions.Append(SpirvOp::OpFunction, func.returnTypeId, func.funcId, 0, func.funcTypeId);
 
