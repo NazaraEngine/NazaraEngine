@@ -29,7 +29,7 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD5MeshLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			MD5MeshParser parser(stream);
 			return parser.Check();

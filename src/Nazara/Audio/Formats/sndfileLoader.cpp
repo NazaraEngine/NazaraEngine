@@ -245,10 +245,10 @@ namespace Nz
 			if (file)
 			{
 				sf_close(file);
-				return Ternary_True;
+				return Ternary::True;
 			}
 			else
-				return Ternary_False;
+				return Ternary::False;
 		}
 
 		SoundStreamRef LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
@@ -301,10 +301,10 @@ namespace Nz
 			if (file)
 			{
 				sf_close(file);
-				return Ternary_True;
+				return Ternary::True;
 			}
 			else
-				return Ternary_False;
+				return Ternary::False;
 		}
 
 		SoundBufferRef LoadSoundBuffer(Stream& stream, const SoundBufferParams& parameters)

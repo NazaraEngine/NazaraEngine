@@ -398,15 +398,15 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeFreeTypeLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			FreeTypeStream face;
 			face.SetStream(stream);
 
 			if (face.Check())
-				return Ternary_True;
+				return Ternary::True;
 			else
-				return Ternary_False;
+				return Ternary::False;
 		}
 
 		FontRef LoadFile(const std::filesystem::path& filePath, const FontParams& parameters)

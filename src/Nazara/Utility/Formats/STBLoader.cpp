@@ -46,13 +46,13 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeSTBLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			int width, height, bpp;
 			if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))
-				return Ternary_True;
+				return Ternary::True;
 			else
-				return Ternary_False;
+				return Ternary::False;
 		}
 
 		ImageRef Load(Stream& stream, const ImageParams& parameters)

@@ -19,19 +19,28 @@ namespace Nz
 	*/
 
 	/*!
+	* \brief Unregister every loader registered
+	*/
+	template<typename Type, typename Parameters>
+	void ResourceLoader<Type, Parameters>::Clear()
+	{
+		m_loaders.clear();
+	}
+
+	/*!
 	* \brief Checks whether the extension of the file is supported
 	* \return true if supported
 	*
-	* \param extension Extension of the file
+	* \param extension Extension of the file (ex: "png")
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const std::string& extension)
+	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const std::string_view& extension) const
 	{
-		for (Loader& loader : Type::s_loaders)
+		for (auto& loaderPtr : m_loaders)
 		{
-			ExtensionGetter isExtensionSupported = std::get<0>(loader);
+			const Entry& loader = *loaderPtr;
 
-			if (isExtensionSupported && isExtensionSupported(extension))
+			if (loader.extensionSupport && loader.extensionSupport(extension))
 				return true;
 		}
 
@@ -54,7 +63,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters)
+	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
@@ -71,17 +80,14 @@ namespace Nz
 		File file(filePath.generic_u8string()); // Open only if needed
 
 		bool found = false;
-		for (Loader& loader : Type::s_loaders)
+		for (auto& loaderPtr : m_loaders)
 		{
-			ExtensionGetter isExtensionSupported = std::get<0>(loader);
-			if (!isExtensionSupported || !isExtensionSupported(ext))
+			const Entry& loader = *loaderPtr;
+
+			if (loader.extensionSupport && !loader.extensionSupport(ext))
 				continue;
 
-			StreamChecker checkFunc = std::get<1>(loader);
-			StreamLoader streamLoader = std::get<2>(loader);
-			FileLoader fileLoader = std::get<3>(loader);
-
-			if (checkFunc && !file.IsOpen())
+			if (loader.streamChecker && !file.IsOpen())
 			{
 				if (!file.Open(OpenMode_ReadOnly))
 				{
@@ -90,26 +96,26 @@ namespace Nz
 				}
 			}
 
-			Ternary recognized = Ternary_Unknown;
-			if (fileLoader)
+			Ternary recognized = Ternary::Unknown;
+			if (loader.fileLoader)
 			{
-				if (checkFunc)
+				if (loader.streamChecker)
 				{
 					file.SetCursorPos(0);
 
-					recognized = checkFunc(file, parameters);
-					if (recognized == Ternary_False)
+					recognized = loader.streamChecker(file, parameters);
+					if (recognized == Ternary::False)
 						continue;
 					else
 						found = true;
 				}
 				else
 				{
-					recognized = Ternary_Unknown;
+					recognized = Ternary::Unknown;
 					found = true;
 				}
 
-				ObjectRef<Type> resource = fileLoader(filePath, parameters);
+				std::shared_ptr<Type> resource = loader.fileLoader(filePath, parameters);
 				if (resource)
 				{
 					resource->SetFilePath(filePath);
@@ -118,17 +124,19 @@ namespace Nz
 			}
 			else
 			{
+				assert(loader.streamChecker);
+
 				file.SetCursorPos(0);
 
-				recognized = checkFunc(file, parameters);
-				if (recognized == Ternary_False)
+				recognized = loader.streamChecker(file, parameters);
+				if (recognized == Ternary::False)
 					continue;
-				else if (recognized == Ternary_True)
+				else if (recognized == Ternary::True)
 					found = true;
 
 				file.SetCursorPos(0);
 
-				ObjectRef<Type> resource = streamLoader(file, parameters);
+				std::shared_ptr<Type> resource = loader.streamLoader(file, parameters);
 				if (resource)
 				{
 					resource->SetFilePath(filePath);
@@ -136,7 +144,7 @@ namespace Nz
 				}
 			}
 
-			if (recognized == Ternary_True)
+			if (recognized == Ternary::True)
 				NazaraWarning("Loader failed");
 		}
 
@@ -164,7 +172,7 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters)
+	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters) const
 	{
 		NazaraAssert(data, "Invalid data pointer");
 		NazaraAssert(size, "No data to load");
@@ -173,32 +181,30 @@ namespace Nz
 		MemoryView stream(data, size);
 
 		bool found = false;
-		for (Loader& loader : Type::s_loaders)
+		for (auto& loaderPtr : m_loaders)
 		{
-			StreamChecker checkFunc = std::get<1>(loader);
-			StreamLoader streamLoader = std::get<2>(loader);
-			MemoryLoader memoryLoader = std::get<4>(loader);
+			const Entry& loader = *loaderPtr;
 
-			Ternary recognized = Ternary_Unknown;
-			if (memoryLoader)
+			Ternary recognized = Ternary::Unknown;
+			if (loader.memoryLoader)
 			{
-				if (checkFunc)
+				if (loader.streamChecker)
 				{
 					stream.SetCursorPos(0);
 
-					recognized = checkFunc(stream, parameters);
-					if (recognized == Ternary_False)
+					recognized = loader.streamChecker(stream, parameters);
+					if (recognized == Ternary::False)
 						continue;
 					else
 						found = true;
 				}
 				else
 				{
-					recognized = Ternary_Unknown;
+					recognized = Ternary::Unknown;
 					found = true;
 				}
 
-				ObjectRef<Type> resource = memoryLoader(data, size, parameters);
+				std::shared_ptr<Type> resource = loader.memoryLoader(data, size, parameters);
 				if (resource)
 					return resource;
 			}
@@ -206,20 +212,20 @@ namespace Nz
 			{
 				stream.SetCursorPos(0);
 
-				recognized = checkFunc(stream, parameters);
-				if (recognized == Ternary_False)
+				recognized = loader.streamChecker(stream, parameters);
+				if (recognized == Ternary::False)
 					continue;
-				else if (recognized == Ternary_True)
+				else if (recognized == Ternary::True)
 					found = true;
 
 				stream.SetCursorPos(0);
 
-				ObjectRef<Type> resource = streamLoader(stream, parameters);
+				std::shared_ptr<Type> resource = loader.streamLoader(stream, parameters);
 				if (resource)
 					return resource;
 			}
 
-			if (recognized == Ternary_True)
+			if (recognized == Ternary::True)
 				NazaraWarning("Loader failed");
 		}
 
@@ -246,36 +252,35 @@ namespace Nz
 	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
-	ObjectRef<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters)
+	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters) const
 	{
 		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
-		for (Loader& loader : Type::s_loaders)
+		for (auto& loaderPtr : m_loaders)
 		{
-			StreamChecker checkFunc = std::get<1>(loader);
-			StreamLoader streamLoader = std::get<2>(loader);
+			const Entry& loader = *loaderPtr;
 
 			stream.SetCursorPos(streamPos);
 
 			// Does the loader support these data ?
-			Ternary recognized = checkFunc(stream, parameters);
-			if (recognized == Ternary_False)
+			Ternary recognized = loader.streamChecker(stream, parameters);
+			if (recognized == Ternary::False)
 				continue;
-			else if (recognized == Ternary_True)
+			else if (recognized == Ternary::True)
 				found = true;
 
 			// We move the stream to its old position
 			stream.SetCursorPos(streamPos);
 
 			// Load of the resource
-			ObjectRef<Type> resource = streamLoader(stream, parameters);
+			std::shared_ptr<Type> resource = loader.streamLoader(stream, parameters);
 			if (resource)
 				return resource;
 
-			if (recognized == Ternary_True)
+			if (recognized == Ternary::True)
 				NazaraWarning("Loader failed");
 		}
 
@@ -289,35 +294,35 @@ namespace Nz
 
 	/*!
 	* \brief Registers the loader
+	* \return A pointer to the registered Load which can be unsed to unregister it later
 	*
-	* \param extensionGetter A function to test whether the extension (as a string) is supported by this loader
-	* \param checkFunc A function to check the stream with the parser
-	* \param streamLoader A function to load the data from a stream in the resource
-	* \param fileLoader Optional function to load the data from a file in the resource
-	* \param memoryLoader Optional function to load the data from a raw memory in the resource
+	* \param loader A collection of loader callbacks that will be registered
+	*
+	* \seealso UnregisterLoader
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceLoader<Type, Parameters>::RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
+	auto ResourceLoader<Type, Parameters>::RegisterLoader(Entry loader) -> const Entry*
 	{
-		NazaraAssert(checkFunc || !streamLoader, "StreamLoader present without StreamChecker");
-		NazaraAssert(fileLoader || memoryLoader || streamLoader, "A loader function is mandatory");
+		NazaraAssert(loader.streamChecker || !loader.streamLoader, "StreamLoader present without StreamChecker");
+		NazaraAssert(loader.fileLoader || loader.memoryLoader || loader.streamLoader, "A loader function is mandatory");
 
-		Type::s_loaders.push_front(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader, memoryLoader));
+		auto it = m_loaders.emplace(m_loaders.begin(), std::make_unique<Entry>(std::move(loader)));
+		return it->get();
 	}
 
 	/*!
 	* \brief Unregisters the loader
 	*
-	* \param extensionGetter A function to test whether the extension (as a string) is supported by this loader
-	* \param checkFunc A function to check the stream with the parser
-	* \param streamLoader A function to load the data from a stream in the resource
-	* \param fileLoader Optional function to load the data from a file in the resource
-	* \param memoryLoader Optional function to load the data from a raw memory in the resource
+	* \param loader A pointer to a loader returned by RegisterLoad
+	*
+	* \seealso RegisterLoader
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceLoader<Type, Parameters>::UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader, MemoryLoader memoryLoader)
+	void ResourceLoader<Type, Parameters>::UnregisterLoader(const Entry* loader)
 	{
-		Type::s_loaders.remove(std::make_tuple(extensionGetter, checkFunc, streamLoader, fileLoader, memoryLoader));
+		auto it = std::find_if(m_loaders.begin(), m_loaders.end(), [&](const std::unique_ptr<Entry>& loaderPtr) { return loaderPtr.get() == loader; });
+		if (it != m_loaders.end())
+			m_loaders.erase(it);
 	}
 }
 
