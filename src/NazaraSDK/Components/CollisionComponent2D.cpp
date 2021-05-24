@@ -53,7 +53,7 @@ namespace Ndk
 	*
 	* \param geom Geometry used for collisions
 	*/
-	void CollisionComponent2D::SetGeom(Nz::Collider2DRef geom, bool recomputeMoment, bool recomputeMassCenter)
+	void CollisionComponent2D::SetGeom(std::shared_ptr<Nz::Collider2D> geom, bool recomputeMoment, bool recomputeMassCenter)
 	{
 		m_geom = std::move(geom);
 

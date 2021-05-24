@@ -33,7 +33,7 @@ namespace Ndk
 
 		Nz::Vector2f positionOffset;
 
-		Nz::Collider2DRef geom;
+		std::shared_ptr<Nz::Collider2D> geom;
 		if (m_entity->HasComponent<CollisionComponent2D>())
 		{
 			const CollisionComponent2D& entityCollision = m_entity->GetComponent<CollisionComponent2D>();
@@ -94,7 +94,7 @@ namespace Ndk
 		if (IsComponent<CollisionComponent2D>(component))
 		{
 			NazaraAssert(m_object, "Invalid object");
-			m_object->SetGeom(Nz::NullCollider2D::New(), false, false);
+			m_object->SetGeom(std::make_shared<Nz::NullCollider2D>(), false, false);
 		}
 	}
 

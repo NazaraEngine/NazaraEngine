@@ -30,7 +30,7 @@ namespace Nz
 			using VelocityFunc = std::function<void(RigidBody2D& body2D, const Nz::Vector2f& gravity, float damping, float deltaTime)>;
 
 			RigidBody2D(PhysWorld2D* world, float mass);
-			RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom);
+			RigidBody2D(PhysWorld2D* world, float mass, std::shared_ptr<Collider2D> geom);
 			RigidBody2D(const RigidBody2D& object);
 			RigidBody2D(RigidBody2D&& object) noexcept;
 			~RigidBody2D();
@@ -55,7 +55,7 @@ namespace Nz
 			inline Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys_Local) const;
 			float GetElasticity(std::size_t shapeIndex = 0) const;
 			float GetFriction(std::size_t shapeIndex = 0) const;
-			const Collider2DRef& GetGeom() const;
+			const std::shared_ptr<Collider2D>& GetGeom() const;
 			cpBody* GetHandle() const;
 			float GetMass() const;
 			Vector2f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
@@ -84,7 +84,7 @@ namespace Nz
 			void SetElasticity(std::size_t shapeIndex, float elasticity);
 			void SetFriction(float friction);
 			void SetFriction(std::size_t shapeIndex, float friction);
-			void SetGeom(Collider2DRef geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
+			void SetGeom(std::shared_ptr<Collider2D> geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
 			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys_Local);
 			void SetMomentOfInertia(float moment);
@@ -122,7 +122,7 @@ namespace Nz
 			Vector2f m_positionOffset;
 			VelocityFunc m_velocityFunc;
 			std::vector<cpShape*> m_shapes;
-			Collider2DRef m_geom;
+			std::shared_ptr<Collider2D> m_geom;
 			cpBody* m_handle;
 			void* m_userData;
 			PhysWorld2D* m_world;

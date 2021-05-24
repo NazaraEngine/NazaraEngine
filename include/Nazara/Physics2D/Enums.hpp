@@ -9,16 +9,16 @@
 
 namespace Nz
 {
-	enum ColliderType2D
+	enum class ColliderType2D
 	{
-		ColliderType2D_Box,
-		ColliderType2D_Compound,
-		ColliderType2D_Convex,
-		ColliderType2D_Circle,
-		ColliderType2D_Null,
-		ColliderType2D_Segment,
+		Box,
+		Compound,
+		Convex,
+		Circle,
+		Null,
+		Segment,
 
-		ColliderType2D_Max = ColliderType2D_Segment
+		Max = Segment
 	};
 }
 
