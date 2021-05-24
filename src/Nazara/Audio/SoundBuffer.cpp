@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
@@ -130,7 +131,7 @@ namespace Nz
 
 		CallOnExit clearBufferOnExit([buffer] () { alDeleteBuffers(1, &buffer); });
 
-		alBufferData(buffer, OpenAL::AudioFormat[format], samples, static_cast<ALsizei>(sampleCount*sizeof(Int16)), static_cast<ALsizei>(sampleRate));
+		alBufferData(buffer, OpenAL::AudioFormat[UnderlyingCast(format)], samples, static_cast<ALsizei>(sampleCount*sizeof(Int16)), static_cast<ALsizei>(sampleRate));
 
 		if (alGetError() != AL_NO_ERROR)
 		{
@@ -140,7 +141,7 @@ namespace Nz
 
 		m_impl = std::make_unique<SoundBufferImpl>();
 		m_impl->buffer = buffer;
-		m_impl->duration = static_cast<UInt32>((1000ULL*sampleCount / (format * sampleRate)));
+		m_impl->duration = static_cast<UInt32>((1000ULL*sampleCount / (GetChannelCount(format) * sampleRate)));
 		m_impl->format = format;
 		m_impl->sampleCount = sampleCount;
 		m_impl->sampleRate = sampleRate;

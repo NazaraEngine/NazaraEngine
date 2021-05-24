@@ -80,7 +80,7 @@ namespace Nz
 
 			static void Uninitialize();
 
-			static ALenum AudioFormat[AudioFormat_Max + 1];
+			static ALenum AudioFormat[AudioFormatCount];
 
 		private:
 			static void CloseDevice();

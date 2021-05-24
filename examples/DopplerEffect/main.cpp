@@ -61,7 +61,7 @@ int main()
 
 	// La boucle du programme (Pour déplacer le son)
 	Nz::Clock clock;
-	while (sound.GetStatus() == Nz::SoundStatus_Playing)
+	while (sound.GetStatus() == Nz::SoundStatus::Playing)
 	{
 		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
 		int sleepTime = int(1000/60 - clock.GetMilliseconds()); // 60 FPS

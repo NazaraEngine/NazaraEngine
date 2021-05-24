@@ -20,12 +20,12 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 			{
 				CHECK(music.GetDuration() <= 64000); // 1 min 03 = 63s = 63000ms
 				CHECK(music.GetDuration() >= 63000);
-				CHECK(music.GetFormat() == Nz::AudioFormat_Stereo);
+				CHECK(music.GetFormat() == Nz::AudioFormat::U16_Stereo);
 				CHECK(music.GetPlayingOffset() == 0);
 				CHECK(music.GetSampleCount() <= 5644800); // 64s * 44100 Hz * 2 (stereo)
 				CHECK(music.GetSampleCount() >= 5556600); // 63s * 44100 Hz * 2 (stereo)
 				CHECK(music.GetSampleRate() == 44100 /* Hz */);
-				CHECK(music.GetStatus() == Nz::SoundStatus_Stopped);
+				CHECK(music.GetStatus() == Nz::SoundStatus::Stopped);
 				CHECK(music.IsLooping() == false);
 			}
 
@@ -39,7 +39,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				REQUIRE(music.GetPlayingOffset() <= 1300);
 				music.Pause();
-				REQUIRE(music.GetStatus() == Nz::SoundStatus_Paused);
+				REQUIRE(music.GetStatus() == Nz::SoundStatus::Paused);
 
 				music.SetPlayingOffset(3500);
 				REQUIRE(music.GetPlayingOffset() >= 3500);

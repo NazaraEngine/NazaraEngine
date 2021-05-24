@@ -20,7 +20,7 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 			{
 				REQUIRE(sound.GetDuration() <= 8500); // 8s = 8000ms
 				REQUIRE(sound.GetDuration() >= 8000);
-				REQUIRE(sound.GetStatus() == Nz::SoundStatus_Stopped);
+				REQUIRE(sound.GetStatus() == Nz::SoundStatus::Stopped);
 				REQUIRE(sound.IsLooping() == false);
 			}
 
@@ -34,7 +34,7 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				REQUIRE(sound.GetPlayingOffset() <= 1300);
 				sound.Pause();
-				REQUIRE(sound.GetStatus() == Nz::SoundStatus_Paused);
+				REQUIRE(sound.GetStatus() == Nz::SoundStatus::Paused);
 
 				sound.SetPlayingOffset(3500);
 				REQUIRE(sound.GetPlayingOffset() >= 3500);
