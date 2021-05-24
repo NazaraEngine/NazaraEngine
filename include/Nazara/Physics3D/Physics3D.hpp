@@ -23,7 +23,7 @@ namespace Nz
 			struct Config {};
 
 			Physics3D(Config /*config*/);
-			~Physics3D();
+			~Physics3D() = default;
 
 			unsigned int GetMemoryUsed();
 

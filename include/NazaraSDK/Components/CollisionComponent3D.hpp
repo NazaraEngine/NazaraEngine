@@ -23,15 +23,15 @@ namespace Ndk
 		friend class PhysicsSystem3D;
 
 		public:
-			CollisionComponent3D(Nz::Collider3DRef geom = Nz::Collider3DRef());
+			CollisionComponent3D(std::shared_ptr<Nz::Collider3D> geom = std::shared_ptr<Nz::Collider3D>());
 			CollisionComponent3D(const CollisionComponent3D& collision);
 			~CollisionComponent3D() = default;
 
-			const Nz::Collider3DRef& GetGeom() const;
+			const std::shared_ptr<Nz::Collider3D>& GetGeom() const;
 
-			void SetGeom(Nz::Collider3DRef geom);
+			void SetGeom(std::shared_ptr<Nz::Collider3D> geom);
 
-			CollisionComponent3D& operator=(Nz::Collider3DRef geom);
+			CollisionComponent3D& operator=(std::shared_ptr<Nz::Collider3D> geom);
 			CollisionComponent3D& operator=(CollisionComponent3D&& collision) = delete;
 
 			static ComponentIndex componentIndex;
@@ -48,7 +48,7 @@ namespace Ndk
 			void OnEntityEnabled() override;
 
 			std::unique_ptr<Nz::RigidBody3D> m_staticBody;
-			Nz::Collider3DRef m_geom;
+			std::shared_ptr<Nz::Collider3D> m_geom;
 			bool m_bodyUpdated;
 	};
 }

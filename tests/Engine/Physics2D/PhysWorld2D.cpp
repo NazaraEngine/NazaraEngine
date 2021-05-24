@@ -109,19 +109,19 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 		Nz::PhysWorld2D world;
 
 		Nz::Rectf characterAABB(0.f, 0.f, 1.f, 1.f);
-		Nz::Collider2DRef characterBox = Nz::BoxCollider2D::New(characterAABB);
+		std::shared_ptr<Nz::Collider2D> characterBox = std::make_shared<Nz::BoxCollider2D>(characterAABB);
 		characterBox->SetCollisionId(CHARACTER_COLLISION_ID);
 		Nz::RigidBody2D character(&world, 1.f, characterBox);
 		character.SetPosition(Nz::Vector2f::Zero());
 
 		Nz::Rectf wallAABB(0.f, 0.f, 1.f, 2.f);
-		Nz::Collider2DRef wallBox = Nz::BoxCollider2D::New(wallAABB);
+		std::shared_ptr<Nz::Collider2D> wallBox = std::make_shared<Nz::BoxCollider2D>(wallAABB);
 		wallBox->SetCollisionId(WALL_COLLISION_ID);
 		Nz::RigidBody2D wall(&world, 0.f, wallBox);
 		wall.SetPosition(Nz::Vector2f(5.f, 0.f));
 
 		Nz::Rectf triggerAABB(0.f, 0.f, 1.f, 1.f);
-		Nz::Collider2DRef triggerBox = Nz::BoxCollider2D::New(triggerAABB);
+		std::shared_ptr<Nz::Collider2D> triggerBox = std::make_shared<Nz::BoxCollider2D>(triggerAABB);
 		triggerBox->SetTrigger(true);
 		triggerBox->SetCollisionId(TRIGGER_COLLISION_ID);
 		Nz::RigidBody2D trigger(&world, 0.f, triggerBox);
@@ -192,7 +192,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world, const Nz::Vector2f& position, bool isMoving, const Nz::Vector2f& lengths)
 {
 	Nz::Rectf aabb(0.f, 0.f, lengths.x, lengths.y);
-	Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
+	std::shared_ptr<Nz::Collider2D> box = std::make_shared<Nz::BoxCollider2D>(aabb);
 	box->SetCategoryMask(categoryMask);
 	box->SetCollisionMask(collisionMask);
 	float mass = isMoving ? 1.f : 0.f;
