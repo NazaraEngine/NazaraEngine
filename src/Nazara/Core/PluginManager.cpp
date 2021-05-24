@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/PluginManager.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <memory>
@@ -15,9 +16,9 @@ namespace Nz
 		using PluginLoad = int (*)();
 		using PluginUnload = void (*)();
 
-		std::filesystem::path s_pluginFiles[] =
+		const char* s_pluginFiles[] =
 		{
-			"PluginAssimp",  // Plugin_Assimp
+			"PluginAssimp",  // Plugin::Assimp
 		};
 	}
 
@@ -77,7 +78,7 @@ namespace Nz
 
 	bool PluginManager::Mount(Plugin plugin)
 	{
-		std::filesystem::path pluginName = s_pluginFiles[plugin];
+		std::filesystem::path pluginName = s_pluginFiles[UnderlyingCast(plugin)];
 
 		#ifdef NAZARA_DEBUG
 		std::filesystem::path debugPath = pluginName;
@@ -195,7 +196,7 @@ namespace Nz
 
 	void PluginManager::Unmount(Plugin plugin)
 	{
-		Unmount(s_pluginFiles[plugin]);
+		Unmount(s_pluginFiles[UnderlyingCast(plugin)]);
 	}
 
 	/*!

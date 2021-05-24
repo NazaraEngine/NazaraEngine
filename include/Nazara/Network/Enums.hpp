@@ -11,123 +11,114 @@
 
 namespace Nz
 {
-	enum NetCode : UInt16
+	enum class NetProtocol
 	{
-		NetCode_Acknowledge           = 0x9A4E,
-		NetCode_AcknowledgeConnection = 0xC108,
-		NetCode_Ping                  = 0x96AC,
-		NetCode_Pong                  = 0x974C,
-		NetCode_RequestConnection     = 0xF27D,
+		Any,
+		IPv4,
+		IPv6,
+		Unknown,
 
-		NetCode_Invalid = 0x0000
+		Max = Unknown
 	};
 
-	enum NetProtocol
-	{
-		NetProtocol_Any,
-		NetProtocol_IPv4,
-		NetProtocol_IPv6,
-		NetProtocol_Unknown,
+	constexpr std::size_t NetProtocolCount = static_cast<std::size_t>(NetProtocol::Max) + 1;
 
-		NetProtocol_Max = NetProtocol_Unknown
+	enum class PacketReliability
+	{
+		Reliable,        //< Packet will be resent if lost
+		ReliableOrdered, //< Packet will be resent if lost and will only arrive in order
+		Unreliable,      //< Packet won't be resent if lost
+
+		Max = Unreliable
 	};
 
-	enum PacketPriority
-	{
-		PacketPriority_High      = 1, //< High-priority packet, will be sent quickly
-		PacketPriority_Immediate = 0, //< Immediate priority, will be sent immediately
-		PacketPriority_Medium    = 2, //< Medium-priority packet, will be sent as regular
-		PacketPriority_Low       = 3, //< Low-priority packet, may take some time to be sent
+	constexpr std::size_t PacketReliabilityCount = static_cast<std::size_t>(PacketReliability::Max) + 1;
 
-		PacketPriority_Lowest  = PacketPriority_Low,
-		PacketPriority_Highest = PacketPriority_Immediate,
-		PacketPriority_Max     = PacketPriority_Low
+	enum class ResolveError
+	{
+		NoError,
+
+		Internal,             //< An internal error occurred
+		ResourceError,        //< The operating system lacks the resources to proceed (insufficient memory)
+		NonRecoverable,       //< An nonrecoverable error occurred
+		NotFound,             //< No such host is known
+		NotInitialized,       //< Nazara network has not been initialized
+		ProtocolNotSupported, //< A specified protocol is not supported by the server
+		TemporaryFailure,     //< A temporary failure occurred, try again
+		Unknown,              //< The last operation failed with an unlisted error code
+
+		Max = Unknown
 	};
 
-	enum PacketReliability
-	{
-		PacketReliability_Reliable,        //< Packet will be resent if lost
-		PacketReliability_ReliableOrdered, //< Packet will be resent if lost and will only arrive in order
-		PacketReliability_Unreliable,      //< Packet won't be resent if lost
+	constexpr std::size_t ResolveErrorCount = static_cast<std::size_t>(ResolveError::Max) + 1;
 
-		PacketReliability_Max = PacketReliability_Unreliable
+	enum class SocketError
+	{
+		NoError,
+
+		AddressNotAvailable, //< The address is already in use (when binding/listening)
+		ConnectionClosed,    //< The connection has been closed
+		ConnectionRefused,   //< The connection attempt was refused
+		DatagramSize,        //< The datagram size is over the system limit
+		Internal,            //< The error is coming from the engine
+		Interrupted,         //< The operation was interrupted by a signal
+		Packet,              //< The packet encoding/decoding failed, probably because of corrupted data
+		NetworkError,        //< The network system has failed (maybe network is down)
+		NotInitialized,      //< Nazara network has not been initialized
+		NotSupported,        //< The operation is not supported (e.g. creating a bluetooth socket on a system without any bluetooth adapter)
+		ResolveError,        //< The hostname couldn't be resolved (more information in ResolveError code)
+		ResourceError,       //< The operating system lacks the resources to proceed (e.g. memory/socket descriptor)
+		TimedOut,            //< The operation timed out
+		Unknown,             //< The last operation failed with an unlisted error code
+		UnreachableHost,     //< The host is not reachable
+
+		Max = UnreachableHost
 	};
 
-	enum ResolveError
+	constexpr std::size_t SocketErrorCount = static_cast<std::size_t>(SocketError::Max) + 1;
+
+	enum class SocketPollEvent
 	{
-		ResolveError_NoError,
+		Read,  //< One or more sockets is ready for a read operation
+		Write, //< One or more sockets is ready for a write operation
 
-		ResolveError_Internal,             //< An internal error occurred
-		ResolveError_ResourceError,        //< The operating system lacks the resources to proceed (insufficient memory)
-		ResolveError_NonRecoverable,       //< An nonrecoverable error occurred
-		ResolveError_NotFound,             //< No such host is known
-		ResolveError_NotInitialized,       //< Nazara network has not been initialized
-		ResolveError_ProtocolNotSupported, //< A specified protocol is not supported by the server
-		ResolveError_TemporaryFailure,     //< A temporary failure occurred, try again
-		ResolveError_Unknown,              //< The last operation failed with an unlisted error code
-
-		ResolveError_Max = ResolveError_Unknown
+		Max = Write
 	};
 
-	enum SocketError
-	{
-		SocketError_NoError,
-
-		SocketError_AddressNotAvailable, //< The address is already in use (when binding/listening)
-		SocketError_ConnectionClosed,    //< The connection has been closed
-		SocketError_ConnectionRefused,   //< The connection attempt was refused
-		SocketError_DatagramSize,        //< The datagram size is over the system limit
-		SocketError_Internal,            //< The error is coming from the engine
-		SocketError_Interrupted,         //< The operation was interrupted by a signal
-		SocketError_Packet,              //< The packet encoding/decoding failed, probably because of corrupted data
-		SocketError_NetworkError,        //< The network system has failed (maybe network is down)
-		SocketError_NotInitialized,      //< Nazara network has not been initialized
-		SocketError_NotSupported,        //< The operation is not supported (e.g. creating a bluetooth socket on a system without any bluetooth adapter)
-		SocketError_ResolveError,        //< The hostname couldn't be resolved (more information in ResolveError code)
-		SocketError_ResourceError,       //< The operating system lacks the resources to proceed (e.g. memory/socket descriptor)
-		SocketError_TimedOut,            //< The operation timed out
-		SocketError_Unknown,             //< The last operation failed with an unlisted error code
-		SocketError_UnreachableHost,     //< The host is not reachable
-
-		SocketError_Max = SocketError_UnreachableHost
-	};
-
-	enum SocketPollEvent
-	{
-		SocketPollEvent_Read,  //< One or more sockets is ready for a read operation
-		SocketPollEvent_Write, //< One or more sockets is ready for a write operation
-
-		SocketPollEvent_Max = SocketPollEvent_Write
-	};
+	constexpr std::size_t SocketPollEventCount = static_cast<std::size_t>(SocketPollEvent::Max) + 1;
 
 	template<>
 	struct EnumAsFlags<SocketPollEvent>
 	{
-		static constexpr SocketPollEvent max = SocketPollEvent_Max;
+		static constexpr SocketPollEvent max = SocketPollEvent::Max;
 	};
 
 	using SocketPollEventFlags = Flags<SocketPollEvent>;
 
-	enum SocketState
+	enum class SocketState
 	{
-		SocketState_Bound,        //< The socket is currently bound
-		SocketState_Connecting,   //< The socket is currently connecting
-		SocketState_Connected,    //< The socket is currently connected
-		SocketState_NotConnected, //< The socket is not connected (or has been disconnected)
-		SocketState_Resolving,    //< The socket is currently resolving a host name
+		Bound,        //< The socket is currently bound
+		Connecting,   //< The socket is currently connecting
+		Connected,    //< The socket is currently connected
+		NotConnected, //< The socket is not connected (or has been disconnected)
+		Resolving,    //< The socket is currently resolving a host name
 
-		SocketState_Max = SocketState_Resolving
+		Max = Resolving
 	};
 
-	enum SocketType
-	{
-		SocketType_Raw,
-		SocketType_TCP,
-		SocketType_UDP,
-		SocketType_Unknown,
+	constexpr std::size_t SocketStateCount = static_cast<std::size_t>(SocketState::Max) + 1;
 
-		SocketType_Max = SocketType_Unknown
+	enum class SocketType
+	{
+		Raw,
+		TCP,
+		UDP,
+		Unknown,
+
+		Max = Unknown
 	};
+
+	constexpr std::size_t SocketTypeCount = static_cast<std::size_t>(SocketType::Max) + 1;
 }
 
 #endif // NAZARA_ENUMS_NETWORK_HPP

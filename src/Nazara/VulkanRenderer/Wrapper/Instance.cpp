@@ -109,7 +109,7 @@ namespace Nz
 			// And now load everything
 			try
 			{
-				ErrorFlags flags(ErrorFlag_ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException, true);
 
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext) if (IsExtensionLoaded(#ext)) {
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_END() }

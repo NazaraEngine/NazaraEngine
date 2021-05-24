@@ -12,7 +12,7 @@ namespace Nz
 
 	Icon::Icon(const Image& icon)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(icon);
 	}
 

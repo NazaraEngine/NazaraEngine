@@ -99,7 +99,7 @@ namespace Nz
 			#define NAZARA_VULKANRENDERER_LOAD_GLOBAL(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func))
 			try
 			{
-				ErrorFlags flags(ErrorFlag_ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException, true);
 
 #define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, false));
 #define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, true));

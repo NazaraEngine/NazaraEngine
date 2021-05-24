@@ -1016,7 +1016,7 @@ namespace Nz::ShaderLang
 	ShaderAst::StatementPtr Parse(const std::filesystem::path& sourcePath)
 	{
 		File file(sourcePath);
-		if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
+		if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
 		{
 			NazaraError("Failed to open \"" + sourcePath.generic_u8string() + '"');
 			return {};

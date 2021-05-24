@@ -51,7 +51,7 @@ namespace Nz::GL
 		return CreateInternal(configs[configIndex], shareContext);
 	}
 
-	bool EGLContextBase::Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext)
+	bool EGLContextBase::Create(const ContextParams& /*params*/, WindowHandle /*window*/, const EGLContextBase* /*shareContext*/)
 	{
 		NazaraError("Unexpected context creation call");
 		return false;
@@ -140,7 +140,7 @@ namespace Nz::GL
 		};
 
 		EGLint numConfig = 0;
-		if (m_loader.eglChooseConfig(m_display, configAttributes, configs, maxConfigCount, &numConfig) != GL_TRUE)
+		if (m_loader.eglChooseConfig(m_display, configAttributes, configs, EGLint(maxConfigCount), &numConfig) != GL_TRUE)
 		{
 			NazaraError(std::string("failed to retrieve compatible EGL configurations: ") + EGLLoader::TranslateError(m_loader.eglGetError()));
 			return false;

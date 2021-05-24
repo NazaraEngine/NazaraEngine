@@ -69,8 +69,8 @@ namespace Ndk
 				auto& node = entity->GetComponent<NodeComponent>();
 
 				Nz::RigidBody3D* physObj = collision.GetStaticBody();
-				physObj->SetPosition(node.GetPosition(Nz::CoordSys_Global));
-				physObj->SetRotation(node.GetRotation(Nz::CoordSys_Global));
+				physObj->SetPosition(node.GetPosition(Nz::CoordSys::Global));
+				physObj->SetRotation(node.GetRotation(Nz::CoordSys::Global));
 			}
 		}
 
@@ -97,8 +97,8 @@ namespace Ndk
 			PhysicsComponent3D& phys = entity->GetComponent<PhysicsComponent3D>();
 
 			Nz::RigidBody3D* physObj = phys.GetRigidBody();
-			node.SetRotation(physObj->GetRotation(), Nz::CoordSys_Global);
-			node.SetPosition(physObj->GetPosition(), Nz::CoordSys_Global);
+			node.SetRotation(physObj->GetRotation(), Nz::CoordSys::Global);
+			node.SetPosition(physObj->GetPosition(), Nz::CoordSys::Global);
 		}
 
 		float invElapsedTime = 1.f / elapsedTime;
@@ -111,8 +111,8 @@ namespace Ndk
 
 			Nz::Quaternionf oldRotation = physObj->GetRotation();
 			Nz::Vector3f oldPosition = physObj->GetPosition();
-			Nz::Quaternionf newRotation = node.GetRotation(Nz::CoordSys_Global);
-			Nz::Vector3f newPosition = node.GetPosition(Nz::CoordSys_Global);
+			Nz::Quaternionf newRotation = node.GetRotation(Nz::CoordSys::Global);
+			Nz::Vector3f newPosition = node.GetPosition(Nz::CoordSys::Global);
 
 			// To move static objects and ensure their collisions, we have to specify them a velocity
 			// (/!\: the physical motor does not apply the speed on static objects)

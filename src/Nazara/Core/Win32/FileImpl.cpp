@@ -63,30 +63,30 @@ namespace Nz
 		DWORD shareMode = FILE_SHARE_READ;
 		DWORD openMode = 0;
 
-		if (mode & OpenMode_ReadOnly)
+		if (mode & OpenMode::ReadOnly)
 		{
 			access |= GENERIC_READ;
 
-			if (mode & OpenMode_MustExist || (mode & OpenMode_WriteOnly) == 0)
+			if (mode & OpenMode::MustExist || (mode & OpenMode::WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
 
-		if (mode & OpenMode_WriteOnly)
+		if (mode & OpenMode::WriteOnly)
 		{
-			if (mode & OpenMode_Append)
+			if (mode & OpenMode::Append)
 				access |= FILE_APPEND_DATA;
 			else
 				access |= GENERIC_WRITE;
 
-			if (mode & OpenMode_Truncate)
+			if (mode & OpenMode::Truncate)
 				openMode |= CREATE_ALWAYS;
-			else if (mode & OpenMode_MustExist)
+			else if (mode & OpenMode::MustExist)
 				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
 		}
 
-		if ((mode & OpenMode_Lock) == 0)
+		if ((mode & OpenMode::Lock) == 0)
 			shareMode |= FILE_SHARE_WRITE;
 
 		m_handle = CreateFileW(ToWideString(filePath.generic_u8string()).data(), access, shareMode, nullptr, openMode, 0, nullptr);
@@ -136,20 +136,20 @@ namespace Nz
 		DWORD moveMethod;
 		switch (pos)
 		{
-			case CursorPosition_AtBegin:
+			case CursorPosition::AtBegin:
 				moveMethod = FILE_BEGIN;
 				break;
 
-			case CursorPosition_AtCurrent:
+			case CursorPosition::AtCurrent:
 				moveMethod = FILE_CURRENT;
 				break;
 
-			case CursorPosition_AtEnd:
+			case CursorPosition::AtEnd:
 				moveMethod = FILE_END;
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled (0x" + NumberToString(pos, 16) + ')');
+				NazaraInternalError("Cursor position not handled (0x" + NumberToString(UnderlyingCast(pos), 16) + ')');
 				return false;
 		}
 
@@ -167,11 +167,11 @@ namespace Nz
 
 		CallOnExit resetCursor([this, cursorPos] ()
 		{
-			if (!SetCursorPos(CursorPosition_AtBegin, cursorPos))
+			if (!SetCursorPos(CursorPosition::AtBegin, cursorPos))
 				NazaraWarning("Failed to reset cursor position to previous position: " + Error::GetLastSystemError());
 		});
 
-		if (!SetCursorPos(CursorPosition_AtBegin, size))
+		if (!SetCursorPos(CursorPosition::AtBegin, size))
 		{
 			NazaraError("Failed to set file size: failed to move cursor position: " + Error::GetLastSystemError());
 			return false;

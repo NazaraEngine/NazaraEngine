@@ -37,7 +37,7 @@ namespace Nz
 	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components) :
 	m_inputRate(inputRate)
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException);
+		ErrorFlags errFlags(ErrorMode::ThrowException);
 		std::size_t offset = 0;
 
 		m_components.reserve(components.size());
@@ -99,7 +99,7 @@ namespace Nz
 	{
 		try
 		{
-			ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowException);
+			ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowException);
 
 			auto NewDeclaration = [](VertexInputRate inputRate, std::initializer_list<ComponentEntry> components)
 			{

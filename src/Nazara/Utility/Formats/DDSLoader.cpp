@@ -30,7 +30,7 @@ namespace Nz
 					return Ternary::False;
 
 				ByteStream byteStream(&stream);
-				byteStream.SetDataEndianness(Endianness_LittleEndian);
+				byteStream.SetDataEndianness(Endianness::LittleEndian);
 
 				UInt32 magic;
 				byteStream >> magic;
@@ -43,7 +43,7 @@ namespace Nz
 				NazaraUnused(parameters);
 
 				ByteStream byteStream(&stream);
-				byteStream.SetDataEndianness(Endianness_LittleEndian);
+				byteStream.SetDataEndianness(Endianness::LittleEndian);
 
 				UInt32 magic;
 				byteStream >> magic;

@@ -9,7 +9,7 @@ SCENARIO("AbstractHash", "[CORE][ABSTRACTHASH]")
 {
 	GIVEN("The hash SHA512")
 	{
-		std::unique_ptr<Nz::AbstractHash> SHA512 = Nz::AbstractHash::Get(Nz::HashType_SHA512);
+		std::unique_ptr<Nz::AbstractHash> SHA512 = Nz::AbstractHash::Get(Nz::HashType::SHA512);
 		SHA512->Begin();
 
 		WHEN("We introduce data")

@@ -67,7 +67,7 @@ SCENARIO("File", "[CORE][FILE]")
 	{
 		REQUIRE(std::filesystem::exists(GetResourceDir() / "Engine/Core/FileTest.txt"));
 
-		Nz::File fileTest(GetResourceDir() / "Engine/Core/FileTest.txt", Nz::OpenMode_ReadOnly | Nz::OpenMode_Text);
+		Nz::File fileTest(GetResourceDir() / "Engine/Core/FileTest.txt", Nz::OpenMode::ReadOnly | Nz::OpenMode::Text);
 
 		WHEN("We read the first line of the file")
 		{

@@ -198,7 +198,7 @@ namespace Nz
 
 		if (SDL_GetWindowWMInfo(m_handle, &wmInfo) != SDL_TRUE)
 		{
-			ErrorFlags flags(ErrorFlag_ThrowException, true);
+			ErrorFlags flags(ErrorMode::ThrowException, true);
 			NazaraError(std::string("failed to retrieve window manager info: ") + SDL_GetError());
 		}
 
@@ -235,7 +235,7 @@ namespace Nz
 #endif
 			default:
 			{
-				ErrorFlags flags(ErrorFlag_ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException, true);
 				NazaraError("unhandled window subsystem");
 			}
 		}

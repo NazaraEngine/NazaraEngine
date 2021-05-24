@@ -12,7 +12,7 @@ namespace Nz
 {
 	IconImpl::IconImpl(const Image& icon)
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException);
+		ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		m_iconImage = icon;
 		if (!m_iconImage.Convert(PixelFormat::BGRA8))

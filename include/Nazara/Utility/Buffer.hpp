@@ -13,6 +13,7 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <array>
 #include <functional>
+#include <memory>
 
 namespace Nz
 {

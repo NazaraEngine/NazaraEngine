@@ -16,21 +16,21 @@ namespace Nz
 		{
 			switch (primitive.type)
 			{
-				case PrimitiveType_Box:
+				case PrimitiveType::Box:
 					return std::make_shared<BoxCollider3D>(primitive.box.lengths, primitive.matrix);
 
-				case PrimitiveType_Cone:
+				case PrimitiveType::Cone:
 					return std::make_shared<ConeCollider3D>(primitive.cone.length, primitive.cone.radius, primitive.matrix);
 
-				case PrimitiveType_Plane:
+				case PrimitiveType::Plane:
 					return std::make_shared<BoxCollider3D>(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
 					///TODO: PlaneGeom?
 
-				case PrimitiveType_Sphere:
+				case PrimitiveType::Sphere:
 					return std::make_shared<SphereCollider3D>(primitive.sphere.size, primitive.matrix.GetTranslation());
 			}
 
-			NazaraError("Primitive type not handled (0x" + NumberToString(primitive.type, 16) + ')');
+			NazaraError("Primitive type not handled (0x" + NumberToString(UnderlyingCast(primitive.type), 16) + ')');
 			return std::shared_ptr<Collider3D>();
 		}
 	}

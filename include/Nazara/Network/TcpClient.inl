@@ -11,8 +11,8 @@ namespace Nz
 	*/
 
 	inline TcpClient::TcpClient() :
-	AbstractSocket(SocketType_TCP),
-	Stream(StreamOption_Sequential),
+	AbstractSocket(SocketType::TCP),
+	Stream(StreamOption::Sequential),
 	m_keepAliveInterval(1000),   //TODO: Query OS default value
 	m_keepAliveTime(7'200'000),  //TODO: Query OS default value
 	m_isKeepAliveEnabled(false), //TODO: Query OS default value
