@@ -149,11 +149,29 @@ namespace Nz
 
 	/*!
 	* \brief Gets the default SoundBuffer loader
+	* \return A reference to the default SoundBuffer loader
+	*/
+	SoundBufferLoader& Audio::GetSoundBufferLoader()
+	{
+		return m_soundBufferLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundBuffer loader
 	* \return A constant reference to the default SoundBuffer loader
 	*/
 	const SoundBufferLoader& Audio::GetSoundBufferLoader() const
 	{
 		return m_soundBufferLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundStream loader
+	* \return A reference to the default SoundStream loader
+	*/
+	SoundStreamLoader& Audio::GetSoundStreamLoader()
+	{
+		return m_soundStreamLoader;
 	}
 
 	/*!
