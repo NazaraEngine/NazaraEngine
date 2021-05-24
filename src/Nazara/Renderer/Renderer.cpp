@@ -123,13 +123,13 @@ namespace Nz
 
 		NazaraDebug("Using " + m_rendererImpl->QueryAPIString() + " as renderer");
 
-		Buffer::SetBufferFactory(DataStorage_Hardware, [](Buffer* parent, BufferType type) -> AbstractBuffer* { return new RenderBuffer(parent, type); });
+		Buffer::SetBufferFactory(DataStorage::Hardware, [](Buffer* parent, BufferType type) -> std::unique_ptr<AbstractBuffer> { return std::make_unique<RenderBuffer>(parent, type); });
 	}
 
 	Renderer::~Renderer()
 	{
 		// Uninitialize module here
-		Buffer::SetBufferFactory(DataStorage_Hardware, nullptr);
+		Buffer::SetBufferFactory(DataStorage::Hardware, nullptr);
 
 		m_rendererImpl.reset();
 	}
