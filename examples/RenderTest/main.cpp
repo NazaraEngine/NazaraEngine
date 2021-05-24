@@ -88,7 +88,7 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
 
@@ -110,27 +110,27 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
+	std::shared_ptr<Nz::Mesh> drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!drfreak)
 	{
 		NazaraError("Failed to load model");
 		return __LINE__;
 	}
 
-	Nz::StaticMesh* drfreakMesh = static_cast<Nz::StaticMesh*>(drfreak->GetSubMesh(0));
+	std::shared_ptr<Nz::StaticMesh> spaceshipMesh = std::static_pointer_cast<Nz::StaticMesh>(drfreak->GetSubMesh(0));
 
-	const Nz::VertexBuffer* drfreakVB = drfreakMesh->GetVertexBuffer();
-	const Nz::IndexBuffer* drfreakIB = drfreakMesh->GetIndexBuffer();
+	const std::shared_ptr<Nz::VertexBuffer>& meshVB = spaceshipMesh->GetVertexBuffer();
+	const std::shared_ptr<const Nz::IndexBuffer>& meshIB = spaceshipMesh->GetIndexBuffer();
 
 	// Index buffer
-	std::cout << "Index count: " << drfreakIB->GetIndexCount() << std::endl;
+	std::cout << "Index count: " << meshIB->GetIndexCount() << std::endl;
 
 	// Vertex buffer
-	std::cout << "Vertex count: " << drfreakVB->GetVertexCount() << std::endl;
+	std::cout << "Vertex count: " << meshVB->GetVertexCount() << std::endl;
 
 	// Texture
-	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8))
+	std::shared_ptr<Nz::Image> drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
+	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat::RGBA8))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
@@ -182,8 +182,8 @@ int main()
 
 	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
 
-	std::shared_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
+	std::shared_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform);
+	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
 	{
 		NazaraError("Failed to create uniform buffer");
 		return __LINE__;
@@ -212,7 +212,7 @@ int main()
 
 	auto& vertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
 	vertexBuffer.binding = 0;
-	vertexBuffer.declaration = drfreakVB->GetVertexDeclaration();
+	vertexBuffer.declaration = meshVB->GetVertexDeclaration();
 
 	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
@@ -221,8 +221,8 @@ int main()
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
 	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
 
-	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(drfreakIB->GetBuffer()->GetImpl());
-	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(drfreakVB->GetBuffer()->GetImpl());
+	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(meshIB->GetBuffer()->GetImpl());
+	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(meshVB->GetBuffer()->GetImpl());
 
 	if (!renderBufferIB->Synchronize(renderDevice))
 	{
@@ -265,7 +265,7 @@ int main()
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-					builder.DrawIndexed(drfreakIB->GetIndexCount());
+					builder.DrawIndexed(meshIB->GetIndexCount());
 				}
 				builder.EndRenderPass();
 			}
@@ -296,11 +296,11 @@ int main()
 		{
 			switch (event.type)
 			{
-				case Nz::WindowEventType_Quit:
+				case Nz::WindowEventType::Quit:
 					window.Close();
 					break;
 
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
+				case Nz::WindowEventType::MouseMoved: // La souris a bougé
 				{
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
@@ -317,7 +317,7 @@ int main()
 					break;
 				}
 
-				case Nz::WindowEventType_Resized:
+				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
 					ubo.projectionMatrix = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);

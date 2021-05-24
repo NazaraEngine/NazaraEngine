@@ -27,9 +27,9 @@ int main()
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
-	meshParams.storage = Nz::DataStorage_Software;
+	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -40,40 +40,40 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::MeshRef drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
-	if (!drfreak)
+	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
+	if (!spaceshipMesh)
 	{
 		NazaraError("Failed to load model");
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(drfreak);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceshipMesh);
 
 	// Texture
-	Nz::ImageRef drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat_RGBA8_SRGB))
+	std::shared_ptr<Nz::Image> diffuseImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
+	if (!diffuseImage || !diffuseImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
 	}
 
 	Nz::TextureInfo texParams;
-	texParams.pixelFormat = drfreakImage->GetFormat();
-	texParams.type = drfreakImage->GetType();
-	texParams.width = drfreakImage->GetWidth();
-	texParams.height = drfreakImage->GetHeight();
-	texParams.depth = drfreakImage->GetDepth();
+	texParams.pixelFormat = diffuseImage->GetFormat();
+	texParams.type = diffuseImage->GetType();
+	texParams.width = diffuseImage->GetWidth();
+	texParams.height = diffuseImage->GetHeight();
+	texParams.depth = diffuseImage->GetDepth();
 
 	std::shared_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
-	if (!texture->Update(drfreakImage->GetConstPixels()))
+	if (!texture->Update(diffuseImage->GetConstPixels()))
 	{
 		NazaraError("Failed to update texture");
 		return __LINE__;
 	}
 
 	// Texture (alpha-map)
-	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
-	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat_RGBA8))
+	std::shared_ptr<Nz::Image> alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
+	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat::RGBA8))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
@@ -207,11 +207,11 @@ int main()
 		{
 			switch (event.type)
 			{
-				case Nz::WindowEventType_Quit:
+				case Nz::WindowEventType::Quit:
 					window.Close();
 					break;
 
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
+				case Nz::WindowEventType::MouseMoved: // La souris a bougé
 				{
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
@@ -228,7 +228,7 @@ int main()
 					break;
 				}
 
-				case Nz::WindowEventType_Resized:
+				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
 					Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
