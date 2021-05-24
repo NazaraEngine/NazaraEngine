@@ -26,7 +26,7 @@ namespace Nz
 		return m_subMeshes[subMesh].vertexBuffer;
 	}
 
-	inline const VertexDeclarationConstRef& GraphicalMesh::GetVertexDeclaration(std::size_t subMesh) const
+	inline const std::shared_ptr<const VertexDeclaration>& GraphicalMesh::GetVertexDeclaration(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].vertexDeclaration;

@@ -8,9 +8,9 @@
 
 namespace Nz
 {
-	TriangleIterator::TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer* indexBuffer) :
+	TriangleIterator::TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer& indexBuffer) :
 	m_primitiveMode(primitiveMode),
-	m_indexMapper(indexBuffer, BufferAccess_ReadOnly)
+	m_indexMapper(indexBuffer, BufferAccess::ReadOnly)
 	{
 		m_currentIndex = 3;
 		m_triangleIndices[0] = m_indexMapper.Get(0);
@@ -20,9 +20,9 @@ namespace Nz
 		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
-	TriangleIterator::TriangleIterator(const SubMesh* subMesh) :
-	m_primitiveMode(subMesh->GetPrimitiveMode()),
-	m_indexMapper(subMesh, BufferAccess_ReadOnly)
+	TriangleIterator::TriangleIterator(const SubMesh& subMesh) :
+	m_primitiveMode(subMesh.GetPrimitiveMode()),
+	m_indexMapper(subMesh, BufferAccess::ReadOnly)
 	{
 		m_currentIndex = 3;
 		m_triangleIndices[0] = m_indexMapper.Get(0);
@@ -42,18 +42,18 @@ namespace Nz
 
 		switch (m_primitiveMode)
 		{
-			case PrimitiveMode_TriangleFan:
+			case PrimitiveMode::TriangleFan:
 				m_triangleIndices[1] = m_indexMapper.Get(m_currentIndex++);
 				m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
 				break;
 
-			case PrimitiveMode_TriangleList:
+			case PrimitiveMode::TriangleList:
 				m_triangleIndices[0] = m_indexMapper.Get(m_currentIndex++);
 				m_triangleIndices[1] = m_indexMapper.Get(m_currentIndex++);
 				m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
 				break;
 
-			case PrimitiveMode_TriangleStrip:
+			case PrimitiveMode::TriangleStrip:
 				m_triangleIndices[2] = m_indexMapper.Get(m_currentIndex++);
 				m_triangleIndices[0] = m_triangleIndices[1];
 				m_triangleIndices[1] = m_triangleIndices[2];

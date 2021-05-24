@@ -31,9 +31,9 @@ namespace Nz
 		GL::BufferTarget target;
 		switch (m_type)
 		{
-			case BufferType_Index: target = GL::BufferTarget::ElementArray; break;
-			case BufferType_Uniform: target = GL::BufferTarget::Uniform; break;
-			case BufferType_Vertex: target = GL::BufferTarget::Array; break;
+			case BufferType::Index: target = GL::BufferTarget::ElementArray; break;
+			case BufferType::Uniform: target = GL::BufferTarget::Uniform; break;
+			case BufferType::Vertex: target = GL::BufferTarget::Array; break;
 
 			default:
 				throw std::runtime_error("unknown buffer type 0x" + NumberToString(UnderlyingCast(m_type), 16));
@@ -41,12 +41,12 @@ namespace Nz
 
 		GLenum hint = GL_STREAM_COPY;
 
-		if (usage & BufferUsage_Dynamic)
+		if (usage & BufferUsage::Dynamic)
 			hint = GL_DYNAMIC_DRAW;
-		else if (usage & BufferUsage_DeviceLocal)
+		else if (usage & BufferUsage::DeviceLocal)
 			hint = GL_STATIC_DRAW;
 
-		if (usage & BufferUsage_DirectMapping)
+		if (usage & BufferUsage::DirectMapping)
 			hint = GL_DYNAMIC_COPY;
 
 		m_buffer.Reset(target, size, nullptr, hint);
@@ -60,7 +60,7 @@ namespace Nz
 
 	DataStorage OpenGLBuffer::GetStorage() const
 	{
-		return DataStorage_Hardware;
+		return DataStorage::Hardware;
 	}
 
 	void* OpenGLBuffer::Map(BufferAccess access, UInt64 offset, UInt64 size)
@@ -68,7 +68,7 @@ namespace Nz
 		GLbitfield accessBit = 0;
 		switch (access)
 		{
-			case BufferAccess_DiscardAndWrite:
+			case BufferAccess::DiscardAndWrite:
 				accessBit |= GL_MAP_WRITE_BIT;
 				if (offset == 0 && size == m_size)
 					accessBit |= GL_MAP_INVALIDATE_BUFFER_BIT;
@@ -77,15 +77,15 @@ namespace Nz
 
 				break;
 
-			case BufferAccess_ReadOnly:
+			case BufferAccess::ReadOnly:
 				accessBit |= GL_MAP_READ_BIT;
 				break;
 
-			case BufferAccess_ReadWrite:
+			case BufferAccess::ReadWrite:
 				accessBit |= GL_MAP_READ_BIT | GL_MAP_WRITE_BIT;
 				break;
 
-			case BufferAccess_WriteOnly:
+			case BufferAccess::WriteOnly:
 				accessBit |= GL_MAP_WRITE_BIT;
 				break;
 

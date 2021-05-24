@@ -17,13 +17,13 @@ namespace Nz
 	{
 		switch (imageType)
 		{
-			case ImageType_2D:       return GL::TextureTarget::Target2D;
-			case ImageType_2D_Array: return GL::TextureTarget::Target2D_Array;
-			case ImageType_3D:       return GL::TextureTarget::Target3D;
-			case ImageType_Cubemap:  return GL::TextureTarget::Cubemap;
+			case ImageType::E2D:       return GL::TextureTarget::Target2D;
+			case ImageType::E2D_Array: return GL::TextureTarget::Target2D_Array;
+			case ImageType::E3D:       return GL::TextureTarget::Target3D;
+			case ImageType::Cubemap:  return GL::TextureTarget::Cubemap;
 
-			case ImageType_1D:
-			case ImageType_1D_Array:
+			case ImageType::E1D:
+			case ImageType::E1D_Array:
 			default:
 				throw std::runtime_error("unsupported texture type");
 		}

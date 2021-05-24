@@ -39,26 +39,14 @@ namespace Nz
 	Utility::Utility(Config /*config*/) :
 	ModuleBase("Utility", this)
 	{
-		if (!Animation::Initialize())
-			throw std::runtime_error("failed to initialize animations");
-
 		if (!Buffer::Initialize())
 			throw std::runtime_error("failed to initialize buffers");
 
 		if (!Font::Initialize())
 			throw std::runtime_error("failed to initialize fonts");
 
-		if (!Image::Initialize())
-			throw std::runtime_error("failed to initialize images");
-
-		if (!Mesh::Initialize())
-			throw std::runtime_error("failed to initialize meshes");
-
 		if (!PixelFormatInfo::Initialize())
 			throw std::runtime_error("failed to initialize pixel formats");
-
-		if (!Skeleton::Initialize())
-			throw std::runtime_error("failed to initialize skeletons");
 
 		if (!VertexDeclaration::Initialize())
 			throw std::runtime_error("failed to initialize vertex declarations");
@@ -68,50 +56,99 @@ namespace Nz
 
 		/// Loaders génériques
 		// Font
-		Loaders::RegisterFreeType();
+		if (Loaders::InitializeFreeType())
+			m_fontLoader.RegisterLoader(Loaders::GetFontLoader_FreeType());
 
 		// Image
-		Loaders::RegisterDDSLoader(); // DDS Loader (DirectX format)
-		Loaders::RegisterSTBLoader(); // Generic loader (STB)
-		Loaders::RegisterSTBSaver();  // Generic saver (STB)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_STB()); // Generic loader (STB)
+		m_imageSaver.RegisterSaver(Loaders::GetImageSaver_STB()); // Generic saver (STB)
 
 		/// Loaders spécialisés
 		// Animation
-		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
+		m_animationLoader.RegisterLoader(Loaders::GetAnimationLoader_MD5Anim()); // Loader de fichiers .md5anim (v10)
 
 		// Mesh (text)
-		Loaders::RegisterOBJLoader();
-		Loaders::RegisterOBJSaver();
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_OBJ());
+		m_meshSaver.RegisterSaver(Loaders::GetMeshSaver_OBJ());
 
 		// Mesh
-		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
-		Loaders::RegisterMD5Mesh(); // Loader de fichiers .md5mesh (v10)
-		Loaders::RegisterOBJLoader(); // Loader de fichiers .md5mesh (v10)
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_MD2()); // .md2 (v8)
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_MD5Mesh()); // .md5mesh (v10)
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_OBJ()); // .obj
 
 		// Image
-		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_DDS()); // DDS Loader (DirectX format)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_PCX()); // .pcx loader (1, 4, 8, 24 bits)
 	}
 
 	Utility::~Utility()
 	{
-		Loaders::UnregisterFreeType();
-		Loaders::UnregisterMD2();
-		Loaders::UnregisterMD5Anim();
-		Loaders::UnregisterMD5Mesh();
-		Loaders::UnregisterOBJLoader();
-		Loaders::UnregisterOBJSaver();
-		Loaders::UnregisterPCX();
-		Loaders::UnregisterSTBLoader();
-		Loaders::UnregisterSTBSaver();
+		Loaders::UninitializeFreeType();
 
 		VertexDeclaration::Uninitialize();
-		Skeleton::Uninitialize();
 		PixelFormatInfo::Uninitialize();
-		Mesh::Uninitialize();
-		Image::Uninitialize();
 		Font::Uninitialize();
 		Buffer::Uninitialize();
-		Animation::Uninitialize();
+	}
+
+	AnimationLoader& Utility::GetAnimationLoader()
+	{
+		return m_animationLoader;
+	}
+
+	const AnimationLoader& Utility::GetAnimationLoader() const
+	{
+		return m_animationLoader;
+	}
+
+	FontLoader& Utility::GetFontLoader()
+	{
+		return m_fontLoader;
+	}
+
+	const FontLoader& Utility::GetFontLoader() const
+	{
+		return m_fontLoader;
+	}
+
+	ImageLoader& Utility::GetImageLoader()
+	{
+		return m_imageLoader;
+	}
+
+	const ImageLoader& Utility::GetImageLoader() const
+	{
+		return m_imageLoader;
+	}
+
+	ImageSaver& Utility::GetImageSaver()
+	{
+		return m_imageSaver;
+	}
+
+	const ImageSaver& Utility::GetImageSaver() const
+	{
+		return m_imageSaver;
+	}
+
+	MeshLoader& Utility::GetMeshLoader()
+	{
+		return m_meshLoader;
+	}
+
+	const MeshLoader& Utility::GetMeshLoader() const
+	{
+		return m_meshLoader;
+	}
+
+	MeshSaver& Utility::GetMeshSaver()
+	{
+		return m_meshSaver;
+	}
+
+	const MeshSaver& Utility::GetMeshSaver() const
+	{
+		return m_meshSaver;
 	}
 
 	Utility* Utility::s_instance = nullptr;

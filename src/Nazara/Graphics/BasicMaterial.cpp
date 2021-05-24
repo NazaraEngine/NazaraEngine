@@ -98,10 +98,10 @@ namespace Nz
 
 	bool BasicMaterial::Initialize()
 	{
-		FieldOffsets fieldOffsets(StructLayout_Std140);
+		FieldOffsets fieldOffsets(StructLayout::Std140);
 
-		s_uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType_Float1);
-		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType_Float4);
+		s_uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType::Float1);
+		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType::Float4);
 		s_uniformOffsets.totalSize = fieldOffsets.GetSize();
 
 		MaterialSettings::Builder settings;
@@ -129,21 +129,21 @@ namespace Nz
 		settings.textures.push_back({
 			"MaterialAlphaMap",
 			"Alpha",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		s_textureIndexes.diffuse = settings.textures.size();
 		settings.textures.push_back({
 			"MaterialDiffuseMap",
 			"Diffuse",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = settings.textures.size();
 		settings.textures.push_back({
 			"TextureOverlay",
 			"Overlay",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		s_uniformBlockIndex = settings.uniformBlocks.size();

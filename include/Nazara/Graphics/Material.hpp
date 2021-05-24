@@ -10,8 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
@@ -32,7 +30,7 @@ namespace Nz
 	class CommandBufferBuilder;
 	class UploadPool;
 
-	class NAZARA_GRAPHICS_API Material : public RefCounted, public Resource
+	class NAZARA_GRAPHICS_API Material : public Resource
 	{
 		public:
 			Material(std::shared_ptr<const MaterialSettings> settings);

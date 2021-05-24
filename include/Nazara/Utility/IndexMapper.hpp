@@ -19,10 +19,10 @@ namespace Nz
 	class NAZARA_UTILITY_API IndexMapper
 	{
 		public:
-			IndexMapper(IndexBuffer* indexBuffer, BufferAccess access = BufferAccess_ReadWrite, std::size_t indexCount = 0);
-			IndexMapper(SubMesh* subMesh, BufferAccess access = BufferAccess_ReadWrite);
-			IndexMapper(const IndexBuffer* indexBuffer, BufferAccess access = BufferAccess_ReadOnly, std::size_t indexCount = 0);
-			IndexMapper(const SubMesh* subMesh, BufferAccess access = BufferAccess_ReadOnly);
+			IndexMapper(IndexBuffer& indexBuffer, BufferAccess access = BufferAccess::ReadWrite, std::size_t indexCount = 0);
+			IndexMapper(SubMesh& subMesh, BufferAccess access = BufferAccess::ReadWrite);
+			IndexMapper(const IndexBuffer& indexBuffer, BufferAccess access = BufferAccess::ReadOnly, std::size_t indexCount = 0);
+			IndexMapper(const SubMesh& subMesh, BufferAccess access = BufferAccess::ReadOnly);
 			~IndexMapper() = default;
 
 			UInt32 Get(std::size_t i) const;

@@ -12,18 +12,18 @@ namespace Nz
 	{
 		PredefinedLightData lightData;
 
-		FieldOffsets lightStruct(StructLayout_Std140);
-		lightData.innerOffsets.type = lightStruct.AddField(StructFieldType_Int1);
-		lightData.innerOffsets.color = lightStruct.AddField(StructFieldType_Float4); 
-		lightData.innerOffsets.factor = lightStruct.AddField(StructFieldType_Float2); 
-		lightData.innerOffsets.parameter1 = lightStruct.AddField(StructFieldType_Float4);
-		lightData.innerOffsets.parameter2 = lightStruct.AddField(StructFieldType_Float4);
-		lightData.innerOffsets.parameter3 = lightStruct.AddField(StructFieldType_Float2);
-		lightData.innerOffsets.shadowMappingFlag = lightStruct.AddField(StructFieldType_Bool1);
+		FieldOffsets lightStruct(StructLayout::Std140);
+		lightData.innerOffsets.type = lightStruct.AddField(StructFieldType::Int1);
+		lightData.innerOffsets.color = lightStruct.AddField(StructFieldType::Float4); 
+		lightData.innerOffsets.factor = lightStruct.AddField(StructFieldType::Float2); 
+		lightData.innerOffsets.parameter1 = lightStruct.AddField(StructFieldType::Float4);
+		lightData.innerOffsets.parameter2 = lightStruct.AddField(StructFieldType::Float4);
+		lightData.innerOffsets.parameter3 = lightStruct.AddField(StructFieldType::Float2);
+		lightData.innerOffsets.shadowMappingFlag = lightStruct.AddField(StructFieldType::Bool1);
 
 		lightData.innerOffsets.totalSize = lightStruct.GetAlignedSize();
 
-		FieldOffsets lightDataStruct(StructLayout_Std140);
+		FieldOffsets lightDataStruct(StructLayout::Std140);
 		for (std::size_t& lightOffset : lightData.lightArray)
 			lightOffset = lightDataStruct.AddStruct(lightStruct);
 
@@ -56,11 +56,11 @@ namespace Nz
 
 	PredefinedInstanceData PredefinedInstanceData::GetOffsets()
 	{
-		FieldOffsets viewerStruct(StructLayout_Std140);
+		FieldOffsets viewerStruct(StructLayout::Std140);
 
 		PredefinedInstanceData instanceData;
-		instanceData.worldMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		instanceData.invWorldMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
+		instanceData.worldMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		instanceData.invWorldMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
 
 		instanceData.totalSize = viewerStruct.GetAlignedSize();
 
@@ -94,18 +94,18 @@ namespace Nz
 
 	PredefinedViewerData PredefinedViewerData::GetOffsets()
 	{
-		FieldOffsets viewerStruct(StructLayout_Std140);
+		FieldOffsets viewerStruct(StructLayout::Std140);
 
 		PredefinedViewerData viewerData;
-		viewerData.projMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		viewerData.invProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		viewerData.viewMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		viewerData.invViewMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		viewerData.viewProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		viewerData.invViewProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType_Float1, 4, 4, true);
-		viewerData.targetSizeOffset = viewerStruct.AddField(StructFieldType_Float2);
-		viewerData.invTargetSizeOffset = viewerStruct.AddField(StructFieldType_Float2);
-		viewerData.eyePositionOffset = viewerStruct.AddField(StructFieldType_Float3);
+		viewerData.projMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		viewerData.invProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		viewerData.viewMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		viewerData.invViewMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		viewerData.viewProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		viewerData.invViewProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		viewerData.targetSizeOffset = viewerStruct.AddField(StructFieldType::Float2);
+		viewerData.invTargetSizeOffset = viewerStruct.AddField(StructFieldType::Float2);
+		viewerData.eyePositionOffset = viewerStruct.AddField(StructFieldType::Float3);
 
 		viewerData.totalSize = viewerStruct.GetAlignedSize();
 

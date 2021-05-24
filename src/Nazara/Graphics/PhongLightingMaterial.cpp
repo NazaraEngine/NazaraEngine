@@ -143,13 +143,13 @@ namespace Nz
 	bool PhongLightingMaterial::Initialize()
 	{
 		// MaterialPhongSettings
-		FieldOffsets phongUniformStruct(StructLayout_Std140);
+		FieldOffsets phongUniformStruct(StructLayout::Std140);
 
-		s_phongUniformOffsets.alphaThreshold = phongUniformStruct.AddField(StructFieldType_Float1);
-		s_phongUniformOffsets.shininess = phongUniformStruct.AddField(StructFieldType_Float1);
-		s_phongUniformOffsets.ambientColor = phongUniformStruct.AddField(StructFieldType_Float4);
-		s_phongUniformOffsets.diffuseColor = phongUniformStruct.AddField(StructFieldType_Float4);
-		s_phongUniformOffsets.specularColor = phongUniformStruct.AddField(StructFieldType_Float4);
+		s_phongUniformOffsets.alphaThreshold = phongUniformStruct.AddField(StructFieldType::Float1);
+		s_phongUniformOffsets.shininess = phongUniformStruct.AddField(StructFieldType::Float1);
+		s_phongUniformOffsets.ambientColor = phongUniformStruct.AddField(StructFieldType::Float4);
+		s_phongUniformOffsets.diffuseColor = phongUniformStruct.AddField(StructFieldType::Float4);
+		s_phongUniformOffsets.specularColor = phongUniformStruct.AddField(StructFieldType::Float4);
 
 		MaterialSettings::Builder settings;
 		settings.predefinedBinding.fill(MaterialSettings::InvalidIndex);
@@ -207,49 +207,49 @@ namespace Nz
 		settings.textures.push_back({
 			"MaterialAlphaMap",
 			"Alpha",
-			ImageType_2D
+			ImageType::E2D
 		});
 		
 		s_textureIndexes.diffuse = settings.textures.size();
 		settings.textures.push_back({
 			"MaterialDiffuseMap",
 			"Diffuse",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		s_textureIndexes.emissive = settings.textures.size();
 		settings.textures.push_back({
 			"MaterialEmissiveMap",
 			"Emissive",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		s_textureIndexes.height = settings.textures.size();
 		settings.textures.push_back({
 			"MaterialHeightMap",
 			"Height",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		s_textureIndexes.normal = settings.textures.size();
 		settings.textures.push_back({
 			"MaterialNormalMap",
 			"Normal",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		s_textureIndexes.specular = settings.textures.size();
 		settings.textures.push_back({
 			"MaterialSpecularMap",
 			"Specular",
-			ImageType_2D
+			ImageType::E2D
 		});
 
 		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = settings.textures.size();
 		settings.textures.push_back({
 			"TextureOverlay",
 			"Overlay",
-			ImageType_2D,
+			ImageType::E2D,
 		});
 
 		s_materialSettings = std::make_shared<MaterialSettings>(std::move(settings));

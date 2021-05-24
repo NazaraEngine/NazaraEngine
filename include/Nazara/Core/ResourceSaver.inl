@@ -19,19 +19,27 @@ namespace Nz
 	*/
 
 	/*!
+	* \brief Unregister every saver registered
+	*/
+	template<typename Type, typename Parameters>
+	void ResourceSaver<Type, Parameters>::Clear()
+	{
+		m_savers.clear();
+	}
+
+	/*!
 	* \brief Checks whether the extension of the file is supported
 	* \return true if supported
 	*
 	* \param extension Extension of the file
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::IsFormatSupported(const std::string& extension)
+	bool ResourceSaver<Type, Parameters>::IsExtensionSupported(const std::string_view& extension) const
 	{
-		for (Saver& saver : Type::s_savers)
+		for (const auto& saverPtr : m_savers)
 		{
-			ExtensionGetter isExtensionSupported = std::get<0>(saver);
-
-			if (isExtensionSupported && isExtensionSupported(extension))
+			const Entry& saver = *saverPtr;
+			if (saver.formatSupport(extension))
 				return true;
 		}
 
@@ -52,45 +60,42 @@ namespace Nz
 	* \see SaveToStream
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters)
+	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
-		std::string ext = ToLower(filePath.extension().generic_u8string());
-		if (ext.empty())
+		std::string extension = ToLower(filePath.extension().generic_u8string());
+		if (extension.empty())
 		{
 			NazaraError("Failed to get file extension from \"" + filePath.generic_u8string() + '"');
 			return false;
 		}
 
-		File file(filePath.generic_u8string()); // Opened only is required
-
 		bool found = false;
-		for (Saver& saver : Type::s_savers)
+		for (const auto& saverPtr : m_savers)
 		{
-			FormatQuerier formatQuerier = std::get<0>(saver);
-			if (!formatQuerier || !formatQuerier(ext))
+			const Entry& saver = *saverPtr;
+			if (!saver.formatSupport(extension))
 				continue;
 
 			found = true;
 
-			StreamSaver streamSeaver = std::get<1>(saver);
-			FileSaver fileSaver = std::get<2>(saver);
-
-			if (fileSaver)
+			if (saver.fileSaver)
 			{
-				if (fileSaver(resource, filePath, parameters))
+				if (saver.fileSaver(resource, filePath, parameters))
 					return true;
 			}
 			else
 			{
+				File file(filePath.generic_u8string());
+
 				if (!file.Open(OpenMode_WriteOnly | OpenMode_Truncate))
 				{
 					NazaraError("Failed to save to file: unable to open \"" + filePath.generic_u8string() + "\" in write mode");
 					return false;
 				}
 
-				if (streamSeaver(resource, ext, file, parameters))
+				if (saver.streamSaver(resource, extension, file, parameters))
 					return true;
 			}
 
@@ -100,7 +105,7 @@ namespace Nz
 		if (found)
 			NazaraError("Failed to save resource: all savers failed");
 		else
-			NazaraError("Failed to save resource: no saver found for extension \"" + ext + '"');
+			NazaraError("Failed to save resource: no saver found for extension \"" + extension + '"');
 
 		return false;
 	}
@@ -117,28 +122,26 @@ namespace Nz
 	* \see SaveToFile
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters)
+	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters) const
 	{
 		NazaraAssert(stream.IsWritable(), "Stream is not writable");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
 		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
-		for (Saver& saver : Type::s_savers)
+		for (const auto& saverPtr : m_savers)
 		{
-			FormatQuerier formatQuerier = std::get<0>(saver);
-			if (!formatQuerier || !formatQuerier(format))
+			const Entry& saver = *saverPtr;
+			if (!saver.formatSupport(format))
 				continue;
 
 			found = true;
-
-			StreamSaver streamSeaver = std::get<1>(saver);
 
 			// We move the stream to its old position
 			stream.SetCursorPos(streamPos);
 
 			// Load of the resource
-			if (streamSeaver(resource, format, stream, parameters))
+			if (saver.streamSaver(resource, format, stream, parameters))
 				return true;
 
 			NazaraWarning("Saver failed");
@@ -154,36 +157,35 @@ namespace Nz
 
 	/*!
 	* \brief Registers a saver
+	* \return A pointer to the registered Entry which can be unsed to unregister it later
 	*
-	* \param formatQuerier A function to test whether the format (as a string) is supported by this saver
-	* \param streamSaver A function which saves the resource to a stream
-	* \param fileSaver Optional function which saves the resource directly to a file given a file path
+	* \param loader A collection of saver callbacks that will be registered
 	*
-	* \remark The fileSaver argument is only present for compatibility with external savers which cannot be interfaced with streams
-	* \remark At least one saver is required
+	* \see UnregisterLoader
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceSaver<Type, Parameters>::RegisterSaver(FormatQuerier formatQuerier, StreamSaver streamSaver, FileSaver fileSaver)
+	auto ResourceSaver<Type, Parameters>::RegisterSaver(Entry saver) -> const Entry*
 	{
-		NazaraAssert(formatQuerier, "A format querier is mandaroty");
-		NazaraAssert(streamSaver || fileSaver, "A saver function is mandaroty");
+		NazaraAssert(saver.formatSupport, "A format support callback is mandatory");
+		NazaraAssert(saver.streamSaver || saver.fileSaver, "A saver function is mandatory");
 
-		Type::s_savers.push_front(std::make_tuple(formatQuerier, streamSaver, fileSaver));
+		auto it = m_savers.emplace(m_savers.begin(), std::make_unique<Entry>(std::move(saver)));
+		return it->get();
 	}
 
 	/*!
 	* \brief Unregisters a saver
 	*
-	* \param formatQuerier A function to test whether the format (as a string) is supported by this saver
-	* \param streamSaver A function which saves the resource to a stream
-	* \param fileSaver A function function which saves the resource directly to a file given a file path
+	* \param saver A pointer to a loader returned by RegisterSaver
 	*
-	* \remark The saver will only be unregistered if the function pointers are exactly the same
+	* \see RegisterSaver
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceSaver<Type, Parameters>::UnregisterSaver(FormatQuerier formatQuerier, StreamSaver streamSaver, FileSaver fileSaver)
+	void ResourceSaver<Type, Parameters>::UnregisterSaver(const Entry* saver)
 	{
-		Type::s_savers.remove(std::make_tuple(formatQuerier, streamSaver, fileSaver));
+		auto it = std::find_if(m_savers.begin(), m_savers.end(), [&](const std::unique_ptr<Entry>& saverPtr) { return saverPtr.get() == saver; });
+		if (it != m_savers.end())
+			m_savers.erase(it);
 	}
 }
 

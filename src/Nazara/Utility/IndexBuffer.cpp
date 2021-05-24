@@ -13,13 +13,13 @@
 
 namespace Nz
 {
-	IndexBuffer::IndexBuffer(bool largeIndices, BufferRef buffer)
+	IndexBuffer::IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
 		Reset(largeIndices, std::move(buffer));
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size)
+	IndexBuffer::IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
 	{
 		ErrorFlags(ErrorFlag_ThrowException, true);
 		Reset(largeIndices, std::move(buffer), offset, size);
@@ -31,24 +31,9 @@ namespace Nz
 		Reset(largeIndices, length, storage, usage);
 	}
 
-	IndexBuffer::IndexBuffer(const IndexBuffer& indexBuffer) :
-	RefCounted(),
-	m_buffer(indexBuffer.m_buffer),
-	m_endOffset(indexBuffer.m_endOffset),
-	m_indexCount(indexBuffer.m_indexCount),
-	m_startOffset(indexBuffer.m_startOffset),
-	m_largeIndices(indexBuffer.m_largeIndices)
-	{
-	}
-
-	IndexBuffer::~IndexBuffer()
-	{
-		OnIndexBufferRelease(this);
-	}
-
 	unsigned int IndexBuffer::ComputeCacheMissCount() const
 	{
-		IndexMapper mapper(this);
+		IndexMapper mapper(*this);
 
 		return Nz::ComputeCacheMissCount(mapper.begin(), m_indexCount);
 	}
@@ -86,27 +71,27 @@ namespace Nz
 
 	void IndexBuffer::Optimize()
 	{
-		IndexMapper mapper(this);
+		IndexMapper mapper(*this);
 
 		OptimizeIndices(mapper.begin(), m_indexCount);
 	}
 
 	void IndexBuffer::Reset()
 	{
-		m_buffer.Reset();
+		m_buffer.reset();
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer)
+	void IndexBuffer::Reset(bool largeIndices, std::shared_ptr<Buffer> buffer)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
 
 		Reset(largeIndices, buffer, 0, buffer->GetSize());
 	}
 
-	void IndexBuffer::Reset(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size)
+	void IndexBuffer::Reset(bool largeIndices, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-		NazaraAssert(buffer->GetType() == BufferType_Index, "Buffer must be an index buffer");
+		NazaraAssert(buffer->GetType() == BufferType::Index, "Buffer must be an index buffer");
 		NazaraAssert(size > 0, "Invalid size");
 		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
@@ -128,7 +113,7 @@ namespace Nz
 		m_largeIndices = largeIndices;
 		m_startOffset = 0;
 
-		m_buffer = Buffer::New(BufferType_Index, m_endOffset, storage, usage);
+		m_buffer = std::make_shared<Buffer>(BufferType::Index, m_endOffset, storage, usage);
 	}
 
 	void IndexBuffer::Reset(const IndexBuffer& indexBuffer)
@@ -143,12 +128,5 @@ namespace Nz
 	void IndexBuffer::Unmap() const
 	{
 		m_buffer->Unmap();
-	}
-
-	IndexBuffer& IndexBuffer::operator=(const IndexBuffer& indexBuffer)
-	{
-		Reset(indexBuffer);
-
-		return *this;
 	}
 }

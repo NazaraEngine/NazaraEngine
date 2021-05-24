@@ -31,8 +31,8 @@ namespace Nz
 			inline float GetCharacterSpacingOffset() const;
 			inline unsigned int GetCharacterSize() const;
 			inline const Color& GetColor() const;
-			inline Font* GetFont() const;
-			Font* GetFont(std::size_t index) const override;
+			inline const std::shared_ptr<Font>& GetFont() const;
+			const std::shared_ptr<Font>& GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
 			const Glyph& GetGlyph(std::size_t index) const override;
 			std::size_t GetGlyphCount() const override;
@@ -49,7 +49,7 @@ namespace Nz
 			inline void SetCharacterSpacingOffset(float offset);
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetColor(const Color& color);
-			inline void SetFont(Font* font);
+			inline void SetFont(std::shared_ptr<Font> font);
 			inline void SetLineSpacingOffset(float offset);
 			inline void SetMaxLineWidth(float lineWidth) override;
 			inline void SetOutlineColor(const Color& color);
@@ -62,8 +62,8 @@ namespace Nz
 
 			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
 			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
-			static inline SimpleTextDrawer Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
-			static inline SimpleTextDrawer Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
+			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
 
 		private:
 			inline void AppendNewLine() const;
@@ -104,7 +104,7 @@ namespace Nz
 			std::string m_text;
 			Color m_color;
 			Color m_outlineColor;
-			FontRef m_font;
+			std::shared_ptr<Font> m_font;
 			mutable Rectf m_bounds;
 			TextStyleFlags m_style;
 			mutable UInt32 m_previousCharacter;

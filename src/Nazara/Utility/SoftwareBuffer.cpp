@@ -52,7 +52,7 @@ namespace Nz
 
 	DataStorage SoftwareBuffer::GetStorage() const
 	{
-		return DataStorage_Software;
+		return DataStorage::Software;
 	}
 
 	void* SoftwareBuffer::Map(BufferAccess /*access*/, UInt64 offset, UInt64 /*size*/)

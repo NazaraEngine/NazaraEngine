@@ -22,23 +22,23 @@ namespace Nz
 
 		switch (params.type)
 		{
-			case ImageType_1D:
+			case ImageType::E1D:
 				break;
 
-			case ImageType_1D_Array:
+			case ImageType::E1D_Array:
 				break;
 
-			case ImageType_2D:
+			case ImageType::E2D:
 				m_texture.TexStorage2D(params.mipmapLevel, format->internalFormat, params.width, params.height);
 				break;
 
-			case ImageType_2D_Array:
+			case ImageType::E2D_Array:
 				break;
 
-			case ImageType_3D:
+			case ImageType::E3D:
 				break;
 
-			case ImageType_Cubemap:
+			case ImageType::Cubemap:
 				break;
 
 			default:
@@ -79,23 +79,23 @@ namespace Nz
 
 		switch (m_params.type)
 		{
-			case ImageType_1D:
+			case ImageType::E1D:
 				break;
 
-			case ImageType_1D_Array:
+			case ImageType::E1D_Array:
 				break;
 
-			case ImageType_2D:
+			case ImageType::E2D:
 				m_texture.TexSubImage2D(0, 0, 0, m_params.width, m_params.height, format->format, format->type, ptr);
 				break;
 
-			case ImageType_2D_Array:
+			case ImageType::E2D_Array:
 				break;
 
-			case ImageType_3D:
+			case ImageType::E3D:
 				break;
 
-			case ImageType_Cubemap:
+			case ImageType::Cubemap:
 				break;
 
 			default:

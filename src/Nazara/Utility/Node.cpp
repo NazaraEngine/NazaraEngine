@@ -136,7 +136,7 @@ namespace Nz
 
 	NodeType Node::GetNodeType() const
 	{
-		return NodeType_Default;
+		return NodeType::Default;
 	}
 
 	const Node* Node::GetParent() const

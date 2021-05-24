@@ -236,12 +236,12 @@ namespace Nz
 
 		switch (samplerType.dim)
 		{
-			case ImageType_1D:       Append("1D");      break;
-			case ImageType_1D_Array: Append("1DArray"); break;
-			case ImageType_2D:       Append("2D");      break;
-			case ImageType_2D_Array: Append("2DArray"); break;
-			case ImageType_3D:       Append("3D");      break;
-			case ImageType_Cubemap:  Append("Cube");    break;
+			case ImageType::E1D:       Append("1D");      break;
+			case ImageType::E1D_Array: Append("1DArray"); break;
+			case ImageType::E2D:       Append("2D");      break;
+			case ImageType::E2D_Array: Append("2DArray"); break;
+			case ImageType::E3D:       Append("3D");      break;
+			case ImageType::Cubemap:  Append("Cube");    break;
 		}
 	}
 
@@ -795,7 +795,7 @@ namespace Nz
 
 				std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
 				auto& structInfo = Retrieve(m_currentState->structs, structIndex);
-				isStd140 = structInfo.layout == StructLayout_Std140;
+				isStd140 = structInfo.layout == StructLayout::Std140;
 			}
 
 			if (externalVar.bindingIndex)

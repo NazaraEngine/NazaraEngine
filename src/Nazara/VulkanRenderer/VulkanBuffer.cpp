@@ -18,7 +18,7 @@ namespace Nz
 
 	bool VulkanBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
-		void* ptr = Map(BufferAccess_WriteOnly, offset, size);
+		void* ptr = Map(BufferAccess::WriteOnly, offset, size);
 		if (!ptr)
 			return false;
 
@@ -36,7 +36,7 @@ namespace Nz
 
 		VkBufferUsageFlags bufferUsage = ToVulkan(m_type);
 
-		if ((usage & BufferUsage_DirectMapping) == 0)
+		if ((usage & BufferUsage::DirectMapping) == 0)
 			bufferUsage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 		VkBufferCreateInfo createInfo = {};
@@ -45,9 +45,9 @@ namespace Nz
 		createInfo.usage = bufferUsage;
 
 		VmaAllocationCreateInfo allocInfo = {};
-		if (usage & BufferUsage_DeviceLocal)
+		if (usage & BufferUsage::DeviceLocal)
 		{
-			if (usage & BufferUsage_DirectMapping)
+			if (usage & BufferUsage::DirectMapping)
 				allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 			else
 				allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -55,7 +55,7 @@ namespace Nz
 		else
 			allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 
-		if (usage & BufferUsage_PersistentMapping)
+		if (usage & BufferUsage::PersistentMapping)
 			allocInfo.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
 		VkResult result = vmaCreateBuffer(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &m_buffer, &m_allocation, nullptr);
@@ -75,12 +75,12 @@ namespace Nz
 
 	DataStorage VulkanBuffer::GetStorage() const
 	{
-		return DataStorage_Hardware;
+		return DataStorage::Hardware;
 	}
 
 	void* VulkanBuffer::Map(BufferAccess /*access*/, UInt64 offset, UInt64 size)
 	{
-		if (m_usage & BufferUsage_DirectMapping)
+		if (m_usage & BufferUsage::DirectMapping)
 		{
 			void* mappedPtr;
 			VkResult result = vmaMapMemory(m_device.GetMemoryAllocator(), m_allocation, &mappedPtr);
@@ -118,7 +118,7 @@ namespace Nz
 
 	bool VulkanBuffer::Unmap()
 	{
-		if (m_usage & BufferUsage_DirectMapping)
+		if (m_usage & BufferUsage::DirectMapping)
 		{
 			vmaUnmapMemory(m_device.GetMemoryAllocator(), m_allocation);
 			return true;

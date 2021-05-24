@@ -39,7 +39,7 @@ namespace Nz
 
 		switch (params.type)
 		{
-			case ImageType_1D:
+			case ImageType::E1D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
@@ -51,7 +51,7 @@ namespace Nz
 				createInfo.arrayLayers = 1;
 				break;
 
-			case ImageType_1D_Array:
+			case ImageType::E1D_Array:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
@@ -64,7 +64,7 @@ namespace Nz
 				createInfo.arrayLayers = params.height;
 				break;
 
-			case ImageType_2D:
+			case ImageType::E2D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
@@ -77,7 +77,7 @@ namespace Nz
 				createInfo.arrayLayers = 1;
 				break;
 
-			case ImageType_2D_Array:
+			case ImageType::E2D_Array:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 				NazaraAssert(params.depth > 0, "Depth must be over zero");
@@ -91,7 +91,7 @@ namespace Nz
 				createInfo.arrayLayers = params.depth;
 				break;
 
-			case ImageType_3D:
+			case ImageType::E3D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 				NazaraAssert(params.depth > 0, "Depth must be over zero");
@@ -105,7 +105,7 @@ namespace Nz
 				createInfo.arrayLayers = 1;
 				break;
 
-			case ImageType_Cubemap:
+			case ImageType::Cubemap:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
@@ -230,22 +230,22 @@ namespace Nz
 		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
-			case PixelFormat_BGR8:
-			case PixelFormat_BGR8_SRGB:
-			case PixelFormat_BGRA8:
-			case PixelFormat_BGRA8_SRGB:
-			case PixelFormat_RGB8:
-			case PixelFormat_RGB8_SRGB:
-			case PixelFormat_RGBA8:
-			case PixelFormat_RGBA8_SRGB:
-			case PixelFormat_RGBA32F:
+			case PixelFormat::BGR8:
+			case PixelFormat::BGR8_SRGB:
+			case PixelFormat::BGRA8:
+			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::RGB8:
+			case PixelFormat::RGB8_SRGB:
+			case PixelFormat::RGBA8:
+			case PixelFormat::RGBA8_SRGB:
+			case PixelFormat::RGBA32F:
 			{
 				createImage.format = ToVulkan(pixelFormat);
 				createImageView.format = createImage.format;
 				break;
 			}
 
-			case PixelFormat_Depth24Stencil8:
+			case PixelFormat::Depth24Stencil8:
 			{
 				createImage.format = VK_FORMAT_D24_UNORM_S8_UINT;
 				createImageView.format = createImage.format;
@@ -253,7 +253,7 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormat_L8:
+			case PixelFormat::L8:
 			{
 				createImage.format = VK_FORMAT_R8_UNORM;
 				createImageView.format = createImage.format;
@@ -266,7 +266,7 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormat_LA8:
+			case PixelFormat::LA8:
 			{
 				createImage.format = VK_FORMAT_R8G8_UNORM;
 				createImageView.format = createImage.format;

@@ -75,7 +75,7 @@ namespace Nz
 
 	UInt32 GuillotineImageAtlas::GetStorage() const
 	{
-		return DataStorage_Software;
+		return static_cast<UInt32>(DataStorage::Software);
 	}
 
 	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex)
@@ -161,10 +161,10 @@ namespace Nz
 
 	AbstractImage* GuillotineImageAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
 	{
-		std::unique_ptr<Image> newImage(new Image(ImageType_2D, PixelFormat_A8, size.x, size.y));
+		std::unique_ptr<Image> newImage(new Image(ImageType::E2D, PixelFormat::A8, size.x, size.y));
 		if (oldImage)
 		{
-			newImage->Copy(static_cast<Image*>(oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
+			newImage->Copy(static_cast<Image&>(*oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
 		}
 
 		return newImage.release();

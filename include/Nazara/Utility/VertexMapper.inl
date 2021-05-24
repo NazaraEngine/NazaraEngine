@@ -13,7 +13,7 @@ namespace Nz
 	SparsePtr<T> VertexMapper::GetComponentPtr(VertexComponent component, std::size_t componentIndex)
 	{
 		// On récupère la déclaration depuis le buffer
-		const VertexDeclaration* declaration = m_mapper.GetBuffer()->GetVertexDeclaration();
+		const std::shared_ptr<const VertexDeclaration>& declaration = m_mapper.GetBuffer()->GetVertexDeclaration();
 
 		if (const auto* componentData = declaration->GetComponentByType<T>(component, componentIndex))
 			return SparsePtr<T>(static_cast<UInt8*>(m_mapper.GetPointer()) + componentData->offset, declaration->GetStride());
