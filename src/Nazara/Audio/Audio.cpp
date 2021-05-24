@@ -44,33 +44,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the format of the audio
-	* \return AudioFormat Enumeration type for the format
-	*
-	* \param channelCount Number of channels
-	*
-	* \remark Produces a NazaraError if the number of channels is erroneous (3 or 5) and AudioFormat_Unknown is returned
-	*/
-
-	AudioFormat Audio::GetAudioFormat(unsigned int channelCount) const
-	{
-		switch (channelCount)
-		{
-			case 1:
-			case 2:
-			case 4:
-			case 6:
-			case 7:
-			case 8:
-				return static_cast<AudioFormat>(channelCount);
-
-			default:
-				NazaraError("Invalid channel count: " + NumberToString(channelCount));
-				return AudioFormat_Unknown;
-		}
-	}
-
-	/*!
 	* \brief Gets the factor of the doppler effect
 	* \return Global factor of the doppler effect
 	*/
@@ -200,10 +173,10 @@ namespace Nz
 	*/
 	bool Audio::IsFormatSupported(AudioFormat format) const
 	{
-		if (format == AudioFormat_Unknown)
+		if (format == AudioFormat::Unknown)
 			return false;
 
-		return OpenAL::AudioFormat[format] != 0;
+		return OpenAL::AudioFormat[UnderlyingCast(format)] != 0;
 	}
 
 	/*!

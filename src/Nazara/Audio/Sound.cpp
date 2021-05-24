@@ -125,7 +125,7 @@ namespace Nz
 	*/
 	bool Sound::IsPlaying() const
 	{
-		return GetStatus() == SoundStatus_Playing;
+		return GetStatus() == SoundStatus::Playing;
 	}
 
 	/*!

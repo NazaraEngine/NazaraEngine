@@ -326,18 +326,18 @@ namespace Nz
 		{
 			case AL_INITIAL:
 			case AL_STOPPED:
-				return SoundStatus_Stopped;
+				return SoundStatus::Stopped;
 
 			case AL_PAUSED:
-				return SoundStatus_Paused;
+				return SoundStatus::Paused;
 
 			case AL_PLAYING:
-				return SoundStatus_Playing;
+				return SoundStatus::Playing;
 
 			default:
 				NazaraInternalError("Source state unrecognized");
 		}
 
-		return SoundStatus_Stopped;
+		return SoundStatus::Stopped;
 	}
 }
