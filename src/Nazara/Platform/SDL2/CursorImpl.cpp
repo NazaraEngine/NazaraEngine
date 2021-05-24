@@ -39,7 +39,7 @@ namespace Nz
 
 	CursorImpl::CursorImpl(const Image& cursor, const Vector2i& hotSpot)
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException);
+		ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		m_cursorImage = cursor;
 		if (!m_cursorImage.Convert(PixelFormat::BGRA8))
@@ -69,7 +69,7 @@ namespace Nz
 
 	CursorImpl::CursorImpl(SystemCursor cursor)
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException);
+		ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		if (cursor != SystemCursor::None)
 		{

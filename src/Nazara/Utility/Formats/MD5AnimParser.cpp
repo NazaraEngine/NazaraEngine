@@ -25,7 +25,7 @@ namespace Nz
 	MD5AnimParser::~MD5AnimParser()
 	{
 		// Reset stream flags
-		if ((m_streamFlags & StreamOption_Text) == 0)
+		if ((m_streamFlags & StreamOption::Text) == 0)
 			m_stream.EnableTextMode(false);
 	}
 

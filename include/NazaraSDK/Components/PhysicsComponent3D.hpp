@@ -27,9 +27,9 @@ namespace Ndk
 			PhysicsComponent3D(const PhysicsComponent3D& physics);
 			~PhysicsComponent3D() = default;
 
-			inline void AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			inline void AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys = Nz::CoordSys_Global);
-			inline void AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys = Nz::CoordSys_Global);
+			inline void AddForce(const Nz::Vector3f& force, Nz::CoordSys coordSys = Nz::CoordSys::Global);
+			inline void AddForce(const Nz::Vector3f& force, const Nz::Vector3f& point, Nz::CoordSys coordSys = Nz::CoordSys::Global);
+			inline void AddTorque(const Nz::Vector3f& torque, Nz::CoordSys coordSys = Nz::CoordSys::Global);
 
 			inline void EnableAutoSleep(bool autoSleep);
 			inline void EnableNodeSynchronization(bool nodeSynchronization);
@@ -41,7 +41,7 @@ namespace Ndk
 			inline float GetLinearDamping() const;
 			inline Nz::Vector3f GetLinearVelocity() const;
 			inline float GetMass() const;
-			inline Nz::Vector3f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys_Local) const;
+			inline Nz::Vector3f GetMassCenter(Nz::CoordSys coordSys = Nz::CoordSys::Local) const;
 			inline const Nz::Matrix4f& GetMatrix() const;
 			inline Nz::Vector3f GetPosition() const;
 			inline Nz::Quaternionf GetRotation() const;

@@ -106,7 +106,7 @@ namespace Nz
 
 		switch (primitive.type)
 		{
-			case PrimitiveType_Box:
+			case PrimitiveType::Box:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
@@ -128,7 +128,7 @@ namespace Nz
 				break;
 			}
 
-			case PrimitiveType_Cone:
+			case PrimitiveType::Cone:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
@@ -150,7 +150,7 @@ namespace Nz
 				break;
 			}
 
-			case PrimitiveType_Plane:
+			case PrimitiveType::Plane:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
@@ -172,11 +172,11 @@ namespace Nz
 				break;
 			}
 
-			case PrimitiveType_Sphere:
+			case PrimitiveType::Sphere:
 			{
 				switch (primitive.sphere.type)
 				{
-					case SphereType_Cubic:
+					case SphereType::Cubic:
 					{
 						unsigned int indexCount;
 						unsigned int vertexCount;
@@ -198,7 +198,7 @@ namespace Nz
 						break;
 					}
 
-					case SphereType_Ico:
+					case SphereType::Ico:
 					{
 						unsigned int indexCount;
 						unsigned int vertexCount;
@@ -220,7 +220,7 @@ namespace Nz
 						break;
 					}
 
-					case SphereType_UV:
+					case SphereType::UV:
 					{
 						unsigned int indexCount;
 						unsigned int vertexCount;

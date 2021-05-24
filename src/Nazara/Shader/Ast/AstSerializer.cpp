@@ -753,7 +753,7 @@ namespace Nz::ShaderAst
 	ByteArray SerializeShader(StatementPtr& shader)
 	{
 		ByteArray byteArray;
-		ByteStream stream(&byteArray, OpenModeFlags(OpenMode_WriteOnly));
+		ByteStream stream(&byteArray, OpenModeFlags(OpenMode::WriteOnly));
 
 		ShaderAstSerializer serializer(stream);
 		serializer.Serialize(shader);

@@ -52,10 +52,10 @@ namespace Ndk
 
 			// We get the position and the rotation to affect these to the listener
 			const NodeComponent& node = entity->GetComponent<NodeComponent>();
-			Nz::Vector3f newPos = node.GetPosition(Nz::CoordSys_Global);
+			Nz::Vector3f newPos = node.GetPosition(Nz::CoordSys::Global);
 
 			audio->SetListenerPosition(newPos);
-			audio->SetListenerRotation(node.GetRotation(Nz::CoordSys_Global));
+			audio->SetListenerRotation(node.GetRotation(Nz::CoordSys::Global));
 
 			// Compute listener velocity based on their old/new position
 			Nz::Vector3f velocity = (newPos - oldPos) / elapsedTime;

@@ -34,7 +34,7 @@ namespace Ndk
 	ClientSdk::ClientSdk(Config /*config*/) :
 	ModuleBase("ClientSDK", this)
 	{
-		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
+		Nz::ErrorFlags errFlags(Nz::ErrorMode::ThrowException, true);
 
 		// Client components
 		InitializeComponent<ListenerComponent>("NdkList");

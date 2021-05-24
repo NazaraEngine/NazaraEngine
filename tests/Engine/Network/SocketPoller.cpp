@@ -17,7 +17,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
-		REQUIRE(server.Listen(Nz::NetProtocol_IPv4, port) == Nz::SocketState_Bound);
+		REQUIRE(server.Listen(Nz::NetProtocol::IPv4, port) == Nz::SocketState::Bound);
 
 		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
 		REQUIRE(serverIP.IsValid());
@@ -27,7 +27,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 		WHEN("We register the server socket to the poller")
 		{
-			REQUIRE(serverPoller.RegisterSocket(server, Nz::SocketPollEvent_Read));
+			REQUIRE(serverPoller.RegisterSocket(server, Nz::SocketPollEvent::Read));
 
 			THEN("The poller should have registered our socket")
 			{
@@ -37,7 +37,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 			{
 				Nz::SocketState state = clientToServer.Connect(serverIP);
 
-				CHECK(state != Nz::SocketState_NotConnected);
+				CHECK(state != Nz::SocketState::NotConnected);
 
 				AND_THEN("We wait on our selector, it should return true")
 				{
@@ -48,7 +48,7 @@ SCENARIO("SocketPoller", "[NETWORK][SOCKETPOLLER]")
 
 					WHEN("We register the client socket to the poller")
 					{
-						REQUIRE(serverPoller.RegisterSocket(serverToClient, Nz::SocketPollEvent_Read));
+						REQUIRE(serverPoller.RegisterSocket(serverToClient, Nz::SocketPollEvent::Read));
 
 						THEN("The poller should have registered our socket")
 						{

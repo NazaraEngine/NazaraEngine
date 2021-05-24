@@ -15,14 +15,14 @@ namespace Nz
 	inline RenderWindow::RenderWindow(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style, const RenderWindowParameters& parameters) :
 	RenderWindow()
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags errFlags(ErrorMode::ThrowException, true);
 
 		Create(std::move(renderDevice), mode, title, style, parameters);
 	}
 
 	inline RenderWindow::RenderWindow(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters& parameters)
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags errFlags(ErrorMode::ThrowException, true);
 
 		Create(std::move(renderDevice), handle, parameters);
 	}

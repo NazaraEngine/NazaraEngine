@@ -45,7 +45,7 @@ namespace Nz
 		bool ParseMTL(Mesh& mesh, const std::filesystem::path& filePath, const std::string* materials, const OBJParser::Mesh* meshes, std::size_t meshCount)
 		{
 			File file(filePath);
-			if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
+			if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
 			{
 				NazaraError("Failed to open MTL file (" + file.GetPath().generic_u8string() + ')');
 				return false;
@@ -344,7 +344,7 @@ namespace Nz
 			std::filesystem::path mtlLib = parser.GetMtlLib();
 			if (!mtlLib.empty())
 			{
-				ErrorFlags flags(ErrorFlag_ThrowExceptionDisabled);
+				ErrorFlags flags(ErrorMode::ThrowExceptionDisabled);
 				ParseMTL(*mesh, stream.GetDirectory() / mtlLib, materials, meshes, meshCount);
 			}
 

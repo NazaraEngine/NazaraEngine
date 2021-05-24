@@ -84,11 +84,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_forceAccumulator += force;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_forceAccumulator += GetRotation() * force;
 				break;
 		}
@@ -101,13 +101,13 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_forceAccumulator += force;
-				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys_Global), force);
+				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys::Global), force);
 				break;
 
-			case CoordSys_Local:
-				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys_Global);
+			case CoordSys::Local:
+				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys::Global);
 		}
 
 		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
@@ -118,11 +118,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_torqueAccumulator += torque;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_torqueAccumulator += m_matrix.Transform(torque, 0.f);
 				break;
 		}
@@ -205,11 +205,11 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				center = m_matrix.Transform(center);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Aucune opération à effectuer sur le centre de rotation
 		}
 

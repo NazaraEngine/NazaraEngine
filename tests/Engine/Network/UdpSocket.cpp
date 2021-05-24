@@ -12,14 +12,14 @@ SCENARIO("UdpSocket", "[NETWORK][UDPSOCKET]")
 		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
 
 		Nz::UInt16 port = dis(rd);
-		Nz::UdpSocket server(Nz::NetProtocol_IPv4);
-		REQUIRE(server.Bind(port) == Nz::SocketState_Bound);
+		Nz::UdpSocket server(Nz::NetProtocol::IPv4);
+		REQUIRE(server.Bind(port) == Nz::SocketState::Bound);
 
 		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
 		REQUIRE(serverIP.IsValid());
 
-		Nz::UdpSocket client(Nz::NetProtocol_IPv4);
-		REQUIRE(client.Bind(port + 1) == Nz::SocketState_Bound);
+		Nz::UdpSocket client(Nz::NetProtocol::IPv4);
+		REQUIRE(client.Bind(port + 1) == Nz::SocketState::Bound);
 
 		Nz::IpAddress clientIP = client.GetBoundAddress();
 		REQUIRE(clientIP.IsValid());

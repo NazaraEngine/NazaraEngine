@@ -155,7 +155,7 @@ namespace Nz
 		const Joint* jointsA = &skeletonA.m_impl->joints[0];
 		const Joint* jointsB = &skeletonB.m_impl->joints[0];
 		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
-			m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, CoordSys_Local);
+			m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, CoordSys::Local);
 
 		InvalidateJoints();
 	}
@@ -174,7 +174,7 @@ namespace Nz
 			std::size_t index = indices[i];
 			NazaraAssert(index < m_impl->joints.size(), "joint index out of range");
 
-			m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, CoordSys_Local);
+			m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, CoordSys::Local);
 		}
 
 		InvalidateJoints();

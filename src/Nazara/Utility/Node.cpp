@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Node.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -148,17 +149,17 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!m_derivedUpdated)
 					UpdateDerived();
 
 				return m_derivedPosition;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				return m_position;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + NumberToString(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(UnderlyingCast(coordSys), 16) + ')');
 		return Vector3f();
 	}
 
@@ -174,17 +175,17 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!m_derivedUpdated)
 					UpdateDerived();
 
 				return m_derivedRotation;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				return m_rotation;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + NumberToString(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(UnderlyingCast(coordSys), 16) + ')');
 		return Quaternionf();
 	}
 
@@ -192,17 +193,17 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!m_derivedUpdated)
 					UpdateDerived();
 
 				return m_derivedScale;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				return m_scale;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + NumberToString(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(UnderlyingCast(coordSys), 16) + ')');
 		return Vector3f();
 	}
 
@@ -231,7 +232,7 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!nodeA.m_derivedUpdated)
 					nodeA.UpdateDerived();
 
@@ -243,7 +244,7 @@ namespace Nz
 				m_scale = ToLocalScale(Vector3f::Lerp(nodeA.m_derivedScale, nodeB.m_derivedScale, interpolation));
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_position = Vector3f::Lerp(nodeA.m_position, nodeB.m_position, interpolation);
 				m_rotation = Quaternionf::Slerp(nodeA.m_rotation, nodeB.m_rotation, interpolation);
 				m_scale = Vector3f::Lerp(nodeA.m_scale, nodeB.m_scale, interpolation);
@@ -258,7 +259,7 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 			{
 				if (m_parent)
 				{
@@ -273,7 +274,7 @@ namespace Nz
 				break;
 			}
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_position += m_rotation * movement;
 				break;
 		}
@@ -295,7 +296,7 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 			{
 				if (!m_derivedUpdated)
 					UpdateDerived();
@@ -304,7 +305,7 @@ namespace Nz
 				break;
 			}
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_rotation *= q;
 				break;
 		}
@@ -449,9 +450,9 @@ namespace Nz
 			if (m_parent)
 				m_parent->AddChild(this);
 
-			SetRotation(m_derivedRotation, CoordSys_Global);
-			SetScale(m_derivedScale, CoordSys_Global);
-			SetPosition(m_derivedPosition, CoordSys_Global);
+			SetRotation(m_derivedRotation, CoordSys::Global);
+			SetScale(m_derivedScale, CoordSys::Global);
+			SetPosition(m_derivedPosition, CoordSys::Global);
 		}
 		else
 		{
@@ -477,7 +478,7 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (m_parent && m_inheritPosition)
 				{
 					if (!m_parent->m_derivedUpdated)
@@ -489,7 +490,7 @@ namespace Nz
 					m_position = position - m_initialPosition;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_position = position;
 				break;
 		}
@@ -510,7 +511,7 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (m_parent && m_inheritRotation)
 				{
 					Quaternionf rot(m_parent->GetRotation() * m_initialRotation);
@@ -522,7 +523,7 @@ namespace Nz
 
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_rotation = q;
 				break;
 		}
@@ -540,14 +541,14 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (m_parent && m_inheritScale)
 					m_scale = scale / (m_initialScale * m_parent->GetScale());
 				else
 					m_scale = scale / m_initialScale;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_scale = scale;
 				break;
 		}
@@ -567,9 +568,9 @@ namespace Nz
 
 	void Node::SetTransformMatrix(const Matrix4f& matrix)
 	{
-		SetPosition(matrix.GetTranslation(), CoordSys_Global);
-		SetRotation(matrix.GetRotation(), CoordSys_Global);
-		SetScale(matrix.GetScale(), CoordSys_Global);
+		SetPosition(matrix.GetTranslation(), CoordSys::Global);
+		SetRotation(matrix.GetRotation(), CoordSys::Global);
+		SetScale(matrix.GetScale(), CoordSys::Global);
 
 		m_transformMatrix = matrix;
 		m_transformMatrixUpdated = true;

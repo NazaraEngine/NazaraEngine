@@ -25,7 +25,7 @@ namespace Nz
 	Buffer::Buffer(BufferType type, UInt32 size, DataStorage storage, BufferUsageFlags usage) :
 	Buffer(type)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 
 		Create(size, storage, usage);
 	}

@@ -89,7 +89,7 @@ namespace Nz
 			{
 				File file(filePath.generic_u8string());
 
-				if (!file.Open(OpenMode_WriteOnly | OpenMode_Truncate))
+				if (!file.Open(OpenMode::WriteOnly | OpenMode::Truncate))
 				{
 					NazaraError("Failed to save to file: unable to open \"" + filePath.generic_u8string() + "\" in write mode");
 					return false;

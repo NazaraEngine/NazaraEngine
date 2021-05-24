@@ -89,7 +89,7 @@ namespace Nz
 
 			if (loader.streamChecker && !file.IsOpen())
 			{
-				if (!file.Open(OpenMode_ReadOnly))
+				if (!file.Open(OpenMode::ReadOnly))
 				{
 					NazaraError("Failed to load file: unable to open \"" + filePath.generic_u8string() + '"');
 					return nullptr;

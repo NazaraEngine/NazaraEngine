@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
@@ -47,14 +48,14 @@ namespace Nz
 		m_isValid = true;
 		if (isIPv6)
 		{
-			m_protocol = NetProtocol_IPv6;
+			m_protocol = NetProtocol::IPv6;
 
 			for (unsigned int i = 0; i < 8; ++i)
 				m_ipv6[i] = UInt32(result[i*2]) << 8 | result[i*2 + 1];
 		}
 		else
 		{
-			m_protocol = NetProtocol_IPv4;
+			m_protocol = NetProtocol::IPv4;
 
 			for (unsigned int i = 0; i < 4; ++i)
 				m_ipv4[i] = result[i];
@@ -75,21 +76,21 @@ namespace Nz
 		if (!m_isValid)
 			return false;
 
-		NazaraAssert(m_protocol <= NetProtocol_Max, "Protocol has value out of enum");
+		NazaraAssert(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
 		switch (m_protocol)
 		{
-			case NetProtocol_Any:
-			case NetProtocol_Unknown:
+			case NetProtocol::Any:
+			case NetProtocol::Unknown:
 				break;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 				return m_ipv4[0] == 127;
 
-			case NetProtocol_IPv6:
+			case NetProtocol::IPv6:
 				return m_ipv6 == LoopbackIpV6.m_ipv6; // Only compare the ip value
 		}
 
-		NazaraInternalError("Invalid protocol for IpAddress (0x" + NumberToString(m_protocol) + ')');
+		NazaraInternalError("Invalid protocol for IpAddress (0x" + NumberToString(UnderlyingCast(m_protocol), 16) + ')');
 		return false;
 	}
 
@@ -106,14 +107,14 @@ namespace Nz
 
 		if (m_isValid)
 		{
-			NazaraAssert(m_protocol <= NetProtocol_Max, "Protocol has value out of enum");
+			NazaraAssert(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
 			switch (m_protocol)
 			{
-				case NetProtocol_Any:
-				case NetProtocol_Unknown:
+				case NetProtocol::Any:
+				case NetProtocol::Unknown:
 					break;
 
-				case NetProtocol_IPv4:
+				case NetProtocol::IPv4:
 					for (unsigned int i = 0; i < 4; ++i)
 					{
 						stream << int(m_ipv4[i]);
@@ -122,7 +123,7 @@ namespace Nz
 					}
 					break;
 
-				case NetProtocol_IPv6:
+				case NetProtocol::IPv6:
 					// Canonical representation of an IPv6
 					// https://tools.ietf.org/html/rfc5952
 
@@ -213,7 +214,7 @@ namespace Nz
 	*/
 	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const std::string& hostname, const std::string& service, ResolveError* error)
 	{
-		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
+		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
 
 		return IpAddressImpl::ResolveHostname(protocol, hostname, service, error);
 	}

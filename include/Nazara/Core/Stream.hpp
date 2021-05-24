@@ -56,7 +56,7 @@ namespace Nz
 			Stream& operator=(Stream&&) noexcept = default;
 
 		protected:
-			inline Stream(StreamOptionFlags streamOptions = StreamOption_None, OpenModeFlags openMode = OpenMode_NotOpen);
+			inline Stream(StreamOptionFlags streamOptions = StreamOption::None, OpenModeFlags openMode = OpenMode::NotOpen);
 
 			virtual void FlushStream() = 0;
 			virtual std::size_t ReadBlock(void* buffer, std::size_t size) = 0;

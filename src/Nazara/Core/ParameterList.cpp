@@ -62,7 +62,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -73,15 +73,15 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Boolean:
+			case ParameterType::Boolean:
 				*value = it->second.value.boolVal;
 				return true;
 
-			case ParameterType_Integer:
+			case ParameterType::Integer:
 				*value = (it->second.value.intVal != 0);
 				return true;
 
-			case ParameterType_String:
+			case ParameterType::String:
 			{
 				if (it->second.value.stringVal == "1" || it->second.value.stringVal == "yes" || it->second.value.stringVal == "true")
 				{
@@ -97,11 +97,11 @@ namespace Nz
 				break;
 			}
 
-			case ParameterType_Color:
-			case ParameterType_Double:
-			case ParameterType_None:
-			case ParameterType_Pointer:
-			case ParameterType_Userdata:
+			case ParameterType::Color:
+			case ParameterType::Double:
+			case ParameterType::None:
+			case ParameterType::Pointer:
+			case ParameterType::Userdata:
 				break;
 		}
 
@@ -124,7 +124,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -135,17 +135,17 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Color:
+			case ParameterType::Color:
 				*value = it->second.value.colorVal;
 				return true;
 
-			case ParameterType_Boolean:
-			case ParameterType_Double:
-			case ParameterType_Integer:
-			case ParameterType_String:
-			case ParameterType_None:
-			case ParameterType_Pointer:
-			case ParameterType_Userdata:
+			case ParameterType::Boolean:
+			case ParameterType::Double:
+			case ParameterType::Integer:
+			case ParameterType::String:
+			case ParameterType::None:
+			case ParameterType::Pointer:
+			case ParameterType::Userdata:
 				break;
 		}
 
@@ -170,7 +170,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -181,15 +181,15 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Double:
+			case ParameterType::Double:
 				*value = it->second.value.doubleVal;
 				return true;
 
-			case ParameterType_Integer:
+			case ParameterType::Integer:
 				*value = static_cast<double>(it->second.value.intVal);
 				return true;
 
-			case ParameterType_String:
+			case ParameterType::String:
 			{
 				const std::string& str = it->second.value.stringVal;
 
@@ -206,11 +206,11 @@ namespace Nz
 				return true;
 			}
 
-			case ParameterType_Boolean:
-			case ParameterType_Color:
-			case ParameterType_None:
-			case ParameterType_Pointer:
-			case ParameterType_Userdata:
+			case ParameterType::Boolean:
+			case ParameterType::Color:
+			case ParameterType::None:
+			case ParameterType::Pointer:
+			case ParameterType::Userdata:
 				break;
 		}
 
@@ -236,7 +236,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -247,19 +247,19 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Boolean:
+			case ParameterType::Boolean:
 				*value = (it->second.value.boolVal) ? 1 : 0;
 				return true;
 
-			case ParameterType_Double:
+			case ParameterType::Double:
 				*value = static_cast<long long>(it->second.value.doubleVal);
 				return true;
 
-			case ParameterType_Integer:
+			case ParameterType::Integer:
 				*value = it->second.value.intVal;
 				return true;
 
-			case ParameterType_String:
+			case ParameterType::String:
 			{
 				const std::string& str = it->second.value.stringVal;
 
@@ -276,10 +276,10 @@ namespace Nz
 				return true;
 			}
 
-			case ParameterType_Color:
-			case ParameterType_None:
-			case ParameterType_Pointer:
-			case ParameterType_Userdata:
+			case ParameterType::Color:
+			case ParameterType::None:
+			case ParameterType::Pointer:
+			case ParameterType::Userdata:
 				break;
 		}
 
@@ -325,7 +325,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -336,20 +336,20 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Pointer:
+			case ParameterType::Pointer:
 				*value = it->second.value.ptrVal;
 				return true;
 
-			case ParameterType_Userdata:
+			case ParameterType::Userdata:
 				*value = it->second.value.userdataVal->ptr;
 				return true;
 
-			case ParameterType_Boolean:
-			case ParameterType_Color:
-			case ParameterType_Double:
-			case ParameterType_Integer:
-			case ParameterType_None:
-			case ParameterType_String:
+			case ParameterType::Boolean:
+			case ParameterType::Color:
+			case ParameterType::Double:
+			case ParameterType::Integer:
+			case ParameterType::None:
+			case ParameterType::String:
 				break;
 		}
 
@@ -379,7 +379,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -390,35 +390,35 @@ namespace Nz
 
 		switch (it->second.type)
 		{
-			case ParameterType_Boolean:
+			case ParameterType::Boolean:
 				*value = (it->second.value.boolVal) ? "true" : "false";
 				return true;
 
-			case ParameterType_Color:
+			case ParameterType::Color:
 				*value = it->second.value.colorVal.ToString();
 				return true;
 
-			case ParameterType_Double:
+			case ParameterType::Double:
 				*value = std::to_string(it->second.value.doubleVal);
 				return true;
 
-			case ParameterType_Integer:
+			case ParameterType::Integer:
 				*value = std::to_string(it->second.value.intVal);
 				return true;
 
-			case ParameterType_String:
+			case ParameterType::String:
 				*value = it->second.value.stringVal;
 				return true;
 
-			case ParameterType_Pointer:
+			case ParameterType::Pointer:
 				*value = PointerToString(it->second.value.ptrVal);
 				return true;
 
-			case ParameterType_Userdata:
+			case ParameterType::Userdata:
 				*value = PointerToString(it->second.value.userdataVal->ptr);
 				return true;
 
-			case ParameterType_None:
+			case ParameterType::None:
 				*value = std::string();
 				return true;
 		}
@@ -444,7 +444,7 @@ namespace Nz
 	{
 		NazaraAssert(value, "Invalid pointer");
 
-		ErrorFlags flags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled);
+		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
 
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -455,7 +455,7 @@ namespace Nz
 
 		const auto& parameter = it->second;
 
-		if (parameter.type == ParameterType_Userdata)
+		if (parameter.type == ParameterType::Userdata)
 		{
 			*value = parameter.value.userdataVal->ptr;
 			return true;
@@ -506,7 +506,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_None;
+		parameter.type = ParameterType::None;
 	}
 
 	/*!
@@ -520,7 +520,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, const Color& value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Color;
+		parameter.type = ParameterType::Color;
 
 		PlacementNew(&parameter.value.colorVal, value);
 	}
@@ -536,7 +536,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, const std::string& value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_String;
+		parameter.type = ParameterType::String;
 
 		PlacementNew(&parameter.value.stringVal, value);
 	}
@@ -552,7 +552,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, const char* value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_String;
+		parameter.type = ParameterType::String;
 
 		PlacementNew(&parameter.value.stringVal, value);
 	}
@@ -568,7 +568,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, bool value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Boolean;
+		parameter.type = ParameterType::Boolean;
 		parameter.value.boolVal = value;
 	}
 
@@ -583,7 +583,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, double value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Double;
+		parameter.type = ParameterType::Double;
 		parameter.value.doubleVal = value;
 	}
 
@@ -598,7 +598,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, long long value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Integer;
+		parameter.type = ParameterType::Integer;
 		parameter.value.intVal = value;
 	}
 
@@ -616,7 +616,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, void* value)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Pointer;
+		parameter.type = ParameterType::Pointer;
 		parameter.value.ptrVal = value;
 	}
 
@@ -637,28 +637,28 @@ namespace Nz
 			ss << it->first << ": ";
 			switch (it->second.type)
 			{
-				case ParameterType_Boolean:
+				case ParameterType::Boolean:
 					ss << "Boolean(" << parameter.value.boolVal << ")";
 					break;
-				case ParameterType_Color:
+				case ParameterType::Color:
 					ss << "Color(" << parameter.value.colorVal << ")";
 					break;
-				case ParameterType_Double:
+				case ParameterType::Double:
 					ss << "Double(" << parameter.value.doubleVal << ")";
 					break;
-				case ParameterType_Integer:
+				case ParameterType::Integer:
 					ss << "Integer(" << parameter.value.intVal << ")";
 					break;
-				case ParameterType_String:
+				case ParameterType::String:
 					ss << "std::string(" << parameter.value.stringVal << ")";
 					break;
-				case ParameterType_Pointer:
+				case ParameterType::Pointer:
 					ss << "Pointer(" << parameter.value.ptrVal << ")";
 					break;
-				case ParameterType_Userdata:
+				case ParameterType::Userdata:
 					ss << "Userdata(" << parameter.value.userdataVal->ptr << ")";
 					break;
-				case ParameterType_None:
+				case ParameterType::None:
 					ss << "None";
 					break;
 			}
@@ -686,7 +686,7 @@ namespace Nz
 	void ParameterList::SetParameter(const std::string& name, void* value, Destructor destructor)
 	{
 		Parameter& parameter = CreateValue(name);
-		parameter.type = ParameterType_Userdata;
+		parameter.type = ParameterType::Userdata;
 		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
 	}
 
@@ -706,28 +706,28 @@ namespace Nz
 
 			switch (it->second.type)
 			{
-				case ParameterType_Boolean:
-				case ParameterType_Color:
-				case ParameterType_Double:
-				case ParameterType_Integer:
-				case ParameterType_Pointer:
+				case ParameterType::Boolean:
+				case ParameterType::Color:
+				case ParameterType::Double:
+				case ParameterType::Integer:
+				case ParameterType::Pointer:
 					std::memcpy(&parameter, &it->second, sizeof(Parameter));
 					break;
 
-				case ParameterType_String:
-					parameter.type = ParameterType_String;
+				case ParameterType::String:
+					parameter.type = ParameterType::String;
 
 					PlacementNew(&parameter.value.stringVal, it->second.value.stringVal);
 					break;
 
-				case ParameterType_Userdata:
-					parameter.type = ParameterType_Userdata;
+				case ParameterType::Userdata:
+					parameter.type = ParameterType::Userdata;
 					parameter.value.userdataVal = it->second.value.userdataVal;
 					++(parameter.value.userdataVal->counter);
 					break;
 
-				case ParameterType_None:
-					parameter.type = ParameterType_None;
+				case ParameterType::None:
+					parameter.type = ParameterType::None;
 					break;
 			}
 		}
@@ -762,11 +762,11 @@ namespace Nz
 	{
 		switch (parameter.type)
 		{
-			case ParameterType_String:
+			case ParameterType::String:
 				PlacementDestroy(&parameter.value.stringVal);
 				break;
 
-			case ParameterType_Userdata:
+			case ParameterType::Userdata:
 				{
 					Parameter::UserdataValue* userdata = parameter.value.userdataVal;
 					if (--userdata->counter == 0)
@@ -777,12 +777,12 @@ namespace Nz
 					break;
 				}
 
-			case ParameterType_Boolean:
-			case ParameterType_Color:
-			case ParameterType_Double:
-			case ParameterType_Integer:
-			case ParameterType_None:
-			case ParameterType_Pointer:
+			case ParameterType::Boolean:
+			case ParameterType::Color:
+			case ParameterType::Double:
+			case ParameterType::Integer:
+			case ParameterType::None:
+			case ParameterType::Pointer:
 				break;
 		}
 	}

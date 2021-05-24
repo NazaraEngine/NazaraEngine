@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/AbstractHash.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Hash/CRC32.hpp>
 #include <Nazara/Core/Hash/CRC64.hpp>
@@ -40,42 +41,42 @@ namespace Nz
 
 	std::unique_ptr<AbstractHash> AbstractHash::Get(HashType type)
 	{
-		NazaraAssert(type <= HashType_Max, "Hash type value out of enum");
+		NazaraAssert(type <= HashType::Max, "Hash type value out of enum");
 
 		switch (type)
 		{
-			case HashType_Fletcher16:
+			case HashType::Fletcher16:
 				return std::make_unique<HashFletcher16>();
 
-			case HashType_CRC32:
+			case HashType::CRC32:
 				return std::make_unique<HashCRC32>();
 
-			case HashType_CRC64:
+			case HashType::CRC64:
 				return std::make_unique<HashCRC64>();
 
-			case HashType_MD5:
+			case HashType::MD5:
 				return std::make_unique<HashMD5>();
 
-			case HashType_SHA1:
+			case HashType::SHA1:
 				return std::make_unique<HashSHA1>();
 
-			case HashType_SHA224:
+			case HashType::SHA224:
 				return std::make_unique<HashSHA224>();
 
-			case HashType_SHA256:
+			case HashType::SHA256:
 				return std::make_unique<HashSHA256>();
 
-			case HashType_SHA384:
+			case HashType::SHA384:
 				return std::make_unique<HashSHA384>();
 
-			case HashType_SHA512:
+			case HashType::SHA512:
 				return std::make_unique<HashSHA512>();
 
-			case HashType_Whirlpool:
+			case HashType::Whirlpool:
 				return std::make_unique<HashWhirlpool>();
 		}
 
-		NazaraInternalError("Hash type not handled (0x" + NumberToString(type, 16) + ')');
+		NazaraInternalError("Hash type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
 		return nullptr;
 	}
 }

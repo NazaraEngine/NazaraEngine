@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StdLogger.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
@@ -11,13 +12,13 @@ namespace Nz
 	namespace
 	{
 		const char* errorType[] = {
-			"Assert failed",	// ErrorType_AssertFailed
-			"Internal error",	// ErrorType_Internal
-			"Error",		// ErrorType_Normal
-			"Warning"		// ErrorType_Warning
+			"Assert failed",	// ErrorType::AssertFailed
+			"Internal error",	// ErrorType::Internal
+			"Error",		// ErrorType::Normal
+			"Warning"		// ErrorType::Warning
 		};
 
-		static_assert(sizeof(errorType) / sizeof(const char*) == ErrorType_Max + 1, "Error type array is incomplete");
+		static_assert(sizeof(errorType) / sizeof(const char*) == ErrorTypeCount, "Error type array is incomplete");
 	}
 
 	/*!
@@ -80,7 +81,7 @@ namespace Nz
 
 	void StdLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
 	{
-		fprintf(stderr, "%s: ", errorType[type]);
+		fprintf(stderr, "%s: ", errorType[UnderlyingCast(type)]);
 		fwrite(error.data(), sizeof(char), error.size(), stdout);
 
 		if (line != 0 && file && function)

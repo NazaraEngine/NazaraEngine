@@ -19,13 +19,13 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
-		REQUIRE(server.Listen(Nz::NetProtocol_IPv4, port) == Nz::SocketState_Bound);
+		REQUIRE(server.Listen(Nz::NetProtocol::IPv4, port) == Nz::SocketState::Bound);
 
 		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
 		REQUIRE(serverIP.IsValid());
 
 		Nz::TcpClient client;
-		REQUIRE(client.Connect(serverIP) == Nz::SocketState_Connecting);
+		REQUIRE(client.Connect(serverIP) == Nz::SocketState::Connecting);
 
 		Nz::IpAddress clientIP = client.GetRemoteAddress();
 		CHECK(clientIP.IsValid());

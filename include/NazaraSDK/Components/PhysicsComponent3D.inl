@@ -480,7 +480,7 @@ namespace Ndk
 		m_pendingStates.gravityFactor = rigidBody.GetGravityFactor();
 		m_pendingStates.linearDamping = rigidBody.GetLinearDamping();
 		m_pendingStates.mass = rigidBody.GetMass();
-		m_pendingStates.massCenter = rigidBody.GetMassCenter(Nz::CoordSys_Local);
+		m_pendingStates.massCenter = rigidBody.GetMassCenter(Nz::CoordSys::Local);
 		m_pendingStates.valid = true;
 	}
 

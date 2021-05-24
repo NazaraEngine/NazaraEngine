@@ -196,7 +196,7 @@ namespace Ndk
 				auto& node = entity->GetComponent<NodeComponent>();
 
 				Nz::RigidBody2D* physObj = collision.GetStaticBody();
-				physObj->SetPosition(Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global)));
+				physObj->SetPosition(Nz::Vector2f(node.GetPosition(Nz::CoordSys::Global)));
 				//physObj->SetRotation(node.GetRotation());
 			}
 		}
@@ -224,8 +224,8 @@ namespace Ndk
 			PhysicsComponent2D& phys = entity->GetComponent<PhysicsComponent2D>();
 
 			Nz::RigidBody2D* body = phys.GetRigidBody();
-			node.SetRotation(body->GetRotation(), Nz::CoordSys_Global);
-			node.SetPosition(Nz::Vector3f(body->GetPosition(), node.GetPosition(Nz::CoordSys_Global).z), Nz::CoordSys_Global);
+			node.SetRotation(body->GetRotation(), Nz::CoordSys::Global);
+			node.SetPosition(Nz::Vector3f(body->GetPosition(), node.GetPosition(Nz::CoordSys::Global).z), Nz::CoordSys::Global);
 		}
 
 		float invElapsedTime = 1.f / elapsedTime;
@@ -237,7 +237,7 @@ namespace Ndk
 			Nz::RigidBody2D* body = collision.GetStaticBody();
 
 			Nz::Vector2f oldPosition = body->GetPosition();
-			Nz::Vector2f newPosition = Nz::Vector2f(node.GetPosition(Nz::CoordSys_Global));
+			Nz::Vector2f newPosition = Nz::Vector2f(node.GetPosition(Nz::CoordSys::Global));
 
 			// To move static objects and ensure their collisions, we have to specify them a velocity
 			// (/!\: the physical engine does not apply the speed on static objects)
@@ -250,7 +250,7 @@ namespace Ndk
 				body->SetVelocity(Nz::Vector2f::Zero());
 
 			Nz::RadianAnglef oldRotation = body->GetRotation();
-			Nz::RadianAnglef newRotation = node.GetRotation(Nz::CoordSys_Global).To2DAngle();
+			Nz::RadianAnglef newRotation = node.GetRotation(Nz::CoordSys::Global).To2DAngle();
 
 			if (newRotation != oldRotation)
 			{

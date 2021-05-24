@@ -15,19 +15,19 @@ namespace Nz
 {
 	IndexBuffer::IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(largeIndices, std::move(buffer));
 	}
 
 	IndexBuffer::IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(largeIndices, std::move(buffer), offset, size);
 	}
 
 	IndexBuffer::IndexBuffer(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(largeIndices, length, storage, usage);
 	}
 

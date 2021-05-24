@@ -47,7 +47,7 @@ namespace Nz
 	Image::Image(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount) :
 	m_sharedImage(&emptyImage)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException);
+		ErrorFlags flags(ErrorMode::ThrowException);
 		Create(type, format, width, height, depth, levelCount);
 	}
 

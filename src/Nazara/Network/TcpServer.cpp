@@ -66,7 +66,7 @@ namespace Nz
 		Open(address.GetProtocol());
 
 		SocketState state = SocketImpl::Listen(m_handle, address, queueSize, &m_lastError);
-		if (state == SocketState_Bound)
+		if (state == SocketState::Bound)
 			m_boundAddress = SocketImpl::QuerySocketAddress(m_handle);
 
 		UpdateState(state);
