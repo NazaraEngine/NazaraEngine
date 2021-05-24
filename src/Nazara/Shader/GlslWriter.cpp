@@ -58,7 +58,9 @@ namespace Nz
 					}
 					else
 					{
-						assert(!entryPoint);
+						if (entryPoint)
+							throw std::runtime_error("multiple entry point functions found, this is not allowed in GLSL, please select one");
+
 						entryPoint = &node;
 					}
 				}
@@ -148,9 +150,16 @@ namespace Nz
 		targetAst->Visit(previsitor);
 
 		if (!previsitor.entryPoint)
-			throw std::runtime_error("missing entry point");
+		{
+			if (previsitor.forwardFunctionDeclarations.empty())
+				throw std::runtime_error("no function found");
 
-		state.entryFunc = previsitor.entryPoint;
+			state.entryFunc = previsitor.forwardFunctionDeclarations.front();
+			previsitor.forwardFunctionDeclarations.erase(previsitor.forwardFunctionDeclarations.begin());
+		}
+		else
+			state.entryFunc = previsitor.entryPoint;
+
 		state.functionNames = std::move(previsitor.functionNames);
 
 		AppendHeader(previsitor.forwardFunctionDeclarations);
