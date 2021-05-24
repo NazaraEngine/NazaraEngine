@@ -39,7 +39,9 @@ namespace Nz
 			Vector3f GetListenerPosition() const;
 			Quaternionf GetListenerRotation() const;
 			Vector3f GetListenerVelocity() const;
+			SoundBufferLoader& GetSoundBufferLoader();
 			const SoundBufferLoader& GetSoundBufferLoader() const;
+			SoundStreamLoader& GetSoundStreamLoader();
 			const SoundStreamLoader& GetSoundStreamLoader() const;
 			float GetSpeedOfSound() const;
 
