@@ -83,9 +83,9 @@ int main()
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
-	meshParams.storage = Nz::DataStorage_Software;
+	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_Normal_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 	const Nz::RenderDeviceInfo& deviceInfo = device->GetDeviceInfo();
@@ -97,18 +97,18 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::MeshRef spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
+	std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceship)
 	{
 		NazaraError("Failed to load model");
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(spaceship);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceship);
 
 	// Spaceship texture
-	Nz::ImageRef spaceshipDiffuse = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!spaceshipDiffuse || !spaceshipDiffuse->Convert(Nz::PixelFormat_RGBA8_SRGB))
+	std::shared_ptr<Nz::Image> spaceshipDiffuse = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
+	if (!spaceshipDiffuse || !spaceshipDiffuse->Convert(Nz::PixelFormat::RGBA8_SRGB))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
@@ -129,8 +129,8 @@ int main()
 	}
 
 	// Plane texture
-	Nz::ImageRef devImage = Nz::Image::LoadFromFile(resourceDir / "dev_grey.png");
-	if (!devImage || !devImage->Convert(Nz::PixelFormat_RGBA8_SRGB))
+	std::shared_ptr<Nz::Image> devImage = Nz::Image::LoadFromFile(resourceDir / "dev_grey.png");
+	if (!devImage || !devImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
@@ -151,8 +151,8 @@ int main()
 	}
 
 	// Texture (alpha-map)
-	Nz::ImageRef alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
-	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat_RGBA8))
+	std::shared_ptr<Nz::Image> alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
+	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat::RGBA8))
 	{
 		NazaraError("Failed to load image");
 		return __LINE__;
@@ -173,14 +173,14 @@ int main()
 	}
 
 	Nz::MeshParams planeParams;
-	planeParams.storage = Nz::DataStorage_Software;
+	planeParams.storage = Nz::DataStorage::Software;
 
-	Nz::MeshRef planeMesh = Nz::Mesh::New();
+	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
 	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(10.f, 10.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), planeParams);
 	planeMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(planeMesh);
+	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*planeMesh);
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders[UnderlyingCast(Nz::ShaderStageType::Fragment)] = std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::Parse(resourceDir / "deferred_frag.nzsl"));
@@ -205,8 +205,8 @@ int main()
 
 		Nz::TextureSamplerInfo planeSampler;
 		planeSampler.anisotropyLevel = 16;
-		planeSampler.wrapModeU = Nz::SamplerWrap_Repeat;
-		planeSampler.wrapModeV = Nz::SamplerWrap_Repeat;
+		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
+		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 		basicMat.SetDiffuseSampler(planeSampler);
 	}
 
@@ -288,12 +288,12 @@ int main()
 		3
 	});
 
-	/*Nz::FieldOffsets pointLightOffsets(Nz::StructLayout_Std140);
-	std::size_t colorOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float3);
-	std::size_t positionOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float3);
-	std::size_t constantOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float1);
-	std::size_t linearOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float1);
-	std::size_t quadraticOffset = pointLightOffsets.AddField(Nz::StructFieldType_Float1);
+	/*Nz::FieldOffsets pointLightOffsets(Nz::StructLayout::Std140);
+	std::size_t colorOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float3);
+	std::size_t positionOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float3);
+	std::size_t constantOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t linearOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t quadraticOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float1);
 
 	std::size_t alignedPointLightSize = Nz::Align(pointLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));*/
 
@@ -314,22 +314,22 @@ int main()
 	}
 	*/
 
-	Nz::FieldOffsets spotLightOffsets(Nz::StructLayout_Std140);
-	std::size_t colorOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float3);
-	std::size_t positionOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float3);
-	std::size_t directionOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float3);
-	std::size_t constantOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
-	std::size_t linearOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
-	std::size_t quadraticOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
-	std::size_t innerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
-	std::size_t outerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType_Float1);
+	Nz::FieldOffsets spotLightOffsets(Nz::StructLayout::Std140);
+	std::size_t colorOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
+	std::size_t positionOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
+	std::size_t directionOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
+	std::size_t constantOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t linearOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t quadraticOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t innerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t outerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
 
 	std::size_t alignedSpotLightSize = Nz::Align(spotLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
 
 	constexpr std::size_t MaxPointLight = 1000;
 
-	std::shared_ptr<Nz::AbstractBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType_Uniform);
-	if (!lightUbo->Initialize(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
+	std::shared_ptr<Nz::AbstractBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType::Uniform);
+	if (!lightUbo->Initialize(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
 		return __LINE__;
 
 	std::vector<SpotLight> spotLights;
@@ -354,7 +354,7 @@ int main()
 	}
 
 
-	const Nz::VertexDeclarationRef& vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout_XYZ_UV);
+	const std::shared_ptr<const Nz::VertexDeclaration>& vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 
 	unsigned int offscreenWidth = window.GetSize().x;
@@ -363,7 +363,7 @@ int main()
 	// Fullscreen data
 
 	Nz::RenderPipelineInfo fullscreenPipelineInfo;
-	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode_TriangleStrip;
+	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleStrip;
 	fullscreenPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfo);
 	fullscreenPipelineInfo.vertexBuffers.push_back({
 		0,
@@ -380,7 +380,7 @@ int main()
 	lightingPipelineInfo.blending = true;
 	lightingPipelineInfo.blend.dstColor = Nz::BlendFunc::One;
 	lightingPipelineInfo.blend.srcColor = Nz::BlendFunc::One;
-	lightingPipelineInfo.primitiveMode = Nz::PrimitiveMode_TriangleStrip;
+	lightingPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleStrip;
 	lightingPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(lightingPipelineLayoutInfo);
 	lightingPipelineInfo.vertexBuffers.push_back({
 		0,
@@ -431,8 +431,8 @@ int main()
 		}
 	};*/
 
-	std::shared_ptr<Nz::AbstractBuffer> vertexBuffer = device->InstantiateBuffer(Nz::BufferType_Vertex);
-	if (!vertexBuffer->Initialize(vertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage_DeviceLocal))
+	std::shared_ptr<Nz::AbstractBuffer> vertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex);
+	if (!vertexBuffer->Initialize(vertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal))
 		return __LINE__;
 
 	if (!vertexBuffer->Fill(vertexData.data(), 0, vertexBuffer->GetSize()))
@@ -453,27 +453,27 @@ int main()
 
 		colorTexture = graph.AddAttachment({
 			"Color",
-			Nz::PixelFormat_RGBA8
+			Nz::PixelFormat::RGBA8
 		});
 		
 		normalTexture = graph.AddAttachment({
 			"Normal",
-			Nz::PixelFormat_RGBA8
+			Nz::PixelFormat::RGBA8
 		});
 
 		positionTexture = graph.AddAttachment({
 			"Position",
-			Nz::PixelFormat_RGBA32F
+			Nz::PixelFormat::RGBA32F
 		});
 
 		depthBuffer = graph.AddAttachment({
 			"Depth buffer",
-			Nz::PixelFormat_Depth24Stencil8
+			Nz::PixelFormat::Depth24Stencil8
 		});
 
 		backbuffer = graph.AddAttachment({
 			"Backbuffer",
-			Nz::PixelFormat_RGBA8
+			Nz::PixelFormat::RGBA8
 		});
 
 		Nz::FramePass& gbufferPass = graph.AddPass("GBuffer");
@@ -661,11 +661,11 @@ int main()
 		{
 			switch (event.type)
 			{
-				case Nz::WindowEventType_Quit:
+				case Nz::WindowEventType::Quit:
 					window.Close();
 					break;
 
-				case Nz::WindowEventType_MouseMoved: // La souris a bougé
+				case Nz::WindowEventType::MouseMoved: // La souris a bougé
 				{
 					// Gestion de la caméra free-fly (Rotation)
 					float sensitivity = 0.3f; // Sensibilité de la souris
@@ -682,7 +682,7 @@ int main()
 					break;
 				}
 
-				case Nz::WindowEventType_KeyPressed:
+				case Nz::WindowEventType::KeyPressed:
 				{
 					if (event.key.scancode == Nz::Keyboard::Scancode::Space)
 					{
@@ -696,7 +696,7 @@ int main()
 					break;
 				}
 
-				case Nz::WindowEventType_Resized:
+				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
 					Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
