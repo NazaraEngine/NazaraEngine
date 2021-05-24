@@ -151,6 +151,8 @@ for name, module in pairs(modules) do
 
 	add_headerfiles("include/Nazara/" .. name .. "/**.hpp")
 	add_headerfiles("include/Nazara/" .. name .. "/**.inl")
+	add_headerfiles("src/Nazara/" .. name .. "/**.hpp")
+	add_headerfiles("src/Nazara/" .. name .. "/**.inl")
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
