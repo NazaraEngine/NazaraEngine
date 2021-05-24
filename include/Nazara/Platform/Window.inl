@@ -46,7 +46,7 @@ namespace Nz
 		}
 	}
 
-	inline const CursorRef& Window::GetCursor() const
+	inline const std::shared_ptr<Cursor>& Window::GetCursor() const
 	{
 		return m_cursor;
 	}

@@ -61,12 +61,12 @@ namespace Nz
 		Destroy();
 
 		// Inspired by the code of the SFML by Laurent Gomila (and its team)
-		if (style & WindowStyle_Fullscreen)
+		if (style & WindowStyle::Fullscreen)
 		{
 			if (fullscreenWindow)
 			{
 				NazaraError("Window " + PointerToString(fullscreenWindow) + " already in fullscreen mode");
-				style &= ~WindowStyle_Fullscreen;
+				style &= ~WindowStyle::Fullscreen;
 			}
 			else
 			{
@@ -79,10 +79,10 @@ namespace Nz
 				fullscreenWindow = this;
 			}
 		}
-		else if (style & WindowStyle_Closable || style & WindowStyle_Resizable)
-			style |= WindowStyle_Titlebar;
+		else if (style & WindowStyle::Closable || style & WindowStyle::Resizable)
+			style |= WindowStyle::Titlebar;
 
-		m_asyncWindow = (style & WindowStyle_Threaded) != 0;
+		m_asyncWindow = (style & WindowStyle::Threaded) != 0;
 
 		std::unique_ptr<WindowImpl> impl = std::make_unique<WindowImpl>(this);
 		if (!impl->Create(mode, title, style))
@@ -152,7 +152,7 @@ namespace Nz
 
 	void Window::Destroy()
 	{
-		m_cursor.Reset();
+		m_cursor.reset();
 
 		if (m_impl)
 		{
@@ -341,7 +341,7 @@ namespace Nz
 		}
 	}
 
-	void Window::SetCursor(CursorRef cursor)
+	void Window::SetCursor(std::shared_ptr<Cursor> cursor)
 	{
 		NazaraAssert(m_impl, "Window not created");
 		NazaraAssert(cursor && cursor->IsValid(), "Invalid cursor");
@@ -382,10 +382,10 @@ namespace Nz
 		m_impl->SetFocus();
 	}
 
-	void Window::SetIcon(IconRef icon)
+	void Window::SetIcon(std::shared_ptr<Icon> icon)
 	{
 		NazaraAssert(m_impl, "Window not created");
-		NazaraAssert(icon && icon.IsValid(), "Invalid icon");
+		NazaraAssert(icon, "Invalid icon");
 
 		m_icon = std::move(icon);
 		m_impl->SetIcon(*m_icon);
@@ -629,7 +629,7 @@ namespace Nz
 
 	void Window::ConnectSlots()
 	{
-		m_cursorUpdateSlot.Connect(m_cursorController.OnCursorUpdated, [this](const CursorController*, const CursorRef& cursor)
+		m_cursorUpdateSlot.Connect(m_cursorController.OnCursorUpdated, [this](const CursorController*, const std::shared_ptr<Cursor>& cursor)
 		{
 			if (IsValid())
 				SetCursor(cursor);
@@ -663,15 +663,15 @@ namespace Nz
 
 		switch (event.type)
 		{
-			case WindowEventType_MouseEntered:
+			case WindowEventType::MouseEntered:
 				m_impl->RefreshCursor();
 				break;
 
-			case WindowEventType_Resized:
+			case WindowEventType::Resized:
 				OnWindowResized();
 				break;
 
-			case WindowEventType_Quit:
+			case WindowEventType::Quit:
 				if (m_closeOnQuit)
 					Close();
 
