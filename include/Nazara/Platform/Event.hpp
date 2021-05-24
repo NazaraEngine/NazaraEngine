@@ -20,8 +20,8 @@ namespace Nz
 	struct WindowEvent
 	{
 		// Used by:
-		// -WindowEventType_KeyPressed
-		// -WindowEventType_KeyReleased
+		// -WindowEventType::KeyPressed
+		// -WindowEventType::KeyReleased
 		struct KeyEvent
 		{
 			Keyboard::Scancode scancode;
@@ -34,8 +34,8 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_MouseButtonDoubleClicked
-		// -WindowEventType_MouseButtonPressed
+		// -WindowEventType::MouseButtonDoubleClicked
+		// -WindowEventType::MouseButtonPressed
 		struct MouseButtonEvent
 		{
 			Mouse::Button button;
@@ -44,7 +44,7 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_MouseMoved
+		// -WindowEventType::MouseMoved
 		struct MouseMoveEvent
 		{
 			int deltaX;
@@ -54,7 +54,7 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_MouseWheelMoved
+		// -WindowEventType::MouseWheelMoved
 		struct MouseWheelEvent
 		{
 			float delta;
@@ -63,7 +63,7 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_Moved
+		// -WindowEventType::Moved
 		struct PositionEvent
 		{
 			int x;
@@ -71,7 +71,7 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_Resized
+		// -WindowEventType::Resized
 		struct SizeEvent
 		{
 			unsigned int height;
@@ -79,7 +79,7 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_TextEntered
+		// -WindowEventType::TextEntered
 		struct TextEvent
 		{
 			bool repeated;
@@ -87,7 +87,7 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType_TextEdited
+		// -WindowEventType::TextEdited
 		struct EditEvent
 		{
 			int length;
@@ -99,37 +99,37 @@ namespace Nz
 		union
 		{
 			// Used by:
-			// -WindowEventType_KeyPressed
-			// -WindowEventType_KeyReleased
+			// -WindowEventType::KeyPressed
+			// -WindowEventType::KeyReleased
 			KeyEvent key;
 
 			// Used by:
-			// -WindowEventType_MouseButtonDoubleClicked
-			// -WindowEventType_MouseButtonPressed
+			// -WindowEventType::MouseButtonDoubleClicked
+			// -WindowEventType::MouseButtonPressed
 			MouseButtonEvent mouseButton;
 
 			// Used by:
-			// -WindowEventType_MouseMoved
+			// -WindowEventType::MouseMoved
 			MouseMoveEvent mouseMove;
 
 			// Used by:
-			// -WindowEventType_MouseWheelMoved
+			// -WindowEventType::MouseWheelMoved
 			MouseWheelEvent mouseWheel;
 
 			// Used by:
-			// -WindowEventType_Moved
+			// -WindowEventType::Moved
 			PositionEvent position;
 
 			// Used by:
-			// -WindowEventType_Resized
+			// -WindowEventType::Resized
 			SizeEvent size;
 
 			// Used by:
-			// -WindowEventType_TextEntered
+			// -WindowEventType::TextEntered
 			TextEvent text;
 
 			// Used by:
-			// -WindowEventType_TextEntered
+			// -WindowEventType::TextEntered
 			EditEvent edit;
 		};
 	};

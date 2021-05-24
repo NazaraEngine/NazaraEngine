@@ -8,30 +8,38 @@
 
 namespace Nz
 {
+	Icon::Icon() = default;
+
+	Icon::Icon(const Image& icon)
+	{
+		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		Create(icon);
+	}
+
+	Icon::Icon(Icon&&) noexcept = default;
+	Icon::~Icon() = default;
+
 	bool Icon::Create(const Image& icon)
 	{
 		Destroy();
 
-		std::unique_ptr<IconImpl> impl(new IconImpl);
-		if (!impl->Create(icon))
+		try
 		{
-			NazaraError("Failed to create icon implementation");
+			m_impl = std::make_unique<IconImpl>(icon);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError(e.what());
 			return false;
 		}
-
-		m_impl = impl.release();
 
 		return true;
 	}
 
 	void Icon::Destroy()
 	{
-		if (m_impl)
-		{
-			m_impl->Destroy();
-
-			delete m_impl;
-			m_impl = nullptr;
-		}
+		m_impl.reset();
 	}
+
+	Icon& Icon::operator=(Icon&&) noexcept = default;
 }

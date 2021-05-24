@@ -11,75 +11,81 @@
 
 namespace Nz
 {
-	enum SystemCursor
+	enum class SystemCursor
 	{
-		SystemCursor_Crosshair,
-		SystemCursor_Default,
-		SystemCursor_Hand,
-		SystemCursor_Help,
-		SystemCursor_Move,
-		SystemCursor_None,
-		SystemCursor_Pointer,
-		SystemCursor_Progress,
-		SystemCursor_ResizeE,
-		SystemCursor_ResizeN,
-		SystemCursor_ResizeNE,
-		SystemCursor_ResizeNW,
-		SystemCursor_ResizeS,
-		SystemCursor_ResizeSE,
-		SystemCursor_ResizeSW,
-		SystemCursor_ResizeW,
-		SystemCursor_Text,
-		SystemCursor_Wait,
+		Crosshair,
+		Default,
+		Hand,
+		Help,
+		Move,
+		None,
+		Pointer,
+		Progress,
+		ResizeE,
+		ResizeN,
+		ResizeNE,
+		ResizeNW,
+		ResizeS,
+		ResizeSE,
+		ResizeSW,
+		ResizeW,
+		Text,
+		Wait,
 
-		SystemCursor_Max = SystemCursor_Wait
+		Max = Wait
 	};
 
-	enum WindowEventType
-	{
-		WindowEventType_GainedFocus,
-		WindowEventType_LostFocus,
-		WindowEventType_KeyPressed,
-		WindowEventType_KeyReleased,
-		WindowEventType_MouseButtonDoubleClicked,
-		WindowEventType_MouseButtonPressed,
-		WindowEventType_MouseButtonReleased,
-		WindowEventType_MouseEntered,
-		WindowEventType_MouseLeft,
-		WindowEventType_MouseMoved,
-		WindowEventType_MouseWheelMoved,
-		WindowEventType_Moved,
-		WindowEventType_Quit,
-		WindowEventType_Resized,
-		WindowEventType_TextEdited,
-		WindowEventType_TextEntered,
+	constexpr std::size_t SystemCursorCount = static_cast<std::size_t>(SystemCursor::Max) + 1;
 
-		WindowEventType_Max = WindowEventType_TextEntered
+	enum class WindowEventType
+	{
+		GainedFocus,
+		LostFocus,
+		KeyPressed,
+		KeyReleased,
+		MouseButtonDoubleClicked,
+		MouseButtonPressed,
+		MouseButtonReleased,
+		MouseEntered,
+		MouseLeft,
+		MouseMoved,
+		MouseWheelMoved,
+		Moved,
+		Quit,
+		Resized,
+		TextEdited,
+		TextEntered,
+
+		Max = TextEntered
 	};
 
-	enum WindowStyle
+	constexpr std::size_t WindowEventTypeCount = static_cast<std::size_t>(WindowEventType::Max) + 1;
+
+	enum class WindowStyle
 	{
-		WindowStyle_None,       ///< Window has no border nor titlebar.
-		WindowStyle_Fullscreen, ///< At the window creation, the OS tries to set it in fullscreen.
+		None,       ///< Window has no border nor titlebar.
+		Fullscreen, ///< At the window creation, the OS tries to set it in fullscreen.
 
-		WindowStyle_Closable,   ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
-		WindowStyle_Resizable,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
-		WindowStyle_Titlebar,   ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
+		Closable,   ///< Allows the window to be closed by a button in the titlebar, generating a Quit event.
+		Resizable,  ///< Allows the window to be resized by dragging its corners or by a button of the titlebar.
+		Titlebar,   ///< Adds a titlebar to the window, this option is automatically enabled if buttons of the titlebar are enabled.
 
-		WindowStyle_Threaded,   ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
+		Threaded,   ///< Runs the window into a thread, allowing the application to keep updating while resizing/dragging the window.
 
-		WindowStyle_Max = WindowStyle_Threaded
+		Max = Threaded
 	};
+
+	constexpr std::size_t WindowStyleCount = static_cast<std::size_t>(WindowStyle::Max) + 1;
 
 	template<>
 	struct EnumAsFlags<WindowStyle>
 	{
-		static constexpr WindowStyle max = WindowStyle_Max;
+		static constexpr WindowStyle max = WindowStyle::Max;
 	};
 
 	using WindowStyleFlags = Flags<WindowStyle>;
 
-	constexpr WindowStyleFlags WindowStyle_Default = WindowStyle_Closable | WindowStyle_Resizable | WindowStyle_Titlebar;
+	constexpr WindowStyleFlags WindowStyle_Default = WindowStyle::Closable | WindowStyle::Resizable | WindowStyle::Titlebar;
 }
 
 #endif // NAZARA_ENUMS_PLATFORM_HPP
