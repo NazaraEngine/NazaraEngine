@@ -9,8 +9,8 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 	{
 		WHEN("We load our sound")
 		{
-			Nz::std::shared_ptr<SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetResourceDir() / "Engine/Audio/Cat.flac");
-			REQUIRE(soundBuffer.IsValid());
+			std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetResourceDir() / "Engine/Audio/Cat.flac");
+			REQUIRE(soundBuffer);
 
 			THEN("We can ask the informations of the file")
 			{

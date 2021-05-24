@@ -104,8 +104,7 @@ namespace Nz
 	class GearConstraint2D;
 
 	using GearConstraint2DHandle = ObjectHandle<GearConstraint2D>;
-	using GearConstraint2DRef = ObjectRef<GearConstraint2D>;
-	
+
 	class NAZARA_PHYSICS2D_API GearConstraint2D : public Constraint2D
 	{
 		public:
@@ -117,8 +116,6 @@ namespace Nz
 
 			void SetPhase(float phase);
 			void SetRatio(float ratio);
-
-			template<typename... Args> static GearConstraint2DRef New(Args&&... args);
 	};
 
 	class MotorConstraint2D;
