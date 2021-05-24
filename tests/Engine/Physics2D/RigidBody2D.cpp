@@ -17,7 +17,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
-		Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
+		std::shared_ptr<Nz::Collider2D> box = std::make_shared<Nz::BoxCollider2D>(aabb);
 		float mass = 1.f;
 		Nz::RigidBody2D body(&world, mass, box);
 		float angularVelocity = 0.2f;
@@ -69,7 +69,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		WHEN("We set a new geometry")
 		{
 			float radius = 5.f;
-			body.SetGeom(Nz::CircleCollider2D::New(radius));
+			body.SetGeom(std::make_shared<Nz::CircleCollider2D>(radius));
 
 			world.Step(1.f);
 
@@ -112,7 +112,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
-		Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
+		std::shared_ptr<Nz::Collider2D> box = std::make_shared<Nz::BoxCollider2D>(aabb);
 		float mass = 1.f;
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(box, true, false);
@@ -214,7 +214,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f position(3.f, 4.f);
 		float radius = 5.f;
-		Nz::Collider2DRef circle = Nz::CircleCollider2D::New(radius, position);
+		std::shared_ptr<Nz::Collider2D> circle = std::make_shared<Nz::CircleCollider2D>(radius, position);
 		float mass = 1.f;
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(circle, true, false);
@@ -237,14 +237,14 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		Nz::Rectf aabb(0.f, 0.f, 1.f, 1.f);
-		Nz::BoxCollider2DRef box1 = Nz::BoxCollider2D::New(aabb);
+		std::shared_ptr<Nz::BoxCollider2D> box1 = std::make_shared<Nz::BoxCollider2D>(aabb);
 		aabb.Translate(Nz::Vector2f::Unit());
-		Nz::BoxCollider2DRef box2 = Nz::BoxCollider2D::New(aabb);
+		std::shared_ptr<Nz::BoxCollider2D> box2 = std::make_shared<Nz::BoxCollider2D>(aabb);
 
-		std::vector<Nz::Collider2DRef> colliders;
+		std::vector<std::shared_ptr<Nz::Collider2D>> colliders;
 		colliders.push_back(box1);
 		colliders.push_back(box2);
-		Nz::CompoundCollider2DRef compound = Nz::CompoundCollider2D::New(colliders);
+		std::shared_ptr<Nz::CompoundCollider2D> compound = std::make_shared<Nz::CompoundCollider2D>(colliders);
 
 		float mass = 1.f;
 		Nz::RigidBody2D body(&world, mass);
@@ -268,13 +268,13 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
 
 		std::vector<Nz::Vector2f> vertices;
-		vertices.push_back(Nz::Vector2f(0.f, 0.f));
-		vertices.push_back(Nz::Vector2f(0.f, 1.f));
-		vertices.push_back(Nz::Vector2f(1.f, 1.f));
-		vertices.push_back(Nz::Vector2f(1.f, 0.f));
+		vertices.emplace_back(0.f, 0.f);
+		vertices.emplace_back(0.f, 1.f);
+		vertices.emplace_back(1.f, 1.f);
+		vertices.emplace_back(1.f, 0.f);
 
 		Nz::SparsePtr<const Nz::Vector2f> sparsePtr(vertices.data());
-		Nz::ConvexCollider2DRef convex = Nz::ConvexCollider2D::New(sparsePtr, vertices.size());
+		std::shared_ptr<Nz::ConvexCollider2D> convex = std::make_shared<Nz::ConvexCollider2D>(sparsePtr, vertices.size());
 		float mass = 1.f;
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(convex, true, false);
@@ -298,7 +298,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f positionA(3.f, 4.f);
 		Nz::Vector2f positionB(1.f, -4.f);
-		Nz::Collider2DRef segment = Nz::SegmentCollider2D::New(positionA, positionB, 0.f);
+		std::shared_ptr<Nz::Collider2D> segment = std::make_shared<Nz::SegmentCollider2D>(positionA, positionB, 0.f);
 		float mass = 1.f;
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(segment, true, false);
@@ -320,7 +320,7 @@ Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world)
 {
 	Nz::Vector2f positionAABB(3.f, 4.f);
 	Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
-	Nz::Collider2DRef box = Nz::BoxCollider2D::New(aabb);
+	std::shared_ptr<Nz::Collider2D> box = std::make_shared<Nz::BoxCollider2D>(aabb);
 	float mass = 1.f;
 
 	Nz::RigidBody2D body(&world, mass, box);

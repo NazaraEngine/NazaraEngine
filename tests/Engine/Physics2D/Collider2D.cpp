@@ -14,7 +14,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 			{
 				CHECK(box.GetRect() == aabb);
 				CHECK(box.GetSize() == aabb.GetLengths());
-				CHECK(box.GetType() == Nz::ColliderType2D_Box);
+				CHECK(box.GetType() == Nz::ColliderType2D::Box);
 			}
 		}
 
@@ -28,7 +28,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 			{
 				CHECK(box.GetRect() == aabb);
 				CHECK(box.GetSize() == vec);
-				CHECK(box.GetType() == Nz::ColliderType2D_Box);
+				CHECK(box.GetType() == Nz::ColliderType2D::Box);
 			}
 		}
 
@@ -41,25 +41,25 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 			THEN("We expect those to be true")
 			{
 				CHECK(circle.GetRadius() == Approx(radius));
-				CHECK(circle.GetType() == Nz::ColliderType2D_Circle);
+				CHECK(circle.GetType() == Nz::ColliderType2D::Circle);
 			}
 		}
 
 		WHEN("We construct a compound")
 		{
 			Nz::Rectf aabb(0.f, 0.f, 1.f, 1.f);
-			Nz::BoxCollider2DRef box1 = Nz::BoxCollider2D::New(aabb);
+			std::shared_ptr<Nz::BoxCollider2D> box1 = std::make_shared<Nz::BoxCollider2D>(aabb);
 			aabb.Translate(Nz::Vector2f::Unit());
-			Nz::BoxCollider2DRef box2 = Nz::BoxCollider2D::New(aabb);
+			std::shared_ptr<Nz::BoxCollider2D> box2 = std::make_shared<Nz::BoxCollider2D>(aabb);
 
-			std::vector<Nz::Collider2DRef> colliders;
+			std::vector<std::shared_ptr<Nz::Collider2D>> colliders;
 			colliders.push_back(box1);
 			colliders.push_back(box2);
 			Nz::CompoundCollider2D compound(colliders);
 
 			THEN("We expect those to be true")
 			{
-				CHECK(compound.GetType() == Nz::ColliderType2D_Compound);
+				CHECK(compound.GetType() == Nz::ColliderType2D::Compound);
 			}
 		}
 
@@ -75,7 +75,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 
 			THEN("We expect those to be true")
 			{
-				CHECK(convex.GetType() == Nz::ColliderType2D_Convex);
+				CHECK(convex.GetType() == Nz::ColliderType2D::Convex);
 			}
 		}
 
@@ -85,7 +85,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 
 			THEN("We expect those to be true")
 			{
-				CHECK(null.GetType() == Nz::ColliderType2D_Null);
+				CHECK(null.GetType() == Nz::ColliderType2D::Null);
 			}
 		}
 
@@ -100,7 +100,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 				CHECK(segment.GetFirstPoint() == firstPoint);
 				CHECK(segment.GetLength() == Approx(firstPoint.Distance(secondPoint)));
 				CHECK(segment.GetSecondPoint() == secondPoint);
-				CHECK(segment.GetType() == Nz::ColliderType2D_Segment);
+				CHECK(segment.GetType() == Nz::ColliderType2D::Segment);
 			}
 		}
 

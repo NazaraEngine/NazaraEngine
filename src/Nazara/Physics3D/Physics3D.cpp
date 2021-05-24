@@ -16,13 +16,6 @@ namespace Nz
 	Physics3D::Physics3D(Config /*config*/) :
 	ModuleBase("Physics3D", this)
 	{
-		if (!Collider3D::Initialize())
-			throw std::runtime_error("failed to initialize colliders");
-	}
-
-	Physics3D::~Physics3D()
-	{
-		Collider3D::Uninitialize();
 	}
 
 	unsigned int Physics3D::GetMemoryUsed()

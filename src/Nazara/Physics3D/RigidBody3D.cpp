@@ -12,11 +12,11 @@
 namespace Nz
 {
 	RigidBody3D::RigidBody3D(PhysWorld3D* world, const Matrix4f& mat) :
-	RigidBody3D(world, NullCollider3D::New(), mat)
+	RigidBody3D(world, std::make_shared<NullCollider3D>(), mat)
 	{
 	}
 
-	RigidBody3D::RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat) :
+	RigidBody3D::RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat) :
 	m_geom(std::move(geom)),
 	m_matrix(mat),
 	m_forceAccumulator(Vector3f::Zero()),
@@ -28,7 +28,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		if (!m_geom)
-			m_geom = NullCollider3D::New();
+			m_geom = std::make_shared<NullCollider3D>();
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
@@ -165,7 +165,7 @@ namespace Nz
 		return angularVelocity;
 	}
 
-	const Collider3DRef& RigidBody3D::GetGeom() const
+	const std::shared_ptr<Collider3D>& RigidBody3D::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -276,14 +276,14 @@ namespace Nz
 		NewtonBodySetOmega(m_body, &angularVelocity.x);
 	}
 
-	void RigidBody3D::SetGeom(Collider3DRef geom)
+	void RigidBody3D::SetGeom(std::shared_ptr<Collider3D> geom)
 	{
-		if (m_geom.Get() != geom)
+		if (m_geom != geom)
 		{
 			if (geom)
-				m_geom = geom;
+				m_geom = std::move(geom);
 			else
-				m_geom = NullCollider3D::New();
+				m_geom = std::make_shared<NullCollider3D>();
 
 			NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
 		}
