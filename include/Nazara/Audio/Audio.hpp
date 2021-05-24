@@ -32,7 +32,6 @@ namespace Nz
 			Audio(Audio&&) = delete;
 			~Audio();
 
-			AudioFormat GetAudioFormat(unsigned int channelCount) const;
 			float GetDopplerFactor() const;
 			float GetGlobalVolume() const;
 			Vector3f GetListenerDirection() const;

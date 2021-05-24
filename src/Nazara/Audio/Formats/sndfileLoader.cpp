@@ -15,17 +15,45 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <sndfile.h>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string_view>
 #include <vector>
-#include <sndfile.h>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
 {
 	namespace Detail
 	{
+		std::optional<AudioFormat> GuessFormat(UInt32 channelCount)
+		{
+			switch (channelCount)
+			{
+				case 1:
+					return AudioFormat::U16_Mono;
+
+				case 2:
+					return AudioFormat::U16_Stereo;
+
+				case 4:
+					return AudioFormat::U16_Quad;
+
+				case 5:
+					return AudioFormat::U16_5_1;
+
+				case 6:
+					return AudioFormat::U16_6_1;
+
+				case 7:
+					return AudioFormat::U16_7_1;
+
+				default:
+					return std::nullopt;
+			}
+		}
+
 		sf_count_t GetSize(void* user_data)
 		{
 			Stream* stream = static_cast<Stream*>(user_data);
@@ -93,7 +121,7 @@ namespace Nz
 				{
 					// Nous avons besoin du nombre de canaux d'origine pour convertir en mono, nous trichons donc un peu...
 					if (m_mixToMono)
-						return AudioFormat_Mono;
+						return AudioFormat::U16_Mono;
 					else
 						return m_format;
 				}
@@ -136,10 +164,10 @@ namespace Nz
 
 				bool Open(Stream& stream, bool forceMono)
 				{
-					SF_INFO infos;
-					infos.format = 0; // Unknown format
+					SF_INFO info;
+					info.format = 0; // Unknown format
 
-					m_handle = sf_open_virtual(&callbacks, SFM_READ, &infos, &stream);
+					m_handle = sf_open_virtual(&callbacks, SFM_READ, &info, &stream);
 					if (!m_handle)
 					{
 						NazaraError("Failed to open sound: " + std::string(sf_strerror(m_handle)));
@@ -153,30 +181,30 @@ namespace Nz
 						m_handle = nullptr;
 					});
 
-					m_format = Audio::Instance()->GetAudioFormat(infos.channels);
-					if (m_format == AudioFormat_Unknown)
+					std::optional<AudioFormat> formatOpt = GuessFormat(info.channels);
+					if (!formatOpt)
 					{
-						NazaraError("Channel count not handled");
+						NazaraError("unexpected channel count: " + std::to_string(info.channels));
 						return false;
 					}
 
-					m_sampleCount = infos.channels*infos.frames;
-					m_sampleRate = infos.samplerate;
+					m_format = *formatOpt;
 
-					// Durée de la musique (s) = samples / channels*rate
-					m_duration = static_cast<UInt32>(1000ULL*m_sampleCount / (m_format*m_sampleRate));
+					m_duration = static_cast<UInt32>(1000ULL * info.frames / info.samplerate);
+					m_sampleCount = info.channels * info.frames;
+					m_sampleRate = info.samplerate;
 
 					// https://github.com/LaurentGomila/SFML/issues/271
 					// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
 					///FIXME: Seulement le Vorbis ?
-					if (infos.format & SF_FORMAT_VORBIS)
+					if (info.format & SF_FORMAT_VORBIS)
 						sf_command(m_handle, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
 					// On mixera en mono lors de la lecture
-					if (forceMono && m_format != AudioFormat_Mono)
+					if (forceMono && m_format != AudioFormat::U16_Mono)
 					{
 						m_mixToMono = true;
-						m_sampleCount = static_cast<UInt32>(infos.frames);
+						m_sampleCount = static_cast<UInt32>(info.frames);
 					}
 					else
 						m_mixToMono = false;
@@ -191,12 +219,14 @@ namespace Nz
 					// Si la musique a été demandée en mono, nous devons la convertir à la volée lors de la lecture
 					if (m_mixToMono)
 					{
-						// On garde un buffer sur le côté pour éviter la réallocation
-						m_mixBuffer.resize(m_format * sampleCount);
-						sf_count_t readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), m_format * sampleCount);
-						MixToMono(m_mixBuffer.data(), static_cast<Int16*>(buffer), m_format, sampleCount);
+						UInt32 channelCount = GetChannelCount(m_format);
 
-						return readSampleCount / m_format;
+						// On garde un buffer sur le côté pour éviter la réallocation
+						m_mixBuffer.resize(channelCount * sampleCount);
+						sf_count_t readSampleCount = sf_read_short(m_handle, m_mixBuffer.data(), channelCount * sampleCount);
+						MixToMono(m_mixBuffer.data(), static_cast<Int16*>(buffer), channelCount, sampleCount);
+
+						return readSampleCount / channelCount;
 					}
 					else
 						return sf_read_short(m_handle, static_cast<Int16*>(buffer), sampleCount);
@@ -314,7 +344,7 @@ namespace Nz
 			if (!file)
 			{
 				NazaraError("Failed to load sound file: " + std::string(sf_strerror(file)));
-				return nullptr;
+				return {};
 			}
 			
 			CallOnExit onExit([file]
@@ -322,12 +352,14 @@ namespace Nz
 				sf_close(file);
 			});
 
-			AudioFormat format = Audio::Instance()->GetAudioFormat(info.channels);
-			if (format == AudioFormat_Unknown)
+			std::optional<AudioFormat> formatOpt = GuessFormat(info.channels);
+			if (!formatOpt)
 			{
-				NazaraError("Channel count not handled");
-				return nullptr;
+				NazaraError("unexpected channel count: " + std::to_string(info.channels));
+				return {};
 			}
+
+			AudioFormat format = *formatOpt;
 
 			// https://github.com/LaurentGomila/SFML/issues/271
 			// http://www.mega-nerd.com/libsndfile/command.html#SFC_SET_SCALE_FLOAT_INT_READ
@@ -341,15 +373,15 @@ namespace Nz
 			if (sf_read_short(file, samples.get(), sampleCount) != sampleCount)
 			{
 				NazaraError("Failed to read samples");
-				return nullptr;
+				return {};
 			}
 
 			// Convert to mono if required
-			if (parameters.forceMono && format != AudioFormat_Mono)
+			if (parameters.forceMono && format != AudioFormat::U16_Mono)
 			{
 				MixToMono(samples.get(), samples.get(), static_cast<UInt32>(info.channels), static_cast<UInt64>(info.frames));
 
-				format = AudioFormat_Mono;
+				format = AudioFormat::U16_Mono;
 				sampleCount = static_cast<unsigned int>(info.frames);
 			}
 

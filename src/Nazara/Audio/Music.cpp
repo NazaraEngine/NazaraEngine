@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Music.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <atomic>
@@ -67,8 +68,8 @@ namespace Nz
 
 		m_impl = std::make_unique<MusicImpl>();
 		m_impl->sampleRate = soundStream->GetSampleRate();
-		m_impl->audioFormat = OpenAL::AudioFormat[format];
-		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // One second of samples
+		m_impl->audioFormat = OpenAL::AudioFormat[UnderlyingCast(format)];
+		m_impl->chunkSamples.resize(GetChannelCount(format) * m_impl->sampleRate); // One second of samples
 		m_impl->stream = std::move(soundStream);
 
 		SetPlayingOffset(0);
@@ -147,7 +148,7 @@ namespace Nz
 		ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
-		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / m_impl->stream->GetFormat()))) / m_impl->sampleRate);
+		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / GetChannelCount(m_impl->stream->GetFormat())))) / m_impl->sampleRate);
 	}
 
 	/*!
@@ -189,8 +190,8 @@ namespace Nz
 		SoundStatus status = GetInternalStatus();
 
 		// To compensate any delays (or the timelaps between Play() and the thread startup)
-		if (m_impl->streaming && status == SoundStatus_Stopped)
-			status = SoundStatus_Playing;
+		if (m_impl->streaming && status == SoundStatus::Stopped)
+			status = SoundStatus::Playing;
 
 		return status;
 	}
@@ -289,11 +290,11 @@ namespace Nz
 		{
 			switch (GetStatus())
 			{
-				case SoundStatus_Playing:
+				case SoundStatus::Playing:
 					SetPlayingOffset(0);
 					break;
 
-				case SoundStatus_Paused:
+				case SoundStatus::Paused:
 					alSourcePlay(m_source);
 					break;
 
@@ -328,7 +329,7 @@ namespace Nz
 			Stop();
 
 		m_impl->playingOffset = offset;
-		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * m_impl->stream->GetFormat() / 1000ULL;
+		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * GetChannelCount(m_impl->stream->GetFormat()) / 1000ULL;
 
 		if (isPlaying)
 			Play();
@@ -405,7 +406,7 @@ namespace Nz
 		{
 			// The reading has stopped, we have reached the end of the stream
 			SoundStatus status = GetInternalStatus();
-			if (status == SoundStatus_Stopped)
+			if (status == SoundStatus::Stopped)
 			{
 				m_impl->streaming = false;
 				break;
