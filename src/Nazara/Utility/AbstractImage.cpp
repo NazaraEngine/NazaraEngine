@@ -22,6 +22,6 @@ namespace Nz
 
 	bool AbstractImage::IsCubemap() const
 	{
-		return GetType() == ImageType_Cubemap;
+		return GetType() == ImageType::Cubemap;
 	}
 }

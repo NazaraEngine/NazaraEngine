@@ -18,39 +18,39 @@ namespace Nz
 		{
 			switch (component)
 			{
-				case ComponentType_Color:
+				case ComponentType::Color:
 					attrib.normalized = GL_TRUE;
 					attrib.size = 4;
 					attrib.type = GL_UNSIGNED_BYTE;
 					return;
 
-				case ComponentType_Float1:
-				case ComponentType_Float2:
-				case ComponentType_Float3:
-				case ComponentType_Float4:
+				case ComponentType::Float1:
+				case ComponentType::Float2:
+				case ComponentType::Float3:
+				case ComponentType::Float4:
 					attrib.normalized = GL_FALSE;
-					attrib.size = (component - ComponentType_Float1 + 1);
+					attrib.size = (UnderlyingCast(component) - UnderlyingCast(ComponentType::Float1) + 1);
 					attrib.type = GL_FLOAT;
 					return;
 
-				case ComponentType_Int1:
-				case ComponentType_Int2:
-				case ComponentType_Int3:
-				case ComponentType_Int4:
+				case ComponentType::Int1:
+				case ComponentType::Int2:
+				case ComponentType::Int3:
+				case ComponentType::Int4:
 					attrib.normalized = GL_FALSE;
-					attrib.size = (component - ComponentType_Int1 + 1);
+					attrib.size = (UnderlyingCast(component) - UnderlyingCast(ComponentType::Int1) + 1);
 					attrib.type = GL_INT;
 					return;
 
-				case ComponentType_Double1:
-				case ComponentType_Double2:
-				case ComponentType_Double3:
-				case ComponentType_Double4:
-				case ComponentType_Quaternion:
+				case ComponentType::Double1:
+				case ComponentType::Double2:
+				case ComponentType::Double3:
+				case ComponentType::Double4:
+				case ComponentType::Quaternion:
 					break;
 			}
 
-			throw std::runtime_error("component type 0x" + NumberToString(component, 16) + " is not handled");
+			throw std::runtime_error("component type 0x" + NumberToString(UnderlyingCast(component), 16) + " is not handled");
 		}
 	}
 

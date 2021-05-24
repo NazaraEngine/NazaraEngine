@@ -87,9 +87,9 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			static PixelFormatDescription s_pixelFormatInfos[PixelFormat_Max + 1];
-			static ConvertFunction s_convertFunctions[PixelFormat_Max+1][PixelFormat_Max+1];
-			static std::map<PixelFormat, FlipFunction> s_flipFunctions[PixelFlipping_Max+1];
+			static PixelFormatDescription s_pixelFormatInfos[PixelFormatCount];
+			static ConvertFunction s_convertFunctions[PixelFormatCount][PixelFormatCount];
+			static std::map<PixelFormat, FlipFunction> s_flipFunctions[PixelFlippingCount];
 	};
 }
 

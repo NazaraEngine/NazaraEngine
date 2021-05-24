@@ -11,31 +11,31 @@
 
 namespace Nz
 {
-	GraphicalMesh::GraphicalMesh(const Mesh* mesh)
+	GraphicalMesh::GraphicalMesh(const Mesh& mesh)
 	{
-		assert(mesh->GetAnimationType() == AnimationType_Static);
+		assert(mesh.GetAnimationType() == AnimationType::Static);
 
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
-		m_subMeshes.reserve(mesh->GetSubMeshCount());
-		for (std::size_t i = 0; i < mesh->GetSubMeshCount(); ++i)
+		m_subMeshes.reserve(mesh.GetSubMeshCount());
+		for (std::size_t i = 0; i < mesh.GetSubMeshCount(); ++i)
 		{
-			const SubMesh* subMesh = mesh->GetSubMesh(i);
+			const SubMesh& subMesh = *mesh.GetSubMesh(i);
 
-			const StaticMesh* staticMesh = static_cast<const StaticMesh*>(subMesh);
+			const StaticMesh& staticMesh = static_cast<const StaticMesh&>(subMesh);
 
-			const IndexBuffer* indexBuffer = staticMesh->GetIndexBuffer();
-			const VertexBuffer* vertexBuffer = staticMesh->GetVertexBuffer();
+			const std::shared_ptr<const IndexBuffer>& indexBuffer = staticMesh.GetIndexBuffer();
+			const std::shared_ptr<VertexBuffer>& vertexBuffer = staticMesh.GetVertexBuffer();
 
-			assert(indexBuffer->GetBuffer()->GetStorage() == DataStorage_Software);
+			assert(indexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
 			const SoftwareBuffer* indexBufferContent = static_cast<const SoftwareBuffer*>(indexBuffer->GetBuffer()->GetImpl());
 
-			assert(vertexBuffer->GetBuffer()->GetStorage() == DataStorage_Software);
+			assert(vertexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
 			const SoftwareBuffer* vertexBufferContent = static_cast<const SoftwareBuffer*>(vertexBuffer->GetBuffer()->GetImpl());
 
 			auto& submeshData = m_subMeshes.emplace_back();
-			submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType_Index);
-			if (!submeshData.indexBuffer->Initialize(indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage_DeviceLocal))
+			submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType::Index);
+			if (!submeshData.indexBuffer->Initialize(indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::DeviceLocal))
 				throw std::runtime_error("failed to create index buffer");
 
 			if (!submeshData.indexBuffer->Fill(indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
@@ -43,8 +43,8 @@ namespace Nz
 
 			submeshData.indexCount = indexBuffer->GetIndexCount();
 
-			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(BufferType_Vertex);
-			if (!submeshData.vertexBuffer->Initialize(vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage_DeviceLocal))
+			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(BufferType::Vertex);
+			if (!submeshData.vertexBuffer->Initialize(vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage::DeviceLocal))
 				throw std::runtime_error("failed to create vertex buffer");
 
 			if (!submeshData.vertexBuffer->Fill(vertexBufferContent->GetData() + vertexBuffer->GetStartOffset(), 0, vertexBuffer->GetEndOffset() - vertexBuffer->GetStartOffset()))

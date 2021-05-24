@@ -30,12 +30,12 @@ namespace Nz
 			GLenum attachment;
 			switch (PixelFormatInfo::GetContent(textureFormat))
 			{
-				case PixelFormatContent_ColorRGBA:
+				case PixelFormatContent::ColorRGBA:
 					attachment = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + colorAttachmentCount);
 					colorAttachmentCount++;
 					break;
 
-				case PixelFormatContent_Depth:
+				case PixelFormatContent::Depth:
 					if (hasDepth)
 						throw std::runtime_error("a framebuffer can only have one depth attachment");
 
@@ -43,7 +43,7 @@ namespace Nz
 					hasDepth = true;
 					break;
 
-				case PixelFormatContent_DepthStencil:
+				case PixelFormatContent::DepthStencil:
 					if (hasDepth)
 						throw std::runtime_error("a framebuffer can only have one depth attachment");
 
@@ -55,7 +55,7 @@ namespace Nz
 					hasStencil = true;
 					break;
 
-				case PixelFormatContent_Stencil:
+				case PixelFormatContent::Stencil:
 					if (hasStencil)
 						throw std::runtime_error("a framebuffer can only have one stencil attachment");
 
@@ -63,7 +63,7 @@ namespace Nz
 					hasStencil = true;
 					break;
 
-				case PixelFormatContent_Undefined:
+				case PixelFormatContent::Undefined:
 				default:
 					throw std::runtime_error("unhandled pixel format " + PixelFormatInfo::GetName(textureFormat));
 			}

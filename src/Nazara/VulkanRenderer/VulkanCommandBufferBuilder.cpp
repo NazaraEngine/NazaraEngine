@@ -58,7 +58,7 @@ namespace Nz
 			const auto& values = (i < clearValueCount) ? clearValues[i] : CommandBufferBuilder::ClearValues{};
 			auto& vkValues = vkClearValues[i];
 
-			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent_ColorRGBA)
+			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
 			{
 				vkValues.color.float32[0] = values.color.r / 255.f;
 				vkValues.color.float32[1] = values.color.g / 255.f;

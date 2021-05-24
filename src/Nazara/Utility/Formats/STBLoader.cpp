@@ -36,9 +36,9 @@ namespace Nz
 
 		static stbi_io_callbacks callbacks = {Read, Skip, Eof};
 
-		bool IsSupported(const std::string& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
-			static std::unordered_set<std::string> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
+			static std::unordered_set<std::string_view> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
@@ -55,7 +55,7 @@ namespace Nz
 				return Ternary::False;
 		}
 
-		ImageRef Load(Stream& stream, const ImageParams& parameters)
+		std::shared_ptr<Image> Load(Stream& stream, const ImageParams& parameters)
 		{
 			// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
 			// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
@@ -65,7 +65,7 @@ namespace Nz
 			if (!ptr)
 			{
 				NazaraError("Failed to load image: " + std::string(stbi_failure_reason()));
-				return nullptr;
+				return {};
 			}
 
 			CallOnExit freeStbiImage([ptr]()
@@ -73,19 +73,25 @@ namespace Nz
 				stbi_image_free(ptr);
 			});
 
-			ImageRef image = Image::New();
-			if (!image->Create(ImageType_2D, PixelFormat_RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			std::shared_ptr<Image> image = std::make_shared<Image>();
+			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
-				return nullptr;
+				return {};
 			}
 
 			image->Update(ptr);
 
 			freeStbiImage.CallAndReset();
 
-			if (parameters.loadFormat != PixelFormat_Undefined)
-				image->Convert(parameters.loadFormat);
+			if (parameters.loadFormat != PixelFormat::Undefined)
+			{
+				if (!image->Convert(parameters.loadFormat))
+				{
+					NazaraError("Failed to convert image to required format");
+					return {};
+				}
+			}
 
 			return image;
 		}
@@ -93,14 +99,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterSTBLoader()
+		ImageLoader::Entry GetImageLoader_STB()
 		{
-			ImageLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			ImageLoader::Entry loaderEntry;
+			loaderEntry.extensionSupport = IsSupported;
+			loaderEntry.streamChecker = Check;
+			loaderEntry.streamLoader = Load;
 
-		void UnregisterSTBLoader()
-		{
-			ImageLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loaderEntry;
 		}
 	}
 }

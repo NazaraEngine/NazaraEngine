@@ -12,6 +12,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <memory>
 
 namespace Nz
 {
@@ -30,7 +31,7 @@ namespace Nz
 			virtual void Clear() = 0;
 
 			virtual const Rectf& GetBounds() const = 0;
-			virtual Font* GetFont(std::size_t index) const = 0;
+			virtual const std::shared_ptr<Font>& GetFont(std::size_t index) const = 0;
 			virtual std::size_t GetFontCount() const = 0;
 			virtual const Glyph& GetGlyph(std::size_t index) const = 0;
 			virtual std::size_t GetGlyphCount() const = 0;

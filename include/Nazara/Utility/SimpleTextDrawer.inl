@@ -65,7 +65,7 @@ namespace Nz
 		return m_color;
 	}
 
-	inline Font* SimpleTextDrawer::GetFont() const
+	inline const std::shared_ptr<Font>& SimpleTextDrawer::GetFont() const
 	{
 		return m_font;
 	}
@@ -131,11 +131,11 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetFont(Font* font)
+	inline void SimpleTextDrawer::SetFont(std::shared_ptr<Font> font)
 	{
 		if (m_font != font)
 		{
-			m_font = font;
+			m_font = std::move(font);
 
 			if (m_font)
 				ConnectFontSlots();
@@ -281,7 +281,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -293,7 +293,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);

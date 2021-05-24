@@ -8,37 +8,30 @@
 #define NAZARA_BUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <array>
+#include <functional>
 
 namespace Nz
 {
-	class Buffer;
-
-	using BufferConstRef = ObjectRef<const Buffer>;
-	using BufferRef = ObjectRef<Buffer>;
-
-	class NAZARA_UTILITY_API Buffer : public RefCounted
+	class NAZARA_UTILITY_API Buffer
 	{
 		friend class Utility;
 
 		public:
-			using BufferFactory = AbstractBuffer* (*)(Buffer* parent, BufferType type);
+			using BufferFactory = std::function<std::unique_ptr<AbstractBuffer>(Buffer* parent, BufferType type)>;
 
 			Buffer(BufferType type);
-			Buffer(BufferType type, UInt32 size, DataStorage storage = DataStorage_Software, BufferUsageFlags usage = 0);
+			Buffer(BufferType type, UInt32 size, DataStorage storage = DataStorage::Software, BufferUsageFlags usage = 0);
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&&) = delete;
-			~Buffer();
+			~Buffer() = default;
 
-			bool CopyContent(const BufferRef& buffer);
+			bool CopyContent(const Buffer& buffer);
 
-			bool Create(UInt32 size, DataStorage storage = DataStorage_Software, BufferUsageFlags usage = 0);
+			bool Create(UInt32 size, DataStorage storage = DataStorage::Software, BufferUsageFlags usage = 0);
 			void Destroy();
 
 			bool Fill(const void* data, UInt32 offset, UInt32 size);
@@ -64,12 +57,7 @@ namespace Nz
 			Buffer& operator=(Buffer&&) = delete;
 
 			static bool IsStorageSupported(DataStorage storage);
-			template<typename... Args> static BufferRef New(Args&&... args);
 			static void SetBufferFactory(DataStorage storage, BufferFactory func);
-
-			// Signals:
-			NazaraSignal(OnBufferDestroy, const Buffer* /*buffer*/);
-			NazaraSignal(OnBufferRelease, const Buffer* /*buffer*/);
 
 		private:
 			static bool Initialize();
@@ -80,7 +68,7 @@ namespace Nz
 			BufferUsageFlags m_usage;
 			UInt32 m_size;
 
-			static std::array<BufferFactory, DataStorage_Max + 1> s_bufferFactories;
+			static std::array<BufferFactory, DataStorageCount> s_bufferFactories;
 	};
 }
 

@@ -22,7 +22,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const std::string& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "obj");
 		}
@@ -42,7 +42,7 @@ namespace Nz
 			return Ternary::Unknown;
 		}
 
-		bool ParseMTL(Mesh* mesh, const std::filesystem::path& filePath, const std::string* materials, const OBJParser::Mesh* meshes, std::size_t meshCount)
+		bool ParseMTL(Mesh& mesh, const std::filesystem::path& filePath, const std::string* materials, const OBJParser::Mesh* meshes, std::size_t meshCount)
 		{
 			File file(filePath);
 			if (!file.Open(OpenMode_ReadOnly | OpenMode_Text))
@@ -151,13 +151,13 @@ namespace Nz
 					it = materialCache.emplace(matName, std::move(data)).first;
 				}
 
-				mesh->SetMaterialData(meshes[i].material, it->second);
+				mesh.SetMaterialData(meshes[i].material, it->second);
 			}
 
 			return true;
 		}
 
-		MeshRef Load(Stream& stream, const MeshParams& parameters)
+		std::shared_ptr<Mesh> Load(Stream& stream, const MeshParams& parameters)
 		{
 			long long reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
@@ -170,7 +170,7 @@ namespace Nz
 				return nullptr;
 			}
 
-			MeshRef mesh = Mesh::New();
+			std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 			mesh->CreateStatic();
 
 			const std::string* materials = parser.GetMaterials();
@@ -254,11 +254,11 @@ namespace Nz
 				}
 
 				// Création des buffers
-				IndexBufferRef indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), std::size_t(indices.size()), parameters.storage, parameters.indexBufferFlags);
-				VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, std::size_t(vertexCount), parameters.storage, parameters.vertexBufferFlags);
+				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), std::size_t(indices.size()), parameters.storage, parameters.indexBufferFlags);
+				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, std::size_t(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
 				// Remplissage des indices
-				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 				for (std::size_t j = 0; j < indices.size(); ++j)
 					indexMapper.Set(j, UInt32(indices[j]));
 
@@ -277,11 +277,11 @@ namespace Nz
 				bool hasNormals = true;
 				bool hasTexCoords = true;
 
-				VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
 
-				auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-				auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+				auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+				auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
 				if (!normalPtr)
 					hasNormals = false;
@@ -321,7 +321,7 @@ namespace Nz
 
 				vertexMapper.Unmap();
 
-				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
+				std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(std::move(vertexBuffer), indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(meshes[i].material);
 
@@ -345,7 +345,7 @@ namespace Nz
 			if (!mtlLib.empty())
 			{
 				ErrorFlags flags(ErrorFlag_ThrowExceptionDisabled);
-				ParseMTL(mesh, stream.GetDirectory() / mtlLib, materials, meshes, meshCount);
+				ParseMTL(*mesh, stream.GetDirectory() / mtlLib, materials, meshes, meshCount);
 			}
 
 			return mesh;
@@ -354,14 +354,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterOBJLoader()
+		MeshLoader::Entry GetMeshLoader_OBJ()
 		{
-			MeshLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			MeshLoader::Entry loader;
+			loader.extensionSupport = IsSupported;
+			loader.streamChecker = Check;
+			loader.streamLoader = Load;
 
-		void UnregisterOBJLoader()
-		{
-			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loader;
 		}
 	}
 }

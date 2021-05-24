@@ -14,22 +14,6 @@ namespace Nz
 	m_isValid(false)
 	{
 	}
-
-	Mesh::~Mesh()
-	{
-		OnMeshRelease(this);
-
-		Destroy();
-	}
-
-	template<typename... Args>
-	MeshRef Mesh::New(Args&&... args)
-	{
-		std::unique_ptr<Mesh> object(new Mesh(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
-	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

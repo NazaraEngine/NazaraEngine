@@ -6,10 +6,6 @@
 
 namespace Nz
 {
-	inline AbstractImage::AbstractImage(const AbstractImage&) :
-	RefCounted()
-	{
-	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

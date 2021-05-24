@@ -8,39 +8,31 @@
 #define NAZARA_VERTEXBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 
 namespace Nz
 {
-	class VertexBuffer;
-
-	using VertexBufferConstRef = ObjectRef<VertexBuffer>;
-	using VertexBufferRef = ObjectRef<VertexBuffer>;
-
-	class NAZARA_UTILITY_API VertexBuffer : public RefCounted
+	class NAZARA_UTILITY_API VertexBuffer
 	{
 		public:
 			VertexBuffer() = default;
-			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer);
-			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, std::size_t offset, std::size_t size);
-			VertexBuffer(VertexDeclarationConstRef vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
-			VertexBuffer(const VertexBuffer& vertexBuffer);
-			VertexBuffer(VertexBuffer&&) = delete;
-			~VertexBuffer();
+			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer);
+			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size);
+			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
+			VertexBuffer(const VertexBuffer&) = default;
+			VertexBuffer(VertexBuffer&&) noexcept = default;
+			~VertexBuffer() = default;
 
 			bool Fill(const void* data, std::size_t startVertex, std::size_t length);
 			bool FillRaw(const void* data, std::size_t offset, std::size_t size);
 
-			inline const BufferRef& GetBuffer() const;
+			inline const std::shared_ptr<Buffer>& GetBuffer() const;
 			inline std::size_t GetEndOffset() const;
 			inline std::size_t GetStartOffset() const;
 			inline std::size_t GetStride() const;
 			inline std::size_t GetVertexCount() const;
-			inline const VertexDeclarationConstRef& GetVertexDeclaration() const;
+			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration() const;
 
 			inline bool IsValid() const;
 
@@ -50,29 +42,24 @@ namespace Nz
 			void* MapRaw(BufferAccess access, std::size_t offset = 0, std::size_t size = 0) const;
 
 			void Reset();
-			void Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer);
-			void Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, std::size_t offset, std::size_t size);
-			void Reset(VertexDeclarationConstRef vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
+			void Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer);
+			void Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size);
+			void Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
 			void Reset(const VertexBuffer& vertexBuffer);
 
-			void SetVertexDeclaration(VertexDeclarationConstRef vertexDeclaration);
+			void SetVertexDeclaration(std::shared_ptr<const VertexDeclaration> vertexDeclaration);
 
 			void Unmap() const;
 
-			VertexBuffer& operator=(const VertexBuffer& vertexBuffer);
-			VertexBuffer& operator=(VertexBuffer&&) = delete;
-
-			template<typename... Args> static VertexBufferRef New(Args&&... args);
-
-			// Signals:
-			NazaraSignal(OnVertexBufferRelease, const VertexBuffer* /*vertexBuffer*/);
+			VertexBuffer& operator=(const VertexBuffer&) = default;
+			VertexBuffer& operator=(VertexBuffer&&) noexcept = default;
 
 		private:
-			BufferRef m_buffer;
+			std::shared_ptr<Buffer> m_buffer;
+			std::shared_ptr<const VertexDeclaration> m_vertexDeclaration;
 			std::size_t m_endOffset;
 			std::size_t m_startOffset;
 			std::size_t m_vertexCount;
-			VertexDeclarationConstRef m_vertexDeclaration;
 	};
 }
 

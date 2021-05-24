@@ -51,7 +51,7 @@ namespace Nz
 				T* m_buffer;
 		};
 
-		bool IsSupported(const std::string& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "obj");
 		}
@@ -142,21 +142,21 @@ namespace Nz
 			OBJParser::Mesh* meshes = objFormat.SetMeshCount(meshCount);
 			for (std::size_t i = 0; i < meshCount; ++i)
 			{
-				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(mesh.GetSubMesh(i));
+				const StaticMesh& staticMesh = static_cast<const StaticMesh&>(*mesh.GetSubMesh(i));
 
-				std::size_t triangleCount = staticMesh->GetTriangleCount();
+				std::size_t triangleCount = staticMesh.GetTriangleCount();
 
 				meshes[i].faces.resize(triangleCount);
-				meshes[i].material = staticMesh->GetMaterialIndex();
+				meshes[i].material = staticMesh.GetMaterialIndex();
 				meshes[i].name = "mesh_" + std::to_string(i);
 				meshes[i].vertices.resize(triangleCount * 3);
 
 				{
 					VertexMapper vertexMapper(staticMesh);
 
-					SparsePtr<Vector3f> normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-					SparsePtr<Vector3f> positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-					SparsePtr<Vector2f> texCoordsPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+					SparsePtr<Vector3f> normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+					SparsePtr<Vector3f> positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+					SparsePtr<Vector2f> texCoordsPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
 					std::size_t faceIndex = 0;
 					TriangleIterator triangle(staticMesh);
@@ -201,14 +201,13 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterOBJSaver()
+		MeshSaver::Entry GetMeshSaver_OBJ()
 		{
-			MeshSaver::RegisterSaver(IsSupported, SaveToStream);
-		}
+			MeshSaver::Entry entry;
+			entry.formatSupport = IsSupported;
+			entry.streamSaver = SaveToStream;
 
-		void UnregisterOBJSaver()
-		{
-			MeshSaver::UnregisterSaver(IsSupported, SaveToStream);
+			return entry;
 		}
 	}
 }

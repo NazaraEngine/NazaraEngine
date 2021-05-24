@@ -10,8 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
@@ -38,23 +36,18 @@ namespace Nz
 	struct SequenceJoint;
 	class Skeleton;
 
-	using AnimationConstRef = ObjectRef<const Animation>;
 	using AnimationLibrary = ObjectLibrary<Animation>;
 	using AnimationLoader = ResourceLoader<Animation, AnimationParams>;
 	using AnimationManager = ResourceManager<Animation, AnimationParams>;
-	using AnimationRef = ObjectRef<Animation>;
 
 	struct AnimationImpl;
 
-	class NAZARA_UTILITY_API Animation : public RefCounted, public Resource
+	class NAZARA_UTILITY_API Animation : public Resource
 	{
-		friend AnimationLibrary;
-		friend AnimationLoader;
-		friend AnimationManager;
-		friend class Utility;
-
 		public:
-			Animation() = default;
+			Animation();
+			Animation(const Animation&) = delete;
+			Animation(Animation&&) noexcept;
 			~Animation();
 
 			bool AddSequence(const Sequence& sequence);
@@ -86,26 +79,15 @@ namespace Nz
 			void RemoveSequence(const std::string& sequenceName);
 			void RemoveSequence(std::size_t index);
 
-			template<typename... Args> static AnimationRef New(Args&&... args);
+			Animation& operator=(const Animation&) = delete;
+			Animation& operator=(Animation&&) noexcept;
 
-			static AnimationRef LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params = AnimationParams());
-			static AnimationRef LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
-			static AnimationRef LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
-
-			// Signals:
-			NazaraSignal(OnAnimationDestroy, const Animation* /*animation*/);
-			NazaraSignal(OnAnimationRelease, const Animation* /*animation*/);
+			static std::shared_ptr<Animation> LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params = AnimationParams());
+			static std::shared_ptr<Animation> LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
+			static std::shared_ptr<Animation> LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
 
 		private:
-			static bool Initialize();
-			static void Uninitialize();
-
-			MovablePtr<AnimationImpl> m_impl = nullptr;
-
-			static AnimationLibrary::LibraryMap s_library;
-			static AnimationLoader::LoaderList s_loaders;
-			static AnimationManager::ManagerMap s_managerMap;
-			static AnimationManager::ManagerParams s_managerParameters;
+			std::unique_ptr<AnimationImpl> m_impl;
 	};
 }
 

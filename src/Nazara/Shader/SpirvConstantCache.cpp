@@ -846,7 +846,7 @@ namespace Nz
 
 		annotations.Append(SpirvOp::OpDecorate, resultId, SpirvDecoration::Block);
 
-		FieldOffsets structOffsets(StructLayout_Std140);
+		FieldOffsets structOffsets(StructLayout::Std140);
 
 		for (std::size_t memberIndex = 0; memberIndex < structData.members.size(); ++memberIndex)
 		{
@@ -858,18 +858,18 @@ namespace Nz
 				using T = std::decay_t<decltype(arg)>;
 
 				if constexpr (std::is_same_v<T, Bool>)
-					return structOffsets.AddField(StructFieldType_Bool1);
+					return structOffsets.AddField(StructFieldType::Bool1);
 				else if constexpr (std::is_same_v<T, Float>)
 				{
 					switch (arg.width)
 					{
-						case 32: return structOffsets.AddField(StructFieldType_Float1);
-						case 64: return structOffsets.AddField(StructFieldType_Double1);
+						case 32: return structOffsets.AddField(StructFieldType::Float1);
+						case 64: return structOffsets.AddField(StructFieldType::Double1);
 						default: throw std::runtime_error("unexpected float width " + std::to_string(arg.width));
 					}
 				}
 				else if constexpr (std::is_same_v<T, Integer>)
-					return structOffsets.AddField((arg.signedness) ? StructFieldType_Int1 : StructFieldType_UInt1);
+					return structOffsets.AddField((arg.signedness) ? StructFieldType::Int1 : StructFieldType::UInt1);
 				else if constexpr (std::is_same_v<T, Matrix>)
 				{
 					assert(std::holds_alternative<Vector>(arg.columnType->type));
@@ -883,8 +883,8 @@ namespace Nz
 					StructFieldType columnType;
 					switch (vecType.width)
 					{
-						case 32: columnType = StructFieldType_Float1;  break;
-						case 64: columnType = StructFieldType_Double1; break;
+						case 32: columnType = StructFieldType::Float1;  break;
+						case 64: columnType = StructFieldType::Double1; break;
 						default: throw std::runtime_error("unexpected float width " + std::to_string(vecType.width));
 					}
 
@@ -905,14 +905,14 @@ namespace Nz
 				else if constexpr (std::is_same_v<T, Vector>)
 				{
 					if (std::holds_alternative<Bool>(arg.componentType->type))
-						return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Bool1 + arg.componentCount - 1));
+						return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Bool1) + arg.componentCount - 1));
 					else if (std::holds_alternative<Float>(arg.componentType->type))
 					{
 						Float& floatData = std::get<Float>(arg.componentType->type);
 						switch (floatData.width)
 						{
-							case 32: return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Float1 + arg.componentCount - 1));
-							case 64: return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Double1 + arg.componentCount - 1));
+							case 32: return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Float1) + arg.componentCount - 1));
+							case 64: return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Double1) + arg.componentCount - 1));
 							default: throw std::runtime_error("unexpected float width " + std::to_string(floatData.width));
 						}
 					}
@@ -923,9 +923,9 @@ namespace Nz
 							throw std::runtime_error("unexpected integer width " + std::to_string(intData.width));
 
 						if (intData.signedness)
-							return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Int1 + arg.componentCount - 1));
+							return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Int1) + arg.componentCount - 1));
 						else
-							return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_UInt1 + arg.componentCount - 1));
+							return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::UInt1) + arg.componentCount - 1));
 					}
 					else
 						throw std::runtime_error("unexpected type for vector");

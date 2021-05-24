@@ -27,7 +27,7 @@ namespace Nz
 	struct NAZARA_UTILITY_API ImageParams : ResourceParameters
 	{
 		// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
-		PixelFormat loadFormat = PixelFormat_Undefined;
+		PixelFormat loadFormat = PixelFormat::Undefined;
 
 		// Le nombre de niveaux de mipmaps maximum devant être créé
 		UInt8 levelCount = 0;
@@ -37,21 +37,13 @@ namespace Nz
 
 	class Image;
 
-	using ImageConstRef = ObjectRef<const Image>;
 	using ImageLibrary = ObjectLibrary<Image>;
 	using ImageLoader = ResourceLoader<Image, ImageParams>;
 	using ImageManager = ResourceManager<Image, ImageParams>;
-	using ImageRef = ObjectRef<Image>;
 	using ImageSaver = ResourceSaver<Image, ImageParams>;
 
 	class NAZARA_UTILITY_API Image : public AbstractImage, public Resource
 	{
-		friend ImageLibrary;
-		friend ImageLoader;
-		friend ImageManager;
-		friend ImageSaver;
-		friend class Utility;
-
 		public:
 			struct SharedImage;
 
@@ -63,7 +55,7 @@ namespace Nz
 
 			bool Convert(PixelFormat format);
 
-			void Copy(const Image* source, const Boxui& srcBox, const Vector3ui& dstPos);
+			void Copy(const Image& source, const Boxui& srcBox, const Vector3ui& dstPos);
 
 			bool Create(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
 			void Destroy();
@@ -118,23 +110,21 @@ namespace Nz
 			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
 
 			// Load
-			static ImageRef LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
-			static ImageRef LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
-			static ImageRef LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
+			static std::shared_ptr<Image> LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
+			static std::shared_ptr<Image> LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
+			static std::shared_ptr<Image> LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
 
 			// LoadArray
-			static ImageRef LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
-			static ImageRef LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			static ImageRef LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
-			static ImageRef LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Image> LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Image> LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Image> LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Image> LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
 
 			// LoadCubemap
-			static ImageRef LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-			static ImageRef LoadCubemapFromImage(const Image* image, const CubemapParams& params = CubemapParams());
-			static ImageRef LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-			static ImageRef LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-
-			template<typename... Args> static ImageRef New(Args&&... args);
+			static std::shared_ptr<Image> LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			static std::shared_ptr<Image> LoadCubemapFromImage(const Image& image, const CubemapParams& params = CubemapParams());
+			static std::shared_ptr<Image> LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			static std::shared_ptr<Image> LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
 
 			struct SharedImage
 			{
@@ -163,24 +153,11 @@ namespace Nz
 
 			static SharedImage emptyImage;
 
-			// Signals:
-			NazaraSignal(OnImageDestroy, const Image* /*image*/);
-			NazaraSignal(OnImageRelease, const Image* /*image*/);
-
 		private:
 			void EnsureOwnership();
 			void ReleaseImage();
 
-			static bool Initialize();
-			static void Uninitialize();
-
 			SharedImage* m_sharedImage;
-
-			static ImageLibrary::LibraryMap s_library;
-			static ImageLoader::LoaderList s_loaders;
-			static ImageManager::ManagerMap s_managerMap;
-			static ImageManager::ManagerParams s_managerParameters;
-			static ImageSaver::SaverList s_savers;
 		};
 }
 
