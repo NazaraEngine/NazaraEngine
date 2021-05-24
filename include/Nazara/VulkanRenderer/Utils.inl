@@ -14,12 +14,12 @@ namespace Nz
 	{
 		switch (format)
 		{
-			case VK_FORMAT_B8G8R8A8_UNORM: return PixelFormat::PixelFormat_BGRA8;
-			case VK_FORMAT_B8G8R8A8_SRGB: return PixelFormat::PixelFormat_BGRA8_SRGB;
-			case VK_FORMAT_D24_UNORM_S8_UINT: return PixelFormat::PixelFormat_Depth24Stencil8;
-			case VK_FORMAT_D32_SFLOAT: return PixelFormat::PixelFormat_Depth32;
-			case VK_FORMAT_R8G8B8A8_UNORM: return PixelFormat::PixelFormat_RGBA8;
-			case VK_FORMAT_R8G8B8A8_SRGB: return PixelFormat::PixelFormat_RGBA8_SRGB;
+			case VK_FORMAT_B8G8R8A8_UNORM: return PixelFormat::BGRA8;
+			case VK_FORMAT_B8G8R8A8_SRGB: return PixelFormat::BGRA8_SRGB;
+			case VK_FORMAT_D24_UNORM_S8_UINT: return PixelFormat::Depth24Stencil8;
+			case VK_FORMAT_D32_SFLOAT: return PixelFormat::Depth32;
+			case VK_FORMAT_R8G8B8A8_UNORM: return PixelFormat::RGBA8;
+			case VK_FORMAT_R8G8B8A8_SRGB: return PixelFormat::RGBA8_SRGB;
 			default: break;
 		}
 
@@ -94,12 +94,12 @@ namespace Nz
 	{
 		switch (bufferType)
 		{
-			case BufferType_Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-			case BufferType_Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			case BufferType_Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			case BufferType::Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferType::Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case BufferType::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
 
-		NazaraError("Unhandled BufferType 0x" + NumberToString(bufferType, 16));
+		NazaraError("Unhandled BufferType 0x" + NumberToString(UnderlyingCast(bufferType), 16));
 		return 0;
 	}
 
@@ -107,23 +107,23 @@ namespace Nz
 	{
 		switch (componentType)
 		{
-			case ComponentType_Color:      return VK_FORMAT_R8G8B8A8_UINT;
-			case ComponentType_Double1:    return VK_FORMAT_R64_SFLOAT;
-			case ComponentType_Double2:    return VK_FORMAT_R64G64_SFLOAT;
-			case ComponentType_Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
-			case ComponentType_Double4:    return VK_FORMAT_R64G64B64A64_SFLOAT;
-			case ComponentType_Float1:     return VK_FORMAT_R32_SFLOAT;
-			case ComponentType_Float2:     return VK_FORMAT_R32G32_SFLOAT;
-			case ComponentType_Float3:     return VK_FORMAT_R32G32B32_SFLOAT;
-			case ComponentType_Float4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
-			case ComponentType_Int1:       return VK_FORMAT_R32_SINT;
-			case ComponentType_Int2:       return VK_FORMAT_R32G32_SINT;
-			case ComponentType_Int3:       return VK_FORMAT_R32G32B32_SINT;
-			case ComponentType_Int4:       return VK_FORMAT_R32G32B32A32_SINT;
-			case ComponentType_Quaternion: return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ComponentType::Color:      return VK_FORMAT_R8G8B8A8_UINT;
+			case ComponentType::Double1:    return VK_FORMAT_R64_SFLOAT;
+			case ComponentType::Double2:    return VK_FORMAT_R64G64_SFLOAT;
+			case ComponentType::Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
+			case ComponentType::Double4:    return VK_FORMAT_R64G64B64A64_SFLOAT;
+			case ComponentType::Float1:     return VK_FORMAT_R32_SFLOAT;
+			case ComponentType::Float2:     return VK_FORMAT_R32G32_SFLOAT;
+			case ComponentType::Float3:     return VK_FORMAT_R32G32B32_SFLOAT;
+			case ComponentType::Float4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ComponentType::Int1:       return VK_FORMAT_R32_SINT;
+			case ComponentType::Int2:       return VK_FORMAT_R32G32_SINT;
+			case ComponentType::Int3:       return VK_FORMAT_R32G32B32_SINT;
+			case ComponentType::Int4:       return VK_FORMAT_R32G32B32A32_SINT;
+			case ComponentType::Quaternion: return VK_FORMAT_R32G32B32A32_SFLOAT;
 		}
 
-		NazaraError("Unhandled ComponentType 0x" + NumberToString(componentType, 16));
+		NazaraError("Unhandled ComponentType 0x" + NumberToString(UnderlyingCast(componentType), 16));
 		return VK_FORMAT_UNDEFINED;
 	}
 
@@ -131,13 +131,13 @@ namespace Nz
 	{
 		switch (faceSide)
 		{
-			case FaceSide_None:         return VK_CULL_MODE_NONE;
-			case FaceSide_Back:         return VK_CULL_MODE_BACK_BIT;
-			case FaceSide_Front:        return VK_CULL_MODE_FRONT_BIT;
-			case FaceSide_FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
+			case FaceSide::None:         return VK_CULL_MODE_NONE;
+			case FaceSide::Back:         return VK_CULL_MODE_BACK_BIT;
+			case FaceSide::Front:        return VK_CULL_MODE_FRONT_BIT;
+			case FaceSide::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 		}
 
-		NazaraError("Unhandled FaceSide 0x" + NumberToString(faceSide, 16));
+		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(faceSide), 16));
 		return VK_CULL_MODE_BACK_BIT;
 	}
 
@@ -145,12 +145,12 @@ namespace Nz
 	{
 		switch (faceFilling)
 		{
-			case FaceFilling_Fill:  return VK_POLYGON_MODE_FILL;
-			case FaceFilling_Line:  return VK_POLYGON_MODE_LINE;
-			case FaceFilling_Point: return VK_POLYGON_MODE_POINT;
+			case FaceFilling::Fill:  return VK_POLYGON_MODE_FILL;
+			case FaceFilling::Line:  return VK_POLYGON_MODE_LINE;
+			case FaceFilling::Point: return VK_POLYGON_MODE_POINT;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + NumberToString(faceFilling, 16));
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(faceFilling), 16));
 		return VK_POLYGON_MODE_FILL;
 	}
 	
@@ -234,17 +234,17 @@ namespace Nz
 	{
 		switch (pixelFormat)
 		{
-			case PixelFormat::PixelFormat_BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
-			case PixelFormat::PixelFormat_BGRA8_SRGB: return VK_FORMAT_B8G8R8A8_SRGB;
-			case PixelFormat::PixelFormat_Depth24Stencil8: return VK_FORMAT_D24_UNORM_S8_UINT;
-			case PixelFormat::PixelFormat_Depth32: return VK_FORMAT_D32_SFLOAT;
-			case PixelFormat::PixelFormat_RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
-			case PixelFormat::PixelFormat_RGBA8_SRGB: return VK_FORMAT_R8G8B8A8_SRGB;
-			case PixelFormat::PixelFormat_RGBA32F: return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case PixelFormat::BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
+			case PixelFormat::BGRA8_SRGB: return VK_FORMAT_B8G8R8A8_SRGB;
+			case PixelFormat::Depth24Stencil8: return VK_FORMAT_D24_UNORM_S8_UINT;
+			case PixelFormat::Depth32: return VK_FORMAT_D32_SFLOAT;
+			case PixelFormat::RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
+			case PixelFormat::RGBA8_SRGB: return VK_FORMAT_R8G8B8A8_SRGB;
+			case PixelFormat::RGBA32F: return VK_FORMAT_R32G32B32A32_SFLOAT;
 			default: break;
 		}
 
-		NazaraError("Unhandled PixelFormat 0x" + NumberToString(pixelFormat, 16));
+		NazaraError("Unhandled PixelFormat 0x" + NumberToString(UnderlyingCast(pixelFormat), 16));
 		return {};
 	}
 
@@ -252,15 +252,15 @@ namespace Nz
 	{
 		switch (primitiveMode)
 		{
-			case PrimitiveMode_LineList:      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-			case PrimitiveMode_LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-			case PrimitiveMode_PointList:     return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-			case PrimitiveMode_TriangleList:  return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-			case PrimitiveMode_TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-			case PrimitiveMode_TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+			case PrimitiveMode::LineList:      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			case PrimitiveMode::LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+			case PrimitiveMode::PointList:     return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+			case PrimitiveMode::TriangleList:  return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			case PrimitiveMode::TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			case PrimitiveMode::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + NumberToString(primitiveMode, 16));
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(primitiveMode), 16));
 		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	}
 
@@ -268,17 +268,17 @@ namespace Nz
 	{
 		switch (comparison)
 		{
-			case RendererComparison_Never:          return VK_COMPARE_OP_NEVER; 
-			case RendererComparison_Less:           return VK_COMPARE_OP_LESS; 
-			case RendererComparison_Equal:          return VK_COMPARE_OP_EQUAL; 
-			case RendererComparison_LessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL; 
-			case RendererComparison_Greater:        return VK_COMPARE_OP_GREATER; 
-			case RendererComparison_NotEqual:       return VK_COMPARE_OP_NOT_EQUAL; 
-			case RendererComparison_GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL; 
-			case RendererComparison_Always:         return VK_COMPARE_OP_ALWAYS; 
+			case RendererComparison::Never:          return VK_COMPARE_OP_NEVER; 
+			case RendererComparison::Less:           return VK_COMPARE_OP_LESS; 
+			case RendererComparison::Equal:          return VK_COMPARE_OP_EQUAL; 
+			case RendererComparison::LessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL; 
+			case RendererComparison::Greater:        return VK_COMPARE_OP_GREATER; 
+			case RendererComparison::NotEqual:       return VK_COMPARE_OP_NOT_EQUAL; 
+			case RendererComparison::GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL; 
+			case RendererComparison::Always:         return VK_COMPARE_OP_ALWAYS; 
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + NumberToString(comparison, 16));
+		NazaraError("Unhandled RendererComparison 0x" + NumberToString(UnderlyingCast(comparison), 16));
 		return VK_COMPARE_OP_NEVER;
 	}
 
@@ -286,8 +286,8 @@ namespace Nz
 	{
 		switch (samplerFilter)
 		{
-			case SamplerFilter_Linear:  return VK_FILTER_LINEAR;
-			case SamplerFilter_Nearest: return VK_FILTER_NEAREST;
+			case SamplerFilter::Linear:  return VK_FILTER_LINEAR;
+			case SamplerFilter::Nearest: return VK_FILTER_NEAREST;
 		}
 
 		NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(samplerFilter), 16));
@@ -298,8 +298,8 @@ namespace Nz
 	{
 		switch (samplerMipmap)
 		{
-			case SamplerMipmapMode_Linear:  return VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			case SamplerMipmapMode_Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+			case SamplerMipmapMode::Linear:  return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			case SamplerMipmapMode::Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 		}
 
 		NazaraError("Unhandled SamplerMipmapMode 0x" + NumberToString(UnderlyingCast(samplerMipmap), 16));
@@ -310,9 +310,9 @@ namespace Nz
 	{
 		switch (samplerWrap)
 		{
-			case SamplerWrap_Clamp:          return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-			case SamplerWrap_MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-			case SamplerWrap_Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			case SamplerWrap::Clamp:          return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+			case SamplerWrap::MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+			case SamplerWrap::Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		}
 
 		NazaraError("Unhandled SamplerWrap 0x" + NumberToString(UnderlyingCast(samplerWrap), 16));
@@ -360,17 +360,17 @@ namespace Nz
 	{
 		switch (stencilOp)
 		{
-			case StencilOperation_Decrement:        return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
-			case StencilOperation_DecrementNoClamp: return VK_STENCIL_OP_DECREMENT_AND_WRAP;
-			case StencilOperation_Increment:        return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
-			case StencilOperation_IncrementNoClamp: return VK_STENCIL_OP_INCREMENT_AND_WRAP;
-			case StencilOperation_Invert:           return VK_STENCIL_OP_INVERT;
-			case StencilOperation_Keep:             return VK_STENCIL_OP_KEEP;
-			case StencilOperation_Replace:          return VK_STENCIL_OP_REPLACE;
-			case StencilOperation_Zero:             return VK_STENCIL_OP_ZERO;
+			case StencilOperation::Decrement:        return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			case StencilOperation::DecrementNoClamp: return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+			case StencilOperation::Increment:        return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			case StencilOperation::IncrementNoClamp: return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+			case StencilOperation::Invert:           return VK_STENCIL_OP_INVERT;
+			case StencilOperation::Keep:             return VK_STENCIL_OP_KEEP;
+			case StencilOperation::Replace:          return VK_STENCIL_OP_REPLACE;
+			case StencilOperation::Zero:             return VK_STENCIL_OP_ZERO;
 		}
 
-		NazaraError("Unhandled StencilOperation 0x" + NumberToString(stencilOp, 16));
+		NazaraError("Unhandled StencilOperation 0x" + NumberToString(UnderlyingCast(stencilOp), 16));
 		return {};
 	}
 

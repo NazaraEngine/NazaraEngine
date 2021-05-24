@@ -25,7 +25,7 @@ namespace Nz
 
 	inline std::size_t FieldOffsets::GetAlignedSize() const
 	{
-		if (m_layout == StructLayout_Std140)
+		if (m_layout == StructLayout::Std140)
 			return Align(m_size, m_largestFieldAlignment);
 		else
 			return m_size;
@@ -40,43 +40,43 @@ namespace Nz
 	{
 		switch (layout)
 		{
-			case StructLayout_Packed:
+			case StructLayout::Packed:
 				return 1;
 
-			case StructLayout_Std140:
+			case StructLayout::Std140:
 			{
 				switch (fieldType)
 				{
-					case StructFieldType_Bool1:
-					case StructFieldType_Float1:
-					case StructFieldType_Int1:
-					case StructFieldType_UInt1:
+					case StructFieldType::Bool1:
+					case StructFieldType::Float1:
+					case StructFieldType::Int1:
+					case StructFieldType::UInt1:
 						return 4;
 
-					case StructFieldType_Bool2:
-					case StructFieldType_Float2:
-					case StructFieldType_Int2:
-					case StructFieldType_UInt2:
+					case StructFieldType::Bool2:
+					case StructFieldType::Float2:
+					case StructFieldType::Int2:
+					case StructFieldType::UInt2:
 						return 2 * 4;
 
-					case StructFieldType_Bool3:
-					case StructFieldType_Float3:
-					case StructFieldType_Int3:
-					case StructFieldType_UInt3:
-					case StructFieldType_Bool4:
-					case StructFieldType_Float4:
-					case StructFieldType_Int4:
-					case StructFieldType_UInt4:
+					case StructFieldType::Bool3:
+					case StructFieldType::Float3:
+					case StructFieldType::Int3:
+					case StructFieldType::UInt3:
+					case StructFieldType::Bool4:
+					case StructFieldType::Float4:
+					case StructFieldType::Int4:
+					case StructFieldType::UInt4:
 						return 4 * 4;
 
-					case StructFieldType_Double1:
+					case StructFieldType::Double1:
 						return 8;
 
-					case StructFieldType_Double2:
+					case StructFieldType::Double2:
 						return 2 * 8;
 
-					case StructFieldType_Double3:
-					case StructFieldType_Double4:
+					case StructFieldType::Double3:
+					case StructFieldType::Double4:
 						return 4 * 8;
 				}
 			}
@@ -89,32 +89,32 @@ namespace Nz
 	{
 		switch (fieldType)
 		{
-			case StructFieldType_Bool1:
-			case StructFieldType_Double1:
-			case StructFieldType_Float1:
-			case StructFieldType_Int1:
-			case StructFieldType_UInt1:
+			case StructFieldType::Bool1:
+			case StructFieldType::Double1:
+			case StructFieldType::Float1:
+			case StructFieldType::Int1:
+			case StructFieldType::UInt1:
 				return 1;
 
-			case StructFieldType_Bool2:
-			case StructFieldType_Double2:
-			case StructFieldType_Float2:
-			case StructFieldType_Int2:
-			case StructFieldType_UInt2:
+			case StructFieldType::Bool2:
+			case StructFieldType::Double2:
+			case StructFieldType::Float2:
+			case StructFieldType::Int2:
+			case StructFieldType::UInt2:
 				return 2;
 
-			case StructFieldType_Bool3:
-			case StructFieldType_Double3:
-			case StructFieldType_Float3:
-			case StructFieldType_Int3:
-			case StructFieldType_UInt3:
+			case StructFieldType::Bool3:
+			case StructFieldType::Double3:
+			case StructFieldType::Float3:
+			case StructFieldType::Int3:
+			case StructFieldType::UInt3:
 				return 3;
 
-			case StructFieldType_Bool4:
-			case StructFieldType_Double4:
-			case StructFieldType_Float4:
-			case StructFieldType_Int4:
-			case StructFieldType_UInt4:
+			case StructFieldType::Bool4:
+			case StructFieldType::Double4:
+			case StructFieldType::Float4:
+			case StructFieldType::Int4:
+			case StructFieldType::UInt4:
 				return 4;
 		}
 
@@ -125,40 +125,40 @@ namespace Nz
 	{
 		switch (fieldType)
 		{
-			case StructFieldType_Bool1:
-			case StructFieldType_Float1:
-			case StructFieldType_Int1:
-			case StructFieldType_UInt1:
+			case StructFieldType::Bool1:
+			case StructFieldType::Float1:
+			case StructFieldType::Int1:
+			case StructFieldType::UInt1:
 				return 4;
 
-			case StructFieldType_Bool2:
-			case StructFieldType_Float2:
-			case StructFieldType_Int2:
-			case StructFieldType_UInt2:
+			case StructFieldType::Bool2:
+			case StructFieldType::Float2:
+			case StructFieldType::Int2:
+			case StructFieldType::UInt2:
 				return 2 * 4;
 
-			case StructFieldType_Bool3:
-			case StructFieldType_Float3:
-			case StructFieldType_Int3:
-			case StructFieldType_UInt3:
+			case StructFieldType::Bool3:
+			case StructFieldType::Float3:
+			case StructFieldType::Int3:
+			case StructFieldType::UInt3:
 				return 3 * 4;
 
-			case StructFieldType_Bool4:
-			case StructFieldType_Float4:
-			case StructFieldType_Int4:
-			case StructFieldType_UInt4:
+			case StructFieldType::Bool4:
+			case StructFieldType::Float4:
+			case StructFieldType::Int4:
+			case StructFieldType::UInt4:
 				return 4 * 4;
 
-			case StructFieldType_Double1:
+			case StructFieldType::Double1:
 				return 8;
 
-			case StructFieldType_Double2:
+			case StructFieldType::Double2:
 				return 2 * 8;
 
-			case StructFieldType_Double3:
+			case StructFieldType::Double3:
 				return 3 * 8;
 
-			case StructFieldType_Double4:
+			case StructFieldType::Double4:
 				return 4 * 8;
 		}
 

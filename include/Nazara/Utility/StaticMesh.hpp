@@ -8,57 +8,36 @@
 #define NAZARA_STATICMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 
 namespace Nz
 {
-	class StaticMesh;
-
-	using StaticMeshConstRef = ObjectRef<const StaticMesh>;
-	using StaticMeshRef = ObjectRef<StaticMesh>;
-
 	class NAZARA_UTILITY_API StaticMesh final : public SubMesh
 	{
 		public:
-			StaticMesh(VertexBuffer* vertexBuffer, const IndexBuffer* indexBuffer);
-
-			NAZARA_DEPRECATED("StaticMesh constructor taking a mesh is deprecated, submeshes no longer require to be part of a single mesh")
-			StaticMesh(const Mesh* parent);
-
-			~StaticMesh();
+			StaticMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<const IndexBuffer> indexBuffer);
+			~StaticMesh() = default;
 
 			void Center();
-
-			NAZARA_DEPRECATED("StaticMesh create/destroy functions are deprecated, please use constructor")
-			bool Create(VertexBuffer* vertexBuffer);
-			void Destroy();
 
 			bool GenerateAABB();
 
 			const Boxf& GetAABB() const override;
 			AnimationType GetAnimationType() const final;
-			const IndexBuffer* GetIndexBuffer() const override;
-			VertexBuffer* GetVertexBuffer();
-			const VertexBuffer* GetVertexBuffer() const;
+			const std::shared_ptr<const IndexBuffer>& GetIndexBuffer() const override;
+			const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const;
 			std::size_t GetVertexCount() const override;
 
 			bool IsAnimated() const final;
 			bool IsValid() const;
 
 			void SetAABB(const Boxf& aabb);
-			void SetIndexBuffer(const IndexBuffer* indexBuffer);
-
-			template<typename... Args> static StaticMeshRef New(Args&&... args);
-
-			// Signals:
-			NazaraSignal(OnStaticMeshDestroy, const StaticMesh* /*staticMesh*/);
-			NazaraSignal(OnStaticMeshRelease, const StaticMesh* /*staticMesh*/);
+			void SetIndexBuffer(std::shared_ptr<const IndexBuffer> indexBuffer);
 
 		private:
 			Boxf m_aabb;
-			IndexBufferConstRef m_indexBuffer;
-			VertexBufferRef m_vertexBuffer;
+			std::shared_ptr<const IndexBuffer> m_indexBuffer;
+			std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	};
 }
 

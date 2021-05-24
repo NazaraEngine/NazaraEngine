@@ -38,7 +38,7 @@ namespace Nz::ShaderLang
 		};
 
 		std::unordered_map<std::string, StructLayout> s_layoutMapping = {
-			{ "std140", StructLayout_Std140 }
+			{ "std140", StructLayout::Std140 }
 		};
 
 		template<typename T, typename U>
@@ -157,7 +157,7 @@ namespace Nz::ShaderLang
 			Consume();
 
 			ShaderAst::SamplerType samplerType;
-			samplerType.dim = ImageType_2D;
+			samplerType.dim = ImageType::E2D;
 
 			Expect(Advance(), TokenType::LessThan); //< '<'
 			samplerType.sampledType = ParsePrimitiveType();

@@ -463,7 +463,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 	for (const auto& structInfo : m_structs)
 	{
 		Nz::ShaderAst::StructDescription structDesc;
-		structDesc.layout = Nz::StructLayout_Std140;
+		structDesc.layout = Nz::StructLayout::Std140;
 		structDesc.name = structInfo.name;
 
 		for (const auto& memberInfo : structInfo.members)
@@ -701,7 +701,7 @@ Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(TextureType ty
 {
 	switch (type)
 	{
-		case TextureType::Sampler2D: return Nz::ShaderAst::SamplerType{ Nz::ImageType_2D, Nz::ShaderAst::PrimitiveType::Float32 };
+		case TextureType::Sampler2D: return Nz::ShaderAst::SamplerType{ Nz::ImageType::E2D, Nz::ShaderAst::PrimitiveType::Float32 };
 	}
 
 	assert(false);

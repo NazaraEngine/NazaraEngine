@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const std::string& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "md5anim");
 		}
@@ -27,7 +27,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		AnimationRef Load(Stream& stream, const AnimationParams& /*parameters*/)
+		std::shared_ptr<Animation> Load(Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);
@@ -45,7 +45,7 @@ namespace Nz
 			std::size_t jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
-			AnimationRef animation = Animation::New();
+			std::shared_ptr<Animation> animation = std::make_shared<Animation>();
 			animation->CreateSkeletal(frameCount, jointCount);
 
 			Sequence sequence;
@@ -90,14 +90,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterMD5Anim()
+		AnimationLoader::Entry GetAnimationLoader_MD5Anim()
 		{
-			AnimationLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			AnimationLoader::Entry loader;
+			loader.extensionSupport = IsSupported;
+			loader.streamChecker = Check;
+			loader.streamLoader = Load;
 
-		void UnregisterMD5Anim()
-		{
-			AnimationLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loader;
 		}
 	}
 }

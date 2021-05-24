@@ -147,12 +147,12 @@ namespace Nz
 
 		switch (samplerType.dim)
 		{
-			case ImageType_1D:       Append("1D");      break;
-			case ImageType_1D_Array: Append("1DArray"); break;
-			case ImageType_2D:       Append("2D");      break;
-			case ImageType_2D_Array: Append("2DArray"); break;
-			case ImageType_3D:       Append("3D");      break;
-			case ImageType_Cubemap:  Append("Cube");    break;
+			case ImageType::E1D:       Append("1D");      break;
+			case ImageType::E1D_Array: Append("1DArray"); break;
+			case ImageType::E2D:       Append("2D");      break;
+			case ImageType::E2D_Array: Append("2DArray"); break;
+			case ImageType::E3D:       Append("3D");      break;
+			case ImageType::Cubemap:  Append("Cube");    break;
 		}
 
 		Append("<", samplerType.sampledType, ">");
@@ -261,7 +261,7 @@ namespace Nz
 
 		switch (*entry.layout)
 		{
-			case StructLayout_Std140:
+			case StructLayout::Std140:
 				Append("layout(std140)");
 				break;
 		}

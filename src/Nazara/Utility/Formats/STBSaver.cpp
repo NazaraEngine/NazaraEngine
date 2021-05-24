@@ -15,36 +15,36 @@ namespace Nz
 	{
 		using FormatHandler = bool(*)(const Image& image, const ImageParams& parameters, Stream& stream);
 
-		std::map<std::string, FormatHandler> s_formatHandlers;
+		std::map<std::string_view, FormatHandler> s_formatHandlers;
 
 		int ConvertToFloatFormat(Image& image)
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormat_R32F:
+				case PixelFormat::R32F:
 					return 1;
 
-				case PixelFormat_RG32F:
+				case PixelFormat::RG32F:
 					return 2;
 
-				case PixelFormat_RGB32F:
+				case PixelFormat::RGB32F:
 					return 3;
 
-				case PixelFormat_RGBA32F:
+				case PixelFormat::RGBA32F:
 					return 4;
 
 				default:
 				{
 					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormat_RGBA32F))
+						if (!image.Convert(PixelFormat::RGBA32F))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormat_RGB32F))
+						if (!image.Convert(PixelFormat::RGB32F))
 							break;
 
 						return 3;
@@ -59,32 +59,32 @@ namespace Nz
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormat_L8:
-				case PixelFormat_R8:
+				case PixelFormat::L8:
+				case PixelFormat::R8:
 					return 1;
 
-				case PixelFormat_LA8:
-				case PixelFormat_RG8:
+				case PixelFormat::LA8:
+				case PixelFormat::RG8:
 					return 2;
 
-				case PixelFormat_RGB8:
+				case PixelFormat::RGB8:
 					return 3;
 
-				case PixelFormat_RGBA8:
+				case PixelFormat::RGBA8:
 					return 4;
 
 				default:
 				{
 					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormat_RGBA8))
+						if (!image.Convert(PixelFormat::RGBA8))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormat_RGB8))
+						if (!image.Convert(PixelFormat::RGB8))
 							break;
 
 						return 3;
@@ -102,7 +102,7 @@ namespace Nz
 				throw std::runtime_error("Failed to write to stream");
 		}
 
-		bool FormatQuerier(const std::string& extension)
+		bool FormatQuerier(const std::string_view& extension)
 		{
 			return s_formatHandlers.find(extension) != s_formatHandlers.end();
 		}
@@ -118,9 +118,9 @@ namespace Nz
 			}
 
 			ImageType type = image.GetType();
-			if (type != ImageType_1D && type != ImageType_2D)
+			if (type != ImageType::E1D && type != ImageType::E2D)
 			{
-				NazaraError("Image type 0x" + NumberToString(type, 16) + " is not in a supported format");
+				NazaraError("Image type 0x" + NumberToString(UnderlyingCast(type), 16) + " is not in a supported format");
 				return false;
 			}
 
@@ -262,22 +262,20 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterSTBSaver()
+		ImageSaver::Entry GetImageSaver_STB()
 		{
-			s_formatHandlers["bmp"]  = &SaveBMP;
-			s_formatHandlers["hdr"]  = &SaveHDR;
-			s_formatHandlers["jpg"]  = &SaveJPEG;
+			s_formatHandlers["bmp"] = &SaveBMP;
+			s_formatHandlers["hdr"] = &SaveHDR;
+			s_formatHandlers["jpg"] = &SaveJPEG;
 			s_formatHandlers["jpeg"] = &SaveJPEG;
-			s_formatHandlers["png"]  = &SavePNG;
-			s_formatHandlers["tga"]  = &SaveTGA;
+			s_formatHandlers["png"] = &SavePNG;
+			s_formatHandlers["tga"] = &SaveTGA;
 
-			ImageSaver::RegisterSaver(FormatQuerier, SaveToStream);
-		}
+			ImageSaver::Entry entry;
+			entry.formatSupport = FormatQuerier;
+			entry.streamSaver = SaveToStream;
 
-		void UnregisterSTBSaver()
-		{
-			ImageSaver::UnregisterSaver(FormatQuerier, SaveToStream);
-			s_formatHandlers.clear();
+			return entry;
 		}
 	}
 }

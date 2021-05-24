@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline const BufferRef& IndexBuffer::GetBuffer() const
+	inline const std::shared_ptr<Buffer>& IndexBuffer::GetBuffer() const
 	{
 		return m_buffer;
 	}
@@ -39,7 +39,7 @@ namespace Nz
 
 	inline bool IndexBuffer::IsValid() const
 	{
-		return m_buffer.IsValid();
+		return m_buffer != nullptr;
 	}
 
 	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length)
@@ -52,15 +52,6 @@ namespace Nz
 	{
 		std::size_t stride = GetStride();
 		return MapRaw(access, startIndex*stride, length*stride);
-	}
-
-	template<typename... Args>
-	IndexBufferRef IndexBuffer::New(Args&&... args)
-	{
-		std::unique_ptr<IndexBuffer> object(new IndexBuffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
 	}
 }
 

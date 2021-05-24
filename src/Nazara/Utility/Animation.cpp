@@ -8,6 +8,7 @@
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <vector>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
@@ -36,19 +37,16 @@ namespace Nz
 		return true;
 	}
 
-	Animation::~Animation()
-	{
-		OnAnimationRelease(this);
-
-		Destroy();
-	}
+	Animation::Animation() = default;
+	Animation::Animation(Animation&&) noexcept = default;
+	Animation::~Animation() = default;
 
 	bool Animation::AddSequence(const Sequence& sequence)
 	{
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(sequence.frameCount > 0, "Sequence frame count must be over zero");
 
-		if (m_impl->type == AnimationType_Skeletal)
+		if (m_impl->type == AnimationType::Skeletal)
 		{
 			std::size_t endFrame = sequence.firstFrame + sequence.frameCount - 1;
 			if (endFrame >= m_impl->frameCount)
@@ -80,7 +78,7 @@ namespace Nz
 	void Animation::AnimateSkeleton(Skeleton* targetSkeleton, std::size_t frameA, std::size_t frameB, float interpolation) const
 	{
 		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(m_impl->type == AnimationType_Skeletal, "Animation is not skeletal");
+		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 		NazaraAssert(targetSkeleton && targetSkeleton->IsValid(), "Invalid skeleton");
 		NazaraAssert(targetSkeleton->GetJointCount() == m_impl->jointCount, "Skeleton joint does not match animation joint count");
 		NazaraAssert(frameA < m_impl->frameCount, "FrameA is out of range");
@@ -106,24 +104,18 @@ namespace Nz
 
 		Destroy();
 
-		m_impl = new AnimationImpl;
+		m_impl = std::make_unique<AnimationImpl>();
 		m_impl->frameCount = frameCount;
 		m_impl->jointCount = jointCount;
 		m_impl->sequenceJoints.resize(frameCount*jointCount);
-		m_impl->type = AnimationType_Skeletal;
+		m_impl->type = AnimationType::Skeletal;
 
 		return true;
 	}
 
 	void Animation::Destroy()
 	{
-		if (m_impl)
-		{
-			OnAnimationDestroy(this);
-
-			delete m_impl;
-			m_impl = nullptr;
-		}
+		m_impl.reset();
 	}
 
 	void Animation::EnableLoopPointInterpolation(bool loopPointInterpolation)
@@ -215,7 +207,7 @@ namespace Nz
 	SequenceJoint* Animation::GetSequenceJoints(std::size_t frameIndex)
 	{
 		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(m_impl->type == AnimationType_Skeletal, "Animation is not skeletal");
+		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 
 		return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
 	}
@@ -223,7 +215,7 @@ namespace Nz
 	const SequenceJoint* Animation::GetSequenceJoints(std::size_t frameIndex) const
 	{
 		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(m_impl->type == AnimationType_Skeletal, "Animation is not skeletal");
+		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 
 		return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
 	}
@@ -289,46 +281,29 @@ namespace Nz
 		m_impl->sequences.erase(it);
 	}
 
-	AnimationRef Animation::LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params)
+	Animation& Animation::operator=(Animation&&) noexcept = default;
+
+	std::shared_ptr<Animation> Animation::LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params)
 	{
-		return AnimationLoader::LoadFromFile(filePath, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetAnimationLoader().LoadFromFile(filePath, params);
 	}
 
-	AnimationRef Animation::LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params)
+	std::shared_ptr<Animation> Animation::LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params)
 	{
-		return AnimationLoader::LoadFromMemory(data, size, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetAnimationLoader().LoadFromMemory(data, size, params);
 	}
 
-	AnimationRef Animation::LoadFromStream(Stream& stream, const AnimationParams& params)
+	std::shared_ptr<Animation> Animation::LoadFromStream(Stream& stream, const AnimationParams& params)
 	{
-		return AnimationLoader::LoadFromStream(stream, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetAnimationLoader().LoadFromStream(stream, params);
 	}
-
-	bool Animation::Initialize()
-	{
-		if (!AnimationLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		if (!AnimationManager::Initialize())
-		{
-			NazaraError("Failed to initialise manager");
-			return false;
-		}
-
-		return true;
-	}
-
-	void Animation::Uninitialize()
-	{
-		AnimationManager::Uninitialize();
-		AnimationLibrary::Uninitialize();
-	}
-
-	AnimationLibrary::LibraryMap Animation::s_library;
-	AnimationLoader::LoaderList Animation::s_loaders;
-	AnimationManager::ManagerMap Animation::s_managerMap;
-	AnimationManager::ManagerParams Animation::s_managerParameters;
 }

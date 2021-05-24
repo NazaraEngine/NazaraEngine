@@ -429,7 +429,7 @@ namespace Nz
 		{
 			auto& depthStencilAttachment = renderPassAttachments[colorAttachmentCount];
 
-			if (PixelFormatInfo::GetContent(depthStencilAttachment.format) == PixelFormatContent_DepthStencil)
+			if (PixelFormatInfo::GetContent(depthStencilAttachment.format) == PixelFormatContent::DepthStencil)
 			{
 				depthStencilAttachment.stencilLoadOp = depthStencilAttachment.loadOp;
 				depthStencilAttachment.stencilStoreOp = depthStencilAttachment.storeOp;

@@ -105,7 +105,7 @@ namespace Nz
 
 					if (OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(uboBinding.buffer))
 					{
-						if (glBuffer->GetType() != BufferType_Uniform)
+						if (glBuffer->GetType() != BufferType::Uniform)
 							throw std::runtime_error("expected uniform buffer");
 
 						uboDescriptor.buffer = glBuffer->GetBuffer().GetObjectId();

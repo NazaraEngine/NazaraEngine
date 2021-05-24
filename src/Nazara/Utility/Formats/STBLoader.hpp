@@ -8,14 +8,11 @@
 #define NAZARA_FORMATS_STBLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Image.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterSTBLoader();
-		void UnregisterSTBLoader();
-	}
+	ImageLoader::Entry GetImageLoader_STB();
 }
 
 #endif // NAZARA_FORMATS_STBLOADER_HPP

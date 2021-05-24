@@ -107,7 +107,7 @@ namespace Nz
 	*
 	* This parameter is required for depth writing.
 	*
-	* In order to enable depth writing without enabling depth test, set the depth comparison function to RendererComparison_Never
+	* In order to enable depth writing without enabling depth test, set the depth comparison function to RendererComparison::Never
 	*
 	* \param depthBuffer Defines if this material will use depth buffer
 	*

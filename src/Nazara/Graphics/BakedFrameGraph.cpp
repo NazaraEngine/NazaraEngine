@@ -130,7 +130,7 @@ namespace Nz
 		for (auto& textureData : m_textures)
 		{
 			TextureInfo textureCreationParams;
-			textureCreationParams.type = ImageType_2D;
+			textureCreationParams.type = ImageType::E2D;
 			textureCreationParams.width = textureData.width * width / 100'000;
 			textureCreationParams.height = textureData.height * height / 100'000;
 			textureCreationParams.usageFlags = textureData.usage;

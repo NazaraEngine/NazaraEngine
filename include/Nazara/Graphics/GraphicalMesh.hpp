@@ -18,7 +18,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API GraphicalMesh
 	{
 		public:
-			GraphicalMesh(const Mesh* mesh);
+			GraphicalMesh(const Mesh& mesh);
 			GraphicalMesh(const GraphicalMesh&) = delete;
 			GraphicalMesh(GraphicalMesh&&) noexcept = default;
 			~GraphicalMesh() = default;
@@ -26,7 +26,7 @@ namespace Nz
 			inline const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMesh) const;
 			inline std::size_t GetIndexCount(std::size_t subMesh) const;
 			inline const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMesh) const;
-			inline const VertexDeclarationConstRef& GetVertexDeclaration(std::size_t subMesh) const;
+			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
 
 			GraphicalMesh& operator=(const GraphicalMesh&) = delete;
@@ -38,7 +38,7 @@ namespace Nz
 				std::shared_ptr<AbstractBuffer> indexBuffer;
 				std::shared_ptr<AbstractBuffer> vertexBuffer;
 				std::size_t indexCount;
-				VertexDeclarationConstRef vertexDeclaration;
+				std::shared_ptr<const VertexDeclaration> vertexDeclaration;
 			};
 
 			std::vector<GraphicalSubMesh> m_subMeshes;

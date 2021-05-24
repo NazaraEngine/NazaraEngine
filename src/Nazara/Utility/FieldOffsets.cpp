@@ -26,8 +26,8 @@ namespace Nz
 	std::size_t FieldOffsets::AddFieldArray(StructFieldType type, std::size_t arraySize)
 	{
 		std::size_t fieldAlignement = GetAlignement(m_layout, type);
-		if (m_layout == StructLayout_Std140)
-			fieldAlignement = Align(fieldAlignement, GetAlignement(StructLayout_Std140, StructFieldType_Float4));
+		if (m_layout == StructLayout::Std140)
+			fieldAlignement = Align(fieldAlignement, GetAlignement(StructLayout::Std140, StructFieldType::Float4));
 
 		m_largestFieldAlignment = std::max(fieldAlignement, m_largestFieldAlignment);
 
@@ -46,9 +46,9 @@ namespace Nz
 		assert(rows >= 2 && rows <= 4);
 
 		if (columnMajor)
-			return AddFieldArray(static_cast<StructFieldType>(cellType + rows - 1), columns);
+			return AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(cellType) + rows - 1), columns);
 		else
-			return AddFieldArray(static_cast<StructFieldType>(cellType + columns - 1), rows);
+			return AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(cellType) + columns - 1), rows);
 	}
 
 	std::size_t FieldOffsets::AddMatrixArray(StructFieldType cellType, unsigned int columns, unsigned int rows, bool columnMajor, std::size_t arraySize)
@@ -58,16 +58,16 @@ namespace Nz
 		assert(rows >= 2 && rows <= 4);
 
 		if (columnMajor)
-			return AddFieldArray(static_cast<StructFieldType>(cellType + rows - 1), columns * arraySize);
+			return AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(cellType) + rows - 1), columns * arraySize);
 		else
-			return AddFieldArray(static_cast<StructFieldType>(cellType + columns - 1), rows * arraySize);
+			return AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(cellType) + columns - 1), rows * arraySize);
 	}
 
 	std::size_t FieldOffsets::AddStruct(const FieldOffsets& fieldStruct)
 	{
 		std::size_t fieldAlignement = fieldStruct.GetLargestFieldAlignement();
-		if (m_layout == StructLayout_Std140)
-			fieldAlignement = Align(fieldAlignement, GetAlignement(StructLayout_Std140, StructFieldType_Float4));
+		if (m_layout == StructLayout::Std140)
+			fieldAlignement = Align(fieldAlignement, GetAlignement(StructLayout::Std140, StructFieldType::Float4));
 
 		m_largestFieldAlignment = std::max(m_largestFieldAlignment, fieldAlignement);
 
@@ -84,8 +84,8 @@ namespace Nz
 		assert(arraySize > 0);
 
 		std::size_t fieldAlignement = fieldStruct.GetLargestFieldAlignement();
-		if (m_layout == StructLayout_Std140)
-			fieldAlignement = Align(fieldAlignement, GetAlignement(StructLayout_Std140, StructFieldType_Float4));
+		if (m_layout == StructLayout::Std140)
+			fieldAlignement = Align(fieldAlignement, GetAlignement(StructLayout::Std140, StructFieldType::Float4));
 
 		m_largestFieldAlignment = std::max(m_largestFieldAlignment, fieldAlignement);
 

@@ -50,8 +50,8 @@ namespace Nz
 
 		Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
 
-		m_viewerDataUBO = m_renderDevice->InstantiateBuffer(Nz::BufferType_Uniform);
-		if (!m_viewerDataUBO->Initialize(viewerUboOffsets.totalSize, Nz::BufferUsage_DeviceLocal | Nz::BufferUsage_Dynamic))
+		m_viewerDataUBO = m_renderDevice->InstantiateBuffer(Nz::BufferType::Uniform);
+		if (!m_viewerDataUBO->Initialize(viewerUboOffsets.totalSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
 			throw std::runtime_error("failed to initialize viewer data UBO");
 	}
 

@@ -159,32 +159,32 @@ namespace Nz
 			{
 				switch (format)
 				{
-					case PixelFormat_Depth16:
+					case PixelFormat::Depth16:
 						m_depthStencilFormat = VK_FORMAT_D16_UNORM;
 						break;
 
-					case PixelFormat_Depth24:
-					case PixelFormat_Depth24Stencil8:
+					case PixelFormat::Depth24:
+					case PixelFormat::Depth24Stencil8:
 						m_depthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
 						break;
 
-					case PixelFormat_Depth32:
+					case PixelFormat::Depth32:
 						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT;
 						break;
 
-					case PixelFormat_Stencil1:
-					case PixelFormat_Stencil4:
-					case PixelFormat_Stencil8:
+					case PixelFormat::Stencil1:
+					case PixelFormat::Stencil4:
+					case PixelFormat::Stencil8:
 						m_depthStencilFormat = VK_FORMAT_S8_UINT;
 						break;
 
-					case PixelFormat_Stencil16:
+					case PixelFormat::Stencil16:
 						continue;
 
 					default:
 					{
 						PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
-						if (formatContent != PixelFormatContent_DepthStencil && formatContent != PixelFormatContent_Stencil)
+						if (formatContent != PixelFormatContent::DepthStencil && formatContent != PixelFormatContent::Stencil)
 							NazaraWarning("Invalid format " + PixelFormatInfo::GetName(format) + " for depth-stencil attachment");
 
 						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
