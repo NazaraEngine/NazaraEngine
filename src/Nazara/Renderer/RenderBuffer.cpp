@@ -44,14 +44,14 @@ namespace Nz
 
 	DataStorage RenderBuffer::GetStorage() const
 	{
-		return DataStorage::DataStorage_Hardware;
+		return DataStorage::Hardware;
 	}
 
 	void* RenderBuffer::Map(BufferAccess access, UInt64 offset, UInt64 size)
 	{
 		if (void* ptr = m_softwareBuffer.Map(access, offset, size))
 		{
-			if (access != BufferAccess_ReadOnly)
+			if (access != BufferAccess::ReadOnly)
 			{
 				for (auto& bufferPair : m_hardwareBuffers)
 					bufferPair.second.synchronized = false;

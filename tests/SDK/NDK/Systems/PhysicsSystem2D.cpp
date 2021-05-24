@@ -158,7 +158,7 @@ Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& positi
 	Ndk::EntityHandle entity = world.CreateEntity();
 	Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();
 	nodeComponent.SetPosition(position);
-	Nz::BoxCollider2DRef collisionBox = Nz::BoxCollider2D::New(AABB);
+	std::shared_ptr<Nz::BoxCollider2D> collisionBox = std::make_shared<Nz::BoxCollider2D>(AABB);
 	entity->AddComponent<Ndk::CollisionComponent2D>(collisionBox);
 	return entity;
 }

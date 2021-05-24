@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
@@ -49,8 +50,9 @@ namespace Nz
 
 			Image();
 			Image(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, UInt8 levelCount = 1);
-			Image(const Image& image);
 			Image(SharedImage* sharedImage);
+			Image(const Image& image);
+			inline Image(Image&& image) noexcept;
 			~Image();
 
 			bool Convert(PixelFormat format);
@@ -104,6 +106,7 @@ namespace Nz
 			bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
 
 			Image& operator=(const Image& image);
+			inline Image& operator=(Image&& image) noexcept;
 
 			static void Copy(UInt8* destination, const UInt8* source, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			static UInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);

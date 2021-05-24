@@ -8,6 +8,17 @@
 
 namespace Nz
 {
+	inline Image::Image(Image&& image) noexcept :
+	m_sharedImage(std::exchange(image.m_sharedImage, &emptyImage))
+	{
+	}
+
+	inline Image& Image::operator=(Image&& image) noexcept
+	{
+		std::swap(m_sharedImage, image.m_sharedImage);
+
+		return *this;
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

@@ -18,7 +18,7 @@ namespace Nz
 		struct VertexBufferData
 		{
 			std::size_t binding;
-			VertexDeclarationConstRef declaration;
+			std::shared_ptr<const VertexDeclaration> declaration;
 		};
 
 		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
