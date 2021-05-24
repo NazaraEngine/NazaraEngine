@@ -180,6 +180,7 @@ namespace Nz
 
 		MemoryView stream(data, size);
 
+		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
 		for (auto& loaderPtr : m_loaders)
 		{
@@ -190,7 +191,7 @@ namespace Nz
 			{
 				if (loader.streamChecker)
 				{
-					stream.SetCursorPos(0);
+					stream.SetCursorPos(streamPos);
 
 					recognized = loader.streamChecker(stream, parameters);
 					if (recognized == Ternary::False)
@@ -210,7 +211,7 @@ namespace Nz
 			}
 			else
 			{
-				stream.SetCursorPos(0);
+				stream.SetCursorPos(streamPos);
 
 				recognized = loader.streamChecker(stream, parameters);
 				if (recognized == Ternary::False)
@@ -218,7 +219,7 @@ namespace Nz
 				else if (recognized == Ternary::True)
 					found = true;
 
-				stream.SetCursorPos(0);
+				stream.SetCursorPos(streamPos);
 
 				std::shared_ptr<Type> resource = loader.streamLoader(stream, parameters);
 				if (resource)
@@ -293,12 +294,12 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Registers the loader
-	* \return A pointer to the registered Load which can be unsed to unregister it later
+	* \brief Registers a loader
+	* \return A pointer to the registered Entry which can be unsed to unregister it later
 	*
 	* \param loader A collection of loader callbacks that will be registered
 	*
-	* \seealso UnregisterLoader
+	* \see UnregisterLoader
 	*/
 	template<typename Type, typename Parameters>
 	auto ResourceLoader<Type, Parameters>::RegisterLoader(Entry loader) -> const Entry*
@@ -311,11 +312,11 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unregisters the loader
+	* \brief Unregisters a loader
 	*
 	* \param loader A pointer to a loader returned by RegisterLoad
 	*
-	* \seealso RegisterLoader
+	* \see RegisterLoader
 	*/
 	template<typename Type, typename Parameters>
 	void ResourceLoader<Type, Parameters>::UnregisterLoader(const Entry* loader)
