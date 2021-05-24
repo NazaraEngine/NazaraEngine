@@ -14,7 +14,7 @@ namespace Nz
 {
 	VertexMapper::VertexMapper(SubMesh& subMesh, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 
 		std::shared_ptr<VertexBuffer> buffer = nullptr;
 		switch (subMesh.GetAnimationType())
@@ -44,13 +44,13 @@ namespace Nz
 
 	VertexMapper::VertexMapper(VertexBuffer& vertexBuffer, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		m_mapper.Map(vertexBuffer, access);
 	}
 	
 	VertexMapper::VertexMapper(const SubMesh& subMesh, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 
 		std::shared_ptr<VertexBuffer> buffer = nullptr;
 		switch (subMesh.GetAnimationType())
@@ -80,7 +80,7 @@ namespace Nz
 
 	VertexMapper::VertexMapper(const VertexBuffer& vertexBuffer, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		m_mapper.Map(vertexBuffer, access);
 	}
 

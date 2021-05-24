@@ -190,7 +190,7 @@ namespace Nz
 
 			if (!mtlPath.empty())
 			{
-				File mtlFile(mtlPath, OpenMode_WriteOnly | OpenMode_Truncate);
+				File mtlFile(mtlPath, OpenMode::WriteOnly | OpenMode::Truncate);
 				if (mtlFile.IsOpen())
 					mtlFormat.Save(mtlFile);
 			}

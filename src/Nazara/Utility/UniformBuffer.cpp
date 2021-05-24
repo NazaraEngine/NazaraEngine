@@ -12,19 +12,19 @@ namespace Nz
 {
 	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(buffer));
 	}
 
 	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(buffer), offset, size);
 	}
 
 	UniformBuffer::UniformBuffer(UInt32 length, DataStorage storage, BufferUsageFlags usage)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(length, storage, usage);
 	}
 

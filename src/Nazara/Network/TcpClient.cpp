@@ -56,7 +56,7 @@ namespace Nz
 		}
 
 		SocketState state = SocketImpl::Connect(m_handle, remoteAddress, &m_lastError);
-		m_peerAddress = (state != SocketState_NotConnected) ? remoteAddress : IpAddress::Invalid;
+		m_peerAddress = (state != SocketState::NotConnected) ? remoteAddress : IpAddress::Invalid;
 
 		UpdateState(state);
 		return state;
@@ -75,13 +75,13 @@ namespace Nz
 
 	SocketState TcpClient::Connect(const std::string& hostName, NetProtocol protocol, const std::string& service, ResolveError* error)
 	{
-		UpdateState(SocketState_Resolving);
+		UpdateState(SocketState::Resolving);
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())
 		{
-			m_lastError = SocketError_ResolveError;
+			m_lastError = SocketError::ResolveError;
 
-			UpdateState(SocketState_NotConnected);
+			UpdateState(SocketState::NotConnected);
 			return m_state;
 		}
 
@@ -91,7 +91,7 @@ namespace Nz
 			if (!result.address)
 				continue;
 
-			if (result.socketType != SocketType_TCP)
+			if (result.socketType != SocketType::TCP)
 				continue;
 
 			hostnameAddress = result.address;
@@ -176,7 +176,7 @@ namespace Nz
 
 	/*!
 	* \brief Polls the connection status of the currently connecting socket
-	* \return New socket state, which maybe unchanged (if connecting is still pending), SocketState_Connected if connection is successful or SocketState_NotConnected if connection failed
+	* \return New socket state, which maybe unchanged (if connecting is still pending), SocketState::Connected if connection is successful or SocketState::NotConnected if connection failed
 	*
 	* This functions checks if the pending connection has either succeeded, failed or is still processing at the time of the call.
 	*
@@ -188,16 +188,16 @@ namespace Nz
 	{
 		switch (m_state)
 		{
-			case SocketState_Connecting:
+			case SocketState::Connecting:
 			{
 				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, waitDuration, &m_lastError);
 
 				// Prevent valid peer address in non-connected state
-				if (newState == SocketState_NotConnected)
+				if (newState == SocketState::NotConnected)
 				{
-					m_openMode = OpenMode_NotOpen;
+					m_openMode = OpenMode::NotOpen;
 					m_peerAddress = IpAddress::Invalid;
 				}
 
@@ -205,16 +205,16 @@ namespace Nz
 				return newState;
 			}
 
-			case SocketState_Connected:
-			case SocketState_NotConnected:
+			case SocketState::Connected:
+			case SocketState::NotConnected:
 				return m_state;
 
-			case SocketState_Bound:
-			case SocketState_Resolving:
+			case SocketState::Bound:
+			case SocketState::Resolving:
 				break;
 		}
 
-		NazaraInternalError("Unexpected socket state (0x" + NumberToString(m_state, 16) + ')');
+		NazaraInternalError("Unexpected socket state (0x" + NumberToString(UnderlyingCast(m_state), 16) + ')');
 		return m_state;
 	}
 
@@ -240,9 +240,9 @@ namespace Nz
 		{
 			switch (m_lastError)
 			{
-				case SocketError_ConnectionClosed:
-				case SocketError_ConnectionRefused:
-					UpdateState(SocketState_NotConnected);
+				case SocketError::ConnectionClosed:
+				case SocketError::ConnectionRefused:
+					UpdateState(SocketState::NotConnected);
 					break;
 
 				default:
@@ -255,7 +255,7 @@ namespace Nz
 		if (received)
 			*received = read;
 
-		UpdateState(SocketState_Connected);
+		UpdateState(SocketState::Connected);
 		return true;
 	}
 
@@ -292,7 +292,7 @@ namespace Nz
 				UInt32 size;
 				if (!NetPacket::DecodeHeader(m_pendingPacket.data.GetConstBuffer(), &size, &m_pendingPacket.netcode))
 				{
-					m_lastError = SocketError_Packet;
+					m_lastError = SocketError::Packet;
 					NazaraWarning("Invalid header data");
 					return false;
 				}
@@ -379,9 +379,9 @@ namespace Nz
 			{
 				switch (m_lastError)
 				{
-					case SocketError_ConnectionClosed:
-					case SocketError_ConnectionRefused:
-						UpdateState(SocketState_NotConnected);
+					case SocketError::ConnectionClosed:
+					case SocketError::ConnectionRefused:
+						UpdateState(SocketState::NotConnected);
 						break;
 
 					default:
@@ -394,7 +394,7 @@ namespace Nz
 			totalByteSent += sentSize;
 		}
 
-		UpdateState(SocketState_Connected);
+		UpdateState(SocketState::Connected);
 		return true;
 	}
 
@@ -415,9 +415,9 @@ namespace Nz
 		{
 			switch (m_lastError)
 			{
-				case SocketError_ConnectionClosed:
-				case SocketError_ConnectionRefused:
-					UpdateState(SocketState_NotConnected);
+				case SocketError::ConnectionClosed:
+				case SocketError::ConnectionRefused:
+					UpdateState(SocketState::NotConnected);
 					break;
 
 				default:
@@ -433,7 +433,7 @@ namespace Nz
 		if (sent)
 			*sent = byteSent;
 
-		UpdateState(SocketState_Connected);
+		UpdateState(SocketState::Connected);
 		return true;
 	}
 
@@ -452,7 +452,7 @@ namespace Nz
 		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
 		if (!ptr)
 		{
-			m_lastError = SocketError_Packet;
+			m_lastError = SocketError::Packet;
 			NazaraError("Failed to prepare packet");
 			return false;
 		}
@@ -491,20 +491,20 @@ namespace Nz
 	{
 		switch (m_state)
 		{
-			case SocketState_Connecting:
+			case SocketState::Connecting:
 			{
 				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, (msTimeout > 0) ? msTimeout : std::numeric_limits<UInt64>::max(), &m_lastError);
 
 				// If connection is still pending after waiting, cancel it
-				if (newState == SocketState_Connecting)
-					newState = SocketState_NotConnected;
+				if (newState == SocketState::Connecting)
+					newState = SocketState::NotConnected;
 
 				// Prevent valid stats in non-connected state
-				if (newState == SocketState_NotConnected)
+				if (newState == SocketState::NotConnected)
 				{
-					m_openMode = OpenMode_NotOpen;
+					m_openMode = OpenMode::NotOpen;
 					m_peerAddress = IpAddress::Invalid;
 				}
 
@@ -512,16 +512,16 @@ namespace Nz
 				return newState;
 			}
 
-			case SocketState_Connected:
-			case SocketState_NotConnected:
+			case SocketState::Connected:
+			case SocketState::NotConnected:
 				return m_state;
 
-			case SocketState_Bound:
-			case SocketState_Resolving:
+			case SocketState::Bound:
+			case SocketState::Resolving:
 				break;
 		}
 
-		NazaraInternalError("Unhandled socket state (0x" + NumberToString(m_state, 16) + ')');
+		NazaraInternalError("Unhandled socket state (0x" + NumberToString(UnderlyingCast(m_state), 16) + ')');
 		return m_state;
 	}
 
@@ -541,7 +541,7 @@ namespace Nz
 	{
 		AbstractSocket::OnClose();
 
-		m_openMode = OpenMode_NotOpen;
+		m_openMode = OpenMode::NotOpen;
 		m_peerAddress = IpAddress::Invalid;
 	}
 
@@ -558,10 +558,10 @@ namespace Nz
 		SocketError errorCode;
 
 		if (!SocketImpl::SetNoDelay(m_handle, m_isLowDelayEnabled, &errorCode))
-			NazaraWarning("Failed to set socket no delay mode (0x" + NumberToString(errorCode, 16) + ')');
+			NazaraWarning("Failed to set socket no delay mode (0x" + NumberToString(UnderlyingCast(errorCode), 16) + ')');
 
 		if (!SocketImpl::SetKeepAlive(m_handle, m_isKeepAliveEnabled, m_keepAliveTime, m_keepAliveInterval, &errorCode))
-			NazaraWarning("Failed to set socket keep alive mode (0x" + NumberToString(errorCode, 16) + ')');
+			NazaraWarning("Failed to set socket keep alive mode (0x" + NumberToString(UnderlyingCast(errorCode), 16) + ')');
 
 		m_peerAddress = IpAddress::Invalid;
 		m_openMode = OpenMode_ReadWrite;
@@ -610,7 +610,7 @@ namespace Nz
 		Open(handle);
 		m_peerAddress = peerAddress;
 		m_openMode = OpenMode_ReadWrite;
-		UpdateState(SocketState_Connected);
+		UpdateState(SocketState::Connected);
 	}
 
 	/*!

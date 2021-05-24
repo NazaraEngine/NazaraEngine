@@ -101,11 +101,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				cpBodyApplyForceAtLocalPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 		}
@@ -120,11 +120,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				cpBodyApplyImpulseAtWorldPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				cpBodyApplyImpulseAtLocalPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
 				break;
 		}
@@ -254,11 +254,11 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				massCenter = cpBodyLocalToWorld(m_handle, massCenter);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Nothing to do
 		}
 
@@ -456,11 +456,11 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				massCenter = cpBodyWorldToLocal(m_handle, massCenter);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Nothing to do
 		}
 

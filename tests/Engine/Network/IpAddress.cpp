@@ -27,7 +27,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 	{
 		WHEN("We get the IP of Nazara")
 		{
-			std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol_IPv4, "nazara.digitalpulsesoftware.net");
+			std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::IPv4, "nazara.digitalpulsesoftware.net");
 
 			THEN("Result is not null")
 			{

@@ -41,7 +41,7 @@ namespace Nz
 		NazaraAssert(address.IsValid(), "Invalid address");
 
 		SocketState state = SocketImpl::Bind(m_handle, address, &m_lastError);
-		if (state == SocketState_Bound)
+		if (state == SocketState::Bound)
 			m_boundAddress = SocketImpl::QuerySocketAddress(m_handle);
 
 		UpdateState(state);
@@ -104,8 +104,8 @@ namespace Nz
 		{
 			switch (m_lastError)
 			{
-				case SocketError_ConnectionClosed:
-					m_lastError = SocketError_NoError;
+				case SocketError::ConnectionClosed:
+					m_lastError = SocketError::NoError;
 					read = 0;
 					break;
 
@@ -140,8 +140,8 @@ namespace Nz
 		{
 			switch (m_lastError)
 			{
-				case SocketError_ConnectionClosed:
-					m_lastError = SocketError_NoError;
+				case SocketError::ConnectionClosed:
+					m_lastError = SocketError::NoError;
 					read = 0;
 					break;
 
@@ -166,14 +166,13 @@ namespace Nz
 	* \remark Produces a NazaraAssert if packet is invalid
 	* \remark Produces a NazaraWarning if packet's header is invalid
 	*/
-
 	bool UdpSocket::ReceivePacket(NetPacket* packet, IpAddress* from)
 	{
 		NazaraAssert(packet, "Invalid packet");
 
 		// I'm not sure what's the best between having a 65k bytes buffer ready for any datagram size
 		// or querying the next datagram size every time, for now I'll leave it as is
-		packet->Reset(NetCode_Invalid, std::numeric_limits<UInt16>::max());
+		packet->Reset(0, std::numeric_limits<UInt16>::max());
 		packet->Resize(std::numeric_limits<UInt16>::max());
 
 		std::size_t received;
@@ -187,14 +186,14 @@ namespace Nz
 		Nz::UInt32 packetSize;
 		if (!NetPacket::DecodeHeader(packet->GetConstData(), &packetSize, &netCode))
 		{
-			m_lastError = SocketError_Packet;
+			m_lastError = SocketError::Packet;
 			NazaraWarning("Invalid header data");
 			return false;
 		}
 
 		if (packetSize != received)
 		{
-			m_lastError = SocketError_Packet;
+			m_lastError = SocketError::Packet;
 			NazaraWarning("Invalid packet size (packet size is " + NumberToString(packetSize) + " bytes, received " + NumberToString(received) + " bytes)");
 			return false;
 		}
@@ -275,7 +274,7 @@ namespace Nz
 		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
 		if (!ptr)
 		{
-			m_lastError = SocketError_Packet;
+			m_lastError = SocketError::Packet;
 			NazaraError("Failed to prepare packet");
 			return false;
 		}

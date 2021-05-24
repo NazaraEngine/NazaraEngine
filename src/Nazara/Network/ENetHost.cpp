@@ -89,9 +89,9 @@ namespace Nz
 
 		UInt32 windowSize;
 		if (m_outgoingBandwidth == 0)
-			windowSize = ENetProtocol_MaximumWindowSize;
+			windowSize = ENetConstants::ENetProtocol_MaximumWindowSize;
 		else
-			windowSize = (m_outgoingBandwidth / ENetConstants::ENetPeer_WindowSizeScale) * ENetProtocol_MinimumWindowSize;
+			windowSize = (m_outgoingBandwidth / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
 
 		ENetPeer& peer = m_peers[peerId];
 		peer.InitOutgoing(channelCount, remoteAddress, ++m_randomSeed, windowSize);
@@ -134,7 +134,7 @@ namespace Nz
 		if (!hostnameAddress.IsValid())
 		{
 			if (error)
-				*error = ResolveError_NotFound;
+				*error = ResolveError::NotFound;
 
 			return nullptr;
 		}
@@ -320,7 +320,7 @@ namespace Nz
 
 	bool ENetHost::InitSocket(const IpAddress& address)
 	{
-		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol_Any : address.GetProtocol()))
+		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol::Any : address.GetProtocol()))
 			return false;
 
 		m_socket.EnableBlocking(false);
@@ -330,14 +330,14 @@ namespace Nz
 
 		if (address.IsValid() && !address.IsLoopback())
 		{
-			if (m_socket.Bind(address) != SocketState_Bound)
+			if (m_socket.Bind(address) != SocketState::Bound)
 			{
 				NazaraError("Failed to bind address " + address.ToString());
 				return false;
 			}
 		}
 
-		m_poller.RegisterSocket(m_socket, SocketPollEvent_Read);
+		m_poller.RegisterSocket(m_socket, SocketPollEvent::Read);
 
 		return true;
 	}
@@ -417,7 +417,7 @@ namespace Nz
 
 		UInt32 channelCount = NetToHost(command->connect.channelCount);
 
-		if (channelCount < ENetProtocol_MinimumChannelCount || channelCount > ENetProtocol_MaximumChannelCount)
+		if (channelCount < ENetConstants::ENetProtocol_MinimumChannelCount || channelCount > ENetConstants::ENetProtocol_MaximumChannelCount)
 			return nullptr;
 
 		std::size_t duplicatePeers = 0;

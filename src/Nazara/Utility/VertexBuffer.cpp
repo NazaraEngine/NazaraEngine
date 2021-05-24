@@ -11,19 +11,19 @@ namespace Nz
 {
 	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(vertexDeclaration), std::move(buffer));
 	}
 
 	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(vertexDeclaration), std::move(buffer), offset, size);
 	}
 
 	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(vertexDeclaration), length, storage, usage);
 	}
 

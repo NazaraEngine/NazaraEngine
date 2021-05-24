@@ -79,28 +79,28 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		stream = reinterpret_cast<aiUserData>(fileIOUserdata->originalStream);
 	else
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowExceptionDisabled, true);
+		ErrorFlags errFlags(ErrorMode::ThrowExceptionDisabled, true);
 
 		///TODO: Move to File::DecodeOpenMode
 		OpenModeFlags openModeEnum = 0;
 
 		if (std::strchr(openMode, 'r'))
 		{
-			openModeEnum |= OpenMode_ReadOnly;
+			openModeEnum |= OpenMode::ReadOnly;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadWrite | OpenMode_MustExist;
+				openModeEnum |= OpenMode_ReadWrite | OpenMode::MustExist;
 		}
 		else if (std::strchr(openMode, 'w'))
 		{
-			openModeEnum |= OpenMode_WriteOnly | OpenMode_Truncate;
+			openModeEnum |= OpenMode::WriteOnly | OpenMode::Truncate;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadOnly;
+				openModeEnum |= OpenMode::ReadOnly;
 		}
 		else if (std::strchr(openMode, 'a'))
 		{
-			openModeEnum |= OpenMode_WriteOnly | OpenMode_Append;
+			openModeEnum |= OpenMode::WriteOnly | OpenMode::Append;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadOnly;
+				openModeEnum |= OpenMode::ReadOnly;
 		}
 		else
 		{
@@ -109,7 +109,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		}
 
 		if (!std::strchr(openMode, 'b'))
-			openModeEnum |= OpenMode_Text;
+			openModeEnum |= OpenMode::Text;
 
 		std::unique_ptr<File> file = std::make_unique<File>();
 		if (!file->Open(filePath, openModeEnum))

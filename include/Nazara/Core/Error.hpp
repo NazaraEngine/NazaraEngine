@@ -13,14 +13,14 @@
 #include <string>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType_AssertFailed, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, err, __LINE__, __FILE__, NAZARA_FUNCTION)
 #else
 	#define NazaraAssert(a, err) for (;;) break
 #endif
 
-#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType_Normal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
-#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType_Internal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
-#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType_Warning, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType::Normal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType::Internal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType::Warning, err, __LINE__, __FILE__, NAZARA_FUNCTION)
 
 namespace Nz
 {
@@ -30,12 +30,12 @@ namespace Nz
 			Error() = delete;
 			~Error() = delete;
 
-			static UInt32 GetFlags();
+			static ErrorModeFlags GetFlags();
 			static std::string GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
 			static unsigned int GetLastSystemErrorCode();
 			static std::string GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
 
-			static void SetFlags(UInt32 flags);
+			static void SetFlags(ErrorModeFlags flags);
 
 			static void Trigger(ErrorType type, std::string error);
 			static void Trigger(ErrorType type, std::string error, unsigned int line, const char* file, const char* function);
@@ -43,7 +43,7 @@ namespace Nz
 		private:
 			static const char* GetCurrentFileRelativeToEngine(const char* file);
 
-			static UInt32 s_flags;
+			static ErrorModeFlags s_flags;
 			static std::string s_lastError;
 			static const char* s_lastErrorFunction;
 			static const char* s_lastErrorFile;

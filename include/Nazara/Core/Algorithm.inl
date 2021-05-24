@@ -368,7 +368,7 @@ namespace Nz
 		// Flush bits in case a writing is in progress
 		context.FlushBits();
 
-		if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
+		if (context.endianness != Endianness::Unknown && context.endianness != GetPlatformEndianness())
 			SwapBytes(&value, sizeof(T));
 
 		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
@@ -447,7 +447,7 @@ namespace Nz
 
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{
-			if (context.endianness != Endianness_Unknown && context.endianness != GetPlatformEndianness())
+			if (context.endianness != Endianness::Unknown && context.endianness != GetPlatformEndianness())
 				SwapBytes(value, sizeof(T));
 
 			return true;

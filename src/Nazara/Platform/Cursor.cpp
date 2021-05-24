@@ -13,13 +13,13 @@ namespace Nz
 
 	Cursor::Cursor(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(cursor, hotSpot, placeholder);
 	}
 
 	Cursor::Cursor(SystemCursor systemCursor)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(systemCursor);
 	}
 

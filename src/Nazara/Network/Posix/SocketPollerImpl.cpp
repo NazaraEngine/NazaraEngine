@@ -42,10 +42,10 @@ namespace Nz
 			0
 		};
 
-		if (eventFlags & SocketPollEvent_Read)
+		if (eventFlags & SocketPollEvent::Read)
 			entry.events |= POLLRDNORM;
 
-		if (eventFlags & SocketPollEvent_Write)
+		if (eventFlags & SocketPollEvent::Write)
 			entry.events |= POLLWRNORM;
 
 		m_allSockets[socket] = m_sockets.size();

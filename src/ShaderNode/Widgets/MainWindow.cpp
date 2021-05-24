@@ -190,7 +190,7 @@ void MainWindow::OnCompile()
 		if (!fileName.endsWith("shader", Qt::CaseInsensitive))
 			fileName += ".shader";
 
-		Nz::File file(fileName.toStdString(), Nz::OpenMode_WriteOnly);
+		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
 		file.Write(Nz::ShaderAst::SerializeShader(shader));
 	}
 	catch (const std::exception& e)

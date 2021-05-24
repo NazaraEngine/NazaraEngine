@@ -20,7 +20,7 @@ namespace Nz
 	struct NAZARA_CORE_API SerializationContext
 	{
 		MovablePtr<Stream> stream;
-		Endianness endianness = Endianness_BigEndian; //< Default to Big Endian encoding
+		Endianness endianness = Endianness::BigEndian; //< Default to Big Endian encoding
 		UInt8 readBitPos = 8; //< 8 means no bit is currently read
 		UInt8 readByte; //< Undefined value, will be initialized at the first bit read
 		UInt8 writeBitPos = 8; //< 8 means no bit is currently wrote

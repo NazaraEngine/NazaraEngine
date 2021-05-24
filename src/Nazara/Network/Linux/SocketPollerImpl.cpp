@@ -53,10 +53,10 @@ namespace Nz
 
 		entry.data.fd = socket;
 
-		if (eventFlags & SocketPollEvent_Read)
+		if (eventFlags & SocketPollEvent::Read)
 			entry.events |= EPOLLIN;
 
-		if (eventFlags & SocketPollEvent_Write)
+		if (eventFlags & SocketPollEvent::Write)
 			entry.events |= EPOLLOUT;
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_ADD, socket, &entry) != 0)
@@ -123,7 +123,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return activeSockets;
 	}

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
@@ -132,7 +133,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = ResolveError_NoError;
+			*error = ResolveError::NoError;
 
 		return true;
 	}
@@ -174,7 +175,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = ResolveError_NoError;
+			*error = ResolveError::NoError;
 
 		return results;
 	}
@@ -185,7 +186,7 @@ namespace Nz
 		{
 			switch (ipAddress.GetProtocol())
 			{
-				case NetProtocol_IPv4:
+				case NetProtocol::IPv4:
 				{
 					sockaddr_in* socketAddress = reinterpret_cast<sockaddr_in*>(buffer);
 
@@ -197,7 +198,7 @@ namespace Nz
 					return sizeof(sockaddr_in);
 				}
 
-				case NetProtocol_IPv6:
+				case NetProtocol::IPv6:
 				{
 					sockaddr_in6* socketAddress = reinterpret_cast<sockaddr_in6*>(buffer);
 
@@ -217,7 +218,7 @@ namespace Nz
 				}
 
 				default:
-					NazaraInternalError("Unhandled ip protocol (0x" + NumberToString(ipAddress.GetProtocol(), 16) + ')');
+					NazaraInternalError("Unhandled ip protocol (0x" + NumberToString(UnderlyingCast(ipAddress.GetProtocol()), 16) + ')');
 					break;
 			}
 		}
@@ -231,13 +232,13 @@ namespace Nz
 		switch (family)
 		{
 			case PF_INET:
-				return NetProtocol_IPv4;
+				return NetProtocol::IPv4;
 
 			case PF_INET6:
-				return NetProtocol_IPv6;
+				return NetProtocol::IPv6;
 
 			default:
-				return NetProtocol_Unknown;
+				return NetProtocol::Unknown;
 		}
 	}
 
@@ -246,16 +247,16 @@ namespace Nz
 		switch (socketType)
 		{
 			case SOCK_STREAM:
-				return SocketType_TCP;
+				return SocketType::TCP;
 
 			case SOCK_DGRAM:
-				return SocketType_UDP;
+				return SocketType::UDP;
 
 			case SOCK_RAW:
-				return SocketType_Raw;
+				return SocketType::Raw;
 
 			default:
-				return SocketType_Unknown;
+				return SocketType::Unknown;
 		}
 	}
 
@@ -265,35 +266,35 @@ namespace Nz
 		switch (error)
 		{
 			case 0:
-				return ResolveError_NoError;
+				return ResolveError::NoError;
 
 			// Engine error
 			case EAI_BADFLAGS:
 			case EAI_SYSTEM:
-				return ResolveError_Internal;
+				return ResolveError::Internal;
 
 			case EAI_FAMILY:
 			case EAI_SERVICE:
 			case EAI_SOCKTYPE:
-				return ResolveError_ProtocolNotSupported;
+				return ResolveError::ProtocolNotSupported;
 
 			case EAI_NONAME:
-				return ResolveError_NotFound;
+				return ResolveError::NotFound;
 
 			case EAI_FAIL:
-				return ResolveError_NonRecoverable;
+				return ResolveError::NonRecoverable;
 
 			case EAI_NODATA:
-				return ResolveError_NotInitialized;
+				return ResolveError::NotInitialized;
 
 			case EAI_MEMORY:
-				return ResolveError_ResourceError;
+				return ResolveError::ResourceError;
 
 			case EAI_AGAIN:
-				return ResolveError_TemporaryFailure;
+				return ResolveError::TemporaryFailure;
 		}
 
 		NazaraWarning("Unhandled EAI error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ") as " + gai_strerror(error));
-		return ResolveError_Unknown;
+		return ResolveError::Unknown;
 	}
 }

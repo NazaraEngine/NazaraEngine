@@ -48,8 +48,8 @@ namespace Nz
 
 			bool IsOpen() const;
 
-			bool Open(OpenModeFlags openMode = OpenMode_NotOpen);
-			bool Open(const std::filesystem::path& filePath, OpenModeFlags openMode = OpenMode_NotOpen);
+			bool Open(OpenModeFlags openMode = OpenMode::NotOpen);
+			bool Open(const std::filesystem::path& filePath, OpenModeFlags openMode = OpenMode::NotOpen);
 
 			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
 			bool SetCursorPos(UInt64 offset) override;

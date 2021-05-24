@@ -30,7 +30,7 @@ namespace Ndk
 	Sdk::Sdk(Config /*config*/) :
 	ModuleBase("SDK", this)
 	{
-		Nz::ErrorFlags errFlags(Nz::ErrorFlag_ThrowException, true);
+		Nz::ErrorFlags errFlags(Nz::ErrorMode::ThrowException, true);
 
 		// SDK Initialization
 
