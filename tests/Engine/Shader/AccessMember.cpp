@@ -1,4 +1,5 @@
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
@@ -6,25 +7,14 @@
 #include <Catch/catch.hpp>
 #include <cctype>
 
-std::string_view Trim(std::string_view str)
-{
-	while (!str.empty() && std::isspace(str.front()))
-		str.remove_prefix(1);
-
-	while (!str.empty() && std::isspace(str.back()))
-		str.remove_suffix(1);
-
-	return str;
-}
-
 void ExpectingGLSL(Nz::ShaderAst::StatementPtr& shader, std::string_view expectedOutput)
 {
 	Nz::GlslWriter writer;
 
 	std::string output = writer.Generate(shader);
 	std::size_t funcOffset = output.find("void main()");
-	std::string_view subset = Trim(output).substr(funcOffset);
-	expectedOutput = Trim(expectedOutput);
+	std::string_view subset = Nz::Trim(output).substr(funcOffset);
+	expectedOutput = Nz::Trim(expectedOutput);
 
 	REQUIRE(subset == expectedOutput);
 }
@@ -42,8 +32,8 @@ void ExpectingSpirV(Nz::ShaderAst::StatementPtr& shader, std::string_view expect
 
 	std::string output = printer.Print(spirv.data(), spirv.size(), settings);
 	std::size_t funcOffset = output.find("OpFunction");
-	std::string_view subset = Trim(output).substr(funcOffset);
-	expectedOutput = Trim(expectedOutput);
+	std::string_view subset = Nz::Trim(output).substr(funcOffset);
+	expectedOutput = Nz::Trim(expectedOutput);
 
 	REQUIRE(subset == expectedOutput);
 }
