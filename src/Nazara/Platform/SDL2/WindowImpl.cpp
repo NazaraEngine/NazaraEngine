@@ -65,7 +65,7 @@ namespace Nz
 
 	bool WindowImpl::Create(const VideoMode& mode, const std::string& title, WindowStyleFlags style)
 	{
-		bool async = (style & WindowStyle_Threaded) != 0;
+		bool async = (style & WindowStyle::Threaded) != 0;
 		if (async)
 		{
 			NazaraError("SDL2 backend doesn't support asyn window for now");
@@ -74,7 +74,7 @@ namespace Nz
 		}
 
 
-		bool fullscreen = (style & WindowStyle_Fullscreen) != 0;
+		bool fullscreen = (style & WindowStyle::Fullscreen) != 0;
 
 		Uint32 winStyle = 0;
 
@@ -94,16 +94,16 @@ namespace Nz
 		}
 		else
 		{
-			if (!(style & WindowStyle_Titlebar))
+			if (!(style & WindowStyle::Titlebar))
 				winStyle |= SDL_WINDOW_BORDERLESS;
 
 			x = SDL_WINDOWPOS_CENTERED;
 			y = SDL_WINDOWPOS_CENTERED;
 		}
 
-		if (style & WindowStyle_Resizable)
+		if (style & WindowStyle::Resizable)
 			winStyle |= SDL_WINDOW_RESIZABLE;
-		if (style & WindowStyle_Max)
+		if (style & WindowStyle::Max)
 			winStyle |= SDL_WINDOW_MAXIMIZED;
 
 		m_eventListener = true;
@@ -313,7 +313,7 @@ namespace Nz
 			auto window = static_cast<WindowImpl*>(userdata);
 
 			WindowEvent evt;
-			evt.type = WindowEventType::WindowEventType_Max;
+			evt.type = WindowEventType::Max;
 
 			switch (event->type)
 			{
@@ -324,10 +324,10 @@ namespace Nz
 					switch (event->window.event)
 					{
 						case SDL_WINDOWEVENT_CLOSE:
-							evt.type = Nz::WindowEventType::WindowEventType_Quit;
+							evt.type = WindowEventType::Quit;
 							break;
 						case SDL_WINDOWEVENT_RESIZED:
-							evt.type = Nz::WindowEventType::WindowEventType_Resized;
+							evt.type = WindowEventType::Resized;
 
 							evt.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
 							evt.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
@@ -336,7 +336,7 @@ namespace Nz
 
 							break;
 						case SDL_WINDOWEVENT_MOVED:
-							evt.type = Nz::WindowEventType::WindowEventType_Moved;
+							evt.type = WindowEventType::Moved;
 
 							evt.position.x = event->window.data1;
 							evt.position.y = event->window.data2;
@@ -345,19 +345,19 @@ namespace Nz
 
 							break;
 						case SDL_WINDOWEVENT_FOCUS_GAINED:
-							evt.type = Nz::WindowEventType::WindowEventType_GainedFocus;
+							evt.type = WindowEventType::GainedFocus;
 
 							break;
 						case SDL_WINDOWEVENT_FOCUS_LOST:
-							evt.type = Nz::WindowEventType::WindowEventType_LostFocus;
+							evt.type = WindowEventType::LostFocus;
 
 							break;
 						case SDL_WINDOWEVENT_ENTER:
-							evt.type = Nz::WindowEventType::WindowEventType_MouseEntered;
+							evt.type = WindowEventType::MouseEntered;
 
 							break;
 						case SDL_WINDOWEVENT_LEAVE:
-							evt.type = Nz::WindowEventType::WindowEventType_MouseLeft;
+							evt.type = WindowEventType::MouseLeft;
 
 							break;
 					}
@@ -374,7 +374,7 @@ namespace Nz
 						return 0;
 					}
 
-					evt.type = Nz::WindowEventType::WindowEventType_MouseMoved;
+					evt.type = WindowEventType::MouseMoved;
 
 					evt.mouseMove.x = event->motion.x;
 					evt.mouseMove.y = event->motion.y;
@@ -393,12 +393,12 @@ namespace Nz
 
 					if (event->button.clicks % 2 == 0)
 					{
-						evt.type = Nz::WindowEventType::WindowEventType_MouseButtonDoubleClicked;
+						evt.type = WindowEventType::MouseButtonDoubleClicked;
 
 						window->m_parent->PushEvent(evt);
 					}
 
-					evt.type = Nz::WindowEventType::WindowEventType_MouseButtonPressed;
+					evt.type = WindowEventType::MouseButtonPressed;
 
 					break;
 
@@ -410,7 +410,7 @@ namespace Nz
 					evt.mouseButton.x = event->button.x;
 					evt.mouseButton.y = event->button.y;
 
-					evt.type = Nz::WindowEventType::WindowEventType_MouseButtonReleased;
+					evt.type = WindowEventType::MouseButtonReleased;
 
 					break;
 
@@ -418,7 +418,7 @@ namespace Nz
 					if (SDL_GetWindowID(window->m_handle) != event->wheel.windowID)
 						return 0;
 
-					evt.type = Nz::WindowEventType::WindowEventType_MouseWheelMoved;
+					evt.type = WindowEventType::MouseWheelMoved;
 
 					evt.mouseWheel.delta = event->wheel.y;
 
@@ -428,7 +428,7 @@ namespace Nz
 					if (SDL_GetWindowID(window->m_handle) != event->key.windowID)
 						return 0;
 
-					evt.type = WindowEventType_KeyPressed;
+					evt.type = WindowEventType::KeyPressed;
 
 					evt.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
 					evt.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
@@ -446,7 +446,7 @@ namespace Nz
 								break;
 							window->m_parent->PushEvent(evt);
 
-							evt.type = WindowEventType_TextEntered;
+							evt.type = WindowEventType::TextEntered;
 
 							evt.text.character = U'\n';
 							evt.text.repeated = event->key.repeat != 0;
@@ -457,7 +457,7 @@ namespace Nz
 						case Nz::Keyboard::VKey::Backspace:
 							window->m_parent->PushEvent(evt);
 
-							evt.type = WindowEventType_TextEntered;
+							evt.type = WindowEventType::TextEntered;
 
 							evt.text.character = U'\b';
 							evt.text.repeated = event->key.repeat != 0;
@@ -475,7 +475,7 @@ namespace Nz
 					if (SDL_GetWindowID(window->m_handle) != event->key.windowID)
 						return 0;
 
-					evt.type = WindowEventType_KeyReleased;
+					evt.type = WindowEventType::KeyReleased;
 
 					evt.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
 					evt.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
@@ -492,7 +492,7 @@ namespace Nz
 					if (SDL_GetWindowID(window->m_handle) != event->text.windowID)
 						return 0;
 
-					evt.type = WindowEventType_TextEntered;
+					evt.type = WindowEventType::TextEntered;
 					evt.text.repeated = false;
 
 					utf8::unchecked::iterator<const char*> it(event->text.text);
@@ -504,7 +504,7 @@ namespace Nz
 					} while (*it++);
 
 					// prevent post switch event
-					evt.type = WindowEventType::WindowEventType_Max;
+					evt.type = WindowEventType::Max;
 
 					break;
 				}
@@ -513,7 +513,7 @@ namespace Nz
 					if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
 						return 0;
 
-					evt.type = WindowEventType_TextEdited;
+					evt.type = WindowEventType::TextEdited;
 					evt.edit.length = event->edit.length;
 					window->m_lastEditEventLength = evt.edit.length;
 
@@ -525,7 +525,7 @@ namespace Nz
 					break;
 			}
 
-			if (evt.type != WindowEventType::WindowEventType_Max)
+			if (evt.type != WindowEventType::Max)
 				window->m_parent->PushEvent(evt);
 		}
 		catch (std::exception e)

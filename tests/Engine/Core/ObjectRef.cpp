@@ -1,20 +1,22 @@
 #include <Nazara/Core/ObjectRef.hpp>
 #include <Catch/catch.hpp>
 
-#include <Nazara/Utility/Font.hpp>
+class Test : public Nz::RefCounted
+{
+};
 
 SCENARIO("ObjectRef", "[CORE][OBJECTREF]")
 {
 	GIVEN("A ObjectRef")
 	{
-		Nz::ObjectRef<Nz::Font> objectRef;
+		Nz::ObjectRef<Test> objectRef;
 
 		WHEN("We have two objectRef handling the same object")
 		{
-			Nz::Font font;
+			Test test;
 
-			objectRef = &font;
-			Nz::ObjectRef<Nz::Font> otherRef(&font);
+			objectRef = &test;
+			Nz::ObjectRef<Test> otherRef(&test);
 
 			THEN("Pointers the same")
 			{
@@ -27,11 +29,11 @@ SCENARIO("ObjectRef", "[CORE][OBJECTREF]")
 
 		WHEN("We assign it to a simple font")
 		{
-			Nz::Font font;
+			Test test;
 
 			THEN("Release suppress the reference to the object")
 			{
-				objectRef.Reset(&font);
+				objectRef.Reset(&test);
 				objectRef.Release();
 
 				REQUIRE(!objectRef.IsValid());
