@@ -129,27 +129,11 @@ int main()
 	std::cout << "Vertex count: " << meshVB->GetVertexCount() << std::endl;
 
 	// Texture
-	std::shared_ptr<Nz::Image> drfreakImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!drfreakImage || !drfreakImage->Convert(Nz::PixelFormat::RGBA8))
-	{
-		NazaraError("Failed to load image");
-		return __LINE__;
-	}
+	Nz::TextureParams texParams;
+	texParams.renderDevice = device;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	Nz::TextureInfo texParams;
-	texParams.pixelFormat = drfreakImage->GetFormat();
-	texParams.type = drfreakImage->GetType();
-	texParams.width = drfreakImage->GetWidth();
-	texParams.height = drfreakImage->GetHeight();
-	texParams.depth = drfreakImage->GetDepth();
-
-	std::shared_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
-	if (!texture->Update(drfreakImage->GetConstPixels()))
-	{
-		NazaraError("Failed to update texture");
-		return __LINE__;
-	}
-
+	std::shared_ptr<Nz::Texture> texture = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams);
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 	struct
