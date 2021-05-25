@@ -8,14 +8,19 @@
 #define NAZARA_TEXTURE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/Image.hpp>
 
 namespace Nz
 {
+	class RenderDevice;
+
 	struct TextureInfo
 	{
 		PixelFormat pixelFormat;
@@ -26,6 +31,20 @@ namespace Nz
 		unsigned int height;
 		unsigned int width;
 	};
+
+	struct NAZARA_RENDERER_API TextureParams : ImageParams
+	{
+		std::shared_ptr<RenderDevice> renderDevice;
+		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
+
+		bool IsValid() const;
+	};
+
+	class Texture;
+
+	using TextureLibrary = ObjectLibrary<Texture>;
+	using TextureLoader = ResourceLoader<Texture, TextureParams>;
+	using TextureManager = ResourceManager<Texture, TextureParams>;
 
 	class NAZARA_RENDERER_API Texture : public Resource
 	{
@@ -43,6 +62,13 @@ namespace Nz
 			virtual bool Update(const void* ptr) = 0;
 
 			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
+
+			static std::shared_ptr<Texture> CreateFromImage(const Image& image, const TextureParams& params);
+
+			// Load
+			static std::shared_ptr<Texture> LoadFromFile(const std::filesystem::path& filePath, const TextureParams& params);
+			static std::shared_ptr<Texture> LoadFromMemory(const void* data, std::size_t size, const TextureParams& params);
+			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& params);
 
 			Texture& operator=(const Texture&) = delete;
 			Texture& operator=(Texture&&) = delete;

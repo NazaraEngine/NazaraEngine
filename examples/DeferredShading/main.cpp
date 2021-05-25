@@ -106,71 +106,9 @@ int main()
 
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceship);
 
-	// Spaceship texture
-	std::shared_ptr<Nz::Image> spaceshipDiffuse = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!spaceshipDiffuse || !spaceshipDiffuse->Convert(Nz::PixelFormat::RGBA8_SRGB))
-	{
-		NazaraError("Failed to load image");
-		return __LINE__;
-	}
-
-	Nz::TextureInfo texParams;
-	texParams.pixelFormat = spaceshipDiffuse->GetFormat();
-	texParams.type = spaceshipDiffuse->GetType();
-	texParams.width = spaceshipDiffuse->GetWidth();
-	texParams.height = spaceshipDiffuse->GetHeight();
-	texParams.depth = spaceshipDiffuse->GetDepth();
-
-	std::shared_ptr<Nz::Texture> spaceshipTexture = device->InstantiateTexture(texParams);
-	if (!spaceshipTexture->Update(spaceshipDiffuse->GetConstPixels()))
-	{
-		NazaraError("Failed to update texture");
-		return __LINE__;
-	}
-
-	// Plane texture
-	std::shared_ptr<Nz::Image> devImage = Nz::Image::LoadFromFile(resourceDir / "dev_grey.png");
-	if (!devImage || !devImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
-	{
-		NazaraError("Failed to load image");
-		return __LINE__;
-	}
-
-	Nz::TextureInfo devTexParams;
-	devTexParams.pixelFormat = devImage->GetFormat();
-	devTexParams.type = devImage->GetType();
-	devTexParams.width = devImage->GetWidth();
-	devTexParams.height = devImage->GetHeight();
-	devTexParams.depth = devImage->GetDepth();
-
-	std::shared_ptr<Nz::Texture> planeTexture = device->InstantiateTexture(devTexParams);
-	if (!planeTexture->Update(devImage->GetConstPixels()))
-	{
-		NazaraError("Failed to update texture");
-		return __LINE__;
-	}
-
-	// Texture (alpha-map)
-	std::shared_ptr<Nz::Image> alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
-	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat::RGBA8))
-	{
-		NazaraError("Failed to load image");
-		return __LINE__;
-	}
-
-	Nz::TextureInfo alphaTexParams;
-	alphaTexParams.pixelFormat = alphaImage->GetFormat();
-	alphaTexParams.type = alphaImage->GetType();
-	alphaTexParams.width = alphaImage->GetWidth();
-	alphaTexParams.height = alphaImage->GetHeight();
-	alphaTexParams.depth = alphaImage->GetDepth();
-
-	std::shared_ptr<Nz::Texture> alphaTexture = device->InstantiateTexture(alphaTexParams);
-	if (!alphaTexture->Update(alphaImage->GetConstPixels()))
-	{
-		NazaraError("Failed to update texture");
-		return __LINE__;
-	}
+	Nz::TextureParams texParams;
+	texParams.renderDevice = device;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	Nz::MeshParams planeParams;
 	planeParams.storage = Nz::DataStorage::Software;
@@ -193,15 +131,15 @@ int main()
 	{
 		Nz::BasicMaterial basicMat(*spaceshipMat);
 		basicMat.EnableAlphaTest(false);
-		basicMat.SetAlphaMap(alphaTexture);
-		basicMat.SetDiffuseMap(spaceshipTexture);
+		basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	}
 
 	std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>(customMatSettings);
 	planeMat->EnableDepthBuffer(true);
 	{
 		Nz::BasicMaterial basicMat(*planeMat);
-		basicMat.SetDiffuseMap(planeTexture);
+		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
 
 		Nz::TextureSamplerInfo planeSampler;
 		planeSampler.anisotropyLevel = 16;

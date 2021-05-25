@@ -57,49 +57,17 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::TextureInfo texParams;
-	texParams.pixelFormat = diffuseImage->GetFormat();
-	texParams.type = diffuseImage->GetType();
-	texParams.width = diffuseImage->GetWidth();
-	texParams.height = diffuseImage->GetHeight();
-	texParams.depth = diffuseImage->GetDepth();
-
-	std::shared_ptr<Nz::Texture> texture = device->InstantiateTexture(texParams);
-	if (!texture->Update(diffuseImage->GetConstPixels()))
-	{
-		NazaraError("Failed to update texture");
-		return __LINE__;
-	}
-
-	// Texture (alpha-map)
-	std::shared_ptr<Nz::Image> alphaImage = Nz::Image::LoadFromFile(resourceDir / "alphatile.png");
-	if (!alphaImage || !alphaImage->Convert(Nz::PixelFormat::RGBA8))
-	{
-		NazaraError("Failed to load image");
-		return __LINE__;
-	}
-
-	Nz::TextureInfo alphaTexParams;
-	alphaTexParams.pixelFormat = alphaImage->GetFormat();
-	alphaTexParams.type = alphaImage->GetType();
-	alphaTexParams.width = alphaImage->GetWidth();
-	alphaTexParams.height = alphaImage->GetHeight();
-	alphaTexParams.depth = alphaImage->GetDepth();
-
-	std::shared_ptr<Nz::Texture> alphaTexture = device->InstantiateTexture(alphaTexParams);
-	if (!alphaTexture->Update(alphaImage->GetConstPixels()))
-	{
-		NazaraError("Failed to update texture");
-		return __LINE__;
-	}
+	Nz::TextureParams texParams;
+	texParams.renderDevice = device;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
 	material->EnableDepthBuffer(true);
 
 	Nz::BasicMaterial basicMat(*material);
-	basicMat.EnableAlphaTest(false);
-	basicMat.SetAlphaMap(alphaTexture);
-	basicMat.SetDiffuseMap(texture);
+	basicMat.EnableAlphaTest(true);
+	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
 	Nz::Model model(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
