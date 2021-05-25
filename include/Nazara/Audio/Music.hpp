@@ -11,6 +11,9 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <condition_variable>
+#include <exception>
+#include <mutex>
 
 namespace Nz
 {
@@ -56,7 +59,7 @@ namespace Nz
 			std::unique_ptr<MusicImpl> m_impl;
 
 			bool FillAndQueueBuffer(unsigned int buffer);
-			void MusicThread();
+			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err);
 			void StopThread();
 	};
 }

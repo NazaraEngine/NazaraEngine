@@ -6,10 +6,11 @@
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <memory>
-#include <mutex>
 #include <thread>
 #include <vector>
 #include <Nazara/Audio/Debug.hpp>
@@ -27,6 +28,7 @@ namespace Nz
 	struct MusicImpl
 	{
 		ALenum audioFormat;
+		std::atomic_bool streaming = false;
 		std::atomic<UInt64> processedSamples;
 		std::vector<Int16> chunkSamples;
 		std::mutex bufferLock;
@@ -34,7 +36,6 @@ namespace Nz
 		std::thread thread;
 		UInt64 playingOffset;
 		bool loop = false;
-		bool streaming = false;
 		unsigned int sampleRate;
 	};
 
@@ -304,9 +305,22 @@ namespace Nz
 		}
 		else
 		{
-			// Starting streaming's thread
+			std::mutex mutex;
+			std::condition_variable cv;
+
+			// Starting streaming thread
 			m_impl->streaming = true;
-			m_impl->thread = std::thread(&Music::MusicThread, this);
+
+			std::exception_ptr exceptionPtr;
+
+			std::unique_lock<std::mutex> lock(mutex);
+			m_impl->thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr));
+
+			// Wait until thread signal it has properly started (or an error occurred)
+			cv.wait(lock);
+
+			if (exceptionPtr)
+				std::rethrow_exception(exceptionPtr);
 		}
 	}
 
@@ -387,19 +401,59 @@ namespace Nz
 		return sampleRead != sampleCount; // End of stream (Does not happen when looping)
 	}
 
-	void Music::MusicThread()
+	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err)
 	{
 		// Allocation of streaming buffers
-		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
-		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
+		std::array<ALuint, NAZARA_AUDIO_STREAMED_BUFFER_COUNT> buffers;
+		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
 
-		for (unsigned int buffer : buffers)
+		CallOnExit freebuffers([&]
 		{
-			if (FillAndQueueBuffer(buffer))
-				break; // We have reached the end of the stream, there is no use to add new buffers
+			alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
+		});
+
+
+		try
+		{
+			for (ALuint buffer : buffers)
+			{
+				if (FillAndQueueBuffer(buffer))
+					break; // We have reached the end of the stream, there is no use to add new buffers
+			}
 		}
+		catch (const std::exception&)
+		{
+			err = std::current_exception();
+
+			std::unique_lock<std::mutex> lock(m);
+			cv.notify_all();
+			return;
+		}
+		
+		CallOnExit unqueueBuffers([&]
+		{
+			// We delete buffers from the stream
+			ALint queuedBufferCount;
+			alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
+
+			ALuint buffer;
+			for (ALint i = 0; i < queuedBufferCount; ++i)
+				alSourceUnqueueBuffers(m_source, 1, &buffer);
+		});
 
 		alSourcePlay(m_source);
+		
+		CallOnExit stopSource([&]
+		{
+			// Stop playing of the sound (in the case where it has not been already done)
+			alSourceStop(m_source);
+		});
+
+		// Signal we're good
+		{
+			std::unique_lock<std::mutex> lock(m);
+			cv.notify_all();
+		} // m & cv no longer exists from here
 
 		// Reading loop (Filling new buffers as playing)
 		while (m_impl->streaming)
@@ -438,19 +492,6 @@ namespace Nz
 			// We go back to sleep
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
-
-		// Stop playing of the sound (in the case where it has not been already done)
-		alSourceStop(m_source);
-
-		// We delete buffers from the stream
-		ALint queuedBufferCount;
-		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
-
-		ALuint buffer;
-		for (ALint i = 0; i < queuedBufferCount; ++i)
-			alSourceUnqueueBuffers(m_source, 1, &buffer);
-
-		alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 	}
 
 	void Music::StopThread()
