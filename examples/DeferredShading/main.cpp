@@ -73,10 +73,10 @@ int main()
 
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
-	//if (std::getchar() == 'y')
+	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
-	//else
-	//	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	else
+		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
