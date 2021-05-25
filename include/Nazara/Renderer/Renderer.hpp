@@ -44,10 +44,12 @@ namespace Nz
 
 			struct Config
 			{
-				Nz::RenderAPI preferredAPI = Nz::RenderAPI::Unknown;
+				Nz::RenderAPI preferredAPI = RenderAPI::Unknown;
 			};
 
 		private:
+			void LoadBackend(const Config& config);
+
 			std::unique_ptr<RendererImpl> m_rendererImpl;
 			DynLib m_rendererLib;
 

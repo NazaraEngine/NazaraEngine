@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <filesystem>
 #include <stdexcept>
@@ -30,9 +31,50 @@
 
 namespace Nz
 {
-	namespace
+	Renderer::Renderer(Config config) :
+	ModuleBase("Renderer", this)
 	{
-		std::array<const char*, UnderlyingCast(RenderAPI::Max) + 1> s_rendererPaths = {
+		LoadBackend(config);
+
+		Buffer::SetBufferFactory(DataStorage::Hardware, [](Buffer* parent, BufferType type) -> std::unique_ptr<AbstractBuffer> { return std::make_unique<RenderBuffer>(parent, type); });
+	}
+
+	Renderer::~Renderer()
+	{
+		// Uninitialize module here
+		Buffer::SetBufferFactory(DataStorage::Hardware, nullptr);
+
+		m_rendererImpl.reset();
+	}
+
+	std::shared_ptr<RenderDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	{
+		return m_rendererImpl->InstanciateRenderDevice(deviceIndex);
+	}
+
+	RenderAPI Renderer::QueryAPI() const
+	{
+		return m_rendererImpl->QueryAPI();
+	}
+
+	std::string Renderer::QueryAPIString() const
+	{
+		return m_rendererImpl->QueryAPIString();
+	}
+
+	UInt32 Renderer::QueryAPIVersion() const
+	{
+		return m_rendererImpl->QueryAPIVersion();
+	}
+
+	const std::vector<RenderDeviceInfo>& Renderer::QueryRenderDevices() const
+	{
+		return m_rendererImpl->QueryRenderDevices();
+	}
+
+	void Renderer::LoadBackend(const Config& config)
+	{
+		constexpr std::array<const char*, RenderAPICount> rendererPaths = {
 			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
 			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
 			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
@@ -41,11 +83,7 @@ namespace Nz
 
 			nullptr // Unknown
 		};
-	}
 
-	Renderer::Renderer(Config config) :
-	ModuleBase("Renderer", this)
-	{
 		struct RendererImplementations
 		{
 			std::filesystem::path fileName;
@@ -55,7 +93,7 @@ namespace Nz
 
 		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore)
 		{
-			const char* rendererName = s_rendererPaths[UnderlyingCast(api)];
+			const char* rendererName = rendererPaths[UnderlyingCast(api)];
 			assert(rendererName);
 
 			std::filesystem::path fileName(rendererName);
@@ -122,41 +160,6 @@ namespace Nz
 		m_rendererLib = std::move(chosenLib);
 
 		NazaraDebug("Using " + m_rendererImpl->QueryAPIString() + " as renderer");
-
-		Buffer::SetBufferFactory(DataStorage::Hardware, [](Buffer* parent, BufferType type) -> std::unique_ptr<AbstractBuffer> { return std::make_unique<RenderBuffer>(parent, type); });
-	}
-
-	Renderer::~Renderer()
-	{
-		// Uninitialize module here
-		Buffer::SetBufferFactory(DataStorage::Hardware, nullptr);
-
-		m_rendererImpl.reset();
-	}
-
-	std::shared_ptr<RenderDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex)
-	{
-		return m_rendererImpl->InstanciateRenderDevice(deviceIndex);
-	}
-
-	RenderAPI Renderer::QueryAPI() const
-	{
-		return m_rendererImpl->QueryAPI();
-	}
-
-	std::string Renderer::QueryAPIString() const
-	{
-		return m_rendererImpl->QueryAPIString();
-	}
-
-	UInt32 Renderer::QueryAPIVersion() const
-	{
-		return m_rendererImpl->QueryAPIVersion();
-	}
-
-	const std::vector<RenderDeviceInfo>& Renderer::QueryRenderDevices() const
-	{
-		return m_rendererImpl->QueryRenderDevices();
 	}
 
 	Renderer* Renderer::s_instance = nullptr;
