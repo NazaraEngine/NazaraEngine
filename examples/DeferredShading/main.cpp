@@ -1,5 +1,6 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Platform.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Renderer.hpp>
@@ -46,23 +47,20 @@ struct PointLight
 	Nz::Color color = Nz::Color::White;
 	Nz::Vector3f position = Nz::Vector3f::Zero();
 
-	float constantAttenuation = 0.2f;
-	float linearAttenuation = 0.1f;
-	float quadraticAttenuation = 0.01f;
+	float radius = 1.f;
 };
 
 struct SpotLight
 {
 	Nz::Color color = Nz::Color::White;
+	Nz::Matrix4f transformMatrix;
 	Nz::Vector3f position = Nz::Vector3f::Zero();
 	Nz::Vector3f direction = Nz::Vector3f::Forward();
 
-	float constantAttenuation = 1.f;
-	float linearAttenuation = 0.1f;
-	float quadraticAttenuation = 0.01f;
+	float radius = 1.f;
 
-	float innerAngle = std::cos(Nz::DegreeToRadian(15.f));
-	float outerAngle = std::cos(Nz::DegreeToRadian(20.f));
+	Nz::RadianAnglef innerAngle = Nz::DegreeAnglef(15.f);
+	Nz::RadianAnglef outerAngle = Nz::DegreeAnglef(20.f);
 };
 
 int main()
@@ -110,15 +108,25 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	Nz::MeshParams planeParams;
-	planeParams.storage = Nz::DataStorage::Software;
+	Nz::MeshParams meshPrimitiveParams;
+	meshPrimitiveParams.storage = Nz::DataStorage::Software;
 
 	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
-	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(10.f, 10.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), planeParams);
+	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(20.f, 20.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
+	//planeMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
 	planeMesh->SetMaterialCount(1);
 
 	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*planeMesh);
+
+	meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ);
+
+	std::shared_ptr<Nz::Mesh> coneMesh = std::make_shared<Nz::Mesh>();
+	coneMesh->CreateStatic();
+	coneMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
+	coneMesh->SetMaterialCount(1);
+
+	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = std::make_shared<Nz::GraphicalMesh>(*coneMesh);
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders[UnderlyingCast(Nz::ShaderStageType::Fragment)] = std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::Parse(resourceDir / "deferred_frag.nzsl"));
@@ -165,6 +173,7 @@ int main()
 
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
+	Nz::AccessByOffset<Nz::Vector2f&>(viewerDataBuffer.data(), viewerUboOffsets.invTargetSizeOffset) = 1.f / Nz::Vector2f(window.GetSize().x, window.GetSize().y);
 
 	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 
@@ -222,8 +231,14 @@ int main()
 
 	lightingPipelineLayoutInfo.bindings.push_back({
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType::Fragment,
+		Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex,
 		3
+	});
+
+	lightingPipelineLayoutInfo.bindings.push_back({
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex,
+		4
 	});
 
 	/*Nz::FieldOffsets pointLightOffsets(Nz::StructLayout::Std140);
@@ -253,18 +268,18 @@ int main()
 	*/
 
 	Nz::FieldOffsets spotLightOffsets(Nz::StructLayout::Std140);
+	std::size_t transformMatrixOffset = spotLightOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true);
 	std::size_t colorOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
 	std::size_t positionOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
 	std::size_t directionOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
-	std::size_t constantOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t linearOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t quadraticOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t radiusOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t invRadiusOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
 	std::size_t innerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
 	std::size_t outerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
 
-	std::size_t alignedSpotLightSize = Nz::Align(spotLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
+	std::size_t alignedSpotLightSize = Nz::Align(spotLightOffsets.GetAlignedSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
 
-	constexpr std::size_t MaxPointLight = 1000;
+	constexpr std::size_t MaxPointLight = 2000;
 
 	std::shared_ptr<Nz::AbstractBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType::Uniform);
 	if (!lightUbo->Initialize(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
@@ -279,16 +294,18 @@ int main()
 	std::mt19937 randomEngine(rng());
 	std::uniform_int_distribution<unsigned int> colorDis(0, 255);
 	std::uniform_real_distribution<float> heightDis(1.5f, 1.95f);
-	std::uniform_real_distribution<float> posDis(-5.f, 5.f);
+	std::uniform_real_distribution<float> posDis(-10.f, 10.f);
 	std::uniform_real_distribution<float> dirDis(-1.f, 1.f);
 	std::uniform_real_distribution<float> dirYDis(0.f, 0.75f);
+	std::uniform_real_distribution<float> radiusDis(1.f, 5.f);
 
-	for (std::size_t i = 0; i < 100; ++i)
+	for (std::size_t i = 0; i < 1000; ++i)
 	{
 		auto& light = spotLights.emplace_back();
 		light.color = Nz::Color(colorDis(randomEngine), colorDis(randomEngine), colorDis(randomEngine));
 		light.position = Nz::Vector3f(posDis(randomEngine), heightDis(randomEngine), posDis(randomEngine));
 		light.direction = Nz::Vector3f(dirDis(randomEngine), dirYDis(randomEngine), dirDis(randomEngine)).GetNormal();
+		light.radius = radiusDis(randomEngine);
 	}
 
 
@@ -312,18 +329,23 @@ int main()
 	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, resourceDir / "fullscreen.vert.shader", {}));
 
 
+	const std::shared_ptr<const Nz::VertexDeclaration>& lightingVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
+
 	std::shared_ptr<Nz::RenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
 
 	Nz::RenderPipelineInfo lightingPipelineInfo;
 	lightingPipelineInfo.blending = true;
 	lightingPipelineInfo.blend.dstColor = Nz::BlendFunc::One;
 	lightingPipelineInfo.blend.srcColor = Nz::BlendFunc::One;
-	lightingPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleStrip;
+	lightingPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	lightingPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(lightingPipelineLayoutInfo);
 	lightingPipelineInfo.vertexBuffers.push_back({
 		0,
-		vertexDeclaration
+		meshPrimitiveParams.vertexDeclaration
 	});
+
+	lightingPipelineInfo.faceCulling = true;
+	lightingPipelineInfo.cullingSide = Nz::FaceSide::Front;
 
 	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", {}));
 
@@ -473,12 +495,14 @@ int main()
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 
 			builder.BindPipeline(*lightingPipeline);
-			builder.BindVertexBuffer(0, vertexBuffer.get());
+			//builder.BindVertexBuffer(0, vertexBuffer.get());
+			builder.BindIndexBuffer(coneMeshGfx->GetIndexBuffer(0).get());
+			builder.BindVertexBuffer(0, coneMeshGfx->GetVertexBuffer(0).get());
 
 			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
 				builder.BindShaderBinding(*lightingShaderBindings[i]);
-				builder.Draw(3);
+				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
 			}
 		});
 
@@ -527,7 +551,14 @@ int main()
 				3,
 				Nz::ShaderBinding::UniformBufferBinding {
 					lightUbo.get(),
-					i * alignedSpotLightSize, spotLightOffsets.GetSize()
+					i * alignedSpotLightSize, spotLightOffsets.GetAlignedSize()
+				}
+			},
+			{
+				4,
+				Nz::ShaderBinding::UniformBufferBinding {
+					viewerDataUBO.get(),
+					0, viewerDataUBO->GetSize()
 				}
 			}
 		});
@@ -592,8 +623,15 @@ int main()
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
+	float elapsedTime = 0.f;
+	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
+
 	while (window.IsOpen())
 	{
+		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
+		elapsedTime += (now - time) / 1'000'000.f;
+		time = now;
+
 		Nz::WindowEvent event;
 		while (window.PollEvent(&event))
 		{
@@ -625,7 +663,7 @@ int main()
 					if (event.key.scancode == Nz::Keyboard::Scancode::Space)
 					{
 						auto& whiteLight = spotLights.emplace_back();
-						whiteLight.constantAttenuation = 0.8f;
+						whiteLight.radius = 5.f;
 						whiteLight.position = viewerPos;
 						whiteLight.direction = camQuat * Nz::Vector3f::Forward();
 
@@ -685,7 +723,7 @@ int main()
 		if (frame.IsFramebufferInvalidated())
 			RebuildCommandBuffer();
 
-		if (viewerUboUpdate)
+		//if (viewerUboUpdate)
 		{
 			Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
@@ -709,14 +747,19 @@ int main()
 						Nz::UInt8* lightDataPtr = static_cast<Nz::UInt8*>(lightDataAllocation.mappedPtr);
 						for (const SpotLight& spotLight : spotLights)
 						{
+							Nz::Vector3f direction = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 90.f, 0.f)) * spotLight.direction;
+
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = spotLight.position;
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = spotLight.direction;
-							Nz::AccessByOffset<float&>(lightDataPtr, constantOffset) = spotLight.constantAttenuation;
-							Nz::AccessByOffset<float&>(lightDataPtr, linearOffset) = spotLight.linearAttenuation;
-							Nz::AccessByOffset<float&>(lightDataPtr, quadraticOffset) = spotLight.quadraticAttenuation;
-							Nz::AccessByOffset<float&>(lightDataPtr, innerAngleOffset) = spotLight.innerAngle;
-							Nz::AccessByOffset<float&>(lightDataPtr, outerAngleOffset) = spotLight.outerAngle;
+							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = direction;
+							Nz::AccessByOffset<float&>(lightDataPtr, radiusOffset) = spotLight.radius;
+							Nz::AccessByOffset<float&>(lightDataPtr, invRadiusOffset) = 1.f / spotLight.radius;
+							Nz::AccessByOffset<float&>(lightDataPtr, innerAngleOffset) = spotLight.innerAngle.GetCos();
+							Nz::AccessByOffset<float&>(lightDataPtr, outerAngleOffset) = spotLight.outerAngle.GetCos();
+
+							float baseRadius = spotLight.radius * spotLight.outerAngle.GetTan() * 1.1f;
+							Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform(spotLight.position, Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), direction), Nz::Vector3f(baseRadius, baseRadius, spotLight.radius));
+							Nz::AccessByOffset<Nz::Matrix4f&>(lightDataPtr, transformMatrixOffset) = transformMatrix;
 
 							lightDataPtr += alignedSpotLightSize;
 						}
