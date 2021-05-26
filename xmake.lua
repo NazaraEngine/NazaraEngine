@@ -194,8 +194,9 @@ rule("build_rendererplugins")
 	after_load(function (target)
 		if target:kind() == "binary" and target:dep("NazaraRenderer") then
 			for name, _ in pairs(modules) do
-				if name:match("^.+Renderer$") then
-					target:add("deps", "Nazara" .. name, {inherit = false})
+				local depName = "Nazara" .. name
+				if name:match("^.+Renderer$") and target:dep(depName) == nil then -- don't overwrite dependency
+					target:add("deps", depName, {inherit = false})
 				end
 			end
 		end
