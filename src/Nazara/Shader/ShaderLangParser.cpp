@@ -34,6 +34,7 @@ namespace Nz::ShaderLang
 		};
 
 		std::unordered_map<std::string, ShaderAst::BuiltinEntry> s_builtinMapping = {
+			{ "fragcoord", ShaderAst::BuiltinEntry::FragCoord },
 			{ "position", ShaderAst::BuiltinEntry::VertexPosition }
 		};
 

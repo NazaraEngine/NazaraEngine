@@ -231,6 +231,10 @@ namespace Nz
 
 		switch (*builtin.builtin)
 		{
+			case ShaderAst::BuiltinEntry::FragCoord:
+				Append("builtin(fragcoord)");
+				break;
+
 			case ShaderAst::BuiltinEntry::VertexPosition:
 				Append("builtin(position)");
 				break;

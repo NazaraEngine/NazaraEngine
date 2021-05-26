@@ -85,6 +85,7 @@ namespace Nz
 		};
 
 		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
+			{ ShaderAst::BuiltinEntry::FragCoord,      { "gl_FragCoord", ShaderStageType::Fragment } },
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "gl_Position", ShaderStageType::Vertex } }
 		};
 	}
@@ -191,6 +192,10 @@ namespace Nz
 	{
 		switch (builtin)
 		{
+			case ShaderAst::BuiltinEntry::FragCoord:
+				Append("gl_FragCoord");
+				break;
+
 			case ShaderAst::BuiltinEntry::VertexPosition:
 				Append("gl_Position");
 				break;
