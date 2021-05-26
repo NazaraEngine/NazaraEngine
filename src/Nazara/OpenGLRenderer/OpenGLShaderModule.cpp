@@ -125,7 +125,7 @@ namespace Nz
 
 				std::string code = writer.Generate(shaderStage, shaderAst, states);
 
-				shader.SetSource(code.data(), code.size());
+				shader.SetSource(code.data(), GLint(code.size()));
 				shader.Compile();
 
 				CheckCompilationStatus(shader);

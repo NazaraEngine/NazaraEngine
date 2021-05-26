@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_OPENGLWINDOWFRAMEBUFFER_HPP
-#define NAZARA_OPENGLRENDERER_OPENGLWINDOWFRAMEBUFFER_HPP
+#ifndef NAZARA_OPENGLRENDERER_OPENGLFBOFRAMEBUFFER_HPP
+#define NAZARA_OPENGLRENDERER_OPENGLFBOFRAMEBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 
-#endif // NAZARA_OPENGLRENDERER_OpenGLWindowFramebuffer_HPP
+#endif

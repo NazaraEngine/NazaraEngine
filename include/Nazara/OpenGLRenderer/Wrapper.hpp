@@ -13,7 +13,6 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/RenderBuffer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Texture.hpp>

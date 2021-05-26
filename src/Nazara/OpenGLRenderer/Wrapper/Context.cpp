@@ -214,6 +214,9 @@ namespace Nz::GL
 			unit.buffer = buffer;
 			unit.offset = offset;
 			unit.size = size;
+
+			// glBindBufferRange does replace the currently bound buffer
+			m_state.bufferTargets[UnderlyingCast(BufferTarget::Uniform)] = buffer;
 		}
 	}
 
