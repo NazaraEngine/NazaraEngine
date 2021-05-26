@@ -63,7 +63,7 @@ namespace Nz
 			void AppendCommentSection(const std::string& section);
 			void AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, bool forward = false);
 			void AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers);
-			void AppendHeader(const std::vector<ShaderAst::DeclareFunctionStatement*>& forwardFunctionDeclarations);
+			void AppendHeader();
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 			void AppendStatementList(std::vector<ShaderAst::StatementPtr>& statements);
@@ -74,7 +74,6 @@ namespace Nz
 			void HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node);
 			void HandleInOut();
 
-			void RegisterFunction(std::size_t funcIndex, std::string funcName);
 			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
