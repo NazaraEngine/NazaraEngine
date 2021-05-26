@@ -51,10 +51,10 @@ namespace Nz
 			const auto& bindingDesc = layoutInfo.bindings[binding.bindingIndex];
 
 			std::size_t resourceIndex = 0;
-			for (std::size_t i = binding.bindingIndex; i > 0; --i)
+			for (std::size_t j = binding.bindingIndex; j > 0; --j)
 			{
-				// Use i-1 to prevent underflow in for loop
-				if (layoutInfo.bindings[i - 1].type == bindingDesc.type)
+				// Use j-1 to prevent underflow in for loop
+				if (layoutInfo.bindings[j - 1].type == bindingDesc.type)
 					resourceIndex++;
 			}
 
@@ -99,7 +99,7 @@ namespace Nz
 					const UniformBufferBinding& uboBinding = std::get<UniformBufferBinding>(binding.content);
 
 					auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
-					uboDescriptor.bindingIndex = binding.bindingIndex;
+					uboDescriptor.bindingIndex = static_cast<UInt32>(binding.bindingIndex);
 					uboDescriptor.offset = uboBinding.offset;
 					uboDescriptor.size = uboBinding.range;
 

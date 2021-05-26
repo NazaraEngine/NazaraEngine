@@ -71,7 +71,7 @@ namespace Nz
 				if constexpr (std::is_same_v<T, BeginDebugRegionData>)
 				{
 					if (context->glPushDebugGroup)
-						context->glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, command.regionName.size(), command.regionName.data());
+						context->glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, GLsizei(command.regionName.size()), command.regionName.data());
 				}
 				else if constexpr (std::is_same_v<T, CopyBufferData>)
 				{
@@ -143,10 +143,11 @@ namespace Nz
 
 	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
 	{
-		states.shaderBindings->Apply(context);
 		states.pipeline->Apply(context);
 
 		states.pipeline->FlipY(states.shouldFlipY);
+
+		states.shaderBindings->Apply(context);
 
 		if (states.scissorRegion)
 			context.SetScissorBox(states.scissorRegion->x, states.scissorRegion->y, states.scissorRegion->width, states.scissorRegion->height);
