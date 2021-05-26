@@ -36,7 +36,8 @@ namespace Nz
 		};
 
 		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
-			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition", ShaderStageType::Vertex, SpirvBuiltIn::Position } }
+			{ ShaderAst::BuiltinEntry::FragCoord,      { "FragmentCoordinates", ShaderStageType::Fragment, SpirvBuiltIn::FragCoord } },
+			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition", ShaderStageType::Vertex,   SpirvBuiltIn::Position } }
 		};
 
 		class PreVisitor : public ShaderAst::AstRecursiveVisitor

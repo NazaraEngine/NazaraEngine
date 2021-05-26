@@ -43,7 +43,8 @@ namespace Nz::ShaderAst
 
 	enum class BuiltinEntry
 	{
-		VertexPosition, // gl_Position
+		FragCoord      = 1, // gl_FragCoord
+		VertexPosition = 0, // gl_Position
 	};
 
 	enum class ExpressionCategory
