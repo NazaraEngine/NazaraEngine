@@ -21,7 +21,7 @@ namespace Nz
 
 	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
-		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), renderPass, clearValues, clearValueCount);
+		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), static_cast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
 	void OpenGLCommandBufferBuilder::BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset)

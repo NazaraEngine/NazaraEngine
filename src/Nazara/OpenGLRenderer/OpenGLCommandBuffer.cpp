@@ -5,6 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
@@ -62,6 +63,8 @@ namespace Nz
 		for (std::size_t i = 0; i < m_maxColorBufferCount; ++i)
 			fboDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0 + i);
 
+		StackArray<std::size_t> colorIndexes = NazaraStackArrayNoInit(std::size_t, m_maxColorBufferCount);
+
 		for (const auto& commandVariant : m_commands)
 		{
 			std::visit([&](auto&& command)
@@ -105,33 +108,128 @@ namespace Nz
 
 					context = GL::Context::GetCurrentContext();
 
+					std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
+					assert(colorBufferCount <= fboDrawBuffers.size());
+
+					colorIndexes.fill(0);
+					std::size_t colorIndex = 0;
+
+					GLbitfield clearFields = 0;
+					std::optional<std::size_t> depthStencilIndex;
+
+					std::size_t attachmentCount = command.renderpass->GetAttachmentCount();
+
+					for (std::size_t i = 0; i < attachmentCount; ++i)
+					{
+						const auto& attachmentInfo = command.renderpass->GetAttachment(i);
+						switch (PixelFormatInfo::GetContent(attachmentInfo.format))
+						{
+							case PixelFormatContent::ColorRGBA:
+								colorIndexes[colorIndex++] = i;
+								break;
+
+							case PixelFormatContent::Depth:
+								if (!depthStencilIndex)
+									depthStencilIndex = i;
+								break;
+
+							case PixelFormatContent::DepthStencil:
+								if (!depthStencilIndex)
+									depthStencilIndex = i;
+								break;
+						}
+					}
+
 					if (command.framebuffer->GetType() == OpenGLFramebuffer::Type::FBO)
 					{
-						std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
-						assert(colorBufferCount <= fboDrawBuffers.size());
-
 						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
 
-						//FIXME: Don't clear when not needed
 						for (std::size_t i = 0; i < colorBufferCount; ++i)
 						{
-							Nz::Color color = command.clearValues[i].color;
+							std::size_t attachmentIndex = colorIndexes[i];
+
+							Nz::Color color = command.clearValues[attachmentIndex].color;
 							std::array<GLfloat, 4> clearColor = { color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f };
 
-							context->glClearBufferfv(GL_COLOR, GLint(i), clearColor.data());
+							const auto& attachmentInfo = command.renderpass->GetAttachment(attachmentIndex);
+							if (attachmentInfo.loadOp == AttachmentLoadOp::Clear)
+							{
+								context->ResetColorWriteMasks();
+								context->glClearBufferfv(GL_COLOR, GLint(i), clearColor.data());
+							}
 						}
 
-						context->glClear(GL_DEPTH_BUFFER_BIT);
+						if (depthStencilIndex)
+						{
+							std::size_t attachmentIndex = *depthStencilIndex;
+							const auto& clearValues = command.clearValues[attachmentIndex];
+
+							const auto& depthStencilAttachment = command.renderpass->GetAttachment(attachmentIndex);
+							if (depthStencilAttachment.loadOp == AttachmentLoadOp::Clear && depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear)
+							{
+								context->ResetDepthWriteMasks();
+								context->ResetStencilWriteMasks();
+								context->glClearBufferfi(GL_DEPTH_STENCIL, 0, clearValues.depth, clearValues.stencil);
+							}
+							else if (depthStencilAttachment.loadOp == AttachmentLoadOp::Clear)
+							{
+								context->ResetDepthWriteMasks();
+								context->glClearBufferfv(GL_DEPTH, 0, &clearValues.depth);
+							}
+							else if (depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear)
+							{
+								context->ResetStencilWriteMasks();
+								context->glClearBufferuiv(GL_STENCIL, 0, &clearValues.stencil);
+							}
+						}
 					}
 					else
 					{
 						GLenum buffer = GL_BACK;
 						context->glDrawBuffers(1, &buffer);
 
-						//FIXME: Don't clear when not needed
-						Nz::Color color = command.clearValues[0].color;
-						context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
-						context->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+						if (colorIndex > 0)
+						{
+							std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
+							assert(colorBufferCount <= 1);
+
+							std::size_t colorAttachmentIndex = colorIndexes.front();
+
+							const auto& colorAttachment = command.renderpass->GetAttachment(colorAttachmentIndex);
+							if (colorAttachment.loadOp == AttachmentLoadOp::Clear)
+							{
+								context->ResetColorWriteMasks();
+
+								Nz::Color color = command.clearValues[colorAttachmentIndex].color;
+								context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
+
+								clearFields |= GL_COLOR_BUFFER_BIT;
+							}
+						}
+
+						if (depthStencilIndex)
+						{
+							std::size_t attachmentIndex = *depthStencilIndex;
+							const auto& clearValues = command.clearValues[attachmentIndex];
+
+							const auto& depthStencilAttachment = command.renderpass->GetAttachment(attachmentIndex);
+							if (depthStencilAttachment.loadOp == AttachmentLoadOp::Clear)
+							{
+								context->ResetDepthWriteMasks();
+								context->glClearDepthf(clearValues.depth);
+								clearFields |= GL_DEPTH_BUFFER_BIT;
+							}
+
+							if (depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear && PixelFormatInfo::GetContent(depthStencilAttachment.format) == PixelFormatContent::DepthStencil)
+							{
+								context->ResetStencilWriteMasks();
+								context->glClearStencil(clearValues.stencil);
+								clearFields |= GL_STENCIL_BUFFER_BIT;
+							}
+						}
+
+						if (clearFields)
+							context->glClear(clearFields);
 					}
 				}
 				else

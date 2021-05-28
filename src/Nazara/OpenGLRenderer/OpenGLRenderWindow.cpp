@@ -14,7 +14,6 @@ namespace Nz
 {
 	OpenGLRenderWindow::OpenGLRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
-	m_renderPass({}, {}, {}),
 	m_framebuffer(*this),
 	m_owner(owner)
 	{
@@ -51,6 +50,40 @@ namespace Nz
 
 		m_size = m_owner.GetSize();
 
+		// TODO: extract the exact window pixel format
+		PixelFormat colorFormat;
+		switch (contextParams.bitsPerPixel)
+		{
+			case 8: colorFormat = PixelFormat::R8; break;
+			case 16: colorFormat = PixelFormat::RG8; break;
+			case 24: colorFormat = PixelFormat::RGB8; break;
+
+			case 32:
+			default:
+				colorFormat = PixelFormat::RGBA8;
+				break;
+		}
+
+		// TODO: extract the exact depth-stencil format
+		PixelFormat depthFormat;
+		if (contextParams.stencilBits > 0)
+			depthFormat = PixelFormat::Depth24Stencil8;
+		else if (contextParams.depthBits > 24)
+			depthFormat = PixelFormat::Depth32;
+		else if (contextParams.depthBits > 16)
+			depthFormat = PixelFormat::Depth24;
+		else if (contextParams.depthBits > 0)
+			depthFormat = PixelFormat::Depth16;
+		else
+			depthFormat = PixelFormat::Undefined;
+
+		std::vector<RenderPass::Attachment> attachments;
+		std::vector<RenderPass::SubpassDescription> subpassDescriptions;
+		std::vector<RenderPass::SubpassDependency> subpassDependencies;
+
+		BuildRenderPass(colorFormat, depthFormat, attachments, subpassDescriptions, subpassDependencies);
+		m_renderPass.emplace(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
+
 		constexpr std::size_t RenderImageCount = 2;
 
 		m_renderImage.reserve(RenderImageCount);
@@ -72,7 +105,7 @@ namespace Nz
 
 	const OpenGLRenderPass& OpenGLRenderWindow::GetRenderPass() const
 	{
-		return m_renderPass;
+		return *m_renderPass;
 	}
 
 	void OpenGLRenderWindow::Present()

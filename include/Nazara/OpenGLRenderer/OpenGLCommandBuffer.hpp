@@ -24,6 +24,7 @@ namespace Nz
 {
 	class OpenGLCommandPool;
 	class OpenGLFramebuffer;
+	class OpenGLRenderPass;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBuffer final : public CommandBuffer
 	{
@@ -55,7 +56,7 @@ namespace Nz
 			inline std::size_t GetPoolIndex() const;
 			inline const OpenGLCommandPool& GetOwner() const;
 
-			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
+			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
 			inline void SetScissor(Nz::Recti scissorRegion);
 			inline void SetViewport(Nz::Recti viewportRegion);
 
@@ -103,8 +104,8 @@ namespace Nz
 				const OpenGLRenderPipeline* pipeline = nullptr;
 				const OpenGLShaderBinding* shaderBindings = nullptr;
 				UInt64 indexBufferOffset;
-				std::optional<Nz::Recti> scissorRegion;
-				std::optional<Nz::Recti> viewportRegion;
+				std::optional<Recti> scissorRegion;
+				std::optional<Recti> viewportRegion;
 				std::vector<VertexBuffer> vertexBuffers;
 				bool shouldFlipY = false;
 			};
@@ -135,6 +136,7 @@ namespace Nz
 			{
 				std::array<CommandBufferBuilder::ClearValues, 16> clearValues; //< TODO: Remove hard limit?
 				const OpenGLFramebuffer* framebuffer;
+				const OpenGLRenderPass* renderpass;
 			};
 
 			using CommandData = std::variant<
