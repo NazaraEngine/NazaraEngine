@@ -115,6 +115,9 @@ namespace Nz
 							continue; //< Ignore
 					}
 
+					if (!remainingStages.Test(stageType))
+						continue;
+
 					m_stages.push_back({
 						stageType,
 						std::move(entryPoint.name)

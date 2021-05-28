@@ -146,7 +146,7 @@ for name, module in pairs(modules) do
 
 	if is_mode("debug") then
 		add_defines("NAZARA_DEBUG")
-		add_defines("NAZARA_" .. name:upper() .. "_BUILD")
+		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
 
 	add_headerfiles("include/Nazara/" .. name .. "/**.hpp")
@@ -156,7 +156,7 @@ for name, module in pairs(modules) do
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
-	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|*.h")) do
+	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h")) do
 		add_files(filepath, {rule="embed_resources"})
 	end
 
