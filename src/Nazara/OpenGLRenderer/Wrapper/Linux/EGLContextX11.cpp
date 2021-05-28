@@ -10,6 +10,8 @@ namespace Nz::GL
 {
 	bool EGLContextX11::Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext)
 	{
+		//TODO: Load X11 dynamically
+
 		assert(window.type == WindowManager::X11);
 
 		Destroy(); //< In case a previous display or surface hasn't been released
