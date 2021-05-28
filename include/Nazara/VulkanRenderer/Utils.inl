@@ -153,7 +153,19 @@ namespace Nz
 		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(faceFilling), 16));
 		return VK_POLYGON_MODE_FILL;
 	}
-	
+
+	inline VkFrontFace ToVulkan(FrontFace frontFace)
+	{
+		switch (frontFace)
+		{
+			case FrontFace::Clockwise:        return VK_FRONT_FACE_CLOCKWISE;
+			case FrontFace::CounterClockwise: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		}
+
+		NazaraError("Unhandled FrontFace 0x" + NumberToString(UnderlyingCast(frontFace), 16));
+		return {};
+	}
+
 	inline VkAccessFlagBits ToVulkan(MemoryAccess memoryAccess)
 	{
 		switch (memoryAccess)

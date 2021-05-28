@@ -72,9 +72,9 @@ namespace Nz
 		return {};
 	}
 
-	inline GLenum ToOpenGL(FaceSide filter)
+	inline GLenum ToOpenGL(FaceSide side)
 	{
-		switch (filter)
+		switch (side)
 		{
 			case FaceSide::None:
 				break;
@@ -84,11 +84,23 @@ namespace Nz
 			case FaceSide::FrontAndBack: return GL_FRONT_AND_BACK;
 		}
 
-		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(filter), 16));
+		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(side), 16));
 		return {};
 	}
 
-	GLenum ToOpenGL(PrimitiveMode primitiveMode)
+	inline GLenum ToOpenGL(FrontFace face)
+	{
+		switch (face)
+		{
+			case FrontFace::Clockwise:        return GL_CW;
+			case FrontFace::CounterClockwise: return GL_CCW;
+		}
+
+		NazaraError("Unhandled FrontFace 0x" + NumberToString(UnderlyingCast(face), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(PrimitiveMode primitiveMode)
 	{
 		switch (primitiveMode)
 		{

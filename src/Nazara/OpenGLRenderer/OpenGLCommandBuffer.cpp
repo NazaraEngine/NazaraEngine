@@ -241,10 +241,7 @@ namespace Nz
 
 	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
 	{
-		states.pipeline->Apply(context);
-
-		states.pipeline->FlipY(states.shouldFlipY);
-
+		states.pipeline->Apply(context, states.shouldFlipY);
 		states.shaderBindings->Apply(context);
 
 		if (states.scissorRegion)

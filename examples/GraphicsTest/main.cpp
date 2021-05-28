@@ -63,6 +63,7 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
 	material->EnableDepthBuffer(true);
+	material->EnableFaceCulling(true);
 
 	Nz::BasicMaterial basicMat(*material);
 	basicMat.EnableAlphaTest(true);
