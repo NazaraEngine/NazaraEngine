@@ -25,9 +25,6 @@ namespace Nz::GL
 
 			EGLContextX11& operator=(const EGLContextX11&) = delete;
 			EGLContextX11& operator=(EGLContextX11&&) = delete;
-
-		private:
-			::Display* m_xdisplay = nullptr;
 	};
 }
 
