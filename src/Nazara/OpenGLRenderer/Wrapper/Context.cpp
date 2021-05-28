@@ -14,8 +14,6 @@
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-#define NAZARA_OPENGLRENDERER_DEBUG 1
-
 namespace Nz::GL
 {
 	thread_local const Context* s_currentContext = nullptr;
@@ -469,7 +467,7 @@ namespace Nz::GL
 		{
 			if (m_state.renderStates.depthCompare != renderStates.depthCompare)
 			{
-				glDepthFunc(ToOpenGL(m_state.renderStates.depthCompare));
+				glDepthFunc(ToOpenGL(renderStates.depthCompare));
 				m_state.renderStates.depthCompare = renderStates.depthCompare;
 			}
 
@@ -516,12 +514,12 @@ namespace Nz::GL
 
 				if (currentStencilData.compare != newStencilData.compare ||
 				    currentStencilData.reference != newStencilData.reference ||
-				    currentStencilData.writeMask != newStencilData.writeMask)
+				    currentStencilData.compareMask != newStencilData.compareMask)
 				{
-					glStencilFuncSeparate((front) ? GL_FRONT : GL_BACK, ToOpenGL(newStencilData.compare), newStencilData.reference, newStencilData.writeMask);
+					glStencilFuncSeparate((front) ? GL_FRONT : GL_BACK, ToOpenGL(newStencilData.compare), newStencilData.reference, newStencilData.compareMask);
 					currentStencilData.compare = newStencilData.compare;
+					currentStencilData.compareMask = newStencilData.compareMask;
 					currentStencilData.reference = newStencilData.reference;
-					currentStencilData.writeMask = newStencilData.writeMask;
 				}
 
 				if (currentStencilData.depthFail != newStencilData.depthFail ||
@@ -532,6 +530,12 @@ namespace Nz::GL
 					currentStencilData.depthFail = newStencilData.depthFail;
 					currentStencilData.fail = newStencilData.fail;
 					currentStencilData.pass = newStencilData.pass;
+				}
+
+				if (currentStencilData.writeMask != newStencilData.writeMask)
+				{
+					glStencilMaskSeparate((front) ? GL_FRONT : GL_BACK, newStencilData.writeMask);
+					currentStencilData.writeMask = newStencilData.writeMask;
 				}
 			};
 

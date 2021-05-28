@@ -53,7 +53,10 @@ namespace Nz
 
 		VkPipelineColorBlendAttachmentState& colorBlendState = colorBlendStates.emplace_back();
 		colorBlendState.blendEnable = pipelineInfo.blending;
-		colorBlendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
+		if (pipelineInfo.colorWrite)
+			colorBlendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
+		else
+			colorBlendState.colorWriteMask = 0;
 
 		if (pipelineInfo.blending)
 		{

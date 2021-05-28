@@ -175,7 +175,7 @@ namespace Nz
 
 		AppendHeader();
 
-		sanitizedAst->Visit(*this);
+		targetAst->Visit(*this);
 
 		return state.stream.str();
 	}

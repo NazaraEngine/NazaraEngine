@@ -212,7 +212,7 @@ namespace Nz
 				{
 					if (auto it = m_pending.attachmentToTextures.find(depthStencilOutput); it == m_pending.attachmentToTextures.end())
 						m_pending.attachmentToTextures.emplace(depthStencilOutput, textureId);
-					else
+					else if (it->second != textureId)
 						throw std::runtime_error("depth-stencil output already assigned");
 				}
 			}
