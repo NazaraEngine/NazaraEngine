@@ -343,13 +343,41 @@ int main()
 		0,
 		meshPrimitiveParams.vertexDeclaration
 	});
-
+	lightingPipelineInfo.depthBuffer = false;
 	lightingPipelineInfo.faceCulling = true;
 	lightingPipelineInfo.cullingSide = Nz::FaceSide::Front;
+	lightingPipelineInfo.stencilTest = true;
+	lightingPipelineInfo.stencilBack.compare = Nz::RendererComparison::NotEqual;
+	lightingPipelineInfo.stencilBack.fail = Nz::StencilOperation::Zero;
+	lightingPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Zero;
+	lightingPipelineInfo.stencilBack.pass = Nz::StencilOperation::Zero;
 
 	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", {}));
 
 	std::shared_ptr<Nz::RenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
+
+	Nz::RenderPipelineInfo stencilPipelineInfo;
+	stencilPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
+	stencilPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(lightingPipelineLayoutInfo);
+	stencilPipelineInfo.vertexBuffers.push_back({
+		0,
+		meshPrimitiveParams.vertexDeclaration
+	});
+
+	stencilPipelineInfo.colorWrite = false;
+	stencilPipelineInfo.depthBuffer = true;
+	stencilPipelineInfo.depthWrite = false;
+	stencilPipelineInfo.faceCulling = false;
+	stencilPipelineInfo.stencilTest = true;
+	stencilPipelineInfo.stencilFront.compare = Nz::RendererComparison::Always;
+	stencilPipelineInfo.stencilFront.depthFail = Nz::StencilOperation::Invert;
+	stencilPipelineInfo.stencilBack.compare = Nz::RendererComparison::Always;
+	stencilPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Invert;
+
+	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", {}));
+
+	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
+
 
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> lightingShaderBindings;
 
@@ -494,7 +522,6 @@ int main()
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 
-			builder.BindPipeline(*lightingPipeline);
 			//builder.BindVertexBuffer(0, vertexBuffer.get());
 			builder.BindIndexBuffer(coneMeshGfx->GetIndexBuffer(0).get());
 			builder.BindVertexBuffer(0, coneMeshGfx->GetVertexBuffer(0).get());
@@ -502,6 +529,11 @@ int main()
 			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
 				builder.BindShaderBinding(*lightingShaderBindings[i]);
+
+				builder.BindPipeline(*stencilPipeline);
+				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
+
+				builder.BindPipeline(*lightingPipeline);
 				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
 			}
 		});
@@ -510,6 +542,8 @@ int main()
 		lightingPass.AddInput(normalTexture);
 		lightingPass.AddInput(positionTexture);
 		lightingPass.SetClearColor(lightingPass.AddOutput(backbuffer), Nz::Color::Black);
+		lightingPass.SetDepthStencilInput(depthBuffer);
+		lightingPass.SetDepthStencilOutput(depthBuffer);
 		//lightingPass.SetDepthStencilInput(depthBuffer);
 
 		graph.SetBackbufferOutput(backbuffer);
@@ -608,9 +642,9 @@ int main()
 	RebuildCommandBuffer();
 
 
-	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
+	Nz::Vector3f viewerPos = Nz::Vector3f::Backward() * 10.f + Nz::Vector3f::Up() * -3.f;
 
-	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
+	Nz::EulerAnglesf camAngles(30.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
 
 	window.EnableEventPolling(true);
