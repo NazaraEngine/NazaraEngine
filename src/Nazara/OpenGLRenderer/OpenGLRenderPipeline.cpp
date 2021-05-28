@@ -16,7 +16,7 @@ namespace Nz
 {
 	OpenGLRenderPipeline::OpenGLRenderPipeline(OpenGLDevice& device, RenderPipelineInfo pipelineInfo) :
 	m_pipelineInfo(std::move(pipelineInfo)),
-	m_isYFlipped(false)
+	m_isViewportFlipped(false)
 	{
 		if (!m_program.Create(device))
 			throw std::runtime_error("failed to create program");
@@ -39,18 +39,14 @@ namespace Nz
 			m_program.Uniform(m_flipYUniformLocation, 1.f);
 	}
 
-	void OpenGLRenderPipeline::Apply(const GL::Context& context) const
+	void OpenGLRenderPipeline::Apply(const GL::Context& context, bool flipViewport) const
 	{
-		context.UpdateStates(m_pipelineInfo);
-		context.BindProgram(m_program.GetObjectId()); //< Bind program after states
-	}
-
-	void OpenGLRenderPipeline::FlipY(bool shouldFlipY) const
-	{
-		if (m_isYFlipped != shouldFlipY)
+		context.UpdateStates(m_pipelineInfo, flipViewport);
+		context.BindProgram(m_program.GetObjectId()); //< Bind program after states (for shader caching)
+		if (m_isViewportFlipped != flipViewport)
 		{
-			m_program.Uniform(m_flipYUniformLocation, (shouldFlipY) ? -1.f : 1.f);
-			m_isYFlipped = shouldFlipY;
+			m_program.Uniform(m_flipYUniformLocation, (flipViewport) ? -1.f : 1.f);
+			m_isViewportFlipped = flipViewport;
 		}
 	}
 }

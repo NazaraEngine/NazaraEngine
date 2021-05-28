@@ -149,6 +149,14 @@ namespace Nz
 		Max = FrontAndBack
 	};
 
+	enum class FrontFace
+	{
+		Clockwise,
+		CounterClockwise,
+
+		Max = CounterClockwise
+	};
+
 	enum class ImageType
 	{
 		E1D,

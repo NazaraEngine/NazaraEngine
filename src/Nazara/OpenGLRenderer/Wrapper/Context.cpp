@@ -363,6 +363,8 @@ namespace Nz::GL
 		glGetIntegerv(GL_VIEWPORT, res.data());
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
+		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is counter-clockwise
+
 		EnableVerticalSync(false);
 
 		return true;
@@ -435,7 +437,7 @@ namespace Nz::GL
 		}
 	}
 
-	void Context::UpdateStates(const RenderStates& renderStates) const
+	void Context::UpdateStates(const RenderStates& renderStates, bool isViewportFlipped) const
 	{
 		if (!SetCurrentContext(this))
 			throw std::runtime_error("failed to activate context");
@@ -482,9 +484,19 @@ namespace Nz::GL
 		{
 			if (m_state.renderStates.cullingSide != renderStates.cullingSide)
 			{
-				glCullFace(ToOpenGL(m_state.renderStates.cullingSide));
+				glCullFace(ToOpenGL(renderStates.cullingSide));
 				m_state.renderStates.cullingSide = renderStates.cullingSide;
 			}
+		}
+
+		FrontFace targetFrontFace = renderStates.frontFace;
+		if (!isViewportFlipped)
+			targetFrontFace = (targetFrontFace == FrontFace::Clockwise) ? FrontFace::CounterClockwise : FrontFace::Clockwise;
+
+		if (m_state.renderStates.frontFace != targetFrontFace)
+		{
+			glFrontFace(ToOpenGL(targetFrontFace));
+			m_state.renderStates.frontFace = targetFrontFace;
 		}
 
 		/*
