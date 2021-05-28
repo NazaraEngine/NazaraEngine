@@ -44,7 +44,9 @@ namespace Nz
 						shader.Compile();
 						CheckCompilationStatus(shader);
 
-						m_shaders.emplace_back(std::move(shader));
+						auto& entry = m_shaders.emplace_back();
+						entry.shader = std::move(shader);
+						entry.stage = shaderStage;
 						break;
 					}
 				}
@@ -130,7 +132,9 @@ namespace Nz
 
 				CheckCompilationStatus(shader);
 
-				m_shaders.emplace_back(std::move(shader));
+				auto& entry = m_shaders.emplace_back();
+				entry.shader = std::move(shader);
+				entry.stage = shaderStage;
 			}
 		}
 	}

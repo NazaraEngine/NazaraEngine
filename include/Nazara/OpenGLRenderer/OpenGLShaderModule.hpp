@@ -20,23 +20,31 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderModule : public ShaderModule
 	{
 		public:
-			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states);
-			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states);
+			struct Shader;
+
+			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states = {});
+			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states = {});
 			OpenGLShaderModule(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule(OpenGLShaderModule&&) noexcept = default;
 			~OpenGLShaderModule() = default;
 
-			inline const std::vector<GL::Shader>& GetShaders() const;
+			inline const std::vector<Shader>& GetShaders() const;
 
 			OpenGLShaderModule& operator=(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule& operator=(OpenGLShaderModule&&) noexcept = default;
+
+			struct Shader
+			{
+				ShaderStageType stage;
+				GL::Shader shader;
+			};
 
 		private:
 			void Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states);
 
 			static void CheckCompilationStatus(GL::Shader& shader);
 
-			std::vector<GL::Shader> m_shaders;
+			std::vector<Shader> m_shaders;
 	};
 }
 

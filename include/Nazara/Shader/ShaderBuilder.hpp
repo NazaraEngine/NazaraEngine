@@ -20,6 +20,7 @@ namespace Nz::ShaderBuilder
 		struct AccessMember
 		{
 			inline std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::string> memberIdentifiers) const;
+			inline std::unique_ptr<ShaderAst::AccessMemberIndexExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::size_t> memberIndices) const;
 		};
 
 		struct Assign
@@ -104,7 +105,7 @@ namespace Nz::ShaderBuilder
 
 		struct Multi
 		{
-			inline std::unique_ptr<ShaderAst::MultiStatement> operator()(std::vector<ShaderAst::StatementPtr> statements) const;
+			inline std::unique_ptr<ShaderAst::MultiStatement> operator()(std::vector<ShaderAst::StatementPtr> statements = {}) const;
 		};
 
 		template<typename T>

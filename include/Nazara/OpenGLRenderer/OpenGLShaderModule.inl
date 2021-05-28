@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline const std::vector<GL::Shader>& OpenGLShaderModule::GetShaders() const
+	inline auto OpenGLShaderModule::GetShaders() const -> const std::vector<Shader>&
 	{
 		return m_shaders;
 	}
