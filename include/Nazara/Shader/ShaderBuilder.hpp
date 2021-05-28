@@ -17,10 +17,14 @@ namespace Nz::ShaderBuilder
 {
 	namespace Impl
 	{
+		struct AccessIndex
+		{
+			inline std::unique_ptr<ShaderAst::AccessMemberIndexExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::size_t> memberIndices) const;
+		};
+
 		struct AccessMember
 		{
 			inline std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::string> memberIdentifiers) const;
-			inline std::unique_ptr<ShaderAst::AccessMemberIndexExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::size_t> memberIndices) const;
 		};
 
 		struct Assign
@@ -135,6 +139,7 @@ namespace Nz::ShaderBuilder
 		};
 	}
 
+	constexpr Impl::AccessIndex AccessIndex;
 	constexpr Impl::AccessMember AccessMember;
 	constexpr Impl::Assign Assign;
 	constexpr Impl::Binary Binary;
