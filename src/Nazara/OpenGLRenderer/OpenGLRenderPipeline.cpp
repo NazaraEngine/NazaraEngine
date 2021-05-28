@@ -8,6 +8,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -21,11 +22,37 @@ namespace Nz
 		if (!m_program.Create(device))
 			throw std::runtime_error("failed to create program");
 
+		ShaderStageTypeFlags stageFlags;
+
 		for (const auto& shaderModulePtr : m_pipelineInfo.shaderModules)
 		{
 			OpenGLShaderModule& shaderModule = static_cast<OpenGLShaderModule&>(*shaderModulePtr);
-			for (const GL::Shader& shader : shaderModule.GetShaders())
-				m_program.AttachShader(shader.GetObjectId());
+			for (const auto& shaderEntry : shaderModule.GetShaders())
+			{
+				m_program.AttachShader(shaderEntry.shader.GetObjectId());
+				stageFlags |= shaderEntry.stage;
+			}
+		}
+
+		// OpenGL ES programs must have both vertex and fragment shaders or a compute shader or a mesh and fragment shader.
+		if (device.GetReferenceContext().GetParams().type == GL::ContextType::OpenGL_ES)
+		{
+			auto GenerateIfMissing = [&](ShaderStageType stage)
+			{
+				if (!stageFlags.Test(stage))
+				{
+					ShaderAst::StatementPtr dummyAst = ShaderBuilder::DeclareFunction(stage, "main", {}, {});
+					OpenGLShaderModule shaderModule(device, stage, dummyAst);
+					for (const auto& shaderEntry : shaderModule.GetShaders())
+					{
+						m_program.AttachShader(shaderEntry.shader.GetObjectId());
+						stageFlags |= shaderEntry.stage;
+					}
+				}
+			};
+
+			GenerateIfMissing(ShaderStageType::Fragment);
+			GenerateIfMissing(ShaderStageType::Vertex);
 		}
 
 		m_program.Link();

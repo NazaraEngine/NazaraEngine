@@ -16,6 +16,15 @@ namespace Nz::ShaderBuilder
 		return accessMemberNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::AccessMemberIndexExpression> Impl::AccessMember::operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::size_t> memberIndices) const
+	{
+		auto accessMemberNode = std::make_unique<ShaderAst::AccessMemberIndexExpression>();
+		accessMemberNode->structExpr = std::move(structExpr);
+		accessMemberNode->memberIndices = std::move(memberIndices);
+
+		return accessMemberNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::AssignExpression> Impl::Assign::operator()(ShaderAst::AssignType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const
 	{
 		auto assignNode = std::make_unique<ShaderAst::AssignExpression>();
