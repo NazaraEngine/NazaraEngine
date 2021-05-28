@@ -30,9 +30,7 @@ local modules = {
 				del_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
 			end
 
-			if is_plat("linux") then
-				add_syslinks("x11") -- FIXME
-			else
+			if not is_plat("linux") then
 				del_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
 		end
