@@ -13,7 +13,9 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
+#include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
+#include <vector>
 
 namespace Nz
 {
@@ -21,7 +23,6 @@ namespace Nz
 	class Framebuffer;
 	class RendererImpl;
 	class RenderDevice;
-	class RenderPass;
 	class RenderSurface;
 
 	class NAZARA_RENDERER_API RenderWindowImpl
@@ -37,6 +38,9 @@ namespace Nz
 
 			virtual const Framebuffer& GetFramebuffer() const = 0;
 			virtual const RenderPass& GetRenderPass() const = 0;
+
+		protected:
+			static void BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies);
 	};
 }
 

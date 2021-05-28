@@ -350,7 +350,7 @@ namespace Nz
 				VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
 			},
 			{                                         // VkImageSubresourceRange    subresourceRange;
-				VK_IMAGE_ASPECT_DEPTH_BIT,            // VkImageAspectFlags         .aspectMask;
+				VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,            // VkImageAspectFlags         .aspectMask;
 				0,                                    // uint32_t                   .baseMipLevel;
 				1,                                    // uint32_t                   .levelCount;
 				0,                                    // uint32_t                   .baseArrayLayer;
@@ -408,78 +408,23 @@ namespace Nz
 			return false;
 		}
 
-		std::vector<RenderPass::Attachment> attachments;
-		attachments.push_back({
-			*colorFormat,
-			AttachmentLoadOp::Clear,
-			AttachmentLoadOp::Discard,
-			AttachmentStoreOp::Store,
-			AttachmentStoreOp::Discard,
-			TextureLayout::Undefined,
-			TextureLayout::Present
-		});
-
-		RenderPass::AttachmentReference colorReference = {
-			0,
-			TextureLayout::ColorOutput
-		};
-
-		std::vector<RenderPass::SubpassDescription> subpasses = {
-			{
-				{
-					{ colorReference },
-					{},
-					{},
-					std::nullopt
-				}
-			}
-		};
-
-		std::vector<RenderPass::SubpassDependency> subpassDependencies = {
-			{
-				RenderPass::ExternalSubpassIndex,
-				PipelineStage::ColorOutput,
-				{},
-
-				0,
-				PipelineStage::ColorOutput,
-				MemoryAccess::ColorWrite,
-
-				true //< tilable
-			}
-		};
-
+		std::optional<PixelFormat> depthStencilFormat;
 		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 		{
-			std::optional<PixelFormat> depthStencilFormat = FromVulkan(m_depthStencilFormat);
+			depthStencilFormat = FromVulkan(m_depthStencilFormat);
 			if (!depthStencilFormat)
 			{
 				NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_depthStencilFormat, 16) + ")");
 				return false;
 			}
-
-			attachments.push_back({
-				*depthStencilFormat,
-				AttachmentLoadOp::Clear,
-				AttachmentLoadOp::Discard,
-				AttachmentStoreOp::Discard,
-				AttachmentStoreOp::Discard,
-				TextureLayout::Undefined,
-				TextureLayout::DepthStencilReadWrite
-				});
-
-			subpasses.front().depthStencilAttachment = RenderPass::AttachmentReference{
-				1,
-				TextureLayout::DepthStencilReadWrite
-			};
-
-			auto& subpassDependency = subpassDependencies.front();
-			subpassDependency.fromStages |= PipelineStage::FragmentTestsEarly;
-			subpassDependency.toStages |= PipelineStage::FragmentTestsEarly;
-			subpassDependency.toAccessFlags |= MemoryAccess::DepthStencilWrite;
 		}
 
-		m_renderPass.emplace(*m_device, std::move(attachments), std::move(subpasses), std::move(subpassDependencies));
+		std::vector<RenderPass::Attachment> attachments;
+		std::vector<RenderPass::SubpassDescription> subpassDescriptions;
+		std::vector<RenderPass::SubpassDependency> subpassDependencies;
+
+		BuildRenderPass(*colorFormat, depthStencilFormat.value_or(PixelFormat::Undefined), attachments, subpassDescriptions, subpassDependencies);
+		m_renderPass.emplace(*m_device, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 		return true;
 	}
 

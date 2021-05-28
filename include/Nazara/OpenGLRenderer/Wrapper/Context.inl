@@ -99,6 +99,35 @@ namespace Nz::GL
 		if (m_state.boundVertexArray == vao)
 			m_state.boundVertexArray = 0;
 	}
+
+	inline void Context::ResetColorWriteMasks() const
+	{
+		if (!m_state.renderStates.colorWrite)
+		{
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			m_state.renderStates.colorWrite = true;
+		}
+	}
+
+	inline void Context::ResetDepthWriteMasks() const
+	{
+		if (!m_state.renderStates.depthWrite)
+		{
+			glDepthMask(GL_TRUE);
+			m_state.renderStates.depthWrite = true;
+		}
+	}
+
+	inline void Context::ResetStencilWriteMasks() const
+	{
+		if (m_state.renderStates.stencilBack.writeMask != 0xFFFFFFFF || m_state.renderStates.stencilFront.writeMask != 0xFFFFFFFF)
+		{
+			glStencilMaskSeparate(GL_FRONT_AND_BACK, 0xFFFFFFFF);
+			m_state.renderStates.stencilBack.writeMask = 0xFFFFFFFF;
+			m_state.renderStates.stencilFront.writeMask = 0xFFFFFFFF;
+		}
+	}
+
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

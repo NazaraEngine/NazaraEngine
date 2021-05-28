@@ -40,10 +40,10 @@ namespace Nz
 			void Present();
 
 		private:
+			std::optional<OpenGLRenderPass> m_renderPass;
 			std::size_t m_currentFrame;
 			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
 			std::unique_ptr<GL::Context> m_context;
-			OpenGLRenderPass m_renderPass;
 			OpenGLWindowFramebuffer m_framebuffer;
 			RenderWindow& m_owner;
 			Vector2ui m_size;

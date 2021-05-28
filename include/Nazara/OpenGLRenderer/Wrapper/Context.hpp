@@ -134,6 +134,10 @@ namespace Nz::GL
 
 			bool ProcessErrorStack() const;
 
+			inline void ResetColorWriteMasks() const;
+			inline void ResetDepthWriteMasks() const;
+			inline void ResetStencilWriteMasks() const;
+
 			void SetCurrentTextureUnit(UInt32 textureUnit) const;
 			void SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const;
 			void SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const;

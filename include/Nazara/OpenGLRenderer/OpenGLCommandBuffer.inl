@@ -135,12 +135,13 @@ namespace Nz
 		return *m_owner;
 	}
 
-	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& /*renderPass*/, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
+	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		m_maxColorBufferCount = std::max(m_maxColorBufferCount, framebuffer.GetColorBufferCount());
 
 		SetFrameBufferData setFramebuffer;
 		setFramebuffer.framebuffer = &framebuffer;
+		setFramebuffer.renderpass = &renderPass;
 
 		assert(clearValueCount < setFramebuffer.clearValues.size());
 		std::copy(clearValues, clearValues + clearValueCount, setFramebuffer.clearValues.begin());
