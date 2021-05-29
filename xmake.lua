@@ -3,7 +3,13 @@ local modules = {
 		Deps = {"NazaraCore"},
 		Packages = {"dr_wav", "libsndfile", "minimp3"}
 	},
-	Core = {},
+	Core = {
+		Custom = function ()
+			if is_plat("linux") then
+				add_syslinks("dl", "pthread")
+			end
+		end
+	},
 	Graphics = {
 		Deps = {"NazaraRenderer"}
 	},
