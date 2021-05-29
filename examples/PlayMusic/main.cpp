@@ -1,11 +1,5 @@
 /*
-** DopplerEffect - Introduction à la lecture de son spatialisé (+ démonstration de l'effet doppler)
-** Prérequis: Aucun
-** Utilisation du noyau et du module audio
-** Présente:
-** - Chargement, lecture et positionnement d'un son
-** - Gestion basique d'une horloge
-** - Gestion basique de position 3D
+** PlayMusic - Example on playing a sound using streaming (doesn't load all the file in memory, only the played part) with Nz::Music
 */
 
 #include <Nazara/Audio.hpp>
