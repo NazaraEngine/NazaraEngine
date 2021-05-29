@@ -7,6 +7,7 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio/Formats/minimp3Loader.hpp>
 #include <Nazara/Audio/Formats/sndfileLoader.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
@@ -34,6 +35,8 @@ namespace Nz
 		SetListenerDirection(Vector3f::Forward());
 
 		// Loaders
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_sndfile());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_sndfile());
 	}

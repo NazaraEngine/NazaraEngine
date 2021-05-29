@@ -24,14 +24,7 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
 		resourceDir = ".." / resourceDir;
 
-	// NzKeyboard nécessite l'initialisation du module Utilitaire
 	Nz::Modules<Nz::Audio, Nz::Platform> audio;
-	/*if (!audio)
-	{
-		std::cout << "Failed to initialize audio module" << std::endl;
-		std::getchar();
-		return 1;
-	}*/
 
 	Nz::Sound sound;
 	if (!sound.LoadFromFile(resourceDir / "siren.wav"))
