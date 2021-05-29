@@ -120,15 +120,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the sound is playing
-	* \return true if it is the case
-	*/
-	bool Sound::IsPlaying() const
-	{
-		return GetStatus() == SoundStatus::Playing;
-	}
-
-	/*!
 	* \brief Loads the sound from file
 	* \return true if loading is successful
 	*
