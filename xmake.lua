@@ -64,8 +64,8 @@ local modules = {
 		Deps = {"NazaraUtility"}
 	},
 	Utility = {
-		Deps = {"stb_image", "NazaraCore"},
-		Packages = {"freetype"}
+		Deps = {"NazaraCore"},
+		Packages = {"freetype", "stb"}
 	},
 	VulkanRenderer = {
 		Deps = {"NazaraRenderer"},
@@ -86,7 +86,7 @@ local modules = {
 
 add_repositories("local-repo xmake-repo")
 
-add_requires("chipmunk2d", "freetype", "libsndfile", "libsdl")
+add_requires("chipmunk2d", "freetype", "libsndfile", "libsdl", "stb")
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
 set_project("NazaraEngine")
@@ -122,8 +122,6 @@ if is_plat("windows") then
 	add_cxflags("/w44062") -- Enable warning: switch case not handled
 	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
 end
-
-includes("thirdparty/xmake.lua")
 
 for name, module in pairs(modules) do
 	target("Nazara" .. name)
