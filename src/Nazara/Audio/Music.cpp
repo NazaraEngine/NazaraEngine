@@ -497,9 +497,9 @@ namespace Nz
 	void Music::StopThread()
 	{
 		if (m_impl->streaming)
-		{
 			m_impl->streaming = false;
+
+		if (m_impl->thread.joinable())
 			m_impl->thread.join();
-		}
 	}
 }

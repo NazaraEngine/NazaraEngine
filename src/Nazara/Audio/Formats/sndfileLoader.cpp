@@ -308,7 +308,7 @@ namespace Nz
 
 		std::shared_ptr<SoundStream> LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
-			std::unique_ptr<sndfileStream> soundStream(new sndfileStream);
+			std::shared_ptr<sndfileStream> soundStream = std::make_shared<sndfileStream>();
 			if (!soundStream->Open(stream, parameters.forceMono))
 			{
 				NazaraError("Failed to open music stream");
