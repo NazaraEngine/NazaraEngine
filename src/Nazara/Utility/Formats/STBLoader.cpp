@@ -3,13 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/STBLoader.hpp>
-#include <stb/stb_image.h>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <unordered_set>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
