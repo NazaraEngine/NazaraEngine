@@ -40,13 +40,13 @@ namespace Nz
 				case 4:
 					return AudioFormat::U16_Quad;
 
-				case 5:
+				case 6:
 					return AudioFormat::U16_5_1;
 
-				case 6:
+				case 7:
 					return AudioFormat::U16_6_1;
 
-				case 7:
+				case 8:
 					return AudioFormat::U16_7_1;
 
 				default:
