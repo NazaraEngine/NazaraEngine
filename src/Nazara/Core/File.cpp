@@ -382,8 +382,8 @@ namespace Nz
 		{
 			// If we don't have to read, we move forward
 			UInt64 currentPos = m_impl->GetCursorPos();
-
-			m_impl->SetCursorPos(CursorPosition::AtCurrent, size);
+			if (!m_impl->SetCursorPos(CursorPosition::AtCurrent, size))
+				return 0;
 
 			return static_cast<std::size_t>(m_impl->GetCursorPos() - currentPos);
 		}

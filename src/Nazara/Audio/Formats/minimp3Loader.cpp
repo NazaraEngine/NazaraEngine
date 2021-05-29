@@ -38,13 +38,13 @@ namespace Nz
 				case 4:
 					return AudioFormat::U16_Quad;
 
-				case 5:
+				case 6:
 					return AudioFormat::U16_5_1;
 
-				case 6:
+				case 7:
 					return AudioFormat::U16_6_1;
 
-				case 7:
+				case 8:
 					return AudioFormat::U16_7_1;
 
 				default:
@@ -137,7 +137,7 @@ namespace Nz
 
 			if (parameters.forceMono && format != AudioFormat::U16_Mono)
 			{
-				UInt32 frameCount = UInt32(info.samples / info.channels);
+				UInt64 frameCount = UInt64(info.samples / info.channels);
 				MixToMono(info.buffer, info.buffer, static_cast<UInt32>(info.channels), frameCount);
 
 				format = AudioFormat::U16_Mono;
@@ -283,6 +283,7 @@ namespace Nz
 				void Seek(UInt64 offset) override
 				{
 					mp3dec_ex_seek(&m_decoder, offset);
+					m_readSampleCount = offset;
 				}
 
 				UInt64 Tell() override
