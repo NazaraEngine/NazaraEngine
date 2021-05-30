@@ -93,7 +93,7 @@ local modules = {
 add_repositories("local-repo xmake-repo")
 
 add_requires("chipmunk2d", "dr_wav", "freetype", "libsndfile", "libsdl", "libvorbis", "minimp3", "stb")
-add_requireconfs("libvorbis", { system = false })
+add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
 set_project("NazaraEngine")
