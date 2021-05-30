@@ -133,12 +133,12 @@ namespace Nz
 
 			AudioFormat format = *formatOpt;
 
-			UInt32 sampleCount = static_cast<UInt32>(info.samples);
+			UInt64 sampleCount = UInt64(info.samples);
 
 			if (parameters.forceMono && format != AudioFormat::I16_Mono)
 			{
 				UInt64 frameCount = UInt64(info.samples / info.channels);
-				MixToMono(info.buffer, info.buffer, static_cast<UInt32>(info.channels), frameCount);
+				MixToMono(info.buffer, info.buffer, UInt32(info.channels), frameCount);
 
 				format = AudioFormat::I16_Mono;
 				sampleCount = frameCount;
