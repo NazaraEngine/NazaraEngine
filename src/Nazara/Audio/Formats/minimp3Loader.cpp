@@ -292,17 +292,17 @@ namespace Nz
 				}
 
 			private:
+				std::mutex m_mutex;
 				std::unique_ptr<Stream> m_ownedStream;
 				std::vector<Int16> m_mixBuffer;
 				AudioFormat m_format;
 				mp3dec_ex_t m_decoder;
 				mp3dec_io_t m_io;
-				bool m_mixToMono;
-				std::mutex m_mutex;
 				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_readSampleCount;
 				UInt64 m_sampleCount;
+				bool m_mixToMono;
 		};
 
 		std::shared_ptr<SoundStream> LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
