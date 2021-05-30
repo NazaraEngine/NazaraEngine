@@ -32,22 +32,22 @@ namespace Nz
 			switch (channelCount)
 			{
 				case 1:
-					return AudioFormat::U16_Mono;
+					return AudioFormat::I16_Mono;
 
 				case 2:
-					return AudioFormat::U16_Stereo;
+					return AudioFormat::I16_Stereo;
 
 				case 4:
-					return AudioFormat::U16_Quad;
+					return AudioFormat::I16_Quad;
 
 				case 6:
-					return AudioFormat::U16_5_1;
+					return AudioFormat::I16_5_1;
 
 				case 7:
-					return AudioFormat::U16_6_1;
+					return AudioFormat::I16_6_1;
 
 				case 8:
-					return AudioFormat::U16_7_1;
+					return AudioFormat::I16_7_1;
 
 				default:
 					return std::nullopt;
@@ -121,7 +121,7 @@ namespace Nz
 				{
 					// Nous avons besoin du nombre de canaux d'origine pour convertir en mono, nous trichons donc un peu...
 					if (m_mixToMono)
-						return AudioFormat::U16_Mono;
+						return AudioFormat::I16_Mono;
 					else
 						return m_format;
 				}
@@ -201,7 +201,7 @@ namespace Nz
 						sf_command(m_handle, SFC_SET_SCALE_FLOAT_INT_READ, nullptr, SF_TRUE);
 
 					// On mixera en mono lors de la lecture
-					if (forceMono && m_format != AudioFormat::U16_Mono)
+					if (forceMono && m_format != AudioFormat::I16_Mono)
 					{
 						m_mixToMono = true;
 						m_sampleCount = static_cast<UInt32>(info.frames);
@@ -377,11 +377,11 @@ namespace Nz
 			}
 
 			// Convert to mono if required
-			if (parameters.forceMono && format != AudioFormat::U16_Mono)
+			if (parameters.forceMono && format != AudioFormat::I16_Mono)
 			{
 				MixToMono(samples.get(), samples.get(), static_cast<UInt32>(info.channels), static_cast<UInt64>(info.frames));
 
-				format = AudioFormat::U16_Mono;
+				format = AudioFormat::I16_Mono;
 				sampleCount = static_cast<unsigned int>(info.frames);
 			}
 
