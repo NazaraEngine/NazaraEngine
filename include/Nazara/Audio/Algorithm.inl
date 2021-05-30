@@ -26,22 +26,22 @@ namespace Nz
 			case AudioFormat::Unknown: //< Just to make the compiler stop complaining
 				break;
 
-			case AudioFormat::U16_Mono:
+			case AudioFormat::I16_Mono:
 				return 1;
 
-			case AudioFormat::U16_Stereo:
+			case AudioFormat::I16_Stereo:
 				return 2;
 
-			case AudioFormat::U16_Quad:
+			case AudioFormat::I16_Quad:
 				return 4;
 
-			case AudioFormat::U16_5_1:
+			case AudioFormat::I16_5_1:
 				return 6;
 
-			case AudioFormat::U16_6_1:
+			case AudioFormat::I16_6_1:
 				return 7;
 
-			case AudioFormat::U16_7_1:
+			case AudioFormat::I16_7_1:
 				return 8;
 		}
 

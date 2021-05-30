@@ -20,7 +20,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 			{
 				CHECK(music.GetDuration() <= 64000); // 1 min 03 = 63s = 63000ms
 				CHECK(music.GetDuration() >= 63000);
-				CHECK(music.GetFormat() == Nz::AudioFormat::U16_Stereo);
+				CHECK(music.GetFormat() == Nz::AudioFormat::I16_Stereo);
 				CHECK(music.GetPlayingOffset() == 0);
 				CHECK(music.GetSampleCount() <= 5644800); // 64s * 44100 Hz * 2 (stereo)
 				CHECK(music.GetSampleCount() >= 5556600); // 63s * 44100 Hz * 2 (stereo)

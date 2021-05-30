@@ -13,14 +13,14 @@ namespace Nz
 	{
 		Unknown = -1,
 
-		U16_Mono,
-		U16_Stereo,
-		U16_Quad,
-		U16_5_1,
-		U16_6_1,
-		U16_7_1,
+		I16_Mono,
+		I16_Stereo,
+		I16_Quad,
+		I16_5_1,
+		I16_6_1,
+		I16_7_1,
 
-		Max = U16_7_1
+		Max = I16_7_1
 	};
 
 	constexpr std::size_t AudioFormatCount = static_cast<std::size_t>(AudioFormat::Max) + 1;

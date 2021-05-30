@@ -440,19 +440,19 @@ namespace Nz
 		}
 
 		// We complete the formats table
-		AudioFormat[UnderlyingCast(AudioFormat::U16_Mono)] = AL_FORMAT_MONO16;
-		AudioFormat[UnderlyingCast(AudioFormat::U16_Stereo)] = AL_FORMAT_STEREO16;
+		AudioFormat[UnderlyingCast(AudioFormat::I16_Mono)] = AL_FORMAT_MONO16;
+		AudioFormat[UnderlyingCast(AudioFormat::I16_Stereo)] = AL_FORMAT_STEREO16;
 
 		// "The presence of an enum value does not guarantee the applicability of an extension to the current context."
 		if (alIsExtensionPresent("AL_EXT_MCFORMATS"))
 		{
-			AudioFormat[UnderlyingCast(AudioFormat::U16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16");
-			AudioFormat[UnderlyingCast(AudioFormat::U16_5_1)] = alGetEnumValue("AL_FORMAT_51CHN16");
-			AudioFormat[UnderlyingCast(AudioFormat::U16_6_1)] = alGetEnumValue("AL_FORMAT_61CHN16");
-			AudioFormat[UnderlyingCast(AudioFormat::U16_7_1)] = alGetEnumValue("AL_FORMAT_71CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_5_1)] = alGetEnumValue("AL_FORMAT_51CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_6_1)] = alGetEnumValue("AL_FORMAT_61CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_7_1)] = alGetEnumValue("AL_FORMAT_71CHN16");
 		}
 		else if (alIsExtensionPresent("AL_LOKI_quadriphonic"))
-			AudioFormat[UnderlyingCast(AudioFormat::U16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
 		return true;
 	}
