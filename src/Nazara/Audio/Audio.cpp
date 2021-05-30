@@ -10,7 +10,6 @@
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
 #include <Nazara/Audio/Formats/minimp3Loader.hpp>
-#include <Nazara/Audio/Formats/sndfileLoader.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -39,8 +38,6 @@ namespace Nz
 		// Loaders
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
-		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_sndfile());
-		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_sndfile());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
