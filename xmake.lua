@@ -1,7 +1,7 @@
 local modules = {
 	Audio = {
 		Deps = {"NazaraCore"},
-		Packages = {"dr_wav", "libsndfile", "minimp3"}
+		Packages = {"dr_wav", "libogg", "libsndfile", "minimp3"}
 	},
 	Core = {
 		Custom = function ()
@@ -92,7 +92,7 @@ local modules = {
 
 add_repositories("local-repo xmake-repo")
 
-add_requires("chipmunk2d", "dr_wav", "freetype", "libsndfile", "libsdl", "minimp3", "stb")
+add_requires("chipmunk2d", "dr_wav", "freetype", "libogg", "libsndfile", "libsdl", "minimp3", "stb")
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
 set_project("NazaraEngine")
