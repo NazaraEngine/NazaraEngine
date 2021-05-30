@@ -1,7 +1,7 @@
 local modules = {
 	Audio = {
 		Deps = {"NazaraCore"},
-		Packages = {"dr_wav", "libsndfile", "libvorbis", "minimp3"}
+		Packages = {"dr_wav", "libvorbis", "minimp3"}
 	},
 	Core = {
 		Custom = function ()
@@ -92,7 +92,7 @@ local modules = {
 
 add_repositories("local-repo xmake-repo")
 
-add_requires("chipmunk2d", "dr_wav", "freetype", "libsndfile", "libsdl", "libvorbis", "minimp3", "stb")
+add_requires("chipmunk2d", "dr_wav", "freetype", "libsdl", "minimp3", "stb")
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
