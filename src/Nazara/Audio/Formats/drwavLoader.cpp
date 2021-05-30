@@ -53,19 +53,6 @@ namespace Nz
 			}
 		}
 
-		std::string ErrToString(int errCode)
-		{
-			switch (errCode)
-			{
-				case DRWAV_SUCCESS: return "no error";
-				case DRWAV_INVALID_ARGS: return "wrong parameters";
-				case DRWAV_ERROR: return "generic error";
-				case DRWAV_INVALID_OPERATION: return "invalid operation";
-				case DRWAV_OUT_OF_MEMORY: return "out of memory";
-				default: return "unknown error";
-			}
-		}
-
 		std::size_t ReadCallback(void* pUserData, void* pBufferOut, size_t bytesToRead)
 		{
 			Stream* stream = static_cast<Stream*>(pUserData);
@@ -91,7 +78,7 @@ namespace Nz
 
 		bool IsSupported(const std::string_view& extension)
 		{
-			return extension == "wav";
+			return extension == "riff" || extension == "rf64" || extension == "wav" || extension == "w64";
 		}
 
 		Ternary CheckWav(Stream& stream)
@@ -127,7 +114,11 @@ namespace Nz
 			UInt64 sampleCount = wav.totalPCMFrameCount * wav.channels;
 			std::unique_ptr<Int16[]> samples = std::make_unique<Int16[]>(sampleCount); //< std::vector would default-init to zero
 
-			drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, samples.get());
+			if (drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, samples.get()) != wav.totalPCMFrameCount)
+			{
+				NazaraError("failed to read stream content");
+				return {};
+			}
 
 			if (parameters.forceMono && format != AudioFormat::U16_Mono)
 			{
@@ -277,16 +268,16 @@ namespace Nz
 				}
 
 			private:
+				std::mutex m_mutex;
 				std::unique_ptr<Stream> m_ownedStream;
 				std::vector<Int16> m_mixBuffer;
 				AudioFormat m_format;
 				drwav m_decoder;
-				bool m_mixToMono;
-				std::mutex m_mutex;
 				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_readSampleCount;
 				UInt64 m_sampleCount;
+				bool m_mixToMono;
 		};
 
 		std::shared_ptr<SoundStream> LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
