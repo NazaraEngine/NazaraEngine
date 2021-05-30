@@ -30,22 +30,22 @@ namespace Nz
 			switch (channelCount)
 			{
 				case 1:
-					return AudioFormat::U16_Mono;
+					return AudioFormat::I16_Mono;
 
 				case 2:
-					return AudioFormat::U16_Stereo;
+					return AudioFormat::I16_Stereo;
 
 				case 4:
-					return AudioFormat::U16_Quad;
+					return AudioFormat::I16_Quad;
 
 				case 6:
-					return AudioFormat::U16_5_1;
+					return AudioFormat::I16_5_1;
 
 				case 7:
-					return AudioFormat::U16_6_1;
+					return AudioFormat::I16_6_1;
 
 				case 8:
-					return AudioFormat::U16_7_1;
+					return AudioFormat::I16_7_1;
 
 				default:
 					return std::nullopt;
@@ -135,12 +135,12 @@ namespace Nz
 
 			UInt32 sampleCount = static_cast<UInt32>(info.samples);
 
-			if (parameters.forceMono && format != AudioFormat::U16_Mono)
+			if (parameters.forceMono && format != AudioFormat::I16_Mono)
 			{
 				UInt64 frameCount = UInt64(info.samples / info.channels);
 				MixToMono(info.buffer, info.buffer, static_cast<UInt32>(info.channels), frameCount);
 
-				format = AudioFormat::U16_Mono;
+				format = AudioFormat::I16_Mono;
 				sampleCount = frameCount;
 			}
 			
@@ -169,7 +169,7 @@ namespace Nz
 				AudioFormat GetFormat() const override
 				{
 					if (m_mixToMono)
-						return AudioFormat::U16_Mono;
+						return AudioFormat::I16_Mono;
 					else
 						return m_format;
 				}
@@ -242,7 +242,7 @@ namespace Nz
 					m_sampleRate = m_decoder.info.hz;
 
 					// Mixing to mono will be done on the fly
-					if (forceMono && m_format != AudioFormat::U16_Mono)
+					if (forceMono && m_format != AudioFormat::I16_Mono)
 					{
 						m_mixToMono = true;
 						m_sampleCount = static_cast<UInt32>(m_decoder.samples / m_decoder.info.channels);
