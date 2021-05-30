@@ -296,7 +296,7 @@ int main()
 	std::uniform_real_distribution<float> heightDis(1.5f, 1.95f);
 	std::uniform_real_distribution<float> posDis(-10.f, 10.f);
 	std::uniform_real_distribution<float> dirDis(-1.f, 1.f);
-	std::uniform_real_distribution<float> dirYDis(0.f, 0.75f);
+	std::uniform_real_distribution<float> dirYDis(0.0f, 0.33f);
 	std::uniform_real_distribution<float> radiusDis(1.f, 5.f);
 
 	for (std::size_t i = 0; i < 1000; ++i)
@@ -779,12 +779,17 @@ int main()
 					{
 						auto& lightDataAllocation = uploadPool.Allocate(alignedSpotLightSize * spotLights.size());
 						Nz::UInt8* lightDataPtr = static_cast<Nz::UInt8*>(lightDataAllocation.mappedPtr);
+
 						for (const SpotLight& spotLight : spotLights)
 						{
-							Nz::Vector3f direction = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 90.f, 0.f)) * spotLight.direction;
+							float rotationSpeed = spotLight.position.GetLength() / 10.f;
+
+							Nz::Vector3f position = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 45.f * rotationSpeed, 0.f)) * spotLight.position;
+							Nz::Vector3f direction = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 90.f * rotationSpeed, 0.f)) * spotLight.direction;
+
 
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = spotLight.position;
+							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = direction;
 							Nz::AccessByOffset<float&>(lightDataPtr, radiusOffset) = spotLight.radius;
 							Nz::AccessByOffset<float&>(lightDataPtr, invRadiusOffset) = 1.f / spotLight.radius;
@@ -792,7 +797,7 @@ int main()
 							Nz::AccessByOffset<float&>(lightDataPtr, outerAngleOffset) = spotLight.outerAngle.GetCos();
 
 							float baseRadius = spotLight.radius * spotLight.outerAngle.GetTan() * 1.1f;
-							Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform(spotLight.position, Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), direction), Nz::Vector3f(baseRadius, baseRadius, spotLight.radius));
+							Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform(position, Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), direction), Nz::Vector3f(baseRadius, baseRadius, spotLight.radius));
 							Nz::AccessByOffset<Nz::Matrix4f&>(lightDataPtr, transformMatrixOffset) = transformMatrix;
 
 							lightDataPtr += alignedSpotLightSize;
