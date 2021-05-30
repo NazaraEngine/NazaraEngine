@@ -16,7 +16,10 @@
 #include <Nazara/Core/Stream.hpp>
 #include <optional>
 #include <set>
+
+#define OV_EXCLUDE_STATIC_CALLBACKS
 #include <vorbis/vorbisfile.h>
+
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
