@@ -71,7 +71,7 @@ namespace Nz
 					});
 				}
 
-				void Visit(ShaderAst::AccessMemberIndexExpression& node) override
+				void Visit(ShaderAst::AccessIndexExpression& node) override
 				{
 					AstRecursiveVisitor::Visit(node);
 

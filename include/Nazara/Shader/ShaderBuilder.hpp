@@ -19,12 +19,12 @@ namespace Nz::ShaderBuilder
 	{
 		struct AccessIndex
 		{
-			inline std::unique_ptr<ShaderAst::AccessMemberIndexExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::size_t> memberIndices) const;
+			inline std::unique_ptr<ShaderAst::AccessIndexExpression> operator()(ShaderAst::ExpressionPtr expr, std::vector<std::size_t> memberIndices) const;
 		};
 
 		struct AccessMember
 		{
-			inline std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> operator()(ShaderAst::ExpressionPtr structExpr, std::vector<std::string> memberIdentifiers) const;
+			inline std::unique_ptr<ShaderAst::AccessIdentifierExpression> operator()(ShaderAst::ExpressionPtr expr, std::vector<std::string> memberIdentifiers) const;
 		};
 
 		struct Assign

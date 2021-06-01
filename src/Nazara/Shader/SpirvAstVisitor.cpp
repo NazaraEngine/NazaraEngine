@@ -35,7 +35,7 @@ namespace Nz
 		return *m_variables[varIndex];
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::AccessMemberIndexExpression& node)
+	void SpirvAstVisitor::Visit(ShaderAst::AccessIndexExpression& node)
 	{
 		SpirvExpressionLoad accessMemberVisitor(m_writer, *this, *m_currentBlock);
 		PushResultId(accessMemberVisitor.Evaluate(node));

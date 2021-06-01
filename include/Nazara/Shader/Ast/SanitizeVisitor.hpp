@@ -47,7 +47,7 @@ namespace Nz::ShaderAst
 
 			using AstCloner::CloneExpression;
 
-			ExpressionPtr Clone(AccessMemberIdentifierExpression& node) override;
+			ExpressionPtr Clone(AccessIdentifierExpression& node) override;
 			ExpressionPtr Clone(AssignExpression& node) override;
 			ExpressionPtr Clone(BinaryExpression& node) override;
 			ExpressionPtr Clone(CallFunctionExpression& node) override;

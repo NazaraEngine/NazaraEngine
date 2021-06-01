@@ -41,7 +41,7 @@ namespace Nz
 			using ExpressionVisitorExcept::Visit;
 			using StatementVisitorExcept::Visit;
 
-			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
+			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::BranchStatement& node) override;
