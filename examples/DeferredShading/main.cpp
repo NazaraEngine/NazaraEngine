@@ -477,6 +477,7 @@ int main()
 	std::size_t backbuffer;
 
 	bool viewerUboUpdate = true;
+	bool lightUpdate = true;
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
@@ -497,6 +498,7 @@ int main()
 			}
 		}
 	});
+
 
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
@@ -622,6 +624,7 @@ int main()
 
 			builder.DrawIndexed(static_cast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 		});
+		});
 
 		forwardPass.AddInput(backbuffer);
 		forwardPass.AddOutput(backbuffer);
@@ -744,6 +747,7 @@ int main()
 	{
 		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
 		elapsedTime += (now - time) / 1'000'000.f;
+			elapsedTime += (now - time) / 1'000'000.f;
 		time = now;
 
 		Nz::WindowEvent event;
@@ -783,6 +787,7 @@ int main()
 
 						viewerUboUpdate = true;
 					}
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::F)
 					break;
 				}
 
