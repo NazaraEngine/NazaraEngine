@@ -37,8 +37,8 @@ namespace Nz::ShaderAst
 	{
 		Node(node.expr);
 
-		Container(node.memberIdentifiers);
-		for (std::string& identifier : node.memberIdentifiers)
+		Container(node.identifiers);
+		for (std::string& identifier : node.identifiers)
 			Value(identifier);
 	}
 
@@ -46,9 +46,9 @@ namespace Nz::ShaderAst
 	{
 		Node(node.expr);
 
-		Container(node.memberIndices);
-		for (std::size_t& identifier : node.memberIndices)
-			SizeT(identifier);
+		Container(node.indices);
+		for (auto& identifier : node.indices)
+			Node(identifier);
 	}
 
 	void AstSerializerBase::Serialize(AssignExpression& node)

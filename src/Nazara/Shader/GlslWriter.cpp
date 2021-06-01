@@ -355,11 +355,15 @@ namespace Nz
 		AppendLine((forward) ? ");" : ")");
 	}
 
-	void GlslWriter::AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers)
+	void GlslWriter::AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers)
 	{
 		const auto& structDesc = Retrieve(m_currentState->structs, structIndex);
 
-		const auto& member = structDesc.members[*memberIndices];
+		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantExpression);
+		auto& constantValue = static_cast<ShaderAst::ConstantExpression&>(**memberIndices);
+		Int32 index = std::get<Int32>(constantValue.value);
+
+		const auto& member = structDesc.members[index];
 
 		Append(".");
 		Append(member.name);
@@ -655,9 +659,20 @@ namespace Nz
 		Visit(node.expr, true);
 
 		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
-		assert(IsStructType(exprType));
 
-		AppendField(std::get<ShaderAst::StructType>(exprType).structIndex, node.memberIndices.data(), node.memberIndices.size());
+		// For structs, convert indices to field names
+		if (IsStructType(exprType))
+			AppendField(std::get<ShaderAst::StructType>(exprType).structIndex, node.indices.data(), node.indices.size());
+		else
+		{
+			// Array access
+			for (ShaderAst::ExpressionPtr& expr : node.indices)
+			{
+				Append("[");
+				Visit(expr);
+				Append("]");
+			}
+		}
 	}
 
 	void GlslWriter::Visit(ShaderAst::AssignExpression& node)

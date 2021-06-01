@@ -11,16 +11,28 @@ namespace Nz::ShaderBuilder
 	{
 		auto accessMemberNode = std::make_unique<ShaderAst::AccessIdentifierExpression>();
 		accessMemberNode->expr = std::move(expr);
-		accessMemberNode->memberIdentifiers = std::move(memberIdentifiers);
+		accessMemberNode->identifiers = std::move(memberIdentifiers);
 
 		return accessMemberNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::AccessIndexExpression> Impl::AccessIndex::operator()(ShaderAst::ExpressionPtr expr, std::vector<std::size_t> memberIndices) const
+	inline std::unique_ptr<ShaderAst::AccessIndexExpression> Impl::AccessIndex::operator()(ShaderAst::ExpressionPtr expr, const std::vector<Int32>& indexConstants) const
 	{
 		auto accessMemberNode = std::make_unique<ShaderAst::AccessIndexExpression>();
 		accessMemberNode->expr = std::move(expr);
-		accessMemberNode->memberIndices = std::move(memberIndices);
+
+		accessMemberNode->indices.reserve(indexConstants.size());
+		for (Int32 index : indexConstants)
+			accessMemberNode->indices.push_back(ShaderBuilder::Constant(index));
+
+		return accessMemberNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::AccessIndexExpression> Impl::AccessIndex::operator()(ShaderAst::ExpressionPtr expr, std::vector<ShaderAst::ExpressionPtr> indexExpressions) const
+	{
+		auto accessMemberNode = std::make_unique<ShaderAst::AccessIndexExpression>();
+		accessMemberNode->expr = std::move(expr);
+		accessMemberNode->indices = std::move(indexExpressions);
 
 		return accessMemberNode;
 	}

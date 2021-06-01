@@ -75,9 +75,6 @@ namespace Nz
 				{
 					AstRecursiveVisitor::Visit(node);
 
-					for (std::size_t index : node.memberIndices)
-						m_constantCache.Register(*m_constantCache.BuildConstant(Int32(index)));
-
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 				}
 
