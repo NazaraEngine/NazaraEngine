@@ -1,4 +1,5 @@
 #include <Nazara/Math/Algorithm.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Catch/catch.hpp>
 #include <limits>
 
@@ -208,62 +209,62 @@ TEST_CASE("NormalizeAngle", "[MATH][ALGORITHM]")
 {
 	SECTION("-90 should be normalized to +270")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-90.f)) == Nz::FromDegrees(270.f));
+		REQUIRE(Nz::DegreeAnglef(-90.f).Normalize() == Nz::DegreeAnglef(270.f));
 	}
 
 	SECTION("-540 should be normalized to +180")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-540.f)) == Nz::FromDegrees(180.f));
+		REQUIRE(Nz::DegreeAnglef(-540.f).Normalize() == Nz::DegreeAnglef(180.f));
 	}
 
 	SECTION("0 should remain 0")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(0.f)) == Nz::FromDegrees(0.f));
+		REQUIRE(Nz::DegreeAnglef(0.f).Normalize() == Nz::DegreeAnglef(0.f));
 	}
 
 	SECTION("90 should remain 90")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(90.f)) == Nz::FromDegrees(90.f));
+		REQUIRE(Nz::DegreeAnglef(90.f).Normalize() == Nz::DegreeAnglef(90.f));
 	}
 
 	SECTION("360 should be normalized to 0")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(360.f)) == Nz::FromDegrees(0.f));
+		REQUIRE(Nz::DegreeAnglef(360.f).Normalize() == Nz::DegreeAnglef(0.f));
 	}
 
 	SECTION("450 should be normalized to 90")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(450.f)) == Nz::FromDegrees(90.f));
+		REQUIRE(Nz::DegreeAnglef(450.f).Normalize() == Nz::DegreeAnglef(90.f));
 	}
 
 	SECTION("-90 should be normalized to +270")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-90)) == Nz::FromDegrees(270));
+		REQUIRE(Nz::DegreeAnglef(-90).Normalize() == Nz::DegreeAnglef(270));
 	}
 
 	SECTION("-540 should be normalized to +180")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(-540)) == Nz::FromDegrees(180));
+		REQUIRE(Nz::DegreeAnglef(-540).Normalize() == Nz::DegreeAnglef(180));
 	}
 
 	SECTION("0 should remain 0")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(0)) == Nz::FromDegrees(0));
+		REQUIRE(Nz::DegreeAnglef(0).Normalize() == Nz::DegreeAnglef(0));
 	}
 
 	SECTION("90 should remain 90")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(90)) == Nz::FromDegrees(90));
+		REQUIRE(Nz::DegreeAnglef(90).Normalize() == Nz::DegreeAnglef(90));
 	}
 
 	SECTION("360 should be normalized to 0")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(360)) == Nz::FromDegrees(0));
+		REQUIRE(Nz::DegreeAnglef(360).Normalize() == Nz::DegreeAnglef(0));
 	}
 
 	SECTION("450 should be normalized to 90")
 	{
-		REQUIRE(Nz::NormalizeAngle(Nz::FromDegrees(450)) == Nz::FromDegrees(90));
+		REQUIRE(Nz::DegreeAnglef(450).Normalize() == Nz::DegreeAnglef(90));
 	}
 }
 

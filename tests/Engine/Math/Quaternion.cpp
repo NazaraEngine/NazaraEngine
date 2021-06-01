@@ -5,7 +5,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 {
 	GIVEN("Two quaternions (0, 1, 0, 0)")
 	{
-		Nz::Quaternionf firstQuaternion(Nz::FromDegrees(180.f), Nz::Vector3f::UnitX());
+		Nz::Quaternionf firstQuaternion(Nz::DegreeAnglef(180.f), Nz::Vector3f::UnitX());
 		Nz::Quaternionf secondQuaternion(0.f, 1.f, 0.f, 0.f);
 
 		WHEN("We compare them")
@@ -97,7 +97,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 	GIVEN("Two different quaternions (10, (1, 0, 0) and (20, (1, 0, 0))")
 	{
-		Nz::Quaternionf x10 = Nz::Quaternionf(Nz::FromDegrees(10.f), Nz::Vector3f::UnitX());
+		Nz::Quaternionf x10 = Nz::Quaternionf(Nz::DegreeAnglef(10.f), Nz::Vector3f::UnitX());
 		Nz::Quaternionf x20 = x10 * x10;
 
 		Nz::Quaternionf x30a = x10 * x20;
@@ -107,16 +107,16 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(x20 == Nz::Quaternionf(Nz::FromDegrees(20.f), Nz::Vector3f::UnitX()));
+				REQUIRE(x20 == Nz::Quaternionf(Nz::DegreeAnglef(20.f), Nz::Vector3f::UnitX()));
 				REQUIRE(x30a == x30b);
 			}
 		}
 
 		WHEN("Convert euler to quaternion")
 		{
-			Nz::Quaternionf X45(Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f));
-			Nz::Quaternionf Y45(Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f));
-			Nz::Quaternionf Z45(Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)));
+			Nz::Quaternionf X45(Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f));
+			Nz::Quaternionf Y45(Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f));
+			Nz::Quaternionf Z45(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)));
 
 			THEN("They must be equal")
 			{
@@ -159,11 +159,11 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 			AND_THEN("The half of 45 is 22.5")
 			{
-				Nz::Quaternionf quaterionA(Nz::FromDegrees(0.f), Nz::Vector3f::UnitZ());
-				Nz::Quaternionf quaterionB(Nz::FromDegrees(45.f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf quaterionA(Nz::DegreeAnglef(0.f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf quaterionB(Nz::DegreeAnglef(45.f), Nz::Vector3f::UnitZ());
 				Nz::Quaternionf quaternionC = Nz::Quaternionf::Slerp(quaterionA, quaterionB, 0.5f);
 
-				Nz::Quaternionf unitZ225(Nz::FromDegrees(22.5f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf unitZ225(Nz::DegreeAnglef(22.5f), Nz::Vector3f::UnitZ());
 				REQUIRE(quaternionC.w == Approx(unitZ225.w));
 				REQUIRE(quaternionC.x == Approx(unitZ225.x));
 				REQUIRE(quaternionC.y == Approx(unitZ225.y));
@@ -176,21 +176,21 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 			THEN("The rotation in right-handed is 90 degree on z")
 			{
 				Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
-				Nz::Quaternionf rotation90Z(Nz::FromDegrees(90.f), Nz::Vector3f::UnitZ());
+				Nz::Quaternionf rotation90Z(Nz::DegreeAnglef(90.f), Nz::Vector3f::UnitZ());
 				REQUIRE(rotation90Z == rotationBetweenXY);
 			}
 
 			THEN("The rotation in right-handed is 90 degree on y")
 			{
 				Nz::Quaternionf rotationBetweenXZ = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ());
-				Nz::Quaternionf rotation90Y(Nz::FromDegrees(-90.f), Nz::Vector3f::UnitY());
+				Nz::Quaternionf rotation90Y(Nz::DegreeAnglef(-90.f), Nz::Vector3f::UnitY());
 				REQUIRE(rotation90Y == rotationBetweenXZ);
 			}
 
 			THEN("The rotation in right-handed is 90 degree on x")
 			{
 				Nz::Quaternionf rotationBetweenYZ = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitY(), Nz::Vector3f::UnitZ());
-				Nz::Quaternionf rotation90X(Nz::FromDegrees(90.f), Nz::Vector3f::UnitX());
+				Nz::Quaternionf rotation90X(Nz::DegreeAnglef(90.f), Nz::Vector3f::UnitX());
 				REQUIRE(rotation90X == rotationBetweenYZ);
 			}
 
@@ -224,21 +224,21 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("Those are equal to")
 			{
-				CHECK(Nz::NumberEquals(rotation90X.ToEulerAngles().pitch, Nz::FromDegrees(90.f), 0.1f));
-				CHECK(Nz::NumberEquals(rotation90Y.ToEulerAngles().yaw, Nz::FromDegrees(90.f), 0.1f));
-				CHECK(Nz::NumberEquals(rotation90Z.ToEulerAngles().roll, Nz::FromDegrees(90.f), 0.1f));
+				CHECK(Nz::NumberEquals(rotation90X.ToEulerAngles().pitch.ToDegrees(), 90.f, 0.1f));
+				CHECK(Nz::NumberEquals(rotation90Y.ToEulerAngles().yaw.ToDegrees(), 90.f, 0.1f));
+				CHECK(Nz::NumberEquals(rotation90Z.ToEulerAngles().roll.ToDegrees(), 90.f, 0.1f));
 
 				CHECK(rotation180X == Nz::EulerAnglesf(180.f, 0.f, 0.f));
 				CHECK(rotation180Y == Nz::EulerAnglesf(0.f, 180.f, 0.f));
 				CHECK(rotation180Z == Nz::EulerAnglesf(0.f, 0.f, 180.f));
 
-				CHECK(Nz::NumberEquals(rotation270X.ToEulerAngles().pitch, Nz::FromDegrees(-90.f), 0.1f));
-				CHECK(Nz::NumberEquals(rotation270Y.ToEulerAngles().yaw, Nz::FromDegrees(-90.f), 0.1f));
-				CHECK(Nz::NumberEquals(rotation270Z.ToEulerAngles().roll, Nz::FromDegrees(-90.f), 0.1f));
+				CHECK(Nz::NumberEquals(rotation270X.ToEulerAngles().pitch.ToDegrees(), -90.f, 0.1f));
+				CHECK(Nz::NumberEquals(rotation270Y.ToEulerAngles().yaw.ToDegrees(), -90.f, 0.1f));
+				CHECK(Nz::NumberEquals(rotation270Z.ToEulerAngles().roll.ToDegrees(), -90.f, 0.1f));
 
-				CHECK(Nz::NumberEquals(special.ToEulerAngles().pitch, Nz::FromDegrees(0.f), 0.1f));
-				CHECK(Nz::NumberEquals(special.ToEulerAngles().yaw, Nz::FromDegrees(1.f), 0.1f));
-				CHECK(Nz::NumberEquals(special.ToEulerAngles().roll, Nz::FromDegrees(90.f), 0.1f));
+				CHECK(Nz::NumberEquals(special.ToEulerAngles().pitch.ToDegrees(), 0.f, 0.1f));
+				CHECK(Nz::NumberEquals(special.ToEulerAngles().yaw.ToDegrees(), 1.f, 0.1f));
+				CHECK(Nz::NumberEquals(special.ToEulerAngles().roll.ToDegrees(), 90.f, 0.1f));
 			}
 		}
 	}

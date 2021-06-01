@@ -97,7 +97,7 @@ namespace Nz
 
 	/*!
 	* \brief Calculates the angle between two vectors in orthonormal basis
-	* \return The angle unit depends of NAZARA_MATH_ANGLE_RADIAN, you may want to normalize it to the range 0..2*pi with NormalizeAngle
+	* \return The angle
 	*
 	* \param vec The other vector to measure the angle with
 	*
@@ -107,9 +107,9 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T Vector2<T>::AngleBetween(const Vector2& vec) const
+	RadianAngle<T> Vector2<T>::AngleBetween(const Vector2& vec) const
 	{
-		return FromRadians(std::atan2(vec.y, vec.x) - std::atan2(y, x));
+		return std::atan2(vec.y, vec.x) - std::atan2(y, x);
 	}
 
 	/*!

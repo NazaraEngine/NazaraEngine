@@ -102,42 +102,42 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 		{
 			THEN("Rotation around X")
 			{
-				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f).ToQuaternion());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ToQuaternion());
 				Nz::Matrix4f rotation45X(1.f,  0.f,                  0.f,                  0.f,
 				                         0.f,  std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f, -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f,  0.f,                  0.f,                  1.f);
 
 				CHECK(transformedMatrix == rotation45X);
-				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::FromDegrees(45.f), 0.f, 0.f).ToQuaternion());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ToQuaternion());
 				rotation45X.ApplyTranslation(Nz::Vector3f::Unit());
 				CHECK(transformedMatrix == rotation45X);
 			}
 
 			THEN("Rotation around Y")
 			{
-				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f).ToQuaternion());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ToQuaternion());
 				Nz::Matrix4f rotation45Y(std::sqrt(2.f) / 2.f, 0.f, -std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f,                  1.f,  0.f,                  0.f,
 				                         std::sqrt(2.f) / 2.f, 0.f,  std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f,                  0.f,  0.f,                  1.f);
 
 				CHECK(transformedMatrix == rotation45Y);
-				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(0.f, Nz::FromDegrees(45.f), 0.f).ToQuaternion());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ToQuaternion());
 				rotation45Y.ApplyTranslation(Nz::Vector3f::Unit());
 				CHECK(transformedMatrix == rotation45Y);
 			}
 
 			THEN("Rotation around Z")
 			{
-				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)).ToQuaternion());
+				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion());
 				Nz::Matrix4f rotation45Z( std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                          -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                          0.f,                  0.f,                  1.f, 0.f,
 				                          0.f,                  0.f,                  0.f, 1.f);
 
 				CHECK(transformedMatrix == rotation45Z);
-				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(45.f)).ToQuaternion()));
+				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion()));
 				rotation45Z.ApplyTranslation(Nz::Vector3f::Unit());
 				CHECK(transformedMatrix == rotation45Z);
 			}
@@ -157,7 +157,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 		WHEN("We rotate it from pitch 30")
 		{
-			Nz::Quaternionf rotation(Nz::EulerAnglesf(Nz::FromDegrees(30.f), 0.f, 0.f));
+			Nz::Quaternionf rotation(Nz::EulerAnglesf(Nz::DegreeAnglef(30.f), 0.f, 0.f));
 			identity.ApplyRotation(rotation);
 
 			THEN("We should retrieve it")
@@ -168,7 +168,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 		WHEN("We rotate it from yaw 30")
 		{
-			Nz::Quaternionf rotation(Nz::EulerAnglesf(0.f, Nz::FromDegrees(30.f), 0.f));
+			Nz::Quaternionf rotation(Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(30.f), 0.f));
 			identity.ApplyRotation(rotation);
 
 			THEN("We should retrieve it")
@@ -179,7 +179,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 		WHEN("We rotate it from roll 30")
 		{
-			Nz::Quaternionf rotation(Nz::EulerAnglesf(0.f, 0.f, Nz::FromDegrees(30.f)));
+			Nz::Quaternionf rotation(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(30.f)));
 			identity.ApplyRotation(rotation);
 
 			THEN("We should retrieve it")
@@ -190,7 +190,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 		WHEN("We rotate it from a strange rotation")
 		{
-			Nz::Quaternionf rotation(Nz::EulerAnglesf(Nz::FromDegrees(10.f), Nz::FromDegrees(20.f), Nz::FromDegrees(30.f)));
+			Nz::Quaternionf rotation(Nz::EulerAnglesf(Nz::DegreeAnglef(10.f), Nz::DegreeAnglef(20.f), Nz::DegreeAnglef(30.f)));
 			identity.ApplyRotation(rotation);
 
 			THEN("We should retrieve it")
@@ -213,7 +213,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 			AND_THEN("With a rotation")
 			{
-				identity.ApplyRotation(Nz::EulerAnglesf(Nz::FromDegrees(10.f), Nz::FromDegrees(20.f), Nz::FromDegrees(30.f)));
+				identity.ApplyRotation(Nz::EulerAnglesf(Nz::DegreeAnglef(10.f), Nz::DegreeAnglef(20.f), Nz::DegreeAnglef(30.f)));
 				Nz::Vector3f retrievedScale = identity.GetScale();
 				CHECK(retrievedScale.x == Approx(scale.x));
 				CHECK(retrievedScale.y == Approx(scale.y));
@@ -248,12 +248,12 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 		Nz::Matrix4f simple = Nz::Matrix4f::Transform(simpleTranslation, simpleRotation, simpleScale);
 
 		Nz::Vector3f complexTranslation = Nz::Vector3f(-5.f, 7.f, 3.5f);
-		Nz::Quaternionf complexRotation = Nz::EulerAnglesf(Nz::FromDegrees(-22.5f), Nz::FromDegrees(30.f), Nz::FromDegrees(15.f));
+		Nz::Quaternionf complexRotation = Nz::EulerAnglesf(Nz::DegreeAnglef(-22.5f), Nz::DegreeAnglef(30.f), Nz::DegreeAnglef(15.f));
 		Nz::Vector3f complexScale = Nz::Vector3f(1.f, 2.f, 0.5f);
 		Nz::Matrix4f complex = Nz::Matrix4f::Transform(complexTranslation, complexRotation, complexScale);
 
 		Nz::Vector3f oppositeTranslation = Nz::Vector3f(-5.f, 7.f, 3.5f);
-		Nz::Quaternionf oppositeRotation = Nz::EulerAnglesf(Nz::FromDegrees(-90.f), Nz::FromDegrees(0.f), Nz::FromDegrees(0.f));
+		Nz::Quaternionf oppositeRotation = Nz::EulerAnglesf(Nz::DegreeAnglef(-90.f), Nz::DegreeAnglef(0.f), Nz::DegreeAnglef(0.f));
 		Nz::Vector3f oppositeScale = Nz::Vector3f(1.f, 2.f, 0.5f);
 		Nz::Matrix4f opposite = Nz::Matrix4f::Transform(oppositeTranslation, oppositeRotation, oppositeScale);
 
@@ -280,7 +280,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 	{
 		Nz::Vector3f translation(-5.f, 3.f, 0.5);
 		Nz::Matrix4f initial = Nz::Matrix4f::Translate(translation);
-		Nz::Quaternionf rotation = Nz::EulerAnglesf(Nz::FromDegrees(30.f), Nz::FromDegrees(-90.f), 0.f);
+		Nz::Quaternionf rotation = Nz::EulerAnglesf(Nz::DegreeAnglef(30.f), Nz::DegreeAnglef(-90.f), 0.f);
 		initial.ApplyRotation(rotation);
 
 		Nz::Matrix4f simple = Nz::Matrix4f::Transform(-translation, rotation.GetInverse(), Nz::Vector3f::Unit());

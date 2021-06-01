@@ -159,6 +159,21 @@ namespace Nz
 
 	/*!
 	* \ingroup math
+	* \brief Clamps an angle value between min and max and returns the expected value
+	* \return If value is not in the interval of min..max, value obtained is the nearest limit of this interval
+	*
+	* \param value Value to clamp
+	* \param min Minimum of the interval
+	* \param max Maximum of the interval
+	*/
+	template<typename T, AngleUnit Unit>
+	constexpr Angle<Unit, T> Clamp(Angle<Unit, T> value, T min, T max)
+	{
+		return T();
+	}
+
+	/*!
+	* \ingroup math
 	* \brief Gets number of bits set in the number
 	* \return The number of bits set to 1
 	*
@@ -189,40 +204,6 @@ namespace Nz
 	constexpr T DegreeToRadian(T degrees)
 	{
 		return degrees * T(M_PI/180.0);
-	}
-
-	/*!
-	* \ingroup math
-	* \brief Gets the unit from degree and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express the degrees
-	*
-	* \param degrees Convert degree to NAZARA_MATH_ANGLE_RADIAN unit
-	*/
-	template<typename T>
-	constexpr T FromDegrees(T degrees)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return DegreeToRadian(degrees);
-		#else
-		return degrees;
-		#endif
-	}
-
-	/*!
-	* \ingroup math
-	* \brief Gets the unit from radian and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express the radians
-	*
-	* \param radians Convert radian to NAZARA_MATH_ANGLE_RADIAN unit
-	*/
-	template<typename T>
-	constexpr T FromRadians(T radians)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return radians;
-		#else
-		return RadianToDegree(radians);
-		#endif
 	}
 
 	/*!
@@ -508,30 +489,6 @@ namespace Nz
 
 	/*!
 	* \ingroup math
-	* \brief Normalizes the angle
-	* \return Normalized value between 0..2*(pi if radian or 180 if degrees)
-	*
-	* \param angle Angle to normalize
-	*/
-	template<typename T>
-	constexpr inline T NormalizeAngle(T angle)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		const T limit = T(M_PI);
-		#else
-		const T limit = T(180.0);
-		#endif
-		const T twoLimit = limit * T(2);
-
-		angle = std::fmod(angle, twoLimit);
-		if (angle < T(0))
-			angle += twoLimit;
-
-		return angle;
-	}
-
-	/*!
-	* \ingroup math
 	* \brief Checks whether two numbers are equal
 	* \return true if they are equal within a certain epsilon
 	*
@@ -702,40 +659,7 @@ namespace Nz
 		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
 		return number & (T(1) << bit);
 	}
-
-	/*!
-	* \ingroup math
-	* \brief Gets the degree from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express in degrees
-	*
-	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to degrees
-	*/
-	template<typename T>
-	constexpr T ToDegrees(T angle)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return RadianToDegree(angle);
-		#else
-		return angle;
-		#endif
-	}
-
-	/*!
-	* \ingroup math
-	* \brief Gets the radian from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express in radians
-	*
-	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to radians
-	*/
-	template<typename T>
-	constexpr T ToRadians(T angle)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return angle;
-		#else
-		return DegreeToRadian(angle);
-		#endif
-	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Algorithm.hpp"

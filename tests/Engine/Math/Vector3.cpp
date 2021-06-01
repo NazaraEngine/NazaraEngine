@@ -1,7 +1,6 @@
-#include <Nazara/Math/Vector3.hpp>
 #include <Catch/catch.hpp>
-
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 
 SCENARIO("Vector3", "[MATH][VECTOR3]")
@@ -27,8 +26,8 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 			{
 				REQUIRE(firstUnit.AbsDotProduct(tmp) == Approx(2.f));
 				REQUIRE(firstUnit.DotProduct(tmp) == Approx(0.f));
-				REQUIRE(firstUnit.AngleBetween(tmp) == Approx(Nz::FromDegrees(90.f)));
-				REQUIRE(firstUnit.AngleBetween(-firstUnit) == Approx(Nz::FromDegrees(180.f)));
+				REQUIRE(firstUnit.AngleBetween(tmp) == Nz::DegreeAnglef(90.f));
+				REQUIRE(firstUnit.AngleBetween(-firstUnit) == Nz::DegreeAnglef(180.f));
 			}
 		}
 

@@ -32,22 +32,22 @@ namespace Nz
 				return 180;
 			}
 
-			template<typename T> static T FromDegrees(T degrees)
+			template<typename T> static constexpr T FromDegrees(T degrees)
 			{
 				return degrees;
 			}
 
-			template<typename T> static T FromRadians(T radians)
+			template<typename T> static constexpr T FromRadians(T radians)
 			{
 				return RadianToDegree(radians);
 			}
 
-			template<typename T> static T ToDegrees(T degrees)
+			template<typename T> static constexpr T ToDegrees(T degrees)
 			{
 				return degrees;
 			}
 
-			template<typename T> static T ToRadians(T degrees)
+			template<typename T> static constexpr T ToRadians(T degrees)
 			{
 				return DegreeToRadian(degrees);
 			}
@@ -71,22 +71,22 @@ namespace Nz
 				return T(M_PI);
 			}
 
-			template<typename T> static T FromDegrees(T degrees)
+			template<typename T> static constexpr T FromDegrees(T degrees)
 			{
 				return DegreeToRadian(degrees);
 			}
 
-			template<typename T> static T FromRadians(T radians)
+			template<typename T> static constexpr T FromRadians(T radians)
 			{
 				return radians;
 			}
 
-			template<typename T> static T ToDegrees(T radians)
+			template<typename T> static constexpr T ToDegrees(T radians)
 			{
 				return RadianToDegree(radians);
 			}
 
-			template<typename T> static T ToRadians(T radians)
+			template<typename T> static constexpr T ToRadians(T radians)
 			{
 				return radians;
 			}
@@ -141,7 +141,7 @@ namespace Nz
 	* \param value value of the angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::Angle(T angle) :
+	constexpr Angle<Unit, T>::Angle(T angle) :
 	value(angle)
 	{
 	}
@@ -152,7 +152,7 @@ namespace Nz
 	* \param value Angle object to copy
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::Angle(const Angle<AngleUnit::Degree, T>& angle) :
+	constexpr Angle<Unit, T>::Angle(const Angle<AngleUnit::Degree, T>& angle) :
 	value(Detail::AngleUtils<Unit>::FromDegrees(angle.value))
 	{
 	}
@@ -163,7 +163,7 @@ namespace Nz
 	* \param value Angle object to copy
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>::Angle(const Angle<AngleUnit::Radian, T>& angle) :
+	constexpr Angle<Unit, T>::Angle(const Angle<AngleUnit::Radian, T>& angle) :
 	value(Detail::AngleUtils<Unit>::FromRadians(angle.value))
 	{
 	}
@@ -225,7 +225,7 @@ namespace Nz
 	* \brief Changes the angle value to zero
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::MakeZero()
+	constexpr Angle<Unit, T>& Angle<Unit, T>::MakeZero()
 	{
 		value = T(0);
 		return *this;
@@ -239,7 +239,7 @@ namespace Nz
 	* For radian angles, local limits are [-M_PI, M_PI]
 	*/
 	template<AngleUnit Unit, typename T>
-	void Angle<Unit, T>::Normalize()
+	constexpr Angle<Unit, T>& Angle<Unit, T>::Normalize()
 	{
 		constexpr T limit = Detail::AngleUtils<Unit>::template GetLimit<T>();
 		constexpr T twoLimit = limit * T(2);
@@ -247,6 +247,8 @@ namespace Nz
 		value = std::fmod(value, twoLimit);
 		if (value < T(0))
 			value += twoLimit;
+
+		return *this;
 	}
 
 	/*!
@@ -255,7 +257,7 @@ namespace Nz
 	* \param Angle Angle which will be copied
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle& ang)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::Set(const Angle& ang)
 	{
 		value = ang.value;
 		return *this;
@@ -270,7 +272,7 @@ namespace Nz
 	*/
 	template<AngleUnit Unit, typename T>
 	template<typename U>
-	Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<Unit, U>& ang)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<Unit, U>& ang)
 	{
 		value = static_cast<T>(ang.value);
 		return *this;
@@ -281,7 +283,7 @@ namespace Nz
 	* \return Equivalent degree angle value
 	*/
 	template<AngleUnit Unit, typename T>
-	T Angle<Unit, T>::ToDegrees() const
+	constexpr T Angle<Unit, T>::ToDegrees() const
 	{
 		return Detail::AngleUtils<Unit>::ToDegrees(value);
 	}
@@ -291,7 +293,7 @@ namespace Nz
 	* \return Equivalent degree angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<AngleUnit::Degree, T> Angle<Unit, T>::ToDegreeAngle() const
+	constexpr Angle<AngleUnit::Degree, T> Angle<Unit, T>::ToDegreeAngle() const
 	{
 		return DegreeAngle<T>(ToDegrees());
 	}
@@ -329,7 +331,7 @@ namespace Nz
 	* \return Equivalent radian angle value
 	*/
 	template<AngleUnit Unit, typename T>
-	T Angle<Unit, T>::ToRadians() const
+	constexpr T Angle<Unit, T>::ToRadians() const
 	{
 		return Detail::AngleUtils<Unit>::ToRadians(value);
 	}
@@ -339,7 +341,7 @@ namespace Nz
 	* \return Equivalent radian angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadianAngle() const
+	constexpr Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadianAngle() const
 	{
 		return RadianAngle<T>(ToRadians());
 	}
@@ -386,7 +388,7 @@ namespace Nz
 	* \param other Angle to add
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::operator+(const Angle& other) const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator+(const Angle& other) const
 	{
 		return Angle(value + other.value);
 	}
@@ -398,7 +400,7 @@ namespace Nz
 	* \param other Angle to subtract
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& other) const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& other) const
 	{
 		return Angle(value - other.value);
 	}
@@ -410,7 +412,7 @@ namespace Nz
 	* \param scalar Multiplier
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::operator*(T scalar) const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator*(T scalar) const
 	{
 		return Angle(value * scalar);
 	}
@@ -422,7 +424,7 @@ namespace Nz
 	* \param divider Divider
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::operator/(T divider) const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator/(T divider) const
 	{
 		return Angle(value / divider);
 	}
@@ -434,7 +436,7 @@ namespace Nz
 	* \param other Angle to add
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::operator+=(const Angle& other)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::operator+=(const Angle& other)
 	{
 		value += other.value;
 		return *this;
@@ -447,7 +449,7 @@ namespace Nz
 	* \param other Angle to subtract
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::operator-=(const Angle& other)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::operator-=(const Angle& other)
 	{
 		value -= other.value;
 		return *this;
@@ -460,7 +462,7 @@ namespace Nz
 	* \param scalar Multiplier
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::operator*=(T scalar)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::operator*=(T scalar)
 	{
 		value *= scalar;
 		return *this;
@@ -473,7 +475,7 @@ namespace Nz
 	* \param divider Divider
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T>& Angle<Unit, T>::operator/=(T divider)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::operator/=(T divider)
 	{
 		value /= divider;
 		return *this;
@@ -486,7 +488,7 @@ namespace Nz
 	* \param other The other angle to compare to
 	*/
 	template<AngleUnit Unit, typename T>
-	bool Angle<Unit, T>::operator==(const Angle& other) const
+	constexpr bool Angle<Unit, T>::operator==(const Angle& other) const
 	{
 		return NumberEquals(value, other.value, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
 	}
@@ -498,7 +500,7 @@ namespace Nz
 	* \param other The other angle to compare to
 	*/
 	template<AngleUnit Unit, typename T>
-	bool Angle<Unit, T>::operator!=(const Angle& other) const
+	constexpr bool Angle<Unit, T>::operator!=(const Angle& other) const
 	{
 		return !NumberEquals(value, other.value, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
 	}
@@ -510,7 +512,7 @@ namespace Nz
 	* \param ang Degree angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::FromDegrees(T ang)
+	constexpr Angle<Unit, T> Angle<Unit, T>::FromDegrees(T ang)
 	{
 		return Angle(Detail::AngleUtils<Unit>::FromDegrees(ang));
 	}
@@ -522,7 +524,7 @@ namespace Nz
 	* \param ang Radian angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::FromRadians(T ang)
+	constexpr Angle<Unit, T> Angle<Unit, T>::FromRadians(T ang)
 	{
 		return Angle(Detail::AngleUtils<Unit>::FromRadians(ang));
 	}
@@ -532,7 +534,7 @@ namespace Nz
 	* \return Zero angle
 	*/
 	template<AngleUnit Unit, typename T>
-	Angle<Unit, T> Angle<Unit, T>::Zero()
+	constexpr Angle<Unit, T> Angle<Unit, T>::Zero()
 	{
 		Angle angle;
 		angle.MakeZero();
