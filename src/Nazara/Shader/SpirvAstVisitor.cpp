@@ -338,7 +338,7 @@ namespace Nz
 
 				rightOperand = rightAsVec;
 			}
-			else if (!IsPrimitiveType(leftType) || !IsPrimitiveType(rightType))
+			else if (leftType != rightType)
 				throw std::runtime_error("unexpected division operands");
 		}
 

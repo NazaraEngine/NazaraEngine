@@ -351,20 +351,88 @@ int main()
 	}
 
 
-	const std::shared_ptr<const Nz::VertexDeclaration>& vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
+	const std::shared_ptr<const Nz::VertexDeclaration>& fullscreenVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 
 	unsigned int offscreenWidth = window.GetSize().x;
 	unsigned int offscreenHeight = window.GetSize().y;
 
+	// Bloom data
+
+	Nz::RenderPipelineLayoutInfo bloomPipelineLayoutInfo;
+	bloomPipelineLayoutInfo.bindings.push_back({
+		Nz::ShaderBindingType::Texture,
+		Nz::ShaderStageType::Fragment,
+		0
+	});
+
+	bloomPipelineLayoutInfo.bindings.push_back({
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType::Fragment,
+		1
+	});
+
+	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		Nz::ShaderBindingType::Texture,
+		Nz::ShaderStageType::Fragment,
+		0
+	});
+
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		Nz::ShaderBindingType::Texture,
+		Nz::ShaderStageType::Fragment,
+		1
+	});
+
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType::Fragment,
+		2
+	});
+
+	Nz::RenderPipelineInfo bloomPipelineInfo;
+	bloomPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
+	bloomPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(bloomPipelineLayoutInfo);
+	bloomPipelineInfo.vertexBuffers.push_back({
+		0,
+		fullscreenVertexDeclaration
+	});
+
+	bloomPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", {}));
+
+	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding();
+	std::shared_ptr<Nz::ShaderBinding> gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding();
+
+	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(bloomPipelineInfo);
+
+	bloomPipelineInfo.shaderModules.clear();
+	bloomPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", {}));
+
+	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(bloomPipelineInfo);
+
+	Nz::RenderPipelineInfo bloomBlendPipelineInfo;
+	bloomBlendPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
+	bloomBlendPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(bloomBlendPipelineLayoutInfo);
+	bloomBlendPipelineInfo.vertexBuffers.push_back({
+		0,
+		fullscreenVertexDeclaration
+	});
+
+	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_final.nzsl", {}));
+
+	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
+
+	std::shared_ptr<Nz::ShaderBinding> bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding();
+
 	// Fullscreen data
 
 	Nz::RenderPipelineInfo fullscreenPipelineInfo;
-	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleStrip;
+	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfo);
 	fullscreenPipelineInfo.vertexBuffers.push_back({
 		0,
-		vertexDeclaration
+		fullscreenVertexDeclaration
 	});
 
 	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, resourceDir / "fullscreen.frag.shader", {}));
@@ -461,20 +529,14 @@ int main()
 		}
 	};*/
 
-	std::shared_ptr<Nz::AbstractBuffer> vertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex);
-	if (!vertexBuffer->Initialize(vertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal))
+	std::shared_ptr<Nz::AbstractBuffer> fullscreenVertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex);
+	if (!fullscreenVertexBuffer->Initialize(fullscreenVertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal))
 		return __LINE__;
 
-	if (!vertexBuffer->Fill(vertexData.data(), 0, vertexBuffer->GetSize()))
+	if (!fullscreenVertexBuffer->Fill(vertexData.data(), 0, fullscreenVertexBuffer->GetSize()))
 		return __LINE__;
 
 	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding();
-
-	std::size_t colorTexture;
-	std::size_t normalTexture;
-	std::size_t positionTexture;
-	std::size_t depthBuffer;
-	std::size_t backbuffer;
 
 	bool viewerUboUpdate = true;
 	bool lightUpdate = true;
@@ -499,8 +561,18 @@ int main()
 		}
 	});
 
+	bool bloomEnabled = true;
 	bool forwardEnabled = true;
 	bool lightAnimation = true;
+
+	std::size_t colorTexture;
+	std::size_t normalTexture;
+	std::size_t positionTexture;
+	std::size_t depthBuffer;
+	std::size_t backbuffer;
+	std::size_t bloomTextureA;
+	std::size_t bloomTextureB;
+	std::size_t lightOutput;
 
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
@@ -526,9 +598,28 @@ int main()
 			Nz::PixelFormat::Depth24Stencil8
 		});
 
+		lightOutput = graph.AddAttachment({
+			"Light output",
+			Nz::PixelFormat::RGBA8
+		});
+
 		backbuffer = graph.AddAttachment({
 			"Backbuffer",
 			Nz::PixelFormat::RGBA8
+		});
+
+		bloomTextureA = graph.AddAttachment({
+			"Bloom texture A",
+			Nz::PixelFormat::RGBA8,
+			10'000,
+			10'000
+		});
+
+		bloomTextureB = graph.AddAttachment({
+			"Bloom texture B",
+			Nz::PixelFormat::RGBA8,
+			10'000,
+			10'000
 		});
 
 		Nz::FramePass& gbufferPass = graph.AddPass("GBuffer");
@@ -608,7 +699,7 @@ int main()
 		lightingPass.AddInput(colorTexture);
 		lightingPass.AddInput(normalTexture);
 		lightingPass.AddInput(positionTexture);
-		lightingPass.SetClearColor(lightingPass.AddOutput(backbuffer), Nz::Color::Black);
+		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black);
 		lightingPass.SetDepthStencilInput(depthBuffer);
 		lightingPass.SetDepthStencilOutput(depthBuffer);
 
@@ -631,10 +722,72 @@ int main()
 			return (forwardEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 		});
 
-		forwardPass.AddInput(backbuffer);
-		forwardPass.AddOutput(backbuffer);
+		forwardPass.AddInput(lightOutput);
+		forwardPass.AddOutput(lightOutput);
 		forwardPass.SetDepthStencilInput(depthBuffer);
 		forwardPass.SetDepthStencilOutput(depthBuffer);
+
+		
+		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
+		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
+			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
+
+			builder.BindShaderBinding(*bloomBrightShaderBinding);
+			builder.BindPipeline(*bloomBrightPipeline);
+			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+
+			builder.Draw(3);
+		});
+		bloomBrightPass.SetExecutionCallback([&]
+		{
+			return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
+		});
+
+		bloomBrightPass.AddInput(lightOutput);
+		bloomBrightPass.AddOutput(bloomTextureA);
+
+		Nz::FramePass& bloomBlurPass = graph.AddPass("Bloom pass - gaussian blur");
+		bloomBlurPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
+			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
+
+			builder.BindShaderBinding(*gaussianBlurShaderBinding);
+			builder.BindPipeline(*gaussianBlurPipeline);
+			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+
+			builder.Draw(3);
+		});
+		bloomBlurPass.SetExecutionCallback([&]
+		{
+			return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
+		});
+
+		bloomBlurPass.AddInput(bloomTextureA);
+		bloomBlurPass.AddOutput(bloomTextureB);
+		
+		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
+		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+
+			builder.BindShaderBinding(*bloomBlendShaderBinding);
+			builder.BindPipeline(*bloomBlendPipeline);
+			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+
+			builder.Draw(3);
+		});
+		bloomBlendPass.SetExecutionCallback([&]
+		{
+			return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
+		});
+
+		bloomBlendPass.AddInput(lightOutput);
+		bloomBlendPass.AddInput(bloomTextureB);
+		bloomBlendPass.AddOutput(backbuffer);
 
 		graph.SetBackbufferOutput(backbuffer);
 
@@ -688,6 +841,64 @@ int main()
 		lightingShaderBindings.emplace_back(std::move(lightingShaderBinding));
 	}
 
+	bloomBrightShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(lightOutput).get(),
+				textureSampler.get()
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::UniformBufferBinding {
+				viewerDataUBO.get(),
+				0, viewerDataUBO->GetSize()
+			}
+		}
+	});
+
+	gaussianBlurShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(bloomTextureA).get(),
+				textureSampler.get()
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::UniformBufferBinding {
+				viewerDataUBO.get(),
+				0, viewerDataUBO->GetSize()
+			}
+		}
+	});
+
+	bloomBlendShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(lightOutput).get(),
+				textureSampler.get()
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(bloomTextureB).get(),
+				textureSampler.get()
+			}
+		},
+		{
+			2,
+			Nz::ShaderBinding::UniformBufferBinding {
+				viewerDataUBO.get(),
+				0, viewerDataUBO->GetSize()
+			}
+		}
+	});
+
 	finalBlitBinding->Update({
 		{
 			0,
@@ -719,7 +930,7 @@ int main()
 
 					builder.BindShaderBinding(*finalBlitBinding);
 					builder.BindPipeline(*fullscreenPipeline);
-					builder.BindVertexBuffer(0, vertexBuffer.get());
+					builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
 					builder.Draw(3);
 				}
 				builder.EndRenderPass();

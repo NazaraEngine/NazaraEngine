@@ -55,6 +55,7 @@ fn main(input: VertIn) -> VertOut
 {
     // Set translation part to zero
     let rotationMat = viewerData.viewMatrix;
+    // rotationMat[3].xyz = vec3<f32>(0.0, 0.0, 0.0); // Requires SPIRV generator to handle swizzle for store expressions
     rotationMat[3][0] = 0.0;
     rotationMat[3][1] = 0.0;
     rotationMat[3][2] = 0.0;

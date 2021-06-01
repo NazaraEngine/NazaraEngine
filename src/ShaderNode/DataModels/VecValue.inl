@@ -116,7 +116,7 @@ void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 
 		connect(spinbox, qOverload<double>(&QDoubleSpinBox::valueChanged), [=](double)
 		{
-			m_value[i] = spinbox->value();
+			m_value[i] = float(spinbox->value());
 			Q_EMIT dataUpdated(0);
 
 			UpdatePreview();

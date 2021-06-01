@@ -172,8 +172,8 @@ namespace Nz
 
 				TextureData& data = m_pending.textures.emplace_back();
 				data.format = m_attachments[attachmentIndex].format;
-				data.width = 100'000;
-				data.height = 100'000;
+				data.width = m_attachments[attachmentIndex].width;
+				data.height = m_attachments[attachmentIndex].height;
 
 				return textureId;
 			}
