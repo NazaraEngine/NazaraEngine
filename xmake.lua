@@ -5,6 +5,9 @@ local modules = {
 	},
 	Core = {
 		Custom = function ()
+			-- NazaraMath is header-only, make it part of the core project
+			add_headerfiles("include/Nazara/Math/**.hpp", "include/Nazara/Math/**.inl")
+
 			if is_plat("linux") then
 				add_syslinks("dl", "pthread")
 			end
@@ -154,10 +157,8 @@ for name, module in pairs(modules) do
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
 
-	add_headerfiles("include/Nazara/" .. name .. "/**.hpp")
-	add_headerfiles("include/Nazara/" .. name .. "/**.inl")
-	add_headerfiles("src/Nazara/" .. name .. "/**.hpp")
-	add_headerfiles("src/Nazara/" .. name .. "/**.inl")
+	add_headerfiles("include/Nazara/" .. name .. "/**.hpp", "include/Nazara/" .. name .. "/**.inl")
+	add_headerfiles("src/Nazara/" .. name .. "/**.hpp", "src/Nazara/" .. name .. "/**.inl")
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
