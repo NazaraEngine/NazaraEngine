@@ -40,7 +40,7 @@ namespace Nz
 	* \brief Builds the frustum object
 	* \return A reference to this frustum which is the build up camera's field of view
 	*
-	* \param angle Unit depends on NAZARA_MATH_ANGLE_RADIAN
+	* \param angle FOV angle
 	* \param ratio Rendering ratio (typically 16/9 or 4/3)
 	* \param zNear Distance where 'vision' begins
 	* \param zFar Distance where 'vision' ends
@@ -50,15 +50,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Frustum<T>& Frustum<T>::Build(T angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
+	Frustum<T>& Frustum<T>::Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
 	{
-		#if NAZARA_MATH_ANGLE_RADIAN
 		angle /= T(2.0);
-		#else
-		angle = DegreeToRadian(angle / T(2.0));
-		#endif
 
-		T tangent = std::tan(angle);
+		T tangent = angle.GetTan();
 		T nearH = zNear * tangent;
 		T nearW = nearH * ratio;
 		T farH = zFar * tangent;

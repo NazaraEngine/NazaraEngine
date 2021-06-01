@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <functional>
 #include <string>
 
@@ -33,7 +34,7 @@ namespace Nz
 			~Vector2() = default;
 
 			T AbsDotProduct(const Vector2& vec) const;
-			T AngleBetween(const Vector2& vec) const;
+			RadianAngle<T> AngleBetween(const Vector2& vec) const;
 
 			template<typename U = T>
 			U Distance(const Vector2& vec) const;

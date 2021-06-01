@@ -128,9 +128,7 @@ namespace Ndk
 			{
 				Nz::Quaternionf transition = newRotation * oldRotation.GetConjugate();
 				Nz::EulerAnglesf angles = transition.ToEulerAngles();
-				Nz::Vector3f angularVelocity(Nz::ToRadians(angles.pitch * invElapsedTime),
-				                             Nz::ToRadians(angles.yaw * invElapsedTime),
-				                             Nz::ToRadians(angles.roll * invElapsedTime));
+				Nz::Vector3f angularVelocity((angles.pitch * invElapsedTime).ToRadians(), (angles.yaw * invElapsedTime).ToRadians(), (angles.roll * invElapsedTime).ToRadians());
 
 				physObj->SetRotation(oldRotation);
 				physObj->SetAngularVelocity(angularVelocity);

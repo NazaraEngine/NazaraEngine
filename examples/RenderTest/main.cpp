@@ -145,7 +145,7 @@ int main()
 	ubo;
 
 	Nz::Vector2ui windowSize = window.GetSize();
-	ubo.projectionMatrix = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
+	ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 	ubo.viewMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
 	ubo.modelMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
 
@@ -291,7 +291,8 @@ int main()
 					float sensitivity = 0.3f; // Sensibilité de la souris
 
 					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = Nz::NormalizeAngle(camAngles.yaw - event.mouseMove.deltaX*sensitivity);
+					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
+					camAngles.yaw.Normalize();
 
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
 					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
@@ -305,7 +306,7 @@ int main()
 				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
-					ubo.projectionMatrix = Nz::Matrix4f::Perspective(70.f, float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
+					ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 					uboUpdate = true;
 					break;
 				}

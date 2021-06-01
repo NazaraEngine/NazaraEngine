@@ -21,8 +21,8 @@ namespace Nz
 	{
 		public:
 			EulerAngles() = default;
-			EulerAngles(T P, T Y, T R);
-			EulerAngles(const T angles[3]);
+			EulerAngles(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R);
+			EulerAngles(const DegreeAngle<T> angles[3]);
 			template<AngleUnit Unit> EulerAngles(const Angle<Unit, T>& angle);
 			//EulerAngles(const Matrix3<T>& mat);
 			EulerAngles(const Quaternion<T>& quat);
@@ -34,8 +34,8 @@ namespace Nz
 
 			EulerAngles& Normalize();
 
-			EulerAngles& Set(T P, T Y, T R);
-			EulerAngles& Set(const T angles[3]);
+			EulerAngles& Set(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R);
+			EulerAngles& Set(const DegreeAngle<T> angles[3]);
 			template<AngleUnit Unit> EulerAngles& Set(const Angle<Unit, T>& angles);
 			//EulerAngles& Set(const Matrix3<T>& mat);
 			EulerAngles& Set(const Quaternion<T>& quat);
@@ -61,7 +61,7 @@ namespace Nz
 
 			static EulerAngles Zero();
 
-			T pitch, yaw, roll;
+			DegreeAngle<T> pitch, yaw, roll;
 	};
 
 	using EulerAnglesd = EulerAngles<double>;

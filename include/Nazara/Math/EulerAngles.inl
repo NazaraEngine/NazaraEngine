@@ -32,7 +32,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>::EulerAngles(T P, T Y, T R)
+	EulerAngles<T>::EulerAngles(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R)
 	{
 		Set(P, Y, R);
 	}
@@ -44,7 +44,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>::EulerAngles(const T angles[3])
+	EulerAngles<T>::EulerAngles(const DegreeAngle<T> angles[3])
 	{
 		Set(angles);
 	}
@@ -101,17 +101,15 @@ namespace Nz
 	* \brief Normalizes the euler angle
 	* \return A reference to this euler angle with has been normalized
 	*
-	* \remark Normalization depends on NAZARA_MATH_ANGLE_RADIAN, between 0..2*pi
-	*
 	* \see NormalizeAngle
 	*/
 
 	template<typename T>
 	EulerAngles<T>& EulerAngles<T>::Normalize()
 	{
-		pitch = NormalizeAngle(pitch);
-		yaw = NormalizeAngle(yaw);
-		roll = NormalizeAngle(roll);
+		pitch.Normalize();
+		yaw.Normalize();
+		roll.Normalize();
 
 		return *this;
 	}
@@ -126,7 +124,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(T P, T Y, T R)
+	EulerAngles<T>& EulerAngles<T>::Set(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R)
 	{
 		pitch = P;
 		yaw = Y;
@@ -143,7 +141,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(const T angles[3])
+	EulerAngles<T>& EulerAngles<T>::Set(const DegreeAngle<T> angles[3])
 	{
 		pitch = angles[0];
 		yaw = angles[1];
@@ -192,9 +190,9 @@ namespace Nz
 	template<typename U>
 	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles<U>& angles)
 	{
-		pitch = T(angles.pitch);
-		yaw = T(angles.yaw);
-		roll = T(angles.roll);
+		pitch.Set(angles.pitch);
+		yaw.Set(angles.yaw);
+		roll.Set(angles.roll);
 
 		return *this;
 	}
@@ -208,13 +206,13 @@ namespace Nz
 	Quaternion<T> EulerAngles<T>::ToQuaternion() const
 	{
 		// XYZ
-		T c1 = std::cos(ToRadians(yaw) / T(2.0));
-		T c2 = std::cos(ToRadians(roll) / T(2.0));
-		T c3 = std::cos(ToRadians(pitch) / T(2.0));
+		T c1 = (yaw / T(2.0)).GetCos();
+		T c2 = (roll / T(2.0)).GetCos();
+		T c3 = (pitch / T(2.0)).GetCos();
 
-		T s1 = std::sin(ToRadians(yaw) / T(2.0));
-		T s2 = std::sin(ToRadians(roll) / T(2.0));
-		T s3 = std::sin(ToRadians(pitch) / T(2.0));
+		T s1 = (yaw / T(2.0)).GetSin();
+		T s2 = (roll / T(2.0)).GetSin();
+		T s3 = (pitch / T(2.0)).GetSin();
 
 		return Quaternion<T>(c1 * c2 * c3 - s1 * s2 * s3,
 		                     s1 * s2 * c3 + c1 * c2 * s3,
@@ -310,9 +308,7 @@ namespace Nz
 	template<typename T>
 	bool EulerAngles<T>::operator==(const EulerAngles& angles) const
 	{
-		return NumberEquals(pitch, angles.pitch) &&
-		       NumberEquals(yaw, angles.yaw) &&
-		       NumberEquals(roll, angles.roll);
+		return pitch == angles.pitch && yaw == angles.yaw && roll == angles.roll;
 	}
 
 	/*!
