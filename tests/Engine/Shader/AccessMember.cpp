@@ -99,7 +99,6 @@ OpFunction
 OpLabel
 OpVariable
 OpAccessChain
-OpAccessChain
 OpLoad
 OpCompositeExtract
 OpStore
