@@ -228,6 +228,8 @@ namespace Nz::ShaderAst
 	{
 		Value(node.name);
 		Type(node.returnType);
+		OptEnum(node.depthWrite);
+		OptVal(node.earlyFragmentTests);
 		OptEnum(node.entryStage);
 		OptVal(node.funcIndex);
 		Value(node.optionName);

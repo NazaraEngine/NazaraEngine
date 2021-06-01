@@ -37,7 +37,8 @@ namespace Nz
 
 		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "FragmentCoordinates", ShaderStageType::Fragment, SpirvBuiltIn::FragCoord } },
-			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition", ShaderStageType::Vertex,   SpirvBuiltIn::Position } }
+			{ ShaderAst::BuiltinEntry::FragDepth,      { "FragmentDepth",       ShaderStageType::Fragment, SpirvBuiltIn::FragDepth } },
+			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition",      ShaderStageType::Vertex,   SpirvBuiltIn::Position } }
 		};
 
 		class PreVisitor : public ShaderAst::AstRecursiveVisitor
@@ -181,6 +182,28 @@ namespace Nz
 					{
 						using EntryPoint = SpirvAstVisitor::EntryPoint;
 
+						std::vector<SpirvExecutionMode> executionModes;
+
+						if (*entryPointType == ShaderStageType::Fragment)
+						{
+							executionModes.push_back(SpirvExecutionMode::OriginUpperLeft);
+							if (node.earlyFragmentTests && *node.earlyFragmentTests)
+								executionModes.push_back(SpirvExecutionMode::EarlyFragmentTests);
+
+							if (node.depthWrite)
+							{
+								executionModes.push_back(SpirvExecutionMode::DepthReplacing);
+
+								switch (*node.depthWrite)
+								{
+									case ShaderAst::DepthWriteMode::Replace:   break;
+									case ShaderAst::DepthWriteMode::Greater:   executionModes.push_back(SpirvExecutionMode::DepthGreater); break;
+									case ShaderAst::DepthWriteMode::Less:      executionModes.push_back(SpirvExecutionMode::DepthLess); break;
+									case ShaderAst::DepthWriteMode::Unchanged: executionModes.push_back(SpirvExecutionMode::DepthUnchanged); break;
+								}
+							}
+						}
+
 						funcData.returnTypeId = m_constantCache.Register(*m_constantCache.BuildType(ShaderAst::NoType{}));
 						funcData.funcTypeId = m_constantCache.Register(*m_constantCache.BuildFunctionType(ShaderAst::NoType{}, {}));
 
@@ -248,7 +271,8 @@ namespace Nz
 							inputStruct,
 							outputStructId,
 							std::move(inputs),
-							std::move(outputs)
+							std::move(outputs),
+							std::move(executionModes)
 						};
 					}
 
@@ -522,7 +546,6 @@ namespace Nz
 
 		m_currentState->header.Append(SpirvOp::OpMemoryModel, SpirvAddressingModel::Logical, SpirvMemoryModel::GLSL450);
 
-		std::optional<UInt32> fragmentFuncId;
 		for (auto& func : m_currentState->funcs)
 		{
 			m_currentState->debugInfo.Append(SpirvOp::OpName, func.funcId, func.name);
@@ -559,15 +582,18 @@ namespace Nz
 					for (const auto& output : entryPointData.outputs)
 						appender(output.varId);
 				});
-
-				if (entryPointData.stageType == ShaderStageType::Fragment)
-					fragmentFuncId = func.funcId;
 			}
 		}
 
-		if (fragmentFuncId)
-			m_currentState->header.Append(SpirvOp::OpExecutionMode, *fragmentFuncId, SpirvExecutionMode::OriginUpperLeft);
-
+		// Write execution modes
+		for (auto& func : m_currentState->funcs)
+		{
+			if (func.entryPointData)
+			{
+				for (SpirvExecutionMode executionMode : func.entryPointData->executionModes)
+					m_currentState->header.Append(SpirvOp::OpExecutionMode, func.funcId, executionMode);
+			}
+		}
 	}
 
 	SpirvConstantCache::TypePtr SpirvWriter::BuildFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode)

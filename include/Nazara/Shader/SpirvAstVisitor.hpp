@@ -95,6 +95,7 @@ namespace Nz
 				std::optional<UInt32> outputStructTypeId;
 				std::vector<Input> inputs;
 				std::vector<Output> outputs;
+				std::vector<SpirvExecutionMode> executionModes;
 			};
 
 			struct FuncData

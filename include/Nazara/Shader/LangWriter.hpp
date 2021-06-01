@@ -39,6 +39,8 @@ namespace Nz
 		private:
 			struct BindingAttribute;
 			struct BuiltinAttribute;
+			struct DepthWriteAttribute;
+			struct EarlyFragmentTestsAttribute;
 			struct EntryAttribute;
 			struct LayoutAttribute;
 			struct LocationAttribute;
@@ -55,8 +57,10 @@ namespace Nz
 			template<typename T> void Append(const T& param);
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			template<typename... Args> void AppendAttributes(bool appendLine, Args&&... params);
-			void AppendAttribute(BindingAttribute builtin);
+			void AppendAttribute(BindingAttribute binding);
 			void AppendAttribute(BuiltinAttribute builtin);
+			void AppendAttribute(DepthWriteAttribute depthWrite);
+			void AppendAttribute(EarlyFragmentTestsAttribute earlyFragmentTests);
 			void AppendAttribute(EntryAttribute entry);
 			void AppendAttribute(LayoutAttribute layout);
 			void AppendAttribute(LocationAttribute location);

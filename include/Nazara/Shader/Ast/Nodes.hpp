@@ -272,6 +272,8 @@ namespace Nz::ShaderAst
 			ExpressionType type;
 		};
 
+		std::optional<DepthWriteMode> depthWrite;
+		std::optional<bool> earlyFragmentTests;
 		std::optional<ShaderStageType> entryStage;
 		std::optional<std::size_t> funcIndex;
 		std::optional<std::size_t> varIndex;
