@@ -748,6 +748,25 @@ int main()
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
 
+	auto ComputeLightAnimationSpeed = [](const Nz::Vector3f& position)
+	{
+		return position.GetLength() / 10.f;
+	};
+
+	auto AnimateLightPosition = [](const Nz::Vector3f& position, float rotationSpeed, float elapsedTime)
+	{
+		rotationSpeed *= 45.f;
+
+		return Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * rotationSpeed, 0.f)) * position;
+	};
+
+	auto AnimateLightDirection = [](const Nz::Vector3f& direction, float rotationSpeed, float elapsedTime)
+	{
+		rotationSpeed *= 90.f;
+
+		return Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * rotationSpeed, 0.f)) * direction;
+	};
+
 	while (window.IsOpen())
 	{
 		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
@@ -786,10 +805,12 @@ int main()
 				{
 					if (event.key.scancode == Nz::Keyboard::Scancode::Space)
 					{
+						float rotationSpeed = ComputeLightAnimationSpeed(viewerPos);
+
 						auto& whiteLight = spotLights.emplace_back();
 						whiteLight.radius = 5.f;
-						whiteLight.position = viewerPos;
-						whiteLight.direction = camQuat * Nz::Vector3f::Forward();
+						whiteLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedTime);
+						whiteLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedTime);
 
 						lightUpdate = true;
 					}
@@ -879,10 +900,10 @@ int main()
 
 						for (const SpotLight& spotLight : spotLights)
 						{
-							float rotationSpeed = spotLight.position.GetLength() / 10.f;
+							float rotationSpeed = ComputeLightAnimationSpeed(spotLight.position);
 
-							Nz::Vector3f position = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 45.f * rotationSpeed, 0.f)) * spotLight.position;
-							Nz::Vector3f direction = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 90.f * rotationSpeed, 0.f)) * spotLight.direction;
+							Nz::Vector3f position = AnimateLightPosition(spotLight.position, rotationSpeed, elapsedTime);
+							Nz::Vector3f direction = AnimateLightDirection(spotLight.direction, rotationSpeed, elapsedTime);
 
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
