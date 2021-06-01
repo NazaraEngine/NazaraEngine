@@ -41,6 +41,20 @@ namespace Nz
 		inline bool HasValue() const { return builtin.has_value(); }
 	};
 
+	struct LangWriter::DepthWriteAttribute
+	{
+		std::optional<ShaderAst::DepthWriteMode> writeMode;
+
+		inline bool HasValue() const { return writeMode.has_value(); }
+	};
+
+	struct LangWriter::EarlyFragmentTestsAttribute
+	{
+		std::optional<bool> earlyFragmentTests;
+
+		inline bool HasValue() const { return earlyFragmentTests.has_value(); }
+	};
+
 	struct LangWriter::EntryAttribute
 	{
 		std::optional<ShaderStageType> stageType;
@@ -216,12 +230,12 @@ namespace Nz
 			Append(" ");
 	}
 
-	void LangWriter::AppendAttribute(BindingAttribute builtin)
+	void LangWriter::AppendAttribute(BindingAttribute binding)
 	{
-		if (!builtin.HasValue())
+		if (!binding.HasValue())
 			return;
 
-		Append("binding(", *builtin.bindingIndex, ")");
+		Append("binding(", *binding.bindingIndex, ")");
 	}
 
 	void LangWriter::AppendAttribute(BuiltinAttribute builtin)
@@ -235,10 +249,50 @@ namespace Nz
 				Append("builtin(fragcoord)");
 				break;
 
+			case ShaderAst::BuiltinEntry::FragDepth:
+				Append("builtin(fragdepth)");
+				break;
+
 			case ShaderAst::BuiltinEntry::VertexPosition:
 				Append("builtin(position)");
 				break;
 		}
+	}
+	
+	void LangWriter::AppendAttribute(DepthWriteAttribute depthWrite)
+	{
+		if (!depthWrite.HasValue())
+			return;
+
+		switch (*depthWrite.writeMode)
+		{
+			case ShaderAst::DepthWriteMode::Greater:
+				Append("depth_write(greater)");
+				break;
+
+			case ShaderAst::DepthWriteMode::Less:
+				Append("depth_write(less)");
+				break;
+
+			case ShaderAst::DepthWriteMode::Replace:
+				Append("depth_write(replace)");
+				break;
+
+			case ShaderAst::DepthWriteMode::Unchanged:
+				Append("depth_write(unchanged)");
+				break;
+		}
+	}
+
+	void LangWriter::AppendAttribute(EarlyFragmentTestsAttribute earlyFragmentTests)
+	{
+		if (!earlyFragmentTests.HasValue())
+			return;
+
+		if (*earlyFragmentTests.earlyFragmentTests)
+			Append("early_fragment_tests(on)");
+		else
+			Append("early_fragment_tests(off)");
 	}
 
 	void LangWriter::AppendAttribute(EntryAttribute entry)
@@ -553,7 +607,7 @@ namespace Nz
 
 		std::optional<std::size_t> varIndexOpt = node.varIndex;
 
-		AppendAttributes(true, EntryAttribute{ node.entryStage });
+		AppendAttributes(true, EntryAttribute{ node.entryStage }, EarlyFragmentTestsAttribute{ node.earlyFragmentTests }, DepthWriteAttribute{ node.depthWrite });
 		Append("fn ", node.name, "(");
 		for (std::size_t i = 0; i < node.parameters.size(); ++i)
 		{

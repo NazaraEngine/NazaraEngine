@@ -74,6 +74,8 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
+		clone->depthWrite = node.depthWrite;
+		clone->earlyFragmentTests = node.earlyFragmentTests;
 		clone->entryStage = node.entryStage;
 		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;

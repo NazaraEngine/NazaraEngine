@@ -12,6 +12,13 @@ namespace Nz::ShaderLang
 {
 	namespace
 	{
+		std::unordered_map<std::string, ShaderAst::DepthWriteMode> s_depthWriteModes = {
+			{ "greater",   ShaderAst::DepthWriteMode::Greater },
+			{ "less",      ShaderAst::DepthWriteMode::Less },
+			{ "replace",   ShaderAst::DepthWriteMode::Replace },
+			{ "unchanged", ShaderAst::DepthWriteMode::Unchanged },
+		};
+
 		std::unordered_map<std::string, ShaderAst::PrimitiveType> s_identifierToBasicType = {
 			{ "bool", ShaderAst::PrimitiveType::Boolean },
 			{ "i32",  ShaderAst::PrimitiveType::Int32 },
@@ -20,12 +27,14 @@ namespace Nz::ShaderLang
 		};
 
 		std::unordered_map<std::string, ShaderAst::AttributeType> s_identifierToAttributeType = {
-			{ "binding",  ShaderAst::AttributeType::Binding  },
-			{ "builtin",  ShaderAst::AttributeType::Builtin  },
-			{ "entry",    ShaderAst::AttributeType::Entry    },
-			{ "layout",   ShaderAst::AttributeType::Layout   },
-			{ "location", ShaderAst::AttributeType::Location },
-			{ "opt",      ShaderAst::AttributeType::Option   },
+			{ "binding",              ShaderAst::AttributeType::Binding },
+			{ "builtin",              ShaderAst::AttributeType::Builtin },
+			{ "depth_write",          ShaderAst::AttributeType::DepthWrite },
+			{ "early_fragment_tests", ShaderAst::AttributeType::EarlyFragmentTests },
+			{ "entry",                ShaderAst::AttributeType::Entry },
+			{ "layout",               ShaderAst::AttributeType::Layout },
+			{ "location",             ShaderAst::AttributeType::Location },
+			{ "opt",                  ShaderAst::AttributeType::Option },
 		};
 
 		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
@@ -35,6 +44,7 @@ namespace Nz::ShaderLang
 
 		std::unordered_map<std::string, ShaderAst::BuiltinEntry> s_builtinMapping = {
 			{ "fragcoord", ShaderAst::BuiltinEntry::FragCoord },
+			{ "fragdepth", ShaderAst::BuiltinEntry::FragDepth },
 			{ "position", ShaderAst::BuiltinEntry::VertexPosition }
 		};
 
@@ -484,10 +494,54 @@ namespace Nz::ShaderLang
 		{
 			switch (attributeType)
 			{
+				case ShaderAst::AttributeType::DepthWrite:
+				{
+					if (func->depthWrite)
+						throw AttributeError{ "attribute depth_write can only be present once" };
+
+					if (!std::holds_alternative<std::string>(arg))
+						throw AttributeError{ "attribute entry requires a string parameter" };
+
+					const std::string& argStr = std::get<std::string>(arg);
+
+					auto it = s_depthWriteModes.find(argStr);
+					if (it == s_depthWriteModes.end())
+						throw AttributeError{ ("invalid parameter " + argStr + " for depth_write attribute").c_str() };
+
+					func->depthWrite = it->second;
+					break;
+				}
+
+				case ShaderAst::AttributeType::EarlyFragmentTests:
+				{
+					if (func->earlyFragmentTests)
+						throw AttributeError{ "attribute early_fragment_tests can only be present once" };
+
+					if (std::holds_alternative<std::string>(arg))
+					{
+						const std::string& argStr = std::get<std::string>(arg);
+						if (argStr == "true" || argStr == "on")
+							func->earlyFragmentTests = true;
+						else if (argStr == "false" || argStr == "off")
+							func->earlyFragmentTests = false;
+						else
+							throw AttributeError{ "expected boolean value (got " + argStr + ")" };
+					}
+					else if (std::holds_alternative<std::monostate>(arg))
+					{
+						// No parameter, default to true
+						func->earlyFragmentTests = true;
+					}
+					else
+						throw AttributeError{ "unexpected value for early_fragment_tests" };
+
+					break;
+				}
+
 				case ShaderAst::AttributeType::Entry:
 				{
 					if (func->entryStage)
-						throw AttributeError{ "attribute entry must be present once" };
+						throw AttributeError{ "attribute entry can only be present once" };
 
 					if (!std::holds_alternative<std::string>(arg))
 						throw AttributeError{ "attribute entry requires a string parameter" };

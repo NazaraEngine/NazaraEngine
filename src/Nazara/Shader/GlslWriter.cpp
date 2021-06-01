@@ -110,6 +110,7 @@ namespace Nz
 
 		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "gl_FragCoord", ShaderStageType::Fragment } },
+			{ ShaderAst::BuiltinEntry::FragDepth,      { "gl_FragDepth", ShaderStageType::Fragment } },
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "gl_Position", ShaderStageType::Vertex } }
 		};
 	}
@@ -204,6 +205,10 @@ namespace Nz
 		{
 			case ShaderAst::BuiltinEntry::FragCoord:
 				Append("gl_FragCoord");
+				break;
+
+			case ShaderAst::BuiltinEntry::FragDepth:
+				Append("gl_FragDepth");
 				break;
 
 			case ShaderAst::BuiltinEntry::VertexPosition:
@@ -500,6 +505,15 @@ namespace Nz
 
 	void GlslWriter::HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node)
 	{
+		if (node.entryStage == ShaderStageType::Fragment && node.earlyFragmentTests && *node.earlyFragmentTests)
+		{
+			if ((m_environment.glES && m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1) || (!m_environment.glES && m_environment.glMajorVersion >= 4 && m_environment.glMinorVersion >= 2) || m_environment.extCallback("GL_ARB_shader_image_load_store"))
+			{
+				AppendLine("layout(early_fragment_tests) in;");
+				AppendLine();
+			}
+		}
+
 		HandleInOut();
 		AppendLine("void main()");
 		EnterScope();
