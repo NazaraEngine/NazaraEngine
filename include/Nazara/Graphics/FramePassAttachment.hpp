@@ -18,6 +18,8 @@ namespace Nz
 	{
 		std::string name;
 		PixelFormat format;
+		unsigned int width = 100'000;
+		unsigned int height = 100'000;
 	};
 }
 

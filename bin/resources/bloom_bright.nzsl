@@ -1,0 +1,69 @@
+[layout(std140)]
+struct ViewerData
+{
+	projectionMatrix: mat4<f32>,
+	invProjectionMatrix: mat4<f32>,
+	viewMatrix: mat4<f32>,
+	invViewMatrix: mat4<f32>,
+	viewProjMatrix: mat4<f32>,
+	invViewProjMatrix: mat4<f32>,
+	renderTargetSize: vec2<f32>,
+	invRenderTargetSize: vec2<f32>,
+	eyePosition: vec3<f32>
+}
+
+external
+{
+	[binding(0)] colorTexture: sampler2D<f32>,
+	[binding(1)] viewerData: uniform<ViewerData>
+}
+
+struct FragIn
+{
+	[builtin(fragcoord)] fragcoord: vec4<f32>
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4<f32>
+}
+
+struct VertIn
+{
+	[location(0)] pos: vec3<f32>
+}
+
+struct VertOut
+{
+	[builtin(position)] position: vec4<f32>
+}
+
+[entry(frag)]
+fn main(input: FragIn) -> FragOut
+{
+	let BrightLuminance = 0.6;
+	let BrightMiddleGrey = 0.5;
+	let BrightThreshold  = 0.7;
+
+	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize * 10.0;
+
+	let color = colorTexture.Sample(fragcoord).rgb;
+	color = color * (BrightMiddleGrey/BrightLuminance);
+	color = color * (vec3<f32>(1.0, 1.0, 1.0) + (color / (BrightThreshold*BrightThreshold)));
+	color = color - vec3<f32>(0.5, 0.5, 0.5);
+	color = color / (vec3<f32>(1.0, 1.0, 1.0) + color);
+
+	let output: FragOut;
+	output.color = vec4<f32>(color, 1.0);
+
+	return output;
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.position = vec4<f32>(input.pos, 1.0);
+
+	return output;
+}
