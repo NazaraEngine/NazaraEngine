@@ -163,6 +163,20 @@ namespace Nz::ShaderLang
 
 			return matrixType;
 		}
+		else if (identifier == "mat3")
+		{
+			Consume();
+
+			ShaderAst::MatrixType matrixType;
+			matrixType.columnCount = 3;
+			matrixType.rowCount = 3;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			matrixType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return matrixType;
+		}
 		else if (identifier == "sampler2D")
 		{
 			Consume();
@@ -676,7 +690,8 @@ namespace Nz::ShaderLang
 							if (structField.builtin)
 								throw AttributeError{ "attribute builtin must be present once" };
 
-							auto it = s_builtinMapping.find(std::get<std::string>(attributeParam));
+							auto it = s_builtinMapping.find(std::get<std::string>(attributeParam));
+
 							if (it == s_builtinMapping.end())
 								throw AttributeError{ "unknown builtin" };
 
@@ -807,42 +822,71 @@ namespace Nz::ShaderLang
 	{
 		for (;;)
 		{
-			const Token& currentOp = Peek();
-			ExpectNot(currentOp, TokenType::EndOfStream);
+			TokenType currentTokenType = Peek().type;
+			if (currentTokenType == TokenType::EndOfStream)
+				throw UnexpectedToken{};
 
-			int tokenPrecedence = GetTokenPrecedence(currentOp.type);
+			int tokenPrecedence = GetTokenPrecedence(currentTokenType);
 			if (tokenPrecedence < exprPrecedence)
 				return lhs;
 
-			if (currentOp.type == TokenType::Dot)
+			bool c = false;
+			while (currentTokenType == TokenType::Dot || currentTokenType == TokenType::OpenSquareBracket)
 			{
-				std::unique_ptr<ShaderAst::AccessIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessIdentifierExpression>();
-				accessMemberNode->expr = std::move(lhs);
+				c = true;
 
-				do
+				if (currentTokenType == TokenType::Dot)
 				{
-					Consume();
+					std::unique_ptr<ShaderAst::AccessIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessIdentifierExpression>();
+					accessMemberNode->expr = std::move(lhs);
 
-					accessMemberNode->memberIdentifiers.push_back(ParseIdentifierAsName());
-				}
-				while (Peek().type == TokenType::Dot);
-
-				// FIXME
-				if (!accessMemberNode->memberIdentifiers.empty() && accessMemberNode->memberIdentifiers.front() == "Sample")
-				{
-					if (Peek().type == TokenType::OpenParenthesis)
+					do
 					{
-						auto parameters = ParseParameters();
-						parameters.insert(parameters.begin(), std::move(accessMemberNode->expr));
+						Consume();
 
-						lhs = ShaderBuilder::Intrinsic(ShaderAst::IntrinsicType::SampleTexture, std::move(parameters));
-						continue;
+						accessMemberNode->identifiers.push_back(ParseIdentifierAsName());
+					} while (Peek().type == TokenType::Dot);
+
+					// FIXME
+					if (!accessMemberNode->identifiers.empty() && accessMemberNode->identifiers.front() == "Sample")
+					{
+						if (Peek().type == TokenType::OpenParenthesis)
+						{
+							auto parameters = ParseParameters();
+							parameters.insert(parameters.begin(), std::move(accessMemberNode->expr));
+
+							lhs = ShaderBuilder::Intrinsic(ShaderAst::IntrinsicType::SampleTexture, std::move(parameters));
+							break;
+						}
 					}
+
+					lhs = std::move(accessMemberNode);
+				}
+				else
+				{
+					assert(currentTokenType == TokenType::OpenSquareBracket);
+
+					std::unique_ptr<ShaderAst::AccessIndexExpression> indexNode = std::make_unique<ShaderAst::AccessIndexExpression>();
+					indexNode->expr = std::move(lhs);
+
+					do
+					{
+						Consume();
+
+						indexNode->indices.push_back(ParseExpression());
+
+						Expect(Advance(), TokenType::ClosingSquareBracket);
+					}
+					while (Peek().type == TokenType::OpenSquareBracket);
+
+					lhs = std::move(indexNode);
 				}
 
-				lhs = std::move(accessMemberNode);
-				continue;
+				currentTokenType = Peek().type;
 			}
+
+			if (c)
+				continue;
 
 			Consume();
 			ShaderAst::ExpressionPtr rhs = ParsePrimaryExpression();
@@ -855,7 +899,7 @@ namespace Nz::ShaderLang
 
 			ShaderAst::BinaryType binaryType;
 			{
-				switch (currentOp.type)
+				switch (currentTokenType)
 				{
 					case TokenType::Plus:     binaryType = ShaderAst::BinaryType::Add; break;
 					case TokenType::Minus:    binaryType = ShaderAst::BinaryType::Subtract; break;
@@ -1072,11 +1116,12 @@ namespace Nz::ShaderLang
 	{
 		switch (token)
 		{
-			case TokenType::Plus:     return 20;
-			case TokenType::Divide:   return 40;
-			case TokenType::Multiply: return 40;
-			case TokenType::Minus:    return 20;
-			case TokenType::Dot:      return 50;
+			case TokenType::Plus:              return 20;
+			case TokenType::Divide:            return 40;
+			case TokenType::Multiply:          return 40;
+			case TokenType::Minus:             return 20;
+			case TokenType::Dot:               return 50;
+			case TokenType::OpenSquareBracket: return 50;
 			default: return -1;
 		}
 	}

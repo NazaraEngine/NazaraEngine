@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
@@ -55,28 +56,36 @@ namespace Nz
 			{
 				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
 
+				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
+				for (std::size_t i = 0; i < node.indices.size(); ++i)
+					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
+
 				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
 				{
 					appender(pointerType);
 					appender(resultId);
 					appender(pointer.pointerId);
 
-					for (std::size_t index : node.memberIndices)
-						appender(m_writer.GetConstantId(Int32(index)));
+					for (UInt32 id : indexIds)
+						appender(id);
 				});
 
 				m_value = Pointer { pointer.storage, resultId, typeId };
 			},
 			[&](const Value& value)
 			{
+				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
+				for (std::size_t i = 0; i < node.indices.size(); ++i)
+					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
+
 				m_block.AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
 				{
 					appender(typeId);
 					appender(resultId);
 					appender(value.resultId);
 
-					for (std::size_t index : node.memberIndices)
-						appender(m_writer.GetConstantId(Int32(index)));
+					for (UInt32 id : indexIds)
+						appender(id);
 				});
 
 				m_value = Value { resultId };

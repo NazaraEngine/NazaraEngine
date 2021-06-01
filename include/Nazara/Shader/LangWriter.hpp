@@ -65,7 +65,7 @@ namespace Nz
 			void AppendAttribute(LayoutAttribute layout);
 			void AppendAttribute(LocationAttribute location);
 			void AppendCommentSection(const std::string& section);
-			void AppendField(std::size_t structIndex, const std::size_t* memberIndices, std::size_t remainingMembers);
+			void AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers);
 			void AppendHeader();
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);

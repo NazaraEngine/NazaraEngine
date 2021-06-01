@@ -15,6 +15,8 @@ namespace Nz::ShaderAst
 	void AstRecursiveVisitor::Visit(AccessIndexExpression& node)
 	{
 		node.expr->Visit(*this);
+		for (auto& index : node.indices)
+			index->Visit(*this);
 	}
 
 	void AstRecursiveVisitor::Visit(AssignExpression& node)

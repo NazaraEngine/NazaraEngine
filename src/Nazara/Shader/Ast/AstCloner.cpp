@@ -161,7 +161,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr AstCloner::Clone(AccessIdentifierExpression& node)
 	{
 		auto clone = std::make_unique<AccessIdentifierExpression>();
-		clone->memberIdentifiers = node.memberIdentifiers;
+		clone->identifiers = node.identifiers;
 		clone->expr = CloneExpression(node.expr);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
@@ -172,8 +172,11 @@ namespace Nz::ShaderAst
 	ExpressionPtr AstCloner::Clone(AccessIndexExpression& node)
 	{
 		auto clone = std::make_unique<AccessIndexExpression>();
-		clone->memberIndices = node.memberIndices;
 		clone->expr = CloneExpression(node.expr);
+
+		clone->indices.reserve(node.indices.size());
+		for (auto& parameter : node.indices)
+			clone->indices.push_back(CloneExpression(parameter));
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 

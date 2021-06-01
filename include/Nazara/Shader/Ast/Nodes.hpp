@@ -70,7 +70,7 @@ namespace Nz::ShaderAst
 		void Visit(AstExpressionVisitor& visitor) override;
 
 		ExpressionPtr expr;
-		std::vector<std::string> memberIdentifiers;
+		std::vector<std::string> identifiers;
 	};
 
 	struct NAZARA_SHADER_API AccessIndexExpression : public Expression
@@ -79,7 +79,7 @@ namespace Nz::ShaderAst
 		void Visit(AstExpressionVisitor& visitor) override;
 
 		ExpressionPtr expr;
-		std::vector<std::size_t> memberIndices;
+		std::vector<ExpressionPtr> indices;
 	};
 
 	struct NAZARA_SHADER_API AssignExpression : public Expression

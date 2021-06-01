@@ -70,7 +70,7 @@ struct VertOut
 [entry(frag)]
 fn main(input: FragIn) -> FragOut
 {
-	let fragcoord = (input.fragcoord).xy * viewerData.invRenderTargetSize;
+	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize;
 	let normal = normalTexture.Sample(fragcoord).xyz * 2.0 - vec3<f32>(1.0, 1.0, 1.0);
 	let position = positionTexture.Sample(fragcoord).xyz;
 

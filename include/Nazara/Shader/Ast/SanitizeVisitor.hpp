@@ -43,11 +43,10 @@ namespace Nz::ShaderAst
 			struct FunctionData;
 			struct Identifier;
 
-			const ExpressionType& CheckField(const ExpressionType& structType, const std::string* memberIdentifier, std::size_t remainingMembers, std::size_t* structIndices);
-
 			using AstCloner::CloneExpression;
 
 			ExpressionPtr Clone(AccessIdentifierExpression& node) override;
+			ExpressionPtr Clone(AccessIndexExpression& node) override;
 			ExpressionPtr Clone(AssignExpression& node) override;
 			ExpressionPtr Clone(BinaryExpression& node) override;
 			ExpressionPtr Clone(CallFunctionExpression& node) override;
@@ -101,6 +100,7 @@ namespace Nz::ShaderAst
 
 			void SanitizeIdentifier(std::string& identifier);
 
+			void Validate(AccessIndexExpression& node);
 			void Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration);
 			void Validate(IntrinsicExpression& node);
 
