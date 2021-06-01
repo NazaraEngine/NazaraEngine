@@ -169,7 +169,7 @@ namespace Nz
 	template<typename T, AngleUnit Unit>
 	constexpr Angle<Unit, T> Clamp(Angle<Unit, T> value, T min, T max)
 	{
-		return T();
+		return std::max(std::min(value.value, max), min);
 	}
 
 	/*!
