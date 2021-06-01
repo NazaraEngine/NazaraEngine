@@ -181,6 +181,8 @@ namespace Nz
 
 		for (auto&& stagePtr : pipelineInfo.shaderModules)
 		{
+			assert(stagePtr);
+
 			Nz::VulkanShaderModule& vulkanModule = *static_cast<Nz::VulkanShaderModule*>(stagePtr.get());
 			for (auto& stage : vulkanModule.GetStages())
 			{

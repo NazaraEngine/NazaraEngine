@@ -110,6 +110,7 @@ namespace Nz
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+				createInfoView.subresourceRange.layerCount = 6;
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfo.extent.width = params.width;
@@ -168,6 +169,8 @@ namespace Nz
 	bool VulkanTexture::Update(const void* ptr)
 	{
 		std::size_t textureSize = m_params.width * m_params.height * m_params.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+		if (m_params.type == ImageType::Cubemap)
+			textureSize *= 6;
 
 		VkBufferCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -200,11 +203,26 @@ namespace Nz
 		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			return false;
 
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		VkImageSubresourceLayers subresourceLayers = { //< FIXME
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0, //< mipLevel
+			0, //< baseArrayLayer
+			(m_params.type == ImageType::Cubemap) ? 6 : 1 //< layerCount
+		};
 
-		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_params.width, m_params.height, m_params.depth);
+		VkImageSubresourceRange subresourceRange = { //< FIXME
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0, //< baseMipLevel
+			1, //< levelCount
+			subresourceLayers.baseArrayLayer, //< baseArrayLayer
+			subresourceLayers.layerCount      //< layerCount
+		};
 
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+
+		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceLayers, m_params.width, m_params.height, m_params.depth);
+
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
 
 		if (!copyCommandBuffer->End())
 			return false;

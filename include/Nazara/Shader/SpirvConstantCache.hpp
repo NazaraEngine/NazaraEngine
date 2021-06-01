@@ -72,10 +72,10 @@ namespace Nz
 				std::optional<bool> depth;
 				std::optional<bool> sampled;
 				SpirvDim dim;
-				SpirvImageFormat format;
+				SpirvImageFormat format = SpirvImageFormat::Unknown;
 				TypePtr sampledType;
-				bool arrayed;
-				bool multisampled;
+				bool arrayed = false;
+				bool multisampled = false;
 			};
 
 			struct Pointer

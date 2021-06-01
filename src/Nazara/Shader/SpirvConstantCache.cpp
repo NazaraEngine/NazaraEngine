@@ -545,17 +545,32 @@ namespace Nz
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::SamplerType& type) const -> TypePtr
 	{
-		//TODO
-		auto imageType = Image{
-			{}, //< qualifier
-			{}, //< depth
-			true, //< sampled
-			SpirvDim::Dim2D, //< dim
-			SpirvImageFormat::Unknown, //< format
-			BuildType(ShaderAst::PrimitiveType::Float32), //< sampledType
-			false, //< arrayed,
-			false  //< multisampled
-		};
+		Image imageType;
+		imageType.sampled = true;
+		imageType.sampledType = BuildType(type.sampledType);
+
+		switch (type.dim)
+		{
+			case ImageType::Cubemap:
+				imageType.dim = SpirvDim::Cube;
+				break;
+
+			case ImageType::E1D_Array:
+				imageType.arrayed = true;
+			case ImageType::E1D:
+				imageType.dim = SpirvDim::Dim1D;
+				break;
+
+			case ImageType::E2D_Array:
+				imageType.arrayed = true;
+			case ImageType::E2D:
+				imageType.dim = SpirvDim::Dim2D;
+				break;
+
+			case ImageType::E3D:
+				imageType.dim = SpirvDim::Dim3D;
+				break;
+		}
 
 		return std::make_shared<Type>(SampledImage{ std::make_shared<Type>(imageType) });
 	}

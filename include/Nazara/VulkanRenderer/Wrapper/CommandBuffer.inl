@@ -226,16 +226,23 @@ namespace Nz
 
 		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height, UInt32 depth)
 		{
+			VkImageSubresourceLayers subresourceLayers = {
+				VK_IMAGE_ASPECT_COLOR_BIT, //< aspectMask
+				0,
+				0,
+				1
+			};
+
+			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, width, height, depth);
+		}
+
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 width, UInt32 height, UInt32 depth)
+		{
 			VkBufferImageCopy region = {
 				0,
 				0,
 				0,
-				{ // imageSubresource
-					VK_IMAGE_ASPECT_COLOR_BIT, //< aspectMask
-					0,
-					0,
-					1
-				},
+				subresourceLayers,
 				{ // imageOffset
 					0, 0, 0
 				},

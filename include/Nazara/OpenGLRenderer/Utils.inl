@@ -244,10 +244,16 @@ namespace Nz
 	{
 		switch (textureTarget)
 		{
-			case GL::TextureTarget::Cubemap:        return GL_TEXTURE_CUBE_MAP;
-			case GL::TextureTarget::Target2D:       return GL_TEXTURE_2D;
-			case GL::TextureTarget::Target2D_Array: return GL_TEXTURE_2D_ARRAY;
-			case GL::TextureTarget::Target3D:       return GL_TEXTURE_3D;
+			case GL::TextureTarget::Cubemap:          return GL_TEXTURE_CUBE_MAP;
+			case GL::TextureTarget::CubemapNegativeX: return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+			case GL::TextureTarget::CubemapNegativeY: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+			case GL::TextureTarget::CubemapNegativeZ: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+			case GL::TextureTarget::CubemapPositiveX: return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			case GL::TextureTarget::CubemapPositiveY: return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+			case GL::TextureTarget::CubemapPositiveZ: return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+			case GL::TextureTarget::Target2D:         return GL_TEXTURE_2D;
+			case GL::TextureTarget::Target2D_Array:   return GL_TEXTURE_2D_ARRAY;
+			case GL::TextureTarget::Target3D:         return GL_TEXTURE_3D;
 		}
 
 		NazaraError("Unhandled GL::TextureTarget 0x" + NumberToString(UnderlyingCast(textureTarget), 16));
