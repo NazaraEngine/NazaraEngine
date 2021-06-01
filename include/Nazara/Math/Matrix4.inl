@@ -919,10 +919,10 @@ namespace Nz
 
 		T yScale = angle.GetTan();
 
-		Set(yScale / ratio, T(0.0), T(0.0), T(0.0),
-		    T(0.0), yScale, T(0.0), T(0.0),
-		    T(0.0), T(0.0), - (zFar + zNear) / (zFar - zNear), T(-1.0),
-		    T(0.0), T(0.0), T(-2.0) * (zNear * zFar) / (zFar - zNear), T(0.0));
+		Set(yScale / ratio, T(0.0),  T(0.0),                          T(0.0),
+		    T(0.0),         yScale,  T(0.0),                          T(0.0),
+		    T(0.0),         T(0.0), zFar / (zNear - zFar),            T(-1.0),
+		    T(0.0),         T(0.0), zNear * zFar / (zNear - zFar),    T(0.0));
 
 		return *this;
 	}
