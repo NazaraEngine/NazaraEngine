@@ -499,6 +499,8 @@ int main()
 		}
 	});
 
+	bool forwardEnabled = true;
+	bool lightAnimation = true;
 
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
@@ -624,6 +626,9 @@ int main()
 
 			builder.DrawIndexed(static_cast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 		});
+		forwardPass.SetExecutionCallback([&]
+		{
+			return (forwardEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 		});
 
 		forwardPass.AddInput(backbuffer);
@@ -746,7 +751,7 @@ int main()
 	while (window.IsOpen())
 	{
 		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
-		elapsedTime += (now - time) / 1'000'000.f;
+		if (lightAnimation)
 			elapsedTime += (now - time) / 1'000'000.f;
 		time = now;
 
@@ -785,9 +790,12 @@ int main()
 						whiteLight.position = viewerPos;
 						whiteLight.direction = camQuat * Nz::Vector3f::Forward();
 
-						viewerUboUpdate = true;
+						lightUpdate = true;
 					}
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::F)
+						forwardEnabled = !forwardEnabled;
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::A)
+						lightAnimation = !lightAnimation;
 					break;
 				}
 
@@ -842,7 +850,7 @@ int main()
 		if (frame.IsFramebufferInvalidated())
 			RebuildCommandBuffer();
 
-		//if (viewerUboUpdate)
+		if (viewerUboUpdate || lightAnimation || lightUpdate)
 		{
 			Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
@@ -856,11 +864,14 @@ int main()
 				{
 					builder.PreTransferBarrier();
 
-					auto& viewerDataAllocation = uploadPool.Allocate(viewerDataBuffer.size());
-					std::memcpy(viewerDataAllocation.mappedPtr, viewerDataBuffer.data(), viewerDataBuffer.size());
-					builder.CopyBuffer(viewerDataAllocation, viewerDataUBO.get());
+					if (viewerUboUpdate)
+					{
+						auto& viewerDataAllocation = uploadPool.Allocate(viewerDataBuffer.size());
+						std::memcpy(viewerDataAllocation.mappedPtr, viewerDataBuffer.data(), viewerDataBuffer.size());
+						builder.CopyBuffer(viewerDataAllocation, viewerDataUBO.get());
+					}
 
-					if (!spotLights.empty())
+					if (!spotLights.empty() && (lightUpdate || lightAnimation))
 					{
 						auto& lightDataAllocation = uploadPool.Allocate(alignedSpotLightSize * spotLights.size());
 						Nz::UInt8* lightDataPtr = static_cast<Nz::UInt8*>(lightDataAllocation.mappedPtr);
@@ -888,6 +899,8 @@ int main()
 						}
 
 						builder.CopyBuffer(lightDataAllocation, lightUbo.get());
+
+						lightUpdate = false;
 					}
 
 					spaceshipMat->UpdateBuffers(uploadPool, builder);
