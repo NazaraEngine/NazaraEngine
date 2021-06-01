@@ -166,6 +166,19 @@ namespace Nz::ShaderLang
 
 			return samplerType;
 		}
+		else if (identifier == "samplerCube")
+		{
+			Consume();
+
+			ShaderAst::SamplerType samplerType;
+			samplerType.dim = ImageType::Cubemap;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			samplerType.sampledType = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreatherThan); //< '>'
+
+			return samplerType;
+		}
 		else if (identifier == "uniform")
 		{
 			Consume();

@@ -70,6 +70,16 @@ namespace Nz
 			static std::shared_ptr<Texture> LoadFromMemory(const void* data, std::size_t size, const TextureParams& params);
 			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& params);
 
+			// LoadArray
+			static std::shared_ptr<Texture> LoadArrayFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Texture> LoadArrayFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Texture> LoadArrayFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui& atlasSize = Vector2ui(2, 2));
+
+			// LoadCubemap
+			static std::shared_ptr<Texture> LoadCubemapFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
+			static std::shared_ptr<Texture> LoadCubemapFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
+			static std::shared_ptr<Texture> LoadCubemapFromStream(Stream& stream, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
+
 			Texture& operator=(const Texture&) = delete;
 			Texture& operator=(Texture&&) = delete;
 	};

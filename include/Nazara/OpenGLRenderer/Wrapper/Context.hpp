@@ -72,6 +72,12 @@ namespace Nz::GL
 	enum class TextureTarget
 	{
 		Cubemap,
+		CubemapNegativeX,
+		CubemapNegativeY,
+		CubemapNegativeZ,
+		CubemapPositiveX,
+		CubemapPositiveY,
+		CubemapPositiveZ,
 		Target2D,
 		Target2D_Array,
 		Target3D,

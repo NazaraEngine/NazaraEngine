@@ -29,7 +29,7 @@ namespace Nz
 				break;
 
 			case ImageType::E2D:
-				m_texture.TexStorage2D(params.mipmapLevel, format->internalFormat, params.width, params.height);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.height);
 				break;
 
 			case ImageType::E2D_Array:
@@ -39,6 +39,7 @@ namespace Nz
 				break;
 
 			case ImageType::Cubemap:
+				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, params.mipmapLevel, format->internalFormat, params.width, params.height);
 				break;
 
 			default:
@@ -86,7 +87,7 @@ namespace Nz
 				break;
 
 			case ImageType::E2D:
-				m_texture.TexSubImage2D(0, 0, 0, m_params.width, m_params.height, format->format, format->type, ptr);
+				m_texture.TexSubImage2D(GL::TextureTarget::Target2D, 0, 0, 0, m_params.width, m_params.height, format->format, format->type, ptr);
 				break;
 
 			case ImageType::E2D_Array:
@@ -96,7 +97,17 @@ namespace Nz
 				break;
 
 			case ImageType::Cubemap:
+			{
+				std::size_t faceSize = PixelFormatInfo::ComputeSize(m_params.pixelFormat, m_params.width, m_params.height, 1);
+				const UInt8* facePtr = static_cast<const UInt8*>(ptr);
+
+				for (GL::TextureTarget face : { GL::TextureTarget::CubemapPositiveX, GL::TextureTarget::CubemapNegativeX, GL::TextureTarget::CubemapPositiveY, GL::TextureTarget::CubemapNegativeY, GL::TextureTarget::CubemapPositiveZ, GL::TextureTarget::CubemapNegativeZ })
+				{
+					m_texture.TexSubImage2D(face, 0, 0, 0, m_params.width, m_params.height, format->format, format->type, facePtr);
+					facePtr += faceSize;
+				}
 				break;
+			}
 
 			default:
 				break;

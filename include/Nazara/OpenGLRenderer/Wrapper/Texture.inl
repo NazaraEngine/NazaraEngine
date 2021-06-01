@@ -44,34 +44,65 @@ namespace Nz::GL
 		context.glTexParameteriv(ToOpenGL(m_target), pname, param);
 	}
 
-	inline void Texture::TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type)
+	inline void Texture::TexImage2D(TextureTarget target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type)
 	{
-		return TexImage2D(level, internalFormat, width, height, border, format, type, nullptr);
+		return TexImage2D(target, level, internalFormat, width, height, border, format, type, nullptr);
 	}
 
-	inline void Texture::TexImage2D(GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data)
+	inline void Texture::TexImage2D(TextureTarget target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* data)
 	{
-		m_target = TextureTarget::Target2D;
+		m_target = target;
 
 		const Context& context = EnsureDeviceContext();
 		context.BindTexture(m_target, m_objectId);
 		context.glTexImage2D(ToOpenGL(m_target), level, internalFormat, width, height, border, format, type, data);
 	}
 
-	inline void Texture::TexStorage2D(GLint levels, GLint internalFormat, GLsizei width, GLsizei height)
+	inline void Texture::TexImage3D(TextureTarget target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type)
 	{
-		m_target = TextureTarget::Target2D;
+		return TexImage3D(target, level, internalFormat, width, height, depth, border, format, type, nullptr);
+	}
+
+	inline void Texture::TexImage3D(TextureTarget target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void* data)
+	{
+		m_target = target;
+
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glTexImage3D(ToOpenGL(m_target), level, internalFormat, width, height, depth, border, format, type, data);
+	}
+
+	inline void Texture::TexStorage2D(TextureTarget target, GLint levels, GLint internalFormat, GLsizei width, GLsizei height)
+	{
+		m_target = target;
 
 		const Context& context = EnsureDeviceContext();
 		context.BindTexture(m_target, m_objectId);
 		context.glTexStorage2D(ToOpenGL(m_target), levels, internalFormat, width, height);
 	}
 
-	inline void Texture::TexSubImage2D(GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data)
+	inline void Texture::TexStorage3D(TextureTarget target, GLint levels, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth)
+	{
+		m_target = target;
+
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glTexStorage3D(ToOpenGL(m_target), levels, internalFormat, width, height, depth);
+	}
+
+	inline void Texture::TexSubImage2D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data)
 	{
 		const Context& context = EnsureDeviceContext();
 		context.BindTexture(m_target, m_objectId);
-		context.glTexSubImage2D(ToOpenGL(m_target), level, xoffset, yoffset, width, height, format, type, data);
+		context.glTexSubImage2D(ToOpenGL(target), level, xoffset, yoffset, width, height, format, type, data);
+		//< TODO: Handle errors
+	}
+
+	inline void Texture::TexSubImage3D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void* data)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glTexSubImage3D(ToOpenGL(target), level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
 		//< TODO: Handle errors
 	}
 
