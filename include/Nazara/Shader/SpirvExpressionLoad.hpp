@@ -30,7 +30,7 @@ namespace Nz
 			UInt32 Evaluate(ShaderAst::Expression& node);
 
 			using ExpressionVisitorExcept::Visit;
-			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
+			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;
 
 			SpirvExpressionLoad& operator=(const SpirvExpressionLoad&) = delete;

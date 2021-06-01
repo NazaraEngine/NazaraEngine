@@ -33,18 +33,18 @@ namespace Nz::ShaderAst
 		};
 	}
 
-	void AstSerializerBase::Serialize(AccessMemberIdentifierExpression& node)
+	void AstSerializerBase::Serialize(AccessIdentifierExpression& node)
 	{
-		Node(node.structExpr);
+		Node(node.expr);
 
 		Container(node.memberIdentifiers);
 		for (std::string& identifier : node.memberIdentifiers)
 			Value(identifier);
 	}
 
-	void AstSerializerBase::Serialize(AccessMemberIndexExpression& node)
+	void AstSerializerBase::Serialize(AccessIndexExpression& node)
 	{
-		Node(node.structExpr);
+		Node(node.expr);
 
 		Container(node.memberIndices);
 		for (std::size_t& identifier : node.memberIndices)

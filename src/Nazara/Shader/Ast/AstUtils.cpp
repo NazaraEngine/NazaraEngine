@@ -13,14 +13,14 @@ namespace Nz::ShaderAst
 		return m_expressionCategory;
 	}
 
-	void ShaderAstValueCategory::Visit(AccessMemberIdentifierExpression& node)
+	void ShaderAstValueCategory::Visit(AccessIdentifierExpression& node)
 	{
-		node.structExpr->Visit(*this);
+		node.expr->Visit(*this);
 	}
 
-	void ShaderAstValueCategory::Visit(AccessMemberIndexExpression& node)
+	void ShaderAstValueCategory::Visit(AccessIndexExpression& node)
 	{
-		node.structExpr->Visit(*this);
+		node.expr->Visit(*this);
 	}
 
 	void ShaderAstValueCategory::Visit(AssignExpression& /*node*/)

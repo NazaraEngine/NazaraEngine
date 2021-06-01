@@ -650,11 +650,11 @@ namespace Nz
 			Append(")");
 	}
 
-	void GlslWriter::Visit(ShaderAst::AccessMemberIndexExpression& node)
+	void GlslWriter::Visit(ShaderAst::AccessIndexExpression& node)
 	{
-		Visit(node.structExpr, true);
+		Visit(node.expr, true);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.structExpr);
+		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
 		assert(IsStructType(exprType));
 
 		AppendField(std::get<ShaderAst::StructType>(exprType).structIndex, node.memberIndices.data(), node.memberIndices.size());

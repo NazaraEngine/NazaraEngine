@@ -64,21 +64,21 @@ namespace Nz::ShaderAst
 		std::optional<ExpressionType> cachedExpressionType;
 	};
 
-	struct NAZARA_SHADER_API AccessMemberIdentifierExpression : public Expression
+	struct NAZARA_SHADER_API AccessIdentifierExpression : public Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionPtr structExpr;
+		ExpressionPtr expr;
 		std::vector<std::string> memberIdentifiers;
 	};
 
-	struct NAZARA_SHADER_API AccessMemberIndexExpression : public Expression
+	struct NAZARA_SHADER_API AccessIndexExpression : public Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionPtr structExpr;
+		ExpressionPtr expr;
 		std::vector<std::size_t> memberIndices;
 	};
 

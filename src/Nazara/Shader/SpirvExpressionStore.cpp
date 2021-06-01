@@ -37,9 +37,9 @@ namespace Nz
 		}, m_value);
 	}
 
-	void SpirvExpressionStore::Visit(ShaderAst::AccessMemberIndexExpression& node)
+	void SpirvExpressionStore::Visit(ShaderAst::AccessIndexExpression& node)
 	{
-		node.structExpr->Visit(*this);
+		node.expr->Visit(*this);
 
 		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
 

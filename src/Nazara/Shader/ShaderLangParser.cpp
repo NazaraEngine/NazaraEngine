@@ -816,8 +816,8 @@ namespace Nz::ShaderLang
 
 			if (currentOp.type == TokenType::Dot)
 			{
-				std::unique_ptr<ShaderAst::AccessMemberIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessMemberIdentifierExpression>();
-				accessMemberNode->structExpr = std::move(lhs);
+				std::unique_ptr<ShaderAst::AccessIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessIdentifierExpression>();
+				accessMemberNode->expr = std::move(lhs);
 
 				do
 				{
@@ -833,7 +833,7 @@ namespace Nz::ShaderLang
 					if (Peek().type == TokenType::OpenParenthesis)
 					{
 						auto parameters = ParseParameters();
-						parameters.insert(parameters.begin(), std::move(accessMemberNode->structExpr));
+						parameters.insert(parameters.begin(), std::move(accessMemberNode->expr));
 
 						lhs = ShaderBuilder::Intrinsic(ShaderAst::IntrinsicType::SampleTexture, std::move(parameters));
 						continue;

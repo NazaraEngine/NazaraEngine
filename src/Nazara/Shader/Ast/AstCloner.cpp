@@ -158,22 +158,22 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr AstCloner::Clone(AccessMemberIdentifierExpression& node)
+	ExpressionPtr AstCloner::Clone(AccessIdentifierExpression& node)
 	{
-		auto clone = std::make_unique<AccessMemberIdentifierExpression>();
+		auto clone = std::make_unique<AccessIdentifierExpression>();
 		clone->memberIdentifiers = node.memberIdentifiers;
-		clone->structExpr = CloneExpression(node.structExpr);
+		clone->expr = CloneExpression(node.expr);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 
 		return clone;
 	}
 
-	ExpressionPtr AstCloner::Clone(AccessMemberIndexExpression& node)
+	ExpressionPtr AstCloner::Clone(AccessIndexExpression& node)
 	{
-		auto clone = std::make_unique<AccessMemberIndexExpression>();
+		auto clone = std::make_unique<AccessIndexExpression>();
 		clone->memberIndices = node.memberIndices;
-		clone->structExpr = CloneExpression(node.structExpr);
+		clone->expr = CloneExpression(node.expr);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 

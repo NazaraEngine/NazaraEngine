@@ -29,7 +29,7 @@ namespace Nz
 			void Store(ShaderAst::ExpressionPtr& node, UInt32 resultId);
 
 			using ExpressionVisitorExcept::Visit;
-			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
+			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;
 

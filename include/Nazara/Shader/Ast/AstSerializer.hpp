@@ -23,8 +23,8 @@ namespace Nz::ShaderAst
 			AstSerializerBase(AstSerializerBase&&) = delete;
 			~AstSerializerBase() = default;
 
-			void Serialize(AccessMemberIdentifierExpression& node);
-			void Serialize(AccessMemberIndexExpression& node);
+			void Serialize(AccessIdentifierExpression& node);
+			void Serialize(AccessIndexExpression& node);
 			void Serialize(AssignExpression& node);
 			void Serialize(BinaryExpression& node);
 			void Serialize(CallFunctionExpression& node);

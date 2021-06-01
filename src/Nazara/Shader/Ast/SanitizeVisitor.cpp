@@ -116,9 +116,9 @@ namespace Nz::ShaderAst
 			return member.type;
 	}
 
-	ExpressionPtr SanitizeVisitor::Clone(AccessMemberIdentifierExpression& node)
+	ExpressionPtr SanitizeVisitor::Clone(AccessIdentifierExpression& node)
 	{
-		auto structExpr = CloneExpression(MandatoryExpr(node.structExpr));
+		auto structExpr = CloneExpression(MandatoryExpr(node.expr));
 
 		const ExpressionType& exprType = GetExpressionType(*structExpr);
 		if (IsVectorType(exprType))
@@ -177,9 +177,9 @@ namespace Nz::ShaderAst
 			return swizzle;
 		}
 
-		// Transform to AccessMemberIndexExpression
-		auto accessMemberIndex = std::make_unique<AccessMemberIndexExpression>();
-		accessMemberIndex->structExpr = std::move(structExpr);
+		// Transform to AccessIndexExpression
+		auto accessMemberIndex = std::make_unique<AccessIndexExpression>();
+		accessMemberIndex->expr = std::move(structExpr);
 
 		StackArray<std::size_t> structIndices = NazaraStackArrayNoInit(std::size_t, node.memberIdentifiers.size());
 

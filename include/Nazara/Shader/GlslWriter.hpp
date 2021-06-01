@@ -79,7 +79,7 @@ namespace Nz
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
-			void Visit(ShaderAst::AccessMemberIndexExpression& node) override;
+			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::CallFunctionExpression& node) override;

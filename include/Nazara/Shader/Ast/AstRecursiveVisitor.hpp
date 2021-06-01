@@ -20,8 +20,8 @@ namespace Nz::ShaderAst
 			AstRecursiveVisitor() = default;
 			~AstRecursiveVisitor() = default;
 
-			void Visit(AccessMemberIdentifierExpression& node) override;
-			void Visit(AccessMemberIndexExpression& node) override;
+			void Visit(AccessIdentifierExpression& node) override;
+			void Visit(AccessIndexExpression& node) override;
 			void Visit(AssignExpression& node) override;
 			void Visit(BinaryExpression& node) override;
 			void Visit(CallFunctionExpression& node) override;
