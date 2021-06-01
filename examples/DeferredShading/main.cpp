@@ -108,6 +108,7 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
+	// Plane
 	Nz::MeshParams meshPrimitiveParams;
 	meshPrimitiveParams.storage = Nz::DataStorage::Software;
 
@@ -119,8 +120,49 @@ int main()
 
 	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*planeMesh);
 
+	// Skybox
 	meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ);
 
+	std::shared_ptr<Nz::Mesh> cubeMesh = std::make_shared<Nz::Mesh>();
+	cubeMesh->CreateStatic();
+	cubeMesh->BuildSubMesh(Nz::Primitive::Box(Nz::Vector3f::Unit(), Nz::Vector3ui(0), Nz::Matrix4f::Scale({ 1.f, -1.f, 1.f })), meshPrimitiveParams);
+	cubeMesh->SetMaterialCount(1);
+
+	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
+
+	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
+	uboBinding.index = 0;
+	uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
+	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
+
+	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
+	textureBinding.index = 1;
+	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
+	textureBinding.type = Nz::ShaderBindingType::Texture;
+
+	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
+
+	Nz::RenderPipelineInfo skyboxPipelineInfo;
+	skyboxPipelineInfo.depthBuffer = true;
+	skyboxPipelineInfo.depthCompare = Nz::RendererComparison::Equal;
+	skyboxPipelineInfo.faceCulling = true;
+	skyboxPipelineInfo.cullingSide = Nz::FaceSide::Front;
+	skyboxPipelineInfo.pipelineLayout = skyboxPipelineLayout;
+	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "skybox.nzsl", {}));
+	skyboxPipelineInfo.vertexBuffers.push_back({
+		0,
+		meshPrimitiveParams.vertexDeclaration
+	});
+
+	std::shared_ptr<Nz::RenderPipeline> skyboxPipeline = device->InstantiateRenderPipeline(std::move(skyboxPipelineInfo));
+
+	Nz::TextureParams skyboxTexParams;
+	skyboxTexParams.renderDevice = device;
+
+	std::shared_ptr<Nz::Texture> skyboxTexture = Nz::Texture::LoadCubemapFromFile(resourceDir / "skybox-space.png", skyboxTexParams);
+
+	// Cone mesh
 	std::shared_ptr<Nz::Mesh> coneMesh = std::make_shared<Nz::Mesh>();
 	coneMesh->CreateStatic();
 	coneMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
@@ -436,7 +478,28 @@ int main()
 
 	bool viewerUboUpdate = true;
 
-	Nz::BakedFrameGraph bakedGraph = [&]{
+	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
+
+	std::shared_ptr<Nz::ShaderBinding> skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding();
+	skyboxShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::UniformBufferBinding {
+				viewerDataUBO.get(),
+				0, viewerDataUBO->GetSize()
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::TextureBinding {
+				skyboxTexture.get(),
+				textureSampler.get()
+			}
+		}
+	});
+
+	Nz::BakedFrameGraph bakedGraph = [&]
+	{
 		Nz::FrameGraph graph;
 
 		colorTexture = graph.AddAttachment({
@@ -544,7 +607,26 @@ int main()
 		lightingPass.SetClearColor(lightingPass.AddOutput(backbuffer), Nz::Color::Black);
 		lightingPass.SetDepthStencilInput(depthBuffer);
 		lightingPass.SetDepthStencilOutput(depthBuffer);
-		//lightingPass.SetDepthStencilInput(depthBuffer);
+
+		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
+		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+
+			builder.BindShaderBinding(*skyboxShaderBinding);
+
+			builder.BindIndexBuffer(cubeMeshGfx->GetIndexBuffer(0).get());
+			builder.BindVertexBuffer(0, cubeMeshGfx->GetVertexBuffer(0).get());
+			builder.BindPipeline(*skyboxPipeline);
+
+			builder.DrawIndexed(static_cast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
+		});
+
+		forwardPass.AddInput(backbuffer);
+		forwardPass.AddOutput(backbuffer);
+		forwardPass.SetDepthStencilInput(depthBuffer);
+		forwardPass.SetDepthStencilOutput(depthBuffer);
 
 		graph.SetBackbufferOutput(backbuffer);
 
@@ -552,8 +634,6 @@ int main()
 	}();
 
 	bakedGraph.Resize(offscreenWidth, offscreenHeight);
-
-	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 
 	for (std::size_t i = 0; i < MaxPointLight; ++i)
@@ -786,7 +866,6 @@ int main()
 
 							Nz::Vector3f position = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 45.f * rotationSpeed, 0.f)) * spotLight.position;
 							Nz::Vector3f direction = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * 90.f * rotationSpeed, 0.f)) * spotLight.direction;
-
 
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
 							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
