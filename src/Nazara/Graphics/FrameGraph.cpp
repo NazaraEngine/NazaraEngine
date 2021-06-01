@@ -893,7 +893,10 @@ namespace Nz
 			{
 				const PassList& dependencyPassList = it->second;
 				for (std::size_t dependencyPass : dependencyPassList)
-					TraverseGraph(dependencyPass);
+				{
+					if (dependencyPass != passIndex)
+						TraverseGraph(dependencyPass);
+				}
 			}
 		}
 	}
