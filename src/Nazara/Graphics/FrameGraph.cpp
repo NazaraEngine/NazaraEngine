@@ -653,7 +653,7 @@ namespace Nz
 				textureLayout = TextureLayout::ColorInput;
 			};
 
-			auto RegisterColorOutput = [&](const FramePass::Output& output)
+			auto RegisterColorOutput = [&](const FramePass::Output& output, bool shouldLoad)
 			{
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
 
@@ -675,10 +675,16 @@ namespace Nz
 				auto& attachment = renderPassAttachments.emplace_back();
 				attachment.format = m_pending.textures[textureId].format;
 				attachment.initialLayout = initialLayout;
-				attachment.loadOp = (output.clearColor) ? AttachmentLoadOp::Clear : AttachmentLoadOp::Discard;
 				attachment.storeOp = AttachmentStoreOp::Store;
 				attachment.stencilLoadOp = AttachmentLoadOp::Discard;
 				attachment.stencilStoreOp = AttachmentStoreOp::Discard;
+
+				if (output.clearColor)
+					attachment.loadOp = AttachmentLoadOp::Clear;
+				else if (shouldLoad)
+					attachment.loadOp = AttachmentLoadOp::Load;
+				else
+					attachment.loadOp = AttachmentLoadOp::Discard;
 
 				usedTextureAttachments.emplace(textureId, attachmentIndex);
 				return attachmentIndex;
@@ -734,12 +740,11 @@ namespace Nz
 				for (const auto& input : subpassInputs)
 					RegisterColorInput(input, subpass);
 
-				bool hasColorWrite = false;
 				for (const auto& output : subpassOutputs)
 				{
-					hasColorWrite = true;
+					auto inputIt = std::find_if(subpassInputs.begin(), subpassInputs.end(), [&](const auto& input) { return input.attachmentId == output.attachmentId; });
 
-					std::size_t attachmentIndex = RegisterColorOutput(output);
+					std::size_t attachmentIndex = RegisterColorOutput(output, inputIt != subpassInputs.end());
 
 					colorAttachments.push_back({
 						attachmentIndex,
