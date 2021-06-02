@@ -41,7 +41,7 @@ struct VertOut
 [entry(frag)]
 fn main(input: FragIn) -> FragOut
 {
-	let BrightLuminance = 0.6;
+	let BrightLuminance = 0.8;
 	let BrightMiddleGrey = 0.5;
 	let BrightThreshold  = 0.7;
 

@@ -114,7 +114,7 @@ int main()
 
 	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
-	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(20.f, 20.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
+	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(25.f, 25.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
 	//planeMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
 	planeMesh->SetMaterialCount(1);
 
@@ -977,7 +977,7 @@ int main()
 
 	auto ComputeLightAnimationSpeed = [](const Nz::Vector3f& position)
 	{
-		return position.GetLength() / 10.f;
+		return position.GetLength() / 15.f;
 	};
 
 	auto AnimateLightPosition = [](const Nz::Vector3f& position, float rotationSpeed, float elapsedTime)
