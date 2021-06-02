@@ -133,5 +133,79 @@ namespace Nz
 	{
 		return std::make_shared<OpenGLTextureSampler>(*this, params);
 	}
-	
+
+	bool OpenGLDevice::IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const
+	{
+		switch (format)
+		{
+			case PixelFormat::Undefined:
+				return false;
+
+			case PixelFormat::A8:
+			case PixelFormat::BGR8:
+			case PixelFormat::BGR8_SRGB:
+			case PixelFormat::BGRA8:
+			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::L8:
+			case PixelFormat::LA8:
+			case PixelFormat::R8:
+			case PixelFormat::R8I:
+			case PixelFormat::R8UI:
+			case PixelFormat::R16:
+			case PixelFormat::R16F:
+			case PixelFormat::R16I:
+			case PixelFormat::R16UI:
+			case PixelFormat::R32F:
+			case PixelFormat::R32I:
+			case PixelFormat::R32UI:
+			case PixelFormat::RG8:
+			case PixelFormat::RG8I:
+			case PixelFormat::RG8UI:
+			case PixelFormat::RG16:
+			case PixelFormat::RG16F:
+			case PixelFormat::RG16I:
+			case PixelFormat::RG16UI:
+			case PixelFormat::RG32F:
+			case PixelFormat::RG32I:
+			case PixelFormat::RG32UI:
+			case PixelFormat::RGB5A1:
+			case PixelFormat::RGB8:
+			case PixelFormat::RGB8_SRGB:
+			case PixelFormat::RGB16F:
+			case PixelFormat::RGB16I:
+			case PixelFormat::RGB16UI:
+			case PixelFormat::RGB32F:
+			case PixelFormat::RGB32I:
+			case PixelFormat::RGB32UI:
+			case PixelFormat::RGBA4:
+			case PixelFormat::RGBA8:
+			case PixelFormat::RGBA8_SRGB:
+			case PixelFormat::RGBA16F:
+			case PixelFormat::RGBA16I:
+			case PixelFormat::RGBA16UI:
+			case PixelFormat::RGBA32F:
+			case PixelFormat::RGBA32I:
+			case PixelFormat::RGBA32UI:
+				return usage == TextureUsage::ColorAttachment || usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+
+			case PixelFormat::DXT1:
+			case PixelFormat::DXT3:
+			case PixelFormat::DXT5:
+				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+
+			case PixelFormat::Depth16:
+			case PixelFormat::Depth16Stencil8:
+			case PixelFormat::Depth24:
+			case PixelFormat::Depth24Stencil8:
+			case PixelFormat::Depth32F:
+			case PixelFormat::Depth32FStencil8:
+			case PixelFormat::Stencil1:
+			case PixelFormat::Stencil4:
+			case PixelFormat::Stencil8:
+			case PixelFormat::Stencil16:
+				return usage == TextureUsage::DepthStencilAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+		}
+
+		return false;
+	}
 }

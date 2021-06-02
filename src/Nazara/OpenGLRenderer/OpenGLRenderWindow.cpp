@@ -69,7 +69,7 @@ namespace Nz
 		if (contextParams.stencilBits > 0)
 			depthFormat = PixelFormat::Depth24Stencil8;
 		else if (contextParams.depthBits > 24)
-			depthFormat = PixelFormat::Depth32;
+			depthFormat = PixelFormat::Depth32F;
 		else if (contextParams.depthBits > 16)
 			depthFormat = PixelFormat::Depth24;
 		else if (contextParams.depthBits > 0)

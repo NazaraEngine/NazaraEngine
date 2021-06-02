@@ -15,17 +15,20 @@ namespace Nz
 		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
-			case PixelFormat::A8:              return GLTextureFormat{ GL_R8,                GL_RED,           GL_UNSIGNED_BYTE,     GL_ZERO,  GL_ZERO,  GL_ZERO, GL_RED };
-			case PixelFormat::BGR8:            return GLTextureFormat{ GL_RGB8,              GL_RGB,           GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
-			case PixelFormat::BGR8_SRGB:       return GLTextureFormat{ GL_SRGB8,             GL_RGB,           GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
-			case PixelFormat::BGRA8:           return GLTextureFormat{ GL_SRGB8_ALPHA8,      GL_RGBA,          GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
-			case PixelFormat::BGRA8_SRGB:      return GLTextureFormat{ GL_SRGB8_ALPHA8,      GL_RGBA,          GL_UNSIGNED_BYTE,     GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
-			case PixelFormat::Depth24Stencil8: return GLTextureFormat{ GL_DEPTH24_STENCIL8,  GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
-			case PixelFormat::RGB8:            return GLTextureFormat{ GL_RGB8,              GL_RGB,           GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
-			case PixelFormat::RGB8_SRGB:       return GLTextureFormat{ GL_SRGB8,             GL_RGB,           GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
-			case PixelFormat::RGBA8:           return GLTextureFormat{ GL_RGBA8,             GL_RGBA,          GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
-			case PixelFormat::RGBA8_SRGB:      return GLTextureFormat{ GL_SRGB8_ALPHA8,      GL_RGBA,          GL_UNSIGNED_BYTE,     GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
-			case PixelFormat::RGBA32F:         return GLTextureFormat{ GL_RGBA32F,           GL_RGBA,          GL_FLOAT,             GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::A8:               return GLTextureFormat{ GL_R8,                 GL_RED,             GL_UNSIGNED_BYTE,                  GL_ZERO,  GL_ZERO,  GL_ZERO, GL_RED };
+			case PixelFormat::BGR8:             return GLTextureFormat{ GL_RGB8,               GL_RGB,             GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
+			case PixelFormat::BGR8_SRGB:        return GLTextureFormat{ GL_SRGB8,              GL_RGB,             GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
+			case PixelFormat::BGRA8:            return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
+			case PixelFormat::BGRA8_SRGB:       return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
+			case PixelFormat::Depth16:          return GLTextureFormat{ GL_DEPTH_COMPONENT16,  GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT,                 GL_RED,   GL_ZERO,  GL_ZERO, GL_ZERO };
+			case PixelFormat::Depth24Stencil8:  return GLTextureFormat{ GL_DEPTH24_STENCIL8,   GL_DEPTH_STENCIL,   GL_UNSIGNED_INT_24_8,              GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
+			case PixelFormat::Depth32F:         return GLTextureFormat{ GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT,                          GL_RED,   GL_ZERO,  GL_ZERO, GL_ZERO };
+			case PixelFormat::Depth32FStencil8: return GLTextureFormat{ GL_DEPTH32F_STENCIL8,  GL_DEPTH_STENCIL,   GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
+			case PixelFormat::RGB8:             return GLTextureFormat{ GL_RGB8,               GL_RGB,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
+			case PixelFormat::RGB8_SRGB:        return GLTextureFormat{ GL_SRGB8,              GL_RGB,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
+			case PixelFormat::RGBA8:            return GLTextureFormat{ GL_RGBA8,              GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RGBA8_SRGB:       return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RGBA32F:          return GLTextureFormat{ GL_RGBA32F,            GL_RGBA,            GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			default: break;
 		}
 

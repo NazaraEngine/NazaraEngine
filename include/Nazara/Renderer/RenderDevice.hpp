@@ -20,6 +20,7 @@
 #include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <memory>
 #include <string>
 
@@ -47,6 +48,8 @@ namespace Nz
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const ShaderWriter::States& states);
 			virtual std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;
 			virtual std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
+
+			virtual bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const = 0;
 	};
 }
 

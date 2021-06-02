@@ -576,6 +576,22 @@ int main()
 
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
+		Nz::PixelFormat depthStencilFormat = Nz::PixelFormat::Undefined;
+		for (Nz::PixelFormat candidate : { Nz::PixelFormat::Depth24Stencil8, Nz::PixelFormat::Depth32FStencil8, Nz::PixelFormat::Depth16Stencil8 })
+		{
+			if (device->IsTextureFormatSupported(candidate, Nz::TextureUsage::DepthStencilAttachment))
+			{
+				depthStencilFormat = candidate;
+				break;
+			}
+		}
+
+		if (depthStencilFormat == Nz::PixelFormat::Undefined)
+		{
+			std::cerr << "no depth-stencil format found" << std::endl;
+			std::exit(__LINE__);
+		}
+
 		Nz::FrameGraph graph;
 
 		colorTexture = graph.AddAttachment({
@@ -595,7 +611,7 @@ int main()
 
 		depthBuffer = graph.AddAttachment({
 			"Depth buffer",
-			Nz::PixelFormat::Depth24Stencil8
+			depthStencilFormat
 		});
 
 		lightOutput = graph.AddAttachment({
