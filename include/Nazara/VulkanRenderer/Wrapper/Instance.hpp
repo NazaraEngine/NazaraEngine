@@ -59,20 +59,20 @@ namespace Nz
 				inline bool Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
-				bool EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* physicalDevices);
+				bool EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* physicalDevices) const;
 
-				inline PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* name);
+				inline PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* name) const;
 
 				inline UInt32 GetApiVersion() const;
 				inline VkResult GetLastErrorCode() const;
 
-				bool GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties);
-				inline VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures(VkPhysicalDevice device);
-				inline VkFormatProperties GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format);
-				inline bool GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties);
-				inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device);
-				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device);
-				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties);
+				bool GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties) const;
+				inline VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures(VkPhysicalDevice device) const;
+				inline VkFormatProperties GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format) const;
+				inline bool GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties) const;
+				inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device) const;
+				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device) const;
+				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const;
 
 				void InstallDebugMessageCallback();
 
@@ -95,7 +95,7 @@ namespace Nz
 				void DestroyInstance();
 				void ResetPointers();
 
-				inline PFN_vkVoidFunction GetProcAddr(const char* name);
+				inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
 
 				struct InternalData;
 
@@ -104,7 +104,7 @@ namespace Nz
 				std::unordered_set<std::string> m_loadedLayers;
 				VkAllocationCallbacks m_allocator;
 				VkInstance m_instance;
-				VkResult m_lastErrorCode;
+				mutable VkResult m_lastErrorCode;
 				UInt32 m_apiVersion;
 		};
 	}

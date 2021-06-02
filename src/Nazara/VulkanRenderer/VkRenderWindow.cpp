@@ -163,13 +163,21 @@ namespace Nz
 						m_depthStencilFormat = VK_FORMAT_D16_UNORM;
 						break;
 
+					case PixelFormat::Depth16Stencil8:
+						m_depthStencilFormat = VK_FORMAT_D16_UNORM_S8_UINT;
+						break;
+
 					case PixelFormat::Depth24:
 					case PixelFormat::Depth24Stencil8:
 						m_depthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
 						break;
 
-					case PixelFormat::Depth32:
+					case PixelFormat::Depth32F:
 						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT;
+						break;
+
+					case PixelFormat::Depth32FStencil8:
+						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
 						break;
 
 					case PixelFormat::Stencil1:
@@ -336,6 +344,14 @@ namespace Nz
 			return false;
 		}
 
+		PixelFormat format = FromVulkan(m_depthStencilFormat).value();
+
+		VkImageAspectFlags aspectMask;
+		if (PixelFormatInfo::GetContent(format) == PixelFormatContent::DepthStencil)
+			aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		else
+			aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
 		VkImageViewCreateInfo imageViewCreateInfo = {
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // VkStructureType            sType;
 			nullptr,                                  // const void*                pNext;
@@ -350,7 +366,7 @@ namespace Nz
 				VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
 			},
 			{                                         // VkImageSubresourceRange    subresourceRange;
-				VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,            // VkImageAspectFlags         .aspectMask;
+				aspectMask,                           // VkImageAspectFlags         .aspectMask;
 				0,                                    // uint32_t                   .baseMipLevel;
 				1,                                    // uint32_t                   .levelCount;
 				0,                                    // uint32_t                   .baseArrayLayer;

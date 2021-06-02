@@ -135,7 +135,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Instance::EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* devices)
+		bool Instance::EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* devices) const
 		{
 			NazaraAssert(devices, "Invalid device vector");
 
@@ -160,7 +160,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Instance::GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties)
+		bool Instance::GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties) const
 		{
 			NazaraAssert(extensionProperties, "Invalid extension properties vector");
 
@@ -188,7 +188,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Instance::GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties)
+		bool Instance::GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const
 		{
 			NazaraAssert(queueFamilyProperties, "Invalid family properties vector");
 

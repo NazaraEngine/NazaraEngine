@@ -45,6 +45,8 @@ namespace Nz
 			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
+			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
+
 			inline void NotifyBufferDestruction(GLuint buffer) const;
 			inline void NotifyFramebufferDestruction(GLuint fbo) const;
 			inline void NotifyProgramDestruction(GLuint program) const;

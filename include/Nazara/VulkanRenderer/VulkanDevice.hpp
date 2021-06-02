@@ -36,6 +36,8 @@ namespace Nz
 			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
+			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
+
 			VulkanDevice& operator=(const VulkanDevice&) = delete;
 			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?
 

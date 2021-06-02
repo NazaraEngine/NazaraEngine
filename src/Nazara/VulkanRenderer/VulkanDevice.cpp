@@ -83,4 +83,35 @@ namespace Nz
 	{
 		return std::make_shared<VulkanTextureSampler>(*this, params);
 	}
+
+	bool VulkanDevice::IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const
+	{
+		VkFormatFeatureFlags flags = 0;
+		switch (usage)
+		{
+			case TextureUsage::ColorAttachment:
+				flags = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+				break;
+
+			case TextureUsage::DepthStencilAttachment:
+				flags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+				break;
+
+			case TextureUsage::InputAttachment:
+			case TextureUsage::ShaderSampling:
+				flags = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
+				break;
+
+			case TextureUsage::TransferSource:
+				flags = VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
+				break;
+
+			case TextureUsage::TransferDestination:
+				flags = VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+				break;
+		}
+
+		VkFormatProperties formatProperties = GetInstance().GetPhysicalDeviceFormatProperties(GetPhysicalDevice(), ToVulkan(format));
+		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
+	}
 }

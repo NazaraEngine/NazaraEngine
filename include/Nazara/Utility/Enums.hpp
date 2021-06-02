@@ -245,9 +245,11 @@ namespace Nz
 		RGBA32I,         // 4*int32
 		RGBA32UI,        // 4*uint32
 		Depth16,
+		Depth16Stencil8,
 		Depth24,
 		Depth24Stencil8,
-		Depth32,
+		Depth32F,
+		Depth32FStencil8,
 		Stencil1,
 		Stencil4,
 		Stencil8,

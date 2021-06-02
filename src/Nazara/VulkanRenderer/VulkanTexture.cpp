@@ -263,9 +263,41 @@ namespace Nz
 				break;
 			}
 
+			case PixelFormat::Depth16:
+			{
+				createImage.format = VK_FORMAT_D16_UNORM;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth16Stencil8:
+			{
+				createImage.format = VK_FORMAT_D16_UNORM_S8_UINT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				break;
+			}
+
 			case PixelFormat::Depth24Stencil8:
 			{
 				createImage.format = VK_FORMAT_D24_UNORM_S8_UINT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth32F:
+			{
+				createImage.format = VK_FORMAT_D32_SFLOAT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth32FStencil8:
+			{
+				createImage.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 				createImageView.format = createImage.format;
 				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 				break;
