@@ -50,6 +50,7 @@ namespace Nz::GL
 	{
 		SpirV,
 		TextureFilterAnisotropic,
+		TextureCompressionS3tc,
 
 		Max = TextureFilterAnisotropic
 	};

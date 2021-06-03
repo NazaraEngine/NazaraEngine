@@ -281,6 +281,9 @@ namespace Nz::GL
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
+		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureCompressionS3tc)] = ExtensionStatus::EXT;
+
 		// TextureFilterAnisotropic
 		if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::ARB;
