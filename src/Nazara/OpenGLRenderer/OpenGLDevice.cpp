@@ -191,7 +191,12 @@ namespace Nz
 			case PixelFormat::DXT1:
 			case PixelFormat::DXT3:
 			case PixelFormat::DXT5:
+			{
+				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionS3tc))
+					return false;
+
 				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+			}
 
 			case PixelFormat::Depth16:
 			case PixelFormat::Depth16Stencil8:
