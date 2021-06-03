@@ -2,6 +2,9 @@ local modules = {
 	Audio = {
 		Deps = {"NazaraCore"},
 		Packages = {"dr_wav", "libflac", "libvorbis", "minimp3"},
+		Custom = function ()
+			add_packages("openal-soft", {links = {}}) -- Don't link OpenAL (it will be loaded dynamically)
+		end
 	},
 	Core = {
 		Custom = function ()
@@ -97,6 +100,7 @@ add_repositories("local-repo xmake-repo")
 
 add_requires("chipmunk2d", "dr_wav", "freetype", "libflac", "libsdl", "minimp3", "stb")
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
+add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
 set_project("NazaraEngine")
@@ -142,11 +146,15 @@ for name, module in pairs(modules) do
 	add_rules("embed_resources")
 
 	if module.Deps then
-		add_deps(module.Deps)
+		add_deps(table.unpack(module.Deps))
 	end
 
 	if module.Packages then
-		add_packages(module.Packages)
+		add_packages(table.unpack(module.Packages))
+	end
+
+	if module.Custom then
+		module.Custom()
 	end
 
 	add_defines("NAZARA_BUILD")
@@ -174,10 +182,6 @@ for name, module in pairs(modules) do
 
 	if not is_plat("linux") then
 		del_files("src/Nazara/" .. name .. "/Linux/**.cpp")
-	end
-
-	if module.Custom then
-		module.Custom()
 	end
 end
 
