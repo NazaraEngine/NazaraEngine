@@ -8,6 +8,7 @@
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
+#include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
 #include <Nazara/Audio/Formats/minimp3Loader.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
@@ -36,12 +37,14 @@ namespace Nz
 		SetListenerDirection(Vector3f::Forward());
 
 		// Loaders
-		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
-		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libflac());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libflac());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 	}
 
 	Audio::~Audio()
