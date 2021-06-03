@@ -250,7 +250,7 @@ namespace Nz
 					else
 					{
 						UInt64 readSample = drwav_read_pcm_frames_s16(&m_decoder, sampleCount / m_decoder.channels, static_cast<Int16*>(buffer));
-						m_readSampleCount += readSample;
+						m_readSampleCount += readSample * m_decoder.channels;
 
 						return readSample * m_decoder.channels;
 					}
@@ -258,7 +258,7 @@ namespace Nz
 
 				void Seek(UInt64 offset) override
 				{
-					drwav_seek_to_pcm_frame(&m_decoder, offset);
+					drwav_seek_to_pcm_frame(&m_decoder, (m_mixToMono) ? offset : offset / m_decoder.channels);
 					m_readSampleCount = offset;
 				}
 
