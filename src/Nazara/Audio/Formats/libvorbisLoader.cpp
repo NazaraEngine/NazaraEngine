@@ -338,8 +338,8 @@ namespace Nz
 
 				void Seek(UInt64 offset) override
 				{
-					if (m_mixToMono)
-						offset *= m_channelCount;
+					if (!m_mixToMono)
+						offset /= m_channelCount;
 
 					ov_pcm_seek(&m_decoder, Int64(offset));
 				}
@@ -347,8 +347,8 @@ namespace Nz
 				UInt64 Tell() override
 				{
 					UInt64 offset = UInt64(ov_pcm_tell(&m_decoder));
-					if (m_mixToMono)
-						offset /= m_channelCount;
+					if (!m_mixToMono)
+						offset *= m_channelCount;
 
 					return offset;
 				}

@@ -34,7 +34,7 @@ namespace Nz
 		std::mutex bufferLock;
 		std::shared_ptr<SoundStream> stream;
 		std::thread thread;
-		UInt64 playingOffset;
+		UInt64 streamOffset;
 		bool loop = false;
 		unsigned int sampleRate;
 	};
@@ -342,8 +342,10 @@ namespace Nz
 		if (isPlaying)
 			Stop();
 
-		m_impl->playingOffset = offset;
-		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * GetChannelCount(m_impl->stream->GetFormat()) / 1000ULL;
+		UInt64 sampleOffset = UInt64(offset) * m_impl->sampleRate * GetChannelCount(m_impl->stream->GetFormat()) / 1000ULL;
+
+		m_impl->processedSamples = sampleOffset;
+		m_impl->streamOffset = sampleOffset;
 
 		if (isPlaying)
 			Play();
@@ -371,7 +373,7 @@ namespace Nz
 		{
 			std::lock_guard<std::mutex> lock(m_impl->stream->GetMutex());
 
-			m_impl->stream->Seek(m_impl->playingOffset);
+			m_impl->stream->Seek(m_impl->streamOffset);
 
 			// Fill the buffer by reading from the stream
 			for (;;)
@@ -388,7 +390,7 @@ namespace Nz
 				break;
 			}
 
-			m_impl->playingOffset = m_impl->stream->Tell();
+			m_impl->streamOffset = m_impl->stream->Tell();
 		}
 
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
