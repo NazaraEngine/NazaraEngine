@@ -717,6 +717,7 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::IntrinsicExpression& node)
 	{
+		bool method = false;
 		switch (node.intrinsic)
 		{
 			case ShaderAst::IntrinsicType::CrossProduct:
@@ -740,12 +741,15 @@ namespace Nz
 				break;
 
 			case ShaderAst::IntrinsicType::SampleTexture:
-				Append("texture");
+				assert(!node.parameters.empty());
+				Visit(node.parameters.front(), true);
+				Append(".Sample");
+				method = true;
 				break;
 		}
 
 		Append("(");
-		for (std::size_t i = 0; i < node.parameters.size(); ++i)
+		for (std::size_t i = (method) ? 1 : 0; i < node.parameters.size(); ++i)
 		{
 			if (i != 0)
 				Append(", ");
