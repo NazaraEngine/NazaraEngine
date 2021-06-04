@@ -93,6 +93,7 @@ namespace Nz
 			Length = 3,
 			Max = 4,
 			Min = 5,
+			Pow = 6,
 			SampleTexture = 2,
 		};
 

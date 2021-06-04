@@ -1020,6 +1020,10 @@ namespace Nz
 				Append("min");
 				break;
 
+			case ShaderAst::IntrinsicType::Pow:
+				Append("pow");
+				break;
+
 			case ShaderAst::IntrinsicType::SampleTexture:
 				Append("texture");
 				break;

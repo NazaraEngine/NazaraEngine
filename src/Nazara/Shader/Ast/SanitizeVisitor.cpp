@@ -59,9 +59,10 @@ namespace Nz::ShaderAst
 		{
 			RegisterIntrinsic("cross", IntrinsicType::CrossProduct);
 			RegisterIntrinsic("dot", IntrinsicType::DotProduct);
+			RegisterIntrinsic("length", IntrinsicType::Length);
 			RegisterIntrinsic("max", IntrinsicType::Max);
 			RegisterIntrinsic("min", IntrinsicType::Min);
-			RegisterIntrinsic("length", IntrinsicType::Length);
+			RegisterIntrinsic("pow", IntrinsicType::Pow);
 
 			// Collect function name and their types
 			if (nodePtr->GetType() == NodeType::MultiStatement)
@@ -1289,6 +1290,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::DotProduct:
 			case IntrinsicType::Max:
 			case IntrinsicType::Min:
+			case IntrinsicType::Pow:
 			{
 				if (node.parameters.size() != 2)
 					throw AstError { "Expected two parameters" };
@@ -1374,6 +1376,20 @@ namespace Nz::ShaderAst
 				if ((IsPrimitiveType(type) && std::get<PrimitiveType>(type) == PrimitiveType::Boolean) ||
 				    (IsVectorType(type) && std::get<VectorType>(type).type == PrimitiveType::Boolean))
 					throw AstError{ "max and min do not work with booleans" };
+
+				node.cachedExpressionType = type;
+				break;
+			}
+
+			case IntrinsicType::Pow:
+			{
+				const ExpressionType& type = GetExpressionType(*node.parameters.front());
+				if (!IsPrimitiveType(type) && !IsVectorType(type))
+					throw AstError{ "pow only works with primitive and vector types" };
+
+				if ((IsPrimitiveType(type) && std::get<PrimitiveType>(type) != PrimitiveType::Float32) ||
+					(IsVectorType(type) && std::get<VectorType>(type).type != PrimitiveType::Float32))
+					throw AstError{ "pow only works with floating-point primitive or vectors" };
 
 				node.cachedExpressionType = type;
 				break;
