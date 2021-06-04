@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Modules.hpp>
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
