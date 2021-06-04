@@ -1,6 +1,6 @@
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <array>
 #include <numeric>
 

@@ -1,5 +1,5 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 std::filesystem::path GetResourceDir();
 

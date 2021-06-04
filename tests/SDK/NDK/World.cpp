@@ -1,6 +1,6 @@
 #include <NazaraSDK/World.hpp>
 #include <NazaraSDK/Component.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 namespace
 {

@@ -4,7 +4,7 @@
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <cctype>
 
 void ExpectingGLSL(Nz::ShaderAst::StatementPtr& shader, std::string_view expectedOutput)

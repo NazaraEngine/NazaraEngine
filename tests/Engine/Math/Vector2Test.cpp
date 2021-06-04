@@ -1,4 +1,4 @@
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector4.hpp>

@@ -1,5 +1,5 @@
 #include <Nazara/Core/MemoryPool.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <Nazara/Math/Vector2.hpp>
 

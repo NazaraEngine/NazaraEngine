@@ -1,6 +1,6 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 {

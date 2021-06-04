@@ -1,7 +1,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
 #include <Nazara/Network/NetPacket.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <random>
 
 SCENARIO("UdpSocket", "[NETWORK][UDPSOCKET]")

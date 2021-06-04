@@ -1,5 +1,5 @@
 #include <Nazara/Core/ObjectRef.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 class Test : public Nz::RefCounted
 {

@@ -4,7 +4,7 @@
 #include <NazaraSDK/Components/NodeComponent.hpp>
 #include <NazaraSDK/Components/PhysicsComponent2D.hpp>
 #include <NazaraSDK/Systems/PhysicsSystem2D.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <limits>
 
 Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf& AABB);

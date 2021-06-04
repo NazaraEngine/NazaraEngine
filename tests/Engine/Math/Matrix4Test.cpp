@@ -1,5 +1,5 @@
 #include <Nazara/Math/Matrix4.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <array>
 

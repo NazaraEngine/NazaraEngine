@@ -1,5 +1,5 @@
 #include <Nazara/Physics2D/Collider2D.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 {

@@ -1,5 +1,5 @@
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world, const Nz::Vector2f& position, bool isMoving = true, const Nz::Vector2f& lengths = Nz::Vector2f::Unit());
 

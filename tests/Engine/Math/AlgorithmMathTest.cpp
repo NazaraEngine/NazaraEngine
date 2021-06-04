@@ -1,6 +1,6 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Angle.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <limits>
 
 TEST_CASE("Approach", "[MATH][ALGORITHM]")

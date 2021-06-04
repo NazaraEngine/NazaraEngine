@@ -1,5 +1,5 @@
 #include <Nazara/Core/PrimitiveList.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("PrimitiveList", "[CORE][PRIMITIVELIST]")
 {

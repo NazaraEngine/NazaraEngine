@@ -7,7 +7,7 @@
 #include <Nazara/Math/Ray.hpp>
 #include <array>
 
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 {

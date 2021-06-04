@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_RUNNER
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>

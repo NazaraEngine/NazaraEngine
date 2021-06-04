@@ -1,6 +1,6 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 struct ObjectHandle_Test : public Nz::HandledObject<ObjectHandle_Test>
 {

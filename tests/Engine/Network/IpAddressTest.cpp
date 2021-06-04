@@ -1,5 +1,5 @@
 #include <Nazara/Network/IpAddress.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 {

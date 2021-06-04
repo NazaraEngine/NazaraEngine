@@ -1,5 +1,5 @@
 #include <NazaraSDK/StateMachine.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 class TestState : public Ndk::State
 {

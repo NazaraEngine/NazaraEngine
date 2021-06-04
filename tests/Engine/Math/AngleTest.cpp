@@ -1,7 +1,7 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("Angle", "[MATH][ANGLE]")
 {
