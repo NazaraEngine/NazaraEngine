@@ -49,8 +49,8 @@ namespace Nz::GL
 	enum class Extension
 	{
 		SpirV,
-		TextureFilterAnisotropic,
 		TextureCompressionS3tc,
+		TextureFilterAnisotropic,
 
 		Max = TextureFilterAnisotropic
 	};
