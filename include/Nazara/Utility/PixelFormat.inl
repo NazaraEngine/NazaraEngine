@@ -269,7 +269,7 @@ namespace Nz
 
 	inline void PixelFormatInfo::SetFlipFunction(PixelFlipping flipping, PixelFormat format, FlipFunction func)
 	{
-		s_flipFunctions[UnderlyingCast(flipping)][format] = func;
+		s_flipFunctions[UnderlyingCast(flipping)][UnderlyingCast(format)] = func;
 	}
 }
 

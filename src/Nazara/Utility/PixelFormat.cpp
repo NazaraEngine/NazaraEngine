@@ -1307,19 +1307,11 @@ namespace Nz
 
 	bool PixelFormatInfo::Flip(PixelFlipping flipping, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!IsValid(format))
-		{
-			NazaraError("Invalid pixel format");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(format), "invalid pixel format");
 
-		std::size_t flippingIndex = UnderlyingCast(flipping);
-
-		auto it = s_flipFunctions[flippingIndex].find(format);
-		if (it != s_flipFunctions[flippingIndex].end())
-			it->second(width, height, depth, reinterpret_cast<const UInt8*>(src), reinterpret_cast<UInt8*>(dst));
+		auto& flipFunction = s_flipFunctions[UnderlyingCast(format)][UnderlyingCast(flipping)];
+		if (flipFunction)
+			flipFunction(width, height, depth, reinterpret_cast<const UInt8*>(src), reinterpret_cast<UInt8*>(dst));
 		else
 		{
 			// Flipping générique
@@ -1495,9 +1487,6 @@ namespace Nz
 			if (!s_pixelFormatInfos[i].Validate())
 				NazaraWarning("Pixel format 0x" + NumberToString(i, 16) + " (" + GetName(static_cast<Nz::PixelFormat>(i)) + ") failed validation tests");
 		}
-
-		// Reset functions
-		std::memset(s_convertFunctions, 0, (PixelFormatCount)*(PixelFormatCount)*sizeof(PixelFormatInfo::ConvertFunction));
 
 		/***********************************A8************************************/
 		RegisterConverter<PixelFormat::A8, PixelFormat::BGRA8>();
@@ -1725,16 +1714,18 @@ namespace Nz
 
 	void PixelFormatInfo::Uninitialize()
 	{
-		for (unsigned int i = 0; i < PixelFormatCount; ++i)
+		for (std::size_t i = 0; i < PixelFormatCount; ++i)
+		{
 			s_pixelFormatInfos[i].Clear();
+			for (std::size_t j = 0; j < PixelFormatCount; ++j)
+				s_convertFunctions[i][j] = nullptr;
 
-		std::memset(s_convertFunctions, 0, (PixelFormatCount)*(PixelFormatCount)*sizeof(PixelFormatInfo::ConvertFunction));
-
-		for (unsigned int i = 0; i < PixelFlippingCount; ++i)
-			s_flipFunctions[i].clear();
+			for (std::size_t j = 0; j < PixelFlippingCount; ++j)
+				s_flipFunctions[i][j] = nullptr;
+		}
 	}
 
-	PixelFormatDescription PixelFormatInfo::s_pixelFormatInfos[PixelFormatCount];
-	PixelFormatInfo::ConvertFunction PixelFormatInfo::s_convertFunctions[PixelFormatCount][PixelFormatCount];
-	std::map<PixelFormat, PixelFormatInfo::FlipFunction> PixelFormatInfo::s_flipFunctions[PixelFlippingCount];
+	std::array<std::array<PixelFormatInfo::ConvertFunction, PixelFormatCount>, PixelFormatCount> PixelFormatInfo::s_convertFunctions;
+	std::array<std::array<PixelFormatInfo::FlipFunction, PixelFlippingCount>, PixelFormatCount> PixelFormatInfo::s_flipFunctions;
+	std::array<PixelFormatDescription, PixelFormatCount> PixelFormatInfo::s_pixelFormatInfos;
 }

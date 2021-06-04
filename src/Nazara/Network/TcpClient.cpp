@@ -361,8 +361,9 @@ namespace Nz
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 		NazaraAssert(buffer && size > 0, "Invalid buffer");
 
-		CallOnExit updateSent;
 		std::size_t totalByteSent = 0;
+
+		CallOnExit updateSent;
 		if (sent)
 		{
 			updateSent.Reset([sent, &totalByteSent] ()

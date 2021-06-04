@@ -1,3 +1,8 @@
+if is_mode("asan") then
+	add_defines("CATCH_CONFIG_NO_WINDOWS_SEH")
+	add_defines("CATCH_CONFIG_NO_POSIX_SIGNALS")
+end
+
 target("NazaraClientUnitTests")
 	set_group("Tests")
 	set_kind("binary")

@@ -145,7 +145,11 @@ namespace Nz
 
 		bool IsSupported(const std::string_view& extension)
 		{
-			return extension == "ogg";
+			static std::set<std::string_view> supportedExtensions = {
+				"oga", "ogg", "ogm", "ogv", "ogx", "opus", "spx"
+			};
+
+			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
 		Ternary CheckOgg(Stream& stream)
