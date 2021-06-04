@@ -12,8 +12,6 @@ int main(int argc, char* argv[])
 	Nz::Modules<Ndk::ClientSdk> nazaza;
 	Ndk::ClientApplication app(argc, argv);
 
-	Nz::Log::GetLogger()->EnableStdReplication(false);
-
 	int result = Catch::Session().run(argc, argv);
 
 	return result;

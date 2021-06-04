@@ -11,8 +11,8 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <array>
 #include <functional>
-#include <map>
 
 ///TODO: Permettre la conversion automatique entre les formats via des renseignements de bits et de type pour chaque format.
 ///      Ce serait plus lent que la conversion spécialisée (qui ne disparaîtra donc pas) mais ça permettrait au moteur de faire la conversion
@@ -87,9 +87,9 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			static PixelFormatDescription s_pixelFormatInfos[PixelFormatCount];
-			static ConvertFunction s_convertFunctions[PixelFormatCount][PixelFormatCount];
-			static std::map<PixelFormat, FlipFunction> s_flipFunctions[PixelFlippingCount];
+			static std::array<std::array<ConvertFunction, PixelFormatCount>, PixelFormatCount> s_convertFunctions;
+			static std::array<std::array<PixelFormatInfo::FlipFunction, PixelFlippingCount>, PixelFormatCount> s_flipFunctions;
+			static std::array<PixelFormatDescription, PixelFormatCount> s_pixelFormatInfos;
 	};
 }
 

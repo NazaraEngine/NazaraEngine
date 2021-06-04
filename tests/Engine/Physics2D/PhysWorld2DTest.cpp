@@ -106,6 +106,8 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 		unsigned int WALL_COLLISION_ID = 2;
 		unsigned int TRIGGER_COLLISION_ID = 3;
 
+		int statusTriggerCollision = 0;
+
 		Nz::PhysWorld2D world;
 
 		Nz::Rectf characterAABB(0.f, 0.f, 1.f, 1.f);
@@ -129,7 +131,6 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 
 		world.Step(0.f);
 
-		int statusTriggerCollision = 0;
 		Nz::PhysWorld2D::Callback characterTriggerCallback;
 		characterTriggerCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
 			statusTriggerCollision = statusTriggerCollision | 1 << 0;

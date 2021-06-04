@@ -110,7 +110,7 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		if (GetLastError(handle, nullptr) != SocketError::Internal)
+		if (GetLastError(handle, nullptr) == SocketError::Internal)
 			NazaraWarning("Failed to clear socket error code: " + Error::GetLastSystemError(WSAGetLastError()));
 	}
 

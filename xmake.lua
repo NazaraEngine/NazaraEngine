@@ -111,6 +111,8 @@ add_rules("build_rendererplugins")
 
 if is_mode("debug") then
 	add_rules("debug_suffix")
+elseif is_mode("asan") then
+	set_optimize("none") -- by default xmake will optimize asan builds
 end
 
 add_includedirs("include")

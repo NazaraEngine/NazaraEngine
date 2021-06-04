@@ -36,6 +36,7 @@ namespace Nz
 			ModuleBase(std::string moduleName, T* pointer, NoLog);
 
 			void LogInit();
+			void LogUninit();
 
 			std::string m_moduleName;
 	};
