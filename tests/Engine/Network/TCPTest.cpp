@@ -2,7 +2,7 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <chrono>
 #include <random>
 #include <thread>

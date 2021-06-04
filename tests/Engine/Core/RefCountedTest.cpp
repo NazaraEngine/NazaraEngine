@@ -1,5 +1,5 @@
 #include <Nazara/Core/RefCounted.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("RefCounted", "[CORE][REFCOUNTED]")
 {

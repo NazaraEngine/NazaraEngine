@@ -2,7 +2,7 @@
 #include <NazaraSDK/Components/NodeComponent.hpp>
 #include <NazaraSDK/Components/VelocityComponent.hpp>
 #include <NazaraSDK/World.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 namespace
 {

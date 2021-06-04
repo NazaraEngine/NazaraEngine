@@ -2,7 +2,7 @@
 #include <NazaraSDK/World.hpp>
 #include <NazaraSDK/Components/NodeComponent.hpp>
 #include <NazaraSDK/Components/VelocityComponent.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("VelocitySystem", "[NDK][VELOCITYSYSTEM]")
 {

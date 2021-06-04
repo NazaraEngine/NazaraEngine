@@ -1,6 +1,6 @@
 #include <NazaraSDK/EntityOwner.hpp>
 #include <NazaraSDK/World.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 {

@@ -1,5 +1,5 @@
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <Nazara/Core/ByteArray.hpp>
 

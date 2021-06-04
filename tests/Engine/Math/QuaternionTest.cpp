@@ -1,5 +1,5 @@
 #include <Nazara/Math/Quaternion.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("Quaternion", "[MATH][QUATERNION]")
 {

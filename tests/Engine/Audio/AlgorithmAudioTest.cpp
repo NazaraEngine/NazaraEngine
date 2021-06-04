@@ -1,5 +1,5 @@
 #include <Nazara/Audio/Algorithm.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <array>
 

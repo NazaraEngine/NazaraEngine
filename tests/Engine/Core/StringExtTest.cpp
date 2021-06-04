@@ -1,5 +1,5 @@
 #include <Nazara/Core/StringExt.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("String", "[CORE][STRING]")
 {

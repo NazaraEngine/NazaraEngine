@@ -1,7 +1,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 TEST_CASE("Apply", "[CORE][ALGORITHM]")
 {

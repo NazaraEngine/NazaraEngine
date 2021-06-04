@@ -1,5 +1,5 @@
 #include <Nazara/Core/Color.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 const float epsilon = 1.f;
 

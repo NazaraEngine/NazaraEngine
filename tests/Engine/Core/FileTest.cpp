@@ -1,5 +1,5 @@
 #include <Nazara/Core/File.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 std::filesystem::path GetResourceDir();
 

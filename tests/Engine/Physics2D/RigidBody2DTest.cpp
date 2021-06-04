@@ -1,6 +1,6 @@
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <iostream>
 #include <limits>
 

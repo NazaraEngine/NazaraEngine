@@ -1,6 +1,6 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 #include <array>
 #include <string>
 #include <iostream>
