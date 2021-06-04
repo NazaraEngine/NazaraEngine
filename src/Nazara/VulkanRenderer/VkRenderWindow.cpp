@@ -486,6 +486,9 @@ namespace Nz
 				swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
 		}
 
+		// Ensure all operations on the device have been finished before recreating the swapchain (this can be avoided but is more complicated)
+		m_device->WaitForIdle();
+
 		VkSwapchainCreateInfoKHR swapchainInfo = {
 			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 			nullptr,
