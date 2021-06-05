@@ -515,15 +515,12 @@ namespace Nz
 		{
 			StaticMesh& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
 
-			BufferMapper<VertexBuffer> mapper(*staticMesh.GetVertexBuffer(), BufferAccess::ReadWrite);
-			MeshVertex* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
+			VertexMapper mapper(*staticMesh.GetVertexBuffer());
+			SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 
 			std::size_t vertexCount = staticMesh.GetVertexCount();
 			for (std::size_t i = 0; i < vertexCount; ++i)
-			{
-				vertices->position -= center;
-				vertices++;
-			}
+				*position++ -= center;
 
 			// Our AABB doesn't change shape, only position
 			Boxf aabb = staticMesh.GetAABB();
