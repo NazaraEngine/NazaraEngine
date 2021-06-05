@@ -3,6 +3,7 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Shader.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
@@ -209,15 +210,11 @@ int main()
 	Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();
 	Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
 
-	std::vector<std::uint8_t> viewerDataBuffer(viewerUboOffsets.totalSize);
-
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
-	Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
-	Nz::AccessByOffset<Nz::Vector2f&>(viewerDataBuffer.data(), viewerUboOffsets.invTargetSizeOffset) = 1.f / Nz::Vector2f(window.GetSize().x, window.GetSize().y);
-
-	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
+	Nz::ViewerInstance viewerInstance;
+	viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
+	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
 
 	Nz::ModelInstance modelInstance1(spaceshipMat->GetSettings());
 	spaceshipMat->UpdateShaderBinding(modelInstance1.GetShaderBinding());
@@ -520,7 +517,6 @@ int main()
 
 	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding();
 
-	bool viewerUboUpdate = true;
 	bool lightUpdate = true;
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
@@ -670,7 +666,7 @@ int main()
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
 		lightingPass.SetExecutionCallback([&]
 		{
-			return (viewerUboUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
+			return (lightUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
 		});
 
 		lightingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
@@ -1005,8 +1001,6 @@ int main()
 					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
-					
-					viewerUboUpdate = true;
 					break;
 				}
 
@@ -1035,8 +1029,7 @@ int main()
 				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
-					Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.projMatrixOffset) = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
-					viewerUboUpdate = true;
+					viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
 					break;
 				}
 
@@ -1073,7 +1066,7 @@ int main()
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 
-			viewerUboUpdate = true;
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camQuat));
 		}
 
 		Nz::RenderFrame frame = windowImpl->Acquire();
@@ -1083,12 +1076,8 @@ int main()
 		if (frame.IsFramebufferInvalidated())
 			RebuildCommandBuffer();
 
-		if (viewerUboUpdate || lightAnimation || lightUpdate)
+		if (lightAnimation || lightUpdate)
 		{
-			Nz::AccessByOffset<Nz::Matrix4f&>(viewerDataBuffer.data(), viewerUboOffsets.viewMatrixOffset) = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
-
-			//Nz::AccessByOffset<Nz::Vector3f&>(lightData.data(), colorOffset) = Nz::Vector3f(std::sin(totalFrameCount / 10000.f) * 0.5f + 0.5f, std::cos(totalFrameCount / 1000.f) * 0.5f + 0.5f, std::sin(totalFrameCount / 100.f) * 0.5f + 0.5f);
-
 			Nz::UploadPool& uploadPool = frame.GetUploadPool();
 
 			frame.Execute([&](Nz::CommandBufferBuilder& builder)
@@ -1097,12 +1086,11 @@ int main()
 				{
 					builder.PreTransferBarrier();
 
-					if (viewerUboUpdate)
-					{
-						auto& viewerDataAllocation = uploadPool.Allocate(viewerDataBuffer.size());
-						std::memcpy(viewerDataAllocation.mappedPtr, viewerDataBuffer.data(), viewerDataBuffer.size());
-						builder.CopyBuffer(viewerDataAllocation, viewerDataUBO.get());
-					}
+					modelInstance1.UpdateBuffers(uploadPool, builder);
+					modelInstance2.UpdateBuffers(uploadPool, builder);
+					planeInstance.UpdateBuffers(uploadPool, builder);
+
+					viewerInstance.UpdateViewBuffer(uploadPool, builder);
 
 					if (!spotLights.empty() && (lightUpdate || lightAnimation))
 					{
@@ -1151,7 +1139,7 @@ int main()
 
 		window.Display();
 
-		viewerUboUpdate = false;
+		lightUpdate = false;
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;
