@@ -53,6 +53,8 @@ namespace Nz
 		RenderDeviceInfo deviceInfo;
 		deviceInfo.name = physDevice.properties.deviceName;
 
+		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
+
 		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
 
 		switch (physDevice.properties.deviceType)
@@ -370,7 +372,7 @@ namespace Nz
 		return s_instance.IsValid();
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures)
 	{
 		Nz::ErrorFlags errFlags(ErrorMode::ThrowException, true);
 
@@ -404,10 +406,10 @@ namespace Nz
 			}
 		};
 
-		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
+		return CreateDevice(deviceInfo, enabledFeatures, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
 	{
 		Nz::ErrorFlags errFlags(ErrorMode::ThrowException, true);
 
@@ -476,10 +478,10 @@ namespace Nz
 		*presentableFamilyIndex = presentQueueNodeIndex;
 		*transferFamilyIndex = transferQueueNodeFamily;
 
-		return CreateDevice(deviceInfo, queuesFamilies.data(), queuesFamilies.size());
+		return CreateDevice(deviceInfo, enabledFeatures, queuesFamilies.data(), queuesFamilies.size());
 	}
 
-	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
+	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
 	{
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		queueCreateInfos.reserve(queueFamilyCount);
@@ -571,6 +573,10 @@ namespace Nz
 			}
 		}
 
+		VkPhysicalDeviceFeatures deviceFeatures = {};
+		if (enabledFeatures.anisotropicFiltering)
+			deviceFeatures.samplerAnisotropy = VK_TRUE;
+
 		VkDeviceCreateInfo createInfo = {
 			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 			nullptr,
@@ -581,7 +587,7 @@ namespace Nz
 			enabledLayers.data(),
 			UInt32(enabledExtensions.size()),
 			enabledExtensions.data(),
-			nullptr
+			&deviceFeatures
 		};
 
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, BuildRenderDeviceInfo(deviceInfo));
@@ -591,104 +597,17 @@ namespace Nz
 			return {};
 		}
 
-		s_devices.emplace_back(device);
-
 		return device;
-	}
-
-	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo)
-	{
-		for (auto it = s_devices.begin(); it != s_devices.end();)
-		{
-			const auto& devicePtr = *it;
-			if (devicePtr->GetPhysicalDevice() == deviceInfo.physDevice)
-				return devicePtr;
-		}
-
-		return CreateDevice(deviceInfo);
-	}
-
-	std::shared_ptr<VulkanDevice> Vulkan::SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
-	{
-		// First, try to find a device compatible with that surface
-		for (auto it = s_devices.begin(); it != s_devices.end();)
-		{
-			const auto& devicePtr = *it;
-			if (devicePtr->GetPhysicalDevice() == deviceInfo.physDevice)
-			{
-				const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = devicePtr->GetEnabledQueues();
-				UInt32 graphicsQueueFamilyIndex = UINT32_MAX;
-				UInt32 presentableQueueFamilyIndex = UINT32_MAX;
-				for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
-				{
-					bool supported = false;
-					if (surface.GetSupportPresentation(deviceInfo.physDevice, queueInfo.familyIndex, &supported) && supported)
-					{
-						if (presentableQueueFamilyIndex == UINT32_MAX || queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
-						{
-							presentableQueueFamilyIndex = queueInfo.familyIndex;
-							if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
-							{
-								*graphicsFamilyIndex = queueInfo.familyIndex;
-								break;
-							}
-						}
-					}
-				}
-
-				if (graphicsQueueFamilyIndex == UINT32_MAX)
-				{
-					for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
-					{
-						if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
-						{
-							*graphicsFamilyIndex = queueInfo.familyIndex;
-							break;
-						}
-					}
-				}
-
-				if (presentableQueueFamilyIndex != UINT32_MAX)
-				{
-					*presentableFamilyIndex = presentableQueueFamilyIndex;
-
-					UInt32 transferQueueNodeFamily = UINT32_MAX;
-					// Search for a transfer queue (first one being different to the graphics one)
-					for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
-					{
-						// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
-						if (queueInfo.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
-						{
-							transferQueueNodeFamily = queueInfo.familyIndex;
-							if (transferQueueNodeFamily != *graphicsFamilyIndex)
-								break;
-						}
-					}
-					assert(transferQueueNodeFamily != UINT32_MAX);
-
-					*transferFamilyIndex = transferQueueNodeFamily;
-
-					return devicePtr;
-				}
-			}
-
-			++it;
-		}
-
-		// No device had support for that surface, create one
-		return CreateDevice(deviceInfo, surface, graphicsFamilyIndex, presentableFamilyIndex, transferFamilyIndex);
 	}
 
 	void Vulkan::Uninitialize()
 	{
 		// Uninitialize module here
-		s_devices.clear();
 		s_instance.Destroy();
 
 		Vk::Loader::Uninitialize();
 	}
 
-	std::vector<std::shared_ptr<VulkanDevice>> Vulkan::s_devices;
 	std::vector<Vk::PhysicalDevice> Vulkan::s_physDevices;
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;

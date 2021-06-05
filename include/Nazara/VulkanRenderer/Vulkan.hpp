@@ -38,9 +38,9 @@ namespace Nz
 
 			static RenderDeviceInfo BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice);
 
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo);
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);
-			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const QueueFamily* queueFamilies, std::size_t queueFamilyCount);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);
+			static std::shared_ptr<VulkanDevice> CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount);
 
 			static Vk::Instance& GetInstance();
 
@@ -51,13 +51,9 @@ namespace Nz
 
 			static bool IsInitialized();
 
-			static std::shared_ptr<VulkanDevice> SelectDevice(const Vk::PhysicalDevice& deviceInfo);
-			static std::shared_ptr<VulkanDevice> SelectDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex);
-
 			static void Uninitialize();
 
 		private:
-			static std::vector<std::shared_ptr<VulkanDevice>> s_devices;
 			static std::vector<Vk::PhysicalDevice> s_physDevices;
 			static Vk::Instance s_instance;
 			static ParameterList s_initializationParameters;

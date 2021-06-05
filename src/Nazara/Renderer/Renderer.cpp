@@ -47,9 +47,9 @@ namespace Nz
 		m_rendererImpl.reset();
 	}
 
-	std::shared_ptr<RenderDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	std::shared_ptr<RenderDevice> Renderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
 	{
-		return m_rendererImpl->InstanciateRenderDevice(deviceIndex);
+		return m_rendererImpl->InstanciateRenderDevice(deviceIndex, enabledFeatures);
 	}
 
 	RenderAPI Renderer::QueryAPI() const

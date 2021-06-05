@@ -47,7 +47,7 @@ namespace Nz
 		return std::make_unique<OpenGLRenderWindow>(owner);
 	}
 
-	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& /*enabledFeatures*/)
 	{
 		assert(deviceIndex == 0);
 		return m_device;
