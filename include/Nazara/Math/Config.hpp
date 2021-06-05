@@ -35,9 +35,6 @@
 
 /// Each modification of a paramater of the module needs a recompilation of the unit
 
-// Define the radian as unit for angles
-#define NAZARA_MATH_ANGLE_RADIAN 0
-
 // Optimize automatically the operation on affine matrices (Ask several comparisons to determine if the matrix is affine)
 #define NAZARA_MATH_MATRIX4_CHECK_AFFINE 0
 

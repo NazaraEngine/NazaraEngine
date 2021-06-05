@@ -78,7 +78,7 @@ namespace Nz
 					std::ptrdiff_t pos = ptr - buffer;
 					if (ptr != buffer)
 					{
-						if (m_streamOptions & StreamOption_Text && buffer[pos - 1] == '\r')
+						if (m_streamOptions & StreamOption::Text && buffer[pos - 1] == '\r')
 							line.append(buffer, pos - 1);
 						else
 							line.append(buffer, pos);
@@ -92,7 +92,7 @@ namespace Nz
 				else
 				{
 					std::size_t length = readSize;
-					if (m_streamOptions & StreamOption_Text && buffer[length - 1] == '\r')
+					if (m_streamOptions & StreamOption::Text && buffer[length - 1] == '\r')
 					{
 						if (!SetCursorPos(GetCursorPos() - 1))
 							NazaraWarning("Failed to reset cursor pos");
@@ -112,7 +112,7 @@ namespace Nz
 			std::size_t pos = line.find('\n');
 			if (pos <= readSize) // False only if the character is not available (npos being the biggest integer)
 			{
-				if (m_streamOptions & StreamOption_Text && pos > 0 && line[pos - 1] == '\r')
+				if (m_streamOptions & StreamOption::Text && pos > 0 && line[pos - 1] == '\r')
 					line.resize(pos);
 				else
 					line.resize(pos + 1);
@@ -149,7 +149,7 @@ namespace Nz
 
 	bool Stream::Write(const std::string_view& string)
 	{
-		if (m_streamOptions & StreamOption_Text)
+		if (m_streamOptions & StreamOption::Text)
 		{
 #if defined(NAZARA_PLATFORM_WINDOWS)
 			std::string temp(string);

@@ -35,7 +35,7 @@ namespace Nz
 
 		// Force stream in text mode, reset it at the end
 		Nz::CallOnExit resetTextMode;
-		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
 		{
 			stream.EnableTextMode(true);
 
@@ -72,6 +72,7 @@ namespace Nz
 						else
 							UnrecognizedLine();
 #endif
+						break;
 					}
 				}
 
@@ -489,7 +490,7 @@ namespace Nz
 
 		// Force stream in text mode, reset it at the end
 		Nz::CallOnExit resetTextMode;
-		if ((stream.GetStreamOptions() & StreamOption_Text) == 0)
+		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
 		{
 			stream.EnableTextMode(true);
 

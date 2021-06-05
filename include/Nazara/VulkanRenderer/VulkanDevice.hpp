@@ -18,21 +18,31 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanDevice : public RenderDevice, public Vk::Device
 	{
 		public:
-			using Device::Device;
+			inline VulkanDevice(Vk::Instance& instance, RenderDeviceInfo renderDeviceInfo);
 			VulkanDevice(const VulkanDevice&) = delete;
 			VulkanDevice(VulkanDevice&&) = delete; ///TODO?
 			~VulkanDevice();
 
+			const RenderDeviceInfo& GetDeviceInfo() const override;
+
 			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
+			std::shared_ptr<Framebuffer> InstantiateFramebuffer(unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
+			std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) override;
 			std::shared_ptr<RenderPipeline> InstantiateRenderPipeline(RenderPipelineInfo pipelineInfo) override;
 			std::shared_ptr<RenderPipelineLayout> InstantiateRenderPipelineLayout(RenderPipelineLayoutInfo pipelineLayoutInfo) override;
-			std::shared_ptr<ShaderStageImpl> InstantiateShaderStage(ShaderStageType type, ShaderLanguage lang, const void* source, std::size_t sourceSize) override;
+			std::shared_ptr<ShaderModule> InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states) override;
+			std::shared_ptr<ShaderModule> InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states) override;
 			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
+			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
+
 			VulkanDevice& operator=(const VulkanDevice&) = delete;
 			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?
+
+		private:
+			RenderDeviceInfo m_renderDeviceInfo;
 	};
 }
 

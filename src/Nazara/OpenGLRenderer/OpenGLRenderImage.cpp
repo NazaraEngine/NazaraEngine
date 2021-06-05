@@ -31,14 +31,16 @@ namespace Nz
 		return m_uploadPool;
 	}
 
-	void OpenGLRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
-	{
-		OpenGLCommandBuffer* oglCommandBuffer = static_cast<OpenGLCommandBuffer*>(commandBuffer);
-		oglCommandBuffer->Execute();
-	}
-
 	void OpenGLRenderImage::Present()
 	{
 		m_owner.Present();
+		m_uploadPool.Reset();
+		FlushReleaseQueue();
+	}
+
+	void OpenGLRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags /*queueTypeFlags*/)
+	{
+		OpenGLCommandBuffer* oglCommandBuffer = static_cast<OpenGLCommandBuffer*>(commandBuffer);
+		oglCommandBuffer->Execute();
 	}
 }

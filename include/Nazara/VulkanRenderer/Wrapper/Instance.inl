@@ -49,7 +49,7 @@ namespace Nz
 			}
 		}
 
-		inline PFN_vkVoidFunction Instance::GetDeviceProcAddr(VkDevice device, const char* name)
+		inline PFN_vkVoidFunction Instance::GetDeviceProcAddr(VkDevice device, const char* name) const
 		{
 			PFN_vkVoidFunction func = vkGetDeviceProcAddr(device, name);
 			if (!func)
@@ -88,7 +88,7 @@ namespace Nz
 			return m_instance;
 		}
 
-		inline VkPhysicalDeviceFeatures Instance::GetPhysicalDeviceFeatures(VkPhysicalDevice device)
+		inline VkPhysicalDeviceFeatures Instance::GetPhysicalDeviceFeatures(VkPhysicalDevice device) const
 		{
 			VkPhysicalDeviceFeatures features;
 			vkGetPhysicalDeviceFeatures(device, &features);
@@ -96,7 +96,7 @@ namespace Nz
 			return features;
 		}
 
-		inline VkFormatProperties Instance::GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format)
+		inline VkFormatProperties Instance::GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format) const
 		{
 			VkFormatProperties formatProperties;
 			vkGetPhysicalDeviceFormatProperties(device, format, &formatProperties);
@@ -104,7 +104,7 @@ namespace Nz
 			return formatProperties;
 		}
 
-		inline bool Instance::GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties)
+		inline bool Instance::GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties) const
 		{
 			m_lastErrorCode = vkGetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, imageFormatProperties);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -116,7 +116,7 @@ namespace Nz
 			return true;
 		}
 
-		inline VkPhysicalDeviceMemoryProperties Instance::GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device)
+		inline VkPhysicalDeviceMemoryProperties Instance::GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device) const
 		{
 			VkPhysicalDeviceMemoryProperties memoryProperties;
 			vkGetPhysicalDeviceMemoryProperties(device, &memoryProperties);
@@ -124,7 +124,7 @@ namespace Nz
 			return memoryProperties;
 		}
 
-		inline VkPhysicalDeviceProperties Instance::GetPhysicalDeviceProperties(VkPhysicalDevice device)
+		inline VkPhysicalDeviceProperties Instance::GetPhysicalDeviceProperties(VkPhysicalDevice device) const
 		{
 			VkPhysicalDeviceProperties properties;
 			vkGetPhysicalDeviceProperties(device, &properties);
@@ -132,7 +132,7 @@ namespace Nz
 			return properties;
 		}
 
-		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name)
+		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name) const
 		{
 			PFN_vkVoidFunction func = Loader::GetInstanceProcAddr(m_instance, name);
 			if (!func)

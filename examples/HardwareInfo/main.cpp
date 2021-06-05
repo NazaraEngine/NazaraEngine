@@ -63,7 +63,7 @@ int main()
 	std::cout << oss.str() << std::endl;
 
 	Nz::File reportFile("HardwareInfo.txt");
-	if (reportFile.Open(Nz::OpenMode_Text | Nz::OpenMode_Truncate | Nz::OpenMode_WriteOnly))
+	if (reportFile.Open(Nz::OpenMode::Text | Nz::OpenMode::Truncate | Nz::OpenMode::WriteOnly))
 	{
 		reportFile.Write(oss.str()); // Conversion implicite en std::string
 		reportFile.Close();

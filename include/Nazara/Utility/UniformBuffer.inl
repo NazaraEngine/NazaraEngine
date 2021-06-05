@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	inline const BufferRef& UniformBuffer::GetBuffer() const
+	inline const std::shared_ptr<Buffer>& UniformBuffer::GetBuffer() const
 	{
 		return m_buffer;
 	}
@@ -25,16 +25,7 @@ namespace Nz
 
 	inline bool UniformBuffer::IsValid() const
 	{
-		return m_buffer.IsValid();
-	}
-
-	template<typename... Args>
-	UniformBufferRef UniformBuffer::New(Args&&... args)
-	{
-		std::unique_ptr<UniformBuffer> object(new UniformBuffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
+		return m_buffer != nullptr;
 	}
 }
 

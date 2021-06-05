@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERNODE_HPP
 
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <nodes/NodeDataModel>
 #include <QtGui/QPixmap>
 #include <optional>
@@ -18,14 +18,15 @@ class ShaderNode : public QtNodes::NodeDataModel
 	public:
 		ShaderNode(ShaderGraph& graph);
 
+		virtual Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const = 0;
 		virtual void BuildNodeEdition(QFormLayout* layout);
 
 		inline void DisablePreview();
 		void EnablePreview(bool enable = true);
 
-		virtual Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const = 0;
 		inline ShaderGraph& GetGraph();
 		inline const ShaderGraph& GetGraph() const;
+		virtual int GetOutputOrder() const;
 		inline const std::string& GetVariableName() const;
 
 		inline void SetPreviewSize(const Nz::Vector2i& size);
@@ -41,6 +42,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 	protected:
 		inline void DisableCustomVariableName();
 		inline void EnableCustomVariableName(bool enable = true);
+		virtual QWidget* EmbeddedWidget();
 		void UpdatePreview();
 
 	private:
@@ -48,6 +50,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 
 		Nz::Vector2i m_previewSize;
 		QLabel* m_pixmapLabel;
+		QWidget* m_embeddedWidget;
 		std::optional<QPixmap> m_pixmap;
 		std::string m_variableName;
 		ShaderGraph& m_graph;

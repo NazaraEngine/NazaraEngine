@@ -1,9 +1,11 @@
 #include <ShaderNode/Widgets/MainWindow.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/BufferEditor.hpp>
+#include <ShaderNode/Widgets/CodeOutputWidget.hpp>
+#include <ShaderNode/Widgets/ConditionEditor.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
 #include <ShaderNode/Widgets/OutputEditor.hpp>
 #include <ShaderNode/Widgets/NodeEditor.hpp>
@@ -13,6 +15,7 @@
 #include <nodes/FlowView>
 #include <QtCore/QFile>
 #include <QtCore/QJsonDocument>
+#include <QtCore/QTimer>
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMenuBar>
@@ -34,7 +37,6 @@ m_shaderGraph(graph)
 	InputEditor* inputEditor = new InputEditor(m_shaderGraph);
 
 	QDockWidget* inputDock = new QDockWidget(tr("Inputs"));
-	inputDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	inputDock->setWidget(inputEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, inputDock);
@@ -43,7 +45,6 @@ m_shaderGraph(graph)
 	OutputEditor* outputEditor = new OutputEditor(m_shaderGraph);
 
 	QDockWidget* outputDock = new QDockWidget(tr("Outputs"));
-	outputDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	outputDock->setWidget(outputEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, outputDock);
@@ -52,7 +53,6 @@ m_shaderGraph(graph)
 	TextureEditor* textureEditor = new TextureEditor(m_shaderGraph);
 
 	QDockWidget* textureDock = new QDockWidget(tr("Textures"));
-	textureDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	textureDock->setWidget(textureEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, textureDock);
@@ -61,7 +61,6 @@ m_shaderGraph(graph)
 	m_nodeEditor = new NodeEditor;
 
 	QDockWidget* nodeEditorDock = new QDockWidget(tr("Node editor"));
-	nodeEditorDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	nodeEditorDock->setWidget(m_nodeEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, nodeEditorDock);
@@ -70,7 +69,6 @@ m_shaderGraph(graph)
 	BufferEditor* bufferEditor = new BufferEditor(m_shaderGraph);
 
 	QDockWidget* bufferDock = new QDockWidget(tr("Buffers"));
-	bufferDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	bufferDock->setWidget(bufferEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, bufferDock);
@@ -79,10 +77,25 @@ m_shaderGraph(graph)
 	StructEditor* structEditor = new StructEditor(m_shaderGraph);
 
 	QDockWidget* structDock = new QDockWidget(tr("Structs"));
-	structDock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
 	structDock->setWidget(structEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, structDock);
+
+	// Condition editor
+	ConditionEditor* conditionEditor = new ConditionEditor(m_shaderGraph);
+
+	QDockWidget* conditionDock = new QDockWidget(tr("Conditions"));
+	conditionDock->setWidget(conditionEditor);
+
+	addDockWidget(Qt::RightDockWidgetArea, conditionDock);
+
+	// Code output
+	CodeOutputWidget* codeOutput = new CodeOutputWidget(m_shaderGraph);
+
+	QDockWidget* codeOutputDock = new QDockWidget(tr("Code output"));
+	codeOutputDock->setWidget(codeOutput);
+
+	addDockWidget(Qt::BottomDockWidgetArea, codeOutputDock);
 
 	m_onSelectedNodeUpdate.Connect(m_shaderGraph.OnSelectedNodeUpdate, [&](ShaderGraph*, ShaderNode* node)
 	{
@@ -99,6 +112,46 @@ m_shaderGraph(graph)
 
 
 	BuildMenu();
+	{
+		QMenu* view = menuBar()->addMenu("View");
+		view->addAction(inputDock->toggleViewAction());
+		view->addAction(outputDock->toggleViewAction());
+		view->addAction(textureDock->toggleViewAction());
+		view->addAction(nodeEditorDock->toggleViewAction());
+		view->addAction(bufferDock->toggleViewAction());
+		view->addAction(structDock->toggleViewAction());
+		view->addAction(conditionDock->toggleViewAction());
+		view->addAction(codeOutputDock->toggleViewAction());
+	}
+
+	connect(scene, &QtNodes::FlowScene::connectionCreated, [=](const QtNodes::Connection& /*connection*/)
+	{
+		QTimer::singleShot(0, [=]
+		{
+			if (codeOutput->isVisible())
+				codeOutput->Refresh();
+		});
+	});
+	
+	connect(scene, &QtNodes::FlowScene::connectionDeleted, [=](const QtNodes::Connection& /*connection*/)
+	{
+		QTimer::singleShot(0, [=]
+		{
+			if (codeOutput->isVisible())
+				codeOutput->Refresh();
+		});
+	});
+
+	m_onConditionUpdate.Connect(m_shaderGraph.OnConditionUpdate, [=](ShaderGraph*, std::size_t /*conditionIndex*/)
+	{
+		if (codeOutput->isVisible())
+			codeOutput->Refresh();
+	});
+}
+
+MainWindow::~MainWindow()
+{
+	m_shaderGraph.Clear();
 }
 
 void MainWindow::BuildMenu()
@@ -109,6 +162,7 @@ void MainWindow::BuildMenu()
 	{
 		QAction* loadShader = file->addAction(tr("Load..."));
 		QObject::connect(loadShader, &QAction::triggered, this, &MainWindow::OnLoad);
+
 		QAction* saveShader = file->addAction(tr("Save..."));
 		QObject::connect(saveShader, &QAction::triggered, this, &MainWindow::OnSave);
 	}
@@ -117,14 +171,9 @@ void MainWindow::BuildMenu()
 	{
 		QAction* settings = shader->addAction(tr("Settings..."));
 		QObject::connect(settings, &QAction::triggered, this, &MainWindow::OnUpdateInfo);
+
 		QAction* compileShader = shader->addAction(tr("Compile..."));
 		QObject::connect(compileShader, &QAction::triggered, this, &MainWindow::OnCompile);
-	}
-
-	QMenu* generateMenu = menu->addMenu(tr("&Generate"));
-	{
-		QAction* generateGlsl = generateMenu->addAction(tr("GLSL"));
-		connect(generateGlsl, &QAction::triggered, [&](bool) { OnGenerateGLSL(); });
 	}
 }
 
@@ -132,7 +181,7 @@ void MainWindow::OnCompile()
 {
 	try
 	{
-		auto shader = ToShader();
+		auto shader = m_shaderGraph.ToAst();
 
 		QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save shader"), QString(), tr("Shader Files (*.shader)"));
 		if (fileName.isEmpty())
@@ -141,34 +190,12 @@ void MainWindow::OnCompile()
 		if (!fileName.endsWith("shader", Qt::CaseInsensitive))
 			fileName += ".shader";
 
-		Nz::File file(fileName.toStdString(), Nz::OpenMode_WriteOnly);
-		file.Write(Nz::SerializeShader(shader));
+		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
+		file.Write(Nz::ShaderAst::SerializeShader(shader));
 	}
 	catch (const std::exception& e)
 	{
 		QMessageBox::critical(this, tr("Compilation failed"), QString("Compilation failed: ") + e.what());
-	}
-}
-
-void MainWindow::OnGenerateGLSL()
-{
-	try
-	{
-		Nz::GlslWriter writer;
-		std::string glsl = writer.Generate(ToShader());
-
-		std::cout << glsl << std::endl;
-
-		QTextEdit* output = new QTextEdit;
-		output->setReadOnly(true);
-		output->setText(QString::fromStdString(glsl));
-		output->setAttribute(Qt::WA_DeleteOnClose, true);
-		output->setWindowTitle("GLSL Output");
-		output->show();
-	}
-	catch (const std::exception& e)
-	{
-		QMessageBox::critical(this, tr("Generation failed"), QString("Generation failed: ") + e.what());
 	}
 }
 
@@ -231,52 +258,4 @@ void MainWindow::OnUpdateInfo()
 	});
 
 	dialog->open();
-}
-
-Nz::ShaderAst MainWindow::ToShader()
-{
-	Nz::ShaderNodes::StatementPtr shaderAst = m_shaderGraph.ToAst();
-
-	Nz::ShaderAst shader(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType())); //< FIXME
-	for (const auto& input : m_shaderGraph.GetInputs())
-		shader.AddInput(input.name, m_shaderGraph.ToShaderExpressionType(input.type), input.locationIndex);
-
-	for (const auto& output : m_shaderGraph.GetOutputs())
-		shader.AddOutput(output.name, m_shaderGraph.ToShaderExpressionType(output.type), output.locationIndex);
-
-	for (const auto& buffer : m_shaderGraph.GetBuffers())
-	{
-		const auto& structInfo = m_shaderGraph.GetStruct(buffer.structIndex);
-		shader.AddUniform(buffer.name, structInfo.name, buffer.bindingIndex, Nz::ShaderNodes::MemoryLayout::Std140);
-	}
-
-	for (const auto& uniform : m_shaderGraph.GetTextures())
-		shader.AddUniform(uniform.name, m_shaderGraph.ToShaderExpressionType(uniform.type), uniform.bindingIndex, {});
-
-	for (const auto& s : m_shaderGraph.GetStructs())
-	{
-		std::vector<Nz::ShaderAst::StructMember> members;
-		for (const auto& sMember : s.members)
-		{
-			auto& member = members.emplace_back();
-			member.name = sMember.name;
-
-			std::visit([&](auto&& arg)
-			{
-				using T = std::decay_t<decltype(arg)>;
-				if constexpr (std::is_same_v<T, PrimitiveType>)
-					member.type = m_shaderGraph.ToShaderExpressionType(arg);
-				else if constexpr (std::is_same_v<T, std::size_t>)
-					member.type = m_shaderGraph.GetStruct(arg).name;
-				else
-					static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
-			}, sMember.type);
-		}
-
-		shader.AddStruct(s.name, std::move(members));
-	}
-
-	shader.AddFunction("main", shaderAst);
-
-	return shader;
 }

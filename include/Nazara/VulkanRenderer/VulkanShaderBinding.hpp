@@ -28,7 +28,7 @@ namespace Nz
 			inline std::size_t GetPoolIndex() const;
 			inline const VulkanRenderPipelineLayout& GetOwner() const;
 
-			void Update(std::initializer_list<Binding> bindings) override;
+			void Update(const Binding* bindings, std::size_t bindingCount) override;
 
 			VulkanShaderBinding& operator=(const VulkanShaderBinding&) = delete;
 			VulkanShaderBinding& operator=(VulkanShaderBinding&&) = delete;

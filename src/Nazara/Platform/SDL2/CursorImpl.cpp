@@ -2,67 +2,87 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Platform/Debug.hpp>
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
-#include <Nazara/Utility/Image.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <array>
+#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
-	bool CursorImpl::Create(const Image& cursor, int hotSpotX, int hotSpotY)
+	namespace
 	{
-		m_iconImage = cursor;
-		if (!m_iconImage.Convert(PixelFormat_BGRA8))
+		std::array<SDL_SystemCursor, SystemCursorCount> s_systemCursorIds =
 		{
+			SDL_SYSTEM_CURSOR_CROSSHAIR, // SystemCursor::Crosshair
+			SDL_SYSTEM_CURSOR_ARROW,     // SystemCursor::Default
+			SDL_SYSTEM_CURSOR_HAND,      // SystemCursor::Hand
+			SDL_SYSTEM_CURSOR_ARROW,     // SystemCursor::Help
+			SDL_SYSTEM_CURSOR_SIZEALL,   // SystemCursor::Move
+			SDL_NUM_SYSTEM_CURSORS,      // SystemCursor::None
+			SDL_SYSTEM_CURSOR_HAND,      // SystemCursor::Pointer
+			SDL_SYSTEM_CURSOR_WAITARROW, // SystemCursor::Progress
+			SDL_SYSTEM_CURSOR_SIZEWE,    // SystemCursor::ResizeE
+			SDL_SYSTEM_CURSOR_SIZENS,    // SystemCursor::ResizeN
+			SDL_SYSTEM_CURSOR_SIZENESW,  // SystemCursor::ResizeNE
+			SDL_SYSTEM_CURSOR_SIZENWSE,  // SystemCursor::ResizeNW
+			SDL_SYSTEM_CURSOR_SIZENS,    // SystemCursor::ResizeS
+			SDL_SYSTEM_CURSOR_SIZENWSE,  // SystemCursor::ResizeSE
+			SDL_SYSTEM_CURSOR_SIZENESW,  // SystemCursor::ResizeSW
+			SDL_SYSTEM_CURSOR_SIZEWE,    // SystemCursor::ResizeW
+			SDL_SYSTEM_CURSOR_IBEAM,     // SystemCursor::Text
+			SDL_SYSTEM_CURSOR_WAIT       // SystemCursor::Wait
+		};
+
+		static_assert(SystemCursorCount == 18, "System cursor array is incomplete");
+	}
+
+	CursorImpl::CursorImpl(const Image& cursor, const Vector2i& hotSpot)
+	{
+		ErrorFlags errFlags(ErrorMode::ThrowException);
+
+		m_cursorImage = cursor;
+		if (!m_cursorImage.Convert(PixelFormat::BGRA8))
 			NazaraError("Failed to convert icon to BGRA8");
-			return false;
-		}
 
-		m_icon = SDL_CreateRGBSurfaceWithFormatFrom(
-			m_iconImage.GetPixels(),
-			m_iconImage.GetWidth(),
-			m_iconImage.GetHeight(),
+		m_surface = SDL_CreateRGBSurfaceWithFormatFrom(
+			m_cursorImage.GetPixels(),
+			m_cursorImage.GetWidth(),
+			m_cursorImage.GetHeight(),
 			32,
-			32 * m_iconImage.GetWidth(),
-			SDL_PIXELFORMAT_BGRA8888
-			);
+			4 * m_cursorImage.GetWidth(),
+			SDL_PIXELFORMAT_BGRA32
+		);
 
-		if (!m_icon)
-		{
-			NazaraError(SDL_GetError());
+		if (!m_surface)
+			NazaraError("failed to create SDL Surface for cursor: " + std::string(SDL_GetError()));
 
-			return false;
-		}
-
-		m_cursor = SDL_CreateColorCursor(m_icon, hotSpotX, hotSpotY);
-
+		m_cursor = SDL_CreateColorCursor(m_surface, hotSpot.x, hotSpot.y);
 		if (!m_cursor)
 		{
-			NazaraError(SDL_GetError());
+			if (m_surface) //< Just in case exceptions were disabled
+				SDL_FreeSurface(m_surface);
 
-			return false;
+			NazaraError("failed to create SDL cursor: " + std::string(SDL_GetError()));
 		}
-
-		return true;
 	}
 
-	bool CursorImpl::Create(SystemCursor cursor)
+	CursorImpl::CursorImpl(SystemCursor cursor)
 	{
-		if (cursor != SystemCursor_None)
-			m_cursor = SDL_CreateSystemCursor(s_systemCursorIds[cursor]);
-		else
-			m_cursor = nullptr;
+		ErrorFlags errFlags(ErrorMode::ThrowException);
 
-		m_icon = nullptr;
-
-		return true;
+		if (cursor != SystemCursor::None)
+		{
+			m_cursor = SDL_CreateSystemCursor(s_systemCursorIds[UnderlyingCast(cursor)]);
+			if (!m_cursor)
+				NazaraError("failed to create SDL cursor: " + std::string(SDL_GetError()));
+		}
 	}
 
-	void CursorImpl::Destroy()
+	CursorImpl::~CursorImpl()
 	{
-		if (m_icon)
-			SDL_FreeSurface(m_icon);
+		if (m_surface)
+			SDL_FreeSurface(m_surface);
 
 		if (m_cursor)
 			SDL_FreeCursor(m_cursor);
@@ -72,37 +92,4 @@ namespace Nz
 	{
 		return m_cursor;
 	}
-
-	bool CursorImpl::Initialize()
-	{
-		return true;
-	}
-
-	void CursorImpl::Uninitialize()
-	{
-	}
-
-	std::array<SDL_SystemCursor, SystemCursor_Max + 1> CursorImpl::s_systemCursorIds =
-	{
-		SDL_SYSTEM_CURSOR_CROSSHAIR,                     // SystemCursor_Crosshair
-		SDL_SYSTEM_CURSOR_ARROW,                         // SystemCursor_Default
-		SDL_SYSTEM_CURSOR_HAND,                          // SystemCursor_Hand
-		SDL_SYSTEM_CURSOR_ARROW,                         // SystemCursor_Help
-		SDL_SYSTEM_CURSOR_SIZEALL,                       // SystemCursor_Move
-		SDL_NUM_SYSTEM_CURSORS,                          // SystemCursor_None
-		SDL_SYSTEM_CURSOR_HAND,                          // SystemCursor_Pointer
-		SDL_SYSTEM_CURSOR_WAITARROW,                     // SystemCursor_Progress
-		SDL_SYSTEM_CURSOR_SIZEWE,                        // SystemCursor_ResizeE
-		SDL_SYSTEM_CURSOR_SIZENS,                        // SystemCursor_ResizeN
-		SDL_SYSTEM_CURSOR_SIZENESW,                      // SystemCursor_ResizeNE
-		SDL_SYSTEM_CURSOR_SIZENWSE,                      // SystemCursor_ResizeNW
-		SDL_SYSTEM_CURSOR_SIZENS,                        // SystemCursor_ResizeS
-		SDL_SYSTEM_CURSOR_SIZENWSE,                      // SystemCursor_ResizeSE
-		SDL_SYSTEM_CURSOR_SIZENESW,                      // SystemCursor_ResizeSW
-		SDL_SYSTEM_CURSOR_SIZEWE,                        // SystemCursor_ResizeW
-		SDL_SYSTEM_CURSOR_IBEAM,                         // SystemCursor_Text
-		SDL_SYSTEM_CURSOR_WAIT                           // SystemCursor_Wait
-	};
-
-	static_assert(SystemCursor_Max + 1 == 18, "System cursor array is incomplete");
 }

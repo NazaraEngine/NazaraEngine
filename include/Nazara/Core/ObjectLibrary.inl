@@ -20,11 +20,11 @@ namespace Nz
 	template<typename Type>
 	void ObjectLibrary<Type>::Clear()
 	{
-		Type::s_library.clear();
+		m_library.clear();
 	}
 
 	/*!
-	* \brief Gets the ObjectRef object by name
+	* \brief Gets the std::shared_ptr object by name
 	* \return Optional reference
 	*
 	* \param name Name of the object
@@ -32,9 +32,9 @@ namespace Nz
 	* \remark Produces a NazaraError if object not found
 	*/
 	template<typename Type>
-	ObjectRef<Type> ObjectLibrary<Type>::Get(const std::string& name)
+	std::shared_ptr<Type> ObjectLibrary<Type>::Get(const std::string& name)
 	{
-		ObjectRef<Type> ref = Query(name);
+		std::shared_ptr<Type> ref = Query(name);
 		if (!ref)
 			NazaraError("Object \"" + name + "\" is not present");
 
@@ -48,58 +48,46 @@ namespace Nz
 	template<typename Type>
 	bool ObjectLibrary<Type>::Has(const std::string& name)
 	{
-		return Type::s_library.find(name) != Type::s_library.end();
+		return m_library.find(name) != m_library.end();
 	}
 
 	/*!
-	* \brief Registers the ObjectRef object with that name
+	* \brief Registers the std::shared_ptr object with that name
 	*
 	* \param name Name of the object
 	* \param object Object to stock
 	*/
 	template<typename Type>
-	void ObjectLibrary<Type>::Register(const std::string& name, ObjectRef<Type> object)
+	void ObjectLibrary<Type>::Register(const std::string& name, std::shared_ptr<Type> object)
 	{
-		Type::s_library.emplace(name, object);
+		m_library.emplace(name, object);
 	}
 
 	/*!
-	* \brief Gets the ObjectRef object by name
+	* \brief Gets the std::shared_ptr object by name
 	* \return Optional reference
 	*
 	* \param name Name of the object
 	*/
 	template<typename Type>
-	ObjectRef<Type> ObjectLibrary<Type>::Query(const std::string& name)
+	std::shared_ptr<Type> ObjectLibrary<Type>::Query(const std::string& name)
 	{
-		auto it = Type::s_library.find(name);
-		if (it != Type::s_library.end())
+		auto it = m_library.find(name);
+		if (it != m_library.end())
 			return it->second;
 		else
 			return nullptr;
 	}
 
 	/*!
-	* \brief Unregisters the ObjectRef object with that name
+	* \brief Unregisters the std::shared_ptr object with that name
 	*
 	* \param name Name of the object
 	*/
 	template<typename Type>
 	void ObjectLibrary<Type>::Unregister(const std::string& name)
 	{
-		Type::s_library.erase(name);
-	}
-
-	template<typename Type>
-	bool ObjectLibrary<Type>::Initialize()
-	{
-		return true; // Nothing to do
-	}
-
-	template<typename Type>
-	void ObjectLibrary<Type>::Uninitialize()
-	{
-		Type::s_library.clear();
+		m_library.erase(name);
 	}
 }
 

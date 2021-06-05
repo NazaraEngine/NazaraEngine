@@ -24,7 +24,7 @@ namespace Nz
 		createInfo.mipLevels = params.mipmapLevel;
 		createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		createInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		createInfo.usage = ToVulkan(params.usageFlags);
 
 		VkImageViewCreateInfo createInfoView = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		createInfoView.subresourceRange = {
@@ -39,7 +39,7 @@ namespace Nz
 
 		switch (params.type)
 		{
-			case ImageType_1D:
+			case ImageType::E1D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
@@ -51,7 +51,7 @@ namespace Nz
 				createInfo.arrayLayers = 1;
 				break;
 
-			case ImageType_1D_Array:
+			case ImageType::E1D_Array:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
@@ -64,7 +64,7 @@ namespace Nz
 				createInfo.arrayLayers = params.height;
 				break;
 
-			case ImageType_2D:
+			case ImageType::E2D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
@@ -77,7 +77,7 @@ namespace Nz
 				createInfo.arrayLayers = 1;
 				break;
 
-			case ImageType_2D_Array:
+			case ImageType::E2D_Array:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 				NazaraAssert(params.depth > 0, "Depth must be over zero");
@@ -91,7 +91,7 @@ namespace Nz
 				createInfo.arrayLayers = params.depth;
 				break;
 
-			case ImageType_3D:
+			case ImageType::E3D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 				NazaraAssert(params.depth > 0, "Depth must be over zero");
@@ -105,11 +105,12 @@ namespace Nz
 				createInfo.arrayLayers = 1;
 				break;
 
-			case ImageType_Cubemap:
+			case ImageType::Cubemap:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+				createInfoView.subresourceRange.layerCount = 6;
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfo.extent.width = params.width;
@@ -168,6 +169,8 @@ namespace Nz
 	bool VulkanTexture::Update(const void* ptr)
 	{
 		std::size_t textureSize = m_params.width * m_params.height * m_params.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+		if (m_params.type == ImageType::Cubemap)
+			textureSize *= 6;
 
 		VkBufferCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -200,11 +203,26 @@ namespace Nz
 		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			return false;
 
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		VkImageSubresourceLayers subresourceLayers = { //< FIXME
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0, //< mipLevel
+			0, //< baseArrayLayer
+			(m_params.type == ImageType::Cubemap) ? 6 : 1 //< layerCount
+		};
 
-		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_params.width, m_params.height, m_params.depth);
+		VkImageSubresourceRange subresourceRange = { //< FIXME
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0, //< baseMipLevel
+			1, //< levelCount
+			subresourceLayers.baseArrayLayer, //< baseArrayLayer
+			subresourceLayers.layerCount      //< layerCount
+		};
 
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+
+		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceLayers, m_params.width, m_params.height, m_params.depth);
+
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
 
 		if (!copyCommandBuffer->End())
 			return false;
@@ -227,11 +245,67 @@ namespace Nz
 			VK_COMPONENT_SWIZZLE_A
 		};
 
+		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
-			case PixelFormat_L8:
+			case PixelFormat::BGR8:
+			case PixelFormat::BGR8_SRGB:
+			case PixelFormat::BGRA8:
+			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::RGB8:
+			case PixelFormat::RGB8_SRGB:
+			case PixelFormat::RGBA8:
+			case PixelFormat::RGBA8_SRGB:
+			case PixelFormat::RGBA32F:
 			{
-				createImage.format = VK_FORMAT_R8_SRGB;
+				createImage.format = ToVulkan(pixelFormat);
+				createImageView.format = createImage.format;
+				break;
+			}
+
+			case PixelFormat::Depth16:
+			{
+				createImage.format = VK_FORMAT_D16_UNORM;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth16Stencil8:
+			{
+				createImage.format = VK_FORMAT_D16_UNORM_S8_UINT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth24Stencil8:
+			{
+				createImage.format = VK_FORMAT_D24_UNORM_S8_UINT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth32F:
+			{
+				createImage.format = VK_FORMAT_D32_SFLOAT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+				break;
+			}
+
+			case PixelFormat::Depth32FStencil8:
+			{
+				createImage.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+				createImageView.format = createImage.format;
+				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				break;
+			}
+
+			case PixelFormat::L8:
+			{
+				createImage.format = VK_FORMAT_R8_UNORM;
 				createImageView.format = createImage.format;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_R,
@@ -242,9 +316,9 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormat_LA8:
+			case PixelFormat::LA8:
 			{
-				createImage.format = VK_FORMAT_R8G8_SRGB;
+				createImage.format = VK_FORMAT_R8G8_UNORM;
 				createImageView.format = createImage.format;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_R,
@@ -252,20 +326,6 @@ namespace Nz
 					VK_COMPONENT_SWIZZLE_R,
 					VK_COMPONENT_SWIZZLE_G
 				};
-				break;
-			}
-
-			case PixelFormat_RGB8:
-			{
-				createImage.format = VK_FORMAT_R8G8B8_SRGB;
-				createImageView.format = createImage.format;
-				break;
-			}
-
-			case PixelFormat_RGBA8:
-			{
-				createImage.format = VK_FORMAT_R8G8B8A8_SRGB;
-				createImageView.format = createImage.format;
 				break;
 			}
 

@@ -4,7 +4,7 @@
 
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <algorithm>
 #include <cmath>
 #include <Nazara/Physics3D/Debug.hpp>
@@ -12,11 +12,11 @@
 namespace Nz
 {
 	RigidBody3D::RigidBody3D(PhysWorld3D* world, const Matrix4f& mat) :
-	RigidBody3D(world, NullCollider3D::New(), mat)
+	RigidBody3D(world, std::make_shared<NullCollider3D>(), mat)
 	{
 	}
 
-	RigidBody3D::RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat) :
+	RigidBody3D::RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat) :
 	m_geom(std::move(geom)),
 	m_matrix(mat),
 	m_forceAccumulator(Vector3f::Zero()),
@@ -28,7 +28,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		if (!m_geom)
-			m_geom = NullCollider3D::New();
+			m_geom = std::make_shared<NullCollider3D>();
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
@@ -84,11 +84,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_forceAccumulator += force;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_forceAccumulator += GetRotation() * force;
 				break;
 		}
@@ -101,13 +101,13 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_forceAccumulator += force;
-				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys_Global), force);
+				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys::Global), force);
 				break;
 
-			case CoordSys_Local:
-				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys_Global);
+			case CoordSys::Local:
+				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys::Global);
 		}
 
 		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
@@ -118,11 +118,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_torqueAccumulator += torque;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_torqueAccumulator += m_matrix.Transform(torque, 0.f);
 				break;
 		}
@@ -165,7 +165,7 @@ namespace Nz
 		return angularVelocity;
 	}
 
-	const Collider3DRef& RigidBody3D::GetGeom() const
+	const std::shared_ptr<Collider3D>& RigidBody3D::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -205,11 +205,11 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				center = m_matrix.Transform(center);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Aucune opération à effectuer sur le centre de rotation
 		}
 
@@ -276,14 +276,14 @@ namespace Nz
 		NewtonBodySetOmega(m_body, &angularVelocity.x);
 	}
 
-	void RigidBody3D::SetGeom(Collider3DRef geom)
+	void RigidBody3D::SetGeom(std::shared_ptr<Collider3D> geom)
 	{
-		if (m_geom.Get() != geom)
+		if (m_geom != geom)
 		{
 			if (geom)
-				m_geom = geom;
+				m_geom = std::move(geom);
 			else
-				m_geom = NullCollider3D::New();
+				m_geom = std::make_shared<NullCollider3D>();
 
 			NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
 		}

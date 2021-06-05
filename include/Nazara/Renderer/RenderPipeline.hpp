@@ -10,7 +10,6 @@
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-//#include <Nazara/Renderer/Shader.hpp>
 
 namespace Nz
 {
@@ -19,11 +18,11 @@ namespace Nz
 		struct VertexBufferData
 		{
 			std::size_t binding;
-			VertexDeclarationConstRef declaration;
+			std::shared_ptr<const VertexDeclaration> declaration;
 		};
 
 		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
-		std::vector<std::shared_ptr<ShaderStageImpl>> shaderStages;
+		std::vector<std::shared_ptr<ShaderModule>> shaderModules;
 		std::vector<VertexBufferData> vertexBuffers;
 	};
 
@@ -32,6 +31,8 @@ namespace Nz
 		public:
 			RenderPipeline() = default;
 			virtual ~RenderPipeline();
+
+			virtual const RenderPipelineInfo& GetPipelineInfo() const = 0;
 	};
 }
 

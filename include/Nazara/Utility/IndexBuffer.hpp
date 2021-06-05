@@ -8,34 +8,27 @@
 #define NAZARA_INDEXBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 
 namespace Nz
 {
-	class IndexBuffer;
-
-	using IndexBufferConstRef = ObjectRef<const IndexBuffer>;
-	using IndexBufferRef = ObjectRef<IndexBuffer>;
-
-	class NAZARA_UTILITY_API IndexBuffer : public RefCounted
+	class NAZARA_UTILITY_API IndexBuffer
 	{
 		public:
 			IndexBuffer() = default;
-			IndexBuffer(bool largeIndices, BufferRef buffer);
-			IndexBuffer(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size);
+			IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer);
+			IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size);
 			IndexBuffer(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage);
-			IndexBuffer(const IndexBuffer& indexBuffer);
-			IndexBuffer(IndexBuffer&&) = delete;
-			~IndexBuffer();
+			IndexBuffer(const IndexBuffer&) = default;
+			IndexBuffer(IndexBuffer&&) noexcept = default;
+			~IndexBuffer() = default;
 
 			unsigned int ComputeCacheMissCount() const;
 
 			bool Fill(const void* data, std::size_t startIndex, std::size_t length);
 			bool FillRaw(const void* data, std::size_t offset, std::size_t size);
 
-			inline const BufferRef& GetBuffer() const;
+			inline const std::shared_ptr<Buffer>& GetBuffer() const;
 			inline std::size_t GetEndOffset() const;
 			inline std::size_t GetIndexCount() const;
 			inline std::size_t GetStride() const;
@@ -53,23 +46,18 @@ namespace Nz
 			void Optimize();
 
 			void Reset();
-			void Reset(bool largeIndices, BufferRef buffer);
-			void Reset(bool largeIndices, BufferRef buffer, std::size_t offset, std::size_t size);
+			void Reset(bool largeIndices, std::shared_ptr<Buffer> buffer);
+			void Reset(bool largeIndices, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size);
 			void Reset(bool largeIndices, std::size_t length, DataStorage storage, BufferUsageFlags usage);
 			void Reset(const IndexBuffer& indexBuffer);
 
 			void Unmap() const;
 
-			IndexBuffer& operator=(const IndexBuffer& indexBuffer);
-			IndexBuffer& operator=(IndexBuffer&&) = delete;
-
-			template<typename... Args> static IndexBufferRef New(Args&&... args);
-
-			// Signals:
-			NazaraSignal(OnIndexBufferRelease, const IndexBuffer* /*indexBuffer*/);
+			IndexBuffer& operator=(const IndexBuffer&) = default;
+			IndexBuffer& operator=(IndexBuffer&&) noexcept = default;
 
 		private:
-			BufferRef m_buffer;
+			std::shared_ptr<Buffer> m_buffer;
 			std::size_t m_endOffset;
 			std::size_t m_indexCount;
 			std::size_t m_startOffset;

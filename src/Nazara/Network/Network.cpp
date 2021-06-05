@@ -9,7 +9,6 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Network/RUdpConnection.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
@@ -40,15 +39,11 @@ namespace Nz
 
 		if (!NetPacket::Initialize())
 			throw std::runtime_error("failed to initialize packets");
-
-		if (!RUdpConnection::Initialize())
-			throw std::runtime_error("failed to initialize RUDP protocol");
 	}
 
 	Network::~Network()
 	{
 		// Uninitialize module here
-		RUdpConnection::Uninitialize();
 		NetPacket::Uninitialize();
 		SocketImpl::Uninitialize();
 	}

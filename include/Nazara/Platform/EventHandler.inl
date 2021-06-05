@@ -19,67 +19,67 @@ namespace Nz
 
 		switch (event.type)
 		{
-			case WindowEventType_GainedFocus:
+			case WindowEventType::GainedFocus:
 				OnGainedFocus(this);
 				break;
 
-			case WindowEventType_KeyPressed:
+			case WindowEventType::KeyPressed:
 				OnKeyPressed(this, event.key);
 				break;
 
-			case WindowEventType_KeyReleased:
+			case WindowEventType::KeyReleased:
 				OnKeyReleased(this, event.key);
 				break;
 
-			case WindowEventType_LostFocus:
+			case WindowEventType::LostFocus:
 				OnLostFocus(this);
 				break;
 
-			case WindowEventType_MouseButtonDoubleClicked:
+			case WindowEventType::MouseButtonDoubleClicked:
 				OnMouseButtonDoubleClicked(this, event.mouseButton);
 				break;
 
-			case WindowEventType_MouseButtonPressed:
+			case WindowEventType::MouseButtonPressed:
 				OnMouseButtonPressed(this, event.mouseButton);
 				break;
 
-			case WindowEventType_MouseButtonReleased:
+			case WindowEventType::MouseButtonReleased:
 				OnMouseButtonReleased(this, event.mouseButton);
 				break;
 
-			case WindowEventType_MouseEntered:
+			case WindowEventType::MouseEntered:
 				OnMouseEntered(this);
 				break;
 
-			case WindowEventType_MouseLeft:
+			case WindowEventType::MouseLeft:
 				OnMouseLeft(this);
 				break;
 
-			case WindowEventType_MouseMoved:
+			case WindowEventType::MouseMoved:
 				OnMouseMoved(this, event.mouseMove);
 				break;
 
-			case WindowEventType_MouseWheelMoved:
+			case WindowEventType::MouseWheelMoved:
 				OnMouseWheelMoved(this, event.mouseWheel);
 				break;
 
-			case WindowEventType_Moved:
+			case WindowEventType::Moved:
 				OnMoved(this, event.position);
 				break;
 
-			case WindowEventType_Quit:
+			case WindowEventType::Quit:
 				OnQuit(this);
 				break;
 
-			case WindowEventType_Resized:
+			case WindowEventType::Resized:
 				OnResized(this, event.size);
 				break;
 
-			case WindowEventType_TextEntered:
+			case WindowEventType::TextEntered:
 				OnTextEntered(this, event.text);
 				break;
 
-			case WindowEventType_TextEdited:
+			case WindowEventType::TextEdited:
 				OnTextEdited(this, event.edit);
 				break;
 		}

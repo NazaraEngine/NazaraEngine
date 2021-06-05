@@ -15,14 +15,14 @@ namespace Nz
 	inline Window::Window(VideoMode mode, const std::string& title, WindowStyleFlags style) :
 	Window()
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(mode, title, style);
 	}
 
 	inline Window::Window(void* handle) :
 	Window()
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(handle);
 	}
 
@@ -46,7 +46,7 @@ namespace Nz
 		}
 	}
 
-	inline const CursorRef& Window::GetCursor() const
+	inline const std::shared_ptr<Cursor>& Window::GetCursor() const
 	{
 		return m_cursor;
 	}

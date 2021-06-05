@@ -36,6 +36,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderImage.hpp>
@@ -44,7 +45,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLShaderStage.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>

@@ -2,7 +2,9 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <array>
 #include <cstring>
 #include <Nazara/Utility/Debug.hpp>
@@ -10,7 +12,7 @@
 namespace Nz
 {
 	inline PixelFormatDescription::PixelFormatDescription() :
-	content(PixelFormatContent_Undefined),
+	content(PixelFormatContent::Undefined),
 	bitsPerPixel(0)
 	{
 	}
@@ -74,10 +76,10 @@ namespace Nz
 
 	inline bool PixelFormatDescription::IsCompressed() const
 	{
-		return redType   == PixelFormatSubType_Compressed ||
-		       greenType == PixelFormatSubType_Compressed ||
-		       blueType  == PixelFormatSubType_Compressed ||
-		       alphaType == PixelFormatSubType_Compressed;
+		return redType   == PixelFormatSubType::Compressed ||
+		       greenType == PixelFormatSubType::Compressed ||
+		       blueType  == PixelFormatSubType::Compressed ||
+		       alphaType == PixelFormatSubType::Compressed;
 	}
 
 	inline bool PixelFormatDescription::IsValid() const
@@ -101,7 +103,7 @@ namespace Nz
 		if (!IsValid())
 			return false;
 
-		if (content <= PixelFormatContent_Undefined || content > PixelFormatContent_Max)
+		if (content <= PixelFormatContent::Undefined || content > PixelFormatContent::Max)
 			return false;
 
 		std::array<const Nz::Bitset<>*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
@@ -121,13 +123,13 @@ namespace Nz
 
 			switch (types[i])
 			{
-				case PixelFormatSubType_Half:
+				case PixelFormatSubType::Half:
 					if (usedBits != 16)
 						return false;
 
 					break;
 
-				case PixelFormatSubType_Float:
+				case PixelFormatSubType::Float:
 					if (usedBits != 32)
 						return false;
 
@@ -149,10 +151,10 @@ namespace Nz
 		{
 			switch (format)
 			{
-				case PixelFormat_DXT1:
-				case PixelFormat_DXT3:
-				case PixelFormat_DXT5:
-					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormat_DXT1) ? 8 : 16)) * depth;
+				case PixelFormat::DXT1:
+				case PixelFormat::DXT3:
+				case PixelFormat::DXT5:
+					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormat::DXT1) ? 8 : 16)) * depth;
 
 				default:
 					NazaraError("Unsupported format");
@@ -185,31 +187,18 @@ namespace Nz
 		}
 		#endif
 
-		ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
-		if (!func)
-		{
-			NazaraError("Pixel format conversion from " + GetName(srcFormat) + " to " + GetName(dstFormat) + " is not supported");
-			return false;
-		}
-
-		if (!func(reinterpret_cast<const UInt8*>(src), reinterpret_cast<const UInt8*>(src) + GetBytesPerPixel(srcFormat), reinterpret_cast<UInt8*>(dst)))
-		{
-			NazaraError("Pixel format conversion from " + GetName(srcFormat) + " to " + GetName(dstFormat) + " failed");
-			return false;
-		}
-
-		return true;
+		return Convert(srcFormat, dstFormat, src, static_cast<const UInt8*>(src) + GetBytesPerPixel(srcFormat), dst);
 	}
 
 	inline bool PixelFormatInfo::Convert(PixelFormat srcFormat, PixelFormat dstFormat, const void* start, const void* end, void* dst)
 	{
 		if (srcFormat == dstFormat)
 		{
-			std::memcpy(dst, start, reinterpret_cast<const UInt8*>(end)-reinterpret_cast<const UInt8*>(start));
+			std::memcpy(dst, start, reinterpret_cast<const UInt8*>(end) - reinterpret_cast<const UInt8*>(start));
 			return true;
 		}
 
-		ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
+		ConvertFunction func = s_convertFunctions[UnderlyingCast(srcFormat)][UnderlyingCast(dstFormat)];
 		if (!func)
 		{
 			NazaraError("Pixel format conversion from " + GetName(srcFormat) + " to " + GetName(dstFormat) + " is not supported");
@@ -227,7 +216,7 @@ namespace Nz
 
 	inline UInt8 PixelFormatInfo::GetBitsPerPixel(PixelFormat format)
 	{
-		return s_pixelFormatInfos[format].bitsPerPixel;
+		return s_pixelFormatInfos[UnderlyingCast(format)].bitsPerPixel;
 	}
 
 	inline UInt8 PixelFormatInfo::GetBytesPerPixel(PixelFormat format)
@@ -237,27 +226,27 @@ namespace Nz
 
 	inline PixelFormatContent PixelFormatInfo::GetContent(PixelFormat format)
 	{
-		return s_pixelFormatInfos[format].content;
+		return s_pixelFormatInfos[UnderlyingCast(format)].content;
 	}
 
 	inline const PixelFormatDescription& PixelFormatInfo::GetInfo(PixelFormat format)
 	{
-		return s_pixelFormatInfos[format];
+		return s_pixelFormatInfos[UnderlyingCast(format)];
 	}
 
 	inline const std::string& PixelFormatInfo::GetName(PixelFormat format)
 	{
-		return s_pixelFormatInfos[format].name;
+		return s_pixelFormatInfos[UnderlyingCast(format)].name;
 	}
 
 	inline bool PixelFormatInfo::HasAlpha(PixelFormat format)
 	{
-		return s_pixelFormatInfos[format].alphaMask.TestAny();
+		return s_pixelFormatInfos[UnderlyingCast(format)].alphaMask.TestAny();
 	}
 
 	inline bool PixelFormatInfo::IsCompressed(PixelFormat format)
 	{
-		return s_pixelFormatInfos[format].IsCompressed();
+		return s_pixelFormatInfos[UnderlyingCast(format)].IsCompressed();
 	}
 
 	inline bool PixelFormatInfo::IsConversionSupported(PixelFormat srcFormat, PixelFormat dstFormat)
@@ -265,22 +254,22 @@ namespace Nz
 		if (srcFormat == dstFormat)
 			return true;
 
-		return s_convertFunctions[srcFormat][dstFormat] != nullptr;
+		return s_convertFunctions[UnderlyingCast(srcFormat)][UnderlyingCast(dstFormat)] != nullptr;
 	}
 
 	inline bool PixelFormatInfo::IsValid(PixelFormat format)
 	{
-		return format != PixelFormat_Undefined;
+		return format != PixelFormat::Undefined;
 	}
 
 	inline void PixelFormatInfo::SetConvertFunction(PixelFormat srcFormat, PixelFormat dstFormat, ConvertFunction func)
 	{
-		s_convertFunctions[srcFormat][dstFormat] = func;
+		s_convertFunctions[UnderlyingCast(srcFormat)][UnderlyingCast(dstFormat)] = func;
 	}
 
 	inline void PixelFormatInfo::SetFlipFunction(PixelFlipping flipping, PixelFormat format, FlipFunction func)
 	{
-		s_flipFunctions[flipping][format] = func;
+		s_flipFunctions[UnderlyingCast(flipping)][UnderlyingCast(format)] = func;
 	}
 }
 

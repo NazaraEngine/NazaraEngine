@@ -5,33 +5,33 @@
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
 {
 	namespace
 	{
-		Collider3DRef CreateGeomFromPrimitive(const Primitive& primitive)
+		std::shared_ptr<Collider3D> CreateGeomFromPrimitive(const Primitive& primitive)
 		{
 			switch (primitive.type)
 			{
-				case PrimitiveType_Box:
-					return BoxCollider3D::New(primitive.box.lengths, primitive.matrix);
+				case PrimitiveType::Box:
+					return std::make_shared<BoxCollider3D>(primitive.box.lengths, primitive.matrix);
 
-				case PrimitiveType_Cone:
-					return ConeCollider3D::New(primitive.cone.length, primitive.cone.radius, primitive.matrix);
+				case PrimitiveType::Cone:
+					return std::make_shared<ConeCollider3D>(primitive.cone.length, primitive.cone.radius, primitive.matrix);
 
-				case PrimitiveType_Plane:
-					return BoxCollider3D::New(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
+				case PrimitiveType::Plane:
+					return std::make_shared<BoxCollider3D>(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
 					///TODO: PlaneGeom?
 
-				case PrimitiveType_Sphere:
-					return SphereCollider3D::New(primitive.sphere.size, primitive.matrix.GetTranslation());
+				case PrimitiveType::Sphere:
+					return std::make_shared<SphereCollider3D>(primitive.sphere.size, primitive.matrix.GetTranslation());
 			}
 
-			NazaraError("Primitive type not handled (0x" + NumberToString(primitive.type, 16) + ')');
-			return Collider3DRef();
+			NazaraError("Primitive type not handled (0x" + NumberToString(UnderlyingCast(primitive.type), 16) + ')');
+			return std::shared_ptr<Collider3D>();
 		}
 	}
 
@@ -148,41 +148,23 @@ namespace Nz
 		return it->second;
 	}
 
-	Collider3DRef Collider3D::Build(const PrimitiveList& list)
+	std::shared_ptr<Collider3D> Collider3D::Build(const PrimitiveList& list)
 	{
 		std::size_t primitiveCount = list.GetSize();
 		if (primitiveCount > 1)
 		{
-			std::vector<Collider3DRef> geoms(primitiveCount);
+			std::vector<std::shared_ptr<Collider3D>> geoms(primitiveCount);
 
 			for (unsigned int i = 0; i < primitiveCount; ++i)
 				geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
 
-			return CompoundCollider3D::New(std::move(geoms));
+			return std::make_shared<CompoundCollider3D>(std::move(geoms));
 		}
 		else if (primitiveCount > 0)
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
-			return NullCollider3D::New();
+			return std::make_shared<NullCollider3D>();
 	}
-
-	bool Collider3D::Initialize()
-	{
-		if (!Collider3DLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		return true;
-	}
-
-	void Collider3D::Uninitialize()
-	{
-		Collider3DLibrary::Uninitialize();
-	}
-
-	Collider3DLibrary::LibraryMap Collider3D::s_library;
 
 	/********************************** BoxCollider3D **********************************/
 
@@ -220,7 +202,7 @@ namespace Nz
 
 	ColliderType3D BoxCollider3D::GetType() const
 	{
-		return ColliderType3D_Box;
+		return ColliderType3D::Box;
 	}
 
 	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -254,7 +236,7 @@ namespace Nz
 
 	ColliderType3D CapsuleCollider3D::GetType() const
 	{
-		return ColliderType3D_Capsule;
+		return ColliderType3D::Capsule;
 	}
 
 	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -264,19 +246,19 @@ namespace Nz
 
 	/******************************* CompoundCollider3D ********************************/
 
-	CompoundCollider3D::CompoundCollider3D(std::vector<Collider3DRef> geoms) :
+	CompoundCollider3D::CompoundCollider3D(std::vector<std::shared_ptr<Collider3D>> geoms) :
 	m_geoms(std::move(geoms))
 	{
 	}
 
-	const std::vector<Collider3DRef>& CompoundCollider3D::GetGeoms() const
+	const std::vector<std::shared_ptr<Collider3D>>& CompoundCollider3D::GetGeoms() const
 	{
 		return m_geoms;
 	}
 
 	ColliderType3D CompoundCollider3D::GetType() const
 	{
-		return ColliderType3D_Compound;
+		return ColliderType3D::Compound;
 	}
 
 	NewtonCollision* CompoundCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -284,12 +266,12 @@ namespace Nz
 		NewtonCollision* compoundCollision = NewtonCreateCompoundCollision(world->GetHandle(), 0);
 
 		NewtonCompoundCollisionBeginAddRemove(compoundCollision);
-		for (const Collider3DRef& geom : m_geoms)
+		for (const std::shared_ptr<Collider3D>& geom : m_geoms)
 		{
-			if (geom->GetType() == ColliderType3D_Compound)
+			if (geom->GetType() == ColliderType3D::Compound)
 			{
-				CompoundCollider3D* compoundGeom = static_cast<CompoundCollider3D*>(geom.Get());
-				for (const Collider3DRef& piece : compoundGeom->GetGeoms())
+				CompoundCollider3D& compoundGeom = static_cast<CompoundCollider3D&>(*geom);
+				for (const std::shared_ptr<Collider3D>& piece : compoundGeom.GetGeoms())
 					NewtonCompoundCollisionAddSubCollision(compoundCollision, piece->GetHandle(world));
 			}
 			else
@@ -326,7 +308,7 @@ namespace Nz
 
 	ColliderType3D ConeCollider3D::GetType() const
 	{
-		return ColliderType3D_Cone;
+		return ColliderType3D::Cone;
 	}
 
 	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -357,7 +339,7 @@ namespace Nz
 
 	ColliderType3D ConvexCollider3D::GetType() const
 	{
-		return ColliderType3D_ConvexHull;
+		return ColliderType3D::ConvexHull;
 	}
 
 	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -391,7 +373,7 @@ namespace Nz
 
 	ColliderType3D CylinderCollider3D::GetType() const
 	{
-		return ColliderType3D_Cylinder;
+		return ColliderType3D::Cylinder;
 	}
 
 	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld3D* world) const
@@ -407,7 +389,7 @@ namespace Nz
 
 	ColliderType3D NullCollider3D::GetType() const
 	{
-		return ColliderType3D_Null;
+		return ColliderType3D::Null;
 	}
 
 	void NullCollider3D::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
@@ -458,7 +440,7 @@ namespace Nz
 
 	ColliderType3D SphereCollider3D::GetType() const
 	{
-		return ColliderType3D_Sphere;
+		return ColliderType3D::Sphere;
 	}
 
 	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld3D* world) const

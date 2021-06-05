@@ -53,7 +53,7 @@ namespace Nz
 				using BindingStorage = std::aligned_storage_t<sizeof(VulkanShaderBinding), alignof(VulkanShaderBinding)>;
 
 				Bitset<UInt64> freeBindings;
-				Vk::DescriptorPool descriptorPool;
+				std::unique_ptr<Vk::DescriptorPool> descriptorPool;
 				std::unique_ptr<BindingStorage[]> storage;
 			};
 

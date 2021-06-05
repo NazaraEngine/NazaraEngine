@@ -7,7 +7,10 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
-#include <Nazara/Audio/Formats/sndfileLoader.hpp>
+#include <Nazara/Audio/Formats/drwavLoader.hpp>
+#include <Nazara/Audio/Formats/libflacLoader.hpp>
+#include <Nazara/Audio/Formats/libvorbisLoader.hpp>
+#include <Nazara/Audio/Formats/minimp3Loader.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -30,58 +33,30 @@ namespace Nz
 		if (!OpenAL::Initialize())
 			throw std::runtime_error("failed to initialize OpenAL");
 
-		if (!SoundBuffer::Initialize())
-			throw std::runtime_error("failed to initialize sound buffers");
-
 		// Definition of the orientation by default
 		SetListenerDirection(Vector3f::Forward());
 
 		// Loaders
-		Loaders::Register_sndfile();
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libflac());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libflac());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 	}
 
 	Audio::~Audio()
 	{
-		// Loaders
-		Loaders::Unregister_sndfile();
-
-		SoundBuffer::Uninitialize();
 		OpenAL::Uninitialize();
-	}
-
-	/*!
-	* \brief Gets the format of the audio
-	* \return AudioFormat Enumeration type for the format
-	*
-	* \param channelCount Number of channels
-	*
-	* \remark Produces a NazaraError if the number of channels is erroneous (3 or 5) and AudioFormat_Unknown is returned
-	*/
-
-	AudioFormat Audio::GetAudioFormat(unsigned int channelCount)
-	{
-		switch (channelCount)
-		{
-			case 1:
-			case 2:
-			case 4:
-			case 6:
-			case 7:
-			case 8:
-				return static_cast<AudioFormat>(channelCount);
-
-			default:
-				NazaraError("Invalid channel count: " + NumberToString(channelCount));
-				return AudioFormat_Unknown;
-		}
 	}
 
 	/*!
 	* \brief Gets the factor of the doppler effect
 	* \return Global factor of the doppler effect
 	*/
-
-	float Audio::GetDopplerFactor()
+	float Audio::GetDopplerFactor() const
 	{
 		return alGetFloat(AL_DOPPLER_FACTOR);
 	}
@@ -90,8 +65,7 @@ namespace Nz
 	* \brief Gets the global volume
 	* \return Float between [0, inf) with 100.f being the default
 	*/
-
-	float Audio::GetGlobalVolume()
+	float Audio::GetGlobalVolume() const
 	{
 		ALfloat gain = 0.f;
 		alGetListenerf(AL_GAIN, &gain);
@@ -105,8 +79,7 @@ namespace Nz
 	*
 	* \see GetListenerRotation
 	*/
-
-	Vector3f Audio::GetListenerDirection()
+	Vector3f Audio::GetListenerDirection() const
 	{
 		ALfloat orientation[6];
 		alGetListenerfv(AL_ORIENTATION, orientation);
@@ -120,8 +93,7 @@ namespace Nz
 	*
 	* \see GetListenerVelocity
 	*/
-
-	Vector3f Audio::GetListenerPosition()
+	Vector3f Audio::GetListenerPosition() const
 	{
 		Vector3f position;
 		alGetListenerfv(AL_POSITION, &position.x);
@@ -133,8 +105,7 @@ namespace Nz
 	* \brief Gets the rotation of the listener
 	* \return Rotation of the listener
 	*/
-
-	Quaternionf Audio::GetListenerRotation()
+	Quaternionf Audio::GetListenerRotation() const
 	{
 		ALfloat orientation[6];
 		alGetListenerfv(AL_ORIENTATION, orientation);
@@ -150,8 +121,7 @@ namespace Nz
 	*
 	* \see GetListenerPosition
 	*/
-
-	Vector3f Audio::GetListenerVelocity()
+	Vector3f Audio::GetListenerVelocity() const
 	{
 		Vector3f velocity;
 		alGetListenerfv(AL_VELOCITY, &velocity.x);
@@ -160,11 +130,46 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the default SoundBuffer loader
+	* \return A reference to the default SoundBuffer loader
+	*/
+	SoundBufferLoader& Audio::GetSoundBufferLoader()
+	{
+		return m_soundBufferLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundBuffer loader
+	* \return A constant reference to the default SoundBuffer loader
+	*/
+	const SoundBufferLoader& Audio::GetSoundBufferLoader() const
+	{
+		return m_soundBufferLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundStream loader
+	* \return A reference to the default SoundStream loader
+	*/
+	SoundStreamLoader& Audio::GetSoundStreamLoader()
+	{
+		return m_soundStreamLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundStream loader
+	* \return A constant reference to the default SoundStream loader
+	*/
+	const SoundStreamLoader& Audio::GetSoundStreamLoader() const
+	{
+		return m_soundStreamLoader;
+	}
+
+	/*!
 	* \brief Gets the speed of sound
 	* \return Speed of sound
 	*/
-
-	float Audio::GetSpeedOfSound()
+	float Audio::GetSpeedOfSound() const
 	{
 		return alGetFloat(AL_SPEED_OF_SOUND);
 	}
@@ -175,13 +180,12 @@ namespace Nz
 	*
 	* \param format Format to check
 	*/
-
-	bool Audio::IsFormatSupported(AudioFormat format)
+	bool Audio::IsFormatSupported(AudioFormat format) const
 	{
-		if (format == AudioFormat_Unknown)
+		if (format == AudioFormat::Unknown)
 			return false;
 
-		return OpenAL::AudioFormat[format] != 0;
+		return OpenAL::AudioFormat[UnderlyingCast(format)] != 0;
 	}
 
 	/*!

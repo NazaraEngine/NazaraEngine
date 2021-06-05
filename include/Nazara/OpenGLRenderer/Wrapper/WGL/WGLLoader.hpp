@@ -12,10 +12,8 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
-#include <string>
-
-#undef WIN32_LEAN_AND_MEAN //< Redefined by OpenGL header (ty Khronos)
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
+#include <string>
 
 namespace Nz::GL
 {

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvWriter.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz

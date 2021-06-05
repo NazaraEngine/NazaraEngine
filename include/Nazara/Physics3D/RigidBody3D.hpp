@@ -25,14 +25,14 @@ namespace Nz
 	{
 		public:
 			RigidBody3D(PhysWorld3D* world, const Matrix4f& mat = Matrix4f::Identity());
-			RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat = Matrix4f::Identity());
+			RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat = Matrix4f::Identity());
 			RigidBody3D(const RigidBody3D& object);
 			RigidBody3D(RigidBody3D&& object);
 			~RigidBody3D();
 
-			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys_Global);
-			void AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys = CoordSys_Global);
-			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys_Global);
+			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys::Global);
+			void AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys = CoordSys::Global);
+			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys::Global);
 
 			void EnableAutoSleep(bool autoSleep);
 			void EnableSimulation(bool simulation);
@@ -40,13 +40,13 @@ namespace Nz
 			Boxf GetAABB() const;
 			Vector3f GetAngularDamping() const;
 			Vector3f GetAngularVelocity() const;
-			const Collider3DRef& GetGeom() const;
+			const std::shared_ptr<Collider3D>& GetGeom() const;
 			float GetGravityFactor() const;
 			NewtonBody* GetHandle() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
-			Vector3f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
+			Vector3f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
 			int GetMaterial() const;
 			const Matrix4f& GetMatrix() const;
 			Vector3f GetPosition() const;
@@ -61,7 +61,7 @@ namespace Nz
 
 			void SetAngularDamping(const Vector3f& angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);
-			void SetGeom(Collider3DRef geom);
+			void SetGeom(std::shared_ptr<Collider3D> geom);
 			void SetGravityFactor(float gravityFactor);
 			void SetLinearDamping(float damping);
 			void SetLinearVelocity(const Vector3f& velocity);
@@ -81,7 +81,7 @@ namespace Nz
 			static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
 			static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
 
-			Collider3DRef m_geom;
+			std::shared_ptr<Collider3D> m_geom;
 			Matrix4f m_matrix;
 			Vector3f m_forceAccumulator;
 			Vector3f m_torqueAccumulator;

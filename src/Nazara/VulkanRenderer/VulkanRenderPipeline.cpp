@@ -6,7 +6,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VulkanShaderStage.hpp>
+#include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <cassert>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -19,20 +19,31 @@ namespace Nz
 		m_pipelineCreateInfo = BuildCreateInfo(m_pipelineInfo);
 	}
 
-	VkPipeline VulkanRenderPipeline::Get(const Vk::RenderPass& renderPass) const
+	VkPipeline VulkanRenderPipeline::Get(const VulkanRenderPass& renderPass, std::size_t subpassIndex) const
 	{
-		if (auto it = m_pipelines.find(renderPass); it != m_pipelines.end())
+		const Vk::RenderPass& renderPassHandle = renderPass.GetRenderPass();
+
+		// Use color attachment count as a key
+		const auto& subpasses = renderPass.GetSubpassDescriptions();
+		assert(subpassIndex < subpasses.size());
+
+		std::size_t colorAttachmentCount = subpasses[subpassIndex].colorAttachment.size();
+
+		std::pair<VkRenderPass, std::size_t> key = { renderPassHandle, colorAttachmentCount };
+
+		if (auto it = m_pipelines.find(key); it != m_pipelines.end())
 			return it->second;
 
-		// Copy create info to make Get re-entrant
+		UpdateCreateInfo(colorAttachmentCount);
+
 		VkGraphicsPipelineCreateInfo pipelineCreateInfo = m_pipelineCreateInfo.pipelineInfo;
-		pipelineCreateInfo.renderPass = renderPass;
+		pipelineCreateInfo.renderPass = renderPassHandle;
 
 		Vk::Pipeline newPipeline;
 		if (!newPipeline.CreateGraphics(*m_device, pipelineCreateInfo))
 			return VK_NULL_HANDLE;
 
-		auto it = m_pipelines.emplace(renderPass, std::move(newPipeline)).first;
+		auto it = m_pipelines.emplace(key, std::move(newPipeline)).first;
 		return it->second;
 	}
 
@@ -42,15 +53,19 @@ namespace Nz
 
 		VkPipelineColorBlendAttachmentState& colorBlendState = colorBlendStates.emplace_back();
 		colorBlendState.blendEnable = pipelineInfo.blending;
-		colorBlendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
+		if (pipelineInfo.colorWrite)
+			colorBlendState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT; //< TODO
+		else
+			colorBlendState.colorWriteMask = 0;
 
 		if (pipelineInfo.blending)
 		{
-			//TODO
-			/*switch (pipelineInfo.dstBlend)
-			{
-				blendState.dstAlphaBlendFactor
-			}*/
+			colorBlendState.srcColorBlendFactor = ToVulkan(pipelineInfo.blend.srcColor);
+			colorBlendState.dstColorBlendFactor = ToVulkan(pipelineInfo.blend.dstColor);
+			colorBlendState.colorBlendOp        = ToVulkan(pipelineInfo.blend.modeColor);
+			colorBlendState.srcAlphaBlendFactor = ToVulkan(pipelineInfo.blend.srcAlpha);
+			colorBlendState.dstAlphaBlendFactor = ToVulkan(pipelineInfo.blend.dstAlpha);
+			colorBlendState.alphaBlendOp        = ToVulkan(pipelineInfo.blend.modeAlpha);
 		}
 		else
 		{
@@ -65,7 +80,7 @@ namespace Nz
 		return colorBlendStates;
 	}
 
-	VkPipelineColorBlendStateCreateInfo VulkanRenderPipeline::BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState)
+	VkPipelineColorBlendStateCreateInfo VulkanRenderPipeline::BuildColorBlendInfo(const RenderPipelineInfo& /*pipelineInfo*/, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState)
 	{
 		VkPipelineColorBlendStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -89,7 +104,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	VkPipelineDynamicStateCreateInfo VulkanRenderPipeline::BuildDynamicStateInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkDynamicState>& dynamicStates)
+	VkPipelineDynamicStateCreateInfo VulkanRenderPipeline::BuildDynamicStateInfo(const RenderPipelineInfo& /*pipelineInfo*/, const std::vector<VkDynamicState>& dynamicStates)
 	{
 		VkPipelineDynamicStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -99,7 +114,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& pipelineInfo)
+	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& /*pipelineInfo*/)
 	{
 		return { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 	}
@@ -113,7 +128,7 @@ namespace Nz
 		return createInfo;
 	}
 
-	VkPipelineMultisampleStateCreateInfo VulkanRenderPipeline::BuildMultisampleInfo(const RenderPipelineInfo& pipelineInfo)
+	VkPipelineMultisampleStateCreateInfo VulkanRenderPipeline::BuildMultisampleInfo(const RenderPipelineInfo& /*pipelineInfo*/)
 	{
 		VkPipelineMultisampleStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -128,14 +143,14 @@ namespace Nz
 		VkPipelineRasterizationStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		createInfo.polygonMode = ToVulkan(pipelineInfo.faceFilling);
-		createInfo.cullMode = ToVulkan(pipelineInfo.cullingSide);
-		createInfo.frontFace = VK_FRONT_FACE_CLOCKWISE; //< TODO
+		createInfo.cullMode = (pipelineInfo.faceCulling) ? ToVulkan(pipelineInfo.cullingSide) : VK_CULL_MODE_NONE;
+		createInfo.frontFace = ToVulkan(pipelineInfo.frontFace);
 		createInfo.lineWidth = pipelineInfo.lineWidth;
 
 		return createInfo;
 	}
 
-	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& pipelineInfo)
+	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& /*pipelineInfo*/)
 	{
 		VkPipelineViewportStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -164,15 +179,19 @@ namespace Nz
 	{
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStageCreateInfos;
 
-		for (auto&& stagePtr : pipelineInfo.shaderStages)
+		for (auto&& stagePtr : pipelineInfo.shaderModules)
 		{
-			Nz::VulkanShaderStage& vulkanStage = *static_cast<Nz::VulkanShaderStage*>(stagePtr.get());
+			assert(stagePtr);
 
-			VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
-			createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			createInfo.module = vulkanStage.GetHandle();
-			createInfo.pName = "main";
-			createInfo.stage = ToVulkan(vulkanStage.GetStageType());
+			Nz::VulkanShaderModule& vulkanModule = *static_cast<Nz::VulkanShaderModule*>(stagePtr.get());
+			for (auto& stage : vulkanModule.GetStages())
+			{
+				VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
+				createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				createInfo.module = vulkanModule.GetHandle();
+				createInfo.pName = stage.name.data();
+				createInfo.stage = ToVulkan(stage.stage);
+			}
 		}
 
 		return shaderStageCreateInfos;
@@ -216,7 +235,7 @@ namespace Nz
 		return vertexBindings;
 	}
 
-	VkPipelineVertexInputStateCreateInfo VulkanRenderPipeline::BuildVertexInputInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkVertexInputAttributeDescription>& vertexAttributes, const std::vector<VkVertexInputBindingDescription>& bindingDescriptions)
+	VkPipelineVertexInputStateCreateInfo VulkanRenderPipeline::BuildVertexInputInfo(const RenderPipelineInfo& /*pipelineInfo*/, const std::vector<VkVertexInputAttributeDescription>& vertexAttributes, const std::vector<VkVertexInputBindingDescription>& bindingDescriptions)
 	{
 		VkPipelineVertexInputStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -266,5 +285,21 @@ namespace Nz
 		createInfo.pipelineInfo.layout = pipelineLayout.GetPipelineLayout();
 
 		return createInfo;
+	}
+
+	void VulkanRenderPipeline::UpdateCreateInfo(std::size_t colorBufferCount) const
+	{
+		// TODO: Add support for independent blend
+		std::size_t previousSize = m_pipelineCreateInfo.colorBlendAttachmentState.size();
+		if (previousSize < colorBufferCount)
+		{
+			assert(!m_pipelineCreateInfo.colorBlendAttachmentState.empty());
+
+			m_pipelineCreateInfo.colorBlendAttachmentState.resize(colorBufferCount);
+			for (std::size_t i = previousSize; i < colorBufferCount; ++i)
+				m_pipelineCreateInfo.colorBlendAttachmentState[i] = m_pipelineCreateInfo.colorBlendAttachmentState.front();
+		}
+
+		m_pipelineCreateInfo.stateData->colorBlendState = BuildColorBlendInfo(m_pipelineInfo, m_pipelineCreateInfo.colorBlendAttachmentState);
 	}
 }

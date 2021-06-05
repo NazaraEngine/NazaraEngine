@@ -55,8 +55,6 @@ namespace Nz
 			inline const VulkanRenderPass& GetRenderPass() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
-			inline std::shared_ptr<RenderDevice> GetRenderDevice() override;
-
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
 			VkRenderWindow& operator=(const VkRenderWindow&) = delete;
@@ -74,7 +72,7 @@ namespace Nz
 			std::shared_ptr<VulkanDevice> m_device;
 			std::size_t m_currentFrame;
 			std::vector<Vk::Fence*> m_inflightFences;
-			std::vector<VulkanRenderImage> m_concurrentImageData;
+			std::vector<std::unique_ptr<VulkanRenderImage>> m_concurrentImageData;
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;

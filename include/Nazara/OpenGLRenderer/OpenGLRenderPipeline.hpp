@@ -22,13 +22,15 @@ namespace Nz
 			OpenGLRenderPipeline(OpenGLDevice& device, RenderPipelineInfo pipelineInfo);
 			~OpenGLRenderPipeline() = default;
 
-			void Apply(const GL::Context& context) const;
+			void Apply(const GL::Context& context, bool flipViewport) const;
 
-			inline const RenderPipelineInfo& GetPipelineInfo() const;
+			inline const RenderPipelineInfo& GetPipelineInfo() const override;
 
 		private:
 			RenderPipelineInfo m_pipelineInfo;
 			GL::Program m_program;
+			GLint m_flipYUniformLocation;
+			mutable bool m_isViewportFlipped;
 	};
 }
 

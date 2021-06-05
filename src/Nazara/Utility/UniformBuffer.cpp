@@ -10,35 +10,22 @@
 
 namespace Nz
 {
-	UniformBuffer::UniformBuffer(BufferRef buffer)
+	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(buffer));
 	}
 
-	UniformBuffer::UniformBuffer(BufferRef buffer, UInt32 offset, UInt32 size)
+	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(buffer), offset, size);
 	}
 
 	UniformBuffer::UniformBuffer(UInt32 length, DataStorage storage, BufferUsageFlags usage)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(length, storage, usage);
-	}
-
-	UniformBuffer::UniformBuffer(const UniformBuffer& uniformBuffer) :
-	RefCounted(),
-	m_buffer(uniformBuffer.m_buffer),
-	m_endOffset(uniformBuffer.m_endOffset),
-	m_startOffset(uniformBuffer.m_startOffset)
-	{
-	}
-
-	UniformBuffer::~UniformBuffer()
-	{
-		OnUniformBufferRelease(this);
 	}
 
 	bool UniformBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
@@ -67,20 +54,20 @@ namespace Nz
 
 	void UniformBuffer::Reset()
 	{
-		m_buffer.Reset();
+		m_buffer.reset();
 	}
 
-	void UniformBuffer::Reset(BufferRef buffer)
+	void UniformBuffer::Reset(std::shared_ptr<Buffer> buffer)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
 
 		Reset(buffer, 0, buffer->GetSize());
 	}
 
-	void UniformBuffer::Reset(BufferRef buffer, UInt32 offset, UInt32 size)
+	void UniformBuffer::Reset(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-		NazaraAssert(buffer->GetType() == BufferType_Uniform, "Buffer must be an uniform buffer");
+		NazaraAssert(buffer->GetType() == BufferType::Uniform, "Buffer must be an uniform buffer");
 		NazaraAssert(size > 0, "Invalid size");
 		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
 
@@ -94,7 +81,7 @@ namespace Nz
 		m_endOffset = size;
 		m_startOffset = 0;
 
-		m_buffer = Buffer::New(BufferType_Uniform, m_endOffset, storage, usage);
+		m_buffer = std::make_shared<Buffer>(BufferType::Uniform, m_endOffset, storage, usage);
 	}
 
 	void UniformBuffer::Reset(const UniformBuffer& uniformBuffer)
@@ -107,12 +94,5 @@ namespace Nz
 	void UniformBuffer::Unmap() const
 	{
 		m_buffer->Unmap();
-	}
-
-	UniformBuffer& UniformBuffer::operator=(const UniformBuffer& uniformBuffer)
-	{
-		Reset(uniformBuffer);
-
-		return *this;
 	}
 }

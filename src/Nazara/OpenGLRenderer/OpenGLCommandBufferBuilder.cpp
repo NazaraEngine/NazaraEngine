@@ -19,9 +19,9 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionName, color);
 	}
 
-	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues)
+	void OpenGLCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti /*renderRect*/, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
-		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), renderPass, clearValues);
+		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), static_cast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
 	void OpenGLCommandBufferBuilder::BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset)
@@ -84,14 +84,22 @@ namespace Nz
 
 	void OpenGLCommandBufferBuilder::EndRenderPass()
 	{
+		/* nothing to do */
+	}
+
+	void OpenGLCommandBufferBuilder::NextSubpass()
+	{
+		/* nothing to do */
 	}
 
 	void OpenGLCommandBufferBuilder::PreTransferBarrier()
 	{
+		/* nothing to do */
 	}
 
 	void OpenGLCommandBufferBuilder::PostTransferBarrier()
 	{
+		/* nothing to do */
 	}
 
 	void OpenGLCommandBufferBuilder::SetScissor(Nz::Recti scissorRegion)
@@ -102,5 +110,10 @@ namespace Nz
 	void OpenGLCommandBufferBuilder::SetViewport(Nz::Recti viewportRegion)
 	{
 		m_commandBuffer.SetViewport(viewportRegion);
+	}
+
+	void OpenGLCommandBufferBuilder::TextureBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags /*srcAccessMask*/, MemoryAccessFlags /*dstAccessMask*/, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/, const Texture& /*texture*/)
+	{
+		/* nothing to do */
 	}
 }

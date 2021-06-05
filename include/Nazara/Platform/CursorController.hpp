@@ -28,12 +28,12 @@ namespace Nz
 			CursorController(CursorController&&) noexcept = default;
 			~CursorController() = default;
 
-			inline void UpdateCursor(const CursorRef& cursor);
+			inline void UpdateCursor(const std::shared_ptr<Cursor>& cursor);
 
 			CursorController& operator=(const CursorController&) = delete;
 			CursorController& operator=(CursorController&&) noexcept = default;
 
-			NazaraSignal(OnCursorUpdated, const CursorController* /*cursorController*/, const CursorRef& /*cursor*/);
+			NazaraSignal(OnCursorUpdated, const CursorController* /*cursorController*/, const std::shared_ptr<Cursor>& /*cursor*/);
 	};
 }
 

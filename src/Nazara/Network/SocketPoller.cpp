@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/SocketPoller.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
@@ -24,7 +25,7 @@ namespace Nz
 	/*!
 	* \ingroup network
 	* \class Nz::SocketPoller
-	* \brief Network class allowing an application to wait on multiples sockets for them to become active (readable)
+	* \brief Network class allowing an application to wait on multiples sockets for them to become active (readable/writeable)
 	*/
 
 	/*!
@@ -194,10 +195,10 @@ namespace Nz
 		if (error)
 			*error = waitError;
 
-		if (waitError != SocketError_NoError)
+		if (waitError != SocketError::NoError)
 		{
-			if (waitError != SocketError_Interrupted) //< Do not log interrupted error
-				NazaraError("SocketPoller encountered an error (code: 0x" + NumberToString(waitError, 16) + "): " + ErrorToString(waitError));
+			if (waitError != SocketError::Interrupted) //< Do not log interrupted error
+				NazaraError("SocketPoller encountered an error (code: 0x" + NumberToString(UnderlyingCast(waitError), 16) + "): " + ErrorToString(waitError));
 
 			return 0;
 		}

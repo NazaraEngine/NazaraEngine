@@ -29,6 +29,7 @@ namespace Nz
 
 	Core::~Core()
 	{
+		LogUninit();
 		HardwareInfo::Uninitialize();
 		Log::Uninitialize();
 		PluginManager::Uninitialize();

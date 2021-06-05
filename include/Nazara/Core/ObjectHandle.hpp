@@ -23,6 +23,8 @@ namespace Nz
 		public:
 			ObjectHandle();
 			explicit ObjectHandle(T* object);
+			template<typename U> ObjectHandle(const ObjectHandle<U>& ref);
+			template<typename U> ObjectHandle(ObjectHandle<U>&& ref);
 			ObjectHandle(const ObjectHandle& handle) = default;
 			ObjectHandle(ObjectHandle&& handle) noexcept;
 			~ObjectHandle();
@@ -78,6 +80,11 @@ namespace Nz
 	template<typename T> bool operator>=(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator>=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator>=(const ObjectHandle<T>& lhs, const T& rhs);
+
+	template<typename T, typename U> ObjectHandle<T> ConstRefCast(const ObjectHandle<U>& ref);
+	template<typename T, typename U> ObjectHandle<T> DynamicRefCast(const ObjectHandle<U>& ref);
+	template<typename T, typename U> ObjectHandle<T> ReinterpretRefCast(const ObjectHandle<U>& ref);
+	template<typename T, typename U> ObjectHandle<T> StaticRefCast(const ObjectHandle<U>& ref);
 
 	template<typename T> struct PointedType<ObjectHandle<T>> { using type = T; };
 	template<typename T> struct PointedType<const ObjectHandle<T>> { using type = T; };

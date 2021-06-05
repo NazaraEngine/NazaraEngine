@@ -54,20 +54,24 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Output"), outputSelection);
 }
 
-Nz::ShaderNodes::ExpressionPtr OutputValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderAst::NodePtr OutputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
-	using namespace Nz::ShaderBuilder;
-	using namespace Nz::ShaderNodes;
-
 	assert(count == 1);
+	assert(outputIndex == 0);
 
 	if (!m_currentOutputIndex)
 		throw std::runtime_error("no output");
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-	auto output = Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Output(outputEntry.name, ShaderGraph::ToShaderExpressionType(outputEntry.type)));
+	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("output"), { outputEntry.name });
 
-	return Nz::ShaderBuilder::Assign(std::move(output), *expressions);
+	using namespace Nz;
+	return Nz::ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(output), std::move(expressions[0]));
+}
+
+std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*port*/)
+{
+	return {};
 }
 
 QtNodes::NodeDataType OutputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
@@ -88,14 +92,40 @@ unsigned int OutputValue::nPorts(QtNodes::PortType portType) const
 	{
 		case QtNodes::PortType::In: return 1;
 		case QtNodes::PortType::Out: return 0;
+		default: break;
 	}
 
-	return 0;
+	assert(false);
+	throw std::runtime_error("invalid port type");
 }
 
-std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*port*/)
+QString OutputValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
-	return {};
+	assert(portType == QtNodes::PortType::In);
+	assert(portIndex == 0);
+
+	if (!m_currentOutputIndex)
+		return QString();
+
+	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
+	return QString::fromStdString(outputEntry.name);
+}
+
+bool OutputValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+
+	switch (portType)
+	{
+		case QtNodes::PortType::In: return m_currentOutputIndex.has_value();
+		case QtNodes::PortType::Out: return false;
+
+		default:
+			break;
+	}
+
+	assert(false);
+	throw std::runtime_error("Invalid port type");
 }
 
 void OutputValue::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
@@ -126,6 +156,9 @@ QtNodes::NodeValidationState OutputValue::validationState() const
 		case PrimitiveType::Float3:
 		case PrimitiveType::Float4:
 		{
+			if (m_input->type().id != VecData::Type().id)
+				return QtNodes::NodeValidationState::Error;
+
 			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
 			const VecData& vec = static_cast<const VecData&>(*m_input);
 			if (GetComponentCount(outputEntry.type) != vec.componentCount)
@@ -156,6 +189,9 @@ QString OutputValue::validationMessage() const
 		case PrimitiveType::Float3:
 		case PrimitiveType::Float4:
 		{
+			if (m_input->type().id != VecData::Type().id)
+				return "Expected vector";
+
 			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
 			const VecData& vec = static_cast<const VecData&>(*m_input);
 
@@ -179,6 +215,9 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 	{
 		case PrimitiveType::Bool:
 		{
+			if (m_input->type().id != BoolData::Type().id)
+				return false;
+
 			assert(dynamic_cast<BoolData*>(m_input.get()) != nullptr);
 			const BoolData& data = static_cast<const BoolData&>(*m_input);
 
@@ -188,6 +227,9 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 
 		case PrimitiveType::Float1:
 		{
+			if (m_input->type().id != FloatData::Type().id)
+				return false;
+
 			assert(dynamic_cast<FloatData*>(m_input.get()) != nullptr);
 			const FloatData& data = static_cast<const FloatData&>(*m_input);
 
@@ -208,6 +250,9 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 		case PrimitiveType::Float3:
 		case PrimitiveType::Float4:
 		{
+			if (m_input->type().id != VecData::Type().id)
+				return false;
+
 			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
 			const VecData& data = static_cast<const VecData&>(*m_input);
 
@@ -223,16 +268,16 @@ void OutputValue::OnOutputListUpdate()
 {
 	m_currentOutputIndex.reset();
 
-	std::size_t inputIndex = 0;
-	for (const auto& inputEntry : GetGraph().GetOutputs())
+	std::size_t outputIndex = 0;
+	for (const auto& outputEntry : GetGraph().GetOutputs())
 	{
-		if (inputEntry.name == m_currentOutputText)
+		if (outputEntry.name == m_currentOutputText)
 		{
-			m_currentOutputIndex = inputIndex;
+			m_currentOutputIndex = outputIndex;
 			break;
 		}
 
-		inputIndex++;
+		outputIndex++;
 	}
 }
 

@@ -19,11 +19,15 @@ m_shaderGraph(graph)
 
 	m_pixmapLabel = new QLabel;
 
-	QPushButton* updateTextureButton = new QPushButton(tr("Load texture..."));
+	QPushButton* addTextureButton = new QPushButton(tr("Add texture..."));
+	connect(addTextureButton, &QPushButton::released, this, &TextureEditor::OnAddTexture);
+
+	QPushButton* updateTextureButton = new QPushButton(tr("Load texture preview..."));
 	connect(updateTextureButton, &QPushButton::released, this, &TextureEditor::OnLoadTexture);
 
 	m_layout = new QVBoxLayout;
 	m_layout->addWidget(m_textureList);
+	m_layout->addWidget(addTextureButton);
 	m_layout->addWidget(updateTextureButton);
 	m_layout->addWidget(m_pixmapLabel);
 

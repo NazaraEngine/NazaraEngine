@@ -8,7 +8,6 @@
 #define NAZARA_COLLIDER2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
@@ -18,20 +17,15 @@
 #include <Nazara/Physics2D/Enums.hpp>
 #include <vector>
 
+struct cpBody;
 struct cpShape;
 
 namespace Nz
 {
-	class Collider2D;
 	class RigidBody2D;
 
-	using Collider2DConstRef = ObjectRef<const Collider2D>;
-	using Collider2DLibrary = ObjectLibrary<Collider2D>;
-	using Collider2DRef = ObjectRef<Collider2D>;
-
-	class NAZARA_PHYSICS2D_API Collider2D : public RefCounted
+	class NAZARA_PHYSICS2D_API Collider2D
 	{
-		friend Collider2DLibrary;
 		friend RigidBody2D;
 		friend class CompoundCollider2D; //< See CompoundCollider2D::CreateShapes
 
@@ -74,7 +68,7 @@ namespace Nz
 			NazaraSignal(OnColliderRelease, const Collider2D* /*collider*/);
 
 		protected:
-			virtual std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const = 0;
+			virtual std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const = 0;
 
 			UInt32 m_categoryMask;
 			UInt32 m_collisionGroup;
@@ -86,15 +80,8 @@ namespace Nz
 			unsigned int m_collisionId;
 
 		private:
-			virtual std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const;
-
-			static Collider2DLibrary::LibraryMap s_library;
+			virtual std::size_t GenerateShapes(cpBody* body, std::vector<cpShape*>* shapes) const;
 	};
-
-	class BoxCollider2D;
-
-	using BoxCollider2DConstRef = ObjectRef<const BoxCollider2D>;
-	using BoxCollider2DRef = ObjectRef<BoxCollider2D>;
 
 	class NAZARA_PHYSICS2D_API BoxCollider2D : public Collider2D
 	{
@@ -110,19 +97,12 @@ namespace Nz
 			inline Vector2f GetSize() const;
 			ColliderType2D GetType() const override;
 
-			template<typename... Args> static BoxCollider2DRef New(Args&&... args);
-
 		private:
-			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
 			Rectf m_rect;
 			float m_radius;
 	};
-
-	class CircleCollider2D;
-
-	using CircleCollider2DConstRef = ObjectRef<const CircleCollider2D>;
-	using CircleCollider2DRef = ObjectRef<CircleCollider2D>;
 
 	class NAZARA_PHYSICS2D_API CircleCollider2D : public Collider2D
 	{
@@ -136,49 +116,35 @@ namespace Nz
 			inline float GetRadius() const;
 			ColliderType2D GetType() const override;
 
-			template<typename... Args> static CircleCollider2DRef New(Args&&... args);
-
 		private:
-			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_offset;
 			float m_radius;
 	};
 
-	class CompoundCollider2D;
-
-	using CompoundCollider2DConstRef = ObjectRef<const CompoundCollider2D>;
-	using CompoundCollider2DRef = ObjectRef<CompoundCollider2D>;
-
 	class NAZARA_PHYSICS2D_API CompoundCollider2D : public Collider2D
 	{
 		public:
-			CompoundCollider2D(std::vector<Collider2DRef> geoms);
+			CompoundCollider2D(std::vector<std::shared_ptr<Collider2D>> geoms);
 
 			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline bool DoesOverrideCollisionProperties() const;
 
-			inline const std::vector<Collider2DRef>& GetGeoms() const;
+			inline const std::vector<std::shared_ptr<Collider2D>>& GetGeoms() const;
 			ColliderType2D GetType() const override;
 
 			inline void OverridesCollisionProperties(bool shouldOverride);
 
-			template<typename... Args> static CompoundCollider2DRef New(Args&&... args);
-
 		private:
-			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
-			std::size_t GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t GenerateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
-			std::vector<Collider2DRef> m_geoms;
+			std::vector<std::shared_ptr<Collider2D>> m_geoms;
 			bool m_doesOverrideCollisionProperties;
 	};
-
-	class ConvexCollider2D;
-
-	using ConvexCollider2DConstRef = ObjectRef<const ConvexCollider2D>;
-	using ConvexCollider2DRef = ObjectRef<ConvexCollider2D>;
 
 	class NAZARA_PHYSICS2D_API ConvexCollider2D : public Collider2D
 	{
@@ -191,19 +157,12 @@ namespace Nz
 			ColliderType2D GetType() const override;
 			inline const std::vector<Vector2d>& GetVertices() const;
 
-			template<typename... Args> static ConvexCollider2DRef New(Args&&... args);
-
 		private:
-			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
 			std::vector<Vector2d> m_vertices;
 			float m_radius;
 	};
-
-	class NullCollider2D;
-
-	using NullCollider2DConstRef = ObjectRef<const NullCollider2D>;
-	using NullCollider2DRef = ObjectRef<NullCollider2D>;
 
 	class NAZARA_PHYSICS2D_API NullCollider2D : public Collider2D
 	{
@@ -215,16 +174,9 @@ namespace Nz
 
 			ColliderType2D GetType() const override;
 
-			template<typename... Args> static NullCollider2DRef New(Args&&... args);
-
 		private:
-			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 	};
-
-	class SegmentCollider2D;
-
-	using SegmentCollider2DConstRef = ObjectRef<const SegmentCollider2D>;
-	using SegmentCollider2DRef = ObjectRef<SegmentCollider2D>;
 
 	class NAZARA_PHYSICS2D_API SegmentCollider2D : public Collider2D
 	{
@@ -243,10 +195,8 @@ namespace Nz
 			inline float GetThickness() const;
 			ColliderType2D GetType() const override;
 
-			template<typename... Args> static SegmentCollider2DRef New(Args&&... args);
-
 		private:
-			std::size_t CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const override;
+			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
 			Vector2f m_first;
 			Vector2f m_firstNeighbor;

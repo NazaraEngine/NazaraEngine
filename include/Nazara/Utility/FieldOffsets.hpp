@@ -27,6 +27,7 @@ namespace Nz
 			std::size_t AddStruct(const FieldOffsets& fieldStruct);
 			std::size_t AddStructArray(const FieldOffsets& fieldStruct, std::size_t arraySize);
 
+			inline std::size_t GetAlignedSize() const;
 			inline std::size_t GetLargestFieldAlignement() const;
 			inline std::size_t GetSize() const;
 
@@ -38,8 +39,6 @@ namespace Nz
 			static std::size_t GetSize(StructFieldType fieldType);
 
 		private:
-			static inline std::size_t Align(std::size_t source, std::size_t alignment);
-
 			std::size_t m_largestFieldAlignment;
 			std::size_t m_offsetRounding;
 			std::size_t m_size;

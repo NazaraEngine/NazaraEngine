@@ -25,7 +25,7 @@ namespace Nz
 	MD5MeshParser::~MD5MeshParser()
 	{
 		// Reset stream flags
-		if ((m_streamFlags & StreamOption_Text) == 0)
+		if ((m_streamFlags & StreamOption::Text) == 0)
 			m_stream.EnableTextMode(false);
 	}
 
@@ -37,11 +37,11 @@ namespace Nz
 			if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
 			{
 				if (version == 10)
-					return Ternary_True;
+					return Ternary::True;
 			}
 		}
 
-		return Ternary_False;
+		return Ternary::False;
 	}
 
 	const MD5MeshParser::Joint* MD5MeshParser::GetJoints() const

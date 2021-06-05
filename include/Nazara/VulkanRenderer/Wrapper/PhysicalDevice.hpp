@@ -11,20 +11,17 @@
 #include <unordered_set>
 #include <vector>
 
-namespace Nz 
+namespace Nz::Vk
 {
-	namespace Vk
+	struct PhysicalDevice
 	{
-		struct PhysicalDevice
-		{
-			VkPhysicalDevice physDevice;
-			VkPhysicalDeviceFeatures features;
-			VkPhysicalDeviceMemoryProperties memoryProperties;
-			VkPhysicalDeviceProperties properties;
-			std::unordered_set<std::string> extensions;
-			std::vector<VkQueueFamilyProperties> queueFamilies;
-		};
-	}
+		VkPhysicalDevice physDevice;
+		VkPhysicalDeviceFeatures features;
+		VkPhysicalDeviceMemoryProperties memoryProperties;
+		VkPhysicalDeviceProperties properties;
+		std::unordered_set<std::string> extensions;
+		std::vector<VkQueueFamilyProperties> queueFamilies;
+	};
 }
 
 #endif // NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP

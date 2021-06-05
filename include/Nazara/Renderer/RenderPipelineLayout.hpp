@@ -21,7 +21,6 @@ namespace Nz
 	{
 		struct Binding
 		{
-			std::string name; //< FIXME: wtf is this?
 			ShaderBindingType type;
 			ShaderStageTypeFlags shaderStageFlags;
 			unsigned int index;

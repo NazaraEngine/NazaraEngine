@@ -18,7 +18,7 @@ namespace Nz
 	{
 	}
 
-	RigidBody2D::RigidBody2D(PhysWorld2D* world, float mass, Collider2DRef geom) :
+	RigidBody2D::RigidBody2D(PhysWorld2D* world, float mass, std::shared_ptr<Collider2D> geom) :
 	m_positionOffset(Vector2f::Zero()),
 	m_geom(),
 	m_userData(nullptr),
@@ -101,11 +101,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				cpBodyApplyForceAtLocalPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 		}
@@ -120,11 +120,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				cpBodyApplyImpulseAtWorldPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				cpBodyApplyImpulseAtLocalPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
 				break;
 		}
@@ -233,7 +233,7 @@ namespace Nz
 		return float(cpShapeGetFriction(m_shapes[shapeIndex]));
 	}
 
-	const Collider2DRef& RigidBody2D::GetGeom() const
+	const std::shared_ptr<Collider2D>& RigidBody2D::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -254,11 +254,11 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				massCenter = cpBodyLocalToWorld(m_handle, massCenter);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Nothing to do
 		}
 
@@ -374,7 +374,7 @@ namespace Nz
 		cpShapeSetFriction(m_shapes[shapeIndex], cpFloat(friction));
 	}
 
-	void RigidBody2D::SetGeom(Collider2DRef geom, bool recomputeMoment, bool recomputeMassCenter)
+	void RigidBody2D::SetGeom(std::shared_ptr<Collider2D> geom, bool recomputeMoment, bool recomputeMassCenter)
 	{
 		// We have no public way of getting rid of an existing geom without removing the whole body
 		// So let's save some attributes of the body, destroy it and rebuild it
@@ -393,11 +393,11 @@ namespace Nz
 		}
 
 		if (geom)
-			m_geom = geom;
+			m_geom = std::move(geom);
 		else
-			m_geom = NullCollider2D::New();
+			m_geom = std::make_shared<NullCollider2D>();
 
-		m_geom->GenerateShapes(this, &m_shapes);
+		m_geom->GenerateShapes(m_handle, &m_shapes);
 
 		for (cpShape* shape : m_shapes)
 			cpShapeSetUserData(shape, this);
@@ -456,11 +456,11 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				massCenter = cpBodyWorldToLocal(m_handle, massCenter);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Nothing to do
 		}
 

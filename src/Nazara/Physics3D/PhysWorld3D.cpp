@@ -4,7 +4,7 @@
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <cassert>
 #include <Nazara/Physics3D/Debug.hpp>
 

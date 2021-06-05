@@ -1,5 +1,6 @@
 #include <ShaderNode/DataModels/VecDot.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 VecDot::VecDot(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -8,11 +9,16 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderNodes::ExpressionPtr VecDot::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderAst::NodePtr VecDot::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
-	using namespace Nz::ShaderNodes;
-	return IntrinsicCall::Build(IntrinsicType::DotProduct, { expressions[0], expressions[1] });
+	assert(outputIndex == 0);
+
+	std::vector<Nz::ShaderAst::ExpressionPtr> params;
+	params.push_back(std::move(expressions[0]));
+	params.push_back(std::move(expressions[1]));
+
+	return Nz::ShaderBuilder::Intrinsic(Nz::ShaderAst::IntrinsicType::DotProduct, std::move(params));
 }
 
 QString VecDot::caption() const
@@ -71,10 +77,9 @@ void VecDot::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	assert(index == 0 || index == 1);
 
 	std::shared_ptr<VecData> castedValue;
-	if (value)
+	if (value && value->type().id == VecData::Type().id)
 	{
 		assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-
 		castedValue = std::static_pointer_cast<VecData>(value);
 	}
 

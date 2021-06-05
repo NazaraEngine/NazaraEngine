@@ -8,14 +8,11 @@
 #define NAZARA_LOADERS_MD2_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterMD2();
-		void UnregisterMD2();
-	}
+	MeshLoader::Entry GetMeshLoader_MD2();
 }
 
 #endif // NAZARA_LOADERS_MD2_HPP

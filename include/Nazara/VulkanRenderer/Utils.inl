@@ -10,16 +10,99 @@
 
 namespace Nz
 {
+	inline std::optional<PixelFormat> FromVulkan(VkFormat format)
+	{
+		switch (format)
+		{
+			case VK_FORMAT_B8G8R8A8_UNORM:     return PixelFormat::BGRA8;
+			case VK_FORMAT_B8G8R8A8_SRGB:      return PixelFormat::BGRA8_SRGB;
+			case VK_FORMAT_D16_UNORM:          return PixelFormat::Depth16;
+			case VK_FORMAT_D16_UNORM_S8_UINT:  return PixelFormat::Depth16Stencil8;
+			case VK_FORMAT_D24_UNORM_S8_UINT:  return PixelFormat::Depth24Stencil8;
+			case VK_FORMAT_D32_SFLOAT:         return PixelFormat::Depth32F;
+			case VK_FORMAT_D32_SFLOAT_S8_UINT: return PixelFormat::Depth32FStencil8;
+			case VK_FORMAT_R8G8B8A8_UNORM:     return PixelFormat::RGBA8;
+			case VK_FORMAT_R8G8B8A8_SRGB:      return PixelFormat::RGBA8_SRGB;
+			default: break;
+		}
+
+		return std::nullopt;
+	}
+
+	inline VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp)
+	{
+		switch (loadOp)
+		{
+			case AttachmentLoadOp::Clear:   return VK_ATTACHMENT_LOAD_OP_CLEAR;
+			case AttachmentLoadOp::Discard: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			case AttachmentLoadOp::Load:    return VK_ATTACHMENT_LOAD_OP_LOAD;
+		}
+
+		NazaraError("Unhandled AttachmentLoadOp 0x" + NumberToString(UnderlyingCast(loadOp), 16));
+		return {};
+	}
+
+	inline VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp)
+	{
+		switch (storeOp)
+		{
+			case AttachmentStoreOp::Discard: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			case AttachmentStoreOp::Store:   return VK_ATTACHMENT_STORE_OP_STORE;
+		}
+
+		NazaraError("Unhandled AttachmentStoreOp 0x" + NumberToString(UnderlyingCast(storeOp), 16));
+		return {};
+	}
+
+	inline VkBlendOp ToVulkan(BlendEquation blendEquation)
+	{
+		switch (blendEquation)
+		{
+			case BlendEquation::Add:             return VK_BLEND_OP_ADD;
+			case BlendEquation::Max:             return VK_BLEND_OP_MAX;
+			case BlendEquation::Min:             return VK_BLEND_OP_MIN;
+			case BlendEquation::ReverseSubtract: return VK_BLEND_OP_REVERSE_SUBTRACT;
+			case BlendEquation::Subtract:        return VK_BLEND_OP_SUBTRACT;
+		}
+
+		NazaraError("Unhandled BlendEquation 0x" + NumberToString(UnderlyingCast(blendEquation), 16));
+		return {};
+	}
+
+	inline VkBlendFactor ToVulkan(BlendFunc blendFunc)
+	{
+		switch (blendFunc)
+		{
+			case BlendFunc::ConstantAlpha:    return VK_BLEND_FACTOR_CONSTANT_ALPHA;
+			case BlendFunc::ConstantColor:    return VK_BLEND_FACTOR_CONSTANT_COLOR;
+			case BlendFunc::DstAlpha:         return VK_BLEND_FACTOR_DST_ALPHA;
+			case BlendFunc::DstColor:         return VK_BLEND_FACTOR_DST_COLOR;
+			case BlendFunc::InvConstantAlpha: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_ALPHA;
+			case BlendFunc::InvConstantColor: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+			case BlendFunc::InvDstAlpha:      return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+			case BlendFunc::InvDstColor:      return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+			case BlendFunc::InvSrcAlpha:      return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			case BlendFunc::InvSrcColor:      return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+			case BlendFunc::SrcAlpha:         return VK_BLEND_FACTOR_SRC_ALPHA;
+			case BlendFunc::SrcColor:         return VK_BLEND_FACTOR_SRC_COLOR;
+			case BlendFunc::One:              return VK_BLEND_FACTOR_ONE;
+			case BlendFunc::Zero:             return VK_BLEND_FACTOR_ZERO;
+		}
+
+		NazaraError("Unhandled BlendFunc 0x" + NumberToString(UnderlyingCast(blendFunc), 16));
+		return {};
+	}
+
 	inline VkBufferUsageFlags ToVulkan(BufferType bufferType)
 	{
 		switch (bufferType)
 		{
-			case BufferType_Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-			case BufferType_Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			case BufferType_Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			case BufferType::Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferType::Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case BufferType::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
 
-		NazaraError("Unhandled BufferType 0x" + NumberToString(bufferType, 16));
+		NazaraError("Unhandled BufferType 0x" + NumberToString(UnderlyingCast(bufferType), 16));
 		return 0;
 	}
 
@@ -27,23 +110,23 @@ namespace Nz
 	{
 		switch (componentType)
 		{
-			case ComponentType_Color:      return VK_FORMAT_R8G8B8A8_UINT;
-			case ComponentType_Double1:    return VK_FORMAT_R64_SFLOAT;
-			case ComponentType_Double2:    return VK_FORMAT_R64G64_SFLOAT;
-			case ComponentType_Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
-			case ComponentType_Double4:    return VK_FORMAT_R64G64B64A64_SFLOAT;
-			case ComponentType_Float1:     return VK_FORMAT_R32_SFLOAT;
-			case ComponentType_Float2:     return VK_FORMAT_R32G32_SFLOAT;
-			case ComponentType_Float3:     return VK_FORMAT_R32G32B32_SFLOAT;
-			case ComponentType_Float4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
-			case ComponentType_Int1:       return VK_FORMAT_R32_SINT;
-			case ComponentType_Int2:       return VK_FORMAT_R32G32_SINT;
-			case ComponentType_Int3:       return VK_FORMAT_R32G32B32_SINT;
-			case ComponentType_Int4:       return VK_FORMAT_R32G32B32A32_SINT;
-			case ComponentType_Quaternion: return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ComponentType::Color:      return VK_FORMAT_R8G8B8A8_UINT;
+			case ComponentType::Double1:    return VK_FORMAT_R64_SFLOAT;
+			case ComponentType::Double2:    return VK_FORMAT_R64G64_SFLOAT;
+			case ComponentType::Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
+			case ComponentType::Double4:    return VK_FORMAT_R64G64B64A64_SFLOAT;
+			case ComponentType::Float1:     return VK_FORMAT_R32_SFLOAT;
+			case ComponentType::Float2:     return VK_FORMAT_R32G32_SFLOAT;
+			case ComponentType::Float3:     return VK_FORMAT_R32G32B32_SFLOAT;
+			case ComponentType::Float4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ComponentType::Int1:       return VK_FORMAT_R32_SINT;
+			case ComponentType::Int2:       return VK_FORMAT_R32G32_SINT;
+			case ComponentType::Int3:       return VK_FORMAT_R32G32B32_SINT;
+			case ComponentType::Int4:       return VK_FORMAT_R32G32B32A32_SINT;
+			case ComponentType::Quaternion: return VK_FORMAT_R32G32B32A32_SFLOAT;
 		}
 
-		NazaraError("Unhandled ComponentType 0x" + NumberToString(componentType, 16));
+		NazaraError("Unhandled ComponentType 0x" + NumberToString(UnderlyingCast(componentType), 16));
 		return VK_FORMAT_UNDEFINED;
 	}
 
@@ -51,13 +134,13 @@ namespace Nz
 	{
 		switch (faceSide)
 		{
-			case FaceSide_None:         return VK_CULL_MODE_NONE;
-			case FaceSide_Back:         return VK_CULL_MODE_BACK_BIT;
-			case FaceSide_Front:        return VK_CULL_MODE_FRONT_BIT;
-			case FaceSide_FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
+			case FaceSide::None:         return VK_CULL_MODE_NONE;
+			case FaceSide::Back:         return VK_CULL_MODE_BACK_BIT;
+			case FaceSide::Front:        return VK_CULL_MODE_FRONT_BIT;
+			case FaceSide::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 		}
 
-		NazaraError("Unhandled FaceSide 0x" + NumberToString(faceSide, 16));
+		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(faceSide), 16));
 		return VK_CULL_MODE_BACK_BIT;
 	}
 
@@ -65,28 +148,137 @@ namespace Nz
 	{
 		switch (faceFilling)
 		{
-			case FaceFilling_Fill:  return VK_POLYGON_MODE_FILL;
-			case FaceFilling_Line:  return VK_POLYGON_MODE_LINE;
-			case FaceFilling_Point: return VK_POLYGON_MODE_POINT;
+			case FaceFilling::Fill:  return VK_POLYGON_MODE_FILL;
+			case FaceFilling::Line:  return VK_POLYGON_MODE_LINE;
+			case FaceFilling::Point: return VK_POLYGON_MODE_POINT;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + NumberToString(faceFilling, 16));
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(faceFilling), 16));
 		return VK_POLYGON_MODE_FILL;
+	}
+
+	inline VkFrontFace ToVulkan(FrontFace frontFace)
+	{
+		switch (frontFace)
+		{
+			case FrontFace::Clockwise:        return VK_FRONT_FACE_CLOCKWISE;
+			case FrontFace::CounterClockwise: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		}
+
+		NazaraError("Unhandled FrontFace 0x" + NumberToString(UnderlyingCast(frontFace), 16));
+		return {};
+	}
+
+	inline VkAccessFlagBits ToVulkan(MemoryAccess memoryAccess)
+	{
+		switch (memoryAccess)
+		{
+			case MemoryAccess::ColorRead:           return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+			case MemoryAccess::ColorWrite:          return VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			case MemoryAccess::DepthStencilRead:    return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			case MemoryAccess::DepthStencilWrite:   return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			case MemoryAccess::IndexBufferRead:     return VK_ACCESS_INDEX_READ_BIT;
+			case MemoryAccess::IndirectCommandRead: return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+			case MemoryAccess::HostRead:            return VK_ACCESS_HOST_READ_BIT;
+			case MemoryAccess::HostWrite:           return VK_ACCESS_HOST_WRITE_BIT;
+			case MemoryAccess::MemoryRead:          return VK_ACCESS_MEMORY_READ_BIT;
+			case MemoryAccess::MemoryWrite:         return VK_ACCESS_MEMORY_WRITE_BIT;
+			case MemoryAccess::ShaderRead:          return VK_ACCESS_SHADER_READ_BIT;
+			case MemoryAccess::ShaderWrite:         return VK_ACCESS_SHADER_WRITE_BIT;
+			case MemoryAccess::TransferRead:        return VK_ACCESS_TRANSFER_READ_BIT;
+			case MemoryAccess::TransferWrite:       return VK_ACCESS_TRANSFER_WRITE_BIT;
+			case MemoryAccess::UniformBufferRead:   return VK_ACCESS_UNIFORM_READ_BIT;
+			case MemoryAccess::VertexBufferRead:    return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+		}
+
+		NazaraError("Unhandled MemoryAccess 0x" + NumberToString(UnderlyingCast(memoryAccess), 16));
+		return {};
+	}
+
+	inline VkAccessFlags ToVulkan(MemoryAccessFlags memoryAccessFlags)
+	{
+		VkShaderStageFlags accessBits = 0;
+		for (int i = 0; i <= UnderlyingCast(MemoryAccess::Max); ++i)
+		{
+			MemoryAccess memoryAccess = static_cast<MemoryAccess>(i);
+			if (memoryAccessFlags.Test(memoryAccess))
+				accessBits |= ToVulkan(memoryAccess);
+		}
+
+		return accessBits;
+	}
+
+	inline VkPipelineStageFlagBits ToVulkan(PipelineStage pipelineStage)
+	{
+		switch (pipelineStage)
+		{
+			case PipelineStage::TopOfPipe:                    return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			case PipelineStage::ColorOutput:                  return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case PipelineStage::DrawIndirect:                 return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+			case PipelineStage::FragmentShader:               return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			case PipelineStage::FragmentTestsEarly:           return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			case PipelineStage::FragmentTestsLate:            return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+			case PipelineStage::GeometryShader:               return VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			case PipelineStage::TessellationControlShader:    return VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT;
+			case PipelineStage::TessellationEvaluationShader: return VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			case PipelineStage::Transfer:                     return VK_PIPELINE_STAGE_TRANSFER_BIT;
+			case PipelineStage::TransformFeedback:            return VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT;
+			case PipelineStage::VertexInput:                  return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+			case PipelineStage::VertexShader:                 return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+			case PipelineStage::BottomOfPipe:                 return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		}
+
+		NazaraError("Unhandled PipelineStage 0x" + NumberToString(UnderlyingCast(pipelineStage), 16));
+		return {};
+	}
+
+	inline VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages)
+	{
+		VkShaderStageFlags pipelineStageBits = 0;
+		for (int i = 0; i <= UnderlyingCast(PipelineStage::Max); ++i)
+		{
+			PipelineStage pipelineStage = static_cast<PipelineStage>(i);
+			if (pipelineStages.Test(pipelineStage))
+				pipelineStageBits |= ToVulkan(pipelineStage);
+		}
+
+		return pipelineStageBits;
+	}
+
+	inline VkFormat ToVulkan(PixelFormat pixelFormat)
+	{
+		switch (pixelFormat)
+		{
+			case PixelFormat::BGRA8: return VK_FORMAT_B8G8R8A8_UNORM;
+			case PixelFormat::BGRA8_SRGB: return VK_FORMAT_B8G8R8A8_SRGB;
+			case PixelFormat::Depth16: return VK_FORMAT_D16_UNORM;
+			case PixelFormat::Depth16Stencil8: return VK_FORMAT_D16_UNORM_S8_UINT;
+			case PixelFormat::Depth24Stencil8: return VK_FORMAT_D24_UNORM_S8_UINT;
+			case PixelFormat::Depth32F: return VK_FORMAT_D32_SFLOAT;
+			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+			case PixelFormat::RGBA8: return VK_FORMAT_R8G8B8A8_UNORM;
+			case PixelFormat::RGBA8_SRGB: return VK_FORMAT_R8G8B8A8_SRGB;
+			case PixelFormat::RGBA32F: return VK_FORMAT_R32G32B32A32_SFLOAT;
+			default: break;
+		}
+
+		NazaraError("Unhandled PixelFormat 0x" + NumberToString(UnderlyingCast(pixelFormat), 16));
+		return {};
 	}
 
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
 	{
 		switch (primitiveMode)
 		{
-			case PrimitiveMode_LineList:      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-			case PrimitiveMode_LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-			case PrimitiveMode_PointList:     return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-			case PrimitiveMode_TriangleList:  return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-			case PrimitiveMode_TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-			case PrimitiveMode_TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+			case PrimitiveMode::LineList:      return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			case PrimitiveMode::LineStrip:     return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+			case PrimitiveMode::PointList:     return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+			case PrimitiveMode::TriangleList:  return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			case PrimitiveMode::TriangleStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			case PrimitiveMode::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + NumberToString(primitiveMode, 16));
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(primitiveMode), 16));
 		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	}
 
@@ -94,17 +286,17 @@ namespace Nz
 	{
 		switch (comparison)
 		{
-			case RendererComparison_Never:          return VK_COMPARE_OP_NEVER; 
-			case RendererComparison_Less:           return VK_COMPARE_OP_LESS; 
-			case RendererComparison_Equal:          return VK_COMPARE_OP_EQUAL; 
-			case RendererComparison_LessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL; 
-			case RendererComparison_Greater:        return VK_COMPARE_OP_GREATER; 
-			case RendererComparison_NotEqual:       return VK_COMPARE_OP_NOT_EQUAL; 
-			case RendererComparison_GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL; 
-			case RendererComparison_Always:         return VK_COMPARE_OP_ALWAYS; 
+			case RendererComparison::Never:          return VK_COMPARE_OP_NEVER; 
+			case RendererComparison::Less:           return VK_COMPARE_OP_LESS; 
+			case RendererComparison::Equal:          return VK_COMPARE_OP_EQUAL; 
+			case RendererComparison::LessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL; 
+			case RendererComparison::Greater:        return VK_COMPARE_OP_GREATER; 
+			case RendererComparison::NotEqual:       return VK_COMPARE_OP_NOT_EQUAL; 
+			case RendererComparison::GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL; 
+			case RendererComparison::Always:         return VK_COMPARE_OP_ALWAYS; 
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + NumberToString(comparison, 16));
+		NazaraError("Unhandled RendererComparison 0x" + NumberToString(UnderlyingCast(comparison), 16));
 		return VK_COMPARE_OP_NEVER;
 	}
 
@@ -112,8 +304,8 @@ namespace Nz
 	{
 		switch (samplerFilter)
 		{
-			case SamplerFilter_Linear:  return VK_FILTER_LINEAR;
-			case SamplerFilter_Nearest: return VK_FILTER_NEAREST;
+			case SamplerFilter::Linear:  return VK_FILTER_LINEAR;
+			case SamplerFilter::Nearest: return VK_FILTER_NEAREST;
 		}
 
 		NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(samplerFilter), 16));
@@ -124,8 +316,8 @@ namespace Nz
 	{
 		switch (samplerMipmap)
 		{
-			case SamplerMipmapMode_Linear:  return VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			case SamplerMipmapMode_Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+			case SamplerMipmapMode::Linear:  return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+			case SamplerMipmapMode::Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 		}
 
 		NazaraError("Unhandled SamplerMipmapMode 0x" + NumberToString(UnderlyingCast(samplerMipmap), 16));
@@ -136,9 +328,9 @@ namespace Nz
 	{
 		switch (samplerWrap)
 		{
-			case SamplerWrap_Clamp:          return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-			case SamplerWrap_MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-			case SamplerWrap_Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			case SamplerWrap::Clamp:          return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+			case SamplerWrap::MirroredRepeat: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+			case SamplerWrap::Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		}
 
 		NazaraError("Unhandled SamplerWrap 0x" + NumberToString(UnderlyingCast(samplerWrap), 16));
@@ -172,14 +364,12 @@ namespace Nz
 	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType)
 	{
 		VkShaderStageFlags shaderStageBits = 0;
-
-		if (stageType.Test(ShaderStageType::Fragment))
-			shaderStageBits |= VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		if (stageType.Test(ShaderStageType::Vertex))
-			shaderStageBits |= VK_SHADER_STAGE_VERTEX_BIT;
-
-		static_assert(UnderlyingCast(ShaderStageType::Max) + 1 == 2);
+		for (int i = 0; i <= UnderlyingCast(ShaderStageType::Max); ++i)
+		{
+			ShaderStageType shaderStage = static_cast<ShaderStageType>(i);
+			if (stageType.Test(shaderStage))
+				shaderStageBits |= ToVulkan(shaderStage);
+		}
 
 		return shaderStageBits;
 	}
@@ -188,18 +378,65 @@ namespace Nz
 	{
 		switch (stencilOp)
 		{
-			case StencilOperation_Decrement:        return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
-			case StencilOperation_DecrementNoClamp: return VK_STENCIL_OP_DECREMENT_AND_WRAP;
-			case StencilOperation_Increment:        return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
-			case StencilOperation_IncrementNoClamp: return VK_STENCIL_OP_INCREMENT_AND_WRAP;
-			case StencilOperation_Invert:           return VK_STENCIL_OP_INVERT;
-			case StencilOperation_Keep:             return VK_STENCIL_OP_KEEP;
-			case StencilOperation_Replace:          return VK_STENCIL_OP_REPLACE;
-			case StencilOperation_Zero:             return VK_STENCIL_OP_ZERO;
+			case StencilOperation::Decrement:        return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			case StencilOperation::DecrementNoClamp: return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+			case StencilOperation::Increment:        return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			case StencilOperation::IncrementNoClamp: return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+			case StencilOperation::Invert:           return VK_STENCIL_OP_INVERT;
+			case StencilOperation::Keep:             return VK_STENCIL_OP_KEEP;
+			case StencilOperation::Replace:          return VK_STENCIL_OP_REPLACE;
+			case StencilOperation::Zero:             return VK_STENCIL_OP_ZERO;
 		}
 
-		NazaraError("Unhandled RendererComparison 0x" + NumberToString(stencilOp, 16));
-		return VK_STENCIL_OP_KEEP;
+		NazaraError("Unhandled StencilOperation 0x" + NumberToString(UnderlyingCast(stencilOp), 16));
+		return {};
+	}
+
+	inline VkImageLayout ToVulkan(TextureLayout textureLayout)
+	{
+		switch (textureLayout)
+		{
+			case TextureLayout::ColorInput:            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case TextureLayout::ColorOutput:           return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case TextureLayout::DepthStencilReadOnly:  return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case TextureLayout::DepthStencilReadWrite: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			case TextureLayout::Present:               return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			case TextureLayout::TransferSource:        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case TextureLayout::TransferDestination:   return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case TextureLayout::Undefined:             return VK_IMAGE_LAYOUT_UNDEFINED;
+		}
+
+		NazaraError("Unhandled TextureLayout 0x" + NumberToString(UnderlyingCast(textureLayout), 16));
+		return {};
+	}
+
+	inline VkImageUsageFlagBits ToVulkan(TextureUsage textureLayout)
+	{
+		switch (textureLayout)
+		{
+			case TextureUsage::ColorAttachment:        return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			case TextureUsage::DepthStencilAttachment: return VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			case TextureUsage::InputAttachment:        return VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+			case TextureUsage::ShaderSampling:         return VK_IMAGE_USAGE_SAMPLED_BIT;
+			case TextureUsage::TransferSource:         return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			case TextureUsage::TransferDestination:    return VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		}
+
+		NazaraError("Unhandled TextureUsage 0x" + NumberToString(UnderlyingCast(textureLayout), 16));
+		return {};
+	}
+
+	inline VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout)
+	{
+		VkImageUsageFlags imageUsageBits = 0;
+		for (int i = 0; i <= UnderlyingCast(TextureUsage::Max); ++i)
+		{
+			TextureUsage textureUsage = static_cast<TextureUsage>(i);
+			if (textureLayout.Test(textureUsage))
+				imageUsageBits |= ToVulkan(textureUsage);
+		}
+
+		return imageUsageBits;
 	}
 
 	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate)
@@ -211,7 +448,7 @@ namespace Nz
 		}
 
 		NazaraError("Unhandled VertexInputRate 0x" + NumberToString(UnderlyingCast(inputRate), 16));
-		return VK_VERTEX_INPUT_RATE_VERTEX;
+		return {};
 	}
 }
 

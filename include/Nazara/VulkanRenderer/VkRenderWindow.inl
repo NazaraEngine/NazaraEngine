@@ -36,11 +36,6 @@ namespace Nz
 	{
 		return m_swapchain;
 	}
-
-	inline std::shared_ptr<RenderDevice> VkRenderWindow::GetRenderDevice()
-	{
-		return m_device;
-	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>

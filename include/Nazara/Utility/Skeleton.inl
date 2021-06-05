@@ -7,14 +7,6 @@
 
 namespace Nz
 {
-	template<typename... Args>
-	SkeletonRef Skeleton::New(Args&&... args)
-	{
-		std::unique_ptr<Skeleton> object(new Skeleton(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
-	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

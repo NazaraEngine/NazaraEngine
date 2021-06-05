@@ -8,22 +8,43 @@
 #define NAZARA_TEXTURE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Utility/Image.hpp>
 
 namespace Nz
 {
+	class RenderDevice;
+
 	struct TextureInfo
 	{
 		PixelFormat pixelFormat;
 		ImageType type;
+		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
+		UInt8 mipmapLevel = 1;
 		unsigned int depth = 1;
 		unsigned int height;
-		unsigned int mipmapLevel = 1;
 		unsigned int width;
 	};
+
+	struct NAZARA_RENDERER_API TextureParams : ImageParams
+	{
+		std::shared_ptr<RenderDevice> renderDevice;
+		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
+
+		bool IsValid() const;
+	};
+
+	class Texture;
+
+	using TextureLibrary = ObjectLibrary<Texture>;
+	using TextureLoader = ResourceLoader<Texture, TextureParams>;
+	using TextureManager = ResourceManager<Texture, TextureParams>;
 
 	class NAZARA_RENDERER_API Texture : public Resource
 	{
@@ -41,6 +62,23 @@ namespace Nz
 			virtual bool Update(const void* ptr) = 0;
 
 			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
+
+			static std::shared_ptr<Texture> CreateFromImage(const Image& image, const TextureParams& params);
+
+			// Load
+			static std::shared_ptr<Texture> LoadFromFile(const std::filesystem::path& filePath, const TextureParams& params);
+			static std::shared_ptr<Texture> LoadFromMemory(const void* data, std::size_t size, const TextureParams& params);
+			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& params);
+
+			// LoadArray
+			static std::shared_ptr<Texture> LoadArrayFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Texture> LoadArrayFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui& atlasSize = Vector2ui(2, 2));
+			static std::shared_ptr<Texture> LoadArrayFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui& atlasSize = Vector2ui(2, 2));
+
+			// LoadCubemap
+			static std::shared_ptr<Texture> LoadCubemapFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
+			static std::shared_ptr<Texture> LoadCubemapFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
+			static std::shared_ptr<Texture> LoadCubemapFromStream(Stream& stream, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
 
 			Texture& operator=(const Texture&) = delete;
 			Texture& operator=(Texture&&) = delete;

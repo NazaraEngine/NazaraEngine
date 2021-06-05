@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/OpenAL.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -347,8 +348,7 @@ namespace Nz
 		s_library.Unload();
 	}
 
-	///WARNING: The integer value is the number of canals owned by the format
-	ALenum OpenAL::AudioFormat[AudioFormat_Max+1] = {0}; // Added values with loading of OpenAL
+	ALenum OpenAL::AudioFormat[AudioFormatCount] = {0}; // Added values with loading of OpenAL
 
 	/*!
 	* \brief Closes the device
@@ -440,19 +440,19 @@ namespace Nz
 		}
 
 		// We complete the formats table
-		AudioFormat[AudioFormat_Mono] = AL_FORMAT_MONO16;
-		AudioFormat[AudioFormat_Stereo] = AL_FORMAT_STEREO16;
+		AudioFormat[UnderlyingCast(AudioFormat::I16_Mono)] = AL_FORMAT_MONO16;
+		AudioFormat[UnderlyingCast(AudioFormat::I16_Stereo)] = AL_FORMAT_STEREO16;
 
 		// "The presence of an enum value does not guarantee the applicability of an extension to the current context."
 		if (alIsExtensionPresent("AL_EXT_MCFORMATS"))
 		{
-			AudioFormat[AudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16");
-			AudioFormat[AudioFormat_5_1]  = alGetEnumValue("AL_FORMAT_51CHN16");
-			AudioFormat[AudioFormat_6_1]  = alGetEnumValue("AL_FORMAT_61CHN16");
-			AudioFormat[AudioFormat_7_1]  = alGetEnumValue("AL_FORMAT_71CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_5_1)] = alGetEnumValue("AL_FORMAT_51CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_6_1)] = alGetEnumValue("AL_FORMAT_61CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_7_1)] = alGetEnumValue("AL_FORMAT_71CHN16");
 		}
 		else if (alIsExtensionPresent("AL_LOKI_quadriphonic"))
-			AudioFormat[AudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
 		return true;
 	}

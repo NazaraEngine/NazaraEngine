@@ -66,12 +66,12 @@ namespace Nz
 	/*!
 	* \brief Constructs a Quaternion object from an angle and a direction
 	*
-	* \param angle Unit depends of NAZARA_MATH_ANGLE_RADIAN
+	* \param angle Angle to rotate along the axis
 	* \param axis Vector3 which represents a direction, no need to be normalized
 	*/
 
 	template<typename T>
-	Quaternion<T>::Quaternion(T angle, const Vector3<T>& axis)
+	Quaternion<T>::Quaternion(RadianAngle<T> angle, const Vector3<T>& axis)
 	{
 		Set(angle, axis);
 	}
@@ -386,27 +386,23 @@ namespace Nz
 	* \brief Sets this quaternion from rotation specified by axis and angle
 	* \return A reference to this quaternion
 	*
-	* \param angle Unit depends of NAZARA_MATH_ANGLE_RADIAN
+	* \param angle Angle to rotate along the axis
 	* \param axis Vector3 which represents a direction, no need to be normalized
 	*/
 
 	template<typename T>
-	Quaternion<T>& Quaternion<T>::Set(T angle, const Vector3<T>& axis)
+	Quaternion<T>& Quaternion<T>::Set(RadianAngle<T> angle, const Vector3<T>& axis)
 	{
-		#if !NAZARA_MATH_ANGLE_RADIAN
-		angle = DegreeToRadian(angle);
-		#endif
-
 		angle /= T(2.0);
 
 		Vector3<T> normalizedAxis = axis.GetNormal();
 
-		T sinAngle = std::sin(angle);
+		auto sincos = angle.GetSinCos();
 
-		w = std::cos(angle);
-		x = normalizedAxis.x * sinAngle;
-		y = normalizedAxis.y * sinAngle;
-		z = normalizedAxis.z * sinAngle;
+		w = sincos.second;
+		x = normalizedAxis.x * sincos.first;
+		y = normalizedAxis.y * sincos.first;
+		z = normalizedAxis.z * sincos.first;
 
 		return Normalize();
 	}
@@ -488,15 +484,15 @@ namespace Nz
 		T test = x * y + z * w;
 		if (test > T(0.499))
 			// singularity at north pole
-			return EulerAngles<T>(T(0.0), FromRadians(T(2.0) * std::atan2(x, w)), FromDegrees(T(90.0)));
+			return EulerAngles<T>(DegreeAngle<T>(T(0.0)), RadianAngle<T>(T(2.0) * std::atan2(x, w)), DegreeAngle<T>(T(90.0)));
 
 		if (test < T(-0.499))
 			// singularity at south pole
-			return EulerAngles<T>(T(0.0), FromRadians(T(-2.0) * std::atan2(x, w)), FromDegrees(T(-90.0)));
+			return EulerAngles<T>(DegreeAngle<T>(T(0.0)), RadianAngle<T>(T(-2.0) * std::atan2(x, w)), DegreeAngle<T>(T(-90.0)));
 
-		return EulerAngles<T>(FromRadians(std::atan2(T(2.0) * x * w - T(2.0) * y * z, T(1.0) - T(2.0) * x * x - T(2.0) * z * z)),
-		                      FromRadians(std::atan2(T(2.0) * y * w - T(2.0) * x * z, T(1.0) - T(2.0) * y * y - T(2.0) * z * z)),
-		                      FromRadians(std::asin(T(2.0) * test)));
+		return EulerAngles<T>(RadianAngle<T>(std::atan2(T(2.0) * x * w - T(2.0) * y * z, T(1.0) - T(2.0) * x * x - T(2.0) * z * z)),
+		                      RadianAngle<T>(std::atan2(T(2.0) * y * w - T(2.0) * x * z, T(1.0) - T(2.0) * y * y - T(2.0) * z * z)),
+		                      RadianAngle<T>(std::asin(T(2.0) * test)));
 	}
 
 	/*!

@@ -11,204 +11,224 @@
 
 namespace Nz
 {
-	enum CoordSys
+	enum class CoordSys
 	{
-		CoordSys_Global,
-		CoordSys_Local,
+		Global,
+		Local,
 
-		CoordSys_Max = CoordSys_Local
+		Max = Local
 	};
 
-	enum CursorPosition
+	enum class CursorPosition
 	{
-		CursorPosition_AtBegin,   // beginning of the file
-		CursorPosition_AtCurrent, // Position of the cursor
-		CursorPosition_AtEnd,     // End of the file
+		AtBegin,   // beginning of the file
+		AtCurrent, // Position of the cursor
+		AtEnd,     // End of the file
 
-		CursorPosition_Max = CursorPosition_AtEnd
+		Max = AtEnd
 	};
 
-	enum Endianness
+	enum class Endianness
 	{
-		Endianness_Unknown = -1,
+		Unknown = -1,
 
-		Endianness_BigEndian,
-		Endianness_LittleEndian,
+		BigEndian,
+		LittleEndian,
 
-		Endianness_Max = Endianness_LittleEndian
+		Max = LittleEndian
 	};
 
-	enum ErrorFlag
+	enum class ErrorMode
 	{
-		ErrorFlag_None = 0,
+		None,
 
-		ErrorFlag_Silent                 = 0x1,
-		ErrorFlag_SilentDisabled         = 0x2,
-		ErrorFlag_ThrowException         = 0x4,
-		ErrorFlag_ThrowExceptionDisabled = 0x8,
+		Silent,
+		SilentDisabled,
+		ThrowException,
+		ThrowExceptionDisabled,
 
-		ErrorFlag_Max = ErrorFlag_ThrowExceptionDisabled * 2 - 1
+		Max = ThrowExceptionDisabled
 	};
 
-	enum ErrorType
+	template<>
+	struct EnumAsFlags<ErrorMode>
 	{
-		ErrorType_AssertFailed,
-		ErrorType_Internal,
-		ErrorType_Normal,
-		ErrorType_Warning,
-
-		ErrorType_Max = ErrorType_Warning
+		static constexpr ErrorMode max = ErrorMode::Max;
 	};
 
-	enum HashType
-	{
-		HashType_CRC32,
-		HashType_CRC64,
-		HashType_Fletcher16,
-		HashType_MD5,
-		HashType_SHA1,
-		HashType_SHA224,
-		HashType_SHA256,
-		HashType_SHA384,
-		HashType_SHA512,
-		HashType_Whirlpool,
+	using ErrorModeFlags = Flags<ErrorMode>;
 
-		HashType_Max = HashType_Whirlpool
+	enum class ErrorType
+	{
+		AssertFailed,
+		Internal,
+		Normal,
+		Warning,
+
+		Max = Warning
 	};
 
-	enum OpenMode
+	constexpr std::size_t ErrorTypeCount = static_cast<std::size_t>(ErrorType::Max) + 1;
+
+	enum class HashType
 	{
-		OpenMode_NotOpen,   // Use the current mod of opening
+		CRC32,
+		CRC64,
+		Fletcher16,
+		MD5,
+		SHA1,
+		SHA224,
+		SHA256,
+		SHA384,
+		SHA512,
+		Whirlpool,
 
-		OpenMode_Append,    // Disable writing on existing parts and put the cursor at the end
-		OpenMode_Lock,      // Disable modifying the file before it is open
-		OpenMode_MustExist, // Fail if the file doesn't exists, even if opened in write mode
-		OpenMode_ReadOnly,  // Open in read only
-		OpenMode_Text,      // Open in text mod
-		OpenMode_Truncate,  // Create the file if it doesn't exist and empty it if it exists
-		OpenMode_WriteOnly, // Open in write only, create the file if it doesn't exist
+		Max = Whirlpool
+	};
 
-		OpenMode_Max = OpenMode_WriteOnly
+	constexpr std::size_t HashTypeCount = static_cast<std::size_t>(HashType::Max) + 1;
+
+	enum class OpenMode
+	{
+		NotOpen,   // Use the current mod of opening
+
+		Append,    // Disable writing on existing parts and put the cursor at the end
+		Lock,      // Disable modifying the file before it is open
+		MustExist, // Fail if the file doesn't exists, even if opened in write mode
+		ReadOnly,  // Open in read only
+		Text,      // Open in text mod
+		Truncate,  // Create the file if it doesn't exist and empty it if it exists
+		WriteOnly, // Open in write only, create the file if it doesn't exist
+
+		Max = WriteOnly
 	};
 
 	template<>
 	struct EnumAsFlags<OpenMode>
 	{
-		static constexpr OpenMode max = OpenMode_Max;
+		static constexpr OpenMode max = OpenMode::Max;
 	};
 
 	using OpenModeFlags = Flags<OpenMode>;
 
-	constexpr OpenModeFlags OpenMode_ReadWrite = OpenMode_ReadOnly | OpenMode_WriteOnly;
+	constexpr OpenModeFlags OpenMode_ReadWrite = OpenMode::ReadOnly | OpenMode::WriteOnly;
 
-	enum ParameterType
+	enum class ParameterType
 	{
-		ParameterType_Boolean,
-		ParameterType_Color,
-		ParameterType_Double,
-		ParameterType_Integer,
-		ParameterType_None,
-		ParameterType_Pointer,
-		ParameterType_String,
-		ParameterType_Userdata,
+		Boolean,
+		Color,
+		Double,
+		Integer,
+		None,
+		Pointer,
+		String,
+		Userdata,
 
-		ParameterType_Max = ParameterType_Userdata
+		Max = Userdata
 	};
 
-	enum Plugin
+	enum class Plugin
 	{
-		Plugin_Assimp,
+		Assimp,
 
-		Plugin_Count
+		Max = Assimp
 	};
 
-	enum PrimitiveType
-	{
-		PrimitiveType_Box,
-		PrimitiveType_Cone,
-		PrimitiveType_Plane,
-		PrimitiveType_Sphere,
+	constexpr std::size_t PluginCount = static_cast<std::size_t>(Plugin::Max) + 1;
 
-		PrimitiveType_Max = PrimitiveType_Sphere
+	enum class PrimitiveType
+	{
+		Box,
+		Cone,
+		Plane,
+		Sphere,
+
+		Max = Sphere
 	};
 
-	enum ProcessorCap
-	{
-		ProcessorCap_x64,
-		ProcessorCap_AVX,
-		ProcessorCap_FMA3,
-		ProcessorCap_FMA4,
-		ProcessorCap_MMX,
-		ProcessorCap_XOP,
-		ProcessorCap_SSE,
-		ProcessorCap_SSE2,
-		ProcessorCap_SSE3,
-		ProcessorCap_SSSE3,
-		ProcessorCap_SSE41,
-		ProcessorCap_SSE42,
-		ProcessorCap_SSE4a,
+	constexpr std::size_t PrimitiveTypeCount = static_cast<std::size_t>(PrimitiveType::Max) + 1;
 
-		ProcessorCap_Max = ProcessorCap_SSE4a
+	enum class ProcessorCap
+	{
+		x64,
+		AVX,
+		FMA3,
+		FMA4,
+		MMX,
+		XOP,
+		SSE,
+		SSE2,
+		SSE3,
+		SSSE3,
+		SSE41,
+		SSE42,
+		SSE4a,
+
+		Max = SSE4a
 	};
 
-	enum ProcessorVendor
+	constexpr std::size_t ProcessorCapCount = static_cast<std::size_t>(ProcessorCap::Max) + 1;
+
+	enum class ProcessorVendor
 	{
-		ProcessorVendor_Unknown = -1,
+		Unknown = -1,
 
-		ProcessorVendor_AMD,
-		ProcessorVendor_Centaur,
-		ProcessorVendor_Cyrix,
-		ProcessorVendor_Intel,
-		ProcessorVendor_KVM,
-		ProcessorVendor_HyperV,
-		ProcessorVendor_NSC,
-		ProcessorVendor_NexGen,
-		ProcessorVendor_Rise,
-		ProcessorVendor_SIS,
-		ProcessorVendor_Transmeta,
-		ProcessorVendor_UMC,
-		ProcessorVendor_VIA,
-		ProcessorVendor_VMware,
-		ProcessorVendor_Vortex,
-		ProcessorVendor_XenHVM,
+		AMD,
+		Centaur,
+		Cyrix,
+		Intel,
+		KVM,
+		HyperV,
+		NSC,
+		NexGen,
+		Rise,
+		SIS,
+		Transmeta,
+		UMC,
+		VIA,
+		VMware,
+		Vortex,
+		XenHVM,
 
-		ProcessorVendor_Max = ProcessorVendor_XenHVM
+		Max = XenHVM
 	};
 
-	enum SphereType
-	{
-		SphereType_Cubic,
-		SphereType_Ico,
-		SphereType_UV,
+	constexpr std::size_t ProcessorVendorCount = static_cast<std::size_t>(ProcessorVendor::Max) + 1;
 
-		SphereType_Max = SphereType_UV
+	enum class SphereType
+	{
+		Cubic,
+		Ico,
+		UV,
+
+		Max = UV
 	};
 
-	enum StreamOption
+	enum class StreamOption
 	{
-		StreamOption_None,
+		None,
 
-		StreamOption_Sequential,
-		StreamOption_Text,
+		Sequential,
+		Text,
 
-		StreamOption_Max = StreamOption_Text
+		Max = Text
 	};
 
 	template<>
 	struct EnumAsFlags<StreamOption>
 	{
-		static constexpr StreamOption max = StreamOption_Max;
+		static constexpr StreamOption max = StreamOption::Max;
 	};
 
 	using StreamOptionFlags = Flags<StreamOption>;
 
-	enum Ternary
+	enum class Ternary
 	{
-		Ternary_False,
-		Ternary_True,
-		Ternary_Unknown,
+		False,
+		True,
+		Unknown,
 
-		Ternary_Max = Ternary_Unknown
+		Max = Unknown
 	};
 }
 

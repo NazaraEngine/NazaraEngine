@@ -37,6 +37,7 @@ namespace Nz
 			float GetVolume() const;
 
 			virtual bool IsLooping() const = 0;
+			inline bool IsPlaying() const;
 			bool IsSpatialized() const;
 
 			virtual void Pause() = 0;
@@ -67,4 +68,7 @@ namespace Nz
 			unsigned int m_source;
 	};
 }
+
+#include <Nazara/Audio/SoundEmitter.inl>
+
 #endif // NAZARA_SOUNDEMITTER_HPP

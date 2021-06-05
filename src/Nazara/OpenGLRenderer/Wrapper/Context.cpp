@@ -14,8 +14,6 @@
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
-#define NAZARA_OPENGLRENDERER_DEBUG 1
-
 namespace Nz::GL
 {
 	thread_local const Context* s_currentContext = nullptr;
@@ -73,8 +71,7 @@ namespace Nz::GL
 
 			func = reinterpret_cast<FuncType>(originalFuncPtr);
 
-#if !defined(NAZARA_COMPILER_MSVC) || NAZARA_PLATFORM_x64
-#if NAZARA_OPENGLRENDERER_DEBUG
+#if defined(NAZARA_OPENGLRENDERER_DEBUG) && (!defined(NAZARA_COMPILER_MSVC) || defined(NAZARA_PLATFORM_x64))
 			if (func)
 			{
 				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
@@ -83,7 +80,6 @@ namespace Nz::GL
 					func = Wrapper::WrapErrorHandling();
 				}
 			}
-#endif
 #endif
 
 			if (!func)
@@ -216,6 +212,9 @@ namespace Nz::GL
 			unit.buffer = buffer;
 			unit.offset = offset;
 			unit.size = size;
+
+			// glBindBufferRange does replace the currently bound buffer
+			m_state.bufferTargets[UnderlyingCast(BufferTarget::Uniform)] = buffer;
 		}
 	}
 
@@ -281,6 +280,9 @@ namespace Nz::GL
 			m_supportedExtensions.emplace(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
+
+		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureCompressionS3tc)] = ExtensionStatus::EXT;
 
 		// TextureFilterAnisotropic
 		if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
@@ -362,6 +364,8 @@ namespace Nz::GL
 		glGetIntegerv(GL_VIEWPORT, res.data());
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
+		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is counter-clockwise
+
 		EnableVerticalSync(false);
 
 		return true;
@@ -434,19 +438,31 @@ namespace Nz::GL
 		}
 	}
 
-	void Context::UpdateStates(const RenderStates& renderStates) const
+	void Context::UpdateStates(const RenderStates& renderStates, bool isViewportFlipped) const
 	{
 		if (!SetCurrentContext(this))
 			throw std::runtime_error("failed to activate context");
 
 		if (renderStates.blending)
 		{
-			if (m_state.renderStates.dstBlend != renderStates.dstBlend ||
-			    m_state.renderStates.srcBlend != renderStates.srcBlend)
+			auto& currentBlend = m_state.renderStates.blend;
+			const auto& targetBlend = renderStates.blend;
+
+			if (currentBlend.modeColor != targetBlend.modeColor || currentBlend.modeAlpha != targetBlend.modeAlpha)
 			{
-				glBlendFunc(ToOpenGL(renderStates.srcBlend), ToOpenGL(renderStates.dstBlend));
-				m_state.renderStates.dstBlend = renderStates.dstBlend;
-				m_state.renderStates.srcBlend = renderStates.srcBlend;
+				glBlendEquationSeparate(ToOpenGL(targetBlend.modeColor), ToOpenGL(targetBlend.modeAlpha));
+				currentBlend.modeAlpha = targetBlend.modeAlpha;
+				currentBlend.modeColor = targetBlend.modeColor;
+			}
+
+			if (currentBlend.dstAlpha != targetBlend.dstAlpha || currentBlend.dstColor != targetBlend.dstColor ||
+			    currentBlend.srcAlpha != targetBlend.srcAlpha || currentBlend.srcColor != targetBlend.srcColor)
+			{
+				glBlendFuncSeparate(ToOpenGL(targetBlend.srcColor), ToOpenGL(targetBlend.dstColor), ToOpenGL(targetBlend.srcAlpha), ToOpenGL(targetBlend.dstAlpha));
+				currentBlend.dstAlpha = targetBlend.dstAlpha;
+				currentBlend.dstColor = targetBlend.dstColor;
+				currentBlend.srcAlpha = targetBlend.srcAlpha;
+				currentBlend.srcColor = targetBlend.srcColor;
 			}
 		}
 
@@ -454,7 +470,7 @@ namespace Nz::GL
 		{
 			if (m_state.renderStates.depthCompare != renderStates.depthCompare)
 			{
-				glDepthFunc(ToOpenGL(m_state.renderStates.depthCompare));
+				glDepthFunc(ToOpenGL(renderStates.depthCompare));
 				m_state.renderStates.depthCompare = renderStates.depthCompare;
 			}
 
@@ -469,9 +485,19 @@ namespace Nz::GL
 		{
 			if (m_state.renderStates.cullingSide != renderStates.cullingSide)
 			{
-				glCullFace(ToOpenGL(m_state.renderStates.cullingSide));
+				glCullFace(ToOpenGL(renderStates.cullingSide));
 				m_state.renderStates.cullingSide = renderStates.cullingSide;
 			}
+		}
+
+		FrontFace targetFrontFace = renderStates.frontFace;
+		if (!isViewportFlipped)
+			targetFrontFace = (targetFrontFace == FrontFace::Clockwise) ? FrontFace::CounterClockwise : FrontFace::Clockwise;
+
+		if (m_state.renderStates.frontFace != targetFrontFace)
+		{
+			glFrontFace(ToOpenGL(targetFrontFace));
+			m_state.renderStates.frontFace = targetFrontFace;
 		}
 
 		/*
@@ -491,12 +517,12 @@ namespace Nz::GL
 
 				if (currentStencilData.compare != newStencilData.compare ||
 				    currentStencilData.reference != newStencilData.reference ||
-				    currentStencilData.writeMask != newStencilData.writeMask)
+				    currentStencilData.compareMask != newStencilData.compareMask)
 				{
-					glStencilFuncSeparate((front) ? GL_FRONT : GL_BACK, ToOpenGL(newStencilData.compare), newStencilData.reference, newStencilData.writeMask);
+					glStencilFuncSeparate((front) ? GL_FRONT : GL_BACK, ToOpenGL(newStencilData.compare), newStencilData.reference, newStencilData.compareMask);
 					currentStencilData.compare = newStencilData.compare;
+					currentStencilData.compareMask = newStencilData.compareMask;
 					currentStencilData.reference = newStencilData.reference;
-					currentStencilData.writeMask = newStencilData.writeMask;
 				}
 
 				if (currentStencilData.depthFail != newStencilData.depthFail ||
@@ -507,6 +533,12 @@ namespace Nz::GL
 					currentStencilData.depthFail = newStencilData.depthFail;
 					currentStencilData.fail = newStencilData.fail;
 					currentStencilData.pass = newStencilData.pass;
+				}
+
+				if (currentStencilData.writeMask != newStencilData.writeMask)
+				{
+					glStencilMaskSeparate((front) ? GL_FRONT : GL_BACK, newStencilData.writeMask);
+					currentStencilData.writeMask = newStencilData.writeMask;
 				}
 			};
 
@@ -644,8 +676,11 @@ namespace Nz::GL
 
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
 	{
+		if (id == 0)
+			return;
+
 		std::stringstream ss;
-		ss << "OpenGL debug message (ID: 0x" << std::to_string(id) << "):\n";
+		ss << "OpenGL debug message (ID: 0x" << id << "):\n";
 		ss << "Sent by context: " << this;
 		ss << "\n-Source: ";
 		switch (source)

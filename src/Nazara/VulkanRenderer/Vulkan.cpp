@@ -16,6 +16,74 @@
 
 namespace Nz
 {
+	namespace
+	{
+		struct AvailableLayer
+		{
+			VkLayerProperties layerProperties;
+			std::unordered_map<std::string, std::size_t> extensionByName;
+			std::vector<VkExtensionProperties> extensionList;
+		};
+
+		void EnumerateLayers(std::vector<AvailableLayer>& availableLayers, std::unordered_map<std::string, std::size_t>& layerByName)
+		{
+			std::vector<VkLayerProperties> layerList;
+			if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
+			{
+				for (VkLayerProperties& layerProperties : layerList)
+				{
+					std::size_t layerIndex = availableLayers.size();
+					auto& layerData = availableLayers.emplace_back();
+					layerData.layerProperties = layerProperties;
+
+					if (Vk::Loader::EnumerateInstanceExtensionProperties(&layerData.extensionList, layerProperties.layerName))
+					{
+						for (VkExtensionProperties& extProperty : layerData.extensionList)
+							layerData.extensionByName.emplace(extProperty.extensionName, layerData.extensionByName.size());
+					}
+
+					layerByName.emplace(layerProperties.layerName, layerIndex);
+				}
+			}
+		}
+	}
+
+	RenderDeviceInfo Vulkan::BuildRenderDeviceInfo(const Vk::PhysicalDevice& physDevice)
+	{
+		RenderDeviceInfo deviceInfo;
+		deviceInfo.name = physDevice.properties.deviceName;
+
+		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
+
+		switch (physDevice.properties.deviceType)
+		{
+			case VK_PHYSICAL_DEVICE_TYPE_CPU:
+				deviceInfo.type = RenderDeviceType::Software;
+				break;
+
+			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+				deviceInfo.type = RenderDeviceType::Dedicated;
+				break;
+
+			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+				deviceInfo.type = RenderDeviceType::Integrated;
+				break;
+
+			case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+				deviceInfo.type = RenderDeviceType::Virtual;
+				break;
+
+			default:
+				NazaraWarning("Device " + deviceInfo.name + " has handled device type (0x" + NumberToString(physDevice.properties.deviceType, 16) + ')');
+				// fallthrough
+			case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+				deviceInfo.type = RenderDeviceType::Unknown;
+				break;
+		}
+
+		return deviceInfo;
+	}
+
 	Vk::Instance& Vulkan::GetInstance()
 	{
 		return s_instance;
@@ -103,14 +171,9 @@ namespace Nz
 
 		std::vector<const char*> enabledLayers;
 
-		// Get supported layer list
-		std::unordered_set<std::string> availableLayers;
-		std::vector<VkLayerProperties> layerList;
-		if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
-		{
-			for (VkLayerProperties& extProperty : layerList)
-				availableLayers.insert(extProperty.layerName);
-		}
+		std::vector<AvailableLayer> availableLayers;
+		std::unordered_map<std::string, std::size_t> availableLayerByName;
+		EnumerateLayers(availableLayers, availableLayerByName);
 
 		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
 		{
@@ -118,9 +181,9 @@ namespace Nz
 
 #ifdef NAZARA_DEBUG
 			// Enable Vulkan validation if available in debug mode
-			if (availableLayers.count("VK_LAYER_KHRONOS_validation"))
+			if (availableLayerByName.count("VK_LAYER_KHRONOS_validation"))
 				enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
-			else if (availableLayers.count("VK_LAYER_LUNARG_standard_validation"))
+			else if (availableLayerByName.count("VK_LAYER_LUNARG_standard_validation"))
 				enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
 #endif
 		}
@@ -202,16 +265,50 @@ namespace Nz
 			}
 		}
 
-		VkInstanceCreateInfo instanceInfo = {
-			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-			nullptr,
-			createFlags,
-			&appInfo,
-			UInt32(enabledLayers.size()),
-			enabledLayers.data(),
-			UInt32(enabledExtensions.size()),
-			enabledExtensions.data()
+		VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
+
+#ifdef NAZARA_DEBUG
+		// Handle VK_LAYER_KHRONOS_validation extended features
+
+		VkValidationFeaturesEXT features = { VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT };
+
+		std::vector<VkValidationFeatureEnableEXT> enabledFeatures = {
+			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
+			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+			VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
 		};
+
+		auto validationIt = std::find_if(enabledLayers.begin(), enabledLayers.end(), [&](const char* layerName)
+		{
+			return std::strcmp(layerName, "VK_LAYER_KHRONOS_validation") == 0;
+		});
+		if (validationIt != enabledLayers.end())
+		{
+			auto layerIt = availableLayerByName.find("VK_LAYER_KHRONOS_validation");
+			assert(layerIt != availableLayerByName.end());
+
+			auto& validationLayer = availableLayers[layerIt->second];
+			if (validationLayer.extensionByName.find(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME) != validationLayer.extensionByName.end())
+			{
+				enabledExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
+
+				features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+				features.enabledValidationFeatureCount = UInt32(enabledFeatures.size());
+				features.pEnabledValidationFeatures = enabledFeatures.data();
+
+				instanceInfo.pNext = &features;
+			}
+		}
+#endif
+
+		instanceInfo.flags = createFlags;
+		instanceInfo.pApplicationInfo = &appInfo;
+
+		instanceInfo.enabledExtensionCount = UInt32(enabledExtensions.size());
+		instanceInfo.ppEnabledExtensionNames = enabledExtensions.data();
+
+		instanceInfo.enabledLayerCount = UInt32(enabledLayers.size());
+		instanceInfo.ppEnabledLayerNames = enabledLayers.data();
 
 		if (!s_instance.Create(instanceInfo))
 		{
@@ -275,7 +372,7 @@ namespace Nz
 
 	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo)
 	{
-		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
+		Nz::ErrorFlags errFlags(ErrorMode::ThrowException, true);
 
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
@@ -312,7 +409,7 @@ namespace Nz
 
 	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
 	{
-		Nz::ErrorFlags errFlags(ErrorFlag_ThrowException, true);
+		Nz::ErrorFlags errFlags(ErrorMode::ThrowException, true);
 
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
@@ -487,7 +584,7 @@ namespace Nz
 			nullptr
 		};
 
-		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance);
+		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, BuildRenderDeviceInfo(deviceInfo));
 		if (!device->Create(deviceInfo, createInfo))
 		{
 			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));

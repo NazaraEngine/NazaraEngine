@@ -1,12 +1,19 @@
-# Nazara build
-build/config.lua
+# xmake-related files
+.xmake/*
+.vs/*
+.vscode/*
+CMakeLists.txt
+Makefile
+vs/*
+vsxmake*/*
 
 # Nazara binaries
 bin/*
+!bin/resources
+!bin/resources/*
 
 # Build files
-build/gmake*/
-build/vs*/
+build/*
 
 # Nazara libraries
 lib/*

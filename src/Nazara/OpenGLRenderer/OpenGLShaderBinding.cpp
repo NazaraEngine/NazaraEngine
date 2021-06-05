@@ -20,6 +20,8 @@ namespace Nz
 			const auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, i);
 
 			UInt32 textureIndex = textureDescriptor.bindingIndex;
+			if (textureIndex == OpenGLRenderPipelineLayout::InvalidIndex)
+				continue;
 
 			context.BindSampler(textureIndex, textureDescriptor.sampler);
 			context.BindTexture(textureIndex, textureDescriptor.textureTarget, textureDescriptor.texture);
@@ -29,24 +31,30 @@ namespace Nz
 		{
 			const auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, i);
 
+			UInt32 uboIndex = uboDescriptor.bindingIndex;
+			if (uboIndex == OpenGLRenderPipelineLayout::InvalidIndex)
+				continue;
+
 			context.BindUniformBuffer(uboDescriptor.bindingIndex, uboDescriptor.buffer, uboDescriptor.offset, uboDescriptor.size);
 		}
 	}
 
-	void OpenGLShaderBinding::Update(std::initializer_list<Binding> bindings)
+	void OpenGLShaderBinding::Update(const Binding* bindings, std::size_t bindingCount)
 	{
 		const auto& layoutInfo = m_owner.GetLayoutInfo();
 
-		for (const Binding& binding : bindings)
+		for (std::size_t i = 0; i < bindingCount; ++i)
 		{
+			const Binding& binding = bindings[i];
+
 			assert(binding.bindingIndex < layoutInfo.bindings.size());
 			const auto& bindingDesc = layoutInfo.bindings[binding.bindingIndex];
 
 			std::size_t resourceIndex = 0;
-			for (std::size_t i = binding.bindingIndex; i > 0; --i)
+			for (std::size_t j = binding.bindingIndex; j > 0; --j)
 			{
-				// Use i-1 to prevent underflow in for loop
-				if (layoutInfo.bindings[i - 1].type == bindingDesc.type)
+				// Use j-1 to prevent underflow in for loop
+				if (layoutInfo.bindings[j - 1].type == bindingDesc.type)
 					resourceIndex++;
 			}
 
@@ -59,38 +67,27 @@ namespace Nz
 
 					const TextureBinding& texBinding = std::get<TextureBinding>(binding.content);
 
-					OpenGLTexture& glTexture = static_cast<OpenGLTexture&>(*texBinding.texture);
-					OpenGLTextureSampler& glSampler = static_cast<OpenGLTextureSampler&>(*texBinding.sampler);
-
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
-					textureDescriptor.bindingIndex = binding.bindingIndex;
+					textureDescriptor.bindingIndex = UInt32(binding.bindingIndex);
 
-					textureDescriptor.texture = glTexture.GetTexture().GetObjectId();
-					textureDescriptor.sampler = glSampler.GetSampler(glTexture.GetLevelCount() > 1).GetObjectId();
-
-					switch (glTexture.GetType())
+					if (OpenGLTexture* glTexture = static_cast<OpenGLTexture*>(texBinding.texture))
 					{
-						case ImageType_2D:
-							textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
-							break;
+						textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
 
-						case ImageType_2D_Array:
-							textureDescriptor.textureTarget = GL::TextureTarget::Target2D_Array;
-							break;
+						if (OpenGLTextureSampler* glSampler = static_cast<OpenGLTextureSampler*>(texBinding.sampler))
+							textureDescriptor.sampler = glSampler->GetSampler(glTexture->GetLevelCount() > 1).GetObjectId();
+						else
+							textureDescriptor.sampler = 0;
 
-						case ImageType_3D:
-							textureDescriptor.textureTarget = GL::TextureTarget::Target3D;
-							break;
-
-						case ImageType_Cubemap:
-							textureDescriptor.textureTarget = GL::TextureTarget::Cubemap;
-							break;
-
-						case ImageType_1D:
-						case ImageType_1D_Array:
-						default:
-							throw std::runtime_error("unsupported texture type");
+						textureDescriptor.textureTarget = OpenGLTexture::ToTextureTarget(glTexture->GetType());
 					}
+					else
+					{
+						textureDescriptor.sampler = 0;
+						textureDescriptor.texture = 0;
+						textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
+					}
+
 					break;
 				}
 
@@ -101,15 +98,21 @@ namespace Nz
 
 					const UniformBufferBinding& uboBinding = std::get<UniformBufferBinding>(binding.content);
 
-					OpenGLBuffer& glBuffer = *static_cast<OpenGLBuffer*>(uboBinding.buffer);
-					if (glBuffer.GetType() != BufferType_Uniform)
-						throw std::runtime_error("expected uniform buffer");
-
 					auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, resourceIndex);
-					uboDescriptor.bindingIndex = binding.bindingIndex;
-					uboDescriptor.buffer = glBuffer.GetBuffer().GetObjectId();
+					uboDescriptor.bindingIndex = static_cast<UInt32>(binding.bindingIndex);
 					uboDescriptor.offset = uboBinding.offset;
 					uboDescriptor.size = uboBinding.range;
+
+					if (OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(uboBinding.buffer))
+					{
+						if (glBuffer->GetType() != BufferType::Uniform)
+							throw std::runtime_error("expected uniform buffer");
+
+						uboDescriptor.buffer = glBuffer->GetBuffer().GetObjectId();
+					}
+					else
+						uboDescriptor.buffer = 0;
+
 					break;
 				}
 			}

@@ -2,7 +2,7 @@
 #include <NazaraSDK/Components/NodeComponent.hpp>
 #include <NazaraSDK/Components/VelocityComponent.hpp>
 #include <NazaraSDK/World.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 namespace
 {
@@ -32,7 +32,7 @@ SCENARIO("BaseSystem", "[NDK][BASESYSTEM]")
 {
 	GIVEN("Our TestSystem")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		Ndk::BaseSystem& system = world.AddSystem<TestSystem>();
 		REQUIRE(&system.GetWorld() == &world);

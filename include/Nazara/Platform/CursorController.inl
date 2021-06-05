@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline void CursorController::UpdateCursor(const CursorRef& cursor)
+	inline void CursorController::UpdateCursor(const std::shared_ptr<Cursor>& cursor)
 	{
 		OnCursorUpdated(this, cursor);
 	}

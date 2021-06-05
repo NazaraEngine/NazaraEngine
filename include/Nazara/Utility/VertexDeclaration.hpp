@@ -9,22 +9,19 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <array>
+#include <vector>
 
 namespace Nz
 {
 	class VertexDeclaration;
 
-	using VertexDeclarationConstRef = ObjectRef<const VertexDeclaration>;
 	using VertexDeclarationLibrary = ObjectLibrary<VertexDeclaration>;
-	using VertexDeclarationRef = ObjectRef<VertexDeclaration>;
 
-	class NAZARA_UTILITY_API VertexDeclaration : public RefCounted
+	class NAZARA_UTILITY_API VertexDeclaration
 	{
 		friend VertexDeclarationLibrary;
 		friend class Utility;
@@ -54,9 +51,8 @@ namespace Nz
 			VertexDeclaration& operator=(const VertexDeclaration&) = delete;
 			VertexDeclaration& operator=(VertexDeclaration&&) = delete;
 
-			static inline const VertexDeclarationRef& Get(VertexLayout layout);
+			static inline const std::shared_ptr<VertexDeclaration>& Get(VertexLayout layout);
 			static bool IsTypeSupported(ComponentType type);
-			template<typename... Args> static VertexDeclarationRef New(Args&&... args);
 
 			struct Component
 			{
@@ -81,8 +77,7 @@ namespace Nz
 			std::size_t m_stride;
 			VertexInputRate m_inputRate;
 
-			static std::array<VertexDeclarationRef, VertexLayout_Max + 1> s_declarations;
-			static VertexDeclarationLibrary::LibraryMap s_library;
+			static std::array<std::shared_ptr<VertexDeclaration>, VertexLayoutCount> s_declarations;
 	};
 }
 

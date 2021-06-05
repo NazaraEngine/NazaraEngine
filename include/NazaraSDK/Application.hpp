@@ -15,11 +15,6 @@
 #include <set>
 #include <string>
 
-#ifndef NDK_SERVER
-#include <Nazara/Core/Log.hpp>
-#include <Nazara/Platform/Window.hpp>
-#endif
-
 namespace Ndk
 {
 	class NDK_API Application
@@ -31,9 +26,6 @@ namespace Ndk
 			Application(Application&&) = delete;
 			inline ~Application();
 
-			#ifndef NDK_SERVER
-			template<typename T, typename... Args> T& AddWindow(Args&&... args);
-			#endif
 			template<typename... Args> World& AddWorld(Args&&... args);
 
 			inline const std::set<std::string>& GetOptions() const;
@@ -44,16 +36,7 @@ namespace Ndk
 			inline bool HasOption(const std::string& option) const;
 			inline bool HasParameter(const std::string& key, std::string* value) const;
 
-			#ifndef NDK_SERVER
-			inline bool IsConsoleEnabled() const;
-			inline bool IsFPSCounterEnabled() const;
-			#endif
-
 			bool Run();
-
-			#ifndef NDK_SERVER
-			inline void MakeExitOnLastWindowClosed(bool exitOnClosedWindows);
-			#endif
 
 			inline void Quit();
 
@@ -62,26 +45,16 @@ namespace Ndk
 
 			inline static Application* Instance();
 
+		protected:
+			void ClearWorlds();
+			void ParseCommandline(int argc, char* argv[]);
+
 		private:
-			#ifndef NDK_SERVER
-			struct WindowInfo
-			{
-				inline WindowInfo(std::unique_ptr<Nz::Window>&& window);
-
-				std::unique_ptr<Nz::Window> window;
-			};
-
-			std::vector<WindowInfo> m_windows;
-			#endif
-
 			std::map<std::string, std::string> m_parameters;
 			std::set<std::string> m_options;
 			std::list<World> m_worlds;
 			Nz::Clock m_updateClock;
 
-			#ifndef NDK_SERVER
-			bool m_exitOnClosedWindows;
-			#endif
 			bool m_shouldQuit;
 			float m_updateTime;
 

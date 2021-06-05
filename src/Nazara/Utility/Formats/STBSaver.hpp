@@ -8,14 +8,11 @@
 #define NAZARA_FORMATS_STBSAVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Image.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterSTBSaver();
-		void UnregisterSTBSaver();
-	}
+	ImageSaver::Entry GetImageSaver_STB();
 }
 
 #endif // NAZARA_FORMATS_STBSAVER_HPP

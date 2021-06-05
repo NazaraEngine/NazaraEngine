@@ -20,17 +20,14 @@
 
 int main()
 {
-	// NzKeyboard nécessite l'initialisation du module Utilitaire
+	std::filesystem::path resourceDir = "resources";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
+		resourceDir = ".." / resourceDir;
+
 	Nz::Modules<Nz::Audio, Nz::Platform> audio;
-	/*if (!audio)
-	{
-		std::cout << "Failed to initialize audio module" << std::endl;
-		std::getchar();
-		return 1;
-	}*/
 
 	Nz::Sound sound;
-	if (!sound.LoadFromFile("resources/siren.wav"))
+	if (!sound.LoadFromFile(resourceDir / "siren.wav"))
 	{
 		std::cout << "Failed to load sound" << std::endl;
 		std::getchar();
@@ -57,7 +54,7 @@ int main()
 
 	// La boucle du programme (Pour déplacer le son)
 	Nz::Clock clock;
-	while (sound.GetStatus() == Nz::SoundStatus_Playing)
+	while (sound.GetStatus() == Nz::SoundStatus::Playing)
 	{
 		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
 		int sleepTime = int(1000/60 - clock.GetMilliseconds()); // 60 FPS

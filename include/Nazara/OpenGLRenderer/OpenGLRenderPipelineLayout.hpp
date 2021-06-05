@@ -52,9 +52,11 @@ namespace Nz
 			void Release(ShaderBinding& binding);
 			inline void TryToShrink();
 
+			static constexpr UInt32 InvalidIndex = 0xFFFFFFFF;
+
 			struct TextureDescriptor
 			{
-				UInt32 bindingIndex;
+				UInt32 bindingIndex = InvalidIndex;
 				GLuint texture;
 				GLuint sampler;
 				GL::TextureTarget textureTarget;
@@ -62,7 +64,7 @@ namespace Nz
 
 			struct UniformBufferDescriptor
 			{
-				UInt32 bindingIndex;
+				UInt32 bindingIndex = InvalidIndex;
 				GLuint buffer;
 				GLintptr offset;
 				GLsizeiptr size;

@@ -3,12 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Music.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <memory>
-#include <mutex>
 #include <thread>
 #include <vector>
 #include <Nazara/Audio/Debug.hpp>
@@ -26,23 +28,25 @@ namespace Nz
 	struct MusicImpl
 	{
 		ALenum audioFormat;
+		std::atomic_bool streaming = false;
 		std::atomic<UInt64> processedSamples;
 		std::vector<Int16> chunkSamples;
 		std::mutex bufferLock;
-		SoundStreamRef stream;
+		std::shared_ptr<SoundStream> stream;
 		std::thread thread;
-		UInt64 playingOffset;
+		UInt64 streamOffset;
 		bool loop = false;
-		bool streaming = false;
 		unsigned int sampleRate;
 	};
+
+	Music::Music() = default;
+	Music::Music(Music&&) noexcept = default;
 
 	/*!
 	* \brief Destructs the object and calls Destroy
 	*
 	* \see Destroy
 	*/
-
 	Music::~Music()
 	{
 		Destroy();
@@ -55,7 +59,7 @@ namespace Nz
 	* \param soundStream Sound stream which is the source for the music
 	*/
 
-	bool Music::Create(SoundStream* soundStream)
+	bool Music::Create(std::shared_ptr<SoundStream> soundStream)
 	{
 		NazaraAssert(soundStream, "Invalid stream");
 
@@ -63,11 +67,11 @@ namespace Nz
 
 		AudioFormat format = soundStream->GetFormat();
 
-		m_impl = new MusicImpl;
+		m_impl = std::make_unique<MusicImpl>();
 		m_impl->sampleRate = soundStream->GetSampleRate();
-		m_impl->audioFormat = OpenAL::AudioFormat[format];
-		m_impl->chunkSamples.resize(format * m_impl->sampleRate); // One second of samples
-		m_impl->stream = soundStream;
+		m_impl->audioFormat = OpenAL::AudioFormat[UnderlyingCast(format)];
+		m_impl->chunkSamples.resize(GetChannelCount(format) * m_impl->sampleRate); // One second of samples
+		m_impl->stream = std::move(soundStream);
 
 		SetPlayingOffset(0);
 
@@ -85,8 +89,7 @@ namespace Nz
 		{
 			StopThread();
 
-			delete m_impl;
-			m_impl = nullptr;
+			m_impl.reset();
 		}
 	}
 
@@ -146,7 +149,7 @@ namespace Nz
 		ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
-		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / m_impl->stream->GetFormat()))) / m_impl->sampleRate);
+		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / GetChannelCount(m_impl->stream->GetFormat())))) / m_impl->sampleRate);
 	}
 
 	/*!
@@ -188,8 +191,8 @@ namespace Nz
 		SoundStatus status = GetInternalStatus();
 
 		// To compensate any delays (or the timelaps between Play() and the thread startup)
-		if (m_impl->streaming && status == SoundStatus_Stopped)
-			status = SoundStatus_Playing;
+		if (m_impl->streaming && status == SoundStatus::Stopped)
+			status = SoundStatus::Playing;
 
 		return status;
 	}
@@ -216,8 +219,8 @@ namespace Nz
 	*/
 	bool Music::OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params)
 	{
-		if (SoundStreamRef soundStream = SoundStream::OpenFromFile(filePath, params))
-			return Create(soundStream);
+		if (std::shared_ptr<SoundStream> soundStream = SoundStream::OpenFromFile(filePath, params))
+			return Create(std::move(soundStream));
 		else
 			return false;
 	}
@@ -234,8 +237,8 @@ namespace Nz
 	*/
 	bool Music::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
 	{
-		if (SoundStreamRef soundStream = SoundStream::OpenFromMemory(data, size, params))
-			return Create(soundStream);
+		if (std::shared_ptr<SoundStream> soundStream = SoundStream::OpenFromMemory(data, size, params))
+			return Create(std::move(soundStream));
 		else
 			return false;
 	}
@@ -251,8 +254,8 @@ namespace Nz
 	*/
 	bool Music::OpenFromStream(Stream& stream, const SoundStreamParams& params)
 	{
-		if (SoundStreamRef soundStream = SoundStream::OpenFromStream(stream, params))
-			return Create(soundStream);
+		if (std::shared_ptr<SoundStream> soundStream = SoundStream::OpenFromStream(stream, params))
+			return Create(std::move(soundStream));
 		else
 			return false;
 	}
@@ -288,11 +291,11 @@ namespace Nz
 		{
 			switch (GetStatus())
 			{
-				case SoundStatus_Playing:
+				case SoundStatus::Playing:
 					SetPlayingOffset(0);
 					break;
 
-				case SoundStatus_Paused:
+				case SoundStatus::Paused:
 					alSourcePlay(m_source);
 					break;
 
@@ -302,9 +305,22 @@ namespace Nz
 		}
 		else
 		{
-			// Starting streaming's thread
+			std::mutex mutex;
+			std::condition_variable cv;
+
+			// Starting streaming thread
 			m_impl->streaming = true;
-			m_impl->thread = std::thread(&Music::MusicThread, this);
+
+			std::exception_ptr exceptionPtr;
+
+			std::unique_lock<std::mutex> lock(mutex);
+			m_impl->thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr));
+
+			// Wait until thread signal it has properly started (or an error occurred)
+			cv.wait(lock);
+
+			if (exceptionPtr)
+				std::rethrow_exception(exceptionPtr);
 		}
 	}
 
@@ -326,8 +342,10 @@ namespace Nz
 		if (isPlaying)
 			Stop();
 
-		m_impl->playingOffset = offset;
-		m_impl->processedSamples = UInt64(offset) * m_impl->sampleRate * m_impl->stream->GetFormat() / 1000ULL;
+		UInt64 sampleOffset = UInt64(offset) * m_impl->sampleRate * GetChannelCount(m_impl->stream->GetFormat()) / 1000ULL;
+
+		m_impl->processedSamples = sampleOffset;
+		m_impl->streamOffset = sampleOffset;
 
 		if (isPlaying)
 			Play();
@@ -346,6 +364,8 @@ namespace Nz
 		SetPlayingOffset(0);
 	}
 
+	Music& Music::operator=(Music&&) noexcept = default;
+
 	bool Music::FillAndQueueBuffer(unsigned int buffer)
 	{
 		std::size_t sampleCount = m_impl->chunkSamples.size();
@@ -353,7 +373,7 @@ namespace Nz
 		{
 			std::lock_guard<std::mutex> lock(m_impl->stream->GetMutex());
 
-			m_impl->stream->Seek(m_impl->playingOffset);
+			m_impl->stream->Seek(m_impl->streamOffset);
 
 			// Fill the buffer by reading from the stream
 			for (;;)
@@ -370,7 +390,7 @@ namespace Nz
 				break;
 			}
 
-			m_impl->playingOffset = m_impl->stream->Tell();
+			m_impl->streamOffset = m_impl->stream->Tell();
 		}
 
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
@@ -383,26 +403,66 @@ namespace Nz
 		return sampleRead != sampleCount; // End of stream (Does not happen when looping)
 	}
 
-	void Music::MusicThread()
+	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err)
 	{
 		// Allocation of streaming buffers
-		ALuint buffers[NAZARA_AUDIO_STREAMED_BUFFER_COUNT];
-		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
+		std::array<ALuint, NAZARA_AUDIO_STREAMED_BUFFER_COUNT> buffers;
+		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
 
-		for (unsigned int buffer : buffers)
+		CallOnExit freebuffers([&]
 		{
-			if (FillAndQueueBuffer(buffer))
-				break; // We have reached the end of the stream, there is no use to add new buffers
+			alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
+		});
+
+
+		try
+		{
+			for (ALuint buffer : buffers)
+			{
+				if (FillAndQueueBuffer(buffer))
+					break; // We have reached the end of the stream, there is no use to add new buffers
+			}
 		}
+		catch (const std::exception&)
+		{
+			err = std::current_exception();
+
+			std::unique_lock<std::mutex> lock(m);
+			cv.notify_all();
+			return;
+		}
+		
+		CallOnExit unqueueBuffers([&]
+		{
+			// We delete buffers from the stream
+			ALint queuedBufferCount;
+			alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
+
+			ALuint buffer;
+			for (ALint i = 0; i < queuedBufferCount; ++i)
+				alSourceUnqueueBuffers(m_source, 1, &buffer);
+		});
 
 		alSourcePlay(m_source);
+		
+		CallOnExit stopSource([&]
+		{
+			// Stop playing of the sound (in the case where it has not been already done)
+			alSourceStop(m_source);
+		});
+
+		// Signal we're good
+		{
+			std::unique_lock<std::mutex> lock(m);
+			cv.notify_all();
+		} // m & cv no longer exists from here
 
 		// Reading loop (Filling new buffers as playing)
 		while (m_impl->streaming)
 		{
 			// The reading has stopped, we have reached the end of the stream
 			SoundStatus status = GetInternalStatus();
-			if (status == SoundStatus_Stopped)
+			if (status == SoundStatus::Stopped)
 			{
 				m_impl->streaming = false;
 				break;
@@ -434,27 +494,14 @@ namespace Nz
 			// We go back to sleep
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
-
-		// Stop playing of the sound (in the case where it has not been already done)
-		alSourceStop(m_source);
-
-		// We delete buffers from the stream
-		ALint queuedBufferCount;
-		alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
-
-		ALuint buffer;
-		for (ALint i = 0; i < queuedBufferCount; ++i)
-			alSourceUnqueueBuffers(m_source, 1, &buffer);
-
-		alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers);
 	}
 
 	void Music::StopThread()
 	{
 		if (m_impl->streaming)
-		{
 			m_impl->streaming = false;
+
+		if (m_impl->thread.joinable())
 			m_impl->thread.join();
-		}
 	}
 }

@@ -27,7 +27,7 @@ namespace Nz
 
 	inline IpAddress::IpAddress(const IPv4& ip, UInt16 port) :
 	m_ipv4(ip),
-	m_protocol(NetProtocol_IPv4),
+	m_protocol(NetProtocol::IPv4),
 	m_port(port),
 	m_isValid(true)
 	{
@@ -42,7 +42,7 @@ namespace Nz
 
 	inline IpAddress::IpAddress(const IPv6& ip, UInt16 port) :
 	m_ipv6(ip),
-	m_protocol(NetProtocol_IPv6),
+	m_protocol(NetProtocol::IPv6),
 	m_port(port),
 	m_isValid(true)
 	{
@@ -149,7 +149,7 @@ namespace Nz
 
 	inline IpAddress::IPv4 IpAddress::ToIPv4() const
 	{
-		NazaraAssert(m_isValid && m_protocol == NetProtocol_IPv4, "Address is not a valid IPv4");
+		NazaraAssert(m_isValid && m_protocol == NetProtocol::IPv4, "Address is not a valid IPv4");
 
 		return m_ipv4;
 	}
@@ -163,7 +163,7 @@ namespace Nz
 
 	inline IpAddress::IPv6 IpAddress::ToIPv6() const
 	{
-		NazaraAssert(m_isValid && m_protocol == NetProtocol_IPv6, "IP is not a valid IPv6");
+		NazaraAssert(m_isValid && m_protocol == NetProtocol::IPv6, "IP is not a valid IPv6");
 
 		return m_ipv6;
 	}
@@ -177,7 +177,7 @@ namespace Nz
 
 	inline UInt32 IpAddress::ToUInt32() const
 	{
-		NazaraAssert(m_isValid && m_protocol == NetProtocol_IPv4, "Address is not a valid IPv4");
+		NazaraAssert(m_isValid && m_protocol == NetProtocol::IPv4, "Address is not a valid IPv4");
 
 		return UInt32(m_ipv4[0]) << 24 |
 		       UInt32(m_ipv4[1]) << 16 |
@@ -231,11 +231,11 @@ namespace Nz
 		// Each protocol has its variables to compare
 		switch (first.m_protocol)
 		{
-			case NetProtocol_Any:
-			case NetProtocol_Unknown:
+			case NetProtocol::Any:
+			case NetProtocol::Unknown:
 				break;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 			{
 				if (first.m_ipv4 != second.m_ipv4)
 					return false;
@@ -243,7 +243,7 @@ namespace Nz
 				break;
 			}
 
-			case NetProtocol_IPv6:
+			case NetProtocol::IPv6:
 			{
 				if (first.m_ipv6 != second.m_ipv6)
 					return false;
@@ -297,11 +297,11 @@ namespace Nz
 		// Compare IP (thanks to std::array comparison operator)
 		switch (first.m_protocol)
 		{
-			case NetProtocol_Any:
-			case NetProtocol_Unknown:
+			case NetProtocol::Any:
+			case NetProtocol::Unknown:
 				break;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 			{
 				if (first.m_ipv4 != second.m_ipv4)
 					return first.m_ipv4 < second.m_ipv4;
@@ -309,7 +309,7 @@ namespace Nz
 				break;
 			}
 
-			case NetProtocol_IPv6:
+			case NetProtocol::IPv6:
 			{
 				if (first.m_ipv6 != second.m_ipv6)
 					return first.m_ipv6 < second.m_ipv6;
@@ -387,16 +387,16 @@ namespace std
 			std::size_t h = 0;
 			switch (ip.GetProtocol())
 			{
-				case Nz::NetProtocol_Any:
-				case Nz::NetProtocol_Unknown:
+				case Nz::NetProtocol::Any:
+				case Nz::NetProtocol::Unknown:
 					return std::numeric_limits<size_t>::max();
 
-				case Nz::NetProtocol_IPv4:
+				case Nz::NetProtocol::IPv4:
 				{
 					h = ip.ToUInt32() + (h << 6) + (h << 16) - h;
 					break;
 				}
-				case Nz::NetProtocol_IPv6:
+				case Nz::NetProtocol::IPv6:
 				{
 					Nz::IpAddress::IPv6 v6 = ip.ToIPv6();
 					for (std::size_t i = 0; i < v6.size(); i++)

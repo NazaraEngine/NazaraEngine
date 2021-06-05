@@ -7,6 +7,19 @@
 
 namespace Nz
 {
+	inline std::size_t VulkanRenderPipeline::PipelineHasher::operator()(const std::pair<VkRenderPass, std::size_t>& renderPass) const
+	{
+		std::size_t seed = 0;
+		HashCombine(seed, renderPass.first);
+		HashCombine(seed, renderPass.second);
+
+		return seed;
+	}
+
+	inline const RenderPipelineInfo& VulkanRenderPipeline::GetPipelineInfo() const
+	{
+		return m_pipelineInfo;
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>

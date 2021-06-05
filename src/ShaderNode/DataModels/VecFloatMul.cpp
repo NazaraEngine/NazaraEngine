@@ -1,5 +1,6 @@
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 VecFloatMul::VecFloatMul(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -7,11 +8,12 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderNodes::ExpressionPtr VecFloatMul::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderAst::NodePtr VecFloatMul::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
-	using namespace Nz::ShaderNodes;
-	return BinaryOp::Build(BinaryType::Multiply, expressions[0], expressions[1]);
+	assert(outputIndex == 0);
+
+	return Nz::ShaderBuilder::Binary(Nz::ShaderAst::BinaryType::Multiply, std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString VecFloatMul::caption() const
@@ -77,10 +79,9 @@ void VecFloatMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	{
 		case 0:
 		{
-			if (value)
+			if (value && value->type().id == FloatData::Type().id)
 			{
 				assert(dynamic_cast<FloatData*>(value.get()) != nullptr);
-
 				m_lhs = std::static_pointer_cast<FloatData>(value);
 			}
 			else
@@ -91,10 +92,9 @@ void VecFloatMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 
 		case 1:
 		{
-			if (value)
+			if (value && value->type().id == VecData::Type().id)
 			{
 				assert(dynamic_cast<VecData*>(value.get()) != nullptr);
-
 				m_rhs = std::static_pointer_cast<VecData>(value);
 			}
 			else

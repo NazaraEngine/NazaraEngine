@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	inline void ShaderBinding::Update(std::initializer_list<Binding> bindings)
+	{
+		Update(bindings.begin(), bindings.size());
+	}
+
 	inline void ShaderBindingDeleter::operator()(ShaderBinding* binding)
 	{
 		binding->Release();

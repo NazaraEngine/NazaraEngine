@@ -12,7 +12,7 @@ namespace Nz
 {
 	inline auto VertexDeclaration::FindComponent(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
 	{
-		assert(componentIndex == 0 || vertexComponent == VertexComponent_Userdata);
+		assert(componentIndex == 0 || vertexComponent == VertexComponent::Userdata);
 
 		for (const Component& component : m_components)
 		{
@@ -56,7 +56,7 @@ namespace Nz
 	template<typename T>
 	auto VertexDeclaration::GetComponentByType(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
 	{
-		NazaraAssert(componentIndex == 0 || vertexComponent == VertexComponent_Userdata, "Only userdata vertex component can have component indexes");
+		NazaraAssert(componentIndex == 0 || vertexComponent == VertexComponent::Userdata, "Only userdata vertex component can have component indexes");
 		if (const Component* component = FindComponent(vertexComponent, componentIndex))
 		{
 			if (GetComponentTypeOf<T>() == component->type)
@@ -72,20 +72,11 @@ namespace Nz
 		return GetComponentByType<T>(vertexComponent, componentIndex) != nullptr;
 	}
 
-	inline const VertexDeclarationRef& VertexDeclaration::Get(VertexLayout layout)
+	inline const std::shared_ptr<VertexDeclaration>& VertexDeclaration::Get(VertexLayout layout)
 	{
-		NazaraAssert(layout <= VertexLayout_Max, "Vertex layout out of enum");
+		NazaraAssert(layout <= VertexLayout::Max, "Vertex layout out of enum");
 
-		return s_declarations[layout];
-	}
-
-	template<typename... Args>
-	VertexDeclarationRef VertexDeclaration::New(Args&&... args)
-	{
-		std::unique_ptr<VertexDeclaration> object = std::make_unique<VertexDeclaration>(std::forward<Args>(args)...);
-		object->SetPersistent(false);
-
-		return object.release();
+		return s_declarations[UnderlyingCast(layout)];
 	}
 }
 

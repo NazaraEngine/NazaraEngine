@@ -29,7 +29,7 @@ namespace Nz
 			~TcpClient() = default;
 
 			SocketState Connect(const IpAddress& remoteAddress);
-			SocketState Connect(const std::string& hostName, NetProtocol protocol = NetProtocol_Any, const std::string& service = "http", ResolveError* error = nullptr);
+			SocketState Connect(const std::string& hostName, NetProtocol protocol = NetProtocol::Any, const std::string& service = "http", ResolveError* error = nullptr);
 			inline void Disconnect();
 
 			void EnableLowDelay(bool lowDelay);

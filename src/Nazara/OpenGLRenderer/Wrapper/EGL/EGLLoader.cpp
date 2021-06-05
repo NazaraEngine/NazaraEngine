@@ -202,7 +202,7 @@ namespace Nz::GL
 		}
 	}
 
-	bool EGLLoader::ImplementFallback(const std::string_view& function)
+	bool EGLLoader::ImplementFallback(const std::string_view& /*function*/)
 	{
 		return false;
 	}

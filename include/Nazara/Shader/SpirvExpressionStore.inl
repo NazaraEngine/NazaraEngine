@@ -7,8 +7,10 @@
 
 namespace Nz
 {
-	inline SpirvExpressionStore::SpirvExpressionStore(SpirvWriter& writer) :
-	m_writer(writer)
+	inline SpirvExpressionStore::SpirvExpressionStore(SpirvWriter& writer, SpirvAstVisitor& visitor, SpirvBlock& block) :
+	m_block(block),
+	m_writer(writer),
+	m_visitor(visitor)
 	{
 	}
 }

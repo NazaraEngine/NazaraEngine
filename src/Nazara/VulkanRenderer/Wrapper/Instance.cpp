@@ -49,7 +49,11 @@ namespace Nz
 					ss << "[Validation]";
 
 
-				ss << "[" << pCallbackData->messageIdNumber << ":" << pCallbackData->pMessageIdName << "]: " << pCallbackData->pMessage;
+				ss << "[" << pCallbackData->messageIdNumber;
+				if (pCallbackData->pMessageIdName)
+					ss << ":" << pCallbackData->pMessageIdName;
+
+				ss << "]: " << pCallbackData->pMessage;
 
 				if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 					NazaraError(ss.str());
@@ -105,7 +109,7 @@ namespace Nz
 			// And now load everything
 			try
 			{
-				ErrorFlags flags(ErrorFlag_ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException, true);
 
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext) if (IsExtensionLoaded(#ext)) {
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_END() }
@@ -131,7 +135,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Instance::EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* devices)
+		bool Instance::EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* devices) const
 		{
 			NazaraAssert(devices, "Invalid device vector");
 
@@ -156,7 +160,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Instance::GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties)
+		bool Instance::GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties) const
 		{
 			NazaraAssert(extensionProperties, "Invalid extension properties vector");
 
@@ -184,7 +188,7 @@ namespace Nz
 			return true;
 		}
 
-		bool Instance::GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties)
+		bool Instance::GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const
 		{
 			NazaraAssert(queueFamilyProperties, "Invalid family properties vector");
 
@@ -215,7 +219,7 @@ namespace Nz
 			}
 
 			VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
-			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
 			callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 			callbackCreateInfo.pfnUserCallback = &DebugCallback;
 

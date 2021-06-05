@@ -8,9 +8,11 @@
 #define NAZARA_ALGORITHM_AUDIO_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Audio/Enums.hpp>
 
 namespace Nz
 {
+	inline UInt32 GetChannelCount(AudioFormat format);
 	template<typename T> void MixToMono(T* input, T* output, UInt32 channelCount, UInt64 frameCount);
 }
 

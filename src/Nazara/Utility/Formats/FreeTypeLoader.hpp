@@ -8,14 +8,13 @@
 #define NAZARA_LOADERS_FREETYPE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Font.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterFreeType();
-		void UnregisterFreeType();
-	}
+	bool InitializeFreeType();
+	FontLoader::Entry GetFontLoader_FreeType();
+	void UninitializeFreeType();
 }
 
 #endif // NAZARA_LOADERS_FREETYPE_HPP

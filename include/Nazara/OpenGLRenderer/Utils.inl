@@ -12,11 +12,23 @@ namespace Nz
 {
 	inline std::optional<GLTextureFormat> DescribeTextureFormat(PixelFormat pixelFormat)
 	{
+		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
-			case PixelFormat_A8:    return GLTextureFormat { GL_R8,            GL_RED,  GL_UNSIGNED_BYTE, GL_ZERO, GL_ZERO,  GL_ZERO, GL_RED };
-			case PixelFormat_RGB8:  return GLTextureFormat { GL_SRGB8,         GL_RGB,  GL_UNSIGNED_BYTE, GL_RED,  GL_GREEN, GL_BLUE, GL_ZERO };
-			case PixelFormat_RGBA8: return GLTextureFormat { GL_SRGB8_ALPHA8,  GL_RGBA, GL_UNSIGNED_BYTE, GL_RED,  GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::A8:               return GLTextureFormat{ GL_R8,                 GL_RED,             GL_UNSIGNED_BYTE,                  GL_ZERO,  GL_ZERO,  GL_ZERO, GL_RED };
+			case PixelFormat::BGR8:             return GLTextureFormat{ GL_RGB8,               GL_RGB,             GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
+			case PixelFormat::BGR8_SRGB:        return GLTextureFormat{ GL_SRGB8,              GL_RGB,             GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ONE };
+			case PixelFormat::BGRA8:            return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
+			case PixelFormat::BGRA8_SRGB:       return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_BLUE,  GL_GREEN, GL_RED,  GL_ALPHA };
+			case PixelFormat::Depth16:          return GLTextureFormat{ GL_DEPTH_COMPONENT16,  GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT,                 GL_RED,   GL_ZERO,  GL_ZERO, GL_ZERO };
+			case PixelFormat::Depth24Stencil8:  return GLTextureFormat{ GL_DEPTH24_STENCIL8,   GL_DEPTH_STENCIL,   GL_UNSIGNED_INT_24_8,              GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
+			case PixelFormat::Depth32F:         return GLTextureFormat{ GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT,                          GL_RED,   GL_ZERO,  GL_ZERO, GL_ZERO };
+			case PixelFormat::Depth32FStencil8: return GLTextureFormat{ GL_DEPTH32F_STENCIL8,  GL_DEPTH_STENCIL,   GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_RED,   GL_GREEN, GL_ZERO, GL_ZERO };
+			case PixelFormat::RGB8:             return GLTextureFormat{ GL_RGB8,               GL_RGB,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
+			case PixelFormat::RGB8_SRGB:        return GLTextureFormat{ GL_SRGB8,              GL_RGB,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ONE };
+			case PixelFormat::RGBA8:            return GLTextureFormat{ GL_RGBA8,              GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RGBA8_SRGB:       return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RGBA32F:          return GLTextureFormat{ GL_RGBA32F,            GL_RGBA,            GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			default: break;
 		}
 
@@ -24,39 +36,86 @@ namespace Nz
 		return {};
 	}
 
+	inline GLenum ToOpenGL(BlendEquation blendEquation)
+	{
+		switch (blendEquation)
+		{
+			case BlendEquation::Add:             return GL_FUNC_ADD;
+			case BlendEquation::Max:             return GL_MAX;
+			case BlendEquation::Min:             return GL_MIN;
+			case BlendEquation::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
+			case BlendEquation::Subtract:        return GL_FUNC_SUBTRACT;
+		}
+
+		NazaraError("Unhandled BlendEquation 0x" + NumberToString(UnderlyingCast(blendEquation), 16));
+		return {};
+	}
+
 	inline GLenum ToOpenGL(BlendFunc blendFunc)
 	{
 		switch (blendFunc)
 		{
-			case BlendFunc_DestAlpha:    return GL_DST_ALPHA;
-			case BlendFunc_DestColor:    return GL_DST_COLOR;
-			case BlendFunc_SrcAlpha:     return GL_SRC_ALPHA;
-			case BlendFunc_SrcColor:     return GL_SRC_COLOR;
-			case BlendFunc_InvDestAlpha: return GL_ONE_MINUS_DST_ALPHA;
-			case BlendFunc_InvDestColor: return GL_ONE_MINUS_DST_COLOR;
-			case BlendFunc_InvSrcAlpha:  return GL_ONE_MINUS_SRC_ALPHA;
-			case BlendFunc_InvSrcColor:  return GL_ONE_MINUS_SRC_COLOR;
-			case BlendFunc_One:          return GL_ONE;
-			case BlendFunc_Zero:         return GL_ZERO;
+			case BlendFunc::ConstantAlpha:    return GL_CONSTANT_ALPHA;
+			case BlendFunc::ConstantColor:    return GL_CONSTANT_COLOR;
+			case BlendFunc::DstAlpha:         return GL_DST_ALPHA;
+			case BlendFunc::DstColor:         return GL_DST_COLOR;
+			case BlendFunc::InvConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+			case BlendFunc::InvConstantColor: return GL_ONE_MINUS_CONSTANT_COLOR;
+			case BlendFunc::InvDstAlpha:      return GL_ONE_MINUS_DST_ALPHA;
+			case BlendFunc::InvDstColor:      return GL_ONE_MINUS_DST_COLOR;
+			case BlendFunc::InvSrcAlpha:      return GL_ONE_MINUS_SRC_ALPHA;
+			case BlendFunc::InvSrcColor:      return GL_ONE_MINUS_SRC_COLOR;
+			case BlendFunc::SrcAlpha:         return GL_SRC_ALPHA;
+			case BlendFunc::SrcColor:         return GL_SRC_COLOR;
+			case BlendFunc::One:              return GL_ONE;
+			case BlendFunc::Zero:             return GL_ZERO;
 		}
 
 		NazaraError("Unhandled BlendFunc 0x" + NumberToString(UnderlyingCast(blendFunc), 16));
 		return {};
 	}
 
-	inline GLenum ToOpenGL(FaceSide filter)
+	inline GLenum ToOpenGL(FaceSide side)
 	{
-		switch (filter)
+		switch (side)
 		{
-			case FaceSide_None:
+			case FaceSide::None:
 				break;
 
-			case FaceSide_Back:         return GL_BACK;
-			case FaceSide_Front:        return GL_FRONT;
-			case FaceSide_FrontAndBack: return GL_FRONT_AND_BACK;
+			case FaceSide::Back:         return GL_BACK;
+			case FaceSide::Front:        return GL_FRONT;
+			case FaceSide::FrontAndBack: return GL_FRONT_AND_BACK;
 		}
 
-		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(filter), 16));
+		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(side), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(FrontFace face)
+	{
+		switch (face)
+		{
+			case FrontFace::Clockwise:        return GL_CW;
+			case FrontFace::CounterClockwise: return GL_CCW;
+		}
+
+		NazaraError("Unhandled FrontFace 0x" + NumberToString(UnderlyingCast(face), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(PrimitiveMode primitiveMode)
+	{
+		switch (primitiveMode)
+		{
+			case PrimitiveMode::LineList:      return GL_LINES;
+			case PrimitiveMode::LineStrip:     return GL_LINE_STRIP;
+			case PrimitiveMode::PointList:     return GL_POINTS;
+			case PrimitiveMode::TriangleList:  return GL_TRIANGLES;
+			case PrimitiveMode::TriangleStrip: return GL_TRIANGLE_STRIP;
+			case PrimitiveMode::TriangleFan:   return GL_TRIANGLE_FAN;
+		}
+
+		NazaraError("Unhandled PrimitiveMode 0x" + NumberToString(UnderlyingCast(primitiveMode), 16));
 		return {};
 	}
 
@@ -64,14 +123,14 @@ namespace Nz
 	{
 		switch (comparison)
 		{
-			case RendererComparison_Always:         return GL_ALWAYS;
-			case RendererComparison_Equal:          return GL_EQUAL;
-			case RendererComparison_Greater:        return GL_GREATER;
-			case RendererComparison_GreaterOrEqual: return GL_GEQUAL;
-			case RendererComparison_Less:           return GL_LESS;
-			case RendererComparison_LessOrEqual:    return GL_LEQUAL;
-			case RendererComparison_Never:          return GL_NEVER;
-			case RendererComparison_NotEqual:       return GL_NOTEQUAL;
+			case RendererComparison::Always:         return GL_ALWAYS;
+			case RendererComparison::Equal:          return GL_EQUAL;
+			case RendererComparison::Greater:        return GL_GREATER;
+			case RendererComparison::GreaterOrEqual: return GL_GEQUAL;
+			case RendererComparison::Less:           return GL_LESS;
+			case RendererComparison::LessOrEqual:    return GL_LEQUAL;
+			case RendererComparison::Never:          return GL_NEVER;
+			case RendererComparison::NotEqual:       return GL_NOTEQUAL;
 		}
 
 		NazaraError("Unhandled RendererComparison 0x" + NumberToString(UnderlyingCast(comparison), 16));
@@ -82,8 +141,8 @@ namespace Nz
 	{
 		switch (filter)
 		{
-			case SamplerFilter::SamplerFilter_Linear:  return GL_LINEAR;
-			case SamplerFilter::SamplerFilter_Nearest: return GL_NEAREST;
+			case SamplerFilter::Linear:  return GL_LINEAR;
+			case SamplerFilter::Nearest: return GL_NEAREST;
 		}
 
 		NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(filter), 16));
@@ -94,24 +153,24 @@ namespace Nz
 	{
 		switch (minFilter)
 		{
-			case SamplerFilter::SamplerFilter_Linear:
+			case SamplerFilter::Linear:
 			{
 				switch (mipmapFilter)
 				{
-					case SamplerMipmapMode_Linear: return GL_LINEAR_MIPMAP_LINEAR;
-					case SamplerMipmapMode_Nearest: return GL_LINEAR_MIPMAP_NEAREST;
+					case SamplerMipmapMode::Linear: return GL_LINEAR_MIPMAP_LINEAR;
+					case SamplerMipmapMode::Nearest: return GL_LINEAR_MIPMAP_NEAREST;
 				}
 
 				NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(mipmapFilter), 16));
 				return {};
 			}
 
-			case SamplerFilter::SamplerFilter_Nearest:
+			case SamplerFilter::Nearest:
 			{
 				switch (mipmapFilter)
 				{
-					case SamplerMipmapMode_Linear: return GL_NEAREST_MIPMAP_LINEAR;
-					case SamplerMipmapMode_Nearest: return GL_NEAREST_MIPMAP_NEAREST;
+					case SamplerMipmapMode::Linear: return GL_NEAREST_MIPMAP_LINEAR;
+					case SamplerMipmapMode::Nearest: return GL_NEAREST_MIPMAP_NEAREST;
 				}
 
 				NazaraError("Unhandled SamplerFilter 0x" + NumberToString(UnderlyingCast(mipmapFilter), 16));
@@ -127,9 +186,9 @@ namespace Nz
 	{
 		switch (wrapMode)
 		{
-			case SamplerWrap::SamplerWrap_Clamp:          return GL_CLAMP_TO_EDGE;
-			case SamplerWrap::SamplerWrap_MirroredRepeat: return GL_MIRRORED_REPEAT;
-			case SamplerWrap::SamplerWrap_Repeat:         return GL_REPEAT;
+			case SamplerWrap::Clamp:          return GL_CLAMP_TO_EDGE;
+			case SamplerWrap::MirroredRepeat: return GL_MIRRORED_REPEAT;
+			case SamplerWrap::Repeat:         return GL_REPEAT;
 		}
 
 		NazaraError("Unhandled SamplerWrap 0x" + NumberToString(UnderlyingCast(wrapMode), 16));
@@ -152,14 +211,14 @@ namespace Nz
 	{
 		switch (stencilOp)
 		{
-			case StencilOperation_Decrement:        return GL_DECR;
-			case StencilOperation_DecrementNoClamp: return GL_DECR_WRAP;
-			case StencilOperation_Increment:        return GL_INCR;
-			case StencilOperation_IncrementNoClamp: return GL_INCR_WRAP;
-			case StencilOperation_Invert:           return GL_INVERT;
-			case StencilOperation_Keep:             return GL_KEEP;
-			case StencilOperation_Replace:          return GL_REPLACE;
-			case StencilOperation_Zero:             return GL_ZERO;
+			case StencilOperation::Decrement:        return GL_DECR;
+			case StencilOperation::DecrementNoClamp: return GL_DECR_WRAP;
+			case StencilOperation::Increment:        return GL_INCR;
+			case StencilOperation::IncrementNoClamp: return GL_INCR_WRAP;
+			case StencilOperation::Invert:           return GL_INVERT;
+			case StencilOperation::Keep:             return GL_KEEP;
+			case StencilOperation::Replace:          return GL_REPLACE;
+			case StencilOperation::Zero:             return GL_ZERO;
 		}
 
 		NazaraError("Unhandled StencilOperation 0x" + NumberToString(UnderlyingCast(stencilOp), 16));
@@ -188,10 +247,16 @@ namespace Nz
 	{
 		switch (textureTarget)
 		{
-			case GL::TextureTarget::Cubemap:        return GL_TEXTURE_CUBE_MAP;
-			case GL::TextureTarget::Target2D:       return GL_TEXTURE_2D;
-			case GL::TextureTarget::Target2D_Array: return GL_TEXTURE_2D_ARRAY;
-			case GL::TextureTarget::Target3D:       return GL_TEXTURE_3D;
+			case GL::TextureTarget::Cubemap:          return GL_TEXTURE_CUBE_MAP;
+			case GL::TextureTarget::CubemapNegativeX: return GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+			case GL::TextureTarget::CubemapNegativeY: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+			case GL::TextureTarget::CubemapNegativeZ: return GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+			case GL::TextureTarget::CubemapPositiveX: return GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			case GL::TextureTarget::CubemapPositiveY: return GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+			case GL::TextureTarget::CubemapPositiveZ: return GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+			case GL::TextureTarget::Target2D:         return GL_TEXTURE_2D;
+			case GL::TextureTarget::Target2D_Array:   return GL_TEXTURE_2D_ARRAY;
+			case GL::TextureTarget::Target3D:         return GL_TEXTURE_3D;
 		}
 
 		NazaraError("Unhandled GL::TextureTarget 0x" + NumberToString(UnderlyingCast(textureTarget), 16));

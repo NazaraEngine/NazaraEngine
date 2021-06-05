@@ -109,15 +109,16 @@ void InputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Input"), inputSelection);
 }
 
-Nz::ShaderNodes::ExpressionPtr InputValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderAst::NodePtr InputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
+	assert(outputIndex == 0);
 
 	if (!m_currentInputIndex)
 		throw std::runtime_error("no input");
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
-	return Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Input(inputEntry.name, ShaderGraph::ToShaderExpressionType(inputEntry.type)));
+	return Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("input"), { inputEntry.name });
 }
 
 auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
@@ -182,6 +183,35 @@ std::shared_ptr<QtNodes::NodeData> InputValue::outData(QtNodes::PortIndex port)
 
 	assert(false);
 	throw std::runtime_error("Unhandled input type");
+}
+
+QString InputValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+	assert(portType == QtNodes::PortType::Out);
+
+	if (!m_currentInputIndex)
+		return QString();
+
+	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
+	return QString::fromStdString(inputEntry.name);
+}
+
+bool InputValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+
+	switch (portType)
+	{
+		case QtNodes::PortType::In: return false;
+		case QtNodes::PortType::Out: return m_currentInputIndex.has_value();
+
+		default:
+			break;
+	}
+
+	assert(false);
+	throw std::runtime_error("Invalid port type");
 }
 
 QtNodes::NodeValidationState InputValue::validationState() const

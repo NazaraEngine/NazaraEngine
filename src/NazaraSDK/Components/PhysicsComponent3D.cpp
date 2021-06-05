@@ -30,7 +30,7 @@ namespace Ndk
 
 		Nz::PhysWorld3D& world = entityWorld->GetSystem<PhysicsSystem3D>().GetWorld();
 
-		Nz::Collider3DRef geom;
+		std::shared_ptr<Nz::Collider3D> geom;
 		if (m_entity->HasComponent<CollisionComponent3D>())
 			geom = m_entity->GetComponent<CollisionComponent3D>().GetGeom();
 
@@ -81,7 +81,7 @@ namespace Ndk
 		{
 			NazaraAssert(m_object, "Invalid object");
 
-			m_object->SetGeom(Nz::NullCollider3D::New());
+			m_object->SetGeom(std::make_shared<Nz::NullCollider3D>());
 		}
 	}
 

@@ -1,5 +1,6 @@
 #include <ShaderNode/DataModels/Mat4VecMul.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 
 Mat4VecMul::Mat4VecMul(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -7,11 +8,12 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderNodes::ExpressionPtr Mat4VecMul::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+Nz::ShaderAst::NodePtr Mat4VecMul::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
-	using namespace Nz::ShaderNodes;
-	return BinaryOp::Build(BinaryType::Multiply, expressions[0], expressions[1]);
+	assert(outputIndex == 0);
+
+	return Nz::ShaderBuilder::Binary(Nz::ShaderAst::BinaryType::Multiply, std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString Mat4VecMul::caption() const
@@ -77,7 +79,7 @@ void Mat4VecMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 	{
 		case 0:
 		{
-			if (value)
+			if (value && value->type().id == Matrix4Data::Type().id)
 			{
 				assert(dynamic_cast<Matrix4Data*>(value.get()) != nullptr);
 				m_lhs = std::static_pointer_cast<Matrix4Data>(value);
@@ -90,7 +92,7 @@ void Mat4VecMul::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 
 		case 1:
 		{
-			if (value)
+			if (value && value->type().id == VecData::Type().id)
 			{
 				assert(dynamic_cast<VecData*>(value.get()) != nullptr);
 				m_rhs = std::static_pointer_cast<VecData>(value);

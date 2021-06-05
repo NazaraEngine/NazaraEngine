@@ -26,17 +26,16 @@ namespace Ndk
 	{
 		friend BaseSystem;
 		friend Entity;
+		friend EntityList;
 
 		public:
 			using EntityVector = std::vector<EntityHandle>;
 			struct ProfilerData;
 
-			inline World(bool addDefaultSystems = true);
+			inline World();
 			World(const World&) = delete;
 			inline World(World&& world) noexcept;
 			~World() noexcept;
-
-			void AddDefaultSystems();
 
 			inline BaseSystem& AddSystem(std::unique_ptr<BaseSystem>&& system);
 			template<typename SystemType, typename... Args> SystemType& AddSystem(Args&&... args);
@@ -97,7 +96,9 @@ namespace Ndk
 			inline void Invalidate();
 			inline void Invalidate(EntityId id);
 			inline void InvalidateSystemOrder();
+			inline void RegisterEntityList(EntityList* list);
 			void ReorderSystems();
+			inline void UnregisterEntityList(EntityList* list);
 
 			struct DoubleBitset
 			{
@@ -123,6 +124,7 @@ namespace Ndk
 			std::vector<BaseSystem*> m_orderedSystems;
 			std::vector<EntityBlock> m_entities;
 			std::vector<EntityBlock*> m_entityBlocks;
+			std::vector<EntityList*> m_referencedByLists;
 			std::vector<std::unique_ptr<EntityBlock>> m_waitingEntities;
 			EntityList m_aliveEntities;
 			ProfilerData m_profilerData;

@@ -83,8 +83,10 @@ namespace Nz
 		}
 
 		DescriptorPool pool;
-		if (!pool.descriptorPool.Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
-			throw std::runtime_error("Failed to allocate new descriptor pool: " + TranslateVulkanError(pool.descriptorPool.GetLastErrorCode()));
+		pool.descriptorPool = std::make_unique<Vk::DescriptorPool>();
+
+		if (!pool.descriptorPool->Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+			throw std::runtime_error("failed to allocate new descriptor pool: " + TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
 
 		pool.freeBindings.Resize(MaxSet, true);
 		pool.storage = std::make_unique<DescriptorPool::BindingStorage[]>(MaxSet);
@@ -100,10 +102,10 @@ namespace Nz
 		if (freeBindingId == pool.freeBindings.npos)
 			return {}; //< No free binding in this pool
 
-		Vk::DescriptorSet descriptorSet = pool.descriptorPool.AllocateDescriptorSet(m_descriptorSetLayout);
+		Vk::DescriptorSet descriptorSet = pool.descriptorPool->AllocateDescriptorSet(m_descriptorSetLayout);
 		if (!descriptorSet)
 		{
-			NazaraWarning("Failed to allocate descriptor set: " + TranslateVulkanError(pool.descriptorPool.GetLastErrorCode()));
+			NazaraWarning("Failed to allocate descriptor set: " + TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
 			return {};
 		}
 
