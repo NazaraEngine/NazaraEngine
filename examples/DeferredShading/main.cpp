@@ -158,10 +158,20 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipeline> skyboxPipeline = device->InstantiateRenderPipeline(std::move(skyboxPipelineInfo));
 
-	Nz::TextureParams skyboxTexParams;
-	skyboxTexParams.renderDevice = device;
+	// Skybox
+	std::shared_ptr<Nz::Texture> skyboxTexture;
+	{
+		Nz::Image skyboxImage(Nz::ImageType::Cubemap, Nz::PixelFormat::RGBA8, 2048, 2048);
+		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::PositiveX, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_right1.png");
+		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::PositiveY, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_top3.png");
+		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::PositiveZ, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_front5.png");
+		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::NegativeX, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_left2.png");
+		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::NegativeY, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_bottom4.png");
+		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::NegativeZ, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_back6.png");
 
-	std::shared_ptr<Nz::Texture> skyboxTexture = Nz::Texture::LoadCubemapFromFile(resourceDir / "skybox-space.png", skyboxTexParams);
+		skyboxTexture = Nz::Texture::CreateFromImage(skyboxImage, texParams);
+	}
+
 
 	// Cone mesh
 	std::shared_ptr<Nz::Mesh> coneMesh = std::make_shared<Nz::Mesh>();
@@ -1120,8 +1130,6 @@ int main()
 						}
 
 						builder.CopyBuffer(lightDataAllocation, lightUbo.get());
-
-						lightUpdate = false;
 					}
 
 					spaceshipMat->UpdateBuffers(uploadPool, builder);
