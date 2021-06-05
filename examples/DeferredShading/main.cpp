@@ -220,34 +220,16 @@ int main()
 	std::vector<std::uint8_t> instanceDataBuffer(instanceUboOffsets.totalSize);
 
 	Nz::ModelInstance modelInstance1(spaceshipMat->GetSettings());
-	{
-		spaceshipMat->UpdateShaderBinding(modelInstance1.GetShaderBinding());
-
-		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
-
-		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = modelInstance1.GetInstanceBuffer();
-		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
-	}
+	spaceshipMat->UpdateShaderBinding(modelInstance1.GetShaderBinding());
+	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
 	Nz::ModelInstance modelInstance2(spaceshipMat->GetSettings());
-	{
-		spaceshipMat->UpdateShaderBinding(modelInstance2.GetShaderBinding());
-
-		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right() * 3.f);
-
-		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = modelInstance2.GetInstanceBuffer();
-		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
-	}
+	spaceshipMat->UpdateShaderBinding(modelInstance2.GetShaderBinding());
+	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right() * 3.f));
 
 	Nz::ModelInstance planeInstance(planeMat->GetSettings());
-	{
-		planeMat->UpdateShaderBinding(planeInstance.GetShaderBinding());
-
-		Nz::AccessByOffset<Nz::Matrix4f&>(instanceDataBuffer.data(), instanceUboOffsets.worldMatrixOffset) = Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 2.f);
-
-		std::shared_ptr<Nz::AbstractBuffer>& instanceDataUBO = planeInstance.GetInstanceBuffer();
-		instanceDataUBO->Fill(instanceDataBuffer.data(), 0, instanceDataBuffer.size());
-	}
+	planeMat->UpdateShaderBinding(planeInstance.GetShaderBinding());
+	planeInstance.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 2.f));
 
 	std::shared_ptr<Nz::AbstractBuffer> viewerDataUBO = Nz::Graphics::Instance()->GetViewerDataUBO();
 
@@ -1045,6 +1027,8 @@ int main()
 						forwardEnabled = !forwardEnabled;
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 						lightAnimation = !lightAnimation;
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::E)
+						modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos, camQuat));
 					break;
 				}
 
