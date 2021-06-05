@@ -6,6 +6,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <cstring>
@@ -146,9 +147,12 @@ namespace Nz
 		bool succeeded = false;
 		for (const char* path : libs)
 		{
+			ErrorFlags errFlags(ErrorMode::Silent);
 			std::filesystem::path libPath(path);
 			if (!s_library.Load(libPath))
 				continue;
+
+			errFlags.SetFlags(0);
 
 			try
 			{
