@@ -915,7 +915,7 @@ namespace Nz
 	Matrix4<T>& Matrix4<T>::MakePerspective(RadianAngle<T> angle, T ratio, T zNear, T zFar)
 	{
 		// https://docs.microsoft.com/fr-fr/windows/win32/direct3d10/d3d10-d3dxmatrixperspectivefovrh
-		angle = RadianAngle<T>(M_PI_2) - angle / T(2.0);
+		angle = RadianAngle<T>(HalfPi<T>) - angle / T(2.0);
 
 		T yScale = angle.GetTan();
 
