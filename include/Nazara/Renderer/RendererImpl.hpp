@@ -43,7 +43,7 @@ namespace Nz
 			virtual std::string QueryAPIString() const = 0;
 			virtual UInt32 QueryAPIVersion() const = 0;
 
-			virtual std::vector<RenderDeviceInfo> QueryRenderDevices() const = 0;
+			virtual const std::vector<RenderDeviceInfo>& QueryRenderDevices() const = 0;
 
 			virtual bool Prepare(const ParameterList& parameters) = 0;
 	};

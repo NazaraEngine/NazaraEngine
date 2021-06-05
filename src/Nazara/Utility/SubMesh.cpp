@@ -12,36 +12,27 @@
 namespace Nz
 {
 	SubMesh::SubMesh() :
-	RefCounted(false), // wut
-	m_primitiveMode(PrimitiveMode_TriangleList),
+	m_primitiveMode(PrimitiveMode::TriangleList),
 	m_matIndex(0)
 	{
 	}
 
-	SubMesh::SubMesh(const Mesh* /*parent*/) :
-	SubMesh()
-	{
-	}
-
-	SubMesh::~SubMesh()
-	{
-		OnSubMeshRelease(this);
-	}
+	SubMesh::~SubMesh() = default;
 
 	void SubMesh::GenerateNormals()
 	{
-		VertexMapper mapper(this);
+		VertexMapper mapper(*this);
 		std::size_t vertexCount = mapper.GetVertexCount();
 
-		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 		if (!normals || !positions)
 			return;
 
 		for (std::size_t i = 0; i < vertexCount; ++i)
 			normals[i].MakeZero();
 
-		TriangleIterator iterator(this);
+		TriangleIterator iterator(*this);
 		do
 		{
 			Vector3f pos0 = positions[iterator[0]];
@@ -63,13 +54,13 @@ namespace Nz
 
 	void SubMesh::GenerateNormalsAndTangents()
 	{
-		VertexMapper mapper(this);
+		VertexMapper mapper(*this);
 		std::size_t vertexCount = mapper.GetVertexCount();
 
-		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 		if (!normals || !positions || !tangents || !texCoords)
 			return;
 
@@ -79,7 +70,7 @@ namespace Nz
 			tangents[i].MakeZero();
 		}
 
-		TriangleIterator iterator(this);
+		TriangleIterator iterator(*this);
 		do
 		{
 			Vector3f pos0 = positions[iterator[0]];
@@ -121,16 +112,16 @@ namespace Nz
 
 	void SubMesh::GenerateTangents()
 	{
-		VertexMapper mapper(this);
+		VertexMapper mapper(*this);
 
-		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 		if (!normals || !positions || !tangents || !texCoords)
 			return;
 
-		TriangleIterator iterator(this);
+		TriangleIterator iterator(*this);
 		do
 		{
 			Vector3f pos0 = positions[iterator[0]];
@@ -170,7 +161,7 @@ namespace Nz
 
 	std::size_t SubMesh::GetTriangleCount() const
 	{
-		const IndexBuffer* indexBuffer = GetIndexBuffer();
+		const std::shared_ptr<const IndexBuffer>& indexBuffer = GetIndexBuffer();
 		std::size_t indexCount;
 		if (indexBuffer)
 			indexCount = indexBuffer->GetIndexCount();
@@ -179,22 +170,22 @@ namespace Nz
 
 		switch (m_primitiveMode)
 		{
-			case PrimitiveMode_LineList:
-			case PrimitiveMode_LineStrip:
-			case PrimitiveMode_PointList:
+			case PrimitiveMode::LineList:
+			case PrimitiveMode::LineStrip:
+			case PrimitiveMode::PointList:
 				return 0;
 
-			case PrimitiveMode_TriangleFan:
+			case PrimitiveMode::TriangleFan:
 				return (indexCount - 1) / 2;
 
-			case PrimitiveMode_TriangleList:
+			case PrimitiveMode::TriangleList:
 				return indexCount / 3;
 
-			case PrimitiveMode_TriangleStrip:
+			case PrimitiveMode::TriangleStrip:
 				return indexCount - 2;
 		}
 
-		NazaraError("Primitive mode not handled (0x" + NumberToString(m_primitiveMode, 16) + ')');
+		NazaraError("Primitive mode not handled (0x" + NumberToString(UnderlyingCast(m_primitiveMode), 16) + ')');
 		return 0;
 	}
 

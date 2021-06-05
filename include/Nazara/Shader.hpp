@@ -31,30 +31,22 @@
 
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Shader.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
-#include <Nazara/Shader/ShaderAstCloner.hpp>
-#include <Nazara/Shader/ShaderAstRecursiveVisitor.hpp>
-#include <Nazara/Shader/ShaderAstSerializer.hpp>
-#include <Nazara/Shader/ShaderAstValidator.hpp>
-#include <Nazara/Shader/ShaderAstVisitor.hpp>
-#include <Nazara/Shader/ShaderAstVisitorExcept.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/ShaderConstantValue.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderExpressionType.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
-#include <Nazara/Shader/ShaderVariables.hpp>
-#include <Nazara/Shader/ShaderVarVisitor.hpp>
-#include <Nazara/Shader/ShaderVarVisitorExcept.hpp>
+#include <Nazara/Shader/ShaderLangLexer.hpp>
+#include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
+#include <Nazara/Shader/SpirvDecoder.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
+#include <Nazara/Shader/SpirvSectionBase.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 
 #endif // NAZARA_GLOBAL_SHADER_HPP

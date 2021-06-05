@@ -15,9 +15,8 @@ class BufferField : public ShaderNode
 		BufferField(ShaderGraph& graph);
 		~BufferField() = default;
 
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 		void BuildNodeEdition(QFormLayout* layout) override;
-
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const override;
 
 		QString caption() const override { return "BufferField"; }
 		QString name() const override { return "BufferField"; }

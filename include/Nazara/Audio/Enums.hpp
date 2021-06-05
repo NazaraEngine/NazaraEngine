@@ -9,27 +9,32 @@
 
 namespace Nz
 {
-	enum AudioFormat
+	enum class AudioFormat
 	{
-		AudioFormat_Unknown = -1,
+		Unknown = -1,
 
-		// The integer value is the number of channels used by the format
-		AudioFormat_Mono   = 1,
-		AudioFormat_Stereo = 2,
-		AudioFormat_Quad   = 4,
-		AudioFormat_5_1    = 6,
-		AudioFormat_6_1    = 7,
-		AudioFormat_7_1    = 8,
+		I16_Mono,
+		I16_Stereo,
+		I16_Quad,
+		I16_5_1,
+		I16_6_1,
+		I16_7_1,
 
-		AudioFormat_Max = AudioFormat_7_1
+		Max = I16_7_1
 	};
 
-	enum SoundStatus
+	constexpr std::size_t AudioFormatCount = static_cast<std::size_t>(AudioFormat::Max) + 1;
+
+	enum class SoundStatus
 	{
-		SoundStatus_Playing,
-		SoundStatus_Paused,
-		SoundStatus_Stopped
+		Playing,
+		Paused,
+		Stopped,
+
+		Max = Stopped
 	};
+
+	constexpr std::size_t SoundStatusCount = static_cast<std::size_t>(SoundStatus::Max) + 1;
 }
 
 #endif // NAZARA_ENUMS_AUDIO_HPP

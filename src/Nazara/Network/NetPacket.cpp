@@ -41,7 +41,7 @@ namespace Nz
 	const void* NetPacket::OnSend(std::size_t* newSize) const
 	{
 		NazaraAssert(newSize, "Invalid size pointer");
-		NazaraAssert(m_netCode != NetCode_Invalid, "Invalid NetCode");
+		NazaraAssert(m_netCode != 0, "Invalid NetCode");
 
 		std::size_t size = m_buffer->GetSize();
 		if (!EncodeHeader(m_buffer->GetBuffer(), static_cast<UInt32>(size), m_netCode))

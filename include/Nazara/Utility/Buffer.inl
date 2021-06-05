@@ -41,15 +41,6 @@ namespace Nz
 	{
 		return m_impl != nullptr;
 	}
-
-	template<typename... Args>
-	BufferRef Buffer::New(Args&&... args)
-	{
-		std::unique_ptr<Buffer> object(new Buffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
-	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>

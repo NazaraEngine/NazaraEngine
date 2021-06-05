@@ -9,26 +9,20 @@
 
 class NodeEditor;
 
-namespace Nz
-{
-	class ShaderAst;
-}
-
 class MainWindow : public QMainWindow
 {
 	public:
 		MainWindow(ShaderGraph& graph);
-		~MainWindow() = default;
+		~MainWindow();
 
 	private:
 		void BuildMenu();
 		void OnCompile();
-		void OnGenerateGLSL();
 		void OnLoad();
 		void OnSave();
 		void OnUpdateInfo();
-		Nz::ShaderAst ToShader();
 
+		NazaraSlot(ShaderGraph, OnConditionUpdate, m_onConditionUpdate);
 		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);
 
 		NodeEditor* m_nodeEditor;

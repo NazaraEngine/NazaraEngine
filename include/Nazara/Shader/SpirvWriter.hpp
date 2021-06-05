@@ -9,10 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
-#include <Nazara/Shader/ShaderAstVisitor.hpp>
-#include <Nazara/Shader/ShaderConstantValue.hpp>
-#include <Nazara/Shader/ShaderVarVisitor.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <string>
@@ -23,12 +21,12 @@ namespace Nz
 {
 	class SpirvSection;
 
-	class NAZARA_SHADER_API SpirvWriter
+	class NAZARA_SHADER_API SpirvWriter : public ShaderWriter
 	{
 		friend class SpirvAstVisitor;
+		friend class SpirvBlock;
 		friend class SpirvExpressionLoad;
 		friend class SpirvExpressionStore;
-		friend class SpirvVisitor;
 
 		public:
 			struct Environment;
@@ -38,7 +36,7 @@ namespace Nz
 			SpirvWriter(SpirvWriter&&) = delete;
 			~SpirvWriter() = default;
 
-			std::vector<UInt32> Generate(const ShaderAst& shader);
+			std::vector<UInt32> Generate(ShaderAst::StatementPtr& shader, const States& states = {});
 
 			void SetEnv(Environment environment);
 
@@ -49,53 +47,34 @@ namespace Nz
 			};
 
 		private:
-			struct ExtVar;
+			struct FunctionParameter;
 			struct OnlyCache {};
 
 			UInt32 AllocateResultId();
 
 			void AppendHeader();
 
-			UInt32 GetConstantId(const ShaderConstantValue& value) const;
-			UInt32 GetFunctionTypeId(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
-			const ExtVar& GetBuiltinVariable(ShaderNodes::BuiltinEntry builtin) const;
-			const ExtVar& GetInputVariable(const std::string& name) const;
-			const ExtVar& GetOutputVariable(const std::string& name) const;
-			const ExtVar& GetUniformVariable(const std::string& name) const;
-			SpirvSection& GetInstructions();
-			UInt32 GetPointerTypeId(const ShaderExpressionType& type, SpirvStorageClass storageClass) const;
-			UInt32 GetTypeId(const ShaderExpressionType& type) const;
+			SpirvConstantCache::TypePtr BuildFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
 
-			UInt32 ReadInputVariable(const std::string& name);
-			std::optional<UInt32> ReadInputVariable(const std::string& name, OnlyCache);
-			UInt32 ReadLocalVariable(const std::string& name);
-			std::optional<UInt32> ReadLocalVariable(const std::string& name, OnlyCache);
-			UInt32 ReadUniformVariable(const std::string& name);
-			std::optional<UInt32> ReadUniformVariable(const std::string& name, OnlyCache);
-			UInt32 ReadVariable(ExtVar& var);
-			std::optional<UInt32> ReadVariable(const ExtVar& var, OnlyCache);
+			UInt32 GetConstantId(const ShaderAst::ConstantValue& value) const;
+			UInt32 GetExtendedInstructionSet(const std::string& instructionSetName) const;
+			UInt32 GetExtVarPointerId(std::size_t varIndex) const;
+			UInt32 GetFunctionTypeId(const ShaderAst::DeclareFunctionStatement& functionNode);
+			UInt32 GetPointerTypeId(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
+			UInt32 GetTypeId(const ShaderAst::ExpressionType& type) const;
 
-			UInt32 RegisterConstant(const ShaderConstantValue& value);
-			UInt32 RegisterFunctionType(ShaderExpressionType retType, const std::vector<ShaderAst::FunctionParameter>& parameters);
-			UInt32 RegisterPointerType(ShaderExpressionType type, SpirvStorageClass storageClass);
-			UInt32 RegisterType(ShaderExpressionType type);
+			bool IsOptionEnabled(std::size_t optionIndex) const;
 
-			void WriteLocalVariable(std::string name, UInt32 resultId);
+			UInt32 RegisterConstant(const ShaderAst::ConstantValue& value);
+			UInt32 RegisterFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
+			UInt32 RegisterPointerType(ShaderAst::ExpressionType type, SpirvStorageClass storageClass);
+			UInt32 RegisterType(ShaderAst::ExpressionType type);
 
-			static void MergeBlocks(std::vector<UInt32>& output, const SpirvSection& from);
+			static void MergeSections(std::vector<UInt32>& output, const SpirvSection& from);
 
 			struct Context
 			{
-				const ShaderAst* shader = nullptr;
-				const ShaderAst::Function* currentFunction = nullptr;
-			};
-
-			struct ExtVar
-			{
-				UInt32 pointerTypeId;
-				UInt32 typeId;
-				UInt32 varId;
-				std::optional<UInt32> valueId;
+				const States* states = nullptr;
 			};
 
 			struct State;

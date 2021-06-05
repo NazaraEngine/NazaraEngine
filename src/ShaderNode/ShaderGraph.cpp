@@ -1,17 +1,26 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstUtils.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
+#include <ShaderNode/DataModels/BinOp.hpp>
+#include <ShaderNode/DataModels/BoolValue.hpp>
 #include <ShaderNode/DataModels/BufferField.hpp>
 #include <ShaderNode/DataModels/Cast.hpp>
+#include <ShaderNode/DataModels/CompOp.hpp>
+#include <ShaderNode/DataModels/ConditionalExpression.hpp>
+#include <ShaderNode/DataModels/Discard.hpp>
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataModels/InputValue.hpp>
+#include <ShaderNode/DataModels/Mat4BinOp.hpp>
+#include <ShaderNode/DataModels/Mat4VecMul.hpp>
 #include <ShaderNode/DataModels/OutputValue.hpp>
+#include <ShaderNode/DataModels/PositionOutputValue.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataModels/TextureValue.hpp>
-#include <ShaderNode/DataModels/Mat4BinOp.hpp>
-#include <ShaderNode/DataModels/Mat4VecMul.hpp>
-#include <ShaderNode/DataModels/PositionOutputValue.hpp>
-#include <ShaderNode/DataModels/VecBinOp.hpp>
+#include <ShaderNode/DataModels/VecComposition.hpp>
+#include <ShaderNode/DataModels/VecDecomposition.hpp>
 #include <ShaderNode/DataModels/VecDot.hpp>
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
 #include <ShaderNode/DataModels/VecValue.hpp>
@@ -38,17 +47,24 @@ namespace
 		auto creator = [&] { return std::make_unique<T>(graph); };
 		registry->registerModel<T>(category, std::move(creator));
 	}
+
+	template<typename T, typename U>
+	std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
+	{
+		return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
+	}
 }
 
 ShaderGraph::ShaderGraph() :
-m_flowScene(BuildRegistry()),
 m_type(ShaderType::NotSet)
 {
+	m_flowScene.emplace(BuildRegistry());
+
 	m_previewModel = std::make_unique<QuadPreview>();
 
-	QObject::connect(&m_flowScene, &QGraphicsScene::selectionChanged, [&]
+	QObject::connect(&m_flowScene.value(), &QGraphicsScene::selectionChanged, [&]
 	{
-		auto selectedNodes = m_flowScene.selectedNodes();
+		auto selectedNodes = m_flowScene->selectedNodes();
 		if (selectedNodes.size() == 1)
 			OnSelectedNodeUpdate(this, static_cast<ShaderNode*>(selectedNodes.front()->nodeDataModel()));
 		else
@@ -56,58 +72,38 @@ m_type(ShaderType::NotSet)
 	});
 
 	// Test
+	m_type = ShaderType::Fragment;
 	AddInput("UV", PrimitiveType::Float2, InputRole::TexCoord, 0, 0);
 	AddOutput("RenderTarget0", PrimitiveType::Float4, 0);
 	AddTexture("Potato", TextureType::Sampler2D, 1);
-	AddStruct("TestStruct", {
-		{
-			{ "position", PrimitiveType::Float3 },
-			{ "normal", PrimitiveType::Float3 },
-			{ "uv", PrimitiveType::Float2 },
-			{ "inner", 2u }
-		}
-	});
-	AddStruct("InnerStruct", {
-		{
-			{ "a", PrimitiveType::Float3 },
-		}
-	});
-	AddStruct("OuterStruct", {
-		{
-			{ "a", 1u },
-			{ "b", PrimitiveType::Float1 }
-		}
-	});
-
-	AddBuffer("testUBO", BufferType::UniformBufferObject, 0, 0);
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
-	auto& node1 = m_flowScene.createNode(std::make_unique<TextureValue>(*this));
+	auto& node1 = m_flowScene->createNode(std::make_unique<TextureValue>(*this));
 	node1.nodeGraphicsObject().setPos(0, 200);
 
-	auto& node2 = m_flowScene.createNode(std::make_unique<InputValue>(*this));
+	auto& node2 = m_flowScene->createNode(std::make_unique<InputValue>(*this));
 	node2.nodeGraphicsObject().setPos(50, 350);
 
-	auto& node3 = m_flowScene.createNode(std::make_unique<SampleTexture>(*this));
+	auto& node3 = m_flowScene->createNode(std::make_unique<SampleTexture>(*this));
 	node3.nodeGraphicsObject().setPos(200, 200);
 
-	auto& node4 = m_flowScene.createNode(std::make_unique<VecMul>(*this));
+	auto& node4 = m_flowScene->createNode(std::make_unique<VecMul>(*this));
 	node4.nodeGraphicsObject().setPos(400, 200);
 
-	auto& node5 = m_flowScene.createNode(std::make_unique<OutputValue>(*this));
+	auto& node5 = m_flowScene->createNode(std::make_unique<OutputValue>(*this));
 	node5.nodeGraphicsObject().setPos(600, 300);
 
-	m_flowScene.createConnection(node3, 0, node1, 0);
-	m_flowScene.createConnection(node3, 1, node2, 0);
-	m_flowScene.createConnection(node4, 0, node3, 0);
-	m_flowScene.createConnection(node4, 1, node3, 0);
-	m_flowScene.createConnection(node5, 0, node4, 0);
+	m_flowScene->createConnection(node3, 0, node1, 0);
+	m_flowScene->createConnection(node3, 1, node2, 0);
+	m_flowScene->createConnection(node4, 0, node3, 0);
+	m_flowScene->createConnection(node4, 1, node3, 0);
+	m_flowScene->createConnection(node5, 0, node4, 0);
 }
 
 ShaderGraph::~ShaderGraph()
 {
-	m_flowScene.clearScene();
+	m_flowScene.reset();
 }
 
 std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
@@ -120,6 +116,17 @@ std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std:
 	bufferEntry.type = bufferType;
 
 	OnBufferListUpdate(this);
+
+	return index;
+}
+
+std::size_t ShaderGraph::AddCondition(std::string name)
+{
+	std::size_t index = m_conditions.size();
+	auto& conditionEntry = m_conditions.emplace_back();
+	conditionEntry.name = std::move(name);
+
+	OnConditionListUpdate(this);
 
 	return index;
 }
@@ -181,10 +188,11 @@ void ShaderGraph::Clear()
 {
 	m_type = ShaderType::NotSet;
 
-	m_flowScene.clearScene();
-	m_flowScene.clear();
+	m_flowScene->clearScene();
+	m_flowScene->clear();
 
 	m_buffers.clear();
+	m_conditions.clear();
 	m_inputs.clear();
 	m_structs.clear();
 	m_outputs.clear();
@@ -195,6 +203,15 @@ void ShaderGraph::Clear()
 	OnStructListUpdate(this);
 	OnOutputListUpdate(this);
 	OnTextureListUpdate(this);
+}
+
+void ShaderGraph::EnableCondition(std::size_t conditionIndex, bool enable)
+{
+	assert(conditionIndex < m_conditions.size());
+	auto& conditionEntry = m_conditions[conditionIndex];
+	conditionEntry.enabled = enable;
+
+	OnConditionUpdate(this, conditionIndex);
 }
 
 void ShaderGraph::Load(const QJsonObject& data)
@@ -217,6 +234,17 @@ void ShaderGraph::Load(const QJsonObject& data)
 	}
 
 	OnBufferListUpdate(this);
+
+	QJsonArray conditionArray = data["conditions"].toArray();
+	for (const auto& conditionDocRef : conditionArray)
+	{
+		QJsonObject conditionDoc = conditionDocRef.toObject();
+
+		ConditionEntry& condition = m_conditions.emplace_back();
+		condition.name = conditionDoc["name"].toString().toStdString();
+	}
+
+	OnConditionListUpdate(this);
 
 	QJsonArray inputArray = data["inputs"].toArray();
 	for (const auto& inputDocRef : inputArray)
@@ -286,10 +314,10 @@ void ShaderGraph::Load(const QJsonObject& data)
 	OnTextureListUpdate(this);
 
 	for (QJsonValueRef node : data["nodes"].toArray())
-		m_flowScene.restoreNode(node.toObject());
+		m_flowScene->restoreNode(node.toObject());
 
 	for (QJsonValueRef connection : data["connections"].toArray())
-		m_flowScene.restoreConnection(connection.toObject());
+		m_flowScene->restoreConnection(connection.toObject());
 }
 
 QJsonObject ShaderGraph::Save()
@@ -311,6 +339,18 @@ QJsonObject ShaderGraph::Save()
 		}
 	}
 	sceneJson["buffers"] = bufferArray;
+
+	QJsonArray conditionArray;
+	{
+		for (const auto& condition : m_conditions)
+		{
+			QJsonObject inputDoc;
+			inputDoc["name"] = QString::fromStdString(condition.name);
+
+			conditionArray.append(inputDoc);
+		}
+	}
+	sceneJson["conditions"] = conditionArray;
 
 	QJsonArray inputArray;
 	{
@@ -391,14 +431,14 @@ QJsonObject ShaderGraph::Save()
 
 	QJsonArray nodesJsonArray;
 	{
-		for (auto&& [uuid, node] : m_flowScene.nodes())
+		for (auto&& [uuid, node] : m_flowScene->nodes())
 			nodesJsonArray.append(node->save());
 	}
 	sceneJson["nodes"] = nodesJsonArray;
 
 	QJsonArray connectionJsonArray;
 	{
-		for (auto&& [uuid, connection] : m_flowScene.connections())
+		for (auto&& [uuid, connection] : m_flowScene->connections())
 		{
 			QJsonObject connectionJson = connection->save();
 
@@ -411,119 +451,109 @@ QJsonObject ShaderGraph::Save()
 	return sceneJson;
 }
 
-Nz::ShaderNodes::StatementPtr ShaderGraph::ToAst()
+Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 {
-	std::vector<Nz::ShaderNodes::StatementPtr> statements;
-	QHash<QUuid, unsigned int> usageCount;
+	std::vector<Nz::ShaderAst::StatementPtr> statements;
 
-	std::function<void(QtNodes::Node*)> DetectVariables;
-	DetectVariables = [&](QtNodes::Node* node)
+	// Declare all options
+	for (const auto& condition : m_conditions)
+		statements.push_back(Nz::ShaderBuilder::DeclareOption(condition.name, Nz::ShaderAst::PrimitiveType::Boolean));
+
+	// Declare all structures
+	for (const auto& structInfo : m_structs)
 	{
-		auto it = usageCount.find(node->id());
-		if (it == usageCount.end())
-		{
-			for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
-			{
-				for (const auto& [uuid, conn] : connectionSet)
-				{
-					DetectVariables(conn->getNode(QtNodes::PortType::Out));
-				}
-			}
+		Nz::ShaderAst::StructDescription structDesc;
+		structDesc.layout = Nz::StructLayout::Std140;
+		structDesc.name = structInfo.name;
 
-			it = usageCount.insert(node->id(), 0);
+		for (const auto& memberInfo : structInfo.members)
+		{
+			auto& structMember = structDesc.members.emplace_back();
+			structMember.name = memberInfo.name;
+			structMember.type = ToShaderExpressionType(memberInfo.type);
 		}
 
-		(*it)++;
-	};
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+	}
 
-	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+	// External block
+	auto external = std::make_unique<Nz::ShaderAst::DeclareExternalStatement>();
+
+	for (const auto& buffer : m_buffers)
 	{
-		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
-			DetectVariables(node);
-	});
+		if (buffer.structIndex >= m_structs.size())
+			throw std::runtime_error("buffer " + buffer.name + " references out-of-bounds struct #" + std::to_string(buffer.structIndex));
 
-	QHash<QUuid, Nz::ShaderNodes::ExpressionPtr> variableExpressions;
+		const auto& structInfo = m_structs[buffer.structIndex];
 
-	unsigned int varCount = 0;
-	std::unordered_set<std::string> usedVariableNames;
+		auto& extVar = external->externalVars.emplace_back();
+		extVar.bindingIndex = buffer.bindingIndex;
+		extVar.name = buffer.name;
+		extVar.type = Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ structInfo.name } };
+	}
 
-	std::function<Nz::ShaderNodes::ExpressionPtr(QtNodes::Node*)> HandleNode;
-	HandleNode = [&](QtNodes::Node* node) -> Nz::ShaderNodes::ExpressionPtr
+	for (const auto& texture : m_textures)
 	{
-		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
-		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
-			throw std::runtime_error(shaderNode->validationMessage().toStdString());
+		auto& extVar = external->externalVars.emplace_back();
+		extVar.bindingIndex = texture.bindingIndex;
+		extVar.name = texture.name;
+		extVar.type = ToShaderExpressionType(texture.type);
+	}
 
-		qDebug() << shaderNode->name() << node->id();
-		if (auto it = variableExpressions.find(node->id()); it != variableExpressions.end())
-			return *it;
+	if (!external->externalVars.empty())
+		statements.push_back(std::move(external));
 
-		auto it = usageCount.find(node->id());
-		assert(it != usageCount.end());
+	// Inputs / outputs
+	if (!m_inputs.empty())
+	{
+		Nz::ShaderAst::StructDescription structDesc;
+		structDesc.name = "InputData";
 
-		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
-		Nz::StackArray<Nz::ShaderNodes::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderNodes::ExpressionPtr, inputCount);
-		std::size_t i = 0;
-
-		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+		for (const auto& input : m_inputs)
 		{
-			for (const auto& [uuid, conn] : connectionSet)
-			{
-				assert(i < expressions.size());
-				expressions[i] = HandleNode(conn->getNode(QtNodes::PortType::Out));
-				i++;
-			}
+			auto& structMember = structDesc.members.emplace_back();
+			structMember.name = input.name;
+			structMember.type = ToShaderExpressionType(input.type);
+			structMember.locationIndex = input.locationIndex;
 		}
 
-		auto expression = shaderNode->GetExpression(expressions.data(), expressions.size());
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+	}
 
-		const std::string& variableName = shaderNode->GetVariableName();
-		if (*it > 1 || !variableName.empty())
-		{
-			Nz::ShaderNodes::ExpressionPtr varExpression;
-			if (expression->GetExpressionCategory() == Nz::ShaderNodes::ExpressionCategory::RValue)
-			{
-				std::string name;
-				if (variableName.empty())
-					name = "var" + std::to_string(varCount++);
-				else
-					name = variableName;
-
-				if (usedVariableNames.find(name) != usedVariableNames.end())
-					throw std::runtime_error("duplicate variable found: " + name);
-
-				usedVariableNames.insert(name);
-
-				auto variable = Nz::ShaderBuilder::Local(std::move(name), expression->GetExpressionType());
-				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(variable, expression));
-
-				varExpression = Nz::ShaderBuilder::Identifier(variable);
-			}
-			else
-				varExpression = expression;
-
-			variableExpressions.insert(node->id(), varExpression);
-
-			return varExpression;
-		}
-		else
-			return expression;
-	};
-
-	m_flowScene.iterateOverNodes([&](QtNodes::Node* node)
+	Nz::ShaderAst::ExpressionType returnType;
+	if (!m_outputs.empty())
 	{
-		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
-		{
-			statements.emplace_back(Nz::ShaderBuilder::ExprStatement(HandleNode(node)));
-		}
-	});
+		Nz::ShaderAst::StructDescription structDesc;
+		structDesc.name = "OutputData";
 
-	return Nz::ShaderNodes::StatementBlock::Build(std::move(statements));
+		for (const auto& output : m_outputs)
+		{
+			auto& structMember = structDesc.members.emplace_back();
+			structMember.name = output.name;
+			structMember.type = ToShaderExpressionType(output.type);
+			structMember.locationIndex = output.locationIndex;
+		}
+
+		if (m_type == ShaderType::Vertex)
+		{
+			auto& position = structDesc.members.emplace_back();
+			position.builtin = Nz::ShaderAst::BuiltinEntry::VertexPosition;
+			position.name = "position";
+			position.type = Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
+		}
+
+		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+	}
+
+	// Functions
+	statements.push_back(ToFunction());
+
+	return Nz::ShaderBuilder::MultiStatement(std::move(statements));
 }
 
-Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
+Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
 {
-	return std::visit([&](auto&& arg) -> Nz::ShaderExpressionType
+	return std::visit([&](auto&& arg) -> Nz::ShaderAst::ExpressionType
 	{
 		using T = std::decay_t<decltype(arg)>;
 		if constexpr (std::is_same_v<T, PrimitiveType>)
@@ -532,7 +562,7 @@ Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<
 		{
 			assert(arg < m_structs.size());
 			const auto& s = m_structs[arg];
-			return s.name;
+			return Nz::ShaderAst::IdentifierType{ s.name };
 		}
 		else
 			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
@@ -549,6 +579,15 @@ void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, Buffer
 	bufferEntry.type = bufferType;
 
 	OnBufferUpdate(this, bufferIndex);
+}
+
+void ShaderGraph::UpdateCondition(std::size_t conditionIndex, std::string condition)
+{
+	assert(conditionIndex < m_conditions.size());
+	auto& conditionEntry = m_conditions[conditionIndex];
+	conditionEntry.name = std::move(condition);
+
+	OnConditionUpdate(this, conditionIndex);
 }
 
 void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)
@@ -600,8 +639,12 @@ void ShaderGraph::UpdateTexturePreview(std::size_t textureIndex, QImage preview)
 {
 	assert(textureIndex < m_textures.size());
 	auto& textureEntry = m_textures[textureIndex];
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
 	textureEntry.preview = std::move(preview);
 	textureEntry.preview.convertTo(QImage::Format_RGBA8888);
+#else
+	textureEntry.preview = preview.convertToFormat(QImage::Format_RGBA8888);
+#endif
 
 	OnTexturePreviewUpdate(this, textureIndex);
 }
@@ -638,27 +681,27 @@ QtNodes::NodeDataType ShaderGraph::ToNodeDataType(PrimitiveType type)
 	throw std::runtime_error("Unhandled input type");
 }
 
-Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
+Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
 {
 	switch (type)
 	{
-		case PrimitiveType::Bool:   return Nz::ShaderNodes::BasicType::Boolean;
-		case PrimitiveType::Float1: return Nz::ShaderNodes::BasicType::Float1;
-		case PrimitiveType::Float2: return Nz::ShaderNodes::BasicType::Float2;
-		case PrimitiveType::Float3: return Nz::ShaderNodes::BasicType::Float3;
-		case PrimitiveType::Float4: return Nz::ShaderNodes::BasicType::Float4;
-		case PrimitiveType::Mat4x4: return Nz::ShaderNodes::BasicType::Mat4x4;
+		case PrimitiveType::Bool:   return Nz::ShaderAst::PrimitiveType::Boolean;
+		case PrimitiveType::Float1: return Nz::ShaderAst::PrimitiveType::Float32;
+		case PrimitiveType::Float2: return Nz::ShaderAst::VectorType{ 2, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Float3: return Nz::ShaderAst::VectorType{ 3, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Float4: return Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Mat4x4: return Nz::ShaderAst::MatrixType{ 4, 4, Nz::ShaderAst::PrimitiveType::Float32 };
 	}
 
 	assert(false);
 	throw std::runtime_error("Unhandled primitive type");
 }
 
-Nz::ShaderExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
+Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
 {
 	switch (type)
 	{
-		case TextureType::Sampler2D:   return Nz::ShaderNodes::BasicType::Sampler2D;
+		case TextureType::Sampler2D: return Nz::ShaderAst::SamplerType{ Nz::ImageType::E2D, Nz::ShaderAst::PrimitiveType::Float32 };
 	}
 
 	assert(false);
@@ -683,29 +726,232 @@ Nz::ShaderStageType ShaderGraph::ToShaderStageType(ShaderType type)
 std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 {
 	auto registry = std::make_shared<QtNodes::DataModelRegistry>();
-	RegisterShaderNode<BufferField>(*this, registry, "Inputs");
+
+	// Casts
 	RegisterShaderNode<CastToVec2>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec3>(*this, registry, "Casts");
 	RegisterShaderNode<CastToVec4>(*this, registry, "Casts");
+
+	// Constants
+	RegisterShaderNode<BoolValue>(*this, registry, "Constants");
 	RegisterShaderNode<FloatValue>(*this, registry, "Constants");
+	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
+	RegisterShaderNode<Vec3Value>(*this, registry, "Constants");
+	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");
+
+	// Inputs
+	RegisterShaderNode<BufferField>(*this, registry, "Inputs");
 	RegisterShaderNode<InputValue>(*this, registry, "Inputs");
-	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");
+
+	// Outputs
+	RegisterShaderNode<Discard>(*this, registry, "Outputs");
 	RegisterShaderNode<OutputValue>(*this, registry, "Outputs");
-	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
-	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
+	RegisterShaderNode<PositionOutputValue>(*this, registry, "Outputs");
+
+	// Float comparison
+	RegisterShaderNode<FloatEq>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatGe>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatGt>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatLe>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatLt>(*this, registry, "Float comparisons");
+	RegisterShaderNode<FloatNe>(*this, registry, "Float comparisons");
+
+	// Float operations
+	RegisterShaderNode<FloatAdd>(*this, registry, "Float operations");
+	RegisterShaderNode<FloatDiv>(*this, registry, "Float operations");
+	RegisterShaderNode<FloatMul>(*this, registry, "Float operations");
+	RegisterShaderNode<FloatSub>(*this, registry, "Float operations");
+
+	// Matrix operations
 	RegisterShaderNode<Mat4Add>(*this, registry, "Matrix operations");
 	RegisterShaderNode<Mat4Mul>(*this, registry, "Matrix operations");
 	RegisterShaderNode<Mat4Sub>(*this, registry, "Matrix operations");
 	RegisterShaderNode<Mat4VecMul>(*this, registry, "Matrix operations");
+
+	// Shader
+	RegisterShaderNode<ConditionalExpression>(*this, registry, "Shader");
+
+	// Texture
+	RegisterShaderNode<SampleTexture>(*this, registry, "Texture");
+	RegisterShaderNode<TextureValue>(*this, registry, "Texture");
+
+	// Vector comparison
+	RegisterShaderNode<VecEq>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecGe>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecGt>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecLe>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecLt>(*this, registry, "Vector comparisons");
+	RegisterShaderNode<VecNe>(*this, registry, "Vector comparisons");
+
+	// Vector operations
 	RegisterShaderNode<VecAdd>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec2Composition>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec3Composition>(*this, registry, "Vector operations");
+	RegisterShaderNode<Vec4Composition>(*this, registry, "Vector operations");
+	RegisterShaderNode<VecDecomposition>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDiv>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecDot>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecFloatMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecMul>(*this, registry, "Vector operations");
 	RegisterShaderNode<VecSub>(*this, registry, "Vector operations");
-	RegisterShaderNode<Vec2Value>(*this, registry, "Constants");
-	RegisterShaderNode<Vec3Value>(*this, registry, "Constants");
-	RegisterShaderNode<Vec4Value>(*this, registry, "Constants");
 
 	return registry;
+}
+
+std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction() const
+{
+	std::vector<Nz::ShaderAst::StatementPtr> statements;
+
+	std::vector<Nz::ShaderAst::DeclareFunctionStatement::Parameter> parameters;
+	if (!m_inputs.empty())
+	{
+		parameters.push_back({
+			"input",
+			Nz::ShaderAst::IdentifierType{ "InputData" }
+		});
+	}
+
+	Nz::ShaderAst::ExpressionType returnType;
+	if (!m_outputs.empty())
+	{
+		returnType = Nz::ShaderAst::IdentifierType{ "OutputData" };
+
+		statements.push_back(Nz::ShaderBuilder::DeclareVariable("output", returnType));
+	}
+
+	using Key = QPair<QUuid, std::size_t>;
+	auto BuildKey = [](QUuid uuid, std::size_t index)
+	{
+		return Key(uuid, index);
+	};
+
+	std::map<Key, unsigned int> usageCount;
+
+	std::function<void(QtNodes::Node*, std::size_t)> DetectVariables;
+	DetectVariables = [&](QtNodes::Node* node, std::size_t outputIndex)
+	{
+		auto it = usageCount.find(BuildKey(node->id(), outputIndex));
+		if (it == usageCount.end())
+		{
+			for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+			{
+				for (const auto& [uuid, conn] : connectionSet)
+				{
+					DetectVariables(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
+				}
+			}
+
+			it = usageCount.emplace(BuildKey(node->id(), outputIndex), 0).first;
+		}
+
+		it->second++;
+	};
+
+	std::vector<QtNodes::Node*> outputNodes;
+
+	m_flowScene->iterateOverNodes([&](QtNodes::Node* node)
+	{
+		if (node->nodeDataModel()->nPorts(QtNodes::PortType::Out) == 0)
+		{
+			DetectVariables(node, 0);
+			outputNodes.push_back(node);
+		}
+	});
+
+	std::map<Key, Nz::ShaderAst::ExpressionPtr> variableExpressions;
+
+	unsigned int varCount = 0;
+	std::unordered_set<std::string> usedVariableNames;
+
+	std::function<Nz::ShaderAst::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
+	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> Nz::ShaderAst::NodePtr
+	{
+		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
+		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
+			throw std::runtime_error(shaderNode->validationMessage().toStdString());
+
+		qDebug() << shaderNode->name() << node->id();
+		if (auto it = variableExpressions.find(BuildKey(node->id(), portIndex)); it != variableExpressions.end())
+			return Nz::ShaderAst::Clone(it->second);
+
+		auto it = usageCount.find(BuildKey(node->id(), portIndex));
+		assert(it != usageCount.end());
+
+		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
+		Nz::StackArray<Nz::ShaderAst::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderAst::ExpressionPtr, inputCount);
+		std::size_t i = 0;
+
+		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
+		{
+			for (const auto& [uuid, conn] : connectionSet)
+			{
+				assert(i < expressions.size());
+				Nz::ShaderAst::NodePtr inputNode = HandleNode(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
+				if (!Nz::ShaderAst::IsExpression(inputNode->GetType()))
+					throw std::runtime_error("unexpected statement");
+
+				expressions[i] = static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(inputNode));
+				i++;
+			}
+		}
+
+		auto astNode = shaderNode->BuildNode(expressions.data(), expressions.size(), portIndex);
+		if (!Nz::ShaderAst::IsExpression(astNode->GetType()))
+			return astNode;
+
+		Nz::ShaderAst::ExpressionPtr expression = static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(astNode));
+
+		const std::string& variableName = shaderNode->GetVariableName();
+		if (it->second > 1 || !variableName.empty())
+		{
+			Nz::ShaderAst::ExpressionPtr varExpression;
+			if (Nz::ShaderAst::GetExpressionCategory(*expression) == Nz::ShaderAst::ExpressionCategory::RValue)
+			{
+				std::string name;
+				if (variableName.empty())
+					name = "var" + std::to_string(varCount++);
+				else
+					name = variableName;
+
+				if (usedVariableNames.find(name) != usedVariableNames.end())
+					throw std::runtime_error("duplicate variable found: " + name);
+
+				usedVariableNames.insert(name);
+
+				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(name, std::move(expression)));
+
+				varExpression = Nz::ShaderBuilder::Identifier(name);
+			}
+			else
+				varExpression = std::move(expression);
+
+			variableExpressions[BuildKey(node->id(), portIndex)] = Nz::ShaderAst::Clone(varExpression);
+
+			return varExpression;
+		}
+		else
+			return expression;
+	};
+
+	std::sort(outputNodes.begin(), outputNodes.end(), [](QtNodes::Node* lhs, QtNodes::Node* rhs)
+	{
+		ShaderNode* leftNode = static_cast<ShaderNode*>(lhs->nodeDataModel());
+		ShaderNode* rightNode = static_cast<ShaderNode*>(rhs->nodeDataModel());
+
+		return leftNode->GetOutputOrder() < rightNode->GetOutputOrder();
+	});
+
+	for (QtNodes::Node* node : outputNodes)
+	{
+		auto astNode = HandleNode(node, 0);
+		if (!Nz::ShaderAst::IsStatement(astNode->GetType()))
+			statements.emplace_back(Nz::ShaderBuilder::ExpressionStatement(static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(astNode))));
+		else
+			statements.emplace_back(static_unique_pointer_cast<Nz::ShaderAst::Statement>(std::move(astNode)));
+	}
+
+	if (!m_outputs.empty())
+		statements.push_back(Nz::ShaderBuilder::Return(Nz::ShaderBuilder::Identifier("output")));
+
+	return Nz::ShaderBuilder::DeclareFunction(ToShaderStageType(m_type), "main", std::move(parameters), std::move(statements), std::move(returnType));
 }

@@ -40,7 +40,7 @@ namespace Nz
 
 		static_assert(sizeof(pcx_header) == (6+48+54)*sizeof(UInt8) + 10*sizeof(UInt16), "pcx_header struct must be packed");
 
-		bool IsSupported(const std::string& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "pcx");
 		}
@@ -49,19 +49,19 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativePCXLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			UInt8 manufacturer;
 			if (stream.Read(&manufacturer, 1) == 1)
 			{
 				if (manufacturer == 0x0a)
-					return Ternary_True;
+					return Ternary::True;
 			}
 
-			return Ternary_False;
+			return Ternary::False;
 		}
 
-		ImageRef Load(Stream& stream, const ImageParams& parameters)
+		std::shared_ptr<Image> Load(Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -91,8 +91,8 @@ namespace Nz
 			unsigned int width = header.xmax - header.xmin+1;
 			unsigned int height = header.ymax - header.ymin+1;
 
-			ImageRef image = Image::New();
-			if (!image->Create(ImageType_2D, PixelFormat_RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			std::shared_ptr<Image> image = std::make_shared<Image>();
+			if (!image->Create(ImageType::E2D, PixelFormat::RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
 				return nullptr;
@@ -333,7 +333,7 @@ namespace Nz
 					return nullptr;
 			}
 
-			if (parameters.loadFormat != PixelFormat_Undefined)
+			if (parameters.loadFormat != PixelFormat::Undefined)
 				image->Convert(parameters.loadFormat);
 
 			return image;
@@ -342,14 +342,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterPCX()
+		ImageLoader::Entry GetImageLoader_PCX()
 		{
-			ImageLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			ImageLoader::Entry loaderEntry;
+			loaderEntry.extensionSupport = IsSupported;
+			loaderEntry.streamChecker = Check;
+			loaderEntry.streamLoader = Load;
 
-		void UnregisterPCX()
-		{
-			ImageLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loaderEntry;
 		}
 	}
 }

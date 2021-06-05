@@ -34,7 +34,8 @@ namespace Nz
 			ShaderBinding(ShaderBinding&&) = delete;
 			virtual ~ShaderBinding();
 
-			virtual void Update(std::initializer_list<Binding> bindings) = 0;
+			virtual void Update(const Binding* bindings, std::size_t bindingCount) = 0;
+			inline void Update(std::initializer_list<Binding> bindings);
 
 			ShaderBinding& operator=(const ShaderBinding&) = delete;
 			ShaderBinding& operator=(ShaderBinding&&) = delete;

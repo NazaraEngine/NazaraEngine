@@ -9,37 +9,22 @@
 
 namespace Nz
 {
-	VertexBuffer::VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer)
+	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(vertexDeclaration), std::move(buffer));
 	}
 
-	VertexBuffer::VertexBuffer(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, std::size_t offset, std::size_t size)
+	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(vertexDeclaration), std::move(buffer), offset, size);
 	}
 
-	VertexBuffer::VertexBuffer(VertexDeclarationConstRef vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
+	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
-		ErrorFlags(ErrorFlag_ThrowException, true);
+		ErrorFlags(ErrorMode::ThrowException, true);
 		Reset(std::move(vertexDeclaration), length, storage, usage);
-	}
-
-	VertexBuffer::VertexBuffer(const VertexBuffer& vertexBuffer) :
-	RefCounted(),
-	m_buffer(vertexBuffer.m_buffer),
-	m_endOffset(vertexBuffer.m_endOffset),
-	m_startOffset(vertexBuffer.m_startOffset),
-	m_vertexCount(vertexBuffer.m_vertexCount),
-	m_vertexDeclaration(vertexBuffer.m_vertexDeclaration)
-	{
-	}
-
-	VertexBuffer::~VertexBuffer()
-	{
-		OnVertexBufferRelease(this);
 	}
 
 	bool VertexBuffer::Fill(const void* data, std::size_t startVertex, std::size_t length)
@@ -91,20 +76,20 @@ namespace Nz
 
 	void VertexBuffer::Reset()
 	{
-		m_buffer.Reset();
-		m_vertexDeclaration.Reset();
+		m_buffer.reset();
+		m_vertexDeclaration.reset();
 	}
 
-	void VertexBuffer::Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer)
+	void VertexBuffer::Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-		NazaraAssert(buffer->GetType() == BufferType_Vertex, "Buffer must be a vertex buffer");
+		NazaraAssert(buffer->GetType() == BufferType::Vertex, "Buffer must be a vertex buffer");
 
 		std::size_t size = buffer->GetSize();
 		Reset(std::move(vertexDeclaration), std::move(buffer), 0, size);
 	}
 
-	void VertexBuffer::Reset(VertexDeclarationConstRef vertexDeclaration, BufferRef buffer, std::size_t offset, std::size_t size)
+	void VertexBuffer::Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
 	{
 		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(size > 0, "Invalid size");
@@ -117,14 +102,14 @@ namespace Nz
 		m_vertexDeclaration = vertexDeclaration;
 	}
 
-	void VertexBuffer::Reset(VertexDeclarationConstRef vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
+	void VertexBuffer::Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
 	{
 		m_endOffset = length * ((vertexDeclaration) ? static_cast<std::size_t>(vertexDeclaration->GetStride()) : 1);
 		m_startOffset = 0;
 		m_vertexCount = length;
 		m_vertexDeclaration = std::move(vertexDeclaration);
 
-		m_buffer = Buffer::New(BufferType_Vertex, m_endOffset, storage, usage);
+		m_buffer = std::make_shared<Buffer>(BufferType::Vertex, m_endOffset, storage, usage);
 	}
 
 	void VertexBuffer::Reset(const VertexBuffer& vertexBuffer)
@@ -136,7 +121,7 @@ namespace Nz
 		m_vertexDeclaration = vertexBuffer.m_vertexDeclaration;
 	}
 
-	void VertexBuffer::SetVertexDeclaration(VertexDeclarationConstRef vertexDeclaration)
+	void VertexBuffer::SetVertexDeclaration(std::shared_ptr<const VertexDeclaration> vertexDeclaration)
 	{
 		NazaraAssert(vertexDeclaration, "Invalid vertex declaration");
 
@@ -147,12 +132,5 @@ namespace Nz
 	void VertexBuffer::Unmap() const
 	{
 		m_buffer->Unmap();
-	}
-
-	VertexBuffer& VertexBuffer::operator=(const VertexBuffer& vertexBuffer)
-	{
-		Reset(vertexBuffer);
-
-		return *this;
 	}
 }

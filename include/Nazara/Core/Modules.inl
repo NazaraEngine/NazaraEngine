@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Modules.hpp>
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -18,7 +19,10 @@ namespace Nz
 				if constexpr (std::is_same_v<T, std::decay_t<First>>)
 					return std::forward<First>(first);
 				else
+				{
+					NazaraUnused(first);
 					return Get(std::forward<Args>(args)...);
+				}
 			}
 
 			static auto Get()

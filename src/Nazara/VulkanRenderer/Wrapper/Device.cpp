@@ -75,7 +75,7 @@ namespace Nz
 			// Load all device-related functions
 			try
 			{
-				ErrorFlags flags(ErrorFlag_ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException, true);
 
 				UInt32 deviceVersion = deviceInfo.properties.apiVersion;
 

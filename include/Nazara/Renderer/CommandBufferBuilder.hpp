@@ -11,6 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <string_view>
@@ -21,6 +22,7 @@ namespace Nz
 	class RenderPass;
 	class RenderPipeline;
 	class ShaderBinding;
+	class Texture;
 
 	class NAZARA_RENDERER_API CommandBufferBuilder
 	{
@@ -33,7 +35,9 @@ namespace Nz
 			virtual ~CommandBufferBuilder();
 
 			virtual void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) = 0;
-			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues) = 0;
+			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
+			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect);
+			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues);
 
 			virtual void BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset = 0) = 0;
 			virtual void BindPipeline(const RenderPipeline& pipeline) = 0;
@@ -51,20 +55,24 @@ namespace Nz
 			virtual void EndDebugRegion() = 0;
 			virtual void EndRenderPass() = 0;
 
+			virtual void NextSubpass() = 0;
+
 			virtual void PreTransferBarrier() = 0;
 			virtual void PostTransferBarrier() = 0;
 
 			virtual void SetScissor(Nz::Recti scissorRegion) = 0;
 			virtual void SetViewport(Nz::Recti viewportRegion) = 0;
 
+			virtual void TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture) = 0;
+
 			CommandBufferBuilder& operator=(const CommandBufferBuilder&) = delete;
 			CommandBufferBuilder& operator=(CommandBufferBuilder&&) = default;
 
 			struct ClearValues
 			{
-				Nz::Color color;
-				float depth;
-				UInt32 stencil;
+				Nz::Color color = Nz::Color::Black;
+				float depth = 1.f;
+				UInt32 stencil = 0;
 			};
 	};
 }

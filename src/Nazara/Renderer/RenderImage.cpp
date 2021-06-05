@@ -7,5 +7,10 @@
 
 namespace Nz
 {
-	RenderImage::~RenderImage() = default;
+	RenderImage::~RenderImage()
+	{
+		FlushReleaseQueue();
+	}
+
+	RenderImage::Releasable::~Releasable() = default;
 }

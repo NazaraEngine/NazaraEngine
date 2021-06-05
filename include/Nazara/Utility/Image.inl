@@ -2,18 +2,22 @@
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/Image.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	template<typename... Args>
-	ImageRef Image::New(Args&&... args)
+	inline Image::Image(Image&& image) noexcept :
+	m_sharedImage(std::exchange(image.m_sharedImage, &emptyImage))
 	{
-		std::unique_ptr<Image> object(new Image(std::forward<Args>(args)...));
-		object->SetPersistent(false);
+	}
 
-		return object.release();
+	inline Image& Image::operator=(Image&& image) noexcept
+	{
+		std::swap(m_sharedImage, image.m_sharedImage);
+
+		return *this;
 	}
 }
 

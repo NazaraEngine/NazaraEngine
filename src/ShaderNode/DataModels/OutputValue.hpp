@@ -16,7 +16,7 @@ class OutputValue : public ShaderNode
 
 		void BuildNodeEdition(QFormLayout* layout) override;
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override { return "Output"; }
 		QString name() const override { return "Output"; }
@@ -26,6 +26,9 @@ class OutputValue : public ShaderNode
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
+
+		QString portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
+		bool portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
 		void setInData(std::shared_ptr<QtNodes::NodeData> value, int index) override;
 

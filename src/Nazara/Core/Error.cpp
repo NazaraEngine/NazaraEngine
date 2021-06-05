@@ -31,7 +31,7 @@ namespace Nz
 	* \return Flag
 	*/
 
-	UInt32 Error::GetFlags()
+	ErrorModeFlags Error::GetFlags()
 	{
 		return s_flags;
 	}
@@ -88,13 +88,16 @@ namespace Nz
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		wchar_t* buffer = nullptr;
 
-		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+		DWORD length = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
 		               nullptr,
 		               code,
 		               0,
 		               reinterpret_cast<LPWSTR>(&buffer),
 		               0,
 		               nullptr);
+
+		if (length == 0)
+			return "<internal error: FormatMessageW failed with " + std::to_string(::GetLastError()) + ">";
 
 		CallOnExit freeOnExit([buffer] { LocalFree(buffer); });
 		return FromWideString(buffer);
@@ -113,7 +116,7 @@ namespace Nz
 	* \param flags Flags for the error
 	*/
 
-	void Error::SetFlags(UInt32 flags)
+	void Error::SetFlags(ErrorModeFlags flags)
 	{
 		s_flags = flags;
 	}
@@ -130,7 +133,7 @@ namespace Nz
 
 	void Error::Trigger(ErrorType type, std::string error)
 	{
-		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
+		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0 || (s_flags & ErrorMode::SilentDisabled) != 0)
 			Log::WriteError(type, error);
 
 		s_lastError = std::move(error);
@@ -139,12 +142,12 @@ namespace Nz
 		s_lastErrorLine = 0;
 
 		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-		if (type == ErrorType_AssertFailed)
+		if (type == ErrorType::AssertFailed)
 			std::abort();
 		#endif
 
-		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
-			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
+		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning &&
+			(s_flags & ErrorMode::ThrowException) != 0 && (s_flags & ErrorMode::ThrowExceptionDisabled) == 0))
 			throw std::runtime_error(s_lastError);
 	}
 
@@ -165,7 +168,7 @@ namespace Nz
 	{
 		file = GetCurrentFileRelativeToEngine(file);
 
-		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
+		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0 || (s_flags & ErrorMode::SilentDisabled) != 0)
 			Log::WriteError(type, error, line, file, function);
 
 		s_lastError = std::move(error);
@@ -174,12 +177,12 @@ namespace Nz
 		s_lastErrorLine = line;
 
 		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-		if (type == ErrorType_AssertFailed)
+		if (type == ErrorType::AssertFailed)
 			std::abort();
 		#endif
 
-		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
-			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
+		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning &&
+			(s_flags & ErrorMode::ThrowException) != 0 && (s_flags & ErrorMode::ThrowExceptionDisabled) == 0))
 			throw std::runtime_error(s_lastError);
 	}
 
@@ -194,7 +197,7 @@ namespace Nz
 		return file;
 	}
 
-	UInt32 Error::s_flags = ErrorFlag_None;
+	ErrorModeFlags Error::s_flags = ErrorMode::None;
 	std::string Error::s_lastError;
 	const char* Error::s_lastErrorFunction = "";
 	const char* Error::s_lastErrorFile = "";

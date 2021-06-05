@@ -11,6 +11,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
+#include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -26,7 +27,7 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionNameEOS.data(), color);
 	}
 
-	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues)
+	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(renderPass);
 
@@ -49,14 +50,15 @@ namespace Nz
 			throw std::runtime_error("Unhandled framebuffer type " + std::to_string(UnderlyingCast(vkFramebuffer.GetType())));
 		}();
 
-		StackArray<VkClearValue> vkClearValues = NazaraStackArray(VkClearValue, clearValues.size());
+		std::size_t attachmentCount = vkRenderPass.GetAttachmentCount();
 
-		std::size_t index = 0;
-		for (const ClearValues& values : clearValues)
+		StackArray<VkClearValue> vkClearValues = NazaraStackArray(VkClearValue, attachmentCount);
+		for (std::size_t i = 0; i < attachmentCount; ++i)
 		{
-			auto& vkValues = vkClearValues[index];
+			const auto& values = (i < clearValueCount) ? clearValues[i] : CommandBufferBuilder::ClearValues{};
+			auto& vkValues = vkClearValues[i];
 
-			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachmentFormat(index)) == PixelFormatContent_ColorRGBA)
+			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
 			{
 				vkValues.color.float32[0] = values.color.r / 255.f;
 				vkValues.color.float32[1] = values.color.g / 255.f;
@@ -68,8 +70,6 @@ namespace Nz
 				vkValues.depthStencil.depth = values.depth;
 				vkValues.depthStencil.stencil = values.stencil;
 			}
-
-			index++;
 		}
 
 		VkRenderPassBeginInfo beginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
@@ -79,12 +79,13 @@ namespace Nz
 		beginInfo.renderArea.offset.y = renderRect.y;
 		beginInfo.renderArea.extent.width = renderRect.width;
 		beginInfo.renderArea.extent.height = renderRect.height;
-		beginInfo.clearValueCount = vkClearValues.size();
+		beginInfo.clearValueCount = UInt32(vkClearValues.size());
 		beginInfo.pClearValues = vkClearValues.data();
 
 		m_commandBuffer.BeginRenderPass(beginInfo);
 
 		m_currentRenderPass = &vkRenderPass;
+		m_currentSubpassIndex = 0;
 	}
 
 	void VulkanCommandBufferBuilder::BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset)
@@ -101,7 +102,7 @@ namespace Nz
 
 		const VulkanRenderPipeline& vkBinding = static_cast<const VulkanRenderPipeline&>(pipeline);
 
-		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkBinding.Get(m_currentRenderPass->GetRenderPass()));
+		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkBinding.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
 	void VulkanCommandBufferBuilder::BindShaderBinding(const ShaderBinding& binding)
@@ -157,6 +158,12 @@ namespace Nz
 		m_currentRenderPass = nullptr;
 	}
 
+	void VulkanCommandBufferBuilder::NextSubpass()
+	{
+		m_commandBuffer.NextSubpass();
+		m_currentSubpassIndex++;
+	}
+
 	void VulkanCommandBufferBuilder::PreTransferBarrier()
 	{
 		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT);
@@ -175,5 +182,12 @@ namespace Nz
 	void VulkanCommandBufferBuilder::SetViewport(Nz::Recti viewportRegion)
 	{
 		m_commandBuffer.SetViewport(Nz::Rectf(viewportRegion), 0.f, 1.f);
+	}
+
+	void VulkanCommandBufferBuilder::TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture)
+	{
+		const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(texture);
+
+		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 }

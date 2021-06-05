@@ -11,12 +11,14 @@
 namespace Nz
 {
 	inline OpenGLCommandBuffer::OpenGLCommandBuffer() :
+	m_maxColorBufferCount(0),
 	m_owner(nullptr)
 	{
 	}
 
 	inline OpenGLCommandBuffer::OpenGLCommandBuffer(OpenGLCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex) :
 	m_bindingIndex(bindingIndex),
+	m_maxColorBufferCount(0),
 	m_poolIndex(poolIndex),
 	m_owner(&owner)
 	{
@@ -133,12 +135,20 @@ namespace Nz
 		return *m_owner;
 	}
 
-	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const RenderPass& /*renderPass*/, std::initializer_list<CommandBufferBuilder::ClearValues> clearValues)
+	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)
 	{
+		m_maxColorBufferCount = std::max(m_maxColorBufferCount, framebuffer.GetColorBufferCount());
+
 		SetFrameBufferData setFramebuffer;
 		setFramebuffer.framebuffer = &framebuffer;
+		setFramebuffer.renderpass = &renderPass;
+
+		assert(clearValueCount < setFramebuffer.clearValues.size());
+		std::copy(clearValues, clearValues + clearValueCount, setFramebuffer.clearValues.begin());
 
 		m_commands.emplace_back(std::move(setFramebuffer));
+
+		m_currentStates.shouldFlipY = (framebuffer.GetType() == OpenGLFramebuffer::Type::Window);
 	}
 
 	inline void OpenGLCommandBuffer::SetScissor(Nz::Recti scissorRegion)

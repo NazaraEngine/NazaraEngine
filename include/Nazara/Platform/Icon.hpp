@@ -8,36 +8,35 @@
 #define NAZARA_ICON_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Platform/Config.hpp>
+#include <memory>
 
 namespace Nz
 {
 	class Image;
 	class IconImpl;
 
-	class Icon;
-
-	using IconRef = ObjectRef<Icon>;
-
-	class NAZARA_PLATFORM_API Icon : public RefCounted
+	class NAZARA_PLATFORM_API Icon
 	{
 		friend class WindowImpl;
 
 		public:
-			inline Icon();
-			inline explicit Icon(const Image& icon);
-			inline ~Icon();
+			Icon();
+			explicit Icon(const Image& icon);
+			Icon(const Icon&) = delete;
+			Icon(Icon&&) noexcept;
+			~Icon();
 
 			bool Create(const Image& icon);
 			void Destroy();
 
 			inline bool IsValid() const;
 
-			template<typename... Args> static IconRef New(Args&&... args);
+			Icon& operator=(const Icon&) = delete;
+			Icon& operator=(Icon&&) noexcept;
 
 		private:
-			IconImpl* m_impl;
+			std::unique_ptr<IconImpl> m_impl;
 	};
 }
 

@@ -10,7 +10,7 @@ namespace Ndk
 	* \param geom Reference to a geometry symbolizing the entity
 	*/
 
-	inline CollisionComponent2D::CollisionComponent2D(Nz::Collider2DRef geom) :
+	inline CollisionComponent2D::CollisionComponent2D(std::shared_ptr<Nz::Collider2D> geom) :
 	m_geom(std::move(geom)),
 	m_bodyUpdated(false)
 	{
@@ -33,7 +33,7 @@ namespace Ndk
 	* \return A constant reference to the physics geometry
 	*/
 
-	inline const Nz::Collider2DRef& CollisionComponent2D::GetGeom() const
+	inline const std::shared_ptr<Nz::Collider2D>& CollisionComponent2D::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -45,7 +45,7 @@ namespace Ndk
 	* \param geom Reference to a geometry symbolizing the entity
 	*/
 
-	inline CollisionComponent2D& CollisionComponent2D::operator=(Nz::Collider2DRef geom)
+	inline CollisionComponent2D& CollisionComponent2D::operator=(std::shared_ptr<Nz::Collider2D> geom)
 	{
 		SetGeom(geom);
 

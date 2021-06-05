@@ -7,11 +7,6 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <regex>
 
-#ifndef NDK_SERVER
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
-#include <NazaraSDK/Components/NodeComponent.hpp>
-#endif
-
 namespace Ndk
 {
 	/*!
@@ -33,6 +28,32 @@ namespace Ndk
 	*/
 	Application::Application(int argc, char* argv[]) :
 	Application()
+	{
+		ParseCommandline(argc, argv);
+	}
+
+	/*!
+	* \brief Runs the application by updating worlds, taking care about windows, ...
+	*/
+	bool Application::Run()
+	{
+		if (m_shouldQuit)
+			return false;
+
+		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
+
+		for (World& world : m_worlds)
+			world.Update(m_updateTime);
+
+		return true;
+	}
+
+	void Application::ClearWorlds()
+	{
+		m_worlds.clear();
+	}
+
+	void Application::ParseCommandline(int argc, char* argv[])
 	{
 		std::regex optionRegex(R"(-(\w+))");
 		std::regex valueRegex(R"(-(\w+)\s*=\s*(.+))");
@@ -60,47 +81,6 @@ namespace Ndk
 			else
 				NazaraWarning("Ignored command-line argument #" + Nz::NumberToString(i) + " \"" + argument + '"');
 		}
-	}
-
-	/*!
-	* \brief Runs the application by updating worlds, taking care about windows, ...
-	*/
-	bool Application::Run()
-	{
-		#ifndef NDK_SERVER
-		bool hasAtLeastOneActiveWindow = false;
-
-		auto it = m_windows.begin();
-		while (it != m_windows.end())
-		{
-			Nz::Window& window = *it->window;
-
-			window.ProcessEvents();
-
-			if (!window.IsOpen(true))
-			{
-				it = m_windows.erase(it);
-				continue;
-			}
-
-			hasAtLeastOneActiveWindow = true;
-
-			++it;
-		}
-
-		if (m_exitOnClosedWindows && !hasAtLeastOneActiveWindow)
-			return false;
-		#endif
-
-		if (m_shouldQuit)
-			return false;
-
-		m_updateTime = m_updateClock.Restart() / 1'000'000.f;
-
-		for (World& world : m_worlds)
-			world.Update(m_updateTime);
-
-		return true;
 	}
 
 	Application* Application::s_application = nullptr;

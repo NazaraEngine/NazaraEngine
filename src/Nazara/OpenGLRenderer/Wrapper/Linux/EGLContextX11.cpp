@@ -38,15 +38,4 @@ namespace Nz::GL
 
 		return CreateInternal(configs[configIndex], shareContext);
 	}
-
-	void EGLContextX11::Destroy()
-	{
-		EGLContextBase::Destroy();
-
-		if (m_xdisplay)
-		{
-			XCloseDisplay(m_xdisplay);
-			m_xdisplay = nullptr;
-		}
-	}
 }

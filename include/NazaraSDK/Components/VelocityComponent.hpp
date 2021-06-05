@@ -19,7 +19,7 @@ namespace Ndk
 	class NDK_API VelocityComponent : public Component<VelocityComponent>
 	{
 		public:
-			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero(), Nz::CoordSys coordSystem = Nz::CoordSys_Global);
+			VelocityComponent(const Nz::Vector3f& velocity = Nz::Vector3f::Zero(), Nz::CoordSys coordSystem = Nz::CoordSys::Global);
 			~VelocityComponent() = default;
 
 			Nz::Vector3f linearVelocity;

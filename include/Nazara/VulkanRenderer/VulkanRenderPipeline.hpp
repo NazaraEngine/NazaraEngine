@@ -8,12 +8,13 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
 #include <vector>
 
 namespace Nz
@@ -26,7 +27,9 @@ namespace Nz
 			VulkanRenderPipeline(Vk::Device& device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
 
-			VkPipeline Get(const Vk::RenderPass& renderPass) const;
+			VkPipeline Get(const VulkanRenderPass& renderPass, std::size_t subpassIndex) const;
+
+			inline const RenderPipelineInfo& GetPipelineInfo() const override;
 
 			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineColorBlendStateCreateInfo BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState);
@@ -69,9 +72,16 @@ namespace Nz
 			};
 
 		private:
-			mutable std::unordered_map<VkRenderPass, Vk::Pipeline> m_pipelines;
+			void UpdateCreateInfo(std::size_t colorBufferCount) const;
+
+			struct PipelineHasher
+			{
+				inline std::size_t operator()(const std::pair<VkRenderPass, std::size_t>& renderPass) const;
+			};
+
+			mutable std::unordered_map<std::pair<VkRenderPass, std::size_t>, Vk::Pipeline, PipelineHasher> m_pipelines;
 			MovablePtr<Vk::Device> m_device;
-			CreateInfo m_pipelineCreateInfo;
+			mutable CreateInfo m_pipelineCreateInfo;
 			RenderPipelineInfo m_pipelineInfo;
 	};
 }

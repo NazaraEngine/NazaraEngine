@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline const BufferRef& IndexBuffer::GetBuffer() const
+	inline const std::shared_ptr<Buffer>& IndexBuffer::GetBuffer() const
 	{
 		return m_buffer;
 	}
@@ -24,7 +24,7 @@ namespace Nz
 
 	inline std::size_t IndexBuffer::GetStride() const
 	{
-		return static_cast<std::size_t>((m_largeIndices) ? sizeof(std::size_t) : sizeof(UInt16));
+		return static_cast<std::size_t>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 	}
 
 	inline std::size_t IndexBuffer::GetStartOffset() const
@@ -39,7 +39,7 @@ namespace Nz
 
 	inline bool IndexBuffer::IsValid() const
 	{
-		return m_buffer.IsValid();
+		return m_buffer != nullptr;
 	}
 
 	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length)
@@ -52,15 +52,6 @@ namespace Nz
 	{
 		std::size_t stride = GetStride();
 		return MapRaw(access, startIndex*stride, length*stride);
-	}
-
-	template<typename... Args>
-	IndexBufferRef IndexBuffer::New(Args&&... args)
-	{
-		std::unique_ptr<IndexBuffer> object(new IndexBuffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
 	}
 }
 

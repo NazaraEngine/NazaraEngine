@@ -12,7 +12,7 @@ namespace Nz
 	*/
 
 	inline TcpServer::TcpServer() :
-	AbstractSocket(SocketType_TCP)
+	AbstractSocket(SocketType::TCP)
 	{
 	}
 
@@ -61,22 +61,22 @@ namespace Nz
 
 	inline SocketState TcpServer::Listen(NetProtocol protocol, UInt16 port, unsigned int queueSize)
 	{
-		NazaraAssert(protocol != NetProtocol_Any, "Any protocol not supported for Listen"); //< TODO
-		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol"); 
+		NazaraAssert(protocol != NetProtocol::Any, "Any protocol not supported for Listen"); //< TODO
+		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol"); 
 
 		IpAddress any;
 		switch (protocol)
 		{
-			case NetProtocol_Any:
-			case NetProtocol_Unknown:
+			case NetProtocol::Any:
+			case NetProtocol::Unknown:
 				NazaraInternalError("Invalid protocol Any at this point");
-				return SocketState_NotConnected;
+				return SocketState::NotConnected;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 				any = IpAddress::AnyIpV4;
 				break;
 
-			case NetProtocol_IPv6:
+			case NetProtocol::IPv6:
 				any = IpAddress::AnyIpV6;
 				break;
 		}

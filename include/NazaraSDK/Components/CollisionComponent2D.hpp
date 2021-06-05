@@ -25,20 +25,20 @@ namespace Ndk
 		friend class PhysicsSystem2D;
 
 		public:
-			CollisionComponent2D(Nz::Collider2DRef geom = Nz::Collider2DRef());
+			CollisionComponent2D(std::shared_ptr<Nz::Collider2D> geom = std::shared_ptr<Nz::Collider2D>());
 			CollisionComponent2D(const CollisionComponent2D& collision);
 			~CollisionComponent2D() = default;
 
 			Nz::Rectf GetAABB() const;
-			const Nz::Collider2DRef& GetGeom() const;
+			const std::shared_ptr<Nz::Collider2D>& GetGeom() const;
 			const Nz::Vector2f& GetGeomOffset() const;
 
 			void Recenter(const Nz::Vector2f& origin);
 
-			void SetGeom(Nz::Collider2DRef geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
+			void SetGeom(std::shared_ptr<Nz::Collider2D> geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
 			void SetGeomOffset(const Nz::Vector2f& geomOffset);
 
-			CollisionComponent2D& operator=(Nz::Collider2DRef geom);
+			CollisionComponent2D& operator=(std::shared_ptr<Nz::Collider2D> geom);
 			CollisionComponent2D& operator=(CollisionComponent2D&& collision) = delete;
 
 			static ComponentIndex componentIndex;
@@ -56,7 +56,7 @@ namespace Ndk
 			void OnDetached() override;
 
 			std::unique_ptr<Nz::RigidBody2D> m_staticBody;
-			Nz::Collider2DRef m_geom;
+			std::shared_ptr<Nz::Collider2D> m_geom;
 			bool m_bodyUpdated;
 	};
 }

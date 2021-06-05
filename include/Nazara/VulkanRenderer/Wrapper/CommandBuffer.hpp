@@ -57,6 +57,7 @@ namespace Nz
 
 				inline void CopyBuffer(VkBuffer source, VkBuffer target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height, UInt32 depth = 1);
+				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 width, UInt32 height, UInt32 depth = 1);
 
 				inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 				inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, Int32 vertexOffset = 0, UInt32 firstInstance = 0);
@@ -70,10 +71,14 @@ namespace Nz
 
 				inline CommandPool& GetPool();
 
+				inline void ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, VkImageAspectFlags aspectFlags);
+
 				inline void InsertDebugLabel(const char* label);
 				inline void InsertDebugLabel(const char* label, Nz::Color color);
 
 				inline void MemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask);
+
+				inline void NextSubpass(VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 				inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkImageMemoryBarrier& imageMemoryBarrier);
 				inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkMemoryBarrier& memoryBarrier);

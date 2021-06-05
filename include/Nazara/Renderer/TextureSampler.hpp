@@ -10,18 +10,22 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <functional>
 
 namespace Nz
 {
 	struct TextureSamplerInfo
 	{
 		float anisotropyLevel = 0.f;
-		SamplerFilter magFilter = SamplerFilter_Linear;
-		SamplerFilter minFilter = SamplerFilter_Linear;
-		SamplerMipmapMode mipmapMode = SamplerMipmapMode_Linear;
-		SamplerWrap wrapModeU = SamplerWrap_Clamp;
-		SamplerWrap wrapModeV = SamplerWrap_Clamp;
-		SamplerWrap wrapModeW = SamplerWrap_Clamp;
+		SamplerFilter magFilter = SamplerFilter::Linear;
+		SamplerFilter minFilter = SamplerFilter::Linear;
+		SamplerMipmapMode mipmapMode = SamplerMipmapMode::Linear;
+		SamplerWrap wrapModeU = SamplerWrap::Clamp;
+		SamplerWrap wrapModeV = SamplerWrap::Clamp;
+		SamplerWrap wrapModeW = SamplerWrap::Clamp;
+
+		inline bool operator==(const TextureSamplerInfo& samplerInfo) const;
+		inline bool operator!=(const TextureSamplerInfo& samplerInfo) const;
 	};
 
 	class NAZARA_RENDERER_API TextureSampler
@@ -36,6 +40,9 @@ namespace Nz
 			TextureSampler& operator=(TextureSampler&&) = delete;
 	};
 }
+
+template<>
+struct std::hash<Nz::TextureSamplerInfo>;
 
 #include <Nazara/Renderer/TextureSampler.inl>
 

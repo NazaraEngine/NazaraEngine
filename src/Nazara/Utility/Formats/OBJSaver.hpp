@@ -8,14 +8,11 @@
 #define NAZARA_FORMATS_OBJSAVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterOBJSaver();
-		void UnregisterOBJSaver();
-	}
+	MeshSaver::Entry GetMeshSaver_OBJ();
 }
 
 #endif // NAZARA_FORMATS_OBJSAVER_HPP

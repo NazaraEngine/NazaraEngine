@@ -21,13 +21,9 @@ namespace Nz::GL
 			~EGLContextX11() = default;
 
 			bool Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext = nullptr) override;
-			void Destroy() override;
 
 			EGLContextX11& operator=(const EGLContextX11&) = delete;
 			EGLContextX11& operator=(EGLContextX11&&) = delete;
-
-		private:
-			::Display* m_xdisplay = nullptr;
 	};
 }
 

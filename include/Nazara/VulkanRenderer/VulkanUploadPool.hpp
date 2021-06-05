@@ -40,17 +40,23 @@ namespace Nz
 			VulkanUploadPool& operator=(VulkanUploadPool&&) = delete;
 
 		private:
+			static constexpr std::size_t AllocationPerBlock = 2048;
+
+			using AllocationBlock = std::array<VulkanAllocation, AllocationPerBlock>;
+
 			struct Block
 			{
 				Vk::DeviceMemory blockMemory;
 				Vk::Buffer buffer;
-				UInt64 freeOffset;
+				UInt64 freeOffset = 0;
+				UInt64 size;
 			};
 
 			UInt64 m_blockSize;
 			Vk::Device& m_device;
+			std::size_t m_nextAllocationIndex;
+			std::vector<std::unique_ptr<AllocationBlock>> m_allocationBlocks;
 			std::vector<Block> m_blocks;
-			std::vector<VulkanAllocation> m_allocations;
 	};
 }
 

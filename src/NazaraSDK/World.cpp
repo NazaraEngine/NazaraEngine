@@ -11,10 +11,6 @@
 #include <NazaraSDK/Systems/PhysicsSystem3D.hpp>
 #include <NazaraSDK/Systems/VelocitySystem.hpp>
 
-#ifndef NDK_SERVER
-#include <NazaraSDK/Systems/ListenerSystem.hpp>
-#endif
-
 namespace Ndk
 {
 	/*!
@@ -33,22 +29,6 @@ namespace Ndk
 	{
 		// The destruct must be done in an ordered way
 		Clear();
-	}
-
-	/*!
-	* \brief Adds default systems to the world
-	*/
-
-	void World::AddDefaultSystems()
-	{
-		AddSystem<LifetimeSystem>();
-		AddSystem<PhysicsSystem2D>();
-		AddSystem<PhysicsSystem3D>();
-		AddSystem<VelocitySystem>();
-
-		#ifndef NDK_SERVER
-		AddSystem<ListenerSystem>();
-		#endif
 	}
 
 	/*!
@@ -124,6 +104,11 @@ namespace Ndk
 				entBlock->entity.Destroy();
 		}
 		m_entityBlocks.clear();
+
+		// Reset world for entity lists
+		for (EntityList* list : m_referencedByLists)
+			list->SetWorld(nullptr);
+		m_referencedByLists.clear();
 
 		m_entities.clear();
 		m_waitingEntities.clear();

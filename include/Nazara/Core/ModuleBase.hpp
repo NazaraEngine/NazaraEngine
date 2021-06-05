@@ -18,6 +18,12 @@ namespace Nz
 		friend class Core;
 
 		public:
+			ModuleBase(const ModuleBase&) = delete;
+			ModuleBase(ModuleBase&&) = delete;
+
+			ModuleBase& operator=(const ModuleBase&) = delete;
+			ModuleBase& operator=(ModuleBase&&) = delete;
+
 			static T* Instance();
 
 		protected:
@@ -30,6 +36,7 @@ namespace Nz
 			ModuleBase(std::string moduleName, T* pointer, NoLog);
 
 			void LogInit();
+			void LogUninit();
 
 			std::string m_moduleName;
 	};

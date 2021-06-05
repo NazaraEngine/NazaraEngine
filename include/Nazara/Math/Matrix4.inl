@@ -903,7 +903,7 @@ namespace Nz
 	* \brief Makes the matrix a 'perspective matrix'
 	* \return A reference to this matrix transformed in 'perspective matrix'
 	*
-	* \param angle Unit depends on NAZARA_MATH_ANGLE_RADIAN
+	* \param angle FOV angle
 	* \param ratio Rendering ratio (typically 16/9 or 4/3)
 	* \param zNear Distance where 'vision' begins
 	* \param zFar Distance where 'vision' ends
@@ -912,21 +912,17 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakePerspective(T angle, T ratio, T zNear, T zFar)
+	Matrix4<T>& Matrix4<T>::MakePerspective(RadianAngle<T> angle, T ratio, T zNear, T zFar)
 	{
-		// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204945(v=vs.85).aspx
-		#if NAZARA_MATH_ANGLE_RADIAN
-		angle /= T(2.0);
-		#else
-		angle = DegreeToRadian(angle / T(2.0));
-		#endif
+		// https://docs.microsoft.com/fr-fr/windows/win32/direct3d10/d3d10-d3dxmatrixperspectivefovrh
+		angle = RadianAngle<T>(M_PI_2) - angle / T(2.0);
 
-		T yScale = std::tan(static_cast<T>(M_PI_2) - angle);
+		T yScale = angle.GetTan();
 
-		Set(yScale / ratio, T(0.0), T(0.0), T(0.0),
-		    T(0.0), yScale, T(0.0), T(0.0),
-		    T(0.0), T(0.0), - (zFar + zNear) / (zFar - zNear), T(-1.0),
-		    T(0.0), T(0.0), T(-2.0) * (zNear * zFar) / (zFar - zNear), T(0.0));
+		Set(yScale / ratio, T(0.0),  T(0.0),                          T(0.0),
+		    T(0.0),         yScale,  T(0.0),                          T(0.0),
+		    T(0.0),         T(0.0), zFar / (zNear - zFar),            T(-1.0),
+		    T(0.0),         T(0.0), zNear * zFar / (zNear - zFar),    T(0.0));
 
 		return *this;
 	}
@@ -1598,7 +1594,7 @@ namespace Nz
 	* \brief Shorthand for the 'perspective' matrix
 	* \return A Matrix4 which is the 'perspective' matrix
 	*
-	* \param angle Unit depends on NAZARA_MATH_ANGLE_RADIAN
+	* \param angle FOV angle
 	* \param ratio Rendering ratio (typically 16/9 or 4/3)
 	* \param zNear Distance where 'vision' begins
 	* \param zFar Distance where 'vision' ends
@@ -1607,7 +1603,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Perspective(T angle, T ratio, T zNear, T zFar)
+	Matrix4<T> Matrix4<T>::Perspective(RadianAngle<T> angle, T ratio, T zNear, T zFar)
 	{
 		Matrix4 matrix;
 		matrix.MakePerspective(angle, ratio, zNear, zFar);

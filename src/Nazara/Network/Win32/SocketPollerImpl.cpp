@@ -74,10 +74,10 @@ namespace Nz
 			0
 		};
 
-		if (eventFlags & SocketPollEvent_Read)
+		if (eventFlags & SocketPollEvent::Read)
 			entry.events |= POLLRDNORM;
 
-		if (eventFlags & SocketPollEvent_Write)
+		if (eventFlags & SocketPollEvent::Write)
 			entry.events |= POLLWRNORM;
 
 		m_allSockets[socket] = m_sockets.size();
@@ -85,7 +85,7 @@ namespace Nz
 		#else
 		for (std::size_t i = 0; i < 2; ++i)
 		{
-			if ((eventFlags & ((i == 0) ? SocketPollEvent_Read : SocketPollEvent_Write)) == 0)
+			if ((eventFlags & ((i == 0) ? SocketPollEvent::Read : SocketPollEvent::Write)) == 0)
 				continue;
 
 			fd_set& targetSet = (i == 0) ? m_readSockets : m_writeSockets;
@@ -202,7 +202,7 @@ namespace Nz
 		activeSockets = static_cast<unsigned int>(selectValue);
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 		#endif
 
 		return activeSockets;

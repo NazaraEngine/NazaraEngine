@@ -18,7 +18,7 @@ class TextureValue : public ShaderNode
 
 		void BuildNodeEdition(QFormLayout* layout) override;
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override { return "Texture"; }
 		QString name() const override { return "Texture"; }
@@ -28,6 +28,9 @@ class TextureValue : public ShaderNode
 		QtNodes::NodeDataType dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
 		std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
+
+		QString portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
+		bool portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const override;
 
 		QtNodes::NodeValidationState validationState() const override;
 		QString validationMessage() const override;

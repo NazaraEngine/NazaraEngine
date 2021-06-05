@@ -15,23 +15,32 @@
 
 namespace Nz
 {
-	class ShaderStageImpl;
+	class ShaderModule;
 
 	struct RenderStates
 	{
-		BlendFunc dstBlend = BlendFunc_Zero;
-		BlendFunc srcBlend = BlendFunc_One;
-		FaceFilling faceFilling = FaceFilling_Fill;
-		FaceSide cullingSide = FaceSide_Back;
-		RendererComparison depthCompare = RendererComparison_Less;
-		PrimitiveMode primitiveMode = PrimitiveMode_TriangleList;
+		FaceFilling faceFilling = FaceFilling::Fill;
+		FaceSide cullingSide = FaceSide::Back;
+		FrontFace frontFace = FrontFace::Clockwise;
+		RendererComparison depthCompare = RendererComparison::Less;
+		PrimitiveMode primitiveMode = PrimitiveMode::TriangleList;
+
+		struct 
+		{
+			BlendEquation modeAlpha = BlendEquation::Add;
+			BlendEquation modeColor = BlendEquation::Add;
+			BlendFunc dstAlpha = BlendFunc::Zero;
+			BlendFunc dstColor = BlendFunc::Zero;
+			BlendFunc srcAlpha = BlendFunc::One;
+			BlendFunc srcColor = BlendFunc::One;
+		} blend;
 
 		struct
 		{
-			RendererComparison compare = RendererComparison_Always;
-			StencilOperation depthFail = StencilOperation_Keep;
-			StencilOperation fail = StencilOperation_Keep;
-			StencilOperation pass = StencilOperation_Keep;
+			RendererComparison compare = RendererComparison::Always;
+			StencilOperation depthFail = StencilOperation::Keep;
+			StencilOperation fail = StencilOperation::Keep;
+			StencilOperation pass = StencilOperation::Keep;
 			UInt32 compareMask = 0xFFFFFFFF;
 			UInt32 reference = 0;
 			UInt32 writeMask = 0xFFFFFFFF;

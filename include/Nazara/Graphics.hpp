@@ -29,8 +29,25 @@
 #ifndef NAZARA_GLOBAL_GRAPHICS_HPP
 #define NAZARA_GLOBAL_GRAPHICS_HPP
 
+#include <Nazara/Graphics/BakedFrameGraph.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/FrameGraph.hpp>
+#include <Nazara/Graphics/FramePass.hpp>
+#include <Nazara/Graphics/FramePassAttachment.hpp>
+#include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/MaterialSettings.hpp>
+#include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/ModelInstance.hpp>
+#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
+#include <Nazara/Graphics/TextureSamplerCache.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP

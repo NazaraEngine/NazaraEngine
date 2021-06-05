@@ -29,9 +29,9 @@ namespace Nz
 
 			OpenGLUploadPool& GetUploadPool() override;
 
-			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
-
 			void Present() override;
+
+			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
 
 			OpenGLRenderImage& operator=(const OpenGLRenderImage&) = delete;
 			OpenGLRenderImage& operator=(OpenGLRenderImage&&) = delete;

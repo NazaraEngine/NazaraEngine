@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Buffer.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
@@ -24,25 +25,18 @@ namespace Nz
 	Buffer::Buffer(BufferType type, UInt32 size, DataStorage storage, BufferUsageFlags usage) :
 	Buffer(type)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 
 		Create(size, storage, usage);
 	}
 
-	Buffer::~Buffer()
-	{
-		OnBufferRelease(this);
-
-		Destroy();
-	}
-
-	bool Buffer::CopyContent(const BufferRef& buffer)
+	bool Buffer::CopyContent(const Buffer& buffer)
 	{
 		NazaraAssert(m_impl, "Invalid buffer");
-		NazaraAssert(!buffer && !buffer->IsValid(), "Invalid source buffer");
+		NazaraAssert(buffer.IsValid(), "Invalid source buffer");
 
-		BufferMapper<Buffer> mapper(*buffer, BufferAccess_ReadOnly);
-		return Fill(mapper.GetPointer(), 0, buffer->GetSize());
+		BufferMapper<Buffer> mapper(buffer, BufferAccess::ReadOnly);
+		return Fill(mapper.GetPointer(), 0, buffer.GetSize());
 	}
 
 	bool Buffer::Create(UInt32 size, DataStorage storage, BufferUsageFlags usage)
@@ -56,7 +50,7 @@ namespace Nz
 			return false;
 		}
 
-		std::unique_ptr<AbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
+		std::unique_ptr<AbstractBuffer> impl = s_bufferFactories[UnderlyingCast(storage)](this, m_type);
 		if (!impl->Initialize(size, usage))
 		{
 			NazaraError("Failed to create buffer");
@@ -72,12 +66,7 @@ namespace Nz
 
 	void Buffer::Destroy()
 	{
-		if (m_impl)
-		{
-			OnBufferDestroy(this);
-
-			m_impl.reset();
-		}
+		m_impl.reset();
 	}
 
 	bool Buffer::Fill(const void* data, UInt32 offset, UInt32 size)
@@ -99,7 +88,7 @@ namespace Nz
 	void* Buffer::Map(BufferAccess access, UInt32 offset, UInt32 size) const
 	{
 		NazaraAssert(m_impl, "Invalid buffer");
-		NazaraAssert(access == BufferAccess_ReadOnly, "Buffer access must be read-only when used const");
+		NazaraAssert(access == BufferAccess::ReadOnly, "Buffer access must be read-only when used const");
 		NazaraAssert(offset + size <= m_size, "Exceeding buffer size");
 
 		return m_impl->Map(access, offset, (size == 0) ? m_size - offset : size);
@@ -118,7 +107,7 @@ namespace Nz
 			return false;
 		}
 
-		void* ptr = m_impl->Map(BufferAccess_ReadOnly, 0, m_size);
+		void* ptr = m_impl->Map(BufferAccess::ReadOnly, 0, m_size);
 		if (!ptr)
 		{
 			NazaraError("Failed to map buffer");
@@ -130,7 +119,7 @@ namespace Nz
 			m_impl->Unmap();
 		});
 
-		std::unique_ptr<AbstractBuffer> impl(s_bufferFactories[storage](this, m_type));
+		std::unique_ptr<AbstractBuffer> impl(s_bufferFactories[UnderlyingCast(storage)](this, m_type));
 		if (!impl->Initialize(m_size, m_usage))
 		{
 			NazaraError("Failed to create buffer");
@@ -160,19 +149,19 @@ namespace Nz
 
 	bool Buffer::IsStorageSupported(DataStorage storage)
 	{
-		return s_bufferFactories[storage] != nullptr;
+		return s_bufferFactories[UnderlyingCast(storage)] != nullptr;
 	}
 
 	void Buffer::SetBufferFactory(DataStorage storage, BufferFactory func)
 	{
-		s_bufferFactories[storage] = func;
+		s_bufferFactories[UnderlyingCast(storage)] = func;
 	}
 
 	bool Buffer::Initialize()
 	{
-		SetBufferFactory(DataStorage_Software, [](Buffer* parent, BufferType type) -> AbstractBuffer*
+		SetBufferFactory(DataStorage::Software, [](Buffer* parent, BufferType type) -> std::unique_ptr<AbstractBuffer>
 		{
-			return new SoftwareBuffer(parent, type);
+			return std::make_unique<SoftwareBuffer>(parent, type);
 		});
 
 		return true;
@@ -183,5 +172,5 @@ namespace Nz
 		std::fill(s_bufferFactories.begin(), s_bufferFactories.end(), nullptr);
 	}
 
-	std::array<Buffer::BufferFactory, DataStorage_Max + 1> Buffer::s_bufferFactories;
+	std::array<Buffer::BufferFactory, DataStorageCount> Buffer::s_bufferFactories;
 }

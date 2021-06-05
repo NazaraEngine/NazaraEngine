@@ -11,6 +11,96 @@
 
 namespace Nz
 {
+	enum class AttachmentLoadOp
+	{
+		Clear,
+		Discard,
+		Load
+	};
+
+	enum class AttachmentStoreOp
+	{
+		Discard,
+		Store
+	};
+
+	enum class MemoryAccess
+	{
+		ColorRead,
+		ColorWrite,
+		DepthStencilRead,
+		DepthStencilWrite,
+		IndexBufferRead,
+		IndirectCommandRead,
+		HostRead,
+		HostWrite,
+		MemoryRead,
+		MemoryWrite,
+		ShaderRead,
+		ShaderWrite,
+		TransferRead,
+		TransferWrite,
+		UniformBufferRead,
+		VertexBufferRead,
+
+		Max = VertexBufferRead
+	};
+
+	template<>
+	struct EnumAsFlags<MemoryAccess>
+	{
+		static constexpr MemoryAccess max = MemoryAccess::Max;
+	};
+
+	using MemoryAccessFlags = Flags<MemoryAccess>;
+
+	enum class PipelineStage
+	{
+		TopOfPipe,
+
+		ColorOutput,
+		DrawIndirect,
+		FragmentShader,
+		FragmentTestsEarly,
+		FragmentTestsLate,
+		GeometryShader,
+		TessellationControlShader,
+		TessellationEvaluationShader,
+		Transfer,
+		TransformFeedback,
+		VertexInput,
+		VertexShader,
+
+		BottomOfPipe,
+
+		Max = BottomOfPipe
+	};
+
+	template<>
+	struct EnumAsFlags<PipelineStage>
+	{
+		static constexpr PipelineStage max = PipelineStage::Max;
+	};
+
+	using PipelineStageFlags = Flags<PipelineStage>;
+
+	enum class QueueType
+	{
+		Compute,
+		Graphics,
+		Transfer,
+
+		Max = Transfer
+	};
+
+	template<>
+	struct EnumAsFlags<QueueType>
+	{
+		static constexpr QueueType max = QueueType::Max;
+	};
+
+	using QueueTypeFlags = Flags<QueueType>;
+
 	enum class RenderAPI
 	{
 		Direct3D, ///< Microsoft Render API, only works on MS platforms
@@ -23,6 +113,8 @@ namespace Nz
 
 		Max = Unknown
 	};
+
+	constexpr std::size_t RenderAPICount = static_cast<std::size_t>(RenderAPI::Max) + 1;
 
 	enum class RenderDeviceType
 	{
@@ -50,25 +142,41 @@ namespace Nz
 		HLSL,
 		MSL,
 		NazaraBinary,
+		NazaraShader,
 		SpirV
 	};
 
-	enum class QueueType
+	enum class TextureLayout
 	{
-		Compute,
-		Graphics,
-		Transfer,
+		ColorInput,
+		ColorOutput,
+		DepthStencilReadOnly,
+		DepthStencilReadWrite,
+		Present,
+		TransferSource,
+		TransferDestination,
+		Undefined
+	};
 
-		Max = Transfer
+	enum class TextureUsage
+	{
+		ColorAttachment,
+		DepthStencilAttachment,
+		InputAttachment,
+		ShaderSampling,
+		TransferSource,
+		TransferDestination,
+
+		Max = TransferDestination
 	};
 
 	template<>
-	struct EnumAsFlags<QueueType>
+	struct EnumAsFlags<TextureUsage>
 	{
-		static constexpr QueueType max = QueueType::Max;
+		static constexpr TextureUsage max = TextureUsage::Max;
 	};
 
-	using QueueTypeFlags = Flags<QueueType>;
+	using TextureUsageFlags = Flags<TextureUsage>;
 }
 
 #endif // NAZARA_ENUMS_RENDERER_HPP

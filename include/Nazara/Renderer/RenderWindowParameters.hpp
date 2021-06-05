@@ -15,7 +15,7 @@ namespace Nz
 {
 	struct RenderWindowParameters
 	{
-		std::vector<PixelFormat> depthFormats = {Nz::PixelFormat_Depth32, Nz::PixelFormat_Depth24}; //< By order of preference
+		std::vector<PixelFormat> depthFormats = {Nz::PixelFormat::Depth24Stencil8, Nz::PixelFormat::Depth32FStencil8, Nz::PixelFormat::Depth16Stencil8, Nz::PixelFormat::Depth32F, Nz::PixelFormat::Depth24}; //< By order of preference
 		bool verticalSync = false;
 	};
 }

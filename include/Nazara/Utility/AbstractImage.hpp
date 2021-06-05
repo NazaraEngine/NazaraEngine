@@ -8,7 +8,6 @@
 #define NAZARA_ABSTRACTIMAGE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -19,14 +18,12 @@ namespace Nz
 {
 	class AbstractImage;
 
-	using AbstractImageConstRef = ObjectRef<const AbstractImage>;
-	using AbstractImageRef = ObjectRef<AbstractImage>;
-
-	class NAZARA_UTILITY_API AbstractImage : public RefCounted
+	class NAZARA_UTILITY_API AbstractImage
 	{
 		public:
 			AbstractImage() = default;
-			inline AbstractImage(const AbstractImage& image);
+			AbstractImage(const AbstractImage&) = default;
+			AbstractImage(AbstractImage&&) noexcept = default;
 			virtual ~AbstractImage();
 
 			UInt8 GetBytesPerPixel() const;
@@ -47,6 +44,9 @@ namespace Nz
 			virtual bool Update(const UInt8* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
 			virtual bool Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
 			virtual bool Update(const UInt8* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
+
+			AbstractImage& operator=(const AbstractImage&) = default;
+			AbstractImage& operator=(AbstractImage&&) noexcept = default;
 	};
 }
 

@@ -9,8 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
@@ -35,7 +33,7 @@ namespace Nz
 		BufferUsageFlags indexBufferFlags = 0;      ///< Buffer usage flags used to build the index buffers
 		BufferUsageFlags vertexBufferFlags = 0;     ///< Buffer usage flags used to build the vertex buffers
 		Matrix4f matrix = Matrix4f::Identity();     ///< A matrix which will transform every vertex position
-		DataStorage storage = DataStorage_Hardware; ///< The place where the buffers will be allocated
+		DataStorage storage = DataStorage::Hardware; ///< The place where the buffers will be allocated
 		Vector2f texCoordOffset = {0.f, 0.f};       ///< Offset to apply on the texture coordinates (not scaled)
 		Vector2f texCoordScale  = {1.f, 1.f};       ///< Scale to apply on the texture coordinates
 		bool animated = true;                       ///< If true, will load an animated version of the model if possible
@@ -51,7 +49,7 @@ namespace Nz
 		 * If the declaration has a Vector3f Normals component enabled, Normals are generated.
 		 * If the declaration has a Vector3f Tangents component enabled, Tangents are generated.
 		 */
-		VertexDeclaration* vertexDeclaration = VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent);
+		std::shared_ptr<VertexDeclaration> vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent);
 
 		bool IsValid() const;
 	};
@@ -64,33 +62,25 @@ namespace Nz
 	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
 	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
-	using MeshConstRef = ObjectRef<const Mesh>;
 	using MeshLibrary = ObjectLibrary<Mesh>;
 	using MeshLoader = ResourceLoader<Mesh, MeshParams>;
 	using MeshManager = ResourceManager<Mesh, MeshParams>;
-	using MeshRef = ObjectRef<Mesh>;
 	using MeshSaver = ResourceSaver<Mesh, MeshParams>;
 
 	struct MeshImpl;
 
-	class NAZARA_UTILITY_API Mesh : public RefCounted, public Resource
+	class NAZARA_UTILITY_API Mesh : public Resource
 	{
-		friend MeshLibrary;
-		friend MeshLoader;
-		friend MeshManager;
-		friend MeshSaver;
-		friend class Utility;
-
 		public:
 			inline Mesh();
 			Mesh(const Mesh&) = delete;
 			Mesh(Mesh&&) = delete;
-			inline ~Mesh();
+			~Mesh() = default;
 
-			void AddSubMesh(SubMesh* subMesh);
-			void AddSubMesh(const std::string& identifier, SubMesh* subMesh);
+			void AddSubMesh(std::shared_ptr<SubMesh> subMesh);
+			void AddSubMesh(const std::string& identifier, std::shared_ptr<SubMesh> subMesh);
 
-			SubMesh* BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
+			std::shared_ptr<SubMesh> BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
 			void BuildSubMeshes(const PrimitiveList& list, const MeshParams& params = MeshParams());
 
 			bool CreateSkeletal(std::size_t jointCount);
@@ -110,10 +100,8 @@ namespace Nz
 			std::size_t GetMaterialCount() const;
 			Skeleton* GetSkeleton();
 			const Skeleton* GetSkeleton() const;
-			SubMesh* GetSubMesh(const std::string& identifier);
-			SubMesh* GetSubMesh(std::size_t index);
-			const SubMesh* GetSubMesh(const std::string& identifier) const;
-			const SubMesh* GetSubMesh(std::size_t index) const;
+			const std::shared_ptr<SubMesh>& GetSubMesh(const std::string& identifier) const;
+			const std::shared_ptr<SubMesh>& GetSubMesh(std::size_t index) const;
 			std::size_t GetSubMeshCount() const;
 			std::size_t GetSubMeshIndex(const std::string& identifier) const;
 			std::size_t GetTriangleCount() const;
@@ -144,25 +132,22 @@ namespace Nz
 			Mesh& operator=(const Mesh&) = delete;
 			Mesh& operator=(Mesh&&) = delete;
 
-			static MeshRef LoadFromFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
-			static MeshRef LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());
-			static MeshRef LoadFromStream(Stream& stream, const MeshParams& params = MeshParams());
-
-			template<typename... Args> static MeshRef New(Args&&... args);
+			static std::shared_ptr<Mesh> LoadFromFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
+			static std::shared_ptr<Mesh> LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());
+			static std::shared_ptr<Mesh> LoadFromStream(Stream& stream, const MeshParams& params = MeshParams());
 
 			// Signals:
-			NazaraSignal(OnMeshDestroy, const Mesh* /*mesh*/);
 			NazaraSignal(OnMeshInvalidateAABB, const Mesh* /*mesh*/);
-			NazaraSignal(OnMeshRelease, const Mesh* /*mesh*/);
 
 		private:
 			struct SubMeshData
 			{
-				SubMeshRef subMesh;
+				std::shared_ptr<SubMesh> subMesh;
 
 				NazaraSlot(SubMesh, OnSubMeshInvalidateAABB, onSubMeshInvalidated);
 			};
 
+			std::size_t m_jointCount; // Only used by skeletal meshes
 			std::unordered_map<std::string, std::size_t> m_subMeshMap;
 			std::vector<ParameterList> m_materialData;
 			std::vector<SubMeshData> m_subMeshes;
@@ -172,16 +157,6 @@ namespace Nz
 			std::filesystem::path m_animationPath;
 			mutable bool m_aabbUpdated;
 			bool m_isValid;
-			std::size_t m_jointCount; // Only used by skeletal meshes
-
-			static bool Initialize();
-			static void Uninitialize();
-
-			static MeshLibrary::LibraryMap s_library;
-			static MeshLoader::LoaderList s_loaders;
-			static MeshManager::ManagerMap s_managerMap;
-			static MeshManager::ManagerParams s_managerParameters;
-			static MeshSaver::SaverList s_savers;
 	};
 }
 

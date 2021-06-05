@@ -91,7 +91,7 @@ namespace Nz
 		{
 			m_impl.reset();
 
-			m_openMode = OpenMode_NotOpen;
+			m_openMode = OpenMode::NotOpen;
 		}
 	}
 
@@ -226,13 +226,13 @@ namespace Nz
 		if (m_filePath.empty())
 			return false;
 
-		if (openMode == OpenMode_NotOpen)
+		if (openMode == OpenMode::NotOpen)
 			return false;
 
 		std::unique_ptr<FileImpl> impl = std::make_unique<FileImpl>(this);
 		if (!impl->Open(m_filePath, openMode))
 		{
-			ErrorFlags flags(ErrorFlag_Silent); // Silent by default
+			ErrorFlags flags(ErrorMode::Silent); // Silent by default
 			NazaraError("Failed to open \"" + m_filePath.generic_u8string() + "\": " + Error::GetLastSystemError());
 			return false;
 		}
@@ -240,10 +240,10 @@ namespace Nz
 		m_openMode = openMode;
 		m_impl = std::move(impl);
 
-		if (m_openMode & OpenMode_Text)
-			m_streamOptions |= StreamOption_Text;
+		if (m_openMode & OpenMode::Text)
+			m_streamOptions |= StreamOption::Text;
 		else
-			m_streamOptions &= ~StreamOption_Text;
+			m_streamOptions &= ~StreamOption::Text;
 
 		return true;
 	}
@@ -296,7 +296,7 @@ namespace Nz
 	{
 		NazaraAssert(IsOpen(), "File is not open");
 
-		return m_impl->SetCursorPos(CursorPosition_AtBegin, offset);
+		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
 	}
 
 	/*!
@@ -382,8 +382,8 @@ namespace Nz
 		{
 			// If we don't have to read, we move forward
 			UInt64 currentPos = m_impl->GetCursorPos();
-
-			m_impl->SetCursorPos(CursorPosition_AtCurrent, size);
+			if (!m_impl->SetCursorPos(CursorPosition::AtCurrent, size))
+				return 0;
 
 			return static_cast<std::size_t>(m_impl->GetCursorPos() - currentPos);
 		}
@@ -429,7 +429,7 @@ namespace Nz
 		NazaraAssert(hash, "Invalid hash");
 
 		File file(originalFile.GetPath());
-		if (!file.Open(OpenMode_ReadOnly))
+		if (!file.Open(OpenMode::ReadOnly))
 		{
 			NazaraError("Unable to open file");
 			return false;

@@ -145,9 +145,8 @@ namespace Nz
 
 		inline DescriptorSet& DescriptorSet::operator=(DescriptorSet&& descriptorSet) noexcept
 		{
-			m_pool = descriptorSet.m_pool;
-
 			std::swap(m_handle, descriptorSet.m_handle);
+			std::swap(m_pool, descriptorSet.m_pool);
 
 			return *this;
 		}

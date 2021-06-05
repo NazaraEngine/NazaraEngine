@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_VECDATA_HPP
 #define NAZARA_SHADERNODES_VECDATA_HPP
 
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <ShaderNode/Previews/PreviewValues.hpp>
 #include <nodes/NodeData>
 
@@ -13,42 +13,11 @@ struct VecData : public QtNodes::NodeData
 
 	inline QtNodes::NodeDataType type() const override;
 
-	Nz::ShaderNodes::BasicType GetExpressionType() const;
-
 	static inline QtNodes::NodeDataType Type();
 
 	std::size_t componentCount;
 	PreviewValues preview;
 };
-
-template<std::size_t N>
-struct VecExpressionTypeHelper;
-
-template<>
-struct VecExpressionTypeHelper<1>
-{
-	static constexpr Nz::ShaderNodes::BasicType ExpressionType = Nz::ShaderNodes::BasicType::Float1;
-};
-
-template<>
-struct VecExpressionTypeHelper<2>
-{
-	static constexpr Nz::ShaderNodes::BasicType ExpressionType = Nz::ShaderNodes::BasicType::Float2;
-};
-
-template<>
-struct VecExpressionTypeHelper<3>
-{
-	static constexpr Nz::ShaderNodes::BasicType ExpressionType = Nz::ShaderNodes::BasicType::Float3;
-};
-
-template<>
-struct VecExpressionTypeHelper<4>
-{
-	static constexpr Nz::ShaderNodes::BasicType ExpressionType = Nz::ShaderNodes::BasicType::Float4;
-};
-
-template<std::size_t N> constexpr Nz::ShaderNodes::BasicType VecExpressionType = VecExpressionTypeHelper<N>::ExpressionType;
 
 
 struct VecTypeDummy {};

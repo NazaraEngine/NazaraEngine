@@ -8,14 +8,13 @@
 #define NAZARA_RESOURCELOADER_HPP
 
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <filesystem>
-#include <list>
-#include <tuple>
+#include <functional>
+#include <memory>
 #include <type_traits>
+#include <vector>
 
 namespace Nz
 {
@@ -29,27 +28,43 @@ namespace Nz
 		friend Type;
 
 		public:
-			using ExtensionGetter = bool (*)(const std::string& extension);
-			using FileLoader = ObjectRef<Type> (*)(const std::filesystem::path& filePath, const Parameters& parameters);
-			using MemoryLoader = ObjectRef<Type> (*)(const void* data, std::size_t size, const Parameters& parameters);
-			using StreamChecker = Ternary (*)(Stream& stream, const Parameters& parameters);
-			using StreamLoader = ObjectRef<Type> (*)(Stream& stream, const Parameters& parameters);
+			struct Entry;
+			using ExtensionSupport = std::function<bool(const std::string_view& extension)>;
+			using FileLoader = std::function<std::shared_ptr<Type>(const std::filesystem::path& filePath, const Parameters& parameters)>;
+			using MemoryLoader = std::function<std::shared_ptr<Type>(const void* data, std::size_t size, const Parameters& parameters)>;
+			using StreamChecker = std::function<Ternary(Stream& stream, const Parameters& parameters)>;
+			using StreamLoader = std::function<std::shared_ptr<Type>(Stream& stream, const Parameters& parameters)>;
 
-			ResourceLoader() = delete;
-			~ResourceLoader() = delete;
+			ResourceLoader() = default;
+			ResourceLoader(const ResourceLoader&) = delete;
+			ResourceLoader(ResourceLoader&&) noexcept = default;
+			~ResourceLoader() = default;
 
-			static bool IsExtensionSupported(const std::string& extension);
+			void Clear();
 
-			static ObjectRef<Type> LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters = Parameters());
-			static ObjectRef<Type> LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters = Parameters());
-			static ObjectRef<Type> LoadFromStream(Stream& stream, const Parameters& parameters = Parameters());
+			bool IsExtensionSupported(const std::string_view& extension) const;
 
-			static void RegisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
-			static void UnregisterLoader(ExtensionGetter extensionGetter, StreamChecker checkFunc, StreamLoader streamLoader, FileLoader fileLoader = nullptr, MemoryLoader memoryLoader = nullptr);
+			std::shared_ptr<Type> LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters = Parameters()) const;
+			std::shared_ptr<Type> LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters = Parameters()) const;
+			std::shared_ptr<Type> LoadFromStream(Stream& stream, const Parameters& parameters = Parameters()) const;
+
+			const Entry* RegisterLoader(Entry loader);
+			void UnregisterLoader(const Entry* loader);
+
+			ResourceLoader& operator=(const ResourceLoader&) = delete;
+			ResourceLoader& operator=(ResourceLoader&&) noexcept = default;
+
+			struct Entry
+			{
+				ExtensionSupport extensionSupport;
+				FileLoader fileLoader;
+				MemoryLoader memoryLoader;
+				StreamChecker streamChecker;
+				StreamLoader streamLoader;
+			};
 
 		private:
-			using Loader = std::tuple<ExtensionGetter, StreamChecker, StreamLoader, FileLoader, MemoryLoader>;
-			using LoaderList = std::list<Loader>;
+			std::vector<std::unique_ptr<Entry>> m_loaders;
 	};
 }
 

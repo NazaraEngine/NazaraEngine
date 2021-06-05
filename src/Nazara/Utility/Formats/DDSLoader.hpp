@@ -8,14 +8,11 @@
 #define NAZARA_LOADERS_DDS_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Image.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterDDSLoader();
-		void UnregisterDDSLoader();
-	}
+	ImageLoader::Entry GetImageLoader_DDS();
 }
 
 #endif // NAZARA_LOADERS_DDS_HPP

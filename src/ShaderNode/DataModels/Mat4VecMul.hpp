@@ -13,7 +13,7 @@ class Mat4VecMul : public ShaderNode
 		Mat4VecMul(ShaderGraph& graph);
 		~Mat4VecMul() = default;
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		QString caption() const override;
 		QString name() const override;

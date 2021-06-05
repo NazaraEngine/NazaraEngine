@@ -26,7 +26,7 @@ namespace Nz
 	template<typename T>
 	ModuleBase<T>::~ModuleBase()
 	{
-		NazaraNotice("Uninitializing " + m_moduleName + "...");
+		LogUninit();
 		T::s_instance = nullptr;
 	}
 
@@ -40,6 +40,12 @@ namespace Nz
 	void ModuleBase<T>::LogInit()
 	{
 		NazaraNotice("Initializing " + m_moduleName + "...");
+	}
+
+	template<typename T>
+	void ModuleBase<T>::LogUninit()
+	{
+		NazaraNotice("Uninitializing " + m_moduleName + "...");
 	}
 }
 

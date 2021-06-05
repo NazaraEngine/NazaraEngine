@@ -3,24 +3,43 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Cursor.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
+	Cursor::Cursor() = default;
+
+	Cursor::Cursor(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder)
+	{
+		ErrorFlags flags(ErrorMode::ThrowException, true);
+		Create(cursor, hotSpot, placeholder);
+	}
+
+	Cursor::Cursor(SystemCursor systemCursor)
+	{
+		ErrorFlags flags(ErrorMode::ThrowException, true);
+		Create(systemCursor);
+	}
+
+	Cursor::Cursor(Cursor&&) noexcept = default;
+	Cursor::~Cursor() = default;
+
 	bool Cursor::Create(const Image& cursor, const Vector2i& hotSpot, SystemCursor placeholder)
 	{
 		Destroy();
 
-		std::unique_ptr<CursorImpl> impl(new CursorImpl);
-		if (!impl->Create(cursor, hotSpot.x, hotSpot.y))
+		try
 		{
-			NazaraError("Failed to create cursor implementation");
+			m_impl = std::make_unique<CursorImpl>(cursor, hotSpot);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError(e.what());
 			return false;
 		}
 
-		m_cursorImage = cursor;
-		m_impl = impl.release();
 		m_systemCursor = placeholder;
 
 		return true;
@@ -28,52 +47,46 @@ namespace Nz
 
 	void Cursor::Destroy()
 	{
-		m_cursorImage.Destroy();
-
-		if (m_impl)
-		{
-			m_impl->Destroy();
-
-			delete m_impl;
-			m_impl = nullptr;
-		}
+		m_impl.reset();
 	}
 
 	bool Cursor::Create(SystemCursor cursor)
 	{
 		Destroy();
 
-		std::unique_ptr<CursorImpl> impl(new CursorImpl);
-		if (!impl->Create(cursor))
+		try
 		{
-			NazaraError("Failed to create cursor implementation");
+			m_impl = std::make_unique<CursorImpl>(cursor);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError(e.what());
 			return false;
 		}
 
-		m_impl = impl.release();
 		m_systemCursor = cursor;
 
 		return true;
 	}
 
+	Cursor& Cursor::operator=(Cursor&&) noexcept = default;
+
 	bool Cursor::Initialize()
 	{
-		if (!CursorImpl::Initialize())
-			return false;
-
-		for (std::size_t i = 0; i <= SystemCursor_Max; ++i)
-			s_systemCursors[i].Create(static_cast<SystemCursor>(i));
+		for (std::size_t i = 0; i < SystemCursorCount; ++i)
+		{
+			s_systemCursors[i] = std::make_shared<Cursor>();
+			s_systemCursors[i]->Create(static_cast<SystemCursor>(i));
+		}
 
 		return true;
 	}
 
 	void Cursor::Uninitialize()
 	{
-		for (Cursor& cursor : s_systemCursors)
-			cursor.Destroy();
-
-		CursorImpl::Uninitialize();
+		for (std::shared_ptr<Cursor>& cursor : s_systemCursors)
+			cursor.reset();
 	}
 
-	std::array<Cursor, SystemCursor_Max + 1> Cursor::s_systemCursors;
+	std::array<std::shared_ptr<Cursor>, SystemCursorCount> Cursor::s_systemCursors;
 }

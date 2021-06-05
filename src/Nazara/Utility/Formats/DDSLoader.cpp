@@ -18,7 +18,7 @@ namespace Nz
 			DDSLoader() = delete;
 			~DDSLoader() = delete;
 
-			static bool IsSupported(const std::string& extension)
+			static bool IsSupported(const std::string_view& extension)
 			{
 				return (extension == "dds");
 			}
@@ -27,23 +27,23 @@ namespace Nz
 			{
 				bool skip;
 				if (parameters.custom.GetBooleanParameter("SkipNativeDDSLoader", &skip) && skip)
-					return Ternary_False;
+					return Ternary::False;
 
 				ByteStream byteStream(&stream);
-				byteStream.SetDataEndianness(Endianness_LittleEndian);
+				byteStream.SetDataEndianness(Endianness::LittleEndian);
 
 				UInt32 magic;
 				byteStream >> magic;
 
-				return (magic == DDS_Magic) ? Ternary_True : Ternary_False;
+				return (magic == DDS_Magic) ? Ternary::True : Ternary::False;
 			}
 
-			static ImageRef Load(Stream& stream, const ImageParams& parameters)
+			static std::shared_ptr<Image> Load(Stream& stream, const ImageParams& parameters)
 			{
 				NazaraUnused(parameters);
 
 				ByteStream byteStream(&stream);
-				byteStream.SetDataEndianness(Endianness_LittleEndian);
+				byteStream.SetDataEndianness(Endianness::LittleEndian);
 
 				UInt32 magic;
 				byteStream >> magic;
@@ -88,7 +88,7 @@ namespace Nz
 				if (!IdentifyPixelFormat(header, headerDX10, &format))
 					return nullptr;
 
-				ImageRef image = Image::New(type, format, width, height, depth, levelCount);
+				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
 				// Read all mipmap levels
 				for (unsigned int i = 0; i < image->GetLevelCount(); i++)
@@ -114,7 +114,7 @@ namespace Nz
 				}
 
 
-				if (parameters.loadFormat != PixelFormat_Undefined)
+				if (parameters.loadFormat != PixelFormat::Undefined)
 					image->Convert(parameters.loadFormat);
 
 				return image;
@@ -131,9 +131,9 @@ namespace Nz
 						return false;
 					}
 					else if (header.flags & DDSD_HEIGHT)
-						*type = ImageType_2D_Array;
+						*type = ImageType::E2D_Array;
 					else
-						*type = ImageType_1D_Array;
+						*type = ImageType::E1D_Array;
 				}
 				else
 				{
@@ -145,7 +145,7 @@ namespace Nz
 							return false;
 						}
 
-						*type = ImageType_Cubemap;
+						*type = ImageType::Cubemap;
 					}
 					else if (headerExt.resourceDimension == D3D10_RESOURCE_DIMENSION_BUFFER)
 					{
@@ -153,11 +153,11 @@ namespace Nz
 						return false;
 					}
 					else if (headerExt.resourceDimension == D3D10_RESOURCE_DIMENSION_TEXTURE1D)
-						*type = ImageType_1D;
+						*type = ImageType::E1D;
 					else if (header.ddsCaps[1] & DDSCAPS2_VOLUME || header.flags & DDSD_DEPTH || headerExt.resourceDimension == D3D10_RESOURCE_DIMENSION_TEXTURE3D)
-						*type = ImageType_3D;
+						*type = ImageType::E3D;
 					else
-						*type = ImageType_2D;
+						*type = ImageType::E2D;
 				}
 
 				return true;
@@ -167,7 +167,7 @@ namespace Nz
 			{
 				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatDescription info(PixelFormatContent_ColorRGBA, header.format.bpp, PixelFormatSubType_Unsigned);
+					PixelFormatDescription info(PixelFormatContent::ColorRGBA, header.format.bpp, PixelFormatSubType::Unsigned);
 
 					if (header.format.flags & DDPF_RGB)
 					{
@@ -191,15 +191,15 @@ namespace Nz
 					switch (header.format.fourCC)
 					{
 						case D3DFMT_DXT1:
-							*format = PixelFormat_DXT1;
+							*format = PixelFormat::DXT1;
 							break;
 
 						case D3DFMT_DXT3:
-							*format = PixelFormat_DXT3;
+							*format = PixelFormat::DXT3;
 							break;
 
 						case D3DFMT_DXT5:
-							*format = PixelFormat_DXT3;
+							*format = PixelFormat::DXT3;
 							break;
 
 						case D3DFMT_DX10:
@@ -207,30 +207,35 @@ namespace Nz
 							switch (headerExt.dxgiFormat)
 							{
 								case DXGI_FORMAT_R32G32B32A32_FLOAT:
-									*format = PixelFormat_RGBA32F;
+									*format = PixelFormat::RGBA32F;
 									break;
 								case DXGI_FORMAT_R32G32B32A32_UINT:
-									*format = PixelFormat_RGBA32UI;
+									*format = PixelFormat::RGBA32UI;
 									break;
 								case DXGI_FORMAT_R32G32B32A32_SINT:
-									*format = PixelFormat_RGBA32I;
+									*format = PixelFormat::RGBA32I;
 									break;
 								case DXGI_FORMAT_R32G32B32_FLOAT:
-									*format = PixelFormat_RGB32F;
+									*format = PixelFormat::RGB32F;
 									break;
 								case DXGI_FORMAT_R32G32B32_UINT:
-									//*format = PixelFormat_RGB32U;
+									//*format = PixelFormat::RGB32U;
 									return false;
 								case DXGI_FORMAT_R32G32B32_SINT:
-									*format = PixelFormat_RGB32I;
+									*format = PixelFormat::RGB32I;
 									break;
 								case DXGI_FORMAT_R16G16B16A16_SNORM:
 								case DXGI_FORMAT_R16G16B16A16_SINT:
 								case DXGI_FORMAT_R16G16B16A16_UINT:
-									*format = PixelFormat_RGBA16I;
+									*format = PixelFormat::RGBA16I;
 									break;
 								case DXGI_FORMAT_R16G16B16A16_UNORM:
-									*format = PixelFormat_RGBA16UI;
+									*format = PixelFormat::RGBA16UI;
+									break;
+
+								default:
+									//TODO
+									NazaraError("TODO");
 									break;
 							}
 							break;
@@ -262,14 +267,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterDDSLoader()
+		ImageLoader::Entry GetImageLoader_DDS()
 		{
-			ImageLoader::RegisterLoader(DDSLoader::IsSupported, DDSLoader::Check, DDSLoader::Load);
-		}
+			ImageLoader::Entry loaderEntry;
+			loaderEntry.extensionSupport = DDSLoader::IsSupported;
+			loaderEntry.streamChecker = DDSLoader::Check;
+			loaderEntry.streamLoader = DDSLoader::Load;
 
-		void UnregisterDDSLoader()
-		{
-			ImageLoader::UnregisterLoader(DDSLoader::IsSupported, DDSLoader::Check, DDSLoader::Load);
+			return loaderEntry;
 		}
 	}
 }

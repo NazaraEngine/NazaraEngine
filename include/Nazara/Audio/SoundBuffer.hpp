@@ -10,10 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
@@ -32,24 +29,18 @@ namespace Nz
 	class Sound;
 	class SoundBuffer;
 
-	using SoundBufferConstRef = ObjectRef<const SoundBuffer>;
 	using SoundBufferLibrary = ObjectLibrary<SoundBuffer>;
 	using SoundBufferLoader = ResourceLoader<SoundBuffer, SoundBufferParams>;
 	using SoundBufferManager = ResourceManager<SoundBuffer, SoundBufferParams>;
-	using SoundBufferRef = ObjectRef<SoundBuffer>;
 
 	struct SoundBufferImpl;
 
-	class NAZARA_AUDIO_API SoundBuffer : public RefCounted, public Resource
+	class NAZARA_AUDIO_API SoundBuffer : public Resource
 	{
 		friend Sound;
-		friend SoundBufferLibrary;
-		friend SoundBufferLoader;
-		friend SoundBufferManager;
-		friend class Audio;
 
 		public:
-			SoundBuffer() = default;
+			SoundBuffer();
 			SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples);
 			SoundBuffer(const SoundBuffer&) = delete;
 			SoundBuffer(SoundBuffer&&) = delete;
@@ -71,28 +62,14 @@ namespace Nz
 
 			static bool IsFormatSupported(AudioFormat format);
 
-			static SoundBufferRef LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams());
-			static SoundBufferRef LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
-			static SoundBufferRef LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
-
-			template<typename... Args> static SoundBufferRef New(Args&&... args);
-
-			// Signals:
-			NazaraSignal(OnSoundBufferDestroy, const SoundBuffer* /*soundBuffer*/);
-			NazaraSignal(OnSoundBufferRelease, const SoundBuffer* /*soundBuffer*/);
+			static std::shared_ptr<SoundBuffer> LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams());
+			static std::shared_ptr<SoundBuffer> LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
+			static std::shared_ptr<SoundBuffer> LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 
 		private:
 			unsigned int GetOpenALBuffer() const;
 
-			static bool Initialize();
-			static void Uninitialize();
-
-			MovablePtr<SoundBufferImpl> m_impl = nullptr;
-
-			static SoundBufferLibrary::LibraryMap s_library;
-			static SoundBufferLoader::LoaderList s_loaders;
-			static SoundBufferManager::ManagerMap s_managerMap;
-			static SoundBufferManager::ManagerParams s_managerParameters;
+			std::unique_ptr<SoundBufferImpl> m_impl;
 	};
 }
 

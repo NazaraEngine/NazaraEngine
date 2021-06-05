@@ -5,10 +5,11 @@
 
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Shader/ShaderNodes.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
 #include <ShaderNode/Previews/PreviewModel.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,7 @@ class ShaderGraph
 {
 	public:
 		struct BufferEntry;
+		struct ConditionEntry;
 		struct InputEntry;
 		struct OutputEntry;
 		struct StructEntry;
@@ -28,6 +30,7 @@ class ShaderGraph
 		~ShaderGraph();
 
 		std::size_t AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
+		std::size_t AddCondition(std::string name);
 		std::size_t AddInput(std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
 		std::size_t AddOutput(std::string name, PrimitiveType type, std::size_t locationIndex);
 		std::size_t AddStruct(std::string name, std::vector<StructMemberEntry> members);
@@ -35,9 +38,14 @@ class ShaderGraph
 
 		void Clear();
 
+		void EnableCondition(std::size_t conditionIndex, bool enable);
+
 		inline const BufferEntry& GetBuffer(std::size_t bufferIndex) const;
 		inline std::size_t GetBufferCount() const;
 		inline const std::vector<BufferEntry>& GetBuffers() const;
+		inline const ConditionEntry& GetCondition(std::size_t conditionIndex) const;
+		inline std::size_t GetConditionCount() const;
+		inline const std::vector<ConditionEntry>& GetConditions() const;
 		inline const InputEntry& GetInput(std::size_t bufferIndex) const;
 		inline std::size_t GetInputCount() const;
 		inline const std::vector<InputEntry>& GetInputs() const;
@@ -54,13 +62,16 @@ class ShaderGraph
 		inline const std::vector<TextureEntry>& GetTextures() const;
 		inline ShaderType GetType() const;
 
+		inline bool IsConditionEnabled(std::size_t conditionIndex) const;
+
 		void Load(const QJsonObject& data);
 		QJsonObject Save();
 
-		Nz::ShaderNodes::StatementPtr ToAst();
-		Nz::ShaderExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
+		Nz::ShaderAst::StatementPtr ToAst() const;
+		Nz::ShaderAst::ExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
 		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
+		void UpdateCondition(std::size_t conditionIndex, std::string condition);
 		void UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
 		void UpdateOutput(std::size_t outputIndex, std::string name, PrimitiveType type, std::size_t locationIndex);
 		void UpdateStruct(std::size_t structIndex, std::string name, std::vector<StructMemberEntry> members);
@@ -74,6 +85,12 @@ class ShaderGraph
 			std::size_t structIndex;
 			std::string name;
 			BufferType type;
+		};
+
+		struct ConditionEntry
+		{
+			std::string name;
+			bool enabled = false;
 		};
 
 		struct InputEntry
@@ -113,7 +130,9 @@ class ShaderGraph
 		};
 
 		NazaraSignal(OnBufferListUpdate, ShaderGraph*);
-		NazaraSignal(OnBufferUpdate, ShaderGraph*, std::size_t /*outputIndex*/);
+		NazaraSignal(OnBufferUpdate, ShaderGraph*, std::size_t /*bufferIndex*/);
+		NazaraSignal(OnConditionListUpdate, ShaderGraph*);
+		NazaraSignal(OnConditionUpdate, ShaderGraph*, std::size_t /*conditionIndex*/);
 		NazaraSignal(OnInputListUpdate, ShaderGraph*);
 		NazaraSignal(OnInputUpdate, ShaderGraph*, std::size_t /*inputIndex*/);
 		NazaraSignal(OnOutputListUpdate, ShaderGraph*);
@@ -127,15 +146,17 @@ class ShaderGraph
 		NazaraSignal(OnTypeUpdated, ShaderGraph*);
 
 		static QtNodes::NodeDataType ToNodeDataType(PrimitiveType type);
-		static Nz::ShaderExpressionType ToShaderExpressionType(PrimitiveType type);
-		static Nz::ShaderExpressionType ToShaderExpressionType(TextureType type);
+		static Nz::ShaderAst::ExpressionType ToShaderExpressionType(PrimitiveType type);
+		static Nz::ShaderAst::ExpressionType ToShaderExpressionType(TextureType type);
 		static Nz::ShaderStageType ToShaderStageType(ShaderType type);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
+		std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ToFunction() const;
 
-		QtNodes::FlowScene m_flowScene;
+		mutable std::optional<QtNodes::FlowScene> m_flowScene;
 		std::vector<BufferEntry> m_buffers;
+		std::vector<ConditionEntry> m_conditions;
 		std::vector<InputEntry> m_inputs;
 		std::vector<OutputEntry> m_outputs;
 		std::vector<StructEntry> m_structs;

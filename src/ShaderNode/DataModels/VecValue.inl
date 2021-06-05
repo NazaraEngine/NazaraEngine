@@ -76,6 +76,33 @@ std::shared_ptr<QtNodes::NodeData> VecValue<ComponentCount>::outData(QtNodes::Po
 }
 
 template<std::size_t ComponentCount>
+QString VecValue<ComponentCount>::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+	assert(portType == QtNodes::PortType::Out);
+
+	QString caption = "vec" + QString::number(ComponentCount) + "(";
+	for (std::size_t i = 0; i < ComponentCount; ++i)
+	{
+		if (i > 0)
+			caption += ", ";
+
+		caption += QString::number(m_value[i]);
+	}
+
+	caption += ")";
+
+	return caption;
+}
+
+template<std::size_t ComponentCount>
+bool VecValue<ComponentCount>::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portIndex == 0);
+	return portType == QtNodes::PortType::Out;
+}
+
+template<std::size_t ComponentCount>
 void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
@@ -89,7 +116,7 @@ void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 
 		connect(spinbox, qOverload<double>(&QDoubleSpinBox::valueChanged), [=](double)
 		{
-			m_value[i] = spinbox->value();
+			m_value[i] = float(spinbox->value());
 			Q_EMIT dataUpdated(0);
 
 			UpdatePreview();
@@ -100,9 +127,10 @@ void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 }
 
 template<std::size_t ComponentCount>
-Nz::ShaderNodes::ExpressionPtr VecValue<ComponentCount>::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderAst::NodePtr VecValue<ComponentCount>::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
+	assert(outputIndex == 0);
 
 	return Nz::ShaderBuilder::Constant(m_value);
 }

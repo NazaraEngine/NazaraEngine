@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/ShaderAst.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <tsl/ordered_map.h>
@@ -18,6 +17,7 @@ namespace Nz
 
 		template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
 	}
+
 	struct SpirvConstantCache::Eq
 	{
 		bool Compare(const ConstantBool& lhs, const ConstantBool& rhs) const
@@ -107,6 +107,9 @@ namespace Nz
 		bool Compare(const Variable& lhs, const Variable& rhs) const
 		{
 			if (lhs.debugName != rhs.debugName)
+				return false;
+
+			if (lhs.funcId != rhs.funcId)
 				return false;
 
 			if (!Compare(lhs.initializer, rhs.initializer))
@@ -228,12 +231,12 @@ namespace Nz
 
 		void Register(const Image& image)
 		{
-			Register(image.sampledType);
+			cache.Register(*image.sampledType);
 		}
 
 		void Register(const Function& func)
 		{
-			Register(func.returnType);
+			cache.Register(*func.returnType);
 			Register(func.parameters);
 		}
 
@@ -353,6 +356,12 @@ namespace Nz
 			}, v);
 		}
 
+		void Register(const std::vector<TypePtr>& lhs)
+		{
+			for (std::size_t i = 0; i < lhs.size(); ++i)
+				cache.Register(*lhs[i]);
+		}
+
 		template<typename T>
 		void Register(const std::vector<T>& lhs)
 		{
@@ -390,6 +399,7 @@ namespace Nz
 		tsl::ordered_map<std::variant<AnyConstant, AnyType>, UInt32 /*id*/, AnyHasher, Eq> ids;
 		tsl::ordered_map<Variable, UInt32 /*id*/, AnyHasher, Eq> variableIds;
 		tsl::ordered_map<Structure, FieldOffsets /*fieldOffsets*/, AnyHasher, Eq> structureSizes;
+		StructCallback structCallback;
 		UInt32& nextResultId;
 	};
 
@@ -401,6 +411,201 @@ namespace Nz
 	SpirvConstantCache::SpirvConstantCache(SpirvConstantCache&& cache) noexcept = default;
 
 	SpirvConstantCache::~SpirvConstantCache() = default;
+	
+	auto SpirvConstantCache::BuildConstant(const ShaderAst::ConstantValue& value) const -> ConstantPtr
+	{
+		return std::make_shared<Constant>(std::visit([&](auto&& arg) -> SpirvConstantCache::AnyConstant
+		{
+			using T = std::decay_t<decltype(arg)>;
+
+			if constexpr (std::is_same_v<T, bool>)
+				return ConstantBool{ arg };
+			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
+				return ConstantScalar{ arg };
+			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i>)
+			{
+				return ConstantComposite{
+					BuildType(ShaderAst::VectorType{ 2, (std::is_same_v<T, Vector2f>) ? ShaderAst::PrimitiveType::Float32 : ShaderAst::PrimitiveType::Int32 }),
+					{
+						BuildConstant(arg.x),
+						BuildConstant(arg.y)
+					}
+				};
+			}
+			else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i>)
+			{
+				return ConstantComposite{
+					BuildType(ShaderAst::VectorType{ 3, (std::is_same_v<T, Vector3f>) ? ShaderAst::PrimitiveType::Float32 : ShaderAst::PrimitiveType::Int32 }),
+					{
+						BuildConstant(arg.x),
+						BuildConstant(arg.y),
+						BuildConstant(arg.z)
+					}
+				};
+			}
+			else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i>)
+			{
+				return ConstantComposite{
+					BuildType(ShaderAst::VectorType{ 4, (std::is_same_v<T, Vector4f>) ? ShaderAst::PrimitiveType::Float32 : ShaderAst::PrimitiveType::Int32 }),
+					{
+						BuildConstant(arg.x),
+						BuildConstant(arg.y),
+						BuildConstant(arg.z),
+						BuildConstant(arg.w)
+					}
+				};
+			}
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		}, value));
+	}
+
+	auto SpirvConstantCache::BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) const -> TypePtr
+	{
+		std::vector<SpirvConstantCache::TypePtr> parameterTypes;
+		parameterTypes.reserve(parameters.size());
+
+		for (const auto& parameterType : parameters)
+			parameterTypes.push_back(BuildPointerType(parameterType, SpirvStorageClass::Function));
+
+		return std::make_shared<Type>(Function{
+			BuildType(retType),
+			std::move(parameterTypes)
+		});
+	}
+
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const -> TypePtr
+	{
+		return std::make_shared<Type>(Pointer{
+			BuildType(type),
+			storageClass
+		});
+	}
+
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const -> TypePtr
+	{
+		return std::make_shared<Type>(Pointer{
+			BuildType(type),
+			storageClass
+		});
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) const -> TypePtr
+	{
+		return std::visit([&](auto&& arg) -> TypePtr
+		{
+			return BuildType(arg);
+		}, type);
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& /*type*/) const -> TypePtr
+	{
+		// No IdentifierType is expected (as they should have been resolved by now)
+		throw std::runtime_error("unexpected identifier");
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::PrimitiveType& type) const -> TypePtr
+	{
+		return std::make_shared<Type>([&]() -> AnyType
+		{
+			switch (type)
+			{
+				case ShaderAst::PrimitiveType::Boolean:
+					return Bool{};
+
+				case ShaderAst::PrimitiveType::Float32:
+					return Float{ 32 };
+
+				case ShaderAst::PrimitiveType::Int32:
+					return Integer{ 32, true };
+
+				case ShaderAst::PrimitiveType::UInt32:
+					return Integer{ 32, false };
+			}
+
+			throw std::runtime_error("unexpected type");
+		}());
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::MatrixType& type) const -> TypePtr
+	{
+		return std::make_shared<Type>(
+			Matrix{
+				BuildType(ShaderAst::VectorType {
+					UInt32(type.rowCount), type.type
+				}),
+				UInt32(type.columnCount)
+			});
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::NoType& /*type*/) const -> TypePtr
+	{
+		return std::make_shared<Type>(Void{});
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::SamplerType& type) const -> TypePtr
+	{
+		Image imageType;
+		imageType.sampled = true;
+		imageType.sampledType = BuildType(type.sampledType);
+
+		switch (type.dim)
+		{
+			case ImageType::Cubemap:
+				imageType.dim = SpirvDim::Cube;
+				break;
+
+			case ImageType::E1D_Array:
+				imageType.arrayed = true;
+			case ImageType::E1D:
+				imageType.dim = SpirvDim::Dim1D;
+				break;
+
+			case ImageType::E2D_Array:
+				imageType.arrayed = true;
+			case ImageType::E2D:
+				imageType.dim = SpirvDim::Dim2D;
+				break;
+
+			case ImageType::E3D:
+				imageType.dim = SpirvDim::Dim3D;
+				break;
+		}
+
+		return std::make_shared<Type>(SampledImage{ std::make_shared<Type>(imageType) });
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::StructType& type) const -> TypePtr
+	{
+		assert(m_internal->structCallback);
+		return BuildType(m_internal->structCallback(type.structIndex));
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::StructDescription& structDesc) const -> TypePtr
+	{
+		Structure sType;
+		sType.name = structDesc.name;
+
+		for (const auto& member : structDesc.members)
+		{
+			auto& sMembers = sType.members.emplace_back();
+			sMembers.name = member.name;
+			sMembers.type = BuildType(member.type);
+		}
+
+		return std::make_shared<Type>(std::move(sType));
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::VectorType& type) const -> TypePtr
+	{
+		return std::make_shared<Type>(Vector{ BuildType(type.type), UInt32(type.componentCount) });
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::UniformType& type) const -> TypePtr
+	{
+		assert(std::holds_alternative<ShaderAst::StructType>(type.containedType));
+		return BuildType(std::get<ShaderAst::StructType>(type.containedType));
+	}
 
 	UInt32 SpirvConstantCache::GetId(const Constant& c)
 	{
@@ -415,7 +620,7 @@ namespace Nz
 	{
 		auto it = m_internal->ids.find(t.type);
 		if (it == m_internal->ids.end())
-			throw std::runtime_error("constant is not registered");
+			throw std::runtime_error("type is not registered");
 
 		return it->second;
 	}
@@ -481,6 +686,11 @@ namespace Nz
 		return it.value();
 	}
 
+	void SpirvConstantCache::SetStructCallback(StructCallback callback)
+	{
+		m_internal->structCallback = std::move(callback);
+	}
+
 	void SpirvConstantCache::Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos)
 	{
 		for (auto&& [object, id] : m_internal->ids)
@@ -516,165 +726,6 @@ namespace Nz
 
 	SpirvConstantCache& SpirvConstantCache::operator=(SpirvConstantCache&& cache) noexcept = default;
 
-	auto SpirvConstantCache::BuildConstant(const ShaderConstantValue& value) -> ConstantPtr
-	{
-		return std::make_shared<Constant>(std::visit([&](auto&& arg) -> SpirvConstantCache::AnyConstant
-		{
-			using T = std::decay_t<decltype(arg)>;
-
-			if constexpr (std::is_same_v<T, bool>)
-				return ConstantBool{ arg };
-			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
-				return ConstantScalar{ arg };
-			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i>)
-			{
-				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector2f>) ? ShaderNodes::BasicType::Float2 : ShaderNodes::BasicType::Int2),
-					{
-						BuildConstant(arg.x),
-						BuildConstant(arg.y)
-					}
-				};
-			}
-			else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i>)
-			{
-				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector3f>) ? ShaderNodes::BasicType::Float3 : ShaderNodes::BasicType::Int3),
-					{
-						BuildConstant(arg.x),
-						BuildConstant(arg.y),
-						BuildConstant(arg.z)
-					}
-				};
-			}
-			else if constexpr (std::is_same_v<T, Vector4f> || std::is_same_v<T, Vector4i>)
-			{
-				return ConstantComposite{
-					BuildType((std::is_same_v<T, Vector4f>) ? ShaderNodes::BasicType::Float4 : ShaderNodes::BasicType::Int4),
-					{
-						BuildConstant(arg.x),
-						BuildConstant(arg.y),
-						BuildConstant(arg.z),
-						BuildConstant(arg.w)
-					}
-				};
-			}
-			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-		}, value));
-	}
-
-	auto SpirvConstantCache::BuildPointerType(const ShaderNodes::BasicType& type, SpirvStorageClass storageClass) -> TypePtr
-	{
-		return std::make_shared<Type>(SpirvConstantCache::Pointer{
-			SpirvConstantCache::BuildType(type),
-			storageClass
-		});
-	}
-
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst& shader, const ShaderExpressionType& type, SpirvStorageClass storageClass) -> TypePtr
-	{
-		return std::make_shared<Type>(SpirvConstantCache::Pointer{
-			SpirvConstantCache::BuildType(shader, type),
-			storageClass
-		});
-	}
-
-	auto SpirvConstantCache::BuildType(const ShaderNodes::BasicType& type) -> TypePtr
-	{
-		return std::make_shared<Type>([&]() -> AnyType
-		{
-			switch (type)
-			{
-				case ShaderNodes::BasicType::Boolean:
-					return Bool{};
-
-				case ShaderNodes::BasicType::Float1:
-					return Float{ 32 };
-
-				case ShaderNodes::BasicType::Int1:
-					return Integer{ 32, true };
-
-				case ShaderNodes::BasicType::Float2:
-				case ShaderNodes::BasicType::Float3:
-				case ShaderNodes::BasicType::Float4:
-				case ShaderNodes::BasicType::Int2:
-				case ShaderNodes::BasicType::Int3:
-				case ShaderNodes::BasicType::Int4:
-				case ShaderNodes::BasicType::UInt2:
-				case ShaderNodes::BasicType::UInt3:
-				case ShaderNodes::BasicType::UInt4:
-				{
-					auto vecType = BuildType(ShaderNodes::Node::GetComponentType(type));
-					UInt32 componentCount = ShaderNodes::Node::GetComponentCount(type);
-
-					return Vector{ vecType, componentCount };
-				}
-
-				case ShaderNodes::BasicType::Mat4x4:
-					return Matrix{ BuildType(ShaderNodes::BasicType::Float4), 4u };
-
-				case ShaderNodes::BasicType::UInt1:
-					return Integer{ 32, false };
-
-				case ShaderNodes::BasicType::Void:
-					return Void{};
-
-				case ShaderNodes::BasicType::Sampler2D:
-				{
-					auto imageType = Image{
-						{}, //< qualifier
-						{}, //< depth
-						{}, //< sampled
-						SpirvDim::Dim2D, //< dim
-						SpirvImageFormat::Unknown, //< format
-						BuildType(ShaderNodes::BasicType::Float1), //< sampledType
-						false, //< arrayed,
-						false  //< multisampled
-					};
-
-					return SampledImage{ std::make_shared<Type>(imageType) };
-				}
-			}
-
-			throw std::runtime_error("unexpected type");
-		}());
-	}
-
-	auto SpirvConstantCache::BuildType(const ShaderAst& shader, const ShaderExpressionType& type) -> TypePtr
-	{
-		return std::visit([&](auto&& arg) -> TypePtr
-		{
-			using T = std::decay_t<decltype(arg)>;
-			if constexpr (std::is_same_v<T, ShaderNodes::BasicType>)
-				return BuildType(arg);
-			else if constexpr (std::is_same_v<T, std::string>)
-			{
-				// Register struct members type
-				const auto& structs = shader.GetStructs();
-				auto it = std::find_if(structs.begin(), structs.end(), [&](const auto& s) { return s.name == arg; });
-				if (it == structs.end())
-					throw std::runtime_error("struct " + arg + " has not been defined");
-
-				const ShaderAst::Struct& s = *it;
-
-				Structure sType;
-				sType.name = s.name;
-
-				for (const auto& member : s.members)
-				{
-					auto& sMembers = sType.members.emplace_back();
-					sMembers.name = member.name;
-					sMembers.type = BuildType(shader, member.type);
-				}
-
-				return std::make_shared<Type>(std::move(sType));
-			}
-			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-		}, type);
-	}
-
 	void SpirvConstantCache::Write(const AnyConstant& constant, UInt32 resultId, SpirvSection& constants)
 	{
 		std::visit([&](auto&& arg)
@@ -682,7 +733,7 @@ namespace Nz
 			using ConstantType = std::decay_t<decltype(arg)>;
 
 			if constexpr (std::is_same_v<ConstantType, ConstantBool>)
-				constants.Append((arg.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, resultId);
+				constants.Append((arg.value) ? SpirvOp::OpConstantTrue : SpirvOp::OpConstantFalse, GetId({ Bool{} }), resultId);
 			else if constexpr (std::is_same_v<ConstantType, ConstantComposite>)
 			{
 				constants.AppendVariadic(SpirvOp::OpConstantComposite, [&](const auto& appender)
@@ -746,6 +797,8 @@ namespace Nz
 						appender(GetId(*param));
 				});
 			}
+			else if constexpr (std::is_same_v<T, Identifier>)
+				throw std::runtime_error("unexpected identifier");
 			else if constexpr (std::is_same_v<T, Image>)
 			{
 				UInt32 depth;
@@ -756,9 +809,9 @@ namespace Nz
 
 				UInt32 sampled;
 				if (arg.sampled.has_value())
-					sampled = (*arg.sampled) ? 1 : 0;
+					sampled = (*arg.sampled) ? 1 : 2; //< Yes/No
 				else
-					sampled = 2;
+					sampled = 0; //< Dunno
 
 				constants.AppendVariadic(SpirvOp::OpTypeImage, [&](const auto& appender)
 				{
@@ -808,7 +861,7 @@ namespace Nz
 
 		annotations.Append(SpirvOp::OpDecorate, resultId, SpirvDecoration::Block);
 
-		FieldOffsets structOffsets(StructLayout_Std140);
+		FieldOffsets structOffsets(StructLayout::Std140);
 
 		for (std::size_t memberIndex = 0; memberIndex < structData.members.size(); ++memberIndex)
 		{
@@ -820,18 +873,18 @@ namespace Nz
 				using T = std::decay_t<decltype(arg)>;
 
 				if constexpr (std::is_same_v<T, Bool>)
-					return structOffsets.AddField(StructFieldType_Bool1);
+					return structOffsets.AddField(StructFieldType::Bool1);
 				else if constexpr (std::is_same_v<T, Float>)
 				{
 					switch (arg.width)
 					{
-						case 32: return structOffsets.AddField(StructFieldType_Float1);
-						case 64: return structOffsets.AddField(StructFieldType_Double1);
+						case 32: return structOffsets.AddField(StructFieldType::Float1);
+						case 64: return structOffsets.AddField(StructFieldType::Double1);
 						default: throw std::runtime_error("unexpected float width " + std::to_string(arg.width));
 					}
 				}
 				else if constexpr (std::is_same_v<T, Integer>)
-					return structOffsets.AddField((arg.signedness) ? StructFieldType_Int1 : StructFieldType_UInt1);
+					return structOffsets.AddField((arg.signedness) ? StructFieldType::Int1 : StructFieldType::UInt1);
 				else if constexpr (std::is_same_v<T, Matrix>)
 				{
 					assert(std::holds_alternative<Vector>(arg.columnType->type));
@@ -845,8 +898,8 @@ namespace Nz
 					StructFieldType columnType;
 					switch (vecType.width)
 					{
-						case 32: columnType = StructFieldType_Float1;  break;
-						case 64: columnType = StructFieldType_Double1; break;
+						case 32: columnType = StructFieldType::Float1;  break;
+						case 64: columnType = StructFieldType::Double1; break;
 						default: throw std::runtime_error("unexpected float width " + std::to_string(vecType.width));
 					}
 
@@ -867,14 +920,14 @@ namespace Nz
 				else if constexpr (std::is_same_v<T, Vector>)
 				{
 					if (std::holds_alternative<Bool>(arg.componentType->type))
-						return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Bool1 + arg.componentCount - 1));
+						return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Bool1) + arg.componentCount - 1));
 					else if (std::holds_alternative<Float>(arg.componentType->type))
 					{
 						Float& floatData = std::get<Float>(arg.componentType->type);
 						switch (floatData.width)
 						{
-							case 32: return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Float1 + arg.componentCount - 1));
-							case 64: return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Double1 + arg.componentCount - 1));
+							case 32: return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Float1) + arg.componentCount - 1));
+							case 64: return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Double1) + arg.componentCount - 1));
 							default: throw std::runtime_error("unexpected float width " + std::to_string(floatData.width));
 						}
 					}
@@ -885,15 +938,17 @@ namespace Nz
 							throw std::runtime_error("unexpected integer width " + std::to_string(intData.width));
 
 						if (intData.signedness)
-							return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_Int1 + arg.componentCount - 1));
+							return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::Int1) + arg.componentCount - 1));
 						else
-							return structOffsets.AddField(static_cast<StructFieldType>(StructFieldType_UInt1 + arg.componentCount - 1));
+							return structOffsets.AddField(static_cast<StructFieldType>(UnderlyingCast(StructFieldType::UInt1) + arg.componentCount - 1));
 					}
 					else
 						throw std::runtime_error("unexpected type for vector");
 				}
 				else if constexpr (std::is_same_v<T, Function>)
 					throw std::runtime_error("unexpected function as struct member");
+				else if constexpr (std::is_same_v<T, Identifier>)
+					throw std::runtime_error("unexpected identifier");
 				else if constexpr (std::is_same_v<T, Image> || std::is_same_v<T, SampledImage>)
 					throw std::runtime_error("unexpected opaque type as struct member");
 				else if constexpr (std::is_same_v<T, Void>)

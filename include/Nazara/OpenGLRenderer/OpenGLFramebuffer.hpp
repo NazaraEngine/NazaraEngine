@@ -30,6 +30,8 @@ namespace Nz
 
 			virtual void Activate() const = 0;
 
+			virtual std::size_t GetColorBufferCount() const = 0;
+
 			inline Type GetType() const;
 
 			OpenGLFramebuffer& operator=(const OpenGLFramebuffer&) = delete;

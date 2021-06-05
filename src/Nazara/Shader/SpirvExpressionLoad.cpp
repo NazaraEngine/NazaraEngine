@@ -3,8 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
-#include <Nazara/Core/StackVector.hpp>
-#include <Nazara/Shader/SpirvSection.hpp>
+#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Shader/SpirvAstVisitor.hpp>
+#include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -13,10 +14,10 @@ namespace Nz
 	namespace
 	{
 		template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-		template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
+		template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 	}
 
-	UInt32 SpirvExpressionLoad::Evaluate(ShaderNodes::Expression& node)
+	UInt32 SpirvExpressionLoad::Evaluate(ShaderAst::Expression& node)
 	{
 		node.Visit(*this);
 
@@ -24,9 +25,8 @@ namespace Nz
 		{
 			[this](const Pointer& pointer) -> UInt32
 			{
-				UInt32 resultId = m_writer.AllocateResultId();
-
-				m_writer.GetInstructions().Append(SpirvOp::OpLoad, pointer.pointedTypeId, resultId, pointer.resultId);
+				UInt32 resultId = m_visitor.AllocateResultId();
+				m_block.Append(SpirvOp::OpLoad, pointer.pointedTypeId, resultId, pointer.pointerId);
 
 				return resultId;
 			},
@@ -41,43 +41,51 @@ namespace Nz
 		}, m_value);
 	}
 
-	void SpirvExpressionLoad::Visit(ShaderNodes::AccessMember& node)
+	void SpirvExpressionLoad::Visit(ShaderAst::AccessIndexExpression& node)
 	{
-		Visit(node.structExpr);
+		node.expr->Visit(*this);
+
+		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
+
+		UInt32 resultId = m_visitor.AllocateResultId();
+		UInt32 typeId = m_writer.GetTypeId(exprType);
 
 		std::visit(overloaded
 		{
 			[&](const Pointer& pointer)
 			{
-				UInt32 resultId = m_writer.AllocateResultId();
-				UInt32 pointerType = m_writer.RegisterPointerType(node.exprType, pointer.storage); //< FIXME
-				UInt32 typeId = m_writer.GetTypeId(node.exprType);
+				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
 
-				m_writer.GetInstructions().AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
+				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
+				for (std::size_t i = 0; i < node.indices.size(); ++i)
+					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
+
+				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
 				{
 					appender(pointerType);
 					appender(resultId);
-					appender(pointer.resultId);
+					appender(pointer.pointerId);
 
-					for (std::size_t index : node.memberIndices)
-						appender(m_writer.GetConstantId(Int32(index)));
+					for (UInt32 id : indexIds)
+						appender(id);
 				});
 
 				m_value = Pointer { pointer.storage, resultId, typeId };
 			},
 			[&](const Value& value)
 			{
-				UInt32 resultId = m_writer.AllocateResultId();
-				UInt32 typeId = m_writer.GetTypeId(node.exprType);
+				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
+				for (std::size_t i = 0; i < node.indices.size(); ++i)
+					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
 
-				m_writer.GetInstructions().AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
+				m_block.AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
 				{
 					appender(typeId);
 					appender(resultId);
 					appender(value.resultId);
 
-					for (std::size_t index : node.memberIndices)
-						appender(m_writer.GetConstantId(Int32(index)));
+					for (UInt32 id : indexIds)
+						appender(id);
 				});
 
 				m_value = Value { resultId };
@@ -89,33 +97,9 @@ namespace Nz
 		}, m_value);
 	}
 
-	void SpirvExpressionLoad::Visit(ShaderNodes::Identifier& node)
+	void SpirvExpressionLoad::Visit(ShaderAst::VariableExpression& node)
 	{
-		Visit(node.var);
-	}
-
-	void SpirvExpressionLoad::Visit(ShaderNodes::InputVariable& var)
-	{
-		auto inputVar = m_writer.GetInputVariable(var.name);
-
-		if (auto resultIdOpt = m_writer.ReadVariable(inputVar, SpirvWriter::OnlyCache{}))
-			m_value = Value{ *resultIdOpt };
-		else
-			m_value = Pointer{ SpirvStorageClass::Input, inputVar.varId, inputVar.typeId };
-	}
-
-	void SpirvExpressionLoad::Visit(ShaderNodes::LocalVariable& var)
-	{
-		m_value = Value{ m_writer.ReadLocalVariable(var.name) };
-	}
-
-	void SpirvExpressionLoad::Visit(ShaderNodes::UniformVariable& var)
-	{
-		auto uniformVar = m_writer.GetUniformVariable(var.name);
-
-		if (auto resultIdOpt = m_writer.ReadVariable(uniformVar, SpirvWriter::OnlyCache{}))
-			m_value = Value{ *resultIdOpt };
-		else
-			m_value = Pointer{ SpirvStorageClass::Uniform, uniformVar.varId, uniformVar.typeId };
+		const auto& var = m_visitor.GetVariable(node.variableId);
+		m_value = Pointer{ var.storage, var.pointerId, var.pointedTypeId };
 	}
 }

@@ -7,6 +7,7 @@
 #ifndef NAZARA_FRUSTUM_HPP
 #define NAZARA_FRUSTUM_HPP
 
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -29,7 +30,7 @@ namespace Nz
 			Frustum(const Frustum& frustum) = default;
 			~Frustum() = default;
 
-			Frustum& Build(T angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
+			Frustum& Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 
 			bool Contains(const BoundingVolume<T>& volume) const;
 			bool Contains(const Box<T>& box) const;

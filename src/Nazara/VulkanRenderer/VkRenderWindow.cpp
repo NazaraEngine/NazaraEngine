@@ -22,7 +22,6 @@ namespace Nz
 	VkRenderWindow::VkRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
 	m_owner(owner),
-	m_depthStencilFormat(VK_FORMAT_MAX_ENUM),
 	m_shouldRecreateSwapchain(false)
 	{
 	}
@@ -58,7 +57,7 @@ namespace Nz
 			invalidateFramebuffer = true;
 		}
 
-		VulkanRenderImage& currentFrame = m_concurrentImageData[m_currentFrame];
+		VulkanRenderImage& currentFrame = *m_concurrentImageData[m_currentFrame];
 		Vk::Fence& inFlightFence = currentFrame.GetInFlightFence();
 
 		// Wait until previous rendering to this image has been done
@@ -90,7 +89,7 @@ namespace Nz
 			case VK_ERROR_SURFACE_LOST_KHR: //< TODO: Handle it by recreating the surface?
 			case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
 			default:
-				throw std::runtime_error("Failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+				throw std::runtime_error("failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
 		}
 
 		if (m_inflightFences[imageIndex])
@@ -106,14 +105,16 @@ namespace Nz
 
 	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
-		const auto& deviceInfo = Vulkan::GetPhysicalDevices()[0];
+		VulkanDevice& referenceDevice = static_cast<VulkanDevice&>(*m_owner.GetRenderDevice());
+
+		const auto& physDeviceInfo = referenceDevice.GetPhysicalDeviceInfo();
 
 		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
 
 		UInt32 graphicsFamilyQueueIndex;
 		UInt32 presentableFamilyQueueIndex;
 		UInt32 transferFamilyQueueIndex;
-		m_device = Vulkan::SelectDevice(deviceInfo, vulkanSurface, &graphicsFamilyQueueIndex, &presentableFamilyQueueIndex, &transferFamilyQueueIndex);
+		m_device = Vulkan::SelectDevice(physDeviceInfo, vulkanSurface, &graphicsFamilyQueueIndex, &presentableFamilyQueueIndex, &transferFamilyQueueIndex);
 		if (!m_device)
 		{
 			NazaraError("Failed to get compatible Vulkan device");
@@ -125,7 +126,7 @@ namespace Nz
 		m_transferQueue = m_device->GetQueue(transferFamilyQueueIndex, 0);
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
-		if (!vulkanSurface.GetFormats(deviceInfo.physDevice, &surfaceFormats))
+		if (!vulkanSurface.GetFormats(physDeviceInfo.physDevice, &surfaceFormats))
 		{
 			NazaraError("Failed to query supported surface formats");
 			return false;
@@ -151,39 +152,47 @@ namespace Nz
 			}
 		}();
 
+		m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
 		if (!parameters.depthFormats.empty())
 		{
 			for (PixelFormat format : parameters.depthFormats)
 			{
 				switch (format)
 				{
-					case PixelFormat_Depth16:
+					case PixelFormat::Depth16:
 						m_depthStencilFormat = VK_FORMAT_D16_UNORM;
 						break;
 
-					case PixelFormat_Depth24:
-					case PixelFormat_Depth24Stencil8:
+					case PixelFormat::Depth16Stencil8:
+						m_depthStencilFormat = VK_FORMAT_D16_UNORM_S8_UINT;
+						break;
+
+					case PixelFormat::Depth24:
+					case PixelFormat::Depth24Stencil8:
 						m_depthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
 						break;
 
-					case PixelFormat_Depth32:
+					case PixelFormat::Depth32F:
 						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT;
 						break;
 
-					case PixelFormat_Stencil1:
-					case PixelFormat_Stencil4:
-					case PixelFormat_Stencil8:
+					case PixelFormat::Depth32FStencil8:
+						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
+						break;
+
+					case PixelFormat::Stencil1:
+					case PixelFormat::Stencil4:
+					case PixelFormat::Stencil8:
 						m_depthStencilFormat = VK_FORMAT_S8_UINT;
 						break;
 
-					case PixelFormat_Stencil16:
-						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
-						break;
+					case PixelFormat::Stencil16:
+						continue;
 
 					default:
 					{
 						PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
-						if (formatContent != PixelFormatContent_DepthStencil && formatContent != PixelFormatContent_Stencil)
+						if (formatContent != PixelFormatContent::DepthStencil && formatContent != PixelFormatContent::Stencil)
 							NazaraWarning("Invalid format " + PixelFormatInfo::GetName(format) + " for depth-stencil attachment");
 
 						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
@@ -193,7 +202,7 @@ namespace Nz
 
 				if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
 				{
-					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(deviceInfo.physDevice, m_depthStencilFormat);
+					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(physDeviceInfo.physDevice, m_depthStencilFormat);
 					if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 						break; //< Found it
 
@@ -335,6 +344,14 @@ namespace Nz
 			return false;
 		}
 
+		PixelFormat format = FromVulkan(m_depthStencilFormat).value();
+
+		VkImageAspectFlags aspectMask;
+		if (PixelFormatInfo::GetContent(format) == PixelFormatContent::DepthStencil)
+			aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		else
+			aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
 		VkImageViewCreateInfo imageViewCreateInfo = {
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, // VkStructureType            sType;
 			nullptr,                                  // const void*                pNext;
@@ -349,7 +366,7 @@ namespace Nz
 				VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
 			},
 			{                                         // VkImageSubresourceRange    subresourceRange;
-				VK_IMAGE_ASPECT_DEPTH_BIT,            // VkImageAspectFlags         .aspectMask;
+				aspectMask,                           // VkImageAspectFlags         .aspectMask;
 				0,                                    // uint32_t                   .baseMipLevel;
 				1,                                    // uint32_t                   .levelCount;
 				0,                                    // uint32_t                   .baseArrayLayer;
@@ -400,98 +417,30 @@ namespace Nz
 
 	bool VkRenderWindow::SetupRenderPass()
 	{
-		std::array<VkAttachmentDescription, 2> attachments = {
-			{
-				{
-					0,                                        // VkAttachmentDescriptionFlags    flags;
-					m_surfaceFormat.format,                   // VkFormat                        format;
-					VK_SAMPLE_COUNT_1_BIT,                    // VkSampleCountFlagBits           samples;
-					VK_ATTACHMENT_LOAD_OP_CLEAR,              // VkAttachmentLoadOp              loadOp;
-					VK_ATTACHMENT_STORE_OP_STORE,             // VkAttachmentStoreOp             storeOp;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,          // VkAttachmentLoadOp              stencilLoadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,         // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_UNDEFINED,                // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR           // VkImageLayout                   finalLayout;
-				},
-				{
-					0,                                                // VkAttachmentDescriptionFlags    flags;
-					m_depthStencilFormat,                             // VkFormat                        format;
-					VK_SAMPLE_COUNT_1_BIT,                            // VkSampleCountFlagBits           samples;
-					VK_ATTACHMENT_LOAD_OP_CLEAR,                      // VkAttachmentLoadOp              loadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             storeOp;
-					VK_ATTACHMENT_LOAD_OP_DONT_CARE,                  // VkAttachmentLoadOp              stencilLoadOp;
-					VK_ATTACHMENT_STORE_OP_DONT_CARE,                 // VkAttachmentStoreOp             stencilStoreOp;
-					VK_IMAGE_LAYOUT_UNDEFINED,                        // VkImageLayout                   initialLayout;
-					VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL  // VkImageLayout                   finalLayout;
-				},
-			}
-		};
-
-		VkAttachmentReference colorReference = {
-			0,                                       // uint32_t         attachment;
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL // VkImageLayout    layout;
-		};
-
-		VkAttachmentReference depthReference = {
-			1,                                               // uint32_t         attachment;
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL // VkImageLayout    layout;
-		};
-
-		VkSubpassDescription subpass = {
-			0,                                                                        // VkSubpassDescriptionFlags       flags;
-			VK_PIPELINE_BIND_POINT_GRAPHICS,                                          // VkPipelineBindPoint             pipelineBindPoint;
-			0U,                                                                       // uint32_t                        inputAttachmentCount;
-			nullptr,                                                                  // const VkAttachmentReference*    pInputAttachments;
-			1U,                                                                       // uint32_t                        colorAttachmentCount;
-			&colorReference,                                                          // const VkAttachmentReference*    pColorAttachments;
-			nullptr,                                                                  // const VkAttachmentReference*    pResolveAttachments;
-			(m_depthStencilFormat != VK_FORMAT_MAX_ENUM) ? &depthReference : nullptr, // const VkAttachmentReference*    pDepthStencilAttachment;
-			0U,                                                                       // uint32_t                        preserveAttachmentCount;
-			nullptr                                                                   // const uint32_t*                 pPreserveAttachments;
-		};
-
-		std::array<VkSubpassDependency, 2> dependencies;
-		// First dependency at the start of the render pass
-		// Does the transition from final to initial layout 
-		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL; // Producer of the dependency 
-		dependencies[0].dstSubpass = 0; // Consumer is our single subpass that will wait for the execution dependency
-		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[0].srcAccessMask = 0;
-		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		// Second dependency at the end the render pass
-		// Does the transition from the initial to the final layout
-		dependencies[1].srcSubpass = 0; // Producer of the dependency is our single subpass
-		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL; // Consumer are all commands outside of the render pass
-		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		VkRenderPassCreateInfo createInfo = {
-			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,              // VkStructureType                   sType;
-			nullptr,                                                // const void*                       pNext;
-			0,                                                      // VkRenderPassCreateFlags           flags;
-			(m_depthStencilFormat != VK_FORMAT_MAX_ENUM) ? 2U : 1U, // uint32_t                          attachmentCount;
-			attachments.data(),                                     // const VkAttachmentDescription*    pAttachments;
-			1U,                                                     // uint32_t                          subpassCount;
-			&subpass,                                               // const VkSubpassDescription*       pSubpasses;
-			UInt32(dependencies.size()),                            // uint32_t                          dependencyCount;
-			dependencies.data()                                     // const VkSubpassDependency*        pDependencies;
-		};
-
-		Vk::RenderPass renderPass;
-		if (!renderPass.Create(*m_device, createInfo))
+		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
+		if (!colorFormat)
 		{
-			NazaraError("Failed to create render pass: " + TranslateVulkanError(renderPass.GetLastErrorCode()));
+			NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_surfaceFormat.format, 16) + ")");
 			return false;
 		}
 
-		std::initializer_list<PixelFormat> fixmeplease = { PixelFormat::PixelFormat_RGB8, PixelFormat::PixelFormat_Depth24Stencil8 };
-		m_renderPass.emplace(std::move(renderPass), fixmeplease);
+		std::optional<PixelFormat> depthStencilFormat;
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
+		{
+			depthStencilFormat = FromVulkan(m_depthStencilFormat);
+			if (!depthStencilFormat)
+			{
+				NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_depthStencilFormat, 16) + ")");
+				return false;
+			}
+		}
+
+		std::vector<RenderPass::Attachment> attachments;
+		std::vector<RenderPass::SubpassDescription> subpassDescriptions;
+		std::vector<RenderPass::SubpassDependency> subpassDependencies;
+
+		BuildRenderPass(*colorFormat, depthStencilFormat.value_or(PixelFormat::Undefined), attachments, subpassDescriptions, subpassDependencies);
+		m_renderPass.emplace(*m_device, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 		return true;
 	}
 
@@ -537,6 +486,9 @@ namespace Nz
 				swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
 		}
 
+		// Ensure all operations on the device have been finished before recreating the swapchain (this can be avoided but is more complicated)
+		m_device->WaitForIdle();
+
 		VkSwapchainCreateInfoKHR swapchainInfo = {
 			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 			nullptr,
@@ -578,7 +530,7 @@ namespace Nz
 			m_concurrentImageData.reserve(imageCount);
 
 			for (std::size_t i = 0; i < imageCount; ++i)
-				m_concurrentImageData.emplace_back(*this);
+				m_concurrentImageData.emplace_back(std::make_unique<VulkanRenderImage>(*this));
 		}
 
 		return true;

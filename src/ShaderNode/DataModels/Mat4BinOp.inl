@@ -1,59 +1,60 @@
 #include <ShaderNode/DataModels/Mat4BinOp.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-Mat4BinOp<BinOp>::Mat4BinOp(ShaderGraph& graph) :
+template<Nz::ShaderAst::BinaryType Op>
+Mat4BinOp<Op>::Mat4BinOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	UpdateOutput();
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-Nz::ShaderNodes::ExpressionPtr Mat4BinOp<BinOp>::GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const
+template<Nz::ShaderAst::BinaryType Op>
+Nz::ShaderAst::NodePtr Mat4BinOp<Op>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
-	using BuilderType = typename Nz::ShaderBuilder::template BinOpBuilder<BinOp>;
-	constexpr BuilderType builder;
-	return builder(expressions[0], expressions[1]);
+	assert(outputIndex == 0);
+
+	return Nz::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-QtNodes::NodeDataType Mat4BinOp<BinOp>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
+template<Nz::ShaderAst::BinaryType Op>
+QtNodes::NodeDataType Mat4BinOp<Op>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
 
 	return Matrix4Data::Type();
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-unsigned int Mat4BinOp<BinOp>::nPorts(QtNodes::PortType portType) const
+template<Nz::ShaderAst::BinaryType Op>
+unsigned int Mat4BinOp<Op>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
 		case QtNodes::PortType::In:  return 2;
 		case QtNodes::PortType::Out: return 1;
+		default: break;
 	}
 
-	return 0;
+	assert(false);
+	throw std::runtime_error("invalid port type");
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-std::shared_ptr<QtNodes::NodeData> Mat4BinOp<BinOp>::outData(QtNodes::PortIndex port)
+template<Nz::ShaderAst::BinaryType Op>
+std::shared_ptr<QtNodes::NodeData> Mat4BinOp<Op>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-void Mat4BinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
+template<Nz::ShaderAst::BinaryType Op>
+void Mat4BinOp<Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
 
 	std::shared_ptr<Matrix4Data> castedValue;
-	if (value)
+	if (value && value->type().id == Matrix4Data::Type().id)
 	{
 		assert(dynamic_cast<Matrix4Data*>(value.get()) != nullptr);
-
 		castedValue = std::static_pointer_cast<Matrix4Data>(value);
 	}
 
@@ -65,8 +66,8 @@ void Mat4BinOp<BinOp>::setInData(std::shared_ptr<QtNodes::NodeData> value, int i
 	UpdateOutput();
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-QtNodes::NodeValidationState Mat4BinOp<BinOp>::validationState() const
+template<Nz::ShaderAst::BinaryType Op>
+QtNodes::NodeValidationState Mat4BinOp<Op>::validationState() const
 {
 	if (!m_lhs || !m_rhs)
 		return QtNodes::NodeValidationState::Error;
@@ -74,8 +75,8 @@ QtNodes::NodeValidationState Mat4BinOp<BinOp>::validationState() const
 	return QtNodes::NodeValidationState::Valid;
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-QString Mat4BinOp<BinOp>::validationMessage() const
+template<Nz::ShaderAst::BinaryType Op>
+QString Mat4BinOp<Op>::validationMessage() const
 {
 	if (!m_lhs || !m_rhs)
 		return "Missing operands";
@@ -83,8 +84,8 @@ QString Mat4BinOp<BinOp>::validationMessage() const
 	return QString();
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-bool Mat4BinOp<BinOp>::ComputePreview(QPixmap& pixmap)
+template<Nz::ShaderAst::BinaryType Op>
+bool Mat4BinOp<Op>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
 		return false;
@@ -95,8 +96,8 @@ bool Mat4BinOp<BinOp>::ComputePreview(QPixmap& pixmap)
 	//return true;
 }
 
-template<Nz::ShaderNodes::BinaryType BinOp>
-void Mat4BinOp<BinOp>::UpdateOutput()
+template<Nz::ShaderAst::BinaryType Op>
+void Mat4BinOp<Op>::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{

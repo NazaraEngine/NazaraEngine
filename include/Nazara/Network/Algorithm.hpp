@@ -16,8 +16,8 @@
 
 namespace Nz
 {
-	NAZARA_NETWORK_API const char* ErrorToString(Nz::ResolveError resolveError);
-	NAZARA_NETWORK_API const char* ErrorToString(Nz::SocketError socketError);
+	NAZARA_NETWORK_API const char* ErrorToString(ResolveError resolveError);
+	NAZARA_NETWORK_API const char* ErrorToString(SocketError socketError);
 
 	NAZARA_NETWORK_API bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port = nullptr, bool* isIPv6 = nullptr, const char** endOfRead = nullptr);
 

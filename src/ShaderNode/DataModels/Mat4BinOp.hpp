@@ -6,14 +6,14 @@
 #include <ShaderNode/DataModels/ShaderNode.hpp>
 #include <ShaderNode/DataTypes/Matrix4Data.hpp>
 
-template<Nz::ShaderNodes::BinaryType BinOp>
+template<Nz::ShaderAst::BinaryType Op>
 class Mat4BinOp : public ShaderNode
 {
 	public:
 		Mat4BinOp(ShaderGraph& graph);
 		~Mat4BinOp() = default;
 
-		Nz::ShaderNodes::ExpressionPtr GetExpression(Nz::ShaderNodes::ExpressionPtr* expressions, std::size_t count) const override;
+		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const;
 
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 
@@ -35,28 +35,28 @@ class Mat4BinOp : public ShaderNode
 		std::shared_ptr<Matrix4Data> m_output;
 };
 
-class Mat4Add : public Mat4BinOp<Nz::ShaderNodes::BinaryType::Add>
+class Mat4Add : public Mat4BinOp<Nz::ShaderAst::BinaryType::Add>
 {
 	public:
-		using Mat4BinOp<Nz::ShaderNodes::BinaryType::Add>::Mat4BinOp;
+		using Mat4BinOp<Nz::ShaderAst::BinaryType::Add>::Mat4BinOp;
 
 		QString caption() const override;
 		QString name() const override;
 };
 
-class Mat4Mul : public Mat4BinOp<Nz::ShaderNodes::BinaryType::Multiply>
+class Mat4Mul : public Mat4BinOp<Nz::ShaderAst::BinaryType::Multiply>
 {
 	public:
-		using Mat4BinOp<Nz::ShaderNodes::BinaryType::Multiply>::Mat4BinOp;
+		using Mat4BinOp<Nz::ShaderAst::BinaryType::Multiply>::Mat4BinOp;
 
 		QString caption() const override;
 		QString name() const override;
 };
 
-class Mat4Sub : public Mat4BinOp<Nz::ShaderNodes::BinaryType::Substract>
+class Mat4Sub : public Mat4BinOp<Nz::ShaderAst::BinaryType::Subtract>
 {
 	public:
-		using Mat4BinOp<Nz::ShaderNodes::BinaryType::Substract>::Mat4BinOp;
+		using Mat4BinOp<Nz::ShaderAst::BinaryType::Subtract>::Mat4BinOp;
 
 		QString caption() const override;
 		QString name() const override;

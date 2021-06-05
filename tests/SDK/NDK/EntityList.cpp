@@ -1,12 +1,12 @@
 #include <NazaraSDK/EntityList.hpp>
 #include <NazaraSDK/World.hpp>
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("EntityList", "[NDK][ENTITYLIST]")
 {
 	GIVEN("A world & a set of entities")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		const Ndk::EntityHandle& entity = world.CreateEntity();
 		Ndk::EntityList entityList;

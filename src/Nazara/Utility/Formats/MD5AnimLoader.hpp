@@ -8,14 +8,11 @@
 #define NAZARA_LOADERS_MD5ANIM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Animation.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterMD5Anim();
-		void UnregisterMD5Anim();
-	}
+	AnimationLoader::Entry GetAnimationLoader_MD5Anim();
 }
 
 #endif // NAZARA_LOADERS_MD5ANIM_HPP

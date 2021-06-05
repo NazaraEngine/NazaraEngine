@@ -8,9 +8,9 @@
 #define NAZARA_SPIRVCONSTANTCACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Shader/ShaderConstantValue.hpp>
-#include <Nazara/Shader/ShaderEnums.hpp>
-#include <Nazara/Shader/ShaderExpressionType.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <memory>
 #include <optional>
@@ -20,18 +20,20 @@
 
 namespace Nz
 {
-	class ShaderAst;
 	class SpirvSection;
 
 	class NAZARA_SHADER_API SpirvConstantCache
 	{
 		public:
+			using StructCallback = std::function<const ShaderAst::StructDescription&(std::size_t structIndex)>;
+
 			SpirvConstantCache(UInt32& resultId);
 			SpirvConstantCache(const SpirvConstantCache& cache) = delete;
 			SpirvConstantCache(SpirvConstantCache&& cache) noexcept;
 			~SpirvConstantCache();
 
 			struct Constant;
+			struct Identifier;
 			struct Type;
 
 			using ConstantPtr = std::shared_ptr<Constant>;
@@ -70,10 +72,10 @@ namespace Nz
 				std::optional<bool> depth;
 				std::optional<bool> sampled;
 				SpirvDim dim;
-				SpirvImageFormat format;
+				SpirvImageFormat format = SpirvImageFormat::Unknown;
 				TypePtr sampledType;
-				bool arrayed;
-				bool multisampled;
+				bool arrayed = false;
+				bool multisampled = false;
 			};
 
 			struct Pointer
@@ -127,10 +129,11 @@ namespace Nz
 
 			struct Variable
 			{
+				std::optional<std::size_t> funcId; //< For inputs/outputs
+				std::optional<ConstantPtr> initializer;
 				std::string debugName;
 				TypePtr type;
 				SpirvStorageClass storageClass;
-				std::optional<ConstantPtr> initializer;
 			};
 
 			using BaseType = std::variant<Bool, Float, Integer, Vector, Matrix, Image>;
@@ -159,6 +162,21 @@ namespace Nz
 				AnyType type;
 			};
 
+			ConstantPtr BuildConstant(const ShaderAst::ConstantValue& value) const;
+			TypePtr BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) const;
+			TypePtr BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const;
+			TypePtr BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
+			TypePtr BuildType(const ShaderAst::ExpressionType& type) const;
+			TypePtr BuildType(const ShaderAst::IdentifierType& type) const;
+			TypePtr BuildType(const ShaderAst::MatrixType& type) const;
+			TypePtr BuildType(const ShaderAst::NoType& type) const;
+			TypePtr BuildType(const ShaderAst::PrimitiveType& type) const;
+			TypePtr BuildType(const ShaderAst::SamplerType& type) const;
+			TypePtr BuildType(const ShaderAst::StructType& type) const;
+			TypePtr BuildType(const ShaderAst::StructDescription& structDesc) const;
+			TypePtr BuildType(const ShaderAst::VectorType& type) const;
+			TypePtr BuildType(const ShaderAst::UniformType& type) const;
+
 			UInt32 GetId(const Constant& c);
 			UInt32 GetId(const Type& t);
 			UInt32 GetId(const Variable& v);
@@ -167,16 +185,12 @@ namespace Nz
 			UInt32 Register(Type t);
 			UInt32 Register(Variable v);
 
+			void SetStructCallback(StructCallback callback);
+
 			void Write(SpirvSection& annotations, SpirvSection& constants, SpirvSection& debugInfos);
 
 			SpirvConstantCache& operator=(const SpirvConstantCache& cache) = delete;
 			SpirvConstantCache& operator=(SpirvConstantCache&& cache) noexcept;
-
-			static ConstantPtr BuildConstant(const ShaderConstantValue& value);
-			static TypePtr BuildPointerType(const ShaderNodes::BasicType& type, SpirvStorageClass storageClass);
-			static TypePtr BuildPointerType(const ShaderAst& shader, const ShaderExpressionType& type, SpirvStorageClass storageClass);
-			static TypePtr BuildType(const ShaderNodes::BasicType& type);
-			static TypePtr BuildType(const ShaderAst& shader, const ShaderExpressionType& type);
 
 		private:
 			struct DepRegisterer;

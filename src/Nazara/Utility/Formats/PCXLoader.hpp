@@ -8,14 +8,11 @@
 #define NAZARA_LOADERS_PCX_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Image.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterPCX();
-		void UnregisterPCX();
-	}
+	ImageLoader::Entry GetImageLoader_PCX();
 }
 
 #endif // NAZARA_LOADERS_PCX_HPP

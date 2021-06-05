@@ -49,6 +49,7 @@ namespace Nz::GL
 	enum class Extension
 	{
 		SpirV,
+		TextureCompressionS3tc,
 		TextureFilterAnisotropic,
 
 		Max = TextureFilterAnisotropic
@@ -72,6 +73,12 @@ namespace Nz::GL
 	enum class TextureTarget
 	{
 		Cubemap,
+		CubemapNegativeX,
+		CubemapNegativeY,
+		CubemapNegativeZ,
+		CubemapPositiveX,
+		CubemapPositiveY,
+		CubemapPositiveZ,
 		Target2D,
 		Target2D_Array,
 		Target3D,
@@ -126,6 +133,7 @@ namespace Nz::GL
 			bool Initialize(const ContextParams& params);
 
 			inline void NotifyBufferDestruction(GLuint buffer) const;
+			inline void NotifyFramebufferDestruction(GLuint fbo) const;
 			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
@@ -133,13 +141,17 @@ namespace Nz::GL
 
 			bool ProcessErrorStack() const;
 
+			inline void ResetColorWriteMasks() const;
+			inline void ResetDepthWriteMasks() const;
+			inline void ResetStencilWriteMasks() const;
+
 			void SetCurrentTextureUnit(UInt32 textureUnit) const;
 			void SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const;
 			void SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const;
 
 			virtual void SwapBuffers() = 0;
 
-			void UpdateStates(const RenderStates& renderStates) const;
+			void UpdateStates(const RenderStates& renderStates, bool isViewportFlipped) const;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)

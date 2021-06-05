@@ -107,7 +107,7 @@ namespace Nz
 
 	/*!
 	* \brief Calculates the angle between two vectors in orthonormal basis
-	* \return The angle unit depends of NAZARA_MATH_ANGLE_RADIAN in the range 0..pi
+	* \return The angle
 	*
 	* \param vec The other vector to measure the angle with
 	*
@@ -118,7 +118,7 @@ namespace Nz
 	* \see NormalizeAngle
 	*/
 	template<typename T>
-	T Vector3<T>::AngleBetween(const Vector3& vec) const
+	RadianAngle<T> Vector3<T>::AngleBetween(const Vector3& vec) const
 	{
 		// sqrt(a) * sqrt(b) = sqrt(a*b)
 		T divisor = std::sqrt(GetSquaredLength() * vec.GetSquaredLength());
@@ -134,7 +134,7 @@ namespace Nz
 		#endif
 
 		T alpha = DotProduct(vec) / divisor;
-		return FromRadians(std::acos(Clamp(alpha, T(-1.0), T(1.0))));
+		return std::acos(Clamp(alpha, T(-1.0), T(1.0)));
 	}
 
 	/*!

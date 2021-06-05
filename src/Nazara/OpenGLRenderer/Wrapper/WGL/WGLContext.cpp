@@ -133,7 +133,7 @@ namespace Nz::GL
 							WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_ES_PROFILE_BIT_EXT
 						};
 
-						m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());
+						m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, (shareContext) ? shareContext->m_handle : nullptr, attributes.data());
 						if (m_handle)
 							break;
 					}
@@ -174,7 +174,7 @@ namespace Nz::GL
 						WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB
 					};
 
-					m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, nullptr, attributes.data());
+					m_handle = baseContext->wglCreateContextAttribsARB(m_deviceContext, (shareContext) ? shareContext->m_handle : nullptr, attributes.data());
 					if (m_handle)
 					{
 						m_params.type = ContextType::OpenGL;
@@ -198,16 +198,16 @@ namespace Nz::GL
 				return false;
 			}
 
-			m_params.type = ContextType::OpenGL;
-		}
-
-		if (shareContext)
-		{
-			if (!m_loader.wglShareLists(shareContext->m_handle, m_handle))
+			if (shareContext)
 			{
-				NazaraError("failed to share context objects: " + Error::GetLastSystemError());
-				return false;
+				if (!m_loader.wglShareLists(shareContext->m_handle, m_handle))
+				{
+					NazaraError("failed to share context objects: " + Error::GetLastSystemError());
+					return false;
+				}
 			}
+
+			m_params.type = ContextType::OpenGL;
 		}
 
 		LoadWGLExt();
@@ -377,7 +377,7 @@ namespace Nz::GL
 			return false;
 		}
 
-		if (DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
+		if (m_loader.DescribePixelFormat(m_deviceContext, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &descriptor) != 0)
 		{
 			m_params.bitsPerPixel = descriptor.cColorBits + descriptor.cAlphaBits;
 			m_params.depthBits = descriptor.cDepthBits;

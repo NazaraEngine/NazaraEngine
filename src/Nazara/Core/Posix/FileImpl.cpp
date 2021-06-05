@@ -3,11 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
@@ -61,20 +62,20 @@ namespace Nz
 
 		if ((mode & OpenMode_ReadWrite) == OpenMode_ReadWrite)
 			flags = O_CREAT | O_RDWR;
-		else if ((mode & OpenMode_ReadOnly) == OpenMode_ReadOnly)
+		else if ((mode & OpenMode::ReadOnly) == OpenMode::ReadOnly)
 			flags = O_RDONLY;
-		else if ((mode & OpenMode_WriteOnly) == OpenMode_WriteOnly)
+		else if ((mode & OpenMode::WriteOnly) == OpenMode::WriteOnly)
 			flags = O_CREAT | O_WRONLY;
 		else
 			return false;
 
-		if (mode & OpenMode_Append)
+		if (mode & OpenMode::Append)
 			flags |= O_APPEND;
 
-		if (mode & OpenMode_MustExist)
+		if (mode & OpenMode::MustExist)
 			flags &= ~O_CREAT;
 
-		if (mode & OpenMode_Truncate)
+		if (mode & OpenMode::Truncate)
 			flags |= O_TRUNC;
 
 		int fileDescriptor = Open_def(filePath.generic_u8string().data(), flags, permissions);
@@ -111,7 +112,7 @@ namespace Nz
 			return false;
 		}
 
-		if (mode & OpenMode_Lock)
+		if (mode & OpenMode::Lock)
 		{
 			initialize_flock(lock);
 
@@ -147,20 +148,20 @@ namespace Nz
 		int moveMethod;
 		switch (pos)
 		{
-			case CursorPosition_AtBegin:
+			case CursorPosition::AtBegin:
 				moveMethod = SEEK_SET;
 				break;
 
-			case CursorPosition_AtCurrent:
+			case CursorPosition::AtCurrent:
 				moveMethod = SEEK_CUR;
 				break;
 
-			case CursorPosition_AtEnd:
+			case CursorPosition::AtEnd:
 				moveMethod = SEEK_END;
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled (0x" + NumberToString(pos, 16) + ')');
+				NazaraInternalError("Cursor position not handled (0x" + NumberToString(UnderlyingCast(pos), 16) + ')');
 				return false;
 		}
 

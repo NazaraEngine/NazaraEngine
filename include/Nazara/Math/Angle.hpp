@@ -26,11 +26,11 @@ namespace Nz
 	class Angle
 	{
 		public:
-			Angle() = default;
-			Angle(T angle);
-			Angle(const Angle<AngleUnit::Degree, T>& angle);
-			Angle(const Angle<AngleUnit::Radian, T>& angle);
-			template<typename U> explicit Angle(const Angle<Unit, U>& Angle);
+			constexpr Angle() = default;
+			constexpr Angle(T angle);
+			template<typename U> constexpr explicit Angle(const Angle<Unit, U>& Angle);
+			constexpr Angle(const Angle<AngleUnit::Degree, T>& angle);
+			constexpr Angle(const Angle<AngleUnit::Radian, T>& angle);
 			~Angle() = default;
 
 			T GetCos() const;
@@ -38,39 +38,39 @@ namespace Nz
 			std::pair<T, T> GetSinCos() const;
 			T GetTan() const;
 
-			Angle& MakeZero();
+			constexpr Angle& MakeZero();
 
-			void Normalize();
+			constexpr Angle& Normalize();
 
-			Angle& Set(const Angle& ang);
-			template<typename U> Angle& Set(const Angle<Unit, U>& ang);
+			constexpr Angle& Set(const Angle& ang);
+			template<typename U> constexpr Angle& Set(const Angle<Unit, U>& ang);
 
-			T ToDegrees() const;
-			Angle<AngleUnit::Degree, T> ToDegreeAngle() const;
+			constexpr T ToDegrees() const;
+			constexpr Angle<AngleUnit::Degree, T> ToDegreeAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			Quaternion<T> ToQuaternion() const;
-			T ToRadians() const;
-			Angle<AngleUnit::Radian, T> ToRadianAngle() const;
+			constexpr T ToRadians() const;
+			constexpr Angle<AngleUnit::Radian, T> ToRadianAngle() const;
 			std::string ToString() const;
 
-			Angle& operator=(const Angle&) = default;
+			constexpr Angle& operator=(const Angle&) = default;
 
-			Angle operator+(const Angle& other) const;
-			Angle operator-(const Angle& other) const;
-			Angle operator*(T scalar) const;
-			Angle operator/(T divider) const;
+			constexpr Angle operator+(const Angle& other) const;
+			constexpr Angle operator-(const Angle& other) const;
+			constexpr Angle operator*(T scalar) const;
+			constexpr Angle operator/(T divider) const;
 
-			Angle& operator+=(const Angle& other);
-			Angle& operator-=(const Angle& other);
-			Angle& operator*=(T scalar);
-			Angle& operator/=(T divider);
+			constexpr Angle& operator+=(const Angle& other);
+			constexpr Angle& operator-=(const Angle& other);
+			constexpr Angle& operator*=(T scalar);
+			constexpr Angle& operator/=(T divider);
 
-			bool operator==(const Angle& other) const;
-			bool operator!=(const Angle& other) const;
+			constexpr bool operator==(const Angle& other) const;
+			constexpr bool operator!=(const Angle& other) const;
 
-			static Angle FromDegrees(T ang);
-			static Angle FromRadians(T ang);
-			static Angle Zero();
+			static constexpr Angle FromDegrees(T ang);
+			static constexpr Angle FromRadians(T ang);
+			static constexpr Angle Zero();
 
 			T value;
 	};

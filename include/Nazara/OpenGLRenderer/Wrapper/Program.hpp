@@ -26,9 +26,24 @@ namespace Nz::GL
 
 			inline void AttachShader(GLuint shader);
 
-			inline bool GetLinkStatus(std::string* error = nullptr);
+			inline void Get(GLenum pname, GLint* params) const;
+			inline void GetActiveUniform(GLuint index, GLsizei bufSize, GLsizei* length, GLint* size, GLenum* type, GLchar* name) const;
+			inline void GetActiveUniformBlock(GLuint uniformBlockIndex, GLenum pname, GLint* params) const;
+			inline std::vector<GLint> GetActiveUniformBlockUniformIndices(GLuint uniformBlockIndex) const;
+			inline void GetActiveUniformBlockName(GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName) const;
+			inline std::string GetActiveUniformBlockName(GLuint uniformBlockIndex) const;
+			inline std::string GetActiveUniformName(GLuint index) const;
+			inline std::vector<GLint> GetActiveUniforms(GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname) const;
+			inline void GetActiveUniforms(GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params) const;
+			inline bool GetLinkStatus(std::string* error = nullptr) const;
+			inline GLuint GetUniformBlockIndex(const char* uniformBlockName) const;
+			inline GLuint GetUniformBlockIndex(const std::string& uniformBlockName) const;
+			inline GLint GetUniformLocation(const char* uniformName) const;
+			inline GLint GetUniformLocation(const std::string& uniformName) const;
 
 			inline void Link();
+
+			inline void Uniform(GLint uniformLocation, float value) const;
 
 			Program& operator=(const Program&) = delete;
 			Program& operator=(Program&&) noexcept = default;

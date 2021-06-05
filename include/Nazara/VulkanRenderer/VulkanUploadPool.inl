@@ -9,7 +9,8 @@ namespace Nz
 {
 	inline VulkanUploadPool::VulkanUploadPool(Vk::Device& device, UInt64 blockSize) :
 	m_blockSize(blockSize),
-	m_device(device)
+	m_device(device),
+	m_nextAllocationIndex(0)
 	{
 	}
 }

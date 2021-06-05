@@ -32,13 +32,24 @@ namespace Nz
 
 	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
 	{
-		assert(deviceIndex < m_physDevices.size());
-		return Vulkan::SelectDevice(m_physDevices[deviceIndex]);
+		const auto& physDevices = Vulkan::GetPhysicalDevices();
+
+		assert(deviceIndex < physDevices.size());
+		return Vulkan::SelectDevice(physDevices[deviceIndex]);
 	}
 
 	bool VulkanRenderer::Prepare(const ParameterList& parameters)
 	{
-		return Vulkan::Initialize(APIVersion, parameters);
+		if (!Vulkan::Initialize(APIVersion, parameters))
+			return false;
+
+		const auto& physDevices = Vulkan::GetPhysicalDevices();
+
+		m_deviceInfos.reserve(physDevices.size());
+		for (const Vk::PhysicalDevice& physDevice : physDevices)
+			m_deviceInfos.push_back(Vulkan::BuildRenderDeviceInfo(physDevice));
+
+		return true;
 	}
 
 	RenderAPI VulkanRenderer::QueryAPI() const
@@ -59,43 +70,8 @@ namespace Nz
 		return APIVersion;
 	}
 
-	std::vector<RenderDeviceInfo> VulkanRenderer::QueryRenderDevices() const
+	const std::vector<RenderDeviceInfo>& VulkanRenderer::QueryRenderDevices() const
 	{
-		std::vector<RenderDeviceInfo> devices;
-		devices.reserve(m_physDevices.size());
-
-		for (const Vk::PhysicalDevice& physDevice : m_physDevices)
-		{
-			RenderDeviceInfo& device = devices.emplace_back();
-			device.name = physDevice.properties.deviceName;
-
-			switch (physDevice.properties.deviceType)
-			{
-				case VK_PHYSICAL_DEVICE_TYPE_CPU:
-					device.type = RenderDeviceType::Software;
-					break;
-
-				case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-					device.type = RenderDeviceType::Dedicated;
-					break;
-
-				case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-					device.type = RenderDeviceType::Integrated;
-					break;
-
-				case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-					device.type = RenderDeviceType::Virtual;
-					break;
-
-				default:
-					NazaraWarning("Device " + device.name + " has handled device type (0x" + NumberToString(physDevice.properties.deviceType, 16) + ')');
-					// fallthrough
-				case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-					device.type = RenderDeviceType::Unknown;
-					break;
-			}
-		}
-
-		return devices;
+		return m_deviceInfos;
 	}
 }

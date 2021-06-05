@@ -9,11 +9,13 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/SpirvDecoder.hpp>
 #include <string>
+#include <vector>
 
 namespace Nz
 {
-	class NAZARA_SHADER_API SpirvPrinter
+	class NAZARA_SHADER_API SpirvPrinter : SpirvDecoder
 	{
 		public:
 			struct Settings;
@@ -23,7 +25,9 @@ namespace Nz
 			SpirvPrinter(SpirvPrinter&&) = default;
 			~SpirvPrinter() = default;
 
+			inline std::string Print(const std::vector<UInt32>& codepoints);
 			inline std::string Print(const UInt32* codepoints, std::size_t count);
+			inline std::string Print(const std::vector<UInt32>& codepoints, const Settings& settings);
 			std::string Print(const UInt32* codepoints, std::size_t count, const Settings& settings);
 
 			SpirvPrinter& operator=(const SpirvPrinter&) = default;
@@ -36,9 +40,8 @@ namespace Nz
 			};
 
 		private:
-			void AppendInstruction();
-			std::string ReadString();
-			UInt32 ReadWord();
+			bool HandleHeader(const SpirvHeader& header) override;
+			bool HandleOpcode(const SpirvInstruction& instruction, UInt32 wordCount) override;
 
 			struct State;
 

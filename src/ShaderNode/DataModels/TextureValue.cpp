@@ -110,27 +110,16 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Texture"), textureSelection);
 }
 
-Nz::ShaderNodes::ExpressionPtr TextureValue::GetExpression(Nz::ShaderNodes::ExpressionPtr* /*expressions*/, std::size_t count) const
+Nz::ShaderAst::NodePtr TextureValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	if (!m_currentTextureIndex)
 		throw std::runtime_error("invalid texture input");
 
 	assert(count == 0);
+	assert(outputIndex == 0);
 
 	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
-
-	Nz::ShaderNodes::BasicType expression = [&]
-	{
-		switch (textureEntry.type)
-		{
-			case TextureType::Sampler2D: return Nz::ShaderNodes::BasicType::Sampler2D;
-		}
-
-		assert(false);
-		throw std::runtime_error("Unhandled texture type");
-	}();
-
-	return Nz::ShaderBuilder::Identifier(Nz::ShaderBuilder::Uniform(textureEntry.name, expression));
+	return Nz::ShaderBuilder::Identifier(textureEntry.name);
 }
 
 auto TextureValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
@@ -176,6 +165,32 @@ std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port
 	}
 
 	return textureData;
+}
+
+QString TextureValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	assert(portType == QtNodes::PortType::Out);
+
+	if (!m_currentTextureIndex)
+		return QString();
+
+	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
+	return QString::fromStdString(textureEntry.name);
+}
+
+bool TextureValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+{
+	switch (portType)
+	{
+		case QtNodes::PortType::In: return false;
+		case QtNodes::PortType::Out: return m_currentTextureIndex.has_value();
+
+		default:
+			break;
+	}
+
+	assert(false);
+	throw std::runtime_error("Invalid port type");
 }
 
 QtNodes::NodeValidationState TextureValue::validationState() const

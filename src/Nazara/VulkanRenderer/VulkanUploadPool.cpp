@@ -19,8 +19,6 @@ namespace Nz
 
 	auto VulkanUploadPool::Allocate(UInt64 size, UInt64 alignment) -> VulkanAllocation&
 	{
-		assert(size <= m_blockSize);
-
 		// Try to minimize lost space
 		struct
 		{
@@ -32,7 +30,7 @@ namespace Nz
 		for (Block& block : m_blocks)
 		{
 			UInt64 alignedOffset = AlignPow2(block.freeOffset, alignment);
-			if (alignedOffset + size > m_blockSize)
+			if (alignedOffset + size > block.size)
 				continue; //< Not enough space
 
 			UInt64 lostSpace = alignedOffset - block.freeOffset;
@@ -48,31 +46,51 @@ namespace Nz
 		// No block found, allocate a new one
 		if (!bestBlock.block)
 		{
+			// Handle really big allocations (TODO: Handle them separately as they shouldn't be common and can consume a lot of memory)
+			UInt64 blockSize = std::max(m_blockSize, size);
+
 			Block newBlock;
-			if (!newBlock.buffer.Create(m_device, 0U, m_blockSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
-				throw std::runtime_error("Failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
+			newBlock.size = blockSize;
+
+			if (!newBlock.buffer.Create(m_device, 0U, blockSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT))
+				throw std::runtime_error("failed to create block buffer: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			VkMemoryRequirements requirement = newBlock.buffer.GetMemoryRequirements();
 
 			if (!newBlock.blockMemory.Create(m_device, requirement.size, requirement.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
-				throw std::runtime_error("Failed to allocate block memory: " + TranslateVulkanError(newBlock.blockMemory.GetLastErrorCode()));
+				throw std::runtime_error("failed to allocate block memory: " + TranslateVulkanError(newBlock.blockMemory.GetLastErrorCode()));
 
 			if (!newBlock.buffer.BindBufferMemory(newBlock.blockMemory))
-				throw std::runtime_error("Failed to bind buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
+				throw std::runtime_error("failed to bind buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			if (!newBlock.blockMemory.Map())
-				throw std::runtime_error("Failed to map buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
+				throw std::runtime_error("failed to map buffer memory: " + TranslateVulkanError(newBlock.buffer.GetLastErrorCode()));
 
 			bestBlock.block = &m_blocks.emplace_back(std::move(newBlock));
 			bestBlock.alignedOffset = 0;
 			bestBlock.lostSpace = 0;
 		}
 
-		VulkanAllocation& allocationData = m_allocations.emplace_back();
+		// Now find the proper allocation buffer
+		std::size_t allocationBlockIndex = m_nextAllocationIndex / AllocationPerBlock;
+		std::size_t allocationIndex = m_nextAllocationIndex % AllocationPerBlock;
+
+		if (allocationBlockIndex >= m_allocationBlocks.size())
+		{
+			assert(allocationBlockIndex == m_allocationBlocks.size());
+			m_allocationBlocks.emplace_back(std::make_unique<AllocationBlock>());
+		}
+
+		auto& allocationBlock = *m_allocationBlocks[allocationBlockIndex];
+
+		VulkanAllocation& allocationData = allocationBlock[allocationIndex];
 		allocationData.buffer = bestBlock.block->buffer;
 		allocationData.mappedPtr = static_cast<UInt8*>(bestBlock.block->blockMemory.GetMappedPointer()) + bestBlock.alignedOffset;
 		allocationData.offset = bestBlock.alignedOffset;
 		allocationData.size = size;
+
+		bestBlock.block->freeOffset += size;
+		m_nextAllocationIndex++;
 
 		return allocationData;
 	}
@@ -82,6 +100,6 @@ namespace Nz
 		for (Block& block : m_blocks)
 			block.freeOffset = 0;
 
-		m_allocations.clear();
+		m_nextAllocationIndex = 0;
 	}
 }

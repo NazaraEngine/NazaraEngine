@@ -1,0 +1,5 @@
+target("DopplerEffect")
+	set_group("Examples")
+	set_kind("binary")
+	add_deps("NazaraAudio", "NazaraPlatform")
+	add_files("main.cpp")
