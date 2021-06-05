@@ -83,6 +83,7 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.storage = Nz::DataStorage::Software;
+	meshParams.center = true;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
