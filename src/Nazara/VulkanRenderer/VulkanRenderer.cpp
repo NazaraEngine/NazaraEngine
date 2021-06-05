@@ -30,12 +30,12 @@ namespace Nz
 		return std::make_unique<VkRenderWindow>(owner);
 	}
 
-	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex)
+	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
 	{
 		const auto& physDevices = Vulkan::GetPhysicalDevices();
 
 		assert(deviceIndex < physDevices.size());
-		return Vulkan::SelectDevice(physDevices[deviceIndex]);
+		return Vulkan::CreateDevice(physDevices[deviceIndex], enabledFeatures);
 	}
 
 	bool VulkanRenderer::Prepare(const ParameterList& parameters)

@@ -119,12 +119,12 @@ namespace Nz
 		m_commands.emplace_back(EndDebugRegionData{});
 	}
 
-	inline std::size_t Nz::OpenGLCommandBuffer::GetBindingIndex() const
+	inline std::size_t OpenGLCommandBuffer::GetBindingIndex() const
 	{
 		return m_bindingIndex;
 	}
 
-	inline std::size_t Nz::OpenGLCommandBuffer::GetPoolIndex() const
+	inline std::size_t OpenGLCommandBuffer::GetPoolIndex() const
 	{
 		return m_poolIndex;
 	}

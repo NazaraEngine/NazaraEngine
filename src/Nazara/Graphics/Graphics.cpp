@@ -40,7 +40,10 @@ namespace Nz
 			}
 		}
 
-		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex);
+		RenderDeviceFeatures enabledFeatures;
+		enabledFeatures.anisotropicFiltering = renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+
+		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
 

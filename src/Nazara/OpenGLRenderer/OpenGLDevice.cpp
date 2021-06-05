@@ -49,6 +49,14 @@ namespace Nz
 
 		m_deviceInfo.type = RenderDeviceType::Unknown;
 
+		const GL::ContextParams& params = m_referenceContext->GetParams();
+		unsigned int glVersion = params.glMajorVersion * 100 + params.glMinorVersion;
+
+		// Features
+		if ((params.type == GL::ContextType::OpenGL && glVersion >= 460) || m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
+			m_deviceInfo.features.anisotropicFiltering = true;
+
+		// Limits
 		GLint minUboOffsetAlignment;
 		m_referenceContext->glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &minUboOffsetAlignment);
 

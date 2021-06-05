@@ -105,21 +105,73 @@ namespace Nz
 
 	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
-		VulkanDevice& referenceDevice = static_cast<VulkanDevice&>(*m_owner.GetRenderDevice());
+		std::shared_ptr<VulkanDevice> device = std::static_pointer_cast<VulkanDevice>(m_owner.GetRenderDevice());
 
-		const auto& physDeviceInfo = referenceDevice.GetPhysicalDeviceInfo();
+		const auto& physDeviceInfo = device->GetPhysicalDeviceInfo();
 
 		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
 
-		UInt32 graphicsFamilyQueueIndex;
-		UInt32 presentableFamilyQueueIndex;
-		UInt32 transferFamilyQueueIndex;
-		m_device = Vulkan::SelectDevice(physDeviceInfo, vulkanSurface, &graphicsFamilyQueueIndex, &presentableFamilyQueueIndex, &transferFamilyQueueIndex);
-		if (!m_device)
+		const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = device->GetEnabledQueues();
+		UInt32 graphicsFamilyQueueIndex = UINT32_MAX;
+		UInt32 presentableFamilyQueueIndex = UINT32_MAX;
+
+		for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
 		{
-			NazaraError("Failed to get compatible Vulkan device");
+			bool supported = false;
+			if (vulkanSurface.GetSupportPresentation(physDeviceInfo.physDevice, queueInfo.familyIndex, &supported) && supported)
+			{
+				if (presentableFamilyQueueIndex == UINT32_MAX || queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+				{
+					presentableFamilyQueueIndex = queueInfo.familyIndex;
+					if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+					{
+						graphicsFamilyQueueIndex = queueInfo.familyIndex;
+						break;
+					}
+				}
+			}
+		}
+
+		if (presentableFamilyQueueIndex == UINT32_MAX)
+		{
+			NazaraError("device doesn't support presenting to this surface");
 			return false;
 		}
+
+		if (graphicsFamilyQueueIndex == UINT32_MAX)
+		{
+			for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+			{
+				if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+				{
+					graphicsFamilyQueueIndex = queueInfo.familyIndex;
+					break;
+				}
+			}
+		}
+
+		if (graphicsFamilyQueueIndex == UINT32_MAX)
+		{
+			NazaraError("device doesn't support graphics operations");
+			return false;
+		}
+
+		UInt32 transferFamilyQueueIndex = UINT32_MAX;
+		// Search for a transfer queue (first one being different to the graphics one)
+		for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+		{
+			// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
+			if (queueInfo.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+			{
+				transferFamilyQueueIndex = queueInfo.familyIndex;
+				if (transferFamilyQueueIndex != graphicsFamilyQueueIndex)
+					break;
+			}
+		}
+
+		assert(transferFamilyQueueIndex != UINT32_MAX);
+
+		m_device = std::move(device);
 
 		m_graphicsQueue = m_device->GetQueue(graphicsFamilyQueueIndex, 0);
 		m_presentQueue = m_device->GetQueue(presentableFamilyQueueIndex, 0);

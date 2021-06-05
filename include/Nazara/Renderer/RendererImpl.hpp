@@ -37,7 +37,7 @@ namespace Nz
 			virtual std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() = 0;
 			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl(RenderWindow& owner) = 0;
 
-			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex) = 0;
+			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures) = 0;
 
 			virtual RenderAPI QueryAPI() const = 0;
 			virtual std::string QueryAPIString() const = 0;

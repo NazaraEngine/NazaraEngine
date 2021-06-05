@@ -13,6 +13,11 @@
 
 namespace Nz
 {
+	struct RenderDeviceFeatures
+	{
+		bool anisotropicFiltering = false;
+	};
+
 	struct RenderDeviceLimits
 	{
 		UInt64 minUniformBufferOffsetAlignment;
@@ -20,6 +25,7 @@ namespace Nz
 
 	struct RenderDeviceInfo
 	{
+		RenderDeviceFeatures features;
 		RenderDeviceLimits limits;
 		RenderDeviceType type;
 		std::string name;

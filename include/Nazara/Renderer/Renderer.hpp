@@ -34,7 +34,7 @@ namespace Nz
 
 			inline RendererImpl* GetRendererImpl();
 
-			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex);
+			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures = {});
 
 			RenderAPI QueryAPI() const;
 			std::string QueryAPIString() const;
