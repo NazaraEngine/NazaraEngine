@@ -422,7 +422,7 @@ namespace Nz
 
 	Boxf SphereCollider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
 	{
-		Vector3f size(m_radius * NazaraSuffixMacro(M_SQRT3, f) * scale);
+		Vector3f size(m_radius * Sqrt5<float> * scale);
 		Vector3f position(offsetMatrix.GetTranslation());
 
 		return Boxf(position - size, position + size);
@@ -430,7 +430,7 @@ namespace Nz
 
 	float SphereCollider3D::ComputeVolume() const
 	{
-		return float(M_PI) * m_radius * m_radius * m_radius / 3.f;
+		return Pi<float> * m_radius * m_radius * m_radius / 3.f;
 	}
 
 	float SphereCollider3D::GetRadius() const

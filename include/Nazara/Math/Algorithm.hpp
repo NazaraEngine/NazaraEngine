@@ -14,28 +14,14 @@
 #include <limits>
 #include <string>
 
-#ifndef M_PI
-#define M_PI 3.141592653589793238462643
-#endif
-
-#ifndef M_PI_2
-#define M_PI_2  1.5707963267948966192313217
-#endif
-
-#ifndef M_SQRT2
-#define M_SQRT2 1.4142135623730950488016887
-#endif
-
-#ifndef M_SQRT3
-#define M_SQRT3 1.7320508075688772935274463
-#endif
-
-#ifndef M_SQRT5
-#define M_SQRT5 2.23606797749979
-#endif
-
 namespace Nz
 {
+	template<typename T> constexpr T HalfPi = T(1.5707963267948966192313216916398);
+	template<typename T> constexpr T Pi     = T(3.1415926535897932384626433832795);
+	template<typename T> constexpr T Sqrt2  = T(1.4142135623730950488016887242097);
+	template<typename T> constexpr T Sqrt3  = T(1.7320508075688772935274463415059);
+	template<typename T> constexpr T Sqrt5  = T(2.2360679774997896964091736687313);
+
 	template<AngleUnit Unit, typename T> class Angle;
 
 	template<typename T> constexpr T Approach(T value, T objective, T increment);

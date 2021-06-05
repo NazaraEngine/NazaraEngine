@@ -203,7 +203,7 @@ namespace Nz
 	template<typename T>
 	constexpr T DegreeToRadian(T degrees)
 	{
-		return degrees * T(M_PI/180.0);
+		return degrees * T(Pi<T>/180.0);
 	}
 
 	/*!
@@ -578,7 +578,7 @@ namespace Nz
 	template<typename T>
 	constexpr T RadianToDegree(T radians)
 	{
-		return radians * T(180.0/M_PI);
+		return radians * T(180.0/Pi<T>);
 	}
 
 	template<typename T>

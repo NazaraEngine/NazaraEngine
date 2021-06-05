@@ -68,7 +68,7 @@ namespace Nz
 
 			template<typename T> static constexpr T GetLimit()
 			{
-				return T(M_PI);
+				return Pi<T>;
 			}
 
 			template<typename T> static constexpr T FromDegrees(T degrees)
@@ -236,7 +236,7 @@ namespace Nz
 	*
 	* If angle exceeds local limits positively or negatively, bring it back between them.
 	* For degree angles, local limits are [-180, 180]
-	* For radian angles, local limits are [-M_PI, M_PI]
+	* For radian angles, local limits are [-Pi, Pi]
 	*/
 	template<AngleUnit Unit, typename T>
 	constexpr Angle<Unit, T>& Angle<Unit, T>::Normalize()
