@@ -33,6 +33,7 @@ namespace Nz
 						break;
 
 					case FramePassExecution::Skip:
+						renderFrame.PushForRelease(std::move(passData.commandBuffer));
 						passData.commandBuffer.reset();
 						continue; //< Skip the pass
 
