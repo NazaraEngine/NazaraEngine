@@ -5,6 +5,8 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/ModelInstance.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -23,6 +25,25 @@ namespace Nz
 					m_graphicalMesh->GetVertexDeclaration(i)
 				}
 			};
+		}
+	}
+
+	void Model::Draw(CommandBufferBuilder& commandBuffer, ModelInstance& instance) const
+	{
+		commandBuffer.BindShaderBinding(instance.GetShaderBinding());
+
+		for (std::size_t i = 0; i < m_subMeshes.size(); ++i)
+		{
+			const auto& submeshData = m_subMeshes[i];
+			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
+			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
+			const auto& renderPipeline = submeshData.material->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
+
+			commandBuffer.BindIndexBuffer(indexBuffer.get());
+			commandBuffer.BindVertexBuffer(0, vertexBuffer.get());
+			commandBuffer.BindPipeline(*renderPipeline);
+
+			commandBuffer.DrawIndexed(static_cast<Nz::UInt32>(m_graphicalMesh->GetIndexCount(i)));
 		}
 	}
 
@@ -47,5 +68,4 @@ namespace Nz
 	{
 		return m_graphicalMesh->GetVertexBuffer(subMeshIndex);
 	}
-
 }
