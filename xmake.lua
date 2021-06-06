@@ -17,7 +17,8 @@ local modules = {
 		end
 	},
 	Graphics = {
-		Deps = {"NazaraRenderer"}
+		Deps = {"NazaraRenderer"},
+		Packages = {"entt"}
 	},
 	Network = {
 		Deps = {"NazaraCore"},
@@ -77,7 +78,7 @@ local modules = {
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
-		Packages = {"freetype", "stb"}
+		Packages = {"entt", "freetype", "stb"}
 	},
 	VulkanRenderer = {
 		Deps = {"NazaraRenderer"},
@@ -98,7 +99,7 @@ local modules = {
 
 add_repositories("local-repo xmake-repo")
 
-add_requires("chipmunk2d", "dr_wav", "freetype", "libflac", "libsdl", "minimp3", "stb")
+add_requires("chipmunk2d", "dr_wav", "entt", "freetype", "libflac", "libsdl", "minimp3", "stb")
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
