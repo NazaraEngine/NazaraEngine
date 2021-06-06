@@ -21,7 +21,7 @@ namespace Nz
 	{
 		FaceFilling faceFilling = FaceFilling::Fill;
 		FaceSide cullingSide = FaceSide::Back;
-		FrontFace frontFace = FrontFace::Clockwise;
+		FrontFace frontFace = FrontFace::CounterClockwise;
 		RendererComparison depthCompare = RendererComparison::Less;
 		PrimitiveMode primitiveMode = PrimitiveMode::TriangleList;
 

@@ -62,7 +62,7 @@ fn main(input: VertIn) -> VertOut
 
     let output: VertOut;
     output.position = viewerData.projectionMatrix * rotationMat * vec4<f32>(input.position, 1.0);
-    output.uvw = vec3<f32>(input.position.xy * -1.0, input.position.z);
+    output.uvw = input.position.xyz;
 
     return output;
 }

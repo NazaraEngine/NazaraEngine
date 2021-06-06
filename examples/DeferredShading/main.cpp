@@ -84,7 +84,7 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.center = true;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
@@ -116,7 +116,7 @@ int main()
 
 	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
-	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(25.f, 25.f), Nz::Vector2ui(0u), Nz::Matrix4f::Rotate(Nz::EulerAnglesf(180.f, 0.f, 0.f)), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
+	planeMesh->BuildSubMesh(Nz::Primitive::Plane(Nz::Vector2f(25.f, 25.f), Nz::Vector2ui(0u), Nz::Matrix4f::Identity(), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
 	//planeMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
 	planeMesh->SetMaterialCount(1);
 
@@ -225,19 +225,18 @@ int main()
 
 	Nz::ViewerInstance viewerInstance;
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
-	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
+	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 1));
 
 	Nz::ModelInstance modelInstance1(spaceshipMat->GetSettings());
 	spaceshipMat->UpdateShaderBinding(modelInstance1.GetShaderBinding());
-	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
+	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));
 
 	Nz::ModelInstance modelInstance2(spaceshipMat->GetSettings());
 	spaceshipMat->UpdateShaderBinding(modelInstance2.GetShaderBinding());
-	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right() * 3.f));
+	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
 
 	Nz::ModelInstance planeInstance(planeMat->GetSettings());
 	planeMat->UpdateShaderBinding(planeInstance.GetShaderBinding());
-	planeInstance.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 2.f));
 
 	std::shared_ptr<Nz::AbstractBuffer> viewerDataUBO = Nz::Graphics::Instance()->GetViewerDataUBO();
 
@@ -325,10 +324,10 @@ int main()
 	std::random_device rng;
 	std::mt19937 randomEngine(rng());
 	std::uniform_int_distribution<unsigned int> colorDis(0, 255);
-	std::uniform_real_distribution<float> heightDis(1.5f, 1.95f);
+	std::uniform_real_distribution<float> heightDis(0.15f, 1.f);
 	std::uniform_real_distribution<float> posDis(-10.f, 10.f);
 	std::uniform_real_distribution<float> dirDis(-1.f, 1.f);
-	std::uniform_real_distribution<float> dirYDis(0.0f, 0.33f);
+	std::uniform_real_distribution<float> dirYDis(-0.33f, 0.f);
 	std::uniform_real_distribution<float> radiusDis(1.f, 5.f);
 
 	for (std::size_t i = 0; i < 1000; ++i)
@@ -946,9 +945,9 @@ int main()
 	RebuildCommandBuffer();
 
 
-	Nz::Vector3f viewerPos = Nz::Vector3f::Backward() * 10.f + Nz::Vector3f::Up() * -3.f;
+	Nz::Vector3f viewerPos = Nz::Vector3f::Backward() * 10.f + Nz::Vector3f::Up() * 3.f;
 
-	Nz::EulerAnglesf camAngles(30.f, 0.f, 0.f);
+	Nz::EulerAnglesf camAngles(-30.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
 
 	window.EnableEventPolling(true);
@@ -1009,7 +1008,7 @@ int main()
 					camAngles.yaw.Normalize();
 
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
+					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
 					break;
@@ -1040,7 +1039,7 @@ int main()
 				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
-					viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
+					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
 					break;
 				}
 
@@ -1087,59 +1086,56 @@ int main()
 		if (frame.IsFramebufferInvalidated())
 			RebuildCommandBuffer();
 
-		if (lightAnimation || lightUpdate)
+		Nz::UploadPool& uploadPool = frame.GetUploadPool();
+
+		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
-			Nz::UploadPool& uploadPool = frame.GetUploadPool();
-
-			frame.Execute([&](Nz::CommandBufferBuilder& builder)
+			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
 			{
-				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
+				builder.PreTransferBarrier();
+
+				modelInstance1.UpdateBuffers(uploadPool, builder);
+				modelInstance2.UpdateBuffers(uploadPool, builder);
+				planeInstance.UpdateBuffers(uploadPool, builder);
+
+				viewerInstance.UpdateViewBuffer(uploadPool, builder);
+
+				if (!spotLights.empty() && (lightUpdate || lightAnimation))
 				{
-					builder.PreTransferBarrier();
+					auto& lightDataAllocation = uploadPool.Allocate(alignedSpotLightSize * spotLights.size());
+					Nz::UInt8* lightDataPtr = static_cast<Nz::UInt8*>(lightDataAllocation.mappedPtr);
 
-					modelInstance1.UpdateBuffers(uploadPool, builder);
-					modelInstance2.UpdateBuffers(uploadPool, builder);
-					planeInstance.UpdateBuffers(uploadPool, builder);
-
-					viewerInstance.UpdateViewBuffer(uploadPool, builder);
-
-					if (!spotLights.empty() && (lightUpdate || lightAnimation))
+					for (const SpotLight& spotLight : spotLights)
 					{
-						auto& lightDataAllocation = uploadPool.Allocate(alignedSpotLightSize * spotLights.size());
-						Nz::UInt8* lightDataPtr = static_cast<Nz::UInt8*>(lightDataAllocation.mappedPtr);
+						float rotationSpeed = ComputeLightAnimationSpeed(spotLight.position);
 
-						for (const SpotLight& spotLight : spotLights)
-						{
-							float rotationSpeed = ComputeLightAnimationSpeed(spotLight.position);
+						Nz::Vector3f position = AnimateLightPosition(spotLight.position, rotationSpeed, elapsedTime);
+						Nz::Vector3f direction = AnimateLightDirection(spotLight.direction, rotationSpeed, elapsedTime);
 
-							Nz::Vector3f position = AnimateLightPosition(spotLight.position, rotationSpeed, elapsedTime);
-							Nz::Vector3f direction = AnimateLightDirection(spotLight.direction, rotationSpeed, elapsedTime);
+						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
+						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
+						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = direction;
+						Nz::AccessByOffset<float&>(lightDataPtr, radiusOffset) = spotLight.radius;
+						Nz::AccessByOffset<float&>(lightDataPtr, invRadiusOffset) = 1.f / spotLight.radius;
+						Nz::AccessByOffset<float&>(lightDataPtr, innerAngleOffset) = spotLight.innerAngle.GetCos();
+						Nz::AccessByOffset<float&>(lightDataPtr, outerAngleOffset) = spotLight.outerAngle.GetCos();
 
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
-							Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = direction;
-							Nz::AccessByOffset<float&>(lightDataPtr, radiusOffset) = spotLight.radius;
-							Nz::AccessByOffset<float&>(lightDataPtr, invRadiusOffset) = 1.f / spotLight.radius;
-							Nz::AccessByOffset<float&>(lightDataPtr, innerAngleOffset) = spotLight.innerAngle.GetCos();
-							Nz::AccessByOffset<float&>(lightDataPtr, outerAngleOffset) = spotLight.outerAngle.GetCos();
+						float baseRadius = spotLight.radius * spotLight.outerAngle.GetTan() * 1.1f;
+						Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform(position, Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), direction), Nz::Vector3f(baseRadius, baseRadius, spotLight.radius));
+						Nz::AccessByOffset<Nz::Matrix4f&>(lightDataPtr, transformMatrixOffset) = transformMatrix;
 
-							float baseRadius = spotLight.radius * spotLight.outerAngle.GetTan() * 1.1f;
-							Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform(position, Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), direction), Nz::Vector3f(baseRadius, baseRadius, spotLight.radius));
-							Nz::AccessByOffset<Nz::Matrix4f&>(lightDataPtr, transformMatrixOffset) = transformMatrix;
-
-							lightDataPtr += alignedSpotLightSize;
-						}
-
-						builder.CopyBuffer(lightDataAllocation, lightUbo.get());
+						lightDataPtr += alignedSpotLightSize;
 					}
 
-					spaceshipMat->UpdateBuffers(uploadPool, builder);
-
-					builder.PostTransferBarrier();
+					builder.CopyBuffer(lightDataAllocation, lightUbo.get());
 				}
-				builder.EndDebugRegion();
-			}, Nz::QueueType::Transfer);
-		}
+
+				spaceshipMat->UpdateBuffers(uploadPool, builder);
+
+				builder.PostTransferBarrier();
+			}
+			builder.EndDebugRegion();
+		}, Nz::QueueType::Transfer);
 
 		bakedGraph.Execute(frame);
 		frame.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
