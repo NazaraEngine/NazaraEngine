@@ -914,15 +914,14 @@ namespace Nz
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakePerspective(RadianAngle<T> angle, T ratio, T zNear, T zFar)
 	{
-		// https://docs.microsoft.com/fr-fr/windows/win32/direct3d10/d3d10-d3dxmatrixperspectivefovrh
-		angle = RadianAngle<T>(HalfPi<T>) - angle / T(2.0);
+		angle /= T(2.0);
 
 		T yScale = angle.GetTan();
 
-		Set(yScale / ratio, T(0.0),  T(0.0),                          T(0.0),
-		    T(0.0),         yScale,  T(0.0),                          T(0.0),
-		    T(0.0),         T(0.0), zFar / (zNear - zFar),            T(-1.0),
-		    T(0.0),         T(0.0), zNear * zFar / (zNear - zFar),    T(0.0));
+		Set(T(1.0) / (ratio * yScale), T(0.0),              T(0.0),                           T(0.0),
+		    T(0.0),                    T(-1.0) / (yScale),  T(0.0),                           T(0.0),
+		    T(0.0),                    T(0.0),              zFar / (zNear - zFar),            T(-1.0),
+		    T(0.0),                    T(0.0),              -(zNear * zFar) / (zFar - zNear), T(0.0));
 
 		return *this;
 	}

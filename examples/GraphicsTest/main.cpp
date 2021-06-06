@@ -28,13 +28,13 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.storage = Nz::DataStorage::Software;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 180.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Graphics Test";
-	if (!window.Create(device, Nz::VideoMode(800, 600, 32), windowTitle))
+	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		return __LINE__;
@@ -190,7 +190,7 @@ int main()
 					camAngles.yaw.Normalize();
 
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch + event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
+					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
 					
