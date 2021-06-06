@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
@@ -19,13 +20,15 @@ namespace Nz
 	class GraphicalMesh;
 	class Material;
 
-	class NAZARA_GRAPHICS_API Model
+	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
 	{
 		public:
 			Model(std::shared_ptr<GraphicalMesh> graphicalMesh);
 			Model(const Model&) = delete;
 			Model(Model&&) noexcept = default;
 			~Model() = default;
+
+			void Draw(CommandBufferBuilder& commandBuffer, ModelInstance& instance) const override;
 
 			const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;

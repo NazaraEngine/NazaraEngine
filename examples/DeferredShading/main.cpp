@@ -646,31 +646,11 @@ int main()
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 
-			for (Nz::ModelInstance& modelInstance : { std::ref(modelInstance1), std::ref(modelInstance2) })
-			{
-				builder.BindShaderBinding(modelInstance.GetShaderBinding());
-
-				for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
-				{
-					builder.BindIndexBuffer(spaceshipModel.GetIndexBuffer(i).get());
-					builder.BindVertexBuffer(0, spaceshipModel.GetVertexBuffer(i).get());
-					builder.BindPipeline(*spaceshipModel.GetRenderPipeline(i));
-
-					builder.DrawIndexed(static_cast<Nz::UInt32>(spaceshipModel.GetIndexCount(i)));
-				}
-			}
+			spaceshipModel.Draw(builder, modelInstance1);
+			spaceshipModel.Draw(builder, modelInstance2);
 
 			// Plane
-			builder.BindShaderBinding(planeInstance.GetShaderBinding());
-
-			for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
-			{
-				builder.BindIndexBuffer(planeModel.GetIndexBuffer(i).get());
-				builder.BindVertexBuffer(0, planeModel.GetVertexBuffer(i).get());
-				builder.BindPipeline(*planeModel.GetRenderPipeline(i));
-
-				builder.DrawIndexed(static_cast<Nz::UInt32>(planeModel.GetIndexCount(i)));
-			}
+			planeModel.Draw(builder, planeInstance);
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
