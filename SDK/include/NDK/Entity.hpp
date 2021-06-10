@@ -80,6 +80,7 @@ namespace Ndk
 			NazaraSignal(OnEntityDestruction, Entity* /*entity*/);
 			NazaraSignal(OnEntityDisabled, Entity* /*entity*/);
 			NazaraSignal(OnEntityEnabled, Entity* /*entity*/);
+			NazaraSignal(OnEntityKill, Entity* /*entity*/);
 
 		private:
 			Entity(World* world, EntityId id);

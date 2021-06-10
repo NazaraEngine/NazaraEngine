@@ -302,8 +302,11 @@ namespace Ndk
 	*/
 	inline void World::KillEntity(Entity* entity)
 	{
-		if (IsEntityValid(entity))
+		if (IsEntityValid(entity) && !m_killedEntities.front.UnboundedTest(entity->GetId()))
+		{
 			m_killedEntities.front.UnboundedSet(entity->GetId(), true);
+			entity->OnEntityKill(entity);
+		}
 	}
 
 	/*!
