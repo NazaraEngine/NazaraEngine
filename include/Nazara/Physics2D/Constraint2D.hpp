@@ -39,6 +39,7 @@ namespace Nz
 			RigidBody2D& GetBodyB();
 			const RigidBody2D& GetBodyB() const;
 			float GetErrorBias() const;
+			float GetLastImpulse() const;
 			float GetMaxBias() const;
 			float GetMaxForce() const;
 			PhysWorld2D& GetWorld();

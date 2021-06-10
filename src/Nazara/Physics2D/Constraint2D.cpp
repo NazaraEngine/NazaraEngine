@@ -56,6 +56,11 @@ namespace Nz
 		return float(cpConstraintGetErrorBias(m_constraint));
 	}
 
+	float Constraint2D::GetLastImpulse() const
+	{
+		return float(cpConstraintGetImpulse(m_constraint));
+	}
+
 	float Constraint2D::GetMaxBias() const
 	{
 		return float(cpConstraintGetMaxBias(m_constraint));
