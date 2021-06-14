@@ -872,7 +872,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 
 		qDebug() << shaderNode->name() << node->id();
 		if (auto it = variableExpressions.find(BuildKey(node->id(), portIndex)); it != variableExpressions.end())
-			return Nz::ShaderAst::Clone(it->second);
+			return Nz::ShaderAst::Clone(*it->second);
 
 		auto it = usageCount.find(BuildKey(node->id(), portIndex));
 		assert(it != usageCount.end());
@@ -925,7 +925,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 			else
 				varExpression = std::move(expression);
 
-			variableExpressions[BuildKey(node->id(), portIndex)] = Nz::ShaderAst::Clone(varExpression);
+			variableExpressions[BuildKey(node->id(), portIndex)] = Nz::ShaderAst::Clone(*varExpression);
 
 			return varExpression;
 		}

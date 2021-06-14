@@ -30,8 +30,8 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			inline std::string Generate(ShaderAst::StatementPtr& shader, const States& states = {});
-			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::StatementPtr& shader, const States& states = {});
+			inline std::string Generate(ShaderAst::Statement& shader, const States& states = {});
+			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const States& states = {});
 
 			void SetEnv(Environment environment);
 
@@ -45,6 +45,7 @@ namespace Nz
 			};
 
 			static const char* GetFlipYUniformName();
+			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, std::string* error = nullptr);
 
 		private:
 			void Append(const ShaderAst::ExpressionType& type);

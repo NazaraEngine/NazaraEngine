@@ -66,10 +66,10 @@ void CodeOutputWidget::Refresh()
 
 		if (m_optimisationCheckbox->isChecked())
 		{
-			shaderAst = Nz::ShaderAst::Sanitize(shaderAst);
+			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst);
 
 			Nz::ShaderAst::AstOptimizer optimiser;
-			shaderAst = optimiser.Optimise(shaderAst, enabledConditions);
+			shaderAst = optimiser.Optimise(*shaderAst, enabledConditions);
 		}
 
 		Nz::ShaderWriter::States states;
@@ -82,21 +82,21 @@ void CodeOutputWidget::Refresh()
 			case OutputLanguage::GLSL:
 			{
 				Nz::GlslWriter writer;
-				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), shaderAst, states);
+				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderAst, bindingMapping, states);
 				break;
 			}
 
 			case OutputLanguage::Nazalang:
 			{
 				Nz::LangWriter writer;
-				output = writer.Generate(shaderAst, states);
+				output = writer.Generate(*shaderAst, states);
 				break;
 			}
 
 			case OutputLanguage::SpirV:
 			{
 				Nz::SpirvWriter writer;
-				std::vector<std::uint32_t> spirv = writer.Generate(shaderAst, states);
+				std::vector<std::uint32_t> spirv = writer.Generate(*shaderAst, states);
 
 				Nz::SpirvPrinter printer;
 				output = printer.Print(spirv.data(), spirv.size());

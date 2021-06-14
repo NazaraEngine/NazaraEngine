@@ -23,8 +23,8 @@ namespace Nz::ShaderAst
 			AstCloner(AstCloner&&) = delete;
 			~AstCloner() = default;
 
-			ExpressionPtr Clone(const ExpressionPtr& statement);
-			StatementPtr Clone(const StatementPtr& statement);
+			ExpressionPtr Clone(Expression& statement);
+			StatementPtr Clone(Statement& statement);
 
 			AstCloner& operator=(const AstCloner&) = delete;
 			AstCloner& operator=(AstCloner&&) = delete;
@@ -79,8 +79,8 @@ namespace Nz::ShaderAst
 			std::vector<StatementPtr>  m_statementStack;
 	};
 
-	inline ExpressionPtr Clone(ExpressionPtr& node);
-	inline StatementPtr Clone(StatementPtr& node);
+	inline ExpressionPtr Clone(Expression& node);
+	inline StatementPtr Clone(Statement& node);
 }
 
 #include <Nazara/Shader/Ast/AstCloner.inl>

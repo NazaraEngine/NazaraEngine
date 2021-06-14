@@ -23,8 +23,8 @@ namespace Nz::ShaderAst
 			AstOptimizer(AstOptimizer&&) = delete;
 			~AstOptimizer() = default;
 
-			StatementPtr Optimise(const StatementPtr& statement);
-			StatementPtr Optimise(const StatementPtr& statement, UInt64 enabledConditions);
+			StatementPtr Optimise(Statement& statement);
+			StatementPtr Optimise(Statement& statement, UInt64 enabledConditions);
 
 			AstOptimizer& operator=(const AstOptimizer&) = delete;
 			AstOptimizer& operator=(AstOptimizer&&) = delete;
@@ -48,8 +48,8 @@ namespace Nz::ShaderAst
 			std::optional<UInt64> m_enabledOptions;
 	};
 
-	inline StatementPtr Optimize(const StatementPtr& ast);
-	inline StatementPtr Optimize(const StatementPtr& ast, UInt64 enabledConditions);
+	inline StatementPtr Optimize(Statement& ast);
+	inline StatementPtr Optimize(Statement& ast, UInt64 enabledConditions);
 }
 
 #include <Nazara/Shader/Ast/AstOptimizer.inl>

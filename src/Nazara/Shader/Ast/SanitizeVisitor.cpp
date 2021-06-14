@@ -45,7 +45,7 @@ namespace Nz::ShaderAst
 		FunctionData* currentFunction = nullptr;
 	};
 
-	StatementPtr SanitizeVisitor::Sanitize(const StatementPtr& nodePtr, const Options& options, std::string* error)
+	StatementPtr SanitizeVisitor::Sanitize(Statement& statement, const Options& options, std::string* error)
 	{
 		StatementPtr clone;
 
@@ -65,21 +65,21 @@ namespace Nz::ShaderAst
 			RegisterIntrinsic("pow", IntrinsicType::Pow);
 
 			// Collect function name and their types
-			if (nodePtr->GetType() == NodeType::MultiStatement)
+			if (statement.GetType() == NodeType::MultiStatement)
 			{
-				const MultiStatement& multiStatement = static_cast<const MultiStatement&>(*nodePtr);
+				const MultiStatement& multiStatement = static_cast<const MultiStatement&>(statement);
 				for (auto& statementPtr : multiStatement.statements)
 				{
 					if (statementPtr->GetType() == NodeType::DeclareFunctionStatement)
-						DeclareFunction(static_cast<DeclareFunctionStatement*>(statementPtr.get()));
+						DeclareFunction(static_cast<DeclareFunctionStatement&>(*statementPtr));
 				}
 			}
-			else if (nodePtr->GetType() == NodeType::DeclareFunctionStatement)
-				DeclareFunction(static_cast<DeclareFunctionStatement*>(nodePtr.get()));
+			else if (statement.GetType() == NodeType::DeclareFunctionStatement)
+				DeclareFunction(static_cast<DeclareFunctionStatement&>(statement));
 
 			try
 			{
-				clone = AstCloner::Clone(nodePtr);
+				clone = AstCloner::Clone(statement);
 			}
 			catch (const AstError& err)
 			{
@@ -962,11 +962,11 @@ namespace Nz::ShaderAst
 		m_scopeSizes.pop_back();
 	}
 
-	std::size_t SanitizeVisitor::DeclareFunction(DeclareFunctionStatement* funcDecl)
+	std::size_t SanitizeVisitor::DeclareFunction(DeclareFunctionStatement& funcDecl)
 	{
 		std::size_t functionIndex = m_functions.size();
 		auto& funcData = m_functions.emplace_back();
-		funcData.node = funcDecl;
+		funcData.node = &funcDecl;
 
 		return functionIndex;
 	}
@@ -1027,7 +1027,7 @@ namespace Nz::ShaderAst
 			std::move(name),
 			intrinsicIndex,
 			Identifier::Type::Intrinsic
-			});
+		});
 
 		return intrinsicIndex;
 	}
@@ -1044,7 +1044,7 @@ namespace Nz::ShaderAst
 			std::move(name),
 			optionIndex,
 			Identifier::Type::Option
-			});
+		});
 
 		return optionIndex;
 	}
@@ -1079,7 +1079,7 @@ namespace Nz::ShaderAst
 			std::move(name),
 			varIndex,
 			Identifier::Type::Variable
-			});
+		});
 
 		return varIndex;
 	}

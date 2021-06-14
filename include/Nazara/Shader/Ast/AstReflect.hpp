@@ -24,7 +24,7 @@ namespace Nz::ShaderAst
 			AstReflect(AstReflect&&) = delete;
 			~AstReflect() = default;
 
-			void Reflect(const StatementPtr& statement, const Callbacks& callbacks);
+			void Reflect(Statement& statement, const Callbacks& callbacks);
 
 			AstReflect& operator=(const AstReflect&) = delete;
 			AstReflect& operator=(AstReflect&&) = delete;

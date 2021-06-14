@@ -36,7 +36,7 @@ namespace Nz
 			SpirvWriter(SpirvWriter&&) = delete;
 			~SpirvWriter() = default;
 
-			std::vector<UInt32> Generate(ShaderAst::StatementPtr& shader, const States& states = {});
+			std::vector<UInt32> Generate(ShaderAst::Statement& shader, const States& states = {});
 
 			void SetEnv(Environment environment);
 
