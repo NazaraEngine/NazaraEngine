@@ -442,25 +442,23 @@ namespace Nz
 	{
 	}
 
-	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::StatementPtr& shader, const States& states)
+	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::Statement& shader, const States& states)
 	{
-		ShaderAst::StatementPtr* targetAstPtr = &shader;
+		ShaderAst::Statement* targetAst = &shader;
 
 		ShaderAst::StatementPtr sanitizedAst;
 		if (!states.sanitized)
 		{
 			sanitizedAst = ShaderAst::Sanitize(shader);
-			targetAstPtr = &sanitizedAst;
+			targetAst = sanitizedAst.get();
 		}
 
 		ShaderAst::StatementPtr optimizedAst;
 		if (states.optimize)
 		{
-			optimizedAst = ShaderAst::Optimize(*targetAstPtr);
-			targetAstPtr = &optimizedAst;
+			optimizedAst = ShaderAst::Optimize(*targetAst);
+			targetAst = optimizedAst.get();
 		}
-
-		ShaderAst::StatementPtr& targetAst = *targetAstPtr;
 
 		m_context.states = &states;
 

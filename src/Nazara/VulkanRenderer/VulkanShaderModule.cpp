@@ -57,7 +57,7 @@ namespace Nz
 		};
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states)
 	{
 		SpirvWriter::Environment env;
 
@@ -80,7 +80,7 @@ namespace Nz
 			case ShaderLanguage::NazaraBinary:
 			{
 				auto shader = ShaderAst::UnserializeShader(source, sourceSize);
-				return Create(device, shaderStages, shader, {});
+				return Create(device, shaderStages, *shader, {});
 			}
 
 			case ShaderLanguage::NazaraShader:
@@ -89,7 +89,7 @@ namespace Nz
 
 				Nz::ShaderLang::Parser parser;
 				Nz::ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
-				return Create(device, shaderStages, shaderAst, states);
+				return Create(device, shaderStages, *shaderAst, states);
 			}
 
 			case ShaderLanguage::SpirV:

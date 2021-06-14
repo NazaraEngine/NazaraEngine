@@ -531,13 +531,13 @@ namespace Nz::ShaderAst
 #undef EnableOptimisation
 	}
 
-	StatementPtr AstOptimizer::Optimise(const StatementPtr& statement)
+	StatementPtr AstOptimizer::Optimise(Statement& statement)
 	{
 		m_enabledOptions.reset();
 		return CloneStatement(statement);
 	}
 
-	StatementPtr AstOptimizer::Optimise(const StatementPtr& statement, UInt64 enabledConditions)
+	StatementPtr AstOptimizer::Optimise(Statement& statement, UInt64 enabledConditions)
 	{
 		m_enabledOptions = enabledConditions;
 
@@ -751,7 +751,7 @@ namespace Nz::ShaderAst
 				if (statements.empty())
 				{
 					// First condition is true, dismiss the branch
-					return AstCloner::Clone(condStatement.statement);
+					return AstCloner::Clone(*condStatement.statement);
 				}
 				else
 				{
@@ -772,7 +772,7 @@ namespace Nz::ShaderAst
 		{
 			// All conditions have been removed, replace by else statement or no-op
 			if (node.elseStatement)
-				return AstCloner::Clone(node.elseStatement);
+				return AstCloner::Clone(*node.elseStatement);
 			else
 				return ShaderBuilder::NoOp();
 		}
@@ -789,9 +789,9 @@ namespace Nz::ShaderAst
 			return AstCloner::Clone(node);
 
 		if (TestBit<UInt64>(*m_enabledOptions, node.optionIndex))
-			return AstCloner::Clone(node.truePath);
+			return AstCloner::Clone(*node.truePath);
 		else
-			return AstCloner::Clone(node.falsePath);
+			return AstCloner::Clone(*node.falsePath);
 	}
 
 	ExpressionPtr AstOptimizer::Clone(UnaryExpression& node)

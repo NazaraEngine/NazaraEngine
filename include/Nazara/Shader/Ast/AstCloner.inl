@@ -23,13 +23,13 @@ namespace Nz::ShaderAst
 		return CloneStatement(*statement);
 	}
 
-	inline ExpressionPtr Clone(ExpressionPtr& node)
+	inline ExpressionPtr Clone(Expression& node)
 	{
 		AstCloner cloner;
 		return cloner.Clone(node);
 	}
 
-	inline StatementPtr Clone(StatementPtr& node)
+	inline StatementPtr Clone(Statement& node)
 	{
 		AstCloner cloner;
 		return cloner.Clone(node);

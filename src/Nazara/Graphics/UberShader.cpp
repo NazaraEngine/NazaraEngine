@@ -19,7 +19,7 @@ namespace Nz
 		ShaderAst::SanitizeVisitor::Options options;
 		options.removeOptionDeclaration = false;
 
-		m_shaderAst = ShaderAst::Sanitize(shaderAst, options);
+		m_shaderAst = ShaderAst::Sanitize(*shaderAst, options);
 
 		std::size_t optionCount = 0;
 
@@ -31,7 +31,7 @@ namespace Nz
 		};
 
 		ShaderAst::AstReflect reflect;
-		reflect.Reflect(m_shaderAst, callbacks);
+		reflect.Reflect(*m_shaderAst, callbacks);
 
 		if (optionCount >= 64)
 			throw std::runtime_error("Too many conditions");
@@ -61,7 +61,7 @@ namespace Nz
 			states.enabledOptions = combination;
 			states.sanitized = true;
 
-			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStage, m_shaderAst, std::move(states));
+			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStage, *m_shaderAst, std::move(states));
 
 			it = m_combinations.emplace(combination, std::move(stage)).first;
 		}

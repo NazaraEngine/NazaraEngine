@@ -8,17 +8,17 @@
 
 namespace Nz::ShaderAst
 {
-	ExpressionPtr AstCloner::Clone(const ExpressionPtr& expr)
+	ExpressionPtr AstCloner::Clone(Expression& expr)
 	{
-		expr->Visit(*this);
+		expr.Visit(*this);
 
 		assert(m_statementStack.empty() && m_expressionStack.size() == 1);
 		return PopExpression();
 	}
 
-	StatementPtr AstCloner::Clone(const StatementPtr& statement)
+	StatementPtr AstCloner::Clone(Statement& statement)
 	{
-		statement->Visit(*this);
+		statement.Visit(*this);
 
 		assert(m_expressionStack.empty() && m_statementStack.size() == 1);
 		return PopStatement();

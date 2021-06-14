@@ -27,8 +27,8 @@ namespace Nz::ShaderAst
 			SanitizeVisitor(SanitizeVisitor&&) = delete;
 			~SanitizeVisitor() = default;
 
-			inline StatementPtr Sanitize(const StatementPtr& statement, std::string* error = nullptr);
-			StatementPtr Sanitize(const StatementPtr& statement, const Options& options, std::string* error = nullptr);
+			inline StatementPtr Sanitize(Statement& statement, std::string* error = nullptr);
+			StatementPtr Sanitize(Statement& statement, const Options& options, std::string* error = nullptr);
 
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
@@ -80,7 +80,7 @@ namespace Nz::ShaderAst
 			void PushScope();
 			void PopScope();
 
-			std::size_t DeclareFunction(DeclareFunctionStatement* funcDecl);
+			std::size_t DeclareFunction(DeclareFunctionStatement& funcDecl);
 
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
@@ -141,8 +141,8 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr Sanitize(const StatementPtr& ast, std::string* error = nullptr);
-	inline StatementPtr Sanitize(const StatementPtr& ast, const SanitizeVisitor::Options& options, std::string* error = nullptr);
+	inline StatementPtr Sanitize(Statement& ast, std::string* error = nullptr);
+	inline StatementPtr Sanitize(Statement& ast, const SanitizeVisitor::Options& options, std::string* error = nullptr);
 }
 
 #include <Nazara/Shader/Ast/SanitizeVisitor.inl>
