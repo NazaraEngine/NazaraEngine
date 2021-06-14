@@ -47,7 +47,7 @@ void TextureEditor::OnAddTexture()
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
 		TextureInfo outputInfo = dialog->GetTextureInfo();
-		m_shaderGraph.AddTexture(std::move(outputInfo.name), outputInfo.type, outputInfo.bindingIndex);
+		m_shaderGraph.AddTexture(std::move(outputInfo.name), outputInfo.type, outputInfo.setIndex, outputInfo.bindingIndex);
 	});
 
 	dialog->open();
@@ -67,7 +67,7 @@ void TextureEditor::OnEditTexture(int inputIndex)
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{
 		TextureInfo textureInfo = dialog->GetTextureInfo();
-		m_shaderGraph.UpdateTexture(inputIndex, std::move(textureInfo.name), textureInfo.type, textureInfo.bindingIndex);
+		m_shaderGraph.UpdateTexture(inputIndex, std::move(textureInfo.name), textureInfo.type, textureInfo.setIndex, textureInfo.bindingIndex);
 	});
 
 	dialog->open();

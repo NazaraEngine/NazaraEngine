@@ -17,7 +17,7 @@ namespace Nz
 				nullptr,
 				m_handle,
 				1U,
-				& setLayouts
+				&setLayouts
 			};
 
 			VkDescriptorSet handle = VK_NULL_HANDLE;

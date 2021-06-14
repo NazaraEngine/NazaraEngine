@@ -14,6 +14,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <Nazara/Shader/GlslWriter.hpp>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -30,12 +31,10 @@ namespace Nz
 			OpenGLRenderPipelineLayout(OpenGLRenderPipelineLayout&&) = delete;
 			~OpenGLRenderPipelineLayout();
 
-			ShaderBindingPtr AllocateShaderBinding() override;
+			ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) override;
 
+			inline const GlslWriter::BindingMapping& GetBindingMapping() const;
 			inline const RenderPipelineLayoutInfo& GetLayoutInfo() const;
-
-			inline std::size_t GetTextureDescriptorCount() const;
-			inline std::size_t GetUniformBufferDescriptorCount() const;
 
 			OpenGLRenderPipelineLayout& operator=(const OpenGLRenderPipelineLayout&) = delete;
 			OpenGLRenderPipelineLayout& operator=(OpenGLRenderPipelineLayout&&) = delete;
@@ -46,17 +45,15 @@ namespace Nz
 			struct UniformBufferDescriptor;
 
 			DescriptorPool& AllocatePool();
-			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex);
-			TextureDescriptor& GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t textureIndex);
-			UniformBufferDescriptor& GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t uniformBufferIndex);
+			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex, UInt32 setIndex);
+			template<typename F> void ForEachDescriptor(std::size_t poolIndex, std::size_t bindingIndex, F&& functor);
+			TextureDescriptor& GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex);
+			UniformBufferDescriptor& GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex);
 			void Release(ShaderBinding& binding);
 			inline void TryToShrink();
 
-			static constexpr UInt32 InvalidIndex = 0xFFFFFFFF;
-
 			struct TextureDescriptor
 			{
-				UInt32 bindingIndex = InvalidIndex;
 				GLuint texture;
 				GLuint sampler;
 				GL::TextureTarget textureTarget;
@@ -64,25 +61,25 @@ namespace Nz
 
 			struct UniformBufferDescriptor
 			{
-				UInt32 bindingIndex = InvalidIndex;
 				GLuint buffer;
 				GLintptr offset;
 				GLsizeiptr size;
 			};
+
+			using Descriptor = std::variant<std::monostate, TextureDescriptor, UniformBufferDescriptor>;
 
 			struct DescriptorPool
 			{
 				using BindingStorage = std::aligned_storage_t<sizeof(OpenGLShaderBinding), alignof(OpenGLShaderBinding)>;
 
 				Bitset<UInt64> freeBindings;
-				std::vector<TextureDescriptor> textureDescriptor;
-				std::vector<UniformBufferDescriptor> uniformBufferDescriptor;
+				std::vector<Descriptor> descriptors;
 				std::unique_ptr<BindingStorage[]> storage;
 			};
 
-			std::size_t m_textureDescriptorCount;
-			std::size_t m_uniformBufferDescriptorCount;
+			std::size_t m_maxDescriptorCount;
 			std::vector<DescriptorPool> m_descriptorPools;
+			GlslWriter::BindingMapping m_bindingMapping;
 			RenderPipelineLayoutInfo m_layoutInfo;
 	};
 }

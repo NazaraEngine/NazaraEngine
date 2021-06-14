@@ -252,7 +252,8 @@ namespace Nz::ShaderAst
 
 		struct ExternalVar
 		{
-			std::optional<unsigned int> bindingIndex;
+			std::optional<UInt32> bindingIndex;
+			std::optional<UInt32> bindingSet;
 			std::string name;
 			ExpressionType type;
 		};

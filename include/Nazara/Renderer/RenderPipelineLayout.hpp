@@ -21,9 +21,10 @@ namespace Nz
 	{
 		struct Binding
 		{
+			UInt32 setIndex;
+			UInt32 bindingIndex;
 			ShaderBindingType type;
 			ShaderStageTypeFlags shaderStageFlags;
-			unsigned int index;
 		};
 
 		std::vector<Binding> bindings;
@@ -35,7 +36,7 @@ namespace Nz
 			RenderPipelineLayout() = default;
 			virtual ~RenderPipelineLayout();
 
-			virtual ShaderBindingPtr AllocateShaderBinding() = 0;
+			virtual ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) = 0;
 	};
 }
 

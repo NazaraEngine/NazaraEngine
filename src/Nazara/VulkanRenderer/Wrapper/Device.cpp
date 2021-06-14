@@ -6,6 +6,7 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
@@ -23,7 +24,13 @@ namespace Nz
 	{
 		struct Device::InternalData
 		{
+			InternalData(Device& device) :
+			setLayoutCache(device)
+			{
+			}
+
 			std::array<Vk::CommandPool, QueueCount> commandPools;
+			VulkanDescriptorSetLayoutCache setLayoutCache;
 		};
 
 		Device::Device(Instance& instance) :
@@ -131,7 +138,7 @@ namespace Nz
 			for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
 				m_queuesByFamily[familyInfo.familyIndex] = &familyInfo.queues;
 
-			m_internalData = std::make_unique<InternalData>();
+			m_internalData = std::make_unique<InternalData>(*this);
 
 			m_defaultQueues.fill(InvalidQueue);
 			for (QueueType queueType : { QueueType::Graphics, QueueType::Compute, QueueType::Transfer })
@@ -241,6 +248,12 @@ namespace Nz
 				WaitAndDestroyDevice();
 				ResetPointers();
 			}
+		}
+
+		const VulkanDescriptorSetLayoutCache& Device::GetDescriptorSetLayoutCache() const
+		{
+			assert(m_internalData);
+			return m_internalData->setLayoutCache;
 		}
 
 		QueueHandle Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)

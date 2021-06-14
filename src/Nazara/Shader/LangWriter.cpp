@@ -29,7 +29,7 @@ namespace Nz
 
 	struct LangWriter::BindingAttribute
 	{
-		std::optional<unsigned int> bindingIndex;
+		std::optional<UInt32> bindingIndex;
 
 		inline bool HasValue() const { return bindingIndex.has_value(); }
 	};
@@ -71,9 +71,16 @@ namespace Nz
 
 	struct LangWriter::LocationAttribute
 	{
-		std::optional<unsigned int> locationIndex;
+		std::optional<UInt32> locationIndex;
 
 		inline bool HasValue() const { return locationIndex.has_value(); }
+	};
+
+	struct LangWriter::SetAttribute
+	{
+		std::optional<UInt32> setIndex;
+
+		inline bool HasValue() const { return setIndex.has_value(); }
 	};
 
 	struct LangWriter::State
@@ -87,7 +94,7 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string LangWriter::Generate(ShaderAst::StatementPtr& shader, const States& states)
+	std::string LangWriter::Generate(ShaderAst::Statement& shader, const States& states)
 	{
 		State state;
 		m_currentState = &state;
@@ -220,14 +227,37 @@ namespace Nz
 		if (!hasAnyAttribute)
 			return;
 
+		bool first = true;
+
 		Append("[");
-		(AppendAttribute(params), ...);
+		AppendAttributesInternal(first, std::forward<Args>(params)...);
 		Append("]");
 
 		if (appendLine)
 			AppendLine();
 		else
 			Append(" ");
+	}
+
+	template<typename T>
+	void LangWriter::AppendAttributesInternal(bool& first, const T& param)
+	{
+		if (!param.HasValue())
+			return;
+
+		if (!first)
+			Append(", ");
+
+		first = false;
+
+		AppendAttribute(param);
+	}
+
+	template<typename T1, typename T2, typename... Rest>
+	void LangWriter::AppendAttributesInternal(bool& first, const T1& firstParam, const T2& secondParam, Rest&&... params)
+	{
+		AppendAttributesInternal(first, firstParam);
+		AppendAttributesInternal(first, secondParam, std::forward<Rest>(params)...);
 	}
 
 	void LangWriter::AppendAttribute(BindingAttribute binding)
@@ -331,6 +361,14 @@ namespace Nz
 			return;
 
 		Append("location(", *location.locationIndex, ")");
+	}
+
+	void LangWriter::AppendAttribute(SetAttribute set)
+	{
+		if (!set.HasValue())
+			return;
+
+		Append("set(", *set.setIndex, ")");
 	}
 
 	void LangWriter::AppendCommentSection(const std::string& section)
@@ -607,7 +645,7 @@ namespace Nz
 
 			first = false;
 
-			AppendAttributes(false, BindingAttribute{ externalVar.bindingIndex });
+			AppendAttributes(false, SetAttribute{ externalVar.bindingSet }, BindingAttribute{ externalVar.bindingIndex });
 			Append(externalVar.name, ": ", externalVar.type);
 
 			RegisterVariable(varIndex++, externalVar.name);

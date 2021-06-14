@@ -29,12 +29,12 @@ class ShaderGraph
 		ShaderGraph();
 		~ShaderGraph();
 
-		std::size_t AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
+		std::size_t AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex);
 		std::size_t AddCondition(std::string name);
 		std::size_t AddInput(std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
 		std::size_t AddOutput(std::string name, PrimitiveType type, std::size_t locationIndex);
 		std::size_t AddStruct(std::string name, std::vector<StructMemberEntry> members);
-		std::size_t AddTexture(std::string name, TextureType type, std::size_t bindingIndex);
+		std::size_t AddTexture(std::string name, TextureType type, std::size_t setIndex, std::size_t bindingIndex);
 
 		void Clear();
 
@@ -70,18 +70,19 @@ class ShaderGraph
 		Nz::ShaderAst::StatementPtr ToAst() const;
 		Nz::ShaderAst::ExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
-		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex);
+		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex);
 		void UpdateCondition(std::size_t conditionIndex, std::string condition);
 		void UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex);
 		void UpdateOutput(std::size_t outputIndex, std::string name, PrimitiveType type, std::size_t locationIndex);
 		void UpdateStruct(std::size_t structIndex, std::string name, std::vector<StructMemberEntry> members);
-		void UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex);
+		void UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t setIndex, std::size_t bindingIndex);
 		void UpdateTexturePreview(std::size_t texture, QImage preview);
 		void UpdateType(ShaderType type);
 
 		struct BufferEntry
 		{
 			std::size_t bindingIndex;
+			std::size_t setIndex;
 			std::size_t structIndex;
 			std::string name;
 			BufferType type;
@@ -124,6 +125,7 @@ class ShaderGraph
 		struct TextureEntry
 		{
 			std::size_t bindingIndex;
+			std::size_t setIndex;
 			std::string name;
 			TextureType type;
 			QImage preview;

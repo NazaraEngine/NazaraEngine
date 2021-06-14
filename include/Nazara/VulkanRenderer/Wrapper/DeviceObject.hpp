@@ -13,42 +13,39 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 
-namespace Nz 
+namespace Nz::Vk
 {
-	namespace Vk
+	template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+	class DeviceObject
 	{
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		class DeviceObject
-		{
-			public:
-				DeviceObject();
-				DeviceObject(const DeviceObject&) = delete;
-				DeviceObject(DeviceObject&& object) noexcept;
-				~DeviceObject();
+		public:
+			DeviceObject();
+			DeviceObject(const DeviceObject&) = delete;
+			DeviceObject(DeviceObject&& object) noexcept;
+			~DeviceObject();
 
-				bool Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				void Destroy();
+			bool Create(Device& device, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+			void Destroy();
 
-				bool IsValid() const;
+			bool IsValid() const;
 
-				Device* GetDevice() const;
-				VkResult GetLastErrorCode() const;
+			Device* GetDevice() const;
+			VkResult GetLastErrorCode() const;
 
-				void SetDebugName(const char* name);
-				void SetDebugName(const std::string& name);
+			void SetDebugName(const char* name);
+			void SetDebugName(const std::string& name);
 
-				DeviceObject& operator=(const DeviceObject&) = delete;
-				DeviceObject& operator=(DeviceObject&& object) noexcept;
+			DeviceObject& operator=(const DeviceObject&) = delete;
+			DeviceObject& operator=(DeviceObject&& object) noexcept;
 
-				operator VkType() const;
+			operator VkType() const;
 
-			protected:
-				MovablePtr<Device> m_device;
-				VkAllocationCallbacks m_allocator;
-				VkType m_handle;
-				mutable VkResult m_lastErrorCode;
-		};
-	}
+		protected:
+			MovablePtr<Device> m_device;
+			VkAllocationCallbacks m_allocator;
+			VkType m_handle;
+			mutable VkResult m_lastErrorCode;
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.inl>

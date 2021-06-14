@@ -81,6 +81,13 @@ void CodeOutputWidget::Refresh()
 		{
 			case OutputLanguage::GLSL:
 			{
+				Nz::GlslWriter::BindingMapping bindingMapping;
+				for (const auto& buffer : m_shaderGraph.GetBuffers())
+					bindingMapping.emplace(Nz::UInt64(buffer.setIndex) << 32 | Nz::UInt64(buffer.bindingIndex), bindingMapping.size());
+
+				for (const auto& texture : m_shaderGraph.GetTextures())
+					bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), bindingMapping.size());
+
 				Nz::GlslWriter writer;
 				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderAst, bindingMapping, states);
 				break;

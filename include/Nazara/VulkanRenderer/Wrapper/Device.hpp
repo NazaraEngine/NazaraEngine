@@ -23,6 +23,8 @@ VK_DEFINE_HANDLE(VmaAllocation)
 
 namespace Nz 
 {
+	class VulkanDescriptorSetLayoutCache;
+
 	namespace Vk
 	{
 		class AutoCommandBuffer;
@@ -46,18 +48,17 @@ namespace Nz
 				bool Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
+				inline UInt32 GetDefaultFamilyIndex(QueueType queueType) const;
+				const VulkanDescriptorSetLayoutCache& GetDescriptorSetLayoutCache() const;
 				inline const std::vector<QueueFamilyInfo>& GetEnabledQueues() const;
 				inline const QueueList& GetEnabledQueues(UInt32 familyQueue) const;
-
-				QueueHandle GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 				inline Instance& GetInstance();
 				inline const Instance& GetInstance() const;
 				inline VkResult GetLastErrorCode() const;
 				inline VmaAllocator GetMemoryAllocator() const;
 				inline VkPhysicalDevice GetPhysicalDevice() const;
 				inline const Vk::PhysicalDevice& GetPhysicalDeviceInfo() const;
-
-				inline UInt32 GetDefaultFamilyIndex(QueueType queueType) const;
+				QueueHandle GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 
 				inline bool IsExtensionLoaded(const std::string& extensionName);
 				inline bool IsLayerLoaded(const std::string& layerName);
@@ -75,13 +76,6 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 
-				struct QueueInfo
-				{
-					QueueFamilyInfo* familyInfo;
-					VkQueue queue;
-					float priority;
-				};
-
 				struct QueueFamilyInfo
 				{
 					QueueList queues;
@@ -89,6 +83,13 @@ namespace Nz
 					VkQueueFlags flags;
 					UInt32 familyIndex;
 					UInt32 timestampValidBits;
+				};
+
+				struct QueueInfo
+				{
+					QueueFamilyInfo* familyInfo;
+					VkQueue queue;
+					float priority;
 				};
 
 				static constexpr UInt32 InvalidQueue = std::numeric_limits<UInt32>::max();

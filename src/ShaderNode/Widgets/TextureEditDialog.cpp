@@ -20,10 +20,12 @@ QDialog(parent)
 		m_typeList->addItem(EnumToString(static_cast<TextureType>(i)));
 
 	m_bindingIndex = new QSpinBox;
+	m_setIndex = new QSpinBox;
 
 	QFormLayout* formLayout = new QFormLayout;
 	formLayout->addRow(tr("Name"), m_textureName);
 	formLayout->addRow(tr("Type"), m_typeList);
+	formLayout->addRow(tr("Set index"), m_setIndex);
 	formLayout->addRow(tr("Binding index"), m_bindingIndex);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -41,6 +43,7 @@ TextureEditDialog::TextureEditDialog(const TextureInfo& texture, QWidget* parent
 TextureEditDialog(parent)
 {
 	m_bindingIndex->setValue(int(texture.bindingIndex));
+	m_setIndex->setValue(int(texture.setIndex));
 	m_textureName->setText(QString::fromStdString(texture.name));
 	m_typeList->setCurrentText(EnumToString(texture.type));
 }
@@ -50,6 +53,7 @@ TextureInfo TextureEditDialog::GetTextureInfo() const
 	TextureInfo inputInfo;
 	inputInfo.bindingIndex = static_cast<std::size_t>(m_bindingIndex->value());
 	inputInfo.name = m_textureName->text().toStdString();
+	inputInfo.setIndex = static_cast<std::size_t>(m_setIndex->value());
 	inputInfo.type = static_cast<TextureType>(m_typeList->currentIndex());
 
 	return inputInfo;
