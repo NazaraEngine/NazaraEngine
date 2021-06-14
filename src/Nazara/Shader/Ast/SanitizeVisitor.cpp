@@ -41,7 +41,7 @@ namespace Nz::ShaderAst
 		Options options;
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::unordered_set<std::string> declaredExternalVar;
-		std::unordered_set<unsigned int> usedBindingIndexes;
+		std::unordered_set<UInt64> usedBindingIndexes;
 		FunctionData* currentFunction = nullptr;
 	};
 
@@ -704,14 +704,19 @@ namespace Nz::ShaderAst
 
 		for (const auto& extVar : node.externalVars)
 		{
-			if (extVar.bindingIndex)
-			{
-				unsigned int bindingIndex = extVar.bindingIndex.value();
-				if (m_context->usedBindingIndexes.find(bindingIndex) != m_context->usedBindingIndexes.end())
-					throw AstError{ "Binding #" + std::to_string(bindingIndex) + " is already in use" };
+			if (!extVar.bindingIndex)
+				throw AstError{ "external variable " + extVar.name + " requires a binding index" };
 
-				m_context->usedBindingIndexes.insert(bindingIndex);
-			}
+			if (!extVar.bindingSet)
+				throw AstError{ "external variable " + extVar.name + " requires a binding set" };
+
+			UInt64 bindingIndex = *extVar.bindingIndex;
+			UInt64 bindingSet = *extVar.bindingSet;
+			UInt64 bindingKey = bindingSet << 32 | bindingIndex;
+			if (m_context->usedBindingIndexes.find(bindingKey) != m_context->usedBindingIndexes.end())
+				throw AstError{ "Binding (set=" + std::to_string(bindingSet) + ", binding=" + std::to_string(bindingIndex) + ") is already in use" };
+
+			m_context->usedBindingIndexes.insert(bindingKey);
 
 			if (m_context->declaredExternalVar.find(extVar.name) != m_context->declaredExternalVar.end())
 				throw AstError{ "External variable " + extVar.name + " is already declared" };

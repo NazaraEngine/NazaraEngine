@@ -44,6 +44,7 @@ namespace Nz
 			struct EntryAttribute;
 			struct LayoutAttribute;
 			struct LocationAttribute;
+			struct SetAttribute;
 
 			void Append(const ShaderAst::ExpressionType& type);
 			void Append(const ShaderAst::IdentifierType& identifierType);
@@ -57,6 +58,8 @@ namespace Nz
 			template<typename T> void Append(const T& param);
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			template<typename... Args> void AppendAttributes(bool appendLine, Args&&... params);
+			template<typename T> void AppendAttributesInternal(bool& first, const T& param);
+			template<typename T1, typename T2, typename... Rest> void AppendAttributesInternal(bool& first, const T1& firstParam, const T2& secondParam, Rest&&... params);
 			void AppendAttribute(BindingAttribute binding);
 			void AppendAttribute(BuiltinAttribute builtin);
 			void AppendAttribute(DepthWriteAttribute depthWrite);
@@ -64,6 +67,7 @@ namespace Nz
 			void AppendAttribute(EntryAttribute entry);
 			void AppendAttribute(LayoutAttribute layout);
 			void AppendAttribute(LocationAttribute location);
+			void AppendAttribute(SetAttribute location);
 			void AppendCommentSection(const std::string& section);
 			void AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers);
 			void AppendHeader();

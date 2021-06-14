@@ -22,6 +22,7 @@ namespace Nz
 	class NAZARA_SHADER_API GlslWriter : public ShaderWriter, public ShaderAst::ExpressionVisitorExcept, public ShaderAst::StatementVisitorExcept
 	{
 		public:
+			using BindingMapping = std::unordered_map<UInt64 /* set | binding */, unsigned /*glBinding*/>;
 			struct Environment;
 			using ExtSupportCallback = std::function<bool(const std::string_view& name)>;
 
@@ -30,8 +31,8 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			inline std::string Generate(ShaderAst::Statement& shader, const States& states = {});
-			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const States& states = {});
+			inline std::string Generate(ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states = {});
+			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states = {});
 
 			void SetEnv(Environment environment);
 

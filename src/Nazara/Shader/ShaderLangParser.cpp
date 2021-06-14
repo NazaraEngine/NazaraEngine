@@ -35,6 +35,7 @@ namespace Nz::ShaderLang
 			{ "layout",               ShaderAst::AttributeType::Layout },
 			{ "location",             ShaderAst::AttributeType::Location },
 			{ "opt",                  ShaderAst::AttributeType::Option },
+			{ "set",                  ShaderAst::AttributeType::Set },
 		};
 
 		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
@@ -379,8 +380,31 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes)
 	{
-		if (!attributes.empty())
-			throw AttributeError{ "unhandled attribute for external block" };
+		std::optional<UInt32> blockSetIndex;
+		for (const auto& [attributeType, arg] : attributes)
+		{
+			switch (attributeType)
+			{
+				case ShaderAst::AttributeType::Set:
+				{
+					if (blockSetIndex)
+						throw AttributeError{ "attribute set must be present once" };
+
+					if (!std::holds_alternative<long long>(arg))
+						throw AttributeError{ "attribute set requires a string parameter" };
+
+					std::optional<UInt32> bindingIndex = BoundCast<UInt32>(std::get<long long>(arg));
+					if (!bindingIndex)
+						throw AttributeError{ "invalid set index" };
+
+					blockSetIndex = bindingIndex.value();
+					break;
+				}
+
+				default:
+					throw AttributeError{ "unhandled attribute for external block" };
+			}
+		}
 
 		Expect(Advance(), TokenType::External);
 		Expect(Advance(), TokenType::OpenCurlyBracket);
@@ -424,11 +448,27 @@ namespace Nz::ShaderLang
 							if (!std::holds_alternative<long long>(arg))
 								throw AttributeError{ "attribute binding requires a string parameter" };
 
-							std::optional<unsigned int> bindingIndex = BoundCast<unsigned int>(std::get<long long>(arg));
+							std::optional<UInt32> bindingIndex = BoundCast<UInt32>(std::get<long long>(arg));
 							if (!bindingIndex)
 								throw AttributeError{ "invalid binding index" };
 
 							extVar.bindingIndex = bindingIndex.value();
+							break;
+						}
+
+						case ShaderAst::AttributeType::Set:
+						{
+							if (extVar.bindingSet)
+								throw AttributeError{ "attribute set must be present once" };
+
+							if (!std::holds_alternative<long long>(arg))
+								throw AttributeError{ "attribute set requires a string parameter" };
+
+							std::optional<UInt32> bindingIndex = BoundCast<UInt32>(std::get<long long>(arg));
+							if (!bindingIndex)
+								throw AttributeError{ "invalid set index" };
+
+							extVar.bindingSet = bindingIndex.value();
 							break;
 						}
 
@@ -441,6 +481,9 @@ namespace Nz::ShaderLang
 			extVar.name = ParseIdentifierAsName();
 			Expect(Advance(), TokenType::Colon);
 			extVar.type = ParseType();
+
+			if (!extVar.bindingSet)
+				extVar.bindingSet = blockSetIndex.value_or(0);
 
 			RegisterVariable(extVar.name);
 		}
@@ -704,7 +747,7 @@ namespace Nz::ShaderLang
 							if (structField.locationIndex)
 								throw AttributeError{ "attribute location must be present once" };
 
-							structField.locationIndex = BoundCast<unsigned int>(std::get<long long>(attributeParam));
+							structField.locationIndex = BoundCast<UInt32>(std::get<long long>(attributeParam));
 							if (!structField.locationIndex)
 								throw AttributeError{ "invalid location index" };
 

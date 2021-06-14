@@ -14,6 +14,7 @@ class ShaderGraph;
 struct BufferInfo
 {
 	std::size_t bindingIndex;
+	std::size_t setIndex;
 	std::size_t structIndex;
 	std::string name;
 	BufferType type;
@@ -36,6 +37,7 @@ class BufferEditDialog : public QDialog
 		QComboBox* m_structList;
 		QLineEdit* m_outputName;
 		QSpinBox* m_bindingIndex;
+		QSpinBox* m_setIndex;
 };
 
 #include <ShaderNode/Widgets/BufferEditDialog.inl>

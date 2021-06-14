@@ -14,6 +14,7 @@
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -49,6 +50,22 @@ namespace Nz
 			{
 				if (TestBit<UInt64>(enabledOptions, node.optionIndex))
 					node.statement->Visit(*this);
+			}
+
+			void Visit(ShaderAst::DeclareExternalStatement& node) override
+			{
+				AstRecursiveVisitor::Visit(node);
+
+				for (auto& extVar : node.externalVars)
+				{
+					assert(extVar.bindingIndex);
+					assert(extVar.bindingSet);
+
+					UInt64 set = *extVar.bindingSet;
+					UInt64 binding = *extVar.bindingIndex;
+
+					bindings.insert(set << 32 | binding);
+				}
 			}
 
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override
@@ -96,6 +113,7 @@ namespace Nz
 
 			FunctionData* currentFunction = nullptr;
 
+			std::set<UInt64 /*set | binding*/> bindings;
 			std::optional<ShaderStageType> selectedStage;
 			std::unordered_map<std::size_t, FunctionData> functions;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
@@ -118,6 +136,11 @@ namespace Nz
 
 	struct GlslWriter::State
 	{
+		State(const GlslWriter::BindingMapping& bindings) :
+		bindingMapping(bindings)
+		{
+		}
+
 		struct InOutField
 		{
 			std::string memberName;
@@ -131,6 +154,7 @@ namespace Nz
 		std::vector<InOutField> inputFields;
 		std::vector<InOutField> outputFields;
 		Bitset<> declaredFunctions;
+		const GlslWriter::BindingMapping& bindingMapping;
 		PreVisitor previsitor;
 		const States* states = nullptr;
 		UInt64 enabledOptions = 0;
@@ -138,9 +162,9 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const States& states)
+	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states)
 	{
-		State state;
+		State state(bindingMapping);
 		state.enabledOptions = states.enabledOptions;
 		state.stage = shaderStage;
 
@@ -254,7 +278,7 @@ namespace Nz
 		{
 			case ShaderAst::PrimitiveType::Boolean: return Append("bool");
 			case ShaderAst::PrimitiveType::Float32: return Append("float");
-			case ShaderAst::PrimitiveType::Int32:   return Append("ivec2");
+			case ShaderAst::PrimitiveType::Int32:   return Append("int");
 			case ShaderAst::PrimitiveType::UInt32:  return Append("uint");
 		}
 	}
@@ -521,7 +545,7 @@ namespace Nz
 	{
 		if (node.entryStage == ShaderStageType::Fragment && node.earlyFragmentTests && *node.earlyFragmentTests)
 		{
-			if ((m_environment.glES && m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1) || (!m_environment.glES && m_environment.glMajorVersion >= 4 && m_environment.glMinorVersion >= 2) || m_environment.extCallback("GL_ARB_shader_image_load_store"))
+			if ((m_environment.glES && m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1) || (!m_environment.glES && m_environment.glMajorVersion >= 4 && m_environment.glMinorVersion >= 2) || (m_environment.extCallback && m_environment.extCallback("GL_ARB_shader_image_load_store")))
 			{
 				AppendLine("layout(early_fragment_tests) in;");
 				AppendLine();
@@ -843,54 +867,60 @@ namespace Nz
 				isStd140 = structInfo.layout == StructLayout::Std140;
 			}
 
-			if (externalVar.bindingIndex)
+			assert(externalVar.bindingIndex);
+			assert(externalVar.bindingSet);
+
+			UInt64 bindingIndex = *externalVar.bindingIndex;
+			UInt64 bindingSet = *externalVar.bindingSet;
+
+			auto bindingIt = m_currentState->bindingMapping.find(bindingSet << 32 | bindingIndex);
+			if (bindingIt == m_currentState->bindingMapping.end())
+				throw std::runtime_error("no binding found for (set=" + std::to_string(bindingSet) + ", binding=" + std::to_string(bindingIndex) + ")");
+
+			Append("layout(binding = ", bindingIt->second);
+			if (isStd140)
+				Append(", std140");
+
+			Append(") uniform ");
+
+			if (IsUniformType(externalVar.type))
 			{
-				Append("layout(binding = ");
-				Append(*externalVar.bindingIndex);
-				if (isStd140)
-					Append(", std140");
+				Append("_NzBinding_");
+				AppendLine(externalVar.name);
 
-				Append(") uniform ");
-
-				if (IsUniformType(externalVar.type))
+				EnterScope();
 				{
-					Append("_NzBinding_");
-					AppendLine(externalVar.name);
+					auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type);
+					assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
 
-					EnterScope();
+					std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
+					auto& structDesc = Retrieve(m_currentState->structs, structIndex);
+
+					bool first = true;
+					for (const auto& member : structDesc.members)
 					{
-						auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type);
-						assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
+						if (!first)
+							AppendLine();
 
-						std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
-						auto& structDesc = Retrieve(m_currentState->structs, structIndex);
+						first = false;
 
-						bool first = true;
-						for (const auto& member : structDesc.members)
-						{
-							if (!first)
-								AppendLine();
-
-							first = false;
-
-							Append(member.type);
-							Append(" ");
-							Append(member.name);
-							Append(";");
-						}
+						Append(member.type);
+						Append(" ");
+						Append(member.name);
+						Append(";");
 					}
-					LeaveScope(false);
 				}
-				else
-					Append(externalVar.type);
-
-				Append(" ");
-				Append(externalVar.name);
-				AppendLine(";");
-
-				if (IsUniformType(externalVar.type))
-					AppendLine();
+				LeaveScope(false);
 			}
+			else
+				Append(externalVar.type);
+
+			Append(" ");
+			Append(externalVar.name);
+			AppendLine(";");
+
+			if (IsUniformType(externalVar.type))
+				AppendLine();
 
 			RegisterVariable(varIndex++, externalVar.name);
 		}

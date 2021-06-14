@@ -6,6 +6,7 @@
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
@@ -242,7 +243,10 @@ namespace Nz
 	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
 	{
 		states.pipeline->Apply(context, states.shouldFlipY);
-		states.shaderBindings->Apply(context);
+
+		unsigned int setIndex = 0;
+		for (const auto& [pipelineLayout, shaderBinding] : states.shaderBindings)
+			shaderBinding->Apply(*pipelineLayout, setIndex++, context);
 
 		if (states.scissorRegion)
 			context.SetScissorBox(states.scissorRegion->x, states.scissorRegion->y, states.scissorRegion->width, states.scissorRegion->height);

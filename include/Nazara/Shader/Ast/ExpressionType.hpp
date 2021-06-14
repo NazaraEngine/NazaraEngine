@@ -83,7 +83,7 @@ namespace Nz::ShaderAst
 		struct StructMember
 		{
 			std::optional<BuiltinEntry> builtin;
-			std::optional<unsigned int> locationIndex;
+			std::optional<UInt32> locationIndex;
 			std::string name;
 			ExpressionType type;
 		};

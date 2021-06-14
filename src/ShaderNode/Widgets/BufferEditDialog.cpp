@@ -26,11 +26,13 @@ m_shaderGraph(shaderGraph)
 		m_structList->addItem(QString::fromStdString(structEntry.name));
 
 	m_bindingIndex = new QSpinBox;
+	m_setIndex = new QSpinBox;
 
 	QFormLayout* formLayout = new QFormLayout;
 	formLayout->addRow(tr("Name"), m_outputName);
 	formLayout->addRow(tr("Type"), m_typeList);
 	formLayout->addRow(tr("Struct"), m_structList);
+	formLayout->addRow(tr("Set index"), m_setIndex);
 	formLayout->addRow(tr("Binding index"), m_bindingIndex);
 
 	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -48,6 +50,7 @@ BufferEditDialog::BufferEditDialog(const ShaderGraph& shaderGraph, const BufferI
 BufferEditDialog(shaderGraph, parent)
 {
 	m_bindingIndex->setValue(int(buffer.bindingIndex));
+	m_setIndex->setValue(int(buffer.setIndex));
 	m_outputName->setText(QString::fromStdString(buffer.name));
 	m_structList->setCurrentIndex(buffer.structIndex);
 	m_typeList->setCurrentIndex(int(buffer.type));
@@ -58,6 +61,7 @@ BufferInfo BufferEditDialog::GetBufferInfo() const
 	BufferInfo bufferInfo;
 	bufferInfo.bindingIndex = static_cast<std::size_t>(m_bindingIndex->value());
 	bufferInfo.name = m_outputName->text().toStdString();
+	bufferInfo.setIndex = static_cast<std::size_t>(m_setIndex->value());
 	bufferInfo.structIndex = m_structList->currentIndex();
 	bufferInfo.type = static_cast<BufferType>(m_typeList->currentIndex());
 

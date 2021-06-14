@@ -7,10 +7,6 @@
 
 namespace Nz
 {
-	inline auto OpenGLShaderModule::GetShaders() const -> const std::vector<Shader>&
-	{
-		return m_shaders;
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

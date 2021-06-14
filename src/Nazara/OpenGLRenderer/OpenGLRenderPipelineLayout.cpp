@@ -14,25 +14,17 @@
 namespace Nz
 {
 	OpenGLRenderPipelineLayout::OpenGLRenderPipelineLayout(RenderPipelineLayoutInfo layoutInfo) :
-	m_textureDescriptorCount(0),
-	m_uniformBufferDescriptorCount(0),
+	m_maxDescriptorCount(0),
 	m_layoutInfo(std::move(layoutInfo))
 	{
-		for (const auto& bindingInfo : m_layoutInfo.bindings)
+		// Build binding mapping (vulkan-like set | binding => GL binding) and register max descriptor count
+		unsigned int bindingIndex = 0;
+		for (const auto& binding : m_layoutInfo.bindings)
 		{
-			switch (bindingInfo.type)
-			{
-				case ShaderBindingType::Texture:
-					m_textureDescriptorCount++;
-					break;
+			UInt64 bindingKey = UInt64(binding.setIndex) << 32 | UInt64(binding.bindingIndex);
 
-				case ShaderBindingType::UniformBuffer:
-					m_uniformBufferDescriptorCount++;
-					break;
-
-				default:
-					throw std::runtime_error("unknown binding type 0x" + NumberToString(UnderlyingCast(bindingInfo.type), 16));
-			}
+			m_bindingMapping[bindingKey] = bindingIndex++;
+			m_maxDescriptorCount = std::max<std::size_t>(m_maxDescriptorCount, binding.bindingIndex + 1);
 		}
 	}
 
@@ -45,11 +37,11 @@ namespace Nz
 		}
 	}
 
-	ShaderBindingPtr OpenGLRenderPipelineLayout::AllocateShaderBinding()
+	ShaderBindingPtr OpenGLRenderPipelineLayout::AllocateShaderBinding(UInt32 setIndex)
 	{
 		for (std::size_t i = 0; i < m_descriptorPools.size(); ++i)
 		{
-			ShaderBindingPtr bindingPtr = AllocateFromPool(i);
+			ShaderBindingPtr bindingPtr = AllocateFromPool(i, setIndex);
 			if (!bindingPtr)
 				continue;
 
@@ -60,7 +52,7 @@ namespace Nz
 		std::size_t newPoolIndex = m_descriptorPools.size();
 		AllocatePool();
 
-		ShaderBindingPtr bindingPtr = AllocateFromPool(newPoolIndex);
+		ShaderBindingPtr bindingPtr = AllocateFromPool(newPoolIndex, setIndex);
 		if (!bindingPtr)
 			throw std::runtime_error("Failed to allocate shader binding");
 
@@ -74,14 +66,15 @@ namespace Nz
 		DescriptorPool pool;
 		pool.freeBindings.Resize(MaxSet, true);
 		pool.storage = std::make_unique<DescriptorPool::BindingStorage[]>(MaxSet);
-		pool.textureDescriptor.resize(m_textureDescriptorCount * MaxSet);
-		pool.uniformBufferDescriptor.resize(m_uniformBufferDescriptorCount * MaxSet);
+		pool.descriptors.resize(m_maxDescriptorCount * MaxSet);
 
 		return m_descriptorPools.emplace_back(std::move(pool));
 	}
 
-	ShaderBindingPtr OpenGLRenderPipelineLayout::AllocateFromPool(std::size_t poolIndex)
+	ShaderBindingPtr OpenGLRenderPipelineLayout::AllocateFromPool(std::size_t poolIndex, UInt32 /*setIndex*/)
 	{
+		//FIXME: Make use of set index to use less memory
+
 		auto& pool = m_descriptorPools[poolIndex];
 
 		std::size_t freeBindingId = pool.freeBindings.FindFirst();
@@ -94,24 +87,24 @@ namespace Nz
 		return ShaderBindingPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId));
 	}
 
-	auto OpenGLRenderPipelineLayout::GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t textureIndex) -> TextureDescriptor&
+	auto OpenGLRenderPipelineLayout::GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex) -> TextureDescriptor&
 	{
 		assert(poolIndex < m_descriptorPools.size());
 		auto& pool = m_descriptorPools[poolIndex];
 		assert(!pool.freeBindings.Test(bindingIndex));
-		assert(textureIndex < m_textureDescriptorCount);
+		assert(descriptorIndex < m_maxDescriptorCount);
 
-		return pool.textureDescriptor[bindingIndex * m_textureDescriptorCount + textureIndex];
+		return pool.descriptors[bindingIndex * m_maxDescriptorCount + descriptorIndex].emplace<TextureDescriptor>();
 	}
 
-	auto OpenGLRenderPipelineLayout::GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t uniformBufferIndex) -> UniformBufferDescriptor&
+	auto OpenGLRenderPipelineLayout::GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex) -> UniformBufferDescriptor&
 	{
 		assert(poolIndex < m_descriptorPools.size());
 		auto& pool = m_descriptorPools[poolIndex];
 		assert(!pool.freeBindings.Test(bindingIndex));
-		assert(uniformBufferIndex < m_uniformBufferDescriptorCount);
+		assert(descriptorIndex < m_maxDescriptorCount);
 
-		return pool.uniformBufferDescriptor[bindingIndex * m_uniformBufferDescriptorCount + uniformBufferIndex];
+		return pool.descriptors[bindingIndex * m_maxDescriptorCount + descriptorIndex].emplace<UniformBufferDescriptor>();
 	}
 
 	void OpenGLRenderPipelineLayout::Release(ShaderBinding& binding)

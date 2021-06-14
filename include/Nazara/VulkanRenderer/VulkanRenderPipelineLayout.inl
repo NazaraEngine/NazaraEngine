@@ -12,11 +12,6 @@ namespace Nz
 		return m_device.Get();
 	}
 
-	inline const Vk::DescriptorSetLayout& VulkanRenderPipelineLayout::GetDescriptorSetLayout() const
-	{
-		return m_descriptorSetLayout;
-	}
-
 	inline const Vk::PipelineLayout& VulkanRenderPipelineLayout::GetPipelineLayout() const
 	{
 		return m_pipelineLayout;
