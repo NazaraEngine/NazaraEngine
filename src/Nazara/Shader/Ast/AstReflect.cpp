@@ -8,12 +8,10 @@
 
 namespace Nz::ShaderAst
 {
-	void AstReflect::Reflect(const StatementPtr& statement, const Callbacks& callbacks)
+	void AstReflect::Reflect(Statement& statement, const Callbacks& callbacks)
 	{
-		assert(statement);
-
 		m_callbacks = &callbacks;
-		statement->Visit(*this);
+		statement.Visit(*this);
 	}
 
 	void AstReflect::Visit(DeclareOptionStatement& node)

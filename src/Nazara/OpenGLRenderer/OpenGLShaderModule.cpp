@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states)
+	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states) :
 	{
 		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
 		Create(device, shaderStages, shaderAst, states);
@@ -57,7 +57,7 @@ namespace Nz
 			case ShaderLanguage::NazaraBinary:
 			{
 				auto shader = ShaderAst::UnserializeShader(source, sourceSize);
-				Create(device, shaderStages, shader, {});
+				Create(device, shaderStages, *shader, states);
 				break;
 			}
 
@@ -67,7 +67,7 @@ namespace Nz
 
 				Nz::ShaderLang::Parser parser;
 				Nz::ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
-				Create(device, shaderStages, shaderAst, states);
+				Create(device, shaderStages, *shaderAst, states);
 				break;
 			}
 
