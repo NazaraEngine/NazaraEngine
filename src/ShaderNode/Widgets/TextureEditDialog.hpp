@@ -13,6 +13,7 @@ class QSpinBox;
 struct TextureInfo
 {
 	std::size_t bindingIndex;
+	std::size_t setIndex;
 	std::string name;
 	TextureType type;
 };
@@ -32,6 +33,7 @@ class TextureEditDialog : public QDialog
 		QComboBox* m_typeList;
 		QLineEdit* m_textureName;
 		QSpinBox* m_bindingIndex;
+		QSpinBox* m_setIndex;
 };
 
 #include <ShaderNode/Widgets/TextureEditDialog.inl>

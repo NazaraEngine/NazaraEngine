@@ -44,9 +44,12 @@ namespace Nz
 		m_currentStates.pipeline = pipeline;
 	}
 
-	inline void OpenGLCommandBuffer::BindShaderBinding(const OpenGLShaderBinding* binding)
+	inline void OpenGLCommandBuffer::BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
 	{
-		m_currentStates.shaderBindings = binding;
+		if (set >= m_currentStates.shaderBindings.size())
+			m_currentStates.shaderBindings.resize(set + 1);
+
+		m_currentStates.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
 	}
 
 	inline void OpenGLCommandBuffer::BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset)

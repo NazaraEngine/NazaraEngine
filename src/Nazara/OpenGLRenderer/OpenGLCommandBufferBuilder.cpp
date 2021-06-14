@@ -38,11 +38,19 @@ namespace Nz
 		m_commandBuffer.BindPipeline(&glPipeline);
 	}
 
-	void OpenGLCommandBufferBuilder::BindShaderBinding(const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindShaderBinding(UInt32 set, const ShaderBinding& binding)
 	{
 		const OpenGLShaderBinding& glBinding = static_cast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindShaderBinding(&glBinding);
+		m_commandBuffer.BindShaderBinding(glBinding.GetOwner(), set, &glBinding);
+	}
+
+	void OpenGLCommandBufferBuilder::BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	{
+		const OpenGLRenderPipelineLayout& glPipelineLayout = static_cast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
+		const OpenGLShaderBinding& glBinding = static_cast<const OpenGLShaderBinding&>(binding);
+
+		m_commandBuffer.BindShaderBinding(glPipelineLayout, set, &glBinding);
 	}
 
 	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset)

@@ -7,19 +7,32 @@
 
 namespace Nz
 {
+	inline const GlslWriter::BindingMapping& OpenGLRenderPipelineLayout::GetBindingMapping() const
+	{
+		return m_bindingMapping;
+	}
+
 	inline const RenderPipelineLayoutInfo& OpenGLRenderPipelineLayout::GetLayoutInfo() const
 	{
 		return m_layoutInfo;
 	}
 
-	inline std::size_t OpenGLRenderPipelineLayout::GetTextureDescriptorCount() const
+	template<typename F>
+	void OpenGLRenderPipelineLayout::ForEachDescriptor(std::size_t poolIndex, std::size_t bindingIndex, F&& functor)
 	{
-		return m_textureDescriptorCount;
-	}
+		assert(poolIndex < m_descriptorPools.size());
+		auto& pool = m_descriptorPools[poolIndex];
+		assert(!pool.freeBindings.Test(bindingIndex));
 
-	inline std::size_t OpenGLRenderPipelineLayout::GetUniformBufferDescriptorCount() const
-	{
-		return m_uniformBufferDescriptorCount;
+		for (std::size_t descriptorIndex = 0; descriptorIndex < m_maxDescriptorCount; ++descriptorIndex)
+		{
+			std::visit([&](auto&& arg)
+			{
+				if constexpr (!std::is_same_v<std::decay_t<decltype(arg)>, std::monostate>)
+					functor(UInt32(descriptorIndex), arg);
+			},
+			pool.descriptors[bindingIndex * m_maxDescriptorCount + descriptorIndex]);
+		}
 	}
 
 	inline void OpenGLRenderPipelineLayout::TryToShrink()

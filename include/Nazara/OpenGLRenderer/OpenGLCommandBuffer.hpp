@@ -39,7 +39,7 @@ namespace Nz
 
 			inline void BindIndexBuffer(GLuint indexBuffer, UInt64 offset = 0);
 			inline void BindPipeline(const OpenGLRenderPipeline* pipeline);
-			inline void BindShaderBinding(const OpenGLShaderBinding* binding);
+			inline void BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
 
 			inline void CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
@@ -102,10 +102,10 @@ namespace Nz
 
 				GLuint indexBuffer = 0;
 				const OpenGLRenderPipeline* pipeline = nullptr;
-				const OpenGLShaderBinding* shaderBindings = nullptr;
 				UInt64 indexBufferOffset;
 				std::optional<Recti> scissorRegion;
 				std::optional<Recti> viewportRegion;
+				std::vector<std::pair<const OpenGLRenderPipelineLayout*, const OpenGLShaderBinding*>> shaderBindings;
 				std::vector<VertexBuffer> vertexBuffers;
 				bool shouldFlipY = false;
 			};

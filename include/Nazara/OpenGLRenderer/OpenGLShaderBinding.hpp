@@ -24,7 +24,7 @@ namespace Nz
 			OpenGLShaderBinding(OpenGLShaderBinding&&) = delete;
 			~OpenGLShaderBinding() = default;
 
-			void Apply(const GL::Context& context) const;
+			void Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context) const;
 
 			inline std::size_t GetBindingIndex() const;
 			inline std::size_t GetPoolIndex() const;

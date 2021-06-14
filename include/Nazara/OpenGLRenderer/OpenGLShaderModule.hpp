@@ -11,8 +11,10 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
-#include <Nazara/Shader/ShaderWriter.hpp>
+#include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <vector>
 
 namespace Nz
@@ -20,30 +22,40 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderModule : public ShaderModule
 	{
 		public:
-			struct Shader;
-
-			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states = {});
+			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states = {});
 			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states = {});
 			OpenGLShaderModule(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule(OpenGLShaderModule&&) noexcept = default;
 			~OpenGLShaderModule() = default;
 
-			inline const std::vector<Shader>& GetShaders() const;
+			ShaderStageTypeFlags Attach(GL::Program& program, const GlslWriter::BindingMapping& bindingMapping) const;
 
 			OpenGLShaderModule& operator=(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule& operator=(OpenGLShaderModule&&) noexcept = default;
 
-			struct Shader
-			{
-				ShaderStageType stage;
-				GL::Shader shader;
-			};
-
 		private:
-			void Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states);
+			void Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states);
 
 			static void CheckCompilationStatus(GL::Shader& shader);
 
+			struct GlslShader
+			{
+				std::string sourceCode;
+			};
+
+			struct ShaderStatement
+			{
+				std::shared_ptr<ShaderAst::Statement> ast;
+			};
+
+			struct Shader
+			{
+				ShaderStageType stage;
+				std::variant<GlslShader, ShaderStatement> shader;
+			};
+
+			OpenGLDevice& m_device;
+			ShaderWriter::States m_states;
 			std::vector<Shader> m_shaders;
 	};
 }

@@ -20,6 +20,7 @@ struct Data
 	viewMatrix: mat4<f32>
 }
 
+[set(0)]
 external
 {
 	[binding(0)] viewerData: uniform<Data>,
@@ -87,7 +88,8 @@ int main()
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.center = true;
+	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
@@ -147,24 +149,27 @@ int main()
 	Nz::Vector2ui windowSize = window.GetSize();
 	ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 	ubo.viewMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
-	ubo.modelMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right());
+	ubo.modelMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2);
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
 	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
+
 	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
-	uboBinding.index = 0;
+	uboBinding.setIndex = 0;
+	uboBinding.bindingIndex = 0;
 	uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
 	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
 
 	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
-	textureBinding.index = 1;
+	textureBinding.setIndex = 0;
+	textureBinding.bindingIndex = 1;
 	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
-	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding();
+	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding(0);
 
 	std::shared_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform);
 	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
@@ -245,7 +250,7 @@ int main()
 					builder.BindIndexBuffer(indexBufferImpl);
 					builder.BindPipeline(*pipeline);
 					builder.BindVertexBuffer(0, vertexBufferImpl);
-					builder.BindShaderBinding(*shaderBinding);
+					builder.BindShaderBinding(0, *shaderBinding);
 
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });

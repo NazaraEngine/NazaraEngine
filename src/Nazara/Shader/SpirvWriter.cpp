@@ -47,6 +47,7 @@ namespace Nz
 				struct UniformVar
 				{
 					std::optional<UInt32> bindingIndex;
+					std::optional<UInt32> descriptorSet;
 					UInt32 pointerId;
 				};
 
@@ -125,6 +126,7 @@ namespace Nz
 						UniformVar& uniformVar = extVars[varIndex++];
 						uniformVar.pointerId = m_constantCache.Register(variable);
 						uniformVar.bindingIndex = extVar.bindingIndex;
+						uniformVar.descriptorSet = extVar.bindingSet;
 					}
 				}
 
@@ -492,7 +494,7 @@ namespace Nz
 			if (extVar.bindingIndex)
 			{
 				state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::Binding, *extVar.bindingIndex);
-				state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::DescriptorSet, 0);
+				state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::DescriptorSet, *extVar.descriptorSet);
 			}
 		}
 

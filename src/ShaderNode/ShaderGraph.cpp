@@ -75,7 +75,7 @@ m_type(ShaderType::NotSet)
 	m_type = ShaderType::Fragment;
 	AddInput("UV", PrimitiveType::Float2, InputRole::TexCoord, 0, 0);
 	AddOutput("RenderTarget0", PrimitiveType::Float4, 0);
-	AddTexture("Potato", TextureType::Sampler2D, 1);
+	AddTexture("Potato", TextureType::Sampler2D, 0, 1);
 
 	UpdateTexturePreview(0, QImage(R"(C:\Users\Lynix\Pictures\potatavril.png)"));
 
@@ -106,12 +106,13 @@ ShaderGraph::~ShaderGraph()
 	m_flowScene.reset();
 }
 
-std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
+std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex)
 {
 	std::size_t index = m_buffers.size();
 	auto& bufferEntry = m_buffers.emplace_back();
 	bufferEntry.bindingIndex = bindingIndex;
 	bufferEntry.name = std::move(name);
+	bufferEntry.setIndex = setIndex;
 	bufferEntry.structIndex = structIndex;
 	bufferEntry.type = bufferType;
 
@@ -171,11 +172,12 @@ std::size_t ShaderGraph::AddStruct(std::string name, std::vector<StructMemberEnt
 	return index;
 }
 
-std::size_t ShaderGraph::AddTexture(std::string name, TextureType type, std::size_t bindingIndex)
+std::size_t ShaderGraph::AddTexture(std::string name, TextureType type, std::size_t setIndex, std::size_t bindingIndex)
 {
 	std::size_t index = m_textures.size();
 	auto& textureEntry = m_textures.emplace_back();
 	textureEntry.bindingIndex = bindingIndex;
+	textureEntry.setIndex = setIndex;
 	textureEntry.name = std::move(name);
 	textureEntry.type = type;
 
@@ -229,6 +231,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 		BufferEntry& buffer = m_buffers.emplace_back();
 		buffer.bindingIndex = static_cast<std::size_t>(bufferDoc["bindingIndex"].toInt(0));
 		buffer.name = bufferDoc["name"].toString().toStdString();
+		buffer.setIndex = static_cast<std::size_t>(bufferDoc["setIndex"].toInt(0));
 		buffer.structIndex = bufferDoc["structIndex"].toInt();
 		buffer.type = DecodeEnum<BufferType>(bufferDoc["type"].toString().toStdString()).value();
 	}
@@ -308,6 +311,7 @@ void ShaderGraph::Load(const QJsonObject& data)
 		TextureEntry& texture = m_textures.emplace_back();
 		texture.bindingIndex = static_cast<std::size_t>(textureDoc["bindingIndex"].toInt(0));
 		texture.name = textureDoc["name"].toString().toStdString();
+		texture.setIndex = static_cast<std::size_t>(textureDoc["setIndex"].toInt(0));
 		texture.type = DecodeEnum<TextureType>(textureDoc["type"].toString().toStdString()).value();
 	}
 
@@ -332,6 +336,7 @@ QJsonObject ShaderGraph::Save()
 			QJsonObject bufferDoc;
 			bufferDoc["bindingIndex"] = int(buffer.bindingIndex);
 			bufferDoc["name"] = QString::fromStdString(buffer.name);
+			bufferDoc["setIndex"] = int(buffer.setIndex);
 			bufferDoc["structIndex"] = int(buffer.structIndex);
 			bufferDoc["type"] = QString(EnumToString(buffer.type));
 
@@ -422,6 +427,7 @@ QJsonObject ShaderGraph::Save()
 			QJsonObject textureDoc;
 			textureDoc["bindingIndex"] = int(texture.bindingIndex);
 			textureDoc["name"] = QString::fromStdString(texture.name);
+			textureDoc["setIndex"] = int(texture.setIndex);
 			textureDoc["type"] = QString(EnumToString(texture.type));
 
 			textureArray.append(textureDoc);
@@ -488,6 +494,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 
 		auto& extVar = external->externalVars.emplace_back();
 		extVar.bindingIndex = buffer.bindingIndex;
+		extVar.bindingSet = buffer.setIndex;
 		extVar.name = buffer.name;
 		extVar.type = Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ structInfo.name } };
 	}
@@ -496,6 +503,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 	{
 		auto& extVar = external->externalVars.emplace_back();
 		extVar.bindingIndex = texture.bindingIndex;
+		extVar.bindingSet = texture.setIndex;
 		extVar.name = texture.name;
 		extVar.type = ToShaderExpressionType(texture.type);
 	}
@@ -569,12 +577,13 @@ Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(const std::var
 	}, type);
 };
 
-void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t bindingIndex)
+void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex)
 {
 	assert(bufferIndex < m_buffers.size());
 	auto& bufferEntry = m_buffers[bufferIndex];
 	bufferEntry.bindingIndex = bindingIndex;
 	bufferEntry.name = std::move(name);
+	bufferEntry.setIndex = setIndex;
 	bufferEntry.structIndex = structIndex;
 	bufferEntry.type = bufferType;
 
@@ -624,12 +633,13 @@ void ShaderGraph::UpdateStruct(std::size_t structIndex, std::string name, std::v
 	OnStructUpdate(this, structIndex);
 }
 
-void ShaderGraph::UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t bindingIndex)
+void ShaderGraph::UpdateTexture(std::size_t textureIndex, std::string name, TextureType type, std::size_t setIndex, std::size_t bindingIndex)
 {
 	assert(textureIndex < m_textures.size());
 	auto& textureEntry = m_textures[textureIndex];
 	textureEntry.bindingIndex = bindingIndex;
 	textureEntry.name = std::move(name);
+	textureEntry.setIndex = setIndex;
 	textureEntry.type = type;
 
 	OnTextureUpdate(this, textureIndex);

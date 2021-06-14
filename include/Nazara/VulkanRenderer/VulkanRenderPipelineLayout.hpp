@@ -31,20 +31,19 @@ namespace Nz
 			VulkanRenderPipelineLayout() = default;
 			~VulkanRenderPipelineLayout();
 
-			ShaderBindingPtr AllocateShaderBinding() override;
+			ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) override;
 
 			bool Create(Vk::Device& device, RenderPipelineLayoutInfo layoutInfo);
 
 			inline Vk::Device* GetDevice() const;
 
-			inline const Vk::DescriptorSetLayout& GetDescriptorSetLayout() const;
 			inline const Vk::PipelineLayout& GetPipelineLayout() const;
 
 		private:
 			struct DescriptorPool;
 
 			DescriptorPool& AllocatePool();
-			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex);
+			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex, UInt32 setIndex);
 			void Release(ShaderBinding& binding);
 			inline void TryToShrink();
 
@@ -59,7 +58,7 @@ namespace Nz
 
 			MovablePtr<Vk::Device> m_device;
 			std::vector<DescriptorPool> m_descriptorPools;
-			Vk::DescriptorSetLayout m_descriptorSetLayout;
+			std::vector<const Vk::DescriptorSetLayout*> m_descriptorSetLayouts;
 			Vk::PipelineLayout m_pipelineLayout;
 			RenderPipelineLayoutInfo m_layoutInfo;
 	};

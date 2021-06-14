@@ -5,10 +5,8 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
-#include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -16,12 +14,14 @@
 namespace Nz
 {
 	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states) :
+	m_device(device)
 	{
 		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
 		Create(device, shaderStages, shaderAst, states);
 	}
 
-	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states)
+	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states) :
+	m_device(device)
 	{
 		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
 
@@ -36,16 +36,8 @@ namespace Nz
 					{
 						NazaraAssert(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
 
-						GL::Shader shader;
-						if (!shader.Create(device, ToOpenGL(shaderStage)))
-							throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
-
-						shader.SetSource(reinterpret_cast<const char*>(source), GLint(sourceSize));
-						shader.Compile();
-						CheckCompilationStatus(shader);
-
 						auto& entry = m_shaders.emplace_back();
-						entry.shader = std::move(shader);
+						entry.shader = GlslShader{ std::string(reinterpret_cast<const char*>(source), std::size_t(sourceSize)) };
 						entry.stage = shaderStage;
 						break;
 					}
@@ -90,16 +82,9 @@ namespace Nz
 		}
 	}
 
-	void OpenGLShaderModule::CheckCompilationStatus(GL::Shader& shader)
+	ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const GlslWriter::BindingMapping& bindingMapping) const
 	{
-		std::string errorLog;
-		if (!shader.GetCompilationStatus(&errorLog))
-			throw std::runtime_error("Failed to compile shader: " + errorLog);
-	}
-
-	void OpenGLShaderModule::Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::StatementPtr& shaderAst, const ShaderWriter::States& states)
-	{
-		const auto& context = device.GetReferenceContext();
+		const auto& context = m_device.GetReferenceContext();
 		const auto& contextParams = context.GetParams();
 
 		GlslWriter::Environment env;
@@ -115,27 +100,64 @@ namespace Nz
 		GlslWriter writer;
 		writer.SetEnv(env);
 
+		ShaderStageTypeFlags stageFlags;
+		for (const auto& shaderEntry : m_shaders)
+		{
+			GL::Shader shader;
+
+			if (!shader.Create(m_device, ToOpenGL(shaderEntry.stage)))
+				throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
+
+			std::visit([&](auto&& arg)
+			{
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, GlslShader>)
+					shader.SetSource(arg.sourceCode.data(), GLint(arg.sourceCode.size()));
+				else if constexpr (std::is_same_v<T, ShaderStatement>)
+				{
+					std::string code = writer.Generate(shaderEntry.stage, *arg.ast, bindingMapping, m_states);
+					shader.SetSource(code.data(), GLint(code.size()));
+				}
+				else
+					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+
+			}, shaderEntry.shader);
+
+			shader.Compile();
+
+			CheckCompilationStatus(shader);
+
+			program.AttachShader(shader.GetObjectId());
+			// Shader can be deleted now (it won't be deleted by the driver until program gets deleted)
+
+			stageFlags |= shaderEntry.stage;
+		}
+
+		return stageFlags;
+	}
+
+	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states)
+	{
+		m_states = states;
+		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
+		std::shared_ptr<ShaderAst::Statement> sanitized = GlslWriter::Sanitize(shaderAst);
+
 		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
 		{
 			ShaderStageType shaderStage = static_cast<ShaderStageType>(i);
 			if (shaderStages.Test(shaderStage))
 			{
-				GL::Shader shader;
-
-				if (!shader.Create(device, ToOpenGL(shaderStage)))
-					throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
-
-				std::string code = writer.Generate(shaderStage, shaderAst, states);
-
-				shader.SetSource(code.data(), GLint(code.size()));
-				shader.Compile();
-
-				CheckCompilationStatus(shader);
-
 				auto& entry = m_shaders.emplace_back();
-				entry.shader = std::move(shader);
+				entry.shader = ShaderStatement{ sanitized };
 				entry.stage = shaderStage;
 			}
 		}
+	}
+
+	void OpenGLShaderModule::CheckCompilationStatus(GL::Shader& shader)
+	{
+		std::string errorLog;
+		if (!shader.GetCompilationStatus(&errorLog))
+			throw std::runtime_error("Failed to compile shader: " + errorLog);
 	}
 }

@@ -29,6 +29,7 @@ namespace Nz
 			Layout,             //< Struct layout (struct only) - has argument style
 			Location,           //< Location (struct member only) - has argument index
 			Option,             //< Conditional compilation option - has argument expr
+			Set,                //< Binding set (external var only) - has argument index
 		};
 
 		enum class BinaryType

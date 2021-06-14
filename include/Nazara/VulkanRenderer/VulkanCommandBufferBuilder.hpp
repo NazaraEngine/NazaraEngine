@@ -29,7 +29,8 @@ namespace Nz
 
 			void BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset = 0) override;
 			void BindPipeline(const RenderPipeline& pipeline) override;
-			void BindShaderBinding(const ShaderBinding& binding) override;
+			void BindShaderBinding(UInt32 set, const ShaderBinding& binding) override;
+			void BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) override;
 			void BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset = 0) override;
 
 			void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;

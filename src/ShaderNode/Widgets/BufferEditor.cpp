@@ -38,7 +38,7 @@ void BufferEditor::OnAddBuffer()
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
 		BufferInfo bufferInfo = dialog->GetBufferInfo();
-		m_shaderGraph.AddBuffer(std::move(bufferInfo.name), bufferInfo.type, bufferInfo.structIndex, bufferInfo.bindingIndex);
+		m_shaderGraph.AddBuffer(std::move(bufferInfo.name), bufferInfo.type, bufferInfo.structIndex, bufferInfo.setIndex, bufferInfo.bindingIndex);
 	});
 
 	dialog->open();
@@ -49,7 +49,9 @@ void BufferEditor::OnEditBuffer(int inputIndex)
 	const auto& buffer = m_shaderGraph.GetBuffer(inputIndex);
 
 	BufferInfo info;
+	info.bindingIndex = buffer.bindingIndex;
 	info.name = buffer.name;
+	info.setIndex = buffer.setIndex;
 	info.structIndex = buffer.structIndex;
 	info.type = buffer.type;
 
@@ -58,7 +60,7 @@ void BufferEditor::OnEditBuffer(int inputIndex)
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{
 		BufferInfo bufferInfo = dialog->GetBufferInfo();
-		m_shaderGraph.UpdateBuffer(inputIndex, std::move(bufferInfo.name), bufferInfo.type, bufferInfo.structIndex, bufferInfo.bindingIndex);
+		m_shaderGraph.UpdateBuffer(inputIndex, std::move(bufferInfo.name), bufferInfo.type, bufferInfo.structIndex, bufferInfo.setIndex, bufferInfo.bindingIndex);
 	});
 
 	dialog->open();

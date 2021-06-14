@@ -221,6 +221,7 @@ namespace Nz::ShaderAst
 			Value(extVar.name);
 			Type(extVar.type);
 			OptVal(extVar.bindingIndex);
+			OptVal(extVar.bindingSet);
 		}
 	}
 

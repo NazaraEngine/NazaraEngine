@@ -3,8 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
+#include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <cassert>
@@ -22,11 +24,13 @@ namespace Nz
 		}
 	}
 
-	ShaderBindingPtr VulkanRenderPipelineLayout::AllocateShaderBinding()
+	ShaderBindingPtr VulkanRenderPipelineLayout::AllocateShaderBinding(UInt32 setIndex)
 	{
+		NazaraAssert(setIndex < m_descriptorSetLayouts.size(), "invalid set index");
+
 		for (std::size_t i = 0; i < m_descriptorPools.size(); ++i)
 		{
-			ShaderBindingPtr bindingPtr = AllocateFromPool(i);
+			ShaderBindingPtr bindingPtr = AllocateFromPool(i, setIndex);
 			if (!bindingPtr)
 				continue;
 
@@ -37,7 +41,7 @@ namespace Nz
 		std::size_t newPoolIndex = m_descriptorPools.size();
 		AllocatePool();
 
-		ShaderBindingPtr bindingPtr = AllocateFromPool(newPoolIndex);
+		ShaderBindingPtr bindingPtr = AllocateFromPool(newPoolIndex, setIndex);
 		if (!bindingPtr)
 			throw std::runtime_error("Failed to allocate shader binding");
 
@@ -49,21 +53,35 @@ namespace Nz
 		m_device = &device;
 		m_layoutInfo = std::move(layoutInfo);
 
-		StackVector<VkDescriptorSetLayoutBinding> layoutBindings = NazaraStackVector(VkDescriptorSetLayoutBinding, m_layoutInfo.bindings.size());
+		UInt32 setCount = 0;
+		for (const auto& bindingInfo : m_layoutInfo.bindings)
+			setCount = std::max(setCount, bindingInfo.setIndex + 1);
 
+		//TODO: Assert set count before stack allocation
+
+		StackArray<VulkanDescriptorSetLayoutInfo> setLayoutInfo = NazaraStackArray(VulkanDescriptorSetLayoutInfo, setCount);
+		StackArray<VkDescriptorSetLayout> setLayouts = NazaraStackArrayNoInit(VkDescriptorSetLayout, setCount);
+
+		m_descriptorSetLayouts.resize(setCount);
 		for (const auto& bindingInfo : m_layoutInfo.bindings)
 		{
-			VkDescriptorSetLayoutBinding& layoutBinding = layoutBindings.emplace_back();
-			layoutBinding.binding = bindingInfo.index;
+			VulkanDescriptorSetLayoutInfo& descriptorSetLayoutInfo = setLayoutInfo[bindingInfo.setIndex];
+
+			VkDescriptorSetLayoutBinding& layoutBinding = descriptorSetLayoutInfo.bindings.emplace_back();
+			layoutBinding.binding = bindingInfo.bindingIndex;
 			layoutBinding.descriptorCount = 1U;
 			layoutBinding.descriptorType = ToVulkan(bindingInfo.type);
+			layoutBinding.pImmutableSamplers = nullptr;
 			layoutBinding.stageFlags = ToVulkan(bindingInfo.shaderStageFlags);
 		}
 
-		if (!m_descriptorSetLayout.Create(*m_device, UInt32(layoutBindings.size()), layoutBindings.data()))
-			return false;
+		for (UInt32 i = 0; i < setCount; ++i)
+		{
+			m_descriptorSetLayouts[i] = &device.GetDescriptorSetLayoutCache().Get(setLayoutInfo[i]);
+			setLayouts[i] = *m_descriptorSetLayouts[i];
+		}
 
-		if (!m_pipelineLayout.Create(*m_device, m_descriptorSetLayout))
+		if (!m_pipelineLayout.Create(*m_device, UInt32(setLayouts.size()), setLayouts.data()))
 			return false;
 
 		return true;
@@ -94,7 +112,7 @@ namespace Nz
 		return m_descriptorPools.emplace_back(std::move(pool));
 	}
 
-	ShaderBindingPtr VulkanRenderPipelineLayout::AllocateFromPool(std::size_t poolIndex)
+	ShaderBindingPtr VulkanRenderPipelineLayout::AllocateFromPool(std::size_t poolIndex, UInt32 setIndex)
 	{
 		auto& pool = m_descriptorPools[poolIndex];
 
@@ -102,7 +120,7 @@ namespace Nz
 		if (freeBindingId == pool.freeBindings.npos)
 			return {}; //< No free binding in this pool
 
-		Vk::DescriptorSet descriptorSet = pool.descriptorPool->AllocateDescriptorSet(m_descriptorSetLayout);
+		Vk::DescriptorSet descriptorSet = pool.descriptorPool->AllocateDescriptorSet(*m_descriptorSetLayouts[setIndex]);
 		if (!descriptorSet)
 		{
 			NazaraWarning("Failed to allocate descriptor set: " + TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
