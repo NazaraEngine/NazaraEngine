@@ -24,7 +24,12 @@ struct Data
 external
 {
 	[binding(0)] viewerData: uniform<Data>,
-	[binding(1)] tex: sampler2D<f32>
+}
+
+[set(1)]
+external
+{
+	[binding(0)] tex: sampler2D<f32>
 }
 
 struct VertIn
@@ -161,15 +166,18 @@ int main()
 	uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
 	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
 
+	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+
 	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
-	textureBinding.setIndex = 0;
-	textureBinding.bindingIndex = 1;
+	textureBinding.setIndex = 1;
+	textureBinding.bindingIndex = 0;
 	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
-	Nz::ShaderBindingPtr shaderBinding = renderPipelineLayout->AllocateShaderBinding(0);
+	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
+	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
 
 	std::shared_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform);
 	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
@@ -178,15 +186,18 @@ int main()
 		return __LINE__;
 	}
 
-	shaderBinding->Update({
+	viewerShaderBinding->Update({
 		{
 			0,
 			Nz::ShaderBinding::UniformBufferBinding {
 				uniformBuffer.get(), 0, uniformSize
 			}
-		},
+		}
+	});
+
+	textureShaderBinding->Update({
 		{
-			1,
+			0,
 			Nz::ShaderBinding::TextureBinding {
 				texture.get(), textureSampler.get()
 			}
@@ -250,7 +261,8 @@ int main()
 					builder.BindIndexBuffer(indexBufferImpl);
 					builder.BindPipeline(*pipeline);
 					builder.BindVertexBuffer(0, vertexBufferImpl);
-					builder.BindShaderBinding(0, *shaderBinding);
+					builder.BindShaderBinding(0, *viewerShaderBinding);
+					builder.BindShaderBinding(1, *textureShaderBinding);
 
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
