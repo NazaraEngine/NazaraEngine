@@ -50,7 +50,7 @@ namespace Nz
 				context.BindUniformBuffer(bindingPoint, descriptor.buffer, descriptor.offset, descriptor.size);
 			}
 			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+				static_assert(AlwaysFalse<DescriptorType>::value, "non-exhaustive visitor");
 		});
 	}
 
