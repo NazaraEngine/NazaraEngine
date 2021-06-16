@@ -52,22 +52,6 @@ namespace Nz
 					node.statement->Visit(*this);
 			}
 
-			void Visit(ShaderAst::DeclareExternalStatement& node) override
-			{
-				AstRecursiveVisitor::Visit(node);
-
-				for (auto& extVar : node.externalVars)
-				{
-					assert(extVar.bindingIndex);
-					assert(extVar.bindingSet);
-
-					UInt64 set = *extVar.bindingSet;
-					UInt64 binding = *extVar.bindingIndex;
-
-					bindings.insert(set << 32 | binding);
-				}
-			}
-
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override
 			{
 				// Dismiss function if it's an entry point of another type than the one selected
@@ -113,7 +97,6 @@ namespace Nz
 
 			FunctionData* currentFunction = nullptr;
 
-			std::set<UInt64 /*set | binding*/> bindings;
 			std::optional<ShaderStageType> selectedStage;
 			std::unordered_map<std::size_t, FunctionData> functions;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
@@ -867,21 +850,32 @@ namespace Nz
 				isStd140 = structInfo.layout == StructLayout::Std140;
 			}
 
-			assert(externalVar.bindingIndex);
-			assert(externalVar.bindingSet);
+			if (!m_currentState->bindingMapping.empty() || isStd140)
+				Append("layout(");
 
-			UInt64 bindingIndex = *externalVar.bindingIndex;
-			UInt64 bindingSet = *externalVar.bindingSet;
+			if (!m_currentState->bindingMapping.empty())
+			{
+				assert(externalVar.bindingIndex);
 
-			auto bindingIt = m_currentState->bindingMapping.find(bindingSet << 32 | bindingIndex);
-			if (bindingIt == m_currentState->bindingMapping.end())
-				throw std::runtime_error("no binding found for (set=" + std::to_string(bindingSet) + ", binding=" + std::to_string(bindingIndex) + ")");
+				UInt64 bindingIndex = *externalVar.bindingIndex;
+				UInt64 bindingSet = externalVar.bindingSet.value_or(0);
 
-			Append("layout(binding = ", bindingIt->second);
+				auto bindingIt = m_currentState->bindingMapping.find(bindingSet << 32 | bindingIndex);
+				if (bindingIt == m_currentState->bindingMapping.end())
+					throw std::runtime_error("no binding found for (set=" + std::to_string(bindingSet) + ", binding=" + std::to_string(bindingIndex) + ")");
+
+				Append("binding = ", bindingIt->second);
+				if (isStd140)
+					Append(", ");
+			}
+
 			if (isStd140)
-				Append(", std140");
+				Append("std140");
 
-			Append(") uniform ");
+			if (!m_currentState->bindingMapping.empty() || isStd140)
+				Append(") ");
+
+			Append("uniform ");
 
 			if (IsUniformType(externalVar.type))
 			{

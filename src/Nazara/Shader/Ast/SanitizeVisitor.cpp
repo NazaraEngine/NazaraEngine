@@ -707,11 +707,8 @@ namespace Nz::ShaderAst
 			if (!extVar.bindingIndex)
 				throw AstError{ "external variable " + extVar.name + " requires a binding index" };
 
-			if (!extVar.bindingSet)
-				throw AstError{ "external variable " + extVar.name + " requires a binding set" };
-
 			UInt64 bindingIndex = *extVar.bindingIndex;
-			UInt64 bindingSet = *extVar.bindingSet;
+			UInt64 bindingSet = extVar.bindingSet.value_or(0);
 			UInt64 bindingKey = bindingSet << 32 | bindingIndex;
 			if (m_context->usedBindingIndexes.find(bindingKey) != m_context->usedBindingIndexes.end())
 				throw AstError{ "Binding (set=" + std::to_string(bindingSet) + ", binding=" + std::to_string(bindingIndex) + ") is already in use" };
