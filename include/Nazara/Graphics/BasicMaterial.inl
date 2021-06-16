@@ -53,6 +53,12 @@ namespace Nz
 		return m_material.GetTextureSampler(m_textureIndexes.diffuse);
 	}
 
+	inline bool BasicMaterial::IsAlphaTestEnabled() const
+	{
+		NazaraAssert(HasAlphaTest(), "Material has no alpha test condition");
+		return m_material.IsConditionEnabled(m_conditionIndexes.alphaTest);
+	}
+
 	inline bool BasicMaterial::HasAlphaMap() const
 	{
 		return m_textureIndexes.alpha != MaterialSettings::InvalidIndex;
