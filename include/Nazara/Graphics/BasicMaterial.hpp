@@ -30,6 +30,8 @@ namespace Nz
 			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
 			inline const TextureSamplerInfo& GetDiffuseSampler() const;
 
+			inline bool IsAlphaTestEnabled() const;
+
 			inline bool HasAlphaMap() const;
 			inline bool HasAlphaTest() const;
 			inline bool HasAlphaTestThreshold() const;
