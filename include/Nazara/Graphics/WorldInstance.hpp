@@ -20,13 +20,13 @@ namespace Nz
 	class MaterialSettings;
 	class UploadPool;
 
-	class NAZARA_GRAPHICS_API ModelInstance
+	class NAZARA_GRAPHICS_API WorldInstance
 	{
 		public:
-			ModelInstance(const std::shared_ptr<const MaterialSettings>& settings);
-			ModelInstance(const ModelInstance&) = delete;
-			ModelInstance(ModelInstance&&) noexcept = default;
-			~ModelInstance() = default;
+			WorldInstance();
+			WorldInstance(const WorldInstance&) = delete;
+			WorldInstance(WorldInstance&&) noexcept = default;
+			~WorldInstance() = default;
 
 			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
 			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
@@ -36,8 +36,8 @@ namespace Nz
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix);
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix);
 
-			ModelInstance& operator=(const ModelInstance&) = delete;
-			ModelInstance& operator=(ModelInstance&&) noexcept = default;
+			WorldInstance& operator=(const WorldInstance&) = delete;
+			WorldInstance& operator=(WorldInstance&&) noexcept = default;
 
 		private:
 			std::shared_ptr<AbstractBuffer> m_instanceDataBuffer;
@@ -48,6 +48,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/ModelInstance.inl>
+#include <Nazara/Graphics/WorldInstance.inl>
 
 #endif // NAZARA_MODELINSTANCE_HPP

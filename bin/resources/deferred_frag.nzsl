@@ -32,12 +32,11 @@ struct ViewerData
 
 external
 {
-	[binding(5)] viewerData: uniform<ViewerData>,
-	[binding(4)] instanceData: uniform<InstanceData>,
-	[binding(3)] settings: uniform<BasicSettings>,
-	[binding(0)] MaterialAlphaMap: sampler2D<f32>,
-	[binding(1)] MaterialDiffuseMap: sampler2D<f32>,
-	[binding(2)] TextureOverlay: sampler2D<f32>
+	[set(0), binding(0)] viewerData: uniform<ViewerData>,
+	[set(1), binding(0)] instanceData: uniform<InstanceData>,
+	[set(2), binding(0)] settings: uniform<BasicSettings>,
+	[set(2), binding(2)] MaterialAlphaMap: sampler2D<f32>,
+	[set(2), binding(1)] MaterialDiffuseMap: sampler2D<f32>
 }
 
 struct InputData

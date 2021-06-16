@@ -21,7 +21,7 @@ namespace Nz
 	{
 		struct Binding
 		{
-			UInt32 setIndex;
+			UInt32 setIndex = 0;
 			UInt32 bindingIndex;
 			ShaderBindingType type;
 			ShaderStageTypeFlags shaderStageFlags;

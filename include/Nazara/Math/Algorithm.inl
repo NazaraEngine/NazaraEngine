@@ -172,6 +172,13 @@ namespace Nz
 		return std::max(std::min(value.value, max), min);
 	}
 
+	template<typename T>
+	T ClearBit(T number, T bit)
+	{
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number &= ~(T(1) << bit);
+	}
+
 	/*!
 	* \ingroup math
 	* \brief Gets number of bits set in the number
@@ -584,7 +591,7 @@ namespace Nz
 	template<typename T>
 	T SetBit(T number, T bit)
 	{
-		NazaraAssert(bit < sizeof(number)* CHAR_BIT, "bit index out of range");
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
 		return number |= (T(1) << bit);
 	}
 
@@ -659,7 +666,13 @@ namespace Nz
 		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
 		return number & (T(1) << bit);
 	}
+
+	template<typename T>
+	T ToggleBit(T number, T bit)
+	{
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number ^= (T(1) << bit);
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Algorithm.hpp"

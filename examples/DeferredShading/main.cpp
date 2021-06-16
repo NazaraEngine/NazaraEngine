@@ -132,18 +132,16 @@ int main()
 
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
 
-	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
-	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
-	uboBinding.index = 0;
-	uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
-	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
+	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
+	Nz::Graphics::FillViewerPipelineLayout(skyboxPipelineLayoutInfo);
 
-	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
-	textureBinding.index = 1;
+	auto& textureBinding = skyboxPipelineLayoutInfo.bindings.emplace_back();
+	textureBinding.setIndex = 1;
+	textureBinding.bindingIndex = 0;
 	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
-	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
+	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
 
 	Nz::RenderPipelineInfo skyboxPipelineInfo;
 	skyboxPipelineInfo.depthBuffer = true;
@@ -227,49 +225,36 @@ int main()
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
 	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 1));
 
-	Nz::ModelInstance modelInstance1(spaceshipMat->GetSettings());
-	spaceshipMat->UpdateShaderBinding(modelInstance1.GetShaderBinding());
+	Nz::WorldInstance modelInstance1;
 	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));
 
-	Nz::ModelInstance modelInstance2(spaceshipMat->GetSettings());
-	spaceshipMat->UpdateShaderBinding(modelInstance2.GetShaderBinding());
+	Nz::WorldInstance modelInstance2;
 	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
 
-	Nz::ModelInstance planeInstance(planeMat->GetSettings());
-	planeMat->UpdateShaderBinding(planeInstance.GetShaderBinding());
-
-	std::shared_ptr<Nz::AbstractBuffer> viewerDataUBO = Nz::Graphics::Instance()->GetViewerDataUBO();
+	Nz::WorldInstance planeInstance;
 
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
 	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
 
-	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
-	fullscreenPipelineLayoutInfo.bindings.push_back({
-		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
-		0
-	});
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
+	Nz::Graphics::FillViewerPipelineLayout(lightingPipelineLayoutInfo);
+
 	for (unsigned int i = 0; i < 3; ++i)
 	{
 		lightingPipelineLayoutInfo.bindings.push_back({
+			1,
+			i,
 			Nz::ShaderBindingType::Texture,
 			Nz::ShaderStageType::Fragment,
-			i
 		});
 	}
 
 	lightingPipelineLayoutInfo.bindings.push_back({
+		2,
+		0,
 		Nz::ShaderBindingType::UniformBuffer,
 		Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex,
-		3
-	});
-
-	lightingPipelineLayoutInfo.bindings.push_back({
-		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex,
-		4
 	});
 
 	/*Nz::FieldOffsets pointLightOffsets(Nz::StructLayout::Std140);
@@ -349,35 +334,12 @@ int main()
 	// Bloom data
 
 	Nz::RenderPipelineLayoutInfo bloomPipelineLayoutInfo;
-	bloomPipelineLayoutInfo.bindings.push_back({
-		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
-		0
-	});
+	Nz::Graphics::FillViewerPipelineLayout(bloomPipelineLayoutInfo);
 
 	bloomPipelineLayoutInfo.bindings.push_back({
-		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType::Fragment,
-		1
-	});
-
-	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
-	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		1, 0,
 		Nz::ShaderBindingType::Texture,
 		Nz::ShaderStageType::Fragment,
-		0
-	});
-
-	bloomBlendPipelineLayoutInfo.bindings.push_back({
-		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
-		1
-	});
-
-	bloomBlendPipelineLayoutInfo.bindings.push_back({
-		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType::Fragment,
-		2
 	});
 
 	Nz::RenderPipelineInfo bloomPipelineInfo;
@@ -390,13 +352,30 @@ int main()
 
 	bloomPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", {}));
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding();
-	std::shared_ptr<Nz::ShaderBinding> gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding();
+	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+	std::shared_ptr<Nz::ShaderBinding> gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(bloomPipelineInfo);
 
 	bloomPipelineInfo.shaderModules.clear();
 	bloomPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", {}));
+	
+
+	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
+	Nz::Graphics::FillViewerPipelineLayout(bloomBlendPipelineLayoutInfo);
+
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		1, 0,
+		Nz::ShaderBindingType::Texture,
+		Nz::ShaderStageType::Fragment,
+	});
+
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		1, 1,
+		Nz::ShaderBindingType::Texture,
+		Nz::ShaderStageType::Fragment,
+	});
+
 
 	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(bloomPipelineInfo);
 
@@ -412,9 +391,17 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding();
+	std::shared_ptr<Nz::ShaderBinding> bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
 
 	// Fullscreen data
+	
+	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
+
+	fullscreenPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::Texture,
+		Nz::ShaderStageType::Fragment,
+	});
 
 	Nz::RenderPipelineInfo fullscreenPipelineInfo;
 	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
@@ -424,8 +411,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment, Nz::ShaderLanguage::NazaraBinary, resourceDir / "fullscreen.frag.shader", {}));
-	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, resourceDir / "fullscreen.vert.shader", {}));
+	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gamma.nzsl", {}));
 
 
 	const std::shared_ptr<const Nz::VertexDeclaration>& lightingVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
@@ -525,29 +511,26 @@ int main()
 	if (!fullscreenVertexBuffer->Fill(vertexData.data(), 0, fullscreenVertexBuffer->GetSize()))
 		return __LINE__;
 
-	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding();
+	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 
 	bool lightUpdate = true;
+	bool matUpdate = false;
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
-	std::shared_ptr<Nz::ShaderBinding> skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding();
+	std::shared_ptr<Nz::ShaderBinding> skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding(1);
 	skyboxShaderBinding->Update({
 		{
 			0,
-			Nz::ShaderBinding::UniformBufferBinding {
-				viewerDataUBO.get(),
-				0, viewerDataUBO->GetSize()
-			}
-		},
-		{
-			1,
 			Nz::ShaderBinding::TextureBinding {
 				skyboxTexture.get(),
 				textureSampler.get()
 			}
 		}
 	});
+
+	std::shared_ptr<Nz::ShaderBinding> gbufferShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
 
 	bool bloomEnabled = true;
 	bool forwardEnabled = true;
@@ -641,10 +624,17 @@ int main()
 
 		gbufferPass.SetDepthStencilOutput(depthBuffer);
 
+		gbufferPass.SetExecutionCallback([&]
+		{
+			return (matUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
+		});
+
 		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
 		{
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+
+			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 
 			spaceshipModel.Draw(builder, modelInstance1);
 			spaceshipModel.Draw(builder, modelInstance2);
@@ -668,9 +658,12 @@ int main()
 			builder.BindIndexBuffer(coneMeshGfx->GetIndexBuffer(0).get());
 			builder.BindVertexBuffer(0, coneMeshGfx->GetVertexBuffer(0).get());
 
+			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
+			builder.BindShaderBinding(1, *gbufferShaderBinding);
+
 			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
-				builder.BindShaderBinding(*lightingShaderBindings[i]);
+				builder.BindShaderBinding(2, *lightingShaderBindings[i]);
 
 				builder.BindPipeline(*stencilPipeline);
 				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
@@ -683,6 +676,7 @@ int main()
 		lightingPass.AddInput(colorTexture);
 		lightingPass.AddInput(normalTexture);
 		lightingPass.AddInput(positionTexture);
+
 		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black);
 		lightingPass.SetDepthStencilInput(depthBuffer);
 		lightingPass.SetDepthStencilOutput(depthBuffer);
@@ -693,7 +687,8 @@ int main()
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 
-			builder.BindShaderBinding(*skyboxShaderBinding);
+			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
+			builder.BindShaderBinding(1, *skyboxShaderBinding);
 
 			builder.BindIndexBuffer(cubeMeshGfx->GetIndexBuffer(0).get());
 			builder.BindVertexBuffer(0, cubeMeshGfx->GetVertexBuffer(0).get());
@@ -711,14 +706,15 @@ int main()
 		forwardPass.SetDepthStencilInput(depthBuffer);
 		forwardPass.SetDepthStencilOutput(depthBuffer);
 
-		
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
 		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
 		{
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
 
-			builder.BindShaderBinding(*bloomBrightShaderBinding);
+			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
+			builder.BindShaderBinding(1, *bloomBrightShaderBinding);
+
 			builder.BindPipeline(*bloomBrightPipeline);
 			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
 
@@ -738,7 +734,8 @@ int main()
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
 
-			builder.BindShaderBinding(*gaussianBlurShaderBinding);
+			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
+			builder.BindShaderBinding(1, *gaussianBlurShaderBinding);
 			builder.BindPipeline(*gaussianBlurPipeline);
 			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
 
@@ -758,7 +755,8 @@ int main()
 			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
 
-			builder.BindShaderBinding(*bloomBlendShaderBinding);
+			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
+			builder.BindShaderBinding(1, *bloomBlendShaderBinding);
 			builder.BindPipeline(*bloomBlendPipeline);
 			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
 
@@ -780,44 +778,40 @@ int main()
 
 	bakedGraph.Resize(offscreenWidth, offscreenHeight);
 
+	gbufferShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(colorTexture).get(),
+				textureSampler.get()
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(normalTexture).get(),
+				textureSampler.get()
+			}
+		},
+		{
+			2,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(positionTexture).get(),
+				textureSampler.get()
+			}
+		}
+	});
+
 
 	for (std::size_t i = 0; i < MaxPointLight; ++i)
 	{
-		std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding();
+		std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(2);
 		lightingShaderBinding->Update({
 			{
 				0,
-				Nz::ShaderBinding::TextureBinding {
-					bakedGraph.GetAttachmentTexture(colorTexture).get(),
-					textureSampler.get()
-				}
-			},
-			{
-				1,
-				Nz::ShaderBinding::TextureBinding {
-					bakedGraph.GetAttachmentTexture(normalTexture).get(),
-					textureSampler.get()
-				}
-			},
-			{
-				2,
-				Nz::ShaderBinding::TextureBinding {
-					bakedGraph.GetAttachmentTexture(positionTexture).get(),
-					textureSampler.get()
-				}
-			},
-			{
-				3,
 				Nz::ShaderBinding::UniformBufferBinding {
 					lightUbo.get(),
 					i * alignedSpotLightSize, spotLightOffsets.GetAlignedSize()
-				}
-			},
-			{
-				4,
-				Nz::ShaderBinding::UniformBufferBinding {
-					viewerDataUBO.get(),
-					0, viewerDataUBO->GetSize()
 				}
 			}
 		});
@@ -832,13 +826,6 @@ int main()
 				bakedGraph.GetAttachmentTexture(lightOutput).get(),
 				textureSampler.get()
 			}
-		},
-		{
-			1,
-			Nz::ShaderBinding::UniformBufferBinding {
-				viewerDataUBO.get(),
-				0, viewerDataUBO->GetSize()
-			}
 		}
 	});
 
@@ -848,13 +835,6 @@ int main()
 			Nz::ShaderBinding::TextureBinding {
 				bakedGraph.GetAttachmentTexture(bloomTextureA).get(),
 				textureSampler.get()
-			}
-		},
-		{
-			1,
-			Nz::ShaderBinding::UniformBufferBinding {
-				viewerDataUBO.get(),
-				0, viewerDataUBO->GetSize()
 			}
 		}
 	});
@@ -873,12 +853,15 @@ int main()
 				bakedGraph.GetAttachmentTexture(bloomTextureB).get(),
 				textureSampler.get()
 			}
-		},
+		}
+	});
+	
+	bloomSkipBlit->Update({
 		{
-			2,
-			Nz::ShaderBinding::UniformBufferBinding {
-				viewerDataUBO.get(),
-				0, viewerDataUBO->GetSize()
+			0,
+			Nz::ShaderBinding::TextureBinding {
+				bakedGraph.GetAttachmentTexture(lightOutput).get(),
+				textureSampler.get()
 			}
 		}
 	});
@@ -912,7 +895,7 @@ int main()
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-					builder.BindShaderBinding(*finalBlitBinding);
+					builder.BindShaderBinding(0, *finalBlitBinding);
 					builder.BindPipeline(*fullscreenPipeline);
 					builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
 					builder.Draw(3);
@@ -1011,8 +994,11 @@ int main()
 						forwardEnabled = !forwardEnabled;
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 						lightAnimation = !lightAnimation;
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
+						bloomEnabled = !bloomEnabled;
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::E)
 						modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos, camQuat));
+
 					break;
 				}
 
@@ -1064,7 +1050,10 @@ int main()
 			continue;
 
 		if (frame.IsFramebufferInvalidated())
+		{
+			frame.PushForRelease(std::move(drawCommandBuffer));
 			RebuildCommandBuffer();
+		}
 
 		Nz::UploadPool& uploadPool = frame.GetUploadPool();
 
@@ -1078,7 +1067,7 @@ int main()
 				modelInstance2.UpdateBuffers(uploadPool, builder);
 				planeInstance.UpdateBuffers(uploadPool, builder);
 
-				viewerInstance.UpdateViewBuffer(uploadPool, builder);
+				viewerInstance.UpdateBuffers(uploadPool, builder);
 
 				if (!spotLights.empty() && (lightUpdate || lightAnimation))
 				{
@@ -1110,7 +1099,8 @@ int main()
 					builder.CopyBuffer(lightDataAllocation, lightUbo.get());
 				}
 
-				spaceshipMat->UpdateBuffers(uploadPool, builder);
+				matUpdate = spaceshipMat->Update(frame, builder) || matUpdate;
+				matUpdate = planeMat->Update(frame, builder) || matUpdate;
 
 				builder.PostTransferBarrier();
 			}
@@ -1124,6 +1114,7 @@ int main()
 
 		window.Display();
 
+		matUpdate = false;
 		lightUpdate = false;
 
 		// On incrémente le compteur de FPS improvisé

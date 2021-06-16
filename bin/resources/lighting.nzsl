@@ -38,13 +38,24 @@ struct ViewerData
 	eyePosition: vec3<f32>
 }
 
+[set(0)]
+external
+{
+	[binding(0)] viewerData: uniform<ViewerData>
+}
+
+[set(1)]
 external
 {
 	[binding(0)] colorTexture: sampler2D<f32>,
 	[binding(1)] normalTexture: sampler2D<f32>,
 	[binding(2)] positionTexture: sampler2D<f32>,
-	[binding(3)] lightParameters: uniform<SpotLight>,
-	[binding(4)] viewerData: uniform<ViewerData>
+}
+
+[set(2)]
+external
+{
+	[binding(0)] lightParameters: uniform<SpotLight>,
 }
 
 struct FragIn

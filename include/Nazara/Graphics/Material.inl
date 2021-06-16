@@ -94,7 +94,7 @@ namespace Nz
 	{
 		if (TestBit<UInt64>(m_enabledConditions, conditionIndex) != enable)
 		{
-			m_enabledConditions = SetBit<UInt64>(m_enabledConditions, conditionIndex);
+			m_enabledConditions = ToggleBit<UInt64>(m_enabledConditions, conditionIndex);
 			InvalidatePipeline();
 		}
 	}
@@ -439,6 +439,12 @@ namespace Nz
 		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
 	}
 
+	inline ShaderBinding& Material::GetShaderBinding()
+	{
+		assert(m_shaderBinding);
+		return *m_shaderBinding;
+	}
+
 	inline const std::shared_ptr<Texture>& Material::GetTexture(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
@@ -725,7 +731,7 @@ namespace Nz
 
 	inline void Material::InvalidateShaderBinding()
 	{
-		//TODO
+		m_shaderBindingUpdated = false;
 	}
 
 	inline void Material::InvalidateTextureSampler(std::size_t textureIndex)

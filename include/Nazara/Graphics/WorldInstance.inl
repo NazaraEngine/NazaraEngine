@@ -2,28 +2,28 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/ModelInstance.hpp>
+#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	inline std::shared_ptr<AbstractBuffer>& ModelInstance::GetInstanceBuffer()
+	inline std::shared_ptr<AbstractBuffer>& WorldInstance::GetInstanceBuffer()
 	{
 		return m_instanceDataBuffer;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& ModelInstance::GetInstanceBuffer() const
+	inline const std::shared_ptr<AbstractBuffer>& WorldInstance::GetInstanceBuffer() const
 	{
 		return m_instanceDataBuffer;
 	}
 
-	inline ShaderBinding& ModelInstance::GetShaderBinding()
+	inline ShaderBinding& WorldInstance::GetShaderBinding()
 	{
 		return *m_shaderBinding;
 	}
 
-	inline void ModelInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix)
+	inline void WorldInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix)
 	{
 		m_worldMatrix = worldMatrix;
 		if (!m_worldMatrix.GetInverseAffine(&m_invWorldMatrix))
@@ -32,7 +32,7 @@ namespace Nz
 		m_dataInvalided = true;
 	}
 
-	inline void ModelInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix)
+	inline void WorldInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix)
 	{
 		m_worldMatrix = worldMatrix;
 		m_invWorldMatrix = invWorldMatrix;

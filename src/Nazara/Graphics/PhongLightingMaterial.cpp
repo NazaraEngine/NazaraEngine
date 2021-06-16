@@ -152,7 +152,6 @@ namespace Nz
 		s_phongUniformOffsets.specularColor = phongUniformStruct.AddField(StructFieldType::Float4);
 
 		MaterialSettings::Builder settings;
-		settings.predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
 		std::vector<MaterialSettings::UniformVariable> phongVariables;
 		phongVariables.assign({
@@ -189,67 +188,53 @@ namespace Nz
 
 		s_phongUniformBlockIndex = settings.uniformBlocks.size();
 		settings.uniformBlocks.push_back({
-			phongUniformStruct.GetSize(),
+			0,
 			"PhongSettings",
-			"MaterialPhongSettings",
+			phongUniformStruct.GetSize(),
 			std::move(phongVariables),
 			std::move(defaultValues)
 		});
 
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = settings.sharedUniformBlocks.size();
-		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock());
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboLighData)] = settings.sharedUniformBlocks.size();
-		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock());
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = settings.sharedUniformBlocks.size();
-		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock());
-
 		s_textureIndexes.alpha = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialAlphaMap",
+			2,
 			"Alpha",
 			ImageType::E2D
 		});
 		
 		s_textureIndexes.diffuse = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialDiffuseMap",
+			1,
 			"Diffuse",
 			ImageType::E2D
 		});
 
 		s_textureIndexes.emissive = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialEmissiveMap",
+			3,
 			"Emissive",
 			ImageType::E2D
 		});
 
 		s_textureIndexes.height = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialHeightMap",
+			4,
 			"Height",
 			ImageType::E2D
 		});
 
 		s_textureIndexes.normal = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialNormalMap",
+			5,
 			"Normal",
 			ImageType::E2D
 		});
 
 		s_textureIndexes.specular = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialSpecularMap",
+			6,
 			"Specular",
 			ImageType::E2D
-		});
-
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = settings.textures.size();
-		settings.textures.push_back({
-			"TextureOverlay",
-			"Overlay",
-			ImageType::E2D,
 		});
 
 		s_materialSettings = std::make_shared<MaterialSettings>(std::move(settings));

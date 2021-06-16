@@ -14,7 +14,7 @@ struct ViewerData
 
 external
 {
-	[binding(1)] skybox: samplerCube<f32>
+	[set(1), binding(0)] skybox: samplerCube<f32>
 }
 
 struct VertOut
@@ -42,7 +42,7 @@ fn main(input: VertOut) -> FragOut
 
 external
 {
-	[binding(0)] viewerData: uniform<ViewerData>
+	[set(0), binding(0)] viewerData: uniform<ViewerData>
 }
 
 struct VertIn

@@ -246,7 +246,14 @@ namespace Nz
 
 		unsigned int setIndex = 0;
 		for (const auto& [pipelineLayout, shaderBinding] : states.shaderBindings)
-			shaderBinding->Apply(*pipelineLayout, setIndex++, context);
+		{
+			if (shaderBinding)
+				shaderBinding->Apply(*pipelineLayout, setIndex, context);
+			else
+				NazaraWarning("no shader binding for set #" + std::to_string(setIndex));
+
+			setIndex++;
+		}
 
 		if (states.scissorRegion)
 			context.SetScissorBox(states.scissorRegion->x, states.scissorRegion->y, states.scissorRegion->width, states.scissorRegion->height);

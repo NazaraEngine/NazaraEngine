@@ -51,16 +51,34 @@ namespace Nz
 
 		MaterialPipeline::Initialize();
 
-		Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
+		RenderPipelineLayoutInfo referenceLayoutInfo;
+		FillViewerPipelineLayout(referenceLayoutInfo);
+		FillWorldPipelineLayout(referenceLayoutInfo);
 
-		m_viewerDataUBO = m_renderDevice->InstantiateBuffer(Nz::BufferType::Uniform);
-		if (!m_viewerDataUBO->Initialize(viewerUboOffsets.totalSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
-			throw std::runtime_error("failed to initialize viewer data UBO");
+		m_referencePipelineLayout = m_renderDevice->InstantiateRenderPipelineLayout(std::move(referenceLayoutInfo));
 	}
 
 	Graphics::~Graphics()
 	{
 		MaterialPipeline::Uninitialize();
+	}
+
+	void Graphics::FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
+	{
+		layoutInfo.bindings.push_back({
+			set, 0,
+			ShaderBindingType::UniformBuffer,
+			ShaderStageType_All
+		});
+	}
+
+	void Graphics::FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
+	{
+		layoutInfo.bindings.push_back({
+			set, 0,
+			ShaderBindingType::UniformBuffer,
+			ShaderStageType_All
+		});
 	}
 
 	Graphics* Graphics::s_instance = nullptr;

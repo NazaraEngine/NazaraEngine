@@ -43,11 +43,12 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/ModelInstance.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
+#include <Nazara/Graphics/WorldInstance.hpp>
 
 #endif // NAZARA_GLOBAL_GRAPHICS_HPP
