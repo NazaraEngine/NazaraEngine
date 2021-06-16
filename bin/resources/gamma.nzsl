@@ -1,0 +1,46 @@
+external
+{
+	[binding(0)] colorTexture: sampler2D<f32>
+}
+
+struct FragIn
+{
+	[location(0)] uv: vec2<f32>
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4<f32>
+}
+
+struct VertIn
+{
+	[location(0)] pos: vec3<f32>,
+	[location(1)] uv: vec2<f32>
+}
+
+struct VertOut
+{
+	[location(0)] vertUV: vec2<f32>,
+	[builtin(position)] position: vec4<f32>
+}
+
+[entry(frag)]
+fn main(input: FragIn) -> FragOut
+{
+	let gamma = 2.2;
+
+	let output: FragOut;
+	output.color = colorTexture.Sample(input.uv);
+	//output.color = pow(colorTexture.Sample(input.uv), vec4<f32>(1.0 / gamma, 1.0 / gamma, 1.0 / gamma, 1.0));
+	return output;
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.position = vec4<f32>(input.pos, 1.0);
+	output.vertUV = input.uv;
+	return output;
+}

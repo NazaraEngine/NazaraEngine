@@ -27,6 +27,7 @@ namespace Nz
 	template<typename T> constexpr T Approach(T value, T objective, T increment);
 	template<typename T> constexpr T Clamp(T value, T min, T max);
 	template<typename T, AngleUnit Unit> constexpr Angle<Unit, T> Clamp(Angle<Unit, T> value, T min, T max);
+	template<typename T> T ClearBit(T number, T bit);
 	template<typename T> constexpr std::size_t CountBits(T value);
 	template<typename T> constexpr T DegreeToRadian(T degrees);
 	template<typename T> constexpr T GetNearestPowerOfTwo(T number);
@@ -51,6 +52,7 @@ namespace Nz
 	template<typename T> T SetBit(T number, T bit);
 	inline long long StringToNumber(const std::string_view& str, UInt8 radix = 10, bool* ok = nullptr);
 	template<typename T> bool TestBit(T number, T bit);
+	template<typename T> T ToggleBit(T number, T bit);
 }
 
 #include <Nazara/Math/Algorithm.inl>

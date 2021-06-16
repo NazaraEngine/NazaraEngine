@@ -105,7 +105,6 @@ namespace Nz
 		s_uniformOffsets.totalSize = fieldOffsets.GetSize();
 
 		MaterialSettings::Builder settings;
-		settings.predefinedBinding.fill(MaterialSettings::InvalidIndex);
 
 		std::vector<MaterialSettings::UniformVariable> variables;
 		variables.assign({
@@ -127,41 +126,26 @@ namespace Nz
 		
 		s_textureIndexes.alpha = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialAlphaMap",
+			2,
 			"Alpha",
 			ImageType::E2D
 		});
 
 		s_textureIndexes.diffuse = settings.textures.size();
 		settings.textures.push_back({
-			"MaterialDiffuseMap",
+			1,
 			"Diffuse",
 			ImageType::E2D
 		});
 
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::TexOverlay)] = settings.textures.size();
-		settings.textures.push_back({
-			"TextureOverlay",
-			"Overlay",
-			ImageType::E2D
-		});
-
 		s_uniformBlockIndex = settings.uniformBlocks.size();
-		settings.uniformBlocks.assign({
-			{
-				fieldOffsets.GetSize(),
-				"BasicSettings",
-				"MaterialBasicSettings",
-				std::move(variables),
-				std::move(defaultValues)
-			}
+		settings.uniformBlocks.push_back({
+			0,
+			"BasicSettings",
+			fieldOffsets.GetSize(),
+			std::move(variables),
+			std::move(defaultValues)
 		});
-
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboInstanceData)] = settings.textures.size() + settings.uniformBlocks.size() + settings.sharedUniformBlocks.size();
-		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock());
-
-		settings.predefinedBinding[UnderlyingCast(PredefinedShaderBinding::UboViewerData)] = settings.textures.size() + settings.uniformBlocks.size() + settings.sharedUniformBlocks.size();
-		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock());
 
 		// Shaders
 		auto& fragmentShader = settings.shaders[UnderlyingCast(ShaderStageType::Fragment)];

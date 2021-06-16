@@ -14,8 +14,8 @@ struct ViewerData
 
 external
 {
-	[binding(0)] colorTexture: sampler2D<f32>,
-	[binding(1)] viewerData: uniform<ViewerData>
+	[set(0), binding(0)] viewerData: uniform<ViewerData>,
+	[set(1), binding(0)] colorTexture: sampler2D<f32>,
 }
 
 struct FragIn

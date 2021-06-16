@@ -12,12 +12,12 @@
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <optional>
 
 namespace Nz
 {
 	class AbstractBuffer;
-	class RenderDevice;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
 	{
@@ -31,19 +31,26 @@ namespace Nz
 			Graphics(Config config);
 			~Graphics();
 
+			inline const std::shared_ptr<RenderPipelineLayout>& GetReferencePipelineLayout() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline TextureSamplerCache& GetSamplerCache();
-			inline const std::shared_ptr<AbstractBuffer>& GetViewerDataUBO();
 
 			struct Config
 			{
 				bool useDedicatedRenderDevice = true;
 			};
 
+			static constexpr UInt32 MaterialBindingSet = 2;
+			static constexpr UInt32 ViewerBindingSet = 0;
+			static constexpr UInt32 WorldBindingSet = 1;
+
+			static void FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = ViewerBindingSet);
+			static void FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = WorldBindingSet);
+
 		private:
 			std::optional<TextureSamplerCache> m_samplerCache;
-			std::shared_ptr<AbstractBuffer> m_viewerDataUBO;
 			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::shared_ptr<RenderPipelineLayout> m_referencePipelineLayout;
 
 			static Graphics* s_instance;
 	};

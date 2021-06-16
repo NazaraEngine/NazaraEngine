@@ -1,20 +1,23 @@
 {
     "buffers": [
         {
-            "bindingIndex": 5,
+            "bindingIndex": 0,
             "name": "viewerData",
+            "setIndex": 0,
             "structIndex": 2,
             "type": "UniformBufferObject"
         },
         {
-            "bindingIndex": 4,
+            "bindingIndex": 0,
             "name": "instanceData",
+            "setIndex": 1,
             "structIndex": 1,
             "type": "UniformBufferObject"
         },
         {
-            "bindingIndex": 3,
+            "bindingIndex": 0,
             "name": "settings",
+            "setIndex": 2,
             "structIndex": 0,
             "type": "UniformBufferObject"
         }
@@ -45,9 +48,27 @@
         },
         {
             "in_id": "{92d95fe0-84f6-4d27-91ea-992d5f73c04e}",
+            "in_index": 1,
+            "out_id": "{f5a6874b-0559-4fd1-9836-27567f9696a4}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{92d95fe0-84f6-4d27-91ea-992d5f73c04e}",
             "in_index": 0,
             "out_id": "{359a78e1-df0d-467f-907e-7bff04a55db5}",
             "out_index": 0
+        },
+        {
+            "in_id": "{93fdbb4c-bc81-4100-89a9-b465793099b9}",
+            "in_index": 0,
+            "out_id": "{6fcfbcd0-c2df-41dd-bb50-74b455b9021f}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{359a78e1-df0d-467f-907e-7bff04a55db5}",
+            "in_index": 1,
+            "out_id": "{becdd0d4-2b28-44f5-86c2-2ed6b846326c}",
+            "out_index": 1
         },
         {
             "in_id": "{bed466d8-5ed0-4e8a-bba7-1c809cb4c3f7}",
@@ -56,9 +77,21 @@
             "out_index": 0
         },
         {
-            "in_id": "{93fdbb4c-bc81-4100-89a9-b465793099b9}",
+            "in_id": "{fc7542b2-5752-4891-98c1-35b498da257b}",
             "in_index": 0,
-            "out_id": "{6fcfbcd0-c2df-41dd-bb50-74b455b9021f}",
+            "out_id": "{bb071807-e65e-4c31-acf0-d296efa665fa}",
+            "out_index": 3
+        },
+        {
+            "in_id": "{d7acd173-9188-43b5-bfa1-31f17dff44ad}",
+            "in_index": 1,
+            "out_id": "{1f9d52d7-4f44-4d96-8edb-fbc1239a93bb}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{7750a050-b116-4e1b-bd89-b194c366d256}",
+            "in_index": 1,
+            "out_id": "{ca2c2ac5-39e0-4814-9432-fbf3e20d3cad}",
             "out_index": 0
         },
         {
@@ -74,9 +107,15 @@
             "out_index": 0
         },
         {
-            "in_id": "{92d95fe0-84f6-4d27-91ea-992d5f73c04e}",
+            "in_id": "{fbaddbbe-f9cd-4e8d-b7a8-40c10c96f580}",
+            "in_index": 0,
+            "out_id": "{ac98a68f-0160-4189-af31-b8278e7c119c}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{e1f86d56-eb21-4267-9075-e6b0cc875a6d}",
             "in_index": 1,
-            "out_id": "{f5a6874b-0559-4fd1-9836-27567f9696a4}",
+            "out_id": "{07a43c79-67e2-46b1-87d4-e00d2da22820}",
             "out_index": 0
         },
         {
@@ -98,21 +137,9 @@
             "out_index": 3
         },
         {
-            "in_id": "{359a78e1-df0d-467f-907e-7bff04a55db5}",
-            "in_index": 2,
-            "out_id": "{becdd0d4-2b28-44f5-86c2-2ed6b846326c}",
-            "out_index": 2
-        },
-        {
-            "in_id": "{fbaddbbe-f9cd-4e8d-b7a8-40c10c96f580}",
+            "in_id": "{d7acd173-9188-43b5-bfa1-31f17dff44ad}",
             "in_index": 0,
-            "out_id": "{ac98a68f-0160-4189-af31-b8278e7c119c}",
-            "out_index": 0
-        },
-        {
-            "in_id": "{7750a050-b116-4e1b-bd89-b194c366d256}",
-            "in_index": 1,
-            "out_id": "{ca2c2ac5-39e0-4814-9432-fbf3e20d3cad}",
+            "out_id": "{fc7542b2-5752-4891-98c1-35b498da257b}",
             "out_index": 0
         },
         {
@@ -122,33 +149,21 @@
             "out_index": 0
         },
         {
+            "in_id": "{359a78e1-df0d-467f-907e-7bff04a55db5}",
+            "in_index": 2,
+            "out_id": "{becdd0d4-2b28-44f5-86c2-2ed6b846326c}",
+            "out_index": 2
+        },
+        {
             "in_id": "{cf0ae20a-88cd-4788-9ed7-eaf014d8f971}",
             "in_index": 0,
             "out_id": "{c41cd67b-2f34-4ec4-acc6-2f7285e7c6e3}",
             "out_index": 0
         },
         {
-            "in_id": "{e1f86d56-eb21-4267-9075-e6b0cc875a6d}",
-            "in_index": 1,
-            "out_id": "{07a43c79-67e2-46b1-87d4-e00d2da22820}",
-            "out_index": 0
-        },
-        {
-            "in_id": "{359a78e1-df0d-467f-907e-7bff04a55db5}",
-            "in_index": 1,
-            "out_id": "{becdd0d4-2b28-44f5-86c2-2ed6b846326c}",
-            "out_index": 1
-        },
-        {
             "in_id": "{fbaddbbe-f9cd-4e8d-b7a8-40c10c96f580}",
             "in_index": 1,
             "out_id": "{db10f064-504d-4072-a49e-51a061b2efbe}",
-            "out_index": 0
-        },
-        {
-            "in_id": "{d7acd173-9188-43b5-bfa1-31f17dff44ad}",
-            "in_index": 1,
-            "out_id": "{1f9d52d7-4f44-4d96-8edb-fbc1239a93bb}",
             "out_index": 0
         },
         {
@@ -188,22 +203,10 @@
             "out_index": 0
         },
         {
-            "in_id": "{d7acd173-9188-43b5-bfa1-31f17dff44ad}",
-            "in_index": 0,
-            "out_id": "{fc7542b2-5752-4891-98c1-35b498da257b}",
-            "out_index": 0
-        },
-        {
             "in_id": "{fc7542b2-5752-4891-98c1-35b498da257b}",
             "in_index": 1,
             "out_id": "{743930bd-1d81-4d4c-b7ec-175a34838d69}",
             "out_index": 0
-        },
-        {
-            "in_id": "{fc7542b2-5752-4891-98c1-35b498da257b}",
-            "in_index": 0,
-            "out_id": "{bb071807-e65e-4c31-acf0-d296efa665fa}",
-            "out_index": 3
         }
     ],
     "inputs": [
@@ -671,18 +674,15 @@
     ],
     "textures": [
         {
-            "bindingIndex": 0,
+            "bindingIndex": 2,
             "name": "MaterialAlphaMap",
+            "setIndex": 2,
             "type": "Sampler2D"
         },
         {
             "bindingIndex": 1,
             "name": "MaterialDiffuseMap",
-            "type": "Sampler2D"
-        },
-        {
-            "bindingIndex": 2,
-            "name": "TextureOverlay",
+            "setIndex": 2,
             "type": "Sampler2D"
         }
     ],
