@@ -482,8 +482,8 @@ namespace Nz::ShaderLang
 			Expect(Advance(), TokenType::Colon);
 			extVar.type = ParseType();
 
-			if (!extVar.bindingSet)
-				extVar.bindingSet = blockSetIndex.value_or(0);
+			if (!extVar.bindingSet && blockSetIndex)
+				extVar.bindingSet = *blockSetIndex;
 
 			RegisterVariable(extVar.name);
 		}

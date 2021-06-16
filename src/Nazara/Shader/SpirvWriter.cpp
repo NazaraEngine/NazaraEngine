@@ -46,8 +46,8 @@ namespace Nz
 			public:
 				struct UniformVar
 				{
-					std::optional<UInt32> bindingIndex;
-					std::optional<UInt32> descriptorSet;
+					UInt32 bindingIndex;
+					UInt32 descriptorSet;
 					UInt32 pointerId;
 				};
 
@@ -123,10 +123,12 @@ namespace Nz
 						variable.storageClass = (ShaderAst::IsSamplerType(extVar.type)) ? SpirvStorageClass::UniformConstant : SpirvStorageClass::Uniform;
 						variable.type = m_constantCache.BuildPointerType(extVar.type, variable.storageClass);
 
+						assert(extVar.bindingIndex);
+
 						UniformVar& uniformVar = extVars[varIndex++];
 						uniformVar.pointerId = m_constantCache.Register(variable);
-						uniformVar.bindingIndex = extVar.bindingIndex;
-						uniformVar.descriptorSet = extVar.bindingSet;
+						uniformVar.bindingIndex = *extVar.bindingIndex;
+						uniformVar.descriptorSet = extVar.bindingSet.value_or(0);
 					}
 				}
 
@@ -491,11 +493,8 @@ namespace Nz
 
 		for (auto&& [varIndex, extVar] : preVisitor.extVars)
 		{
-			if (extVar.bindingIndex)
-			{
-				state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::Binding, *extVar.bindingIndex);
-				state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::DescriptorSet, *extVar.descriptorSet);
-			}
+			state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::Binding, extVar.bindingIndex);
+			state.annotations.Append(SpirvOp::OpDecorate, extVar.pointerId, SpirvDecoration::DescriptorSet, extVar.descriptorSet);
 		}
 
 		for (auto&& [varId, builtin] : preVisitor.builtinDecorations)

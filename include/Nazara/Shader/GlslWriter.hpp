@@ -31,8 +31,8 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			inline std::string Generate(ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states = {});
-			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states = {});
+			inline std::string Generate(ShaderAst::Statement& shader, const BindingMapping& bindingMapping = {}, const States& states = {});
+			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping = {}, const States& states = {});
 
 			void SetEnv(Environment environment);
 

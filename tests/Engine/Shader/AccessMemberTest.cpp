@@ -7,7 +7,7 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
-void ExpectingGLSL(Nz::ShaderAst::StatementPtr& shader, std::string_view expectedOutput)
+void ExpectingGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
 {
 	Nz::GlslWriter writer;
 
@@ -19,7 +19,7 @@ void ExpectingGLSL(Nz::ShaderAst::StatementPtr& shader, std::string_view expecte
 	REQUIRE(subset == expectedOutput);
 }
 
-void ExpectingSpirV(Nz::ShaderAst::StatementPtr& shader, std::string_view expectedOutput)
+void ExpectingSpirV(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
 {
 	Nz::SpirvWriter writer;
 	auto spirv = writer.Generate(shader);
@@ -64,6 +64,7 @@ SCENARIO("Shader generation", "[Shader]")
 
 		auto external = std::make_unique<Nz::ShaderAst::DeclareExternalStatement>();
 		external->externalVars.push_back({
+			0,
 			std::nullopt,
 			"ubo",
 			Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ "outerStruct" } }
@@ -85,7 +86,7 @@ SCENARIO("Shader generation", "[Shader]")
 
 			SECTION("Generating GLSL")
 			{
-				ExpectingGLSL(shader, R"(
+				ExpectingGLSL(*shader, R"(
 void main()
 {
 	float result = ubo.s.field.z;
@@ -94,7 +95,7 @@ void main()
 			}
 			SECTION("Generating Spir-V")
 			{
-				ExpectingSpirV(shader, R"(
+				ExpectingSpirV(*shader, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -121,7 +122,7 @@ OpFunctionEnd)");
 
 			SECTION("Generating GLSL")
 			{
-				ExpectingGLSL(shader, R"(
+				ExpectingGLSL(*shader, R"(
 void main()
 {
 	float result = ubo.s.field.z;
@@ -130,7 +131,7 @@ void main()
 			}
 			SECTION("Generating Spir-V")
 			{
-				ExpectingSpirV(shader, R"(
+				ExpectingSpirV(*shader, R"(
 OpFunction
 OpLabel
 OpVariable
