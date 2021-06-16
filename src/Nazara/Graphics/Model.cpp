@@ -4,8 +4,9 @@
 
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/ModelInstance.hpp>
+#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -28,9 +29,9 @@ namespace Nz
 		}
 	}
 
-	void Model::Draw(CommandBufferBuilder& commandBuffer, ModelInstance& instance) const
+	void Model::Draw(CommandBufferBuilder& commandBuffer, WorldInstance& instance) const
 	{
-		commandBuffer.BindShaderBinding(instance.GetShaderBinding());
+		commandBuffer.BindShaderBinding(Graphics::WorldBindingSet, instance.GetShaderBinding());
 
 		for (std::size_t i = 0; i < m_subMeshes.size(); ++i)
 		{
@@ -39,6 +40,7 @@ namespace Nz
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
 			const auto& renderPipeline = submeshData.material->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
+			commandBuffer.BindShaderBinding(Graphics::MaterialBindingSet, submeshData.material->GetShaderBinding());
 			commandBuffer.BindIndexBuffer(indexBuffer.get());
 			commandBuffer.BindVertexBuffer(0, vertexBuffer.get());
 			commandBuffer.BindPipeline(*renderPipeline);
@@ -55,6 +57,13 @@ namespace Nz
 	std::size_t Model::GetIndexCount(std::size_t subMeshIndex) const
 	{
 		return m_graphicalMesh->GetIndexCount(subMeshIndex);
+	}
+
+	const std::shared_ptr<Material>& Model::GetMaterial(std::size_t subMeshIndex) const
+	{
+		assert(subMeshIndex < m_subMeshes.size());
+		const auto& subMeshData = m_subMeshes[subMeshIndex];
+		return subMeshData.material;
 	}
 
 	const std::shared_ptr<RenderPipeline>& Model::GetRenderPipeline(std::size_t subMeshIndex) const

@@ -18,36 +18,36 @@ namespace Nz
 	m_data(std::move(data))
 	{
 		RenderPipelineLayoutInfo info;
-
-		unsigned int bindingIndex = 0;
+		Graphics::FillViewerPipelineLayout(info);
+		Graphics::FillWorldPipelineLayout(info);
 
 		for (const Texture& textureInfo : m_data.textures)
 		{
 			info.bindings.push_back({
-				//textureInfo.bindingPoint,
+				Graphics::MaterialBindingSet,
+				textureInfo.bindingIndex,
 				ShaderBindingType::Texture,
-				ShaderStageType_All,
-				bindingIndex++
+				textureInfo.shaderStages
 			});
 		}
 
 		for (const UniformBlock& ubo : m_data.uniformBlocks)
 		{
 			info.bindings.push_back({
-				//ubo.bindingPoint,
+				Graphics::MaterialBindingSet,
+				ubo.bindingIndex,
 				ShaderBindingType::UniformBuffer,
-				ShaderStageType_All,
-				bindingIndex++
+				ubo.shaderStages
 			});
 		}
 
 		for (const SharedUniformBlock& ubo : m_data.sharedUniformBlocks)
 		{
 			info.bindings.push_back({
-				//ubo.bindingPoint,
+				Graphics::MaterialBindingSet,
+				ubo.bindingIndex,
 				ShaderBindingType::UniformBuffer,
-				ShaderStageType_All,
-				bindingIndex++
+				ubo.shaderStages
 			});
 		}
 
@@ -73,11 +73,6 @@ namespace Nz
 		}
 
 		return InvalidIndex;
-	}
-
-	inline std::size_t MaterialSettings::GetPredefinedBindingIndex(PredefinedShaderBinding binding) const
-	{
-		return m_data.predefinedBinding[UnderlyingCast(binding)];
 	}
 
 	inline const std::shared_ptr<RenderPipelineLayout>& MaterialSettings::GetRenderPipelineLayout() const

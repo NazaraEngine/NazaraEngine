@@ -28,7 +28,11 @@ namespace Nz
 			ViewerInstance(ViewerInstance&&) noexcept = default;
 			~ViewerInstance() = default;
 
-			void UpdateViewBuffer(UploadPool& uploadPool, CommandBufferBuilder& builder);
+			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
+			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
+			inline ShaderBinding& GetShaderBinding();
+
+			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix);
 			inline void UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& viewMatrix);
@@ -42,13 +46,16 @@ namespace Nz
 			ViewerInstance& operator=(ViewerInstance&&) noexcept = default;
 
 		private:
+			std::shared_ptr<AbstractBuffer> m_viewerDataBuffer;
 			Matrix4f m_invProjectionMatrix;
 			Matrix4f m_invViewProjMatrix;
 			Matrix4f m_invViewMatrix;
 			Matrix4f m_projectionMatrix;
 			Matrix4f m_viewProjMatrix;
 			Matrix4f m_viewMatrix;
+			ShaderBindingPtr m_shaderBinding;
 			Vector2f m_targetSize;
+			bool m_dataInvalided;
 	};
 }
 

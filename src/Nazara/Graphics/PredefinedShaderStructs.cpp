@@ -46,8 +46,8 @@ namespace Nz
 		}
 
 		MaterialSettings::SharedUniformBlock uniformBlock = {
+			0, //< FIXME
 			"Light",
-			"LightData",
 			std::move(lightDataVariables)
 		};
 
@@ -65,31 +65,6 @@ namespace Nz
 		instanceData.totalSize = viewerStruct.GetAlignedSize();
 
 		return instanceData;
-	}
-
-	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock()
-	{
-		PredefinedInstanceData instanceData = GetOffsets();
-
-		std::vector<MaterialSettings::UniformVariable> instanceDataVariables;
-		instanceDataVariables.assign({
-			{
-				"WorldMatrix",
-				instanceData.worldMatrixOffset
-			},
-			{
-				"InvWorldMatrix",
-				instanceData.invWorldMatrixOffset
-			},
-		});
-
-		MaterialSettings::SharedUniformBlock uniformBlock = {
-			"Instance",
-			"InstanceData",
-			std::move(instanceDataVariables)
-		};
-
-		return uniformBlock;
 	}
 
 	PredefinedViewerData PredefinedViewerData::GetOffsets()
@@ -110,58 +85,5 @@ namespace Nz
 		viewerData.totalSize = viewerStruct.GetAlignedSize();
 
 		return viewerData;
-	}
-
-	MaterialSettings::SharedUniformBlock PredefinedViewerData::GetUniformBlock()
-	{
-		PredefinedViewerData viewerData = GetOffsets();
-
-		std::vector<MaterialSettings::UniformVariable> viewerDataVariables;
-		viewerDataVariables.assign({
-			{
-				"ProjMatrix",
-				viewerData.projMatrixOffset
-			},
-			{
-				"InvProjMatrix",
-				viewerData.invProjMatrixOffset
-			},
-			{
-				"ViewMatrix",
-				viewerData.viewMatrixOffset
-			},
-			{
-				"InvViewMatrix",
-				viewerData.invViewMatrixOffset
-			},
-			{
-				"ViewProjMatrix",
-				viewerData.viewProjMatrixOffset
-			},
-			{
-				"InvViewProjMatrix",
-				viewerData.invViewProjMatrixOffset
-			},
-			{
-				"TargetSize",
-				viewerData.targetSizeOffset
-			},
-			{
-				"InvTargetSize",
-				viewerData.invTargetSizeOffset
-			},
-			{
-				"EyePosition",
-				viewerData.eyePositionOffset
-			}
-		});
-
-		MaterialSettings::SharedUniformBlock uniformBlock = {
-			"Viewer",
-			"ViewerData",
-			std::move(viewerDataVariables)
-		};
-
-		return uniformBlock;
 	}
 }

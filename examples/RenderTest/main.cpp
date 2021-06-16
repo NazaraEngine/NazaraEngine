@@ -369,7 +369,10 @@ int main()
 			continue;
 
 		if (frame.IsFramebufferInvalidated())
+		{
+			frame.PushForRelease(std::move(drawCommandBuffer));
 			RebuildCommandBuffer();
+		}
 
 		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 

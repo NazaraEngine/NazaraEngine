@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetReferencePipelineLayout() const
+	{
+		return m_referencePipelineLayout;
+	}
+
 	inline const std::shared_ptr<RenderDevice>& Graphics::GetRenderDevice() const
 	{
 		return m_renderDevice;
@@ -15,11 +20,6 @@ namespace Nz
 	inline TextureSamplerCache& Graphics::GetSamplerCache()
 	{
 		return *m_samplerCache;
-	}
-
-	inline const std::shared_ptr<AbstractBuffer>& Graphics::GetViewerDataUBO()
-	{
-		return m_viewerDataUBO;
 	}
 }
 

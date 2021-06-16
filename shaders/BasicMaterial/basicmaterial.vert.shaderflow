@@ -1,20 +1,23 @@
 {
     "buffers": [
         {
-            "bindingIndex": 5,
+            "bindingIndex": 0,
             "name": "viewerData",
+            "setIndex": 0,
             "structIndex": 2,
             "type": "UniformBufferObject"
         },
         {
-            "bindingIndex": 4,
+            "bindingIndex": 0,
             "name": "instanceData",
+            "setIndex": 1,
             "structIndex": 1,
             "type": "UniformBufferObject"
         },
         {
-            "bindingIndex": 3,
+            "bindingIndex": 0,
             "name": "settings",
+            "setIndex": 2,
             "structIndex": 0,
             "type": "UniformBufferObject"
         }
@@ -47,6 +50,12 @@
             "out_index": 0
         },
         {
+            "in_id": "{0fc53363-dbce-4874-8de5-5ca05ae038b7}",
+            "in_index": 0,
+            "out_id": "{412684ce-0ec2-4db5-964c-10e5b68d43e8}",
+            "out_index": 0
+        },
+        {
             "in_id": "{63bb13f0-55e3-451b-860e-568b65e09b04}",
             "in_index": 0,
             "out_id": "{62731a4b-f054-4f78-82da-08d2584e51ab}",
@@ -59,21 +68,15 @@
             "out_index": 0
         },
         {
-            "in_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
-            "in_index": 0,
-            "out_id": "{d32dfb1d-c8a4-4315-a710-90d2a51f68e8}",
-            "out_index": 0
-        },
-        {
             "in_id": "{1bb9712b-8bff-4398-9e4e-fba79a04df0e}",
             "in_index": 0,
             "out_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
             "out_index": 0
         },
         {
-            "in_id": "{0fc53363-dbce-4874-8de5-5ca05ae038b7}",
+            "in_id": "{d8f4d14a-c67a-470f-87bf-8f60d9513c3b}",
             "in_index": 0,
-            "out_id": "{412684ce-0ec2-4db5-964c-10e5b68d43e8}",
+            "out_id": "{d32dfb1d-c8a4-4315-a710-90d2a51f68e8}",
             "out_index": 0
         },
         {

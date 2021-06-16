@@ -24,7 +24,6 @@ namespace Nz
 	class MaterialSettings
 	{
 		public:
-			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
 			using Shaders = std::array<std::shared_ptr<UberShader>, ShaderStageTypeCount>;
 
 			struct Builder;
@@ -42,7 +41,6 @@ namespace Nz
 			inline const Builder& GetBuilderData() const;
 			inline const std::vector<Condition>& GetConditions() const;
 			inline std::size_t GetConditionIndex(const std::string_view& name) const;
-			inline std::size_t GetPredefinedBindingIndex(PredefinedShaderBinding binding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType stage) const;
 			inline const Shaders& GetShaders() const;
@@ -62,7 +60,6 @@ namespace Nz
 
 			struct Builder
 			{
-				PredefinedBinding predefinedBinding;
 				Shaders shaders;
 				std::vector<Condition> conditions;
 				std::vector<Texture> textures;
@@ -84,25 +81,28 @@ namespace Nz
 
 			struct SharedUniformBlock
 			{
+				UInt32 bindingIndex;
 				std::string name;
-				std::string bindingPoint;
 				std::vector<UniformVariable> uniforms;
+				ShaderStageTypeFlags shaderStages = ShaderStageType_All;
 			};
 
 			struct Texture
 			{
-				std::string bindingPoint;
+				UInt32 bindingIndex;
 				std::string name;
 				ImageType type;
+				ShaderStageTypeFlags shaderStages = ShaderStageType_All;
 			};
 
 			struct UniformBlock
 			{
-				std::size_t blockSize;
+				UInt32 bindingIndex;
 				std::string name;
-				std::string bindingPoint;
+				std::size_t blockSize;
 				std::vector<UniformVariable> uniforms;
 				std::vector<UInt8> defaultValues;
+				ShaderStageTypeFlags shaderStages = ShaderStageType_All;
 			};
 
 		private:

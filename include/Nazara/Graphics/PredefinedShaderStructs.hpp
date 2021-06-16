@@ -42,7 +42,6 @@ namespace Nz
 		std::size_t worldMatrixOffset;
 
 		static PredefinedInstanceData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 
 	struct NAZARA_GRAPHICS_API PredefinedViewerData
@@ -59,7 +58,6 @@ namespace Nz
 		std::size_t viewProjMatrixOffset;
 
 		static PredefinedViewerData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 }
 

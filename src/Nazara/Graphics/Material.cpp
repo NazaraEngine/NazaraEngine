@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -28,6 +29,7 @@ namespace Nz
 	m_settings(std::move(settings)),
 	m_enabledConditions(0),
 	m_pipelineUpdated(false),
+	m_shaderBindingUpdated(false),
 	m_shadowCastingEnabled(true)
 	{
 		m_pipelineInfo.settings = m_settings;
@@ -35,6 +37,9 @@ namespace Nz
 		const auto& shaders = m_settings->GetShaders();
 		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
 			m_pipelineInfo.shaders[i].uberShader = shaders[i];
+
+		const auto& textureSettings = m_settings->GetTextures();
+		const auto& uboSettings = m_settings->GetUniformBlocks();
 
 		m_textures.resize(m_settings->GetTextures().size());
 
@@ -49,14 +54,28 @@ namespace Nz
 
 			assert(uniformBufferInfo.defaultValues.size() <= uniformBufferInfo.blockSize);
 
-			uniformBuffer.buffer->Fill(uniformBufferInfo.defaultValues.data(), 0, uniformBufferInfo.defaultValues.size());
 			uniformBuffer.data.resize(uniformBufferInfo.blockSize);
 			std::memcpy(uniformBuffer.data.data(), uniformBufferInfo.defaultValues.data(), uniformBufferInfo.defaultValues.size());
 		}
+
+		UpdateShaderBinding();
 	}
 
-	void Material::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	bool Material::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
+		bool shouldRegenerateCommandBuffer = false;
+		if (!m_shaderBindingUpdated)
+		{
+			shouldRegenerateCommandBuffer = true;
+
+			renderFrame.PushForRelease(std::move(m_shaderBinding));
+			m_shaderBinding.reset();
+
+			UpdateShaderBinding();
+		}
+
+		UploadPool& uploadPool = renderFrame.GetUploadPool();
+
 		for (auto& ubo : m_uniformBuffers)
 		{
 			if (ubo.dataInvalidated)
@@ -69,18 +88,26 @@ namespace Nz
 				ubo.dataInvalidated = false;
 			}
 		}
+
+		return shouldRegenerateCommandBuffer;
 	}
 
-	void Material::UpdateShaderBinding(ShaderBinding& shaderBinding) const
+	void Material::UpdateShaderBinding()
 	{
+		assert(!m_shaderBinding);
+
+		const auto& textureSettings = m_settings->GetTextures();
+		const auto& uboSettings = m_settings->GetUniformBlocks();
+
 		// TODO: Use StackVector
 		std::vector<ShaderBinding::Binding> bindings;
 
-
-		std::size_t bindingIndex = 0;
-
-		for (const auto& textureSlot : m_textures)
+		// Textures
+		for (std::size_t i = 0; i < m_textures.size(); ++i)
 		{
+			const auto& textureSetting = textureSettings[i];
+			const auto& textureSlot = m_textures[i];
+
 			if (!textureSlot.sampler)
 			{
 				TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
@@ -91,26 +118,33 @@ namespace Nz
 			if (textureSlot.texture)
 			{
 				bindings.push_back({
-					bindingIndex,
+					textureSetting.bindingIndex,
 					ShaderBinding::TextureBinding {
 						textureSlot.texture.get(), textureSlot.sampler.get()
 					}
 				});
 			}
-
-			bindingIndex++;
 		}
 
-		for (const auto& ubo : m_uniformBuffers)
+		// Shared UBO (TODO)
+
+		// Owned UBO
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
 		{
+			const auto& uboSetting = uboSettings[i];
+			const auto& uboSlot = m_uniformBuffers[i];
+
 			bindings.push_back({
-				bindingIndex++,
+				uboSetting.bindingIndex,
 				ShaderBinding::UniformBufferBinding {
-					ubo.buffer.get(), 0, ubo.buffer->GetSize()
+					uboSlot.buffer.get(), 0, uboSlot.buffer->GetSize()
 				}
 			});
 		}
 
-		shaderBinding.Update(bindings.data(), bindings.size());
+		m_shaderBinding = m_settings->GetRenderPipelineLayout()->AllocateShaderBinding(Graphics::MaterialBindingSet);
+		m_shaderBinding->Update(bindings.data(), bindings.size());
+
+		m_shaderBindingUpdated = true;
 	}
 }
