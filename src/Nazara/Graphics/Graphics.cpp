@@ -42,6 +42,7 @@ namespace Nz
 
 		RenderDeviceFeatures enabledFeatures;
 		enabledFeatures.anisotropicFiltering = renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+		enabledFeatures.nonSolidFaceFilling = renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 
 		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);
 		if (!m_renderDevice)
