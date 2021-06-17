@@ -500,13 +500,11 @@ namespace Nz::GL
 			m_state.renderStates.frontFace = targetFrontFace;
 		}
 
-		/*
-		TODO: Use glPolyonMode if available (OpenGL)
-		if (m_state.renderStates.faceFilling != renderStates.faceFilling)
+		if (glPolygonMode && m_state.renderStates.faceFilling != renderStates.faceFilling)
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, FaceFilling[states.faceFilling]);
+			glPolygonMode(GL_FRONT_AND_BACK, ToOpenGL(renderStates.faceFilling));
 			m_state.renderStates.faceFilling = renderStates.faceFilling;
-		}*/
+		}
 
 		if (renderStates.stencilTest)
 		{
@@ -662,6 +660,12 @@ namespace Nz::GL
 				return loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "DebugMessageCallbackAMD", false, false);
 
 			return true;
+		}
+		else if (function == "glPolygonMode")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glPolygonMode);
+
+			return loader.Load<PFNGLPOLYGONMODENVPROC, functionIndex>(glPolygonMode, "glPolygonModeNV", false, false);
 		}
 
 		return false;

@@ -12,8 +12,12 @@
 #include <GLES2/gl2ext.h>
 
 // Define some OpenGL (not ES) extensions
+#define GL_POINT                           0x1B00
+#define GL_LINE                            0x1B01
+#define GL_FILL                            0x1B02
 #define GL_SHADER_BINARY_FORMAT_SPIR_V_ARB 0x9551
 #define GL_SPIR_V_BINARY_ARB               0x9552
+typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
 
 // OpenGL core
@@ -162,6 +166,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glViewport, PFNGLVIEWPORTPROC) \
 	\
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
+	\
+	extCb(glPolygonMode, PFNGLPOLYGONMODEPROC) \
 	\
 	extCb(glMemoryBarrier, PFNGLMEMORYBARRIERPROC) \
 	extCb(glMemoryBarrierByRegion, PFNGLMEMORYBARRIERBYREGIONPROC) \

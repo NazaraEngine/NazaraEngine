@@ -16,6 +16,7 @@ namespace Nz
 	struct RenderDeviceFeatures
 	{
 		bool anisotropicFiltering = false;
+		bool nonSolidFaceFilling = false;
 	};
 
 	struct RenderDeviceLimits
