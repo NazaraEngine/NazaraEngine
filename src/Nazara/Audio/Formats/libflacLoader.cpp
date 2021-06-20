@@ -169,8 +169,12 @@ namespace Nz
 			return extension == "flac";
 		}
 
-		Ternary CheckFlac(Stream& stream)
+		Ternary CheckFlac(Stream& stream, const ResourceParameters& parameters)
 		{
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeFlacLoader", &skip) && skip)
+				return Ternary::False;
+
 			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
 			CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
 
@@ -589,7 +593,7 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams&) { return CheckFlac(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckFlac(stream, parameters); };
 			loaderEntry.streamLoader = LoadSoundBuffer;
 
 			return loaderEntry;
@@ -599,7 +603,7 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams&) { return CheckFlac(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckFlac(stream, parameters); };
 			loaderEntry.fileLoader = LoadSoundStreamFile;
 			loaderEntry.memoryLoader = LoadSoundStreamMemory;
 			loaderEntry.streamLoader = LoadSoundStreamStream;

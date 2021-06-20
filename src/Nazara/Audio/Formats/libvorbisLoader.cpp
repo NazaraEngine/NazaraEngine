@@ -152,8 +152,12 @@ namespace Nz
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary CheckOgg(Stream& stream)
+		Ternary CheckOgg(Stream& stream, const ResourceParameters& parameters)
 		{
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeVorbisLoader", &skip) && skip)
+				return Ternary::False;
+
 			OggVorbis_File file;
 			if (ov_test_callbacks(&stream, &file, nullptr, 0, s_callbacks) != 0)
 				return Ternary::False;
@@ -413,7 +417,7 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams&) { return CheckOgg(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckOgg(stream, parameters); };
 			loaderEntry.streamLoader = LoadSoundBuffer;
 
 			return loaderEntry;
@@ -423,7 +427,7 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams&) { return CheckOgg(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckOgg(stream, parameters); };
 			loaderEntry.fileLoader = LoadSoundStreamFile;
 			loaderEntry.memoryLoader = LoadSoundStreamMemory;
 			loaderEntry.streamLoader = LoadSoundStreamStream;
