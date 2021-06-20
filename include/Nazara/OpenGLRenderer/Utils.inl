@@ -74,6 +74,19 @@ namespace Nz
 		NazaraError("Unhandled BlendFunc 0x" + NumberToString(UnderlyingCast(blendFunc), 16));
 		return {};
 	}
+	
+	inline GLenum ToOpenGL(FaceFilling side)
+	{
+		switch (side)
+		{
+			case FaceFilling::Fill:  return GL_FILL;
+			case FaceFilling::Line:  return GL_LINE;
+			case FaceFilling::Point: return GL_POINT;
+		}
+
+		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(side), 16));
+		return {};
+	}
 
 	inline GLenum ToOpenGL(FaceSide side)
 	{

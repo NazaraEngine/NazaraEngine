@@ -56,6 +56,9 @@ namespace Nz
 		if ((params.type == GL::ContextType::OpenGL && glVersion >= 460) || m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
 			m_deviceInfo.features.anisotropicFiltering = true;
 
+		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
+			m_deviceInfo.features.nonSolidFaceFilling = true;
+
 		// Limits
 		GLint minUboOffsetAlignment;
 		m_referenceContext->glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &minUboOffsetAlignment);

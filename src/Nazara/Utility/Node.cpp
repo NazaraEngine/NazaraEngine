@@ -41,6 +41,35 @@ namespace Nz
 		SetParent(node.m_parent, false);
 	}
 
+	Node::Node(Node&& node) noexcept :
+	m_childs(std::move(node.m_childs)),
+	m_initialRotation(node.m_initialRotation),
+	m_rotation(node.m_rotation),
+	m_initialPosition(node.m_initialPosition),
+	m_initialScale(node.m_initialScale),
+	m_position(node.m_position),
+	m_scale(node.m_scale),
+	m_parent(node.m_parent),
+	m_derivedUpdated(false),
+	m_inheritPosition(node.m_inheritPosition),
+	m_inheritRotation(node.m_inheritRotation),
+	m_inheritScale(node.m_inheritScale),
+	m_transformMatrixUpdated(false),
+	OnNodeInvalidation(std::move(node.OnNodeInvalidation)),
+	OnNodeNewParent(std::move(node.OnNodeNewParent)),
+	OnNodeRelease(std::move(node.OnNodeRelease))
+	{
+		if (m_parent)
+		{
+			m_parent->RemoveChild(&node);
+			m_parent->AddChild(this);
+			node.m_parent = nullptr;
+		}
+
+		for (Node* child : m_childs)
+			child->m_parent = this;
+	}
+
 	Node::~Node()
 	{
 		OnNodeRelease(this);
@@ -637,6 +666,42 @@ namespace Nz
 		m_position = node.m_position;
 		m_rotation = node.m_rotation;
 		m_scale = node.m_scale;
+
+		InvalidateNode();
+
+		return *this;
+	}
+
+	Node& Node::operator=(Node&& node) noexcept
+	{
+		if (m_parent)
+			SetParent(nullptr);
+
+		m_inheritPosition = node.m_inheritPosition;
+		m_inheritRotation = node.m_inheritRotation;
+		m_inheritScale = node.m_inheritScale;
+		m_initialPosition = node.m_initialPosition;
+		m_initialRotation = node.m_initialRotation;
+		m_initialScale = node.m_initialScale;
+		m_position = node.m_position;
+		m_rotation = node.m_rotation;
+		m_scale = node.m_scale;
+
+		m_childs = std::move(node.m_childs);
+		for (Node* child : m_childs)
+			child->m_parent = this;
+
+		m_parent = node.m_parent;
+		if (m_parent)
+		{
+			m_parent->RemoveChild(&node);
+			m_parent->AddChild(this);
+			node.m_parent = nullptr;
+		}
+
+		OnNodeInvalidation = std::move(node.OnNodeInvalidation);
+		OnNodeNewParent = std::move(node.OnNodeNewParent);
+		OnNodeRelease = std::move(node.OnNodeRelease);
 
 		InvalidateNode();
 

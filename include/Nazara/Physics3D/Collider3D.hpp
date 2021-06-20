@@ -30,6 +30,7 @@ namespace Nz
 
 	class PrimitiveList;
 	class PhysWorld3D;
+	class StaticMesh;
 
 	class NAZARA_PHYSICS3D_API Collider3D
 	{
@@ -47,6 +48,8 @@ namespace Nz
 			virtual float ComputeVolume() const;
 
 			virtual void ForEachPolygon(const std::function<void(const Vector3f* vertices, std::size_t vertexCount)>& callback) const;
+
+			virtual std::shared_ptr<StaticMesh> GenerateMesh() const;
 
 			NewtonCollision* GetHandle(PhysWorld3D* world) const;
 			virtual ColliderType3D GetType() const = 0;
