@@ -23,6 +23,7 @@ namespace Nz
 		public:
 			Node();
 			Node(const Node& node);
+			Node(Node&& node) noexcept;
 			virtual ~Node();
 
 			void EnsureDerivedUpdate() const;
@@ -92,6 +93,7 @@ namespace Nz
 			Vector3f ToLocalScale(const Vector3f& globalScale) const;
 
 			Node& operator=(const Node& node);
+			Node& operator=(Node&& node) noexcept;
 
 			// Signals:
 			NazaraSignal(OnNodeInvalidation, const Node* /*node*/);
