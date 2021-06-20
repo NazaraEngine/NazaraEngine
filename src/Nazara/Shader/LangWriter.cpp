@@ -787,10 +787,13 @@ namespace Nz
 		}
 
 		Append("(");
+		bool first = true;
 		for (std::size_t i = (method) ? 1 : 0; i < node.parameters.size(); ++i)
 		{
-			if (i != 0)
+			if (!first)
 				Append(", ");
+
+			first = false;
 
 			node.parameters[i]->Visit(*this);
 		}
