@@ -1,16 +1,16 @@
 #define CATCH_CONFIG_RUNNER
-#include <Catch/catch.hpp>
+#include <catch2/catch.hpp>
 
-#include <NDK/Application.hpp>
-#include <Nazara/Core/AbstractLogger.hpp>
-#include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Network/Network.hpp>
+#include <Nazara/Core/AbstractLogger.hpp>
+#include <Nazara/Core/Modules.hpp>
+#include <NazaraSDK/Application.hpp>
+#include <NazaraSDK/Sdk.hpp>
 
 int main(int argc, char* argv[])
 {
-	Ndk::Application application(argc, argv);
-	Nz::Initializer<Nz::Network> modules;
+	Nz::Modules<Ndk::Sdk> nazaza;
+	Ndk::Application app(argc, argv);
 
 	Nz::Log::GetLogger()->EnableStdReplication(false);
 

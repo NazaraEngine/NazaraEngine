@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,11 +8,11 @@
 #define NAZARA_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -22,9 +22,9 @@ namespace Nz
 		public:
 			struct Joint
 			{
+				std::string name;
 				Int32 parent;
 				Quaternionf bindOrient;
-				String name;
 				Vector3f bindPos;
 			};
 
@@ -49,7 +49,7 @@ namespace Nz
 				std::vector<Triangle> triangles;
 				std::vector<Vertex> vertices;
 				std::vector<Weight> weights;
-				String shader;
+				std::string shader;
 			};
 
 			MD5MeshParser(Stream& stream);
@@ -66,17 +66,17 @@ namespace Nz
 
 		private:
 			bool Advance(bool required = true);
-			void Error(const String& message);
+			void Error(const std::string& message);
 			bool ParseJoints();
 			bool ParseMesh();
-			void Warning(const String& message);
+			void Warning(const std::string& message);
 			void UnrecognizedLine(bool error = false);
 
 			std::vector<Joint> m_joints;
 			std::vector<Mesh> m_meshes;
 			Stream& m_stream;
 			StreamOptionFlags m_streamFlags;
-			String m_currentLine;
+			std::string m_currentLine;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
 			unsigned int m_meshIndex;

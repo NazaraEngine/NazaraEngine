@@ -1,12 +1,14 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <stb/stb_image_write.h>
+#include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <map>
 #include <stdexcept>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -15,36 +17,36 @@ namespace Nz
 	{
 		using FormatHandler = bool(*)(const Image& image, const ImageParams& parameters, Stream& stream);
 
-		std::map<String, FormatHandler> s_formatHandlers;
+		std::map<std::string_view, FormatHandler> s_formatHandlers;
 
 		int ConvertToFloatFormat(Image& image)
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormatType_R32F:
+				case PixelFormat::R32F:
 					return 1;
 
-				case PixelFormatType_RG32F:
+				case PixelFormat::RG32F:
 					return 2;
 
-				case PixelFormatType_RGB32F:
+				case PixelFormat::RGB32F:
 					return 3;
 
-				case PixelFormatType_RGBA32F:
+				case PixelFormat::RGBA32F:
 					return 4;
 
 				default:
 				{
-					if (PixelFormat::HasAlpha(image.GetFormat()))
+					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormatType_RGBA32F))
+						if (!image.Convert(PixelFormat::RGBA32F))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormatType_RGB32F))
+						if (!image.Convert(PixelFormat::RGB32F))
 							break;
 
 						return 3;
@@ -59,32 +61,32 @@ namespace Nz
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormatType_L8:
-				case PixelFormatType_R8:
+				case PixelFormat::L8:
+				case PixelFormat::R8:
 					return 1;
 
-				case PixelFormatType_LA8:
-				case PixelFormatType_RG8:
+				case PixelFormat::LA8:
+				case PixelFormat::RG8:
 					return 2;
 
-				case PixelFormatType_RGB8:
+				case PixelFormat::RGB8:
 					return 3;
 
-				case PixelFormatType_RGBA8:
+				case PixelFormat::RGBA8:
 					return 4;
 
 				default:
 				{
-					if (PixelFormat::HasAlpha(image.GetFormat()))
+					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormatType_RGBA8))
+						if (!image.Convert(PixelFormat::RGBA8))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormatType_RGB8))
+						if (!image.Convert(PixelFormat::RGB8))
 							break;
 
 						return 3;
@@ -102,12 +104,12 @@ namespace Nz
 				throw std::runtime_error("Failed to write to stream");
 		}
 
-		bool FormatQuerier(const String& extension)
+		bool FormatQuerier(const std::string_view& extension)
 		{
 			return s_formatHandlers.find(extension) != s_formatHandlers.end();
 		}
 
-		bool SaveToStream(const Image& image, const String& format, Stream& stream, const ImageParams& parameters)
+		bool SaveToStream(const Image& image, const std::string& format, Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -118,9 +120,9 @@ namespace Nz
 			}
 
 			ImageType type = image.GetType();
-			if (type != ImageType_1D && type != ImageType_2D)
+			if (type != ImageType::E1D && type != ImageType::E2D)
 			{
-				NazaraError("Image type 0x" + String::Number(type, 16) + " is not in a supported format");
+				NazaraError("Image type 0x" + NumberToString(UnderlyingCast(type), 16) + " is not in a supported format");
 				return false;
 			}
 
@@ -177,7 +179,7 @@ namespace Nz
 			{
 				if (imageQuality <= 0 || imageQuality > 100)
 				{
-					NazaraError("NativeJPEGSaver_Quality value (" + Nz::String::Number(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
+					NazaraError("NativeJPEGSaver_Quality value (" + Nz::NumberToString(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
 					imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
 				}
 			}
@@ -262,22 +264,20 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterSTBSaver()
+		ImageSaver::Entry GetImageSaver_STB()
 		{
-			s_formatHandlers["bmp"]  = &SaveBMP;
-			s_formatHandlers["hdr"]  = &SaveHDR;
-			s_formatHandlers["jpg"]  = &SaveJPEG;
+			s_formatHandlers["bmp"] = &SaveBMP;
+			s_formatHandlers["hdr"] = &SaveHDR;
+			s_formatHandlers["jpg"] = &SaveJPEG;
 			s_formatHandlers["jpeg"] = &SaveJPEG;
-			s_formatHandlers["png"]  = &SavePNG;
-			s_formatHandlers["tga"]  = &SaveTGA;
+			s_formatHandlers["png"] = &SavePNG;
+			s_formatHandlers["tga"] = &SaveTGA;
 
-			ImageSaver::RegisterSaver(FormatQuerier, SaveToStream);
-		}
+			ImageSaver::Entry entry;
+			entry.formatSupport = FormatQuerier;
+			entry.streamSaver = SaveToStream;
 
-		void UnregisterSTBSaver()
-		{
-			ImageSaver::UnregisterSaver(FormatQuerier, SaveToStream);
-			s_formatHandlers.clear();
+			return entry;
 		}
 	}
 }

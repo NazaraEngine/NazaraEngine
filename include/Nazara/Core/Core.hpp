@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,24 +8,29 @@
 #define NAZARA_CORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Modules.hpp>
+#include <Nazara/Core/ModuleBase.hpp>
+#include <Nazara/Core/TypeList.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API Core
+	class NAZARA_CORE_API Core : public ModuleBase<Core>
 	{
+		friend ModuleBase;
+
 		public:
-			Core() = delete;
-			~Core() = delete;
+			using Dependencies = TypeList<>;
 
-			static bool Initialize();
+			struct Config {};
 
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Core(Config /*config*/);
+			~Core();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Core* s_instance;
 	};
 }
+
+#include <Nazara/Core/Core.inl>
 
 #endif // NAZARA_CORE_HPP

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -43,10 +43,10 @@ namespace Nz
 			void SetStride(int stride);
 
 			explicit operator bool() const;
-			operator T*() const;
+			explicit operator T*() const;
 			T& operator*() const;
 			T* operator->() const;
-			T& operator[](int index) const;
+			T& operator[](std::size_t index) const;
 
 			SparsePtr& operator=(const SparsePtr& ptr) = default;
 

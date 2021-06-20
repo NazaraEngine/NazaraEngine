@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Assimp Plugin"
 // For conditions of distribution and use, see copyright notice in Plugin.cpp
 
@@ -6,7 +6,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
@@ -45,7 +44,7 @@ aiReturn StreamSeek(aiFile* file, size_t offset, aiOrigin origin)
 			break;
 	}
 
-	NazaraWarning("Unhandled aiOrigin enum (value: 0x" + String(origin, 16) + ')');
+	NazaraWarning("Unhandled aiOrigin enum (value: 0x" + std::string(origin, 16) + ')');
 	return aiReturn_FAILURE;
 }
 
@@ -80,37 +79,37 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		stream = reinterpret_cast<aiUserData>(fileIOUserdata->originalStream);
 	else
 	{
-		ErrorFlags errFlags(ErrorFlag_ThrowExceptionDisabled, true);
+		ErrorFlags errFlags(ErrorMode::ThrowExceptionDisabled, true);
 
 		///TODO: Move to File::DecodeOpenMode
 		OpenModeFlags openModeEnum = 0;
 
 		if (std::strchr(openMode, 'r'))
 		{
-			openModeEnum |= OpenMode_ReadOnly;
+			openModeEnum |= OpenMode::ReadOnly;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadWrite | OpenMode_MustExist;
+				openModeEnum |= OpenMode_ReadWrite | OpenMode::MustExist;
 		}
 		else if (std::strchr(openMode, 'w'))
 		{
-			openModeEnum |= OpenMode_WriteOnly | OpenMode_Truncate;
+			openModeEnum |= OpenMode::WriteOnly | OpenMode::Truncate;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadOnly;
+				openModeEnum |= OpenMode::ReadOnly;
 		}
 		else if (std::strchr(openMode, 'a'))
 		{
-			openModeEnum |= OpenMode_WriteOnly | OpenMode_Append;
+			openModeEnum |= OpenMode::WriteOnly | OpenMode::Append;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadOnly;
+				openModeEnum |= OpenMode::ReadOnly;
 		}
 		else
 		{
-			NazaraError(String("Unhandled/Invalid openmode: ") + openMode + String(" for file ") + filePath);
+			NazaraError(std::string("Unhandled/Invalid openmode: ") + openMode + std::string(" for file ") + filePath);
 			return nullptr;
 		}
 
 		if (!std::strchr(openMode, 'b'))
-			openModeEnum |= OpenMode_Text;
+			openModeEnum |= OpenMode::Text;
 
 		std::unique_ptr<File> file = std::make_unique<File>();
 		if (!file->Open(filePath, openModeEnum))

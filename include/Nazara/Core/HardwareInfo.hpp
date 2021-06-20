@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/String.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -21,10 +21,10 @@ namespace Nz
 
 			static void Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4]);
 
-			static String GetProcessorBrandString();
+			static std::string_view GetProcessorBrandString();
 			static unsigned int GetProcessorCount();
 			static ProcessorVendor GetProcessorVendor();
-			static String GetProcessorVendorName();
+			static std::string_view GetProcessorVendorName();
 			static UInt64 GetTotalMemory();
 
 			static bool HasCapability(ProcessorCap capability);

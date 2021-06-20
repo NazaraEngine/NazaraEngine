@@ -1,16 +1,14 @@
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Lua.hpp>
 #include <Nazara/Network.hpp>
-#include <Nazara/Noise.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NDK/Application.hpp>
-#include <NDK/Components.hpp>
-#include <NDK/Systems.hpp>
-#include <NDK/StateMachine.hpp>
+#include <NazaraSDK/Application.hpp>
+#include <NazaraSDK/Components.hpp>
+#include <NazaraSDK/Systems.hpp>
+#include <NazaraSDK/StateMachine.hpp>
 #include "LogoDemo.hpp"
 #include "SpacebattleDemo.hpp"
 #include <iostream>
@@ -37,6 +35,8 @@ int main()
 
 	Nz::RenderWindow& window = app.AddWindow<Nz::RenderWindow>(mode, "Nazara demo - Particles", Nz::WindowStyle_Closable, targetParams);
 	//Nz::RenderWindow& window = app.AddWindow<Nz::RenderWindow>(Nz::VideoMode(1920, 1080), "Nazara demo - Particles", Nz::WindowStyle_Fullscreen, targetParams);
+
+	app.EnableFPSCounter(true);
 
 	Ndk::World& world3D = app.AddWorld();
 	Ndk::World& world2D = app.AddWorld();
@@ -169,11 +169,11 @@ int main()
 						case Nz::Keyboard::VKey::F5:
 						{
 							Nz::Image screenshot;
-							screenshot.Create(Nz::ImageType_2D, Nz::PixelFormatType_RGBA8, 1920, 1080);
+							screenshot.Create(Nz::ImageType_2D, Nz::PixelFormat_RGBA8, 1920, 1080);
 							window.CopyToImage(&screenshot);
 
 							static unsigned int counter = 1;
-							screenshot.SaveToFile("screenshot_" + Nz::String::Number(counter++) + ".png");
+							screenshot.SaveToFile("screenshot_" + std::to_string(counter++) + ".png");
 							break;
 						}
 

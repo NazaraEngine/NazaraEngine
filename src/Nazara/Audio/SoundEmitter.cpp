@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -142,7 +142,7 @@ namespace Nz
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
 		Vector3f position;
-		alGetSourcefv(m_source, AL_POSITION, position);
+		alGetSourcefv(m_source, AL_POSITION, &position.x);
 
 		return position;
 	}
@@ -157,7 +157,7 @@ namespace Nz
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
 		Vector3f velocity;
-		alGetSourcefv(m_source, AL_VELOCITY, velocity);
+		alGetSourcefv(m_source, AL_VELOCITY, &velocity.x);
 
 		return velocity;
 	}
@@ -241,7 +241,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		alSourcefv(m_source, AL_POSITION, position);
+		alSourcefv(m_source, AL_POSITION, &position.x);
 	}
 
 	/*!
@@ -267,7 +267,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		alSourcefv(m_source, AL_VELOCITY, velocity);
+		alSourcefv(m_source, AL_VELOCITY, &velocity.x);
 	}
 
 	/*!
@@ -326,18 +326,18 @@ namespace Nz
 		{
 			case AL_INITIAL:
 			case AL_STOPPED:
-				return SoundStatus_Stopped;
+				return SoundStatus::Stopped;
 
 			case AL_PAUSED:
-				return SoundStatus_Paused;
+				return SoundStatus::Paused;
 
 			case AL_PLAYING:
-				return SoundStatus_Playing;
+				return SoundStatus::Playing;
 
 			default:
 				NazaraInternalError("Source state unrecognized");
 		}
 
-		return SoundStatus_Stopped;
+		return SoundStatus::Stopped;
 	}
 }

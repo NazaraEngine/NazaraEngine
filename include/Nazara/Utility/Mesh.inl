@@ -1,34 +1,28 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Mesh.hpp>
 #include <memory>
+#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	Mesh::Mesh() :
+	inline Mesh::Mesh() :
 	m_materialData(1),
 	m_aabbUpdated(false),
 	m_isValid(false)
 	{
 	}
 
-	Mesh::~Mesh()
+	inline std::shared_ptr<Mesh> Mesh::Build(std::shared_ptr<StaticMesh> staticMesh)
 	{
-		OnMeshRelease(this);
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+		mesh->CreateStatic();
+		mesh->AddSubMesh(std::move(staticMesh));
 
-		Destroy();
-	}
-
-	template<typename... Args>
-	MeshRef Mesh::New(Args&&... args)
-	{
-		std::unique_ptr<Mesh> object(new Mesh(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
+		return mesh;
 	}
 }
 

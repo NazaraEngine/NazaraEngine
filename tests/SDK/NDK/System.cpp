@@ -1,5 +1,5 @@
-#include <NDK/System.hpp>
-#include <Catch/catch.hpp>
+#include <NazaraSDK/System.hpp>
+#include <catch2/catch.hpp>
 
 namespace
 {

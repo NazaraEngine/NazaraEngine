@@ -1,8 +1,8 @@
-#include <NDK/Systems/VelocitySystem.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/VelocityComponent.hpp>
-#include <Catch/catch.hpp>
+#include <NazaraSDK/Systems/VelocitySystem.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/VelocityComponent.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("VelocitySystem", "[NDK][VELOCITYSYSTEM]")
 {
@@ -13,7 +13,7 @@ SCENARIO("VelocitySystem", "[NDK][VELOCITYSYSTEM]")
 		Ndk::VelocityComponent& velocityComponent = entity->AddComponent<Ndk::VelocityComponent>();
 		Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();
 
-		world.GetSystem<Ndk::VelocitySystem>().SetFixedUpdateRate(30.f);
+		world.AddSystem<Ndk::VelocitySystem>().SetFixedUpdateRate(30.f);
 
 		WHEN("We give a speed to our entity")
 		{

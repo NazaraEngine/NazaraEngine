@@ -1,31 +1,82 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
+#include <cassert>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
-#include <Nazara/Utility/Algorithm.hpp>
 
 namespace Nz
 {
-	template<typename... Args>
-	VertexDeclarationRef VertexDeclaration::New(Args&&... args)
+	inline auto VertexDeclaration::FindComponent(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
 	{
-		std::unique_ptr<VertexDeclaration> object(new VertexDeclaration(std::forward<Args>(args)...));
-		object->SetPersistent(false);
+		assert(componentIndex == 0 || vertexComponent == VertexComponent::Userdata);
 
-		return object.release();
+		for (const Component& component : m_components)
+		{
+			if (component.component == vertexComponent && component.componentIndex == componentIndex)
+				return &component;
+		}
+
+		return nullptr;
 	}
 
-	template<typename T> 
-	bool VertexDeclaration::HasComponentOfType(VertexComponent component) const
+	inline auto VertexDeclaration::GetComponent(std::size_t componentIndex) const -> const Component&
 	{
-		bool enabled;
-		Nz::ComponentType type;
+		return m_components[componentIndex];
+	}
 
-		GetComponent(component, &enabled, &type, nullptr);
+	inline std::size_t VertexDeclaration::GetComponentCount() const
+	{
+		return m_components.size();
+	}
 
-		return enabled && GetComponentTypeOf<T>() == type;
+	inline auto VertexDeclaration::GetComponents() const -> const std::vector<Component>&
+	{
+		return m_components;
+	}
+
+	inline VertexInputRate VertexDeclaration::GetInputRate() const
+	{
+		return m_inputRate;
+	}
+
+	inline std::size_t VertexDeclaration::GetStride() const
+	{
+		return m_stride;
+	}
+
+	inline bool VertexDeclaration::HasComponent(VertexComponent component, std::size_t componentIndex) const
+	{
+		return FindComponent(component, componentIndex) != nullptr;
+	}
+
+	template<typename T>
+	auto VertexDeclaration::GetComponentByType(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
+	{
+		NazaraAssert(componentIndex == 0 || vertexComponent == VertexComponent::Userdata, "Only userdata vertex component can have component indexes");
+		if (const Component* component = FindComponent(vertexComponent, componentIndex))
+		{
+			if (GetComponentTypeOf<T>() == component->type)
+				return component;
+		}
+
+		return nullptr;
+	}
+
+	template<typename T>
+	bool VertexDeclaration::HasComponentOfType(VertexComponent vertexComponent, std::size_t componentIndex) const
+	{
+		return GetComponentByType<T>(vertexComponent, componentIndex) != nullptr;
+	}
+
+	inline const std::shared_ptr<VertexDeclaration>& VertexDeclaration::Get(VertexLayout layout)
+	{
+		NazaraAssert(layout <= VertexLayout::Max, "Vertex layout out of enum");
+
+		return s_declarations[UnderlyingCast(layout)];
 	}
 }
 

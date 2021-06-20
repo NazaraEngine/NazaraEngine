@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,24 +8,25 @@
 #define NAZARA_PHYSICS2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PHYSICS2D_API Physics2D
+	class NAZARA_PHYSICS2D_API Physics2D : public ModuleBase<Physics2D>
 	{
+		friend ModuleBase;
+
 		public:
-			Physics2D() = delete;
-			~Physics2D() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static bool Initialize();
+			struct Config {};
 
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Physics2D(Config /*config*/);
+			~Physics2D() = default;
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Physics2D* s_instance;
 	};
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,10 +10,7 @@
 #define NAZARA_WINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ConditionVariable.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/Mutex.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
@@ -23,6 +20,8 @@
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <condition_variable>
+#include <mutex>
 #include <queue>
 
 namespace Nz
@@ -38,7 +37,7 @@ namespace Nz
 
 		public:
 			Window();
-			inline Window(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
+			inline Window(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default);
 			inline explicit Window(void* handle);
 			Window(const Window&) = delete;
 			Window(Window&& window);
@@ -46,7 +45,7 @@ namespace Nz
 
 			inline void Close();
 
-			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default);
+			bool Create(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default);
 			bool Create(void* handle);
 
 			void Destroy();
@@ -59,14 +58,14 @@ namespace Nz
 			void EnableKeyRepeat(bool enable);
 			void EnableSmoothScrolling(bool enable);
 
-			inline const CursorRef& GetCursor() const;
+			inline const std::shared_ptr<Cursor>& GetCursor() const;
 			inline CursorController& GetCursorController();
 			inline EventHandler& GetEventHandler();
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			WindowHandle GetSystemHandle() const;
-			String GetTitle() const;
+			std::string GetTitle() const;
 
 			bool HasFocus() const;
 
@@ -83,11 +82,11 @@ namespace Nz
 
 			void ProcessEvents(bool block = false);
 
-			void SetCursor(CursorRef cursor);
+			void SetCursor(std::shared_ptr<Cursor> cursor);
 			inline void SetCursor(SystemCursor systemCursor);
 			void SetEventListener(bool listener);
 			void SetFocus();
-			void SetIcon(IconRef icon);
+			void SetIcon(std::shared_ptr<Icon> icon);
 			void SetMaximumSize(const Vector2i& maxSize);
 			void SetMaximumSize(int width, int height);
 			void SetMinimumSize(const Vector2i& minSize);
@@ -97,7 +96,7 @@ namespace Nz
 			void SetSize(const Vector2i& size);
 			void SetSize(unsigned int width, unsigned int height);
 			void SetStayOnTop(bool stayOnTop);
-			void SetTitle(const String& title);
+			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);
 
 			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
@@ -132,13 +131,13 @@ namespace Nz
 
 			std::queue<WindowEvent> m_events;
 			std::vector<WindowEvent> m_pendingEvents;
-			ConditionVariable m_eventCondition;
+			std::condition_variable m_eventCondition;
 			CursorController m_cursorController;
-			CursorRef m_cursor;
+			std::shared_ptr<Cursor> m_cursor;
 			EventHandler m_eventHandler;
-			IconRef m_icon;
-			Mutex m_eventMutex;
-			Mutex m_eventConditionMutex;
+			std::shared_ptr<Icon> m_icon;
+			std::mutex m_eventMutex;
+			std::mutex m_eventConditionMutex;
 			bool m_asyncWindow;
 			bool m_closed;
 			bool m_closeOnQuit;

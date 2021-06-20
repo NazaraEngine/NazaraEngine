@@ -1,12 +1,14 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -42,10 +44,10 @@ namespace Nz
 	{
 	}
 
-	Image::Image(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount) :
+	Image::Image(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount) :
 	m_sharedImage(&emptyImage)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException);
+		ErrorFlags flags(ErrorMode::ThrowException);
 		Create(type, format, width, height, depth, levelCount);
 	}
 
@@ -65,12 +67,10 @@ namespace Nz
 
 	Image::~Image()
 	{
-		OnImageRelease(this);
-
 		Destroy();
 	}
 
-	bool Image::Convert(PixelFormatType newFormat)
+	bool Image::Convert(PixelFormat newFormat)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (m_sharedImage == &emptyImage)
@@ -79,15 +79,15 @@ namespace Nz
 			return false;
 		}
 
-		if (!PixelFormat::IsValid(newFormat))
+		if (!PixelFormatInfo::IsValid(newFormat))
 		{
 			NazaraError("Invalid pixel format");
 			return false;
 		}
 
-		if (!PixelFormat::IsConversionSupported(m_sharedImage->format, newFormat))
+		if (!PixelFormatInfo::IsConversionSupported(m_sharedImage->format, newFormat))
 		{
-			NazaraError("Conversion from " + PixelFormat::GetName(m_sharedImage->format) + " to " + PixelFormat::GetName(newFormat) + " is not supported");
+			NazaraError("Conversion from " + PixelFormatInfo::GetName(m_sharedImage->format) + " to " + PixelFormatInfo::GetName(newFormat) + " is not supported");
 			return false;
 		}
 		#endif
@@ -101,21 +101,21 @@ namespace Nz
 		unsigned int height = m_sharedImage->height;
 
 		// Les images 3D et cubemaps sont stockés de la même façon
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 
 		for (unsigned int i = 0; i < levels.size(); ++i)
 		{
 			unsigned int pixelsPerFace = width * height;
-			levels[i] = std::make_unique<UInt8[]>(pixelsPerFace * depth * PixelFormat::GetBytesPerPixel(newFormat));
+			levels[i] = std::make_unique<UInt8[]>(pixelsPerFace * depth * PixelFormatInfo::GetBytesPerPixel(newFormat));
 
 			UInt8* dst = levels[i].get();
 			UInt8* src = m_sharedImage->levels[i].get();
-			unsigned int srcStride = pixelsPerFace * PixelFormat::GetBytesPerPixel(m_sharedImage->format);
-			unsigned int dstStride = pixelsPerFace * PixelFormat::GetBytesPerPixel(newFormat);
+			unsigned int srcStride = pixelsPerFace * PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+			unsigned int dstStride = pixelsPerFace * PixelFormatInfo::GetBytesPerPixel(newFormat);
 
 			for (unsigned int d = 0; d < depth; ++d)
 			{
-				if (!PixelFormat::Convert(m_sharedImage->format, newFormat, src, &src[srcStride], dst))
+				if (!PixelFormatInfo::Convert(m_sharedImage->format, newFormat, src, &src[srcStride], dst))
 				{
 					NazaraError("Failed to convert image");
 					return false;
@@ -131,7 +131,7 @@ namespace Nz
 			if (height > 1)
 				height >>= 1;
 
-			if (depth > 1 && m_sharedImage->type != ImageType_Cubemap)
+			if (depth > 1 && m_sharedImage->type != ImageType::Cubemap)
 				depth >>= 1;
 		}
 
@@ -143,13 +143,13 @@ namespace Nz
 		return true;
 	}
 
-	void Image::Copy(const Image* source, const Boxui& srcBox, const Vector3ui& dstPos)
+	void Image::Copy(const Image& source, const Boxui& srcBox, const Vector3ui& dstPos)
 	{
-		NazaraAssert(IsValid(), "Invalid image");
-		NazaraAssert(source && source->IsValid(), "Invalid source image");
-		NazaraAssert(source->GetFormat() == m_sharedImage->format, "Image formats don't match");
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(source.IsValid(), "invalid source image");
+		NazaraAssert(source.GetFormat() == m_sharedImage->format, "image formats don't match");
 
-		const UInt8* srcPtr = source->GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
+		const UInt8* srcPtr = source.GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
 		#if NAZARA_UTILITY_SAFE
 		if (!srcPtr)
 		{
@@ -158,18 +158,18 @@ namespace Nz
 		}
 		#endif
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPtr = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
 
-		Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source->GetWidth(), source->GetHeight());
+		Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
 	}
 
-	bool Image::Create(ImageType type, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount)
+	bool Image::Create(ImageType type, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, UInt8 levelCount)
 	{
 		Destroy();
 
 		#if NAZARA_UTILITY_SAFE
-		if (!PixelFormat::IsValid(format))
+		if (!PixelFormatInfo::IsValid(format))
 		{
 			NazaraError("Invalid pixel format");
 			return false;
@@ -195,7 +195,7 @@ namespace Nz
 
 		switch (type)
 		{
-			case ImageType_1D:
+			case ImageType::E1D:
 				if (height > 1)
 				{
 					NazaraError("1D textures must be 1 tall");
@@ -209,8 +209,8 @@ namespace Nz
 				}
 				break;
 
-			case ImageType_1D_Array:
-			case ImageType_2D:
+			case ImageType::E1D_Array:
+			case ImageType::E2D:
 				if (depth > 1)
 				{
 					NazaraError("2D textures must be 1 deep");
@@ -218,11 +218,11 @@ namespace Nz
 				}
 				break;
 
-			case ImageType_2D_Array:
-			case ImageType_3D:
+			case ImageType::E2D_Array:
+			case ImageType::E3D:
 				break;
 
-			case ImageType_Cubemap:
+			case ImageType::Cubemap:
 				if (depth > 1)
 				{
 					NazaraError("Cubemaps must be 1 deep");
@@ -248,14 +248,14 @@ namespace Nz
 
 		unsigned int w = width;
 		unsigned int h = height;
-		unsigned int d = (type == ImageType_Cubemap) ? 6 : depth;
+		unsigned int d = (type == ImageType::Cubemap) ? 6 : depth;
 
 		for (unsigned int i = 0; i < levelCount; ++i)
 		{
 			// Cette allocation est protégée car sa taille dépend directement de paramètres utilisateurs
 			try
 			{
-				levels[i] = std::make_unique<UInt8[]>(PixelFormat::ComputeSize(format, w, h, d));
+				levels[i] = std::make_unique<UInt8[]>(PixelFormatInfo::ComputeSize(format, w, h, d));
 
 				if (w > 1)
 					w >>= 1;
@@ -263,12 +263,12 @@ namespace Nz
 				if (h > 1)
 					h >>= 1;
 
-				if (d > 1 && type != ImageType_Cubemap)
+				if (d > 1 && type != ImageType::Cubemap)
 					d >>= 1;
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError("Failed to allocate image's level " + String::Number(i) + " (" + String(e.what()) + ')');
+				NazaraError("Failed to allocate image's level " + NumberToString(i) + " (" + std::string(e.what()) + ')');
 				return false;
 			}
 		}
@@ -281,10 +281,7 @@ namespace Nz
 	void Image::Destroy()
 	{
 		if (m_sharedImage != &emptyImage)
-		{
-			OnImageDestroy(this);
 			ReleaseImage();
-		}
 	}
 
 	bool Image::Fill(const Color& color)
@@ -298,18 +295,18 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
 		}
 		#endif
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -319,11 +316,11 @@ namespace Nz
 		unsigned int height = m_sharedImage->height;
 
 		// Les images 3D et cubemaps sont stockés de la même façon
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 
 		for (auto & level : levels)
 		{
-			std::size_t size = PixelFormat::ComputeSize(m_sharedImage->format, width, height, depth);
+			std::size_t size = PixelFormatInfo::ComputeSize(m_sharedImage->format, width, height, depth);
 			level = std::make_unique<UInt8[]>(size);
 
 			UInt8* ptr = level.get();
@@ -341,7 +338,7 @@ namespace Nz
 			if (height > 1U)
 				height >>= 1;
 
-			if (depth > 1U && m_sharedImage->type != ImageType_Cubemap)
+			if (depth > 1U && m_sharedImage->type != ImageType::Cubemap)
 				depth >>= 1;
 		}
 
@@ -362,7 +359,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
@@ -383,11 +380,11 @@ namespace Nz
 
 		EnsureOwnership();
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -427,7 +424,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
@@ -445,21 +442,21 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return false;
 		}
 		#endif
 
 		EnsureOwnership();
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormat::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -497,11 +494,11 @@ namespace Nz
 
 		unsigned int width = m_sharedImage->width;
 		unsigned int height = m_sharedImage->height;
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		for (auto& level : m_sharedImage->levels)
 		{
 			UInt8* ptr = level.get();
-			if (!PixelFormat::Flip(PixelFlipping_Horizontally, m_sharedImage->format, width, height, depth, ptr, ptr))
+			if (!PixelFormatInfo::Flip(PixelFlipping::Horizontally, m_sharedImage->format, width, height, depth, ptr, ptr))
 			{
 				NazaraError("Failed to flip image");
 				return false;
@@ -513,7 +510,7 @@ namespace Nz
 			if (height > 1U)
 				height >>= 1;
 
-			if (depth > 1U && m_sharedImage->type != ImageType_Cubemap)
+			if (depth > 1U && m_sharedImage->type != ImageType::Cubemap)
 				depth >>= 1;
 		}
 
@@ -529,7 +526,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot flip compressed image");
 			return false;
@@ -540,11 +537,11 @@ namespace Nz
 
 		unsigned int width = m_sharedImage->width;
 		unsigned int height = m_sharedImage->height;
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		for (auto& level : m_sharedImage->levels)
 		{
 			UInt8* ptr = level.get();
-			if (!PixelFormat::Flip(PixelFlipping_Vertically, m_sharedImage->format, width, height, depth, ptr, ptr))
+			if (!PixelFormatInfo::Flip(PixelFlipping::Vertically, m_sharedImage->format, width, height, depth, ptr, ptr))
 			{
 				NazaraError("Failed to flip image");
 				return false;
@@ -556,7 +553,7 @@ namespace Nz
 			if (height > 1U)
 				height >>= 1;
 
-			if (depth > 1U && m_sharedImage->type != ImageType_Cubemap)
+			if (depth > 1U && m_sharedImage->type != ImageType::Cubemap)
 				depth >>= 1;
 		}
 
@@ -574,7 +571,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -583,7 +580,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(width) + ')');
 			return nullptr;
 		}
 		#endif
@@ -592,19 +589,19 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(height) + ')');
 			return nullptr;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return nullptr;
 		}
 		#endif
 
-		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	unsigned int Image::GetDepth(UInt8 level) const
@@ -612,7 +609,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return 0;
 		}
 		#endif
@@ -620,7 +617,7 @@ namespace Nz
 		return GetLevelSize(m_sharedImage->depth, level);
 	}
 
-	PixelFormatType Image::GetFormat() const
+	PixelFormat Image::GetFormat() const
 	{
 		return m_sharedImage->format;
 	}
@@ -630,7 +627,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return 0;
 		}
 		#endif
@@ -669,15 +666,15 @@ namespace Nz
 				depth >>= 1;
 		}
 
-		if (m_sharedImage->type == ImageType_Cubemap)
+		if (m_sharedImage->type == ImageType::Cubemap)
 			size *= 6;
 
-		return size * PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		return size * PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 	}
 
 	std::size_t Image::GetMemoryUsage(UInt8 level) const
 	{
-		return PixelFormat::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
+		return PixelFormatInfo::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
 	}
 
 	Color Image::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
@@ -689,7 +686,7 @@ namespace Nz
 			return Color();
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return Color();
@@ -697,28 +694,28 @@ namespace Nz
 
 		if (x >= m_sharedImage->width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(m_sharedImage->width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(m_sharedImage->width) + ')');
 			return Color();
 		}
 
 		if (y >= m_sharedImage->height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(m_sharedImage->height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(m_sharedImage->height) + ')');
 			return Color();
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return Color();
 		}
 		#endif
 
-		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 		Color color;
-		if (!PixelFormat::Convert(m_sharedImage->format, PixelFormatType_RGBA8, pixel, &color.r))
+		if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA8, pixel, &color.r))
 			NazaraError("Failed to convert image's format to RGBA8");
 
 		return color;
@@ -735,7 +732,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -744,7 +741,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(width) + ')');
 			return nullptr;
 		}
 		#endif
@@ -753,27 +750,27 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(height) + ')');
 			return nullptr;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return nullptr;
 		}
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return nullptr;
 		}
 		#endif
 
 		EnsureOwnership();
 
-		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	Vector3ui Image::GetSize(UInt8 level) const
@@ -781,7 +778,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return Vector3ui::Zero();
 		}
 		#endif
@@ -799,7 +796,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return 0;
 		}
 		#endif
@@ -811,15 +808,15 @@ namespace Nz
 	{
 		NazaraAssert(m_sharedImage != &emptyImage, "Image must be valid");
 
-		if (!PixelFormat::HasAlpha(m_sharedImage->format))
+		if (!PixelFormatInfo::HasAlpha(m_sharedImage->format))
 			return false;
 
-		if (!PixelFormat::IsCompressed(m_sharedImage->format))
+		if (!PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
-			const PixelFormatInfo& info = PixelFormat::GetInfo(m_sharedImage->format);
+			const PixelFormatDescription& info = PixelFormatInfo::GetInfo(m_sharedImage->format);
 
 			Bitset<> workingBitset;
-			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth);
+			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth);
 			if (pixelCount == 0)
 				return false;
 
@@ -850,21 +847,21 @@ namespace Nz
 	}
 
 	// LoadArray
-	ImageRef Image::LoadArrayFromFile(const String& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
-		ImageRef image = Image::LoadFromFile(filePath, imageParams);
+		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return nullptr;
 		}
 
-		return LoadArrayFromImage(image, atlasSize);
+		return LoadArrayFromImage(*image, atlasSize);
 	}
 
-	ImageRef Image::LoadArrayFromImage(const Image* image, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize)
 	{
-		NazaraAssert(image && image->IsValid(), "Invalid image");
+		NazaraAssert(image.IsValid(), "Invalid image");
 
 		#if NAZARA_UTILITY_SAFE
 		if (atlasSize.x == 0)
@@ -880,38 +877,38 @@ namespace Nz
 		}
 		#endif
 
-		ImageType type = image->GetType();
+		ImageType type = image.GetType();
 
 		#if NAZARA_UTILITY_SAFE
-		if (type != ImageType_1D && type != ImageType_2D)
+		if (type != ImageType::E1D && type != ImageType::E2D)
 		{
-			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
+			NazaraError("Image type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
 			return nullptr;
 		}
 		#endif
 
-		Vector2ui imageSize(image->GetWidth(), image->GetHeight());
+		Vector2ui imageSize(image.GetWidth(), image.GetHeight());
 
 		if (imageSize.x % atlasSize.x != 0)
 		{
-			NazaraWarning("Image width is not divisible by atlas width (" + String::Number(imageSize.x) + " mod " + String::Number(atlasSize.x) + " != 0)");
+			NazaraWarning("Image width is not divisible by atlas width (" + NumberToString(imageSize.x) + " mod " + NumberToString(atlasSize.x) + " != 0)");
 		}
 
 		if (imageSize.y % atlasSize.y != 0)
 		{
-			NazaraWarning("Image height is not divisible by atlas height (" + String::Number(imageSize.y) + " mod " + String::Number(atlasSize.y) + " != 0)");
+			NazaraWarning("Image height is not divisible by atlas height (" + NumberToString(imageSize.y) + " mod " + NumberToString(atlasSize.y) + " != 0)");
 		}
 
 		Vector2ui faceSize = imageSize/atlasSize;
 
 		unsigned int layerCount = atlasSize.x*atlasSize.y;
 
-		ImageRef arrayImage = New();
+		std::shared_ptr<Image> arrayImage = std::make_shared<Image>();
 		// Selon le type de l'image de base, on va créer un array d'images 2D ou 1D
-		if (type == ImageType_2D)
-			arrayImage->Create(ImageType_2D_Array, image->GetFormat(), faceSize.x, faceSize.y, layerCount);
+		if (type == ImageType::E2D)
+			arrayImage->Create(ImageType::E2D_Array, image.GetFormat(), faceSize.x, faceSize.y, layerCount);
 		else
-			arrayImage->Create(ImageType_1D_Array, image->GetFormat(), faceSize.x, layerCount);
+			arrayImage->Create(ImageType::E1D_Array, image.GetFormat(), faceSize.x, layerCount);
 
 		if (!arrayImage->IsValid())
 		{
@@ -927,57 +924,57 @@ namespace Nz
 		return arrayImage;
 	}
 
-	ImageRef Image::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
-		ImageRef image = Image::LoadFromMemory(data, size, imageParams);
+		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return nullptr;
 		}
 
-		return LoadArrayFromImage(image, atlasSize);
+		return LoadArrayFromImage(*image, atlasSize);
 	}
 
-	ImageRef Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
-		ImageRef image = Image::LoadFromStream(stream, imageParams);
+		std::shared_ptr<Image> image = Image::LoadFromStream(stream, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return nullptr;
 		}
 
-		return LoadArrayFromImage(image, atlasSize);
+		return LoadArrayFromImage(*image, atlasSize);
 	}
 
-	ImageRef Image::LoadCubemapFromFile(const String& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	std::shared_ptr<Image> Image::LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
-		ImageRef image = Image::LoadFromFile(filePath, imageParams);
+		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return nullptr;
 		}
 
-		return LoadCubemapFromImage(image, cubemapParams);
+		return LoadCubemapFromImage(*image, cubemapParams);
 	}
 
-	ImageRef Image::LoadCubemapFromImage(const Image* image, const CubemapParams& params)
+	std::shared_ptr<Image> Image::LoadCubemapFromImage(const Image& image, const CubemapParams& params)
 	{
-		NazaraAssert(image && image->IsValid(), "Invalid image");
+		NazaraAssert(image.IsValid(), "Invalid image");
 
 		#if NAZARA_UTILITY_SAFE
-		ImageType type = image->GetType();
-		if (type != ImageType_2D)
+		ImageType type = image.GetType();
+		if (type != ImageType::E2D)
 		{
-			NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
+			NazaraError("Image type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
 			return nullptr;
 		}
 		#endif
 
-		unsigned int width = image->GetWidth();
-		unsigned int height = image->GetHeight();
+		unsigned int width = image.GetWidth();
+		unsigned int height = image.GetHeight();
 		unsigned int faceSize = (params.faceSize == 0) ? std::max(width, height)/4 : params.faceSize;
 
 		// Sans cette vérification, celles des rectangles pourrait réussir via un overflow
@@ -1033,52 +1030,52 @@ namespace Nz
 			return nullptr;
 		}
 
-		ImageRef cubemap = New();
-		if (!cubemap->Create(ImageType_Cubemap, image->GetFormat(), faceSize, faceSize))
+		std::shared_ptr<Image> cubemap = std::make_shared<Image>();
+		if (!cubemap->Create(ImageType::Cubemap, image.GetFormat(), faceSize, faceSize))
 		{
 			NazaraError("Failed to create cubemap");
 			return nullptr;
 		}
 
-		cubemap->Copy(image, Rectui(backPos.x, backPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeZ));
-		cubemap->Copy(image, Rectui(downPos.x, downPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeY));
-		cubemap->Copy(image, Rectui(forwardPos.x, forwardPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveZ));
-		cubemap->Copy(image, Rectui(leftPos.x, leftPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_NegativeX));
-		cubemap->Copy(image, Rectui(rightPos.x, rightPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveX));
-		cubemap->Copy(image, Rectui(upPos.x, upPos.y, faceSize, faceSize), Vector3ui(0, 0, CubemapFace_PositiveY));
+		cubemap->Copy(image, Rectui(backPos.x, backPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeZ)));
+		cubemap->Copy(image, Rectui(downPos.x, downPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeY)));
+		cubemap->Copy(image, Rectui(forwardPos.x, forwardPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveZ)));
+		cubemap->Copy(image, Rectui(leftPos.x, leftPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeX)));
+		cubemap->Copy(image, Rectui(rightPos.x, rightPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveX)));
+		cubemap->Copy(image, Rectui(upPos.x, upPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveY)));
 
 		return cubemap;
 	}
 
-	ImageRef Image::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	std::shared_ptr<Image> Image::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
-		ImageRef image = Image::LoadFromMemory(data, size, imageParams);
+		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return nullptr;
 		}
 
-		return LoadCubemapFromImage(image, cubemapParams);
+		return LoadCubemapFromImage(*image, cubemapParams);
 	}
 
-	ImageRef Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	std::shared_ptr<Image> Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
-		ImageRef image = Image::LoadFromStream(stream, imageParams);
+		std::shared_ptr<Image> image = Image::LoadFromStream(stream, imageParams);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
 			return nullptr;
 		}
 
-		return LoadCubemapFromImage(image, cubemapParams);
+		return LoadCubemapFromImage(*image, cubemapParams);
 	}
 
-	bool Image::LoadFaceFromFile(CubemapFace face, const String& filePath, const ImageParams& params)
+	bool Image::LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params)
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
-		ImageRef image = Image::LoadFromFile(filePath, params);
+		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, params);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
@@ -1098,7 +1095,7 @@ namespace Nz
 			return false;
 		}
 
-		Copy(image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, face));
+		Copy(*image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(face)));
 		return true;
 	}
 
@@ -1106,7 +1103,7 @@ namespace Nz
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
-		ImageRef image = Image::LoadFromMemory(data, size, params);
+		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, params);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
@@ -1126,7 +1123,7 @@ namespace Nz
 			return false;
 		}
 
-		Copy(image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, face));
+		Copy(*image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(face)));
 		return true;
 	}
 
@@ -1134,7 +1131,7 @@ namespace Nz
 	{
 		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
 
-		ImageRef image = Image::LoadFromStream(stream, params);
+		std::shared_ptr<Image> image = Image::LoadFromStream(stream, params);
 		if (!image)
 		{
 			NazaraError("Failed to load image");
@@ -1154,18 +1151,24 @@ namespace Nz
 			return false;
 		}
 
-		Copy(image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, face));
+		Copy(*image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(face)));
 		return true;
 	}
 
-	bool Image::SaveToFile(const String& filePath, const ImageParams& params)
+	bool Image::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params)
 	{
-		return ImageSaver::SaveToFile(*this, filePath, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetImageSaver().SaveToFile(*this, filePath, params);
 	}
 
-	bool Image::SaveToStream(Stream& stream, const String& format, const ImageParams& params)
+	bool Image::SaveToStream(Stream& stream, const std::string& format, const ImageParams& params)
 	{
-		return ImageSaver::SaveToStream(*this, stream, format, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetImageSaver().SaveToStream(*this, stream, format, params);
 	}
 
 	void Image::SetLevelCount(UInt8 levelCount)
@@ -1208,7 +1211,7 @@ namespace Nz
 			return false;
 		}
 
-		if (PixelFormat::IsCompressed(m_sharedImage->format))
+		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
 		{
 			NazaraError("Cannot access pixels from compressed image");
 			return false;
@@ -1216,27 +1219,27 @@ namespace Nz
 
 		if (x >= m_sharedImage->width)
 		{
-			NazaraError("X value exceeds width (" + String::Number(x) + " >= " + String::Number(m_sharedImage->width) + ')');
+			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(m_sharedImage->width) + ')');
 			return false;
 		}
 
 		if (y >= m_sharedImage->height)
 		{
-			NazaraError("Y value exceeds height (" + String::Number(y) + " >= " + String::Number(m_sharedImage->height) + ')');
+			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(m_sharedImage->height) + ')');
 			return false;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : m_sharedImage->depth;
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + String::Number(z) + " >= " + String::Number(depth) + ')');
+			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
 			return false;
 		}
 		#endif
 
-		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormat::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
+		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
-		if (!PixelFormat::Convert(PixelFormatType_RGBA8, m_sharedImage->format, &color.r, pixel))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, pixel))
 		{
 			NazaraError("Failed to convert RGBA8 to image's format");
 			return false;
@@ -1262,7 +1265,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return false;
 		}
 		#endif
@@ -1296,7 +1299,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + String::Number(level) + " >= " + String::Number(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
 			return false;
 		}
 		#endif
@@ -1311,9 +1314,9 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType_Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
 		if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > depth ||
-			(m_sharedImage->type == ImageType_Cubemap && box.depth > 1)) // Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois
+			(m_sharedImage->type == ImageType::Cubemap && box.depth > 1)) // Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois
 		{
 			NazaraError("Box dimensions are out of bounds");
 			return false;
@@ -1322,7 +1325,7 @@ namespace Nz
 
 		EnsureOwnership();
 
-		UInt8 bpp = PixelFormat::GetBytesPerPixel(m_sharedImage->format);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[level].get(), bpp, box.x, box.y, box.z, width, height);
 
 		Copy(dstPixels, pixels, m_sharedImage->format,
@@ -1349,7 +1352,7 @@ namespace Nz
 		return *this;
 	}
 
-	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormatType format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
+	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (width == 0)
@@ -1373,10 +1376,10 @@ namespace Nz
 			srcHeight = height;
 
 		if ((height == 1 || (dstWidth == width && srcWidth == width)) && (depth == 1 || (dstHeight == height && srcHeight == height)))
-			std::memcpy(destination, source, PixelFormat::ComputeSize(format, width, height, depth));
+			std::memcpy(destination, source, PixelFormatInfo::ComputeSize(format, width, height, depth));
 		else
 		{
-			unsigned int bpp = PixelFormat::GetBytesPerPixel(format);
+			unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(format);
 			unsigned int lineStride = width * bpp;
 			unsigned int dstLineStride = dstWidth * bpp;
 			unsigned int dstFaceStride = dstLineStride * dstHeight;
@@ -1412,36 +1415,45 @@ namespace Nz
 		// Pour éviter que la profondeur ne soit comptée dans le calcul des niveaux
 		switch (type)
 		{
-			case ImageType_1D:
-			case ImageType_1D_Array:
+			case ImageType::E1D:
+			case ImageType::E1D_Array:
 				return GetMaxLevel(width, 1U, 1U);
 
-			case ImageType_2D:
-			case ImageType_2D_Array:
-			case ImageType_Cubemap:
+			case ImageType::E2D:
+			case ImageType::E2D_Array:
+			case ImageType::Cubemap:
 				return GetMaxLevel(width, height, 1U);
 
-			case ImageType_3D:
+			case ImageType::E3D:
 				return GetMaxLevel(width, height, depth);
 		}
 
-		NazaraError("Image type not handled (0x" + String::Number(type, 16) + ')');
+		NazaraError("Image type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
 		return 0;
 	}
 
-	ImageRef Image::LoadFromFile(const String& filePath, const ImageParams& params)
+	std::shared_ptr<Image> Image::LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params)
 	{
-		return ImageLoader::LoadFromFile(filePath, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetImageLoader().LoadFromFile(filePath, params);
 	}
 
-	ImageRef Image::LoadFromMemory(const void* data, std::size_t size, const ImageParams& params)
+	std::shared_ptr<Image> Image::LoadFromMemory(const void* data, std::size_t size, const ImageParams& params)
 	{
-		return ImageLoader::LoadFromMemory(data, size, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetImageLoader().LoadFromMemory(data, size, params);
 	}
 
-	ImageRef Image::LoadFromStream(Stream& stream, const ImageParams& params)
+	std::shared_ptr<Image> Image::LoadFromStream(Stream& stream, const ImageParams& params)
 	{
-		return ImageLoader::LoadFromStream(stream, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetImageLoader().LoadFromStream(stream, params);
 	}
 
 	void Image::EnsureOwnership()
@@ -1475,33 +1487,5 @@ namespace Nz
 		m_sharedImage = &emptyImage;
 	}
 
-	bool Image::Initialize()
-	{
-		if (!ImageLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		if (!ImageManager::Initialize())
-		{
-			NazaraError("Failed to initialise manager");
-			return false;
-		}
-
-		return true;
-	}
-
-	void Image::Uninitialize()
-	{
-		ImageManager::Uninitialize();
-		ImageLibrary::Uninitialize();
-	}
-
-	Image::SharedImage Image::emptyImage(0, ImageType_2D, PixelFormatType_Undefined, Image::SharedImage::PixelContainer(), 0, 0, 0);
-	ImageLibrary::LibraryMap Image::s_library;
-	ImageLoader::LoaderList Image::s_loaders;
-	ImageManager::ManagerMap Image::s_managerMap;
-	ImageManager::ManagerParams Image::s_managerParameters;
-	ImageSaver::SaverList Image::s_savers;
+	Image::SharedImage Image::emptyImage(0, ImageType::E2D, PixelFormat::Undefined, Image::SharedImage::PixelContainer(), 0, 0, 0);
 }

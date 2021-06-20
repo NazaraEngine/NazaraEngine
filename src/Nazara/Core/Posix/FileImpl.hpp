@@ -14,6 +14,25 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <ctime>
+#include <filesystem>
+
+#if defined(NAZARA_PLATFORM_MACOSX)
+	#define Stat stat
+	#define Fstat fstat
+	#define Off_t off_t
+	#define Lseek lseek
+	#define Open_def open
+	#define Ftruncate ftruncate
+#elif defined(NAZARA_PLATFORM_LINUX)
+	#define Stat stat64
+	#define Fstat fstat64
+	#define Off_t off64_t
+	#define Lseek lseek64
+	#define Open_def open64
+	#define Ftruncate ftruncate64
+#else
+    #error This operating system is not fully supported by the Nazara Engine
+#endif
 
 namespace Nz
 {
@@ -26,13 +45,12 @@ namespace Nz
 			FileImpl(const File* parent);
 			FileImpl(const FileImpl&) = delete;
 			FileImpl(FileImpl&&) = delete; ///TODO
-			~FileImpl() = default;
+			~FileImpl();
 
-			void Close();
 			bool EndOfFile() const;
 			void Flush();
 			UInt64 GetCursorPos() const;
-			bool Open(const String& filePath, OpenModeFlags mode);
+			bool Open(const std::filesystem::path& filePath, OpenModeFlags mode);
 			std::size_t Read(void* buffer, std::size_t size);
 			bool SetCursorPos(CursorPosition pos, Int64 offset);
 			bool SetSize(UInt64 size);
@@ -40,15 +58,6 @@ namespace Nz
 
 			FileImpl& operator=(const FileImpl&) = delete;
 			FileImpl& operator=(FileImpl&&) = delete; ///TODO
-
-			static bool Copy(const String& sourcePath, const String& targetPath);
-			static bool Delete(const String& filePath);
-			static bool Exists(const String& filePath);
-			static time_t GetCreationTime(const String& filePath);
-			static time_t GetLastAccessTime(const String& filePath);
-			static time_t GetLastWriteTime(const String& filePath);
-			static UInt64 GetSize(const String& filePath);
-			static bool Rename(const String& sourcePath, const String& targetPath);
 
 		private:
 			int m_fileDescriptor;

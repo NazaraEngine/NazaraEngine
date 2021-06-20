@@ -1,8 +1,7 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
@@ -28,12 +27,12 @@ namespace Nz
 				{
 				}
 
-				UInt32 GetCount() const
+				std::size_t GetCount() const
 				{
 					return m_count;
 				}
 
-				UInt32 Insert(const T& data)
+				std::size_t Insert(const T& data)
 				{
 					auto it = m_cache.find(data);
 					if (it == m_cache.end())
@@ -47,17 +46,17 @@ namespace Nz
 				}
 
 			private:
-				UInt32 m_count;
-				std::map<T, UInt32> m_cache;
+				std::size_t m_count;
+				std::map<T, std::size_t> m_cache;
 				T* m_buffer;
 		};
 
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "obj");
 		}
 
-		bool SaveToStream(const Mesh& mesh, const String& format, Stream& stream, const MeshParams& parameters)
+		bool SaveToStream(const Mesh& mesh, const std::string& format, Stream& stream, const MeshParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -73,18 +72,18 @@ namespace Nz
 				return false;
 			}
 
-			UInt32 worstCacheVertexCount = mesh.GetVertexCount();
+			std::size_t worstCacheVertexCount = mesh.GetVertexCount();
 			OBJParser objFormat;
 			objFormat.SetNormalCount(worstCacheVertexCount);
 			objFormat.SetPositionCount(worstCacheVertexCount);
 			objFormat.SetTexCoordCount(worstCacheVertexCount);
 
-			String mtlPath = stream.GetPath();
-			if (!mtlPath.IsEmpty())
+			std::filesystem::path mtlPath = stream.GetPath();
+			if (!mtlPath.empty())
 			{
-				mtlPath.Replace(".obj", ".mtl");
-				String fileName = mtlPath.SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
-				if (!fileName.IsEmpty())
+				mtlPath.replace_extension(".mtl");
+				std::filesystem::path fileName = mtlPath.filename();
+				if (!fileName.empty())
 					objFormat.SetMtlLib(fileName);
 			}
 
@@ -94,17 +93,17 @@ namespace Nz
 
 			// Materials
 			MTLParser mtlFormat;
-			std::unordered_set<String> registredMaterials;
+			std::unordered_set<std::string> registredMaterials;
 
-			UInt32 matCount = mesh.GetMaterialCount();
-			String* materialNames = objFormat.SetMaterialCount(matCount);
-			for (UInt32 i = 0; i < matCount; ++i)
+			std::size_t matCount = mesh.GetMaterialCount();
+			std::string* materialNames = objFormat.SetMaterialCount(matCount);
+			for (std::size_t i = 0; i < matCount; ++i)
 			{
 				const ParameterList& matData = mesh.GetMaterialData(i);
 
-				String name;
+				std::string name;
 				if (!matData.GetStringParameter(MaterialData::Name, &name))
-					name = "material_" + String::Number(i);
+					name = "material_" + std::to_string(i);
 
 				// Makes sure we only have one material of that name
 				while (registredMaterials.find(name) != registredMaterials.end())
@@ -115,10 +114,7 @@ namespace Nz
 
 				MTLParser::Material* material = mtlFormat.AddMaterial(name);
 
-				String strVal;
-				if (matData.GetStringParameter(MaterialData::FilePath, &strVal))
-					material->diffuseMap = strVal;
-				else
+				if (!matData.GetStringParameter(MaterialData::FilePath, &material->diffuseMap))
 				{
 					Color colorVal;
 					double dValue;
@@ -135,39 +131,34 @@ namespace Nz
 					if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
 						material->shininess = float(dValue);
 
-					if (matData.GetStringParameter(MaterialData::AlphaTexturePath, &strVal))
-						material->alphaMap = strVal;
-
-					if (matData.GetStringParameter(MaterialData::DiffuseTexturePath, &strVal))
-						material->diffuseMap = strVal;
-
-					if (matData.GetStringParameter(MaterialData::SpecularTexturePath, &strVal))
-						material->specularMap = strVal;
+					matData.GetStringParameter(MaterialData::AlphaTexturePath, &material->alphaMap);
+					matData.GetStringParameter(MaterialData::DiffuseTexturePath, &material->diffuseMap);
+					matData.GetStringParameter(MaterialData::SpecularTexturePath, &material->specularMap);
 				}
 			}
 
 			// Meshes
-			UInt32 meshCount = mesh.GetSubMeshCount();
+			std::size_t meshCount = mesh.GetSubMeshCount();
 			OBJParser::Mesh* meshes = objFormat.SetMeshCount(meshCount);
-			for (UInt32 i = 0; i < meshCount; ++i)
+			for (std::size_t i = 0; i < meshCount; ++i)
 			{
-				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(mesh.GetSubMesh(i));
+				const StaticMesh& staticMesh = static_cast<const StaticMesh&>(*mesh.GetSubMesh(i));
 
-				UInt32 triangleCount = staticMesh->GetTriangleCount();
+				std::size_t triangleCount = staticMesh.GetTriangleCount();
 
 				meshes[i].faces.resize(triangleCount);
-				meshes[i].material = staticMesh->GetMaterialIndex();
-				meshes[i].name = "mesh_" + String::Number(i);
+				meshes[i].material = staticMesh.GetMaterialIndex();
+				meshes[i].name = "mesh_" + std::to_string(i);
 				meshes[i].vertices.resize(triangleCount * 3);
 
 				{
 					VertexMapper vertexMapper(staticMesh);
 
-					SparsePtr<Vector3f> normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-					SparsePtr<Vector3f> positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-					SparsePtr<Vector2f> texCoordsPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+					SparsePtr<Vector3f> normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+					SparsePtr<Vector3f> positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+					SparsePtr<Vector2f> texCoordsPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-					UInt32 faceIndex = 0;
+					std::size_t faceIndex = 0;
 					TriangleIterator triangle(staticMesh);
 					do
 					{
@@ -179,7 +170,7 @@ namespace Nz
 						{
 							OBJParser::FaceVertex& vertexIndices = meshes[i].vertices[face.firstVertex + j];
 
-							UInt32 index = triangle[j];
+							std::size_t index = triangle[j];
 							vertexIndices.normal = normalCache.Insert(normalPtr[index]);
 							vertexIndices.position = positionCache.Insert(positionPtr[index]);
 							vertexIndices.texCoord = texCoordsCache.Insert(texCoordsPtr[index]);
@@ -197,9 +188,9 @@ namespace Nz
 
 			objFormat.Save(stream);
 
-			if (!mtlPath.IsEmpty())
+			if (!mtlPath.empty())
 			{
-				File mtlFile(mtlPath, OpenMode_WriteOnly | OpenMode_Truncate);
+				File mtlFile(mtlPath, OpenMode::WriteOnly | OpenMode::Truncate);
 				if (mtlFile.IsOpen())
 					mtlFormat.Save(mtlFile);
 			}
@@ -210,14 +201,13 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterOBJSaver()
+		MeshSaver::Entry GetMeshSaver_OBJ()
 		{
-			MeshSaver::RegisterSaver(IsSupported, SaveToStream);
-		}
+			MeshSaver::Entry entry;
+			entry.formatSupport = IsSupported;
+			entry.streamSaver = SaveToStream;
 
-		void UnregisterOBJSaver()
-		{
-			MeshSaver::UnregisterSaver(IsSupported, SaveToStream);
+			return entry;
 		}
 	}
 }

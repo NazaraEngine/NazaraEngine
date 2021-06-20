@@ -1,10 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -83,9 +84,9 @@ namespace Nz
 	* \return String representation of the object "Color(r, g, b[, a])"
 	*/
 
-	inline String Color::ToString() const
+	inline std::string Color::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
 		ss << "Color(" << static_cast<int>(r) << ", " << static_cast<int>(g) << ", " << static_cast<int>(b);
 
 		if (a != 255)
@@ -93,7 +94,7 @@ namespace Nz
 
 		ss << ')';
 
-		return ss;
+		return ss.str();
 	}
 
 	/*!

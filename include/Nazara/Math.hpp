@@ -40,6 +40,7 @@
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/OrientedBox.hpp>
+#include <Nazara/Math/PidController.hpp>
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Ray.hpp>

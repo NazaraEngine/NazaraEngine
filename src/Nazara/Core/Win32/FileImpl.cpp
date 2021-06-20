@@ -1,10 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/FileImpl.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Win32/Time.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
@@ -18,9 +19,10 @@ namespace Nz
 		NazaraUnused(parent);
 	}
 
-	void FileImpl::Close()
+	FileImpl::~FileImpl()
 	{
-		CloseHandle(m_handle);
+		if (m_handle)
+			CloseHandle(m_handle);
 	}
 
 	bool FileImpl::EndOfFile() const
@@ -55,39 +57,39 @@ namespace Nz
 		return position.QuadPart;
 	}
 
-	bool FileImpl::Open(const String& filePath, OpenModeFlags mode)
+	bool FileImpl::Open(const std::filesystem::path& filePath, OpenModeFlags mode)
 	{
 		DWORD access = 0;
 		DWORD shareMode = FILE_SHARE_READ;
 		DWORD openMode = 0;
 
-		if (mode & OpenMode_ReadOnly)
+		if (mode & OpenMode::ReadOnly)
 		{
 			access |= GENERIC_READ;
 
-			if (mode & OpenMode_MustExist || (mode & OpenMode_WriteOnly) == 0)
+			if (mode & OpenMode::MustExist || (mode & OpenMode::WriteOnly) == 0)
 				openMode |= OPEN_EXISTING;
 		}
 
-		if (mode & OpenMode_WriteOnly)
+		if (mode & OpenMode::WriteOnly)
 		{
-			if (mode & OpenMode_Append)
+			if (mode & OpenMode::Append)
 				access |= FILE_APPEND_DATA;
 			else
 				access |= GENERIC_WRITE;
 
-			if (mode & OpenMode_Truncate)
+			if (mode & OpenMode::Truncate)
 				openMode |= CREATE_ALWAYS;
-			else if (mode & OpenMode_MustExist)
+			else if (mode & OpenMode::MustExist)
 				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
 		}
 
-		if ((mode & OpenMode_Lock) == 0)
+		if ((mode & OpenMode::Lock) == 0)
 			shareMode |= FILE_SHARE_WRITE;
 
-		m_handle = CreateFileW(filePath.GetWideString().data(), access, shareMode, nullptr, openMode, 0, nullptr);
+		m_handle = CreateFileW(ToWideString(filePath.generic_u8string()).data(), access, shareMode, nullptr, openMode, 0, nullptr);
 		return m_handle != INVALID_HANDLE_VALUE;
 	}
 
@@ -134,20 +136,20 @@ namespace Nz
 		DWORD moveMethod;
 		switch (pos)
 		{
-			case CursorPosition_AtBegin:
+			case CursorPosition::AtBegin:
 				moveMethod = FILE_BEGIN;
 				break;
 
-			case CursorPosition_AtCurrent:
+			case CursorPosition::AtCurrent:
 				moveMethod = FILE_CURRENT;
 				break;
 
-			case CursorPosition_AtEnd:
+			case CursorPosition::AtEnd:
 				moveMethod = FILE_END;
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled (0x" + String::Number(pos, 16) + ')');
+				NazaraInternalError("Cursor position not handled (0x" + NumberToString(UnderlyingCast(pos), 16) + ')');
 				return false;
 		}
 
@@ -165,11 +167,11 @@ namespace Nz
 
 		CallOnExit resetCursor([this, cursorPos] ()
 		{
-			if (!SetCursorPos(CursorPosition_AtBegin, cursorPos))
+			if (!SetCursorPos(CursorPosition::AtBegin, cursorPos))
 				NazaraWarning("Failed to reset cursor position to previous position: " + Error::GetLastSystemError());
 		});
 
-		if (!SetCursorPos(CursorPosition_AtBegin, size))
+		if (!SetCursorPos(CursorPosition::AtBegin, size))
 		{
 			NazaraError("Failed to set file size: failed to move cursor position: " + Error::GetLastSystemError());
 			return false;
@@ -196,119 +198,5 @@ namespace Nz
 		m_endOfFileUpdated = false;
 
 		return written;
-	}
-
-	bool FileImpl::Copy(const String& sourcePath, const String& targetPath)
-	{
-		if (CopyFileW(sourcePath.GetWideString().data(), targetPath.GetWideString().data(), false))
-			return true;
-		else
-		{
-			NazaraError("Failed to copy file: " + Error::GetLastSystemError());
-			return false;
-		}
-	}
-
-	bool FileImpl::Delete(const String& filePath)
-	{
-		if (DeleteFileW(filePath.GetWideString().data()))
-			return true;
-		else
-		{
-			NazaraError("Failed to delete file (" + filePath + "): " + Error::GetLastSystemError());
-			return false;
-		}
-	}
-
-	bool FileImpl::Exists(const String& filePath)
-	{
-		HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (handle == INVALID_HANDLE_VALUE)
-			return false;
-
-		CloseHandle(handle);
-		return true;
-	}
-
-	time_t FileImpl::GetCreationTime(const String& filePath)
-	{
-		HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (handle == INVALID_HANDLE_VALUE)
-			return 0;
-
-		FILETIME creationTime;
-		if (!GetFileTime(handle, &creationTime, nullptr, nullptr))
-		{
-			CloseHandle(handle);
-
-			NazaraError("Unable to get creation time: " + Error::GetLastSystemError());
-			return 0;
-		}
-
-		CloseHandle(handle);
-		return FileTimeToTime(&creationTime);
-	}
-
-	time_t FileImpl::GetLastAccessTime(const String& filePath)
-	{
-		HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (handle == INVALID_HANDLE_VALUE)
-			return 0;
-
-		FILETIME accessTime;
-		if (!GetFileTime(handle, nullptr, &accessTime, nullptr))
-		{
-			CloseHandle(handle);
-
-			NazaraError("Unable to get last access time: " + Error::GetLastSystemError());
-			return 0;
-		}
-
-		CloseHandle(handle);
-		return FileTimeToTime(&accessTime);
-	}
-
-	time_t FileImpl::GetLastWriteTime(const String& filePath)
-	{
-		HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (handle == INVALID_HANDLE_VALUE)
-			return 0;
-
-		FILETIME writeTime;
-		if (!GetFileTime(handle, nullptr, nullptr, &writeTime))
-		{
-			CloseHandle(handle);
-
-			NazaraError("Unable to get last write time: " + Error::GetLastSystemError());
-			return 0;
-		}
-
-		CloseHandle(handle);
-		return FileTimeToTime(&writeTime);
-	}
-
-	UInt64 FileImpl::GetSize(const String& filePath)
-	{
-		HANDLE handle = CreateFileW(filePath.GetWideString().data(), 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-		if (handle == INVALID_HANDLE_VALUE)
-			return 0;
-
-		LARGE_INTEGER fileSize;
-		if (!GetFileSizeEx(handle, &fileSize))
-			fileSize.QuadPart = 0;
-
-		CloseHandle(handle);
-		return fileSize.QuadPart;
-	}
-
-	bool FileImpl::Rename(const String& sourcePath, const String& targetPath)
-	{
-		if (MoveFileExW(sourcePath.GetWideString().data(), targetPath.GetWideString().data(), MOVEFILE_COPY_ALLOWED))
-			return true;
-		else
-		{
-			NazaraError("Unable to rename file: " + Error::GetLastSystemError());
-			return false;
-		}
 	}
 }

@@ -1,13 +1,15 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/StringStream.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <algorithm>
 #include <limits>
+#include <sstream>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
@@ -46,14 +48,14 @@ namespace Nz
 		m_isValid = true;
 		if (isIPv6)
 		{
-			m_protocol = NetProtocol_IPv6;
+			m_protocol = NetProtocol::IPv6;
 
 			for (unsigned int i = 0; i < 8; ++i)
 				m_ipv6[i] = UInt32(result[i*2]) << 8 | result[i*2 + 1];
 		}
 		else
 		{
-			m_protocol = NetProtocol_IPv4;
+			m_protocol = NetProtocol::IPv4;
 
 			for (unsigned int i = 0; i < 4; ++i)
 				m_ipv4[i] = result[i];
@@ -74,21 +76,21 @@ namespace Nz
 		if (!m_isValid)
 			return false;
 
-		NazaraAssert(m_protocol <= NetProtocol_Max, "Protocol has value out of enum");
+		NazaraAssert(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
 		switch (m_protocol)
 		{
-			case NetProtocol_Any:
-			case NetProtocol_Unknown:
+			case NetProtocol::Any:
+			case NetProtocol::Unknown:
 				break;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 				return m_ipv4[0] == 127;
 
-			case NetProtocol_IPv6:
+			case NetProtocol::IPv6:
 				return m_ipv6 == LoopbackIpV6.m_ipv6; // Only compare the ip value
 		}
 
-		NazaraInternalError("Invalid protocol for IpAddress (0x" + String::Number(m_protocol) + ')');
+		NazaraInternalError("Invalid protocol for IpAddress (0x" + NumberToString(UnderlyingCast(m_protocol), 16) + ')');
 		return false;
 	}
 
@@ -99,20 +101,20 @@ namespace Nz
 	* \remark Produces a NazaraAssert if internal protocol is invalid (should never happen)
 	*/
 
-	String IpAddress::ToString() const
+	std::string IpAddress::ToString() const
 	{
-		StringStream stream;
+		std::ostringstream stream;
 
 		if (m_isValid)
 		{
-			NazaraAssert(m_protocol <= NetProtocol_Max, "Protocol has value out of enum");
+			NazaraAssert(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
 			switch (m_protocol)
 			{
-				case NetProtocol_Any:
-				case NetProtocol_Unknown:
+				case NetProtocol::Any:
+				case NetProtocol::Unknown:
 					break;
 
-				case NetProtocol_IPv4:
+				case NetProtocol::IPv4:
 					for (unsigned int i = 0; i < 4; ++i)
 					{
 						stream << int(m_ipv4[i]);
@@ -121,7 +123,7 @@ namespace Nz
 					}
 					break;
 
-				case NetProtocol_IPv6:
+				case NetProtocol::IPv6:
 					// Canonical representation of an IPv6
 					// https://tools.ietf.org/html/rfc5952
 
@@ -164,7 +166,7 @@ namespace Nz
 						else if (i != 0)
 							stream << ':';
 
-						stream << String::Number(m_ipv6[i], 16).ToLower();
+						stream << ToLower(NumberToString(m_ipv6[i], 16));
 					}
 
 					if (m_port != 0)
@@ -176,7 +178,7 @@ namespace Nz
 				stream << ':' << m_port;
 		}
 
-		return stream;
+		return stream.str();
 	}
 
 	/*!
@@ -189,12 +191,11 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if address is invalid
 	*/
-
-	String IpAddress::ResolveAddress(const IpAddress& address, String* service, ResolveError* error)
+	std::string IpAddress::ResolveAddress(const IpAddress& address, std::string* service, ResolveError* error)
 	{
 		NazaraAssert(address.IsValid(), "Invalid address");
 
-		String hostname;
+		std::string hostname;
 		IpAddressImpl::ResolveAddress(address, &hostname, service, error);
 
 		return hostname;
@@ -211,10 +212,9 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if net protocol is set to unknown
 	*/
-
-	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const String& hostname, const String& service, ResolveError* error)
+	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const std::string& hostname, const std::string& service, ResolveError* error)
 	{
-		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
+		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
 
 		return IpAddressImpl::ResolveHostname(protocol, hostname, service, error);
 	}

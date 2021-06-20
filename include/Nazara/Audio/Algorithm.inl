@@ -1,12 +1,53 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
 {
+	/*!
+	* \ingroup audio
+	* \brief Get the number of channels occupied by an audio format
+	* \returns The number of channels occupied by an audio format (mono returns 1, stero returns 2, etc.)
+	*
+	* \param format A valid audio format
+	* 
+	* \remark The format must be valid (using AudioFormat::Unknown will trigger an error)
+	*/
+	UInt32 GetChannelCount(AudioFormat format)
+	{
+		NazaraAssert(format != AudioFormat::Unknown, "invalid audio format");
+
+		switch (format)
+		{
+			case AudioFormat::Unknown: //< Just to make the compiler stop complaining
+				break;
+
+			case AudioFormat::I16_Mono:
+				return 1;
+
+			case AudioFormat::I16_Stereo:
+				return 2;
+
+			case AudioFormat::I16_Quad:
+				return 4;
+
+			case AudioFormat::I16_5_1:
+				return 6;
+
+			case AudioFormat::I16_6_1:
+				return 7;
+
+			case AudioFormat::I16_7_1:
+				return 8;
+		}
+
+		return 0;
+	}
+
 	/*!
 	* \ingroup audio
 	* \brief Mixes channels in mono

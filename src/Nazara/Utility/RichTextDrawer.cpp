@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -14,10 +14,10 @@ namespace Nz
 	m_defaultOutlineColor(Color::Black),
 	m_defaultStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
-	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_defaultCharacterSpacingOffset(0.f),
 	m_defaultLineSpacingOffset(0.f),
 	m_defaultOutlineThickness(0.f),
+	m_maxLineWidth(std::numeric_limits<float>::infinity()),
 	m_defaultCharacterSize(24)
 	{
 		SetDefaultFont(Font::GetDefault());
@@ -25,15 +25,15 @@ namespace Nz
 
 	RichTextDrawer::RichTextDrawer(const RichTextDrawer& drawer) :
 	m_defaultColor(drawer.m_defaultColor),
+	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
 	m_defaultStyle(drawer.m_defaultStyle),
 	m_fontIndexes(drawer.m_fontIndexes),
 	m_blocks(drawer.m_blocks),
 	m_glyphUpdated(false),
-	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
-	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_defaultCharacterSpacingOffset(drawer.m_defaultCharacterSpacingOffset),
 	m_defaultLineSpacingOffset(drawer.m_defaultLineSpacingOffset),
 	m_defaultOutlineThickness(drawer.m_defaultOutlineThickness),
+	m_maxLineWidth(drawer.m_maxLineWidth),
 	m_defaultCharacterSize(drawer.m_defaultCharacterSize)
 	{
 		m_fonts.resize(drawer.m_fonts.size());
@@ -55,9 +55,9 @@ namespace Nz
 
 	RichTextDrawer::~RichTextDrawer() = default;
 
-	auto RichTextDrawer::AppendText(const String& str, bool forceNewBlock) -> BlockRef
+	auto RichTextDrawer::AppendText(const std::string& str, bool forceNewBlock) -> BlockRef
 	{
-		NazaraAssert(!str.IsEmpty(), "String cannot be empty");
+		NazaraAssert(!str.empty(), "String cannot be empty");
 
 		std::size_t defaultFontIndex = HandleFontAddition(m_defaultFont);
 
@@ -80,7 +80,7 @@ namespace Nz
 			if (!m_blocks.empty())
 			{
 				Block& lastBlock = m_blocks.back();
-				glyphIndex = lastBlock.glyphIndex + lastBlock.text.GetLength();
+				glyphIndex = lastBlock.glyphIndex + lastBlock.text.size();
 			}
 			else
 				glyphIndex = 0;
@@ -126,7 +126,7 @@ namespace Nz
 		return m_bounds;
 	}
 
-	Font* RichTextDrawer::GetFont(std::size_t index) const
+	const std::shared_ptr<Font>& RichTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index < m_fonts.size(), "Font index out of range");
 
@@ -209,7 +209,7 @@ namespace Nz
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 
-		std::size_t textLength = m_blocks[index].text.GetLength();
+		std::size_t textLength = m_blocks[index].text.size();
 
 		ReleaseFont(m_blocks[index].fontIndex);
 		m_blocks.erase(m_blocks.begin() + index);
@@ -263,7 +263,7 @@ namespace Nz
 		DisconnectFontSlots();
 
 		m_blocks = std::move(drawer.m_blocks);
-		m_bounds = std::move(m_bounds);
+		m_bounds = std::move(drawer.m_bounds);
 		m_defaultCharacterSize = std::move(drawer.m_defaultCharacterSize);
 		m_defaultCharacterSpacingOffset = std::move(drawer.m_defaultCharacterSpacingOffset);
 		m_defaultColor = std::move(drawer.m_defaultColor);
@@ -272,12 +272,12 @@ namespace Nz
 		m_defaultOutlineColor = std::move(drawer.m_defaultOutlineColor);
 		m_defaultOutlineThickness = std::move(drawer.m_defaultOutlineThickness);
 		m_defaultStyle = std::move(drawer.m_defaultStyle);
-		m_drawPos = std::move(m_drawPos);
+		m_drawPos = std::move(drawer.m_drawPos);
 		m_fontIndexes = std::move(drawer.m_fontIndexes);
 		m_fonts = std::move(drawer.m_fonts);
-		m_glyphs = std::move(m_glyphs);
-		m_lines = std::move(m_lines);
-		m_glyphUpdated = std::move(m_glyphUpdated);
+		m_glyphs = std::move(drawer.m_glyphs);
+		m_lines = std::move(drawer.m_lines);
+		m_glyphUpdated = std::move(drawer.m_glyphUpdated);
 
 		drawer.DisconnectFontSlots();
 		ConnectFontSlots();
@@ -285,12 +285,12 @@ namespace Nz
 		return *this;
 	}
 
-	void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, float lineSpacingOffset, std::size_t glyphIndex, float glyphPosition) const
+	void RichTextDrawer::AppendNewLine(const Font& font, unsigned int characterSize, float lineSpacingOffset, std::size_t glyphIndex, float glyphPosition) const
 	{
 		// Ensure we're appending from last line
 		Line& lastLine = m_lines.back();
 
-		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+		const Font::SizeInfo& sizeInfo = font.GetSizeInfo(characterSize);
 
 		float previousDrawPos = m_drawPos.x;
 
@@ -336,12 +336,12 @@ namespace Nz
 		}
 	}
 
-	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font* font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
+	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
 	{
-		const Font::Glyph& fontGlyph = font->GetGlyph(characterSize, style, outlineThickness, character);
+		const Font::Glyph& fontGlyph = font.GetGlyph(characterSize, style, outlineThickness, character);
 		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
 		{
-			glyph.atlas = font->GetAtlas()->GetLayer(fontGlyph.layerIndex);
+			glyph.atlas = font.GetAtlas()->GetLayer(fontGlyph.layerIndex);
 			glyph.atlasRect = fontGlyph.atlasRect;
 			glyph.color = color;
 			glyph.flipped = fontGlyph.flipped;
@@ -376,13 +376,13 @@ namespace Nz
 			return false;
 	};
 
-	void RichTextDrawer::GenerateGlyphs(const Font* font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const String& text) const
+	void RichTextDrawer::GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const std::string& text) const
 	{
-		if (text.IsEmpty())
+		if (text.empty())
 			return;
 
 		///TODO: Allow iteration on Unicode characters without allocating any buffer
-		std::u32string characters = text.GetUtf32String();
+		std::u32string characters = ToUtf32String(text);
 		if (characters.empty())
 		{
 			NazaraError("Invalid character set");
@@ -391,7 +391,7 @@ namespace Nz
 
 		char32_t previousCharacter = 0;
 
-		const Font::SizeInfo& sizeInfo = font->GetSizeInfo(characterSize);
+		const Font::SizeInfo& sizeInfo = font.GetSizeInfo(characterSize);
 		float lineHeight = GetLineHeight(lineSpacingOffset, sizeInfo);
 
 		float heightDifference = lineHeight - m_lines.back().bounds.height;
@@ -414,7 +414,7 @@ namespace Nz
 		for (char32_t character : characters)
 		{
 			if (previousCharacter != 0)
-				m_drawPos.x += font->GetKerning(characterSize, previousCharacter, character);
+				m_drawPos.x += font.GetKerning(characterSize, previousCharacter, character);
 
 			previousCharacter = character;
 
@@ -500,10 +500,10 @@ namespace Nz
 		NazaraUnused(font);
 
 #ifdef NAZARA_DEBUG
-		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font == font; });
+		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font.get() == font; });
 		if (it == m_fonts.end())
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 #endif
@@ -522,10 +522,10 @@ namespace Nz
 		NazaraUnused(font);
 
 #ifdef NAZARA_DEBUG
-		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font == font; });
+		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font.get() == font; });
 		if (it == m_fonts.end())
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 #endif
@@ -539,10 +539,10 @@ namespace Nz
 		NazaraUnused(font);
 
 #ifdef NAZARA_DEBUG
-		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font == font; });
+		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font.get() == font; });
 		if (it == m_fonts.end())
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 #endif
@@ -573,7 +573,7 @@ namespace Nz
 				assert(block.fontIndex < m_fonts.size());
 				const auto& fontData = m_fonts[block.fontIndex];
 
-				GenerateGlyphs(fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.characterSpacingOffset, block.lineSpacingOffset, block.text);
+				GenerateGlyphs(*fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.characterSpacingOffset, block.lineSpacingOffset, block.text);
 			}
 		}
 		else

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "md5mesh");
 		}
@@ -29,13 +29,13 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD5MeshLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			MD5MeshParser parser(stream);
 			return parser.Check();
 		}
 
-		MeshRef Load(Stream& stream, const MeshParams& parameters)
+		std::shared_ptr<Mesh> Load(Stream& stream, const MeshParams& parameters)
 		{
 			MD5MeshParser parser(stream);
 			if (!parser.Parse())
@@ -48,7 +48,7 @@ namespace Nz
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			String baseDir = stream.GetDirectory();
+			std::filesystem::path baseDir = stream.GetDirectory();
 
 			// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
 			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
@@ -62,7 +62,7 @@ namespace Nz
 
 			if (parameters.animated)
 			{
-				MeshRef mesh = Mesh::New();
+				std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 				mesh->CreateSkeletal(jointCount);
 
 				Skeleton* skeleton = mesh->GetSkeleton();
@@ -96,11 +96,11 @@ namespace Nz
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
-					VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags | BufferUsage_Dynamic);
+					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
+					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
 					// Index buffer
-					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+					IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
 
 					// Le format définit un set de triangles nous permettant de retrouver facilement les indices
 					// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
@@ -128,7 +128,7 @@ namespace Nz
 
 					std::vector<Weight> tempWeights;
 
-					BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+					BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
 					SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
 					for (const MD5MeshParser::Vertex& vertex : md5Mesh.vertices)
@@ -198,12 +198,12 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+					matData.SetParameter(MaterialData::FilePath, (baseDir / md5Mesh.shader).generic_u8string());
 
 					mesh->SetMaterialData(i, std::move(matData));
 
 					// Submesh
-					SkeletalMeshRef subMesh = SkeletalMesh::New(vertexBuffer, indexBuffer);
+					std::shared_ptr<SkeletalMesh> subMesh = std::make_shared<SkeletalMesh>(vertexBuffer, indexBuffer);
 					subMesh->GenerateNormalsAndTangents();
 					subMesh->SetMaterialIndex(i);
 
@@ -211,11 +211,11 @@ namespace Nz
 
 					// Animation
 					// Il est peut-être éventuellement possible que la probabilité que l'animation ait le même nom soit non-nulle.
-					String path = stream.GetPath();
-					if (!path.IsEmpty())
+					std::filesystem::path path = stream.GetPath();
+					if (!path.empty())
 					{
-						path.Replace(".md5mesh", ".md5anim", -8, String::CaseInsensitive);
-						if (File::Exists(path))
+						path.replace_extension(".md5anim");
+						if (std::filesystem::exists(path))
 							mesh->SetAnimation(path);
 					}
 				}
@@ -224,7 +224,7 @@ namespace Nz
 			}
 			else
 			{
-				MeshRef mesh = Mesh::New();
+				std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 				if (!mesh->CreateStatic()) // Ne devrait jamais échouer
 				{
 					NazaraInternalError("Failed to create mesh");
@@ -241,9 +241,9 @@ namespace Nz
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
+					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
 
-					IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+					IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
 					IndexIterator index = indexMapper.begin();
 
 					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
@@ -259,11 +259,11 @@ namespace Nz
 						indexBuffer->Optimize();
 
 					// Vertex buffer
-					VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
+					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
 
-					VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+					VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
 
-					auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+					auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 
 					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 					{
@@ -281,7 +281,7 @@ namespace Nz
 						*posPtr++ = matrix * finalPos;
 					}
 
-					if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord))
+					if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
 					{
 						for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 							*uvPtr++ = parameters.texCoordOffset + md5Vertex.uv * parameters.texCoordScale;
@@ -290,13 +290,13 @@ namespace Nz
 					vertexMapper.Unmap();
 
 					// Submesh
-					StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
+					std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
 					subMesh->GenerateAABB();
 					subMesh->SetMaterialIndex(i);
 
-					if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Normal))
+					if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Normal))
 					{
-						if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Tangent))
+						if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Tangent))
 							subMesh->GenerateNormalsAndTangents();
 						else
 							subMesh->GenerateNormals();
@@ -306,7 +306,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::FilePath, baseDir + md5Mesh.shader);
+					matData.SetParameter(MaterialData::FilePath, (baseDir / md5Mesh.shader).generic_u8string());
 
 					mesh->SetMaterialData(i, std::move(matData));
 				}
@@ -321,14 +321,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterMD5Mesh()
+		MeshLoader::Entry GetMeshLoader_MD5Mesh()
 		{
-			MeshLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			MeshLoader::Entry loader;
+			loader.extensionSupport = IsSupported;
+			loader.streamChecker = Check;
+			loader.streamLoader = Load;
 
-		void UnregisterMD5Mesh()
-		{
-			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loader;
 		}
 	}
 }

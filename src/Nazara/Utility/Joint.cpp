@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -34,7 +34,7 @@ namespace Nz
 		return m_inverseBindMatrix;
 	}
 
-	String Joint::GetName() const
+	const std::string& Joint::GetName() const
 	{
 		return m_name;
 	}
@@ -63,9 +63,9 @@ namespace Nz
 		m_skinningMatrixUpdated = false;
 	}
 
-	void Joint::SetName(const String& name)
+	void Joint::SetName(std::string name)
 	{
-		m_name = name;
+		m_name = std::move(name);
 
 		m_skeleton->InvalidateJointMap();
 	}

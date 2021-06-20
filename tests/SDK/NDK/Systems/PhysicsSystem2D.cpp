@@ -1,9 +1,10 @@
-#include <NDK/Systems/PhysicsSystem2D.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/CollisionComponent2D.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent2D.hpp>
-#include <Catch/catch.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem2D.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/CollisionComponent2D.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/PhysicsComponent2D.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem2D.hpp>
+#include <catch2/catch.hpp>
 #include <limits>
 
 Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& position, const Nz::Rectf& AABB);
@@ -13,6 +14,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	GIVEN("A world and an entity")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
 
 		Nz::Vector2f position(2.f, 3.f);
 		Nz::Rectf movingAABB(0.f, 0.f, 16.f, 18.f);
@@ -74,6 +76,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	GIVEN("A world and a simple entity")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
 
 		Nz::Vector2f position(0.f, 0.f);
 		Nz::Rectf movingAABB(0.f, 0.f, 1.f, 2.f);
@@ -96,7 +99,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 				CHECK(physicsComponent2D.GetAngularVelocity() == angularSpeed);
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(-2.f, 0.f, 2.f, 1.f));
 				CHECK(physicsComponent2D.GetRotation() == Nz::RadianAnglef::FromDegrees(90.f));
-				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));
+				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Nz::DegreeAnglef(90.f));
 			}
 		}
 
@@ -120,6 +123,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 	GIVEN("A world and a simple entity not at the origin")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem2D>();
 
 		Nz::Vector2f position(3.f, 4.f);
 		Nz::Rectf movingAABB(0.f, 0.f, 1.f, 2.f);
@@ -143,7 +147,7 @@ SCENARIO("PhysicsSystem2D", "[NDK][PHYSICSSYSTEM2D]")
 				CHECK(physicsComponent2D.GetAABB() == Nz::Rectf(1.f, 4.f, 2.f, 1.f));
 				CHECK(physicsComponent2D.GetRotation() == 2.f * angularSpeed);
 				CHECK(nodeComponent.GetPosition() == position);
-				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Approx(Nz::FromDegrees(90.f)));
+				CHECK(nodeComponent.GetRotation().ToEulerAngles().roll == Nz::DegreeAnglef(90.f));
 			}
 		}
 	}
@@ -154,7 +158,7 @@ Ndk::EntityHandle CreateBaseEntity(Ndk::World& world, const Nz::Vector2f& positi
 	Ndk::EntityHandle entity = world.CreateEntity();
 	Ndk::NodeComponent& nodeComponent = entity->AddComponent<Ndk::NodeComponent>();
 	nodeComponent.SetPosition(position);
-	Nz::BoxCollider2DRef collisionBox = Nz::BoxCollider2D::New(AABB);
+	std::shared_ptr<Nz::BoxCollider2D> collisionBox = std::make_shared<Nz::BoxCollider2D>(AABB);
 	entity->AddComponent<Ndk::CollisionComponent2D>(collisionBox);
 	return entity;
 }

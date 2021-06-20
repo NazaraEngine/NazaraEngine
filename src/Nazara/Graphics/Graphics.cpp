@@ -1,30 +1,12 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
-#include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/DeferredRenderTechnique.hpp>
-#include <Nazara/Graphics/DepthRenderTechnique.hpp>
-#include <Nazara/Graphics/ForwardRenderTechnique.hpp>
-#include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/ParticleController.hpp>
-#include <Nazara/Graphics/ParticleDeclaration.hpp>
-#include <Nazara/Graphics/ParticleGenerator.hpp>
-#include <Nazara/Graphics/ParticleRenderer.hpp>
-#include <Nazara/Graphics/RenderTechniques.hpp>
-#include <Nazara/Graphics/SkinningManager.hpp>
-#include <Nazara/Graphics/SkyboxBackground.hpp>
-#include <Nazara/Graphics/Sprite.hpp>
-#include <Nazara/Graphics/TileMap.hpp>
-#include <Nazara/Graphics/Formats/MeshLoader.hpp>
-#include <Nazara/Graphics/Formats/TextureLoader.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Utility/Font.hpp>
+#include <Nazara/Core/ECS.hpp>
+#include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -34,236 +16,74 @@ namespace Nz
 	* \class Nz::Graphics
 	* \brief Graphics class that represents the module initializer of Graphics
 	*/
-
-	/*!
-	* \brief Initializes the Graphics module
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraNotice
-	* \remark Produces a NazaraError if one submodule failed
-	*/
-
-	bool Graphics::Initialize()
+	Graphics::Graphics(Config config) :
+	ModuleBase("Graphics", this)
 	{
-		if (IsInitialized())
+		ECS::RegisterComponents();
+
+		Renderer* renderer = Renderer::Instance();
+
+		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
+		if (renderDeviceInfo.empty())
+			throw std::runtime_error("no render device available");
+
+		std::size_t bestRenderDeviceIndex = 0;
+		for (std::size_t i = 0; i < renderDeviceInfo.size(); ++i)
 		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		// Initialisation of dependances
-		if (!Renderer::Initialize())
-		{
-			NazaraError("Failed to initialize Renderer module");
-			return false;
-		}
-
-		s_moduleReferenceCounter++;
-
-		// Initialisation of the module
-		CallOnExit onExit(Graphics::Uninitialize);
-
-		// Materials
-		if (!MaterialPipeline::Initialize())
-		{
-			NazaraError("Failed to initialize material pipelines");
-			return false;
-		}
-
-		if (!Material::Initialize())
-		{
-			NazaraError("Failed to initialize materials");
-			return false;
-		}
-
-		// Renderables
-		if (!ParticleController::Initialize())
-		{
-			NazaraError("Failed to initialize particle controllers");
-			return false;
-		}
-
-		if (!ParticleDeclaration::Initialize())
-		{
-			NazaraError("Failed to initialize particle declarations");
-			return false;
-		}
-
-		if (!ParticleGenerator::Initialize())
-		{
-			NazaraError("Failed to initialize particle generators");
-			return false;
-		}
-
-		if (!ParticleRenderer::Initialize())
-		{
-			NazaraError("Failed to initialize particle renderers");
-			return false;
-		}
-
-		if (!SkinningManager::Initialize())
-		{
-			NazaraError("Failed to initialize skinning manager");
-			return false;
-		}
-
-		if (!SkyboxBackground::Initialize())
-		{
-			NazaraError("Failed to initialize skybox backgrounds");
-			return false;
-		}
-
-		if (!Sprite::Initialize())
-		{
-			NazaraError("Failed to initialize sprites");
-			return false;
-		}
-
-		if (!TileMap::Initialize())
-		{
-			NazaraError("Failed to initialize tilemaps");
-			return false;
-		}
-
-		// Generic loaders
-		Loaders::RegisterMesh();
-		Loaders::RegisterTexture();
-
-		// Render techniques
-		if (!DepthRenderTechnique::Initialize())
-		{
-			NazaraError("Failed to initialize Depth Rendering");
-			return false;
-		}
-
-		if (!ForwardRenderTechnique::Initialize())
-		{
-			NazaraError("Failed to initialize Forward Rendering");
-			return false;
-		}
-
-		RenderTechniques::Register(RenderTechniques::ToString(RenderTechniqueType_BasicForward), 0, []() -> AbstractRenderTechnique* { return new ForwardRenderTechnique; });
-
-		if (DeferredRenderTechnique::IsSupported())
-		{
-			if (DeferredRenderTechnique::Initialize())
-				RenderTechniques::Register(RenderTechniques::ToString(RenderTechniqueType_DeferredShading), 20, []() -> AbstractRenderTechnique* { return new DeferredRenderTechnique; });
-			else
+			const auto& deviceInfo = renderDeviceInfo[i];
+			if (config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Dedicated)
 			{
-				NazaraWarning("Failed to initialize Deferred Rendering");
+				bestRenderDeviceIndex = i;
+				break;
+			}
+			else if (!config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Integrated)
+			{
+				bestRenderDeviceIndex = i;
+				break;
 			}
 		}
 
-		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>());
+		RenderDeviceFeatures enabledFeatures;
+		enabledFeatures.anisotropicFiltering = renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+		enabledFeatures.nonSolidFaceFilling = renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 
-		// Textures
-		std::array<UInt8, 6> whitePixels = { { 255, 255, 255, 255, 255, 255 } };
+		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);
+		if (!m_renderDevice)
+			throw std::runtime_error("failed to instantiate render device");
 
-		Nz::TextureRef whiteTexture = Nz::Texture::New();
-		whiteTexture->Create(ImageType_2D, PixelFormatType_L8, 1, 1);
-		whiteTexture->Update(whitePixels.data());
+		m_samplerCache.emplace(m_renderDevice);
 
-		TextureLibrary::Register("White2D", std::move(whiteTexture));
+		MaterialPipeline::Initialize();
 
-		Nz::TextureRef whiteCubemap = Nz::Texture::New();
-		whiteCubemap->Create(ImageType_Cubemap, PixelFormatType_L8, 1, 1);
-		whiteCubemap->Update(whitePixels.data());
+		RenderPipelineLayoutInfo referenceLayoutInfo;
+		FillViewerPipelineLayout(referenceLayoutInfo);
+		FillWorldPipelineLayout(referenceLayoutInfo);
 
-		TextureLibrary::Register("WhiteCubemap", std::move(whiteCubemap));
-
-		onExit.Reset();
-
-		NazaraNotice("Initialized: Graphics module");
-		return true;
+		m_referencePipelineLayout = m_renderDevice->InstantiateRenderPipelineLayout(std::move(referenceLayoutInfo));
 	}
 
-	/*!
-	* \brief Checks whether the module is initialized
-	* \return true if module is initialized
-	*/
-
-	bool Graphics::IsInitialized()
+	Graphics::~Graphics()
 	{
-		return s_moduleReferenceCounter != 0;
-	}
-
-	/*!
-	* \brief Uninitializes the Graphics module
-	*
-	* \remark Produces a NazaraNotice
-	*/
-
-	void Graphics::Uninitialize()
-	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// The module is still in use, or can not be uninitialized
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		// Free of module
-		s_moduleReferenceCounter = 0;
-
-		// Free of atlas if it is ours
-		std::shared_ptr<AbstractAtlas> defaultAtlas = Font::GetDefaultAtlas();
-		if (defaultAtlas && defaultAtlas->GetStorage() == DataStorage_Hardware)
-		{
-			Font::SetDefaultAtlas(nullptr);
-
-			// The default police can make live one hardware atlas after the free of a module (which could be problematic)
-			// So, if the default police use a hardware atlas, we stole it.
-			// I don't like this solution, but I don't have any better
-			if (!defaultAtlas.unique())
-			{
-				// Still at least one police use the atlas
-				Font* defaultFont = Font::GetDefault();
-				defaultFont->SetAtlas(nullptr);
-
-				if (!defaultAtlas.unique())
-				{
-					// Still not the only one to own it ? Then crap.
-					NazaraWarning("Default font atlas uses hardware storage and is still used");
-				}
-			}
-		}
-
-		defaultAtlas.reset();
-
-		// Textures
-		TextureLibrary::Unregister("White2D");
-		TextureLibrary::Unregister("WhiteCubemap");
-
-		// Loaders
-		Loaders::UnregisterMesh();
-		Loaders::UnregisterTexture();
-
-		// Renderables
-		ParticleRenderer::Uninitialize();
-		ParticleGenerator::Uninitialize();
-		ParticleDeclaration::Uninitialize();
-		ParticleController::Uninitialize();
-		SkyboxBackground::Uninitialize();
-		Sprite::Uninitialize();
-		TileMap::Uninitialize();
-
-		// Render techniques
-		DeferredRenderTechnique::Uninitialize();
-		DepthRenderTechnique::Uninitialize();
-		ForwardRenderTechnique::Uninitialize();
-		SkinningManager::Uninitialize();
-
-		// Materials
-		Material::Uninitialize();
 		MaterialPipeline::Uninitialize();
-
-		NazaraNotice("Uninitialized: Graphics module");
-
-		// Free of dependances
-		Renderer::Uninitialize();
 	}
 
-	unsigned int Graphics::s_moduleReferenceCounter = 0;
+	void Graphics::FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
+	{
+		layoutInfo.bindings.push_back({
+			set, 0,
+			ShaderBindingType::UniformBuffer,
+			ShaderStageType_All
+		});
+	}
+
+	void Graphics::FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
+	{
+		layoutInfo.bindings.push_back({
+			set, 0,
+			ShaderBindingType::UniformBuffer,
+			ShaderStageType_All
+		});
+	}
+
+	Graphics* Graphics::s_instance = nullptr;
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,7 +11,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
@@ -32,12 +31,10 @@ namespace Nz
 
 	struct FontGlyph;
 
-	using FontConstRef = ObjectRef<const Font>;
 	using FontLibrary = ObjectLibrary<Font>;
 	using FontLoader = ResourceLoader<Font, FontParams>;
-	using FontRef = ObjectRef<Font>;
 
-	class NAZARA_UTILITY_API Font : public RefCounted, public Resource
+	class NAZARA_UTILITY_API Font : public Resource
 	{
 		friend FontLibrary;
 		friend FontLoader;
@@ -64,18 +61,18 @@ namespace Nz
 			const std::shared_ptr<AbstractAtlas>& GetAtlas() const;
 			std::size_t GetCachedGlyphCount(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const;
 			std::size_t GetCachedGlyphCount() const;
-			String GetFamilyName() const;
+			std::string GetFamilyName() const;
 			int GetKerning(unsigned int characterSize, char32_t first, char32_t second) const;
 			const Glyph& GetGlyph(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
 			unsigned int GetGlyphBorder() const;
 			unsigned int GetMinimumStepSize() const;
 			const SizeInfo& GetSizeInfo(unsigned int characterSize) const;
-			String GetStyleName() const;
+			std::string GetStyleName() const;
 
 			bool IsValid() const;
 
 			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
-			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const String& characterSet) const;
+			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const;
 
 			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
 			void SetGlyphBorder(unsigned int borderSize);
@@ -85,15 +82,13 @@ namespace Nz
 			Font& operator=(Font&&) = delete;
 
 			static std::shared_ptr<AbstractAtlas> GetDefaultAtlas();
-			static const FontRef& GetDefault();
+			static const std::shared_ptr<Font>& GetDefault();
 			static unsigned int GetDefaultGlyphBorder();
 			static unsigned int GetDefaultMinimumStepSize();
 
-			static FontRef OpenFromFile(const String& filePath, const FontParams& params = FontParams());
-			static FontRef OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
-			static FontRef OpenFromStream(Stream& stream, const FontParams& params = FontParams());
-
-			template<typename... Args> static FontRef New(Args&&... args);
+			static std::shared_ptr<Font> OpenFromFile(const std::filesystem::path& filePath, const FontParams& params = FontParams());
+			static std::shared_ptr<Font> OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
+			static std::shared_ptr<Font> OpenFromStream(Stream& stream, const FontParams& params = FontParams());
 
 			static void SetDefaultAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
 			static void SetDefaultGlyphBorder(unsigned int borderSize);
@@ -154,9 +149,7 @@ namespace Nz
 			unsigned int m_minimumStepSize;
 
 			static std::shared_ptr<AbstractAtlas> s_defaultAtlas;
-			static FontRef s_defaultFont;
-			static FontLibrary::LibraryMap s_library;
-			static FontLoader::LoaderList s_loaders;
+			static std::shared_ptr<Font> s_defaultFont;
 			static unsigned int s_defaultGlyphBorder;
 			static unsigned int s_defaultMinimumStepSize;
 	};

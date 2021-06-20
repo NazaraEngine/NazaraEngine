@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 #ifndef NAZARA_FRUSTUM_HPP
 #define NAZARA_FRUSTUM_HPP
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -15,6 +15,7 @@
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -29,7 +30,7 @@ namespace Nz
 			Frustum(const Frustum& frustum) = default;
 			~Frustum() = default;
 
-			Frustum& Build(T angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
+			Frustum& Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 
 			bool Contains(const BoundingVolume<T>& volume) const;
 			bool Contains(const Box<T>& box) const;
@@ -54,7 +55,7 @@ namespace Nz
 
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			template<typename U>
 			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);

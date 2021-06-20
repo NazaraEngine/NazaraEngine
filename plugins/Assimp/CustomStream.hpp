@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Assimp Plugin"
 // For conditions of distribution and use, see copyright notice in Plugin.cpp
 
@@ -21,8 +21,8 @@ size_t StreamWrite(aiFile* file, const char* buffer, size_t size, size_t count);
 
 struct FileIOUserdata
 {
-    Nz::Stream* originalStream;
-    const char* originalFilePath;
+	Nz::Stream* originalStream;
+	const char* originalFilePath;
 };
 
 aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMode);

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,7 +11,9 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <condition_variable>
+#include <exception>
+#include <mutex>
 
 namespace Nz
 {
@@ -20,12 +22,12 @@ namespace Nz
 	class NAZARA_AUDIO_API Music : public Resource, public SoundEmitter
 	{
 		public:
-			Music() = default;
+			Music();
 			Music(const Music&) = delete;
-			Music(Music&&) noexcept = default;
+			Music(Music&&) noexcept;
 			~Music();
 
-			bool Create(SoundStream* soundStream);
+			bool Create(std::shared_ptr<SoundStream> soundStream);
 			void Destroy();
 
 			void EnableLooping(bool loop) override;
@@ -39,7 +41,7 @@ namespace Nz
 
 			bool IsLooping() const override;
 
-			bool OpenFromFile(const String& filePath, const SoundStreamParams& params = SoundStreamParams());
+			bool OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params = SoundStreamParams());
 			bool OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params = SoundStreamParams());
 			bool OpenFromStream(Stream& stream, const SoundStreamParams& params = SoundStreamParams());
 
@@ -51,13 +53,13 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) noexcept = default;
+			Music& operator=(Music&&) noexcept;
 
 		private:
-			MovablePtr<MusicImpl> m_impl;
+			std::unique_ptr<MusicImpl> m_impl;
 
 			bool FillAndQueueBuffer(unsigned int buffer);
-			void MusicThread();
+			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err);
 			void StopThread();
 	};
 }

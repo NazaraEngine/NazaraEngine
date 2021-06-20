@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -56,7 +56,7 @@ namespace Nz
 	*
 	* \param offset Offset according to the beginning of the stream
 	*/
-	bool EmptyStream::SetCursorPos(UInt64 offset)
+	bool EmptyStream::SetCursorPos(UInt64 /*offset*/)
 	{
 		return true;
 	}
@@ -78,7 +78,7 @@ namespace Nz
 	* \param buffer Preallocated buffer to contain information read
 	* \param size Size of the read and thus of the buffer
 	*/
-	std::size_t EmptyStream::ReadBlock(void* buffer, std::size_t size)
+	std::size_t EmptyStream::ReadBlock(void* /*buffer*/, std::size_t /*size*/)
 	{
 		return 0;
 	}

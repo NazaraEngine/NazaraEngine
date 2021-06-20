@@ -5,7 +5,7 @@
 
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Graphics/ParticleStruct.hpp>
-#include <NDK/State.hpp>
+#include <NazaraSDK/State.hpp>
 #include <vector>
 #include "Common.hpp"
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,30 +18,29 @@ namespace Nz
 	{
 		public:
 			Sound() = default;
-			Sound(const SoundBuffer* soundBuffer);
-			Sound(const Sound& sound);
+			Sound(std::shared_ptr<const SoundBuffer> soundBuffer);
+			Sound(const Sound&) = default;
 			Sound(Sound&&) noexcept = default;
 			~Sound();
 
 			void EnableLooping(bool loop) override;
 
-			const SoundBuffer* GetBuffer() const;
+			const std::shared_ptr<const SoundBuffer>& GetBuffer() const;
 			UInt32 GetDuration() const override;
 			UInt32 GetPlayingOffset() const override;
 			SoundStatus GetStatus() const override;
 
 			bool IsLooping() const override;
 			bool IsPlayable() const;
-			bool IsPlaying() const;
 
-			bool LoadFromFile(const String& filePath, const SoundBufferParams& params = SoundBufferParams());
+			bool LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params = SoundBufferParams());
 			bool LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params = SoundBufferParams());
 			bool LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 
 			void Pause() override;
 			void Play() override;
 
-			void SetBuffer(const SoundBuffer* buffer);
+			void SetBuffer(std::shared_ptr<const SoundBuffer> soundBuffer);
 			void SetPlayingOffset(UInt32 offset);
 
 			void Stop() override;
@@ -50,7 +49,7 @@ namespace Nz
 			Sound& operator=(Sound&&) noexcept = default;
 
 		private:
-			SoundBufferConstRef m_buffer;
+			std::shared_ptr<const SoundBuffer> m_buffer;
 	};
 }
 

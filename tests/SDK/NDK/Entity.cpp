@@ -1,6 +1,6 @@
-#include <NDK/World.hpp>
-#include <NDK/Component.hpp>
-#include <Catch/catch.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Component.hpp>
+#include <catch2/catch.hpp>
 
 namespace
 {
@@ -55,7 +55,7 @@ SCENARIO("Entity", "[NDK][ENTITY]")
 {
 	GIVEN("A world & an entity")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		Ndk::BaseSystem& system = world.AddSystem<UpdateSystem>();
 		Ndk::EntityHandle entity = world.CreateEntity();

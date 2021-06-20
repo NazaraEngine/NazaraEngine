@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,9 +29,9 @@ namespace Nz
 	inline void Stream::EnableTextMode(bool textMode)
 	{
 		if (textMode)
-			m_streamOptions |= StreamOption_Text;
+			m_streamOptions |= StreamOption::Text;
 		else
-			m_streamOptions &= ~StreamOption_Text;
+			m_streamOptions &= ~StreamOption::Text;
 	}
 
 	/*!
@@ -74,7 +74,7 @@ namespace Nz
 
 	inline bool Stream::IsReadable() const
 	{
-		return (m_openMode & OpenMode_ReadOnly) != 0;
+		return (m_openMode & OpenMode::ReadOnly) != 0;
 	}
 
 	/*!
@@ -84,7 +84,7 @@ namespace Nz
 
 	inline bool Stream::IsSequential() const
 	{
-		return (m_streamOptions & StreamOption_Sequential) != 0;
+		return (m_streamOptions & StreamOption::Sequential) != 0;
 	}
 
 	/*!
@@ -94,7 +94,7 @@ namespace Nz
 
 	inline bool Stream::IsTextModeEnabled() const
 	{
-		return (m_streamOptions & StreamOption_Text) != 0;
+		return (m_streamOptions & StreamOption::Text) != 0;
 	}
 
 	/*!
@@ -104,7 +104,7 @@ namespace Nz
 
 	inline bool Stream::IsWritable() const
 	{
-		return (m_openMode & OpenMode_WriteOnly) != 0;
+		return (m_openMode & OpenMode::WriteOnly) != 0;
 	}
 
 	/*!

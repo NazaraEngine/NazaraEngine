@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,8 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -30,17 +28,12 @@ namespace Nz
 	///TODO: SceneGeom
 	///TODO: TreeGeom
 
-	class Collider3D;
 	class PrimitiveList;
 	class PhysWorld3D;
+	class StaticMesh;
 
-	using Collider3DConstRef = ObjectRef<const Collider3D>;
-	using Collider3DLibrary = ObjectLibrary<Collider3D>;
-	using Collider3DRef = ObjectRef<Collider3D>;
-
-	class NAZARA_PHYSICS3D_API Collider3D : public RefCounted
+	class NAZARA_PHYSICS3D_API Collider3D
 	{
-		friend Collider3DLibrary;
 		friend class Physics3D;
 
 		public:
@@ -56,13 +49,15 @@ namespace Nz
 
 			virtual void ForEachPolygon(const std::function<void(const Vector3f* vertices, std::size_t vertexCount)>& callback) const;
 
+			virtual std::shared_ptr<StaticMesh> GenerateMesh() const;
+
 			NewtonCollision* GetHandle(PhysWorld3D* world) const;
 			virtual ColliderType3D GetType() const = 0;
 
 			Collider3D& operator=(const Collider3D&) = delete;
 			Collider3D& operator=(Collider3D&&) = delete;
 
-			static Collider3DRef Build(const PrimitiveList& list);
+			static std::shared_ptr<Collider3D> Build(const PrimitiveList& list);
 
 			// Signals:
 			NazaraSignal(OnColliderRelease, const Collider3D* /*collider*/);
@@ -70,18 +65,8 @@ namespace Nz
 		protected:
 			virtual NewtonCollision* CreateHandle(PhysWorld3D* world) const = 0;
 
-			static bool Initialize();
-			static void Uninitialize();
-
 			mutable std::unordered_map<PhysWorld3D*, NewtonCollision*> m_handles;
-
-			static Collider3DLibrary::LibraryMap s_library;
 	};
-
-	class BoxCollider3D;
-
-	using BoxCollider3DConstRef = ObjectRef<const BoxCollider3D>;
-	using BoxCollider3DRef = ObjectRef<BoxCollider3D>;
 
 	class NAZARA_PHYSICS3D_API BoxCollider3D : public Collider3D
 	{
@@ -95,19 +80,12 @@ namespace Nz
 			Vector3f GetLengths() const;
 			ColliderType3D GetType() const override;
 
-			template<typename... Args> static BoxCollider3DRef New(Args&&... args);
-
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
 			Matrix4f m_matrix;
 			Vector3f m_lengths;
 	};
-
-	class CapsuleCollider3D;
-
-	using CapsuleCollider3DConstRef = ObjectRef<const CapsuleCollider3D>;
-	using CapsuleCollider3DRef = ObjectRef<CapsuleCollider3D>;
 
 	class NAZARA_PHYSICS3D_API CapsuleCollider3D : public Collider3D
 	{
@@ -119,8 +97,6 @@ namespace Nz
 			float GetRadius() const;
 			ColliderType3D GetType() const override;
 
-			template<typename... Args> static CapsuleCollider3DRef New(Args&&... args);
-
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
@@ -129,31 +105,19 @@ namespace Nz
 			float m_radius;
 	};
 
-	class CompoundCollider3D;
-
-	using CompoundCollider3DConstRef = ObjectRef<const CompoundCollider3D>;
-	using CompoundCollider3DRef = ObjectRef<CompoundCollider3D>;
-
 	class NAZARA_PHYSICS3D_API CompoundCollider3D : public Collider3D
 	{
 		public:
-			CompoundCollider3D(std::vector<Collider3DRef> geoms);
+			CompoundCollider3D(std::vector<std::shared_ptr<Collider3D>> geoms);
 
-			const std::vector<Collider3DRef>& GetGeoms() const;
+			const std::vector<std::shared_ptr<Collider3D>>& GetGeoms() const;
 			ColliderType3D GetType() const override;
-
-			template<typename... Args> static CompoundCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
-			std::vector<Collider3DRef> m_geoms;
+			std::vector<std::shared_ptr<Collider3D>> m_geoms;
 	};
-
-	class ConeCollider3D;
-
-	using ConeCollider3DConstRef = ObjectRef<const ConeCollider3D>;
-	using ConeCollider3DRef = ObjectRef<ConeCollider3D>;
 
 	class NAZARA_PHYSICS3D_API ConeCollider3D : public Collider3D
 	{
@@ -165,8 +129,6 @@ namespace Nz
 			float GetRadius() const;
 			ColliderType3D GetType() const override;
 
-			template<typename... Args> static ConeCollider3DRef New(Args&&... args);
-
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
@@ -174,11 +136,6 @@ namespace Nz
 			float m_length;
 			float m_radius;
 	};
-
-	class ConvexCollider3D;
-
-	using ConvexCollider3DConstRef = ObjectRef<const ConvexCollider3D>;
-	using ConvexCollider3DRef = ObjectRef<ConvexCollider3D>;
 
 	class NAZARA_PHYSICS3D_API ConvexCollider3D : public Collider3D
 	{
@@ -188,8 +145,6 @@ namespace Nz
 
 			ColliderType3D GetType() const override;
 
-			template<typename... Args> static ConvexCollider3DRef New(Args&&... args);
-
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
@@ -197,11 +152,6 @@ namespace Nz
 			Matrix4f m_matrix;
 			float m_tolerance;
 	};
-
-	class CylinderCollider3D;
-
-	using CylinderCollider3DConstRef = ObjectRef<const CylinderCollider3D>;
-	using CylinderCollider3DRef = ObjectRef<CylinderCollider3D>;
 
 	class NAZARA_PHYSICS3D_API CylinderCollider3D : public Collider3D
 	{
@@ -213,8 +163,6 @@ namespace Nz
 			float GetRadius() const;
 			ColliderType3D GetType() const override;
 
-			template<typename... Args> static CylinderCollider3DRef New(Args&&... args);
-
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 
@@ -222,11 +170,6 @@ namespace Nz
 			float m_length;
 			float m_radius;
 	};
-
-	class NullCollider3D;
-
-	using NullCollider3DConstRef = ObjectRef<const NullCollider3D>;
-	using NullCollider3DRef = ObjectRef<NullCollider3D>;
 
 	class NAZARA_PHYSICS3D_API NullCollider3D : public Collider3D
 	{
@@ -237,16 +180,9 @@ namespace Nz
 
 			ColliderType3D GetType() const override;
 
-			template<typename... Args> static NullCollider3DRef New(Args&&... args);
-
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
 	};
-
-	class SphereCollider3D;
-
-	using SphereCollider3DConstRef = ObjectRef<const SphereCollider3D>;
-	using SphereCollider3DRef = ObjectRef<SphereCollider3D>;
 
 	class NAZARA_PHYSICS3D_API SphereCollider3D : public Collider3D
 	{
@@ -259,8 +195,6 @@ namespace Nz
 
 			float GetRadius() const;
 			ColliderType3D GetType() const override;
-
-			template<typename... Args> static SphereCollider3DRef New(Args&&... args);
 
 		private:
 			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;

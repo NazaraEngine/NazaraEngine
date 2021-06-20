@@ -1,9 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq - 2009 Cruden BV
+// Copyright (C) 2020 Jérôme Leclercq - 2009 Cruden BV
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
-#include <freetype/ft2build.h>
+#include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
 #include FT_STROKER_H
@@ -17,6 +17,7 @@
 #include <Nazara/Utility/FontGlyph.hpp>
 #include <memory>
 #include <set>
+#include <string>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -144,7 +145,7 @@ namespace Nz
 
 					const FT_Pos boldStrength = 2 << 6;
 
-					bool embolden = (style & TextStyle_Bold) != 0;
+					bool embolden = (style & TextStyle::Bold) != 0;
 					bool hasOutlineFormat = (glyph->format == FT_GLYPH_FORMAT_OUTLINE);
 
 					dst->advance = (embolden) ? boldStrength >> 6 : 0;
@@ -201,7 +202,7 @@ namespace Nz
 
 					if (width > 0 && height > 0)
 					{
-						dst->image.Create(ImageType_2D, PixelFormatType_A8, width, height);
+						dst->image.Create(ImageType::E2D, PixelFormat::A8, width, height);
 						UInt8* pixels = dst->image.GetPixels();
 
 						const UInt8* data = bitmap.buffer;
@@ -216,7 +217,7 @@ namespace Nz
 							for (unsigned int y = 0; y < height; ++y)
 							{
 								for (unsigned int x = 0; x < width; ++x)
-									*pixels++ = (data[x/8] & ((1 << (7 - x%8)) ? 255 : 0));
+									*pixels++ = (data[x/8] & ((1 << (7 - x%8) != 0) ? 255 : 0));
 
 								data += bitmap.pitch;
 							}
@@ -243,12 +244,12 @@ namespace Nz
 					return true;
 				}
 
-				String GetFamilyName() const override
+				std::string GetFamilyName() const override
 				{
 					return m_face->family_name;
 				}
 
-				String GetStyleName() const override
+				std::string GetStyleName() const override
 				{
 					return m_face->style_name;
 				}
@@ -320,10 +321,10 @@ namespace Nz
 						return characterSize/15.f; // Joker ?
 				}
 
-				bool SetFile(const String& filePath)
+				bool SetFile(const std::filesystem::path& filePath)
 				{
-					std::unique_ptr<File> file(new File);
-					if (!file->Open(filePath, OpenMode_ReadOnly))
+					std::unique_ptr<File> file = std::make_unique<File>();
+					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraError("Failed to open stream from file: " + Error::GetLastError());
 						return false;
@@ -336,7 +337,7 @@ namespace Nz
 
 				void SetMemory(const void* data, std::size_t size)
 				{
-					m_ownedStream.reset(new MemoryView(data, size));
+					m_ownedStream = std::make_unique<MemoryView>(data, size);
 					SetStream(*m_ownedStream);
 				}
 
@@ -349,20 +350,20 @@ namespace Nz
 					m_stream.pos = 0;
 					m_stream.size = static_cast<unsigned long>(stream.GetSize());
 
-					m_args.driver = 0;
+					m_args.driver = nullptr;
 					m_args.flags = FT_OPEN_STREAM;
 					m_args.stream = &m_stream;
 				}
 
 				bool SupportsOutline(float /*outlineThickness*/) const override
 				{
-					return s_stroker != 0;
+					return s_stroker != nullptr;
 				}
 
 				bool SupportsStyle(TextStyleFlags style) const override
 				{
 					///TODO
-					return style == TextStyle_Regular || style == TextStyle_Bold;
+					return style == TextStyle_Regular || style == TextStyle::Bold;
 				}
 
 			private:
@@ -383,10 +384,10 @@ namespace Nz
 				mutable unsigned int m_characterSize;
 		};
 
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			///FIXME: Je suppose qu'il en manque quelques unes..
-			static std::set<String> supportedExtensions = {
+			static std::set<std::string_view> supportedExtensions = {
 				"afm", "bdf", "cff", "cid", "dfont", "fnt", "fon", "otf", "pfa", "pfb", "pfm", "pfr", "sfnt", "ttc", "tte", "ttf"
 			};
 
@@ -397,23 +398,22 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeFreeTypeLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			FreeTypeStream face;
 			face.SetStream(stream);
 
 			if (face.Check())
-				return Ternary_True;
+				return Ternary::True;
 			else
-				return Ternary_False;
+				return Ternary::False;
 		}
 
-		FontRef LoadFile(const String& filePath, const FontParams& parameters)
+		std::shared_ptr<Font> LoadFile(const std::filesystem::path& filePath, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
-			std::unique_ptr<FreeTypeStream> face(new FreeTypeStream);
-
+			std::unique_ptr<FreeTypeStream> face = std::make_unique<FreeTypeStream>();
 			if (!face->SetFile(filePath))
 			{
 				NazaraError("Failed to open file");
@@ -426,7 +426,7 @@ namespace Nz
 				return nullptr;
 			}
 
-			FontRef font = Font::New();
+			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (font->Create(face.get()))
 			{
 				face.release();
@@ -436,7 +436,7 @@ namespace Nz
 				return nullptr;
 		}
 
-		FontRef LoadMemory(const void* data, std::size_t size, const FontParams& parameters)
+		std::shared_ptr<Font> LoadMemory(const void* data, std::size_t size, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -449,7 +449,7 @@ namespace Nz
 				return nullptr;
 			}
 
-			FontRef font = Font::New();
+			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (font->Create(face.get()))
 			{
 				face.release();
@@ -459,7 +459,7 @@ namespace Nz
 				return nullptr;
 		}
 
-		FontRef LoadStream(Stream& stream, const FontParams& parameters)
+		std::shared_ptr<Font> LoadStream(Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -472,7 +472,7 @@ namespace Nz
 				return nullptr;
 			}
 
-			FontRef font = Font::New();
+			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (font->Create(face.get()))
 			{
 				face.release();
@@ -485,27 +485,36 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterFreeType()
+		bool InitializeFreeType()
 		{
-			if (FT_Init_FreeType(&s_library) == 0)
+			NazaraAssert(!s_libraryOwner, "double initialization for FreeType");
+			if (FT_Init_FreeType(&s_library) != 0)
 			{
-				s_libraryOwner = std::make_shared<FreeTypeLibrary>();
-				FontLoader::RegisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
+				NazaraWarning("failed to initialize FreeType library");
+				return false;
 			}
-			else
-			{
-				s_library = nullptr; // On s'assure que le pointeur ne pointe pas sur n'importe quoi
-				NazaraWarning("Failed to initialize FreeType library");
-			}
+
+			s_libraryOwner = std::make_shared<FreeTypeLibrary>();
+			return true;
 		}
 
-		void UnregisterFreeType()
+		FontLoader::Entry GetFontLoader_FreeType()
 		{
-			if (s_library)
-			{
-				FontLoader::UnregisterLoader(IsSupported, Check, LoadStream, LoadFile, LoadMemory);
-				s_libraryOwner.reset();
-			}
+			NazaraAssert(s_libraryOwner, "FreeType has not been initialized");
+
+			FontLoader::Entry entry;
+			entry.extensionSupport = IsSupported;
+			entry.fileLoader = LoadFile;
+			entry.memoryLoader = LoadMemory;
+			entry.streamChecker = Check;
+			entry.streamLoader = LoadStream;
+
+			return entry;
+		}
+
+		void UninitializeFreeType()
+		{
+			s_libraryOwner.reset();
 		}
 	}
 }

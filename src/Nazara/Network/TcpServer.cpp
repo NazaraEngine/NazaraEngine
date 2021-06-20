@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -66,7 +66,7 @@ namespace Nz
 		Open(address.GetProtocol());
 
 		SocketState state = SocketImpl::Listen(m_handle, address, queueSize, &m_lastError);
-		if (state == SocketState_Bound)
+		if (state == SocketState::Bound)
 			m_boundAddress = SocketImpl::QuerySocketAddress(m_handle);
 
 		UpdateState(state);

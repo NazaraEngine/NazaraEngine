@@ -1,9 +1,8 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <algorithm>
 #include <cstdlib>
@@ -160,6 +159,28 @@ namespace Nz
 
 	/*!
 	* \ingroup math
+	* \brief Clamps an angle value between min and max and returns the expected value
+	* \return If value is not in the interval of min..max, value obtained is the nearest limit of this interval
+	*
+	* \param value Value to clamp
+	* \param min Minimum of the interval
+	* \param max Maximum of the interval
+	*/
+	template<typename T, AngleUnit Unit>
+	constexpr Angle<Unit, T> Clamp(Angle<Unit, T> value, T min, T max)
+	{
+		return std::max(std::min(value.value, max), min);
+	}
+
+	template<typename T>
+	T ClearBit(T number, T bit)
+	{
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number &= ~(T(1) << bit);
+	}
+
+	/*!
+	* \ingroup math
 	* \brief Gets number of bits set in the number
 	* \return The number of bits set to 1
 	*
@@ -189,41 +210,7 @@ namespace Nz
 	template<typename T>
 	constexpr T DegreeToRadian(T degrees)
 	{
-		return degrees * T(M_PI/180.0);
-	}
-
-	/*!
-	* \ingroup math
-	* \brief Gets the unit from degree and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express the degrees
-	*
-	* \param degrees Convert degree to NAZARA_MATH_ANGLE_RADIAN unit
-	*/
-	template<typename T>
-	constexpr T FromDegrees(T degrees)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return DegreeToRadian(degrees);
-		#else
-		return degrees;
-		#endif
-	}
-
-	/*!
-	* \ingroup math
-	* \brief Gets the unit from radian and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express the radians
-	*
-	* \param radians Convert radian to NAZARA_MATH_ANGLE_RADIAN unit
-	*/
-	template<typename T>
-	constexpr T FromRadians(T radians)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return radians;
-		#else
-		return RadianToDegree(radians);
-		#endif
+		return degrees * T(Pi<T>/180.0);
 	}
 
 	/*!
@@ -509,30 +496,6 @@ namespace Nz
 
 	/*!
 	* \ingroup math
-	* \brief Normalizes the angle
-	* \return Normalized value between 0..2*(pi if radian or 180 if degrees)
-	*
-	* \param angle Angle to normalize
-	*/
-	template<typename T>
-	constexpr inline T NormalizeAngle(T angle)
-	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		const T limit = T(M_PI);
-		#else
-		const T limit = T(180.0);
-		#endif
-		const T twoLimit = limit * T(2);
-
-		angle = std::fmod(angle, twoLimit);
-		if (angle < T(0))
-			angle += twoLimit;
-
-		return angle;
-	}
-
-	/*!
-	* \ingroup math
 	* \brief Checks whether two numbers are equal
 	* \return true if they are equal within a certain epsilon
 	*
@@ -571,20 +534,18 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and String() is returned
 	*/
-	inline String NumberToString(long long number, UInt8 radix)
+	inline std::string NumberToString(long long number, UInt8 radix)
 	{
 		#if NAZARA_MATH_SAFE
 		if (radix < 2 || radix > 36)
 		{
 			NazaraError("Base must be between 2 and 36");
-			return String();
+			return {};
 		}
 		#endif
 
 		if (number == 0)
-			return String('0');
-
-		static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			return "0";
 
 		bool negative;
 		if (number < 0)
@@ -595,20 +556,23 @@ namespace Nz
 		else
 			negative = false;
 
-		String str;
-		str.Reserve(GetNumberLength(number)); // Prends en compte le signe négatif
+		std::string str;
+
+		const char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		do
 		{
-			str.Append(symbols[number % radix]);
+			str.push_back(symbols[number % radix]);
 			number /= radix;
 		}
 		while (number > 0);
 
 		if (negative)
-			str.Append('-');
+			str.push_back('-');
 
-		return str.Reverse();
+		std::reverse(str.begin(), str.end());
+
+		return str;
 	}
 
 	/*!
@@ -621,7 +585,14 @@ namespace Nz
 	template<typename T>
 	constexpr T RadianToDegree(T radians)
 	{
-		return radians * T(180.0/M_PI);
+		return radians * T(180.0/Pi<T>);
+	}
+
+	template<typename T>
+	T SetBit(T number, T bit)
+	{
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number |= (T(1) << bit);
 	}
 
 	/*!
@@ -636,7 +607,7 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
 	*/
-	inline long long StringToNumber(String str, UInt8 radix, bool* ok)
+	inline long long StringToNumber(const std::string_view& str, UInt8 radix, bool* ok)
 	{
 		#if NAZARA_MATH_SAFE
 		if (radix < 2 || radix > 36)
@@ -650,15 +621,19 @@ namespace Nz
 		}
 		#endif
 
-		static const char* symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		if (str.empty())
+		{
+			if (ok)
+				*ok = false;
 
-		str.Simplify();
-		if (radix > 10)
-			str = str.ToUpper();
+			return 0;
+		}
 
-		bool negative = str.StartsWith('-');
+		const char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-		char* digit = &str[(negative) ? 1 : 0];
+		bool negative = (str.front() == '-');
+
+		const char* digit = &str[(negative) ? 1 : 0];
 		unsigned long long total = 0;
 		do
 		{
@@ -685,38 +660,18 @@ namespace Nz
 		return (negative) ? -static_cast<long long>(total) : total;
 	}
 
-	/*!
-	* \ingroup math
-	* \brief Gets the degree from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express in degrees
-	*
-	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to degrees
-	*/
 	template<typename T>
-	constexpr T ToDegrees(T angle)
+	bool TestBit(T number, T bit)
 	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return RadianToDegree(angle);
-		#else
-		return angle;
-		#endif
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number & (T(1) << bit);
 	}
 
-	/*!
-	* \ingroup math
-	* \brief Gets the radian from unit and convert it according to NAZARA_MATH_ANGLE_RADIAN
-	* \return Express in radians
-	*
-	* \param angle Convert degree from NAZARA_MATH_ANGLE_RADIAN unit to radians
-	*/
 	template<typename T>
-	constexpr T ToRadians(T angle)
+	T ToggleBit(T number, T bit)
 	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		return angle;
-		#else
-		return DegreeToRadian(angle);
-		#endif
+		NazaraAssert(bit < sizeof(number) * CHAR_BIT, "bit index out of range");
+		return number ^= (T(1) << bit);
 	}
 }
 

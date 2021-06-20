@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,8 +18,8 @@ namespace Nz
 	class NAZARA_UTILITY_API TriangleIterator
 	{
 		public:
-			TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer* indexBuffer);
-			TriangleIterator(const SubMesh* subMesh);
+			TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer& indexBuffer);
+			TriangleIterator(const SubMesh& subMesh);
 			~TriangleIterator() = default;
 
 			bool Advance();

@@ -1,9 +1,8 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Network/Debug.hpp>
 
@@ -42,7 +41,7 @@ namespace Nz
 	const void* NetPacket::OnSend(std::size_t* newSize) const
 	{
 		NazaraAssert(newSize, "Invalid size pointer");
-		NazaraAssert(m_netCode != NetCode_Invalid, "Invalid NetCode");
+		NazaraAssert(m_netCode != 0, "Invalid NetCode");
 
 		std::size_t size = m_buffer->GetSize();
 		if (!EncodeHeader(m_buffer->GetBuffer(), static_cast<UInt32>(size), m_netCode))
@@ -113,7 +112,7 @@ namespace Nz
 
 		std::size_t size = m_buffer->GetSize();
 
-		Nz::LockGuard lock(*s_availableBuffersMutex);
+		std::lock_guard<std::mutex> lock(s_availableBuffersMutex);
 		s_availableBuffers.emplace_back(std::make_pair(size, std::move(m_buffer)));
 	}
 
@@ -132,7 +131,7 @@ namespace Nz
 		NazaraAssert(minCapacity >= cursorPos, "Cannot init stream with a smaller capacity than wanted cursor pos");
 
 		{
-			Nz::LockGuard lock(*s_availableBuffersMutex);
+			std::lock_guard<std::mutex> lock(s_availableBuffersMutex);
 
 			FreeStream(); //< In case it wasn't released yet
 
@@ -160,7 +159,6 @@ namespace Nz
 
 	bool NetPacket::Initialize()
 	{
-		s_availableBuffersMutex = std::make_unique<Mutex>();
 		return true;
 	}
 
@@ -171,9 +169,8 @@ namespace Nz
 	void NetPacket::Uninitialize()
 	{
 		s_availableBuffers.clear();
-		s_availableBuffersMutex.reset();
 	}
 
-	std::unique_ptr<Mutex> NetPacket::s_availableBuffersMutex;
+	std::mutex NetPacket::s_availableBuffersMutex;
 	std::vector<std::pair<std::size_t, std::unique_ptr<ByteArray>>> NetPacket::s_availableBuffers;
 }

@@ -1,12 +1,12 @@
-#include <NDK/EntityOwner.hpp>
-#include <NDK/World.hpp>
-#include <Catch/catch.hpp>
+#include <NazaraSDK/EntityOwner.hpp>
+#include <NazaraSDK/World.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 {
 	GIVEN("A world & an entity")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 		Ndk::EntityHandle entity = world.CreateEntity();
 
 		WHEN("We set the ownership of the entity to our owner")
@@ -108,7 +108,7 @@ SCENARIO("EntityOwner", "[NDK][ENTITYOWNER]")
 
 	GIVEN("A vector of EntityOwner")
 	{
-		Ndk::World world(false);
+		Ndk::World world;
 
 		std::vector<Ndk::EntityOwner> entityOwners;
 		for (std::size_t i = 1; i <= 10; ++i)

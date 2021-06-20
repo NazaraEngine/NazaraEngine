@@ -3,30 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Renderer/UberShaderInstance.hpp>
 #include <functional>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	inline MaterialPipeline::MaterialPipeline(const MaterialPipelineInfo& pipelineInfo) :
+	inline MaterialPipeline::MaterialPipeline(const MaterialPipelineInfo& pipelineInfo, Token) :
 	m_pipelineInfo(pipelineInfo)
 	{
-	}
-
-	/*!
-	* \brief Enable pipeline states for rendering
-	*
-	* \param flags Shader flags
-	*/
-	inline const MaterialPipeline::Instance& MaterialPipeline::Apply(UInt32 flags) const
-	{
-		const Instance& instance = GetInstance(flags);
-		instance.uberInstance->Activate();
-
-		Renderer::SetRenderStates(m_pipelineInfo);
-
-		return instance;
 	}
 
 	/*!
@@ -39,22 +23,6 @@ namespace Nz
 		return m_pipelineInfo;
 	}
 
-	/*!
-	* \brief Retrieve (and generate if required) a pipeline instance using shader flags without applying it
-	*
-	* \param flags Shader flags
-	*
-	* \return Pipeline instance
-	*/
-	inline const MaterialPipeline::Instance& MaterialPipeline::GetInstance(UInt32 flags) const
-	{
-		const Instance& instance = m_instances[flags];
-		if (!instance.uberInstance)
-			GenerateRenderPipeline(flags);
-
-		return instance;
-	}
-
 	bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs)
 	{
 		if (!operator==(static_cast<const RenderStates&>(lhs), static_cast<const RenderStates&>(rhs)))
@@ -63,19 +31,21 @@ namespace Nz
 		#define NazaraPipelineMember(field) if (lhs.field != rhs.field) return false
 		#define NazaraPipelineBoolMember NazaraPipelineMember
 
-		NazaraPipelineBoolMember(alphaTest);
 		NazaraPipelineBoolMember(depthSorting);
-		NazaraPipelineBoolMember(hasAlphaMap);
-		NazaraPipelineBoolMember(hasDiffuseMap);
-		NazaraPipelineBoolMember(hasEmissiveMap);
-		NazaraPipelineBoolMember(hasHeightMap);
-		NazaraPipelineBoolMember(hasNormalMap);
-		NazaraPipelineBoolMember(hasSpecularMap);
 		NazaraPipelineBoolMember(hasVertexColor);
 		NazaraPipelineBoolMember(reflectionMapping);
 		NazaraPipelineBoolMember(shadowReceive);
 
-		NazaraPipelineMember(uberShader);
+		NazaraPipelineMember(settings);
+
+		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
+		{
+			if (lhs.shaders[i].enabledConditions != rhs.shaders[i].enabledConditions)
+				return false;
+
+			if (lhs.shaders[i].uberShader != rhs.shaders[i].uberShader)
+				return false;
+		}
 
 		#undef NazaraPipelineMember
 		#undef NazaraPipelineBoolMember
@@ -86,20 +56,6 @@ namespace Nz
 	bool operator!=(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs)
 	{
 		return !operator==(lhs, rhs);
-	}
-
-	/*!
-	* \brief Creates a new MaterialPipeline from the arguments
-	* \return A reference to the newly created material pipeline
-	*
-	* \param args Arguments for the material pipeline
-	*/
-	template<typename... Args>
-	MaterialPipelineRef MaterialPipeline::New(Args&&... args)
-	{
-		std::unique_ptr<MaterialPipeline> object(new MaterialPipeline(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-		return object.release();
 	}
 }
 
@@ -120,19 +76,18 @@ namespace std
 			#define NazaraPipelineMember(member) Nz::HashCombine(seed, pipelineInfo.member)
 			#define NazaraPipelineBoolMember(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
 
-			NazaraPipelineBoolMember(alphaTest);
 			NazaraPipelineBoolMember(depthSorting);
-			NazaraPipelineBoolMember(hasAlphaMap);
-			NazaraPipelineBoolMember(hasDiffuseMap);
-			NazaraPipelineBoolMember(hasEmissiveMap);
-			NazaraPipelineBoolMember(hasHeightMap);
-			NazaraPipelineBoolMember(hasNormalMap);
-			NazaraPipelineBoolMember(hasSpecularMap);
 			NazaraPipelineBoolMember(hasVertexColor);
 			NazaraPipelineBoolMember(reflectionMapping);
 			NazaraPipelineBoolMember(shadowReceive);
 
-			NazaraPipelineMember(uberShader);
+			NazaraPipelineMember(settings.get()); //< Hash pointer
+
+			for (const auto& shader : pipelineInfo.shaders)
+			{
+				Nz::HashCombine(seed, shader.enabledConditions);
+				Nz::HashCombine(seed, shader.uberShader.get());
+			}
 
 			#undef NazaraPipelineMember
 			#undef NazaraPipelineBoolMember

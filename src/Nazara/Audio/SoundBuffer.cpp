@@ -1,8 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
@@ -45,6 +46,8 @@ namespace Nz
 		UInt32 sampleRate;
 	};
 
+	SoundBuffer::SoundBuffer() = default;
+
 	/*!
 	* \brief Constructs a SoundBuffer object
 	*
@@ -71,17 +74,7 @@ namespace Nz
 		#endif
 	}
 
-	/*!
-	* \brief Destructs the object and calls Destroy
-	*
-	* \see Destroy
-	*/
-	SoundBuffer::~SoundBuffer()
-	{
-		OnSoundBufferRelease(this);
-
-		Destroy();
-	}
+	SoundBuffer::~SoundBuffer() = default;
 
 	/*!
 	* \brief Creates the SoundBuffer object
@@ -138,7 +131,7 @@ namespace Nz
 
 		CallOnExit clearBufferOnExit([buffer] () { alDeleteBuffers(1, &buffer); });
 
-		alBufferData(buffer, OpenAL::AudioFormat[format], samples, static_cast<ALsizei>(sampleCount*sizeof(Int16)), static_cast<ALsizei>(sampleRate));
+		alBufferData(buffer, OpenAL::AudioFormat[UnderlyingCast(format)], samples, static_cast<ALsizei>(sampleCount*sizeof(Int16)), static_cast<ALsizei>(sampleRate));
 
 		if (alGetError() != AL_NO_ERROR)
 		{
@@ -146,9 +139,9 @@ namespace Nz
 			return false;
 		}
 
-		m_impl = new SoundBufferImpl;
+		m_impl = std::make_unique<SoundBufferImpl>();
 		m_impl->buffer = buffer;
-		m_impl->duration = static_cast<UInt32>((1000ULL*sampleCount / (format * sampleRate)));
+		m_impl->duration = static_cast<UInt32>((1000ULL*sampleCount / (GetChannelCount(format) * sampleRate)));
 		m_impl->format = format;
 		m_impl->sampleCount = sampleCount;
 		m_impl->sampleRate = sampleRate;
@@ -163,16 +156,9 @@ namespace Nz
 	/*!
 	* \brief Destroys the current sound buffer and frees resources
 	*/
-
 	void SoundBuffer::Destroy()
 	{
-		if (m_impl)
-		{
-			OnSoundBufferDestroy(this);
-
-			delete m_impl;
-			m_impl = nullptr;
-		}
+		m_impl.reset();
 	}
 
 	/*!
@@ -259,7 +245,10 @@ namespace Nz
 	*/
 	bool SoundBuffer::IsFormatSupported(AudioFormat format)
 	{
-		return Audio::IsFormatSupported(format);
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
+
+		return audio->IsFormatSupported(format);
 	}
 
 	/*!
@@ -269,9 +258,12 @@ namespace Nz
 	* \param filePath Path to the file
 	* \param params Parameters for the sound buffer
 	*/
-	SoundBufferRef SoundBuffer::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	std::shared_ptr<SoundBuffer> SoundBuffer::LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params)
 	{
-		return SoundBufferLoader::LoadFromFile(filePath, params);
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundBufferLoader().LoadFromFile(filePath, params);
 	}
 
 	/*!
@@ -282,9 +274,12 @@ namespace Nz
 	* \param size Size of the memory
 	* \param params Parameters for the sound buffer
 	*/
-	SoundBufferRef SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
+	std::shared_ptr<SoundBuffer> SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
 	{
-		return SoundBufferLoader::LoadFromMemory(data, size, params);
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundBufferLoader().LoadFromMemory(data, size, params);
 	}
 
 	/*!
@@ -294,9 +289,12 @@ namespace Nz
 	* \param stream Stream to the sound buffer
 	* \param params Parameters for the sound buffer
 	*/
-	SoundBufferRef SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
+	std::shared_ptr<SoundBuffer> SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
-		return SoundBufferLoader::LoadFromStream(stream, params);
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundBufferLoader().LoadFromStream(stream, params);
 	}
 
 	/*!
@@ -317,41 +315,4 @@ namespace Nz
 
 		return m_impl->buffer;
 	}
-
-	/*!
-	* \brief Initializes the libraries and managers
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraError if sub-initialization failed
-	*/
-	bool SoundBuffer::Initialize()
-	{
-		if (!SoundBufferLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		if (!SoundBufferManager::Initialize())
-		{
-			NazaraError("Failed to initialise manager");
-			return false;
-		}
-
-		return true;
-	}
-
-	/*!
-	* \brief Uninitializes the libraries and managers
-	*/
-	void SoundBuffer::Uninitialize()
-	{
-		SoundBufferManager::Uninitialize();
-		SoundBufferLibrary::Uninitialize();
-	}
-
-	SoundBufferLibrary::LibraryMap SoundBuffer::s_library;
-	SoundBufferLoader::LoaderList SoundBuffer::s_loaders;
-	SoundBufferManager::ManagerMap SoundBuffer::s_managerMap;
-	SoundBufferManager::ManagerParams SoundBuffer::s_managerParameters;
 }

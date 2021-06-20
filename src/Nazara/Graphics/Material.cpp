@@ -4,7 +4,11 @@
 
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
+#include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -17,487 +21,130 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Checks whether the parameters for the material are correct
-	* \return true If parameters are valid
+	* \brief Constructs a Material object with default states
+	*
+	* \see Reset
 	*/
-	bool MaterialParams::IsValid() const
+	Material::Material(std::shared_ptr<const MaterialSettings> settings) :
+	m_settings(std::move(settings)),
+	m_enabledConditions(0),
+	m_pipelineUpdated(false),
+	m_shaderBindingUpdated(false),
+	m_shadowCastingEnabled(true)
 	{
-		if (!UberShaderLibrary::Has(shaderName))
-			return false;
+		m_pipelineInfo.settings = m_settings;
 
-		return true;
+		const auto& shaders = m_settings->GetShaders();
+		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
+			m_pipelineInfo.shaders[i].uberShader = shaders[i];
+
+		const auto& textureSettings = m_settings->GetTextures();
+		const auto& uboSettings = m_settings->GetUniformBlocks();
+
+		m_textures.resize(m_settings->GetTextures().size());
+
+		m_uniformBuffers.reserve(m_settings->GetUniformBlocks().size());
+		for (const auto& uniformBufferInfo : m_settings->GetUniformBlocks())
+		{
+			auto& uniformBuffer = m_uniformBuffers.emplace_back();
+
+			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(Nz::BufferType::Uniform);
+			if (!uniformBuffer.buffer->Initialize(uniformBufferInfo.blockSize, BufferUsage::Dynamic))
+				throw std::runtime_error("failed to initialize UBO memory");
+
+			assert(uniformBufferInfo.defaultValues.size() <= uniformBufferInfo.blockSize);
+
+			uniformBuffer.data.resize(uniformBufferInfo.blockSize);
+			std::memcpy(uniformBuffer.data.data(), uniformBufferInfo.defaultValues.data(), uniformBufferInfo.defaultValues.size());
+		}
+
+		UpdateShaderBinding();
 	}
 
-	/*!
-	* \brief Applies shader to the material
-	*
-	* \param instance Pipeline instance to update
-	* \param textureUnit Unit for the texture GL_TEXTURE"i"
-	* \param lastUsedUnit Optional argument to get the last texture unit
-	*/
-	void Material::Apply(const MaterialPipeline::Instance& instance) const
+	bool Material::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
-		const Shader* shader = instance.renderPipeline.GetInfo().shader;
-
-		if (instance.uniforms[MaterialUniform_AlphaThreshold] != -1)
-			shader->SendFloat(instance.uniforms[MaterialUniform_AlphaThreshold], m_alphaThreshold);
-
-		if (instance.uniforms[MaterialUniform_Ambient] != -1)
-			shader->SendColor(instance.uniforms[MaterialUniform_Ambient], m_ambientColor);
-
-		if (instance.uniforms[MaterialUniform_Diffuse] != -1)
-			shader->SendColor(instance.uniforms[MaterialUniform_Diffuse], m_diffuseColor);
-
-		if (instance.uniforms[MaterialUniform_Shininess] != -1)
-			shader->SendFloat(instance.uniforms[MaterialUniform_Shininess], m_shininess);
-
-		if (instance.uniforms[MaterialUniform_Specular] != -1)
-			shader->SendColor(instance.uniforms[MaterialUniform_Specular], m_specularColor);
-
-		if (m_alphaMap && instance.uniforms[MaterialUniform_AlphaMap] != -1)
+		bool shouldRegenerateCommandBuffer = false;
+		if (!m_shaderBindingUpdated)
 		{
-			unsigned int textureUnit = s_textureUnits[TextureMap_Alpha];
+			shouldRegenerateCommandBuffer = true;
 
-			Renderer::SetTexture(textureUnit, m_alphaMap);
-			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+			renderFrame.PushForRelease(std::move(m_shaderBinding));
+			m_shaderBinding.reset();
+
+			UpdateShaderBinding();
 		}
 
-		if (m_diffuseMap && instance.uniforms[MaterialUniform_DiffuseMap] != -1)
-		{
-			unsigned int textureUnit = s_textureUnits[TextureMap_Diffuse];
+		UploadPool& uploadPool = renderFrame.GetUploadPool();
 
-			Renderer::SetTexture(textureUnit, m_diffuseMap);
-			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
+		for (auto& ubo : m_uniformBuffers)
+		{
+			if (ubo.dataInvalidated)
+			{
+				auto& allocation = uploadPool.Allocate(ubo.data.size());
+				std::memcpy(allocation.mappedPtr, ubo.data.data(), ubo.data.size());
+
+				builder.CopyBuffer(allocation, ubo.buffer.get());
+
+				ubo.dataInvalidated = false;
+			}
 		}
 
-		if (m_emissiveMap && instance.uniforms[MaterialUniform_EmissiveMap] != -1)
-		{
-			unsigned int textureUnit = s_textureUnits[TextureMap_Emissive];
-
-			Renderer::SetTexture(textureUnit, m_emissiveMap);
-			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		}
-
-		if (m_heightMap && instance.uniforms[MaterialUniform_HeightMap] != -1)
-		{
-			unsigned int textureUnit = s_textureUnits[TextureMap_Height];
-
-			Renderer::SetTexture(textureUnit, m_heightMap);
-			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		}
-
-		if (m_normalMap && instance.uniforms[MaterialUniform_NormalMap] != -1)
-		{
-			unsigned int textureUnit = s_textureUnits[TextureMap_Normal];
-
-			Renderer::SetTexture(textureUnit, m_normalMap);
-			Renderer::SetTextureSampler(textureUnit, m_diffuseSampler);
-		}
-
-		if (m_specularMap && instance.uniforms[MaterialUniform_SpecularMap] != -1)
-		{
-			unsigned int textureUnit = s_textureUnits[TextureMap_Specular];
-
-			Renderer::SetTexture(textureUnit, m_specularMap);
-			Renderer::SetTextureSampler(textureUnit, m_specularSampler);
-		}
+		return shouldRegenerateCommandBuffer;
 	}
 
-	/*!
-	* \brief Builds the material from a parameter list
-	*
-	* \param matData Data information for the material
-	* \param matParams Additional parameters for the material
-	*/
-	void Material::BuildFromParameters(const ParameterList& matData, const MaterialParams& matParams)
+	void Material::UpdateShaderBinding()
 	{
-		Color color;
-		bool isEnabled;
-		double dValue;
-		long long iValue;
-		String path;
+		assert(!m_shaderBinding);
 
-		ErrorFlags errFlags(ErrorFlag_Silent | ErrorFlag_ThrowExceptionDisabled, true);
+		const auto& textureSettings = m_settings->GetTextures();
+		const auto& uboSettings = m_settings->GetUniformBlocks();
 
-		if (matData.GetDoubleParameter(MaterialData::AlphaThreshold, &dValue))
-			SetAlphaThreshold(float(dValue));
-
-		if (matData.GetBooleanParameter(MaterialData::AlphaTest, &isEnabled))
-			EnableAlphaTest(isEnabled);
-
-		if (matData.GetColorParameter(MaterialData::AmbientColor, &color))
-			SetAmbientColor(color);
-
-		if (matData.GetIntegerParameter(MaterialData::CullingSide, &iValue))
-			SetFaceCulling(static_cast<FaceSide>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::DepthFunc, &iValue))
-			SetDepthFunc(static_cast<RendererComparison>(iValue));
-
-		if (matData.GetBooleanParameter(MaterialData::DepthSorting, &isEnabled))
-			EnableDepthSorting(isEnabled);
-
-		if (matData.GetColorParameter(MaterialData::DiffuseColor, &color))
-			SetDiffuseColor(color);
-
-		if (matData.GetIntegerParameter(MaterialData::DstBlend, &iValue))
-			SetDstBlend(static_cast<BlendFunc>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::FaceFilling, &iValue))
-			SetFaceFilling(static_cast<FaceFilling>(iValue));
-
-		if (matData.GetDoubleParameter(MaterialData::LineWidth, &dValue))
-			SetLineWidth(float(dValue));
-
-		if (matData.GetDoubleParameter(MaterialData::PointSize, &dValue))
-			SetPointSize(float(dValue));
-
-		if (matData.GetColorParameter(MaterialData::SpecularColor, &color))
-			SetSpecularColor(color);
-
-		if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
-			SetShininess(float(dValue));
-
-		if (matData.GetIntegerParameter(MaterialData::SrcBlend, &iValue))
-			SetSrcBlend(static_cast<BlendFunc>(iValue));
-
-		// RendererParameter
-		if (matData.GetBooleanParameter(MaterialData::Blending, &isEnabled))
-			EnableBlending(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::ColorWrite, &isEnabled))
-			EnableColorWrite(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::DepthBuffer, &isEnabled))
-			EnableDepthBuffer(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::DepthWrite, &isEnabled))
-			EnableDepthWrite(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::FaceCulling, &isEnabled))
-			EnableFaceCulling(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::ScissorTest, &isEnabled))
-			EnableScissorTest(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::StencilTest, &isEnabled))
-			EnableStencilTest(isEnabled);
-
-		if (matData.GetBooleanParameter(MaterialData::VertexColor, &isEnabled))
-			EnableVertexColor(isEnabled);
-
-		// Samplers
-		if (matData.GetIntegerParameter(MaterialData::DiffuseAnisotropyLevel, &iValue))
-			m_diffuseSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::DiffuseFilter, &iValue))
-			m_diffuseSampler.SetFilterMode(static_cast<SamplerFilter>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::DiffuseWrap, &iValue))
-			m_diffuseSampler.SetWrapMode(static_cast<SamplerWrap>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::SpecularAnisotropyLevel, &iValue))
-			m_specularSampler.SetAnisotropyLevel(static_cast<UInt8>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::SpecularFilter, &iValue))
-			m_specularSampler.SetFilterMode(static_cast<SamplerFilter>(iValue));
-
-		if (matData.GetIntegerParameter(MaterialData::SpecularWrap, &iValue))
-			m_specularSampler.SetWrapMode(static_cast<SamplerWrap>(iValue));
-
-		// Stencil
-		if (matData.GetIntegerParameter(MaterialData::StencilCompare, &iValue))
-			m_pipelineInfo.stencilCompare.front = static_cast<RendererComparison>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::StencilFail, &iValue))
-			m_pipelineInfo.stencilFail.front = static_cast<StencilOperation>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::StencilPass, &iValue))
-			m_pipelineInfo.stencilPass.front = static_cast<StencilOperation>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::StencilZFail, &iValue))
-			m_pipelineInfo.stencilDepthFail.front = static_cast<StencilOperation>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::StencilMask, &iValue))
-			m_pipelineInfo.stencilWriteMask.front = static_cast<UInt32>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::StencilReference, &iValue))
-			m_pipelineInfo.stencilReference.front = static_cast<unsigned int>(iValue);
-
-		// Stencil (back)
-		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilCompare, &iValue))
-			m_pipelineInfo.stencilCompare.back = static_cast<RendererComparison>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilFail, &iValue))
-			m_pipelineInfo.stencilFail.back = static_cast<StencilOperation>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilPass, &iValue))
-			m_pipelineInfo.stencilPass.back = static_cast<StencilOperation>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilZFail, &iValue))
-			m_pipelineInfo.stencilDepthFail.back = static_cast<StencilOperation>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilMask, &iValue))
-			m_pipelineInfo.stencilWriteMask.back = static_cast<UInt32>(iValue);
-
-		if (matData.GetIntegerParameter(MaterialData::BackFaceStencilReference, &iValue))
-			m_pipelineInfo.stencilReference.back = static_cast<unsigned int>(iValue);
-
-		InvalidatePipeline();
+		// TODO: Use StackVector
+		std::vector<ShaderBinding::Binding> bindings;
 
 		// Textures
-		if (matParams.loadAlphaMap && matData.GetStringParameter(MaterialData::AlphaTexturePath, &path))
-			SetAlphaMap(path);
+		for (std::size_t i = 0; i < m_textures.size(); ++i)
+		{
+			const auto& textureSetting = textureSettings[i];
+			const auto& textureSlot = m_textures[i];
 
-		if (matParams.loadDiffuseMap && matData.GetStringParameter(MaterialData::DiffuseTexturePath, &path))
-			SetDiffuseMap(path);
+			if (!textureSlot.sampler)
+			{
+				TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
+				textureSlot.sampler = samplerCache.Get(textureSlot.samplerInfo);
+			}
 
-		if (matParams.loadEmissiveMap && matData.GetStringParameter(MaterialData::EmissiveTexturePath, &path))
-			SetEmissiveMap(path);
+			//TODO: Use "missing" texture
+			if (textureSlot.texture)
+			{
+				bindings.push_back({
+					textureSetting.bindingIndex,
+					ShaderBinding::TextureBinding {
+						textureSlot.texture.get(), textureSlot.sampler.get()
+					}
+				});
+			}
+		}
 
-		if (matParams.loadHeightMap && matData.GetStringParameter(MaterialData::HeightTexturePath, &path))
-			SetHeightMap(path);
+		// Shared UBO (TODO)
 
-		if (matParams.loadNormalMap && matData.GetStringParameter(MaterialData::NormalTexturePath, &path))
-			SetNormalMap(path);
+		// Owned UBO
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
+		{
+			const auto& uboSetting = uboSettings[i];
+			const auto& uboSlot = m_uniformBuffers[i];
 
-		if (matParams.loadSpecularMap && matData.GetStringParameter(MaterialData::SpecularTexturePath, &path))
-			SetSpecularMap(path);
+			bindings.push_back({
+				uboSetting.bindingIndex,
+				ShaderBinding::UniformBufferBinding {
+					uboSlot.buffer.get(), 0, uboSlot.buffer->GetSize()
+				}
+			});
+		}
 
-		SetShader(matParams.shaderName);
+		m_shaderBinding = m_settings->GetRenderPipelineLayout()->AllocateShaderBinding(Graphics::MaterialBindingSet);
+		m_shaderBinding->Update(bindings.data(), bindings.size());
+
+		m_shaderBindingUpdated = true;
 	}
-
-	/*!
-	* \brief Builds a ParameterList with material data
-	*
-	* \param matData Destination parameter list which will receive material data
-	*/
-	void Material::SaveToParameters(ParameterList* matData)
-	{
-		NazaraAssert(matData, "Invalid ParameterList");
-
-		matData->SetParameter(MaterialData::AlphaTest, IsAlphaTestEnabled());
-		matData->SetParameter(MaterialData::AlphaThreshold, GetAlphaThreshold());
-		matData->SetParameter(MaterialData::AmbientColor, GetAmbientColor());
-		matData->SetParameter(MaterialData::CullingSide, static_cast<long long>(GetFaceCulling()));
-		matData->SetParameter(MaterialData::DepthFunc, static_cast<long long>(GetDepthFunc()));
-		matData->SetParameter(MaterialData::DepthSorting, IsDepthSortingEnabled());
-		matData->SetParameter(MaterialData::DiffuseColor, GetDiffuseColor());
-		matData->SetParameter(MaterialData::DstBlend, static_cast<long long>(GetDstBlend()));
-		matData->SetParameter(MaterialData::FaceFilling, static_cast<long long>(GetFaceFilling()));
-		matData->SetParameter(MaterialData::LineWidth, GetLineWidth());
-		matData->SetParameter(MaterialData::PointSize, GetPointSize());
-		matData->SetParameter(MaterialData::Shininess, GetShininess());
-		matData->SetParameter(MaterialData::SpecularColor, GetSpecularColor());
-		matData->SetParameter(MaterialData::SrcBlend, static_cast<long long>(GetSrcBlend()));
-
-		// RendererParameter
-		matData->SetParameter(MaterialData::Blending, IsBlendingEnabled());
-		matData->SetParameter(MaterialData::ColorWrite, IsColorWriteEnabled());
-		matData->SetParameter(MaterialData::DepthBuffer, IsDepthBufferEnabled());
-		matData->SetParameter(MaterialData::DepthWrite, IsDepthWriteEnabled());
-		matData->SetParameter(MaterialData::FaceCulling, IsFaceCullingEnabled());
-		matData->SetParameter(MaterialData::ScissorTest, IsScissorTestEnabled());
-		matData->SetParameter(MaterialData::StencilTest, IsStencilTestEnabled());
-		matData->SetParameter(MaterialData::VertexColor, HasVertexColor());
-
-		// Samplers
-		matData->SetParameter(MaterialData::DiffuseAnisotropyLevel, static_cast<long long>(GetDiffuseSampler().GetAnisotropicLevel()));
-		matData->SetParameter(MaterialData::DiffuseFilter, static_cast<long long>(GetDiffuseSampler().GetFilterMode()));
-		matData->SetParameter(MaterialData::DiffuseWrap, static_cast<long long>(GetDiffuseSampler().GetWrapMode()));
-
-		matData->SetParameter(MaterialData::SpecularAnisotropyLevel, static_cast<long long>(GetSpecularSampler().GetAnisotropicLevel()));
-		matData->SetParameter(MaterialData::SpecularFilter, static_cast<long long>(GetSpecularSampler().GetFilterMode()));
-		matData->SetParameter(MaterialData::SpecularWrap, static_cast<long long>(GetSpecularSampler().GetWrapMode()));
-
-		// Stencil
-		matData->SetParameter(MaterialData::StencilCompare,   static_cast<long long>(GetPipelineInfo().stencilCompare.front));
-		matData->SetParameter(MaterialData::StencilFail,      static_cast<long long>(GetPipelineInfo().stencilFail.front));
-		matData->SetParameter(MaterialData::StencilPass,      static_cast<long long>(GetPipelineInfo().stencilPass.front));
-		matData->SetParameter(MaterialData::StencilZFail,     static_cast<long long>(GetPipelineInfo().stencilDepthFail.front));
-		matData->SetParameter(MaterialData::StencilMask,      static_cast<long long>(GetPipelineInfo().stencilWriteMask.front));
-		matData->SetParameter(MaterialData::StencilReference, static_cast<long long>(GetPipelineInfo().stencilReference.front));
-
-		// Stencil (back)
-		matData->SetParameter(MaterialData::BackFaceStencilCompare,   static_cast<long long>(GetPipelineInfo().stencilCompare.back));
-		matData->SetParameter(MaterialData::BackFaceStencilFail,      static_cast<long long>(GetPipelineInfo().stencilFail.back));
-		matData->SetParameter(MaterialData::BackFaceStencilPass,      static_cast<long long>(GetPipelineInfo().stencilPass.back));
-		matData->SetParameter(MaterialData::BackFaceStencilZFail,     static_cast<long long>(GetPipelineInfo().stencilDepthFail.back));
-		matData->SetParameter(MaterialData::BackFaceStencilMask,      static_cast<long long>(GetPipelineInfo().stencilWriteMask.back));
-		matData->SetParameter(MaterialData::BackFaceStencilReference, static_cast<long long>(GetPipelineInfo().stencilReference.back));
-
-		// Textures
-		if (HasAlphaMap())
-		{
-			const String& path = GetAlphaMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::AlphaTexturePath, path);
-		}
-
-		if (HasDiffuseMap())
-		{
-			const String& path = GetDiffuseMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::DiffuseTexturePath, path);
-		}
-
-		if (HasEmissiveMap())
-		{
-			const String& path = GetEmissiveMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::EmissiveTexturePath, path);
-		}
-
-		if (HasHeightMap())
-		{
-			const String& path = GetHeightMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::HeightTexturePath, path);
-		}
-
-		if (HasNormalMap())
-		{
-			const String& path = GetNormalMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::NormalTexturePath, path);
-		}
-
-		if (HasSpecularMap())
-		{
-			const String& path = GetSpecularMap()->GetFilePath();
-			if (!path.IsEmpty())
-				matData->SetParameter(MaterialData::SpecularTexturePath, path);
-		}
-	}
-
-	/*!
-	* \brief Resets the material, cleans everything
-	*
-	* \remark Invalidates the pipeline
-	*/
-	void Material::Reset()
-	{
-		OnMaterialReset(this);
-
-		m_alphaMap.Reset();
-		m_depthMaterial.Reset();
-		m_diffuseMap.Reset();
-		m_emissiveMap.Reset();
-		m_heightMap.Reset();
-		m_normalMap.Reset();
-		m_specularMap.Reset();
-
-		m_alphaThreshold = 0.2f;
-		m_ambientColor = Color(128, 128, 128);
-		m_diffuseColor = Color::White;
-		m_diffuseSampler = TextureSampler();
-		m_reflectionMode = ReflectionMode_Skybox;
-		m_shadowCastingEnabled = true;
-		m_shininess = 50.f;
-		m_specularColor = Color::White;
-		m_specularSampler = TextureSampler();
-		m_pipelineInfo = MaterialPipelineInfo();
-		m_pipelineInfo.depthBuffer = true;
-		m_pipelineInfo.faceCulling = true;
-		m_reflectionSize = 256;
-
-		SetShader("Basic");
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Copies the other material
-	*
-	* \param material Material to copy into this
-	*/
-	void Material::Copy(const Material& material)
-	{
-		// Copy of base states
-		m_alphaThreshold       = material.m_alphaThreshold;
-		m_ambientColor         = material.m_ambientColor;
-		m_diffuseColor         = material.m_diffuseColor;
-		m_diffuseSampler       = material.m_diffuseSampler;
-		m_pipelineInfo         = material.m_pipelineInfo;
-		m_shininess            = material.m_shininess;
-		m_shadowCastingEnabled = material.m_shadowCastingEnabled;
-		m_specularColor        = material.m_specularColor;
-		m_specularSampler      = material.m_specularSampler;
-
-		// Copy of reference to the textures
-		m_alphaMap      = material.m_alphaMap;
-		m_depthMaterial = material.m_depthMaterial;
-		m_diffuseMap    = material.m_diffuseMap;
-		m_emissiveMap   = material.m_emissiveMap;
-		m_heightMap     = material.m_heightMap;
-		m_normalMap     = material.m_normalMap;
-		m_specularMap   = material.m_specularMap;
-
-		SetReflectionMode(material.GetReflectionMode());
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Initializes the material librairies
-	* \return true If successful
-	*
-	* \remark Produces a NazaraError if the material library failed to be initialized
-	*/
-	bool Material::Initialize()
-	{
-		if (!MaterialLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		if (!MaterialManager::Initialize())
-		{
-			NazaraError("Failed to initialise manager");
-			return false;
-		}
-
-		s_defaultMaterial = New();
-		s_defaultMaterial->EnableFaceCulling(false);
-		s_defaultMaterial->SetFaceFilling(FaceFilling_Line);
-		MaterialLibrary::Register("Default", s_defaultMaterial);
-
-		unsigned int textureUnit = 0;
-
-		s_textureUnits[TextureMap_Diffuse]        = textureUnit++;
-		s_textureUnits[TextureMap_Alpha]          = textureUnit++;
-		s_textureUnits[TextureMap_Specular]       = textureUnit++;
-		s_textureUnits[TextureMap_Normal]         = textureUnit++;
-		s_textureUnits[TextureMap_Emissive]       = textureUnit++;
-		s_textureUnits[TextureMap_Overlay]        = textureUnit++;
-		s_textureUnits[TextureMap_ReflectionCube] = textureUnit++;
-		s_textureUnits[TextureMap_Height]         = textureUnit++;
-		s_textureUnits[TextureMap_Shadow2D_1]     = textureUnit++;
-		s_textureUnits[TextureMap_ShadowCube_1]   = textureUnit++;
-		s_textureUnits[TextureMap_Shadow2D_2]     = textureUnit++;
-		s_textureUnits[TextureMap_ShadowCube_2]   = textureUnit++;
-		s_textureUnits[TextureMap_Shadow2D_3]     = textureUnit++;
-		s_textureUnits[TextureMap_ShadowCube_3]   = textureUnit++;
-
-		return true;
-	}
-
-	/*!
-	* \brief Uninitializes the material librairies
-	*/
-	void Material::Uninitialize()
-	{
-		s_defaultMaterial.Reset();
-
-		MaterialManager::Uninitialize();
-		MaterialLibrary::Uninitialize();
-	}
-
-	std::array<int, TextureMap_Max + 1> Material::s_textureUnits;
-	MaterialLibrary::LibraryMap Material::s_library;
-	MaterialLoader::LoaderList Material::s_loaders;
-	MaterialManager::ManagerMap Material::s_managerMap;
-	MaterialManager::ManagerParams Material::s_managerParameters;
-	MaterialRef Material::s_defaultMaterial = nullptr;
 }

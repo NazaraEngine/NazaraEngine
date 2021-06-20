@@ -1,8 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Win32/SocketPollerImpl.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
@@ -72,10 +74,10 @@ namespace Nz
 			0
 		};
 
-		if (eventFlags & SocketPollEvent_Read)
+		if (eventFlags & SocketPollEvent::Read)
 			entry.events |= POLLRDNORM;
 
-		if (eventFlags & SocketPollEvent_Write)
+		if (eventFlags & SocketPollEvent::Write)
 			entry.events |= POLLWRNORM;
 
 		m_allSockets[socket] = m_sockets.size();
@@ -83,13 +85,13 @@ namespace Nz
 		#else
 		for (std::size_t i = 0; i < 2; ++i)
 		{
-			if ((eventFlags & ((i == 0) ? SocketPollEvent_Read : SocketPollEvent_Write)) == 0)
+			if ((eventFlags & ((i == 0) ? SocketPollEvent::Read : SocketPollEvent::Write)) == 0)
 				continue;
 
 			fd_set& targetSet = (i == 0) ? m_readSockets : m_writeSockets;
 			if (targetSet.fd_count > FD_SETSIZE)
 			{
-				NazaraError("Socket count exceeding hard-coded FD_SETSIZE (" + String::Number(FD_SETSIZE) + ")");
+				NazaraError("Socket count exceeding hard-coded FD_SETSIZE (" + NumberToString(FD_SETSIZE) + ")");
 				return false;
 			}
 
@@ -157,7 +159,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Socket " + String::Number(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + String::Number(entry.revents, 16) + ')');
+					NazaraWarning("Socket " + NumberToString(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + NumberToString(entry.revents, 16) + ')');
 					activeSockets--;
 				}
 
@@ -200,7 +202,7 @@ namespace Nz
 		activeSockets = static_cast<unsigned int>(selectValue);
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 		#endif
 
 		return activeSockets;

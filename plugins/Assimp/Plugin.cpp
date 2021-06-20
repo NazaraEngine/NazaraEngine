@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
@@ -36,6 +36,7 @@ SOFTWARE.
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
 #include <assimp/config.h>
@@ -46,9 +47,9 @@ SOFTWARE.
 
 using namespace Nz;
 
-void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<Nz::String>& joints)
+void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<std::string>& joints)
 {
-	Nz::String jointName(node->mName.data, node->mName.length);
+	std::string jointName(node->mName.data, node->mName.length);
 	if (joints.count(jointName))
 	{
 		Joint* joint = skeleton->GetJoint(jointName);
@@ -74,27 +75,31 @@ void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<Nz::String>&
 		ProcessJoints(node->mChildren[i], skeleton, joints);
 }
 
-bool IsSupported(const String& extension)
+bool IsSupported(const std::string_view& extension)
 {
-	String dotExt = '.' + extension;
-	return (aiIsExtensionSupported(dotExt.GetConstBuffer()) == AI_TRUE);
+	std::string dotExt;
+	dotExt.reserve(extension.size() + 1);
+	dotExt += '.';
+	dotExt += extension;
+
+	return (aiIsExtensionSupported(dotExt.data()) == AI_TRUE);
 }
 
 Ternary CheckAnimation(Stream& /*stream*/, const AnimationParams& parameters)
 {
 	bool skip;
 	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-		return Ternary_False;
+		return Ternary::False;
 
-	return Ternary_Unknown;
+	return Ternary::Unknown;
 }
 
-AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
+std::shared_ptr<Animation> LoadAnimation(Stream& stream, const AnimationParams& parameters)
 {
-	Nz::String streamPath = stream.GetPath();
+	std::string streamPath = stream.GetPath().generic_u8string();
 
 	FileIOUserdata userdata;
-	userdata.originalFilePath = (!streamPath.IsEmpty()) ? streamPath.GetConstBuffer() : StreamPath;
+	userdata.originalFilePath = (!streamPath.empty()) ? streamPath.data() : StreamPath;
 	userdata.originalStream = &stream;
 
 	aiFileIO fileIO;
@@ -121,7 +126,7 @@ AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
 
 	if (!scene)
 	{
-		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
 		return nullptr;
 	}
 
@@ -141,7 +146,7 @@ AnimationRef LoadAnimation(Stream& stream, const AnimationParams& parameters)
 		maxFrameCount = std::max({ maxFrameCount, nodeAnim->mNumPositionKeys, nodeAnim->mNumRotationKeys, nodeAnim->mNumScalingKeys });
 	}
 
-	AnimationRef anim = Animation::New();
+	std::shared_ptr<Animation> anim = std::make_shared<Animation>();
 
 	anim->CreateSkeletal(maxFrameCount, animation->mNumChannels);
 
@@ -179,17 +184,17 @@ Ternary CheckMesh(Stream& /*stream*/, const MeshParams& parameters)
 {
 	bool skip;
 	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-		return Ternary_False;
+		return Ternary::False;
 
-	return Ternary_Unknown;
+	return Ternary::Unknown;
 }
 
-MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
+std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 {
-	Nz::String streamPath = stream.GetPath();
+	std::string streamPath = stream.GetPath().generic_u8string();
 
 	FileIOUserdata userdata;
-	userdata.originalFilePath = (!streamPath.IsEmpty()) ? streamPath.GetConstBuffer() : StreamPath;
+	userdata.originalFilePath = (!streamPath.empty()) ? streamPath.data() : StreamPath;
 	userdata.originalStream = &stream;
 
 	aiFileIO fileIO;
@@ -221,19 +226,21 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 	int excludedComponents = 0;
 
-	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_Color))
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent::Color))
 		excludedComponents |= aiComponent_COLORS;
 
-	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_Normal))
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent::Normal))
 		excludedComponents |= aiComponent_NORMALS;
 
-	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_Tangent))
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent::Tangent))
 		excludedComponents |= aiComponent_TANGENTS_AND_BITANGENTS;
 
-	if (!parameters.vertexDeclaration->HasComponent(VertexComponent_TexCoord))
+	if (!parameters.vertexDeclaration->HasComponent(VertexComponent::TexCoord))
 		excludedComponents |= aiComponent_TEXCOORDS;
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
+	CallOnExit releaseProperties([&] { aiReleasePropertyStore(properties); });
+
 	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE,              ~aiPrimitiveType_TRIANGLE); //< We only want triangles
@@ -242,15 +249,17 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               excludedComponents);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
-	aiReleasePropertyStore(properties);
+	CallOnExit releaseScene([&] { aiReleaseImport(scene); });
+
+	releaseProperties.CallAndReset();
 
 	if (!scene)
 	{
-		NazaraError("Assimp failed to import file: " + Nz::String(aiGetErrorString()));
+		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
 		return nullptr;
 	}
 
-	std::set<Nz::String> joints;
+	std::set<std::string> joints;
 
 	bool animatedMesh = false;
 	if (parameters.animated)
@@ -267,7 +276,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 		}
 	}
 
-	MeshRef mesh = Mesh::New();
+	std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 	if (animatedMesh)
 	{
 		mesh->CreateSkeletal(UInt32(joints.size()));
@@ -276,7 +285,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 		// First, assign names
 		unsigned int jointIndex = 0;
-		for (const Nz::String& jointName : joints)
+		for (const std::string& jointName : joints)
 			skeleton->GetJoint(jointIndex++)->SetName(jointName);
 
 		ProcessJoints(scene->mRootNode, skeleton, joints);
@@ -298,9 +307,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			// Index buffer
 			bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-			IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
 
-			IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+			IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
 			IndexIterator index = indexMapper.begin();
 
 			for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
@@ -320,8 +329,8 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			if (normalTangentMatrix.HasScale())
 				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-			VertexBufferRef vertexBuffer = VertexBuffer::New(VertexDeclaration::Get(VertexLayout_XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, parameters.vertexBufferFlags | BufferUsage_Dynamic);
-			BufferMapper<VertexBuffer> vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
+			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, parameters.vertexBufferFlags);
+			BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, BufferAccess::ReadWrite);
 			SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
 			for (std::size_t vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
@@ -353,7 +362,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			}
 
 			// Submesh
-			SkeletalMeshRef subMesh = SkeletalMesh::New(vertexBuffer, indexBuffer);
+			std::shared_ptr<SkeletalMesh> subMesh = std::make_shared<SkeletalMesh>(vertexBuffer, indexBuffer);
 			subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
 
 			auto matIt = materials.find(iMesh->mMaterialIndex);
@@ -377,29 +386,29 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 					aiTextureMapMode mapMode[3];
 					if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 					{
-						matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
+						matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
 
 						if (wrapKey)
 						{
-							SamplerWrap wrap = SamplerWrap_Default;
+							SamplerWrap wrap = SamplerWrap::Clamp;
 							switch (mapMode[0])
 							{
-							case aiTextureMapMode_Clamp:
-							case aiTextureMapMode_Decal:
-								wrap = SamplerWrap_Clamp;
-								break;
+								case aiTextureMapMode_Clamp:
+								case aiTextureMapMode_Decal:
+									wrap = SamplerWrap::Clamp;
+									break;
 
-							case aiTextureMapMode_Mirror:
-								wrap = SamplerWrap_MirroredRepeat;
-								break;
+								case aiTextureMapMode_Mirror:
+									wrap = SamplerWrap::MirroredRepeat;
+									break;
 
-							case aiTextureMapMode_Wrap:
-								wrap = SamplerWrap_Repeat;
-								break;
+								case aiTextureMapMode_Wrap:
+									wrap = SamplerWrap::Repeat;
+									break;
 
-							default:
-								NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
-								break;
+								default:
+									NazaraWarning("Assimp texture map mode 0x" + NumberToString(mapMode[0], 16) + " not handled");
+									break;
 							}
 
 							matData.SetParameter(wrapKey, static_cast<long long>(wrap));
@@ -420,7 +429,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 				aiString name;
 				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
-					matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+					matData.SetParameter(MaterialData::Name, std::string(name.data, name.length));
 
 				int iValue;
 				if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
@@ -456,9 +465,9 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-				IndexBufferRef indexBuffer = IndexBuffer::New(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
+				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
 
-				IndexMapper indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+				IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
 				IndexIterator index = indexMapper.begin();
 
 				for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
@@ -480,18 +489,18 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				if (normalTangentMatrix.HasScale())
 					normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-				VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, vertexCount, parameters.storage, parameters.vertexBufferFlags);
+				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.storage, parameters.vertexBufferFlags);
 
-				VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
 
-				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 				{
 					aiVector3D position = iMesh->mVertices[vertexIdx];
 					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
 				}
 
-				if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal))
+				if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
 				{
 					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 					{
@@ -501,7 +510,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				}
 
 				bool generateTangents = false;
-				if (auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent))
+				if (auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent))
 				{
 					if (iMesh->HasTangentsAndBitangents())
 					{
@@ -515,7 +524,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 						generateTangents = true;
 				}
 
-				if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord))
+				if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
 				{
 					if (iMesh->HasTextureCoords(0))
 					{
@@ -535,7 +544,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 				vertexMapper.Unmap();
 
 				// Submesh
-				StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
+				std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
 				subMesh->GenerateAABB();
 				subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
 
@@ -563,28 +572,28 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 						aiTextureMapMode mapMode[3];
 						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(textureKey, stream.GetDirectory() + String(path.data, path.length));
+							matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
 
 							if (wrapKey)
 							{
-								SamplerWrap wrap = SamplerWrap_Default;
+								SamplerWrap wrap = SamplerWrap::Clamp;
 								switch (mapMode[0])
 								{
 									case aiTextureMapMode_Clamp:
 									case aiTextureMapMode_Decal:
-										wrap = SamplerWrap_Clamp;
+										wrap = SamplerWrap::Clamp;
 										break;
 
 									case aiTextureMapMode_Mirror:
-										wrap = SamplerWrap_MirroredRepeat;
+										wrap = SamplerWrap::MirroredRepeat;
 										break;
 
 									case aiTextureMapMode_Wrap:
-										wrap = SamplerWrap_Repeat;
+										wrap = SamplerWrap::Repeat;
 										break;
 
 									default:
-										NazaraWarning("Assimp texture map mode 0x" + String::Number(mapMode[0], 16) + " not handled");
+										NazaraWarning("Assimp texture map mode 0x" + NumberToString(mapMode[0], 16) + " not handled");
 										break;
 								}
 
@@ -606,7 +615,7 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 
 					aiString name;
 					if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
-						matData.SetParameter(MaterialData::Name, String(name.data, name.length));
+						matData.SetParameter(MaterialData::Name, std::string(name.data, name.length));
 
 					int iValue;
 					if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
@@ -629,23 +638,54 @@ MeshRef LoadMesh(Stream& stream, const MeshParams& parameters)
 			mesh->Recenter();
 	}
 
-	aiReleaseImport(scene);
-
 	return mesh;
+}
+
+namespace
+{
+	const Nz::AnimationLoader::Entry* animationLoaderEntry = nullptr;
+	const Nz::MeshLoader::Entry* meshLoaderEntry = nullptr;
 }
 
 extern "C"
 {
 	NAZARA_EXPORT int PluginLoad()
 	{
-		Nz::AnimationLoader::RegisterLoader(IsSupported, CheckAnimation, LoadAnimation);
-		Nz::MeshLoader::RegisterLoader(IsSupported, CheckMesh, LoadMesh);
+		Nz::Utility* utility = Nz::Utility::Instance();
+		NazaraAssert(utility, "utility module is not instancied");
+
+		Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
+		animationLoaderEntry = animationLoader.RegisterLoader({
+			IsSupported,
+			nullptr,
+			nullptr,
+			CheckAnimation,
+			LoadAnimation
+		});
+		
+		Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
+		meshLoaderEntry = meshLoader.RegisterLoader({
+			IsSupported,
+			nullptr,
+			nullptr,
+			CheckMesh,
+			LoadMesh
+		});
+
 		return 1;
 	}
 
 	NAZARA_EXPORT void PluginUnload()
 	{
-		Nz::AnimationLoader::RegisterLoader(IsSupported, CheckAnimation, LoadAnimation);
-		Nz::MeshLoader::UnregisterLoader(IsSupported, CheckMesh, LoadMesh);
+		Nz::Utility* utility = Nz::Utility::Instance();
+		NazaraAssert(utility, "utility module is not instancied");
+
+		Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
+		animationLoader.UnregisterLoader(animationLoaderEntry);
+		animationLoaderEntry = nullptr;
+
+		Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
+		meshLoader.UnregisterLoader(meshLoaderEntry);
+		meshLoaderEntry = nullptr;
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -76,7 +76,7 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void Log::Write(const String& string)
+	void Log::Write(const std::string_view& string)
 	{
 		if (s_enabled)
 			s_logger->Write(string);
@@ -96,7 +96,7 @@ namespace Nz
 	* \see Write
 	*/
 
-	void Log::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void Log::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
 	{
 		if (s_enabled)
 			s_logger->WriteError(type, error, line, file, function);

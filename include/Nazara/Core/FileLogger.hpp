@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,17 +9,18 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
-#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StdLogger.hpp>
+#include <filesystem>
+#include <fstream>
 
 namespace Nz
 {
 	class NAZARA_CORE_API FileLogger : public AbstractLogger
 	{
 		public:
-			FileLogger(const String& logPath = "NazaraLog.log");
-			FileLogger(const FileLogger&) = default;
-			FileLogger(FileLogger&&) noexcept = default;
+			FileLogger(std::filesystem::path logPath = "NazaraLog.log");
+			FileLogger(const FileLogger&) = delete;
+			FileLogger(FileLogger&&) = default;
 			~FileLogger();
 
 			void EnableTimeLogging(bool enable);
@@ -28,14 +29,15 @@ namespace Nz
 			bool IsStdReplicationEnabled() const override;
 			bool IsTimeLoggingEnabled() const;
 
-			void Write(const String& string) override;
-			void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
+			void Write(const std::string_view& string) override;
+			void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
-			FileLogger& operator=(const FileLogger&) = default;
-			FileLogger& operator=(FileLogger&&) noexcept = default;
+			FileLogger& operator=(const FileLogger&) = delete;
+			FileLogger& operator=(FileLogger&&) = default;
 
 		private:
-			File m_outputFile;
+			std::fstream m_outputFile;
+			std::filesystem::path m_outputPath;
 			StdLogger m_stdLogger;
 			bool m_forceStdOutput;
 			bool m_stdReplicationEnabled;

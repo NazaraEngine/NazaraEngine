@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,9 +23,9 @@ namespace Nz
 	}
 
 	inline SimpleTextDrawer::SimpleTextDrawer(const SimpleTextDrawer& drawer) :
+	m_text(drawer.m_text),
 	m_color(drawer.m_color),
 	m_outlineColor(drawer.m_outlineColor),
-	m_text(drawer.m_text),
 	m_style(drawer.m_style),
 	m_colorUpdated(false),
 	m_glyphUpdated(false),
@@ -43,9 +43,9 @@ namespace Nz
 		operator=(std::move(drawer));
 	}
 
-	inline void SimpleTextDrawer::AppendText(const String& str)
+	inline void SimpleTextDrawer::AppendText(const std::string_view& str)
 	{
-		m_text.Append(str);
+		m_text.append(str);
 		if (m_glyphUpdated)
 			GenerateGlyphs(str);
 	}
@@ -65,7 +65,7 @@ namespace Nz
 		return m_color;
 	}
 
-	inline Font* SimpleTextDrawer::GetFont() const
+	inline const std::shared_ptr<Font>& SimpleTextDrawer::GetFont() const
 	{
 		return m_font;
 	}
@@ -96,7 +96,7 @@ namespace Nz
 		return m_style;
 	}
 
-	inline const String& SimpleTextDrawer::GetText() const
+	inline const std::string& SimpleTextDrawer::GetText() const
 	{
 		return m_text;
 	}
@@ -131,11 +131,11 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetFont(Font* font)
+	inline void SimpleTextDrawer::SetFont(std::shared_ptr<Font> font)
 	{
 		if (m_font != font)
 		{
-			m_font = font;
+			m_font = std::move(font);
 
 			if (m_font)
 				ConnectFontSlots();
@@ -200,11 +200,11 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetText(const String& str)
+	inline void SimpleTextDrawer::SetText(std::string str)
 	{
 		if (m_text != str)
 		{
-			m_text = str;
+			m_text = std::move(str);
 
 			InvalidateGlyphs();
 		}
@@ -257,7 +257,7 @@ namespace Nz
 		return *this;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -268,7 +268,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -281,7 +281,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
@@ -293,7 +293,7 @@ namespace Nz
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(Font* font, const String& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);

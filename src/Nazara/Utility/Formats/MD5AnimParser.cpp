@@ -1,9 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>
 #include <Nazara/Utility/Debug.hpp>
@@ -24,7 +25,7 @@ namespace Nz
 	MD5AnimParser::~MD5AnimParser()
 	{
 		// Reset stream flags
-		if ((m_streamFlags & StreamOption_Text) == 0)
+		if ((m_streamFlags & StreamOption::Text) == 0)
 			m_stream.EnableTextMode(false);
 	}
 
@@ -36,11 +37,11 @@ namespace Nz
 			if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
 			{
 				if (version == 10)
-					return Ternary_True;
+					return Ternary::True;
 			}
 		}
 
-		return Ternary_False;
+		return Ternary::False;
 	}
 
 	UInt32 MD5AnimParser::GetAnimatedComponentCount() const
@@ -81,13 +82,13 @@ namespace Nz
 			{
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				case 'M': // MD5Version
-					if (m_currentLine.GetWord(0) != "MD5Version")
+					if (GetWord(m_currentLine, 0) != "MD5Version")
 						UnrecognizedLine();
 					break;
 				#endif
 
 				case 'b': // baseframe/bounds
-					if (m_currentLine.StartsWith("baseframe {"))
+					if (StartsWith(m_currentLine, "baseframe {"))
 					{
 						if (!ParseBaseframe())
 						{
@@ -95,7 +96,7 @@ namespace Nz
 							return false;
 						}
 					}
-					else if (m_currentLine.StartsWith("bounds {"))
+					else if (StartsWith(m_currentLine, "bounds {"))
 					{
 						if (!ParseBounds())
 						{
@@ -111,7 +112,7 @@ namespace Nz
 
 				#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 				case 'c': // commandline
-					if (m_currentLine.GetWord(0) != "commandline")
+					if (GetWord(m_currentLine, 0) != "commandline")
 						UnrecognizedLine();
 					break;
 				#endif
@@ -123,7 +124,7 @@ namespace Nz
 					{
 						if (m_frameIndex != index)
 						{
-							Error("Unexpected frame index (expected " + String::Number(m_frameIndex) + ", got " + String::Number(index) + ')');
+							Error("Unexpected frame index (expected " + NumberToString(m_frameIndex) + ", got " + NumberToString(index) + ')');
 							return false;
 						}
 
@@ -145,7 +146,7 @@ namespace Nz
 				}
 
 				case 'h': // hierarchy
-					if (m_currentLine.StartsWith("hierarchy {"))
+					if (StartsWith(m_currentLine, "hierarchy {"))
 					{
 						if (!ParseHierarchy())
 						{
@@ -220,7 +221,7 @@ namespace Nz
 
 		if (m_frameIndex != frameCount)
 		{
-			NazaraError("Missing frame infos: [" + String::Number(m_frameIndex) + ',' + String::Number(frameCount) + ']');
+			NazaraError("Missing frame infos: [" + NumberToString(m_frameIndex) + ',' + NumberToString(frameCount) + ']');
 			return false;
 		}
 
@@ -250,13 +251,10 @@ namespace Nz
 				m_lineCount++;
 
 				m_currentLine = m_stream.ReadLine();
-				if (m_currentLine.IsEmpty())
-					continue;
-
-				m_currentLine = m_currentLine.SubStringTo("//"); // On ignore les commentaires
-				m_currentLine.Simplify(); // Pour un traitement plus simple
+				if (std::size_t pos = m_currentLine.find("//"); pos != std::string::npos)
+					m_currentLine.resize(pos);
 			}
-			while (m_currentLine.IsEmpty());
+			while (m_currentLine.empty());
 		}
 		else
 			m_keepLastLine = false;
@@ -264,9 +262,9 @@ namespace Nz
 		return true;
 	}
 
-	void MD5AnimParser::Error(const String& message)
+	void MD5AnimParser::Error(const std::string& message)
 	{
-		NazaraError(message + " at line #" + String::Number(m_lineCount));
+		NazaraError(message + " at line #" + NumberToString(m_lineCount));
 	}
 
 	bool MD5AnimParser::ParseBaseframe()
@@ -295,7 +293,7 @@ namespace Nz
 		if (!Advance())
 			return false;
 
-		if (m_currentLine != '}')
+		if (m_currentLine != "}")
 		{
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			Warning("Bounds braces closing not found");
@@ -336,7 +334,7 @@ namespace Nz
 		if (!Advance())
 			return false;
 
-		if (m_currentLine != '}')
+		if (m_currentLine != "}")
 		{
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			Warning("Bounds braces closing not found");
@@ -365,7 +363,7 @@ namespace Nz
 			return false;
 		}
 
-		String line;
+		std::string line;
 
 		std::size_t count = 0;
 		do
@@ -374,7 +372,7 @@ namespace Nz
 				return false;
 
 			std::size_t index = 0;
-			std::size_t size = m_currentLine.GetSize();
+			std::size_t size = m_currentLine.size();
 			do
 			{
 				float f;
@@ -430,7 +428,7 @@ namespace Nz
 		if (!Advance(false))
 			return true;
 
-		if (m_currentLine != '}')
+		if (m_currentLine != "}")
 		{
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			Warning("Hierarchy braces closing not found");
@@ -457,8 +455,8 @@ namespace Nz
 			if (!Advance())
 				return false;
 
-			std::size_t pos = m_currentLine.Find(' ');
-			if (pos == String::npos)
+			std::size_t pos = m_currentLine.find(' ');
+			if (pos == std::string::npos)
 			{
 				UnrecognizedLine(true);
 				return false;
@@ -477,15 +475,14 @@ namespace Nz
 				return false;
 			}
 
-			m_joints[i].name = name;
-			m_joints[i].name.Trim('"');
+			m_joints[i].name = Trim(name, '"');
 
 			Int32 parent = m_joints[i].parent;
 			if (parent >= 0)
 			{
 				if (static_cast<UInt32>(parent) >= jointCount)
 				{
-					Error("Joint's parent is out of bounds (" + String::Number(parent) + " >= " + String::Number(jointCount) + ')');
+					Error("Joint's parent is out of bounds (" + NumberToString(parent) + " >= " + NumberToString(jointCount) + ')');
 					return false;
 				}
 			}
@@ -494,7 +491,7 @@ namespace Nz
 		if (!Advance())
 			return false;
 
-		if (m_currentLine != '}')
+		if (m_currentLine != "}")
 		{
 			#if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 			Warning("Hierarchy braces closing not found");
@@ -507,14 +504,14 @@ namespace Nz
 		return true;
 	}
 
-	void MD5AnimParser::Warning(const String& message)
+	void MD5AnimParser::Warning(const std::string& message)
 	{
-		NazaraWarning(message + " at line #" + String::Number(m_lineCount));
+		NazaraWarning(message + " at line #" + NumberToString(m_lineCount));
 	}
 
 	void MD5AnimParser::UnrecognizedLine(bool error)
 	{
-		String message = "Unrecognized \"" + m_currentLine + '"';
+		std::string message = "Unrecognized \"" + m_currentLine + '"';
 
 		if (error)
 			Error(message);

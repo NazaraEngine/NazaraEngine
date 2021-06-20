@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,7 +11,7 @@ namespace Nz
 {
 	void SimpleTextDrawer::Clear()
 	{
-		m_text.Clear(true);
+		m_text.clear();
 		ClearGlyphs();
 	}
 
@@ -23,7 +23,7 @@ namespace Nz
 		return m_bounds;
 	}
 
-	Font* SimpleTextDrawer::GetFont(std::size_t index) const
+	const std::shared_ptr<Font>& SimpleTextDrawer::GetFont(std::size_t index) const
 	{
 		NazaraAssert(index == 0, "Font index out of range");
 		NazaraUnused(index);
@@ -182,13 +182,13 @@ namespace Nz
 			return false;
 	};
 
-	void SimpleTextDrawer::GenerateGlyphs(const String& text) const
+	void SimpleTextDrawer::GenerateGlyphs(const std::string_view& text) const
 	{
-		if (text.IsEmpty())
+		if (text.empty())
 			return;
 
 		///TODO: Allow iteration on Unicode characters without allocating any buffer
-		std::u32string characters = text.GetUtf32String();
+		std::u32string characters = ToUtf32String(text);
 		if (characters.empty())
 		{
 			NazaraError("Invalid character set");
@@ -288,9 +288,9 @@ namespace Nz
 		NazaraUnused(font);
 
 		#ifdef NAZARA_DEBUG
-		if (m_font != font)
+		if (m_font.get() != font)
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 		#endif
@@ -309,9 +309,9 @@ namespace Nz
 		NazaraUnused(font);
 
 		#ifdef NAZARA_DEBUG
-		if (m_font != font)
+		if (m_font.get() != font)
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 		#endif
@@ -325,9 +325,9 @@ namespace Nz
 		NazaraUnused(font);
 
 		#ifdef NAZARA_DEBUG
-		if (m_font != font)
+		if (m_font.get() != font)
 		{
-			NazaraInternalError("Not listening to " + String::Pointer(font));
+			NazaraInternalError("Not listening to " + PointerToString(font));
 			return;
 		}
 		#endif

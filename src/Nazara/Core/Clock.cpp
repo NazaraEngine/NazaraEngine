@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,12 +10,6 @@
 	#include <Nazara/Core/Posix/ClockImpl.hpp>
 #else
 	#error OS not handled
-#endif
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
 #endif
 
 #include <Nazara/Core/Debug.hpp>
@@ -78,8 +72,6 @@ namespace Nz
 	*/
 	UInt64 Clock::GetMicroseconds() const
 	{
-		NazaraLock(m_mutex);
-
 		UInt64 elapsedMicroseconds = m_elapsedTime;
 		if (!m_paused)
 			elapsedMicroseconds += (GetElapsedMicroseconds() - m_refTime);
@@ -106,8 +98,6 @@ namespace Nz
 	*/
 	bool Clock::IsPaused() const
 	{
-		NazaraLock(m_mutex);
-
 		return m_paused;
 	}
 
@@ -121,8 +111,6 @@ namespace Nz
 	*/
 	void Clock::Pause()
 	{
-		NazaraLock(m_mutex);
-
 		if (!m_paused)
 		{
 			m_elapsedTime += GetElapsedMicroseconds() - m_refTime;
@@ -139,8 +127,6 @@ namespace Nz
 	*/
 	UInt64 Clock::Restart()
 	{
-		NazaraLock(m_mutex);
-
 		Nz::UInt64 now = GetElapsedMicroseconds();
 
 		Nz::UInt64 elapsedTime = m_elapsedTime;
@@ -164,8 +150,6 @@ namespace Nz
 	*/
 	void Clock::Unpause()
 	{
-		NazaraLock(m_mutex);
-
 		if (m_paused)
 		{
 			m_refTime = GetElapsedMicroseconds();

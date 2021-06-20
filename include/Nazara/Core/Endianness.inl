@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,9 +15,9 @@ namespace Nz
 	inline constexpr Endianness GetPlatformEndianness()
 	{
 		#if defined(NAZARA_BIG_ENDIAN)
-		return Endianness_BigEndian;
+		return Endianness::BigEndian;
 		#elif defined(NAZARA_LITTLE_ENDIAN)
-		return Endianness_LittleEndian;
+		return Endianness::LittleEndian;
 		#endif
 	}
 

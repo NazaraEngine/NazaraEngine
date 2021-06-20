@@ -1,0 +1,72 @@
+// Copyright (C) 2020 Jérôme Leclercq
+// This file is part of the "Nazara Development Kit"
+// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+
+#include <NazaraSDK/Systems/ListenerSystem.hpp>
+#include <Nazara/Audio/Audio.hpp>
+#include <NazaraSDK/Components/ListenerComponent.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <cassert>
+
+namespace Ndk
+{
+	/*!
+	* \ingroup NDK
+	* \class Ndk::ListenerSystem
+	* \brief NDK class that represents the audio system
+	*
+	* \remark This system is enabled if the entity owns the trait: ListenerComponent and NodeComponent
+	*/
+
+	/*!
+	* \brief Constructs an ListenerSystem object by default
+	*/
+
+	ListenerSystem::ListenerSystem()
+	{
+		Requires<ListenerComponent, NodeComponent>();
+		SetUpdateOrder(100); //< Update last, after every movement is done
+	}
+
+	/*!
+	* \brief Operation to perform when system is updated
+	*
+	* \param elapsedTime Delta time used for the update
+	*/
+
+	void ListenerSystem::OnUpdate(float elapsedTime)
+	{
+		std::size_t activeListenerCount = 0;
+
+		Nz::Audio* audio = Nz::Audio::Instance();
+		assert(audio);
+
+		for (const Ndk::EntityHandle& entity : GetEntities())
+		{
+			// Is the listener actif ?
+			const ListenerComponent& listener = entity->GetComponent<ListenerComponent>();
+			if (!listener.IsActive())
+				continue;
+
+			Nz::Vector3f oldPos = audio->GetListenerPosition();
+
+			// We get the position and the rotation to affect these to the listener
+			const NodeComponent& node = entity->GetComponent<NodeComponent>();
+			Nz::Vector3f newPos = node.GetPosition(Nz::CoordSys::Global);
+
+			audio->SetListenerPosition(newPos);
+			audio->SetListenerRotation(node.GetRotation(Nz::CoordSys::Global));
+
+			// Compute listener velocity based on their old/new position
+			Nz::Vector3f velocity = (newPos - oldPos) / elapsedTime;
+			audio->SetListenerVelocity(velocity);
+
+			activeListenerCount++;
+		}
+
+		if (activeListenerCount > 1)
+			NazaraWarning(Nz::NumberToString(activeListenerCount) + " listeners were active in the same update loop");
+	}
+
+	SystemIndex ListenerSystem::systemIndex;
+}

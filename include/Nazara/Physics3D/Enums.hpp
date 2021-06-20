@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,21 +9,21 @@
 
 namespace Nz
 {
-	enum ColliderType3D
+	enum class ColliderType3D
 	{
-		ColliderType3D_Box,
-		ColliderType3D_Capsule,
-		ColliderType3D_Cone,
-		ColliderType3D_Compound,
-		ColliderType3D_ConvexHull,
-		ColliderType3D_Cylinder,
-		ColliderType3D_Heightfield,
-		ColliderType3D_Null,
-		ColliderType3D_Scene,
-		ColliderType3D_Sphere,
-		ColliderType3D_Tree,
+		Box,
+		Capsule,
+		Cone,
+		Compound,
+		ConvexHull,
+		Cylinder,
+		Heightfield,
+		Null,
+		Scene,
+		Sphere,
+		Tree,
 
-		ColliderType3D_Max = ColliderType3D_Tree
+		Max = Tree
 	};
 }
 

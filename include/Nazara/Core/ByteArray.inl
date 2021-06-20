@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -464,12 +464,12 @@ namespace Nz
 
 	/*!
 	* \brief Gives a string representation
-	* \return String where each byte is converted to char
+	* \return std::string where each byte is converted to char
 	*/
 
-	inline String ByteArray::ToString() const
+	inline std::string ByteArray::ToString() const
 	{
-		return String(reinterpret_cast<const char*>(GetConstBuffer()), GetSize());
+		return std::string(reinterpret_cast<const char*>(GetConstBuffer()), GetSize());
 	}
 
 	/*!
