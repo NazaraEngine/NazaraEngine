@@ -83,8 +83,12 @@ namespace Nz
 			return extension == "mp3";
 		}
 
-		Ternary CheckMp3(Stream& stream)
+		Ternary CheckMp3(Stream& stream, const ResourceParameters& parameters)
 		{
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeMP3Loader", &skip) && skip)
+				return Ternary::False;
+
 			mp3dec_io_t io;
 			io.read = &ReadCallback;
 			io.read_data = &stream;
@@ -348,7 +352,7 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams&) { return CheckMp3(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckMp3(stream, parameters); };
 			loaderEntry.streamLoader = LoadSoundBuffer;
 
 			return loaderEntry;
@@ -358,7 +362,7 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams&) { return CheckMp3(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckMp3(stream, parameters); };
 			loaderEntry.fileLoader = LoadSoundStreamFile;
 			loaderEntry.memoryLoader = LoadSoundStreamMemory;
 			loaderEntry.streamLoader = LoadSoundStreamStream;

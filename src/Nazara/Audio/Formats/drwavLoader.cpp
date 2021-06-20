@@ -81,8 +81,12 @@ namespace Nz
 			return extension == "riff" || extension == "rf64" || extension == "wav" || extension == "w64";
 		}
 
-		Ternary CheckWav(Stream& stream)
+		Ternary CheckWav(Stream& stream, const ResourceParameters& parameters)
 		{
+			bool skip;
+			if (parameters.custom.GetBooleanParameter("SkipNativeWavLoader", &skip) && skip)
+				return Ternary::False;
+
 			drwav wav;
 			if (!drwav_init(&wav, &ReadCallback, &SeekCallback, &stream, nullptr))
 				return Ternary::False;
@@ -323,7 +327,7 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams&) { return CheckWav(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckWav(stream, parameters); };
 			loaderEntry.streamLoader = LoadSoundBuffer;
 
 			return loaderEntry;
@@ -333,7 +337,7 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams&) { return CheckWav(stream); };
+			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckWav(stream, parameters); };
 			loaderEntry.fileLoader = LoadSoundStreamFile;
 			loaderEntry.memoryLoader = LoadSoundStreamMemory;
 			loaderEntry.streamLoader = LoadSoundStreamStream;
