@@ -531,6 +531,7 @@ namespace Nz
 			auto& subpassDependency = dependencies.emplace_back();
 			subpassDependency.fromSubpassIndex = RenderPass::ExternalSubpassIndex;
 			subpassDependency.toSubpassIndex = subpassIndex;
+			subpassDependency.tilable = true;
 
 			// TODO: Handle bottom of pipe?
 
