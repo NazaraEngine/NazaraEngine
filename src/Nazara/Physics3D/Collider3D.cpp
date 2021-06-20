@@ -5,6 +5,9 @@
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
+#include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Utility/StaticMesh.hpp>
+#include <Nazara/Utility/VertexBuffer.hpp>
 #include <newton/Newton.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
@@ -137,6 +140,44 @@ namespace Nz
 		}
 		else
 			NewtonCollisionForEachPolygonDo(m_handles.begin()->second, Nz::Matrix4f::Identity(), newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
+	}
+
+	std::shared_ptr<StaticMesh> Collider3D::GenerateMesh() const
+	{
+		std::vector<Nz::Vector3f> colliderVertices;
+		std::vector<Nz::UInt16> colliderIndices;
+
+		// Generate a line list
+		ForEachPolygon([&](const Nz::Vector3f* vertices, std::size_t vertexCount)
+		{
+			Nz::UInt16 firstIndex = colliderVertices.size();
+			for (std::size_t i = 0; i < vertexCount; ++i)
+				colliderVertices.push_back(vertices[i]);
+
+			for (std::size_t i = 1; i < vertexCount; ++i)
+			{
+				colliderIndices.push_back(firstIndex + i - 1);
+				colliderIndices.push_back(firstIndex + i);
+			}
+
+			if (vertexCount > 2)
+			{
+				colliderIndices.push_back(firstIndex + vertexCount - 1);
+				colliderIndices.push_back(firstIndex);
+			}
+		});
+
+		std::shared_ptr<Nz::VertexBuffer> colliderVB = std::make_shared<Nz::VertexBuffer>(Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ), colliderVertices.size(), Nz::DataStorage::Software, 0);
+		colliderVB->Fill(colliderVertices.data(), 0, colliderVertices.size());
+
+		std::shared_ptr<Nz::IndexBuffer> colliderIB = std::make_shared<Nz::IndexBuffer>(false, colliderIndices.size(), Nz::DataStorage::Software, 0);
+		colliderIB->Fill(colliderIndices.data(), 0, colliderIndices.size());
+
+		std::shared_ptr<Nz::StaticMesh> colliderSubMesh = std::make_shared<Nz::StaticMesh>(std::move(colliderVB), std::move(colliderIB));
+		colliderSubMesh->GenerateAABB();
+		colliderSubMesh->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
+
+		return colliderSubMesh;
 	}
 
 	NewtonCollision* Collider3D::GetHandle(PhysWorld3D* world) const
