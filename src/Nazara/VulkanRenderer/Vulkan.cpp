@@ -577,6 +577,9 @@ namespace Nz
 		if (enabledFeatures.anisotropicFiltering)
 			deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+		if (enabledFeatures.nonSolidFaceFilling)
+			deviceFeatures.fillModeNonSolid = VK_TRUE;
+
 		VkDeviceCreateInfo createInfo = {
 			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 			nullptr,
