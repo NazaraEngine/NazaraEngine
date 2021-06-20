@@ -44,7 +44,7 @@ namespace Nz
 			RenderImage(RenderImage&&) = delete;
 
 		private:
-			static constexpr std::size_t BlockSize = 4 * 1024;
+			static constexpr std::size_t BlockSize = 4 * 1024 * 1024;
 
 			using Block = std::vector<UInt8>;
 
