@@ -54,6 +54,5 @@
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
-#include <Nazara/VulkanRenderer/Wrapper.hpp>
 
 #endif // NAZARA_GLOBAL_VULKANRENDERER_HPP
