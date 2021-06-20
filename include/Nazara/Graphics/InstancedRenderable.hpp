@@ -23,7 +23,7 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			~InstancedRenderable();
 
-			virtual void Draw(CommandBufferBuilder& commandBuffer, WorldInstance& instance) const = 0;
+			virtual void Draw(CommandBufferBuilder& commandBuffer, const WorldInstance& instance) const = 0;
 
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;

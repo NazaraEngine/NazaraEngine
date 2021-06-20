@@ -29,7 +29,7 @@ namespace Nz
 		}
 	}
 
-	void Model::Draw(CommandBufferBuilder& commandBuffer, WorldInstance& instance) const
+	void Model::Draw(CommandBufferBuilder& commandBuffer, const WorldInstance& instance) const
 	{
 		commandBuffer.BindShaderBinding(Graphics::WorldBindingSet, instance.GetShaderBinding());
 
