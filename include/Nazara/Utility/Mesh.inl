@@ -4,15 +4,25 @@
 
 #include <Nazara/Utility/Mesh.hpp>
 #include <memory>
+#include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	Mesh::Mesh() :
+	inline Mesh::Mesh() :
 	m_materialData(1),
 	m_aabbUpdated(false),
 	m_isValid(false)
 	{
+	}
+
+	inline std::shared_ptr<Mesh> Mesh::Build(std::shared_ptr<StaticMesh> staticMesh)
+	{
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
+		mesh->CreateStatic();
+		mesh->AddSubMesh(std::move(staticMesh));
+
+		return mesh;
 	}
 }
 

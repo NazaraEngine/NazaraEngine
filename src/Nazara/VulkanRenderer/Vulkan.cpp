@@ -54,6 +54,7 @@ namespace Nz
 		deviceInfo.name = physDevice.properties.deviceName;
 
 		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
+		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
 
 		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
 
@@ -274,7 +275,7 @@ namespace Nz
 
 		VkValidationFeaturesEXT features = { VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT };
 
-		std::vector<VkValidationFeatureEnableEXT> enabledFeatures = {
+		std::array<VkValidationFeatureEnableEXT, 1> enabledFeatures = {
 			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
 			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
 			VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT

@@ -57,6 +57,7 @@ namespace Nz
 	class Mesh;
 	struct Primitive;
 	class PrimitiveList;
+	class StaticMesh;
 	class SubMesh;
 
 	using MeshVertex = VertexStruct_XYZ_Normal_UV_Tangent;
@@ -131,6 +132,8 @@ namespace Nz
 
 			Mesh& operator=(const Mesh&) = delete;
 			Mesh& operator=(Mesh&&) = delete;
+
+			static inline std::shared_ptr<Mesh> Build(std::shared_ptr<StaticMesh> staticMesh);
 
 			static std::shared_ptr<Mesh> LoadFromFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
 			static std::shared_ptr<Mesh> LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());

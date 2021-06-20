@@ -23,6 +23,11 @@ namespace Nz
 		return *m_shaderBinding;
 	}
 
+	inline const ShaderBinding& WorldInstance::GetShaderBinding() const
+	{
+		return *m_shaderBinding;
+	}
+
 	inline void WorldInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix)
 	{
 		m_worldMatrix = worldMatrix;

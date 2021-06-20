@@ -61,17 +61,17 @@ namespace Nz
 		SetRotation(object.GetRotation());
 	}
 
-	RigidBody3D::RigidBody3D(RigidBody3D&& object) :
+	RigidBody3D::RigidBody3D(RigidBody3D&& object) noexcept :
 	m_geom(std::move(object.m_geom)),
 	m_matrix(std::move(object.m_matrix)),
 	m_forceAccumulator(std::move(object.m_forceAccumulator)),
 	m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
-	m_body(object.m_body),
+	m_body(std::move(object.m_body)),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
-		object.m_body = nullptr;
+		NewtonBodySetUserData(m_body, this);
 	}
 
 	RigidBody3D::~RigidBody3D()
@@ -380,6 +380,24 @@ namespace Nz
 		return operator=(std::move(physObj));
 	}
 
+	RigidBody3D& RigidBody3D::operator=(RigidBody3D&& object) noexcept
+	{
+		if (m_body)
+			NewtonDestroyBody(m_body);
+
+		m_body               = std::move(object.m_body);
+		m_forceAccumulator   = std::move(object.m_forceAccumulator);
+		m_geom               = std::move(object.m_geom);
+		m_gravityFactor      = object.m_gravityFactor;
+		m_mass               = object.m_mass;
+		m_matrix             = std::move(object.m_matrix);
+		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
+		m_world              = object.m_world;
+
+		NewtonBodySetUserData(m_body, this);
+		return *this;
+	}
+
 	void RigidBody3D::UpdateBody()
 	{
 		NewtonBodySetMatrix(m_body, m_matrix);
@@ -399,25 +417,6 @@ namespace Nz
 			},
 			nullptr);
 		}
-	}
-
-	RigidBody3D& RigidBody3D::operator=(RigidBody3D&& object)
-	{
-		if (m_body)
-			NewtonDestroyBody(m_body);
-
-		m_body               = object.m_body;
-		m_forceAccumulator   = std::move(object.m_forceAccumulator);
-		m_geom               = std::move(object.m_geom);
-		m_gravityFactor      = object.m_gravityFactor;
-		m_mass               = object.m_mass;
-		m_matrix             = std::move(object.m_matrix);
-		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
-		m_world              = object.m_world;
-
-		object.m_body = nullptr;
-
-		return *this;
 	}
 
 	void RigidBody3D::ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex)

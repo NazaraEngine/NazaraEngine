@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <stdexcept>
@@ -18,6 +19,8 @@ namespace Nz
 	Graphics::Graphics(Config config) :
 	ModuleBase("Graphics", this)
 	{
+		ECS::RegisterComponents();
+
 		Renderer* renderer = Renderer::Instance();
 
 		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
@@ -42,6 +45,7 @@ namespace Nz
 
 		RenderDeviceFeatures enabledFeatures;
 		enabledFeatures.anisotropicFiltering = renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+		enabledFeatures.nonSolidFaceFilling = renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 
 		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);
 		if (!m_renderDevice)

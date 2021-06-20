@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -27,7 +28,7 @@ namespace Nz
 			RigidBody3D(PhysWorld3D* world, const Matrix4f& mat = Matrix4f::Identity());
 			RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat = Matrix4f::Identity());
 			RigidBody3D(const RigidBody3D& object);
-			RigidBody3D(RigidBody3D&& object);
+			RigidBody3D(RigidBody3D&& object) noexcept;
 			~RigidBody3D();
 
 			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys::Global);
@@ -74,7 +75,7 @@ namespace Nz
 			void SetUserdata(void* ud);
 
 			RigidBody3D& operator=(const RigidBody3D& object);
-			RigidBody3D& operator=(RigidBody3D&& object);
+			RigidBody3D& operator=(RigidBody3D&& object) noexcept;
 
 		private:
 			void UpdateBody();
@@ -83,9 +84,9 @@ namespace Nz
 
 			std::shared_ptr<Collider3D> m_geom;
 			Matrix4f m_matrix;
+			MovablePtr<NewtonBody> m_body;
 			Vector3f m_forceAccumulator;
 			Vector3f m_torqueAccumulator;
-			NewtonBody* m_body;
 			PhysWorld3D* m_world;
 			void* m_userdata;
 			float m_gravityFactor;

@@ -1,7 +1,7 @@
 // This file was automatically generated
 
 /*
-	Nazara Engine - OpenGL
+	Nazara Engine - Utility module
 
 	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 
@@ -26,20 +26,9 @@
 
 #pragma once
 
-#ifndef NAZARA_GLOBAL_OPENGLRENDERER_WRAPPER_HPP
-#define NAZARA_GLOBAL_OPENGLRENDERER_WRAPPER_HPP
+#ifndef NAZARA_GLOBAL_UTILITY_COMPONENTS_HPP
+#define NAZARA_GLOBAL_UTILITY_COMPONENTS_HPP
 
-#include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Sampler.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Texture.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
+#include <Nazara/Utility/Components/NodeComponent.hpp>
 
-#endif // NAZARA_GLOBAL_OPENGLRENDERER_WRAPPER_HPP
+#endif // NAZARA_GLOBAL_UTILITY_COMPONENTS_HPP
