@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <stdexcept>
@@ -18,6 +19,8 @@ namespace Nz
 	Graphics::Graphics(Config config) :
 	ModuleBase("Graphics", this)
 	{
+		ECS::RegisterComponents();
+
 		Renderer* renderer = Renderer::Instance();
 
 		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
