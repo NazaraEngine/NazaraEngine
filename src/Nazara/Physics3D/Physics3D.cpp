@@ -4,6 +4,7 @@
 
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Physics3D/Config.hpp>
@@ -16,6 +17,7 @@ namespace Nz
 	Physics3D::Physics3D(Config /*config*/) :
 	ModuleBase("Physics3D", this)
 	{
+		ECS::RegisterComponents();
 	}
 
 	unsigned int Physics3D::GetMemoryUsed()
