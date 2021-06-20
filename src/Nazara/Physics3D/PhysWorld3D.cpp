@@ -22,9 +22,22 @@ namespace Nz
 		m_materialIds.emplace("default", NewtonMaterialGetDefaultGroupID(m_world));
 	}
 
+	PhysWorld3D::PhysWorld3D(PhysWorld3D&& physWorld) noexcept :
+	m_callbacks(std::move(physWorld.m_callbacks)),
+	m_materialIds(std::move(physWorld.m_materialIds)),
+	m_maxStepCount(std::move(physWorld.m_maxStepCount)),
+	m_world(std::move(physWorld.m_world)),
+	m_gravity(std::move(physWorld.m_gravity)),
+	m_stepSize(std::move(physWorld.m_stepSize)),
+	m_timestepAccumulator(std::move(physWorld.m_timestepAccumulator))
+	{
+		NewtonWorldSetUserData(m_world, this);
+	}
+
 	PhysWorld3D::~PhysWorld3D()
 	{
-		NewtonDestroy(m_world);
+		if (m_world)
+			NewtonDestroy(m_world);
 	}
 
 	int PhysWorld3D::CreateMaterial(std::string name)
@@ -157,6 +170,24 @@ namespace Nz
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}
+	}
+
+	PhysWorld3D& PhysWorld3D::operator=(PhysWorld3D&& physWorld) noexcept
+	{
+		if (m_world)
+			NewtonDestroy(m_world);
+
+		m_callbacks = std::move(physWorld.m_callbacks);
+		m_materialIds = std::move(physWorld.m_materialIds);
+		m_maxStepCount = std::move(physWorld.m_maxStepCount);
+		m_world = std::move(physWorld.m_world);
+		m_gravity = std::move(physWorld.m_gravity);
+		m_stepSize = std::move(physWorld.m_stepSize);
+		m_timestepAccumulator = std::move(physWorld.m_timestepAccumulator);
+
+		NewtonWorldSetUserData(m_world, this);
+
+		return *this;
 	}
 
 	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
