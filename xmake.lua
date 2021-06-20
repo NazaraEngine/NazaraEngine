@@ -14,7 +14,8 @@ local modules = {
 			if is_plat("linux") then
 				add_syslinks("dl", "pthread")
 			end
-		end
+		end,
+		Packages = {"entt"}
 	},
 	Graphics = {
 		Deps = {"NazaraRenderer"},
@@ -54,7 +55,7 @@ local modules = {
 	},
 	Physics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"newtondynamics"}
+		Packages = {"entt", "newtondynamics"}
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
