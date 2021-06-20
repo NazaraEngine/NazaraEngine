@@ -425,6 +425,11 @@ namespace Nz
 		return m_pipelineInfo.pointSize;
 	}
 
+	inline PrimitiveMode Material::GetPrimitiveMode() const
+	{
+		return m_pipelineInfo.primitiveMode;
+	}
+
 	inline const std::shared_ptr<const MaterialSettings>& Material::GetSettings() const
 	{
 		return m_settings;
@@ -689,6 +694,14 @@ namespace Nz
 	inline void Material::SetPointSize(float pointSize)
 	{
 		m_pipelineInfo.pointSize = pointSize;
+
+		InvalidatePipeline();
+	}
+
+
+	inline void Material::SetPrimitiveMode(PrimitiveMode mode)
+	{
+		m_pipelineInfo.primitiveMode = mode;
 
 		InvalidatePipeline();
 	}
