@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,75 +12,75 @@
 
 namespace Nz
 {
-	VertexMapper::VertexMapper(SubMesh* subMesh, BufferAccess access)
+	VertexMapper::VertexMapper(SubMesh& subMesh, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 
-		VertexBuffer* buffer = nullptr;
-		switch (subMesh->GetAnimationType())
+		std::shared_ptr<VertexBuffer> buffer = nullptr;
+		switch (subMesh.GetAnimationType())
 		{
-			case AnimationType_Skeletal:
+			case AnimationType::Skeletal:
 			{
-				SkeletalMesh* skeletalMesh = static_cast<SkeletalMesh*>(subMesh);
-				buffer = skeletalMesh->GetVertexBuffer();
+				SkeletalMesh& skeletalMesh = static_cast<SkeletalMesh&>(subMesh);
+				buffer = skeletalMesh.GetVertexBuffer();
 				break;
 			}
 
-			case AnimationType_Static:
+			case AnimationType::Static:
 			{
-				StaticMesh* staticMesh = static_cast<StaticMesh*>(subMesh);
-				buffer = staticMesh->GetVertexBuffer();
+				StaticMesh& staticMesh = static_cast<StaticMesh&>(subMesh);
+				buffer = staticMesh.GetVertexBuffer();
 				break;
 			}
 		}
 
 		if (!buffer)
 		{
-			NazaraInternalError("Animation type not handled (0x" + String::Number(subMesh->GetAnimationType(), 16) + ')');
+			NazaraInternalError("Animation type not handled (0x" + NumberToString(UnderlyingCast(subMesh.GetAnimationType()), 16) + ')');
 		}
 
-		m_mapper.Map(buffer, access);
+		m_mapper.Map(*buffer, access);
 	}
 
-	VertexMapper::VertexMapper(VertexBuffer* vertexBuffer, BufferAccess access)
+	VertexMapper::VertexMapper(VertexBuffer& vertexBuffer, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		m_mapper.Map(vertexBuffer, access);
 	}
 	
-	VertexMapper::VertexMapper(const SubMesh* subMesh, BufferAccess access)
+	VertexMapper::VertexMapper(const SubMesh& subMesh, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 
-		const VertexBuffer* buffer = nullptr;
-		switch (subMesh->GetAnimationType())
+		std::shared_ptr<VertexBuffer> buffer = nullptr;
+		switch (subMesh.GetAnimationType())
 		{
-			case AnimationType_Skeletal:
+			case AnimationType::Skeletal:
 			{
-				const SkeletalMesh* skeletalMesh = static_cast<const SkeletalMesh*>(subMesh);
-				buffer = skeletalMesh->GetVertexBuffer();
+				const SkeletalMesh& skeletalMesh = static_cast<const SkeletalMesh&>(subMesh);
+				buffer = skeletalMesh.GetVertexBuffer();
 				break;
 			}
 
-			case AnimationType_Static:
+			case AnimationType::Static:
 			{
-				const StaticMesh* staticMesh = static_cast<const StaticMesh*>(subMesh);
-				buffer = staticMesh->GetVertexBuffer();
+				const StaticMesh& staticMesh = static_cast<const StaticMesh&>(subMesh);
+				buffer = staticMesh.GetVertexBuffer();
 				break;
 			}
 		}
 
 		if (!buffer)
 		{
-			NazaraInternalError("Animation type not handled (0x" + String::Number(subMesh->GetAnimationType(), 16) + ')');
+			NazaraInternalError("Animation type not handled (0x" + NumberToString(UnderlyingCast(subMesh.GetAnimationType()), 16) + ')');
 		}
 
-		m_mapper.Map(buffer, access);
+		m_mapper.Map(*buffer, access);
 	}
 
-	VertexMapper::VertexMapper(const VertexBuffer* vertexBuffer, BufferAccess access)
+	VertexMapper::VertexMapper(const VertexBuffer& vertexBuffer, BufferAccess access)
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		m_mapper.Map(vertexBuffer, access);
 	}
 

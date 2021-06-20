@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,14 +8,13 @@
 #define NAZARA_LOADERS_FREETYPE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Font.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterFreeType();
-		void UnregisterFreeType();
-	}
+	bool InitializeFreeType();
+	FontLoader::Entry GetFontLoader_FreeType();
+	void UninitializeFreeType();
 }
 
 #endif // NAZARA_LOADERS_FREETYPE_HPP

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -25,7 +25,7 @@ namespace Nz
 	*/
 
 	MemoryView::MemoryView(void* ptr, UInt64 size) :
-	Stream(StreamOption_None, OpenMode_ReadWrite),
+	Stream(StreamOption::None, OpenMode_ReadWrite),
 	m_ptr(static_cast<UInt8*>(ptr)), 
 	m_pos(0),
 	m_size(size)
@@ -42,7 +42,7 @@ namespace Nz
 	*/
 
 	MemoryView::MemoryView(const void* ptr, UInt64 size) :
-	Stream(StreamOption_None, OpenMode_ReadOnly),
+	Stream(StreamOption::None, OpenMode::ReadOnly),
 	m_ptr(static_cast<UInt8*>(const_cast<void*>(ptr))), //< Okay, right, const_cast is bad, but this pointer is still read-only
 	m_pos(0),
 	m_size(size)

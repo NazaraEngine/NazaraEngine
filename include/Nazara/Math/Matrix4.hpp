@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,8 +9,10 @@
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Config.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -71,7 +73,7 @@ namespace Nz
 			Matrix4& MakeIdentity();
 			Matrix4& MakeLookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 			Matrix4& MakeOrtho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
-			Matrix4& MakePerspective(T angle, T ratio, T zNear, T zFar);
+			Matrix4& MakePerspective(RadianAngle<T> angle, T ratio, T zNear, T zFar);
 			Matrix4& MakeRotation(const Quaternion<T>& rotation);
 			Matrix4& MakeScale(const Vector3<T>& scale);
 			Matrix4& MakeTranslation(const Vector3<T>& translation);
@@ -90,7 +92,7 @@ namespace Nz
 			Matrix4& SetScale(const Vector3<T>& scale);
 			Matrix4& SetTranslation(const Vector3<T>& translation);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			Vector2<T> Transform(const Vector2<T>& vector, T z = 0.0, T w = 1.0) const;
 			Vector3<T> Transform(const Vector3<T>& vector, T w = 1.0) const;
@@ -123,7 +125,7 @@ namespace Nz
 			static Matrix4 Identity();
 			static Matrix4 LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 			static Matrix4 Ortho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
-			static Matrix4 Perspective(T angle, T ratio, T zNear, T zFar);
+			static Matrix4 Perspective(RadianAngle<T> angle, T ratio, T zNear, T zFar);
 			static Matrix4 Rotate(const Quaternion<T>& rotation);
 			static Matrix4 Scale(const Vector3<T>& scale);
 			static Matrix4 Translate(const Vector3<T>& translation);

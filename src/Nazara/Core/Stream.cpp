@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -28,9 +28,9 @@ namespace Nz
 	* \return Empty string (meant to be virtual)
 	*/
 
-	String Stream::GetDirectory() const
+	std::filesystem::path Stream::GetDirectory() const
 	{
-		return String();
+		return std::filesystem::path();
 	}
 
 	/*!
@@ -38,9 +38,9 @@ namespace Nz
 	* \return Empty string (meant to be virtual)
 	*/
 
-	String Stream::GetPath() const
+	std::filesystem::path Stream::GetPath() const
 	{
-		return String();
+		return std::filesystem::path();
 	}
 
 	/*!
@@ -57,9 +57,9 @@ namespace Nz
 	* \remark With the text stream option, "\r\n" is treated as "\n"
 	* \remark The line separator character is not returned as part of the string
 	*/
-	String Stream::ReadLine(unsigned int lineSize)
+	std::string Stream::ReadLine(unsigned int lineSize)
 	{
-		String line;
+		std::string line;
 		if (lineSize == 0) // Maximal size undefined
 		{
 			const unsigned int bufferSize = 64;
@@ -78,10 +78,10 @@ namespace Nz
 					std::ptrdiff_t pos = ptr - buffer;
 					if (ptr != buffer)
 					{
-						if (m_streamOptions & StreamOption_Text && buffer[pos - 1] == '\r')
-							line.Append(buffer, pos - 1);
+						if (m_streamOptions & StreamOption::Text && buffer[pos - 1] == '\r')
+							line.append(buffer, pos - 1);
 						else
-							line.Append(buffer, pos);
+							line.append(buffer, pos);
 					}
 
 					if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
@@ -92,7 +92,7 @@ namespace Nz
 				else
 				{
 					std::size_t length = readSize;
-					if (m_streamOptions & StreamOption_Text && buffer[length - 1] == '\r')
+					if (m_streamOptions & StreamOption::Text && buffer[length - 1] == '\r')
 					{
 						if (!SetCursorPos(GetCursorPos() - 1))
 							NazaraWarning("Failed to reset cursor pos");
@@ -100,28 +100,28 @@ namespace Nz
 						length--;
 					}
 
-					line.Append(buffer, length);
+					line.append(buffer, length);
 				}
 			}
 			while (readSize == bufferSize);
 		}
 		else
 		{
-			line.Set(lineSize, '\0');
+			line.resize(lineSize, '\0');
 			std::size_t readSize = Read(&line[0], lineSize);
-			std::size_t pos = line.Find('\n');
+			std::size_t pos = line.find('\n');
 			if (pos <= readSize) // False only if the character is not available (npos being the biggest integer)
 			{
-				if (m_streamOptions & StreamOption_Text && pos > 0 && line[pos - 1] == '\r')
-					line.Resize(pos);
+				if (m_streamOptions & StreamOption::Text && pos > 0 && line[pos - 1] == '\r')
+					line.resize(pos);
 				else
-					line.Resize(pos + 1);
+					line.resize(pos + 1);
 
 				if (!SetCursorPos(GetCursorPos() - readSize + pos + 1))
 					NazaraWarning("Failed to reset cursos pos");
 			}
 			else
-				line.Resize(readSize);
+				line.resize(readSize);
 		}
 
 		return line;
@@ -147,22 +147,24 @@ namespace Nz
 	* \param string String to write
 	*/
 
-	bool Stream::Write(const String& string)
+	bool Stream::Write(const std::string_view& string)
 	{
-		String temp(string);
-
-		if (m_streamOptions & StreamOption_Text)
+		if (m_streamOptions & StreamOption::Text)
 		{
-			#if defined(NAZARA_PLATFORM_WINDOWS)
-			temp.Replace("\n", "\r\n");
-			#elif defined(NAZARA_PLATFORM_LINUX)
+#if defined(NAZARA_PLATFORM_WINDOWS)
+			std::string temp(string);
+			ReplaceStr(temp, "\n", "\r\n");
+#elif defined(NAZARA_PLATFORM_LINUX)
+			std::string_view temp(string);
 			// Nothing to do
-			#elif defined(NAZARA_PLATFORM_MACOS)
-			temp.Replace('\n', '\r');
-			#endif
-		}
+#elif defined(NAZARA_PLATFORM_MACOSX)
+			std::string temp(string);
+			ReplaceStr(temp, "\n", "\r");
+#endif
 
-		std::size_t size = temp.GetSize();
-		return Write(temp.GetConstBuffer(), size) == size;
+			return Write(temp.data(), temp.size()) == temp.size();
+		}
+		else
+			return Write(string.data(), string.size()) == string.size();
 	}
 }

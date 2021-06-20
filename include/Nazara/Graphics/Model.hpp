@@ -8,93 +8,52 @@
 #define NAZARA_MODEL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/ResourceSaver.hpp>
-#include <Nazara/Math/Rect.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
+#include <memory>
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API ModelParameters : ResourceParameters
+	class GraphicalMesh;
+	class Material;
+
+	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
 	{
-		ModelParameters();
-
-		bool loadMaterials = true;
-		MaterialParams material;
-		MeshParams mesh;
-
-		bool IsValid() const;
-	};
-
-	class Model;
-
-	using ModelConstRef = ObjectRef<const Model>;
-	using ModelLibrary = ObjectLibrary<Model>;
-	using ModelLoader = ResourceLoader<Model, ModelParameters>;
-	using ModelManager = ResourceManager<Model, ModelParameters>;
-	using ModelRef = ObjectRef<Model>;
-	using ModelSaver = ResourceSaver<Model, ModelParameters>;
-
-	class NAZARA_GRAPHICS_API Model : public InstancedRenderable, public Resource
-	{
-		friend ModelLibrary;
-		friend ModelLoader;
-		friend ModelManager;
-		friend ModelSaver;
-
 		public:
-			inline Model();
-			Model(const Model& model);
-			Model(Model&& model) = delete;
-			virtual ~Model();
+			Model(std::shared_ptr<GraphicalMesh> graphicalMesh);
+			Model(const Model&) = delete;
+			Model(Model&&) noexcept = default;
+			~Model() = default;
 
-			void AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const override;
-			inline void AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder = 0, const Recti& scissorRect = Recti(-1, -1, -1, -1)) const;
+			void Draw(CommandBufferBuilder& commandBuffer, const WorldInstance& instance) const override;
 
-			std::unique_ptr<InstancedRenderable> Clone() const override;
+			const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
+			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t subMeshIndex) const;
+			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(std::size_t subMeshIndex) const;
+			const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
+			inline std::size_t GetSubMeshCount() const;
 
-			using InstancedRenderable::GetMaterial;
-			const MaterialRef& GetMaterial(const String& subMeshName) const;
-			const MaterialRef& GetMaterial(std::size_t skinIndex, const String& subMeshName) const;
-			Mesh* GetMesh() const;
+			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material);
 
-			virtual bool IsAnimated() const;
+			Model& operator=(const Model&) = delete;
+			Model& operator=(Model&&) noexcept = default;
 
-			using InstancedRenderable::SetMaterial;
-			bool SetMaterial(const String& subMeshName, MaterialRef material);
-			bool SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material);
+		private:
+			struct SubMeshData
+			{
+				std::shared_ptr<Material> material;
+				std::vector<RenderPipelineInfo::VertexBufferData> vertexBufferData;
+			};
 
-			virtual void SetMesh(Mesh* mesh);
-
-			Model& operator=(const Model& node) = default;
-			Model& operator=(Model&& node) = delete;
-
-			static ModelRef LoadFromFile(const String& filePath, const ModelParameters& params = ModelParameters());
-			static ModelRef LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params = ModelParameters());
-			static ModelRef LoadFromStream(Stream& stream, const ModelParameters& params = ModelParameters());
-
-			template<typename... Args> static ModelRef New(Args&&... args);
-
-		protected:
-			void MakeBoundingVolume() const override;
-
-			MeshRef m_mesh;
-
-			NazaraSlot(Mesh, OnMeshInvalidateAABB, m_meshAABBInvalidationSlot);
-
-			static ModelLibrary::LibraryMap s_library;
-			static ModelLoader::LoaderList s_loaders;
-			static ModelManager::ManagerMap s_managerMap;
-			static ModelManager::ManagerParams s_managerParameters;
-			static ModelSaver::SaverList s_savers;
+			std::shared_ptr<GraphicalMesh> m_graphicalMesh;
+			std::vector<SubMeshData> m_subMeshes;
 	};
 }
 
 #include <Nazara/Graphics/Model.inl>
 
-#endif // NAZARA_MODEL_HPP
+#endif

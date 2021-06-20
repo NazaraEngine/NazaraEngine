@@ -1,8 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Node.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -38,6 +39,35 @@ namespace Nz
 	m_transformMatrixUpdated(false)
 	{
 		SetParent(node.m_parent, false);
+	}
+
+	Node::Node(Node&& node) noexcept :
+	m_childs(std::move(node.m_childs)),
+	m_initialRotation(node.m_initialRotation),
+	m_rotation(node.m_rotation),
+	m_initialPosition(node.m_initialPosition),
+	m_initialScale(node.m_initialScale),
+	m_position(node.m_position),
+	m_scale(node.m_scale),
+	m_parent(node.m_parent),
+	m_derivedUpdated(false),
+	m_inheritPosition(node.m_inheritPosition),
+	m_inheritRotation(node.m_inheritRotation),
+	m_inheritScale(node.m_inheritScale),
+	m_transformMatrixUpdated(false),
+	OnNodeInvalidation(std::move(node.OnNodeInvalidation)),
+	OnNodeNewParent(std::move(node.OnNodeNewParent)),
+	OnNodeRelease(std::move(node.OnNodeRelease))
+	{
+		if (m_parent)
+		{
+			m_parent->RemoveChild(&node);
+			m_parent->AddChild(this);
+			node.m_parent = nullptr;
+		}
+
+		for (Node* child : m_childs)
+			child->m_parent = this;
 	}
 
 	Node::~Node()
@@ -136,7 +166,7 @@ namespace Nz
 
 	NodeType Node::GetNodeType() const
 	{
-		return NodeType_Default;
+		return NodeType::Default;
 	}
 
 	const Node* Node::GetParent() const
@@ -148,17 +178,17 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!m_derivedUpdated)
 					UpdateDerived();
 
 				return m_derivedPosition;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				return m_position;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + String::Number(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(UnderlyingCast(coordSys), 16) + ')');
 		return Vector3f();
 	}
 
@@ -174,17 +204,17 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!m_derivedUpdated)
 					UpdateDerived();
 
 				return m_derivedRotation;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				return m_rotation;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + String::Number(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(UnderlyingCast(coordSys), 16) + ')');
 		return Quaternionf();
 	}
 
@@ -192,17 +222,17 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!m_derivedUpdated)
 					UpdateDerived();
 
 				return m_derivedScale;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				return m_scale;
 		}
 
-		NazaraError("Coordinate system out of enum (0x" + String::Number(coordSys, 16) + ')');
+		NazaraError("Coordinate system out of enum (0x" + NumberToString(UnderlyingCast(coordSys), 16) + ')');
 		return Vector3f();
 	}
 
@@ -231,7 +261,7 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (!nodeA.m_derivedUpdated)
 					nodeA.UpdateDerived();
 
@@ -243,7 +273,7 @@ namespace Nz
 				m_scale = ToLocalScale(Vector3f::Lerp(nodeA.m_derivedScale, nodeB.m_derivedScale, interpolation));
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_position = Vector3f::Lerp(nodeA.m_position, nodeB.m_position, interpolation);
 				m_rotation = Quaternionf::Slerp(nodeA.m_rotation, nodeB.m_rotation, interpolation);
 				m_scale = Vector3f::Lerp(nodeA.m_scale, nodeB.m_scale, interpolation);
@@ -258,7 +288,7 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 			{
 				if (m_parent)
 				{
@@ -273,7 +303,7 @@ namespace Nz
 				break;
 			}
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_position += m_rotation * movement;
 				break;
 		}
@@ -295,7 +325,7 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 			{
 				if (!m_derivedUpdated)
 					UpdateDerived();
@@ -304,7 +334,7 @@ namespace Nz
 				break;
 			}
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_rotation *= q;
 				break;
 		}
@@ -449,9 +479,9 @@ namespace Nz
 			if (m_parent)
 				m_parent->AddChild(this);
 
-			SetRotation(m_derivedRotation, CoordSys_Global);
-			SetScale(m_derivedScale, CoordSys_Global);
-			SetPosition(m_derivedPosition, CoordSys_Global);
+			SetRotation(m_derivedRotation, CoordSys::Global);
+			SetScale(m_derivedScale, CoordSys::Global);
+			SetPosition(m_derivedPosition, CoordSys::Global);
 		}
 		else
 		{
@@ -477,7 +507,7 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (m_parent && m_inheritPosition)
 				{
 					if (!m_parent->m_derivedUpdated)
@@ -489,7 +519,7 @@ namespace Nz
 					m_position = position - m_initialPosition;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_position = position;
 				break;
 		}
@@ -510,7 +540,7 @@ namespace Nz
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (m_parent && m_inheritRotation)
 				{
 					Quaternionf rot(m_parent->GetRotation() * m_initialRotation);
@@ -522,7 +552,7 @@ namespace Nz
 
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_rotation = q;
 				break;
 		}
@@ -540,14 +570,14 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				if (m_parent && m_inheritScale)
 					m_scale = scale / (m_initialScale * m_parent->GetScale());
 				else
 					m_scale = scale / m_initialScale;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_scale = scale;
 				break;
 		}
@@ -567,9 +597,9 @@ namespace Nz
 
 	void Node::SetTransformMatrix(const Matrix4f& matrix)
 	{
-		SetPosition(matrix.GetTranslation(), CoordSys_Global);
-		SetRotation(matrix.GetRotation(), CoordSys_Global);
-		SetScale(matrix.GetScale(), CoordSys_Global);
+		SetPosition(matrix.GetTranslation(), CoordSys::Global);
+		SetRotation(matrix.GetRotation(), CoordSys::Global);
+		SetScale(matrix.GetScale(), CoordSys::Global);
 
 		m_transformMatrix = matrix;
 		m_transformMatrixUpdated = true;
@@ -636,6 +666,42 @@ namespace Nz
 		m_position = node.m_position;
 		m_rotation = node.m_rotation;
 		m_scale = node.m_scale;
+
+		InvalidateNode();
+
+		return *this;
+	}
+
+	Node& Node::operator=(Node&& node) noexcept
+	{
+		if (m_parent)
+			SetParent(nullptr);
+
+		m_inheritPosition = node.m_inheritPosition;
+		m_inheritRotation = node.m_inheritRotation;
+		m_inheritScale = node.m_inheritScale;
+		m_initialPosition = node.m_initialPosition;
+		m_initialRotation = node.m_initialRotation;
+		m_initialScale = node.m_initialScale;
+		m_position = node.m_position;
+		m_rotation = node.m_rotation;
+		m_scale = node.m_scale;
+
+		m_childs = std::move(node.m_childs);
+		for (Node* child : m_childs)
+			child->m_parent = this;
+
+		m_parent = node.m_parent;
+		if (m_parent)
+		{
+			m_parent->RemoveChild(&node);
+			m_parent->AddChild(this);
+			node.m_parent = nullptr;
+		}
+
+		OnNodeInvalidation = std::move(node.OnNodeInvalidation);
+		OnNodeNewParent = std::move(node.OnNodeNewParent);
+		OnNodeRelease = std::move(node.OnNodeRelease);
 
 		InvalidateNode();
 

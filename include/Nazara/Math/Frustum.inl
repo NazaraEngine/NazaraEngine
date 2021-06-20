@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,12 +7,10 @@
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -42,7 +40,7 @@ namespace Nz
 	* \brief Builds the frustum object
 	* \return A reference to this frustum which is the build up camera's field of view
 	*
-	* \param angle Unit depends on NAZARA_MATH_ANGLE_RADIAN
+	* \param angle FOV angle
 	* \param ratio Rendering ratio (typically 16/9 or 4/3)
 	* \param zNear Distance where 'vision' begins
 	* \param zFar Distance where 'vision' ends
@@ -52,15 +50,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Frustum<T>& Frustum<T>::Build(T angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
+	Frustum<T>& Frustum<T>::Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
 	{
-		#if NAZARA_MATH_ANGLE_RADIAN
-		angle /= F(2.0);
-		#else
-		angle = DegreeToRadian(angle/F(2.0));
-		#endif
+		angle /= T(2.0);
 
-		T tangent = std::tan(angle);
+		T tangent = angle.GetTan();
 		T nearH = zNear * tangent;
 		T nearW = nearH * ratio;
 		T farH = zFar * tangent;
@@ -128,7 +122,7 @@ namespace Nz
 						return false;
 				}
 
-				NazaraError("Invalid intersection side (0x" + String::Number(side, 16) + ')');
+				NazaraError("Invalid intersection side (0x" + NumberToString(side, 16) + ')');
 				return false;
 			}
 
@@ -139,7 +133,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraError("Invalid extend type (0x" + String::Number(volume.extend, 16) + ')');
+		NazaraError("Invalid extend type (0x" + NumberToString(volume.extend, 16) + ')');
 		return false;
 	}
 
@@ -156,7 +150,7 @@ namespace Nz
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
 		{
-			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
+			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < T(0.0))
 				return false;
 		}
 
@@ -173,7 +167,7 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const OrientedBox<T>& orientedbox) const
 	{
-		return Contains(&orientedbox[0], 8);
+		return Contains(orientedbox.GetCorners(), 8);
 	}
 
 	/*!
@@ -207,7 +201,7 @@ namespace Nz
 	{
 		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
 		{
-			if (m_planes[i].Distance(point) < F(0.0))
+			if (m_planes[i].Distance(point) < T(0.0))
 				return false;
 		}
 
@@ -230,7 +224,7 @@ namespace Nz
 			unsigned int j;
 			for (j = 0; j < pointCount; j++ )
 			{
-				if (m_planes[i].Distance(points[j]) > F(0.0))
+				if (m_planes[i].Distance(points[j]) > T(0.0))
 					break;
 			}
 
@@ -264,7 +258,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] - clipMatrix[12];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -279,7 +273,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] + clipMatrix[12];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -294,7 +288,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] + clipMatrix[13];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -309,7 +303,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] - clipMatrix[13];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -324,7 +318,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] - clipMatrix[14];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -339,7 +333,7 @@ namespace Nz
 		plane[3] = clipMatrix[15] + clipMatrix[14];
 
 		// Normalize the result
-		invLength = F(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 		plane[0] *= invLength;
 		plane[1] *= invLength;
 		plane[2] *= invLength;
@@ -356,56 +350,56 @@ namespace Nz
 			Vector4<T> corner;
 
 			// FarLeftBottom
-			corner.Set(F(-1.0), F(-1.0), F(1.0));
+			corner.Set(T(-1.0), T(-1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_FarLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarLeftTop
-			corner.Set(F(-1.0), F(1.0), F(1.0));
+			corner.Set(T(-1.0), T(1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_FarLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarRightBottom
-			corner.Set(F(1.0), F(-1.0), F(1.0));
+			corner.Set(T(1.0), T(-1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_FarRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarRightTop
-			corner.Set(F(1.0), F(1.0), F(1.0));
+			corner.Set(T(1.0), T(1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_FarRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearLeftBottom
-			corner.Set(F(-1.0), F(-1.0), F(0.0));
+			corner.Set(T(-1.0), T(-1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_NearLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearLeftTop
-			corner.Set(F(-1.0), F(1.0), F(0.0));
+			corner.Set(T(-1.0), T(1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_NearLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearRightBottom
-			corner.Set(F(1.0), F(-1.0), F(0.0));
+			corner.Set(T(1.0), T(-1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
 			m_corners[BoxCorner_NearRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearRightTop
-			corner.Set(F(1.0), F(1.0), F(0.0));
+			corner.Set(T(1.0), T(1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
@@ -448,7 +442,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (corner > BoxCorner_Max)
 		{
-			NazaraError("Corner not handled (0x" + String::Number(corner, 16) + ')');
+			NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
 
 			static Vector3<T> dummy;
 			return dummy;
@@ -473,7 +467,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (plane > FrustumPlane_Max)
 		{
-			NazaraError("Frustum plane not handled (0x" + String::Number(plane, 16) + ')');
+			NazaraError("Frustum plane not handled (0x" + NumberToString(plane, 16) + ')');
 
 			static Plane<T> dummy;
 			return dummy;
@@ -515,7 +509,7 @@ namespace Nz
 						return IntersectionSide_Outside;
 				}
 
-				NazaraError("Invalid intersection side (0x" + String::Number(side, 16) + ')');
+				NazaraError("Invalid intersection side (0x" + NumberToString(side, 16) + ')');
 				return IntersectionSide_Outside;
 			}
 
@@ -526,7 +520,7 @@ namespace Nz
 				return IntersectionSide_Outside;
 		}
 
-		NazaraError("Invalid extend type (0x" + String::Number(volume.extend, 16) + ')');
+		NazaraError("Invalid extend type (0x" + NumberToString(volume.extend, 16) + ')');
 		return IntersectionSide_Outside;
 	}
 
@@ -545,9 +539,9 @@ namespace Nz
 
 		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
 		{
-			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < F(0.0))
+			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < T(0.0))
 				return IntersectionSide_Outside;
-			else if (m_planes[i].Distance(box.GetNegativeVertex(m_planes[i].normal)) < F(0.0))
+			else if (m_planes[i].Distance(box.GetNegativeVertex(m_planes[i].normal)) < T(0.0))
 				side = IntersectionSide_Intersecting;
 		}
 
@@ -564,7 +558,7 @@ namespace Nz
 	template<typename T>
 	IntersectionSide Frustum<T>::Intersect(const OrientedBox<T>& orientedbox) const
 	{
-		return Intersect(&orientedbox[0], 8);
+		return Intersect(orientedbox.GetCorners(), 8);
 	}
 
 	/*!
@@ -610,7 +604,7 @@ namespace Nz
 			unsigned int j;
 			for (j = 0; j < pointCount; j++ )
 			{
-				if (m_planes[i].Distance(points[j]) > F(0.0))
+				if (m_planes[i].Distance(points[j]) > T(0.0))
 					break;
 			}
 
@@ -649,16 +643,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Frustum<T>::ToString() const
+	std::string Frustum<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Frustum(Bottom: " << m_planes[FrustumPlane_Bottom].ToString() << "\n"
-		       << "        Far: " << m_planes[FrustumPlane_Far].ToString() << "\n"
-		       << "        Left: " << m_planes[FrustumPlane_Left].ToString() << "\n"
-		       << "        Near: " << m_planes[FrustumPlane_Near].ToString() << "\n"
-		       << "        Right: " << m_planes[FrustumPlane_Right].ToString() << "\n"
-		       << "        Top: " << m_planes[FrustumPlane_Top].ToString() << ")\n";
+		return ss.str();
 	}
 
 	/*!
@@ -723,9 +713,12 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum)
 {
-	return out << frustum.ToString();
+	return out << "Frustum(Bottom: " << frustum.GetPlane(Nz::FrustumPlane_Bottom) << ",\n"
+	           << "        Far: "    << frustum.GetPlane(Nz::FrustumPlane_Far)    << ",\n"
+	           << "        Left: "   << frustum.GetPlane(Nz::FrustumPlane_Left)   << ",\n"
+	           << "        Near: "   << frustum.GetPlane(Nz::FrustumPlane_Near)   << ",\n"
+	           << "        Right: "  << frustum.GetPlane(Nz::FrustumPlane_Right)  << ",\n"
+	           << "        Top: "    << frustum.GetPlane(Nz::FrustumPlane_Top)    << ")\n";
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

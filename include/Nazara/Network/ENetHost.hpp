@@ -8,7 +8,7 @@
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -51,7 +51,7 @@ namespace Nz
 			bool CheckEvents(ENetEvent* event);
 
 			ENetPeer* Connect(const IpAddress& remoteAddress, std::size_t channelCount = 0, UInt32 data = 0);
-			ENetPeer* Connect(const String& hostName, NetProtocol protocol = NetProtocol_Any, const String& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
+			ENetPeer* Connect(const std::string& hostName, NetProtocol protocol = NetProtocol::Any, const std::string& service = "http", ResolveError* error = nullptr, std::size_t channelCount = 0, UInt32 data = 0);
 
 			inline bool Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount = 0);
 			bool Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount = 0);

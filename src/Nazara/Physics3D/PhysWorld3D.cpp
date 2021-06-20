@@ -1,18 +1,18 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <cassert>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
 {
 	PhysWorld3D::PhysWorld3D() :
-	m_gravity(Vector3f::Zero()),
 	m_maxStepCount(50),
+	m_gravity(Vector3f::Zero()),
 	m_stepSize(0.005f),
 	m_timestepAccumulator(0.f)
 	{
@@ -22,12 +22,25 @@ namespace Nz
 		m_materialIds.emplace("default", NewtonMaterialGetDefaultGroupID(m_world));
 	}
 
-	PhysWorld3D::~PhysWorld3D()
+	PhysWorld3D::PhysWorld3D(PhysWorld3D&& physWorld) noexcept :
+	m_callbacks(std::move(physWorld.m_callbacks)),
+	m_materialIds(std::move(physWorld.m_materialIds)),
+	m_maxStepCount(std::move(physWorld.m_maxStepCount)),
+	m_world(std::move(physWorld.m_world)),
+	m_gravity(std::move(physWorld.m_gravity)),
+	m_stepSize(std::move(physWorld.m_stepSize)),
+	m_timestepAccumulator(std::move(physWorld.m_timestepAccumulator))
 	{
-		NewtonDestroy(m_world);
+		NewtonWorldSetUserData(m_world, this);
 	}
 
-	int PhysWorld3D::CreateMaterial(String name)
+	PhysWorld3D::~PhysWorld3D()
+	{
+		if (m_world)
+			NewtonDestroy(m_world);
+	}
+
+	int PhysWorld3D::CreateMaterial(std::string name)
 	{
 		NazaraAssert(m_materialIds.find(name) == m_materialIds.end(), "Material \"" + name + "\" already exists");
 
@@ -45,7 +58,9 @@ namespace Nz
 			return bodyIterator(*static_cast<RigidBody3D*>(NewtonBodyGetUserData(body)));
 		};
 
-		NewtonWorldForEachBodyInAABBDo(m_world, box.GetMinimum(), box.GetMaximum(), NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
+		Vector3f min = box.GetMinimum();
+		Vector3f max = box.GetMaximum();
+		NewtonWorldForEachBodyInAABBDo(m_world, &min.x, &max.x, NewtonCallback, const_cast<void*>(static_cast<const void*>(&iterator)));
 	}
 
 	Vector3f PhysWorld3D::GetGravity() const
@@ -58,7 +73,7 @@ namespace Nz
 		return m_world;
 	}
 
-	int PhysWorld3D::GetMaterial(const String& name)
+	int PhysWorld3D::GetMaterial(const std::string& name)
 	{
 		auto it = m_materialIds.find(name);
 		NazaraAssert(it != m_materialIds.end(), "Material \"" + name + "\" does not exists");
@@ -157,7 +172,25 @@ namespace Nz
 		}
 	}
 
-	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, dFloat timestep, int threadIndex)
+	PhysWorld3D& PhysWorld3D::operator=(PhysWorld3D&& physWorld) noexcept
+	{
+		if (m_world)
+			NewtonDestroy(m_world);
+
+		m_callbacks = std::move(physWorld.m_callbacks);
+		m_materialIds = std::move(physWorld.m_materialIds);
+		m_maxStepCount = std::move(physWorld.m_maxStepCount);
+		m_world = std::move(physWorld.m_world);
+		m_gravity = std::move(physWorld.m_gravity);
+		m_stepSize = std::move(physWorld.m_stepSize);
+		m_timestepAccumulator = std::move(physWorld.m_timestepAccumulator);
+
+		NewtonWorldSetUserData(m_world, this);
+
+		return *this;
+	}
+
+	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
 	{
 		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
 		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
@@ -184,7 +217,7 @@ namespace Nz
 		return 1;
 	}
 
-	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float timestep, int threadIndex)
+	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
 	{
 		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
 		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -247,7 +247,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T& SparsePtr<T>::operator[](int index) const
+	T& SparsePtr<T>::operator[](std::size_t index) const
 	{
 		return *reinterpret_cast<T*>(m_ptr + index * m_stride);
 	}

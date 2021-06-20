@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,9 +7,8 @@
 #ifndef NAZARA_OBJECTLIBRARY_HPP
 #define NAZARA_OBJECTLIBRARY_HPP
 
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/String.hpp>
+#include <memory>
+#include <string>
 #include <unordered_map>
 
 namespace Nz
@@ -20,23 +19,20 @@ namespace Nz
 		friend Type;
 
 		public:
-			ObjectLibrary() = delete;
-			~ObjectLibrary() = delete;
+			ObjectLibrary() = default;
+			~ObjectLibrary() = default;
 
-			static void Clear();
+			void Clear();
 
-			static ObjectRef<Type> Get(const String& name);
-			static bool Has(const String& name);
+			std::shared_ptr<Type> Get(const std::string& name);
+			bool Has(const std::string& name);
 
-			static void Register(const String& name, ObjectRef<Type> object);
-			static ObjectRef<Type> Query(const String& name);
-			static void Unregister(const String& name);
+			void Register(const std::string& name, std::shared_ptr<Type> object);
+			std::shared_ptr<Type> Query(const std::string& name);
+			void Unregister(const std::string& name);
 
 		private:
-			static bool Initialize();
-			static void Uninitialize();
-
-			using LibraryMap = std::unordered_map<String, ObjectRef<Type>>;
+			std::unordered_map<std::string, std::shared_ptr<Type>> m_library;
 	};
 }
 

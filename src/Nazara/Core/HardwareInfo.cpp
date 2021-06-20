@@ -1,8 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/HardwareInfo.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
 #include <cstring>
@@ -27,55 +28,53 @@ namespace Nz
 			ProcessorVendor vendorEnum;
 		};
 
-		// Exceptionellement, la valeur "unknown" est intégrée
-		const char* vendorNames[] =
+		const char* s_vendorNames[] =
 		{
-			"Unknown",                             // ProcessorVendor_Unknown
-			"Advanced Micro Devices",              // ProcessorVendor_AMD
-			"Centaur Technology",                  // ProcessorVendor_Centaur
-			"Cyrix Corporation",                   // ProcessorVendor_Cyrix
-			"Intel Corporation",                   // ProcessorVendor_Intel
-			"Kernel-based Virtual Machine",        // ProcessorVendor_KVM
-			"Microsoft Hyper-V",                   // ProcessorVendor_HyperV
-			"National Semiconductor",              // ProcessorVendor_NSC
-			"NexGen",                              // ProcessorVendor_NexGen
-			"Rise Technology",                     // ProcessorVendor_Rise
-			"Silicon Integrated Systems",          // ProcessorVendor_SIS
-			"Transmeta Corporation",               // ProcessorVendor_Transmeta
-			"United Microelectronics Corporation", // ProcessorVendor_UMC
-			"VIA Technologies",                    // ProcessorVendor_VIA
-			"VMware",                              // ProcessorVendor_VMware
-			"Vortex86",                            // ProcessorVendor_Vortex
-			"Xen"                                  // ProcessorVendor_XenHVM
+			"Advanced Micro Devices",              // ProcessorVendor::AMD
+			"Centaur Technology",                  // ProcessorVendor::Centaur
+			"Cyrix Corporation",                   // ProcessorVendor::Cyrix
+			"Intel Corporation",                   // ProcessorVendor::Intel
+			"Kernel-based Virtual Machine",        // ProcessorVendor::KVM
+			"Microsoft Hyper-V",                   // ProcessorVendor::HyperV
+			"National Semiconductor",              // ProcessorVendor::NSC
+			"NexGen",                              // ProcessorVendor::NexGen
+			"Rise Technology",                     // ProcessorVendor::Rise
+			"Silicon Integrated Systems",          // ProcessorVendor::SIS
+			"Transmeta Corporation",               // ProcessorVendor::Transmeta
+			"United Microelectronics Corporation", // ProcessorVendor::UMC
+			"VIA Technologies",                    // ProcessorVendor::VIA
+			"VMware",                              // ProcessorVendor::VMware
+			"Vortex86",                            // ProcessorVendor::Vortex
+			"Xen"                                  // ProcessorVendor::XenHVM
 		};
 
-		static_assert(sizeof(vendorNames)/sizeof(const char*) == ProcessorVendor_Max+2, "Processor vendor name array is incomplete");
+		static_assert(sizeof(s_vendorNames)/sizeof(const char*) == ProcessorVendorCount, "Processor vendor name array is incomplete");
 
 		VendorString vendorStrings[] =
 		{
 			// Triés par ordre alphabétique (Majuscules primant sur minuscules)
-			{"AMDisbetter!", ProcessorVendor_AMD},
-			{"AuthenticAMD", ProcessorVendor_AMD},
-			{"CentaurHauls", ProcessorVendor_Centaur},
-			{"CyrixInstead", ProcessorVendor_Cyrix},
-			{"GenuineIntel", ProcessorVendor_Intel},
-			{"GenuineTMx86", ProcessorVendor_Transmeta},
-			{"Geode by NSC", ProcessorVendor_NSC},
-			{"KVMKVMKVMKVM", ProcessorVendor_KVM},
-			{"Microsoft Hv", ProcessorVendor_HyperV},
-			{"NexGenDriven", ProcessorVendor_NexGen},
-			{"RiseRiseRise", ProcessorVendor_Rise},
-			{"SiS SiS SiS ", ProcessorVendor_SIS},
-			{"TransmetaCPU", ProcessorVendor_Transmeta},
-			{"UMC UMC UMC ", ProcessorVendor_UMC},
-			{"VIA VIA VIA ", ProcessorVendor_VIA},
-			{"VMwareVMware", ProcessorVendor_VMware},
-			{"Vortex86 SoC", ProcessorVendor_Vortex},
-			{"XenVMMXenVMM", ProcessorVendor_XenHVM}
+			{"AMDisbetter!", ProcessorVendor::AMD},
+			{"AuthenticAMD", ProcessorVendor::AMD},
+			{"CentaurHauls", ProcessorVendor::Centaur},
+			{"CyrixInstead", ProcessorVendor::Cyrix},
+			{"GenuineIntel", ProcessorVendor::Intel},
+			{"GenuineTMx86", ProcessorVendor::Transmeta},
+			{"Geode by NSC", ProcessorVendor::NSC},
+			{"KVMKVMKVMKVM", ProcessorVendor::KVM},
+			{"Microsoft Hv", ProcessorVendor::HyperV},
+			{"NexGenDriven", ProcessorVendor::NexGen},
+			{"RiseRiseRise", ProcessorVendor::Rise},
+			{"SiS SiS SiS ", ProcessorVendor::SIS},
+			{"TransmetaCPU", ProcessorVendor::Transmeta},
+			{"UMC UMC UMC ", ProcessorVendor::UMC},
+			{"VIA VIA VIA ", ProcessorVendor::VIA},
+			{"VMwareVMware", ProcessorVendor::VMware},
+			{"Vortex86 SoC", ProcessorVendor::Vortex},
+			{"XenVMMXenVMM", ProcessorVendor::XenHVM}
 		};
 
-		ProcessorVendor s_vendorEnum = ProcessorVendor_Unknown;
-		bool s_capabilities[ProcessorCap_Max+1] = {false};
+		ProcessorVendor s_vendorEnum = ProcessorVendor::Unknown;
+		bool s_capabilities[ProcessorCapCount] = {false};
 		bool s_initialized = false;
 
 		char s_brandString[48] = "Not initialized";
@@ -107,7 +106,7 @@ namespace Nz
 	* \remark Produces a NazaraError if not Initialize
 	*/
 
-	String HardwareInfo::GetProcessorBrandString()
+	std::string_view HardwareInfo::GetProcessorBrandString()
 	{
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");
@@ -150,12 +149,12 @@ namespace Nz
 	* \remark Produces a NazaraError if not Initialize
 	*/
 
-	String HardwareInfo::GetProcessorVendorName()
+	std::string_view HardwareInfo::GetProcessorVendorName()
 	{
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");
 
-		return vendorNames[s_vendorEnum+1];
+		return s_vendorNames[UnderlyingCast(s_vendorEnum)];
 	}
 
 	/*!
@@ -180,15 +179,7 @@ namespace Nz
 
 	bool HardwareInfo::HasCapability(ProcessorCap capability)
 	{
-		#ifdef NAZARA_DEBUG
-		if (capability > ProcessorCap_Max)
-		{
-			NazaraError("Capability type out of enum");
-			return false;
-		}
-		#endif
-
-		return s_capabilities[capability];
+		return s_capabilities[UnderlyingCast(capability)];
 	}
 
 	/*!
@@ -226,7 +217,7 @@ namespace Nz
 		UInt32 manufacturerId[3] = {ebx, edx, ecx};
 
 		// Identification of conceptor
-		s_vendorEnum = ProcessorVendor_Unknown;
+		s_vendorEnum = ProcessorVendor::Unknown;
 		for (const VendorString& vendorString : vendorStrings)
 		{
 			if (std::memcmp(manufacturerId, vendorString.vendor, 12) == 0)
@@ -238,18 +229,18 @@ namespace Nz
 
 		if (eax >= 1)
 		{
-			// Retrieval of certain capacities of the processor (ECX et EDX, function 1)
+			// Retrieval of certain capacities of the processor (ECX and EDX, function 1)
 			HardwareInfoImpl::Cpuid(1, 0, registers);
 
-			s_capabilities[ProcessorCap_AVX]   = (ecx & (1U << 28)) != 0;
-			s_capabilities[ProcessorCap_FMA3]  = (ecx & (1U << 12)) != 0;
-			s_capabilities[ProcessorCap_MMX]   = (edx & (1U << 23)) != 0;
-			s_capabilities[ProcessorCap_SSE]   = (edx & (1U << 25)) != 0;
-			s_capabilities[ProcessorCap_SSE2]  = (edx & (1U << 26)) != 0;
-			s_capabilities[ProcessorCap_SSE3]  = (ecx & (1U <<  0)) != 0;
-			s_capabilities[ProcessorCap_SSSE3] = (ecx & (1U <<  9)) != 0;
-			s_capabilities[ProcessorCap_SSE41] = (ecx & (1U << 19)) != 0;
-			s_capabilities[ProcessorCap_SSE42] = (ecx & (1U << 20)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::AVX)]   = (ecx & (1U << 28)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::FMA3)]  = (ecx & (1U << 12)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::MMX)]   = (edx & (1U << 23)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSE)]   = (edx & (1U << 25)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSE2)]  = (edx & (1U << 26)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSE3)]  = (ecx & (1U << 0)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSSE3)] = (ecx & (1U << 9)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSE41)] = (ecx & (1U << 19)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSE42)] = (ecx & (1U << 20)) != 0;
 		}
 
 		// Retrieval of biggest extended function handled (EAX, function 0x80000000)
@@ -261,10 +252,10 @@ namespace Nz
 			// Retrieval of extended capabilities of the processor (ECX and EDX, function 0x80000001)
 			HardwareInfoImpl::Cpuid(0x80000001, 0, registers);
 
-			s_capabilities[ProcessorCap_x64]   = (edx & (1U << 29)) != 0; // Support of 64bits, independent of the OS
-			s_capabilities[ProcessorCap_FMA4]  = (ecx & (1U << 16)) != 0;
-			s_capabilities[ProcessorCap_SSE4a] = (ecx & (1U <<  6)) != 0;
-			s_capabilities[ProcessorCap_XOP]   = (ecx & (1U << 11)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::x64)]   = (edx & (1U << 29)) != 0; // Support of 64bits, independent of the OS
+			s_capabilities[UnderlyingCast(ProcessorCap::FMA4)]  = (ecx & (1U << 16)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::SSE4a)] = (ecx & (1U << 6)) != 0;
+			s_capabilities[UnderlyingCast(ProcessorCap::XOP)]   = (ecx & (1U << 11)) != 0;
 
 			if (maxSupportedExtendedFunction >= 0x80000004)
 			{

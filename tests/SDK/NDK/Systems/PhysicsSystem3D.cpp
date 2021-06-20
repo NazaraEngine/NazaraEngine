@@ -1,15 +1,18 @@
-#include <NDK/Systems/PhysicsSystem3D.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/CollisionComponent3D.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/PhysicsComponent3D.hpp>
-#include <Catch/catch.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem3D.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/CollisionComponent3D.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/PhysicsComponent3D.hpp>
+#include <NazaraSDK/Systems/PhysicsSystem3D.hpp>
+#include <catch2/catch.hpp>
 
 SCENARIO("PhysicsSystem3D", "[NDK][PHYSICSSYSTEM3D]")
 {
 	GIVEN("A world and a static entity & a dynamic entity")
 	{
 		Ndk::World world;
+		world.AddSystem<Ndk::PhysicsSystem3D>();
+
 		const Ndk::EntityHandle& staticEntity = world.CreateEntity();
 		Ndk::CollisionComponent3D& collisionComponentStatic = staticEntity->AddComponent<Ndk::CollisionComponent3D>();
 		Ndk::NodeComponent& nodeComponentStatic = staticEntity->AddComponent<Ndk::NodeComponent>();

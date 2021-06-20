@@ -1,4 +1,4 @@
-// Copyright (C) 2016 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -80,7 +80,7 @@ namespace Nz
 		return m_blocks[index].glyphIndex;
 	}
 
-	inline const FontRef& RichTextDrawer::GetBlockFont(std::size_t index) const
+	inline const std::shared_ptr<Font>& RichTextDrawer::GetBlockFont(std::size_t index) const
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 		std::size_t fontIndex = m_blocks[index].fontIndex;
@@ -118,7 +118,7 @@ namespace Nz
 		return m_blocks[index].style;
 	}
 
-	inline const String& RichTextDrawer::GetBlockText(std::size_t index) const
+	inline const std::string& RichTextDrawer::GetBlockText(std::size_t index) const
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 		return m_blocks[index].text;
@@ -139,7 +139,7 @@ namespace Nz
 		return m_defaultColor;
 	}
 
-	inline const FontRef& RichTextDrawer::GetDefaultFont() const
+	inline const std::shared_ptr<Font>& RichTextDrawer::GetDefaultFont() const
 	{
 		return m_defaultFont;
 	}
@@ -164,7 +164,7 @@ namespace Nz
 		return m_defaultStyle;
 	}
 
-	inline void RichTextDrawer::AppendNewLine(const Font* font, unsigned int characterSize, float lineSpacingOffset) const
+	inline void RichTextDrawer::AppendNewLine(const Font& font, unsigned int characterSize, float lineSpacingOffset) const
 	{
 		AppendNewLine(font, characterSize, lineSpacingOffset, InvalidGlyph, 0);
 	}
@@ -214,7 +214,7 @@ namespace Nz
 		return float(sizeInfo.lineHeight) + lineSpacingOffset;
 	}
 
-	inline std::size_t RichTextDrawer::HandleFontAddition(const FontRef& font)
+	inline std::size_t RichTextDrawer::HandleFontAddition(const std::shared_ptr<Font>& font)
 	{
 		auto it = m_fontIndexes.find(font);
 		if (it == m_fontIndexes.end())
@@ -292,7 +292,7 @@ namespace Nz
 		InvalidateGlyphs();
 	}
 
-	inline void RichTextDrawer::SetBlockFont(std::size_t index, FontRef font)
+	inline void RichTextDrawer::SetBlockFont(std::size_t index, std::shared_ptr<Font> font)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 		std::size_t fontIndex = HandleFontAddition(font);
@@ -341,15 +341,15 @@ namespace Nz
 		InvalidateGlyphs();
 	}
 
-	inline void RichTextDrawer::SetBlockText(std::size_t index, String str)
+	inline void RichTextDrawer::SetBlockText(std::size_t index, std::string str)
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
 
-		std::size_t previousLength = m_blocks[index].text.GetLength();
+		std::size_t previousLength = m_blocks[index].text.size(); //< FIXME: Count Unicode glyphs
 
 		m_blocks[index].text = std::move(str);
 
-		std::size_t newLength = m_blocks[index].text.GetLength();
+		std::size_t newLength = m_blocks[index].text.size(); //< FIXME: Count Unicode glyphs
 		if (newLength != previousLength)
 		{
 			std::size_t delta = newLength - previousLength; //< Underflow allowed
@@ -375,7 +375,7 @@ namespace Nz
 		m_defaultColor = color;
 	}
 
-	inline void RichTextDrawer::SetDefaultFont(const FontRef& font)
+	inline void RichTextDrawer::SetDefaultFont(const std::shared_ptr<Font>& font)
 	{
 		m_defaultFont = font;
 	}
@@ -457,7 +457,7 @@ namespace Nz
 	*
 	* \see GetCharacterSize, GetColor, GetStyle, GetText, SetFont
 	*/
-	inline const FontRef& RichTextDrawer::BlockRef::GetFont() const
+	inline const std::shared_ptr<Font>& RichTextDrawer::BlockRef::GetFont() const
 	{
 		return m_drawer.GetBlockFont(m_blockIndex);
 	}
@@ -523,7 +523,7 @@ namespace Nz
 	*
 	* \see GetCharacterSize, GetColor, GetFont, GetStyle, SetText
 	*/
-	inline const String& RichTextDrawer::BlockRef::GetText() const
+	inline const std::string& RichTextDrawer::BlockRef::GetText() const
 	{
 		return m_drawer.GetBlockText(m_blockIndex);
 	}
@@ -567,7 +567,7 @@ namespace Nz
 	*
 	* \see GetCharacterSize, SetCharacterSize, SetColor, SetStyle, SetText
 	*/
-	inline void RichTextDrawer::BlockRef::SetFont(FontRef font)
+	inline void RichTextDrawer::BlockRef::SetFont(std::shared_ptr<Font> font)
 	{
 		m_drawer.SetBlockFont(m_blockIndex, std::move(font));
 	}
@@ -622,9 +622,9 @@ namespace Nz
 	*
 	* \see GetText, SetCharacterSize, SetColor, SetFont, SetStyle
 	*/
-	inline void RichTextDrawer::BlockRef::SetText(const String& text)
+	inline void RichTextDrawer::BlockRef::SetText(std::string text)
 	{
-		m_drawer.SetBlockText(m_blockIndex, text);
+		m_drawer.SetBlockText(m_blockIndex, std::move(text));
 	}
 }
 

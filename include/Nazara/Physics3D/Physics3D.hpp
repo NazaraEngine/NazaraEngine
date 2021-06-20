@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,26 +8,27 @@
 #define NAZARA_PHYSICS3D_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PHYSICS3D_API Physics3D
+	class NAZARA_PHYSICS3D_API Physics3D : public ModuleBase<Physics3D>
 	{
+		friend ModuleBase;
+
 		public:
-			Physics3D() = delete;
-			~Physics3D() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static unsigned int GetMemoryUsed();
+			struct Config {};
 
-			static bool Initialize();
+			Physics3D(Config /*config*/);
+			~Physics3D() = default;
 
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			unsigned int GetMemoryUsed();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Physics3D* s_instance;
 	};
 }
 

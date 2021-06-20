@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,7 +15,7 @@ namespace Nz
 	* \param filePath Path for the file
 	*/
 
-	inline ByteArray File::ComputeHash(HashType hash, const String& filePath)
+	inline ByteArray File::ComputeHash(HashType hash, const std::filesystem::path& filePath)
 	{
 		return ComputeHash(AbstractHash::Get(hash).get(), filePath);
 	}
@@ -28,7 +28,7 @@ namespace Nz
 	* \param filePath Path for the file
 	*/
 
-	inline ByteArray File::ComputeHash(AbstractHash* hash, const String& filePath)
+	inline ByteArray File::ComputeHash(AbstractHash* hash, const std::filesystem::path& filePath)
 	{
 		return Nz::ComputeHash(hash, File(filePath));
 	}

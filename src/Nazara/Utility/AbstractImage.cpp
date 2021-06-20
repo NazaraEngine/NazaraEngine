@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,16 +12,16 @@ namespace Nz
 
 	UInt8 AbstractImage::GetBytesPerPixel() const
 	{
-		return PixelFormat::GetBytesPerPixel(GetFormat());
+		return PixelFormatInfo::GetBytesPerPixel(GetFormat());
 	}
 
 	bool AbstractImage::IsCompressed() const
 	{
-		return PixelFormat::IsCompressed(GetFormat());
+		return PixelFormatInfo::IsCompressed(GetFormat());
 	}
 
 	bool AbstractImage::IsCubemap() const
 	{
-		return GetType() == ImageType_Cubemap;
+		return GetType() == ImageType::Cubemap;
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline MTLParser::Material* MTLParser::AddMaterial(const String& matName)
+	inline MTLParser::Material* MTLParser::AddMaterial(const std::string& matName)
 	{
 		return &m_materials[matName];
 	}
@@ -17,7 +17,7 @@ namespace Nz
 		m_materials.clear();
 	}
 
-	inline const MTLParser::Material* MTLParser::GetMaterial(const String& materialName) const
+	inline const MTLParser::Material* MTLParser::GetMaterial(const std::string& materialName) const
 	{
 		auto it = m_materials.find(materialName);
 		if (it != m_materials.end())
@@ -26,7 +26,7 @@ namespace Nz
 			return nullptr;
 	}
 
-	inline const std::unordered_map<String, MTLParser::Material>& MTLParser::GetMaterials() const
+	inline const std::unordered_map<std::string, MTLParser::Material>& MTLParser::GetMaterials() const
 	{
 		return m_materials;
 	}
@@ -35,7 +35,7 @@ namespace Nz
 	void MTLParser::Emit(const T& text) const
 	{
 		m_outputStream << text;
-		if (m_outputStream.GetBufferSize() > 1024 * 1024)
+		if (m_outputStream.rdbuf()->str().size() > 1024 * 1024)
 			Flush();
 	}
 
@@ -51,25 +51,25 @@ namespace Nz
 		Emit('\n');
 	}
 
-	inline void MTLParser::Error(const String& message)
+	inline void MTLParser::Error(const std::string& message)
 	{
-		NazaraError(message + " at line #" + String::Number(m_lineCount));
+		NazaraError(message + " at line #" + std::to_string(m_lineCount));
 	}
 
 	inline void MTLParser::Flush() const
 	{
-		m_currentStream->Write(m_outputStream);
-		m_outputStream.Clear();
+		m_currentStream->Write(std::move(m_outputStream).str());
+		m_outputStream.str({});
 	}
 
-	inline void MTLParser::Warning(const String& message)
+	inline void MTLParser::Warning(const std::string& message)
 	{
-		NazaraWarning(message + " at line #" + String::Number(m_lineCount));
+		NazaraWarning(message + " at line #" + std::to_string(m_lineCount));
 	}
 
 	inline void MTLParser::UnrecognizedLine(bool error)
 	{
-		String message = "Unrecognized \"" + m_currentLine + '"';
+		std::string message = "Unrecognized \"" + m_currentLine + '"';
 
 		if (error)
 			Error(message);

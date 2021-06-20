@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,14 +8,11 @@
 #define NAZARA_LOADERS_MD5ANIM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Animation.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterMD5Anim();
-		void UnregisterMD5Anim();
-	}
+	AnimationLoader::Entry GetAnimationLoader_MD5Anim();
 }
 
 #endif // NAZARA_LOADERS_MD5ANIM_HPP

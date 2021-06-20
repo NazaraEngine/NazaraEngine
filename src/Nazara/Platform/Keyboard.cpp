@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,12 +8,12 @@
 
 namespace Nz
 {
-	String Keyboard::GetKeyName(Scancode scancode)
+	std::string Keyboard::GetKeyName(Scancode scancode)
 	{
 		return EventImpl::GetKeyName(scancode);
 	}
 
-	String Keyboard::GetKeyName(VKey key)
+	std::string Keyboard::GetKeyName(VKey key)
 	{
 		return EventImpl::GetKeyName(key);
 	}

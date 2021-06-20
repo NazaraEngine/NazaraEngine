@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,32 +7,27 @@
 
 namespace Nz
 {
-	inline const BufferRef& IndexBuffer::GetBuffer() const
+	inline const std::shared_ptr<Buffer>& IndexBuffer::GetBuffer() const
 	{
 		return m_buffer;
 	}
 
-	inline UInt32 IndexBuffer::GetEndOffset() const
+	inline std::size_t IndexBuffer::GetEndOffset() const
 	{
 		return m_endOffset;
 	}
 
-	inline UInt32 IndexBuffer::GetIndexCount() const
+	inline std::size_t IndexBuffer::GetIndexCount() const
 	{
 		return m_indexCount;
 	}
 
-	inline DataStorage IndexBuffer::GetStorage() const
+	inline std::size_t IndexBuffer::GetStride() const
 	{
-		return DataStorage();
+		return static_cast<std::size_t>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
 	}
 
-	inline UInt32 IndexBuffer::GetStride() const
-	{
-		return static_cast<UInt32>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
-	}
-
-	inline UInt32 IndexBuffer::GetStartOffset() const
+	inline std::size_t IndexBuffer::GetStartOffset() const
 	{
 		return m_startOffset;
 	}
@@ -44,28 +39,19 @@ namespace Nz
 
 	inline bool IndexBuffer::IsValid() const
 	{
-		return m_buffer.IsValid();
+		return m_buffer != nullptr;
 	}
 
-	inline void* IndexBuffer::Map(BufferAccess access, UInt32 startIndex, UInt32 length)
+	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length)
 	{
-		UInt32 stride = GetStride();
+		std::size_t stride = GetStride();
 		return MapRaw(access, startIndex*stride, length*stride);
 	}
 
-	inline void* IndexBuffer::Map(BufferAccess access, UInt32 startIndex, UInt32 length) const
+	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length) const
 	{
-		UInt32 stride = GetStride();
+		std::size_t stride = GetStride();
 		return MapRaw(access, startIndex*stride, length*stride);
-	}
-
-	template<typename... Args>
-	IndexBufferRef IndexBuffer::New(Args&&... args)
-	{
-		std::unique_ptr<IndexBuffer> object(new IndexBuffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
 	}
 }
 

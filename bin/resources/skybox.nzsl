@@ -1,0 +1,68 @@
+[layout(std140)]
+struct ViewerData
+{
+	projectionMatrix: mat4<f32>,
+	invProjectionMatrix: mat4<f32>,
+	viewMatrix: mat4<f32>,
+	invViewMatrix: mat4<f32>,
+	viewProjMatrix: mat4<f32>,
+	invViewProjMatrix: mat4<f32>,
+	renderTargetSize: vec2<f32>,
+	invRenderTargetSize: vec2<f32>,
+	eyePosition: vec3<f32>
+}
+
+external
+{
+	[set(1), binding(0)] skybox: samplerCube<f32>
+}
+
+struct VertOut
+{
+    [location(0)] uvw: vec3<f32>,
+    [builtin(position)] position: vec4<f32>
+}
+
+struct FragOut
+{
+    [location(0)] color: vec4<f32>,
+    [builtin(fragdepth)] depth: f32
+}
+
+[entry(frag)]
+[depth_write(greater)]
+fn main(input: VertOut) -> FragOut
+{
+    let output: FragOut;
+    output.color = skybox.Sample(input.uvw);
+    output.depth = 1.0;
+
+    return output;
+}
+
+external
+{
+	[set(0), binding(0)] viewerData: uniform<ViewerData>
+}
+
+struct VertIn
+{
+	[location(0)] position: vec3<f32>
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+    // Set translation part to zero
+    let rotationMat = viewerData.viewMatrix;
+    // rotationMat[3].xyz = vec3<f32>(0.0, 0.0, 0.0); // Requires SPIRV generator to handle swizzle for store expressions
+    rotationMat[3][0] = 0.0;
+    rotationMat[3][1] = 0.0;
+    rotationMat[3][2] = 0.0;
+
+    let output: VertOut;
+    output.position = viewerData.projectionMatrix * rotationMat * vec4<f32>(input.position, 1.0);
+    output.uvw = input.position.xyz;
+
+    return output;
+}

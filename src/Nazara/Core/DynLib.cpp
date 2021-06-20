@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,12 +15,6 @@
 	#error No implementation for this platform
 #endif
 
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_DYNLIB
-	#include <Nazara/Core/ThreadSafety.hpp>
-#else
-	#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
-
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -31,35 +25,16 @@ namespace Nz
 	* \brief Core class that represents a dynamic library loader
 	*/
 
-	/*!
-	* \brief Constructs a DynLib object by default
-	*/
-
-	DynLib::DynLib() :
-	m_impl(nullptr)
-	{
-	}
-
-	/*!
-	* \brief Destructs the object and calls Unload
-	*
-	* \see Unload
-	*/
-
-	DynLib::~DynLib()
-	{
-		Unload();
-	}
+	DynLib::DynLib() = default;
+	DynLib::DynLib(DynLib&&) noexcept = default;
+	DynLib::~DynLib() = default;
 
 	/*!
 	* \brief Gets the last error
 	* \return Last error
 	*/
-
-	String DynLib::GetLastError() const
+	std::string DynLib::GetLastError() const
 	{
-		NazaraLock(m_mutex)
-
 		return m_lastError;
 	}
 
@@ -69,11 +44,8 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if library is not loaded with NAZARA_CORE_SAFE defined
 	*/
-
-	DynLibFunc DynLib::GetSymbol(const String& symbol) const
+	DynLibFunc DynLib::GetSymbol(const char* symbol) const
 	{
-		NazaraLock(m_mutex)
-
 		#if NAZARA_CORE_SAFE
 		if (!IsLoaded())
 		{
@@ -89,7 +61,6 @@ namespace Nz
 	* \brief Checks whether the library is loaded
 	* \return true if loaded
 	*/
-
 	bool DynLib::IsLoaded() const
 	{
 		return m_impl != nullptr;
@@ -103,38 +74,28 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if library is could not be loaded
 	*/
-
-	bool DynLib::Load(const String& libraryPath)
+	bool DynLib::Load(const std::filesystem::path& libraryPath)
 	{
-		NazaraLock(m_mutex)
-
 		Unload();
 
-		std::unique_ptr<DynLibImpl> impl(new DynLibImpl(this));
+		auto impl = std::make_unique<DynLibImpl>(this);
 		if (!impl->Load(libraryPath, &m_lastError))
 		{
 			NazaraError("Failed to load library: " + m_lastError);
 			return false;
 		}
 
-		m_impl = impl.release();
-
+		m_impl = std::move(impl);
 		return true;
 	}
 
 	/*!
 	* \brief Unloads the library
 	*/
-
 	void DynLib::Unload()
 	{
-		NazaraLock(m_mutex)
-
-		if (IsLoaded())
-		{
-			m_impl->Unload();
-			delete m_impl;
-			m_impl = nullptr;
-		}
+		m_impl.reset();
 	}
+
+	DynLib& DynLib::operator=(DynLib&&) noexcept = default;
 }

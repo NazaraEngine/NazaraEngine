@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,6 +23,7 @@ namespace Nz
 		public:
 			Node();
 			Node(const Node& node);
+			Node(Node&& node) noexcept;
 			virtual ~Node();
 
 			void EnsureDerivedUpdate() const;
@@ -41,21 +42,21 @@ namespace Nz
 			virtual Vector3f GetLeft() const;
 			virtual NodeType GetNodeType() const;
 			const Node* GetParent() const;
-			Vector3f GetPosition(CoordSys coordSys = CoordSys_Local) const;
+			Vector3f GetPosition(CoordSys coordSys = CoordSys::Local) const;
 			virtual Vector3f GetRight() const;
-			Quaternionf GetRotation(CoordSys coordSys = CoordSys_Local) const;
-			Vector3f GetScale(CoordSys coordSys = CoordSys_Local) const;
+			Quaternionf GetRotation(CoordSys coordSys = CoordSys::Local) const;
+			Vector3f GetScale(CoordSys coordSys = CoordSys::Local) const;
 			const Matrix4f& GetTransformMatrix() const;
 			virtual Vector3f GetUp() const;
 
 			bool HasChilds() const;
 
-			Node& Interpolate(const Node& nodeA, const Node& nodeB, float interpolation, CoordSys coordSys = CoordSys_Global);
+			Node& Interpolate(const Node& nodeA, const Node& nodeB, float interpolation, CoordSys coordSys = CoordSys::Global);
 
-			Node& Move(const Vector3f& movement, CoordSys coordSys = CoordSys_Local);
-			Node& Move(float movementX, float movementY, float movementZ = 0.f, CoordSys coordSys = CoordSys_Local);
+			Node& Move(const Vector3f& movement, CoordSys coordSys = CoordSys::Local);
+			Node& Move(float movementX, float movementY, float movementZ = 0.f, CoordSys coordSys = CoordSys::Local);
 
-			Node& Rotate(const Quaternionf& rotation, CoordSys coordSys = CoordSys_Local);
+			Node& Rotate(const Quaternionf& rotation, CoordSys coordSys = CoordSys::Local);
 
 			Node& Scale(const Vector3f& scale);
 			Node& Scale(float scale);
@@ -72,13 +73,13 @@ namespace Nz
 			void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
 			void SetParent(const Node* node = nullptr, bool keepDerived = false);
 			void SetParent(const Node& node, bool keepDerived = false);
-			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys_Local);
-			void SetPosition(float translationX, float translationY, float translationZ = 0.f, CoordSys coordSys = CoordSys_Local);
-			void SetRotation(const Quaternionf& quat, CoordSys coordSys = CoordSys_Local);
-			void SetScale(const Vector2f& scale, CoordSys coordSys = CoordSys_Local);
-			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys_Local);
-			void SetScale(float scale, CoordSys coordSys = CoordSys_Local);
-			void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys_Local);
+			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys::Local);
+			void SetPosition(float translationX, float translationY, float translationZ = 0.f, CoordSys coordSys = CoordSys::Local);
+			void SetRotation(const Quaternionf& quat, CoordSys coordSys = CoordSys::Local);
+			void SetScale(const Vector2f& scale, CoordSys coordSys = CoordSys::Local);
+			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys::Local);
+			void SetScale(float scale, CoordSys coordSys = CoordSys::Local);
+			void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys::Local);
 			void SetTransformMatrix(const Matrix4f& matrix);
 
 			// Local -> global
@@ -92,6 +93,7 @@ namespace Nz
 			Vector3f ToLocalScale(const Vector3f& globalScale) const;
 
 			Node& operator=(const Node& node);
+			Node& operator=(Node&& node) noexcept;
 
 			// Signals:
 			NazaraSignal(OnNodeInvalidation, const Node* /*node*/);

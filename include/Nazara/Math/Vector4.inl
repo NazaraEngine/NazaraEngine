@@ -3,15 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
+#include <sstream>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
 ///FIXME: Les calculs effectués ici sont probablements tous faux, la composante W étant spéciale dans le monde de la 3D
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -188,7 +186,7 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::MakeUnitX()
 	{
-		return Set(F(1.0), F(0.0), F(0.0), F(1.0));
+		return Set(T(1.0), T(0.0), T(0.0), T(1.0));
 	}
 
 	/*!
@@ -201,7 +199,7 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::MakeUnitY()
 	{
-		return Set(F(0.0), F(1.0), F(0.0), F(1.0));
+		return Set(T(0.0), T(1.0), T(0.0), T(1.0));
 	}
 
 	/*!
@@ -214,7 +212,7 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::MakeUnitZ()
 	{
-		return Set(F(0.0), F(0.0), F(1.0), F(1.0));
+		return Set(T(0.0), T(0.0), T(1.0), T(1.0));
 	}
 
 	/*!
@@ -227,7 +225,7 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::MakeZero()
 	{
-		return Set(F(0.0), F(0.0), F(0.0), F(1.0));
+		return Set(T(0.0), T(0.0), T(0.0), T(1.0));
 	}
 
 	/*!
@@ -296,7 +294,7 @@ namespace Nz
 	template<typename T>
 	Vector4<T>& Vector4<T>::Normalize(T* length)
 	{
-		T invLength = F(1.0)/w;
+		T invLength = T(1.0)/w;
 		x *= invLength; // Warning, change this logic will break Frustum::Extract
 		y *= invLength;
 		z *= invLength;
@@ -304,7 +302,7 @@ namespace Nz
 		if (length)
 			*length = w;
 
-		w = F(1.0);
+		w = T(1.0);
 
 		return *this;
 	}
@@ -413,9 +411,8 @@ namespace Nz
 	*
 	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const T vec[4])
+	Vector4<T>& Vector4<T>::Set(const T* vec)
 	{
 		x = vec[0];
 		y = vec[1];
@@ -473,10 +470,10 @@ namespace Nz
 	template<typename U>
 	Vector4<T>& Vector4<T>::Set(const Vector4<U>& vec)
 	{
-		x = F(vec.x);
-		y = F(vec.y);
-		z = F(vec.z);
-		w = F(vec.w);
+		x = T(vec.x);
+		y = T(vec.y);
+		z = T(vec.z);
+		w = T(vec.w);
 
 		return *this;
 	}
@@ -487,37 +484,34 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Vector4<T>::ToString() const
+	std::string Vector4<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Vector4(" << x << ", " << y << ", " << z << ", " << w << ')';
+		return ss.str();
 	}
 
 	/*!
-	* \brief Converts vector to pointer to its own data
-	* \return A pointer to the own data
-	*
-	* \remark Access to index greather than 3 is undefined behavior
+	* \brief Access a vector component by index
+	* \return X, Y, Z depending on index (0, 1, 2)
 	*/
-
 	template<typename T>
-	Vector4<T>::operator T* ()
+	T& Vector4<T>::operator[](std::size_t i)
 	{
-		return &x;
+		NazaraAssert(i < 4, "index out of range");
+		return *(&x + i);
 	}
 
 	/*!
-	* \brief Converts vector to const pointer to its own data
-	* \return A constant pointer to the own data
-	*
-	* \remark Access to index greather than 3 is undefined behavior
+	* \brief Access a vector component by index
+	* \return X, Y, Z depending on index (0, 1, 2)
 	*/
-
 	template<typename T>
-	Vector4<T>::operator const T* () const
+	T Vector4<T>::operator[](std::size_t i) const
 	{
-		return &x;
+		NazaraAssert(i < 4, "index out of range");
+		return *(&x + i);
 	}
 
 	/*!
@@ -599,24 +593,11 @@ namespace Nz
 	* \return A vector where components are the quotient of this vector and the other one
 	*
 	* \param vec The other vector to divide components with
-	*
-	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*/
 
 	template<typename T>
 	Vector4<T> Vector4<T>::operator/(const Vector4& vec) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-		#endif
-
 		return Vector4(x / vec.x, y / vec.y, z / vec.z, w / vec.w);
 	}
 
@@ -625,24 +606,11 @@ namespace Nz
 	* \return A vector where components are the quotient of this vector and the scalar
 	*
 	* \param scale The scalar to divide components with
-	*
-	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 	*/
 
 	template<typename T>
 	Vector4<T> Vector4<T>::operator/(T scale) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(scale, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-		#endif
-
 		return Vector4(x / scale, y / scale, z / scale, w / scale);
 	}
 
@@ -723,24 +691,11 @@ namespace Nz
 	* \return A reference to this vector where components are the quotient of this vector and the other one
 	*
 	* \param vec The other vector to multiply components with
-	*
-	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*/
 
 	template<typename T>
 	Vector4<T>& Vector4<T>::operator/=(const Vector4& vec)
 	{
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-		#endif
-
 		x /= vec.x;
 		y /= vec.y;
 		z /= vec.z;
@@ -754,24 +709,11 @@ namespace Nz
 	* \return A reference to this vector where components are the quotient of this vector and the scalar
 	*
 	* \param scale The scalar to divide components with
-	*
-	* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 	*/
 
 	template<typename T>
 	Vector4<T>& Vector4<T>::operator/=(T scale)
 	{
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(scale, F(0.0)))
-		{
-			String error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(error.ToStdString());
-		}
-		#endif
-
 		x /= scale;
 		y /= scale;
 		z /= scale;
@@ -1067,7 +1009,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec)
 {
-	return out << vec.ToString();
+	return out << "Vector4(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ')';
 }
 
 /*!
@@ -1089,24 +1031,11 @@ Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec)
 * \return A vector where components are the quotient of this vector and the scalar
 *
 * \param scale The scalar to divide components with
-*
-* \remark Produce a NazaraError if scale is null with NAZARA_MATH_SAFE defined
-* \throw std::domain_error if NAZARA_MATH_SAFE is defined and scale is null
 */
 
 template<typename T>
 Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
 {
-	#if NAZARA_MATH_SAFE
-	if (NumberEquals(vec.x, F(0.0)) || NumberEquals(vec.y, F(0.0)) || NumberEquals(vec.z, F(0.0)) || NumberEquals(vec.w, F(0.0)))
-	{
-		Nz::String error("Division by zero");
-
-		NazaraError(error);
-		throw std::domain_error(error.ToStdString());
-	}
-	#endif
-
 	return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 }
 
@@ -1134,7 +1063,5 @@ namespace std
 		}
 	};
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

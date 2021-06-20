@@ -1,17 +1,16 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -33,7 +32,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>::EulerAngles(T P, T Y, T R)
+	EulerAngles<T>::EulerAngles(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R)
 	{
 		Set(P, Y, R);
 	}
@@ -45,7 +44,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>::EulerAngles(const T angles[3])
+	EulerAngles<T>::EulerAngles(const DegreeAngle<T> angles[3])
 	{
 		Set(angles);
 	}
@@ -95,14 +94,12 @@ namespace Nz
 	template<typename T>
 	void EulerAngles<T>::MakeZero()
 	{
-		Set(F(0.0), F(0.0), F(0.0));
+		Set(T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
 	* \brief Normalizes the euler angle
 	* \return A reference to this euler angle with has been normalized
-	*
-	* \remark Normalization depends on NAZARA_MATH_ANGLE_RADIAN, between 0..2*pi
 	*
 	* \see NormalizeAngle
 	*/
@@ -110,9 +107,9 @@ namespace Nz
 	template<typename T>
 	EulerAngles<T>& EulerAngles<T>::Normalize()
 	{
-		pitch = NormalizeAngle(pitch);
-		yaw = NormalizeAngle(yaw);
-		roll = NormalizeAngle(roll);
+		pitch.Normalize();
+		yaw.Normalize();
+		roll.Normalize();
 
 		return *this;
 	}
@@ -127,7 +124,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(T P, T Y, T R)
+	EulerAngles<T>& EulerAngles<T>::Set(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R)
 	{
 		pitch = P;
 		yaw = Y;
@@ -144,7 +141,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(const T angles[3])
+	EulerAngles<T>& EulerAngles<T>::Set(const DegreeAngle<T> angles[3])
 	{
 		pitch = angles[0];
 		yaw = angles[1];
@@ -193,9 +190,9 @@ namespace Nz
 	template<typename U>
 	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles<U>& angles)
 	{
-		pitch = F(angles.pitch);
-		yaw = F(angles.yaw);
-		roll = F(angles.roll);
+		pitch.Set(angles.pitch);
+		yaw.Set(angles.yaw);
+		roll.Set(angles.roll);
 
 		return *this;
 	}
@@ -209,13 +206,13 @@ namespace Nz
 	Quaternion<T> EulerAngles<T>::ToQuaternion() const
 	{
 		// XYZ
-		T c1 = std::cos(ToRadians(yaw) / F(2.0));
-		T c2 = std::cos(ToRadians(roll) / F(2.0));
-		T c3 = std::cos(ToRadians(pitch) / F(2.0));
+		T c1 = (yaw / T(2.0)).GetCos();
+		T c2 = (roll / T(2.0)).GetCos();
+		T c3 = (pitch / T(2.0)).GetCos();
 
-		T s1 = std::sin(ToRadians(yaw) / F(2.0));
-		T s2 = std::sin(ToRadians(roll) / F(2.0));
-		T s3 = std::sin(ToRadians(pitch) / F(2.0));
+		T s1 = (yaw / T(2.0)).GetSin();
+		T s2 = (roll / T(2.0)).GetSin();
+		T s3 = (pitch / T(2.0)).GetSin();
 
 		return Quaternion<T>(c1 * c2 * c3 - s1 * s2 * s3,
 		                     s1 * s2 * c3 + c1 * c2 * s3,
@@ -229,11 +226,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String EulerAngles<T>::ToString() const
+	std::string EulerAngles<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "EulerAngles(" << pitch << ", " << yaw << ", " << roll << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -310,9 +308,7 @@ namespace Nz
 	template<typename T>
 	bool EulerAngles<T>::operator==(const EulerAngles& angles) const
 	{
-		return NumberEquals(pitch, angles.pitch) &&
-		       NumberEquals(yaw, angles.yaw) &&
-		       NumberEquals(roll, angles.roll);
+		return pitch == angles.pitch && yaw == angles.yaw && roll == angles.roll;
 	}
 
 	/*!
@@ -400,10 +396,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles)
 {
-	return out << angles.ToString();
+	return out << "EulerAngles(" << angles.pitch << ", " << angles.yaw << ", " << angles.roll << ')';
 }
 
-#undef F
-
 #include <Nazara/Core/DebugOff.hpp>
-#include "EulerAngles.hpp"

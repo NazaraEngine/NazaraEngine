@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "md2");
 		}
@@ -29,7 +29,7 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD2Loader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			UInt32 magic[2];
 			if (stream.Read(&magic[0], 2*sizeof(UInt32)) == 2*sizeof(UInt32))
@@ -40,13 +40,13 @@ namespace Nz
 				#endif
 
 				if (magic[0] == md2Ident && magic[1] == 8)
-					return Ternary_True;
+					return Ternary::True;
 			}
 
-			return Ternary_False;
+			return Ternary::False;
 		}
 
-		MeshRef Load(Stream& stream, const MeshParams& parameters)
+		std::shared_ptr<Mesh> Load(Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
@@ -80,7 +80,7 @@ namespace Nz
 			}
 
 			// Since the engine no longer supports keyframe animations, let's make a static mesh
-			MeshRef mesh = Nz::Mesh::New();
+			std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 			if (!mesh->CreateStatic())
 			{
 				NazaraInternalError("Failed to create mesh");
@@ -93,21 +93,21 @@ namespace Nz
 				mesh->SetMaterialCount(header.num_skins);
 				stream.SetCursorPos(header.offset_skins);
 				{
-					String baseDir = stream.GetDirectory();
+					std::filesystem::path baseDir = stream.GetDirectory();
 					char skin[68];
 					for (unsigned int i = 0; i < header.num_skins; ++i)
 					{
 						stream.Read(skin, 68*sizeof(char));
 
 						ParameterList matData;
-						matData.SetParameter(MaterialData::DiffuseTexturePath, baseDir + skin);
+						matData.SetParameter(MaterialData::DiffuseTexturePath, (baseDir / skin).generic_u8string());
 
 						mesh->SetMaterialData(i, std::move(matData));
 					}
 				}
 			}
 
-			IndexBufferRef indexBuffer = IndexBuffer::New(false, header.num_tris*3, parameters.storage, parameters.indexBufferFlags);
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(false, header.num_tris*3, parameters.storage, parameters.indexBufferFlags);
 
 			// Extract triangles data
 			std::vector<MD2_Triangle> triangles(header.num_tris);
@@ -116,7 +116,7 @@ namespace Nz
 			stream.Read(&triangles[0], header.num_tris*sizeof(MD2_Triangle));
 
 			// And convert them into an index buffer
-			BufferMapper<IndexBuffer> indexMapper(indexBuffer, BufferAccess_DiscardAndWrite);
+			BufferMapper<IndexBuffer> indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
 			UInt16* index = static_cast<UInt16*>(indexMapper.GetPointer());
 
 			for (unsigned int i = 0; i < header.num_tris; ++i)
@@ -158,16 +158,16 @@ namespace Nz
 			}
 			#endif
 
-			VertexBufferRef vertexBuffer = VertexBuffer::New(parameters.vertexDeclaration, header.num_vertices, parameters.storage, parameters.vertexBufferFlags);
-			StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
+			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, header.num_vertices, parameters.storage, parameters.vertexBufferFlags);
+			std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
 
 			// Extracting vertices
 			stream.SetCursorPos(header.offset_frames);
 
 			std::vector<MD2_Vertex> vertices(header.num_vertices);
 			Vector3f scale, translate;
-			stream.Read(scale, sizeof(Vector3f));
-			stream.Read(translate, sizeof(Vector3f));
+			stream.Read(&scale, sizeof(Vector3f));
+			stream.Read(&translate, sizeof(Vector3f));
 			stream.Read(nullptr, 16*sizeof(char)); //< Frame name, unused
 			stream.Read(vertices.data(), header.num_vertices*sizeof(MD2_Vertex));
 
@@ -186,20 +186,18 @@ namespace Nz
 			scale *= ScaleAdjust;
 			translate *= ScaleAdjust;
 
-			VertexMapper vertexMapper(vertexBuffer, BufferAccess_DiscardAndWrite);
+			VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
 
 			// Loading texture coordinates
-			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord))
+			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
 			{
 				const unsigned int indexFix[3] = {0, 2, 1};
 
 				Vector2f invSkinSize(1.f / header.skinwidth, 1.f / header.skinheight);
 				for (unsigned int i = 0; i < header.num_tris; ++i)
 				{
-					for (unsigned int j = 0; j < 3; ++j)
+					for (unsigned int fixedIndex : indexFix) //< Reverse winding order
 					{
-						const unsigned int fixedIndex = indexFix[j]; //< Reverse winding order
-
 						const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
 						Vector2f uv(texC.u, texC.v);
 						uv *= invSkinSize;
@@ -216,7 +214,7 @@ namespace Nz
 			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
 			matrix *= parameters.matrix;
 
-			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal))
+			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
 			{
 				Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
 				normalMatrix *= parameters.matrix;
@@ -229,7 +227,7 @@ namespace Nz
 				}
 			}
 
-			auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
+			auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 			assert(posPtr);
 
 			for (unsigned int v = 0; v < header.num_vertices; ++v)
@@ -246,7 +244,7 @@ namespace Nz
 
 			subMesh->GenerateAABB();
 
-			if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Tangent))
+			if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Tangent))
 				subMesh->GenerateTangents();
 
 			mesh->AddSubMesh(subMesh);
@@ -260,14 +258,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterMD2()
+		MeshLoader::Entry GetMeshLoader_MD2()
 		{
-			MeshLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			MeshLoader::Entry loader;
+			loader.extensionSupport = IsSupported;
+			loader.streamChecker = Check;
+			loader.streamLoader = Load;
 
-		void UnregisterMD2()
-		{
-			MeshLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loader;
 		}
 	}
 }

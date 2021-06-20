@@ -1,14 +1,13 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-	#include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
@@ -31,13 +30,10 @@ namespace Nz
 	Window::Window(Window&& window) :
 	m_events(std::move(window.m_events)),
 	m_pendingEvents(std::move(window.m_pendingEvents)),
-	m_eventCondition(std::move(window.m_eventCondition)),
 	m_cursorController(std::move(window.m_cursorController)),
 	m_cursor(std::move(window.m_cursor)),
 	m_eventHandler(std::move(window.m_eventHandler)),
 	m_icon(std::move(window.m_icon)),
-	m_eventMutex(std::move(window.m_eventMutex)),
-	m_eventConditionMutex(std::move(window.m_eventConditionMutex)),
 	m_asyncWindow(window.m_asyncWindow),
 	m_closed(window.m_asyncWindow),
 	m_closeOnQuit(window.m_closeOnQuit),
@@ -54,7 +50,7 @@ namespace Nz
 		Destroy();
 	}
 
-	bool Window::Create(VideoMode mode, const String& title, WindowStyleFlags style)
+	bool Window::Create(VideoMode mode, const std::string& title, WindowStyleFlags style)
 	{
 		// If the window is already open, we keep its position
 		bool opened = IsOpen();
@@ -65,12 +61,12 @@ namespace Nz
 		Destroy();
 
 		// Inspired by the code of the SFML by Laurent Gomila (and its team)
-		if (style & WindowStyle_Fullscreen)
+		if (style & WindowStyle::Fullscreen)
 		{
 			if (fullscreenWindow)
 			{
-				NazaraError("Window " + String::Pointer(fullscreenWindow) + " already in fullscreen mode");
-				style &= ~WindowStyle_Fullscreen;
+				NazaraError("Window " + PointerToString(fullscreenWindow) + " already in fullscreen mode");
+				style &= ~WindowStyle::Fullscreen;
 			}
 			else
 			{
@@ -83,10 +79,10 @@ namespace Nz
 				fullscreenWindow = this;
 			}
 		}
-		else if (style & WindowStyle_Closable || style & WindowStyle_Resizable)
-			style |= WindowStyle_Titlebar;
+		else if (style & WindowStyle::Closable || style & WindowStyle::Resizable)
+			style |= WindowStyle::Titlebar;
 
-		m_asyncWindow = (style & WindowStyle_Threaded) != 0;
+		m_asyncWindow = (style & WindowStyle::Threaded) != 0;
 
 		std::unique_ptr<WindowImpl> impl = std::make_unique<WindowImpl>(this);
 		if (!impl->Create(mode, title, style))
@@ -156,7 +152,7 @@ namespace Nz
 
 	void Window::Destroy()
 	{
-		m_cursor.Reset();
+		m_cursor.reset();
 
 		if (m_impl)
 		{
@@ -249,13 +245,13 @@ namespace Nz
 		return m_impl->GetSystemHandle();
 	}
 
-	String Window::GetTitle() const
+	std::string Window::GetTitle() const
 	{
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
 			NazaraError("Window not created");
-			return String();
+			return {};
 		}
 		#endif
 
@@ -336,7 +332,7 @@ namespace Nz
 			m_impl->ProcessEvents(block);
 		else
 		{
-			LockGuard eventLock(m_eventMutex);
+			std::lock_guard<std::mutex> eventLock(m_eventMutex);
 
 			for (const WindowEvent& event : m_pendingEvents)
 				HandleEvent(event);
@@ -345,7 +341,7 @@ namespace Nz
 		}
 	}
 
-	void Window::SetCursor(CursorRef cursor)
+	void Window::SetCursor(std::shared_ptr<Cursor> cursor)
 	{
 		NazaraAssert(m_impl, "Window not created");
 		NazaraAssert(cursor && cursor->IsValid(), "Invalid cursor");
@@ -386,10 +382,10 @@ namespace Nz
 		m_impl->SetFocus();
 	}
 
-	void Window::SetIcon(IconRef icon)
+	void Window::SetIcon(std::shared_ptr<Icon> icon)
 	{
 		NazaraAssert(m_impl, "Window not created");
-		NazaraAssert(icon && icon.IsValid(), "Invalid icon");
+		NazaraAssert(icon, "Invalid icon");
 
 		m_icon = std::move(icon);
 		m_impl->SetIcon(*m_icon);
@@ -512,7 +508,7 @@ namespace Nz
 		m_impl->SetStayOnTop(stayOnTop);
 	}
 
-	void Window::SetTitle(const String& title)
+	void Window::SetTitle(const std::string& title)
 	{
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
@@ -562,16 +558,19 @@ namespace Nz
 		}
 		else
 		{
-			LockGuard lock(m_eventMutex);
+			std::lock_guard<std::mutex> lock(m_eventMutex);
 
 			if (m_events.empty())
 			{
 				m_waitForEvent = true;
-				m_eventConditionMutex.Lock();
-				m_eventMutex.Unlock();
-				m_eventCondition.Wait(&m_eventConditionMutex);
-				m_eventMutex.Lock();
-				m_eventConditionMutex.Unlock();
+				{
+					m_eventMutex.unlock();
+
+					std::unique_lock<std::mutex> eventConditionLock(m_eventConditionMutex);
+					m_eventCondition.wait(eventConditionLock);
+
+					m_eventMutex.lock();
+				}
 				m_waitForEvent = false;
 			}
 
@@ -593,13 +592,10 @@ namespace Nz
 	{
 		m_events = std::move(window.m_events);
 		m_pendingEvents = std::move(window.m_pendingEvents);
-		m_eventCondition = std::move(window.m_eventCondition);
 		m_cursorController = std::move(window.m_cursorController);
 		m_cursor = std::move(window.m_cursor);
 		m_eventHandler = std::move(window.m_eventHandler);
 		m_icon = std::move(window.m_icon);
-		m_eventMutex = std::move(window.m_eventMutex);
-		m_eventConditionMutex = std::move(window.m_eventConditionMutex);
 		m_asyncWindow = window.m_asyncWindow;
 		m_closed = window.m_asyncWindow;
 		m_closeOnQuit = window.m_closeOnQuit;
@@ -633,7 +629,7 @@ namespace Nz
 
 	void Window::ConnectSlots()
 	{
-		m_cursorUpdateSlot.Connect(m_cursorController.OnCursorUpdated, [this](const CursorController*, const CursorRef& cursor)
+		m_cursorUpdateSlot.Connect(m_cursorController.OnCursorUpdated, [this](const CursorController*, const std::shared_ptr<Cursor>& cursor)
 		{
 			if (IsValid())
 				SetCursor(cursor);
@@ -667,15 +663,15 @@ namespace Nz
 
 		switch (event.type)
 		{
-			case WindowEventType_MouseEntered:
+			case WindowEventType::MouseEntered:
 				m_impl->RefreshCursor();
 				break;
 
-			case WindowEventType_Resized:
+			case WindowEventType::Resized:
 				OnWindowResized();
 				break;
 
-			case WindowEventType_Quit:
+			case WindowEventType::Quit:
 				if (m_closeOnQuit)
 					Close();
 

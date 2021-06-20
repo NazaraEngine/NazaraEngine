@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,7 +24,7 @@ namespace Nz
 	{
 		matrix = transformMatrix;
 		textureCoords = uvCoords;
-		type = PrimitiveType_Box;
+		type = PrimitiveType::Box;
 		box.lengths = lengths;
 		box.subdivision = subdivision;
 	}
@@ -56,7 +56,7 @@ namespace Nz
 	{
 		matrix = transformMatrix;
 		textureCoords = uvCoords;
-		type = PrimitiveType_Cone;
+		type = PrimitiveType::Cone;
 		cone.length = length;
 		cone.radius = radius;
 		cone.subdivision = subdivision;
@@ -89,9 +89,9 @@ namespace Nz
 	{
 		matrix = transformMatrix;
 		textureCoords = uvCoords;
-		type = PrimitiveType_Sphere;
+		type = PrimitiveType::Sphere;
 		sphere.size = size;
-		sphere.type = SphereType_Cubic;
+		sphere.type = SphereType::Cubic;
 		sphere.cubic.subdivision = subdivision;
 	}
 
@@ -121,9 +121,9 @@ namespace Nz
 	{
 		matrix = transformMatrix;
 		textureCoords = uvCoords;
-		type = PrimitiveType_Sphere;
+		type = PrimitiveType::Sphere;
 		sphere.size = size;
-		sphere.type = SphereType_Ico;
+		sphere.type = SphereType::Ico;
 		sphere.ico.recursionLevel = recursionLevel;
 	}
 
@@ -153,7 +153,7 @@ namespace Nz
 	{
 		matrix = transformMatrix;
 		textureCoords = uvCoords;
-		type = PrimitiveType_Plane;
+		type = PrimitiveType::Plane;
 		plane.size = size;
 		plane.subdivision = subdivision;
 	}
@@ -198,9 +198,9 @@ namespace Nz
 	{
 		matrix = transformMatrix;
 		textureCoords = uvCoords;
-		type = PrimitiveType_Sphere;
+		type = PrimitiveType::Sphere;
 		sphere.size = size;
-		sphere.type = SphereType_UV;
+		sphere.type = SphereType::UV;
 		sphere.uv.sliceCount = sliceCount;
 		sphere.uv.stackCount = stackCount;
 	}

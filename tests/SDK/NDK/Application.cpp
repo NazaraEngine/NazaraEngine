@@ -1,11 +1,11 @@
-#include <NDK/Application.hpp>
+#include <NazaraSDK/ClientApplication.hpp>
 #include <Catch/catch.hpp>
 
 SCENARIO("Application", "[NDK][APPLICATION]")
 {
 	GIVEN("An application")
 	{
-		Nz::Window& window = Ndk::Application::Instance()->AddWindow<Nz::Window>();
+		Nz::Window& window = Ndk::ClientApplication::Instance()->AddWindow<Nz::Window>();
 
 		WHEN("We open a window")
 		{

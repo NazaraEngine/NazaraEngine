@@ -1,9 +1,8 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Utility/Formats/MD5AnimParser.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Sequence.hpp>
@@ -13,7 +12,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const String& extension)
+		bool IsSupported(const std::string_view& extension)
 		{
 			return (extension == "md5anim");
 		}
@@ -22,13 +21,13 @@ namespace Nz
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD5AnimLoader", &skip) && skip)
-				return Ternary_False;
+				return Ternary::False;
 
 			MD5AnimParser parser(stream);
 			return parser.Check();
 		}
 
-		AnimationRef Load(Stream& stream, const AnimationParams& /*parameters*/)
+		std::shared_ptr<Animation> Load(Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);
@@ -40,20 +39,20 @@ namespace Nz
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
-			UInt32 frameCount = parser.GetFrameCount();
-			UInt32 frameRate = parser.GetFrameRate();
+			std::size_t frameCount = parser.GetFrameCount();
+			std::size_t frameRate = parser.GetFrameRate();
 			const MD5AnimParser::Joint* joints = parser.GetJoints();
-			UInt32 jointCount = parser.GetJointCount();
+			std::size_t jointCount = parser.GetJointCount();
 
 			// À ce stade, nous sommes censés avoir assez d'informations pour créer l'animation
-			AnimationRef animation = Animation::New();
+			std::shared_ptr<Animation> animation = std::make_shared<Animation>();
 			animation->CreateSkeletal(frameCount, jointCount);
 
 			Sequence sequence;
 			sequence.firstFrame = 0;
 			sequence.frameCount = frameCount;
 			sequence.frameRate = frameRate;
-			sequence.name = stream.GetPath().SubStringFrom(NAZARA_DIRECTORY_SEPARATOR, -1, true);
+			sequence.name = stream.GetPath().filename().generic_u8string();
 
 			animation->AddSequence(sequence);
 
@@ -63,10 +62,10 @@ namespace Nz
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			for (UInt32 i = 0; i < jointCount; ++i)
+			for (std::size_t i = 0; i < jointCount; ++i)
 			{
 				int parent = joints[i].parent;
-				for (UInt32 j = 0; j < frameCount; ++j)
+				for (std::size_t j = 0; j < frameCount; ++j)
 				{
 					SequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
 
@@ -91,14 +90,14 @@ namespace Nz
 
 	namespace Loaders
 	{
-		void RegisterMD5Anim()
+		AnimationLoader::Entry GetAnimationLoader_MD5Anim()
 		{
-			AnimationLoader::RegisterLoader(IsSupported, Check, Load);
-		}
+			AnimationLoader::Entry loader;
+			loader.extensionSupport = IsSupported;
+			loader.streamChecker = Check;
+			loader.streamLoader = Load;
 
-		void UnregisterMD5Anim()
-		{
-			AnimationLoader::UnregisterLoader(IsSupported, Check, Load);
+			return loader;
 		}
 	}
 }

@@ -1,11 +1,14 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/OpenAL.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -16,9 +19,9 @@ namespace Nz
 	namespace
 	{
 		DynLib s_library;
-		String s_deviceName;
-		String s_rendererName;
-		String s_vendorName;
+		std::string s_deviceName;
+		std::string s_rendererName;
+		std::string s_vendorName;
 		ALCdevice* s_device = nullptr;
 		ALCcontext* s_context = nullptr;
 		unsigned int s_version;
@@ -31,7 +34,7 @@ namespace Nz
 		* \param devices List of names of the devices
 		*/
 
-		std::size_t ParseDevices(const char* deviceString, std::vector<String>& devices)
+		std::size_t ParseDevices(const char* deviceString, std::vector<std::string>& devices)
 		{
 			if (!deviceString)
 				return 0;
@@ -41,7 +44,7 @@ namespace Nz
 			std::size_t length;
 			while ((length = std::strlen(deviceString)) > 0)
 			{
-				devices.push_back(String(deviceString, length));
+				devices.emplace_back(deviceString, length);
 				deviceString += length + 1;
 			}
 
@@ -66,9 +69,9 @@ namespace Nz
 	* \remark This does not produces a NazaraError if entry does not exist
 	*/
 
-	OpenALFunc OpenAL::GetEntry(const String& entryPoint)
+	OpenALFunc OpenAL::GetEntry(const std::string& entryPoint)
 	{
-		return LoadEntry(entryPoint.GetConstBuffer(), false);
+		return LoadEntry(entryPoint.data(), false);
 	}
 
 	/*!
@@ -76,7 +79,7 @@ namespace Nz
 	* \return Name of the renderer
 	*/
 
-	String OpenAL::GetRendererName()
+	std::string OpenAL::GetRendererName()
 	{
 		return s_rendererName;
 	}
@@ -86,7 +89,7 @@ namespace Nz
 	* \return Name of the vendor
 	*/
 
-	String OpenAL::GetVendorName()
+	std::string OpenAL::GetVendorName()
 	{
 		return s_vendorName;
 	}
@@ -131,7 +134,11 @@ namespace Nz
 			"libopenal.so.0",
 			"libopenal.so"
 		};
-		//#elif defined(NAZARA_PLATFORM_MACOSX)
+		#elif defined(NAZARA_PLATFORM_MACOSX)
+		const char* libs[] = {
+			"libopenal.dylib",
+			"libopenal.1.dylib",
+		};
 		#else
 		NazaraError("Unknown OS");
 		return false;
@@ -140,9 +147,12 @@ namespace Nz
 		bool succeeded = false;
 		for (const char* path : libs)
 		{
-			String libPath(path);
+			ErrorFlags errFlags(ErrorMode::Silent);
+			std::filesystem::path libPath(path);
 			if (!s_library.Load(libPath))
 				continue;
+
+			errFlags.SetFlags(0);
 
 			try
 			{
@@ -248,7 +258,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraWarning(libPath + " loading failed: " + String(e.what()));
+				NazaraWarning(libPath.generic_u8string() + " loading failed: " + std::string(e.what()));
 				continue;
 			}
 		}
@@ -284,7 +294,7 @@ namespace Nz
 	* \param devices List of names of the input devices
 	*/
 
-	std::size_t OpenAL::QueryInputDevices(std::vector<String>& devices)
+	std::size_t OpenAL::QueryInputDevices(std::vector<std::string>& devices)
 	{
 		const char* deviceString = reinterpret_cast<const char*>(alcGetString(nullptr, ALC_CAPTURE_DEVICE_SPECIFIER));
 		if (!deviceString)
@@ -300,7 +310,7 @@ namespace Nz
 	* \param devices List of names of the output devices
 	*/
 
-	std::size_t OpenAL::QueryOutputDevices(std::vector<String>& devices)
+	std::size_t OpenAL::QueryOutputDevices(std::vector<std::string>& devices)
 	{
 		const char* deviceString = reinterpret_cast<const char*>(alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER));
 		if (!deviceString)
@@ -316,7 +326,7 @@ namespace Nz
 	* \param deviceName Name of the device
 	*/
 
-	bool OpenAL::SetDevice(const String& deviceName)
+	bool OpenAL::SetDevice(const std::string& deviceName)
 	{
 		s_deviceName = deviceName;
 		if (IsInitialized())
@@ -337,13 +347,12 @@ namespace Nz
 	{
 		CloseDevice();
 
-		s_rendererName.Clear(false);
-		s_vendorName.Clear(false);
+		s_rendererName.clear();
+		s_vendorName.clear();
 		s_library.Unload();
 	}
 
-	///WARNING: The integer value is the number of canals owned by the format
-	ALenum OpenAL::AudioFormat[AudioFormat_Max+1] = {0}; // Added values with loading of OpenAL
+	ALenum OpenAL::AudioFormat[AudioFormatCount] = {0}; // Added values with loading of OpenAL
 
 	/*!
 	* \brief Closes the device
@@ -380,7 +389,7 @@ namespace Nz
 	bool OpenAL::OpenDevice()
 	{
 		// Initialisation of the module
-		s_device = alcOpenDevice(s_deviceName.IsEmpty() ? nullptr : s_deviceName.GetConstBuffer()); // We choose the default device
+		s_device = alcOpenDevice(s_deviceName.empty() ? nullptr : s_deviceName.data()); // We choose the default device
 		if (!s_device)
 		{
 			NazaraError("Failed to open default device");
@@ -420,7 +429,7 @@ namespace Nz
 
 				s_version = major*100 + minor*10;
 
-				NazaraDebug("OpenAL version: " + String::Number(major) + '.' + String::Number(minor));
+				NazaraDebug("OpenAL version: " + NumberToString(major) + '.' + NumberToString(minor));
 			}
 			else
 			{
@@ -435,19 +444,19 @@ namespace Nz
 		}
 
 		// We complete the formats table
-		AudioFormat[AudioFormat_Mono] = AL_FORMAT_MONO16;
-		AudioFormat[AudioFormat_Stereo] = AL_FORMAT_STEREO16;
+		AudioFormat[UnderlyingCast(AudioFormat::I16_Mono)] = AL_FORMAT_MONO16;
+		AudioFormat[UnderlyingCast(AudioFormat::I16_Stereo)] = AL_FORMAT_STEREO16;
 
 		// "The presence of an enum value does not guarantee the applicability of an extension to the current context."
 		if (alIsExtensionPresent("AL_EXT_MCFORMATS"))
 		{
-			AudioFormat[AudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16");
-			AudioFormat[AudioFormat_5_1]  = alGetEnumValue("AL_FORMAT_51CHN16");
-			AudioFormat[AudioFormat_6_1]  = alGetEnumValue("AL_FORMAT_61CHN16");
-			AudioFormat[AudioFormat_7_1]  = alGetEnumValue("AL_FORMAT_71CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_5_1)] = alGetEnumValue("AL_FORMAT_51CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_6_1)] = alGetEnumValue("AL_FORMAT_61CHN16");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_7_1)] = alGetEnumValue("AL_FORMAT_71CHN16");
 		}
 		else if (alIsExtensionPresent("AL_LOKI_quadriphonic"))
-			AudioFormat[AudioFormat_Quad] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
+			AudioFormat[UnderlyingCast(AudioFormat::I16_Quad)] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
 		return true;
 	}

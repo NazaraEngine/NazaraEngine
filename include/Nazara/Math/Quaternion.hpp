@@ -7,8 +7,8 @@
 #ifndef NAZARA_QUATERNION_HPP
 #define NAZARA_QUATERNION_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Angle.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -24,7 +24,7 @@ namespace Nz
 			Quaternion(T W, T X, T Y, T Z);
 			template<AngleUnit Unit> Quaternion(const Angle<Unit, T>& angle);
 			Quaternion(const EulerAngles<T>& angles);
-			Quaternion(T angle, const Vector3<T>& axis);
+			Quaternion(RadianAngle<T> angle, const Vector3<T>& axis);
 			Quaternion(const T quat[4]);
 			//Quaternion(const Matrix3<T>& mat);
 			template<typename U> explicit Quaternion(const Quaternion<U>& quat);
@@ -53,7 +53,7 @@ namespace Nz
 			Quaternion& Set(T W, T X, T Y, T Z);
 			template<AngleUnit Unit> Quaternion& Set(const Angle<Unit, T>& angle);
 			Quaternion& Set(const EulerAngles<T>& angles);
-			Quaternion& Set(T angle, const Vector3<T>& normalizedAxis);
+			Quaternion& Set(RadianAngle<T> angle, const Vector3<T>& normalizedAxis);
 			Quaternion& Set(const T quat[4]);
 			//Quaternion& Set(const Matrix3<T>& mat);
 			template<typename U> Quaternion& Set(const Quaternion<U>& quat);
@@ -63,7 +63,7 @@ namespace Nz
 			RadianAngle<T> To2DAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			//Matrix3<T> ToRotationMatrix() const;
-			String ToString() const;
+			std::string ToString() const;
 
 			Quaternion& operator=(const Quaternion& quat) = default;
 

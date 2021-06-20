@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -40,15 +40,6 @@ namespace Nz
 	inline bool Buffer::IsValid() const
 	{
 		return m_impl != nullptr;
-	}
-
-	template<typename... Args>
-	BufferRef Buffer::New(Args&&... args)
-	{
-		std::unique_ptr<Buffer> object(new Buffer(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
 	}
 }
 

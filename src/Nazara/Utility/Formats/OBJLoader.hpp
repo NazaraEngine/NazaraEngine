@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,14 +8,11 @@
 #define NAZARA_LOADERS_OBJ_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Mesh.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterOBJLoader();
-		void UnregisterOBJLoader();
-	}
+	MeshLoader::Entry GetMeshLoader_OBJ();
 }
 
 #endif // NAZARA_LOADERS_OBJ_HPP

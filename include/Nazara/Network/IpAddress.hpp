@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,11 +8,12 @@
 #define NAZARA_IPADDRESS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <array>
 #include <iosfwd>
+#include <string>
+#include <vector>
 
 namespace Nz
 {
@@ -30,12 +31,13 @@ namespace Nz
 			inline IpAddress(const UInt8& a, const UInt8& b, const UInt8& c, const UInt8& d, UInt16 port = 0);
 			inline IpAddress(const UInt16& a, const UInt16& b, const UInt16& c, const UInt16& d, const UInt16& e, const UInt16& f, const UInt16& g, const UInt16& h, UInt16 port = 0);
 			inline explicit IpAddress(const char* address);
-			inline explicit IpAddress(const String& address);
+			inline explicit IpAddress(const std::string& address);
 			IpAddress(const IpAddress&) = default;
 			IpAddress(IpAddress&&) noexcept = default;
 			~IpAddress() = default;
 
 			bool BuildFromAddress(const char* address);
+			inline bool BuildFromAddress(const std::string& address);
 
 			inline UInt16 GetPort() const;
 			inline NetProtocol GetProtocol() const;
@@ -47,7 +49,7 @@ namespace Nz
 
 			inline IPv4 ToIPv4() const;
 			inline IPv6 ToIPv6() const;
-			String ToString() const;
+			std::string ToString() const;
 			inline UInt32 ToUInt32() const;
 
 			inline explicit operator bool() const;
@@ -55,8 +57,8 @@ namespace Nz
 			IpAddress& operator=(const IpAddress&) = default;
 			IpAddress& operator=(IpAddress&&) noexcept = default;
 
-			static String ResolveAddress(const IpAddress& address, String* service = nullptr, ResolveError* error = nullptr);
-			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const String& hostname, const String& protocol = "http", ResolveError* error = nullptr);
+			static std::string ResolveAddress(const IpAddress& address, std::string* service = nullptr, ResolveError* error = nullptr);
+			static std::vector<HostnameInfo> ResolveHostname(NetProtocol procol, const std::string& hostname, const std::string& protocol = "http", ResolveError* error = nullptr);
 
 			inline friend std::ostream& operator<<(std::ostream& out, const IpAddress& address);
 
@@ -91,7 +93,7 @@ namespace Nz
 		IpAddress address;
 		NetProtocol protocol;
 		SocketType socketType;
-		String canonicalName;
+		std::string canonicalName;
 	};
 
 }

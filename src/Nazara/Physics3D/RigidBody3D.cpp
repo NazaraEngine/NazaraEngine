@@ -1,10 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Newton/Newton.h>
+#include <newton/Newton.h>
 #include <algorithm>
 #include <cmath>
 #include <Nazara/Physics3D/Debug.hpp>
@@ -12,11 +12,11 @@
 namespace Nz
 {
 	RigidBody3D::RigidBody3D(PhysWorld3D* world, const Matrix4f& mat) :
-	RigidBody3D(world, NullCollider3D::New(), mat)
+	RigidBody3D(world, std::make_shared<NullCollider3D>(), mat)
 	{
 	}
 
-	RigidBody3D::RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat) :
+	RigidBody3D::RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat) :
 	m_geom(std::move(geom)),
 	m_matrix(mat),
 	m_forceAccumulator(Vector3f::Zero()),
@@ -28,7 +28,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		if (!m_geom)
-			m_geom = NullCollider3D::New();
+			m_geom = std::make_shared<NullCollider3D>();
 
 		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
 		NewtonBodySetUserData(m_body, this);
@@ -61,17 +61,17 @@ namespace Nz
 		SetRotation(object.GetRotation());
 	}
 
-	RigidBody3D::RigidBody3D(RigidBody3D&& object) :
+	RigidBody3D::RigidBody3D(RigidBody3D&& object) noexcept :
 	m_geom(std::move(object.m_geom)),
 	m_matrix(std::move(object.m_matrix)),
 	m_forceAccumulator(std::move(object.m_forceAccumulator)),
 	m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
-	m_body(object.m_body),
+	m_body(std::move(object.m_body)),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
-		object.m_body = nullptr;
+		NewtonBodySetUserData(m_body, this);
 	}
 
 	RigidBody3D::~RigidBody3D()
@@ -84,11 +84,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_forceAccumulator += force;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_forceAccumulator += GetRotation() * force;
 				break;
 		}
@@ -101,13 +101,13 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_forceAccumulator += force;
-				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys_Global), force);
+				m_torqueAccumulator += Vector3f::CrossProduct(point - GetMassCenter(CoordSys::Global), force);
 				break;
 
-			case CoordSys_Local:
-				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys_Global);
+			case CoordSys::Local:
+				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys::Global);
 		}
 
 		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
@@ -118,11 +118,11 @@ namespace Nz
 	{
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				m_torqueAccumulator += torque;
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				m_torqueAccumulator += m_matrix.Transform(torque, 0.f);
 				break;
 		}
@@ -144,7 +144,7 @@ namespace Nz
 	Boxf RigidBody3D::GetAABB() const
 	{
 		Vector3f min, max;
-		NewtonBodyGetAABB(m_body, min, max);
+		NewtonBodyGetAABB(m_body, &min.x, &max.x);
 
 		return Boxf(min, max);
 	}
@@ -152,7 +152,7 @@ namespace Nz
 	Vector3f RigidBody3D::GetAngularDamping() const
 	{
 		Vector3f angularDamping;
-		NewtonBodyGetAngularDamping(m_body, angularDamping);
+		NewtonBodyGetAngularDamping(m_body, &angularDamping.x);
 
 		return angularDamping;
 	}
@@ -160,12 +160,12 @@ namespace Nz
 	Vector3f RigidBody3D::GetAngularVelocity() const
 	{
 		Vector3f angularVelocity;
-		NewtonBodyGetOmega(m_body, angularVelocity);
+		NewtonBodyGetOmega(m_body, &angularVelocity.x);
 
 		return angularVelocity;
 	}
 
-	const Collider3DRef& RigidBody3D::GetGeom() const
+	const std::shared_ptr<Collider3D>& RigidBody3D::GetGeom() const
 	{
 		return m_geom;
 	}
@@ -188,7 +188,7 @@ namespace Nz
 	Vector3f RigidBody3D::GetLinearVelocity() const
 	{
 		Vector3f velocity;
-		NewtonBodyGetVelocity(m_body, velocity);
+		NewtonBodyGetVelocity(m_body, &velocity.x);
 
 		return velocity;
 	}
@@ -201,15 +201,15 @@ namespace Nz
 	Vector3f RigidBody3D::GetMassCenter(CoordSys coordSys) const
 	{
 		Vector3f center;
-		NewtonBodyGetCentreOfMass(m_body, center);
+		NewtonBodyGetCentreOfMass(m_body, &center.x);
 
 		switch (coordSys)
 		{
-			case CoordSys_Global:
+			case CoordSys::Global:
 				center = m_matrix.Transform(center);
 				break;
 
-			case CoordSys_Local:
+			case CoordSys::Local:
 				break; // Aucune opération à effectuer sur le centre de rotation
 		}
 
@@ -268,22 +268,22 @@ namespace Nz
 
 	void RigidBody3D::SetAngularDamping(const Vector3f& angularDamping)
 	{
-		NewtonBodySetAngularDamping(m_body, angularDamping);
+		NewtonBodySetAngularDamping(m_body, &angularDamping.x);
 	}
 
 	void RigidBody3D::SetAngularVelocity(const Vector3f& angularVelocity)
 	{
-		NewtonBodySetOmega(m_body, angularVelocity);
+		NewtonBodySetOmega(m_body, &angularVelocity.x);
 	}
 
-	void RigidBody3D::SetGeom(Collider3DRef geom)
+	void RigidBody3D::SetGeom(std::shared_ptr<Collider3D> geom)
 	{
-		if (m_geom.Get() != geom)
+		if (m_geom != geom)
 		{
 			if (geom)
-				m_geom = geom;
+				m_geom = std::move(geom);
 			else
-				m_geom = NullCollider3D::New();
+				m_geom = std::make_shared<NullCollider3D>();
 
 			NewtonBodySetCollision(m_body, m_geom->GetHandle(m_world));
 		}
@@ -301,7 +301,7 @@ namespace Nz
 
 	void RigidBody3D::SetLinearVelocity(const Vector3f& velocity)
 	{
-		NewtonBodySetVelocity(m_body, velocity);
+		NewtonBodySetVelocity(m_body, &velocity.x);
 	}
 
 	void RigidBody3D::SetMass(float mass)
@@ -342,10 +342,10 @@ namespace Nz
 	void RigidBody3D::SetMassCenter(const Vector3f& center)
 	{
 		if (m_mass > 0.f)
-			NewtonBodySetCentreOfMass(m_body, center);
+			NewtonBodySetCentreOfMass(m_body, &center.x);
 	}
 
-	void RigidBody3D::SetMaterial(const String& materialName)
+	void RigidBody3D::SetMaterial(const std::string& materialName)
 	{
 		SetMaterial(m_world->GetMaterial(materialName));
 	}
@@ -380,6 +380,24 @@ namespace Nz
 		return operator=(std::move(physObj));
 	}
 
+	RigidBody3D& RigidBody3D::operator=(RigidBody3D&& object) noexcept
+	{
+		if (m_body)
+			NewtonDestroyBody(m_body);
+
+		m_body               = std::move(object.m_body);
+		m_forceAccumulator   = std::move(object.m_forceAccumulator);
+		m_geom               = std::move(object.m_geom);
+		m_gravityFactor      = object.m_gravityFactor;
+		m_mass               = object.m_mass;
+		m_matrix             = std::move(object.m_matrix);
+		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
+		m_world              = object.m_world;
+
+		NewtonBodySetUserData(m_body, this);
+		return *this;
+	}
+
 	void RigidBody3D::UpdateBody()
 	{
 		NewtonBodySetMatrix(m_body, m_matrix);
@@ -389,9 +407,9 @@ namespace Nz
 			// Moving a static body in Newton does not update bodies at the target location
 			// http://newtondynamics.com/wiki/index.php5?title=Can_i_dynamicly_move_a_TriMesh%3F
 			Vector3f min, max;
-			NewtonBodyGetAABB(m_body, min, max);
+			NewtonBodyGetAABB(m_body, &min.x, &max.x);
 
-			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), min, max, [](const NewtonBody* const body, void* const userData) -> int
+			NewtonWorldForEachBodyInAABBDo(m_world->GetHandle(), &min.x, &max.x, [](const NewtonBody* const body, void* const userData) -> int
 			{
 				NazaraUnused(userData);
 				NewtonBodySetSleepState(body, 0);
@@ -399,25 +417,6 @@ namespace Nz
 			},
 			nullptr);
 		}
-	}
-
-	RigidBody3D& RigidBody3D::operator=(RigidBody3D&& object)
-	{
-		if (m_body)
-			NewtonDestroyBody(m_body);
-
-		m_body               = object.m_body;
-		m_forceAccumulator   = std::move(object.m_forceAccumulator);
-		m_geom               = std::move(object.m_geom);
-		m_gravityFactor      = object.m_gravityFactor;
-		m_mass               = object.m_mass;
-		m_matrix             = std::move(object.m_matrix);
-		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
-		m_world              = object.m_world;
-
-		object.m_body = nullptr;
-
-		return *this;
 	}
 
 	void RigidBody3D::ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex)
@@ -430,8 +429,8 @@ namespace Nz
 		if (!NumberEquals(me->m_gravityFactor, 0.f))
 			me->m_forceAccumulator += me->m_world->GetGravity() * me->m_gravityFactor * me->m_mass;
 
-		NewtonBodySetForce(body, me->m_forceAccumulator);
-		NewtonBodySetTorque(body, me->m_torqueAccumulator);
+		NewtonBodySetForce(body, &me->m_forceAccumulator.x);
+		NewtonBodySetTorque(body, &me->m_torqueAccumulator.x);
 
 		me->m_torqueAccumulator.Set(0.f);
 		me->m_forceAccumulator.Set(0.f);

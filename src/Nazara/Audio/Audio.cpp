@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,11 +7,15 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
-#include <Nazara/Audio/Formats/sndfileLoader.hpp>
+#include <Nazara/Audio/Formats/drwavLoader.hpp>
+#include <Nazara/Audio/Formats/libflacLoader.hpp>
+#include <Nazara/Audio/Formats/libvorbisLoader.hpp>
+#include <Nazara/Audio/Formats/minimp3Loader.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
@@ -22,39 +26,37 @@ namespace Nz
 	* \brief Audio class that represents the module initializer of Audio
 	*/
 
-	/*!
-	* \brief Gets the format of the audio
-	* \return AudioFormat Enumeration type for the format
-	*
-	* \param channelCount Number of channels
-	*
-	* \remark Produces a NazaraError if the number of channels is erroneous (3 or 5) and AudioFormat_Unknown is returned
-	*/
-
-	AudioFormat Audio::GetAudioFormat(unsigned int channelCount)
+	Audio::Audio(Config /*config*/) :
+	ModuleBase("Audio", this)
 	{
-		switch (channelCount)
-		{
-			case 1:
-			case 2:
-			case 4:
-			case 6:
-			case 7:
-			case 8:
-				return static_cast<AudioFormat>(channelCount);
+		// Initialisation of OpenAL
+		if (!OpenAL::Initialize())
+			throw std::runtime_error("failed to initialize OpenAL");
 
-			default:
-				NazaraError("Invalid channel count: " + String::Number(channelCount));
-				return AudioFormat_Unknown;
-		}
+		// Definition of the orientation by default
+		SetListenerDirection(Vector3f::Forward());
+
+		// Loaders
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libflac());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libflac());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
+	}
+
+	Audio::~Audio()
+	{
+		OpenAL::Uninitialize();
 	}
 
 	/*!
 	* \brief Gets the factor of the doppler effect
 	* \return Global factor of the doppler effect
 	*/
-
-	float Audio::GetDopplerFactor()
+	float Audio::GetDopplerFactor() const
 	{
 		return alGetFloat(AL_DOPPLER_FACTOR);
 	}
@@ -63,8 +65,7 @@ namespace Nz
 	* \brief Gets the global volume
 	* \return Float between [0, inf) with 100.f being the default
 	*/
-
-	float Audio::GetGlobalVolume()
+	float Audio::GetGlobalVolume() const
 	{
 		ALfloat gain = 0.f;
 		alGetListenerf(AL_GAIN, &gain);
@@ -78,8 +79,7 @@ namespace Nz
 	*
 	* \see GetListenerRotation
 	*/
-
-	Vector3f Audio::GetListenerDirection()
+	Vector3f Audio::GetListenerDirection() const
 	{
 		ALfloat orientation[6];
 		alGetListenerfv(AL_ORIENTATION, orientation);
@@ -93,11 +93,10 @@ namespace Nz
 	*
 	* \see GetListenerVelocity
 	*/
-
-	Vector3f Audio::GetListenerPosition()
+	Vector3f Audio::GetListenerPosition() const
 	{
 		Vector3f position;
-		alGetListenerfv(AL_POSITION, position);
+		alGetListenerfv(AL_POSITION, &position.x);
 
 		return position;
 	}
@@ -106,8 +105,7 @@ namespace Nz
 	* \brief Gets the rotation of the listener
 	* \return Rotation of the listener
 	*/
-
-	Quaternionf Audio::GetListenerRotation()
+	Quaternionf Audio::GetListenerRotation() const
 	{
 		ALfloat orientation[6];
 		alGetListenerfv(AL_ORIENTATION, orientation);
@@ -123,76 +121,57 @@ namespace Nz
 	*
 	* \see GetListenerPosition
 	*/
-
-	Vector3f Audio::GetListenerVelocity()
+	Vector3f Audio::GetListenerVelocity() const
 	{
 		Vector3f velocity;
-		alGetListenerfv(AL_VELOCITY, velocity);
+		alGetListenerfv(AL_VELOCITY, &velocity.x);
 
 		return velocity;
+	}
+
+	/*!
+	* \brief Gets the default SoundBuffer loader
+	* \return A reference to the default SoundBuffer loader
+	*/
+	SoundBufferLoader& Audio::GetSoundBufferLoader()
+	{
+		return m_soundBufferLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundBuffer loader
+	* \return A constant reference to the default SoundBuffer loader
+	*/
+	const SoundBufferLoader& Audio::GetSoundBufferLoader() const
+	{
+		return m_soundBufferLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundStream loader
+	* \return A reference to the default SoundStream loader
+	*/
+	SoundStreamLoader& Audio::GetSoundStreamLoader()
+	{
+		return m_soundStreamLoader;
+	}
+
+	/*!
+	* \brief Gets the default SoundStream loader
+	* \return A constant reference to the default SoundStream loader
+	*/
+	const SoundStreamLoader& Audio::GetSoundStreamLoader() const
+	{
+		return m_soundStreamLoader;
 	}
 
 	/*!
 	* \brief Gets the speed of sound
 	* \return Speed of sound
 	*/
-
-	float Audio::GetSpeedOfSound()
+	float Audio::GetSpeedOfSound() const
 	{
 		return alGetFloat(AL_SPEED_OF_SOUND);
-	}
-
-	/*!
-	* \brief Initializes the Audio module
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraError if initialization of modules Core, OpenAL or SoundBuffer failed
-	* \remark Produces a NazaraNotice
-	*/
-
-	bool Audio::Initialize()
-	{
-		if (IsInitialized())
-		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		// Initialisation of dependencies
-		if (!Core::Initialize())
-		{
-			NazaraError("Failed to initialize core module");
-			return false;
-		}
-
-		s_moduleReferenceCounter++;
-
-		// Initialisation of the module
-		CallOnExit onExit(Audio::Uninitialize);
-
-		// Initialisation of OpenAL
-		if (!OpenAL::Initialize())
-		{
-			NazaraError("Failed to initialize OpenAL");
-			return false;
-		}
-
-		if (!SoundBuffer::Initialize())
-		{
-			NazaraError("Failed to initialize sound buffers");
-			return false;
-		}
-
-		// Definition of the orientation by default
-		SetListenerDirection(Vector3f::Forward());
-
-		// Loaders
-		Loaders::Register_sndfile();
-
-		onExit.Reset();
-
-		NazaraNotice("Initialized: Audio module");
-		return true;
 	}
 
 	/*!
@@ -201,23 +180,12 @@ namespace Nz
 	*
 	* \param format Format to check
 	*/
-
-	bool Audio::IsFormatSupported(AudioFormat format)
+	bool Audio::IsFormatSupported(AudioFormat format) const
 	{
-		if (format == AudioFormat_Unknown)
+		if (format == AudioFormat::Unknown)
 			return false;
 
-		return OpenAL::AudioFormat[format] != 0;
-	}
-
-	/*!
-	* \brief Checks whether the module is initialized
-	* \return true if module is initialized
-	*/
-
-	bool Audio::IsInitialized()
-	{
-		return s_moduleReferenceCounter != 0;
+		return OpenAL::AudioFormat[UnderlyingCast(format)] != 0;
 	}
 
 	/*!
@@ -294,7 +262,7 @@ namespace Nz
 
 	void Audio::SetListenerPosition(const Vector3f& position)
 	{
-		alListenerfv(AL_POSITION, position);
+		alListenerfv(AL_POSITION, &position.x);
 	}
 
 	/*!
@@ -340,7 +308,7 @@ namespace Nz
 
 	void Audio::SetListenerVelocity(const Vector3f& velocity)
 	{
-		alListenerfv(AL_VELOCITY, velocity);
+		alListenerfv(AL_VELOCITY, &velocity.x);
 	}
 
 	/*!
@@ -367,37 +335,5 @@ namespace Nz
 		alSpeedOfSound(speed);
 	}
 
-	/*!
-	* \brief Uninitializes the Audio module
-	*
-	* \remark Produces a NazaraNotice
-	*/
-
-	void Audio::Uninitialize()
-	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// The module is still in use, or can not be uninitialized
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		// Free of module
-		s_moduleReferenceCounter = 0;
-
-		// Loaders
-		Loaders::Unregister_sndfile();
-
-		SoundBuffer::Uninitialize();
-		OpenAL::Uninitialize();
-
-		NazaraNotice("Uninitialized: Audio module");
-
-		// Free of dependencies
-		Core::Uninitialize();
-	}
-
-	unsigned int Audio::s_moduleReferenceCounter = 0;
+	Audio* Audio::s_instance = nullptr;
 }

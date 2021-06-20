@@ -1,16 +1,14 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -361,23 +359,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String BoundingVolume<T>::ToString() const
+	std::string BoundingVolume<T>::ToString() const
 	{
-		switch (extend)
-		{
-			case Extend_Finite:
-				return "BoundingVolume(localBox=" + obb.localBox.ToString() + ')';
+		std::ostringstream ss;
+		ss << *this;
 
-			case Extend_Infinite:
-				return "BoundingVolume(Infinite)";
-
-			case Extend_Null:
-				return "BoundingVolume(Null)";
-		}
-
-		// Si nous arrivons ici c'est que l'extend est invalide
-		NazaraError("Invalid extend type (0x" + String::Number(extend, 16) + ')');
-		return "BoundingVolume(ERROR)";
+		return ss.str();
 	}
 
 	/*!
@@ -510,17 +497,17 @@ namespace Nz
 	BoundingVolume<T> BoundingVolume<T>::Lerp(const BoundingVolume& from, const BoundingVolume& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Null();
 		}
 		#endif
 
-		if (NumberEquals(interpolation, F(0.0)))
+		if (NumberEquals(interpolation, T(0.0)))
 			return from;
 
-		if (NumberEquals(interpolation, F(1.0)))
+		if (NumberEquals(interpolation, T(1.0)))
 			return to;
 
 		switch (to.extend)
@@ -545,7 +532,7 @@ namespace Nz
 				}
 
 				// If we arrive here, the extend is invalid
-				NazaraError("Invalid extend type (From) (0x" + String::Number(from.extend, 16) + ')');
+				NazaraError("Invalid extend type (From) (0x" + NumberToString(from.extend, 16) + ')');
 				return Null();
 			}
 
@@ -557,7 +544,7 @@ namespace Nz
 				switch (from.extend)
 				{
 					case Extend_Finite:
-						return from.obb * (F(1.0) - interpolation);
+						return from.obb * (T(1.0) - interpolation);
 
 					case Extend_Infinite:
 						return Infinite();
@@ -567,13 +554,13 @@ namespace Nz
 				}
 
 				// If we arrive here, the extend is invalid
-				NazaraError("Invalid extend type (From) (0x" + String::Number(from.extend, 16) + ')');
+				NazaraError("Invalid extend type (From) (0x" + NumberToString(from.extend, 16) + ')');
 				return Null();
 			}
 		}
 
 		// If we arrive here, the extend is invalid
-		NazaraError("Invalid extend type (To) (0x" + String::Number(to.extend, 16) + ')');
+		NazaraError("Invalid extend type (To) (0x" + NumberToString(to.extend, 16) + ')');
 		return Null();
 	}
 
@@ -659,10 +646,22 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume)
 {
-	out << volume.ToString();
+	switch (volume.extend)
+	{
+		case Nz::Extend_Finite:
+			out << "BoundingVolume(localBox=" << volume.obb.localBox << ')';
+			break;
+
+		case Nz::Extend_Infinite:
+			out << "BoundingVolume(Infinite)";
+			break;
+
+		case Nz::Extend_Null:
+			out << "BoundingVolume(Null)";
+			break;
+	}
+
 	return out;
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

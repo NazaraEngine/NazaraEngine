@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
-#include <Nazara/Core/Mutex.hpp>
 #include <Nazara/Network/Config.hpp>
+#include <mutex>
 
 namespace Nz
 {
@@ -64,7 +64,7 @@ namespace Nz
 			MemoryStream m_memoryStream;
 			UInt16 m_netCode;
 
-			static std::unique_ptr<Mutex> s_availableBuffersMutex;
+			static std::mutex s_availableBuffersMutex;
 			static std::vector<std::pair<std::size_t, std::unique_ptr<ByteArray>>> s_availableBuffers;
 	};
 }

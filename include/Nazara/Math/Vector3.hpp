@@ -7,8 +7,11 @@
 #ifndef NAZARA_VECTOR3_HPP
 #define NAZARA_VECTOR3_HPP
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <functional>
+#include <string>
 
 namespace Nz
 {
@@ -32,7 +35,7 @@ namespace Nz
 			~Vector3() = default;
 
 			T AbsDotProduct(const Vector3& vec) const;
-			T AngleBetween(const Vector3& vec) const;
+			RadianAngle<T> AngleBetween(const Vector3& vec) const;
 
 			Vector3 CrossProduct(const Vector3& vec) const;
 
@@ -65,17 +68,17 @@ namespace Nz
 			Vector3& Set(T X, T Y, T Z);
 			Vector3& Set(T X, const Vector2<T>& vec);
 			Vector3& Set(T scale);
-			Vector3& Set(const T vec[3]);
+			Vector3& Set(const T* vec);
 			Vector3& Set(const Vector2<T>& vec, T Z = 0.0);
 			template<typename U> Vector3& Set(const Vector3<U>& vec);
 			Vector3& Set(const Vector4<T>& vec);
 
 			T SquaredDistance(const Vector3& vec) const;
 
-			String ToString() const;
+			std::string ToString() const;
 
-			operator T* ();
-			operator const T* () const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			const Vector3& operator+() const;
 			Vector3 operator-() const;

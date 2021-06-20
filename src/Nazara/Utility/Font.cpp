@@ -1,12 +1,14 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Font.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -146,13 +148,13 @@ namespace Nz
 		return count;
 	}
 
-	String Font::GetFamilyName() const
+	std::string Font::GetFamilyName() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
 			NazaraError("Invalid font");
-			return String("Invalid font");
+			return std::string("Invalid font");
 		}
 		#endif
 
@@ -237,13 +239,13 @@ namespace Nz
 		return it->second;
 	}
 
-	String Font::GetStyleName() const
+	std::string Font::GetStyleName() const
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
 			NazaraError("Invalid font");
-			return String("Invalid font");
+			return std::string("Invalid font");
 		}
 		#endif
 
@@ -261,10 +263,10 @@ namespace Nz
 		return PrecacheGlyph(m_glyphes[key], characterSize, style, outlineThickness, character).valid;
 	}
 
-	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const String& characterSet) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const
 	{
 		///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
-		std::u32string set = characterSet.GetUtf32String();
+		std::u32string set = ToUtf32String(characterSet);
 		if (set.empty())
 		{
 			NazaraError("Invalid character set");
@@ -328,7 +330,7 @@ namespace Nz
 		return s_defaultAtlas;
 	}
 
-	const FontRef& Font::GetDefault()
+	const std::shared_ptr<Font>& Font::GetDefault()
 	{
 		// Nous n'initialisons la police par défaut qu'à la demande pour qu'elle prenne
 		// les paramètres par défaut (qui peuvent avoir étés changés par l'utilisateur),
@@ -354,19 +356,28 @@ namespace Nz
 		return s_defaultMinimumStepSize;
 	}
 
-	FontRef Font::OpenFromFile(const String& filePath, const FontParams& params)
+	std::shared_ptr<Font> Font::OpenFromFile(const std::filesystem::path& filePath, const FontParams& params)
 	{
-		return FontLoader::LoadFromFile(filePath, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetFontLoader().LoadFromFile(filePath, params);
 	}
 
-	FontRef Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
+	std::shared_ptr<Font> Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
 	{
-		return FontLoader::LoadFromMemory(data, size, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetFontLoader().LoadFromMemory(data, size, params);
 	}
 
-	FontRef Font::OpenFromStream(Stream& stream, const FontParams& params)
+	std::shared_ptr<Font> Font::OpenFromStream(Stream& stream, const FontParams& params)
 	{
-		return FontLoader::LoadFromStream(stream, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetFontLoader().LoadFromStream(stream, params);
 	}
 
 	void Font::SetDefaultAtlas(const std::shared_ptr<AbstractAtlas>& atlas)
@@ -400,10 +411,10 @@ namespace Nz
 		sizeStylePart <<= 2;
 
 		// Store bold and italic flags (other style are handled directly by a TextDrawer)
-		if (style & TextStyle_Bold)
+		if (style & TextStyle::Bold)
 			sizeStylePart |= 1 << 0;
 
-		if (style & TextStyle_Italic)
+		if (style & TextStyle::Italic)
 			sizeStylePart |= 1 << 1;
 
 		return (sizeStylePart << 32) | reinterpret_cast<Nz::UInt32&>(outlineThickness);
@@ -487,16 +498,16 @@ namespace Nz
 		glyph.requireFauxItalic = false;
 
 		TextStyleFlags supportedStyle = style;
-		if (style & TextStyle_Bold && !m_data->SupportsStyle(TextStyle_Bold))
+		if (style & TextStyle::Bold && !m_data->SupportsStyle(TextStyle::Bold))
 		{
 			glyph.requireFauxBold = true;
-			supportedStyle &= ~TextStyle_Bold;
+			supportedStyle &= ~TextStyle::Bold;
 		}
 
-		if (style & TextStyle_Italic && !m_data->SupportsStyle(TextStyle_Italic))
+		if (style & TextStyle::Italic && !m_data->SupportsStyle(TextStyle::Italic))
 		{
 			glyph.requireFauxItalic = true;
-			supportedStyle &= ~TextStyle_Italic;
+			supportedStyle &= ~TextStyle::Italic;
 		}
 
 		float supportedOutlineThickness = outlineThickness;
@@ -548,7 +559,7 @@ namespace Nz
 				glyph.valid = true;
 			}
 			else
-				NazaraWarning("Failed to extract glyph \"" + String::Unicode(character) + "\"");
+				NazaraWarning("Failed to extract glyph \"" + FromUtf32String(std::u32string_view(&character, 1)) + "\"");
 		}
 		else
 		{
@@ -571,13 +582,7 @@ namespace Nz
 
 	bool Font::Initialize()
 	{
-		if (!FontLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		s_defaultAtlas.reset(new GuillotineImageAtlas);
+		s_defaultAtlas = std::make_shared<GuillotineImageAtlas>();
 		s_defaultGlyphBorder = 1;
 		s_defaultMinimumStepSize = 1;
 
@@ -587,14 +592,11 @@ namespace Nz
 	void Font::Uninitialize()
 	{
 		s_defaultAtlas.reset();
-		s_defaultFont.Reset();
-		FontLibrary::Uninitialize();
+		s_defaultFont.reset();
 	}
 
 	std::shared_ptr<AbstractAtlas> Font::s_defaultAtlas;
-	FontRef Font::s_defaultFont;
-	FontLibrary::LibraryMap Font::s_library;
-	FontLoader::LoaderList Font::s_loaders;
+	std::shared_ptr<Font> Font::s_defaultFont;
 	unsigned int Font::s_defaultGlyphBorder;
-unsigned int Font::s_defaultMinimumStepSize;
+	unsigned int Font::s_defaultMinimumStepSize;
 }

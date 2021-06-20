@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -49,67 +49,50 @@ namespace Nz
 		}
 	}
 
-	IndexMapper::IndexMapper(IndexBuffer* indexBuffer, BufferAccess access, std::size_t indexCount) :
-	m_indexCount((indexCount != 0) ? indexCount : indexBuffer->GetIndexCount())
+	IndexMapper::IndexMapper(IndexBuffer& indexBuffer, BufferAccess access, std::size_t indexCount) :
+	m_indexCount((indexCount != 0) ? indexCount : indexBuffer.GetIndexCount())
 	{
-		NazaraAssert(indexCount != 0 || indexBuffer, "Invalid index count with invalid index buffer");
+		if (!m_mapper.Map(indexBuffer, access))
+			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
 
-		if (indexBuffer)
+		if (indexBuffer.HasLargeIndices())
 		{
-			if (!m_mapper.Map(indexBuffer, access))
-				NazaraError("Failed to map buffer"); ///TODO: Unexcepted
-
-			if (indexBuffer->HasLargeIndices())
-			{
-				m_getter = Getter32;
-				if (access != BufferAccess_ReadOnly)
-					m_setter = Setter32;
-				else
-					m_setter = SetterError;
-			}
+			m_getter = Getter32;
+			if (access != BufferAccess::ReadOnly)
+				m_setter = Setter32;
 			else
-			{
-				m_getter = Getter16;
-				if (access != BufferAccess_ReadOnly)
-					m_setter = Setter16;
-				else
-					m_setter = SetterError;
-			}
+				m_setter = SetterError;
 		}
 		else
 		{
-			m_getter = GetterSequential;
-			m_setter = SetterError;
+			m_getter = Getter16;
+			if (access != BufferAccess::ReadOnly)
+				m_setter = Setter16;
+			else
+				m_setter = SetterError;
 		}
 	}
 
-	IndexMapper::IndexMapper(SubMesh* subMesh, BufferAccess access) :
-	IndexMapper(subMesh->GetIndexBuffer(), access, (subMesh->GetIndexBuffer()) ? 0 : subMesh->GetVertexCount())
+	IndexMapper::IndexMapper(SubMesh& subMesh, BufferAccess access) :
+	IndexMapper(*subMesh.GetIndexBuffer(), access, (subMesh.GetIndexBuffer()) ? 0 : subMesh.GetVertexCount())
 	{
 	}
 
-	IndexMapper::IndexMapper(const IndexBuffer* indexBuffer, BufferAccess access, std::size_t indexCount) :
+	IndexMapper::IndexMapper(const IndexBuffer& indexBuffer, BufferAccess access, std::size_t indexCount) :
 	m_setter(SetterError),
-	m_indexCount((indexCount != 0) ? indexCount : indexBuffer->GetIndexCount())
+	m_indexCount((indexCount != 0) ? indexCount : indexBuffer.GetIndexCount())
 	{
-		NazaraAssert(indexCount != 0 || indexBuffer, "Invalid index count with invalid index buffer");
+		if (!m_mapper.Map(indexBuffer, access))
+			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
 
-		if (indexBuffer)
-		{
-			if (!m_mapper.Map(indexBuffer, access))
-				NazaraError("Failed to map buffer"); ///TODO: Unexcepted
-
-			if (indexBuffer->HasLargeIndices())
-				m_getter = Getter32;
-			else
-				m_getter = Getter16;
-		}
+		if (indexBuffer.HasLargeIndices())
+			m_getter = Getter32;
 		else
-			m_getter = GetterSequential;
+			m_getter = Getter16;
 	}
 
-	IndexMapper::IndexMapper(const SubMesh* subMesh, BufferAccess access) :
-	IndexMapper(subMesh->GetIndexBuffer(), access, (subMesh->GetIndexBuffer()) ? 0 : subMesh->GetVertexCount())
+	IndexMapper::IndexMapper(const SubMesh& subMesh, BufferAccess access) :
+	IndexMapper(*subMesh.GetIndexBuffer(), access, (subMesh.GetIndexBuffer()) ? 0 : subMesh.GetVertexCount())
 	{
 	}
 

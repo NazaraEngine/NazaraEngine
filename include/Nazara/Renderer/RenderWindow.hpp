@@ -1,8 +1,6 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-
-// Interface inspirée de la SFML par Laurent Gomila
 
 #pragma once
 
@@ -13,66 +11,57 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/ContextParameters.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/RenderSurface.hpp>
+#include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <vector>
+#include <memory>
 
 namespace Nz
 {
-	class AbstractImage;
-	class Context;
+	class RenderDevice;
 
-	class NAZARA_RENDERER_API RenderWindow : public RenderTarget, public Window
+	class NAZARA_RENDERER_API RenderWindow : public Window
 	{
 		public:
-			RenderWindow() = default;
-			RenderWindow(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			explicit RenderWindow(void* handle, const ContextParameters& parameters = ContextParameters());
-			RenderWindow(const RenderWindow&) = delete;
-			RenderWindow(RenderWindow&&) = delete; ///TODO
-			virtual ~RenderWindow();
+			inline RenderWindow();
+			inline RenderWindow(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline RenderWindow(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters& parameters = RenderWindowParameters());
+			inline ~RenderWindow();
 
-			bool CopyToImage(AbstractImage* image, const Vector3ui& dstPos = Vector3ui(0U)) const;
-			bool CopyToImage(AbstractImage* image, const Rectui& rect, const Vector3ui& dstPos = Vector3ui(0U)) const;
-
-			bool Create(VideoMode mode, const String& title, WindowStyleFlags style = WindowStyle_Default, const ContextParameters& parameters = ContextParameters());
-			bool Create(void* handle, const ContextParameters& parameters = ContextParameters());
+			bool Create(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
+			bool Create(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 
 			void Display();
 
 			void EnableVerticalSync(bool enabled);
 
-			RenderTargetParameters GetParameters() const override;
-			Vector2ui GetSize() const override;
+			inline RenderWindowImpl* GetImpl();
+			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
+			inline RenderSurface* GetSurface();
 
-			bool IsRenderable() const override;
-			bool IsValid() const;
+			inline bool IsValid() const;
 
-			void SetFramerateLimit(unsigned int limit);
+			inline void SetFramerateLimit(unsigned int limit);
 
-			// Fonctions OpenGL
-			ContextParameters GetContextParameters() const;
-			bool HasContext() const override;
-
-			RenderWindow& operator=(const RenderWindow&) = delete;
-			RenderWindow& operator=(RenderWindow&&) = delete; ///TODO
+			RenderWindow &operator=(const RenderWindow &) = delete;
+			RenderWindow &operator=(RenderWindow &&) = delete; ///TODO
 
 		protected:
-			bool Activate() const override;
-			void EnsureTargetUpdated() const override;
 			bool OnWindowCreated() override;
 			void OnWindowDestroy() override;
 			void OnWindowResized() override;
 
 		private:
-			mutable std::vector<UInt8> m_buffer;
+			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::unique_ptr<RenderSurface> m_surface;
+			std::unique_ptr<RenderWindowImpl> m_impl;
 			Clock m_clock;
-			ContextParameters m_parameters;
-			mutable Context* m_context = nullptr;
-			unsigned int m_framerateLimit = 0;
-	};
-}
+			RenderWindowParameters m_parameters;
+			unsigned int m_framerateLimit;
+		};
+} // namespace Nz
+
+#include <Nazara/Renderer/RenderWindow.inl>
 
 #endif // NAZARA_RENDERWINDOW_HPP

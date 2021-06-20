@@ -1,8 +1,8 @@
-#include <NDK/Systems/ListenerSystem.hpp>
-#include <NDK/World.hpp>
-#include <NDK/Components/ListenerComponent.hpp>
-#include <NDK/Components/NodeComponent.hpp>
-#include <NDK/Components/VelocityComponent.hpp>
+#include <NazaraSDK/Systems/ListenerSystem.hpp>
+#include <NazaraSDK/World.hpp>
+#include <NazaraSDK/Components/ListenerComponent.hpp>
+#include <NazaraSDK/Components/NodeComponent.hpp>
+#include <NazaraSDK/Components/VelocityComponent.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Catch/catch.hpp>
 
@@ -25,8 +25,8 @@ SCENARIO("ListenerSystem", "[NDK][LISTENERSYSTEM]")
 
 			THEN("Our listener should have moved")
 			{
-				REQUIRE(Nz::Audio::GetListenerPosition() == position);
-				REQUIRE(Nz::Audio::GetListenerRotation() == rotation);
+				REQUIRE(Nz::Audio::Instance()->GetListenerPosition() == position);
+				REQUIRE(Nz::Audio::Instance()->GetListenerRotation() == rotation);
 			}
 
 			THEN("With a component of velocity")
@@ -36,7 +36,7 @@ SCENARIO("ListenerSystem", "[NDK][LISTENERSYSTEM]")
 				velocityComponent.linearVelocity = velocity;
 
 				world.Update(1.f);
-				REQUIRE(Nz::Audio::GetListenerVelocity() == velocity);
+				REQUIRE(Nz::Audio::Instance()->GetListenerVelocity() == velocity);
 			}
 		}
 	}

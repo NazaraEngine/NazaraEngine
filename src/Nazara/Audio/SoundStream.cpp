@@ -1,8 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Audio/Audio.hpp>
 
 namespace Nz
 {
@@ -18,23 +19,57 @@ namespace Nz
 	*
 	* \remark This class is abstract
 	*/
-
 	SoundStream::~SoundStream() = default;
 
-	SoundStreamRef SoundStream::OpenFromFile(const String& filePath, const SoundStreamParams& params)
+	/*!
+	* \brief Opens the sound stream from file
+	* \return true if loading is successful
+	*
+	* \param filePath Path to the file
+	* \param params Parameters for the sound stream
+	*
+	* \remark The file must stay valid until the sound stream is destroyed
+	*/
+	std::shared_ptr<SoundStream> SoundStream::OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params)
 	{
-		return SoundStreamLoader::LoadFromFile(filePath, params);
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundStreamLoader().LoadFromFile(filePath, params);
 	}
 
-	SoundStreamRef SoundStream::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
+	/*!
+	* \brief Opens the sound stream from memory
+	* \return true if loading is successful
+	*
+	* \param data Raw memory
+	* \param size Size of the memory
+	* \param params Parameters for the sound stream
+	*
+	* \remark The memory block must stay valid until the sound stream is destroyed
+	*/
+	std::shared_ptr<SoundStream> SoundStream::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
 	{
-		return SoundStreamLoader::LoadFromMemory(data, size, params);
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
+
+		return audio->GetSoundStreamLoader().LoadFromMemory(data, size, params);
 	}
 
-	SoundStreamRef SoundStream::OpenFromStream(Stream& stream, const SoundStreamParams& params)
+	/*!
+	* \brief Opens the sound stream from stream
+	* \return true if loading is successful
+	*
+	* \param stream Stream to the sound stream
+	* \param params Parameters for the sound stream
+	*
+	* \remark The stream must stay valid until the sound stream is destroyed
+	*/
+	std::shared_ptr<SoundStream> SoundStream::OpenFromStream(Stream& stream, const SoundStreamParams& params)
 	{
-		return SoundStreamLoader::LoadFromStream(stream, params);
-	}
+		Audio* audio = Audio::Instance();
+		NazaraAssert(audio, "Audio module has not been initialized");
 
-	SoundStreamLoader::LoaderList SoundStream::s_loaders;
+		return audio->GetSoundStreamLoader().LoadFromStream(stream, params);
+	}
 }

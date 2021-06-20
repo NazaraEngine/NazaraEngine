@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <unordered_map>
 
@@ -23,12 +22,12 @@ namespace Nz
 			MTLParser() = default;
 			~MTLParser() = default;
 
-			inline Material* AddMaterial(const String& matName);
+			inline Material* AddMaterial(const std::string& matName);
 
 			inline void Clear();
 
-			inline const Material* GetMaterial(const String& materialName) const;
-			inline const std::unordered_map<String, Material>& GetMaterials() const;
+			inline const Material* GetMaterial(const std::string& materialName) const;
+			inline const std::unordered_map<std::string, Material>& GetMaterials() const;
 
 			bool Parse(Stream& stream);
 
@@ -39,17 +38,17 @@ namespace Nz
 				Color ambient = Color::White;
 				Color diffuse = Color::White;
 				Color specular = Color::White;
-				String alphaMap;
-				String ambientMap;
-				String bumpMap;
-				String decalMap;
-				String diffuseMap;
-				String displacementMap;
-				String emissiveMap; //< <!> Custom addition: not present in MTL
-				String normalMap; //< <!> Custom addition: not present in MTL
-				String reflectionMap;
-				String shininessMap;
-				String specularMap;
+				std::string alphaMap;
+				std::string ambientMap;
+				std::string bumpMap;
+				std::string decalMap;
+				std::string diffuseMap;
+				std::string displacementMap;
+				std::string emissiveMap; //< <!> Custom addition: not present in MTL
+				std::string normalMap; //< <!> Custom addition: not present in MTL
+				std::string reflectionMap;
+				std::string shininessMap;
+				std::string specularMap;
 				float alpha = 1.f;
 				float refractionIndex = 1.f;
 				float shininess = 1.f;
@@ -61,15 +60,15 @@ namespace Nz
 			template<typename T> void Emit(const T& text) const;
 			inline void EmitLine() const;
 			template<typename T> void EmitLine(const T& line) const;
-			inline void Error(const String& message);
+			inline void Error(const std::string& message);
 			inline void Flush() const;
-			inline void Warning(const String& message);
+			inline void Warning(const std::string& message);
 			inline void UnrecognizedLine(bool error = false);
 
-			std::unordered_map<String, Material> m_materials;
+			std::unordered_map<std::string, Material> m_materials;
 			mutable Stream* m_currentStream;
-			String m_currentLine;
-			mutable StringStream m_outputStream;
+			std::string m_currentLine;
+			mutable std::ostringstream m_outputStream;
 			bool m_keepLastLine;
 			unsigned int m_lineCount;
 	};

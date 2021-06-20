@@ -1,10 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -25,6 +26,7 @@
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
+#include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -35,199 +37,122 @@ namespace Nz
 	* \brief Utility class that represents the module initializer of Utility
 	*/
 
-	/*!
-	* \brief Initializes the Utility module
-	* \return true if initialization is successful
-	*
-	* \remark Produces a NazaraNotice
-	* \remark Produces a NazaraError if one submodule failed
-	*/
-
-	bool Utility::Initialize()
+	Utility::Utility(Config /*config*/) :
+	ModuleBase("Utility", this)
 	{
-		if (s_moduleReferenceCounter > 0)
-		{
-			s_moduleReferenceCounter++;
-			return true; // Already initialized
-		}
-
-		// Initialisation of dependencies
-		if (!Core::Initialize())
-		{
-			NazaraError("Failed to initialize core module");
-			return false;
-		}
-
-		s_moduleReferenceCounter++;
-
-		// Initialisation du module
-		CallOnExit onExit(Utility::Uninitialize);
-
-		if (!Animation::Initialize())
-		{
-			NazaraError("Failed to initialize animations");
-			return false;
-		}
+		ECS::RegisterComponents();
 
 		if (!Buffer::Initialize())
-		{
-			NazaraError("Failed to initialize buffers");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize buffers");
 
 		if (!Font::Initialize())
-		{
-			NazaraError("Failed to initialize fonts");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize fonts");
 
-		if (!Image::Initialize())
-		{
-			NazaraError("Failed to initialize images");
-			return false;
-		}
-
-		if (!Mesh::Initialize())
-		{
-			NazaraError("Failed to initialize meshes");
-			return false;
-		}
-
-		if (!PixelFormat::Initialize())
-		{
-			NazaraError("Failed to initialize pixel formats");
-			return false;
-		}
-
-		if (!Skeleton::Initialize())
-		{
-			NazaraError("Failed to initialize skeletons");
-			return false;
-		}
+		if (!PixelFormatInfo::Initialize())
+			throw std::runtime_error("failed to initialize pixel formats");
 
 		if (!VertexDeclaration::Initialize())
-		{
-			NazaraError("Failed to initialize vertex declarations");
-			return false;
-		}
+			throw std::runtime_error("failed to initialize vertex declarations");
 
 		// On enregistre les loaders pour les extensions
 		// Il s'agit ici d'une liste LIFO, le dernier loader enregistré possède la priorité
 
 		/// Loaders génériques
 		// Font
-		Loaders::RegisterFreeType();
+		if (Loaders::InitializeFreeType())
+			m_fontLoader.RegisterLoader(Loaders::GetFontLoader_FreeType());
 
 		// Image
-		Loaders::RegisterDDSLoader(); // DDS Loader (DirectX format)
-		Loaders::RegisterSTBLoader(); // Generic loader (STB)
-		Loaders::RegisterSTBSaver();  // Generic saver (STB)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_STB()); // Generic loader (STB)
+		m_imageSaver.RegisterSaver(Loaders::GetImageSaver_STB()); // Generic saver (STB)
 
 		/// Loaders spécialisés
 		// Animation
-		Loaders::RegisterMD5Anim(); // Loader de fichiers .md5anim (v10)
+		m_animationLoader.RegisterLoader(Loaders::GetAnimationLoader_MD5Anim()); // Loader de fichiers .md5anim (v10)
 
 		// Mesh (text)
-		Loaders::RegisterOBJLoader();
-		Loaders::RegisterOBJSaver();
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_OBJ());
+		m_meshSaver.RegisterSaver(Loaders::GetMeshSaver_OBJ());
 
 		// Mesh
-		Loaders::RegisterMD2(); // Loader de fichiers .md2 (v8)
-		Loaders::RegisterMD5Mesh(); // Loader de fichiers .md5mesh (v10)
-		Loaders::RegisterOBJLoader(); // Loader de fichiers .md5mesh (v10)
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_MD2()); // .md2 (v8)
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_MD5Mesh()); // .md5mesh (v10)
+		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_OBJ()); // .obj
 
 		// Image
-		Loaders::RegisterPCX(); // Loader de fichiers .pcx (1, 4, 8, 24 bits)
-
-		onExit.Reset();
-
-		NazaraNotice("Initialized: Utility module");
-		return true;
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_DDS()); // DDS Loader (DirectX format)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_PCX()); // .pcx loader (1, 4, 8, 24 bits)
 	}
 
-	bool Utility::IsInitialized()
+	Utility::~Utility()
 	{
-		return s_moduleReferenceCounter != 0;
-	}
-
-	void Utility::Uninitialize()
-	{
-		if (s_moduleReferenceCounter != 1)
-		{
-			// Le module est soit encore utilisé, soit pas initialisé
-			if (s_moduleReferenceCounter > 1)
-				s_moduleReferenceCounter--;
-
-			return;
-		}
-
-		// Libération du module
-		s_moduleReferenceCounter = 0;
-
-		Loaders::UnregisterFreeType();
-		Loaders::UnregisterMD2();
-		Loaders::UnregisterMD5Anim();
-		Loaders::UnregisterMD5Mesh();
-		Loaders::UnregisterOBJLoader();
-		Loaders::UnregisterOBJSaver();
-		Loaders::UnregisterPCX();
-		Loaders::UnregisterSTBLoader();
-		Loaders::UnregisterSTBSaver();
+		Loaders::UninitializeFreeType();
 
 		VertexDeclaration::Uninitialize();
-		Skeleton::Uninitialize();
-		PixelFormat::Uninitialize();
-		Mesh::Uninitialize();
-		Image::Uninitialize();
+		PixelFormatInfo::Uninitialize();
 		Font::Uninitialize();
 		Buffer::Uninitialize();
-		Animation::Uninitialize();
-
-		NazaraNotice("Uninitialized: Utility module");
-
-		// Libération des dépendances
-		Core::Uninitialize();
 	}
 
-	unsigned int Utility::ComponentCount[ComponentType_Max+1] =
+	AnimationLoader& Utility::GetAnimationLoader()
 	{
-		4, // ComponentType_Color
-		1, // ComponentType_Double1
-		2, // ComponentType_Double2
-		3, // ComponentType_Double3
-		4, // ComponentType_Double4
-		1, // ComponentType_Float1
-		2, // ComponentType_Float2
-		3, // ComponentType_Float3
-		4, // ComponentType_Float4
-		1, // ComponentType_Int1
-		2, // ComponentType_Int2
-		3, // ComponentType_Int3
-		4, // ComponentType_Int4
-		4  // ComponentType_Quaternion
-	};
+		return m_animationLoader;
+	}
 
-	static_assert(ComponentType_Max+1 == 14, "Component count array is incomplete");
-
-	std::size_t Utility::ComponentStride[ComponentType_Max+1] =
+	const AnimationLoader& Utility::GetAnimationLoader() const
 	{
-		4*sizeof(UInt8),  // ComponentType_Color
-		1*sizeof(double),   // ComponentType_Double1
-		2*sizeof(double),   // ComponentType_Double2
-		3*sizeof(double),   // ComponentType_Double3
-		4*sizeof(double),   // ComponentType_Double4
-		1*sizeof(float),    // ComponentType_Float1
-		2*sizeof(float),    // ComponentType_Float2
-		3*sizeof(float),    // ComponentType_Float3
-		4*sizeof(float),    // ComponentType_Float4
-		1*sizeof(UInt32), // ComponentType_Int1
-		2*sizeof(UInt32), // ComponentType_Int2
-		3*sizeof(UInt32), // ComponentType_Int3
-		4*sizeof(UInt32), // ComponentType_Int4
-		4*sizeof(float)     // ComponentType_Quaternion
-	};
+		return m_animationLoader;
+	}
 
-	static_assert(ComponentType_Max+1 == 14, "Component stride array is incomplete");
+	FontLoader& Utility::GetFontLoader()
+	{
+		return m_fontLoader;
+	}
 
-	unsigned int Utility::s_moduleReferenceCounter = 0;
+	const FontLoader& Utility::GetFontLoader() const
+	{
+		return m_fontLoader;
+	}
+
+	ImageLoader& Utility::GetImageLoader()
+	{
+		return m_imageLoader;
+	}
+
+	const ImageLoader& Utility::GetImageLoader() const
+	{
+		return m_imageLoader;
+	}
+
+	ImageSaver& Utility::GetImageSaver()
+	{
+		return m_imageSaver;
+	}
+
+	const ImageSaver& Utility::GetImageSaver() const
+	{
+		return m_imageSaver;
+	}
+
+	MeshLoader& Utility::GetMeshLoader()
+	{
+		return m_meshLoader;
+	}
+
+	const MeshLoader& Utility::GetMeshLoader() const
+	{
+		return m_meshLoader;
+	}
+
+	MeshSaver& Utility::GetMeshSaver()
+	{
+		return m_meshSaver;
+	}
+
+	const MeshSaver& Utility::GetMeshSaver() const
+	{
+		return m_meshSaver;
+	}
+
+	Utility* Utility::s_instance = nullptr;
 }

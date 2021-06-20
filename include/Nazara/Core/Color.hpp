@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,8 +8,8 @@
 #define NAZARA_COLOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -28,7 +28,7 @@ namespace Nz
 
 			inline bool IsOpaque() const;
 
-			inline String ToString() const;
+			inline std::string ToString() const;
 
 			inline Color operator+(const Color& angles) const;
 			inline Color operator*(const Color& angles) const;

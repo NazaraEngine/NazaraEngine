@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -24,8 +24,8 @@ namespace Nz
 
 			bool IsStdReplicationEnabled() const override;
 
-			void Write(const String& string) override;
-			void WriteError(ErrorType type, const String& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
+			void Write(const std::string_view& error) override;
+			void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			StdLogger& operator=(const StdLogger&) = default;
 			StdLogger& operator=(StdLogger&&) noexcept = default;

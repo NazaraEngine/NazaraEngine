@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,8 +9,6 @@
 #ifndef NAZARA_WINDOWIMPL_HPP
 #define NAZARA_WINDOWIMPL_HPP
 
-#include <Nazara/Core/String.hpp>
-#include <Nazara/Core/Thread.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -22,11 +20,10 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_video.h>
+#include <string>
 
 namespace Nz
 {
-	class ConditionVariable;
-	class Mutex;
 	class Window;
 
 	class WindowImpl
@@ -37,7 +34,7 @@ namespace Nz
 			WindowImpl(WindowImpl&&) = delete; ///TODO?
 			~WindowImpl() = default;
 
-			bool Create(const VideoMode& mode, const String& title, WindowStyleFlags style);
+			bool Create(const VideoMode& mode, const std::string& title, WindowStyleFlags style);
 			bool Create(void* handle);
 
 			void Destroy();
@@ -50,7 +47,7 @@ namespace Nz
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			WindowHandle GetSystemHandle() const;
-			String GetTitle() const;
+			std::string GetTitle() const;
 
 			bool HasFocus() const;
 
@@ -72,7 +69,7 @@ namespace Nz
 			void SetPosition(int x, int y);
 			void SetSize(unsigned int width, unsigned int height);
 			void SetStayOnTop(bool stayOnTop);
-			void SetTitle(const String& title);
+			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);
 
 			WindowImpl& operator=(const WindowImpl&) = delete;
@@ -86,8 +83,6 @@ namespace Nz
 
 			void PrepareWindow(bool fullscreen);
 
-			//static void WindowThread(SDL_Window* handle, /*DWORD styleEx,*/ const String& title, /*DWORD style,*/ bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition);
-
 			int m_lastEditEventLength = 0;
 			SDL_Cursor* m_cursor;
 			SDL_Window* m_handle;
@@ -97,7 +92,6 @@ namespace Nz
 			Vector2i m_mousePos;
 			Vector2i m_position;
 			Vector2ui m_size;
-			//Thread m_thread;
 			Window* m_parent;
 			bool m_eventListener;
 			bool m_ignoreNextMouseMove = false;

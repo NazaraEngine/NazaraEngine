@@ -8,7 +8,7 @@
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -89,9 +89,9 @@ namespace Nz
 
 		UInt32 windowSize;
 		if (m_outgoingBandwidth == 0)
-			windowSize = ENetProtocol_MaximumWindowSize;
+			windowSize = ENetConstants::ENetProtocol_MaximumWindowSize;
 		else
-			windowSize = (m_outgoingBandwidth / ENetConstants::ENetPeer_WindowSizeScale) * ENetProtocol_MinimumWindowSize;
+			windowSize = (m_outgoingBandwidth / ENetConstants::ENetPeer_WindowSizeScale) * ENetConstants::ENetProtocol_MinimumWindowSize;
 
 		ENetPeer& peer = m_peers[peerId];
 		peer.InitOutgoing(channelCount, remoteAddress, ++m_randomSeed, windowSize);
@@ -115,7 +115,7 @@ namespace Nz
 		return &peer;
 	}
 
-	ENetPeer* ENetHost::Connect(const String& hostName, NetProtocol protocol, const String& service, ResolveError* error, std::size_t channelCount, UInt32 data)
+	ENetPeer* ENetHost::Connect(const std::string& hostName, NetProtocol protocol, const std::string& service, ResolveError* error, std::size_t channelCount, UInt32 data)
 	{
 		std::vector<HostnameInfo> results = IpAddress::ResolveHostname(protocol, hostName, service, error);
 		if (results.empty())
@@ -134,7 +134,7 @@ namespace Nz
 		if (!hostnameAddress.IsValid())
 		{
 			if (error)
-				*error = ResolveError_NotFound;
+				*error = ResolveError::NotFound;
 
 			return nullptr;
 		}
@@ -153,7 +153,7 @@ namespace Nz
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
-			NazaraError("Peer count exceeds maximum peer count supported by protocol (" + String::Number(ENetConstants::ENetProtocol_MaximumPeerId) + ")");
+			NazaraError("Peer count exceeds maximum peer count supported by protocol (" + NumberToString(ENetConstants::ENetProtocol_MaximumPeerId) + ")");
 			return false;
 		}
 
@@ -320,7 +320,7 @@ namespace Nz
 
 	bool ENetHost::InitSocket(const IpAddress& address)
 	{
-		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol_Any : address.GetProtocol()))
+		if (!m_socket.Create((m_isUsingDualStack) ? NetProtocol::Any : address.GetProtocol()))
 			return false;
 
 		m_socket.EnableBlocking(false);
@@ -330,14 +330,14 @@ namespace Nz
 
 		if (address.IsValid() && !address.IsLoopback())
 		{
-			if (m_socket.Bind(address) != SocketState_Bound)
+			if (m_socket.Bind(address) != SocketState::Bound)
 			{
 				NazaraError("Failed to bind address " + address.ToString());
 				return false;
 			}
 		}
 
-		m_poller.RegisterSocket(m_socket, SocketPollEvent_Read);
+		m_poller.RegisterSocket(m_socket, SocketPollEvent::Read);
 
 		return true;
 	}
@@ -417,7 +417,7 @@ namespace Nz
 
 		UInt32 channelCount = NetToHost(command->connect.channelCount);
 
-		if (channelCount < ENetProtocol_MinimumChannelCount || channelCount > ENetProtocol_MaximumChannelCount)
+		if (channelCount < ENetConstants::ENetProtocol_MinimumChannelCount || channelCount > ENetConstants::ENetProtocol_MaximumChannelCount)
 			return nullptr;
 
 		std::size_t duplicatePeers = 0;
