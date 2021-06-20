@@ -57,6 +57,6 @@ fn main(input: InputData) -> OutputData
 	output.vertUV = input.inTexCoord;
 	output.vertNormal = input.inNormals;
 	output.vertPos = worldPos.xyz;
-	output.position = viewerData.projectionMatrix * viewerData.viewMatrix * instanceData.worldMatrix * vec4<f32>(input.inPos, 1.0);
+	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.inPos, 1.0);
 	return output;
 }
