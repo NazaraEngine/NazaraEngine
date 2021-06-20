@@ -68,6 +68,7 @@ namespace Nz
 			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
+			inline PrimitiveMode GetPrimitiveMode() const;
 			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
 			inline ShaderBinding& GetShaderBinding();
@@ -100,6 +101,7 @@ namespace Nz
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
 			inline void SetPointSize(float pointSize);
+			inline void SetPrimitiveMode(PrimitiveMode mode);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer);
