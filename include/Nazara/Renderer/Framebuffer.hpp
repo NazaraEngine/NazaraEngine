@@ -9,19 +9,25 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 
 namespace Nz
 {
 	class NAZARA_RENDERER_API Framebuffer
 	{
 		public:
-			Framebuffer() = default;
+			inline Framebuffer(FramebufferType type);
 			Framebuffer(const Framebuffer&) = delete;
 			Framebuffer(Framebuffer&&) noexcept = default;
 			virtual ~Framebuffer();
 
+			inline FramebufferType GetType() const;
+
 			Framebuffer& operator=(const Framebuffer&) = delete;
 			Framebuffer& operator=(Framebuffer&&) noexcept = default;
+
+		private:
+			FramebufferType m_type;
 	};
 }
 

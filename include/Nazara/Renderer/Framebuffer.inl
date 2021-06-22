@@ -7,6 +7,15 @@
 
 namespace Nz
 {
+	inline Framebuffer::Framebuffer(FramebufferType type) :
+	m_type(type)
+	{
+	}
+
+	inline FramebufferType Framebuffer::GetType() const
+	{
+		return m_type;
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>

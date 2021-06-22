@@ -144,7 +144,7 @@ namespace Nz
 
 					StackVector<GLenum> invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
 
-					if (command.framebuffer->GetType() == OpenGLFramebuffer::Type::FBO)
+					if (command.framebuffer->GetType() == FramebufferType::Texture)
 					{
 						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
 

@@ -11,7 +11,7 @@
 namespace Nz
 {
 	OpenGLFboFramebuffer::OpenGLFboFramebuffer(OpenGLDevice& device, const std::vector<std::shared_ptr<Texture>>& attachments) :
-	OpenGLFramebuffer(OpenGLFramebuffer::Type::FBO)
+	OpenGLFramebuffer(FramebufferType::Texture)
 	{
 		if (!m_framebuffer.Create(device))
 			throw std::runtime_error("failed to create framebuffer object");

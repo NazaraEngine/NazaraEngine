@@ -16,7 +16,7 @@
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
-#include <Nazara/VulkanRenderer/VulkanMultipleFramebuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
@@ -48,7 +48,7 @@ namespace Nz
 
 			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
-			inline const VulkanMultipleFramebuffer& GetFramebuffer() const override;
+			inline const VulkanWindowFramebuffer& GetFramebuffer() const override;
 			inline VulkanDevice& GetDevice();
 			inline const VulkanDevice& GetDevice() const;
 			inline Vk::QueueHandle& GetGraphicsQueue();
@@ -67,7 +67,7 @@ namespace Nz
 			bool SetupRenderPass();
 			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size);
 
-			std::optional<VulkanMultipleFramebuffer> m_framebuffer;
+			std::optional<VulkanWindowFramebuffer> m_framebuffer;
 			std::optional<VulkanRenderPass> m_renderPass;
 			std::shared_ptr<VulkanDevice> m_device;
 			std::size_t m_currentFrame;
