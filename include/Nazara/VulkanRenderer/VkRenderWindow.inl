@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline const VulkanMultipleFramebuffer& VkRenderWindow::GetFramebuffer() const
+	inline const VulkanWindowFramebuffer& VkRenderWindow::GetFramebuffer() const
 	{
 		return *m_framebuffer;
 	}

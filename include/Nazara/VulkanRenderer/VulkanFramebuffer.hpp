@@ -17,24 +17,13 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanFramebuffer : public Framebuffer
 	{
 		public:
-			enum class Type
-			{
-				Multiple,
-				Single
-			};
-
-			inline VulkanFramebuffer(Type type);
+			using Framebuffer::Framebuffer;
 			VulkanFramebuffer(const VulkanFramebuffer&) = delete;
 			VulkanFramebuffer(VulkanFramebuffer&&) noexcept = default;
 			~VulkanFramebuffer() = default;
 
-			inline Type GetType() const;
-
 			VulkanFramebuffer& operator=(const VulkanFramebuffer&) = delete;
 			VulkanFramebuffer& operator=(VulkanFramebuffer&&) noexcept = default;
-
-		private:
-			Type m_type;
 	};
 }
 

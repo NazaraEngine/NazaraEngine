@@ -24,6 +24,12 @@ namespace Nz
 		Store
 	};
 
+	enum class FramebufferType
+	{
+		Texture,
+		Window
+	};
+
 	enum class MemoryAccess
 	{
 		ColorRead,

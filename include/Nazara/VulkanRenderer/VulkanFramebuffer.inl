@@ -7,15 +7,6 @@
 
 namespace Nz
 {
-	inline VulkanFramebuffer::VulkanFramebuffer(Type type) :
-	m_type(type)
-	{
-	}
-
-	inline auto VulkanFramebuffer::GetType() const -> Type
-	{
-		return m_type;
-	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>

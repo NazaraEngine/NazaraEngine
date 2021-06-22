@@ -2,17 +2,17 @@
 // This file is part of the "Nazara Engine - Vulkan Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
-	inline Vk::Framebuffer& VulkanSingleFramebuffer::GetFramebuffer()
+	inline Vk::Framebuffer& VulkanTextureFramebuffer::GetFramebuffer()
 	{
 		return m_framebuffer;
 	}
 
-	inline const Vk::Framebuffer& VulkanSingleFramebuffer::GetFramebuffer() const
+	inline const Vk::Framebuffer& VulkanTextureFramebuffer::GetFramebuffer() const
 	{
 		return m_framebuffer;
 	}

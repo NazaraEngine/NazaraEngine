@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Vulkan Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
@@ -11,8 +11,8 @@
 
 namespace Nz
 {
-	VulkanSingleFramebuffer::VulkanSingleFramebuffer(Vk::Device& device, unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) :
-	VulkanFramebuffer(Type::Single)
+	VulkanTextureFramebuffer::VulkanTextureFramebuffer(Vk::Device& device, unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) :
+	VulkanFramebuffer(FramebufferType::Texture)
 	{
 		assert(renderPass);
 		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(*renderPass);

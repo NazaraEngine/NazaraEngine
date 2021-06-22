@@ -5,11 +5,11 @@
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
-#include <Nazara/VulkanRenderer/VulkanMultipleFramebuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
@@ -33,21 +33,20 @@ namespace Nz
 
 		const Vk::Framebuffer& vkFramebuffer = [&] () -> const Vk::Framebuffer&
 		{
-			const VulkanFramebuffer& vkFramebuffer = static_cast<const VulkanFramebuffer&>(framebuffer);
-			switch (vkFramebuffer.GetType())
+			switch (framebuffer.GetType())
 			{
-				case VulkanFramebuffer::Type::Multiple:
+				case FramebufferType::Texture:
+					return static_cast<const VulkanTextureFramebuffer&>(framebuffer).GetFramebuffer();
+
+				case FramebufferType::Window:
 				{
-					const VulkanMultipleFramebuffer& vkMultipleFramebuffer = static_cast<const VulkanMultipleFramebuffer&>(vkFramebuffer);
+					const VulkanWindowFramebuffer& vkMultipleFramebuffer = static_cast<const VulkanWindowFramebuffer&>(framebuffer);
 					m_framebufferCount = std::max(m_framebufferCount, vkMultipleFramebuffer.GetFramebufferCount());
 					return vkMultipleFramebuffer.GetFramebuffer(m_imageIndex);
 				}
-
-				case VulkanFramebuffer::Type::Single:
-					return static_cast<const VulkanSingleFramebuffer&>(vkFramebuffer).GetFramebuffer();
 			}
 
-			throw std::runtime_error("Unhandled framebuffer type " + std::to_string(UnderlyingCast(vkFramebuffer.GetType())));
+			throw std::runtime_error("Unhandled framebuffer type " + std::to_string(UnderlyingCast(framebuffer.GetType())));
 		}();
 
 		std::size_t attachmentCount = vkRenderPass.GetAttachmentCount();
