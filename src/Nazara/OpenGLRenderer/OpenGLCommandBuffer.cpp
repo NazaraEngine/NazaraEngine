@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
@@ -141,9 +142,13 @@ namespace Nz
 						}
 					}
 
+					StackVector<GLenum> invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
+
 					if (command.framebuffer->GetType() == OpenGLFramebuffer::Type::FBO)
 					{
 						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
+
+						invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
 
 						for (std::size_t i = 0; i < colorBufferCount; ++i)
 						{
@@ -158,6 +163,8 @@ namespace Nz
 								context->ResetColorWriteMasks();
 								context->glClearBufferfv(GL_COLOR, GLint(i), clearColor.data());
 							}
+							else if (attachmentInfo.loadOp == AttachmentLoadOp::Discard)
+								invalidateAttachments.push_back(GL_COLOR_ATTACHMENT0 + i);
 						}
 
 						if (depthStencilIndex)
@@ -176,18 +183,30 @@ namespace Nz
 							{
 								context->ResetDepthWriteMasks();
 								context->glClearBufferfv(GL_DEPTH, 0, &clearValues.depth);
+
+								if (depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Discard)
+									invalidateAttachments.push_back(GL_STENCIL_ATTACHMENT);
 							}
 							else if (depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear)
 							{
 								context->ResetStencilWriteMasks();
 								context->glClearBufferuiv(GL_STENCIL, 0, &clearValues.stencil);
+
+								if (depthStencilAttachment.loadOp == AttachmentLoadOp::Discard)
+									invalidateAttachments.push_back(GL_DEPTH_ATTACHMENT);
 							}
+							else if (depthStencilAttachment.loadOp == AttachmentLoadOp::Discard && depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Discard)
+								invalidateAttachments.push_back(GL_DEPTH_STENCIL_ATTACHMENT);
 						}
 					}
 					else
 					{
+						assert(command.framebuffer->GetType() == FramebufferType::Window);
+
 						GLenum buffer = GL_BACK;
 						context->glDrawBuffers(1, &buffer);
+
+						invalidateAttachments = NazaraStackVector(GLenum, 3); //< color + depth + stencil
 
 						if (colorIndex > 0)
 						{
@@ -206,6 +225,8 @@ namespace Nz
 
 								clearFields |= GL_COLOR_BUFFER_BIT;
 							}
+							else if (colorAttachment.loadOp == AttachmentLoadOp::Discard)
+								invalidateAttachments.push_back(GL_COLOR);
 						}
 
 						if (depthStencilIndex)
@@ -220,6 +241,8 @@ namespace Nz
 								context->glClearDepthf(clearValues.depth);
 								clearFields |= GL_DEPTH_BUFFER_BIT;
 							}
+							else if (depthStencilAttachment.loadOp == AttachmentLoadOp::Discard)
+								invalidateAttachments.push_back(GL_DEPTH);
 
 							if (depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear && PixelFormatInfo::GetContent(depthStencilAttachment.format) == PixelFormatContent::DepthStencil)
 							{
@@ -227,11 +250,16 @@ namespace Nz
 								context->glClearStencil(clearValues.stencil);
 								clearFields |= GL_STENCIL_BUFFER_BIT;
 							}
+							else if (depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Discard)
+								invalidateAttachments.push_back(GL_STENCIL);
 						}
 
 						if (clearFields)
 							context->glClear(clearFields);
 					}
+
+					if (!invalidateAttachments.empty())
+						context->glInvalidateFramebuffer(GL_FRAMEBUFFER, GLsizei(invalidateAttachments.size()), invalidateAttachments.data());
 				}
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
