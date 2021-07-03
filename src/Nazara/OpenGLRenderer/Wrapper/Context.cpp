@@ -669,10 +669,8 @@ namespace Nz::GL
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glDebugMessageCallback);
 
-			if (!loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackARB", false, false))
-				return loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "DebugMessageCallbackAMD", false, false);
-
-			return true;
+			return loader.Load<PFNGLDEBUGMESSAGECALLBACKKHRPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackKHR", false) || //< from GL_KHR_debug
+			       loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackARB", false);      //< from GL_ARB_debug_output
 		}
 		else if (function == "glPolygonMode")
 		{
