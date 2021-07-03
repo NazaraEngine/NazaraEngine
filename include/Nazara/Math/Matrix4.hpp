@@ -12,6 +12,7 @@
 #include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Config.hpp>
+#include <cstddef>
 #include <string>
 
 namespace Nz
@@ -100,11 +101,11 @@ namespace Nz
 
 			Matrix4& Transpose();
 
-			operator T* ();
-			operator const T* () const;
+			T& operator()(std::size_t x, std::size_t y);
+			T operator()(std::size_t x, std::size_t y) const;
 
-			T& operator()(unsigned int x, unsigned int y);
-			T operator()(unsigned int x, unsigned int y) const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			Matrix4& operator=(const Matrix4& matrix) = default;
 
