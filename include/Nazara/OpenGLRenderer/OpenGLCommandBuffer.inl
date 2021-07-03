@@ -151,15 +151,15 @@ namespace Nz
 
 		m_commands.emplace_back(std::move(setFramebuffer));
 
-		m_currentStates.shouldFlipY = (framebuffer.GetType() == OpenGLFramebuffer::Type::Window);
+		m_currentStates.shouldFlipY = (framebuffer.GetType() == FramebufferType::Window);
 	}
 
-	inline void OpenGLCommandBuffer::SetScissor(Nz::Recti scissorRegion)
+	inline void OpenGLCommandBuffer::SetScissor(const Recti& scissorRegion)
 	{
 		m_currentStates.scissorRegion = scissorRegion;
 	}
 
-	inline void OpenGLCommandBuffer::SetViewport(Nz::Recti viewportRegion)
+	inline void OpenGLCommandBuffer::SetViewport(const Recti& viewportRegion)
 	{
 		m_currentStates.viewportRegion = viewportRegion;
 	}

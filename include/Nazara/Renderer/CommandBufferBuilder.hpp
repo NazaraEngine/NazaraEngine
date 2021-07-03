@@ -35,16 +35,16 @@ namespace Nz
 			CommandBufferBuilder(CommandBufferBuilder&&) = default;
 			virtual ~CommandBufferBuilder();
 
-			virtual void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) = 0;
-			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
-			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect);
-			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, std::initializer_list<ClearValues> clearValues);
+			virtual void BeginDebugRegion(const std::string_view& regionName, const Color& color) = 0;
+			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
+			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect);
+			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
-			virtual void BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset = 0) = 0;
+			virtual void BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset = 0) = 0;
 			virtual void BindPipeline(const RenderPipeline& pipeline) = 0;
 			virtual void BindShaderBinding(UInt32 set, const ShaderBinding& binding) = 0;
 			virtual void BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) = 0;
-			virtual void BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset = 0) = 0;
+			virtual void BindVertexBuffer(UInt32 binding, AbstractBuffer* vertexBuffer, UInt64 offset = 0) = 0;
 
 			inline void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target);
 			virtual void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
@@ -62,8 +62,8 @@ namespace Nz
 			virtual void PreTransferBarrier() = 0;
 			virtual void PostTransferBarrier() = 0;
 
-			virtual void SetScissor(Nz::Recti scissorRegion) = 0;
-			virtual void SetViewport(Nz::Recti viewportRegion) = 0;
+			virtual void SetScissor(const Recti& scissorRegion) = 0;
+			virtual void SetViewport(const Recti& viewportRegion) = 0;
 
 			virtual void TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture) = 0;
 
@@ -72,7 +72,7 @@ namespace Nz
 
 			struct ClearValues
 			{
-				Nz::Color color = Nz::Color::Black;
+				Color color = Color::Black;
 				float depth = 1.f;
 				UInt32 stencil = 0;
 			};

@@ -8,14 +8,26 @@
 namespace Nz
 {
 	inline RenderFrame::RenderFrame() :
-	RenderFrame(nullptr, false)
+	RenderFrame(nullptr, false, Vector2ui::Zero(), 0)
 	{
 	}
 
-	inline RenderFrame::RenderFrame(RenderImage* renderImage, bool framebufferInvalidation) :
+	inline RenderFrame::RenderFrame(RenderImage* renderImage, bool framebufferInvalidation, const Vector2ui& size, std::size_t framebufferIndex) :
+	m_framebufferIndex(framebufferIndex),
 	m_image(renderImage),
+	m_size(size),
 	m_framebufferInvalidation(framebufferInvalidation)
 	{
+	}
+
+	inline std::size_t RenderFrame::GetFramebufferIndex() const
+	{
+		return m_framebufferIndex;
+	}
+
+	inline const Vector2ui& RenderFrame::GetSize() const
+	{
+		return m_size;
 	}
 
 	inline bool RenderFrame::IsFramebufferInvalidated() const
@@ -45,3 +57,4 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
+#include "RenderFrame.hpp"

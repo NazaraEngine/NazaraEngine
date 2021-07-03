@@ -41,7 +41,6 @@
 #include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanFramebuffer.hpp>
-#include <Nazara/VulkanRenderer/VulkanMultipleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
@@ -49,10 +48,11 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
-#include <Nazara/VulkanRenderer/VulkanSingleFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
+#include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
+#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 
 #endif // NAZARA_GLOBAL_VULKANRENDERER_HPP

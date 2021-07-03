@@ -234,7 +234,6 @@ int main()
 	Nz::WorldInstance planeInstance;
 
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
-	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
 
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
@@ -629,18 +628,22 @@ int main()
 			return (matUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
 		});
 
-		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
-			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
+			builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
 
-			spaceshipModel.Draw(builder, modelInstance1);
-			spaceshipModel.Draw(builder, modelInstance2);
+			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, modelInstance1.GetShaderBinding());
+			spaceshipModel.Draw(builder);
+
+			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, modelInstance2.GetShaderBinding());
+			spaceshipModel.Draw(builder);
 
 			// Plane
-			planeModel.Draw(builder, planeInstance);
+			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, planeInstance.GetShaderBinding());
+			planeModel.Draw(builder);
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -649,10 +652,10 @@ int main()
 			return (lightUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
 		});
 
-		lightingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		lightingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
-			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
 
 			//builder.BindVertexBuffer(0, vertexBuffer.get());
 			builder.BindIndexBuffer(coneMeshGfx->GetIndexBuffer(0).get());
@@ -682,10 +685,10 @@ int main()
 		lightingPass.SetDepthStencilOutput(depthBuffer);
 
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
-		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
-			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
 
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *skyboxShaderBinding);
@@ -707,10 +710,10 @@ int main()
 		forwardPass.SetDepthStencilOutput(depthBuffer);
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
-		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
-			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
 
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *bloomBrightShaderBinding);
@@ -729,10 +732,10 @@ int main()
 		bloomBrightPass.AddOutput(bloomTextureA);
 
 		Nz::FramePass& bloomBlurPass = graph.AddPass("Bloom pass - gaussian blur");
-		bloomBlurPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		bloomBlurPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
-			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth) / 10, int(offscreenHeight) / 10 });
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
 
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *gaussianBlurShaderBinding);
@@ -750,10 +753,10 @@ int main()
 		bloomBlurPass.AddOutput(bloomTextureB);
 		
 		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
-		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder)
+		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
-			builder.SetViewport(Nz::Recti{ 0, 0, int(offscreenWidth), int(offscreenHeight) });
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
 
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *bloomBlendShaderBinding);
@@ -875,37 +878,6 @@ int main()
 			}
 		}
 	});
-
-
-	Nz::CommandBufferPtr drawCommandBuffer;
-	auto RebuildCommandBuffer = [&]
-	{
-		Nz::Vector2ui windowSize = window.GetSize();
-
-		drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
-		{
-			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);
-
-			builder.TextureBarrier(Nz::PipelineStage::ColorOutput, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ColorWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::ColorOutput, Nz::TextureLayout::ColorInput, *bakedGraph.GetAttachmentTexture(backbuffer));
-
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
-			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), windowRenderRect);
-				{
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-
-					builder.BindShaderBinding(0, *finalBlitBinding);
-					builder.BindPipeline(*fullscreenPipeline);
-					builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
-					builder.Draw(3);
-				}
-				builder.EndRenderPass();
-			}
-			builder.EndDebugRegion();
-		});
-	};
-	RebuildCommandBuffer();
 
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Backward() * 10.f + Nz::Vector3f::Up() * 3.f;
@@ -1049,12 +1021,6 @@ int main()
 		if (!frame)
 			continue;
 
-		if (frame.IsFramebufferInvalidated())
-		{
-			frame.PushForRelease(std::move(drawCommandBuffer));
-			RebuildCommandBuffer();
-		}
-
 		Nz::UploadPool& uploadPool = frame.GetUploadPool();
 
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
@@ -1108,7 +1074,29 @@ int main()
 		}, Nz::QueueType::Transfer);
 
 		bakedGraph.Execute(frame);
-		frame.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
+
+		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		{
+			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);
+
+			builder.TextureBarrier(Nz::PipelineStage::ColorOutput, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ColorWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::ColorOutput, Nz::TextureLayout::ColorInput, *bakedGraph.GetAttachmentTexture(backbuffer));
+
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			{
+				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), windowRenderRect);
+				{
+					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+
+					builder.BindShaderBinding(0, *finalBlitBinding);
+					builder.BindPipeline(*fullscreenPipeline);
+					builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+					builder.Draw(3);
+				}
+				builder.EndRenderPass();
+			}
+			builder.EndDebugRegion();
+		}, Nz::QueueType::Graphics);
 
 		frame.Present();
 

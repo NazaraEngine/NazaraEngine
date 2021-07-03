@@ -49,7 +49,7 @@ namespace Nz
 		if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
-		VulkanCommandBufferBuilder builder(*commandBuffer, m_imageIndex);
+		VulkanCommandBufferBuilder builder(*commandBuffer);
 		callback(builder);
 
 		if (!commandBuffer->End())
@@ -76,7 +76,7 @@ namespace Nz
 	{
 		VulkanCommandBuffer& vkCommandBuffer = *static_cast<VulkanCommandBuffer*>(commandBuffer);
 
-		return SubmitCommandBuffer(vkCommandBuffer.GetCommandBuffer(m_imageIndex), queueTypeFlags);
+		return SubmitCommandBuffer(vkCommandBuffer.GetCommandBuffer(), queueTypeFlags);
 	}
 
 	void VulkanRenderImage::SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags)

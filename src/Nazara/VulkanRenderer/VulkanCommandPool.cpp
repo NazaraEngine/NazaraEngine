@@ -13,40 +13,30 @@ namespace Nz
 {
 	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
 	{
-		std::vector<Vk::AutoCommandBuffer> commandBuffers;
-		auto BuildCommandBuffer = [&](std::size_t imageIndex)
-		{
-			Vk::AutoCommandBuffer& commandBuffer = commandBuffers.emplace_back(m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY));
+		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-			if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
-				throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+		if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
+			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
-			VulkanCommandBufferBuilder builder(commandBuffer.Get(), imageIndex);
-			callback(builder);
+		VulkanCommandBufferBuilder builder(commandBuffer.Get());
+		callback(builder);
 
-			if (!commandBuffer->End())
-				throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
-
-			return builder.GetMaxFramebufferCount();
-		};
-
-		std::size_t maxFramebufferCount = BuildCommandBuffer(0);
-		for (std::size_t i = 1; i < maxFramebufferCount; ++i)
-			BuildCommandBuffer(i);
+		if (!commandBuffer->End())
+			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
 
 		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
 		{
 			if (m_commandPools[i].freeCommands.TestNone())
 				continue;
 
-			return AllocateFromPool(i, std::move(commandBuffers));
+			return AllocateFromPool(i, std::move(commandBuffer));
 		}
 
 		// No allocation could be made, time to allocate a new pool
 		std::size_t newPoolIndex = m_commandPools.size();
 		AllocatePool();
 
-		return AllocateFromPool(newPoolIndex, std::move(commandBuffers));
+		return AllocateFromPool(newPoolIndex, std::move(commandBuffer));
 	}
 	
 	auto VulkanCommandPool::AllocatePool() -> CommandPool&

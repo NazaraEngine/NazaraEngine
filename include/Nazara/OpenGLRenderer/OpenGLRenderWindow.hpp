@@ -34,7 +34,8 @@ namespace Nz
 			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline GL::Context& GetContext();
-			const OpenGLFramebuffer& GetFramebuffer() const override;
+			const OpenGLFramebuffer& GetFramebuffer(std::size_t i) const override;
+			std::size_t GetFramebufferCount() const override;
 			const OpenGLRenderPass& GetRenderPass() const override;
 
 			void Present();

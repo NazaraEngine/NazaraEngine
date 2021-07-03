@@ -7,21 +7,14 @@
 
 namespace Nz
 {
-	inline VulkanCommandBufferBuilder::VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer, std::size_t imageIndex) :
-	m_commandBuffer(commandBuffer),
-	m_framebufferCount(0),
-	m_imageIndex(imageIndex)
+	inline VulkanCommandBufferBuilder::VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer) :
+	m_commandBuffer(commandBuffer)
 	{
 	}
 
 	inline Vk::CommandBuffer& VulkanCommandBufferBuilder::GetCommandBuffer()
 	{
 		return m_commandBuffer;
-	}
-
-	inline std::size_t VulkanCommandBufferBuilder::GetMaxFramebufferCount() const
-	{
-		return m_framebufferCount;
 	}
 }
 

@@ -30,7 +30,7 @@ int main()
 	meshParams.center = true;
 	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -88,50 +88,6 @@ int main()
 	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
-	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
-
-	Nz::CommandBufferPtr drawCommandBuffer;
-	auto RebuildCommandBuffer = [&]
-	{
-		Nz::Vector2ui windowSize = window.GetSize();
-		drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
-		{
-			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
-
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
-			clearValues[0].color = Nz::Color::Black;
-			clearValues[1].depth = 1.f;
-			clearValues[1].stencil = 0;
-
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
-			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
-				{
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
-
-					for (Nz::WorldInstance& instance : { std::ref(modelInstance), std::ref(modelInstance2) })
-					{
-						builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, instance.GetShaderBinding());
-
-						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-						{
-							builder.BindIndexBuffer(model.GetIndexBuffer(i).get());
-							builder.BindVertexBuffer(0, model.GetVertexBuffer(i).get());
-							builder.BindPipeline(*model.GetRenderPipeline(i));
-							builder.BindShaderBinding(Nz::Graphics::MaterialBindingSet, model.GetMaterial(i)->GetShaderBinding());
-
-							builder.DrawIndexed(model.GetIndexCount(i));
-						}
-					}
-				}
-				builder.EndRenderPass();
-			}
-			builder.EndDebugRegion();
-		});
-	};
-
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -250,13 +206,42 @@ int main()
 			builder.EndDebugRegion();
 		}, Nz::QueueType::Transfer);
 
-		if (updateMat || frame.IsFramebufferInvalidated())
+		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
-			frame.PushForRelease(std::move(drawCommandBuffer));
-			RebuildCommandBuffer();
-		}
+			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
-		frame.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
+			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			clearValues[0].color = Nz::Color::Black;
+			clearValues[1].depth = 1.f;
+			clearValues[1].stencil = 0;
+
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			{
+				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				{
+					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
+
+					for (Nz::WorldInstance& instance : { std::ref(modelInstance), std::ref(modelInstance2) })
+					{
+						builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, instance.GetShaderBinding());
+
+						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+						{
+							builder.BindIndexBuffer(model.GetIndexBuffer(i).get());
+							builder.BindVertexBuffer(0, model.GetVertexBuffer(i).get());
+							builder.BindPipeline(*model.GetRenderPipeline(i));
+							builder.BindShaderBinding(Nz::Graphics::MaterialBindingSet, model.GetMaterial(i)->GetShaderBinding());
+
+							builder.DrawIndexed(model.GetIndexCount(i));
+						}
+					}
+				}
+				builder.EndRenderPass();
+			}
+			builder.EndDebugRegion();
+		}, Nz::QueueType::Graphics);
 
 		frame.Present();
 

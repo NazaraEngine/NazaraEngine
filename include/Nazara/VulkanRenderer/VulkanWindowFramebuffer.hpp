@@ -15,19 +15,18 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanWindowFramebuffer final : public VulkanFramebuffer
 	{
 		public:
-			inline VulkanWindowFramebuffer(Vk::Framebuffer* framebuffers, std::size_t count);
+			inline VulkanWindowFramebuffer(Vk::Framebuffer framebuffer);
 			VulkanWindowFramebuffer(const VulkanWindowFramebuffer&) = delete;
 			VulkanWindowFramebuffer(VulkanWindowFramebuffer&&) noexcept = default;
 			~VulkanWindowFramebuffer() = default;
 
-			inline const Vk::Framebuffer& GetFramebuffer(std::size_t index) const;
-			inline std::size_t GetFramebufferCount() const;
+			inline const Vk::Framebuffer& GetFramebuffer() const override;
 
 			VulkanWindowFramebuffer& operator=(const VulkanWindowFramebuffer&) = delete;
 			VulkanWindowFramebuffer& operator=(VulkanWindowFramebuffer&&) noexcept = default;
 
 		private:
-			std::vector<Vk::Framebuffer> m_framebuffers;
+			Vk::Framebuffer m_framebuffer;
 	};
 }
 

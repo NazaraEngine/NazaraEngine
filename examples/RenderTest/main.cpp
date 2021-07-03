@@ -240,43 +240,6 @@ int main()
 	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(renderDevice);
 	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(renderDevice);
 
-	Nz::CommandBufferPtr drawCommandBuffer;
-	auto RebuildCommandBuffer = [&]
-	{
-		Nz::Vector2ui windowSize = window.GetSize();
-
-		drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
-		{
-			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
-
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
-			clearValues[0].color = Nz::Color::Black;
-			clearValues[1].depth = 1.f;
-			clearValues[1].stencil = 0;
-
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
-			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
-				{
-					builder.BindIndexBuffer(indexBufferImpl);
-					builder.BindPipeline(*pipeline);
-					builder.BindVertexBuffer(0, vertexBufferImpl);
-					builder.BindShaderBinding(0, *viewerShaderBinding);
-					builder.BindShaderBinding(1, *textureShaderBinding);
-
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-
-					builder.DrawIndexed(meshIB->GetIndexCount());
-				}
-				builder.EndRenderPass();
-			}
-			builder.EndDebugRegion();
-		});
-	};
-	RebuildCommandBuffer();
-
-
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
@@ -368,12 +331,6 @@ int main()
 		if (!frame)
 			continue;
 
-		if (frame.IsFramebufferInvalidated())
-		{
-			frame.PushForRelease(std::move(drawCommandBuffer));
-			RebuildCommandBuffer();
-		}
-
 		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
 
 		if (uboUpdate)
@@ -396,7 +353,35 @@ int main()
 			uboUpdate = false;
 		}
 
-		frame.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
+		frame.Execute([&](Nz::CommandBufferBuilder& builder)
+		{
+			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
+
+			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			clearValues[0].color = Nz::Color::Black;
+			clearValues[1].depth = 1.f;
+			clearValues[1].stencil = 0;
+
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			{
+				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				{
+					builder.BindIndexBuffer(indexBufferImpl);
+					builder.BindPipeline(*pipeline);
+					builder.BindVertexBuffer(0, vertexBufferImpl);
+					builder.BindShaderBinding(0, *viewerShaderBinding);
+					builder.BindShaderBinding(1, *textureShaderBinding);
+
+					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
+
+					builder.DrawIndexed(meshIB->GetIndexCount());
+				}
+				builder.EndRenderPass();
+			}
+			builder.EndDebugRegion();
+
+		}, Nz::QueueType::Graphics);
 
 		frame.Present();
 

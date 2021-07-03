@@ -7,11 +7,6 @@
 
 namespace Nz
 {
-	inline const VulkanWindowFramebuffer& VkRenderWindow::GetFramebuffer() const
-	{
-		return *m_framebuffer;
-	}
-
 	inline VulkanDevice& VkRenderWindow::GetDevice()
 	{
 		return *m_device;
