@@ -49,7 +49,7 @@ namespace Nz
 			float GetMass() const;
 			Vector3f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
 			int GetMaterial() const;
-			const Matrix4f& GetMatrix() const;
+			Matrix4f GetMatrix() const;
 			Vector3f GetPosition() const;
 			Quaternionf GetRotation() const;
 			void* GetUserdata() const;
@@ -78,12 +78,10 @@ namespace Nz
 			RigidBody3D& operator=(RigidBody3D&& object) noexcept;
 
 		private:
-			void UpdateBody();
+			void UpdateBody(const Matrix4f& transformMatrix);
 			static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
-			static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
 
 			std::shared_ptr<Collider3D> m_geom;
-			Matrix4f m_matrix;
 			MovablePtr<NewtonBody> m_body;
 			Vector3f m_forceAccumulator;
 			Vector3f m_torqueAccumulator;

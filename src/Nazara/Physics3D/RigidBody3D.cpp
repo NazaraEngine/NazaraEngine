@@ -6,6 +6,7 @@
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <newton/Newton.h>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <Nazara/Physics3D/Debug.hpp>
 
@@ -18,7 +19,6 @@ namespace Nz
 
 	RigidBody3D::RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat) :
 	m_geom(std::move(geom)),
-	m_matrix(mat),
 	m_forceAccumulator(Vector3f::Zero()),
 	m_torqueAccumulator(Vector3f::Zero()),
 	m_world(world),
@@ -30,14 +30,12 @@ namespace Nz
 		if (!m_geom)
 			m_geom = std::make_shared<NullCollider3D>();
 
-		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
+		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), &mat.m11);
 		NewtonBodySetUserData(m_body, this);
-		NewtonBodySetTransformCallback(m_body, &TransformCallback);
 	}
 
 	RigidBody3D::RigidBody3D(const RigidBody3D& object) :
 	m_geom(object.m_geom),
-	m_matrix(object.m_matrix),
 	m_forceAccumulator(Vector3f::Zero()),
 	m_torqueAccumulator(Vector3f::Zero()),
 	m_world(object.m_world),
@@ -47,9 +45,11 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 		NazaraAssert(m_geom, "Invalid geometry");
 
-		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), m_matrix);
+		std::array<float, 16> transformMatrix;
+		NewtonBodyGetMatrix(object.GetHandle(), transformMatrix.data());
+
+		m_body = NewtonCreateDynamicBody(m_world->GetHandle(), m_geom->GetHandle(m_world), transformMatrix.data());
 		NewtonBodySetUserData(m_body, this);
-		NewtonBodySetTransformCallback(m_body, &TransformCallback);
 
 		SetMass(object.m_mass);
 		SetAngularDamping(object.GetAngularDamping());
@@ -63,7 +63,6 @@ namespace Nz
 
 	RigidBody3D::RigidBody3D(RigidBody3D&& object) noexcept :
 	m_geom(std::move(object.m_geom)),
-	m_matrix(std::move(object.m_matrix)),
 	m_forceAccumulator(std::move(object.m_forceAccumulator)),
 	m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
 	m_body(std::move(object.m_body)),
@@ -107,7 +106,10 @@ namespace Nz
 				break;
 
 			case CoordSys::Local:
-				return AddForce(m_matrix.Transform(force, 0.f), m_matrix.Transform(point), CoordSys::Global);
+			{
+				Matrix4f transformMatrix = GetMatrix();
+				return AddForce(transformMatrix.Transform(force, 0.f), transformMatrix.Transform(point), CoordSys::Global);
+			}
 		}
 
 		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
@@ -123,7 +125,8 @@ namespace Nz
 				break;
 
 			case CoordSys::Local:
-				m_torqueAccumulator += m_matrix.Transform(torque, 0.f);
+				Matrix4f transformMatrix = GetMatrix();
+				m_torqueAccumulator += transformMatrix.Transform(torque, 0.f);
 				break;
 		}
 
@@ -206,8 +209,11 @@ namespace Nz
 		switch (coordSys)
 		{
 			case CoordSys::Global:
-				center = m_matrix.Transform(center);
+			{
+				Matrix4f transformMatrix = GetMatrix();
+				center = transformMatrix.Transform(center);
 				break;
+			}
 
 			case CoordSys::Local:
 				break; // Aucune opération à effectuer sur le centre de rotation
@@ -221,19 +227,29 @@ namespace Nz
 		return NewtonBodyGetMaterialGroupID(m_body);
 	}
 
-	const Matrix4f& RigidBody3D::GetMatrix() const
+	Matrix4f RigidBody3D::GetMatrix() const
 	{
-		return m_matrix;
+		Matrix4f matrix;
+		NewtonBodyGetMatrix(m_body, &matrix.m11);
+
+		return matrix;
 	}
 
 	Vector3f RigidBody3D::GetPosition() const
 	{
-		return m_matrix.GetTranslation();
+		Vector3f pos;
+		NewtonBodyGetPosition(m_body, &pos.x);
+
+		return pos;
 	}
 
 	Quaternionf RigidBody3D::GetRotation() const
 	{
-		return m_matrix.GetRotation();
+		// NewtonBodyGetRotation output X, Y, Z, W and Nz::Quaternion stores W, X, Y, Z so we use a temporary array
+		std::array<float, 4> rot;
+		NewtonBodyGetRotation(m_body, rot.data());
+
+		return Quaternionf(rot[3], rot[0], rot[1], rot[2]);
 	}
 
 	void* RigidBody3D::GetUserdata() const
@@ -357,16 +373,18 @@ namespace Nz
 
 	void RigidBody3D::SetPosition(const Vector3f& position)
 	{
-		m_matrix.SetTranslation(position);
+		Matrix4f transformMatrix = GetMatrix();
+		transformMatrix.SetTranslation(position);
 
-		UpdateBody();
+		UpdateBody(transformMatrix);
 	}
 
 	void RigidBody3D::SetRotation(const Quaternionf& rotation)
 	{
-		m_matrix.SetRotation(rotation);
+		Matrix4f transformMatrix = GetMatrix();
+		transformMatrix.SetRotation(rotation);
 
-		UpdateBody();
+		UpdateBody(transformMatrix);
 	}
 
 	void RigidBody3D::SetUserdata(void* ud)
@@ -390,7 +408,6 @@ namespace Nz
 		m_geom               = std::move(object.m_geom);
 		m_gravityFactor      = object.m_gravityFactor;
 		m_mass               = object.m_mass;
-		m_matrix             = std::move(object.m_matrix);
 		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
 		m_world              = object.m_world;
 
@@ -398,9 +415,9 @@ namespace Nz
 		return *this;
 	}
 
-	void RigidBody3D::UpdateBody()
+	void RigidBody3D::UpdateBody(const Matrix4f& transformMatrix)
 	{
-		NewtonBodySetMatrix(m_body, m_matrix);
+		NewtonBodySetMatrix(m_body, &transformMatrix.m11);
 
 		if (NumberEquals(m_mass, 0.f))
 		{
@@ -436,13 +453,5 @@ namespace Nz
 		me->m_forceAccumulator.Set(0.f);
 
 		///TODO: Implement gyroscopic force?
-	}
-
-	void RigidBody3D::TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex)
-	{
-		NazaraUnused(threadIndex);
-
-		RigidBody3D* me = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
-		me->m_matrix = matrix;
 	}
 }
