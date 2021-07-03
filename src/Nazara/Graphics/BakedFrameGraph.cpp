@@ -14,7 +14,9 @@ namespace Nz
 	m_passes(std::move(passes)),
 	m_textures(std::move(textures)),
 	m_attachmentToTextureMapping(std::move(attachmentIdToTextureMapping)),
-	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping))
+	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping)),
+	m_height(0),
+	m_width(0)
 	{
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 		m_commandPool = renderDevice->InstantiateCommandPool(QueueType::Graphics);
@@ -24,7 +26,7 @@ namespace Nz
 	{
 		for (auto& passData : m_passes)
 		{
-			bool regenerateCommandBuffer = (passData.commandBuffer == nullptr);
+			bool regenerateCommandBuffer = (passData.forceCommandBufferRegeneration || passData.commandBuffer == nullptr);
 			if (passData.executionCallback)
 			{
 				switch (passData.executionCallback())
@@ -33,8 +35,11 @@ namespace Nz
 						break;
 
 					case FramePassExecution::Skip:
-						renderFrame.PushForRelease(std::move(passData.commandBuffer));
-						passData.commandBuffer.reset();
+						if (passData.commandBuffer)
+						{
+							renderFrame.PushForRelease(std::move(passData.commandBuffer));
+							passData.commandBuffer.reset();
+						}
 						continue; //< Skip the pass
 
 					case FramePassExecution::UpdateAndExecute:
@@ -46,7 +51,9 @@ namespace Nz
 			if (!regenerateCommandBuffer)
 				continue;
 
-			renderFrame.PushForRelease(std::move(passData.commandBuffer));
+			if (passData.commandBuffer)
+				renderFrame.PushForRelease(std::move(passData.commandBuffer));
+
 			passData.commandBuffer = m_commandPool->BuildCommandBuffer([&](CommandBufferBuilder& builder)
 			{
 				for (auto& textureTransition : passData.transitions)
@@ -68,7 +75,7 @@ namespace Nz
 
 					first = false;
 
-					subpass.commandCallback(builder);
+					subpass.commandCallback(builder, passData.renderRect);
 				}
 
 				builder.EndRenderPass();
@@ -76,6 +83,8 @@ namespace Nz
 				if (!passData.name.empty())
 					builder.EndDebugRegion();
 			});
+
+			passData.forceCommandBufferRegeneration = false;
 		}
 
 		//TODO: Submit all commands buffer at once
@@ -114,8 +123,11 @@ namespace Nz
 		return m_passes[physicalPassIndex].renderPass;
 	}
 
-	void BakedFrameGraph::Resize(unsigned int width, unsigned int height)
+	bool BakedFrameGraph::Resize(unsigned int width, unsigned int height)
 	{
+		if (m_width == width && m_height == height)
+			return false;
+
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		// Delete previous textures to make some room in VRAM
@@ -162,6 +174,9 @@ namespace Nz
 			passData.renderRect.Set(0, 0, int(framebufferWidth), int(framebufferHeight));
 
 			passData.framebuffer = renderDevice->InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
+			passData.forceCommandBufferRegeneration = true;
 		}
+
+		return true;
 	}
 }

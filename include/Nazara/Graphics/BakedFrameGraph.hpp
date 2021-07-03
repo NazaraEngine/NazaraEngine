@@ -26,6 +26,7 @@ namespace Nz
 		friend class FrameGraph;
 
 		public:
+			BakedFrameGraph() = default;
 			BakedFrameGraph(const BakedFrameGraph&) = delete;
 			BakedFrameGraph(BakedFrameGraph&&) noexcept = default;
 			~BakedFrameGraph() = default;
@@ -35,7 +36,7 @@ namespace Nz
 			const std::shared_ptr<Texture>& GetAttachmentTexture(std::size_t attachmentIndex) const;
 			const std::shared_ptr<RenderPass>& GetRenderPass(std::size_t passIndex) const;
 
-			void Resize(unsigned int width, unsigned int height);
+			bool Resize(unsigned int width, unsigned int height);
 
 			BakedFrameGraph& operator=(const BakedFrameGraph&) = delete;
 			BakedFrameGraph& operator=(BakedFrameGraph&&) noexcept = default;
@@ -75,6 +76,7 @@ namespace Nz
 				std::vector<TextureTransition> transitions;
 				FramePass::ExecutionCallback executionCallback;
 				Recti renderRect;
+				bool forceCommandBufferRegeneration = true;
 			};
 
 			struct TextureData
@@ -91,6 +93,8 @@ namespace Nz
 			std::vector<TextureData> m_textures;
 			AttachmentIdToTextureId m_attachmentToTextureMapping;
 			PassIdToPhysicalPassIndex m_passIdToPhysicalPassMapping;
+			unsigned int m_height;
+			unsigned int m_width;
 	};
 }
 
