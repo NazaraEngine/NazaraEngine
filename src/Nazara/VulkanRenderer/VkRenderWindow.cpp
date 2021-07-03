@@ -33,7 +33,7 @@ namespace Nz
 
 		m_concurrentImageData.clear();
 		m_renderPass.reset();
-		m_framebuffer.reset();
+		m_framebuffers.clear();
 		m_swapchain.Destroy();
 	}
 
@@ -100,7 +100,7 @@ namespace Nz
 
 		currentFrame.Reset(imageIndex);
 
-		return RenderFrame(&currentFrame, invalidateFramebuffer);
+		return RenderFrame(&currentFrame, invalidateFramebuffer, size, imageIndex);
 	}
 
 	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
@@ -301,6 +301,17 @@ namespace Nz
 		return std::make_shared<VulkanCommandPool>(*m_device, queueFamilyIndex);
 	}
 
+	const VulkanWindowFramebuffer& VkRenderWindow::GetFramebuffer(std::size_t i) const
+	{
+		assert(i < m_framebuffers.size());
+		return m_framebuffers[i];
+	}
+
+	std::size_t VkRenderWindow::GetFramebufferCount() const
+	{
+		return std::size_t();
+	}
+
 	void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
 		NazaraAssert(imageIndex < m_inflightFences.size(), "Invalid image index");
@@ -439,7 +450,8 @@ namespace Nz
 	{
 		UInt32 imageCount = m_swapchain.GetImageCount();
 
-		Nz::StackArray<Vk::Framebuffer> framebuffers = NazaraStackArray(Vk::Framebuffer, imageCount);
+		m_framebuffers.clear();
+		m_framebuffers.reserve(imageCount);
 		for (UInt32 i = 0; i < imageCount; ++i)
 		{
 			std::array<VkImageView, 2> attachments = { m_swapchain.GetImage(i).view, m_depthBufferView };
@@ -456,14 +468,17 @@ namespace Nz
 				1U
 			};
 
-			if (!framebuffers[i].Create(*m_device, frameBufferCreate))
+			Vk::Framebuffer framebuffer;
+
+			if (!framebuffer.Create(*m_device, frameBufferCreate))
 			{
-				NazaraError("Failed to create framebuffer for image #" + NumberToString(i) + ": " + TranslateVulkanError(framebuffers[i].GetLastErrorCode()));
+				NazaraError("Failed to create framebuffer for image #" + NumberToString(i) + ": " + TranslateVulkanError(framebuffer.GetLastErrorCode()));
 				return false;
 			}
+
+			m_framebuffers.emplace_back(std::move(framebuffer));
 		}
 
-		m_framebuffer.emplace(framebuffers.data(), framebuffers.size());
 		return true;
 	}
 

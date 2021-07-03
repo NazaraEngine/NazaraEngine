@@ -32,7 +32,7 @@ namespace Nz
 			m_size = size;
 		}
 
-		return RenderFrame(m_renderImage[m_currentFrame].get(), invalidateFramebuffer);
+		return RenderFrame(m_renderImage[m_currentFrame].get(), invalidateFramebuffer, m_size, 0);
 	}
 
 	bool OpenGLRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters)
@@ -98,9 +98,16 @@ namespace Nz
 		return std::make_unique<OpenGLCommandPool>();
 	}
 
-	const OpenGLFramebuffer& OpenGLRenderWindow::GetFramebuffer() const
+	const OpenGLFramebuffer& OpenGLRenderWindow::GetFramebuffer(std::size_t i) const
 	{
+		assert(i == 0);
+		NazaraUnused(i);
 		return m_framebuffer;
+	}
+
+	std::size_t OpenGLRenderWindow::GetFramebufferCount() const
+	{
+		return 1;
 	}
 
 	const OpenGLRenderPass& OpenGLRenderWindow::GetRenderPass() const

@@ -21,13 +21,12 @@ namespace Nz
 	{
 		public:
 			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::AutoCommandBuffer commandBuffer);
-			inline VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, std::vector<Vk::AutoCommandBuffer> commandBuffers);
 			VulkanCommandBuffer(const VulkanCommandBuffer&) = delete;
 			VulkanCommandBuffer(VulkanCommandBuffer&&) = delete;
 			~VulkanCommandBuffer() = default;
 
 			inline std::size_t GetBindingIndex() const;
-			inline Vk::CommandBuffer& GetCommandBuffer(std::size_t imageIndex = 0);
+			inline const Vk::CommandBuffer& GetCommandBuffer() const;
 			inline std::size_t GetPoolIndex() const;
 			inline const VulkanCommandPool& GetOwner() const;
 
@@ -41,7 +40,7 @@ namespace Nz
 
 			std::size_t m_bindingIndex;
 			std::size_t m_poolIndex;
-			std::vector<Vk::AutoCommandBuffer> m_commandBuffers;
+			Vk::AutoCommandBuffer m_commandBuffer;
 			VulkanCommandPool& m_owner;
 	};
 }

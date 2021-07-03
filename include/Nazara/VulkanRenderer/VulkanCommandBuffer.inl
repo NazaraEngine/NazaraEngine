@@ -8,15 +8,11 @@
 namespace Nz
 {
 	inline VulkanCommandBuffer::VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, Vk::AutoCommandBuffer commandBuffer) :
-	VulkanCommandBuffer(owner, poolIndex, bindingIndex)
+	m_bindingIndex(bindingIndex),
+	m_poolIndex(poolIndex),
+	m_commandBuffer(std::move(commandBuffer)),
+	m_owner(owner)
 	{
-		m_commandBuffers.push_back(std::move(commandBuffer));
-	}
-
-	inline VulkanCommandBuffer::VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex, std::vector<Vk::AutoCommandBuffer> commandBuffers) :
-	VulkanCommandBuffer(owner, poolIndex, bindingIndex)
-	{
-		m_commandBuffers = std::move(commandBuffers);
 	}
 
 	inline VulkanCommandBuffer::VulkanCommandBuffer(VulkanCommandPool& owner, std::size_t poolIndex, std::size_t bindingIndex) :
@@ -31,13 +27,9 @@ namespace Nz
 		return m_bindingIndex;
 	}
 
-	inline Vk::CommandBuffer& VulkanCommandBuffer::GetCommandBuffer(std::size_t imageIndex)
+	inline const Vk::CommandBuffer& VulkanCommandBuffer::GetCommandBuffer() const
 	{
-		if (m_commandBuffers.size() == 1)
-			return m_commandBuffers.front();
-
-		assert(imageIndex < m_commandBuffers.size());
-		return m_commandBuffers[imageIndex].Get();
+		return m_commandBuffer;
 	}
 
 	inline std::size_t VulkanCommandBuffer::GetPoolIndex() const

@@ -19,19 +19,19 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanCommandBufferBuilder final : public CommandBufferBuilder
 	{
 		public:
-			inline VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer, std::size_t imageIndex = 0);
+			inline VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer);
 			VulkanCommandBufferBuilder(const VulkanCommandBufferBuilder&) = delete;
 			VulkanCommandBufferBuilder(VulkanCommandBufferBuilder&&) noexcept = default;
 			~VulkanCommandBufferBuilder() = default;
 
-			void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) override;
-			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
+			void BeginDebugRegion(const std::string_view& regionName, const Color& color) override;
+			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
 			void BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset = 0) override;
 			void BindPipeline(const RenderPipeline& pipeline) override;
 			void BindShaderBinding(UInt32 set, const ShaderBinding& binding) override;
 			void BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) override;
-			void BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset = 0) override;
+			void BindVertexBuffer(UInt32 binding, AbstractBuffer* vertexBuffer, UInt64 offset = 0) override;
 
 			void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;
 			void CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0) override;
@@ -43,15 +43,14 @@ namespace Nz
 			void EndRenderPass() override;
 
 			inline Vk::CommandBuffer& GetCommandBuffer();
-			inline std::size_t GetMaxFramebufferCount() const;
-
+			
 			void NextSubpass() override;
 
 			void PreTransferBarrier() override;
 			void PostTransferBarrier() override;
 
-			void SetScissor(Nz::Recti scissorRegion) override;
-			void SetViewport(Nz::Recti viewportRegion) override;
+			void SetScissor(const Recti& scissorRegion) override;
+			void SetViewport(const Recti& viewportRegion) override;
 
 			void TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture) override;
 
@@ -62,8 +61,6 @@ namespace Nz
 			Vk::CommandBuffer& m_commandBuffer;
 			const VulkanRenderPass* m_currentRenderPass;
 			std::size_t m_currentSubpassIndex;
-			std::size_t m_framebufferCount;
-			std::size_t m_imageIndex;
 	};
 }
 

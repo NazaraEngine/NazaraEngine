@@ -35,7 +35,7 @@ namespace Nz
 			OpenGLCommandBuffer(OpenGLCommandBuffer&&) = delete;
 			~OpenGLCommandBuffer() = default;
 
-			inline void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color);
+			inline void BeginDebugRegion(const std::string_view& regionName, const Color& color);
 
 			inline void BindIndexBuffer(GLuint indexBuffer, UInt64 offset = 0);
 			inline void BindPipeline(const OpenGLRenderPipeline* pipeline);
@@ -57,8 +57,8 @@ namespace Nz
 			inline const OpenGLCommandPool& GetOwner() const;
 
 			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
-			inline void SetScissor(Nz::Recti scissorRegion);
-			inline void SetViewport(Nz::Recti viewportRegion);
+			inline void SetScissor(const Recti& scissorRegion);
+			inline void SetViewport(const Recti& viewportRegion);
 
 			OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
 			OpenGLCommandBuffer& operator=(OpenGLCommandBuffer&&) = delete;
@@ -72,7 +72,7 @@ namespace Nz
 			struct BeginDebugRegionData
 			{
 				std::string regionName;
-				Nz::Color color;
+				Color color;
 			};
 
 			struct CopyBufferData

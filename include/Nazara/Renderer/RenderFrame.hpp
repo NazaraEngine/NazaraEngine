@@ -8,6 +8,7 @@
 #define NAZARA_RENDERFRAME_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
@@ -23,13 +24,15 @@ namespace Nz
 	{
 		public:
 			inline explicit RenderFrame();
-			inline explicit RenderFrame(RenderImage* renderImage, bool framebufferInvalidation);
+			inline explicit RenderFrame(RenderImage* renderImage, bool framebufferInvalidation, const Vector2ui& size, std::size_t framebufferIndex);
 			RenderFrame(const RenderFrame&) = delete;
 			RenderFrame(RenderFrame&&) = delete;
 			~RenderFrame() = default;
 
 			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
 
+			inline std::size_t GetFramebufferIndex() const;
+			const Vector2ui& GetSize() const;
 			UploadPool& GetUploadPool();
 
 			inline bool IsFramebufferInvalidated() const;
@@ -47,7 +50,9 @@ namespace Nz
 			RenderFrame& operator=(RenderFrame&&) = delete;
 
 		private:
+			std::size_t m_framebufferIndex;
 			RenderImage* m_image;
+			Vector2ui m_size;
 			bool m_framebufferInvalidation;
 	};
 }

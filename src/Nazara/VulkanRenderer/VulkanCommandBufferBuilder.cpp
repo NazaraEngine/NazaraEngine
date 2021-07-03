@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	void VulkanCommandBufferBuilder::BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color)
+	void VulkanCommandBufferBuilder::BeginDebugRegion(const std::string_view& regionName, const Color& color)
 	{
 		// Ensure \0 at the end of string
 		StackArray<char> regionNameEOS = NazaraStackArrayNoInit(char, regionName.size() + 1);
@@ -27,27 +27,10 @@ namespace Nz
 		m_commandBuffer.BeginDebugRegion(regionNameEOS.data(), color);
 	}
 
-	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, Nz::Recti renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
+	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
 		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(renderPass);
-
-		const Vk::Framebuffer& vkFramebuffer = [&] () -> const Vk::Framebuffer&
-		{
-			switch (framebuffer.GetType())
-			{
-				case FramebufferType::Texture:
-					return static_cast<const VulkanTextureFramebuffer&>(framebuffer).GetFramebuffer();
-
-				case FramebufferType::Window:
-				{
-					const VulkanWindowFramebuffer& vkMultipleFramebuffer = static_cast<const VulkanWindowFramebuffer&>(framebuffer);
-					m_framebufferCount = std::max(m_framebufferCount, vkMultipleFramebuffer.GetFramebufferCount());
-					return vkMultipleFramebuffer.GetFramebuffer(m_imageIndex);
-				}
-			}
-
-			throw std::runtime_error("Unhandled framebuffer type " + std::to_string(UnderlyingCast(framebuffer.GetType())));
-		}();
+		const VulkanFramebuffer& vkFramebuffer = static_cast<const VulkanFramebuffer&>(framebuffer);
 
 		std::size_t attachmentCount = vkRenderPass.GetAttachmentCount();
 
@@ -73,7 +56,7 @@ namespace Nz
 
 		VkRenderPassBeginInfo beginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
 		beginInfo.renderPass = vkRenderPass.GetRenderPass();
-		beginInfo.framebuffer = vkFramebuffer;
+		beginInfo.framebuffer = vkFramebuffer.GetFramebuffer();
 		beginInfo.renderArea.offset.x = renderRect.x;
 		beginInfo.renderArea.offset.y = renderRect.y;
 		beginInfo.renderArea.extent.width = renderRect.width;
@@ -87,7 +70,7 @@ namespace Nz
 		m_currentSubpassIndex = 0;
 	}
 
-	void VulkanCommandBufferBuilder::BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset)
 	{
 		VulkanBuffer& vkBuffer = *static_cast<VulkanBuffer*>(indexBuffer);
 
@@ -120,7 +103,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
 	}
 
-	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, AbstractBuffer* vertexBuffer, UInt64 offset)
 	{
 		VulkanBuffer& vkBuffer = *static_cast<VulkanBuffer*>(vertexBuffer);
 
@@ -180,14 +163,14 @@ namespace Nz
 		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_UNIFORM_READ_BIT);
 	}
 
-	void VulkanCommandBufferBuilder::SetScissor(Nz::Recti scissorRegion)
+	void VulkanCommandBufferBuilder::SetScissor(const Recti& scissorRegion)
 	{
 		m_commandBuffer.SetScissor(scissorRegion);
 	}
 
-	void VulkanCommandBufferBuilder::SetViewport(Nz::Recti viewportRegion)
+	void VulkanCommandBufferBuilder::SetViewport(const Recti& viewportRegion)
 	{
-		m_commandBuffer.SetViewport(Nz::Rectf(viewportRegion), 0.f, 1.f);
+		m_commandBuffer.SetViewport(Rectf(viewportRegion), 0.f, 1.f);
 	}
 
 	void VulkanCommandBufferBuilder::TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture)
