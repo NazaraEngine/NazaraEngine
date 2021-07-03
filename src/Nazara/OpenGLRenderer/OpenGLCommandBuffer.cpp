@@ -142,7 +142,7 @@ namespace Nz
 						}
 					}
 
-					StackVector<GLenum> invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
+					StackVector<GLenum> invalidateAttachments;
 
 					if (command.framebuffer->GetType() == FramebufferType::Texture)
 					{
