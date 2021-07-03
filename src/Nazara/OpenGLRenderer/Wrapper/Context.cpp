@@ -64,7 +64,7 @@ namespace Nz::GL
 		}
 
 		template<typename FuncType, std::size_t FuncIndex, typename Func>
-		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = true)
+		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = false)
 		{
 			const Loader& loader = context.GetLoader();
 			GLFunction originalFuncPtr = loader.LoadFunction(funcName);
@@ -251,7 +251,7 @@ namespace Nz::GL
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true);
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true, true);
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
@@ -403,9 +403,9 @@ namespace Nz::GL
 	void Context::SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const
 	{
 		if (m_state.scissorBox.x != x ||
-			m_state.scissorBox.y != y ||
-			m_state.scissorBox.width != width ||
-			m_state.scissorBox.height != height)
+		    m_state.scissorBox.y != y ||
+		    m_state.scissorBox.width != width ||
+		    m_state.scissorBox.height != height)
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -422,9 +422,9 @@ namespace Nz::GL
 	void Context::SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const
 	{
 		if (m_state.viewport.x != x ||
-			m_state.viewport.y != y ||
-			m_state.viewport.width != width ||
-			m_state.viewport.height != height)
+		    m_state.viewport.y != y ||
+		    m_state.viewport.width != width ||
+		    m_state.viewport.height != height)
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -443,29 +443,7 @@ namespace Nz::GL
 		if (!SetCurrentContext(this))
 			throw std::runtime_error("failed to activate context");
 
-		if (renderStates.blending)
-		{
-			auto& currentBlend = m_state.renderStates.blend;
-			const auto& targetBlend = renderStates.blend;
-
-			if (currentBlend.modeColor != targetBlend.modeColor || currentBlend.modeAlpha != targetBlend.modeAlpha)
-			{
-				glBlendEquationSeparate(ToOpenGL(targetBlend.modeColor), ToOpenGL(targetBlend.modeAlpha));
-				currentBlend.modeAlpha = targetBlend.modeAlpha;
-				currentBlend.modeColor = targetBlend.modeColor;
-			}
-
-			if (currentBlend.dstAlpha != targetBlend.dstAlpha || currentBlend.dstColor != targetBlend.dstColor ||
-			    currentBlend.srcAlpha != targetBlend.srcAlpha || currentBlend.srcColor != targetBlend.srcColor)
-			{
-				glBlendFuncSeparate(ToOpenGL(targetBlend.srcColor), ToOpenGL(targetBlend.dstColor), ToOpenGL(targetBlend.srcAlpha), ToOpenGL(targetBlend.dstAlpha));
-				currentBlend.dstAlpha = targetBlend.dstAlpha;
-				currentBlend.dstColor = targetBlend.dstColor;
-				currentBlend.srcAlpha = targetBlend.srcAlpha;
-				currentBlend.srcColor = targetBlend.srcColor;
-			}
-		}
-
+		// Depth compare and depth write
 		if (renderStates.depthBuffer)
 		{
 			if (m_state.renderStates.depthCompare != renderStates.depthCompare)
@@ -481,6 +459,7 @@ namespace Nz::GL
 			}
 		}
 
+		// Face culling side
 		if (renderStates.faceCulling)
 		{
 			if (m_state.renderStates.cullingSide != renderStates.cullingSide)
@@ -490,6 +469,7 @@ namespace Nz::GL
 			}
 		}
 
+		// Front face
 		FrontFace targetFrontFace = renderStates.frontFace;
 		if (!isViewportFlipped)
 			targetFrontFace = (targetFrontFace == FrontFace::Clockwise) ? FrontFace::CounterClockwise : FrontFace::Clockwise;
@@ -500,12 +480,14 @@ namespace Nz::GL
 			m_state.renderStates.frontFace = targetFrontFace;
 		}
 
+		// Face filling
 		if (glPolygonMode && m_state.renderStates.faceFilling != renderStates.faceFilling)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, ToOpenGL(renderStates.faceFilling));
 			m_state.renderStates.faceFilling = renderStates.faceFilling;
 		}
 
+		// Front and back stencil states
 		if (renderStates.stencilTest)
 		{
 			auto ApplyStencilStates = [&](bool front)
@@ -544,18 +526,21 @@ namespace Nz::GL
 			ApplyStencilStates(false);
 		}
 
+		// Line width
 		if (!NumberEquals(m_state.renderStates.lineWidth, renderStates.lineWidth, 0.001f))
 		{
 			glLineWidth(renderStates.lineWidth);
 			m_state.renderStates.lineWidth = renderStates.lineWidth;
 		}
 
+		// Point size (TODO)
 		/*if (!NumberEquals(m_state.renderStates.pointSize, renderStates.pointSize, 0.001f))
 		{
 			glPointSize(renderStates.pointSize);
 			m_state.renderStates.pointSize = renderStates.pointSize;
 		}*/
 
+		// Blend states
 		if (m_state.renderStates.blending != renderStates.blending)
 		{
 			if (renderStates.blending)
@@ -566,6 +551,30 @@ namespace Nz::GL
 			m_state.renderStates.blending = renderStates.blending;
 		}
 
+		if (renderStates.blending)
+		{
+			auto& currentBlend = m_state.renderStates.blend;
+			const auto& targetBlend = renderStates.blend;
+
+			if (currentBlend.modeColor != targetBlend.modeColor || currentBlend.modeAlpha != targetBlend.modeAlpha)
+			{
+				glBlendEquationSeparate(ToOpenGL(targetBlend.modeColor), ToOpenGL(targetBlend.modeAlpha));
+				currentBlend.modeAlpha = targetBlend.modeAlpha;
+				currentBlend.modeColor = targetBlend.modeColor;
+			}
+
+			if (currentBlend.dstAlpha != targetBlend.dstAlpha || currentBlend.dstColor != targetBlend.dstColor ||
+				currentBlend.srcAlpha != targetBlend.srcAlpha || currentBlend.srcColor != targetBlend.srcColor)
+			{
+				glBlendFuncSeparate(ToOpenGL(targetBlend.srcColor), ToOpenGL(targetBlend.dstColor), ToOpenGL(targetBlend.srcAlpha), ToOpenGL(targetBlend.dstAlpha));
+				currentBlend.dstAlpha = targetBlend.dstAlpha;
+				currentBlend.dstColor = targetBlend.dstColor;
+				currentBlend.srcAlpha = targetBlend.srcAlpha;
+				currentBlend.srcColor = targetBlend.srcColor;
+			}
+		}
+
+		// Color write
 		if (m_state.renderStates.colorWrite != renderStates.colorWrite)
 		{
 			GLboolean param = (renderStates.colorWrite) ? GL_TRUE : GL_FALSE;
@@ -574,6 +583,7 @@ namespace Nz::GL
 			m_state.renderStates.colorWrite = renderStates.colorWrite;
 		}
 
+		// Depth buffer
 		if (m_state.renderStates.depthBuffer != renderStates.depthBuffer)
 		{
 			if (renderStates.depthBuffer)
@@ -584,6 +594,7 @@ namespace Nz::GL
 			m_state.renderStates.depthBuffer = renderStates.depthBuffer;
 		}
 
+		// Face culling
 		if (m_state.renderStates.faceCulling != renderStates.faceCulling)
 		{
 			if (renderStates.faceCulling)
@@ -594,6 +605,7 @@ namespace Nz::GL
 			m_state.renderStates.faceCulling = renderStates.faceCulling;
 		}
 
+		// Scissor test
 		if (m_state.renderStates.scissorTest != renderStates.scissorTest)
 		{
 			if (renderStates.scissorTest)
@@ -604,6 +616,7 @@ namespace Nz::GL
 			m_state.renderStates.scissorTest = renderStates.scissorTest;
 		}
 
+		// Stencil test
 		if (m_state.renderStates.stencilTest != renderStates.stencilTest)
 		{
 			if (renderStates.stencilTest)
@@ -665,7 +678,7 @@ namespace Nz::GL
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glPolygonMode);
 
-			return loader.Load<PFNGLPOLYGONMODENVPROC, functionIndex>(glPolygonMode, "glPolygonModeNV", false, false);
+			return loader.Load<PFNGLPOLYGONMODENVPROC, functionIndex>(glPolygonMode, "glPolygonModeNV", false); //< from GL_NV_polygon_mode
 		}
 
 		return false;
@@ -680,6 +693,7 @@ namespace Nz::GL
 
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
 	{
+		// Ignore debug groups
 		if (id == 0)
 			return;
 
@@ -714,7 +728,7 @@ namespace Nz::GL
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Extension source
 				ss << "Unknown";
 				break;
 		}
@@ -748,7 +762,7 @@ namespace Nz::GL
 				break;
 
 			default:
-				// Peut être rajouté par une extension
+				// Extension type
 				ss << "Unknown";
 				break;
 		}
