@@ -40,9 +40,12 @@ namespace Nz::ShaderLang
 		ForceCLocale forceCLocale;
 
 		std::unordered_map<std::string, TokenType> reservedKeywords = {
+			{ "discard",    TokenType::Discard },
+			{ "else",       TokenType::Else },
 			{ "external",   TokenType::External },
 			{ "false",      TokenType::BoolFalse },
 			{ "fn",         TokenType::FunctionDeclaration },
+			{ "if",         TokenType::If },
 			{ "let",        TokenType::Let },
 			{ "option",     TokenType::Option },
 			{ "return",     TokenType::Return },
@@ -263,10 +266,10 @@ namespace Nz::ShaderLang
 					if (next == '=')
 					{
 						currentPos++;
-						tokenType = TokenType::GreatherThanEqual;
+						tokenType = TokenType::GreaterThanEqual;
 					}
 					else
-						tokenType = TokenType::GreatherThan;
+						tokenType = TokenType::GreaterThan;
 
 					break;
 				}

@@ -83,6 +83,8 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::Attribute> ParseAttributes();
 
 			// Statements
+			ShaderAst::StatementPtr ParseBranchStatement();
+			ShaderAst::StatementPtr ParseDiscardStatement();
 			ShaderAst::StatementPtr ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes = {});
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
@@ -90,6 +92,7 @@ namespace Nz::ShaderLang
 			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseReturnStatement();
+			ShaderAst::StatementPtr ParseSingleStatement();
 			ShaderAst::StatementPtr ParseStatement();
 			std::vector<ShaderAst::StatementPtr> ParseStatementList();
 			ShaderAst::StatementPtr ParseVariableDeclaration();
@@ -126,6 +129,7 @@ namespace Nz::ShaderLang
 			Context* m_context;
 	};
 
+	inline ShaderAst::StatementPtr Parse(const std::string_view& source);
 	inline ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens);
 	NAZARA_SHADER_API ShaderAst::StatementPtr Parse(const std::filesystem::path& sourcePath);
 }
