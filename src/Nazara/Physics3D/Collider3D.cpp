@@ -60,12 +60,12 @@ namespace Nz
 
 			NewtonCollision* collision = CreateHandle(&world);
 			{
-				NewtonCollisionCalculateAABB(collision, offsetMatrix, &min.x, &max.x);
+				NewtonCollisionCalculateAABB(collision, &offsetMatrix.m11, &min.x, &max.x);
 			}
 			NewtonDestroyCollision(collision);
 		}
 		else
-			NewtonCollisionCalculateAABB(m_handles.begin()->second, offsetMatrix, &min.x, &max.x);
+			NewtonCollisionCalculateAABB(m_handles.begin()->second, &offsetMatrix.m11, &min.x, &max.x);
 
 		return Boxf(scale * min, scale * max);
 	}
@@ -128,18 +128,19 @@ namespace Nz
 		};
 
 		// Check for existing collision handles, and create a temporary one if none is available
+		Matrix4f identity = Matrix4f::Identity();
 		if (m_handles.empty())
 		{
 			PhysWorld3D world;
 
 			NewtonCollision* collision = CreateHandle(&world);
 			{
-				NewtonCollisionForEachPolygonDo(collision, Nz::Matrix4f::Identity(), newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
+				NewtonCollisionForEachPolygonDo(collision, &identity.m11, newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
 			}
 			NewtonDestroyCollision(collision);
 		}
 		else
-			NewtonCollisionForEachPolygonDo(m_handles.begin()->second, Nz::Matrix4f::Identity(), newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
+			NewtonCollisionForEachPolygonDo(m_handles.begin()->second, &identity.m11, newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
 	}
 
 	std::shared_ptr<StaticMesh> Collider3D::GenerateMesh() const
@@ -248,7 +249,7 @@ namespace Nz
 
 	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, m_matrix);
+		return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, &m_matrix.m11);
 	}
 
 	/******************************** CapsuleCollider3D ********************************/
@@ -282,7 +283,7 @@ namespace Nz
 
 	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_radius, m_length, 0, m_matrix);
+		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_radius, m_length, 0, &m_matrix.m11);
 	}
 
 	/******************************* CompoundCollider3D ********************************/
@@ -354,7 +355,7 @@ namespace Nz
 
 	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, m_matrix);
+		return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, &m_matrix.m11);
 	}
 
 	/****************************** ConvexCollider3D *******************************/
@@ -385,7 +386,7 @@ namespace Nz
 
 	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateConvexHull(world->GetHandle(), static_cast<int>(m_vertices.size()), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, m_matrix);
+		return NewtonCreateConvexHull(world->GetHandle(), static_cast<int>(m_vertices.size()), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, &m_matrix.m11);
 	}
 
 	/******************************* CylinderCollider3D ********************************/
@@ -419,7 +420,7 @@ namespace Nz
 
 	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_radius, m_length, 0, m_matrix);
+		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_radius, m_length, 0, &m_matrix.m11);
 	}
 
 	/********************************* NullCollider3D **********************************/
@@ -454,11 +455,10 @@ namespace Nz
 	{
 	}
 
-	SphereCollider3D::SphereCollider3D(float radius, const Vector3f& translation, const Quaternionf& rotation) :
+	SphereCollider3D::SphereCollider3D(float radius, const Vector3f& translation, const Quaternionf& /*rotation*/) :
 	m_position(translation),
 	m_radius(radius)
 	{
-		NazaraUnused(rotation);
 	}
 
 	Boxf SphereCollider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
@@ -486,6 +486,7 @@ namespace Nz
 
 	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld3D* world) const
 	{
-		return NewtonCreateSphere(world->GetHandle(), m_radius, 0, Matrix4f::Translate(m_position));
+		Matrix4f transformMatrix = Matrix4f::Translate(m_position);
+		return NewtonCreateSphere(world->GetHandle(), m_radius, 0, &transformMatrix.m11);
 	}
 }

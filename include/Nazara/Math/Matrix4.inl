@@ -1288,77 +1288,61 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Converts matrix to pointer to its own data
-	* \return A pointer to the own data
-	*
-	* \remark Access to index greather than 15 is undefined behavior
-	*/
-
-	template<typename T>
-	Matrix4<T>::operator T* ()
-	{
-		return &m11;
-	}
-
-	/*!
-	* \brief Converts matrix to pointer to its own data
-	* \return A constant pointer to the own data
-	*
-	* \remark Access to index greather than 15 is undefined behavior
-	*/
-
-	template<typename T>
-	Matrix4<T>::operator const T* () const
-	{
-		return &m11;
-	}
-
-	/*!
 	* \brief Gets the component (x, y) of the matrix
 	* \return A reference to the component (x, y)
 	*
-	* \remark Produce a NazaraError if you try to access index greater than 3 for x or y with NAZARA_MATH_SAFE defined
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3 for x or y
+	* \remark x and y must both be comprised in range [0,4[
 	*/
-
 	template<typename T>
-	T& Matrix4<T>::operator()(unsigned int x, unsigned int y)
+	T& Matrix4<T>::operator()(std::size_t x, std::size_t y)
 	{
-		#if NAZARA_MATH_SAFE
-		if (x > 3 || y > 3)
-		{
-			std::string error("Index out of range: (" + NumberToString(x) + ", " + NumberToString(y) +") > (3, 3)");
+		NazaraAssert(x <= 3, "index out of range");
+		NazaraAssert(y <= 3, "index out of range");
 
-			NazaraError(error);
-			throw std::out_of_range(error);
-		}
-		#endif
-
-		return (&m11)[y*4+x];
+		return (&m11)[y*4 + x];
 	}
 
 	/*!
 	* \brief Gets the component (x, y) of the matrix
 	* \return The value of the component (x, y)
 	*
-	* \remark Produce a NazaraError if you try to access index greater than 3 for x or y with NAZARA_MATH_SAFE defined
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3 for x or y
+	* \remark x and y must both be comprised in range [0,4[
 	*/
-
 	template<typename T>
-	T Matrix4<T>::operator()(unsigned int x, unsigned int y) const
+	T Matrix4<T>::operator()(std::size_t x, std::size_t y) const
 	{
-		#if NAZARA_MATH_SAFE
-		if (x > 3 || y > 3)
-		{
-			std::string error("Index out of range: (" + NumberToString(x) + ", " + NumberToString(y) +") > (3, 3)");
-
-			NazaraError(error);
-			throw std::out_of_range(error);
-		}
-		#endif
+		NazaraAssert(x <= 3, "index out of range");
+		NazaraAssert(y <= 3, "index out of range");
 
 		return (&m11)[y*4+x];
+	}
+
+	/*!
+	* \brief Gets the i-th component of the matrix
+	* \return The value of the component (i)
+	*
+	* \remark i must be comprised in range [0,16[
+	*/
+	template<typename T>
+	T& Matrix4<T>::operator[](std::size_t i)
+	{
+		NazaraAssert(i <= 16, "index out of range");
+
+		return (&m11)[i];
+	}
+
+	/*!
+	* \brief Gets the i-th component of the matrix
+	* \return The value of the component (i)
+	*
+	* \remark i must be comprised in range [0,16[
+	*/
+	template<typename T>
+	T Matrix4<T>::operator[](std::size_t i) const
+	{
+		NazaraAssert(i <= 16, "index out of range");
+
+		return (&m11)[i];
 	}
 
 	/*!
@@ -1771,7 +1755,7 @@ namespace Nz
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>)
 	{
-		T* head = matrix->operator T*();
+		T* head = &matrix->m11;
 		for (unsigned int i = 0; i < 16; ++i)
 		{
 			if (!Unserialize(context, head + i))
@@ -1814,3 +1798,4 @@ Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix)
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Matrix4.hpp"
