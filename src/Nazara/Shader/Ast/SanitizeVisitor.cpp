@@ -724,8 +724,6 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<DeclareExternalStatement>(AstCloner::Clone(node));
 		for (auto& extVar : clone->externalVars)
 		{
-			SanitizeIdentifier(extVar.name);
-
 			extVar.type = ResolveType(extVar.type);
 
 			ExpressionType varType;
@@ -739,6 +737,8 @@ namespace Nz::ShaderAst
 			std::size_t varIndex = RegisterVariable(extVar.name, std::move(varType));
 			if (!clone->varIndex)
 				clone->varIndex = varIndex; //< First external variable index is node variable index
+
+			SanitizeIdentifier(extVar.name);
 		}
 
 		return clone;
@@ -777,7 +777,6 @@ namespace Nz::ShaderAst
 		clone->parameters = node.parameters;
 		clone->returnType = ResolveType(node.returnType);
 
-		SanitizeIdentifier(clone->name);
 
 		Context::FunctionData tempFuncData;
 		tempFuncData.stageType = node.entryStage;
@@ -841,6 +840,8 @@ namespace Nz::ShaderAst
 			auto& targetFunc = m_functions[i];
 			targetFunc.calledByFunctions.UnboundedSet(funcIndex);
 		}
+
+		SanitizeIdentifier(clone->name);
 
 		return clone;
 	}
