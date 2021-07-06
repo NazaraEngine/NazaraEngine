@@ -23,9 +23,12 @@ namespace Nz
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
-		auto velView = registry.view<Nz::NodeComponent, const RigidBody3DComponent>();
-		for (auto [entity, nodeComponent, rigidBodyComponent] : velView.each())
+		auto view = registry.view<Nz::NodeComponent, const RigidBody3DComponent>();
+		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
 		{
+			if (rigidBodyComponent.IsSleeping())
+				continue;
+
 			nodeComponent.SetPosition(rigidBodyComponent.GetPosition(), CoordSys::Global);
 			nodeComponent.SetRotation(rigidBodyComponent.GetRotation(), CoordSys::Global);
 		}
