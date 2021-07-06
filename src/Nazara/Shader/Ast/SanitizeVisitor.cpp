@@ -901,13 +901,14 @@ namespace Nz::ShaderAst
 
 		if (m_context->options.makeVariableNameUnique && FindIdentifier(clone->varName) != nullptr)
 		{
+			// Try to append _X to the variable name until by incrementing X
 			unsigned int cloneIndex = 2;
-			std::string candidateName = clone->varName + "_" + std::to_string(cloneIndex);
-			while (FindIdentifier(clone->varName + "_" + std::to_string(cloneIndex)) != nullptr)
+			std::string candidateName;
+			do 
 			{
-				cloneIndex++;
-				candidateName = clone->varName + "_" + std::to_string(cloneIndex);
+				candidateName = clone->varName + "_" + std::to_string(cloneIndex++);
 			}
+			while (FindIdentifier(candidateName) != nullptr);
 
 			clone->varName = std::move(candidateName);
 		}
