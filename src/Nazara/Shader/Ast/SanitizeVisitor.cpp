@@ -899,6 +899,19 @@ namespace Nz::ShaderAst
 		else
 			clone->varType = ResolveType(clone->varType);
 
+		if (m_context->options.makeVariableNameUnique && FindIdentifier(clone->varName) != nullptr)
+		{
+			unsigned int cloneIndex = 2;
+			std::string candidateName = clone->varName + "_" + std::to_string(cloneIndex);
+			while (FindIdentifier(clone->varName + "_" + std::to_string(cloneIndex)) != nullptr)
+			{
+				cloneIndex++;
+				candidateName = clone->varName + "_" + std::to_string(cloneIndex);
+			}
+
+			clone->varName = std::move(candidateName);
+		}
+
 		clone->varIndex = RegisterVariable(clone->varName, clone->varType);
 
 		SanitizeIdentifier(clone->varName);

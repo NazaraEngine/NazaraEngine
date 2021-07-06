@@ -36,6 +36,7 @@ namespace Nz::ShaderAst
 			struct Options
 			{
 				std::unordered_set<std::string> reservedIdentifiers;
+				bool makeVariableNameUnique = false;
 				bool removeOptionDeclaration = true;
 			};
 
