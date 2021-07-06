@@ -7,6 +7,31 @@
 
 namespace Nz
 {
+	inline const std::shared_ptr<RenderPipeline>& Graphics::GetBlitPipeline() const
+	{
+		return m_blitPipeline;
+	}
+
+	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetBlitPipelineLayout() const
+	{
+		return m_blitPipelineLayout;
+	}
+
+	inline const std::shared_ptr<AbstractBuffer>& Graphics::GetFullscreenVertexBuffer() const
+	{
+		return m_fullscreenVertexBuffer;
+	}
+
+	inline const std::shared_ptr<VertexDeclaration>& Graphics::GetFullscreenVertexDeclaration() const
+	{
+		return m_fullscreenVertexDeclaration;
+	}
+
+	inline PixelFormat Graphics::GetPreferredDepthStencilFormat() const
+	{
+		return m_preferredDepthStencilFormat;
+	}
+
 	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetReferencePipelineLayout() const
 	{
 		return m_referencePipelineLayout;

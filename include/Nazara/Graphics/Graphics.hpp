@@ -31,6 +31,11 @@ namespace Nz
 			Graphics(Config config);
 			~Graphics();
 
+			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline() const;
+			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
+			inline const std::shared_ptr<AbstractBuffer>& GetFullscreenVertexBuffer() const;
+			inline const std::shared_ptr<VertexDeclaration>& GetFullscreenVertexDeclaration() const;
+			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetReferencePipelineLayout() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline TextureSamplerCache& GetSamplerCache();
@@ -48,9 +53,18 @@ namespace Nz
 			static void FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = WorldBindingSet);
 
 		private:
+			void BuildBlitPipeline();
+			void BuildFullscreenVertexBuffer();
+			void SelectDepthStencilFormats();
+
 			std::optional<TextureSamplerCache> m_samplerCache;
+			std::shared_ptr<AbstractBuffer> m_fullscreenVertexBuffer;
 			std::shared_ptr<RenderDevice> m_renderDevice;
+			std::shared_ptr<RenderPipeline> m_blitPipeline;
+			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
 			std::shared_ptr<RenderPipelineLayout> m_referencePipelineLayout;
+			std::shared_ptr<VertexDeclaration> m_fullscreenVertexDeclaration;
+			PixelFormat m_preferredDepthStencilFormat;
 
 			static Graphics* s_instance;
 	};

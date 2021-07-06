@@ -16,6 +16,8 @@ namespace Nz
 	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material)
 	{
 		assert(subMeshIndex < m_subMeshes.size());
+
+		OnMaterialInvalidated(this, subMeshIndex, material);
 		m_subMeshes[subMeshIndex].material = std::move(material);
 	}
 }

@@ -75,8 +75,8 @@ namespace Nz
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
 			inline const std::shared_ptr<AbstractBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
-			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
 			inline const std::vector<UInt8>& GetUniformBufferConstData(std::size_t bufferIndex);
+			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
 
 			inline bool HasTexture(std::size_t textureIndex) const;
 			inline bool HasVertexColor() const;
@@ -109,12 +109,14 @@ namespace Nz
 			bool Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
 
 			// Signals:
+			NazaraSignal(OnMaterialInvalidated, const Material* /*material*/);
 			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
 
 		private:
 			inline void InvalidatePipeline();
 			inline void InvalidateShaderBinding();
 			inline void InvalidateTextureSampler(std::size_t textureIndex);
+			inline void InvalidateUniformData(std::size_t uniformBufferIndex);
 			inline void UpdatePipeline() const;
 			void UpdateShaderBinding();
 

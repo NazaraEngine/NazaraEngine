@@ -8,11 +8,14 @@
 #define NAZARA_INSTANCEDRENDERABLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <memory>
 
 namespace Nz
 {
 	class CommandBufferBuilder;
+	class Material;
 	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API InstancedRenderable
@@ -23,10 +26,15 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			~InstancedRenderable();
 
-			virtual void Draw(CommandBufferBuilder& commandBuffer, const WorldInstance& instance) const = 0;
+			virtual void Draw(CommandBufferBuilder& commandBuffer) const = 0;
+
+			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
+			virtual std::size_t GetMaterialCount() const = 0;
 
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
+
+			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<Material>& /*newMaterial*/);
 	};
 }
 

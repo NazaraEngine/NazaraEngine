@@ -11,13 +11,21 @@
 
 namespace Nz
 {
+	namespace
+	{
+		const UInt8 r_blitShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/blit.nzsl.h>
+		};
+	}
+
 	/*!
 	* \ingroup graphics
 	* \class Nz::Graphics
 	* \brief Graphics class that represents the module initializer of Graphics
 	*/
 	Graphics::Graphics(Config config) :
-	ModuleBase("Graphics", this)
+	ModuleBase("Graphics", this),
+	m_preferredDepthStencilFormat(PixelFormat::Undefined)
 	{
 		ECS::RegisterComponents();
 
@@ -60,11 +68,20 @@ namespace Nz
 		FillWorldPipelineLayout(referenceLayoutInfo);
 
 		m_referencePipelineLayout = m_renderDevice->InstantiateRenderPipelineLayout(std::move(referenceLayoutInfo));
+
+		BuildFullscreenVertexBuffer();
+		BuildBlitPipeline();
+		SelectDepthStencilFormats();
 	}
 
 	Graphics::~Graphics()
 	{
 		MaterialPipeline::Uninitialize();
+		m_samplerCache.reset();
+		m_fullscreenVertexBuffer.reset();
+		m_fullscreenVertexDeclaration.reset();
+		m_blitPipeline.reset();
+		m_blitPipelineLayout.reset();
 	}
 
 	void Graphics::FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
@@ -83,6 +100,81 @@ namespace Nz
 			ShaderBindingType::UniformBuffer,
 			ShaderStageType_All
 		});
+	}
+
+	void Graphics::BuildBlitPipeline()
+	{
+		RenderPipelineLayoutInfo layoutInfo;
+		layoutInfo.bindings.assign({
+			{
+				0, 0,
+				ShaderBindingType::Texture,
+				ShaderStageType::Fragment
+			}
+		});
+
+		m_blitPipelineLayout = m_renderDevice->InstantiateRenderPipelineLayout(std::move(layoutInfo));
+		if (!m_blitPipelineLayout)
+			throw std::runtime_error("failed to instantiate fullscreen renderpipeline layout");
+
+		auto blitShader = m_renderDevice->InstantiateShaderModule(ShaderStageType::Fragment | ShaderStageType::Vertex, ShaderLanguage::NazaraShader, r_blitShader, sizeof(r_blitShader), {});
+		if (!blitShader)
+			throw std::runtime_error("failed to instantiate blit shader");
+
+		RenderPipelineInfo pipelineInfo;
+		pipelineInfo.pipelineLayout = m_blitPipelineLayout;
+		pipelineInfo.shaderModules.push_back(std::move(blitShader));
+		pipelineInfo.vertexBuffers.assign({
+			{
+				0,
+				m_fullscreenVertexDeclaration
+			}
+		});
+
+		m_blitPipeline = m_renderDevice->InstantiateRenderPipeline(std::move(pipelineInfo));
+	}
+
+	void Graphics::BuildFullscreenVertexBuffer()
+	{
+		m_fullscreenVertexDeclaration = VertexDeclaration::Get(VertexLayout::XY_UV);
+		std::array<Nz::VertexStruct_XY_UV, 3> vertexData = {
+			{
+				{
+					Nz::Vector2f(-1.f, 1.f),
+					Nz::Vector2f(0.0f, 1.0f),
+				},
+				{
+					Nz::Vector2f(-1.f, -3.f),
+					Nz::Vector2f(0.0f, -1.0f),
+				},
+				{
+					Nz::Vector2f(3.f, 1.f),
+					Nz::Vector2f(2.0f, 1.0f),
+				}
+			}
+		};
+
+		m_fullscreenVertexBuffer = m_renderDevice->InstantiateBuffer(BufferType::Vertex);
+		if (!m_fullscreenVertexBuffer->Initialize(m_fullscreenVertexDeclaration->GetStride() * vertexData.size(), BufferUsage::DeviceLocal))
+			throw std::runtime_error("failed to initialize fullscreen vertex buffer");
+
+		if (!m_fullscreenVertexBuffer->Fill(vertexData.data(), 0, m_fullscreenVertexDeclaration->GetStride() * vertexData.size()))
+			throw std::runtime_error("failed to fill fullscreen vertex buffer");
+	}
+
+	void Graphics::SelectDepthStencilFormats()
+	{
+		for (PixelFormat depthStencilCandidate : { PixelFormat::Depth24Stencil8, PixelFormat::Depth32FStencil8, PixelFormat::Depth16Stencil8 })
+		{
+			if (m_renderDevice->IsTextureFormatSupported(depthStencilCandidate, TextureUsage::DepthStencilAttachment))
+			{
+				m_preferredDepthStencilFormat = depthStencilCandidate;
+				break;
+			}
+		}
+
+		if (m_preferredDepthStencilFormat == PixelFormat::Undefined)
+			throw std::runtime_error("no supported depth-stencil format found");
 	}
 
 	Graphics* Graphics::s_instance = nullptr;
