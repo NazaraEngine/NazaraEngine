@@ -103,7 +103,7 @@ namespace std
 
 			NazaraRenderStateEnum(faceFilling);
 
-			if (pipelineInfo.blending) //< Remember, at this time we know lhs.blending == rhs.blending
+			if (pipelineInfo.blending) //< we don't care about blending state if blending isn't enabled
 			{
 				NazaraRenderStateEnum(blend.dstAlpha);
 				NazaraRenderStateEnum(blend.dstColor);
@@ -119,7 +119,7 @@ namespace std
 			if (pipelineInfo.faceCulling)
 				NazaraRenderStateEnum(cullingSide);
 
-			if (pipelineInfo.stencilTest)
+			if (pipelineInfo.stencilTest) //< we don't care about stencil state if stencil isn't enabled
 			{
 				NazaraRenderStateEnum(stencilBack.compare);
 				NazaraRenderStateUInt32(stencilBack.compareMask);

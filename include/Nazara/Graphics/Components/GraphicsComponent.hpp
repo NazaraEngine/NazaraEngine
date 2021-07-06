@@ -19,7 +19,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API GraphicsComponent
 	{
 		public:
-			GraphicsComponent() = default;
+			GraphicsComponent();
 			GraphicsComponent(const GraphicsComponent&) = default;
 			GraphicsComponent(GraphicsComponent&&) = default;
 			~GraphicsComponent() = default;
@@ -34,9 +34,12 @@ namespace Nz
 			GraphicsComponent& operator=(const GraphicsComponent&) = default;
 			GraphicsComponent& operator=(GraphicsComponent&&) = default;
 
+			NazaraSignal(OnRenderableAttached, GraphicsComponent* /*graphicsComponent*/, const std::shared_ptr<InstancedRenderable>& /*renderable*/);
+			NazaraSignal(OnRenderableDetach, GraphicsComponent* /*graphicsComponent*/, const std::shared_ptr<InstancedRenderable>& /*renderable*/);
+
 		private:
 			std::vector<std::shared_ptr<InstancedRenderable>> m_renderables;
-			WorldInstance m_worldInstance;
+			std::unique_ptr<WorldInstance> m_worldInstance;
 	};
 }
 

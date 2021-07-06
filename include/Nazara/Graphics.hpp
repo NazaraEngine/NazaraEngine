@@ -29,14 +29,17 @@
 #ifndef NAZARA_GLOBAL_GRAPHICS_HPP
 #define NAZARA_GLOBAL_GRAPHICS_HPP
 
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
+#include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>

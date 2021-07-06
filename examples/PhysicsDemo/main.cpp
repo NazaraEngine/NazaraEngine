@@ -3,6 +3,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/Components.hpp>
+#include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Physics3D/Components.hpp>
@@ -49,6 +50,8 @@ int main()
 		return __LINE__;
 	}
 
+	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
+
 	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceshipMesh)
 	{
@@ -89,10 +92,6 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::ViewerInstance viewerInstance;
-	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));
-	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
-
 	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0), Nz::BufferAccess::ReadOnly);
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
@@ -100,7 +99,12 @@ int main()
 	entt::registry registry;
 
 	Nz::Physics3DSystem physSytem(registry);
+	Nz::RenderSystem renderSystem(registry);
 
+
+	entt::entity viewer = registry.create();
+	registry.emplace<Nz::NodeComponent>(viewer);
+	registry.emplace<Nz::CameraComponent>(viewer, windowImpl);
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
@@ -122,40 +126,40 @@ int main()
 	}
 
 	entt::entity playerEntity = registry.create();
-	Nz::Node headingNode;
-	{
-		auto& entityNode = registry.emplace<Nz::NodeComponent>(playerEntity);
-		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
 
+	entt::entity headingEntity = registry.create();
+	{
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
 		entityGfx.AttachRenderable(model);
+
+		auto& entityNode = registry.emplace<Nz::NodeComponent>(playerEntity);
+		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
 
 		auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(playerEntity, physSytem.CreateRigidBody(shipCollider));
 		entityPhys.SetMass(50.f);
 		entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
 
-		headingNode.SetParent(entityNode);
+		auto& headingNode = registry.emplace<Nz::NodeComponent>(headingEntity);
 		headingNode.SetInheritRotation(false);
-		headingNode.SetRotation(entityNode.GetRotation());
+		headingNode.SetParent(registry, playerEntity);
 	}
 
 
-	Nz::Node cameraNode;
-	cameraNode.SetParent(headingNode);
-	cameraNode.SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
+	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
+	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
-	for (std::size_t x = 0; x < 1; ++x)
+	for (std::size_t x = 0; x < 5; ++x)
 	{
-		for (std::size_t y = 0; y < 1; ++y)
+		for (std::size_t y = 0; y < 5; ++y)
 		{
-			for (std::size_t z = 0; z < 10; ++z)
+			for (std::size_t z = 0; z < 5; ++z)
 			{
 				entt::entity entity = registry.create();
-				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
-				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
-
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
 				entityGfx.AttachRenderable(model);
+
+				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
+				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
 
 				auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(entity, physSytem.CreateRigidBody(shipCollider));
 				entityPhys.SetMass(1.f);
@@ -164,46 +168,6 @@ int main()
 			}
 		}
 	}
-
-
-	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
-	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
-
-	Nz::CommandBufferPtr drawCommandBuffer;
-	auto RebuildCommandBuffer = [&]
-	{
-		Nz::Vector2ui windowSize = window.GetSize();
-		drawCommandBuffer = commandPool->BuildCommandBuffer([&](Nz::CommandBufferBuilder& builder)
-		{
-			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
-
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
-			clearValues[0].color = Nz::Color(80, 80, 80);
-			clearValues[1].depth = 1.f;
-			clearValues[1].stencil = 0;
-
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
-			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
-				{
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
-
-					auto view = registry.view<const Nz::GraphicsComponent>();
-					for (auto [entity, gfxComponent] : view.each())
-					{
-						const Nz::WorldInstance& worldInstance = gfxComponent.GetWorldInstance();
-						for (const auto& renderable : gfxComponent.GetRenderables())
-							renderable->Draw(builder, worldInstance);
-					}
-				}
-				builder.EndRenderPass();
-			}
-			builder.EndDebugRegion();
-		});
-	};
-
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -254,13 +218,19 @@ int main()
 						{
 							auto view = registry.view<Nz::GraphicsComponent>();
 							for (auto [entity, gfxComponent] : view.each())
+							{
 								gfxComponent.AttachRenderable(colliderModel);
+								registry.patch<Nz::GraphicsComponent>(entity);
+							}
 						}
 						else
 						{
 							auto view = registry.view<Nz::GraphicsComponent>();
 							for (auto [entity, gfxComponent] : view.each())
+							{
 								gfxComponent.DetachRenderable(colliderModel);
+								registry.patch<Nz::GraphicsComponent>(entity);
+							}
 						}
 						rebuildCommandBuffer = true;
 					}
@@ -278,15 +248,15 @@ int main()
 
 					camQuat = camAngles;
 
-					headingNode.SetRotation(camQuat);
+					registry.get<Nz::NodeComponent>(headingEntity).SetRotation(camQuat);
 					break;
 				}
 
 				case Nz::WindowEventType::Resized:
 				{
 					Nz::Vector2ui windowSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
-					viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
+					//viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
+					//viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
 					break;
 				}
 
@@ -306,11 +276,11 @@ int main()
 			Nz::RigidBody3DComponent& playerShipBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
 
-			Nz::Vector3f desiredHeading = headingNode.GetForward();
+			Nz::Vector3f desiredHeading = registry.get<Nz::NodeComponent>(headingEntity).GetForward();
 			Nz::Vector3f currentHeading = currentRotation * Nz::Vector3f::Forward();
 			Nz::Vector3f headingError = currentHeading.CrossProduct(desiredHeading);
 
-			Nz::Vector3f desiredUp = headingNode.GetUp();
+			Nz::Vector3f desiredUp = registry.get<Nz::NodeComponent>(headingEntity).GetUp();
 			Nz::Vector3f currentUp = currentRotation * Nz::Vector3f::Up();
 			Nz::Vector3f upError = currentUp.CrossProduct(desiredUp);
 
@@ -342,49 +312,7 @@ int main()
 		if (!frame)
 			continue;
 
-		Nz::UploadPool& uploadPool = frame.GetUploadPool();
-
-		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(cameraNode.GetPosition(Nz::CoordSys::Global), cameraNode.GetRotation(Nz::CoordSys::Global)));
-
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
-		{
-			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
-			{
-				builder.PreTransferBarrier();
-
-				viewerInstance.UpdateBuffers(uploadPool, builder);
-				/*
-				modelInstance.UpdateBuffers(uploadPool, builder);
-				modelInstance2.UpdateBuffers(uploadPool, builder);
-				*/
-
-				auto view = registry.view<Nz::GraphicsComponent, const Nz::NodeComponent>();
-				for (auto [entity, gfxComponent, nodeComponent] : view.each())
-				{
-					Nz::WorldInstance& worldInstance = gfxComponent.GetWorldInstance();
-					worldInstance.UpdateWorldMatrix(nodeComponent.GetTransformMatrix());
-
-					worldInstance.UpdateBuffers(uploadPool, builder);
-				}
-
-				if (material->Update(frame, builder))
-					rebuildCommandBuffer = true;
-
-				if (colliderMat->Update(frame, builder))
-					rebuildCommandBuffer = true;
-
-				builder.PostTransferBarrier();
-			}
-			builder.EndDebugRegion();
-		}, Nz::QueueType::Transfer);
-
-		if (rebuildCommandBuffer || frame.IsFramebufferInvalidated())
-		{
-			frame.PushForRelease(std::move(drawCommandBuffer));
-			RebuildCommandBuffer();
-		}
-
-		frame.SubmitCommandBuffer(drawCommandBuffer.get(), Nz::QueueType::Graphics);
+		renderSystem.Render(registry, frame);
 
 		frame.Present();
 

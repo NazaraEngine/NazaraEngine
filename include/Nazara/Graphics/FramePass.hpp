@@ -9,8 +9,10 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
+#include <functional>
 #include <limits>
 #include <optional>
 #include <string>
@@ -30,7 +32,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API FramePass
 	{
 		public:
-			using CommandCallback = std::function<void(CommandBufferBuilder& builder)>;
+			using CommandCallback = std::function<void(CommandBufferBuilder& builder, const Recti& renderRect)>;
 			using ExecutionCallback = std::function<FramePassExecution()>;
 			struct DepthStencilClear;
 			struct Input;

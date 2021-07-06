@@ -8,6 +8,19 @@
 
 namespace Nz
 {
+	namespace Detail
+	{
+		template<typename T>
+		struct RegisterComponent
+		{
+			void operator()(entt::id_type& expectedId)
+			{
+				if (entt::type_seq<T>() != expectedId++)
+					throw std::runtime_error(std::string(entt::type_name<T>::value()) + " has wrong index, please initialize Nazara ECS before instancing your own components");
+			}
+		};
+	}
+
 	/*!
 	* \ingroup core
 	* \class Nz::ECS
@@ -21,14 +34,8 @@ namespace Nz
 
 	inline void ECS::RegisterComponents()
 	{
-		if (entt::type_seq<NodeComponent>() != 0)
-			throw std::runtime_error("NodeComponent has wrong index, please initialize Nazara ECS before instancing your own components");
-
-		if (entt::type_seq<GraphicsComponent>() != 1)
-			throw std::runtime_error("GraphicsComponent has wrong index, please initialize Nazara ECS before instancing your own components");
-
-		if (entt::type_seq<RigidBody3DComponent>() != 2)
-			throw std::runtime_error("GraphicsComponent has wrong index, please initialize Nazara ECS before instancing your own components");
+		entt::id_type expectedId = 0;
+		TypeListApply<TypeList<NodeComponent, CameraComponent, GraphicsComponent, RigidBody3DComponent>, Detail::RegisterComponent>(expectedId);
 	}
 }
 

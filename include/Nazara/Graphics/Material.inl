@@ -468,18 +468,19 @@ namespace Nz
 		return m_uniformBuffers[bufferIndex].buffer;
 	}
 
-	inline std::vector<UInt8>& Material::GetUniformBufferData(std::size_t bufferIndex)
-	{
-		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
-		UniformBuffer& uboEntry = m_uniformBuffers[bufferIndex];
-		uboEntry.dataInvalidated = true;
-		return uboEntry.data;
-	}
-
 	inline const std::vector<UInt8>& Material::GetUniformBufferConstData(std::size_t bufferIndex)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex].data;
+	}
+
+	inline std::vector<UInt8>& Material::GetUniformBufferData(std::size_t bufferIndex)
+	{
+		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
+		UniformBuffer& uboEntry = m_uniformBuffers[bufferIndex];
+		InvalidateUniformData(bufferIndex);
+
+		return uboEntry.data;
 	}
 
 	inline bool Material::HasTexture(std::size_t textureIndex) const
@@ -740,11 +741,13 @@ namespace Nz
 	inline void Material::InvalidatePipeline()
 	{
 		m_pipelineUpdated = false;
+		OnMaterialInvalidated(this);
 	}
 
 	inline void Material::InvalidateShaderBinding()
 	{
 		m_shaderBindingUpdated = false;
+		OnMaterialInvalidated(this);
 	}
 
 	inline void Material::InvalidateTextureSampler(std::size_t textureIndex)
@@ -753,6 +756,15 @@ namespace Nz
 		m_textures[textureIndex].sampler.reset();
 
 		InvalidateShaderBinding();
+	}
+
+	inline void Material::InvalidateUniformData(std::size_t uniformBufferIndex)
+	{
+		assert(uniformBufferIndex < m_uniformBuffers.size());
+		UniformBuffer& uboEntry = m_uniformBuffers[uniformBufferIndex];
+		uboEntry.dataInvalidated = true;
+
+		OnMaterialInvalidated(this);
 	}
 
 	inline void Material::UpdatePipeline() const

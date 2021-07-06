@@ -16,6 +16,12 @@ namespace Nz
 		Sphere,
 		Volume
 	};
+
+	enum class ProjectionType
+	{
+		Orthographic,
+		Perspective
+	};
 }
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

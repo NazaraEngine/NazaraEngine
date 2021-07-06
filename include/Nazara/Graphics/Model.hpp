@@ -28,11 +28,12 @@ namespace Nz
 			Model(Model&&) noexcept = default;
 			~Model() = default;
 
-			void Draw(CommandBufferBuilder& commandBuffer, const WorldInstance& instance) const override;
+			void Draw(CommandBufferBuilder& commandBuffer) const override;
 
 			const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
-			const std::shared_ptr<Material>& GetMaterial(std::size_t subMeshIndex) const;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t subMeshIndex) const override;
+			std::size_t GetMaterialCount() const override;
 			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(std::size_t subMeshIndex) const;
 			const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 			inline std::size_t GetSubMeshCount() const;

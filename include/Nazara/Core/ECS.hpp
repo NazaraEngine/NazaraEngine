@@ -13,6 +13,7 @@
 
 namespace Nz
 {
+	class CameraComponent;
 	class GraphicsComponent;
 	class NodeComponent;
 	class RigidBody3DComponent;

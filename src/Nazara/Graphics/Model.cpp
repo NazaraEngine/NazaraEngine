@@ -29,10 +29,8 @@ namespace Nz
 		}
 	}
 
-	void Model::Draw(CommandBufferBuilder& commandBuffer, const WorldInstance& instance) const
+	void Model::Draw(CommandBufferBuilder& commandBuffer) const
 	{
-		commandBuffer.BindShaderBinding(Graphics::WorldBindingSet, instance.GetShaderBinding());
-
 		for (std::size_t i = 0; i < m_subMeshes.size(); ++i)
 		{
 			const auto& submeshData = m_subMeshes[i];
@@ -64,6 +62,11 @@ namespace Nz
 		assert(subMeshIndex < m_subMeshes.size());
 		const auto& subMeshData = m_subMeshes[subMeshIndex];
 		return subMeshData.material;
+	}
+
+	std::size_t Model::GetMaterialCount() const
+	{
+		return m_subMeshes.size();
 	}
 
 	const std::shared_ptr<RenderPipeline>& Model::GetRenderPipeline(std::size_t subMeshIndex) const

@@ -26,10 +26,9 @@
 
 #pragma once
 
-#ifndef NAZARA_GLOBAL_GRAPHICS_COMPONENTS_HPP
-#define NAZARA_GLOBAL_GRAPHICS_COMPONENTS_HPP
+#ifndef NAZARA_GLOBAL_GRAPHICS_SYSTEMS_HPP
+#define NAZARA_GLOBAL_GRAPHICS_SYSTEMS_HPP
 
-#include <Nazara/Graphics/Components/CameraComponent.hpp>
-#include <Nazara/Graphics/Components/GraphicsComponent.hpp>
+#include <Nazara/Graphics/Systems/RenderSystem.hpp>
 
-#endif // NAZARA_GLOBAL_GRAPHICS_COMPONENTS_HPP
+#endif // NAZARA_GLOBAL_GRAPHICS_SYSTEMS_HPP
