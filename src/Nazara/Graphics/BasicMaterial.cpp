@@ -8,6 +8,8 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Shader/ShaderLangLexer.hpp>
+#include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
@@ -19,12 +21,8 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_fragmentShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/basicmaterial.frag.shader.h>
-		};
-
-		const UInt8 r_vertexShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/basicmaterial.vert.shader.h>
+		const UInt8 r_shader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/basicmaterial.nzsl.h>
 		};
 	}
 
@@ -151,8 +149,10 @@ namespace Nz
 		auto& fragmentShader = settings.shaders[UnderlyingCast(ShaderStageType::Fragment)];
 		auto& vertexShader = settings.shaders[UnderlyingCast(ShaderStageType::Vertex)];
 
-		fragmentShader = std::make_shared<UberShader>(ShaderStageType::Fragment, ShaderAst::UnserializeShader(r_fragmentShader, sizeof(r_fragmentShader)));
-		vertexShader = std::make_shared<UberShader>(ShaderStageType::Vertex, ShaderAst::UnserializeShader(r_vertexShader, sizeof(r_vertexShader)));
+		ShaderAst::StatementPtr shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+
+		fragmentShader = std::make_shared<UberShader>(ShaderStageType::Fragment, shaderAst);
+		vertexShader = std::make_shared<UberShader>(ShaderStageType::Vertex, shaderAst);
 
 		// Conditions
 
