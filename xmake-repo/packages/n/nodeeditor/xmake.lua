@@ -7,7 +7,7 @@ package("nodeeditor")
     set_urls("https://github.com/paceholder/nodeeditor/archive/refs/tags/$(version).tar.gz",
              "https://github.com/paceholder/nodeeditor.git")
     add_versions("2.1.3", "4e3194a04ac4a2a2bf4bc8eb6cc27d5cc154923143c1ecf579ce7f0115a90585")
-    add_patches("2.1.3", path.join(os.scriptdir(), "patches", "2.1.3", "fix_qt.patch"), "17cdcb44a4e1d7b7a959d3717e71b068c356f2a09d910ae5a7b33e5c65c25139")
+    add_patches("2.1.3", path.join(os.scriptdir(), "patches", "2.1.3", "fix_qt.patch"), "804ee98d47b675c578981414ed25a745f1b12d0cd8b03ea7d7b079c7e1ce1ea9")
 
     add_deps("cmake")
 
