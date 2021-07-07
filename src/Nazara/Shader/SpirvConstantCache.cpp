@@ -588,6 +588,9 @@ namespace Nz
 
 		for (const auto& member : structDesc.members)
 		{
+			if (member.cond.HasValue() && !member.cond.GetResultingValue())
+				continue;
+
 			auto& sMembers = sType.members.emplace_back();
 			sMembers.name = member.name;
 			sMembers.type = BuildType(member.type);
