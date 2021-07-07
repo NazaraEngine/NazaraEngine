@@ -135,21 +135,28 @@ namespace Nz::ShaderAst
 				assert(structIndex < m_context->structs.size());
 				const StructDescription* s = m_context->structs[structIndex];
 
-				auto it = std::find_if(s->members.begin(), s->members.end(), [&](const auto& field)
+				// Retrieve member index (not counting disabled fields)
+				Int32 fieldIndex = 0;
+				const StructDescription::StructMember* fieldPtr = nullptr;
+				for (const auto& field : s->members)
 				{
-					if (field.name != identifier)
-						return false;
-
 					if (field.cond.HasValue() && !field.cond.GetResultingValue())
-						return false;
+						continue;
 
-					return true;
-				});
-				if (it == s->members.end())
+					if (field.name == identifier)
+					{
+						fieldPtr = &field;
+						break;
+					}
+
+					fieldIndex++;
+				}
+
+				if (!fieldPtr)
 					throw AstError{ "unknown field " + identifier };
 
-				accessIndexPtr->indices.push_back(ShaderBuilder::Constant(Int32(std::distance(s->members.begin(), it))));
-				accessIndexPtr->cachedExpressionType = ResolveType(it->type);
+				accessIndexPtr->indices.push_back(ShaderBuilder::Constant(fieldIndex));
+				accessIndexPtr->cachedExpressionType = ResolveType(fieldPtr->type);
 			}
 			else if (IsVectorType(exprType))
 			{
