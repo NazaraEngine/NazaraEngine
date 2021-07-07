@@ -264,8 +264,8 @@ namespace Nz
 					for (unsigned int i = 0; i < 8; ++i)
 					{
 						u_short addressPart = htons(address[i]);
-						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = addressPart >> 0;
-						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = addressPart >> 8;
+						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = static_cast<UCHAR>(addressPart >> 0);
+						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = static_cast<UCHAR>(addressPart >> 8);
 					}
 
 					return sizeof(sockaddr_in6);

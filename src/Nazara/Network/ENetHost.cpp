@@ -831,7 +831,7 @@ namespace Nz
 			command.header.channelID = acknowledgement.command.header.channelID;
 			command.header.reliableSequenceNumber = reliableSequenceNumber;
 			command.acknowledge.receivedReliableSequenceNumber = reliableSequenceNumber;
-			command.acknowledge.receivedSentTime = HostToNet<UInt16>(acknowledgement.sentTime);
+			command.acknowledge.receivedSentTime = HostToNet(UInt16(acknowledgement.sentTime));
 
 			if ((acknowledgement.command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_Disconnect)
 				peer->DispatchState(ENetPeerState::Zombie);
@@ -1219,7 +1219,7 @@ namespace Nz
 
 	void ENetHost::ThrottleBandwidth()
 	{
-		UInt32 currentTime = GetElapsedMilliseconds();
+		UInt32 currentTime = UInt32(GetElapsedMilliseconds());
 		UInt32 elapsedTime = currentTime - m_bandwidthThrottleEpoch;
 
 		if (elapsedTime < ENetConstants::ENetHost_BandwidthThrottleInterval)
@@ -1230,8 +1230,8 @@ namespace Nz
 		if (m_connectedPeers == 0)
 			return;
 
-		UInt32 dataTotal = ~0;
-		UInt32 bandwidth = ~0;
+		UInt32 dataTotal = ~UInt32(0);
+		UInt32 bandwidth = ~UInt32(0);
 
 		if (m_outgoingBandwidth != 0)
 		{
@@ -1248,8 +1248,8 @@ namespace Nz
 		}
 
 		UInt32 peersRemaining = m_connectedPeers;
-		UInt32 bandwidthLimit = ~0;
-		UInt32 throttle = ~0;
+		UInt32 bandwidthLimit = ~UInt32(0);
+		UInt32 throttle = ~UInt32(0);
 		bool needsAdjustment = m_bandwidthLimitedPeers > 0;
 
 		while (peersRemaining > 0 && needsAdjustment)

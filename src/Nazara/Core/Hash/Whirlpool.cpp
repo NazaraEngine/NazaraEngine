@@ -910,7 +910,7 @@ namespace Nz
 				bufferBits = bufferPos = 0; // reset buffer
 			}
 
-			buffer[bufferPos] = b << (8 - bufferRem);
+			buffer[bufferPos] = static_cast<UInt8>(b << (8 - bufferRem));
 			bufferBits += bufferRem;
 
 			// proceed to remaining data
@@ -945,7 +945,7 @@ namespace Nz
 				bufferBits = bufferPos = 0; // reset buffer
 			}
 
-			buffer[bufferPos] = b << (8 - bufferRem);
+			buffer[bufferPos] = UInt8(b << (8 - bufferRem));
 			bufferBits += len;
 		}
 
