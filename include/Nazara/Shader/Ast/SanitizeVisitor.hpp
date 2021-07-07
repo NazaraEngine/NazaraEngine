@@ -55,14 +55,17 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(CastExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
 			ExpressionPtr Clone(ConstantExpression& node) override;
+			ExpressionPtr Clone(ConstantIndexExpression& node) override;
 			ExpressionPtr Clone(IdentifierExpression& node) override;
 			ExpressionPtr Clone(IntrinsicExpression& node) override;
 			ExpressionPtr Clone(SelectOptionExpression& node) override;
 			ExpressionPtr Clone(SwizzleExpression& node) override;
 			ExpressionPtr Clone(UnaryExpression& node) override;
+			ExpressionPtr Clone(VariableExpression& node) override;
 
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
+			StatementPtr Clone(DeclareConstStatement& node) override;
 			StatementPtr Clone(DeclareExternalStatement& node) override;
 			StatementPtr Clone(DeclareFunctionStatement& node) override;
 			StatementPtr Clone(DeclareOptionStatement& node) override;
@@ -84,6 +87,7 @@ namespace Nz::ShaderAst
 
 			template<typename T> const T& ComputeAttributeValue(AttributeValue<T>& attribute);
 			ConstantValue ComputeConstantValue(Expression& expr);
+			template<typename T> std::unique_ptr<T> Optimize(T& node);
 
 			std::size_t DeclareFunction(DeclareFunctionStatement& funcDecl);
 

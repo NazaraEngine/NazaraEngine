@@ -68,8 +68,11 @@ void CodeOutputWidget::Refresh()
 		{
 			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst);
 
+			Nz::ShaderAst::AstOptimizer::Options optimOptions;
+			optimOptions.enabledOptions = enabledConditions;
+
 			Nz::ShaderAst::AstOptimizer optimiser;
-			shaderAst = optimiser.Optimise(*shaderAst, enabledConditions);
+			shaderAst = optimiser.Optimise(*shaderAst, optimOptions);
 		}
 
 		Nz::ShaderWriter::States states;

@@ -242,6 +242,7 @@ namespace Nz::ShaderAst
 
 		std::vector<ConditionalStatement> condStatements;
 		StatementPtr elseStatement;
+		bool isConst = false;
 	};
 
 	struct NAZARA_SHADER_API ConditionalStatement : Statement
@@ -251,6 +252,17 @@ namespace Nz::ShaderAst
 
 		ExpressionPtr condition;
 		StatementPtr statement;
+	};
+
+	struct NAZARA_SHADER_API DeclareConstStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		std::optional<std::size_t> constIndex;
+		std::string name;
+		ExpressionPtr expression;
+		ExpressionType type;
 	};
 
 	struct NAZARA_SHADER_API DeclareExternalStatement : Statement

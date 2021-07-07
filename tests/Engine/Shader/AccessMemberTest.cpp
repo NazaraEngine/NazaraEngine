@@ -63,12 +63,12 @@ SCENARIO("Shader generation", "[Shader]")
 		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(outerStruct)));
 
 		auto external = std::make_unique<Nz::ShaderAst::DeclareExternalStatement>();
-		external->externalVars.push_back({
-			0,
-			std::nullopt,
-			"ubo",
-			Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ "outerStruct" } }
-		});
+
+		auto& externalVar = external->externalVars.emplace_back();
+		externalVar.bindingIndex = 0;
+		externalVar.name = "ubo";
+		externalVar.type = Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ "outerStruct" } };
+
 		statements.push_back(std::move(external));
 
 		SECTION("Nested AccessMember")

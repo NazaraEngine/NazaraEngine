@@ -818,6 +818,10 @@ namespace Nz
 				Append("min");
 				break;
 
+			case ShaderAst::IntrinsicType::Pow:
+				Append("pow");
+				break;
+
 			case ShaderAst::IntrinsicType::SampleTexture:
 				assert(!node.parameters.empty());
 				Visit(node.parameters.front(), true);

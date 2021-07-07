@@ -40,6 +40,7 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<BranchStatement>();
 		clone->condStatements.reserve(node.condStatements.size());
+		clone->isConst = node.isConst;
 
 		for (auto& cond : node.condStatements)
 		{
@@ -58,6 +59,17 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<ConditionalStatement>();
 		clone->condition = CloneExpression(node.condition);
 		clone->statement = CloneStatement(node.statement);
+
+		return clone;
+	}
+
+	StatementPtr AstCloner::Clone(DeclareConstStatement& node)
+	{
+		auto clone = std::make_unique<DeclareConstStatement>();
+		clone->constIndex = node.constIndex;
+		clone->name = node.name;
+		clone->type = node.type;
+		clone->expression = CloneExpression(node.expression);
 
 		return clone;
 	}
