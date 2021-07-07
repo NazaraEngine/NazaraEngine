@@ -53,7 +53,7 @@ namespace Nz
 		return m_device;
 	}
 
-	bool OpenGLRenderer::Prepare(const ParameterList& parameters)
+	bool OpenGLRenderer::Prepare(const ParameterList& /*parameters*/)
 	{
 		std::unique_ptr<GL::Loader> loader = SelectLoader();
 		if (!loader)

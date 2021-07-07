@@ -330,7 +330,7 @@ namespace Nz
 					if (value > 65535) // must be 16 bit quantity
 						return false;
 
-					*(resultPtr++) = value >> 8;
+					*(resultPtr++) = static_cast<UInt8>(value >> 8);
 					*(resultPtr++) = value & 0xFF;
 
 					if (*addressPtr == ':') // typical case inside; carry on

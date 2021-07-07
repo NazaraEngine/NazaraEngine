@@ -126,6 +126,9 @@ namespace Nz
 						const auto& attachmentInfo = command.renderpass->GetAttachment(i);
 						switch (PixelFormatInfo::GetContent(attachmentInfo.format))
 						{
+							case PixelFormatContent::Undefined:
+								break;
+
 							case PixelFormatContent::ColorRGBA:
 								colorIndexes[colorIndex++] = i;
 								break;
@@ -136,6 +139,12 @@ namespace Nz
 								break;
 
 							case PixelFormatContent::DepthStencil:
+								if (!depthStencilIndex)
+									depthStencilIndex = i;
+								break;
+
+							case PixelFormatContent::Stencil:
+								//FIXME: I'm not sure stencil is properly handled here
 								if (!depthStencilIndex)
 									depthStencilIndex = i;
 								break;
@@ -164,7 +173,7 @@ namespace Nz
 								context->glClearBufferfv(GL_COLOR, GLint(i), clearColor.data());
 							}
 							else if (attachmentInfo.loadOp == AttachmentLoadOp::Discard)
-								invalidateAttachments.push_back(GL_COLOR_ATTACHMENT0 + i);
+								invalidateAttachments.push_back(static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i));
 						}
 
 						if (depthStencilIndex)
@@ -210,7 +219,6 @@ namespace Nz
 
 						if (colorIndex > 0)
 						{
-							std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
 							assert(colorBufferCount <= 1);
 
 							std::size_t colorAttachmentIndex = colorIndexes.front();

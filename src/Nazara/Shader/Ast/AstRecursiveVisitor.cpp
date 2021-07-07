@@ -4,7 +4,6 @@
 
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Debug.hpp>
-#include "..\..\..\..\include\Nazara\Shader\Ast\AstRecursiveVisitor.hpp"
 
 namespace Nz::ShaderAst
 {
