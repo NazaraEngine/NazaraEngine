@@ -4,15 +4,13 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Modules.hpp>
-#include <NazaraSDK/Application.hpp>
-#include <NazaraSDK/Sdk.hpp>
+#include <Nazara/Network/Network.hpp>
+#include <Nazara/Physics2D/Physics2D.hpp>
+#include <Nazara/Shader/Shader.hpp>
 
 int main(int argc, char* argv[])
 {
-	Nz::Modules<Ndk::Sdk> nazaza;
-	Ndk::Application app(argc, argv);
-
-	Nz::Log::GetLogger()->EnableStdReplication(false);
+	Nz::Modules<Nz::Network, Nz::Physics2D, Nz::Shader> nazaza;
 
 	int result = Catch::Session().run(argc, argv);
 
