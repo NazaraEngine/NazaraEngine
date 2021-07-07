@@ -7,6 +7,9 @@ Makefile
 vs/*
 vsxmake*/*
 
+# Embed resources
+src/Nazara/*/Resources/**.h
+
 # Nazara binaries
 bin/*
 !bin/resources
