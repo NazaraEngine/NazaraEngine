@@ -57,7 +57,8 @@ namespace Nz::ShaderBuilder
 		return binaryNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr truePath, ShaderAst::StatementPtr falsePath) const
+	template<bool Const>
+	std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch<Const>::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr truePath, ShaderAst::StatementPtr falsePath) const
 	{
 		auto branchNode = std::make_unique<ShaderAst::BranchStatement>();
 
@@ -66,15 +67,18 @@ namespace Nz::ShaderBuilder
 		condStatement.statement = std::move(truePath);
 
 		branchNode->elseStatement = std::move(falsePath);
+		branchNode->isConst = Const;
 
 		return branchNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch::operator()(std::vector<ShaderAst::BranchStatement::ConditionalStatement> condStatements, ShaderAst::StatementPtr elseStatement) const
+	template<bool Const>
+	std::unique_ptr<ShaderAst::BranchStatement> Impl::Branch<Const>::operator()(std::vector<ShaderAst::BranchStatement::ConditionalStatement> condStatements, ShaderAst::StatementPtr elseStatement) const
 	{
 		auto branchNode = std::make_unique<ShaderAst::BranchStatement>();
 		branchNode->condStatements = std::move(condStatements);
 		branchNode->elseStatement = std::move(elseStatement);
+		branchNode->isConst = Const;
 
 		return branchNode;
 	}
@@ -134,6 +138,25 @@ namespace Nz::ShaderBuilder
 		constantNode->value = std::move(value);
 
 		return constantNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareConstStatement> Impl::DeclareConst::operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const
+	{
+		auto declareConstNode = std::make_unique<ShaderAst::DeclareConstStatement>();
+		declareConstNode->name = std::move(name);
+		declareConstNode->expression = std::move(initialValue);
+
+		return declareConstNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareConstStatement> Impl::DeclareConst::operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue) const
+	{
+		auto declareConstNode = std::make_unique<ShaderAst::DeclareConstStatement>();
+		declareConstNode->name = std::move(name);
+		declareConstNode->type = std::move(type);
+		declareConstNode->expression = std::move(initialValue);
+
+		return declareConstNode;
 	}
 
 	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::string name, ShaderAst::StatementPtr statement) const

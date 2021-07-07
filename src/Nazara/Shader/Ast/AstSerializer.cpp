@@ -208,6 +208,7 @@ namespace Nz::ShaderAst
 		}
 
 		Node(node.elseStatement);
+		Value(node.isConst);
 	}
 
 	void AstSerializerBase::Serialize(ConditionalStatement& node)
@@ -230,6 +231,14 @@ namespace Nz::ShaderAst
 			Attribute(extVar.bindingIndex);
 			Attribute(extVar.bindingSet);
 		}
+	}
+
+	void AstSerializerBase::Serialize(DeclareConstStatement& node)
+	{
+		OptVal(node.constIndex);
+		Value(node.name);
+		Type(node.type);
+		Node(node.expression);
 	}
 
 	void AstSerializerBase::Serialize(DeclareFunctionStatement& node)

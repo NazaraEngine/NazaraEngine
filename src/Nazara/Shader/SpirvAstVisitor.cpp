@@ -584,6 +584,11 @@ namespace Nz
 		}, node.value);
 	}
 
+	void SpirvAstVisitor::Visit(ShaderAst::DeclareConstStatement& /*node*/)
+	{
+		/* nothing to do */
+	}
+
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareExternalStatement& node)
 	{
 		assert(node.varIndex);

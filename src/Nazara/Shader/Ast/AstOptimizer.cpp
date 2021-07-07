@@ -844,7 +844,10 @@ namespace Nz::ShaderAst
 		if (!m_options.constantQueryCallback)
 			return AstCloner::Clone(node);
 
-		return ShaderBuilder::Constant(m_options.constantQueryCallback(node.constantId));
+		auto constant = ShaderBuilder::Constant(m_options.constantQueryCallback(node.constantId));
+		constant->cachedExpressionType = GetExpressionType(constant->value);
+
+		return constant;
 	}
 
 	ExpressionPtr AstOptimizer::Clone(UnaryExpression& node)

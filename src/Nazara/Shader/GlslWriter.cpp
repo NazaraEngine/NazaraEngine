@@ -737,6 +737,8 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::BranchStatement& node)
 	{
+		assert(!node.isConst);
+
 		bool first = true;
 		for (const auto& statement : node.condStatements)
 		{
@@ -848,6 +850,11 @@ namespace Nz
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, node.value);
+	}
+
+	void GlslWriter::Visit(ShaderAst::DeclareConstStatement& /*node*/)
+	{
+		/* nothing to do */
 	}
 
 	void GlslWriter::Visit(ShaderAst::DeclareExternalStatement& node)
@@ -1033,9 +1040,7 @@ namespace Nz
 		assert(node.varIndex);
 		RegisterVariable(*node.varIndex, node.varName);
 
-		Append(node.varType);
-		Append(" ");
-		Append(node.varName);
+		Append(node.varType, " ", node.varName);
 		if (node.initialExpression)
 		{
 			Append(" = ");
