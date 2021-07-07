@@ -139,6 +139,60 @@ namespace Nz
 					break;
 				}
 
+				case ShaderAst::BinaryType::Multiply:
+				{
+					switch (leftTypeBase)
+					{
+						case ShaderAst::PrimitiveType::Float32:
+						{
+							if (IsPrimitiveType(leftType))
+							{
+								// Handle float * matrix|vector as matrix|vector * float
+								if (IsMatrixType(rightType))
+								{
+									swapOperands = true;
+									return SpirvOp::OpMatrixTimesScalar;
+								}
+								else if (IsVectorType(rightType))
+								{
+									swapOperands = true;
+									return SpirvOp::OpVectorTimesScalar;
+								}
+							}
+							else if (IsPrimitiveType(rightType))
+							{
+								if (IsMatrixType(leftType))
+									return SpirvOp::OpMatrixTimesScalar;
+								else if (IsVectorType(leftType))
+									return SpirvOp::OpVectorTimesScalar;
+							}
+							else if (IsMatrixType(leftType))
+							{
+								if (IsMatrixType(rightType))
+									return SpirvOp::OpMatrixTimesMatrix;
+								else if (IsVectorType(rightType))
+									return SpirvOp::OpMatrixTimesVector;
+							}
+							else if (IsMatrixType(rightType))
+							{
+								assert(IsVectorType(leftType));
+								return SpirvOp::OpVectorTimesMatrix;
+							}
+
+							return SpirvOp::OpFMul;
+						}
+
+						case ShaderAst::PrimitiveType::Int32:
+						case ShaderAst::PrimitiveType::UInt32:
+							return SpirvOp::OpIMul;
+
+						default:
+							break;
+					}
+
+					break;
+				}
+
 				case ShaderAst::BinaryType::CompEq:
 				{
 					switch (leftTypeBase)
@@ -255,59 +309,11 @@ namespace Nz
 					break;
 				}
 
-				case ShaderAst::BinaryType::Multiply:
-				{
-					switch (leftTypeBase)
-					{
-						case ShaderAst::PrimitiveType::Float32:
-						{
-							if (IsPrimitiveType(leftType))
-							{
-								// Handle float * matrix|vector as matrix|vector * float
-								if (IsMatrixType(rightType))
-								{
-									swapOperands = true;
-									return SpirvOp::OpMatrixTimesScalar;
-								}
-								else if (IsVectorType(rightType))
-								{
-									swapOperands = true;
-									return SpirvOp::OpVectorTimesScalar;
-								}
-							}
-							else if (IsPrimitiveType(rightType))
-							{
-								if (IsMatrixType(leftType))
-									return SpirvOp::OpMatrixTimesScalar;
-								else if (IsVectorType(leftType))
-									return SpirvOp::OpVectorTimesScalar;
-							}
-							else if (IsMatrixType(leftType))
-							{
-								if (IsMatrixType(rightType))
-									return SpirvOp::OpMatrixTimesMatrix;
-								else if (IsVectorType(rightType))
-									return SpirvOp::OpMatrixTimesVector;
-							}
-							else if (IsMatrixType(rightType))
-							{
-								assert(IsVectorType(leftType));
-								return SpirvOp::OpVectorTimesMatrix;
-							}
+				case ShaderAst::BinaryType::LogicalAnd:
+					return SpirvOp::OpLogicalAnd;
 
-							return SpirvOp::OpFMul;
-						}
-
-						case ShaderAst::PrimitiveType::Int32:
-						case ShaderAst::PrimitiveType::UInt32:
-							return SpirvOp::OpIMul;
-
-						default:
-							break;
-					}
-
-					break;
-				}
+				case ShaderAst::BinaryType::LogicalOr:
+					return SpirvOp::OpLogicalOr;
 			}
 
 			assert(false);

@@ -152,6 +152,44 @@ namespace Nz::ShaderAst
 			using Op = BinaryCompNe<T1, T2>;
 		};
 
+		// LogicalAnd
+		template<typename T1, typename T2>
+		struct BinaryLogicalAndBase
+		{
+			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			{
+				return ShaderBuilder::Constant(lhs && rhs);
+			}
+		};
+
+		template<typename T1, typename T2>
+		struct BinaryLogicalAnd;
+
+		template<typename T1, typename T2>
+		struct BinaryConstantPropagation<BinaryType::LogicalAnd, T1, T2>
+		{
+			using Op = BinaryLogicalAnd<T1, T2>;
+		};
+
+		// LogicalOr
+		template<typename T1, typename T2>
+		struct BinaryLogicalOrBase
+		{
+			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			{
+				return ShaderBuilder::Constant(lhs || rhs);
+			}
+		};
+
+		template<typename T1, typename T2>
+		struct BinaryLogicalOr;
+
+		template<typename T1, typename T2>
+		struct BinaryConstantPropagation<BinaryType::LogicalOr, T1, T2>
+		{
+			using Op = BinaryLogicalOr<T1, T2>;
+		};
+
 		// Addition
 		template<typename T1, typename T2>
 		struct BinaryAdditionBase
@@ -325,7 +363,6 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinaryCompEq, Vector3i32, Vector3i32);
 		EnableOptimisation(BinaryCompEq, Vector4i32, Vector4i32);
 
-		EnableOptimisation(BinaryCompGe, bool, bool);
 		EnableOptimisation(BinaryCompGe, double, double);
 		EnableOptimisation(BinaryCompGe, float, float);
 		EnableOptimisation(BinaryCompGe, Int32, Int32);
@@ -336,7 +373,6 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinaryCompGe, Vector3i32, Vector3i32);
 		EnableOptimisation(BinaryCompGe, Vector4i32, Vector4i32);
 
-		EnableOptimisation(BinaryCompGt, bool, bool);
 		EnableOptimisation(BinaryCompGt, double, double);
 		EnableOptimisation(BinaryCompGt, float, float);
 		EnableOptimisation(BinaryCompGt, Int32, Int32);
@@ -347,7 +383,6 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinaryCompGt, Vector3i32, Vector3i32);
 		EnableOptimisation(BinaryCompGt, Vector4i32, Vector4i32);
 
-		EnableOptimisation(BinaryCompLe, bool, bool);
 		EnableOptimisation(BinaryCompLe, double, double);
 		EnableOptimisation(BinaryCompLe, float, float);
 		EnableOptimisation(BinaryCompLe, Int32, Int32);
@@ -358,7 +393,6 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinaryCompLe, Vector3i32, Vector3i32);
 		EnableOptimisation(BinaryCompLe, Vector4i32, Vector4i32);
 
-		EnableOptimisation(BinaryCompLt, bool, bool);
 		EnableOptimisation(BinaryCompLt, double, double);
 		EnableOptimisation(BinaryCompLt, float, float);
 		EnableOptimisation(BinaryCompLt, Int32, Int32);
@@ -379,6 +413,9 @@ namespace Nz::ShaderAst
 		EnableOptimisation(BinaryCompNe, Vector2i32, Vector2i32);
 		EnableOptimisation(BinaryCompNe, Vector3i32, Vector3i32);
 		EnableOptimisation(BinaryCompNe, Vector4i32, Vector4i32);
+
+		EnableOptimisation(BinaryLogicalAnd, bool, bool);
+		EnableOptimisation(BinaryLogicalOr, bool, bool);
 
 		EnableOptimisation(BinaryAddition, double, double);
 		EnableOptimisation(BinaryAddition, float, float);
@@ -582,6 +619,14 @@ namespace Nz::ShaderAst
 
 				case BinaryType::CompNe:
 					optimized = PropagateBinaryConstant<BinaryType::CompNe>(std::move(lhsConstant), std::move(rhsConstant));
+					break;
+
+				case BinaryType::LogicalAnd:
+					optimized = PropagateBinaryConstant<BinaryType::LogicalAnd>(std::move(lhsConstant), std::move(rhsConstant));
+					break;
+
+				case BinaryType::LogicalOr:
+					optimized = PropagateBinaryConstant<BinaryType::LogicalOr>(std::move(lhsConstant), std::move(rhsConstant));
 					break;
 			}
 

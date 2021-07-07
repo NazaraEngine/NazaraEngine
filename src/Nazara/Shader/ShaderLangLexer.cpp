@@ -246,6 +246,34 @@ namespace Nz::ShaderLang
 					break;
 				}
 
+				case '|':
+				{
+					char next = Peek();
+					if (next == '|')
+					{
+						currentPos++;
+						tokenType = TokenType::LogicalOr;
+					}
+					else
+						throw UnrecognizedToken{}; //< TODO: Add BOR (a | b)
+
+					break;
+				}
+
+				case '&':
+				{
+					char next = Peek();
+					if (next == '&')
+					{
+						currentPos++;
+						tokenType = TokenType::LogicalAnd;
+					}
+					else
+						throw UnrecognizedToken{}; //< TODO: Add BAND (a & b)
+
+					break;
+				}
+
 				case '<':
 				{
 					char next = Peek();

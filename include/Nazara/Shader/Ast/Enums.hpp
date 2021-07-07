@@ -34,16 +34,18 @@ namespace Nz
 
 		enum class BinaryType
 		{
-			Add,       //< +
-			CompEq,    //< ==
-			CompGe,    //< >=
-			CompGt,    //< >
-			CompLe,    //< <=
-			CompLt,    //< <
-			CompNe,    //< <=
-			Divide,    //< /
-			Multiply,  //< *
-			Subtract,  //< -
+			Add,        //< +
+			CompEq,     //< ==
+			CompGe,     //< >=
+			CompGt,     //< >
+			CompLe,     //< <=
+			CompLt,     //< <
+			CompNe,     //< <=
+			Divide,     //< /
+			Multiply,   //< *
+			LogicalAnd, //< &&
+			LogicalOr,  //< ||
+			Subtract,   //< -
 		};
 
 		enum class BuiltinEntry
