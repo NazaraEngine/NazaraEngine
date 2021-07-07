@@ -29,12 +29,12 @@ namespace Nz::ShaderLang
 		std::unordered_map<std::string, ShaderAst::AttributeType> s_identifierToAttributeType = {
 			{ "binding",              ShaderAst::AttributeType::Binding },
 			{ "builtin",              ShaderAst::AttributeType::Builtin },
+			{ "cond",                 ShaderAst::AttributeType::Cond },
 			{ "depth_write",          ShaderAst::AttributeType::DepthWrite },
 			{ "early_fragment_tests", ShaderAst::AttributeType::EarlyFragmentTests },
 			{ "entry",                ShaderAst::AttributeType::Entry },
 			{ "layout",               ShaderAst::AttributeType::Layout },
 			{ "location",             ShaderAst::AttributeType::Location },
-			{ "opt",                  ShaderAst::AttributeType::Option },
 			{ "set",                  ShaderAst::AttributeType::Set },
 		};
 
@@ -60,6 +60,41 @@ namespace Nz::ShaderLang
 				return std::nullopt;
 
 			return static_cast<T>(val);
+		}
+
+		template<typename T>
+		void HandleUniqueAttribute(const std::string_view& attributeName, ShaderAst::AttributeValue<T>& targetAttribute, ShaderAst::Attribute::Param&& param, bool requireValue = true)
+		{
+			if (targetAttribute.HasValue())
+				throw AttributeError{ "attribute " + std::string(attributeName) + " must be present once" };
+
+			if (!param && requireValue)
+				throw AttributeError{ "attribute " + std::string(attributeName) + " requires a parameter" };
+
+			targetAttribute = std::move(*param);
+		}
+
+		template<typename T>
+		void HandleUniqueStringAttribute(const std::string_view& attributeName, const std::unordered_map<std::string, T>& map, ShaderAst::AttributeValue<T>& targetAttribute, ShaderAst::Attribute::Param&& param)
+		{
+			if (targetAttribute.HasValue())
+				throw AttributeError{ "attribute " + std::string(attributeName) + " must be present once" };
+
+			//FIXME: This should be handled with global values at sanitization stage
+			if (!param)
+				throw AttributeError{ "attribute " + std::string(attributeName) + " requires a value" };
+
+			const ShaderAst::ExpressionPtr& expr = *param;
+			if (expr->GetType() != ShaderAst::NodeType::IdentifierExpression)
+				throw AttributeError{ "attribute " + std::string(attributeName) + " can only be an identifier for now" };
+
+			const std::string& exprStr = static_cast<ShaderAst::IdentifierExpression&>(*expr).identifier;
+
+			auto it = map.find(exprStr);
+			if (it == map.end())
+				throw AttributeError{ ("invalid parameter " + exprStr + " for " + std::string(attributeName) + " attribute").c_str() };
+
+			targetAttribute = it->second;
 		}
 	}
 
@@ -347,17 +382,7 @@ namespace Nz::ShaderLang
 			{
 				Consume();
 
-				const Token& n = Peek();
-				if (n.type == TokenType::Identifier)
-				{
-					arg = std::get<std::string>(n.data);
-					Consume();
-				}
-				else if (n.type == TokenType::IntegerValue)
-				{
-					arg = std::get<long long>(n.data);
-					Consume();
-				}
+				arg = ParseExpression();
 
 				Expect(Advance(), TokenType::ClosingParenthesis);
 			}
@@ -418,36 +443,23 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes)
 	{
-		std::optional<UInt32> blockSetIndex;
-		for (const auto& [attributeType, arg] : attributes)
+		Expect(Advance(), TokenType::External);
+		Expect(Advance(), TokenType::OpenCurlyBracket);
+
+		std::unique_ptr<ShaderAst::DeclareExternalStatement> externalStatement = std::make_unique<ShaderAst::DeclareExternalStatement>();
+
+		for (auto&& [attributeType, arg] : attributes)
 		{
 			switch (attributeType)
 			{
 				case ShaderAst::AttributeType::Set:
-				{
-					if (blockSetIndex)
-						throw AttributeError{ "attribute set must be present once" };
-
-					if (!std::holds_alternative<long long>(arg))
-						throw AttributeError{ "attribute set requires a string parameter" };
-
-					std::optional<UInt32> bindingIndex = BoundCast<UInt32>(std::get<long long>(arg));
-					if (!bindingIndex)
-						throw AttributeError{ "invalid set index" };
-
-					blockSetIndex = bindingIndex.value();
+					HandleUniqueAttribute("set", externalStatement->bindingSet, std::move(arg));
 					break;
-				}
 
 				default:
 					throw AttributeError{ "unhandled attribute for external block" };
 			}
 		}
-
-		Expect(Advance(), TokenType::External);
-		Expect(Advance(), TokenType::OpenCurlyBracket);
-
-		std::unique_ptr<ShaderAst::DeclareExternalStatement> externalStatement = std::make_unique<ShaderAst::DeclareExternalStatement>();
 
 		bool first = true;
 		for (;;)
@@ -474,41 +486,17 @@ namespace Nz::ShaderLang
 
 			if (token.type == TokenType::OpenSquareBracket)
 			{
-				for (const auto& [attributeType, arg] : ParseAttributes())
+				for (auto&& [attributeType, arg] : ParseAttributes())
 				{
 					switch (attributeType)
 					{
 						case ShaderAst::AttributeType::Binding:
-						{
-							if (extVar.bindingIndex)
-								throw AttributeError{ "attribute binding must be present once" };
-
-							if (!std::holds_alternative<long long>(arg))
-								throw AttributeError{ "attribute binding requires a string parameter" };
-
-							std::optional<UInt32> bindingIndex = BoundCast<UInt32>(std::get<long long>(arg));
-							if (!bindingIndex)
-								throw AttributeError{ "invalid binding index" };
-
-							extVar.bindingIndex = bindingIndex.value();
+							HandleUniqueAttribute("binding", extVar.bindingIndex, std::move(arg));
 							break;
-						}
 
 						case ShaderAst::AttributeType::Set:
-						{
-							if (extVar.bindingSet)
-								throw AttributeError{ "attribute set must be present once" };
-
-							if (!std::holds_alternative<long long>(arg))
-								throw AttributeError{ "attribute set requires a string parameter" };
-
-							std::optional<UInt32> bindingIndex = BoundCast<UInt32>(std::get<long long>(arg));
-							if (!bindingIndex)
-								throw AttributeError{ "invalid set index" };
-
-							extVar.bindingSet = bindingIndex.value();
+							HandleUniqueAttribute("set", extVar.bindingSet, std::move(arg));
 							break;
-						}
 
 						default:
 							throw AttributeError{ "unhandled attribute for external variable" };
@@ -519,9 +507,6 @@ namespace Nz::ShaderLang
 			extVar.name = ParseIdentifierAsName();
 			Expect(Advance(), TokenType::Colon);
 			extVar.type = ParseType();
-
-			if (!extVar.bindingSet && blockSetIndex)
-				extVar.bindingSet = *blockSetIndex;
 
 			RegisterVariable(extVar.name);
 		}
@@ -583,90 +568,37 @@ namespace Nz::ShaderLang
 
 		auto func = ShaderBuilder::DeclareFunction(std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
 
-		for (const auto& [attributeType, arg] : attributes)
+		ShaderAst::AttributeValue<bool> condition;
+
+		for (auto&& [attributeType, arg] : attributes)
 		{
 			switch (attributeType)
 			{
-				case ShaderAst::AttributeType::DepthWrite:
-				{
-					if (func->depthWrite)
-						throw AttributeError{ "attribute depth_write can only be present once" };
-
-					if (!std::holds_alternative<std::string>(arg))
-						throw AttributeError{ "attribute entry requires a string parameter" };
-
-					const std::string& argStr = std::get<std::string>(arg);
-
-					auto it = s_depthWriteModes.find(argStr);
-					if (it == s_depthWriteModes.end())
-						throw AttributeError{ ("invalid parameter " + argStr + " for depth_write attribute").c_str() };
-
-					func->depthWrite = it->second;
+				case ShaderAst::AttributeType::Cond:
+					HandleUniqueAttribute("cond", condition, std::move(arg));
 					break;
-				}
-
-				case ShaderAst::AttributeType::EarlyFragmentTests:
-				{
-					if (func->earlyFragmentTests)
-						throw AttributeError{ "attribute early_fragment_tests can only be present once" };
-
-					if (std::holds_alternative<std::string>(arg))
-					{
-						const std::string& argStr = std::get<std::string>(arg);
-						if (argStr == "true" || argStr == "on")
-							func->earlyFragmentTests = true;
-						else if (argStr == "false" || argStr == "off")
-							func->earlyFragmentTests = false;
-						else
-							throw AttributeError{ "expected boolean value (got " + argStr + ")" };
-					}
-					else if (std::holds_alternative<std::monostate>(arg))
-					{
-						// No parameter, default to true
-						func->earlyFragmentTests = true;
-					}
-					else
-						throw AttributeError{ "unexpected value for early_fragment_tests" };
-
-					break;
-				}
 
 				case ShaderAst::AttributeType::Entry:
-				{
-					if (func->entryStage)
-						throw AttributeError{ "attribute entry can only be present once" };
-
-					if (!std::holds_alternative<std::string>(arg))
-						throw AttributeError{ "attribute entry requires a string parameter" };
-
-					const std::string& argStr = std::get<std::string>(arg);
-
-					auto it = s_entryPoints.find(argStr);
-					if (it == s_entryPoints.end())
-						throw AttributeError{ ("invalid parameter " + argStr + " for entry attribute").c_str() };
-
-					func->entryStage = it->second;
+					HandleUniqueStringAttribute("entry", s_entryPoints, func->entryStage, std::move(arg));
 					break;
-				}
 
-				case ShaderAst::AttributeType::Option:
-				{
-					if (!func->optionName.empty())
-						throw AttributeError{ "attribute opt must be present once" };
-
-					if (!std::holds_alternative<std::string>(arg))
-						throw AttributeError{ "attribute opt requires a string parameter" };
-
-					func->optionName = std::get<std::string>(arg);
+				case ShaderAst::AttributeType::DepthWrite:
+					HandleUniqueStringAttribute("depth_write", s_depthWriteModes, func->depthWrite, std::move(arg));
 					break;
-				}
+
+				case ShaderAst::AttributeType::EarlyFragmentTests:
+					HandleUniqueAttribute("early_fragment_tests", func->earlyFragmentTests, std::move(arg), false);
+					break;
 
 				default:
 					throw AttributeError{ "unhandled attribute for function" };
 			}
 		}
 
-		return func;
+		if (condition.HasValue())
+			return ShaderBuilder::ConditionalStatement(std::move(condition).GetExpression(), std::move(func));
+		else
+			return func;
 	}
 
 	ShaderAst::DeclareFunctionStatement::Parameter Parser::ParseFunctionParameter()
@@ -710,22 +642,13 @@ namespace Nz::ShaderLang
 		ShaderAst::StructDescription description;
 		description.name = ParseIdentifierAsName();
 
-		for (const auto& [attributeType, attributeParam] : attributes)
+		for (auto&& [attributeType, attributeParam] : attributes)
 		{
 			switch (attributeType)
 			{
 				case ShaderAst::AttributeType::Layout:
-				{
-					if (description.layout)
-						throw AttributeError{ "attribute layout must be present once" };
-
-					auto it = s_layoutMapping.find(std::get<std::string>(attributeParam));
-					if (it == s_layoutMapping.end())
-						throw AttributeError{ "unknown layout" };
-
-					description.layout = it->second;
+					HandleUniqueStringAttribute("layout", s_layoutMapping, description.layout, std::move(attributeParam));
 					break;
-				}
 
 				default:
 					throw AttributeError{ "unexpected attribute" };
@@ -760,42 +683,28 @@ namespace Nz::ShaderLang
 
 			if (token.type == TokenType::OpenSquareBracket)
 			{
-				for (const auto& [attributeType, attributeParam] : ParseAttributes())
+				for (auto&& [attributeType, arg] : ParseAttributes())
 				{
 					switch (attributeType)
 					{
 						case ShaderAst::AttributeType::Builtin:
-						{
-							if (structField.builtin)
-								throw AttributeError{ "attribute builtin must be present once" };
-
-							auto it = s_builtinMapping.find(std::get<std::string>(attributeParam));
-
-							if (it == s_builtinMapping.end())
-								throw AttributeError{ "unknown builtin" };
-
-							structField.builtin = it->second;
+							HandleUniqueStringAttribute("builtin", s_builtinMapping, structField.builtin, std::move(arg));
 							break;
-						}
+
+						case ShaderAst::AttributeType::Cond:
+							HandleUniqueAttribute("cond", structField.cond, std::move(arg));
+							break;
 
 						case ShaderAst::AttributeType::Location:
-						{
-							if (structField.locationIndex)
-								throw AttributeError{ "attribute location must be present once" };
-
-							structField.locationIndex = BoundCast<UInt32>(std::get<long long>(attributeParam));
-							if (!structField.locationIndex)
-								throw AttributeError{ "invalid location index" };
-
+							HandleUniqueAttribute("location", structField.locationIndex, std::move(arg));
 							break;
-						}
 
 						default:
 							throw AttributeError{ "unexpected attribute" };
 					}
 				}
 
-				if (structField.builtin && structField.locationIndex)
+				if (structField.builtin.HasValue() && structField.locationIndex.HasValue())
 					throw AttributeError{ "A struct field cannot have both builtin and location attributes" };
 			}
 

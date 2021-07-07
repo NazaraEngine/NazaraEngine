@@ -29,66 +29,66 @@ namespace Nz
 
 	struct LangWriter::BindingAttribute
 	{
-		std::optional<UInt32> bindingIndex;
+		const ShaderAst::AttributeValue<UInt32>& bindingIndex;
 
-		inline bool HasValue() const { return bindingIndex.has_value(); }
+		inline bool HasValue() const { return bindingIndex.HasValue(); }
 	};
 
 	struct LangWriter::BuiltinAttribute
 	{
-		std::optional<ShaderAst::BuiltinEntry> builtin;
+		const ShaderAst::AttributeValue<ShaderAst::BuiltinEntry>& builtin;
 
-		inline bool HasValue() const { return builtin.has_value(); }
+		inline bool HasValue() const { return builtin.HasValue(); }
 	};
 
 	struct LangWriter::DepthWriteAttribute
 	{
-		std::optional<ShaderAst::DepthWriteMode> writeMode;
+		const ShaderAst::AttributeValue<ShaderAst::DepthWriteMode>& writeMode;
 
-		inline bool HasValue() const { return writeMode.has_value(); }
+		inline bool HasValue() const { return writeMode.HasValue(); }
 	};
 
 	struct LangWriter::EarlyFragmentTestsAttribute
 	{
-		std::optional<bool> earlyFragmentTests;
+		const ShaderAst::AttributeValue<bool>& earlyFragmentTests;
 
-		inline bool HasValue() const { return earlyFragmentTests.has_value(); }
+		inline bool HasValue() const { return earlyFragmentTests.HasValue(); }
 	};
 
 	struct LangWriter::EntryAttribute
 	{
-		std::optional<ShaderStageType> stageType;
+		const ShaderAst::AttributeValue<ShaderStageType>& stageType;
 
-		inline bool HasValue() const { return stageType.has_value(); }
+		inline bool HasValue() const { return stageType.HasValue(); }
 	};
 
 	struct LangWriter::LayoutAttribute
 	{
-		std::optional<StructLayout> layout;
+		const ShaderAst::AttributeValue<StructLayout>& layout;
 
-		inline bool HasValue() const { return layout.has_value(); }
+		inline bool HasValue() const { return layout.HasValue(); }
 	};
 
 	struct LangWriter::LocationAttribute
 	{
-		std::optional<UInt32> locationIndex;
+		const ShaderAst::AttributeValue<UInt32>& locationIndex;
 
-		inline bool HasValue() const { return locationIndex.has_value(); }
+		inline bool HasValue() const { return locationIndex.HasValue(); }
 	};
 
 	struct LangWriter::SetAttribute
 	{
-		std::optional<UInt32> setIndex;
+		const ShaderAst::AttributeValue<UInt32>& setIndex;
 
-		inline bool HasValue() const { return setIndex.has_value(); }
+		inline bool HasValue() const { return setIndex.HasValue(); }
 	};
 
 	struct LangWriter::State
 	{
 		const States* states = nullptr;
 		std::stringstream stream;
-		std::unordered_map<std::size_t, std::string> optionNames;
-		std::unordered_map<std::size_t, ShaderAst::StructDescription> structs;
+		std::unordered_map<std::size_t, std::string> constantNames;
+		std::unordered_map<std::size_t, ShaderAst::StructDescription*> structs;
 		std::unordered_map<std::size_t, std::string> variableNames;
 		bool isInEntryPoint = false;
 		unsigned int indentLevel = 0;
@@ -181,8 +181,8 @@ namespace Nz
 
 	void LangWriter::Append(const ShaderAst::StructType& structType)
 	{
-		const auto& structDesc = Retrieve(m_currentState->structs, structType.structIndex);
-		Append(structDesc.name);
+		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structType.structIndex);
+		Append(structDesc->name);
 	}
 
 	void LangWriter::Append(const ShaderAst::UniformType& uniformType)
@@ -265,7 +265,10 @@ namespace Nz
 		if (!binding.HasValue())
 			return;
 
-		Append("binding(", *binding.bindingIndex, ")");
+		if (binding.bindingIndex.IsResultingValue())
+			Append("binding(", binding.bindingIndex.GetResultingValue(), ")");
+		else
+			binding.bindingIndex.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendAttribute(BuiltinAttribute builtin)
@@ -273,20 +276,25 @@ namespace Nz
 		if (!builtin.HasValue())
 			return;
 
-		switch (*builtin.builtin)
+		if (builtin.builtin.IsResultingValue())
 		{
-			case ShaderAst::BuiltinEntry::FragCoord:
-				Append("builtin(fragcoord)");
-				break;
+			switch (builtin.builtin.GetResultingValue())
+			{
+				case ShaderAst::BuiltinEntry::FragCoord:
+					Append("builtin(fragcoord)");
+					break;
 
-			case ShaderAst::BuiltinEntry::FragDepth:
-				Append("builtin(fragdepth)");
-				break;
+				case ShaderAst::BuiltinEntry::FragDepth:
+					Append("builtin(fragdepth)");
+					break;
 
-			case ShaderAst::BuiltinEntry::VertexPosition:
-				Append("builtin(position)");
-				break;
+				case ShaderAst::BuiltinEntry::VertexPosition:
+					Append("builtin(position)");
+					break;
+			}
 		}
+		else
+			builtin.builtin.GetExpression()->Visit(*this);
 	}
 	
 	void LangWriter::AppendAttribute(DepthWriteAttribute depthWrite)
@@ -294,24 +302,29 @@ namespace Nz
 		if (!depthWrite.HasValue())
 			return;
 
-		switch (*depthWrite.writeMode)
+		if (depthWrite.writeMode.IsResultingValue())
 		{
-			case ShaderAst::DepthWriteMode::Greater:
-				Append("depth_write(greater)");
-				break;
+			switch (depthWrite.writeMode.GetResultingValue())
+			{
+				case ShaderAst::DepthWriteMode::Greater:
+					Append("depth_write(greater)");
+					break;
 
-			case ShaderAst::DepthWriteMode::Less:
-				Append("depth_write(less)");
-				break;
+				case ShaderAst::DepthWriteMode::Less:
+					Append("depth_write(less)");
+					break;
 
-			case ShaderAst::DepthWriteMode::Replace:
-				Append("depth_write(replace)");
-				break;
+				case ShaderAst::DepthWriteMode::Replace:
+					Append("depth_write(replace)");
+					break;
 
-			case ShaderAst::DepthWriteMode::Unchanged:
-				Append("depth_write(unchanged)");
-				break;
+				case ShaderAst::DepthWriteMode::Unchanged:
+					Append("depth_write(unchanged)");
+					break;
+			}
 		}
+		else
+			depthWrite.writeMode.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendAttribute(EarlyFragmentTestsAttribute earlyFragmentTests)
@@ -319,10 +332,15 @@ namespace Nz
 		if (!earlyFragmentTests.HasValue())
 			return;
 
-		if (*earlyFragmentTests.earlyFragmentTests)
-			Append("early_fragment_tests(on)");
+		if (earlyFragmentTests.earlyFragmentTests.IsResultingValue())
+		{
+			if (earlyFragmentTests.earlyFragmentTests.GetResultingValue())
+				Append("early_fragment_tests(true)");
+			else
+				Append("early_fragment_tests(false)");
+		}
 		else
-			Append("early_fragment_tests(off)");
+			earlyFragmentTests.earlyFragmentTests.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendAttribute(EntryAttribute entry)
@@ -330,16 +348,21 @@ namespace Nz
 		if (!entry.HasValue())
 			return;
 
-		switch (*entry.stageType)
+		if (entry.stageType.IsResultingValue())
 		{
-			case ShaderStageType::Fragment:
-				Append("entry(frag)");
-				break;
+			switch (entry.stageType.GetResultingValue())
+			{
+				case ShaderStageType::Fragment:
+					Append("entry(frag)");
+					break;
 
-			case ShaderStageType::Vertex:
-				Append("entry(vert)");
-				break;
+				case ShaderStageType::Vertex:
+					Append("entry(vert)");
+					break;
+			}
 		}
+		else
+			entry.stageType.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendAttribute(LayoutAttribute entry)
@@ -347,12 +370,17 @@ namespace Nz
 		if (!entry.HasValue())
 			return;
 
-		switch (*entry.layout)
+		if (entry.layout.IsResultingValue())
 		{
-			case StructLayout::Std140:
-				Append("layout(std140)");
-				break;
+			switch (entry.layout.GetResultingValue())
+			{
+				case StructLayout::Std140:
+					Append("layout(std140)");
+					break;
+			}
 		}
+		else
+			entry.layout.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendAttribute(LocationAttribute location)
@@ -360,7 +388,10 @@ namespace Nz
 		if (!location.HasValue())
 			return;
 
-		Append("location(", *location.locationIndex, ")");
+		if (location.locationIndex.IsResultingValue())
+			Append("location(", location.locationIndex.GetResultingValue(), ")");
+		else
+			location.locationIndex.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendAttribute(SetAttribute set)
@@ -368,7 +399,10 @@ namespace Nz
 		if (!set.HasValue())
 			return;
 
-		Append("set(", *set.setIndex, ")");
+		if (set.setIndex.IsResultingValue())
+			Append("set(", set.setIndex.GetResultingValue(), ")");
+		else
+			set.setIndex.GetExpression()->Visit(*this);
 	}
 
 	void LangWriter::AppendCommentSection(const std::string& section)
@@ -382,13 +416,13 @@ namespace Nz
 
 	void LangWriter::AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers)
 	{
-		const auto& structDesc = Retrieve(m_currentState->structs, structIndex);
+		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
 
 		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantExpression);
 		auto& constantValue = static_cast<ShaderAst::ConstantExpression&>(**memberIndices);
 		Int32 index = std::get<Int32>(constantValue.value);
 
-		const auto& member = structDesc.members[index];
+		const auto& member = structDesc->members[index];
 
 		Append(".");
 		Append(member.name);
@@ -449,16 +483,16 @@ namespace Nz
 			Append("}");
 	}
 
-	void LangWriter::RegisterOption(std::size_t optionIndex, std::string optionName)
+	void LangWriter::RegisterConstant(std::size_t constantIndex, std::string constantName)
 	{
-		assert(m_currentState->optionNames.find(optionIndex) == m_currentState->optionNames.end());
-		m_currentState->optionNames.emplace(optionIndex, std::move(optionName));
+		assert(m_currentState->constantNames.find(constantIndex) == m_currentState->constantNames.end());
+		m_currentState->constantNames.emplace(constantIndex, std::move(constantName));
 	}
 
-	void LangWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc)
+	void LangWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc)
 	{
 		assert(m_currentState->structs.find(structIndex) == m_currentState->structs.end());
-		m_currentState->structs.emplace(structIndex, std::move(desc));
+		m_currentState->structs.emplace(structIndex, desc);
 	}
 
 	void LangWriter::RegisterVariable(std::size_t varIndex, std::string varName)
@@ -589,16 +623,14 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::ConditionalExpression& node)
 	{
-		Append("select_opt(", Retrieve(m_currentState->optionNames, node.optionIndex), ", ");
-		node.truePath->Visit(*this);
-		Append(", ");
-		node.falsePath->Visit(*this);
-		Append(")");
+		throw std::runtime_error("fixme");
 	}
 
 	void LangWriter::Visit(ShaderAst::ConditionalStatement& node)
 	{
-		Append("[opt(", Retrieve(m_currentState->optionNames, node.optionIndex), ")]");
+		Append("[cond(");
+		node.condition->Visit(*this);
+		AppendLine(")]");
 		node.statement->Visit(*this);
 	}
 
@@ -627,6 +659,11 @@ namespace Nz
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, node.value);
+	}
+
+	void LangWriter::Visit(ShaderAst::ConstantIndexExpression& node)
+	{
+		Append(Retrieve(m_currentState->constantNames, node.constantId));
 	}
 
 	void LangWriter::Visit(ShaderAst::DeclareExternalStatement& node)
@@ -690,7 +727,7 @@ namespace Nz
 	void LangWriter::Visit(ShaderAst::DeclareOptionStatement& node)
 	{
 		assert(node.optIndex);
-		RegisterOption(*node.optIndex, node.optName);
+		RegisterConstant(*node.optIndex, node.optName);
 
 		Append("option ", node.optName, ": ", node.optType);
 		if (node.initialValue)
@@ -705,7 +742,7 @@ namespace Nz
 	void LangWriter::Visit(ShaderAst::DeclareStructStatement& node)
 	{
 		assert(node.structIndex);
-		RegisterStruct(*node.structIndex, node.description);
+		RegisterStruct(*node.structIndex, &node.description);
 
 		AppendAttributes(true, LayoutAttribute{ node.description.layout });
 		Append("struct ");

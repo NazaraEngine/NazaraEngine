@@ -57,12 +57,12 @@ namespace Nz::ShaderBuilder
 
 		struct ConditionalExpression
 		{
-			inline std::unique_ptr<ShaderAst::ConditionalExpression> operator()(std::size_t optionIndex, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
+			inline std::unique_ptr<ShaderAst::ConditionalExpression> operator()(ShaderAst::ExpressionPtr condition, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
 		};
 
 		struct ConditionalStatement
 		{
-			inline std::unique_ptr<ShaderAst::ConditionalStatement> operator()(std::size_t optionIndex, ShaderAst::StatementPtr statement) const;
+			inline std::unique_ptr<ShaderAst::ConditionalStatement> operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr statement) const;
 		};
 
 		struct Constant
