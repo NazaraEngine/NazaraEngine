@@ -314,7 +314,18 @@ namespace Nz::ShaderAst
 						default:
 							throw AstError{ "incompatible types" };
 					}
+					break;
 				}
+
+				case BinaryType::LogicalAnd:
+				case BinaryType::LogicalOr:
+					if (leftType != PrimitiveType::Boolean)
+						throw AstError{ "logical and/or are only supported on booleans" };
+
+					TypeMustMatch(clone->left, clone->right);
+
+					clone->cachedExpressionType = PrimitiveType::Boolean;
+					break;
 			}
 		}
 		else if (IsMatrixType(leftExprType))
@@ -363,7 +374,13 @@ namespace Nz::ShaderAst
 					}
 					else
 						throw AstError{ "incompatible types" };
+
+					break;
 				}
+
+				case BinaryType::LogicalAnd:
+				case BinaryType::LogicalOr:
+					throw AstError{ "logical and/or are only supported on booleans" };
 			}
 		}
 		else if (IsVectorType(leftExprType))
@@ -402,7 +419,13 @@ namespace Nz::ShaderAst
 					}
 					else
 						throw AstError{ "incompatible types" };
+
+					break;
 				}
+
+				case BinaryType::LogicalAnd:
+				case BinaryType::LogicalOr:
+					throw AstError{ "logical and/or are only supported on booleans" };
 			}
 		}
 

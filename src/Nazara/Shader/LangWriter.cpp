@@ -584,17 +584,20 @@ namespace Nz
 
 		switch (node.op)
 		{
-			case ShaderAst::BinaryType::Add:       Append(" + "); break;
-			case ShaderAst::BinaryType::Subtract:  Append(" - "); break;
-			case ShaderAst::BinaryType::Multiply:  Append(" * "); break;
-			case ShaderAst::BinaryType::Divide:    Append(" / "); break;
+			case ShaderAst::BinaryType::Add:        Append(" + "); break;
+			case ShaderAst::BinaryType::Subtract:   Append(" - "); break;
+			case ShaderAst::BinaryType::Multiply:   Append(" * "); break;
+			case ShaderAst::BinaryType::Divide:     Append(" / "); break;
 
-			case ShaderAst::BinaryType::CompEq:    Append(" == "); break;
-			case ShaderAst::BinaryType::CompGe:    Append(" >= "); break;
-			case ShaderAst::BinaryType::CompGt:    Append(" > ");  break;
-			case ShaderAst::BinaryType::CompLe:    Append(" <= "); break;
-			case ShaderAst::BinaryType::CompLt:    Append(" < ");  break;
-			case ShaderAst::BinaryType::CompNe:    Append(" != "); break;
+			case ShaderAst::BinaryType::CompEq:     Append(" == "); break;
+			case ShaderAst::BinaryType::CompGe:     Append(" >= "); break;
+			case ShaderAst::BinaryType::CompGt:     Append(" > ");  break;
+			case ShaderAst::BinaryType::CompLe:     Append(" <= "); break;
+			case ShaderAst::BinaryType::CompLt:     Append(" < ");  break;
+			case ShaderAst::BinaryType::CompNe:     Append(" != "); break;
+
+			case ShaderAst::BinaryType::LogicalAnd: Append(" && "); break;
+			case ShaderAst::BinaryType::LogicalOr:  Append(" || "); break;
 		}
 
 		Visit(node.right, true);
