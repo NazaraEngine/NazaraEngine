@@ -86,6 +86,23 @@ namespace Nz
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 				}
 
+				void Visit(ShaderAst::CallFunctionExpression& node) override
+				{
+					AstRecursiveVisitor::Visit(node);
+
+					assert(m_funcIndex);
+					auto& func = m_funcs[*m_funcIndex];
+
+					auto& funcCall = func.funcCalls.emplace_back();
+					funcCall.firstVarIndex = func.variables.size();
+
+					for (const auto& parameter : node.parameters)
+					{
+						auto& var = func.variables.emplace_back();
+						var.typeId = m_constantCache.Register(*m_constantCache.BuildPointerType(GetExpressionType(*parameter), SpirvStorageClass::Function));
+					}
+				}
+
 				void Visit(ShaderAst::ConditionalExpression& node) override
 				{
 					throw std::runtime_error("unexpected conditional expression, did you forget to sanitize the shader?");
@@ -123,23 +140,6 @@ namespace Nz
 						uniformVar.pointerId = m_constantCache.Register(variable);
 						uniformVar.bindingIndex = extVar.bindingIndex.GetResultingValue();
 						uniformVar.descriptorSet = (extVar.bindingSet.HasValue()) ? extVar.bindingSet.GetResultingValue() : 0;
-					}
-				}
-
-				void Visit(ShaderAst::CallFunctionExpression& node) override
-				{
-					AstRecursiveVisitor::Visit(node);
-
-					assert(m_funcIndex);
-					auto& func = m_funcs[*m_funcIndex];
-
-					auto& funcCall = func.funcCalls.emplace_back();
-					funcCall.firstVarIndex = func.variables.size();
-
-					for (const auto& parameter : node.parameters)
-					{
-						auto& var = func.variables.emplace_back();
-						var.typeId = m_constantCache.Register(*m_constantCache.BuildPointerType(GetExpressionType(*parameter), SpirvStorageClass::Function));
 					}
 				}
 

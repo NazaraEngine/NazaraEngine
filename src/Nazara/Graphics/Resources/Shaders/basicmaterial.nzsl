@@ -2,6 +2,8 @@ option HAS_DIFFUSE_TEXTURE: bool;
 option HAS_ALPHA_TEXTURE: bool;
 option ALPHA_TEST: bool;
 
+const HasUV = HAS_DIFFUSE_TEXTURE || HAS_ALPHA_TEXTURE;
+
 [layout(std140)]
 struct BasicSettings
 {
@@ -42,7 +44,7 @@ external
 // Fragment stage
 struct FragIn
 {
-	[location(0)] uv: vec2<f32>
+	[location(0), cond(HasUV)] uv: vec2<f32>
 }
 
 struct FragOut
@@ -68,12 +70,12 @@ fn main(input: FragIn) -> FragOut
 struct VertIn
 {
 	[location(0)] pos: vec3<f32>,
-	[location(1)] uv: vec2<f32>
+	[location(1), cond(HasUV)] uv: vec2<f32>
 }
 
 struct VertOut
 {
-	[location(0)] uv: vec2<f32>,
+	[location(0), cond(HasUV)] uv: vec2<f32>,
 	[builtin(position)] position: vec4<f32>
 }
 
@@ -81,8 +83,10 @@ struct VertOut
 fn main(input: VertIn) -> VertOut
 {
 	let output: VertOut;
-	output.uv = input.uv;
 	output.position = viewerData.projectionMatrix * viewerData.viewMatrix * instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+
+	const if (HasUV)
+		output.uv = input.uv;
 
 	return output;
 }

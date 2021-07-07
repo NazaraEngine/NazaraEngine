@@ -118,6 +118,13 @@ namespace Nz::ShaderLang
 			const Token& nextToken = Peek();
 			switch (nextToken.type)
 			{
+				case TokenType::Const:
+					if (!attributes.empty())
+						throw UnexpectedToken{};
+
+					context.root->statements.push_back(ParseConstStatement());
+					break;
+
 				case TokenType::EndOfStream:
 					if (!attributes.empty())
 						throw UnexpectedToken{};
@@ -400,6 +407,28 @@ namespace Nz::ShaderLang
 		return attributes;
 	}
 
+	void Parser::ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionType& type, ShaderAst::ExpressionPtr& initialValue)
+	{
+		name = ParseIdentifierAsName();
+
+		if (Peek().type == TokenType::Colon)
+		{
+			Expect(Advance(), TokenType::Colon);
+
+			type = ParseType();
+		}
+		else
+			type = ShaderAst::NoType{};
+
+		if (IsNoType(type) || Peek().type == TokenType::Assign)
+		{
+			Expect(Advance(), TokenType::Assign);
+			initialValue = ParseExpression();
+		}
+
+		Expect(Advance(), TokenType::Semicolon);
+	}
+
 	ShaderAst::StatementPtr Parser::ParseBranchStatement()
 	{
 		std::unique_ptr<ShaderAst::BranchStatement> branch = std::make_unique<ShaderAst::BranchStatement>();
@@ -434,9 +463,41 @@ namespace Nz::ShaderLang
 		return branch;
 	}
 
+	ShaderAst::StatementPtr Parser::ParseConstStatement()
+	{
+		Expect(Advance(), TokenType::Const);
+
+		switch (Peek().type)
+		{
+			case TokenType::Identifier:
+			{
+				std::string constName;
+				ShaderAst::ExpressionType constType;
+				ShaderAst::ExpressionPtr initialValue;
+
+				ParseVariableDeclaration(constName, constType, initialValue);
+				RegisterVariable(constName);
+
+				return ShaderBuilder::DeclareConst(std::move(constName), std::move(constType), std::move(initialValue));
+			}
+
+			case TokenType::If:
+			{
+				auto branch = ParseBranchStatement();
+				static_cast<ShaderAst::BranchStatement&>(*branch).isConst = true;
+
+				return branch;
+			}
+
+			default:
+				throw UnexpectedToken{};
+		}
+	}
+
 	ShaderAst::StatementPtr Parser::ParseDiscardStatement()
 	{
 		Expect(Advance(), TokenType::Discard);
+		Expect(Advance(), TokenType::Semicolon);
 
 		return ShaderBuilder::Discard();
 	}
@@ -728,6 +789,8 @@ namespace Nz::ShaderLang
 		if (Peek().type != TokenType::Semicolon)
 			expr = ParseExpression();
 
+		Expect(Advance(), TokenType::Semicolon);
+
 		return ShaderBuilder::Return(std::move(expr));
 	}
 
@@ -738,14 +801,16 @@ namespace Nz::ShaderLang
 		ShaderAst::StatementPtr statement;
 		switch (token.type)
 		{
+			case TokenType::Const:
+				statement = ParseConstStatement();
+				break;
+
 			case TokenType::Discard:
 				statement = ParseDiscardStatement();
-				Expect(Advance(), TokenType::Semicolon);
 				break;
 
 			case TokenType::Let:
 				statement = ParseVariableDeclaration();
-				Expect(Advance(), TokenType::Semicolon);
 				break;
 
 			case TokenType::Identifier:
@@ -759,7 +824,6 @@ namespace Nz::ShaderLang
 
 			case TokenType::Return:
 				statement = ParseReturnStatement();
-				Expect(Advance(), TokenType::Semicolon);
 				break;
 
 			default:
@@ -809,23 +873,12 @@ namespace Nz::ShaderLang
 	{
 		Expect(Advance(), TokenType::Let);
 
-		std::string variableName = ParseIdentifierAsName();
-		RegisterVariable(variableName);
-
-		ShaderAst::ExpressionType variableType = ShaderAst::NoType{};
-		if (Peek().type == TokenType::Colon)
-		{
-			Expect(Advance(), TokenType::Colon);
-
-			variableType = ParseType();
-		}
-
+		std::string variableName;
+		ShaderAst::ExpressionType variableType;
 		ShaderAst::ExpressionPtr expression;
-		if (IsNoType(variableType) || Peek().type == TokenType::Assign)
-		{
-			Expect(Advance(), TokenType::Assign);
-			expression = ParseExpression();
-		}
+
+		ParseVariableDeclaration(variableName, variableType, expression);
+		RegisterVariable(variableName);
 
 		return ShaderBuilder::DeclareVariable(std::move(variableName), std::move(variableType), std::move(expression));
 	}

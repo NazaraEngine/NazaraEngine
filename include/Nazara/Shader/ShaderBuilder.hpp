@@ -38,6 +38,7 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::BinaryExpression> operator()(ShaderAst::BinaryType op, ShaderAst::ExpressionPtr left, ShaderAst::ExpressionPtr right) const;
 		};
 
+		template<bool Const>
 		struct Branch
 		{
 			inline std::unique_ptr<ShaderAst::BranchStatement> operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr truePath, ShaderAst::StatementPtr falsePath = nullptr) const;
@@ -68,6 +69,12 @@ namespace Nz::ShaderBuilder
 		struct Constant
 		{
 			inline std::unique_ptr<ShaderAst::ConstantExpression> operator()(ShaderAst::ConstantValue value) const;
+		};
+
+		struct DeclareConst
+		{
+			inline std::unique_ptr<ShaderAst::DeclareConstStatement> operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const;
+			inline std::unique_ptr<ShaderAst::DeclareConstStatement> operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
 		};
 
 		struct DeclareFunction
@@ -144,12 +151,14 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::AccessMember AccessMember;
 	constexpr Impl::Assign Assign;
 	constexpr Impl::Binary Binary;
-	constexpr Impl::Branch Branch;
+	constexpr Impl::Branch<false> Branch;
 	constexpr Impl::CallFunction CallFunction;
 	constexpr Impl::Cast Cast;
 	constexpr Impl::ConditionalExpression ConditionalExpression;
 	constexpr Impl::ConditionalStatement ConditionalStatement;
 	constexpr Impl::Constant Constant;
+	constexpr Impl::Branch<true> ConstBranch;
+	constexpr Impl::DeclareConst DeclareConst;
 	constexpr Impl::DeclareFunction DeclareFunction;
 	constexpr Impl::DeclareOption DeclareOption;
 	constexpr Impl::DeclareStruct DeclareStruct;
