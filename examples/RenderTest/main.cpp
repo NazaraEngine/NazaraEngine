@@ -54,7 +54,7 @@ struct FragOut
 [entry(frag)]
 fn main(fragIn: VertOut) -> FragOut
 {
-	let lightDir = vec3<f32>(0.0, -0.707, 0.707);
+	let lightDir = vec3<f32>(0.0, 0.707, 0.707);
 	let lightFactor = dot(fragIn.normal, lightDir);
 
 	let fragOut: FragOut;
