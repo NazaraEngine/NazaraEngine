@@ -140,7 +140,7 @@ namespace Nz
 	{
 		m_states = states;
 		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
-		std::shared_ptr<ShaderAst::Statement> sanitized = GlslWriter::Sanitize(shaderAst);
+		std::shared_ptr<ShaderAst::Statement> sanitized = GlslWriter::Sanitize(shaderAst, states.enabledOptions);
 
 		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
 		{

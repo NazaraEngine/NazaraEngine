@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
 #include <vector>
@@ -30,6 +31,7 @@ namespace Nz::ShaderAst
 			AstCloner& operator=(AstCloner&&) = delete;
 
 		protected:
+			template<typename T> AttributeValue<T> CloneAttribute(const AttributeValue<T>& attribute);
 			inline ExpressionPtr CloneExpression(const ExpressionPtr& expr);
 			inline StatementPtr CloneStatement(const StatementPtr& statement);
 
@@ -44,6 +46,7 @@ namespace Nz::ShaderAst
 			virtual ExpressionPtr Clone(CallMethodExpression& node);
 			virtual ExpressionPtr Clone(CastExpression& node);
 			virtual ExpressionPtr Clone(ConditionalExpression& node);
+			virtual ExpressionPtr Clone(ConstantIndexExpression& node);
 			virtual ExpressionPtr Clone(ConstantExpression& node);
 			virtual ExpressionPtr Clone(IdentifierExpression& node);
 			virtual ExpressionPtr Clone(IntrinsicExpression& node);

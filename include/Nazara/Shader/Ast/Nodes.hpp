@@ -64,7 +64,7 @@ namespace Nz::ShaderAst
 		std::optional<ExpressionType> cachedExpressionType;
 	};
 
-	struct NAZARA_SHADER_API AccessIdentifierExpression : public Expression
+	struct NAZARA_SHADER_API AccessIdentifierExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -73,7 +73,7 @@ namespace Nz::ShaderAst
 		std::vector<std::string> identifiers;
 	};
 
-	struct NAZARA_SHADER_API AccessIndexExpression : public Expression
+	struct NAZARA_SHADER_API AccessIndexExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -82,7 +82,7 @@ namespace Nz::ShaderAst
 		std::vector<ExpressionPtr> indices;
 	};
 
-	struct NAZARA_SHADER_API AssignExpression : public Expression
+	struct NAZARA_SHADER_API AssignExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -92,7 +92,7 @@ namespace Nz::ShaderAst
 		ExpressionPtr right;
 	};
 
-	struct NAZARA_SHADER_API BinaryExpression : public Expression
+	struct NAZARA_SHADER_API BinaryExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -102,7 +102,7 @@ namespace Nz::ShaderAst
 		ExpressionPtr right;
 	};
 
-	struct NAZARA_SHADER_API CallFunctionExpression : public Expression
+	struct NAZARA_SHADER_API CallFunctionExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -111,7 +111,7 @@ namespace Nz::ShaderAst
 		std::vector<ExpressionPtr> parameters;
 	};
 
-	struct NAZARA_SHADER_API CallMethodExpression : public Expression
+	struct NAZARA_SHADER_API CallMethodExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -121,7 +121,7 @@ namespace Nz::ShaderAst
 		std::vector<ExpressionPtr> parameters;
 	};
 
-	struct NAZARA_SHADER_API CastExpression : public Expression
+	struct NAZARA_SHADER_API CastExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -130,17 +130,17 @@ namespace Nz::ShaderAst
 		std::array<ExpressionPtr, 4> expressions;
 	};
 
-	struct NAZARA_SHADER_API ConditionalExpression : public Expression
+	struct NAZARA_SHADER_API ConditionalExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		std::size_t optionIndex;
+		ExpressionPtr condition;
 		ExpressionPtr falsePath;
 		ExpressionPtr truePath;
 	};
 
-	struct NAZARA_SHADER_API ConstantExpression : public Expression
+	struct NAZARA_SHADER_API ConstantExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -148,7 +148,15 @@ namespace Nz::ShaderAst
 		ShaderAst::ConstantValue value;
 	};
 
-	struct NAZARA_SHADER_API IdentifierExpression : public Expression
+	struct NAZARA_SHADER_API ConstantIndexExpression : Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::size_t constantId;
+	};
+
+	struct NAZARA_SHADER_API IdentifierExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -156,7 +164,7 @@ namespace Nz::ShaderAst
 		std::string identifier;
 	};
 
-	struct NAZARA_SHADER_API IntrinsicExpression : public Expression
+	struct NAZARA_SHADER_API IntrinsicExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -165,7 +173,7 @@ namespace Nz::ShaderAst
 		std::vector<ExpressionPtr> parameters;
 	};
 
-	struct NAZARA_SHADER_API SelectOptionExpression : public Expression
+	struct NAZARA_SHADER_API SelectOptionExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -175,7 +183,7 @@ namespace Nz::ShaderAst
 		ExpressionPtr truePath;
 	};
 
-	struct NAZARA_SHADER_API SwizzleExpression : public Expression
+	struct NAZARA_SHADER_API SwizzleExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -193,7 +201,7 @@ namespace Nz::ShaderAst
 		std::size_t variableId;
 	};
 
-	struct NAZARA_SHADER_API UnaryExpression : public Expression
+	struct NAZARA_SHADER_API UnaryExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
@@ -221,7 +229,7 @@ namespace Nz::ShaderAst
 		Statement& operator=(Statement&&) noexcept = default;
 	};
 
-	struct NAZARA_SHADER_API BranchStatement : public Statement
+	struct NAZARA_SHADER_API BranchStatement : Statement
 	{
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
@@ -241,7 +249,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		std::size_t optionIndex;
+		ExpressionPtr condition;
 		StatementPtr statement;
 	};
 
@@ -252,12 +260,13 @@ namespace Nz::ShaderAst
 
 		struct ExternalVar
 		{
-			std::optional<UInt32> bindingIndex;
-			std::optional<UInt32> bindingSet;
+			AttributeValue<UInt32> bindingIndex;
+			AttributeValue<UInt32> bindingSet;
 			std::string name;
 			ExpressionType type;
 		};
 
+		AttributeValue<UInt32> bindingSet;
 		std::optional<std::size_t> varIndex;
 		std::vector<ExternalVar> externalVars;
 	};
@@ -273,12 +282,11 @@ namespace Nz::ShaderAst
 			ExpressionType type;
 		};
 
-		std::optional<DepthWriteMode> depthWrite;
-		std::optional<bool> earlyFragmentTests;
-		std::optional<ShaderStageType> entryStage;
+		AttributeValue<DepthWriteMode> depthWrite;
+		AttributeValue<bool> earlyFragmentTests;
+		AttributeValue<ShaderStageType> entryStage;
 		std::optional<std::size_t> funcIndex;
 		std::optional<std::size_t> varIndex;
-		std::string optionName;
 		std::string name;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;

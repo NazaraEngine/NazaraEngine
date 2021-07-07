@@ -82,13 +82,14 @@ namespace Nz::ShaderAst
 	{
 		struct StructMember
 		{
-			std::optional<BuiltinEntry> builtin;
-			std::optional<UInt32> locationIndex;
+			AttributeValue<BuiltinEntry> builtin;
+			AttributeValue<bool> cond;
+			AttributeValue<UInt32> locationIndex;
 			std::string name;
 			ExpressionType type;
 		};
 
-		std::optional<StructLayout> layout;
+		AttributeValue<StructLayout> layout;
 		std::string name;
 		std::vector<StructMember> members;
 	};

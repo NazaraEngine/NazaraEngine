@@ -111,9 +111,14 @@ namespace Nz::ShaderAst
 			Node(expr);
 	}
 
+	void AstSerializerBase::Serialize(ConstantIndexExpression& node)
+	{
+		SizeT(node.constantId);
+	}
+
 	void AstSerializerBase::Serialize(ConditionalExpression& node)
 	{
-		SizeT(node.optionIndex);
+		Node(node.condition);
 		Node(node.truePath);
 		Node(node.falsePath);
 	}
@@ -207,7 +212,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ConditionalStatement& node)
 	{
-		SizeT(node.optionIndex);
+		Node(node.condition);
 		Node(node.statement);
 	}
 
@@ -215,13 +220,15 @@ namespace Nz::ShaderAst
 	{
 		OptVal(node.varIndex);
 
+		Attribute(node.bindingSet);
+
 		Container(node.externalVars);
 		for (auto& extVar : node.externalVars)
 		{
 			Value(extVar.name);
 			Type(extVar.type);
-			OptVal(extVar.bindingIndex);
-			OptVal(extVar.bindingSet);
+			Attribute(extVar.bindingIndex);
+			Attribute(extVar.bindingSet);
 		}
 	}
 
@@ -229,11 +236,10 @@ namespace Nz::ShaderAst
 	{
 		Value(node.name);
 		Type(node.returnType);
-		OptEnum(node.depthWrite);
-		OptVal(node.earlyFragmentTests);
-		OptEnum(node.entryStage);
+		Attribute(node.depthWrite);
+		Attribute(node.earlyFragmentTests);
+		Attribute(node.entryStage);
 		OptVal(node.funcIndex);
-		Value(node.optionName);
 		OptVal(node.varIndex);
 
 		Container(node.parameters);
@@ -261,15 +267,16 @@ namespace Nz::ShaderAst
 		OptVal(node.structIndex);
 
 		Value(node.description.name);
-		OptEnum(node.description.layout);
+		Attribute(node.description.layout);
 
 		Container(node.description.members);
 		for (auto& member : node.description.members)
 		{
 			Value(member.name);
 			Type(member.type);
-			OptEnum(member.builtin);
-			OptVal(member.locationIndex);
+			Attribute(member.builtin);
+			Attribute(member.cond);
+			Attribute(member.locationIndex);
 		}
 	}
 	
@@ -535,6 +542,7 @@ namespace Nz::ShaderAst
 
 #define NAZARA_SHADERAST_STATEMENT(Node) case NodeType:: Node : node = std::make_unique<Node>(); break;
 #include <Nazara/Shader/Ast/AstNodeList.hpp>
+#include "..\..\..\..\include\Nazara\Shader\Ast\AstSerializer.hpp"
 
 			default: throw std::runtime_error("unexpected node type");
 		}

@@ -18,21 +18,32 @@ namespace Nz::ShaderAst
 	class NAZARA_SHADER_API AstOptimizer : public AstCloner
 	{
 		public:
+			struct Options;
+
 			AstOptimizer() = default;
 			AstOptimizer(const AstOptimizer&) = delete;
 			AstOptimizer(AstOptimizer&&) = delete;
 			~AstOptimizer() = default;
 
-			StatementPtr Optimise(Statement& statement);
-			StatementPtr Optimise(Statement& statement, UInt64 enabledConditions);
+			inline ExpressionPtr Optimise(Expression& expression);
+			inline ExpressionPtr Optimise(Expression& expression, const Options& options);
+			inline StatementPtr Optimise(Statement& statement);
+			inline StatementPtr Optimise(Statement& statement, const Options& options);
 
 			AstOptimizer& operator=(const AstOptimizer&) = delete;
 			AstOptimizer& operator=(AstOptimizer&&) = delete;
+
+			struct Options
+			{
+				std::function<const ConstantValue&(std::size_t constantId)> constantQueryCallback;
+				std::optional<UInt64> enabledOptions = 0;
+			};
 
 		protected:
 			ExpressionPtr Clone(BinaryExpression& node) override;
 			ExpressionPtr Clone(CastExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
+			ExpressionPtr Clone(ConstantIndexExpression& node) override;
 			ExpressionPtr Clone(UnaryExpression& node) override;
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
@@ -45,11 +56,13 @@ namespace Nz::ShaderAst
 			template<typename TargetType> ExpressionPtr PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4);
 
 		private:
-			std::optional<UInt64> m_enabledOptions;
+			Options m_options;
 	};
 
+	inline ExpressionPtr Optimize(Expression& expr);
+	inline ExpressionPtr Optimize(Expression& expr, const AstOptimizer::Options& options);
 	inline StatementPtr Optimize(Statement& ast);
-	inline StatementPtr Optimize(Statement& ast, UInt64 enabledConditions);
+	inline StatementPtr Optimize(Statement& ast, const AstOptimizer::Options& options);
 }
 
 #include <Nazara/Shader/Ast/AstOptimizer.inl>

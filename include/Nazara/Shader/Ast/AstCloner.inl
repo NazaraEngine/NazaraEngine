@@ -7,6 +7,21 @@
 
 namespace Nz::ShaderAst
 {
+	template<typename T>
+	AttributeValue<T> AstCloner::CloneAttribute(const AttributeValue<T>& attribute)
+	{
+		if (!attribute.HasValue())
+			return {};
+
+		if (attribute.IsExpression())
+			return CloneExpression(attribute.GetExpression());
+		else
+		{
+			assert(attribute.IsResultingValue());
+			return attribute.GetResultingValue();
+		}
+	}
+
 	ExpressionPtr AstCloner::CloneExpression(const ExpressionPtr& expr)
 	{
 		if (!expr)

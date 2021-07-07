@@ -56,7 +56,7 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(ConditionalStatement& node)
 	{
 		auto clone = std::make_unique<ConditionalStatement>();
-		clone->optionIndex = node.optionIndex;
+		clone->condition = CloneExpression(node.condition);
 		clone->statement = CloneStatement(node.statement);
 
 		return clone;
@@ -65,8 +65,19 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareExternalStatement& node)
 	{
 		auto clone = std::make_unique<DeclareExternalStatement>();
-		clone->externalVars = node.externalVars;
 		clone->varIndex = node.varIndex;
+
+		clone->bindingSet = CloneAttribute(node.bindingSet);
+
+		clone->externalVars.reserve(node.externalVars.size());
+		for (const auto& var : node.externalVars)
+		{
+			auto& cloneVar = clone->externalVars.emplace_back();
+			cloneVar.name = var.name;
+			cloneVar.type = var.type;
+			cloneVar.bindingIndex = CloneAttribute(var.bindingIndex);
+			cloneVar.bindingSet = CloneAttribute(var.bindingSet);
+		}
 
 		return clone;
 	}
@@ -74,12 +85,11 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
-		clone->depthWrite = node.depthWrite;
-		clone->earlyFragmentTests = node.earlyFragmentTests;
-		clone->entryStage = node.entryStage;
+		clone->depthWrite = CloneAttribute(node.depthWrite);
+		clone->earlyFragmentTests = CloneAttribute(node.earlyFragmentTests);
+		clone->entryStage = CloneAttribute(node.entryStage);
 		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;
-		clone->optionName = node.optionName;
 		clone->parameters = node.parameters;
 		clone->returnType = node.returnType;
 		clone->varIndex = node.varIndex;
@@ -106,7 +116,20 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<DeclareStructStatement>();
 		clone->structIndex = node.structIndex;
-		clone->description = node.description;
+
+		clone->description.layout = CloneAttribute(node.description.layout);
+		clone->description.name = node.description.name;
+
+		clone->description.members.reserve(node.description.members.size());
+		for (const auto& member : node.description.members)
+		{
+			auto& cloneMember = clone->description.members.emplace_back();
+			cloneMember.name = member.name;
+			cloneMember.type = member.type;
+			cloneMember.builtin = CloneAttribute(member.builtin);
+			cloneMember.cond = CloneAttribute(member.cond);
+			cloneMember.locationIndex = CloneAttribute(member.locationIndex);
+		}
 
 		return clone;
 	}
@@ -259,9 +282,19 @@ namespace Nz::ShaderAst
 	ExpressionPtr AstCloner::Clone(ConditionalExpression& node)
 	{
 		auto clone = std::make_unique<ConditionalExpression>();
-		clone->optionIndex = node.optionIndex;
+		clone->condition = CloneExpression(node.condition);
 		clone->falsePath = CloneExpression(node.falsePath);
 		clone->truePath = CloneExpression(node.truePath);
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(ConstantIndexExpression& node)
+	{
+		auto clone = std::make_unique<ConstantIndexExpression>();
+		clone->constantId = node.constantId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 

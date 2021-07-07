@@ -109,20 +109,20 @@ namespace Nz::ShaderBuilder
 		return castNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ConditionalExpression> Impl::ConditionalExpression::operator()(std::size_t optionIndex, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
+	inline std::unique_ptr<ShaderAst::ConditionalExpression> Impl::ConditionalExpression::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
 	{
 		auto condExprNode = std::make_unique<ShaderAst::ConditionalExpression>();
-		condExprNode->optionIndex = optionIndex;
+		condExprNode->condition = std::move(condition);
 		condExprNode->falsePath = std::move(falsePath);
 		condExprNode->truePath = std::move(truePath);
 
 		return condExprNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ConditionalStatement> Impl::ConditionalStatement::operator()(std::size_t optionIndex, ShaderAst::StatementPtr statement) const
+	inline std::unique_ptr<ShaderAst::ConditionalStatement> Impl::ConditionalStatement::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr statement) const
 	{
 		auto condStatementNode = std::make_unique<ShaderAst::ConditionalStatement>();
-		condStatementNode->optionIndex = optionIndex;
+		condStatementNode->condition = std::move(condition);
 		condStatementNode->statement = std::move(statement);
 
 		return condStatementNode;
@@ -159,7 +159,9 @@ namespace Nz::ShaderBuilder
 	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType) const
 	{
 		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
-		declareFunctionNode->entryStage = entryStage;
+		if (entryStage)
+			declareFunctionNode->entryStage = *entryStage;
+
 		declareFunctionNode->name = std::move(name);
 		declareFunctionNode->parameters = std::move(parameters);
 		declareFunctionNode->returnType = std::move(returnType);

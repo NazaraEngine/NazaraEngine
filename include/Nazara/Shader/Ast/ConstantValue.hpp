@@ -8,6 +8,7 @@
 #define NAZARA_SHADER_CONSTANTVALUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/TypeList.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -17,7 +18,7 @@
 
 namespace Nz::ShaderAst
 {
-	using ConstantValue = std::variant<
+	using ConstantTypes = TypeList<
 		bool,
 		float,
 		Int32,
@@ -29,6 +30,8 @@ namespace Nz::ShaderAst
 		Vector3i32,
 		Vector4i32
 	>;
+
+	using ConstantValue = TypeListInstantiate<ConstantTypes, std::variant>;
 
 	NAZARA_SHADER_API ExpressionType GetExpressionType(const ConstantValue& constant);
 }

@@ -78,8 +78,8 @@ namespace Nz
 			void EnterScope();
 			void LeaveScope(bool skipLine = true);
 
-			void RegisterOption(std::size_t optionIndex, std::string optionName);
-			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc);
+			void RegisterConstant(std::size_t constantIndex, std::string constantName);
+			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
@@ -90,6 +90,7 @@ namespace Nz
 			void Visit(ShaderAst::CastExpression& node) override;
 			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
+			void Visit(ShaderAst::ConstantIndexExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;
