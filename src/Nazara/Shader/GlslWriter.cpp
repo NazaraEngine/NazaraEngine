@@ -763,6 +763,9 @@ namespace Nz
 			case ShaderAst::BinaryType::CompLe:    Append(" <= "); break;
 			case ShaderAst::BinaryType::CompLt:    Append(" < ");  break;
 			case ShaderAst::BinaryType::CompNe:    Append(" != "); break;
+
+			case ShaderAst::BinaryType::LogicalAnd: Append(" && "); break;
+			case ShaderAst::BinaryType::LogicalOr:  Append(" || "); break;
 		}
 
 		Visit(node.right, true);
