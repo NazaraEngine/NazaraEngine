@@ -218,6 +218,9 @@ namespace Nz
 							std::size_t memberIndex = 0;
 							for (const auto& member : structDesc->members)
 							{
+								if (member.cond.HasValue() && !member.cond.GetResultingValue())
+									continue;
+
 								if (UInt32 varId = HandleEntryInOutType(*entryPointType, funcIndex, member, SpirvStorageClass::Input); varId != 0)
 								{
 									inputs.push_back({
@@ -248,6 +251,9 @@ namespace Nz
 							std::size_t memberIndex = 0;
 							for (const auto& member : structDesc->members)
 							{
+								if (member.cond.HasValue() && !member.cond.GetResultingValue())
+									continue;
+
 								if (UInt32 varId = HandleEntryInOutType(*entryPointType, funcIndex, member, SpirvStorageClass::Output); varId != 0)
 								{
 									outputs.push_back({

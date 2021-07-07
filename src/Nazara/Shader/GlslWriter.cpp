@@ -390,8 +390,23 @@ namespace Nz
 		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantExpression);
 		auto& constantValue = static_cast<ShaderAst::ConstantExpression&>(**memberIndices);
 		Int32 index = std::get<Int32>(constantValue.value);
+		assert(index >= 0);
 
-		const auto& member = structDesc->members[index];
+		auto it = structDesc->members.begin();
+		for (; it != structDesc->members.end(); ++it)
+		{
+			const auto& member = *it;
+			if (member.cond.HasValue() && !member.cond.GetResultingValue())
+				continue;
+
+			if (index == 0)
+				break;
+
+			index--;
+		}
+
+		assert(it != structDesc->members.end());
+		const auto& member = *it;
 
 		Append(".");
 		Append(member.name);
@@ -586,6 +601,9 @@ namespace Nz
 		{
 			for (const auto& member : structDesc.members)
 			{
+				if (member.cond.HasValue() && !member.cond.GetResultingValue())
+					continue;
+
 				if (member.builtin.HasValue())
 				{
 					auto it = s_builtinMapping.find(member.builtin.GetResultingValue());
@@ -898,6 +916,9 @@ namespace Nz
 					bool first = true;
 					for (const auto& member : structDesc->members)
 					{
+						if (member.cond.HasValue() && !member.cond.GetResultingValue())
+							continue;
+
 						if (!first)
 							AppendLine();
 
