@@ -551,7 +551,6 @@ namespace Nz::ShaderAst
 
 #define NAZARA_SHADERAST_STATEMENT(Node) case NodeType:: Node : node = std::make_unique<Node>(); break;
 #include <Nazara/Shader/Ast/AstNodeList.hpp>
-#include "..\..\..\..\include\Nazara\Shader\Ast\AstSerializer.hpp"
 
 			default: throw std::runtime_error("unexpected node type");
 		}

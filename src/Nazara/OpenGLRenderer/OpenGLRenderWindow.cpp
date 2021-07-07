@@ -35,14 +35,14 @@ namespace Nz
 		return RenderFrame(m_renderImage[m_currentFrame].get(), invalidateFramebuffer, m_size, 0);
 	}
 
-	bool OpenGLRenderWindow::Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters)
+	bool OpenGLRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
 		DummySurface* dummySurface = static_cast<DummySurface*>(surface);
-		OpenGLRenderer* glRenderer = static_cast<OpenGLRenderer*>(renderer);
 
 		OpenGLDevice& device = static_cast<OpenGLDevice&>(*m_owner.GetRenderDevice());
 
 		GL::ContextParams contextParams;
+		//TODO: Pass render window parameters to context
 
 		m_context = device.CreateContext(contextParams, dummySurface->GetWindowHandle());
 		if (!m_context)

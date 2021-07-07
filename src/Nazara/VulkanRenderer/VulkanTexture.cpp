@@ -19,7 +19,8 @@ namespace Nz
 	m_device(device),
 	m_params(params)
 	{
-		VkImageCreateInfo createInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+		VkImageCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		createInfo.mipLevels = params.mipmapLevel;
 		createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -207,7 +208,7 @@ namespace Nz
 			VK_IMAGE_ASPECT_COLOR_BIT,
 			0, //< mipLevel
 			0, //< baseArrayLayer
-			(m_params.type == ImageType::Cubemap) ? 6 : 1 //< layerCount
+			UInt32((m_params.type == ImageType::Cubemap) ? 6 : 1) //< layerCount
 		};
 
 		VkImageSubresourceRange subresourceRange = { //< FIXME

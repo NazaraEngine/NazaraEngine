@@ -130,7 +130,7 @@ int main()
 
 	std::vector<GLint> uniformIndices = program.GetActiveUniformBlockUniformIndices(blockIndex);
 
-	std::vector<GLint> offsets = program.GetActiveUniforms(uniformIndices.size(), reinterpret_cast<GLuint*>(uniformIndices.data()), GL_UNIFORM_OFFSET);
+	std::vector<GLint> offsets = program.GetActiveUniforms(GLsizei(uniformIndices.size()), reinterpret_cast<GLuint*>(uniformIndices.data()), GL_UNIFORM_OFFSET);
 
 	auto p = SortIndexes(offsets, std::less<std::size_t>());
 
