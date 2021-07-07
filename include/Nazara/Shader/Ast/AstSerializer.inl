@@ -8,6 +8,73 @@
 namespace Nz::ShaderAst
 {
 	template<typename T>
+	void AstSerializerBase::Attribute(AttributeValue<T>& attribute)
+	{
+		UInt32 valueType;
+		if (IsWriting())
+		{
+			if (!attribute.HasValue())
+				valueType = 0;
+			else if (attribute.IsExpression())
+				valueType = 1;
+			else if (attribute.IsResultingValue())
+				valueType = 2;
+			else
+				throw std::runtime_error("unexpected attribute");
+		}
+
+		Value(valueType);
+
+		switch (valueType)
+		{
+			case 0:
+				if (!IsWriting())
+					attribute = {};
+
+				break;
+
+			case 1:
+			{
+				if (!IsWriting())
+				{
+					ExpressionPtr expr;
+					Node(expr);
+
+					attribute = std::move(expr);
+				}
+				else
+					Node(const_cast<ExpressionPtr&>(attribute.GetExpression())); //< not used for writing
+
+				break;
+			}
+
+			case 2:
+			{
+				if (!IsWriting())
+				{
+					T value;
+					if constexpr (std::is_enum_v<T>)
+						Enum(value);
+					else
+						Value(value);
+
+					attribute = std::move(value);
+				}
+				else
+				{
+					T& value = const_cast<T&>(attribute.GetResultingValue()); //< not used for writing
+					if constexpr (std::is_enum_v<T>)
+						Enum(value);
+					else
+						Value(value);
+				}
+
+				break;
+			}
+		}
+	}
+
+	template<typename T>
 	void AstSerializerBase::Container(T& container)
 	{
 		bool isWriting = IsWriting();

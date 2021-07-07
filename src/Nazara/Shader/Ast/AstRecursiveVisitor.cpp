@@ -4,6 +4,7 @@
 
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Debug.hpp>
+#include "..\..\..\..\include\Nazara\Shader\Ast\AstRecursiveVisitor.hpp"
 
 namespace Nz::ShaderAst
 {
@@ -63,6 +64,11 @@ namespace Nz::ShaderAst
 	}
 
 	void AstRecursiveVisitor::Visit(ConstantExpression& /*node*/)
+	{
+		/* Nothing to do */
+	}
+
+	void AstRecursiveVisitor::Visit(ConstantIndexExpression& /*node*/)
 	{
 		/* Nothing to do */
 	}

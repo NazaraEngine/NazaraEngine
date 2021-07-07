@@ -46,20 +46,27 @@ namespace Nz
 				currentFunction->calledFunctions.UnboundedSet(std::get<std::size_t>(node.targetFunction));
 			}
 
+			void Visit(ShaderAst::ConditionalExpression& node) override
+			{
+				throw std::runtime_error("unexpected conditional expression, is shader sanitized?");
+			}
+
 			void Visit(ShaderAst::ConditionalStatement& node) override
 			{
-				if (TestBit<UInt64>(enabledOptions, node.optionIndex))
-					node.statement->Visit(*this);
+				throw std::runtime_error("unexpected conditional statement, is shader sanitized?");
 			}
 
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override
 			{
 				// Dismiss function if it's an entry point of another type than the one selected
-				if (node.entryStage)
+				if (node.entryStage.HasValue())
 				{
 					if (selectedStage)
 					{
-						ShaderStageType stage = *node.entryStage;
+						if (!node.entryStage.IsResultingValue())
+							throw std::runtime_error("unexpected unresolved value for entry attribute, is shader sanitized?");
+
+						ShaderStageType stage = node.entryStage.GetResultingValue();
 						if (stage != *selectedStage)
 							return;
 
@@ -132,7 +139,7 @@ namespace Nz
 
 		std::optional<ShaderStageType> stage;
 		std::stringstream stream;
-		std::unordered_map<std::size_t, ShaderAst::StructDescription> structs;
+		std::unordered_map<std::size_t, ShaderAst::StructDescription*> structs;
 		std::unordered_map<std::size_t, std::string> variableNames;
 		std::vector<InOutField> inputFields;
 		std::vector<InOutField> outputFields;
@@ -161,7 +168,7 @@ namespace Nz
 		ShaderAst::Statement* targetAst;
 		if (!states.sanitized)
 		{
-			sanitizedAst = Sanitize(shader);
+			sanitizedAst = Sanitize(shader, states.enabledOptions);
 			targetAst = sanitizedAst.get();
 		}
 		else
@@ -196,10 +203,11 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, std::string* error)
+	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, UInt64 enabledConditions, std::string* error)
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
+		options.enabledOptions = enabledConditions;
 		options.makeVariableNameUnique = true;
 		options.reservedIdentifiers = {
 			// All reserved GLSL keywords as of GLSL ES 3.2
@@ -296,8 +304,8 @@ namespace Nz
 
 	void GlslWriter::Append(const ShaderAst::StructType& structType)
 	{
-		const auto& structDesc = Retrieve(m_currentState->structs, structType.structIndex);
-		Append(structDesc.name);
+		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structType.structIndex);
+		Append(structDesc->name);
 	}
 
 	void GlslWriter::Append(const ShaderAst::UniformType& /*uniformType*/)
@@ -377,13 +385,13 @@ namespace Nz
 
 	void GlslWriter::AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers)
 	{
-		const auto& structDesc = Retrieve(m_currentState->structs, structIndex);
+		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
 
 		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantExpression);
 		auto& constantValue = static_cast<ShaderAst::ConstantExpression&>(**memberIndices);
 		Int32 index = std::get<Int32>(constantValue.value);
 
-		const auto& member = structDesc.members[index];
+		const auto& member = structDesc->members[index];
 
 		Append(".");
 		Append(member.name);
@@ -529,7 +537,7 @@ namespace Nz
 
 	void GlslWriter::HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node)
 	{
-		if (node.entryStage == ShaderStageType::Fragment && node.earlyFragmentTests && *node.earlyFragmentTests)
+		if (node.entryStage.GetResultingValue() == ShaderStageType::Fragment && node.earlyFragmentTests.HasValue() && node.earlyFragmentTests.GetResultingValue())
 		{
 			if ((m_environment.glES && m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1) || (!m_environment.glES && m_environment.glMajorVersion >= 4 && m_environment.glMinorVersion >= 2) || (m_environment.extCallback && m_environment.extCallback("GL_ARB_shader_image_load_store")))
 			{
@@ -553,9 +561,9 @@ namespace Nz
 
 				assert(IsStructType(parameter.type));
 				std::size_t structIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
-				const ShaderAst::StructDescription& structDesc = Retrieve(m_currentState->structs, structIndex);
+				const ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
 
-				AppendLine(structDesc.name, " ", varName, ";");
+				AppendLine(structDesc->name, " ", varName, ";");
 				for (const auto& [memberName, targetName] : m_currentState->inputFields)
 					AppendLine(varName, ".", memberName, " = ", targetName, ";");
 
@@ -578,9 +586,9 @@ namespace Nz
 		{
 			for (const auto& member : structDesc.members)
 			{
-				if (member.builtin)
+				if (member.builtin.HasValue())
 				{
-					auto it = s_builtinMapping.find(member.builtin.value());
+					auto it = s_builtinMapping.find(member.builtin.GetResultingValue());
 					assert(it != s_builtinMapping.end());
 
 					const Builtin& builtin = it->second;
@@ -592,10 +600,10 @@ namespace Nz
 						builtin.identifier
 					});
 				}
-				else if (member.locationIndex)
+				else if (member.locationIndex.HasValue())
 				{
 					Append("layout(location = ");
-					Append(*member.locationIndex);
+					Append(member.locationIndex.GetResultingValue());
 					Append(") ");
 					Append(keyword);
 					Append(" ");
@@ -625,7 +633,7 @@ namespace Nz
 			assert(std::holds_alternative<ShaderAst::StructType>(parameter.type));
 
 			std::size_t inputStructIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
-			inputStruct = &Retrieve(m_currentState->structs, inputStructIndex);
+			inputStruct = Retrieve(m_currentState->structs, inputStructIndex);
 
 			AppendCommentSection("Inputs");
 			AppendInOut(*inputStruct, m_currentState->inputFields, "in", s_inputPrefix);
@@ -642,17 +650,17 @@ namespace Nz
 			assert(std::holds_alternative<ShaderAst::StructType>(node.returnType));
 			std::size_t outputStructIndex = std::get<ShaderAst::StructType>(node.returnType).structIndex;
 
-			const ShaderAst::StructDescription& outputStruct = Retrieve(m_currentState->structs, outputStructIndex);
+			const ShaderAst::StructDescription* outputStruct = Retrieve(m_currentState->structs, outputStructIndex);
 
 			AppendCommentSection("Outputs");
-			AppendInOut(outputStruct, m_currentState->outputFields, "out", s_outputPrefix);
+			AppendInOut(*outputStruct, m_currentState->outputFields, "out", s_outputPrefix);
 		}
 	}
 
-	void GlslWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc)
+	void GlslWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc)
 	{
 		assert(m_currentState->structs.find(structIndex) == m_currentState->structs.end());
-		m_currentState->structs.emplace(structIndex, std::move(desc));
+		m_currentState->structs.emplace(structIndex, desc);
 	}
 
 	void GlslWriter::RegisterVariable(std::size_t varIndex, std::string varName)
@@ -797,20 +805,6 @@ namespace Nz
 		Append(")");
 	}
 
-	void GlslWriter::Visit(ShaderAst::ConditionalExpression& node)
-	{
-		if (TestBit<Nz::UInt64>(m_currentState->enabledOptions, node.optionIndex))
-			Visit(node.truePath);
-		else
-			Visit(node.falsePath);
-	}
-
-	void GlslWriter::Visit(ShaderAst::ConditionalStatement& node)
-	{
-		if (TestBit<Nz::UInt64>(m_currentState->enabledOptions, node.optionIndex))
-			node.statement->Visit(*this);
-	}
-
 	void GlslWriter::Visit(ShaderAst::ConstantExpression& node)
 	{
 		std::visit([&](auto&& arg)
@@ -849,8 +843,9 @@ namespace Nz
 				assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
 
 				std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
-				auto& structInfo = Retrieve(m_currentState->structs, structIndex);
-				isStd140 = structInfo.layout == StructLayout::Std140;
+				ShaderAst::StructDescription* structInfo = Retrieve(m_currentState->structs, structIndex);
+				if (structInfo->layout.HasValue())
+				isStd140 = structInfo->layout.GetResultingValue() == StructLayout::Std140;
 			}
 
 			if (!m_currentState->bindingMapping.empty() || isStd140)
@@ -858,10 +853,14 @@ namespace Nz
 
 			if (!m_currentState->bindingMapping.empty())
 			{
-				assert(externalVar.bindingIndex);
+				assert(externalVar.bindingIndex.HasValue());
 
-				UInt64 bindingIndex = *externalVar.bindingIndex;
-				UInt64 bindingSet = externalVar.bindingSet.value_or(0);
+				UInt64 bindingIndex = externalVar.bindingIndex.GetResultingValue();
+				UInt64 bindingSet;
+				if (externalVar.bindingSet.HasValue())
+					bindingSet = externalVar.bindingSet.GetResultingValue();
+				else
+					bindingSet = 0;
 
 				auto bindingIt = m_currentState->bindingMapping.find(bindingSet << 32 | bindingIndex);
 				if (bindingIt == m_currentState->bindingMapping.end())
@@ -894,7 +893,7 @@ namespace Nz
 					auto& structDesc = Retrieve(m_currentState->structs, structIndex);
 
 					bool first = true;
-					for (const auto& member : structDesc.members)
+					for (const auto& member : structDesc->members)
 					{
 						if (!first)
 							AppendLine();
@@ -927,7 +926,7 @@ namespace Nz
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
-		if (node.entryStage && m_currentState->previsitor.entryPoint != &node)
+		if (node.entryStage.HasValue() && m_currentState->previsitor.entryPoint != &node)
 			return; //< Ignore other entry points
 
 		assert(node.funcIndex);
@@ -951,7 +950,7 @@ namespace Nz
 		if (hasPredeclaration)
 			AppendLine();
 
-		if (node.entryStage)
+		if (node.entryStage.HasValue())
 			return HandleEntryPoint(node);
 
 		std::optional<std::size_t> varIndexOpt = node.varIndex;
@@ -981,7 +980,7 @@ namespace Nz
 	void GlslWriter::Visit(ShaderAst::DeclareStructStatement& node)
 	{
 		assert(node.structIndex);
-		RegisterStruct(*node.structIndex, node.description);
+		RegisterStruct(*node.structIndex, &node.description);
 
 		Append("struct ");
 		AppendLine(node.description.name);
@@ -1096,7 +1095,7 @@ namespace Nz
 			const ShaderAst::ExpressionType& returnType = GetExpressionType(*node.returnExpr);
 			assert(IsStructType(returnType));
 			std::size_t structIndex = std::get<ShaderAst::StructType>(returnType).structIndex;
-			const ShaderAst::StructDescription& structDesc = Retrieve(m_currentState->structs, structIndex);
+			const ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
 
 			std::string outputStructVarName;
 			if (node.returnExpr->GetType() == ShaderAst::NodeType::VariableExpression)
@@ -1104,7 +1103,7 @@ namespace Nz
 			else
 			{
 				AppendLine();
-				Append(structDesc.name, " ", s_outputVarName, " = ");
+				Append(structDesc->name, " ", s_outputVarName, " = ");
 				node.returnExpr->Visit(*this);
 				AppendLine(";");
 

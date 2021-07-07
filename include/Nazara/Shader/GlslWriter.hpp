@@ -46,7 +46,7 @@ namespace Nz
 			};
 
 			static const char* GetFlipYUniformName();
-			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, std::string* error = nullptr);
+			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, UInt64 enabledConditions, std::string* error = nullptr);
 
 		private:
 			void Append(const ShaderAst::ExpressionType& type);
@@ -76,7 +76,7 @@ namespace Nz
 			void HandleEntryPoint(ShaderAst::DeclareFunctionStatement& node);
 			void HandleInOut();
 
-			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription desc);
+			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
@@ -86,7 +86,6 @@ namespace Nz
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::CallFunctionExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
-			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
@@ -94,7 +93,6 @@ namespace Nz
 			void Visit(ShaderAst::UnaryExpression& node) override;
 
 			void Visit(ShaderAst::BranchStatement& node) override;
-			void Visit(ShaderAst::ConditionalStatement& node) override;
 			void Visit(ShaderAst::DeclareExternalStatement& node) override;
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override;
 			void Visit(ShaderAst::DeclareOptionStatement& node) override;

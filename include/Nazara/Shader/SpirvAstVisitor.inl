@@ -25,12 +25,12 @@ namespace Nz
 		RegisterVariable(varIndex, m_writer.GetTypeId(type), pointerId, storageClass);
 	}
 
-	inline void SpirvAstVisitor::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription structDesc)
+	inline void SpirvAstVisitor::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* structDesc)
 	{
 		if (structIndex >= m_structs.size())
 			m_structs.resize(structIndex + 1);
 
-		m_structs[structIndex] = std::move(structDesc);
+		m_structs[structIndex] = structDesc;
 	}
 
 	inline void SpirvAstVisitor::RegisterVariable(std::size_t varIndex, UInt32 typeId, UInt32 pointerId, SpirvStorageClass storageClass)

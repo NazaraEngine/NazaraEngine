@@ -47,8 +47,6 @@ namespace Nz
 			void Visit(ShaderAst::BranchStatement& node) override;
 			void Visit(ShaderAst::CallFunctionExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
-			void Visit(ShaderAst::ConditionalExpression& node) override;
-			void Visit(ShaderAst::ConditionalStatement& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
 			void Visit(ShaderAst::DeclareExternalStatement& node) override;
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override;
@@ -142,7 +140,7 @@ namespace Nz
 			UInt32 PopResultId();
 
 			inline void RegisterExternalVariable(std::size_t varIndex, const ShaderAst::ExpressionType& type);
-			inline void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription structDesc);
+			inline void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* structDesc);
 			inline void RegisterVariable(std::size_t varIndex, UInt32 typeId, UInt32 pointerId, SpirvStorageClass storageClass);
 
 			std::size_t m_extVarIndex;
@@ -150,7 +148,7 @@ namespace Nz
 			std::size_t m_funcIndex;
 			std::vector<std::size_t> m_scopeSizes;
 			std::vector<FuncData>& m_funcData;
-			std::vector<ShaderAst::StructDescription> m_structs;
+			std::vector<ShaderAst::StructDescription*> m_structs;
 			std::vector<std::optional<Variable>> m_variables;
 			std::vector<SpirvBlock> m_functionBlocks;
 			std::vector<UInt32> m_resultIds;

@@ -12,15 +12,6 @@ namespace Nz::ShaderAst
 		return Sanitize(statement, {}, error);
 	}
 
-	inline auto SanitizeVisitor::FindIdentifier(const std::string_view& identifierName) const -> const Identifier*
-	{
-		auto it = std::find_if(m_identifiersInScope.rbegin(), m_identifiersInScope.rend(), [&](const Identifier& identifier) { return identifier.name == identifierName; });
-		if (it == m_identifiersInScope.rend())
-			return nullptr;
-
-		return &*it;
-	}
-
 	inline StatementPtr Sanitize(Statement& ast, std::string* error)
 	{
 		SanitizeVisitor sanitizer;

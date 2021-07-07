@@ -23,12 +23,12 @@ namespace Nz
 		{
 			Binding,            //< Binding (external var only) - has argument index
 			Builtin,            //< Builtin (struct member only) - has argument type
+			Cond,               //< Conditional compilation option - has argument expr
 			DepthWrite,         //< Depth write mode (function only) - has argument type
 			EarlyFragmentTests, //< Entry point (function only) - has argument on/off
 			Entry,              //< Entry point (function only) - has argument type
 			Layout,             //< Struct layout (struct only) - has argument style
 			Location,           //< Location (struct member only) - has argument index
-			Option,             //< Conditional compilation option - has argument expr
 			Set,                //< Binding set (external var only) - has argument index
 		};
 

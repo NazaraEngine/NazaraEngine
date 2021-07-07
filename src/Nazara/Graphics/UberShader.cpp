@@ -16,10 +16,8 @@ namespace Nz
 	UberShader::UberShader(ShaderStageType shaderStage, const ShaderAst::StatementPtr& shaderAst) :
 	m_shaderStage(shaderStage)
 	{
-		ShaderAst::SanitizeVisitor::Options options;
-		options.removeOptionDeclaration = false;
-
-		m_shaderAst = ShaderAst::Sanitize(*shaderAst, options);
+		//TODO: Try to partially sanitize shader?
+		m_shaderAst = ShaderAst::Clone(*shaderAst);
 
 		std::size_t optionCount = 0;
 
@@ -59,7 +57,6 @@ namespace Nz
 		{
 			ShaderWriter::States states;
 			states.enabledOptions = combination;
-			states.sanitized = true;
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStage, *m_shaderAst, std::move(states));
 

@@ -30,6 +30,7 @@ namespace Nz::ShaderAst
 			void Serialize(CallFunctionExpression& node);
 			void Serialize(CallMethodExpression& node);
 			void Serialize(CastExpression& node);
+			void Serialize(ConstantIndexExpression& node);
 			void Serialize(ConditionalExpression& node);
 			void Serialize(ConstantExpression& node);
 			void Serialize(IdentifierExpression& node);
@@ -53,6 +54,7 @@ namespace Nz::ShaderAst
 			void Serialize(ReturnStatement& node);
 
 		protected:
+			template<typename T> void Attribute(AttributeValue<T>& attribute);
 			template<typename T> void Container(T& container);
 			template<typename T> void Enum(T& enumVal);
 			template<typename T> void OptEnum(std::optional<T>& optVal);

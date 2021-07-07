@@ -531,19 +531,6 @@ namespace Nz::ShaderAst
 #undef EnableOptimisation
 	}
 
-	StatementPtr AstOptimizer::Optimise(Statement& statement)
-	{
-		m_enabledOptions.reset();
-		return CloneStatement(statement);
-	}
-
-	StatementPtr AstOptimizer::Optimise(Statement& statement, UInt64 enabledConditions)
-	{
-		m_enabledOptions = enabledConditions;
-
-		return CloneStatement(statement);
-	}
-
 	ExpressionPtr AstOptimizer::Clone(BinaryExpression& node)
 	{
 		auto lhs = CloneExpression(node.left);
@@ -785,13 +772,34 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr AstOptimizer::Clone(ConditionalExpression& node)
 	{
-		if (!m_enabledOptions)
+		if (!m_options.enabledOptions)
 			return AstCloner::Clone(node);
 
-		if (TestBit<UInt64>(*m_enabledOptions, node.optionIndex))
+		auto cond = CloneExpression(node.condition);
+		if (cond->GetType() != NodeType::ConstantExpression)
+			throw std::runtime_error("conditional expression condition must be a constant expression");
+
+		auto& constant = static_cast<ConstantExpression&>(*cond);
+
+		assert(constant.cachedExpressionType);
+		const ExpressionType& constantType = constant.cachedExpressionType.value();
+
+		if (!IsPrimitiveType(constantType) || std::get<PrimitiveType>(constantType) != PrimitiveType::Boolean)
+			throw std::runtime_error("conditional expression condition must resolve to a boolean");
+
+		bool cValue = std::get<bool>(constant.value);
+		if (cValue)
 			return AstCloner::Clone(*node.truePath);
 		else
 			return AstCloner::Clone(*node.falsePath);
+	}
+
+	ExpressionPtr AstOptimizer::Clone(ConstantIndexExpression& node)
+	{
+		if (!m_options.constantQueryCallback)
+			return AstCloner::Clone(node);
+
+		return ShaderBuilder::Constant(m_options.constantQueryCallback(node.constantId));
 	}
 
 	ExpressionPtr AstOptimizer::Clone(UnaryExpression& node)
@@ -830,10 +838,23 @@ namespace Nz::ShaderAst
 
 	StatementPtr AstOptimizer::Clone(ConditionalStatement& node)
 	{
-		if (!m_enabledOptions)
+		if (!m_options.enabledOptions)
 			return AstCloner::Clone(node);
 
-		if (TestBit<UInt64>(*m_enabledOptions, node.optionIndex))
+		auto cond = CloneExpression(node.condition);
+		if (cond->GetType() != NodeType::ConstantExpression)
+			throw std::runtime_error("conditional expression condition must be a constant expression");
+
+		auto& constant = static_cast<ConstantExpression&>(*cond);
+
+		assert(constant.cachedExpressionType);
+		const ExpressionType& constantType = constant.cachedExpressionType.value();
+
+		if (!IsPrimitiveType(constantType) || std::get<PrimitiveType>(constantType) != PrimitiveType::Boolean)
+			throw std::runtime_error("conditional expression condition must resolve to a boolean");
+
+		bool cValue = std::get<bool>(constant.value);
+		if (cValue)
 			return AstCloner::Clone(node);
 		else
 			return ShaderBuilder::NoOp();

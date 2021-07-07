@@ -570,20 +570,6 @@ namespace Nz
 		}
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::ConditionalExpression& node)
-	{
-		if (m_writer.IsOptionEnabled(node.optionIndex))
-			node.truePath->Visit(*this);
-		else
-			node.falsePath->Visit(*this);
-	}
-
-	void SpirvAstVisitor::Visit(ShaderAst::ConditionalStatement& node)
-	{
-		if (m_writer.IsOptionEnabled(node.optionIndex))
-			node.statement->Visit(*this);
-	}
-
 	void SpirvAstVisitor::Visit(ShaderAst::ConstantExpression& node)
 	{
 		std::visit([&] (const auto& value)
@@ -678,7 +664,7 @@ namespace Nz
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareStructStatement& node)
 	{
 		assert(node.structIndex);
-		RegisterStruct(*node.structIndex, node.description);
+		RegisterStruct(*node.structIndex, &node.description);
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareVariableStatement& node)

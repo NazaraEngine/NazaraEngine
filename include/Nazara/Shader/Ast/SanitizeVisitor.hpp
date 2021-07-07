@@ -36,6 +36,7 @@ namespace Nz::ShaderAst
 			struct Options
 			{
 				std::unordered_set<std::string> reservedIdentifiers;
+				UInt64 enabledOptions = 0;
 				bool makeVariableNameUnique = false;
 				bool removeOptionDeclaration = true;
 			};
@@ -71,7 +72,7 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(ExpressionStatement& node) override;
 			StatementPtr Clone(MultiStatement& node) override;
 
-			inline const Identifier* FindIdentifier(const std::string_view& identifierName) const;
+			const Identifier* FindIdentifier(const std::string_view& identifierName) const;
 
 			Expression& MandatoryExpr(ExpressionPtr& node);
 			Statement& MandatoryStatement(StatementPtr& node);
@@ -81,14 +82,17 @@ namespace Nz::ShaderAst
 			void PushScope();
 			void PopScope();
 
+			template<typename T> const T& ComputeAttributeValue(AttributeValue<T>& attribute);
+			ConstantValue ComputeConstantValue(Expression& expr);
+
 			std::size_t DeclareFunction(DeclareFunctionStatement& funcDecl);
 
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
+			std::size_t RegisterConstant(std::string name, ConstantValue value);
 			FunctionData& RegisterFunction(std::size_t functionIndex);
 			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type);
-			std::size_t RegisterOption(std::string name, ExpressionType type);
-			std::size_t RegisterStruct(std::string name, StructDescription description);
+			std::size_t RegisterStruct(std::string name, StructDescription* description);
 			std::size_t RegisterVariable(std::string name, ExpressionType type);
 
 			void ResolveFunctions();
@@ -118,9 +122,9 @@ namespace Nz::ShaderAst
 				enum class Type
 				{
 					Alias,
+					Constant,
 					Function,
 					Intrinsic,
-					Option,
 					Struct,
 					Variable
 				};
@@ -129,14 +133,6 @@ namespace Nz::ShaderAst
 				std::size_t index;
 				Type type;
 			};
-
-			std::vector<Identifier> m_identifiersInScope;
-			std::vector<FunctionData> m_functions;
-			std::vector<IntrinsicType> m_intrinsics;
-			std::vector<ExpressionType> m_options;
-			std::vector<StructDescription> m_structs;
-			std::vector<ExpressionType> m_variableTypes;
-			std::vector<std::size_t> m_scopeSizes;
 
 			struct Context;
 			Context* m_context;
