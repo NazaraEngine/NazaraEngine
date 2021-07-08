@@ -20,10 +20,12 @@ namespace Nz
 	class NAZARA_GRAPHICS_API UberShader
 	{
 		public:
-			UberShader(ShaderStageType shaderStage, const ShaderAst::StatementPtr& shaderAst);
+			UberShader(ShaderStageTypeFlags shaderStages, const ShaderAst::StatementPtr& shaderAst);
 			~UberShader() = default;
 
 			UInt64 GetOptionFlagByName(const std::string& optionName) const;
+
+			inline ShaderStageTypeFlags GetSupportedStages() const;
 
 			const std::shared_ptr<ShaderModule>& Get(UInt64 combination);
 
@@ -31,7 +33,7 @@ namespace Nz
 			std::unordered_map<UInt64 /*combination*/, std::shared_ptr<ShaderModule>> m_combinations;
 			std::unordered_map<std::string, std::size_t> m_optionIndexByName;
 			ShaderAst::StatementPtr m_shaderAst;
-			ShaderStageType m_shaderStage;
+			ShaderStageTypeFlags m_shaderStages;
 			UInt64 m_combinationMask;
 	};
 }

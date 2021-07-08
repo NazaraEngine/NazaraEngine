@@ -5,7 +5,7 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/BufferEditor.hpp>
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
-#include <ShaderNode/Widgets/ConditionEditor.hpp>
+#include <ShaderNode/Widgets/OptionEditor.hpp>
 #include <ShaderNode/Widgets/InputEditor.hpp>
 #include <ShaderNode/Widgets/OutputEditor.hpp>
 #include <ShaderNode/Widgets/NodeEditor.hpp>
@@ -81,13 +81,13 @@ m_shaderGraph(graph)
 
 	addDockWidget(Qt::RightDockWidgetArea, structDock);
 
-	// Condition editor
-	ConditionEditor* conditionEditor = new ConditionEditor(m_shaderGraph);
+	// Option editor
+	OptionEditor* optionEditor = new OptionEditor(m_shaderGraph);
 
-	QDockWidget* conditionDock = new QDockWidget(tr("Conditions"));
-	conditionDock->setWidget(conditionEditor);
+	QDockWidget* optionDock = new QDockWidget(tr("Options"));
+	optionDock->setWidget(optionEditor);
 
-	addDockWidget(Qt::RightDockWidgetArea, conditionDock);
+	addDockWidget(Qt::RightDockWidgetArea, optionDock);
 
 	// Code output
 	CodeOutputWidget* codeOutput = new CodeOutputWidget(m_shaderGraph);
@@ -120,7 +120,7 @@ m_shaderGraph(graph)
 		view->addAction(nodeEditorDock->toggleViewAction());
 		view->addAction(bufferDock->toggleViewAction());
 		view->addAction(structDock->toggleViewAction());
-		view->addAction(conditionDock->toggleViewAction());
+		view->addAction(optionDock->toggleViewAction());
 		view->addAction(codeOutputDock->toggleViewAction());
 	}
 
@@ -142,7 +142,7 @@ m_shaderGraph(graph)
 		});
 	});
 
-	m_onConditionUpdate.Connect(m_shaderGraph.OnConditionUpdate, [=](ShaderGraph*, std::size_t /*conditionIndex*/)
+	m_onOptionUpdate.Connect(m_shaderGraph.OnOptionUpdate, [=](ShaderGraph*, std::size_t /*optionIndex*/)
 	{
 		if (codeOutput->isVisible())
 			codeOutput->Refresh();

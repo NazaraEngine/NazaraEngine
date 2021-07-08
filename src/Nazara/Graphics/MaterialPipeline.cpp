@@ -48,10 +48,10 @@ namespace Nz
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
-		for (const auto& shaderEntry : m_pipelineInfo.shaders)
+		for (const auto& shader : m_pipelineInfo.shaders)
 		{
-			if (shaderEntry.uberShader)
-				renderPipelineInfo.shaderModules.push_back(shaderEntry.uberShader->Get(shaderEntry.enabledConditions));
+			if (shader.uberShader)
+				renderPipelineInfo.shaderModules.push_back(shader.uberShader->Get(shader.enabledOptions));
 		}
 
 		renderPipelineInfo.vertexBuffers = vertexBuffers;

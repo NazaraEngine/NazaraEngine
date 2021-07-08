@@ -16,22 +16,6 @@ inline auto ShaderGraph::GetBuffers() const -> const std::vector<BufferEntry>&
 	return m_buffers;
 }
 
-inline auto ShaderGraph::GetCondition(std::size_t conditionIndex) const -> const ConditionEntry&
-{
-	assert(conditionIndex < m_conditions.size());
-	return m_conditions[conditionIndex];
-}
-
-inline std::size_t ShaderGraph::GetConditionCount() const
-{
-	return m_conditions.size();
-}
-
-inline auto ShaderGraph::GetConditions() const -> const std::vector<ConditionEntry>&
-{
-	return m_conditions;
-}
-
 inline auto ShaderGraph::GetInput(std::size_t inputIndex) const -> const InputEntry&
 {
 	assert(inputIndex < m_inputs.size());
@@ -46,6 +30,22 @@ inline std::size_t ShaderGraph::GetInputCount() const
 inline auto ShaderGraph::GetInputs() const -> const std::vector<InputEntry>&
 {
 	return m_inputs;
+}
+
+inline auto ShaderGraph::GetOption(std::size_t optionIndex) const -> const OptionEntry&
+{
+	assert(optionIndex < m_options.size());
+	return m_options[optionIndex];
+}
+
+inline std::size_t ShaderGraph::GetOptionCount() const
+{
+	return m_options.size();
+}
+
+inline auto ShaderGraph::GetOptions() const -> const std::vector<OptionEntry>&
+{
+	return m_options;
 }
 
 inline auto ShaderGraph::GetOutput(std::size_t outputIndex) const -> const OutputEntry&
@@ -111,9 +111,9 @@ inline ShaderType ShaderGraph::GetType() const
 	return m_type;
 }
 
-inline bool ShaderGraph::IsConditionEnabled(std::size_t conditionIndex) const
+inline bool ShaderGraph::IsOptionEnabled(std::size_t optionIndex) const
 {
-	assert(conditionIndex < m_conditions.size());
-	return m_conditions[conditionIndex].enabled;
+	assert(optionIndex < m_options.size());
+	return m_options[optionIndex].enabled;
 }
 

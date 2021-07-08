@@ -56,7 +56,7 @@ namespace Nz
 			};
 
 		private:
-			struct ConditionIndexes
+			struct OptionIndexes
 			{
 				std::size_t alphaTest;
 				std::size_t hasAlphaMap;
@@ -74,13 +74,13 @@ namespace Nz
 
 			Material& m_material;
 			std::size_t m_uniformBlockIndex;
-			ConditionIndexes m_conditionIndexes;
+			OptionIndexes m_optionIndexes;
 			TextureIndexes m_textureIndexes;
 			UniformOffsets m_uniformOffsets;
 
 			static std::shared_ptr<MaterialSettings> s_materialSettings;
 			static std::size_t s_uniformBlockIndex;
-			static ConditionIndexes s_conditionIndexes;
+			static OptionIndexes s_optionIndexes;
 			static TextureIndexes s_textureIndexes;
 			static UniformOffsets s_uniformOffsets;
 	};

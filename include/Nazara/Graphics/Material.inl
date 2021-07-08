@@ -90,15 +90,6 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void Material::EnableCondition(std::size_t conditionIndex, bool enable)
-	{
-		if (TestBit<UInt64>(m_enabledConditions, conditionIndex) != enable)
-		{
-			m_enabledConditions = ToggleBit<UInt64>(m_enabledConditions, conditionIndex);
-			InvalidatePipeline();
-		}
-	}
-
 	/*!
 	* \brief Enable/Disable depth buffer for this material
 	*
@@ -187,6 +178,15 @@ namespace Nz
 		m_pipelineInfo.faceCulling = faceCulling;
 
 		InvalidatePipeline();
+	}
+
+	inline void Material::EnableOption(std::size_t optionIndex, bool enable)
+	{
+		if (TestBit<UInt64>(m_enabledOptions, optionIndex) != enable)
+		{
+			m_enabledOptions = ToggleBit<UInt64>(m_enabledOptions, optionIndex);
+			InvalidatePipeline();
+		}
 	}
 
 	/*!
@@ -515,11 +515,6 @@ namespace Nz
 		return m_pipelineInfo.colorWrite;
 	}
 
-	inline bool Material::IsConditionEnabled(std::size_t conditionIndex) const
-	{
-		return TestBit<UInt64>(m_enabledConditions, conditionIndex);
-	}
-
 	/*!
 	* \brief Checks whether this material has depth buffer enabled
 	* \return true If it is the case
@@ -554,6 +549,11 @@ namespace Nz
 	inline bool Material::IsFaceCullingEnabled() const
 	{
 		return m_pipelineInfo.faceCulling;
+	}
+
+	inline bool Material::IsOptionEnabled(std::size_t optionIndex) const
+	{
+		return TestBit<UInt64>(m_enabledOptions, optionIndex);
 	}
 
 	/*!
@@ -765,25 +765,6 @@ namespace Nz
 		uboEntry.dataInvalidated = true;
 
 		OnMaterialInvalidated(this);
-	}
-
-	inline void Material::UpdatePipeline() const
-	{
-		for (auto& shader : m_pipelineInfo.shaders)
-			shader.enabledConditions = 0;
-
-		const auto& conditions = m_settings->GetConditions();
-		for (std::size_t conditionIndex = 0; conditionIndex < conditions.size(); ++conditionIndex)
-		{
-			if (TestBit<UInt64>(m_enabledConditions, conditionIndex))
-			{
-				for (std::size_t shaderStage = 0; shaderStage < ShaderStageTypeCount; ++shaderStage)
-					m_pipelineInfo.shaders[shaderStage].enabledConditions |= conditions[conditionIndex].enabledConditions[shaderStage];
-			}
-		}
-
-		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
-		m_pipelineUpdated = true;
 	}
 }
 

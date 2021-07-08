@@ -40,7 +40,7 @@ namespace Nz
 
 		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
 		{
-			if (lhs.shaders[i].enabledConditions != rhs.shaders[i].enabledConditions)
+			if (lhs.shaders[i].enabledOptions != rhs.shaders[i].enabledOptions)
 				return false;
 
 			if (lhs.shaders[i].uberShader != rhs.shaders[i].uberShader)
@@ -85,7 +85,7 @@ namespace std
 
 			for (const auto& shader : pipelineInfo.shaders)
 			{
-				Nz::HashCombine(seed, shader.enabledConditions);
+				Nz::HashCombine(seed, shader.enabledOptions);
 				Nz::HashCombine(seed, shader.uberShader.get());
 			}
 

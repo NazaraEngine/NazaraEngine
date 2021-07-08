@@ -59,16 +59,16 @@ namespace Nz
 		return m_data;
 	}
 
-	inline auto MaterialSettings::GetConditions() const -> const std::vector<Condition>&
+	inline auto MaterialSettings::GetOptions() const -> const std::vector<Option>&
 	{
-		return m_data.conditions;
+		return m_data.options;
 	}
 
-	inline std::size_t MaterialSettings::GetConditionIndex(const std::string_view& name) const
+	inline std::size_t MaterialSettings::GetOptionIndex(const std::string_view& name) const
 	{
-		for (std::size_t i = 0; i < m_data.conditions.size(); ++i)
+		for (std::size_t i = 0; i < m_data.options.size(); ++i)
 		{
-			if (m_data.conditions[i].name == name)
+			if (m_data.options[i].name == name)
 				return i;
 		}
 
@@ -85,7 +85,7 @@ namespace Nz
 		return m_data.shaders[UnderlyingCast(stage)];
 	}
 
-	inline auto MaterialSettings::GetShaders() const -> const Shaders&
+	inline const std::vector<std::shared_ptr<UberShader>>& MaterialSettings::GetShaders() const
 	{
 		return m_data.shaders;
 	}

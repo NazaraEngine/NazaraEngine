@@ -41,11 +41,11 @@ namespace Nz
 
 			inline void EnableBlending(bool blending);
 			inline void EnableColorWrite(bool colorWrite);
-			inline void EnableCondition(std::size_t conditionIndex, bool enable);
 			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthSorting(bool depthSorting);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
+			inline void EnableOption(std::size_t optionIndex, bool enable);
 			inline void EnableReflectionMapping(bool reflection);
 			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableShadowCasting(bool castShadows);
@@ -83,11 +83,11 @@ namespace Nz
 
 			inline bool IsBlendingEnabled() const;
 			inline bool IsColorWriteEnabled() const;
-			inline bool IsConditionEnabled(std::size_t conditionIndex) const;
 			inline bool IsDepthBufferEnabled() const;
 			inline bool IsDepthSortingEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
+			inline bool IsOptionEnabled(std::size_t optionIndex) const;
 			inline bool IsReflectionMappingEnabled() const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
@@ -117,7 +117,7 @@ namespace Nz
 			inline void InvalidateShaderBinding();
 			inline void InvalidateTextureSampler(std::size_t textureIndex);
 			inline void InvalidateUniformData(std::size_t uniformBufferIndex);
-			inline void UpdatePipeline() const;
+			void UpdatePipeline() const;
 			void UpdateShaderBinding();
 
 			struct MaterialTexture
@@ -138,7 +138,7 @@ namespace Nz
 			std::vector<MaterialTexture> m_textures;
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
-			UInt64 m_enabledConditions;
+			UInt64 m_enabledOptions;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			ShaderBindingPtr m_shaderBinding;
 			mutable bool m_pipelineUpdated;

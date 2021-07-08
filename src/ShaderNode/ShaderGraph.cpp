@@ -121,13 +121,13 @@ std::size_t ShaderGraph::AddBuffer(std::string name, BufferType bufferType, std:
 	return index;
 }
 
-std::size_t ShaderGraph::AddCondition(std::string name)
+std::size_t ShaderGraph::AddOption(std::string name)
 {
-	std::size_t index = m_conditions.size();
-	auto& conditionEntry = m_conditions.emplace_back();
-	conditionEntry.name = std::move(name);
+	std::size_t index = m_options.size();
+	auto& optionEntry = m_options.emplace_back();
+	optionEntry.name = std::move(name);
 
-	OnConditionListUpdate(this);
+	OnOptionListUpdate(this);
 
 	return index;
 }
@@ -194,7 +194,7 @@ void ShaderGraph::Clear()
 	m_flowScene->clear();
 
 	m_buffers.clear();
-	m_conditions.clear();
+	m_options.clear();
 	m_inputs.clear();
 	m_structs.clear();
 	m_outputs.clear();
@@ -207,13 +207,13 @@ void ShaderGraph::Clear()
 	OnTextureListUpdate(this);
 }
 
-void ShaderGraph::EnableCondition(std::size_t conditionIndex, bool enable)
+void ShaderGraph::EnableOption(std::size_t optionIndex, bool enable)
 {
-	assert(conditionIndex < m_conditions.size());
-	auto& conditionEntry = m_conditions[conditionIndex];
-	conditionEntry.enabled = enable;
+	assert(optionIndex < m_options.size());
+	auto& optionEntry = m_options[optionIndex];
+	optionEntry.enabled = enable;
 
-	OnConditionUpdate(this, conditionIndex);
+	OnOptionUpdate(this, optionIndex);
 }
 
 void ShaderGraph::Load(const QJsonObject& data)
@@ -238,16 +238,16 @@ void ShaderGraph::Load(const QJsonObject& data)
 
 	OnBufferListUpdate(this);
 
-	QJsonArray conditionArray = data["conditions"].toArray();
-	for (const auto& conditionDocRef : conditionArray)
+	QJsonArray optionArray = data["options"].toArray();
+	for (const auto& optionDocRef : optionArray)
 	{
-		QJsonObject conditionDoc = conditionDocRef.toObject();
+		QJsonObject optionDoc = optionDocRef.toObject();
 
-		ConditionEntry& condition = m_conditions.emplace_back();
-		condition.name = conditionDoc["name"].toString().toStdString();
+		OptionEntry& option = m_options.emplace_back();
+		option.name = optionDoc["name"].toString().toStdString();
 	}
 
-	OnConditionListUpdate(this);
+	OnOptionListUpdate(this);
 
 	QJsonArray inputArray = data["inputs"].toArray();
 	for (const auto& inputDocRef : inputArray)
@@ -345,17 +345,17 @@ QJsonObject ShaderGraph::Save()
 	}
 	sceneJson["buffers"] = bufferArray;
 
-	QJsonArray conditionArray;
+	QJsonArray optionArray;
 	{
-		for (const auto& condition : m_conditions)
+		for (const auto& option : m_options)
 		{
 			QJsonObject inputDoc;
-			inputDoc["name"] = QString::fromStdString(condition.name);
+			inputDoc["name"] = QString::fromStdString(option.name);
 
-			conditionArray.append(inputDoc);
+			optionArray.append(inputDoc);
 		}
 	}
-	sceneJson["conditions"] = conditionArray;
+	sceneJson["options"] = optionArray;
 
 	QJsonArray inputArray;
 	{
@@ -462,8 +462,8 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 	std::vector<Nz::ShaderAst::StatementPtr> statements;
 
 	// Declare all options
-	for (const auto& condition : m_conditions)
-		statements.push_back(Nz::ShaderBuilder::DeclareOption(condition.name, Nz::ShaderAst::PrimitiveType::Boolean));
+	for (const auto& option : m_options)
+		statements.push_back(Nz::ShaderBuilder::DeclareOption(option.name, Nz::ShaderAst::PrimitiveType::Boolean));
 
 	// Declare all structures
 	for (const auto& structInfo : m_structs)
@@ -590,13 +590,13 @@ void ShaderGraph::UpdateBuffer(std::size_t bufferIndex, std::string name, Buffer
 	OnBufferUpdate(this, bufferIndex);
 }
 
-void ShaderGraph::UpdateCondition(std::size_t conditionIndex, std::string condition)
+void ShaderGraph::UpdateOption(std::size_t optionIndex, std::string option)
 {
-	assert(conditionIndex < m_conditions.size());
-	auto& conditionEntry = m_conditions[conditionIndex];
-	conditionEntry.name = std::move(condition);
+	assert(optionIndex < m_options.size());
+	auto& optionEntry = m_options[optionIndex];
+	optionEntry.name = std::move(option);
 
-	OnConditionUpdate(this, conditionIndex);
+	OnOptionUpdate(this, optionIndex);
 }
 
 void ShaderGraph::UpdateInput(std::size_t inputIndex, std::string name, PrimitiveType type, InputRole role, std::size_t roleIndex, std::size_t locationIndex)

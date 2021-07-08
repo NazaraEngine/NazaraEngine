@@ -25,8 +25,8 @@ namespace Nz
 	*/
 	inline void BasicMaterial::EnableAlphaTest(bool alphaTest)
 	{
-		NazaraAssert(HasAlphaTest(), "Material has no alpha test condition");
-		m_material.EnableCondition(m_conditionIndexes.alphaTest, alphaTest);
+		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
+		m_material.EnableOption(m_optionIndexes.alphaTest, alphaTest);
 	}
 
 	inline const std::shared_ptr<Texture>& BasicMaterial::GetAlphaMap() const
@@ -55,8 +55,8 @@ namespace Nz
 
 	inline bool BasicMaterial::IsAlphaTestEnabled() const
 	{
-		NazaraAssert(HasAlphaTest(), "Material has no alpha test condition");
-		return m_material.IsConditionEnabled(m_conditionIndexes.alphaTest);
+		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
+		return m_material.IsOptionEnabled(m_optionIndexes.alphaTest);
 	}
 
 	inline bool BasicMaterial::HasAlphaMap() const
@@ -66,7 +66,7 @@ namespace Nz
 
 	inline bool BasicMaterial::HasAlphaTest() const
 	{
-		return m_conditionIndexes.alphaTest != MaterialSettings::InvalidIndex;
+		return m_optionIndexes.alphaTest != MaterialSettings::InvalidIndex;
 	}
 
 	inline bool BasicMaterial::HasAlphaTestThreshold() const
@@ -90,8 +90,8 @@ namespace Nz
 		bool hasAlphaMap = (alphaMap != nullptr);
 		m_material.SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
 
-		if (m_conditionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.EnableCondition(m_conditionIndexes.hasAlphaMap, hasAlphaMap);
+		if (m_optionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
+			m_material.EnableOption(m_optionIndexes.hasAlphaMap, hasAlphaMap);
 	}
 
 	inline void BasicMaterial::SetAlphaSampler(TextureSamplerInfo alphaSampler)
@@ -106,8 +106,8 @@ namespace Nz
 		bool hasDiffuseMap = (diffuseMap != nullptr);
 		m_material.SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
 
-		if (m_conditionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.EnableCondition(m_conditionIndexes.hasDiffuseMap, hasDiffuseMap);
+		if (m_optionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
+			m_material.EnableOption(m_optionIndexes.hasDiffuseMap, hasDiffuseMap);
 	}
 
 	inline void BasicMaterial::SetDiffuseSampler(TextureSamplerInfo diffuseSampler)
