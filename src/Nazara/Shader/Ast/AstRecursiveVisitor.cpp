@@ -62,7 +62,7 @@ namespace Nz::ShaderAst
 		node.falsePath->Visit(*this);
 	}
 
-	void AstRecursiveVisitor::Visit(ConstantExpression& /*node*/)
+	void AstRecursiveVisitor::Visit(ConstantValueExpression& /*node*/)
 	{
 		/* Nothing to do */
 	}

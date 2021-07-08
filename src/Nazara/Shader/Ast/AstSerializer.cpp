@@ -123,7 +123,7 @@ namespace Nz::ShaderAst
 		Node(node.falsePath);
 	}
 	
-	void AstSerializerBase::Serialize(ConstantExpression& node)
+	void AstSerializerBase::Serialize(ConstantValueExpression& node)
 	{
 		UInt32 typeIndex;
 		if (IsWriting())

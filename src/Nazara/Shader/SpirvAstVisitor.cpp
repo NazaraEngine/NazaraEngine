@@ -576,7 +576,7 @@ namespace Nz
 		}
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::ConstantExpression& node)
+	void SpirvAstVisitor::Visit(ShaderAst::ConstantValueExpression& node)
 	{
 		std::visit([&] (const auto& value)
 		{

@@ -32,7 +32,7 @@ namespace Nz::ShaderAst
 			void Serialize(CastExpression& node);
 			void Serialize(ConstantIndexExpression& node);
 			void Serialize(ConditionalExpression& node);
-			void Serialize(ConstantExpression& node);
+			void Serialize(ConstantValueExpression& node);
 			void Serialize(IdentifierExpression& node);
 			void Serialize(IntrinsicExpression& node);
 			void Serialize(SwizzleExpression& node);

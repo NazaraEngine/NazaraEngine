@@ -418,8 +418,8 @@ namespace Nz
 	{
 		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
 
-		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantExpression);
-		auto& constantValue = static_cast<ShaderAst::ConstantExpression&>(**memberIndices);
+		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantValueExpression);
+		auto& constantValue = static_cast<ShaderAst::ConstantValueExpression&>(**memberIndices);
 		Int32 index = std::get<Int32>(constantValue.value);
 
 		const auto& member = structDesc->members[index];
@@ -637,7 +637,7 @@ namespace Nz
 		node.statement->Visit(*this);
 	}
 
-	void LangWriter::Visit(ShaderAst::ConstantExpression& node)
+	void LangWriter::Visit(ShaderAst::ConstantValueExpression& node)
 	{
 		std::visit([&](auto&& arg)
 		{

@@ -68,7 +68,7 @@ namespace Nz::ShaderBuilder
 
 		struct Constant
 		{
-			inline std::unique_ptr<ShaderAst::ConstantExpression> operator()(ShaderAst::ConstantValue value) const;
+			inline std::unique_ptr<ShaderAst::ConstantValueExpression> operator()(ShaderAst::ConstantValue value) const;
 		};
 
 		struct DeclareConst

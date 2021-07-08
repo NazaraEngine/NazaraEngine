@@ -42,7 +42,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryCompEqBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs == rhs);
 			}
@@ -61,7 +61,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryCompGeBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs >= rhs);
 			}
@@ -80,7 +80,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryCompGtBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs > rhs);
 			}
@@ -99,7 +99,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryCompLeBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs <= rhs);
 			}
@@ -118,7 +118,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryCompLtBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs < rhs);
 			}
@@ -137,7 +137,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryCompNeBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs != rhs);
 			}
@@ -156,7 +156,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryLogicalAndBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs && rhs);
 			}
@@ -175,7 +175,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryLogicalOrBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs || rhs);
 			}
@@ -194,7 +194,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryAdditionBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs + rhs);
 			}
@@ -213,7 +213,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryDivisionBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs / rhs);
 			}
@@ -232,7 +232,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinaryMultiplicationBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs * rhs);
 			}
@@ -251,7 +251,7 @@ namespace Nz::ShaderAst
 		template<typename T1, typename T2>
 		struct BinarySubtractionBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T1& lhs, const T2& rhs)
+			std::unique_ptr<ConstantValueExpression> operator()(const T1& lhs, const T2& rhs)
 			{
 				return ShaderBuilder::Constant(lhs - rhs);
 			}
@@ -271,7 +271,7 @@ namespace Nz::ShaderAst
 		template<typename T, typename... Args>
 		struct CastConstantBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const Args&... args)
+			std::unique_ptr<ConstantValueExpression> operator()(const Args&... args)
 			{
 				return ShaderBuilder::Constant(T(args...));
 			}
@@ -295,7 +295,7 @@ namespace Nz::ShaderAst
 		template<typename T>
 		struct UnaryLogicalNotBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T& arg)
+			std::unique_ptr<ConstantValueExpression> operator()(const T& arg)
 			{
 				return ShaderBuilder::Constant(!arg);
 			}
@@ -314,7 +314,7 @@ namespace Nz::ShaderAst
 		template<typename T>
 		struct UnaryMinusBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T& arg)
+			std::unique_ptr<ConstantValueExpression> operator()(const T& arg)
 			{
 				return ShaderBuilder::Constant(-arg);
 			}
@@ -333,7 +333,7 @@ namespace Nz::ShaderAst
 		template<typename T>
 		struct UnaryPlusBase
 		{
-			std::unique_ptr<ConstantExpression> operator()(const T& arg)
+			std::unique_ptr<ConstantValueExpression> operator()(const T& arg)
 			{
 				return ShaderBuilder::Constant(arg);
 			}
@@ -573,10 +573,10 @@ namespace Nz::ShaderAst
 		auto lhs = CloneExpression(node.left);
 		auto rhs = CloneExpression(node.right);
 
-		if (lhs->GetType() == NodeType::ConstantExpression && rhs->GetType() == NodeType::ConstantExpression)
+		if (lhs->GetType() == NodeType::ConstantValueExpression && rhs->GetType() == NodeType::ConstantValueExpression)
 		{
-			auto lhsConstant = static_unique_pointer_cast<ConstantExpression>(std::move(lhs));
-			auto rhsConstant = static_unique_pointer_cast<ConstantExpression>(std::move(rhs));
+			auto lhsConstant = static_unique_pointer_cast<ConstantValueExpression>(std::move(lhs));
+			auto rhsConstant = static_unique_pointer_cast<ConstantValueExpression>(std::move(rhs));
 
 			ExpressionPtr optimized;
 			switch (node.op)
@@ -657,9 +657,9 @@ namespace Nz::ShaderAst
 		ExpressionPtr optimized;
 		if (IsPrimitiveType(node.targetType))
 		{
-			if (expressionCount == 1 && expressions.front()->GetType() == NodeType::ConstantExpression)
+			if (expressionCount == 1 && expressions.front()->GetType() == NodeType::ConstantValueExpression)
 			{
-				auto constantExpr = static_unique_pointer_cast<ConstantExpression>(std::move(expressions.front()));
+				auto constantExpr = static_unique_pointer_cast<ConstantValueExpression>(std::move(expressions.front()));
 
 				switch (std::get<PrimitiveType>(node.targetType))
 				{
@@ -678,13 +678,13 @@ namespace Nz::ShaderAst
 			std::vector<ConstantValue> constantValues;
 			for (std::size_t i = 0; i < expressionCount; ++i)
 			{
-				if (expressions[i]->GetType() != NodeType::ConstantExpression)
+				if (expressions[i]->GetType() != NodeType::ConstantValueExpression)
 				{
 					constantValues.clear();
 					break;
 				}
 
-				const auto& constantExpr = static_cast<ConstantExpression&>(*expressions[i]);
+				const auto& constantExpr = static_cast<ConstantValueExpression&>(*expressions[i]);
 
 				if (!constantValues.empty() && GetExpressionType(constantValues.front()) != GetExpressionType(constantExpr.value))
 				{
@@ -766,9 +766,9 @@ namespace Nz::ShaderAst
 		{
 			auto cond = CloneExpression(condStatement.condition);
 
-			if (cond->GetType() == NodeType::ConstantExpression)
+			if (cond->GetType() == NodeType::ConstantValueExpression)
 			{
-				auto& constant = static_cast<ConstantExpression&>(*cond);
+				auto& constant = static_cast<ConstantValueExpression&>(*cond);
 
 				assert(constant.cachedExpressionType);
 				const ExpressionType& constantType = constant.cachedExpressionType.value();
@@ -821,10 +821,10 @@ namespace Nz::ShaderAst
 			return AstCloner::Clone(node);
 
 		auto cond = CloneExpression(node.condition);
-		if (cond->GetType() != NodeType::ConstantExpression)
+		if (cond->GetType() != NodeType::ConstantValueExpression)
 			throw std::runtime_error("conditional expression condition must be a constant expression");
 
-		auto& constant = static_cast<ConstantExpression&>(*cond);
+		auto& constant = static_cast<ConstantValueExpression&>(*cond);
 
 		assert(constant.cachedExpressionType);
 		const ExpressionType& constantType = constant.cachedExpressionType.value();
@@ -854,9 +854,9 @@ namespace Nz::ShaderAst
 	{
 		auto expr = CloneExpression(node.expression);
 
-		if (expr->GetType() == NodeType::ConstantExpression)
+		if (expr->GetType() == NodeType::ConstantValueExpression)
 		{
-			auto constantExpr = static_unique_pointer_cast<ConstantExpression>(std::move(expr));
+			auto constantExpr = static_unique_pointer_cast<ConstantValueExpression>(std::move(expr));
 
 			ExpressionPtr optimized;
 			switch (node.op)
@@ -890,10 +890,10 @@ namespace Nz::ShaderAst
 			return AstCloner::Clone(node);
 
 		auto cond = CloneExpression(node.condition);
-		if (cond->GetType() != NodeType::ConstantExpression)
+		if (cond->GetType() != NodeType::ConstantValueExpression)
 			throw std::runtime_error("conditional expression condition must be a constant expression");
 
-		auto& constant = static_cast<ConstantExpression&>(*cond);
+		auto& constant = static_cast<ConstantValueExpression&>(*cond);
 
 		assert(constant.cachedExpressionType);
 		const ExpressionType& constantType = constant.cachedExpressionType.value();
@@ -909,9 +909,9 @@ namespace Nz::ShaderAst
 	}
 
 	template<BinaryType Type>
-	ExpressionPtr AstOptimizer::PropagateBinaryConstant(std::unique_ptr<ConstantExpression>&& lhs, std::unique_ptr<ConstantExpression>&& rhs)
+	ExpressionPtr AstOptimizer::PropagateBinaryConstant(std::unique_ptr<ConstantValueExpression>&& lhs, std::unique_ptr<ConstantValueExpression>&& rhs)
 	{
-		std::unique_ptr<ConstantExpression> optimized;
+		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg1)
 		{
 			using T1 = std::decay_t<decltype(arg1)>;
@@ -938,9 +938,9 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename TargetType>
-	ExpressionPtr AstOptimizer::PropagateSingleValueCast(std::unique_ptr<ConstantExpression>&& operand)
+	ExpressionPtr AstOptimizer::PropagateSingleValueCast(std::unique_ptr<ConstantValueExpression>&& operand)
 	{
-		std::unique_ptr<ConstantExpression> optimized;
+		std::unique_ptr<ConstantValueExpression> optimized;
 
 		std::visit([&](auto&& arg)
 		{
@@ -959,9 +959,9 @@ namespace Nz::ShaderAst
 	}
 
 	template<UnaryType Type>
-	ExpressionPtr AstOptimizer::PropagateUnaryConstant(std::unique_ptr<ConstantExpression>&& operand)
+	ExpressionPtr AstOptimizer::PropagateUnaryConstant(std::unique_ptr<ConstantValueExpression>&& operand)
 	{
-		std::unique_ptr<ConstantExpression> optimized;
+		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg)
 		{
 			using T = std::decay_t<decltype(arg)>;
@@ -984,7 +984,7 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstOptimizer::PropagateVec2Cast(TargetType v1, TargetType v2)
 	{
-		std::unique_ptr<ConstantExpression> optimized;
+		std::unique_ptr<ConstantValueExpression> optimized;
 
 		using CCType = CastConstantPropagation<Vector2<TargetType>, TargetType, TargetType>;
 
@@ -1001,7 +1001,7 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstOptimizer::PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3)
 	{
-		std::unique_ptr<ConstantExpression> optimized;
+		std::unique_ptr<ConstantValueExpression> optimized;
 
 		using CCType = CastConstantPropagation<Vector3<TargetType>, TargetType, TargetType, TargetType>;
 
@@ -1018,7 +1018,7 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstOptimizer::PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4)
 	{
-		std::unique_ptr<ConstantExpression> optimized;
+		std::unique_ptr<ConstantValueExpression> optimized;
 
 		using CCType = CastConstantPropagation<Vector3<TargetType>, TargetType, TargetType, TargetType, TargetType>;
 
