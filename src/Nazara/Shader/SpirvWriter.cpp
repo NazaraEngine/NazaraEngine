@@ -113,7 +113,7 @@ namespace Nz
 					throw std::runtime_error("unexpected conditional expression, did you forget to sanitize the shader?");
 				}
 
-				void Visit(ShaderAst::ConstantExpression& node) override
+				void Visit(ShaderAst::ConstantValueExpression& node) override
 				{
 					std::visit([&](auto&& arg)
 					{

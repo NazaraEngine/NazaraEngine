@@ -132,9 +132,9 @@ namespace Nz::ShaderBuilder
 		return condStatementNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ConstantExpression> Impl::Constant::operator()(ShaderAst::ConstantValue value) const
+	inline std::unique_ptr<ShaderAst::ConstantValueExpression> Impl::Constant::operator()(ShaderAst::ConstantValue value) const
 	{
-		auto constantNode = std::make_unique<ShaderAst::ConstantExpression>();
+		auto constantNode = std::make_unique<ShaderAst::ConstantValueExpression>();
 		constantNode->value = std::move(value);
 
 		return constantNode;

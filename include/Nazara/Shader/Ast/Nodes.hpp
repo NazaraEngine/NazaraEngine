@@ -140,7 +140,7 @@ namespace Nz::ShaderAst
 		ExpressionPtr truePath;
 	};
 
-	struct NAZARA_SHADER_API ConstantExpression : Expression
+	struct NAZARA_SHADER_API ConstantValueExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;

@@ -569,9 +569,9 @@ namespace Nz::ShaderAst
 			return AstCloner::Clone(*node.falsePath);
 	}
 
-	ExpressionPtr SanitizeVisitor::Clone(ConstantExpression& node)
+	ExpressionPtr SanitizeVisitor::Clone(ConstantValueExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<ConstantExpression>(AstCloner::Clone(node));
+		auto clone = static_unique_pointer_cast<ConstantValueExpression>(AstCloner::Clone(node));
 		clone->cachedExpressionType = GetExpressionType(clone->value);
 
 		return clone;
@@ -792,10 +792,10 @@ namespace Nz::ShaderAst
 			throw AstError{ "const variables must have an expression" };
 
 		clone->expression = Optimize(*clone->expression);
-		if (clone->expression->GetType() != NodeType::ConstantExpression)
+		if (clone->expression->GetType() != NodeType::ConstantValueExpression)
 			throw AstError{ "const variable must have constant expressions " };
 
-		const ConstantValue& value = static_cast<ConstantExpression&>(*clone->expression).value;
+		const ConstantValue& value = static_cast<ConstantValueExpression&>(*clone->expression).value;
 
 		ExpressionType expressionType = ResolveType(GetExpressionType(value));
 
@@ -1158,10 +1158,10 @@ namespace Nz::ShaderAst
 	{
 		// Run optimizer on constant value to hopefully retrieve a single constant value
 		ExpressionPtr optimizedExpr = Optimize(expr);
-		if (optimizedExpr->GetType() != NodeType::ConstantExpression)
+		if (optimizedExpr->GetType() != NodeType::ConstantValueExpression)
 			throw AstError{"expected a constant expression"};
 
-		return static_cast<ConstantExpression&>(*optimizedExpr).value;
+		return static_cast<ConstantValueExpression&>(*optimizedExpr).value;
 	}
 
 	template<typename T>
@@ -1447,10 +1447,10 @@ namespace Nz::ShaderAst
 				auto& indexExpr = node.indices[i];
 
 				const ShaderAst::ExpressionType& indexType = GetExpressionType(*indexExpr);
-				if (indexExpr->GetType() != NodeType::ConstantExpression || indexType != ExpressionType{ PrimitiveType::Int32 })
+				if (indexExpr->GetType() != NodeType::ConstantValueExpression || indexType != ExpressionType{ PrimitiveType::Int32 })
 					throw AstError{ "struct can only be accessed with constant i32 indices" };
 
-				ConstantExpression& constantExpr = static_cast<ConstantExpression&>(*indexExpr);
+				ConstantValueExpression& constantExpr = static_cast<ConstantValueExpression&>(*indexExpr);
 
 				Int32 index = std::get<Int32>(constantExpr.value);
 
