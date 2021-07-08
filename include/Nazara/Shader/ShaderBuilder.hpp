@@ -131,11 +131,6 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
 		};
 
-		struct SelectOption
-		{
-			inline std::unique_ptr<ShaderAst::SelectOptionExpression> operator()(std::string optionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const;
-		};
-
 		struct Swizzle
 		{
 			inline std::unique_ptr<ShaderAst::SwizzleExpression> operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const;
@@ -170,7 +165,6 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Multi MultiStatement;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
-	constexpr Impl::SelectOption SelectOption;
 	constexpr Impl::Swizzle Swizzle;
 	constexpr Impl::Unary Unary;
 }

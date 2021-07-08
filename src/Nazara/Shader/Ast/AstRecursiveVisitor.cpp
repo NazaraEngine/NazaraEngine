@@ -83,12 +83,6 @@ namespace Nz::ShaderAst
 			param->Visit(*this);
 	}
 
-	void AstRecursiveVisitor::Visit(SelectOptionExpression& node)
-	{
-		node.truePath->Visit(*this);
-		node.falsePath->Visit(*this);
-	}
-
 	void AstRecursiveVisitor::Visit(SwizzleExpression& node)
 	{
 		node.expression->Visit(*this);

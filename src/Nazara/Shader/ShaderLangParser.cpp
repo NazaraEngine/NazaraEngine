@@ -986,6 +986,26 @@ namespace Nz::ShaderLang
 		}
 	}
 
+	ShaderAst::ExpressionPtr Parser::ParseConstSelectExpression()
+	{
+		Expect(Advance(), TokenType::ConstSelect);
+		Expect(Advance(), TokenType::OpenParenthesis);
+
+		ShaderAst::ExpressionPtr cond = ParseExpression();
+
+		Expect(Advance(), TokenType::Comma);
+
+		ShaderAst::ExpressionPtr trueExpr = ParseExpression();
+
+		Expect(Advance(), TokenType::Comma);
+
+		ShaderAst::ExpressionPtr falseExpr = ParseExpression();
+
+		Expect(Advance(), TokenType::ClosingParenthesis);
+
+		return ShaderBuilder::ConditionalExpression(std::move(cond), std::move(trueExpr), std::move(falseExpr));
+	}
+
 	ShaderAst::ExpressionPtr Parser::ParseExpression()
 	{
 		return ParseBinOpRhs(0, ParsePrimaryExpression());
@@ -1053,6 +1073,9 @@ namespace Nz::ShaderLang
 				Consume();
 				return ShaderBuilder::Constant(true);
 
+			case TokenType::ConstSelect:
+				return ParseConstSelectExpression();
+
 			case TokenType::FloatingPointValue:
 				return ParseFloatingPointExpression();
 
@@ -1097,32 +1120,9 @@ namespace Nz::ShaderLang
 			case TokenType::OpenParenthesis:
 				return ParseParenthesisExpression();
 
-			case TokenType::SelectOpt:
-				return ParseSelectOptExpression();
-
 			default:
 				throw UnexpectedToken{};
 		}
-	}
-
-	ShaderAst::ExpressionPtr Parser::ParseSelectOptExpression()
-	{
-		Expect(Advance(), TokenType::SelectOpt);
-		Expect(Advance(), TokenType::OpenParenthesis);
-
-		std::string optionName = ParseIdentifierAsName();
-
-		Expect(Advance(), TokenType::Comma);
-
-		ShaderAst::ExpressionPtr trueExpr = ParseExpression();
-
-		Expect(Advance(), TokenType::Comma);
-
-		ShaderAst::ExpressionPtr falseExpr = ParseExpression();
-
-		Expect(Advance(), TokenType::ClosingParenthesis);
-
-		return ShaderBuilder::SelectOption(std::move(optionName), std::move(trueExpr), std::move(falseExpr));
 	}
 
 	ShaderAst::AttributeType Parser::ParseIdentifierAsAttributeType()

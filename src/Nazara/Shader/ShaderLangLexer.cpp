@@ -36,23 +36,23 @@ namespace Nz::ShaderLang
 
 	std::vector<Token> Tokenize(const std::string_view& str)
 	{
-		// Can't use std::from_chars for double, thanks to libc++ and libstdc++ developers for being lazy
+		// Can't use std::from_chars for double, thanks to libc++ and libstdc++ developers for being lazy, so we have to force C locale
 		ForceCLocale forceCLocale;
 
 		std::unordered_map<std::string, TokenType> reservedKeywords = {
-			{ "const",      TokenType::Const },
-			{ "discard",    TokenType::Discard },
-			{ "else",       TokenType::Else },
-			{ "external",   TokenType::External },
-			{ "false",      TokenType::BoolFalse },
-			{ "fn",         TokenType::FunctionDeclaration },
-			{ "if",         TokenType::If },
-			{ "let",        TokenType::Let },
-			{ "option",     TokenType::Option },
-			{ "return",     TokenType::Return },
-			{ "select_opt", TokenType::SelectOpt },
-			{ "struct",     TokenType::Struct },
-			{ "true",       TokenType::BoolTrue }
+			{ "const",        TokenType::Const },
+			{ "const_select", TokenType::ConstSelect },
+			{ "discard",      TokenType::Discard },
+			{ "else",         TokenType::Else },
+			{ "external",     TokenType::External },
+			{ "false",        TokenType::BoolFalse },
+			{ "fn",           TokenType::FunctionDeclaration },
+			{ "if",           TokenType::If },
+			{ "let",          TokenType::Let },
+			{ "option",       TokenType::Option },
+			{ "return",       TokenType::Return },
+			{ "struct",       TokenType::Struct },
+			{ "true",         TokenType::BoolTrue }
 		};
 
 		std::size_t currentPos = 0;

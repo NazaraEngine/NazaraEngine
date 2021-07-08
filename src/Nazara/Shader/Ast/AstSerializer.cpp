@@ -170,13 +170,6 @@ namespace Nz::ShaderAst
 			Node(param);
 	}
 
-	void AstSerializerBase::Serialize(SelectOptionExpression& node)
-	{
-		Value(node.optionName);
-		Node(node.truePath);
-		Node(node.falsePath);
-	}
-
 	void AstSerializerBase::Serialize(SwizzleExpression& node)
 	{
 		SizeT(node.componentCount);

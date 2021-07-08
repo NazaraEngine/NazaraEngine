@@ -58,7 +58,7 @@ fn main(fragIn: VertOut) -> FragOut
 	let lightFactor = dot(fragIn.normal, lightDir);
 
 	let fragOut: FragOut;
-	fragOut.color = lightFactor * tex.Sample(fragIn.uv) * select_opt(red, vec4<f32>(1.0, 0.0, 0.0, 1.0), vec4<f32>(1.0, 1.0, 1.0, 1.0));
+	fragOut.color = lightFactor * tex.Sample(fragIn.uv) * const_select(red, vec4<f32>(1.0, 0.0, 0.0, 1.0), vec4<f32>(1.0, 1.0, 1.0, 1.0));
 
 	return fragOut;
 }

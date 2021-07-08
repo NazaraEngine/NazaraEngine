@@ -173,16 +173,6 @@ namespace Nz::ShaderAst
 		std::vector<ExpressionPtr> parameters;
 	};
 
-	struct NAZARA_SHADER_API SelectOptionExpression : Expression
-	{
-		NodeType GetType() const override;
-		void Visit(AstExpressionVisitor& visitor) override;
-
-		std::string optionName;
-		ExpressionPtr falsePath;
-		ExpressionPtr truePath;
-	};
-
 	struct NAZARA_SHADER_API SwizzleExpression : Expression
 	{
 		NodeType GetType() const override;

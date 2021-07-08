@@ -82,20 +82,6 @@ namespace Nz::ShaderAst
 		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(SelectOptionExpression& node)
-	{
-		node.truePath->Visit(*this);
-		ExpressionCategory trueExprCategory = m_expressionCategory;
-
-		node.falsePath->Visit(*this);
-		ExpressionCategory falseExprCategory = m_expressionCategory;
-
-		if (trueExprCategory == ExpressionCategory::RValue || falseExprCategory == ExpressionCategory::RValue)
-			m_expressionCategory = ExpressionCategory::RValue;
-		else
-			m_expressionCategory = ExpressionCategory::LValue;
-	}
-
 	void ShaderAstValueCategory::Visit(SwizzleExpression& node)
 	{
 		node.expression->Visit(*this);
