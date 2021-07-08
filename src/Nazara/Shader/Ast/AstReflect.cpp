@@ -14,6 +14,18 @@ namespace Nz::ShaderAst
 		statement.Visit(*this);
 	}
 
+	void AstReflect::Visit(DeclareFunctionStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onEntryPointDeclaration)
+		{
+			if (!node.entryStage.HasValue())
+				return;
+
+			m_callbacks->onEntryPointDeclaration(node.entryStage.GetResultingValue(), node.name);
+		}
+	}
+
 	void AstReflect::Visit(DeclareOptionStatement& node)
 	{
 		assert(m_callbacks);

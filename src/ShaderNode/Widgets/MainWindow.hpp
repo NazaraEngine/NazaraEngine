@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
 		void OnSave();
 		void OnUpdateInfo();
 
-		NazaraSlot(ShaderGraph, OnConditionUpdate, m_onConditionUpdate);
+		NazaraSlot(ShaderGraph, OnOptionUpdate, m_onOptionUpdate);
 		NazaraSlot(ShaderGraph, OnSelectedNodeUpdate, m_onSelectedNodeUpdate);
 
 		NodeEditor* m_nodeEditor;

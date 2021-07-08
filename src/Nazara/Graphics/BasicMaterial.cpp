@@ -33,16 +33,16 @@ namespace Nz
 		const std::shared_ptr<const MaterialSettings>& materialSettings = material.GetSettings();
 		if (materialSettings == s_materialSettings)
 		{
-			m_conditionIndexes = s_conditionIndexes;
+			m_optionIndexes = s_optionIndexes;
 			m_textureIndexes = s_textureIndexes;
 			m_uniformBlockIndex = s_uniformBlockIndex;
 			m_uniformOffsets = s_uniformOffsets;
 		}
 		else
 		{
-			m_conditionIndexes.alphaTest = materialSettings->GetConditionIndex("AlphaTest");
-			m_conditionIndexes.hasAlphaMap = materialSettings->GetConditionIndex("HasAlphaMap");
-			m_conditionIndexes.hasDiffuseMap = materialSettings->GetConditionIndex("HasDiffuseMap");
+			m_optionIndexes.alphaTest = materialSettings->GetOptionIndex("AlphaTest");
+			m_optionIndexes.hasAlphaMap = materialSettings->GetOptionIndex("HasAlphaMap");
+			m_optionIndexes.hasDiffuseMap = materialSettings->GetOptionIndex("HasDiffuseMap");
 
 			m_textureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
 			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
@@ -146,54 +146,51 @@ namespace Nz
 		});
 
 		// Shaders
-		auto& fragmentShader = settings.shaders[UnderlyingCast(ShaderStageType::Fragment)];
-		auto& vertexShader = settings.shaders[UnderlyingCast(ShaderStageType::Vertex)];
-
 		ShaderAst::StatementPtr shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+		auto uberShader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, shaderAst);
 
-		fragmentShader = std::make_shared<UberShader>(ShaderStageType::Fragment, shaderAst);
-		vertexShader = std::make_shared<UberShader>(ShaderStageType::Vertex, shaderAst);
+		settings.shaders.emplace_back(uberShader);
 
-		// Conditions
+		// Options
 
 		// HasDiffuseMap
 		{
-			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
-			shaderConditions.fill(0);
-			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
-			shaderConditions[UnderlyingCast(ShaderStageType::Vertex)] = vertexShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
+			std::array<UInt64, ShaderStageTypeCount> shaderOptions;
+			shaderOptions.fill(0);
+			shaderOptions[UnderlyingCast(ShaderStageType::Fragment)] = uberShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
+			shaderOptions[UnderlyingCast(ShaderStageType::Vertex)] = uberShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
 
-			s_conditionIndexes.hasDiffuseMap = settings.conditions.size();
-			settings.conditions.push_back({
+			s_optionIndexes.hasDiffuseMap = settings.options.size();
+			settings.options.push_back({
 				"HasDiffuseMap",
-				shaderConditions
+				shaderOptions
 			});
 		}
 
 		// HasAlphaMap
 		{
-			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
-			shaderConditions.fill(0);
-			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
-			shaderConditions[UnderlyingCast(ShaderStageType::Vertex)] = vertexShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
+			std::array<UInt64, ShaderStageTypeCount> shaderOptions;
+			shaderOptions.fill(0);
+			shaderOptions[UnderlyingCast(ShaderStageType::Fragment)] = uberShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
+			shaderOptions[UnderlyingCast(ShaderStageType::Vertex)] = uberShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
 
-			s_conditionIndexes.hasAlphaMap = settings.conditions.size();
-			settings.conditions.push_back({
+			s_optionIndexes.hasAlphaMap = settings.options.size();
+			settings.options.push_back({
 				"HasAlphaMap",
-				shaderConditions
+				shaderOptions
 			});
 		}
 
 		// AlphaTest
 		{
-			std::array<UInt64, ShaderStageTypeCount> shaderConditions;
-			shaderConditions.fill(0);
-			shaderConditions[UnderlyingCast(ShaderStageType::Fragment)] = fragmentShader->GetOptionFlagByName("ALPHA_TEST");
+			std::array<UInt64, ShaderStageTypeCount> shaderOptions;
+			shaderOptions.fill(0);
+			shaderOptions[UnderlyingCast(ShaderStageType::Fragment)] = uberShader->GetOptionFlagByName("ALPHA_TEST");
 
-			s_conditionIndexes.alphaTest = settings.conditions.size();
-			settings.conditions.push_back({
+			s_optionIndexes.alphaTest = settings.options.size();
+			settings.options.push_back({
 				"AlphaTest",
-				shaderConditions
+				shaderOptions
 			});
 		}
 
@@ -209,7 +206,7 @@ namespace Nz
 
 	std::shared_ptr<MaterialSettings> BasicMaterial::s_materialSettings;
 	std::size_t BasicMaterial::s_uniformBlockIndex;
-	BasicMaterial::ConditionIndexes BasicMaterial::s_conditionIndexes;
+	BasicMaterial::OptionIndexes BasicMaterial::s_optionIndexes;
 	BasicMaterial::TextureIndexes BasicMaterial::s_textureIndexes;
 	BasicMaterial::UniformOffsets BasicMaterial::s_uniformOffsets;
 }

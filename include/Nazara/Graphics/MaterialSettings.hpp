@@ -24,10 +24,8 @@ namespace Nz
 	class MaterialSettings
 	{
 		public:
-			using Shaders = std::array<std::shared_ptr<UberShader>, ShaderStageTypeCount>;
-
 			struct Builder;
-			struct Condition;
+			struct Option;
 			struct SharedUniformBlock;
 			struct Texture;
 			struct UniformBlock;
@@ -39,11 +37,11 @@ namespace Nz
 			~MaterialSettings() = default;
 
 			inline const Builder& GetBuilderData() const;
-			inline const std::vector<Condition>& GetConditions() const;
-			inline std::size_t GetConditionIndex(const std::string_view& name) const;
+			inline const std::vector<Option>& GetOptions() const;
+			inline std::size_t GetOptionIndex(const std::string_view& name) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType stage) const;
-			inline const Shaders& GetShaders() const;
+			inline const std::vector<std::shared_ptr<UberShader>>& GetShaders() const;
 			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
 			inline std::size_t GetSharedUniformBlockIndex(const std::string_view& name) const;
 			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
@@ -60,17 +58,17 @@ namespace Nz
 
 			struct Builder
 			{
-				Shaders shaders;
-				std::vector<Condition> conditions;
+				std::vector<std::shared_ptr<UberShader>> shaders;
+				std::vector<Option> options;
 				std::vector<Texture> textures;
 				std::vector<UniformBlock> uniformBlocks;
 				std::vector<SharedUniformBlock> sharedUniformBlocks;
 			};
 
-			struct Condition
+			struct Option
 			{
 				std::string name;
-				std::array<UInt64, ShaderStageTypeCount> enabledConditions;
+				std::array<UInt64, ShaderStageTypeCount> enabledOptions;
 			};
 
 			struct UniformVariable

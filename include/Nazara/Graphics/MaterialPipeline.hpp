@@ -21,10 +21,10 @@ namespace Nz
 
 	struct MaterialPipelineInfo : RenderStates
 	{
-		struct ShaderStage
+		struct Shader
 		{
 			std::shared_ptr<UberShader> uberShader;
-			Nz::UInt64 enabledConditions = 0;
+			Nz::UInt64 enabledOptions = 0;
 		};
 
 		bool depthSorting      = false;
@@ -32,7 +32,7 @@ namespace Nz
 		bool reflectionMapping = false;
 		bool shadowReceive     = true;
 
-		std::array<ShaderStage, ShaderStageTypeCount> shaders;
+		std::vector<Shader> shaders;
 		std::shared_ptr<const MaterialSettings> settings;
 	};
 

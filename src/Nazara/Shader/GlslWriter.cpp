@@ -203,11 +203,11 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, UInt64 enabledConditions, std::string* error)
+	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, UInt64 enabledOptions, std::string* error)
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
-		options.enabledOptions = enabledConditions;
+		options.enabledOptions = enabledOptions;
 		options.makeVariableNameUnique = true;
 		options.reservedIdentifiers = {
 			// All reserved GLSL keywords as of GLSL ES 3.2

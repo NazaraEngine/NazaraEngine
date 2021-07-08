@@ -13,15 +13,24 @@
 
 namespace Nz
 {
-	UberShader::UberShader(ShaderStageType shaderStage, const ShaderAst::StatementPtr& shaderAst) :
-	m_shaderStage(shaderStage)
+	UberShader::UberShader(ShaderStageTypeFlags shaderStages, const ShaderAst::StatementPtr& shaderAst) :
+	m_shaderStages(shaderStages)
 	{
+		NazaraAssert(m_shaderStages != 0, "there must be at least one shader stage");
+
 		//TODO: Try to partially sanitize shader?
 		m_shaderAst = ShaderAst::Clone(*shaderAst);
 
 		std::size_t optionCount = 0;
 
+		ShaderStageTypeFlags supportedStageType;
+
 		ShaderAst::AstReflect::Callbacks callbacks;
+		callbacks.onEntryPointDeclaration = [&](ShaderStageType stageType, const std::string& /*name*/)
+		{
+			supportedStageType |= stageType;
+		};
+
 		callbacks.onOptionDeclaration = [&](const std::string& optionName, const ShaderAst::ExpressionType& optionType)
 		{
 			m_optionIndexByName[optionName] = optionCount;
@@ -30,6 +39,9 @@ namespace Nz
 
 		ShaderAst::AstReflect reflect;
 		reflect.Reflect(*m_shaderAst, callbacks);
+
+		if (m_shaderStages & shaderStages != m_shaderStages)
+			throw std::runtime_error("shader doesn't support all required shader stages");
 
 		if (optionCount >= 64)
 			throw std::runtime_error("Too many conditions");
@@ -58,7 +70,7 @@ namespace Nz
 			ShaderWriter::States states;
 			states.enabledOptions = combination;
 
-			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStage, *m_shaderAst, std::move(states));
+			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderAst, std::move(states));
 
 			it = m_combinations.emplace(combination, std::move(stage)).first;
 		}

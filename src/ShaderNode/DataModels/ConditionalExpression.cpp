@@ -14,20 +14,20 @@
 ConditionalExpression::ConditionalExpression(ShaderGraph& graph) :
 ShaderNode(graph)
 {
-	m_onConditionListUpdateSlot.Connect(GetGraph().OnConditionListUpdate, [&](ShaderGraph*) { OnConditionListUpdate(); });
-	m_onConditionUpdateSlot.Connect(GetGraph().OnConditionUpdate, [&](ShaderGraph*, std::size_t conditionIndex)
+	m_onOptionListUpdateSlot.Connect(GetGraph().OnOptionListUpdate, [&](ShaderGraph*) { OnOptionListUpdate(); });
+	m_onOptionUpdateSlot.Connect(GetGraph().OnOptionUpdate, [&](ShaderGraph*, std::size_t optionIndex)
 	{
-		if (m_currentConditionIndex == conditionIndex)
+		if (m_currentOptionIndex == optionIndex)
 		{
 			UpdatePreview();
 			Q_EMIT dataUpdated(0);
 		}
 	});
 
-	if (graph.GetConditionCount() > 0)
+	if (graph.GetOptionCount() > 0)
 	{
-		m_currentConditionIndex = 0;
-		UpdateConditionText();
+		m_currentOptionIndex = 0;
+		UpdateOptionText();
 	}
 
 	EnablePreview();
@@ -40,18 +40,18 @@ Nz::ShaderAst::NodePtr ConditionalExpression::BuildNode(Nz::ShaderAst::Expressio
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	if (!m_currentConditionIndex)
-		throw std::runtime_error("no condition");
+	if (!m_currentOptionIndex)
+		throw std::runtime_error("no option");
 
 	const ShaderGraph& graph = GetGraph();
 
-	const auto& conditionEntry = graph.GetCondition(*m_currentConditionIndex);
-	return Nz::ShaderBuilder::ConditionalExpression(Nz::ShaderBuilder::Identifier(conditionEntry.name), std::move(expressions[0]), std::move(expressions[1]));
+	const auto& optionEntry = graph.GetOption(*m_currentOptionIndex);
+	return Nz::ShaderBuilder::ConditionalExpression(Nz::ShaderBuilder::Identifier(optionEntry.name), std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString ConditionalExpression::caption() const
 {
-	return "ConditionalExpression (" + QString::fromStdString(m_currentConditionText) + ")";
+	return "ConditionalExpression (" + QString::fromStdString(m_currentOptionText) + ")";
 }
 
 QString ConditionalExpression::name() const
@@ -74,29 +74,29 @@ void ConditionalExpression::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 	
-	QComboBox* conditionSelection = new QComboBox;
-	for (const auto& conditionEntry : GetGraph().GetConditions())
-		conditionSelection->addItem(QString::fromStdString(conditionEntry.name));
+	QComboBox* optionSelection = new QComboBox;
+	for (const auto& optionEntry : GetGraph().GetOptions())
+		optionSelection->addItem(QString::fromStdString(optionEntry.name));
 
-	if (m_currentConditionIndex)
-		conditionSelection->setCurrentIndex(int(*m_currentConditionIndex));
+	if (m_currentOptionIndex)
+		optionSelection->setCurrentIndex(int(*m_currentOptionIndex));
 	else
-		conditionSelection->setCurrentIndex(-1);
+		optionSelection->setCurrentIndex(-1);
 	
-	connect(conditionSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
+	connect(optionSelection, qOverload<int>(&QComboBox::currentIndexChanged), [&](int index)
 	{
 		if (index >= 0)
-			m_currentConditionIndex = static_cast<std::size_t>(index);
+			m_currentOptionIndex = static_cast<std::size_t>(index);
 		else
-			m_currentConditionIndex.reset();
+			m_currentOptionIndex.reset();
 
-		UpdateConditionText();
+		UpdateOptionText();
 		UpdatePreview();
 
 		Q_EMIT dataUpdated(0);
 	});
 
-	layout->addRow(tr("Condition"), conditionSelection);
+	layout->addRow(tr("Option"), optionSelection);
 }
 
 auto ConditionalExpression::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
@@ -178,17 +178,17 @@ bool ConditionalExpression::portCaptionVisible(QtNodes::PortType portType, QtNod
 
 std::shared_ptr<QtNodes::NodeData> ConditionalExpression::outData(QtNodes::PortIndex port)
 {
-	if (!m_currentConditionIndex)
+	if (!m_currentOptionIndex)
 		return nullptr;
 
 	assert(port == 0);
-	return (GetGraph().IsConditionEnabled(*m_currentConditionIndex)) ? m_truePath : m_falsePath;
+	return (GetGraph().IsOptionEnabled(*m_currentOptionIndex)) ? m_truePath : m_falsePath;
 }
 
 void ConditionalExpression::restore(const QJsonObject& data)
 {
-	m_currentConditionText = data["condition_name"].toString().toStdString();
-	OnConditionListUpdate();
+	m_currentOptionText = data["option_name"].toString().toStdString();
+	OnOptionListUpdate();
 
 	ShaderNode::restore(data);
 }
@@ -196,7 +196,7 @@ void ConditionalExpression::restore(const QJsonObject& data)
 QJsonObject ConditionalExpression::save() const
 {
 	QJsonObject data = ShaderNode::save();
-	data["condition_name"] = QString::fromStdString(m_currentConditionText);
+	data["option_name"] = QString::fromStdString(m_currentOptionText);
 
 	return data;
 }
@@ -223,8 +223,8 @@ QtNodes::NodeValidationState ConditionalExpression::validationState() const
 
 QString ConditionalExpression::validationMessage() const
 {
-	if (!m_currentConditionIndex)
-		return "Invalid condition";
+	if (!m_currentOptionIndex)
+		return "Invalid option";
 
 	if (!m_truePath || !m_falsePath)
 		return "Missing input";
@@ -234,7 +234,7 @@ QString ConditionalExpression::validationMessage() const
 
 bool ConditionalExpression::ComputePreview(QPixmap& pixmap)
 {
-	if (!m_currentConditionIndex)
+	if (!m_currentOptionIndex)
 		return false;
 
 	auto input = outData(0);
@@ -248,30 +248,30 @@ bool ConditionalExpression::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-void ConditionalExpression::OnConditionListUpdate()
+void ConditionalExpression::OnOptionListUpdate()
 {
-	m_currentConditionIndex.reset();
+	m_currentOptionIndex.reset();
 
-	std::size_t conditionIndex = 0;
-	for (const auto& conditionEntry : GetGraph().GetConditions())
+	std::size_t optionIndex = 0;
+	for (const auto& optionEntry : GetGraph().GetOptions())
 	{
-		if (conditionEntry.name == m_currentConditionText)
+		if (optionEntry.name == m_currentOptionText)
 		{
-			m_currentConditionIndex = conditionIndex;
+			m_currentOptionIndex = optionIndex;
 			break;
 		}
 
-		conditionIndex++;
+		optionIndex++;
 	}
 }
 
-void ConditionalExpression::UpdateConditionText()
+void ConditionalExpression::UpdateOptionText()
 {
-	if (m_currentConditionIndex)
+	if (m_currentOptionIndex)
 	{
-		auto& condition = GetGraph().GetCondition(*m_currentConditionIndex);
-		m_currentConditionText = condition.name;
+		auto& option = GetGraph().GetOption(*m_currentOptionIndex);
+		m_currentOptionText = option.name;
 	}
 	else
-		m_currentConditionText.clear();
+		m_currentOptionText.clear();
 }

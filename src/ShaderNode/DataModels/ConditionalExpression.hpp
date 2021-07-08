@@ -40,16 +40,16 @@ class ConditionalExpression : public ShaderNode
 
 	private:
 		bool ComputePreview(QPixmap& pixmap) override;
-		void OnConditionListUpdate();
-		void UpdateConditionText();
+		void OnOptionListUpdate();
+		void UpdateOptionText();
 
-		NazaraSlot(ShaderGraph, OnConditionListUpdate, m_onConditionListUpdateSlot);
-		NazaraSlot(ShaderGraph, OnConditionUpdate, m_onConditionUpdateSlot);
+		NazaraSlot(ShaderGraph, OnOptionListUpdate, m_onOptionListUpdateSlot);
+		NazaraSlot(ShaderGraph, OnOptionUpdate, m_onOptionUpdateSlot);
 
-		std::optional<std::size_t> m_currentConditionIndex;
+		std::optional<std::size_t> m_currentOptionIndex;
 		std::shared_ptr<QtNodes::NodeData> m_falsePath;
 		std::shared_ptr<QtNodes::NodeData> m_truePath;
-		std::string m_currentConditionText;
+		std::string m_currentOptionText;
 };
 
 #include <ShaderNode/DataModels/BufferField.inl>

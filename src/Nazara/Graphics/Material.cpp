@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -27,7 +28,7 @@ namespace Nz
 	*/
 	Material::Material(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
-	m_enabledConditions(0),
+	m_enabledOptions(0),
 	m_pipelineUpdated(false),
 	m_shaderBindingUpdated(false),
 	m_shadowCastingEnabled(true)
@@ -35,8 +36,11 @@ namespace Nz
 		m_pipelineInfo.settings = m_settings;
 
 		const auto& shaders = m_settings->GetShaders();
-		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
-			m_pipelineInfo.shaders[i].uberShader = shaders[i];
+		for (const auto& shader : shaders)
+		{
+			auto& shaderData = m_pipelineInfo.shaders.emplace_back();
+			shaderData.uberShader = shader;
+		}
 
 		const auto& textureSettings = m_settings->GetTextures();
 		const auto& uboSettings = m_settings->GetUniformBlocks();
@@ -90,6 +94,33 @@ namespace Nz
 		}
 
 		return shouldRegenerateCommandBuffer;
+	}
+
+	void Material::UpdatePipeline() const
+	{
+		for (auto& shader : m_pipelineInfo.shaders)
+			shader.enabledOptions = 0;
+
+		const auto& options = m_settings->GetOptions();
+		for (std::size_t optionIndex = 0; optionIndex < options.size(); ++optionIndex)
+		{
+			if (TestBit<UInt64>(m_enabledOptions, optionIndex))
+			{
+				for (auto& shader : m_pipelineInfo.shaders)
+				{
+					ShaderStageTypeFlags supportedStages = shader.uberShader->GetSupportedStages();
+					for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
+					{
+						ShaderStageType shaderStage = static_cast<ShaderStageType>(i);
+						if (supportedStages & shaderStage)
+							shader.enabledOptions |= options[optionIndex].enabledOptions[i];
+					}
+				}
+			}
+		}
+
+		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
+		m_pipelineUpdated = true;
 	}
 
 	void Material::UpdateShaderBinding()

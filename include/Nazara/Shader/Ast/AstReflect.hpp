@@ -31,10 +31,12 @@ namespace Nz::ShaderAst
 
 			struct Callbacks
 			{
+				std::function<void(ShaderStageType stageType, const std::string& functionName)> onEntryPointDeclaration;
 				std::function<void(const std::string& optionName, const ExpressionType& optionType)> onOptionDeclaration;
 			};
 
 		private:
+			void Visit(DeclareFunctionStatement& node) override;
 			void Visit(DeclareOptionStatement& node) override;
 
 			const Callbacks* m_callbacks;
