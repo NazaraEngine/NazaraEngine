@@ -49,6 +49,7 @@ namespace Nz
 		bool blending    = false;
 		bool colorWrite  = true;
 		bool depthBuffer = false;
+		bool depthClamp  = false;
 		bool depthWrite  = true;
 		bool faceCulling = false;
 		bool scissorTest = false;

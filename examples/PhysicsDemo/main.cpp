@@ -75,6 +75,7 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
 	material->EnableDepthBuffer(true);
+	material->EnableDepthClamp(true);
 	material->EnableFaceCulling(true);
 
 	Nz::TextureSamplerInfo samplerInfo;

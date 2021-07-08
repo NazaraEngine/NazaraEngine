@@ -281,6 +281,16 @@ namespace Nz::GL
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
+		// Depth clamp
+		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 3 && m_params.glMajorVersion >= 2)
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_depth_clamp"))
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.count("GL_EXT_depth_clamp"))
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::EXT;
+		else if (m_supportedExtensions.count("GL_NV_depth_clamp"))
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
+
 		// SpirV
 		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 4 && m_params.glMajorVersion >= 6)
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::Core;
@@ -597,6 +607,17 @@ namespace Nz::GL
 				glDisable(GL_DEPTH_TEST);
 
 			m_state.renderStates.depthBuffer = renderStates.depthBuffer;
+		}
+
+		// Depth clamp
+		if (m_state.renderStates.depthClamp != renderStates.depthClamp)
+		{
+			if (renderStates.depthClamp)
+				glEnable(GL_DEPTH_CLAMP_EXT);
+			else
+				glDisable(GL_DEPTH_CLAMP_EXT);
+
+			m_state.renderStates.depthClamp = renderStates.depthClamp;
 		}
 
 		// Face culling
