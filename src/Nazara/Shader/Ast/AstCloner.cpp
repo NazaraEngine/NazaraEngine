@@ -303,9 +303,9 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr AstCloner::Clone(ConstantIndexExpression& node)
+	ExpressionPtr AstCloner::Clone(ConstantExpression& node)
 	{
-		auto clone = std::make_unique<ConstantIndexExpression>();
+		auto clone = std::make_unique<ConstantExpression>();
 		clone->constantId = node.constantId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;

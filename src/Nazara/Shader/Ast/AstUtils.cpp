@@ -67,7 +67,7 @@ namespace Nz::ShaderAst
 		m_expressionCategory = ExpressionCategory::RValue;
 	}
 
-	void ShaderAstValueCategory::Visit(ConstantIndexExpression& /*node*/)
+	void ShaderAstValueCategory::Visit(ConstantExpression& /*node*/)
 	{
 		m_expressionCategory = ExpressionCategory::LValue;
 	}

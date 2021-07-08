@@ -67,7 +67,7 @@ namespace Nz::ShaderAst
 		/* Nothing to do */
 	}
 
-	void AstRecursiveVisitor::Visit(ConstantIndexExpression& /*node*/)
+	void AstRecursiveVisitor::Visit(ConstantExpression& /*node*/)
 	{
 		/* Nothing to do */
 	}

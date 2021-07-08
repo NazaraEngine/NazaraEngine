@@ -55,7 +55,7 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(CastExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
 			ExpressionPtr Clone(ConstantValueExpression& node) override;
-			ExpressionPtr Clone(ConstantIndexExpression& node) override;
+			ExpressionPtr Clone(ConstantExpression& node) override;
 			ExpressionPtr Clone(IdentifierExpression& node) override;
 			ExpressionPtr Clone(IntrinsicExpression& node) override;
 			ExpressionPtr Clone(SwizzleExpression& node) override;
