@@ -181,8 +181,9 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = std::make_shared<Nz::GraphicalMesh>(*coneMesh);
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
-	customSettings.shaders[UnderlyingCast(Nz::ShaderStageType::Fragment)] = std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::Parse(resourceDir / "deferred_frag.nzsl"));
-	customSettings.shaders[UnderlyingCast(Nz::ShaderStageType::Vertex)] = std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::Parse(resourceDir / "deferred_vert.nzsl"));
+	customSettings.shaders.clear();
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::Parse(resourceDir / "deferred_frag.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::Parse(resourceDir / "deferred_vert.nzsl")));
 
 	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
