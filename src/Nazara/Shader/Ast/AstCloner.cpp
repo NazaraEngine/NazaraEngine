@@ -347,18 +347,6 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr AstCloner::Clone(SelectOptionExpression& node)
-	{
-		auto clone = std::make_unique<SelectOptionExpression>();
-		clone->optionName = node.optionName;
-		clone->falsePath = CloneExpression(node.falsePath);
-		clone->truePath = CloneExpression(node.truePath);
-
-		clone->cachedExpressionType = node.cachedExpressionType;
-
-		return clone;
-	}
-
 	ExpressionPtr AstCloner::Clone(SwizzleExpression& node)
 	{
 		auto clone = std::make_unique<SwizzleExpression>();

@@ -632,27 +632,6 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr SanitizeVisitor::Clone(SelectOptionExpression& node)
-	{
-		MandatoryExpr(node.truePath);
-		MandatoryExpr(node.falsePath);
-
-		const Identifier* identifier = FindIdentifier(node.optionName);
-		if (!identifier)
-			throw AstError{ "unknown constant " + node.optionName };
-
-		if (identifier->type != Identifier::Type::Constant)
-			throw AstError{ "expected constant identifier" };
-
-		if (GetExpressionType(m_context->constantValues[identifier->index]) != ExpressionType{ PrimitiveType::Boolean })
-			throw AstError{ "constant is not a boolean" };
-
-		if (std::get<bool>(m_context->constantValues[identifier->index]))
-			return CloneExpression(node.truePath);
-		else
-			return CloneExpression(node.falsePath);
-	}
-
 	ExpressionPtr SanitizeVisitor::Clone(SwizzleExpression& node)
 	{
 		if (node.componentCount > 4)

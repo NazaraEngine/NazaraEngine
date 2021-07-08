@@ -101,6 +101,7 @@ namespace Nz::ShaderLang
 
 			// Expressions
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);
+			ShaderAst::ExpressionPtr ParseConstSelectExpression();
 			ShaderAst::ExpressionPtr ParseExpression();
 			ShaderAst::ExpressionPtr ParseFloatingPointExpression();
 			ShaderAst::ExpressionPtr ParseIdentifier();
@@ -108,7 +109,6 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::ExpressionPtr> ParseParameters();
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
-			ShaderAst::ExpressionPtr ParseSelectOptExpression();
 			ShaderAst::ExpressionPtr ParseVariableAssignation();
 
 			ShaderAst::AttributeType ParseIdentifierAsAttributeType();

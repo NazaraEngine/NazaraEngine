@@ -277,16 +277,6 @@ namespace Nz::ShaderBuilder
 		return returnNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::SelectOptionExpression> Impl::SelectOption::operator()(std::string optionName, ShaderAst::ExpressionPtr truePath, ShaderAst::ExpressionPtr falsePath) const
-	{
-		auto selectOptNode = std::make_unique<ShaderAst::SelectOptionExpression>();
-		selectOptNode->optionName = std::move(optionName);
-		selectOptNode->falsePath = std::move(falsePath);
-		selectOptNode->truePath = std::move(truePath);
-
-		return selectOptNode;
-	}
-
 	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const
 	{
 		auto swizzleNode = std::make_unique<ShaderAst::SwizzleExpression>();
