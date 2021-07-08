@@ -281,18 +281,23 @@ namespace Nz::GL
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
+		// SpirV
+		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 4 && m_params.glMajorVersion >= 6)
+			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
+			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
+
+		// Texture compression (S3tc)
 		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureCompressionS3tc)] = ExtensionStatus::EXT;
 
-		// TextureFilterAnisotropic
-		if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
+		// Texture anisotropic filter
+		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 4 && m_params.glMajorVersion >= 6)
+			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_texture_filter_anisotropic"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::EXT;
-
-		// SpirV
-		if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
-			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false);
