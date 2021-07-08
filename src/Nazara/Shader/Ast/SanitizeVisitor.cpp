@@ -577,7 +577,7 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr SanitizeVisitor::Clone(ConstantIndexExpression& node)
+	ExpressionPtr SanitizeVisitor::Clone(ConstantExpression& node)
 	{
 		if (node.constantId >= m_context->constantValues.size())
 			throw AstError{ "invalid constant index " + std::to_string(node.constantId) };
@@ -601,8 +601,8 @@ namespace Nz::ShaderAst
 		{
 			case Identifier::Type::Constant:
 			{
-				// Replace IdentifierExpression by ConstantIndexExpression
-				auto constantExpr = std::make_unique<ConstantIndexExpression>();
+				// Replace IdentifierExpression by ConstantExpression
+				auto constantExpr = std::make_unique<ConstantExpression>();
 				constantExpr->cachedExpressionType = GetExpressionType(m_context->constantValues[identifier->index]);
 				constantExpr->constantId = identifier->index;
 

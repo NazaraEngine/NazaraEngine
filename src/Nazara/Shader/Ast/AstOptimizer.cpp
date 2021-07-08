@@ -839,7 +839,7 @@ namespace Nz::ShaderAst
 			return AstCloner::Clone(*node.falsePath);
 	}
 
-	ExpressionPtr AstOptimizer::Clone(ConstantIndexExpression& node)
+	ExpressionPtr AstOptimizer::Clone(ConstantExpression& node)
 	{
 		if (!m_options.constantQueryCallback)
 			return AstCloner::Clone(node);

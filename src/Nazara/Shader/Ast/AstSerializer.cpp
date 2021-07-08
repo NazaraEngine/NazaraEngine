@@ -111,7 +111,7 @@ namespace Nz::ShaderAst
 			Node(expr);
 	}
 
-	void AstSerializerBase::Serialize(ConstantIndexExpression& node)
+	void AstSerializerBase::Serialize(ConstantExpression& node)
 	{
 		SizeT(node.constantId);
 	}

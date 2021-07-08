@@ -664,7 +664,7 @@ namespace Nz
 		}, node.value);
 	}
 
-	void LangWriter::Visit(ShaderAst::ConstantIndexExpression& node)
+	void LangWriter::Visit(ShaderAst::ConstantExpression& node)
 	{
 		Append(Retrieve(m_currentState->constantNames, node.constantId));
 	}

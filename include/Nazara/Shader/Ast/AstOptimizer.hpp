@@ -43,7 +43,7 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(BinaryExpression& node) override;
 			ExpressionPtr Clone(CastExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
-			ExpressionPtr Clone(ConstantIndexExpression& node) override;
+			ExpressionPtr Clone(ConstantExpression& node) override;
 			ExpressionPtr Clone(UnaryExpression& node) override;
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
