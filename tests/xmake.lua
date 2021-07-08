@@ -26,3 +26,5 @@ target("NazaraUnitTests")
 	add_files("main.cpp")
 	add_files("resources.cpp")
 	add_files("Engine/**.cpp")
+
+	del_files("Engine/Audio/**")

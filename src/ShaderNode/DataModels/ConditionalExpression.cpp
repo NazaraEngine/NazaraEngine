@@ -46,7 +46,7 @@ Nz::ShaderAst::NodePtr ConditionalExpression::BuildNode(Nz::ShaderAst::Expressio
 	const ShaderGraph& graph = GetGraph();
 
 	const auto& conditionEntry = graph.GetCondition(*m_currentConditionIndex);
-	return Nz::ShaderBuilder::SelectOption(conditionEntry.name, std::move(expressions[0]), std::move(expressions[1]));
+	return Nz::ShaderBuilder::ConditionalExpression(Nz::ShaderBuilder::Identifier(conditionEntry.name), std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString ConditionalExpression::caption() const
