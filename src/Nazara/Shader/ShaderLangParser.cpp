@@ -625,8 +625,6 @@ namespace Nz::ShaderLang
 
 		LeaveScope();
 
-		Expect(Advance(), TokenType::ClosingCurlyBracket);
-
 		auto func = ShaderBuilder::DeclareFunction(std::move(functionName), std::move(parameters), std::move(functionBody), std::move(returnType));
 
 		ShaderAst::AttributeValue<bool> condition;
@@ -853,6 +851,7 @@ namespace Nz::ShaderLang
 			ExpectNot(Peek(), TokenType::EndOfStream);
 			statements.push_back(ParseStatement());
 		}
+		Consume(); //< Consume closing curly bracket
 
 		LeaveScope();
 
