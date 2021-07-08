@@ -41,9 +41,9 @@ external
 
 struct InputData
 {
-	[location(0)] vertNormal: vec3<f32>,
-	[location(1)] vertUV: vec2<f32>,
-	[location(2)] vertPos: vec3<f32>
+	[location(0)] normal: vec3<f32>,
+	[location(1)] uv: vec2<f32>,
+	[location(2)] pos: vec3<f32>
 }
 
 struct OutputData
@@ -73,7 +73,7 @@ fn main(input: InputData) -> OutputData
 
 	let output: OutputData;
 	output.diffuseMap = diffuseColor;
-	output.normalMap = vec4<f32>((vec3<f32>(1.0, 1.0, 1.0) + input.vertNormal) * 0.5, 1.0);
-	output.positionMap = vec4<f32>(input.vertPos, 1.0);
+	output.normalMap = vec4<f32>((vec3<f32>(1.0, 1.0, 1.0) + input.normal) * 0.5, 1.0);
+	output.positionMap = vec4<f32>(input.pos, 1.0);
 	return output;
 }

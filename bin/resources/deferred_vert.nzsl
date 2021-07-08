@@ -35,28 +35,28 @@ external
 
 struct InputData
 {
-	[location(0)] inPos: vec3<f32>,
-	[location(1)] inNormals: vec3<f32>,
-	[location(2)] inTexCoord: vec2<f32>
+	[location(0)] pos: vec3<f32>,
+	[location(1)] normal: vec3<f32>,
+	[location(2)] uv: vec2<f32>
 }
 
 struct OutputData
 {
-	[location(0)] vertNormal: vec3<f32>,
-	[location(1)] vertUV: vec2<f32>,
-	[location(2)] vertPos: vec3<f32>,
+	[location(0)] normal: vec3<f32>,
+	[location(1)] uv: vec2<f32>,
+	[location(2)] pos: vec3<f32>,
 	[builtin(position)] position: vec4<f32>
 }
 
 [entry(vert)]
 fn main(input: InputData) -> OutputData
 {
-	let worldPos = instanceData.worldMatrix * vec4<f32>(input.inPos, 1.0);
+	let worldPos = instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
 
 	let output: OutputData;
-	output.vertUV = input.inTexCoord;
-	output.vertNormal = input.inNormals;
-	output.vertPos = worldPos.xyz;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.inPos, 1.0);
+	output.uv = input.uv;
+	output.normal = input.normal;
+	output.pos = worldPos.xyz;
+	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
 	return output;
 }
