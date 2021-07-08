@@ -57,11 +57,13 @@ namespace Nz::GL
 
 	enum class ExtensionStatus
 	{
-		NotSupported,
+		NotSupported = 0,
 
-		ARB,
-		EXT,
-		KHR
+		ARB = 3,
+		Core = 5,
+		EXT = 2,
+		KHR = 4,
+		Vendor = 1
 	};
 
 	enum class FramebufferTarget
