@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <cassert>
@@ -142,10 +143,11 @@ namespace Nz
 	{
 		VkPipelineRasterizationStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		createInfo.polygonMode = ToVulkan(pipelineInfo.faceFilling);
 		createInfo.cullMode = (pipelineInfo.faceCulling) ? ToVulkan(pipelineInfo.cullingSide) : VK_CULL_MODE_NONE;
+		createInfo.depthClampEnable = pipelineInfo.depthClamp;
 		createInfo.frontFace = ToVulkan(pipelineInfo.frontFace);
 		createInfo.lineWidth = pipelineInfo.lineWidth;
+		createInfo.polygonMode = ToVulkan(pipelineInfo.faceFilling);
 
 		return createInfo;
 	}

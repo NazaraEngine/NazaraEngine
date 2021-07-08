@@ -19,6 +19,7 @@ namespace Nz
 		NazaraRenderStateBoolMember(blending);
 		NazaraRenderStateBoolMember(colorWrite);
 		NazaraRenderStateBoolMember(depthBuffer);
+		NazaraRenderStateBoolMember(depthClamp);
 		NazaraRenderStateBoolMember(faceCulling);
 		NazaraRenderStateBoolMember(scissorTest);
 		NazaraRenderStateBoolMember(stencilTest);
@@ -95,6 +96,7 @@ namespace std
 			NazaraRenderStateBool(blending);
 			NazaraRenderStateBool(colorWrite);
 			NazaraRenderStateBool(depthBuffer);
+			NazaraRenderStateBool(depthClamp);
 			NazaraRenderStateBool(faceCulling);
 			NazaraRenderStateBool(scissorTest);
 			NazaraRenderStateBool(stencilTest);

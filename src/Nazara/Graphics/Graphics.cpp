@@ -53,6 +53,7 @@ namespace Nz
 
 		RenderDeviceFeatures enabledFeatures;
 		enabledFeatures.anisotropicFiltering = renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+		enabledFeatures.depthClamping = renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
 		enabledFeatures.nonSolidFaceFilling = renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 
 		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);

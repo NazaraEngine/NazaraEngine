@@ -7,9 +7,9 @@
 #ifndef NAZARA_RENDERPIPELINE_HPP
 #define NAZARA_RENDERPIPELINE_HPP
 
-#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
@@ -26,6 +26,8 @@ namespace Nz
 		std::vector<VertexBufferData> vertexBuffers;
 	};
 
+	class RenderDevice;
+
 	class NAZARA_RENDERER_API RenderPipeline
 	{
 		public:
@@ -33,6 +35,9 @@ namespace Nz
 			virtual ~RenderPipeline();
 
 			virtual const RenderPipelineInfo& GetPipelineInfo() const = 0;
+
+		protected:
+			static void ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo);
 	};
 }
 

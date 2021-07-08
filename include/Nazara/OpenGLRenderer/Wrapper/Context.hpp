@@ -48,6 +48,7 @@ namespace Nz::GL
 
 	enum class Extension
 	{
+		DepthClamp,
 		SpirV,
 		TextureCompressionS3tc,
 		TextureFilterAnisotropic,

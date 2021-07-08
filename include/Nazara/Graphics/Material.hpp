@@ -42,6 +42,7 @@ namespace Nz
 			inline void EnableBlending(bool blending);
 			inline void EnableColorWrite(bool colorWrite);
 			inline void EnableDepthBuffer(bool depthBuffer);
+			inline void EnableDepthClamp(bool depthClamp);
 			inline void EnableDepthSorting(bool depthSorting);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
@@ -84,6 +85,7 @@ namespace Nz
 			inline bool IsBlendingEnabled() const;
 			inline bool IsColorWriteEnabled() const;
 			inline bool IsDepthBufferEnabled() const;
+			inline bool IsDepthClampEnabled() const;
 			inline bool IsDepthSortingEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;

@@ -54,6 +54,7 @@ namespace Nz
 		deviceInfo.name = physDevice.properties.deviceName;
 
 		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
+		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
 
 		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
@@ -577,6 +578,9 @@ namespace Nz
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		if (enabledFeatures.anisotropicFiltering)
 			deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+		if (enabledFeatures.depthClamping)
+			deviceFeatures.depthClamp = VK_TRUE;
 
 		if (enabledFeatures.nonSolidFaceFilling)
 			deviceFeatures.fillModeNonSolid = VK_TRUE;
