@@ -42,6 +42,7 @@ namespace Nz
 
 			struct Config
 			{
+				RenderDeviceFeatures forceDisableFeatures;
 				bool useDedicatedRenderDevice = true;
 			};
 

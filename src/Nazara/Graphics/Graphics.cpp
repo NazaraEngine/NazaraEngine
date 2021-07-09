@@ -52,9 +52,9 @@ namespace Nz
 		}
 
 		RenderDeviceFeatures enabledFeatures;
-		enabledFeatures.anisotropicFiltering = renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
-		enabledFeatures.depthClamping = renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
-		enabledFeatures.nonSolidFaceFilling = renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
+		enabledFeatures.anisotropicFiltering = !config.forceDisableFeatures.anisotropicFiltering && renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
+		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
+		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 
 		m_renderDevice = renderer->InstanciateRenderDevice(bestRenderDeviceIndex, enabledFeatures);
 		if (!m_renderDevice)
