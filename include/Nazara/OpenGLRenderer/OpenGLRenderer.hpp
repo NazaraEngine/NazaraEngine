@@ -19,7 +19,7 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderer : public RendererImpl
 	{
 		public:
-			OpenGLRenderer();
+			OpenGLRenderer() = default;
 			~OpenGLRenderer();
 
 			std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() override;
