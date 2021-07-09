@@ -55,6 +55,7 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glCreateProgram, PFNGLCREATEPROGRAMPROC) \
 	cb(glCreateShader, PFNGLCREATESHADERPROC) \
 	cb(glCullFace, PFNGLCULLFACEPROC) \
+	cb(glDebugMessageControl, PFNGLDEBUGMESSAGECONTROLPROC) \
 	cb(glDeleteBuffers, PFNGLDELETEBUFFERSPROC) \
 	cb(glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC) \
 	cb(glDeleteProgram, PFNGLDELETEPROGRAMPROC) \
