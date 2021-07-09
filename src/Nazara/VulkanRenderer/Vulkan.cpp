@@ -598,7 +598,7 @@ namespace Nz
 			&deviceFeatures
 		};
 
-		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, BuildRenderDeviceInfo(deviceInfo));
+		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildRenderDeviceInfo(deviceInfo));
 		if (!device->Create(deviceInfo, createInfo))
 		{
 			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));

@@ -9,8 +9,10 @@
 
 namespace Nz
 {
-	OpenGLTextureSampler::OpenGLTextureSampler(OpenGLDevice& device, const TextureSamplerInfo& samplerInfo)
+	OpenGLTextureSampler::OpenGLTextureSampler(OpenGLDevice& device, TextureSamplerInfo samplerInfo)
 	{
+		ValidateSamplerInfo(device, samplerInfo);
+
 		BuildSampler(device, m_samplerWithMipmaps, samplerInfo, true);
 		BuildSampler(device, m_samplerWithoutMipmaps, samplerInfo, false);
 	}

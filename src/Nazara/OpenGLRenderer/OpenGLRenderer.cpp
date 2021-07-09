@@ -47,9 +47,16 @@ namespace Nz
 		return std::make_unique<OpenGLRenderWindow>(owner);
 	}
 
-	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& /*enabledFeatures*/)
+	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
 	{
 		assert(deviceIndex == 0);
+
+		// For now, since we have to create a device to know its features, supported features are always reported as enabled
+		// We still call ValidateFeatures in order to trigger warnings if requested features are not supported
+		// TODO: Report disabled features as disabled (make OpenGLDeviceProxy?)
+		RenderDeviceFeatures validatedFeatures = enabledFeatures;
+		OpenGLDevice::ValidateFeatures(m_device->GetEnabledFeatures(), validatedFeatures);
+
 		return m_device;
 	}
 

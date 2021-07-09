@@ -28,6 +28,8 @@ namespace Nz
 		inline bool operator!=(const TextureSamplerInfo& samplerInfo) const;
 	};
 
+	class RenderDevice;
+
 	class NAZARA_RENDERER_API TextureSampler
 	{
 		public:
@@ -38,6 +40,9 @@ namespace Nz
 
 			TextureSampler& operator=(const TextureSampler&) = delete;
 			TextureSampler& operator=(TextureSampler&&) = delete;
+
+		protected:
+			static void ValidateSamplerInfo(const RenderDevice& device, TextureSamplerInfo& samplerInfo);
 	};
 }
 

@@ -32,6 +32,7 @@ namespace Nz
 			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params, WindowHandle handle) const;
 
 			const RenderDeviceInfo& GetDeviceInfo() const override;
+			const RenderDeviceFeatures& GetEnabledFeatures() const override;
 			inline const GL::Context& GetReferenceContext() const;
 
 			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;

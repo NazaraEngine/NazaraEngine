@@ -71,6 +71,7 @@ namespace Nz
 
 	OpenGLDevice::~OpenGLDevice()
 	{
+		// Free context first as it will unregister itself from m_contexts
 		m_referenceContext.reset();
 	}
 
@@ -93,6 +94,12 @@ namespace Nz
 	const RenderDeviceInfo& OpenGLDevice::GetDeviceInfo() const
 	{
 		return m_deviceInfo;
+	}
+
+	const RenderDeviceFeatures& OpenGLDevice::GetEnabledFeatures() const
+	{
+		//FIXME
+		return m_deviceInfo.features;
 	}
 
 	std::shared_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)
