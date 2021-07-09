@@ -500,8 +500,10 @@ namespace Nz::GL
 		}
 
 		// Face filling
-		if (glPolygonMode && m_state.renderStates.faceFilling != renderStates.faceFilling)
+		if (m_state.renderStates.faceFilling != renderStates.faceFilling)
 		{
+			assert(glPolygonMode);
+
 			glPolygonMode(GL_FRONT_AND_BACK, ToOpenGL(renderStates.faceFilling));
 			m_state.renderStates.faceFilling = renderStates.faceFilling;
 		}
@@ -616,6 +618,8 @@ namespace Nz::GL
 		// Depth clamp
 		if (m_state.renderStates.depthClamp != renderStates.depthClamp)
 		{
+			assert(IsExtensionSupported(Extension::DepthClamp));
+
 			if (renderStates.depthClamp)
 				glEnable(GL_DEPTH_CLAMP_EXT);
 			else
