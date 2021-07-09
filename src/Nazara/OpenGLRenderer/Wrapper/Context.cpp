@@ -354,9 +354,18 @@ namespace Nz::GL
 				context->HandleDebugMessage(source, type, id, severity, length, message);
 			}, this);
 
-			// Disable driver notifications (NVidia driver is very verbose)
 			if (glDebugMessageControl)
-				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+			{
+				// Disable push/pop debug groups notifications
+				if (glPushDebugGroup)
+					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_PUSH_GROUP, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+				if (glPopDebugGroup)
+					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+				// Disable driver notifications (NVidia driver is very verbose)
+				glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+			}
 		}
 
 		GLint maxTextureUnits = -1;
@@ -725,10 +734,6 @@ namespace Nz::GL
 
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
 	{
-		// Ignore debug groups
-		if (id == 0)
-			return;
-
 		std::stringstream ss;
 		ss << "OpenGL debug message (ID: 0x" << id << "):\n";
 		ss << "Sent by context: " << this;
