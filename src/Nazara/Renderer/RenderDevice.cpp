@@ -31,4 +31,25 @@ namespace Nz
 
 		return InstantiateShaderModule(shaderStages, lang, source.data(), source.size(), states);
 	}
+
+	void RenderDevice::ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures)
+	{
+		if (enabledFeatures.anisotropicFiltering && !supportedFeatures.anisotropicFiltering)
+		{
+			NazaraWarning("anistropic filtering was enabled but device doesn't support it, disabling...");
+			enabledFeatures.anisotropicFiltering = false;
+		}
+
+		if (enabledFeatures.depthClamping && !supportedFeatures.depthClamping)
+		{
+			NazaraWarning("depth clamping was enabled but device doesn't support it, disabling...");
+			enabledFeatures.depthClamping = false;
+		}
+
+		if (enabledFeatures.nonSolidFaceFilling && !supportedFeatures.nonSolidFaceFilling)
+		{
+			NazaraWarning("non-solid face filling was enabled but device doesn't support it, disabling...");
+			enabledFeatures.nonSolidFaceFilling = false;
+		}
+	}
 }

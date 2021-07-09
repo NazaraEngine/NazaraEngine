@@ -19,12 +19,14 @@
 
 namespace Nz
 {
+	class VulkanDevice;
+
 	class NAZARA_VULKANRENDERER_API VulkanRenderPipeline : public RenderPipeline
 	{
 		public:
 			struct CreateInfo;
 
-			VulkanRenderPipeline(Vk::Device& device, RenderPipelineInfo pipelineInfo);
+			VulkanRenderPipeline(VulkanDevice& device, RenderPipelineInfo pipelineInfo);
 			~VulkanRenderPipeline() = default;
 
 			VkPipeline Get(const VulkanRenderPass& renderPass, std::size_t subpassIndex) const;

@@ -17,7 +17,7 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLTextureSampler : public TextureSampler
 	{
 		public:
-			OpenGLTextureSampler(OpenGLDevice& device, const TextureSamplerInfo& samplerInfo);
+			OpenGLTextureSampler(OpenGLDevice& device, TextureSamplerInfo samplerInfo);
 			OpenGLTextureSampler(const OpenGLTextureSampler&) = delete;
 			OpenGLTextureSampler(OpenGLTextureSampler&&) = delete;
 			~OpenGLTextureSampler() = default;

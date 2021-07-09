@@ -22,6 +22,11 @@ namespace Nz
 		return m_renderDeviceInfo;
 	}
 
+	const RenderDeviceFeatures& VulkanDevice::GetEnabledFeatures() const
+	{
+		return m_enabledFeatures;
+	}
+
 	std::shared_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
 	{
 		return std::make_shared<VulkanBuffer>(*this, type);

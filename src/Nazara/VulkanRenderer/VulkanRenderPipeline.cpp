@@ -13,10 +13,12 @@
 
 namespace Nz
 {
-	VulkanRenderPipeline::VulkanRenderPipeline(Vk::Device& device, RenderPipelineInfo pipelineInfo) :
+	VulkanRenderPipeline::VulkanRenderPipeline(VulkanDevice& device, RenderPipelineInfo pipelineInfo) :
 	m_device(&device),
 	m_pipelineInfo(std::move(pipelineInfo))
 	{
+		ValidatePipelineInfo(device, m_pipelineInfo);
+
 		m_pipelineCreateInfo = BuildCreateInfo(m_pipelineInfo);
 	}
 

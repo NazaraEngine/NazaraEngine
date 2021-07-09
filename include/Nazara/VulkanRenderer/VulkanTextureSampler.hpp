@@ -13,10 +13,12 @@
 
 namespace Nz
 {
+	class VulkanDevice;
+
 	class NAZARA_VULKANRENDERER_API VulkanTextureSampler : public TextureSampler
 	{
 		public:
-			VulkanTextureSampler(Vk::Device& device, TextureSamplerInfo samplerInfo);
+			VulkanTextureSampler(VulkanDevice& device, TextureSamplerInfo samplerInfo);
 			VulkanTextureSampler(const VulkanTextureSampler&) = delete;
 			VulkanTextureSampler(VulkanTextureSampler&&) = delete;
 			~VulkanTextureSampler() = default;

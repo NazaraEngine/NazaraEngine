@@ -3,13 +3,16 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
+#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
-	VulkanTextureSampler::VulkanTextureSampler(Vk::Device& device, TextureSamplerInfo samplerInfo)
+	VulkanTextureSampler::VulkanTextureSampler(VulkanDevice& device, TextureSamplerInfo samplerInfo)
 	{
+		ValidateSamplerInfo(device, samplerInfo);
+
 		VkSamplerCreateInfo createInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
 		createInfo.magFilter = ToVulkan(samplerInfo.magFilter);
 		createInfo.minFilter = ToVulkan(samplerInfo.minFilter);

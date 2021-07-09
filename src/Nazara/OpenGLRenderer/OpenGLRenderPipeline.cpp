@@ -19,6 +19,8 @@ namespace Nz
 	m_pipelineInfo(std::move(pipelineInfo)),
 	m_isViewportFlipped(false)
 	{
+		ValidatePipelineInfo(device, m_pipelineInfo);
+
 		OpenGLRenderPipelineLayout& pipelineLayout = static_cast<OpenGLRenderPipelineLayout&>(*m_pipelineInfo.pipelineLayout);
 
 		if (!m_program.Create(device))

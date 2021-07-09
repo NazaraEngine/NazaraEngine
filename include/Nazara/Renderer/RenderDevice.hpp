@@ -36,6 +36,7 @@ namespace Nz
 			virtual ~RenderDevice();
 
 			virtual const RenderDeviceInfo& GetDeviceInfo() const = 0;
+			virtual const RenderDeviceFeatures& GetEnabledFeatures() const = 0;
 
 			virtual std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) = 0;
 			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
@@ -50,6 +51,8 @@ namespace Nz
 			virtual std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
 
 			virtual bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const = 0;
+
+			static void ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures);
 	};
 }
 
