@@ -24,17 +24,10 @@
 
 namespace Nz
 {
-	OpenGLRenderer::OpenGLRenderer()
-	{
-		auto& dummyDevice = m_deviceInfos.emplace_back();
-		dummyDevice.name = "OpenGL Default Device";
-		dummyDevice.type = RenderDeviceType::Unknown;
-	}
-
 	OpenGLRenderer::~OpenGLRenderer()
 	{
+		// Free device before loader
 		m_device.reset();
-		m_loader.reset();
 	}
 
 	std::unique_ptr<RenderSurface> OpenGLRenderer::CreateRenderSurfaceImpl()
@@ -72,6 +65,7 @@ namespace Nz
 		m_loader = std::move(loader);
 
 		m_device = std::make_shared<OpenGLDevice>(*m_loader);
+		m_deviceInfos.emplace_back(m_device->GetDeviceInfo());
 
 		return true;
 	}
