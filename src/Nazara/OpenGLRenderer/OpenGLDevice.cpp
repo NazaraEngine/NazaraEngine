@@ -50,11 +50,13 @@ namespace Nz
 		m_deviceInfo.type = RenderDeviceType::Unknown;
 
 		const GL::ContextParams& params = m_referenceContext->GetParams();
-		unsigned int glVersion = params.glMajorVersion * 100 + params.glMinorVersion;
 
 		// Features
-		if ((params.type == GL::ContextType::OpenGL && glVersion >= 460) || m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
 			m_deviceInfo.features.anisotropicFiltering = true;
+
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::DepthClamp))
+			m_deviceInfo.features.depthClamping = true;
 
 		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
 			m_deviceInfo.features.nonSolidFaceFilling = true;
