@@ -353,6 +353,10 @@ namespace Nz::GL
 				const Context* context = static_cast<const Context*>(userParam);
 				context->HandleDebugMessage(source, type, id, severity, length, message);
 			}, this);
+
+			// Disable driver notifications (NVidia driver is very verbose)
+			if (glDebugMessageControl)
+				glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 		}
 
 		GLint maxTextureUnits = -1;
