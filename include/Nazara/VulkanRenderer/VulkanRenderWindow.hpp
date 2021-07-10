@@ -19,7 +19,6 @@
 #include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
-#include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
@@ -34,13 +33,13 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VkRenderWindow : public VkRenderTarget, public RenderWindowImpl
+	class NAZARA_VULKANRENDERER_API VulkanRenderWindow : public RenderWindowImpl
 	{
 		public:
-			VkRenderWindow(RenderWindow& owner);
-			VkRenderWindow(const VkRenderWindow&) = delete;
-			VkRenderWindow(VkRenderWindow&&) = delete; ///TODO
-			~VkRenderWindow();
+			VulkanRenderWindow(RenderWindow& owner);
+			VulkanRenderWindow(const VulkanRenderWindow&) = delete;
+			VulkanRenderWindow(VulkanRenderWindow&&) = delete; ///TODO
+			~VulkanRenderWindow();
 
 			RenderFrame Acquire() override;
 
@@ -53,13 +52,14 @@ namespace Nz
 			inline VulkanDevice& GetDevice();
 			inline const VulkanDevice& GetDevice() const;
 			inline Vk::QueueHandle& GetGraphicsQueue();
-			inline const VulkanRenderPass& GetRenderPass() const override;
+			const VulkanRenderPass& GetRenderPass() const override;
+			const Vector2ui& GetSize() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
-			VkRenderWindow& operator=(const VkRenderWindow&) = delete;
-			VkRenderWindow& operator=(VkRenderWindow&&) = delete; ///TODO
+			VulkanRenderWindow& operator=(const VulkanRenderWindow&) = delete;
+			VulkanRenderWindow& operator=(VulkanRenderWindow&&) = delete; ///TODO
 
 		private:
 			bool CreateSwapchain(Vk::Surface& surface, const Vector2ui& size);
@@ -90,6 +90,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/VulkanRenderer/VkRenderWindow.inl>
+#include <Nazara/VulkanRenderer/VulkanRenderWindow.inl>
 
 #endif // NAZARA_VULKANRENDERER_RENDERWINDOW_HPP

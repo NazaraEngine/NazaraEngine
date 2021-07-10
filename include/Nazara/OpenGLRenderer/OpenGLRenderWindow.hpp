@@ -37,6 +37,7 @@ namespace Nz
 			const OpenGLFramebuffer& GetFramebuffer(std::size_t i) const override;
 			std::size_t GetFramebufferCount() const override;
 			const OpenGLRenderPass& GetRenderPass() const override;
+			const Vector2ui& GetSize() const override;
 
 			void Present();
 

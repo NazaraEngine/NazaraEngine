@@ -29,6 +29,8 @@ namespace Nz
 		if (m_size != size)
 		{
 			invalidateFramebuffer = true;
+
+			OnRenderTargetSizeChange(this, size);
 			m_size = size;
 		}
 
@@ -113,6 +115,11 @@ namespace Nz
 	const OpenGLRenderPass& OpenGLRenderWindow::GetRenderPass() const
 	{
 		return *m_renderPass;
+	}
+
+	const Vector2ui& OpenGLRenderWindow::GetSize() const
+	{
+		return m_size;
 	}
 
 	void OpenGLRenderWindow::Present()

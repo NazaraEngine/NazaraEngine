@@ -7,7 +7,7 @@
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
-#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <cassert>
 #include <sstream>
@@ -27,7 +27,7 @@ namespace Nz
 
 	std::unique_ptr<RenderWindowImpl> VulkanRenderer::CreateRenderWindowImpl(RenderWindow& owner)
 	{
-		return std::make_unique<VkRenderWindow>(owner);
+		return std::make_unique<VulkanRenderWindow>(owner);
 	}
 
 	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)

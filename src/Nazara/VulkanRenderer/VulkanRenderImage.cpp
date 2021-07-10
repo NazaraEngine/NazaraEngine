@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
-#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <stdexcept>
@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	VulkanRenderImage::VulkanRenderImage(VkRenderWindow& owner) :
+	VulkanRenderImage::VulkanRenderImage(VulkanRenderWindow& owner) :
 	m_owner(owner),
 	m_uploadPool(m_owner.GetDevice(), 2 * 1024 * 1024)
 	{

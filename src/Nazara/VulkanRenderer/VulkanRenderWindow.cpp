@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StackArray.hpp>
@@ -19,14 +19,14 @@
 
 namespace Nz
 {
-	VkRenderWindow::VkRenderWindow(RenderWindow& owner) :
+	VulkanRenderWindow::VulkanRenderWindow(RenderWindow& owner) :
 	m_currentFrame(0),
 	m_owner(owner),
 	m_shouldRecreateSwapchain(false)
 	{
 	}
 
-	VkRenderWindow::~VkRenderWindow()
+	VulkanRenderWindow::~VulkanRenderWindow()
 	{
 		if (m_device)
 			m_device->WaitForIdle();
@@ -37,7 +37,7 @@ namespace Nz
 		m_swapchain.Destroy();
 	}
 
-	RenderFrame VkRenderWindow::Acquire()
+	RenderFrame VulkanRenderWindow::Acquire()
 	{
 		bool invalidateFramebuffer = false;
 
@@ -49,6 +49,8 @@ namespace Nz
 		if (m_shouldRecreateSwapchain || size != m_swapchainSize)
 		{
 			Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(m_owner.GetSurface())->GetSurface();
+
+			OnRenderTargetSizeChange(this, size);
 
 			if (!CreateSwapchain(vulkanSurface, size))
 				throw std::runtime_error("failed to recreate swapchain");
@@ -103,7 +105,7 @@ namespace Nz
 		return RenderFrame(&currentFrame, invalidateFramebuffer, size, imageIndex);
 	}
 
-	bool VkRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
+	bool VulkanRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
 	{
 		std::shared_ptr<VulkanDevice> device = std::static_pointer_cast<VulkanDevice>(m_owner.GetRenderDevice());
 
@@ -280,7 +282,7 @@ namespace Nz
 		return true;
 	}
 
-	std::shared_ptr<CommandPool> VkRenderWindow::CreateCommandPool(QueueType queueType)
+	std::shared_ptr<CommandPool> VulkanRenderWindow::CreateCommandPool(QueueType queueType)
 	{
 		UInt32 queueFamilyIndex = [&] {
 			switch (queueType)
@@ -301,18 +303,28 @@ namespace Nz
 		return std::make_shared<VulkanCommandPool>(*m_device, queueFamilyIndex);
 	}
 
-	const VulkanWindowFramebuffer& VkRenderWindow::GetFramebuffer(std::size_t i) const
+	const VulkanWindowFramebuffer& VulkanRenderWindow::GetFramebuffer(std::size_t i) const
 	{
 		assert(i < m_framebuffers.size());
 		return m_framebuffers[i];
 	}
 
-	std::size_t VkRenderWindow::GetFramebufferCount() const
+	std::size_t VulkanRenderWindow::GetFramebufferCount() const
 	{
-		return std::size_t();
+		return m_framebuffers.size();
 	}
 
-	void VkRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
+	const VulkanRenderPass& VulkanRenderWindow::GetRenderPass() const
+	{
+		return *m_renderPass;
+	}
+
+	const Vector2ui& VulkanRenderWindow::GetSize() const
+	{
+		return m_swapchainSize;
+	}
+
+	void VulkanRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
 		NazaraAssert(imageIndex < m_inflightFences.size(), "Invalid image index");
 
@@ -344,7 +356,7 @@ namespace Nz
 		}
 	}
 
-	bool VkRenderWindow::CreateSwapchain(Vk::Surface& surface, const Vector2ui& size)
+	bool VulkanRenderWindow::CreateSwapchain(Vk::Surface& surface, const Vector2ui& size)
 	{
 		assert(m_device);
 		if (!SetupSwapchain(m_device->GetPhysicalDeviceInfo(), surface, size))
@@ -368,7 +380,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VkRenderWindow::SetupDepthBuffer(const Vector2ui& size)
+	bool VulkanRenderWindow::SetupDepthBuffer(const Vector2ui& size)
 	{
 		VkImageCreateInfo imageCreateInfo = {
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,                                           // VkStructureType          sType;
@@ -446,7 +458,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VkRenderWindow::SetupFrameBuffers(const Vector2ui& size)
+	bool VulkanRenderWindow::SetupFrameBuffers(const Vector2ui& size)
 	{
 		UInt32 imageCount = m_swapchain.GetImageCount();
 
@@ -482,7 +494,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VkRenderWindow::SetupRenderPass()
+	bool VulkanRenderWindow::SetupRenderPass()
 	{
 		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
 		if (!colorFormat)
@@ -511,7 +523,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VkRenderWindow::SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size)
+	bool VulkanRenderWindow::SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size)
 	{
 		VkSurfaceCapabilitiesKHR surfaceCapabilities;
 		if (!surface.GetCapabilities(deviceInfo.physDevice, &surfaceCapabilities))
