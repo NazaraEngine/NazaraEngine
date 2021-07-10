@@ -18,12 +18,12 @@
 
 namespace Nz
 {
-	class VkRenderWindow;
+	class VulkanRenderWindow;
 
 	class NAZARA_VULKANRENDERER_API VulkanRenderImage : public RenderImage
 	{
 		public:
-			VulkanRenderImage(VkRenderWindow& owner);
+			VulkanRenderImage(VulkanRenderWindow& owner);
 			VulkanRenderImage(const VulkanRenderImage&) = delete;
 			VulkanRenderImage(VulkanRenderImage&&) noexcept = default;
 			~VulkanRenderImage();
@@ -50,7 +50,7 @@ namespace Nz
 			std::size_t m_currentCommandBuffer;
 			std::vector<Vk::AutoCommandBuffer> m_inFlightCommandBuffers;
 			std::vector<VkCommandBuffer> m_graphicalCommandsBuffers;
-			VkRenderWindow& m_owner;
+			VulkanRenderWindow& m_owner;
 			Vk::CommandPool m_commandPool;
 			Vk::Fence m_inFlightFence;
 			Vk::Semaphore m_imageAvailableSemaphore;

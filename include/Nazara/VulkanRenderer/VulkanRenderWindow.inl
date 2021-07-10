@@ -2,32 +2,27 @@
 // This file is part of the "Nazara Engine - Vulkan Renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
-	inline VulkanDevice& VkRenderWindow::GetDevice()
+	inline VulkanDevice& VulkanRenderWindow::GetDevice()
 	{
 		return *m_device;
 	}
 
-	inline const VulkanDevice& VkRenderWindow::GetDevice() const
+	inline const VulkanDevice& VulkanRenderWindow::GetDevice() const
 	{
 		return *m_device;
 	}
 
-	inline Vk::QueueHandle& VkRenderWindow::GetGraphicsQueue()
+	inline Vk::QueueHandle& VulkanRenderWindow::GetGraphicsQueue()
 	{
 		return m_graphicsQueue;
 	}
 
-	inline const VulkanRenderPass& VkRenderWindow::GetRenderPass() const
-	{
-		return *m_renderPass;
-	}
-
-	inline const Vk::Swapchain& VkRenderWindow::GetSwapchain() const
+	inline const Vk::Swapchain& VulkanRenderWindow::GetSwapchain() const
 	{
 		return m_swapchain;
 	}
