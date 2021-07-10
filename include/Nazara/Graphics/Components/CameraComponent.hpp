@@ -11,6 +11,9 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
+#include <Nazara/Math/Rect.hpp>
+#include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <memory>
 #include <vector>
 
@@ -20,26 +23,51 @@ namespace Nz
 	{
 		public:
 			inline CameraComponent(const RenderTarget* renderTarget, ProjectionType projectionType = ProjectionType::Perspective);
-			CameraComponent(const CameraComponent&) = default;
-			CameraComponent(CameraComponent&&) = default;
+			inline CameraComponent(const CameraComponent& camera);
+			inline CameraComponent(CameraComponent&& camera) noexcept;
 			~CameraComponent() = default;
 
+			inline float GetAspectRatio() const;
+			inline DegreeAnglef GetFOV() const;
 			const RenderTarget& GetRenderTarget() override;
+			inline const Vector2f& GetSize() const;
+			inline const Rectf& GetTargetRegion() const;
 			ViewerInstance& GetViewerInstance() override;
 			const ViewerInstance& GetViewerInstance() const override;
+			const Recti& GetViewport() const override;
+			inline float GetZFar() const;
+			inline float GetZNear() const;
 
-			inline void UpdateTarget(const RenderTarget* framebuffer);
+			inline void UpdateFOV(DegreeAnglef fov);
 			inline void UpdateProjectionType(ProjectionType projectionType);
+			inline void UpdateSize(const Vector2f& size);
+			void UpdateTarget(const RenderTarget* framebuffer);
+			inline void UpdateTargetRegion(const Rectf& targetRegion);
+			inline void UpdateViewport(const Recti& viewport);
+			inline void UpdateZFar(float zFar);
+			inline void UpdateZNear(float zNear);
 
-			CameraComponent& operator=(const CameraComponent&) = default;
-			CameraComponent& operator=(CameraComponent&&) = default;
+			inline CameraComponent& operator=(const CameraComponent& camera);
+			inline CameraComponent& operator=(CameraComponent&& camera) noexcept;
 
 		private:
 			inline void UpdateProjectionMatrix();
+			inline void UpdateViewport();
+			inline void UpdateViewport(Vector2ui renderTargetSize);
+
+			NazaraSlot(RenderTarget, OnRenderTargetRelease, m_onRenderTargetRelease);
+			NazaraSlot(RenderTarget, OnRenderTargetSizeChange, m_onRenderTargetSizeChange);
 
 			const RenderTarget* m_renderTarget;
+			DegreeAnglef m_fov;
 			ProjectionType m_projectionType;
+			Rectf m_targetRegion;
+			Recti m_viewport;
+			Vector2f m_size;
 			ViewerInstance m_viewerInstance;
+			float m_aspectRatio;
+			float m_zFar;
+			float m_zNear;
 	};
 }
 
