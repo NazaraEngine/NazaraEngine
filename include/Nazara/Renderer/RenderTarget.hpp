@@ -28,6 +28,7 @@ namespace Nz
 			virtual const RenderPass& GetRenderPass() const = 0;
 			virtual const Vector2ui& GetSize() const = 0;
 
+			NazaraSignal(OnRenderTargetRelease, const RenderTarget* /*renderTarget*/);
 			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/, const Vector2ui& /*newSize*/);
 	};
 }
