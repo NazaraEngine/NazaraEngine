@@ -7,5 +7,8 @@
 
 namespace Nz
 {
-	RenderTarget::~RenderTarget() = default;
+	RenderTarget::~RenderTarget()
+	{
+		OnRenderTargetRelease(this);
+	}
 }
