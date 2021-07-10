@@ -243,10 +243,12 @@ namespace Nz
 					return FramePassExecution::Execute;
 			});
 
-			framePass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& renderRect)
+			framePass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
 			{
-				builder.SetScissor(renderRect);
-				builder.SetViewport(renderRect);
+				Recti viewport = viewer->GetViewport();
+
+				builder.SetScissor(viewport);
+				builder.SetViewport(viewport);
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
 				for (const auto& [worldInstance, renderables] : m_renderables)

@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Math/Rect.hpp>
 
 namespace Nz
 {
@@ -24,6 +25,7 @@ namespace Nz
 			virtual const RenderTarget& GetRenderTarget() = 0;
 			virtual ViewerInstance& GetViewerInstance() = 0;
 			virtual const ViewerInstance& GetViewerInstance() const = 0;
+			virtual const Recti& GetViewport() const = 0;
 	};
 }
 

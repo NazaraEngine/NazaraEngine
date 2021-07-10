@@ -25,4 +25,31 @@ namespace Nz
 	{
 		return m_viewerInstance;
 	}
+
+	const Recti& CameraComponent::GetViewport() const
+	{
+		return m_viewport;
+	}
+
+	void CameraComponent::UpdateTarget(const RenderTarget* renderTarget)
+	{
+		m_onRenderTargetRelease.Disconnect();
+		m_onRenderTargetSizeChange.Disconnect();
+
+		m_renderTarget = renderTarget;
+		if (m_renderTarget)
+		{
+			m_onRenderTargetRelease.Connect(m_renderTarget->OnRenderTargetRelease, [this](const RenderTarget*)
+			{
+				UpdateTarget(nullptr);
+			});
+
+			m_onRenderTargetSizeChange.Connect(m_renderTarget->OnRenderTargetSizeChange, [this](const RenderTarget*, const Vector2ui& newSize)
+			{
+				UpdateViewport(newSize);
+			});
+
+			UpdateViewport();
+		}
+	}
 }
