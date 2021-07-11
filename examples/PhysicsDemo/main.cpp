@@ -190,7 +190,6 @@ int main()
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
 
 	bool showColliders = false;
-	bool rebuildCommandBuffer = false;
 	while (window.IsOpen())
 	{
 		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
@@ -208,10 +207,7 @@ int main()
 
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
-					{
 						basicMat.EnableAlphaTest(!basicMat.IsAlphaTestEnabled());
-						rebuildCommandBuffer = true;
-					}
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
 					{
 						showColliders = !showColliders;
@@ -233,7 +229,6 @@ int main()
 								registry.patch<Nz::GraphicsComponent>(entity);
 							}
 						}
-						rebuildCommandBuffer = true;
 					}
 
 					break;
@@ -250,14 +245,6 @@ int main()
 					camQuat = camAngles;
 
 					registry.get<Nz::NodeComponent>(headingEntity).SetRotation(camQuat);
-					break;
-				}
-
-				case Nz::WindowEventType::Resized:
-				{
-					Nz::Vector2ui windowSize = window.GetSize();
-					//viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
-					//viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
 					break;
 				}
 
@@ -318,8 +305,6 @@ int main()
 		frame.Present();
 
 		window.Display();
-
-		rebuildCommandBuffer = false;
 
 		fps++;
 
