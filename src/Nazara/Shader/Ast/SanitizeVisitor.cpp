@@ -1168,7 +1168,7 @@ namespace Nz::ShaderAst
 	std::unique_ptr<T> SanitizeVisitor::Optimize(T& node)
 	{
 		AstOptimizer::Options optimizerOptions;
-		optimizerOptions.constantQueryCallback = [this](std::size_t constantId)
+		optimizerOptions.constantQueryCallback = [this](std::size_t constantId) -> const ConstantValue&
 		{
 			assert(constantId < m_context->constantValues.size());
 			return m_context->constantValues[constantId];
