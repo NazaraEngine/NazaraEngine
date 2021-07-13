@@ -8,7 +8,7 @@
 #define NAZARA_BASIC_MATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
 {
@@ -19,7 +19,7 @@ namespace Nz
 		public:
 			struct UniformOffsets;
 
-			BasicMaterial(Material& material);
+			BasicMaterial(MaterialPass& material);
 
 			inline void EnableAlphaTest(bool alphaTest);
 
@@ -72,7 +72,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			Material& m_material;
+			MaterialPass& m_material;
 			std::size_t m_uniformBlockIndex;
 			OptionIndexes m_optionIndexes;
 			TextureIndexes m_textureIndexes;

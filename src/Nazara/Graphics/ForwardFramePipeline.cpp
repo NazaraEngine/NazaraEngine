@@ -41,7 +41,7 @@ namespace Nz
 		if (auto it = renderableMap.find(instancedRenderable); it == renderableMap.end())
 		{
 			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
-			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
+			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialPass>& newMaterial)
 			{
 				if (newMaterial)
 					RegisterMaterial(newMaterial.get());
@@ -56,7 +56,7 @@ namespace Nz
 			std::size_t matCount = instancedRenderable->GetMaterialCount();
 			for (std::size_t i = 0; i < matCount; ++i)
 			{
-				if (Material* mat = instancedRenderable->GetMaterial(i).get())
+				if (MaterialPass* mat = instancedRenderable->GetMaterial(i).get())
 					RegisterMaterial(mat);
 			}
 
@@ -99,7 +99,7 @@ namespace Nz
 
 				m_invalidatedWorldInstances.clear();
 
-				for (Material* material : m_invalidatedMaterials)
+				for (MaterialPass* material : m_invalidatedMaterials)
 				{
 					if (material->Update(renderFrame, builder))
 						m_rebuildForwardPass = true;
@@ -192,7 +192,7 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			if (Material* mat = instancedRenderable->GetMaterial(i).get())
+			if (MaterialPass* mat = instancedRenderable->GetMaterial(i).get())
 				UnregisterMaterial(mat);
 		}
 
@@ -268,13 +268,13 @@ namespace Nz
 		return frameGraph.Bake();
 	}
 
-	void ForwardFramePipeline::RegisterMaterial(Material* material)
+	void ForwardFramePipeline::RegisterMaterial(MaterialPass* material)
 	{
 		auto it = m_materials.find(material);
 		if (it == m_materials.end())
 		{
 			it = m_materials.emplace(material, MaterialData{}).first;
-			it->second.onMaterialInvalided.Connect(material->OnMaterialInvalidated, [this, material](const Material* /*material*/)
+			it->second.onMaterialInvalided.Connect(material->OnMaterialInvalidated, [this, material](const MaterialPass* /*material*/)
 			{
 				m_invalidatedMaterials.insert(material);
 			});
@@ -285,7 +285,7 @@ namespace Nz
 		it->second.usedCount++;
 	}
 
-	void ForwardFramePipeline::UnregisterMaterial(Material* material)
+	void ForwardFramePipeline::UnregisterMaterial(MaterialPass* material)
 	{
 		auto it = m_materials.find(material);
 		assert(it != m_materials.end());

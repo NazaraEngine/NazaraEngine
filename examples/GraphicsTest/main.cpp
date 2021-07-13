@@ -62,7 +62,7 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> material = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 	material->EnableDepthBuffer(true);
 	material->EnableFaceCulling(true);
 

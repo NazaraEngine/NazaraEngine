@@ -8,7 +8,7 @@
 #define NAZARA_PHONG_LIGHTING_MATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
 {
@@ -17,7 +17,7 @@ namespace Nz
 		friend class MaterialPipeline;
 
 		public:
-			PhongLightingMaterial(Material& material);
+			PhongLightingMaterial(MaterialPass& material);
 
 			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
 			float GetAlphaThreshold() const;
@@ -86,7 +86,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			Material& m_material;
+			MaterialPass& m_material;
 			std::size_t m_phongUniformIndex;
 			TextureIndexes m_textureIndexes;
 			PhongUniformOffsets m_phongUniformOffsets;

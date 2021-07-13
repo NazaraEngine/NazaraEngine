@@ -6,7 +6,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
