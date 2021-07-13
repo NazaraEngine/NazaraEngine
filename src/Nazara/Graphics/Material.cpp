@@ -30,8 +30,7 @@ namespace Nz
 	m_settings(std::move(settings)),
 	m_enabledOptions(0),
 	m_pipelineUpdated(false),
-	m_shaderBindingUpdated(false),
-	m_shadowCastingEnabled(true)
+	m_shaderBindingUpdated(false)
 	{
 		m_pipelineInfo.settings = m_settings;
 

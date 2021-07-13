@@ -29,12 +29,6 @@ namespace Nz
 			return false;
 
 		#define NazaraPipelineMember(field) if (lhs.field != rhs.field) return false
-		#define NazaraPipelineBoolMember NazaraPipelineMember
-
-		NazaraPipelineBoolMember(depthSorting);
-		NazaraPipelineBoolMember(hasVertexColor);
-		NazaraPipelineBoolMember(reflectionMapping);
-		NazaraPipelineBoolMember(shadowReceive);
 
 		NazaraPipelineMember(settings);
 
@@ -48,7 +42,6 @@ namespace Nz
 		}
 
 		#undef NazaraPipelineMember
-		#undef NazaraPipelineBoolMember
 
 		return true;
 	}
@@ -75,11 +68,6 @@ namespace std
 
 			#define NazaraPipelineMember(member) Nz::HashCombine(seed, pipelineInfo.member)
 			#define NazaraPipelineBoolMember(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
-
-			NazaraPipelineBoolMember(depthSorting);
-			NazaraPipelineBoolMember(hasVertexColor);
-			NazaraPipelineBoolMember(reflectionMapping);
-			NazaraPipelineBoolMember(shadowReceive);
 
 			NazaraPipelineMember(settings.get()); //< Hash pointer
 
