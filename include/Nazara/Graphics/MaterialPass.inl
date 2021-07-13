@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <memory>
 #include <Nazara/Graphics/Debug.hpp>
@@ -14,7 +14,7 @@ namespace Nz
 	*
 	* \see OnMaterialRelease
 	*/
-	inline Material::~Material()
+	inline MaterialPass::~MaterialPass()
 	{
 		OnMaterialRelease(this);
 	}
@@ -28,7 +28,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline void Material::Configure(std::shared_ptr<MaterialPipeline> pipeline)
+	inline void MaterialPass::Configure(std::shared_ptr<MaterialPipeline> pipeline)
 	{
 		NazaraAssert(pipeline, "Invalid material pipeline");
 
@@ -46,7 +46,7 @@ namespace Nz
 	*
 	* \see Configure
 	*/
-	inline void Material::Configure(const MaterialPipelineInfo& pipelineInfo)
+	inline void MaterialPass::Configure(const MaterialPipelineInfo& pipelineInfo)
 	{
 		m_pipelineInfo = pipelineInfo;
 
@@ -67,7 +67,7 @@ namespace Nz
 	* \see SetDstBlend
 	* \see SetSrcBlend
 	*/
-	inline void Material::EnableBlending(bool blending)
+	inline void MaterialPass::EnableBlending(bool blending)
 	{
 		m_pipelineInfo.blending = blending;
 
@@ -83,7 +83,7 @@ namespace Nz
 	*
 	* \see IsColorWritingEnabled
 	*/
-	inline void Material::EnableColorWrite(bool colorWrite)
+	inline void MaterialPass::EnableColorWrite(bool colorWrite)
 	{
 		m_pipelineInfo.colorWrite = colorWrite;
 
@@ -108,7 +108,7 @@ namespace Nz
 	* \see IsDepthBufferEnabled
 	* \see SetDepthFunc
 	*/
-	inline void Material::EnableDepthBuffer(bool depthBuffer)
+	inline void MaterialPass::EnableDepthBuffer(bool depthBuffer)
 	{
 		m_pipelineInfo.depthBuffer = depthBuffer;
 
@@ -130,7 +130,7 @@ namespace Nz
 	*
 	* \see IsDepthClampEnabled
 	*/
-	inline void Material::EnableDepthClamp(bool depthClamp)
+	inline void MaterialPass::EnableDepthClamp(bool depthClamp)
 	{
 		m_pipelineInfo.depthClamp = depthClamp;
 
@@ -153,7 +153,7 @@ namespace Nz
 	* \see EnableDepthBuffer
 	* \see IsDepthWriteEnabled
 	*/
-	inline void Material::EnableDepthWrite(bool depthWrite)
+	inline void MaterialPass::EnableDepthWrite(bool depthWrite)
 	{
 		m_pipelineInfo.depthWrite = depthWrite;
 
@@ -175,14 +175,14 @@ namespace Nz
 	* \see IsFaceCullingEnabled
 	* \see SetFaceCulling
 	*/
-	inline void Material::EnableFaceCulling(bool faceCulling)
+	inline void MaterialPass::EnableFaceCulling(bool faceCulling)
 	{
 		m_pipelineInfo.faceCulling = faceCulling;
 
 		InvalidatePipeline();
 	}
 
-	inline void Material::EnableOption(std::size_t optionIndex, bool enable)
+	inline void MaterialPass::EnableOption(std::size_t optionIndex, bool enable)
 	{
 		if (TestBit<UInt64>(m_enabledOptions, optionIndex) != enable)
 		{
@@ -203,7 +203,7 @@ namespace Nz
 	*
 	* \see IsScissorTestEnabled
 	*/
-	inline void Material::EnableScissorTest(bool scissorTest)
+	inline void MaterialPass::EnableScissorTest(bool scissorTest)
 	{
 		m_pipelineInfo.scissorTest = scissorTest;
 
@@ -221,7 +221,7 @@ namespace Nz
 	*
 	* \see IsStencilTestEnabled
 	*/
-	inline void Material::EnableStencilTest(bool stencilTest)
+	inline void MaterialPass::EnableStencilTest(bool stencilTest)
 	{
 		m_pipelineInfo.stencilTest = stencilTest;
 
@@ -236,7 +236,7 @@ namespace Nz
 	*
 	* \see GetPipeline
 	*/
-	inline void Material::EnsurePipelineUpdate() const
+	inline void MaterialPass::EnsurePipelineUpdate() const
 	{
 		if (!m_pipelineUpdated)
 			UpdatePipeline();
@@ -250,37 +250,37 @@ namespace Nz
 	* \see EnableDepthTest
 	* \see SetAmbientColor
 	*/
-	inline RendererComparison Material::GetDepthCompareFunc() const
+	inline RendererComparison MaterialPass::GetDepthCompareFunc() const
 	{
 		return m_pipelineInfo.depthCompare;
 	}
 
-	inline BlendEquation Material::GetBlendAlphaModeEquation() const
+	inline BlendEquation MaterialPass::GetBlendAlphaModeEquation() const
 	{
 		return m_pipelineInfo.blend.modeAlpha;
 	}
 
-	inline BlendEquation Material::GetBlendColorModeEquation() const
+	inline BlendEquation MaterialPass::GetBlendColorModeEquation() const
 	{
 		return m_pipelineInfo.blend.modeColor;
 	}
 
-	inline BlendFunc Material::GetBlendDstAlphaFunc() const
+	inline BlendFunc MaterialPass::GetBlendDstAlphaFunc() const
 	{
 		return m_pipelineInfo.blend.dstAlpha;
 	}
 
-	inline BlendFunc Material::GetBlendDstColorFunc() const
+	inline BlendFunc MaterialPass::GetBlendDstColorFunc() const
 	{
 		return m_pipelineInfo.blend.dstColor;
 	}
 
-	inline BlendFunc Material::GetBlendSrcAlphaFunc() const
+	inline BlendFunc MaterialPass::GetBlendSrcAlphaFunc() const
 	{
 		return m_pipelineInfo.blend.srcAlpha;
 	}
 
-	inline BlendFunc Material::GetBlendSrcColorFunc() const
+	inline BlendFunc MaterialPass::GetBlendSrcColorFunc() const
 	{
 		return m_pipelineInfo.blend.srcColor;
 	}
@@ -292,7 +292,7 @@ namespace Nz
 	*
 	* \see SetFaceCulling
 	*/
-	inline FaceSide Material::GetFaceCulling() const
+	inline FaceSide MaterialPass::GetFaceCulling() const
 	{
 		return m_pipelineInfo.cullingSide;
 	}
@@ -301,7 +301,7 @@ namespace Nz
 	* \brief Gets the face filling
 	* \return Current face filling
 	*/
-	inline FaceFilling Material::GetFaceFilling() const
+	inline FaceFilling MaterialPass::GetFaceFilling() const
 	{
 		return m_pipelineInfo.faceFilling;
 	}
@@ -310,7 +310,7 @@ namespace Nz
 	* \brief Gets the line width of this material
 	* \return Line width
 	*/
-	inline float Material::GetLineWidth() const
+	inline float MaterialPass::GetLineWidth() const
 	{
 		return m_pipelineInfo.lineWidth;
 	}
@@ -319,7 +319,7 @@ namespace Nz
 	* \brief Gets the render states
 	* \return Constant reference to the render states
 	*/
-	inline const std::shared_ptr<MaterialPipeline>& Material::GetPipeline() const
+	inline const std::shared_ptr<MaterialPipeline>& MaterialPass::GetPipeline() const
 	{
 		EnsurePipelineUpdate();
 
@@ -330,7 +330,7 @@ namespace Nz
 	* \brief Gets the pipeline informations
 	* \return Constant reference to the pipeline info
 	*/
-	inline const MaterialPipelineInfo& Material::GetPipelineInfo() const
+	inline const MaterialPipelineInfo& MaterialPass::GetPipelineInfo() const
 	{
 		return m_pipelineInfo;
 	}
@@ -339,17 +339,17 @@ namespace Nz
 	* \brief Gets the point size of this material
 	* \return Point size
 	*/
-	inline float Material::GetPointSize() const
+	inline float MaterialPass::GetPointSize() const
 	{
 		return m_pipelineInfo.pointSize;
 	}
 
-	inline PrimitiveMode Material::GetPrimitiveMode() const
+	inline PrimitiveMode MaterialPass::GetPrimitiveMode() const
 	{
 		return m_pipelineInfo.primitiveMode;
 	}
 
-	inline const std::shared_ptr<const MaterialSettings>& Material::GetSettings() const
+	inline const std::shared_ptr<const MaterialSettings>& MaterialPass::GetSettings() const
 	{
 		return m_settings;
 	}
@@ -358,42 +358,42 @@ namespace Nz
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
-	inline const std::shared_ptr<UberShader>& Material::GetShader(ShaderStageType shaderStage) const
+	inline const std::shared_ptr<UberShader>& MaterialPass::GetShader(ShaderStageType shaderStage) const
 	{
 		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
 	}
 
-	inline ShaderBinding& Material::GetShaderBinding()
+	inline ShaderBinding& MaterialPass::GetShaderBinding()
 	{
 		assert(m_shaderBinding);
 		return *m_shaderBinding;
 	}
 
-	inline const std::shared_ptr<Texture>& Material::GetTexture(std::size_t textureIndex) const
+	inline const std::shared_ptr<Texture>& MaterialPass::GetTexture(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		return m_textures[textureIndex].texture;
 	}
 
-	inline const TextureSamplerInfo& Material::GetTextureSampler(std::size_t textureIndex) const
+	inline const TextureSamplerInfo& MaterialPass::GetTextureSampler(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		return m_textures[textureIndex].samplerInfo;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& Material::GetUniformBuffer(std::size_t bufferIndex) const
+	inline const std::shared_ptr<AbstractBuffer>& MaterialPass::GetUniformBuffer(std::size_t bufferIndex) const
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex].buffer;
 	}
 
-	inline const std::vector<UInt8>& Material::GetUniformBufferConstData(std::size_t bufferIndex)
+	inline const std::vector<UInt8>& MaterialPass::GetUniformBufferConstData(std::size_t bufferIndex)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex].data;
 	}
 
-	inline std::vector<UInt8>& Material::GetUniformBufferData(std::size_t bufferIndex)
+	inline std::vector<UInt8>& MaterialPass::GetUniformBufferData(std::size_t bufferIndex)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		UniformBuffer& uboEntry = m_uniformBuffers[bufferIndex];
@@ -402,7 +402,7 @@ namespace Nz
 		return uboEntry.data;
 	}
 
-	inline bool Material::HasTexture(std::size_t textureIndex) const
+	inline bool MaterialPass::HasTexture(std::size_t textureIndex) const
 	{
 		return GetTexture(textureIndex) != nullptr;
 	}
@@ -411,7 +411,7 @@ namespace Nz
 	* \brief Checks whether this material has blending enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsBlendingEnabled() const
+	inline bool MaterialPass::IsBlendingEnabled() const
 	{
 		return m_pipelineInfo.blending;
 	}
@@ -420,7 +420,7 @@ namespace Nz
 	* \brief Checks whether this material has color write enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsColorWriteEnabled() const
+	inline bool MaterialPass::IsColorWriteEnabled() const
 	{
 		return m_pipelineInfo.colorWrite;
 	}
@@ -429,7 +429,7 @@ namespace Nz
 	* \brief Checks whether this material has depth buffer enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsDepthBufferEnabled() const
+	inline bool MaterialPass::IsDepthBufferEnabled() const
 	{
 		return m_pipelineInfo.depthBuffer;
 	}
@@ -438,7 +438,7 @@ namespace Nz
 	* \brief Checks whether this material has depth clamping enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsDepthClampEnabled() const
+	inline bool MaterialPass::IsDepthClampEnabled() const
 	{
 		return m_pipelineInfo.depthClamp;
 	}
@@ -447,7 +447,7 @@ namespace Nz
 	* \brief Checks whether this material has depth writing enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsDepthWriteEnabled() const
+	inline bool MaterialPass::IsDepthWriteEnabled() const
 	{
 		return m_pipelineInfo.depthWrite;
 	}
@@ -456,12 +456,12 @@ namespace Nz
 	* \brief Checks whether this material has face culling enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsFaceCullingEnabled() const
+	inline bool MaterialPass::IsFaceCullingEnabled() const
 	{
 		return m_pipelineInfo.faceCulling;
 	}
 
-	inline bool Material::IsOptionEnabled(std::size_t optionIndex) const
+	inline bool MaterialPass::IsOptionEnabled(std::size_t optionIndex) const
 	{
 		return TestBit<UInt64>(m_enabledOptions, optionIndex);
 	}
@@ -470,7 +470,7 @@ namespace Nz
 	* \brief Checks whether this material has scissor test enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsScissorTestEnabled() const
+	inline bool MaterialPass::IsScissorTestEnabled() const
 	{
 		return m_pipelineInfo.scissorTest;
 	}
@@ -479,7 +479,7 @@ namespace Nz
 	* \brief Checks whether this material has stencil test enabled
 	* \return true If it is the case
 	*/
-	inline bool Material::IsStencilTestEnabled() const
+	inline bool MaterialPass::IsStencilTestEnabled() const
 	{
 		return m_pipelineInfo.stencilTest;
 	}
@@ -491,14 +491,14 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void Material::SetDepthCompareFunc(RendererComparison depthFunc)
+	inline void MaterialPass::SetDepthCompareFunc(RendererComparison depthFunc)
 	{
 		m_pipelineInfo.depthCompare = depthFunc;
 
 		InvalidatePipeline();
 	}
 
-	inline void Material::SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode)
+	inline void MaterialPass::SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode)
 	{
 		m_pipelineInfo.blend.modeAlpha = alphaMode;
 		m_pipelineInfo.blend.modeColor = colorMode;
@@ -506,7 +506,7 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void Material::SetBlendFunc(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha)
+	inline void MaterialPass::SetBlendFunc(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha)
 	{
 		m_pipelineInfo.blend.dstAlpha = dstAlpha;
 		m_pipelineInfo.blend.dstColor = dstColor;
@@ -523,7 +523,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void Material::SetFaceCulling(FaceSide faceSide)
+	inline void MaterialPass::SetFaceCulling(FaceSide faceSide)
 	{
 		m_pipelineInfo.cullingSide = faceSide;
 
@@ -537,7 +537,7 @@ namespace Nz
 	*
 	* \remark Invalidates the pipeline
 	*/
-	inline void Material::SetFaceFilling(FaceFilling filling)
+	inline void MaterialPass::SetFaceFilling(FaceFilling filling)
 	{
 		m_pipelineInfo.faceFilling = filling;
 
@@ -555,7 +555,7 @@ namespace Nz
 	*
 	* \see GetLineWidth
 	*/
-	inline void Material::SetLineWidth(float lineWidth)
+	inline void MaterialPass::SetLineWidth(float lineWidth)
 	{
 		m_pipelineInfo.lineWidth = lineWidth;
 
@@ -573,7 +573,7 @@ namespace Nz
 	*
 	* \see GetPointSize
 	*/
-	inline void Material::SetPointSize(float pointSize)
+	inline void MaterialPass::SetPointSize(float pointSize)
 	{
 		m_pipelineInfo.pointSize = pointSize;
 
@@ -581,14 +581,14 @@ namespace Nz
 	}
 
 
-	inline void Material::SetPrimitiveMode(PrimitiveMode mode)
+	inline void MaterialPass::SetPrimitiveMode(PrimitiveMode mode)
 	{
 		m_pipelineInfo.primitiveMode = mode;
 
 		InvalidatePipeline();
 	}
 
-	inline void Material::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
+	inline void MaterialPass::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		if (m_textures[textureIndex].texture != texture)
@@ -598,7 +598,7 @@ namespace Nz
 		}
 	}
 
-	inline void Material::SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo)
+	inline void MaterialPass::SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
 		if (m_textures[textureIndex].samplerInfo != samplerInfo)
@@ -608,7 +608,7 @@ namespace Nz
 		}
 	}
 
-	inline void Material::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer)
+	inline void MaterialPass::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
 		if (m_uniformBuffers[bufferIndex].buffer != uniformBuffer)
@@ -619,19 +619,19 @@ namespace Nz
 		}
 	}
 
-	inline void Material::InvalidatePipeline()
+	inline void MaterialPass::InvalidatePipeline()
 	{
 		m_pipelineUpdated = false;
 		OnMaterialInvalidated(this);
 	}
 
-	inline void Material::InvalidateShaderBinding()
+	inline void MaterialPass::InvalidateShaderBinding()
 	{
 		m_shaderBindingUpdated = false;
 		OnMaterialInvalidated(this);
 	}
 
-	inline void Material::InvalidateTextureSampler(std::size_t textureIndex)
+	inline void MaterialPass::InvalidateTextureSampler(std::size_t textureIndex)
 	{
 		assert(textureIndex < m_textures.size());
 		m_textures[textureIndex].sampler.reset();
@@ -639,7 +639,7 @@ namespace Nz
 		InvalidateShaderBinding();
 	}
 
-	inline void Material::InvalidateUniformData(std::size_t uniformBufferIndex)
+	inline void MaterialPass::InvalidateUniformData(std::size_t uniformBufferIndex)
 	{
 		assert(uniformBufferIndex < m_uniformBuffers.size());
 		UniformBuffer& uboEntry = m_uniformBuffers[uniformBufferIndex];

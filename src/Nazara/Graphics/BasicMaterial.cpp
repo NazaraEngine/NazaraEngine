@@ -26,7 +26,7 @@ namespace Nz
 		};
 	}
 
-	BasicMaterial::BasicMaterial(Material& material) :
+	BasicMaterial::BasicMaterial(MaterialPass& material) :
 	m_material(material)
 	{
 		// Most common case: don't fetch texture indexes as a little optimization

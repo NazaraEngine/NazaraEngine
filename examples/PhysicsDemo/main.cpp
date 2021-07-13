@@ -75,7 +75,7 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> material = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 	material->EnableDepthBuffer(true);
 	material->EnableDepthClamp(true);
 	material->EnableFaceCulling(true);
@@ -111,7 +111,7 @@ int main()
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
-	std::shared_ptr<Nz::Material> colliderMat = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> colliderMat = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 	colliderMat->EnableDepthBuffer(true);
 	colliderMat->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
 

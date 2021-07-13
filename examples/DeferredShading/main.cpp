@@ -189,7 +189,7 @@ int main()
 
 	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
-	std::shared_ptr<Nz::Material> spaceshipMat = std::make_shared<Nz::Material>(customMatSettings);
+	std::shared_ptr<Nz::MaterialPass> spaceshipMat = std::make_shared<Nz::MaterialPass>(customMatSettings);
 	spaceshipMat->EnableDepthBuffer(true);
 	{
 		Nz::BasicMaterial basicMat(*spaceshipMat);
@@ -198,7 +198,7 @@ int main()
 		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	}
 
-	std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>(customMatSettings);
+	std::shared_ptr<Nz::MaterialPass> planeMat = std::make_shared<Nz::MaterialPass>(customMatSettings);
 	planeMat->EnableDepthBuffer(true);
 	{
 		Nz::BasicMaterial basicMat(*planeMat);

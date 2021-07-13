@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -57,7 +57,7 @@ namespace Nz
 		return m_graphicalMesh->GetIndexCount(subMeshIndex);
 	}
 
-	const std::shared_ptr<Material>& Model::GetMaterial(std::size_t subMeshIndex) const
+	const std::shared_ptr<MaterialPass>& Model::GetMaterial(std::size_t subMeshIndex) const
 	{
 		assert(subMeshIndex < m_subMeshes.size());
 		const auto& subMeshData = m_subMeshes[subMeshIndex];
