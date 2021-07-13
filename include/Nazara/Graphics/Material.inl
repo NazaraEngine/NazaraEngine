@@ -552,7 +552,7 @@ namespace Nz
 	*/
 	inline bool Material::IsDepthClampEnabled() const
 	{
-		return false;
+		return m_pipelineInfo.depthClamp;
 	}
 
 	/*!
