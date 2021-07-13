@@ -12,7 +12,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <optional>
 #include <unordered_map>
@@ -44,14 +44,14 @@ namespace Nz
 
 		private:
 			BakedFrameGraph BuildFrameGraph();
-			void RegisterMaterial(Material* material);
-			void UnregisterMaterial(Material* material);
+			void RegisterMaterial(MaterialPass* material);
+			void UnregisterMaterial(MaterialPass* material);
 
 			struct MaterialData
 			{
 				std::size_t usedCount = 0;
 
-				NazaraSlot(Material, OnMaterialInvalidated, onMaterialInvalided);
+				NazaraSlot(MaterialPass, OnMaterialInvalidated, onMaterialInvalided);
 			};
 
 			struct RenderableData
@@ -68,10 +68,10 @@ namespace Nz
 
 			std::size_t m_forwardPass;
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
-			std::unordered_map<Material*, MaterialData> m_materials;
+			std::unordered_map<MaterialPass*, MaterialData> m_materials;
 			std::unordered_map<WorldInstance*, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
 			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
-			std::unordered_set<Material*> m_invalidatedMaterials;
+			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
 			BakedFrameGraph m_bakedFrameGraph;
 			bool m_rebuildFrameGraph;

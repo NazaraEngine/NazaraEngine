@@ -15,7 +15,7 @@
 namespace Nz
 {
 	class CommandBufferBuilder;
-	class Material;
+	class MaterialPass;
 	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API InstancedRenderable
@@ -28,13 +28,13 @@ namespace Nz
 
 			virtual void Draw(CommandBufferBuilder& commandBuffer) const = 0;
 
-			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
+			virtual const std::shared_ptr<MaterialPass>& GetMaterial(std::size_t i) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
 
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
 
-			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<Material>& /*newMaterial*/);
+			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<MaterialPass>& /*newMaterial*/);
 	};
 }
 

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BASE_MATERIAL_HPP
-#define NAZARA_BASE_MATERIAL_HPP
+#ifndef NAZARA_MATERIAL_PASS_HPP
+#define NAZARA_MATERIAL_PASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -30,11 +30,11 @@ namespace Nz
 	class CommandBufferBuilder;
 	class RenderFrame;
 
-	class NAZARA_GRAPHICS_API Material : public Resource
+	class NAZARA_GRAPHICS_API MaterialPass : public Resource
 	{
 		public:
-			Material(std::shared_ptr<const MaterialSettings> settings);
-			inline ~Material();
+			MaterialPass(std::shared_ptr<const MaterialSettings> settings);
+			inline ~MaterialPass();
 
 			inline void Configure(std::shared_ptr<MaterialPipeline> pipeline);
 			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
@@ -101,8 +101,8 @@ namespace Nz
 			bool Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
 
 			// Signals:
-			NazaraSignal(OnMaterialInvalidated, const Material* /*material*/);
-			NazaraSignal(OnMaterialRelease, const Material* /*material*/);
+			NazaraSignal(OnMaterialInvalidated, const MaterialPass* /*material*/);
+			NazaraSignal(OnMaterialRelease, const MaterialPass* /*material*/);
 
 		private:
 			inline void InvalidatePipeline();
@@ -138,6 +138,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/Material.inl>
+#include <Nazara/Graphics/MaterialPass.inl>
 
-#endif // NAZARA_BASE_MATERIAL_HPP
+#endif // NAZARA_MATERIAL_PASS_HPP

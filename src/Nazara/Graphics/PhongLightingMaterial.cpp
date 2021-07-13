@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	PhongLightingMaterial::PhongLightingMaterial(Material& material) :
+	PhongLightingMaterial::PhongLightingMaterial(MaterialPass& material) :
 	m_material(material)
 	{
 		// Most common case: don't fetch texture indexes as a little optimization

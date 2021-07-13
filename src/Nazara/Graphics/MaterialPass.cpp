@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
@@ -26,7 +26,7 @@ namespace Nz
 	*
 	* \see Reset
 	*/
-	Material::Material(std::shared_ptr<const MaterialSettings> settings) :
+	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
 	m_enabledOptions(0),
 	m_pipelineUpdated(false),
@@ -64,7 +64,7 @@ namespace Nz
 		UpdateShaderBinding();
 	}
 
-	bool Material::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	bool MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		bool shouldRegenerateCommandBuffer = false;
 		if (!m_shaderBindingUpdated)
@@ -95,7 +95,7 @@ namespace Nz
 		return shouldRegenerateCommandBuffer;
 	}
 
-	void Material::UpdatePipeline() const
+	void MaterialPass::UpdatePipeline() const
 	{
 		for (auto& shader : m_pipelineInfo.shaders)
 			shader.enabledOptions = 0;
@@ -122,7 +122,7 @@ namespace Nz
 		m_pipelineUpdated = true;
 	}
 
-	void Material::UpdateShaderBinding()
+	void MaterialPass::UpdateShaderBinding()
 	{
 		assert(!m_shaderBinding);
 
