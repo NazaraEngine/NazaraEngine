@@ -138,26 +138,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Enable/Disable depth sorting for this material
-	*
-	* When enabled, all objects using this material will be rendered far from near
-	* This is useful with translucent objects, but will reduces performance as it breaks batching
-	*
-	* \param depthSorting Defines if this material will use depth sorting
-	*
-	* \remark Depth sorting may not be perfect (may be object-sorting instead of triangle-sorting)
-	* \remark Invalidates the pipeline
-	*
-	* \see IsDepthSortingEnabled
-	*/
-	inline void Material::EnableDepthSorting(bool depthSorting)
-	{
-		m_pipelineInfo.depthSorting = depthSorting;
-
-		InvalidatePipeline();
-	}
-
-	/*!
 	* \brief Enable/Disable depth writing for this material
 	*
 	* When enabled, and if depth buffer is enabled and present, all fragments generated with this material will write
@@ -212,31 +192,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Enable/Disable reflection mapping for this material
-	*
-	* When enabled, the material will render reflections from the object environment according to the reflection mode.
-	* Whether or not this is expensive depends of the reflection mode and size.
-	*
-	* Please note this is only a hint for the render technique, and reflections can be forcefully enabled or disabled depending on the material shader.
-	*
-	* Use SetReflectionMode and SetReflectionSize to control reflection quality.
-	*
-	* \param reflection Defines if this material should use reflection mapping
-	*
-	* \remark May invalidates the pipeline
-	*
-	* \see IsReflectionMappingEnabled
-	* \see SetReflectionMode
-	* \see SetReflectionSize
-	*/
-	inline void Material::EnableReflectionMapping(bool reflection)
-	{
-		m_pipelineInfo.reflectionMapping = reflection;
-
-		InvalidatePipeline();
-	}
-
-	/*!
 	* \brief Enable/Disable scissor test for this material
 	*
 	* When enabled, the material prevents fragments out of the scissor box to be rendered.
@@ -256,45 +211,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Enable/Disable shadow casting for this material
-	*
-	* When enabled, all objects using this material will be allowed to cast shadows upon any objects using a material with shadow receiving enabled.
-	* The depth material replaces this one when rendering shadows.
-	*
-	* \param castShadows Defines if this material will be allowed to cast shadows
-	*
-	* \remark Does not invalidate the pipeline
-	*
-	* \see EnableShadowReceive
-	* \see IsShadowCastingEnabled
-	* \see SetDepthMaterial
-	*/
-	inline void Material::EnableShadowCasting(bool castShadows)
-	{
-		// Has no influence on pipeline
-		m_shadowCastingEnabled = castShadows;
-	}
-
-	/*!
-	* \brief Enable/Disable shadow receiving for this material
-	*
-	* When enabled, all objects using this material will be allowed to be casted shadows upon themselves
-	* Disabling this can be helpful to prevent some rendering artifacts (especially with translucent objects)
-	*
-	* \param receiveShadows Defines if this material will be able to receive shadows
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see IsShadowReceiveEnabled
-	*/
-	inline void Material::EnableShadowReceive(bool receiveShadows)
-	{
-		m_pipelineInfo.shadowReceive = receiveShadows;
-
-		InvalidatePipeline();
-	}
-
-	/*!
 	* \brief Enable/Disable stencil test for this material
 	*
 	* When enabled, all fragments must pass the stencil test to be rendered.
@@ -308,25 +224,6 @@ namespace Nz
 	inline void Material::EnableStencilTest(bool stencilTest)
 	{
 		m_pipelineInfo.stencilTest = stencilTest;
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Enable/Disable vertex coloring on this material
-	*
-	* This is a temporary option, until the new material pipeline system is ready, allowing to enable vertex coloring.
-	* This option only works with meshes using vertex colors.
-	*
-	* \param vertexColor Defines if this material will use vertex color or not
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see HasVertexColor
-	*/
-	inline void Material::EnableVertexColor(bool vertexColor)
-	{
-		m_pipelineInfo.hasVertexColor = vertexColor;
 
 		InvalidatePipeline();
 	}
@@ -511,15 +408,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether this material uses vertex coloring
-	* \return true If it is the case
-	*/
-	inline bool Material::HasVertexColor() const
-	{
-		return m_pipelineInfo.hasVertexColor;
-	}
-
-	/*!
 	* \brief Checks whether this material has blending enabled
 	* \return true If it is the case
 	*/
@@ -556,15 +444,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether this material has depth sorting enabled
-	* \return true If it is the case
-	*/
-	inline bool Material::IsDepthSortingEnabled() const
-	{
-		return m_pipelineInfo.depthSorting;
-	}
-
-	/*!
 	* \brief Checks whether this material has depth writing enabled
 	* \return true If it is the case
 	*/
@@ -588,17 +467,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether this material has reflection mapping enabled
-	* \return true If it is the case
-	*
-	* \see EnableReflectionMapping
-	*/
-	inline bool Material::IsReflectionMappingEnabled() const
-	{
-		return m_pipelineInfo.reflectionMapping;
-	}
-
-	/*!
 	* \brief Checks whether this material has scissor test enabled
 	* \return true If it is the case
 	*/
@@ -614,24 +482,6 @@ namespace Nz
 	inline bool Material::IsStencilTestEnabled() const
 	{
 		return m_pipelineInfo.stencilTest;
-	}
-
-	/*!
-	* \brief Checks whether this material cast shadow
-	* \return true If it is the case
-	*/
-	inline bool Material::IsShadowCastingEnabled() const
-	{
-		return m_shadowCastingEnabled;
-	}
-
-	/*!
-	* \brief Checks whether this material receive shadow
-	* \return true If it is the case
-	*/
-	inline bool Material::IsShadowReceiveEnabled() const
-	{
-		return m_pipelineInfo.shadowReceive;
 	}
 
 	/*!

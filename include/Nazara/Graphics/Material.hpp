@@ -43,16 +43,11 @@ namespace Nz
 			inline void EnableColorWrite(bool colorWrite);
 			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthClamp(bool depthClamp);
-			inline void EnableDepthSorting(bool depthSorting);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
 			inline void EnableOption(std::size_t optionIndex, bool enable);
-			inline void EnableReflectionMapping(bool reflection);
 			inline void EnableScissorTest(bool scissorTest);
-			inline void EnableShadowCasting(bool castShadows);
-			inline void EnableShadowReceive(bool receiveShadows);
 			inline void EnableStencilTest(bool stencilTest);
-			inline void EnableVertexColor(bool vertexColor);
 
 			inline void EnsurePipelineUpdate() const;
 
@@ -80,21 +75,16 @@ namespace Nz
 			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
 
 			inline bool HasTexture(std::size_t textureIndex) const;
-			inline bool HasVertexColor() const;
 
 			inline bool IsBlendingEnabled() const;
 			inline bool IsColorWriteEnabled() const;
 			inline bool IsDepthBufferEnabled() const;
 			inline bool IsDepthClampEnabled() const;
-			inline bool IsDepthSortingEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
 			inline bool IsOptionEnabled(std::size_t optionIndex) const;
-			inline bool IsReflectionMappingEnabled() const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
-			inline bool IsShadowCastingEnabled() const;
-			inline bool IsShadowReceiveEnabled() const;
 
 			inline void SetDepthCompareFunc(RendererComparison depthFunc);
 			inline void SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode);
@@ -145,7 +135,6 @@ namespace Nz
 			ShaderBindingPtr m_shaderBinding;
 			mutable bool m_pipelineUpdated;
 			bool m_shaderBindingUpdated;
-			bool m_shadowCastingEnabled;
 	};
 }
 

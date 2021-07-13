@@ -27,11 +27,6 @@ namespace Nz
 			Nz::UInt64 enabledOptions = 0;
 		};
 
-		bool depthSorting      = false;
-		bool hasVertexColor    = false;
-		bool reflectionMapping = false;
-		bool shadowReceive     = true;
-
 		std::vector<Shader> shaders;
 		std::shared_ptr<const MaterialSettings> settings;
 	};
