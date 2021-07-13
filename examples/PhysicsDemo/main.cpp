@@ -170,8 +170,6 @@ int main()
 		}
 	}
 
-	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
-
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
 
@@ -215,20 +213,29 @@ int main()
 						{
 							auto view = registry.view<Nz::GraphicsComponent>();
 							for (auto [entity, gfxComponent] : view.each())
-							{
 								gfxComponent.AttachRenderable(colliderModel);
-								registry.patch<Nz::GraphicsComponent>(entity);
-							}
 						}
 						else
 						{
 							auto view = registry.view<Nz::GraphicsComponent>();
 							for (auto [entity, gfxComponent] : view.each())
-							{
 								gfxComponent.DetachRenderable(colliderModel);
-								registry.patch<Nz::GraphicsComponent>(entity);
-							}
 						}
+					}
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
+					{
+						entt::entity entity = registry.create();
+						auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
+						entityGfx.AttachRenderable(model);
+						if (showColliders)
+							entityGfx.AttachRenderable(colliderModel);
+
+						registry.emplace<Nz::NodeComponent>(entity);
+
+						auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(entity, physSytem.CreateRigidBody(shipCollider));
+						entityPhys.SetMass(1.f);
+						entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
+						entityPhys.SetLinearDamping(0.f);
 					}
 
 					break;
@@ -260,6 +267,17 @@ int main()
 			float cameraSpeed = 20.f * updateTime;
 
 			physSytem.Update(registry, 1000.f / 60.f);
+
+			auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
+			for (auto&& [entity, node, _] : spaceshipView.each())
+			{
+				if (entity == playerEntity)
+					continue;
+
+				Nz::Vector3f spaceshipPos = node.GetPosition(Nz::CoordSys::Global);
+				if (spaceshipPos.GetSquaredLength() > Nz::IntegralPow(200.f, 2))
+					registry.destroy(entity);
+			}
 
 			Nz::RigidBody3DComponent& playerShipBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
@@ -310,7 +328,7 @@ int main()
 
 		if (secondClock.GetMilliseconds() >= 1000)
 		{
-			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
+			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
 
 			fps = 0;
 
