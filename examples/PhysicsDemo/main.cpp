@@ -75,15 +75,30 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::MaterialPass> material = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	material->EnableDepthBuffer(true);
-	material->EnableDepthClamp(true);
-	material->EnableFaceCulling(true);
+	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
+
+	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
+	customSettings.shaders.clear();
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::Parse(resourceDir / "depth_vert.nzsl")));
+
+	auto depthSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
+
+	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(depthSettings);
+	depthPass->EnableDepthBuffer(true);
+	depthPass->EnableFaceCulling(true);
+
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	materialPass->EnableDepthBuffer(true);
+	materialPass->EnableDepthClamp(true);
+	materialPass->EnableFaceCulling(true);
+
+	material->AddPass("DepthPass", depthPass);
+	material->AddPass("ForwardPass", materialPass);
 
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
-	Nz::BasicMaterial basicMat(*material);
+	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
@@ -111,11 +126,15 @@ int main()
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
-	std::shared_ptr<Nz::MaterialPass> colliderMat = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	colliderMat->EnableDepthBuffer(true);
-	colliderMat->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
+	std::shared_ptr<Nz::Material> colliderMat = std::make_shared<Nz::Material>();
 
-	Nz::BasicMaterial colliderBasicMat(*colliderMat);
+	std::shared_ptr<Nz::MaterialPass> colliderMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	colliderMatPass->EnableDepthBuffer(true);
+	colliderMatPass->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
+
+	colliderMat->AddPass("ForwardPass", colliderMatPass);
+
+	Nz::BasicMaterial colliderBasicMat(*colliderMatPass);
 	colliderBasicMat.SetDiffuseColor(Nz::Color::Green);
 
 	std::shared_ptr<Nz::Model> colliderModel;
