@@ -123,8 +123,9 @@ namespace Nz
 		return m_passes[physicalPassIndex].renderPass;
 	}
 
-	bool BakedFrameGraph::Resize(unsigned int width, unsigned int height)
+	bool BakedFrameGraph::Resize(RenderFrame& renderFrame)
 	{
+		auto [width, height] = renderFrame.GetSize();
 		if (m_width == width && m_height == height)
 			return false;
 
@@ -133,12 +134,12 @@ namespace Nz
 		// Delete previous textures to make some room in VRAM
 		for (auto& passData : m_passes)
 		{
-			passData.commandBuffer.reset();
-			passData.framebuffer.reset();
+			renderFrame.PushForRelease(std::move(passData.commandBuffer));
+			renderFrame.PushForRelease(std::move(passData.framebuffer));
 		}
 
 		for (auto& textureData : m_textures)
-			textureData.texture.reset();
+			renderFrame.PushForRelease(std::move(textureData.texture));
 
 		for (auto& textureData : m_textures)
 		{
