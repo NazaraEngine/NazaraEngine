@@ -62,11 +62,13 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material;
+	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
 	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 	materialPass->EnableDepthBuffer(true);
 	materialPass->EnableFaceCulling(true);
+
+	material->AddPass("ForwardPass", materialPass);
 
 	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
@@ -201,7 +203,7 @@ int main()
 				modelInstance.UpdateBuffers(uploadPool, builder);
 				modelInstance2.UpdateBuffers(uploadPool, builder);
 
-				updateMat = material->Update(frame, builder) || updateMat;
+				updateMat = materialPass->Update(frame, builder) || updateMat;
 
 				builder.PostTransferBarrier();
 			}
@@ -229,15 +231,7 @@ int main()
 					{
 						builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, instance.GetShaderBinding());
 
-						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-						{
-							builder.BindIndexBuffer(model.GetIndexBuffer(i).get());
-							builder.BindVertexBuffer(0, model.GetVertexBuffer(i).get());
-							builder.BindPipeline(*model.GetRenderPipeline(i));
-							builder.BindShaderBinding(Nz::Graphics::MaterialBindingSet, model.GetMaterial(i)->GetShaderBinding());
-
-							builder.DrawIndexed(model.GetIndexCount(i));
-						}
+						model.Draw("ForwardPass", builder);
 					}
 				}
 				builder.EndRenderPass();
