@@ -67,7 +67,7 @@ namespace Nz
 	*/
 	float Audio::GetGlobalVolume() const
 	{
-		oad::ALfloat gain = 0.f;
+		ALfloat gain = 0.f;
 		alGetListenerf(AL_GAIN, &gain);
 
 		return gain * 100.f;
@@ -81,7 +81,7 @@ namespace Nz
 	*/
 	Vector3f Audio::GetListenerDirection() const
 	{
-		oad::ALfloat orientation[6];
+		ALfloat orientation[6];
 		alGetListenerfv(AL_ORIENTATION, orientation);
 
 		return Vector3f(orientation[0], orientation[1], orientation[2]);
@@ -107,7 +107,7 @@ namespace Nz
 	*/
 	Quaternionf Audio::GetListenerRotation() const
 	{
-		oad::ALfloat orientation[6];
+		ALfloat orientation[6];
 		alGetListenerfv(AL_ORIENTATION, orientation);
 
 		Vector3f forward(orientation[0], orientation[1], orientation[2]);
@@ -222,7 +222,7 @@ namespace Nz
 	{
 		Vector3f up = Vector3f::Up();
 
-		oad::ALfloat orientation[6] =
+		ALfloat orientation[6] =
 		{
 			direction.x, direction.y, direction.z,
 			up.x, up.y, up.z
@@ -243,7 +243,7 @@ namespace Nz
 	{
 		Vector3f up = Vector3f::Up();
 
-		oad::ALfloat orientation[6] =
+		ALfloat orientation[6] =
 		{
 			dirX, dirY, dirZ,
 			up.x, up.y, up.z
@@ -289,7 +289,7 @@ namespace Nz
 		Vector3f forward = rotation * Vector3f::Forward();
 		Vector3f up = Vector3f::Up();
 
-		oad::ALfloat orientation[6] =
+		ALfloat orientation[6] =
 		{
 			forward.x, forward.y, forward.z,
 			up.x, up.y, up.z

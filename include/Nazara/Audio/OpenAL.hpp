@@ -27,7 +27,35 @@ namespace OpenALDetail
 }
 
 // If someone has a better idea ...
-namespace oad = OpenALDetail;
+using OpenALDetail::ALboolean;
+using OpenALDetail::ALbyte;
+using OpenALDetail::ALchar;
+using OpenALDetail::ALdouble;
+using OpenALDetail::ALenum;
+using OpenALDetail::ALfloat;
+using OpenALDetail::ALint;
+using OpenALDetail::ALshort;
+using OpenALDetail::ALsizei;
+using OpenALDetail::ALubyte;
+using OpenALDetail::ALuint;
+using OpenALDetail::ALushort;
+using OpenALDetail::ALvoid;
+
+using OpenALDetail::ALCboolean;
+using OpenALDetail::ALCbyte;
+using OpenALDetail::ALCchar;
+using OpenALDetail::ALCcontext;
+using OpenALDetail::ALCdevice;
+using OpenALDetail::ALCdouble;
+using OpenALDetail::ALCenum;
+using OpenALDetail::ALCfloat;
+using OpenALDetail::ALCint;
+using OpenALDetail::ALCshort;
+using OpenALDetail::ALCsizei;
+using OpenALDetail::ALCubyte;
+using OpenALDetail::ALCuint;
+using OpenALDetail::ALCushort;
+using OpenALDetail::ALCvoid;
 
 namespace Nz
 {
@@ -52,7 +80,7 @@ namespace Nz
 
 			static void Uninitialize();
 
-			static oad::ALenum AudioFormat[AudioFormatCount];
+			static ALenum AudioFormat[AudioFormatCount];
 
 		private:
 			static void CloseDevice();

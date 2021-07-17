@@ -27,7 +27,7 @@ namespace Nz
 
 	struct MusicImpl
 	{
-		oad::ALenum audioFormat;
+		ALenum audioFormat;
 		std::atomic_bool streaming = false;
 		std::atomic<UInt64> processedSamples;
 		std::vector<Int16> chunkSamples;
@@ -146,7 +146,7 @@ namespace Nz
 		// Prevent music thread from enqueing new buffers while we're getting the count
 		std::lock_guard<std::mutex> lock(m_impl->bufferLock);
 
-		oad::ALint samples = 0;
+		ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
 		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / GetChannelCount(m_impl->stream->GetFormat())))) / m_impl->sampleRate);
@@ -396,7 +396,7 @@ namespace Nz
 		// Update the buffer (send it to OpenAL) and queue it if we got any data
 		if (sampleRead > 0)
 		{
-			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], static_cast<oad::ALsizei>(sampleRead*sizeof(Int16)), static_cast<oad::ALsizei>(m_impl->sampleRate));
+			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], static_cast<ALsizei>(sampleRead*sizeof(Int16)), static_cast<ALsizei>(m_impl->sampleRate));
 			alSourceQueueBuffers(m_source, 1, &buffer);
 		}
 
@@ -406,7 +406,7 @@ namespace Nz
 	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err)
 	{
 		// Allocation of streaming buffers
-		std::array<oad::ALuint, NAZARA_AUDIO_STREAMED_BUFFER_COUNT> buffers;
+		std::array<ALuint, NAZARA_AUDIO_STREAMED_BUFFER_COUNT> buffers;
 		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
 
 		CallOnExit freebuffers([&]
@@ -417,7 +417,7 @@ namespace Nz
 
 		try
 		{
-			for (oad::ALuint buffer : buffers) //Maybe use auto in place of oad::ALuint
+			for (ALuint buffer : buffers)
 			{
 				if (FillAndQueueBuffer(buffer))
 					break; // We have reached the end of the stream, there is no use to add new buffers
@@ -435,11 +435,11 @@ namespace Nz
 		CallOnExit unqueueBuffers([&]
 		{
 			// We delete buffers from the stream
-			oad::ALint queuedBufferCount;
+			ALint queuedBufferCount;
 			alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
 
-			oad::ALuint buffer;
-			for (oad::ALint i = 0; i < queuedBufferCount; ++i)
+			ALuint buffer;
+			for (ALint i = 0; i < queuedBufferCount; ++i)
 				alSourceUnqueueBuffers(m_source, 1, &buffer);
 		});
 
@@ -472,14 +472,14 @@ namespace Nz
 				std::lock_guard<std::mutex> lock(m_impl->bufferLock);
 
 				// We treat read buffers
-				oad::ALint processedCount = 0;
+				ALint processedCount = 0;
 				alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
 				while (processedCount--)
 				{
-					oad::ALuint buffer;
+					ALuint buffer;
 					alSourceUnqueueBuffers(m_source, 1, &buffer);
 
-					oad::ALint bits, size;
+					ALint bits, size;
 					alGetBufferi(buffer, AL_BITS, &bits);
 					alGetBufferi(buffer, AL_SIZE, &size);
 

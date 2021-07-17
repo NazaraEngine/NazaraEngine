@@ -38,7 +38,7 @@ namespace Nz
 
 	struct SoundBufferImpl
 	{
-		oad::ALuint buffer;
+		ALuint buffer;
 		AudioFormat format;
 		UInt32 duration;
 		std::unique_ptr<Int16[]> samples;
@@ -121,7 +121,7 @@ namespace Nz
 		// We empty the error stack
 		while (alGetError() != AL_NO_ERROR);
 
-		oad::ALuint buffer;
+		ALuint buffer;
 		alGenBuffers(1, &buffer);
 		if (alGetError() != AL_NO_ERROR)
 		{
@@ -131,7 +131,7 @@ namespace Nz
 
 		CallOnExit clearBufferOnExit([buffer] () { alDeleteBuffers(1, &buffer); });
 
-		alBufferData(buffer, OpenAL::AudioFormat[UnderlyingCast(format)], samples, static_cast<oad::ALsizei>(sampleCount*sizeof(Int16)), static_cast<oad::ALsizei>(sampleRate));
+		alBufferData(buffer, OpenAL::AudioFormat[UnderlyingCast(format)], samples, static_cast<ALsizei>(sampleCount*sizeof(Int16)), static_cast<ALsizei>(sampleRate));
 
 		if (alGetError() != AL_NO_ERROR)
 		{
