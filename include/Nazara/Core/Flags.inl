@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Flags.hpp>
+#include <utility>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -373,6 +374,21 @@ namespace Nz
 			return Flags<E>(lhs) ^ rhs;
 		}
 	}
+}
+
+namespace std
+{
+	template<typename E>
+	struct hash<Nz::Flags<E>>
+	{
+		std::size_t operator()(const Nz::Flags<E>& flags)
+		{
+			using UnderlyingType = typename Nz::Flags<E>::BitField;
+			using Hasher = hash<UnderlyingType>;
+			Hasher hasher;
+			return hasher(static_cast<UnderlyingType>(flags));
+		}
+	};
 }
 
 #include <Nazara/Core/DebugOff.hpp>
