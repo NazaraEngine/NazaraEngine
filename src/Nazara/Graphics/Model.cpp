@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -29,16 +29,21 @@ namespace Nz
 		}
 	}
 
-	void Model::Draw(CommandBufferBuilder& commandBuffer) const
+	void Model::Draw(const std::string& pass, CommandBufferBuilder& commandBuffer) const
 	{
 		for (std::size_t i = 0; i < m_subMeshes.size(); ++i)
 		{
 			const auto& submeshData = m_subMeshes[i];
+
+			MaterialPass* materialPass = submeshData.material->GetPass(pass);
+			if (!materialPass)
+				continue;
+
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
-			const auto& renderPipeline = submeshData.material->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
+			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
-			commandBuffer.BindShaderBinding(Graphics::MaterialBindingSet, submeshData.material->GetShaderBinding());
+			commandBuffer.BindShaderBinding(Graphics::MaterialBindingSet, materialPass->GetShaderBinding());
 			commandBuffer.BindIndexBuffer(indexBuffer.get());
 			commandBuffer.BindVertexBuffer(0, vertexBuffer.get());
 			commandBuffer.BindPipeline(*renderPipeline);
@@ -57,7 +62,7 @@ namespace Nz
 		return m_graphicalMesh->GetIndexCount(subMeshIndex);
 	}
 
-	const std::shared_ptr<MaterialPass>& Model::GetMaterial(std::size_t subMeshIndex) const
+	const std::shared_ptr<Material>& Model::GetMaterial(std::size_t subMeshIndex) const
 	{
 		assert(subMeshIndex < m_subMeshes.size());
 		const auto& subMeshData = m_subMeshes[subMeshIndex];
@@ -69,11 +74,11 @@ namespace Nz
 		return m_subMeshes.size();
 	}
 
-	const std::shared_ptr<RenderPipeline>& Model::GetRenderPipeline(std::size_t subMeshIndex) const
+	const std::vector<RenderPipelineInfo::VertexBufferData>& Model::GetVertexBufferData(std::size_t subMeshIndex) const
 	{
 		assert(subMeshIndex < m_subMeshes.size());
 		const auto& subMeshData = m_subMeshes[subMeshIndex];
-		return subMeshData.material->GetPipeline()->GetRenderPipeline(subMeshData.vertexBufferData);
+		return subMeshData.vertexBufferData;
 	}
 
 	const std::shared_ptr<AbstractBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
