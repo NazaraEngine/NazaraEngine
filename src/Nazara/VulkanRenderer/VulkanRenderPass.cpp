@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	inline VulkanRenderPass::VulkanRenderPass(Vk::Device& device, std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies) :
+	VulkanRenderPass::VulkanRenderPass(Vk::Device& device, std::vector<Attachment> attachments, std::vector<SubpassDescription> subpassDescriptions, std::vector<SubpassDependency> subpassDependencies) :
 	RenderPass(std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies))
 	{
 		std::size_t totalAttachmentReference = 0;
@@ -127,5 +127,10 @@ namespace Nz
 
 		if (!m_renderPass.Create(device, renderPassInfo))
 			throw std::runtime_error("failed to instantiate Vulkan render pass: " + TranslateVulkanError(m_renderPass.GetLastErrorCode()));
+	}
+
+	VulkanRenderPass::~VulkanRenderPass()
+	{
+		OnRenderPassRelease(this);
 	}
 }

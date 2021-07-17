@@ -27,11 +27,16 @@ namespace Nz
 			struct CreateInfo;
 
 			VulkanRenderPipeline(VulkanDevice& device, RenderPipelineInfo pipelineInfo);
+			VulkanRenderPipeline(const VulkanRenderPipeline&) = delete;
+			VulkanRenderPipeline(VulkanRenderPipeline&&) = delete;
 			~VulkanRenderPipeline() = default;
 
 			VkPipeline Get(const VulkanRenderPass& renderPass, std::size_t subpassIndex) const;
 
 			inline const RenderPipelineInfo& GetPipelineInfo() const override;
+
+			VulkanRenderPipeline& operator=(const VulkanRenderPipeline&) = delete;
+			VulkanRenderPipeline& operator=(VulkanRenderPipeline&&) = delete;
 
 			static std::vector<VkPipelineColorBlendAttachmentState> BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo);
 			static VkPipelineColorBlendStateCreateInfo BuildColorBlendInfo(const RenderPipelineInfo& pipelineInfo, const std::vector<VkPipelineColorBlendAttachmentState>& attachmentState);
@@ -81,7 +86,14 @@ namespace Nz
 				inline std::size_t operator()(const std::pair<VkRenderPass, std::size_t>& renderPass) const;
 			};
 
-			mutable std::unordered_map<std::pair<VkRenderPass, std::size_t>, Vk::Pipeline, PipelineHasher> m_pipelines;
+			struct PipelineData
+			{
+				NazaraSlot(VulkanRenderPass, OnRenderPassRelease, onRenderPassRelease);
+
+				Vk::Pipeline pipeline;
+			};
+
+			mutable std::unordered_map<std::pair<VkRenderPass, std::size_t>, PipelineData, PipelineHasher> m_pipelines;
 			MovablePtr<Vk::Device> m_device;
 			mutable CreateInfo m_pipelineCreateInfo;
 			RenderPipelineInfo m_pipelineInfo;
