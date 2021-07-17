@@ -851,7 +851,8 @@ namespace Nz
 
 			BuildPhysicalPassDependencies(colorAttachmentCount, depthStencilAttachmentIndex.has_value(), renderPassAttachments, subpassesDesc, subpassesDeps);
 
-			m_pending.renderPasses.push_back(renderDevice->InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
+			m_pending.renderPasses.push_back(Graphics::Instance()->GetRenderPassCache().Get(renderPassAttachments, subpassesDesc, subpassesDeps));
+			//m_pending.renderPasses.push_back(renderDevice->InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
 
 			physicalPassIndex++;
 		}
