@@ -18,7 +18,7 @@
 namespace Nz
 {
 	class GraphicalMesh;
-	class MaterialPass;
+	class Material;
 
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
 	{
@@ -28,17 +28,17 @@ namespace Nz
 			Model(Model&&) noexcept = default;
 			~Model() = default;
 
-			void Draw(CommandBufferBuilder& commandBuffer) const override;
+			void Draw(const std::string& pass, CommandBufferBuilder& commandBuffer) const override;
 
 			const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
-			const std::shared_ptr<MaterialPass>& GetMaterial(std::size_t subMeshIndex) const override;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t subMeshIndex) const override;
 			std::size_t GetMaterialCount() const override;
-			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(std::size_t subMeshIndex) const;
+			const std::vector<RenderPipelineInfo::VertexBufferData>& GetVertexBufferData(std::size_t subMeshIndex) const;
 			const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 			inline std::size_t GetSubMeshCount() const;
 
-			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialPass> material);
+			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material);
 
 			Model& operator=(const Model&) = delete;
 			Model& operator=(Model&&) noexcept = default;
@@ -46,7 +46,7 @@ namespace Nz
 		private:
 			struct SubMeshData
 			{
-				std::shared_ptr<MaterialPass> material;
+				std::shared_ptr<Material> material;
 				std::vector<RenderPipelineInfo::VertexBufferData> vertexBufferData;
 			};
 

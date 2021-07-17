@@ -44,8 +44,8 @@ namespace Nz
 
 		private:
 			BakedFrameGraph BuildFrameGraph();
-			void RegisterMaterial(MaterialPass* material);
-			void UnregisterMaterial(MaterialPass* material);
+			void RegisterMaterialPass(MaterialPass* material);
+			void UnregisterMaterialPass(MaterialPass* material);
 
 			struct MaterialData
 			{

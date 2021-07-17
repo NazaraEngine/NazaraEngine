@@ -22,7 +22,7 @@ namespace Nz
 		FaceFilling faceFilling = FaceFilling::Fill;
 		FaceSide cullingSide = FaceSide::Back;
 		FrontFace frontFace = FrontFace::CounterClockwise;
-		RendererComparison depthCompare = RendererComparison::Less;
+		RendererComparison depthCompare = RendererComparison::LessOrEqual;
 		PrimitiveMode primitiveMode = PrimitiveMode::TriangleList;
 
 		struct 
