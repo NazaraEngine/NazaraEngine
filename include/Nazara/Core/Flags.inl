@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Flags.hpp>
-#include <utility>
+#include <functional>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
