@@ -31,8 +31,6 @@
 
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
-#include <Nazara/VulkanRenderer/VkRenderTarget.hpp>
-#include <Nazara/VulkanRenderer/VkRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
@@ -46,6 +44,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
+#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
