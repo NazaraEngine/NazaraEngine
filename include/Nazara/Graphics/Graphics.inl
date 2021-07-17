@@ -42,6 +42,12 @@ namespace Nz
 		return m_renderDevice;
 	}
 
+	inline const RenderPassCache& Graphics::GetRenderPassCache() const
+	{
+		assert(m_renderPassCache);
+		return *m_renderPassCache;
+	}
+
 	inline TextureSamplerCache& Graphics::GetSamplerCache()
 	{
 		return *m_samplerCache;

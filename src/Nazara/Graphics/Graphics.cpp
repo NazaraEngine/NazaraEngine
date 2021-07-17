@@ -60,6 +60,7 @@ namespace Nz
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
 
+		m_renderPassCache.emplace(*m_renderDevice);
 		m_samplerCache.emplace(m_renderDevice);
 
 		MaterialPipeline::Initialize();
@@ -78,6 +79,7 @@ namespace Nz
 	Graphics::~Graphics()
 	{
 		MaterialPipeline::Uninitialize();
+		m_renderPassCache.reset();
 		m_samplerCache.reset();
 		m_fullscreenVertexBuffer.reset();
 		m_fullscreenVertexDeclaration.reset();
