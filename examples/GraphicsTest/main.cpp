@@ -62,11 +62,13 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::MaterialPass> material = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	material->EnableDepthBuffer(true);
-	material->EnableFaceCulling(true);
+	std::shared_ptr<Nz::Material> material;
 
-	Nz::BasicMaterial basicMat(*material);
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	materialPass->EnableDepthBuffer(true);
+	materialPass->EnableFaceCulling(true);
+
+	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
