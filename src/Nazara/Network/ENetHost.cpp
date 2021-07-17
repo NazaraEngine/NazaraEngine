@@ -489,7 +489,7 @@ namespace Nz
 		if (m_receivedDataLength < NazaraOffsetOf(ENetProtocolHeader, sentTime))
 			return false;
 
-		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData.Get());
+		auto* header = reinterpret_cast<ENetProtocolHeader*>(m_receivedData.Get());
 
 		UInt16 peerID = NetToHost(header->peerID);
 		UInt8  sessionID = (peerID & ENetProtocolHeaderSessionMask) >> ENetProtocolHeaderSessionShift;
@@ -556,7 +556,7 @@ namespace Nz
 
 		while (currentData < &m_receivedData[m_receivedDataLength])
 		{
-			ENetProtocol* command = reinterpret_cast<ENetProtocol*>(currentData);
+			auto* command = reinterpret_cast<ENetProtocol*>(currentData);
 
 			if (currentData + sizeof(ENetProtocolCommandHeader) > &m_receivedData[m_receivedDataLength])
 				break;
@@ -962,7 +962,7 @@ namespace Nz
 	int ENetHost::SendOutgoingCommands(ENetEvent* event, bool checkForTimeouts)
 	{
 		std::array<UInt8, sizeof(ENetProtocolHeader) + sizeof(UInt32)> headerData;
-		ENetProtocolHeader* header = reinterpret_cast<ENetProtocolHeader*>(headerData.data());
+		auto* header = reinterpret_cast<ENetProtocolHeader*>(headerData.data());
 
 		m_continueSending = true;
 
@@ -1219,7 +1219,7 @@ namespace Nz
 
 	void ENetHost::ThrottleBandwidth()
 	{
-		UInt32 currentTime = UInt32(GetElapsedMilliseconds());
+		auto currentTime = UInt32(GetElapsedMilliseconds());
 		UInt32 elapsedTime = currentTime - m_bandwidthThrottleEpoch;
 
 		if (elapsedTime < ENetConstants::ENetHost_BandwidthThrottleInterval)

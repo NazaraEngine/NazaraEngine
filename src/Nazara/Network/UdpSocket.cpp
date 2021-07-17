@@ -271,7 +271,7 @@ namespace Nz
 	bool UdpSocket::SendPacket(const IpAddress& to, const NetPacket& packet)
 	{
 		std::size_t size = 0;
-		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
+		const auto* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
 		if (!ptr)
 		{
 			m_lastError = SocketError::Packet;

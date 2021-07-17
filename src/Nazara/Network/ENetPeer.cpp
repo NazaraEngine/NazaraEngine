@@ -201,9 +201,9 @@ namespace Nz
 
 		Channel& channel = m_channels[channelId];
 
-		UInt16 fragmentLength = static_cast<UInt16>(m_mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment));
+		auto fragmentLength = static_cast<UInt16>(m_mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment));
 
-		UInt32 packetSize = static_cast<UInt32>(packetRef->data.GetDataSize());
+		auto packetSize = static_cast<UInt32>(packetRef->data.GetDataSize());
 		if (packetSize > fragmentLength)
 		{
 			UInt32 fragmentCount = (packetSize + fragmentLength - 1) / fragmentLength;
@@ -608,7 +608,7 @@ namespace Nz
 
 		ENetPeer::Channel& channel = m_channels[command->header.channelID];
 		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
-		UInt16 startWindow = UInt16(startSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
+		auto startWindow = UInt16(startSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
 		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 
 		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
@@ -727,7 +727,7 @@ namespace Nz
 		UInt32 reliableSequenceNumber = command->header.reliableSequenceNumber;
 		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
 
-		UInt16 reliableWindow = UInt16(reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
+		auto reliableWindow = UInt16(reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
 		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 
 		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
@@ -885,10 +885,10 @@ namespace Nz
 		m_incomingSessionID = command->verifyConnect.incomingSessionID;
 		m_outgoingSessionID = command->verifyConnect.outgoingSessionID;
 
-		UInt32 mtu = Clamp<UInt32>(NetToHost(command->verifyConnect.mtu), ENetConstants::ENetProtocol_MinimumMTU, ENetConstants::ENetProtocol_MaximumMTU);
+		auto mtu = Clamp<UInt32>(NetToHost(command->verifyConnect.mtu), ENetConstants::ENetProtocol_MinimumMTU, ENetConstants::ENetProtocol_MaximumMTU);
 		m_mtu = std::min(m_mtu, mtu);
 
-		UInt32 windowSize = Clamp<UInt32>(NetToHost(command->verifyConnect.windowSize), ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
+		auto windowSize = Clamp<UInt32>(NetToHost(command->verifyConnect.windowSize), ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
 		m_windowSize = std::min(m_windowSize, windowSize);
 
 		m_incomingBandwidth = NetToHost(command->verifyConnect.incomingBandwidth);
@@ -1026,7 +1026,7 @@ namespace Nz
 			}
 		}
 
-		ENetProtocolCommand commandNumber = static_cast<ENetProtocolCommand>(currentCommand->command.header.command & ENetProtocolCommand_Mask);
+		auto commandNumber = static_cast<ENetProtocolCommand>(currentCommand->command.header.command & ENetProtocolCommand_Mask);
 
 		if (currentCommand->packet && wasSent)
 			m_reliableDataInTransit -= currentCommand->fragmentLength;
@@ -1269,7 +1269,7 @@ namespace Nz
 
 	void ENetPeer::SetupOutgoingCommand(OutgoingCommand& outgoingCommand)
 	{
-		UInt32 commandSize = static_cast<UInt32>(ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength);
+		auto commandSize = static_cast<UInt32>(ENetHost::GetCommandSize(outgoingCommand.command.header.command) + outgoingCommand.fragmentLength);
 
 		m_outgoingDataTotal += commandSize;
 		m_totalByteSent += commandSize;

@@ -306,7 +306,7 @@ namespace Nz
 		// We may have just received the header now
 		if (m_pendingPacket.headerReceived)
 		{
-			UInt32 packetSize = static_cast<UInt32>(m_pendingPacket.data.GetSize()); //< Total packet size
+			auto packetSize = static_cast<UInt32>(m_pendingPacket.data.GetSize()); //< Total packet size
 			if (packetSize == 0)
 			{
 				// Special case: our packet carry no data
@@ -450,7 +450,7 @@ namespace Nz
 	bool TcpClient::SendPacket(const NetPacket& packet)
 	{
 		std::size_t size = 0;
-		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
+		const auto* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
 		if (!ptr)
 		{
 			m_lastError = SocketError::Packet;

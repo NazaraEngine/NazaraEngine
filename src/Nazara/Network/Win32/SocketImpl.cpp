@@ -900,7 +900,7 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		DWORD option = static_cast<DWORD>(size);
+		auto option = static_cast<DWORD>(size);
 		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)
@@ -919,7 +919,7 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		DWORD option = static_cast<DWORD>(size);
+		auto option = static_cast<DWORD>(size);
 		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
 		{
 			if (error)

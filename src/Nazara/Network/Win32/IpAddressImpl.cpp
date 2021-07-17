@@ -103,14 +103,14 @@ namespace Nz
 		{
 			case AF_INET:
 			{
-				sockaddr_in* ipv4 = reinterpret_cast<sockaddr_in*>(info->ai_addr);
+				auto* ipv4 = reinterpret_cast<sockaddr_in*>(info->ai_addr);
 
 				return FromSockAddr(ipv4);
 			}
 
 			case AF_INET6:
 			{
-				sockaddr_in6* ipv6 = reinterpret_cast<sockaddr_in6*>(info->ai_addr);
+				auto* ipv6 = reinterpret_cast<sockaddr_in6*>(info->ai_addr);
 
 				return FromSockAddr(ipv6);
 			}
@@ -126,14 +126,14 @@ namespace Nz
 		{
 			case AF_INET:
 			{
-				sockaddr_in* ipv4 = reinterpret_cast<sockaddr_in*>(info->ai_addr);
+				auto* ipv4 = reinterpret_cast<sockaddr_in*>(info->ai_addr);
 
 				return FromSockAddr(ipv4);
 			}
 
 			case AF_INET6:
 			{
-				sockaddr_in6* ipv6 = reinterpret_cast<sockaddr_in6*>(info->ai_addr);
+				auto* ipv6 = reinterpret_cast<sockaddr_in6*>(info->ai_addr);
 
 				return FromSockAddr(ipv6);
 			}
@@ -242,7 +242,7 @@ namespace Nz
 			{
 				case NetProtocol::IPv4:
 				{
-					sockaddr_in* socketAddress = reinterpret_cast<sockaddr_in*>(buffer);
+					auto* socketAddress = reinterpret_cast<sockaddr_in*>(buffer);
 
 					std::memset(socketAddress, 0, sizeof(sockaddr_in));
 					socketAddress->sin_family = AF_INET;
@@ -254,7 +254,7 @@ namespace Nz
 
 				case NetProtocol::IPv6:
 				{
-					sockaddr_in6* socketAddress = reinterpret_cast<sockaddr_in6*>(buffer);
+					auto* socketAddress = reinterpret_cast<sockaddr_in6*>(buffer);
 
 					std::memset(socketAddress, 0, sizeof(sockaddr_in6));
 					socketAddress->sin6_family = AF_INET6;
