@@ -13,7 +13,7 @@ namespace Nz
 		return m_subMeshes.size();
 	}
 	
-	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialPass> material)
+	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material)
 	{
 		assert(subMeshIndex < m_subMeshes.size());
 

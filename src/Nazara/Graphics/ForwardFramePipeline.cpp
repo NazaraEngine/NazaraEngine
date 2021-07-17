@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -41,14 +42,26 @@ namespace Nz
 		if (auto it = renderableMap.find(instancedRenderable); it == renderableMap.end())
 		{
 			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
-			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialPass>& newMaterial)
+			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
 			{
 				if (newMaterial)
-					RegisterMaterial(newMaterial.get());
+				{
+					if (MaterialPass* pass = newMaterial->GetPass("DepthPass"))
+						RegisterMaterialPass(pass);
+
+					if (MaterialPass* pass = newMaterial->GetPass("ForwardPass"))
+						RegisterMaterialPass(pass);
+				}
 
 				const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
 				if (prevMaterial)
-					UnregisterMaterial(prevMaterial.get());
+				{
+					if (MaterialPass* pass = prevMaterial->GetPass("DepthPass"))
+						UnregisterMaterialPass(pass);
+
+					if (MaterialPass* pass = prevMaterial->GetPass("ForwardPass"))
+						UnregisterMaterialPass(pass);
+				}
 
 				m_rebuildForwardPass = true;
 			});
@@ -56,8 +69,14 @@ namespace Nz
 			std::size_t matCount = instancedRenderable->GetMaterialCount();
 			for (std::size_t i = 0; i < matCount; ++i)
 			{
-				if (MaterialPass* mat = instancedRenderable->GetMaterial(i).get())
-					RegisterMaterial(mat);
+				if (Material* mat = instancedRenderable->GetMaterial(i).get())
+				{
+					if (MaterialPass* pass = mat->GetPass("DepthPass"))
+						RegisterMaterialPass(pass);
+
+					if (MaterialPass* pass = mat->GetPass("ForwardPass"))
+						RegisterMaterialPass(pass);
+				}
 			}
 
 			m_rebuildForwardPass = true;
@@ -77,7 +96,6 @@ namespace Nz
 		{
 			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
 			m_bakedFrameGraph = BuildFrameGraph();
-			m_rebuildForwardPass = false; //< No need to rebuild forward pass twice
 		}
 
 		// Update UBOs and materials
@@ -111,8 +129,7 @@ namespace Nz
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);
 
-		const Vector2ui& frameSize = renderFrame.GetSize();
-		if (m_bakedFrameGraph.Resize(frameSize.x, frameSize.y))
+		if (m_bakedFrameGraph.Resize(renderFrame))
 		{
 			const std::shared_ptr<TextureSampler>& sampler = graphics->GetSamplerCache().Get({});
 			for (auto&& [_, viewerData] : m_viewers)
@@ -134,7 +151,10 @@ namespace Nz
 		}
 
 		m_bakedFrameGraph.Execute(renderFrame);
+		m_rebuildForwardPass = false;
+		m_rebuildFrameGraph = false;
 
+		const Vector2ui& frameSize = renderFrame.GetSize();
 		for (auto&& [viewer, viewerData] : m_viewers)
 		{
 			const RenderTarget& renderTarget = viewer->GetRenderTarget();
@@ -192,8 +212,8 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			if (MaterialPass* mat = instancedRenderable->GetMaterial(i).get())
-				UnregisterMaterial(mat);
+			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass("ForwardPass"))
+				UnregisterMaterialPass(pass);
 		}
 
 		m_rebuildForwardPass = true;
@@ -224,31 +244,25 @@ namespace Nz
 
 		for (auto&& [viewer, viewerData] : m_viewers)
 		{
-			FramePass& framePass = frameGraph.AddPass("Forward pass");
-
-			framePass.AddOutput(viewerData.colorAttachment);
-			framePass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
-
-			framePass.SetClearColor(0, Color::Black);
-			framePass.SetDepthStencilClear(1.f, 0);
-
-			framePass.SetExecutionCallback([this]()
+			FramePass& depthPrepass = frameGraph.AddPass("Depth pre-pass");
+			depthPrepass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
+			depthPrepass.SetDepthStencilClear(1.f, 0);
+			
+			depthPrepass.SetExecutionCallback([this]()
 			{
 				if (m_rebuildForwardPass)
-				{
-					m_rebuildForwardPass = false;
 					return FramePassExecution::UpdateAndExecute;
-				}
 				else
 					return FramePassExecution::Execute;
 			});
-
-			framePass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
+			
+			depthPrepass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
 			{
 				Recti viewport = viewer->GetViewport();
 
 				builder.SetScissor(viewport);
 				builder.SetViewport(viewport);
+
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
 				for (const auto& [worldInstance, renderables] : m_renderables)
@@ -256,7 +270,41 @@ namespace Nz
 					builder.BindShaderBinding(Graphics::WorldBindingSet, worldInstance->GetShaderBinding());
 
 					for (const auto& [renderable, renderableData] : renderables)
-						renderable->Draw(builder);
+						renderable->Draw("DepthPass", builder);
+				}
+			});
+
+			FramePass& forwardPass = frameGraph.AddPass("Forward pass");
+			forwardPass.AddOutput(viewerData.colorAttachment);
+			forwardPass.SetDepthStencilInput(viewerData.depthStencilAttachment);
+			forwardPass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
+
+			forwardPass.SetClearColor(0, Color::Black);
+			forwardPass.SetDepthStencilClear(1.f, 0);
+
+			forwardPass.SetExecutionCallback([this]()
+			{
+				if (m_rebuildForwardPass)
+					return FramePassExecution::UpdateAndExecute;
+				else
+					return FramePassExecution::Execute;
+			});
+
+			forwardPass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
+			{
+				Recti viewport = viewer->GetViewport();
+
+				builder.SetScissor(viewport);
+				builder.SetViewport(viewport);
+
+				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
+
+				for (const auto& [worldInstance, renderables] : m_renderables)
+				{
+					builder.BindShaderBinding(Graphics::WorldBindingSet, worldInstance->GetShaderBinding());
+
+					for (const auto& [renderable, renderableData] : renderables)
+						renderable->Draw("ForwardPass", builder);
 				}
 			});
 		}
@@ -268,7 +316,7 @@ namespace Nz
 		return frameGraph.Bake();
 	}
 
-	void ForwardFramePipeline::RegisterMaterial(MaterialPass* material)
+	void ForwardFramePipeline::RegisterMaterialPass(MaterialPass* material)
 	{
 		auto it = m_materials.find(material);
 		if (it == m_materials.end())
@@ -285,7 +333,7 @@ namespace Nz
 		it->second.usedCount++;
 	}
 
-	void ForwardFramePipeline::UnregisterMaterial(MaterialPass* material)
+	void ForwardFramePipeline::UnregisterMaterialPass(MaterialPass* material)
 	{
 		auto it = m_materials.find(material);
 		assert(it != m_materials.end());
