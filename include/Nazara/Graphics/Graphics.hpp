@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <optional>
 
@@ -38,6 +39,7 @@ namespace Nz
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetReferencePipelineLayout() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
+			inline const RenderPassCache& GetRenderPassCache() const;
 			inline TextureSamplerCache& GetSamplerCache();
 
 			struct Config
@@ -58,6 +60,7 @@ namespace Nz
 			void BuildFullscreenVertexBuffer();
 			void SelectDepthStencilFormats();
 
+			std::optional<RenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
 			std::shared_ptr<AbstractBuffer> m_fullscreenVertexBuffer;
 			std::shared_ptr<RenderDevice> m_renderDevice;
