@@ -35,19 +35,24 @@ namespace Nz
 		std::pair<VkRenderPass, std::size_t> key = { renderPassHandle, colorAttachmentCount };
 
 		if (auto it = m_pipelines.find(key); it != m_pipelines.end())
-			return it->second;
+			return it->second.pipeline;
 
 		UpdateCreateInfo(colorAttachmentCount);
 
 		VkGraphicsPipelineCreateInfo pipelineCreateInfo = m_pipelineCreateInfo.pipelineInfo;
 		pipelineCreateInfo.renderPass = renderPassHandle;
 
-		Vk::Pipeline newPipeline;
-		if (!newPipeline.CreateGraphics(*m_device, pipelineCreateInfo))
+		PipelineData pipelineData;
+		pipelineData.onRenderPassRelease.Connect(renderPass.OnRenderPassRelease, [this, key](const VulkanRenderPass*)
+		{
+			m_pipelines.erase(key);
+		});
+
+		if (!pipelineData.pipeline.CreateGraphics(*m_device, pipelineCreateInfo))
 			return VK_NULL_HANDLE;
 
-		auto it = m_pipelines.emplace(key, std::move(newPipeline)).first;
-		return it->second;
+		auto it = m_pipelines.emplace(key, std::move(pipelineData)).first;
+		return it->second.pipeline;
 	}
 
 	std::vector<VkPipelineColorBlendAttachmentState> VulkanRenderPipeline::BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo)
