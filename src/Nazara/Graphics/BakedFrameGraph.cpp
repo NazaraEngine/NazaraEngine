@@ -178,6 +178,9 @@ namespace Nz
 			passData.forceCommandBufferRegeneration = true;
 		}
 
+		m_width = width;
+		m_height = height;
+
 		return true;
 	}
 }
