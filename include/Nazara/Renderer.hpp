@@ -46,10 +46,12 @@
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
+#include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
