@@ -189,19 +189,24 @@ int main()
 
 	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
-	std::shared_ptr<Nz::MaterialPass> spaceshipMat = std::make_shared<Nz::MaterialPass>(customMatSettings);
-	spaceshipMat->EnableDepthBuffer(true);
+	std::shared_ptr<Nz::Material> spaceshipMat = std::make_shared<Nz::Material>();
+
+	std::shared_ptr<Nz::MaterialPass> spaceshipMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
+	spaceshipMatPass->EnableDepthBuffer(true);
 	{
-		Nz::BasicMaterial basicMat(*spaceshipMat);
+		Nz::BasicMaterial basicMat(*spaceshipMatPass);
 		basicMat.EnableAlphaTest(false);
 		basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	}
+	spaceshipMat->AddPass("ForwardPass", spaceshipMatPass);
 
-	std::shared_ptr<Nz::MaterialPass> planeMat = std::make_shared<Nz::MaterialPass>(customMatSettings);
-	planeMat->EnableDepthBuffer(true);
+	std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>();
+
+	std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
+	planeMatPass->EnableDepthBuffer(true);
 	{
-		Nz::BasicMaterial basicMat(*planeMat);
+		Nz::BasicMaterial basicMat(*planeMatPass);
 		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
 
 		Nz::TextureSamplerInfo planeSampler;
@@ -210,6 +215,7 @@ int main()
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 		basicMat.SetDiffuseSampler(planeSampler);
 	}
+	planeMat->AddPass("ForwardPass", planeMatPass);
 
 	Nz::Model spaceshipModel(std::move(gfxMesh));
 	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
@@ -354,8 +360,8 @@ int main()
 
 	bloomPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", {}));
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
-	std::shared_ptr<Nz::ShaderBinding> gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding;
+	std::shared_ptr<Nz::ShaderBinding> gaussianBlurShaderBinding;
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(bloomPipelineInfo);
 
@@ -393,7 +399,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+	std::shared_ptr<Nz::ShaderBinding> bloomBlendShaderBinding;
 
 	// Fullscreen data
 	
@@ -513,8 +519,8 @@ int main()
 	if (!fullscreenVertexBuffer->Fill(vertexData.data(), 0, fullscreenVertexBuffer->GetSize()))
 		return __LINE__;
 
-	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
-	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit;
+	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding;
 
 	bool lightUpdate = true;
 	bool matUpdate = false;
@@ -532,7 +538,7 @@ int main()
 		}
 	});
 
-	std::shared_ptr<Nz::ShaderBinding> gbufferShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+	std::shared_ptr<Nz::ShaderBinding> gbufferShaderBinding;
 
 	bool bloomEnabled = true;
 	bool forwardEnabled = true;
@@ -541,7 +547,8 @@ int main()
 	std::size_t colorTexture;
 	std::size_t normalTexture;
 	std::size_t positionTexture;
-	std::size_t depthBuffer;
+	std::size_t depthBuffer1;
+	std::size_t depthBuffer2;
 	std::size_t backbuffer;
 	std::size_t bloomTextureA;
 	std::size_t bloomTextureB;
@@ -582,7 +589,12 @@ int main()
 			Nz::PixelFormat::RGBA32F
 		});
 
-		depthBuffer = graph.AddAttachment({
+		depthBuffer1 = graph.AddAttachment({
+			"Depth buffer",
+			depthStencilFormat
+		});
+		
+		depthBuffer2 = graph.AddAttachment({
 			"Depth buffer",
 			depthStencilFormat
 		});
@@ -624,7 +636,7 @@ int main()
 
 		gbufferPass.SetDepthStencilClear(1.f, 0);
 
-		gbufferPass.SetDepthStencilOutput(depthBuffer);
+		gbufferPass.SetDepthStencilOutput(depthBuffer1);
 
 		gbufferPass.SetExecutionCallback([&]
 		{
@@ -639,14 +651,14 @@ int main()
 			builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
 
 			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, modelInstance1.GetShaderBinding());
-			spaceshipModel.Draw(builder);
+			spaceshipModel.Draw("ForwardPass", builder);
 
 			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, modelInstance2.GetShaderBinding());
-			spaceshipModel.Draw(builder);
+			spaceshipModel.Draw("ForwardPass", builder);
 
 			// Plane
 			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, planeInstance.GetShaderBinding());
-			planeModel.Draw(builder);
+			planeModel.Draw("ForwardPass", builder);
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -684,8 +696,7 @@ int main()
 		lightingPass.AddInput(positionTexture);
 
 		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black);
-		lightingPass.SetDepthStencilInput(depthBuffer);
-		lightingPass.SetDepthStencilOutput(depthBuffer);
+		lightingPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
 		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
@@ -709,8 +720,8 @@ int main()
 
 		forwardPass.AddInput(lightOutput);
 		forwardPass.AddOutput(lightOutput);
-		forwardPass.SetDepthStencilInput(depthBuffer);
-		forwardPass.SetDepthStencilOutput(depthBuffer);
+		forwardPass.SetDepthStencilInput(depthBuffer1);
+		forwardPass.SetDepthStencilOutput(depthBuffer2);
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
 		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
@@ -781,107 +792,6 @@ int main()
 
 		return graph.Bake();
 	}();
-
-	bakedGraph.Resize(offscreenWidth, offscreenHeight);
-
-	gbufferShaderBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(colorTexture).get(),
-				textureSampler.get()
-			}
-		},
-		{
-			1,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(normalTexture).get(),
-				textureSampler.get()
-			}
-		},
-		{
-			2,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(positionTexture).get(),
-				textureSampler.get()
-			}
-		}
-	});
-
-
-	for (std::size_t i = 0; i < MaxPointLight; ++i)
-	{
-		std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(2);
-		lightingShaderBinding->Update({
-			{
-				0,
-				Nz::ShaderBinding::UniformBufferBinding {
-					lightUbo.get(),
-					i * alignedSpotLightSize, spotLightOffsets.GetAlignedSize()
-				}
-			}
-		});
-
-		lightingShaderBindings.emplace_back(std::move(lightingShaderBinding));
-	}
-
-	bloomBrightShaderBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(lightOutput).get(),
-				textureSampler.get()
-			}
-		}
-	});
-
-	gaussianBlurShaderBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(bloomTextureA).get(),
-				textureSampler.get()
-			}
-		}
-	});
-
-	bloomBlendShaderBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(lightOutput).get(),
-				textureSampler.get()
-			}
-		},
-		{
-			1,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(bloomTextureB).get(),
-				textureSampler.get()
-			}
-		}
-	});
-	
-	bloomSkipBlit->Update({
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(lightOutput).get(),
-				textureSampler.get()
-			}
-		}
-	});
-
-	finalBlitBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::TextureBinding {
-				bakedGraph.GetAttachmentTexture(backbuffer).get(),
-				textureSampler.get()
-			}
-		}
-	});
-
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Backward() * 10.f + Nz::Vector3f::Up() * 3.f;
 
@@ -1024,6 +934,127 @@ int main()
 		if (!frame)
 			continue;
 
+		if (bakedGraph.Resize(frame))
+		{
+			frame.PushForRelease(std::move(gbufferShaderBinding));
+
+			gbufferShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			gbufferShaderBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(colorTexture).get(),
+						textureSampler.get()
+					}
+				},
+				{
+					1,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(normalTexture).get(),
+						textureSampler.get()
+					}
+				},
+				{
+					2,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(positionTexture).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
+			frame.PushForRelease(std::move(lightingShaderBindings));
+			lightingShaderBindings.clear();
+
+			for (std::size_t i = 0; i < MaxPointLight; ++i)
+			{
+				std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(2);
+				lightingShaderBinding->Update({
+					{
+						0,
+						Nz::ShaderBinding::UniformBufferBinding {
+							lightUbo.get(),
+							i * alignedSpotLightSize, spotLightOffsets.GetAlignedSize()
+						}
+					}
+				});
+
+				lightingShaderBindings.emplace_back(std::move(lightingShaderBinding));
+			}
+
+			frame.PushForRelease(std::move(bloomBrightShaderBinding));
+
+			bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			bloomBrightShaderBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(lightOutput).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
+			frame.PushForRelease(std::move(gaussianBlurShaderBinding));
+
+			gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			gaussianBlurShaderBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(bloomTextureA).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
+			frame.PushForRelease(std::move(bloomBlendShaderBinding));
+
+			bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			bloomBlendShaderBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(lightOutput).get(),
+						textureSampler.get()
+					}
+				},
+				{
+					1,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(bloomTextureB).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
+			frame.PushForRelease(std::move(bloomSkipBlit));
+
+			bloomSkipBlit = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+			bloomSkipBlit->Update({
+				{
+					0,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(lightOutput).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
+			frame.PushForRelease(std::move(finalBlitBinding));
+
+			finalBlitBinding = fullscreenPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+			finalBlitBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(backbuffer).get(),
+						textureSampler.get()
+					}
+				}
+			});
+		}
+
 		Nz::UploadPool& uploadPool = frame.GetUploadPool();
 
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
@@ -1068,8 +1099,8 @@ int main()
 					builder.CopyBuffer(lightDataAllocation, lightUbo.get());
 				}
 
-				matUpdate = spaceshipMat->Update(frame, builder) || matUpdate;
-				matUpdate = planeMat->Update(frame, builder) || matUpdate;
+				matUpdate = spaceshipMatPass->Update(frame, builder) || matUpdate;
+				matUpdate = planeMatPass->Update(frame, builder) || matUpdate;
 
 				builder.PostTransferBarrier();
 			}
