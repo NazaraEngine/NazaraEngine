@@ -186,7 +186,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALint relative;
+		oad::ALint relative;
 		alGetSourcei(m_source, AL_SOURCE_RELATIVE, &relative);
 
 		return relative == AL_FALSE;
