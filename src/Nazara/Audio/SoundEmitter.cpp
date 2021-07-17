@@ -96,7 +96,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALfloat attenuation;
+		oad::ALfloat attenuation;
 		alGetSourcef(m_source, AL_ROLLOFF_FACTOR, &attenuation);
 
 		return attenuation;
@@ -111,7 +111,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALfloat distance;
+		oad::ALfloat distance;
 		alGetSourcef(m_source, AL_REFERENCE_DISTANCE, &distance);
 
 		return distance;
@@ -126,7 +126,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALfloat pitch;
+		oad::ALfloat pitch;
 		alGetSourcef(m_source, AL_PITCH, &pitch);
 
 		return pitch;
@@ -171,7 +171,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALfloat gain;
+		oad::ALfloat gain;
 		alGetSourcef(m_source, AL_GAIN, &gain);
 
 		return gain * 100.f;
@@ -319,7 +319,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALint state;
+		oad::ALint state;
 		alGetSourcei(m_source, AL_SOURCE_STATE, &state);
 
 		switch (state)

@@ -80,7 +80,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALint samples = 0;
+		oad::ALint samples = 0;
 		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
 
 		return static_cast<UInt32>(1000ULL * samples / m_buffer->GetSampleRate());
@@ -103,7 +103,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		ALint loop;
+		oad::ALint loop;
 		alGetSourcei(m_source, AL_LOOPING, &loop);
 
 		return loop != AL_FALSE;
@@ -243,7 +243,7 @@ namespace Nz
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 
-		alSourcei(m_source, AL_SAMPLE_OFFSET, static_cast<ALint>(offset/1000.f * m_buffer->GetSampleRate()));
+		alSourcei(m_source, AL_SAMPLE_OFFSET, static_cast<oad::ALint>(offset/1000.f * m_buffer->GetSampleRate()));
 	}
 
 	/*!

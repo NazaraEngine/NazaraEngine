@@ -22,8 +22,8 @@ namespace Nz
 		std::string s_deviceName;
 		std::string s_rendererName;
 		std::string s_vendorName;
-		ALCdevice* s_device = nullptr;
-		ALCcontext* s_context = nullptr;
+		oad::ALCdevice* s_device = nullptr;
+		oad::ALCcontext* s_context = nullptr;
 		unsigned int s_version;
 
 		/*!
@@ -352,7 +352,7 @@ namespace Nz
 		s_library.Unload();
 	}
 
-	ALenum OpenAL::AudioFormat[AudioFormatCount] = {0}; // Added values with loading of OpenAL
+	oad::ALenum OpenAL::AudioFormat[AudioFormatCount] = {0}; // Added values with loading of OpenAL
 
 	/*!
 	* \brief Closes the device
@@ -413,7 +413,7 @@ namespace Nz
 		s_rendererName = reinterpret_cast<const char*>(alGetString(AL_RENDERER));
 		s_vendorName = reinterpret_cast<const char*>(alGetString(AL_VENDOR));
 
-		const ALchar* version = alGetString(AL_VERSION);
+		const oad::ALchar* version = alGetString(AL_VERSION);
 		if (version)
 		{
 			unsigned int major = version[0] - '0';
