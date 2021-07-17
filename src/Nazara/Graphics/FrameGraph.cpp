@@ -900,6 +900,20 @@ namespace Nz
 				}
 			}
 		}
+
+		if (std::size_t dsInput = framePass.GetDepthStencilInput(); dsInput != FramePass::InvalidAttachmentId)
+		{
+			auto it = m_pending.attachmentWriteList.find(dsInput);
+			if (it != m_pending.attachmentWriteList.end())
+			{
+				const PassList& dependencyPassList = it->second;
+				for (std::size_t dependencyPass : dependencyPassList)
+				{
+					if (dependencyPass != passIndex)
+						TraverseGraph(dependencyPass);
+				}
+			}
+		}
 	}
 
 	void FrameGraph::RemoveDuplicatePasses()
