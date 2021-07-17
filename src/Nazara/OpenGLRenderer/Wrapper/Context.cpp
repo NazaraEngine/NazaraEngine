@@ -393,6 +393,7 @@ namespace Nz::GL
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
 		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is counter-clockwise
+		m_state.renderStates.depthCompare = RendererComparison::Less; //< OpenGL default depth mode is GL_LESS
 
 		EnableVerticalSync(false);
 
