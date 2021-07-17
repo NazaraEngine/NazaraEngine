@@ -30,29 +30,29 @@ m_shaderGraph(graph)
 
 	QtNodes::FlowScene* scene = &m_shaderGraph.GetScene();
 
-	QtNodes::FlowView* flowView = new QtNodes::FlowView(scene);
+	auto* flowView = new QtNodes::FlowView(scene);
 	setCentralWidget(flowView);
 
 	// Input editor
-	InputEditor* inputEditor = new InputEditor(m_shaderGraph);
+	auto* inputEditor = new InputEditor(m_shaderGraph);
 
-	QDockWidget* inputDock = new QDockWidget(tr("Inputs"));
+	auto* inputDock = new QDockWidget(tr("Inputs"));
 	inputDock->setWidget(inputEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, inputDock);
 
 	// Output editor
-	OutputEditor* outputEditor = new OutputEditor(m_shaderGraph);
+	auto* outputEditor = new OutputEditor(m_shaderGraph);
 
-	QDockWidget* outputDock = new QDockWidget(tr("Outputs"));
+	auto* outputDock = new QDockWidget(tr("Outputs"));
 	outputDock->setWidget(outputEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, outputDock);
 
 	// Texture editor
-	TextureEditor* textureEditor = new TextureEditor(m_shaderGraph);
+	auto* textureEditor = new TextureEditor(m_shaderGraph);
 
-	QDockWidget* textureDock = new QDockWidget(tr("Textures"));
+	auto* textureDock = new QDockWidget(tr("Textures"));
 	textureDock->setWidget(textureEditor);
 
 	addDockWidget(Qt::LeftDockWidgetArea, textureDock);
@@ -60,39 +60,39 @@ m_shaderGraph(graph)
 	// Node editor
 	m_nodeEditor = new NodeEditor;
 
-	QDockWidget* nodeEditorDock = new QDockWidget(tr("Node editor"));
+	auto* nodeEditorDock = new QDockWidget(tr("Node editor"));
 	nodeEditorDock->setWidget(m_nodeEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, nodeEditorDock);
 
 	// Buffer editor
-	BufferEditor* bufferEditor = new BufferEditor(m_shaderGraph);
+	auto* bufferEditor = new BufferEditor(m_shaderGraph);
 
-	QDockWidget* bufferDock = new QDockWidget(tr("Buffers"));
+	auto* bufferDock = new QDockWidget(tr("Buffers"));
 	bufferDock->setWidget(bufferEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, bufferDock);
 
 	// Struct editor
-	StructEditor* structEditor = new StructEditor(m_shaderGraph);
+	auto* structEditor = new StructEditor(m_shaderGraph);
 
-	QDockWidget* structDock = new QDockWidget(tr("Structs"));
+	auto* structDock = new QDockWidget(tr("Structs"));
 	structDock->setWidget(structEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, structDock);
 
 	// Option editor
-	OptionEditor* optionEditor = new OptionEditor(m_shaderGraph);
+	auto* optionEditor = new OptionEditor(m_shaderGraph);
 
-	QDockWidget* optionDock = new QDockWidget(tr("Options"));
+	auto* optionDock = new QDockWidget(tr("Options"));
 	optionDock->setWidget(optionEditor);
 
 	addDockWidget(Qt::RightDockWidgetArea, optionDock);
 
 	// Code output
-	CodeOutputWidget* codeOutput = new CodeOutputWidget(m_shaderGraph);
+	auto* codeOutput = new CodeOutputWidget(m_shaderGraph);
 
-	QDockWidget* codeOutputDock = new QDockWidget(tr("Code output"));
+	auto* codeOutputDock = new QDockWidget(tr("Code output"));
 	codeOutputDock->setWidget(codeOutput);
 
 	addDockWidget(Qt::BottomDockWidgetArea, codeOutputDock);
@@ -249,7 +249,7 @@ void MainWindow::OnUpdateInfo()
 	ShaderInfo info;
 	info.type = m_shaderGraph.GetType();
 
-	ShaderInfoDialog* dialog = new ShaderInfoDialog(std::move(info), this);
+	auto* dialog = new ShaderInfoDialog(std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{

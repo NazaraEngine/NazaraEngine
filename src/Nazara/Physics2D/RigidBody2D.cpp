@@ -146,7 +146,7 @@ namespace Nz
 			cpPointQueryInfo result;
 			cpShapePointQuery(shape, pos, &result);
 
-			float resultDistance = float(result.distance);
+			auto resultDistance = float(result.distance);
 			if (resultDistance < minDistance)
 			{
 				closest.Set(float(result.point.x), float(result.point.y));
@@ -556,7 +556,7 @@ namespace Nz
 		{
 			m_handle->velocity_func = [](cpBody* body, cpVect gravity, cpFloat damping, cpFloat dt)
 			{
-				RigidBody2D* rigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(body));
+				auto* rigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(body));
 				const auto& callback = rigidBody->GetVelocityFunction();
 				assert(callback);
 

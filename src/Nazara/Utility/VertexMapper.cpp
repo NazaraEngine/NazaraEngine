@@ -21,14 +21,14 @@ namespace Nz
 		{
 			case AnimationType::Skeletal:
 			{
-				SkeletalMesh& skeletalMesh = static_cast<SkeletalMesh&>(subMesh);
+				auto& skeletalMesh = static_cast<SkeletalMesh&>(subMesh);
 				buffer = skeletalMesh.GetVertexBuffer();
 				break;
 			}
 
 			case AnimationType::Static:
 			{
-				StaticMesh& staticMesh = static_cast<StaticMesh&>(subMesh);
+				auto& staticMesh = static_cast<StaticMesh&>(subMesh);
 				buffer = staticMesh.GetVertexBuffer();
 				break;
 			}
@@ -57,14 +57,14 @@ namespace Nz
 		{
 			case AnimationType::Skeletal:
 			{
-				const SkeletalMesh& skeletalMesh = static_cast<const SkeletalMesh&>(subMesh);
+				const auto& skeletalMesh = static_cast<const SkeletalMesh&>(subMesh);
 				buffer = skeletalMesh.GetVertexBuffer();
 				break;
 			}
 
 			case AnimationType::Static:
 			{
-				const StaticMesh& staticMesh = static_cast<const StaticMesh&>(subMesh);
+				const auto& staticMesh = static_cast<const StaticMesh&>(subMesh);
 				buffer = staticMesh.GetVertexBuffer();
 				break;
 			}

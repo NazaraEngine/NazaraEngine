@@ -12,7 +12,7 @@ namespace Nz
 	{
 		std::size_t offset = GetOutputOffset();
 
-		const UInt8* ptr = static_cast<const UInt8*>(raw.ptr);
+		const auto* ptr = static_cast<const UInt8*>(raw.ptr);
 
 		std::size_t size4 = CountWord(raw);
 		for (std::size_t i = 0; i < size4; ++i)

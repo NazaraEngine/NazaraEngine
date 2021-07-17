@@ -22,17 +22,17 @@ QDialog(parent)
 	m_bindingIndex = new QSpinBox;
 	m_setIndex = new QSpinBox;
 
-	QFormLayout* formLayout = new QFormLayout;
+	auto* formLayout = new QFormLayout;
 	formLayout->addRow(tr("Name"), m_textureName);
 	formLayout->addRow(tr("Type"), m_typeList);
 	formLayout->addRow(tr("Set index"), m_setIndex);
 	formLayout->addRow(tr("Binding index"), m_bindingIndex);
 
-	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &TextureEditDialog::OnAccept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	QVBoxLayout* verticalLayout = new QVBoxLayout;
+	auto* verticalLayout = new QVBoxLayout;
 	verticalLayout->addLayout(formLayout);
 	verticalLayout->addWidget(buttonBox);
 

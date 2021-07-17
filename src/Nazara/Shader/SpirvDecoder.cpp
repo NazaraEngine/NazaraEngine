@@ -42,8 +42,8 @@ namespace Nz
 
 			UInt32 firstWord = ReadWord();
 
-			UInt16 wordCount = static_cast<UInt16>((firstWord >> 16) & 0xFFFF);
-			UInt16 opcode = static_cast<UInt16>(firstWord & 0xFFFF);
+			auto wordCount = static_cast<UInt16>((firstWord >> 16) & 0xFFFF);
+			auto opcode = static_cast<UInt16>(firstWord & 0xFFFF);
 
 			const SpirvInstruction* inst = GetInstructionData(opcode);
 			if (!inst)

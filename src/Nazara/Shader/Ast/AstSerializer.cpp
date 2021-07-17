@@ -511,7 +511,7 @@ namespace Nz::ShaderAst
 		if (nodeTypeInt < static_cast<Int32>(NodeType::None) || nodeTypeInt > static_cast<Int32>(NodeType::Max))
 			throw std::runtime_error("invalid node type");
 
-		NodeType nodeType = static_cast<NodeType>(nodeTypeInt);
+		auto nodeType = static_cast<NodeType>(nodeTypeInt);
 		switch (nodeType)
 		{
 			case NodeType::None: break;
@@ -537,7 +537,7 @@ namespace Nz::ShaderAst
 		if (nodeTypeInt < static_cast<Int32>(NodeType::None) || nodeTypeInt > static_cast<Int32>(NodeType::Max))
 			throw std::runtime_error("invalid node type");
 
-		NodeType nodeType = static_cast<NodeType>(nodeTypeInt);
+		auto nodeType = static_cast<NodeType>(nodeTypeInt);
 		switch (nodeType)
 		{
 			case NodeType::None: break;

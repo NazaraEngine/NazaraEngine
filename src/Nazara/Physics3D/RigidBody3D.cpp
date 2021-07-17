@@ -441,7 +441,7 @@ namespace Nz
 		NazaraUnused(timeStep);
 		NazaraUnused(threadIndex);
 
-		RigidBody3D* me = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
+		auto* me = static_cast<RigidBody3D*>(NewtonBodyGetUserData(body));
 
 		if (!NumberEquals(me->m_gravityFactor, 0.f))
 			me->m_forceAccumulator += me->m_world->GetGravity() * me->m_gravityFactor * me->m_mass;

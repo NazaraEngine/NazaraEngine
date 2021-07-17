@@ -876,7 +876,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 	std::function<Nz::ShaderAst::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
 	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> Nz::ShaderAst::NodePtr
 	{
-		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
+		auto* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
 		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
 			throw std::runtime_error(shaderNode->validationMessage().toStdString());
 
@@ -945,8 +945,8 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 
 	std::sort(outputNodes.begin(), outputNodes.end(), [](QtNodes::Node* lhs, QtNodes::Node* rhs)
 	{
-		ShaderNode* leftNode = static_cast<ShaderNode*>(lhs->nodeDataModel());
-		ShaderNode* rightNode = static_cast<ShaderNode*>(rhs->nodeDataModel());
+		auto* leftNode = static_cast<ShaderNode*>(lhs->nodeDataModel());
+		auto* rightNode = static_cast<ShaderNode*>(rhs->nodeDataModel());
 
 		return leftNode->GetOutputOrder() < rightNode->GetOutputOrder();
 	});

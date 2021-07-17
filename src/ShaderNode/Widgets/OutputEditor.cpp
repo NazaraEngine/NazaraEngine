@@ -17,7 +17,7 @@ m_shaderGraph(graph)
 		OnEditOutput(m_outputList->row(item));
 	});
 
-	QPushButton* addOutputButton = new QPushButton(tr("Add output..."));
+	auto* addOutputButton = new QPushButton(tr("Add output..."));
 	connect(addOutputButton, &QPushButton::released, this, &OutputEditor::OnAddOutput);
 
 	m_layout = new QVBoxLayout;
@@ -34,7 +34,7 @@ m_shaderGraph(graph)
 
 void OutputEditor::OnAddOutput()
 {
-	OutputEditDialog* dialog = new OutputEditDialog(this);
+	auto* dialog = new OutputEditDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -54,7 +54,7 @@ void OutputEditor::OnEditOutput(int inputIndex)
 	info.name = output.name;
 	info.type = output.type;
 
-	OutputEditDialog* dialog = new OutputEditDialog(std::move(info), this);
+	auto* dialog = new OutputEditDialog(std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{

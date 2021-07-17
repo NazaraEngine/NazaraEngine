@@ -52,7 +52,7 @@ namespace Nz
 
 	void VulkanCommandPool::Release(CommandBuffer& binding)
 	{
-		VulkanCommandBuffer& vulkanBinding = static_cast<VulkanCommandBuffer&>(binding);
+		auto& vulkanBinding = static_cast<VulkanCommandBuffer&>(binding);
 
 		std::size_t poolIndex = vulkanBinding.GetPoolIndex();
 		std::size_t bindingIndex = vulkanBinding.GetBindingIndex();
@@ -61,7 +61,7 @@ namespace Nz
 		auto& pool = m_commandPools[poolIndex];
 		assert(!pool.freeCommands.Test(bindingIndex));
 
-		VulkanCommandBuffer* bindingMemory = reinterpret_cast<VulkanCommandBuffer*>(&pool.storage[bindingIndex]);
+		auto* bindingMemory = reinterpret_cast<VulkanCommandBuffer*>(&pool.storage[bindingIndex]);
 		PlacementDestroy(bindingMemory);
 
 		pool.freeCommands.Set(bindingIndex);

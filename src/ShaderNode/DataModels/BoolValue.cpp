@@ -76,7 +76,7 @@ void BoolValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QCheckBox* checkbox = new QCheckBox;
+	auto* checkbox = new QCheckBox;
 	checkbox->setCheckState((m_value) ? Qt::Checked : Qt::Unchecked);
 	connect(checkbox, &QCheckBox::stateChanged, [=](int newState)
 	{

@@ -21,25 +21,25 @@ namespace Nz
 
 		UInt32 Getter16(const void* buffer, std::size_t i)
 		{
-			const UInt16* ptr = static_cast<const UInt16*>(buffer);
+			const auto* ptr = static_cast<const UInt16*>(buffer);
 			return ptr[i];
 		}
 
 		UInt32 Getter32(const void* buffer, std::size_t i)
 		{
-			const UInt32* ptr = static_cast<const UInt32*>(buffer);
+			const auto* ptr = static_cast<const UInt32*>(buffer);
 			return ptr[i];
 		}
 
 		void Setter16(void* buffer, std::size_t i, UInt32 value)
 		{
-			UInt16* ptr = static_cast<UInt16*>(buffer);
+			auto* ptr = static_cast<UInt16*>(buffer);
 			ptr[i] = static_cast<UInt16>(value);
 		}
 
 		void Setter32(void* buffer, std::size_t i, UInt32 value)
 		{
-			UInt32* ptr = static_cast<UInt32*>(buffer);
+			auto* ptr = static_cast<UInt32*>(buffer);
 			ptr[i] = value;
 		}
 

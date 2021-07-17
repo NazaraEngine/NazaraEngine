@@ -43,7 +43,7 @@ namespace Nz
 
 	void* VertexBuffer::Map(BufferAccess access, std::size_t startVertex, std::size_t length)
 	{
-		std::size_t stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
+		auto stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
 
 		return MapRaw(access, startVertex*stride, length*stride);
 	}
@@ -53,7 +53,7 @@ namespace Nz
 		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
 		NazaraAssert(m_vertexDeclaration, "Invalid vertex declaration");
 
-		std::size_t stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
+		auto stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
 
 		return MapRaw(access, startVertex*stride, length*stride);
 	}

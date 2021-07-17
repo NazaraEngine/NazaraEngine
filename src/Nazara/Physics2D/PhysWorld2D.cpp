@@ -232,7 +232,7 @@ namespace Nz
 
 		auto callback = [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
 		{
-			ResultType results = static_cast<ResultType>(data);
+			auto results = static_cast<ResultType>(data);
 
 			RaycastHit hitInfo;
 			hitInfo.fraction = float(alpha);
@@ -300,7 +300,7 @@ namespace Nz
 
 		auto callback = [] (cpShape* shape, void* data)
 		{
-			ResultType results = static_cast<ResultType>(data);
+			auto results = static_cast<ResultType>(data);
 			results->push_back(static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape)));
 		};
 
@@ -403,13 +403,13 @@ namespace Nz
 				cpBody* secondBody;
 				cpArbiterGetBodies(arb, &firstBody, &secondBody);
 
-				PhysWorld2D* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
-				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
-				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
+				auto* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
+				auto* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
+				auto* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
 				Arbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const auto* customCallbacks = static_cast<const Callback*>(data);
 				if (customCallbacks->startCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 					return cpTrue;
 				else
@@ -432,13 +432,13 @@ namespace Nz
 				cpBody* secondBody;
 				cpArbiterGetBodies(arb, &firstBody, &secondBody);
 
-				PhysWorld2D* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
-				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
-				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
+				auto* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
+				auto* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
+				auto* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
 				Arbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const auto* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->endCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 			};
 		}
@@ -457,13 +457,13 @@ namespace Nz
 				cpBody* secondBody;
 				cpArbiterGetBodies(arb, &firstBody, &secondBody);
 
-				PhysWorld2D* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
-				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
-				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
+				auto* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
+				auto* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
+				auto* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
 				Arbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const auto* customCallbacks = static_cast<const Callback*>(data);
 				if (customCallbacks->preSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 					return cpTrue;
 				else
@@ -486,13 +486,13 @@ namespace Nz
 				cpBody* secondBody;
 				cpArbiterGetBodies(arb, &firstBody, &secondBody);
 
-				PhysWorld2D* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
-				RigidBody2D* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
-				RigidBody2D* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
+				auto* world = static_cast<PhysWorld2D*>(cpSpaceGetUserData(space));
+				auto* firstRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(firstBody));
+				auto* secondRigidBody = static_cast<RigidBody2D*>(cpBodyGetUserData(secondBody));
 
 				Arbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const auto* customCallbacks = static_cast<const Callback*>(data);
 				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 			};
 		}

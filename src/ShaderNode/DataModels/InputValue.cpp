@@ -86,7 +86,7 @@ void InputValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QComboBox* inputSelection = new QComboBox;
+	auto* inputSelection = new QComboBox;
 	for (const auto& inputEntry : GetGraph().GetInputs())
 		inputSelection->addItem(QString::fromStdString(inputEntry.name));
 

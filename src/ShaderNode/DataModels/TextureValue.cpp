@@ -87,7 +87,7 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QComboBox* textureSelection = new QComboBox;
+	auto* textureSelection = new QComboBox;
 	for (const auto& textureEntry : GetGraph().GetTextures())
 		textureSelection->addItem(QString::fromStdString(textureEntry.name));
 

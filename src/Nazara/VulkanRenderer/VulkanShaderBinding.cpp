@@ -34,8 +34,8 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, TextureBinding>)
 				{
-					VulkanTexture* vkTexture = static_cast<VulkanTexture*>(arg.texture);
-					VulkanTextureSampler* vkSampler = static_cast<VulkanTextureSampler*>(arg.sampler);
+					auto* vkTexture = static_cast<VulkanTexture*>(arg.texture);
+					auto* vkSampler = static_cast<VulkanTextureSampler*>(arg.sampler);
 
 					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -48,7 +48,7 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{
-					VulkanBuffer* vkBuffer = static_cast<VulkanBuffer*>(arg.buffer);
+					auto* vkBuffer = static_cast<VulkanBuffer*>(arg.buffer);
 
 					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
 					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;

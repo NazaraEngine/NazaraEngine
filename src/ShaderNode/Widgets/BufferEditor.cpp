@@ -16,7 +16,7 @@ m_shaderGraph(graph)
 		OnEditBuffer(m_bufferList->row(item));
 	});
 
-	QPushButton* addBufferButton = new QPushButton(tr("Add buffer..."));
+	auto* addBufferButton = new QPushButton(tr("Add buffer..."));
 	connect(addBufferButton, &QPushButton::released, this, &BufferEditor::OnAddBuffer);
 
 	m_layout = new QVBoxLayout;
@@ -33,7 +33,7 @@ m_shaderGraph(graph)
 
 void BufferEditor::OnAddBuffer()
 {
-	BufferEditDialog* dialog = new BufferEditDialog(m_shaderGraph, this);
+	auto* dialog = new BufferEditDialog(m_shaderGraph, this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -55,7 +55,7 @@ void BufferEditor::OnEditBuffer(int inputIndex)
 	info.structIndex = buffer.structIndex;
 	info.type = buffer.type;
 
-	BufferEditDialog* dialog = new BufferEditDialog(m_shaderGraph, std::move(info), this);
+	auto* dialog = new BufferEditDialog(m_shaderGraph, std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{

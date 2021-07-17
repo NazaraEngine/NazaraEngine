@@ -108,7 +108,7 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QComboBox* fieldSelection = new QComboBox;
+	auto* fieldSelection = new QComboBox;
 	connect(fieldSelection, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index)
 	{
 		if (index >= 0)
@@ -122,7 +122,7 @@ void BufferField::BuildNodeEdition(QFormLayout* layout)
 		Q_EMIT dataUpdated(0);
 	});
 
-	QComboBox* bufferSelection = new QComboBox;
+	auto* bufferSelection = new QComboBox;
 	for (const auto& inputEntry : GetGraph().GetBuffers())
 		bufferSelection->addItem(QString::fromStdString(inputEntry.name));
 

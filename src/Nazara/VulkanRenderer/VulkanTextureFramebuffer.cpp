@@ -15,14 +15,14 @@ namespace Nz
 	VulkanFramebuffer(FramebufferType::Texture)
 	{
 		assert(renderPass);
-		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(*renderPass);
+		const auto& vkRenderPass = static_cast<const VulkanRenderPass&>(*renderPass);
 
 		StackArray<VkImageView> imageViews = NazaraStackArrayNoInit(VkImageView, attachments.size());
 		for (std::size_t i = 0; i < attachments.size(); ++i)
 		{
 			assert(attachments[i]);
 
-			const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(*attachments[i]);
+			const auto& vkTexture = static_cast<const VulkanTexture&>(*attachments[i]);
 			imageViews[i] = vkTexture.GetImageView();
 		}
 

@@ -135,7 +135,7 @@ namespace Nz
 				depth >>= 1;
 		}
 
-		SharedImage* newImage = new SharedImage(1, m_sharedImage->type, newFormat, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+		auto* newImage = new SharedImage(1, m_sharedImage->type, newFormat, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 
 		ReleaseImage();
 		m_sharedImage = newImage;
@@ -342,7 +342,7 @@ namespace Nz
 				depth >>= 1;
 		}
 
-		SharedImage* newImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+		auto* newImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, std::move(levels), m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 
 		ReleaseImage();
 		m_sharedImage = newImage;
@@ -1194,7 +1194,7 @@ namespace Nz
 
 		EnsureOwnership();
 
-		UInt8 oldLevelCount = UInt8(m_sharedImage->levels.size());
+		auto oldLevelCount = UInt8(m_sharedImage->levels.size());
 		UInt8 maxLevelCount = std::max(levelCount, oldLevelCount);
 
 		m_sharedImage->levels.resize(levelCount);

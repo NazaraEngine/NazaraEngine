@@ -27,18 +27,18 @@ QDialog(parent)
 
 	m_roleIndex = new QSpinBox;
 
-	QFormLayout* formLayout = new QFormLayout;
+	auto* formLayout = new QFormLayout;
 	formLayout->addRow(tr("Name"), m_inputName);
 	formLayout->addRow(tr("Type"), m_typeList);
 	formLayout->addRow(tr("Role"), m_roleList);
 	formLayout->addRow(tr("Role index"), m_roleIndex);
 	formLayout->addRow(tr("Input index"), m_locationIndex);
 
-	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &InputEditDialog::OnAccept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	QVBoxLayout* verticalLayout = new QVBoxLayout;
+	auto* verticalLayout = new QVBoxLayout;
 	verticalLayout->addLayout(formLayout);
 	verticalLayout->addWidget(buttonBox);
 

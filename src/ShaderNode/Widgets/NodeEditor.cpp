@@ -11,7 +11,7 @@ void NodeEditor::Clear()
 {
 	if (m_layout)
 	{
-		while (QWidget* w = findChild<QWidget*>())
+		while (auto* w = findChild<QWidget*>())
 			delete w;
 
 		delete m_layout;

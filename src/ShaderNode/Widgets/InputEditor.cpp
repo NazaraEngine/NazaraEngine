@@ -17,7 +17,7 @@ m_shaderGraph(graph)
 		OnEditInput(m_inputList->row(item));
 	});
 
-	QPushButton* addInputButton = new QPushButton(tr("Add input..."));
+	auto* addInputButton = new QPushButton(tr("Add input..."));
 	connect(addInputButton, &QPushButton::released, this, &InputEditor::OnAddInput);
 
 	m_layout = new QVBoxLayout;
@@ -34,7 +34,7 @@ m_shaderGraph(graph)
 
 void InputEditor::OnAddInput()
 {
-	InputEditDialog* dialog = new InputEditDialog(this);
+	auto* dialog = new InputEditDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -56,7 +56,7 @@ void InputEditor::OnEditInput(int inputIndex)
 	info.role = input.role;
 	info.roleIndex = input.roleIndex;
 
-	InputEditDialog* dialog = new InputEditDialog(std::move(info), this);
+	auto* dialog = new InputEditDialog(std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{

@@ -74,7 +74,7 @@ void ConditionalExpression::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 	
-	QComboBox* optionSelection = new QComboBox;
+	auto* optionSelection = new QComboBox;
 	for (const auto& optionEntry : GetGraph().GetOptions())
 		optionSelection->addItem(QString::fromStdString(optionEntry.name));
 
@@ -242,7 +242,7 @@ bool ConditionalExpression::ComputePreview(QPixmap& pixmap)
 		return false;
 
 	assert(dynamic_cast<VecData*>(input.get()) != nullptr);
-	const VecData& data = static_cast<const VecData&>(*input);
+	const auto& data = static_cast<const VecData&>(*input);
 
 	pixmap = QPixmap::fromImage(data.preview.GenerateImage());
 	return true;

@@ -41,7 +41,7 @@ m_shaderGraph(shaderGraph)
 		Refresh();
 	});
 
-	QVBoxLayout* verticalLayout = new QVBoxLayout;
+	auto* verticalLayout = new QVBoxLayout;
 	verticalLayout->addWidget(m_textOutput);
 	verticalLayout->addWidget(m_outputLang);
 	verticalLayout->addWidget(m_optimisationCheckbox);
@@ -79,7 +79,7 @@ void CodeOutputWidget::Refresh()
 		states.enabledOptions = enabledOptions;
 
 		std::string output;
-		OutputLanguage outputLang = static_cast<OutputLanguage>(m_outputLang->currentIndex());
+		auto outputLang = static_cast<OutputLanguage>(m_outputLang->currentIndex());
 		switch (outputLang)
 		{
 			case OutputLanguage::GLSL:

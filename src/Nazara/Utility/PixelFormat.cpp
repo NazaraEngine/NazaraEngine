@@ -86,7 +86,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::A8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(0x1F) << 11) |
@@ -108,7 +108,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::A8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = 0xFFF0 | c8to4(*start);
@@ -233,7 +233,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::BGR8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to4(start[2])) << 12) |
@@ -336,7 +336,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::BGRA8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to4(start[2])) << 12) |
@@ -358,7 +358,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::BGRA8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to5(start[2])) << 11) |
@@ -457,10 +457,10 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::L8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to5(start[0]));
+				auto l = static_cast<UInt16>(c8to5(start[0]));
 
 				*ptr = (l << 11) |
 					   (l << 6)  |
@@ -496,10 +496,10 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::L8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to4(start[0]));
+				auto l = static_cast<UInt16>(c8to4(start[0]));
 
 				*ptr = (l << 12) |
 					   (l << 8)  |
@@ -594,10 +594,10 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::LA8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to5(start[0]));
+				auto l = static_cast<UInt16>(c8to5(start[0]));
 
 				*ptr = (l << 11) | (l << 6) | (l << 1) | ((start[1] > 0xF) ? 1 : 0);
 
@@ -630,10 +630,10 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::LA8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to4(start[0]));
+				auto l = static_cast<UInt16>(c8to4(start[0]));
 
 				*ptr = (l << 12) | (l << 8) | (l << 4) | c8to4(start[1]);
 
@@ -777,7 +777,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGBA4, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
@@ -981,7 +981,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGB5A1, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
@@ -1091,7 +1091,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGB8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to5(start[0])) << 11) |
@@ -1113,7 +1113,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGB8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to4(start[0])) << 12) |
@@ -1232,7 +1232,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to5(start[0])) << 11) |
@@ -1269,7 +1269,7 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RGBA4>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
-			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
+			auto* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
 				*ptr = (static_cast<UInt16>(c8to4(start[0])) << 12) |
@@ -1343,7 +1343,7 @@ namespace Nz
 					{
 						for (unsigned int z = 0; z < depth; ++z)
 						{
-							const UInt8* srcPtr = reinterpret_cast<const UInt8*>(src);
+							const auto* srcPtr = reinterpret_cast<const UInt8*>(src);
 							UInt8* dstPtr = reinterpret_cast<UInt8*>(dst) + (width - 1)*height*depth*bpp;
 							for (unsigned int y = 0; y < height; ++y)
 							{

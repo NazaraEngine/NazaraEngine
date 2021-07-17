@@ -22,7 +22,7 @@ namespace Nz
 			NazaraAssert(handle.type == WindowManager::Windows, "expected Windows window");
 
 			HWND winHandle = reinterpret_cast<HWND>(handle.windows.window);
-			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
+			auto instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
 
 			success = m_surface.Create(instance, winHandle);
 		}

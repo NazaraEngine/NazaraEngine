@@ -71,7 +71,7 @@ namespace Nz
 			std::array<Vector2f, circleVerticesCount> vertices;
 
 			Vector2f origin = FromChipmunk(pos);
-			float r = static_cast<float>(radius);
+			auto r = static_cast<float>(radius);
 
 			RadianAnglef angleBetweenVertices = 2.f * Pi<float> / vertices.size();
 			for (std::size_t i = 0; i < vertices.size(); ++i)
@@ -100,7 +100,7 @@ namespace Nz
 			Vector2f thicknessNormal(sincos.second * normal.x - sincos.first * normal.y,
 			                         sincos.first * normal.x + sincos.second * normal.y);
 
-			float thickness = static_cast<float>(radius);
+			auto thickness = static_cast<float>(radius);
 
 			std::array<Vector2f, 4> vertices;
 			vertices[0] = from + thickness * thicknessNormal;

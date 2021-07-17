@@ -76,7 +76,7 @@ namespace Nz::ShaderAst
 			// Collect function name and their types
 			if (statement.GetType() == NodeType::MultiStatement)
 			{
-				const MultiStatement& multiStatement = static_cast<const MultiStatement&>(statement);
+				const auto& multiStatement = static_cast<const MultiStatement&>(statement);
 				for (auto& statementPtr : multiStatement.statements)
 				{
 					if (statementPtr->GetType() == NodeType::DeclareFunctionStatement)
@@ -1450,7 +1450,7 @@ namespace Nz::ShaderAst
 				if (indexExpr->GetType() != NodeType::ConstantValueExpression || indexType != ExpressionType{ PrimitiveType::Int32 })
 					throw AstError{ "struct can only be accessed with constant i32 indices" };
 
-				ConstantValueExpression& constantExpr = static_cast<ConstantValueExpression&>(*indexExpr);
+				auto& constantExpr = static_cast<ConstantValueExpression&>(*indexExpr);
 
 				Int32 index = std::get<Int32>(constantExpr.value);
 

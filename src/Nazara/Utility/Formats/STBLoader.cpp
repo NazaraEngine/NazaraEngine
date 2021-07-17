@@ -19,19 +19,19 @@ namespace Nz
 	{
 		int Eof(void* userdata)
 		{
-			Stream* stream = static_cast<Stream*>(userdata);
+			auto* stream = static_cast<Stream*>(userdata);
 			return stream->GetCursorPos() >= stream->GetSize();
 		}
 
 		int Read(void* userdata, char* data, int size)
 		{
-			Stream* stream = static_cast<Stream*>(userdata);
+			auto* stream = static_cast<Stream*>(userdata);
 			return static_cast<int>(stream->Read(data, size));
 		}
 
 		void Skip(void* userdata, int size)
 		{
-			Stream* stream = static_cast<Stream*>(userdata);
+			auto* stream = static_cast<Stream*>(userdata);
 			stream->SetCursorPos(static_cast<Int64>(stream->GetCursorPos()) + static_cast<Int64>(size));
 		}
 

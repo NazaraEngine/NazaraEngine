@@ -132,7 +132,7 @@ namespace Nz
 				continue;
 			}
 
-			CreateRendererImplFunc createRenderer = reinterpret_cast<CreateRendererImplFunc>(implLib.GetSymbol("NazaraRenderer_Instantiate"));
+			auto createRenderer = reinterpret_cast<CreateRendererImplFunc>(implLib.GetSymbol("NazaraRenderer_Instantiate"));
 			if (!createRenderer)
 			{
 				NazaraDebug("Skipped " + fileNameStr + " (symbol not found)");

@@ -16,7 +16,7 @@ m_shaderGraph(graph)
 		OnEditStruct(m_structList->row(item));
 	});
 
-	QPushButton* addStructButton = new QPushButton(tr("Add struct..."));
+	auto* addStructButton = new QPushButton(tr("Add struct..."));
 	connect(addStructButton, &QPushButton::released, this, &StructEditor::OnAddStruct);
 
 	m_layout = new QVBoxLayout;
@@ -33,7 +33,7 @@ m_shaderGraph(graph)
 
 void StructEditor::OnAddStruct()
 {
-	StructEditDialog* dialog = new StructEditDialog(m_shaderGraph, this);
+	auto* dialog = new StructEditDialog(m_shaderGraph, this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -66,7 +66,7 @@ void StructEditor::OnEditStruct(int inputIndex)
 		member.type = memberInfo.type;
 	}
 
-	StructEditDialog* dialog = new StructEditDialog(m_shaderGraph, std::move(info), this);
+	auto* dialog = new StructEditDialog(m_shaderGraph, std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{

@@ -209,7 +209,7 @@ namespace Nz
 
 		for (const auto& bufferData : pipelineInfo.vertexBuffers)
 		{
-			std::uint32_t binding = std::uint32_t(bufferData.binding);
+			auto binding = std::uint32_t(bufferData.binding);
 
 			for (const auto& componentInfo : bufferData.declaration->GetComponents())
 			{

@@ -20,7 +20,7 @@ namespace Nz
 			return {};
 		}
 
-		std::size_t length = static_cast<std::size_t>(file.GetSize());
+		auto length = static_cast<std::size_t>(file.GetSize());
 
 		std::vector<Nz::UInt8> source(length);
 		if (file.Read(&source[0], length) != length)

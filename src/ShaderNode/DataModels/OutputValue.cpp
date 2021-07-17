@@ -33,7 +33,7 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QComboBox* outputSelection = new QComboBox;
+	auto* outputSelection = new QComboBox;
 	for (const auto& outputEntry : GetGraph().GetOutputs())
 		outputSelection->addItem(QString::fromStdString(outputEntry.name));
 
@@ -160,7 +160,7 @@ QtNodes::NodeValidationState OutputValue::validationState() const
 				return QtNodes::NodeValidationState::Error;
 
 			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
-			const VecData& vec = static_cast<const VecData&>(*m_input);
+			const auto& vec = static_cast<const VecData&>(*m_input);
 			if (GetComponentCount(outputEntry.type) != vec.componentCount)
 				return QtNodes::NodeValidationState::Error;
 		}
@@ -193,7 +193,7 @@ QString OutputValue::validationMessage() const
 				return "Expected vector";
 
 			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
-			const VecData& vec = static_cast<const VecData&>(*m_input);
+			const auto& vec = static_cast<const VecData&>(*m_input);
 
 			std::size_t outputComponentCount = GetComponentCount(outputEntry.type);
 
@@ -219,7 +219,7 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 				return false;
 
 			assert(dynamic_cast<BoolData*>(m_input.get()) != nullptr);
-			const BoolData& data = static_cast<const BoolData&>(*m_input);
+			const auto& data = static_cast<const BoolData&>(*m_input);
 
 			pixmap = QPixmap::fromImage(data.preview.GenerateImage());
 			return true;
@@ -231,7 +231,7 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 				return false;
 
 			assert(dynamic_cast<FloatData*>(m_input.get()) != nullptr);
-			const FloatData& data = static_cast<const FloatData&>(*m_input);
+			const auto& data = static_cast<const FloatData&>(*m_input);
 
 			pixmap = QPixmap::fromImage(data.preview.GenerateImage());
 			return true;
@@ -254,7 +254,7 @@ bool OutputValue::ComputePreview(QPixmap& pixmap)
 				return false;
 
 			assert(dynamic_cast<VecData*>(m_input.get()) != nullptr);
-			const VecData& data = static_cast<const VecData&>(*m_input);
+			const auto& data = static_cast<const VecData&>(*m_input);
 
 			pixmap = QPixmap::fromImage(data.preview.GenerateImage());
 			return true;

@@ -23,7 +23,7 @@ Nz::ShaderAst::NodePtr VecDecomposition::BuildNode(Nz::ShaderAst::ExpressionPtr*
 
 	using namespace Nz;
 
-	ShaderAst::SwizzleComponent swizzleComponent = static_cast<ShaderAst::SwizzleComponent>(Nz::UnderlyingCast(ShaderAst::SwizzleComponent::First) + outputIndex);
+	auto swizzleComponent = static_cast<ShaderAst::SwizzleComponent>(Nz::UnderlyingCast(ShaderAst::SwizzleComponent::First) + outputIndex);
 	return ShaderBuilder::Swizzle(std::move(expressions[0]), { swizzleComponent });
 }
 

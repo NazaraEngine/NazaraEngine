@@ -11,7 +11,7 @@
 OptionEditor::OptionEditor(ShaderGraph& graph) :
 m_shaderGraph(graph)
 {
-	QTableView* tableView = new QTableView;
+	auto* tableView = new QTableView;
 	m_model = new QStandardItemModel(0, 2, tableView);
 	tableView->setModel(m_model);
 
@@ -27,14 +27,15 @@ m_shaderGraph(graph)
 	{
 		if (item->column() == 1)
 		{
-			std::size_t optionIndex = static_cast<std::size_t>(item->row());
-			bool value = item->checkState() == Qt::Checked;
+			auto optionIndex = static_cast<std::size_t>(item->row());
+			bool value = item->checkState() == Qt::Checked;
+
 			m_shaderGraph.EnableOption(optionIndex, value);
 		}
 	});
 
 
-	QPushButton* addStructButton = new QPushButton(tr("Add option..."));
+	auto* addStructButton = new QPushButton(tr("Add option..."));
 	connect(addStructButton, &QPushButton::released, this, &OptionEditor::OnAddOption);
 
 	m_layout = new QVBoxLayout;
@@ -51,7 +52,7 @@ m_shaderGraph(graph)
 
 void OptionEditor::OnAddOption()
 {
-	OptionEditDialog* dialog = new OptionEditDialog(this);
+	auto* dialog = new OptionEditDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -69,7 +70,7 @@ void OptionEditor::OnEditOption(int optionIndex)
 	OptionInfo info;
 	info.name = optionInfo.name;
 
-	OptionEditDialog* dialog = new OptionEditDialog(info, this);
+	auto* dialog = new OptionEditDialog(info, this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, optionIndex]
 	{
@@ -102,13 +103,13 @@ void OptionEditor::RefreshOptions()
 	int rowIndex = 0;
 	for (const auto& optionEntry : m_shaderGraph.GetOptions())
 	{
-		QStandardItem* label = new QStandardItem(1);
+		auto* label = new QStandardItem(1);
 		label->setEditable(false);
 		label->setText(QString::fromStdString(optionEntry.name));
 
 		m_model->setItem(rowIndex, 0, label);
 
-		QStandardItem* checkbox = new QStandardItem(1);
+		auto* checkbox = new QStandardItem(1);
 		checkbox->setCheckable(true);
 		checkbox->setCheckState((optionEntry.enabled) ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
 

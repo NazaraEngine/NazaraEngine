@@ -29,8 +29,8 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
-		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(renderPass);
-		const VulkanFramebuffer& vkFramebuffer = static_cast<const VulkanFramebuffer&>(framebuffer);
+		const auto& vkRenderPass = static_cast<const VulkanRenderPass&>(renderPass);
+		const auto& vkFramebuffer = static_cast<const VulkanFramebuffer&>(framebuffer);
 
 		std::size_t attachmentCount = vkRenderPass.GetAttachmentCount();
 
@@ -82,14 +82,14 @@ namespace Nz
 		if (!m_currentRenderPass)
 			throw std::runtime_error("BindPipeline must be called in a RenderPass");
 
-		const VulkanRenderPipeline& vkBinding = static_cast<const VulkanRenderPipeline&>(pipeline);
+		const auto& vkBinding = static_cast<const VulkanRenderPipeline&>(pipeline);
 
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkBinding.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
 	void VulkanCommandBufferBuilder::BindShaderBinding(UInt32 set, const ShaderBinding& binding)
 	{
-		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const auto& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
 		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
 
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
@@ -97,8 +97,8 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
 	{
-		const VulkanRenderPipelineLayout& vkPipelineLayout = static_cast<const VulkanRenderPipelineLayout&>(pipelineLayout);
-		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const auto& vkPipelineLayout = static_cast<const VulkanRenderPipelineLayout&>(pipelineLayout);
+		const auto& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
 
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
 	}
@@ -175,7 +175,7 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture)
 	{
-		const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(texture);
+		const auto& vkTexture = static_cast<const VulkanTexture&>(texture);
 
 		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), VK_IMAGE_ASPECT_COLOR_BIT);
 	}

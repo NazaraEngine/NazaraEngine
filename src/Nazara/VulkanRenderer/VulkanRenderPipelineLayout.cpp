@@ -129,13 +129,13 @@ namespace Nz
 
 		pool.freeBindings.Reset(freeBindingId);
 
-		VulkanShaderBinding* freeBindingMemory = reinterpret_cast<VulkanShaderBinding*>(&pool.storage[freeBindingId]);
+		auto* freeBindingMemory = reinterpret_cast<VulkanShaderBinding*>(&pool.storage[freeBindingId]);
 		return ShaderBindingPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId, std::move(descriptorSet)));
 	}
 
 	void VulkanRenderPipelineLayout::Release(ShaderBinding& binding)
 	{
-		VulkanShaderBinding& vulkanBinding = static_cast<VulkanShaderBinding&>(binding);
+		auto& vulkanBinding = static_cast<VulkanShaderBinding&>(binding);
 
 		std::size_t poolIndex = vulkanBinding.GetPoolIndex();
 		std::size_t bindingIndex = vulkanBinding.GetBindingIndex();
@@ -144,7 +144,7 @@ namespace Nz
 		auto& pool = m_descriptorPools[poolIndex];
 		assert(!pool.freeBindings.Test(bindingIndex));
 
-		VulkanShaderBinding* bindingMemory = reinterpret_cast<VulkanShaderBinding*>(&pool.storage[bindingIndex]);
+		auto* bindingMemory = reinterpret_cast<VulkanShaderBinding*>(&pool.storage[bindingIndex]);
 		PlacementDestroy(bindingMemory);
 
 		pool.freeBindings.Set(bindingIndex);

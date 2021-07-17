@@ -575,8 +575,8 @@ namespace Nz::ShaderAst
 
 		if (lhs->GetType() == NodeType::ConstantValueExpression && rhs->GetType() == NodeType::ConstantValueExpression)
 		{
-			const ConstantValueExpression& lhsConstant = static_cast<const ConstantValueExpression&>(*lhs);
-			const ConstantValueExpression& rhsConstant = static_cast<const ConstantValueExpression&>(*rhs);
+			const auto& lhsConstant = static_cast<const ConstantValueExpression&>(*lhs);
+			const auto& rhsConstant = static_cast<const ConstantValueExpression&>(*rhs);
 
 			ExpressionPtr optimized;
 			switch (node.op)
@@ -659,7 +659,7 @@ namespace Nz::ShaderAst
 		{
 			if (expressionCount == 1 && expressions.front()->GetType() == NodeType::ConstantValueExpression)
 			{
-				const ConstantValueExpression& constantExpr = static_cast<const ConstantValueExpression&>(*expressions.front());
+				const auto& constantExpr = static_cast<const ConstantValueExpression&>(*expressions.front());
 
 				switch (std::get<PrimitiveType>(node.targetType))
 				{
@@ -854,7 +854,7 @@ namespace Nz::ShaderAst
 
 		if (expr->GetType() == NodeType::ConstantValueExpression)
 		{
-			const ConstantValueExpression& constantExpr = static_cast<const ConstantValueExpression&>(*expr);
+			const auto& constantExpr = static_cast<const ConstantValueExpression&>(*expr);
 
 			ExpressionPtr optimized;
 			switch (node.op)

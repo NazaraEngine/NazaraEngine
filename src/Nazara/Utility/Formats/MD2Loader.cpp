@@ -117,7 +117,7 @@ namespace Nz
 
 			// And convert them into an index buffer
 			BufferMapper<IndexBuffer> indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
-			UInt16* index = static_cast<UInt16*>(indexMapper.GetPointer());
+			auto* index = static_cast<UInt16*>(indexMapper.GetPointer());
 
 			for (unsigned int i = 0; i < header.num_tris; ++i)
 			{

@@ -19,7 +19,7 @@ m_isPreviewEnabled(false)
 
 void ShaderNode::BuildNodeEdition(QFormLayout* layout)
 {
-	QCheckBox* checkbox = new QCheckBox;
+	auto* checkbox = new QCheckBox;
 	checkbox->setCheckState((m_isPreviewEnabled) ? Qt::Checked : Qt::Unchecked);
 
 	connect(checkbox, &QCheckBox::stateChanged, [&](int state)
@@ -29,7 +29,7 @@ void ShaderNode::BuildNodeEdition(QFormLayout* layout)
 
 	layout->addRow(tr("Enable preview"), checkbox);
 
-	QComboBox* previewSize = new QComboBox;
+	auto* previewSize = new QComboBox;
 
 	int index = 0;
 	for (int size : { 32, 64, 128, 256, 512 })
@@ -56,7 +56,7 @@ void ShaderNode::BuildNodeEdition(QFormLayout* layout)
 
 	if (m_enableCustomVariableName)
 	{
-		QLineEdit* lineEdit = new QLineEdit(QString::fromStdString(m_variableName));
+		auto* lineEdit = new QLineEdit(QString::fromStdString(m_variableName));
 		connect(lineEdit, &QLineEdit::textChanged, [&](const QString& text)
 		{
 			SetVariableName(text.toStdString());
@@ -97,7 +97,7 @@ QWidget* ShaderNode::embeddedWidget()
 		QWidget* embedded = EmbeddedWidget();
 		if (embedded)
 		{
-			QVBoxLayout* layout = new QVBoxLayout;
+			auto* layout = new QVBoxLayout;
 			layout->addWidget(embedded);
 			layout->addWidget(m_pixmapLabel);
 

@@ -43,28 +43,28 @@ m_shaderGraph(graph)
 	m_deleteMemberButton->setEnabled(false);
 	connect(m_deleteMemberButton, &QPushButton::released, this, &StructEditDialog::OnDeleteMember);
 
-	QPushButton* addMemberButton = new QPushButton(tr("Add member..."));
+	auto* addMemberButton = new QPushButton(tr("Add member..."));
 	connect(addMemberButton, &QPushButton::released, this, &StructEditDialog::OnAddMember);
 
-	QVBoxLayout* arrowLayout = new QVBoxLayout;
+	auto* arrowLayout = new QVBoxLayout;
 	arrowLayout->addWidget(m_memberMoveUpButton);
 	arrowLayout->addWidget(m_memberMoveDownButton);
 	arrowLayout->addWidget(m_deleteMemberButton);
 	arrowLayout->addWidget(addMemberButton);
 
-	QHBoxLayout* entityListLayout = new QHBoxLayout;
+	auto* entityListLayout = new QHBoxLayout;
 	entityListLayout->addWidget(m_memberList);
 	entityListLayout->addLayout(arrowLayout);
 
-	QFormLayout* formLayout = new QFormLayout;
+	auto* formLayout = new QFormLayout;
 	formLayout->addRow(tr("Name"), m_structName);
 	formLayout->addRow(tr("Members"), entityListLayout);
 
-	QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &StructEditDialog::OnAccept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	QVBoxLayout* verticalLayout = new QVBoxLayout;
+	auto* verticalLayout = new QVBoxLayout;
 	verticalLayout->addLayout(formLayout);
 	verticalLayout->addWidget(buttonBox);
 
@@ -119,7 +119,7 @@ void StructEditDialog::OnAccept()
 
 void StructEditDialog::OnAddMember()
 {
-	StructMemberEditDialog* dialog = new StructMemberEditDialog(m_shaderGraph, this);
+	auto* dialog = new StructMemberEditDialog(m_shaderGraph, this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -155,7 +155,7 @@ void StructEditDialog::OnEditMember(int memberIndex)
 	info.name = memberInfo.name;
 	info.type = memberInfo.type;
 
-	StructMemberEditDialog* dialog = new StructMemberEditDialog(m_shaderGraph, std::move(info), this);
+	auto* dialog = new StructMemberEditDialog(m_shaderGraph, std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, &memberInfo]
 	{
@@ -175,7 +175,7 @@ void StructEditDialog::OnMemberMoveUp()
 	if (memberIndex <= 0)
 		return;
 
-	std::size_t newMemberIndex = static_cast<std::size_t>(memberIndex - 1);
+	auto newMemberIndex = static_cast<std::size_t>(memberIndex - 1);
 	std::swap(m_info.members[memberIndex], m_info.members[newMemberIndex]);
 	UpdateMemberList();
 
@@ -188,7 +188,7 @@ void StructEditDialog::OnMemberMoveDown()
 	if (memberIndex < 0 || memberIndex + 1 >= m_memberList->count())
 		return;
 
-	std::size_t newMemberIndex = static_cast<std::size_t>(memberIndex + 1);
+	auto newMemberIndex = static_cast<std::size_t>(memberIndex + 1);
 	std::swap(m_info.members[memberIndex], m_info.members[newMemberIndex]);
 	UpdateMemberList();
 

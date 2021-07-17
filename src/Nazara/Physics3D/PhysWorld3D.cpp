@@ -192,8 +192,8 @@ namespace Nz
 
 	int PhysWorld3D::OnAABBOverlap(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
 	{
-		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
-		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
+		auto* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
+		auto* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
 		assert(bodyA && bodyB);
 
 		using ContactJoint = void*;
@@ -206,7 +206,7 @@ namespace Nz
 		for (ContactJoint contact : contacts)
 		{
 			NewtonMaterial* material = NewtonContactGetMaterial(contact);
-			Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
+			auto* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
 			assert(callbackData);
 			assert(callbackData->collisionCallback);
 
@@ -219,8 +219,8 @@ namespace Nz
 
 	void PhysWorld3D::ProcessContact(const NewtonJoint* const contactJoint, float /*timestep*/, int /*threadIndex*/)
 	{
-		RigidBody3D* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
-		RigidBody3D* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
+		auto* bodyA = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody0(contactJoint)));
+		auto* bodyB = static_cast<RigidBody3D*>(NewtonBodyGetUserData(NewtonJointGetBody1(contactJoint)));
 		assert(bodyA && bodyB);
 
 		using ContactJoint = void*;
@@ -233,7 +233,7 @@ namespace Nz
 		for (ContactJoint contact : contacts)
 		{
 			NewtonMaterial* material = NewtonContactGetMaterial(contact);
-			Callback* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
+			auto* callbackData = static_cast<Callback*>(NewtonMaterialGetMaterialPairUserData(material));
 			assert(callbackData);
 			assert(callbackData->collisionCallback);
 

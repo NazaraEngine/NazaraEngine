@@ -19,10 +19,10 @@ m_shaderGraph(graph)
 
 	m_pixmapLabel = new QLabel;
 
-	QPushButton* addTextureButton = new QPushButton(tr("Add texture..."));
+	auto* addTextureButton = new QPushButton(tr("Add texture..."));
 	connect(addTextureButton, &QPushButton::released, this, &TextureEditor::OnAddTexture);
 
-	QPushButton* updateTextureButton = new QPushButton(tr("Load texture preview..."));
+	auto* updateTextureButton = new QPushButton(tr("Load texture preview..."));
 	connect(updateTextureButton, &QPushButton::released, this, &TextureEditor::OnLoadTexture);
 
 	m_layout = new QVBoxLayout;
@@ -42,7 +42,7 @@ m_shaderGraph(graph)
 
 void TextureEditor::OnAddTexture()
 {
-	TextureEditDialog* dialog = new TextureEditDialog(this);
+	auto* dialog = new TextureEditDialog(this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog]
 	{
@@ -62,7 +62,7 @@ void TextureEditor::OnEditTexture(int inputIndex)
 	info.name = output.name;
 	info.type = output.type;
 
-	TextureEditDialog* dialog = new TextureEditDialog(std::move(info), this);
+	auto* dialog = new TextureEditDialog(std::move(info), this);
 	dialog->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dialog, &QDialog::accepted, [this, dialog, inputIndex]
 	{

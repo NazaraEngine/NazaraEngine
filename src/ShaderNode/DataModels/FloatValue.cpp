@@ -73,7 +73,7 @@ void FloatValue::BuildNodeEdition(QFormLayout* layout)
 {
 	ShaderNode::BuildNodeEdition(layout);
 
-	QDoubleSpinBox* spinbox = new QDoubleSpinBox;
+	auto* spinbox = new QDoubleSpinBox;
 	spinbox->setDecimals(6);
 	spinbox->setRange(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max());
 	spinbox->setValue(m_value);

@@ -129,7 +129,7 @@ namespace Nz
 					std::vector<Weight> tempWeights;
 
 					BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
-					SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
+					auto* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
 					for (const MD5MeshParser::Vertex& vertex : md5Mesh.vertices)
 					{

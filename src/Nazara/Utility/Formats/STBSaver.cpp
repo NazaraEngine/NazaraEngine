@@ -99,7 +99,7 @@ namespace Nz
 
 		void WriteToStream(void* userdata, void* data, int size)
 		{
-			Stream* stream = static_cast<Stream*>(userdata);
+			auto* stream = static_cast<Stream*>(userdata);
 			if (stream->Write(data, size) != static_cast<std::size_t>(size))
 				throw std::runtime_error("Failed to write to stream");
 		}

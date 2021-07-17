@@ -312,7 +312,7 @@ namespace Nz
 		{
 			if (geom->GetType() == ColliderType3D::Compound)
 			{
-				CompoundCollider3D& compoundGeom = static_cast<CompoundCollider3D&>(*geom);
+				auto& compoundGeom = static_cast<CompoundCollider3D&>(*geom);
 				for (const std::shared_ptr<Collider3D>& piece : compoundGeom.GetGeoms())
 					NewtonCompoundCollisionAddSubCollision(compoundCollision, piece->GetHandle(world));
 			}

@@ -58,8 +58,8 @@ Nz::Vector4f PreviewValues::Sample(float u, float v) const
 	float x = std::clamp(u * m_width, 0.f, m_width - 1.f);
 	float y = std::clamp(v * m_height, 0.f, m_height - 1.f);
 
-	std::size_t iX = static_cast<std::size_t>(x);
-	std::size_t iY = static_cast<std::size_t>(y);
+	auto iX = static_cast<std::size_t>(x);
+	auto iY = static_cast<std::size_t>(y);
 
 	float dX = x - iX;
 	float dY = y - iY;

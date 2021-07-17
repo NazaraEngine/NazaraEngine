@@ -513,7 +513,7 @@ namespace Nz
 
 		for (SubMeshData& data : m_subMeshes)
 		{
-			StaticMesh& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
+			auto& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
 
 			VertexMapper mapper(*staticMesh.GetVertexBuffer());
 			SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
@@ -611,10 +611,10 @@ namespace Nz
 
 		for (SubMeshData& data : m_subMeshes)
 		{
-			StaticMesh& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
+			auto& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
 
 			BufferMapper<VertexBuffer> mapper(*staticMesh.GetVertexBuffer(), BufferAccess::ReadWrite);
-			MeshVertex* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
+			auto* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
 
 			Boxf aabb(vertices->position.x, vertices->position.y, vertices->position.z, 0.f, 0.f, 0.f);
 

@@ -142,7 +142,7 @@ namespace Nz
 			OBJParser::Mesh* meshes = objFormat.SetMeshCount(meshCount);
 			for (std::size_t i = 0; i < meshCount; ++i)
 			{
-				const StaticMesh& staticMesh = static_cast<const StaticMesh&>(*mesh.GetSubMesh(i));
+				const auto& staticMesh = static_cast<const StaticMesh&>(*mesh.GetSubMesh(i));
 
 				std::size_t triangleCount = staticMesh.GetTriangleCount();
 

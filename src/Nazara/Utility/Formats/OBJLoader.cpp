@@ -75,7 +75,7 @@ namespace Nz
 				{
 					ParameterList data;
 
-					UInt8 alphaValue = static_cast<UInt8>(mtlMat->alpha*255.f);
+					auto alphaValue = static_cast<UInt8>(mtlMat->alpha*255.f);
 
 					Color ambientColor(mtlMat->ambient);
 					Color diffuseColor(mtlMat->diffuse);
@@ -309,7 +309,7 @@ namespace Nz
 					{
 						if (vertexIndices.texCoord > 0)
 						{
-							Vector2f uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
+							auto uv = Vector2f(texCoords[vertexIndices.texCoord - 1]);
 							uv.y = 1.f - uv.y; //< OBJ model texcoords seems to majority start from bottom left
 
 							uvPtr[index] = Vector2f(parameters.texCoordOffset + uv * parameters.texCoordScale);
