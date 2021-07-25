@@ -136,7 +136,6 @@ if is_plat("windows") then
 
 	add_defines("_CRT_SECURE_NO_WARNINGS")
 	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew")
-	add_cxxflags("/FC")
 	add_cxflags("/w44062") -- Enable warning: switch case not handled
 	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
 end
@@ -169,13 +168,16 @@ for name, module in pairs(modules) do
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
 
-	add_headerfiles("include/(Nazara/" .. name .. "/**.hpp)", "include/(Nazara/" .. name .. "/**.inl)")
-	add_headerfiles("src/(Nazara/" .. name .. "/**.hpp)", "src/(Nazara/" .. name .. "/**.inl)")
+	for _, ext in ipairs({".h", ".hpp", ".inl", ".natvis"}) do
+		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
+		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext)
+	end
+
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
 	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h")) do
-		add_files(filepath, {rule="embed_resources"})
+		add_files(filepath, {rule = "embed_resources"})
 	end
 
 	if is_plat("windows") then
