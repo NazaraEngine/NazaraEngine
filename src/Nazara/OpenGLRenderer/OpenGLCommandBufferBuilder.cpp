@@ -24,11 +24,11 @@ namespace Nz
 		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), static_cast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
-	void OpenGLCommandBufferBuilder::BindIndexBuffer(Nz::AbstractBuffer* indexBuffer, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindIndexBuffer(const AbstractBuffer& indexBuffer, UInt64 offset)
 	{
-		OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(indexBuffer);
+		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(indexBuffer);
 
-		m_commandBuffer.BindIndexBuffer(glBuffer->GetBuffer().GetObjectId());
+		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId());
 	}
 
 	void OpenGLCommandBufferBuilder::BindPipeline(const RenderPipeline& pipeline)
@@ -53,11 +53,11 @@ namespace Nz
 		m_commandBuffer.BindShaderBinding(glPipelineLayout, set, &glBinding);
 	}
 
-	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, Nz::AbstractBuffer* vertexBuffer, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const AbstractBuffer& vertexBuffer, UInt64 offset)
 	{
-		OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(vertexBuffer);
+		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(vertexBuffer);
 
-		m_commandBuffer.BindVertexBuffer(binding, glBuffer->GetBuffer().GetObjectId(), offset);
+		m_commandBuffer.BindVertexBuffer(binding, glBuffer.GetBuffer().GetObjectId(), offset);
 	}
 
 	void OpenGLCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
