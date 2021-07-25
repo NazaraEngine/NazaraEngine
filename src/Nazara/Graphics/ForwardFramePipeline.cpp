@@ -6,8 +6,10 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -22,8 +24,11 @@ namespace Nz
 {
 	ForwardFramePipeline::ForwardFramePipeline() :
 	m_rebuildFrameGraph(true),
+	m_rebuildDepthPrepass(false),
 	m_rebuildForwardPass(false)
 	{
+		m_elementRenderers.resize(1);
+		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
 	}
 
 	void ForwardFramePipeline::InvalidateViewer(AbstractViewer* viewerInstance)
@@ -63,6 +68,7 @@ namespace Nz
 						UnregisterMaterialPass(pass);
 				}
 
+				m_rebuildDepthPrepass = true;
 				m_rebuildForwardPass = true;
 			});
 
@@ -79,6 +85,7 @@ namespace Nz
 				}
 			}
 
+			m_rebuildDepthPrepass = true;
 			m_rebuildForwardPass = true;
 		}
 	}
@@ -120,7 +127,10 @@ namespace Nz
 				for (MaterialPass* material : m_invalidatedMaterials)
 				{
 					if (material->Update(renderFrame, builder))
+					{
+						m_rebuildDepthPrepass = true;
 						m_rebuildForwardPass = true;
+					}
 				}
 				m_invalidatedMaterials.clear();
 
@@ -128,6 +138,55 @@ namespace Nz
 			}
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);
+
+		if (m_rebuildDepthPrepass)
+		{
+			m_depthPrepassRenderElements.clear();
+
+			for (const auto& [worldInstance, renderables] : m_renderables)
+			{
+				for (const auto& [renderable, renderableData] : renderables)
+					renderable->BuildElement("DepthPass", *worldInstance, m_depthPrepassRenderElements);
+			}
+		}
+
+		if (m_rebuildForwardPass)
+		{
+			m_forwardRenderElements.clear();
+
+			for (const auto& [worldInstance, renderables] : m_renderables)
+			{
+				for (const auto& [renderable, renderableData] : renderables)
+					renderable->BuildElement("ForwardPass", *worldInstance, m_forwardRenderElements);
+			}
+		}
+
+		// RenderQueue handling
+		m_depthPrepassRegistry.Clear();
+		m_depthPrepassRenderQueue.Clear();
+		for (const auto& renderElement : m_depthPrepassRenderElements)
+		{
+			renderElement->Register(m_depthPrepassRegistry);
+			m_depthPrepassRenderQueue.Insert(renderElement.get());
+		}
+
+		m_depthPrepassRenderQueue.Sort([&](const RenderElement* element)
+		{
+			return element->ComputeSortingScore(m_depthPrepassRegistry);
+		});
+
+		m_forwardRegistry.Clear();
+		m_forwardRenderQueue.Clear();
+		for (const auto& renderElement : m_forwardRenderElements)
+		{
+			renderElement->Register(m_forwardRegistry);
+			m_forwardRenderQueue.Insert(renderElement.get());
+		}
+
+		m_forwardRenderQueue.Sort([&](const RenderElement* element)
+		{
+			return element->ComputeSortingScore(m_forwardRegistry);
+		});
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
 		{
@@ -152,6 +211,7 @@ namespace Nz
 
 		m_bakedFrameGraph.Execute(renderFrame);
 		m_rebuildForwardPass = false;
+		m_rebuildDepthPrepass = false;
 		m_rebuildFrameGraph = false;
 
 		const Vector2ui& frameSize = renderFrame.GetSize();
@@ -179,7 +239,7 @@ namespace Nz
 						builder.SetViewport(renderRegion);
 
 						builder.BindPipeline(*graphics->GetBlitPipeline());
-						builder.BindVertexBuffer(0, graphics->GetFullscreenVertexBuffer().get());
+						builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
 						builder.BindShaderBinding(0, *blitShaderBinding);
 
 						builder.Draw(3);
@@ -265,19 +325,35 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				for (const auto& [worldInstance, renderables] : m_renderables)
+				auto it = m_depthPrepassRenderQueue.begin();
+				while (it != m_depthPrepassRenderQueue.end())
 				{
-					builder.BindShaderBinding(Graphics::WorldBindingSet, worldInstance->GetShaderBinding());
+					const RenderElement* element = *it;
+					UInt8 elementType = element->GetElementType();
 
-					for (const auto& [renderable, renderableData] : renderables)
-						renderable->Draw("DepthPass", builder);
+					m_temporaryElementList.push_back(element);
+
+					++it;
+					while (it != m_depthPrepassRenderQueue.end() && (*it)->GetElementType() == elementType)
+					{
+						m_temporaryElementList.push_back(*it);
+						++it;
+					}
+
+					if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
+						continue;
+
+					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+					elementRenderer.Render(builder, m_temporaryElementList.data(), m_temporaryElementList.size());
+
+					m_temporaryElementList.clear();
 				}
 			});
 
 			FramePass& forwardPass = frameGraph.AddPass("Forward pass");
 			forwardPass.AddOutput(viewerData.colorAttachment);
 			forwardPass.SetDepthStencilInput(viewerData.depthStencilAttachment);
-			forwardPass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
+			//forwardPass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
 
 			forwardPass.SetClearColor(0, Color::Black);
 			forwardPass.SetDepthStencilClear(1.f, 0);
@@ -299,12 +375,28 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				for (const auto& [worldInstance, renderables] : m_renderables)
+				auto it = m_forwardRenderQueue.begin();
+				while (it != m_forwardRenderQueue.end())
 				{
-					builder.BindShaderBinding(Graphics::WorldBindingSet, worldInstance->GetShaderBinding());
+					const RenderElement* element = *it;
+					UInt8 elementType = element->GetElementType();
 
-					for (const auto& [renderable, renderableData] : renderables)
-						renderable->Draw("ForwardPass", builder);
+					m_temporaryElementList.push_back(element);
+
+					++it;
+					while (it != m_forwardRenderQueue.end() && (*it)->GetElementType() == elementType)
+					{
+						m_temporaryElementList.push_back(*it);
+						++it;
+					}
+
+					if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
+						continue;
+
+					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+					elementRenderer.Render(builder, m_temporaryElementList.data(), m_temporaryElementList.size());
+
+					m_temporaryElementList.clear();
 				}
 			});
 		}

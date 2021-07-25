@@ -789,6 +789,8 @@ namespace Nz
 
 					if (first)
 					{
+						bool canDiscard = true;
+
 						// Check if a future pass reads from the DS buffer or if we can discard it after this pass
 						if (auto readIt = m_pending.attachmentReadList.find(dsInputAttachment); readIt != m_pending.attachmentReadList.end())
 						{
@@ -798,11 +800,13 @@ namespace Nz
 								if (readPhysicalPassIndex > physicalPassIndex) //< Read in a future pass?
 								{
 									// Yes, store it
-									dsAttachment.storeOp = AttachmentStoreOp::Store;
+									canDiscard = false;
 									break;
 								}
 							}
 						}
+
+						dsAttachment.storeOp = (canDiscard) ? AttachmentStoreOp::Discard : AttachmentStoreOp::Store;
 					}
 
 					depthStencilAttachment = RenderPass::AttachmentReference{

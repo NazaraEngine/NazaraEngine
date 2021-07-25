@@ -16,6 +16,7 @@ namespace Nz
 {
 	class CommandBufferBuilder;
 	class Material;
+	class RenderElement;
 	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API InstancedRenderable
@@ -26,7 +27,7 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			~InstancedRenderable();
 
-			virtual void Draw(const std::string& pass, CommandBufferBuilder& commandBuffer) const = 0;
+			virtual void BuildElement(const std::string& pass, WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const = 0;
 
 			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
