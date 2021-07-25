@@ -9,6 +9,11 @@
 
 namespace Nz
 {
+	enum class BasicRenderElement
+	{
+		Submesh = 0,
+	};
+
 	enum class CullTest
 	{
 		Box,

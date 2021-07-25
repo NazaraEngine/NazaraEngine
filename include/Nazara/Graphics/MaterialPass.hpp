@@ -30,7 +30,7 @@ namespace Nz
 	class CommandBufferBuilder;
 	class RenderFrame;
 
-	class NAZARA_GRAPHICS_API MaterialPass : public Resource
+	class NAZARA_GRAPHICS_API MaterialPass
 	{
 		public:
 			MaterialPass(std::shared_ptr<const MaterialSettings> settings);

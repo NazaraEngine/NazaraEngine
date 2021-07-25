@@ -10,13 +10,18 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
+#include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
+#include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace Nz
 {
@@ -66,14 +71,22 @@ namespace Nz
 				ShaderBindingPtr blitShaderBinding;
 			};
 
-			std::size_t m_forwardPass;
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
 			std::unordered_map<WorldInstance*, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
 			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
 			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
+			std::vector<std::unique_ptr<RenderElement>> m_depthPrepassRenderElements;
+			std::vector<std::unique_ptr<RenderElement>> m_forwardRenderElements;
+			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
+			std::vector<const RenderElement*> m_temporaryElementList;
 			BakedFrameGraph m_bakedFrameGraph;
+			RenderQueueRegistry m_depthPrepassRegistry;
+			RenderQueueRegistry m_forwardRegistry;
+			RenderQueue<RenderElement*> m_depthPrepassRenderQueue;
+			RenderQueue<RenderElement*> m_forwardRenderQueue;
+			bool m_rebuildDepthPrepass;
 			bool m_rebuildFrameGraph;
 			bool m_rebuildForwardPass;
 	};
