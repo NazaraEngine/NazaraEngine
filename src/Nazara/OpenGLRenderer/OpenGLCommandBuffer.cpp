@@ -322,7 +322,7 @@ namespace Nz
 		}
 
 		const GL::VertexArray& vao = context.GetVaoCache().Get(vaoSetup);
-		context.BindVertexArray(vao.GetObjectId(), true);
+		context.BindVertexArray(vao.GetObjectId());
 	}
 
 	void OpenGLCommandBuffer::Release()
