@@ -16,7 +16,7 @@ namespace Nz
 	class RenderQueueInternal
 	{
 		public:
-			using Index = Nz::UInt64;
+			using Index = UInt64;
 
 			RenderQueueInternal() = default;
 			RenderQueueInternal(const RenderQueueInternal&) = default;
