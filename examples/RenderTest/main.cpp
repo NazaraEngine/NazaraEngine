@@ -368,9 +368,9 @@ int main()
 			{
 				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
-					builder.BindIndexBuffer(indexBufferImpl);
+					builder.BindIndexBuffer(*indexBufferImpl);
 					builder.BindPipeline(*pipeline);
-					builder.BindVertexBuffer(0, vertexBufferImpl);
+					builder.BindVertexBuffer(0, *vertexBufferImpl);
 					builder.BindShaderBinding(0, *viewerShaderBinding);
 					builder.BindShaderBinding(1, *textureShaderBinding);
 
