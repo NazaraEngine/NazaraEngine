@@ -98,6 +98,8 @@ local modules = {
 	}
 }
 
+set_xmakever("2.5.6")
+
 add_repositories("local-repo xmake-repo")
 
 add_requires("chipmunk2d", "dr_wav", "entt", "freetype", "libflac", "libsdl", "minimp3", "stb")
@@ -110,6 +112,11 @@ set_project("NazaraEngine")
 add_rules("mode.asan", "mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build_rendererplugins")
+
+set_allowedmodes("asan", "debug", "releasedbg")
+set_allowedplats("windows", "linux", "macosx")
+set_allowedarchs("windows|x64", "linux|x86_64", "macosx|x86_64")
+set_defaultmode("debug")
 
 if is_mode("debug") then
 	add_rules("debug_suffix")
