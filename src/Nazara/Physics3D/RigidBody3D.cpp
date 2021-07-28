@@ -70,7 +70,8 @@ namespace Nz
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)
 	{
-		NewtonBodySetUserData(m_body, this);
+		if (m_body)
+			NewtonBodySetUserData(m_body, this);
 	}
 
 	RigidBody3D::~RigidBody3D()
@@ -411,7 +412,9 @@ namespace Nz
 		m_torqueAccumulator  = std::move(object.m_torqueAccumulator);
 		m_world              = object.m_world;
 
-		NewtonBodySetUserData(m_body, this);
+		if (m_body)
+			NewtonBodySetUserData(m_body, this);
+
 		return *this;
 	}
 
