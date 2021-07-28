@@ -18,7 +18,7 @@ namespace Nz
 			SubmeshRenderer() = default;
 			~SubmeshRenderer() = default;
 
-			void Render(CommandBufferBuilder& commandBuffer, const RenderElement** elements, std::size_t elementCount) override;
+			void Render(CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
 	};
 }
 
