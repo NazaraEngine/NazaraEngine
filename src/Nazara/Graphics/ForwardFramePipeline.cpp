@@ -272,10 +272,14 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
+			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass("DepthPass"))
+				UnregisterMaterialPass(pass);
+
 			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass("ForwardPass"))
 				UnregisterMaterialPass(pass);
 		}
 
+		m_rebuildDepthPrepass = true;
 		m_rebuildForwardPass = true;
 	}
 
