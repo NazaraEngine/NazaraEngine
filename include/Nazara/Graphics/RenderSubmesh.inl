@@ -31,6 +31,7 @@ namespace Nz
 		// - Layer (8bits)
 		// - Pipeline (16bits)
 		// - VertexBuffer (8bits)
+		// - ?? (24bits) - Depth?
 
 		return (elementType & 0xF)        << 60 |
 		       (layerIndex & 0xFF)        << 52 |
