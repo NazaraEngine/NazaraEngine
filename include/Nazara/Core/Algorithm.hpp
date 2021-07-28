@@ -72,6 +72,9 @@ namespace Nz
 	};
 
 	template<typename T>
+	using Pointer = T*;
+
+	template<typename T>
 	bool Serialize(SerializationContext& context, T&& value);
 
 	inline bool Serialize(SerializationContext& context, bool value, TypeTag<bool>);
