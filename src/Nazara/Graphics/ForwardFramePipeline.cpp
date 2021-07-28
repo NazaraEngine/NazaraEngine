@@ -41,8 +41,10 @@ namespace Nz
 		m_invalidatedWorldInstances.insert(worldInstance);
 	}
 
-	void ForwardFramePipeline::RegisterInstancedDrawable(WorldInstance* worldInstance, const InstancedRenderable* instancedRenderable)
+	void ForwardFramePipeline::RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable)
 	{
+		m_removedWorldInstances.erase(worldInstance);
+
 		auto& renderableMap = m_renderables[worldInstance];
 		if (auto it = renderableMap.find(instancedRenderable); it == renderableMap.end())
 		{
@@ -98,6 +100,9 @@ namespace Nz
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
 	{
 		Graphics* graphics = Graphics::Instance();
+
+		renderFrame.PushForRelease(std::move(m_removedWorldInstances));
+		m_removedWorldInstances.clear();
 
 		if (m_rebuildFrameGraph)
 		{
@@ -252,7 +257,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::UnregisterInstancedDrawable(WorldInstance* worldInstance, const InstancedRenderable* instancedRenderable)
+	void ForwardFramePipeline::UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable)
 	{
 		auto instanceIt = m_renderables.find(worldInstance);
 		if (instanceIt == m_renderables.end())
@@ -267,7 +272,10 @@ namespace Nz
 		if (instancedRenderables.size() > 1)
 			instancedRenderables.erase(renderableIt);
 		else
-			m_renderables.erase(worldInstance);
+		{
+			m_removedWorldInstances.insert(worldInstance);
+			m_renderables.erase(instanceIt);;
+		}
 
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
