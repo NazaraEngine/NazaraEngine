@@ -19,6 +19,9 @@ namespace Nz
 	class CommandBufferBuilder;
 	class MaterialSettings;
 	class UploadPool;
+	class WorldInstance;
+
+	using WorldInstancePtr = std::shared_ptr<WorldInstance>;
 
 	class NAZARA_GRAPHICS_API WorldInstance
 	{

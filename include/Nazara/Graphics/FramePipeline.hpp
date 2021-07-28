@@ -9,13 +9,13 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/WorldInstance.hpp>
 
 namespace Nz
 {
 	class AbstractViewer;
 	class InstancedRenderable;
 	class RenderFrame;
-	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API FramePipeline
 	{
@@ -28,12 +28,12 @@ namespace Nz
 			virtual void InvalidateViewer(AbstractViewer* viewerInstance) = 0;
 			virtual void InvalidateWorldInstance(WorldInstance* worldInstance) = 0;
 
-			virtual void RegisterInstancedDrawable(WorldInstance* worldInstance, const InstancedRenderable* instancedRenderable) = 0;
+			virtual void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable) = 0;
 			virtual void RegisterViewer(AbstractViewer* viewerInstance) = 0;
 
 			virtual void Render(RenderFrame& renderFrame) = 0;
 
-			virtual void UnregisterInstancedDrawable(WorldInstance* worldInstance, const InstancedRenderable* instancedRenderable) = 0;
+			virtual void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) = 0;
 			virtual void UnregisterViewer(AbstractViewer* viewerInstance) = 0;
 
 			FramePipeline& operator=(const FramePipeline&) = delete;

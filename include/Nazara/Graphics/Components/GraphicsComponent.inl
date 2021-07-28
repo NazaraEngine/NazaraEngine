@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline GraphicsComponent::GraphicsComponent()
 	{
-		m_worldInstance = std::make_unique<WorldInstance>(); //< FIXME
+		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
 	}
 
 	inline void GraphicsComponent::AttachRenderable(std::shared_ptr<InstancedRenderable> renderable)
@@ -35,13 +35,8 @@ namespace Nz
 		return m_renderables;
 	}
 
-	inline WorldInstance& GraphicsComponent::GetWorldInstance()
+	inline const WorldInstancePtr& GraphicsComponent::GetWorldInstance() const
 	{
-		return *m_worldInstance;
-	}
-
-	inline const WorldInstance& GraphicsComponent::GetWorldInstance() const
-	{
-		return *m_worldInstance;
+		return m_worldInstance;
 	}
 }

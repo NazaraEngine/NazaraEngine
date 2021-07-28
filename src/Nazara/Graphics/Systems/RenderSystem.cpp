@@ -60,9 +60,9 @@ namespace Nz
 			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
 			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
 
-			WorldInstance& worldInstance = entityGfx.GetWorldInstance();
+			const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
 			for (const auto& renderable : entityGfx.GetRenderables())
-				m_pipeline->RegisterInstancedDrawable(&worldInstance, renderable.get());
+				m_pipeline->RegisterInstancedDrawable(worldInstance, renderable.get());
 
 			m_invalidatedWorldNode.insert(entity);
 
@@ -75,14 +75,14 @@ namespace Nz
 
 			graphicsEntity.onRenderableAttached.Connect(entityGfx.OnRenderableAttached, [this](GraphicsComponent* gfx, const std::shared_ptr<InstancedRenderable>& renderable)
 			{
-				WorldInstance& worldInstance = gfx->GetWorldInstance();
-				m_pipeline->RegisterInstancedDrawable(&worldInstance, renderable.get());
+				const WorldInstancePtr& worldInstance = gfx->GetWorldInstance();
+				m_pipeline->RegisterInstancedDrawable(worldInstance, renderable.get());
 			});
 
 			graphicsEntity.onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this](GraphicsComponent* gfx, const std::shared_ptr<InstancedRenderable>& renderable)
 			{
-				WorldInstance& worldInstance = gfx->GetWorldInstance();
-				m_pipeline->UnregisterInstancedDrawable(&worldInstance, renderable.get());
+				const WorldInstancePtr& worldInstance = gfx->GetWorldInstance();
+				m_pipeline->UnregisterInstancedDrawable(worldInstance, renderable.get());
 			});
 		});
 
@@ -106,9 +106,9 @@ namespace Nz
 		m_invalidatedWorldNode.erase(entity);
 
 		GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
-		WorldInstance& worldInstance = entityGfx.GetWorldInstance();
+		const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
 		for (const auto& renderable : entityGfx.GetRenderables())
-			m_pipeline->UnregisterInstancedDrawable(&worldInstance, renderable.get());
+			m_pipeline->UnregisterInstancedDrawable(worldInstance, renderable.get());
 	}
 
 	void RenderSystem::OnNodeDestroy(entt::registry& registry, entt::entity entity)
@@ -139,10 +139,10 @@ namespace Nz
 			const NodeComponent& entityNode = registry.get<const NodeComponent>(entity);
 			GraphicsComponent& entityGraphics = registry.get<GraphicsComponent>(entity);
 
-			WorldInstance& worldInstance = entityGraphics.GetWorldInstance();
-			worldInstance.UpdateWorldMatrix(entityNode.GetTransformMatrix());
+			const WorldInstancePtr& worldInstance = entityGraphics.GetWorldInstance();
+			worldInstance->UpdateWorldMatrix(entityNode.GetTransformMatrix());
 
-			m_pipeline->InvalidateWorldInstance(&worldInstance);
+			m_pipeline->InvalidateWorldInstance(worldInstance.get());
 		}
 		m_invalidatedWorldNode.clear();
 	}

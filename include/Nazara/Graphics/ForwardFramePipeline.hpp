@@ -36,12 +36,12 @@ namespace Nz
 			void InvalidateViewer(AbstractViewer* viewerInstance) override;
 			void InvalidateWorldInstance(WorldInstance* worldInstance) override;
 
-			void RegisterInstancedDrawable(WorldInstance* worldInstance, const InstancedRenderable* instancedRenderable) override;
+			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable) override;
 			void RegisterViewer(AbstractViewer* viewerInstance) override;
 
 			void Render(RenderFrame& renderFrame) override;
 
-			void UnregisterInstancedDrawable(WorldInstance* worldInstance, const InstancedRenderable* instancedRenderable) override;
+			void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) override;
 			void UnregisterViewer(AbstractViewer* viewerInstance) override;
 
 			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;
@@ -75,10 +75,11 @@ namespace Nz
 
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
-			std::unordered_map<WorldInstance*, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
+			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
 			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
 			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
+			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
 			std::vector<std::unique_ptr<RenderElement>> m_depthPrepassRenderElements;
 			std::vector<std::unique_ptr<RenderElement>> m_forwardRenderElements;
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
