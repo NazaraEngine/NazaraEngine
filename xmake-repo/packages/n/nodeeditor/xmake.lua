@@ -7,9 +7,9 @@ package("nodeeditor")
     set_urls("https://github.com/paceholder/nodeeditor/archive/refs/tags/$(version).tar.gz",
              "https://github.com/paceholder/nodeeditor.git")
     add_versions("2.1.3", "4e3194a04ac4a2a2bf4bc8eb6cc27d5cc154923143c1ecf579ce7f0115a90585")
-    add_patches("2.1.3", path.join(os.scriptdir(), "patches", "2.1.3", "fix_qt.patch"), "804ee98d47b675c578981414ed25a745f1b12d0cd8b03ea7d7b079c7e1ce1ea9")
+    add_patches("2.1.3", path.join(os.scriptdir(), "patches", "2.1.3", "fix_qt.patch"), "3192c66fe711ad4bbfba96348601655396bc32465e2807f5be252cde6e2a3d59")
 
-    add_deps("cmake")
+    add_deps("cmake", "qt5core", "qt5gui", "qt5widgets")
 
     on_load(function (package)
         if package:config("shared") then
@@ -20,8 +20,7 @@ package("nodeeditor")
     end)
 
     on_install("windows", "linux", "mingw", "macosx", function (package)
-        import("detect.sdks.find_qt")
-        local qt = find_qt()
+        local qt = package:dep("qt5core"):fetch().qtdir
 
         local configs = {"-DBUILD_EXAMPLES=OFF", "-DBUILD_TESTING=OFF"}
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
@@ -33,10 +32,6 @@ package("nodeeditor")
     end)
 
     on_test(function (package)
-        do
-        -- Disable test until I can test with Qt
-        return
-        end
         assert(package:check_cxxsnippets({test = [[
             void test() {
                 QtNodes::FlowScene scene(std::make_shared<QtNodes::DataModelRegistry>());

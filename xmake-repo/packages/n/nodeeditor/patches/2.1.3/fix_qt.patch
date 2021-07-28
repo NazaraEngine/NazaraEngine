@@ -17,7 +17,7 @@ index 3d47a3f..cc5eb68 100644
 @@ -1,5 +1,11 @@
  #pragma once
  
-+#include <QtGlobal>
++#include <QtCore/QtGlobal>
 +
 +#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
 +
