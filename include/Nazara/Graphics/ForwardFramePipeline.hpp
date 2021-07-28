@@ -49,7 +49,9 @@ namespace Nz
 
 		private:
 			BakedFrameGraph BuildFrameGraph();
+
 			void RegisterMaterialPass(MaterialPass* material);
+			void ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue);
 			void UnregisterMaterialPass(MaterialPass* material);
 
 			struct MaterialData
@@ -80,7 +82,6 @@ namespace Nz
 			std::vector<std::unique_ptr<RenderElement>> m_depthPrepassRenderElements;
 			std::vector<std::unique_ptr<RenderElement>> m_forwardRenderElements;
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
-			std::vector<const RenderElement*> m_temporaryElementList;
 			BakedFrameGraph m_bakedFrameGraph;
 			RenderQueueRegistry m_depthPrepassRegistry;
 			RenderQueueRegistry m_forwardRegistry;
