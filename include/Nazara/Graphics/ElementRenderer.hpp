@@ -8,6 +8,7 @@
 #define NAZARA_ELEMENTRENDERER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <memory>
 #include <vector>
@@ -23,7 +24,7 @@ namespace Nz
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
-			virtual void Render(CommandBufferBuilder& commandBuffer, const RenderElement** elements, std::size_t elementCount) = 0;
+			virtual void Render(CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) = 0;
 	};
 }
 

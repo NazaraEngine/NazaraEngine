@@ -325,29 +325,7 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				auto it = m_depthPrepassRenderQueue.begin();
-				while (it != m_depthPrepassRenderQueue.end())
-				{
-					const RenderElement* element = *it;
-					UInt8 elementType = element->GetElementType();
-
-					m_temporaryElementList.push_back(element);
-
-					++it;
-					while (it != m_depthPrepassRenderQueue.end() && (*it)->GetElementType() == elementType)
-					{
-						m_temporaryElementList.push_back(*it);
-						++it;
-					}
-
-					if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
-						continue;
-
-					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Render(builder, m_temporaryElementList.data(), m_temporaryElementList.size());
-
-					m_temporaryElementList.clear();
-				}
+				ProcessRenderQueue(builder, m_depthPrepassRenderQueue);
 			});
 
 			FramePass& forwardPass = frameGraph.AddPass("Forward pass");
@@ -375,29 +353,7 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				auto it = m_forwardRenderQueue.begin();
-				while (it != m_forwardRenderQueue.end())
-				{
-					const RenderElement* element = *it;
-					UInt8 elementType = element->GetElementType();
-
-					m_temporaryElementList.push_back(element);
-
-					++it;
-					while (it != m_forwardRenderQueue.end() && (*it)->GetElementType() == elementType)
-					{
-						m_temporaryElementList.push_back(*it);
-						++it;
-					}
-
-					if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
-						continue;
-
-					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Render(builder, m_temporaryElementList.data(), m_temporaryElementList.size());
-
-					m_temporaryElementList.clear();
-				}
+				ProcessRenderQueue(builder, m_forwardRenderQueue);
 			});
 		}
 
@@ -423,6 +379,31 @@ namespace Nz
 		}
 
 		it->second.usedCount++;
+	}
+
+	void ForwardFramePipeline::ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue)
+	{
+		auto it = renderQueue.begin();
+		auto itEnd = renderQueue.end();
+		while (it != itEnd)
+		{
+			const RenderElement* element = *it;
+			UInt8 elementType = element->GetElementType();
+
+			const Pointer<const RenderElement>* first = it;
+
+			++it;
+			while (it != itEnd && (*it)->GetElementType() == elementType)
+				++it;
+
+			std::size_t count = it - first;
+			
+			if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
+				continue;
+
+			ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+			elementRenderer.Render(builder, first, count);
+		}
 	}
 
 	void ForwardFramePipeline::UnregisterMaterialPass(MaterialPass* material)

@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	void SubmeshRenderer::Render(CommandBufferBuilder& commandBuffer, const RenderElement** elements, std::size_t elementCount)
+	void SubmeshRenderer::Render(CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 	{
 		const AbstractBuffer* currentIndexBuffer = nullptr;
 		const AbstractBuffer* currentVertexBuffer = nullptr;
