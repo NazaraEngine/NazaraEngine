@@ -28,8 +28,7 @@ namespace Nz
 			inline void DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable);
 
 			inline const std::vector<std::shared_ptr<InstancedRenderable>>& GetRenderables() const;
-			inline WorldInstance& GetWorldInstance();
-			inline const WorldInstance& GetWorldInstance() const;
+			inline const WorldInstancePtr& GetWorldInstance() const;
 
 			GraphicsComponent& operator=(const GraphicsComponent&) = default;
 			GraphicsComponent& operator=(GraphicsComponent&&) = default;
@@ -39,7 +38,7 @@ namespace Nz
 
 		private:
 			std::vector<std::shared_ptr<InstancedRenderable>> m_renderables;
-			std::unique_ptr<WorldInstance> m_worldInstance;
+			WorldInstancePtr m_worldInstance;
 	};
 }
 
