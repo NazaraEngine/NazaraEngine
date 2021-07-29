@@ -2,14 +2,8 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/FrameGraph.hpp>
-#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Shader.hpp>
-#include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/SpirvPrinter.hpp>
-#include <Nazara/Shader/ShaderLangLexer.hpp>
-#include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <iostream>
@@ -554,6 +548,10 @@ int main()
 	std::size_t bloomTextureB;
 	std::size_t lightOutput;
 
+	Nz::SubmeshRenderer submeshRenderer;
+
+	std::size_t forwardPassIndex = Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
+
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
 		Nz::PixelFormat depthStencilFormat = Nz::PixelFormat::Undefined;
@@ -650,15 +648,16 @@ int main()
 
 			builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
 
-			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, modelInstance1.GetShaderBinding());
-			spaceshipModel.Draw("ForwardPass", builder);
+			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements);
+			planeModel.BuildElement(forwardPassIndex, planeInstance, elements);
 
-			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, modelInstance2.GetShaderBinding());
-			spaceshipModel.Draw("ForwardPass", builder);
+			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			for (const auto& element : elements)
+				elementPointers.emplace_back(element.get());
 
-			// Plane
-			builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, planeInstance.GetShaderBinding());
-			planeModel.Draw("ForwardPass", builder);
+			submeshRenderer.Render(builder, elementPointers.data(), elementPointers.size());
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -673,8 +672,8 @@ int main()
 			builder.SetViewport(renderArea);
 
 			//builder.BindVertexBuffer(0, vertexBuffer.get());
-			builder.BindIndexBuffer(coneMeshGfx->GetIndexBuffer(0).get());
-			builder.BindVertexBuffer(0, coneMeshGfx->GetVertexBuffer(0).get());
+			builder.BindIndexBuffer(*coneMeshGfx->GetIndexBuffer(0).get());
+			builder.BindVertexBuffer(0, *coneMeshGfx->GetVertexBuffer(0).get());
 
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *gbufferShaderBinding);
@@ -707,8 +706,8 @@ int main()
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *skyboxShaderBinding);
 
-			builder.BindIndexBuffer(cubeMeshGfx->GetIndexBuffer(0).get());
-			builder.BindVertexBuffer(0, cubeMeshGfx->GetVertexBuffer(0).get());
+			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));
+			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
 			builder.BindPipeline(*skyboxPipeline);
 
 			builder.DrawIndexed(static_cast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
@@ -733,7 +732,7 @@ int main()
 			builder.BindShaderBinding(1, *bloomBrightShaderBinding);
 
 			builder.BindPipeline(*bloomBrightPipeline);
-			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -754,7 +753,7 @@ int main()
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *gaussianBlurShaderBinding);
 			builder.BindPipeline(*gaussianBlurPipeline);
-			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -775,7 +774,7 @@ int main()
 			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
 			builder.BindShaderBinding(1, *bloomBlendShaderBinding);
 			builder.BindPipeline(*bloomBlendPipeline);
-			builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -1124,7 +1123,7 @@ int main()
 
 					builder.BindShaderBinding(0, *finalBlitBinding);
 					builder.BindPipeline(*fullscreenPipeline);
-					builder.BindVertexBuffer(0, fullscreenVertexBuffer.get());
+					builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 					builder.Draw(3);
 				}
 				builder.EndRenderPass();
