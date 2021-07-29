@@ -28,6 +28,7 @@ package("nodeeditor")
         if qt then
             table.insert(configs, "-DQt5_DIR=" .. path.join(qt.libdir, "cmake", "Qt5"))
         end
+
         import("package.tools.cmake").install(package, configs)
     end)
 
@@ -37,5 +38,5 @@ package("nodeeditor")
                 QtNodes::FlowScene scene(std::make_shared<QtNodes::DataModelRegistry>());
                 QtNodes::FlowView view(&scene);
             }
-        ]]}, {configs = {languages = "c++11"}, includes = {"nodes/FlowScene", "nodes/FlowView"}}))
+        ]]}, {configs = {languages = "c++14", cxflags = not package:is_plat("windows") and "-fPIC" or nil}, includes = {"nodes/FlowScene", "nodes/FlowView"}}))
     end)
