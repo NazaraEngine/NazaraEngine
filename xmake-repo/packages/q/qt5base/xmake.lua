@@ -11,7 +11,7 @@ package("qt5base")
         local qt = find_qt()
         if qt then
             package:data_set("qtdir", qt)
-        else]]
+        else
             package:add("deps", "python >=3.6", "7z")
         end
     end)
@@ -37,7 +37,6 @@ package("qt5base")
         local target = "desktop"
         local arch = package:is_plat("windows") and "win64_msvc2019_64" or nil
 
-        print("LD_LIBRARY_PATH", os.getenv("LD_LIBRARY_PATH"))
         os.vrunv("python", {"-m", "aqt", "install", "--outputdir", installdir, version, host, target, arch})
 
         -- move files to root
