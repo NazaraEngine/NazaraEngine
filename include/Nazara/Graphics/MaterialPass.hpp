@@ -133,6 +133,7 @@ namespace Nz
 			UInt64 m_enabledOptions;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			ShaderBindingPtr m_shaderBinding;
+			bool m_forceCommandBufferRegeneration;
 			mutable bool m_pipelineUpdated;
 			bool m_shaderBindingUpdated;
 	};

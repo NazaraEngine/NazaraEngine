@@ -27,6 +27,16 @@ namespace Nz
 		return m_fullscreenVertexDeclaration;
 	}
 
+	inline MaterialPassRegistry& Graphics::GetMaterialPassRegistry()
+	{
+		return m_materialPassRegistry;
+	}
+
+	inline const MaterialPassRegistry& Graphics::GetMaterialPassRegistry() const
+	{
+		return m_materialPassRegistry;
+	}
+
 	inline PixelFormat Graphics::GetPreferredDepthStencilFormat() const
 	{
 		return m_preferredDepthStencilFormat;

@@ -29,6 +29,7 @@ namespace Nz
 	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
 	m_enabledOptions(0),
+	m_forceCommandBufferRegeneration(false),
 	m_pipelineUpdated(false),
 	m_shaderBindingUpdated(false)
 	{
@@ -66,11 +67,8 @@ namespace Nz
 
 	bool MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
-		bool shouldRegenerateCommandBuffer = false;
 		if (!m_shaderBindingUpdated)
 		{
-			shouldRegenerateCommandBuffer = true;
-
 			renderFrame.PushForRelease(std::move(m_shaderBinding));
 			m_shaderBinding.reset();
 
@@ -91,6 +89,9 @@ namespace Nz
 				ubo.dataInvalidated = false;
 			}
 		}
+
+		bool shouldRegenerateCommandBuffer = m_forceCommandBufferRegeneration;
+		m_forceCommandBufferRegeneration = false;
 
 		return shouldRegenerateCommandBuffer;
 	}

@@ -90,9 +90,10 @@ namespace Nz
 				for (const auto& output : framePass.GetOutputs())
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, output.attachmentId));
 
-				if (std::size_t attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
+				std::size_t attachmentId;
+				if (attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, attachmentId));
-				else if (std::size_t attachmentId = framePass.GetDepthStencilInput(); attachmentId != FramePass::InvalidAttachmentId)
+				else if (attachmentId = framePass.GetDepthStencilInput(); attachmentId != FramePass::InvalidAttachmentId)
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, attachmentId)); //< FIXME?
 			}
 		}
@@ -292,7 +293,6 @@ namespace Nz
 
 			std::size_t dsInputAttachment = framePass.GetDepthStencilInput();
 			std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput();
-			bool depthRead = false;
 
 			if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
