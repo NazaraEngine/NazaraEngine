@@ -27,6 +27,10 @@ namespace Nz
 	m_rebuildDepthPrepass(false),
 	m_rebuildForwardPass(false)
 	{
+		auto& passRegistry = Graphics::Instance()->GetMaterialPassRegistry();
+		m_depthPassIndex = passRegistry.GetPassIndex("DepthPass");
+		m_forwardPassIndex = passRegistry.GetPassIndex("ForwardPass");
+
 		m_elementRenderers.resize(1);
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
 	}
@@ -46,6 +50,9 @@ namespace Nz
 		m_removedWorldInstances.erase(worldInstance);
 
 		auto& renderableMap = m_renderables[worldInstance];
+		if (renderableMap.empty())
+			InvalidateWorldInstance(worldInstance.get());
+
 		if (auto it = renderableMap.find(instancedRenderable); it == renderableMap.end())
 		{
 			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
@@ -53,20 +60,20 @@ namespace Nz
 			{
 				if (newMaterial)
 				{
-					if (MaterialPass* pass = newMaterial->GetPass("DepthPass"))
+					if (MaterialPass* pass = newMaterial->GetPass(m_depthPassIndex))
 						RegisterMaterialPass(pass);
 
-					if (MaterialPass* pass = newMaterial->GetPass("ForwardPass"))
+					if (MaterialPass* pass = newMaterial->GetPass(m_forwardPassIndex))
 						RegisterMaterialPass(pass);
 				}
 
 				const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
 				if (prevMaterial)
 				{
-					if (MaterialPass* pass = prevMaterial->GetPass("DepthPass"))
+					if (MaterialPass* pass = prevMaterial->GetPass(m_depthPassIndex))
 						UnregisterMaterialPass(pass);
 
-					if (MaterialPass* pass = prevMaterial->GetPass("ForwardPass"))
+					if (MaterialPass* pass = prevMaterial->GetPass(m_forwardPassIndex))
 						UnregisterMaterialPass(pass);
 				}
 
@@ -79,10 +86,10 @@ namespace Nz
 			{
 				if (Material* mat = instancedRenderable->GetMaterial(i).get())
 				{
-					if (MaterialPass* pass = mat->GetPass("DepthPass"))
+					if (MaterialPass* pass = mat->GetPass(m_depthPassIndex))
 						RegisterMaterialPass(pass);
 
-					if (MaterialPass* pass = mat->GetPass("ForwardPass"))
+					if (MaterialPass* pass = mat->GetPass(m_forwardPassIndex))
 						RegisterMaterialPass(pass);
 				}
 			}
@@ -95,6 +102,7 @@ namespace Nz
 	void ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance)
 	{
 		m_viewers.emplace(viewerInstance, ViewerData{});
+		m_invalidatedViewerInstances.insert(viewerInstance);
 	}
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
@@ -151,7 +159,7 @@ namespace Nz
 			for (const auto& [worldInstance, renderables] : m_renderables)
 			{
 				for (const auto& [renderable, renderableData] : renderables)
-					renderable->BuildElement("DepthPass", *worldInstance, m_depthPrepassRenderElements);
+					renderable->BuildElement(m_depthPassIndex, *worldInstance, m_depthPrepassRenderElements);
 			}
 		}
 
@@ -162,7 +170,7 @@ namespace Nz
 			for (const auto& [worldInstance, renderables] : m_renderables)
 			{
 				for (const auto& [renderable, renderableData] : renderables)
-					renderable->BuildElement("ForwardPass", *worldInstance, m_forwardRenderElements);
+					renderable->BuildElement(m_forwardPassIndex, *worldInstance, m_forwardRenderElements);
 			}
 		}
 
@@ -280,10 +288,10 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass("DepthPass"))
+			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass(m_depthPassIndex))
 				UnregisterMaterialPass(pass);
 
-			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass("ForwardPass"))
+			if (MaterialPass* pass = instancedRenderable->GetMaterial(i)->GetPass(m_forwardPassIndex))
 				UnregisterMaterialPass(pass);
 		}
 
@@ -395,6 +403,9 @@ namespace Nz
 
 	void ForwardFramePipeline::ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue)
 	{
+		if (renderQueue.empty())
+			return;
+
 		auto it = renderQueue.begin();
 		auto itEnd = renderQueue.end();
 		while (it != itEnd)

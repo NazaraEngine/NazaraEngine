@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <memory>
 #include <vector>
@@ -18,7 +19,7 @@ namespace Nz
 	class CommandBufferBuilder;
 	class RenderElement;
 
-	class ElementRenderer
+	class NAZARA_GRAPHICS_API ElementRenderer
 	{
 		public:
 			ElementRenderer() = default;

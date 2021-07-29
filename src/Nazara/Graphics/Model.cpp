@@ -30,13 +30,13 @@ namespace Nz
 		}
 	}
 
-	void Model::BuildElement(const std::string& pass, WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
+	void Model::BuildElement(std::size_t passIndex, WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{
 			const auto& submeshData = m_submeshes[i];
 
-			MaterialPass* materialPass = submeshData.material->GetPass(pass);
+			MaterialPass* materialPass = submeshData.material->GetPass(passIndex);
 			if (!materialPass)
 				continue;
 
