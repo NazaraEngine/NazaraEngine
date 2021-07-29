@@ -4,7 +4,7 @@ package("qt5core")
     set_description("Qt is the faster, smarter way to create innovative devices, modern UIs & applications for multiple screens. Cross-platform software development at its best.")
     set_license("LGPL-3")
 
-    add_deps("qt5base", {public=true})
+    add_deps("qt5base")
 
     on_fetch(function (package)
         local base = package:dep("qt5base")

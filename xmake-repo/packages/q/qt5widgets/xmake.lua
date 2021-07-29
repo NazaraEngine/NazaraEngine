@@ -9,7 +9,6 @@ package("qt5widgets")
     on_fetch(function (package)
         local base = package:dep("qt5base")
         local qt = base:data("qtdir")
-        print(qt)
 
         return {
             links = table.wrap("Qt5Widgets" .. (package:is_debug() and "d" or "")),
