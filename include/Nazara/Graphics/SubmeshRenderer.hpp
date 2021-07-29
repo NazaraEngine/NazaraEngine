@@ -12,7 +12,7 @@
 
 namespace Nz
 {
-	class SubmeshRenderer : public ElementRenderer
+	class NAZARA_GRAPHICS_API SubmeshRenderer : public ElementRenderer
 	{
 		public:
 			SubmeshRenderer() = default;

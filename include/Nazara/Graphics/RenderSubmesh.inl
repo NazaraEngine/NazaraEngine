@@ -21,8 +21,8 @@ namespace Nz
 
 	inline UInt64 RenderSubmesh::ComputeSortingScore(const RenderQueueRegistry& registry) const
 	{
-		UInt64 elementType = GetElementType();
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
+		UInt64 elementType = GetElementType();
 		UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 		UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 
@@ -33,8 +33,8 @@ namespace Nz
 		// - VertexBuffer (8bits)
 		// - ?? (24bits) - Depth?
 
-		return (elementType & 0xF)        << 60 |
-		       (layerIndex & 0xFF)        << 52 |
+		return (layerIndex & 0xFF)        << 60 |
+		       (elementType & 0xF)        << 52 |
 		       (pipelineIndex & 0xFFFF)   << 36 |
 		       (vertexBufferIndex & 0xFF) << 24;
 	}

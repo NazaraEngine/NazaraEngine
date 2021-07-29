@@ -7,13 +7,45 @@
 
 namespace Nz
 {
-	inline MaterialPass* Material::GetPass(const std::string& name) const
+	inline void Material::AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass)
 	{
-		auto it = m_passes.find(name);
-		if (it == m_passes.end())
+		if (passIndex >= m_passes.size())
+			m_passes.resize(passIndex + 1);
+
+		m_passes[passIndex] = std::move(pass);
+	}
+
+	inline void Material::AddPass(std::string passName, std::shared_ptr<MaterialPass> pass)
+	{
+		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
+		return AddPass(registry.GetPassIndex(passName), std::move(pass));
+	}
+
+	inline MaterialPass* Material::GetPass(std::size_t passIndex) const
+	{
+		if (passIndex >= m_passes.size())
 			return nullptr;
 
-		return it->second.get();
+		return m_passes[passIndex].get();
+	}
+
+	inline bool Material::HasPass(std::size_t passIndex) const
+	{
+		return GetPass(passIndex) != nullptr;
+	}
+
+	inline void Material::RemovePass(std::size_t passIndex)
+	{
+		if (passIndex >= m_passes.size())
+			return;
+
+		m_passes[passIndex].reset();
+	}
+
+	inline void Material::RemovePass(const std::string& passName)
+	{
+		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
+		return RemovePass(registry.GetPassIndex(passName));
 	}
 }
 

@@ -621,13 +621,17 @@ namespace Nz
 
 	inline void MaterialPass::InvalidatePipeline()
 	{
+		m_forceCommandBufferRegeneration = true;
 		m_pipelineUpdated = false;
+
 		OnMaterialInvalidated(this);
 	}
 
 	inline void MaterialPass::InvalidateShaderBinding()
 	{
+		m_forceCommandBufferRegeneration = true;
 		m_shaderBindingUpdated = false;
+
 		OnMaterialInvalidated(this);
 	}
 

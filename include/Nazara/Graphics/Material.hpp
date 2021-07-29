@@ -8,6 +8,7 @@
 #define NAZARA_MATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
@@ -18,16 +19,18 @@ namespace Nz
 			Material();
 			~Material() = default;
 
-			void AddPass(std::string name, std::shared_ptr<MaterialPass> pass);
+			inline void AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass);
+			inline void AddPass(std::string passName, std::shared_ptr<MaterialPass> pass);
 
-			inline MaterialPass* GetPass(const std::string& name) const;
+			inline MaterialPass* GetPass(std::size_t passIndex) const;
 
-			bool HasPass(const std::string& name) const;
+			inline bool HasPass(std::size_t passIndex) const;
 
-			void RemovePass(const std::string& name);
+			inline void RemovePass(std::size_t passIndex);
+			inline void RemovePass(const std::string& passName);
 
 		private:
-			std::unordered_map<std::string, std::shared_ptr<MaterialPass>> m_passes;
+			std::vector<std::shared_ptr<MaterialPass>> m_passes;
 	};
 }
 
