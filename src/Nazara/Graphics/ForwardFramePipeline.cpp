@@ -413,7 +413,7 @@ namespace Nz
 			const RenderElement* element = *it;
 			UInt8 elementType = element->GetElementType();
 
-			const Pointer<const RenderElement>* first = it;
+			const Pointer<RenderElement>* first = it;
 
 			++it;
 			while (it != itEnd && (*it)->GetElementType() == elementType)
