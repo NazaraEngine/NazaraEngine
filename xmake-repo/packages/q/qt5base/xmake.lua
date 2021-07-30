@@ -42,7 +42,7 @@ package("qt5base")
         -- move files to root
         local installeddir = path.join(installdir, version, package:is_plat("windows") and "msvc2019_64" or "gcc_64", "*")
         os.mv(installeddir, installdir)
-        os.rmdir(path.join(installdir, version)
+        os.rmdir(path.join(installdir, version))
 
         package:data_set("qtdir", {
             bindir = path.join(installdir, "bin"),
