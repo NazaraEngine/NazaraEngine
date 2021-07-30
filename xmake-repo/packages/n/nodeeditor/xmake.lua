@@ -9,9 +9,11 @@ package("nodeeditor")
     add_versions("2.1.3", "4e3194a04ac4a2a2bf4bc8eb6cc27d5cc154923143c1ecf579ce7f0115a90585")
     add_patches("2.1.3", path.join(os.scriptdir(), "patches", "2.1.3", "fix_qt.patch"), "3192c66fe711ad4bbfba96348601655396bc32465e2807f5be252cde6e2a3d59")
 
-    add_deps("cmake", "qt5core", "qt5gui", "qt5widgets")
+    add_deps("cmake")
 
     on_load(function (package)
+        package:add("deps", "qt5core", "qt5gui", "qt5widgets", {debug = package:is_debug()})
+
         if package:config("shared") then
             package:add("defines", "NODE_EDITOR_SHARED")
         else
