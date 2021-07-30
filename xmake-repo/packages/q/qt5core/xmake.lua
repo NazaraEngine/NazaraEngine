@@ -12,7 +12,7 @@ package("qt5core")
 
         return {
             qtdir = qt,
-            links = table.wrap("Qt5Core" .. (package:is_debug() and "d" or "")),
+            links = table.wrap("Qt5Core" .. (package:is_plat("windows") and package:is_debug() and "d" or "")),
             linkdirs = table.wrap(qt.libdir),
             includedirs = table.wrap(qt.includedir)
         }
