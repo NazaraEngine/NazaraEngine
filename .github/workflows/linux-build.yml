@@ -27,10 +27,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # Install Qt (required for shader nodes editor)
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v2
-
     # Install Nazara dependencies
     - name: Update apt repositories
       run: sudo apt-get update

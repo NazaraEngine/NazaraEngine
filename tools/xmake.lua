@@ -96,6 +96,7 @@ target("NazaraShaderNodes")
 	add_deps("NazaraShader")
 	add_packages("nodeeditor")
 	add_packages("qt5core", "qt5gui", "qt5widgets")
+    add_cxflags("-fPIC")
 
 	add_includedirs("../src")
 	add_headerfiles("../src/ShaderNode/**.hpp", "../src/ShaderNode/**.inl")
