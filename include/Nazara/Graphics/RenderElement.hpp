@@ -8,6 +8,7 @@
 #define NAZARA_RENDERELEMENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <memory>
 #include <vector>
@@ -16,7 +17,7 @@ namespace Nz
 {
 	class RenderQueueRegistry;
 
-	class RenderElement
+	class NAZARA_GRAPHICS_API RenderElement
 	{
 		public:
 			inline RenderElement(BasicRenderElement elementType);
