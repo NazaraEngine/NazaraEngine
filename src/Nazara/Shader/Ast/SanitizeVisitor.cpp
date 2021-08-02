@@ -81,10 +81,22 @@ namespace Nz::ShaderAst
 				{
 					if (statementPtr->GetType() == NodeType::DeclareFunctionStatement)
 						DeclareFunction(static_cast<DeclareFunctionStatement&>(*statementPtr));
+					else if (statementPtr->GetType() == NodeType::ConditionalStatement)
+					{
+						const ConditionalStatement& condStatement = static_cast<const ConditionalStatement&>(*statementPtr);
+						if (condStatement.statement->GetType() == NodeType::DeclareFunctionStatement)
+							DeclareFunction(static_cast<DeclareFunctionStatement&>(*condStatement.statement));
+					}
 				}
 			}
 			else if (statement.GetType() == NodeType::DeclareFunctionStatement)
 				DeclareFunction(static_cast<DeclareFunctionStatement&>(statement));
+			else if (statement.GetType() == NodeType::ConditionalStatement)
+			{
+				const ConditionalStatement& condStatement = static_cast<const ConditionalStatement&>(statement);
+				if (condStatement.statement->GetType() == NodeType::DeclareFunctionStatement)
+					DeclareFunction(static_cast<DeclareFunctionStatement&>(*condStatement.statement));
+			}
 
 			try
 			{
@@ -1193,7 +1205,8 @@ namespace Nz::ShaderAst
 	{
 		assert(funcIndex < m_context->functions.size());
 		auto& funcData = m_context->functions[funcIndex];
-		assert(funcData.defined);
+		if (!funcData.defined)
+			return;
 
 		funcData.flags |= flags;
 

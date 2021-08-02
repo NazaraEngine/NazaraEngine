@@ -27,7 +27,7 @@ namespace Nz
 			struct FuncData;
 			struct Variable;
 
-			inline SpirvAstVisitor(SpirvWriter& writer, SpirvSection& instructions, std::vector<FuncData>& funcData);
+			inline SpirvAstVisitor(SpirvWriter& writer, SpirvSection& instructions, std::unordered_map<std::size_t, FuncData>& funcData);
 			SpirvAstVisitor(const SpirvAstVisitor&) = delete;
 			SpirvAstVisitor(SpirvAstVisitor&&) = delete;
 			~SpirvAstVisitor() = default;
@@ -147,10 +147,10 @@ namespace Nz
 			std::size_t m_extVarIndex;
 			std::size_t m_funcCallIndex;
 			std::size_t m_funcIndex;
+			std::unordered_map<std::size_t, FuncData>& m_funcData;
+			std::unordered_map<std::size_t, ShaderAst::StructDescription*> m_structs;
+			std::unordered_map<std::size_t, Variable> m_variables;
 			std::vector<std::size_t> m_scopeSizes;
-			std::vector<FuncData>& m_funcData;
-			std::vector<ShaderAst::StructDescription*> m_structs;
-			std::vector<std::optional<Variable>> m_variables;
 			std::vector<SpirvBlock> m_functionBlocks;
 			std::vector<UInt32> m_resultIds;
 			SpirvBlock* m_currentBlock;
