@@ -3,11 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
+#include <cassert>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz
 {
-	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, SpirvSection& instructions, std::vector<FuncData>& funcData) :
+	inline SpirvAstVisitor::SpirvAstVisitor(SpirvWriter& writer, SpirvSection& instructions, std::unordered_map<std::size_t, FuncData>& funcData) :
 	m_extVarIndex(0),
 	m_funcIndex(0),
 	m_funcData(funcData),
@@ -27,17 +28,13 @@ namespace Nz
 
 	inline void SpirvAstVisitor::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* structDesc)
 	{
-		if (structIndex >= m_structs.size())
-			m_structs.resize(structIndex + 1);
-
+		assert(m_structs.find(structIndex) == m_structs.end());
 		m_structs[structIndex] = structDesc;
 	}
 
 	inline void SpirvAstVisitor::RegisterVariable(std::size_t varIndex, UInt32 typeId, UInt32 pointerId, SpirvStorageClass storageClass)
 	{
-		if (varIndex >= m_variables.size())
-			m_variables.resize(varIndex + 1);
-
+		assert(m_variables.find(varIndex) == m_variables.end());
 		m_variables[varIndex] = Variable{
 			storageClass,
 			pointerId,
