@@ -29,11 +29,11 @@ namespace Nz
 
 	Core::~Core()
 	{
-		LogUninit();
 		HardwareInfo::Uninitialize();
-		Log::Uninitialize();
 		PluginManager::Uninitialize();
 		TaskScheduler::Uninitialize();
+		LogUninit();
+		Log::Uninitialize();
 	}
 
 	Core* Core::s_instance = nullptr;
