@@ -57,4 +57,3 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
-#include "RenderFrame.hpp"
