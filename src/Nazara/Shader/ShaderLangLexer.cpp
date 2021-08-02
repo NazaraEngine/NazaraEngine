@@ -303,6 +303,21 @@ namespace Nz::ShaderLang
 					break;
 				}
 
+				case '!':
+				{
+					char next = Peek();
+					if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::NotEqual;
+					}
+					else
+						tokenType = TokenType::Not;
+
+					break;
+				}
+
+
 				case '+': tokenType = TokenType::Plus; break;
 				case '*': tokenType = TokenType::Multiply; break;
 				case ':': tokenType = TokenType::Colon; break;

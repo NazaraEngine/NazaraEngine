@@ -1117,6 +1117,14 @@ namespace Nz::ShaderLang
 				return ShaderBuilder::Unary(ShaderAst::UnaryType::Plus, std::move(expr));
 			}
 
+			case TokenType::Not:
+			{
+				Consume();
+				ShaderAst::ExpressionPtr expr = ParsePrimaryExpression();
+
+				return ShaderBuilder::Unary(ShaderAst::UnaryType::LogicalNot, std::move(expr));
+			}
+
 			case TokenType::OpenParenthesis:
 				return ParseParenthesisExpression();
 
