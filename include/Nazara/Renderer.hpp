@@ -36,6 +36,7 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/GpuSwitch.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>

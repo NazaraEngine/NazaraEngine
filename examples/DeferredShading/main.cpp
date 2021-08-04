@@ -15,6 +15,8 @@
 #include <iostream>
 #include <random>
 
+NAZARA_REQUEST_DEDICATED_GPU()
+
 /*
 [layout(std140)]
 struct PointLight
