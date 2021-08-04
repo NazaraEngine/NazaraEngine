@@ -8,6 +8,8 @@
 #include <array>
 #include <iostream>
 
+NAZARA_REQUEST_DEDICATED_GPU()
+
 const char shaderSource[] = R"(
 
 option red: bool;

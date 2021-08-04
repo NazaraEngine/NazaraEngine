@@ -18,6 +18,8 @@
 #include <array>
 #include <iostream>
 
+NAZARA_REQUEST_DEDICATED_GPU()
+
 int main()
 {
 	std::filesystem::path resourceDir = "resources";
