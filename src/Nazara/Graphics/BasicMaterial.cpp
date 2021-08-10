@@ -22,7 +22,7 @@ namespace Nz
 	namespace
 	{
 		const UInt8 r_shader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/basicmaterial.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/basic_material.nzsl.h>
 		};
 	}
 

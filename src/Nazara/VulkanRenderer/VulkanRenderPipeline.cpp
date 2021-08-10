@@ -192,7 +192,7 @@ namespace Nz
 		{
 			assert(stagePtr);
 
-			Nz::VulkanShaderModule& vulkanModule = *static_cast<Nz::VulkanShaderModule*>(stagePtr.get());
+			VulkanShaderModule& vulkanModule = static_cast<VulkanShaderModule&>(*stagePtr);
 			for (auto& stage : vulkanModule.GetStages())
 			{
 				VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
