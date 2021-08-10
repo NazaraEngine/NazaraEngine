@@ -128,7 +128,7 @@ namespace Nz
 			CheckCompilationStatus(shader);
 
 			program.AttachShader(shader.GetObjectId());
-			// Shader can be deleted now (it won't be deleted by the driver until program gets deleted)
+			// Shader object can be safely released now (it won't be deleted by the driver until program gets deleted)
 
 			stageFlags |= shaderEntry.stage;
 		}

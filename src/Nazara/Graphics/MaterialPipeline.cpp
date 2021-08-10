@@ -44,7 +44,7 @@ namespace Nz
 		}
 
 		RenderPipelineInfo renderPipelineInfo;
-		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not my proudest line
+		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not the line I4m the most proud of
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
@@ -58,6 +58,7 @@ namespace Nz
 
 		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
+
 	/*!
 	* \brief Returns a reference to a MaterialPipeline built with MaterialPipelineInfo
 	*
