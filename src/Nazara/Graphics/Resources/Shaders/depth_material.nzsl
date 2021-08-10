@@ -38,6 +38,7 @@ external
 	[set(1), binding(0)] instanceData: uniform<InstanceData>,
 	[set(2), binding(0)] settings: uniform<BasicSettings>,
 	[set(2), binding(2)] MaterialAlphaMap: sampler2D<f32>,
+	[set(2), binding(1)] MaterialDiffuseMap: sampler2D<f32>
 }
 
 // Fragment stage
@@ -58,11 +59,11 @@ fn main(input: FragIn)
 		// TODO: alpha *= MaterialAlphaMap.Sample(input.uv).x
 		alpha = alpha * MaterialAlphaMap.Sample(input.uv).x;
 
-	// TODO: const assert?
 	if (alpha < settings.AlphaThreshold)
 		discard;
 }
 
+// Dummy fragment shader (TODO: Add a way to delete stage?)
 [entry(frag), cond(!ALPHA_TEST)]
 fn main() {}
 

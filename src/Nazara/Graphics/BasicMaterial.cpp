@@ -94,107 +94,115 @@ namespace Nz
 		colorPtr[3] = diffuse.a / 255.f;
 	}
 
-	bool BasicMaterial::Initialize()
+	MaterialSettings::Builder BasicMaterial::Build(const UniformOffsets& offsets, std::vector<UInt8> defaultValues, std::vector<std::shared_ptr<UberShader>> uberShaders, std::size_t* uniformBlockIndex, OptionIndexes* optionIndexes, TextureIndexes* textureIndexes)
 	{
-		FieldOffsets fieldOffsets(StructLayout::Std140);
-
-		s_uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType::Float1);
-		s_uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType::Float4);
-		s_uniformOffsets.totalSize = fieldOffsets.GetSize();
-
 		MaterialSettings::Builder settings;
 
 		std::vector<MaterialSettings::UniformVariable> variables;
-		variables.assign({
-			{
+		if (offsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
+		{
+			variables.push_back({
 				"AlphaThreshold",
-				s_uniformOffsets.alphaThreshold
-			},
-			{
+				offsets.alphaThreshold
+			});
+		}
+
+		if (offsets.diffuseColor != std::numeric_limits<std::size_t>::max())
+		{
+			variables.push_back({
 				"DiffuseColor",
-				s_uniformOffsets.diffuseColor
-			}
-		});
+				offsets.diffuseColor
+			});
+		}
+
+		if (offsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
+			AccessByOffset<float&>(defaultValues.data(), offsets.alphaThreshold) = 0.2f;
 
 		static_assert(sizeof(Vector4f) == 4 * sizeof(float), "Vector4f is expected to be exactly 4 floats wide");
+		if (offsets.diffuseColor != std::numeric_limits<std::size_t>::max())
+			AccessByOffset<Vector4f&>(defaultValues.data(), offsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 
-		std::vector<UInt8> defaultValues(fieldOffsets.GetSize());
-		AccessByOffset<Vector4f&>(defaultValues.data(), s_uniformOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
-		AccessByOffset<float&>(defaultValues.data(), s_uniformOffsets.alphaThreshold) = 0.2f;
-		
-		s_textureIndexes.alpha = settings.textures.size();
+		// Textures
+		if (textureIndexes)
+			textureIndexes->alpha = settings.textures.size();
+
 		settings.textures.push_back({
 			2,
 			"Alpha",
 			ImageType::E2D
 		});
 
-		s_textureIndexes.diffuse = settings.textures.size();
+		if (textureIndexes)
+			textureIndexes->diffuse = settings.textures.size();
+
 		settings.textures.push_back({
 			1,
 			"Diffuse",
 			ImageType::E2D
 		});
 
-		s_uniformBlockIndex = settings.uniformBlocks.size();
+		if (uniformBlockIndex)
+			*uniformBlockIndex = settings.uniformBlocks.size();
+
 		settings.uniformBlocks.push_back({
 			0,
 			"BasicSettings",
-			fieldOffsets.GetSize(),
+			offsets.totalSize,
 			std::move(variables),
 			std::move(defaultValues)
 		});
 
-		// Shaders
-		ShaderAst::StatementPtr shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
-		auto uberShader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, shaderAst);
-
-		settings.shaders.emplace_back(uberShader);
+		settings.shaders = std::move(uberShaders);
 
 		// Options
 
 		// HasDiffuseMap
-		{
-			std::array<UInt64, ShaderStageTypeCount> shaderOptions;
-			shaderOptions.fill(0);
-			shaderOptions[UnderlyingCast(ShaderStageType::Fragment)] = uberShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
-			shaderOptions[UnderlyingCast(ShaderStageType::Vertex)] = uberShader->GetOptionFlagByName("HAS_DIFFUSE_TEXTURE");
+		if (optionIndexes)
+			optionIndexes->hasDiffuseMap = settings.options.size();
 
-			s_optionIndexes.hasDiffuseMap = settings.options.size();
-			settings.options.push_back({
-				"HasDiffuseMap",
-				shaderOptions
-			});
-		}
+		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasDiffuseMap", "HAS_DIFFUSE_TEXTURE");
 
 		// HasAlphaMap
-		{
-			std::array<UInt64, ShaderStageTypeCount> shaderOptions;
-			shaderOptions.fill(0);
-			shaderOptions[UnderlyingCast(ShaderStageType::Fragment)] = uberShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
-			shaderOptions[UnderlyingCast(ShaderStageType::Vertex)] = uberShader->GetOptionFlagByName("HAS_ALPHA_TEXTURE");
+		if (optionIndexes)
+			optionIndexes->hasAlphaMap = settings.options.size();
 
-			s_optionIndexes.hasAlphaMap = settings.options.size();
-			settings.options.push_back({
-				"HasAlphaMap",
-				shaderOptions
-			});
-		}
+		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasAlphaMap", "HAS_ALPHA_TEXTURE");
 
 		// AlphaTest
-		{
-			std::array<UInt64, ShaderStageTypeCount> shaderOptions;
-			shaderOptions.fill(0);
-			shaderOptions[UnderlyingCast(ShaderStageType::Fragment)] = uberShader->GetOptionFlagByName("ALPHA_TEST");
+		if (optionIndexes)
+			optionIndexes->alphaTest = settings.options.size();
 
-			s_optionIndexes.alphaTest = settings.options.size();
-			settings.options.push_back({
-				"AlphaTest",
-				shaderOptions
-			});
-		}
+		MaterialSettings::BuildOption(settings.options, settings.shaders, "AlphaTest", "ALPHA_TEST");
 
-		s_materialSettings = std::make_shared<MaterialSettings>(std::move(settings));
+		return settings;
+	}
+
+	std::vector<std::shared_ptr<UberShader>> BasicMaterial::BuildShaders()
+	{
+		ShaderAst::StatementPtr shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, shaderAst);
+
+		return { std::move(shader) };
+	}
+
+	auto BasicMaterial::BuildUniformOffsets() -> std::pair<UniformOffsets, FieldOffsets>
+	{
+		FieldOffsets fieldOffsets(StructLayout::Std140);
+
+		UniformOffsets uniformOffsets;
+		uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType::Float1);
+		uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType::Float4);
+		uniformOffsets.totalSize = fieldOffsets.GetSize();
+
+		return std::make_pair(std::move(uniformOffsets), std::move(fieldOffsets));
+	}
+
+	bool BasicMaterial::Initialize()
+	{
+		std::tie(s_uniformOffsets, std::ignore) = BuildUniformOffsets();
+
+		std::vector<UInt8> defaultValues(s_uniformOffsets.totalSize);
+		s_materialSettings = std::make_shared<MaterialSettings>(Build(s_uniformOffsets, std::move(defaultValues), BuildShaders(), &s_uniformBlockIndex, &s_optionIndexes, &s_textureIndexes));
 
 		return true;
 	}
