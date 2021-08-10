@@ -6,6 +6,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/DepthMaterial.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
@@ -78,6 +79,7 @@ namespace Nz
 	bool MaterialPipeline::Initialize()
 	{
 		BasicMaterial::Initialize();
+		DepthMaterial::Initialize();
 		PhongLightingMaterial::Initialize();
 
 		return true;
@@ -87,6 +89,7 @@ namespace Nz
 	{
 		s_pipelineCache.clear();
 		PhongLightingMaterial::Uninitialize();
+		DepthMaterial::Uninitialize();
 		BasicMaterial::Uninitialize();
 	}
 

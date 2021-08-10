@@ -77,14 +77,9 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
-	customSettings.shaders.clear();
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLang::Parse(resourceDir / "depth_pass.nzsl")));
-
-	auto depthSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
-
-	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(depthSettings);
+	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
 	depthPass->EnableDepthBuffer(true);
+	depthPass->EnableDepthClamp(true);
 	depthPass->EnableFaceCulling(true);
 
 	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
@@ -104,7 +99,7 @@ int main()
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	basicMat.SetDiffuseSampler(samplerInfo);
 
-	Nz::BasicMaterial basicMatDepth(*depthPass);
+	Nz::DepthMaterial basicMatDepth(*depthPass);
 	basicMatDepth.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 
 	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));

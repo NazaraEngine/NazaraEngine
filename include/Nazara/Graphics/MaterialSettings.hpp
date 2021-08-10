@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -19,8 +20,6 @@
 
 namespace Nz
 {
-	class UberShader;
-
 	class MaterialSettings
 	{
 		public:
@@ -55,6 +54,8 @@ namespace Nz
 			MaterialSettings& operator=(MaterialSettings&&) = delete;
 
 			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
+
+			static void BuildOption(std::vector<Option>& options, const std::vector<std::shared_ptr<UberShader>>& uberShaders, std::string optionName, const std::string& shaderOptionName);
 
 			struct Builder
 			{

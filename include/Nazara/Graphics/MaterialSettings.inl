@@ -165,6 +165,32 @@ namespace Nz
 
 		return InvalidIndex;
 	}
+
+	inline void MaterialSettings::BuildOption(std::vector<Option>& options, const std::vector<std::shared_ptr<UberShader>>& uberShaders, std::string optionName, const std::string& shaderOptionName)
+	{
+		std::array<UInt64, ShaderStageTypeCount> shaderOptions;
+		shaderOptions.fill(0);
+
+		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
+		{
+			for (const auto& uberShader : uberShaders)
+			{
+				if (uberShader->GetSupportedStages() & static_cast<ShaderStageType>(i))
+				{
+					assert(shaderOptions[i] == 0);
+					shaderOptions[i] |= uberShader->GetOptionFlagByName(shaderOptionName);
+				}
+			}
+		}
+
+		if (std::any_of(shaderOptions.begin(), shaderOptions.end(), [&](UInt64 flags) { return flags != 0; }))
+		{
+			options.push_back({
+				std::move(optionName),
+				shaderOptions
+			});
+		}
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
