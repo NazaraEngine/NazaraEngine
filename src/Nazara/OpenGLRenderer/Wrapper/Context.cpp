@@ -679,7 +679,7 @@ namespace Nz::GL
 
 	bool Context::SetCurrentContext(const Context* context)
 	{
-		const Context*& currentContext = s_currentContext; //< Pay TLS cost only once
+		const Context*& currentContext = s_currentContext; //< Pay TLS cost once
 		if (currentContext == context)
 			return true;
 

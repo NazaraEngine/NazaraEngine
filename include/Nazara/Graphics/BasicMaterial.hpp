@@ -20,6 +20,7 @@ namespace Nz
 			struct UniformOffsets;
 
 			BasicMaterial(MaterialPass& material);
+			~BasicMaterial() = default;
 
 			inline void EnableAlphaTest(bool alphaTest);
 

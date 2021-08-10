@@ -40,7 +40,7 @@ namespace Nz
 		ShaderAst::AstReflect reflect;
 		reflect.Reflect(*m_shaderAst, callbacks);
 
-		if (m_shaderStages & shaderStages != m_shaderStages)
+		if (m_shaderStages & supportedStageType != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");
 
 		if (optionCount >= 64)
