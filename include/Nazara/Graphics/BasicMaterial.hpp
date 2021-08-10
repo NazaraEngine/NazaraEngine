@@ -12,6 +12,8 @@
 
 namespace Nz
 {
+	class FieldOffsets;
+
 	class NAZARA_GRAPHICS_API BasicMaterial
 	{
 		friend class MaterialPipeline;
@@ -56,7 +58,7 @@ namespace Nz
 				std::size_t totalSize;
 			};
 
-		private:
+		protected:
 			struct OptionIndexes
 			{
 				std::size_t alphaTest;
@@ -70,6 +72,11 @@ namespace Nz
 				std::size_t diffuse;
 			};
 
+			static MaterialSettings::Builder Build(const UniformOffsets& offsets, std::vector<UInt8> defaultValues, std::vector<std::shared_ptr<UberShader>> uberShaders, std::size_t* uniformBlockIndex = nullptr, OptionIndexes* optionIndexes = nullptr, TextureIndexes* textureIndexes = nullptr);
+			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
+			static std::pair<UniformOffsets, FieldOffsets> BuildUniformOffsets();
+
+		private:
 			static bool Initialize();
 			static void Uninitialize();
 
