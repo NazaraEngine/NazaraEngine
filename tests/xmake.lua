@@ -28,3 +28,12 @@ target("NazaraUnitTests")
 	add_files("Engine/**.cpp")
 
 	del_files("Engine/Audio/**")
+
+target("Fuzzing")
+	set_group("Tests")
+	set_kind("binary")
+	
+	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
+	add_packages("catch2")
+	
+	add_files("Fuzzing/fuzz_onecase.cpp")
