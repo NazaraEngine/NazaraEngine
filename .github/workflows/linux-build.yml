@@ -36,7 +36,7 @@ jobs:
 
     # Install Nazara dependencies
     - name: Install system dependencies
-      run: sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev -y
+      run: sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev afl afl++ -y
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -64,13 +64,25 @@ jobs:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}
 
+    # Setup compilation mode for fuzzing and install project dependencies
+    - name: Setup compilation mode for fuzzing and install project dependencies
+      run: xmake config --ld=afl-clang++ --sh=afl-clang++ --ar=afl-clang++ --cxx=afl-clang++ --cxxflags="-fsanitize=fuzzer-no-link,address" --ldflags=-fsanitize=fuzzer-no-link,address --shflags=-fsanitize=fuzzer-no-link,address --arflags=-fsanitize=fuzzer-no-link,address --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
+      
+    # Compile fuzzed binaries
+    - name: Compile fuzzed binaries
+      run: xmake -v
+      
+    # Run tests
+    - name: Run tests
+      run: ./bin/linux_x86_64_release/Fuzzing
+
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose --ld="" --sh="" --ar="" --cxx="g++" --cxxflags="" --ldflags="" --shflags="" --arflags=""
 
     # Build the engine
     - name: Build Nazara
-      run: xmake
+      run: xmake -v
 
     # Install the result files
     - name: Install Nazara
