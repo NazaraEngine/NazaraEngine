@@ -1,9 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/AbstractSocket.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -31,9 +33,9 @@ namespace Nz
 	*/
 
 	AbstractSocket::AbstractSocket(SocketType type) :
-	m_lastError(SocketError_NoError),
+	m_lastError(SocketError::NoError),
 	m_handle(SocketImpl::InvalidHandle),
-	m_state(SocketState_NotConnected),
+	m_state(SocketState::NotConnected),
 	m_type(type),
 	m_isBlockingEnabled(true)
 	{
@@ -164,7 +166,7 @@ namespace Nz
 
 	void AbstractSocket::OnClose()
 	{
-		UpdateState(SocketState_NotConnected);
+		UpdateState(SocketState::NotConnected);
 	}
 
 	/*!
@@ -177,7 +179,7 @@ namespace Nz
 	{
 		SocketError errorCode;
 		if (!SocketImpl::SetBlocking(m_handle, m_isBlockingEnabled, &errorCode))
-			NazaraWarning("Failed to set socket blocking mode (0x" + String::Number(errorCode, 16) + ')');
+			NazaraWarning("Failed to set socket blocking mode (0x" + NumberToString(UnderlyingCast(errorCode), 16) + ')');
 	}
 
 	/*!
@@ -189,21 +191,21 @@ namespace Nz
 	{
 		if (m_handle == SocketImpl::InvalidHandle || m_protocol != protocol)
 		{
-			SocketHandle handle = SocketImpl::Create((protocol == NetProtocol_Any) ? NetProtocol_IPv6 : protocol, m_type, &m_lastError);
+			SocketHandle handle = SocketImpl::Create((protocol == NetProtocol::Any) ? NetProtocol::IPv6 : protocol, m_type, &m_lastError);
 			if (handle == SocketImpl::InvalidHandle)
 				return false;
 
-			if (protocol == NetProtocol_Any)
+			if (protocol == NetProtocol::Any)
 			{
 				if (!SocketImpl::SetIPv6Only(handle, false, &m_lastError))
 				{
 					SocketImpl::Close(handle);
 
-					NazaraError("Failed to open a dual-stack socket: " + Nz::String(ErrorToString(m_lastError)));
+					NazaraError("Failed to open a dual-stack socket: " + std::string(ErrorToString(m_lastError)));
 					return false;
 				}
 
-				protocol = NetProtocol_IPv6;
+				protocol = NetProtocol::IPv6;
 			}
 
 			m_protocol = protocol;

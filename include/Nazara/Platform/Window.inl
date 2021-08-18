@@ -1,10 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/LockGuard.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
@@ -13,17 +12,17 @@ namespace Nz
 	* \class Nz::Window
 	*/
 
-	inline Window::Window(VideoMode mode, const String& title, WindowStyleFlags style) :
+	inline Window::Window(VideoMode mode, const std::string& title, WindowStyleFlags style) :
 	Window()
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(mode, title, style);
 	}
 
 	inline Window::Window(void* handle) :
 	Window()
 	{
-		ErrorFlags flags(ErrorFlag_ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException, true);
 		Create(handle);
 	}
 
@@ -47,7 +46,7 @@ namespace Nz
 		}
 	}
 
-	inline const CursorRef& Window::GetCursor() const
+	inline const std::shared_ptr<Cursor>& Window::GetCursor() const
 	{
 		return m_cursor;
 	}
@@ -98,16 +97,15 @@ namespace Nz
 		else
 		{
 			{
-				LockGuard eventLock(m_eventMutex);
+				std::lock_guard<std::mutex> eventLock(m_eventMutex);
 
 				m_pendingEvents.push_back(event);
 			}
 
 			if (m_waitForEvent)
 			{
-				m_eventConditionMutex.Lock();
-				m_eventCondition.Signal();
-				m_eventConditionMutex.Unlock();
+				std::lock_guard<std::mutex> lock(m_eventConditionMutex);
+				m_eventCondition.notify_all();
 			}
 		}
 	}

@@ -10,25 +10,24 @@
 
 #include <Nazara/Audio.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Core/Thread.hpp> // Thread::Sleep
+#include <Nazara/Core/Modules.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 int main()
 {
-	// NzKeyboard nécessite l'initialisation du module Utilitaire
-	Nz::Initializer<Nz::Audio, Nz::Platform> audio;
-	if (!audio)
-	{
-		std::cout << "Failed to initialize audio module" << std::endl;
-		std::getchar();
-		return 1;
-	}
+	std::filesystem::path resourceDir = "resources";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
+		resourceDir = ".." / resourceDir;
+
+	Nz::Modules<Nz::Audio, Nz::Platform> audio;
 
 	Nz::Sound sound;
-	if (!sound.LoadFromFile("resources/siren.wav"))
+	if (!sound.LoadFromFile(resourceDir / "siren.wav"))
 	{
 		std::cout << "Failed to load sound" << std::endl;
 		std::getchar();
@@ -55,13 +54,13 @@ int main()
 
 	// La boucle du programme (Pour déplacer le son)
 	Nz::Clock clock;
-	while (sound.GetStatus() == Nz::SoundStatus_Playing)
+	while (sound.GetStatus() == Nz::SoundStatus::Playing)
 	{
 		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
 		int sleepTime = int(1000/60 - clock.GetMilliseconds()); // 60 FPS
 
 		if (sleepTime > 0)
-			Nz::Thread::Sleep(sleepTime);
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 
 		// On bouge la source du son en fonction du temps depuis chaque mise à jour
 		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity()*clock.GetSeconds();

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -18,13 +18,14 @@ namespace Nz
 			AbstractBuffer() = default;
 			virtual ~AbstractBuffer();
 
-			virtual bool Fill(const void* data, UInt32 offset, UInt32 size) = 0;
+			virtual bool Fill(const void* data, UInt64 offset, UInt64 size) = 0;
 
-			virtual bool Initialize(UInt32 size, BufferUsageFlags usage) = 0;
+			virtual bool Initialize(UInt64 size, BufferUsageFlags usage) = 0;
 
+			virtual UInt64 GetSize() const = 0;
 			virtual DataStorage GetStorage() const = 0;
 
-			virtual void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) = 0;
+			virtual void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) = 0;
 			virtual bool Unmap() = 0;
 	};
 }

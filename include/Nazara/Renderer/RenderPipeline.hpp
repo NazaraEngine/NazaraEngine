@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,33 +7,37 @@
 #ifndef NAZARA_RENDERPIPELINE_HPP
 #define NAZARA_RENDERPIPELINE_HPP
 
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/Shader.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
 	struct RenderPipelineInfo : RenderStates
 	{
-		ShaderConstRef shader;
+		struct VertexBufferData
+		{
+			std::size_t binding;
+			std::shared_ptr<const VertexDeclaration> declaration;
+		};
+
+		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
+		std::vector<std::shared_ptr<ShaderModule>> shaderModules;
+		std::vector<VertexBufferData> vertexBuffers;
 	};
 
-	class RenderPipeline
+	class RenderDevice;
+
+	class NAZARA_RENDERER_API RenderPipeline
 	{
 		public:
-			inline RenderPipeline();
-			inline ~RenderPipeline();
+			RenderPipeline() = default;
+			virtual ~RenderPipeline();
 
-			inline bool Create(const RenderPipelineInfo& pipelineInfo);
-			inline void Destroy();
+			virtual const RenderPipelineInfo& GetPipelineInfo() const = 0;
 
-			inline const RenderPipelineInfo& GetInfo() const;
-
-			inline bool IsValid() const;
-
-		private:
-			RenderPipelineInfo m_pipelineInfo;
-			bool m_valid;
+		protected:
+			static void ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo);
 	};
 }
 

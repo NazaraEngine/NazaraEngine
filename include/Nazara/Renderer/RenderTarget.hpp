@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,44 +11,28 @@
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/RenderTargetParameters.hpp>
 
 namespace Nz
 {
+	class Framebuffer;
+	class RenderPass;
+
 	class NAZARA_RENDERER_API RenderTarget
 	{
-		friend class Renderer;
-
 		public:
 			RenderTarget() = default;
-			RenderTarget(const RenderTarget&) = delete;
-			RenderTarget(RenderTarget&&) noexcept = default;
 			virtual ~RenderTarget();
 
-			virtual RenderTargetParameters GetParameters() const = 0;
-			virtual Vector2ui GetSize() const = 0;
+			virtual const Framebuffer& GetFramebuffer(std::size_t i) const = 0;
+			virtual std::size_t GetFramebufferCount() const = 0;
+			virtual const RenderPass& GetRenderPass() const = 0;
+			virtual const Vector2ui& GetSize() const = 0;
 
-			bool IsActive() const;
-			virtual bool IsRenderable() const = 0;
-
-			bool SetActive(bool active);
-
-			// Fonctions OpenGL
-			virtual bool HasContext() const = 0;
-
-			RenderTarget& operator=(const RenderTarget&) = delete;
-			RenderTarget& operator=(RenderTarget&&) noexcept = default;
-
-			// Signals:
-			NazaraSignal(OnRenderTargetParametersChange, const RenderTarget* /*renderTarget*/);
-			NazaraSignal(OnRenderTargetRelease,	const RenderTarget* /*renderTarget*/);
-			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/);
-
-		protected:
-			virtual bool Activate() const = 0;
-			virtual void Desactivate() const;
-			virtual void EnsureTargetUpdated() const = 0;
+			NazaraSignal(OnRenderTargetRelease, const RenderTarget* /*renderTarget*/);
+			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/, const Vector2ui& /*newSize*/);
 	};
 }
 
-#endif // NAZARA_RENDERTARGET_HPP
+#include <Nazara/Renderer/RenderTarget.inl>
+
+#endif

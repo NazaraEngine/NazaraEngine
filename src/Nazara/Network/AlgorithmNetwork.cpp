@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -88,31 +88,31 @@ namespace Nz
 	{
 		switch (resolveError)
 		{
-			case ResolveError_NoError:
+			case ResolveError::NoError:
 				return "No error";
 
-			case ResolveError_Internal:
+			case ResolveError::Internal:
 				return "An internal error occurred";
 
-			case ResolveError_ResourceError:
+			case ResolveError::ResourceError:
 				return "The operating system lacks the resources to proceed";
 
-			case ResolveError_NonRecoverable:
+			case ResolveError::NonRecoverable:
 				return "A nonrecoverable error occurred";
 
-			case ResolveError_NotFound:
+			case ResolveError::NotFound:
 				return "No such host is known";
 
-			case ResolveError_NotInitialized:
+			case ResolveError::NotInitialized:
 				return "Nazara Network has not been initialized";
 
-			case ResolveError_ProtocolNotSupported:
+			case ResolveError::ProtocolNotSupported:
 				return "A specified protocol is not supported by the server";
 
-			case ResolveError_TemporaryFailure:
+			case ResolveError::TemporaryFailure:
 				return "A temporary failure occurred, try again";
 
-			case ResolveError_Unknown:
+			case ResolveError::Unknown:
 				return "An unknown error occurred";
 
 			default:
@@ -131,52 +131,52 @@ namespace Nz
 	{
 		switch (socketError)
 		{
-			case SocketError_NoError:
+			case SocketError::NoError:
 				return "No error";
 
-			case SocketError_AddressNotAvailable:
+			case SocketError::AddressNotAvailable:
 				return "The address is already in use";
 
-			case SocketError_ConnectionClosed:
+			case SocketError::ConnectionClosed:
 				return "The connection has been closed";
 
-			case SocketError_ConnectionRefused:
+			case SocketError::ConnectionRefused:
 				return "The connection attempt was refused";
 
-			case SocketError_DatagramSize:
+			case SocketError::DatagramSize:
 				return "The datagram size is over the system limit";
 
-			case SocketError_Internal:
+			case SocketError::Internal:
 				return "An internal error occurred";
 
-			case SocketError_Interrupted:
+			case SocketError::Interrupted:
 				return "The operation was interrupted by a signal";
 
-			case SocketError_Packet:
+			case SocketError::Packet:
 				return "Packet encoding or decoding failed";
 
-			case SocketError_NetworkError:
+			case SocketError::NetworkError:
 				return "Networking subsystem failed";
 
-			case SocketError_NotInitialized:
+			case SocketError::NotInitialized:
 				return "Network module has not been initialized";
 
-			case SocketError_NotSupported:
+			case SocketError::NotSupported:
 				return "This operation is not supported";
 
-			case SocketError_ResolveError:
+			case SocketError::ResolveError:
 				return "The hostname couldn't be resolved";
 
-			case SocketError_ResourceError:
+			case SocketError::ResourceError:
 				return "The operating system lacks the resources to proceed";
 
-			case SocketError_TimedOut:
+			case SocketError::TimedOut:
 				return "The operation timed out";
 
-			case SocketError_Unknown:
+			case SocketError::Unknown:
 				return "An unknown error occurred";
 
-			case SocketError_UnreachableHost:
+			case SocketError::UnreachableHost:
 				return "The host is not reachable";
 
 			default:
@@ -330,7 +330,7 @@ namespace Nz
 					if (value > 65535) // must be 16 bit quantity
 						return false;
 
-					*(resultPtr++) = value >> 8;
+					*(resultPtr++) = static_cast<UInt8>(value >> 8);
 					*(resultPtr++) = value & 0xFF;
 
 					if (*addressPtr == ':') // typical case inside; carry on

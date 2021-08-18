@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -23,21 +23,9 @@ namespace Nz
 	*
 	* \param soundBuffer Buffer to read sound from
 	*/
-	Sound::Sound(const SoundBuffer* soundBuffer)
+	Sound::Sound(std::shared_ptr<const SoundBuffer> soundBuffer)
 	{
-		SetBuffer(soundBuffer);
-	}
-
-	/*!
-	* \brief Constructs a Sound object which is a copy of another
-	*
-	* \param sound Sound to copy
-	*/
-	Sound::Sound(const Sound& sound) :
-	SoundEmitter(sound)
-	{
-		SetBuffer(sound.m_buffer);
-		EnableLooping(sound.IsLooping());
+		SetBuffer(std::move(soundBuffer));
 	}
 
 	/*!
@@ -66,7 +54,7 @@ namespace Nz
 	* \brief Gets the internal buffer
 	* \return Internal buffer
 	*/
-	const SoundBuffer* Sound::GetBuffer() const
+	const std::shared_ptr<const SoundBuffer>& Sound::GetBuffer() const
 	{
 		return m_buffer;
 	}
@@ -132,15 +120,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the sound is playing
-	* \return true if it is the case
-	*/
-	bool Sound::IsPlaying() const
-	{
-		return GetStatus() == SoundStatus_Playing;
-	}
-
-	/*!
 	* \brief Loads the sound from file
 	* \return true if loading is successful
 	*
@@ -149,12 +128,12 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if loading failed
 	*/
-	bool Sound::LoadFromFile(const String& filePath, const SoundBufferParams& params)
+	bool Sound::LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params)
 	{
-		SoundBufferRef buffer = SoundBuffer::LoadFromFile(filePath, params);
+		std::shared_ptr<SoundBuffer> buffer = SoundBuffer::LoadFromFile(filePath, params);
 		if (!buffer)
 		{
-			NazaraError("Failed to load buffer from file (" + filePath + ')');
+			NazaraError("Failed to load buffer from file (" + filePath.generic_u8string() + ')');
 			return false;
 		}
 
@@ -174,10 +153,10 @@ namespace Nz
 	*/
 	bool Sound::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
 	{
-		SoundBufferRef buffer = SoundBuffer::LoadFromMemory(data, size, params);
+		std::shared_ptr<SoundBuffer> buffer = SoundBuffer::LoadFromMemory(data, size, params);
 		if (!buffer)
 		{
-			NazaraError("Failed to load buffer from memory (" + String::Pointer(data) + ')');
+			NazaraError("Failed to load buffer from memory (" + PointerToString(data) + ')');
 			return false;
 		}
 
@@ -196,7 +175,7 @@ namespace Nz
 	*/
 	bool Sound::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
-		SoundBufferRef buffer = SoundBuffer::LoadFromStream(stream, params);
+		std::shared_ptr<SoundBuffer> buffer = SoundBuffer::LoadFromStream(stream, params);
 		if (!buffer)
 		{
 			NazaraError("Failed to load buffer from stream");
@@ -237,7 +216,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if buffer is invalid with NAZARA_AUDIO_SAFE defined
 	*/
-	void Sound::SetBuffer(const SoundBuffer* buffer)
+	void Sound::SetBuffer(std::shared_ptr<const SoundBuffer> buffer)
 	{
 		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
 		NazaraAssert(!buffer || buffer->IsValid(), "Invalid sound buffer");
@@ -247,7 +226,7 @@ namespace Nz
 
 		Stop();
 
-		m_buffer = buffer;
+		m_buffer = std::move(buffer);
 
 		if (m_buffer)
 			alSourcei(m_source, AL_BUFFER, m_buffer->GetOpenALBuffer());

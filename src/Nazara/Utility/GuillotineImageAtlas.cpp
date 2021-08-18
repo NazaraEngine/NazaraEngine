@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -32,7 +32,7 @@ namespace Nz
 			#ifdef NAZARA_DEBUG
 			if (layers[i] >= m_layers.size())
 			{
-				NazaraWarning("Rectangle #" + String::Number(i) + " belong to an out-of-bounds layer (" + String::Number(i) + " >= " + String::Number(m_layers.size()) + ")");
+				NazaraWarning("Rectangle #" + NumberToString(i) + " belong to an out-of-bounds layer (" + NumberToString(i) + " >= " + NumberToString(m_layers.size()) + ")");
 				continue;
 			}
 			#endif
@@ -57,7 +57,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (layerIndex >= m_layers.size())
 		{
-			NazaraError("Layer index out of range (" + String::Number(layerIndex) + " >= " + String::Number(m_layers.size()) + ')');
+			NazaraError("Layer index out of range (" + NumberToString(layerIndex) + " >= " + NumberToString(m_layers.size()) + ')');
 			return nullptr;
 		}
 		#endif
@@ -75,7 +75,7 @@ namespace Nz
 
 	UInt32 GuillotineImageAtlas::GetStorage() const
 	{
-		return DataStorage_Software;
+		return static_cast<UInt32>(DataStorage::Software);
 	}
 
 	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex)
@@ -161,10 +161,10 @@ namespace Nz
 
 	AbstractImage* GuillotineImageAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
 	{
-		std::unique_ptr<Image> newImage(new Image(ImageType_2D, PixelFormatType_A8, size.x, size.y));
+		std::unique_ptr<Image> newImage(new Image(ImageType::E2D, PixelFormat::A8, size.x, size.y));
 		if (oldImage)
 		{
-			newImage->Copy(static_cast<Image*>(oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
+			newImage->Copy(static_cast<Image&>(*oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
 		}
 
 		return newImage.release();

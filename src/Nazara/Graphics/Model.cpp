@@ -3,287 +3,81 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/AbstractRenderQueue.hpp>
-#include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Utility/MeshData.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
-#include <memory>
+#include <Nazara/Graphics/GraphicalMesh.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/WorldInstance.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	/*!
-	* \ingroup graphics
-	* \class Nz::Model
-	* \brief Graphics class that represents a model
-	*/
-
-	/*!
-	* \brief Constructs a ModelParameters object by default
-	*/
-
-	ModelParameters::ModelParameters()
+	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
+	m_graphicalMesh(std::move(graphicalMesh))
 	{
-		material.shaderName = "PhongLighting";
-	}
-
-	/*!
-	* \brief Checks whether the parameters for the model are correct
-	* \return true If parameters are valid
-	*/
-
-	bool ModelParameters::IsValid() const
-	{
-		if (loadMaterials && !material.IsValid())
-			return false;
-
-		return mesh.IsValid();
-	}
-
-	/*!
-	* \brief Destructs the object and cleans resources
-	*/
-	Model::~Model() = default;
-
-	/*!
-	* \brief Adds this model to the render queue
-	*
-	* \param renderQueue Queue to be added
-	* \param instanceData Data used for this instance
-	*/
-	void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const InstanceData& instanceData, const Recti& scissorRect) const
-	{
-		unsigned int submeshCount = m_mesh->GetSubMeshCount();
-		for (unsigned int i = 0; i < submeshCount; ++i)
+		m_subMeshes.reserve(m_graphicalMesh->GetSubMeshCount());
+		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
 		{
-			const StaticMesh* mesh = static_cast<const StaticMesh*>(m_mesh->GetSubMesh(i));
-			const MaterialRef& material = GetMaterial(mesh->GetMaterialIndex());
-
-			MeshData meshData;
-			meshData.indexBuffer = mesh->GetIndexBuffer();
-			meshData.primitiveMode = mesh->GetPrimitiveMode();
-			meshData.vertexBuffer = mesh->GetVertexBuffer();
-
-			renderQueue->AddMesh(instanceData.renderOrder, material, meshData, mesh->GetAABB(), instanceData.transformMatrix, scissorRect);
+			auto& subMeshData = m_subMeshes.emplace_back();
+			//subMeshData.material = DefaultMaterial; //< TODO
+			subMeshData.vertexBufferData = {
+				{
+					0,
+					m_graphicalMesh->GetVertexDeclaration(i)
+				}
+			};
 		}
 	}
 
-	/*!
-	* \brief Clones this model
-	*/
-	std::unique_ptr<InstancedRenderable> Model::Clone() const
+	void Model::Draw(CommandBufferBuilder& commandBuffer) const
 	{
-		return std::make_unique<Model>(*this);
-	}
-
-	/*!
-	* \brief Gets the material of the named submesh
-	* \return Pointer to the current material
-	*
-	* \param subMeshName Name of the subMesh
-	*
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE if there is no mesh
-	* \remark Produces a NazaraError if there is no subMesh with that name
-	* \remark Produces a NazaraError if material is invalid
-	*/
-	const MaterialRef& Model::GetMaterial(const String& subMeshName) const
-	{
-		NazaraAssert(m_mesh, "Model has no mesh");
-
-		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-		if (!subMesh)
+		for (std::size_t i = 0; i < m_subMeshes.size(); ++i)
 		{
-			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
+			const auto& submeshData = m_subMeshes[i];
+			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
+			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
+			const auto& renderPipeline = submeshData.material->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
-			static MaterialRef Invalid;
-			return Invalid;
+			commandBuffer.BindShaderBinding(Graphics::MaterialBindingSet, submeshData.material->GetShaderBinding());
+			commandBuffer.BindIndexBuffer(indexBuffer.get());
+			commandBuffer.BindVertexBuffer(0, vertexBuffer.get());
+			commandBuffer.BindPipeline(*renderPipeline);
+
+			commandBuffer.DrawIndexed(static_cast<Nz::UInt32>(m_graphicalMesh->GetIndexCount(i)));
 		}
-
-		return GetMaterial(subMesh->GetMaterialIndex());
 	}
 
-	/*!
-	* \brief Gets the material by index of the named submesh
-	* \return Pointer to the current material
-	*
-	* \param skinIndex Index of the skin
-	* \param subMeshName Name of the subMesh
-	*
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if skinIndex is invalid
-	* \remark Produces a NazaraError if there is no subMesh with that name
-	* \remark Produces a NazaraError if material index is invalid
-	*/
-	const MaterialRef& Model::GetMaterial(std::size_t skinIndex, const String& subMeshName) const
+	const std::shared_ptr<AbstractBuffer>& Model::GetIndexBuffer(std::size_t subMeshIndex) const
 	{
-		NazaraAssert(m_mesh, "Model has no mesh");
-
-		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-		if (!subMesh)
-		{
-			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-
-			static MaterialRef Invalid;
-			return Invalid;
-		}
-
-		return GetMaterial(subMesh->GetMaterialIndex());
+		return m_graphicalMesh->GetIndexBuffer(subMeshIndex);
 	}
 
-	/*!
-	* \brief Gets the mesh
-	* \return Current mesh
-	*/
-
-	Mesh* Model::GetMesh() const
+	std::size_t Model::GetIndexCount(std::size_t subMeshIndex) const
 	{
-		return m_mesh;
+		return m_graphicalMesh->GetIndexCount(subMeshIndex);
 	}
 
-	/*!
-	* \brief Checks whether the model is animated
-	* \return false
-	*/
-
-	bool Model::IsAnimated() const
+	const std::shared_ptr<Material>& Model::GetMaterial(std::size_t subMeshIndex) const
 	{
-		return false;
+		assert(subMeshIndex < m_subMeshes.size());
+		const auto& subMeshData = m_subMeshes[subMeshIndex];
+		return subMeshData.material;
 	}
 
-	/*!
-	* \brief Sets the material of the named submesh
-	* \return true If successful
-	*
-	* \param subMeshName Name of the subMesh
-	* \param material Pointer to the material
-	*
-	* \remark Produces a NazaraError if there is no subMesh with that name
-	* \remark Produces a NazaraError if material index is invalid
-	*/
-
-	bool Model::SetMaterial(const String& subMeshName, MaterialRef material)
+	std::size_t Model::GetMaterialCount() const
 	{
-		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-		if (!subMesh)
-		{
-			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-			return false;
-		}
-
-		SetMaterial(subMesh->GetMaterialIndex(), std::move(material));
-		return true;
+		return m_subMeshes.size();
 	}
 
-	/*!
-	* \brief Sets the material by index of the named submesh
-	* \return true If successful
-	*
-	* \param skinIndex Index of the skin
-	* \param subMeshName Name of the subMesh
-	* \param material Pointer to the material
-	*
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if skinIndex is invalid
-	* \remark Produces a NazaraError if there is no subMesh with that name
-	* \remark Produces a NazaraError if material index is invalid
-	*/
-	bool Model::SetMaterial(std::size_t skinIndex, const String& subMeshName, MaterialRef material)
+	const std::shared_ptr<RenderPipeline>& Model::GetRenderPipeline(std::size_t subMeshIndex) const
 	{
-		SubMesh* subMesh = m_mesh->GetSubMesh(subMeshName);
-		if (!subMesh)
-		{
-			NazaraError("Mesh has no submesh \"" + subMeshName + '"');
-			return false;
-		}
-
-		SetMaterial(skinIndex, subMesh->GetMaterialIndex(), std::move(material));
-		return true;
+		assert(subMeshIndex < m_subMeshes.size());
+		const auto& subMeshData = m_subMeshes[subMeshIndex];
+		return subMeshData.material->GetPipeline()->GetRenderPipeline(subMeshData.vertexBufferData);
 	}
 
-	/*!
-	* \brief Sets the mesh
-	*
-	* \param pointer to the mesh
-	*
-	* \remark Produces a NazaraError with NAZARA_GRAPHICS_SAFE defined if mesh is invalid
-	*/
-
-	void Model::SetMesh(Mesh* mesh)
+	const std::shared_ptr<AbstractBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
 	{
-		#if NAZARA_GRAPHICS_SAFE
-		if (mesh && !mesh->IsValid())
-		{
-			NazaraError("Invalid mesh");
-			return;
-		}
-		#endif
-
-		m_mesh = mesh;
-
-		if (m_mesh)
-		{
-			ResetMaterials(mesh->GetMaterialCount());
-			m_meshAABBInvalidationSlot.Connect(m_mesh->OnMeshInvalidateAABB, [this](const Nz::Mesh*) { InvalidateBoundingVolume(); });
-		}
-		else
-		{
-			ResetMaterials(0);
-			m_meshAABBInvalidationSlot.Disconnect();
-		}
-
-		InvalidateBoundingVolume();
+		return m_graphicalMesh->GetVertexBuffer(subMeshIndex);
 	}
-
-	/*!
-	* \brief Loads the model from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the model
-	*/
-	ModelRef Model::LoadFromFile(const String& filePath, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromFile(filePath, params);
-	}
-
-	/*!
-	* \brief Loads the model from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the model
-	*/
-	ModelRef Model::LoadFromMemory(const void* data, std::size_t size, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromMemory(data, size, params);
-	}
-
-	/*!
-	* \brief Loads the model from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the model
-	* \param params Parameters for the model
-	*/
-	ModelRef Model::LoadFromStream(Stream& stream, const ModelParameters& params)
-	{
-		return ModelLoader::LoadFromStream(stream, params);
-	}
-
-	/*
-	* \brief Makes the bounding volume of this billboard
-	*/
-
-	void Model::MakeBoundingVolume() const
-	{
-		if (m_mesh)
-			m_boundingVolume.Set(m_mesh->GetAABB());
-		else
-			m_boundingVolume.MakeNull();
-	}
-
-	ModelLibrary::LibraryMap Model::s_library;
-	ModelLoader::LoaderList Model::s_loaders;
-	ModelManager::ManagerMap Model::s_managerMap;
-	ModelManager::ManagerParams Model::s_managerParameters;
-	ModelSaver::SaverList Model::s_savers;
 }

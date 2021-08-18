@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,12 +8,6 @@
 #define NAZARA_CLOCK_HPP
 
 #include <Nazara/Prerequisites.hpp>
-
-#if NAZARA_CORE_THREADSAFE && NAZARA_THREADSAFETY_CLOCK
-#include <Nazara/Core/ThreadSafety.hpp>
-#else
-#include <Nazara/Core/ThreadSafetyOff.hpp>
-#endif
 
 namespace Nz
 {
@@ -39,8 +33,6 @@ namespace Nz
 			Clock& operator=(Clock&& clock) = default;
 
 		private:
-			NazaraMutexAttrib(m_mutex, mutable)
-
 			UInt64 m_elapsedTime;
 			UInt64 m_refTime;
 			bool m_paused;

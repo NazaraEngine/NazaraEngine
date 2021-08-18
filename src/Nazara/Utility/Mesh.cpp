@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,6 +6,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -13,6 +14,7 @@
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <limits>
 #include <memory>
@@ -24,7 +26,7 @@ namespace Nz
 	MeshParams::MeshParams()
 	{
 		if (!Buffer::IsStorageSupported(storage))
-			storage = DataStorage_Software;
+			storage = DataStorage::Software;
 	}
 
 	bool MeshParams::IsValid() const
@@ -47,7 +49,7 @@ namespace Nz
 			return false;
 		}
 
-		if (!vertexDeclaration->HasComponent(VertexComponent_Position))
+		if (!vertexDeclaration->HasComponent(VertexComponent::Position))
 		{
 			NazaraError("Vertex declaration must contains a vertex position");
 			return false;
@@ -57,7 +59,7 @@ namespace Nz
 	}
 
 
-	void Mesh::AddSubMesh(SubMesh* subMesh)
+	void Mesh::AddSubMesh(std::shared_ptr<SubMesh> subMesh)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(subMesh, "Invalid submesh");
@@ -65,177 +67,177 @@ namespace Nz
 
 		m_subMeshes.emplace_back();
 		SubMeshData& subMeshData = m_subMeshes.back();
-		subMeshData.subMesh = subMesh;
-		subMeshData.onSubMeshInvalidated.Connect(subMesh->OnSubMeshInvalidateAABB, [this](const SubMesh* /*subMesh*/) { InvalidateAABB(); });
+		subMeshData.subMesh = std::move(subMesh);
+		subMeshData.onSubMeshInvalidated.Connect(subMeshData.subMesh->OnSubMeshInvalidateAABB, [this](const SubMesh* /*subMesh*/) { InvalidateAABB(); });
 
 		InvalidateAABB();
 	}
 
-	void Mesh::AddSubMesh(const String& identifier, SubMesh* subMesh)
+	void Mesh::AddSubMesh(const std::string& identifier, std::shared_ptr<SubMesh> subMesh)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(!identifier.IsEmpty(), "Identifier is empty");
+		NazaraAssert(!identifier.empty(), "Identifier is empty");
 		NazaraAssert(m_subMeshMap.find(identifier) == m_subMeshMap.end(), "SubMesh identifier \"" + identifier + "\" is already in use");
 		NazaraAssert(subMesh, "Invalid submesh");
 		NazaraAssert(subMesh->GetAnimationType() == m_animationType, "Submesh animation type doesn't match mesh animation type");
 
 		std::size_t index = m_subMeshes.size();
 
-		AddSubMesh(subMesh);
+		AddSubMesh(std::move(subMesh));
 
-		m_subMeshMap[identifier] = static_cast<UInt32>(index);
+		m_subMeshMap[identifier] = static_cast<std::size_t>(index);
 	}
 
-	SubMesh* Mesh::BuildSubMesh(const Primitive& primitive, const MeshParams& params)
+	std::shared_ptr<SubMesh> Mesh::BuildSubMesh(const Primitive& primitive, const MeshParams& params)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(m_animationType == AnimationType_Static, "Submesh building only works for static meshes");
+		NazaraAssert(m_animationType == AnimationType::Static, "Submesh building only works for static meshes");
 		NazaraAssert(params.IsValid(), "Invalid parameters");
-		NazaraAssert(params.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent_Position), "The vertex declaration doesn't have a Vector3 position component");
+		NazaraAssert(params.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Position), "The vertex declaration doesn't have a Vector3 position component");
 
 		Boxf aabb;
-		IndexBufferRef indexBuffer;
-		VertexBufferRef vertexBuffer;
+		std::shared_ptr<IndexBuffer> indexBuffer;
+		std::shared_ptr<VertexBuffer> vertexBuffer;
 
 		Matrix4f matrix(primitive.matrix);
 		matrix *= params.matrix;
 
-		VertexDeclaration* declaration = params.vertexDeclaration;
+		const std::shared_ptr<VertexDeclaration>& declaration = params.vertexDeclaration;
 
 		switch (primitive.type)
 		{
-			case PrimitiveType_Box:
+			case PrimitiveType::Box:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
-				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
 
 				VertexPointers pointers;
-				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-				pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+				pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 				GenerateBox(primitive.box.lengths, primitive.box.subdivision, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 				break;
 			}
 
-			case PrimitiveType_Cone:
+			case PrimitiveType::Cone:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
-				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
 
 				VertexPointers pointers;
-				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-				pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+				pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 				GenerateCone(primitive.cone.length, primitive.cone.radius, primitive.cone.subdivision, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 				break;
 			}
 
-			case PrimitiveType_Plane:
+			case PrimitiveType::Plane:
 			{
 				unsigned int indexCount;
 				unsigned int vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-				vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
-				VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
 
 				VertexPointers pointers;
-				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-				pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+				pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-				IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 				GeneratePlane(primitive.plane.subdivision, primitive.plane.size, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 				break;
 			}
 
-			case PrimitiveType_Sphere:
+			case PrimitiveType::Sphere:
 			{
 				switch (primitive.sphere.type)
 				{
-					case SphereType_Cubic:
+					case SphereType::Cubic:
 					{
 						unsigned int indexCount;
 						unsigned int vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
-						VertexMapper vertexMapper(vertexBuffer, BufferAccess_ReadWrite);
+						VertexMapper vertexMapper(*vertexBuffer, BufferAccess::ReadWrite);
 
 						VertexPointers pointers;
-						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-						pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+						pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-						IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+						IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 						GenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 						break;
 					}
 
-					case SphereType_Ico:
+					case SphereType::Ico:
 					{
 						unsigned int indexCount;
 						unsigned int vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
-						VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+						VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
 
 						VertexPointers pointers;
-						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-						pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+						pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-						IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+						IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 						GenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 						break;
 					}
 
-					case SphereType_UV:
+					case SphereType::UV:
 					{
 						unsigned int indexCount;
 						unsigned int vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
-						indexBuffer = IndexBuffer::New(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-						vertexBuffer = VertexBuffer::New(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
+						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
 
-						VertexMapper vertexMapper(vertexBuffer, BufferAccess_WriteOnly);
+						VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
 
 						VertexPointers pointers;
-						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Normal);
-						pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Position);
-						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent_Tangent);
-						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent_TexCoord);
+						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+						pointers.positionPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-						IndexMapper indexMapper(indexBuffer, BufferAccess_WriteOnly);
+						IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
 						GenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 						break;
 					}
@@ -247,7 +249,7 @@ namespace Nz
 		if (params.optimizeIndexBuffers)
 			indexBuffer->Optimize();
 
-		StaticMeshRef subMesh = StaticMesh::New(vertexBuffer, indexBuffer);
+		std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
 		subMesh->SetAABB(aabb);
 
 		AddSubMesh(subMesh);
@@ -256,15 +258,15 @@ namespace Nz
 
 	void Mesh::BuildSubMeshes(const PrimitiveList& list, const MeshParams& params)
 	{
-		for (UInt32 i = 0; i < list.GetSize(); ++i)
+		for (std::size_t i = 0; i < list.GetSize(); ++i)
 			BuildSubMesh(list.GetPrimitive(i), params);
 	}
 
-	bool Mesh::CreateSkeletal(UInt32 jointCount)
+	bool Mesh::CreateSkeletal(std::size_t jointCount)
 	{
 		Destroy();
 
-		m_animationType = AnimationType_Skeletal;
+		m_animationType = AnimationType::Skeletal;
 		m_jointCount = jointCount;
 		if (!m_skeleton.Create(jointCount))
 		{
@@ -281,7 +283,7 @@ namespace Nz
 	{
 		Destroy();
 
-		m_animationType = AnimationType_Static;
+		m_animationType = AnimationType::Static;
 		m_isValid = true;
 
 		return true;
@@ -291,9 +293,7 @@ namespace Nz
 	{
 		if (m_isValid)
 		{
-			OnMeshDestroy(this);
-
-			m_animationPath.Clear();
+			m_animationPath.clear();
 			m_materialData.clear();
 			m_materialData.resize(1);
 			m_skeleton.Destroy();
@@ -350,7 +350,7 @@ namespace Nz
 		return m_aabb;
 	}
 
-	String Mesh::GetAnimation() const
+	std::filesystem::path Mesh::GetAnimation() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
@@ -364,15 +364,15 @@ namespace Nz
 		return m_animationType;
 	}
 
-	UInt32 Mesh::GetJointCount() const
+	std::size_t Mesh::GetJointCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(m_animationType == AnimationType_Skeletal, "Mesh is not skeletal");
+		NazaraAssert(m_animationType == AnimationType::Skeletal, "Mesh is not skeletal");
 
 		return m_jointCount;
 	}
 
-	ParameterList& Mesh::GetMaterialData(UInt32 index)
+	ParameterList& Mesh::GetMaterialData(std::size_t index)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(index < m_materialData.size(), "Material index out of range");
@@ -380,7 +380,7 @@ namespace Nz
 		return m_materialData[index];
 	}
 
-	const ParameterList& Mesh::GetMaterialData(UInt32 index) const
+	const ParameterList& Mesh::GetMaterialData(std::size_t index) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(index < m_materialData.size(), "Material index out of range");
@@ -388,17 +388,17 @@ namespace Nz
 		return m_materialData[index];
 	}
 
-	UInt32 Mesh::GetMaterialCount() const
+	std::size_t Mesh::GetMaterialCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		return static_cast<UInt32>(m_materialData.size());
+		return static_cast<std::size_t>(m_materialData.size());
 	}
 
 	Skeleton* Mesh::GetSkeleton()
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(m_animationType == AnimationType_Skeletal, "Mesh is not skeletal");
+		NazaraAssert(m_animationType == AnimationType::Skeletal, "Mesh is not skeletal");
 
 		return &m_skeleton;
 	}
@@ -406,12 +406,12 @@ namespace Nz
 	const Skeleton* Mesh::GetSkeleton() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(m_animationType == AnimationType_Skeletal, "Mesh is not skeletal");
+		NazaraAssert(m_animationType == AnimationType::Skeletal, "Mesh is not skeletal");
 
 		return &m_skeleton;
 	}
 
-	SubMesh* Mesh::GetSubMesh(const String& identifier)
+	const std::shared_ptr<SubMesh>& Mesh::GetSubMesh(const std::string& identifier) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
@@ -421,7 +421,7 @@ namespace Nz
 		return m_subMeshes[it->second].subMesh;
 	}
 
-	SubMesh* Mesh::GetSubMesh(UInt32 index)
+	const std::shared_ptr<SubMesh>& Mesh::GetSubMesh(std::size_t index) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(index < m_subMeshes.size(), "Submesh index out of range");
@@ -429,32 +429,14 @@ namespace Nz
 		return m_subMeshes[index].subMesh;
 	}
 
-	const SubMesh* Mesh::GetSubMesh(const String& identifier) const
+	std::size_t Mesh::GetSubMeshCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		auto it = m_subMeshMap.find(identifier);
-		NazaraAssert(it != m_subMeshMap.end(), "SubMesh " + identifier + " not found");
-
-		return m_subMeshes[it->second].subMesh;
+		return static_cast<std::size_t>(m_subMeshes.size());
 	}
 
-	const SubMesh* Mesh::GetSubMesh(UInt32 index) const
-	{
-		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(index < m_subMeshes.size(), "Submesh index out of range");
-
-		return m_subMeshes[index].subMesh;
-	}
-
-	UInt32 Mesh::GetSubMeshCount() const
-	{
-		NazaraAssert(m_isValid, "Mesh should be created first");
-
-		return static_cast<UInt32>(m_subMeshes.size());
-	}
-
-	UInt32 Mesh::GetSubMeshIndex(const String& identifier) const
+	std::size_t Mesh::GetSubMeshIndex(const std::string& identifier) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
@@ -464,22 +446,22 @@ namespace Nz
 		return it->second;
 	}
 
-	UInt32 Mesh::GetTriangleCount() const
+	std::size_t Mesh::GetTriangleCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		UInt32 triangleCount = 0;
+		std::size_t triangleCount = 0;
 		for (const SubMeshData& data : m_subMeshes)
 			triangleCount += data.subMesh->GetTriangleCount();
 
 		return triangleCount;
 	}
 
-	UInt32 Mesh::GetVertexCount() const
+	std::size_t Mesh::GetVertexCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		UInt32 vertexCount = 0;
+		std::size_t vertexCount = 0;
 		for (const SubMeshData& data : m_subMeshes)
 			vertexCount += data.subMesh->GetVertexCount();
 
@@ -495,14 +477,14 @@ namespace Nz
 		OnMeshInvalidateAABB(this);
 	}
 
-	bool Mesh::HasSubMesh(const String& identifier) const
+	bool Mesh::HasSubMesh(const std::string& identifier) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
 		return m_subMeshMap.find(identifier) != m_subMeshMap.end();
 	}
 
-	bool Mesh::HasSubMesh(UInt32 index) const
+	bool Mesh::HasSubMesh(std::size_t index) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
@@ -513,7 +495,7 @@ namespace Nz
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		return m_animationType != AnimationType_Static;
+		return m_animationType != AnimationType::Static;
 	}
 
 	bool Mesh::IsValid() const
@@ -524,7 +506,7 @@ namespace Nz
 	void Mesh::Recenter()
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(m_animationType == AnimationType_Static, "Mesh is not static");
+		NazaraAssert(m_animationType == AnimationType::Static, "Mesh is not static");
 
 		// The center of our mesh is the center of our *global* AABB
 		Vector3f center = GetAABB().GetCenter();
@@ -533,15 +515,12 @@ namespace Nz
 		{
 			StaticMesh& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
 
-			BufferMapper<VertexBuffer> mapper(staticMesh.GetVertexBuffer(), BufferAccess_ReadWrite);
-			MeshVertex* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
+			VertexMapper mapper(*staticMesh.GetVertexBuffer());
+			SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 
-			UInt32 vertexCount = staticMesh.GetVertexCount();
-			for (UInt32 i = 0; i < vertexCount; ++i)
-			{
-				vertices->position -= center;
-				vertices++;
-			}
+			std::size_t vertexCount = staticMesh.GetVertexCount();
+			for (std::size_t i = 0; i < vertexCount; ++i)
+				*position++ -= center;
 
 			// Our AABB doesn't change shape, only position
 			Boxf aabb = staticMesh.GetAABB();
@@ -551,49 +530,53 @@ namespace Nz
 		}
 	}
 
-	void Mesh::RemoveSubMesh(const String& identifier)
+	void Mesh::RemoveSubMesh(const std::string& identifier)
 	{
-		UInt32 index = GetSubMeshIndex(identifier);
-
-		// On déplace l'itérateur du début d'une distance de x
-		auto it2 = m_subMeshes.begin();
-		std::advance(it2, index);
-		m_subMeshes.erase(it2);
-
-		InvalidateAABB();
+		std::size_t index = GetSubMeshIndex(identifier);
+		RemoveSubMesh(index);
 	}
 
-	void Mesh::RemoveSubMesh(UInt32 index)
+	void Mesh::RemoveSubMesh(std::size_t index)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(index < m_subMeshes.size(), "Submesh index out of range");
 
-		// On déplace l'itérateur du début de x
-		auto it = m_subMeshes.begin();
-		std::advance(it, index);
-		m_subMeshes.erase(it);
+		m_subMeshes.erase(m_subMeshes.begin() + index);
+
+		// Shift indices
+		for (auto& it : m_subMeshMap)
+		{
+			if (it.second > index)
+				it.second--;
+		}
 
 		InvalidateAABB();
 	}
 
-	bool Mesh::SaveToFile(const String& filePath, const MeshParams& params)
+	bool Mesh::SaveToFile(const std::filesystem::path& filePath, const MeshParams& params)
 	{
-		return MeshSaver::SaveToFile(*this, filePath, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetMeshSaver().SaveToFile(*this, filePath, params);
 	}
 
-	bool Mesh::SaveToStream(Stream& stream, const String& format, const MeshParams& params)
+	bool Mesh::SaveToStream(Stream& stream, const std::string& format, const MeshParams& params)
 	{
-		return MeshSaver::SaveToStream(*this, stream, format, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetMeshSaver().SaveToStream(*this, stream, format, params);
 	}
 
-	void Mesh::SetAnimation(const String& animationPath)
+	void Mesh::SetAnimation(const std::filesystem::path& animationPath)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
 		m_animationPath = animationPath;
 	}
 
-	void Mesh::SetMaterialData(UInt32 matIndex, ParameterList data)
+	void Mesh::SetMaterialData(std::size_t matIndex, ParameterList data)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(matIndex < m_materialData.size(), "Material index out of range");
@@ -601,7 +584,7 @@ namespace Nz
 		m_materialData[matIndex] = std::move(data);
 	}
 
-	void Mesh::SetMaterialCount(UInt32 matCount)
+	void Mesh::SetMaterialCount(std::size_t matCount)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(matCount > 0, "A mesh should have at least a material");
@@ -611,11 +594,11 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		for (SubMeshData& data : m_subMeshes)
 		{
-			UInt32 matIndex = data.subMesh->GetMaterialIndex();
+			std::size_t matIndex = data.subMesh->GetMaterialIndex();
 			if (matIndex >= matCount)
 			{
 				data.subMesh->SetMaterialIndex(0); // To prevent a crash
-				NazaraWarning("SubMesh " + String::Pointer(data.subMesh) + " material index is over mesh new material count (" + String::Number(matIndex) + " >= " + String::Number(matCount) + "), setting it to first material");
+				NazaraWarning("SubMesh " + PointerToString(data.subMesh.get()) + " material index is over mesh new material count (" + NumberToString(matIndex) + " >= " + NumberToString(matCount) + "), setting it to first material");
 			}
 		}
 		#endif
@@ -624,19 +607,19 @@ namespace Nz
 	void Mesh::Transform(const Matrix4f& matrix)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(m_animationType == AnimationType_Static, "Mesh is not static");
+		NazaraAssert(m_animationType == AnimationType::Static, "Mesh is not static");
 
 		for (SubMeshData& data : m_subMeshes)
 		{
 			StaticMesh& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
 
-			BufferMapper<VertexBuffer> mapper(staticMesh.GetVertexBuffer(), BufferAccess_ReadWrite);
+			BufferMapper<VertexBuffer> mapper(*staticMesh.GetVertexBuffer(), BufferAccess::ReadWrite);
 			MeshVertex* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
 
 			Boxf aabb(vertices->position.x, vertices->position.y, vertices->position.z, 0.f, 0.f, 0.f);
 
-			UInt32 vertexCount = staticMesh.GetVertexCount();
-			for (UInt32 i = 0; i < vertexCount; ++i)
+			std::size_t vertexCount = staticMesh.GetVertexCount();
+			for (std::size_t i = 0; i < vertexCount; ++i)
 			{
 				vertices->position = matrix.Transform(vertices->position);
 				aabb.ExtendTo(vertices->position);
@@ -648,47 +631,27 @@ namespace Nz
 		}
 	}
 
-	MeshRef Mesh::LoadFromFile(const String& filePath, const MeshParams& params)
+	std::shared_ptr<Mesh> Mesh::LoadFromFile(const std::filesystem::path& filePath, const MeshParams& params)
 	{
-		return MeshLoader::LoadFromFile(filePath, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetMeshLoader().LoadFromFile(filePath, params);
 	}
 
-	MeshRef Mesh::LoadFromMemory(const void* data, std::size_t size, const MeshParams& params)
+	std::shared_ptr<Mesh> Mesh::LoadFromMemory(const void* data, std::size_t size, const MeshParams& params)
 	{
-		return MeshLoader::LoadFromMemory(data, size, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetMeshLoader().LoadFromMemory(data, size, params);
 	}
 
-	MeshRef Mesh::LoadFromStream(Stream& stream, const MeshParams& params)
+	std::shared_ptr<Mesh> Mesh::LoadFromStream(Stream& stream, const MeshParams& params)
 	{
-		return MeshLoader::LoadFromStream(stream, params);
+		Utility* utility = Utility::Instance();
+		NazaraAssert(utility, "Utility module has not been initialized");
+
+		return utility->GetMeshLoader().LoadFromStream(stream, params);
 	}
-
-	bool Mesh::Initialize()
-	{
-		if (!MeshLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		if (!MeshManager::Initialize())
-		{
-			NazaraError("Failed to initialise manager");
-			return false;
-		}
-
-		return true;
-	}
-
-	void Mesh::Uninitialize()
-	{
-		MeshManager::Uninitialize();
-		MeshLibrary::Uninitialize();
-	}
-
-	MeshLibrary::LibraryMap Mesh::s_library;
-	MeshLoader::LoaderList Mesh::s_loaders;
-	MeshManager::ManagerMap Mesh::s_managerMap;
-	MeshManager::ManagerParams Mesh::s_managerParameters;
-	MeshSaver::SaverList Mesh::s_savers;
 }

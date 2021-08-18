@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -10,46 +10,61 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 namespace Nz
 {
-	class NAZARA_AUDIO_API Audio
+	class NAZARA_AUDIO_API Audio : public ModuleBase<Audio>
 	{
+		friend ModuleBase;
+
 		public:
-			Audio() = delete;
-			~Audio() = delete;
+			using Dependencies = TypeList<Core>;
 
-			static AudioFormat GetAudioFormat(unsigned int channelCount);
-			static float GetDopplerFactor();
-			static float GetGlobalVolume();
-			static Vector3f GetListenerDirection();
-			static Vector3f GetListenerPosition();
-			static Quaternionf GetListenerRotation();
-			static Vector3f GetListenerVelocity();
-			static float GetSpeedOfSound();
+			struct Config {};
 
-			static bool Initialize();
+			Audio(Config /*config*/);
+			Audio(const Audio&) = delete;
+			Audio(Audio&&) = delete;
+			~Audio();
 
-			static bool IsFormatSupported(AudioFormat format);
-			static bool IsInitialized();
+			float GetDopplerFactor() const;
+			float GetGlobalVolume() const;
+			Vector3f GetListenerDirection() const;
+			Vector3f GetListenerPosition() const;
+			Quaternionf GetListenerRotation() const;
+			Vector3f GetListenerVelocity() const;
+			SoundBufferLoader& GetSoundBufferLoader();
+			const SoundBufferLoader& GetSoundBufferLoader() const;
+			SoundStreamLoader& GetSoundStreamLoader();
+			const SoundStreamLoader& GetSoundStreamLoader() const;
+			float GetSpeedOfSound() const;
 
-			static void SetDopplerFactor(float dopplerFactor);
-			static void SetGlobalVolume(float volume);
-			static void SetListenerDirection(const Vector3f& direction);
-			static void SetListenerDirection(float dirX, float dirY, float dirZ);
-			static void SetListenerPosition(const Vector3f& position);
-			static void SetListenerPosition(float x, float y, float z);
-			static void SetListenerRotation(const Quaternionf& rotation);
-			static void SetListenerVelocity(const Vector3f& velocity);
-			static void SetListenerVelocity(float velX, float velY, float velZ);
-			static void SetSpeedOfSound(float speed);
+			bool IsFormatSupported(AudioFormat format) const;
 
-			static void Uninitialize();
+			void SetDopplerFactor(float dopplerFactor);
+			void SetGlobalVolume(float volume);
+			void SetListenerDirection(const Vector3f& direction);
+			void SetListenerDirection(float dirX, float dirY, float dirZ);
+			void SetListenerPosition(const Vector3f& position);
+			void SetListenerPosition(float x, float y, float z);
+			void SetListenerRotation(const Quaternionf& rotation);
+			void SetListenerVelocity(const Vector3f& velocity);
+			void SetListenerVelocity(float velX, float velY, float velZ);
+			void SetSpeedOfSound(float speed);
+
+			Audio& operator=(const Audio&) = delete;
+			Audio& operator=(Audio&&) = delete;
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			SoundBufferLoader m_soundBufferLoader;
+			SoundStreamLoader m_soundStreamLoader;
+
+			static Audio* s_instance;
 	};
 }
 

@@ -3,70 +3,22 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Model.hpp>
-#include <memory>
+#include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	/*!
-	* \brief Constructs a Model object by default
-	*/
-	inline Model::Model()
+	inline std::size_t Model::GetSubMeshCount() const
 	{
-		ResetMaterials(0);
+		return m_subMeshes.size();
 	}
-
-	/*!
-	* \brief Constructs a Model object by copying another
-	*
-	* \param model Model to copy
-	*/
-	inline Model::Model(const Model& model) :
-	InstancedRenderable(model),
-	Resource(model)
+	
+	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material)
 	{
-		SetMesh(model.m_mesh);
-		
-		// Since SetMesh does reset materials, we need reapply them
-		SetSkinCount(model.GetSkinCount());
-		for (std::size_t skin = 0; skin < model.GetSkinCount(); ++skin)
-		{
-			for (std::size_t matIndex = 0; matIndex < model.GetMaterialCount(); ++matIndex)
-				SetMaterial(skin, matIndex, model.GetMaterial(skin, matIndex));
-		}
-	}
+		assert(subMeshIndex < m_subMeshes.size());
 
-	/*!
-	* \brief Adds this model to a render queue, using user-specified transform matrix and render order
-	*
-	* This can be useful when drawing particles
-	*
-	* \param renderQueue Queue to be added
-	* \param transformMatrix Transform matrix to be used for rendering the model
-	* \param renderOrder Specify the render queue layer to be used
-	* \param scissorRect The Scissor rect to uses for rendering
-	*/
-	inline void Model::AddToRenderQueue(AbstractRenderQueue* renderQueue, const Matrix4f& transformMatrix, int renderOrder, const Recti& scissorRect) const
-	{
-		InstanceData instanceData(Nz::Matrix4f::Identity());
-		instanceData.renderOrder = renderOrder;
-		instanceData.transformMatrix = transformMatrix;
-		return AddToRenderQueue(renderQueue, instanceData, scissorRect);
-	}
-
-	/*!
-	* \brief Creates a new Model from the arguments
-	* \return A reference to the newly created model
-	*
-	* \param args Arguments for the model
-	*/
-	template<typename... Args>
-	ModelRef Model::New(Args&&... args)
-	{
-		std::unique_ptr<Model> object(new Model(std::forward<Args>(args)...));
-		object->SetPersistent(false);
-
-		return object.release();
+		OnMaterialInvalidated(this, subMeshIndex, material);
+		m_subMeshes[subMeshIndex].material = std::move(material);
 	}
 }
 

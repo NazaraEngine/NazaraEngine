@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,62 +9,47 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
+#include <memory>
+#include <vector>
 
 namespace Nz
 {
+	class ShaderModule;
+
 	struct RenderStates
 	{
-		BlendFunc dstBlend = BlendFunc_Zero;
-		BlendFunc srcBlend = BlendFunc_One;
-		FaceFilling faceFilling = FaceFilling_Fill;
-		FaceSide cullingSide = FaceSide_Back;
-		RendererComparison depthFunc = RendererComparison_Less;
+		FaceFilling faceFilling = FaceFilling::Fill;
+		FaceSide cullingSide = FaceSide::Back;
+		FrontFace frontFace = FrontFace::CounterClockwise;
+		RendererComparison depthCompare = RendererComparison::Less;
+		PrimitiveMode primitiveMode = PrimitiveMode::TriangleList;
+
+		struct 
+		{
+			BlendEquation modeAlpha = BlendEquation::Add;
+			BlendEquation modeColor = BlendEquation::Add;
+			BlendFunc dstAlpha = BlendFunc::Zero;
+			BlendFunc dstColor = BlendFunc::Zero;
+			BlendFunc srcAlpha = BlendFunc::One;
+			BlendFunc srcColor = BlendFunc::One;
+		} blend;
 
 		struct
 		{
-			RendererComparison back  = RendererComparison_Always;
-			RendererComparison front = RendererComparison_Always;
-		} stencilCompare;
-
-		struct
-		{
-			UInt32 back  = 0xFFFFFFFF;
-			UInt32 front = 0xFFFFFFFF;
-		} stencilCompareMask;
-
-		struct
-		{
-			StencilOperation back  = StencilOperation_Keep;
-			StencilOperation front = StencilOperation_Keep;
-		} stencilDepthFail;
-
-		struct
-		{
-			StencilOperation back  = StencilOperation_Keep;
-			StencilOperation front = StencilOperation_Keep;
-		} stencilFail;
-
-		struct
-		{
-			StencilOperation back  = StencilOperation_Keep;
-			StencilOperation front = StencilOperation_Keep;
-		} stencilPass;
-
-		struct
-		{
-			UInt32 back  = 0U;
-			UInt32 front = 0U;
-		} stencilReference;
-
-		struct
-		{
-			UInt32 back  = 0xFFFFFFFF;
-			UInt32 front = 0xFFFFFFFF;
-		} stencilWriteMask;
+			RendererComparison compare = RendererComparison::Always;
+			StencilOperation depthFail = StencilOperation::Keep;
+			StencilOperation fail = StencilOperation::Keep;
+			StencilOperation pass = StencilOperation::Keep;
+			UInt32 compareMask = 0xFFFFFFFF;
+			UInt32 reference = 0;
+			UInt32 writeMask = 0xFFFFFFFF;
+		} stencilBack, stencilFront;
 
 		bool blending    = false;
 		bool colorWrite  = true;
 		bool depthBuffer = false;
+		bool depthClamp  = false;
 		bool depthWrite  = true;
 		bool faceCulling = false;
 		bool scissorTest = false;

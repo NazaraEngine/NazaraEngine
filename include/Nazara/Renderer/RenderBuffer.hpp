@@ -1,5 +1,5 @@
-// Copyright (C) 2017 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// Copyright (C) 2020 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -7,64 +7,60 @@
 #ifndef NAZARA_RENDERBUFFER_HPP
 #define NAZARA_RENDERBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ObjectRef.hpp>
-#include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Utility/SoftwareBuffer.hpp>
+#include <memory>
+#include <unordered_map>
 
 namespace Nz
 {
-	class RenderBuffer;
+	class RenderDevice;
 
-	using RenderBufferConstRef = ObjectRef<const RenderBuffer>;
-	using RenderBufferLibrary = ObjectLibrary<RenderBuffer>;
-	using RenderBufferRef = ObjectRef<RenderBuffer>;
-
-	class NAZARA_RENDERER_API RenderBuffer : public RefCounted
+	class NAZARA_RENDERER_API RenderBuffer : public AbstractBuffer
 	{
-		friend RenderBufferLibrary;
-		friend class Renderer;
-
 		public:
-			RenderBuffer();
+			inline RenderBuffer(Buffer* parent, BufferType type);
 			RenderBuffer(const RenderBuffer&) = delete;
-			RenderBuffer(RenderBuffer&&) = delete;
-			~RenderBuffer();
+			RenderBuffer(RenderBuffer&&) = default;
+			~RenderBuffer() = default;
 
-			bool Create(PixelFormatType format, unsigned int width, unsigned int height);
-			void Destroy();
+			bool Fill(const void* data, UInt64 offset, UInt64 size) final;
 
-			unsigned int GetHeight() const;
-			PixelFormatType GetFormat() const;
-			unsigned int GetWidth() const;
+			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
 
-			// Fonctions OpenGL
-			unsigned int GetOpenGLID() const;
+			AbstractBuffer* GetHardwareBuffer(RenderDevice* device);
+			UInt64 GetSize() const override;
+			DataStorage GetStorage() const override;
 
-			bool IsValid() const;
+			void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) final;
+			bool Unmap() final;
 
 			RenderBuffer& operator=(const RenderBuffer&) = delete;
-			RenderBuffer& operator=(RenderBuffer&&) = delete;
+			RenderBuffer& operator=(RenderBuffer&&) = default;
 
-			template<typename... Args> static RenderBufferRef New(Args&&... args);
-
-			// Signals:
-			NazaraSignal(OnRenderBufferDestroy, const RenderBuffer* /*renderBuffer*/);
-			NazaraSignal(OnRenderBufferRelease, const RenderBuffer* /*renderBuffer*/);
+		public: //< temp
+			bool Synchronize(RenderDevice* device);
 
 		private:
-			static bool Initialize();
-			static void Uninitialize();
+			struct HardwareBuffer;
 
-			PixelFormatType m_pixelFormat;
-			unsigned int m_height;
-			unsigned int m_id;
-			unsigned int m_width;
+			HardwareBuffer* GetHardwareBufferData(RenderDevice* device);
 
-			static RenderBufferLibrary::LibraryMap s_library;
+			struct HardwareBuffer
+			{
+				std::shared_ptr<AbstractBuffer> buffer;
+				bool synchronized = false;
+			};
+
+			BufferUsageFlags m_usage;
+			SoftwareBuffer m_softwareBuffer;
+			Buffer* m_parent;
+			BufferType m_type;
+			std::size_t m_size;
+			std::unordered_map<RenderDevice*, HardwareBuffer> m_hardwareBuffers;
 	};
 }
 

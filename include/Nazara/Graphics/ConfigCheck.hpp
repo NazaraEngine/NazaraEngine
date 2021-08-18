@@ -1,5 +1,5 @@
-// Copyright (C) 2017 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// Copyright (C) 2020 Jérôme Leclercq
+// This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -17,9 +17,6 @@
 	#undef NAZARA_GRAPHICS_MANAGE_MEMORY
 	#define NAZARA_GRAPHICS_MANAGE_MEMORY 0
 #endif
-
-NazaraCheckTypeAndVal(NAZARA_GRAPHICS_INSTANCING_MIN_INSTANCES_COUNT, integral, >, 0, " shall be a strictly positive integer");
-NazaraCheckTypeAndVal(NAZARA_GRAPHICS_MAX_LIGHT_PER_PASS, integral, >, 0, " shall be a strictly positive integer");
 
 #undef NazaraCheckTypeAndVal
 

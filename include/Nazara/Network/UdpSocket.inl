@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,7 +11,7 @@ namespace Nz
 	*/
 
 	inline UdpSocket::UdpSocket() :
-	AbstractSocket(SocketType_UDP)
+	AbstractSocket(SocketType::UDP)
 	{
 	}
 
@@ -51,16 +51,16 @@ namespace Nz
 		IpAddress any;
 		switch (m_protocol)
 		{
-			case NetProtocol_Unknown:
+			case NetProtocol::Unknown:
 				NazaraInternalError("Invalid protocol");
-				return SocketState_NotConnected;
+				return SocketState::NotConnected;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 				any = IpAddress::AnyIpV4;
 				break;
 
-			case NetProtocol_Any:
-			case NetProtocol_IPv6:
+			case NetProtocol::Any:
+			case NetProtocol::IPv6:
 				any = IpAddress::AnyIpV6;
 				break;
 		}
@@ -78,7 +78,7 @@ namespace Nz
 
 	bool UdpSocket::Create(NetProtocol protocol)
 	{
-		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
+		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
 
 		return Open(protocol);
 	}

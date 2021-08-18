@@ -3,9 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
@@ -51,7 +53,7 @@ namespace Nz
 				*address = IpAddressImpl::FromSockAddr(reinterpret_cast<const sockaddr*>(&nameBuffer));
 
 			if (error)
-				*error = SocketError_NoError;
+				*error = SocketError::NoError;
 		}
 		else
 		{
@@ -75,19 +77,19 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			return SocketState_NotConnected;
+			return SocketState::NotConnected;
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
-		return SocketState_Bound;
+		return SocketState::Bound;
 	}
 
 	SocketHandle SocketImpl::Create(NetProtocol protocol, SocketType type, SocketError* error)
 	{
-		NazaraAssert(protocol != NetProtocol_Any, "Any protocol is not supported for socket creation");
-		NazaraAssert(type <= SocketType_Max, "Type has value out of enum");
+		NazaraAssert(protocol != NetProtocol::Any, "Any protocol is not supported for socket creation");
+		NazaraAssert(type <= SocketType::Max, "Type has value out of enum");
 
 		SocketHandle handle = socket(TranslateNetProtocolToAF(protocol), TranslateSocketTypeToSock(type), 0);
 		if (handle == InvalidHandle && error != nullptr)
@@ -108,7 +110,7 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		if (GetLastError(handle, nullptr) < 0)
+		if (GetLastError(handle, nullptr) == SocketError::Internal)
 			NazaraWarning("Failed to clear socket error code: " + Error::GetLastSystemError(WSAGetLastError()));
 	}
 
@@ -121,7 +123,7 @@ namespace Nz
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		// Clear socket error status
 		ClearErrorCode(handle);
@@ -134,24 +136,24 @@ namespace Nz
 				case WSAEALREADY:
 				case WSAEINVAL: //< In case of connect, WSAEINVAL may be returned instead of WSAEALREADY
 				case WSAEWOULDBLOCK:
-					return SocketState_Connecting;
+					return SocketState::Connecting;
 
 				case WSAEISCONN:
-					return SocketState_Connected;
+					return SocketState::Connected;
 			}
 
 			if (error)
 			{
 				if (errorCode == WSAEADDRNOTAVAIL)
-					*error = SocketError_ConnectionRefused; //< ConnectionRefused seems more legit than AddressNotAvailable in connect case
+					*error = SocketError::ConnectionRefused; //< ConnectionRefused seems more legit than AddressNotAvailable in connect case
 				else
 					*error = TranslateWSAErrorToSocketError(errorCode);
 			}
 
-			return SocketState_NotConnected;
+			return SocketState::NotConnected;
 		}
 
-		return SocketState_Connected;
+		return SocketState::Connected;
 	}
 
 	bool SocketImpl::Initialize()
@@ -163,7 +165,7 @@ namespace Nz
 			return false;
 		}
 
-		NazaraDebug("Initialized Windows Socket " + String::Number(LOBYTE(s_WSA.wVersion)) + '.' + String::Number(HIBYTE(s_WSA.wVersion)) + " (" + String(s_WSA.szDescription) + ')');
+		NazaraDebug("Initialized Windows Socket " + NumberToString(LOBYTE(s_WSA.wVersion)) + '.' + NumberToString(HIBYTE(s_WSA.wVersion)) + " (" + std::string(s_WSA.szDescription) + ')');
 		return true;
 	}
 
@@ -171,7 +173,7 @@ namespace Nz
 	{
 		int code = GetLastErrorCode(handle, error);
 		if (code < 0)
-			return SocketError_Internal;
+			return SocketError::Internal;
 
 		return TranslateWSAErrorToSocketError(code);
 	}
@@ -195,7 +197,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code;
 	}
@@ -213,7 +215,7 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			return SocketState_NotConnected;
+			return SocketState::NotConnected;
 		}
 
 		if (listen(handle, queueSize) == SOCKET_ERROR)
@@ -221,13 +223,13 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			return SocketState_NotConnected;
+			return SocketState::NotConnected;
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
-		return SocketState_Bound;
+		return SocketState::Bound;
 	}
 
 	std::size_t SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
@@ -244,7 +246,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return availableBytes;
 	}
@@ -263,7 +265,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code == TRUE;
 	}
@@ -282,7 +284,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code == TRUE;
 	}
@@ -301,7 +303,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code;
 	}
@@ -320,7 +322,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code == TRUE;
 	}
@@ -339,7 +341,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code;
 	}
@@ -362,7 +364,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
 	}
@@ -382,7 +384,7 @@ namespace Nz
 			{
 				int errorCode = WSAGetLastError();
 				if (errorCode == WSAEINVAL)
-					*error = SocketError_NoError;
+					*error = SocketError::NoError;
 				else
 					*error = TranslateWSAErrorToSocketError(errorCode);
 			}
@@ -391,7 +393,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return IpAddressImpl::FromSockAddr(reinterpret_cast<sockaddr*>(nameBuffer.data()));
 	}
@@ -410,7 +412,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return code;
 	}
@@ -435,7 +437,7 @@ namespace Nz
 		assert(result >= 0);
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return static_cast<unsigned int>(result);
 		#else
@@ -444,13 +446,13 @@ namespace Nz
 		NazaraUnused(timeout);
 
 		if (error)
-			*error = SocketError_NotSupported;
+			*error = SocketError::NotSupported;
 
 		return 0;
 		#endif
 	}
 	
-	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
+	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& /*address*/, UInt64 msTimeout, SocketError* error)
 	{
 		// Wait until socket is available for writing or an error occurs (ie when connection succeeds or fails)
 		WSAPOLLFD descriptor;
@@ -464,7 +466,7 @@ namespace Nz
 			if (error)
 				*error = TranslateWSAErrorToSocketError(WSAGetLastError());
 
-			return SocketState_NotConnected;
+			return SocketState::NotConnected;
 		}
 		else if (ret > 0)
 		{
@@ -473,14 +475,14 @@ namespace Nz
 				if (error)
 					*error = GetLastError(handle);
 
-				return SocketState_NotConnected;
+				return SocketState::NotConnected;
 			}
 			else if (descriptor.revents & POLLWRNORM)
-				return SocketState_Connected;
+				return SocketState::Connected;
 			else
 			{
-				NazaraWarning("Socket " + String::Number(handle) + " was returned by poll without POLLOUT nor error events (events: 0x" + String::Number(descriptor.revents, 16) + ')');
-				return SocketState_NotConnected;
+				NazaraWarning("Socket " + std::to_string(handle) + " was returned by poll without POLLOUT nor error events (events: 0x" + NumberToString(descriptor.revents, 16) + ')');
+				return SocketState::NotConnected;
 			}
 		}
 		else
@@ -489,12 +491,12 @@ namespace Nz
 			if (error)
 			{
 				if (msTimeout > 0)
-					*error = SocketError_TimedOut;
+					*error = SocketError::TimedOut;
 				else
-					*error = SocketError_NoError;
+					*error = SocketError::NoError;
 			}
 
-			return SocketState_Connecting;
+			return SocketState::Connecting;
 		}
 	}
 
@@ -528,7 +530,7 @@ namespace Nz
 		else if (byteRead == 0)
 		{
 			if (error)
-				*error = SocketError_ConnectionClosed;
+				*error = SocketError::ConnectionClosed;
 
 			return false; //< Connection has been closed
 		}
@@ -537,7 +539,7 @@ namespace Nz
 			*read = byteRead;
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -580,7 +582,7 @@ namespace Nz
 		else if (byteRead == 0)
 		{
 			if (error)
-				*error = SocketError_ConnectionClosed;
+				*error = SocketError::ConnectionClosed;
 
 			return false; //< Connection closed
 		}
@@ -594,7 +596,7 @@ namespace Nz
 			*read = byteRead;
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -649,7 +651,7 @@ namespace Nz
 		if (flags & MSG_PARTIAL)
 		{
 			if (error)
-				*error = SocketError_DatagramSize;
+				*error = SocketError::DatagramSize;
 
 			return false;
 		}
@@ -661,7 +663,7 @@ namespace Nz
 			*read = byteRead;
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -697,7 +699,7 @@ namespace Nz
 			*sent = byteSent;
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -743,7 +745,7 @@ namespace Nz
 			*sent = static_cast<int>(byteSent);
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -782,7 +784,7 @@ namespace Nz
 			*sent = byteSent;
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -801,7 +803,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -820,7 +822,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -840,12 +842,12 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 #else
 		if (error)
-			*error = SocketError_NotSupported;
+			*error = SocketError::NotSupported;
 
 		return false;
 #endif
@@ -870,7 +872,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -889,7 +891,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -908,7 +910,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -927,7 +929,7 @@ namespace Nz
 		}
 
 		if (error)
-			*error = SocketError_NoError;
+			*error = SocketError::NoError;
 
 		return true;
 	}
@@ -937,7 +939,7 @@ namespace Nz
 		switch (error)
 		{
 			case 0:
-				return SocketError_NoError;
+				return SocketError::NoError;
 
 			// Engine error
 			case WSAEACCES:
@@ -951,83 +953,83 @@ namespace Nz
 			case WSAEALREADY:
 			case WSAEISCONN:
 			case WSAEWOULDBLOCK:
-				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
-				return SocketError_Internal;
+				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
+				return SocketError::Internal;
 
 			case WSAEADDRNOTAVAIL:
 			case WSAEADDRINUSE:
-				return SocketError_AddressNotAvailable;
+				return SocketError::AddressNotAvailable;
 
 			case WSAEAFNOSUPPORT:
 			case WSAEPFNOSUPPORT:
 			case WSAEOPNOTSUPP:
 			case WSAEPROTONOSUPPORT:
 			case WSAESOCKTNOSUPPORT:
-				return SocketError_NotSupported;
+				return SocketError::NotSupported;
 
 			case WSAECONNREFUSED:
-				return SocketError_ConnectionRefused;
+				return SocketError::ConnectionRefused;
 
 			case WSAECONNABORTED:
 			case WSAECONNRESET:
 			case WSAENOTCONN:
 			case WSAESHUTDOWN:
-				return SocketError_ConnectionClosed;
+				return SocketError::ConnectionClosed;
 
 			case WSAEMSGSIZE:
-				return SocketError_DatagramSize;
+				return SocketError::DatagramSize;
 
 			case WSAEMFILE:
 			case WSAENOBUFS:
 			case WSA_NOT_ENOUGH_MEMORY:
-				return SocketError_ResourceError;
+				return SocketError::ResourceError;
 
 			case WSAEHOSTUNREACH:
-				return SocketError_UnreachableHost;
+				return SocketError::UnreachableHost;
 
 			case WSAENETDOWN:
 			case WSAENETUNREACH:
-				return SocketError_NetworkError;
+				return SocketError::NetworkError;
 
 			case WSANOTINITIALISED:
-				return SocketError_NotInitialized;
+				return SocketError::NotInitialized;
 
 			case WSAETIMEDOUT:
-				return SocketError_TimedOut;
+				return SocketError::TimedOut;
 		}
 
-		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + String::Number(error) + ')');
-		return SocketError_Unknown;
+		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
+		return SocketError::Unknown;
 	}
 
 	int SocketImpl::TranslateNetProtocolToAF(NetProtocol protocol)
 	{
-		NazaraAssert(protocol <= NetProtocol_Max, "Protocol has value out of enum");
+		NazaraAssert(protocol <= NetProtocol::Max, "Protocol has value out of enum");
 
 		static int addressFamily[] = {
-			AF_UNSPEC, //< NetProtocol_Any
-			AF_INET,   //< NetProtocol_IPv4
-			AF_INET6,  //< NetProtocol_IPv6
-			-1         //< NetProtocol_Unknown
+			AF_UNSPEC, //< NetProtocol::Any
+			AF_INET,   //< NetProtocol::IPv4
+			AF_INET6,  //< NetProtocol::IPv6
+			-1         //< NetProtocol::Unknown
 		};
-		static_assert(sizeof(addressFamily) / sizeof(int) == NetProtocol_Max + 1, "Address family array is incomplete");
+		static_assert(sizeof(addressFamily) / sizeof(int) == NetProtocolCount, "Address family array is incomplete");
 
-		return addressFamily[protocol];
+		return addressFamily[UnderlyingCast(protocol)];
 	}
 
 	int SocketImpl::TranslateSocketTypeToSock(SocketType type)
 	{
-		NazaraAssert(type <= SocketType_Max, "Socket type has value out of enum");
+		NazaraAssert(type <= SocketType::Max, "Socket type has value out of enum");
 
 		static int socketType[] = {
-			SOCK_RAW,     //< SocketType_Raw
-			SOCK_STREAM,  //< SocketType_TCP
-			SOCK_DGRAM,   //< SocketType_UDP
-			-1            //< SocketType_Unknown
+			SOCK_RAW,     //< SocketType::Raw
+			SOCK_STREAM,  //< SocketType::TCP
+			SOCK_DGRAM,   //< SocketType::UDP
+			-1            //< SocketType::Unknown
 		};
-		static_assert(sizeof(socketType) / sizeof(int) == SocketType_Max + 1, "Socket type array is incomplete");
+		static_assert(sizeof(socketType) / sizeof(int) == SocketTypeCount, "Socket type array is incomplete");
 
-		return socketType[type];
+		return socketType[UnderlyingCast(type)];
 	}
 
 	void SocketImpl::Uninitialize()

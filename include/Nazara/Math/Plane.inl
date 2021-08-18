@@ -1,14 +1,12 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
+#include <sstream>
 #include <Nazara/Core/Debug.hpp>
-
-#define F(a) static_cast<T>(a)
 
 namespace Nz
 {
@@ -148,7 +146,7 @@ namespace Nz
 	template<typename T>
 	Plane<T>& Plane<T>::MakeXY()
 	{
-		return Set(F(0.0), F(0.0), F(1.0), F(0.0));
+		return Set(T(0.0), T(0.0), T(1.0), T(0.0));
 	}
 
 	/*!
@@ -161,7 +159,7 @@ namespace Nz
 	template<typename T>
 	Plane<T>& Plane<T>::MakeXZ()
 	{
-		return Set(F(0.0), F(1.0), F(0.0), F(0.0));
+		return Set(T(0.0), T(1.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -174,7 +172,7 @@ namespace Nz
 	template<typename T>
 	Plane<T>& Plane<T>::MakeYZ()
 	{
-		return Set(F(1.0), F(0.0), F(0.0), F(0.0));
+		return Set(T(1.0), T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -282,7 +280,7 @@ namespace Nz
 	Plane<T>& Plane<T>::Set(const Plane<U>& plane)
 	{
 		normal.Set(plane.normal);
-		distance = F(plane.distance);
+		distance = T(plane.distance);
 
 		return *this;
 	}
@@ -293,11 +291,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	String Plane<T>::ToString() const
+	std::string Plane<T>::ToString() const
 	{
-		StringStream ss;
+		std::ostringstream ss;
+		ss << *this;
 
-		return ss << "Plane(Normal: " << normal.ToString() << "; Distance: " << distance << ')';
+		return ss.str();
 	}
 
 	/*!
@@ -348,9 +347,9 @@ namespace Nz
 	Plane<T> Plane<T>::Lerp(const Plane& from, const Plane& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
-		if (interpolation < F(0.0) || interpolation > F(1.0))
+		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + String::Number(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
 			return Plane();
 		}
 		#endif
@@ -461,9 +460,7 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane)
 {
-	return out << plane.ToString();
+	return out << "Plane(Normal: " << plane.normal << "; Distance: " << plane.distance << ')';
 }
-
-#undef F
 
 #include <Nazara/Core/DebugOff.hpp>

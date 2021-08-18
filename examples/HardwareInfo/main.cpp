@@ -10,12 +10,11 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Initializer.hpp>
-#include <Nazara/Renderer/OpenGL.hpp>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
 
-void printCap(std::ostream& o, const Nz::String& cap, bool b);
+void printCap(std::ostream& o, const std::string& cap, bool b);
 
 int main()
 {
@@ -58,46 +57,15 @@ int main()
 	else
 		oss << "Impossible de retrouver les informations du processeur" << std::endl;
 
-	oss << std::endl << "--Carte graphique--" << std::endl;
-	// La classe OpenGL nous donne accès à des informations sur la carte graphique
-	// Cependant celle-ci n'est accessible que si le projet est compilé avec NAZARA_RENDERER_OPENGL
-	// et que les répertoires d'inclusions donnent accès aux includes d'OpenGL (Cette démo utilisent ceux de Nazara)
-	Nz::Initializer<Nz::OpenGL> openGL;
-	if (openGL)
-	{
-		// Nous récupérons ensuite la version d'OpenGL sous forme d'entier (ex: OpenGL 3.3 donnera 330)
-		unsigned int openglVersion = Nz::OpenGL::GetVersion();
-
-		// OpenGL nous donne accès à trois informations principales:
-		// 1) La chaîne d'identification du driver ("Renderer name")
-		// 2) La chaîne d'identification du concepteur ("Vendor name")
-		// 3) La version d'OpenGL
-		oss << "Identification: " << Nz::OpenGL::GetRendererName() << std::endl;
-		oss << "Concepteur: " << Nz::OpenGL::GetVendorName() << std::endl;
-		oss << "Version d'OpenGL: " << openglVersion/100 << '.' << openglVersion%100 << std::endl;
-		oss << std::endl;
-
-		// Ainsi qu'un report des capacités de la carte graphique (avec le driver actuel)
-		oss << "Rapport des capacites: " << std::endl; // Pas d'accent car écriture dans un fichier (et on ne va pas s'embêter avec ça)
-		printCap(oss, "-Calculs 64bits", Nz::OpenGL::IsSupported(Nz::OpenGLExtension_FP64));
-		printCap(oss, "-Compression de textures (s3tc)", Nz::OpenGL::IsSupported(Nz::OpenGLExtension_TextureCompression_s3tc));
-		printCap(oss, "-Filtrage anisotrope", Nz::OpenGL::IsSupported(Nz::OpenGLExtension_AnisotropicFilter));
-		printCap(oss, "-Mode debug", Nz::OpenGL::IsSupported(Nz::OpenGLExtension_DebugOutput));
-		printCap(oss, "-Separate shader objects", Nz::OpenGL::IsSupported(Nz::OpenGLExtension_SeparateShaderObjects));
-		printCap(oss, "-Texture storage", Nz::OpenGL::IsSupported(Nz::OpenGLExtension_TextureStorage));
-	}
-	else
-		oss << "Impossible de retrouver les informations de la carte graphique" << std::endl;
-
 	std::cout << "\r                          "; // On efface le message d'initialisation
 	std::cout << '\r'; // Et on place déjà le caractère pour revenir sur la même ligne (Pour ne pas avoir un saut inutile)
 
 	std::cout << oss.str() << std::endl;
 
 	Nz::File reportFile("HardwareInfo.txt");
-	if (reportFile.Open(Nz::OpenMode_Text | Nz::OpenMode_Truncate | Nz::OpenMode_WriteOnly))
+	if (reportFile.Open(Nz::OpenMode::Text | Nz::OpenMode::Truncate | Nz::OpenMode::WriteOnly))
 	{
-		reportFile.Write(oss.str()); // Conversion implicite en Nz::String
+		reportFile.Write(oss.str()); // Conversion implicite en std::string
 		reportFile.Close();
 
 		char accentAigu = static_cast<char>(130); // C'est crade, mais ça marche chez 95% des Windowsiens
@@ -111,7 +79,7 @@ int main()
 	return 0;
 }
 
-void printCap(std::ostream& o, const Nz::String& cap, bool b)
+void printCap(std::ostream& o, const std::string& cap, bool b)
 {
 	if (b)
 		o << cap << ": Oui" << std::endl;

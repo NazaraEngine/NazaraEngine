@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -12,9 +12,8 @@ namespace Nz
 	/*!
 	* \brief Constructs a NetPacket object by default
 	*/
-
 	inline NetPacket::NetPacket() :
-	m_netCode(NetCode_Invalid)
+	m_netCode(0)
 	{
 	}
 
@@ -156,7 +155,7 @@ namespace Nz
 
 	inline void NetPacket::Reset(UInt16 netCode, const void* ptr, std::size_t size)
 	{
-		InitStream(HeaderSize + size, HeaderSize, OpenMode_ReadOnly);
+		InitStream(HeaderSize + size, HeaderSize, OpenMode::ReadOnly);
 		m_buffer->Resize(HeaderSize + size);
 
 		if (ptr)

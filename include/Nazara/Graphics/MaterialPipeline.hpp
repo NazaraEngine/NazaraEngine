@@ -10,83 +10,60 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Renderer/UberShader.hpp>
 #include <array>
+#include <memory>
 
 namespace Nz
 {
+	class UberShader;
+
 	struct MaterialPipelineInfo : RenderStates
 	{
-		bool alphaTest         = false;
-		bool depthSorting      = false;
-		bool hasAlphaMap       = false;
-		bool hasDiffuseMap     = false;
-		bool hasEmissiveMap    = false;
-		bool hasHeightMap      = false;
-		bool hasNormalMap      = false;
-		bool hasSpecularMap    = false;
-		bool hasVertexColor    = false;
-		bool reflectionMapping = false;
-		bool shadowReceive     = true;
+		struct Shader
+		{
+			std::shared_ptr<UberShader> uberShader;
+			Nz::UInt64 enabledOptions = 0;
+		};
 
-		UberShaderConstRef uberShader;
+		std::vector<Shader> shaders;
+		std::shared_ptr<const MaterialSettings> settings;
 	};
 
 	inline bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);
 	inline bool operator!=(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);
 
-	class MaterialPipeline;
 
-	using MaterialPipelineConstRef = ObjectRef<const MaterialPipeline>;
-	using MaterialPipelineLibrary = ObjectLibrary<MaterialPipeline>;
-	using MaterialPipelineRef = ObjectRef<MaterialPipeline>;
-
-	class NAZARA_GRAPHICS_API MaterialPipeline : public RefCounted
+	class NAZARA_GRAPHICS_API MaterialPipeline
 	{
 		friend class Graphics;
-		friend MaterialPipelineLibrary;
+
+		struct Token {};
 
 		public:
-			struct Instance;
-
+			inline MaterialPipeline(const MaterialPipelineInfo& pipelineInfo, Token);
 			MaterialPipeline(const MaterialPipeline&) = delete;
 			MaterialPipeline(MaterialPipeline&&) = delete;
 			~MaterialPipeline() = default;
-
-			inline const Instance& Apply(UInt32 flags = ShaderFlags_None) const;
 
 			MaterialPipeline& operator=(const MaterialPipeline&) = delete;
 			MaterialPipeline& operator=(MaterialPipeline&&) = delete;
 
 			inline const MaterialPipelineInfo& GetInfo() const;
-			inline const Instance& GetInstance(UInt32 flags = ShaderFlags_None) const;
+			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers) const;
 
-			static MaterialPipelineRef GetPipeline(const MaterialPipelineInfo& pipelineInfo);
-
-			struct Instance
-			{
-				RenderPipeline renderPipeline;
-				UberShaderInstance* uberInstance = nullptr;
-				std::array<int, MaterialUniform_Max + 1> uniforms;
-			};
+			static const std::shared_ptr<MaterialPipeline>& Get(const MaterialPipelineInfo& pipelineInfo);
 
 		private:
-			inline MaterialPipeline(const MaterialPipelineInfo& pipelineInfo);
-
-			void GenerateRenderPipeline(UInt32 flags) const;
-
 			static bool Initialize();
-			template<typename... Args> static MaterialPipelineRef New(Args&&... args);
 			static void Uninitialize();
 
+			mutable std::vector<std::shared_ptr<RenderPipeline>> m_renderPipelines;
 			MaterialPipelineInfo m_pipelineInfo;
-			mutable std::array<Instance, ShaderFlags_Max + 1> m_instances;
 
-			using PipelineCache = std::unordered_map<MaterialPipelineInfo, MaterialPipelineRef>;
+			using PipelineCache = std::unordered_map<MaterialPipelineInfo, std::shared_ptr<MaterialPipeline>>;
 			static PipelineCache s_pipelineCache;
-
-			static MaterialPipelineLibrary::LibraryMap s_library;
 	};
 }
 

@@ -1,7 +1,8 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -16,19 +17,19 @@ namespace Nz
 		m_texCoords.clear();
 	}
 
-	inline String* OBJParser::GetMaterials()
+	inline std::string* OBJParser::GetMaterials()
 	{
 		return m_materials.data();
 	}
 
-	inline const String* OBJParser::GetMaterials() const
+	inline const std::string* OBJParser::GetMaterials() const
 	{
 		return m_materials.data();
 	}
 
-	inline UInt32 OBJParser::GetMaterialCount() const
+	inline std::size_t OBJParser::GetMaterialCount() const
 	{
-		return static_cast<UInt32>(m_materials.size());
+		return m_materials.size();
 	}
 
 	inline OBJParser::Mesh* OBJParser::GetMeshes()
@@ -41,12 +42,12 @@ namespace Nz
 		return m_meshes.data();
 	}
 
-	inline UInt32 OBJParser::GetMeshCount() const
+	inline std::size_t OBJParser::GetMeshCount() const
 	{
-		return static_cast<UInt32>(m_meshes.size());
+		return m_meshes.size();
 	}
 
-	inline const String& OBJParser::GetMtlLib() const
+	inline const std::filesystem::path& OBJParser::GetMtlLib() const
 	{
 		return m_mtlLib;
 	}
@@ -61,9 +62,9 @@ namespace Nz
 		return m_normals.data();
 	}
 
-	inline UInt32 OBJParser::GetNormalCount() const
+	inline std::size_t OBJParser::GetNormalCount() const
 	{
-		return static_cast<UInt32>(m_normals.size());
+		return m_normals.size();
 	}
 
 	inline Vector4f* OBJParser::GetPositions()
@@ -76,9 +77,9 @@ namespace Nz
 		return m_positions.data();
 	}
 
-	inline UInt32 OBJParser::GetPositionCount() const
+	inline std::size_t OBJParser::GetPositionCount() const
 	{
-		return static_cast<UInt32>(m_positions.size());
+		return m_positions.size();
 	}
 
 	inline Vector3f* OBJParser::GetTexCoords()
@@ -91,41 +92,41 @@ namespace Nz
 		return m_texCoords.data();
 	}
 
-	inline UInt32 OBJParser::GetTexCoordCount() const
+	inline std::size_t OBJParser::GetTexCoordCount() const
 	{
-		return static_cast<UInt32>(m_texCoords.size());
+		return m_texCoords.size();
 	}
 
-	inline String* OBJParser::SetMaterialCount(UInt32 materialCount)
+	inline std::string* OBJParser::SetMaterialCount(std::size_t materialCount)
 	{
 		m_materials.resize(materialCount);
 		return m_materials.data();
 	}
 
-	inline OBJParser::Mesh* OBJParser::SetMeshCount(UInt32 meshCount)
+	inline OBJParser::Mesh* OBJParser::SetMeshCount(std::size_t meshCount)
 	{
 		m_meshes.resize(meshCount);
 		return m_meshes.data();
 	}
 
-	inline void OBJParser::SetMtlLib(const String& mtlLib)
+	inline void OBJParser::SetMtlLib(const std::filesystem::path& mtlLib)
 	{
 		m_mtlLib = mtlLib;
 	}
 
-	inline Vector3f* OBJParser::SetNormalCount(UInt32 normalCount)
+	inline Vector3f* OBJParser::SetNormalCount(std::size_t normalCount)
 	{
 		m_normals.resize(normalCount);
 		return m_normals.data();
 	}
 
-	inline Vector4f* OBJParser::SetPositionCount(UInt32 positionCount)
+	inline Vector4f* OBJParser::SetPositionCount(std::size_t positionCount)
 	{
 		m_positions.resize(positionCount);
 		return m_positions.data();
 	}
 
-	inline Vector3f* OBJParser::SetTexCoordCount(UInt32 texCoordCount)
+	inline Vector3f* OBJParser::SetTexCoordCount(std::size_t texCoordCount)
 	{
 		m_texCoords.resize(texCoordCount);
 		return m_texCoords.data();
@@ -135,7 +136,7 @@ namespace Nz
 	void OBJParser::Emit(const T& text) const
 	{
 		m_outputStream << text;
-		if (m_outputStream.GetBufferSize() > 1024 * 1024)
+		if (m_outputStream.rdbuf()->str().size() > 1024 * 1024)
 			Flush();
 	}
 
@@ -151,25 +152,25 @@ namespace Nz
 		Emit('\n');
 	}
 
-	inline void OBJParser::Error(const String& message)
+	inline void OBJParser::Error(const std::string& message)
 	{
-		NazaraError(message + " at line #" + String::Number(m_lineCount));
+		NazaraError(message + " at line #" + std::to_string(m_lineCount));
 	}
 
 	inline void OBJParser::Flush() const
 	{
-		m_currentStream->Write(m_outputStream);
-		m_outputStream.Clear();
+		m_currentStream->Write(std::move(m_outputStream).str());
+		m_outputStream.str({});
 	}
 
-	inline void OBJParser::Warning(const String& message)
+	inline void OBJParser::Warning(const std::string& message)
 	{
-		NazaraWarning(message + " at line #" + String::Number(m_lineCount));
+		NazaraWarning(message + " at line #" + std::to_string(m_lineCount));
 	}
 
 	inline bool OBJParser::UnrecognizedLine(bool error)
 	{
-		String message = "Unrecognized \"" + m_currentLine + '"';
+		std::string message = "Unrecognized \"" + m_currentLine + '"';
 
 		if (error)
 			Error(message);

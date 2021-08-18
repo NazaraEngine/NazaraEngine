@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ObjectHandle.hpp>
-#include <Nazara/Core/StringStream.hpp>
 #include <functional>
 #include <limits>
+#include <sstream>
 
 namespace Nz
 {
@@ -26,15 +26,34 @@ namespace Nz
 	{
 	}
 
+	template<typename T>
+	template<typename U>
+	ObjectHandle<T>::ObjectHandle(const ObjectHandle<U>& ref) :
+	m_handleData(ref.m_handleData)
+	{
+		static_assert(std::is_base_of<T, U>::value, "Can only implicitly convert from a derived to a base");
+	}
+
+	template<typename T>
+	template<typename U>
+	ObjectHandle<T>::ObjectHandle(ObjectHandle<U>&& ref) :
+	m_handleData(std::move(ref.m_handleData))
+	{
+		ref.m_handleData = Detail::HandleData::GetEmptyObject();
+
+		static_assert(std::is_base_of<T, U>::value, "Can only implicitly convert from a derived to a base");
+	}
+
 	/*!
 	* \brief Constructs a ObjectHandle object by move semantic
 	*
 	* \param handle ObjectHandle to move into this
 	*/
 	template<typename T>
-	ObjectHandle<T>::ObjectHandle(ObjectHandle&& handle) noexcept
+	ObjectHandle<T>::ObjectHandle(ObjectHandle&& handle) noexcept :
+	m_handleData(std::move(handle.m_handleData))
 	{
-		Reset(std::move(handle));
+		handle.m_handleData = Detail::HandleData::GetEmptyObject();
 	}
 
 	/*!
@@ -135,18 +154,12 @@ namespace Nz
 	* \return A string representation of the object "ObjectHandle(object representation) or Null"
 	*/
 	template<typename T>
-	Nz::String ObjectHandle<T>::ToString() const
+	std::string ObjectHandle<T>::ToString() const
 	{
-		Nz::StringStream ss;
-		ss << "ObjectHandle(";
-		if (IsValid())
-			ss << GetObject()->ToString();
-		else
-			ss << "Null";
+		std::ostringstream ss;
+		ss << *this;
 
-		ss << ')';
-
-		return ss;
+		return ss.str();
 	}
 
 	/*!
@@ -219,7 +232,14 @@ namespace Nz
 	template<typename T>
 	std::ostream& operator<<(std::ostream& out, const ObjectHandle<T>& handle)
 	{
-		out << handle.ToString();
+		out << "ObjectHandle(";
+		if (handle.IsValid())
+			out << handle->ToString();
+		else
+			out << "Null";
+
+		out << ')';
+
 		return out;
 	}
 
@@ -455,6 +475,60 @@ namespace Nz
 	bool operator>=(const ObjectHandle<T>& lhs, const T& rhs)
 	{
 		return !(lhs < rhs);
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> ConstRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(const_cast<T*>(ref.GetObject()));
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> DynamicRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(dynamic_cast<T*>(ref.GetObject()));
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> ReinterpretRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(static_cast<T*>(ref.GetObject()));
+	}
+
+	/*!
+	* \brief Casts an ObjectHandle from one type to another using static_cast
+	* \return Reference to the casted object
+	*
+	* \param ref The reference to convert
+	*
+	* \remark It is an undefined behavior to cast between incompatible types
+	*/
+	template<typename T, typename U>
+	ObjectHandle<T> StaticRefCast(const ObjectHandle<U>& ref)
+	{
+		return ObjectHandle<T>(static_cast<T*>(ref.GetObject()));
 	}
 
 	template<typename T>

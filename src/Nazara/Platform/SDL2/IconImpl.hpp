@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,25 +8,28 @@
 #define NAZARA_ICONIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL_surface.h>
 
 namespace Nz
 {
-	class Image;
-
 	class IconImpl
 	{
 		public:
-			bool Create(const Image& image);
-			void Destroy();
+			IconImpl(const Image& image);
+			IconImpl(const IconImpl&) = delete;
+			IconImpl(IconImpl&&) noexcept = default;
+			~IconImpl();
 
 			SDL_Surface* GetIcon();
 
-		private:
+			IconImpl& operator=(const IconImpl&) = default;
+			IconImpl& operator=(IconImpl&&) noexcept = default;
 
-			SDL_Surface* m_icon = nullptr;
+		private:
 			Image m_iconImage;
+			MovablePtr<SDL_Surface> m_icon;
 	};
 }
 

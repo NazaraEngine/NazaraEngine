@@ -1,8 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StdLogger.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
@@ -11,13 +12,13 @@ namespace Nz
 	namespace
 	{
 		const char* errorType[] = {
-			"Assert failed",	// ErrorType_AssertFailed
-			"Internal error",	// ErrorType_Internal
-			"Error",		// ErrorType_Normal
-			"Warning"		// ErrorType_Warning
+			"Assert failed",	// ErrorType::AssertFailed
+			"Internal error",	// ErrorType::Internal
+			"Error",		// ErrorType::Normal
+			"Warning"		// ErrorType::Warning
 		};
 
-		static_assert(sizeof(errorType) / sizeof(const char*) == ErrorType_Max + 1, "Error type array is incomplete");
+		static_assert(sizeof(errorType) / sizeof(const char*) == ErrorTypeCount, "Error type array is incomplete");
 	}
 
 	/*!
@@ -60,9 +61,9 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void StdLogger::Write(const String& string)
+	void StdLogger::Write(const std::string_view& error)
 	{
-		fputs(string.GetConstBuffer(), stdout);
+		fwrite(error.data(), sizeof(char), error.size(), stdout);
 		fputc('\n', stdout);
 	}
 
@@ -78,9 +79,10 @@ namespace Nz
 	* \see Write
 	*/
 
-	void StdLogger::WriteError(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void StdLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
 	{
-		fprintf(stderr, "%s: %s", errorType[type], error.GetConstBuffer());
+		fprintf(stderr, "%s: ", errorType[UnderlyingCast(type)]);
+		fwrite(error.data(), sizeof(char), error.size(), stdout);
 
 		if (line != 0 && file && function)
 			fprintf(stderr, " (in %s at %s:%d)", function, file, line);

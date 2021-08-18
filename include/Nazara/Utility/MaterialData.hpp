@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -22,6 +22,12 @@ namespace Nz
 		static constexpr const char* BackFaceStencilReference = "MatBackFaceStencilReference";
 		static constexpr const char* BackFaceStencilZFail     = "MatBackFaceStencilZFail";
 		static constexpr const char* Blending                 = "MatBlending";
+		static constexpr const char* BlendModeAlpha           = "MatBlendModeAlpha";
+		static constexpr const char* BlendModeColor           = "MatBlendModeColor";
+		static constexpr const char* BlendDstAlpha            = "MatBlendDstAlpha";
+		static constexpr const char* BlendDstColor            = "MatBlendDstColor";
+		static constexpr const char* BlendSrcAlpha            = "MatBlendSrcAlpha";
+		static constexpr const char* BlendSrcColor            = "MatBlendSrcColor";
 		static constexpr const char* CullingSide              = "MatCullingSide";
 		static constexpr const char* ColorWrite               = "MatColorWrite";
 		static constexpr const char* DepthBuffer              = "MatDepthBuffer";
@@ -33,7 +39,6 @@ namespace Nz
 		static constexpr const char* DiffuseFilter            = "MatDiffuseFilter";
 		static constexpr const char* DiffuseTexturePath       = "MatDiffuseTexturePath";
 		static constexpr const char* DiffuseWrap              = "MatDiffuseWrap";
-		static constexpr const char* DstBlend                 = "MatDstBlend";
 		static constexpr const char* EmissiveTexturePath      = "MatEmissiveTexturePath";
 		static constexpr const char* FaceCulling              = "MatFaceCulling";
 		static constexpr const char* FaceFilling              = "MatFaceFilling";
@@ -51,7 +56,6 @@ namespace Nz
 		static constexpr const char* SpecularFilter           = "MatSpecularFilter";
 		static constexpr const char* SpecularTexturePath      = "MatSpecularTexturePath";
 		static constexpr const char* SpecularWrap             = "MatSpecularWrap";
-		static constexpr const char* SrcBlend                 = "MatSrcBlend";
 		static constexpr const char* StencilCompare           = "MatStencilCompare";
 		static constexpr const char* StencilFail              = "MatStencilFail";
 		static constexpr const char* StencilMask              = "MatStencilMask";

@@ -1,16 +1,16 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #ifndef NAZARA_BOUNDINGVOLUME_HPP
 #define NAZARA_BOUNDINGVOLUME_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/OrientedBox.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -47,7 +47,7 @@ namespace Nz
 			BoundingVolume& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			template<typename U> BoundingVolume& Set(const BoundingVolume<U>& volume);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			void Update(const Matrix4<T>& transformMatrix);
 			void Update(const Vector3<T>& translation);

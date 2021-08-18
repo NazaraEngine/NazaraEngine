@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,24 +8,25 @@
 #define NAZARA_PLATFORM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Platform/Config.hpp>
 
 namespace Nz
 {
-	class NAZARA_PLATFORM_API Platform
+	class NAZARA_PLATFORM_API Platform : public ModuleBase<Platform>
 	{
+		friend ModuleBase;
+
 		public:
-			Platform() = delete;
-			~Platform() = delete;
+			using Dependencies = TypeList<Utility>;
 
-			static bool Initialize();
+			struct Config {};
 
-			static bool IsInitialized();
-
-			static void Uninitialize();
+			Platform(Config /*config*/);
+			~Platform();
 
 		private:
-			static unsigned int s_moduleReferenceCounter;
+			static Platform* s_instance;
 	};
 }
 

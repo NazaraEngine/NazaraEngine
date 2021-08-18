@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,8 +7,8 @@
 #ifndef NAZARA_PLANE_HPP
 #define NAZARA_PLANE_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -42,7 +42,7 @@ namespace Nz
 			Plane& Set(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3);
 			template<typename U> Plane& Set(const Plane<U>& plane);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			Plane& operator=(const Plane& other) = default;
 

@@ -1,0 +1,119 @@
+[layout(std140)]
+struct PointLight
+{
+	color: vec3<f32>,
+	position: vec3<f32>,
+
+	radius: f32,
+	invRadius: f32,
+}
+
+[layout(std140)]
+struct SpotLight
+{
+	transformMatrix: mat4<f32>,
+
+	color: vec3<f32>,
+	position: vec3<f32>,
+	direction: vec3<f32>,
+
+	radius: f32,
+	invRadius: f32,
+
+	innerAngle: f32,
+	outerAngle: f32
+}
+
+[layout(std140)]
+struct ViewerData
+{
+	projectionMatrix: mat4<f32>,
+	invProjectionMatrix: mat4<f32>,
+	viewMatrix: mat4<f32>,
+	invViewMatrix: mat4<f32>,
+	viewProjMatrix: mat4<f32>,
+	invViewProjMatrix: mat4<f32>,
+	renderTargetSize: vec2<f32>,
+	invRenderTargetSize: vec2<f32>,
+	eyePosition: vec3<f32>
+}
+
+[set(0)]
+external
+{
+	[binding(0)] viewerData: uniform<ViewerData>
+}
+
+[set(1)]
+external
+{
+	[binding(0)] colorTexture: sampler2D<f32>,
+	[binding(1)] normalTexture: sampler2D<f32>,
+	[binding(2)] positionTexture: sampler2D<f32>,
+}
+
+[set(2)]
+external
+{
+	[binding(0)] lightParameters: uniform<SpotLight>,
+}
+
+struct FragIn
+{
+	[builtin(fragcoord)] fragcoord: vec4<f32>
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4<f32>
+}
+
+struct VertIn
+{
+	[location(0)] pos: vec3<f32>
+}
+
+struct VertOut
+{
+	[builtin(position)] position: vec4<f32>
+}
+
+[entry(frag)]
+fn main(input: FragIn) -> FragOut
+{
+	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize;
+	let normal = normalTexture.Sample(fragcoord).xyz * 2.0 - vec3<f32>(1.0, 1.0, 1.0);
+	let position = positionTexture.Sample(fragcoord).xyz;
+
+	let attenuation = compute_attenuation(position, normal);
+
+	let output: FragOut;
+	output.color = vec4<f32>(lightParameters.color, 1.0) * attenuation * colorTexture.Sample(fragcoord);
+
+	return output;
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.position = viewerData.projectionMatrix * viewerData.viewMatrix * lightParameters.transformMatrix * vec4<f32>(input.pos, 1.0);
+
+	return output;
+}
+
+fn compute_attenuation(worldPos: vec3<f32>, normal: vec3<f32>) -> f32
+{
+	let distance = length(lightParameters.position - worldPos);
+
+	let posToLight = (lightParameters.position - worldPos) / distance;
+	let lambert = dot(normal, posToLight);
+
+	let curAngle = dot(lightParameters.direction, -posToLight);
+	let innerMinusOuterAngle = lightParameters.innerAngle - lightParameters.outerAngle;
+
+	let attenuation = max(1.0 - distance * lightParameters.invRadius, 0.0);
+	attenuation = attenuation * lambert * max((curAngle - lightParameters.outerAngle) / innerMinusOuterAngle, 0.0);
+
+	return attenuation;
+}

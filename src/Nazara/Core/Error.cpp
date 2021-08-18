@@ -1,10 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Directory.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstdlib>
 #include <stdexcept>
 
@@ -30,7 +31,7 @@ namespace Nz
 	* \return Flag
 	*/
 
-	UInt32 Error::GetFlags()
+	ErrorModeFlags Error::GetFlags()
 	{
 		return s_flags;
 	}
@@ -44,7 +45,7 @@ namespace Nz
 	* \param function Optional argument to set last error function
 	*/
 
-	String Error::GetLastError(const char** file, unsigned int* line, const char** function)
+	std::string Error::GetLastError(const char** file, unsigned int* line, const char** function)
 	{
 		if (file)
 			*file = s_lastErrorFile;
@@ -82,31 +83,30 @@ namespace Nz
 	* \param code Code of the error
 	*/
 
-	String Error::GetLastSystemError(unsigned int code)
+	std::string Error::GetLastSystemError(unsigned int code)
 	{
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		wchar_t* buffer = nullptr;
 
-		FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-					  nullptr,
-					  code,
-					  0,
-					  reinterpret_cast<LPWSTR>(&buffer),
-					  0,
-					  nullptr);
+		DWORD length = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+		               nullptr,
+		               code,
+		               0,
+		               reinterpret_cast<LPWSTR>(&buffer),
+		               0,
+		               nullptr);
 
-		String error(String::Unicode(buffer));
-		LocalFree(buffer);
+		if (length == 0)
+			return "<internal error: FormatMessageW failed with " + std::to_string(::GetLastError()) + ">";
 
-		error.Trim(); // For an unknown reason, Windows put two-three line return after the message
-
-		return error;
+		CallOnExit freeOnExit([buffer] { LocalFree(buffer); });
+		return FromWideString(buffer);
 		#elif defined(NAZARA_PLATFORM_POSIX)
 		return std::strerror(code);
 		#else
 			#error GetLastSystemError is not implemented on this platform
 
-		return String("GetLastSystemError is not implemented on this platform");
+		return "GetLastSystemError is not implemented on this platform";
 		#endif
 	}
 
@@ -116,7 +116,7 @@ namespace Nz
 	* \param flags Flags for the error
 	*/
 
-	void Error::SetFlags(UInt32 flags)
+	void Error::SetFlags(ErrorModeFlags flags)
 	{
 		s_flags = flags;
 	}
@@ -131,24 +131,24 @@ namespace Nz
 	* \remark Produces a std::runtime_error on AssertFailed or throwing exception
 	*/
 
-	void Error::Trigger(ErrorType type, const String& error)
+	void Error::Trigger(ErrorType type, std::string error)
 	{
-		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
+		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0 || (s_flags & ErrorMode::SilentDisabled) != 0)
 			Log::WriteError(type, error);
 
-		s_lastError = error;
+		s_lastError = std::move(error);
 		s_lastErrorFile = "";
 		s_lastErrorFunction = "";
 		s_lastErrorLine = 0;
 
 		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-		if (type == ErrorType_AssertFailed)
+		if (type == ErrorType::AssertFailed)
 			std::abort();
 		#endif
 
-		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
-			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(error.ToStdString());
+		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning &&
+			(s_flags & ErrorMode::ThrowException) != 0 && (s_flags & ErrorMode::ThrowExceptionDisabled) == 0))
+			throw std::runtime_error(s_lastError);
 	}
 
 	/*!
@@ -164,30 +164,41 @@ namespace Nz
 	* \remark Produces a std::runtime_error on AssertFailed or throwing exception
 	*/
 
-	void Error::Trigger(ErrorType type, const String& error, unsigned int line, const char* file, const char* function)
+	void Error::Trigger(ErrorType type, std::string error, unsigned int line, const char* file, const char* function)
 	{
-		file = Nz::Directory::GetCurrentFileRelativeToEngine(file);
+		file = GetCurrentFileRelativeToEngine(file);
 
-		if (type == ErrorType_AssertFailed || (s_flags & ErrorFlag_Silent) == 0 || (s_flags & ErrorFlag_SilentDisabled) != 0)
+		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0 || (s_flags & ErrorMode::SilentDisabled) != 0)
 			Log::WriteError(type, error, line, file, function);
 
-		s_lastError = error;
+		s_lastError = std::move(error);
 		s_lastErrorFile = file;
 		s_lastErrorFunction = function;
 		s_lastErrorLine = line;
 
 		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-		if (type == ErrorType_AssertFailed)
+		if (type == ErrorType::AssertFailed)
 			std::abort();
 		#endif
 
-		if (type == ErrorType_AssertFailed || (type != ErrorType_Warning &&
-			(s_flags & ErrorFlag_ThrowException) != 0 && (s_flags & ErrorFlag_ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(error.ToStdString());
+		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning &&
+			(s_flags & ErrorMode::ThrowException) != 0 && (s_flags & ErrorMode::ThrowExceptionDisabled) == 0))
+			throw std::runtime_error(s_lastError);
 	}
 
-	UInt32 Error::s_flags = ErrorFlag_None;
-	String Error::s_lastError;
+	const char* Error::GetCurrentFileRelativeToEngine(const char* file)
+	{
+		if (const char* ptr = std::strstr(file, "NazaraEngine/"))
+			return ptr;
+
+		if (const char* ptr = std::strstr(file, "NazaraEngine\\"))
+			return ptr;
+
+		return file;
+	}
+
+	ErrorModeFlags Error::s_flags = ErrorMode::None;
+	std::string Error::s_lastError;
 	const char* Error::s_lastErrorFunction = "";
 	const char* Error::s_lastErrorFile = "";
 	unsigned int Error::s_lastErrorLine = 0;

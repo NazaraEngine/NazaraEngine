@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,13 +15,23 @@ namespace Nz
 	* \brief Core class that represents a resource manager
 	*/
 
+
+	/*!
+	* \brief Clears the content of the manager
+	*/
+	template<typename Type, typename Parameters>
+	ResourceManager<Type, Parameters>::ResourceManager(Loader& loader) :
+	m_loader(loader)
+	{
+	}
+
 	/*!
 	* \brief Clears the content of the manager
 	*/
 	template<typename Type, typename Parameters>
 	void ResourceManager<Type, Parameters>::Clear()
 	{
-		Type::s_managerMap.clear();
+		m_resources.clear();
 	}
 
 	/*!
@@ -31,22 +41,22 @@ namespace Nz
 	* \param filePath Path to the asset that will be loaded
 	*/
 	template<typename Type, typename Parameters>
-	ObjectRef<Type> ResourceManager<Type, Parameters>::Get(const String& filePath)
+	std::shared_ptr<Type> ResourceManager<Type, Parameters>::Get(const std::filesystem::path& filePath)
 	{
-		String absolutePath = File::AbsolutePath(filePath);
-		auto it = Type::s_managerMap.find(absolutePath);
-		if (it == Type::s_managerMap.end())
+		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
+		auto it = m_resources.find(absolutePath);
+		if (it == m_resources.end())
 		{
-			ObjectRef<Type> resource = Type::LoadFromFile(absolutePath, GetDefaultParameters());
+			std::shared_ptr<Type> resource = m_loader.LoadFromFile(absolutePath, GetDefaultParameters());
 			if (!resource)
 			{
-				NazaraError("Failed to load resource from file: " + absolutePath);
-				return ObjectRef<Type>();
+				NazaraError("Failed to load resource from file: " + absolutePath.generic_u8string());
+				return std::shared_ptr<Type>();
 			}
 
-			NazaraDebug("Loaded resource from file " + absolutePath);
+			NazaraDebug("Loaded resource from file " + absolutePath.generic_u8string());
 
-			it = Type::s_managerMap.insert(std::make_pair(absolutePath, resource)).first;
+			it = m_resources.insert(std::make_pair(absolutePath, resource)).first;
 		}
 
 		return it->second;
@@ -59,27 +69,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	const Parameters& ResourceManager<Type, Parameters>::GetDefaultParameters()
 	{
-		return Type::s_managerParameters;
-	}
-
-	/*!
-	* \brief Purges the resource manager from every asset whose it is the only owner
-	*/
-	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Purge()
-	{
-		auto it = Type::s_managerMap.begin();
-		while (it != Type::s_managerMap.end())
-		{
-			const ObjectRef<Type>& ref = it->second;
-			if (ref->GetReferenceCount() == 1) // Are we the only ones to own the resource ?
-			{
-				NazaraDebug("Purging resource from file " + ref->GetFilePath());
-				Type::s_managerMap.erase(it++); // Then we erase it
-			}
-			else
-				++it;
-		}
+		return m_defaultParameters;
 	}
 
 	/*!
@@ -89,11 +79,11 @@ namespace Nz
 	* \param resource Object to associate with
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Register(const String& filePath, ObjectRef<Type> resource)
+	void ResourceManager<Type, Parameters>::Register(const std::filesystem::path& filePath, std::shared_ptr<Type> resource)
 	{
-		String absolutePath = File::AbsolutePath(filePath);
+		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 
-		Type::s_managerMap[absolutePath] = resource;
+		m_resources[absolutePath] = resource;
 	}
 
 	/*!
@@ -102,9 +92,9 @@ namespace Nz
 	* \param params Default parameters for loading from file
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::SetDefaultParameters(const Parameters& params)
+	void ResourceManager<Type, Parameters>::SetDefaultParameters(Parameters params)
 	{
-		Type::s_managerParameters = params;
+		m_defaultParameters = std::move(params);
 	}
 
 	/*!
@@ -113,30 +103,11 @@ namespace Nz
 	* \param filePath Path for the resource
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Unregister(const String& filePath)
+	void ResourceManager<Type, Parameters>::Unregister(const std::filesystem::path& filePath)
 	{
-		String absolutePath = File::AbsolutePath(filePath);
+		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 
-		Type::s_managerMap.erase(absolutePath);
-	}
-
-	/*!
-	* \brief Initializes the resource manager
-	* \return true
-	*/
-	template<typename Type, typename Parameters>
-	bool ResourceManager<Type, Parameters>::Initialize()
-	{
-		return true;
-	}
-
-	/*!
-	* \brief Uninitialize the resource manager
-	*/
-	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Uninitialize()
-	{
-		Clear();
+		m_resources.erase(absolutePath);
 	}
 }
 

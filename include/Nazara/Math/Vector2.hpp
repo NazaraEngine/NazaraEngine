@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,8 +7,11 @@
 #ifndef NAZARA_VECTOR2_HPP
 #define NAZARA_VECTOR2_HPP
 
-#include <Nazara/Core/String.hpp>
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <functional>
+#include <string>
 
 namespace Nz
 {
@@ -31,7 +34,7 @@ namespace Nz
 			~Vector2() = default;
 
 			T AbsDotProduct(const Vector2& vec) const;
-			T AngleBetween(const Vector2& vec) const;
+			RadianAngle<T> AngleBetween(const Vector2& vec) const;
 
 			template<typename U = T>
 			U Distance(const Vector2& vec) const;
@@ -54,17 +57,17 @@ namespace Nz
 
 			Vector2& Set(T X, T Y);
 			Vector2& Set(T scale);
-			Vector2& Set(const T vec[2]);
+			Vector2& Set(const T* vec);
 			Vector2& Set(const Vector3<T>& vec);
 			Vector2& Set(const Vector4<T>& vec);
 			template<typename U> Vector2& Set(const Vector2<U>& vec);
 
 			T SquaredDistance(const Vector2& vec) const;
 
-			String ToString() const;
+			std::string ToString() const;
 
-			operator T* ();
-			operator const T* () const;
+			T& operator[](std::size_t i);
+			T operator[](std::size_t i) const;
 
 			const Vector2& operator+() const;
 			Vector2 operator-() const;

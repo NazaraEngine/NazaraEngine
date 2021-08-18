@@ -1,5 +1,5 @@
-#include <Nazara/Core/Directory.hpp>
 #include <Nazara/Core/File.hpp>
+#include <Nazara/Core/Modules.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Joint.hpp>
@@ -15,35 +15,27 @@
 int main()
 {
 	// Pour charger des ressources, il est impératif d'initialiser le module utilitaire
-	Nz::Initializer<Nz::Utility> utility;
-	if (!utility)
+	Nz::Modules<Nz::Utility> nazara;
+	/*if (!utility)
 	{
 		// Ça n'a pas fonctionné, le pourquoi se trouve dans le fichier NazaraLog.log
 		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;
 		std::getchar(); // On laise le temps de voir l'erreur
 		return EXIT_FAILURE;
-	}
+	}*/
 
 	for (;;)
 	{
-		Nz::Directory resourceDirectory("resources");
-		if (!resourceDirectory.Open())
+		std::vector<std::filesystem::path> models;
+		for (auto& p : std::filesystem::directory_iterator("resources"))
 		{
-			std::cerr << "Failed to open resource directory" << std::endl;
-			std::getchar();
-			return EXIT_FAILURE;
-		}
+			if (!p.is_regular_file())
+				continue;
 
-		std::vector<Nz::String> models;
-		while (resourceDirectory.NextResult())
-		{
-			Nz::String path = resourceDirectory.GetResultName();
-			Nz::String ext = path.SubStringFrom('.', -1, true); // Tout ce qui vient après le dernier '.' de la chaîne
-			if (Nz::MeshLoader::IsExtensionSupported(ext)) // L'extension est-elle supportée par le MeshLoader ?
-				models.push_back(path);
+			const std::filesystem::path& filePath = p.path();
+			if (Nz::MeshLoader::IsExtensionSupported(filePath.extension().generic_u8string())) // L'extension est-elle supportée par le MeshLoader ?
+				models.push_back(filePath);
 		}
-
-		resourceDirectory.Close();
 
 		if (models.empty())
 		{
@@ -71,7 +63,7 @@ int main()
 		if (iChoice == 0)
 			break;
 
-		Nz::MeshRef mesh = Nz::Mesh::LoadFromFile(resourceDirectory.GetPath() + '/' + models[iChoice-1]);
+		Nz::MeshRef mesh = Nz::Mesh::LoadFromFile(models[iChoice-1]);
 		if (!mesh)
 		{
 			std::cout << "Failed to load mesh" << std::endl;
@@ -123,8 +115,8 @@ int main()
 				}
 			}
 
-			Nz::String animationPath = mesh->GetAnimation();
-			if (!animationPath.IsEmpty())
+			std::filesystem::path animationPath = mesh->GetAnimation();
+			if (!animationPath.empty())
 			{
 				Nz::AnimationRef animation = Nz::Animation::LoadFromFile(animationPath);
 				if (animation)
@@ -174,7 +166,7 @@ int main()
 			{
 				const Nz::ParameterList& matData = mesh->GetMaterialData(i);
 
-				Nz::String data;
+				std::string data;
 				if (!matData.GetStringParameter(Nz::MaterialData::FilePath, &data))
 					data = "<Custom>";
 

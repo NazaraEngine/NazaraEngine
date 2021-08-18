@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,6 +11,7 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <memory>
 #include <ostream>
+#include <string>
 
 namespace Nz
 {
@@ -22,6 +23,8 @@ namespace Nz
 		public:
 			ObjectHandle();
 			explicit ObjectHandle(T* object);
+			template<typename U> ObjectHandle(const ObjectHandle<U>& ref);
+			template<typename U> ObjectHandle(ObjectHandle<U>&& ref);
 			ObjectHandle(const ObjectHandle& handle) = default;
 			ObjectHandle(ObjectHandle&& handle) noexcept;
 			~ObjectHandle();
@@ -36,7 +39,7 @@ namespace Nz
 
 			ObjectHandle& Swap(ObjectHandle& handle);
 
-			Nz::String ToString() const;
+			std::string ToString() const;
 
 			explicit operator bool() const;
 			operator T*() const;
@@ -77,6 +80,11 @@ namespace Nz
 	template<typename T> bool operator>=(const ObjectHandle<T>& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator>=(const T& lhs, const ObjectHandle<T>& rhs);
 	template<typename T> bool operator>=(const ObjectHandle<T>& lhs, const T& rhs);
+
+	template<typename T, typename U> ObjectHandle<T> ConstRefCast(const ObjectHandle<U>& ref);
+	template<typename T, typename U> ObjectHandle<T> DynamicRefCast(const ObjectHandle<U>& ref);
+	template<typename T, typename U> ObjectHandle<T> ReinterpretRefCast(const ObjectHandle<U>& ref);
+	template<typename T, typename U> ObjectHandle<T> StaticRefCast(const ObjectHandle<U>& ref);
 
 	template<typename T> struct PointedType<ObjectHandle<T>> { using type = T; };
 	template<typename T> struct PointedType<const ObjectHandle<T>> { using type = T; };

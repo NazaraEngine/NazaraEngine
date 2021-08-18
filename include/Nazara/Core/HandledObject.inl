@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Development Kit"
 // For conditions of distribution and use, see copyright notice in Prerequisites.hpp
 
@@ -58,9 +58,20 @@ namespace Nz
 	* \return ObjectHandle to this
 	*/
 	template<typename T>
-	ObjectHandle<T> HandledObject<T>::CreateHandle()
+	template<typename U>
+	ObjectHandle<U> HandledObject<T>::CreateHandle()
 	{
-		return ObjectHandle<T>(static_cast<T*>(this));
+		static_assert(std::is_base_of<T, U>::value, "Cannot retrieve a handle for a non-related class");
+		return ObjectHandle<U>(static_cast<U*>(this));
+	}
+
+	template<typename T>
+	std::shared_ptr<const Detail::HandleData> HandledObject<T>::GetHandleData()
+	{
+		if (!m_handleData)
+			InitHandleData();
+
+		return std::shared_ptr<const Detail::HandleData>(m_handleData);
 	}
 
 	/*!
@@ -110,15 +121,6 @@ namespace Nz
 			m_handleData->object = nullptr;
 			m_handleData.reset();
 		}
-	}
-
-	template<typename T>
-	std::shared_ptr<const Detail::HandleData> HandledObject<T>::GetHandleData()
-	{
-		if (!m_handleData)
-			InitHandleData();
-
-		return std::shared_ptr<const Detail::HandleData>(m_handleData);
 	}
 
 	template<typename T>

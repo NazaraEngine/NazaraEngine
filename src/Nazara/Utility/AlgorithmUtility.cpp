@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -854,7 +854,7 @@ namespace Nz
 
 	void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
 	{
-		constexpr float round = 2.f*static_cast<float>(M_PI);
+		constexpr float round = 2.f * Pi<float>;
 		float delta = round/subdivision;
 
 		*vertexPointers.positionPtr++ = matrix.GetTranslation(); // matrix.Transform(Vector3f(0.f));
@@ -997,23 +997,19 @@ namespace Nz
 		float invSliceCount = 1.f / (sliceCount-1);
 		float invStackCount = 1.f / (stackCount-1);
 
-		const float pi = static_cast<float>(M_PI); // Pour éviter toute promotion en double
-		const float pi2 = pi * 2.f;
-		const float pi_2 = pi / 2.f;
-
 		for (unsigned int stack = 0; stack < stackCount; ++stack)
 		{
 			float stackVal = stack * invStackCount;
-			float stackValPi = stackVal * pi;
+			float stackValPi = stackVal * Pi<float>;
 			float sinStackValPi = std::sin(stackValPi);
 
 			for (unsigned int slice = 0; slice < sliceCount; ++slice)
 			{
 				float sliceVal = slice * invSliceCount;
-				float sliceValPi2 = sliceVal * pi2;
+				float sliceValPi2 = sliceVal * 2.f * Pi<float>;
 
 				Vector3f normal;
-				normal.y = std::sin(-pi_2 + stackValPi);
+				normal.y = std::sin(-HalfPi<float> + stackValPi);
 				normal.x = std::cos(sliceValPi2) * sinStackValPi;
 				normal.z = std::sin(sliceValPi2) * sinStackValPi;
 

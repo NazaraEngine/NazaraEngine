@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -25,14 +26,14 @@ namespace Nz
 	{
 		public:
 			RigidBody3D(PhysWorld3D* world, const Matrix4f& mat = Matrix4f::Identity());
-			RigidBody3D(PhysWorld3D* world, Collider3DRef geom, const Matrix4f& mat = Matrix4f::Identity());
+			RigidBody3D(PhysWorld3D* world, std::shared_ptr<Collider3D> geom, const Matrix4f& mat = Matrix4f::Identity());
 			RigidBody3D(const RigidBody3D& object);
-			RigidBody3D(RigidBody3D&& object);
+			RigidBody3D(RigidBody3D&& object) noexcept;
 			~RigidBody3D();
 
-			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys_Global);
-			void AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys = CoordSys_Global);
-			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys_Global);
+			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys::Global);
+			void AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys = CoordSys::Global);
+			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys::Global);
 
 			void EnableAutoSleep(bool autoSleep);
 			void EnableSimulation(bool simulation);
@@ -40,15 +41,15 @@ namespace Nz
 			Boxf GetAABB() const;
 			Vector3f GetAngularDamping() const;
 			Vector3f GetAngularVelocity() const;
-			const Collider3DRef& GetGeom() const;
+			const std::shared_ptr<Collider3D>& GetGeom() const;
 			float GetGravityFactor() const;
 			NewtonBody* GetHandle() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
-			Vector3f GetMassCenter(CoordSys coordSys = CoordSys_Local) const;
+			Vector3f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
 			int GetMaterial() const;
-			const Matrix4f& GetMatrix() const;
+			Matrix4f GetMatrix() const;
 			Vector3f GetPosition() const;
 			Quaternionf GetRotation() const;
 			void* GetUserdata() const;
@@ -61,31 +62,29 @@ namespace Nz
 
 			void SetAngularDamping(const Vector3f& angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);
-			void SetGeom(Collider3DRef geom);
+			void SetGeom(std::shared_ptr<Collider3D> geom);
 			void SetGravityFactor(float gravityFactor);
 			void SetLinearDamping(float damping);
 			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass);
 			void SetMassCenter(const Vector3f& center);
-			void SetMaterial(const String& materialName);
+			void SetMaterial(const std::string& materialName);
 			void SetMaterial(int materialIndex);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);
 			void SetUserdata(void* ud);
 
 			RigidBody3D& operator=(const RigidBody3D& object);
-			RigidBody3D& operator=(RigidBody3D&& object);
+			RigidBody3D& operator=(RigidBody3D&& object) noexcept;
 
 		private:
-			void UpdateBody();
+			void UpdateBody(const Matrix4f& transformMatrix);
 			static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
-			static void TransformCallback(const NewtonBody* body, const float* matrix, int threadIndex);
 
-			Collider3DRef m_geom;
-			Matrix4f m_matrix;
+			std::shared_ptr<Collider3D> m_geom;
+			MovablePtr<NewtonBody> m_body;
 			Vector3f m_forceAccumulator;
 			Vector3f m_torqueAccumulator;
-			NewtonBody* m_body;
 			PhysWorld3D* m_world;
 			void* m_userdata;
 			float m_gravityFactor;

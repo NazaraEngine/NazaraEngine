@@ -8,7 +8,7 @@
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -267,7 +267,7 @@ namespace Nz
 			command.sendUnreliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
 		}
 
-		QueueOutgoingCommand(command, packetRef, 0, packetSize);
+		QueueOutgoingCommand(command, packetRef, 0, UInt16(packetSize));
 
 		return true;
 	}
@@ -355,7 +355,7 @@ namespace Nz
 			channel.incomingReliableSequenceNumber = incomingCommand.reliableSequenceNumber;
 
 			if (incomingCommand.fragments.GetSize() > 0)
-				channel.incomingReliableSequenceNumber += incomingCommand.fragments.GetSize() - 1;
+				channel.incomingReliableSequenceNumber += static_cast<UInt16>(incomingCommand.fragments.GetSize() - 1);
 		}
 
 		if (currentCommand == channel.incomingReliableCommands.begin())
@@ -608,7 +608,7 @@ namespace Nz
 
 		ENetPeer::Channel& channel = m_channels[command->header.channelID];
 		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
-		UInt16 startWindow = startSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+		UInt16 startWindow = UInt16(startSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
 		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 
 		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
@@ -656,7 +656,7 @@ namespace Nz
 		if (!startCommand)
 		{
 			ENetProtocol hostCommand = *command;
-			hostCommand.header.reliableSequenceNumber = startSequenceNumber;
+			hostCommand.header.reliableSequenceNumber = static_cast<UInt16>(startSequenceNumber);
 
 			startCommand = QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag_Reliable, fragmentCount);
 			if (!startCommand)
@@ -727,7 +727,7 @@ namespace Nz
 		UInt32 reliableSequenceNumber = command->header.reliableSequenceNumber;
 		UInt32 startSequenceNumber = NetToHost(command->sendFragment.startSequenceNumber);
 
-		UInt16 reliableWindow = reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+		UInt16 reliableWindow = UInt16(reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
 		UInt16 currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 
 		if (startSequenceNumber < channel.incomingReliableSequenceNumber)
@@ -829,7 +829,7 @@ namespace Nz
 
 		if (unsequencedGroup - index != m_incomingUnsequencedGroup)
 		{
-			m_incomingUnsequencedGroup = unsequencedGroup - index;
+			m_incomingUnsequencedGroup = static_cast<UInt16>(unsequencedGroup - index);
 
 			m_unsequencedWindow.fill(0);
 		}
@@ -1120,7 +1120,7 @@ namespace Nz
 		if ((command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnsequenced)
 		{
 			reliableSequenceNumber = command.header.reliableSequenceNumber;
-			reliableWindow = reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
+			reliableWindow = static_cast<UInt16>(reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
 			currentWindow = channel.incomingReliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize;
 
 			if (reliableSequenceNumber < channel.incomingReliableSequenceNumber)
@@ -1225,7 +1225,7 @@ namespace Nz
 		if (m_totalWaitingData >= m_host->m_maximumWaitingData)
 			return nullptr;
 
-		ENetPacketRef packet = m_host->AllocatePacket(flags);
+		ENetPacketRef packet = m_host->AllocatePacket(ENetPacketFlags(flags));
 		packet->data.Reset(0, data, dataLength);
 
 		IncomingCommmand incomingCommand;

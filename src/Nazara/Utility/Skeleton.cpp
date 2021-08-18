@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,65 +11,43 @@ namespace Nz
 {
 	struct SkeletonImpl
 	{
-		std::unordered_map<String, UInt32> jointMap;
+		std::unordered_map<std::string, std::size_t> jointMap;
 		std::vector<Joint> joints;
 		Boxf aabb;
 		bool aabbUpdated = false;
 		bool jointMapUpdated = false;
 	};
 
-	Skeleton::Skeleton(const Skeleton& skeleton) :
-	RefCounted(),
-	m_impl(nullptr)
+	Skeleton::Skeleton() = default;
+
+	Skeleton::Skeleton(const Skeleton& skeleton)
 	{
 		operator=(skeleton);
 	}
 
-	Skeleton::~Skeleton()
+	Skeleton::Skeleton(Skeleton&&) noexcept = default;
+	Skeleton::~Skeleton() = default;
+
+	bool Skeleton::Create(std::size_t jointCount)
 	{
-		OnSkeletonRelease(this);
+		NazaraAssert(jointCount > 0, "joint count must be over zero");
 
-		Destroy();
-	}
-
-	bool Skeleton::Create(UInt32 jointCount)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (jointCount == 0)
-		{
-			NazaraError("Joint count must be over zero");
-			return false;
-		}
-		#endif
-
-		m_impl = new SkeletonImpl;
-		m_impl->joints.resize(jointCount, Joint(this));
+		m_impl = std::make_unique<SkeletonImpl>();
+		m_impl->joints.reserve(jointCount);
+		for (std::size_t i = 0; i < jointCount; ++i)
+			m_impl->joints.emplace_back(this);
 
 		return true;
 	}
 
 	void Skeleton::Destroy()
 	{
-		if (m_impl)
-		{
-			OnSkeletonDestroy(this);
-
-			delete m_impl;
-			m_impl = nullptr;
-		}
+		m_impl.reset();
 	}
 
 	const Boxf& Skeleton::GetAABB() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-
-			static Boxf dummy;
-			return dummy;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
 
 		if (!m_impl->aabbUpdated)
 		{
@@ -90,244 +68,113 @@ namespace Nz
 		return m_impl->aabb;
 	}
 
-	Joint* Skeleton::GetJoint(const String& jointName)
+	Joint* Skeleton::GetJoint(const std::string& jointName)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
 
 		if (!m_impl->jointMapUpdated)
 			UpdateJointMap();
 
 		auto it = m_impl->jointMap.find(jointName);
-
-		#if NAZARA_UTILITY_SAFE
-		if (it == m_impl->jointMap.end())
-		{
-			NazaraError("Joint not found");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(it != m_impl->jointMap.end(), "joint not found");
 
 		InvalidateJoints();
-
 		return &m_impl->joints[it->second];
 	}
 
-	Joint* Skeleton::GetJoint(UInt32 index)
+	Joint* Skeleton::GetJoint(std::size_t index)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return nullptr;
-		}
-
-		if (index >= m_impl->joints.size())
-		{
-			NazaraError("Joint index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
+		NazaraAssert(index < m_impl->joints.size(), "joint index out of range");
 
 		InvalidateJoints();
-
 		return &m_impl->joints[index];
 	}
 
-	const Joint* Skeleton::GetJoint(const String& jointName) const
+	const Joint* Skeleton::GetJoint(const std::string& jointName) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
 
 		if (!m_impl->jointMapUpdated)
 			UpdateJointMap();
 
 		auto it = m_impl->jointMap.find(jointName);
-
-		#if NAZARA_UTILITY_SAFE
-		if (it == m_impl->jointMap.end())
-		{
-			NazaraError("Joint not found");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(it != m_impl->jointMap.end(), "joint not found");
 
 		return &m_impl->joints[it->second];
 	}
 
-	const Joint* Skeleton::GetJoint(UInt32 index) const
+	const Joint* Skeleton::GetJoint(std::size_t index) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return nullptr;
-		}
-
-		if (index >= m_impl->joints.size())
-		{
-			NazaraError("Joint index out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
+		NazaraAssert(index < m_impl->joints.size(), "joint index out of range");
 
 		return &m_impl->joints[index];
 	}
 
 	Joint* Skeleton::GetJoints()
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
 
+		InvalidateJoints();
 		return &m_impl->joints[0];
 	}
 
 	const Joint* Skeleton::GetJoints() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return nullptr;
-		}
-		#endif
-
+		NazaraAssert(m_impl, "skeleton must have been created");
 		return &m_impl->joints[0];
 	}
 
-	UInt32 Skeleton::GetJointCount() const
+	std::size_t Skeleton::GetJointCount() const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return 0;
-		}
-		#endif
-
-		return static_cast<UInt32>(m_impl->joints.size());
+		NazaraAssert(m_impl, "skeleton must have been created");
+		return static_cast<std::size_t>(m_impl->joints.size());
 	}
 
-	int Skeleton::GetJointIndex(const String& jointName) const
+	std::size_t Skeleton::GetJointIndex(const std::string& jointName) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return -1;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
 
 		if (!m_impl->jointMapUpdated)
 			UpdateJointMap();
 
 		auto it = m_impl->jointMap.find(jointName);
-
-		#if NAZARA_UTILITY_SAFE
-		if (it == m_impl->jointMap.end())
-		{
-			NazaraError("Joint not found");
-			return -1;
-		}
-		#endif
+		NazaraAssert(it != m_impl->jointMap.end(), "joint not found");
 
 		return it->second;
 	}
 
 	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return;
-		}
+		NazaraAssert(m_impl, "skeleton must have been created");
+		NazaraAssert(skeletonA.IsValid(), "first skeleton is invalid");
+		NazaraAssert(skeletonB.IsValid(), "second skeleton is invalid");
+		NazaraAssert(skeletonA.GetJointCount() == skeletonB.GetJointCount() && m_impl->joints.size() == skeletonA.GetJointCount(), "both skeletons must have the same number of joints");
 
-		if (!skeletonA.IsValid())
-		{
-			NazaraError("Skeleton A is invalid");
-			return;
-		}
-
-		if (!skeletonB.IsValid())
-		{
-			NazaraError("Skeleton B is invalid");
-			return;
-		}
-
-		if (skeletonA.GetJointCount() != skeletonB.GetJointCount() || m_impl->joints.size() != skeletonA.GetJointCount())
-		{
-			NazaraError("Skeletons must have the same joint count");
-			return;
-		}
-		#endif
-
-		Joint* jointsA = &skeletonA.m_impl->joints[0];
-		Joint* jointsB = &skeletonB.m_impl->joints[0];
+		const Joint* jointsA = &skeletonA.m_impl->joints[0];
+		const Joint* jointsB = &skeletonB.m_impl->joints[0];
 		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
-			m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, CoordSys_Local);
+			m_impl->joints[i].Interpolate(jointsA[i], jointsB[i], interpolation, CoordSys::Local);
 
 		InvalidateJoints();
 	}
 
-	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, UInt32* indices, UInt32 indiceCount)
+	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, const std::size_t* indices, std::size_t indiceCount)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Skeleton not created");
-			return;
-		}
-
-		if (!skeletonA.IsValid())
-		{
-			NazaraError("Skeleton A is invalid");
-			return;
-		}
-
-		if (!skeletonB.IsValid())
-		{
-			NazaraError("Skeleton B is invalid");
-			return;
-		}
-
-		if (skeletonA.GetJointCount() != skeletonB.GetJointCount() || m_impl->joints.size() != skeletonA.GetJointCount())
-		{
-			NazaraError("Skeletons must have the same joint count");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
+		NazaraAssert(skeletonA.IsValid(), "first skeleton is invalid");
+		NazaraAssert(skeletonB.IsValid(), "second skeleton is invalid");
+		NazaraAssert(skeletonA.GetJointCount() == skeletonB.GetJointCount() && m_impl->joints.size() == skeletonA.GetJointCount(), "both skeletons must have the same number of joints");
 
 		const Joint* jointsA = &skeletonA.m_impl->joints[0];
 		const Joint* jointsB = &skeletonB.m_impl->joints[0];
-		for (UInt32 i = 0; i < indiceCount; ++i)
+		for (std::size_t i = 0; i < indiceCount; ++i)
 		{
-			UInt32 index = indices[i];
+			std::size_t index = indices[i];
+			NazaraAssert(index < m_impl->joints.size(), "joint index out of range");
 
-			#if NAZARA_UTILITY_SAFE
-			if (index >= m_impl->joints.size())
-			{
-				NazaraError("Index #" + String::Number(i) + " out of range (" + String::Number(index) + " >= " + String::Number(m_impl->joints.size()) + ')');
-				return;
-			}
-			#endif
-
-			m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, CoordSys_Local);
+			m_impl->joints[index].Interpolate(jointsA[index], jointsB[index], interpolation, CoordSys::Local);
 		}
 
 		InvalidateJoints();
@@ -347,12 +194,12 @@ namespace Nz
 
 		if (skeleton.m_impl)
 		{
-			m_impl = new SkeletonImpl;
+			m_impl = std::make_unique<SkeletonImpl>();
 			m_impl->jointMap = skeleton.m_impl->jointMap;
 			m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
 			m_impl->joints = skeleton.m_impl->joints;
 
-			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(UInt32) en plus
+			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(std::size_t) en plus
 			// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
 			// L'éternel trade-off mémoire/calculs ..
 			std::size_t jointCount = skeleton.m_impl->joints.size();
@@ -376,6 +223,8 @@ namespace Nz
 		return *this;
 	}
 
+	Skeleton& Skeleton::operator=(Skeleton&&) noexcept = default;
+
 	void Skeleton::InvalidateJoints()
 	{
 		m_impl->aabbUpdated = false;
@@ -385,57 +234,26 @@ namespace Nz
 
 	void Skeleton::InvalidateJointMap()
 	{
-		#ifdef NAZARA_DEBUG
-		if (!m_impl)
-		{
-			NazaraError("Invalid skeleton");
-			return;
-		}
-		#endif
-
+		NazaraAssert(m_impl, "skeleton must have been created");
 		m_impl->jointMapUpdated = false;
 	}
 
 	void Skeleton::UpdateJointMap() const
 	{
-		#ifdef NAZARA_DEBUG
-		if (!m_impl)
-		{
-			NazaraError("Invalid skeleton");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "skeleton must have been created");
 
 		m_impl->jointMap.clear();
 		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
 		{
-			String name = m_impl->joints[i].GetName();
-			if (!name.IsEmpty())
+			const std::string& name = m_impl->joints[i].GetName();
+			if (!name.empty())
 			{
 				NazaraAssert(m_impl->jointMap.find(name) == m_impl->jointMap.end(), "Joint name \"" + name + "\" is already present in joint map");
 
-				m_impl->jointMap[name] = static_cast<UInt32>(i);
+				m_impl->jointMap[name] = static_cast<std::size_t>(i);
 			}
 		}
 
 		m_impl->jointMapUpdated = true;
 	}
-
-	bool Skeleton::Initialize()
-	{
-		if (!SkeletonLibrary::Initialize())
-		{
-			NazaraError("Failed to initialise library");
-			return false;
-		}
-
-		return true;
-	}
-
-	void Skeleton::Uninitialize()
-	{
-		SkeletonLibrary::Uninitialize();
-	}
-
-	SkeletonLibrary::LibraryMap Skeleton::s_library;
 }

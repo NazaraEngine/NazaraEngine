@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -13,7 +13,7 @@ namespace Nz
 	*
 	* \remark Changing the ParameterList while iterating on it may cause bugs, but querying data is safe.
 	*/
-	inline void ParameterList::ForEach(const std::function<bool(const ParameterList& list, const String& name)>& callback)
+	inline void ParameterList::ForEach(const std::function<bool(const ParameterList& list, const std::string& name)>& callback)
 	{
 		for (auto it = m_parameters.begin(); it != m_parameters.end();)
 		{
@@ -31,7 +31,7 @@ namespace Nz
 	*
 	* \remark Changing the ParameterList while iterating on it may cause bugs, but querying data is safe.
 	*/
-	inline void ParameterList::ForEach(const std::function<void(const ParameterList& list, const String& name)>& callback) const
+	inline void ParameterList::ForEach(const std::function<void(const ParameterList& list, const std::string& name)>& callback) const
 	{
 		for (auto& pair : m_parameters)
 			callback(*this, pair.first);

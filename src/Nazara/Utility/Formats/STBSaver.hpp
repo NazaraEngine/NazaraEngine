@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,14 +8,11 @@
 #define NAZARA_FORMATS_STBSAVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utility/Image.hpp>
 
-namespace Nz
+namespace Nz::Loaders
 {
-	namespace Loaders
-	{
-		void RegisterSTBSaver();
-		void UnregisterSTBSaver();
-	}
+	ImageSaver::Entry GetImageSaver_STB();
 }
 
 #endif // NAZARA_FORMATS_STBSAVER_HPP

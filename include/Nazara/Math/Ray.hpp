@@ -7,7 +7,6 @@
 #ifndef NAZARA_RAY_HPP
 #define NAZARA_RAY_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -15,6 +14,7 @@
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -57,7 +57,7 @@ namespace Nz
 			template<typename U> Ray& Set(const Ray<U>& ray);
 			template<typename U> Ray& Set(const Vector3<U>& origin, const Vector3<U>& direction);
 
-			String ToString() const;
+			std::string ToString() const;
 
 			Vector3<T> operator*(T lambda) const;
 			Ray& operator=(const Ray& other) = default;

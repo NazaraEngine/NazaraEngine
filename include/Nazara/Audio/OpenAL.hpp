@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,12 +7,12 @@
 #ifndef NAZARA_OPENAL_HPP
 #define NAZARA_OPENAL_HPP
 
-#ifdef NAZARA_AUDIO_OPENAL
+#if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/String.hpp>
+#include <string>
 #include <vector>
 
 // Inclusion of OpenAL headers
@@ -64,23 +64,23 @@ namespace Nz
 	class NAZARA_AUDIO_API OpenAL
 	{
 		public:
-			static OpenALFunc GetEntry(const String& entryPoint);
-			static String GetRendererName();
-			static String GetVendorName();
+			static OpenALFunc GetEntry(const std::string& entryPoint);
+			static std::string GetRendererName();
+			static std::string GetVendorName();
 			static unsigned int GetVersion();
 
 			static bool Initialize(bool openDevice = true);
 
 			static bool IsInitialized();
 
-			static std::size_t QueryInputDevices(std::vector<String>& devices);
-			static std::size_t QueryOutputDevices(std::vector<String>& devices);
+			static std::size_t QueryInputDevices(std::vector<std::string>& devices);
+			static std::size_t QueryOutputDevices(std::vector<std::string>& devices);
 
-			static bool SetDevice(const String& deviceName);
+			static bool SetDevice(const std::string& deviceName);
 
 			static void Uninitialize();
 
-			static ALenum AudioFormat[AudioFormat_Max + 1];
+			static ALenum AudioFormat[AudioFormatCount];
 
 		private:
 			static void CloseDevice();

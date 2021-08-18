@@ -1,0 +1,6 @@
+target("PhysicsDemo")
+	set_group("Examples")
+	set_kind("binary")
+	add_deps("NazaraGraphics", "NazaraPhysics3D")
+	add_packages("entt")
+	add_files("main.cpp")

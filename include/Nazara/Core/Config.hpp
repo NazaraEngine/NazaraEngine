@@ -58,17 +58,6 @@
 // Activate the security tests based on the code (Advised for development)
 #define NAZARA_CORE_SAFE 1
 
-// Protect the classes against data race
-#define NAZARA_CORE_THREADSAFE 1
-
-// Classes to protect against data race
-#define NAZARA_THREADSAFETY_CLOCK 0        // Clock
-#define NAZARA_THREADSAFETY_DIRECTORY 1    // Directory
-#define NAZARA_THREADSAFETY_DYNLIB 1       // DynLib
-#define NAZARA_THREADSAFETY_FILE 1         // File
-#define NAZARA_THREADSAFETY_LOG 1          // Log
-#define NAZARA_THREADSAFETY_REFCOUNTED 1   // RefCounted
-
 // Number of spinlocks to use with the Windows critical sections (0 to disable)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
 

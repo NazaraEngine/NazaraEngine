@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -29,23 +29,23 @@ namespace Nz
 
 	inline bool ENetHost::Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount)
 	{
-		NazaraAssert(protocol != NetProtocol_Unknown, "Invalid protocol");
+		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
 
 		IpAddress any;
 		switch (protocol)
 		{
-			case NetProtocol_Unknown:
+			case NetProtocol::Unknown:
 				NazaraInternalError("Invalid protocol");
 				return false;
 
-			case NetProtocol_IPv4:
+			case NetProtocol::IPv4:
 				any = IpAddress::AnyIpV4;
 				break;
 
-			case NetProtocol_Any:
+			case NetProtocol::Any:
 				m_isUsingDualStack = true;
 				// fallthrough
-			case NetProtocol_IPv6:
+			case NetProtocol::IPv6:
 				any = IpAddress::AnyIpV6;
 				break;
 		}

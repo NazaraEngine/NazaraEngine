@@ -1,5 +1,22 @@
-# Nazara build
-build/config.lua
+# xmake-related files
+.xmake/*
+.vs/*
+.vscode/*
+CMakeLists.txt
+Makefile
+vs/*
+vsxmake*/*
+
+# Embed resources
+src/Nazara/*/Resources/**/*.h
+
+# Nazara binaries
+bin/*
+!bin/resources
+!bin/resources/*
+
+# Build files
+build/*
 
 # Nazara libraries
 lib/*
@@ -166,5 +183,3 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
-
-build/gmake/

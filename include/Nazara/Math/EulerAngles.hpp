@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Mathematics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -7,10 +7,10 @@
 #ifndef NAZARA_EULERANGLES_HPP
 #define NAZARA_EULERANGLES_HPP
 
-#include <Nazara/Core/String.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -21,8 +21,8 @@ namespace Nz
 	{
 		public:
 			EulerAngles() = default;
-			EulerAngles(T P, T Y, T R);
-			EulerAngles(const T angles[3]);
+			EulerAngles(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R);
+			EulerAngles(const DegreeAngle<T> angles[3]);
 			template<AngleUnit Unit> EulerAngles(const Angle<Unit, T>& angle);
 			//EulerAngles(const Matrix3<T>& mat);
 			EulerAngles(const Quaternion<T>& quat);
@@ -34,8 +34,8 @@ namespace Nz
 
 			EulerAngles& Normalize();
 
-			EulerAngles& Set(T P, T Y, T R);
-			EulerAngles& Set(const T angles[3]);
+			EulerAngles& Set(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R);
+			EulerAngles& Set(const DegreeAngle<T> angles[3]);
 			template<AngleUnit Unit> EulerAngles& Set(const Angle<Unit, T>& angles);
 			//EulerAngles& Set(const Matrix3<T>& mat);
 			EulerAngles& Set(const Quaternion<T>& quat);
@@ -43,7 +43,7 @@ namespace Nz
 
 			//Matrix3<T> ToRotationMatrix() const;
 			Quaternion<T> ToQuaternion() const;
-			String ToString() const;
+			std::string ToString() const;
 
 			EulerAngles operator+(const EulerAngles& angles) const;
 			EulerAngles operator-(const EulerAngles& angles) const;
@@ -61,7 +61,7 @@ namespace Nz
 
 			static EulerAngles Zero();
 
-			T pitch, yaw, roll;
+			DegreeAngle<T> pitch, yaw, roll;
 	};
 
 	using EulerAnglesd = EulerAngles<double>;

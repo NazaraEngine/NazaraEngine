@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -910,7 +910,7 @@ namespace Nz
 				bufferBits = bufferPos = 0; // reset buffer
 			}
 
-			buffer[bufferPos] = b << (8 - bufferRem);
+			buffer[bufferPos] = static_cast<UInt8>(b << (8 - bufferRem));
 			bufferBits += bufferRem;
 
 			// proceed to remaining data
@@ -945,7 +945,7 @@ namespace Nz
 				bufferBits = bufferPos = 0; // reset buffer
 			}
 
-			buffer[bufferPos] = b << (8 - bufferRem);
+			buffer[bufferPos] = UInt8(b << (8 - bufferRem));
 			bufferBits += len;
 		}
 

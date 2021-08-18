@@ -1,8 +1,10 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Physics 2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
@@ -13,6 +15,16 @@
 
 namespace Nz
 {
+	namespace
+	{
+		constexpr cpSpaceDebugColor white = { 1.f, 1.f, 1.f, 1.f };
+
+		Vector2f FromChipmunk(const cpVect& v)
+		{
+			return Vector2f(float(v.x), float(v.y));
+		}
+	}
+
 	Collider2D::~Collider2D() = default;
 
 	void Collider2D::ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const
@@ -20,65 +32,108 @@ namespace Nz
 		// Currently, the only way to get only the polygons of a shape is to create a temporary cpSpace containing only this shape
 		// A better way to do this would be to reimplement this function in every subclass type in the very same way chipmunk does
 
-		PhysWorld2D physWorld;
-		RigidBody2D rigidBody(&physWorld, 0.f);
+		cpSpace* space = cpSpaceNew();
+		if (!space)
+			throw std::runtime_error("failed to create chipmunk space");
 
-		std::vector<cpShape*> shapeVector;
-		rigidBody.SetGeom(const_cast<Collider2D*>(this), false, false); //< Won't be used for writing, but still ugly
+		CallOnExit spaceRRID([&] { cpSpaceFree(space); });
 
-		PhysWorld2D::DebugDrawOptions drawCallbacks;
-		drawCallbacks.circleCallback = [&](const Vector2f& origin, const RadianAnglef& /*rotation*/, float radius, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
+		cpBody* body = cpSpaceGetStaticBody(space);
+
+		std::vector<cpShape*> shapes;
+		CreateShapes(body, &shapes);
+		CallOnExit shapeRRID([&]
 		{
+			for (cpShape* shape : shapes)
+				cpShapeDestroy(shape);
+		});
+
+		for (cpShape* shape : shapes)
+			cpSpaceAddShape(space, shape);
+
+		using CallbackType = std::decay_t<decltype(callback)>;
+
+		cpSpaceDebugDrawOptions drawOptions;
+		drawOptions.collisionPointColor = white;
+		drawOptions.constraintColor = white;
+		drawOptions.shapeOutlineColor = white;
+		drawOptions.data = const_cast<void*>(static_cast<const void*>(&callback));
+		drawOptions.flags = CP_SPACE_DEBUG_DRAW_SHAPES;
+
+		// Callback trampoline
+		drawOptions.colorForShape = [](cpShape* /*shape*/, cpDataPointer /*userdata*/) { return white; };
+		drawOptions.drawCircle = [](cpVect pos, cpFloat /*angle*/, cpFloat radius, cpSpaceDebugColor /*outlineColor*/, cpSpaceDebugColor /*fillColor*/, cpDataPointer userdata)
+		{
+			const auto& callback = *static_cast<const CallbackType*>(userdata);
+
 			constexpr std::size_t circleVerticesCount = 20;
 
 			std::array<Vector2f, circleVerticesCount> vertices;
 
-			RadianAnglef angleBetweenVertices = 2.f * float(M_PI) / vertices.size();
+			Vector2f origin = FromChipmunk(pos);
+			float r = static_cast<float>(radius);
+
+			RadianAnglef angleBetweenVertices = 2.f * Pi<float> / vertices.size();
 			for (std::size_t i = 0; i < vertices.size(); ++i)
 			{
 				RadianAnglef angle = float(i) * angleBetweenVertices;
 				std::pair<float, float> sincos = angle.GetSinCos();
 
-				vertices[i] = origin + Vector2f(radius * sincos.first, radius * sincos.second);
+				vertices[i] = origin + Vector2f(r * sincos.first, r * sincos.second);
 			}
 
 			callback(vertices.data(), vertices.size());
 		};
 
-		drawCallbacks.polygonCallback = [&](const Vector2f* vertices, std::size_t vertexCount, float radius, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
-		{
-			//TODO: Handle radius
-			callback(vertices, vertexCount);
-		};
+		drawOptions.drawDot = [](cpFloat /*size*/, cpVect /*pos*/, cpSpaceDebugColor /*color*/, cpDataPointer /*userdata*/) {}; //< Dummy
 
-		drawCallbacks.segmentCallback = [&](const Vector2f& first, const Vector2f& second, Nz::Color /*color*/, void* /*userData*/)
+		drawOptions.drawFatSegment = [](cpVect a, cpVect b, cpFloat radius, cpSpaceDebugColor /*outlineColor*/, cpSpaceDebugColor /*fillColor*/, cpDataPointer userdata)
 		{
-			std::array<Vector2f, 2> vertices = { first, second };
+			const auto& callback = *static_cast<const CallbackType*>(userdata);
 
-			callback(vertices.data(), vertices.size());
-		};
-
-		drawCallbacks.thickSegmentCallback = [&](const Vector2f& first, const Vector2f& second, float thickness, Nz::Color /*outlineColor*/, Nz::Color /*fillColor*/, void* /*userData*/)
-		{
 			static std::pair<float, float> sincos = Nz::DegreeAnglef(90.f).GetSinCos();
 
-			Vector2f normal = Vector2f::Normalize(second - first);
+			Vector2f from = FromChipmunk(a);
+			Vector2f to = FromChipmunk(b);
+
+			Vector2f normal = Vector2f::Normalize(to - from);
 			Vector2f thicknessNormal(sincos.second * normal.x - sincos.first * normal.y,
 			                         sincos.first * normal.x + sincos.second * normal.y);
 
+			float thickness = static_cast<float>(radius);
+
 			std::array<Vector2f, 4> vertices;
-			vertices[0] = first + thickness * thicknessNormal;
-			vertices[1] = first - thickness * thicknessNormal;
-			vertices[2] = second - thickness * thicknessNormal;
-			vertices[3] = second + thickness * thicknessNormal;
+			vertices[0] = from + thickness * thicknessNormal;
+			vertices[1] = from - thickness * thicknessNormal;
+			vertices[2] = to - thickness * thicknessNormal;
+			vertices[3] = to + thickness * thicknessNormal;
 
 			callback(vertices.data(), vertices.size());
 		};
 
-		physWorld.DebugDraw(drawCallbacks, true, false, false);
+		drawOptions.drawPolygon = [](int vertexCount, const cpVect* vertices, cpFloat /*radius*/, cpSpaceDebugColor /*outlineColor*/, cpSpaceDebugColor /*fillColor*/, cpDataPointer userdata)
+		{
+			const auto& callback = *static_cast<const CallbackType*>(userdata);
+
+			StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
+			for (int i = 0; i < vertexCount; ++i)
+				nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
+
+			callback(nVertices.data(), nVertices.size());
+		};
+
+		drawOptions.drawSegment = [](cpVect a, cpVect b, cpSpaceDebugColor /*fillColor*/, cpDataPointer userdata)
+		{
+			const auto& callback = *static_cast<const CallbackType*>(userdata);
+
+			std::array<Vector2f, 2> vertices = { FromChipmunk(a), FromChipmunk(b) };
+			callback(vertices.data(), vertices.size());
+		};
+
+		cpSpaceDebugDraw(space, &drawOptions);
 	}
 
-	std::size_t Collider2D::GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t Collider2D::GenerateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
 		std::size_t shapeCount = CreateShapes(body, shapes);
 
@@ -123,12 +178,12 @@ namespace Nz
 
 	ColliderType2D BoxCollider2D::GetType() const
 	{
-		return ColliderType2D_Box;
+		return ColliderType2D::Box;
 	}
 
-	std::size_t BoxCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t BoxCollider2D::CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
-		shapes->push_back(cpBoxShapeNew2(body->GetHandle(), cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height), m_radius));
+		shapes->push_back(cpBoxShapeNew2(body, cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height), m_radius));
 		return 1;
 	}
 
@@ -152,18 +207,18 @@ namespace Nz
 
 	ColliderType2D CircleCollider2D::GetType() const
 	{
-		return ColliderType2D_Circle;
+		return ColliderType2D::Circle;
 	}
 
-	std::size_t CircleCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t CircleCollider2D::CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
-		shapes->push_back(cpCircleShapeNew(body->GetHandle(), m_radius, cpv(m_offset.x, m_offset.y)));
+		shapes->push_back(cpCircleShapeNew(body, m_radius, cpv(m_offset.x, m_offset.y)));
 		return 1;
 	}
 
 	/******************************** CompoundCollider2D *********************************/
 
-	CompoundCollider2D::CompoundCollider2D(std::vector<Collider2DRef> geoms) :
+	CompoundCollider2D::CompoundCollider2D(std::vector<std::shared_ptr<Collider2D>> geoms) :
 	m_geoms(std::move(geoms)),
 	m_doesOverrideCollisionProperties(true)
 	{
@@ -191,10 +246,10 @@ namespace Nz
 
 	ColliderType2D CompoundCollider2D::GetType() const
 	{
-		return ColliderType2D_Compound;
+		return ColliderType2D::Compound;
 	}
 
-	std::size_t CompoundCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t CompoundCollider2D::CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
 		// Since C++ does not allow protected call from other objects, we have to be a friend of Collider2D, yay
 
@@ -205,7 +260,7 @@ namespace Nz
 		return shapeCount;
 	}
 
-	std::size_t CompoundCollider2D::GenerateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t CompoundCollider2D::GenerateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
 		// This is our parent's default behavior
 		if (m_doesOverrideCollisionProperties)
@@ -248,12 +303,12 @@ namespace Nz
 
 	ColliderType2D ConvexCollider2D::GetType() const
 	{
-		return ColliderType2D_Convex;
+		return ColliderType2D::Convex;
 	}
 
-	std::size_t ConvexCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t ConvexCollider2D::CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
-		shapes->push_back(cpPolyShapeNew(body->GetHandle(), int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpTransformIdentity, m_radius));
+		shapes->push_back(cpPolyShapeNew(body, int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpTransformIdentity, m_radius));
 		return 1;
 	}
 
@@ -261,7 +316,7 @@ namespace Nz
 
 	ColliderType2D NullCollider2D::GetType() const
 	{
-		return ColliderType2D_Null;
+		return ColliderType2D::Null;
 	}
 
 	Nz::Vector2f NullCollider2D::ComputeCenterOfMass() const
@@ -274,7 +329,7 @@ namespace Nz
 		return (mass > 0.f) ? 1.f : 0.f; //< Null inertia is only possible for static/kinematic objects
 	}
 
-	std::size_t NullCollider2D::CreateShapes(RigidBody2D* /*body*/, std::vector<cpShape*>* /*shapes*/) const
+	std::size_t NullCollider2D::CreateShapes(cpBody* /*body*/, std::vector<cpShape*>* /*shapes*/) const
 	{
 		return 0;
 	}
@@ -293,12 +348,12 @@ namespace Nz
 
 	ColliderType2D SegmentCollider2D::GetType() const
 	{
-		return ColliderType2D_Segment;
+		return ColliderType2D::Segment;
 	}
 
-	std::size_t SegmentCollider2D::CreateShapes(RigidBody2D* body, std::vector<cpShape*>* shapes) const
+	std::size_t SegmentCollider2D::CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const
 	{
-		cpShape* segment = cpSegmentShapeNew(body->GetHandle(), cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness);
+		cpShape* segment = cpSegmentShapeNew(body, cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness);
 		cpSegmentShapeSetNeighbors(segment, cpv(m_firstNeighbor.x, m_firstNeighbor.y), cpv(m_secondNeighbor.x, m_secondNeighbor.y));
 
 		shapes->push_back(segment);

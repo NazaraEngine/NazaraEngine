@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2020 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -28,4 +28,4 @@ void operator delete[](void* pointer) noexcept
 	Nz::MemoryManager::Free(pointer, true);
 }
 
-#endif // NAZARA_GRAPHICS_MANAGE_MEMORY
+#endif
