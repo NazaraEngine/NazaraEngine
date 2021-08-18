@@ -25,7 +25,7 @@ local modules = {
 	Network = {
 		Deps = {"NazaraCore"},
 		Custom = function()
-			if is_plat("windows") then 
+			if is_plat("windows") or is_plat("mingw") then 
 				add_syslinks("ws2_32")
 			end
 
@@ -38,7 +38,7 @@ local modules = {
 	OpenGLRenderer = {
 		Deps = {"NazaraRenderer"},
 		Custom = function()
-			if is_plat("windows") then
+			if is_plat("windows") or is_plat("mingw") then
 				add_syslinks("gdi32", "user32")
 			else
 				del_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
@@ -62,7 +62,7 @@ local modules = {
 		Deps = {"NazaraUtility"},
 		Packages = {"libsdl"},
 		Custom = function()
-			if is_plat("windows") then
+			if is_plat("windows") or is_plat("mingw") then
 				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")
 			elseif is_plat("linux") then
 				add_defines("SDL_VIDEO_DRIVER_X11=1")
@@ -86,7 +86,7 @@ local modules = {
 		Deps = {"NazaraRenderer"},
 		Custom = function()
 			add_defines("VK_NO_PROTOTYPES")
-			if is_plat("windows") then
+			if is_plat("windows") or is_plat("mingw") then
 				add_defines("VK_USE_PLATFORM_WIN32_KHR")
 				add_syslinks("user32")
 			elseif is_plat("linux") then
@@ -188,7 +188,7 @@ for name, module in pairs(modules) do
 		add_files(filepath, {rule = "embed_resources"})
 	end
 
-	if is_plat("windows") then
+	if is_plat("windows") or is_plat("mingw") then
 		del_files("src/Nazara/" .. name .. "/Posix/**.cpp")
 	else
 		del_files("src/Nazara/" .. name .. "/Win32/**.cpp")
