@@ -14,7 +14,7 @@ SCENARIO("Rect", "[MATH][RECT]")
 			{
 				CHECK(firstCenterAndUnit == secondCenterAndUnit);
 				CHECK(firstCenterAndUnit.GetCenter() == secondCenterAndUnit.GetCenter());
-				CHECK(firstCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom) == secondCenterAndUnit.GetCorner(Nz::RectCorner_LeftBottom));
+				CHECK(firstCenterAndUnit.GetCorner(Nz::RectCorner::LeftBottom) == secondCenterAndUnit.GetCorner(Nz::RectCorner::LeftBottom));
 				CHECK(firstCenterAndUnit.IsValid());
 			}
 		}

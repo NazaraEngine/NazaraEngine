@@ -37,7 +37,7 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 				secondCenterAndUnit.Update(Nz::Matrix4f::Scale(Nz::Vector3f::Unit() * 2.f));
 
 				REQUIRE(firstCenterAndUnit != secondCenterAndUnit);
-				for (unsigned int i = 0; i <= Nz::BoxCorner_Max; ++i)
+				for (unsigned int i = 0; i < Nz::BoxCornerCount; ++i)
 				{
 					REQUIRE(firstCenterAndUnit(i) == secondCenterAndUnit(i));
 				}

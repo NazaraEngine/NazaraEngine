@@ -83,12 +83,12 @@ SCENARIO("Ray", "[MATH][RAY]")
 
 			THEN("For the bounding volume collision's")
 			{
-				Nz::BoundingVolumef nullVolume(Nz::Extend_Null);
+				Nz::BoundingVolumef nullVolume(Nz::Extend::Null);
 				CHECK(!ray.Intersect(nullVolume));
 
 				float tmpClosest = -1.f;
 				float tmpFurthest = -1.f;
-				Nz::BoundingVolumef infiniteVolume(Nz::Extend_Infinite);
+				Nz::BoundingVolumef infiniteVolume(Nz::Extend::Infinite);
 				CHECK(ray.Intersect(infiniteVolume, &tmpClosest, &tmpFurthest));
 				CHECK(tmpClosest == Approx(0.f));
 				CHECK(tmpFurthest == std::numeric_limits<float>::infinity());

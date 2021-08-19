@@ -634,7 +634,7 @@ namespace Nz
 
 	/**********************************Compute**********************************/
 
-	Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, unsigned int vertexCount)
+	Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, std::size_t vertexCount)
 	{
 		Boxf aabb;
 		if (vertexCount > 0)
@@ -651,10 +651,10 @@ namespace Nz
 		return aabb;
 	}
 
-	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
+	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount)
 	{
-		unsigned int xIndexCount, yIndexCount, zIndexCount;
-		unsigned int xVertexCount, yVertexCount, zVertexCount;
+		std::size_t xIndexCount, yIndexCount, zIndexCount;
+		std::size_t xVertexCount, yVertexCount, zVertexCount;
 
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.y, subdivision.z), &xIndexCount, &xVertexCount);
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
@@ -667,13 +667,13 @@ namespace Nz
 			*vertexCount = xVertexCount*2 + yVertexCount*2 + zVertexCount*2;
 	}
 
-	unsigned int ComputeCacheMissCount(IndexIterator indices, unsigned int indexCount)
+	unsigned int ComputeCacheMissCount(IndexIterator indices, std::size_t indexCount)
 	{
 		VertexCache cache(indices, indexCount);
 		return cache.GetMissCount();
 	}
 
-	void ComputeConeIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount)
+	void ComputeConeIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = (subdivision-1)*6;
@@ -682,7 +682,7 @@ namespace Nz
 			*vertexCount = subdivision + 2;
 	}
 
-	void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, unsigned int* indexCount, unsigned int* vertexCount)
+	void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount)
 	{
 		// Comme tous nos plans sont identiques, on peut optimiser un peu
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision), indexCount, vertexCount);
@@ -694,7 +694,7 @@ namespace Nz
 			*vertexCount *= 6;
 	}
 
-	void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, unsigned int* indexCount, unsigned int* vertexCount)
+	void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, std::size_t* indexCount, std::size_t* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = 3 * 20 * IntegralPow(4, recursionLevel);
@@ -703,7 +703,7 @@ namespace Nz
 			*vertexCount = IntegralPow(4, recursionLevel)*10 + 2;
 	}
 
-	void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, unsigned int* indexCount, unsigned int* vertexCount)
+	void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount)
 	{
 		// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 		unsigned int horizontalFaceCount = (1 << subdivision.x);
@@ -720,7 +720,7 @@ namespace Nz
 			*vertexCount = horizontalVertexCount*verticalVertexCount;
 	}
 
-	void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, unsigned int* indexCount, unsigned int* vertexCount)
+	void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, std::size_t* indexCount, std::size_t* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = (sliceCount-1) * (stackCount-1) * 6;
@@ -733,8 +733,8 @@ namespace Nz
 
 	void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
 	{
-		unsigned int xIndexCount, yIndexCount, zIndexCount;
-		unsigned int xVertexCount, yVertexCount, zVertexCount;
+		std::size_t xIndexCount, yIndexCount, zIndexCount;
+		std::size_t xVertexCount, yVertexCount, zVertexCount;
 
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.y, subdivision.z), &xIndexCount, &xVertexCount);
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
@@ -901,7 +901,7 @@ namespace Nz
 	void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
 	{
 		///DOC: Cette fonction va accéder aux pointeurs en écriture ET en lecture
-		unsigned int vertexCount;
+		std::size_t vertexCount;
 		ComputeBoxIndexVertexCount(Vector3ui(subdivision), nullptr, &vertexCount);
 
 		// On envoie une matrice identité de sorte à ce que la boîte ne subisse aucune transformation (rendant plus facile l'étape suivante)
@@ -1057,12 +1057,12 @@ namespace Nz
 		const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
-		unsigned int endVertex = startVertex + vertexCount - 1;
-		for (unsigned int i = startVertex; i <= endVertex; ++i)
+		std::size_t endVertex = startVertex + vertexCount - 1;
+		for (std::size_t i = startVertex; i <= endVertex; ++i)
 		{
 			Vector3f finalPosition(Vector3f::Zero());
 
-			for (int j = 0; j < inputVertex->weightCount; ++j)
+			for (Int32 j = 0; j < inputVertex->weightCount; ++j)
 			{
 				Matrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
 				mat *= inputVertex->weights[j];
@@ -1083,13 +1083,13 @@ namespace Nz
 		const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
-		unsigned int endVertex = startVertex + vertexCount - 1;
-		for (unsigned int i = startVertex; i <= endVertex; ++i)
+		std::size_t endVertex = startVertex + vertexCount - 1;
+		for (std::size_t i = startVertex; i <= endVertex; ++i)
 		{
 			Vector3f finalPosition(Vector3f::Zero());
 			Vector3f finalNormal(Vector3f::Zero());
 
-			for (int j = 0; j < inputVertex->weightCount; ++j)
+			for (Int32 j = 0; j < inputVertex->weightCount; ++j)
 			{
 				Matrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
 				mat *= inputVertex->weights[j];

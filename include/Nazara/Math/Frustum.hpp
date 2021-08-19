@@ -49,7 +49,7 @@ namespace Nz
 			IntersectionSide Intersect(const Box<T>& box) const;
 			IntersectionSide Intersect(const OrientedBox<T>& orientedBox) const;
 			IntersectionSide Intersect(const Sphere<T>& sphere) const;
-			IntersectionSide Intersect(const Vector3<T>* points, unsigned int pointCount) const;
+			IntersectionSide Intersect(const Vector3<T>* points, std::size_t pointCount) const;
 
 			Frustum& operator=(const Frustum& other) = default;
 
@@ -64,8 +64,8 @@ namespace Nz
 			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
 
 		private:
-			Vector3<T> m_corners[BoxCorner_Max+1];
-			Plane<T> m_planes[FrustumPlane_Max+1];
+			Vector3<T> m_corners[BoxCornerCount];
+			Plane<T> m_planes[FrustumPlaneCount];
 	};
 
 	using Frustumd = Frustum<double>;

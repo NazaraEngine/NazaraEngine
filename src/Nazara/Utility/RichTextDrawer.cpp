@@ -460,10 +460,10 @@ namespace Nz
 				glyph.atlas = nullptr;
 				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, lineHeight);
 
-				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner_LeftTop));
-				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner_RightTop));
-				glyph.corners[2].Set(glyph.bounds.GetCorner(RectCorner_LeftBottom));
-				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner_RightBottom));
+				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner::LeftTop));
+				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner::RightTop));
+				glyph.corners[2].Set(glyph.bounds.GetCorner(RectCorner::LeftBottom));
+				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner::RightBottom));
 			}
 
 			m_lines.back().bounds.ExtendTo(glyph.bounds);

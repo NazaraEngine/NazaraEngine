@@ -89,7 +89,7 @@ namespace Nz
 	const Vector3<T>& OrientedBox<T>::GetCorner(BoxCorner corner) const
 	{
 		#ifdef NAZARA_DEBUG
-		if (corner > BoxCorner_Max)
+		if (corner > BoxCornerCount)
 		{
 			NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
 
@@ -98,7 +98,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_corners[corner];
+		return m_corners[UnderlyingCast(corner)];
 	}
 
 	template<typename T>
@@ -195,7 +195,7 @@ namespace Nz
 	template<typename U>
 	OrientedBox<T>& OrientedBox<T>::Set(const OrientedBox<U>& orientedBox)
 	{
-		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
 			m_corners[i].Set(orientedBox(i));
 
 		localBox.Set(orientedBox.localBox);
@@ -226,7 +226,7 @@ namespace Nz
 	template<typename T>
 	void OrientedBox<T>::Update(const Matrix4<T>& transformMatrix)
 	{
-		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
 			m_corners[i] = transformMatrix.Transform(localBox.GetCorner(static_cast<BoxCorner>(i)));
 	}
 
@@ -239,7 +239,7 @@ namespace Nz
 	template<typename T>
 	void OrientedBox<T>::Update(const Vector3<T>& translation)
 	{
-		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
 			m_corners[i] = localBox.GetCorner(static_cast<BoxCorner>(i)) + translation;
 	}
 
@@ -247,18 +247,18 @@ namespace Nz
 	* \brief Gets the ith corner of the oriented box
 	* \return A reference to this corner
 	*
-	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner_Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner_Max
+	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner::Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
+	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner::Max
 	*/
 
 	template<typename T>
 	Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
 	{
 		#if NAZARA_MATH_SAFE
-		if (i > BoxCorner_Max)
+		if (i > BoxCornerCount)
 		{
 			std::ostringstream ss;
-			ss << "Index out of range: (" << i << " >= " << BoxCorner_Max << ")";
+			ss << "Index out of range: (" << i << " >= " << BoxCornerCount << ")";
 
 			NazaraError(ss.str());
 			throw std::out_of_range(ss.str());
@@ -272,18 +272,18 @@ namespace Nz
 	* \brief Gets the ith corner of the oriented box
 	* \return A reference to this corner
 	*
-	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner_Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner_Max
+	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner::Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
+	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner::Max
 	*/
 
 	template<typename T>
 	Vector3<T> OrientedBox<T>::operator()(unsigned int i) const
 	{
 #if NAZARA_MATH_SAFE
-		if (i > BoxCorner_Max)
+		if (i > BoxCornerCount)
 		{
 			std::ostringstream ss;
-			ss << "Index out of range: (" << i << " >= " << BoxCorner_Max << ")";
+			ss << "Index out of range: (" << i << " >= " << BoxCornerCount << ")";
 
 			NazaraError(ss.str());
 			throw std::out_of_range(ss.str());
@@ -437,14 +437,14 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox)
 {
-	return out << "OrientedBox(FLB: " << orientedBox.GetCorner(Nz::BoxCorner_FarLeftBottom)   << ",\n"
-	           << "            FLT: " << orientedBox.GetCorner(Nz::BoxCorner_FarLeftTop)      << ",\n"
-	           << "            FRB: " << orientedBox.GetCorner(Nz::BoxCorner_FarRightBottom)  << ",\n"
-	           << "            FRT: " << orientedBox.GetCorner(Nz::BoxCorner_FarRightTop)     << ",\n"
-	           << "            NLB: " << orientedBox.GetCorner(Nz::BoxCorner_NearLeftBottom)  << ",\n"
-	           << "            NLT: " << orientedBox.GetCorner(Nz::BoxCorner_NearLeftTop)     << ",\n"
-	           << "            NRB: " << orientedBox.GetCorner(Nz::BoxCorner_NearRightBottom) << ",\n"
-	           << "            NRT: " << orientedBox.GetCorner(Nz::BoxCorner_NearRightTop)    << ")\n";
+	return out << "OrientedBox(FLB: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftBottom)   << ",\n"
+	           << "            FLT: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftTop)      << ",\n"
+	           << "            FRB: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightBottom)  << ",\n"
+	           << "            FRT: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightTop)     << ",\n"
+	           << "            NLB: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftBottom)  << ",\n"
+	           << "            NLT: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftTop)     << ",\n"
+	           << "            NRB: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightBottom) << ",\n"
+	           << "            NRT: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightTop)    << ")\n";
 }
 
 #include <Nazara/Core/DebugOff.hpp>

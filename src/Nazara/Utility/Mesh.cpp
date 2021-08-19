@@ -108,8 +108,8 @@ namespace Nz
 		{
 			case PrimitiveType::Box:
 			{
-				unsigned int indexCount;
-				unsigned int vertexCount;
+				std::size_t indexCount;
+				std::size_t vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
 				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
@@ -130,8 +130,8 @@ namespace Nz
 
 			case PrimitiveType::Cone:
 			{
-				unsigned int indexCount;
-				unsigned int vertexCount;
+				std::size_t indexCount;
+				std::size_t vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
 				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
@@ -152,8 +152,8 @@ namespace Nz
 
 			case PrimitiveType::Plane:
 			{
-				unsigned int indexCount;
-				unsigned int vertexCount;
+				std::size_t indexCount;
+				std::size_t vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
 				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
@@ -178,8 +178,8 @@ namespace Nz
 				{
 					case SphereType::Cubic:
 					{
-						unsigned int indexCount;
-						unsigned int vertexCount;
+						std::size_t indexCount;
+						std::size_t vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
 						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
@@ -200,8 +200,8 @@ namespace Nz
 
 					case SphereType::Ico:
 					{
-						unsigned int indexCount;
-						unsigned int vertexCount;
+						std::size_t indexCount;
+						std::size_t vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
 						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
@@ -222,8 +222,8 @@ namespace Nz
 
 					case SphereType::UV:
 					{
-						unsigned int indexCount;
-						unsigned int vertexCount;
+						std::size_t indexCount;
+						std::size_t vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
 						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
