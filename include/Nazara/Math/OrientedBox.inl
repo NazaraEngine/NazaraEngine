@@ -89,9 +89,9 @@ namespace Nz
 	const Vector3<T>& OrientedBox<T>::GetCorner(BoxCorner corner) const
 	{
 		#ifdef NAZARA_DEBUG
-		if (corner > BoxCornerCount)
+		if (UnderlyingCast(corner) > BoxCornerCount)
 		{
-			NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
+			NazaraError("Corner not handled (0x" + NumberToString(UnderlyingCast(corner), 16) + ')');
 
 			static Vector3<T> dummy;
 			return dummy;

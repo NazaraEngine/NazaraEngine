@@ -211,11 +211,11 @@ int main()
 	}
 	planeMat->AddPass("ForwardPass", planeMatPass);
 
-	Nz::Model spaceshipModel(std::move(gfxMesh));
+	Nz::Model spaceshipModel(std::move(gfxMesh), spaceship->GetAABB());
 	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
 		spaceshipModel.SetMaterial(i, spaceshipMat);
 
-	Nz::Model planeModel(std::move(planeMeshGfx));
+	Nz::Model planeModel(std::move(planeMeshGfx), planeMesh->GetAABB());
 	for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
 		planeModel.SetMaterial(i, planeMat);
 

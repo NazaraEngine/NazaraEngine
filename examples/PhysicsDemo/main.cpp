@@ -61,6 +61,7 @@ int main()
 		return __LINE__;
 	}
 
+	const Nz::Boxf& spaceshipAABB = spaceshipMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceshipMesh);
 
 	// Texture
@@ -102,7 +103,7 @@ int main()
 	Nz::DepthMaterial basicMatDepth(*depthPass);
 	basicMatDepth.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 
-	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
+	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh), spaceshipAABB);
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
@@ -140,7 +141,7 @@ int main()
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = std::make_shared<Nz::GraphicalMesh>(*colliderMesh);
 
-		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
+		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh, spaceshipAABB);
 		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
 			colliderModel->SetMaterial(i, colliderMat);
 	}
@@ -168,11 +169,11 @@ int main()
 	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
 	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
-	for (std::size_t x = 0; x < 5; ++x)
+	for (std::size_t x = 0; x < 10; ++x)
 	{
-		for (std::size_t y = 0; y < 5; ++y)
+		for (std::size_t y = 0; y < 10; ++y)
 		{
-			for (std::size_t z = 0; z < 5; ++z)
+			for (std::size_t z = 0; z < 10; ++z)
 			{
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);

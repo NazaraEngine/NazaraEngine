@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -23,9 +24,7 @@
 namespace Nz
 {
 	ForwardFramePipeline::ForwardFramePipeline() :
-	m_rebuildFrameGraph(true),
-	m_rebuildDepthPrepass(false),
-	m_rebuildForwardPass(false)
+	m_rebuildFrameGraph(true)
 	{
 		auto& passRegistry = Graphics::Instance()->GetMaterialPassRegistry();
 		m_depthPassIndex = passRegistry.GetPassIndex("DepthPass");
@@ -77,8 +76,11 @@ namespace Nz
 						UnregisterMaterialPass(pass);
 				}
 
-				m_rebuildDepthPrepass = true;
-				m_rebuildForwardPass = true;
+				for (auto&& [viewer, viewerData] : m_viewers)
+				{
+					viewerData.rebuildDepthPrepass = true;
+					viewerData.rebuildForwardPass = true;
+				}
 			});
 
 			std::size_t matCount = instancedRenderable->GetMaterialCount();
@@ -94,8 +96,11 @@ namespace Nz
 				}
 			}
 
-			m_rebuildDepthPrepass = true;
-			m_rebuildForwardPass = true;
+			for (auto&& [viewer, viewerData] : m_viewers)
+			{
+				viewerData.rebuildDepthPrepass = true;
+				viewerData.rebuildForwardPass = true;
+			}
 		}
 	}
 
@@ -103,6 +108,7 @@ namespace Nz
 	{
 		m_viewers.emplace(viewerInstance, ViewerData{});
 		m_invalidatedViewerInstances.insert(viewerInstance);
+		m_rebuildFrameGraph = true;
 	}
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
@@ -141,8 +147,11 @@ namespace Nz
 				{
 					if (material->Update(renderFrame, builder))
 					{
-						m_rebuildDepthPrepass = true;
-						m_rebuildForwardPass = true;
+						for (auto&& [viewer, viewerData] : m_viewers)
+						{
+							viewerData.rebuildDepthPrepass = true;
+							viewerData.rebuildForwardPass = true;
+						}
 					}
 				}
 				m_invalidatedMaterials.clear();
@@ -152,54 +161,145 @@ namespace Nz
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);
 
-		if (m_rebuildDepthPrepass)
+		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
 		{
-			m_depthPrepassRenderElements.clear();
+			return currentHash * 23 + newHash;
+		};
 
-			for (const auto& [worldInstance, renderables] : m_renderables)
+		// Render queues handling
+		for (auto&& [viewer, data] : m_viewers)
+		{
+			auto& viewerData = data;
+
+			//if (viewerData.rebuildDepthPrepass)
 			{
-				for (const auto& [renderable, renderableData] : renderables)
-					renderable->BuildElement(m_depthPassIndex, *worldInstance, m_depthPrepassRenderElements);
+				viewerData.depthPrepassAABB.clear();
+				viewerData.depthPrepassRenderElements.clear();
+
+				for (const auto& [worldInstance, renderables] : m_renderables)
+				{
+					for (const auto& [renderable, renderableData] : renderables)
+					{
+						std::size_t prevCount = viewerData.depthPrepassRenderElements.size();
+						renderable->BuildElement(m_depthPassIndex, *worldInstance, viewerData.depthPrepassRenderElements);
+						std::size_t currentCount = viewerData.depthPrepassRenderElements.size();
+
+						if (currentCount > prevCount)
+						{
+							BoundingVolumef boundingVolume(renderable->GetAABB());
+							boundingVolume.Update(worldInstance->GetWorldMatrix());
+
+							auto& aabbData = viewerData.depthPrepassAABB.emplace_back();
+							aabbData.aabb = boundingVolume.aabb;
+							aabbData.count = currentCount - prevCount;
+						}
+					}
+				}
+			}
+
+			//if (viewerData.rebuildForwardPass)
+			{
+				viewerData.forwardAABB.clear();
+				viewerData.forwardRenderElements.clear();
+
+				for (const auto& [worldInstance, renderables] : m_renderables)
+				{
+					for (const auto& [renderable, renderableData] : renderables)
+					{
+						std::size_t prevCount = viewerData.forwardRenderElements.size();
+						renderable->BuildElement(m_forwardPassIndex, *worldInstance, viewerData.forwardRenderElements);
+						std::size_t currentCount = viewerData.forwardRenderElements.size();
+
+						if (currentCount > prevCount)
+						{
+							BoundingVolumef boundingVolume(renderable->GetAABB());
+							boundingVolume.Update(worldInstance->GetWorldMatrix());
+
+							auto& aabbData = viewerData.forwardAABB.emplace_back();
+							aabbData.aabb = boundingVolume.aabb;
+							aabbData.count = currentCount - prevCount;
+						}
+					}
+				}
+			}
+
+			const Matrix4f& viewProjMatrix = viewer->GetViewerInstance().GetViewProjMatrix();
+
+			Frustumf frustum;
+			frustum.Extract(viewProjMatrix);
+
+			viewerData.depthPrepassRegistry.Clear();
+			viewerData.depthPrepassRenderQueue.Clear();
+			{
+				std::size_t visibilityHash = 5U;
+
+				auto elementIt = viewerData.depthPrepassRenderElements.begin();
+				for (auto&& [aabb, elementCount] : viewerData.depthPrepassAABB)
+				{
+					if (!frustum.Contains(aabb))
+					{
+						std::advance(elementIt, elementCount);
+						continue;
+					}
+
+					for (std::size_t i = 0; i < elementCount; ++i)
+					{
+						auto& renderElement = *elementIt++;
+						renderElement->Register(viewerData.depthPrepassRegistry);
+						viewerData.depthPrepassRenderQueue.Insert(renderElement.get());
+
+						visibilityHash = CombineHash(visibilityHash, std::hash<const RenderElement*>()(renderElement.get()));
+					}
+				}
+
+				viewerData.depthPrepassRenderQueue.Sort([&](const RenderElement* element)
+				{
+					return element->ComputeSortingScore(viewerData.depthPrepassRegistry);
+				});
+
+				if (viewerData.depthPrepassVisibilityHash != visibilityHash)
+				{
+					viewerData.rebuildDepthPrepass = true;
+					viewerData.depthPrepassVisibilityHash = visibilityHash;
+				}
+			}
+
+			viewerData.forwardRegistry.Clear();
+			viewerData.forwardRenderQueue.Clear();
+			{
+				std::size_t visibilityHash = 5U;
+
+				auto elementIt = viewerData.forwardRenderElements.begin();
+				for (auto&& [aabb, elementCount] : viewerData.forwardAABB)
+				{
+					if (!frustum.Contains(aabb))
+					{
+						std::advance(elementIt, elementCount);
+						continue;
+					}
+
+					for (std::size_t i = 0; i < elementCount; ++i)
+					{
+						auto& renderElement = *elementIt++;
+						renderElement->Register(viewerData.forwardRegistry);
+						viewerData.forwardRenderQueue.Insert(renderElement.get());
+
+						visibilityHash = CombineHash(visibilityHash, std::hash<const RenderElement*>()(renderElement.get()));
+					}
+				}
+
+				viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
+				{
+					return element->ComputeSortingScore(viewerData.forwardRegistry);
+				});
+
+				if (viewerData.forwardVisibilityHash != visibilityHash)
+				{
+					viewerData.rebuildForwardPass = true;
+					viewerData.forwardVisibilityHash = visibilityHash;
+				}
 			}
 		}
-
-		if (m_rebuildForwardPass)
-		{
-			m_forwardRenderElements.clear();
-
-			for (const auto& [worldInstance, renderables] : m_renderables)
-			{
-				for (const auto& [renderable, renderableData] : renderables)
-					renderable->BuildElement(m_forwardPassIndex, *worldInstance, m_forwardRenderElements);
-			}
-		}
-
-		// RenderQueue handling
-		m_depthPrepassRegistry.Clear();
-		m_depthPrepassRenderQueue.Clear();
-		for (const auto& renderElement : m_depthPrepassRenderElements)
-		{
-			renderElement->Register(m_depthPrepassRegistry);
-			m_depthPrepassRenderQueue.Insert(renderElement.get());
-		}
-
-		m_depthPrepassRenderQueue.Sort([&](const RenderElement* element)
-		{
-			return element->ComputeSortingScore(m_depthPrepassRegistry);
-		});
-
-		m_forwardRegistry.Clear();
-		m_forwardRenderQueue.Clear();
-		for (const auto& renderElement : m_forwardRenderElements)
-		{
-			renderElement->Register(m_forwardRegistry);
-			m_forwardRenderQueue.Insert(renderElement.get());
-		}
-
-		m_forwardRenderQueue.Sort([&](const RenderElement* element)
-		{
-			return element->ComputeSortingScore(m_forwardRegistry);
-		});
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
 		{
@@ -223,13 +323,14 @@ namespace Nz
 		}
 
 		m_bakedFrameGraph.Execute(renderFrame);
-		m_rebuildForwardPass = false;
-		m_rebuildDepthPrepass = false;
 		m_rebuildFrameGraph = false;
 
 		const Vector2ui& frameSize = renderFrame.GetSize();
 		for (auto&& [viewer, viewerData] : m_viewers)
 		{
+			viewerData.rebuildForwardPass = false;
+			viewerData.rebuildDepthPrepass = false;
+
 			const RenderTarget& renderTarget = viewer->GetRenderTarget();
 			Recti renderRegion(0, 0, frameSize.x, frameSize.y);
 			const ShaderBindingPtr& blitShaderBinding = viewerData.blitShaderBinding;
@@ -295,8 +396,11 @@ namespace Nz
 				UnregisterMaterialPass(pass);
 		}
 
-		m_rebuildDepthPrepass = true;
-		m_rebuildForwardPass = true;
+		for (auto&& [viewer, viewerData] : m_viewers)
+		{
+			viewerData.rebuildDepthPrepass = true;
+			viewerData.rebuildForwardPass = true;
+		}
 	}
 
 	void ForwardFramePipeline::UnregisterViewer(AbstractViewer* viewerInstance)
@@ -322,21 +426,23 @@ namespace Nz
 			});
 		}
 
-		for (auto&& [viewer, viewerData] : m_viewers)
+		for (auto&& [viewer, data] : m_viewers)
 		{
+			auto& viewerData = data;
+
 			FramePass& depthPrepass = frameGraph.AddPass("Depth pre-pass");
 			depthPrepass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
 			depthPrepass.SetDepthStencilClear(1.f, 0);
 			
-			depthPrepass.SetExecutionCallback([this]()
+			depthPrepass.SetExecutionCallback([&]()
 			{
-				if (m_rebuildForwardPass)
+				if (viewerData.rebuildDepthPrepass)
 					return FramePassExecution::UpdateAndExecute;
 				else
 					return FramePassExecution::Execute;
 			});
 			
-			depthPrepass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
+			depthPrepass.SetCommandCallback([this, viewer = viewer, &viewerData](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
 			{
 				Recti viewport = viewer->GetViewport();
 
@@ -345,7 +451,7 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				ProcessRenderQueue(builder, m_depthPrepassRenderQueue);
+				ProcessRenderQueue(builder, viewerData.depthPrepassRenderQueue);
 			});
 
 			FramePass& forwardPass = frameGraph.AddPass("Forward pass");
@@ -356,15 +462,15 @@ namespace Nz
 			forwardPass.SetClearColor(0, Color::Black);
 			forwardPass.SetDepthStencilClear(1.f, 0);
 
-			forwardPass.SetExecutionCallback([this]()
+			forwardPass.SetExecutionCallback([&]()
 			{
-				if (m_rebuildForwardPass)
+				if (viewerData.rebuildForwardPass)
 					return FramePassExecution::UpdateAndExecute;
 				else
 					return FramePassExecution::Execute;
 			});
 
-			forwardPass.SetCommandCallback([this, viewer = viewer](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
+			forwardPass.SetCommandCallback([this, viewer = viewer, &viewerData](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
 			{
 				Recti viewport = viewer->GetViewport();
 
@@ -373,7 +479,7 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				ProcessRenderQueue(builder, m_forwardRenderQueue);
+				ProcessRenderQueue(builder, viewerData.forwardRenderQueue);
 			});
 		}
 

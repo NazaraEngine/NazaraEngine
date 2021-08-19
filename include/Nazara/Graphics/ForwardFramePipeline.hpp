@@ -54,6 +54,12 @@ namespace Nz
 			void ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue);
 			void UnregisterMaterialPass(MaterialPass* material);
 
+			struct ElementAABB
+			{
+				Boxf aabb;
+				std::size_t count;
+			};
+
 			struct MaterialData
 			{
 				std::size_t usedCount = 0;
@@ -70,7 +76,19 @@ namespace Nz
 			{
 				std::size_t colorAttachment;
 				std::size_t depthStencilAttachment;
+				std::size_t depthPrepassVisibilityHash = 0;
+				std::size_t forwardVisibilityHash = 0;
+				std::vector<ElementAABB> depthPrepassAABB;
+				std::vector<ElementAABB> forwardAABB;
+				std::vector<std::unique_ptr<RenderElement>> depthPrepassRenderElements;
+				std::vector<std::unique_ptr<RenderElement>> forwardRenderElements;
+				RenderQueueRegistry depthPrepassRegistry;
+				RenderQueueRegistry forwardRegistry;
+				RenderQueue<RenderElement*> depthPrepassRenderQueue;
+				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
+				bool rebuildDepthPrepass = true;
+				bool rebuildForwardPass = true;
 			};
 
 			std::size_t m_depthPassIndex;
@@ -82,17 +100,9 @@ namespace Nz
 			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
 			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
-			std::vector<std::unique_ptr<RenderElement>> m_depthPrepassRenderElements;
-			std::vector<std::unique_ptr<RenderElement>> m_forwardRenderElements;
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
 			BakedFrameGraph m_bakedFrameGraph;
-			RenderQueueRegistry m_depthPrepassRegistry;
-			RenderQueueRegistry m_forwardRegistry;
-			RenderQueue<RenderElement*> m_depthPrepassRenderQueue;
-			RenderQueue<RenderElement*> m_forwardRenderQueue;
-			bool m_rebuildDepthPrepass;
 			bool m_rebuildFrameGraph;
-			bool m_rebuildForwardPass;
 	};
 }
 

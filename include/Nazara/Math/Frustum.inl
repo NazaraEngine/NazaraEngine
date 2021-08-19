@@ -264,7 +264,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane::Right].Set(plane);
+		m_planes[UnderlyingCast(FrustumPlane::Right)].Set(plane);
 
 		// Extract the numbers for the LEFT plane
 		plane[0] = clipMatrix[ 3] + clipMatrix[ 0];
@@ -279,7 +279,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane::Left].Set(plane);
+		m_planes[UnderlyingCast(FrustumPlane::Left)].Set(plane);
 
 		// Extract the BOTTOM plane
 		plane[0] = clipMatrix[ 3] + clipMatrix[ 1];
@@ -294,7 +294,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane::Bottom].Set(plane);
+		m_planes[UnderlyingCast(FrustumPlane::Bottom)].Set(plane);
 
 		// Extract the TOP plane
 		plane[0] = clipMatrix[ 3] - clipMatrix[ 1];
@@ -309,7 +309,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane::Top].Set(plane);
+		m_planes[UnderlyingCast(FrustumPlane::Top)].Set(plane);
 
 		// Extract the FAR plane
 		plane[0] = clipMatrix[ 3] - clipMatrix[ 2];
@@ -324,7 +324,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane::Far].Set(plane);
+		m_planes[UnderlyingCast(FrustumPlane::Far)].Set(plane);
 
 		// Extract the NEAR plane
 		plane[0] = clipMatrix[ 3] + clipMatrix[ 2];
@@ -339,7 +339,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane::Near].Set(plane);
+		m_planes[UnderlyingCast(FrustumPlane::Near)].Set(plane);
 
 		// Once planes have been extracted, we must extract points of the frustum
 		// Based on: http://www.gamedev.net/topic/393309-calculating-the-view-frustums-vertices/
@@ -354,56 +354,56 @@ namespace Nz
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::FarLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::FarLeftBottom)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarLeftTop
 			corner.Set(T(-1.0), T(1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::FarLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::FarLeftTop)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarRightBottom
 			corner.Set(T(1.0), T(-1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::FarRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::FarRightBottom)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarRightTop
 			corner.Set(T(1.0), T(1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::FarRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::FarRightTop)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearLeftBottom
 			corner.Set(T(-1.0), T(-1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::NearLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::NearLeftBottom)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearLeftTop
 			corner.Set(T(-1.0), T(1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::NearLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::NearLeftTop)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearRightBottom
 			corner.Set(T(1.0), T(-1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::NearRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::NearRightBottom)] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearRightTop
 			corner.Set(T(1.0), T(1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner::NearRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[UnderlyingCast(BoxCorner::NearRightTop)] = Vector3<T>(corner.x, corner.y, corner.z);
 		}
 		else
 			NazaraWarning("Clip matrix is not invertible, failed to compute frustum corners");
@@ -440,9 +440,9 @@ namespace Nz
 	const Vector3<T>& Frustum<T>::GetCorner(BoxCorner corner) const
 	{
 		#ifdef NAZARA_DEBUG
-		if (corner > BoxCornerCount)
+		if (UnderlyingCast(corner) > BoxCornerCount)
 		{
-			NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
+			NazaraError("Corner not handled (0x" + NumberToString(UnderlyingCast(corner), 16) + ')');
 
 			static Vector3<T> dummy;
 			return dummy;
@@ -465,9 +465,9 @@ namespace Nz
 	const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
 	{
 		#ifdef NAZARA_DEBUG
-		if (plane > FrustumPlane::Max)
+		if (UnderlyingCast(plane) > FrustumPlaneCount)
 		{
-			NazaraError("Frustum plane not handled (0x" + NumberToString(plane, 16) + ')');
+			NazaraError("Frustum plane not handled (0x" + NumberToString(UnderlyingCast(plane), 16) + ')');
 
 			static Plane<T> dummy;
 			return dummy;
