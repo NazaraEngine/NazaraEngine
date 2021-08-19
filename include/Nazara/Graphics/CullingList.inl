@@ -33,7 +33,7 @@ namespace Nz
 		{
 			switch (frustum.Intersect(entry.box))
 			{
-				case IntersectionSide_Inside:
+				case IntersectionSide::Inside:
 					m_fullyVisibleResults.push_back(entry.renderable);
 					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
@@ -41,7 +41,7 @@ namespace Nz
 					entry.forceInvalidation = false;
 					break;
 
-				case IntersectionSide_Intersecting:
+				case IntersectionSide::Intersecting:
 					m_partiallyVisibleResults.push_back(entry.renderable);
 					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
 
@@ -49,7 +49,7 @@ namespace Nz
 					entry.forceInvalidation = false;
 					break;
 
-				case IntersectionSide_Outside:
+				case IntersectionSide::Outside:
 					break;
 			}
 		}
@@ -70,7 +70,7 @@ namespace Nz
 		{
 			switch (frustum.Intersect(entry.sphere))
 			{
-				case IntersectionSide_Inside:
+				case IntersectionSide::Inside:
 					m_fullyVisibleResults.push_back(entry.renderable);
 					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
@@ -78,7 +78,7 @@ namespace Nz
 					entry.forceInvalidation = false;
 					break;
 
-				case IntersectionSide_Intersecting:
+				case IntersectionSide::Intersecting:
 					m_partiallyVisibleResults.push_back(entry.renderable);
 					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
 
@@ -86,7 +86,7 @@ namespace Nz
 					entry.forceInvalidation = false;
 					break;
 
-				case IntersectionSide_Outside:
+				case IntersectionSide::Outside:
 					break;
 			}
 		}
@@ -95,7 +95,7 @@ namespace Nz
 		{
 			switch (frustum.Intersect(entry.volume))
 			{
-				case IntersectionSide_Inside:
+				case IntersectionSide::Inside:
 					m_fullyVisibleResults.push_back(entry.renderable);
 					fullyVisibleHash = CombineHash(fullyVisibleHash, std::hash<const T*>()(entry.renderable));
 
@@ -103,7 +103,7 @@ namespace Nz
 					entry.forceInvalidation = false;
 					break;
 
-				case IntersectionSide_Intersecting:
+				case IntersectionSide::Intersecting:
 					m_partiallyVisibleResults.push_back(entry.renderable);
 					partiallyVisibleHash = CombineHash(partiallyVisibleHash, std::hash<const T*>()(entry.renderable));
 
@@ -111,7 +111,7 @@ namespace Nz
 					entry.forceInvalidation = false;
 					break;
 
-				case IntersectionSide_Outside:
+				case IntersectionSide::Outside:
 					break;
 			}
 		}

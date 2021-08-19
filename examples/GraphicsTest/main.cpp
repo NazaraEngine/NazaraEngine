@@ -148,9 +148,9 @@ int main()
 
 				case Nz::WindowEventType::Resized:
 				{
-					Nz::Vector2ui windowSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
-					viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
+					Nz::Vector2ui newWindowSize = window.GetSize();
+					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
+					viewerInstance.UpdateTargetSize(Nz::Vector2f(newWindowSize));
 					break;
 				}
 

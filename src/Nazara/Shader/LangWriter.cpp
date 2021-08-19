@@ -94,7 +94,7 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string LangWriter::Generate(ShaderAst::Statement& shader, const States& states)
+	std::string LangWriter::Generate(ShaderAst::Statement& shader, const States& /*states*/)
 	{
 		State state;
 		m_currentState = &state;

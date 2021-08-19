@@ -24,12 +24,12 @@ namespace Nz
 	/*!
 	* \brief Constructs a BoundingVolume object by default
 	*
-	* \remark extend is set to Extend_Null, aabb and obb are uninitialized
+	* \remark extend is set to Extend::Null, aabb and obb are uninitialized
 	*/
 
 	template<typename T>
 	BoundingVolume<T>::BoundingVolume() :
-	extend(Extend_Null)
+	extend(Extend::Null)
 	{
 	}
 
@@ -136,31 +136,31 @@ namespace Nz
 	{
 		switch (extend)
 		{
-			case Extend_Finite:
+			case Extend::Finite:
 			{
 				switch (volume.extend)
 				{
-					case Extend_Finite:
+					case Extend::Finite:
 					{
 						// Extend the OBB local box
 						obb.localBox.ExtendTo(volume.obb.localBox);
 						break;
 					}
 
-					case Extend_Infinite:
+					case Extend::Infinite:
 						MakeInfinite();
 						break;
 
-					case Extend_Null:
+					case Extend::Null:
 						break;
 				}
 				break;
 			}
 
-			case Extend_Infinite:
+			case Extend::Infinite:
 				break; //< We already contain the bounding volume
 
-			case Extend_Null:
+			case Extend::Null:
 				Set(volume);
 				break;
 		}
@@ -170,40 +170,40 @@ namespace Nz
 
 	/*!
 	* \brief Checks whether the volume is finite
-	* \return true if extend is Extend_Finite
+	* \return true if extend is Extend::Finite
 	*/
 
 	template<typename T>
 	bool BoundingVolume<T>::IsFinite() const
 	{
-		return extend == Extend_Finite;
+		return extend == Extend::Finite;
 	}
 
 	/*!
 	* \brief Checks whether the volume is infinite
-	* \return true if extend is Extend_Infinite
+	* \return true if extend is Extend::Infinite
 	*/
 
 	template<typename T>
 	bool BoundingVolume<T>::IsInfinite() const
 	{
-		return extend == Extend_Infinite;
+		return extend == Extend::Infinite;
 	}
 
 	/*!
 	* \brief Checks whether the volume is null
-	* \return true if extend is Extend_Null
+	* \return true if extend is Extend::Null
 	*/
 
 	template<typename T>
 	bool BoundingVolume<T>::IsNull() const
 	{
-		return extend == Extend_Null;
+		return extend == Extend::Null;
 	}
 
 	/*!
 	* \brief Makes the bounding volume infinite
-	* \return A reference to this bounding volume with Extend_Infinite for extend
+	* \return A reference to this bounding volume with Extend::Infinite for extend
 	*
 	* \see Infinite
 	*/
@@ -211,14 +211,14 @@ namespace Nz
 	template<typename T>
 	BoundingVolume<T>& BoundingVolume<T>::MakeInfinite()
 	{
-		extend = Extend_Infinite;
+		extend = Extend::Infinite;
 
 		return *this;
 	}
 
 	/*!
 	* \brief Makes the bounding volume null
-	* \return A reference to this bounding volume with Extend_Null for extend
+	* \return A reference to this bounding volume with Extend::Null for extend
 	*
 	* \see Null
 	*/
@@ -226,7 +226,7 @@ namespace Nz
 	template<typename T>
 	BoundingVolume<T>& BoundingVolume<T>::MakeNull()
 	{
-		extend = Extend_Null;
+		extend = Extend::Null;
 
 		return *this;
 	}
@@ -237,7 +237,7 @@ namespace Nz
 	*
 	* \param Extend New extend
 	*
-	* \remark This method is meant to be called with Extend_Infinite or Extend_Null
+	* \remark This method is meant to be called with Extend::Infinite or Extend::Null
 	*/
 
 	template<typename T>
@@ -264,7 +264,7 @@ namespace Nz
 	BoundingVolume<T>& BoundingVolume<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
 	{
 		obb.Set(X, Y, Z, Width, Height, Depth);
-		extend = Extend_Finite;
+		extend = Extend::Finite;
 
 		return *this;
 	}
@@ -296,7 +296,7 @@ namespace Nz
 	BoundingVolume<T>& BoundingVolume<T>::Set(const Box<T>& box)
 	{
 		obb.Set(box);
-		extend = Extend_Finite;
+		extend = Extend::Finite;
 
 		return *this;
 	}
@@ -312,7 +312,7 @@ namespace Nz
 	BoundingVolume<T>& BoundingVolume<T>::Set(const OrientedBox<T>& orientedBox)
 	{
 		obb.Set(orientedBox);
-		extend = Extend_Finite;
+		extend = Extend::Finite;
 
 		return *this;
 	}
@@ -329,7 +329,7 @@ namespace Nz
 	BoundingVolume<T>& BoundingVolume<T>::Set(const Vector3<T>& vec1, const Vector3<T>& vec2)
 	{
 		obb.Set(vec1, vec2);
-		extend = Extend_Finite;
+		extend = Extend::Finite;
 
 		return *this;
 	}
@@ -441,7 +441,7 @@ namespace Nz
 	bool BoundingVolume<T>::operator==(const BoundingVolume& volume) const
 	{
 		if (extend == volume.extend)
-			if (extend == Extend_Finite)
+			if (extend == Extend::Finite)
 				return obb == volume.obb;
 			else
 				return true;
@@ -463,8 +463,8 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Shorthand for the bounding volume (Extend_Infinite)
-	* \return A bounding volume with Extend_Infinite
+	* \brief Shorthand for the bounding volume (Extend::Infinite)
+	* \return A bounding volume with Extend::Infinite
 	*
 	* \see MakeInfinite
 	*/
@@ -512,11 +512,11 @@ namespace Nz
 
 		switch (to.extend)
 		{
-			case Extend_Finite:
+			case Extend::Finite:
 			{
 				switch (from.extend)
 				{
-					case Extend_Finite:
+					case Extend::Finite:
 					{
 						BoundingVolume volume;
 						volume.Set(OrientedBox<T>::Lerp(from.obb, to.obb, interpolation));
@@ -524,49 +524,49 @@ namespace Nz
 						return volume;
 					}
 
-					case Extend_Infinite:
+					case Extend::Infinite:
 						return Infinite();
 
-					case Extend_Null:
+					case Extend::Null:
 						return to.obb * interpolation;
 				}
 
 				// If we arrive here, the extend is invalid
-				NazaraError("Invalid extend type (From) (0x" + NumberToString(from.extend, 16) + ')');
+				NazaraError("Invalid extend type (From) (0x" + NumberToString(UnderlyingCast(from.extend), 16) + ')');
 				return Null();
 			}
 
-			case Extend_Infinite:
+			case Extend::Infinite:
 				return Infinite(); // A little bit of infinity is already too much ;)
 
-			case Extend_Null:
+			case Extend::Null:
 			{
 				switch (from.extend)
 				{
-					case Extend_Finite:
+					case Extend::Finite:
 						return from.obb * (T(1.0) - interpolation);
 
-					case Extend_Infinite:
+					case Extend::Infinite:
 						return Infinite();
 
-					case Extend_Null:
+					case Extend::Null:
 						return Null();
 				}
 
 				// If we arrive here, the extend is invalid
-				NazaraError("Invalid extend type (From) (0x" + NumberToString(from.extend, 16) + ')');
+				NazaraError("Invalid extend type (From) (0x" + NumberToString(UnderlyingCast(from.extend), 16) + ')');
 				return Null();
 			}
 		}
 
 		// If we arrive here, the extend is invalid
-		NazaraError("Invalid extend type (To) (0x" + NumberToString(to.extend, 16) + ')');
+		NazaraError("Invalid extend type (To) (0x" + NumberToString(UnderlyingCast(to.extend), 16) + ')');
 		return Null();
 	}
 
 	/*!
-	* \brief Shorthand for the bounding volume (Extend_Null)
-	* \return A bounding volume with Extend_Null
+	* \brief Shorthand for the bounding volume (Extend::Null)
+	* \return A bounding volume with Extend::Null
 	*
 	* \see MakeNull
 	*/
@@ -620,7 +620,7 @@ namespace Nz
 		if (!Unserialize(context, &extend))
 			return false;
 
-		if (extend > Extend_Max)
+		if (extend > UnderlyingCast(Extend::Max))
 			return false;
 
 		boundingVolume->extend = static_cast<Extend>(extend);
@@ -648,15 +648,15 @@ std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume)
 {
 	switch (volume.extend)
 	{
-		case Nz::Extend_Finite:
+		case Nz::Extend::Finite:
 			out << "BoundingVolume(localBox=" << volume.obb.localBox << ')';
 			break;
 
-		case Nz::Extend_Infinite:
+		case Nz::Extend::Infinite:
 			out << "BoundingVolume(Infinite)";
 			break;
 
-		case Nz::Extend_Null:
+		case Nz::Extend::Null:
 			out << "BoundingVolume(Null)";
 			break;
 	}

@@ -141,8 +141,8 @@ namespace Nz
 	* \param closestHit Optional argument to get the closest parameter where the intersection is only if it happened
 	* \param furthestHit Optional argument to get the furthest parameter where the intersection is only if it happened
 	*
-	* \remark If BoundingVolume is Extend_Infinite, then closestHit and furthestHit are equal to 0 et infinity
-	* \remark If BoundingVolume is Extend_Null, then closestHit and furthestHit are unchanged
+	* \remark If BoundingVolume is Extend::Infinite, then closestHit and furthestHit are equal to 0 et infinity
+	* \remark If BoundingVolume is Extend::Null, then closestHit and furthestHit are unchanged
 	* \remark If enumeration of BoundingVolume is not defined in Extend, a NazaraError is thrown and closestHit and furthestHit are unchanged
 	*
 	* \see Intersect
@@ -153,7 +153,7 @@ namespace Nz
 	{
 		switch (volume.extend)
 		{
-			case Extend_Finite:
+			case Extend::Finite:
 			{
 				if (Intersect(volume.aabb))
 					return Intersect(volume.obb, closestHit, furthestHit);
@@ -161,7 +161,7 @@ namespace Nz
 				return false;
 			}
 
-			case Extend_Infinite:
+			case Extend::Infinite:
 			{
 				if (closestHit)
 					*closestHit = T(0.0);
@@ -172,11 +172,11 @@ namespace Nz
 				return true;
 			}
 
-			case Extend_Null:
+			case Extend::Null:
 				return false;
 		}
 
-		NazaraError("Invalid extend type (0x" + NumberToString(volume.extend, 16) + ')');
+		NazaraError("Invalid extend type (0x" + NumberToString(UnderlyingCast(volume.extend), 16) + ')');
 		return false;
 	}
 
@@ -321,12 +321,12 @@ namespace Nz
 	template<typename T>
 	bool Ray<T>::Intersect(const OrientedBox<T>& orientedBox, T* closestHit, T* furthestHit) const
 	{
-		Vector3<T> corner = orientedBox.GetCorner(BoxCorner_FarLeftBottom);
-		Vector3<T> oppositeCorner = orientedBox.GetCorner(BoxCorner_NearRightTop);
+		Vector3<T> corner = orientedBox.GetCorner(BoxCorner::FarLeftBottom);
+		Vector3<T> oppositeCorner = orientedBox.GetCorner(BoxCorner::NearRightTop);
 
-		Vector3<T> width = (orientedBox.GetCorner(BoxCorner_NearLeftBottom) - corner);
-		Vector3<T> height = (orientedBox.GetCorner(BoxCorner_FarLeftTop) - corner);
-		Vector3<T> depth = (orientedBox.GetCorner(BoxCorner_FarRightBottom) - corner);
+		Vector3<T> width = (orientedBox.GetCorner(BoxCorner::NearLeftBottom) - corner);
+		Vector3<T> height = (orientedBox.GetCorner(BoxCorner::FarLeftTop) - corner);
+		Vector3<T> depth = (orientedBox.GetCorner(BoxCorner::FarRightBottom) - corner);
 
 		// Construction de la matrice de transformation de l'OBB
 		Matrix4<T> matrix(width.x, height.x, depth.x, corner.x,

@@ -25,8 +25,8 @@ namespace Nz
 		VertexMapper mapper(*m_vertexBuffer);
 		SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 
-		unsigned int vertexCount = m_vertexBuffer->GetVertexCount();
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		std::size_t vertexCount = m_vertexBuffer->GetVertexCount();
+		for (std::size_t i = 0; i < vertexCount; ++i)
 			*position++ -= offset;
 
 		m_aabb.x -= offset.x;

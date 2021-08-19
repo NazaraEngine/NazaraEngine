@@ -46,12 +46,12 @@ namespace Nz
 				currentFunction->calledFunctions.UnboundedSet(std::get<std::size_t>(node.targetFunction));
 			}
 
-			void Visit(ShaderAst::ConditionalExpression& node) override
+			void Visit(ShaderAst::ConditionalExpression& /*node*/) override
 			{
 				throw std::runtime_error("unexpected conditional expression, is shader sanitized?");
 			}
 
-			void Visit(ShaderAst::ConditionalStatement& node) override
+			void Visit(ShaderAst::ConditionalStatement& /*node*/) override
 			{
 				throw std::runtime_error("unexpected conditional statement, is shader sanitized?");
 			}

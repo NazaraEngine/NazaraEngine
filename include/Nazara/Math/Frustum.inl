@@ -16,7 +16,7 @@ namespace Nz
 {
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::Frustum
 	* \brief Math class that represents a frustum in the three dimensional vector space
 	*
@@ -69,23 +69,23 @@ namespace Nz
 		Vector3<T> fc = eye + f * zFar;
 
 		// Computing the frustum
-		m_corners[BoxCorner_FarLeftBottom] = fc - u * farH - s * farW;
-		m_corners[BoxCorner_FarLeftTop] = fc + u * farH - s * farW;
-		m_corners[BoxCorner_FarRightTop] = fc + u * farH + s * farW;
-		m_corners[BoxCorner_FarRightBottom] = fc - u * farH + s * farW;
+		m_corners[UnderlyingCast(BoxCorner::FarLeftBottom)] = fc - u * farH - s * farW;
+		m_corners[UnderlyingCast(BoxCorner::FarLeftTop)] = fc + u * farH - s * farW;
+		m_corners[UnderlyingCast(BoxCorner::FarRightTop)] = fc + u * farH + s * farW;
+		m_corners[UnderlyingCast(BoxCorner::FarRightBottom)] = fc - u * farH + s * farW;
 
-		m_corners[BoxCorner_NearLeftBottom] = nc - u * nearH - s * nearW;
-		m_corners[BoxCorner_NearLeftTop] = nc + u * nearH - s * nearW;
-		m_corners[BoxCorner_NearRightTop] = nc + u * nearH + s * nearW;
-		m_corners[BoxCorner_NearRightBottom] = nc - u * nearH + s * nearW;
+		m_corners[UnderlyingCast(BoxCorner::NearLeftBottom)] = nc - u * nearH - s * nearW;
+		m_corners[UnderlyingCast(BoxCorner::NearLeftTop)] = nc + u * nearH - s * nearW;
+		m_corners[UnderlyingCast(BoxCorner::NearRightTop)] = nc + u * nearH + s * nearW;
+		m_corners[UnderlyingCast(BoxCorner::NearRightBottom)] = nc - u * nearH + s * nearW;
 
 		// Construction of frustum's planes
-		m_planes[FrustumPlane_Bottom].Set(m_corners[BoxCorner_NearLeftBottom], m_corners[BoxCorner_NearRightBottom], m_corners[BoxCorner_FarRightBottom]);
-		m_planes[FrustumPlane_Far].Set(m_corners[BoxCorner_FarRightTop], m_corners[BoxCorner_FarLeftTop], m_corners[BoxCorner_FarLeftBottom]);
-		m_planes[FrustumPlane_Left].Set(m_corners[BoxCorner_NearLeftTop], m_corners[BoxCorner_NearLeftBottom], m_corners[BoxCorner_FarLeftBottom]);
-		m_planes[FrustumPlane_Near].Set(m_corners[BoxCorner_NearLeftTop], m_corners[BoxCorner_NearRightTop], m_corners[BoxCorner_NearRightBottom]);
-		m_planes[FrustumPlane_Right].Set(m_corners[BoxCorner_NearRightBottom], m_corners[BoxCorner_NearRightTop], m_corners[BoxCorner_FarRightBottom]);
-		m_planes[FrustumPlane_Top].Set(m_corners[BoxCorner_NearRightTop], m_corners[BoxCorner_NearLeftTop], m_corners[BoxCorner_FarLeftTop]);
+		m_planes[UnderlyingCast(FrustumPlane::Bottom)].Set(m_corners[UnderlyingCast(BoxCorner::NearLeftBottom)], m_corners[UnderlyingCast(BoxCorner::NearRightBottom)], m_corners[UnderlyingCast(BoxCorner::FarRightBottom)]);
+		m_planes[UnderlyingCast(FrustumPlane::Far)].Set(m_corners[UnderlyingCast(BoxCorner::FarRightTop)], m_corners[UnderlyingCast(BoxCorner::FarLeftTop)], m_corners[UnderlyingCast(BoxCorner::FarLeftBottom)]);
+		m_planes[UnderlyingCast(FrustumPlane::Left)].Set(m_corners[UnderlyingCast(BoxCorner::NearLeftTop)], m_corners[UnderlyingCast(BoxCorner::NearLeftBottom)], m_corners[UnderlyingCast(BoxCorner::FarLeftBottom)]);
+		m_planes[UnderlyingCast(FrustumPlane::Near)].Set(m_corners[UnderlyingCast(BoxCorner::NearLeftTop)], m_corners[UnderlyingCast(BoxCorner::NearRightTop)], m_corners[UnderlyingCast(BoxCorner::NearRightBottom)]);
+		m_planes[UnderlyingCast(FrustumPlane::Right)].Set(m_corners[UnderlyingCast(BoxCorner::NearRightBottom)], m_corners[UnderlyingCast(BoxCorner::NearRightTop)], m_corners[UnderlyingCast(BoxCorner::FarRightBottom)]);
+		m_planes[UnderlyingCast(FrustumPlane::Top)].Set(m_corners[UnderlyingCast(BoxCorner::NearRightTop)], m_corners[UnderlyingCast(BoxCorner::NearLeftTop)], m_corners[UnderlyingCast(BoxCorner::FarLeftTop)]);
 
 		return *this;
 	}
@@ -107,33 +107,33 @@ namespace Nz
 	{
 		switch (volume.extend)
 		{
-			case Extend_Finite:
+			case Extend::Finite:
 			{
 				IntersectionSide side = Intersect(volume.aabb);
 				switch (side)
 				{
-					case IntersectionSide_Inside:
+					case IntersectionSide::Inside:
 						return true;
 
-					case IntersectionSide_Intersecting:
+					case IntersectionSide::Intersecting:
 						return Contains(volume.obb);
 
-					case IntersectionSide_Outside:
+					case IntersectionSide::Outside:
 						return false;
 				}
 
-				NazaraError("Invalid intersection side (0x" + NumberToString(side, 16) + ')');
+				NazaraError("Invalid intersection side (0x" + NumberToString(UnderlyingCast(side), 16) + ')');
 				return false;
 			}
 
-			case Extend_Infinite:
+			case Extend::Infinite:
 				return true;
 
-			case Extend_Null:
+			case Extend::Null:
 				return false;
 		}
 
-		NazaraError("Invalid extend type (0x" + NumberToString(volume.extend, 16) + ')');
+		NazaraError("Invalid extend type (0x" + NumberToString(UnderlyingCast(volume.extend), 16) + ')');
 		return false;
 	}
 
@@ -148,7 +148,7 @@ namespace Nz
 	bool Frustum<T>::Contains(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
-		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (unsigned int i = 0; i < FrustumPlaneCount; i++)
 		{
 			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < T(0.0))
 				return false;
@@ -180,7 +180,7 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const Sphere<T>& sphere) const
 	{
-		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (unsigned int i = 0; i < FrustumPlaneCount; i++)
 		{
 			if (m_planes[i].Distance(sphere.GetPosition()) < -sphere.radius)
 				return false;
@@ -199,7 +199,7 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const Vector3<T>& point) const
 	{
-		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
 		{
 			if (m_planes[i].Distance(point) < T(0.0))
 				return false;
@@ -219,7 +219,7 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const Vector3<T>* points, unsigned int pointCount) const
 	{
-		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
 		{
 			unsigned int j;
 			for (j = 0; j < pointCount; j++ )
@@ -264,7 +264,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane_Right].Set(plane);
+		m_planes[FrustumPlane::Right].Set(plane);
 
 		// Extract the numbers for the LEFT plane
 		plane[0] = clipMatrix[ 3] + clipMatrix[ 0];
@@ -279,7 +279,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane_Left].Set(plane);
+		m_planes[FrustumPlane::Left].Set(plane);
 
 		// Extract the BOTTOM plane
 		plane[0] = clipMatrix[ 3] + clipMatrix[ 1];
@@ -294,7 +294,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane_Bottom].Set(plane);
+		m_planes[FrustumPlane::Bottom].Set(plane);
 
 		// Extract the TOP plane
 		plane[0] = clipMatrix[ 3] - clipMatrix[ 1];
@@ -309,7 +309,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane_Top].Set(plane);
+		m_planes[FrustumPlane::Top].Set(plane);
 
 		// Extract the FAR plane
 		plane[0] = clipMatrix[ 3] - clipMatrix[ 2];
@@ -324,7 +324,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane_Far].Set(plane);
+		m_planes[FrustumPlane::Far].Set(plane);
 
 		// Extract the NEAR plane
 		plane[0] = clipMatrix[ 3] + clipMatrix[ 2];
@@ -339,7 +339,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		m_planes[FrustumPlane_Near].Set(plane);
+		m_planes[FrustumPlane::Near].Set(plane);
 
 		// Once planes have been extracted, we must extract points of the frustum
 		// Based on: http://www.gamedev.net/topic/393309-calculating-the-view-frustums-vertices/
@@ -354,56 +354,56 @@ namespace Nz
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_FarLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::FarLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarLeftTop
 			corner.Set(T(-1.0), T(1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_FarLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::FarLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarRightBottom
 			corner.Set(T(1.0), T(-1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_FarRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::FarRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// FarRightTop
 			corner.Set(T(1.0), T(1.0), T(1.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_FarRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::FarRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearLeftBottom
 			corner.Set(T(-1.0), T(-1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_NearLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::NearLeftBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearLeftTop
 			corner.Set(T(-1.0), T(1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_NearLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::NearLeftTop] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearRightBottom
 			corner.Set(T(1.0), T(-1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_NearRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::NearRightBottom] = Vector3<T>(corner.x, corner.y, corner.z);
 
 			// NearRightTop
 			corner.Set(T(1.0), T(1.0), T(0.0));
 			corner = invClipMatrix.Transform(corner);
 			corner.Normalize();
 
-			m_corners[BoxCorner_NearRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
+			m_corners[BoxCorner::NearRightTop] = Vector3<T>(corner.x, corner.y, corner.z);
 		}
 		else
 			NazaraWarning("Clip matrix is not invertible, failed to compute frustum corners");
@@ -440,7 +440,7 @@ namespace Nz
 	const Vector3<T>& Frustum<T>::GetCorner(BoxCorner corner) const
 	{
 		#ifdef NAZARA_DEBUG
-		if (corner > BoxCorner_Max)
+		if (corner > BoxCornerCount)
 		{
 			NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
 
@@ -449,7 +449,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_corners[corner];
+		return m_corners[UnderlyingCast(corner)];
 	}
 
 	/*!
@@ -465,7 +465,7 @@ namespace Nz
 	const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
 	{
 		#ifdef NAZARA_DEBUG
-		if (plane > FrustumPlane_Max)
+		if (plane > FrustumPlane::Max)
 		{
 			NazaraError("Frustum plane not handled (0x" + NumberToString(plane, 16) + ')');
 
@@ -474,7 +474,7 @@ namespace Nz
 		}
 		#endif
 
-		return m_planes[plane];
+		return m_planes[UnderlyingCast(plane)];
 	}
 
 	/*!
@@ -483,10 +483,10 @@ namespace Nz
 	*
 	* \param volume Volume to check
 	*
-	* \remark If volume is infinite, IntersectionSide_Intersecting is returned
-	* \remark If volume is null, IntersectionSide_Outside is returned
-	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and IntersectionSide_Outside is returned
-	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and IntersectionSide_Outside is returned. This should not never happen for a user of the library
+	* \remark If volume is infinite, IntersectionSide::Intersecting is returned
+	* \remark If volume is null, IntersectionSide::Outside is returned
+	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and IntersectionSide::Outside is returned
+	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and IntersectionSide::Outside is returned. This should not never happen for a user of the library
 	*/
 
 	template<typename T>
@@ -494,34 +494,34 @@ namespace Nz
 	{
 		switch (volume.extend)
 		{
-			case Extend_Finite:
+			case Extend::Finite:
 			{
 				IntersectionSide side = Intersect(volume.aabb);
 				switch (side)
 				{
-					case IntersectionSide_Inside:
-						return IntersectionSide_Inside;
+					case IntersectionSide::Inside:
+						return IntersectionSide::Inside;
 
-					case IntersectionSide_Intersecting:
+					case IntersectionSide::Intersecting:
 						return Intersect(volume.obb);
 
-					case IntersectionSide_Outside:
-						return IntersectionSide_Outside;
+					case IntersectionSide::Outside:
+						return IntersectionSide::Outside;
 				}
 
-				NazaraError("Invalid intersection side (0x" + NumberToString(side, 16) + ')');
-				return IntersectionSide_Outside;
+				NazaraError("Invalid intersection side (0x" + NumberToString(UnderlyingCast(side), 16) + ')');
+				return IntersectionSide::Outside;
 			}
 
-			case Extend_Infinite:
-				return IntersectionSide_Intersecting; // We can not contain infinity
+			case Extend::Infinite:
+				return IntersectionSide::Intersecting; // We can not contain infinity
 
-			case Extend_Null:
-				return IntersectionSide_Outside;
+			case Extend::Null:
+				return IntersectionSide::Outside;
 		}
 
-		NazaraError("Invalid extend type (0x" + NumberToString(volume.extend, 16) + ')');
-		return IntersectionSide_Outside;
+		NazaraError("Invalid extend type (0x" + NumberToString(UnderlyingCast(volume.extend), 16) + ')');
+		return IntersectionSide::Outside;
 	}
 
 	/*!
@@ -535,14 +535,14 @@ namespace Nz
 	IntersectionSide Frustum<T>::Intersect(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
-		IntersectionSide side = IntersectionSide_Inside;
+		IntersectionSide side = IntersectionSide::Inside;
 
-		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (std::size_t i = 0; i < FrustumPlaneCount; i++)
 		{
 			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < T(0.0))
-				return IntersectionSide_Outside;
+				return IntersectionSide::Outside;
 			else if (m_planes[i].Distance(box.GetNegativeVertex(m_planes[i].normal)) < T(0.0))
-				side = IntersectionSide_Intersecting;
+				side = IntersectionSide::Intersecting;
 		}
 
 		return side;
@@ -572,15 +572,15 @@ namespace Nz
 	IntersectionSide Frustum<T>::Intersect(const Sphere<T>& sphere) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-points-and-spheres/
-		IntersectionSide side = IntersectionSide_Inside;
+		IntersectionSide side = IntersectionSide::Inside;
 
-		for (unsigned int i = 0; i <= FrustumPlane_Max; i++)
+		for (std::size_t i = 0; i < FrustumPlaneCount; i++)
 		{
 			T distance = m_planes[i].Distance(sphere.GetPosition());
 			if (distance < -sphere.radius)
-				return IntersectionSide_Outside;
+				return IntersectionSide::Outside;
 			else if (distance < sphere.radius)
-				side = IntersectionSide_Intersecting;
+				side = IntersectionSide::Intersecting;
 		}
 
 		return side;
@@ -595,13 +595,13 @@ namespace Nz
 	*/
 
 	template<typename T>
-	IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, unsigned int pointCount) const
+	IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, std::size_t pointCount) const
 	{
-		unsigned int c = 0;
+		std::size_t c = 0;
 
-		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (std::size_t i = 0; i < FrustumPlaneCount; ++i)
 		{
-			unsigned int j;
+			std::size_t j;
 			for (j = 0; j < pointCount; j++ )
 			{
 				if (m_planes[i].Distance(points[j]) > T(0.0))
@@ -609,12 +609,12 @@ namespace Nz
 			}
 
 			if (j == pointCount)
-				return IntersectionSide_Outside;
+				return IntersectionSide::Outside;
 			else
 				c++;
 		}
 
-		return (c == 6) ? IntersectionSide_Inside : IntersectionSide_Intersecting;
+		return (c == 6) ? IntersectionSide::Inside : IntersectionSide::Intersecting;
 	}
 
 	/*!
@@ -628,10 +628,10 @@ namespace Nz
 	template<typename U>
 	Frustum<T>& Frustum<T>::Set(const Frustum<U>& frustum)
 	{
-		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
 			m_corners[i].Set(frustum.m_corners[i]);
 
-		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
 			m_planes[i].Set(frustum.m_planes[i]);
 
 		return *this;
@@ -661,13 +661,13 @@ namespace Nz
 	template<typename T>
 	bool Serialize(SerializationContext& context, const Frustum<T>& frustum, TypeTag<Frustum<T>>)
 	{
-		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
 		{
 			if (!Serialize(context, frustum.m_corners[i]))
 				return false;
 		}
 
-		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
 		{
 			if (!Serialize(context, frustum.m_planes[i]))
 				return false;
@@ -686,13 +686,13 @@ namespace Nz
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Frustum<T>* frustum, TypeTag<Frustum<T>>)
 	{
-		for (unsigned int i = 0; i <= BoxCorner_Max; ++i)
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
 		{
 			if (!Unserialize(context, &frustum->m_corners[i]))
 				return false;
 		}
 
-		for (unsigned int i = 0; i <= FrustumPlane_Max; ++i)
+		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
 		{
 			if (!Unserialize(context, &frustum->m_planes[i]))
 				return false;
@@ -713,12 +713,12 @@ namespace Nz
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum)
 {
-	return out << "Frustum(Bottom: " << frustum.GetPlane(Nz::FrustumPlane_Bottom) << ",\n"
-	           << "        Far: "    << frustum.GetPlane(Nz::FrustumPlane_Far)    << ",\n"
-	           << "        Left: "   << frustum.GetPlane(Nz::FrustumPlane_Left)   << ",\n"
-	           << "        Near: "   << frustum.GetPlane(Nz::FrustumPlane_Near)   << ",\n"
-	           << "        Right: "  << frustum.GetPlane(Nz::FrustumPlane_Right)  << ",\n"
-	           << "        Top: "    << frustum.GetPlane(Nz::FrustumPlane_Top)    << ")\n";
+	return out << "Frustum(Bottom: " << frustum.GetPlane(Nz::FrustumPlane::Bottom) << ",\n"
+	           << "        Far: "    << frustum.GetPlane(Nz::FrustumPlane::Far)    << ",\n"
+	           << "        Left: "   << frustum.GetPlane(Nz::FrustumPlane::Left)   << ",\n"
+	           << "        Near: "   << frustum.GetPlane(Nz::FrustumPlane::Near)   << ",\n"
+	           << "        Right: "  << frustum.GetPlane(Nz::FrustumPlane::Right)  << ",\n"
+	           << "        Top: "    << frustum.GetPlane(Nz::FrustumPlane::Top)    << ")\n";
 }
 
 #include <Nazara/Core/DebugOff.hpp>

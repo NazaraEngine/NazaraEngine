@@ -239,20 +239,20 @@ namespace Nz
 	{
 		switch (corner)
 		{
-			case RectCorner_LeftBottom:
+			case RectCorner::LeftBottom:
 				return Vector2<T>(x, y + height);
 
-			case RectCorner_LeftTop:
+			case RectCorner::LeftTop:
 				return Vector2<T>(x, y);
 
-			case RectCorner_RightBottom:
+			case RectCorner::RightBottom:
 				return Vector2<T>(x + width, y + height);
 
-			case RectCorner_RightTop:
+			case RectCorner::RightTop:
 				return Vector2<T>(x + width, y);
 		}
 
-		NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
+		NazaraError("Corner not handled (0x" + NumberToString(UnderlyingCast(corner), 16) + ')');
 		return Vector2<T>();
 	}
 
@@ -269,7 +269,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets a Vector2 for the maximum point
-	* \return The RectCorner_RightBottom of the rectangle
+	* \return The RectCorner::RightBottom of the rectangle
 	*
 	* \see GetCorner
 	*/
@@ -282,7 +282,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets a Vector2 for the minimum point
-	* \return The RectCorner_LeftTop of the rectangle
+	* \return The RectCorner::LeftTop of the rectangle
 	*
 	* \see GetCorner, GetPosition
 	*/
@@ -318,7 +318,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets a Vector2 for the position
-	* \return The RectCorner_LeftTop of the rectangle
+	* \return The RectCorner::LeftTop of the rectangle
 	*
 	* \see GetCorner, GetMinimum
 	*/
