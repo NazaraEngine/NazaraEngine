@@ -75,7 +75,7 @@ int main()
 	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
-	Nz::Model model(std::move(gfxMesh));
+	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, material);
 

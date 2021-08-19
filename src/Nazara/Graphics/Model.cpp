@@ -13,7 +13,8 @@
 
 namespace Nz
 {
-	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
+	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb) :
+	InstancedRenderable(aabb),
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
 		m_submeshes.reserve(m_graphicalMesh->GetSubMeshCount());

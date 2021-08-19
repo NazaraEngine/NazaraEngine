@@ -28,6 +28,12 @@ namespace Nz
 			ViewerInstance(ViewerInstance&&) noexcept = default;
 			~ViewerInstance() = default;
 
+			inline const Matrix4f& GetInvProjectionMatrix() const;
+			inline const Matrix4f& GetInvViewMatrix() const;
+			inline const Matrix4f& GetInvViewProjMatrix() const;
+			inline const Matrix4f& GetProjectionMatrix() const;
+			inline const Matrix4f& GetViewMatrix() const;
+			inline const Matrix4f& GetViewProjMatrix() const;
 			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
 			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
 			inline ShaderBinding& GetShaderBinding();
