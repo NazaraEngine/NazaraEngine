@@ -171,134 +171,90 @@ namespace Nz
 		{
 			auto& viewerData = data;
 
-			//if (viewerData.rebuildDepthPrepass)
-			{
-				viewerData.depthPrepassAABB.clear();
-				viewerData.depthPrepassRenderElements.clear();
-
-				for (const auto& [worldInstance, renderables] : m_renderables)
-				{
-					for (const auto& [renderable, renderableData] : renderables)
-					{
-						std::size_t prevCount = viewerData.depthPrepassRenderElements.size();
-						renderable->BuildElement(m_depthPassIndex, *worldInstance, viewerData.depthPrepassRenderElements);
-						std::size_t currentCount = viewerData.depthPrepassRenderElements.size();
-
-						if (currentCount > prevCount)
-						{
-							BoundingVolumef boundingVolume(renderable->GetAABB());
-							boundingVolume.Update(worldInstance->GetWorldMatrix());
-
-							auto& aabbData = viewerData.depthPrepassAABB.emplace_back();
-							aabbData.aabb = boundingVolume.aabb;
-							aabbData.count = currentCount - prevCount;
-						}
-					}
-				}
-			}
-
-			//if (viewerData.rebuildForwardPass)
-			{
-				viewerData.forwardAABB.clear();
-				viewerData.forwardRenderElements.clear();
-
-				for (const auto& [worldInstance, renderables] : m_renderables)
-				{
-					for (const auto& [renderable, renderableData] : renderables)
-					{
-						std::size_t prevCount = viewerData.forwardRenderElements.size();
-						renderable->BuildElement(m_forwardPassIndex, *worldInstance, viewerData.forwardRenderElements);
-						std::size_t currentCount = viewerData.forwardRenderElements.size();
-
-						if (currentCount > prevCount)
-						{
-							BoundingVolumef boundingVolume(renderable->GetAABB());
-							boundingVolume.Update(worldInstance->GetWorldMatrix());
-
-							auto& aabbData = viewerData.forwardAABB.emplace_back();
-							aabbData.aabb = boundingVolume.aabb;
-							aabbData.count = currentCount - prevCount;
-						}
-					}
-				}
-			}
-
+			// Frustum culling
 			const Matrix4f& viewProjMatrix = viewer->GetViewerInstance().GetViewProjMatrix();
 
 			Frustumf frustum;
 			frustum.Extract(viewProjMatrix);
 
-			viewerData.depthPrepassRegistry.Clear();
-			viewerData.depthPrepassRenderQueue.Clear();
+			std::size_t visibilityHash = 5U;
+
+			m_visibleRenderables.clear();
+			for (const auto& [worldInstance, renderables] : m_renderables)
 			{
-				std::size_t visibilityHash = 5U;
+				bool isInstanceVisible = false;
 
-				auto elementIt = viewerData.depthPrepassRenderElements.begin();
-				for (auto&& [aabb, elementCount] : viewerData.depthPrepassAABB)
+				for (const auto& [renderable, renderableData] : renderables)
 				{
-					if (!frustum.Contains(aabb))
-					{
-						std::advance(elementIt, elementCount);
+					// Get global AABB
+					BoundingVolumef boundingVolume(renderable->GetAABB());
+					boundingVolume.Update(worldInstance->GetWorldMatrix());
+
+					if (!frustum.Contains(boundingVolume.aabb))
 						continue;
-					}
 
-					for (std::size_t i = 0; i < elementCount; ++i)
-					{
-						auto& renderElement = *elementIt++;
-						renderElement->Register(viewerData.depthPrepassRegistry);
-						viewerData.depthPrepassRenderQueue.Insert(renderElement.get());
+					auto& renderableData = m_visibleRenderables.emplace_back();
+					renderableData.instancedRenderable = renderable;
+					renderableData.worldInstance = worldInstance.get();
 
-						visibilityHash = CombineHash(visibilityHash, std::hash<const RenderElement*>()(renderElement.get()));
-					}
+					isInstanceVisible = true;
+					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(renderable));
 				}
 
-				viewerData.depthPrepassRenderQueue.Sort([&](const RenderElement* element)
-				{
-					return element->ComputeSortingScore(viewerData.depthPrepassRegistry);
-				});
+				if (isInstanceVisible)
+					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(worldInstance.get()));
+			}
 
-				if (viewerData.depthPrepassVisibilityHash != visibilityHash)
+			if (viewerData.visibilityHash != visibilityHash)
+			{
+				viewerData.rebuildDepthPrepass = true;
+				viewerData.rebuildForwardPass = true;
+
+				viewerData.visibilityHash = visibilityHash;
+			}
+
+			if (viewerData.rebuildDepthPrepass)
+			{
+				viewerData.depthPrepassRenderElements.clear();
+
+				for (const auto& renderableData : m_visibleRenderables)
+					renderableData.instancedRenderable->BuildElement(m_depthPassIndex, *renderableData.worldInstance, viewerData.depthPrepassRenderElements);
+
+				viewerData.depthPrepassRegistry.Clear();
+				viewerData.depthPrepassRenderQueue.Clear();
+
+				for (const auto& renderElement : viewerData.depthPrepassRenderElements)
 				{
-					viewerData.rebuildDepthPrepass = true;
-					viewerData.depthPrepassVisibilityHash = visibilityHash;
+					renderElement->Register(viewerData.depthPrepassRegistry);
+					viewerData.depthPrepassRenderQueue.Insert(renderElement.get());
 				}
 			}
 
-			viewerData.forwardRegistry.Clear();
-			viewerData.forwardRenderQueue.Clear();
+			viewerData.depthPrepassRenderQueue.Sort([&](const RenderElement* element)
 			{
-				std::size_t visibilityHash = 5U;
+				return element->ComputeSortingScore(viewerData.depthPrepassRegistry);
+			});
 
-				auto elementIt = viewerData.forwardRenderElements.begin();
-				for (auto&& [aabb, elementCount] : viewerData.forwardAABB)
+			if (viewerData.rebuildForwardPass)
+			{
+				viewerData.forwardRenderElements.clear();
+
+				for (const auto& renderableData : m_visibleRenderables)
+					renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, viewerData.forwardRenderElements);
+
+				viewerData.forwardRegistry.Clear();
+				viewerData.forwardRenderQueue.Clear();
+				for (const auto& renderElement : viewerData.forwardRenderElements)
 				{
-					if (!frustum.Contains(aabb))
-					{
-						std::advance(elementIt, elementCount);
-						continue;
-					}
-
-					for (std::size_t i = 0; i < elementCount; ++i)
-					{
-						auto& renderElement = *elementIt++;
-						renderElement->Register(viewerData.forwardRegistry);
-						viewerData.forwardRenderQueue.Insert(renderElement.get());
-
-						visibilityHash = CombineHash(visibilityHash, std::hash<const RenderElement*>()(renderElement.get()));
-					}
-				}
-
-				viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
-				{
-					return element->ComputeSortingScore(viewerData.forwardRegistry);
-				});
-
-				if (viewerData.forwardVisibilityHash != visibilityHash)
-				{
-					viewerData.rebuildForwardPass = true;
-					viewerData.forwardVisibilityHash = visibilityHash;
+					renderElement->Register(viewerData.forwardRegistry);
+					viewerData.forwardRenderQueue.Insert(renderElement.get());
 				}
 			}
+
+			viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
+			{
+				return element->ComputeSortingScore(viewerData.forwardRegistry);
+			});
 		}
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
