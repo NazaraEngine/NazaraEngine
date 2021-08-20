@@ -31,7 +31,7 @@ namespace Nz
 		}
 	}
 
-	void Model::BuildElement(std::size_t passIndex, WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
+	void Model::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{

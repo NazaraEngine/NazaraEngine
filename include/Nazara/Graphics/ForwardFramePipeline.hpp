@@ -54,12 +54,6 @@ namespace Nz
 			void ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue);
 			void UnregisterMaterialPass(MaterialPass* material);
 
-			struct ElementAABB
-			{
-				Boxf aabb;
-				std::size_t count;
-			};
-
 			struct MaterialData
 			{
 				std::size_t usedCount = 0;
@@ -72,14 +66,17 @@ namespace Nz
 				NazaraSlot(InstancedRenderable, OnMaterialInvalidated, onMaterialInvalidated);
 			};
 
+			struct VisibleRenderable
+			{
+				const InstancedRenderable* instancedRenderable;
+				const WorldInstance* worldInstance;
+			};
+
 			struct ViewerData
 			{
 				std::size_t colorAttachment;
 				std::size_t depthStencilAttachment;
-				std::size_t depthPrepassVisibilityHash = 0;
-				std::size_t forwardVisibilityHash = 0;
-				std::vector<ElementAABB> depthPrepassAABB;
-				std::vector<ElementAABB> forwardAABB;
+				std::size_t visibilityHash = 0;
 				std::vector<std::unique_ptr<RenderElement>> depthPrepassRenderElements;
 				std::vector<std::unique_ptr<RenderElement>> forwardRenderElements;
 				RenderQueueRegistry depthPrepassRegistry;
@@ -101,6 +98,7 @@ namespace Nz
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
 			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
+			std::vector<VisibleRenderable> m_visibleRenderables;
 			BakedFrameGraph m_bakedFrameGraph;
 			bool m_rebuildFrameGraph;
 	};

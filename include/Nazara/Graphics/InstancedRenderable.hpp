@@ -28,7 +28,7 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			~InstancedRenderable();
 
-			virtual void BuildElement(std::size_t passIndex, WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const = 0;
+			virtual void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const = 0;
 
 			inline const Boxf& GetAABB() const;
 			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
