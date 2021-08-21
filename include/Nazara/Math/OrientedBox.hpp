@@ -63,7 +63,7 @@ namespace Nz
 			Box<T> localBox;
 
 		private:
-			Vector3<T> m_corners[BoxCorner_Max+1]; // Ne peuvent pas être modifiés directement
+			Vector3<T> m_corners[BoxCornerCount];
 	};
 
 	using OrientedBoxd = OrientedBox<double>;

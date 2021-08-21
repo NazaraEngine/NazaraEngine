@@ -276,32 +276,32 @@ namespace Nz
 	{
 		switch (corner)
 		{
-			case BoxCorner_FarLeftBottom:
+			case BoxCorner::FarLeftBottom:
 				return Vector3<T>(x, y, z);
 
-			case BoxCorner_FarLeftTop:
+			case BoxCorner::FarLeftTop:
 				return Vector3<T>(x, y + height, z);
 
-			case BoxCorner_FarRightBottom:
+			case BoxCorner::FarRightBottom:
 				return Vector3<T>(x + width, y, z);
 
-			case BoxCorner_FarRightTop:
+			case BoxCorner::FarRightTop:
 				return Vector3<T>(x + width, y + height, z);
 
-			case BoxCorner_NearLeftBottom:
+			case BoxCorner::NearLeftBottom:
 				return Vector3<T>(x, y, z + depth);
 
-			case BoxCorner_NearLeftTop:
+			case BoxCorner::NearLeftTop:
 				return Vector3<T>(x, y + height, z + depth);
 
-			case BoxCorner_NearRightBottom:
+			case BoxCorner::NearRightBottom:
 				return Vector3<T>(x + width, y, z + depth);
 
-			case BoxCorner_NearRightTop:
+			case BoxCorner::NearRightTop:
 				return Vector3<T>(x + width, y + height, z + depth);
 		}
 
-		NazaraError("Corner not handled (0x" + NumberToString(corner, 16) + ')');
+		NazaraError("Corner not handled (0x" + NumberToString(UnderlyingCast(corner), 16) + ')');
 		return Vector3<T>();
 	}
 
@@ -318,7 +318,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets a Vector3 for the maximum point
-	* \return The BoxCorner_NearRightTop of the box
+	* \return The BoxCorner::NearRightTop of the box
 	*
 	* \see GetCorner
 	*/
@@ -331,7 +331,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets a Vector3 for the minimum point
-	* \return The BoxCorner_FarLeftBottom of the box
+	* \return The BoxCorner::FarLeftBottom of the box
 	*
 	* \see GetCorner, GetPosition
 	*/
@@ -370,7 +370,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets a Vector3 for the position
-	* \return The BoxCorner_FarLeftBottom of the box
+	* \return The BoxCorner::FarLeftBottom of the box
 	*
 	* \see GetCorner, GetMinimum
 	*/

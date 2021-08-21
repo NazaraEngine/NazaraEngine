@@ -19,6 +19,9 @@ namespace Nz
 	class CommandBufferBuilder;
 	class MaterialSettings;
 	class UploadPool;
+	class WorldInstance;
+
+	using WorldInstancePtr = std::shared_ptr<WorldInstance>;
 
 	class NAZARA_GRAPHICS_API WorldInstance
 	{
@@ -30,8 +33,10 @@ namespace Nz
 
 			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
 			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
+			inline const Matrix4f& GetInvWorldMatrix() const;
 			inline ShaderBinding& GetShaderBinding();
 			inline const ShaderBinding& GetShaderBinding() const;
+			inline const Matrix4f& GetWorldMatrix() const;
 
 			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix);

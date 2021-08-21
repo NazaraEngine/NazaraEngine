@@ -122,8 +122,8 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 
 			Nz::BoundingVolumef centerAndUnit(centerAndUnitOBB);
 
-			Nz::BoundingVolumef nullBoundingVolume(Nz::Extend_Null);
-			Nz::BoundingVolumef infiniteBoundingVolume(Nz::Extend_Infinite);
+			Nz::BoundingVolumef nullBoundingVolume(Nz::Extend::Null);
+			Nz::BoundingVolumef infiniteBoundingVolume(Nz::Extend::Infinite);
 
 			THEN("Normal to null should give a smaller volume")
 			{

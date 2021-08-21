@@ -35,6 +35,20 @@ namespace Nz
 			SpirvBuiltIn decoration;
 		};
 
+		template<typename T> T& Retrieve(std::unordered_map<std::size_t, T>& map, std::size_t id)
+		{
+			auto it = map.find(id);
+			assert(it != map.end());
+			return it->second;
+		}
+
+		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
+		{
+			auto it = map.find(id);
+			assert(it != map.end());
+			return it->second;
+		}
+
 		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "FragmentCoordinates", ShaderStageType::Fragment, SpirvBuiltIn::FragCoord } },
 			{ ShaderAst::BuiltinEntry::FragDepth,      { "FragmentDepth",       ShaderStageType::Fragment, SpirvBuiltIn::FragDepth } },
@@ -59,10 +73,8 @@ namespace Nz
 				using FunctionContainer = std::vector<std::reference_wrapper<ShaderAst::DeclareFunctionStatement>>;
 				using StructContainer = std::vector<ShaderAst::StructDescription*>;
 
-				PreVisitor(const SpirvWriter::States& conditions, SpirvConstantCache& constantCache, std::vector<SpirvAstVisitor::FuncData>& funcs) :
-				m_states(conditions),
+				PreVisitor(SpirvConstantCache& constantCache, std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& funcs) :
 				m_constantCache(constantCache),
-				m_externalBlockIndex(0),
 				m_funcs(funcs)
 				{
 					m_constantCache.SetStructCallback([this](std::size_t structIndex) -> const ShaderAst::StructDescription&
@@ -91,7 +103,7 @@ namespace Nz
 					AstRecursiveVisitor::Visit(node);
 
 					assert(m_funcIndex);
-					auto& func = m_funcs[*m_funcIndex];
+					auto& func = Retrieve(m_funcs, *m_funcIndex);
 
 					auto& funcCall = func.funcCalls.emplace_back();
 					funcCall.firstVarIndex = func.variables.size();
@@ -151,9 +163,6 @@ namespace Nz
 
 					assert(node.funcIndex);
 					std::size_t funcIndex = *node.funcIndex;
-
-					if (funcIndex >= m_funcs.size())
-						m_funcs.resize(funcIndex + 1);
 
 					auto& funcData = m_funcs[funcIndex];
 					funcData.name = node.name;
@@ -405,11 +414,9 @@ namespace Nz
 				StructContainer declaredStructs;
 
 			private:
-				const SpirvWriter::States& m_states;
 				SpirvConstantCache& m_constantCache;
 				std::optional<std::size_t> m_funcIndex;
-				std::size_t m_externalBlockIndex;
-				std::vector<SpirvAstVisitor::FuncData>& m_funcs;
+				std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& m_funcs;
 		};
 	}
 
@@ -429,7 +436,7 @@ namespace Nz
 
 		std::unordered_map<std::string, UInt32> extensionInstructionSet;
 		std::unordered_map<std::string, UInt32> varToResult;
-		std::vector<SpirvAstVisitor::FuncData> funcs;
+		std::unordered_map<std::size_t, SpirvAstVisitor::FuncData> funcs;
 		std::vector<UInt32> resultIds;
 		UInt32 nextVarIndex = 1;
 		SpirvConstantCache constantTypeCache; //< init after nextVarIndex
@@ -479,7 +486,7 @@ namespace Nz
 		});
 
 		// Register all extended instruction sets
-		PreVisitor preVisitor(states, state.constantTypeCache, state.funcs);
+		PreVisitor preVisitor(state.constantTypeCache, state.funcs);
 		targetAst->Visit(preVisitor);
 
 		m_currentState->preVisitor = &preVisitor;
@@ -488,7 +495,7 @@ namespace Nz
 			state.extensionInstructionSet[extInst] = AllocateResultId();
 
 		// Assign function ID (required for forward declaration)
-		for (auto& func : state.funcs)
+		for (auto&& [funcIndex, func] : state.funcs)
 			func.funcId = AllocateResultId();
 
 		SpirvAstVisitor visitor(*this, state.instructions, state.funcs);
@@ -548,7 +555,7 @@ namespace Nz
 
 		m_currentState->header.Append(SpirvOp::OpMemoryModel, SpirvAddressingModel::Logical, SpirvMemoryModel::GLSL450);
 
-		for (auto& func : m_currentState->funcs)
+		for (auto&& [funcIndex, func] : m_currentState->funcs)
 		{
 			m_currentState->debugInfo.Append(SpirvOp::OpName, func.funcId, func.name);
 
@@ -572,11 +579,12 @@ namespace Nz
 						throw std::runtime_error("not yet implemented");
 				}
 
+				auto& funcData = func;
 				m_currentState->header.AppendVariadic(SpirvOp::OpEntryPoint, [&](const auto& appender)
 				{
 					appender(execModel);
-					appender(func.funcId);
-					appender(func.name);
+					appender(funcData.funcId);
+					appender(funcData.name);
 
 					for (const auto& input : entryPointData.inputs)
 						appender(input.varId);
@@ -588,7 +596,7 @@ namespace Nz
 		}
 
 		// Write execution modes
-		for (auto& func : m_currentState->funcs)
+		for (auto&& [funcIndex, func] : m_currentState->funcs)
 		{
 			if (func.entryPointData)
 			{

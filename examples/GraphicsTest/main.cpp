@@ -62,30 +62,41 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
-	material->EnableDepthBuffer(true);
-	material->EnableFaceCulling(true);
+	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	Nz::BasicMaterial basicMat(*material);
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	materialPass->EnableDepthBuffer(true);
+	materialPass->EnableFaceCulling(true);
+
+	material->AddPass("ForwardPass", materialPass);
+
+	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
-	Nz::Model model(std::move(gfxMesh));
+	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, material);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::ViewerInstance viewerInstance;
+	Nz::Camera camera(window.GetImpl());
+
+	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));
 	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
 
-	Nz::WorldInstance modelInstance;
-	modelInstance.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
+	Nz::WorldInstancePtr modelInstance = std::make_shared<Nz::WorldInstance>();
+	modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
 
-	Nz::WorldInstance modelInstance2;
-	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
+	Nz::WorldInstancePtr modelInstance2 = std::make_shared<Nz::WorldInstance>();
+	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
+
+	Nz::ForwardFramePipeline framePipeline;
+	framePipeline.RegisterViewer(&camera);
+	framePipeline.RegisterInstancedDrawable(modelInstance, &model);
+	framePipeline.RegisterInstancedDrawable(modelInstance2, &model);
 
 	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
 
@@ -102,7 +113,6 @@ int main()
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
-	bool updateMat = false;
 	while (window.IsOpen())
 	{
 		Nz::WindowEvent event;
@@ -116,10 +126,7 @@ int main()
 
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
-					{
 						basicMat.EnableAlphaTest(!basicMat.IsAlphaTestEnabled());
-						updateMat = true;
-					}
 
 					break;
 
@@ -141,9 +148,9 @@ int main()
 
 				case Nz::WindowEventType::Resized:
 				{
-					Nz::Vector2ui windowSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
-					viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
+					Nz::Vector2ui newWindowSize = window.GetSize();
+					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
+					viewerInstance.UpdateTargetSize(Nz::Vector2f(newWindowSize));
 					break;
 				}
 
@@ -188,60 +195,9 @@ int main()
 		Nz::UploadPool& uploadPool = frame.GetUploadPool();
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camAngles));
+		framePipeline.InvalidateViewer(&camera);
 
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
-		{
-			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
-			{
-				builder.PreTransferBarrier();
-
-				viewerInstance.UpdateBuffers(uploadPool, builder);
-				modelInstance.UpdateBuffers(uploadPool, builder);
-				modelInstance2.UpdateBuffers(uploadPool, builder);
-
-				updateMat = material->Update(frame, builder) || updateMat;
-
-				builder.PostTransferBarrier();
-			}
-			builder.EndDebugRegion();
-		}, Nz::QueueType::Transfer);
-
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
-		{
-			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
-
-			Nz::CommandBufferBuilder::ClearValues clearValues[2];
-			clearValues[0].color = Nz::Color::Black;
-			clearValues[1].depth = 1.f;
-			clearValues[1].stencil = 0;
-
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
-			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
-				{
-					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
-					builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
-
-					for (Nz::WorldInstance& instance : { std::ref(modelInstance), std::ref(modelInstance2) })
-					{
-						builder.BindShaderBinding(Nz::Graphics::WorldBindingSet, instance.GetShaderBinding());
-
-						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-						{
-							builder.BindIndexBuffer(model.GetIndexBuffer(i).get());
-							builder.BindVertexBuffer(0, model.GetVertexBuffer(i).get());
-							builder.BindPipeline(*model.GetRenderPipeline(i));
-							builder.BindShaderBinding(Nz::Graphics::MaterialBindingSet, model.GetMaterial(i)->GetShaderBinding());
-
-							builder.DrawIndexed(model.GetIndexCount(i));
-						}
-					}
-				}
-				builder.EndRenderPass();
-			}
-			builder.EndDebugRegion();
-		}, Nz::QueueType::Graphics);
+		framePipeline.Render(frame);
 
 		frame.Present();
 

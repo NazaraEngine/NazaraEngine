@@ -6,7 +6,8 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
@@ -44,7 +45,7 @@ namespace Nz
 		}
 
 		RenderPipelineInfo renderPipelineInfo;
-		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not my proudest line
+		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not the line I4m the most proud of
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
@@ -58,6 +59,7 @@ namespace Nz
 
 		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
+
 	/*!
 	* \brief Returns a reference to a MaterialPipeline built with MaterialPipelineInfo
 	*
@@ -77,6 +79,7 @@ namespace Nz
 	bool MaterialPipeline::Initialize()
 	{
 		BasicMaterial::Initialize();
+		DepthMaterial::Initialize();
 		PhongLightingMaterial::Initialize();
 
 		return true;
@@ -86,6 +89,7 @@ namespace Nz
 	{
 		s_pipelineCache.clear();
 		PhongLightingMaterial::Uninitialize();
+		DepthMaterial::Uninitialize();
 		BasicMaterial::Uninitialize();
 	}
 

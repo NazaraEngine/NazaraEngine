@@ -27,6 +27,16 @@ namespace Nz
 		return m_fullscreenVertexDeclaration;
 	}
 
+	inline MaterialPassRegistry& Graphics::GetMaterialPassRegistry()
+	{
+		return m_materialPassRegistry;
+	}
+
+	inline const MaterialPassRegistry& Graphics::GetMaterialPassRegistry() const
+	{
+		return m_materialPassRegistry;
+	}
+
 	inline PixelFormat Graphics::GetPreferredDepthStencilFormat() const
 	{
 		return m_preferredDepthStencilFormat;
@@ -40,6 +50,12 @@ namespace Nz
 	inline const std::shared_ptr<RenderDevice>& Graphics::GetRenderDevice() const
 	{
 		return m_renderDevice;
+	}
+
+	inline const RenderPassCache& Graphics::GetRenderPassCache() const
+	{
+		assert(m_renderPassCache);
+		return *m_renderPassCache;
 	}
 
 	inline TextureSamplerCache& Graphics::GetSamplerCache()

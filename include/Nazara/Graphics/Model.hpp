@@ -23,20 +23,20 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
 	{
 		public:
-			Model(std::shared_ptr<GraphicalMesh> graphicalMesh);
+			Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb);
 			Model(const Model&) = delete;
 			Model(Model&&) noexcept = default;
 			~Model() = default;
 
-			void Draw(CommandBufferBuilder& commandBuffer) const override;
+			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const override;
 
 			const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
 			const std::shared_ptr<Material>& GetMaterial(std::size_t subMeshIndex) const override;
 			std::size_t GetMaterialCount() const override;
-			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(std::size_t subMeshIndex) const;
-			const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 			inline std::size_t GetSubMeshCount() const;
+			const std::vector<RenderPipelineInfo::VertexBufferData>& GetVertexBufferData(std::size_t subMeshIndex) const;
+			const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 
 			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material);
 
@@ -51,7 +51,7 @@ namespace Nz
 			};
 
 			std::shared_ptr<GraphicalMesh> m_graphicalMesh;
-			std::vector<SubMeshData> m_subMeshes;
+			std::vector<SubMeshData> m_submeshes;
 	};
 }
 

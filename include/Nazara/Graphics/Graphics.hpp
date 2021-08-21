@@ -9,9 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <optional>
 
@@ -35,9 +37,12 @@ namespace Nz
 			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
 			inline const std::shared_ptr<AbstractBuffer>& GetFullscreenVertexBuffer() const;
 			inline const std::shared_ptr<VertexDeclaration>& GetFullscreenVertexDeclaration() const;
+			inline MaterialPassRegistry& GetMaterialPassRegistry();
+			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetReferencePipelineLayout() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
+			inline const RenderPassCache& GetRenderPassCache() const;
 			inline TextureSamplerCache& GetSamplerCache();
 
 			struct Config
@@ -56,8 +61,10 @@ namespace Nz
 		private:
 			void BuildBlitPipeline();
 			void BuildFullscreenVertexBuffer();
+			void RegisterMaterialPasses();
 			void SelectDepthStencilFormats();
 
+			std::optional<RenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
 			std::shared_ptr<AbstractBuffer> m_fullscreenVertexBuffer;
 			std::shared_ptr<RenderDevice> m_renderDevice;
@@ -65,6 +72,7 @@ namespace Nz
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
 			std::shared_ptr<RenderPipelineLayout> m_referencePipelineLayout;
 			std::shared_ptr<VertexDeclaration> m_fullscreenVertexDeclaration;
+			MaterialPassRegistry m_materialPassRegistry;
 			PixelFormat m_preferredDepthStencilFormat;
 
 			static Graphics* s_instance;

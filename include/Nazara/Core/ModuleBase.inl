@@ -45,7 +45,11 @@ namespace Nz
 	template<typename T>
 	void ModuleBase<T>::LogUninit()
 	{
-		NazaraNotice("Uninitializing " + m_moduleName + "...");
+		if (m_moduleName.empty())
+			return;
+
+		NazaraNotice("Uninitialized " + m_moduleName);
+		m_moduleName.clear();
 	}
 }
 

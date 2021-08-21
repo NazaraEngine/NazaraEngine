@@ -10,15 +10,15 @@ namespace Nz
 {
 	inline std::size_t Model::GetSubMeshCount() const
 	{
-		return m_subMeshes.size();
+		return m_submeshes.size();
 	}
 	
 	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material)
 	{
-		assert(subMeshIndex < m_subMeshes.size());
+		assert(subMeshIndex < m_submeshes.size());
 
 		OnMaterialInvalidated(this, subMeshIndex, material);
-		m_subMeshes[subMeshIndex].material = std::move(material);
+		m_submeshes[subMeshIndex].material = std::move(material);
 	}
 }
 

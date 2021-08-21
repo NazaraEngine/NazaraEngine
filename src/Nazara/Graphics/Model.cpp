@@ -6,19 +6,21 @@
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
+	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb) :
+	InstancedRenderable(aabb),
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
-		m_subMeshes.reserve(m_graphicalMesh->GetSubMeshCount());
+		m_submeshes.reserve(m_graphicalMesh->GetSubMeshCount());
 		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
 		{
-			auto& subMeshData = m_subMeshes.emplace_back();
+			auto& subMeshData = m_submeshes.emplace_back();
 			//subMeshData.material = DefaultMaterial; //< TODO
 			subMeshData.vertexBufferData = {
 				{
@@ -29,21 +31,21 @@ namespace Nz
 		}
 	}
 
-	void Model::Draw(CommandBufferBuilder& commandBuffer) const
+	void Model::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
 	{
-		for (std::size_t i = 0; i < m_subMeshes.size(); ++i)
+		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{
-			const auto& submeshData = m_subMeshes[i];
+			const auto& submeshData = m_submeshes[i];
+
+			MaterialPass* materialPass = submeshData.material->GetPass(passIndex);
+			if (!materialPass)
+				continue;
+
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
-			const auto& renderPipeline = submeshData.material->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
+			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
-			commandBuffer.BindShaderBinding(Graphics::MaterialBindingSet, submeshData.material->GetShaderBinding());
-			commandBuffer.BindIndexBuffer(indexBuffer.get());
-			commandBuffer.BindVertexBuffer(0, vertexBuffer.get());
-			commandBuffer.BindPipeline(*renderPipeline);
-
-			commandBuffer.DrawIndexed(static_cast<Nz::UInt32>(m_graphicalMesh->GetIndexCount(i)));
+			elements.emplace_back(std::make_unique<RenderSubmesh>(0, renderPipeline, m_graphicalMesh->GetIndexCount(i), indexBuffer, vertexBuffer, worldInstance.GetShaderBinding(), materialPass->GetShaderBinding()));
 		}
 	}
 
@@ -59,21 +61,21 @@ namespace Nz
 
 	const std::shared_ptr<Material>& Model::GetMaterial(std::size_t subMeshIndex) const
 	{
-		assert(subMeshIndex < m_subMeshes.size());
-		const auto& subMeshData = m_subMeshes[subMeshIndex];
+		assert(subMeshIndex < m_submeshes.size());
+		const auto& subMeshData = m_submeshes[subMeshIndex];
 		return subMeshData.material;
 	}
 
 	std::size_t Model::GetMaterialCount() const
 	{
-		return m_subMeshes.size();
+		return m_submeshes.size();
 	}
 
-	const std::shared_ptr<RenderPipeline>& Model::GetRenderPipeline(std::size_t subMeshIndex) const
+	const std::vector<RenderPipelineInfo::VertexBufferData>& Model::GetVertexBufferData(std::size_t subMeshIndex) const
 	{
-		assert(subMeshIndex < m_subMeshes.size());
-		const auto& subMeshData = m_subMeshes[subMeshIndex];
-		return subMeshData.material->GetPipeline()->GetRenderPipeline(subMeshData.vertexBufferData);
+		assert(subMeshIndex < m_submeshes.size());
+		const auto& subMeshData = m_submeshes[subMeshIndex];
+		return subMeshData.vertexBufferData;
 	}
 
 	const std::shared_ptr<AbstractBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const

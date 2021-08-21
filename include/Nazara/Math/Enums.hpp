@@ -7,6 +7,8 @@
 #ifndef NAZARA_ENUMS_MATH_HPP
 #define NAZARA_ENUMS_MATH_HPP
 
+#include <Nazara/Core/Algorithm.hpp>
+
 namespace Nz
 {
 	enum class AngleUnit
@@ -15,58 +17,62 @@ namespace Nz
 		Radian
 	};
 
-	enum BoxCorner
+	enum class BoxCorner
 	{
-		BoxCorner_FarLeftBottom,
-		BoxCorner_FarLeftTop,
-		BoxCorner_FarRightBottom,
-		BoxCorner_FarRightTop,
-		BoxCorner_NearLeftBottom,
-		BoxCorner_NearLeftTop,
-		BoxCorner_NearRightBottom,
-		BoxCorner_NearRightTop,
+		FarLeftBottom,
+		FarLeftTop,
+		FarRightBottom,
+		FarRightTop,
+		NearLeftBottom,
+		NearLeftTop,
+		NearRightBottom,
+		NearRightTop,
 
-		BoxCorner_Max = BoxCorner_NearRightTop
+		Max = NearRightTop
 	};
 
-	enum Extend
-	{
-		Extend_Finite,
-		Extend_Infinite,
-		Extend_Null,
+	constexpr std::size_t BoxCornerCount = UnderlyingCast(BoxCorner::Max) + 1;
 
-		Extend_Max = Extend_Null
+	enum class Extend
+	{
+		Finite,
+		Infinite,
+		Null,
+
+		Max = Null
 	};
 
-	enum FrustumPlane
+	enum class FrustumPlane
 	{
-		FrustumPlane_Bottom,
-		FrustumPlane_Far,
-		FrustumPlane_Left,
-		FrustumPlane_Near,
-		FrustumPlane_Right,
-		FrustumPlane_Top,
+		Bottom,
+		Far,
+		Left,
+		Near,
+		Right,
+		Top,
 
-		FrustumPlane_Max = FrustumPlane_Top
+		Max = Top
 	};
 
-	enum IntersectionSide
-	{
-		IntersectionSide_Inside,
-		IntersectionSide_Intersecting,
-		IntersectionSide_Outside,
+	constexpr std::size_t FrustumPlaneCount = UnderlyingCast(FrustumPlane::Max) + 1;
 
-		IntersectionSide_Max = IntersectionSide_Outside
+	enum class IntersectionSide
+	{
+		Inside,
+		Intersecting,
+		Outside,
+
+		Max = Outside
 	};
 
-	enum RectCorner
+	enum class RectCorner
 	{
-		RectCorner_LeftBottom,
-		RectCorner_LeftTop,
-		RectCorner_RightBottom,
-		RectCorner_RightTop,
+		LeftBottom,
+		LeftTop,
+		RightBottom,
+		RightTop,
 
-		RectCorner_Max = RectCorner_RightTop
+		Max = RightTop
 	};
 }
 

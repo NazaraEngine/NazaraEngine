@@ -90,9 +90,10 @@ namespace Nz
 				for (const auto& output : framePass.GetOutputs())
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, output.attachmentId));
 
-				if (std::size_t attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
+				std::size_t attachmentId;
+				if (attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, attachmentId));
-				else if (std::size_t attachmentId = framePass.GetDepthStencilInput(); attachmentId != FramePass::InvalidAttachmentId)
+				else if (attachmentId = framePass.GetDepthStencilInput(); attachmentId != FramePass::InvalidAttachmentId)
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, attachmentId)); //< FIXME?
 			}
 		}
@@ -292,7 +293,6 @@ namespace Nz
 
 			std::size_t dsInputAttachment = framePass.GetDepthStencilInput();
 			std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput();
-			bool depthRead = false;
 
 			if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
@@ -789,6 +789,8 @@ namespace Nz
 
 					if (first)
 					{
+						bool canDiscard = true;
+
 						// Check if a future pass reads from the DS buffer or if we can discard it after this pass
 						if (auto readIt = m_pending.attachmentReadList.find(dsInputAttachment); readIt != m_pending.attachmentReadList.end())
 						{
@@ -798,11 +800,13 @@ namespace Nz
 								if (readPhysicalPassIndex > physicalPassIndex) //< Read in a future pass?
 								{
 									// Yes, store it
-									dsAttachment.storeOp = AttachmentStoreOp::Store;
+									canDiscard = false;
 									break;
 								}
 							}
 						}
+
+						dsAttachment.storeOp = (canDiscard) ? AttachmentStoreOp::Discard : AttachmentStoreOp::Store;
 					}
 
 					depthStencilAttachment = RenderPass::AttachmentReference{
@@ -851,7 +855,8 @@ namespace Nz
 
 			BuildPhysicalPassDependencies(colorAttachmentCount, depthStencilAttachmentIndex.has_value(), renderPassAttachments, subpassesDesc, subpassesDeps);
 
-			m_pending.renderPasses.push_back(renderDevice->InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
+			m_pending.renderPasses.push_back(Graphics::Instance()->GetRenderPassCache().Get(renderPassAttachments, subpassesDesc, subpassesDeps));
+			//m_pending.renderPasses.push_back(renderDevice->InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
 
 			physicalPassIndex++;
 		}
@@ -890,6 +895,20 @@ namespace Nz
 		for (const auto& input : framePass.GetInputs())
 		{
 			auto it = m_pending.attachmentWriteList.find(input.attachmentId);
+			if (it != m_pending.attachmentWriteList.end())
+			{
+				const PassList& dependencyPassList = it->second;
+				for (std::size_t dependencyPass : dependencyPassList)
+				{
+					if (dependencyPass != passIndex)
+						TraverseGraph(dependencyPass);
+				}
+			}
+		}
+
+		if (std::size_t dsInput = framePass.GetDepthStencilInput(); dsInput != FramePass::InvalidAttachmentId)
+		{
+			auto it = m_pending.attachmentWriteList.find(dsInput);
 			if (it != m_pending.attachmentWriteList.end())
 			{
 				const PassList& dependencyPassList = it->second;

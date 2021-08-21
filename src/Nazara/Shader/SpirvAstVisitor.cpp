@@ -15,6 +15,16 @@
 
 namespace Nz
 {
+	namespace
+	{
+		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
+		{
+			auto it = map.find(id);
+			assert(it != map.end());
+			return it->second;
+		}
+	}
+
 	UInt32 SpirvAstVisitor::AllocateResultId()
 	{
 		return m_writer.AllocateResultId();
@@ -30,9 +40,7 @@ namespace Nz
 
 	auto SpirvAstVisitor::GetVariable(std::size_t varIndex) const -> const Variable&
 	{
-		assert(varIndex < m_variables.size());
-		assert(m_variables[varIndex]);
-		return *m_variables[varIndex];
+		return Retrieve(m_variables, varIndex);
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::AccessIndexExpression& node)
@@ -415,9 +423,9 @@ namespace Nz
 		std::size_t functionIndex = std::get<std::size_t>(node.targetFunction);
 
 		UInt32 funcId = 0;
-		for (const auto& func : m_funcData)
+		for (const auto& [funcIndex, func] : m_funcData)
 		{
-			if (func.funcIndex == functionIndex)
+			if (funcIndex == functionIndex)
 			{
 				funcId = func.funcId;
 				break;
@@ -425,7 +433,7 @@ namespace Nz
 		}
 		assert(funcId != 0);
 
-		const FuncData& funcData = m_funcData[m_funcIndex];
+		const FuncData& funcData = Retrieve(m_funcData, m_funcIndex);
 		const auto& funcCall = funcData.funcCalls[m_funcCallIndex++];
 
 		StackArray<UInt32> parameterIds = NazaraStackArrayNoInit(UInt32, node.parameters.size());

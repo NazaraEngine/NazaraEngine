@@ -7,6 +7,15 @@
 
 namespace Nz
 {
+	inline InstancedRenderable::InstancedRenderable(const Boxf& aabb) :
+	m_aabb(aabb)
+	{
+	}
+
+	inline const Boxf& InstancedRenderable::GetAABB() const
+	{
+		return m_aabb;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

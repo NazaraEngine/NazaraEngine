@@ -77,6 +77,8 @@ namespace std
 				Nz::HashCombine(seed, shader.uberShader.get());
 			}
 
+			NazaraUnused(parameterIndex);
+
 			#undef NazaraPipelineMember
 			#undef NazaraPipelineBoolMember
 

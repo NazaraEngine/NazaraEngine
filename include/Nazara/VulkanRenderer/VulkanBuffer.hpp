@@ -30,7 +30,7 @@ namespace Nz
 
 			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
 
-			inline VkBuffer GetBuffer();
+			inline VkBuffer GetBuffer() const;
 			UInt64 GetSize() const override;
 			DataStorage GetStorage() const override;
 

@@ -70,9 +70,9 @@ namespace Nz
 		m_currentSubpassIndex = 0;
 	}
 
-	void VulkanCommandBufferBuilder::BindIndexBuffer(AbstractBuffer* indexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindIndexBuffer(const AbstractBuffer& indexBuffer, UInt64 offset)
 	{
-		VulkanBuffer& vkBuffer = *static_cast<VulkanBuffer*>(indexBuffer);
+		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(indexBuffer);
 
 		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, VK_INDEX_TYPE_UINT16); //< Fuck me right?
 	}
@@ -103,9 +103,9 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
 	}
 
-	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, AbstractBuffer* vertexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const AbstractBuffer& vertexBuffer, UInt64 offset)
 	{
-		VulkanBuffer& vkBuffer = *static_cast<VulkanBuffer*>(vertexBuffer);
+		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(vertexBuffer);
 
 		m_commandBuffer.BindVertexBuffer(binding, vkBuffer.GetBuffer(), offset);
 	}

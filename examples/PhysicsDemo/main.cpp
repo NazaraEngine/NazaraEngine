@@ -61,6 +61,7 @@ int main()
 		return __LINE__;
 	}
 
+	const Nz::Boxf& spaceshipAABB = spaceshipMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceshipMesh);
 
 	// Texture
@@ -75,21 +76,34 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
-	material->EnableDepthBuffer(true);
-	material->EnableDepthClamp(true);
-	material->EnableFaceCulling(true);
+	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
+
+	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
+	depthPass->EnableDepthBuffer(true);
+	depthPass->EnableDepthClamp(true);
+	depthPass->EnableFaceCulling(true);
+
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	materialPass->EnableDepthBuffer(true);
+	materialPass->EnableDepthClamp(true);
+	materialPass->EnableFaceCulling(true);
+
+	material->AddPass("DepthPass", depthPass);
+	material->AddPass("ForwardPass", materialPass);
 
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
-	Nz::BasicMaterial basicMat(*material);
+	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	basicMat.SetDiffuseSampler(samplerInfo);
 
-	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
+	Nz::DepthMaterial basicMatDepth(*depthPass);
+	basicMatDepth.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+
+	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh), spaceshipAABB);
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
@@ -111,11 +125,15 @@ int main()
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
-	std::shared_ptr<Nz::Material> colliderMat = std::make_shared<Nz::Material>(Nz::BasicMaterial::GetSettings());
-	colliderMat->EnableDepthBuffer(true);
-	colliderMat->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
+	std::shared_ptr<Nz::Material> colliderMat = std::make_shared<Nz::Material>();
 
-	Nz::BasicMaterial colliderBasicMat(*colliderMat);
+	std::shared_ptr<Nz::MaterialPass> colliderMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	colliderMatPass->EnableDepthBuffer(true);
+	colliderMatPass->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
+
+	colliderMat->AddPass("ForwardPass", colliderMatPass);
+
+	Nz::BasicMaterial colliderBasicMat(*colliderMatPass);
 	colliderBasicMat.SetDiffuseColor(Nz::Color::Green);
 
 	std::shared_ptr<Nz::Model> colliderModel;
@@ -123,7 +141,7 @@ int main()
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = std::make_shared<Nz::GraphicalMesh>(*colliderMesh);
 
-		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
+		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh, spaceshipAABB);
 		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
 			colliderModel->SetMaterial(i, colliderMat);
 	}
@@ -151,11 +169,11 @@ int main()
 	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
 	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
-	for (std::size_t x = 0; x < 5; ++x)
+	for (std::size_t x = 0; x < 10; ++x)
 	{
-		for (std::size_t y = 0; y < 5; ++y)
+		for (std::size_t y = 0; y < 10; ++y)
 		{
-			for (std::size_t z = 0; z < 5; ++z)
+			for (std::size_t z = 0; z < 10; ++z)
 			{
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
@@ -207,7 +225,10 @@ int main()
 
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
+					{
 						basicMat.EnableAlphaTest(!basicMat.IsAlphaTestEnabled());
+						basicMatDepth.EnableAlphaTest(!basicMatDepth.IsAlphaTestEnabled());
+					}
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
 					{
 						showColliders = !showColliders;

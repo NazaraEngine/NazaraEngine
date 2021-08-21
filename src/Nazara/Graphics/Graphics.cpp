@@ -60,6 +60,7 @@ namespace Nz
 		if (!m_renderDevice)
 			throw std::runtime_error("failed to instantiate render device");
 
+		m_renderPassCache.emplace(*m_renderDevice);
 		m_samplerCache.emplace(m_renderDevice);
 
 		MaterialPipeline::Initialize();
@@ -72,12 +73,14 @@ namespace Nz
 
 		BuildFullscreenVertexBuffer();
 		BuildBlitPipeline();
+		RegisterMaterialPasses();
 		SelectDepthStencilFormats();
 	}
 
 	Graphics::~Graphics()
 	{
 		MaterialPipeline::Uninitialize();
+		m_renderPassCache.reset();
 		m_samplerCache.reset();
 		m_fullscreenVertexBuffer.reset();
 		m_fullscreenVertexDeclaration.reset();
@@ -161,6 +164,12 @@ namespace Nz
 
 		if (!m_fullscreenVertexBuffer->Fill(vertexData.data(), 0, m_fullscreenVertexDeclaration->GetStride() * vertexData.size()))
 			throw std::runtime_error("failed to fill fullscreen vertex buffer");
+	}
+
+	void Graphics::RegisterMaterialPasses()
+	{
+		m_materialPassRegistry.RegisterPass("DepthPass");
+		m_materialPassRegistry.RegisterPass("ForwardPass");
 	}
 
 	void Graphics::SelectDepthStencilFormats()

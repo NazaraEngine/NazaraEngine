@@ -14,16 +14,16 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 			{
 				Nz::BoundingVolumef bv(Nz::Vector3f::Zero(), Nz::Vector3f::Unit());
 				bv.Update(Nz::Matrix4f::Identity());
-				REQUIRE(Nz::IntersectionSide_Outside == frustum.Intersect(bv));
-				REQUIRE(Nz::IntersectionSide_Outside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f)));
+				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(bv));
+				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f)));
 				Nz::OrientedBoxf obb(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f);
 				obb.Update(Nz::Matrix4f::Identity());
-				REQUIRE(Nz::IntersectionSide_Outside == frustum.Intersect(obb));
-				REQUIRE(Nz::IntersectionSide_Outside == frustum.Intersect(Nz::Spheref(Nz::Vector3f::Zero(), 0.5f)));
+				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(obb));
+				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(Nz::Spheref(Nz::Vector3f::Zero(), 0.5f)));
 				Nz::Vector3f tmp = Nz::Vector3f::Zero();
-				REQUIRE(Nz::IntersectionSide_Outside == frustum.Intersect(&tmp, 1));
+				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(&tmp, 1));
 				tmp = Nz::Vector3f::UnitX() * -10.f;
-				REQUIRE(Nz::IntersectionSide_Outside == frustum.Intersect(&tmp, 1));
+				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(&tmp, 1));
 			}
 		}
 
@@ -34,14 +34,14 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 				Nz::BoundingVolumef bv(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f);
 				bv.Update(Nz::Matrix4f::Identity());
 
-				REQUIRE(Nz::IntersectionSide_Inside == frustum.Intersect(bv));
-				REQUIRE(Nz::IntersectionSide_Inside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::UnitX() * 500.f, Nz::Vector3f::Unit())));
+				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(bv));
+				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::UnitX() * 500.f, Nz::Vector3f::Unit())));
 				Nz::OrientedBoxf obb(Nz::Vector3f::UnitX() * 100.f, Nz::Vector3f::Unit());
 				obb.Update(Nz::Matrix4f::Identity());
-				REQUIRE(Nz::IntersectionSide_Inside == frustum.Intersect(obb));
-				REQUIRE(Nz::IntersectionSide_Inside == frustum.Intersect(Nz::Spheref(Nz::Vector3f::UnitX() * 100.f, 0.5f)));
+				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(obb));
+				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(Nz::Spheref(Nz::Vector3f::UnitX() * 100.f, 0.5f)));
 				Nz::Vector3f tmp = Nz::Vector3f::UnitX() * 100.f;
-				REQUIRE(Nz::IntersectionSide_Inside == frustum.Intersect(&tmp, 1));
+				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(&tmp, 1));
 			}
 		}
 
@@ -87,8 +87,8 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 				CHECK(!frustum.Contains(nullVolume));
 				Nz::BoundingVolumef infiniteVolume = Nz::BoundingVolumef::Infinite();
 				CHECK(frustum.Contains(infiniteVolume));
-				REQUIRE(frustum.Intersect(nullVolume) == Nz::IntersectionSide_Outside);
-				REQUIRE(frustum.Intersect(infiniteVolume) == Nz::IntersectionSide_Intersecting);
+				REQUIRE(frustum.Intersect(nullVolume) == Nz::IntersectionSide::Outside);
+				REQUIRE(frustum.Intersect(infiniteVolume) == Nz::IntersectionSide::Intersecting);
 			}
 		}
 	}

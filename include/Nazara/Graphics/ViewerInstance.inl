@@ -8,6 +8,36 @@
 
 namespace Nz
 {
+	inline const Matrix4f& ViewerInstance::GetInvProjectionMatrix() const
+	{
+		return m_invProjectionMatrix;
+	}
+
+	inline const Matrix4f& ViewerInstance::GetInvViewMatrix() const
+	{
+		return m_invViewMatrix;
+	}
+
+	inline const Matrix4f& ViewerInstance::GetInvViewProjMatrix() const
+	{
+		return m_invViewProjMatrix;
+	}
+
+	inline const Matrix4f& ViewerInstance::GetProjectionMatrix() const
+	{
+		return m_projectionMatrix;
+	}
+
+	inline const Matrix4f& ViewerInstance::GetViewMatrix() const
+	{
+		return m_viewMatrix;
+	}
+
+	inline const Matrix4f& ViewerInstance::GetViewProjMatrix() const
+	{
+		return m_viewProjMatrix;
+	}
+
 	inline std::shared_ptr<AbstractBuffer>& ViewerInstance::GetInstanceBuffer()
 	{
 		return m_viewerDataBuffer;
