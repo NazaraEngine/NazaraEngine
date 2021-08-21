@@ -35,7 +35,7 @@
 	#define NAZARA_DEPRECATED(txt) __attribute__((__deprecated__(txt)))
 	#define NAZARA_FUNCTION __PRETTY_FUNCTION__
 
-    #ifdef __MINGW32__
+	#ifdef __MINGW32__
 		#define NAZARA_COMPILER_MINGW
 		#ifdef __MINGW64_VERSION_MAJOR
 			#define NAZARA_COMPILER_MINGW_W64
