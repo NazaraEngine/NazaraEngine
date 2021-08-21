@@ -193,9 +193,9 @@ namespace Nz
 					if (!frustum.Contains(boundingVolume.aabb))
 						continue;
 
-					auto& renderableData = m_visibleRenderables.emplace_back();
-					renderableData.instancedRenderable = renderable;
-					renderableData.worldInstance = worldInstance.get();
+					auto& visibleRenderable = m_visibleRenderables.emplace_back();
+					visibleRenderable.instancedRenderable = renderable;
+					visibleRenderable.worldInstance = worldInstance.get();
 
 					isInstanceVisible = true;
 					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(renderable));
