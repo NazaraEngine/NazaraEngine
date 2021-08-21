@@ -73,10 +73,8 @@ namespace Nz
 				using FunctionContainer = std::vector<std::reference_wrapper<ShaderAst::DeclareFunctionStatement>>;
 				using StructContainer = std::vector<ShaderAst::StructDescription*>;
 
-				PreVisitor(const SpirvWriter::States& conditions, SpirvConstantCache& constantCache, std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& funcs) :
-				m_states(conditions),
+				PreVisitor(SpirvConstantCache& constantCache, std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& funcs) :
 				m_constantCache(constantCache),
-				m_externalBlockIndex(0),
 				m_funcs(funcs)
 				{
 					m_constantCache.SetStructCallback([this](std::size_t structIndex) -> const ShaderAst::StructDescription&
@@ -416,10 +414,8 @@ namespace Nz
 				StructContainer declaredStructs;
 
 			private:
-				const SpirvWriter::States& m_states;
 				SpirvConstantCache& m_constantCache;
 				std::optional<std::size_t> m_funcIndex;
-				std::size_t m_externalBlockIndex;
 				std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& m_funcs;
 		};
 	}
@@ -490,7 +486,7 @@ namespace Nz
 		});
 
 		// Register all extended instruction sets
-		PreVisitor preVisitor(states, state.constantTypeCache, state.funcs);
+		PreVisitor preVisitor(state.constantTypeCache, state.funcs);
 		targetAst->Visit(preVisitor);
 
 		m_currentState->preVisitor = &preVisitor;
@@ -583,11 +579,12 @@ namespace Nz
 						throw std::runtime_error("not yet implemented");
 				}
 
+				auto& funcData = func;
 				m_currentState->header.AppendVariadic(SpirvOp::OpEntryPoint, [&](const auto& appender)
 				{
 					appender(execModel);
-					appender(func.funcId);
-					appender(func.name);
+					appender(funcData.funcId);
+					appender(funcData.name);
 
 					for (const auto& input : entryPointData.inputs)
 						appender(input.varId);
