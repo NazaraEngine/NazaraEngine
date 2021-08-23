@@ -57,12 +57,12 @@ jobs:
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
-      run: xmake.exe repo --update
+      run: xmake repo --update
 
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
       id: dep_hash
-      run: echo "::set-output name=hash::$(xmake.exe l utils.ci.packageskey)"
+      run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
   
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies
@@ -73,15 +73,15 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake.exe config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
 
     # Build the engine
     - name: Build Nazara
-      run: xmake.exe
+      run: xmake
 
     # Install the result files
     - name: Install Nazara
-      run: xmake.exe install -vo package
+      run: xmake install -vo package
 
     # Upload artifacts
     - uses: actions/upload-artifact@v2
