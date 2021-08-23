@@ -53,14 +53,12 @@ jobs:
     - name: Setup xmake
       shell: msys2 {0}
       run: |
-        git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev
-        cd xmake
+        git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev xmake_git
+        cd xmake_git
         make build
-        make install PREFIX=${{ matrix.prefix }}
+        make install PREFIX=/${{ matrix.msystem }}
         xmake --version
         cd ..
-        git reset --hard HEAD
-        git clean -fdx
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
