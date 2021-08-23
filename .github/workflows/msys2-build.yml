@@ -36,7 +36,7 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.msystem }}
-        install: git base-devel unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain mingw-w64-${{ matrix.arch }}-assimp mingw-w64-${{ matrix.arch }}-chipmunk mingw-w64-${{ matrix.arch }}-newton-dynamics mingw-w64-${{ matrix.arch }}-freetype mingw-w64-${{ matrix.arch }}-qt5 mingw-w64-${{ matrix.arch }}-catch mingw-w64-${{ matrix.arch }}-flac mingw-w64-${{ matrix.arch }}-SDL2 mingw-w64-${{ matrix.arch }}-libvorbis mingw-w64-${{ matrix.arch }}-openal
+        install: git base-devel unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain mingw-w64-${{ matrix.arch }}-assimp mingw-w64-${{ matrix.arch }}-chipmunk mingw-w64-${{ matrix.arch }}-newton-dynamics mingw-w64-${{ matrix.arch }}-freetype mingw-w64-${{ matrix.arch }}-qt5 mingw-w64-${{ matrix.arch }}-catch mingw-w64-${{ matrix.arch }}-flac mingw-w64-${{ matrix.arch }}-SDL2 mingw-w64-${{ matrix.arch }}-libvorbis mingw-w64-${{ matrix.arch }}-openal mingw-w64-${{ matrix.arch }}-xmake
         update: true
 
     # Force xmake to a specific folder (for cache)
@@ -46,20 +46,16 @@ jobs:
     # Install xmake
     - name: Setup xmake
       shell: msys2 {0}
-      run: |
-        git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev xmake_git
-        cd xmake_git
-        make build
-        make install PREFIX=/${{ matrix.msystem }}
-        xmake --version
-        cd ..
+      run: xmake update -s dev
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
+      shell: msys2 {0}
       run: xmake repo --update
       
     # Add ImperatorS79 xmake repository (in order to have the file that will be cached)
     - name: Add ImperatorS79 xmake repository
+      shell: msys2 {0}
       run: xrepo add-repo local-repo https://github.com/ImperatorS79/xmake-repo
 
     # Fetch xmake dephash
@@ -76,14 +72,17 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
+      shell: msys2 {0}
       run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
 
     # Build the engine
     - name: Build Nazara
+      shell: msys2 {0}
       run: xmake
 
     # Install the result files
     - name: Install Nazara
+      shell: msys2 {0}
       run: xmake install -vo package
 
     # Upload artifacts
