@@ -92,12 +92,12 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				Nz::Frustumf copy(frustum);
 				REQUIRE(Serialize(context, frustum));
 				frustum.Build(50, 40, 20, 100, Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ());
-				for (unsigned int i = 0; i < Nz::BoxCornerCount; ++i)
-					REQUIRE(frustum.GetCorner(static_cast<Nz::BoxCorner>(i)) != copy.GetCorner(static_cast<Nz::BoxCorner>(i)));
+				for (std::size_t i = 0; i < Nz::FrustumPlaneCount; ++i)
+					REQUIRE(frustum.GetPlane(static_cast<Nz::FrustumPlane>(i)) != copy.GetPlane(static_cast<Nz::FrustumPlane>(i)));
 				context.stream->SetCursorPos(0);
 				REQUIRE(Unserialize(context, &frustum));
-				for (unsigned int i = 0; i < Nz::BoxCornerCount; ++i)
-					REQUIRE(frustum.GetCorner(static_cast<Nz::BoxCorner>(i)) == copy.GetCorner(static_cast<Nz::BoxCorner>(i)));
+				for (std::size_t i = 0; i < Nz::FrustumPlaneCount; ++i)
+					REQUIRE(frustum.GetPlane(static_cast<Nz::FrustumPlane>(i)) == copy.GetPlane(static_cast<Nz::FrustumPlane>(i)));
 			}
 
 			THEN("Matrix4")
