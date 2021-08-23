@@ -36,14 +36,8 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.msystem }}
-        install: git base-devel unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain
+        install: git base-devel unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain mingw-w64-${{ matrix.arch }}-assimp mingw-w64-${{ matrix.arch }}-chipmunk mingw-w64-${{ matrix.arch }}-newton-dynamics mingw-w64-${{ matrix.arch }}-freetype2 mingw-w64-${{ matrix.arch }}-qt5 mingw-w64-${{ matrix.arch }}-catch mingw-w64-${{ matrix.arch }}-flac mingw-w64-${{ matrix.arch }}-SDL2 mingw-w64-${{ matrix.arch }}-libvorbis mingw-w64-${{ matrix.arch }}-openal
         update: true
-
-    # Install Qt (required for shader nodes editor)
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v2
-      with:
-        arch: win64_mingw81
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
