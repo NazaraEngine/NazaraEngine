@@ -15,6 +15,7 @@
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <array>
 #include <string>
 
 namespace Nz
@@ -26,23 +27,18 @@ namespace Nz
 	{
 		public:
 			Frustum() = default;
+			explicit Frustum(const std::array<Plane<T>, FrustumPlaneCount>& planes);
 			template<typename U> explicit Frustum(const Frustum<U>& frustum);
 			Frustum(const Frustum& frustum) = default;
 			~Frustum() = default;
-
-			Frustum& Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 
 			bool Contains(const BoundingVolume<T>& volume) const;
 			bool Contains(const Box<T>& box) const;
 			bool Contains(const OrientedBox<T>& orientedBox) const;
 			bool Contains(const Sphere<T>& sphere) const;
 			bool Contains(const Vector3<T>& point) const;
-			bool Contains(const Vector3<T>* points, unsigned int pointCount) const;
+			bool Contains(const Vector3<T>* points, std::size_t pointCount) const;
 
-			Frustum& Extract(const Matrix4<T>& clipMatrix);
-			Frustum& Extract(const Matrix4<T>& view, const Matrix4<T>& projection);
-
-			const Vector3<T>& GetCorner(BoxCorner corner) const;
 			const Plane<T>& GetPlane(FrustumPlane plane) const;
 
 			IntersectionSide Intersect(const BoundingVolume<T>& volume) const;
@@ -51,11 +47,14 @@ namespace Nz
 			IntersectionSide Intersect(const Sphere<T>& sphere) const;
 			IntersectionSide Intersect(const Vector3<T>* points, std::size_t pointCount) const;
 
-			Frustum& operator=(const Frustum& other) = default;
-
 			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
 			std::string ToString() const;
+
+			Frustum& operator=(const Frustum& other) = default;
+
+			static Frustum Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
+			static Frustum Extract(const Matrix4<T>& viewProjMatrix);
 
 			template<typename U>
 			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);
@@ -64,8 +63,7 @@ namespace Nz
 			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
 
 		private:
-			Vector3<T> m_corners[BoxCornerCount];
-			Plane<T> m_planes[FrustumPlaneCount];
+			std::array<Plane<T>, FrustumPlaneCount> m_planes;
 	};
 
 	using Frustumd = Frustum<double>;

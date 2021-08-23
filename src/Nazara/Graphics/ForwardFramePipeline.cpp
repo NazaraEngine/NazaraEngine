@@ -174,8 +174,7 @@ namespace Nz
 			// Frustum culling
 			const Matrix4f& viewProjMatrix = viewer->GetViewerInstance().GetViewProjMatrix();
 
-			Frustumf frustum;
-			frustum.Extract(viewProjMatrix);
+			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
 
 			std::size_t visibilityHash = 5U;
 
