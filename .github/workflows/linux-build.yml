@@ -1,9 +1,10 @@
-name: Linux-Build
+name: Linux build
 
 on:
   pull_request:
   push:
     paths-ignore:
+      - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
       - 'LICENSE'
@@ -56,7 +57,7 @@ jobs:
     - name: Retrieve dependencies hash
       id: dep_hash
       run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
-  
+
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies
       uses: actions/cache@v2

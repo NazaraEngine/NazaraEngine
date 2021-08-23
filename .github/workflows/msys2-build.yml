@@ -1,11 +1,11 @@
-name: Windows build
+name: MSYS2 build (MinGW-w64)
 
 on:
   pull_request:
   push:
     paths-ignore:
       - '.github/workflows/linux-build.yml'
-      - '.github/workflows/msys2-build.yml'
+      - '.github/workflows/windows-build.yml'
       - '.gitignore'
       - 'LICENSE'
       - 'CHANGELOG.md'
@@ -17,19 +17,33 @@ jobs:
   build:
     strategy:
       matrix:
+        msystem: [mingw64]
         os: [windows-latest]
-        arch: [x64]
+        arch: [x86_64]
         mode: [debug, releasedbg]
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
 
+    defaults:
+      run:
+        shell: msys2 {0}
+
     steps:
     - uses: actions/checkout@v2
+
+    # Setup MSYS2
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{ matrix.msystem }}
+        install: git base-devel unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain
+        update: true
 
     # Install Qt (required for shader nodes editor)
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
+      with:
+        arch: win64_mingw81
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -49,7 +63,7 @@ jobs:
     - name: Retrieve dependencies hash
       id: dep_hash
       run: echo "::set-output name=hash::$(xmake.exe l utils.ci.packageskey)"
-
+  
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies
       uses: actions/cache@v2
