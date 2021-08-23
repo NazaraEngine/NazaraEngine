@@ -8,6 +8,7 @@ local modules = {
 	},
 	Core = {
 		Custom = function ()
+			add_headerfiles("include/(Nazara/*.hpp)")
 			-- NazaraMath is header-only, make it part of the core project
 			add_headerfiles("include/(Nazara/Math/**.hpp)", "include/(Nazara/Math/**.inl)")
 
