@@ -27,7 +27,7 @@ jobs:
 
     defaults:
       run:
-        shell: msys2 {0}
+        shell: mingw64 {0}
 
     steps:
     - uses: actions/checkout@v2
@@ -45,17 +45,14 @@ jobs:
 
     # Install xmake
     - name: Setup xmake
-      shell: msys2 {0}
       run: xmake update -s dev
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
-      shell: msys2 {0}
       run: xmake repo --update
       
     # Add ImperatorS79 xmake repository (in order to have the file that will be cached)
     - name: Add ImperatorS79 xmake repository
-      shell: msys2 {0}
       run: xrepo add-repo local-repo https://github.com/ImperatorS79/xmake-repo
 
     # Fetch xmake dephash
@@ -72,17 +69,14 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      shell: msys2 {0}
       run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
 
     # Build the engine
     - name: Build Nazara
-      shell: msys2 {0}
       run: xmake
 
     # Install the result files
     - name: Install Nazara
-      shell: msys2 {0}
       run: xmake install -vo package
 
     # Upload artifacts
