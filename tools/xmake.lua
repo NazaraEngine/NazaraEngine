@@ -23,7 +23,7 @@ rule("qt5.moc")
     set_extensions(".h", ".hpp")
     before_buildcmd_file(function (target, batchcmds, sourcefile, opt)
 		local qtbase = target:dep("qt5core")
-        local qt = assert(qtbase:data("qtdir"), "qt not found!")
+        local qt = assert(qtbase:fetch().qtbase, "qt not found!")
 
         -- imports
         import("core.tool.compiler")
@@ -96,7 +96,9 @@ target("NazaraShaderNodes")
 	add_deps("NazaraShader")
 	add_packages("nodeeditor")
 	add_packages("qt5core", "qt5gui", "qt5widgets")
-    add_cxflags("-fPIC")
+	if not is_plat("windows") then
+		add_cxflags("-fPIC")
+	end
 
 	add_includedirs("../src")
 	add_headerfiles("../src/ShaderNode/**.hpp", "../src/ShaderNode/**.inl")

@@ -10,16 +10,16 @@ package("qt5core")
 
     on_fetch(function (package)
         local base = package:dep("qt5base")
-        local qt = base:data("qtdir")
+        local qt = base:fetch()
         if not qt then
             return
         end
 
         return {
             qtdir = qt,
+            includedirs = {qt.includedir, path.join(qt.includedir, "QtCore")},
             links = table.wrap("Qt5Core" .. (package:is_plat("windows") and package:is_debug() and "d" or "")),
-            linkdirs = table.wrap(qt.libdir),
-            includedirs = table.wrap(qt.includedir)
+            linkdirs = table.wrap(qt.libdir)
         }
     end)
 
@@ -30,5 +30,10 @@ package("qt5core")
     end)
 
     on_test(function (package)
-    
+        assert(package:check_cxxsnippets({test = [[
+            int test(int argc, char** argv) {
+                QCoreApplication app (argc, argv);
+                return app.exec();
+            }
+        ]]}, {configs = {languages = "c++14", cxflags = not package:is_plat("windows") and "-fPIC" or nil}, includes = {"QCoreApplication"}}))
     end)

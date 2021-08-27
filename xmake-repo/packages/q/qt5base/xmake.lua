@@ -13,21 +13,18 @@ package("qt5base")
     on_fetch(function (package, opt)
         local qt = package:data("qtdir")
         if qt then
-            return {
-                qtdir = qt
-            }
+            return qt
         end
 
         if os.isfile(package:manifest_file()) then
-            local qt = package:installdir()
-            package:data_set("qtdir", {
-                bindir = path.join(qt, "bin"),
-                includedir = path.join(qt, "include"),
-                libdir = path.join(qt, "lib")
-            })
-            return {
-                qtdir = qt
+            local installdir = package:installdir()
+            local qt = {
+                bindir = path.join(installdir, "bin"),
+                includedir = path.join(installdir, "include"),
+                libdir = path.join(installdir, "lib")
             }
+            package:data_set("qtdir", qt)
+            return qt
         end
 
         if not opt.system then
@@ -41,10 +38,7 @@ package("qt5base")
         end
 
         package:data_set("qtdir", qt)
-        return {
-            version = qt.sdkver,
-            qtdir = qt,
-        }
+        return qt
     end)
 
     on_install("windows", "linux", "macosx", "mingw", "android", "iphoneos", function (package)
