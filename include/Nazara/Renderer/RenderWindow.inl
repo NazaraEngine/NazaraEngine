@@ -32,14 +32,14 @@ namespace Nz
 		Destroy();
 	}
 
-	inline RenderWindowImpl* RenderWindow::GetImpl()
-	{
-		return m_impl.get();
-	}
-
 	inline const std::shared_ptr<RenderDevice>& RenderWindow::GetRenderDevice() const
 	{
 		return m_renderDevice;
+	}
+
+	inline const RenderTarget* RenderWindow::GetRenderTarget() const
+	{
+		return m_impl.get();
 	}
 
 	inline RenderSurface* RenderWindow::GetSurface()

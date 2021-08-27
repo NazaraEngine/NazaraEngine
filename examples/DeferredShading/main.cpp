@@ -236,8 +236,6 @@ int main()
 
 	Nz::WorldInstance planeInstance;
 
-	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
-
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
 	Nz::Graphics::FillViewerPipelineLayout(lightingPipelineLayoutInfo);
@@ -330,8 +328,8 @@ int main()
 	const std::shared_ptr<const Nz::VertexDeclaration>& fullscreenVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 
-	unsigned int offscreenWidth = window.GetSize().x;
-	unsigned int offscreenHeight = window.GetSize().y;
+	unsigned int offscreenWidth = windowSize.x;
+	unsigned int offscreenHeight = windowSize.y;
 
 	// Bloom data
 
@@ -929,7 +927,7 @@ int main()
 			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camQuat));
 		}
 
-		Nz::RenderFrame frame = windowImpl->Acquire();
+		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
 			continue;
 
@@ -1108,6 +1106,7 @@ int main()
 
 		bakedGraph.Execute(frame);
 
+		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);
@@ -1116,7 +1115,7 @@ int main()
 
 			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
 			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), windowRenderRect);
+				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect);
 				{
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
@@ -1132,8 +1131,6 @@ int main()
 		}, Nz::QueueType::Graphics);
 
 		frame.Present();
-
-		window.Display();
 
 		matUpdate = false;
 		lightUpdate = false;

@@ -221,8 +221,7 @@ int main()
 
 	Nz::RenderDevice* renderDevice = window.GetRenderDevice().get();
 
-	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
-	std::shared_ptr<Nz::CommandPool> commandPool = windowImpl->CreateCommandPool(Nz::QueueType::Graphics);
+	std::shared_ptr<Nz::CommandPool> commandPool = renderDevice->InstantiateCommandPool(Nz::QueueType::Graphics);
 
 	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(meshIB->GetBuffer()->GetImpl());
 	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(meshVB->GetBuffer()->GetImpl());
@@ -329,7 +328,7 @@ int main()
 			uboUpdate = true;
 		}
 
-		Nz::RenderFrame frame = windowImpl->Acquire();
+		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
 			continue;
 
@@ -355,6 +354,7 @@ int main()
 			uboUpdate = false;
 		}
 
+		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
@@ -366,7 +366,7 @@ int main()
 
 			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
 			{
-				builder.BeginRenderPass(windowImpl->GetFramebuffer(frame.GetFramebufferIndex()), windowImpl->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.BindIndexBuffer(*indexBufferImpl);
 					builder.BindPipeline(*pipeline);
@@ -386,8 +386,6 @@ int main()
 		}, Nz::QueueType::Graphics);
 
 		frame.Present();
-
-		window.Display();
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;

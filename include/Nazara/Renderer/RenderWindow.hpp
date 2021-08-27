@@ -29,15 +29,15 @@ namespace Nz
 			inline RenderWindow(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters& parameters = RenderWindowParameters());
 			inline ~RenderWindow();
 
+			RenderFrame AcquireFrame();
+
 			bool Create(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default, const RenderWindowParameters& parameters = RenderWindowParameters());
 			bool Create(std::shared_ptr<RenderDevice> renderDevice, void* handle, const RenderWindowParameters &parameters = RenderWindowParameters());
 
-			void Display();
-
 			void EnableVerticalSync(bool enabled);
 
-			inline RenderWindowImpl* GetImpl();
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
+			inline const RenderTarget* GetRenderTarget() const;
 			inline RenderSurface* GetSurface();
 
 			inline bool IsValid() const;
