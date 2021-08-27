@@ -11,6 +11,26 @@
 
 namespace Nz
 {
+	RenderFrame RenderWindow::AcquireFrame()
+	{
+		if (!m_impl)
+		{
+			NazaraError("window is not created");
+			return RenderFrame{};
+		}
+
+		if (m_framerateLimit > 0)
+		{
+			int remainingTime = 1000 / static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
+			if (remainingTime > 0)
+				std::this_thread::sleep_for(std::chrono::milliseconds(remainingTime));
+
+			m_clock.Restart();
+		}
+
+		return m_impl->Acquire();
+	}
+
 	bool RenderWindow::Create(std::shared_ptr<RenderDevice> renderDevice, VideoMode mode, const std::string& title, WindowStyleFlags style, const RenderWindowParameters& parameters)
 	{
 		m_parameters = parameters;
@@ -25,18 +45,6 @@ namespace Nz
 		m_renderDevice = std::move(renderDevice);
 
 		return Window::Create(handle);
-	}
-
-	void RenderWindow::Display()
-	{
-		if (m_framerateLimit > 0)
-		{
-			int remainingTime = 1000 / static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
-			if (remainingTime > 0)
-				std::this_thread::sleep_for(std::chrono::milliseconds(remainingTime));
-
-			m_clock.Restart();
-		}
 	}
 
 	void RenderWindow::EnableVerticalSync(bool enabled)

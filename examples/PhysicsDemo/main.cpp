@@ -37,12 +37,6 @@ int main()
 
 	Nz::RenderWindow window;
 
-	Nz::MeshParams meshParams;
-	meshParams.center = true;
-	meshParams.storage = Nz::DataStorage::Software;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
-
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Graphics Test";
@@ -52,7 +46,11 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
+	Nz::MeshParams meshParams;
+	meshParams.center = true;
+	meshParams.storage = Nz::DataStorage::Software;
+	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceshipMesh)
@@ -65,17 +63,6 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceshipMesh);
 
 	// Texture
-	std::shared_ptr<Nz::Image> diffuseImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!diffuseImage || !diffuseImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
-	{
-		NazaraError("Failed to load image");
-		return __LINE__;
-	}
-
-	Nz::TextureParams texParams;
-	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
 	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
@@ -93,6 +80,10 @@ int main()
 
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
+
+	Nz::TextureParams texParams;
+	texParams.renderDevice = device;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
@@ -121,7 +112,7 @@ int main()
 
 	entt::entity viewer = registry.create();
 	registry.emplace<Nz::NodeComponent>(viewer);
-	registry.emplace<Nz::CameraComponent>(viewer, windowImpl);
+	registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget());
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
@@ -337,15 +328,13 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);
 		}
 
-		Nz::RenderFrame frame = windowImpl->Acquire();
+		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
 			continue;
 
 		renderSystem.Render(registry, frame);
 
 		frame.Present();
-
-		window.Display();
 
 		fps++;
 

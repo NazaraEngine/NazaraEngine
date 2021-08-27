@@ -81,7 +81,7 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::Camera camera(window.GetImpl());
+	Nz::Camera camera(window.GetRenderTarget());
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));
@@ -97,8 +97,6 @@ int main()
 	framePipeline.RegisterViewer(&camera);
 	framePipeline.RegisterInstancedDrawable(modelInstance, &model);
 	framePipeline.RegisterInstancedDrawable(modelInstance2, &model);
-
-	Nz::RenderWindowImpl* windowImpl = window.GetImpl();
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -188,7 +186,7 @@ int main()
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 		}
 
-		Nz::RenderFrame frame = windowImpl->Acquire();
+		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
 			continue;
 
@@ -200,8 +198,6 @@ int main()
 		framePipeline.Render(frame);
 
 		frame.Present();
-
-		window.Display();
 
 		// On incrémente le compteur de FPS improvisé
 		fps++;
