@@ -19,7 +19,7 @@ namespace Nz
 	#if defined(NAZARA_COMPILER_MSVC)
 		static_assert(sizeof(UInt32) == sizeof(int), "Assertion failed");
 
-		// Visual propose une fonction intrinsèque pour le cpuid
+		// Use intrinsic function if available
 		__cpuidex(reinterpret_cast<int*>(registers), static_cast<int>(functionId), static_cast<int>(subFunctionId));
 	#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 		// https://en.wikipedia.org/wiki/CPUID
