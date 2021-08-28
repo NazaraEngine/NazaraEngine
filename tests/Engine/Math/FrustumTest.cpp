@@ -5,8 +5,7 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 {
 	GIVEN("One frustum (90, 1, 1, 1000, (0, 0, 0), (1, 0, 0))")
 	{
-		Nz::Frustumf frustum;
-		frustum.Build(Nz::DegreeAnglef(90.f), 1.f, 1.f, 1000.f, Nz::Vector3f::Zero(), Nz::Vector3f::UnitX());
+		Nz::Frustumf frustum = Nz::Frustumf::Build(Nz::DegreeAnglef(90.f), 1.f, 1.f, 1000.f, Nz::Vector3f::Zero(), Nz::Vector3f::UnitX());
 
 		WHEN("We ask for intersection with objects outside the frustum")
 		{

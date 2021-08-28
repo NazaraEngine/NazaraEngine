@@ -87,11 +87,10 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 			THEN("Frustum")
 			{
 				context.stream->SetCursorPos(0);
-				Nz::Frustumf frustum;
-				frustum.Build(10, 10, 10, 100, Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ()); // Random values
+				Nz::Frustumf frustum = Nz::Frustumf::Build(10, 10, 10, 100, Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ()); // Random values
 				Nz::Frustumf copy(frustum);
 				REQUIRE(Serialize(context, frustum));
-				frustum.Build(50, 40, 20, 100, Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ());
+				frustum = Nz::Frustumf::Build(50, 40, 20, 100, Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ());
 				for (std::size_t i = 0; i < Nz::FrustumPlaneCount; ++i)
 					REQUIRE(frustum.GetPlane(static_cast<Nz::FrustumPlane>(i)) != copy.GetPlane(static_cast<Nz::FrustumPlane>(i)));
 				context.stream->SetCursorPos(0);
