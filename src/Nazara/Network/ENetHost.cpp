@@ -1118,9 +1118,10 @@ namespace Nz
 								{
 									//< Network is down or unreachable (ex: IPv6 address when not supported), fails peer connection immediately
 									NotifyDisconnect(currentPeer, event);
+									return 1;
 								}
 
-								return -2;
+								// fallthrough
 							}
 
 							default:
