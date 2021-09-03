@@ -160,19 +160,19 @@ namespace Nz
 		if (optionIndexes)
 			optionIndexes->hasDiffuseMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasDiffuseMap", "HAS_DIFFUSE_TEXTURE");
+		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasDiffuseMap", "HasDiffuseTexture");
 
 		// HasAlphaMap
 		if (optionIndexes)
 			optionIndexes->hasAlphaMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasAlphaMap", "HAS_ALPHA_TEXTURE");
+		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasAlphaMap", "HasAlphaTexture");
 
 		// AlphaTest
 		if (optionIndexes)
 			optionIndexes->alphaTest = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "AlphaTest", "ALPHA_TEST");
+		MaterialSettings::BuildOption(settings.options, settings.shaders, "AlphaTest", "AlphaTest");
 
 		return settings;
 	}

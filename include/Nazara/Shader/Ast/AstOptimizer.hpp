@@ -11,6 +11,7 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -36,7 +37,6 @@ namespace Nz::ShaderAst
 			struct Options
 			{
 				std::function<const ConstantValue&(std::size_t constantId)> constantQueryCallback;
-				std::optional<UInt64> enabledOptions = 0;
 			};
 
 		protected:

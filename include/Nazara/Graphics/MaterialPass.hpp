@@ -20,6 +20,7 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <Nazara/Utility/UniformBuffer.hpp>
 #include <array>
 #include <string>
@@ -45,7 +46,6 @@ namespace Nz
 			inline void EnableDepthClamp(bool depthClamp);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
-			inline void EnableOption(std::size_t optionIndex, bool enable);
 			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableStencilTest(bool stencilTest);
 
@@ -61,6 +61,7 @@ namespace Nz
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
 			inline float GetLineWidth() const;
+			inline const ShaderAst::ConstantValue& GetOptionValue(std::size_t optionIndex) const;
 			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
@@ -82,7 +83,6 @@ namespace Nz
 			inline bool IsDepthClampEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
-			inline bool IsOptionEnabled(std::size_t optionIndex) const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
 
@@ -92,6 +92,7 @@ namespace Nz
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
+			inline void SetOptionValue(std::size_t optionIndex, ShaderAst::ConstantValue value);
 			inline void SetPointSize(float pointSize);
 			inline void SetPrimitiveMode(PrimitiveMode mode);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
@@ -126,11 +127,11 @@ namespace Nz
 				bool dataInvalidated = true;
 			};
 
+			std::array<ShaderAst::ConstantValue, 64> m_optionValues;
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
-			UInt64 m_enabledOptions;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			ShaderBindingPtr m_shaderBinding;
 			bool m_forceCommandBufferRegeneration;

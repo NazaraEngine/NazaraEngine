@@ -45,14 +45,18 @@ namespace Nz
 		}
 
 		RenderPipelineInfo renderPipelineInfo;
-		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not the line I4m the most proud of
+		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not the line I'm the most proud of
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
 		for (const auto& shader : m_pipelineInfo.shaders)
 		{
 			if (shader.uberShader)
-				renderPipelineInfo.shaderModules.push_back(shader.uberShader->Get(shader.enabledOptions));
+			{
+				UberShader::Config config{ shader.optionValues };
+
+				renderPipelineInfo.shaderModules.push_back(shader.uberShader->Get(config));
+			}
 		}
 
 		renderPipelineInfo.vertexBuffers = vertexBuffers;

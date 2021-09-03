@@ -55,7 +55,7 @@ namespace Nz
 
 			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
 
-			static void BuildOption(std::vector<Option>& options, const std::vector<std::shared_ptr<UberShader>>& uberShaders, std::string optionName, const std::string& shaderOptionName);
+			static inline void BuildOption(std::vector<Option>& options, const std::vector<std::shared_ptr<UberShader>>& uberShaders, std::string optionName, const std::string& shaderOptionName);
 
 			struct Builder
 			{
@@ -69,7 +69,7 @@ namespace Nz
 			struct Option
 			{
 				std::string name;
-				std::array<UInt64, ShaderStageTypeCount> enabledOptions;
+				std::vector<std::optional<std::size_t>> optionIndexByShader;
 			};
 
 			struct UniformVariable

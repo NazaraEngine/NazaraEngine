@@ -107,7 +107,6 @@ namespace Nz
 			std::optional<ShaderStageType> selectedStage;
 			std::unordered_map<std::size_t, FunctionData> functions;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
-			UInt64 enabledOptions = 0;
 		};
 
 		struct Builtin
@@ -139,6 +138,7 @@ namespace Nz
 
 		std::optional<ShaderStageType> stage;
 		std::stringstream stream;
+		std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues;
 		std::unordered_map<std::size_t, ShaderAst::StructDescription*> structs;
 		std::unordered_map<std::size_t, std::string> variableNames;
 		std::vector<InOutField> inputFields;
@@ -147,7 +147,6 @@ namespace Nz
 		const GlslWriter::BindingMapping& bindingMapping;
 		PreVisitor previsitor;
 		const States* states = nullptr;
-		UInt64 enabledOptions = 0;
 		bool isInEntryPoint = false;
 		unsigned int indentLevel = 0;
 	};
@@ -155,7 +154,7 @@ namespace Nz
 	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states)
 	{
 		State state(bindingMapping);
-		state.enabledOptions = states.enabledOptions;
+		state.optionValues = states.optionValues;
 		state.stage = shaderStage;
 
 		m_currentState = &state;
@@ -168,7 +167,7 @@ namespace Nz
 		ShaderAst::Statement* targetAst;
 		if (!states.sanitized)
 		{
-			sanitizedAst = Sanitize(shader, states.enabledOptions);
+			sanitizedAst = Sanitize(shader, states.optionValues);
 			targetAst = sanitizedAst.get();
 		}
 		else
@@ -182,7 +181,6 @@ namespace Nz
 			targetAst = optimizedAst.get();
 		}
 
-		state.previsitor.enabledOptions = states.enabledOptions;
 		state.previsitor.selectedStage = shaderStage;
 		targetAst->Visit(state.previsitor);
 
@@ -203,11 +201,11 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, UInt64 enabledOptions, std::string* error)
+	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error)
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
-		options.enabledOptions = enabledOptions;
+		options.optionValues = std::move(optionValues);
 		options.makeVariableNameUnique = true;
 		options.reservedIdentifiers = {
 			// All reserved GLSL keywords as of GLSL ES 3.2
@@ -837,7 +835,9 @@ namespace Nz
 			if constexpr (std::is_same_v<T, Vector2i32> || std::is_same_v<T, Vector3i32> || std::is_same_v<T, Vector4i32>)
 				Append("i"); //< for ivec
 
-			if constexpr (std::is_same_v<T, bool>)
+			if constexpr (std::is_same_v<T, ShaderAst::NoValue>)
+				throw std::runtime_error("invalid type (value expected)");
+			else if constexpr (std::is_same_v<T, bool>)
 				Append((arg) ? "true" : "false");
 			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 				Append(std::to_string(arg));

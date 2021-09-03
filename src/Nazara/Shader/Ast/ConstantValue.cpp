@@ -13,7 +13,9 @@ namespace Nz::ShaderAst
 		{
 			using T = std::decay_t<decltype(arg)>;
 
-			if constexpr (std::is_same_v<T, bool>)
+			if constexpr (std::is_same_v<T, NoValue>)
+				return NoType{};
+			else if constexpr (std::is_same_v<T, bool>)
 				return PrimitiveType::Boolean;
 			else if constexpr (std::is_same_v<T, float>)
 				return PrimitiveType::Float32;

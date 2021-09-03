@@ -28,7 +28,6 @@ namespace Nz
 	*/
 	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
-	m_enabledOptions(0),
 	m_forceCommandBufferRegeneration(false),
 	m_pipelineUpdated(false),
 	m_shaderBindingUpdated(false)
@@ -99,23 +98,20 @@ namespace Nz
 	void MaterialPass::UpdatePipeline() const
 	{
 		for (auto& shader : m_pipelineInfo.shaders)
-			shader.enabledOptions = 0;
+			shader.optionValues.fill(ShaderAst::NoValue{});
 
 		const auto& options = m_settings->GetOptions();
 		for (std::size_t optionIndex = 0; optionIndex < options.size(); ++optionIndex)
 		{
-			if (TestBit<UInt64>(m_enabledOptions, optionIndex))
+			const auto& option = options[optionIndex];
+			assert(option.optionIndexByShader.size() <= m_pipelineInfo.shaders.size());
+
+			for (std::size_t shaderIndex = 0; shaderIndex < option.optionIndexByShader.size(); ++shaderIndex)
 			{
-				for (auto& shader : m_pipelineInfo.shaders)
-				{
-					ShaderStageTypeFlags supportedStages = shader.uberShader->GetSupportedStages();
-					for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
-					{
-						ShaderStageType shaderStage = static_cast<ShaderStageType>(i);
-						if (supportedStages & shaderStage)
-							shader.enabledOptions |= options[optionIndex].enabledOptions[i];
-					}
-				}
+				if (!option.optionIndexByShader[shaderIndex].has_value())
+					continue;
+
+				m_pipelineInfo.shaders[shaderIndex].optionValues[optionIndex] = m_optionValues[optionIndex];
 			}
 		}
 

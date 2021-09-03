@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <array>
 #include <memory>
 
@@ -23,8 +24,8 @@ namespace Nz
 	{
 		struct Shader
 		{
+			std::array<ShaderAst::ConstantValue, 32> optionValues;
 			std::shared_ptr<UberShader> uberShader;
-			Nz::UInt64 enabledOptions = 0;
 		};
 
 		std::vector<Shader> shaders;

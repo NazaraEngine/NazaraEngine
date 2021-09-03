@@ -182,15 +182,6 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void MaterialPass::EnableOption(std::size_t optionIndex, bool enable)
-	{
-		if (TestBit<UInt64>(m_enabledOptions, optionIndex) != enable)
-		{
-			m_enabledOptions = ToggleBit<UInt64>(m_enabledOptions, optionIndex);
-			InvalidatePipeline();
-		}
-	}
-
 	/*!
 	* \brief Enable/Disable scissor test for this material
 	*
@@ -313,6 +304,12 @@ namespace Nz
 	inline float MaterialPass::GetLineWidth() const
 	{
 		return m_pipelineInfo.lineWidth;
+	}
+
+	inline const ShaderAst::ConstantValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
+	{
+		assert(optionIndex < m_optionValues.size());
+		return m_optionValues[optionIndex];
 	}
 
 	/*!
@@ -461,11 +458,6 @@ namespace Nz
 		return m_pipelineInfo.faceCulling;
 	}
 
-	inline bool MaterialPass::IsOptionEnabled(std::size_t optionIndex) const
-	{
-		return TestBit<UInt64>(m_enabledOptions, optionIndex);
-	}
-
 	/*!
 	* \brief Checks whether this material has scissor test enabled
 	* \return true If it is the case
@@ -562,6 +554,16 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
+	inline void MaterialPass::SetOptionValue(std::size_t optionIndex, ShaderAst::ConstantValue value)
+	{
+		assert(optionIndex < m_optionValues.size());
+		if (m_optionValues[optionIndex] != value)
+		{
+			m_optionValues[optionIndex] = std::move(value);
+			InvalidatePipeline();
+		}
+	}
+
 	/*!
 	* \brief Sets the point size for this material
 	*
@@ -654,3 +656,4 @@ namespace Nz
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
+#include "MaterialPass.hpp"

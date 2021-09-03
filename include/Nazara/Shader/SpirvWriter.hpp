@@ -63,8 +63,6 @@ namespace Nz
 			UInt32 GetPointerTypeId(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
 			UInt32 GetTypeId(const ShaderAst::ExpressionType& type) const;
 
-			bool IsOptionEnabled(std::size_t optionIndex) const;
-
 			UInt32 RegisterConstant(const ShaderAst::ConstantValue& value);
 			UInt32 RegisterFunctionType(const ShaderAst::DeclareFunctionStatement& functionNode);
 			UInt32 RegisterPointerType(ShaderAst::ExpressionType type, SpirvStorageClass storageClass);

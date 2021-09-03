@@ -463,7 +463,7 @@ namespace Nz
 		if (!states.sanitized)
 		{
 			ShaderAst::SanitizeVisitor::Options options;
-			options.enabledOptions = states.enabledOptions;
+			options.optionValues = states.optionValues;
 
 			sanitizedAst = ShaderAst::Sanitize(shader, options);
 			targetAst = sanitizedAst.get();
@@ -651,11 +651,6 @@ namespace Nz
 	UInt32 SpirvWriter::GetTypeId(const ShaderAst::ExpressionType& type) const
 	{
 		return m_currentState->constantTypeCache.GetId(*m_currentState->constantTypeCache.BuildType(type));
-	}
-
-	bool SpirvWriter::IsOptionEnabled(std::size_t optionIndex) const
-	{
-		return TestBit<Nz::UInt64>(m_context.states->enabledOptions, optionIndex);
 	}
 
 	UInt32 SpirvWriter::RegisterConstant(const ShaderAst::ConstantValue& value)

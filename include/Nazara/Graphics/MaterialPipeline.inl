@@ -34,7 +34,7 @@ namespace Nz
 
 		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
 		{
-			if (lhs.shaders[i].enabledOptions != rhs.shaders[i].enabledOptions)
+			if (lhs.shaders[i].optionValues != rhs.shaders[i].optionValues)
 				return false;
 
 			if (lhs.shaders[i].uberShader != rhs.shaders[i].uberShader)
@@ -73,7 +73,9 @@ namespace std
 
 			for (const auto& shader : pipelineInfo.shaders)
 			{
-				Nz::HashCombine(seed, shader.enabledOptions);
+				for (const auto& value : shader.optionValues)
+					Nz::HashCombine(seed, value);
+
 				Nz::HashCombine(seed, shader.uberShader.get());
 			}
 

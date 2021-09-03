@@ -302,7 +302,7 @@ namespace Nz::ShaderAst
 
 		std::optional<std::size_t> optIndex;
 		std::string optName;
-		ExpressionPtr initialValue;
+		ExpressionPtr defaultValue;
 		ExpressionType optType;
 	};
 
