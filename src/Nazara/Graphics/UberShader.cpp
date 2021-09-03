@@ -33,7 +33,11 @@ namespace Nz
 
 		callbacks.onOptionDeclaration = [&](const std::string& optionName, const ShaderAst::ExpressionType& optionType)
 		{
-			m_optionIndexByName[optionName] = optionCount;
+			m_optionIndexByName[optionName] = Option{
+				optionCount,
+				optionType
+			};
+
 			optionCount++;
 		};
 
@@ -43,36 +47,26 @@ namespace Nz
 		if (m_shaderStages & supportedStageType != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");
 
-		if (optionCount >= 64)
-			throw std::runtime_error("Too many conditions");
-
-		m_combinationMask = std::numeric_limits<UInt64>::max();
-		m_combinationMask <<= optionCount;
-		m_combinationMask = ~m_combinationMask;
+		if (optionCount >= MaximumOptionValue)
+			throw std::runtime_error("Too many shader options (at most " + std::to_string(MaximumOptionValue) + " are supported)");
 	}
 
-	UInt64 UberShader::GetOptionFlagByName(const std::string& optionName) const
+	const std::shared_ptr<ShaderModule>& UberShader::Get(const Config& config)
 	{
-		auto it = m_optionIndexByName.find(optionName);
-		if (it == m_optionIndexByName.end())
-			return 0;
-
-		return SetBit<UInt64>(0, it->second);
-	}
-
-	const std::shared_ptr<ShaderModule>& UberShader::Get(UInt64 combination)
-	{
-		combination &= m_combinationMask;
-
-		auto it = m_combinations.find(combination);
+		auto it = m_combinations.find(config);
 		if (it == m_combinations.end())
 		{
 			ShaderWriter::States states;
-			states.enabledOptions = combination;
+
+			for (std::size_t i = 0; i < MaximumOptionValue; ++i)
+			{
+				if (!std::holds_alternative<ShaderAst::NoValue>(config.optionValues[i]))
+					states.optionValues[i] = config.optionValues[i];
+			}
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderAst, std::move(states));
 
-			it = m_combinations.emplace(combination, std::move(stage)).first;
+			it = m_combinations.emplace(config, std::move(stage)).first;
 		}
 
 		return it->second;

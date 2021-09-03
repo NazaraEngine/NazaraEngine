@@ -134,8 +134,8 @@ namespace Nz::ShaderAst
 
 	void AstRecursiveVisitor::Visit(DeclareOptionStatement& node)
 	{
-		if (node.initialValue)
-			node.initialValue->Visit(*this);
+		if (node.defaultValue)
+			node.defaultValue->Visit(*this);
 	}
 
 	void AstRecursiveVisitor::Visit(DeclareStructStatement& /*node*/)

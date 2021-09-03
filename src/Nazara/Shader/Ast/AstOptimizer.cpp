@@ -697,7 +697,9 @@ namespace Nz::ShaderAst
 				{
 					using T = std::decay_t<decltype(arg)>;
 
-					if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
+					if constexpr (std::is_same_v<T, NoValue>)
+						throw std::runtime_error("invalid type (value expected)");
+					else if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 						constantValues.push_back(arg);
 					else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
 					{
@@ -815,9 +817,6 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr AstOptimizer::Clone(ConditionalExpression& node)
 	{
-		if (!m_options.enabledOptions)
-			return AstCloner::Clone(node);
-
 		auto cond = CloneExpression(node.condition);
 		if (cond->GetType() != NodeType::ConstantValueExpression)
 			throw std::runtime_error("conditional expression condition must be a constant expression");
@@ -884,9 +883,6 @@ namespace Nz::ShaderAst
 
 	StatementPtr AstOptimizer::Clone(ConditionalStatement& node)
 	{
-		if (!m_options.enabledOptions)
-			return AstCloner::Clone(node);
-
 		auto cond = CloneExpression(node.condition);
 		if (cond->GetType() != NodeType::ConstantValueExpression)
 			throw std::runtime_error("conditional expression condition must be a constant expression");

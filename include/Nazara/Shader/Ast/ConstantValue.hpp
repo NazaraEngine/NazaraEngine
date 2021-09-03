@@ -18,7 +18,10 @@
 
 namespace Nz::ShaderAst
 {
+	using NoValue = std::monostate;
+
 	using ConstantTypes = TypeList<
+		NoValue,
 		bool,
 		float,
 		Int32,

@@ -168,22 +168,23 @@ namespace Nz
 
 	inline void MaterialSettings::BuildOption(std::vector<Option>& options, const std::vector<std::shared_ptr<UberShader>>& uberShaders, std::string optionName, const std::string& shaderOptionName)
 	{
-		std::array<UInt64, ShaderStageTypeCount> shaderOptions;
-		shaderOptions.fill(0);
+		std::vector<std::optional<std::size_t>> shaderOptions;
 
-		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
+		for (std::size_t shaderIndex = 0; shaderIndex < uberShaders.size(); ++shaderIndex)
 		{
-			for (const auto& uberShader : uberShaders)
+			const auto& uberShader = uberShaders[shaderIndex];
+
+			const UberShader::Option* optionData;
+			if (uberShader->HasOption(shaderOptionName, &optionData))
 			{
-				if (uberShader->GetSupportedStages() & static_cast<ShaderStageType>(i))
-				{
-					assert(shaderOptions[i] == 0);
-					shaderOptions[i] |= uberShader->GetOptionFlagByName(shaderOptionName);
-				}
+				if (shaderIndex >= shaderOptions.size())
+					shaderOptions.resize(shaderIndex + 1);
+
+				shaderOptions[shaderIndex] = optionData->index;
 			}
 		}
 
-		if (std::any_of(shaderOptions.begin(), shaderOptions.end(), [&](UInt64 flags) { return flags != 0; }))
+		if (std::any_of(shaderOptions.begin(), shaderOptions.end(), [&](std::optional<std::size_t> optionIndex) { return optionIndex.has_value(); }))
 		{
 			options.push_back({
 				std::move(optionName),

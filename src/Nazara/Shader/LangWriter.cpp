@@ -643,7 +643,9 @@ namespace Nz
 		{
 			using T = std::decay_t<decltype(arg)>;
 
-			if constexpr (std::is_same_v<T, bool>)
+			if constexpr (std::is_same_v<T, ShaderAst::NoValue>)
+				throw std::runtime_error("invalid type (value expected)");
+			else if constexpr (std::is_same_v<T, bool>)
 				Append((arg) ? "true" : "false");
 			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 				Append(std::to_string(arg));
@@ -733,10 +735,10 @@ namespace Nz
 		RegisterConstant(*node.optIndex, node.optName);
 
 		Append("option ", node.optName, ": ", node.optType);
-		if (node.initialValue)
+		if (node.defaultValue)
 		{
 			Append(" = ");
-			node.initialValue->Visit(*this);
+			node.defaultValue->Visit(*this);
 		}
 
 		Append(";");

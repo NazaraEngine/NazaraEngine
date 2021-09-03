@@ -26,7 +26,7 @@ namespace Nz
 	inline void BasicMaterial::EnableAlphaTest(bool alphaTest)
 	{
 		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
-		m_material.EnableOption(m_optionIndexes.alphaTest, alphaTest);
+		m_material.SetOptionValue(m_optionIndexes.alphaTest, alphaTest);
 	}
 
 	inline const std::shared_ptr<Texture>& BasicMaterial::GetAlphaMap() const
@@ -56,7 +56,11 @@ namespace Nz
 	inline bool BasicMaterial::IsAlphaTestEnabled() const
 	{
 		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
-		return m_material.IsOptionEnabled(m_optionIndexes.alphaTest);
+		const auto& optionOpt = m_material.GetOptionValue(m_optionIndexes.alphaTest);
+		if (std::holds_alternative<ShaderAst::NoValue>(optionOpt))
+			return false;
+
+		return std::get<bool>(optionOpt);
 	}
 
 	inline bool BasicMaterial::HasAlphaMap() const
@@ -91,7 +95,7 @@ namespace Nz
 		m_material.SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
 
 		if (m_optionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.EnableOption(m_optionIndexes.hasAlphaMap, hasAlphaMap);
+			m_material.SetOptionValue(m_optionIndexes.hasAlphaMap, hasAlphaMap);
 	}
 
 	inline void BasicMaterial::SetAlphaSampler(TextureSamplerInfo alphaSampler)
@@ -107,7 +111,7 @@ namespace Nz
 		m_material.SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
 
 		if (m_optionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.EnableOption(m_optionIndexes.hasDiffuseMap, hasDiffuseMap);
+			m_material.SetOptionValue(m_optionIndexes.hasDiffuseMap, hasDiffuseMap);
 	}
 
 	inline void BasicMaterial::SetDiffuseSampler(TextureSamplerInfo diffuseSampler)

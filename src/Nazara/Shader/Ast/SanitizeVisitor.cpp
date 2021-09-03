@@ -583,6 +583,9 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(ConstantValueExpression& node)
 	{
+		if (std::holds_alternative<NoValue>(node.value))
+			throw std::runtime_error("expected a value");
+
 		auto clone = static_unique_pointer_cast<ConstantValueExpression>(AstCloner::Clone(node));
 		clone->cachedExpressionType = GetExpressionType(clone->value);
 
@@ -980,12 +983,17 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<DeclareOptionStatement>(AstCloner::Clone(node));
 		clone->optType = ResolveType(clone->optType);
 
-		if (clone->initialValue && clone->optType != GetExpressionType(*clone->initialValue))
-			throw AstError{ "option " + clone->optName + " initial expression must be of the same type than the option" };
+		if (clone->defaultValue && clone->optType != GetExpressionType(*clone->defaultValue))
+			throw AstError{ "option " + clone->optName + " default expression must be of the same type than the option" };
 
 		std::size_t optionIndex = m_context->nextOptionIndex++;
 
-		clone->optIndex = RegisterConstant(clone->optName, TestBit(m_context->options.enabledOptions, optionIndex));
+		if (auto optionValueIt = m_context->options.optionValues.find(optionIndex); optionValueIt != m_context->options.optionValues.end())
+			clone->optIndex = RegisterConstant(clone->optName, optionValueIt->second);
+		else if (clone->defaultValue)
+			clone->optIndex = RegisterConstant(clone->optName, ComputeConstantValue(*clone->defaultValue));
+		else
+			throw AstError{ "missing option " + clone->optName + " value (has no default value)" };
 
 		if (m_context->options.removeOptionDeclaration)
 			return ShaderBuilder::NoOp();
@@ -1185,8 +1193,6 @@ namespace Nz::ShaderAst
 			assert(constantId < m_context->constantValues.size());
 			return m_context->constantValues[constantId];
 		};
-
-		optimizerOptions.enabledOptions = m_context->options.enabledOptions;
 
 		// Run optimizer on constant value to hopefully retrieve a single constant value
 		return static_unique_pointer_cast<T>(ShaderAst::Optimize(node, optimizerOptions));

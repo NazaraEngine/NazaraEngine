@@ -198,7 +198,7 @@ namespace Nz::ShaderBuilder
 		auto declareOptionNode = std::make_unique<ShaderAst::DeclareOptionStatement>();
 		declareOptionNode->optName = std::move(name);
 		declareOptionNode->optType = std::move(type);
-		declareOptionNode->initialValue = std::move(initialValue);
+		declareOptionNode->defaultValue = std::move(initialValue);
 
 		return declareOptionNode;
 	}

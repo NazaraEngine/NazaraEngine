@@ -1,8 +1,8 @@
-option HAS_DIFFUSE_TEXTURE: bool;
-option HAS_ALPHA_TEXTURE: bool;
-option ALPHA_TEST: bool;
+option HasDiffuseTexture: bool = false;
+option HasAlphaTexture: bool = false;
+option AlphaTest: bool = false;
 
-const HasUV = ALPHA_TEST && (HAS_DIFFUSE_TEXTURE || HAS_ALPHA_TEXTURE);
+const HasUV = AlphaTest && (HasDiffuseTexture || HasAlphaTexture);
 
 [layout(std140)]
 struct BasicSettings
@@ -47,15 +47,15 @@ struct FragIn
 	[location(0), cond(HasUV)] uv: vec2<f32>
 }
 
-[entry(frag), cond(ALPHA_TEST)]
+[entry(frag), cond(AlphaTest)]
 fn main(input: FragIn)
 {
 	let alpha = settings.DiffuseColor.a;
-	const if (HAS_DIFFUSE_TEXTURE)
+	const if (HasDiffuseTexture)
 		// TODO: alpha *= MaterialDiffuseMap.Sample(input.uv).a;
 		alpha = alpha * MaterialDiffuseMap.Sample(input.uv).a;
 
-	const if (HAS_ALPHA_TEXTURE)
+	const if (HasAlphaTexture)
 		// TODO: alpha *= MaterialAlphaMap.Sample(input.uv).x
 		alpha = alpha * MaterialAlphaMap.Sample(input.uv).x;
 
@@ -64,7 +64,7 @@ fn main(input: FragIn)
 }
 
 // Dummy fragment shader (TODO: Add a way to delete stage?)
-[entry(frag), cond(!ALPHA_TEST)]
+[entry(frag), cond(!AlphaTest)]
 fn main() {}
 
 // Vertex stage

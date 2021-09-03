@@ -9,8 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <string>
-#include <unordered_set>
+#include <unordered_map>
 
 namespace Nz
 {
@@ -26,7 +27,7 @@ namespace Nz
 
 			struct States
 			{
-				Nz::UInt64 enabledOptions = 0;
+				std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues;
 				bool optimize = false;
 				bool sanitized = false;
 			};

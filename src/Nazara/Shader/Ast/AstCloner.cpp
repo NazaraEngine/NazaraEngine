@@ -116,7 +116,7 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareOptionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareOptionStatement>();
-		clone->initialValue = CloneExpression(node.initialValue);
+		clone->defaultValue = CloneExpression(node.defaultValue);
 		clone->optIndex = node.optIndex;
 		clone->optName = node.optName;
 		clone->optType = node.optType;

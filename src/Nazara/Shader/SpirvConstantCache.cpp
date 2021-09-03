@@ -418,7 +418,9 @@ namespace Nz
 		{
 			using T = std::decay_t<decltype(arg)>;
 
-			if constexpr (std::is_same_v<T, bool>)
+			if constexpr (std::is_same_v<T, ShaderAst::NoValue>)
+				throw std::runtime_error("invalid type (value expected)");
+			else if constexpr (std::is_same_v<T, bool>)
 				return ConstantBool{ arg };
 			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 				return ConstantScalar{ arg };

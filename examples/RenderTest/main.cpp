@@ -12,7 +12,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 const char shaderSource[] = R"(
 
-option red: bool;
+option red: bool = false;
 
 [layout(std140)]
 struct Data
@@ -109,7 +109,6 @@ int main()
 	}
 
 	Nz::ShaderWriter::States states;
-	states.enabledOptions = 0;
 	states.optimize = true;
 
 	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderSource, sizeof(shaderSource), states);

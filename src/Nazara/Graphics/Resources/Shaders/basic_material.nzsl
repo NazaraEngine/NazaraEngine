@@ -1,8 +1,8 @@
-option HAS_DIFFUSE_TEXTURE: bool;
-option HAS_ALPHA_TEXTURE: bool;
-option ALPHA_TEST: bool;
+option HasDiffuseTexture: bool = false;
+option HasAlphaTexture: bool = false;
+option AlphaTest: bool = false;
 
-const HasUV = HAS_DIFFUSE_TEXTURE || HAS_ALPHA_TEXTURE;
+const HasUV = HasDiffuseTexture || HasAlphaTexture;
 
 [layout(std140)]
 struct BasicSettings
@@ -56,15 +56,15 @@ struct FragOut
 fn main(input: FragIn) -> FragOut
 {
 	let diffuseColor = settings.DiffuseColor;
-	const if (HAS_DIFFUSE_TEXTURE)
+	const if (HasDiffuseTexture)
 		// TODO: diffuseColor *= MaterialDiffuseMap.Sample(input.uv)
 		diffuseColor = diffuseColor * MaterialDiffuseMap.Sample(input.uv);
 
-	const if (HAS_ALPHA_TEXTURE)
+	const if (HasAlphaTexture)
 		// TODO: diffuseColor.w *= MaterialAlphaMap.Sample(input.uv)).x
 		diffuseColor = vec4<f32>(diffuseColor.x, diffuseColor.y, diffuseColor.z, MaterialAlphaMap.Sample(input.uv).x * diffuseColor.w);
 
-	const if (ALPHA_TEST)
+	const if (AlphaTest)
 	{
 		if (diffuseColor.w < settings.AlphaThreshold)
 			discard;

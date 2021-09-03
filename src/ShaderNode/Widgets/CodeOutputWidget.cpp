@@ -55,28 +55,23 @@ void CodeOutputWidget::Refresh()
 {
 	try
 	{
-		Nz::UInt64 enabledOptions = 0;
+		Nz::ShaderWriter::States states;
+
 		for (std::size_t i = 0; i < m_shaderGraph.GetOptionCount(); ++i)
-		{
-			if (m_shaderGraph.IsOptionEnabled(i))
-				enabledOptions = Nz::SetBit<Nz::UInt64>(enabledOptions, i);
-		}
+			states.optionValues[i] = m_shaderGraph.IsOptionEnabled(i);
 
 		Nz::ShaderAst::StatementPtr shaderAst = m_shaderGraph.ToAst();
 
 		if (m_optimisationCheckbox->isChecked())
 		{
-			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst);
+			Nz::ShaderAst::SanitizeVisitor::Options sanitizeOptions;
+			sanitizeOptions.optionValues = states.optionValues;
 
-			Nz::ShaderAst::AstOptimizer::Options optimOptions;
-			optimOptions.enabledOptions = enabledOptions;
+			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst, sanitizeOptions);
 
 			Nz::ShaderAst::AstOptimizer optimiser;
-			shaderAst = optimiser.Optimise(*shaderAst, optimOptions);
+			shaderAst = optimiser.Optimise(*shaderAst);
 		}
-
-		Nz::ShaderWriter::States states;
-		states.enabledOptions = enabledOptions;
 
 		std::string output;
 		OutputLanguage outputLang = static_cast<OutputLanguage>(m_outputLang->currentIndex());

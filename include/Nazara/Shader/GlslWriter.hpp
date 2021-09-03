@@ -46,7 +46,7 @@ namespace Nz
 			};
 
 			static const char* GetFlipYUniformName();
-			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, UInt64 enabledOptions, std::string* error = nullptr);
+			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
 
 		private:
 			void Append(const ShaderAst::ExpressionType& type);
