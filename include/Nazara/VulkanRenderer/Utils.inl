@@ -110,7 +110,7 @@ namespace Nz
 	{
 		switch (componentType)
 		{
-			case ComponentType::Color:      return VK_FORMAT_R8G8B8A8_UINT;
+			case ComponentType::Color:      return VK_FORMAT_R8G8B8A8_UNORM;
 			case ComponentType::Double1:    return VK_FORMAT_R64_SFLOAT;
 			case ComponentType::Double2:    return VK_FORMAT_R64G64_SFLOAT;
 			case ComponentType::Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
