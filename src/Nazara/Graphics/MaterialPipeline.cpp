@@ -54,6 +54,7 @@ namespace Nz
 			if (shader.uberShader)
 			{
 				UberShader::Config config{ shader.optionValues };
+				shader.uberShader->UpdateConfig(config, vertexBuffers);
 
 				renderPipelineInfo.shaderModules.push_back(shader.uberShader->Get(config));
 			}

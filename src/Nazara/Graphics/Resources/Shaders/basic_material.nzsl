@@ -2,7 +2,13 @@ option HasDiffuseTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
 
-const HasUV = HasDiffuseTexture || HasAlphaTexture;
+// Vertex declaration related options
+option PosLocation: i32 = -1;
+option ColorLocation: i32 = -1;
+option UvLocation: i32 = -1;
+
+const HasVertexColor = (ColorLocation >= 0);
+const HasUV = (UvLocation >= 0) && (HasDiffuseTexture || HasAlphaTexture);
 
 [layout(std140)]
 struct BasicSettings
@@ -44,7 +50,8 @@ external
 // Fragment stage
 struct FragIn
 {
-	[location(0), cond(HasUV)] uv: vec2<f32>
+	[location(0), cond(HasUV)] uv: vec2<f32>,
+	[location(1), cond(HasVertexColor)] color: vec4<f32>
 }
 
 struct FragOut
@@ -56,6 +63,11 @@ struct FragOut
 fn main(input: FragIn) -> FragOut
 {
 	let diffuseColor = settings.DiffuseColor;
+
+	const if (HasVertexColor)
+		//TODO: diffuseColor *= input.color;
+		diffuseColor = diffuseColor * input.color;
+
 	const if (HasDiffuseTexture)
 		// TODO: diffuseColor *= MaterialDiffuseMap.Sample(input.uv)
 		diffuseColor = diffuseColor * MaterialDiffuseMap.Sample(input.uv);
@@ -78,13 +90,15 @@ fn main(input: FragIn) -> FragOut
 // Vertex stage
 struct VertIn
 {
-	[location(0)] pos: vec3<f32>,
-	[location(1), cond(HasUV)] uv: vec2<f32>
+	[location(PosLocation)] pos: vec3<f32>,
+	[location(ColorLocation), cond(HasVertexColor)] color: vec4<f32>,
+	[location(UvLocation), cond(HasUV)] uv: vec2<f32>
 }
 
 struct VertOut
 {
 	[location(0), cond(HasUV)] uv: vec2<f32>,
+	[location(1), cond(HasVertexColor)] color: vec4<f32>,
 	[builtin(position)] position: vec4<f32>
 }
 
@@ -93,6 +107,9 @@ fn main(input: VertIn) -> VertOut
 {
 	let output: VertOut;
 	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+
+	const if (HasVertexColor)
+		output.color = input.color;
 
 	const if (HasUV)
 		output.uv = input.uv;
