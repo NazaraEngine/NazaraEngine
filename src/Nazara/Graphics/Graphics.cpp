@@ -66,11 +66,13 @@ namespace Nz
 		MaterialPipeline::Initialize();
 
 		RenderPipelineLayoutInfo referenceLayoutInfo;
+		FillDrawDataPipelineLayout(referenceLayoutInfo);
 		FillViewerPipelineLayout(referenceLayoutInfo);
 		FillWorldPipelineLayout(referenceLayoutInfo);
 
 		m_referencePipelineLayout = m_renderDevice->InstantiateRenderPipelineLayout(std::move(referenceLayoutInfo));
 
+		BuildDefaultTextures();
 		BuildFullscreenVertexBuffer();
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
@@ -86,10 +88,22 @@ namespace Nz
 		m_fullscreenVertexDeclaration.reset();
 		m_blitPipeline.reset();
 		m_blitPipelineLayout.reset();
+		m_defaultTextures.whiteTexture2d.reset();
+	}
+
+	void Graphics::FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
+	{
+		// TextureOverlay
+		layoutInfo.bindings.push_back({
+			set, 0,
+			ShaderBindingType::Texture,
+			ShaderStageType_All
+		});
 	}
 
 	void Graphics::FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
 	{
+		// ViewerData
 		layoutInfo.bindings.push_back({
 			set, 0,
 			ShaderBindingType::UniformBuffer,
@@ -99,6 +113,7 @@ namespace Nz
 
 	void Graphics::FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
 	{
+		// InstanceData
 		layoutInfo.bindings.push_back({
 			set, 0,
 			ShaderBindingType::UniformBuffer,
@@ -136,6 +151,22 @@ namespace Nz
 		});
 
 		m_blitPipeline = m_renderDevice->InstantiateRenderPipeline(std::move(pipelineInfo));
+	}
+
+	void Graphics::BuildDefaultTextures()
+	{
+		// White texture 2D
+		{
+			Nz::TextureInfo texInfo;
+			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
+			texInfo.pixelFormat = PixelFormat::BGRA8;
+			texInfo.type = ImageType::E2D;
+
+			std::array<UInt8, 4> texData = { 0xFF, 0xFF, 0xFF, 0xFF };
+
+			m_defaultTextures.whiteTexture2d = m_renderDevice->InstantiateTexture(texInfo);
+			m_defaultTextures.whiteTexture2d->Update(texData.data());
+		}
 	}
 
 	void Graphics::BuildFullscreenVertexBuffer()

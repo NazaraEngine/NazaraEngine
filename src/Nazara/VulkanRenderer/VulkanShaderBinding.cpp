@@ -34,8 +34,8 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, TextureBinding>)
 				{
-					VulkanTexture* vkTexture = static_cast<VulkanTexture*>(arg.texture);
-					VulkanTextureSampler* vkSampler = static_cast<VulkanTextureSampler*>(arg.sampler);
+					const VulkanTexture* vkTexture = static_cast<const VulkanTexture*>(arg.texture);
+					const VulkanTextureSampler* vkSampler = static_cast<const VulkanTextureSampler*>(arg.sampler);
 
 					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

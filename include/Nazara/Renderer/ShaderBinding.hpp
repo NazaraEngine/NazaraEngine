@@ -42,8 +42,8 @@ namespace Nz
 
 			struct TextureBinding
 			{
-				Texture* texture;
-				TextureSampler* sampler;
+				const Texture* texture;
+				const TextureSampler* sampler;
 			};
 
 			struct UniformBufferBinding

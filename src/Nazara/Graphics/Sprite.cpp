@@ -38,7 +38,9 @@ namespace Nz
 		};
 		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(vertexBufferData);
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, 1, m_vertices.data(), materialPass->GetShaderBinding(), worldInstance.GetShaderBinding()));
+		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTexture2d;
+
+		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, whiteTexture, 1, m_vertices.data(), materialPass->GetShaderBinding(), worldInstance.GetShaderBinding()));
 	}
 
 	const std::shared_ptr<Material>& Sprite::GetMaterial(std::size_t i) const

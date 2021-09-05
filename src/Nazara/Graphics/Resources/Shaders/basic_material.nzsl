@@ -8,7 +8,7 @@ option ColorLocation: i32 = -1;
 option UvLocation: i32 = -1;
 
 const HasVertexColor = (ColorLocation >= 0);
-const HasUV = (UvLocation >= 0) && (HasDiffuseTexture || HasAlphaTexture);
+const HasUV = (UvLocation >= 0);
 
 [layout(std140)]
 struct BasicSettings
@@ -42,9 +42,10 @@ external
 {
 	[set(0), binding(0)] viewerData: uniform<ViewerData>,
 	[set(1), binding(0)] instanceData: uniform<InstanceData>,
-	[set(2), binding(0)] settings: uniform<BasicSettings>,
-	[set(2), binding(2)] MaterialAlphaMap: sampler2D<f32>,
-	[set(2), binding(1)] MaterialDiffuseMap: sampler2D<f32>
+	[set(2), binding(0)] TextureOverlay: sampler2D<f32>,
+	[set(3), binding(0)] settings: uniform<BasicSettings>,
+	[set(3), binding(2)] MaterialAlphaMap: sampler2D<f32>,
+	[set(3), binding(1)] MaterialDiffuseMap: sampler2D<f32>
 }
 
 // Fragment stage
@@ -63,6 +64,10 @@ struct FragOut
 fn main(input: FragIn) -> FragOut
 {
 	let diffuseColor = settings.DiffuseColor;
+
+	const if (HasUV)
+		//TODO: diffuseColor *= TextureOverlay.Sample(input.uv);
+		diffuseColor = diffuseColor * TextureOverlay.Sample(input.uv);
 
 	const if (HasVertexColor)
 		//TODO: diffuseColor *= input.color;

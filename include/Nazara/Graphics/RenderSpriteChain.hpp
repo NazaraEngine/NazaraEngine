@@ -23,7 +23,7 @@ namespace Nz
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const ShaderBinding& instanceBinding);
+			inline RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const ShaderBinding& instanceBinding);
 			~RenderSpriteChain() = default;
 
 			inline UInt64 ComputeSortingScore(const RenderQueueRegistry& registry) const override;
@@ -33,6 +33,7 @@ namespace Nz
 			inline const RenderPipeline* GetRenderPipeline() const;
 			inline std::size_t GetSpriteCount() const;
 			inline const void* GetSpriteData() const;
+			inline const Texture* GetTextureOverlay() const;
 			inline const VertexDeclaration* GetVertexDeclaration() const;
 
 			inline void Register(RenderQueueRegistry& registry) const override;
@@ -40,6 +41,7 @@ namespace Nz
 		private:
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::shared_ptr<VertexDeclaration> m_vertexDeclaration;
+			std::shared_ptr<Texture> m_textureOverlay;
 			std::size_t m_spriteCount;
 			const void* m_spriteData;
 			const ShaderBinding& m_instanceBinding;

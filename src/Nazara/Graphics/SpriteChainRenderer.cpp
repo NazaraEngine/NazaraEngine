@@ -52,6 +52,8 @@ namespace Nz
 
 	void SpriteChainRenderer::Prepare(ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 	{
+		Graphics* graphics = Graphics::Instance();
+
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		std::size_t firstQuadIndex = 0;
@@ -61,12 +63,21 @@ namespace Nz
 		const VertexDeclaration* currentVertexDeclaration = nullptr;
 		AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
+		const ShaderBinding* currentDrawDataBinding = nullptr;
 		const ShaderBinding* currentInstanceBinding = nullptr;
 		const ShaderBinding* currentMaterialBinding = nullptr;
+		const Texture* currentTextureOverlay = nullptr;
 
 		auto FlushDrawCall = [&]()
 		{
 			currentDrawCall = nullptr;
+		};
+
+		auto FlushDrawData = [&]()
+		{
+			FlushDrawCall();
+
+			currentDrawDataBinding = nullptr;
 		};
 
 		auto Flush = [&]()
@@ -85,6 +96,7 @@ namespace Nz
 		};
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
+		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
@@ -122,6 +134,12 @@ namespace Nz
 				currentInstanceBinding = &spriteChain.GetInstanceBinding();
 			}
 
+			if (currentTextureOverlay != spriteChain.GetTextureOverlay())
+			{
+				FlushDrawData();
+				currentTextureOverlay = spriteChain.GetTextureOverlay();
+			}
+
 			std::size_t remainingQuads = spriteChain.GetSpriteCount();
 			while (remainingQuads > 0)
 			{
@@ -149,11 +167,29 @@ namespace Nz
 					data.vertexBuffers.emplace_back(std::move(vertexBuffer));
 				}
 
+				if (!currentDrawDataBinding)
+				{
+					ShaderBindingPtr drawDataBinding = Graphics::Instance()->GetReferencePipelineLayout()->AllocateShaderBinding(Graphics::DrawDataBindingSet);
+					drawDataBinding->Update({
+						{
+							0,
+							ShaderBinding::TextureBinding {
+								currentTextureOverlay, defaultSampler.get()
+							}
+						}
+					});
+
+					currentDrawDataBinding = drawDataBinding.get();
+
+					data.shaderBindings.emplace_back(std::move(drawDataBinding));
+				}
+
 				if (!currentDrawCall)
 				{
 					data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
 						currentVertexBuffer,
 						currentPipeline,
+						currentDrawDataBinding,
 						currentInstanceBinding,
 						currentMaterialBinding,
 						6 * firstQuadIndex,
@@ -216,6 +252,7 @@ namespace Nz
 
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
+		const ShaderBinding* currentDrawDataBinding = nullptr;
 		const ShaderBinding* currentInstanceBinding = nullptr;
 		const ShaderBinding* currentMaterialBinding = nullptr;
 
@@ -239,6 +276,12 @@ namespace Nz
 			{
 				commandBuffer.BindPipeline(*drawCall.renderPipeline);
 				currentPipeline = drawCall.renderPipeline;
+			}
+
+			if (currentDrawDataBinding != drawCall.drawDataBinding)
+			{
+				commandBuffer.BindShaderBinding(Graphics::DrawDataBindingSet, *drawCall.drawDataBinding);
+				currentDrawDataBinding = drawCall.drawDataBinding;
 			}
 
 			if (currentMaterialBinding != drawCall.materialBinding)
@@ -269,6 +312,10 @@ namespace Nz
 			});
 		}
 		data.vertexBuffers.clear();
+
+		for (auto& shaderBinding : data.shaderBindings)
+			currentFrame.PushForRelease(std::move(shaderBinding));
+		data.shaderBindings.clear();
 
 		data.drawCalls.clear();
 	}

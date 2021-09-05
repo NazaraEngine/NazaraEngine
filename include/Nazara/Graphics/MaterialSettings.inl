@@ -18,6 +18,7 @@ namespace Nz
 	m_data(std::move(data))
 	{
 		RenderPipelineLayoutInfo info;
+		Graphics::FillDrawDataPipelineLayout(info);
 		Graphics::FillViewerPipelineLayout(info);
 		Graphics::FillWorldPipelineLayout(info);
 

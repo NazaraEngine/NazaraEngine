@@ -17,6 +17,11 @@ namespace Nz
 		return m_blitPipelineLayout;
 	}
 
+	inline auto Graphics::GetDefaultTextures() const -> const DefaultTextures&
+	{
+		return m_defaultTextures;
+	}
+
 	inline const std::shared_ptr<AbstractBuffer>& Graphics::GetFullscreenVertexBuffer() const
 	{
 		return m_fullscreenVertexBuffer;

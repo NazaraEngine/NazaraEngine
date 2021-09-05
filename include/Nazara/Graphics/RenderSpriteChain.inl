@@ -7,10 +7,11 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const ShaderBinding& instanceBinding) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const ShaderBinding& instanceBinding) :
 	RenderElement(BasicRenderElement::SpriteChain),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_vertexDeclaration(std::move(vertexDeclaration)),
+	m_textureOverlay(std::move(textureOverlay)),
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
 	m_instanceBinding(instanceBinding),
@@ -62,6 +63,11 @@ namespace Nz
 	inline const void* RenderSpriteChain::GetSpriteData() const
 	{
 		return m_spriteData;
+	}
+
+	inline const Texture* RenderSpriteChain::GetTextureOverlay() const
+	{
+		return m_textureOverlay.get();
 	}
 
 	inline const VertexDeclaration* RenderSpriteChain::GetVertexDeclaration() const
