@@ -27,8 +27,8 @@ namespace Nz
 		UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 
 		// RQ index:
-		// - Element type (4bits)
 		// - Layer (8bits)
+		// - Element type (4bits)
 		// - Pipeline (16bits)
 		// - VertexBuffer (8bits)
 		// - ?? (24bits) - Depth?

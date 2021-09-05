@@ -7,12 +7,19 @@
 #ifndef NAZARA_ENUMS_GRAPHICS_HPP
 #define NAZARA_ENUMS_GRAPHICS_HPP
 
+#include <Nazara/Core/Algorithm.hpp>
+
 namespace Nz
 {
 	enum class BasicRenderElement
 	{
-		Submesh = 0,
+		SpriteChain = 0,
+		Submesh = 1,
+
+		Max = Submesh
 	};
+
+	constexpr std::size_t BasicRenderElementCount = UnderlyingCast(BasicRenderElement::Max) + 1;
 
 	enum class CullTest
 	{

@@ -25,6 +25,8 @@
 
 namespace Nz
 {
+	class RenderFrame;
+
 	class NAZARA_GRAPHICS_API ForwardFramePipeline : public FramePipeline
 	{
 		public:
@@ -51,7 +53,7 @@ namespace Nz
 			BakedFrameGraph BuildFrameGraph();
 
 			void RegisterMaterialPass(MaterialPass* material);
-			void ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue);
+			template<typename F> void ProcessRenderQueue(const RenderQueue<RenderElement*>& renderQueue, F&& callback);
 			void UnregisterMaterialPass(MaterialPass* material);
 
 			struct MaterialData
@@ -79,6 +81,7 @@ namespace Nz
 				std::size_t visibilityHash = 0;
 				std::vector<std::unique_ptr<RenderElement>> depthPrepassRenderElements;
 				std::vector<std::unique_ptr<RenderElement>> forwardRenderElements;
+				std::vector<std::unique_ptr<ElementRendererData>> elementRendererData;
 				RenderQueueRegistry depthPrepassRegistry;
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> depthPrepassRenderQueue;
@@ -100,6 +103,7 @@ namespace Nz
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
 			std::vector<VisibleRenderable> m_visibleRenderables;
 			BakedFrameGraph m_bakedFrameGraph;
+			RenderFrame* m_currentRenderFrame;
 			bool m_rebuildFrameGraph;
 	};
 }

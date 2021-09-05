@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -30,7 +31,8 @@ namespace Nz
 		m_depthPassIndex = passRegistry.GetPassIndex("DepthPass");
 		m_forwardPassIndex = passRegistry.GetPassIndex("ForwardPass");
 
-		m_elementRenderers.resize(1);
+		m_elementRenderers.resize(BasicRenderElementCount);
+		m_elementRenderers[UnderlyingCast(BasicRenderElement::SpriteChain)] = std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice());
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
 	}
 
@@ -113,6 +115,8 @@ namespace Nz
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
 	{
+		m_currentRenderFrame = &renderFrame;
+
 		Graphics* graphics = Graphics::Instance();
 
 		renderFrame.PushForRelease(std::move(m_removedWorldInstances));
@@ -167,6 +171,7 @@ namespace Nz
 		};
 
 		// Render queues handling
+		bool prepare = false;
 		for (auto&& [viewer, data] : m_viewers)
 		{
 			auto& viewerData = data;
@@ -208,6 +213,7 @@ namespace Nz
 			{
 				viewerData.rebuildDepthPrepass = true;
 				viewerData.rebuildForwardPass = true;
+				prepare = true;
 
 				viewerData.visibilityHash = visibilityHash;
 			}
@@ -254,6 +260,48 @@ namespace Nz
 			{
 				return element->ComputeSortingScore(viewerData.forwardRegistry);
 			});
+		}
+
+		if (prepare)
+		{
+			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
+			{
+				auto& elementRendererPtr = m_elementRenderers[i];
+
+				for (auto&& [_, viewerData] : m_viewers)
+				{
+					if (i >= viewerData.elementRendererData.size() || !viewerData.elementRendererData[i])
+					{
+						if (i >= viewerData.elementRendererData.size())
+							viewerData.elementRendererData.resize(i + 1);
+
+						viewerData.elementRendererData[i] = elementRendererPtr->InstanciateData();
+					}
+
+					if (elementRendererPtr)
+						elementRendererPtr->Reset(*viewerData.elementRendererData[i], renderFrame);
+				}
+			}
+
+			for (auto&& [_, viewerData] : m_viewers)
+			{
+				auto& rendererData = viewerData.elementRendererData;
+
+				ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+				{
+					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+					elementRenderer.Prepare(*rendererData[elementType], renderFrame, elements, elementCount);
+				});
+
+				ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+				{
+					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+					elementRenderer.Prepare(*rendererData[elementType], renderFrame, elements, elementCount);
+				});
+
+				viewerData.rebuildForwardPass = true;
+				viewerData.rebuildDepthPrepass = true;
+			}
 		}
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
@@ -406,7 +454,11 @@ namespace Nz
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
 
-				ProcessRenderQueue(builder, viewerData.depthPrepassRenderQueue);
+				ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+				{
+					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+					elementRenderer.Render(*viewerData.elementRendererData[elementType], builder, elements, elementCount);
+				});
 			});
 
 			FramePass& forwardPass = frameGraph.AddPass("Forward pass");
@@ -433,8 +485,12 @@ namespace Nz
 				builder.SetViewport(viewport);
 
 				builder.BindShaderBinding(Graphics::ViewerBindingSet, viewer->GetViewerInstance().GetShaderBinding());
-
-				ProcessRenderQueue(builder, viewerData.forwardRenderQueue);
+				
+				ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+				{
+					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+					elementRenderer.Render(*viewerData.elementRendererData[elementType], builder, elements, elementCount);
+				});
 			});
 		}
 
@@ -462,7 +518,8 @@ namespace Nz
 		it->second.usedCount++;
 	}
 
-	void ForwardFramePipeline::ProcessRenderQueue(CommandBufferBuilder& builder, const RenderQueue<RenderElement*>& renderQueue)
+	template<typename F>
+	void ForwardFramePipeline::ProcessRenderQueue(const RenderQueue<RenderElement*>& renderQueue, F&& callback)
 	{
 		if (renderQueue.empty())
 			return;
@@ -485,8 +542,7 @@ namespace Nz
 			if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
 				continue;
 
-			ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-			elementRenderer.Render(builder, first, count);
+			callback(elementType, first, count);
 		}
 	}
 
