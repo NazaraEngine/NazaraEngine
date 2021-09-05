@@ -18,6 +18,8 @@ namespace Nz
 	m_maxVertexBufferSize(maxVertexBufferSize),
 	m_maxVertexCount(m_maxVertexBufferSize / (2 * sizeof(float))) // Treat vec2 as the minimum declaration possible
 	{
+		m_vertexBufferPool = std::make_shared<VertexBufferPool>();
+
 		std::size_t maxQuadCount = m_maxVertexCount / 4;
 		std::size_t indexCount = 6 * maxQuadCount;
 
@@ -52,8 +54,6 @@ namespace Nz
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
-		std::vector<std::pair<UploadPool::Allocation*, AbstractBuffer*>> pendingCopies;
-
 		std::size_t firstQuadIndex = 0;
 		SpriteChainRendererData::DrawCall* currentDrawCall = nullptr;
 		UploadPool::Allocation* currentAllocation = nullptr;
@@ -76,7 +76,7 @@ namespace Nz
 
 			if (currentAllocation)
 			{
-				pendingCopies.emplace_back(currentAllocation, currentVertexBuffer);
+				m_pendingCopies.emplace_back(currentAllocation, currentVertexBuffer);
 
 				firstQuadIndex = 0;
 				currentAllocation = nullptr;
@@ -130,8 +130,19 @@ namespace Nz
 					currentAllocation = &currentFrame.GetUploadPool().Allocate(m_maxVertexBufferSize);
 					currentAllocationMemPtr = static_cast<UInt8*>(currentAllocation->mappedPtr);
 
-					std::shared_ptr<AbstractBuffer> vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex);
-					vertexBuffer->Initialize(m_maxVertexBufferSize, BufferUsage::DeviceLocal);
+					std::shared_ptr<AbstractBuffer> vertexBuffer;
+
+					// Try to reuse vertex buffers from pool if any
+					if (!m_vertexBufferPool->vertexBuffers.empty())
+					{
+						vertexBuffer = std::move(m_vertexBufferPool->vertexBuffers.back());
+						m_vertexBufferPool->vertexBuffers.pop_back();
+					}
+					else
+					{
+						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex);
+						vertexBuffer->Initialize(m_maxVertexBufferSize, BufferUsage::DeviceLocal);
+					}
 
 					currentVertexBuffer = vertexBuffer.get();
 
@@ -183,15 +194,17 @@ namespace Nz
 		std::size_t drawCallCount = data.drawCalls.size() - oldDrawCallCount;
 		data.drawCallPerElement[firstSpriteChain] = SpriteChainRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
 
-		if (!pendingCopies.empty())
+		if (!m_pendingCopies.empty())
 		{
 			currentFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				for (auto&& [allocation, buffer] : pendingCopies)
+				for (auto&& [allocation, buffer] : m_pendingCopies)
 					builder.CopyBuffer(*allocation, buffer);
 
 				builder.PostTransferBarrier();
 			}, Nz::QueueType::Transfer);
+
+			m_pendingCopies.clear();
 		}
 	}
 
@@ -248,11 +261,15 @@ namespace Nz
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
-		// TODO: Reuse vertex buffers
 		for (auto& vertexBufferPtr : data.vertexBuffers)
-			currentFrame.PushForRelease(std::move(vertexBufferPtr));
+		{
+			currentFrame.PushReleaseCallback([pool = m_vertexBufferPool, vertexBuffer = std::move(vertexBufferPtr)]()
+			{
+				pool->vertexBuffers.push_back(std::move(vertexBuffer));
+			});
+		}
+		data.vertexBuffers.clear();
 
 		data.drawCalls.clear();
-		data.vertexBuffers.clear();
 	}
 }

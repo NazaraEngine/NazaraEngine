@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -33,9 +34,16 @@ namespace Nz
 			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
 
 		private:
+			struct VertexBufferPool
+			{
+				std::vector<std::shared_ptr<AbstractBuffer>> vertexBuffers;
+			};
+
 			std::shared_ptr<AbstractBuffer> m_indexBuffer;
+			std::shared_ptr<VertexBufferPool> m_vertexBufferPool;
 			std::size_t m_maxVertexBufferSize;
 			std::size_t m_maxVertexCount;
+			std::vector<std::pair<UploadPool::Allocation*, AbstractBuffer*>> m_pendingCopies;
 			RenderDevice& m_device;
 	};
 
