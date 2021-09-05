@@ -971,8 +971,8 @@ namespace Nz::ShaderLang
 					case TokenType::LessThanEqual:    binaryType = ShaderAst::BinaryType::CompLe; break;
 					case TokenType::LogicalAnd:       binaryType = ShaderAst::BinaryType::LogicalAnd; break;
 					case TokenType::LogicalOr:        binaryType = ShaderAst::BinaryType::LogicalOr; break;
-					case TokenType::GreaterThan:      binaryType = ShaderAst::BinaryType::CompLt; break;
-					case TokenType::GreaterThanEqual: binaryType = ShaderAst::BinaryType::CompLe; break;
+					case TokenType::GreaterThan:      binaryType = ShaderAst::BinaryType::CompGt; break;
+					case TokenType::GreaterThanEqual: binaryType = ShaderAst::BinaryType::CompGe; break;
 					case TokenType::Minus:            binaryType = ShaderAst::BinaryType::Subtract; break;
 					case TokenType::Multiply:         binaryType = ShaderAst::BinaryType::Multiply; break;
 					case TokenType::NotEqual:         binaryType = ShaderAst::BinaryType::CompNe; break;
