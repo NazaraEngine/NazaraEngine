@@ -218,6 +218,9 @@ namespace Nz
 
 			for (const auto& componentInfo : bufferData.declaration->GetComponents())
 			{
+				if (componentInfo.component == VertexComponent::Unused)
+					continue;
+
 				auto& bufferAttribute = vertexAttributes.emplace_back();
 				bufferAttribute.binding = binding;
 				bufferAttribute.location = locationIndex++;
