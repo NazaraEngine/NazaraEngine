@@ -279,6 +279,7 @@ namespace Nz
 		std::array<VkValidationFeatureEnableEXT, 1> enabledFeatures = {
 			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
 			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+			//VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
 			VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
 		};
 
@@ -554,8 +555,12 @@ namespace Nz
 
 			// VMA extensions
 			EnableIfSupported(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
-			EnableIfSupported(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
-			EnableIfSupported(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
+
+			if (deviceInfo.properties.apiVersion < VK_API_VERSION_1_1)
+			{
+				EnableIfSupported(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
+				EnableIfSupported(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
+			}
 		}
 
 		std::vector<std::string> additionalExtensions; // Just to keep the String alive
