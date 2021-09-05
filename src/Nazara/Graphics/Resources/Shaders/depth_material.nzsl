@@ -36,9 +36,10 @@ external
 {
 	[set(0), binding(0)] viewerData: uniform<ViewerData>,
 	[set(1), binding(0)] instanceData: uniform<InstanceData>,
-	[set(2), binding(0)] settings: uniform<BasicSettings>,
-	[set(2), binding(2)] MaterialAlphaMap: sampler2D<f32>,
-	[set(2), binding(1)] MaterialDiffuseMap: sampler2D<f32>
+	[set(2), binding(0)] TextureOverlay: sampler2D<f32>,
+	[set(3), binding(0)] settings: uniform<BasicSettings>,
+	[set(3), binding(2)] MaterialAlphaMap: sampler2D<f32>,
+	[set(3), binding(1)] MaterialDiffuseMap: sampler2D<f32>
 }
 
 // Fragment stage
@@ -51,6 +52,11 @@ struct FragIn
 fn main(input: FragIn)
 {
 	let alpha = settings.DiffuseColor.a;
+
+	const if (HasUV)
+		//TODO: diffuseColor *= TextureOverlay.Sample(input.uv);
+		alpha = alpha * TextureOverlay.Sample(input.uv).a;
+
 	const if (HasDiffuseTexture)
 		// TODO: alpha *= MaterialDiffuseMap.Sample(input.uv).a;
 		alpha = alpha * MaterialDiffuseMap.Sample(input.uv).a;

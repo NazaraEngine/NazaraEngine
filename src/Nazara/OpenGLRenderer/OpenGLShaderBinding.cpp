@@ -68,11 +68,11 @@ namespace Nz
 				{
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 
-					if (OpenGLTexture* glTexture = static_cast<OpenGLTexture*>(arg.texture))
+					if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(arg.texture))
 					{
 						textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
 
-						if (OpenGLTextureSampler* glSampler = static_cast<OpenGLTextureSampler*>(arg.sampler))
+						if (const OpenGLTextureSampler* glSampler = static_cast<const OpenGLTextureSampler*>(arg.sampler))
 							textureDescriptor.sampler = glSampler->GetSampler(glTexture->GetLevelCount() > 1).GetObjectId();
 						else
 							textureDescriptor.sampler = 0;

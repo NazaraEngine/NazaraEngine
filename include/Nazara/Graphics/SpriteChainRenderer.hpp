@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
 #include <unordered_map>
@@ -53,6 +54,7 @@ namespace Nz
 		{
 			const AbstractBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
+			const ShaderBinding* drawDataBinding;
 			const ShaderBinding* instanceBinding;
 			const ShaderBinding* materialBinding;
 			std::size_t firstIndex;
@@ -68,6 +70,7 @@ namespace Nz
 		std::unordered_map<const RenderSpriteChain*, DrawCallIndices> drawCallPerElement;
 		std::vector<DrawCall> drawCalls;
 		std::vector<std::shared_ptr<AbstractBuffer>> vertexBuffers;
+		std::vector<ShaderBindingPtr> shaderBindings;
 	};
 }
 

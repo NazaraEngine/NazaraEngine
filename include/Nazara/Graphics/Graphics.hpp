@@ -29,12 +29,14 @@ namespace Nz
 			using Dependencies = TypeList<Renderer>;
 
 			struct Config;
+			struct DefaultTextures;
 
 			Graphics(Config config);
 			~Graphics();
 
 			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline() const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
+			inline const DefaultTextures& GetDefaultTextures() const;
 			inline const std::shared_ptr<AbstractBuffer>& GetFullscreenVertexBuffer() const;
 			inline const std::shared_ptr<VertexDeclaration>& GetFullscreenVertexDeclaration() const;
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
@@ -51,15 +53,23 @@ namespace Nz
 				bool useDedicatedRenderDevice = true;
 			};
 
-			static constexpr UInt32 MaterialBindingSet = 2;
+			struct DefaultTextures
+			{
+				std::shared_ptr<Texture> whiteTexture2d;
+			};
+
+			static constexpr UInt32 DrawDataBindingSet = 2;
+			static constexpr UInt32 MaterialBindingSet = 3;
 			static constexpr UInt32 ViewerBindingSet = 0;
 			static constexpr UInt32 WorldBindingSet = 1;
 
+			static void FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = DrawDataBindingSet);
 			static void FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = ViewerBindingSet);
 			static void FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = WorldBindingSet);
 
 		private:
 			void BuildBlitPipeline();
+			void BuildDefaultTextures();
 			void BuildFullscreenVertexBuffer();
 			void RegisterMaterialPasses();
 			void SelectDepthStencilFormats();
@@ -72,6 +82,7 @@ namespace Nz
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
 			std::shared_ptr<RenderPipelineLayout> m_referencePipelineLayout;
 			std::shared_ptr<VertexDeclaration> m_fullscreenVertexDeclaration;
+			DefaultTextures m_defaultTextures;
 			MaterialPassRegistry m_materialPassRegistry;
 			PixelFormat m_preferredDepthStencilFormat;
 

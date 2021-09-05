@@ -10,6 +10,23 @@
 
 namespace Nz
 {
+	SubmeshRenderer::SubmeshRenderer()
+	{
+		Graphics* graphics = Graphics::Instance();
+		const auto& whiteTexture = graphics->GetDefaultTextures().whiteTexture2d;
+		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
+
+		m_renderDataBinding = graphics->GetReferencePipelineLayout()->AllocateShaderBinding(Graphics::DrawDataBindingSet);
+		m_renderDataBinding->Update({
+			{
+				0,
+				ShaderBinding::TextureBinding {
+					whiteTexture.get(), defaultSampler.get()
+				}
+			}
+		});
+	}
+
 	std::unique_ptr<ElementRendererData> SubmeshRenderer::InstanciateData()
 	{
 		return {};
@@ -21,6 +38,8 @@ namespace Nz
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentMaterialBinding = nullptr;
+
+		commandBuffer.BindShaderBinding(Graphics::DrawDataBindingSet, *m_renderDataBinding);
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{

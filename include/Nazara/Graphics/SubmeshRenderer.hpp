@@ -9,17 +9,21 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 
 namespace Nz
 {
 	class NAZARA_GRAPHICS_API SubmeshRenderer : public ElementRenderer
 	{
 		public:
-			SubmeshRenderer() = default;
+			SubmeshRenderer();
 			~SubmeshRenderer() = default;
 
 			std::unique_ptr<ElementRendererData> InstanciateData();
 			void Render(ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
+
+		private:
+			ShaderBindingPtr m_renderDataBinding;
 	};
 }
 
