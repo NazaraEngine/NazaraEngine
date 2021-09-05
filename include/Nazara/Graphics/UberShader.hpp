@@ -24,6 +24,8 @@ namespace Nz
 		public:
 			struct Config;
 			struct Option;
+			using ConfigCallback = std::function<void(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)>;
+
 			UberShader(ShaderStageTypeFlags shaderStages, const ShaderAst::StatementPtr& shaderAst);
 			~UberShader() = default;
 
@@ -32,6 +34,9 @@ namespace Nz
 			const std::shared_ptr<ShaderModule>& Get(const Config& config);
 
 			inline bool HasOption(const std::string& optionName, Pointer<const Option>* option = nullptr) const;
+
+			inline void UpdateConfig(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers);
+			inline void UpdateConfigCallback(ConfigCallback callback);
 
 			static constexpr std::size_t MaximumOptionValue = 32;
 
@@ -60,6 +65,7 @@ namespace Nz
 			std::unordered_map<Config, std::shared_ptr<ShaderModule>, ConfigHasher, ConfigEqual> m_combinations;
 			std::unordered_map<std::string, Option> m_optionIndexByName;
 			ShaderAst::StatementPtr m_shaderAst;
+			ConfigCallback m_configCallback;
 			ShaderStageTypeFlags m_shaderStages;
 	};
 }

@@ -24,6 +24,17 @@ namespace Nz
 		return true;
 	}
 
+	inline void UberShader::UpdateConfig(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
+	{
+		if (m_configCallback)
+			m_configCallback(config, vertexBuffers);
+	}
+
+	inline void UberShader::UpdateConfigCallback(ConfigCallback callback)
+	{
+		m_configCallback = std::move(callback);
+	}
+
 	inline bool UberShader::ConfigEqual::operator()(const Config& lhs, const Config& rhs) const
 	{
 		for (std::size_t i = 0; i < lhs.optionValues.size(); ++i)

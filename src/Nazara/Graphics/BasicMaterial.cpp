@@ -154,6 +154,66 @@ namespace Nz
 
 		settings.shaders = std::move(uberShaders);
 
+		for (std::shared_ptr<UberShader> uberShader : settings.shaders)
+		{
+			constexpr std::size_t InvalidOption = std::numeric_limits<std::size_t>::max();
+
+			auto FetchLocationOption = [&](const std::string& optionName)
+			{
+				const UberShader::Option* optionPtr;
+				if (!uberShader->HasOption(optionName, &optionPtr))
+					return InvalidOption;
+
+				if (optionPtr->type != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::Int32 })
+					throw std::runtime_error("Location options must be of type i32");
+
+				return optionPtr->index;
+			};
+
+			std::size_t positionLocationIndex = FetchLocationOption("PosLocation");
+			std::size_t colorLocationIndex = FetchLocationOption("ColorLocation");
+			std::size_t uvLocationIndex = FetchLocationOption("UvLocation");
+
+			uberShader->UpdateConfigCallback([=](UberShader::Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
+			{
+				if (vertexBuffers.empty())
+					return;
+
+				const VertexDeclaration& vertexDeclaration = *vertexBuffers.front().declaration;
+				const auto& components = vertexDeclaration.GetComponents();
+
+				std::size_t locationIndex = 0;
+				for (const auto& component : components)
+				{
+					switch (component.component)
+					{
+						case VertexComponent::Unused:
+							continue;
+
+						case VertexComponent::Position:
+							if (positionLocationIndex != InvalidOption)
+								config.optionValues[positionLocationIndex] = static_cast<Int32>(locationIndex);
+
+							break;
+
+						case VertexComponent::Color:
+							if (colorLocationIndex != InvalidOption)
+								config.optionValues[colorLocationIndex] = static_cast<Int32>(locationIndex);
+
+							break;
+
+						case VertexComponent::TexCoord:
+							if (uvLocationIndex != InvalidOption)
+								config.optionValues[uvLocationIndex] = static_cast<Int32>(locationIndex);
+
+							break;
+					}
+
+					++locationIndex;
+				}
+			});
+		}
+
 		// Options
 
 		// HasDiffuseMap
