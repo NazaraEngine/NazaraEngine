@@ -10,7 +10,12 @@
 
 namespace Nz
 {
-	void SubmeshRenderer::Render(CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+	std::unique_ptr<ElementRendererData> SubmeshRenderer::InstanciateData()
+	{
+		return {};
+	}
+
+	void SubmeshRenderer::Render(ElementRendererData& /*rendererData*/, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 	{
 		const AbstractBuffer* currentIndexBuffer = nullptr;
 		const AbstractBuffer* currentVertexBuffer = nullptr;

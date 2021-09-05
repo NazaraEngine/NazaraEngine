@@ -38,6 +38,14 @@ namespace Nz
 		return it->second;
 	}
 
+	inline std::size_t RenderQueueRegistry::FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const
+	{
+		auto it = m_vertexDeclarationRegistry.find(vertexDeclaration);
+		assert(it != m_vertexDeclarationRegistry.end());
+
+		return it->second;
+	}
+
 	inline void RenderQueueRegistry::RegisterLayer(int renderLayer)
 	{
 		m_renderLayerRegistry.try_emplace(renderLayer, m_renderLayerRegistry.size());
@@ -51,6 +59,11 @@ namespace Nz
 	inline void RenderQueueRegistry::RegisterVertexBuffer(const AbstractBuffer* vertexBuffer)
 	{
 		m_vertexBufferRegistry.try_emplace(vertexBuffer, m_vertexBufferRegistry.size());
+	}
+
+	inline void RenderQueueRegistry::RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration)
+	{
+		m_vertexDeclarationRegistry.try_emplace(vertexDeclaration, m_vertexDeclarationRegistry.size());
 	}
 }
 
