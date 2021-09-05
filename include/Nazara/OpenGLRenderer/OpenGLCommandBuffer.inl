@@ -102,15 +102,15 @@ namespace Nz
 		m_commands.emplace_back(std::move(draw));
 	}
 
-	inline void OpenGLCommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
+	inline void OpenGLCommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, UInt32 firstInstance)
 	{
 		if (!m_currentStates.pipeline)
 			throw std::runtime_error("no pipeline bound");
 
 		DrawIndexedData draw;
 		draw.states = m_currentStates;
+		draw.firstIndex = firstIndex;
 		draw.firstInstance = firstInstance;
-		draw.firstVertex = firstVertex;
 		draw.indexCount = indexCount;
 		draw.instanceCount = instanceCount;
 

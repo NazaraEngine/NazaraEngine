@@ -259,9 +259,9 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);
 		}
 
-		inline void CommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstVertex, Int32 vertexOffset, UInt32 firstInstance)
+		inline void CommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, Int32 vertexOffset, UInt32 firstInstance)
 		{
-			return m_pool->GetDevice()->vkCmdDrawIndexed(m_handle, indexCount, instanceCount, firstVertex, vertexOffset, firstInstance);
+			return m_pool->GetDevice()->vkCmdDrawIndexed(m_handle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 		}
 
 		inline bool CommandBuffer::End()

@@ -96,8 +96,10 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, DrawIndexedData>)
 				{
+					const UInt8* origin = 0; //< For an easy way to cast an integer to a pointer
+
 					ApplyStates(*context, command.states);
-					context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, GL_UNSIGNED_SHORT, nullptr, command.instanceCount);
+					context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, GL_UNSIGNED_SHORT, origin + command.firstIndex * sizeof(UInt16), command.instanceCount);
 				}
 				else if constexpr (std::is_same_v<T, EndDebugRegionData>)
 				{

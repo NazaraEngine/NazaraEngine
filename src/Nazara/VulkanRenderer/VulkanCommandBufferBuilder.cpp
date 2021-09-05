@@ -131,9 +131,9 @@ namespace Nz
 		m_commandBuffer.Draw(vertexCount, instanceCount, firstVertex, firstInstance);
 	}
 
-	void VulkanCommandBufferBuilder::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
+	void VulkanCommandBufferBuilder::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, UInt32 firstInstance)
 	{
-		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstVertex, 0, firstInstance);
+		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, 0, firstInstance);
 	}
 
 	void VulkanCommandBufferBuilder::EndDebugRegion()
