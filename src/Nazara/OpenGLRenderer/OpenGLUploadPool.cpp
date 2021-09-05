@@ -16,8 +16,6 @@ namespace Nz
 
 	auto OpenGLUploadPool::Allocate(UInt64 size, UInt64 /*alignment*/) -> Allocation&
 	{
-		assert(size <= m_blockSize);
-
 		// Try to minimize lost space
 		struct
 		{
@@ -47,7 +45,7 @@ namespace Nz
 			Block newBlock;
 			newBlock.size = blockSize;
 
-			newBlock.memory.resize(m_blockSize);
+			newBlock.memory.resize(blockSize);
 
 			bestBlock.block = &m_blocks.emplace_back(std::move(newBlock));
 			bestBlock.offset = 0;
