@@ -67,7 +67,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake -v
+      run: xmake
 
     # Install the result files
     - name: Install Nazara
