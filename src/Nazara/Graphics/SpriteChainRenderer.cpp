@@ -199,7 +199,7 @@ namespace Nz
 					currentDrawCall = &data.drawCalls.back();
 				}
 
-				std::size_t remainingSpace = m_maxVertexBufferSize - (currentAllocationMemPtr - currentAllocation->mappedPtr);
+				std::size_t remainingSpace = m_maxVertexBufferSize - (currentAllocationMemPtr - static_cast<UInt8*>(currentAllocation->mappedPtr));
 				std::size_t maxQuads = remainingSpace / (4 * stride);
 				if (maxQuads == 0)
 				{
