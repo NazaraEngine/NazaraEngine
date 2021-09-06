@@ -146,6 +146,9 @@ if is_plat("windows") then
 	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:referenceBinding", "/Zc:throwingNew")
 	add_cxflags("/w44062") -- Enable warning: switch case not handled
 	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
+elseif is_plat("mingw") then
+	add_cxflags("-Og", "-Wa,-mbig-obj")
+	add_ldflags("-Wa,-mbig-obj")
 end
 
 for name, module in pairs(modules) do
