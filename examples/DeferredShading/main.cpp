@@ -547,6 +547,7 @@ int main()
 	std::size_t lightOutput;
 
 	Nz::SubmeshRenderer submeshRenderer;
+	std::unique_ptr<Nz::ElementRendererData> submeshRendererData = submeshRenderer.InstanciateData();
 
 	std::size_t forwardPassIndex = Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
 
@@ -655,7 +656,7 @@ int main()
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			submeshRenderer.Render(builder, elementPointers.data(), elementPointers.size());
+			submeshRenderer.Render(*submeshRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
