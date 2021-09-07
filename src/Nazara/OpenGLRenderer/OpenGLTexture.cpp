@@ -73,7 +73,7 @@ namespace Nz
 		return m_params.type;
 	}
 
-	bool OpenGLTexture::Update(const void* ptr)
+	bool OpenGLTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
 		auto format = DescribeTextureFormat(m_params.pixelFormat);
 		assert(format);
@@ -90,6 +90,9 @@ namespace Nz
 		else
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+		context.glPixelStorei(GL_UNPACK_ROW_LENGTH,   srcWidth);
+		context.glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, srcHeight);
+
 		switch (m_params.type)
 		{
 			case ImageType::E1D:
@@ -99,7 +102,7 @@ namespace Nz
 				break;
 
 			case ImageType::E2D:
-				m_texture.TexSubImage2D(GL::TextureTarget::Target2D, 0, 0, 0, m_params.width, m_params.height, format->format, format->type, ptr);
+				m_texture.TexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, format->type, ptr);
 				break;
 
 			case ImageType::E2D_Array:
@@ -115,7 +118,7 @@ namespace Nz
 
 				for (GL::TextureTarget face : { GL::TextureTarget::CubemapPositiveX, GL::TextureTarget::CubemapNegativeX, GL::TextureTarget::CubemapPositiveY, GL::TextureTarget::CubemapNegativeY, GL::TextureTarget::CubemapPositiveZ, GL::TextureTarget::CubemapNegativeZ })
 				{
-					m_texture.TexSubImage2D(face, 0, 0, 0, m_params.width, m_params.height, format->format, format->type, facePtr);
+					m_texture.TexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->format, format->type, facePtr);
 					facePtr += faceSize;
 				}
 				break;

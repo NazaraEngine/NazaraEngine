@@ -46,7 +46,7 @@ namespace Nz
 	using TextureLoader = ResourceLoader<Texture, TextureParams>;
 	using TextureManager = ResourceManager<Texture, TextureParams>;
 
-	class NAZARA_RENDERER_API Texture : public Resource
+	class NAZARA_RENDERER_API Texture : public AbstractImage, public Resource, public std::enable_shared_from_this<Texture> //< FIXME
 	{
 		public:
 			Texture() = default;
@@ -58,8 +58,6 @@ namespace Nz
 			virtual UInt8 GetLevelCount() const = 0;
 			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
 			virtual ImageType GetType() const = 0;
-
-			virtual bool Update(const void* ptr) = 0;
 
 			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
 

@@ -1248,41 +1248,7 @@ namespace Nz
 		return true;
 	}
 
-	bool Image::Update(const UInt8* pixels, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
-	{
-		#if NAZARA_UTILITY_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("Image must be valid");
-			return false;
-		}
-
-		if (!pixels)
-		{
-			NazaraError("Invalid pixel source");
-			return false;
-		}
-
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
-			return false;
-		}
-		#endif
-
-		EnsureOwnership();
-
-		Copy(m_sharedImage->levels[level].get(), pixels, m_sharedImage->format,
-		     GetLevelSize(m_sharedImage->width, level),
-		     GetLevelSize(m_sharedImage->height, level),
-		     GetLevelSize(m_sharedImage->depth, level),
-		     0, 0,
-		     srcWidth, srcHeight);
-
-		return true;
-	}
-
-	bool Image::Update(const UInt8* pixels, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
+	bool Image::Update(const void* pixels, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
 		#if NAZARA_UTILITY_SAFE
 		if (m_sharedImage == &emptyImage)
@@ -1328,17 +1294,12 @@ namespace Nz
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPixels = GetPixelPtr(m_sharedImage->levels[level].get(), bpp, box.x, box.y, box.z, width, height);
 
-		Copy(dstPixels, pixels, m_sharedImage->format,
+		Copy(dstPixels, static_cast<const UInt8*>(pixels), m_sharedImage->format,
 			 box.width, box.height, box.depth,
 			 width, height,
 			 srcWidth, srcHeight);
 
 		return true;
-	}
-
-	bool Image::Update(const UInt8* pixels, const Rectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
-	{
-		return Update(pixels, Boxui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, srcHeight, level);
 	}
 
 	Image& Image::operator=(const Image& image)

@@ -236,6 +236,24 @@ namespace Nz
 			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, width, height, depth);
 		}
 
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, Int32 x, Int32 y, Int32 z, UInt32 width, UInt32 height, UInt32 depth)
+		{
+			VkBufferImageCopy region = {
+				0,
+				0,
+				0,
+				subresourceLayers,
+				{ // imageOffset
+					x, y, z
+				},
+				{ // imageExtent
+					width, height, depth
+				}
+			};
+
+			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, region);
+		}
+
 		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			VkBufferImageCopy region = {
@@ -251,7 +269,17 @@ namespace Nz
 				}
 			};
 
-			return m_pool->GetDevice()->vkCmdCopyBufferToImage(m_handle, source, target, targetLayout, 1, &region);
+			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, region);
+		}
+
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, const VkBufferImageCopy& region)
+		{
+			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, 1, &region);
+		}
+
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 regionCount, const VkBufferImageCopy* regions)
+		{
+			return m_pool->GetDevice()->vkCmdCopyBufferToImage(m_handle, source, target, targetLayout, regionCount, regions);
 		}
 
 		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)

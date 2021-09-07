@@ -30,7 +30,8 @@ namespace Nz
 			Vector3ui GetSize(UInt8 level = 0) const override;
 			ImageType GetType() const override;
 
-			bool Update(const void* ptr) override;
+			using Texture::Update;
+			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level) override;
 
 			VulkanTexture& operator=(const VulkanTexture&) = delete;
 			VulkanTexture& operator=(VulkanTexture&&) = delete;
