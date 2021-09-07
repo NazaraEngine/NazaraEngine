@@ -26,8 +26,8 @@ namespace Nz
 	{
 		class FreeTypeLibrary;
 
-		FT_Library s_library;
-		FT_Stroker s_stroker;
+		FT_Library s_library = nullptr;
+		FT_Stroker s_stroker = nullptr;
 		std::shared_ptr<FreeTypeLibrary> s_libraryOwner;
 		constexpr float s_scaleFactor = 1 << 6;
 		constexpr float s_invScaleFactor = 1.f / s_scaleFactor;
@@ -427,20 +427,17 @@ namespace Nz
 			}
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
-			if (font->Create(face.get()))
-			{
-				face.release();
-				return font;
-			}
-			else
+			if (!font->Create(std::move(face)))
 				return nullptr;
+
+			return font;
 		}
 
 		std::shared_ptr<Font> LoadMemory(const void* data, std::size_t size, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
-			std::unique_ptr<FreeTypeStream> face(new FreeTypeStream);
+			std::unique_ptr<FreeTypeStream> face = std::make_unique<FreeTypeStream>();
 			face->SetMemory(data, size);
 
 			if (!face->Open())
@@ -450,13 +447,10 @@ namespace Nz
 			}
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
-			if (font->Create(face.get()))
-			{
-				face.release();
-				return font;
-			}
-			else
+			if (!font->Create(std::move(face)))
 				return nullptr;
+
+			return font;
 		}
 
 		std::shared_ptr<Font> LoadStream(Stream& stream, const FontParams& parameters)
@@ -473,13 +467,10 @@ namespace Nz
 			}
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
-			if (font->Create(face.get()))
-			{
-				face.release();
-				return font;
-			}
-			else
+			if (!font->Create(std::move(face)))
 				return nullptr;
+
+			return font;
 		}
 	}
 

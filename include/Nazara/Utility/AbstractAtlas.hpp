@@ -12,6 +12,7 @@
 #include <Nazara/Core/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {
@@ -30,7 +31,7 @@ namespace Nz
 			virtual void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count) = 0;
 			virtual AbstractImage* GetLayer(unsigned int layerIndex) const = 0;
 			virtual std::size_t GetLayerCount() const = 0;
-			virtual UInt32 GetStorage() const = 0;
+			virtual DataStoreFlags GetStorage() const = 0;
 			virtual bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) = 0;
 
 			AbstractAtlas& operator=(const AbstractAtlas&) = delete;

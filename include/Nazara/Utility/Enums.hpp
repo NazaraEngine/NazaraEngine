@@ -127,6 +127,13 @@ namespace Nz
 		Max = Software
 	};
 
+	template<>
+	struct EnumAsFlags<DataStorage>
+	{
+		static constexpr DataStorage max = DataStorage::Max;
+	};
+
+	using DataStoreFlags = Flags<DataStorage>;
 	constexpr std::size_t DataStorageCount = static_cast<std::size_t>(DataStorage::Max) + 1;
 
 	enum class FaceFilling

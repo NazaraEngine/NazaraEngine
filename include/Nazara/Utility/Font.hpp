@@ -53,7 +53,7 @@ namespace Nz
 			void ClearKerningCache();
 			void ClearSizeInfoCache();
 
-			bool Create(FontData* data);
+			bool Create(std::unique_ptr<FontData> data);
 			void Destroy();
 
 			bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* glyph) const;
@@ -74,7 +74,7 @@ namespace Nz
 			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
 			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const;
 
-			void SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
+			void SetAtlas(std::shared_ptr<AbstractAtlas> atlas);
 			void SetGlyphBorder(unsigned int borderSize);
 			void SetMinimumStepSize(unsigned int minimumStepSize);
 
@@ -90,7 +90,7 @@ namespace Nz
 			static std::shared_ptr<Font> OpenFromMemory(const void* data, std::size_t size, const FontParams& params = FontParams());
 			static std::shared_ptr<Font> OpenFromStream(Stream& stream, const FontParams& params = FontParams());
 
-			static void SetDefaultAtlas(const std::shared_ptr<AbstractAtlas>& atlas);
+			static void SetDefaultAtlas(std::shared_ptr<AbstractAtlas> atlas);
 			static void SetDefaultGlyphBorder(unsigned int borderSize);
 			static void SetDefaultMinimumStepSize(unsigned int minimumStepSize);
 
