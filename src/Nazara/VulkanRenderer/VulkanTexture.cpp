@@ -249,6 +249,19 @@ namespace Nz
 		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
+			case PixelFormat::A8:
+			{
+				createImage.format = VK_FORMAT_R8_UNORM;
+				createImageView.format = createImage.format;
+				createImageView.components = {
+					VK_COMPONENT_SWIZZLE_ONE,
+					VK_COMPONENT_SWIZZLE_ONE,
+					VK_COMPONENT_SWIZZLE_ONE,
+					VK_COMPONENT_SWIZZLE_R
+				};
+				break;
+			}
+
 			case PixelFormat::BGR8:
 			case PixelFormat::BGR8_SRGB:
 			case PixelFormat::BGRA8:

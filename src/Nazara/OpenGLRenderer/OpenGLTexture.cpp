@@ -78,6 +78,18 @@ namespace Nz
 		auto format = DescribeTextureFormat(m_params.pixelFormat);
 		assert(format);
 
+		const GL::Context& context = m_texture.EnsureDeviceContext();
+
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+		if (bpp % 8 == 0)
+			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
+		else if (bpp % 4 == 0)
+			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+		else if (bpp % 2 == 0)
+			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+		else
+			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 		switch (m_params.type)
 		{
 			case ImageType::E1D:
