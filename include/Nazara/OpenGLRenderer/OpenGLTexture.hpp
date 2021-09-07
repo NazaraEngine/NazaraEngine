@@ -29,7 +29,8 @@ namespace Nz
 			inline const GL::Texture& GetTexture() const;
 			ImageType GetType() const override;
 
-			bool Update(const void* ptr) override;
+			using Texture::Update;
+			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
 
 			OpenGLTexture& operator=(const OpenGLTexture&) = delete;
 			OpenGLTexture& operator=(OpenGLTexture&&) = delete;

@@ -57,7 +57,10 @@ namespace Nz
 
 				inline void CopyBuffer(VkBuffer source, VkBuffer target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 width, UInt32 height, UInt32 depth = 1);
+				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, Int32 x, Int32 y, Int32 z, UInt32 width, UInt32 height, UInt32 depth);
 				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 width, UInt32 height, UInt32 depth = 1);
+				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, const VkBufferImageCopy& region);
+				inline void CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 regionCount, const VkBufferImageCopy* regions);
 
 				inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 				inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, Int32 vertexOffset = 0, UInt32 firstInstance = 0);

@@ -167,9 +167,9 @@ namespace Nz
 		return m_params.type;
 	}
 
-	bool VulkanTexture::Update(const void* ptr)
+	bool VulkanTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
-		std::size_t textureSize = m_params.width * m_params.height * m_params.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+		std::size_t textureSize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
 		if (m_params.type == ImageType::Cubemap)
 			textureSize *= 6;
 
@@ -198,7 +198,44 @@ namespace Nz
 			vmaDestroyBuffer(m_device.GetMemoryAllocator(), stagingBuffer, stagingAllocation);
 		});
 
-		std::memcpy(allocationInfo.pMappedData, ptr, textureSize);
+		if (srcWidth == 0)
+			srcWidth = box.width;
+
+		if (srcHeight == 0)
+			srcHeight = box.height;
+
+		if (srcWidth == box.width && srcHeight == box.height)
+			std::memcpy(allocationInfo.pMappedData, ptr, textureSize);
+		else
+		{
+			unsigned int dstWidth = box.width;
+			unsigned int dstHeight = box.height;
+
+			unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+			unsigned int lineStride = box.width * bpp;
+			unsigned int dstLineStride = dstWidth * bpp;
+			unsigned int dstFaceStride = dstLineStride * dstHeight;
+			unsigned int srcLineStride = srcWidth * bpp;
+			unsigned int srcFaceStride = srcLineStride * srcHeight;
+
+			const UInt8* source = static_cast<const UInt8*>(ptr);
+			UInt8* destination = static_cast<UInt8*>(allocationInfo.pMappedData);
+			for (unsigned int i = 0; i < box.depth; ++i)
+			{
+				UInt8* dstFacePtr = destination;
+				const UInt8* srcFacePtr = source;
+				for (unsigned int y = 0; y < box.height; ++y)
+				{
+					std::memcpy(dstFacePtr, srcFacePtr, lineStride);
+
+					dstFacePtr += dstLineStride;
+					srcFacePtr += srcLineStride;
+				}
+
+				destination += dstFaceStride;
+				source += srcFaceStride;
+			}
+		}
 
 		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
 		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
@@ -206,7 +243,7 @@ namespace Nz
 
 		VkImageSubresourceLayers subresourceLayers = { //< FIXME
 			VK_IMAGE_ASPECT_COLOR_BIT,
-			0, //< mipLevel
+			level, //< mipLevel
 			0, //< baseArrayLayer
 			UInt32((m_params.type == ImageType::Cubemap) ? 6 : 1) //< layerCount
 		};
@@ -219,9 +256,22 @@ namespace Nz
 			subresourceLayers.layerCount      //< layerCount
 		};
 
+		VkBufferImageCopy region = {
+			0,
+			0,
+			0,
+			subresourceLayers,
+			{ // imageOffset
+				box.x, box.y, box.z
+			},
+			{ // imageExtent
+				box.width, box.height, box.depth
+			}
+		};
+
 		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
-		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceLayers, m_params.width, m_params.height, m_params.depth);
+		copyCommandBuffer->CopyBufferToImage(stagingBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceLayers, region);
 
 		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
 
