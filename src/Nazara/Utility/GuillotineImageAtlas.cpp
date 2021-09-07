@@ -73,9 +73,9 @@ namespace Nz
 		return m_layers.size();
 	}
 
-	UInt32 GuillotineImageAtlas::GetStorage() const
+	DataStoreFlags GuillotineImageAtlas::GetStorage() const
 	{
-		return static_cast<UInt32>(DataStorage::Software);
+		return DataStorage::Software;
 	}
 
 	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex)
@@ -159,30 +159,23 @@ namespace Nz
 		m_rectSplitHeuristic = heuristic;
 	}
 
-	AbstractImage* GuillotineImageAtlas::ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const
+	std::shared_ptr<AbstractImage> GuillotineImageAtlas::ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const
 	{
-		std::unique_ptr<Image> newImage(new Image(ImageType::E2D, PixelFormat::A8, size.x, size.y));
+		std::shared_ptr<Image> newImage = std::make_shared<Image>(ImageType::E2D, PixelFormat::A8, size.x, size.y);
 		if (oldImage)
-		{
 			newImage->Copy(static_cast<Image&>(*oldImage), Rectui(size), Vector2ui(0, 0)); // Copie des anciennes données
-		}
 
-		return newImage.release();
+		return newImage;
 	}
 
 	bool GuillotineImageAtlas::ResizeLayer(Layer& layer, const Vector2ui& size)
 	{
-		AbstractImage* oldLayer = layer.image.get();
-
-		std::unique_ptr<AbstractImage> newImage(ResizeImage(layer.image.get(), size));
+		std::shared_ptr<AbstractImage> newImage = ResizeImage(layer.image, size);
 		if (!newImage)
 			return false; // Nous n'avons pas pu allouer
 
-		if (newImage.get() == oldLayer) // Le layer a été agrandi dans le même objet, pas de souci
-		{
-			newImage.release(); // On possède déjà un unique_ptr sur cette ressource
+		if (newImage == layer.image) // Le layer a été agrandi dans le même objet, pas de souci
 			return true;
-		}
 
 		// On indique à ceux que ça intéresse qu'on a changé de pointeur
 		// (chose très importante pour ceux qui le stockent)

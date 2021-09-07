@@ -33,7 +33,7 @@ namespace Nz
 			GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
 			AbstractImage* GetLayer(unsigned int layerIndex) const override;
 			std::size_t GetLayerCount() const override;
-			UInt32 GetStorage() const override;
+			DataStoreFlags GetStorage() const override;
 
 			bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) override;
 
@@ -46,7 +46,7 @@ namespace Nz
 		protected:
 			struct Layer;
 
-			virtual AbstractImage* ResizeImage(AbstractImage* oldImage, const Vector2ui& size) const;
+			virtual std::shared_ptr<AbstractImage> ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const;
 			bool ResizeLayer(Layer& layer, const Vector2ui& size);
 
 			struct QueuedGlyph
@@ -59,7 +59,7 @@ namespace Nz
 			struct Layer
 			{
 				std::vector<QueuedGlyph> queuedGlyphs;
-				std::unique_ptr<AbstractImage> image;
+				std::shared_ptr<AbstractImage> image;
 				GuillotineBinPack binPack;
 				unsigned int freedRectangles = 0;
 			};

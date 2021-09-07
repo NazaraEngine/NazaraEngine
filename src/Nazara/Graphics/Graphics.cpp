@@ -4,8 +4,10 @@
 
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/ECS.hpp>
+#include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -77,10 +79,37 @@ namespace Nz
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
 		SelectDepthStencilFormats();
+
+		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 	}
 
 	Graphics::~Graphics()
 	{
+		// Free of atlas if it is ours
+		std::shared_ptr<AbstractAtlas> defaultAtlas = Font::GetDefaultAtlas();
+		if (defaultAtlas && defaultAtlas->GetStorage() == DataStorage::Hardware)
+		{
+			Font::SetDefaultAtlas(nullptr);
+
+			// The default police can make live one hardware atlas after the free of a module (which could be problematic)
+			// So, if the default police use a hardware atlas, we stole it.
+			// I don't like this solution, but I don't have any better
+			if (!defaultAtlas.unique())
+			{
+				// Still at least one police use the atlas
+				const std::shared_ptr<Font>& defaultFont = Font::GetDefault();
+				defaultFont->SetAtlas(nullptr);
+
+				if (!defaultAtlas.unique())
+				{
+					// Still not the only one to own it ? Then crap.
+					NazaraWarning("Default font atlas uses hardware storage and is still used");
+				}
+			}
+		}
+
+		defaultAtlas.reset();
+
 		MaterialPipeline::Uninitialize();
 		m_renderPassCache.reset();
 		m_samplerCache.reset();
@@ -159,7 +188,7 @@ namespace Nz
 		{
 			Nz::TextureInfo texInfo;
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
-			texInfo.pixelFormat = PixelFormat::BGRA8;
+			texInfo.pixelFormat = PixelFormat::L8;
 			texInfo.type = ImageType::E2D;
 
 			std::array<UInt8, 4> texData = { 0xFF, 0xFF, 0xFF, 0xFF };

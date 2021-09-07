@@ -37,7 +37,7 @@ namespace Nz
 		OnFontRelease(this);
 
 		Destroy();
-		SetAtlas(nullptr); // On libère l'atlas proprement
+		SetAtlas({}); // On libère l'atlas proprement
 	}
 
 	void Font::ClearGlyphCache()
@@ -81,19 +81,12 @@ namespace Nz
 		OnFontSizeInfoCacheCleared(this);
 	}
 
-	bool Font::Create(FontData* data)
+	bool Font::Create(std::unique_ptr<FontData> data)
 	{
+		NazaraAssert(data, "invalid font data");
+
 		Destroy();
-
-		#if NAZARA_UTILITY_SAFE
-		if (!data)
-		{
-			NazaraError("Invalid font data");
-			return false;
-		}
-		#endif
-
-		m_data.reset(data);
+		m_data = std::move(data);
 		return true;
 	}
 
@@ -230,7 +223,7 @@ namespace Nz
 			else
 			{
 				NazaraWarning("Failed to extract space character from font, using half the character size");
-				sizeInfo.spaceAdvance = characterSize/2;
+				sizeInfo.spaceAdvance = characterSize / 2;
 			}
 
 			it = m_sizeInfoCache.insert(std::make_pair(characterSize, sizeInfo)).first;
@@ -281,13 +274,13 @@ namespace Nz
 		return true;
 	}
 
-	void Font::SetAtlas(const std::shared_ptr<AbstractAtlas>& atlas)
+	void Font::SetAtlas(std::shared_ptr<AbstractAtlas> atlas)
 	{
 		if (m_atlas != atlas)
 		{
 			ClearGlyphCache();
 
-			m_atlas = atlas;
+			m_atlas = std::move(atlas);
 			if (m_atlas)
 			{
 				m_atlasClearedSlot.Connect(m_atlas->OnAtlasCleared, this, &Font::OnAtlasCleared);
@@ -380,9 +373,9 @@ namespace Nz
 		return utility->GetFontLoader().LoadFromStream(stream, params);
 	}
 
-	void Font::SetDefaultAtlas(const std::shared_ptr<AbstractAtlas>& atlas)
+	void Font::SetDefaultAtlas(std::shared_ptr<AbstractAtlas> atlas)
 	{
-		s_defaultAtlas = atlas;
+		s_defaultAtlas = std::move(atlas);
 	}
 
 	void Font::SetDefaultGlyphBorder(unsigned int borderSize)
@@ -392,13 +385,7 @@ namespace Nz
 
 	void Font::SetDefaultMinimumStepSize(unsigned int minimumStepSize)
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (minimumStepSize == 0)
-		{
-			NazaraError("Minimum step size cannot be zero as it implies division by zero");
-			return;
-		}
-		#endif
+		NazaraAssert(minimumStepSize, "minimum step size cannot be zero as it implies a division by zero");
 
 		s_defaultMinimumStepSize = minimumStepSize;
 	}
