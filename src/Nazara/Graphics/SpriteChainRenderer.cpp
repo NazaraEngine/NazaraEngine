@@ -141,6 +141,8 @@ namespace Nz
 			}
 
 			std::size_t remainingQuads = spriteChain.GetSpriteCount();
+			const UInt8* spriteData = static_cast<const UInt8*>(spriteChain.GetSpriteData());
+
 			while (remainingQuads > 0)
 			{
 				if (!currentAllocation)
@@ -210,8 +212,9 @@ namespace Nz
 				std::size_t copiedQuadCount = std::min(maxQuads, remainingQuads);
 				std::size_t copiedSize = 4 * copiedQuadCount * stride;
 
-				std::memcpy(currentAllocationMemPtr, spriteChain.GetSpriteData(), copiedSize);
+				std::memcpy(currentAllocationMemPtr, spriteData, copiedSize);
 				currentAllocationMemPtr += copiedSize;
+				spriteData += copiedSize;
 
 				firstQuadIndex += copiedQuadCount;
 				currentDrawCall->quadCount += copiedQuadCount;
