@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <memory>
 #include <vector>
 
@@ -24,7 +25,7 @@ namespace Nz
 			inline RenderElement(UInt8 elementType);
 			virtual ~RenderElement();
 
-			virtual UInt64 ComputeSortingScore(const RenderQueueRegistry& registry) const = 0;
+			virtual UInt64 ComputeSortingScore(const Nz::Frustumf& frustum, const RenderQueueRegistry& registry) const = 0;
 
 			inline UInt8 GetElementType() const;
 

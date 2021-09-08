@@ -182,6 +182,14 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
+	inline void MaterialPass::EnableFlag(MaterialPassFlag flag, bool enable)
+	{
+		if (enable)
+			m_flags |= flag;
+		else
+			m_flags &= ~flag;
+	}
+
 	/*!
 	* \brief Enable/Disable scissor test for this material
 	*
@@ -304,6 +312,11 @@ namespace Nz
 	inline float MaterialPass::GetLineWidth() const
 	{
 		return m_pipelineInfo.lineWidth;
+	}
+
+	inline MaterialPassFlags MaterialPass::GetFlags() const
+	{
+		return m_flags;
 	}
 
 	inline const ShaderAst::ConstantValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
@@ -456,6 +469,11 @@ namespace Nz
 	inline bool MaterialPass::IsFaceCullingEnabled() const
 	{
 		return m_pipelineInfo.faceCulling;
+	}
+
+	inline bool MaterialPass::IsFlagEnabled(MaterialPassFlag flag) const
+	{
+		return m_flags.Test(flag);
 	}
 
 	/*!

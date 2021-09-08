@@ -237,7 +237,7 @@ namespace Nz
 
 			viewerData.depthPrepassRenderQueue.Sort([&](const RenderElement* element)
 			{
-				return element->ComputeSortingScore(viewerData.depthPrepassRegistry);
+				return element->ComputeSortingScore(frustum, viewerData.depthPrepassRegistry);
 			});
 
 			if (viewerData.rebuildForwardPass)
@@ -258,7 +258,7 @@ namespace Nz
 
 			viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
 			{
-				return element->ComputeSortingScore(viewerData.forwardRegistry);
+				return element->ComputeSortingScore(frustum, viewerData.forwardRegistry);
 			});
 		}
 

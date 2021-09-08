@@ -46,6 +46,7 @@ namespace Nz
 			inline void EnableDepthClamp(bool depthClamp);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
+			inline void EnableFlag(MaterialPassFlag flag, bool enable = true);
 			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableStencilTest(bool stencilTest);
 
@@ -61,6 +62,7 @@ namespace Nz
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
 			inline float GetLineWidth() const;
+			inline MaterialPassFlags GetFlags() const;
 			inline const ShaderAst::ConstantValue& GetOptionValue(std::size_t optionIndex) const;
 			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
@@ -83,6 +85,7 @@ namespace Nz
 			inline bool IsDepthClampEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
+			inline bool IsFlagEnabled(MaterialPassFlag flag) const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
 
@@ -133,6 +136,7 @@ namespace Nz
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
+			MaterialPassFlags m_flags;
 			ShaderBindingPtr m_shaderBinding;
 			bool m_forceCommandBufferRegeneration;
 			mutable bool m_pipelineUpdated;

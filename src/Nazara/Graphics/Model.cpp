@@ -45,7 +45,7 @@ namespace Nz
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
 			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
-			elements.emplace_back(std::make_unique<RenderSubmesh>(0, renderPipeline, m_graphicalMesh->GetIndexCount(i), indexBuffer, vertexBuffer, worldInstance.GetShaderBinding(), materialPass->GetShaderBinding()));
+			elements.emplace_back(std::make_unique<RenderSubmesh>(0, renderPipeline, m_graphicalMesh->GetIndexCount(i), indexBuffer, vertexBuffer, worldInstance, materialPass->GetShaderBinding(), materialPass->GetFlags()));
 		}
 	}
 
