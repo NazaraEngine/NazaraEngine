@@ -42,7 +42,7 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], materialPass->GetShaderBinding(), worldInstance.GetShaderBinding()));
+				elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], materialPass->GetShaderBinding(), worldInstance, materialPass->GetFlags()));
 		}
 	}
 

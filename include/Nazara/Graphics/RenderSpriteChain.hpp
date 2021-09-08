@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Graphics/WorldInstance.hpp>
 #include <memory>
 #include <vector>
 
@@ -23,10 +24,10 @@ namespace Nz
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const ShaderBinding& instanceBinding);
+			inline RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const WorldInstance& worldInstance, const MaterialPassFlags& matFlags);
 			~RenderSpriteChain() = default;
 
-			inline UInt64 ComputeSortingScore(const RenderQueueRegistry& registry) const override;
+			inline UInt64 ComputeSortingScore(const Nz::Frustumf& frustum, const RenderQueueRegistry& registry) const override;
 
 			inline const ShaderBinding& GetInstanceBinding() const;
 			inline const ShaderBinding& GetMaterialBinding() const;
@@ -44,8 +45,9 @@ namespace Nz
 			std::shared_ptr<Texture> m_textureOverlay;
 			std::size_t m_spriteCount;
 			const void* m_spriteData;
-			const ShaderBinding& m_instanceBinding;
+			MaterialPassFlags m_matFlags;
 			const ShaderBinding& m_materialBinding;
+			const WorldInstance& m_worldInstance;
 			int m_renderLayer;
 	};
 }

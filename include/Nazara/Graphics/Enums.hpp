@@ -8,6 +8,7 @@
 #define NAZARA_ENUMS_GRAPHICS_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/Flags.hpp>
 
 namespace Nz
 {
@@ -28,6 +29,21 @@ namespace Nz
 		Sphere,
 		Volume
 	};
+
+	enum class MaterialPassFlag
+	{
+		Transparent,
+
+		Max = Transparent
+	};
+
+	template<>
+	struct EnumAsFlags<MaterialPassFlag>
+	{
+		static constexpr MaterialPassFlag max = MaterialPassFlag::Max;
+	};
+
+	using MaterialPassFlags = Flags<MaterialPassFlag>;
 
 	enum class ProjectionType
 	{
