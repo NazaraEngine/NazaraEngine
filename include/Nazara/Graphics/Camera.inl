@@ -164,7 +164,7 @@ namespace Nz
 		{
 			case ProjectionType::Orthographic:
 				if (m_size.x < 0.f || m_size.y < 0.f)
-					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(0.f, float(m_viewport.x), 0.f, float(m_viewport.y), m_zNear, m_zFar));
+					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(float(m_viewport.x), float(m_viewport.x + m_viewport.width), float(m_viewport.y), float(m_viewport.y + m_viewport.height), m_zNear, m_zFar));
 				else
 					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(0.f, m_size.x, 0.f, m_size.y, m_zNear, m_zFar));
 				break;
