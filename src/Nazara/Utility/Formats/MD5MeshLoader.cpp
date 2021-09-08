@@ -263,28 +263,38 @@ namespace Nz
 
 					VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
 
-					auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
-
-					for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
+					// Vertex positions
+					if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))
 					{
-						// Id Tech MD5 skinning
-						Vector3f finalPos(Vector3f::Zero());
-						for (unsigned int j = 0; j < md5Vertex.weightCount; ++j)
+						for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 						{
-							const MD5MeshParser::Weight& weight = md5Mesh.weights[md5Vertex.startWeight + j];
-							const MD5MeshParser::Joint& joint = joints[weight.joint];
+							// Id Tech MD5 skinning
+							Vector3f finalPos(Vector3f::Zero());
+							for (unsigned int j = 0; j < md5Vertex.weightCount; ++j)
+							{
+								const MD5MeshParser::Weight& weight = md5Mesh.weights[md5Vertex.startWeight + j];
+								const MD5MeshParser::Joint& joint = joints[weight.joint];
 
-							finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
+								finalPos += (joint.bindPos + joint.bindOrient * weight.pos) * weight.bias;
+							}
+
+							// On retourne le modèle dans le bon sens
+							*posPtr++ = matrix * finalPos;
 						}
-
-						// On retourne le modèle dans le bon sens
-						*posPtr++ = matrix * finalPos;
 					}
 
+					// Vertex UVs
 					if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
 					{
 						for (const MD5MeshParser::Vertex& md5Vertex : md5Mesh.vertices)
 							*uvPtr++ = parameters.texCoordOffset + md5Vertex.uv * parameters.texCoordScale;
+					}
+
+					// Vertex colors (.md5mesh files have no vertex color)
+					if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+					{
+						for (std::size_t i = 0; i < md5Mesh.vertices.size(); ++i)
+							*colorPtr++ = Color::White;
 					}
 
 					vertexMapper.Unmap();

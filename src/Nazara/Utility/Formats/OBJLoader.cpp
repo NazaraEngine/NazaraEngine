@@ -294,8 +294,11 @@ namespace Nz
 					const OBJParser::FaceVertex& vertexIndices = vertexPair.first;
 					unsigned int index = vertexPair.second;
 
-					const Vector4f& vec = positions[vertexIndices.position-1];
-					posPtr[index] = Vector3f(parameters.matrix * vec);
+					if (posPtr)
+					{
+						const Vector4f& vec = positions[vertexIndices.position - 1];
+						posPtr[index] = Vector3f(parameters.matrix * vec);
+					}
 
 					if (hasNormals)
 					{
@@ -317,6 +320,13 @@ namespace Nz
 						else
 							hasTexCoords = false;
 					}
+				}
+
+				// Official .obj files have no vertex color, fill it with white
+				if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+				{
+					for (unsigned int i = 0; i < vertexCount; ++i)
+						colorPtr[i] = Nz::Color::White;
 				}
 
 				vertexMapper.Unmap();
