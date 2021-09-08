@@ -493,13 +493,17 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 
 				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
 
-				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+				// Vertex positions
+				if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))
 				{
-					aiVector3D position = iMesh->mVertices[vertexIdx];
-					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiVector3D position = iMesh->mVertices[vertexIdx];
+						*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
+					}
 				}
 
+				// Vertex normals
 				if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
 				{
 					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
@@ -509,6 +513,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					}
 				}
 
+				// Vertex tangents
 				bool generateTangents = false;
 				if (auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent))
 				{
@@ -524,6 +529,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 						generateTangents = true;
 				}
 
+				// Vertex UVs
 				if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
 				{
 					if (iMesh->HasTextureCoords(0))
@@ -538,6 +544,24 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					{
 						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 							*uvPtr++ = Vector2f::Zero();
+					}
+				}
+
+				// Vertex colors
+				if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+				{
+					if (iMesh->HasVertexColors(0))
+					{
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+						{
+							aiColor4D color = iMesh->mColors[0][vertexIdx];
+							*colorPtr++ = Color(UInt8(color.r * 255.f), UInt8(color.g * 255.f), UInt8(color.b * 255.f), UInt8(color.a * 255.f));
+						}
+					}
+					else
+					{
+						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+							*colorPtr++ = Color::White;
 					}
 				}
 

@@ -12,6 +12,7 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Formats/MD2Constants.hpp>
+#include <array>
 #include <cassert>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
@@ -191,12 +192,12 @@ namespace Nz
 			// Loading texture coordinates
 			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
 			{
-				const unsigned int indexFix[3] = {0, 2, 1};
+				constexpr std::array<UInt32, 3> indexFix = {0, 2, 1};
 
 				Vector2f invSkinSize(1.f / header.skinwidth, 1.f / header.skinheight);
-				for (unsigned int i = 0; i < header.num_tris; ++i)
+				for (UInt32 i = 0; i < header.num_tris; ++i)
 				{
-					for (unsigned int fixedIndex : indexFix) //< Reverse winding order
+					for (UInt32 fixedIndex : indexFix) //< Reverse winding order
 					{
 						const MD2_TexCoord& texC = texCoords[triangles[i].texCoords[fixedIndex]];
 						Vector2f uv(texC.u, texC.v);
@@ -207,19 +208,18 @@ namespace Nz
 				}
 			}
 
-			// Loading vertex position
-
 			// Align the model to our coordinates system
 			Quaternionf rotationQuat = EulerAnglesf(-90.f, 90.f, 0.f);
 			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
 			matrix *= parameters.matrix;
 
+			// Vertex normals
 			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
 			{
 				Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
 				normalMatrix *= parameters.matrix;
 
-				for (unsigned int v = 0; v < header.num_vertices; ++v)
+				for (UInt32 v = 0; v < header.num_vertices; ++v)
 				{
 					const MD2_Vertex& vert = vertices[v];
 
@@ -227,14 +227,22 @@ namespace Nz
 				}
 			}
 
-			auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
-			assert(posPtr);
-
-			for (unsigned int v = 0; v < header.num_vertices; ++v)
+			// Vertex positions
+			if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))
 			{
-				const MD2_Vertex& vert = vertices[v];
+				for (UInt32 v = 0; v < header.num_vertices; ++v)
+				{
+					const MD2_Vertex& vert = vertices[v];
 
-				*posPtr++ = matrix * Vector3f(vert.x, vert.y, vert.z);
+					*posPtr++ = matrix * Vector3f(vert.x, vert.y, vert.z);
+				}
+			}
+
+			// Vertex colors (.md2 files have no vertex color)
+			if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+			{
+				for (UInt32 v = 0; v < header.num_vertices; ++v)
+					*colorPtr++ = Color::White;
 			}
 
 			vertexMapper.Unmap();
