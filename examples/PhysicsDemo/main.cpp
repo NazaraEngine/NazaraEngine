@@ -2,6 +2,7 @@
 #include <Nazara/Core/ECS.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
+#include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/Components.hpp>
 #include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Math/PidController.hpp>
@@ -75,7 +76,7 @@ int main()
 	materialPass->EnableDepthClamp(true);
 	materialPass->EnableFaceCulling(true);
 
-	material->AddPass("DepthPass", depthPass);
+	//material->AddPass("DepthPass", depthPass);
 	material->AddPass("ForwardPass", materialPass);
 
 	Nz::TextureSamplerInfo samplerInfo;
@@ -98,17 +99,67 @@ int main()
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
+	std::shared_ptr<Nz::Material> spriteMaterial = std::make_shared<Nz::Material>();
+
+	/*std::shared_ptr<Nz::MaterialPass> spriteDepthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
+	spriteDepthPass->EnableDepthBuffer(true);
+	spriteDepthPass->EnableDepthClamp(true);
+	//spriteDepthPass->EnableFaceCulling(true);*/
+
+	std::shared_ptr<Nz::MaterialPass> spriteMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	spriteMaterialPass->EnableDepthBuffer(true);
+	spriteMaterialPass->EnableDepthWrite(false);
+	spriteMaterialPass->EnableDepthClamp(true);
+	//spriteMaterialPass->EnableFaceCulling(true);
+
+	spriteMaterialPass->EnableFlag(Nz::MaterialPassFlag::Transparent);
+
+	spriteMaterialPass->EnableBlending(true);
+	spriteMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
+	spriteMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
+
+	//Nz::BasicMaterial basicSpriteMat(*spriteMaterialPass);
+	//basicSpriteMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
+
+	//spriteMaterial->AddPass("DepthPass", spriteDepthPass);
+	spriteMaterial->AddPass("ForwardPass", spriteMaterialPass);
+
+	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(spriteMaterial);
+
+	std::u32string str = Nz::ToUtf32String("Dès Noël, où un zéphyr haï me vêt de glaçons würmiens, je dîne d’exquis rôtis de bœuf au kir, à l’aÿ d’âge mûr, &cætera");
+
+	Nz::RichTextDrawer richText;
+	unsigned int size = 16;
+	for (char32_t character : str)
+	{
+		richText.SetDefaultCharacterSize(size);
+		richText.AppendText(Nz::FromUtf32String(std::u32string_view(&character, 1)));
+
+		size += 2;
+	}
+
+	sprite->Update(richText, 0.02f);
+
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0), Nz::BufferAccess::ReadOnly);
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
-
 	entt::registry registry;
+	entt::registry registry2D;
 
 	Nz::Physics3DSystem physSytem(registry);
 	Nz::RenderSystem renderSystem(registry);
+	Nz::RenderSystem renderSystem2D(registry2D);
 
+	entt::entity viewer2D = registry2D.create();
+	registry2D.emplace<Nz::NodeComponent>(viewer2D);
+	registry2D.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+
+	entt::entity text2D = registry2D.create();
+
+	registry2D.emplace<Nz::GraphicsComponent>(text2D).AttachRenderable(sprite);
+	registry2D.emplace<Nz::NodeComponent>(text2D).SetPosition(Nz::Vector3f(0.f, 200.f, 0.f));
 
 	entt::entity viewer = registry.create();
 	registry.emplace<Nz::NodeComponent>(viewer);
@@ -143,6 +194,7 @@ int main()
 	{
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
 		entityGfx.AttachRenderable(model);
+		entityGfx.AttachRenderable(sprite);
 
 		auto& entityNode = registry.emplace<Nz::NodeComponent>(playerEntity);
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
@@ -156,19 +208,19 @@ int main()
 		headingNode.SetParent(registry, playerEntity);
 	}
 
-
 	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
 	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
-	for (std::size_t x = 0; x < 10; ++x)
+	for (std::size_t x = 0; x < 1; ++x)
 	{
-		for (std::size_t y = 0; y < 10; ++y)
+		for (std::size_t y = 0; y < 1; ++y)
 		{
-			for (std::size_t z = 0; z < 10; ++z)
+			for (std::size_t z = 0; z < 1; ++z)
 			{
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
 				entityGfx.AttachRenderable(model);
+				entityGfx.AttachRenderable(sprite);
 
 				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
@@ -333,6 +385,7 @@ int main()
 			continue;
 
 		renderSystem.Render(registry, frame);
+		//renderSystem2D.Render(registry2D, frame);
 
 		frame.Present();
 
