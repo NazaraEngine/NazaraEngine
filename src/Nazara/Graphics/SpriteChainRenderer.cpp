@@ -33,13 +33,15 @@ namespace Nz
 
 		for (std::size_t i = 0; i < maxQuadCount; ++i)
 		{
-			*indexPtr++ = i * 4 + 0;
-			*indexPtr++ = i * 4 + 1;
-			*indexPtr++ = i * 4 + 2;
+			UInt16 index = static_cast<UInt16>(i);
 
-			*indexPtr++ = i * 4 + 2;
-			*indexPtr++ = i * 4 + 1;
-			*indexPtr++ = i * 4 + 3;
+			*indexPtr++ = index * 4 + 0;
+			*indexPtr++ = index * 4 + 1;
+			*indexPtr++ = index * 4 + 2;
+
+			*indexPtr++ = index * 4 + 2;
+			*indexPtr++ = index * 4 + 1;
+			*indexPtr++ = index * 4 + 3;
 		}
 
 		m_indexBuffer->Fill(indices.data(), 0, indexCount * sizeof(UInt16));
