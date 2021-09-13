@@ -167,6 +167,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	cb(glVertexAttribPointer, PFNGLVERTEXATTRIBPOINTERPROC) \
 	cb(glViewport, PFNGLVIEWPORTPROC) \
 	\
+	extCb(glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC) \
+	\
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
 	\
 	extCb(glPolygonMode, PFNGLPOLYGONMODEPROC) \

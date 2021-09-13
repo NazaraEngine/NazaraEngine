@@ -54,6 +54,8 @@ namespace Nz
 			Texture(Texture&&) = delete;
 			virtual ~Texture();
 
+			virtual bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui::Zero()) = 0;
+
 			virtual PixelFormat GetFormat() const = 0;
 			virtual UInt8 GetLevelCount() const = 0;
 			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
