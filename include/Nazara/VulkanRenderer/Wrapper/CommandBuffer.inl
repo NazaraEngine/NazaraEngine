@@ -282,6 +282,16 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdCopyBufferToImage(m_handle, source, target, targetLayout, regionCount, regions);
 		}
 
+		inline void CommandBuffer::CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, const VkImageCopy& region)
+		{
+			return CopyImage(srcImage, srcImageLayout, dstImage, dstImageLayout, 1U, &region);
+		}
+
+		inline void CommandBuffer::CopyImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, UInt32 regionCount, const VkImageCopy* regions)
+		{
+			return m_pool->GetDevice()->vkCmdCopyImage(m_handle, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, regions);
+		}
+
 		inline void CommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 		{
 			return m_pool->GetDevice()->vkCmdDraw(m_handle, vertexCount, instanceCount, firstVertex, firstInstance);

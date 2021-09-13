@@ -23,6 +23,8 @@ namespace Nz
 			OpenGLTexture(OpenGLTexture&&) = delete;
 			~OpenGLTexture() = default;
 
+			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
+
 			PixelFormat GetFormat() const override;
 			UInt8 GetLevelCount() const override;
 			Vector3ui GetSize(UInt8 level = 0) const override;

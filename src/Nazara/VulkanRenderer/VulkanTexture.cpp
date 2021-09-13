@@ -147,6 +147,57 @@ namespace Nz
 		vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
 	}
 
+	bool VulkanTexture::Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos)
+	{
+		const VulkanTexture& sourceTexture = static_cast<const VulkanTexture&>(source);
+
+		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
+		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+			return false;
+
+		VkImageSubresourceLayers subresourceLayers = { //< FIXME
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0, //< mipLevel
+			0, //< baseArrayLayer
+			1 //< layerCount
+		};
+
+		VkImageSubresourceRange subresourceRange = { //< FIXME
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			0, //< baseMipLevel
+			1, //< levelCount
+			subresourceLayers.baseArrayLayer, //< baseArrayLayer
+			subresourceLayers.layerCount      //< layerCount
+		};
+
+		VkImageCopy region = {
+			subresourceLayers,
+			VkOffset3D { static_cast<Int32>(srcBox.x), static_cast<Int32>(srcBox.y), static_cast<Int32>(srcBox.z) },
+			subresourceLayers,
+			VkOffset3D { static_cast<Int32>(dstPos.x), static_cast<Int32>(dstPos.y), static_cast<Int32>(dstPos.z) },
+			VkExtent3D { static_cast<UInt32>(srcBox.width), static_cast<UInt32>(srcBox.height), static_cast<UInt32>(srcBox.depth) }
+		};
+
+		copyCommandBuffer->SetImageLayout(sourceTexture.GetImage(), VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, subresourceRange);
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+
+		copyCommandBuffer->CopyImage(sourceTexture.GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
+
+		copyCommandBuffer->SetImageLayout(sourceTexture.GetImage(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
+
+		if (!copyCommandBuffer->End())
+			return false;
+
+		Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetDefaultFamilyIndex(QueueType::Graphics), 0);
+		if (!transferQueue.Submit(copyCommandBuffer))
+			return false;
+
+		transferQueue.WaitIdle();
+
+		return true;
+	}
+
 	PixelFormat VulkanTexture::GetFormat() const
 	{
 		return m_params.pixelFormat;

@@ -23,6 +23,8 @@ namespace Nz
 			VulkanTexture(VulkanTexture&&) = delete;
 			~VulkanTexture();
 
+			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
+
 			PixelFormat GetFormat() const override;
 			inline VkImage GetImage() const;
 			inline VkImageView GetImageView() const;

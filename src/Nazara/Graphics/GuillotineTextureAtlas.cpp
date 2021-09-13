@@ -48,23 +48,14 @@ namespace Nz
 
 		if (oldImage)
 		{
-			return nullptr;
-			/*const Texture& oldTexture = static_cast<const Texture&>(*oldImage);
+			const Texture& oldTexture = static_cast<const Texture&>(*oldImage);
+			Vector3ui oldSize = oldTexture.GetSize();
 
-			// Copy of old data
-			///TODO: Copy from texture to texture
-			Image image;
-			if (!oldTexture->Download(&image))
-			{
-				NazaraError("Failed to download old texture");
-				return nullptr;
-			}
-
-			if (!newTexture->Update(&image, Rectui(0, 0, image.GetWidth(), image.GetHeight())))
+			if (!newTexture->Copy(oldTexture, Rectui(0, 0, oldSize.x, oldSize.y)))
 			{
 				NazaraError("Failed to update texture");
 				return nullptr;
-			}*/
+			}
 		}
 
 		return newTexture;
