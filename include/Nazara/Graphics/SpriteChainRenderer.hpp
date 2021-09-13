@@ -35,6 +35,13 @@ namespace Nz
 			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
 
 		private:
+			struct BufferCopy
+			{
+				AbstractBuffer* targetBuffer;
+				UploadPool::Allocation* allocation;
+				std::size_t size;
+			};
+
 			struct VertexBufferPool
 			{
 				std::vector<std::shared_ptr<AbstractBuffer>> vertexBuffers;
@@ -44,7 +51,7 @@ namespace Nz
 			std::shared_ptr<VertexBufferPool> m_vertexBufferPool;
 			std::size_t m_maxVertexBufferSize;
 			std::size_t m_maxVertexCount;
-			std::vector<std::pair<UploadPool::Allocation*, AbstractBuffer*>> m_pendingCopies;
+			std::vector<BufferCopy> m_pendingCopies;
 			RenderDevice& m_device;
 	};
 

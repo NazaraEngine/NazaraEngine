@@ -87,7 +87,13 @@ namespace Nz
 
 			if (currentAllocation)
 			{
-				m_pendingCopies.emplace_back(currentAllocation, currentVertexBuffer);
+				std::size_t size = currentAllocationMemPtr - static_cast<UInt8*>(currentAllocation->mappedPtr);
+
+				m_pendingCopies.emplace_back(BufferCopy{
+					currentVertexBuffer,
+					currentAllocation,
+					size
+				});
 
 				firstQuadIndex = 0;
 				currentAllocation = nullptr;
@@ -237,8 +243,8 @@ namespace Nz
 		{
 			currentFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				for (auto&& [allocation, buffer] : m_pendingCopies)
-					builder.CopyBuffer(*allocation, buffer);
+				for (auto& copy : m_pendingCopies)
+					builder.CopyBuffer(*copy.allocation, copy.targetBuffer, copy.size);
 
 				builder.PostTransferBarrier();
 			}, Nz::QueueType::Transfer);
@@ -247,7 +253,7 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Render(ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+	void SpriteChainRenderer::Render(ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
