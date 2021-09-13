@@ -44,7 +44,7 @@ namespace Nz
 			UInt32 distanceInt;
 			std::memcpy(&distanceInt, &distanceNear, sizeof(UInt32));
 
-			UInt64 distance = ~distanceInt; //< Reverse distance to have back to front
+			UInt64 distance = static_cast<UInt64>(~distanceInt); //< Reverse distance to have back to front
 
 			// Transparent RQ index:
 			// - Layer (8bits)
