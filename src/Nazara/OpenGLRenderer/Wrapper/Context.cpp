@@ -118,9 +118,13 @@ namespace Nz::GL
 		}
 	}
 
-	void Context::BindFramebuffer(GLuint fbo) const
+	GLenum Context::BindFramebuffer(GLuint fbo) const
 	{
-		if (m_state.boundDrawFBO != fbo || m_state.boundReadFBO != fbo)
+		if (m_state.boundDrawFBO == fbo)
+			return GL_DRAW_FRAMEBUFFER;
+		else if (m_state.boundReadFBO == fbo)
+			return GL_READ_FRAMEBUFFER;
+		else
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -128,6 +132,7 @@ namespace Nz::GL
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 			m_state.boundDrawFBO = fbo;
 			m_state.boundReadFBO = fbo;
+			return GL_FRAMEBUFFER;
 		}
 	}
 

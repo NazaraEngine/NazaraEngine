@@ -8,16 +8,16 @@
 #define NAZARA_OPENGLRENDERER_GLFRAMEBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
 
 namespace Nz::GL
 {
-	class Framebuffer : public DeviceObject<Framebuffer, GL_FRAMEBUFFER>
+	class Framebuffer : public ContextObject<Framebuffer, GL_FRAMEBUFFER>
 	{
-		friend DeviceObject;
+		friend ContextObject;
 
 		public:
-			Framebuffer() = default;
+			using ContextObject::ContextObject;
 			Framebuffer(const Framebuffer&) = delete;
 			Framebuffer(Framebuffer&&) noexcept = default;
 			~Framebuffer() = default;
@@ -31,8 +31,8 @@ namespace Nz::GL
 			Framebuffer& operator=(Framebuffer&&) noexcept = default;
 
 		private:
-			static inline GLuint CreateHelper(OpenGLDevice& device, const Context& context);
-			static inline void DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId);
+			static inline GLuint CreateHelper(const Context& context);
+			static inline void DestroyHelper(const Context& context, GLuint objectId);
 	};
 }
 
