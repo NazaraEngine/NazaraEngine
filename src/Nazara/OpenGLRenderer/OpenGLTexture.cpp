@@ -64,25 +64,7 @@ namespace Nz
 		const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(source);
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
-
-		// Use glCopyImageSubData if available
-		if (context.glCopyImageSubData)
-		{
-			GLuint srcImage = glTexture.GetTexture().GetObjectId();
-			GLenum srcTarget = ToOpenGL(ToTextureTarget(glTexture.GetType()));
-
-			GLuint dstImage = m_texture.GetObjectId();
-			GLenum dstTarget = ToOpenGL(ToTextureTarget(m_params.type));
-
-			context.glCopyImageSubData(srcImage, srcTarget, 0, GLint(srcBox.x), GLint(srcBox.y), GLint(srcBox.z), dstImage, dstTarget, 0, GLint(dstPos.x), GLint(dstPos.y), GLint(dstPos.z), GLsizei(srcBox.width), GLsizei(srcBox.height), GLsizei(srcBox.depth));
-			return true;
-		}
-		else
-		{
-			//TODO: Blit using framebuffers
-		}
-
-		return false;
+		return context.CopyTexture(glTexture.GetTexture(), m_texture, srcBox, dstPos);
 	}
 
 	PixelFormat OpenGLTexture::GetFormat() const

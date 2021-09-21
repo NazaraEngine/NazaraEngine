@@ -26,6 +26,8 @@ namespace Nz
 
 namespace Nz::GL
 {
+	class Texture;
+
 	enum class BufferTarget
 	{
 		Array,
@@ -107,7 +109,9 @@ namespace Nz::GL
 		friend SymbolLoader;
 
 		public:
-			inline Context(const OpenGLDevice* device);
+			Context(const OpenGLDevice* device);
+			Context(const Context&) = delete;
+			Context(Context&&) = delete;
 			virtual ~Context();
 
 			void BindBuffer(BufferTarget target, GLuint buffer, bool force = false) const;
@@ -120,7 +124,13 @@ namespace Nz::GL
 			void BindUniformBuffer(UInt32 uboUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
 			void BindVertexArray(GLuint vertexArray, bool force = false) const;
 
+			bool BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos, SamplerFilter filter) const;
+
 			bool ClearErrorStack() const;
+
+			bool CopyTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos) const;
+
+			inline bool DidLastCallSucceed() const;
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
@@ -160,6 +170,9 @@ namespace Nz::GL
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
 #undef NAZARA_OPENGLRENDERER_FUNC
 
+			Context& operator=(const Context&) = delete;
+			Context& operator=(Context&&) = delete;
+
 			static const Context* GetCurrentContext();
 			static bool SetCurrentContext(const Context* context);
 
@@ -176,7 +189,8 @@ namespace Nz::GL
 			ContextParams m_params;
 
 		private:
-			void GL_APIENTRY HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
+			void HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
+			bool InitializeBlitFramebuffers() const;
 
 			enum class FunctionIndex
 			{
@@ -186,6 +200,8 @@ namespace Nz::GL
 
 				Count
 			};
+
+			struct BlitFramebuffers;
 
 			struct State
 			{
@@ -223,10 +239,13 @@ namespace Nz::GL
 
 			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
 			std::array<GLFunction, UnderlyingCast(FunctionIndex::Count)> m_originalFunctionPointer;
+			mutable std::unique_ptr<BlitFramebuffers> m_blitFramebuffers;
 			std::unordered_set<std::string> m_supportedExtensions;
 			OpenGLVaoCache m_vaoCache;
 			const OpenGLDevice* m_device;
 			mutable State m_state;
+			mutable bool m_didCollectErrors;
+			mutable bool m_hadAnyError;
 	};
 }
 
