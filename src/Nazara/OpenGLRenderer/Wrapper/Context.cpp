@@ -3,12 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -56,6 +58,12 @@ namespace Nz::GL
 		};
 	}
 
+	struct Context::BlitFramebuffers
+	{
+		GL::Framebuffer drawFBO;
+		GL::Framebuffer readFBO;
+	};
+
 	struct Context::SymbolLoader
 	{
 		SymbolLoader(Context& parent) :
@@ -98,6 +106,15 @@ namespace Nz::GL
 
 		Context& context;
 	};
+
+
+	Context::Context(const OpenGLDevice* device) :
+	m_vaoCache(*this),
+	m_device(device),
+	m_didCollectErrors(false),
+	m_hadAnyError(false)
+	{
+	}
 
 	Context::~Context()
 	{
@@ -235,13 +252,69 @@ namespace Nz::GL
 		}
 	}
 
+	bool Context::BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos, SamplerFilter filter) const
+	{
+		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
+			return false;
+
+		//TODO: handle other textures types
+		assert(source.GetTarget() == TextureTarget::Target2D);
+		assert(destination.GetTarget() == TextureTarget::Target2D);
+
+		// Bind framebuffers before configuring them (so they won't override each other)
+		BindFramebuffer(FramebufferTarget::Draw, m_blitFramebuffers->drawFBO.GetObjectId());
+		BindFramebuffer(FramebufferTarget::Read, m_blitFramebuffers->readFBO.GetObjectId());
+
+		// Attach textures to color attachment
+		m_blitFramebuffers->drawFBO.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, destination.GetObjectId());
+		if (GLenum checkResult = m_blitFramebuffers->drawFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+		{
+			NazaraError("Blit draw FBO is incomplete: " + TranslateOpenGLError(checkResult));
+			return false;
+		}
+
+		m_blitFramebuffers->readFBO.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, source.GetObjectId());
+		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+		{
+			NazaraError("Blit read FBO is incomplete: " + TranslateOpenGLError(checkResult));
+			return false;
+		}
+
+		glBlitFramebuffer(srcBox.x, srcBox.y, srcBox.x + srcBox.width, srcBox.y + srcBox.height, dstPos.x, dstPos.y, dstPos.x + srcBox.width, dstPos.y + srcBox.height, GL_COLOR_BUFFER_BIT, ToOpenGL(filter));
+		return true;
+	}
+
 	bool Context::ClearErrorStack() const
 	{
 		assert(GetCurrentContext() == this);
 
 		while (glGetError() != GL_NO_ERROR);
 
+		m_didCollectErrors = false;
+		m_hadAnyError = false;
+
 		return true;
+	}
+
+	bool Context::CopyTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos) const
+	{
+		// Use glCopyImageSubData if available
+		if (glCopyImageSubData && false)
+		{
+			GLuint srcImage = source.GetObjectId();
+			GLenum srcTarget = ToOpenGL(source.GetTarget());
+
+			GLuint dstImage = destination.GetObjectId();
+			GLenum dstTarget = ToOpenGL(destination.GetTarget());
+
+			glCopyImageSubData(srcImage, srcTarget, 0, GLint(srcBox.x), GLint(srcBox.y), GLint(srcBox.z), dstImage, dstTarget, 0, GLint(dstPos.x), GLint(dstPos.y), GLint(dstPos.z), GLsizei(srcBox.width), GLsizei(srcBox.height), GLsizei(srcBox.depth));
+			return true;
+		}
+		else
+		{
+			// If glCopyImageSubData is not available, fallback to framebuffer blit
+			return BlitTexture(source, destination, srcBox, dstPos, SamplerFilter::Nearest);
+		}
 	}
 
 	bool Context::Initialize(const ContextParams& params)
@@ -397,8 +470,8 @@ namespace Nz::GL
 		glGetIntegerv(GL_VIEWPORT, res.data());
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
-		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is counter-clockwise
 		m_state.renderStates.depthCompare = RendererComparison::Less; //< OpenGL default depth mode is GL_LESS
+		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is counter-clockwise
 
 		EnableVerticalSync(false);
 
@@ -418,6 +491,9 @@ namespace Nz::GL
 
 			NazaraError("OpenGL error: " + TranslateOpenGLError(lastError));
 		}
+
+		m_didCollectErrors = true;
+		m_hadAnyError = hasAnyError;
 
 		return hasAnyError;
 	}
@@ -707,6 +783,7 @@ namespace Nz::GL
 
 	void Context::OnContextRelease()
 	{
+		m_blitFramebuffers.reset();
 		m_vaoCache.Clear();
 	}
 
@@ -839,5 +916,23 @@ namespace Nz::GL
 		ss << "Message: " << std::string_view(message, length) << '\n';
 
 		NazaraNotice(ss.str());
+	}
+
+	bool Context::InitializeBlitFramebuffers() const
+	{
+		m_blitFramebuffers = std::make_unique<BlitFramebuffers>();
+		if (!m_blitFramebuffers->drawFBO.Create(*this))
+		{
+			NazaraError("failed to initialize draw FBO");
+			return false;
+		}
+
+		if (!m_blitFramebuffers->readFBO.Create(*this))
+		{
+			NazaraError("failed to initialize read FBO");
+			return false;
+		}
+
+		return true;
 	}
 }

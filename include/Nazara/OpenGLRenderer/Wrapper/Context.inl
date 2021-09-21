@@ -7,10 +7,12 @@
 
 namespace Nz::GL
 {
-	inline Context::Context(const OpenGLDevice* device) :
-	m_vaoCache(*this),
-	m_device(device)
+	inline bool Context::DidLastCallSucceed() const
 	{
+		if (!m_didCollectErrors)
+			ProcessErrorStack();
+
+		return !m_hadAnyError;
 	}
 
 	inline const OpenGLDevice* Context::GetDevice() const
