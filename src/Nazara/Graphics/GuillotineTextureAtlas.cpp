@@ -42,9 +42,16 @@ namespace Nz
 		textureInfo.pixelFormat = PixelFormat::A8;
 		textureInfo.type = ImageType::E2D;
 		
-		std::shared_ptr<Texture> newTexture = m_renderDevice.InstantiateTexture(textureInfo);
-		if (!newTexture)
+		std::shared_ptr<Texture> newTexture;
+		try
+		{
+			newTexture = m_renderDevice.InstantiateTexture(textureInfo);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError(std::string("Failed to instantiate texture: ") + e.what());
 			return nullptr;
+		}
 
 		if (oldImage)
 		{
