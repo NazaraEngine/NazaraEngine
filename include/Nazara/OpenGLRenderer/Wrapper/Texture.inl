@@ -8,6 +8,11 @@
 
 namespace Nz::GL
 {
+	inline TextureTarget Texture::GetTarget() const
+	{
+		return m_target;
+	}
+
 	inline void Texture::SetParameterf(GLenum pname, GLfloat param)
 	{
 		assert(m_objectId);

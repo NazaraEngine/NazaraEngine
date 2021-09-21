@@ -19,12 +19,15 @@ namespace Nz::GL
 	{
 		public:
 			ContextObject() = default;
+			ContextObject(const Context& context, CreateArgs... args);
 			ContextObject(const ContextObject&) = delete;
 			ContextObject(ContextObject&& object) noexcept = default;
 			~ContextObject();
 
 			bool Create(const Context& context, CreateArgs... args);
 			void Destroy();
+
+			const Context& EnsureContext() const;
 
 			bool IsValid() const;
 
@@ -39,8 +42,6 @@ namespace Nz::GL
 			static constexpr GLuint InvalidObject = 0;
 
 		protected:
-			void EnsureContext();
-
 			MovablePtr<const Context> m_context;
 			MovableValue<GLuint> m_objectId;
 	};

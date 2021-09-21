@@ -20,6 +20,9 @@ namespace Nz
 		if (!format)
 			throw std::runtime_error("unsupported texture format");
 
+		const GL::Context& context = m_texture.EnsureDeviceContext();
+		context.ClearErrorStack();
+
 		switch (params.type)
 		{
 			case ImageType::E1D:
@@ -45,6 +48,9 @@ namespace Nz
 			default:
 				break;
 		}
+
+		if (!context.DidLastCallSucceed())
+			throw std::runtime_error("failed to create texture");
 
 		m_texture.SetParameteri(GL_TEXTURE_MAX_LEVEL, m_params.mipmapLevel);
 		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_R, format->swizzleR);

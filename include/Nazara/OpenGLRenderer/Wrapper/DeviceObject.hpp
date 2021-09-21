@@ -20,6 +20,7 @@ namespace Nz::GL
 	{
 		public:
 			DeviceObject() = default;
+			DeviceObject(OpenGLDevice& device, CreateArgs... args);
 			DeviceObject(const DeviceObject&) = delete;
 			DeviceObject(DeviceObject&& object) noexcept = default;
 			~DeviceObject();

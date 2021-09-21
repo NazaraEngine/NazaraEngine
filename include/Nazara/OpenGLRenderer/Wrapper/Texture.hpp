@@ -19,10 +19,12 @@ namespace Nz::GL
 		friend DeviceObject;
 
 		public:
-			Texture() = default;
+			using DeviceObject::DeviceObject;
 			Texture(const Texture&) = delete;
 			Texture(Texture&&) noexcept = default;
 			~Texture() = default;
+
+			inline TextureTarget GetTarget() const;
 
 			inline void SetParameterf(GLenum pname, GLfloat param);
 			inline void SetParameteri(GLenum pname, GLint param);

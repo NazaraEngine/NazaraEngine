@@ -19,7 +19,7 @@ namespace Nz::GL
 		friend DeviceObject;
 
 		public:
-			Buffer() = default;
+			using DeviceObject::DeviceObject;
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&&) noexcept = default;
 			~Buffer() = default;

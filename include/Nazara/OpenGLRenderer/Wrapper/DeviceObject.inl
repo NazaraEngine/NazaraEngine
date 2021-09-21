@@ -4,12 +4,20 @@
 
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
 {
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	DeviceObject<C, ObjectType, CreateArgs...>::DeviceObject(OpenGLDevice& device, CreateArgs... args)
+	{
+		ErrorFlags errFlags(ErrorMode::ThrowException);
+		Create(device, args...);
+	}
+
 	template<typename C, GLenum ObjectType, typename... CreateArgs>
 	DeviceObject<C, ObjectType, CreateArgs...>::~DeviceObject()
 	{

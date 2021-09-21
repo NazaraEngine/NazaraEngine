@@ -19,7 +19,7 @@ namespace Nz::GL
 		friend DeviceObject;
 
 		public:
-			Program() = default;
+			using DeviceObject::DeviceObject;
 			Program(const Program&) = delete;
 			Program(Program&&) noexcept = default;
 			~Program() = default;
