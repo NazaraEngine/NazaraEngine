@@ -12,30 +12,30 @@ namespace Nz::GL
 	{
 		assert(m_objectId);
 
-		const Context& context = EnsureDeviceContext();
-		context.BindFramebuffer(m_objectId);
-		return context.glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		const Context& context = EnsureContext();
+		GLenum target = context.BindFramebuffer(m_objectId);
+		return context.glCheckFramebufferStatus(target);
 	}
 
 	inline void Framebuffer::Renderbuffer(GLenum attachment, GLenum renderbuffer)
 	{
 		assert(m_objectId);
 
-		const Context& context = EnsureDeviceContext();
-		context.BindFramebuffer(m_objectId);
-		context.glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
+		const Context& context = EnsureContext();
+		GLenum target = context.BindFramebuffer(m_objectId);
+		context.glFramebufferRenderbuffer(target, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
 
 	inline void Framebuffer::Texture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 	{
 		assert(m_objectId);
 
-		const Context& context = EnsureDeviceContext();
-		context.BindFramebuffer(m_objectId);
-		context.glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textarget, texture, level);
+		const Context& context = EnsureContext();
+		GLenum target = context.BindFramebuffer(m_objectId);
+		context.glFramebufferTexture2D(target, attachment, textarget, texture, level);
 	}
 
-	inline GLuint Framebuffer::CreateHelper(OpenGLDevice& /*device*/, const Context& context)
+	inline GLuint Framebuffer::CreateHelper(const Context& context)
 	{
 		GLuint fbo = 0;
 		context.glGenFramebuffers(1U, &fbo);
@@ -43,11 +43,11 @@ namespace Nz::GL
 		return fbo;
 	}
 
-	inline void Framebuffer::DestroyHelper(OpenGLDevice& device, const Context& context, GLuint objectId)
+	inline void Framebuffer::DestroyHelper(const Context& context, GLuint objectId)
 	{
 		context.glDeleteFramebuffers(1U, &objectId);
 
-		device.NotifyFramebufferDestruction(objectId);
+		context.NotifyFramebufferDestruction(objectId);
 	}
 }
 

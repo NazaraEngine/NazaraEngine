@@ -13,7 +13,7 @@ namespace Nz
 	OpenGLFboFramebuffer::OpenGLFboFramebuffer(OpenGLDevice& device, const std::vector<std::shared_ptr<Texture>>& attachments) :
 	OpenGLFramebuffer(FramebufferType::Texture)
 	{
-		if (!m_framebuffer.Create(device))
+		if (!m_framebuffer.Create(device.GetReferenceContext()))
 			throw std::runtime_error("failed to create framebuffer object");
 
 		std::size_t colorAttachmentCount = 0;
@@ -80,7 +80,7 @@ namespace Nz
 
 	void OpenGLFboFramebuffer::Activate() const
 	{
-		const GL::Context& context = m_framebuffer.EnsureDeviceContext();
+		const GL::Context& context = m_framebuffer.EnsureContext();
 
 		context.BindFramebuffer(GL::FramebufferTarget::Draw, m_framebuffer.GetObjectId());
 	}
