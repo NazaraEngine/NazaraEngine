@@ -19,7 +19,7 @@ namespace Nz::GL
 		friend DeviceObject;
 
 		public:
-			Sampler() = default;
+			using DeviceObject::DeviceObject;
 			Sampler(const Sampler&) = delete;
 			Sampler(Sampler&&) noexcept = default;
 			~Sampler() = default;

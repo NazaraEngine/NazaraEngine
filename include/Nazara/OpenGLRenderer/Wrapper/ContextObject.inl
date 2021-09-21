@@ -4,11 +4,19 @@
 
 #include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
 {
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	ContextObject<C, ObjectType, CreateArgs...>::ContextObject(const Context& context, CreateArgs... args)
+	{
+		ErrorFlags errFlags(ErrorMode::ThrowException);
+		Create(context, args...);
+	}
+
 	template<typename C, GLenum ObjectType, typename... CreateArgs>
 	ContextObject<C, ObjectType, CreateArgs...>::~ContextObject()
 	{
@@ -47,6 +55,19 @@ namespace Nz::GL
 	}
 
 	template<typename C, GLenum ObjectType, typename... CreateArgs>
+	const Context& ContextObject<C, ObjectType, CreateArgs...>::EnsureContext() const
+	{
+		const Context* activeContext = Context::GetCurrentContext();
+		if (activeContext != m_context.Get())
+		{
+			if (!Context::SetCurrentContext(m_context.Get()))
+				throw std::runtime_error("failed to activate context");
+		}
+
+		return *m_context;
+	}
+
+	template<typename C, GLenum ObjectType, typename... CreateArgs>
 	bool ContextObject<C, ObjectType, CreateArgs...>::IsValid() const
 	{
 		return m_objectId != InvalidObject;
@@ -71,17 +92,6 @@ namespace Nz::GL
 
 		if (m_context->glObjectLabel)
 			m_context->glObjectLabel(ObjectType, m_objectId, name.size(), name.data());
-	}
-
-	template<typename C, GLenum ObjectType, typename... CreateArgs>
-	void ContextObject<C, ObjectType, CreateArgs...>::EnsureContext()
-	{
-		const Context* activeContext = Context::GetCurrentContext();
-		if (activeContext != m_context.Get())
-		{
-			if (!Context::SetCurrentContext(m_context.Get()))
-				throw std::runtime_error("failed to activate context");
-		}
 	}
 }
 

@@ -19,7 +19,7 @@ namespace Nz::GL
 		friend DeviceObject;
 
 		public:
-			Shader() = default;
+			using DeviceObject::DeviceObject;
 			Shader(const Shader&) = delete;
 			Shader(Shader&&) noexcept = default;
 			~Shader() = default;
@@ -30,6 +30,7 @@ namespace Nz::GL
 
 			inline void SetBinarySource(GLenum binaryFormat, const void* binary, GLsizei length);
 			inline void SetSource(const char* source, GLint length);
+			inline void SetSource(const std::string_view& source);
 
 			// GL_ARB_gl_spirv
 			inline void SpecializeShader(const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
