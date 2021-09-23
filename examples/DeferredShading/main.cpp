@@ -1114,9 +1114,9 @@ int main()
 
 			builder.TextureBarrier(Nz::PipelineStage::ColorOutput, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ColorWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::ColorOutput, Nz::TextureLayout::ColorInput, *bakedGraph.GetAttachmentTexture(backbuffer));
 
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect);
 			{
-				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect);
+				builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
 				{
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
@@ -1126,9 +1126,9 @@ int main()
 					builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 					builder.Draw(3);
 				}
-				builder.EndRenderPass();
+				builder.EndDebugRegion();
 			}
-			builder.EndDebugRegion();
+			builder.EndRenderPass();
 		}, Nz::QueueType::Graphics);
 
 		frame.Present();

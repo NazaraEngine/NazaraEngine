@@ -62,10 +62,10 @@ namespace Nz
 					builder.TextureBarrier(textureTransition.srcStageMask, textureTransition.dstStageMask, textureTransition.srcAccessMask, textureTransition.dstAccessMask, textureTransition.oldLayout, textureTransition.newLayout, *texture);
 				}
 
+				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect);
+
 				if (!passData.name.empty())
 					builder.BeginDebugRegion(passData.name, Nz::Color::Green);
-
-				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect);
 
 				bool first = true;
 				for (auto& subpass : passData.subpasses)
@@ -78,10 +78,10 @@ namespace Nz
 					subpass.commandCallback(builder, passData.renderRect);
 				}
 
-				builder.EndRenderPass();
-
 				if (!passData.name.empty())
 					builder.EndDebugRegion();
+
+				builder.EndRenderPass();
 			});
 
 			passData.forceCommandBufferRegeneration = false;
