@@ -694,6 +694,85 @@ namespace Nz::ShaderLang
 		return ShaderBuilder::DeclareOption(std::move(optionName), std::move(optionType), std::move(initialValue));
 	}
 
+	ShaderAst::StatementPtr Parser::ParseReturnStatement()
+	{
+		Expect(Advance(), TokenType::Return);
+
+		ShaderAst::ExpressionPtr expr;
+		if (Peek().type != TokenType::Semicolon)
+			expr = ParseExpression();
+
+		Expect(Advance(), TokenType::Semicolon);
+
+		return ShaderBuilder::Return(std::move(expr));
+	}
+
+	ShaderAst::StatementPtr Parser::ParseSingleStatement()
+	{
+		const Token& token = Peek();
+
+		ShaderAst::StatementPtr statement;
+		switch (token.type)
+		{
+			case TokenType::Const:
+				statement = ParseConstStatement();
+				break;
+
+			case TokenType::Discard:
+				statement = ParseDiscardStatement();
+				break;
+
+			case TokenType::Let:
+				statement = ParseVariableDeclaration();
+				break;
+
+			case TokenType::Identifier:
+				statement = ShaderBuilder::ExpressionStatement(ParseVariableAssignation());
+				Expect(Advance(), TokenType::Semicolon);
+				break;
+
+			case TokenType::If:
+				statement = ParseBranchStatement();
+				break;
+
+			case TokenType::Return:
+				statement = ParseReturnStatement();
+				break;
+
+			default:
+				break;
+		}
+
+		return statement;
+	}
+
+	ShaderAst::StatementPtr Parser::ParseStatement()
+	{
+		if (Peek().type == TokenType::OpenCurlyBracket)
+			return ShaderBuilder::MultiStatement(ParseStatementList());
+		else
+			return ParseSingleStatement();
+	}
+
+	std::vector<ShaderAst::StatementPtr> Parser::ParseStatementList()
+	{
+		EnterScope();
+
+		Expect(Advance(), TokenType::OpenCurlyBracket);
+
+		std::vector<ShaderAst::StatementPtr> statements;
+		while (Peek().type != TokenType::ClosingCurlyBracket)
+		{
+			ExpectNot(Peek(), TokenType::EndOfStream);
+			statements.push_back(ParseStatement());
+		}
+		Consume(); //< Consume closing curly bracket
+
+		LeaveScope();
+
+		return statements;
+	}
+	
 	ShaderAst::StatementPtr Parser::ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes)
 	{
 		Expect(Advance(), TokenType::Struct);
@@ -777,85 +856,6 @@ namespace Nz::ShaderLang
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
 		return ShaderBuilder::DeclareStruct(std::move(description));
-	}
-
-	ShaderAst::StatementPtr Parser::ParseReturnStatement()
-	{
-		Expect(Advance(), TokenType::Return);
-
-		ShaderAst::ExpressionPtr expr;
-		if (Peek().type != TokenType::Semicolon)
-			expr = ParseExpression();
-
-		Expect(Advance(), TokenType::Semicolon);
-
-		return ShaderBuilder::Return(std::move(expr));
-	}
-
-	ShaderAst::StatementPtr Parser::ParseSingleStatement()
-	{
-		const Token& token = Peek();
-
-		ShaderAst::StatementPtr statement;
-		switch (token.type)
-		{
-			case TokenType::Const:
-				statement = ParseConstStatement();
-				break;
-
-			case TokenType::Discard:
-				statement = ParseDiscardStatement();
-				break;
-
-			case TokenType::Let:
-				statement = ParseVariableDeclaration();
-				break;
-
-			case TokenType::Identifier:
-				statement = ShaderBuilder::ExpressionStatement(ParseVariableAssignation());
-				Expect(Advance(), TokenType::Semicolon);
-				break;
-
-			case TokenType::If:
-				statement = ParseBranchStatement();
-				break;
-
-			case TokenType::Return:
-				statement = ParseReturnStatement();
-				break;
-
-			default:
-				break;
-		}
-
-		return statement;
-	}
-
-	ShaderAst::StatementPtr Parser::ParseStatement()
-	{
-		if (Peek().type == TokenType::OpenCurlyBracket)
-			return ShaderBuilder::MultiStatement(ParseStatementList());
-		else
-			return ParseSingleStatement();
-	}
-
-	std::vector<ShaderAst::StatementPtr> Parser::ParseStatementList()
-	{
-		EnterScope();
-
-		Expect(Advance(), TokenType::OpenCurlyBracket);
-
-		std::vector<ShaderAst::StatementPtr> statements;
-		while (Peek().type != TokenType::ClosingCurlyBracket)
-		{
-			ExpectNot(Peek(), TokenType::EndOfStream);
-			statements.push_back(ParseStatement());
-		}
-		Consume(); //< Consume closing curly bracket
-
-		LeaveScope();
-
-		return statements;
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseVariableAssignation()
