@@ -348,9 +348,9 @@ namespace Nz
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
 
-				builder.BeginDebugRegion("Main window rendering", Color::Green);
+				builder.BeginRenderPass(renderTarget.GetFramebuffer(renderFrame.GetFramebufferIndex()), renderTarget.GetRenderPass(), renderRegion, { clearValues[0], clearValues[1] });
 				{
-					builder.BeginRenderPass(renderTarget.GetFramebuffer(renderFrame.GetFramebufferIndex()), renderTarget.GetRenderPass(), renderRegion, { clearValues[0], clearValues[1] });
+					builder.BeginDebugRegion("Main window rendering", Color::Green);
 					{
 						builder.SetScissor(renderRegion);
 						builder.SetViewport(renderRegion);
@@ -361,9 +361,9 @@ namespace Nz
 
 						builder.Draw(3);
 					}
-					builder.EndRenderPass();
+					builder.EndDebugRegion();
 				}
-				builder.EndDebugRegion();
+				builder.EndRenderPass();
 
 			}, QueueType::Graphics);
 		}
