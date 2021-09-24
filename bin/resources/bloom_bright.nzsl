@@ -48,10 +48,10 @@ fn main(input: FragIn) -> FragOut
 	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize * 10.0;
 
 	let color = colorTexture.Sample(fragcoord).rgb;
-	color = color * (BrightMiddleGrey/BrightLuminance);
-	color = color * (vec3<f32>(1.0, 1.0, 1.0) + (color / (BrightThreshold*BrightThreshold)));
-	color = color - vec3<f32>(0.5, 0.5, 0.5);
-	color = color / (vec3<f32>(1.0, 1.0, 1.0) + color);
+	color *= BrightMiddleGrey / BrightLuminance;
+	color *= vec3<f32>(1.0, 1.0, 1.0) + (color / (BrightThreshold*BrightThreshold));
+	color -= vec3<f32>(0.5, 0.5, 0.5);
+	color /= vec3<f32>(1.0, 1.0, 1.0) + color;
 
 	let output: FragOut;
 	output.color = vec4<f32>(color, 1.0);

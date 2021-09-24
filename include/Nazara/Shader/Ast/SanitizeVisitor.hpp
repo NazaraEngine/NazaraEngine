@@ -38,6 +38,7 @@ namespace Nz::ShaderAst
 				std::unordered_set<std::string> reservedIdentifiers;
 				std::unordered_map<std::size_t, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;
+				bool removeCompoundAssignments = false;
 				bool removeOptionDeclaration = true;
 			};
 
@@ -76,9 +77,9 @@ namespace Nz::ShaderAst
 
 			const Identifier* FindIdentifier(const std::string_view& identifierName) const;
 
-			Expression& MandatoryExpr(ExpressionPtr& node);
-			Statement& MandatoryStatement(StatementPtr& node);
-			void TypeMustMatch(ExpressionPtr& left, ExpressionPtr& right);
+			Expression& MandatoryExpr(const ExpressionPtr& node);
+			Statement& MandatoryStatement(const StatementPtr& node);
+			void TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right);
 			void TypeMustMatch(const ExpressionType& left, const ExpressionType& right);
 
 			void PushScope();
@@ -111,6 +112,7 @@ namespace Nz::ShaderAst
 			void Validate(AccessIndexExpression& node);
 			void Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration);
 			void Validate(IntrinsicExpression& node);
+			ExpressionType ValidateBinaryOp(BinaryType op, const ExpressionPtr& leftExpr, const ExpressionPtr& rightExpr);
 
 			struct FunctionData
 			{

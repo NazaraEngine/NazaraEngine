@@ -51,6 +51,9 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::AssignExpression& node)
 	{
+		if (node.op != ShaderAst::AssignType::Simple)
+			throw std::runtime_error("unexpected assign expression (should have been removed by sanitization)");
+
 		UInt32 resultId = EvaluateExpression(node.right);
 
 		SpirvExpressionStore storeVisitor(m_writer, *this, *m_currentBlock);

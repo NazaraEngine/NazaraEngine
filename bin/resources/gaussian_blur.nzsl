@@ -48,19 +48,19 @@ fn main(input: FragIn) -> FragOut
 	
 	let filter = vec2<f32>(1.0, 0.0);
 
-	color = color + colorTexture.Sample(fragcoord + filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
-	color = color + colorTexture.Sample(fragcoord - filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
+	color += colorTexture.Sample(fragcoord + filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
+	color += colorTexture.Sample(fragcoord - filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
 
-	color = color + colorTexture.Sample(fragcoord + filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
-	color = color + colorTexture.Sample(fragcoord - filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
+	color += colorTexture.Sample(fragcoord + filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
+	color += colorTexture.Sample(fragcoord - filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
 
 	filter = vec2<f32>(0.0, 1.0);
 
-	color = color + colorTexture.Sample(fragcoord + filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
-	color = color + colorTexture.Sample(fragcoord - filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
+	color += colorTexture.Sample(fragcoord + filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
+	color += colorTexture.Sample(fragcoord - filter * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
 
-	color = color + colorTexture.Sample(fragcoord + filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
-	color = color + colorTexture.Sample(fragcoord - filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
+	color += colorTexture.Sample(fragcoord + filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
+	color += colorTexture.Sample(fragcoord - filter * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
 
 	let output: FragOut;
 	output.color = vec4<f32>(color, 1.0);

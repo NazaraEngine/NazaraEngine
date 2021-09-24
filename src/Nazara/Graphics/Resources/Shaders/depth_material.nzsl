@@ -54,16 +54,13 @@ fn main(input: FragIn)
 	let alpha = settings.DiffuseColor.a;
 
 	const if (HasUV)
-		//TODO: diffuseColor *= TextureOverlay.Sample(input.uv);
-		alpha = alpha * TextureOverlay.Sample(input.uv).a;
+		alpha *= TextureOverlay.Sample(input.uv).a;
 
 	const if (HasDiffuseTexture)
-		// TODO: alpha *= MaterialDiffuseMap.Sample(input.uv).a;
-		alpha = alpha * MaterialDiffuseMap.Sample(input.uv).a;
+		alpha *= MaterialDiffuseMap.Sample(input.uv).a;
 
 	const if (HasAlphaTexture)
-		// TODO: alpha *= MaterialAlphaMap.Sample(input.uv).x
-		alpha = alpha * MaterialAlphaMap.Sample(input.uv).x;
+		alpha *= MaterialAlphaMap.Sample(input.uv).x;
 
 	if (alpha < settings.AlphaThreshold)
 		discard;

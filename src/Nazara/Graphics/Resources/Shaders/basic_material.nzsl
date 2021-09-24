@@ -66,16 +66,13 @@ fn main(input: FragIn) -> FragOut
 	let diffuseColor = settings.DiffuseColor;
 
 	const if (HasUV)
-		//TODO: diffuseColor *= TextureOverlay.Sample(input.uv);
-		diffuseColor = diffuseColor * TextureOverlay.Sample(input.uv);
+		diffuseColor *= TextureOverlay.Sample(input.uv);
 
 	const if (HasVertexColor)
-		//TODO: diffuseColor *= input.color;
-		diffuseColor = diffuseColor * input.color;
+		diffuseColor *= input.color;
 
 	const if (HasDiffuseTexture)
-		// TODO: diffuseColor *= MaterialDiffuseMap.Sample(input.uv)
-		diffuseColor = diffuseColor * MaterialDiffuseMap.Sample(input.uv);
+		diffuseColor *= MaterialDiffuseMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
 		// TODO: diffuseColor.w *= MaterialAlphaMap.Sample(input.uv)).x

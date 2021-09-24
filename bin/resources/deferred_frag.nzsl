@@ -58,8 +58,7 @@ fn main(input: InputData) -> OutputData
 {
 	let diffuseColor = settings.DiffuseColor;
 	const if (HasDiffuseTexture)
-		// TODO: diffuseColor *= MaterialDiffuseMap.Sample(input.uv)
-		diffuseColor = diffuseColor * MaterialDiffuseMap.Sample(input.uv);
+		diffuseColor *= MaterialDiffuseMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
 		// TODO: diffuseColor.w *= MaterialAlphaMap.Sample(input.uv)).x
