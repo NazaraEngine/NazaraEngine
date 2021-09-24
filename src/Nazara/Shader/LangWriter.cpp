@@ -541,9 +541,13 @@ namespace Nz
 
 		switch (node.op)
 		{
-			case ShaderAst::AssignType::Simple:
-				Append(" = ");
-				break;
+			case ShaderAst::AssignType::Simple: Append(" = "); break;
+			case ShaderAst::AssignType::CompoundAdd: Append(" += "); break;
+			case ShaderAst::AssignType::CompoundDivide: Append(" /= "); break;
+			case ShaderAst::AssignType::CompoundMultiply: Append(" *= "); break;
+			case ShaderAst::AssignType::CompoundLogicalAnd: Append(" &&= "); break;
+			case ShaderAst::AssignType::CompoundLogicalOr: Append(" ||= "); break;
+			case ShaderAst::AssignType::CompoundSubtract: Append(" -= "); break;
 		}
 
 		node.right->Visit(*this);

@@ -464,6 +464,7 @@ namespace Nz
 		{
 			ShaderAst::SanitizeVisitor::Options options;
 			options.optionValues = states.optionValues;
+			options.removeCompoundAssignments = true;
 
 			sanitizedAst = ShaderAst::Sanitize(shader, options);
 			targetAst = sanitizedAst.get();

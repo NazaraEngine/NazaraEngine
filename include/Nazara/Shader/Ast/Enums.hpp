@@ -16,7 +16,13 @@ namespace Nz
 	{
 		enum class AssignType
 		{
-			Simple //< =
+			Simple,             //< a = b
+			CompoundAdd,        //< a += b
+			CompoundDivide,     //< a /= b
+			CompoundMultiply,   //< a *= b
+			CompoundLogicalAnd, //< a &&= b
+			CompoundLogicalOr,  //< a ||= b
+			CompoundSubtract,   //< a -= b
 		};
 
 		enum class AttributeType

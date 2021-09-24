@@ -106,14 +106,21 @@ namespace Nz::ShaderLang
 
 				case '-':
 				{
-					if (Peek() == '>')
+					char next = Peek();
+					if (next == '>')
 					{
 						currentPos++;
 						tokenType = TokenType::FunctionReturn;
 						break;
 					}
+					else if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::MinusAssign;
+					}
+					else
+						tokenType = TokenType::Minus;
 
-					tokenType = TokenType::Minus;
 					break;
 				}
 
@@ -154,6 +161,11 @@ namespace Nz::ShaderLang
 							}
 						}
 						while (next != -1);
+					}
+					else if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::DivideAssign;
 					}
 					else
 						tokenType = TokenType::Divide;
@@ -253,7 +265,14 @@ namespace Nz::ShaderLang
 					if (next == '|')
 					{
 						currentPos++;
-						tokenType = TokenType::LogicalOr;
+						next = Peek();
+						if (next == '=')
+						{
+							currentPos++;
+							tokenType = TokenType::LogicalOrAssign;
+						}
+						else
+							tokenType = TokenType::LogicalOr;
 					}
 					else
 						throw UnrecognizedToken{}; //< TODO: Add BOR (a | b)
@@ -267,7 +286,14 @@ namespace Nz::ShaderLang
 					if (next == '&')
 					{
 						currentPos++;
-						tokenType = TokenType::LogicalAnd;
+						next = Peek();
+						if (next == '=')
+						{
+							currentPos++;
+							tokenType = TokenType::LogicalAndAssign;
+						}
+						else
+							tokenType = TokenType::LogicalAnd;
 					}
 					else
 						throw UnrecognizedToken{}; //< TODO: Add BAND (a & b)
@@ -317,9 +343,34 @@ namespace Nz::ShaderLang
 					break;
 				}
 
+				case '+':
+				{
+					char next = Peek();
+					if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::PlusAssign;
+					}
+					else
+						tokenType = TokenType::Plus;
 
-				case '+': tokenType = TokenType::Plus; break;
-				case '*': tokenType = TokenType::Multiply; break;
+					break;
+				}
+
+				case '*':
+				{
+					char next = Peek();
+					if (next == '=')
+					{
+						currentPos++;
+						tokenType = TokenType::MultiplyAssign;
+					}
+					else
+						tokenType = TokenType::Multiply;
+
+					break;
+				}
+
 				case ':': tokenType = TokenType::Colon; break;
 				case ';': tokenType = TokenType::Semicolon; break;
 				case '.': tokenType = TokenType::Dot; break;

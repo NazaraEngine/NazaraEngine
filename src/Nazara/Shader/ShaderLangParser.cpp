@@ -860,12 +860,32 @@ namespace Nz::ShaderLang
 
 	ShaderAst::ExpressionPtr Parser::ParseVariableAssignation()
 	{
+		// Variable expression
 		ShaderAst::ExpressionPtr left = ParseExpression();
-		Expect(Advance(), TokenType::Assign);
 
+		// Assignation type 
+		ShaderAst::AssignType assignType;
+
+		switch (Peek().type)
+		{
+			case TokenType::Assign: assignType = ShaderAst::AssignType::Simple; break;
+			case TokenType::DivideAssign: assignType = ShaderAst::AssignType::CompoundDivide; break;
+			case TokenType::LogicalAndAssign: assignType = ShaderAst::AssignType::CompoundLogicalAnd; break;
+			case TokenType::LogicalOrAssign: assignType = ShaderAst::AssignType::CompoundLogicalOr; break;
+			case TokenType::MultiplyAssign: assignType = ShaderAst::AssignType::CompoundMultiply; break;
+			case TokenType::MinusAssign: assignType = ShaderAst::AssignType::CompoundSubtract; break;
+			case TokenType::PlusAssign: assignType = ShaderAst::AssignType::CompoundAdd; break;
+
+			default:
+				throw UnexpectedToken{};
+		}
+
+		Consume();
+
+		// Value expression
 		ShaderAst::ExpressionPtr right = ParseExpression();
 
-		return ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(left), std::move(right));
+		return ShaderBuilder::Assign(assignType, std::move(left), std::move(right));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseVariableDeclaration()
