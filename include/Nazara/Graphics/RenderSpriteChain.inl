@@ -15,8 +15,8 @@ namespace Nz
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
 	m_matFlags(matFlags),
-	m_worldInstance(worldInstance),
 	m_materialBinding(materialBinding),
+	m_worldInstance(worldInstance),
 	m_renderLayer(renderLayer)
 	{
 	}
