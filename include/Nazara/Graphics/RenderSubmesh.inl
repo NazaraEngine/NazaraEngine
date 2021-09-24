@@ -14,8 +14,8 @@ namespace Nz
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_matFlags(matFlags),
-	m_worldInstance(worldInstance),
 	m_materialBinding(materialBinding),
+	m_worldInstance(worldInstance),
 	m_renderLayer(renderLayer)
 	{
 	}

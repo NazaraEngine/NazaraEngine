@@ -8,8 +8,8 @@
 namespace Nz
 {
 	inline OpenGLUploadPool::OpenGLUploadPool(UInt64 blockSize) :
-	m_blockSize(blockSize),
-	m_nextAllocationIndex(0)
+	m_nextAllocationIndex(0),
+	m_blockSize(blockSize)
 	{
 	}
 }
