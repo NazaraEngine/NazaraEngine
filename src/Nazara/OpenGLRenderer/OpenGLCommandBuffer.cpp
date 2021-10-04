@@ -165,7 +165,7 @@ namespace Nz
 						{
 							std::size_t attachmentIndex = colorIndexes[i];
 
-							Nz::Color color = command.clearValues[attachmentIndex].color;
+							Color color = command.clearValues[attachmentIndex].color;
 							std::array<GLfloat, 4> clearColor = { color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f };
 
 							const auto& attachmentInfo = command.renderpass->GetAttachment(attachmentIndex);
@@ -230,7 +230,7 @@ namespace Nz
 							{
 								context->ResetColorWriteMasks();
 
-								Nz::Color color = command.clearValues[colorAttachmentIndex].color;
+								Color color = command.clearValues[colorAttachmentIndex].color;
 								context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
 
 								clearFields |= GL_COLOR_BUFFER_BIT;

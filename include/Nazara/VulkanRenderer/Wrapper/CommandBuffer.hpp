@@ -35,7 +35,7 @@ namespace Nz
 				inline bool Begin(VkCommandBufferUsageFlags flags, bool occlusionQueryEnable, VkQueryControlFlags queryFlags, VkQueryPipelineStatisticFlags pipelineStatistics);
 
 				inline void BeginDebugRegion(const char* label);
-				inline void BeginDebugRegion(const char* label, Nz::Color color);
+				inline void BeginDebugRegion(const char* label, Color color);
 				inline void BeginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE);
 
 				inline void BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, const VkDescriptorSet& descriptorSets);
@@ -79,7 +79,7 @@ namespace Nz
 				inline void ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, VkImageAspectFlags aspectFlags);
 
 				inline void InsertDebugLabel(const char* label);
-				inline void InsertDebugLabel(const char* label, Nz::Color color);
+				inline void InsertDebugLabel(const char* label, Color color);
 
 				inline void MemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask);
 

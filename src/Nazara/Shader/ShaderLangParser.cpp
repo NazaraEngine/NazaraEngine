@@ -740,7 +740,7 @@ namespace Nz::ShaderLang
 				break;
 
 			default:
-				break;
+				throw UnexpectedToken{};
 		}
 
 		return statement;

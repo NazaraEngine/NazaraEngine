@@ -120,10 +120,10 @@ namespace Nz
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label)
 		{
-			return BeginDebugRegion(label, Nz::Color(0, 0, 0, 0));
+			return BeginDebugRegion(label, Color(0, 0, 0, 0));
 		}
 
-		inline void CommandBuffer::BeginDebugRegion(const char* label, Nz::Color color)
+		inline void CommandBuffer::BeginDebugRegion(const char* label, Color color)
 		{
 			Vk::Device* device = m_pool->GetDevice();
 			if (device->vkCmdBeginDebugUtilsLabelEXT)
@@ -364,10 +364,10 @@ namespace Nz
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label)
 		{
-			return InsertDebugLabel(label, Nz::Color(0, 0, 0, 0));
+			return InsertDebugLabel(label, Color(0, 0, 0, 0));
 		}
 
-		inline void CommandBuffer::InsertDebugLabel(const char* label, Nz::Color color)
+		inline void CommandBuffer::InsertDebugLabel(const char* label, Color color)
 		{
 			Vk::Device* device = m_pool->GetDevice();
 			if (device->vkCmdInsertDebugUtilsLabelEXT)

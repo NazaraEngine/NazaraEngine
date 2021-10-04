@@ -142,7 +142,7 @@ namespace Nz
 			m_lines.emplace_back(Line{Rectf::Zero(), 0});
 	}
 
-	bool SimpleTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const
+	bool SimpleTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Color color, int renderOrder, int* advance) const
 	{
 		const Font::Glyph& fontGlyph = m_font->GetGlyph(m_characterSize, m_style, outlineThickness, character);
 		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
