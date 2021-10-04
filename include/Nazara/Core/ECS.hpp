@@ -26,6 +26,7 @@ namespace Nz
 		friend class Physics2D;
 		friend class Physics3D;
 		friend class Utility;
+		friend class Widgets;
 
 		public:
 			using Dependencies = TypeList<Core>;

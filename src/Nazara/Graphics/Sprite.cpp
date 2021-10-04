@@ -12,12 +12,14 @@ namespace Nz
 {
 	Sprite::Sprite(std::shared_ptr<Material> material) :
 	InstancedRenderable(Nz::Boxf(-1000.f, -1000.f, -1000.f, 2000.f, 2000.f, 2000.f)),
-	m_material(std::move(material))
+	m_material(std::move(material)),
+	m_color(Color::White),
+	m_textureCoords(0.f, 0.f, 1.f, 1.f),
+	m_size(64.f, 64.f)
 	{
-		m_vertices[0] = VertexStruct_XYZ_Color_UV{ Vector3f(0.f, 0.f, 0.f), Nz::Color::White, Vector2f(0.f, 0.f) };
-		m_vertices[1] = VertexStruct_XYZ_Color_UV{ Vector3f(1.f, 0.f, 0.f), Nz::Color::White, Vector2f(1.f, 0.f) };
-		m_vertices[2] = VertexStruct_XYZ_Color_UV{ Vector3f(0.f, 1.f, 0.f), Nz::Color::White, Vector2f(0.f, 1.f) };
-		m_vertices[3] = VertexStruct_XYZ_Color_UV{ Vector3f(1.f, 1.f, 0.f), Nz::Color::White, Vector2f(1.f, 1.f) };
+		m_cornerColor.fill(Color::White);
+
+		UpdateVertices();
 	}
 
 	void Sprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
@@ -41,6 +43,16 @@ namespace Nz
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTexture2d;
 
 		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, whiteTexture, 1, m_vertices.data(), materialPass->GetShaderBinding(), worldInstance, materialPass->GetFlags()));
+	}
+
+	inline const Color& Sprite::GetColor() const
+	{
+		return m_color;
+	}
+
+	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
+	{
+		return m_cornerColor[UnderlyingCast(corner)];
 	}
 
 	const std::shared_ptr<Material>& Sprite::GetMaterial(std::size_t i) const
