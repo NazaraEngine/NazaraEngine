@@ -74,6 +74,8 @@ namespace Nz
 
 		Max = RightTop
 	};
+
+	constexpr std::size_t RectCornerCount = UnderlyingCast(RectCorner::Max) + 1;
 }
 
 #endif // NAZARA_ENUMS_MATH_HPP

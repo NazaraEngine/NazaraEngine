@@ -65,7 +65,7 @@ namespace Nz
 				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect);
 
 				if (!passData.name.empty())
-					builder.BeginDebugRegion(passData.name, Nz::Color::Green);
+					builder.BeginDebugRegion(passData.name, Color::Green);
 
 				bool first = true;
 				for (auto& subpass : passData.subpasses)

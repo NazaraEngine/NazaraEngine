@@ -15,9 +15,11 @@
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
+#include <Nazara/Widgets.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <iostream>
+#include <limits>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -34,7 +36,9 @@ int main()
 	else
 		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
-	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::ECS> nazara(rendererConfig);
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::ECS, Nz::Widgets> nazara(rendererConfig);
 
 	Nz::RenderWindow window;
 
@@ -125,20 +129,10 @@ int main()
 	spriteMaterial->AddPass("ForwardPass", spriteMaterialPass);
 
 	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(spriteMaterial);
+	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72), 0.01f);
 
-	std::u32string str = Nz::ToUtf32String("Dès Noël, où un zéphyr haï me vêt de glaçons würmiens, je dîne d’exquis rôtis de bœuf au kir, à l’aÿ d’âge mûr, &cætera");
-
-	Nz::RichTextDrawer richText;
-	unsigned int size = 16;
-	for (char32_t character : str)
-	{
-		richText.SetDefaultCharacterSize(size);
-		richText.AppendText(Nz::FromUtf32String(std::u32string_view(&character, 1)));
-
-		size += 2;
-	}
-
-	sprite->Update(richText, 0.02f);
+	//for (std::size_t i = 16; i < 200; i += 3)
+	//	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", i), 0.01f);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
@@ -151,6 +145,11 @@ int main()
 	Nz::Physics3DSystem physSytem(registry);
 	Nz::RenderSystem renderSystem(registry);
 	Nz::RenderSystem renderSystem2D(registry2D);
+
+	Nz::Canvas canvas(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle());
+	Nz::LabelWidget* labelWidget = canvas.Add<Nz::LabelWidget>();
+	//labelWidget->EnableBackground(true);
+	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Bonjour Paris !", 72), 0.1f);
 
 	entt::entity viewer2D = registry2D.create();
 	registry2D.emplace<Nz::NodeComponent>(viewer2D);
@@ -188,13 +187,21 @@ int main()
 			colliderModel->SetMaterial(i, colliderMat);
 	}
 
+
+	entt::entity textEntity = registry.create();
+	{
+		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(textEntity);
+		entityGfx.AttachRenderable(sprite);
+
+		auto& entityNode = registry.emplace<Nz::NodeComponent>(textEntity);
+		entityNode.SetPosition(0.f, 5.f, 0.f);
+	}
 	entt::entity playerEntity = registry.create();
 
 	entt::entity headingEntity = registry.create();
 	{
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
 		entityGfx.AttachRenderable(model);
-		entityGfx.AttachRenderable(sprite);
 
 		auto& entityNode = registry.emplace<Nz::NodeComponent>(playerEntity);
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
@@ -220,7 +227,7 @@ int main()
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
 				entityGfx.AttachRenderable(model);
-				entityGfx.AttachRenderable(sprite);
+				//entityGfx.AttachRenderable(sprite);
 
 				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
