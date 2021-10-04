@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>
 
-#ifdef NAZARA_PLATFORM_WINDOWS
+#ifdef NAZARA_COMPILER_MSVC
 #define NazaraRendererPrefix ""
 #else
 #define NazaraRendererPrefix "lib"
