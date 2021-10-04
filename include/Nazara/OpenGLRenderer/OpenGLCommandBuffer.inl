@@ -24,7 +24,7 @@ namespace Nz
 	{
 	}
 
-	inline void OpenGLCommandBuffer::BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color)
+	inline void OpenGLCommandBuffer::BeginDebugRegion(const std::string_view& regionName, const Color& color)
 	{
 		BeginDebugRegionData beginDebugRegion;
 		beginDebugRegion.color = color;

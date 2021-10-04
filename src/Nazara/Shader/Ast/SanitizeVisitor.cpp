@@ -1468,7 +1468,7 @@ namespace Nz::ShaderAst
 					throw AstError{ "pow only works with primitive and vector types" };
 
 				if ((IsPrimitiveType(type) && std::get<PrimitiveType>(type) != PrimitiveType::Float32) ||
-					(IsVectorType(type) && std::get<VectorType>(type).type != PrimitiveType::Float32))
+				    (IsVectorType(type) && std::get<VectorType>(type).type != PrimitiveType::Float32))
 					throw AstError{ "pow only works with floating-point primitive or vectors" };
 
 				node.cachedExpressionType = type;

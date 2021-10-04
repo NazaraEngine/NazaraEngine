@@ -23,7 +23,7 @@ namespace Nz
 			OpenGLCommandBufferBuilder(OpenGLCommandBufferBuilder&&) noexcept = default;
 			~OpenGLCommandBufferBuilder() = default;
 
-			void BeginDebugRegion(const std::string_view& regionName, const Nz::Color& color) override;
+			void BeginDebugRegion(const std::string_view& regionName, const Color& color) override;
 			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
 			void BindIndexBuffer(const AbstractBuffer& indexBuffer, UInt64 offset = 0) override;

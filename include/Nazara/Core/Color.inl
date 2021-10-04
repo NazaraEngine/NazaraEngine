@@ -12,7 +12,7 @@ namespace Nz
 {
 	/*!
 	* \ingroup core
-	* \class Nz::Color
+	* \class Color
 	* \brief Core class that represents a color
 	*/
 

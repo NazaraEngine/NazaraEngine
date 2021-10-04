@@ -74,7 +74,7 @@ namespace Nz
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
 
-			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Nz::Color color, int renderOrder, int* advance) const;
+			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Color color, int renderOrder, int* advance) const;
 			void GenerateGlyphs(const std::string_view& text) const;
 
 			inline float GetLineHeight(const Font::SizeInfo& sizeInfo) const;
