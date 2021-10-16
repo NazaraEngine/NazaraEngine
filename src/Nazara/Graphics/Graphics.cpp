@@ -67,13 +67,6 @@ namespace Nz
 
 		MaterialPipeline::Initialize();
 
-		RenderPipelineLayoutInfo referenceLayoutInfo;
-		FillDrawDataPipelineLayout(referenceLayoutInfo);
-		FillViewerPipelineLayout(referenceLayoutInfo);
-		FillWorldPipelineLayout(referenceLayoutInfo);
-
-		m_referencePipelineLayout = m_renderDevice->InstantiateRenderPipelineLayout(std::move(referenceLayoutInfo));
-
 		BuildDefaultTextures();
 		BuildFullscreenVertexBuffer();
 		BuildBlitPipeline();

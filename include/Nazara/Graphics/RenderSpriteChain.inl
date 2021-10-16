@@ -8,28 +8,28 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const ShaderBinding& materialBinding, const WorldInstance& worldInstance, const MaterialPassFlags& matFlags) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const ViewerInstance& viewerInstance, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData) :
 	RenderElement(BasicRenderElement::SpriteChain),
+	m_materialPass(std::move(materialPass)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_vertexDeclaration(std::move(vertexDeclaration)),
 	m_textureOverlay(std::move(textureOverlay)),
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
-	m_matFlags(matFlags),
-	m_materialBinding(materialBinding),
+	m_viewerInstance(viewerInstance),
 	m_worldInstance(worldInstance),
 	m_renderLayer(renderLayer)
 	{
 	}
 
-	inline UInt64 RenderSpriteChain::ComputeSortingScore(const Nz::Frustumf& frustum, const RenderQueueRegistry& registry) const
+	inline UInt64 RenderSpriteChain::ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
 		UInt64 elementType = GetElementType();
 		UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 		UInt64 vertexDeclarationIndex = registry.FetchVertexDeclaration(m_vertexDeclaration.get());
 
-		if (m_matFlags.Test(MaterialPassFlag::Transparent))
+		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::Transparent))
 		{
 			UInt64 matFlags = 1;
 
@@ -66,19 +66,14 @@ namespace Nz
 		}
 	}
 
-	inline const ShaderBinding& RenderSpriteChain::GetInstanceBinding() const
+	inline const MaterialPass& RenderSpriteChain::GetMaterialPass() const
 	{
-		return m_worldInstance.GetShaderBinding();
+		return *m_materialPass;
 	}
 
-	inline const ShaderBinding& RenderSpriteChain::GetMaterialBinding() const
+	inline const RenderPipeline& RenderSpriteChain::GetRenderPipeline() const
 	{
-		return m_materialBinding;
-	}
-
-	inline const RenderPipeline* RenderSpriteChain::GetRenderPipeline() const
-	{
-		return m_renderPipeline.get();
+		return *m_renderPipeline;
 	}
 
 	inline std::size_t RenderSpriteChain::GetSpriteCount() const
@@ -99,6 +94,16 @@ namespace Nz
 	inline const VertexDeclaration* RenderSpriteChain::GetVertexDeclaration() const
 	{
 		return m_vertexDeclaration.get();
+	}
+
+	inline const ViewerInstance& RenderSpriteChain::GetViewerInstance() const
+	{
+		return m_viewerInstance;
+	}
+
+	inline const WorldInstance& RenderSpriteChain::GetWorldInstance() const
+	{
+		return m_worldInstance;
 	}
 
 	inline void RenderSpriteChain::Register(RenderQueueRegistry& registry) const

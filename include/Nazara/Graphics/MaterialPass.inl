@@ -373,12 +373,6 @@ namespace Nz
 		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
 	}
 
-	inline ShaderBinding& MaterialPass::GetShaderBinding()
-	{
-		assert(m_shaderBinding);
-		return *m_shaderBinding;
-	}
-
 	inline const std::shared_ptr<Texture>& MaterialPass::GetTexture(std::size_t textureIndex) const
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
@@ -614,7 +608,7 @@ namespace Nz
 		if (m_textures[textureIndex].texture != texture)
 		{
 			m_textures[textureIndex].texture = std::move(texture);
-			InvalidateShaderBinding();
+			OnMaterialInvalidated(this);
 		}
 	}
 
@@ -635,7 +629,8 @@ namespace Nz
 		{
 			m_uniformBuffers[bufferIndex].buffer = std::move(uniformBuffer);
 			m_uniformBuffers[bufferIndex].dataInvalidated = true;
-			InvalidateShaderBinding();
+
+			OnMaterialInvalidated(this);
 		}
 	}
 
@@ -647,20 +642,12 @@ namespace Nz
 		OnMaterialInvalidated(this);
 	}
 
-	inline void MaterialPass::InvalidateShaderBinding()
-	{
-		m_forceCommandBufferRegeneration = true;
-		m_shaderBindingUpdated = false;
-
-		OnMaterialInvalidated(this);
-	}
-
 	inline void MaterialPass::InvalidateTextureSampler(std::size_t textureIndex)
 	{
 		assert(textureIndex < m_textures.size());
 		m_textures[textureIndex].sampler.reset();
 
-		InvalidateShaderBinding();
+		OnMaterialInvalidated(this);
 	}
 
 	inline void MaterialPass::InvalidateUniformData(std::size_t uniformBufferIndex)
@@ -674,4 +661,3 @@ namespace Nz
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
-#include "MaterialPass.hpp"

@@ -65,10 +65,10 @@ namespace Nz
 		const VertexDeclaration* currentVertexDeclaration = nullptr;
 		AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentDrawDataBinding = nullptr;
-		const ShaderBinding* currentInstanceBinding = nullptr;
-		const ShaderBinding* currentMaterialBinding = nullptr;
+		const ShaderBinding* currentShaderBinding = nullptr;
 		const Texture* currentTextureOverlay = nullptr;
+		const ViewerInstance* currentViewerInstance = nullptr;
+		const WorldInstance* currentWorldInstance = nullptr;
 
 		auto FlushDrawCall = [&]()
 		{
@@ -79,7 +79,7 @@ namespace Nz
 		{
 			FlushDrawCall();
 
-			currentDrawDataBinding = nullptr;
+			currentShaderBinding = nullptr;
 		};
 
 		auto Flush = [&]()
@@ -122,24 +122,24 @@ namespace Nz
 				currentVertexDeclaration = vertexDeclaration;
 			}
 
-			if (currentPipeline != spriteChain.GetRenderPipeline())
+			if (currentPipeline != &spriteChain.GetRenderPipeline())
 			{
 				FlushDrawCall();
-				currentPipeline = spriteChain.GetRenderPipeline();
+				currentPipeline = &spriteChain.GetRenderPipeline();
 			}
 
-			if (currentMaterialBinding != &spriteChain.GetMaterialBinding())
+			if (currentViewerInstance != &spriteChain.GetViewerInstance())
 			{
 				FlushDrawCall();
-				currentMaterialBinding = &spriteChain.GetMaterialBinding();
+				currentViewerInstance = &spriteChain.GetViewerInstance();
 			}
 
-			if (currentInstanceBinding != &spriteChain.GetInstanceBinding())
+			if (currentWorldInstance != &spriteChain.GetWorldInstance())
 			{
 				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawCall();
-				currentInstanceBinding = &spriteChain.GetInstanceBinding();
+				currentWorldInstance = &spriteChain.GetWorldInstance();
 			}
 
 			if (currentTextureOverlay != spriteChain.GetTextureOverlay())
@@ -177,9 +177,9 @@ namespace Nz
 					data.vertexBuffers.emplace_back(std::move(vertexBuffer));
 				}
 
-				if (!currentDrawDataBinding)
+				if (!currentShaderBinding)
 				{
-					ShaderBindingPtr drawDataBinding = Graphics::Instance()->GetReferencePipelineLayout()->AllocateShaderBinding(Graphics::DrawDataBindingSet);
+					ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
 					drawDataBinding->Update({
 						{
 							0,
@@ -189,7 +189,7 @@ namespace Nz
 						}
 					});
 
-					currentDrawDataBinding = drawDataBinding.get();
+					currentShaderBinding = drawDataBinding.get();
 
 					data.shaderBindings.emplace_back(std::move(drawDataBinding));
 				}
@@ -199,9 +199,7 @@ namespace Nz
 					data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
 						currentVertexBuffer,
 						currentPipeline,
-						currentDrawDataBinding,
-						currentInstanceBinding,
-						currentMaterialBinding,
+						currentShaderBinding,
 						6 * firstQuadIndex,
 						0,
 					});
@@ -263,9 +261,9 @@ namespace Nz
 
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentDrawDataBinding = nullptr;
-		const ShaderBinding* currentInstanceBinding = nullptr;
-		const ShaderBinding* currentMaterialBinding = nullptr;
+		const ShaderBinding* currentShaderBinding = nullptr;
+		const ViewerInstance* currentViewerInstance = nullptr;
+		const WorldInstance* currentWorldInstance = nullptr;
 
 		const RenderSpriteChain* firstSpriteChain = static_cast<const RenderSpriteChain*>(elements[0]);
 		auto it = data.drawCallPerElement.find(firstSpriteChain);
@@ -289,22 +287,10 @@ namespace Nz
 				currentPipeline = drawCall.renderPipeline;
 			}
 
-			if (currentDrawDataBinding != drawCall.drawDataBinding)
+			if (currentShaderBinding != drawCall.shaderBinding)
 			{
-				commandBuffer.BindShaderBinding(Graphics::DrawDataBindingSet, *drawCall.drawDataBinding);
-				currentDrawDataBinding = drawCall.drawDataBinding;
-			}
-
-			if (currentMaterialBinding != drawCall.materialBinding)
-			{
-				commandBuffer.BindShaderBinding(Graphics::MaterialBindingSet, *drawCall.materialBinding);
-				currentMaterialBinding = drawCall.materialBinding;
-			}
-
-			if (currentInstanceBinding != drawCall.instanceBinding)
-			{
-				commandBuffer.BindShaderBinding(Graphics::WorldBindingSet, *drawCall.instanceBinding);
-				currentInstanceBinding = drawCall.instanceBinding;
+				commandBuffer.BindShaderBinding(0, *drawCall.shaderBinding);
+				currentShaderBinding = drawCall.shaderBinding;
 			}
 
 			commandBuffer.DrawIndexed(drawCall.quadCount * 6, 1U, drawCall.firstIndex);
