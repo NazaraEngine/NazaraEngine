@@ -115,11 +115,11 @@ add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug")
 
 set_project("NazaraEngine")
 
-add_rules("mode.asan", "mode.debug", "mode.releasedbg")
+add_rules("mode.asan", "mode.coverage", "mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build_rendererplugins")
 
-set_allowedmodes("asan", "debug", "releasedbg")
+set_allowedmodes("debug", "releasedbg", "asan", "coverage")
 set_allowedplats("windows", "mingw", "linux", "macosx")
 set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
 set_defaultmode("debug")
@@ -128,6 +128,13 @@ if is_mode("debug") then
 	add_rules("debug_suffix")
 elseif is_mode("asan") then
 	set_optimize("none") -- by default xmake will optimize asan builds
+elseif is_mode("coverage") then
+	if not is_plat("windows") then
+		add_links("gcov")
+	end
+elseif is_mode("releasedbg") then
+	set_fpmodels("fast")
+	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
 
 add_includedirs("include")
@@ -139,10 +146,6 @@ set_symbols("debug", "hidden")
 set_targetdir("./bin/$(os)_$(arch)_$(mode)")
 set_warnings("allextra")
 
-if is_mode("releasedbg") then
-	set_fpmodels("fast")
-	add_vectorexts("sse", "sse2", "sse3", "ssse3")
-end
 
 if is_plat("windows") then
 	set_runtimes(is_mode("debug") and "MDd" or "MD")
