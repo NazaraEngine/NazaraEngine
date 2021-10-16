@@ -23,16 +23,6 @@ namespace Nz
 		return m_invWorldMatrix;
 	}
 
-	inline ShaderBinding& WorldInstance::GetShaderBinding()
-	{
-		return *m_shaderBinding;
-	}
-
-	inline const ShaderBinding& WorldInstance::GetShaderBinding() const
-	{
-		return *m_shaderBinding;
-	}
-
 	inline const Matrix4f& WorldInstance::GetWorldMatrix() const
 	{
 		return m_worldMatrix;

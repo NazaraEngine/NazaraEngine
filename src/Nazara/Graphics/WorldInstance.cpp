@@ -14,25 +14,15 @@
 namespace Nz
 {
 	WorldInstance::WorldInstance() :
-	m_invWorldMatrix(Nz::Matrix4f::Identity()),
-	m_worldMatrix(Nz::Matrix4f::Identity()),
+	m_invWorldMatrix(Matrix4f::Identity()),
+	m_worldMatrix(Matrix4f::Identity()),
 	m_dataInvalided(true)
 	{
 		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
 
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
-		if (!m_instanceDataBuffer->Initialize(instanceUboOffsets.totalSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
+		if (!m_instanceDataBuffer->Initialize(instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic))
 			throw std::runtime_error("failed to initialize viewer data UBO");
-
-		m_shaderBinding = Graphics::Instance()->GetReferencePipelineLayout()->AllocateShaderBinding(Graphics::WorldBindingSet);
-		m_shaderBinding->Update({
-			{
-				0,
-				ShaderBinding::UniformBufferBinding {
-					m_instanceDataBuffer.get(), 0, m_instanceDataBuffer->GetSize()
-				}
-			}
-		});
 	}
 
 	void WorldInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)

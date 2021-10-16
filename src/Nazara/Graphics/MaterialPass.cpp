@@ -29,8 +29,7 @@ namespace Nz
 	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
 	m_forceCommandBufferRegeneration(false),
-	m_pipelineUpdated(false),
-	m_shaderBindingUpdated(false)
+	m_pipelineUpdated(false)
 	{
 		m_pipelineInfo.settings = m_settings;
 
@@ -44,14 +43,14 @@ namespace Nz
 		const auto& textureSettings = m_settings->GetTextures();
 		const auto& uboSettings = m_settings->GetUniformBlocks();
 
-		m_textures.resize(m_settings->GetTextures().size());
+		m_textures.resize(textureSettings.size());
 
-		m_uniformBuffers.reserve(m_settings->GetUniformBlocks().size());
-		for (const auto& uniformBufferInfo : m_settings->GetUniformBlocks())
+		m_uniformBuffers.reserve(uboSettings.size());
+		for (const auto& uniformBufferInfo : uboSettings)
 		{
 			auto& uniformBuffer = m_uniformBuffers.emplace_back();
 
-			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(Nz::BufferType::Uniform);
+			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
 			if (!uniformBuffer.buffer->Initialize(uniformBufferInfo.blockSize, BufferUsage::Dynamic))
 				throw std::runtime_error("failed to initialize UBO memory");
 
@@ -60,20 +59,10 @@ namespace Nz
 			uniformBuffer.data.resize(uniformBufferInfo.blockSize);
 			std::memcpy(uniformBuffer.data.data(), uniformBufferInfo.defaultValues.data(), uniformBufferInfo.defaultValues.size());
 		}
-
-		UpdateShaderBinding();
 	}
 
 	bool MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
-		if (!m_shaderBindingUpdated)
-		{
-			renderFrame.PushForRelease(std::move(m_shaderBinding));
-			m_shaderBinding.reset();
-
-			UpdateShaderBinding();
-		}
-
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
 
 		for (auto& ubo : m_uniformBuffers)
@@ -117,61 +106,5 @@ namespace Nz
 
 		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
 		m_pipelineUpdated = true;
-	}
-
-	void MaterialPass::UpdateShaderBinding()
-	{
-		assert(!m_shaderBinding);
-
-		const auto& textureSettings = m_settings->GetTextures();
-		const auto& uboSettings = m_settings->GetUniformBlocks();
-
-		// TODO: Use StackVector
-		std::vector<ShaderBinding::Binding> bindings;
-
-		// Textures
-		for (std::size_t i = 0; i < m_textures.size(); ++i)
-		{
-			const auto& textureSetting = textureSettings[i];
-			const auto& textureSlot = m_textures[i];
-
-			if (!textureSlot.sampler)
-			{
-				TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
-				textureSlot.sampler = samplerCache.Get(textureSlot.samplerInfo);
-			}
-
-			//TODO: Use "missing" texture
-			if (textureSlot.texture)
-			{
-				bindings.push_back({
-					textureSetting.bindingIndex,
-					ShaderBinding::TextureBinding {
-						textureSlot.texture.get(), textureSlot.sampler.get()
-					}
-				});
-			}
-		}
-
-		// Shared UBO (TODO)
-
-		// Owned UBO
-		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
-		{
-			const auto& uboSetting = uboSettings[i];
-			const auto& uboSlot = m_uniformBuffers[i];
-
-			bindings.push_back({
-				uboSetting.bindingIndex,
-				ShaderBinding::UniformBufferBinding {
-					uboSlot.buffer.get(), 0, uboSlot.buffer->GetSize()
-				}
-			});
-		}
-
-		m_shaderBinding = m_settings->GetRenderPipelineLayout()->AllocateShaderBinding(Graphics::MaterialBindingSet);
-		m_shaderBinding->Update(bindings.data(), bindings.size());
-
-		m_shaderBindingUpdated = true;
 	}
 }

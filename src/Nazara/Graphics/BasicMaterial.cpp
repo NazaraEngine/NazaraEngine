@@ -152,6 +152,16 @@ namespace Nz
 			std::move(defaultValues)
 		});
 
+		// Common data
+		settings.textures.push_back({
+			3,
+			"TextureOverlay",
+			ImageType::E2D
+		});
+
+		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock(4, ShaderStageType::Vertex));
+		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock(5, ShaderStageType_All));
+
 		settings.shaders = std::move(uberShaders);
 
 		for (std::shared_ptr<UberShader> uberShader : settings.shaders)

@@ -48,11 +48,6 @@ namespace Nz
 		return m_viewerDataBuffer;
 	}
 
-	inline ShaderBinding& ViewerInstance::GetShaderBinding()
-	{
-		return *m_shaderBinding;
-	}
-
 	inline void ViewerInstance::UpdateProjectionMatrix(const Matrix4f& projectionMatrix)
 	{
 		m_projectionMatrix = projectionMatrix;

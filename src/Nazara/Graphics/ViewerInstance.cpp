@@ -14,49 +14,39 @@
 namespace Nz
 {
 	ViewerInstance::ViewerInstance() :
-	m_invProjectionMatrix(Nz::Matrix4f::Identity()),
-	m_invViewProjMatrix(Nz::Matrix4f::Identity()),
-	m_invViewMatrix(Nz::Matrix4f::Identity()),
-	m_projectionMatrix(Nz::Matrix4f::Identity()),
-	m_viewProjMatrix(Nz::Matrix4f::Identity()),
-	m_viewMatrix(Nz::Matrix4f::Identity()),
-	m_targetSize(Nz::Vector2f(0.f, 0.f)),
+	m_invProjectionMatrix(Matrix4f::Identity()),
+	m_invViewProjMatrix(Matrix4f::Identity()),
+	m_invViewMatrix(Matrix4f::Identity()),
+	m_projectionMatrix(Matrix4f::Identity()),
+	m_viewProjMatrix(Matrix4f::Identity()),
+	m_viewMatrix(Matrix4f::Identity()),
+	m_targetSize(Vector2f(0.f, 0.f)),
 	m_dataInvalided(true)
 	{
-		Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
+		PredefinedViewerData viewerUboOffsets = PredefinedViewerData::GetOffsets();
 
 		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
-		if (!m_viewerDataBuffer->Initialize(viewerUboOffsets.totalSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
+		if (!m_viewerDataBuffer->Initialize(viewerUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic))
 			throw std::runtime_error("failed to initialize viewer data UBO");
-
-		m_shaderBinding = Graphics::Instance()->GetReferencePipelineLayout()->AllocateShaderBinding(Graphics::ViewerBindingSet);
-		m_shaderBinding->Update({
-			{
-				0,
-				ShaderBinding::UniformBufferBinding {
-					m_viewerDataBuffer.get(), 0, m_viewerDataBuffer->GetSize()
-				}
-			}
-		});
 	}
 
 	void ViewerInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
 	{
 		if (m_dataInvalided)
 		{
-			Nz::PredefinedViewerData viewerDataOffsets = Nz::PredefinedViewerData::GetOffsets();
+			PredefinedViewerData viewerDataOffsets = PredefinedViewerData::GetOffsets();
 
 			auto& allocation = uploadPool.Allocate(viewerDataOffsets.totalSize);
-			Nz::AccessByOffset<Nz::Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_viewMatrix.GetTranslation();
-			Nz::AccessByOffset<Nz::Vector2f&>(allocation.mappedPtr, viewerDataOffsets.invTargetSizeOffset) = 1.f / m_targetSize;
-			Nz::AccessByOffset<Nz::Vector2f&>(allocation.mappedPtr, viewerDataOffsets.targetSizeOffset) = m_targetSize;
+			AccessByOffset<Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_viewMatrix.GetTranslation();
+			AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.invTargetSizeOffset) = 1.f / m_targetSize;
+			AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.targetSizeOffset) = m_targetSize;
 
-			Nz::AccessByOffset<Nz::Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.invProjMatrixOffset) = m_invProjectionMatrix;
-			Nz::AccessByOffset<Nz::Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.invViewMatrixOffset) = m_invViewMatrix;
-			Nz::AccessByOffset<Nz::Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.invViewProjMatrixOffset) = m_invViewProjMatrix;
-			Nz::AccessByOffset<Nz::Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.projMatrixOffset) = m_projectionMatrix;
-			Nz::AccessByOffset<Nz::Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewProjMatrixOffset) = m_viewProjMatrix;
-			Nz::AccessByOffset<Nz::Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewMatrixOffset) = m_viewMatrix;
+			AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.invProjMatrixOffset) = m_invProjectionMatrix;
+			AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.invViewMatrixOffset) = m_invViewMatrix;
+			AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.invViewProjMatrixOffset) = m_invViewProjMatrix;
+			AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.projMatrixOffset) = m_projectionMatrix;
+			AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewProjMatrixOffset) = m_viewProjMatrix;
+			AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewMatrixOffset) = m_viewMatrix;
 
 			builder.CopyBuffer(allocation, m_viewerDataBuffer.get());
 

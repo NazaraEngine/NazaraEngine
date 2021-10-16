@@ -61,9 +61,7 @@ namespace Nz
 		{
 			const AbstractBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
-			const ShaderBinding* drawDataBinding;
-			const ShaderBinding* instanceBinding;
-			const ShaderBinding* materialBinding;
+			const ShaderBinding* shaderBinding;
 			std::size_t firstIndex;
 			std::size_t quadCount;
 		};
