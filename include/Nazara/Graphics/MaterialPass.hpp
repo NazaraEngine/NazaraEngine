@@ -70,7 +70,6 @@ namespace Nz
 			inline PrimitiveMode GetPrimitiveMode() const;
 			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
-			inline ShaderBinding& GetShaderBinding();
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
 			inline const std::shared_ptr<AbstractBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
@@ -110,11 +109,9 @@ namespace Nz
 
 		private:
 			inline void InvalidatePipeline();
-			inline void InvalidateShaderBinding();
 			inline void InvalidateTextureSampler(std::size_t textureIndex);
 			inline void InvalidateUniformData(std::size_t uniformBufferIndex);
 			void UpdatePipeline() const;
-			void UpdateShaderBinding();
 
 			struct MaterialTexture
 			{
@@ -137,10 +134,8 @@ namespace Nz
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			MaterialPassFlags m_flags;
-			ShaderBindingPtr m_shaderBinding;
 			bool m_forceCommandBufferRegeneration;
 			mutable bool m_pipelineUpdated;
-			bool m_shaderBindingUpdated;
 	};
 }
 

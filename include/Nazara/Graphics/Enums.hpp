@@ -50,6 +50,17 @@ namespace Nz
 		Orthographic,
 		Perspective
 	};
+
+	enum class PredefinedShaderBinding
+	{
+		InstanceDataUbo,
+		OverlayTexture,
+		ViewerDataUbo,
+
+		Max = ViewerDataUbo
+	};
+
+	constexpr std::size_t PredefinedShaderBindingCount = static_cast<std::size_t>(PredefinedShaderBinding::Max) + 1;
 }
 
 #endif // NAZARA_ENUMS_GRAPHICS_HPP

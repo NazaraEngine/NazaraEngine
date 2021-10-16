@@ -28,6 +28,7 @@ namespace Nz
 			struct SharedUniformBlock;
 			struct Texture;
 			struct UniformBlock;
+			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
 
 			inline MaterialSettings();
 			inline MaterialSettings(Builder builder);
@@ -64,6 +65,7 @@ namespace Nz
 				std::vector<Texture> textures;
 				std::vector<UniformBlock> uniformBlocks;
 				std::vector<SharedUniformBlock> sharedUniformBlocks;
+				PredefinedBinding predefinedBindings;
 			};
 
 			struct Option
@@ -113,3 +115,5 @@ namespace Nz
 #include <Nazara/Graphics/MaterialSettings.inl>
 
 #endif // NAZARA_MATERIALPIPELINESETTINGS_HPP
+
+
