@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
+#include <Nazara/Graphics/Algorithm.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -32,19 +33,8 @@ namespace Nz
 		{
 			UInt64 matFlags = 1;
 
-#if defined(arm) && \
-    ((defined(__MAVERICK__) && defined(NAZARA_BIG_ENDIAN)) || \
-    (!defined(__SOFTFP__) && !defined(__VFP_FP__) && !defined(__MAVERICK__)))
-#error The following code relies on native-endian IEEE-754 representation, which your platform does not guarantee
-#endif
-
-			static_assert(sizeof(float) == sizeof(UInt32));
-
-			float distanceNear = frustum.GetPlane(Nz::FrustumPlane::Near).Distance(m_worldInstance.GetWorldMatrix().GetTranslation());
-			UInt32 distanceInt;
-			std::memcpy(&distanceInt, &distanceNear, sizeof(UInt32));
-
-			UInt64 distance = static_cast<UInt64>(~distanceInt); //< Reverse distance to have back to front
+			float distanceNear = frustum.GetPlane(FrustumPlane::Near).Distance(m_worldInstance.GetWorldMatrix().GetTranslation());
+			UInt64 distance = DistanceAsSortKey(distanceNear);
 
 			// Transparent RQ index:
 			// - Layer (8bits)
