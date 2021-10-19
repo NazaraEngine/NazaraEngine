@@ -241,7 +241,11 @@ rule("build_rendererplugins")
 rule("embed_resources")
 	before_build(function (target, opt)
 		import("core.base.option")
-		import("private.utils.progress")
+		if xmake.version():ge("2.5.9") then
+			import("utils.progress")
+		else 
+			import("private.utils.progress")
+		end
 
 		local function GenerateEmbedHeader(filepath, targetpath)
 			local bufferSize = 1024 * 1024
