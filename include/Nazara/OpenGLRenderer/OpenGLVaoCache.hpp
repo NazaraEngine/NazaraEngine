@@ -61,7 +61,7 @@ namespace Nz::GL
 			OpenGLVaoCache& operator=(OpenGLVaoCache&&) = delete;
 
 		private:
-			void NotifyBufferDestruction(GLuint buffer);
+			void NotifyBufferDestruction(GLuint buffer) const;
 
 			mutable std::unordered_map<OpenGLVaoSetup, std::unique_ptr<VertexArray>, OpenGLVaoSetupHasher> m_vertexArrays;
 			Context& m_context;

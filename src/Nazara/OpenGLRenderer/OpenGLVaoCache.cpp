@@ -54,7 +54,7 @@ namespace Nz::GL
 		return *(it->second);
 	}
 
-	void OpenGLVaoCache::NotifyBufferDestruction(GLuint buffer)
+	void OpenGLVaoCache::NotifyBufferDestruction(GLuint buffer) const
 	{
 		for (auto it = m_vertexArrays.begin(); it != m_vertexArrays.end();)
 		{
