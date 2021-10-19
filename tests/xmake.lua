@@ -9,6 +9,10 @@ target("NazaraClientUnitTests")
 	set_group("Tests")
 	set_kind("binary")
 
+	if xmake.version():ge("2.5.9") then
+		add_rules("c++.unity_build")
+	end
+
 	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
 	add_packages("catch2")
 
@@ -19,6 +23,10 @@ target("NazaraClientUnitTests")
 target("NazaraUnitTests")
 	set_group("Tests")
 	set_kind("binary")
+
+	if xmake.version():ge("2.5.9") then
+		add_rules("c++.unity_build")
+	end
 
 	add_deps("NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
 	add_packages("catch2")
