@@ -58,6 +58,8 @@ namespace Nz::GL
 			if (boundBuffer == buffer)
 				boundBuffer = 0;
 		}
+
+		m_vaoCache.NotifyBufferDestruction(buffer);
 	}
 
 	inline void Context::NotifyFramebufferDestruction(GLuint fbo) const
