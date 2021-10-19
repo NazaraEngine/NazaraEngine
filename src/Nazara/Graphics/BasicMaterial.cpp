@@ -187,9 +187,6 @@ namespace Nz
 				{
 					switch (component.component)
 					{
-						case VertexComponent::Unused:
-							continue;
-
 						case VertexComponent::Position:
 							if (positionLocationIndex != InvalidOption)
 								config.optionValues[positionLocationIndex] = static_cast<Int32>(locationIndex);
@@ -206,6 +203,10 @@ namespace Nz
 							if (uvLocationIndex != InvalidOption)
 								config.optionValues[uvLocationIndex] = static_cast<Int32>(locationIndex);
 
+							break;
+
+						case VertexComponent::Unused:
+						default:
 							break;
 					}
 
