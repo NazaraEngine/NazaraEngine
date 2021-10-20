@@ -73,6 +73,11 @@ namespace Nz
 		return InvalidIndex;
 	}
 
+	inline std::size_t MaterialSettings::GetPredefinedBinding(PredefinedShaderBinding shaderBinding) const
+	{
+		return m_data.predefinedBindings[UnderlyingCast(shaderBinding)];
+	}
+
 	inline const std::shared_ptr<RenderPipelineLayout>& MaterialSettings::GetRenderPipelineLayout() const
 	{
 		return m_pipelineLayout;
@@ -189,6 +194,11 @@ namespace Nz
 				shaderOptions
 			});
 		}
+	}
+
+	inline MaterialSettings::Builder::Builder()
+	{
+		predefinedBindings.fill(InvalidIndex);
 	}
 }
 

@@ -52,6 +52,8 @@ namespace Nz
 
 			inline void EnsurePipelineUpdate() const;
 
+			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
+
 			inline RendererComparison GetDepthCompareFunc() const;
 			inline BlendEquation GetBlendAlphaModeEquation() const;
 			inline BlendEquation GetBlendColorModeEquation() const;

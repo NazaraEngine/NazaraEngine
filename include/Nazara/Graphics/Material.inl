@@ -21,17 +21,23 @@ namespace Nz
 		return AddPass(registry.GetPassIndex(passName), std::move(pass));
 	}
 
-	inline MaterialPass* Material::GetPass(std::size_t passIndex) const
+	inline const std::shared_ptr<MaterialPass>& Material::GetPass(std::size_t passIndex) const
 	{
 		if (passIndex >= m_passes.size())
-			return nullptr;
+		{
+			static std::shared_ptr<MaterialPass> dummy;
+			return dummy;
+		}
 
-		return m_passes[passIndex].get();
+		return m_passes[passIndex];
 	}
 
 	inline bool Material::HasPass(std::size_t passIndex) const
 	{
-		return GetPass(passIndex) != nullptr;
+		if (passIndex >= m_passes.size())
+			return false;
+
+		return m_passes[passIndex] != nullptr;
 	}
 
 	inline void Material::RemovePass(std::size_t passIndex)
