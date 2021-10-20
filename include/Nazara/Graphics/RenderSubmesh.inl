@@ -4,31 +4,31 @@
 
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/Algorithm.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<RenderPipeline> renderPipeline, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer, const WorldInstance& worldInstance, const ShaderBinding& materialBinding, const MaterialPassFlags& matFlags) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
+	m_materialPass(std::move(materialPass)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
-	m_matFlags(matFlags),
-	m_materialBinding(materialBinding),
 	m_worldInstance(worldInstance),
 	m_renderLayer(renderLayer)
 	{
 	}
 
-	inline UInt64 RenderSubmesh::ComputeSortingScore(const Nz::Frustumf& frustum, const RenderQueueRegistry& registry) const
+	inline UInt64 RenderSubmesh::ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
 		UInt64 elementType = GetElementType();
 		UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 		UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 		
-		if (m_matFlags.Test(MaterialPassFlag::Transparent))
+		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::Transparent))
 		{
 			UInt64 matFlags = 1;
 
@@ -74,24 +74,24 @@ namespace Nz
 		return m_indexCount;
 	}
 
+	inline const MaterialPass& RenderSubmesh::GetMaterialPass() const
+	{
+		return *m_materialPass;
+	}
+
 	inline const RenderPipeline* RenderSubmesh::GetRenderPipeline() const
 	{
 		return m_renderPipeline.get();
 	}
 
-	inline const ShaderBinding& RenderSubmesh::GetInstanceBinding() const
-	{
-		return m_worldInstance.GetShaderBinding();
-	}
-
-	inline const ShaderBinding& RenderSubmesh::GetMaterialBinding() const
-	{
-		return m_materialBinding;
-	}
-
 	inline const AbstractBuffer* RenderSubmesh::GetVertexBuffer() const
 	{
 		return m_vertexBuffer.get();
+	}
+
+	inline const WorldInstance& RenderSubmesh::GetWorldInstance() const
+	{
+		return m_worldInstance;
 	}
 
 	inline void RenderSubmesh::Register(RenderQueueRegistry& registry) const

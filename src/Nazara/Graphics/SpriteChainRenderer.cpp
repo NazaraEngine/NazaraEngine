@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
@@ -52,7 +53,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -67,7 +68,6 @@ namespace Nz
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const Texture* currentTextureOverlay = nullptr;
-		const ViewerInstance* currentViewerInstance = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
 
 		auto FlushDrawCall = [&]()
@@ -128,17 +128,11 @@ namespace Nz
 				currentPipeline = &spriteChain.GetRenderPipeline();
 			}
 
-			if (currentViewerInstance != &spriteChain.GetViewerInstance())
-			{
-				FlushDrawCall();
-				currentViewerInstance = &spriteChain.GetViewerInstance();
-			}
-
 			if (currentWorldInstance != &spriteChain.GetWorldInstance())
 			{
 				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
-				FlushDrawCall();
+				FlushDrawData();
 				currentWorldInstance = &spriteChain.GetWorldInstance();
 			}
 
@@ -179,15 +173,48 @@ namespace Nz
 
 				if (!currentShaderBinding)
 				{
+					m_bindingCache.clear();
+
+					const MaterialPass& materialPass = spriteChain.GetMaterialPass();
+					materialPass.FillShaderBinding(m_bindingCache);
+
+					// Predefined shader bindings
+					const auto& matSettings = materialPass.GetSettings();
+					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+					{
+						const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
+
+						auto& bindingEntry = m_bindingCache.emplace_back();
+						bindingEntry.bindingIndex = bindingIndex;
+						bindingEntry.content = ShaderBinding::UniformBufferBinding{
+							instanceBuffer.get(),
+							0, instanceBuffer->GetSize()
+						};
+					}
+
+					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::ViewerDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+					{
+						const auto& viewerBuffer = viewerInstance.GetViewerBuffer();
+
+						auto& bindingEntry = m_bindingCache.emplace_back();
+						bindingEntry.bindingIndex = bindingIndex;
+						bindingEntry.content = ShaderBinding::UniformBufferBinding{
+							viewerBuffer.get(),
+							0, viewerBuffer->GetSize()
+						};
+					}
+
+					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::OverlayTexture); bindingIndex != MaterialSettings::InvalidIndex)
+					{
+						auto& bindingEntry = m_bindingCache.emplace_back();
+						bindingEntry.bindingIndex = bindingIndex;
+						bindingEntry.content = ShaderBinding::TextureBinding{
+							currentTextureOverlay, defaultSampler.get()
+						};
+					}
+
 					ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
-					drawDataBinding->Update({
-						{
-							0,
-							ShaderBinding::TextureBinding {
-								currentTextureOverlay, defaultSampler.get()
-							}
-						}
-					});
+					drawDataBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
 					currentShaderBinding = drawDataBinding.get();
 
@@ -253,7 +280,7 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Render(ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
+	void SpriteChainRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 

@@ -33,8 +33,8 @@ namespace Nz
 			inline const Matrix4f& GetProjectionMatrix() const;
 			inline const Matrix4f& GetViewMatrix() const;
 			inline const Matrix4f& GetViewProjMatrix() const;
-			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
-			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
+			inline std::shared_ptr<AbstractBuffer>& GetViewerBuffer();
+			inline const std::shared_ptr<AbstractBuffer>& GetViewerBuffer() const;
 
 			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);

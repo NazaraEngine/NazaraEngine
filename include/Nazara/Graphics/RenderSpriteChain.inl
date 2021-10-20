@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const ViewerInstance& viewerInstance, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData) :
 	RenderElement(BasicRenderElement::SpriteChain),
 	m_materialPass(std::move(materialPass)),
 	m_renderPipeline(std::move(renderPipeline)),
@@ -16,7 +16,6 @@ namespace Nz
 	m_textureOverlay(std::move(textureOverlay)),
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
-	m_viewerInstance(viewerInstance),
 	m_worldInstance(worldInstance),
 	m_renderLayer(renderLayer)
 	{
@@ -94,11 +93,6 @@ namespace Nz
 	inline const VertexDeclaration* RenderSpriteChain::GetVertexDeclaration() const
 	{
 		return m_vertexDeclaration.get();
-	}
-
-	inline const ViewerInstance& RenderSpriteChain::GetViewerInstance() const
-	{
-		return m_viewerInstance;
 	}
 
 	inline const WorldInstance& RenderSpriteChain::GetWorldInstance() const

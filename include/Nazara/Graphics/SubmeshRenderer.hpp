@@ -13,6 +13,10 @@
 
 namespace Nz
 {
+	class AbstractBuffer;
+	class RenderPipeline;
+	class ShaderBinding;
+
 	class NAZARA_GRAPHICS_API SubmeshRenderer : public ElementRenderer
 	{
 		public:
@@ -20,10 +24,27 @@ namespace Nz
 			~SubmeshRenderer() = default;
 
 			std::unique_ptr<ElementRendererData> InstanciateData();
-			void Render(ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount);
+			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
+			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
 
 		private:
-			ShaderBindingPtr m_renderDataBinding;
+			std::vector<ShaderBinding::Binding> m_bindingCache;
+	};
+
+	struct SubmeshRendererData : public ElementRendererData
+	{
+		struct DrawCall
+		{
+			const AbstractBuffer* indexBuffer;
+			const AbstractBuffer* vertexBuffer;
+			const RenderPipeline* renderPipeline;
+			const ShaderBinding* shaderBinding;
+			std::size_t indexCount;
+		};
+
+		std::vector<DrawCall> drawCalls;
+		std::vector<ShaderBindingPtr> shaderBindings;
 	};
 }
 
