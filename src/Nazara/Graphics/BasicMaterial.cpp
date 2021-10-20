@@ -162,6 +162,10 @@ namespace Nz
 		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock(4, ShaderStageType::Vertex));
 		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock(5, ShaderStageType_All));
 
+		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::InstanceDataUbo)] = 4;
+		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::OverlayTexture)] = 3;
+		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::ViewerDataUbo)] = 5;
+
 		settings.shaders = std::move(uberShaders);
 
 		for (std::shared_ptr<UberShader> uberShader : settings.shaders)

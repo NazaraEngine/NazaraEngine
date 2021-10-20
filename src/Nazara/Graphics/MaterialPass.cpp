@@ -61,6 +61,52 @@ namespace Nz
 		}
 	}
 
+	void MaterialPass::FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		const auto& textureSettings = m_settings->GetTextures();
+		const auto& uboSettings = m_settings->GetUniformBlocks();
+
+		// Textures
+		for (std::size_t i = 0; i < m_textures.size(); ++i)
+		{
+			const auto& textureSetting = textureSettings[i];
+			const auto& textureSlot = m_textures[i];
+
+			if (!textureSlot.sampler)
+			{
+				TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
+				textureSlot.sampler = samplerCache.Get(textureSlot.samplerInfo);
+			}
+
+			//TODO: Use "missing" texture
+			if (textureSlot.texture)
+			{
+				bindings.push_back({
+					textureSetting.bindingIndex,
+					ShaderBinding::TextureBinding {
+						textureSlot.texture.get(), textureSlot.sampler.get()
+					}
+				});
+			}
+		}
+
+		// Shared UBO (TODO)
+
+		// Owned UBO
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
+		{
+			const auto& uboSetting = uboSettings[i];
+			const auto& uboSlot = m_uniformBuffers[i];
+
+			bindings.push_back({
+				uboSetting.bindingIndex,
+				ShaderBinding::UniformBufferBinding {
+					uboSlot.buffer.get(), 0, uboSlot.buffer->GetSize()
+				}
+			});
+		}
+	}
+
 	bool MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
