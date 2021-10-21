@@ -26,9 +26,11 @@ namespace Nz
 		switch (params.type)
 		{
 			case ImageType::E1D:
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, 1);
 				break;
 
 			case ImageType::E1D_Array:
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.height);
 				break;
 
 			case ImageType::E2D:
@@ -36,16 +38,15 @@ namespace Nz
 				break;
 
 			case ImageType::E2D_Array:
+				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, params.mipmapLevel, format->internalFormat, params.width, params.height, params.depth);
 				break;
 
 			case ImageType::E3D:
+				m_texture.TexStorage3D(GL::TextureTarget::Target3D, params.mipmapLevel, format->internalFormat, params.width, params.height, params.depth);
 				break;
 
 			case ImageType::Cubemap:
 				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, params.mipmapLevel, format->internalFormat, params.width, params.height);
-				break;
-
-			default:
 				break;
 		}
 
