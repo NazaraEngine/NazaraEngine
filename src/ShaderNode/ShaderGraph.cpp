@@ -528,7 +528,6 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
 	}
 
-	Nz::ShaderAst::ExpressionType returnType;
 	if (!m_outputs.empty())
 	{
 		Nz::ShaderAst::StructDescription structDesc;
