@@ -45,7 +45,7 @@ namespace Nz
 			currentShaderBinding = nullptr;
 		};
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTexture2d;
+		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		for (std::size_t i = 0; i < elementCount; ++i)

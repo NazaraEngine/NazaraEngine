@@ -110,7 +110,7 @@ namespace Nz
 		m_fullscreenVertexDeclaration.reset();
 		m_blitPipeline.reset();
 		m_blitPipelineLayout.reset();
-		m_defaultTextures.whiteTexture2d.reset();
+		m_defaultTextures.whiteTextures.fill(nullptr);
 	}
 
 	void Graphics::FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
@@ -184,10 +184,15 @@ namespace Nz
 			texInfo.pixelFormat = PixelFormat::L8;
 			texInfo.type = ImageType::E2D;
 
-			std::array<UInt8, 4> texData = { 0xFF, 0xFF, 0xFF, 0xFF };
+			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-			m_defaultTextures.whiteTexture2d = m_renderDevice->InstantiateTexture(texInfo);
-			m_defaultTextures.whiteTexture2d->Update(texData.data());
+			for (std::size_t i = 0; i < ImageTypeCount; ++i)
+			{
+				texInfo.type = static_cast<ImageType>(i);
+
+				m_defaultTextures.whiteTextures[i] = m_renderDevice->InstantiateTexture(texInfo);
+				m_defaultTextures.whiteTextures[i]->Update(whitePixels.data());
+			}
 		}
 	}
 

@@ -54,7 +54,7 @@ namespace Nz
 
 			struct DefaultTextures
 			{
-				std::shared_ptr<Texture> whiteTexture2d;
+				std::array<std::shared_ptr<Texture>, ImageTypeCount> whiteTextures;
 			};
 
 			static void FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
