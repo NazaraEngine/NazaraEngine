@@ -79,15 +79,19 @@ namespace Nz
 			}
 
 			//TODO: Use "missing" texture
-			if (textureSlot.texture)
+			Texture* texture = textureSlot.texture.get();
+			if (!texture)
 			{
-				bindings.push_back({
-					textureSetting.bindingIndex,
-					ShaderBinding::TextureBinding {
-						textureSlot.texture.get(), textureSlot.sampler.get()
-					}
-				});
+				const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
+				texture = defaultTextures.whiteTextures[UnderlyingCast(textureSetting.type)].get();
 			}
+
+			bindings.push_back({
+				textureSetting.bindingIndex,
+				ShaderBinding::TextureBinding {
+					texture, textureSlot.sampler.get()
+				}
+			});
 		}
 
 		// Shared UBO (TODO)

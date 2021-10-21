@@ -40,7 +40,7 @@ namespace Nz
 		};
 		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(vertexBufferData);
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTexture2d;
+		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
 		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data()));
 	}
