@@ -324,18 +324,6 @@ namespace Nz
 	{
 	}
 
-	inline entt::registry& BaseWidget::GetRegistry()
-	{
-		assert(m_registry);
-		return *m_registry;
-	}
-
-	inline const entt::registry& BaseWidget::GetRegistry() const
-	{
-		assert(m_registry);
-		return *m_registry;
-	}
-
 	void BaseWidget::ShowChildren(bool show)
 	{
 		for (const auto& widgetPtr : m_children)
