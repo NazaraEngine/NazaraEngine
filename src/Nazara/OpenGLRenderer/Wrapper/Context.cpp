@@ -350,6 +350,8 @@ namespace Nz::GL
 		m_params.glMajorVersion = majorVersion;
 		m_params.glMinorVersion = minorVersion;
 
+		unsigned int glVersion = majorVersion * 100 + minorVersion * 10;
+
 		// Load extensions
 		GLint extensionCount = 0;
 		glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
@@ -360,7 +362,7 @@ namespace Nz::GL
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
 		// Depth clamp
-		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 3 && m_params.glMajorVersion >= 2)
+		if (m_params.type == ContextType::OpenGL && glVersion >= 320)
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_depth_clamp"))
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::ARB;
@@ -370,7 +372,7 @@ namespace Nz::GL
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
 
 		// SpirV
-		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 4 && m_params.glMajorVersion >= 6)
+		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
@@ -380,7 +382,7 @@ namespace Nz::GL
 			m_extensionStatus[UnderlyingCast(Extension::TextureCompressionS3tc)] = ExtensionStatus::EXT;
 
 		// Texture anisotropic filter
-		if (m_params.type == ContextType::OpenGL && m_params.glMajorVersion >= 4 && m_params.glMajorVersion >= 6)
+		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
 			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::ARB;
@@ -393,7 +395,7 @@ namespace Nz::GL
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
 
-		// If we requested an OpenGL ES context but cannot create one, check for some compatibility extensions
+		// If we requested an OpenGL ES context but couldn't create one, check for some compatibility extensions
 		if (params.type == ContextType::OpenGL_ES && m_params.type != params.type)
 		{
 			if (m_supportedExtensions.count("GL_ARB_ES3_2_compatibility"))

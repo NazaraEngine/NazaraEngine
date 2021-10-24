@@ -420,14 +420,11 @@ namespace Nz
 	void GlslWriter::AppendHeader()
 	{
 		unsigned int glslVersion;
+		unsigned int glVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
 		if (m_environment.glES)
 		{
-			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
-				glslVersion = 320;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
-				glslVersion = 310;
-			else if (m_environment.glMajorVersion >= 3)
-				glslVersion = 300;
+			if (glVersion >= 300)
+				glslVersion = glVersion;
 			else if (m_environment.glMajorVersion >= 2)
 				glslVersion = 100;
 			else
@@ -435,17 +432,17 @@ namespace Nz
 		}
 		else
 		{
-			if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 3)
-				glslVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 2)
+			if (glVersion >= 330)
+				glslVersion = glVersion;
+			else if (glVersion >= 320)
 				glslVersion = 150;
-			else if (m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1)
+			else if (glVersion >= 310)
 				glslVersion = 140;
-			else if (m_environment.glMajorVersion >= 3)
+			else if (glVersion >= 300)
 				glslVersion = 130;
-			else if (m_environment.glMajorVersion >= 2 && m_environment.glMinorVersion >= 1)
+			else if (glVersion >= 210)
 				glslVersion = 120;
-			else if (m_environment.glMajorVersion >= 2)
+			else if (glVersion >= 200)
 				glslVersion = 110;
 			else
 				throw std::runtime_error("This version of OpenGL does not support shaders");
@@ -553,7 +550,8 @@ namespace Nz
 	{
 		if (node.entryStage.GetResultingValue() == ShaderStageType::Fragment && node.earlyFragmentTests.HasValue() && node.earlyFragmentTests.GetResultingValue())
 		{
-			if ((m_environment.glES && m_environment.glMajorVersion >= 3 && m_environment.glMinorVersion >= 1) || (!m_environment.glES && m_environment.glMajorVersion >= 4 && m_environment.glMinorVersion >= 2) || (m_environment.extCallback && m_environment.extCallback("GL_ARB_shader_image_load_store")))
+			unsigned int glVersion = m_environment.glMajorVersion * 100 + m_environment.glMinorVersion * 10;
+			if ((m_environment.glES && glVersion >= 310) || (!m_environment.glES && glVersion >= 420) || (m_environment.extCallback && m_environment.extCallback("GL_ARB_shader_image_load_store")))
 			{
 				AppendLine("layout(early_fragment_tests) in;");
 				AppendLine();
