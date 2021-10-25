@@ -131,6 +131,8 @@ namespace Nz
 		// Update UBOs and materials
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
 
+		bool prepare = false;
+
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("UBO Update", Color::Yellow);
@@ -155,6 +157,7 @@ namespace Nz
 						{
 							viewerData.rebuildDepthPrepass = true;
 							viewerData.rebuildForwardPass = true;
+							prepare = true;
 						}
 					}
 				}
@@ -171,7 +174,6 @@ namespace Nz
 		};
 
 		// Render queues handling
-		bool prepare = false;
 		for (auto&& [viewer, data] : m_viewers)
 		{
 			auto& viewerData = data;
