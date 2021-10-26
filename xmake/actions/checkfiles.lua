@@ -66,7 +66,7 @@ on_run(function ()
 	local checks = {}
 
 	table.insert(checks, {
-		Name = "remove empty lines at the beginning",
+		Name = "empty lines",
 		Check = function (moduleName)
 			local files = table.join(
 				os.files("include/Nazara/" .. moduleName .. "/**.hpp"),
@@ -99,6 +99,166 @@ on_run(function ()
 						end
 						
 						break
+					end
+				end
+			end
+
+			return fixes
+		end
+	})
+
+	table.insert(checks, {
+		Name = "header guards",
+		Check = function (moduleName)
+			local files = table.join(
+				os.files("include/Nazara/" .. moduleName .. "/**.hpp"),
+				os.files("src/Nazara/" .. moduleName .. "/**.hpp")
+			)
+
+			local fixes = {}
+			for _, filePath in pairs(files) do
+				local lines = GetFile(filePath)
+
+				local pragmaLine
+				local ifndefLine
+				local defineLine
+				local endifLine
+				local macroName
+
+				local pathMacro = filePath:gsub("[/\\]", "_")
+				do
+					pathMacro = pathMacro:sub(pathMacro:lastof(moduleName .. "_", true) + #moduleName + 1)
+					local i = pathMacro:lastof(".", true)
+					if i then
+						pathMacro = pathMacro:sub(1, i - 1)
+					end
+				end
+
+				local pathHeaderGuard = (moduleName ~= pathMacro) and "NAZARA_" .. moduleName:upper() .. "_" .. pathMacro:upper() .. "_HPP" or "NAZARA_" .. moduleName:upper() .. "_HPP"
+
+				local canFix = true
+				local ignored = false
+
+				-- Fetch pragma once, ifdef and define lines
+				for i = 1, #lines do
+					if lines[i] == "// no header guards" then
+						canFix = false
+						ignored = true
+						break
+					end
+
+					if lines[i] == "#pragma once" then
+						if pragmaLine then
+							print(filePath .. ": multiple #pragma once found")
+							canFix = false
+							break
+						end
+
+						pragmaLine = i
+					elseif not ifndefLine and lines[i]:startswith("#ifndef") then
+						ifndefLine = i
+
+						macroName = lines[i]:match("^#ifndef%s+(.+)$")
+						if not macroName then
+							print(filePath .. ": failed to identify header guard macro (ifndef)")
+							canFix = false
+							break
+						end
+					elseif ifndefLine and not defineLine and lines[i]:startswith("#define") then
+						defineLine = i
+
+						local defineMacroName = lines[i]:match("^#define%s+(.+)$")
+						if not defineMacroName then
+							print(filePath .. ": failed to identify header guard macro (define)")
+							canFix = false
+							break
+						end
+
+						if defineMacroName ~= macroName then
+							print(filePath .. ": failed to identify header guard macro (define macro doesn't match ifdef)")
+							canFix = false
+							break
+						end
+					end
+
+					if ifndefLine and defineLine then
+						break
+					end
+				end
+
+				if not ignored then
+					if not ifndefLine or not defineLine or not macroName then
+						print(filePath .. ": failed to identify header guard macro")
+						canFix = false
+					end
+
+					-- Fetch endif line
+					if canFix then
+						local shouldFixEndif = false
+
+						for i = #lines, 1, -1 do
+							if lines[i]:startswith("#endif") then
+								local macro = lines[i]:match("#endif // (.+)")
+								if macro ~= macroName then
+									shouldFixEndif = true
+								end
+
+								endifLine = i
+								break
+							end
+						end
+
+						if not endifLine then
+							print(filePath .. ": failed to identify header guard macro (endif)")
+							canFix = false
+						end
+					end
+
+					if canFix then
+						if macroName ~= pathHeaderGuard then
+							print(filePath .. ": header guard mismatch (got " .. macroName .. ", expected " .. pathHeaderGuard .. ")")
+
+							shouldFixEndif = false
+
+							table.insert(fixes, {
+								File = filePath,
+								Func = function (lines)
+									lines[ifndefLine] = "#ifndef " .. pathHeaderGuard
+									lines[defineLine] = "#define " .. pathHeaderGuard
+									lines[endifLine] = "#endif // " .. pathHeaderGuard
+
+									return lines
+								end
+							})
+						end
+
+						if shouldFixEndif then
+							print(filePath .. ": #endif was missing comment")
+
+							table.insert(fixes, {
+								File = filePath,
+								Func = function (lines)
+									lines[endifLine] = "#endif // " .. pathHeaderGuard
+
+									return lines
+								end
+							})
+						end
+
+						if not pragmaLine then
+							print(filePath .. ": no #pragma once found")
+							table.insert(fixes, {
+								File = filePath,
+								Func = function (lines)
+									table.insert(lines, ifndefLine - 1, "#pragma once")
+									table.insert(lines, ifndefLine - 1, "")
+
+									return lines
+								end
+							})
+						elseif pragmaLine > ifndefLine then
+							print(filePath .. ": #pragma once is after header guard (should be before)")
+						end
 					end
 				end
 			end
@@ -255,7 +415,7 @@ on_run(function ()
 									table.insert(newLines, lines[i])
 								end
 
-								UpdateFile(configFilePath, newLines)
+								return newLines
 							end
 						})
 					end
@@ -332,7 +492,7 @@ on_run(function ()
 								table.insert(lines, #copyrightLines + 1, "")
 							end
 
-							UpdateFile(filePath, lines)
+							return lines
 						end
 					})
 				end
@@ -359,18 +519,18 @@ on_run(function ()
 		if shouldFix then
 			for _, fix in pairs(fixes) do
 				print("Fixing " .. fix.File)
-				fix.Func(assert(fileLines[fix.File]))
-			end
-
-			for filePath, _ in pairs(updatedFiles) do
-				local lines = assert(fileLines[filePath])
-				if lines[#lines] ~= "" then
-					table.insert(lines, "")
-				end
-
-				print("Saving changes to " .. filePath)
-				io.writefile(filePath, table.concat(lines, "\n"))
+				UpdateFile(fix.File, fix.Func(assert(fileLines[fix.File])))
 			end
 		end
+	end
+
+	for filePath, _ in pairs(updatedFiles) do
+		local lines = assert(fileLines[filePath])
+		if lines[#lines] ~= "" then
+			table.insert(lines, "")
+		end
+
+		print("Saving changes to " .. filePath)
+		io.writefile(filePath, table.concat(lines, "\n"))
 	end
 end)

@@ -72,11 +72,11 @@ on_run(function()
 	assert(headerFile, "failed to open Spir-V header")
 
 	headerFile:write([[
-// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
+// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Shader module"
-// For conditions of distribution and use, see copyright notice in Config.hpp"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
-// This file was generated automatically, please do not edit
+// this file was automatically generated and should not be edited
 
 #pragma once
 
@@ -211,11 +211,11 @@ headerFile:write([[
 	assert(sourceFile, "failed to open Spir-V source")
 
 	sourceFile:write([[
-// this file was automatically generated and should not be edited
-
-// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
+// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
+
+// this file was automatically generated and should not be edited
 
 #include <Nazara/Shader/SpirvData.hpp>
 #include <algorithm>
