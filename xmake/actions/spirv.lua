@@ -215,7 +215,7 @@ headerFile:write([[
 
 // Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
 // This file is part of the "Nazara Engine - Shader module"
-// For conditions of distribution and use, see copyright notice in Config.hpp"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvData.hpp>
 #include <algorithm>
