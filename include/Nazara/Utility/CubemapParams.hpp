@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CUBEMAPPARAMS_HPP
-#define NAZARA_CUBEMAPPARAMS_HPP
+#ifndef NAZARA_UTILITY_CUBEMAPPARAMS_HPP
+#define NAZARA_UTILITY_CUBEMAPPARAMS_HPP
 
 #include <Nazara/Math/Vector2.hpp>
 
@@ -35,4 +35,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_CUBEMAPPARAMS_HPP
+#endif // NAZARA_UTILITY_CUBEMAPPARAMS_HPP

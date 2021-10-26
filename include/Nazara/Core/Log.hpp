@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOG_HPP
-#define NAZARA_LOG_HPP
+#ifndef NAZARA_CORE_LOG_HPP
+#define NAZARA_CORE_LOG_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_LOGGER_HPP
+#endif // NAZARA_CORE_LOG_HPP

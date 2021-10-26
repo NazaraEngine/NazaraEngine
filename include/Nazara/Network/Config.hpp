@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_NETWORK_HPP
-#define NAZARA_CONFIG_NETWORK_HPP
+#ifndef NAZARA_NETWORK_CONFIG_HPP
+#define NAZARA_NETWORK_CONFIG_HPP
 
 /*!
 * \defgroup network (NazaraNetwork) Network module
@@ -55,4 +55,4 @@
 	#endif
 #endif
 
-#endif // NAZARA_CONFIG_NETWORK_HPP
+#endif // NAZARA_NETWORK_CONFIG_HPP

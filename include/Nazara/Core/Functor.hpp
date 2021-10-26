@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FUNCTOR_HPP
-#define NAZARA_FUNCTOR_HPP
+#ifndef NAZARA_CORE_FUNCTOR_HPP
+#define NAZARA_CORE_FUNCTOR_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
 
@@ -58,4 +58,4 @@ namespace Nz
 
 #include <Nazara/Core/Functor.inl>
 
-#endif // NAZARA_FUNCTOR_HPP
+#endif // NAZARA_CORE_FUNCTOR_HPP

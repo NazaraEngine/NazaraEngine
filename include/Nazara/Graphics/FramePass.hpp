@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FRAMEPASS_HPP
-#define NAZARA_FRAMEPASS_HPP
+#ifndef NAZARA_GRAPHICS_FRAMEPASS_HPP
+#define NAZARA_GRAPHICS_FRAMEPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -102,4 +102,4 @@ namespace Nz
 
 #include <Nazara/Graphics/FramePass.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_FRAMEPASS_HPP

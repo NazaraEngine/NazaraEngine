@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RESOURCEREF_HPP
-#define NAZARA_RESOURCEREF_HPP
+#ifndef NAZARA_CORE_OBJECTREF_HPP
+#define NAZARA_CORE_OBJECTREF_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
@@ -79,4 +79,4 @@ namespace Nz
 
 #include <Nazara/Core/ObjectRef.inl>
 
-#endif // NAZARA_RESOURCEREF_HPP
+#endif // NAZARA_CORE_OBJECTREF_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERIMAGE_HPP
-#define NAZARA_RENDERIMAGE_HPP
+#ifndef NAZARA_RENDERER_RENDERIMAGE_HPP
+#define NAZARA_RENDERER_RENDERIMAGE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -81,4 +81,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderImage.inl>
 
-#endif // NAZARA_RENDERIMAGE_HPP
+#endif // NAZARA_RENDERER_RENDERIMAGE_HPP

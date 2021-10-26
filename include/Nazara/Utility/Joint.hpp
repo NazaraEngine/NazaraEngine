@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_JOINT_HPP
-#define NAZARA_JOINT_HPP
+#ifndef NAZARA_UTILITY_JOINT_HPP
+#define NAZARA_UTILITY_JOINT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -46,4 +46,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_JOINT_HPP
+#endif // NAZARA_UTILITY_JOINT_HPP

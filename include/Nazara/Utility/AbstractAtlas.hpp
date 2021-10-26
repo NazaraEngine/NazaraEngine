@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTATLAS_HPP
-#define NAZARA_ABSTRACTATLAS_HPP
+#ifndef NAZARA_UTILITY_ABSTRACTATLAS_HPP
+#define NAZARA_UTILITY_ABSTRACTATLAS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -44,4 +44,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ABSTRACTATLAS_HPP
+#endif // NAZARA_UTILITY_ABSTRACTATLAS_HPP

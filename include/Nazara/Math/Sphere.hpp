@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPHERE_HPP
-#define NAZARA_SPHERE_HPP
+#ifndef NAZARA_MATH_SPHERE_HPP
+#define NAZARA_MATH_SPHERE_HPP
 
 #include <Nazara/Math/Vector3.hpp>
 #include <string>
@@ -89,4 +89,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere);
 
 #include <Nazara/Math/Sphere.inl>
 
-#endif // NAZARA_SPHERE_HPP
+#endif // NAZARA_MATH_SPHERE_HPP

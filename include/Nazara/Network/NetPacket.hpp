@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_NETPACKET_HPP
-#define NAZARA_NETPACKET_HPP
+#ifndef NAZARA_NETWORK_NETPACKET_HPP
+#define NAZARA_NETWORK_NETPACKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteStream.hpp>
@@ -71,4 +71,4 @@ namespace Nz
 
 #include <Nazara/Network/NetPacket.inl>
 
-#endif // NAZARA_NETPACKET_HPP
+#endif // NAZARA_NETWORK_NETPACKET_HPP

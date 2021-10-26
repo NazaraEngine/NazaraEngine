@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VIDEOMODE_HPP
-#define NAZARA_VIDEOMODE_HPP
+#ifndef NAZARA_PLATFORM_VIDEOMODE_HPP
+#define NAZARA_PLATFORM_VIDEOMODE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -40,4 +40,4 @@ namespace Nz
 	bool NAZARA_PLATFORM_API operator>=(const VideoMode& left, const VideoMode& right);
 }
 
-#endif // NAZARA_VIDEOMODE_HPP
+#endif // NAZARA_PLATFORM_VIDEOMODE_HPP

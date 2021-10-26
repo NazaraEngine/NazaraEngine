@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LABELWIDGET_HPP
-#define NAZARA_LABELWIDGET_HPP
+#ifndef NAZARA_WIDGETS_LABELWIDGET_HPP
+#define NAZARA_WIDGETS_LABELWIDGET_HPP
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Widgets/LabelWidget.inl>
 
-#endif
+#endif // NAZARA_WIDGETS_LABELWIDGET_HPP

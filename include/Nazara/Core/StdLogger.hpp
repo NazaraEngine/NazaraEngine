@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_STDLOGGER_HPP
-#define NAZARA_STDLOGGER_HPP
+#ifndef NAZARA_CORE_STDLOGGER_HPP
+#define NAZARA_CORE_STDLOGGER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
@@ -32,4 +32,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_STDLOGGER_HPP
+#endif // NAZARA_CORE_STDLOGGER_HPP

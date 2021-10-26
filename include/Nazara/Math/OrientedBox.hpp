@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ORIENTEDBOX_HPP
-#define NAZARA_ORIENTEDBOX_HPP
+#ifndef NAZARA_MATH_ORIENTEDBOX_HPP
+#define NAZARA_MATH_ORIENTEDBOX_HPP
 
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -78,4 +78,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBo
 
 #include <Nazara/Math/OrientedBox.inl>
 
-#endif // NAZARA_ORIENTEDBOX_HPP
+#endif // NAZARA_MATH_ORIENTEDBOX_HPP

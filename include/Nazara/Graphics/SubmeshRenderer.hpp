@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SUBMESHRENDERER_HPP
-#define NAZARA_SUBMESHRENDERER_HPP
+#ifndef NAZARA_GRAPHICS_SUBMESHRENDERER_HPP
+#define NAZARA_GRAPHICS_SUBMESHRENDERER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
@@ -29,4 +29,4 @@ namespace Nz
 
 #include <Nazara/Graphics/SubmeshRenderer.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_SUBMESHRENDERER_HPP

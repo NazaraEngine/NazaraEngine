@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_MATH_HPP
-#define NAZARA_ENUMS_MATH_HPP
+#ifndef NAZARA_MATH_ENUMS_HPP
+#define NAZARA_MATH_ENUMS_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
 
@@ -78,4 +78,4 @@ namespace Nz
 	constexpr std::size_t RectCornerCount = UnderlyingCast(RectCorner::Max) + 1;
 }
 
-#endif // NAZARA_ENUMS_MATH_HPP
+#endif // NAZARA_MATH_ENUMS_HPP

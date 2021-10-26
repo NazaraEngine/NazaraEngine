@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CLOCKIMPL_POSIX_HPP
-#define NAZARA_CLOCKIMPL_POSIX_HPP
+#ifndef NAZARA_CORE_POSIX_CLOCKIMPL_HPP
+#define NAZARA_CORE_POSIX_CLOCKIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -16,4 +16,4 @@ namespace Nz
 	UInt64 ClockImplGetElapsedMilliseconds();
 }
 
-#endif // NAZARA_CLOCKIMPL_POSIX_HPP
+#endif // NAZARA_CORE_POSIX_CLOCKIMPL_HPP

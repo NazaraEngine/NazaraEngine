@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VERTEXSTRUCT_HPP
-#define NAZARA_VERTEXSTRUCT_HPP
+#ifndef NAZARA_UTILITY_VERTEXSTRUCT_HPP
+#define NAZARA_UTILITY_VERTEXSTRUCT_HPP
 
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -83,4 +83,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_VERTEXSTRUCT_HPP
+#endif // NAZARA_UTILITY_VERTEXSTRUCT_HPP

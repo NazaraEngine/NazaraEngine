@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SKELETALMESH_HPP
-#define NAZARA_SKELETALMESH_HPP
+#ifndef NAZARA_UTILITY_SKELETALMESH_HPP
+#define NAZARA_UTILITY_SKELETALMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
@@ -41,4 +41,4 @@ namespace Nz
 
 #include <Nazara/Utility/SkeletalMesh.inl>
 
-#endif // NAZARA_SKELETALMESH_HPP
+#endif // NAZARA_UTILITY_SKELETALMESH_HPP

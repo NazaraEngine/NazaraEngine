@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLBUFFER_HPP
-#define NAZARA_OPENGLRENDERER_GLBUFFER_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_BUFFER_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_BUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovableValue.hpp>
@@ -45,4 +45,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_BUFFER_HPP

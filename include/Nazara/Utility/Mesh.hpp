@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MESH_HPP
-#define NAZARA_MESH_HPP
+#ifndef NAZARA_UTILITY_MESH_HPP
+#define NAZARA_UTILITY_MESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
@@ -165,4 +165,4 @@ namespace Nz
 
 #include <Nazara/Utility/Mesh.inl>
 
-#endif // NAZARA_MESH_HPP
+#endif // NAZARA_UTILITY_MESH_HPP

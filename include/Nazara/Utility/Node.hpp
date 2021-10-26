@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_NODE_HPP
-#define NAZARA_NODE_HPP
+#ifndef NAZARA_UTILITY_NODE_HPP
+#define NAZARA_UTILITY_NODE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -130,4 +130,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_NODE_HPP
+#endif // NAZARA_UTILITY_NODE_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_LOADER_HPP
-#define NAZARA_OPENGLRENDERER_LOADER_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_LOADER_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_LOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
@@ -39,4 +39,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_LOADER_HPP

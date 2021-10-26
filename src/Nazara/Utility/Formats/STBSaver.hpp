@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_STBSAVER_HPP
-#define NAZARA_FORMATS_STBSAVER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_STBSAVER_HPP
+#define NAZARA_UTILITY_FORMATS_STBSAVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Image.hpp>
@@ -15,4 +15,4 @@ namespace Nz::Loaders
 	ImageSaver::Entry GetImageSaver_STB();
 }
 
-#endif // NAZARA_FORMATS_STBSAVER_HPP
+#endif // NAZARA_UTILITY_FORMATS_STBSAVER_HPP

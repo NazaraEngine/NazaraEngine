@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UDPSOCKET_HPP
-#define NAZARA_UDPSOCKET_HPP
+#ifndef NAZARA_NETWORK_UDPSOCKET_HPP
+#define NAZARA_NETWORK_UDPSOCKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
@@ -60,4 +60,4 @@ namespace Nz
 
 #include <Nazara/Network/UdpSocket.inl>
 
-#endif // NAZARA_UDPSOCKET_HPP
+#endif // NAZARA_NETWORK_UDPSOCKET_HPP

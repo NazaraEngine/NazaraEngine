@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VIEWERINSTANCE_HPP
-#define NAZARA_VIEWERINSTANCE_HPP
+#ifndef NAZARA_GRAPHICS_VIEWERINSTANCE_HPP
+#define NAZARA_GRAPHICS_VIEWERINSTANCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -67,4 +67,4 @@ namespace Nz
 
 #include <Nazara/Graphics/ViewerInstance.inl>
 
-#endif // NAZARA_VIEWERINSTANCE_HPP
+#endif // NAZARA_GRAPHICS_VIEWERINSTANCE_HPP

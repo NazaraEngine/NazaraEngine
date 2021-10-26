@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_REFCOUNTED_HPP
-#define NAZARA_REFCOUNTED_HPP
+#ifndef NAZARA_CORE_REFCOUNTED_HPP
+#define NAZARA_CORE_REFCOUNTED_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <atomic>
@@ -39,4 +39,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RESOURCE_HPP
+#endif // NAZARA_CORE_REFCOUNTED_HPP

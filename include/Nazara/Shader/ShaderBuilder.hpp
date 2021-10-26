@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_BUILDER_HPP
-#define NAZARA_SHADER_BUILDER_HPP
+#ifndef NAZARA_SHADER_SHADERBUILDER_HPP
+#define NAZARA_SHADER_SHADERBUILDER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
@@ -171,4 +171,4 @@ namespace Nz::ShaderBuilder
 
 #include <Nazara/Shader/ShaderBuilder.inl>
 
-#endif // NAZARA_SHADER_BUILDER_HPP
+#endif // NAZARA_SHADER_SHADERBUILDER_HPP

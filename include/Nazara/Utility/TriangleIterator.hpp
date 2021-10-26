@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TRIANGLEITERATOR_HPP
-#define NAZARA_TRIANGLEITERATOR_HPP
+#ifndef NAZARA_UTILITY_TRIANGLEITERATOR_HPP
+#define NAZARA_UTILITY_TRIANGLEITERATOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -37,4 +37,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_TRIANGLEITERATOR_HPP
+#endif // NAZARA_UTILITY_TRIANGLEITERATOR_HPP

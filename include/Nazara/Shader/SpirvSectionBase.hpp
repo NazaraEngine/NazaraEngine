@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVSECTIONBASE_HPP
-#define NAZARA_SPIRVSECTIONBASE_HPP
+#ifndef NAZARA_SHADER_SPIRVSECTIONBASE_HPP
+#define NAZARA_SHADER_SPIRVSECTIONBASE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
@@ -72,4 +72,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvSectionBase.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVSECTIONBASE_HPP

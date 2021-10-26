@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_EVENTHANDLER_HPP
-#define NAZARA_EVENTHANDLER_HPP
+#ifndef NAZARA_PLATFORM_EVENTHANDLER_HPP
+#define NAZARA_PLATFORM_EVENTHANDLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
@@ -55,4 +55,4 @@ namespace Nz
 
 #include <Nazara/Platform/EventHandler.inl>
 
-#endif // NAZARA_EVENTHANDLER_HPP
+#endif // NAZARA_PLATFORM_EVENTHANDLER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MODULENAME_HPP
-#define NAZARA_MODULENAME_HPP
+#ifndef NAZARA_NETWORK_HPP
+#define NAZARA_NETWORK_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Core.hpp>
@@ -30,4 +30,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MODULENAME_HPP
+#endif // NAZARA_NETWORK_HPP

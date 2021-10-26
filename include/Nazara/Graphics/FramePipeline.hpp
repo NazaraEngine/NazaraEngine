@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FRAMEPIPELINE_HPP
-#define NAZARA_FRAMEPIPELINE_HPP
+#ifndef NAZARA_GRAPHICS_FRAMEPIPELINE_HPP
+#define NAZARA_GRAPHICS_FRAMEPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Graphics/FramePipeline.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_FRAMEPIPELINE_HPP

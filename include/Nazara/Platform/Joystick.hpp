@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_JOYSTICK_HPP
-#define NAZARA_JOYSTICK_HPP
+#ifndef NAZARA_PLATFORM_JOYSTICK_HPP
+#define NAZARA_PLATFORM_JOYSTICK_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <string>
@@ -24,4 +24,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_JOYSTICK_HPP
+#endif // NAZARA_PLATFORM_JOYSTICK_HPP

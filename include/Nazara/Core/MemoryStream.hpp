@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MEMORYSTREAM_HPP
-#define NAZARA_MEMORYSTREAM_HPP
+#ifndef NAZARA_CORE_MEMORYSTREAM_HPP
+#define NAZARA_CORE_MEMORYSTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 
 #include <Nazara/Core/MemoryStream.inl>
 
-#endif // NAZARA_MEMORYSTREAM_HPP
+#endif // NAZARA_CORE_MEMORYSTREAM_HPP

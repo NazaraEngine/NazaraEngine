@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MATERIAL_PASS_REGISTRY_HPP
-#define NAZARA_MATERIAL_PASS_REGISTRY_HPP
+#ifndef NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
+#define NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <string>
@@ -35,4 +35,4 @@ namespace Nz
 
 #include <Nazara/Graphics/MaterialPassRegistry.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_INITIALIZER_HPP
-#define NAZARA_INITIALIZER_HPP
+#ifndef NAZARA_CORE_INITIALIZER_HPP
+#define NAZARA_CORE_INITIALIZER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Core/Initializer.inl>
 
-#endif // NAZARA_INITIALIZER_HPP
+#endif // NAZARA_CORE_INITIALIZER_HPP

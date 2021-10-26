@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BOX_HPP
-#define NAZARA_BOX_HPP
+#ifndef NAZARA_MATH_BOX_HPP
+#define NAZARA_MATH_BOX_HPP
 
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -109,4 +109,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box);
 
 #include <Nazara/Math/Box.inl>
 
-#endif // NAZARA_BOX_HPP
+#endif // NAZARA_MATH_BOX_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_INSTANCEDRENDERABLE_HPP
-#define NAZARA_INSTANCEDRENDERABLE_HPP
+#ifndef NAZARA_GRAPHICS_INSTANCEDRENDERABLE_HPP
+#define NAZARA_GRAPHICS_INSTANCEDRENDERABLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -46,4 +46,4 @@ namespace Nz
 
 #include <Nazara/Graphics/InstancedRenderable.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_INSTANCEDRENDERABLE_HPP

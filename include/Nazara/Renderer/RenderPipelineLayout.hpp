@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERPIPELINELAYOUT_HPP
-#define NAZARA_RENDERPIPELINELAYOUT_HPP
+#ifndef NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
+#define NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
 
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderPipelineLayout.inl>
 
-#endif // NAZARA_RENDERPIPELINELAYOUT_HPP
+#endif // NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP

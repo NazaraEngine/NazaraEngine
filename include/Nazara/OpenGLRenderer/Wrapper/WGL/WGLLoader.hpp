@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_WGLLOADER_HPP
-#define NAZARA_OPENGLRENDERER_WGLLOADER_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLLOADER_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -48,4 +48,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLLOADER_HPP

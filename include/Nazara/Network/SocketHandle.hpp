@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOCKETHANDLE_HPP
-#define NAZARA_SOCKETHANDLE_HPP
+#ifndef NAZARA_NETWORK_SOCKETHANDLE_HPP
+#define NAZARA_NETWORK_SOCKETHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -24,4 +24,4 @@ namespace Nz
 	#endif
 }
 
-#endif // NAZARA_SOCKETHANDLE_HPP
+#endif // NAZARA_NETWORK_SOCKETHANDLE_HPP

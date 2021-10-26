@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLVERTEXARRAY_HPP
-#define NAZARA_OPENGLRENDERER_GLVERTEXARRAY_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_VERTEXARRAY_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_VERTEXARRAY_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
@@ -36,4 +36,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_VERTEXARRAY_HPP

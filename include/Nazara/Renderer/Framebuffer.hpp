@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FRAMEBUFFER_HPP
-#define NAZARA_FRAMEBUFFER_HPP
+#ifndef NAZARA_RENDERER_FRAMEBUFFER_HPP
+#define NAZARA_RENDERER_FRAMEBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -33,4 +33,4 @@ namespace Nz
 
 #include <Nazara/Renderer/Framebuffer.inl>
 
-#endif // NAZARA_FRAMEBUFFER_HPP
+#endif // NAZARA_RENDERER_FRAMEBUFFER_HPP

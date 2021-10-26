@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_WIDGETS_HPP
-#define NAZARA_CONFIG_WIDGETS_HPP
+#ifndef NAZARA_WIDGETS_CONFIG_HPP
+#define NAZARA_WIDGETS_CONFIG_HPP
 
 /*!
 * \defgroup widgets (NazaraWidgets) Widgets module
@@ -50,4 +50,4 @@
 	#define NAZARA_WIDGETS_API
 #endif
 
-#endif // NAZARA_CONFIG_WIDGETS_HPP
+#endif // NAZARA_WIDGETS_CONFIG_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENAL_HPP
-#define NAZARA_OPENAL_HPP
+#ifndef NAZARA_AUDIO_OPENAL_HPP
+#define NAZARA_AUDIO_OPENAL_HPP
 
 #if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
@@ -189,4 +189,4 @@ NAZARA_AUDIO_API extern OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext;
 
 #endif // NAZARA_AUDIO_OPENAL
 
-#endif // NAZARA_OPENAL_HPP
+#endif // NAZARA_AUDIO_OPENAL_HPP

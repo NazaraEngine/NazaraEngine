@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPRITE_HPP
-#define NAZARA_SPRITE_HPP
+#ifndef NAZARA_GRAPHICS_SPRITE_HPP
+#define NAZARA_GRAPHICS_SPRITE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -54,4 +54,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Sprite.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_SPRITE_HPP

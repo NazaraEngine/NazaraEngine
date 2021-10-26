@@ -14,8 +14,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENETHOST_HPP
-#define NAZARA_ENETHOST_HPP
+#ifndef NAZARA_NETWORK_ENETHOST_HPP
+#define NAZARA_NETWORK_ENETHOST_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
@@ -175,4 +175,4 @@ namespace Nz
 
 #include <Nazara/Network/ENetHost.inl>
 
-#endif // NAZARA_ENETHOST_HPP
+#endif // NAZARA_NETWORK_ENETHOST_HPP

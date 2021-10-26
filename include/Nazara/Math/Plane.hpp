@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLANE_HPP
-#define NAZARA_PLANE_HPP
+#ifndef NAZARA_MATH_PLANE_HPP
+#define NAZARA_MATH_PLANE_HPP
 
 #include <Nazara/Math/Vector3.hpp>
 #include <string>
@@ -70,4 +70,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane);
 
 #include <Nazara/Math/Plane.inl>
 
-#endif // NAZARA_PLANE_HPP
+#endif // NAZARA_MATH_PLANE_HPP

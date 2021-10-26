@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CURSORCONTROLLER_HPP
-#define NAZARA_CURSORCONTROLLER_HPP
+#ifndef NAZARA_PLATFORM_CURSORCONTROLLER_HPP
+#define NAZARA_PLATFORM_CURSORCONTROLLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
@@ -39,4 +39,4 @@ namespace Nz
 
 #include <Nazara/Platform/CursorController.inl>
 
-#endif // NAZARA_CURSORCONTROLLER_HPP
+#endif // NAZARA_PLATFORM_CURSORCONTROLLER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERSUBMESH_HPP
-#define NAZARA_RENDERSUBMESH_HPP
+#ifndef NAZARA_GRAPHICS_RENDERSPRITECHAIN_HPP
+#define NAZARA_GRAPHICS_RENDERSPRITECHAIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
@@ -54,4 +54,4 @@ namespace Nz
 
 #include <Nazara/Graphics/RenderSpriteChain.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_RENDERSPRITECHAIN_HPP

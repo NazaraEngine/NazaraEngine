@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOCKETPOLLERIMPL_HPP
-#define NAZARA_SOCKETPOLLERIMPL_HPP
+#ifndef NAZARA_NETWORK_WIN32_SOCKETPOLLERIMPL_HPP
+#define NAZARA_NETWORK_WIN32_SOCKETPOLLERIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
@@ -49,4 +49,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SOCKETPOLLERIMPL_HPP
+#endif // NAZARA_NETWORK_WIN32_SOCKETPOLLERIMPL_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MEMORYPOOL_HPP
-#define NAZARA_MEMORYPOOL_HPP
+#ifndef NAZARA_CORE_MEMORYPOOL_HPP
+#define NAZARA_CORE_MEMORYPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <atomic>
@@ -52,4 +52,4 @@ namespace Nz
 
 #include <Nazara/Core/MemoryPool.inl>
 
-#endif // NAZARA_MEMORYPOOL_HPP
+#endif // NAZARA_CORE_MEMORYPOOL_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_POOLBYTESTREAM_HPP
-#define NAZARA_POOLBYTESTREAM_HPP
+#ifndef NAZARA_CORE_POOLBYTESTREAM_HPP
+#define NAZARA_CORE_POOLBYTESTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Core/PoolByteStream.inl>
 
-#endif // NAZARA_POOLBYTESTREAM_HPP
+#endif // NAZARA_CORE_POOLBYTESTREAM_HPP

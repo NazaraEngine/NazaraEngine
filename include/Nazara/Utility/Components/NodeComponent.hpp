@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_NODECOMPONENT_HPP
-#define NAZARA_NODECOMPONENT_HPP
+#ifndef NAZARA_UTILITY_COMPONENTS_NODECOMPONENT_HPP
+#define NAZARA_UTILITY_COMPONENTS_NODECOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ECS.hpp>
@@ -31,4 +31,4 @@ namespace Nz
 
 #include <Nazara/Utility/Components/NodeComponent.inl>
 
-#endif
+#endif // NAZARA_UTILITY_COMPONENTS_NODECOMPONENT_HPP

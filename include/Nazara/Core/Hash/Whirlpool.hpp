@@ -2,8 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifndef NAZARA_HASH_WHIRLPOOL_HPP
-#define NAZARA_HASH_WHIRLPOOL_HPP
+#pragma once
+
+#ifndef NAZARA_CORE_HASH_WHIRLPOOL_HPP
+#define NAZARA_CORE_HASH_WHIRLPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
@@ -31,4 +33,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_HASH_WHIRLPOOL_HPP
+#endif // NAZARA_CORE_HASH_WHIRLPOOL_HPP

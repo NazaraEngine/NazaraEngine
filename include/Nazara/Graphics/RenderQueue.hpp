@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERQUEUE_HPP
-#define NAZARA_RENDERQUEUE_HPP
+#ifndef NAZARA_GRAPHICS_RENDERQUEUE_HPP
+#define NAZARA_GRAPHICS_RENDERQUEUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <vector>
@@ -46,4 +46,4 @@ namespace Nz
 
 #include <Nazara/Graphics/RenderQueue.inl>
 
-#endif // NAZARA_RENDERQUEUE_HPP
+#endif // NAZARA_GRAPHICS_RENDERQUEUE_HPP

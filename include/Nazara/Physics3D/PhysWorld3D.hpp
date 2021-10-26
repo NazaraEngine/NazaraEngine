@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PHYSWORLD_HPP
-#define NAZARA_PHYSWORLD_HPP
+#ifndef NAZARA_PHYSICS3D_PHYSWORLD3D_HPP
+#define NAZARA_PHYSICS3D_PHYSWORLD3D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -84,4 +84,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PHYSWORLD_HPP
+#endif // NAZARA_PHYSICS3D_PHYSWORLD3D_HPP

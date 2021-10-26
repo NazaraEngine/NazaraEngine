@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOUNDEMITTER_HPP
-#define NAZARA_SOUNDEMITTER_HPP
+#ifndef NAZARA_AUDIO_SOUNDEMITTER_HPP
+#define NAZARA_AUDIO_SOUNDEMITTER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
@@ -71,4 +71,4 @@ namespace Nz
 
 #include <Nazara/Audio/SoundEmitter.inl>
 
-#endif // NAZARA_SOUNDEMITTER_HPP
+#endif // NAZARA_AUDIO_SOUNDEMITTER_HPP

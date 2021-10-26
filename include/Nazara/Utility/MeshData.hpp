@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MESHDATA_HPP
-#define NAZARA_MESHDATA_HPP
+#ifndef NAZARA_UTILITY_MESHDATA_HPP
+#define NAZARA_UTILITY_MESHDATA_HPP
 
 #include <Nazara/Utility/Enums.hpp>
 
@@ -22,4 +22,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MESHDATA_HPP
+#endif // NAZARA_UTILITY_MESHDATA_HPP

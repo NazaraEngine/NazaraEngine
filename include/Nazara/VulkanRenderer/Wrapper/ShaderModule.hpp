@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKSHADERMODULE_HPP
-#define NAZARA_VULKANRENDERER_VKSHADERMODULE_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_SHADERMODULE_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_SHADERMODULE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
@@ -39,4 +39,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKSHADERMODULE_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_SHADERMODULE_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_BUFFER_HPP
-#define NAZARA_OPENGLRENDERER_BUFFER_HPP
+#ifndef NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP
+#define NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
@@ -50,4 +50,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.inl>
 
-#endif // NAZARA_OPENGLRENDERER_BUFFER_HPP
+#endif // NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP

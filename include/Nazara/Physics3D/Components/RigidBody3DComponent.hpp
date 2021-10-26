@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RIGIDBODYCOMPONENT_HPP
-#define NAZARA_RIGIDBODYCOMPONENT_HPP
+#ifndef NAZARA_PHYSICS3D_COMPONENTS_RIGIDBODY3DCOMPONENT_HPP
+#define NAZARA_PHYSICS3D_COMPONENTS_RIGIDBODY3DCOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
@@ -27,4 +27,4 @@ namespace Nz
 
 #include <Nazara/Physics3D/Components/RigidBody3DComponent.inl>
 
-#endif
+#endif // NAZARA_PHYSICS3D_COMPONENTS_RIGIDBODY3DCOMPONENT_HPP

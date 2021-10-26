@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_RENDERER_HPP
-#define NAZARA_ENUMS_RENDERER_HPP
+#ifndef NAZARA_RENDERER_ENUMS_HPP
+#define NAZARA_RENDERER_ENUMS_HPP
 
 #include <Nazara/Core/Flags.hpp>
 
@@ -185,4 +185,4 @@ namespace Nz
 	using TextureUsageFlags = Flags<TextureUsage>;
 }
 
-#endif // NAZARA_ENUMS_RENDERER_HPP
+#endif // NAZARA_RENDERER_ENUMS_HPP

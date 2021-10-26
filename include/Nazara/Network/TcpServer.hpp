@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TCPSERVER_HPP
-#define NAZARA_TCPSERVER_HPP
+#ifndef NAZARA_NETWORK_TCPSERVER_HPP
+#define NAZARA_NETWORK_TCPSERVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
@@ -40,4 +40,4 @@ namespace Nz
 
 #include <Nazara/Network/TcpServer.inl>
 
-#endif // NAZARA_TCPSERVER_HPP
+#endif // NAZARA_NETWORK_TCPSERVER_HPP

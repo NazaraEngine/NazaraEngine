@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_EMPTYSTREAM_HPP
-#define NAZARA_EMPTYSTREAM_HPP
+#ifndef NAZARA_CORE_EMPTYSTREAM_HPP
+#define NAZARA_CORE_EMPTYSTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Stream.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Core/EmptyStream.inl>
 
-#endif // NAZARA_EMPTYSTREAM_HPP
+#endif // NAZARA_CORE_EMPTYSTREAM_HPP

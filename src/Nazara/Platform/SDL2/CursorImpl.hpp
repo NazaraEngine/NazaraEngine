@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CURSORIMPL_HPP
-#define NAZARA_CURSORIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
+#define NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -37,4 +37,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_CURSORIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP

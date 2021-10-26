@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CORE_HPP
-#define NAZARA_CONFIG_CORE_HPP
+#ifndef NAZARA_CORE_CONFIG_HPP
+#define NAZARA_CORE_CONFIG_HPP
 
 /*!
 * \defgroup core (NazaraCore) Core module
@@ -83,4 +83,4 @@
 	#endif
 #endif
 
-#endif // NAZARA_CONFIG_CORE_HPP
+#endif // NAZARA_CORE_CONFIG_HPP

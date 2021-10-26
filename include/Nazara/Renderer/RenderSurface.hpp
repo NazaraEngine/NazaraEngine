@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERSURFACE_HPP
-#define NAZARA_RENDERSURFACE_HPP
+#ifndef NAZARA_RENDERER_RENDERSURFACE_HPP
+#define NAZARA_RENDERER_RENDERSURFACE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
@@ -27,4 +27,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderSurface.inl>
 
-#endif // NAZARA_RENDERSURFACE_HPP
+#endif // NAZARA_RENDERER_RENDERSURFACE_HPP

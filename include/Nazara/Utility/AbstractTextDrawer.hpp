@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTTEXTDRAWER_HPP
-#define NAZARA_ABSTRACTTEXTDRAWER_HPP
+#ifndef NAZARA_UTILITY_ABSTRACTTEXTDRAWER_HPP
+#define NAZARA_UTILITY_ABSTRACTTEXTDRAWER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -63,4 +63,4 @@ namespace Nz
 
 #include <Nazara/Utility/AbstractTextDrawer.inl>
 
-#endif // NAZARA_ABSTRACTTEXTDRAWER_HPP
+#endif // NAZARA_UTILITY_ABSTRACTTEXTDRAWER_HPP

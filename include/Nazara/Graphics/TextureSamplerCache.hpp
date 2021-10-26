@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TEXTURESAMPLERCACHE_HPP
-#define NAZARA_TEXTURESAMPLERCACHE_HPP
+#ifndef NAZARA_GRAPHICS_TEXTURESAMPLERCACHE_HPP
+#define NAZARA_GRAPHICS_TEXTURESAMPLERCACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -37,4 +37,4 @@ namespace Nz
 
 #include <Nazara/Graphics/TextureSamplerCache.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_TEXTURESAMPLERCACHE_HPP

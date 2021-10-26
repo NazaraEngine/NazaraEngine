@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BITSET_HPP
-#define NAZARA_BITSET_HPP
+#ifndef NAZARA_CORE_BITSET_HPP
+#define NAZARA_CORE_BITSET_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
@@ -205,4 +205,4 @@ namespace std
 
 #include <Nazara/Core/Bitset.inl>
 
-#endif // NAZARA_BITSET_HPP
+#endif // NAZARA_CORE_BITSET_HPP

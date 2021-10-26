@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FRAMEGRAPH_HPP
-#define NAZARA_FRAMEGRAPH_HPP
+#ifndef NAZARA_GRAPHICS_FRAMEGRAPH_HPP
+#define NAZARA_GRAPHICS_FRAMEGRAPH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
@@ -118,4 +118,4 @@ namespace Nz
 
 #include <Nazara/Graphics/FrameGraph.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_FRAMEGRAPH_HPP

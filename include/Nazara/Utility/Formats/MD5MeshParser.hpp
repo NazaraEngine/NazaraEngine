@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_MD5MESHPARSER_HPP
-#define NAZARA_FORMATS_MD5MESHPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MD5MESHPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_MD5MESHPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -83,4 +83,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FORMATS_MD5MESHPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_MD5MESHPARSER_HPP

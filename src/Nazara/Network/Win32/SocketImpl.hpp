@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOCKETIMPL_HPP
-#define NAZARA_SOCKETIMPL_HPP
+#ifndef NAZARA_NETWORK_WIN32_SOCKETIMPL_HPP
+#define NAZARA_NETWORK_WIN32_SOCKETIMPL_HPP
 
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
@@ -91,4 +91,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SOCKETIMPL_HPP
+#endif // NAZARA_NETWORK_WIN32_SOCKETIMPL_HPP

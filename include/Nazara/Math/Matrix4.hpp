@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MATRIX4_HPP
-#define NAZARA_MATRIX4_HPP
+#ifndef NAZARA_MATH_MATRIX4_HPP
+#define NAZARA_MATH_MATRIX4_HPP
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
@@ -155,4 +155,4 @@ template<typename T> Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& mat
 
 #include <Nazara/Math/Matrix4.inl>
 
-#endif // NAZARA_MATRIX4_HPP
+#endif // NAZARA_MATH_MATRIX4_HPP

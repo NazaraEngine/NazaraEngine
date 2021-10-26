@@ -2,12 +2,12 @@
 // This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-// This file was generated automatically, please do not edit
+// this file was automatically generated and should not be edited
 
 #pragma once
 
-#ifndef NAZARA_SPIRVDATA_HPP
-#define NAZARA_SPIRVDATA_HPP
+#ifndef NAZARA_SHADER_SPIRVDATA_HPP
+#define NAZARA_SHADER_SPIRVDATA_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Flags.hpp>
@@ -1812,4 +1812,4 @@ namespace Nz
 	NAZARA_SHADER_API const SpirvInstruction* GetInstructionData(UInt16 op);
 }
 
-#endif
+#endif // NAZARA_SHADER_SPIRVDATA_HPP

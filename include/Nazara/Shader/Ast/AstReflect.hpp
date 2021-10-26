@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_AST_REFLECT_HPP
-#define NAZARA_SHADER_AST_REFLECT_HPP
+#ifndef NAZARA_SHADER_AST_ASTREFLECT_HPP
+#define NAZARA_SHADER_AST_ASTREFLECT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -45,4 +45,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstReflect.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTREFLECT_HPP

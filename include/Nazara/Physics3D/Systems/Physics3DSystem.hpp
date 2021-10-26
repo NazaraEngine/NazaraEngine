@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PHYSICS3DSYSTEM_HPP
-#define NAZARA_PHYSICS3DSYSTEM_HPP
+#ifndef NAZARA_PHYSICS3D_SYSTEMS_PHYSICS3DSYSTEM_HPP
+#define NAZARA_PHYSICS3D_SYSTEMS_PHYSICS3DSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ECS.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/Physics3D/Systems/Physics3DSystem.inl>
 
-#endif
+#endif // NAZARA_PHYSICS3D_SYSTEMS_PHYSICS3DSYSTEM_HPP

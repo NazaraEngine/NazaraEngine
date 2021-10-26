@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PRIMITIVE_HPP
-#define NAZARA_PRIMITIVE_HPP
+#ifndef NAZARA_CORE_PRIMITIVE_HPP
+#define NAZARA_CORE_PRIMITIVE_HPP
 
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -108,4 +108,4 @@ namespace Nz
 
 #include <Nazara/Core/Primitive.inl>
 
-#endif // NAZARA_PRIMITIVE_HPP
+#endif // NAZARA_CORE_PRIMITIVE_HPP

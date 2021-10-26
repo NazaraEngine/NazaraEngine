@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_SHADER_HPP
-#define NAZARA_CONFIG_CHECK_SHADER_HPP
+#ifndef NAZARA_SHADER_CONFIGCHECK_HPP
+#define NAZARA_SHADER_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -19,4 +19,4 @@
 	#define NAZARA_SHADER_MANAGE_MEMORY 0
 #endif
 
-#endif // NAZARA_CONFIG_CHECK_SHADER_HPP
+#endif // NAZARA_SHADER_CONFIGCHECK_HPP

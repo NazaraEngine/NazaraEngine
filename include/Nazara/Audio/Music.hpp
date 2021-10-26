@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MUSIC_HPP
-#define NAZARA_MUSIC_HPP
+#ifndef NAZARA_AUDIO_MUSIC_HPP
+#define NAZARA_AUDIO_MUSIC_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
@@ -64,4 +64,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MUSIC_HPP
+#endif // NAZARA_AUDIO_MUSIC_HPP

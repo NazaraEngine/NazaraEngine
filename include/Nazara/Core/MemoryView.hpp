@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MEMORYVIEW_HPP
-#define NAZARA_MEMORYVIEW_HPP
+#ifndef NAZARA_CORE_MEMORYVIEW_HPP
+#define NAZARA_CORE_MEMORYVIEW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Stream.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MEMORYVIEW_HPP
+#endif // NAZARA_CORE_MEMORYVIEW_HPP

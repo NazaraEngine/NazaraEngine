@@ -1,8 +1,8 @@
-// this file was automatically generated and should not be edited
-
-// Copyright (C) 2021 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Shader module"
-// For conditions of distribution and use, see copyright notice in Config.hpp"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+// this file was automatically generated and should not be edited
 
 #include <Nazara/Shader/SpirvData.hpp>
 #include <algorithm>

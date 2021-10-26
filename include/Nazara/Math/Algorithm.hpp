@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_MATH_HPP
-#define NAZARA_ALGORITHM_MATH_HPP
+#ifndef NAZARA_MATH_ALGORITHM_HPP
+#define NAZARA_MATH_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -56,4 +56,4 @@ namespace Nz
 
 #include <Nazara/Math/Algorithm.inl>
 
-#endif // NAZARA_ALGORITHM_MATH_HPP
+#endif // NAZARA_MATH_ALGORITHM_HPP

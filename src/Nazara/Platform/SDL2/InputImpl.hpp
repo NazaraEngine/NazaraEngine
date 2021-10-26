@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_INPUTIMPL_HPP
-#define NAZARA_INPUTIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL2_INPUTIMPL_HPP
+#define NAZARA_PLATFORM_SDL2_INPUTIMPL_HPP
 
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
@@ -34,4 +34,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_INPUTIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL2_INPUTIMPL_HPP

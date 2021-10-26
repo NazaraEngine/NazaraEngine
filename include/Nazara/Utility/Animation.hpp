@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ANIMATION_HPP
-#define NAZARA_ANIMATION_HPP
+#ifndef NAZARA_UTILITY_ANIMATION_HPP
+#define NAZARA_UTILITY_ANIMATION_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -93,4 +93,4 @@ namespace Nz
 
 #include <Nazara/Utility/Animation.inl>
 
-#endif // NAZARA_ANIMATION_HPP
+#endif // NAZARA_UTILITY_ANIMATION_HPP

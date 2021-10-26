@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONSTRAINT2D_HPP
-#define NAZARA_CONSTRAINT2D_HPP
+#ifndef NAZARA_PHYSICS2D_CONSTRAINT2D_HPP
+#define NAZARA_PHYSICS2D_CONSTRAINT2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
@@ -229,4 +229,4 @@ namespace Nz
 
 #include <Nazara/Physics2D/Constraint2D.inl>
 
-#endif // NAZARA_CONSTRAINT2D_HPP
+#endif // NAZARA_PHYSICS2D_CONSTRAINT2D_HPP

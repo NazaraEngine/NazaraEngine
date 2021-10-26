@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_INDEXITERATOR_HPP
-#define NAZARA_INDEXITERATOR_HPP
+#ifndef NAZARA_UTILITY_INDEXITERATOR_HPP
+#define NAZARA_UTILITY_INDEXITERATOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -79,4 +79,4 @@ namespace Nz
 
 #include <Nazara/Utility/IndexIterator.inl>
 
-#endif // NAZARA_INDEXITERATOR_HPP
+#endif // NAZARA_UTILITY_INDEXITERATOR_HPP

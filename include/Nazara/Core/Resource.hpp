@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RESOURCE_HPP
-#define NAZARA_RESOURCE_HPP
+#ifndef NAZARA_CORE_RESOURCE_HPP
+#define NAZARA_CORE_RESOURCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <filesystem>
@@ -32,4 +32,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RESOURCE_HPP
+#endif // NAZARA_CORE_RESOURCE_HPP

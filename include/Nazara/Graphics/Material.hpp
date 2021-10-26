@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MATERIAL_HPP
-#define NAZARA_MATERIAL_HPP
+#ifndef NAZARA_GRAPHICS_MATERIAL_HPP
+#define NAZARA_GRAPHICS_MATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Material.inl>
 
-#endif // NAZARA_MATERIAL_HPP
+#endif // NAZARA_GRAPHICS_MATERIAL_HPP

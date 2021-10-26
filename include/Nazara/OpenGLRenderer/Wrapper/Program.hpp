@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLPROGRAM_HPP
-#define NAZARA_OPENGLRENDERER_GLPROGRAM_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_PROGRAM_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_PROGRAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovableValue.hpp>
@@ -56,4 +56,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Program.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_PROGRAM_HPP

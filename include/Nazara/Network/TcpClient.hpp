@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TCPCLIENT_HPP
-#define NAZARA_TCPCLIENT_HPP
+#ifndef NAZARA_NETWORK_TCPCLIENT_HPP
+#define NAZARA_NETWORK_TCPCLIENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -90,4 +90,4 @@ namespace Nz
 
 #include <Nazara/Network/TcpClient.inl>
 
-#endif // NAZARA_TCPCLIENT_HPP
+#endif // NAZARA_NETWORK_TCPCLIENT_HPP

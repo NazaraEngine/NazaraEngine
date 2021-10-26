@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_LIBFLAC_HPP
-#define NAZARA_LOADERS_LIBFLAC_HPP
+#ifndef NAZARA_AUDIO_FORMATS_LIBFLACLOADER_HPP
+#define NAZARA_AUDIO_FORMATS_LIBFLACLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
@@ -17,4 +17,4 @@ namespace Nz::Loaders
 	SoundStreamLoader::Entry GetSoundStreamLoader_libflac();
 }
 
-#endif
+#endif // NAZARA_AUDIO_FORMATS_LIBFLACLOADER_HPP

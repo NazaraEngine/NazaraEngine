@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERQUEUEREGISTRY_HPP
-#define NAZARA_RENDERQUEUEREGISTRY_HPP
+#ifndef NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP
+#define NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Thirdparty/robin_hood/robin_hood.h>
@@ -44,4 +44,4 @@ namespace Nz
 
 #include <Nazara/Graphics/RenderQueueRegistry.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP

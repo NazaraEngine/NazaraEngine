@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_LANGPARSER_HPP
-#define NAZARA_SHADER_LANGPARSER_HPP
+#ifndef NAZARA_SHADER_SHADERLANGPARSER_HPP
+#define NAZARA_SHADER_SHADERLANGPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -138,4 +138,4 @@ namespace Nz::ShaderLang
 
 #include <Nazara/Shader/ShaderLangParser.inl>
 
-#endif
+#endif // NAZARA_SHADER_SHADERLANGPARSER_HPP

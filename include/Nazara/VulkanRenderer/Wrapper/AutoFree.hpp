@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKAUTOFREE_HPP
-#define NAZARA_VULKANRENDERER_VKAUTOFREE_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_AUTOFREE_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_AUTOFREE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -39,4 +39,4 @@ namespace Nz::Vk
 
 #include <Nazara/VulkanRenderer/Wrapper/AutoFree.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKAUTOFREE_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_AUTOFREE_HPP

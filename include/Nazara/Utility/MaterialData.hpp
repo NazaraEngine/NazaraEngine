@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MATERIALDATA_HPP
-#define NAZARA_MATERIALDATA_HPP
+#ifndef NAZARA_UTILITY_MATERIALDATA_HPP
+#define NAZARA_UTILITY_MATERIALDATA_HPP
 
 namespace Nz
 {
@@ -68,4 +68,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MATERIALDATA_HPP
+#endif // NAZARA_UTILITY_MATERIALDATA_HPP

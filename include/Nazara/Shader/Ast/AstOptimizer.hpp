@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERASTOPTIMISER_HPP
-#define NAZARA_SHADERASTOPTIMISER_HPP
+#ifndef NAZARA_SHADER_AST_ASTOPTIMIZER_HPP
+#define NAZARA_SHADER_AST_ASTOPTIMIZER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -67,4 +67,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstOptimizer.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTOPTIMIZER_HPP

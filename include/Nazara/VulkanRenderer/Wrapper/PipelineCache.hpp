@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKPIPELINECACHE_HPP
-#define NAZARA_VULKANRENDERER_VKPIPELINECACHE_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_PIPELINECACHE_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_PIPELINECACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/PipelineCache.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKPIPELINECACHE_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_PIPELINECACHE_HPP

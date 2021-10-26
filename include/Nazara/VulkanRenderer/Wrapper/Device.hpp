@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKDEVICE_HPP
-#define NAZARA_VULKANRENDERER_VKDEVICE_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_DEVICE_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_DEVICE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
@@ -122,4 +122,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/Device.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKDEVICE_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_DEVICE_HPP

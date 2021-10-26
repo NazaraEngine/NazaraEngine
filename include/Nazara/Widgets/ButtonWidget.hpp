@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BUTTONWIDGET_HPP
-#define NAZARA_BUTTONWIDGET_HPP
+#ifndef NAZARA_WIDGETS_BUTTONWIDGET_HPP
+#define NAZARA_WIDGETS_BUTTONWIDGET_HPP
 
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
@@ -69,4 +69,4 @@ namespace Nz
 
 #include <Nazara/Widgets/ButtonWidget.inl>
 
-#endif // NDK_WIDGETS_BUTTONWIDGET_HPP
+#endif // NAZARA_WIDGETS_BUTTONWIDGET_HPP

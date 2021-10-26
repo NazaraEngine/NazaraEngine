@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VIDEOMODEIMPL_HPP
-#define NAZARA_VIDEOMODEIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL2_VIDEOMODEIMPL_HPP
+#define NAZARA_PLATFORM_SDL2_VIDEOMODEIMPL_HPP
 
 #include <Nazara/Platform/VideoMode.hpp>
 
@@ -19,4 +19,4 @@ namespace Nz
 	};
 }
 
-#endif // NNAZARA_VIDEOMODEIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL2_VIDEOMODEIMPL_HPP

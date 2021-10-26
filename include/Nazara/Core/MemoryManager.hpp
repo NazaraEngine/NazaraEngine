@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MEMORYMANAGER_HPP
-#define NAZARA_MEMORYMANAGER_HPP
+#ifndef NAZARA_CORE_MEMORYMANAGER_HPP
+#define NAZARA_CORE_MEMORYMANAGER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <cstddef>
@@ -41,4 +41,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MEMORYMANAGER_HPP
+#endif // NAZARA_CORE_MEMORYMANAGER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOUNDSTREAM_HPP
-#define NAZARA_SOUNDSTREAM_HPP
+#ifndef NAZARA_AUDIO_SOUNDSTREAM_HPP
+#define NAZARA_AUDIO_SOUNDSTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SOUNDSTREAM_HPP
+#endif // NAZARA_AUDIO_SOUNDSTREAM_HPP

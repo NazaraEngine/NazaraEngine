@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BYTEARRAY_HPP
-#define NAZARA_BYTEARRAY_HPP
+#ifndef NAZARA_CORE_BYTEARRAY_HPP
+#define NAZARA_CORE_BYTEARRAY_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
@@ -139,4 +139,4 @@ namespace std
 
 #include <Nazara/Core/ByteArray.inl>
 
-#endif // NAZARA_BYTEARRAY_HPP
+#endif // NAZARA_CORE_BYTEARRAY_HPP

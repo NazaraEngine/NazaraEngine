@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SIGNAL_HPP
-#define NAZARA_SIGNAL_HPP
+#ifndef NAZARA_CORE_SIGNAL_HPP
+#define NAZARA_CORE_SIGNAL_HPP
 
 #include <functional>
 #include <memory>
@@ -136,4 +136,4 @@ namespace Nz
 
 #include <Nazara/Core/Signal.inl>
 
-#endif // NAZARA_SIGNAL_HPP
+#endif // NAZARA_CORE_SIGNAL_HPP

@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// no header guards
+
 #if !defined(NAZARA_SHADERLANG_TOKEN)
 #error You must define NAZARA_SHADERLANG_TOKEN before including this file
 #endif

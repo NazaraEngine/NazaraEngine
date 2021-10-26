@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SERIALIZATION_HPP
-#define NAZARA_SERIALIZATION_HPP
+#ifndef NAZARA_CORE_SERIALIZATIONCONTEXT_HPP
+#define NAZARA_CORE_SERIALIZATIONCONTEXT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
@@ -34,4 +34,4 @@ namespace Nz
 
 #include <Nazara/Core/SerializationContext.inl>
 
-#endif // NAZARA_SERIALIZATION_HPP
+#endif // NAZARA_CORE_SERIALIZATIONCONTEXT_HPP

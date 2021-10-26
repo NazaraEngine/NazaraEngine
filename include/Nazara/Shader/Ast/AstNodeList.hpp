@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// no header guards
+
 #if !defined(NAZARA_SHADERAST_NODE) && !defined(NAZARA_SHADERAST_EXPRESSION) && !defined(NAZARA_SHADERAST_STATEMENT)
 #error You must define NAZARA_SHADERAST_NODE or NAZARA_SHADERAST_EXPRESSION or NAZARA_SHADERAST_STATEMENT before including this file
 #endif

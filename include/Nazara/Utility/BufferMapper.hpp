@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BUFFERMAPPER_HPP
-#define NAZARA_BUFFERMAPPER_HPP
+#ifndef NAZARA_UTILITY_BUFFERMAPPER_HPP
+#define NAZARA_UTILITY_BUFFERMAPPER_HPP
 
 #include <Nazara/Utility/Enums.hpp>
 
@@ -40,4 +40,4 @@ namespace Nz
 
 #include <Nazara/Utility/BufferMapper.inl>
 
-#endif // NAZARA_BUFFERMAPPER_HPP
+#endif // NAZARA_UTILITY_BUFFERMAPPER_HPP

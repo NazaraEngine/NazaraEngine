@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VIDEOMODEIMPL_HPP
-#define NAZARA_VIDEOMODEIMPL_HPP
+#ifndef NAZARA_PLATFORM_VIDEOMODEIMPL_HPP
+#define NAZARA_PLATFORM_VIDEOMODEIMPL_HPP
 
 #include <vector>
 
@@ -18,4 +18,4 @@ class VideoModeImpl
 		static void GetFullscreenModes(std::vector<VideoMode>& modes);
 };
 
-#endif // NAZARA_VIDEOMODEIMPL_HPP
+#endif // NAZARA_PLATFORM_VIDEOMODEIMPL_HPP

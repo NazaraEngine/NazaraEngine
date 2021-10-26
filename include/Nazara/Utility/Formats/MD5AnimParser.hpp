@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_MD5ANIMPARSER_HPP
-#define NAZARA_FORMATS_MD5ANIMPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -78,4 +78,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FORMATS_MD5ANIMPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP

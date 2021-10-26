@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTIMAGE_HPP
-#define NAZARA_ABSTRACTIMAGE_HPP
+#ifndef NAZARA_UTILITY_ABSTRACTIMAGE_HPP
+#define NAZARA_UTILITY_ABSTRACTIMAGE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -46,4 +46,4 @@ namespace Nz
 
 #include <Nazara/Utility/AbstractImage.inl>
 
-#endif // NAZARA_IMAGE_HPP
+#endif // NAZARA_UTILITY_ABSTRACTIMAGE_HPP

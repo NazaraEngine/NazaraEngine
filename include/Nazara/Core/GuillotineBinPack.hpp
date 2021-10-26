@@ -7,8 +7,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GUILLOTINEBINPACK_HPP
-#define NAZARA_GUILLOTINEBINPACK_HPP
+#ifndef NAZARA_CORE_GUILLOTINEBINPACK_HPP
+#define NAZARA_CORE_GUILLOTINEBINPACK_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -87,4 +87,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_GUILLOTINEBINPACK_HPP
+#endif // NAZARA_CORE_GUILLOTINEBINPACK_HPP

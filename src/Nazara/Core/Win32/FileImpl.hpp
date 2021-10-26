@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FILEIMPL_HPP
-#define NAZARA_FILEIMPL_HPP
+#ifndef NAZARA_CORE_WIN32_FILEIMPL_HPP
+#define NAZARA_CORE_WIN32_FILEIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/File.hpp>
@@ -44,4 +44,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FILEIMPL_HPP
+#endif // NAZARA_CORE_WIN32_FILEIMPL_HPP

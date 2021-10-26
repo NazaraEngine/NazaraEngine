@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOCKETPOLLER_HPP
-#define NAZARA_SOCKETPOLLER_HPP
+#ifndef NAZARA_NETWORK_SOCKETPOLLER_HPP
+#define NAZARA_NETWORK_SOCKETPOLLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/Network/SocketPoller.inl>
 
-#endif // NAZARA_SOCKETPOLLER_HPP
+#endif // NAZARA_NETWORK_SOCKETPOLLER_HPP

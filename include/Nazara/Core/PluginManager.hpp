@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLUGINMANAGER_HPP
-#define NAZARA_PLUGINMANAGER_HPP
+#ifndef NAZARA_CORE_PLUGINMANAGER_HPP
+#define NAZARA_CORE_PLUGINMANAGER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -54,4 +54,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PLUGINMANAGER_HPP
+#endif // NAZARA_CORE_PLUGINMANAGER_HPP

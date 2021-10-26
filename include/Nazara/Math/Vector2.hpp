@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VECTOR2_HPP
-#define NAZARA_VECTOR2_HPP
+#ifndef NAZARA_MATH_VECTOR2_HPP
+#define NAZARA_MATH_VECTOR2_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/TypeTag.hpp>
@@ -131,4 +131,4 @@ namespace std
 
 #include <Nazara/Math/Vector2.inl>
 
-#endif // NAZARA_VECTOR2_HPP
+#endif // NAZARA_MATH_VECTOR2_HPP

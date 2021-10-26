@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVASTVISITOR_HPP
-#define NAZARA_SPIRVASTVISITOR_HPP
+#ifndef NAZARA_SHADER_SPIRVASTVISITOR_HPP
+#define NAZARA_SHADER_SPIRVASTVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -161,4 +161,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvAstVisitor.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVASTVISITOR_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CANVAS_HPP
-#define NAZARA_CANVAS_HPP
+#ifndef NAZARA_WIDGETS_CANVAS_HPP
+#define NAZARA_WIDGETS_CANVAS_HPP
 
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/EventHandler.hpp>
@@ -85,4 +85,4 @@ namespace Nz
 
 #include <Nazara/Widgets/Canvas.inl>
 
-#endif // NDK_CANVAS_HPP
+#endif // NAZARA_WIDGETS_CANVAS_HPP

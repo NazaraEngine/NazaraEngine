@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENDIANNESS_HPP
-#define NAZARA_ENDIANNESS_HPP
+#ifndef NAZARA_CORE_ENDIANNESS_HPP
+#define NAZARA_CORE_ENDIANNESS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -34,4 +34,4 @@ namespace Nz
 
 #include <Nazara/Core/Endianness.inl>
 
-#endif // NAZARA_ENDIANNESS_HPP
+#endif // NAZARA_CORE_ENDIANNESS_HPP

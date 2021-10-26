@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RESOURCESAVER_HPP
-#define NAZARA_RESOURCESAVER_HPP
+#ifndef NAZARA_CORE_RESOURCESAVER_HPP
+#define NAZARA_CORE_RESOURCESAVER_HPP
 
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -65,4 +65,4 @@ namespace Nz
 
 #include <Nazara/Core/ResourceSaver.inl>
 
-#endif // NAZARA_RESOURCESAVER_HPP
+#endif // NAZARA_CORE_RESOURCESAVER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BYTEARRAYPOOL_HPP
-#define NAZARA_BYTEARRAYPOOL_HPP
+#ifndef NAZARA_CORE_BYTEARRAYPOOL_HPP
+#define NAZARA_CORE_BYTEARRAYPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -39,4 +39,4 @@ namespace Nz
 
 #include <Nazara/Core/ByteArrayPool.inl>
 
-#endif // NAZARA_BYTEARRAYPOOL_HPP
+#endif // NAZARA_CORE_BYTEARRAYPOOL_HPP

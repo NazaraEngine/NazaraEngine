@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_INDEXMAPPER_HPP
-#define NAZARA_INDEXMAPPER_HPP
+#ifndef NAZARA_UTILITY_INDEXMAPPER_HPP
+#define NAZARA_UTILITY_INDEXMAPPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 };
 }
 
-#endif // NAZARA_INDEXMAPPER_HPP
+#endif // NAZARA_UTILITY_INDEXMAPPER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKINSTANCE_HPP
-#define NAZARA_VULKANRENDERER_VKINSTANCE_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_INSTANCE_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_INSTANCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
@@ -112,4 +112,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/Instance.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKINSTANCE_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_INSTANCE_HPP

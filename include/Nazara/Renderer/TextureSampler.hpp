@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TEXTURE_SAMPLER_HPP
-#define NAZARA_TEXTURE_SAMPLER_HPP
+#ifndef NAZARA_RENDERER_TEXTURESAMPLER_HPP
+#define NAZARA_RENDERER_TEXTURESAMPLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -51,4 +51,4 @@ struct std::hash<Nz::TextureSamplerInfo>;
 
 #include <Nazara/Renderer/TextureSampler.inl>
 
-#endif // NAZARA_TEXTURE_HPP
+#endif // NAZARA_RENDERER_TEXTURESAMPLER_HPP

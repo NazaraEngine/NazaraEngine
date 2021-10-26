@@ -1,9 +1,9 @@
-// This file was automatically generated
+// this file was automatically generated and should not be edited
 
 /*
-	Nazara Engine - Mathematics module
+	Nazara Engine - Math module
 
-	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2021 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
 	                   Rémi "overdrivr" Bèges (remi.beges@laposte.net)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of

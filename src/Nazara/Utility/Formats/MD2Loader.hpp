@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_MD2_HPP
-#define NAZARA_LOADERS_MD2_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MD2LOADER_HPP
+#define NAZARA_UTILITY_FORMATS_MD2LOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -15,4 +15,4 @@ namespace Nz::Loaders
 	MeshLoader::Entry GetMeshLoader_MD2();
 }
 
-#endif // NAZARA_LOADERS_MD2_HPP
+#endif // NAZARA_UTILITY_FORMATS_MD2LOADER_HPP

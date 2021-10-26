@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_GRAPHICS_HPP
-#define NAZARA_ENUMS_GRAPHICS_HPP
+#ifndef NAZARA_GRAPHICS_ENUMS_HPP
+#define NAZARA_GRAPHICS_ENUMS_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Flags.hpp>
@@ -52,4 +52,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ENUMS_GRAPHICS_HPP
+#endif // NAZARA_GRAPHICS_ENUMS_HPP

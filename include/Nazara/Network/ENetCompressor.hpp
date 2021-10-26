@@ -18,8 +18,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENETCOMPRESSOR_HPP
-#define NAZARA_ENETCOMPRESSOR_HPP
+#ifndef NAZARA_NETWORK_ENETCOMPRESSOR_HPP
+#define NAZARA_NETWORK_ENETCOMPRESSOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
@@ -40,4 +40,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ENETCOMPRESSOR_HPP
+#endif // NAZARA_NETWORK_ENETCOMPRESSOR_HPP

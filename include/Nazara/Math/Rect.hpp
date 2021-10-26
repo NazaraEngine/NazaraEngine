@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RECT_HPP
-#define NAZARA_RECT_HPP
+#ifndef NAZARA_MATH_RECT_HPP
+#define NAZARA_MATH_RECT_HPP
 
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -104,4 +104,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect);
 
 #include <Nazara/Math/Rect.inl>
 
-#endif // NAZARA_RECT_HPP
+#endif // NAZARA_MATH_RECT_HPP

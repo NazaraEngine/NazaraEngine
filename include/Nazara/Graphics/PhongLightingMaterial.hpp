@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PHONG_LIGHTING_MATERIAL_HPP
-#define NAZARA_PHONG_LIGHTING_MATERIAL_HPP
+#ifndef NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP
+#define NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
@@ -100,4 +100,4 @@ namespace Nz
 
 #include <Nazara/Graphics/PhongLightingMaterial.inl>
 
-#endif // NAZARA_PHONG_LIGHTING_MATERIAL_HPP
+#endif // NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP

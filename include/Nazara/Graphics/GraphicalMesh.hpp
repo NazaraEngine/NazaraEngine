@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICALMESH_HPP
-#define NAZARA_GRAPHICALMESH_HPP
+#ifndef NAZARA_GRAPHICS_GRAPHICALMESH_HPP
+#define NAZARA_GRAPHICS_GRAPHICALMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -47,4 +47,4 @@ namespace Nz
 
 #include <Nazara/Graphics/GraphicalMesh.inl>
 
-#endif // NAZARA_GRAPHICALMESH_HPP
+#endif // NAZARA_GRAPHICS_GRAPHICALMESH_HPP

@@ -1,9 +1,9 @@
-// This file was automatically generated
+// this file was automatically generated and should not be edited
 
 /*
 	Nazara Engine - Graphics module
 
-	Copyright (C) 2020 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#ifndef NAZARA_GLOBAL_GRAPHICS_SYSTEMS_HPP
-#define NAZARA_GLOBAL_GRAPHICS_SYSTEMS_HPP
+#ifndef NAZARA_GRAPHICS_SYSTEMS_HPP
+#define NAZARA_GRAPHICS_SYSTEMS_HPP
 
 #include <Nazara/Graphics/Systems/RenderSystem.hpp>
 
-#endif // NAZARA_GLOBAL_GRAPHICS_SYSTEMS_HPP
+#endif // NAZARA_GRAPHICS_SYSTEMS_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_RENDERWINDOW_HPP
-#define NAZARA_OPENGLRENDERER_RENDERWINDOW_HPP
+#ifndef NAZARA_OPENGLRENDERER_OPENGLRENDERWINDOW_HPP
+#define NAZARA_OPENGLRENDERER_OPENGLRENDERWINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
@@ -54,4 +54,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderWindow.inl>
 
-#endif // NAZARA_OPENGLRENDERER_RENDERWINDOW_HPP
+#endif // NAZARA_OPENGLRENDERER_OPENGLRENDERWINDOW_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_PHYSICS_HPP
-#define NAZARA_CONFIG_CHECK_PHYSICS_HPP
+#ifndef NAZARA_PHYSICS3D_CONFIGCHECK_HPP
+#define NAZARA_PHYSICS3D_CONFIGCHECK_HPP
 
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
@@ -15,4 +15,4 @@
 	#define NAZARA_PHYSICS3D_MANAGE_MEMORY 0
 #endif
 
-#endif // NAZARA_CONFIG_CHECK_PHYSICS_HPP
+#endif // NAZARA_PHYSICS3D_CONFIGCHECK_HPP

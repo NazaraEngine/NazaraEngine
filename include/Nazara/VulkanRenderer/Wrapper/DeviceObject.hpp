@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKDEVICEOBJECT_HPP
-#define NAZARA_VULKANRENDERER_VKDEVICEOBJECT_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_DEVICEOBJECT_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_DEVICEOBJECT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -50,4 +50,4 @@ namespace Nz::Vk
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKDEVICEOBJECT_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_DEVICEOBJECT_HPP

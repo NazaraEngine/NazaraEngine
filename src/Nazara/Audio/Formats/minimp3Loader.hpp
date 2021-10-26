@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_MINIMP3_HPP
-#define NAZARA_LOADERS_MINIMP3_HPP
+#ifndef NAZARA_AUDIO_FORMATS_MINIMP3LOADER_HPP
+#define NAZARA_AUDIO_FORMATS_MINIMP3LOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
@@ -17,4 +17,4 @@ namespace Nz::Loaders
 	SoundStreamLoader::Entry GetSoundStreamLoader_minimp3();
 }
 
-#endif
+#endif // NAZARA_AUDIO_FORMATS_MINIMP3LOADER_HPP
