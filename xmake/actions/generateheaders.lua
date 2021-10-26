@@ -118,7 +118,7 @@ on_run(function ()
 			error("Failed to create header file (" .. v.Target .. "): " .. err)
 		end
 
-		header:write("// This file was automatically generated\n\n")
+		header:write("// this file was automatically generated and should not be edited\n\n")
 		if (v.Header) then
 			header:write(v.Header)
 		end
