@@ -3,12 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
 	inline RenderElement::RenderElement(BasicRenderElement elementType) :
-	RenderElement(static_cast<UInt8>(elementType))
+	RenderElement(SafeCast<UInt8>(elementType))
 	{
 	}
 
@@ -22,3 +24,5 @@ namespace Nz
 		return m_elementType;
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

@@ -715,7 +715,7 @@ int main()
 			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
 			builder.BindPipeline(*skyboxPipeline);
 
-			builder.DrawIndexed(static_cast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
+			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 		});
 		forwardPass.SetExecutionCallback([&]
 		{

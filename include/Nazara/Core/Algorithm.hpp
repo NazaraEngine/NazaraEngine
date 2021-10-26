@@ -36,6 +36,16 @@ namespace Nz
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> bool IsPowerOfTwo(T value);
 	template<typename T> T ReverseBits(T integer);
+#ifdef NAZARA_DEBUG
+	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To> && std::is_integral_v<From>, int> = 0> To SafeCast(From value);
+	template<typename To, typename From, std::enable_if_t<std::is_floating_point_v<To> && std::is_floating_point_v<From>, int> = 0> To SafeCast(From value);
+	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To> && std::is_floating_point_v<From>, int> = 0> To SafeCast(From value);
+	template<typename To, typename From, std::enable_if_t<std::is_floating_point_v<To> && std::is_integral_v<From>, int> = 0> To SafeCast(From value);
+	template<typename To, typename From, std::enable_if_t<std::is_enum_v<To>&& std::is_integral_v<From>, int> = 0> To SafeCast(From value);
+	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To>&& std::is_enum_v<From>, int> = 0> To SafeCast(From value);
+#else
+	template<typename To, typename From> To SafeCast(From value);
+#endif
 	template<typename T> constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>;
 
 	template<typename T>
