@@ -145,38 +145,38 @@ namespace Nz
 
 	std::shared_ptr<StaticMesh> Collider3D::GenerateMesh() const
 	{
-		std::vector<Nz::Vector3f> colliderVertices;
-		std::vector<Nz::UInt16> colliderIndices;
+		std::vector<Vector3f> colliderVertices;
+		std::vector<UInt16> colliderIndices;
 
 		// Generate a line list
-		ForEachPolygon([&](const Nz::Vector3f* vertices, std::size_t vertexCount)
+		ForEachPolygon([&](const Vector3f* vertices, std::size_t vertexCount)
 		{
-			Nz::UInt16 firstIndex = colliderVertices.size();
+			UInt16 firstIndex = SafeCast<UInt16>(colliderVertices.size());
 			for (std::size_t i = 0; i < vertexCount; ++i)
 				colliderVertices.push_back(vertices[i]);
 
 			for (std::size_t i = 1; i < vertexCount; ++i)
 			{
-				colliderIndices.push_back(firstIndex + i - 1);
-				colliderIndices.push_back(firstIndex + i);
+				colliderIndices.push_back(SafeCast<UInt16>(firstIndex + i - 1));
+				colliderIndices.push_back(SafeCast<UInt16>(firstIndex + i));
 			}
 
 			if (vertexCount > 2)
 			{
-				colliderIndices.push_back(firstIndex + vertexCount - 1);
-				colliderIndices.push_back(firstIndex);
+				colliderIndices.push_back(SafeCast<UInt16>(firstIndex + vertexCount - 1));
+				colliderIndices.push_back(SafeCast<UInt16>(firstIndex));
 			}
 		});
 
-		std::shared_ptr<Nz::VertexBuffer> colliderVB = std::make_shared<Nz::VertexBuffer>(Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ), colliderVertices.size(), Nz::DataStorage::Software, 0);
+		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), colliderVertices.size(), DataStorage::Software, 0);
 		colliderVB->Fill(colliderVertices.data(), 0, colliderVertices.size());
 
-		std::shared_ptr<Nz::IndexBuffer> colliderIB = std::make_shared<Nz::IndexBuffer>(false, colliderIndices.size(), Nz::DataStorage::Software, 0);
+		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(false, colliderIndices.size(), DataStorage::Software, 0);
 		colliderIB->Fill(colliderIndices.data(), 0, colliderIndices.size());
 
-		std::shared_ptr<Nz::StaticMesh> colliderSubMesh = std::make_shared<Nz::StaticMesh>(std::move(colliderVB), std::move(colliderIB));
+		std::shared_ptr<StaticMesh> colliderSubMesh = std::make_shared<StaticMesh>(std::move(colliderVB), std::move(colliderIB));
 		colliderSubMesh->GenerateAABB();
-		colliderSubMesh->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
+		colliderSubMesh->SetPrimitiveMode(PrimitiveMode::LineList);
 
 		return colliderSubMesh;
 	}
