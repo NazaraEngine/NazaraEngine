@@ -1,5 +1,5 @@
-// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Rémi Bèges - Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>

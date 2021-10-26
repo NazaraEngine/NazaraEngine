@@ -1,5 +1,5 @@
-// Copyright (C) 2014 AUTHORS
-// This file is part of the "Nazara Engine - Module name"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Config.hpp>
