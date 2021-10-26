@@ -608,7 +608,8 @@ namespace Nz
 		if (m_textures[textureIndex].texture != texture)
 		{
 			m_textures[textureIndex].texture = std::move(texture);
-			OnMaterialInvalidated(this);
+
+			InvalidateCommandBuffer();
 		}
 	}
 
@@ -618,6 +619,7 @@ namespace Nz
 		if (m_textures[textureIndex].samplerInfo != samplerInfo)
 		{
 			m_textures[textureIndex].samplerInfo = std::move(samplerInfo);
+
 			InvalidateTextureSampler(textureIndex);
 		}
 	}
@@ -630,8 +632,14 @@ namespace Nz
 			m_uniformBuffers[bufferIndex].buffer = std::move(uniformBuffer);
 			m_uniformBuffers[bufferIndex].dataInvalidated = true;
 
-			OnMaterialInvalidated(this);
+			InvalidateCommandBuffer();
 		}
+	}
+
+	inline void MaterialPass::InvalidateCommandBuffer()
+	{
+		m_forceCommandBufferRegeneration = true;
+		OnMaterialInvalidated(this);
 	}
 
 	inline void MaterialPass::InvalidatePipeline()
@@ -647,7 +655,7 @@ namespace Nz
 		assert(textureIndex < m_textures.size());
 		m_textures[textureIndex].sampler.reset();
 
-		OnMaterialInvalidated(this);
+		InvalidateCommandBuffer();
 	}
 
 	inline void MaterialPass::InvalidateUniformData(std::size_t uniformBufferIndex)
