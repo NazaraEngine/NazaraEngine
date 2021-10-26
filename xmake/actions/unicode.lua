@@ -179,6 +179,7 @@ local DirectionToString = {}
 
 	file:write([[
 // this file was automatically generated and should not be edited
+// no header guards
 
 // Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
