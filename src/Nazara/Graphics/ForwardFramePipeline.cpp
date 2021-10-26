@@ -155,6 +155,7 @@ namespace Nz
 						{
 							viewerData.rebuildDepthPrepass = true;
 							viewerData.rebuildForwardPass = true;
+							viewerData.prepare = true;
 						}
 					}
 				}
@@ -171,7 +172,6 @@ namespace Nz
 		};
 
 		// Render queues handling
-		bool prepare = false;
 		for (auto&& [viewer, data] : m_viewers)
 		{
 			auto& viewerData = data;
@@ -213,7 +213,7 @@ namespace Nz
 			{
 				viewerData.rebuildDepthPrepass = true;
 				viewerData.rebuildForwardPass = true;
-				prepare = true;
+				viewerData.prepare = true;
 
 				viewerData.visibilityHash = visibilityHash;
 			}
@@ -262,48 +262,42 @@ namespace Nz
 			});
 		}
 
-		if (prepare)
+		for (auto&& [viewer, viewerData] : m_viewers)
 		{
+			if (!viewerData.prepare)
+				continue;
+
 			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
 			{
 				auto& elementRendererPtr = m_elementRenderers[i];
 
-				for (auto&& [_, viewerData] : m_viewers)
+				if (i >= viewerData.elementRendererData.size() || !viewerData.elementRendererData[i])
 				{
-					if (i >= viewerData.elementRendererData.size() || !viewerData.elementRendererData[i])
-					{
-						if (i >= viewerData.elementRendererData.size())
-							viewerData.elementRendererData.resize(i + 1);
+					if (i >= viewerData.elementRendererData.size())
+						viewerData.elementRendererData.resize(i + 1);
 
-						viewerData.elementRendererData[i] = elementRendererPtr->InstanciateData();
-					}
-
-					if (elementRendererPtr)
-						elementRendererPtr->Reset(*viewerData.elementRendererData[i], renderFrame);
+					viewerData.elementRendererData[i] = elementRendererPtr->InstanciateData();
 				}
+
+				if (elementRendererPtr)
+					elementRendererPtr->Reset(*viewerData.elementRendererData[i], renderFrame);
 			}
 
-			for (auto&& [viewer, viewerData] : m_viewers)
+			auto& rendererData = viewerData.elementRendererData;
+
+			const auto& viewerInstance = viewer->GetViewerInstance();
+
+			ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
-				auto& rendererData = viewerData.elementRendererData;
+				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elements, elementCount);
+			});
 
-				const auto& viewerInstance = viewer->GetViewerInstance();
-
-				ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-				{
-					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elements, elementCount);
-				});
-
-				ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-				{
-					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elements, elementCount);
-				});
-
-				viewerData.rebuildForwardPass = true;
-				viewerData.rebuildDepthPrepass = true;
-			}
+			ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			{
+				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
+				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elements, elementCount);
+			});
 		}
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
@@ -335,6 +329,7 @@ namespace Nz
 		{
 			viewerData.rebuildForwardPass = false;
 			viewerData.rebuildDepthPrepass = false;
+			viewerData.prepare = false;
 
 			const RenderTarget& renderTarget = viewer->GetRenderTarget();
 			Recti renderRegion(0, 0, frameSize.x, frameSize.y);

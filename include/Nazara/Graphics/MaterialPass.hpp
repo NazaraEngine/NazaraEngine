@@ -110,6 +110,7 @@ namespace Nz
 			NazaraSignal(OnMaterialRelease, const MaterialPass* /*material*/);
 
 		private:
+			inline void InvalidateCommandBuffer();
 			inline void InvalidatePipeline();
 			inline void InvalidateTextureSampler(std::size_t textureIndex);
 			inline void InvalidateUniformData(std::size_t uniformBufferIndex);
