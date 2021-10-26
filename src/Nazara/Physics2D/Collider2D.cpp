@@ -71,7 +71,7 @@ namespace Nz
 			std::array<Vector2f, circleVerticesCount> vertices;
 
 			Vector2f origin = FromChipmunk(pos);
-			float r = static_cast<float>(radius);
+			float r = SafeCast<float>(radius);
 
 			RadianAnglef angleBetweenVertices = 2.f * Pi<float> / vertices.size();
 			for (std::size_t i = 0; i < vertices.size(); ++i)
@@ -91,7 +91,7 @@ namespace Nz
 		{
 			const auto& callback = *static_cast<const CallbackType*>(userdata);
 
-			static std::pair<float, float> sincos = Nz::DegreeAnglef(90.f).GetSinCos();
+			static std::pair<float, float> sincos = DegreeAnglef(90.f).GetSinCos();
 
 			Vector2f from = FromChipmunk(a);
 			Vector2f to = FromChipmunk(b);
@@ -100,7 +100,7 @@ namespace Nz
 			Vector2f thicknessNormal(sincos.second * normal.x - sincos.first * normal.y,
 			                         sincos.first * normal.x + sincos.second * normal.y);
 
-			float thickness = static_cast<float>(radius);
+			float thickness = SafeCast<float>(radius);
 
 			std::array<Vector2f, 4> vertices;
 			vertices[0] = from + thickness * thicknessNormal;
@@ -166,14 +166,14 @@ namespace Nz
 	{
 	}
 
-	Nz::Vector2f BoxCollider2D::ComputeCenterOfMass() const
+	Vector2f BoxCollider2D::ComputeCenterOfMass() const
 	{
 		return m_rect.GetCenter();
 	}
 
 	float BoxCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return static_cast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height)));
+		return SafeCast<float>(cpMomentForBox2(mass, cpBBNew(m_rect.x, m_rect.y, m_rect.x + m_rect.width, m_rect.y + m_rect.height)));
 	}
 
 	ColliderType2D BoxCollider2D::GetType() const
@@ -195,14 +195,14 @@ namespace Nz
 	{
 	}
 
-	Nz::Vector2f CircleCollider2D::ComputeCenterOfMass() const
+	Vector2f CircleCollider2D::ComputeCenterOfMass() const
 	{
 		return m_offset;
 	}
 
 	float CircleCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return static_cast<float>(cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y)));
+		return SafeCast<float>(cpMomentForCircle(mass, 0.f, m_radius, cpv(m_offset.x, m_offset.y)));
 	}
 
 	ColliderType2D CircleCollider2D::GetType() const
@@ -224,9 +224,9 @@ namespace Nz
 	{
 	}
 
-	Nz::Vector2f CompoundCollider2D::ComputeCenterOfMass() const
+	Vector2f CompoundCollider2D::ComputeCenterOfMass() const
 	{
-		Nz::Vector2f centerOfMass = Nz::Vector2f::Zero();
+		Vector2f centerOfMass = Vector2f::Zero();
 		for (const auto& geom : m_geoms)
 			centerOfMass += geom->ComputeCenterOfMass();
 
@@ -285,20 +285,20 @@ namespace Nz
 			m_vertices[i].Set(*vertices++);
 	}
 
-	Nz::Vector2f ConvexCollider2D::ComputeCenterOfMass() const
+	Vector2f ConvexCollider2D::ComputeCenterOfMass() const
 	{
 		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
 
 		cpVect center = cpCentroidForPoly(int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()));
 
-		return Nz::Vector2f(float(center.x), float(center.y));
+		return Vector2f(float(center.x), float(center.y));
 	}
 
 	float ConvexCollider2D::ComputeMomentOfInertia(float mass) const
 	{
 		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
 
-		return static_cast<float>(cpMomentForPoly(mass, int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpv(0.0, 0.0), m_radius));
+		return SafeCast<float>(cpMomentForPoly(mass, int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpv(0.0, 0.0), m_radius));
 	}
 
 	ColliderType2D ConvexCollider2D::GetType() const
@@ -319,9 +319,9 @@ namespace Nz
 		return ColliderType2D::Null;
 	}
 
-	Nz::Vector2f NullCollider2D::ComputeCenterOfMass() const
+	Vector2f NullCollider2D::ComputeCenterOfMass() const
 	{
-		return Nz::Vector2f::Zero();
+		return Vector2f::Zero();
 	}
 
 	float NullCollider2D::ComputeMomentOfInertia(float mass) const
@@ -336,14 +336,14 @@ namespace Nz
 
 	/******************************** SegmentCollider2D *********************************/
 
-	Nz::Vector2f SegmentCollider2D::ComputeCenterOfMass() const
+	Vector2f SegmentCollider2D::ComputeCenterOfMass() const
 	{
 		return (m_first + m_second) / 2.f;
 	}
 
 	float SegmentCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		return static_cast<float>(cpMomentForSegment(mass, cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
+		return SafeCast<float>(cpMomentForSegment(mass, cpv(m_first.x, m_first.y), cpv(m_second.x, m_second.y), m_thickness));
 	}
 
 	ColliderType2D SegmentCollider2D::GetType() const
