@@ -1,5 +1,5 @@
-// Copyright (C) YEAR AUTHORS
-// This file is part of the "Nazara Engine - Module name"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
