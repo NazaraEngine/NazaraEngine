@@ -13,14 +13,17 @@ on_run(function()
 	import("net.http")
 
 	io.write("Downloading Spir-V grammar... ")
+	io.flush()
 	
 	local tempGrammar = os.tmpfile() .. ".spirv.core.grammar.json"
 
 	http.download(spirvGrammarURI, tempGrammar)
 	
 	print("Done")
+	io.flush()
 
 	io.write("Parsing... ")
+	io.flush()
 
 	local content = io.readfile(tempGrammar)
 
@@ -60,15 +63,17 @@ on_run(function()
 	end
 
 	print("Done")
+	io.flush()
 
 	io.write("Generating... ")
+	io.flush()
 
 	local headerFile = io.open("include/Nazara/Shader/SpirvData.hpp", "w+")
 	assert(headerFile, "failed to open Spir-V header")
 
 	headerFile:write([[
 // Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp"
 
 // This file was generated automatically, please do not edit
@@ -206,11 +211,11 @@ headerFile:write([[
 	assert(sourceFile, "failed to open Spir-V source")
 
 	sourceFile:write([[
-// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
-// For conditions of distribution and use, see copyright notice in Config.hpp"
+// this file was automatically generated and should not be edited
 
-// This file was generated automatically, please do not edit
+// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
+// This file is part of the "Nazara Engine - Shader module"
+// For conditions of distribution and use, see copyright notice in Config.hpp"
 
 #include <Nazara/Shader/SpirvData.hpp>
 #include <algorithm>
@@ -279,4 +284,5 @@ namespace Nz
 	sourceFile:close()
 
 	print("Done")
+	io.flush()
 end)

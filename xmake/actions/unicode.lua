@@ -78,14 +78,17 @@ local DirectionToString = {}
 	local unicodeSet = {}
 
 	io.write("Downloading UnicodeData grammar... ")
+	io.flush()
 	
 	local tempUnicodeFile = os.tmpfile() .. ".UnicodeData.txt"
 
 	http.download(unicodeDataURL, tempUnicodeFile)
 
 	print("Done")
+	io.flush()
 
 	io.write("Parsing... ")
+	io.flush()
 
 	local file = io.open(tempUnicodeFile, "r")
 
@@ -163,14 +166,25 @@ local DirectionToString = {}
 	end
 
 	print("Parsed " .. #characters .. " characters")
+	io.flush()
 
 	print("Writting Unicode Data to header...")
+	io.flush()
 
 	file = io.open("src/Nazara/Core/UnicodeData.hpp", "w+")
 	if (not file) then
 		error("Failed to open Unicode Data header")
 		return
 	end
+
+	file:write([[
+// this file was automatically generated and should not be edited
+
+// Copyright (C) ]] .. os.date("%Y") .. [[ Jérôme Leclercq
+// This file is part of the "Nazara Engine - Core module"
+// For conditions of distribution and use, see copyright notice in Config.hpp"
+
+]])
 
 	file:write(string.format("UnicodeCharacter unicodeCharacters[%d] = {\n", #characters))
 
@@ -227,4 +241,5 @@ local DirectionToString = {}
 	file:close()
 
 	print("Succeeded!")
+	io.flush()
 end)
