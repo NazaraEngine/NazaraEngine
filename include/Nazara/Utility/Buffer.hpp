@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BUFFER_HPP
-#define NAZARA_BUFFER_HPP
+#ifndef NAZARA_UTILITY_BUFFER_HPP
+#define NAZARA_UTILITY_BUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
@@ -75,4 +75,4 @@ namespace Nz
 
 #include <Nazara/Utility/Buffer.inl>
 
-#endif // NAZARA_BUFFER_HPP
+#endif // NAZARA_UTILITY_BUFFER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTSOCKET_HPP
-#define NAZARA_ABSTRACTSOCKET_HPP
+#ifndef NAZARA_NETWORK_ABSTRACTSOCKET_HPP
+#define NAZARA_NETWORK_ABSTRACTSOCKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -68,4 +68,4 @@ namespace Nz
 
 #include <Nazara/Network/AbstractSocket.inl>
 
-#endif // NAZARA_ABSTRACTSOCKET_HPP
+#endif // NAZARA_NETWORK_ABSTRACTSOCKET_HPP

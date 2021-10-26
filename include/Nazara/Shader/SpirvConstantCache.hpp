@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVCONSTANTCACHE_HPP
-#define NAZARA_SPIRVCONSTANTCACHE_HPP
+#ifndef NAZARA_SHADER_SPIRVCONSTANTCACHE_HPP
+#define NAZARA_SHADER_SPIRVCONSTANTCACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
@@ -208,4 +208,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvConstantCache.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVCONSTANTCACHE_HPP

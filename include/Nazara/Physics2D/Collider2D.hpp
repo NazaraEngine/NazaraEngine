@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_COLLIDER2D_HPP
-#define NAZARA_COLLIDER2D_HPP
+#ifndef NAZARA_PHYSICS2D_COLLIDER2D_HPP
+#define NAZARA_PHYSICS2D_COLLIDER2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
@@ -208,4 +208,4 @@ namespace Nz
 
 #include <Nazara/Physics2D/Collider2D.inl>
 
-#endif // NAZARA_COLLIDER2D_HPP
+#endif // NAZARA_PHYSICS2D_COLLIDER2D_HPP

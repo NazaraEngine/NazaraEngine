@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_COMMANDPOOL_HPP
-#define NAZARA_COMMANDPOOL_HPP
+#ifndef NAZARA_RENDERER_COMMANDPOOL_HPP
+#define NAZARA_RENDERER_COMMANDPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -33,4 +33,4 @@ namespace Nz
 
 #include <Nazara/Renderer/CommandPool.inl>
 
-#endif // NAZARA_COMMANDPOOL_HPP
+#endif // NAZARA_RENDERER_COMMANDPOOL_HPP

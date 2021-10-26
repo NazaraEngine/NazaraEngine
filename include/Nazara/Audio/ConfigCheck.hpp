@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_AUDIO_HPP
-#define NAZARA_CONFIG_CHECK_AUDIO_HPP
+#ifndef NAZARA_AUDIO_CONFIGCHECK_HPP
+#define NAZARA_AUDIO_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -22,4 +22,4 @@ NazaraCheckTypeAndVal(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, integral, >, 0, " shal
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_AUDIO_HPP
+#endif // NAZARA_AUDIO_CONFIGCHECK_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VERTEXBUFFER_HPP
-#define NAZARA_VERTEXBUFFER_HPP
+#ifndef NAZARA_UTILITY_VERTEXBUFFER_HPP
+#define NAZARA_UTILITY_VERTEXBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -65,4 +65,4 @@ namespace Nz
 
 #include <Nazara/Utility/VertexBuffer.inl>
 
-#endif // NAZARA_VERTEXBUFFER_HPP
+#endif // NAZARA_UTILITY_VERTEXBUFFER_HPP

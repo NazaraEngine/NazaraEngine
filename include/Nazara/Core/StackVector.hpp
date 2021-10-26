@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_STACKVECTOR_HPP
-#define NAZARA_STACKVECTOR_HPP
+#ifndef NAZARA_CORE_STACKVECTOR_HPP
+#define NAZARA_CORE_STACKVECTOR_HPP
 
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -116,4 +116,4 @@ namespace Nz
 
 #include <Nazara/Core/StackVector.inl>
 
-#endif // NAZARA_STACKVECTOR_HPP
+#endif // NAZARA_CORE_STACKVECTOR_HPP

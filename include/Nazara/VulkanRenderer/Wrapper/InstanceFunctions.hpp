@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// no header guards
+
 #if !defined(NAZARA_VULKANRENDERER_INSTANCE_FUNCTION) || !defined(NAZARA_VULKANRENDERER_INSTANCE_CORE_EXT_FUNCTION)
 #error You must define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION and NAZARA_VULKANRENDERER_INSTANCE_CORE_EXT_FUNCTION before including this file
 #endif

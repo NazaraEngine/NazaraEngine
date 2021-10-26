@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_STATICMESH_HPP
-#define NAZARA_STATICMESH_HPP
+#ifndef NAZARA_UTILITY_STATICMESH_HPP
+#define NAZARA_UTILITY_STATICMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Utility/StaticMesh.inl>
 
-#endif // NAZARA_STATICMESH_HPP
+#endif // NAZARA_UTILITY_STATICMESH_HPP

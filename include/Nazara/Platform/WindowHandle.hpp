@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_WINDOWHANDLE_HPP
-#define NAZARA_WINDOWHANDLE_HPP
+#ifndef NAZARA_PLATFORM_WINDOWHANDLE_HPP
+#define NAZARA_PLATFORM_WINDOWHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -48,4 +48,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_WINDOWHANDLE_HPP
+#endif // NAZARA_PLATFORM_WINDOWHANDLE_HPP

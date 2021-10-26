@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_PLATFORM_HPP
-#define NAZARA_CONFIG_CHECK_PLATFORM_HPP
+#ifndef NAZARA_PLATFORM_CONFIGCHECK_HPP
+#define NAZARA_PLATFORM_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -20,4 +20,4 @@
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_PLATFORM_HPP
+#endif // NAZARA_PLATFORM_CONFIGCHECK_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_MD5ANIM_HPP
-#define NAZARA_LOADERS_MD5ANIM_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MD5ANIMLOADER_HPP
+#define NAZARA_UTILITY_FORMATS_MD5ANIMLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Animation.hpp>
@@ -15,4 +15,4 @@ namespace Nz::Loaders
 	AnimationLoader::Entry GetAnimationLoader_MD5Anim();
 }
 
-#endif // NAZARA_LOADERS_MD5ANIM_HPP
+#endif // NAZARA_UTILITY_FORMATS_MD5ANIMLOADER_HPP

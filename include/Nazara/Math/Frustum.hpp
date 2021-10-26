@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FRUSTUM_HPP
-#define NAZARA_FRUSTUM_HPP
+#ifndef NAZARA_MATH_FRUSTUM_HPP
+#define NAZARA_MATH_FRUSTUM_HPP
 
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
@@ -75,4 +75,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum);
 
 #include <Nazara/Math/Frustum.inl>
 
-#endif // NAZARA_FRUSTUM_HPP
+#endif // NAZARA_MATH_FRUSTUM_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MODEL_HPP
-#define NAZARA_MODEL_HPP
+#ifndef NAZARA_GRAPHICS_MODEL_HPP
+#define NAZARA_GRAPHICS_MODEL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -57,4 +57,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Model.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_MODEL_HPP

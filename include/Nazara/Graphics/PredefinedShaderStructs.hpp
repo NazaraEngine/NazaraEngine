@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PREDEFINEDSHADERSTRUCTS_HPP
-#define NAZARA_PREDEFINEDSHADERSTRUCTS_HPP
+#ifndef NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP
+#define NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP
 
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
@@ -63,4 +63,4 @@ namespace Nz
 
 #include <Nazara/Graphics/PredefinedShaderStructs.inl>
 
-#endif // NAZARA_PREDEFINEDSHADERSTRUCTS_HPP
+#endif // NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP

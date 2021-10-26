@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_WIN32HELPER_HPP
-#define NAZARA_OPENGLRENDERER_WIN32HELPER_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_WIN32_WIN32HELPER_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_WIN32_WIN32HELPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <memory>
@@ -25,4 +25,4 @@ namespace Nz::GL
 	using HWNDHandle = std::unique_ptr<std::remove_pointer_t<HWND>, WindowDeleter>;
 }
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_WIN32_WIN32HELPER_HPP

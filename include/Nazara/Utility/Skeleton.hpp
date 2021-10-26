@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SKELETON_HPP
-#define NAZARA_SKELETON_HPP
+#ifndef NAZARA_UTILITY_SKELETON_HPP
+#define NAZARA_UTILITY_SKELETON_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
@@ -68,4 +68,4 @@ namespace Nz
 
 #include <Nazara/Utility/Skeleton.inl>
 
-#endif // NAZARA_SKELETON_HPP
+#endif // NAZARA_UTILITY_SKELETON_HPP

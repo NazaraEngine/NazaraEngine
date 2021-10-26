@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ECS_HPP
-#define NAZARA_ECS_HPP
+#ifndef NAZARA_CORE_ECS_HPP
+#define NAZARA_CORE_ECS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Core.hpp>
@@ -45,4 +45,4 @@ namespace Nz
 
 #include <Nazara/Core/ECS.inl>
 
-#endif
+#endif // NAZARA_CORE_ECS_HPP

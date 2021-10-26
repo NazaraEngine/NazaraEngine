@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVWRITER_HPP
-#define NAZARA_SPIRVWRITER_HPP
+#ifndef NAZARA_SHADER_SPIRVWRITER_HPP
+#define NAZARA_SHADER_SPIRVWRITER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -85,4 +85,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvWriter.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVWRITER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ICON_HPP
-#define NAZARA_ICON_HPP
+#ifndef NAZARA_PLATFORM_ICON_HPP
+#define NAZARA_PLATFORM_ICON_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/Platform/Icon.inl>
 
-#endif // NAZARA_ICON_HPP
+#endif // NAZARA_PLATFORM_ICON_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_QUATERNION_HPP
-#define NAZARA_QUATERNION_HPP
+#ifndef NAZARA_MATH_QUATERNION_HPP
+#define NAZARA_MATH_QUATERNION_HPP
 
 #include <Nazara/Math/Angle.hpp>
 #include <string>
@@ -102,4 +102,4 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Quate
 
 #include <Nazara/Math/Quaternion.inl>
 
-#endif // NAZARA_QUATERNION_HPP
+#endif // NAZARA_MATH_QUATERNION_HPP

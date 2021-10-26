@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RIGIDBODY2D_HPP
-#define NAZARA_RIGIDBODY2D_HPP
+#ifndef NAZARA_PHYSICS2D_RIGIDBODY2D_HPP
+#define NAZARA_PHYSICS2D_RIGIDBODY2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -136,4 +136,4 @@ namespace Nz
 
 #include <Nazara/Physics2D/RigidBody2D.inl>
 
-#endif // NAZARA_RIGIDBODY2D_HPP
+#endif // NAZARA_PHYSICS2D_RIGIDBODY2D_HPP

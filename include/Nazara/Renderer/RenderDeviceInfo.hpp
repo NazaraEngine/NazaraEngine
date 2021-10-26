@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERDEVICE_HPP
-#define NAZARA_RENDERDEVICE_HPP
+#ifndef NAZARA_RENDERER_RENDERDEVICEINFO_HPP
+#define NAZARA_RENDERER_RENDERDEVICEINFO_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -34,4 +34,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RENDERER_HPP
+#endif // NAZARA_RENDERER_RENDERDEVICEINFO_HPP

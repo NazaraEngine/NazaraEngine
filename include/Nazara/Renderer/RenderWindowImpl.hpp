@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERWINDOWIMPL_HPP
-#define NAZARA_RENDERWINDOWIMPL_HPP
+#ifndef NAZARA_RENDERER_RENDERWINDOWIMPL_HPP
+#define NAZARA_RENDERER_RENDERWINDOWIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -41,4 +41,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RENDERWINDOWIMPL_HPP
+#endif // NAZARA_RENDERER_RENDERWINDOWIMPL_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BASEWIDGET_HPP
-#define NAZARA_BASEWIDGET_HPP
+#ifndef NAZARA_WIDGETS_BASEWIDGET_HPP
+#define NAZARA_WIDGETS_BASEWIDGET_HPP
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Platform/Event.hpp>
@@ -178,4 +178,4 @@ namespace Nz
 
 #include <Nazara/Widgets/BaseWidget.inl>
 
-#endif // NAZARA_BASEWIDGET_HPP
+#endif // NAZARA_WIDGETS_BASEWIDGET_HPP

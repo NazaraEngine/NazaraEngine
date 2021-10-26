@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_BUFFER_HPP
-#define NAZARA_VULKANRENDERER_BUFFER_HPP
+#ifndef NAZARA_VULKANRENDERER_VULKANBUFFER_HPP
+#define NAZARA_VULKANRENDERER_VULKANBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
@@ -54,4 +54,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanBuffer.inl>
 
-#endif // NAZARA_VULKANRENDERER_BUFFER_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANBUFFER_HPP

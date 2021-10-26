@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FILE_HPP
-#define NAZARA_FILE_HPP
+#ifndef NAZARA_CORE_FILE_HPP
+#define NAZARA_CORE_FILE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -76,4 +76,4 @@ namespace Nz
 
 #include <Nazara/Core/File.inl>
 
-#endif // NAZARA_FILE_HPP
+#endif // NAZARA_CORE_FILE_HPP

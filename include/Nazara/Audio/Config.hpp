@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_AUDIO_HPP
-#define NAZARA_CONFIG_AUDIO_HPP
+#ifndef NAZARA_AUDIO_CONFIG_HPP
+#define NAZARA_AUDIO_CONFIG_HPP
 
 /*!
 * \defgroup audio (NazaraAudio) Audio module
@@ -56,4 +56,4 @@
 	#define NAZARA_AUDIO_API
 #endif
 
-#endif // NAZARA_CONFIG_AUDIO_HPP
+#endif // NAZARA_AUDIO_CONFIG_HPP

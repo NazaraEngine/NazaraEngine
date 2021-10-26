@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_IPADDRESS_HPP
-#define NAZARA_IPADDRESS_HPP
+#ifndef NAZARA_NETWORK_IPADDRESS_HPP
+#define NAZARA_NETWORK_IPADDRESS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
@@ -100,4 +100,4 @@ namespace Nz
 
 #include <Nazara/Network/IpAddress.inl>
 
-#endif // NAZARA_IPADDRESS_HPP
+#endif // NAZARA_NETWORK_IPADDRESS_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLDEVICEOBJECT_HPP
-#define NAZARA_OPENGLRENDERER_GLDEVICEOBJECT_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_DEVICEOBJECT_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_DEVICEOBJECT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -50,4 +50,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_DEVICEOBJECT_HPP

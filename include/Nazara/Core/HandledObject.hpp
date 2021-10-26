@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OBJECTHANDLER_HPP
-#define NAZARA_OBJECTHANDLER_HPP
+#ifndef NAZARA_CORE_HANDLEDOBJECT_HPP
+#define NAZARA_CORE_HANDLEDOBJECT_HPP
 
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -59,4 +59,4 @@ namespace Nz
 
 #include <Nazara/Core/HandledObject.inl>
 
-#endif // NAZARA_OBJECTHANDLER_HPP
+#endif // NAZARA_CORE_HANDLEDOBJECT_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_CONSTANTVALUE_HPP
-#define NAZARA_SHADER_CONSTANTVALUE_HPP
+#ifndef NAZARA_SHADER_AST_CONSTANTVALUE_HPP
+#define NAZARA_SHADER_AST_CONSTANTVALUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/TypeList.hpp>
@@ -39,4 +39,4 @@ namespace Nz::ShaderAst
 	NAZARA_SHADER_API ExpressionType GetExpressionType(const ConstantValue& constant);
 }
 
-#endif
+#endif // NAZARA_SHADER_AST_CONSTANTVALUE_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_STREAM_HPP
-#define NAZARA_STREAM_HPP
+#ifndef NAZARA_CORE_STREAM_HPP
+#define NAZARA_CORE_STREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Endianness.hpp>
@@ -69,4 +69,4 @@ namespace Nz
 
 #include <Nazara/Core/Stream.inl>
 
-#endif // NAZARA_STREAM_HPP
+#endif // NAZARA_CORE_STREAM_HPP

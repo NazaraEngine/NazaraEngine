@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_MTLPARSER_HPP
-#define NAZARA_FORMATS_MTLPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MTLPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_MTLPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -76,4 +76,4 @@ namespace Nz
 
 #include <Nazara/Utility/Formats/MTLParser.inl>
 
-#endif // NAZARA_FORMATS_MTLPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_MTLPARSER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RAY_HPP
-#define NAZARA_RAY_HPP
+#ifndef NAZARA_MATH_RAY_HPP
+#define NAZARA_MATH_RAY_HPP
 
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -84,4 +84,4 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T
 
 #include <Nazara/Math/Ray.inl>
 
-#endif // NAZARA_RAY_HPP
+#endif // NAZARA_MATH_RAY_HPP

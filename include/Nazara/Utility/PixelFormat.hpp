@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PIXELFORMAT_HPP
-#define NAZARA_PIXELFORMAT_HPP
+#ifndef NAZARA_UTILITY_PIXELFORMAT_HPP
+#define NAZARA_UTILITY_PIXELFORMAT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
@@ -95,4 +95,4 @@ namespace Nz
 
 #include <Nazara/Utility/PixelFormat.inl>
 
-#endif // NAZARA_PIXELFORMAT_HPP
+#endif // NAZARA_UTILITY_PIXELFORMAT_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_STACKARRAY_HPP
-#define NAZARA_STACKARRAY_HPP
+#ifndef NAZARA_CORE_STACKARRAY_HPP
+#define NAZARA_CORE_STACKARRAY_HPP
 
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -97,4 +97,4 @@ namespace Nz
 
 #include <Nazara/Core/StackArray.inl>
 
-#endif // NAZARA_STACKARRAY_HPP
+#endif // NAZARA_CORE_STACKARRAY_HPP

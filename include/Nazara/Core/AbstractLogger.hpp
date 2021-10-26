@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTLOGGER_HPP
-#define NAZARA_ABSTRACTLOGGER_HPP
+#ifndef NAZARA_CORE_ABSTRACTLOGGER_HPP
+#define NAZARA_CORE_ABSTRACTLOGGER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -33,4 +33,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ABSTRACTLOGGER_HPP
+#endif // NAZARA_CORE_ABSTRACTLOGGER_HPP

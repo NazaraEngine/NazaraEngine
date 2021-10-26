@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKSWAPCHAIN_HPP
-#define NAZARA_VULKANRENDERER_VKSWAPCHAIN_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_SWAPCHAIN_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_SWAPCHAIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
@@ -57,4 +57,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/Swapchain.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKSWAPCHAIN_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_SWAPCHAIN_HPP

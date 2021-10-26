@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FONTDATA_HPP
-#define NAZARA_FONTDATA_HPP
+#ifndef NAZARA_UTILITY_FONTDATA_HPP
+#define NAZARA_UTILITY_FONTDATA_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -41,4 +41,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FONTDATA_HPP
+#endif // NAZARA_UTILITY_FONTDATA_HPP

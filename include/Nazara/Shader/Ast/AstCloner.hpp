@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERASTCLONER_HPP
-#define NAZARA_SHADERASTCLONER_HPP
+#ifndef NAZARA_SHADER_AST_ASTCLONER_HPP
+#define NAZARA_SHADER_AST_ASTCLONER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -88,4 +88,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstCloner.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTCLONER_HPP

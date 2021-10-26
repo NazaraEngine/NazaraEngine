@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_DRWAV_HPP
-#define NAZARA_LOADERS_DRWAV_HPP
+#ifndef NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP
+#define NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
@@ -17,4 +17,4 @@ namespace Nz::Loaders
 	SoundStreamLoader::Entry GetSoundStreamLoader_drwav();
 }
 
-#endif
+#endif // NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_DYNLIBIMPL_HPP
-#define NAZARA_DYNLIBIMPL_HPP
+#ifndef NAZARA_CORE_POSIX_DYNLIBIMPL_HPP
+#define NAZARA_CORE_POSIX_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
 #include <filesystem>
@@ -29,4 +29,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_DYNLIBIMPL_HPP
+#endif // NAZARA_CORE_POSIX_DYNLIBIMPL_HPP

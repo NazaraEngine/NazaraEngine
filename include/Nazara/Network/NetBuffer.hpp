@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_NETBUFFER_HPP
-#define NAZARA_NETBUFFER_HPP
+#ifndef NAZARA_NETWORK_NETBUFFER_HPP
+#define NAZARA_NETWORK_NETBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -18,4 +18,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_NETBUFFER_HPP
+#endif // NAZARA_NETWORK_NETBUFFER_HPP

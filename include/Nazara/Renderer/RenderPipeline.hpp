@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERPIPELINE_HPP
-#define NAZARA_RENDERPIPELINE_HPP
+#ifndef NAZARA_RENDERER_RENDERPIPELINE_HPP
+#define NAZARA_RENDERER_RENDERPIPELINE_HPP
 
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderPipeline.inl>
 
-#endif // NAZARA_RENDERPIPELINE_HPP
+#endif // NAZARA_RENDERER_RENDERPIPELINE_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_GRAPHICS_HPP
-#define NAZARA_ALGORITHM_GRAPHICS_HPP
+#ifndef NAZARA_GRAPHICS_ALGORITHM_HPP
+#define NAZARA_GRAPHICS_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -16,4 +16,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Algorithm.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_ALGORITHM_HPP

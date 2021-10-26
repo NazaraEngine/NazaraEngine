@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TEXTURE_HPP
-#define NAZARA_TEXTURE_HPP
+#ifndef NAZARA_RENDERER_TEXTURE_HPP
+#define NAZARA_RENDERER_TEXTURE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
@@ -87,4 +87,4 @@ namespace Nz
 
 #include <Nazara/Renderer/Texture.inl>
 
-#endif // NAZARA_TEXTURE_HPP
+#endif // NAZARA_RENDERER_TEXTURE_HPP

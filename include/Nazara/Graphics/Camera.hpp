@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CAMERA_HPP
-#define NAZARA_CAMERA_HPP
+#ifndef NAZARA_GRAPHICS_CAMERA_HPP
+#define NAZARA_GRAPHICS_CAMERA_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
@@ -73,4 +73,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Camera.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_CAMERA_HPP

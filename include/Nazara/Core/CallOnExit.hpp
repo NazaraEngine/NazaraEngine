@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CALLONEXIT_HPP
-#define NAZARA_CALLONEXIT_HPP
+#ifndef NAZARA_CORE_CALLONEXIT_HPP
+#define NAZARA_CORE_CALLONEXIT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <functional>
@@ -35,4 +35,4 @@ namespace Nz
 
 #include <Nazara/Core/CallOnExit.inl>
 
-#endif // NAZARA_CALLONEXIT_HPP
+#endif // NAZARA_CORE_CALLONEXIT_HPP

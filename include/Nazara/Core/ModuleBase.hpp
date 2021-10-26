@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MODULE_HPP
-#define NAZARA_MODULE_HPP
+#ifndef NAZARA_CORE_MODULEBASE_HPP
+#define NAZARA_CORE_MODULEBASE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <string>
@@ -44,4 +44,4 @@ namespace Nz
 
 #include <Nazara/Core/ModuleBase.inl>
 
-#endif // NAZARA_MODULE_HPP
+#endif // NAZARA_CORE_MODULEBASE_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RESOURCELOADER_HPP
-#define NAZARA_RESOURCELOADER_HPP
+#ifndef NAZARA_CORE_RESOURCELOADER_HPP
+#define NAZARA_CORE_RESOURCELOADER_HPP
 
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -70,4 +70,4 @@ namespace Nz
 
 #include <Nazara/Core/ResourceLoader.inl>
 
-#endif // NAZARA_RESOURCELOADER_HPP
+#endif // NAZARA_CORE_RESOURCELOADER_HPP

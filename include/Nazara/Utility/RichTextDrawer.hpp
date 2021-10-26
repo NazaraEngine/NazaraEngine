@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RICHTEXTDRAWER_HPP
-#define NAZARA_RICHTEXTDRAWER_HPP
+#ifndef NAZARA_UTILITY_RICHTEXTDRAWER_HPP
+#define NAZARA_UTILITY_RICHTEXTDRAWER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
@@ -209,4 +209,4 @@ namespace Nz
 
 #include <Nazara/Utility/RichTextDrawer.inl>
 
-#endif // NAZARA_RICHTEXTDRAWER_HPP
+#endif // NAZARA_UTILITY_RICHTEXTDRAWER_HPP

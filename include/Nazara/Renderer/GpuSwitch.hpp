@@ -4,6 +4,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 
+#pragma once
+
+#ifndef NAZARA_RENDERER_GPUSWITCH_HPP
+#define NAZARA_RENDERER_GPUSWITCH_HPP
+
 #ifdef NAZARA_PLATFORM_WINDOWS
 
 #define NAZARA_REQUEST_DEDICATED_GPU() \
@@ -18,3 +23,5 @@ extern "C" \
 #define NAZARA_REQUEST_DEDICATED_GPU()
 
 #endif
+
+#endif // NAZARA_RENDERER_GPUSWITCH_HPP

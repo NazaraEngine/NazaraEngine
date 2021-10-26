@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_CORE_HPP
-#define NAZARA_CONFIG_CHECK_CORE_HPP
+#ifndef NAZARA_CORE_CONFIGCHECK_HPP
+#define NAZARA_CORE_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -24,4 +24,4 @@ NazaraCheckTypeAndVal(NAZARA_CORE_WINDOWS_CS_SPINLOCKS, integral, >=, 0, " shall
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_CORE_HPP
+#endif // NAZARA_CORE_CONFIGCHECK_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ELEMENTRENDERER_HPP
-#define NAZARA_ELEMENTRENDERER_HPP
+#ifndef NAZARA_GRAPHICS_ELEMENTRENDERER_HPP
+#define NAZARA_GRAPHICS_ELEMENTRENDERER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/Graphics/ElementRenderer.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_ELEMENTRENDERER_HPP

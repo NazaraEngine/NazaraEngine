@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLFRAMEBUFFER_HPP
-#define NAZARA_OPENGLRENDERER_GLFRAMEBUFFER_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_FRAMEBUFFER_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_FRAMEBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
@@ -38,4 +38,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_FRAMEBUFFER_HPP

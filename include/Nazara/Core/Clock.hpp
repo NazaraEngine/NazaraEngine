@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CLOCK_HPP
-#define NAZARA_CLOCK_HPP
+#ifndef NAZARA_CORE_CLOCK_HPP
+#define NAZARA_CORE_CLOCK_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -44,4 +44,4 @@ namespace Nz
 	extern NAZARA_CORE_API ClockFunction GetElapsedMilliseconds;
 }
 
-#endif // NAZARA_CLOCK_HPP
+#endif // NAZARA_CORE_CLOCK_HPP

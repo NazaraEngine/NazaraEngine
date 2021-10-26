@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKDESCRIPTORPOOL_HPP
-#define NAZARA_VULKANRENDERER_VKDESCRIPTORPOOL_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_DESCRIPTORPOOL_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_DESCRIPTORPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
@@ -45,4 +45,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKDESCRIPTORPOOL_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_DESCRIPTORPOOL_HPP

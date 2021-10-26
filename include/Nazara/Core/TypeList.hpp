@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TYPELIST_HPP
-#define NAZARA_TYPELIST_HPP
+#ifndef NAZARA_CORE_TYPELIST_HPP
+#define NAZARA_CORE_TYPELIST_HPP
 
 #include <cstddef>
 
@@ -76,4 +76,4 @@ namespace Nz
 
 #include <Nazara/Core/TypeList.inl>
 
-#endif // NAZARA_TYPELIST_HPP
+#endif // NAZARA_CORE_TYPELIST_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_EGLCONTEXTWAYLAND_HPP
-#define NAZARA_OPENGLRENDERER_EGLCONTEXTWAYLAND_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_LINUX_EGLCONTEXTWAYLAND_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_LINUX_EGLCONTEXTWAYLAND_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
@@ -30,4 +30,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Linux/EGLContextWayland.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_LINUX_EGLCONTEXTWAYLAND_HPP

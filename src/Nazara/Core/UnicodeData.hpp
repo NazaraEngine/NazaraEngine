@@ -1,8 +1,9 @@
 // this file was automatically generated and should not be edited
+// no header guards
 
 // Copyright (C) 2021 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 UnicodeCharacter unicodeCharacters[34592] = {
 	{0, Unicode::Category_Other_Control, Unicode::Direction_Boundary_Neutral},

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UTILS_OPENGL_HPP
-#define NAZARA_UTILS_OPENGL_HPP
+#ifndef NAZARA_OPENGLRENDERER_UTILS_HPP
+#define NAZARA_OPENGLRENDERER_UTILS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -48,4 +48,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/Utils.inl>
 
-#endif // NAZARA_UTILS_OPENGL_HPP
+#endif // NAZARA_OPENGLRENDERER_UTILS_HPP

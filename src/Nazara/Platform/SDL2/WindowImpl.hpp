@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_WINDOWIMPL_HPP
-#define NAZARA_WINDOWIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
+#define NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
 
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -105,4 +105,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_WINDOWIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP

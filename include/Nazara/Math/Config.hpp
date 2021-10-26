@@ -25,8 +25,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_MATH_HPP
-#define NAZARA_CONFIG_MATH_HPP
+#ifndef NAZARA_MATH_CONFIG_HPP
+#define NAZARA_MATH_CONFIG_HPP
 
 /*!
 * \defgroup math (NazaraMath) Mathematics module
@@ -41,4 +41,4 @@
 // Enable tests of security based on the code (Advised for the developpement)
 #define NAZARA_MATH_SAFE 1
 
-#endif // NAZARA_CONFIG_MATH_HPP
+#endif // NAZARA_MATH_CONFIG_HPP

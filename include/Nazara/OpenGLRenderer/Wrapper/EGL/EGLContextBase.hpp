@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_EGLCONTEXT_HPP
-#define NAZARA_OPENGLRENDERER_EGLCONTEXT_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_EGL_EGLCONTEXTBASE_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_EGL_EGLCONTEXTBASE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -78,4 +78,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_EGL_EGLCONTEXTBASE_HPP

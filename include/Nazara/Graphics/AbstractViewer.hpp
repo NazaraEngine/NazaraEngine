@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTVIEWER_HPP
-#define NAZARA_ABSTRACTVIEWER_HPP
+#ifndef NAZARA_GRAPHICS_ABSTRACTVIEWER_HPP
+#define NAZARA_GRAPHICS_ABSTRACTVIEWER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -31,4 +31,4 @@ namespace Nz
 
 #include <Nazara/Graphics/AbstractViewer.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_ABSTRACTVIEWER_HPP

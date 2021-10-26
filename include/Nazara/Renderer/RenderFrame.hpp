@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERFRAME_HPP
-#define NAZARA_RENDERFRAME_HPP
+#ifndef NAZARA_RENDERER_RENDERFRAME_HPP
+#define NAZARA_RENDERER_RENDERFRAME_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -59,4 +59,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderFrame.inl>
 
-#endif
+#endif // NAZARA_RENDERER_RENDERFRAME_HPP

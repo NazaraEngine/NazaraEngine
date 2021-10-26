@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Widgets/Widgets.inl>
 
-#endif
+#endif // NAZARA_WIDGETS_HPP

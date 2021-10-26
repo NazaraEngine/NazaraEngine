@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PRIMITIVELIST_HPP
-#define NAZARA_PRIMITIVELIST_HPP
+#ifndef NAZARA_CORE_PRIMITIVELIST_HPP
+#define NAZARA_CORE_PRIMITIVELIST_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Primitive.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PRIMITIVELIST_HPP
+#endif // NAZARA_CORE_PRIMITIVELIST_HPP

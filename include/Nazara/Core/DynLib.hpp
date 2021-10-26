@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_DYNLIB_HPP
-#define NAZARA_DYNLIB_HPP
+#ifndef NAZARA_CORE_DYNLIB_HPP
+#define NAZARA_CORE_DYNLIB_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -52,4 +52,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_DYNLIB_HPP
+#endif // NAZARA_CORE_DYNLIB_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_LANGLEXER_HPP
-#define NAZARA_SHADER_LANGLEXER_HPP
+#ifndef NAZARA_SHADER_SHADERLANGLEXER_HPP
+#define NAZARA_SHADER_SHADERLANGLEXER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -53,4 +53,4 @@ namespace Nz::ShaderLang
 
 #include <Nazara/Shader/ShaderLangLexer.inl>
 
-#endif
+#endif // NAZARA_SHADER_SHADERLANGLEXER_HPP

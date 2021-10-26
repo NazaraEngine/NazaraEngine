@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TASKSCHEDULERIMPL_HPP
-#define NAZARA_TASKSCHEDULERIMPL_HPP
+#ifndef NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
+#define NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <atomic>
@@ -65,4 +65,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_TASKSCHEDULERIMPL_HPP
+#endif // NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP

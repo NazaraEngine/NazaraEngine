@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVPRINTER_HPP
-#define NAZARA_SPIRVPRINTER_HPP
+#ifndef NAZARA_SHADER_SPIRVPRINTER_HPP
+#define NAZARA_SHADER_SPIRVPRINTER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvPrinter.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVPRINTER_HPP

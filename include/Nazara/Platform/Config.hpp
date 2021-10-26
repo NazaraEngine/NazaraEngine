@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_PLATFORM_HPP
-#define NAZARA_CONFIG_PLATFORM_HPP
+#ifndef NAZARA_PLATFORM_CONFIG_HPP
+#define NAZARA_PLATFORM_CONFIG_HPP
 
 /// Each modification of a parameter needs a recompilation of the module
 
@@ -51,4 +51,4 @@
 	#endif
 #endif
 
-#endif // NAZARA_CONFIG_PLATFORM_HPP
+#endif // NAZARA_PLATFORM_CONFIG_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UBER_SHADER_HPP
-#define NAZARA_UBER_SHADER_HPP
+#ifndef NAZARA_GRAPHICS_UBERSHADER_HPP
+#define NAZARA_GRAPHICS_UBERSHADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
@@ -72,4 +72,4 @@ namespace Nz
 
 #include <Nazara/Graphics/UberShader.inl>
 
-#endif // NAZARA_UBER_SHADER_HPP
+#endif // NAZARA_GRAPHICS_UBERSHADER_HPP

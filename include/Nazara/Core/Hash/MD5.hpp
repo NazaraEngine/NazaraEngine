@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_HASH_MD5_HPP
-#define NAZARA_HASH_MD5_HPP
+#ifndef NAZARA_CORE_HASH_MD5_HPP
+#define NAZARA_CORE_HASH_MD5_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
@@ -33,4 +33,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_HASH_MD5_HPP
+#endif // NAZARA_CORE_HASH_MD5_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_DYNLIBIMPL_HPP
-#define NAZARA_DYNLIBIMPL_HPP
+#ifndef NAZARA_CORE_WIN32_DYNLIBIMPL_HPP
+#define NAZARA_CORE_WIN32_DYNLIBIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -33,4 +33,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_DYNLIBIMPL_HPP
+#endif // NAZARA_CORE_WIN32_DYNLIBIMPL_HPP

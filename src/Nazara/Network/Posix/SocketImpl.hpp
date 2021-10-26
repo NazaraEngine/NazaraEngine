@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SOCKETIMPL_HPP
-#define NAZARA_SOCKETIMPL_HPP
+#ifndef NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP
+#define NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP
 
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
@@ -92,4 +92,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SOCKETIMPL_HPP
+#endif // NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP

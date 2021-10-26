@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERWRITER_HPP
-#define NAZARA_SHADERWRITER_HPP
+#ifndef NAZARA_SHADER_SHADERWRITER_HPP
+#define NAZARA_SHADER_SHADERWRITER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -34,4 +34,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SHADERWRITER_HPP
+#endif // NAZARA_SHADER_SHADERWRITER_HPP

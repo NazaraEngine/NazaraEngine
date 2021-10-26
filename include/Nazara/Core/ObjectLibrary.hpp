@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OBJECTLIBRARY_HPP
-#define NAZARA_OBJECTLIBRARY_HPP
+#ifndef NAZARA_CORE_OBJECTLIBRARY_HPP
+#define NAZARA_CORE_OBJECTLIBRARY_HPP
 
 #include <memory>
 #include <string>
@@ -38,4 +38,4 @@ namespace Nz
 
 #include <Nazara/Core/ObjectLibrary.inl>
 
-#endif // NAZARA_OBJECTLIBRARY_HPP
+#endif // NAZARA_CORE_OBJECTLIBRARY_HPP

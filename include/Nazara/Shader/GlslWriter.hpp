@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GLSLWRITER_HPP
-#define NAZARA_GLSLWRITER_HPP
+#ifndef NAZARA_SHADER_GLSLWRITER_HPP
+#define NAZARA_SHADER_GLSLWRITER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -117,4 +117,4 @@ namespace Nz
 
 #include <Nazara/Shader/GlslWriter.inl>
 
-#endif // NAZARA_GLSLWRITER_HPP
+#endif // NAZARA_SHADER_GLSLWRITER_HPP

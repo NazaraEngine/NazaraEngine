@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_IMAGE_HPP
-#define NAZARA_IMAGE_HPP
+#ifndef NAZARA_UTILITY_IMAGE_HPP
+#define NAZARA_UTILITY_IMAGE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -165,4 +165,4 @@ namespace Nz
 
 #include <Nazara/Utility/Image.inl>
 
-#endif // NAZARA_IMAGE_HPP
+#endif // NAZARA_UTILITY_IMAGE_HPP

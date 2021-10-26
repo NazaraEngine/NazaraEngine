@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_AUDIO_HPP
-#define NAZARA_ALGORITHM_AUDIO_HPP
+#ifndef NAZARA_AUDIO_ALGORITHM_HPP
+#define NAZARA_AUDIO_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
@@ -18,4 +18,4 @@ namespace Nz
 
 #include <Nazara/Audio/Algorithm.inl>
 
-#endif // NAZARA_ALGORITHM_AUDIO_HPP
+#endif // NAZARA_AUDIO_ALGORITHM_HPP

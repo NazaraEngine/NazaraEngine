@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VERTEXMAPPER_HPP
-#define NAZARA_VERTEXMAPPER_HPP
+#ifndef NAZARA_UTILITY_VERTEXMAPPER_HPP
+#define NAZARA_UTILITY_VERTEXMAPPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
@@ -41,4 +41,4 @@ namespace Nz
 
 #include <Nazara/Utility/VertexMapper.inl>
 
-#endif // NAZARA_VERTEXMAPPER_HPP
+#endif // NAZARA_UTILITY_VERTEXMAPPER_HPP

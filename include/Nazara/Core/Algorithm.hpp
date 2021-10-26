@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_CORE_HPP
-#define NAZARA_ALGORITHM_CORE_HPP
+#ifndef NAZARA_CORE_ALGORITHM_HPP
+#define NAZARA_CORE_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
@@ -95,4 +95,4 @@ namespace Nz
 
 #include <Nazara/Core/Algorithm.inl>
 
-#endif // NAZARA_ALGORITHM_CORE_HPP
+#endif // NAZARA_CORE_ALGORITHM_HPP

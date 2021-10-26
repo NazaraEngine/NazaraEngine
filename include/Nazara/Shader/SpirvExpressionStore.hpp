@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVEXPRESSIONSTORE_HPP
-#define NAZARA_SPIRVEXPRESSIONSTORE_HPP
+#ifndef NAZARA_SHADER_SPIRVEXPRESSIONSTORE_HPP
+#define NAZARA_SHADER_SPIRVEXPRESSIONSTORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -57,4 +57,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvExpressionStore.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVEXPRESSIONSTORE_HPP

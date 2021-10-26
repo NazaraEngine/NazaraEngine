@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TASKSCHEDULER_HPP
-#define NAZARA_TASKSCHEDULER_HPP
+#ifndef NAZARA_CORE_TASKSCHEDULER_HPP
+#define NAZARA_CORE_TASKSCHEDULER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Functor.hpp>
@@ -35,4 +35,4 @@ namespace Nz
 
 #include <Nazara/Core/TaskScheduler.inl>
 
-#endif // NAZARA_TASKSCHEDULER_HPP
+#endif // NAZARA_CORE_TASKSCHEDULER_HPP

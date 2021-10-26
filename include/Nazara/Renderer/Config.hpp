@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_RENDERER_HPP
-#define NAZARA_CONFIG_RENDERER_HPP
+#ifndef NAZARA_RENDERER_CONFIG_HPP
+#define NAZARA_RENDERER_CONFIG_HPP
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
@@ -54,4 +54,4 @@
 	#endif
 #endif
 
-#endif // NAZARA_CONFIG_MODULENAME_HPP
+#endif // NAZARA_RENDERER_CONFIG_HPP

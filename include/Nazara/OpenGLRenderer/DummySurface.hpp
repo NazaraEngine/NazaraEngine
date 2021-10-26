@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_SURFACE_HPP
-#define NAZARA_OPENGLRENDERER_SURFACE_HPP
+#ifndef NAZARA_OPENGLRENDERER_DUMMYSURFACE_HPP
+#define NAZARA_OPENGLRENDERER_DUMMYSURFACE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
@@ -31,4 +31,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/DummySurface.inl>
 
-#endif // NAZARA_OPENGLRENDERER_SURFACE_HPP
+#endif // NAZARA_OPENGLRENDERER_DUMMYSURFACE_HPP

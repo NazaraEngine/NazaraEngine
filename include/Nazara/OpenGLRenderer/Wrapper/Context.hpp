@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_CONTEXTIMPL_HPP
-#define NAZARA_OPENGLRENDERER_CONTEXTIMPL_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_CONTEXT_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_CONTEXT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
@@ -251,4 +251,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Context.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_CONTEXT_HPP

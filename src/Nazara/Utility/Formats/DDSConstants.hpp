@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_DDS_CONSTANTS_HPP
-#define NAZARA_LOADERS_DDS_CONSTANTS_HPP
+#ifndef NAZARA_UTILITY_FORMATS_DDSCONSTANTS_HPP
+#define NAZARA_UTILITY_FORMATS_DDSCONSTANTS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
@@ -374,4 +374,4 @@ namespace Nz
 	NAZARA_UTILITY_API bool Unserialize(SerializationContext& context, DDSPixelFormat* pixelFormat);
 }
 
-#endif // NAZARA_LOADERS_DDS_CONSTANTS_HPP
+#endif // NAZARA_UTILITY_FORMATS_DDSCONSTANTS_HPP

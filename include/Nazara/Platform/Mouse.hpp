@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MOUSE_HPP
-#define NAZARA_MOUSE_HPP
+#ifndef NAZARA_PLATFORM_MOUSE_HPP
+#define NAZARA_PLATFORM_MOUSE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -45,4 +45,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_MOUSE_HPP
+#endif // NAZARA_PLATFORM_MOUSE_HPP

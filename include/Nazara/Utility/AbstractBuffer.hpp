@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTBUFFER_HPP
-#define NAZARA_ABSTRACTBUFFER_HPP
+#ifndef NAZARA_UTILITY_ABSTRACTBUFFER_HPP
+#define NAZARA_UTILITY_ABSTRACTBUFFER_HPP
 
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -30,4 +30,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ABSTRACTBUFFER_HPP
+#endif // NAZARA_UTILITY_ABSTRACTBUFFER_HPP

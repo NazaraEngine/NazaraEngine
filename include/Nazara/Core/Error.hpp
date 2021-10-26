@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ERROR_HPP
-#define NAZARA_ERROR_HPP
+#ifndef NAZARA_CORE_ERROR_HPP
+#define NAZARA_CORE_ERROR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ERROR_HPP
+#endif // NAZARA_CORE_ERROR_HPP

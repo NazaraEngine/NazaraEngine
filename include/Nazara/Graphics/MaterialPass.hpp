@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MATERIAL_PASS_HPP
-#define NAZARA_MATERIAL_PASS_HPP
+#ifndef NAZARA_GRAPHICS_MATERIALPASS_HPP
+#define NAZARA_GRAPHICS_MATERIALPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -146,4 +146,4 @@ namespace Nz
 
 #include <Nazara/Graphics/MaterialPass.inl>
 
-#endif // NAZARA_MATERIAL_PASS_HPP
+#endif // NAZARA_GRAPHICS_MATERIALPASS_HPP

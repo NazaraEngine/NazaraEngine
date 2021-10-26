@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERBUFFER_HPP
-#define NAZARA_RENDERBUFFER_HPP
+#ifndef NAZARA_RENDERER_RENDERBUFFER_HPP
+#define NAZARA_RENDERER_RENDERBUFFER_HPP
 
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -66,4 +66,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderBuffer.inl>
 
-#endif // NAZARA_RENDERBUFFER_HPP
+#endif // NAZARA_RENDERER_RENDERBUFFER_HPP

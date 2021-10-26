@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERASTSTATEMENTVISITOR_HPP
-#define NAZARA_SHADERASTSTATEMENTVISITOR_HPP
+#ifndef NAZARA_SHADER_AST_ASTSTATEMENTVISITOR_HPP
+#define NAZARA_SHADER_AST_ASTSTATEMENTVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -29,4 +29,4 @@ namespace Nz::ShaderAst
 	};
 }
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTSTATEMENTVISITOR_HPP

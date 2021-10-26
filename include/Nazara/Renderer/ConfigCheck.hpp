@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_RENDERER_HPP
-#define NAZARA_CONFIG_CHECK_RENDERER_HPP
+#ifndef NAZARA_RENDERER_CONFIGCHECK_HPP
+#define NAZARA_RENDERER_CONFIGCHECK_HPP
 
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
@@ -22,4 +22,4 @@ NazaraCheckTypeAndVal(NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, integral, >, 0, " sh
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_RENDERER_HPP
+#endif // NAZARA_RENDERER_CONFIGCHECK_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_OBJ_HPP
-#define NAZARA_LOADERS_OBJ_HPP
+#ifndef NAZARA_UTILITY_FORMATS_OBJLOADER_HPP
+#define NAZARA_UTILITY_FORMATS_OBJLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -15,4 +15,4 @@ namespace Nz::Loaders
 	MeshLoader::Entry GetMeshLoader_OBJ();
 }
 
-#endif // NAZARA_LOADERS_OBJ_HPP
+#endif // NAZARA_UTILITY_FORMATS_OBJLOADER_HPP

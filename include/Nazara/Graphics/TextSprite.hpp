@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_TEXTSPRITE_HPP
-#define NAZARA_TEXTSPRITE_HPP
+#ifndef NAZARA_GRAPHICS_TEXTSPRITE_HPP
+#define NAZARA_GRAPHICS_TEXTSPRITE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -100,4 +100,4 @@ namespace Nz
 
 #include <Nazara/Graphics/TextSprite.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_TEXTSPRITE_HPP

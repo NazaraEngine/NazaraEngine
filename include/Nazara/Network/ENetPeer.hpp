@@ -14,8 +14,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENETPEER_HPP
-#define NAZARA_ENETPEER_HPP
+#ifndef NAZARA_NETWORK_ENETPEER_HPP
+#define NAZARA_NETWORK_ENETPEER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
@@ -251,4 +251,4 @@ namespace Nz
 
 #include <Nazara/Network/ENetPeer.inl>
 
-#endif // NAZARA_ENETPEER_HPP
+#endif // NAZARA_NETWORK_ENETPEER_HPP

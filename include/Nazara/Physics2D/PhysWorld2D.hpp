@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PHYSWORLD2D_HPP
-#define NAZARA_PHYSWORLD2D_HPP
+#ifndef NAZARA_PHYSICS2D_PHYSWORLD2D_HPP
+#define NAZARA_PHYSICS2D_PHYSWORLD2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -161,4 +161,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PHYSWORLD2D_HPP
+#endif // NAZARA_PHYSICS2D_PHYSWORLD2D_HPP

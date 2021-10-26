@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_HARDWAREINFO_HPP
-#define NAZARA_HARDWAREINFO_HPP
+#ifndef NAZARA_CORE_HARDWAREINFO_HPP
+#define NAZARA_CORE_HARDWAREINFO_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -38,4 +38,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_HARDWAREINFO_HPP
+#endif // NAZARA_CORE_HARDWAREINFO_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERAST_TRANSFORMVISITOR_HPP
-#define NAZARA_SHADERAST_TRANSFORMVISITOR_HPP
+#ifndef NAZARA_SHADER_AST_SANITIZEVISITOR_HPP
+#define NAZARA_SHADER_AST_SANITIZEVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
@@ -149,4 +149,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/SanitizeVisitor.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_SANITIZEVISITOR_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ANGLE_HPP
-#define NAZARA_ANGLE_HPP
+#ifndef NAZARA_MATH_ANGLE_HPP
+#define NAZARA_MATH_ANGLE_HPP
 
 #include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Math/Algorithm.hpp>
@@ -102,4 +102,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Angle<Unit, T>& angle);
 
 #include <Nazara/Math/Angle.inl>
 
-#endif // NAZARA_ANGLE_HPP
+#endif // NAZARA_MATH_ANGLE_HPP

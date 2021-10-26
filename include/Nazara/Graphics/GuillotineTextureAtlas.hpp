@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GUILLOTINETEXTUREATLAS_HPP
-#define NAZARA_GUILLOTINETEXTUREATLAS_HPP
+#ifndef NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
+#define NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -32,4 +32,4 @@ namespace Nz
 
 #include <Nazara/Graphics/GuillotineTextureAtlas.inl>
 
-#endif // NAZARA_GUILLOTINETEXTUREATLAS_HPP
+#endif // NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP

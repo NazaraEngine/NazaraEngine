@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FONTGLYPH_HPP
-#define NAZARA_FONTGLYPH_HPP
+#ifndef NAZARA_UTILITY_FONTGLYPH_HPP
+#define NAZARA_UTILITY_FONTGLYPH_HPP
 
 #include <Nazara/Utility/Image.hpp>
 
@@ -19,4 +19,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FONTGLYPH_HPP
+#endif // NAZARA_UTILITY_FONTGLYPH_HPP

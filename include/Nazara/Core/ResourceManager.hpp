@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RESOURCEMANAGER_HPP
-#define NAZARA_RESOURCEMANAGER_HPP
+#ifndef NAZARA_CORE_RESOURCEMANAGER_HPP
+#define NAZARA_CORE_RESOURCEMANAGER_HPP
 
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <filesystem>
@@ -55,4 +55,4 @@ namespace Nz
 
 #include <Nazara/Core/ResourceManager.inl>
 
-#endif // NAZARA_RESOURCEMANAGER_HPP
+#endif // NAZARA_CORE_RESOURCEMANAGER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLSAMPLER_HPP
-#define NAZARA_OPENGLRENDERER_GLSAMPLER_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_SAMPLER_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_SAMPLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovableValue.hpp>
@@ -40,4 +40,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_SAMPLER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_RECURSIVE_VISITOR_HPP
-#define NAZARA_SHADER_RECURSIVE_VISITOR_HPP
+#ifndef NAZARA_SHADER_AST_ASTRECURSIVEVISITOR_HPP
+#define NAZARA_SHADER_AST_ASTRECURSIVEVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -54,4 +54,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTRECURSIVEVISITOR_HPP

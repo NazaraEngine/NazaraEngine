@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UPDATABLE_HPP
-#define NAZARA_UPDATABLE_HPP
+#ifndef NAZARA_CORE_UPDATABLE_HPP
+#define NAZARA_CORE_UPDATABLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -21,4 +21,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_UPDATABLE_HPP
+#endif // NAZARA_CORE_UPDATABLE_HPP

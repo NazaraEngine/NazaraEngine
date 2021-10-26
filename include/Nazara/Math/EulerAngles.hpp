@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_EULERANGLES_HPP
-#define NAZARA_EULERANGLES_HPP
+#ifndef NAZARA_MATH_EULERANGLES_HPP
+#define NAZARA_MATH_EULERANGLES_HPP
 
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -76,4 +76,4 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Euler
 
 #include <Nazara/Math/EulerAngles.inl>
 
-#endif // NAZARA_EULERANGLES_HPP
+#endif // NAZARA_MATH_EULERANGLES_HPP

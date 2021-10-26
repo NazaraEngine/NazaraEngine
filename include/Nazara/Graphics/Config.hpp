@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_GRAPHICS_HPP
-#define NAZARA_CONFIG_GRAPHICS_HPP
+#ifndef NAZARA_GRAPHICS_CONFIG_HPP
+#define NAZARA_GRAPHICS_CONFIG_HPP
 
 /*!
 * \defgroup graphics (NazaraGraphics) Graphics module
@@ -53,4 +53,4 @@
 	#define NAZARA_GRAPHICS_API
 #endif
 
-#endif // NAZARA_CONFIG_GRAPHICS_HPP
+#endif // NAZARA_GRAPHICS_CONFIG_HPP

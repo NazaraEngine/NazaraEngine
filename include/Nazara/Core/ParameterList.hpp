@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PARAMETERLIST_HPP
-#define NAZARA_PARAMETERLIST_HPP
+#ifndef NAZARA_CORE_PARAMETERLIST_HPP
+#define NAZARA_CORE_PARAMETERLIST_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -109,4 +109,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterLi
 
 #include <Nazara/Core/ParameterList.inl>
 
-#endif // NAZARA_PARAMETERLIST_HPP
+#endif // NAZARA_CORE_PARAMETERLIST_HPP

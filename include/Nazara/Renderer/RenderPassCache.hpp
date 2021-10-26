@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERPASSCACHE_HPP
-#define NAZARA_RENDERPASSCACHE_HPP
+#ifndef NAZARA_RENDERER_RENDERPASSCACHE_HPP
+#define NAZARA_RENDERER_RENDERPASSCACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -67,4 +67,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderPassCache.inl>
 
-#endif // NAZARA_RENDERPASS_HPP
+#endif // NAZARA_RENDERER_RENDERPASSCACHE_HPP

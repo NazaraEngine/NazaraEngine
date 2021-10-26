@@ -92,4 +92,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Graphics.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_HPP

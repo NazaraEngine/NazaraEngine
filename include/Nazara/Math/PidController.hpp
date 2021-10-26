@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PIDCONTROLLER_HPP
-#define NAZARA_PIDCONTROLLER_HPP
+#ifndef NAZARA_MATH_PIDCONTROLLER_HPP
+#define NAZARA_MATH_PIDCONTROLLER_HPP
 
 namespace Nz
 {
@@ -28,4 +28,4 @@ namespace Nz
 
 #include <Nazara/Math/PidController.inl>
 
-#endif
+#endif // NAZARA_MATH_PIDCONTROLLER_HPP

@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+// no header guards
+
 #if !defined(NAZARA_OPENGLRENDERER_EGL_FUNC) || !defined(NAZARA_OPENGLRENDERER_EGL_FUNC_OPT)
 #error You must define NAZARA_OPENGLRENDERER_EGL_FUNC and NAZARA_OPENGLRENDERER_EGL_FUNC_OPT before including this file
 #endif

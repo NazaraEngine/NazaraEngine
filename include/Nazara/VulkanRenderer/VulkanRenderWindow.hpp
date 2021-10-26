@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
-#define NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
+#ifndef NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
+#define NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
@@ -92,4 +92,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanRenderWindow.inl>
 
-#endif // NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP

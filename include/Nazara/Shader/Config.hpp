@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_SHADER_HPP
-#define NAZARA_CONFIG_SHADER_HPP
+#ifndef NAZARA_SHADER_CONFIG_HPP
+#define NAZARA_SHADER_CONFIG_HPP
 
 /// Each modification of a parameter needs a recompilation of the module
 
@@ -50,4 +50,4 @@
 	#define NAZARA_SHADER_API
 #endif
 
-#endif // NAZARA_CONFIG_SHADER_HPP
+#endif // NAZARA_SHADER_CONFIG_HPP

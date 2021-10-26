@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MOVABLE_PTR_HPP
-#define NAZARA_MOVABLE_PTR_HPP
+#ifndef NAZARA_CORE_MOVABLEPTR_HPP
+#define NAZARA_CORE_MOVABLEPTR_HPP
 
 namespace Nz
 {
@@ -35,4 +35,4 @@ namespace Nz
 
 #include <Nazara/Core/MovablePtr.inl>
 
-#endif // NAZARA_MOVABLE_PTR_HPP
+#endif // NAZARA_CORE_MOVABLEPTR_HPP

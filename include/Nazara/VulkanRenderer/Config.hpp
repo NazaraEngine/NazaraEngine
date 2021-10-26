@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_VULKANRENDERER_HPP
-#define NAZARA_CONFIG_VULKANRENDERER_HPP
+#ifndef NAZARA_VULKANRENDERER_CONFIG_HPP
+#define NAZARA_VULKANRENDERER_CONFIG_HPP
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
@@ -50,4 +50,4 @@
 	#define NAZARA_VULKANRENDERER_API
 #endif
 
-#endif // NAZARA_CONFIG_VULKANRENDERER_HPP
+#endif // NAZARA_VULKANRENDERER_CONFIG_HPP

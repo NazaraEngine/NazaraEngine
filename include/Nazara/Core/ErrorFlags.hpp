@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ERRORFLAGS_HPP
-#define NAZARA_ERRORFLAGS_HPP
+#ifndef NAZARA_CORE_ERRORFLAGS_HPP
+#define NAZARA_CORE_ERRORFLAGS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -32,4 +32,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ERRORFLAGS_HPP
+#endif // NAZARA_CORE_ERRORFLAGS_HPP

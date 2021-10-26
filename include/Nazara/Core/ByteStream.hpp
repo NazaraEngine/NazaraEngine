@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_BYTESTREAM_HPP
-#define NAZARA_BYTESTREAM_HPP
+#ifndef NAZARA_CORE_BYTESTREAM_HPP
+#define NAZARA_CORE_BYTESTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
@@ -64,4 +64,4 @@ namespace Nz
 
 #include <Nazara/Core/ByteStream.inl>
 
-#endif // NAZARA_BYTESTREAM_HPP
+#endif // NAZARA_CORE_BYTESTREAM_HPP

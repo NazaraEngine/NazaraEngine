@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_HASH_CRC64_HPP
-#define NAZARA_HASH_CRC64_HPP
+#ifndef NAZARA_CORE_HASH_CRC64_HPP
+#define NAZARA_CORE_HASH_CRC64_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
@@ -31,4 +31,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_HASH_CRC64_HPP
+#endif // NAZARA_CORE_HASH_CRC64_HPP

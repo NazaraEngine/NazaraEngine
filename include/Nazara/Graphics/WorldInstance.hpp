@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_MODELINSTANCE_HPP
-#define NAZARA_MODELINSTANCE_HPP
+#ifndef NAZARA_GRAPHICS_WORLDINSTANCE_HPP
+#define NAZARA_GRAPHICS_WORLDINSTANCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -56,4 +56,4 @@ namespace Nz
 
 #include <Nazara/Graphics/WorldInstance.inl>
 
-#endif // NAZARA_MODELINSTANCE_HPP
+#endif // NAZARA_GRAPHICS_WORLDINSTANCE_HPP

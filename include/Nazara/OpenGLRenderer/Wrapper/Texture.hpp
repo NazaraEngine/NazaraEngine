@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_GLTEXTURE_HPP
-#define NAZARA_OPENGLRENDERER_GLTEXTURE_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_TEXTURE_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_TEXTURE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovableValue.hpp>
@@ -53,4 +53,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Texture.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_TEXTURE_HPP

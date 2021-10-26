@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICSCOMPONENT_HPP
-#define NAZARA_GRAPHICSCOMPONENT_HPP
+#ifndef NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP
+#define NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ECS.hpp>
@@ -44,4 +44,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Components/GraphicsComponent.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP

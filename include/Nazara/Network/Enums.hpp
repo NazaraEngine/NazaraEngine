@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_NETWORK_HPP
-#define NAZARA_ENUMS_NETWORK_HPP
+#ifndef NAZARA_NETWORK_ENUMS_HPP
+#define NAZARA_NETWORK_ENUMS_HPP
 
 #include <Nazara/Core/Flags.hpp>
 
@@ -121,4 +121,4 @@ namespace Nz
 	constexpr std::size_t SocketTypeCount = static_cast<std::size_t>(SocketType::Max) + 1;
 }
 
-#endif // NAZARA_ENUMS_NETWORK_HPP
+#endif // NAZARA_NETWORK_ENUMS_HPP

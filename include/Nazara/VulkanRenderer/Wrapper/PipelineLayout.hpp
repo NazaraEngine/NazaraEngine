@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKPIPELINELAYOUT_HPP
-#define NAZARA_VULKANRENDERER_VKPIPELINELAYOUT_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_PIPELINELAYOUT_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_PIPELINELAYOUT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
@@ -40,4 +40,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/PipelineLayout.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKPIPELINELAYOUT_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_PIPELINELAYOUT_HPP

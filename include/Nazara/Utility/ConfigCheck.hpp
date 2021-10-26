@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_UTILITY_HPP
-#define NAZARA_CONFIG_CHECK_UTILITY_HPP
+#ifndef NAZARA_UTILITY_CONFIGCHECK_HPP
+#define NAZARA_UTILITY_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -22,4 +22,4 @@ NazaraCheckTypeAndVal(NAZARA_UTILITY_SKINNING_MAX_WEIGHTS, integral, >, 0, " sha
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_UTILITY_HPP
+#endif // NAZARA_UTILITY_CONFIGCHECK_HPP

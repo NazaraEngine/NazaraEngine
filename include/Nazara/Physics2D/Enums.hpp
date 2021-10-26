@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_PHYSICS2D_HPP
-#define NAZARA_ENUMS_PHYSICS2D_HPP
+#ifndef NAZARA_PHYSICS2D_ENUMS_HPP
+#define NAZARA_PHYSICS2D_ENUMS_HPP
 
 namespace Nz
 {
@@ -22,4 +22,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_ENUMS_PHYSICS2D_HPP
+#endif // NAZARA_PHYSICS2D_ENUMS_HPP

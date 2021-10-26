@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_AST_UTILS_HPP
-#define NAZARA_SHADER_AST_UTILS_HPP
+#ifndef NAZARA_SHADER_AST_ASTUTILS_HPP
+#define NAZARA_SHADER_AST_ASTUTILS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -55,4 +55,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstUtils.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTUTILS_HPP

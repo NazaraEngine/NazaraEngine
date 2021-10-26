@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_COLOR_HPP
-#define NAZARA_COLOR_HPP
+#ifndef NAZARA_CORE_COLOR_HPP
+#define NAZARA_CORE_COLOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -79,4 +79,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Color& color);
 
 #include <Nazara/Core/Color.inl>
 
-#endif // NAZARA_COLOR_HPP
+#endif // NAZARA_CORE_COLOR_HPP

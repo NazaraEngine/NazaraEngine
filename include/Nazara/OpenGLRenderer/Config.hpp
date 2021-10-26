@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_OPENGLRENDERER_HPP
-#define NAZARA_CONFIG_OPENGLRENDERER_HPP
+#ifndef NAZARA_OPENGLRENDERER_CONFIG_HPP
+#define NAZARA_OPENGLRENDERER_CONFIG_HPP
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
@@ -50,4 +50,4 @@
 	#define NAZARA_OPENGLRENDERER_API
 #endif
 
-#endif // NAZARA_CONFIG_OPENGLRENDERER_HPP
+#endif // NAZARA_OPENGLRENDERER_CONFIG_HPP

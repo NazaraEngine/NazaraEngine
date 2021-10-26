@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OBJECTHANDLE_HPP
-#define NAZARA_OBJECTHANDLE_HPP
+#ifndef NAZARA_CORE_OBJECTHANDLE_HPP
+#define NAZARA_CORE_OBJECTHANDLE_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/HandledObject.hpp>
@@ -98,4 +98,4 @@ namespace std
 
 #include <Nazara/Core/ObjectHandle.inl>
 
-#endif // NAZARA_OBJECTHANDLE_HPP
+#endif // NAZARA_CORE_OBJECTHANDLE_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_PLATFORM_HPP
-#define NAZARA_ENUMS_PLATFORM_HPP
+#ifndef NAZARA_PLATFORM_ENUMS_HPP
+#define NAZARA_PLATFORM_ENUMS_HPP
 
 #include <Nazara/Core/Flags.hpp>
 
@@ -88,4 +88,4 @@ namespace Nz
 	constexpr WindowStyleFlags WindowStyle_Default = WindowStyle::Closable | WindowStyle::Resizable | WindowStyle::Titlebar;
 }
 
-#endif // NAZARA_ENUMS_PLATFORM_HPP
+#endif // NAZARA_PLATFORM_ENUMS_HPP

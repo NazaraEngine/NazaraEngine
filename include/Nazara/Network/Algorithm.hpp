@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_NETWORK_HPP
-#define NAZARA_ALGORITHM_NETWORK_HPP
+#ifndef NAZARA_NETWORK_ALGORITHM_HPP
+#define NAZARA_NETWORK_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
@@ -30,4 +30,4 @@ namespace Nz
 
 #include <Nazara/Network/Algorithm.inl>
 
-#endif // NAZARA_ALGORITHM_NETWORK_HPP
+#endif // NAZARA_NETWORK_ALGORITHM_HPP

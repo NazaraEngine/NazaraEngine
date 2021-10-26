@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UNICODE_HPP
-#define NAZARA_UNICODE_HPP
+#ifndef NAZARA_CORE_UNICODE_HPP
+#define NAZARA_CORE_UNICODE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
@@ -114,4 +114,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_UNICODE_HPP
+#endif // NAZARA_CORE_UNICODE_HPP

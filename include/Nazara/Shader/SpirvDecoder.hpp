@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SPIRVDECODER_HPP
-#define NAZARA_SPIRVDECODER_HPP
+#ifndef NAZARA_SHADER_SPIRVDECODER_HPP
+#define NAZARA_SHADER_SPIRVDECODER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -56,4 +56,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvDecoder.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVDECODER_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADERSERIALIZER_HPP
-#define NAZARA_SHADERSERIALIZER_HPP
+#ifndef NAZARA_SHADER_AST_ASTSERIALIZER_HPP
+#define NAZARA_SHADER_AST_ASTSERIALIZER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -153,4 +153,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstSerializer.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTSERIALIZER_HPP

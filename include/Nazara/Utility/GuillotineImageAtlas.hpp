@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GUILLOTINEIMAGEATLAS_HPP
-#define NAZARA_GUILLOTINEIMAGEATLAS_HPP
+#ifndef NAZARA_UTILITY_GUILLOTINEIMAGEATLAS_HPP
+#define NAZARA_UTILITY_GUILLOTINEIMAGEATLAS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
@@ -73,4 +73,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_GUILLOTINEIMAGEATLAS_HPP
+#endif // NAZARA_UTILITY_GUILLOTINEIMAGEATLAS_HPP

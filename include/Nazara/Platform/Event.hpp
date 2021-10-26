@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_EVENT_HPP
-#define NAZARA_EVENT_HPP
+#ifndef NAZARA_PLATFORM_EVENT_HPP
+#define NAZARA_PLATFORM_EVENT_HPP
 
 #include <array>
 
@@ -135,4 +135,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_EVENT_HPP
+#endif // NAZARA_PLATFORM_EVENT_HPP

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_SURFACE_HPP
-#define NAZARA_VULKANRENDERER_SURFACE_HPP
+#ifndef NAZARA_VULKANRENDERER_VULKANSURFACE_HPP
+#define NAZARA_VULKANRENDERER_VULKANSURFACE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
@@ -37,4 +37,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanSurface.inl>
 
-#endif // NAZARA_VULKANRENDERER_SURFACE_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANSURFACE_HPP

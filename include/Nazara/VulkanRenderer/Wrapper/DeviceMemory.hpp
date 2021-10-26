@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKDEVICEMEMORY_HPP
-#define NAZARA_VULKANRENDERER_VKDEVICEMEMORY_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_DEVICEMEMORY_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_DEVICEMEMORY_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -53,4 +53,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKDEVICEMEMORY_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_DEVICEMEMORY_HPP

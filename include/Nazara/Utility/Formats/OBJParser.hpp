@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_OBJPARSER_HPP
-#define NAZARA_FORMATS_OBJPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_OBJPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_OBJPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -103,4 +103,4 @@ namespace Nz
 
 #include <Nazara/Utility/Formats/OBJParser.inl>
 
-#endif // NAZARA_FORMATS_OBJPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_OBJPARSER_HPP

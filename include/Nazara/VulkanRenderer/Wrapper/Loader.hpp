@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKLOADER_HPP
-#define NAZARA_VULKANRENDERER_VKLOADER_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_LOADER_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_LOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -48,4 +48,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/Loader.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKLOADER_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_LOADER_HPP

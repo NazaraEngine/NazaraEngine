@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERWINDOW_HPP
-#define NAZARA_RENDERWINDOW_HPP
+#ifndef NAZARA_RENDERER_RENDERWINDOW_HPP
+#define NAZARA_RENDERER_RENDERWINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
@@ -64,4 +64,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderWindow.inl>
 
-#endif // NAZARA_RENDERWINDOW_HPP
+#endif // NAZARA_RENDERER_RENDERWINDOW_HPP
