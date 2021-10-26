@@ -12,7 +12,7 @@ namespace Nz
 		return AppendRaw(BuildOpcode(opcode, wordCount.wc));
 	}
 
-	template<typename ...Args>
+	template<typename... Args>
 	std::size_t SpirvSectionBase::Append(SpirvOp opcode, const Args&... args)
 	{
 		unsigned int wordCount = 1 + (CountWord(args) + ... + 0);
