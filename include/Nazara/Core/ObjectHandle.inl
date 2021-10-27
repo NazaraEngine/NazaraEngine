@@ -6,6 +6,7 @@
 #include <functional>
 #include <limits>
 #include <sstream>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -549,3 +550,5 @@ namespace std
 		lhs.Swap(rhs);
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

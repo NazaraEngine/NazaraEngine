@@ -4,6 +4,7 @@
 
 #include <Nazara/Widgets/Canvas.hpp>
 #include <limits>
+#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {

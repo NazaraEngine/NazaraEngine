@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Math/PidController.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -26,3 +27,5 @@ namespace Nz
 		return currentError * m_pFactor + m_integral * m_iFactor + deriv * m_dFactor;
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

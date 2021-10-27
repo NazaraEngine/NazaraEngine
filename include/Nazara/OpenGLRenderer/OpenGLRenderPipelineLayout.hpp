@@ -86,4 +86,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.inl>
 
-#endif // NAZARA_OPENGLRENDERER_OPENGLRENDERPIPELINE_HPP
+#endif // NAZARA_OPENGLRENDERER_OPENGLRENDERPIPELINELAYOUT_HPP

@@ -3,7 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>

@@ -106,4 +106,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/ExpressionType.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_EXPRESSIONTYPE_HPP

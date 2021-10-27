@@ -70,4 +70,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_OPENGLVAOCACHE_HPP

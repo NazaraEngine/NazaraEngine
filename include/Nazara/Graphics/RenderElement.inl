@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
@@ -22,3 +23,5 @@ namespace Nz
 		return m_elementType;
 	}
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>

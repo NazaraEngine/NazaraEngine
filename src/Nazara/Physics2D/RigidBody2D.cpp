@@ -9,7 +9,7 @@
 #include <chipmunk/chipmunk_private.h>
 #include <algorithm>
 #include <cmath>
-#include <Nazara/Physics3D/Debug.hpp>
+#include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {

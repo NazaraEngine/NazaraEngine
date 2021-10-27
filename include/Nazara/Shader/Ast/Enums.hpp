@@ -144,4 +144,4 @@ namespace Nz
 	}
 }
 
-#endif // NAZARA_SHADER_ENUMS_HPP
+#endif // NAZARA_SHADER_AST_ENUMS_HPP

@@ -21,4 +21,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RENDERER_SHADERSTAGE_HPP
+#endif // NAZARA_RENDERER_SHADERMODULE_HPP

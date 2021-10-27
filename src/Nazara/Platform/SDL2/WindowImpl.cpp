@@ -19,6 +19,7 @@
 #include <Utfcpp/utf8.h>
 #include <cstdio>
 #include <memory>
+#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {

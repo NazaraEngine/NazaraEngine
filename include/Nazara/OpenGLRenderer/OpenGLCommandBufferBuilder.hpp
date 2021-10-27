@@ -61,4 +61,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFERBUILDER_HPP

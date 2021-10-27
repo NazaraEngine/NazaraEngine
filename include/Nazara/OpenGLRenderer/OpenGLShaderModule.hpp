@@ -62,4 +62,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.inl>
 
-#endif // NAZARA_OPENGLRENDERER_OPENGLSHADERSTAGE_HPP
+#endif // NAZARA_OPENGLRENDERER_OPENGLSHADERMODULE_HPP

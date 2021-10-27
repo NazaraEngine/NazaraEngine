@@ -4,6 +4,7 @@
 
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
@@ -57,3 +58,5 @@ namespace Nz
 		m_framerateLimit = limit;
 	}
 }
+
+#include <Nazara/Renderer/DebugOff.hpp>

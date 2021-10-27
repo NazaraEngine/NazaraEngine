@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLWindowFramebuffer.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_OPENGLWINDOWFRAMEBUFFER_HPP

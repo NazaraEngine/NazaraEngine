@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Audio/Formats/libvorbisLoader.hpp>
+#include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>

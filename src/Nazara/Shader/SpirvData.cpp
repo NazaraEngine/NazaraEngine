@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <Nazara/Shader/Debug.hpp>
 
 namespace Nz
 {

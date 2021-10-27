@@ -7,6 +7,7 @@
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {

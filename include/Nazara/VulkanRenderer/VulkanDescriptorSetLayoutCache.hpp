@@ -55,4 +55,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.inl>
 
-#endif
+#endif // NAZARA_VULKANRENDERER_VULKANDESCRIPTORSETLAYOUTCACHE_HPP

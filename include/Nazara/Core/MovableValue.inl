@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/MovableValue.hpp>
 #include <utility>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -59,3 +60,5 @@ namespace Nz
 		return *this;
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

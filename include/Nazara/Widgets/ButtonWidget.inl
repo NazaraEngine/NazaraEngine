@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ButtonWidget.hpp>
+#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
@@ -69,3 +70,5 @@ namespace Nz
 		Layout();
 	}
 }
+
+#include <Nazara/Widgets/DebugOff.hpp>
