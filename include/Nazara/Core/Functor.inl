@@ -2,7 +2,9 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Functor.hpp>
 #include <utility>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -88,3 +90,5 @@ namespace Nz
 		(m_object->*m_func)();
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

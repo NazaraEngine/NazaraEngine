@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <algorithm>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
@@ -53,3 +54,5 @@ namespace Nz
 		return m_data.size();
 	}
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>

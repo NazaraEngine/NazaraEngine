@@ -4,7 +4,7 @@
 
 #include <Nazara/Physics2D/Arbiter2D.hpp>
 #include <chipmunk/chipmunk.h>
-#include <Nazara/Physics3D/Debug.hpp>
+#include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {

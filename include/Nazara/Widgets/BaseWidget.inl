@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <limits>
+#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
@@ -274,3 +275,5 @@ namespace Nz
 		m_canvasIndex = index;
 	}
 }
+
+#include <Nazara/Widgets/DebugOff.hpp>

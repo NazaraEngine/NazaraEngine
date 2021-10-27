@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_OPENGLFBOFRAMEBUFFER_HPP

@@ -369,4 +369,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/Nodes.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_NODES_HPP

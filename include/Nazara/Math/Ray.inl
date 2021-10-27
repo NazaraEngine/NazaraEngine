@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Math/Ray.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <limits>
 #include <sstream>

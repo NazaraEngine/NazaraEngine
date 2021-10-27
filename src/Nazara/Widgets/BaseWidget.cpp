@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <algorithm>
+#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {

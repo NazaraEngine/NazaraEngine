@@ -66,4 +66,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.inl>
 
-#endif // NAZARA_VULKANRENDERER_VULKANRENDERPIPELINE_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP

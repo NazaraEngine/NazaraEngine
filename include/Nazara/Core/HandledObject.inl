@@ -8,6 +8,7 @@
 #include <cassert>
 #include <type_traits>
 #include <utility>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -132,3 +133,5 @@ namespace Nz
 		m_handleData->object = static_cast<T*>(this);
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>
