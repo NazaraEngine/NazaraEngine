@@ -21,8 +21,6 @@ local function CompareLines(referenceLines, lines, firstLine, lineCount)
 
 	for i = 1, lineCount do
 		if lines[firstLine + i - 1] ~= referenceLines[i] then
-			print(lines[firstLine + i])
-			print(referenceLines[i])
 			return false
 		end
 	end
@@ -65,6 +63,7 @@ on_run(function ()
 
 	local checks = {}
 
+	-- Remove empty lines at the beginning of files
 	table.insert(checks, {
 		Name = "empty lines",
 		Check = function (moduleName)
@@ -107,6 +106,7 @@ on_run(function ()
 		end
 	})
 
+	-- Check header guards and #pragma once
 	table.insert(checks, {
 		Name = "header guards",
 		Check = function (moduleName)
@@ -212,52 +212,52 @@ on_run(function ()
 							print(filePath .. ": failed to identify header guard macro (endif)")
 							canFix = false
 						end
-					end
 
-					if canFix then
-						if macroName ~= pathHeaderGuard then
-							print(filePath .. ": header guard mismatch (got " .. macroName .. ", expected " .. pathHeaderGuard .. ")")
+						if canFix then
+							if macroName ~= pathHeaderGuard then
+								print(filePath .. ": header guard mismatch (got " .. macroName .. ", expected " .. pathHeaderGuard .. ")")
 
-							shouldFixEndif = false
+								shouldFixEndif = false
 
-							table.insert(fixes, {
-								File = filePath,
-								Func = function (lines)
-									lines[ifndefLine] = "#ifndef " .. pathHeaderGuard
-									lines[defineLine] = "#define " .. pathHeaderGuard
-									lines[endifLine] = "#endif // " .. pathHeaderGuard
+								table.insert(fixes, {
+									File = filePath,
+									Func = function (lines)
+										lines[ifndefLine] = "#ifndef " .. pathHeaderGuard
+										lines[defineLine] = "#define " .. pathHeaderGuard
+										lines[endifLine] = "#endif // " .. pathHeaderGuard
 
-									return lines
-								end
-							})
-						end
+										return lines
+									end
+								})
+							end
 
-						if shouldFixEndif then
-							print(filePath .. ": #endif was missing comment")
+							if shouldFixEndif then
+								print(filePath .. ": #endif was missing comment")
 
-							table.insert(fixes, {
-								File = filePath,
-								Func = function (lines)
-									lines[endifLine] = "#endif // " .. pathHeaderGuard
+								table.insert(fixes, {
+									File = filePath,
+									Func = function (lines)
+										lines[endifLine] = "#endif // " .. pathHeaderGuard
 
-									return lines
-								end
-							})
-						end
+										return lines
+									end
+								})
+							end
 
-						if not pragmaLine then
-							print(filePath .. ": no #pragma once found")
-							table.insert(fixes, {
-								File = filePath,
-								Func = function (lines)
-									table.insert(lines, ifndefLine - 1, "#pragma once")
-									table.insert(lines, ifndefLine - 1, "")
+							if not pragmaLine then
+								print(filePath .. ": no #pragma once found")
+								table.insert(fixes, {
+									File = filePath,
+									Func = function (lines)
+										table.insert(lines, ifndefLine - 1, "#pragma once")
+										table.insert(lines, ifndefLine - 1, "")
 
-									return lines
-								end
-							})
-						elseif pragmaLine > ifndefLine then
-							print(filePath .. ": #pragma once is after header guard (should be before)")
+										return lines
+									end
+								})
+							elseif pragmaLine > ifndefLine then
+								print(filePath .. ": #pragma once is after header guard (should be before)")
+							end
 						end
 					end
 				end
@@ -267,6 +267,153 @@ on_run(function ()
 		end
 	})
 
+	-- Every source file should include its header first
+	table.insert(checks, {
+		Name = "inclusion",
+		Check = function (moduleName)
+			local files = table.join(
+				os.files("include/Nazara/" .. moduleName .. "/**.inl"),
+				os.files("src/Nazara/" .. moduleName .. "/**.inl"),
+				os.files("src/Nazara/" .. moduleName .. "/**.cpp")
+			)
+
+			local fixes = {}
+			for _, filePath in pairs(files) do
+				local lines = GetFile(filePath)
+
+				local headerPath = filePath:gsub("[\\/]", "/")
+				headerPath = headerPath:sub(headerPath:find("Nazara/"), -1)
+				headerPath = headerPath:sub(1, headerPath:find("%..+$") - 1) .. ".hpp"
+
+				if os.isfile("include/" .. headerPath) or os.isfile("src/" .. headerPath) then
+					local inclusions = {}
+
+					-- Retrieve all inclusions
+					for i = 1, #lines do
+						if lines[i] == "// no include fix" then
+							-- ignore file
+							inclusions = {}
+							break
+						end
+
+						local includeMode, includePath = lines[i]:match("^%s*#%s*include%s*([<\"])(.+)[>\"]")
+						if includeMode then
+							table.insert(inclusions, {
+								line = i,
+								mode = includeMode,
+								path = includePath
+							})
+						end
+					end
+
+					if #inclusions > 0 then
+						local headerInclude
+						for i = 1, #inclusions do
+							if inclusions[i].path == headerPath then
+								headerInclude = i
+								if i ~= 1 then
+									print(filePath .. " doesn't include corresponding header first")
+
+									local currentInclusion = inclusions[i]
+									table.insert(fixes, {
+										File = filePath,
+										Func = function (lines)
+											table.remove(lines, currentInclusion.line)
+											local firstHeaderLine = inclusions[1].line
+											table.insert(lines, firstHeaderLine, "#include <" .. headerPath .. ">")
+		
+											return lines
+										end
+									})
+								end
+
+								break
+							end
+						end
+
+						local debugIncludeModule = moduleName ~= "Math" and moduleName or "Core"
+
+						local debugInclude
+						local debugIncludeOff
+						for i = 1, #inclusions do
+							local module, off = inclusions[i].path:match("Nazara/(.+)/Debug(O?f?f?).hpp")
+							if module then
+								if off == "Off" then
+									debugIncludeOff = i
+								elseif off == "" then
+									debugInclude = i
+								else
+									print(filePath .. ": unrecognized debug include at line " .. inclusions[i].line)
+								end
+
+								if module ~= debugIncludeModule then
+									print(filePath .. ": has wrong Debug" .. off .. " include")
+
+									local currentInclusion = inclusions[i]
+									table.insert(fixes, {
+										File = filePath,
+										Func = function (lines)
+											lines[currentInclusion.line] = "#include <Nazara/" .. debugIncludeModule .. "/Debug" .. off .. ".hpp>"
+											return lines
+										end
+									})
+								end
+							end
+						end
+
+						local increment = 0
+
+						if not headerInclude then
+							print(filePath .. " is missing corresponding header inclusion")
+
+							table.insert(fixes, {
+								File = filePath,
+								Func = function (lines)
+									local firstHeaderLine = inclusions[1].line
+									table.insert(lines, firstHeaderLine, "#include <" .. headerPath .. ">")
+
+									increment = increment + 1
+
+									return lines
+								end
+							})
+						end
+
+						if not debugInclude then
+							print(filePath .. ": has missing Debug include")
+							local lastIncludeLine = inclusions[debugIncludeOff and #inclusions - 1 or #inclusions].line
+							table.insert(fixes, {
+								File = filePath,
+								Func = function (lines)
+									table.insert(lines, lastIncludeLine + increment + 1, "#include <Nazara/" .. debugIncludeModule .. "/Debug.hpp>")
+									return lines
+								end
+							})
+						end
+
+						if path.extension(filePath) == ".inl" then							
+							if not debugInclude then
+								print(filePath .. ": has missing DebugOff include")
+								table.insert(fixes, {
+									File = filePath,
+									Func = function (lines)
+										table.insert(lines, "")
+										table.insert(lines, "#include <Nazara/" .. debugIncludeModule .. "/DebugOff.hpp>")
+										table.insert(lines, "")
+										return lines
+									end
+								})
+							end
+						end
+					end
+				end
+			end
+
+			return fixes
+		end
+	})
+
+	-- Check copyright date and format
 	table.insert(checks, {
 		Name = "copyright",
 		Check = function (moduleName)
@@ -440,7 +587,7 @@ on_run(function ()
 				local year, authors = lines[1]:match("^// Copyright %(C%) (Y?E?A?R?%d*) (.+)$")
 				hasCopyright = year ~= nil
 
-				if authors == "AUTHORS" then
+				if not authors or authors == "AUTHORS" then
 					authors = engineAuthor
 				else
 					local fixedAuthors = authors:gsub(prevAuthor, engineAuthor)
