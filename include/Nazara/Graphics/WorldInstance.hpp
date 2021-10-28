@@ -34,8 +34,6 @@ namespace Nz
 			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
 			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
 			inline const Matrix4f& GetInvWorldMatrix() const;
-			inline ShaderBinding& GetShaderBinding();
-			inline const ShaderBinding& GetShaderBinding() const;
 			inline const Matrix4f& GetWorldMatrix() const;
 
 			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
@@ -49,7 +47,6 @@ namespace Nz
 			std::shared_ptr<AbstractBuffer> m_instanceDataBuffer;
 			Matrix4f m_invWorldMatrix;
 			Matrix4f m_worldMatrix;
-			ShaderBindingPtr m_shaderBinding;
 			bool m_dataInvalided;
 	};
 }

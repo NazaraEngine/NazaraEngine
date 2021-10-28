@@ -218,11 +218,11 @@ int main()
 	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
 	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
-	for (std::size_t x = 0; x < 1; ++x)
+	for (std::size_t x = 0; x < 2; ++x)
 	{
-		for (std::size_t y = 0; y < 1; ++y)
+		for (std::size_t y = 0; y < 2; ++y)
 		{
-			for (std::size_t z = 0; z < 1; ++z)
+			for (std::size_t z = 0; z < 2; ++z)
 			{
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);

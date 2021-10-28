@@ -41,18 +41,13 @@ struct ViewerData
 [set(0)]
 external
 {
-	[binding(0)] viewerData: uniform<ViewerData>
+	[binding(0)] viewerData: uniform<ViewerData>,
+	[binding(1)] colorTexture: sampler2D<f32>,
+	[binding(2)] normalTexture: sampler2D<f32>,
+	[binding(3)] positionTexture: sampler2D<f32>,
 }
 
 [set(1)]
-external
-{
-	[binding(0)] colorTexture: sampler2D<f32>,
-	[binding(1)] normalTexture: sampler2D<f32>,
-	[binding(2)] positionTexture: sampler2D<f32>,
-}
-
-[set(2)]
 external
 {
 	[binding(0)] lightParameters: uniform<SpotLight>,

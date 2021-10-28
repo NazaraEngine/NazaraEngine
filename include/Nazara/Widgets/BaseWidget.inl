@@ -259,6 +259,18 @@ namespace Nz
 		//Resize(m_preferredSize);
 	}
 
+	inline entt::registry& BaseWidget::GetRegistry()
+	{
+		assert(m_registry);
+		return *m_registry;
+	}
+
+	inline const entt::registry& BaseWidget::GetRegistry() const
+	{
+		assert(m_registry);
+		return *m_registry;
+	}
+
 	inline bool BaseWidget::IsRegisteredToCanvas() const
 	{
 		return m_canvas && m_canvasIndex != InvalidCanvasIndex;

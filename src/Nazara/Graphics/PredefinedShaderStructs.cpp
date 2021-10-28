@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	PredefinedLightData PredefinedLightData::GetOffset()
+	PredefinedLightData PredefinedLightData::GetOffsets()
 	{
 		PredefinedLightData lightData;
 
@@ -34,7 +34,7 @@ namespace Nz
 
 	MaterialSettings::SharedUniformBlock PredefinedLightData::GetUniformBlock()
 	{
-		PredefinedLightData lightData = GetOffset();
+		PredefinedLightData lightData = GetOffsets();
 
 		std::vector<MaterialSettings::UniformVariable> lightDataVariables;
 		for (std::size_t i = 0; i < lightData.lightArray.size(); ++i)
@@ -67,6 +67,27 @@ namespace Nz
 		return instanceData;
 	}
 
+	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages)
+	{
+		PredefinedInstanceData instanceData = GetOffsets();
+
+		std::vector<MaterialSettings::UniformVariable> variables = {
+			{
+				{ "WorldMatrix", instanceData.worldMatrixOffset },
+				{ "InvWorldMatrix", instanceData.invWorldMatrixOffset }
+			}
+		};
+
+		MaterialSettings::SharedUniformBlock uniformBlock = {
+			bindingIndex,
+			"InstanceData",
+			std::move(variables),
+			shaderStages
+		};
+
+		return uniformBlock;
+	}
+
 	PredefinedViewerData PredefinedViewerData::GetOffsets()
 	{
 		FieldOffsets viewerStruct(StructLayout::Std140);
@@ -86,4 +107,33 @@ namespace Nz
 
 		return viewerData;
 	}
+
+	MaterialSettings::SharedUniformBlock PredefinedViewerData::GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages)
+	{
+		PredefinedViewerData viewerData = GetOffsets();
+
+		std::vector<MaterialSettings::UniformVariable> variables = {
+			{
+				{ "EyePosition", viewerData.eyePositionOffset },
+				{ "InvProjMatrix", viewerData.invProjMatrixOffset },
+				{ "InvTargetSize", viewerData.invTargetSizeOffset },
+				{ "InvViewMatrix", viewerData.invViewMatrixOffset },
+				{ "InvViewProjMatrix", viewerData.invViewProjMatrixOffset },
+				{ "ProjMatrix", viewerData.projMatrixOffset },
+				{ "TargetSize", viewerData.targetSizeOffset },
+				{ "ViewMatrix", viewerData.viewMatrixOffset },
+				{ "ViewProjMatrix", viewerData.viewProjMatrixOffset }
+			}
+		};
+
+		MaterialSettings::SharedUniformBlock uniformBlock = {
+			bindingIndex,
+			"ViewerData",
+			std::move(variables),
+			shaderStages
+		};
+
+		return uniformBlock;
+	}
+
 }

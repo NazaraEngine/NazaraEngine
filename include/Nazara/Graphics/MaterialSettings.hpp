@@ -28,6 +28,7 @@ namespace Nz
 			struct SharedUniformBlock;
 			struct Texture;
 			struct UniformBlock;
+			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
 
 			inline MaterialSettings();
 			inline MaterialSettings(Builder builder);
@@ -38,6 +39,7 @@ namespace Nz
 			inline const Builder& GetBuilderData() const;
 			inline const std::vector<Option>& GetOptions() const;
 			inline std::size_t GetOptionIndex(const std::string_view& name) const;
+			inline std::size_t GetPredefinedBinding(PredefinedShaderBinding shaderBinding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType stage) const;
 			inline const std::vector<std::shared_ptr<UberShader>>& GetShaders() const;
@@ -59,11 +61,14 @@ namespace Nz
 
 			struct Builder
 			{
+				inline Builder();
+
 				std::vector<std::shared_ptr<UberShader>> shaders;
 				std::vector<Option> options;
 				std::vector<Texture> textures;
 				std::vector<UniformBlock> uniformBlocks;
 				std::vector<SharedUniformBlock> sharedUniformBlocks;
+				PredefinedBinding predefinedBindings;
 			};
 
 			struct Option

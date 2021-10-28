@@ -129,11 +129,11 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
 
 	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(skyboxPipelineLayoutInfo);
+	Nz::Graphics::FillViewerPipelineLayout(skyboxPipelineLayoutInfo, 0);
 
 	auto& textureBinding = skyboxPipelineLayoutInfo.bindings.emplace_back();
-	textureBinding.setIndex = 1;
-	textureBinding.bindingIndex = 0;
+	textureBinding.setIndex = 0;
+	textureBinding.bindingIndex = 1;
 	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
@@ -238,20 +238,20 @@ int main()
 
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(lightingPipelineLayoutInfo);
+	Nz::Graphics::FillViewerPipelineLayout(lightingPipelineLayoutInfo, 0);
 
 	for (unsigned int i = 0; i < 3; ++i)
 	{
 		lightingPipelineLayoutInfo.bindings.push_back({
-			1,
-			i,
+			0,
+			i + 1,
 			Nz::ShaderBindingType::Texture,
 			Nz::ShaderStageType::Fragment,
 		});
 	}
 
 	lightingPipelineLayoutInfo.bindings.push_back({
-		2,
+		1,
 		0,
 		Nz::ShaderBindingType::UniformBuffer,
 		Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex,
@@ -334,10 +334,10 @@ int main()
 	// Bloom data
 
 	Nz::RenderPipelineLayoutInfo bloomPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(bloomPipelineLayoutInfo);
+	Nz::Graphics::FillViewerPipelineLayout(bloomPipelineLayoutInfo, 0);
 
 	bloomPipelineLayoutInfo.bindings.push_back({
-		1, 0,
+		0, 1,
 		Nz::ShaderBindingType::Texture,
 		Nz::ShaderStageType::Fragment,
 	});
@@ -362,16 +362,16 @@ int main()
 	
 
 	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(bloomBlendPipelineLayoutInfo);
+	Nz::Graphics::FillViewerPipelineLayout(bloomBlendPipelineLayoutInfo, 0);
 
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
-		1, 0,
+		0, 1,
 		Nz::ShaderBindingType::Texture,
 		Nz::ShaderStageType::Fragment,
 	});
 
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
-		1, 1,
+		0, 2,
 		Nz::ShaderBindingType::Texture,
 		Nz::ShaderStageType::Fragment,
 	});
@@ -519,10 +519,17 @@ int main()
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
-	std::shared_ptr<Nz::ShaderBinding> skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding(1);
+	std::shared_ptr<Nz::ShaderBinding> skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding(0);
 	skyboxShaderBinding->Update({
 		{
 			0,
+			Nz::ShaderBinding::UniformBufferBinding {
+				viewerInstance.GetViewerBuffer().get(),
+				0, viewerInstance.GetViewerBuffer()->GetSize()
+			}
+		},
+		{
+			1,
 			Nz::ShaderBinding::TextureBinding {
 				skyboxTexture.get(),
 				textureSampler.get()
@@ -645,8 +652,6 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(Nz::Graphics::ViewerBindingSet, viewerInstance.GetShaderBinding());
-
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
 			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements);
 			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements);
@@ -656,7 +661,10 @@ int main()
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			submeshRenderer.Render(*submeshRendererData, builder, elementPointers.data(), elementPointers.size());
+			Nz::RenderFrame dummy;
+
+			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, dummy, elementPointers.data(), elementPointers.size());
+			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -674,12 +682,11 @@ int main()
 			builder.BindIndexBuffer(*coneMeshGfx->GetIndexBuffer(0).get());
 			builder.BindVertexBuffer(0, *coneMeshGfx->GetVertexBuffer(0).get());
 
-			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
-			builder.BindShaderBinding(1, *gbufferShaderBinding);
+			builder.BindShaderBinding(0, *gbufferShaderBinding);
 
 			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
-				builder.BindShaderBinding(2, *lightingShaderBindings[i]);
+				builder.BindShaderBinding(1, *lightingShaderBindings[i]);
 
 				builder.BindPipeline(*stencilPipeline);
 				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
@@ -702,14 +709,13 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
-			builder.BindShaderBinding(1, *skyboxShaderBinding);
+			builder.BindShaderBinding(0, *skyboxShaderBinding);
 
 			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));
 			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
 			builder.BindPipeline(*skyboxPipeline);
 
-			builder.DrawIndexed(static_cast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
+			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 		});
 		forwardPass.SetExecutionCallback([&]
 		{
@@ -727,8 +733,7 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
-			builder.BindShaderBinding(1, *bloomBrightShaderBinding);
+			builder.BindShaderBinding(0, *bloomBrightShaderBinding);
 
 			builder.BindPipeline(*bloomBrightPipeline);
 			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
@@ -749,8 +754,7 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
-			builder.BindShaderBinding(1, *gaussianBlurShaderBinding);
+			builder.BindShaderBinding(0, *gaussianBlurShaderBinding);
 			builder.BindPipeline(*gaussianBlurPipeline);
 			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
@@ -770,8 +774,7 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, viewerInstance.GetShaderBinding());
-			builder.BindShaderBinding(1, *bloomBlendShaderBinding);
+			builder.BindShaderBinding(0, *bloomBlendShaderBinding);
 			builder.BindPipeline(*bloomBlendPipeline);
 			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
@@ -936,24 +939,31 @@ int main()
 		{
 			frame.PushForRelease(std::move(gbufferShaderBinding));
 
-			gbufferShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			gbufferShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 			gbufferShaderBinding->Update({
 				{
 					0,
+					Nz::ShaderBinding::UniformBufferBinding {
+						viewerInstance.GetViewerBuffer().get(),
+						0, viewerInstance.GetViewerBuffer()->GetSize()
+					}
+				},
+				{
+					1,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(colorTexture).get(),
 						textureSampler.get()
 					}
 				},
 				{
-					1,
+					2,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(normalTexture).get(),
 						textureSampler.get()
 					}
 				},
 				{
-					2,
+					3,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(positionTexture).get(),
 						textureSampler.get()
@@ -966,7 +976,7 @@ int main()
 
 			for (std::size_t i = 0; i < MaxPointLight; ++i)
 			{
-				std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(2);
+				std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
 				lightingShaderBinding->Update({
 					{
 						0,
@@ -982,10 +992,17 @@ int main()
 
 			frame.PushForRelease(std::move(bloomBrightShaderBinding));
 
-			bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			bloomBrightShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 			bloomBrightShaderBinding->Update({
 				{
 					0,
+					Nz::ShaderBinding::UniformBufferBinding {
+						viewerInstance.GetViewerBuffer().get(),
+						0, viewerInstance.GetViewerBuffer()->GetSize()
+					}
+				},
+				{
+					1,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(lightOutput).get(),
 						textureSampler.get()
@@ -995,10 +1012,17 @@ int main()
 
 			frame.PushForRelease(std::move(gaussianBlurShaderBinding));
 
-			gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			gaussianBlurShaderBinding = bloomPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 			gaussianBlurShaderBinding->Update({
 				{
 					0,
+					Nz::ShaderBinding::UniformBufferBinding {
+						viewerInstance.GetViewerBuffer().get(),
+						0, viewerInstance.GetViewerBuffer()->GetSize()
+					}
+				},
+				{
+					1,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(bloomTextureA).get(),
 						textureSampler.get()
@@ -1008,17 +1032,24 @@ int main()
 
 			frame.PushForRelease(std::move(bloomBlendShaderBinding));
 
-			bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+			bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 			bloomBlendShaderBinding->Update({
 				{
 					0,
+					Nz::ShaderBinding::UniformBufferBinding {
+						viewerInstance.GetViewerBuffer().get(),
+						0, viewerInstance.GetViewerBuffer()->GetSize()
+					}
+				},
+				{
+					1,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(lightOutput).get(),
 						textureSampler.get()
 					}
 				},
 				{
-					1,
+					2,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(bloomTextureB).get(),
 						textureSampler.get()

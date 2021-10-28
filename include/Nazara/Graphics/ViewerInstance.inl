@@ -38,19 +38,14 @@ namespace Nz
 		return m_viewProjMatrix;
 	}
 
-	inline std::shared_ptr<AbstractBuffer>& ViewerInstance::GetInstanceBuffer()
+	inline std::shared_ptr<AbstractBuffer>& ViewerInstance::GetViewerBuffer()
 	{
 		return m_viewerDataBuffer;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& ViewerInstance::GetInstanceBuffer() const
+	inline const std::shared_ptr<AbstractBuffer>& ViewerInstance::GetViewerBuffer() const
 	{
 		return m_viewerDataBuffer;
-	}
-
-	inline ShaderBinding& ViewerInstance::GetShaderBinding()
-	{
-		return *m_shaderBinding;
 	}
 
 	inline void ViewerInstance::UpdateProjectionMatrix(const Matrix4f& projectionMatrix)

@@ -34,9 +34,8 @@ namespace Nz
 			inline const Matrix4f& GetProjectionMatrix() const;
 			inline const Matrix4f& GetViewMatrix() const;
 			inline const Matrix4f& GetViewProjMatrix() const;
-			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
-			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
-			inline ShaderBinding& GetShaderBinding();
+			inline std::shared_ptr<AbstractBuffer>& GetViewerBuffer();
+			inline const std::shared_ptr<AbstractBuffer>& GetViewerBuffer() const;
 
 			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
@@ -59,7 +58,6 @@ namespace Nz
 			Matrix4f m_projectionMatrix;
 			Matrix4f m_viewProjMatrix;
 			Matrix4f m_viewMatrix;
-			ShaderBindingPtr m_shaderBinding;
 			Vector2f m_targetSize;
 			bool m_dataInvalided;
 	};

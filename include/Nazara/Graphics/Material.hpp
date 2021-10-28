@@ -22,7 +22,7 @@ namespace Nz
 			inline void AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass);
 			inline void AddPass(std::string passName, std::shared_ptr<MaterialPass> pass);
 
-			inline MaterialPass* GetPass(std::size_t passIndex) const;
+			inline const std::shared_ptr<MaterialPass>& GetPass(std::size_t passIndex) const;
 
 			inline bool HasPass(std::size_t passIndex) const;
 
