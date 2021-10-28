@@ -41,10 +41,14 @@ jobs:
     - name: Update xmake repository
       run: xmake.exe repo --update
 
+    # Debug
+    - name: Debug XMake
+      run: xmake.exe l -vD utils.ci.packageskey
+
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
       id: dep_hash
-      run: echo "::set-output name=hash::$(xmake.exe l -vD utils.ci.packageskey)"
+      run: echo "::set-output name=hash::$(xmake.exe l utils.ci.packageskey)"
 
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies
