@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <memory>
 #include <type_traits>

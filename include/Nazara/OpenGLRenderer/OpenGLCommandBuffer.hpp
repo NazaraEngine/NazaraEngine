@@ -10,12 +10,12 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Renderer/CommandBuffer.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
+#include <Nazara/Renderer/CommandBuffer.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <optional>
 #include <variant>
 #include <vector>

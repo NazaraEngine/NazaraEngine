@@ -9,6 +9,7 @@
 #ifndef NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
 #define NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
 
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -16,7 +17,6 @@
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <Nazara/Prerequisites.hpp>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_video.h>

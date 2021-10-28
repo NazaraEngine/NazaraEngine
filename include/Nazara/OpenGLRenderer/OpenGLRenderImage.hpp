@@ -8,8 +8,8 @@
 #define NAZARA_OPENGLRENDERER_OPENGLRENDERIMAGE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderImage.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>
+#include <Nazara/Renderer/RenderImage.hpp>
 #include <vector>
 
 namespace Nz

@@ -7,9 +7,9 @@
 #ifndef NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP
 #define NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP
 
-#include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/SocketHandle.hpp>
 
 #define NAZARA_NETWORK_POLL_SUPPORT 1
 

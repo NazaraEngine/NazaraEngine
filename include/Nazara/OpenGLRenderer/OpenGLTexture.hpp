@@ -8,10 +8,10 @@
 #define NAZARA_OPENGLRENDERER_OPENGLTEXTURE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Texture.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 
 namespace Nz
 {

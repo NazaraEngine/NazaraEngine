@@ -12,9 +12,9 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
-#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <array>
 #include <memory>

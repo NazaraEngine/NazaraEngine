@@ -32,3 +32,5 @@ namespace Nz
 		return !ENetTimeLess(a, b);
 	}
 }
+
+#include <Nazara/Network/DebugOff.hpp>

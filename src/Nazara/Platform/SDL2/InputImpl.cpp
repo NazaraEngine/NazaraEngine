@@ -4,13 +4,13 @@
 
 #include <Nazara/Platform/SDL2/InputImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Platform/Debug.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
-#include <Nazara/Platform/Window.hpp>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
+#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {

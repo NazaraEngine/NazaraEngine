@@ -4,8 +4,8 @@
 
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <cinttypes>
 #include <Utfcpp/utf8.h>
+#include <cinttypes>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

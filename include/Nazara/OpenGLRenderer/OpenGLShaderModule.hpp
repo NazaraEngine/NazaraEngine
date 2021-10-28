@@ -8,11 +8,11 @@
 #define NAZARA_OPENGLRENDERER_OPENGLSHADERMODULE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
+#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
 #include <vector>

@@ -12,10 +12,10 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSetLayout.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PipelineLayout.hpp>
 #include <memory>
 #include <type_traits>

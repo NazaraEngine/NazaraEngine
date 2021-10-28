@@ -8,10 +8,10 @@
 #define NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <memory>
 #include <vector>
 

@@ -6,8 +6,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <sstream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 

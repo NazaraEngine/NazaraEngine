@@ -9,10 +9,10 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/Ast/ConstantValue.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <string>
 #include <string_view>
 #include <unordered_map>

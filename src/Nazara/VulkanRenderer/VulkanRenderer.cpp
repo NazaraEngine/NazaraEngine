@@ -6,8 +6,8 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
-#include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <cassert>
 #include <sstream>

@@ -6,9 +6,9 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
+#include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <SpirV/GLSL.std.450.h>
 #include <Nazara/Shader/Debug.hpp>

@@ -7,8 +7,8 @@
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
-#include <stdexcept>
 #include <vma/vk_mem_alloc.h>
+#include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

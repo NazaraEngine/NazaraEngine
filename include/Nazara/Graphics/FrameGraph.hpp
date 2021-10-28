@@ -16,9 +16,9 @@
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <optional>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace Nz
 {

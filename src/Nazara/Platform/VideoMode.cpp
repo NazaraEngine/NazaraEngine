@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/VideoMode.hpp>
+#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
 #include <algorithm>
 #include <functional>
-#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

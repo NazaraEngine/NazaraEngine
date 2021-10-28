@@ -8,8 +8,8 @@
 #define NAZARA_OPENGLRENDERER_OPENGLRENDERPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/Renderer/RenderPass.hpp>
 #include <vector>
 
 namespace Nz

@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/STBSaver.hpp>
-#include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <map>
 #include <stdexcept>
 #define STB_IMAGE_WRITE_IMPLEMENTATION

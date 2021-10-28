@@ -6,8 +6,8 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <limits>
 #include <Nazara/Network/NetPacket.hpp>
+#include <limits>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>

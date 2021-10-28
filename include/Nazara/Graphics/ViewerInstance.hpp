@@ -8,8 +8,8 @@
 #define NAZARA_GRAPHICS_VIEWERINSTANCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <memory>
 

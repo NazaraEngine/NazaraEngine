@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Mesh.hpp>
-#include <memory>
 #include <Nazara/Utility/StaticMesh.hpp>
+#include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

@@ -8,8 +8,8 @@
 #define NAZARA_OPENGLRENDERER_OPENGLFRAMEBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/Renderer/Framebuffer.hpp>
 
 namespace Nz
 {

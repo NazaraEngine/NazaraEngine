@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

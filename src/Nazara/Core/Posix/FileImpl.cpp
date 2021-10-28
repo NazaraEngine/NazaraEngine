@@ -6,10 +6,10 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <cstdio>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

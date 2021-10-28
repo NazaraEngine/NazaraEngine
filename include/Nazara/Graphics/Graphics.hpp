@@ -11,10 +11,10 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <optional>
 
 namespace Nz

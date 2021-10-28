@@ -12,13 +12,13 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
-#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
+#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>

@@ -11,8 +11,8 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <memory>
-#include <variant>
 #include <unordered_map>
+#include <variant>
 
 namespace Nz
 {

@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>

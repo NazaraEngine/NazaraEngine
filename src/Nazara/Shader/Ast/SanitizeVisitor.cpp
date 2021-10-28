@@ -6,8 +6,8 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <stdexcept>
 #include <unordered_set>

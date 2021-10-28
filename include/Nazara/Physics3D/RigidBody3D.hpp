@@ -13,8 +13,8 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
+#include <Nazara/Physics3D/Config.hpp>
 
 class NewtonBody;
 

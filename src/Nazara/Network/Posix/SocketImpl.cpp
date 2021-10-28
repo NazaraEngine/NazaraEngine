@@ -9,13 +9,13 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
+#include <cstring>
+#include <poll.h>
+#include <unistd.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#include <poll.h>
-#include <unistd.h>
-#include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
 #if !defined(TCP_KEEPIDLE) && defined(TCP_KEEPALIVE)

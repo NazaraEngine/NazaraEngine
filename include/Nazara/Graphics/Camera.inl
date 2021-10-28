@@ -201,3 +201,5 @@ namespace Nz
 		UpdateProjectionMatrix();
 	}
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>

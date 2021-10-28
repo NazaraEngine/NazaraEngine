@@ -14,9 +14,9 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <FLAC/stream_decoder.h>
 #include <optional>
 #include <set>
-#include <FLAC/stream_decoder.h>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <string>

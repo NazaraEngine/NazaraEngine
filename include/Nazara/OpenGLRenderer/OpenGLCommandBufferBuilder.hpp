@@ -8,8 +8,8 @@
 #define NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFERBUILDER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 
 namespace Nz
 {
