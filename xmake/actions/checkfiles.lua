@@ -28,6 +28,42 @@ local function CompareLines(referenceLines, lines, firstLine, lineCount)
 	return true
 end
 
+local function ComputeHeaderFile(filePath)
+	local headerPath = filePath:gsub("[\\/]", "/")
+	headerPath = headerPath:sub(headerPath:find("Nazara/"), -1)
+	headerPath = headerPath:sub(1, headerPath:find("%..+$") - 1) .. ".hpp"
+
+	return headerPath
+end
+
+local systemHeaders = {
+	["fcntl.h"] = true,
+	["mstcpip"] = true,
+	["netdb.h"] = true,
+	["poll.h"] = true,
+	["process.h"] = true,
+	["pthread.h"] = true,
+	["unistd.h"] = true,
+	["windows.h"] = true,
+	["winsock2"] = true,
+}
+
+local function IsSystemHeader(header)
+	if systemHeaders[header] then
+		return true
+	end
+
+	if header:match("netinet/.*") then
+		return true
+	end
+
+	if header:match("sys/.*") then
+		return true
+	end
+
+	return false
+end
+
 on_run(function ()
 	import("core.base.option")
 
@@ -281,10 +317,7 @@ on_run(function ()
 			for _, filePath in pairs(files) do
 				local lines = GetFile(filePath)
 
-				local headerPath = filePath:gsub("[\\/]", "/")
-				headerPath = headerPath:sub(headerPath:find("Nazara/"), -1)
-				headerPath = headerPath:sub(1, headerPath:find("%..+$") - 1) .. ".hpp"
-
+				local headerPath = ComputeHeaderFile(filePath)
 				if os.isfile("include/" .. headerPath) or os.isfile("src/" .. headerPath) then
 					local inclusions = {}
 
@@ -296,7 +329,7 @@ on_run(function ()
 							break
 						end
 
-						local includeMode, includePath = lines[i]:match("^%s*#%s*include%s*([<\"])(.+)[>\"]")
+						local includeMode, includePath = lines[i]:match("^#include%s*([<\"])(.+)[>\"]")
 						if includeMode then
 							table.insert(inclusions, {
 								line = i,
@@ -307,36 +340,24 @@ on_run(function ()
 					end
 
 					if #inclusions > 0 then
+						local increment = 0
+
+						-- Add corresponding header
 						local headerInclude
 						for i = 1, #inclusions do
 							if inclusions[i].path == headerPath then
 								headerInclude = i
-								if i ~= 1 then
-									print(filePath .. " doesn't include corresponding header first")
-
-									local currentInclusion = inclusions[i]
-									table.insert(fixes, {
-										File = filePath,
-										Func = function (lines)
-											table.remove(lines, currentInclusion.line)
-											local firstHeaderLine = inclusions[1].line
-											table.insert(lines, firstHeaderLine, "#include <" .. headerPath .. ">")
-		
-											return lines
-										end
-									})
-								end
-
 								break
 							end
 						end
 
+						-- Check debug headers
 						local debugIncludeModule = moduleName ~= "Math" and moduleName or "Core"
 
 						local debugInclude
 						local debugIncludeOff
 						for i = 1, #inclusions do
-							local module, off = inclusions[i].path:match("Nazara/(.+)/Debug(O?f?f?).hpp")
+							local module, off = inclusions[i].path:match("^Nazara/(.+)/Debug(O?f?f?).hpp$")
 							if module then
 								if off == "Off" then
 									debugIncludeOff = i
@@ -361,8 +382,7 @@ on_run(function ()
 							end
 						end
 
-						local increment = 0
-
+						-- Add header inclusion if it's missing
 						if not headerInclude then
 							print(filePath .. " is missing corresponding header inclusion")
 
@@ -392,7 +412,7 @@ on_run(function ()
 						end
 
 						if path.extension(filePath) == ".inl" then							
-							if not debugInclude then
+							if not debugIncludeOff then
 								print(filePath .. ": has missing DebugOff include")
 								table.insert(fixes, {
 									File = filePath,
@@ -406,6 +426,153 @@ on_run(function ()
 							end
 						end
 					end
+				end
+			end
+
+			return fixes
+		end
+	})
+
+	-- Reorder includes and remove duplicates
+	table.insert(checks, {
+		Name = "inclusion order",
+		Check = function (moduleName)
+			local files = table.join(
+				os.files("include/Nazara/" .. moduleName .. "/**.hpp"),
+				os.files("include/Nazara/" .. moduleName .. "/**.inl"),
+				os.files("src/Nazara/" .. moduleName .. "/**.hpp"),
+				os.files("src/Nazara/" .. moduleName .. "/**.inl"),
+				os.files("src/Nazara/" .. moduleName .. "/**.cpp")
+			)
+
+			local fixes = {}
+			for _, filePath in pairs(files) do
+				local lines = GetFile(filePath)
+
+				local headerPath = ComputeHeaderFile(filePath)
+				
+				local inclusions = {}
+
+				-- Retrieve all inclusions from the first inclusion block
+				for i = 1, #lines do
+					if lines[i] == "// no include reordering" then
+						-- ignore file
+						inclusions = {}
+						break
+					end
+
+					local includeMode, includePath = lines[i]:match("^#include%s*([<\"])(.+)[>\"]")
+					if includeMode then
+						table.insert(inclusions, {
+							line = i,
+							mode = includeMode,
+							path = includePath
+						})
+					elseif #inclusions > 0 then
+						-- Stop when outside the inclusion block
+						break
+					end
+				end
+
+				local debugIncludeModule = moduleName ~= "Math" and moduleName or "Core"
+
+				local includeList = {}
+				local shouldReorder = false
+				for i = 1, #inclusions do
+					local order
+					if inclusions[i].path == headerPath or inclusions[i].path == "Nazara/Prerequisites.hpp" then
+						order = 0 -- own include comes first
+					elseif inclusions[i].path == "Nazara/" .. debugIncludeModule .. "/Debug.hpp" then
+						order = 5 -- debug include
+					elseif inclusions[i].path:match("^Nazara/") then
+						order = 1 -- engine includes
+					elseif IsSystemHeader(inclusions[i].path) then
+						order = 4 -- system includes
+					elseif inclusions[i].path:match(".+%.hp?p?") then
+						order = 2 -- thirdparty includes
+					else
+						order = 3 -- standard includes
+					end
+					
+					table.insert(includeList, {
+						order = order,
+						path = inclusions[i].path,
+						content = lines[inclusions[i].line]
+					})
+				end
+
+				local function compareFunc(a, b)
+					if a.order == b.order then
+						local moduleA = a.path:match("^Nazara/(.-)/")
+						local moduleB = b.path:match("^Nazara/(.-)/")
+						if moduleA ~= moduleB then
+							return moduleA < moduleB
+						end
+
+						local _, folderCountA = a.path:gsub("/", "")
+						local _, folderCountB = b.path:gsub("/", "")
+						if folderCountA == folderCountB then
+							return a.path < b.path
+						else
+							return folderCountA < folderCountB 
+						end
+					else
+						return a.order < b.order
+					end
+				end
+
+				local isOrdered = true
+				for i = 2, #includeList do
+					if includeList[i - 1].path == includeList[i].path then
+						-- duplicate found
+						print(filePath .. ": include list has duplicates")
+						isOrdered = false
+						break
+					end
+
+					if not compareFunc(includeList[i - 1], includeList[i]) then
+						print(filePath .. ": include list is not ordered")
+						isOrdered = false
+						break
+					end
+				end
+
+				if not isOrdered then
+					table.sort(includeList, compareFunc)
+
+					table.insert(fixes, {
+						File = filePath,
+						Func = function (lines)
+							-- Reorder includes
+							local newInclusions = {}
+							for i = 1, #inclusions do
+								lines[inclusions[i].line] = includeList[i].content
+								table.insert(newInclusions, {
+									content = includeList[i].content,
+									path = includeList[i].path,
+									line = inclusions[i].line
+								})
+							end
+
+							-- Remove duplicates
+							table.sort(newInclusions, function (a, b) return a.line > b.line end)
+
+							for i = 2, #newInclusions do
+								local a = newInclusions[i - 1]
+								local b = newInclusions[i]
+
+								if a.path == b.path then
+									if #a.content > #b.content then -- keep longest line (for comments)
+										table.remove(lines, b.line)
+									else
+										table.remove(lines, a.line)
+									end
+								end
+							end
+
+							return lines
+						end
+					})
 				end
 			end
 

@@ -7,6 +7,8 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
 
+// no include reordering
+
 #define GL_GLES_PROTOTYPES 0
 #include <GLES3/gl32.h>
 #include <GLES2/gl2ext.h>
