@@ -40,3 +40,5 @@ namespace Nz
 		return m_worldInstance;
 	}
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>

@@ -11,10 +11,10 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
-#include <Nazara/Platform/Window.hpp>
 #include <memory>
 
 namespace Nz

@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/BaseWidget.hpp>
-#include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/Widgets/Canvas.hpp>
 #include <algorithm>
 #include <Nazara/Widgets/Debug.hpp>
 

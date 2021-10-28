@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
+#include <Nazara/Renderer/CommandPool.hpp>
 
 namespace Nz
 {

@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst

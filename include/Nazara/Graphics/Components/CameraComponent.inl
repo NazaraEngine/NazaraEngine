@@ -8,3 +8,5 @@
 namespace Nz
 {
 }
+
+#include <Nazara/Graphics/DebugOff.hpp>

@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 
 namespace Nz 
 {

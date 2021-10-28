@@ -9,8 +9,8 @@
 #include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/Utility.hpp>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

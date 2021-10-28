@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <functional>
 #include <limits>
 #include <optional>

@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <string>
 #include <type_traits>
 #include <unordered_set>

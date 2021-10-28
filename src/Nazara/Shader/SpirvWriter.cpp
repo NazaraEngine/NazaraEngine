@@ -14,9 +14,9 @@
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
+#include <SpirV/GLSL.std.450.h>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
-#include <SpirV/GLSL.std.450.h>
 #include <cassert>
 #include <map>
 #include <stdexcept>

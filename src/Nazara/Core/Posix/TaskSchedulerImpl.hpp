@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <atomic>
 #include <memory>
-#include <pthread.h>
 #include <queue>
+#include <pthread.h>
 
 #if defined(NAZARA_PLATFORM_MACOSX)
 	typedef int pthread_barrierattr_t;

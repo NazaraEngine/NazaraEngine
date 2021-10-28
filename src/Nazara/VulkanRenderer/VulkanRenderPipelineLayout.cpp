@@ -3,12 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>

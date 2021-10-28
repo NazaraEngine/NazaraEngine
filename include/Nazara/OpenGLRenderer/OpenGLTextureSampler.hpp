@@ -8,9 +8,9 @@
 #define NAZARA_OPENGLRENDERER_OPENGLTEXTURESAMPLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.hpp>
+#include <Nazara/Renderer/TextureSampler.hpp>
 
 namespace Nz
 {

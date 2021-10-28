@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <array>
 #include <cstring>
 #include <Nazara/Utility/Debug.hpp>

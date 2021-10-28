@@ -7,8 +7,8 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>

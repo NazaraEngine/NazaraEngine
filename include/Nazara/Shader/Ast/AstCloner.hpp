@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst

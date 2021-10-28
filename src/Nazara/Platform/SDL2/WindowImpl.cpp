@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
-#include <cstdio>
-#include <memory>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Platform/Config.hpp>

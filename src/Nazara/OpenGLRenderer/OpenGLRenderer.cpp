@@ -4,11 +4,11 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/OpenGLRenderer/DummySurface.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
-#include <Nazara/OpenGLRenderer/DummySurface.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
 #include <cassert>
 #include <sstream>
 

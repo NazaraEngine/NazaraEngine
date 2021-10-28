@@ -8,8 +8,8 @@
 #define NAZARA_RENDERER_COMMANDPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
+#include <Nazara/Renderer/Config.hpp>
 #include <functional>
 
 namespace Nz

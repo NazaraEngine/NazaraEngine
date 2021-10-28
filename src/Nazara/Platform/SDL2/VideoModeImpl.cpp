@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
-#include <algorithm>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Platform/Debug.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <SDL2/SDL_video.h>
+#include <algorithm>
+#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
