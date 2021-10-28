@@ -41,10 +41,6 @@ jobs:
     - name: Update xmake repository
       run: xmake.exe repo --update
 
-    # Debug
-    - name: Debug XMake
-      run: xmake.exe l -vD utils.ci.packageskey
-
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
       id: dep_hash
