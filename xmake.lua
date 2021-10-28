@@ -243,8 +243,8 @@ rule("embed_resources")
 		import("core.base.option")
 		if xmake.version():ge("2.5.9") then
 			import("utils.progress")
-		else 
-			import("utils.progress", { try = true }) or import("private.utils.progress")
+		elseif not import("utils.progress", { try = true }) then
+			import("private.utils.progress")
 		end
 
 		local function GenerateEmbedHeader(filepath, targetpath)
