@@ -9,6 +9,8 @@
 
 #undef WIN32_LEAN_AND_MEAN //< Redefined by wgl.h header (ty Khronos)
 
+// no include reordering
+
 #include <GLES3/gl3.h>
 #include <GL/wgl.h>
 #include <GL/wglext.h>
