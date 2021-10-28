@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
-// This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Widgets module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_BASEWIDGET_HPP
-#define NAZARA_BASEWIDGET_HPP
+#ifndef NAZARA_WIDGETS_BASEWIDGET_HPP
+#define NAZARA_WIDGETS_BASEWIDGET_HPP
 
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Platform/Event.hpp>
@@ -178,4 +178,4 @@ namespace Nz
 
 #include <Nazara/Widgets/BaseWidget.inl>
 
-#endif // NAZARA_BASEWIDGET_HPP
+#endif // NAZARA_WIDGETS_BASEWIDGET_HPP

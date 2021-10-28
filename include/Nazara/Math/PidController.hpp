@@ -1,11 +1,11 @@
-// Copyright (C) 2021 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_PIDCONTROLLER_HPP
-#define NAZARA_PIDCONTROLLER_HPP
+#ifndef NAZARA_MATH_PIDCONTROLLER_HPP
+#define NAZARA_MATH_PIDCONTROLLER_HPP
 
 namespace Nz
 {
@@ -28,4 +28,4 @@ namespace Nz
 
 #include <Nazara/Math/PidController.inl>
 
-#endif
+#endif // NAZARA_MATH_PIDCONTROLLER_HPP

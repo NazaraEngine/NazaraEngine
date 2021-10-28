@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -11,10 +11,10 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
-#include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <optional>
 
 namespace Nz
@@ -85,4 +85,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Graphics.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_HPP

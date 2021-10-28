@@ -1,17 +1,17 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SPIRVCONSTANTCACHE_HPP
-#define NAZARA_SPIRVCONSTANTCACHE_HPP
+#ifndef NAZARA_SHADER_SPIRVCONSTANTCACHE_HPP
+#define NAZARA_SHADER_SPIRVCONSTANTCACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Shader/Ast/Enums.hpp>
-#include <Nazara/Shader/Ast/ConstantValue.hpp>
-#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
+#include <Nazara/Shader/Ast/ConstantValue.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
+#include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -208,4 +208,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvConstantCache.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVCONSTANTCACHE_HPP

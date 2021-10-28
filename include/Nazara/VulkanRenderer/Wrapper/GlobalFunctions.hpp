@@ -1,6 +1,8 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
+
+// no header guards
 
 #if !defined(NAZARA_VULKANRENDERER_GLOBAL_FUNCTION) || !defined(NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT)
 #error You must define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION and NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT before including this file

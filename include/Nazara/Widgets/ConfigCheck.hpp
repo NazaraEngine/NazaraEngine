@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_WIDGETS_HPP
-#define NAZARA_CONFIG_CHECK_WIDGETS_HPP
+#ifndef NAZARA_WIDGETS_CONFIGCHECK_HPP
+#define NAZARA_WIDGETS_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -20,4 +20,4 @@
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_WIDGETS_HPP
+#endif // NAZARA_WIDGETS_CONFIGCHECK_HPP

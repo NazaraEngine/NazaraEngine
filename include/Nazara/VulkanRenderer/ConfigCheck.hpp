@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_VULKANRENDERER_HPP
-#define NAZARA_CONFIG_CHECK_VULKANRENDERER_HPP
+#ifndef NAZARA_VULKANRENDERER_CONFIGCHECK_HPP
+#define NAZARA_VULKANRENDERER_CONFIGCHECK_HPP
 
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
@@ -19,4 +19,4 @@
 	#define NAZARA_VULKANRENDERER_MANAGE_MEMORY 0
 #endif
 
-#endif // NAZARA_CONFIG_CHECK_VULKANRENDERER_HPP
+#endif // NAZARA_VULKANRENDERER_CONFIGCHECK_HPP

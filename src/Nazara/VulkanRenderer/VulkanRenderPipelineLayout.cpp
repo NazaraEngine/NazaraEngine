@@ -1,14 +1,14 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
-#include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>

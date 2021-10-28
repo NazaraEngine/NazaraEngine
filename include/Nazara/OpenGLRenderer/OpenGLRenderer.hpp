@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,10 +8,10 @@
 #define NAZARA_OPENGLRENDERER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/Renderer/RendererImpl.hpp>
 #include <memory>
 
 namespace Nz

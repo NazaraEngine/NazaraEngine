@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Utility module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_LOADERS_DRWAV_HPP
-#define NAZARA_LOADERS_DRWAV_HPP
+#ifndef NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP
+#define NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
@@ -17,4 +17,4 @@ namespace Nz::Loaders
 	SoundStreamLoader::Entry GetSoundStreamLoader_drwav();
 }
 
-#endif
+#endif // NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP

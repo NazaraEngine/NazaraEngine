@@ -1,20 +1,20 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RENDERWINDOW_HPP
-#define NAZARA_RENDERWINDOW_HPP
+#ifndef NAZARA_RENDERER_RENDERWINDOW_HPP
+#define NAZARA_RENDERER_RENDERWINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
 #include <Nazara/Renderer/RenderWindowParameters.hpp>
-#include <Nazara/Platform/Window.hpp>
 #include <memory>
 
 namespace Nz
@@ -64,4 +64,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderWindow.inl>
 
-#endif // NAZARA_RENDERWINDOW_HPP
+#endif // NAZARA_RENDERER_RENDERWINDOW_HPP

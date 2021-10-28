@@ -1,11 +1,11 @@
-// Copyright (C) 2015 Alexandre Janniaux
+// Copyright (C) 2021 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_DYNLIBIMPL_HPP
-#define NAZARA_DYNLIBIMPL_HPP
+#ifndef NAZARA_CORE_POSIX_DYNLIBIMPL_HPP
+#define NAZARA_CORE_POSIX_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
 #include <filesystem>
@@ -29,4 +29,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_DYNLIBIMPL_HPP
+#endif // NAZARA_CORE_POSIX_DYNLIBIMPL_HPP

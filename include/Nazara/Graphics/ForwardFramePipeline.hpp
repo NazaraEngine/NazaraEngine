@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FORWARDFRAMEPIPELINE_HPP
-#define NAZARA_FORWARDFRAMEPIPELINE_HPP
+#ifndef NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
+#define NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
@@ -111,4 +111,4 @@ namespace Nz
 
 #include <Nazara/Graphics/ForwardFramePipeline.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP

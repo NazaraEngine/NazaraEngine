@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RENDERTARGET_HPP
-#define NAZARA_RENDERTARGET_HPP
+#ifndef NAZARA_RENDERER_RENDERTARGET_HPP
+#define NAZARA_RENDERER_RENDERTARGET_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -35,4 +35,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderTarget.inl>
 
-#endif
+#endif // NAZARA_RENDERER_RENDERTARGET_HPP

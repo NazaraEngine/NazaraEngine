@@ -1,8 +1,13 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Prerequisites.hpp>
+
+#pragma once
+
+#ifndef NAZARA_RENDERER_GPUSWITCH_HPP
+#define NAZARA_RENDERER_GPUSWITCH_HPP
 
 #ifdef NAZARA_PLATFORM_WINDOWS
 
@@ -18,3 +23,5 @@ extern "C" \
 #define NAZARA_REQUEST_DEDICATED_GPU()
 
 #endif
+
+#endif // NAZARA_RENDERER_GPUSWITCH_HPP

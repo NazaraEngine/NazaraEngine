@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -12,10 +12,10 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSetLayout.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PipelineLayout.hpp>
 #include <memory>
 #include <type_traits>
@@ -66,4 +66,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.inl>
 
-#endif // NAZARA_VULKANRENDERER_VULKANRENDERPIPELINE_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP

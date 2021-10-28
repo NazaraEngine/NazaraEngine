@@ -1,18 +1,18 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Utility module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RENDERPASSCACHE_HPP
-#define NAZARA_RENDERPASSCACHE_HPP
+#ifndef NAZARA_RENDERER_RENDERPASSCACHE_HPP
+#define NAZARA_RENDERER_RENDERPASSCACHE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <memory>
-#include <variant>
 #include <unordered_map>
+#include <variant>
 
 namespace Nz
 {
@@ -67,4 +67,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderPassCache.inl>
 
-#endif // NAZARA_RENDERPASS_HPP
+#endif // NAZARA_RENDERER_RENDERPASSCACHE_HPP

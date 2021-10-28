@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_OBJPARSER_HPP
-#define NAZARA_FORMATS_OBJPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_OBJPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_OBJPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -103,4 +103,4 @@ namespace Nz
 
 #include <Nazara/Utility/Formats/OBJParser.inl>
 
-#endif // NAZARA_FORMATS_OBJPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_OBJPARSER_HPP

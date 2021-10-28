@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_GRAPHICS_HPP
-#define NAZARA_ALGORITHM_GRAPHICS_HPP
+#ifndef NAZARA_GRAPHICS_ALGORITHM_HPP
+#define NAZARA_GRAPHICS_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -16,4 +16,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Algorithm.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_ALGORITHM_HPP

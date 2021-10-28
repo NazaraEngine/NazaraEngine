@@ -1,11 +1,12 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 // Sources:
 // http://www.crownandcutlass.com/features/technicaldetails/frustum.html
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>

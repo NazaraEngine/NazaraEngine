@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,8 +8,8 @@
 #define NAZARA_CORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Modules.hpp>
 #include <Nazara/Core/ModuleBase.hpp>
+#include <Nazara/Core/Modules.hpp>
 #include <Nazara/Core/TypeList.hpp>
 
 namespace Nz

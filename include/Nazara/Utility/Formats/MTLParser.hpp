@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_MTLPARSER_HPP
-#define NAZARA_FORMATS_MTLPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MTLPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_MTLPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -76,4 +76,4 @@ namespace Nz
 
 #include <Nazara/Utility/Formats/MTLParser.inl>
 
-#endif // NAZARA_FORMATS_MTLPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_MTLPARSER_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_GUILLOTINETEXTUREATLAS_HPP
-#define NAZARA_GUILLOTINETEXTUREATLAS_HPP
+#ifndef NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
+#define NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -32,4 +32,4 @@ namespace Nz
 
 #include <Nazara/Graphics/GuillotineTextureAtlas.inl>
 
-#endif // NAZARA_GUILLOTINETEXTUREATLAS_HPP
+#endif // NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP

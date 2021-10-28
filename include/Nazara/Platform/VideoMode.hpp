@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_VIDEOMODE_HPP
-#define NAZARA_VIDEOMODE_HPP
+#ifndef NAZARA_PLATFORM_VIDEOMODE_HPP
+#define NAZARA_PLATFORM_VIDEOMODE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
@@ -40,4 +40,4 @@ namespace Nz
 	bool NAZARA_PLATFORM_API operator>=(const VideoMode& left, const VideoMode& right);
 }
 
-#endif // NAZARA_VIDEOMODE_HPP
+#endif // NAZARA_PLATFORM_VIDEOMODE_HPP

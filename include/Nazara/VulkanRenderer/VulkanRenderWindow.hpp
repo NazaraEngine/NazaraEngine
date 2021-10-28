@@ -1,24 +1,24 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
-#define NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
+#ifndef NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
+#define NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
-#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
+#include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
@@ -92,4 +92,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanRenderWindow.inl>
 
-#endif // NAZARA_VULKANRENDERER_RENDERWINDOW_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP

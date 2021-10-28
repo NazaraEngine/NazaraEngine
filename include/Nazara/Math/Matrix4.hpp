@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_MATRIX4_HPP
-#define NAZARA_MATRIX4_HPP
+#ifndef NAZARA_MATH_MATRIX4_HPP
+#define NAZARA_MATH_MATRIX4_HPP
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
@@ -155,4 +155,4 @@ template<typename T> Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& mat
 
 #include <Nazara/Math/Matrix4.inl>
 
-#endif // NAZARA_MATRIX4_HPP
+#endif // NAZARA_MATH_MATRIX4_HPP

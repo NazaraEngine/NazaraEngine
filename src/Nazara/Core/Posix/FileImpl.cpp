@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Alexandre Janniaux
+// Copyright (C) 2021 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,10 +6,10 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <cstdio>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

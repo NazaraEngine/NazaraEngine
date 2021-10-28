@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_INDEXMAPPER_HPP
-#define NAZARA_INDEXMAPPER_HPP
+#ifndef NAZARA_UTILITY_INDEXMAPPER_HPP
+#define NAZARA_UTILITY_INDEXMAPPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
@@ -51,4 +51,4 @@ namespace Nz
 };
 }
 
-#endif // NAZARA_INDEXMAPPER_HPP
+#endif // NAZARA_UTILITY_INDEXMAPPER_HPP

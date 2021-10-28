@@ -1,15 +1,16 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_MODELINSTANCE_HPP
-#define NAZARA_MODELINSTANCE_HPP
+#ifndef NAZARA_GRAPHICS_WORLDINSTANCE_HPP
+#define NAZARA_GRAPHICS_WORLDINSTANCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <memory>
 
 namespace Nz
@@ -52,4 +53,4 @@ namespace Nz
 
 #include <Nazara/Graphics/WorldInstance.inl>
 
-#endif // NAZARA_MODELINSTANCE_HPP
+#endif // NAZARA_GRAPHICS_WORLDINSTANCE_HPP

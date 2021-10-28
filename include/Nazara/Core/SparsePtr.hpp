@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SPARSEPTR_HPP
-#define NAZARA_SPARSEPTR_HPP
+#ifndef NAZARA_CORE_SPARSEPTR_HPP
+#define NAZARA_CORE_SPARSEPTR_HPP
 
 ///FIXME: Is SparsePtr a really good name for this class ?
 
@@ -80,4 +80,4 @@ namespace Nz
 
 #include <Nazara/Core/SparsePtr.inl>
 
-#endif // NAZARA_SPARSEPTR_HPP
+#endif // NAZARA_CORE_SPARSEPTR_HPP

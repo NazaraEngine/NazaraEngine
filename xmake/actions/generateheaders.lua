@@ -53,7 +53,7 @@ on_run(function ()
 			paths[moduleName .. "_Components"] = {
 				Excludes = table.copy(excludedFiles),
 				Header = head,
-				HeaderGuard = "NAZARA_GLOBAL_" .. moduleName:upper() .. "_COMPONENTS_HPP",
+				HeaderGuard = "NAZARA_" .. moduleName:upper() .. "_COMPONENTS_HPP",
 				Name = "Nazara" .. moduleName .. " components",
 				SearchDir = modulePath .. "/Components",
 				Target = modulePath .. "/Components.hpp"
@@ -64,7 +64,7 @@ on_run(function ()
 			paths[moduleName .. "_Systems"] = {
 				Excludes = table.copy(excludedFiles),
 				Header = head,
-				HeaderGuard = "NAZARA_GLOBAL_" .. moduleName:upper() .. "_SYSTEMS_HPP",
+				HeaderGuard = "NAZARA_" .. moduleName:upper() .. "_SYSTEMS_HPP",
 				Name = "Nazara" .. moduleName .. " systems",
 				SearchDir = modulePath .. "/Systems",
 				Target = modulePath .. "/Systems.hpp"
@@ -85,7 +85,7 @@ on_run(function ()
 			["InstanceFunctions.hpp"] = true,
 		},
 		Header = paths["OpenGLRenderer"].Header,
-		HeaderGuard = "NAZARA_GLOBAL_OPENGLRENDERER_WRAPPER_HPP",
+		HeaderGuard = "NAZARA_OPENGLRENDERER_WRAPPER_HPP",
 		Name = "OpenGL wrapper",
 		SearchDir = "include/Nazara/OpenGLRenderer/Wrapper", 
 		Target = "include/Nazara/OpenGLRenderer/Wrapper.hpp"
@@ -99,7 +99,7 @@ on_run(function ()
 			["InstanceFunctions.hpp"] = true,
 		},
 		Header = paths["VulkanRenderer"].Header,
-		HeaderGuard = "NAZARA_GLOBAL_VULKANRENDERER_WRAPPER_HPP",
+		HeaderGuard = "NAZARA_VULKANRENDERER_WRAPPER_HPP",
 		Name = "Vulkan wrapper",
 		SearchDir = "include/Nazara/VulkanRenderer/Wrapper", 
 		Target = "include/Nazara/VulkanRenderer/Wrapper.hpp"
@@ -118,7 +118,7 @@ on_run(function ()
 			error("Failed to create header file (" .. v.Target .. "): " .. err)
 		end
 
-		header:write("// This file was automatically generated\n\n")
+		header:write("// this file was automatically generated and should not be edited\n\n")
 		if (v.Header) then
 			header:write(v.Header)
 		end

@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,8 +8,8 @@
 #define NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFERBUILDER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 
 namespace Nz
 {
@@ -61,4 +61,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFERBUILDER_HPP

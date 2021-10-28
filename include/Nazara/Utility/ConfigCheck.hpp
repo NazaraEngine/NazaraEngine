@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_UTILITY_HPP
-#define NAZARA_CONFIG_CHECK_UTILITY_HPP
+#ifndef NAZARA_UTILITY_CONFIGCHECK_HPP
+#define NAZARA_UTILITY_CONFIGCHECK_HPP
 
 /// This file is used to check the constant values defined in Config.hpp
 
@@ -22,4 +22,4 @@ NazaraCheckTypeAndVal(NAZARA_UTILITY_SKINNING_MAX_WEIGHTS, integral, >, 0, " sha
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_UTILITY_HPP
+#endif // NAZARA_UTILITY_CONFIGCHECK_HPP

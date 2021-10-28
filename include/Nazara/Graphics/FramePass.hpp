@@ -1,17 +1,17 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FRAMEPASS_HPP
-#define NAZARA_FRAMEPASS_HPP
+#ifndef NAZARA_GRAPHICS_FRAMEPASS_HPP
+#define NAZARA_GRAPHICS_FRAMEPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <functional>
 #include <limits>
 #include <optional>
@@ -102,4 +102,4 @@ namespace Nz
 
 #include <Nazara/Graphics/FramePass.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_FRAMEPASS_HPP

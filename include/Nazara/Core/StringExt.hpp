@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CORE_STRING_EXT_HPP
-#define NAZARA_CORE_STRING_EXT_HPP
+#ifndef NAZARA_CORE_STRINGEXT_HPP
+#define NAZARA_CORE_STRINGEXT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
@@ -86,4 +86,4 @@ namespace Nz
 
 #include <Nazara/Core/StringExt.inl>
 
-#endif // NAZARA_ALGORITHM_CORE_HPP
+#endif // NAZARA_CORE_STRINGEXT_HPP

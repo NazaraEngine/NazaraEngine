@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,8 +8,8 @@
 #define NAZARA_WIDGETS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/ECS.hpp>
+#include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Widgets/Config.hpp>
 
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Widgets/Widgets.inl>
 
-#endif
+#endif // NAZARA_WIDGETS_HPP

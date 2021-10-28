@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RENDERPIPELINE_HPP
-#define NAZARA_RENDERPIPELINE_HPP
+#ifndef NAZARA_RENDERER_RENDERPIPELINE_HPP
+#define NAZARA_RENDERER_RENDERPIPELINE_HPP
 
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
@@ -43,4 +43,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderPipeline.inl>
 
-#endif // NAZARA_RENDERPIPELINE_HPP
+#endif // NAZARA_RENDERER_RENDERPIPELINE_HPP

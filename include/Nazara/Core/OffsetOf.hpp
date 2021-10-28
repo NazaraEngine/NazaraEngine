@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OFFSETOF_HPP
-#define NAZARA_OFFSETOF_HPP
+#ifndef NAZARA_CORE_OFFSETOF_HPP
+#define NAZARA_CORE_OFFSETOF_HPP
 
 // By "Jesse Good" from SO:
 // http://stackoverflow.com/questions/12811330/c-compile-time-offsetof-inside-a-template?answertab=votes#tab-top
@@ -27,4 +27,4 @@ namespace Nz
 
 #define NazaraOffsetOf(type, member) Nz::Detail::OffsetOf<decltype(Nz::Detail::GetClassType(&type::member)), decltype(Nz::Detail::GetMemberType(&type::member)), &type::member>()
 
-#endif // NAZARA_OFFSETOF_HPP
+#endif // NAZARA_CORE_OFFSETOF_HPP

@@ -1,11 +1,13 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef	NAZARA_OPENGLRENDERER_COREFUNCTIONS_HPP
-#define NAZARA_OPENGLRENDERER_COREFUNCTIONS_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
+
+// no include reordering
 
 #define GL_GLES_PROTOTYPES 0
 #include <GLES3/gl32.h>
@@ -182,4 +184,4 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	\
 	extCb(glSpecializeShaderARB, PFNGLSPECIALIZESHADERARBPROC) \
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP

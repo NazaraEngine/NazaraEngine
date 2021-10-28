@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -9,13 +9,13 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
+#include <cstring>
+#include <poll.h>
+#include <unistd.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/uio.h>
-#include <poll.h>
-#include <unistd.h>
-#include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
 #if !defined(TCP_KEEPIDLE) && defined(TCP_KEEPALIVE)

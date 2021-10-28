@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_MEMORYHELPER_HPP
-#define NAZARA_MEMORYHELPER_HPP
+#ifndef NAZARA_CORE_MEMORYHELPER_HPP
+#define NAZARA_CORE_MEMORYHELPER_HPP
 
 #if defined(NAZARA_COMPILER_MSVC) || defined(NAZARA_COMPILER_MINGW)
 
@@ -41,4 +41,4 @@ namespace Nz
 
 #include <Nazara/Core/MemoryHelper.inl>
 
-#endif // NAZARA_MEMORYHELPER_HPP
+#endif // NAZARA_CORE_MEMORYHELPER_HPP

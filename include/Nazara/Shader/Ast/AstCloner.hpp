@@ -1,17 +1,17 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SHADERASTCLONER_HPP
-#define NAZARA_SHADERASTCLONER_HPP
+#ifndef NAZARA_SHADER_AST_ASTCLONER_HPP
+#define NAZARA_SHADER_AST_ASTCLONER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
+#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -88,4 +88,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstCloner.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTCLONER_HPP

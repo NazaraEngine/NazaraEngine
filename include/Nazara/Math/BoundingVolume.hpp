@@ -1,9 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifndef NAZARA_BOUNDINGVOLUME_HPP
-#define NAZARA_BOUNDINGVOLUME_HPP
+#pragma once
+
+#ifndef NAZARA_MATH_BOUNDINGVOLUME_HPP
+#define NAZARA_MATH_BOUNDINGVOLUME_HPP
 
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -81,4 +83,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume)
 
 #include <Nazara/Math/BoundingVolume.inl>
 
-#endif // NAZARA_BOUNDINGVOLUME_HPP
+#endif // NAZARA_MATH_BOUNDINGVOLUME_HPP

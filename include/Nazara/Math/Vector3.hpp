@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Rémi Bèges - Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Rémi Bèges - Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VECTOR3_HPP
-#define NAZARA_VECTOR3_HPP
+#ifndef NAZARA_MATH_VECTOR3_HPP
+#define NAZARA_MATH_VECTOR3_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/TypeTag.hpp>
@@ -151,4 +151,4 @@ namespace std
 
 #include <Nazara/Math/Vector3.inl>
 
-#endif // NAZARA_VECTOR3_HPP
+#endif // NAZARA_MATH_VECTOR3_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_WINDOWHANDLE_HPP
-#define NAZARA_WINDOWHANDLE_HPP
+#ifndef NAZARA_PLATFORM_WINDOWHANDLE_HPP
+#define NAZARA_PLATFORM_WINDOWHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -48,4 +48,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_WINDOWHANDLE_HPP
+#endif // NAZARA_PLATFORM_WINDOWHANDLE_HPP

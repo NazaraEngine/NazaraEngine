@@ -1,7 +1,7 @@
 /*
 	Nazara Engine - Widgets module
 
-	Copyright (C) 2020 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_WIDGETS_HPP
-#define NAZARA_CONFIG_WIDGETS_HPP
+#ifndef NAZARA_WIDGETS_CONFIG_HPP
+#define NAZARA_WIDGETS_CONFIG_HPP
 
 /*!
 * \defgroup widgets (NazaraWidgets) Widgets module
@@ -50,4 +50,4 @@
 	#define NAZARA_WIDGETS_API
 #endif
 
-#endif // NAZARA_CONFIG_WIDGETS_HPP
+#endif // NAZARA_WIDGETS_CONFIG_HPP

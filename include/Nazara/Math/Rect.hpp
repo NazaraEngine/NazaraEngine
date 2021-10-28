@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RECT_HPP
-#define NAZARA_RECT_HPP
+#ifndef NAZARA_MATH_RECT_HPP
+#define NAZARA_MATH_RECT_HPP
 
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -104,4 +104,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect);
 
 #include <Nazara/Math/Rect.inl>
 
-#endif // NAZARA_RECT_HPP
+#endif // NAZARA_MATH_RECT_HPP

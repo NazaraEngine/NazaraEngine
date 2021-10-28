@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_ABSTRACTSOCKET_HPP
-#define NAZARA_ABSTRACTSOCKET_HPP
+#ifndef NAZARA_NETWORK_ABSTRACTSOCKET_HPP
+#define NAZARA_NETWORK_ABSTRACTSOCKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -68,4 +68,4 @@ namespace Nz
 
 #include <Nazara/Network/AbstractSocket.inl>
 
-#endif // NAZARA_ABSTRACTSOCKET_HPP
+#endif // NAZARA_NETWORK_ABSTRACTSOCKET_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Core module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OBJECTHANDLER_HPP
-#define NAZARA_OBJECTHANDLER_HPP
+#ifndef NAZARA_CORE_HANDLEDOBJECT_HPP
+#define NAZARA_CORE_HANDLEDOBJECT_HPP
 
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Core/Signal.hpp>
@@ -59,4 +59,4 @@ namespace Nz
 
 #include <Nazara/Core/HandledObject.inl>
 
-#endif // NAZARA_OBJECTHANDLER_HPP
+#endif // NAZARA_CORE_HANDLEDOBJECT_HPP

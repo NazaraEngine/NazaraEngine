@@ -1,3 +1,7 @@
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Network module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
 /*
 	Copyright(c) 2002 - 2016 Lee Salzman
 
@@ -7,10 +11,6 @@
 
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Network module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/Algorithm.hpp>

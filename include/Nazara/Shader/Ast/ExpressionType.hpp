@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,9 +8,9 @@
 #define NAZARA_SHADER_AST_EXPRESSIONTYPE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <optional>
 #include <string>
 #include <variant>
@@ -106,4 +106,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/ExpressionType.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_EXPRESSIONTYPE_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
-// This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Widgets module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_LABELWIDGET_HPP
-#define NAZARA_LABELWIDGET_HPP
+#ifndef NAZARA_WIDGETS_LABELWIDGET_HPP
+#define NAZARA_WIDGETS_LABELWIDGET_HPP
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Widgets/LabelWidget.inl>
 
-#endif
+#endif // NAZARA_WIDGETS_LABELWIDGET_HPP

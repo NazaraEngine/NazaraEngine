@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_LANGWRITER_HPP
-#define NAZARA_LANGWRITER_HPP
+#ifndef NAZARA_SHADER_LANGWRITER_HPP
+#define NAZARA_SHADER_LANGWRITER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -118,4 +118,4 @@ namespace Nz
 
 #include <Nazara/Shader/LangWriter.inl>
 
-#endif 
+#endif // NAZARA_SHADER_LANGWRITER_HPP

@@ -1,17 +1,17 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VULKANSHADERSTAGE_HPP
-#define NAZARA_VULKANRENDERER_VULKANSHADERSTAGE_HPP
+#ifndef NAZARA_VULKANRENDERER_VULKANSHADERMODULE_HPP
+#define NAZARA_VULKANRENDERER_VULKANSHADERMODULE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
 #include <vector>
 
@@ -50,4 +50,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanShaderModule.inl>
 
-#endif // NAZARA_VULKANRENDERER_VULKANSHADERSTAGE_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANSHADERMODULE_HPP

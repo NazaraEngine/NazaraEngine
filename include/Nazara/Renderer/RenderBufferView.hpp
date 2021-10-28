@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Utility module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RENDERBUFFERVIEW_HPP
-#define NAZARA_RENDERBUFFERVIEW_HPP
+#ifndef NAZARA_RENDERER_RENDERBUFFERVIEW_HPP
+#define NAZARA_RENDERER_RENDERBUFFERVIEW_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
@@ -38,4 +38,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderBufferView.inl>
 
-#endif // NAZARA_RENDERBUFFERVIEW_HPP
+#endif // NAZARA_RENDERER_RENDERBUFFERVIEW_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SHADER_CONSTANTVALUE_HPP
-#define NAZARA_SHADER_CONSTANTVALUE_HPP
+#ifndef NAZARA_SHADER_AST_CONSTANTVALUE_HPP
+#define NAZARA_SHADER_AST_CONSTANTVALUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/TypeList.hpp>
@@ -39,4 +39,4 @@ namespace Nz::ShaderAst
 	NAZARA_SHADER_API ExpressionType GetExpressionType(const ConstantValue& constant);
 }
 
-#endif
+#endif // NAZARA_SHADER_AST_CONSTANTVALUE_HPP

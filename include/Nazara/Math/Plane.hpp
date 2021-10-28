@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_PLANE_HPP
-#define NAZARA_PLANE_HPP
+#ifndef NAZARA_MATH_PLANE_HPP
+#define NAZARA_MATH_PLANE_HPP
 
 #include <Nazara/Math/Vector3.hpp>
 #include <string>
@@ -70,4 +70,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane);
 
 #include <Nazara/Math/Plane.inl>
 
-#endif // NAZARA_PLANE_HPP
+#endif // NAZARA_MATH_PLANE_HPP

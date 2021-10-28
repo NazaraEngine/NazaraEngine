@@ -1,17 +1,17 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_TASKSCHEDULERIMPL_HPP
-#define NAZARA_TASKSCHEDULERIMPL_HPP
+#ifndef NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
+#define NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <atomic>
 #include <memory>
-#include <pthread.h>
 #include <queue>
+#include <pthread.h>
 
 #if defined(NAZARA_PLATFORM_MACOSX)
 	typedef int pthread_barrierattr_t;
@@ -65,4 +65,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_TASKSCHEDULERIMPL_HPP
+#endif // NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
