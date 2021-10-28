@@ -1,8 +1,9 @@
-// Copyright (C) 2021 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Math/PidController.hpp>
+#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -26,3 +27,5 @@ namespace Nz
 		return currentError * m_pFactor + m_integral * m_iFactor + deriv * m_dFactor;
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

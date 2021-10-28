@@ -1,8 +1,8 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Audio/Formats/libvorbisLoader.hpp>
+#include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Config.hpp>
@@ -14,9 +14,9 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <FLAC/stream_decoder.h>
 #include <optional>
 #include <set>
-#include <FLAC/stream_decoder.h>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
@@ -612,4 +612,3 @@ namespace Nz
 		}
 	}
 }
-

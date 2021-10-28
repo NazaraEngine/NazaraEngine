@@ -1,11 +1,11 @@
-// Copyright (C) 2021 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Utility module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_PHYSICS3DSYSTEM_HPP
-#define NAZARA_PHYSICS3DSYSTEM_HPP
+#ifndef NAZARA_PHYSICS3D_SYSTEMS_PHYSICS3DSYSTEM_HPP
+#define NAZARA_PHYSICS3D_SYSTEMS_PHYSICS3DSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ECS.hpp>
@@ -42,4 +42,4 @@ namespace Nz
 
 #include <Nazara/Physics3D/Systems/Physics3DSystem.inl>
 
-#endif
+#endif // NAZARA_PHYSICS3D_SYSTEMS_PHYSICS3DSYSTEM_HPP

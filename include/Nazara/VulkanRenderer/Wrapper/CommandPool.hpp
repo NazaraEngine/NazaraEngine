@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKCOMMANDPOOL_HPP
-#define NAZARA_VULKANRENDERER_VKCOMMANDPOOL_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_COMMANDPOOL_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_COMMANDPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
@@ -46,4 +46,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.inl>
 
-#endif // NAZARA_VULKANRENDERER_VKCOMMANDPOOL_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_COMMANDPOOL_HPP

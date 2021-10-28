@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_ALGORITHM_UTILITY_HPP
-#define NAZARA_ALGORITHM_UTILITY_HPP
+#ifndef NAZARA_UTILITY_ALGORITHM_HPP
+#define NAZARA_UTILITY_ALGORITHM_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
@@ -71,4 +71,4 @@ namespace Nz
 }
 #include <Nazara/Utility/Algorithm.inl>
 
-#endif // NAZARA_ALGORITHM_UTILITY_HPP
+#endif // NAZARA_UTILITY_ALGORITHM_HPP

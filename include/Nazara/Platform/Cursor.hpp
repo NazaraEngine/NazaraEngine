@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CURSOR_HPP
-#define NAZARA_CURSOR_HPP
+#ifndef NAZARA_PLATFORM_CURSOR_HPP
+#define NAZARA_PLATFORM_CURSOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -59,4 +59,4 @@ namespace Nz
 
 #include <Nazara/Platform/Cursor.inl>
 
-#endif // NAZARA_CURSOR_HPP
+#endif // NAZARA_PLATFORM_CURSOR_HPP

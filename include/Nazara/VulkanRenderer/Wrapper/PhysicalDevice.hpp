@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Vulkan Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP
-#define NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP
+#ifndef NAZARA_VULKANRENDERER_WRAPPER_PHYSICALDEVICE_HPP
+#define NAZARA_VULKANRENDERER_WRAPPER_PHYSICALDEVICE_HPP
 
 #include <vulkan/vulkan_core.h>
 #include <unordered_set>
@@ -24,4 +24,4 @@ namespace Nz::Vk
 	};
 }
 
-#endif // NAZARA_VULKANRENDERER_VKPHYSICALDEVICE_HPP
+#endif // NAZARA_VULKANRENDERER_WRAPPER_PHYSICALDEVICE_HPP

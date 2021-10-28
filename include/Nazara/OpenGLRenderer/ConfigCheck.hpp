@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_OPENGLRENDERER_HPP
-#define NAZARA_CONFIG_CHECK_OPENGLRENDERER_HPP
+#ifndef NAZARA_OPENGLRENDERER_CONFIGCHECK_HPP
+#define NAZARA_OPENGLRENDERER_CONFIGCHECK_HPP
 
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
@@ -19,4 +19,4 @@
 	#define NAZARA_OPENGLRENDERER_MANAGE_MEMORY 0
 #endif
 
-#endif // NAZARA_CONFIG_CHECK_OPENGLRENDERER_HPP
+#endif // NAZARA_OPENGLRENDERER_CONFIGCHECK_HPP

@@ -1,15 +1,15 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SPIRVSECTIONBASE_HPP
-#define NAZARA_SPIRVSECTIONBASE_HPP
+#ifndef NAZARA_SHADER_SPIRVSECTIONBASE_HPP
+#define NAZARA_SHADER_SPIRVSECTIONBASE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <string>
 #include <vector>
 
@@ -72,4 +72,4 @@ namespace Nz
 
 #include <Nazara/Shader/SpirvSectionBase.inl>
 
-#endif
+#endif // NAZARA_SHADER_SPIRVSECTIONBASE_HPP

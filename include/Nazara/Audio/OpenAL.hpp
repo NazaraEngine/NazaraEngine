@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OPENAL_HPP
-#define NAZARA_OPENAL_HPP
+#ifndef NAZARA_AUDIO_OPENAL_HPP
+#define NAZARA_AUDIO_OPENAL_HPP
 
 #if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
@@ -189,4 +189,4 @@ NAZARA_AUDIO_API extern OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext;
 
 #endif // NAZARA_AUDIO_OPENAL
 
-#endif // NAZARA_OPENAL_HPP
+#endif // NAZARA_AUDIO_OPENAL_HPP

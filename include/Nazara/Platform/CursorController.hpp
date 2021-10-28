@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CURSORCONTROLLER_HPP
-#define NAZARA_CURSORCONTROLLER_HPP
+#ifndef NAZARA_PLATFORM_CURSORCONTROLLER_HPP
+#define NAZARA_PLATFORM_CURSORCONTROLLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
@@ -39,4 +39,4 @@ namespace Nz
 
 #include <Nazara/Platform/CursorController.inl>
 
-#endif // NAZARA_CURSORCONTROLLER_HPP
+#endif // NAZARA_PLATFORM_CURSORCONTROLLER_HPP

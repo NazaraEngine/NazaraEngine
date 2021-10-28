@@ -1,11 +1,11 @@
-// Copyright (C) 2015 Alexandre Janniaux
+// Copyright (C) 2021 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FILEIMPL_HPP
-#define NAZARA_FILEIMPL_HPP
+#ifndef NAZARA_CORE_POSIX_FILEIMPL_HPP
+#define NAZARA_CORE_POSIX_FILEIMPL_HPP
 
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -66,4 +66,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FILEIMPL_HPP
+#endif // NAZARA_CORE_POSIX_FILEIMPL_HPP

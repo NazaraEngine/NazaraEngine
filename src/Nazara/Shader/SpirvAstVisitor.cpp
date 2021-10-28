@@ -1,14 +1,14 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
-#include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvExpressionLoad.hpp>
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
+#include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <SpirV/GLSL.std.450.h>
 #include <Nazara/Shader/Debug.hpp>

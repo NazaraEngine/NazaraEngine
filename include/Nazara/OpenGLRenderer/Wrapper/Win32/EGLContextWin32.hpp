@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_EGLCONTEXTWIN32_HPP
-#define NAZARA_OPENGLRENDERER_EGLCONTEXTWIN32_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_WIN32_EGLCONTEXTWIN32_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_WIN32_EGLCONTEXTWIN32_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
@@ -35,4 +35,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/Win32/EGLContextWin32.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_WIN32_EGLCONTEXTWIN32_HPP

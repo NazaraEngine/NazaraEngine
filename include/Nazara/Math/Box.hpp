@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_BOX_HPP
-#define NAZARA_BOX_HPP
+#ifndef NAZARA_MATH_BOX_HPP
+#define NAZARA_MATH_BOX_HPP
 
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
@@ -109,4 +109,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box);
 
 #include <Nazara/Math/Box.inl>
 
-#endif // NAZARA_BOX_HPP
+#endif // NAZARA_MATH_BOX_HPP

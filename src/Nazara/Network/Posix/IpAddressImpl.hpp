@@ -1,11 +1,11 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_IPADDRESSIMPL_HPP
-#define NAZARA_IPADDRESSIMPL_HPP
+#ifndef NAZARA_NETWORK_POSIX_IPADDRESSIMPL_HPP
+#define NAZARA_NETWORK_POSIX_IPADDRESSIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
 #include <string>
@@ -37,4 +37,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_IPADDRESSIMPL_HPP
+#endif // NAZARA_NETWORK_POSIX_IPADDRESSIMPL_HPP

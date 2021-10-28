@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_ANGLE_HPP
-#define NAZARA_ANGLE_HPP
+#ifndef NAZARA_MATH_ANGLE_HPP
+#define NAZARA_MATH_ANGLE_HPP
 
 #include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Math/Algorithm.hpp>
@@ -102,4 +102,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::Angle<Unit, T>& angle);
 
 #include <Nazara/Math/Angle.inl>
 
-#endif // NAZARA_ANGLE_HPP
+#endif // NAZARA_MATH_ANGLE_HPP

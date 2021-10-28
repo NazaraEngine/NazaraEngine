@@ -1,7 +1,7 @@
 /*
-	Nazara Engine - OpenGL
+	Nazara Engine - OpenGL renderer
 
-	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_OPENGLRENDERER_HPP
-#define NAZARA_CONFIG_OPENGLRENDERER_HPP
+#ifndef NAZARA_OPENGLRENDERER_CONFIG_HPP
+#define NAZARA_OPENGLRENDERER_CONFIG_HPP
 
 /// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
@@ -50,4 +50,4 @@
 	#define NAZARA_OPENGLRENDERER_API
 #endif
 
-#endif // NAZARA_CONFIG_OPENGLRENDERER_HPP
+#endif // NAZARA_OPENGLRENDERER_CONFIG_HPP

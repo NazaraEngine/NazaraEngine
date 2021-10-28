@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SHADERSERIALIZER_HPP
-#define NAZARA_SHADERSERIALIZER_HPP
+#ifndef NAZARA_SHADER_AST_ASTSERIALIZER_HPP
+#define NAZARA_SHADER_AST_ASTSERIALIZER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
@@ -153,4 +153,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstSerializer.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTSERIALIZER_HPP

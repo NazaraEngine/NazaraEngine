@@ -1,9 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifndef NAZARA_LOADERS_MD2_CONSTANTS_HPP
-#define NAZARA_LOADERS_MD2_CONSTANTS_HPP
+#pragma once
+
+#ifndef NAZARA_UTILITY_FORMATS_MD2CONSTANTS_HPP
+#define NAZARA_UTILITY_FORMATS_MD2CONSTANTS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -64,4 +66,4 @@ namespace Nz
 	extern const Vector3f md2Normals[162];
 }
 
-#endif // NAZARA_LOADERS_MD2_CONSTANTS_HPP
+#endif // NAZARA_UTILITY_FORMATS_MD2CONSTANTS_HPP

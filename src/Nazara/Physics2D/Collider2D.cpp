@@ -1,13 +1,13 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics 2D module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Physics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/Collider2D.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Math/Quaternion.hpp>
-#include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
+#include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_structs.h>
 #include <array>

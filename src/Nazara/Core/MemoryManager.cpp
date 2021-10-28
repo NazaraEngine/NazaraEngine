@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -15,6 +15,7 @@
 	#include <pthread.h>
 #endif
 
+// no include fix
 // The only file that does not need to include Debug.hpp
 
 namespace Nz

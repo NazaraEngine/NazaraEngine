@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics 3D module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RIGIDBODY3D_HPP
-#define NAZARA_RIGIDBODY3D_HPP
+#ifndef NAZARA_PHYSICS3D_RIGIDBODY3D_HPP
+#define NAZARA_PHYSICS3D_RIGIDBODY3D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
@@ -13,8 +13,8 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
+#include <Nazara/Physics3D/Config.hpp>
 
 class NewtonBody;
 
@@ -92,4 +92,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_RIGIDBODY3D_HPP
+#endif // NAZARA_PHYSICS3D_RIGIDBODY3D_HPP

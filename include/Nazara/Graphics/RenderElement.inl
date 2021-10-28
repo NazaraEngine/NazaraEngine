@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Debug.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
@@ -25,4 +25,4 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>
+#include <Nazara/Graphics/DebugOff.hpp>

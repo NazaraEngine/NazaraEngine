@@ -1,9 +1,10 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
 {

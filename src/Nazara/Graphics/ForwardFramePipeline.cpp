@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -130,6 +130,8 @@ namespace Nz
 
 		// Update UBOs and materials
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
+
+		bool prepare = false;
 
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{

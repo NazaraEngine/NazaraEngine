@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FIELDOFFSETS_HPP
-#define NAZARA_FIELDOFFSETS_HPP
+#ifndef NAZARA_UTILITY_FIELDOFFSETS_HPP
+#define NAZARA_UTILITY_FIELDOFFSETS_HPP
 
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -48,4 +48,4 @@ namespace Nz
 
 #include <Nazara/Utility/FieldOffsets.inl>
 
-#endif // NAZARA_FIELDOFFSETS_HPP
+#endif // NAZARA_UTILITY_FIELDOFFSETS_HPP

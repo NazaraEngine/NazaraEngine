@@ -1,19 +1,19 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SOCKETPOLLERIMPL_HPP
-#define NAZARA_SOCKETPOLLERIMPL_HPP
+#ifndef NAZARA_NETWORK_WIN32_SOCKETPOLLERIMPL_HPP
+#define NAZARA_NETWORK_WIN32_SOCKETPOLLERIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#include <winsock2.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <winsock2.h>
 
 namespace Nz
 {
@@ -49,4 +49,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SOCKETPOLLERIMPL_HPP
+#endif // NAZARA_NETWORK_WIN32_SOCKETPOLLERIMPL_HPP

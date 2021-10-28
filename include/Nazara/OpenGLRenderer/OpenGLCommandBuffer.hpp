@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Renderer module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -10,12 +10,12 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Renderer/CommandBuffer.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
+#include <Nazara/Renderer/CommandBuffer.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <optional>
 #include <variant>
 #include <vector>

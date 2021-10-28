@@ -1,9 +1,9 @@
-// This file was automatically generated
+// this file was automatically generated and should not be edited
 
 /*
-	Nazara Engine - Physics 3D module
+	Nazara Engine - Physics3D module
 
-	Copyright (C) 2015 Jérôme "Lynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#ifndef NAZARA_GLOBAL_PHYSICS3D_COMPONENTS_HPP
-#define NAZARA_GLOBAL_PHYSICS3D_COMPONENTS_HPP
+#ifndef NAZARA_PHYSICS3D_COMPONENTS_HPP
+#define NAZARA_PHYSICS3D_COMPONENTS_HPP
 
 #include <Nazara/Physics3D/Components/RigidBody3DComponent.hpp>
 
-#endif // NAZARA_GLOBAL_PHYSICS3D_COMPONENTS_HPP
+#endif // NAZARA_PHYSICS3D_COMPONENTS_HPP

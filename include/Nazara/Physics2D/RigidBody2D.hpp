@@ -1,19 +1,19 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics 2D module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Physics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RIGIDBODY2D_HPP
-#define NAZARA_RIGIDBODY2D_HPP
+#ifndef NAZARA_PHYSICS2D_RIGIDBODY2D_HPP
+#define NAZARA_PHYSICS2D_RIGIDBODY2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
+#include <Nazara/Physics2D/Config.hpp>
 #include <functional>
 #include <limits>
 
@@ -136,4 +136,4 @@ namespace Nz
 
 #include <Nazara/Physics2D/RigidBody2D.inl>
 
-#endif // NAZARA_RIGIDBODY2D_HPP
+#endif // NAZARA_PHYSICS2D_RIGIDBODY2D_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Graphics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CONFIG_CHECK_RENDERER_HPP
-#define NAZARA_CONFIG_CHECK_RENDERER_HPP
+#ifndef NAZARA_RENDERER_CONFIGCHECK_HPP
+#define NAZARA_RENDERER_CONFIGCHECK_HPP
 
 /// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
 
@@ -22,4 +22,4 @@ NazaraCheckTypeAndVal(NAZARA_RENDERER_INSTANCE_BUFFER_SIZE, integral, >, 0, " sh
 
 #undef NazaraCheckTypeAndVal
 
-#endif // NAZARA_CONFIG_CHECK_RENDERER_HPP
+#endif // NAZARA_RENDERER_CONFIGCHECK_HPP

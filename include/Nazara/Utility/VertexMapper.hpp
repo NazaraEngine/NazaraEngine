@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_VERTEXMAPPER_HPP
-#define NAZARA_VERTEXMAPPER_HPP
+#ifndef NAZARA_UTILITY_VERTEXMAPPER_HPP
+#define NAZARA_UTILITY_VERTEXMAPPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/SparsePtr.hpp>
@@ -41,4 +41,4 @@ namespace Nz
 
 #include <Nazara/Utility/VertexMapper.inl>
 
-#endif // NAZARA_VERTEXMAPPER_HPP
+#endif // NAZARA_UTILITY_VERTEXMAPPER_HPP

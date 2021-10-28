@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RENDERDEVICEINSTANCE_HPP
-#define NAZARA_RENDERDEVICEINSTANCE_HPP
+#ifndef NAZARA_RENDERER_RENDERDEVICE_HPP
+#define NAZARA_RENDERER_RENDERDEVICE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
@@ -17,8 +17,8 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <memory>
@@ -58,4 +58,4 @@ namespace Nz
 
 #include <Nazara/Renderer/RenderDevice.inl>
 
-#endif // NAZARA_RENDERDEVICEINSTANCE_HPP
+#endif // NAZARA_RENDERER_RENDERDEVICE_HPP

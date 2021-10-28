@@ -1,17 +1,17 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FORMATS_MD5ANIMPARSER_HPP
-#define NAZARA_FORMATS_MD5ANIMPARSER_HPP
+#ifndef NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP
+#define NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/Config.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Utility/Config.hpp>
 #include <vector>
 
 namespace Nz
@@ -78,4 +78,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_FORMATS_MD5ANIMPARSER_HPP
+#endif // NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP

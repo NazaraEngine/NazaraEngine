@@ -1,16 +1,16 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_IMAGE_HPP
-#define NAZARA_IMAGE_HPP
+#ifndef NAZARA_UTILITY_IMAGE_HPP
+#define NAZARA_UTILITY_IMAGE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
@@ -165,4 +165,4 @@ namespace Nz
 
 #include <Nazara/Utility/Image.inl>
 
-#endif // NAZARA_IMAGE_HPP
+#endif // NAZARA_UTILITY_IMAGE_HPP

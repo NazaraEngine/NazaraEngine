@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_PREDEFINEDSHADERSTRUCTS_HPP
-#define NAZARA_PREDEFINEDSHADERSTRUCTS_HPP
+#ifndef NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP
+#define NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP
 
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
@@ -65,4 +65,4 @@ namespace Nz
 
 #include <Nazara/Graphics/PredefinedShaderStructs.inl>
 
-#endif // NAZARA_PREDEFINEDSHADERSTRUCTS_HPP
+#endif // NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP

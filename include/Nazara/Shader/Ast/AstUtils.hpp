@@ -1,16 +1,16 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SHADER_AST_UTILS_HPP
-#define NAZARA_SHADER_AST_UTILS_HPP
+#ifndef NAZARA_SHADER_AST_ASTUTILS_HPP
+#define NAZARA_SHADER_AST_ASTUTILS_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
@@ -55,4 +55,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstUtils.inl>
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTUTILS_HPP

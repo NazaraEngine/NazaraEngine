@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SEQUENCE_HPP
-#define NAZARA_SEQUENCE_HPP
+#ifndef NAZARA_UTILITY_SEQUENCE_HPP
+#define NAZARA_UTILITY_SEQUENCE_HPP
 
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -29,4 +29,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SEQUENCE_HPP
+#endif // NAZARA_UTILITY_SEQUENCE_HPP

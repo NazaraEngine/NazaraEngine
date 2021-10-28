@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SHADER_BUILDER_HPP
-#define NAZARA_SHADER_BUILDER_HPP
+#ifndef NAZARA_SHADER_SHADERBUILDER_HPP
+#define NAZARA_SHADER_SHADERBUILDER_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
@@ -171,4 +171,4 @@ namespace Nz::ShaderBuilder
 
 #include <Nazara/Shader/ShaderBuilder.inl>
 
-#endif // NAZARA_SHADER_BUILDER_HPP
+#endif // NAZARA_SHADER_SHADERBUILDER_HPP

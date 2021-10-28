@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OBJECTHANDLE_HPP
-#define NAZARA_OBJECTHANDLE_HPP
+#ifndef NAZARA_CORE_OBJECTHANDLE_HPP
+#define NAZARA_CORE_OBJECTHANDLE_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/HandledObject.hpp>
@@ -98,4 +98,4 @@ namespace std
 
 #include <Nazara/Core/ObjectHandle.inl>
 
-#endif // NAZARA_OBJECTHANDLE_HPP
+#endif // NAZARA_CORE_OBJECTHANDLE_HPP

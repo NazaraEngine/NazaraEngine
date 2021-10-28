@@ -1,16 +1,16 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_IPADDRESSIMPL_HPP
-#define NAZARA_IPADDRESSIMPL_HPP
+#ifndef NAZARA_NETWORK_WIN32_IPADDRESSIMPL_HPP
+#define NAZARA_NETWORK_WIN32_IPADDRESSIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
-#include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <string>
 
 namespace Nz
 {
@@ -40,4 +40,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_IPADDRESSIMPL_HPP
+#endif // NAZARA_NETWORK_WIN32_IPADDRESSIMPL_HPP

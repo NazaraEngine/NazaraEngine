@@ -1,11 +1,11 @@
-// Copyright (C) 2015 Alexandre Janniaux
+// Copyright (C) 2021 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_HARDWAREINFOIMPL_POSIX_HPP
-#define NAZARA_HARDWAREINFOIMPL_POSIX_HPP
+#ifndef NAZARA_CORE_POSIX_HARDWAREINFOIMPL_HPP
+#define NAZARA_CORE_POSIX_HARDWAREINFOIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -21,4 +21,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_HARDWAREINFOIMPL_POSIX_HPP
+#endif // NAZARA_CORE_POSIX_HARDWAREINFOIMPL_HPP

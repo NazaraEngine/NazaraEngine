@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_FRAMEGRAPH_HPP
-#define NAZARA_FRAMEGRAPH_HPP
+#ifndef NAZARA_GRAPHICS_FRAMEGRAPH_HPP
+#define NAZARA_GRAPHICS_FRAMEGRAPH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
@@ -16,9 +16,9 @@
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <optional>
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace Nz
 {
@@ -118,4 +118,4 @@ namespace Nz
 
 #include <Nazara/Graphics/FrameGraph.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_FRAMEGRAPH_HPP

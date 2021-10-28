@@ -1,8 +1,9 @@
-// Copyright (C) 2017 Jérôme Leclercq
-// This file is part of the "Nazara Development Kit"
-// For conditions of distribution and use, see copyright notice in Prerequisites.hpp
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Widgets module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ButtonWidget.hpp>
+#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
@@ -69,3 +70,5 @@ namespace Nz
 		Layout();
 	}
 }
+
+#include <Nazara/Widgets/DebugOff.hpp>

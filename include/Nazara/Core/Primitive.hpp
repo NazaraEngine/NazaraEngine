@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_PRIMITIVE_HPP
-#define NAZARA_PRIMITIVE_HPP
+#ifndef NAZARA_CORE_PRIMITIVE_HPP
+#define NAZARA_CORE_PRIMITIVE_HPP
 
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Box.hpp>
@@ -108,4 +108,4 @@ namespace Nz
 
 #include <Nazara/Core/Primitive.inl>
 
-#endif // NAZARA_PRIMITIVE_HPP
+#endif // NAZARA_CORE_PRIMITIVE_HPP

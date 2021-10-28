@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SOCKETHANDLE_HPP
-#define NAZARA_SOCKETHANDLE_HPP
+#ifndef NAZARA_NETWORK_SOCKETHANDLE_HPP
+#define NAZARA_NETWORK_SOCKETHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 
@@ -24,4 +24,4 @@ namespace Nz
 	#endif
 }
 
-#endif // NAZARA_SOCKETHANDLE_HPP
+#endif // NAZARA_NETWORK_SOCKETHANDLE_HPP

@@ -1,13 +1,13 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Utility module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <limits>
 #include <Nazara/Network/NetPacket.hpp>
+#include <limits>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>

@@ -1,17 +1,17 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_BUFFER_HPP
-#define NAZARA_OPENGLRENDERER_BUFFER_HPP
+#ifndef NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP
+#define NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
+#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <memory>
 #include <vector>
 
@@ -50,4 +50,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.inl>
 
-#endif // NAZARA_OPENGLRENDERER_BUFFER_HPP
+#endif // NAZARA_OPENGLRENDERER_OPENGLBUFFER_HPP

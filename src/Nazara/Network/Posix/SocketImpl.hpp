@@ -1,15 +1,15 @@
-// Copyright (C) 2015 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SOCKETIMPL_HPP
-#define NAZARA_SOCKETIMPL_HPP
+#ifndef NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP
+#define NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP
 
-#include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/IpAddress.hpp>
+#include <Nazara/Network/SocketHandle.hpp>
 
 #define NAZARA_NETWORK_POLL_SUPPORT 1
 
@@ -92,4 +92,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_SOCKETIMPL_HPP
+#endif // NAZARA_NETWORK_POSIX_SOCKETIMPL_HPP

@@ -1,11 +1,11 @@
-// Copyright (C) 2021 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICSCOMPONENT_HPP
-#define NAZARA_GRAPHICSCOMPONENT_HPP
+#ifndef NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP
+#define NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ECS.hpp>
@@ -44,4 +44,4 @@ namespace Nz
 
 #include <Nazara/Graphics/Components/GraphicsComponent.inl>
 
-#endif
+#endif // NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP

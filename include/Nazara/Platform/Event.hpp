@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_EVENT_HPP
-#define NAZARA_EVENT_HPP
+#ifndef NAZARA_PLATFORM_EVENT_HPP
+#define NAZARA_PLATFORM_EVENT_HPP
 
 #include <array>
 
@@ -135,4 +135,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_EVENT_HPP
+#endif // NAZARA_PLATFORM_EVENT_HPP

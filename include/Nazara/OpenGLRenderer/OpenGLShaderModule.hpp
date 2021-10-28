@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,11 +8,11 @@
 #define NAZARA_OPENGLRENDERER_OPENGLSHADERMODULE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
+#include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
 #include <vector>
@@ -62,4 +62,4 @@ namespace Nz
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.inl>
 
-#endif // NAZARA_OPENGLRENDERER_OPENGLSHADERSTAGE_HPP
+#endif // NAZARA_OPENGLRENDERER_OPENGLSHADERMODULE_HPP

@@ -1,13 +1,15 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef	NAZARA_OPENGLRENDERER_WGLFUNCTIONS_HPP
-#define NAZARA_OPENGLRENDERER_WGLFUNCTIONS_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_WIN32_GDI32FUNCTIONS_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_WIN32_GDI32FUNCTIONS_HPP
 
 #undef WIN32_LEAN_AND_MEAN //< Redefined by wgl.h header (ty Khronos)
+
+// no include reordering
 
 #include <GLES3/gl3.h>
 #include <GL/wgl.h>
@@ -51,4 +53,4 @@
 	func(SetPixelFormat, PFNSETPIXELFORMATPROC) \
 	func(SwapBuffers, PFNSWAPBUFFERSPROC) \
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_WIN32_GDI32FUNCTIONS_HPP

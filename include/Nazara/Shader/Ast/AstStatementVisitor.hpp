@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_SHADERASTSTATEMENTVISITOR_HPP
-#define NAZARA_SHADERASTSTATEMENTVISITOR_HPP
+#ifndef NAZARA_SHADER_AST_ASTSTATEMENTVISITOR_HPP
+#define NAZARA_SHADER_AST_ASTSTATEMENTVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -29,4 +29,4 @@ namespace Nz::ShaderAst
 	};
 }
 
-#endif
+#endif // NAZARA_SHADER_AST_ASTSTATEMENTVISITOR_HPP

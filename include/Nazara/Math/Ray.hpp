@@ -1,11 +1,11 @@
-// Copyright (C) 2017 Gawaboumga (https://github.com/Gawaboumga) - Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Gawaboumga (https://github.com/Gawaboumga) - Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_RAY_HPP
-#define NAZARA_RAY_HPP
+#ifndef NAZARA_MATH_RAY_HPP
+#define NAZARA_MATH_RAY_HPP
 
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -84,4 +84,4 @@ template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T
 
 #include <Nazara/Math/Ray.inl>
 
-#endif // NAZARA_RAY_HPP
+#endif // NAZARA_MATH_RAY_HPP

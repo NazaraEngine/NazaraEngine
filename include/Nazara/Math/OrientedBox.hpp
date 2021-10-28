@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Mathematics module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_ORIENTEDBOX_HPP
-#define NAZARA_ORIENTEDBOX_HPP
+#ifndef NAZARA_MATH_ORIENTEDBOX_HPP
+#define NAZARA_MATH_ORIENTEDBOX_HPP
 
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
@@ -78,4 +78,4 @@ std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBo
 
 #include <Nazara/Math/OrientedBox.inl>
 
-#endif // NAZARA_ORIENTEDBOX_HPP
+#endif // NAZARA_MATH_ORIENTEDBOX_HPP

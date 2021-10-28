@@ -1,5 +1,5 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Physics 2D module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Physics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/RigidBody2D.hpp>
@@ -9,7 +9,7 @@
 #include <chipmunk/chipmunk_private.h>
 #include <algorithm>
 #include <cmath>
-#include <Nazara/Physics3D/Debug.hpp>
+#include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
 {

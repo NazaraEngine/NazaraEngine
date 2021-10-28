@@ -1,11 +1,11 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_ENUMS_GRAPHICS_HPP
-#define NAZARA_ENUMS_GRAPHICS_HPP
+#ifndef NAZARA_GRAPHICS_ENUMS_HPP
+#define NAZARA_GRAPHICS_ENUMS_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Flags.hpp>
@@ -63,4 +63,4 @@ namespace Nz
 	constexpr std::size_t PredefinedShaderBindingCount = static_cast<std::size_t>(PredefinedShaderBinding::Max) + 1;
 }
 
-#endif // NAZARA_ENUMS_GRAPHICS_HPP
+#endif // NAZARA_GRAPHICS_ENUMS_HPP

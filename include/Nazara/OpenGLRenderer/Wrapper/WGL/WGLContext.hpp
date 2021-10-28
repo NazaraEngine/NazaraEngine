@@ -1,19 +1,19 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - OpenGL Renderer"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_WGLCONTEXT_HPP
-#define NAZARA_OPENGLRENDERER_WGLCONTEXT_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLCONTEXT_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLCONTEXT_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
-#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
@@ -81,4 +81,4 @@ namespace Nz::GL
 
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.inl>
 
-#endif
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLCONTEXT_HPP

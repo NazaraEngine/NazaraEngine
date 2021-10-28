@@ -1,17 +1,18 @@
-// Copyright (C) 2021 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Shader generator"
-// For conditions of distribution and use, see copyright notice in Config.hpp"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Shader module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
 
-// This file was generated automatically, please do not edit
+// this file was automatically generated and should not be edited
 
 #include <Nazara/Shader/SpirvData.hpp>
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <Nazara/Shader/Debug.hpp>
 
 namespace Nz
 {
-	static constexpr std::array<SpirvInstruction::Operand, 2185> s_operands = {
+	static constexpr std::array<SpirvInstruction::Operand, 2677> s_operands = {
 		{
 			{
 				SpirvOperandKind::IdResultType,
@@ -5494,6 +5495,138 @@ namespace Nz
 				R"('Accel')"
 			},
 			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 2')"
+			},
+			{
+				SpirvOperandKind::PackedVectorFormat,
+				R"('Packed Vector Format')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 2')"
+			},
+			{
+				SpirvOperandKind::PackedVectorFormat,
+				R"('Packed Vector Format')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 2')"
+			},
+			{
+				SpirvOperandKind::PackedVectorFormat,
+				R"('Packed Vector Format')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 2')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Accumulator')"
+			},
+			{
+				SpirvOperandKind::PackedVectorFormat,
+				R"('Packed Vector Format')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 2')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Accumulator')"
+			},
+			{
+				SpirvOperandKind::PackedVectorFormat,
+				R"('Packed Vector Format')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Vector 2')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Accumulator')"
+			},
+			{
+				SpirvOperandKind::PackedVectorFormat,
+				R"('Packed Vector Format')"
+			},
+			{
 				SpirvOperandKind::IdResult,
 				R"(IdResult)"
 			},
@@ -5888,6 +6021,102 @@ namespace Nz
 			{
 				SpirvOperandKind::IdRef,
 				R"('PayloadId')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Accel')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Flags')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Cull Mask')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('SBT Offset')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('SBT Stride')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Miss Index')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Origin')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Tmin')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Direction')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Tmax')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Time')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('PayloadId')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Accel')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Flags')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Cull Mask')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('SBT Offset')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('SBT Stride')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Miss Index')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Origin')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Tmin')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Direction')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Ray Tmax')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Time')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Payload')"
 			},
 			{
 				SpirvOperandKind::IdResult,
@@ -8394,8 +8623,1744 @@ namespace Nz
 				R"('Ptr')"
 			},
 			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('FromSign')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('FromSign')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M2')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('A')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('M1')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('B')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Mout')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('EnableSubnormals')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingMode')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('RoundingAccuracy')"
+			},
+			{
 				SpirvOperandKind::LiteralInteger,
 				R"('Loop Control Parameters')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
+			},
+			{
+				SpirvOperandKind::IdResultType,
+				R"(IdResultType)"
+			},
+			{
+				SpirvOperandKind::IdResult,
+				R"(IdResult)"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input Type')"
+			},
+			{
+				SpirvOperandKind::IdRef,
+				R"('Input')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('S')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('I')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('rI')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('Q')"
+			},
+			{
+				SpirvOperandKind::LiteralInteger,
+				R"('O')"
 			},
 			{
 				SpirvOperandKind::IdResultType,
@@ -8750,6 +10715,10 @@ namespace Nz
 				R"(IdResult)"
 			},
 			{
+				SpirvOperandKind::AccessQualifier,
+				R"('AccessQualifier')"
+			},
+			{
 				SpirvOperandKind::IdRef,
 				R"('Member 0 type', +
 'member 1 type', +
@@ -8766,7 +10735,7 @@ namespace Nz
 		}
 	};
 
-	static std::array<SpirvInstruction, 576> s_instructions = {
+	static std::array<SpirvInstruction, 636> s_instructions = {
 		{
 			{
 				SpirvOp::OpNop,
@@ -11261,157 +13230,199 @@ namespace Nz
 				0,
 			},
 			{
+				SpirvOp::OpSDotKHR,
+				R"(OpSDotKHR)",
+				&s_operands[1368],
+				&s_operands[1369],
+				5,
+			},
+			{
+				SpirvOp::OpUDotKHR,
+				R"(OpUDotKHR)",
+				&s_operands[1373],
+				&s_operands[1374],
+				5,
+			},
+			{
+				SpirvOp::OpSUDotKHR,
+				R"(OpSUDotKHR)",
+				&s_operands[1378],
+				&s_operands[1379],
+				5,
+			},
+			{
+				SpirvOp::OpSDotAccSatKHR,
+				R"(OpSDotAccSatKHR)",
+				&s_operands[1383],
+				&s_operands[1384],
+				6,
+			},
+			{
+				SpirvOp::OpUDotAccSatKHR,
+				R"(OpUDotAccSatKHR)",
+				&s_operands[1389],
+				&s_operands[1390],
+				6,
+			},
+			{
+				SpirvOp::OpSUDotAccSatKHR,
+				R"(OpSUDotAccSatKHR)",
+				&s_operands[1395],
+				&s_operands[1396],
+				6,
+			},
+			{
 				SpirvOp::OpTypeRayQueryKHR,
 				R"(OpTypeRayQueryKHR)",
-				&s_operands[1368],
-				&s_operands[1368],
+				&s_operands[1401],
+				&s_operands[1401],
 				1,
 			},
 			{
 				SpirvOp::OpRayQueryInitializeKHR,
 				R"(OpRayQueryInitializeKHR)",
-				&s_operands[1369],
+				&s_operands[1402],
 				nullptr,
 				8,
 			},
 			{
 				SpirvOp::OpRayQueryTerminateKHR,
 				R"(OpRayQueryTerminateKHR)",
-				&s_operands[1377],
+				&s_operands[1410],
 				nullptr,
 				1,
 			},
 			{
 				SpirvOp::OpRayQueryGenerateIntersectionKHR,
 				R"(OpRayQueryGenerateIntersectionKHR)",
-				&s_operands[1378],
+				&s_operands[1411],
 				nullptr,
 				2,
 			},
 			{
 				SpirvOp::OpRayQueryConfirmIntersectionKHR,
 				R"(OpRayQueryConfirmIntersectionKHR)",
-				&s_operands[1380],
+				&s_operands[1413],
 				nullptr,
 				1,
 			},
 			{
 				SpirvOp::OpRayQueryProceedKHR,
 				R"(OpRayQueryProceedKHR)",
-				&s_operands[1381],
-				&s_operands[1382],
+				&s_operands[1414],
+				&s_operands[1415],
 				3,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionTypeKHR,
 				R"(OpRayQueryGetIntersectionTypeKHR)",
-				&s_operands[1384],
-				&s_operands[1385],
+				&s_operands[1417],
+				&s_operands[1418],
 				4,
 			},
 			{
 				SpirvOp::OpGroupIAddNonUniformAMD,
 				R"(OpGroupIAddNonUniformAMD)",
-				&s_operands[1388],
-				&s_operands[1389],
+				&s_operands[1421],
+				&s_operands[1422],
 				5,
 			},
 			{
 				SpirvOp::OpGroupFAddNonUniformAMD,
 				R"(OpGroupFAddNonUniformAMD)",
-				&s_operands[1393],
-				&s_operands[1394],
+				&s_operands[1426],
+				&s_operands[1427],
 				5,
 			},
 			{
 				SpirvOp::OpGroupFMinNonUniformAMD,
 				R"(OpGroupFMinNonUniformAMD)",
-				&s_operands[1398],
-				&s_operands[1399],
+				&s_operands[1431],
+				&s_operands[1432],
 				5,
 			},
 			{
 				SpirvOp::OpGroupUMinNonUniformAMD,
 				R"(OpGroupUMinNonUniformAMD)",
-				&s_operands[1403],
-				&s_operands[1404],
+				&s_operands[1436],
+				&s_operands[1437],
 				5,
 			},
 			{
 				SpirvOp::OpGroupSMinNonUniformAMD,
 				R"(OpGroupSMinNonUniformAMD)",
-				&s_operands[1408],
-				&s_operands[1409],
+				&s_operands[1441],
+				&s_operands[1442],
 				5,
 			},
 			{
 				SpirvOp::OpGroupFMaxNonUniformAMD,
 				R"(OpGroupFMaxNonUniformAMD)",
-				&s_operands[1413],
-				&s_operands[1414],
+				&s_operands[1446],
+				&s_operands[1447],
 				5,
 			},
 			{
 				SpirvOp::OpGroupUMaxNonUniformAMD,
 				R"(OpGroupUMaxNonUniformAMD)",
-				&s_operands[1418],
-				&s_operands[1419],
+				&s_operands[1451],
+				&s_operands[1452],
 				5,
 			},
 			{
 				SpirvOp::OpGroupSMaxNonUniformAMD,
 				R"(OpGroupSMaxNonUniformAMD)",
-				&s_operands[1423],
-				&s_operands[1424],
+				&s_operands[1456],
+				&s_operands[1457],
 				5,
 			},
 			{
 				SpirvOp::OpFragmentMaskFetchAMD,
 				R"(OpFragmentMaskFetchAMD)",
-				&s_operands[1428],
-				&s_operands[1429],
+				&s_operands[1461],
+				&s_operands[1462],
 				4,
 			},
 			{
 				SpirvOp::OpFragmentFetchAMD,
 				R"(OpFragmentFetchAMD)",
-				&s_operands[1432],
-				&s_operands[1433],
+				&s_operands[1465],
+				&s_operands[1466],
 				5,
 			},
 			{
 				SpirvOp::OpReadClockKHR,
 				R"(OpReadClockKHR)",
-				&s_operands[1437],
-				&s_operands[1438],
+				&s_operands[1470],
+				&s_operands[1471],
 				3,
 			},
 			{
 				SpirvOp::OpImageSampleFootprintNV,
 				R"(OpImageSampleFootprintNV)",
-				&s_operands[1440],
-				&s_operands[1441],
+				&s_operands[1473],
+				&s_operands[1474],
 				7,
 			},
 			{
 				SpirvOp::OpGroupNonUniformPartitionNV,
 				R"(OpGroupNonUniformPartitionNV)",
-				&s_operands[1447],
-				&s_operands[1448],
+				&s_operands[1480],
+				&s_operands[1481],
 				3,
 			},
 			{
 				SpirvOp::OpWritePackedPrimitiveIndices4x8NV,
 				R"(OpWritePackedPrimitiveIndices4x8NV)",
-				&s_operands[1450],
+				&s_operands[1483],
 				nullptr,
 				2,
 			},
 			{
 				SpirvOp::OpReportIntersectionKHR,
 				R"(OpReportIntersectionKHR)",
-				&s_operands[1452],
-				&s_operands[1453],
+				&s_operands[1485],
+				&s_operands[1486],
 				4,
 			},
 			{
@@ -11431,57 +13442,71 @@ namespace Nz
 			{
 				SpirvOp::OpTraceNV,
 				R"(OpTraceNV)",
-				&s_operands[1456],
+				&s_operands[1489],
 				nullptr,
 				11,
 			},
 			{
+				SpirvOp::OpTraceMotionNV,
+				R"(OpTraceMotionNV)",
+				&s_operands[1500],
+				nullptr,
+				12,
+			},
+			{
+				SpirvOp::OpTraceRayMotionNV,
+				R"(OpTraceRayMotionNV)",
+				&s_operands[1512],
+				nullptr,
+				12,
+			},
+			{
 				SpirvOp::OpTypeAccelerationStructureKHR,
 				R"(OpTypeAccelerationStructureKHR)",
-				&s_operands[1467],
-				&s_operands[1467],
+				&s_operands[1524],
+				&s_operands[1524],
 				1,
 			},
 			{
 				SpirvOp::OpExecuteCallableNV,
 				R"(OpExecuteCallableNV)",
-				&s_operands[1468],
+				&s_operands[1525],
 				nullptr,
 				2,
 			},
 			{
 				SpirvOp::OpTypeCooperativeMatrixNV,
 				R"(OpTypeCooperativeMatrixNV)",
-				&s_operands[1470],
-				&s_operands[1470],
+				&s_operands[1527],
+				&s_operands[1527],
 				5,
 			},
 			{
 				SpirvOp::OpCooperativeMatrixLoadNV,
 				R"(OpCooperativeMatrixLoadNV)",
-				&s_operands[1475],
-				&s_operands[1476],
+				&s_operands[1532],
+				&s_operands[1533],
 				6,
 			},
 			{
 				SpirvOp::OpCooperativeMatrixStoreNV,
 				R"(OpCooperativeMatrixStoreNV)",
-				&s_operands[1481],
+				&s_operands[1538],
 				nullptr,
 				5,
 			},
 			{
 				SpirvOp::OpCooperativeMatrixMulAddNV,
 				R"(OpCooperativeMatrixMulAddNV)",
-				&s_operands[1486],
-				&s_operands[1487],
+				&s_operands[1543],
+				&s_operands[1544],
 				5,
 			},
 			{
 				SpirvOp::OpCooperativeMatrixLengthNV,
 				R"(OpCooperativeMatrixLengthNV)",
-				&s_operands[1491],
-				&s_operands[1492],
+				&s_operands[1548],
+				&s_operands[1549],
 				3,
 			},
 			{
@@ -11508,1295 +13533,1659 @@ namespace Nz
 			{
 				SpirvOp::OpIsHelperInvocationEXT,
 				R"(OpIsHelperInvocationEXT)",
-				&s_operands[1494],
-				&s_operands[1495],
+				&s_operands[1551],
+				&s_operands[1552],
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupShuffleINTEL,
 				R"(OpSubgroupShuffleINTEL)",
-				&s_operands[1496],
-				&s_operands[1497],
+				&s_operands[1553],
+				&s_operands[1554],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupShuffleDownINTEL,
 				R"(OpSubgroupShuffleDownINTEL)",
-				&s_operands[1500],
-				&s_operands[1501],
+				&s_operands[1557],
+				&s_operands[1558],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupShuffleUpINTEL,
 				R"(OpSubgroupShuffleUpINTEL)",
-				&s_operands[1505],
-				&s_operands[1506],
+				&s_operands[1562],
+				&s_operands[1563],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupShuffleXorINTEL,
 				R"(OpSubgroupShuffleXorINTEL)",
-				&s_operands[1510],
-				&s_operands[1511],
+				&s_operands[1567],
+				&s_operands[1568],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupBlockReadINTEL,
 				R"(OpSubgroupBlockReadINTEL)",
-				&s_operands[1514],
-				&s_operands[1515],
+				&s_operands[1571],
+				&s_operands[1572],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupBlockWriteINTEL,
 				R"(OpSubgroupBlockWriteINTEL)",
-				&s_operands[1517],
+				&s_operands[1574],
 				nullptr,
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupImageBlockReadINTEL,
 				R"(OpSubgroupImageBlockReadINTEL)",
-				&s_operands[1519],
-				&s_operands[1520],
+				&s_operands[1576],
+				&s_operands[1577],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupImageBlockWriteINTEL,
 				R"(OpSubgroupImageBlockWriteINTEL)",
-				&s_operands[1523],
+				&s_operands[1580],
 				nullptr,
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupImageMediaBlockReadINTEL,
 				R"(OpSubgroupImageMediaBlockReadINTEL)",
-				&s_operands[1526],
-				&s_operands[1527],
+				&s_operands[1583],
+				&s_operands[1584],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupImageMediaBlockWriteINTEL,
 				R"(OpSubgroupImageMediaBlockWriteINTEL)",
-				&s_operands[1532],
+				&s_operands[1589],
 				nullptr,
 				5,
 			},
 			{
 				SpirvOp::OpUCountLeadingZerosINTEL,
 				R"(OpUCountLeadingZerosINTEL)",
-				&s_operands[1537],
-				&s_operands[1538],
-				3,
-			},
-			{
-				SpirvOp::OpUCountTrailingZerosINTEL,
-				R"(OpUCountTrailingZerosINTEL)",
-				&s_operands[1540],
-				&s_operands[1541],
-				3,
-			},
-			{
-				SpirvOp::OpAbsISubINTEL,
-				R"(OpAbsISubINTEL)",
-				&s_operands[1543],
-				&s_operands[1544],
-				4,
-			},
-			{
-				SpirvOp::OpAbsUSubINTEL,
-				R"(OpAbsUSubINTEL)",
-				&s_operands[1547],
-				&s_operands[1548],
-				4,
-			},
-			{
-				SpirvOp::OpIAddSatINTEL,
-				R"(OpIAddSatINTEL)",
-				&s_operands[1551],
-				&s_operands[1552],
-				4,
-			},
-			{
-				SpirvOp::OpUAddSatINTEL,
-				R"(OpUAddSatINTEL)",
-				&s_operands[1555],
-				&s_operands[1556],
-				4,
-			},
-			{
-				SpirvOp::OpIAverageINTEL,
-				R"(OpIAverageINTEL)",
-				&s_operands[1559],
-				&s_operands[1560],
-				4,
-			},
-			{
-				SpirvOp::OpUAverageINTEL,
-				R"(OpUAverageINTEL)",
-				&s_operands[1563],
-				&s_operands[1564],
-				4,
-			},
-			{
-				SpirvOp::OpIAverageRoundedINTEL,
-				R"(OpIAverageRoundedINTEL)",
-				&s_operands[1567],
-				&s_operands[1568],
-				4,
-			},
-			{
-				SpirvOp::OpUAverageRoundedINTEL,
-				R"(OpUAverageRoundedINTEL)",
-				&s_operands[1571],
-				&s_operands[1572],
-				4,
-			},
-			{
-				SpirvOp::OpISubSatINTEL,
-				R"(OpISubSatINTEL)",
-				&s_operands[1575],
-				&s_operands[1576],
-				4,
-			},
-			{
-				SpirvOp::OpUSubSatINTEL,
-				R"(OpUSubSatINTEL)",
-				&s_operands[1579],
-				&s_operands[1580],
-				4,
-			},
-			{
-				SpirvOp::OpIMul32x16INTEL,
-				R"(OpIMul32x16INTEL)",
-				&s_operands[1583],
-				&s_operands[1584],
-				4,
-			},
-			{
-				SpirvOp::OpUMul32x16INTEL,
-				R"(OpUMul32x16INTEL)",
-				&s_operands[1587],
-				&s_operands[1588],
-				4,
-			},
-			{
-				SpirvOp::OpConstFunctionPointerINTEL,
-				R"(OpConstFunctionPointerINTEL)",
-				&s_operands[1591],
-				&s_operands[1592],
-				3,
-			},
-			{
-				SpirvOp::OpFunctionPointerCallINTEL,
-				R"(OpFunctionPointerCallINTEL)",
 				&s_operands[1594],
 				&s_operands[1595],
 				3,
 			},
 			{
-				SpirvOp::OpAsmTargetINTEL,
-				R"(OpAsmTargetINTEL)",
+				SpirvOp::OpUCountTrailingZerosINTEL,
+				R"(OpUCountTrailingZerosINTEL)",
 				&s_operands[1597],
 				&s_operands[1598],
 				3,
 			},
 			{
-				SpirvOp::OpAsmINTEL,
-				R"(OpAsmINTEL)",
+				SpirvOp::OpAbsISubINTEL,
+				R"(OpAbsISubINTEL)",
 				&s_operands[1600],
 				&s_operands[1601],
+				4,
+			},
+			{
+				SpirvOp::OpAbsUSubINTEL,
+				R"(OpAbsUSubINTEL)",
+				&s_operands[1604],
+				&s_operands[1605],
+				4,
+			},
+			{
+				SpirvOp::OpIAddSatINTEL,
+				R"(OpIAddSatINTEL)",
+				&s_operands[1608],
+				&s_operands[1609],
+				4,
+			},
+			{
+				SpirvOp::OpUAddSatINTEL,
+				R"(OpUAddSatINTEL)",
+				&s_operands[1612],
+				&s_operands[1613],
+				4,
+			},
+			{
+				SpirvOp::OpIAverageINTEL,
+				R"(OpIAverageINTEL)",
+				&s_operands[1616],
+				&s_operands[1617],
+				4,
+			},
+			{
+				SpirvOp::OpUAverageINTEL,
+				R"(OpUAverageINTEL)",
+				&s_operands[1620],
+				&s_operands[1621],
+				4,
+			},
+			{
+				SpirvOp::OpIAverageRoundedINTEL,
+				R"(OpIAverageRoundedINTEL)",
+				&s_operands[1624],
+				&s_operands[1625],
+				4,
+			},
+			{
+				SpirvOp::OpUAverageRoundedINTEL,
+				R"(OpUAverageRoundedINTEL)",
+				&s_operands[1628],
+				&s_operands[1629],
+				4,
+			},
+			{
+				SpirvOp::OpISubSatINTEL,
+				R"(OpISubSatINTEL)",
+				&s_operands[1632],
+				&s_operands[1633],
+				4,
+			},
+			{
+				SpirvOp::OpUSubSatINTEL,
+				R"(OpUSubSatINTEL)",
+				&s_operands[1636],
+				&s_operands[1637],
+				4,
+			},
+			{
+				SpirvOp::OpIMul32x16INTEL,
+				R"(OpIMul32x16INTEL)",
+				&s_operands[1640],
+				&s_operands[1641],
+				4,
+			},
+			{
+				SpirvOp::OpUMul32x16INTEL,
+				R"(OpUMul32x16INTEL)",
+				&s_operands[1644],
+				&s_operands[1645],
+				4,
+			},
+			{
+				SpirvOp::OpConstFunctionPointerINTEL,
+				R"(OpConstFunctionPointerINTEL)",
+				&s_operands[1648],
+				&s_operands[1649],
+				3,
+			},
+			{
+				SpirvOp::OpFunctionPointerCallINTEL,
+				R"(OpFunctionPointerCallINTEL)",
+				&s_operands[1651],
+				&s_operands[1652],
+				3,
+			},
+			{
+				SpirvOp::OpAsmTargetINTEL,
+				R"(OpAsmTargetINTEL)",
+				&s_operands[1654],
+				&s_operands[1655],
+				3,
+			},
+			{
+				SpirvOp::OpAsmINTEL,
+				R"(OpAsmINTEL)",
+				&s_operands[1657],
+				&s_operands[1658],
 				6,
 			},
 			{
 				SpirvOp::OpAsmCallINTEL,
 				R"(OpAsmCallINTEL)",
-				&s_operands[1606],
-				&s_operands[1607],
+				&s_operands[1663],
+				&s_operands[1664],
 				4,
 			},
 			{
 				SpirvOp::OpAtomicFMinEXT,
 				R"(OpAtomicFMinEXT)",
-				&s_operands[1610],
-				&s_operands[1611],
+				&s_operands[1667],
+				&s_operands[1668],
 				6,
 			},
 			{
 				SpirvOp::OpAtomicFMaxEXT,
 				R"(OpAtomicFMaxEXT)",
-				&s_operands[1616],
-				&s_operands[1617],
+				&s_operands[1673],
+				&s_operands[1674],
 				6,
 			},
 			{
 				SpirvOp::OpAssumeTrueKHR,
 				R"(OpAssumeTrueKHR)",
-				&s_operands[1622],
+				&s_operands[1679],
 				nullptr,
 				1,
 			},
 			{
 				SpirvOp::OpExpectKHR,
 				R"(OpExpectKHR)",
-				&s_operands[1623],
-				&s_operands[1624],
+				&s_operands[1680],
+				&s_operands[1681],
 				4,
 			},
 			{
 				SpirvOp::OpDecorateStringGOOGLE,
 				R"(OpDecorateStringGOOGLE)",
-				&s_operands[1627],
+				&s_operands[1684],
 				nullptr,
 				2,
 			},
 			{
 				SpirvOp::OpMemberDecorateStringGOOGLE,
 				R"(OpMemberDecorateStringGOOGLE)",
-				&s_operands[1629],
+				&s_operands[1686],
 				nullptr,
 				3,
 			},
 			{
 				SpirvOp::OpVmeImageINTEL,
 				R"(OpVmeImageINTEL)",
-				&s_operands[1632],
-				&s_operands[1633],
+				&s_operands[1689],
+				&s_operands[1690],
 				4,
 			},
 			{
 				SpirvOp::OpTypeVmeImageINTEL,
 				R"(OpTypeVmeImageINTEL)",
-				&s_operands[1636],
-				&s_operands[1636],
+				&s_operands[1693],
+				&s_operands[1693],
 				2,
 			},
 			{
 				SpirvOp::OpTypeAvcImePayloadINTEL,
 				R"(OpTypeAvcImePayloadINTEL)",
-				&s_operands[1638],
-				&s_operands[1638],
+				&s_operands[1695],
+				&s_operands[1695],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcRefPayloadINTEL,
 				R"(OpTypeAvcRefPayloadINTEL)",
-				&s_operands[1639],
-				&s_operands[1639],
+				&s_operands[1696],
+				&s_operands[1696],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcSicPayloadINTEL,
 				R"(OpTypeAvcSicPayloadINTEL)",
-				&s_operands[1640],
-				&s_operands[1640],
+				&s_operands[1697],
+				&s_operands[1697],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcMcePayloadINTEL,
 				R"(OpTypeAvcMcePayloadINTEL)",
-				&s_operands[1641],
-				&s_operands[1641],
+				&s_operands[1698],
+				&s_operands[1698],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcMceResultINTEL,
 				R"(OpTypeAvcMceResultINTEL)",
-				&s_operands[1642],
-				&s_operands[1642],
+				&s_operands[1699],
+				&s_operands[1699],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcImeResultINTEL,
 				R"(OpTypeAvcImeResultINTEL)",
-				&s_operands[1643],
-				&s_operands[1643],
+				&s_operands[1700],
+				&s_operands[1700],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcImeResultSingleReferenceStreamoutINTEL,
 				R"(OpTypeAvcImeResultSingleReferenceStreamoutINTEL)",
-				&s_operands[1644],
-				&s_operands[1644],
+				&s_operands[1701],
+				&s_operands[1701],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcImeResultDualReferenceStreamoutINTEL,
 				R"(OpTypeAvcImeResultDualReferenceStreamoutINTEL)",
-				&s_operands[1645],
-				&s_operands[1645],
+				&s_operands[1702],
+				&s_operands[1702],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcImeSingleReferenceStreaminINTEL,
 				R"(OpTypeAvcImeSingleReferenceStreaminINTEL)",
-				&s_operands[1646],
-				&s_operands[1646],
+				&s_operands[1703],
+				&s_operands[1703],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcImeDualReferenceStreaminINTEL,
 				R"(OpTypeAvcImeDualReferenceStreaminINTEL)",
-				&s_operands[1647],
-				&s_operands[1647],
+				&s_operands[1704],
+				&s_operands[1704],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcRefResultINTEL,
 				R"(OpTypeAvcRefResultINTEL)",
-				&s_operands[1648],
-				&s_operands[1648],
+				&s_operands[1705],
+				&s_operands[1705],
 				1,
 			},
 			{
 				SpirvOp::OpTypeAvcSicResultINTEL,
 				R"(OpTypeAvcSicResultINTEL)",
-				&s_operands[1649],
-				&s_operands[1649],
+				&s_operands[1706],
+				&s_operands[1706],
 				1,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultInterBaseMultiReferencePenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultInterBaseMultiReferencePenaltyINTEL)",
-				&s_operands[1650],
-				&s_operands[1651],
+				&s_operands[1707],
+				&s_operands[1708],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetInterBaseMultiReferencePenaltyINTEL,
 				R"(OpSubgroupAvcMceSetInterBaseMultiReferencePenaltyINTEL)",
-				&s_operands[1654],
-				&s_operands[1655],
+				&s_operands[1711],
+				&s_operands[1712],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultInterShapePenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultInterShapePenaltyINTEL)",
-				&s_operands[1658],
-				&s_operands[1659],
+				&s_operands[1715],
+				&s_operands[1716],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetInterShapePenaltyINTEL,
 				R"(OpSubgroupAvcMceSetInterShapePenaltyINTEL)",
-				&s_operands[1662],
-				&s_operands[1663],
+				&s_operands[1719],
+				&s_operands[1720],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultInterDirectionPenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultInterDirectionPenaltyINTEL)",
-				&s_operands[1666],
-				&s_operands[1667],
+				&s_operands[1723],
+				&s_operands[1724],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetInterDirectionPenaltyINTEL,
 				R"(OpSubgroupAvcMceSetInterDirectionPenaltyINTEL)",
-				&s_operands[1670],
-				&s_operands[1671],
+				&s_operands[1727],
+				&s_operands[1728],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultIntraLumaShapePenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultIntraLumaShapePenaltyINTEL)",
-				&s_operands[1674],
-				&s_operands[1675],
+				&s_operands[1731],
+				&s_operands[1732],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultInterMotionVectorCostTableINTEL,
 				R"(OpSubgroupAvcMceGetDefaultInterMotionVectorCostTableINTEL)",
-				&s_operands[1678],
-				&s_operands[1679],
+				&s_operands[1735],
+				&s_operands[1736],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultHighPenaltyCostTableINTEL,
 				R"(OpSubgroupAvcMceGetDefaultHighPenaltyCostTableINTEL)",
-				&s_operands[1682],
-				&s_operands[1683],
+				&s_operands[1739],
+				&s_operands[1740],
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultMediumPenaltyCostTableINTEL,
 				R"(OpSubgroupAvcMceGetDefaultMediumPenaltyCostTableINTEL)",
-				&s_operands[1684],
-				&s_operands[1685],
+				&s_operands[1741],
+				&s_operands[1742],
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultLowPenaltyCostTableINTEL,
 				R"(OpSubgroupAvcMceGetDefaultLowPenaltyCostTableINTEL)",
-				&s_operands[1686],
-				&s_operands[1687],
+				&s_operands[1743],
+				&s_operands[1744],
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetMotionVectorCostFunctionINTEL,
 				R"(OpSubgroupAvcMceSetMotionVectorCostFunctionINTEL)",
-				&s_operands[1688],
-				&s_operands[1689],
+				&s_operands[1745],
+				&s_operands[1746],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultIntraLumaModePenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultIntraLumaModePenaltyINTEL)",
-				&s_operands[1694],
-				&s_operands[1695],
+				&s_operands[1751],
+				&s_operands[1752],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultNonDcLumaIntraPenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultNonDcLumaIntraPenaltyINTEL)",
-				&s_operands[1698],
-				&s_operands[1699],
+				&s_operands[1755],
+				&s_operands[1756],
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceGetDefaultIntraChromaModeBasePenaltyINTEL,
 				R"(OpSubgroupAvcMceGetDefaultIntraChromaModeBasePenaltyINTEL)",
-				&s_operands[1700],
-				&s_operands[1701],
+				&s_operands[1757],
+				&s_operands[1758],
 				2,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetAcOnlyHaarINTEL,
 				R"(OpSubgroupAvcMceSetAcOnlyHaarINTEL)",
-				&s_operands[1702],
-				&s_operands[1703],
+				&s_operands[1759],
+				&s_operands[1760],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetSourceInterlacedFieldPolarityINTEL,
 				R"(OpSubgroupAvcMceSetSourceInterlacedFieldPolarityINTEL)",
-				&s_operands[1705],
-				&s_operands[1706],
+				&s_operands[1762],
+				&s_operands[1763],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetSingleReferenceInterlacedFieldPolarityINTEL,
 				R"(OpSubgroupAvcMceSetSingleReferenceInterlacedFieldPolarityINTEL)",
-				&s_operands[1709],
-				&s_operands[1710],
+				&s_operands[1766],
+				&s_operands[1767],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcMceSetDualReferenceInterlacedFieldPolaritiesINTEL,
 				R"(OpSubgroupAvcMceSetDualReferenceInterlacedFieldPolaritiesINTEL)",
-				&s_operands[1713],
-				&s_operands[1714],
-				5,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceConvertToImePayloadINTEL,
-				R"(OpSubgroupAvcMceConvertToImePayloadINTEL)",
-				&s_operands[1718],
-				&s_operands[1719],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceConvertToImeResultINTEL,
-				R"(OpSubgroupAvcMceConvertToImeResultINTEL)",
-				&s_operands[1721],
-				&s_operands[1722],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceConvertToRefPayloadINTEL,
-				R"(OpSubgroupAvcMceConvertToRefPayloadINTEL)",
-				&s_operands[1724],
-				&s_operands[1725],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceConvertToRefResultINTEL,
-				R"(OpSubgroupAvcMceConvertToRefResultINTEL)",
-				&s_operands[1727],
-				&s_operands[1728],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceConvertToSicPayloadINTEL,
-				R"(OpSubgroupAvcMceConvertToSicPayloadINTEL)",
-				&s_operands[1730],
-				&s_operands[1731],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceConvertToSicResultINTEL,
-				R"(OpSubgroupAvcMceConvertToSicResultINTEL)",
-				&s_operands[1733],
-				&s_operands[1734],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetMotionVectorsINTEL,
-				R"(OpSubgroupAvcMceGetMotionVectorsINTEL)",
-				&s_operands[1736],
-				&s_operands[1737],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterDistortionsINTEL,
-				R"(OpSubgroupAvcMceGetInterDistortionsINTEL)",
-				&s_operands[1739],
-				&s_operands[1740],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetBestInterDistortionsINTEL,
-				R"(OpSubgroupAvcMceGetBestInterDistortionsINTEL)",
-				&s_operands[1742],
-				&s_operands[1743],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterMajorShapeINTEL,
-				R"(OpSubgroupAvcMceGetInterMajorShapeINTEL)",
-				&s_operands[1745],
-				&s_operands[1746],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterMinorShapeINTEL,
-				R"(OpSubgroupAvcMceGetInterMinorShapeINTEL)",
-				&s_operands[1748],
-				&s_operands[1749],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterDirectionsINTEL,
-				R"(OpSubgroupAvcMceGetInterDirectionsINTEL)",
-				&s_operands[1751],
-				&s_operands[1752],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterMotionVectorCountINTEL,
-				R"(OpSubgroupAvcMceGetInterMotionVectorCountINTEL)",
-				&s_operands[1754],
-				&s_operands[1755],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterReferenceIdsINTEL,
-				R"(OpSubgroupAvcMceGetInterReferenceIdsINTEL)",
-				&s_operands[1757],
-				&s_operands[1758],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcMceGetInterReferenceInterlacedFieldPolaritiesINTEL,
-				R"(OpSubgroupAvcMceGetInterReferenceInterlacedFieldPolaritiesINTEL)",
-				&s_operands[1760],
-				&s_operands[1761],
-				5,
-			},
-			{
-				SpirvOp::OpSubgroupAvcImeInitializeINTEL,
-				R"(OpSubgroupAvcImeInitializeINTEL)",
-				&s_operands[1765],
-				&s_operands[1766],
-				5,
-			},
-			{
-				SpirvOp::OpSubgroupAvcImeSetSingleReferenceINTEL,
-				R"(OpSubgroupAvcImeSetSingleReferenceINTEL)",
 				&s_operands[1770],
 				&s_operands[1771],
 				5,
 			},
 			{
-				SpirvOp::OpSubgroupAvcImeSetDualReferenceINTEL,
-				R"(OpSubgroupAvcImeSetDualReferenceINTEL)",
+				SpirvOp::OpSubgroupAvcMceConvertToImePayloadINTEL,
+				R"(OpSubgroupAvcMceConvertToImePayloadINTEL)",
 				&s_operands[1775],
 				&s_operands[1776],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceConvertToImeResultINTEL,
+				R"(OpSubgroupAvcMceConvertToImeResultINTEL)",
+				&s_operands[1778],
+				&s_operands[1779],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceConvertToRefPayloadINTEL,
+				R"(OpSubgroupAvcMceConvertToRefPayloadINTEL)",
+				&s_operands[1781],
+				&s_operands[1782],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceConvertToRefResultINTEL,
+				R"(OpSubgroupAvcMceConvertToRefResultINTEL)",
+				&s_operands[1784],
+				&s_operands[1785],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceConvertToSicPayloadINTEL,
+				R"(OpSubgroupAvcMceConvertToSicPayloadINTEL)",
+				&s_operands[1787],
+				&s_operands[1788],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceConvertToSicResultINTEL,
+				R"(OpSubgroupAvcMceConvertToSicResultINTEL)",
+				&s_operands[1790],
+				&s_operands[1791],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetMotionVectorsINTEL,
+				R"(OpSubgroupAvcMceGetMotionVectorsINTEL)",
+				&s_operands[1793],
+				&s_operands[1794],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterDistortionsINTEL,
+				R"(OpSubgroupAvcMceGetInterDistortionsINTEL)",
+				&s_operands[1796],
+				&s_operands[1797],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetBestInterDistortionsINTEL,
+				R"(OpSubgroupAvcMceGetBestInterDistortionsINTEL)",
+				&s_operands[1799],
+				&s_operands[1800],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterMajorShapeINTEL,
+				R"(OpSubgroupAvcMceGetInterMajorShapeINTEL)",
+				&s_operands[1802],
+				&s_operands[1803],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterMinorShapeINTEL,
+				R"(OpSubgroupAvcMceGetInterMinorShapeINTEL)",
+				&s_operands[1805],
+				&s_operands[1806],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterDirectionsINTEL,
+				R"(OpSubgroupAvcMceGetInterDirectionsINTEL)",
+				&s_operands[1808],
+				&s_operands[1809],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterMotionVectorCountINTEL,
+				R"(OpSubgroupAvcMceGetInterMotionVectorCountINTEL)",
+				&s_operands[1811],
+				&s_operands[1812],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterReferenceIdsINTEL,
+				R"(OpSubgroupAvcMceGetInterReferenceIdsINTEL)",
+				&s_operands[1814],
+				&s_operands[1815],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcMceGetInterReferenceInterlacedFieldPolaritiesINTEL,
+				R"(OpSubgroupAvcMceGetInterReferenceInterlacedFieldPolaritiesINTEL)",
+				&s_operands[1817],
+				&s_operands[1818],
+				5,
+			},
+			{
+				SpirvOp::OpSubgroupAvcImeInitializeINTEL,
+				R"(OpSubgroupAvcImeInitializeINTEL)",
+				&s_operands[1822],
+				&s_operands[1823],
+				5,
+			},
+			{
+				SpirvOp::OpSubgroupAvcImeSetSingleReferenceINTEL,
+				R"(OpSubgroupAvcImeSetSingleReferenceINTEL)",
+				&s_operands[1827],
+				&s_operands[1828],
+				5,
+			},
+			{
+				SpirvOp::OpSubgroupAvcImeSetDualReferenceINTEL,
+				R"(OpSubgroupAvcImeSetDualReferenceINTEL)",
+				&s_operands[1832],
+				&s_operands[1833],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeRefWindowSizeINTEL,
 				R"(OpSubgroupAvcImeRefWindowSizeINTEL)",
-				&s_operands[1781],
-				&s_operands[1782],
+				&s_operands[1838],
+				&s_operands[1839],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeAdjustRefOffsetINTEL,
 				R"(OpSubgroupAvcImeAdjustRefOffsetINTEL)",
-				&s_operands[1785],
-				&s_operands[1786],
+				&s_operands[1842],
+				&s_operands[1843],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeConvertToMcePayloadINTEL,
 				R"(OpSubgroupAvcImeConvertToMcePayloadINTEL)",
-				&s_operands[1791],
-				&s_operands[1792],
+				&s_operands[1848],
+				&s_operands[1849],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeSetMaxMotionVectorCountINTEL,
 				R"(OpSubgroupAvcImeSetMaxMotionVectorCountINTEL)",
-				&s_operands[1794],
-				&s_operands[1795],
+				&s_operands[1851],
+				&s_operands[1852],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeSetUnidirectionalMixDisableINTEL,
 				R"(OpSubgroupAvcImeSetUnidirectionalMixDisableINTEL)",
-				&s_operands[1798],
-				&s_operands[1799],
+				&s_operands[1855],
+				&s_operands[1856],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeSetEarlySearchTerminationThresholdINTEL,
 				R"(OpSubgroupAvcImeSetEarlySearchTerminationThresholdINTEL)",
-				&s_operands[1801],
-				&s_operands[1802],
+				&s_operands[1858],
+				&s_operands[1859],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeSetWeightedSadINTEL,
 				R"(OpSubgroupAvcImeSetWeightedSadINTEL)",
-				&s_operands[1805],
-				&s_operands[1806],
+				&s_operands[1862],
+				&s_operands[1863],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithSingleReferenceINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithSingleReferenceINTEL)",
-				&s_operands[1809],
-				&s_operands[1810],
+				&s_operands[1866],
+				&s_operands[1867],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithDualReferenceINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithDualReferenceINTEL)",
-				&s_operands[1814],
-				&s_operands[1815],
+				&s_operands[1871],
+				&s_operands[1872],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithSingleReferenceStreaminINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithSingleReferenceStreaminINTEL)",
-				&s_operands[1820],
-				&s_operands[1821],
+				&s_operands[1877],
+				&s_operands[1878],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithDualReferenceStreaminINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithDualReferenceStreaminINTEL)",
-				&s_operands[1826],
-				&s_operands[1827],
+				&s_operands[1883],
+				&s_operands[1884],
 				7,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithSingleReferenceStreamoutINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithSingleReferenceStreamoutINTEL)",
-				&s_operands[1833],
-				&s_operands[1834],
+				&s_operands[1890],
+				&s_operands[1891],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithDualReferenceStreamoutINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithDualReferenceStreamoutINTEL)",
-				&s_operands[1838],
-				&s_operands[1839],
+				&s_operands[1895],
+				&s_operands[1896],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithSingleReferenceStreaminoutINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithSingleReferenceStreaminoutINTEL)",
-				&s_operands[1844],
-				&s_operands[1845],
+				&s_operands[1901],
+				&s_operands[1902],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeEvaluateWithDualReferenceStreaminoutINTEL,
 				R"(OpSubgroupAvcImeEvaluateWithDualReferenceStreaminoutINTEL)",
-				&s_operands[1850],
-				&s_operands[1851],
+				&s_operands[1907],
+				&s_operands[1908],
 				7,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeConvertToMceResultINTEL,
 				R"(OpSubgroupAvcImeConvertToMceResultINTEL)",
-				&s_operands[1857],
-				&s_operands[1858],
+				&s_operands[1914],
+				&s_operands[1915],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetSingleReferenceStreaminINTEL,
 				R"(OpSubgroupAvcImeGetSingleReferenceStreaminINTEL)",
-				&s_operands[1860],
-				&s_operands[1861],
+				&s_operands[1917],
+				&s_operands[1918],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetDualReferenceStreaminINTEL,
 				R"(OpSubgroupAvcImeGetDualReferenceStreaminINTEL)",
-				&s_operands[1863],
-				&s_operands[1864],
+				&s_operands[1920],
+				&s_operands[1921],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeStripSingleReferenceStreamoutINTEL,
 				R"(OpSubgroupAvcImeStripSingleReferenceStreamoutINTEL)",
-				&s_operands[1866],
-				&s_operands[1867],
+				&s_operands[1923],
+				&s_operands[1924],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeStripDualReferenceStreamoutINTEL,
 				R"(OpSubgroupAvcImeStripDualReferenceStreamoutINTEL)",
-				&s_operands[1869],
-				&s_operands[1870],
+				&s_operands[1926],
+				&s_operands[1927],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetStreamoutSingleReferenceMajorShapeMotionVectorsINTEL,
 				R"(OpSubgroupAvcImeGetStreamoutSingleReferenceMajorShapeMotionVectorsINTEL)",
-				&s_operands[1872],
-				&s_operands[1873],
+				&s_operands[1929],
+				&s_operands[1930],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetStreamoutSingleReferenceMajorShapeDistortionsINTEL,
 				R"(OpSubgroupAvcImeGetStreamoutSingleReferenceMajorShapeDistortionsINTEL)",
-				&s_operands[1876],
-				&s_operands[1877],
+				&s_operands[1933],
+				&s_operands[1934],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetStreamoutSingleReferenceMajorShapeReferenceIdsINTEL,
 				R"(OpSubgroupAvcImeGetStreamoutSingleReferenceMajorShapeReferenceIdsINTEL)",
-				&s_operands[1880],
-				&s_operands[1881],
+				&s_operands[1937],
+				&s_operands[1938],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetStreamoutDualReferenceMajorShapeMotionVectorsINTEL,
 				R"(OpSubgroupAvcImeGetStreamoutDualReferenceMajorShapeMotionVectorsINTEL)",
-				&s_operands[1884],
-				&s_operands[1885],
+				&s_operands[1941],
+				&s_operands[1942],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetStreamoutDualReferenceMajorShapeDistortionsINTEL,
 				R"(OpSubgroupAvcImeGetStreamoutDualReferenceMajorShapeDistortionsINTEL)",
-				&s_operands[1889],
-				&s_operands[1890],
+				&s_operands[1946],
+				&s_operands[1947],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetStreamoutDualReferenceMajorShapeReferenceIdsINTEL,
 				R"(OpSubgroupAvcImeGetStreamoutDualReferenceMajorShapeReferenceIdsINTEL)",
-				&s_operands[1894],
-				&s_operands[1895],
+				&s_operands[1951],
+				&s_operands[1952],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetBorderReachedINTEL,
 				R"(OpSubgroupAvcImeGetBorderReachedINTEL)",
-				&s_operands[1899],
-				&s_operands[1900],
+				&s_operands[1956],
+				&s_operands[1957],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetTruncatedSearchIndicationINTEL,
 				R"(OpSubgroupAvcImeGetTruncatedSearchIndicationINTEL)",
-				&s_operands[1903],
-				&s_operands[1904],
+				&s_operands[1960],
+				&s_operands[1961],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetUnidirectionalEarlySearchTerminationINTEL,
 				R"(OpSubgroupAvcImeGetUnidirectionalEarlySearchTerminationINTEL)",
-				&s_operands[1906],
-				&s_operands[1907],
+				&s_operands[1963],
+				&s_operands[1964],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetWeightingPatternMinimumMotionVectorINTEL,
 				R"(OpSubgroupAvcImeGetWeightingPatternMinimumMotionVectorINTEL)",
-				&s_operands[1909],
-				&s_operands[1910],
+				&s_operands[1966],
+				&s_operands[1967],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcImeGetWeightingPatternMinimumDistortionINTEL,
 				R"(OpSubgroupAvcImeGetWeightingPatternMinimumDistortionINTEL)",
-				&s_operands[1912],
-				&s_operands[1913],
+				&s_operands[1969],
+				&s_operands[1970],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcFmeInitializeINTEL,
 				R"(OpSubgroupAvcFmeInitializeINTEL)",
-				&s_operands[1915],
-				&s_operands[1916],
+				&s_operands[1972],
+				&s_operands[1973],
 				9,
 			},
 			{
 				SpirvOp::OpSubgroupAvcBmeInitializeINTEL,
 				R"(OpSubgroupAvcBmeInitializeINTEL)",
-				&s_operands[1924],
-				&s_operands[1925],
+				&s_operands[1981],
+				&s_operands[1982],
 				10,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefConvertToMcePayloadINTEL,
 				R"(OpSubgroupAvcRefConvertToMcePayloadINTEL)",
-				&s_operands[1934],
-				&s_operands[1935],
+				&s_operands[1991],
+				&s_operands[1992],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefSetBidirectionalMixDisableINTEL,
 				R"(OpSubgroupAvcRefSetBidirectionalMixDisableINTEL)",
-				&s_operands[1937],
-				&s_operands[1938],
+				&s_operands[1994],
+				&s_operands[1995],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefSetBilinearFilterEnableINTEL,
 				R"(OpSubgroupAvcRefSetBilinearFilterEnableINTEL)",
-				&s_operands[1940],
-				&s_operands[1941],
+				&s_operands[1997],
+				&s_operands[1998],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefEvaluateWithSingleReferenceINTEL,
 				R"(OpSubgroupAvcRefEvaluateWithSingleReferenceINTEL)",
-				&s_operands[1943],
-				&s_operands[1944],
+				&s_operands[2000],
+				&s_operands[2001],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefEvaluateWithDualReferenceINTEL,
 				R"(OpSubgroupAvcRefEvaluateWithDualReferenceINTEL)",
-				&s_operands[1948],
-				&s_operands[1949],
+				&s_operands[2005],
+				&s_operands[2006],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefEvaluateWithMultiReferenceINTEL,
 				R"(OpSubgroupAvcRefEvaluateWithMultiReferenceINTEL)",
-				&s_operands[1954],
-				&s_operands[1955],
+				&s_operands[2011],
+				&s_operands[2012],
 				5,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefEvaluateWithMultiReferenceInterlacedINTEL,
 				R"(OpSubgroupAvcRefEvaluateWithMultiReferenceInterlacedINTEL)",
-				&s_operands[1959],
-				&s_operands[1960],
+				&s_operands[2016],
+				&s_operands[2017],
 				6,
 			},
 			{
 				SpirvOp::OpSubgroupAvcRefConvertToMceResultINTEL,
 				R"(OpSubgroupAvcRefConvertToMceResultINTEL)",
-				&s_operands[1965],
-				&s_operands[1966],
+				&s_operands[2022],
+				&s_operands[2023],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicInitializeINTEL,
 				R"(OpSubgroupAvcSicInitializeINTEL)",
-				&s_operands[1968],
-				&s_operands[1969],
+				&s_operands[2025],
+				&s_operands[2026],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicConfigureSkcINTEL,
 				R"(OpSubgroupAvcSicConfigureSkcINTEL)",
-				&s_operands[1971],
-				&s_operands[1972],
+				&s_operands[2028],
+				&s_operands[2029],
 				8,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicConfigureIpeLumaINTEL,
 				R"(OpSubgroupAvcSicConfigureIpeLumaINTEL)",
-				&s_operands[1979],
-				&s_operands[1980],
+				&s_operands[2036],
+				&s_operands[2037],
 				10,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicConfigureIpeLumaChromaINTEL,
 				R"(OpSubgroupAvcSicConfigureIpeLumaChromaINTEL)",
-				&s_operands[1989],
-				&s_operands[1990],
+				&s_operands[2046],
+				&s_operands[2047],
 				13,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetMotionVectorMaskINTEL,
 				R"(OpSubgroupAvcSicGetMotionVectorMaskINTEL)",
-				&s_operands[2002],
-				&s_operands[2003],
+				&s_operands[2059],
+				&s_operands[2060],
 				4,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicConvertToMcePayloadINTEL,
 				R"(OpSubgroupAvcSicConvertToMcePayloadINTEL)",
-				&s_operands[2006],
-				&s_operands[2007],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicSetIntraLumaShapePenaltyINTEL,
-				R"(OpSubgroupAvcSicSetIntraLumaShapePenaltyINTEL)",
-				&s_operands[2009],
-				&s_operands[2010],
-				4,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicSetIntraLumaModeCostFunctionINTEL,
-				R"(OpSubgroupAvcSicSetIntraLumaModeCostFunctionINTEL)",
-				&s_operands[2013],
-				&s_operands[2014],
-				6,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicSetIntraChromaModeCostFunctionINTEL,
-				R"(OpSubgroupAvcSicSetIntraChromaModeCostFunctionINTEL)",
-				&s_operands[2019],
-				&s_operands[2020],
-				4,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicSetBilinearFilterEnableINTEL,
-				R"(OpSubgroupAvcSicSetBilinearFilterEnableINTEL)",
-				&s_operands[2023],
-				&s_operands[2024],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicSetSkcForwardTransformEnableINTEL,
-				R"(OpSubgroupAvcSicSetSkcForwardTransformEnableINTEL)",
-				&s_operands[2026],
-				&s_operands[2027],
-				4,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicSetBlockBasedRawSkipSadINTEL,
-				R"(OpSubgroupAvcSicSetBlockBasedRawSkipSadINTEL)",
-				&s_operands[2030],
-				&s_operands[2031],
-				4,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicEvaluateIpeINTEL,
-				R"(OpSubgroupAvcSicEvaluateIpeINTEL)",
-				&s_operands[2034],
-				&s_operands[2035],
-				4,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicEvaluateWithSingleReferenceINTEL,
-				R"(OpSubgroupAvcSicEvaluateWithSingleReferenceINTEL)",
-				&s_operands[2038],
-				&s_operands[2039],
-				5,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicEvaluateWithDualReferenceINTEL,
-				R"(OpSubgroupAvcSicEvaluateWithDualReferenceINTEL)",
-				&s_operands[2043],
-				&s_operands[2044],
-				6,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicEvaluateWithMultiReferenceINTEL,
-				R"(OpSubgroupAvcSicEvaluateWithMultiReferenceINTEL)",
-				&s_operands[2049],
-				&s_operands[2050],
-				5,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicEvaluateWithMultiReferenceInterlacedINTEL,
-				R"(OpSubgroupAvcSicEvaluateWithMultiReferenceInterlacedINTEL)",
-				&s_operands[2054],
-				&s_operands[2055],
-				6,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicConvertToMceResultINTEL,
-				R"(OpSubgroupAvcSicConvertToMceResultINTEL)",
-				&s_operands[2060],
-				&s_operands[2061],
-				3,
-			},
-			{
-				SpirvOp::OpSubgroupAvcSicGetIpeLumaShapeINTEL,
-				R"(OpSubgroupAvcSicGetIpeLumaShapeINTEL)",
 				&s_operands[2063],
 				&s_operands[2064],
 				3,
 			},
 			{
-				SpirvOp::OpSubgroupAvcSicGetBestIpeLumaDistortionINTEL,
-				R"(OpSubgroupAvcSicGetBestIpeLumaDistortionINTEL)",
+				SpirvOp::OpSubgroupAvcSicSetIntraLumaShapePenaltyINTEL,
+				R"(OpSubgroupAvcSicSetIntraLumaShapePenaltyINTEL)",
 				&s_operands[2066],
 				&s_operands[2067],
+				4,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicSetIntraLumaModeCostFunctionINTEL,
+				R"(OpSubgroupAvcSicSetIntraLumaModeCostFunctionINTEL)",
+				&s_operands[2070],
+				&s_operands[2071],
+				6,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicSetIntraChromaModeCostFunctionINTEL,
+				R"(OpSubgroupAvcSicSetIntraChromaModeCostFunctionINTEL)",
+				&s_operands[2076],
+				&s_operands[2077],
+				4,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicSetBilinearFilterEnableINTEL,
+				R"(OpSubgroupAvcSicSetBilinearFilterEnableINTEL)",
+				&s_operands[2080],
+				&s_operands[2081],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicSetSkcForwardTransformEnableINTEL,
+				R"(OpSubgroupAvcSicSetSkcForwardTransformEnableINTEL)",
+				&s_operands[2083],
+				&s_operands[2084],
+				4,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicSetBlockBasedRawSkipSadINTEL,
+				R"(OpSubgroupAvcSicSetBlockBasedRawSkipSadINTEL)",
+				&s_operands[2087],
+				&s_operands[2088],
+				4,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicEvaluateIpeINTEL,
+				R"(OpSubgroupAvcSicEvaluateIpeINTEL)",
+				&s_operands[2091],
+				&s_operands[2092],
+				4,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicEvaluateWithSingleReferenceINTEL,
+				R"(OpSubgroupAvcSicEvaluateWithSingleReferenceINTEL)",
+				&s_operands[2095],
+				&s_operands[2096],
+				5,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicEvaluateWithDualReferenceINTEL,
+				R"(OpSubgroupAvcSicEvaluateWithDualReferenceINTEL)",
+				&s_operands[2100],
+				&s_operands[2101],
+				6,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicEvaluateWithMultiReferenceINTEL,
+				R"(OpSubgroupAvcSicEvaluateWithMultiReferenceINTEL)",
+				&s_operands[2106],
+				&s_operands[2107],
+				5,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicEvaluateWithMultiReferenceInterlacedINTEL,
+				R"(OpSubgroupAvcSicEvaluateWithMultiReferenceInterlacedINTEL)",
+				&s_operands[2111],
+				&s_operands[2112],
+				6,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicConvertToMceResultINTEL,
+				R"(OpSubgroupAvcSicConvertToMceResultINTEL)",
+				&s_operands[2117],
+				&s_operands[2118],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicGetIpeLumaShapeINTEL,
+				R"(OpSubgroupAvcSicGetIpeLumaShapeINTEL)",
+				&s_operands[2120],
+				&s_operands[2121],
+				3,
+			},
+			{
+				SpirvOp::OpSubgroupAvcSicGetBestIpeLumaDistortionINTEL,
+				R"(OpSubgroupAvcSicGetBestIpeLumaDistortionINTEL)",
+				&s_operands[2123],
+				&s_operands[2124],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetBestIpeChromaDistortionINTEL,
 				R"(OpSubgroupAvcSicGetBestIpeChromaDistortionINTEL)",
-				&s_operands[2069],
-				&s_operands[2070],
+				&s_operands[2126],
+				&s_operands[2127],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetPackedIpeLumaModesINTEL,
 				R"(OpSubgroupAvcSicGetPackedIpeLumaModesINTEL)",
-				&s_operands[2072],
-				&s_operands[2073],
+				&s_operands[2129],
+				&s_operands[2130],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetIpeChromaModeINTEL,
 				R"(OpSubgroupAvcSicGetIpeChromaModeINTEL)",
-				&s_operands[2075],
-				&s_operands[2076],
+				&s_operands[2132],
+				&s_operands[2133],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetPackedSkcLumaCountThresholdINTEL,
 				R"(OpSubgroupAvcSicGetPackedSkcLumaCountThresholdINTEL)",
-				&s_operands[2078],
-				&s_operands[2079],
+				&s_operands[2135],
+				&s_operands[2136],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetPackedSkcLumaSumThresholdINTEL,
 				R"(OpSubgroupAvcSicGetPackedSkcLumaSumThresholdINTEL)",
-				&s_operands[2081],
-				&s_operands[2082],
+				&s_operands[2138],
+				&s_operands[2139],
 				3,
 			},
 			{
 				SpirvOp::OpSubgroupAvcSicGetInterRawSadsINTEL,
 				R"(OpSubgroupAvcSicGetInterRawSadsINTEL)",
-				&s_operands[2084],
-				&s_operands[2085],
+				&s_operands[2141],
+				&s_operands[2142],
 				3,
 			},
 			{
 				SpirvOp::OpVariableLengthArrayINTEL,
 				R"(OpVariableLengthArrayINTEL)",
-				&s_operands[2087],
-				&s_operands[2088],
+				&s_operands[2144],
+				&s_operands[2145],
 				3,
 			},
 			{
 				SpirvOp::OpSaveMemoryINTEL,
 				R"(OpSaveMemoryINTEL)",
-				&s_operands[2090],
-				&s_operands[2091],
+				&s_operands[2147],
+				&s_operands[2148],
 				2,
 			},
 			{
 				SpirvOp::OpRestoreMemoryINTEL,
 				R"(OpRestoreMemoryINTEL)",
-				&s_operands[2092],
+				&s_operands[2149],
 				nullptr,
 				1,
+			},
+			{
+				SpirvOp::OpArbitraryFloatSinCosPiINTEL,
+				R"(OpArbitraryFloatSinCosPiINTEL)",
+				&s_operands[2150],
+				&s_operands[2151],
+				9,
+			},
+			{
+				SpirvOp::OpArbitraryFloatCastINTEL,
+				R"(OpArbitraryFloatCastINTEL)",
+				&s_operands[2159],
+				&s_operands[2160],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatCastFromIntINTEL,
+				R"(OpArbitraryFloatCastFromIntINTEL)",
+				&s_operands[2167],
+				&s_operands[2168],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatCastToIntINTEL,
+				R"(OpArbitraryFloatCastToIntINTEL)",
+				&s_operands[2175],
+				&s_operands[2176],
+				7,
+			},
+			{
+				SpirvOp::OpArbitraryFloatAddINTEL,
+				R"(OpArbitraryFloatAddINTEL)",
+				&s_operands[2182],
+				&s_operands[2183],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatSubINTEL,
+				R"(OpArbitraryFloatSubINTEL)",
+				&s_operands[2192],
+				&s_operands[2193],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatMulINTEL,
+				R"(OpArbitraryFloatMulINTEL)",
+				&s_operands[2202],
+				&s_operands[2203],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatDivINTEL,
+				R"(OpArbitraryFloatDivINTEL)",
+				&s_operands[2212],
+				&s_operands[2213],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatGTINTEL,
+				R"(OpArbitraryFloatGTINTEL)",
+				&s_operands[2222],
+				&s_operands[2223],
+				6,
+			},
+			{
+				SpirvOp::OpArbitraryFloatGEINTEL,
+				R"(OpArbitraryFloatGEINTEL)",
+				&s_operands[2228],
+				&s_operands[2229],
+				6,
+			},
+			{
+				SpirvOp::OpArbitraryFloatLTINTEL,
+				R"(OpArbitraryFloatLTINTEL)",
+				&s_operands[2234],
+				&s_operands[2235],
+				6,
+			},
+			{
+				SpirvOp::OpArbitraryFloatLEINTEL,
+				R"(OpArbitraryFloatLEINTEL)",
+				&s_operands[2240],
+				&s_operands[2241],
+				6,
+			},
+			{
+				SpirvOp::OpArbitraryFloatEQINTEL,
+				R"(OpArbitraryFloatEQINTEL)",
+				&s_operands[2246],
+				&s_operands[2247],
+				6,
+			},
+			{
+				SpirvOp::OpArbitraryFloatRecipINTEL,
+				R"(OpArbitraryFloatRecipINTEL)",
+				&s_operands[2252],
+				&s_operands[2253],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatRSqrtINTEL,
+				R"(OpArbitraryFloatRSqrtINTEL)",
+				&s_operands[2260],
+				&s_operands[2261],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatCbrtINTEL,
+				R"(OpArbitraryFloatCbrtINTEL)",
+				&s_operands[2268],
+				&s_operands[2269],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatHypotINTEL,
+				R"(OpArbitraryFloatHypotINTEL)",
+				&s_operands[2276],
+				&s_operands[2277],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatSqrtINTEL,
+				R"(OpArbitraryFloatSqrtINTEL)",
+				&s_operands[2286],
+				&s_operands[2287],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatLogINTEL,
+				R"(OpArbitraryFloatLogINTEL)",
+				&s_operands[2294],
+				&s_operands[2295],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatLog2INTEL,
+				R"(OpArbitraryFloatLog2INTEL)",
+				&s_operands[2302],
+				&s_operands[2303],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatLog10INTEL,
+				R"(OpArbitraryFloatLog10INTEL)",
+				&s_operands[2310],
+				&s_operands[2311],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatLog1pINTEL,
+				R"(OpArbitraryFloatLog1pINTEL)",
+				&s_operands[2318],
+				&s_operands[2319],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatExpINTEL,
+				R"(OpArbitraryFloatExpINTEL)",
+				&s_operands[2326],
+				&s_operands[2327],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatExp2INTEL,
+				R"(OpArbitraryFloatExp2INTEL)",
+				&s_operands[2334],
+				&s_operands[2335],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatExp10INTEL,
+				R"(OpArbitraryFloatExp10INTEL)",
+				&s_operands[2342],
+				&s_operands[2343],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatExpm1INTEL,
+				R"(OpArbitraryFloatExpm1INTEL)",
+				&s_operands[2350],
+				&s_operands[2351],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatSinINTEL,
+				R"(OpArbitraryFloatSinINTEL)",
+				&s_operands[2358],
+				&s_operands[2359],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatCosINTEL,
+				R"(OpArbitraryFloatCosINTEL)",
+				&s_operands[2366],
+				&s_operands[2367],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatSinCosINTEL,
+				R"(OpArbitraryFloatSinCosINTEL)",
+				&s_operands[2374],
+				&s_operands[2375],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatSinPiINTEL,
+				R"(OpArbitraryFloatSinPiINTEL)",
+				&s_operands[2382],
+				&s_operands[2383],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatCosPiINTEL,
+				R"(OpArbitraryFloatCosPiINTEL)",
+				&s_operands[2390],
+				&s_operands[2391],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatASinINTEL,
+				R"(OpArbitraryFloatASinINTEL)",
+				&s_operands[2398],
+				&s_operands[2399],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatASinPiINTEL,
+				R"(OpArbitraryFloatASinPiINTEL)",
+				&s_operands[2406],
+				&s_operands[2407],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatACosINTEL,
+				R"(OpArbitraryFloatACosINTEL)",
+				&s_operands[2414],
+				&s_operands[2415],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatACosPiINTEL,
+				R"(OpArbitraryFloatACosPiINTEL)",
+				&s_operands[2422],
+				&s_operands[2423],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatATanINTEL,
+				R"(OpArbitraryFloatATanINTEL)",
+				&s_operands[2430],
+				&s_operands[2431],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatATanPiINTEL,
+				R"(OpArbitraryFloatATanPiINTEL)",
+				&s_operands[2438],
+				&s_operands[2439],
+				8,
+			},
+			{
+				SpirvOp::OpArbitraryFloatATan2INTEL,
+				R"(OpArbitraryFloatATan2INTEL)",
+				&s_operands[2446],
+				&s_operands[2447],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatPowINTEL,
+				R"(OpArbitraryFloatPowINTEL)",
+				&s_operands[2456],
+				&s_operands[2457],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatPowRINTEL,
+				R"(OpArbitraryFloatPowRINTEL)",
+				&s_operands[2466],
+				&s_operands[2467],
+				10,
+			},
+			{
+				SpirvOp::OpArbitraryFloatPowNINTEL,
+				R"(OpArbitraryFloatPowNINTEL)",
+				&s_operands[2476],
+				&s_operands[2477],
+				9,
 			},
 			{
 				SpirvOp::OpLoopControlINTEL,
 				R"(OpLoopControlINTEL)",
-				&s_operands[2093],
+				&s_operands[2485],
 				nullptr,
 				1,
 			},
 			{
+				SpirvOp::OpFixedSqrtINTEL,
+				R"(OpFixedSqrtINTEL)",
+				&s_operands[2486],
+				&s_operands[2487],
+				9,
+			},
+			{
+				SpirvOp::OpFixedRecipINTEL,
+				R"(OpFixedRecipINTEL)",
+				&s_operands[2495],
+				&s_operands[2496],
+				9,
+			},
+			{
+				SpirvOp::OpFixedRsqrtINTEL,
+				R"(OpFixedRsqrtINTEL)",
+				&s_operands[2504],
+				&s_operands[2505],
+				9,
+			},
+			{
+				SpirvOp::OpFixedSinINTEL,
+				R"(OpFixedSinINTEL)",
+				&s_operands[2513],
+				&s_operands[2514],
+				9,
+			},
+			{
+				SpirvOp::OpFixedCosINTEL,
+				R"(OpFixedCosINTEL)",
+				&s_operands[2522],
+				&s_operands[2523],
+				9,
+			},
+			{
+				SpirvOp::OpFixedSinCosINTEL,
+				R"(OpFixedSinCosINTEL)",
+				&s_operands[2531],
+				&s_operands[2532],
+				9,
+			},
+			{
+				SpirvOp::OpFixedSinPiINTEL,
+				R"(OpFixedSinPiINTEL)",
+				&s_operands[2540],
+				&s_operands[2541],
+				9,
+			},
+			{
+				SpirvOp::OpFixedCosPiINTEL,
+				R"(OpFixedCosPiINTEL)",
+				&s_operands[2549],
+				&s_operands[2550],
+				9,
+			},
+			{
+				SpirvOp::OpFixedSinCosPiINTEL,
+				R"(OpFixedSinCosPiINTEL)",
+				&s_operands[2558],
+				&s_operands[2559],
+				9,
+			},
+			{
+				SpirvOp::OpFixedLogINTEL,
+				R"(OpFixedLogINTEL)",
+				&s_operands[2567],
+				&s_operands[2568],
+				9,
+			},
+			{
+				SpirvOp::OpFixedExpINTEL,
+				R"(OpFixedExpINTEL)",
+				&s_operands[2576],
+				&s_operands[2577],
+				9,
+			},
+			{
 				SpirvOp::OpPtrCastToCrossWorkgroupINTEL,
 				R"(OpPtrCastToCrossWorkgroupINTEL)",
-				&s_operands[2094],
-				&s_operands[2095],
+				&s_operands[2585],
+				&s_operands[2586],
 				3,
 			},
 			{
 				SpirvOp::OpCrossWorkgroupCastToPtrINTEL,
 				R"(OpCrossWorkgroupCastToPtrINTEL)",
-				&s_operands[2097],
-				&s_operands[2098],
+				&s_operands[2588],
+				&s_operands[2589],
 				3,
 			},
 			{
 				SpirvOp::OpReadPipeBlockingINTEL,
 				R"(OpReadPipeBlockingINTEL)",
-				&s_operands[2100],
-				&s_operands[2101],
+				&s_operands[2591],
+				&s_operands[2592],
 				4,
 			},
 			{
 				SpirvOp::OpWritePipeBlockingINTEL,
 				R"(OpWritePipeBlockingINTEL)",
-				&s_operands[2104],
-				&s_operands[2105],
+				&s_operands[2595],
+				&s_operands[2596],
 				4,
 			},
 			{
 				SpirvOp::OpFPGARegINTEL,
 				R"(OpFPGARegINTEL)",
-				&s_operands[2108],
-				&s_operands[2109],
+				&s_operands[2599],
+				&s_operands[2600],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetRayTMinKHR,
 				R"(OpRayQueryGetRayTMinKHR)",
-				&s_operands[2112],
-				&s_operands[2113],
+				&s_operands[2603],
+				&s_operands[2604],
 				3,
 			},
 			{
 				SpirvOp::OpRayQueryGetRayFlagsKHR,
 				R"(OpRayQueryGetRayFlagsKHR)",
-				&s_operands[2115],
-				&s_operands[2116],
+				&s_operands[2606],
+				&s_operands[2607],
 				3,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionTKHR,
 				R"(OpRayQueryGetIntersectionTKHR)",
-				&s_operands[2118],
-				&s_operands[2119],
+				&s_operands[2609],
+				&s_operands[2610],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionInstanceCustomIndexKHR,
 				R"(OpRayQueryGetIntersectionInstanceCustomIndexKHR)",
-				&s_operands[2122],
-				&s_operands[2123],
+				&s_operands[2613],
+				&s_operands[2614],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionInstanceIdKHR,
 				R"(OpRayQueryGetIntersectionInstanceIdKHR)",
-				&s_operands[2126],
-				&s_operands[2127],
+				&s_operands[2617],
+				&s_operands[2618],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionInstanceShaderBindingTableRecordOffsetKHR,
 				R"(OpRayQueryGetIntersectionInstanceShaderBindingTableRecordOffsetKHR)",
-				&s_operands[2130],
-				&s_operands[2131],
+				&s_operands[2621],
+				&s_operands[2622],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionGeometryIndexKHR,
 				R"(OpRayQueryGetIntersectionGeometryIndexKHR)",
-				&s_operands[2134],
-				&s_operands[2135],
+				&s_operands[2625],
+				&s_operands[2626],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionPrimitiveIndexKHR,
 				R"(OpRayQueryGetIntersectionPrimitiveIndexKHR)",
-				&s_operands[2138],
-				&s_operands[2139],
+				&s_operands[2629],
+				&s_operands[2630],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionBarycentricsKHR,
 				R"(OpRayQueryGetIntersectionBarycentricsKHR)",
-				&s_operands[2142],
-				&s_operands[2143],
+				&s_operands[2633],
+				&s_operands[2634],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionFrontFaceKHR,
 				R"(OpRayQueryGetIntersectionFrontFaceKHR)",
-				&s_operands[2146],
-				&s_operands[2147],
+				&s_operands[2637],
+				&s_operands[2638],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionCandidateAABBOpaqueKHR,
 				R"(OpRayQueryGetIntersectionCandidateAABBOpaqueKHR)",
-				&s_operands[2150],
-				&s_operands[2151],
+				&s_operands[2641],
+				&s_operands[2642],
 				3,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionObjectRayDirectionKHR,
 				R"(OpRayQueryGetIntersectionObjectRayDirectionKHR)",
-				&s_operands[2153],
-				&s_operands[2154],
+				&s_operands[2644],
+				&s_operands[2645],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionObjectRayOriginKHR,
 				R"(OpRayQueryGetIntersectionObjectRayOriginKHR)",
-				&s_operands[2157],
-				&s_operands[2158],
+				&s_operands[2648],
+				&s_operands[2649],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetWorldRayDirectionKHR,
 				R"(OpRayQueryGetWorldRayDirectionKHR)",
-				&s_operands[2161],
-				&s_operands[2162],
+				&s_operands[2652],
+				&s_operands[2653],
 				3,
 			},
 			{
 				SpirvOp::OpRayQueryGetWorldRayOriginKHR,
 				R"(OpRayQueryGetWorldRayOriginKHR)",
-				&s_operands[2164],
-				&s_operands[2165],
+				&s_operands[2655],
+				&s_operands[2656],
 				3,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionObjectToWorldKHR,
 				R"(OpRayQueryGetIntersectionObjectToWorldKHR)",
-				&s_operands[2167],
-				&s_operands[2168],
+				&s_operands[2658],
+				&s_operands[2659],
 				4,
 			},
 			{
 				SpirvOp::OpRayQueryGetIntersectionWorldToObjectKHR,
 				R"(OpRayQueryGetIntersectionWorldToObjectKHR)",
-				&s_operands[2171],
-				&s_operands[2172],
+				&s_operands[2662],
+				&s_operands[2663],
 				4,
 			},
 			{
 				SpirvOp::OpAtomicFAddEXT,
 				R"(OpAtomicFAddEXT)",
-				&s_operands[2175],
-				&s_operands[2176],
+				&s_operands[2666],
+				&s_operands[2667],
 				6,
 			},
 			{
 				SpirvOp::OpTypeBufferSurfaceINTEL,
 				R"(OpTypeBufferSurfaceINTEL)",
-				&s_operands[2181],
-				&s_operands[2181],
-				1,
+				&s_operands[2672],
+				&s_operands[2672],
+				2,
 			},
 			{
 				SpirvOp::OpTypeStructContinuedINTEL,
 				R"(OpTypeStructContinuedINTEL)",
-				&s_operands[2182],
+				&s_operands[2674],
 				nullptr,
 				1,
 			},
 			{
 				SpirvOp::OpConstantCompositeContinuedINTEL,
 				R"(OpConstantCompositeContinuedINTEL)",
-				&s_operands[2183],
+				&s_operands[2675],
 				nullptr,
 				1,
 			},
 			{
 				SpirvOp::OpSpecConstantCompositeContinuedINTEL,
 				R"(OpSpecConstantCompositeContinuedINTEL)",
-				&s_operands[2184],
+				&s_operands[2676],
 				nullptr,
 				1,
 			},

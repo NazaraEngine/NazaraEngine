@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Jérôme Leclercq
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
@@ -8,8 +8,8 @@
 #define NAZARA_PLATFORM_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Platform/Config.hpp>
+#include <Nazara/Utility/Utility.hpp>
 
 namespace Nz
 {

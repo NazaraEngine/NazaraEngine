@@ -1,7 +1,8 @@
-// Copyright (C) 2020 Jérôme Leclercq
-// This file is part of the "Nazara Engine - Core module"
+// Copyright (C) 2021 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Utility module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <iterator>
 #include <Nazara/Utility/Debug.hpp>
@@ -172,4 +173,4 @@ namespace std
 	};
 }
 
-#include <Nazara/Core/DebugOff.hpp>
+#include <Nazara/Utility/DebugOff.hpp>
