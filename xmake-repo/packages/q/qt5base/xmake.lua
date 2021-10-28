@@ -19,6 +19,7 @@ package("qt5base")
         if os.isfile(package:manifest_file()) then
             local installdir = package:installdir()
             local qt = {
+                version = package:version():shortstr(),
                 bindir = path.join(installdir, "bin"),
                 includedir = path.join(installdir, "include"),
                 libdir = path.join(installdir, "lib")
@@ -47,7 +48,7 @@ package("qt5base")
         os.vrunv("python", {"-m", "pip", "install", "aqtinstall"})
 
         local installdir = package:installdir()
-        local version = package:version() or "5.15.2"
+        local version = package:version() or semver.new("5.15.2")
 
         local host
         if is_host("windows") then
@@ -92,6 +93,10 @@ package("qt5base")
                 else
                     os.raise("unhandled msvc version " .. vs)
                 end
+
+                if package:is_targetarch("x64", "x86_64") then
+                    compilerVersion = compilerVersion .. "_64"
+                end
             else
                 local cc = package:tool("cc")
                 local version = os.iorunv(cc, {"-dumpversion"}):trim()
@@ -110,20 +115,28 @@ package("qt5base")
                 end
             end
 
-            arch = "win" .. winArch .. "_" .. compilerVersion .. (package:is_plat("windows") and "_" .. winArch or "")
+            arch = "win" .. winArch .. "_" .. compilerVersion
+        elseif package:is_plat("linux") then
+            arch = "gcc_64"
+        elseif package:is_plat("macosx") then
+            arch = "clang_64"
         elseif package:is_plat("android") then
             if package:version():le("5.13") then
                 if package:is_targetarch("x86_64", "x64") then
+                    arch = "android_x86_64"
+                elseif package:is_targetarch("arm64", "arm64-v8a") then
                     arch = "android_arm64_v8a"
-                elseif package:is_targetarch("x86") then
+                elseif package:is_targetarch("armv7", "armv7-a") then
                     arch = "android_armv7"
+                elseif package:is_targetarch("x86") then
+                    arch = "android_x86"
                 end
             else
                 arch = "android"
             end
         end
 
-        os.vrunv("python", {"-m", "aqt", "install", "--outputdir", installdir, version, host, target, arch})
+        os.vrunv("python", {"-m", "aqt", "install-qt", "-O", installdir, host, target, version:shortstr(), arch})
 
         -- move files to root
         local subdirs = {}
