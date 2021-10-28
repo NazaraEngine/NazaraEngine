@@ -20,7 +20,7 @@ namespace Nz
 
 	void TextSprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
 	{
-		MaterialPass* materialPass = m_material->GetPass(passIndex);
+		const auto& materialPass = m_material->GetPass(passIndex);
 		if (!materialPass)
 			return;
 
@@ -42,7 +42,7 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], materialPass->GetShaderBinding(), worldInstance, materialPass->GetFlags()));
+				elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4]));
 		}
 	}
 

@@ -87,6 +87,7 @@ namespace Nz
 				RenderQueue<RenderElement*> depthPrepassRenderQueue;
 				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
+				bool prepare = true;
 				bool rebuildDepthPrepass = true;
 				bool rebuildForwardPass = true;
 			};

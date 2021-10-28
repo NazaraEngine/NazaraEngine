@@ -28,9 +28,9 @@ struct ViewerData
 
 external
 {
-	[set(0), binding(0)] viewerData: uniform<ViewerData>,
-	[set(1), binding(0)] instanceData: uniform<InstanceData>,
-	[set(2), binding(0)] settings: uniform<BasicSettings>,
+	[binding(0)] settings: uniform<BasicSettings>,
+	[binding(4)] instanceData: uniform<InstanceData>,
+	[binding(5)] viewerData: uniform<ViewerData>,
 }
 
 struct InputData

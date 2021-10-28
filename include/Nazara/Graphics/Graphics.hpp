@@ -42,7 +42,6 @@ namespace Nz
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
 			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
-			inline const std::shared_ptr<RenderPipelineLayout>& GetReferencePipelineLayout() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
 			inline TextureSamplerCache& GetSamplerCache();
@@ -55,17 +54,12 @@ namespace Nz
 
 			struct DefaultTextures
 			{
-				std::shared_ptr<Texture> whiteTexture2d;
+				std::array<std::shared_ptr<Texture>, ImageTypeCount> whiteTextures;
 			};
 
-			static constexpr UInt32 DrawDataBindingSet = 2;
-			static constexpr UInt32 MaterialBindingSet = 3;
-			static constexpr UInt32 ViewerBindingSet = 0;
-			static constexpr UInt32 WorldBindingSet = 1;
-
-			static void FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = DrawDataBindingSet);
-			static void FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = ViewerBindingSet);
-			static void FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set = WorldBindingSet);
+			static void FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
+			static void FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
+			static void FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
 
 		private:
 			void BuildBlitPipeline();
@@ -80,7 +74,6 @@ namespace Nz
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::shared_ptr<RenderPipeline> m_blitPipeline;
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
-			std::shared_ptr<RenderPipelineLayout> m_referencePipelineLayout;
 			std::shared_ptr<VertexDeclaration> m_fullscreenVertexDeclaration;
 			DefaultTextures m_defaultTextures;
 			MaterialPassRegistry m_materialPassRegistry;

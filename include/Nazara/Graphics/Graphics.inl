@@ -47,11 +47,6 @@ namespace Nz
 		return m_preferredDepthStencilFormat;
 	}
 
-	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetReferencePipelineLayout() const
-	{
-		return m_referencePipelineLayout;
-	}
-
 	inline const std::shared_ptr<RenderDevice>& Graphics::GetRenderDevice() const
 	{
 		return m_renderDevice;

@@ -31,7 +31,7 @@ namespace Nz
 		std::array<std::size_t, 3> lightArray;
 		std::size_t lightArraySize;
 
-		static PredefinedLightData GetOffset();
+		static PredefinedLightData GetOffsets();
 		static MaterialSettings::SharedUniformBlock GetUniformBlock();
 	};
 
@@ -42,6 +42,7 @@ namespace Nz
 		std::size_t worldMatrixOffset;
 
 		static PredefinedInstanceData GetOffsets();
+		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages);
 	};
 
 	struct NAZARA_GRAPHICS_API PredefinedViewerData
@@ -58,6 +59,7 @@ namespace Nz
 		std::size_t viewProjMatrixOffset;
 
 		static PredefinedViewerData GetOffsets();
+		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages);
 	};
 }
 

@@ -24,7 +24,7 @@ namespace Nz
 
 	void Sprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
 	{
-		MaterialPass* materialPass = m_material->GetPass(passIndex);
+		const auto& materialPass = m_material->GetPass(passIndex);
 		if (!materialPass)
 			return;
 
@@ -40,9 +40,9 @@ namespace Nz
 		};
 		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(vertexBufferData);
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTexture2d;
+		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, renderPipeline, vertexDeclaration, whiteTexture, 1, m_vertices.data(), materialPass->GetShaderBinding(), worldInstance, materialPass->GetFlags()));
+		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data()));
 	}
 
 	inline const Color& Sprite::GetColor() const
