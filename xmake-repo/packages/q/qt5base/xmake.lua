@@ -194,6 +194,7 @@ package("qt5base")
         os.rmdir(path.join(installdir, version))
 
         package:data_set("qtdir", {
+            version = version:shortstr(),
             bindir = path.join(installdir, "bin"),
             includedir = path.join(installdir, "include"),
             libdir = path.join(installdir, "lib")
