@@ -14,6 +14,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
+#include <array>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
@@ -22,7 +23,25 @@ namespace Nz
 	OpenGLDevice::OpenGLDevice(GL::Loader& loader) :
 	m_loader(loader)
 	{
-		m_referenceContext = loader.CreateContext(this, {});
+		// Favor OpenGL on desktop and OpenGL ES on mobile
+		std::array<GL::ContextType, 2> contextTypes = {
+#if defined(NAZARA_PLATFORM_DESKTOP)
+			GL::ContextType::OpenGL, GL::ContextType::OpenGL_ES
+#else
+			GL::ContextType::OpenGL_ES, GL::ContextType::OpenGL
+#endif
+		};
+
+		for (GL::ContextType contextType : contextTypes)
+		{
+			GL::ContextParams params;
+			params.type = contextType;
+
+			m_referenceContext = loader.CreateContext(this, params);
+			if (m_referenceContext)
+				break;
+		}
+
 		if (!m_referenceContext)
 			throw std::runtime_error("failed to create reference context");
 
@@ -75,16 +94,20 @@ namespace Nz
 		m_referenceContext.reset();
 	}
 
-	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(const GL::ContextParams& params) const
+	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(GL::ContextParams params) const
 	{
+		params.type = m_referenceContext->GetParams().type;
+
 		auto contextPtr = m_loader.CreateContext(this, params, m_referenceContext.get());
 		m_contexts.insert(contextPtr.get());
 
 		return contextPtr;
 	}
 
-	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(const GL::ContextParams& params, WindowHandle handle) const
+	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(GL::ContextParams params, WindowHandle handle) const
 	{
+		params.type = m_referenceContext->GetParams().type;
+
 		auto contextPtr = m_loader.CreateContext(this, params, handle, m_referenceContext.get());
 		m_contexts.insert(contextPtr.get());
 
