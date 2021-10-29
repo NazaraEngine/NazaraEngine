@@ -28,7 +28,7 @@ namespace Nz
 			virtual void InvalidateViewer(AbstractViewer* viewerInstance) = 0;
 			virtual void InvalidateWorldInstance(WorldInstance* worldInstance) = 0;
 
-			virtual void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable) = 0;
+			virtual void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) = 0;
 			virtual void RegisterViewer(AbstractViewer* viewerInstance) = 0;
 
 			virtual void Render(RenderFrame& renderFrame) = 0;

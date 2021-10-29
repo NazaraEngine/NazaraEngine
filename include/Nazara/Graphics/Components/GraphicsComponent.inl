@@ -12,25 +12,27 @@ namespace Nz
 		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
 	}
 
-	inline void GraphicsComponent::AttachRenderable(std::shared_ptr<InstancedRenderable> renderable)
+	inline void GraphicsComponent::AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask)
 	{
-		m_renderables.push_back(std::move(renderable));
+		auto& entry = m_renderables.emplace_back();
+		entry.renderable = std::move(renderable);
+		entry.renderMask = renderMask;
 
 		OnRenderableAttached(this, m_renderables.back());
 	}
 
 	inline void GraphicsComponent::DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable)
 	{
-		auto it = std::find(m_renderables.begin(), m_renderables.end(), renderable);
+		auto it = std::find_if(m_renderables.begin(), m_renderables.end(), [&](const auto& renderableEntry) { return renderableEntry.renderable == renderable; });
 		if (it != m_renderables.end())
 		{
-			OnRenderableDetach(this, renderable);
+			OnRenderableDetach(this, *it);
 
 			m_renderables.erase(it);
 		}
 	}
 
-	inline const std::vector<std::shared_ptr<InstancedRenderable>>& GraphicsComponent::GetRenderables() const
+	inline auto GraphicsComponent::GetRenderables() const -> const std::vector<Renderable>&
 	{
 		return m_renderables;
 	}

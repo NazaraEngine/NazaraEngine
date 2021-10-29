@@ -140,29 +140,35 @@ int main()
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
 	entt::registry registry;
-	entt::registry registry2D;
 
 	Nz::Physics3DSystem physSytem(registry);
 	Nz::RenderSystem renderSystem(registry);
-	Nz::RenderSystem renderSystem2D(registry2D);
 
 	Nz::Canvas canvas(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle());
 	Nz::LabelWidget* labelWidget = canvas.Add<Nz::LabelWidget>();
 	//labelWidget->EnableBackground(true);
 	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Bonjour Paris !", 72), 0.1f);
 
-	entt::entity viewer2D = registry2D.create();
-	registry2D.emplace<Nz::NodeComponent>(viewer2D);
-	registry2D.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+	/*entt::entity viewer2D = registry.create();
+	{
+		registry.emplace<Nz::NodeComponent>(viewer2D);
+		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateRenderMask(2);
+	}*/
 
-	entt::entity text2D = registry2D.create();
-
-	registry2D.emplace<Nz::GraphicsComponent>(text2D).AttachRenderable(sprite);
-	registry2D.emplace<Nz::NodeComponent>(text2D).SetPosition(Nz::Vector3f(0.f, 200.f, 0.f));
+	entt::entity text2D = registry.create();
+	{
+		registry.emplace<Nz::NodeComponent>(text2D).SetPosition(Nz::Vector3f(0.f, 200.f, 0.f));
+		auto& gfxComponent = registry.emplace<Nz::GraphicsComponent>(text2D);
+		gfxComponent.AttachRenderable(sprite, 2);
+	}
 
 	entt::entity viewer = registry.create();
-	registry.emplace<Nz::NodeComponent>(viewer);
-	registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget());
+	{
+		registry.emplace<Nz::NodeComponent>(viewer);
+		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget());
+		cameraComponent.UpdateRenderMask(1);
+	}
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
@@ -187,7 +193,6 @@ int main()
 			colliderModel->SetMaterial(i, colliderMat);
 	}
 
-
 	entt::entity textEntity = registry.create();
 	{
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(textEntity);
@@ -201,7 +206,7 @@ int main()
 	entt::entity headingEntity = registry.create();
 	{
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
-		entityGfx.AttachRenderable(model);
+		entityGfx.AttachRenderable(model, 1);
 
 		auto& entityNode = registry.emplace<Nz::NodeComponent>(playerEntity);
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
@@ -218,15 +223,15 @@ int main()
 	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
 	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
-	for (std::size_t x = 0; x < 2; ++x)
+	for (std::size_t x = 0; x < 3; ++x)
 	{
-		for (std::size_t y = 0; y < 2; ++y)
+		for (std::size_t y = 0; y < 3; ++y)
 		{
-			for (std::size_t z = 0; z < 2; ++z)
+			for (std::size_t z = 0; z < 3; ++z)
 			{
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
-				entityGfx.AttachRenderable(model);
+				entityGfx.AttachRenderable(model, 1);
 				//entityGfx.AttachRenderable(sprite);
 
 				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
@@ -249,7 +254,7 @@ int main()
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	//Nz::Mouse::SetRelativeMouseMode(true);
 
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
@@ -337,8 +342,6 @@ int main()
 		{
 			float updateTime = updateClock.Restart() / 1'000'000.f;
 
-			float cameraSpeed = 20.f * updateTime;
-
 			physSytem.Update(registry, 1000.f / 60.f);
 
 			auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
@@ -392,7 +395,6 @@ int main()
 			continue;
 
 		renderSystem.Render(registry, frame);
-		//renderSystem2D.Render(registry2D, frame);
 
 		frame.Present();
 

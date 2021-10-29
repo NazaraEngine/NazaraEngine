@@ -8,6 +8,11 @@
 
 namespace Nz
 {
+	UInt32 Camera::GetRenderMask() const
+	{
+		return m_renderMask;
+	}
+
 	const RenderTarget& Camera::GetRenderTarget()
 	{
 		if (!m_renderTarget)

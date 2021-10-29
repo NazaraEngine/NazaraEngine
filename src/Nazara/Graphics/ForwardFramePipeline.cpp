@@ -46,7 +46,7 @@ namespace Nz
 		m_invalidatedWorldInstances.insert(worldInstance);
 	}
 
-	void ForwardFramePipeline::RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable)
+	void ForwardFramePipeline::RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask)
 	{
 		m_removedWorldInstances.erase(worldInstance);
 
@@ -57,6 +57,8 @@ namespace Nz
 		if (auto it = renderableMap.find(instancedRenderable); it == renderableMap.end())
 		{
 			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
+			renderableData.renderMask = renderMask;
+
 			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
 			{
 				if (newMaterial)
@@ -100,8 +102,11 @@ namespace Nz
 
 			for (auto&& [viewer, viewerData] : m_viewers)
 			{
-				viewerData.rebuildDepthPrepass = true;
-				viewerData.rebuildForwardPass = true;
+				if (viewer->GetRenderMask() & renderMask)
+				{
+					viewerData.rebuildDepthPrepass = true;
+					viewerData.rebuildForwardPass = true;
+				}
 			}
 		}
 	}
@@ -178,6 +183,8 @@ namespace Nz
 		{
 			auto& viewerData = data;
 
+			UInt32 renderMask = viewer->GetRenderMask();
+
 			// Frustum culling
 			const Matrix4f& viewProjMatrix = viewer->GetViewerInstance().GetViewProjMatrix();
 
@@ -192,6 +199,9 @@ namespace Nz
 
 				for (const auto& [renderable, renderableData] : renderables)
 				{
+					if (renderMask & renderableData.renderMask == 0)
+						continue;
+
 					// Get global AABB
 					BoundingVolumef boundingVolume(renderable->GetAABB());
 					boundingVolume.Update(worldInstance->GetWorldMatrix());
