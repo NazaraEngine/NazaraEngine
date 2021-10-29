@@ -19,25 +19,33 @@ namespace Nz
 	class NAZARA_GRAPHICS_API GraphicsComponent
 	{
 		public:
+			struct Renderable;
+
 			GraphicsComponent();
 			GraphicsComponent(const GraphicsComponent&) = default;
 			GraphicsComponent(GraphicsComponent&&) = default;
 			~GraphicsComponent() = default;
 
-			inline void AttachRenderable(std::shared_ptr<InstancedRenderable> renderable);
+			inline void AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask = 0xFFFFFFFF);
 			inline void DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable);
 
-			inline const std::vector<std::shared_ptr<InstancedRenderable>>& GetRenderables() const;
+			inline const std::vector<Renderable>& GetRenderables() const;
 			inline const WorldInstancePtr& GetWorldInstance() const;
 
 			GraphicsComponent& operator=(const GraphicsComponent&) = default;
 			GraphicsComponent& operator=(GraphicsComponent&&) = default;
 
-			NazaraSignal(OnRenderableAttached, GraphicsComponent* /*graphicsComponent*/, const std::shared_ptr<InstancedRenderable>& /*renderable*/);
-			NazaraSignal(OnRenderableDetach, GraphicsComponent* /*graphicsComponent*/, const std::shared_ptr<InstancedRenderable>& /*renderable*/);
+			NazaraSignal(OnRenderableAttached, GraphicsComponent* /*graphicsComponent*/, const Renderable& /*renderable*/);
+			NazaraSignal(OnRenderableDetach, GraphicsComponent* /*graphicsComponent*/, const Renderable& /*renderable*/);
+
+			struct Renderable
+			{
+				std::shared_ptr<InstancedRenderable> renderable;
+				UInt32 renderMask;
+			};
 
 		private:
-			std::vector<std::shared_ptr<InstancedRenderable>> m_renderables;
+			std::vector<Renderable> m_renderables;
 			WorldInstancePtr m_worldInstance;
 	};
 }

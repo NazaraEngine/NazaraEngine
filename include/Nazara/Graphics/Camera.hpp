@@ -29,6 +29,7 @@ namespace Nz
 
 			inline float GetAspectRatio() const;
 			inline DegreeAnglef GetFOV() const;
+			UInt32 GetRenderMask() const override;
 			const RenderTarget& GetRenderTarget() override;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTargetRegion() const;
@@ -40,6 +41,7 @@ namespace Nz
 
 			inline void UpdateFOV(DegreeAnglef fov);
 			inline void UpdateProjectionType(ProjectionType projectionType);
+			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateSize(const Vector2f& size);
 			void UpdateTarget(const RenderTarget* framebuffer);
 			inline void UpdateTargetRegion(const Rectf& targetRegion);
@@ -65,6 +67,7 @@ namespace Nz
 			Recti m_viewport;
 			Vector2f m_size;
 			ViewerInstance m_viewerInstance;
+			UInt32 m_renderMask;
 			float m_aspectRatio;
 			float m_zFar;
 			float m_zNear;

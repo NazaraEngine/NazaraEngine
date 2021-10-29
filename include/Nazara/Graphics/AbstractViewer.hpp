@@ -22,6 +22,7 @@ namespace Nz
 			AbstractViewer() = default;
 			~AbstractViewer() = default;
 
+			virtual UInt32 GetRenderMask() const = 0;
 			virtual const RenderTarget& GetRenderTarget() = 0;
 			virtual ViewerInstance& GetViewerInstance() = 0;
 			virtual const ViewerInstance& GetViewerInstance() const = 0;

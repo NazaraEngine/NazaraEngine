@@ -61,8 +61,8 @@ namespace Nz
 			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
 
 			const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
-			for (const auto& renderable : entityGfx.GetRenderables())
-				m_pipeline->RegisterInstancedDrawable(worldInstance, renderable.get());
+			for (const auto& renderableEntry : entityGfx.GetRenderables())
+				m_pipeline->RegisterInstancedDrawable(worldInstance, renderableEntry.renderable.get(), renderableEntry.renderMask);
 
 			m_invalidatedWorldNode.insert(entity);
 
@@ -73,16 +73,16 @@ namespace Nz
 				m_invalidatedWorldNode.insert(entity);
 			});
 
-			graphicsEntity.onRenderableAttached.Connect(entityGfx.OnRenderableAttached, [this](GraphicsComponent* gfx, const std::shared_ptr<InstancedRenderable>& renderable)
+			graphicsEntity.onRenderableAttached.Connect(entityGfx.OnRenderableAttached, [this](GraphicsComponent* gfx, const GraphicsComponent::Renderable& renderableEntry)
 			{
 				const WorldInstancePtr& worldInstance = gfx->GetWorldInstance();
-				m_pipeline->RegisterInstancedDrawable(worldInstance, renderable.get());
+				m_pipeline->RegisterInstancedDrawable(worldInstance, renderableEntry.renderable.get(), renderableEntry.renderMask);
 			});
 
-			graphicsEntity.onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this](GraphicsComponent* gfx, const std::shared_ptr<InstancedRenderable>& renderable)
+			graphicsEntity.onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this](GraphicsComponent* gfx, const GraphicsComponent::Renderable& renderableEntry)
 			{
 				const WorldInstancePtr& worldInstance = gfx->GetWorldInstance();
-				m_pipeline->UnregisterInstancedDrawable(worldInstance, renderable.get());
+				m_pipeline->UnregisterInstancedDrawable(worldInstance, renderableEntry.renderable.get());
 			});
 		});
 
@@ -107,8 +107,8 @@ namespace Nz
 
 		GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
 		const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
-		for (const auto& renderable : entityGfx.GetRenderables())
-			m_pipeline->UnregisterInstancedDrawable(worldInstance, renderable.get());
+		for (const auto& renderableEntry : entityGfx.GetRenderables())
+			m_pipeline->UnregisterInstancedDrawable(worldInstance, renderableEntry.renderable.get());
 	}
 
 	void RenderSystem::OnNodeDestroy(entt::registry& registry, entt::entity entity)

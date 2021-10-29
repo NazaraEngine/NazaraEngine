@@ -38,7 +38,7 @@ namespace Nz
 			void InvalidateViewer(AbstractViewer* viewerInstance) override;
 			void InvalidateWorldInstance(WorldInstance* worldInstance) override;
 
-			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable) override;
+			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) override;
 			void RegisterViewer(AbstractViewer* viewerInstance) override;
 
 			void Render(RenderFrame& renderFrame) override;
@@ -65,6 +65,8 @@ namespace Nz
 
 			struct RenderableData
 			{
+				UInt32 renderMask = 0;
+
 				NazaraSlot(InstancedRenderable, OnMaterialInvalidated, onMaterialInvalidated);
 			};
 
