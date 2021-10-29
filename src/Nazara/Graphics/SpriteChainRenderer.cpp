@@ -163,7 +163,7 @@ namespace Nz
 					else
 					{
 						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex);
-						vertexBuffer->Initialize(m_maxVertexBufferSize, BufferUsage::DeviceLocal);
+						vertexBuffer->Initialize(m_maxVertexBufferSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic);
 					}
 
 					currentVertexBuffer = vertexBuffer.get();

@@ -214,8 +214,14 @@ namespace Nz
 					{
 						assert(command.framebuffer->GetType() == FramebufferType::Window);
 
-						GLenum buffer = GL_BACK;
-						context->glDrawBuffers(1, &buffer);
+						// glDrawBuffers doesn't accept GL_BACK on OpenGL non-ES, and glDrawBuffer must be used instead
+						if (context->glDrawBuffer)
+							context->glDrawBuffer(GL_BACK);
+						else
+						{
+							GLenum buffer = GL_BACK;
+							context->glDrawBuffers(1, &buffer);
+						}
 
 						invalidateAttachments = NazaraStackVector(GLenum, 3); //< color + depth + stencil
 
