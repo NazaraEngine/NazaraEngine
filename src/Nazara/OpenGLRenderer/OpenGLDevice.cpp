@@ -49,8 +49,6 @@ namespace Nz
 
 		m_deviceInfo.type = RenderDeviceType::Unknown;
 
-		const GL::ContextParams& params = m_referenceContext->GetParams();
-
 		// Features
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
 			m_deviceInfo.features.anisotropicFiltering = true;

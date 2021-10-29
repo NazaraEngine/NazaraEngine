@@ -781,7 +781,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (interpolation < T(0.0) || interpolation > T(1.0))
 		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
+			NazaraError("Interpolation must be in range [0..1] (Got " + std::to_string(interpolation) + ')');
 			return Zero();
 		}
 		#endif

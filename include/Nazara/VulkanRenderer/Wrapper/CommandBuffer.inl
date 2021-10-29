@@ -251,7 +251,7 @@ namespace Nz
 				}
 			};
 
-			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, region);
+			return CopyBufferToImage(source, target, targetLayout, region);
 		}
 
 		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 width, UInt32 height, UInt32 depth)
@@ -269,15 +269,15 @@ namespace Nz
 				}
 			};
 
-			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, region);
+			return CopyBufferToImage(source, target, targetLayout, region);
 		}
 
-		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, const VkBufferImageCopy& region)
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkBufferImageCopy& region)
 		{
-			return CopyBufferToImage(source, target, targetLayout, subresourceLayers, 1, &region);
+			return CopyBufferToImage(source, target, targetLayout, 1, &region);
 		}
 
-		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, const VkImageSubresourceLayers& subresourceLayers, UInt32 regionCount, const VkBufferImageCopy* regions)
+		inline void CommandBuffer::CopyBufferToImage(VkBuffer source, VkImage target, VkImageLayout targetLayout, UInt32 regionCount, const VkBufferImageCopy* regions)
 		{
 			return m_pool->GetDevice()->vkCmdCopyBufferToImage(m_handle, source, target, targetLayout, regionCount, regions);
 		}

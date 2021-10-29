@@ -91,7 +91,7 @@ namespace Nz
 				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
 				// Read all mipmap levels
-				for (unsigned int i = 0; i < image->GetLevelCount(); i++)
+				for (UInt8 i = 0; i < image->GetLevelCount(); i++)
 				{
 					std::size_t byteCount = PixelFormatInfo::ComputeSize(format, width, height, depth);
 
@@ -167,7 +167,7 @@ namespace Nz
 			{
 				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatDescription info(PixelFormatContent::ColorRGBA, header.format.bpp, PixelFormatSubType::Unsigned);
+					PixelFormatDescription info(PixelFormatContent::ColorRGBA, SafeCast<UInt8>(header.format.bpp), PixelFormatSubType::Unsigned);
 
 					if (header.format.flags & DDPF_RGB)
 					{

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Debug.hpp>
@@ -635,7 +636,7 @@ namespace Nz
 			{
 				UInt16 l = static_cast<UInt16>(c8to4(start[0]));
 
-				*ptr = (l << 12) | (l << 8) | (l << 4) | c8to4(start[1]);
+				*ptr = (l << 12) | (l << 8) | (l << 4) | c8to4(SafeCast<UInt8>(start[1]));
 
 				#ifdef NAZARA_BIG_ENDIAN
 				SwapBytes(ptr, sizeof(UInt16));
@@ -676,7 +677,7 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c4to8(pixel & 0x000F);
+				*dst++ = c4to8(SafeCast<UInt8>(pixel & 0x000F));
 
 				start += 2;
 			}
@@ -695,9 +696,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c4to8((pixel & 0x00F0) >> 4);
-				*dst++ = c4to8((pixel & 0x0F00) >> 8);
-				*dst++ = c4to8((pixel & 0xF000) >> 12);
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
 
 				start += 2;
 			}
@@ -716,10 +717,10 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c4to8((pixel & 0x00F0) >> 4);
-				*dst++ = c4to8((pixel & 0x0F00) >> 8);
-				*dst++ = c4to8((pixel & 0xF000) >> 12);
-				*dst++ = c4to8((pixel & 0x000F) >> 0);
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x000F) >> 0));
 
 				start += 2;
 			}
@@ -738,9 +739,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				UInt16 r = c4to8((pixel & 0xF000) >> 12);
-				UInt16 g = c4to8((pixel & 0x0F00) >> 8);
-				UInt16 b = c4to8((pixel & 0x00F0) >> 4);
+				UInt16 r = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				UInt16 g = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				UInt16 b = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 
@@ -761,9 +762,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				UInt16 r = c4to8((pixel & 0xF000) >> 12);
-				UInt16 g = c4to8((pixel & 0x0F00) >> 8);
-				UInt16 b = c4to8((pixel & 0x00F0) >> 4);
+				UInt16 r = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				UInt16 g = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				UInt16 b = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 				*dst++ = c4to8(pixel & 0x000F);
@@ -786,10 +787,10 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				UInt16 r = c4to5((pixel & 0xF000) >> 12);
-				UInt16 g = c4to5((pixel & 0x0F00) >> 8);
-				UInt16 b = c4to5((pixel & 0x00F0) >> 4);
-				UInt16 a = c4to5((pixel & 0x000F) >> 0);
+				UInt16 r = c4to5(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				UInt16 g = c4to5(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				UInt16 b = c4to5(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				UInt16 a = c4to5(SafeCast<UInt8>((pixel & 0x000F) >> 0));
 
 				*ptr = (r << 11) | (g << 6) | (b << 1) | ((a > 0x3) ? 1 : 0);
 
@@ -815,9 +816,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c4to8((pixel & 0xF000) >> 12);
-				*dst++ = c4to8((pixel & 0x0F00) >> 8);
-				*dst++ = c4to8((pixel & 0x00F0) >> 4);
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
 
 				start += 2;
 			}
@@ -836,10 +837,10 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c4to8((pixel & 0xF000) >> 12);
-				*dst++ = c4to8((pixel & 0x0F00) >> 8);
-				*dst++ = c4to8((pixel & 0x00F0) >> 4);
-				*dst++ = c4to8((pixel & 0x000F) >> 0);
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x000F) >> 0));
 
 				start += 2;
 			}
@@ -859,7 +860,7 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = static_cast<UInt8>((pixel & 0x1)*0xFF);
+				*dst++ = SafeCast<UInt8>((pixel & 0x1) * 0xFF);
 
 				start += 2;
 			}
@@ -878,9 +879,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c5to8((pixel & 0x003E) >> 1);
-				*dst++ = c5to8((pixel & 0x07C0) >> 6);
-				*dst++ = c5to8((pixel & 0xF800) >> 11);
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 
 				start += 2;
 			}
@@ -899,9 +900,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c5to8((pixel & 0x003E) >> 1);
-				*dst++ = c5to8((pixel & 0x07C0) >> 6);
-				*dst++ = c5to8((pixel & 0xF800) >> 11);
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 				*dst++ = static_cast<UInt8>((pixel & 0x1)*0xFF);
 
 				start += 2;
@@ -921,9 +922,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				UInt8 r = c5to8((pixel & 0xF800) >> 11);
-				UInt8 g = c5to8((pixel & 0x07C0) >> 6);
-				UInt8 b = c5to8((pixel & 0x003E) >> 1);
+				UInt8 r = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				UInt8 g = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				UInt8 b = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 
@@ -944,9 +945,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				UInt8 r = c5to8((pixel & 0xF800) >> 11);
-				UInt8 g = c5to8((pixel & 0x07C0) >> 6);
-				UInt8 b = c5to8((pixel & 0x003E) >> 1);
+				UInt8 r = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				UInt8 g = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				UInt8 b = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 				*dst++ = static_cast<UInt8>((pixel & 0x1)*0xFF);
@@ -968,9 +969,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c5to8((pixel & 0xF800) >> 11);
-				*dst++ = c5to8((pixel & 0x07C0) >> 6);
-				*dst++ = c5to8((pixel & 0x003E) >> 1);
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
 
 				start += 2;
 			}
@@ -990,9 +991,9 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				UInt8 r = c5to4((pixel & 0xF800) >> 11);
-				UInt8 g = c5to4((pixel & 0x07C0) >> 6);
-				UInt8 b = c5to4((pixel & 0x003E) >> 1);
+				UInt8 r = c5to4(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				UInt8 g = c5to4(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				UInt8 b = c5to4(SafeCast<UInt8>((pixel & 0x003E) >> 1));
 
 				*ptr = (r << 12) | (g << 8) | (b << 4) | ((pixel & 0x1)*0x0F);
 
@@ -1018,10 +1019,10 @@ namespace Nz
 				SwapBytes(&pixel, sizeof(UInt16));
 				#endif
 
-				*dst++ = c5to8((pixel & 0xF800) >> 11);
-				*dst++ = c5to8((pixel & 0x07C0) >> 6);
-				*dst++ = c5to8((pixel & 0x003E) >> 1);
-				*dst++ = static_cast<UInt8>((pixel & 0x1)*0xFF);
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
+				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				*dst++ = SafeCast<UInt8>((pixel & 0x1) * 0xFF);
 
 				start += 2;
 			}
