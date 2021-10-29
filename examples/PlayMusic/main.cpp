@@ -14,8 +14,6 @@
 
 int main()
 {
-	std::cout << u8"Héhéhé" << std::endl;
-	return 0;
 	std::filesystem::path resourceDir = "resources";
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
 		resourceDir = ".." / resourceDir;
