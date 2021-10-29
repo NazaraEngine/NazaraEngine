@@ -95,8 +95,8 @@ int main()
 
 	Nz::ForwardFramePipeline framePipeline;
 	framePipeline.RegisterViewer(&camera);
-	framePipeline.RegisterInstancedDrawable(modelInstance, &model);
-	framePipeline.RegisterInstancedDrawable(modelInstance2, &model);
+	framePipeline.RegisterInstancedDrawable(modelInstance, &model, 0xFFFFFFFF);
+	framePipeline.RegisterInstancedDrawable(modelInstance2, &model, 0xFFFFFFFF);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 

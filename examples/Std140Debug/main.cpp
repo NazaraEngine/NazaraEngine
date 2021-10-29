@@ -7,7 +7,7 @@
 #include <numeric>
 
 const char fragmentSource[] = R"(
-#version 310 es
+#version 300 es
 
 #if GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -15,7 +15,7 @@ precision highp float;
 precision mediump float;
 #endif
 
-layout(binding = 3, std140) uniform LightParameters
+layout(std140) uniform LightParameters
 {
 	mat4 projectionMatrix;
 	mat4 invProjectionMatrix;
@@ -34,7 +34,7 @@ void main()
 )";
 
 const char vertexSource[] = R"(
-#version 310 es
+#version 300 es
 
 void main()
 {
