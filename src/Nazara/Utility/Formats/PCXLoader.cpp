@@ -100,8 +100,8 @@ namespace Nz
 
 			UInt8* pixels = image->GetPixels();
 
-			int rle_value = 0;
-			unsigned int rle_count = 0;
+			UInt8 rleValue = 0;
+			UInt8 rleCount = 0;
 
 			switch (bitCount)
 			{
@@ -115,20 +115,20 @@ namespace Nz
 						/* decode line number y */
 						while (bytes--)
 						{
-							if (rle_count == 0)
+							if (rleCount == 0)
 							{
-								if (!stream.Read(&rle_value, 1))
+								if (!stream.Read(&rleValue, 1))
 								{
 									NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 									return nullptr;
 								}
 
-								if (rle_value < 0xc0)
-									rle_count = 1;
+								if (rleValue < 0xc0)
+									rleCount = 1;
 								else
 								{
-									rle_count = rle_value - 0xc0;
-									if (!stream.Read(&rle_value, 1))
+									rleCount = rleValue - 0xc0;
+									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
@@ -136,11 +136,11 @@ namespace Nz
 								}
 							}
 
-							rle_count--;
+							rleCount--;
 
 							for (int i = 7; i >= 0; --i)
 							{
-								int colorIndex = ((rle_value & (1 << i)) > 0);
+								int colorIndex = ((rleValue & (1 << i)) > 0);
 
 								*ptr++ = header.palette[colorIndex * 3 + 0];
 								*ptr++ = header.palette[colorIndex * 3 + 1];
@@ -170,20 +170,20 @@ namespace Nz
 							/* decode line number y */
 							while (bytes--)
 							{
-								if (rle_count == 0)
+								if (rleCount == 0)
 								{
-									if (!stream.Read(&rle_value, 1))
+									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
 									}
 
-									if (rle_value < 0xc0)
-										rle_count = 1;
+									if (rleValue < 0xc0)
+										rleCount = 1;
 									else
 									{
-										rle_count = rle_value - 0xc0;
-										if (!stream.Read(&rle_value, 1))
+										rleCount = rleValue - 0xc0;
+										if (!stream.Read(&rleValue, 1))
 										{
 											NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 											return nullptr;
@@ -191,8 +191,8 @@ namespace Nz
 									}
 								}
 
-								rle_count--;
-								*(pLine++) = rle_value;
+								rleCount--;
+								*(pLine++) = rleValue;
 							}
 
 							/* compute line's color indexes */
@@ -254,20 +254,20 @@ namespace Nz
 						/* decode line number y */
 						while (bytes--)
 						{
-							if (rle_count == 0)
+							if (rleCount == 0)
 							{
-								if (!stream.Read(&rle_value, 1))
+								if (!stream.Read(&rleValue, 1))
 								{
 									NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 									return nullptr;
 								}
 
-								if (rle_value < 0xc0)
-									rle_count = 1;
+								if (rleValue < 0xc0)
+									rleCount = 1;
 								else
 								{
-									rle_count = rle_value - 0xc0;
-									if (!stream.Read(&rle_value, 1))
+									rleCount = rleValue - 0xc0;
+									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
@@ -275,11 +275,11 @@ namespace Nz
 								}
 							}
 
-							rle_count--;
+							rleCount--;
 
-							*ptr++ = palette[rle_value * 3 + 0];
-							*ptr++ = palette[rle_value * 3 + 1];
-							*ptr++ = palette[rle_value * 3 + 2];
+							*ptr++ = palette[rleValue * 3 + 0];
+							*ptr++ = palette[rleValue * 3 + 1];
+							*ptr++ = palette[rleValue * 3 + 2];
 						}
 					}
 					break;
@@ -298,20 +298,20 @@ namespace Nz
 							/* decode line number y */
 							while (bytes--)
 							{
-								if (rle_count == 0)
+								if (rleCount == 0)
 								{
-									if (!stream.Read(&rle_value, 1))
+									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 										return nullptr;
 									}
 
-									if (rle_value < 0xc0)
-										rle_count = 1;
+									if (rleValue < 0xc0)
+										rleCount = 1;
 									else
 									{
-										rle_count = rle_value - 0xc0;
-										if (!stream.Read(&rle_value, 1))
+										rleCount = rleValue - 0xc0;
+										if (!stream.Read(&rleValue, 1))
 										{
 											NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
 											return nullptr;
@@ -319,8 +319,8 @@ namespace Nz
 									}
 								}
 
-								rle_count--;
-								ptr[c] = static_cast<UInt8>(rle_value);
+								rleCount--;
+								ptr[c] = static_cast<UInt8>(rleValue);
 								ptr += 3;
 							}
 						}

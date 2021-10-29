@@ -249,6 +249,9 @@ namespace Nz
 	{
 		switch (pixelFormat)
 		{
+			// TODO: Fill this switch
+			case PixelFormat::BGR8:             return VK_FORMAT_B8G8R8_UNORM;
+			case PixelFormat::BGR8_SRGB:        return VK_FORMAT_B8G8R8_SRGB;
 			case PixelFormat::BGRA8:            return VK_FORMAT_B8G8R8A8_UNORM;
 			case PixelFormat::BGRA8_SRGB:       return VK_FORMAT_B8G8R8A8_SRGB;
 			case PixelFormat::Depth16:          return VK_FORMAT_D16_UNORM;
@@ -256,6 +259,8 @@ namespace Nz
 			case PixelFormat::Depth24Stencil8:  return VK_FORMAT_D24_UNORM_S8_UINT;
 			case PixelFormat::Depth32F:         return VK_FORMAT_D32_SFLOAT;
 			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+			case PixelFormat::RGB8:             return VK_FORMAT_R8G8B8_UNORM;
+			case PixelFormat::RGB8_SRGB:        return VK_FORMAT_R8G8B8_SRGB;
 			case PixelFormat::RGBA8:            return VK_FORMAT_R8G8B8A8_UNORM;
 			case PixelFormat::RGBA8_SRGB:       return VK_FORMAT_R8G8B8A8_SRGB;
 			case PixelFormat::RGBA32F:          return VK_FORMAT_R32G32B32A32_SFLOAT;
