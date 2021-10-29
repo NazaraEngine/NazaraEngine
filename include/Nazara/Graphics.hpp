@@ -35,7 +35,6 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/CullingList.hpp>
 #include <Nazara/Graphics/DepthMaterial.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
