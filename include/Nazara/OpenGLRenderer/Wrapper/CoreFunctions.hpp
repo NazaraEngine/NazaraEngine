@@ -21,6 +21,7 @@
 #define GL_SPIR_V_BINARY_ARB               0x9552
 typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
+typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
 
 // OpenGL core
 #define NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(cb, extCb) \
@@ -172,6 +173,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const G
 	extCb(glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC) \
 	\
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
+	\
+	extCb(glDrawBuffer, PFNGLDRAWBUFFERPROC) \
 	\
 	extCb(glPolygonMode, PFNGLPOLYGONMODEPROC) \
 	\
