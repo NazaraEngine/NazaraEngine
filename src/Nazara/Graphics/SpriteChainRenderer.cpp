@@ -280,7 +280,7 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
+	void SpriteChainRenderer::Render(const ViewerInstance& /*viewerInstance*/, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
@@ -289,8 +289,6 @@ namespace Nz
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
-		const ViewerInstance* currentViewerInstance = nullptr;
-		const WorldInstance* currentWorldInstance = nullptr;
 
 		const RenderSpriteChain* firstSpriteChain = static_cast<const RenderSpriteChain*>(elements[0]);
 		auto it = data.drawCallPerElement.find(firstSpriteChain);
