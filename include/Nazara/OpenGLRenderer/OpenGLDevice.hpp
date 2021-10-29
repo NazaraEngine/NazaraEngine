@@ -28,8 +28,8 @@ namespace Nz
 			OpenGLDevice(OpenGLDevice&&) = delete; ///TODO?
 			~OpenGLDevice();
 
-			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params) const;
-			std::unique_ptr<GL::Context> CreateContext(const GL::ContextParams& params, WindowHandle handle) const;
+			std::unique_ptr<GL::Context> CreateContext(GL::ContextParams params) const;
+			std::unique_ptr<GL::Context> CreateContext(GL::ContextParams params, WindowHandle handle) const;
 
 			const RenderDeviceInfo& GetDeviceInfo() const override;
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;

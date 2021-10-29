@@ -91,6 +91,7 @@
 
 // Try to identify target platform via defines
 #if defined(_WIN32)
+	#define NAZARA_PLATFORM_DESKTOP
 	#define NAZARA_PLATFORM_WINDOWS
 
 	#define NAZARA_EXPORT __declspec(dllexport)
@@ -123,14 +124,16 @@
 		#endif
 	#endif
 #elif defined(__linux__) || defined(__unix__)
+	#define NAZARA_PLATFORM_DESKTOP
 	#define NAZARA_PLATFORM_LINUX
 	#define NAZARA_PLATFORM_POSIX
 
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
 #elif defined(__APPLE__) && defined(__MACH__)
-    #define NAZARA_PLATFORM_MACOSX
-    #define NAZARA_PLATFORM_POSIX
+	#define NAZARA_PLATFORM_DESKTOP
+	#define NAZARA_PLATFORM_MACOSX
+	#define NAZARA_PLATFORM_POSIX
 	
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
