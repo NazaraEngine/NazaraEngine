@@ -22,6 +22,7 @@ namespace Nz::GL
 	using GLFunction = void(*)(void);
 
 	class Context;
+	enum class ContextType;
 	struct ContextParams;
 
 	class NAZARA_OPENGLRENDERER_API Loader
@@ -32,6 +33,8 @@ namespace Nz::GL
 
 			virtual std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext = nullptr) const = 0;
 			virtual std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext = nullptr) const = 0;
+
+			virtual ContextType GetPreferredContextType() const = 0;
 
 			virtual GLFunction LoadFunction(const char* name) const = 0;
 	};

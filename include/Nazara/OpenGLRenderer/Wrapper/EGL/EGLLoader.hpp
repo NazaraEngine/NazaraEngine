@@ -28,6 +28,7 @@ namespace Nz::GL
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
 
 			inline EGLDisplay GetDefaultDisplay() const;
+			ContextType GetPreferredContextType() const override;
 
 			GLFunction LoadFunction(const char* name) const override;
 
@@ -41,6 +42,7 @@ namespace Nz::GL
 		private:
 			bool ImplementFallback(const std::string_view& function);
 
+			ContextType m_preferredContextType;
 			EGLDisplay m_defaultDisplay;
 			DynLib m_eglLib;
 	};

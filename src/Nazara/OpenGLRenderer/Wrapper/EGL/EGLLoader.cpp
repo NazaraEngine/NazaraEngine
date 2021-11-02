@@ -81,14 +81,38 @@ namespace Nz::GL
 		const char* vendor = eglQueryString(m_defaultDisplay, EGL_VENDOR);
 		NazaraNotice("Initialized EGL " + std::to_string(major) + "." + std::to_string(minor) + " display (" + vendor + ")");
 
-		// Try to create a dummy context in order to check EGL support (FIXME: is this really necessary?)
-		/*ContextParams params;
-		EGLContextBase baseContext(nullptr, *this);
-		if (!baseContext.Create(params))
-			throw std::runtime_error("failed to create load context");
+		// Try to create a dummy context in order to check OpenGL / OpenGL ES support
 
-		if (!baseContext.Initialize(params))
-			throw std::runtime_error("failed to load OpenGL functions");*/
+		// Favor OpenGL on desktop and OpenGL ES on mobile
+		std::array<GL::ContextType, 2> contextTypes = {
+#if defined(NAZARA_PLATFORM_DESKTOP)
+			GL::ContextType::OpenGL, GL::ContextType::OpenGL_ES
+#else
+			GL::ContextType::OpenGL_ES, GL::ContextType::OpenGL
+#endif
+		};
+
+		ContextParams params;
+
+		bool created = false;
+		for (GL::ContextType contextType : contextTypes)
+		{
+			params.type = contextType;
+
+			EGLContextBase baseContext(nullptr, *this);
+			if (!baseContext.Create(params) || baseContext.GetParams().type != contextType)
+				continue;
+
+			if (!baseContext.Initialize(params)) //< Is this really necessary?
+				continue;
+
+			created = true;
+			m_preferredContextType = contextType;
+			break;
+		}
+
+		if (!created)
+			throw std::runtime_error("failed to create or initialize base context");
 	}
 
 	EGLLoader::~EGLLoader()
@@ -168,6 +192,11 @@ namespace Nz::GL
 		}
 
 		return context;
+	}
+
+	ContextType EGLLoader::GetPreferredContextType() const
+	{
+		return m_preferredContextType;
 	}
 
 	GLFunction EGLLoader::LoadFunction(const char* name) const
