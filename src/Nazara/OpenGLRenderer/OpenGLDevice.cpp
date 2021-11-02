@@ -26,6 +26,9 @@ namespace Nz
 		GL::ContextParams params;
 		params.type = loader.GetPreferredContextType();
 
+#ifdef NAZARA_OPENGLRENDERER_DEBUG
+		params.wrapErrorHandling = true;
+#endif
 
 		m_referenceContext = loader.CreateContext(this, params);
 		if (!m_referenceContext)
