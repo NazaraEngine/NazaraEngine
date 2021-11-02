@@ -44,6 +44,9 @@ namespace Nz
 		OpenGLDevice& device = static_cast<OpenGLDevice&>(*m_owner.GetRenderDevice());
 
 		GL::ContextParams contextParams;
+#ifdef NAZARA_OPENGLRENDERER_DEBUG
+		contextParams.wrapErrorHandling = true;
+#endif
 		//TODO: Pass render window parameters to context
 
 		m_context = device.CreateContext(contextParams, dummySurface->GetWindowHandle());

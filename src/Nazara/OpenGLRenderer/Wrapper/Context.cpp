@@ -26,7 +26,7 @@ namespace Nz::GL
 		struct GLWrapper;
 
 		template<typename FuncType, std::size_t FuncIndex, typename Ret, typename... Args>
-		struct GLWrapper<FuncType, FuncIndex, Ret(Args...)>
+		struct GLWrapper<FuncType, FuncIndex, Ret(GL_APIENTRYP)(Args...)>
 		{
 			static auto WrapErrorHandling()
 			{
@@ -36,8 +36,6 @@ namespace Nz::GL
 					assert(context);
 
 					FuncType funcPtr = reinterpret_cast<FuncType>(context->GetFunctionByIndex(FuncIndex));
-
-					context->ClearErrorStack();
 
 					if constexpr (std::is_same_v<Ret, void>)
 					{
@@ -79,16 +77,14 @@ namespace Nz::GL
 
 			func = reinterpret_cast<FuncType>(originalFuncPtr);
 
-#if defined(NAZARA_OPENGLRENDERER_DEBUG) && (!defined(NAZARA_COMPILER_MSVC) || defined(NAZARA_PLATFORM_x64))
-			if (func)
+			if (func && wrapErrorHandling)
 			{
 				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
 				{
-					using Wrapper = GLWrapper<FuncType, FuncIndex, std::remove_pointer_t<FuncType>>;
+					using Wrapper = GLWrapper<FuncType, FuncIndex, FuncType>;
 					func = Wrapper::WrapErrorHandling();
 				}
 			}
-#endif
 
 			if (!func)
 			{
@@ -105,6 +101,7 @@ namespace Nz::GL
 		}
 
 		Context& context;
+		bool wrapErrorHandling = false;
 	};
 
 
@@ -326,6 +323,7 @@ namespace Nz::GL
 		}
 
 		SymbolLoader loader(*this);
+		loader.wrapErrorHandling = params.wrapErrorHandling;
 
 		try
 		{

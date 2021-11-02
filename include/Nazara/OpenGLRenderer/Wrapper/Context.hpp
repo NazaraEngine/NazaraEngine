@@ -95,6 +95,7 @@ namespace Nz::GL
 	{
 		ContextType type = ContextType::OpenGL_ES;
 		bool doubleBuffering = true;
+		bool wrapErrorHandling = false;
 		unsigned int bitsPerPixel = 32;
 		unsigned int depthBits = 24;
 		unsigned int glMajorVersion = 0;
