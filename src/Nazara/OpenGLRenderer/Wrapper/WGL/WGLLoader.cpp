@@ -50,12 +50,32 @@ namespace Nz::GL
 			throw std::runtime_error("failed to create load context");
 
 		ContextParams params;
+		// Favor OpenGL on desktop and OpenGL ES on mobile
+		std::array<GL::ContextType, 2> contextTypes = {
+#if defined(NAZARA_PLATFORM_DESKTOP)
+			GL::ContextType::OpenGL, GL::ContextType::OpenGL_ES
+#else
+			GL::ContextType::OpenGL_ES, GL::ContextType::OpenGL
+#endif
+		};
 
-		if (!m_baseContext.Create(&loadContext, params))
-			throw std::runtime_error("failed to create load context");
+		bool created = false;
+		for (GL::ContextType contextType : contextTypes)
+		{
+			params.type = contextType;
 
-		if (!m_baseContext.Initialize(params))
-			throw std::runtime_error("failed to load OpenGL functions");
+			if (!m_baseContext.Create(&loadContext, params) || m_baseContext.GetParams().type != contextType)
+				continue;
+
+			if (!m_baseContext.Initialize(params))
+				continue;
+
+			created = true;
+			break;
+		}
+
+		if (!created)
+			throw std::runtime_error("failed to create or initialize base context");
 	}
 
 	std::unique_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
@@ -92,6 +112,11 @@ namespace Nz::GL
 		}
 
 		return context;
+	}
+
+	ContextType WGLLoader::GetPreferredContextType() const
+	{
+		return m_baseContext.GetParams().type;
 	}
 
 	GLFunction WGLLoader::LoadFunction(const char* name) const

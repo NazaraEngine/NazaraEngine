@@ -23,25 +23,11 @@ namespace Nz
 	OpenGLDevice::OpenGLDevice(GL::Loader& loader) :
 	m_loader(loader)
 	{
-		// Favor OpenGL on desktop and OpenGL ES on mobile
-		std::array<GL::ContextType, 2> contextTypes = {
-#if defined(NAZARA_PLATFORM_DESKTOP)
-			GL::ContextType::OpenGL, GL::ContextType::OpenGL_ES
-#else
-			GL::ContextType::OpenGL_ES, GL::ContextType::OpenGL
-#endif
-		};
+		GL::ContextParams params;
+		params.type = loader.GetPreferredContextType();
 
-		for (GL::ContextType contextType : contextTypes)
-		{
-			GL::ContextParams params;
-			params.type = contextType;
 
-			m_referenceContext = loader.CreateContext(this, params);
-			if (m_referenceContext)
-				break;
-		}
-
+		m_referenceContext = loader.CreateContext(this, params);
 		if (!m_referenceContext)
 			throw std::runtime_error("failed to create reference context");
 

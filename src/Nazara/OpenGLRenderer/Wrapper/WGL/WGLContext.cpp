@@ -19,6 +19,8 @@ namespace Nz::GL
 
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext)
 	{
+		Destroy();
+
 		// Creating a context requires a device context, create window to get one
 		HWNDHandle window(::CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr));
 		if (!window)
@@ -46,6 +48,8 @@ namespace Nz::GL
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext)
 	{
 		NazaraAssert(window.type == WindowManager::Windows, "expected Windows window");
+
+		Destroy();
 
 		m_deviceContext = ::GetDC(static_cast<HWND>(window.windows.window));
 		if (!m_deviceContext)
