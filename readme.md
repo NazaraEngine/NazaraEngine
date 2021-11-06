@@ -1,7 +1,8 @@
-﻿Platform | Build Status | Nightlies
------------- | ------------- | -------------
-Windows | [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/rqxfj343mh3ab2we/branch/master?svg=true)](https://ci.appveyor.com/project/DrLynix/nazaraengine/branch/master) | MSVC14.1:<br>**x86:** [Debug](https://ci.appveyor.com/api/projects/DrLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2017%3B%20Configuration%3A%20DebugDynamic%3B%20Platform%3A%20Win32), [Release](https://ci.appveyor.com/api/projects/DrLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2017%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20Win32)<br>**x86_64:** [Debug](https://ci.appveyor.com/api/projects/DrLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2017%3B%20Configuration%3A%20DebugDynamic%3B%20Platform%3A%20x64), [Release](https://ci.appveyor.com/api/projects/DrLynix/NazaraEngine/artifacts/package%2FNazaraEngine.7z?branch=master&job=Environment%3A%20TOOLSET%3Dvs2017%3B%20Configuration%3A%20ReleaseDynamic%3B%20Platform%3A%20x64)
-Linux | [![Travis CI Build Status](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine.svg?branch=master)](https://travis-ci.org/DigitalPulseSoftware/NazaraEngine) | No
+﻿Platform | Build Status
+------------ | -------------
+Windows | [![Windows build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/windows-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/windows-build.yml)
+MSYS2 (MinGW64) | [![Windows build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/msys2-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/msys2-build.yml)
+Linux | [![Linux build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/linux-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/linux-build.yml)
 
 # Nazara Engine  
 
@@ -15,7 +16,7 @@ You can use it in any kind of commercial/non-commercial applications without any
 ## Authors
 
 Jérôme "Lynix" Leclercq - main developper (<lynix680@gmail.com>)   
-Full Cycle Games - sponsor and contributor since January 2017.
+Full Cycle Games - sponsor and contributor from 2017 to 2020.
 
 ## Install
 
