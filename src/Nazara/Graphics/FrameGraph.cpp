@@ -33,7 +33,7 @@ namespace Nz
 
 	BakedFrameGraph FrameGraph::Bake()
 	{
-		if (!m_backbufferOutput.has_value())
+		if (m_backbufferOutputs.empty())
 			throw std::runtime_error("no backbuffer output has been set");
 
 		m_pending.attachmentReadList.clear();
@@ -46,17 +46,18 @@ namespace Nz
 		m_pending.renderPasses.clear();
 		m_pending.textures.clear();
 
-		m_pending.backbufferResourceIndex = m_backbufferOutput.value();
-
 		BuildReadWriteList();
 
-		auto it = m_pending.attachmentWriteList.find(m_pending.backbufferResourceIndex);
-		if (it == m_pending.attachmentWriteList.end())
-			throw std::runtime_error("no pass writes to backbuffer");
+		for (std::size_t output : m_backbufferOutputs)
+		{
+			auto it = m_pending.attachmentWriteList.find(output);
+			if (it == m_pending.attachmentWriteList.end())
+				throw std::runtime_error("no pass writes to backbuffer");
 
-		const std::vector<std::size_t>& backbufferPasses = it->second;
-		for (std::size_t passIndex : backbufferPasses)
-			TraverseGraph(passIndex);
+			const std::vector<std::size_t>& backbufferPasses = it->second;
+			for (std::size_t passIndex : backbufferPasses)
+				TraverseGraph(passIndex);
+		}
 
 		std::reverse(m_pending.passList.begin(), m_pending.passList.end());
 
@@ -88,7 +89,21 @@ namespace Nz
 				bakedSubpass.commandCallback = framePass.GetCommandCallback();
 
 				for (const auto& output : framePass.GetOutputs())
+				{
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, output.attachmentId));
+
+					auto& clearValues = bakedPass.outputClearValues.emplace_back();
+					if (output.clearColor)
+						clearValues.color = *output.clearColor;
+				}
+
+				// Add depth-stencil clear values
+				auto& dsClearValues = bakedPass.outputClearValues.emplace_back();
+				if (const auto& depthStencilClear = framePass.GetDepthStencilClear())
+				{
+					dsClearValues.depth = depthStencilClear->depth;
+					dsClearValues.stencil = depthStencilClear->stencil;
+				}
 
 				std::size_t attachmentId;
 				if (attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
@@ -228,12 +243,14 @@ namespace Nz
 		}
 
 		// Add TextureUsage::Sampled to backbuffer output
+		for (std::size_t output : m_backbufferOutputs)
+		{
+			auto it = m_pending.attachmentToTextures.find(output);
+			assert(it != m_pending.attachmentToTextures.end());
 
-		auto it = m_pending.attachmentToTextures.find(m_pending.backbufferResourceIndex);
-		assert(it != m_pending.attachmentToTextures.end());
-
-		auto& backbufferTexture = m_pending.textures[it->second];
-		backbufferTexture.usage |= TextureUsage::ShaderSampling;
+			auto& backbufferTexture = m_pending.textures[it->second];
+			backbufferTexture.usage |= TextureUsage::ShaderSampling;
+		}
 	}
 
 	void FrameGraph::BuildBarriers()

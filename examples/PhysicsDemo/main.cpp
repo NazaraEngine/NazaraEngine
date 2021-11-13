@@ -158,9 +158,12 @@ int main()
 
 	entt::entity text2D = registry.create();
 	{
+		std::shared_ptr<Nz::TextSprite> sprite2D = std::make_shared<Nz::TextSprite>(spriteMaterial);
+		sprite2D->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72));
+
 		registry.emplace<Nz::NodeComponent>(text2D).SetPosition(Nz::Vector3f(0.f, 200.f, 0.f));
 		auto& gfxComponent = registry.emplace<Nz::GraphicsComponent>(text2D);
-		gfxComponent.AttachRenderable(sprite, 2);
+		gfxComponent.AttachRenderable(sprite2D, 2);
 	}
 
 	entt::entity viewer = registry.create();
@@ -254,7 +257,7 @@ int main()
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
 
-	//Nz::Mouse::SetRelativeMouseMode(true);
+	Nz::Mouse::SetRelativeMouseMode(true);
 
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();

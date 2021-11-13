@@ -136,8 +136,6 @@ namespace Nz
 		// Update UBOs and materials
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
 
-		bool prepare = false;
-
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("UBO Update", Color::Yellow);
@@ -336,6 +334,7 @@ namespace Nz
 		m_bakedFrameGraph.Execute(renderFrame);
 		m_rebuildFrameGraph = false;
 
+		m_viewerPerTarget.clear();
 		const Vector2ui& frameSize = renderFrame.GetSize();
 		for (auto&& [viewer, viewerData] : m_viewers)
 		{
@@ -344,13 +343,25 @@ namespace Nz
 			viewerData.prepare = false;
 
 			const RenderTarget& renderTarget = viewer->GetRenderTarget();
+
+			m_viewerPerTarget[&renderTarget].push_back(&viewerData);
+		}
+
+		for (auto&& [renderTargetPtr, viewerDataVec] : m_viewerPerTarget)
+		{
 			Recti renderRegion(0, 0, frameSize.x, frameSize.y);
-			const ShaderBindingPtr& blitShaderBinding = viewerData.blitShaderBinding;
-			const std::shared_ptr<Texture>& sourceTexture = m_bakedFrameGraph.GetAttachmentTexture(viewerData.colorAttachment);
+
+			const RenderTarget& renderTarget = *renderTargetPtr;
+			const auto& viewers = viewerDataVec;
 
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::FragmentShader, MemoryAccess::ColorWrite, MemoryAccess::ShaderRead, TextureLayout::ColorOutput, TextureLayout::ColorInput, *sourceTexture);
+				for (const ViewerData* viewerData : viewers)
+				{
+					const std::shared_ptr<Texture>& sourceTexture = m_bakedFrameGraph.GetAttachmentTexture(viewerData->colorAttachment);
+
+					builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::FragmentShader, MemoryAccess::ColorWrite, MemoryAccess::ShaderRead, TextureLayout::ColorOutput, TextureLayout::ColorInput, *sourceTexture);
+				}
 
 				std::array<CommandBufferBuilder::ClearValues, 2> clearValues;
 				clearValues[0].color = Color::Black;
@@ -363,12 +374,16 @@ namespace Nz
 					{
 						builder.SetScissor(renderRegion);
 						builder.SetViewport(renderRegion);
-
 						builder.BindPipeline(*graphics->GetBlitPipeline());
 						builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
-						builder.BindShaderBinding(0, *blitShaderBinding);
 
-						builder.Draw(3);
+						for (const ViewerData* viewerData : viewers)
+						{
+							const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
+
+							builder.BindShaderBinding(0, *blitShaderBinding);
+							builder.Draw(3);
+						}
 					}
 					builder.EndDebugRegion();
 				}
@@ -503,9 +518,8 @@ namespace Nz
 			});
 		}
 
-		//FIXME: This doesn't handle multiple window viewers
 		for (auto&& [viewer, viewerData] : m_viewers)
-			frameGraph.SetBackbufferOutput(viewerData.colorAttachment);
+			frameGraph.AddBackbufferOutput(viewerData.colorAttachment);
 
 		return frameGraph.Bake();
 	}
