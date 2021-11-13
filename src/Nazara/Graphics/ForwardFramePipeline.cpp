@@ -197,7 +197,7 @@ namespace Nz
 
 				for (const auto& [renderable, renderableData] : renderables)
 				{
-					if (renderMask & renderableData.renderMask == 0)
+					if ((renderMask & renderableData.renderMask) == 0)
 						continue;
 
 					// Get global AABB
