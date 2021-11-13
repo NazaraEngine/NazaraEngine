@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_ABSTRACTVIEWER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/Rect.hpp>
 
@@ -22,6 +23,7 @@ namespace Nz
 			AbstractViewer() = default;
 			~AbstractViewer() = default;
 
+			virtual const Color& GetClearColor() const = 0;
 			virtual UInt32 GetRenderMask() const = 0;
 			virtual const RenderTarget& GetRenderTarget() = 0;
 			virtual ViewerInstance& GetViewerInstance() = 0;

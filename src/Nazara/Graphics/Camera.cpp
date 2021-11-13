@@ -8,6 +8,11 @@
 
 namespace Nz
 {
+	const Color& Camera::GetClearColor() const
+	{
+		return m_clearColor;
+	}
+
 	UInt32 Camera::GetRenderMask() const
 	{
 		return m_renderMask;
