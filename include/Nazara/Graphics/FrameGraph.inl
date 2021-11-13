@@ -16,15 +16,15 @@ namespace Nz
 		return id;
 	}
 
+	inline void FrameGraph::AddBackbufferOutput(std::size_t backbufferOutput)
+	{
+		m_backbufferOutputs.push_back(backbufferOutput);
+	}
+
 	inline FramePass& FrameGraph::AddPass(std::string name)
 	{
 		std::size_t id = m_framePasses.size();
 		return m_framePasses.emplace_back(*this, id, std::move(name));
-	}
-
-	inline void FrameGraph::SetBackbufferOutput(std::size_t backbufferOutput)
-	{
-		m_backbufferOutput = backbufferOutput;
 	}
 }
 

@@ -163,6 +163,16 @@ namespace Nz
 			throw std::runtime_error("failed to instantiate blit shader");
 
 		RenderPipelineInfo pipelineInfo;
+
+		// Alpha blending
+		pipelineInfo.blending = true;
+		pipelineInfo.blend.modeColor = BlendEquation::Add;
+		pipelineInfo.blend.modeAlpha = BlendEquation::Add;
+		pipelineInfo.blend.srcColor = BlendFunc::One;
+		pipelineInfo.blend.dstColor = BlendFunc::One;
+		pipelineInfo.blend.srcAlpha = BlendFunc::One;
+		pipelineInfo.blend.dstAlpha = BlendFunc::One;
+
 		pipelineInfo.pipelineLayout = m_blitPipelineLayout;
 		pipelineInfo.shaderModules.push_back(std::move(blitShader));
 		pipelineInfo.vertexBuffers.assign({

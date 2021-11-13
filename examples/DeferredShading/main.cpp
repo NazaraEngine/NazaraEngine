@@ -789,7 +789,7 @@ int main()
 		bloomBlendPass.AddInput(bloomTextureB);
 		bloomBlendPass.AddOutput(backbuffer);
 
-		graph.SetBackbufferOutput(backbuffer);
+		graph.AddBackbufferOutput(backbuffer);
 
 		return graph.Bake();
 	}();

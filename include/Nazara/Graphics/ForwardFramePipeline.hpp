@@ -26,6 +26,7 @@
 namespace Nz
 {
 	class RenderFrame;
+	class RenderTarget;
 
 	class NAZARA_GRAPHICS_API ForwardFramePipeline : public FramePipeline
 	{
@@ -99,6 +100,7 @@ namespace Nz
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
 			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
+			std::unordered_map<const RenderTarget*, std::vector<const ViewerData*>> m_viewerPerTarget;
 			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
 			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;

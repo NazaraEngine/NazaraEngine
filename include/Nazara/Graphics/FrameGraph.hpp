@@ -31,11 +31,10 @@ namespace Nz
 			~FrameGraph() = default;
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
+			inline void AddBackbufferOutput(std::size_t backbufferOutput);
 			inline FramePass& AddPass(std::string name);
 
 			BakedFrameGraph Bake();
-
-			inline void SetBackbufferOutput(std::size_t backbufferOutput);
 
 			FrameGraph& operator=(const FrameGraph&) = delete;
 			FrameGraph& operator=(FrameGraph&&) noexcept = default;
@@ -86,7 +85,6 @@ namespace Nz
 
 			struct WorkData
 			{
-				std::size_t backbufferResourceIndex;
 				std::vector<std::shared_ptr<RenderPass>> renderPasses;
 				std::vector<PhysicalPassData> physicalPasses;
 				std::vector<TextureData> textures;
@@ -109,7 +107,7 @@ namespace Nz
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
-			std::optional<std::size_t> m_backbufferOutput;
+			std::vector<std::size_t> m_backbufferOutputs;
 			std::vector<FramePass> m_framePasses;
 			std::vector<FramePassAttachment> m_attachments;
 			WorkData m_pending;
