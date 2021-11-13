@@ -28,6 +28,7 @@ namespace Nz
 			~Camera() = default;
 
 			inline float GetAspectRatio() const;
+			const Color& GetClearColor() const override;
 			inline DegreeAnglef GetFOV() const;
 			UInt32 GetRenderMask() const override;
 			const RenderTarget& GetRenderTarget() override;
@@ -39,6 +40,7 @@ namespace Nz
 			inline float GetZFar() const;
 			inline float GetZNear() const;
 
+			inline void UpdateClearColor(Color color);
 			inline void UpdateFOV(DegreeAnglef fov);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
@@ -61,6 +63,7 @@ namespace Nz
 			NazaraSlot(RenderTarget, OnRenderTargetSizeChange, m_onRenderTargetSizeChange);
 
 			const RenderTarget* m_renderTarget;
+			Color m_clearColor;
 			DegreeAnglef m_fov;
 			ProjectionType m_projectionType;
 			Rectf m_targetRegion;

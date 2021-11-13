@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
@@ -72,6 +73,7 @@ namespace Nz
 				std::shared_ptr<RenderPass> renderPass;
 				std::string name;
 				std::vector<std::size_t> outputTextureIndices;
+				std::vector<CommandBufferBuilder::ClearValues> outputClearValues;
 				std::vector<SubpassData> subpasses;
 				std::vector<TextureTransition> transitions;
 				FramePass::ExecutionCallback executionCallback;

@@ -10,6 +10,7 @@ namespace Nz
 {
 	inline Camera::Camera(const RenderTarget* renderTarget, ProjectionType projectionType) :
 	m_renderTarget(nullptr),
+	m_clearColor(Color::Black),
 	m_fov(70.f),
 	m_projectionType(projectionType),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
@@ -24,6 +25,7 @@ namespace Nz
 
 	inline Camera::Camera(const Camera& camera) :
 	m_renderTarget(nullptr),
+	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
@@ -39,6 +41,7 @@ namespace Nz
 
 	inline Camera::Camera(Camera&& camera) noexcept :
 	m_renderTarget(nullptr),
+	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
@@ -80,6 +83,11 @@ namespace Nz
 	inline float Camera::GetZNear() const
 	{
 		return m_zNear;
+	}
+
+	inline void Camera::UpdateClearColor(Color color)
+	{
+		m_clearColor = color;
 	}
 
 	inline void Camera::UpdateFOV(DegreeAnglef fov)

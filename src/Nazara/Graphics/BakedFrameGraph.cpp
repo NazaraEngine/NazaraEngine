@@ -62,7 +62,7 @@ namespace Nz
 					builder.TextureBarrier(textureTransition.srcStageMask, textureTransition.dstStageMask, textureTransition.srcAccessMask, textureTransition.dstAccessMask, textureTransition.oldLayout, textureTransition.newLayout, *texture);
 				}
 
-				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect);
+				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
 
 				if (!passData.name.empty())
 					builder.BeginDebugRegion(passData.name, Color::Green);
