@@ -1146,13 +1146,17 @@ namespace Nz
 
 			for (const auto& [name, targetName] : m_currentState->outputFields)
 			{
-				bool isOutputPosition = (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition && targetName == "gl_Position");
+				bool isOutputPosition = (m_currentState->stage == ShaderStageType::Vertex && targetName == "gl_Position");
 
-				Append(targetName, " = ", outputStructVarName, ".", name);
+				AppendLine(targetName, " = ", outputStructVarName, ".", name, ";");
 				if (isOutputPosition)
-					Append(" * vec4(1.0, ", s_flipYUniformName, ", 1.0, 1.0)");
+				{
+					if (m_environment.flipYPosition)
+						AppendLine(targetName, ".y *= ", s_flipYUniformName, ";");
 
-				AppendLine(";");
+					if (m_environment.scaleZPosition)
+						AppendLine(targetName, ".z = ", targetName, ".z * 2.0 - 1.0;");
+				}
 			}
 
 			Append("return;"); //< TODO: Don't return if it's the last statement of the function
