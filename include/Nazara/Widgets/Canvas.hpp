@@ -19,19 +19,20 @@ namespace Nz
 		friend BaseWidget;
 
 		public:
-			inline Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController);
+			inline Canvas(entt::registry& registry, EventHandler& eventHandler, CursorControllerHandle cursorController, UInt32 renderMask);
 			Canvas(const Canvas&) = delete;
 			Canvas(Canvas&&) = delete;
 			inline ~Canvas();
 
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
+			inline UInt32 GetRenderMask() const;
 
 			Canvas& operator=(const Canvas&) = delete;
 			Canvas& operator=(Canvas&&) = delete;
 
-			NazaraSignal(OnUnhandledKeyPressed, const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& /*event*/);
-			NazaraSignal(OnUnhandledKeyReleased, const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& /*event*/);
+			NazaraSignal(OnUnhandledKeyPressed, const EventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
+			NazaraSignal(OnUnhandledKeyReleased, const EventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
 
 		protected:
 			inline void ClearKeyboardOwner(std::size_t canvasIndex);
@@ -48,38 +49,39 @@ namespace Nz
 			void UnregisterWidget(std::size_t index);
 
 		private:
-			void OnEventMouseButtonPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
-			void OnEventMouseButtonRelease(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseButtonEvent& event);
-			void OnEventMouseLeft(const Nz::EventHandler* eventHandler);
-			void OnEventMouseMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseMoveEvent& event);
-			void OnEventMouseWheelMoved(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::MouseWheelEvent& event);
-			void OnEventKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
-			void OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event);
-			void OnEventTextEntered(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::TextEvent& event);
-			void OnEventTextEdited(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::EditEvent& event);
+			void OnEventMouseButtonPressed(const EventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
+			void OnEventMouseButtonRelease(const EventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
+			void OnEventMouseLeft(const EventHandler* eventHandler);
+			void OnEventMouseMoved(const EventHandler* eventHandler, const WindowEvent::MouseMoveEvent& event);
+			void OnEventMouseWheelMoved(const EventHandler* eventHandler, const WindowEvent::MouseWheelEvent& event);
+			void OnEventKeyPressed(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event);
+			void OnEventKeyReleased(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event);
+			void OnEventTextEntered(const EventHandler* eventHandler, const WindowEvent::TextEvent& event);
+			void OnEventTextEdited(const EventHandler* eventHandler, const WindowEvent::EditEvent& event);
 
 			struct WidgetEntry
 			{
 				BaseWidget* widget;
-				Nz::Boxf box;
-				Nz::SystemCursor cursor;
+				Boxf box;
+				SystemCursor cursor;
 			};
 
-			NazaraSlot(Nz::EventHandler, OnKeyPressed, m_keyPressedSlot);
-			NazaraSlot(Nz::EventHandler, OnKeyReleased, m_keyReleasedSlot);
-			NazaraSlot(Nz::EventHandler, OnMouseButtonPressed, m_mouseButtonPressedSlot);
-			NazaraSlot(Nz::EventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
-			NazaraSlot(Nz::EventHandler, OnMouseLeft, m_mouseLeftSlot);
-			NazaraSlot(Nz::EventHandler, OnMouseMoved, m_mouseMovedSlot);
-			NazaraSlot(Nz::EventHandler, OnMouseWheelMoved, m_mouseWheelMovedSlot);
-			NazaraSlot(Nz::EventHandler, OnTextEntered, m_textEnteredSlot);
-			NazaraSlot(Nz::EventHandler, OnTextEdited, m_textEditedSlot);
+			NazaraSlot(EventHandler, OnKeyPressed, m_keyPressedSlot);
+			NazaraSlot(EventHandler, OnKeyReleased, m_keyReleasedSlot);
+			NazaraSlot(EventHandler, OnMouseButtonPressed, m_mouseButtonPressedSlot);
+			NazaraSlot(EventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
+			NazaraSlot(EventHandler, OnMouseLeft, m_mouseLeftSlot);
+			NazaraSlot(EventHandler, OnMouseMoved, m_mouseMovedSlot);
+			NazaraSlot(EventHandler, OnMouseWheelMoved, m_mouseWheelMovedSlot);
+			NazaraSlot(EventHandler, OnTextEntered, m_textEnteredSlot);
+			NazaraSlot(EventHandler, OnTextEdited, m_textEditedSlot);
 
+			CursorControllerHandle m_cursorController;
+			UInt32 m_renderMask;
 			std::size_t m_keyboardOwner;
 			std::size_t m_hoveredWidget;
 			std::vector<WidgetEntry> m_widgetEntries;
 			entt::registry& m_registry;
-			Nz::CursorControllerHandle m_cursorController;
 	};
 }
 

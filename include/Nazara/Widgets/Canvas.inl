@@ -8,7 +8,8 @@
 
 namespace Nz
 {
-	inline Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController) :
+	inline Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask) :
+	m_renderMask(renderMask),
 	m_keyboardOwner(InvalidCanvasIndex),
 	m_hoveredWidget(InvalidCanvasIndex),
 	m_registry(registry),
@@ -49,6 +50,11 @@ namespace Nz
 	inline const entt::registry& Canvas::GetRegistry() const
 	{
 		return m_registry;
+	}
+
+	inline UInt32 Canvas::GetRenderMask() const
+	{
+		return m_renderMask;
 	}
 
 	inline void Canvas::ClearKeyboardOwner(std::size_t canvasIndex)
