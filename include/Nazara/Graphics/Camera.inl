@@ -11,14 +11,14 @@ namespace Nz
 	inline Camera::Camera(const RenderTarget* renderTarget, ProjectionType projectionType) :
 	m_renderTarget(nullptr),
 	m_clearColor(Color::Black),
-	m_fov(70.f),
+	m_fov(90.f),
 	m_projectionType(projectionType),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_viewport(0, 0, 0, 0),
 	m_renderMask(0xFFFFFFFF),
 	m_size(-1.f, -1.f),
-	m_zFar(1000.f),
-	m_zNear(1.f)
+	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
+	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
 	{
 		UpdateTarget(renderTarget);
 	}
