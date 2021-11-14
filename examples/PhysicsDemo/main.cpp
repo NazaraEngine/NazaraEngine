@@ -144,17 +144,20 @@ int main()
 	Nz::Physics3DSystem physSytem(registry);
 	Nz::RenderSystem renderSystem(registry);
 
-	Nz::Canvas canvas(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle());
-	Nz::LabelWidget* labelWidget = canvas.Add<Nz::LabelWidget>();
+	Nz::Canvas canvas2D(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle(), 2);
+	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
+	labelWidget->SetPosition(0.f, 300.f, 0.f);
 	//labelWidget->EnableBackground(true);
-	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Bonjour Paris !", 72), 0.1f);
+	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Bonjour Paris !", 72));
 
-	/*entt::entity viewer2D = registry.create();
+	entt::entity viewer2D = registry.create();
 	{
 		registry.emplace<Nz::NodeComponent>(viewer2D);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateZNear(1.f);
+		cameraComponent.UpdateZFar(1000.f);
 		cameraComponent.UpdateRenderMask(2);
-	}*/
+	}
 
 	entt::entity text2D = registry.create();
 	{
