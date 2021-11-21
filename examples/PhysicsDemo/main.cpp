@@ -145,28 +145,27 @@ int main()
 	Nz::RenderSystem renderSystem(registry);
 
 	Nz::Canvas canvas2D(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle(), 2);
+	canvas2D.Resize(Nz::Vector2f(window.GetSize()));
+
 	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
 	labelWidget->SetPosition(0.f, 300.f, 0.f);
-	//labelWidget->EnableBackground(true);
+	labelWidget->EnableBackground(true);
 	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Bonjour Paris !", 72));
+
+	Nz::ButtonWidget* buttonWidget = canvas2D.Add<Nz::ButtonWidget>();
+	buttonWidget->SetPosition(200.f, 400.f);
+	buttonWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Press me senpai", 72));
+	buttonWidget->Resize(buttonWidget->GetPreferredSize());
+	buttonWidget->OnButtonTrigger.Connect([](const Nz::ButtonWidget*)
+	{
+		std::cout << "Coucou !" << std::endl;
+	});
 
 	entt::entity viewer2D = registry.create();
 	{
 		registry.emplace<Nz::NodeComponent>(viewer2D);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
-		cameraComponent.UpdateZNear(1.f);
-		cameraComponent.UpdateZFar(1000.f);
 		cameraComponent.UpdateRenderMask(2);
-	}
-
-	entt::entity text2D = registry.create();
-	{
-		std::shared_ptr<Nz::TextSprite> sprite2D = std::make_shared<Nz::TextSprite>(spriteMaterial);
-		sprite2D->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72));
-
-		registry.emplace<Nz::NodeComponent>(text2D).SetPosition(Nz::Vector3f(0.f, 200.f, 0.f));
-		auto& gfxComponent = registry.emplace<Nz::GraphicsComponent>(text2D);
-		gfxComponent.AttachRenderable(sprite2D, 2);
 	}
 
 	entt::entity viewer = registry.create();
@@ -260,7 +259,7 @@ int main()
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	//Nz::Mouse::SetRelativeMouseMode(true);
 
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
