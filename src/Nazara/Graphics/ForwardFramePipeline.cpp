@@ -59,6 +59,17 @@ namespace Nz
 			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
 			renderableData.renderMask = renderMask;
 
+			renderableData.onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this](InstancedRenderable* instancedRenderable)
+			{
+				// TODO: Invalidate only relevant viewers
+				for (auto&& [viewer, viewerData] : m_viewers)
+				{
+					viewerData.rebuildDepthPrepass = true;
+					viewerData.rebuildForwardPass = true;
+					viewerData.prepare = true;
+				}
+			});
+
 			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
 			{
 				if (newMaterial)
@@ -80,6 +91,7 @@ namespace Nz
 						UnregisterMaterialPass(pass.get());
 				}
 
+				// TODO: Invalidate only relevant viewers
 				for (auto&& [viewer, viewerData] : m_viewers)
 				{
 					viewerData.rebuildDepthPrepass = true;

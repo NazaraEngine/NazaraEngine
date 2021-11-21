@@ -68,6 +68,7 @@ namespace Nz
 			{
 				UInt32 renderMask = 0;
 
+				NazaraSlot(InstancedRenderable, OnElementInvalidated, onElementInvalidated);
 				NazaraSlot(InstancedRenderable, OnMaterialInvalidated, onMaterialInvalidated);
 			};
 

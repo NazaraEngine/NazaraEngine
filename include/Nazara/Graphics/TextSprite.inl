@@ -12,6 +12,7 @@ namespace Nz
 	{
 		m_atlases.clear();
 		m_vertices.clear();
+		OnElementInvalidated(this);
 	}
 
 	inline void TextSprite::SetMaterial(std::shared_ptr<Material> material)
