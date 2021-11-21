@@ -4,11 +4,10 @@
 
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
@@ -16,18 +15,7 @@ namespace Nz
 	LabelWidget::LabelWidget(BaseWidget* parent) :
 	BaseWidget(parent)
 	{
-		auto materialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-		materialPass->EnableFlag(MaterialPassFlag::Transparent);
-		materialPass->EnableDepthBuffer(true);
-		materialPass->EnableDepthWrite(false);
-		materialPass->EnableBlending(true);
-		materialPass->SetBlendEquation(BlendEquation::Add, BlendEquation::Add);
-		materialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::Zero);
-
-		auto material = std::make_shared<Material>();
-		material->AddPass("ForwardPass", std::move(materialPass));
-
-		m_textSprite = std::make_shared<TextSprite>(std::move(material));
+		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
 
 		m_textEntity = CreateEntity();
 		GetRegistry().emplace<GraphicsComponent>(m_textEntity).AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());

@@ -159,18 +159,18 @@ namespace Nz
 
 			std::optional<entt::entity> m_backgroundEntity;
 			std::size_t m_canvasIndex;
-			std::shared_ptr<Nz::Sprite> m_backgroundSprite;
+			std::shared_ptr<Sprite> m_backgroundSprite;
 			std::vector<WidgetEntity> m_entities;
 			std::vector<std::unique_ptr<BaseWidget>> m_children;
 			entt::registry* m_registry;
 			Canvas* m_canvas;
 			Color m_backgroundColor;
-			Nz::Rectf m_renderingRect;
-			Nz::SystemCursor m_cursor;
-			Nz::Vector2f m_maximumSize;
-			Nz::Vector2f m_minimumSize;
-			Nz::Vector2f m_preferredSize;
-			Nz::Vector2f m_size;
+			Rectf m_renderingRect;
+			SystemCursor m_cursor;
+			Vector2f m_maximumSize;
+			Vector2f m_minimumSize;
+			Vector2f m_preferredSize;
+			Vector2f m_size;
 			BaseWidget* m_widgetParent;
 			bool m_visible;
 	};
