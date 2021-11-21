@@ -1151,11 +1151,12 @@ namespace Nz
 				AppendLine(targetName, " = ", outputStructVarName, ".", name, ";");
 				if (isOutputPosition)
 				{
+					// https://veldrid.dev/articles/backend-differences.html
 					if (m_environment.flipYPosition)
 						AppendLine(targetName, ".y *= ", s_flipYUniformName, ";");
 
 					if (m_environment.remapZPosition)
-						AppendLine(targetName, ".z = ", targetName, ".z * 2.0 - 1.0;");
+						AppendLine(targetName, ".z = ", targetName, ".z * 2.0 - ", targetName, ".w; ");
 				}
 			}
 
