@@ -209,6 +209,7 @@ namespace Nz
 		}
 
 		UpdateAABB(bounds);
+		OnElementInvalidated(this);
 
 		clearOnFail.Reset();
 	}

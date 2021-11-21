@@ -38,6 +38,7 @@ namespace Nz
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
 
 			NazaraSignal(OnAABBUpdate, InstancedRenderable* /*instancedRenderable*/, const Boxf& /*aabb*/);
+			NazaraSignal(OnElementInvalidated, InstancedRenderable* /*instancedRenderable*/);
 			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<Material>& /*newMaterial*/);
 
 		protected:

@@ -56,19 +56,20 @@ namespace Nz
 
 		vertices++;
 		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::LeftBottom)];
-		vertices->position = m_size.y * Vector3f::Down() - origin;
+		vertices->position = m_size.y * Vector3f::Up() - origin;
 		vertices->uv = m_textureCoords.GetCorner(RectCorner::LeftBottom);
 
 		aabb.ExtendTo(vertices->position);
 
 		vertices++;
 		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::RightBottom)];
-		vertices->position = m_size.x * Vector3f::Right() + m_size.y * Vector3f::Down() - origin;
+		vertices->position = m_size.x * Vector3f::Right() + m_size.y * Vector3f::Up() - origin;
 		vertices->uv = m_textureCoords.GetCorner(RectCorner::RightBottom);
 
 		aabb.ExtendTo(vertices->position);
 
 		UpdateAABB(aabb);
+		OnElementInvalidated(this);
 	}
 }
 
