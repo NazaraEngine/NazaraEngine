@@ -23,7 +23,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API InstancedRenderable
 	{
 		public:
-			inline InstancedRenderable(const Boxf& aabb);
+			inline InstancedRenderable();
 			InstancedRenderable(const InstancedRenderable&) = delete;
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			~InstancedRenderable();
@@ -37,7 +37,11 @@ namespace Nz
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
 
+			NazaraSignal(OnAABBUpdate, InstancedRenderable* /*instancedRenderable*/, const Boxf& /*aabb*/);
 			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<Material>& /*newMaterial*/);
+
+		protected:
+			inline void UpdateAABB(Boxf aabb);
 
 		private:
 			Boxf m_aabb;

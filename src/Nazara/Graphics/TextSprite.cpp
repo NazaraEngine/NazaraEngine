@@ -13,7 +13,7 @@
 namespace Nz
 {
 	TextSprite::TextSprite(std::shared_ptr<Material> material) :
-	InstancedRenderable(Nz::Boxf(-10000.f, -10000.f, -10000.f, 20000.f, 20000.f, 20000.f)),
+	InstancedRenderable(),
 	m_material(std::move(material))
 	{
 	}
@@ -208,10 +208,7 @@ namespace Nz
 			indices->count++;
 		}
 
-		/*m_localBounds = drawer.GetBounds();
-
-		InvalidateBoundingVolume();
-		InvalidateInstanceData(0);*/
+		UpdateAABB(bounds);
 
 		clearOnFail.Reset();
 	}

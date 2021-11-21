@@ -7,14 +7,20 @@
 
 namespace Nz
 {
-	inline InstancedRenderable::InstancedRenderable(const Boxf& aabb) :
-	m_aabb(aabb)
+	inline InstancedRenderable::InstancedRenderable() :
+	m_aabb(Boxf::Zero())
 	{
 	}
 
 	inline const Boxf& InstancedRenderable::GetAABB() const
 	{
 		return m_aabb;
+	}
+
+	inline void InstancedRenderable::UpdateAABB(Boxf aabb)
+	{
+		OnAABBUpdate(this, aabb);
+		m_aabb = aabb;
 	}
 }
 
