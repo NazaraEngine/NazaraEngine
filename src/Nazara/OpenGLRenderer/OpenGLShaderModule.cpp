@@ -96,7 +96,7 @@ namespace Nz
 			return context.IsExtensionSupported(std::string(ext));
 		};
 		env.flipYPosition = true;
-		env.normalizeDepth = true;
+		env.remapZPosition = true;
 
 		GlslWriter writer;
 		writer.SetEnv(env);
