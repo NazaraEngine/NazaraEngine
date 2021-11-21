@@ -14,7 +14,6 @@
 namespace Nz
 {
 	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb) :
-	InstancedRenderable(aabb),
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
 		m_submeshes.reserve(m_graphicalMesh->GetSubMeshCount());
@@ -29,6 +28,8 @@ namespace Nz
 				}
 			};
 		}
+
+		UpdateAABB(aabb);
 	}
 
 	void Model::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
