@@ -7,7 +7,6 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <limits>
-#include <sstream>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
@@ -576,10 +575,7 @@ namespace Nz
 	template<typename T>
 	std::string Vector3<T>::ToString() const
 	{
-		std::ostringstream ss;
-		ss << *this;
-
-		return ss.str();
+		return "Vector3(" + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + ')';
 	}
 
 	/*!
