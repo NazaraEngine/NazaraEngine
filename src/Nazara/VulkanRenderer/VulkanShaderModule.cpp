@@ -85,10 +85,10 @@ namespace Nz
 
 			case ShaderLanguage::NazaraShader:
 			{
-				std::vector<Nz::ShaderLang::Token> tokens = Nz::ShaderLang::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
+				std::vector<ShaderLang::Token> tokens = ShaderLang::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
 
-				Nz::ShaderLang::Parser parser;
-				Nz::ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
+				ShaderLang::Parser parser;
+				ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
 				return Create(device, shaderStages, *shaderAst, states);
 			}
 
@@ -132,7 +132,7 @@ namespace Nz
 					return false;
 				}
 
-				if (!m_shaderModule.Create(device, reinterpret_cast<const Nz::UInt32*>(source), sourceSize))
+				if (!m_shaderModule.Create(device, reinterpret_cast<const UInt32*>(source), sourceSize))
 				{
 					NazaraError("failed to create shader module");
 					return false;
