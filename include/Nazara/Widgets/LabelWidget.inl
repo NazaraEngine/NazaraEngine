@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline void LabelWidget::UpdateText(const Nz::AbstractTextDrawer& drawer, float scale)
+	inline void LabelWidget::UpdateText(const AbstractTextDrawer& drawer, float scale)
 	{
 		m_textSprite->Update(drawer, scale);
 

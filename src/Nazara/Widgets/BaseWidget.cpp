@@ -82,12 +82,12 @@ namespace Nz
 			auto material = std::make_shared<Material>();
 			material->AddPass("ForwardPass", std::make_shared<MaterialPass>(BasicMaterial::GetSettings()));
 
-			m_backgroundSprite = std::make_shared<Nz::Sprite>(std::move(material));
+			m_backgroundSprite = std::make_shared<Sprite>(std::move(material));
 			m_backgroundSprite->SetColor(m_backgroundColor);
 			//m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D")); //< TODO: Use a shared material instead of creating one everytime
 
 			entt::entity backgroundEntity = CreateEntity();
-			m_registry->emplace<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite);
+			m_registry->emplace<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite, GetCanvas()->GetRenderMask());
 			m_registry->emplace<NodeComponent>(backgroundEntity).SetParent(this);
 
 			m_backgroundEntity = backgroundEntity;
@@ -242,7 +242,10 @@ namespace Nz
 	void BaseWidget::Layout()
 	{
 		if (m_backgroundSprite)
+		{
+			m_registry->get<NodeComponent>(*m_backgroundEntity).SetPosition(0.f, m_size.y);
 			m_backgroundSprite->SetSize({ m_size.x, m_size.y });
+		}
 
 		UpdatePositionAndSize();
 	}
