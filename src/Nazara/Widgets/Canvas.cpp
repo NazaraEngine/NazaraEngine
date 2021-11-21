@@ -80,10 +80,10 @@ namespace Nz
 		std::size_t bestEntry = InvalidCanvasIndex;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 
-		Nz::Vector3f mousePos(float(event.x), float(event.y), 0.f);
+		Vector3f mousePos(float(event.x), m_size.y - float(event.y), 0.f);
 		for (std::size_t i = 0; i < m_widgetEntries.size(); ++i)
 		{
-			const Nz::Boxf& box = m_widgetEntries[i].box;
+			const Boxf& box = m_widgetEntries[i].box;
 
 			if (box.Contains(mousePos))
 			{
