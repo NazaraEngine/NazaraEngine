@@ -43,8 +43,8 @@ namespace Nz
 		m_cornerColor = cornerColor;
 
 		m_gradientSprite->SetColor(m_color);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::LeftBottom, m_cornerColor);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::RightBottom, m_cornerColor);
+		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_cornerColor);
+		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_cornerColor);
 	}
 
 	inline void ButtonWidget::SetHoverColor(const Color& color, const Color& cornerColor)
@@ -59,13 +59,13 @@ namespace Nz
 		m_pressCornerColor = cornerColor;
 	}
 
-	inline void ButtonWidget::UpdateText(const Nz::AbstractTextDrawer& drawer)
+	inline void ButtonWidget::UpdateText(const AbstractTextDrawer& drawer)
 	{
 		m_textSprite->Update(drawer);
 
-		Nz::Vector2f textSize = Nz::Vector2f(m_textSprite->GetAABB().GetLengths());
+		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
 		SetMinimumSize(textSize);
-		SetPreferredSize(textSize + Nz::Vector2f(20.f, 10.f));
+		SetPreferredSize(textSize + Vector2f(20.f, 10.f));
 
 		Layout();
 	}

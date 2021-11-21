@@ -15,6 +15,7 @@
 namespace Nz
 {
 	class AbstractTextDrawer;
+	class MaterialPass;
 
 	class NAZARA_WIDGETS_API ButtonWidget : public BaseWidget
 	{
@@ -30,10 +31,6 @@ namespace Nz
 			inline const Color& GetHoverCornerColor() const;
 			inline const Color& GetPressColor() const;
 			inline const Color& GetPressCornerColor() const;
-
-			inline const std::shared_ptr<Texture>& GetTexture() const;
-			inline const std::shared_ptr<Texture>& GetHoverTexture() const;
-			inline const std::shared_ptr<Texture>& GetPressTexture() const;
 
 			inline void SetColor(const Color& color, const Color& cornerColor);
 			inline void SetHoverColor(const Color& color, const Color& cornerColor);
@@ -54,6 +51,7 @@ namespace Nz
 			void OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
 			void OnMouseExit() override;
 
+			std::shared_ptr<MaterialPass> m_gradientMaterialPass;
 			std::shared_ptr<Sprite> m_gradientSprite;
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_textEntity;

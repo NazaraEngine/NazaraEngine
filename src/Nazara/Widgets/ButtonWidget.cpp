@@ -2,11 +2,14 @@
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#if 0
-
 #include <Nazara/Widgets/ButtonWidget.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
@@ -21,22 +24,27 @@ namespace Nz
 	m_pressCornerColor { 74, 74, 74 }
 	{
 		entt::registry& registry = GetRegistry();
+		UInt32 renderMask = GetCanvas()->GetRenderMask();
 
-		m_gradientSprite = std::make_shared<Sprite>();
+		m_gradientMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
+
+		auto gradientMaterial = std::make_shared<Material>();
+		gradientMaterial->AddPass("ForwardPass", m_gradientMaterialPass);
+
+		m_gradientSprite = std::make_shared<Sprite>(gradientMaterial);
 		m_gradientSprite->SetColor(m_color);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::LeftBottom, m_cornerColor);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::RightBottom, m_cornerColor);
-		m_gradientSprite->SetMaterial(Nz::Material::New("Basic2D"));
+		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_cornerColor);
+		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_cornerColor);
 
 		m_gradientEntity = CreateEntity();
 		registry.emplace<NodeComponent>(m_gradientEntity).SetParent(this);
-		registry.emplace<GraphicsComponent>(m_gradientEntity).AttachRenderable(m_gradientSprite);
+		registry.emplace<GraphicsComponent>(m_gradientEntity).AttachRenderable(m_gradientSprite, renderMask);
 
-		m_textSprite = std::make_shared<TextSprite>();
+		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
 
 		m_textEntity = CreateEntity();
 		registry.emplace<NodeComponent>(m_textEntity).SetParent(this);
-		registry.emplace<GraphicsComponent>(m_textEntity).AttachRenderable(m_textSprite);
+		registry.emplace<GraphicsComponent>(m_textEntity).AttachRenderable(m_textSprite, renderMask);
 
 		Layout();
 	}
@@ -45,34 +53,32 @@ namespace Nz
 	{
 		BaseWidget::Layout();
 
-		Nz::Vector2f size = GetSize();
+		Vector2f size = GetSize();
 		m_gradientSprite->SetSize(size);
 
 		entt::registry& registry = GetRegistry();
 
-		Nz::Boxf textBox = m_textSprite->GetAABB();
+		Boxf textBox = m_textSprite->GetAABB();
 		registry.get<NodeComponent>(m_textEntity).SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
 	}
 
-	void ButtonWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button button)
+	void ButtonWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button)
 	{
-		if (button == Nz::Mouse::Left)
+		if (button == Mouse::Left)
 		{
 			m_gradientSprite->SetColor(m_pressColor);
-			m_gradientSprite->SetCornerColor(Nz::RectCorner::LeftBottom, m_pressCornerColor);
-			m_gradientSprite->SetCornerColor(Nz::RectCorner::RightBottom, m_pressCornerColor);
-			m_gradientSprite->SetTexture(m_pressTexture, false);
+			m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_pressCornerColor);
+			m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_pressCornerColor);
 		}
 	}
 
-	void ButtonWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button button)
+	void ButtonWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button button)
 	{
-		if (button == Nz::Mouse::Left)
+		if (button == Mouse::Left)
 		{
 			m_gradientSprite->SetColor(m_hoverColor);
-			m_gradientSprite->SetCornerColor(Nz::RectCorner::LeftBottom, m_hoverCornerColor);
-			m_gradientSprite->SetCornerColor(Nz::RectCorner::RightBottom, m_hoverCornerColor);
-			m_gradientSprite->SetTexture(m_hoverTexture, false);
+			m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_hoverCornerColor);
+			m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_hoverCornerColor);
 
 			OnButtonTrigger(this);
 		}
@@ -81,18 +87,14 @@ namespace Nz
 	void ButtonWidget::OnMouseEnter()
 	{
 		m_gradientSprite->SetColor(m_hoverColor);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::LeftBottom, m_hoverCornerColor);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::RightBottom, m_hoverCornerColor);
-		m_gradientSprite->SetTexture(m_hoverTexture, false);
+		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_hoverCornerColor);
+		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_hoverCornerColor);
 	}
 
 	void ButtonWidget::OnMouseExit()
 	{
 		m_gradientSprite->SetColor(m_color);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::LeftBottom, m_cornerColor);
-		m_gradientSprite->SetCornerColor(Nz::RectCorner::RightBottom, m_cornerColor);
-		m_gradientSprite->SetTexture(m_texture, false);
+		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_cornerColor);
+		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_cornerColor);
 	}
 }
-
-#endif
