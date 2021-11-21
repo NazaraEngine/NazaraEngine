@@ -43,7 +43,7 @@ namespace Nz
 				unsigned int glMinorVersion = 0;
 				bool glES = false;
 				bool flipYPosition = false;
-				bool scaleZPosition = false;
+				bool remapZPosition = false;
 			};
 
 			static const char* GetFlipYUniformName();

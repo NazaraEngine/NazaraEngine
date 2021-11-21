@@ -1154,7 +1154,7 @@ namespace Nz
 					if (m_environment.flipYPosition)
 						AppendLine(targetName, ".y *= ", s_flipYUniformName, ";");
 
-					if (m_environment.scaleZPosition)
+					if (m_environment.remapZPosition)
 						AppendLine(targetName, ".z = ", targetName, ".z * 2.0 - 1.0;");
 				}
 			}
