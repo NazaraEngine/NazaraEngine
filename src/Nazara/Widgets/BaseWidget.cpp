@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/Widgets.hpp>
 #include <algorithm>
 #include <Nazara/Widgets/Debug.hpp>
 
@@ -79,12 +80,8 @@ namespace Nz
 
 		if (enable)
 		{
-			auto material = std::make_shared<Material>();
-			material->AddPass("ForwardPass", std::make_shared<MaterialPass>(BasicMaterial::GetSettings()));
-
-			m_backgroundSprite = std::make_shared<Sprite>(std::move(material));
+			m_backgroundSprite = std::make_shared<Sprite>((m_backgroundColor.IsOpaque()) ? Widgets::Instance()->GetOpaqueMaterial() : Widgets::Instance()->GetTransparentMaterial());
 			m_backgroundSprite->SetColor(m_backgroundColor);
-			//m_backgroundSprite->SetMaterial(Nz::Material::New((m_backgroundColor.IsOpaque()) ? "Basic2D" : "Translucent2D")); //< TODO: Use a shared material instead of creating one everytime
 
 			entt::entity backgroundEntity = CreateEntity();
 			m_registry->emplace<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite, GetCanvas()->GetRenderMask());
@@ -115,10 +112,10 @@ namespace Nz
 		return m_canvas->IsKeyboardOwner(m_canvasIndex);
 	}
 
-	void BaseWidget::Resize(const Nz::Vector2f& size)
+	void BaseWidget::Resize(const Vector2f& size)
 	{
 		// Adjust new size
-		Nz::Vector2f newSize = size;
+		Vector2f newSize = size;
 		newSize.Maximize(m_minimumSize);
 		newSize.Minimize(m_maximumSize);
 
@@ -135,11 +132,11 @@ namespace Nz
 		if (m_backgroundSprite)
 		{
 			m_backgroundSprite->SetColor(color);
-			//m_backgroundSprite->GetMaterial()->Configure((color.IsOpaque()) ? "Basic2D" : "Translucent2D"); //< Our sprite has its own material (see EnableBackground)
+			m_backgroundSprite->SetMaterial((color.IsOpaque()) ? Widgets::Instance()->GetOpaqueMaterial() : Widgets::Instance()->GetTransparentMaterial()); //< Our sprite has its own material (see EnableBackground)
 		}
 	}
 
-	void BaseWidget::SetCursor(Nz::SystemCursor systemCursor)
+	void BaseWidget::SetCursor(SystemCursor systemCursor)
 	{
 		m_cursor = systemCursor;
 
@@ -167,7 +164,7 @@ namespace Nz
 		Layout();
 	}
 
-	void BaseWidget::SetRenderingRect(const Nz::Rectf& renderingRect)
+	void BaseWidget::SetRenderingRect(const Rectf& renderingRect)
 	{
 		m_renderingRect = renderingRect;
 
@@ -242,10 +239,7 @@ namespace Nz
 	void BaseWidget::Layout()
 	{
 		if (m_backgroundSprite)
-		{
-			m_registry->get<NodeComponent>(*m_backgroundEntity).SetPosition(0.f, m_size.y);
 			m_backgroundSprite->SetSize({ m_size.x, m_size.y });
-		}
 
 		UpdatePositionAndSize();
 	}
@@ -257,13 +251,13 @@ namespace Nz
 		UpdatePositionAndSize();
 	}
 
-	Nz::Rectf BaseWidget::GetScissorRect() const
+	Rectf BaseWidget::GetScissorRect() const
 	{
-		Nz::Vector2f widgetPos = Nz::Vector2f(GetPosition(Nz::CoordSys::Global));
-		Nz::Vector2f widgetSize = GetSize();
+		Vector2f widgetPos = Vector2f(GetPosition(CoordSys::Global));
+		Vector2f widgetSize = GetSize();
 
-		Nz::Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
-		Nz::Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
+		Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);
+		Rectf widgetRenderingRect(widgetPos.x + m_renderingRect.x, widgetPos.y + m_renderingRect.y, m_renderingRect.width, m_renderingRect.height);
 
 		widgetRect.Intersect(widgetRenderingRect, &widgetRect);
 
@@ -283,12 +277,12 @@ namespace Nz
 	{
 	}
 
-	bool BaseWidget::OnKeyPressed(const Nz::WindowEvent::KeyEvent& key)
+	bool BaseWidget::OnKeyPressed(const WindowEvent::KeyEvent& key)
 	{
 		return false;
 	}
 
-	void BaseWidget::OnKeyReleased(const Nz::WindowEvent::KeyEvent& /*key*/)
+	void BaseWidget::OnKeyReleased(const WindowEvent::KeyEvent& /*key*/)
 	{
 	}
 
@@ -300,11 +294,11 @@ namespace Nz
 	{
 	}
 
-	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Nz::Mouse::Button /*button*/)
+	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
 	{
 	}
 
-	void BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Nz::Mouse::Button /*button*/)
+	void BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button /*button*/)
 	{
 	}
 
@@ -316,7 +310,7 @@ namespace Nz
 	{
 	}
 
-	void BaseWidget::OnParentResized(const Nz::Vector2f& /*newSize*/)
+	void BaseWidget::OnParentResized(const Vector2f& /*newSize*/)
 	{
 	}
 
@@ -372,17 +366,17 @@ namespace Nz
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 
-		Nz::Rectf scissorRect = GetScissorRect();
+		Rectf scissorRect = GetScissorRect();
 
 		if (m_widgetParent)
 		{
-			Nz::Rectf parentScissorRect = m_widgetParent->GetScissorRect();
+			Rectf parentScissorRect = m_widgetParent->GetScissorRect();
 
 			if (!scissorRect.Intersect(parentScissorRect, &scissorRect))
 				scissorRect = parentScissorRect;
 		}
 
-		/*Nz::Recti fullBounds(scissorRect);
+		/*Recti fullBounds(scissorRect);
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			const Ndk::EntityHandle& entity = widgetEntity.handle;

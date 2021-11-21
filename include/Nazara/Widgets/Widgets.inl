@@ -7,6 +7,25 @@
 
 namespace Nz
 {
+	inline const std::shared_ptr<Material>& Widgets::GetOpaqueMaterial() const
+	{
+		return m_opaqueMaterial;
+	}
+
+	inline const std::shared_ptr<MaterialPass>& Widgets::GetOpaqueMaterialPass() const
+	{
+		return m_opaqueMaterialPass;
+	}
+
+	inline const std::shared_ptr<Material>& Widgets::GetTransparentMaterial() const
+	{
+		return m_transparentMaterial;
+	}
+
+	inline const std::shared_ptr<MaterialPass>& Widgets::GetTransparentMaterialPass() const
+	{
+		return m_transparentMaterialPass;
+	}
 }
 
 #include <Nazara/Widgets/DebugOff.hpp>
