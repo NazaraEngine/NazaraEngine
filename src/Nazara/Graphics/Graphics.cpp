@@ -238,8 +238,8 @@ namespace Nz
 
 	void Graphics::RegisterMaterialPasses()
 	{
-		m_materialPassRegistry.RegisterPass("DepthPass");
 		m_materialPassRegistry.RegisterPass("ForwardPass");
+		m_materialPassRegistry.RegisterPass("DepthPass");
 	}
 
 	void Graphics::SelectDepthStencilFormats()
