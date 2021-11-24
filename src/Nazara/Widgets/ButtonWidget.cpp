@@ -26,12 +26,7 @@ namespace Nz
 		entt::registry& registry = GetRegistry();
 		UInt32 renderMask = GetCanvas()->GetRenderMask();
 
-		m_gradientMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-
-		auto gradientMaterial = std::make_shared<Material>();
-		gradientMaterial->AddPass("ForwardPass", m_gradientMaterialPass);
-
-		m_gradientSprite = std::make_shared<Sprite>(gradientMaterial);
+		m_gradientSprite = std::make_shared<Sprite>(Widgets::Instance()->GetOpaqueMaterial());
 		m_gradientSprite->SetColor(m_color);
 		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_cornerColor);
 		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_cornerColor);

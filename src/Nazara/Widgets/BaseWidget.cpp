@@ -184,11 +184,14 @@ namespace Nz
 			else
 				UnregisterFromCanvas();
 
+			auto& registry = GetRegistry();
 			for (WidgetEntity& entity : m_entities)
 			{
 				if (entity.isEnabled)
 				{
-					//entity.handle->Enable(show); //< This will override isEnabled, so reset it next line
+					if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(entity.handle))
+						gfx->Show(show);
+
 					entity.isEnabled = true;
 				}
 			}
@@ -200,29 +203,10 @@ namespace Nz
 	entt::entity BaseWidget::CreateEntity()
 	{
 		entt::entity newEntity = m_registry->create();
-		//newEntity->Enable(m_visible);
 
 		m_entities.emplace_back();
 		WidgetEntity& newWidgetEntity = m_entities.back();
 		newWidgetEntity.handle = newEntity;
-		/*newWidgetEntity.onDisabledSlot.Connect(newEntity->OnEntityDisabled, [this](Entity* entity)
-		{
-			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
-			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
-
-			it->isEnabled = false;
-		});
-
-		newWidgetEntity.onEnabledSlot.Connect(newEntity->OnEntityEnabled, [this](Entity* entity)
-		{
-			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
-			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
-
-			if (!IsVisible())
-				entity->Disable(); // Next line will override isEnabled status
-
-			it->isEnabled = true;
-		});*/
 
 		return newEntity;
 	}
