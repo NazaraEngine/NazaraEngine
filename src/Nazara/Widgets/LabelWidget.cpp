@@ -17,9 +17,15 @@ namespace Nz
 	{
 		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
 
-		m_textEntity = CreateEntity();
-		GetRegistry().emplace<GraphicsComponent>(m_textEntity).AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());
-		GetRegistry().emplace<NodeComponent>(m_textEntity).SetParent(this);
+		auto& registry = GetRegistry();
+
+		m_entity = CreateEntity();
+
+		auto& gfxComponent = registry.emplace<GraphicsComponent>(m_entity, IsVisible());
+		gfxComponent.AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());
+
+		auto& nodeComponent = registry.emplace<NodeComponent>(m_entity);
+		nodeComponent.SetParent(this);
 
 		Layout();
 	}

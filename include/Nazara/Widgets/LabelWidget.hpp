@@ -29,7 +29,7 @@ namespace Nz
 			LabelWidget& operator=(LabelWidget&&) = default;
 
 		private:
-			entt::entity m_textEntity;
+			entt::entity m_entity;
 			std::shared_ptr<TextSprite> m_textSprite;
 	};
 }
