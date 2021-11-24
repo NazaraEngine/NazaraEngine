@@ -116,7 +116,7 @@ namespace Nz::GL
 			virtual ~Context();
 
 			void BindBuffer(BufferTarget target, GLuint buffer, bool force = false) const;
-			GLenum BindFramebuffer(GLuint fbo) const;
+			[[nodiscard]] GLenum BindFramebuffer(GLuint fbo) const;
 			void BindFramebuffer(FramebufferTarget target, GLuint fbo) const;
 			void BindProgram(GLuint program) const;
 			void BindSampler(UInt32 textureUnit, GLuint sampler) const;

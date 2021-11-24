@@ -38,7 +38,7 @@ namespace Nz
 		m_transparentMaterialPass->EnableDepthWrite(false);
 		m_transparentMaterialPass->EnableBlending(true);
 		m_transparentMaterialPass->SetBlendEquation(BlendEquation::Add, BlendEquation::Add);
-		m_transparentMaterialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::Zero);
+		m_transparentMaterialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::One);
 
 		m_transparentMaterial = std::make_shared<Material>();
 		m_transparentMaterial->AddPass("ForwardPass", m_transparentMaterialPass);
