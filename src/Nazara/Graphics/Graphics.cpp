@@ -164,15 +164,6 @@ namespace Nz
 
 		RenderPipelineInfo pipelineInfo;
 
-		// Alpha blending
-		pipelineInfo.blending = true;
-		pipelineInfo.blend.modeColor = BlendEquation::Add;
-		pipelineInfo.blend.modeAlpha = BlendEquation::Add;
-		pipelineInfo.blend.srcColor = BlendFunc::One;
-		pipelineInfo.blend.dstColor = BlendFunc::One;
-		pipelineInfo.blend.srcAlpha = BlendFunc::One;
-		pipelineInfo.blend.dstAlpha = BlendFunc::One;
-
 		pipelineInfo.pipelineLayout = m_blitPipelineLayout;
 		pipelineInfo.shaderModules.push_back(std::move(blitShader));
 		pipelineInfo.vertexBuffers.assign({
@@ -182,7 +173,18 @@ namespace Nz
 			}
 		});
 
-		m_blitPipeline = m_renderDevice->InstantiateRenderPipeline(std::move(pipelineInfo));
+		m_blitPipeline = m_renderDevice->InstantiateRenderPipeline(pipelineInfo);
+
+		// Blending
+		pipelineInfo.blending = true;
+		pipelineInfo.blend.modeColor = BlendEquation::Add;
+		pipelineInfo.blend.modeAlpha = BlendEquation::Add;
+		pipelineInfo.blend.srcColor = BlendFunc::SrcAlpha;
+		pipelineInfo.blend.dstColor = BlendFunc::InvSrcAlpha;
+		pipelineInfo.blend.srcAlpha = BlendFunc::SrcAlpha;
+		pipelineInfo.blend.dstAlpha = BlendFunc::InvSrcAlpha;
+
+		m_blitPipelineTransparent = m_renderDevice->InstantiateRenderPipeline(std::move(pipelineInfo));
 	}
 
 	void Graphics::BuildDefaultTextures()
