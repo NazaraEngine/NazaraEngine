@@ -18,10 +18,13 @@ namespace Nz
 	struct UnicodeAware {};
 
 	// std::string is assumed to contains UTF-8
+	NAZARA_CORE_API std::size_t ComputeCharacterCount(const std::string_view& str);
+
 	NAZARA_CORE_API std::string FromUtf16String(const std::u16string_view& u16str);
 	NAZARA_CORE_API std::string FromUtf32String(const std::u32string_view& u32str);
 	NAZARA_CORE_API std::string FromWideString(const std::wstring_view& str);
 
+	NAZARA_CORE_API std::size_t GetCharacterPosition(const std::string_view& str, std::size_t characterIndex);
 	NAZARA_CORE_API std::string_view GetWord(const std::string_view& str, std::size_t wordIndex);
 	NAZARA_CORE_API std::string_view GetWord(const std::string_view& str, std::size_t wordIndex, UnicodeAware);
 
