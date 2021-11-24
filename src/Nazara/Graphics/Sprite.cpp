@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -44,16 +45,6 @@ namespace Nz
 		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data()));
 	}
 
-	inline const Color& Sprite::GetColor() const
-	{
-		return m_color;
-	}
-
-	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
-	{
-		return m_cornerColor[UnderlyingCast(corner)];
-	}
-
 	const std::shared_ptr<Material>& Sprite::GetMaterial(std::size_t i) const
 	{
 		assert(i == 0);
@@ -65,5 +56,25 @@ namespace Nz
 	std::size_t Sprite::GetMaterialCount() const
 	{
 		return 1;
+	}
+
+	Vector3ui Sprite::GetTextureSize() const
+	{
+		assert(m_material);
+
+		//TODO: Cache index in registry?
+		if (const auto& material = m_material->FindPass("ForwardPass"))
+		{
+			BasicMaterial mat(*material);
+			if (mat.HasDiffuseMap())
+			{
+				// Material should always have textures but we're better safe than sorry
+				if (const auto& texture = mat.GetDiffuseMap())
+					return mat.GetDiffuseMap()->GetSize();
+			}
+		}
+
+		// Couldn't get material pass or texture
+		return Vector3ui::Zero();
 	}
 }
