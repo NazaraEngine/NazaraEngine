@@ -33,6 +33,7 @@
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Config.hpp>
+#include <Nazara/Widgets/ImageWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
 
