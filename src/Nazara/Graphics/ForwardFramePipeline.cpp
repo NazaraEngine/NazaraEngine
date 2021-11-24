@@ -386,8 +386,10 @@ namespace Nz
 					{
 						builder.SetScissor(renderRegion);
 						builder.SetViewport(renderRegion);
-						builder.BindPipeline(*graphics->GetBlitPipeline());
+						builder.BindPipeline(*graphics->GetBlitPipeline(false));
 						builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
+
+						bool first = true;
 
 						for (const ViewerData* viewerData : viewers)
 						{
@@ -395,6 +397,12 @@ namespace Nz
 
 							builder.BindShaderBinding(0, *blitShaderBinding);
 							builder.Draw(3);
+
+							if (first)
+							{
+								builder.BindPipeline(*graphics->GetBlitPipeline(true));
+								first = false;
+							}
 						}
 					}
 					builder.EndDebugRegion();
