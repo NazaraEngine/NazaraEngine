@@ -60,9 +60,12 @@ namespace Nz
 			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
 			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
 
-			const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
-			for (const auto& renderableEntry : entityGfx.GetRenderables())
-				m_pipeline->RegisterInstancedDrawable(worldInstance, renderableEntry.renderable.get(), renderableEntry.renderMask);
+			if (entityGfx.IsVisible())
+			{
+				const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
+				for (const auto& renderableEntry : entityGfx.GetRenderables())
+					m_pipeline->RegisterInstancedDrawable(worldInstance, renderableEntry.renderable.get(), renderableEntry.renderMask);
+			}
 
 			m_invalidatedWorldNode.insert(entity);
 
@@ -75,17 +78,38 @@ namespace Nz
 
 			graphicsEntity.onRenderableAttached.Connect(entityGfx.OnRenderableAttached, [this](GraphicsComponent* gfx, const GraphicsComponent::Renderable& renderableEntry)
 			{
+				if (!gfx->IsVisible())
+					return;
+
 				const WorldInstancePtr& worldInstance = gfx->GetWorldInstance();
 				m_pipeline->RegisterInstancedDrawable(worldInstance, renderableEntry.renderable.get(), renderableEntry.renderMask);
 			});
 
 			graphicsEntity.onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this](GraphicsComponent* gfx, const GraphicsComponent::Renderable& renderableEntry)
 			{
+				if (!gfx->IsVisible())
+					return;
+
 				const WorldInstancePtr& worldInstance = gfx->GetWorldInstance();
 				m_pipeline->UnregisterInstancedDrawable(worldInstance, renderableEntry.renderable.get());
 			});
+
+			graphicsEntity.onVisibilityUpdate.Connect(entityGfx.OnVisibilityUpdate, [this, entity](GraphicsComponent* /*gfx*/, bool isVisible)
+			{
+				if (isVisible)
+				{
+					m_newlyHiddenEntities.erase(entity);
+					m_newlyVisibleEntities.insert(entity);
+				}
+				else
+				{
+					m_newlyHiddenEntities.insert(entity);
+					m_newlyVisibleEntities.erase(entity);
+				}
+			});
 		});
 
+		UpdateVisibility(registry);
 		UpdateInstances(registry);
 
 		m_pipeline->Render(renderFrame);
@@ -104,6 +128,8 @@ namespace Nz
 	{
 		m_graphicsEntities.erase(entity);
 		m_invalidatedWorldNode.erase(entity);
+		m_newlyHiddenEntities.erase(entity);
+		m_newlyVisibleEntities.erase(entity);
 
 		GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
 		const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
@@ -113,6 +139,9 @@ namespace Nz
 
 	void RenderSystem::OnNodeDestroy(entt::registry& registry, entt::entity entity)
 	{
+		m_newlyHiddenEntities.erase(entity);
+		m_newlyVisibleEntities.erase(entity);
+
 		if (registry.try_get<CameraComponent>(entity))
 			OnCameraDestroy(registry, entity);
 
@@ -145,5 +174,30 @@ namespace Nz
 			m_pipeline->InvalidateWorldInstance(worldInstance.get());
 		}
 		m_invalidatedWorldNode.clear();
+	}
+
+	void RenderSystem::UpdateVisibility(entt::registry& registry)
+	{
+		// Unregister drawables for hidden entities
+		for (entt::entity entity : m_newlyHiddenEntities)
+		{
+			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
+
+			const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
+			for (const auto& renderableEntry : entityGfx.GetRenderables())
+				m_pipeline->UnregisterInstancedDrawable(worldInstance, renderableEntry.renderable.get());
+		}
+		m_newlyHiddenEntities.clear();
+
+		// Register drawables for newly visible entities
+		for (entt::entity entity : m_newlyVisibleEntities)
+		{
+			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
+
+			const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
+			for (const auto& renderableEntry : entityGfx.GetRenderables())
+				m_pipeline->RegisterInstancedDrawable(worldInstance, renderableEntry.renderable.get(), renderableEntry.renderMask);
+		}
+		m_newlyVisibleEntities.clear();
 	}
 }

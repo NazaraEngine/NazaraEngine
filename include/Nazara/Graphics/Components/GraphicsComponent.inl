@@ -7,7 +7,8 @@
 
 namespace Nz
 {
-	inline GraphicsComponent::GraphicsComponent()
+	inline GraphicsComponent::GraphicsComponent(bool initialyVisible) :
+	m_isVisible(initialyVisible)
 	{
 		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
 	}
@@ -19,6 +20,14 @@ namespace Nz
 		entry.renderMask = renderMask;
 
 		OnRenderableAttached(this, m_renderables.back());
+	}
+
+	inline void GraphicsComponent::Clear()
+	{
+		for (const auto& renderable : m_renderables)
+			OnRenderableDetach(this, renderable);
+
+		m_renderables.clear();
 	}
 
 	inline void GraphicsComponent::DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable)
@@ -40,6 +49,25 @@ namespace Nz
 	inline const WorldInstancePtr& GraphicsComponent::GetWorldInstance() const
 	{
 		return m_worldInstance;
+	}
+
+	inline void GraphicsComponent::Hide()
+	{
+		return Show(false);
+	}
+
+	inline bool GraphicsComponent::IsVisible() const
+	{
+		return m_isVisible;
+	}
+
+	inline void GraphicsComponent::Show(bool show)
+	{
+		if (m_isVisible != show)
+		{
+			OnVisibilityUpdate(this, show);
+			m_isVisible = show;
+		}
 	}
 }
 
