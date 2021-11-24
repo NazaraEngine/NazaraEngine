@@ -96,6 +96,7 @@ namespace Nz
 				{
 					viewerData.rebuildDepthPrepass = true;
 					viewerData.rebuildForwardPass = true;
+					viewerData.prepare = true;
 				}
 			});
 
@@ -118,6 +119,7 @@ namespace Nz
 				{
 					viewerData.rebuildDepthPrepass = true;
 					viewerData.rebuildForwardPass = true;
+					viewerData.prepare = true;
 				}
 			}
 		}
@@ -447,6 +449,7 @@ namespace Nz
 		{
 			viewerData.rebuildDepthPrepass = true;
 			viewerData.rebuildForwardPass = true;
+			viewerData.prepare = true;
 		}
 	}
 

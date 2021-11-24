@@ -41,6 +41,7 @@ namespace Nz
 			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
 			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
 			void UpdateInstances(entt::registry& registry);
+			void UpdateVisibility(entt::registry& registry);
 
 			struct CameraEntity
 			{
@@ -51,6 +52,7 @@ namespace Nz
 			{
 				NazaraSlot(GraphicsComponent, OnRenderableAttached, onRenderableAttached);
 				NazaraSlot(GraphicsComponent, OnRenderableDetach, onRenderableDetach);
+				NazaraSlot(GraphicsComponent, OnVisibilityUpdate, onVisibilityUpdate);
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
 			};
 
@@ -64,6 +66,8 @@ namespace Nz
 			std::unique_ptr<FramePipeline> m_pipeline;
 			std::unordered_map<entt::entity, CameraEntity> m_cameraEntities;
 			std::unordered_map<entt::entity, GraphicsEntity> m_graphicsEntities;
+			std::unordered_set<entt::entity> m_newlyHiddenEntities;
+			std::unordered_set<entt::entity> m_newlyVisibleEntities;
 	};
 }
 

@@ -21,22 +21,32 @@ namespace Nz
 		public:
 			struct Renderable;
 
-			GraphicsComponent();
+			inline GraphicsComponent(bool initialyVisible = true);
 			GraphicsComponent(const GraphicsComponent&) = default;
 			GraphicsComponent(GraphicsComponent&&) = default;
 			~GraphicsComponent() = default;
 
 			inline void AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask = 0xFFFFFFFF);
+
+			inline void Clear();
+
 			inline void DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable);
 
 			inline const std::vector<Renderable>& GetRenderables() const;
 			inline const WorldInstancePtr& GetWorldInstance() const;
+
+			inline void Hide();
+
+			inline bool IsVisible() const;
+
+			inline void Show(bool show = true);
 
 			GraphicsComponent& operator=(const GraphicsComponent&) = default;
 			GraphicsComponent& operator=(GraphicsComponent&&) = default;
 
 			NazaraSignal(OnRenderableAttached, GraphicsComponent* /*graphicsComponent*/, const Renderable& /*renderable*/);
 			NazaraSignal(OnRenderableDetach, GraphicsComponent* /*graphicsComponent*/, const Renderable& /*renderable*/);
+			NazaraSignal(OnVisibilityUpdate, GraphicsComponent* /*graphicsComponent*/, bool /*newVisibilityState*/);
 
 			struct Renderable
 			{
@@ -47,6 +57,7 @@ namespace Nz
 		private:
 			std::vector<Renderable> m_renderables;
 			WorldInstancePtr m_worldInstance;
+			bool m_isVisible;
 	};
 }
 
