@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Utfcpp/utf8.h>
 #include <cinttypes>
 #include <Nazara/Core/Debug.hpp>
@@ -91,6 +92,11 @@ namespace Nz
 		};
 	}
 
+	std::size_t ComputeCharacterCount(const std::string_view& str)
+	{
+		return utf8::distance(str.data(), str.data() + str.size());
+	}
+
 	std::string FromUtf16String(const std::u16string_view& u16str)
 	{
 		std::string result;
@@ -110,6 +116,33 @@ namespace Nz
 	std::string FromWideString(const std::wstring_view& wstr)
 	{
 		return WideConverter<sizeof(wchar_t)>::From(wstr.data(), wstr.size());
+	}
+
+	std::size_t GetCharacterPosition(const std::string_view& str, std::size_t characterIndex)
+	{
+		const char* ptr = str.data();
+		const char* end = ptr + str.size();
+
+		try
+		{
+			utf8::advance(ptr, characterIndex, end);
+
+			return ptr - str.data();
+		}
+		catch (utf8::not_enough_room& /*e*/)
+		{
+			// Returns npos
+		}
+		catch (utf8::exception& e)
+		{
+			NazaraError("UTF-8 error: " + std::string(e.what()));
+		}
+		catch (std::exception& e)
+		{
+			NazaraError(e.what());
+		}
+
+		return std::string::npos;
 	}
 
 	std::string_view GetWord(const std::string_view& str, std::size_t wordIndex)
