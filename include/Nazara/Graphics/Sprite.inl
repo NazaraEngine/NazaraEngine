@@ -8,6 +8,21 @@
 
 namespace Nz
 {
+	inline const Color& Sprite::GetColor() const
+	{
+		return m_color;
+	}
+
+	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
+	{
+		return m_cornerColor[UnderlyingCast(corner)];
+	}
+
+	inline const Rectf& Sprite::GetTextureCoords() const
+	{
+		return m_textureCoords;
+	}
+
 	inline void Sprite::SetColor(const Color& color)
 	{
 		m_color = color;
@@ -24,6 +39,8 @@ namespace Nz
 
 	inline void Sprite::SetMaterial(std::shared_ptr<Material> material)
 	{
+		assert(material);
+
 		m_material = std::move(material);
 	}
 
@@ -32,6 +49,19 @@ namespace Nz
 		m_size = size;
 
 		UpdateVertices();
+	}
+
+	inline void Sprite::SetTextureCoords(const Rectf& textureCoords)
+	{
+		m_textureCoords = textureCoords;
+
+		UpdateVertices();
+	}
+
+	inline void Sprite::SetTextureRect(const Rectf& textureRect)
+	{
+		Vector2ui textureSize(GetTextureSize());
+		return SetTextureCoords(textureRect / Vector2f(textureSize));
 	}
 
 	inline void Sprite::UpdateVertices()

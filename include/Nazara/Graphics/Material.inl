@@ -21,6 +21,12 @@ namespace Nz
 		return AddPass(registry.GetPassIndex(passName), std::move(pass));
 	}
 
+	inline const std::shared_ptr<MaterialPass>& Material::FindPass(const std::string& passName) const
+	{
+		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
+		return GetPass(registry.GetPassIndex(passName));
+	}
+
 	inline const std::shared_ptr<MaterialPass>& Material::GetPass(std::size_t passIndex) const
 	{
 		if (passIndex >= m_passes.size())

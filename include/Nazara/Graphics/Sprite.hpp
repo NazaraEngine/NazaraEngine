@@ -29,13 +29,17 @@ namespace Nz
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i) const;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const;
 			std::size_t GetMaterialCount() const;
+			inline const Rectf& GetTextureCoords() const;
+			Vector3ui GetTextureSize() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetCornerColor(RectCorner corner, const Color& color);
 			inline void SetMaterial(std::shared_ptr<Material> material);
 			inline void SetSize(const Vector2f& size);
+			inline void SetTextureCoords(const Rectf& textureCoords);
+			inline void SetTextureRect(const Rectf& textureRect);
 
 			Sprite& operator=(const Sprite&) = delete;
 			Sprite& operator=(Sprite&&) noexcept = default;
