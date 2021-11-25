@@ -49,33 +49,33 @@ namespace Nz
 		m_widgetEntries.pop_back();
 	}
 
-	void Canvas::OnEventMouseButtonPressed(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonPressed(const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
 		{
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
 			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
 
 			hoveredWidget.widget->OnMouseButtonPress(x, y, event.button);
 		}
 	}
 
-	void Canvas::OnEventMouseButtonRelease(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonRelease(const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
 		{
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
 			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
 
 			hoveredWidget.widget->OnMouseButtonRelease(x, y, event.button);
 		}
 	}
 
-	void Canvas::OnEventMouseMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
+	void Canvas::OnEventMouseMoved(const EventHandler* /*eventHandler*/, const WindowEvent::MouseMoveEvent& event)
 	{
 		std::size_t bestEntry = InvalidCanvasIndex;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
@@ -110,13 +110,13 @@ namespace Nz
 				m_widgetEntries[m_hoveredWidget].widget->OnMouseEnter();
 
 				if (m_cursorController)
-					m_cursorController->UpdateCursor(Nz::Cursor::Get(m_widgetEntries[m_hoveredWidget].cursor));
+					m_cursorController->UpdateCursor(Cursor::Get(m_widgetEntries[m_hoveredWidget].cursor));
 			}
 
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			int x = static_cast<int>(std::round(mousePos.x - hoveredWidget.box.x));
+			int y = static_cast<int>(std::round(mousePos.y - hoveredWidget.box.y));
 			hoveredWidget.widget->OnMouseMoved(x, y, event.deltaX, event.deltaY);
 		}
 		else if (m_hoveredWidget != InvalidCanvasIndex)
@@ -125,24 +125,24 @@ namespace Nz
 			m_hoveredWidget = InvalidCanvasIndex;
 
 			if (m_cursorController)
-				m_cursorController->UpdateCursor(Nz::Cursor::Get(Nz::SystemCursor::Default));
+				m_cursorController->UpdateCursor(Cursor::Get(SystemCursor::Default));
 		}
 	}
 
-	void Canvas::OnEventMouseWheelMoved(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseWheelEvent& event)
+	void Canvas::OnEventMouseWheelMoved(const EventHandler* /*eventHandler*/, const WindowEvent::MouseWheelEvent& event)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
 		{
 			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
 
 			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(event.y - hoveredWidget.box.y));
+			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
 
 			hoveredWidget.widget->OnMouseWheelMoved(x, y, event.delta);
 		}
 	}
 
-	void Canvas::OnEventMouseLeft(const Nz::EventHandler* /*eventHandler*/)
+	void Canvas::OnEventMouseLeft(const EventHandler* /*eventHandler*/)
 	{
 		if (m_hoveredWidget != InvalidCanvasIndex)
 		{
@@ -151,14 +151,14 @@ namespace Nz
 		}
 	}
 
-	void Canvas::OnEventKeyPressed(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyPressed(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 		{
 			if (m_widgetEntries[m_keyboardOwner].widget->OnKeyPressed(event))
 				return;
 
-			if (event.virtualKey == Nz::Keyboard::VKey::Tab)
+			if (event.virtualKey == Keyboard::VKey::Tab)
 			{
 				if (!event.shift)
 				{
@@ -209,7 +209,7 @@ namespace Nz
 		OnUnhandledKeyPressed(eventHandler, event);
 	}
 
-	void Canvas::OnEventKeyReleased(const Nz::EventHandler* eventHandler, const Nz::WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyReleased(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnKeyReleased(event);
@@ -217,13 +217,13 @@ namespace Nz
 		OnUnhandledKeyReleased(eventHandler, event);
 	}
 
-	void Canvas::OnEventTextEntered(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)
+	void Canvas::OnEventTextEntered(const EventHandler* /*eventHandler*/, const WindowEvent::TextEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnTextEntered(event.character, event.repeated);
 	}
 
-	void Canvas::OnEventTextEdited(const Nz::EventHandler* /*eventHandler*/, const Nz::WindowEvent::EditEvent& event)
+	void Canvas::OnEventTextEdited(const EventHandler* /*eventHandler*/, const WindowEvent::EditEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnTextEdited(event.text, event.length);

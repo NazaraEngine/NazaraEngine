@@ -43,7 +43,7 @@ namespace Nz
 
 		auto& textNode = GetRegistry().emplace<NodeComponent>(m_textEntity);
 		textNode.SetParent(this);
-		textNode.SetPosition(paddingWidth, paddingHeight);
+		textNode.SetPosition(paddingWidth, GetHeight() - paddingHeight);
 
 		SetCursor(SystemCursor::Text);
 
@@ -87,6 +87,9 @@ namespace Nz
 		Vector2f textPosition = Vector2f(textNode.GetPosition(CoordSys::Local));
 		x -= textPosition.x;
 		y -= textPosition.y;
+
+		float textHeight = textDrawer.GetBounds().height;
+		y = textHeight - y;
 
 		std::size_t glyphCount = textDrawer.GetGlyphCount();
 		if (glyphCount > 0)
@@ -458,6 +461,7 @@ namespace Nz
 		}
 
 		// Resize every cursor sprite
+		float textHeight = m_textSprite->GetAABB().height;
 		for (unsigned int i = m_cursorPositionBegin.y; i <= m_cursorPositionEnd.y; ++i)
 		{
 			const auto& lineInfo = textDrawer.GetLine(i);
@@ -489,7 +493,7 @@ namespace Nz
 				cursor.sprite->SetColor((m_cursorPositionBegin == m_cursorPositionEnd) ? Color::Black : Color(0, 0, 0, 50));
 				cursor.sprite->SetSize(Vector2f(spriteSize, lineInfo.bounds.height));
 
-				registry.get<NodeComponent>(cursor.entity).SetPosition(beginX, lineInfo.bounds.y);
+				registry.get<NodeComponent>(cursor.entity).SetPosition(beginX, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);
 			}
 			else
 			{
@@ -497,7 +501,7 @@ namespace Nz
 				cursor.sprite->SetColor(Color(0, 0, 0, 50));
 				cursor.sprite->SetSize(Vector2f(lineInfo.bounds.width, lineInfo.bounds.height));
 
-				registry.get<NodeComponent>(cursor.entity).SetPosition(0.f, lineInfo.bounds.y);
+				registry.get<NodeComponent>(cursor.entity).SetPosition(0.f, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);
 			}
 		}
 	}
@@ -505,6 +509,10 @@ namespace Nz
 	void AbstractTextAreaWidget::UpdateTextSprite()
 	{
 		m_textSprite->Update(GetTextDrawer());
-		SetPreferredSize(Vector2f(m_textSprite->GetAABB().GetLengths()));
+		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
+		SetPreferredSize(textSize);
+
+		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
+		textNode.SetPosition(paddingWidth, GetHeight() - paddingHeight - textSize.y);
 	}
 }
