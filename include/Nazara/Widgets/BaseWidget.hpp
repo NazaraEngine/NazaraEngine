@@ -19,10 +19,13 @@
 
 namespace Nz
 {
+	class BaseWidgetStyle;
 	class Canvas;
+	class WidgetTheme;
 
-	class NAZARA_WIDGETS_API BaseWidget : public Nz::Node
+	class NAZARA_WIDGETS_API BaseWidget : public Node
 	{
+		friend BaseWidgetStyle;
 		friend Canvas;
 
 		public:
@@ -70,6 +73,7 @@ namespace Nz
 			inline const Rectf& GetRenderingRect() const;
 
 			inline Vector2f GetSize() const;
+			const std::shared_ptr<WidgetTheme>& GetTheme() const;
 			inline float GetWidth() const;
 			inline std::size_t GetWidgetChildCount() const;
 
@@ -118,6 +122,7 @@ namespace Nz
 			Rectf GetScissorRect() const;
 
 			virtual bool IsFocusable() const;
+			inline bool IsInside(float x, float y) const;
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
 			virtual bool OnKeyPressed(const WindowEvent::KeyEvent& key);
@@ -137,7 +142,7 @@ namespace Nz
 			virtual void ShowChildren(bool show);
 
 		private:
-			inline BaseWidget();
+			inline BaseWidget(std::shared_ptr<WidgetTheme> theme);
 
 			void DestroyChild(BaseWidget* widget);
 			void DestroyChildren();
@@ -158,6 +163,7 @@ namespace Nz
 			std::optional<entt::entity> m_backgroundEntity;
 			std::size_t m_canvasIndex;
 			std::shared_ptr<Sprite> m_backgroundSprite;
+			std::shared_ptr<WidgetTheme> m_theme;
 			std::vector<WidgetEntity> m_entities;
 			std::vector<std::unique_ptr<BaseWidget>> m_children;
 			entt::registry* m_registry;

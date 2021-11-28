@@ -10,8 +10,9 @@
 
 namespace Nz
 {
-	inline BaseWidget::BaseWidget() :
+	inline BaseWidget::BaseWidget(std::shared_ptr<WidgetTheme> theme) :
 	m_canvasIndex(InvalidCanvasIndex),
+	m_theme(std::move(theme)),
 	m_registry(nullptr),
 	m_canvas(nullptr),
 	m_backgroundColor(Color(230, 230, 230, 255)),
@@ -164,6 +165,11 @@ namespace Nz
 		return Vector2f(GetWidth(), GetHeight());
 	}
 
+	inline const std::shared_ptr<WidgetTheme>& BaseWidget::GetTheme() const
+	{
+		return m_theme;
+	}
+
 	inline float BaseWidget::GetWidth() const
 	{
 		return m_size.x;
@@ -177,6 +183,12 @@ namespace Nz
 	inline void BaseWidget::Hide()
 	{
 		return Show(false);
+	}
+
+	inline bool BaseWidget::IsInside(float x, float y) const
+	{
+		Rectf rect(0.f, 0.f, m_size.x, m_size.y);
+		return rect.Contains(x, y);
 	}
 
 	inline bool BaseWidget::IsVisible() const

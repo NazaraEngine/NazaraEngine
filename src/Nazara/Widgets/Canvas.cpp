@@ -3,11 +3,40 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/DefaultWidgetTheme.hpp>
 #include <limits>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
+	Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask) :
+	BaseWidget(std::make_shared<DefaultWidgetTheme>()),
+	m_renderMask(renderMask),
+	m_keyboardOwner(InvalidCanvasIndex),
+	m_hoveredWidget(InvalidCanvasIndex),
+	m_mouseOwner(InvalidCanvasIndex),
+	m_registry(registry),
+	m_cursorController(cursorController)
+	{
+		m_canvas = this;
+		m_widgetParent = nullptr;
+
+		// Register ourselves as a widget to handle cursor change
+		RegisterToCanvas();
+
+		// Connect to every meaningful event
+		m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, this, &Canvas::OnEventKeyPressed);
+		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnEventKeyReleased);
+		m_mouseButtonPressedSlot.Connect(eventHandler.OnMouseButtonPressed, this, &Canvas::OnEventMouseButtonPressed);
+		m_mouseButtonReleasedSlot.Connect(eventHandler.OnMouseButtonReleased, this, &Canvas::OnEventMouseButtonRelease);
+		m_mouseEnteredSlot.Connect(eventHandler.OnMouseEntered, this, &Canvas::OnEventMouseEntered);
+		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnEventMouseLeft);
+		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
+		m_mouseWheelMovedSlot.Connect(eventHandler.OnMouseWheelMoved, this, &Canvas::OnEventMouseWheelMoved);
+		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnEventTextEntered);
+		m_textEditedSlot.Connect(eventHandler.OnTextEdited, this, &Canvas::OnEventTextEdited);
+	}
+
 	std::size_t Canvas::RegisterWidget(BaseWidget* widget)
 	{
 		WidgetEntry box;

@@ -34,11 +34,13 @@
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Config.hpp>
+#include <Nazara/Widgets/DefaultWidgetTheme.hpp>
 #include <Nazara/Widgets/Enums.hpp>
 #include <Nazara/Widgets/ImageWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Widgets/RichTextAreaWidget.hpp>
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
+#include <Nazara/Widgets/WidgetTheme.hpp>
 
 #endif // NAZARA_GLOBAL_WIDGETS_HPP

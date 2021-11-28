@@ -8,33 +8,6 @@
 
 namespace Nz
 {
-	inline Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask) :
-	m_renderMask(renderMask),
-	m_keyboardOwner(InvalidCanvasIndex),
-	m_hoveredWidget(InvalidCanvasIndex),
-	m_mouseOwner(InvalidCanvasIndex),
-	m_registry(registry),
-	m_cursorController(cursorController)
-	{
-		m_canvas = this;
-		m_widgetParent = nullptr;
-
-		// Register ourselves as a widget to handle cursor change
-		RegisterToCanvas();
-
-		// Connect to every meaningful event
-		m_keyPressedSlot.Connect(eventHandler.OnKeyPressed, this, &Canvas::OnEventKeyPressed);
-		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnEventKeyReleased);
-		m_mouseButtonPressedSlot.Connect(eventHandler.OnMouseButtonPressed, this, &Canvas::OnEventMouseButtonPressed);
-		m_mouseButtonReleasedSlot.Connect(eventHandler.OnMouseButtonReleased, this, &Canvas::OnEventMouseButtonRelease);
-		m_mouseEnteredSlot.Connect(eventHandler.OnMouseEntered, this, &Canvas::OnEventMouseEntered);
-		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnEventMouseLeft);
-		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
-		m_mouseWheelMovedSlot.Connect(eventHandler.OnMouseWheelMoved, this, &Canvas::OnEventMouseWheelMoved);
-		m_textEnteredSlot.Connect(eventHandler.OnTextEntered, this, &Canvas::OnEventTextEntered);
-		m_textEditedSlot.Connect(eventHandler.OnTextEdited, this, &Canvas::OnEventTextEdited);
-	}
-
 	inline Canvas::~Canvas()
 	{
 		// Destroy children explicitly because they signal us when getting destroyed, and that can't happen after our own destruction
