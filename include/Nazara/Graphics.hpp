@@ -60,6 +60,7 @@
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
+#include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
