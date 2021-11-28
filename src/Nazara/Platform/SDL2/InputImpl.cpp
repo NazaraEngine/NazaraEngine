@@ -3,10 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/SDL2/InputImpl.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <SDL2/SDL_clipboard.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
@@ -14,7 +16,26 @@
 
 namespace Nz
 {
-	std::string EventImpl::GetKeyName(Keyboard::Scancode key)
+	ClipboardContentType InputImpl::GetClipboardContentType()
+	{
+		if (SDL_HasClipboardText())
+			return ClipboardContentType::Text;
+
+		return ClipboardContentType::Unknown;
+	}
+
+	std::string InputImpl::GetClipboardString()
+	{
+		char* str = SDL_GetClipboardText();
+		if (!str)
+			return {};
+
+		CallOnExit freeStr([=] { SDL_free(str); });
+
+		return std::string(str);
+	}
+
+	std::string InputImpl::GetKeyName(Keyboard::Scancode key)
 	{
 		SDL_Scancode scancode = SDLHelper::ToSDL(key);
 
@@ -27,7 +48,7 @@ namespace Nz
 		return name;
 	}
 
-	std::string EventImpl::GetKeyName(Keyboard::VKey key)
+	std::string InputImpl::GetKeyName(Keyboard::VKey key)
 	{
 		SDL_Keycode vkey = SDLHelper::ToSDL(key);
 
@@ -40,7 +61,7 @@ namespace Nz
 		return name;
 	}
 
-	Vector2i EventImpl::GetMousePosition()
+	Vector2i InputImpl::GetMousePosition()
 	{
 		Vector2i pos;
 		SDL_GetGlobalMouseState(&pos.x, &pos.y);
@@ -48,7 +69,7 @@ namespace Nz
 		return pos;
 	}
 
-	Vector2i EventImpl::GetMousePosition(const Window& relativeTo)
+	Vector2i InputImpl::GetMousePosition(const Window& relativeTo)
 	{
 		auto windowPos = relativeTo.GetPosition();
 		auto mousePos = GetMousePosition();
@@ -56,17 +77,17 @@ namespace Nz
 		return mousePos - windowPos;
 	}
 
-	bool EventImpl::IsKeyPressed(Keyboard::Scancode key)
+	bool InputImpl::IsKeyPressed(Keyboard::Scancode key)
 	{
 		return SDL_GetKeyboardState(nullptr)[SDLHelper::ToSDL(key)];
 	}
 
-	bool EventImpl::IsKeyPressed(Keyboard::VKey key)
+	bool InputImpl::IsKeyPressed(Keyboard::VKey key)
 	{
 		return IsKeyPressed(ToScanCode(key));
 	}
 
-	bool EventImpl::IsMouseButtonPressed(Mouse::Button button)
+	bool InputImpl::IsMouseButtonPressed(Mouse::Button button)
 	{
 		static int vButtons[Mouse::Max + 1] = {
 			SDL_BUTTON_LMASK,    // Button::Left
@@ -79,18 +100,23 @@ namespace Nz
 		return (SDL_GetGlobalMouseState(nullptr, nullptr) & vButtons[button]) != 0;
 	}
 
-	bool EventImpl::SetRelativeMouseMode(bool relativeMouseMode)
+	void InputImpl::SetClipboardString(const std::string& str)
+	{
+		SDL_SetClipboardText(str.c_str());
+	}
+
+	bool InputImpl::SetRelativeMouseMode(bool relativeMouseMode)
 	{
 		return SDL_SetRelativeMouseMode((relativeMouseMode) ? SDL_TRUE : SDL_FALSE) == 0;
 	}
 
-	void EventImpl::SetMousePosition(int x, int y)
+	void InputImpl::SetMousePosition(int x, int y)
 	{
 		if (SDL_WarpMouseGlobal(x, y) != 0)
 			NazaraWarning(SDL_GetError());
 	}
 
-	void EventImpl::SetMousePosition(int x, int y, const Window& relativeTo)
+	void InputImpl::SetMousePosition(int x, int y, const Window& relativeTo)
 	{
 		SDL_Window* handle = static_cast<const WindowImpl*>(relativeTo.GetImpl())->GetHandle();
 		if (handle)
@@ -99,22 +125,22 @@ namespace Nz
 			NazaraError("Invalid window handle");
 	}
 
-	void EventImpl::StartTextInput()
+	void InputImpl::StartTextInput()
 	{
 		SDL_StartTextInput();
 	}
 
-	void EventImpl::StopTextInput()
+	void InputImpl::StopTextInput()
 	{
 		SDL_StopTextInput();
 	}
 
-	Keyboard::Scancode EventImpl::ToScanCode(Keyboard::VKey key)
+	Keyboard::Scancode InputImpl::ToScanCode(Keyboard::VKey key)
 	{
 		return SDLHelper::FromSDL(SDL_GetScancodeFromKey(SDLHelper::ToSDL(key)));
 	}
 
-	Keyboard::VKey EventImpl::ToVirtualKey(Keyboard::Scancode scancode)
+	Keyboard::VKey InputImpl::ToVirtualKey(Keyboard::Scancode scancode)
 	{
 		return SDLHelper::FromSDL(SDL_GetKeyFromScancode(SDLHelper::ToSDL(scancode)));
 	}
