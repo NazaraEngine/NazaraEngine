@@ -194,7 +194,6 @@ namespace Nz
 			Nz::TextureInfo texInfo;
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
 			texInfo.pixelFormat = PixelFormat::L8;
-			texInfo.type = ImageType::E2D;
 
 			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 

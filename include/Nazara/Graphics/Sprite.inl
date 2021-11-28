@@ -41,7 +41,13 @@ namespace Nz
 	{
 		assert(material);
 
-		m_material = std::move(material);
+		if (m_material != material)
+		{
+			OnMaterialInvalidated(this, 0, material);
+			m_material = std::move(material);
+
+			OnElementInvalidated(this);
+		}
 	}
 
 	inline void Sprite::SetSize(const Vector2f& size)
@@ -68,7 +74,7 @@ namespace Nz
 	{
 		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 
-		Vector3f origin = Vector3f::Zero();
+		Vector3f origin = Vector3f::Zero(); //< TODO
 		Boxf aabb;
 
 		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::LeftBottom)];

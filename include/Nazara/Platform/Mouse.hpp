@@ -42,6 +42,8 @@ namespace Nz
 			static void SetPosition(const Vector2i& position, const Window& relativeTo, bool ignoreEvent = true);
 			static void SetPosition(int x, int y);
 			static void SetPosition(int x, int y, const Window& relativeTo, bool ignoreEvent = true);
+
+			static constexpr std::size_t ButtonCount = static_cast<std::size_t>(Max + 1);
 	};
 }
 

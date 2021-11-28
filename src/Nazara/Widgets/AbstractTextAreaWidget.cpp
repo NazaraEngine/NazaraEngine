@@ -120,6 +120,11 @@ namespace Nz
 		return Vector2ui::Zero();
 	}
 
+	bool AbstractTextAreaWidget::IsFocusable() const
+	{
+		return !m_readOnly;
+	}
+
 	void AbstractTextAreaWidget::Layout()
 	{
 		BaseWidget::Layout();
@@ -133,11 +138,6 @@ namespace Nz
 		}
 
 		RefreshCursor();
-	}
-
-	bool AbstractTextAreaWidget::IsFocusable() const
-	{
-		return !m_readOnly;
 	}
 
 	void AbstractTextAreaWidget::OnFocusLost()
@@ -367,7 +367,7 @@ namespace Nz
 			m_isMouseButtonDown = false;
 	}
 
-	void AbstractTextAreaWidget::OnMouseMoved(int x, int y, int deltaX, int deltaY)
+	void AbstractTextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
 	{
 		if (m_isMouseButtonDown)
 			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x), float(y)));

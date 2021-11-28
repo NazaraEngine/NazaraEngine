@@ -75,6 +75,6 @@ namespace Nz
 		}
 
 		// Couldn't get material pass or texture
-		return Vector3ui::Zero();
+		return Vector3ui::Unit(); //< prevents division by zero
 	}
 }

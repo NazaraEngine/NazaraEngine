@@ -246,6 +246,7 @@ namespace Nz
 
 			if (viewerData.rebuildDepthPrepass)
 			{
+				renderFrame.PushForRelease(std::move(viewerData.depthPrepassRenderElements));
 				viewerData.depthPrepassRenderElements.clear();
 
 				for (const auto& renderableData : m_visibleRenderables)
@@ -268,6 +269,7 @@ namespace Nz
 
 			if (viewerData.rebuildForwardPass)
 			{
+				renderFrame.PushForRelease(std::move(viewerData.forwardRenderElements));
 				viewerData.forwardRenderElements.clear();
 
 				for (const auto& renderableData : m_visibleRenderables)

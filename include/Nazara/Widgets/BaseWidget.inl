@@ -16,7 +16,7 @@ namespace Nz
 	m_canvas(nullptr),
 	m_backgroundColor(Color(230, 230, 230, 255)),
 	m_renderingRect(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()),
-	m_cursor(Nz::SystemCursor::Default),
+	m_cursor(SystemCursor::Default),
 	m_maximumSize(std::numeric_limits<float>::infinity()),
 	m_minimumSize(0.f),
 	m_preferredSize(-1),
@@ -47,8 +47,8 @@ namespace Nz
 	{
 		NazaraAssert(m_widgetParent, "Widget has no parent");
 
-		Nz::Vector2f parentSize = m_widgetParent->GetSize();
-		Nz::Vector2f mySize = GetSize();
+		Vector2f parentSize = m_widgetParent->GetSize();
+		Vector2f mySize = GetSize();
 		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
 	}
 
@@ -56,23 +56,23 @@ namespace Nz
 	{
 		NazaraAssert(m_widgetParent, "Widget has no parent");
 
-		Nz::Vector2f parentSize = m_widgetParent->GetSize();
-		Nz::Vector2f mySize = GetSize();
-		SetPosition((parentSize.x - mySize.x) / 2.f, GetPosition(Nz::CoordSys::Local).y);
+		Vector2f parentSize = m_widgetParent->GetSize();
+		Vector2f mySize = GetSize();
+		SetPosition((parentSize.x - mySize.x) / 2.f, GetPosition(CoordSys::Local).y);
 	}
 
 	inline void BaseWidget::CenterVertical()
 	{
 		NazaraAssert(m_widgetParent, "Widget has no parent");
 
-		Nz::Vector2f parentSize = m_widgetParent->GetSize();
-		Nz::Vector2f mySize = GetSize();
-		SetPosition(GetPosition(Nz::CoordSys::Local).x, (parentSize.y - mySize.y) / 2.f);
+		Vector2f parentSize = m_widgetParent->GetSize();
+		Vector2f mySize = GetSize();
+		SetPosition(GetPosition(CoordSys::Local).x, (parentSize.y - mySize.y) / 2.f);
 	}
 
 	inline void BaseWidget::ClearRenderingRect()
 	{
-		SetRenderingRect(Nz::Rectf(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()));
+		SetRenderingRect(Rectf(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()));
 	}
 
 	template<typename F>
@@ -99,7 +99,7 @@ namespace Nz
 		return m_canvas;
 	}
 
-	inline Nz::SystemCursor BaseWidget::GetCursor() const
+	inline SystemCursor BaseWidget::GetCursor() const
 	{
 		return m_cursor;
 	}
@@ -114,7 +114,7 @@ namespace Nz
 		return m_maximumSize.y;
 	}
 
-	inline Nz::Vector2f BaseWidget::GetMaximumSize() const
+	inline Vector2f BaseWidget::GetMaximumSize() const
 	{
 		return m_maximumSize;
 	}
@@ -129,7 +129,7 @@ namespace Nz
 		return m_minimumSize.y;
 	}
 
-	inline Nz::Vector2f BaseWidget::GetMinimumSize() const
+	inline Vector2f BaseWidget::GetMinimumSize() const
 	{
 		return m_minimumSize;
 	}
@@ -144,7 +144,7 @@ namespace Nz
 		return m_preferredSize.y;
 	}
 
-	inline Nz::Vector2f BaseWidget::GetPreferredSize() const
+	inline Vector2f BaseWidget::GetPreferredSize() const
 	{
 		return m_preferredSize;
 	}
@@ -154,14 +154,14 @@ namespace Nz
 		return m_preferredSize.x;
 	}
 
-	inline const Nz::Rectf& BaseWidget::GetRenderingRect() const
+	inline const Rectf& BaseWidget::GetRenderingRect() const
 	{
 		return m_renderingRect;
 	}
 
-	inline Nz::Vector2f BaseWidget::GetSize() const
+	inline Vector2f BaseWidget::GetSize() const
 	{
-		return Nz::Vector2f(GetWidth(), GetHeight());
+		return Vector2f(GetWidth(), GetHeight());
 	}
 
 	inline float BaseWidget::GetWidth() const
@@ -190,7 +190,7 @@ namespace Nz
 		SetMinimumHeight(fixedHeight);
 	}
 
-	inline void BaseWidget::SetFixedSize(const Nz::Vector2f& fixedSize)
+	inline void BaseWidget::SetFixedSize(const Vector2f& fixedSize)
 	{
 		SetMaximumSize(fixedSize);
 		SetMinimumSize(fixedSize);
@@ -204,24 +204,24 @@ namespace Nz
 
 	inline void BaseWidget::SetMaximumHeight(float maximumHeight)
 	{
-		Nz::Vector2f maximumSize = GetMaximumSize();
+		Vector2f maximumSize = GetMaximumSize();
 		maximumSize.y = maximumHeight;
 
 		SetMaximumSize(maximumSize);
 	}
 
-	inline void BaseWidget::SetMaximumSize(const Nz::Vector2f& maximumSize)
+	inline void BaseWidget::SetMaximumSize(const Vector2f& maximumSize)
 	{
 		m_maximumSize = maximumSize;
 
-		Nz::Vector2f size = GetSize();
+		Vector2f size = GetSize();
 		if (size.x > m_maximumSize.x || size.y > m_maximumSize.y)
 			Resize(size); //< Will clamp automatically
 	}
 
 	inline void BaseWidget::SetMaximumWidth(float maximumWidth)
 	{
-		Nz::Vector2f maximumSize = GetMaximumSize();
+		Vector2f maximumSize = GetMaximumSize();
 		maximumSize.x = maximumWidth;
 
 		SetMaximumSize(maximumSize);
@@ -229,30 +229,30 @@ namespace Nz
 
 	inline void BaseWidget::SetMinimumHeight(float minimumHeight)
 	{
-		Nz::Vector2f minimumSize = GetMinimumSize();
+		Vector2f minimumSize = GetMinimumSize();
 		minimumSize.y = minimumHeight;
 
 		SetMinimumSize(minimumSize);
 	}
 
-	inline void BaseWidget::SetMinimumSize(const Nz::Vector2f& minimumSize)
+	inline void BaseWidget::SetMinimumSize(const Vector2f& minimumSize)
 	{
 		m_minimumSize = minimumSize;
 
-		Nz::Vector2f size = GetSize();
+		Vector2f size = GetSize();
 		if (size.x < m_minimumSize.x || size.y < m_minimumSize.y)
 			Resize(size); //< Will clamp automatically
 	}
 
 	inline void BaseWidget::SetMinimumWidth(float minimumWidth)
 	{
-		Nz::Vector2f minimumSize = GetMinimumSize();
+		Vector2f minimumSize = GetMinimumSize();
 		minimumSize.x = minimumWidth;
 
 		SetMinimumSize(minimumSize);
 	}
 
-	inline void BaseWidget::SetPreferredSize(const Nz::Vector2f& preferredSize)
+	inline void BaseWidget::SetPreferredSize(const Vector2f& preferredSize)
 	{
 		m_preferredSize = preferredSize;
 
@@ -276,7 +276,7 @@ namespace Nz
 		return m_canvas && m_canvasIndex != InvalidCanvasIndex;
 	}
 
-	inline void BaseWidget::NotifyParentResized(const Nz::Vector2f& newSize)
+	inline void BaseWidget::NotifyParentResized(const Vector2f& newSize)
 	{
 		for (const auto& widgetPtr : m_children)
 			widgetPtr->OnParentResized(newSize);
