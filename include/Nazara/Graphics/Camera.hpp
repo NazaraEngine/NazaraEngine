@@ -31,6 +31,7 @@ namespace Nz
 			const Color& GetClearColor() const override;
 			inline DegreeAnglef GetFOV() const;
 			UInt32 GetRenderMask() const override;
+			inline Int32 GetRenderOrder() const;
 			const RenderTarget& GetRenderTarget() override;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTargetRegion() const;
@@ -44,6 +45,7 @@ namespace Nz
 			inline void UpdateFOV(DegreeAnglef fov);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
+			inline void UpdateRenderOrder(Int32 renderOrder);
 			inline void UpdateSize(const Vector2f& size);
 			void UpdateTarget(const RenderTarget* framebuffer);
 			inline void UpdateTargetRegion(const Rectf& targetRegion);
@@ -65,6 +67,7 @@ namespace Nz
 			const RenderTarget* m_renderTarget;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
+			Int32 m_renderOrder;
 			ProjectionType m_projectionType;
 			Rectf m_targetRegion;
 			Recti m_viewport;

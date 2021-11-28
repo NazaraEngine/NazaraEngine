@@ -165,6 +165,7 @@ int main()
 	{
 		registry.emplace<Nz::NodeComponent>(viewer2D);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateRenderOrder(1);
 		cameraComponent.UpdateRenderMask(2);
 	}
 
