@@ -29,7 +29,7 @@ namespace Nz
 	* This will also register the widget to the canvas owning the top-most widget.
 	*/
 	BaseWidget::BaseWidget(BaseWidget* parent) :
-	BaseWidget()
+	BaseWidget(parent->GetTheme())
 	{
 		NazaraAssert(parent, "Invalid parent");
 		NazaraAssert(parent->GetCanvas(), "Parent has no canvas");
@@ -46,6 +46,15 @@ namespace Nz
 	 */
 	BaseWidget::~BaseWidget()
 	{
+		if (m_registry)
+		{
+			for (WidgetEntity& entity : m_entities)
+			{
+				if (m_registry->valid(entity.handle))
+					m_registry->destroy(entity.handle);
+			}
+		}
+
 		UnregisterFromCanvas();
 	}
 

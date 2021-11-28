@@ -6,7 +6,9 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
+#include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
+#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
@@ -15,31 +17,20 @@
 namespace Nz
 {
 	ButtonWidget::ButtonWidget(BaseWidget* parent) :
-	BaseWidget(parent),
-	m_color { 74, 74, 74 },
-	m_cornerColor { 180, 180, 180 },
-	m_hoverColor { 128, 128, 128 },
-	m_hoverCornerColor { 180, 180, 180 },
-	m_pressColor { 180, 180, 180 },
-	m_pressCornerColor { 74, 74, 74 }
+	BaseWidget(parent)
 	{
-		entt::registry& registry = GetRegistry();
-		UInt32 renderMask = GetCanvas()->GetRenderMask();
+		m_style = GetTheme()->CreateStyle(this);
 
-		m_gradientSprite = std::make_shared<Sprite>(Widgets::Instance()->GetOpaqueMaterial());
-		m_gradientSprite->SetColor(m_color);
-		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_cornerColor);
-		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_cornerColor);
+		Layout();
+	}
 
-		m_gradientEntity = CreateEntity();
-		registry.emplace<NodeComponent>(m_gradientEntity).SetParent(this);
-		registry.emplace<GraphicsComponent>(m_gradientEntity).AttachRenderable(m_gradientSprite, renderMask);
+	void ButtonWidget::UpdateText(const AbstractTextDrawer& drawer)
+	{
+		m_style->UpdateText(drawer);
 
-		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
-
-		m_textEntity = CreateEntity();
-		registry.emplace<NodeComponent>(m_textEntity).SetParent(this);
-		registry.emplace<GraphicsComponent>(m_textEntity).AttachRenderable(m_textSprite, renderMask);
+		Vector2f size(drawer.GetBounds().GetLengths());
+		SetMinimumSize(size);
+		SetPreferredSize(size + Vector2f(20.f, 10.f));
 
 		Layout();
 	}
@@ -47,49 +38,35 @@ namespace Nz
 	void ButtonWidget::Layout()
 	{
 		BaseWidget::Layout();
-
-		Vector2f size = GetSize();
-		m_gradientSprite->SetSize(size);
-
-		entt::registry& registry = GetRegistry();
-
-		Boxf textBox = m_textSprite->GetAABB();
-		registry.get<NodeComponent>(m_textEntity).SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
+		m_style->Layout(GetSize());
 	}
 
 	void ButtonWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
-		{
-			m_gradientSprite->SetColor(m_pressColor);
-			m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_pressCornerColor);
-			m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_pressCornerColor);
-		}
+			m_style->OnPress();
 	}
 
-	void ButtonWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button button)
+	void ButtonWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
-			m_gradientSprite->SetColor(m_hoverColor);
-			m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_hoverCornerColor);
-			m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_hoverCornerColor);
+			m_style->OnRelease();
 
-			OnButtonTrigger(this);
+			// If user clicks inside button and holds it outside, a release mouse button event will be triggered outside of the widget
+			// we don't want this to trigger the button, so double-check
+			if (IsInside(x, y))
+				OnButtonTrigger(this);
 		}
 	}
 
 	void ButtonWidget::OnMouseEnter()
 	{
-		m_gradientSprite->SetColor(m_hoverColor);
-		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_hoverCornerColor);
-		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_hoverCornerColor);
+		m_style->OnHoverBegin();
 	}
 
 	void ButtonWidget::OnMouseExit()
 	{
-		m_gradientSprite->SetColor(m_color);
-		m_gradientSprite->SetCornerColor(RectCorner::LeftBottom, m_cornerColor);
-		m_gradientSprite->SetCornerColor(RectCorner::RightBottom, m_cornerColor);
+		m_style->OnHoverEnd();
 	}
 }

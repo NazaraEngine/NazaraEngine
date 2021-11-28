@@ -20,7 +20,7 @@ namespace Nz
 		friend BaseWidget;
 
 		public:
-			inline Canvas(entt::registry& registry, EventHandler& eventHandler, CursorControllerHandle cursorController, UInt32 renderMask);
+			Canvas(entt::registry& registry, EventHandler& eventHandler, CursorControllerHandle cursorController, UInt32 renderMask);
 			Canvas(const Canvas&) = delete;
 			Canvas(Canvas&&) = delete;
 			inline ~Canvas();
