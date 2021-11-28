@@ -16,6 +16,7 @@ namespace Nz
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
 	m_viewport(0, 0, 0, 0),
 	m_renderMask(0xFFFFFFFF),
+	m_renderOrder(0),
 	m_size(-1.f, -1.f),
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
@@ -31,6 +32,7 @@ namespace Nz
 	m_targetRegion(camera.m_targetRegion),
 	m_viewport(camera.m_viewport),
 	m_renderMask(camera.m_renderMask),
+	m_renderOrder(camera.m_renderOrder),
 	m_size(camera.m_size),
 	m_aspectRatio(camera.m_aspectRatio),
 	m_zFar(camera.m_zFar),
@@ -47,6 +49,7 @@ namespace Nz
 	m_targetRegion(camera.m_targetRegion),
 	m_viewport(camera.m_viewport),
 	m_renderMask(camera.m_renderMask),
+	m_renderOrder(camera.m_renderOrder),
 	m_size(camera.m_size),
 	m_aspectRatio(camera.m_aspectRatio),
 	m_zFar(camera.m_zFar),
@@ -63,6 +66,11 @@ namespace Nz
 	inline DegreeAnglef Camera::GetFOV() const
 	{
 		return m_fov;
+	}
+
+	inline Int32 Camera::GetRenderOrder() const
+	{
+		return m_renderOrder;
 	}
 
 	inline const Vector2f& Camera::GetSize() const
@@ -151,6 +159,13 @@ namespace Nz
 	inline void Camera::UpdateRenderMask(UInt32 renderMask)
 	{
 		m_renderMask = renderMask;
+
+		// TODO: Signal RenderTechnique to regenerate commandbuffers
+	}
+
+	inline void Camera::UpdateRenderOrder(Int32 renderOrder)
+	{
+		m_renderOrder = renderOrder;
 
 		// TODO: Signal RenderTechnique to regenerate commandbuffers
 	}

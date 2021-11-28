@@ -125,9 +125,11 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance)
+	void ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
 	{
-		m_viewers.emplace(viewerInstance, ViewerData{});
+		auto& viewerData = m_viewers.emplace(viewerInstance, ViewerData{}).first->second;
+		viewerData.renderOrder = renderOrder;
+
 		m_invalidatedViewerInstances.insert(viewerInstance);
 		m_rebuildFrameGraph = true;
 	}
@@ -366,7 +368,12 @@ namespace Nz
 			Recti renderRegion(0, 0, frameSize.x, frameSize.y);
 
 			const RenderTarget& renderTarget = *renderTargetPtr;
-			const auto& viewers = viewerDataVec;
+			auto& viewers = viewerDataVec;
+
+			std::sort(viewers.begin(), viewers.end(), [](const ViewerData* lhs, const ViewerData* rhs)
+			{
+				return lhs->renderOrder < rhs->renderOrder;
+			});
 
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{

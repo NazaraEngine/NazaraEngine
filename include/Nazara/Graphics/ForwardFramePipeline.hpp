@@ -40,7 +40,7 @@ namespace Nz
 			void InvalidateWorldInstance(WorldInstance* worldInstance) override;
 
 			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) override;
-			void RegisterViewer(AbstractViewer* viewerInstance) override;
+			void RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
 
 			void Render(RenderFrame& renderFrame) override;
 
@@ -86,6 +86,7 @@ namespace Nz
 				std::vector<std::unique_ptr<RenderElement>> depthPrepassRenderElements;
 				std::vector<std::unique_ptr<RenderElement>> forwardRenderElements;
 				std::vector<std::unique_ptr<ElementRendererData>> elementRendererData;
+				Int32 renderOrder = 0;
 				RenderQueueRegistry depthPrepassRegistry;
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> depthPrepassRenderQueue;

@@ -94,7 +94,7 @@ int main()
 	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
 	Nz::ForwardFramePipeline framePipeline;
-	framePipeline.RegisterViewer(&camera);
+	framePipeline.RegisterViewer(&camera, 0);
 	framePipeline.RegisterInstancedDrawable(modelInstance, &model, 0xFFFFFFFF);
 	framePipeline.RegisterInstancedDrawable(modelInstance2, &model, 0xFFFFFFFF);
 
