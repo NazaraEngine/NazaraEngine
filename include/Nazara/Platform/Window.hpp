@@ -31,7 +31,7 @@ namespace Nz
 	class NAZARA_PLATFORM_API Window
 	{
 		friend WindowImpl;
-		friend class EventImpl;
+		friend class InputImpl;
 		friend class Mouse;
 		friend class Platform;
 

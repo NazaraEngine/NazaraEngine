@@ -15,7 +15,7 @@ namespace Nz
 {
 	/*!
 	* \ingroup math
-	* \class Nz::Vector2
+	* \class Vector2
 	* \brief Math class that represents an element of the two dimensional vector space
 	*/
 
@@ -443,10 +443,7 @@ namespace Nz
 	template<typename T>
 	std::string Vector2<T>::ToString() const
 	{
-		std::ostringstream ss;
-		ss << *this;
-
-		return ss.str();
+		return "Vector2(" + std::to_string(x) + ", " + std::to_string(y) + ')';
 	}
 
 	/*!

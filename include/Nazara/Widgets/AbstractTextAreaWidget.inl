@@ -213,6 +213,9 @@ namespace Nz
 		if (toPosition.y < fromPosition.y || (toPosition.y == fromPosition.y && toPosition.x < fromPosition.x))
 			std::swap(fromPosition, toPosition);
 
+		fromPosition = NormalizeCursorPosition(fromPosition);
+		toPosition = NormalizeCursorPosition(toPosition);
+
 		if (m_cursorPositionBegin != fromPosition || m_cursorPositionEnd != toPosition)
 		{
 			OnTextAreaSelection(this, &fromPosition, &toPosition);

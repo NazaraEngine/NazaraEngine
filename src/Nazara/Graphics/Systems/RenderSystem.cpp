@@ -43,7 +43,7 @@ namespace Nz
 			CameraComponent& entityCamera = registry.get<CameraComponent>(entity);
 			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
 
-			m_pipeline->RegisterViewer(&entityCamera);
+			m_pipeline->RegisterViewer(&entityCamera, entityCamera.GetRenderOrder());
 
 			m_invalidatedCameraNode.insert(entity);
 

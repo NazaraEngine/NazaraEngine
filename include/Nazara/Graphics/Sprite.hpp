@@ -29,8 +29,8 @@ namespace Nz
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const;
-			std::size_t GetMaterialCount() const;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			std::size_t GetMaterialCount() const override;
 			inline const Rectf& GetTextureCoords() const;
 			Vector3ui GetTextureSize() const;
 

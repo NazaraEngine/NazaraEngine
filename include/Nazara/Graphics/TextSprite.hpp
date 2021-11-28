@@ -32,8 +32,8 @@ namespace Nz
 
 			inline void Clear();
 
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i) const;
-			std::size_t GetMaterialCount() const;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			std::size_t GetMaterialCount() const override;
 
 			inline void SetMaterial(std::shared_ptr<Material> material);
 

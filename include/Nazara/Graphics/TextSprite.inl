@@ -17,7 +17,15 @@ namespace Nz
 
 	inline void TextSprite::SetMaterial(std::shared_ptr<Material> material)
 	{
-		m_material = std::move(material);
+		assert(material);
+
+		if (m_material != material)
+		{
+			OnMaterialInvalidated(this, 0, material);
+			m_material = std::move(material);
+
+			OnElementInvalidated(this);
+		}
 	}
 }
 

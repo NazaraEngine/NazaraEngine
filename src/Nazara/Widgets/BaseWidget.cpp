@@ -187,13 +187,8 @@ namespace Nz
 			auto& registry = GetRegistry();
 			for (WidgetEntity& entity : m_entities)
 			{
-				if (entity.isEnabled)
-				{
-					if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(entity.handle))
-						gfx->Show(show);
-
-					entity.isEnabled = true;
-				}
+				if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(entity.handle))
+					gfx->Show(show);
 			}
 
 			ShowChildren(show);

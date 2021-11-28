@@ -11,6 +11,15 @@
 
 namespace Nz
 {
+	enum class ClipboardContentType
+	{
+		Unknown = -1,
+
+		Text,
+
+		Max = Text
+	};
+
 	enum class SystemCursor
 	{
 		Crosshair,

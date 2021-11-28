@@ -42,7 +42,6 @@ namespace Nz
 			inline EchoMode GetEchoMode() const;
 			inline std::size_t GetGlyphIndex() const;
 			inline std::size_t GetGlyphIndex(const Vector2ui& cursorPosition) const;
-			inline const std::string& GetText() const;
 
 			Vector2ui GetHoveredGlyph(float x, float y) const;
 
