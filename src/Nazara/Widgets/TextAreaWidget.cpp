@@ -5,6 +5,7 @@
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
+#include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Debug.hpp>
@@ -108,6 +109,17 @@ namespace Nz
 
 			SetCursorPosition(glyphPosition + ComputeCharacterCount(text));
 		}
+	}
+
+	void TextAreaWidget::CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd)
+	{
+		std::size_t glyphCount = ComputeCharacterCount(m_text);
+		assert(glyphCount > 0);
+
+		std::size_t startIndex = GetCharacterPosition(m_text, GetGlyphIndex(selectionBegin));
+		std::size_t endIndex = GetCharacterPosition(m_text, std::min(GetGlyphIndex(selectionEnd), glyphCount - 1));
+
+		Clipboard::SetString(m_text.substr(startIndex, endIndex - startIndex));
 	}
 
 	AbstractTextDrawer& TextAreaWidget::GetTextDrawer()
@@ -214,6 +226,21 @@ namespace Nz
 			else
 				SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
 		}
+	}
+
+	void TextAreaWidget::PasteFromClipboard(const Vector2ui& targetPosition)
+	{
+		std::size_t glyphCount = ComputeCharacterCount(m_text);
+		std::size_t targetIndex = GetCharacterPosition(m_text, std::min(GetGlyphIndex(targetPosition), glyphCount));
+
+		std::string clipboardString = Clipboard::GetString();
+		if (clipboardString.empty())
+			return;
+
+		m_text.insert(targetIndex, clipboardString);
+		UpdateDisplayText();
+
+		SetCursorPosition(targetIndex + ComputeCharacterCount(clipboardString));
 	}
 
 	void TextAreaWidget::UpdateDisplayText()

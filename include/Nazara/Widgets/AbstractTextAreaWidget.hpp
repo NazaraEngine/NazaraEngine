@@ -73,10 +73,13 @@ namespace Nz
 
 			NazaraSignal(OnTextAreaCursorMove, const AbstractTextAreaWidget* /*textArea*/, Vector2ui* /*newCursorPosition*/);
 			NazaraSignal(OnTextAreaKeyBackspace, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyCopy, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyCut, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyDown, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyEnd, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyHome, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyLeft, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
+			NazaraSignal(OnTextAreaKeyPaste, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyReturn, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyRight, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
 			NazaraSignal(OnTextAreaKeyUp, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);
@@ -86,13 +89,15 @@ namespace Nz
 			virtual AbstractTextDrawer& GetTextDrawer() = 0;
 			virtual const AbstractTextDrawer& GetTextDrawer() const = 0;
 
-			void Layout() override;
+			virtual void CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd) = 0;
 
 			virtual void HandleIndentation(bool add) = 0;
 			virtual void HandleSelectionIndentation(bool add) = 0;
 			virtual void HandleWordCursorMove(bool left) = 0;
 
 			bool IsFocusable() const override;
+			void Layout() override;
+
 			void OnFocusLost() override;
 			void OnFocusReceived() override;
 			bool OnKeyPressed(const WindowEvent::KeyEvent& key) override;
@@ -103,10 +108,13 @@ namespace Nz
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnTextEntered(char32_t character, bool repeated) override;
 
+			virtual void PasteFromClipboard(const Vector2ui& targetPosition) = 0;
+
+			void RefreshCursor();
+
 			inline void SetCursorPositionInternal(std::size_t glyphIndex);
 			inline void SetCursorPositionInternal(Vector2ui cursorPosition);
 
-			void RefreshCursor();
 			virtual void UpdateDisplayText() = 0;
 			void UpdateTextSprite();
 
