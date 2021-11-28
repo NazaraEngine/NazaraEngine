@@ -50,12 +50,16 @@ namespace Nz
 			RichTextAreaWidget& operator=(RichTextAreaWidget&&) = default;
 
 		private:
+			void CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd) override;
+
 			AbstractTextDrawer& GetTextDrawer() override;
 			const AbstractTextDrawer& GetTextDrawer() const override;
 
 			void HandleIndentation(bool add) override;
 			void HandleSelectionIndentation(bool add) override;
 			void HandleWordCursorMove(bool left) override;
+
+			void PasteFromClipboard(const Vector2ui& targetPosition) override;
 
 			void UpdateDisplayText() override;
 

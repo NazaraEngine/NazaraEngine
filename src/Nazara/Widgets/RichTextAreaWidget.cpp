@@ -154,6 +154,11 @@ namespace Nz
 		UpdateDisplayText();
 	}
 
+	void RichTextAreaWidget::CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd)
+	{
+		// TODO
+	}
+
 	AbstractTextDrawer& RichTextAreaWidget::GetTextDrawer()
 	{
 		return m_drawer;
@@ -174,6 +179,11 @@ namespace Nz
 
 	void RichTextAreaWidget::HandleWordCursorMove(bool left)
 	{
+	}
+
+	void RichTextAreaWidget::PasteFromClipboard(const Vector2ui& targetPosition)
+	{
+		// TODO
 	}
 
 	void RichTextAreaWidget::UpdateDisplayText()

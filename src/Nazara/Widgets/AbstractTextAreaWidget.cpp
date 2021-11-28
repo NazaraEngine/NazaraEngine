@@ -165,6 +165,59 @@ namespace Nz
 
 		switch (key.virtualKey)
 		{
+			// Copy (Ctrl+C)
+			case Keyboard::VKey::C:
+			{
+				if (!key.control)
+					break;
+
+				bool ignoreDefaultAction = (m_echoMode != EchoMode::Normal);
+				OnTextAreaKeyCopy(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction || !HasSelection())
+					return true;
+
+				CopySelectionToClipboard(m_cursorPositionBegin, m_cursorPositionEnd);
+				return true;
+			}
+
+			// Paste (Ctrl+V)
+			case Keyboard::VKey::V:
+			{
+				if (!key.control)
+					break;
+
+				bool ignoreDefaultAction = false;
+				OnTextAreaKeyPaste(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction)
+					return true;
+
+				if (HasSelection())
+					EraseSelection();
+
+				PasteFromClipboard(m_cursorPositionBegin);
+				return true;
+			}
+
+			// Cut (Ctrl+X)
+			case Keyboard::VKey::X:
+			{
+				if (!key.control)
+					break;
+
+				bool ignoreDefaultAction = (m_echoMode != EchoMode::Normal);
+				OnTextAreaKeyCut(this, &ignoreDefaultAction);
+
+				if (ignoreDefaultAction || !HasSelection())
+					return true;
+
+				CopySelectionToClipboard(m_cursorPositionBegin, m_cursorPositionEnd);
+				EraseSelection();
+
+				return true;
+			}
+
 			case Keyboard::VKey::Backspace:
 			{
 				bool ignoreDefaultAction = false;
