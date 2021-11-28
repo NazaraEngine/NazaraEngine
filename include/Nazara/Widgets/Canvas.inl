@@ -12,6 +12,7 @@ namespace Nz
 	m_renderMask(renderMask),
 	m_keyboardOwner(InvalidCanvasIndex),
 	m_hoveredWidget(InvalidCanvasIndex),
+	m_mouseOwner(InvalidCanvasIndex),
 	m_registry(registry),
 	m_cursorController(cursorController)
 	{
@@ -26,6 +27,7 @@ namespace Nz
 		m_keyReleasedSlot.Connect(eventHandler.OnKeyReleased, this, &Canvas::OnEventKeyReleased);
 		m_mouseButtonPressedSlot.Connect(eventHandler.OnMouseButtonPressed, this, &Canvas::OnEventMouseButtonPressed);
 		m_mouseButtonReleasedSlot.Connect(eventHandler.OnMouseButtonReleased, this, &Canvas::OnEventMouseButtonRelease);
+		m_mouseEnteredSlot.Connect(eventHandler.OnMouseEntered, this, &Canvas::OnEventMouseEntered);
 		m_mouseLeftSlot.Connect(eventHandler.OnMouseLeft, this, &Canvas::OnEventMouseLeft);
 		m_mouseMovedSlot.Connect(eventHandler.OnMouseMoved, this, &Canvas::OnEventMouseMoved);
 		m_mouseWheelMovedSlot.Connect(eventHandler.OnMouseWheelMoved, this, &Canvas::OnEventMouseWheelMoved);
@@ -63,9 +65,20 @@ namespace Nz
 			SetKeyboardOwner(InvalidCanvasIndex);
 	}
 
+	inline void Canvas::ClearMouseOwner(std::size_t canvasIndex)
+	{
+		if (m_mouseOwner == canvasIndex)
+			SetMouseOwner(InvalidCanvasIndex);
+	}
+
 	inline bool Canvas::IsKeyboardOwner(std::size_t canvasIndex) const
 	{
 		return m_keyboardOwner == canvasIndex;
+	}
+
+	inline bool Canvas::IsMouseOwner(std::size_t canvasIndex) const
+	{
+		return m_mouseOwner == canvasIndex;
 	}
 
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
@@ -98,6 +111,14 @@ namespace Nz
 
 			if (m_keyboardOwner != InvalidCanvasIndex)
 				m_widgetEntries[m_keyboardOwner].widget->OnFocusReceived();
+		}
+	}
+
+	inline void Canvas::SetMouseOwner(std::size_t canvasIndex)
+	{
+		if (m_mouseOwner != canvasIndex)
+		{
+			m_mouseOwner = canvasIndex;
 		}
 	}
 }
