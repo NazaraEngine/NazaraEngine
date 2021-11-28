@@ -165,6 +165,16 @@ namespace Nz
 
 		switch (key.virtualKey)
 		{
+			// Select All (Ctrl+A)
+			case Keyboard::VKey::A:
+			{
+				if (!key.control)
+					break;
+
+				SetSelection(Vector2ui::Zero(), Vector2ui(std::numeric_limits<unsigned int>::max(), std::numeric_limits<unsigned int>::max()));
+				return true;
+			}
+
 			// Copy (Ctrl+C)
 			case Keyboard::VKey::C:
 			{
