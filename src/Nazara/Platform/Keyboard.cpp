@@ -10,41 +10,41 @@ namespace Nz
 {
 	std::string Keyboard::GetKeyName(Scancode scancode)
 	{
-		return EventImpl::GetKeyName(scancode);
+		return InputImpl::GetKeyName(scancode);
 	}
 
 	std::string Keyboard::GetKeyName(VKey key)
 	{
-		return EventImpl::GetKeyName(key);
+		return InputImpl::GetKeyName(key);
 	}
 
 	bool Keyboard::IsKeyPressed(Scancode scancode)
 	{
-		return EventImpl::IsKeyPressed(scancode);
+		return InputImpl::IsKeyPressed(scancode);
 	}
 
 	bool Keyboard::IsKeyPressed(VKey key)
 	{
-		return EventImpl::IsKeyPressed(key);
+		return InputImpl::IsKeyPressed(key);
 	}
 
 	void Keyboard::StartTextInput()
 	{
-		EventImpl::StartTextInput();
+		InputImpl::StartTextInput();
 	}
 
 	void Keyboard::StopTextInput()
 	{
-		EventImpl::StopTextInput();
+		InputImpl::StopTextInput();
 	}
 
 	Keyboard::Scancode Keyboard::ToScanCode(VKey key)
 	{
-		return EventImpl::ToScanCode(key);
+		return InputImpl::ToScanCode(key);
 	}
 
 	Keyboard::VKey Keyboard::ToVirtualKey(Scancode scancode)
 	{
-		return EventImpl::ToVirtualKey(scancode);
+		return InputImpl::ToVirtualKey(scancode);
 	}
 }

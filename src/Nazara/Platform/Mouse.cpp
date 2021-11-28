@@ -11,27 +11,27 @@ namespace Nz
 {
 	Vector2i Mouse::GetPosition()
 	{
-		return EventImpl::GetMousePosition();
+		return InputImpl::GetMousePosition();
 	}
 
 	Vector2i Mouse::GetPosition(const Window& relativeTo)
 	{
-		return EventImpl::GetMousePosition(relativeTo);
+		return InputImpl::GetMousePosition(relativeTo);
 	}
 
 	bool Mouse::IsButtonPressed(Button button)
 	{
-		return EventImpl::IsMouseButtonPressed(button);
+		return InputImpl::IsMouseButtonPressed(button);
 	}
 
 	bool Mouse::SetRelativeMouseMode(bool relativeMouseMode)
 	{
-		return EventImpl::SetRelativeMouseMode(relativeMouseMode);
+		return InputImpl::SetRelativeMouseMode(relativeMouseMode);
 	}
 
 	void Mouse::SetPosition(const Vector2i& position)
 	{
-		EventImpl::SetMousePosition(position.x, position.y);
+		InputImpl::SetMousePosition(position.x, position.y);
 	}
 
 	void Mouse::SetPosition(const Vector2i& position, const Window& relativeTo, bool ignoreEvent)
@@ -39,12 +39,12 @@ namespace Nz
 		if (ignoreEvent && position.x > 0 && position.y > 0)
 			relativeTo.IgnoreNextMouseEvent(position.x, position.y);
 
-		EventImpl::SetMousePosition(position.x, position.y, relativeTo);
+		InputImpl::SetMousePosition(position.x, position.y, relativeTo);
 	}
 
 	void Mouse::SetPosition(int x, int y)
 	{
-		EventImpl::SetMousePosition(x, y);
+		InputImpl::SetMousePosition(x, y);
 	}
 
 	void Mouse::SetPosition(int x, int y, const Window& relativeTo, bool ignoreEvent)
@@ -52,6 +52,6 @@ namespace Nz
 		if (ignoreEvent && x > 0 && y > 0)
 			relativeTo.IgnoreNextMouseEvent(x, y);
 
-		EventImpl::SetMousePosition(x, y, relativeTo);
+		InputImpl::SetMousePosition(x, y, relativeTo);
 	}
 }

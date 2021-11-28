@@ -29,6 +29,7 @@
 #ifndef NAZARA_GLOBAL_PLATFORM_HPP
 #define NAZARA_GLOBAL_PLATFORM_HPP
 
+#include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/CursorController.hpp>
