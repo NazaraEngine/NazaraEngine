@@ -35,6 +35,7 @@ namespace Nz
 		private:
 			static void OnConstruct(entt::registry& registry, entt::entity entity);
 
+			entt::registry& m_registry;
 			entt::connection m_constructConnection;
 			PhysWorld3D m_physWorld;
 	};

@@ -8,13 +8,19 @@
 
 namespace Nz
 {
-	Physics3DSystem::Physics3DSystem(entt::registry& registry)
+	Physics3DSystem::Physics3DSystem(entt::registry& registry) :
+	m_registry(registry)
 	{
 		m_constructConnection = registry.on_construct<RigidBody3DComponent>().connect<OnConstruct>();
 	}
 
 	Physics3DSystem::~Physics3DSystem()
 	{
+		// Ensure every NewtonBody is destroyed before world is
+		auto rigidBodyView = m_registry.view<RigidBody3DComponent>();
+		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
+			rigidBodyComponent.Destroy();
+
 		m_constructConnection.release();
 	}
 

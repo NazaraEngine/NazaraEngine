@@ -14,6 +14,8 @@ namespace Nz
 {
 	class NAZARA_PHYSICS3D_API RigidBody3DComponent : public RigidBody3D
 	{
+		friend class Physics3DSystem;
+
 		public:
 			using RigidBody3D::RigidBody3D;
 			RigidBody3DComponent(const RigidBody3DComponent&) = default;
