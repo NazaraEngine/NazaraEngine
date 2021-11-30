@@ -91,12 +91,12 @@ namespace Nz
 	{
 		UpdateHoveredWidget(event.x, event.y);
 
-		if (m_hoveredWidget != InvalidCanvasIndex)
+		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
+			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
+			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
+			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
 
 			if (event.clickCount == 2)
 				targetWidget.widget->OnMouseButtonDoublePress(x, y, event.button);
@@ -112,14 +112,14 @@ namespace Nz
 
 	void Canvas::OnEventMouseButtonRelease(const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
 	{
-		if (m_hoveredWidget != InvalidCanvasIndex)
+		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
+			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
+			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
+			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
 
-			hoveredWidget.widget->OnMouseButtonRelease(x, y, event.button);
+			targetWidget.widget->OnMouseButtonRelease(x, y, event.button);
 		}
 
 		m_mouseOwnerButtons[event.button] = false;
@@ -132,18 +132,34 @@ namespace Nz
 	void Canvas::OnEventMouseEntered(const EventHandler* eventHandler)
 	{
 		// Keep previous mouse states but not new ones
-		for (std::size_t i = 0; i < Mouse::ButtonCount; ++i)
-			m_mouseOwnerButtons[i] = m_mouseOwnerButtons[i] && Mouse::IsButtonPressed(static_cast<Mouse::Button>(i));
+		if (m_mouseOwner != InvalidCanvasIndex)
+		{
+			WidgetEntry& ownerWidget = m_widgetEntries[m_mouseOwner];
 
-		if (m_mouseOwnerButtons.none())
-			SetMouseOwner(InvalidCanvasIndex);
+			for (std::size_t i = 0; i < Mouse::ButtonCount; ++i)
+			{
+				if (m_mouseOwnerButtons[i])
+				{
+					if (!Mouse::IsButtonPressed(static_cast<Mouse::Button>(i)))
+					{
+						ownerWidget.widget->OnMouseButtonRelease(-1, -1, static_cast<Mouse::Button>(i));
+						m_mouseOwnerButtons[i] = false;
+					}
+				}
+			}
+
+			if (m_mouseOwnerButtons.none())
+				SetMouseOwner(InvalidCanvasIndex);
+		}
+		else
+			m_mouseOwnerButtons.reset();
 	}
 
 	void Canvas::OnEventMouseLeft(const EventHandler* /*eventHandler*/)
 	{
-		if (m_hoveredWidget != InvalidCanvasIndex && m_mouseOwner == InvalidCanvasIndex)
+		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			m_widgetEntries[m_hoveredWidget].widget->OnMouseExit();
+			m_widgetEntries[targetWidgetIndex].widget->OnMouseExit();
 			m_hoveredWidget = InvalidCanvasIndex;
 		}
 	}
@@ -153,27 +169,27 @@ namespace Nz
 		// Don't update hovered widget while the user doesn't release its mouse
 		UpdateHoveredWidget(event.x, event.y);
 
-		if (m_hoveredWidget != InvalidCanvasIndex)
+		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
+			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
+			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
+			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
 
-			hoveredWidget.widget->OnMouseMoved(x, y, event.deltaX, -event.deltaY);
+			targetWidget.widget->OnMouseMoved(x, y, event.deltaX, -event.deltaY);
 		}
 	}
 
 	void Canvas::OnEventMouseWheelMoved(const EventHandler* /*eventHandler*/, const WindowEvent::MouseWheelEvent& event)
 	{
-		if (m_hoveredWidget != InvalidCanvasIndex)
+		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& hoveredWidget = m_widgetEntries[m_hoveredWidget];
+			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
 
-			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
+			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
+			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
 
-			hoveredWidget.widget->OnMouseWheelMoved(x, y, event.delta);
+			targetWidget.widget->OnMouseWheelMoved(x, y, event.delta);
 		}
 	}
 
@@ -257,9 +273,6 @@ namespace Nz
 
 	void Canvas::UpdateHoveredWidget(int x, int y)
 	{
-		if (m_mouseOwner != InvalidCanvasIndex)
-			return;
-
 		std::size_t bestEntry = InvalidCanvasIndex;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 
@@ -279,6 +292,10 @@ namespace Nz
 			}
 		}
 
+		// If we have a mouse owner, only allow to hover it or not
+		if (m_mouseOwner != InvalidCanvasIndex && bestEntry != m_mouseOwner)
+			bestEntry = InvalidCanvasIndex;
+
 		if (bestEntry != InvalidCanvasIndex)
 		{
 			if (m_hoveredWidget != bestEntry)
@@ -292,7 +309,7 @@ namespace Nz
 				m_hoveredWidget = bestEntry;
 				m_widgetEntries[m_hoveredWidget].widget->OnMouseEnter();
 
-				if (m_cursorController)
+				if (m_cursorController && m_mouseOwner == InvalidCanvasIndex)
 					m_cursorController->UpdateCursor(Cursor::Get(m_widgetEntries[m_hoveredWidget].cursor));
 			}
 		}
@@ -301,7 +318,7 @@ namespace Nz
 			m_widgetEntries[m_hoveredWidget].widget->OnMouseExit();
 			m_hoveredWidget = InvalidCanvasIndex;
 
-			if (m_cursorController)
+			if (m_cursorController && m_mouseOwner == InvalidCanvasIndex)
 				m_cursorController->UpdateCursor(Cursor::Get(SystemCursor::Default));
 		}
 	}
