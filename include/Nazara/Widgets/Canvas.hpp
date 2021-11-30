@@ -42,6 +42,8 @@ namespace Nz
 			inline bool IsKeyboardOwner(std::size_t canvasIndex) const;
 			inline bool IsMouseOwner(std::size_t canvasIndex) const;
 
+			inline std::size_t GetMouseEventTarget() const;
+
 			inline void NotifyWidgetBoxUpdate(std::size_t index);
 			inline void NotifyWidgetCursorUpdate(std::size_t index);
 

@@ -54,6 +54,14 @@ namespace Nz
 		return m_mouseOwner == canvasIndex;
 	}
 
+	inline std::size_t Canvas::GetMouseEventTarget() const
+	{
+		if (m_mouseOwner != InvalidCanvasIndex)
+			return m_mouseOwner;
+		else
+			return m_hoveredWidget;
+	}
+
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
 	{
 		WidgetEntry& entry = m_widgetEntries[index];
@@ -89,10 +97,7 @@ namespace Nz
 
 	inline void Canvas::SetMouseOwner(std::size_t canvasIndex)
 	{
-		if (m_mouseOwner != canvasIndex)
-		{
-			m_mouseOwner = canvasIndex;
-		}
+		m_mouseOwner = canvasIndex;
 	}
 }
 
