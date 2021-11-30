@@ -418,6 +418,17 @@ namespace Nz
 		return *this;
 	}
 
+	void RigidBody3D::Destroy()
+	{
+		if (m_body)
+		{
+			NewtonDestroyBody(m_body);
+			m_body = nullptr;
+		}
+
+		m_geom.reset();
+	}
+
 	void RigidBody3D::UpdateBody(const Matrix4f& transformMatrix)
 	{
 		NewtonBodySetMatrix(m_body, &transformMatrix.m11);

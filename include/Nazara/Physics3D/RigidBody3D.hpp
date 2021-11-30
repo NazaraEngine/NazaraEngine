@@ -77,6 +77,9 @@ namespace Nz
 			RigidBody3D& operator=(const RigidBody3D& object);
 			RigidBody3D& operator=(RigidBody3D&& object) noexcept;
 
+		protected:
+			void Destroy();
+
 		private:
 			void UpdateBody(const Matrix4f& transformMatrix);
 			static void ForceAndTorqueCallback(const NewtonBody* body, float timeStep, int threadIndex);
