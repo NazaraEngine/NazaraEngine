@@ -52,7 +52,6 @@ namespace Nz
 		LostFocus,
 		KeyPressed,
 		KeyReleased,
-		MouseButtonDoubleClicked,
 		MouseButtonPressed,
 		MouseButtonReleased,
 		MouseEntered,

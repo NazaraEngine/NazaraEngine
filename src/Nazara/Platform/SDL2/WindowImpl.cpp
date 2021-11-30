@@ -389,14 +389,7 @@ namespace Nz
 					evt.mouseButton.button = SDLToNazaraButton(event->button.button);
 					evt.mouseButton.x = event->button.x;
 					evt.mouseButton.y = event->button.y;
-
-					if (event->button.clicks % 2 == 0)
-					{
-						evt.type = WindowEventType::MouseButtonDoubleClicked;
-
-						window->m_parent->PushEvent(evt);
-					}
-
+					evt.mouseButton.clickCount = event->button.clicks;
 					evt.type = WindowEventType::MouseButtonPressed;
 
 					break;

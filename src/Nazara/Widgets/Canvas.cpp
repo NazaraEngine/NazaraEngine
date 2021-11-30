@@ -98,7 +98,12 @@ namespace Nz
 			int x = static_cast<int>(std::round(event.x - hoveredWidget.box.x));
 			int y = static_cast<int>(std::round(m_size.y - event.y - hoveredWidget.box.y));
 
-			hoveredWidget.widget->OnMouseButtonPress(x, y, event.button);
+			if (event.clickCount == 2)
+				targetWidget.widget->OnMouseButtonDoublePress(x, y, event.button);
+			else if (event.clickCount == 3)
+				targetWidget.widget->OnMouseButtonTriplePress(x, y, event.button);
+			else
+				targetWidget.widget->OnMouseButtonPress(x, y, event.button);
 		}
 
 		SetMouseOwner(m_hoveredWidget);

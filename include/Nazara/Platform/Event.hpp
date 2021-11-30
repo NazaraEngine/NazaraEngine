@@ -34,13 +34,14 @@ namespace Nz
 		};
 
 		// Used by:
-		// -WindowEventType::MouseButtonDoubleClicked
 		// -WindowEventType::MouseButtonPressed
+		// -WindowEventType::MouseButtonReleased
 		struct MouseButtonEvent
 		{
 			Mouse::Button button;
 			int x;
 			int y;
+			unsigned int clickCount; //< 1 for simple click, 2 for double click, 3 for triple click. (always 1 on release event)
 		};
 
 		// Used by:
@@ -104,8 +105,8 @@ namespace Nz
 			KeyEvent key;
 
 			// Used by:
-			// -WindowEventType::MouseButtonDoubleClicked
 			// -WindowEventType::MouseButtonPressed
+			// -WindowEventType::MouseButtonReleased
 			MouseButtonEvent mouseButton;
 
 			// Used by:

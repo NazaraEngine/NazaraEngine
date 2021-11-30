@@ -129,8 +129,10 @@ namespace Nz
 			virtual void OnKeyReleased(const WindowEvent::KeyEvent& key);
 			virtual void OnMouseEnter();
 			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
+			virtual void OnMouseButtonDoublePress(int x, int y, Mouse::Button button);
 			virtual void OnMouseButtonPress(int x, int y, Mouse::Button button);
 			virtual void OnMouseButtonRelease(int x, int y, Mouse::Button button);
+			virtual void OnMouseButtonTriplePress(int x, int y, Mouse::Button button);
 			virtual void OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnMouseExit();
 			virtual void OnParentResized(const Vector2f& newSize);
