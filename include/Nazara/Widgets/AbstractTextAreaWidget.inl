@@ -44,7 +44,7 @@ namespace Nz
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
 
-		glyphIndex = std::min(glyphIndex, GetTextDrawer().GetGlyphCount());
+		glyphIndex = std::min(glyphIndex, textDrawer.GetGlyphCount());
 
 		std::size_t lineCount = textDrawer.GetLineCount();
 		std::size_t line = 0U;

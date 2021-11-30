@@ -397,6 +397,23 @@ namespace Nz
 	{
 	}
 
+	void AbstractTextAreaWidget::OnMouseButtonDoublePress(int x, int y, Mouse::Button button)
+	{
+		if (button == Mouse::Left)
+		{
+			// Shift double click is handled as single click
+			if (Keyboard::IsKeyPressed(Keyboard::VKey::LShift) || Keyboard::IsKeyPressed(Keyboard::VKey::RShift))
+				return OnMouseButtonPress(x, y, button);
+
+			SetFocus();
+
+			Vector2ui hoveredGlyph = GetHoveredGlyph(float(x), float(y));
+			HandleWordSelection(hoveredGlyph);
+
+			m_isMouseButtonDown = true;
+		}
+	}
+
 	void AbstractTextAreaWidget::OnMouseButtonPress(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
@@ -422,6 +439,23 @@ namespace Nz
 	{
 		if (button == Mouse::Left)
 			m_isMouseButtonDown = false;
+	}
+
+	void AbstractTextAreaWidget::OnMouseButtonTriplePress(int x, int y, Mouse::Button button)
+	{
+		if (button == Mouse::Left)
+		{
+			// Shift triple click is handled as single click
+			if (Keyboard::IsKeyPressed(Keyboard::VKey::LShift) || Keyboard::IsKeyPressed(Keyboard::VKey::RShift))
+				return OnMouseButtonPress(x, y, button);
+
+			SetFocus();
+
+			Vector2ui hoveredGlyph = GetHoveredGlyph(float(x), float(y));
+			SetSelection(Vector2ui(0, hoveredGlyph.y), Vector2ui(std::numeric_limits<unsigned int>::max(), hoveredGlyph.y));
+
+			m_isMouseButtonDown = true;
+		}
 	}
 
 	void AbstractTextAreaWidget::OnMouseEnter()
