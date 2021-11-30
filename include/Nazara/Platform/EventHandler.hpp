@@ -38,7 +38,6 @@ namespace Nz
 			NazaraSignal(OnLostFocus, const EventHandler* /*eventHandler*/);
 			NazaraSignal(OnKeyPressed, const EventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
 			NazaraSignal(OnKeyReleased, const EventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
-			NazaraSignal(OnMouseButtonDoubleClicked, const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& /*event*/);
 			NazaraSignal(OnMouseButtonPressed, const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& /*event*/);
 			NazaraSignal(OnMouseButtonReleased, const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& /*event*/);
 			NazaraSignal(OnMouseEntered, const EventHandler* /*eventHandler*/);

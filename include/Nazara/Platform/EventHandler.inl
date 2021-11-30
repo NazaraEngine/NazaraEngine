@@ -35,10 +35,6 @@ namespace Nz
 				OnLostFocus(this);
 				break;
 
-			case WindowEventType::MouseButtonDoubleClicked:
-				OnMouseButtonDoubleClicked(this, event.mouseButton);
-				break;
-
 			case WindowEventType::MouseButtonPressed:
 				OnMouseButtonPressed(this, event.mouseButton);
 				break;

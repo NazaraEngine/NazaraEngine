@@ -282,11 +282,19 @@ namespace Nz
 	{
 	}
 
+	void BaseWidget::OnMouseButtonDoublePress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
+	{
+	}
+
 	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
 	{
 	}
 
 	void BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button /*button*/)
+	{
+	}
+
+	void BaseWidget::OnMouseButtonTriplePress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
 	{
 	}
 
