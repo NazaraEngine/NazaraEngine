@@ -76,8 +76,7 @@ namespace Nz
 
 	RigidBody3D::~RigidBody3D()
 	{
-		if (m_body)
-			NewtonDestroyBody(m_body);
+		Destroy();
 	}
 
 	void RigidBody3D::AddForce(const Vector3f& force, CoordSys coordSys)
@@ -93,7 +92,7 @@ namespace Nz
 				break;
 		}
 
-		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
+		// In case the body was sleeping, wake it up (force callback won't be called otherwise) 
 		NewtonBodySetSleepState(m_body, 0);
 	}
 
@@ -113,7 +112,7 @@ namespace Nz
 			}
 		}
 
-		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
+		// In case the body was sleeping, wake it up (force callback won't be called otherwise) 
 		NewtonBodySetSleepState(m_body, 0);
 	}
 
@@ -131,7 +130,7 @@ namespace Nz
 				break;
 		}
 
-		// On réveille le corps pour que le callback soit appelé et que les forces soient appliquées
+		// In case the body was sleeping, wake it up (force callback won't be called otherwise) 
 		NewtonBodySetSleepState(m_body, 0);
 	}
 
@@ -217,7 +216,7 @@ namespace Nz
 			}
 
 			case CoordSys::Local:
-				break; // Aucune opération à effectuer sur le centre de rotation
+				break;
 		}
 
 		return center;
@@ -246,7 +245,7 @@ namespace Nz
 
 	Quaternionf RigidBody3D::GetRotation() const
 	{
-		// NewtonBodyGetRotation output X, Y, Z, W and Nz::Quaternion stores W, X, Y, Z so we use a temporary array
+		// NewtonBodyGetRotation output X, Y, Z, W and Nz::Quaternion stores W, X, Y, Z so we use a temporary array to fix the order
 		std::array<float, 4> rot;
 		NewtonBodyGetRotation(m_body, rot.data());
 

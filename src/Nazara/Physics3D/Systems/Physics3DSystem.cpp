@@ -29,7 +29,7 @@ namespace Nz
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
-		auto view = registry.view<Nz::NodeComponent, const RigidBody3DComponent>();
+		auto view = registry.view<NodeComponent, const RigidBody3DComponent>();
 		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
 		{
 			if (rigidBodyComponent.IsSleeping())
@@ -42,8 +42,8 @@ namespace Nz
 
 	void Physics3DSystem::OnConstruct(entt::registry& registry, entt::entity entity)
 	{
-		// If our entity already has a node component when adding a rigid body, initialize it with
-		Nz::NodeComponent* node = registry.try_get<NodeComponent>(entity);
+		// If our entity already has a node component when adding a rigid body, initialize it with its position/rotation
+		NodeComponent* node = registry.try_get<NodeComponent>(entity);
 		if (node)
 		{
 			RigidBody3DComponent& rigidBody = registry.get<RigidBody3DComponent>(entity);

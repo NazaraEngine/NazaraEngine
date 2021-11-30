@@ -309,6 +309,7 @@ namespace Nz
 				m_hoveredWidget = bestEntry;
 				m_widgetEntries[m_hoveredWidget].widget->OnMouseEnter();
 
+				// Only allow cursor update when not owning mouse
 				if (m_cursorController && m_mouseOwner == InvalidCanvasIndex)
 					m_cursorController->UpdateCursor(Cursor::Get(m_widgetEntries[m_hoveredWidget].cursor));
 			}
@@ -318,6 +319,7 @@ namespace Nz
 			m_widgetEntries[m_hoveredWidget].widget->OnMouseExit();
 			m_hoveredWidget = InvalidCanvasIndex;
 
+			// Only allow cursor update when not owning mouse
 			if (m_cursorController && m_mouseOwner == InvalidCanvasIndex)
 				m_cursorController->UpdateCursor(Cursor::Get(SystemCursor::Default));
 		}
