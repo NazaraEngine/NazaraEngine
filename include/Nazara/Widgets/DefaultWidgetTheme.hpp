@@ -14,8 +14,6 @@
 
 namespace Nz
 {
-	class DefaultDefaultButtonWidgetStyle;
-
 	class NAZARA_WIDGETS_API DefaultWidgetTheme : public WidgetTheme
 	{
 		public:
@@ -25,42 +23,16 @@ namespace Nz
 			~DefaultWidgetTheme() = default;
 
 			std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const override;
+			std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* buttonWidget) const override;
 
 			DefaultWidgetTheme& operator=(const DefaultWidgetTheme&) = delete;
 			DefaultWidgetTheme& operator=(DefaultWidgetTheme&&) = default;
 
 		private:
 			std::shared_ptr<Material> m_buttonMaterial;
+			std::shared_ptr<Material> m_hoveredButtonMaterial;
+			std::shared_ptr<Material> m_pressedHoveredMaterial;
 			std::shared_ptr<Material> m_pressedButtonMaterial;
-	};
-
-	class NAZARA_WIDGETS_API DefaultButtonWidgetStyle : public ButtonWidgetStyle
-	{
-		public:
-			DefaultButtonWidgetStyle(ButtonWidget* buttonWidget, std::shared_ptr<Material> defaultMaterial, std::shared_ptr<Material> pressedMaterial);
-			DefaultButtonWidgetStyle(const DefaultButtonWidgetStyle&) = delete;
-			DefaultButtonWidgetStyle(DefaultButtonWidgetStyle&&) = default;
-			~DefaultButtonWidgetStyle() = default;
-
-			void Layout(const Vector2f& size) override;
-
-			void OnHoverBegin() override;
-			void OnHoverEnd() override;
-			void OnPress() override;
-			void OnRelease() override;
-
-			void UpdateText(const AbstractTextDrawer& drawer) override;
-
-			DefaultButtonWidgetStyle& operator=(const DefaultButtonWidgetStyle&) = delete;
-			DefaultButtonWidgetStyle& operator=(DefaultButtonWidgetStyle&&) = default;
-
-		private:
-			std::shared_ptr<Material> m_defaultMaterial;
-			std::shared_ptr<Material> m_pressedMaterial;
-			std::shared_ptr<SlicedSprite> m_sprite;
-			std::shared_ptr<TextSprite> m_textSprite;
-			entt::entity m_textEntity;
-			entt::entity m_gradientEntity;
 	};
 }
 
