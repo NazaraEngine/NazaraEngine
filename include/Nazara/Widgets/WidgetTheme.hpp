@@ -17,6 +17,8 @@ namespace Nz
 	class AbstractTextDrawer;
 	class ButtonWidget;
 	class ButtonWidgetStyle;
+	class LabelWidget;
+	class LabelWidgetStyle;
 
 	class NAZARA_WIDGETS_API WidgetTheme
 	{
@@ -27,6 +29,7 @@ namespace Nz
 			virtual ~WidgetTheme();
 
 			virtual std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const = 0;
+			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* buttonWidget) const = 0;
 
 			WidgetTheme& operator=(const WidgetTheme&) = delete;
 			WidgetTheme& operator=(WidgetTheme&&) = default;
@@ -43,6 +46,7 @@ namespace Nz
 			virtual ~BaseWidgetStyle();
 
 			inline entt::entity CreateEntity();
+			entt::entity CreateGraphicsEntity();
 			inline void DestroyEntity(entt::entity entity);
 
 			inline entt::registry& GetRegistry();
@@ -75,7 +79,25 @@ namespace Nz
 
 			ButtonWidgetStyle& operator=(const ButtonWidgetStyle&) = delete;
 			ButtonWidgetStyle& operator=(ButtonWidgetStyle&&) = default;
+	};
 
+	class NAZARA_WIDGETS_API LabelWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			LabelWidgetStyle(const LabelWidgetStyle&) = delete;
+			LabelWidgetStyle(LabelWidgetStyle&&) = default;
+			~LabelWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			virtual void OnHoverBegin();
+			virtual void OnHoverEnd();
+
+			virtual void UpdateText(const AbstractTextDrawer& drawer) = 0;
+
+			LabelWidgetStyle& operator=(const LabelWidgetStyle&) = delete;
+			LabelWidgetStyle& operator=(LabelWidgetStyle&&) = default;
 	};
 }
 

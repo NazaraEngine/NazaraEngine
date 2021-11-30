@@ -5,6 +5,7 @@
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
+#include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
@@ -15,18 +16,29 @@ namespace Nz
 	LabelWidget::LabelWidget(BaseWidget* parent) :
 	BaseWidget(parent)
 	{
-		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
-
-		auto& registry = GetRegistry();
-
-		m_entity = CreateEntity();
-
-		auto& gfxComponent = registry.emplace<GraphicsComponent>(m_entity, IsVisible());
-		gfxComponent.AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());
-
-		auto& nodeComponent = registry.emplace<NodeComponent>(m_entity);
-		nodeComponent.SetParent(this);
+		m_style = GetTheme()->CreateStyle(this);
 
 		Layout();
+	}
+
+	void LabelWidget::UpdateText(const AbstractTextDrawer& drawer, float scale)
+	{
+		m_style->UpdateText(drawer);
+
+		Vector2f size(drawer.GetBounds().GetLengths());
+		SetMinimumSize(size);
+		SetPreferredSize(size + Vector2f(20.f, 10.f));
+
+		Layout();
+	}
+
+	void LabelWidget::OnMouseEnter()
+	{
+		m_style->OnHoverBegin();
+	}
+
+	void LabelWidget::OnMouseExit()
+	{
+		m_style->OnHoverEnd();
 	}
 }

@@ -9,6 +9,7 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
 {
@@ -23,14 +24,16 @@ namespace Nz
 			LabelWidget(LabelWidget&&) = default;
 			~LabelWidget() = default;
 
-			inline void UpdateText(const AbstractTextDrawer& drawer, float scale = 1.f);
+			void UpdateText(const AbstractTextDrawer& drawer, float scale = 1.f);
 
 			LabelWidget& operator=(const LabelWidget&) = delete;
 			LabelWidget& operator=(LabelWidget&&) = default;
 
 		private:
-			entt::entity m_entity;
-			std::shared_ptr<TextSprite> m_textSprite;
+			void OnMouseEnter() override;
+			void OnMouseExit() override;
+
+			std::unique_ptr<LabelWidgetStyle> m_style;
 	};
 }
 

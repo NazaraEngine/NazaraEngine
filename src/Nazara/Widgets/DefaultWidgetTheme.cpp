@@ -6,10 +6,7 @@
 #include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
-#include <Nazara/Graphics/Components/GraphicsComponent.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
-#include <Nazara/Widgets/ButtonWidget.hpp>
-#include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
@@ -21,8 +18,16 @@ namespace Nz
 			#include <Nazara/Widgets/Resources/DefaultStyle/Button.png.h>
 		};
 
+		const UInt8 ButtonHoveredImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultStyle/ButtonHovered.png.h>
+		};
+
 		const UInt8 ButtonPressedImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultStyle/ButtonPressed.png.h>
+		};
+
+		const UInt8 ButtonPressedHoveredImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultStyle/ButtonPressedHovered.png.h>
 		};
 	}
 
@@ -32,90 +37,35 @@ namespace Nz
 		texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
 		texParams.loadFormat = PixelFormat::RGBA8_SRGB;
 
+		auto CreateMaterialFromTexture = [](std::shared_ptr<Texture> texture)
+		{
+			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
+			buttonMaterialPass->EnableDepthBuffer(true);
+			buttonMaterialPass->EnableDepthWrite(false);
+
+			std::shared_ptr<Material> material = std::make_shared<Material>();
+			material->AddPass("ForwardPass", buttonMaterialPass);
+
+			BasicMaterial buttonBasicMat(*buttonMaterialPass);
+			buttonBasicMat.SetDiffuseMap(texture);
+
+			return material;
+		};
+		
 		// Button material
-		{
-			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-			buttonMaterialPass->EnableDepthBuffer(true);
-			buttonMaterialPass->EnableDepthWrite(false);
-
-			m_buttonMaterial = std::make_shared<Material>();
-			m_buttonMaterial->AddPass("ForwardPass", buttonMaterialPass);
-
-			BasicMaterial buttonBasicMat(*buttonMaterialPass);
-			buttonBasicMat.SetDiffuseMap(Texture::LoadFromMemory(ButtonImage, sizeof(ButtonImage), texParams));
-		}
-
-		// Button (pressed) material
-		{
-			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-			buttonMaterialPass->EnableDepthBuffer(true);
-			buttonMaterialPass->EnableDepthWrite(false);
-
-			m_pressedButtonMaterial = std::make_shared<Material>();
-			m_pressedButtonMaterial->AddPass("ForwardPass", buttonMaterialPass);
-
-			BasicMaterial buttonBasicMat(*buttonMaterialPass);
-			buttonBasicMat.SetDiffuseMap(Texture::LoadFromMemory(ButtonPressedImage, sizeof(ButtonPressedImage), texParams));
-		}
+		m_buttonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonImage, sizeof(ButtonImage), texParams));
+		m_hoveredButtonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonHoveredImage, sizeof(ButtonHoveredImage), texParams));
+		m_pressedButtonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedImage, sizeof(ButtonPressedImage), texParams));
+		m_pressedHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedHoveredImage, sizeof(ButtonPressedHoveredImage), texParams));
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const
 	{
-		return std::make_unique<DefaultButtonWidgetStyle>(buttonWidget, m_buttonMaterial, m_pressedButtonMaterial);
+		return std::make_unique<SimpleButtonWidgetStyle>(buttonWidget, m_buttonMaterial, m_hoveredButtonMaterial, m_pressedButtonMaterial, m_pressedHoveredMaterial);
 	}
 
-	DefaultButtonWidgetStyle::DefaultButtonWidgetStyle(ButtonWidget* buttonWidget, std::shared_ptr<Material> defaultMaterial, std::shared_ptr<Material> pressedMaterial) :
-	ButtonWidgetStyle(buttonWidget),
-	m_defaultMaterial(std::move(defaultMaterial)),
-	m_pressedMaterial(std::move(pressedMaterial))
+	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(LabelWidget* buttonWidget) const
 	{
-		auto& registry = GetRegistry();
-		UInt32 renderMask = GetRenderMask();
-
-		m_sprite = std::make_shared<SlicedSprite>(m_defaultMaterial);
-
-		m_gradientEntity = CreateEntity();
-		registry.emplace<NodeComponent>(m_gradientEntity).SetParent(buttonWidget);
-		registry.emplace<GraphicsComponent>(m_gradientEntity).AttachRenderable(m_sprite, renderMask);
-
-		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
-
-		m_textEntity = CreateEntity();
-		registry.emplace<NodeComponent>(m_textEntity).SetParent(buttonWidget);
-		registry.emplace<GraphicsComponent>(m_textEntity).AttachRenderable(m_textSprite, renderMask);
-	}
-
-	void DefaultButtonWidgetStyle::Layout(const Vector2f& size)
-	{
-		m_sprite->SetSize(size);
-
-		entt::registry& registry = GetRegistry();
-
-		Boxf textBox = m_textSprite->GetAABB();
-		registry.get<NodeComponent>(m_textEntity).SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
-	}
-
-	void DefaultButtonWidgetStyle::OnHoverBegin()
-	{
-	}
-
-	void DefaultButtonWidgetStyle::OnHoverEnd()
-	{
-		m_sprite->SetMaterial(m_defaultMaterial);
-	}
-
-	void DefaultButtonWidgetStyle::OnPress()
-	{
-		m_sprite->SetMaterial(m_pressedMaterial);
-	}
-
-	void DefaultButtonWidgetStyle::OnRelease()
-	{
-		m_sprite->SetMaterial(m_defaultMaterial);
-	}
-
-	void DefaultButtonWidgetStyle::UpdateText(const AbstractTextDrawer& drawer)
-	{
-		m_textSprite->Update(drawer);
+		return std::make_unique<SimpleLabelWidgetStyle>(buttonWidget, Widgets::Instance()->GetTransparentMaterial());
 	}
 }
