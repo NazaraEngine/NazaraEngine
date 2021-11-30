@@ -94,6 +94,7 @@ namespace Nz
 			virtual void HandleIndentation(bool add) = 0;
 			virtual void HandleSelectionIndentation(bool add) = 0;
 			virtual void HandleWordCursorMove(bool left) = 0;
+			virtual void HandleWordSelection(const Vector2ui& position) = 0;
 
 			bool IsFocusable() const override;
 			void Layout() override;
@@ -102,8 +103,10 @@ namespace Nz
 			void OnFocusReceived() override;
 			bool OnKeyPressed(const WindowEvent::KeyEvent& key) override;
 			void OnKeyReleased(const WindowEvent::KeyEvent& key) override;
-			void OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button) override;
-			void OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button button) override;
+			void OnMouseButtonDoublePress(int x, int y, Mouse::Button button) override;
+			void OnMouseButtonPress(int x, int y, Mouse::Button button) override;
+			void OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
+			void OnMouseButtonTriplePress(int x, int y, Mouse::Button button) override;
 			void OnMouseEnter() override;
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnTextEntered(char32_t character, bool repeated) override;

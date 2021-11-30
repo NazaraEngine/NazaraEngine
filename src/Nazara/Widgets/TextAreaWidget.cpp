@@ -12,6 +12,25 @@
 
 namespace Nz
 {
+	namespace
+	{
+		bool IsSpace(char32_t character)
+		{
+			switch (character)
+			{
+			case '\f':
+			case '\n':
+			case '\r':
+			case '\t':
+			case '\v':
+				return true;
+
+			default:
+				return Unicode::GetCategory(character) & Unicode::Category_Separator;
+			}
+		}
+	}
+
 	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
 	AbstractTextAreaWidget(parent)
 	{
@@ -188,7 +207,7 @@ namespace Nz
 			if (index == 0)
 				return;
 
-			std::size_t spaceIndex = m_text.rfind(' ', index - 2);
+			std::size_t spaceIndex = m_text.rfind(' ', index - 1);
 			std::size_t endlIndex = m_text.rfind('\n', index - 1);
 
 			if ((spaceIndex > endlIndex || endlIndex == std::string::npos) && spaceIndex != std::string::npos)
@@ -226,6 +245,32 @@ namespace Nz
 			else
 				SetCursorPosition({ static_cast<unsigned int>(m_drawer.GetLineGlyphCount(m_cursorPositionEnd.y)), m_cursorPositionEnd.y });
 		}
+	}
+
+	void TextAreaWidget::HandleWordSelection(const Vector2ui& position)
+	{
+		std::size_t index = GetGlyphIndex(m_cursorPositionEnd);
+
+		// FIXME: Handle Unicode properly
+		std::size_t startIndex = index;
+		for (std::string::reverse_iterator it { m_text.begin() + index }; it != m_text.rend(); ++it)
+		{
+			if (IsSpace(*it))
+				break;
+
+			--startIndex;
+		}
+
+		std::size_t endIndex = index;
+		for (auto it = m_text.begin() + index; it != m_text.end(); ++it)
+		{
+			if (IsSpace(*it))
+				break;
+
+			++endIndex;
+		}
+
+		SetSelection(GetCursorPosition(GetCharacterPosition(m_text, startIndex)), GetCursorPosition(GetCharacterPosition(m_text, endIndex)));
 	}
 
 	void TextAreaWidget::PasteFromClipboard(const Vector2ui& targetPosition)

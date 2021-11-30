@@ -171,14 +171,22 @@ namespace Nz
 
 	void RichTextAreaWidget::HandleIndentation(bool add)
 	{
+		// TODO
 	}
 
 	void RichTextAreaWidget::HandleSelectionIndentation(bool add)
 	{
+		// TODO
 	}
 
 	void RichTextAreaWidget::HandleWordCursorMove(bool left)
 	{
+		// TODO
+	}
+
+	void RichTextAreaWidget::HandleWordSelection(const Vector2ui& position)
+	{
+		// TODO
 	}
 
 	void RichTextAreaWidget::PasteFromClipboard(const Vector2ui& targetPosition)
