@@ -323,6 +323,7 @@ namespace Nz
 			}
 
 			case Keyboard::VKey::Return:
+			case Keyboard::VKey::NumpadReturn:
 			{
 				bool ignoreDefaultAction = false;
 				OnTextAreaKeyReturn(this, &ignoreDefaultAction);

@@ -65,6 +65,7 @@ namespace Nz
 			void HandleIndentation(bool add) override;
 			void HandleSelectionIndentation(bool add) override;
 			void HandleWordCursorMove(bool left) override;
+			void HandleWordSelection(const Vector2ui& position) override;
 
 			void PasteFromClipboard(const Vector2ui& targetPosition) override;
 
