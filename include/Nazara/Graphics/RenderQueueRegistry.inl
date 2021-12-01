@@ -10,8 +10,12 @@ namespace Nz
 {
 	inline void RenderQueueRegistry::Clear()
 	{
+		m_materialPassRegistry.clear();
+		m_renderLayers.clear();
 		m_renderLayerRegistry.clear();
 		m_pipelineRegistry.clear();
+		m_vertexBufferRegistry.clear();
+		m_vertexDeclarationRegistry.clear();
 	}
 
 	inline std::size_t RenderQueueRegistry::FetchLayerIndex(int renderLayer) const
@@ -54,9 +58,16 @@ namespace Nz
 		return it->second;
 	}
 
+	inline void RenderQueueRegistry::Finalize()
+	{
+		for (int renderLayer : m_renderLayers)
+			m_renderLayerRegistry.emplace(renderLayer, m_renderLayerRegistry.size());
+	}
+
 	inline void RenderQueueRegistry::RegisterLayer(int renderLayer)
 	{
-		m_renderLayerRegistry.try_emplace(renderLayer, m_renderLayerRegistry.size());
+		assert(m_renderLayerRegistry.empty());
+		m_renderLayers.insert(renderLayer);
 	}
 
 	inline void RenderQueueRegistry::RegisterMaterialPass(const MaterialPass* materialPass)

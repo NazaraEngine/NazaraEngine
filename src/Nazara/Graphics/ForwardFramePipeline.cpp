@@ -260,6 +260,8 @@ namespace Nz
 					renderElement->Register(viewerData.depthPrepassRegistry);
 					viewerData.depthPrepassRenderQueue.Insert(renderElement.get());
 				}
+
+				viewerData.depthPrepassRegistry.Finalize();
 			}
 
 			viewerData.depthPrepassRenderQueue.Sort([&](const RenderElement* element)
@@ -282,6 +284,8 @@ namespace Nz
 					renderElement->Register(viewerData.forwardRegistry);
 					viewerData.forwardRenderQueue.Insert(renderElement.get());
 				}
+
+				viewerData.forwardRegistry.Finalize();
 			}
 
 			viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
