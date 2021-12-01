@@ -202,7 +202,7 @@ int main()
 	entt::entity textEntity = registry.create();
 	{
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(textEntity);
-		entityGfx.AttachRenderable(sprite);
+		entityGfx.AttachRenderable(sprite, 1);
 
 		auto& entityNode = registry.emplace<Nz::NodeComponent>(textEntity);
 		entityNode.SetPosition(0.f, 5.f, 0.f);
@@ -297,7 +297,7 @@ int main()
 						{
 							auto view = registry.view<Nz::GraphicsComponent>();
 							for (auto [entity, gfxComponent] : view.each())
-								gfxComponent.AttachRenderable(colliderModel);
+								gfxComponent.AttachRenderable(colliderModel, 1);
 						}
 						else
 						{
@@ -310,9 +310,9 @@ int main()
 					{
 						entt::entity entity = registry.create();
 						auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
-						entityGfx.AttachRenderable(model);
+						entityGfx.AttachRenderable(model, 1);
 						if (showColliders)
-							entityGfx.AttachRenderable(colliderModel);
+							entityGfx.AttachRenderable(colliderModel, 1);
 
 						registry.emplace<Nz::NodeComponent>(entity);
 
@@ -415,8 +415,6 @@ int main()
 			secondClock.Restart();
 		}
 	}
-
-	registry.clear();
 
 	return EXIT_SUCCESS;
 }

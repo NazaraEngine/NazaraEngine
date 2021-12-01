@@ -26,7 +26,7 @@ namespace Nz
 			GraphicsComponent(GraphicsComponent&&) = default;
 			~GraphicsComponent() = default;
 
-			inline void AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask = 0xFFFFFFFF);
+			inline void AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask);
 
 			inline void Clear();
 
