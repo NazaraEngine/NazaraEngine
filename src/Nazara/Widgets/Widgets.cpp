@@ -33,7 +33,6 @@ namespace Nz
 		m_opaqueMaterial->AddPass("ForwardPass", m_opaqueMaterialPass);
 
 		m_transparentMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-		m_transparentMaterialPass->EnableFlag(MaterialPassFlag::Transparent);
 		m_transparentMaterialPass->EnableDepthBuffer(true);
 		m_transparentMaterialPass->EnableDepthWrite(false);
 		m_transparentMaterialPass->EnableBlending(true);
