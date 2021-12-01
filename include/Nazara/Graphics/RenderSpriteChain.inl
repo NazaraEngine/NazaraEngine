@@ -25,7 +25,7 @@ namespace Nz
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
 
-		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::Transparent))
+		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::SortByDistance))
 		{
 			UInt64 matFlags = 1;
 
