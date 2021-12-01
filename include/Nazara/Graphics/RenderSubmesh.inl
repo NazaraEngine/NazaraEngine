@@ -24,9 +24,6 @@ namespace Nz
 	inline UInt64 RenderSubmesh::ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
-		UInt64 elementType = GetElementType();
-		UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
-		UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 		
 		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::Transparent))
 		{
@@ -46,6 +43,11 @@ namespace Nz
 		}
 		else
 		{
+			UInt64 elementType = GetElementType();
+			UInt64 materialPassIndex = registry.FetchMaterialPassIndex(m_materialPass.get());
+			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
+			UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
+
 			UInt64 matFlags = 0;
 
 			// Opaque RQ index:
@@ -53,14 +55,16 @@ namespace Nz
 			// - Transparent flag (1bit)
 			// - Element type (4bits)
 			// - Pipeline (16bits)
+			// - MaterialPass (16bits)
 			// - VertexBuffer (8bits)
-			// - ?? (24bits) - Depth?
+			// - ?? (8bits) - Depth?
 
 			return (layerIndex & 0xFF)             << 60 |
 			       (matFlags)                      << 52 |
 			       (elementType & 0xF)             << 51 |
 			       (pipelineIndex & 0xFFFF)        << 35 |
-			       (vertexBufferIndex & 0xFF)      << 23;
+			       (materialPassIndex & 0xFFFF)    << 23 |
+			       (vertexBufferIndex & 0xFF)      <<  7;
 		}
 	}
 
@@ -97,6 +101,7 @@ namespace Nz
 	inline void RenderSubmesh::Register(RenderQueueRegistry& registry) const
 	{
 		registry.RegisterLayer(m_renderLayer);
+		registry.RegisterMaterialPass(m_materialPass.get());
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexBuffer(m_vertexBuffer.get());
 	}

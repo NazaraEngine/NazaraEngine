@@ -29,6 +29,7 @@ namespace Nz
 
 		const AbstractBuffer* currentIndexBuffer = nullptr;
 		const AbstractBuffer* currentVertexBuffer = nullptr;
+		const MaterialPass* currentMaterialPass = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
@@ -59,6 +60,12 @@ namespace Nz
 				currentPipeline = pipeline;
 			}
 
+			if (const MaterialPass* materialPass = &submesh.GetMaterialPass(); currentMaterialPass != materialPass)
+			{
+				FlushDrawCall();
+				currentMaterialPass = materialPass;
+			}
+
 			if (const AbstractBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
 			{
 				FlushDrawCall();
@@ -71,12 +78,12 @@ namespace Nz
 				currentVertexBuffer = vertexBuffer;
 			}
 
-			if (currentWorldInstance != &submesh.GetWorldInstance())
+			if (const WorldInstance* worldInstance = &submesh.GetWorldInstance(); currentWorldInstance != worldInstance)
 			{
 				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawData();
-				currentWorldInstance = &submesh.GetWorldInstance();
+				currentWorldInstance = worldInstance;
 			}
 
 			if (!currentShaderBinding)

@@ -65,6 +65,7 @@ namespace Nz
 		UInt8* currentAllocationMemPtr = nullptr;
 		const VertexDeclaration* currentVertexDeclaration = nullptr;
 		AbstractBuffer* currentVertexBuffer = nullptr;
+		const MaterialPass* currentMaterialPass = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const Texture* currentTextureOverlay = nullptr;
@@ -122,24 +123,30 @@ namespace Nz
 				currentVertexDeclaration = vertexDeclaration;
 			}
 
-			if (currentPipeline != &spriteChain.GetRenderPipeline())
+			if (const RenderPipeline* pipeline = &spriteChain.GetRenderPipeline(); currentPipeline != pipeline)
 			{
 				FlushDrawCall();
-				currentPipeline = &spriteChain.GetRenderPipeline();
+				currentPipeline = pipeline;
 			}
 
-			if (currentWorldInstance != &spriteChain.GetWorldInstance())
+			if (const MaterialPass* materialPass = &spriteChain.GetMaterialPass(); currentMaterialPass != materialPass)
+			{
+				FlushDrawData();
+				currentMaterialPass = materialPass;
+			}
+
+			if (const WorldInstance* worldInstance = &spriteChain.GetWorldInstance(); currentWorldInstance != worldInstance)
 			{
 				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawData();
-				currentWorldInstance = &spriteChain.GetWorldInstance();
+				currentWorldInstance = worldInstance;
 			}
 
-			if (currentTextureOverlay != spriteChain.GetTextureOverlay())
+			if (const Texture* textureOverlay = spriteChain.GetTextureOverlay(); currentTextureOverlay != textureOverlay)
 			{
 				FlushDrawData();
-				currentTextureOverlay = spriteChain.GetTextureOverlay();
+				currentTextureOverlay = textureOverlay;
 			}
 
 			std::size_t remainingQuads = spriteChain.GetSpriteCount();
