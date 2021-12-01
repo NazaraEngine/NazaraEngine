@@ -29,6 +29,22 @@ namespace Nz
 		const UInt8 ButtonPressedHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonPressedHovered.png.h>
 		};
+
+		const UInt8 CheckboxBackgroundImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxBackground.png.h>
+		};
+
+		const UInt8 CheckboxBackgroundHoveredImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxBackgroundHovered.png.h>
+		};
+
+		const UInt8 CheckboxCheckImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxCheck.png.h>
+		};
+
+		const UInt8 CheckboxTristateImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxTristate.png.h>
+		};
 	}
 
 	DefaultWidgetTheme::DefaultWidgetTheme()
@@ -60,6 +76,12 @@ namespace Nz
 		m_buttonHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonHoveredImage, sizeof(ButtonHoveredImage), texParams));
 		m_buttonPressedMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedImage, sizeof(ButtonPressedImage), texParams));
 		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedHoveredImage, sizeof(ButtonPressedHoveredImage), texParams));
+
+		// Checkbox material
+		m_checkboxBackgroundMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxBackgroundImage, sizeof(CheckboxBackgroundImage), texParams));
+		m_checkboxBackgroundHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxBackgroundHoveredImage, sizeof(CheckboxBackgroundHoveredImage), texParams));
+		m_checkboxCheckMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxCheckImage, sizeof(CheckboxCheckImage), texParams));
+		m_checkboxTristateMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxTristateImage, sizeof(CheckboxTristateImage), texParams));
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const
@@ -75,8 +97,21 @@ namespace Nz
 		return std::make_unique<SimpleButtonWidgetStyle>(buttonWidget, styleConfig);
 	}
 
-	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(LabelWidget* buttonWidget) const
+	std::unique_ptr<CheckboxWidgetStyle> DefaultWidgetTheme::CreateStyle(CheckboxWidget* checkboxWidget) const
 	{
-		return std::make_unique<SimpleLabelWidgetStyle>(buttonWidget, Widgets::Instance()->GetTransparentMaterial());
+		SimpleCheckboxWidgetStyle::StyleConfig styleConfig;
+		styleConfig.backgroundCornerSize = 10.f;
+		styleConfig.backgroundCornerTexCoords = 10.f / 64.f;
+		styleConfig.backgroundHoveredMaterial = m_checkboxBackgroundHoveredMaterial;
+		styleConfig.backgroundMaterial = m_checkboxBackgroundMaterial;
+		styleConfig.checkMaterial = m_checkboxCheckMaterial;
+		styleConfig.tristateMaterial = m_checkboxTristateMaterial;
+
+		return std::make_unique<SimpleCheckboxWidgetStyle>(checkboxWidget, styleConfig);
+	}
+
+	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(LabelWidget* labelWidget) const
+	{
+		return std::make_unique<SimpleLabelWidgetStyle>(labelWidget, Widgets::Instance()->GetTransparentMaterial());
 	}
 }

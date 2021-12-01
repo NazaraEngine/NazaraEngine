@@ -48,6 +48,27 @@ namespace Nz
 	}
 
 
+	void CheckboxWidgetStyle::OnHoverBegin()
+	{
+	}
+
+	void CheckboxWidgetStyle::OnHoverEnd()
+	{
+	}
+
+	void CheckboxWidgetStyle::OnNewState(CheckboxState newState)
+	{
+	}
+
+	void CheckboxWidgetStyle::OnPress()
+	{
+	}
+
+	void CheckboxWidgetStyle::OnRelease()
+	{
+	}
+
+
 	void LabelWidgetStyle::OnHoverBegin()
 	{
 	}

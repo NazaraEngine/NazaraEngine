@@ -11,12 +11,15 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/Enums.hpp>
 
 namespace Nz
 {
 	class AbstractTextDrawer;
 	class ButtonWidget;
 	class ButtonWidgetStyle;
+	class CheckboxWidget;
+	class CheckboxWidgetStyle;
 	class LabelWidget;
 	class LabelWidgetStyle;
 
@@ -29,6 +32,7 @@ namespace Nz
 			virtual ~WidgetTheme();
 
 			virtual std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const = 0;
+			virtual std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* buttonWidget) const = 0;
 			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* buttonWidget) const = 0;
 
 			WidgetTheme& operator=(const WidgetTheme&) = delete;
@@ -79,6 +83,26 @@ namespace Nz
 
 			ButtonWidgetStyle& operator=(const ButtonWidgetStyle&) = delete;
 			ButtonWidgetStyle& operator=(ButtonWidgetStyle&&) = default;
+	};
+
+	class NAZARA_WIDGETS_API CheckboxWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			CheckboxWidgetStyle(const CheckboxWidgetStyle&) = delete;
+			CheckboxWidgetStyle(CheckboxWidgetStyle&&) = default;
+			~CheckboxWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			virtual void OnHoverBegin();
+			virtual void OnHoverEnd();
+			virtual void OnNewState(CheckboxState newState);
+			virtual void OnPress();
+			virtual void OnRelease();
+
+			CheckboxWidgetStyle& operator=(const CheckboxWidgetStyle&) = delete;
+			CheckboxWidgetStyle& operator=(CheckboxWidgetStyle&&) = default;
 	};
 
 	class NAZARA_WIDGETS_API LabelWidgetStyle : public BaseWidgetStyle

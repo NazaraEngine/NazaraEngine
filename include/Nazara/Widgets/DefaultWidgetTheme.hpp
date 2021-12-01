@@ -23,6 +23,7 @@ namespace Nz
 			~DefaultWidgetTheme() = default;
 
 			std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const override;
+			std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* buttonWidget) const override;
 			std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* buttonWidget) const override;
 
 			DefaultWidgetTheme& operator=(const DefaultWidgetTheme&) = delete;
@@ -33,6 +34,10 @@ namespace Nz
 			std::shared_ptr<Material> m_buttonHoveredMaterial;
 			std::shared_ptr<Material> m_buttonPressedHoveredMaterial;
 			std::shared_ptr<Material> m_buttonPressedMaterial;
+			std::shared_ptr<Material> m_checkboxBackgroundMaterial;
+			std::shared_ptr<Material> m_checkboxBackgroundHoveredMaterial;
+			std::shared_ptr<Material> m_checkboxCheckMaterial;
+			std::shared_ptr<Material> m_checkboxTristateMaterial;
 	};
 }
 
