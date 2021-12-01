@@ -32,6 +32,7 @@ namespace Nz
 			inline const Matrix4f& GetInvViewMatrix() const;
 			inline const Matrix4f& GetInvViewProjMatrix() const;
 			inline const Matrix4f& GetProjectionMatrix() const;
+			inline const Vector2f& GetTargetSize() const;
 			inline const Matrix4f& GetViewMatrix() const;
 			inline const Matrix4f& GetViewProjMatrix() const;
 			inline std::shared_ptr<AbstractBuffer>& GetViewerBuffer();

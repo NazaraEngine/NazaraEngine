@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
@@ -65,6 +66,7 @@ namespace Nz
 			const ShaderBinding* shaderBinding;
 			std::size_t firstIndex;
 			std::size_t quadCount;
+			Recti scissorBox;
 		};
 
 		struct DrawCallIndices

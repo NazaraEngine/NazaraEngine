@@ -59,6 +59,8 @@ namespace Nz
 
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
+		Recti invalidScissorBox(-1, -1, -1, -1);
+
 		std::size_t firstQuadIndex = 0;
 		SpriteChainRendererData::DrawCall* currentDrawCall = nullptr;
 		UploadPool::Allocation* currentAllocation = nullptr;
@@ -70,6 +72,7 @@ namespace Nz
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const Texture* currentTextureOverlay = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
+		Recti currentScissorBox = invalidScissorBox;
 
 		auto FlushDrawCall = [&]()
 		{
@@ -147,6 +150,14 @@ namespace Nz
 			{
 				FlushDrawData();
 				currentTextureOverlay = textureOverlay;
+			}
+
+			const Recti& scissorBox = spriteChain.GetScissorBox();
+			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
+			if (currentScissorBox != targetScissorBox)
+			{
+				FlushDrawData();
+				currentScissorBox = targetScissorBox;
 			}
 
 			std::size_t remainingQuads = spriteChain.GetSpriteCount();
@@ -236,6 +247,7 @@ namespace Nz
 						currentShaderBinding,
 						6 * firstQuadIndex,
 						0,
+						currentScissorBox
 					});
 
 					currentDrawCall = &data.drawCalls.back();
@@ -287,15 +299,19 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Render(const ViewerInstance& /*viewerInstance*/, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
+	void SpriteChainRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		commandBuffer.BindIndexBuffer(*m_indexBuffer);
 
+		Vector2f targetSize = viewerInstance.GetTargetSize();
+		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
+
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
+		Recti currentScissorBox(-1, -1, -1, -1);
 
 		const RenderSpriteChain* firstSpriteChain = static_cast<const RenderSpriteChain*>(elements[0]);
 		auto it = data.drawCallPerElement.find(firstSpriteChain);
@@ -305,27 +321,34 @@ namespace Nz
 
 		for (std::size_t i = 0; i < indices.count; ++i)
 		{
-			const auto& drawCall = data.drawCalls[indices.start + i];
+			const auto& drawData = data.drawCalls[indices.start + i];
 
-			if (currentVertexBuffer != drawCall.vertexBuffer)
+			if (currentVertexBuffer != drawData.vertexBuffer)
 			{
-				commandBuffer.BindVertexBuffer(0, *drawCall.vertexBuffer);
-				currentVertexBuffer = drawCall.vertexBuffer;
+				commandBuffer.BindVertexBuffer(0, *drawData.vertexBuffer);
+				currentVertexBuffer = drawData.vertexBuffer;
 			}
 
-			if (currentPipeline != drawCall.renderPipeline)
+			if (currentPipeline != drawData.renderPipeline)
 			{
-				commandBuffer.BindPipeline(*drawCall.renderPipeline);
-				currentPipeline = drawCall.renderPipeline;
+				commandBuffer.BindPipeline(*drawData.renderPipeline);
+				currentPipeline = drawData.renderPipeline;
 			}
 
-			if (currentShaderBinding != drawCall.shaderBinding)
+			if (currentShaderBinding != drawData.shaderBinding)
 			{
-				commandBuffer.BindShaderBinding(0, *drawCall.shaderBinding);
-				currentShaderBinding = drawCall.shaderBinding;
+				commandBuffer.BindShaderBinding(0, *drawData.shaderBinding);
+				currentShaderBinding = drawData.shaderBinding;
 			}
 
-			commandBuffer.DrawIndexed(drawCall.quadCount * 6, 1U, drawCall.firstIndex);
+			const Recti& targetScissorBox = (drawData.scissorBox.width >= 0) ? drawData.scissorBox : fullscreenScissorBox;
+			if (currentScissorBox != targetScissorBox)
+			{
+				commandBuffer.SetScissor(targetScissorBox);
+				currentScissorBox = targetScissorBox;
+			}
+
+			commandBuffer.DrawIndexed(SafeCast<UInt32>(drawData.quadCount * 6), 1U, SafeCast<UInt32>(drawData.firstIndex));
 		}
 	}
 

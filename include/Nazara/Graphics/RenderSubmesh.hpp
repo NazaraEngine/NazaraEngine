@@ -24,7 +24,7 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer);
+			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer, const Recti& scissorBox);
 			~RenderSubmesh() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
@@ -33,6 +33,7 @@ namespace Nz
 			inline std::size_t GetIndexCount() const;
 			inline const MaterialPass& GetMaterialPass() const;
 			inline const RenderPipeline* GetRenderPipeline() const;
+			inline const Recti& GetScissorBox() const;
 			inline const AbstractBuffer* GetVertexBuffer() const;
 			inline const WorldInstance& GetWorldInstance() const;
 
@@ -45,6 +46,7 @@ namespace Nz
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::size_t m_indexCount;
 			const WorldInstance& m_worldInstance;
+			Recti m_scissorBox;
 			int m_renderLayer;
 	};
 }

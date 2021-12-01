@@ -42,7 +42,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data()));
+		elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), GetScissorBox()));
 	}
 
 	const std::shared_ptr<Material>& Sprite::GetMaterial(std::size_t i) const

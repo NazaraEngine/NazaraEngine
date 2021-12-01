@@ -8,7 +8,6 @@
 #define NAZARA_GRAPHICS_RENDERSPRITECHAIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -25,13 +24,14 @@ namespace Nz
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData);
+			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox);
 			~RenderSpriteChain() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
 
 			inline const MaterialPass& GetMaterialPass() const;
 			inline const RenderPipeline& GetRenderPipeline() const;
+			inline const Recti& GetScissorBox() const;
 			inline std::size_t GetSpriteCount() const;
 			inline const void* GetSpriteData() const;
 			inline const Texture* GetTextureOverlay() const;
@@ -48,6 +48,7 @@ namespace Nz
 			std::size_t m_spriteCount;
 			const void* m_spriteData;
 			const WorldInstance& m_worldInstance;
+			Recti m_scissorBox;
 			int m_renderLayer;
 	};
 }

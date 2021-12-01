@@ -34,8 +34,10 @@ namespace Nz
 			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
 			inline int GetRenderLayer() const;
+			inline const Recti& GetScissorBox() const;
 
 			inline void UpdateRenderLayer(int renderLayer);
+			inline void UpdateScissorBox(const Recti& scissorBox);
 
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
@@ -49,6 +51,7 @@ namespace Nz
 
 		private:
 			Boxf m_aabb;
+			Recti m_scissorBox;
 			int m_renderLayer;
 	};
 }

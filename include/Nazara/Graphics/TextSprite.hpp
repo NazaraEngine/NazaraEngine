@@ -95,6 +95,7 @@ namespace Nz
 			std::shared_ptr<Material> m_material;
 			std::vector<RenderData> m_data;
 			std::vector<VertexStruct_XYZ_Color_UV> m_vertices;
+			Recti m_scissorBox;
 	};
 }
 

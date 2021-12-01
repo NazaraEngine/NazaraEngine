@@ -231,6 +231,8 @@ namespace Nz
 		// Convert it back to int
 		m_viewport.Set(fViewport);
 
+		m_viewerInstance.UpdateTargetSize(fViewport.GetLengths());
+
 		UpdateProjectionMatrix();
 	}
 }

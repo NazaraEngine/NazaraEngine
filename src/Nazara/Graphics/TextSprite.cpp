@@ -42,7 +42,7 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4]));
+				elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], GetScissorBox()));
 		}
 	}
 
