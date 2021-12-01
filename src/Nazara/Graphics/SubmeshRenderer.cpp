@@ -27,12 +27,15 @@ namespace Nz
 
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
 
+		Recti invalidScissorBox(-1, -1, -1, -1);
+
 		const AbstractBuffer* currentIndexBuffer = nullptr;
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const MaterialPass* currentMaterialPass = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
+		Recti currentScissorBox = invalidScissorBox;
 
 		auto FlushDrawCall = [&]()
 		{
@@ -84,6 +87,14 @@ namespace Nz
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawData();
 				currentWorldInstance = worldInstance;
+			}
+
+			const Recti& scissorBox = submesh.GetScissorBox();
+			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
+			if (currentScissorBox != targetScissorBox)
+			{
+				FlushDrawData();
+				currentScissorBox = targetScissorBox;
 			}
 
 			if (!currentShaderBinding)
@@ -140,19 +151,24 @@ namespace Nz
 			drawCall.indexBuffer = currentIndexBuffer;
 			drawCall.indexCount = submesh.GetIndexCount();
 			drawCall.renderPipeline = currentPipeline;
+			drawCall.scissorBox = currentScissorBox;
 			drawCall.shaderBinding = currentShaderBinding;
 			drawCall.vertexBuffer = currentVertexBuffer;
 		}
 	}
 
-	void SubmeshRenderer::Render(const ViewerInstance& /*viewerInstance*/, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* /*elements*/, std::size_t /*elementCount*/)
+	void SubmeshRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* /*elements*/, std::size_t /*elementCount*/)
 	{
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
+
+		Vector2f targetSize = viewerInstance.GetTargetSize();
+		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
 		const AbstractBuffer* currentIndexBuffer = nullptr;
 		const AbstractBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
+		Recti currentScissorBox(-1, -1, -1, -1);
 
 		for (const auto& drawData : data.drawCalls)
 		{
@@ -180,10 +196,17 @@ namespace Nz
 				currentVertexBuffer = drawData.vertexBuffer;
 			}
 
+			const Recti& targetScissorBox = (drawData.scissorBox.width >= 0) ? drawData.scissorBox : fullscreenScissorBox;
+			if (currentScissorBox != targetScissorBox)
+			{
+				commandBuffer.SetScissor(targetScissorBox);
+				currentScissorBox = targetScissorBox;
+			}
+
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexed(drawData.indexCount);
+				commandBuffer.DrawIndexed(SafeCast<UInt32>(drawData.indexCount));
 			else
-				commandBuffer.Draw(drawData.indexCount);
+				commandBuffer.Draw(SafeCast<UInt32>(drawData.indexCount));
 		}
 	}
 

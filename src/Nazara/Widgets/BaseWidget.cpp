@@ -382,12 +382,18 @@ namespace Nz
 				scissorRect = parentScissorRect;
 		}
 
-		/*Recti fullBounds(scissorRect);
+		scissorRect.y = GetCanvas()->GetSize().y - scissorRect.height - scissorRect.y; //< scissor rect is in screen coordinates
+
+		Recti fullBounds(scissorRect);
+
+		auto& registry = GetRegistry();
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
-			const Ndk::EntityHandle& entity = widgetEntity.handle;
-			if (entity->HasComponent<GraphicsComponent>())
-				entity->GetComponent<GraphicsComponent>().SetScissorRect(fullBounds);
-		}*/
+			if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(widgetEntity.handle))
+			{
+				for (const auto& renderable : gfx->GetRenderables())
+					renderable.renderable->UpdateScissorBox(fullBounds);
+			}
+		}
 	}
 }

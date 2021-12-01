@@ -4,11 +4,12 @@
 
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/Algorithm.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::SpriteChain),
 	m_materialPass(std::move(materialPass)),
 	m_renderPipeline(std::move(renderPipeline)),
@@ -17,6 +18,7 @@ namespace Nz
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
 	m_worldInstance(worldInstance),
+	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
 	}
@@ -34,8 +36,9 @@ namespace Nz
 
 			// Transparent RQ index:
 			// - Layer (8bits)
-			// - Transparent flag (1bit)
-			// - Distance to near plane (32bits)
+			// - Sorted by distance flag (1bit)
+			// - Distance to near plane (32bits) - could by reduced to 24 or even 16 if required
+			// - ?? (23bits)
 
 			return (layerIndex & 0xFF) << 60 |
 			       (matFlags)          << 52 |
@@ -53,7 +56,7 @@ namespace Nz
 
 			// Opaque RQ index:
 			// - Layer (8bits)
-			// - Transparent flag (1bit)
+			// - Sorted by distance flag (1bit)
 			// - Element type (4bits)
 			// - Pipeline (16bits)
 			// - MaterialPass (16bits)
@@ -77,6 +80,11 @@ namespace Nz
 	inline const RenderPipeline& RenderSpriteChain::GetRenderPipeline() const
 	{
 		return *m_renderPipeline;
+	}
+
+	inline const Recti& RenderSpriteChain::GetScissorBox() const
+	{
+		return m_scissorBox;
 	}
 
 	inline std::size_t RenderSpriteChain::GetSpriteCount() const

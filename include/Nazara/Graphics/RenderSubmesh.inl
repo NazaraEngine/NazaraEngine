@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -17,6 +17,7 @@ namespace Nz
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_worldInstance(worldInstance),
+	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
 	}
@@ -34,8 +35,9 @@ namespace Nz
 
 			// Transparent RQ index:
 			// - Layer (8bits)
-			// - Transparent flag (1bit)
-			// - Distance to near plane (32bits)
+			// - Sorted by distance flag (1bit)
+			// - Distance to near plane (32bits) - could by reduced to 24 or even 16 if required
+			// - ?? (23bits)
 
 			return (layerIndex & 0xFF) << 60 |
 			       (matFlags)          << 52 |
@@ -52,7 +54,7 @@ namespace Nz
 
 			// Opaque RQ index:
 			// - Layer (8bits)
-			// - Transparent flag (1bit)
+			// - Sorted by distance flag (1bit)
 			// - Element type (4bits)
 			// - Pipeline (16bits)
 			// - MaterialPass (16bits)
@@ -86,6 +88,11 @@ namespace Nz
 	inline const RenderPipeline* RenderSubmesh::GetRenderPipeline() const
 	{
 		return m_renderPipeline.get();
+	}
+
+	inline const Recti& RenderSubmesh::GetScissorBox() const
+	{
+		return m_scissorBox;
 	}
 
 	inline const AbstractBuffer* RenderSubmesh::GetVertexBuffer() const

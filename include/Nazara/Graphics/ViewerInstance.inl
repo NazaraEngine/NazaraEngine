@@ -28,6 +28,11 @@ namespace Nz
 		return m_projectionMatrix;
 	}
 
+	inline const Vector2f& ViewerInstance::GetTargetSize() const
+	{
+		return m_targetSize;
+	}
+
 	inline const Matrix4f& ViewerInstance::GetViewMatrix() const
 	{
 		return m_viewMatrix;

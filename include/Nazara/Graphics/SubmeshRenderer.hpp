@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 
 namespace Nz
@@ -41,6 +42,7 @@ namespace Nz
 			const RenderPipeline* renderPipeline;
 			const ShaderBinding* shaderBinding;
 			std::size_t indexCount;
+			Recti scissorBox;
 		};
 
 		std::vector<DrawCall> drawCalls;

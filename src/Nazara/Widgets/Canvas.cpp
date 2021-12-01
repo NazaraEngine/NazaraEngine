@@ -19,6 +19,7 @@ namespace Nz
 	m_cursorController(cursorController)
 	{
 		m_canvas = this;
+		BaseWidget::m_registry = &m_registry;
 		m_widgetParent = nullptr;
 
 		SetBaseRenderLayer(initialRenderLayer);
