@@ -15,19 +15,19 @@ namespace Nz
 	namespace
 	{
 		const UInt8 ButtonImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultStyle/Button.png.h>
+			#include <Nazara/Widgets/Resources/DefaultTheme/Button.png.h>
 		};
 
 		const UInt8 ButtonHoveredImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultStyle/ButtonHovered.png.h>
+			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonHovered.png.h>
 		};
 
 		const UInt8 ButtonPressedImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultStyle/ButtonPressed.png.h>
+			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonPressed.png.h>
 		};
 
 		const UInt8 ButtonPressedHoveredImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultStyle/ButtonPressedHovered.png.h>
+			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonPressedHovered.png.h>
 		};
 	}
 
@@ -42,6 +42,9 @@ namespace Nz
 			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
 			buttonMaterialPass->EnableDepthBuffer(true);
 			buttonMaterialPass->EnableDepthWrite(false);
+			buttonMaterialPass->EnableBlending(true);
+			buttonMaterialPass->SetBlendEquation(BlendEquation::Add, BlendEquation::Add);
+			buttonMaterialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::One);
 
 			std::shared_ptr<Material> material = std::make_shared<Material>();
 			material->AddPass("ForwardPass", buttonMaterialPass);
@@ -54,14 +57,22 @@ namespace Nz
 		
 		// Button material
 		m_buttonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonImage, sizeof(ButtonImage), texParams));
-		m_hoveredButtonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonHoveredImage, sizeof(ButtonHoveredImage), texParams));
-		m_pressedButtonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedImage, sizeof(ButtonPressedImage), texParams));
-		m_pressedHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedHoveredImage, sizeof(ButtonPressedHoveredImage), texParams));
+		m_buttonHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonHoveredImage, sizeof(ButtonHoveredImage), texParams));
+		m_buttonPressedMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedImage, sizeof(ButtonPressedImage), texParams));
+		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedHoveredImage, sizeof(ButtonPressedHoveredImage), texParams));
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const
 	{
-		return std::make_unique<SimpleButtonWidgetStyle>(buttonWidget, m_buttonMaterial, m_hoveredButtonMaterial, m_pressedButtonMaterial, m_pressedHoveredMaterial);
+		SimpleButtonWidgetStyle::StyleConfig styleConfig;
+		styleConfig.cornerSize = 20.f;
+		styleConfig.cornerTexCoords = 20.f / 128.f;
+		styleConfig.hoveredMaterial = m_buttonHoveredMaterial;
+		styleConfig.material = m_buttonMaterial;
+		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;
+		styleConfig.pressedMaterial = m_buttonPressedMaterial;
+
+		return std::make_unique<SimpleButtonWidgetStyle>(buttonWidget, styleConfig);
 	}
 
 	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(LabelWidget* buttonWidget) const

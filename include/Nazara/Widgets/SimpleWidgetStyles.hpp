@@ -17,7 +17,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API SimpleButtonWidgetStyle : public ButtonWidgetStyle
 	{
 		public:
-			SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, std::shared_ptr<Material> material, std::shared_ptr<Material> hoveredMaterial = {}, std::shared_ptr<Material> pressedMaterial = {}, std::shared_ptr<Material> pressedHoveredMaterial = {});
+			struct StyleConfig;
+
+			SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, StyleConfig config);
 			SimpleButtonWidgetStyle(const SimpleButtonWidgetStyle&) = delete;
 			SimpleButtonWidgetStyle(SimpleButtonWidgetStyle&&) = default;
 			~SimpleButtonWidgetStyle() = default;
@@ -33,6 +35,16 @@ namespace Nz
 
 			SimpleButtonWidgetStyle& operator=(const SimpleButtonWidgetStyle&) = delete;
 			SimpleButtonWidgetStyle& operator=(SimpleButtonWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<Material> hoveredMaterial;
+				std::shared_ptr<Material> material;
+				std::shared_ptr<Material> pressedMaterial;
+				std::shared_ptr<Material> pressedHoveredMaterial;
+				float cornerSize;
+				float cornerTexCoords;
+			};
 
 		protected:
 			virtual void UpdateMaterial(bool hovered, bool pressed);
