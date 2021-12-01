@@ -39,7 +39,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 9, m_vertices.data()));
+		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data()));
 	}
 
 	const std::shared_ptr<Material>& SlicedSprite::GetMaterial(std::size_t i) const
@@ -111,49 +111,66 @@ namespace Nz
 		Vector3f origin = Vector3f::Zero();
 		Vector2f topLeftUV = m_textureCoords.GetCorner(RectCorner::LeftTop);
 
+		m_spriteCount = 0;
 		for (std::size_t y = 0; y < 3; ++y)
 		{
-			for (std::size_t x = 0; x < 3; ++x)
+			float height = heights[y];
+			if (height > 0.f)
 			{
-				vertices->color = m_color;
-				vertices->position = origin;
-				vertices->uv = topLeftUV;
-				vertices++;
+				for (std::size_t x = 0; x < 3; ++x)
+				{
+					float width = widths[x];
+					if (width > 0.f)
+					{
+						vertices->color = m_color;
+						vertices->position = origin;
+						vertices->uv = topLeftUV;
+						vertices++;
 
-				vertices->color = m_color;
-				vertices->position = origin + widths[x] * Vector3f::Right();
-				vertices->uv = topLeftUV + Vector2f(texCoordsX[x], 0.f);
-				vertices++;
+						vertices->color = m_color;
+						vertices->position = origin + width * Vector3f::Right();
+						vertices->uv = topLeftUV + Vector2f(texCoordsX[x], 0.f);
+						vertices++;
 
-				vertices->color = m_color;
-				vertices->position = origin + heights[y] * Vector3f::Up();
-				vertices->uv = topLeftUV + Vector2f(0.f, texCoordsY[y]);
-				vertices++;
+						vertices->color = m_color;
+						vertices->position = origin + height * Vector3f::Up();
+						vertices->uv = topLeftUV + Vector2f(0.f, texCoordsY[y]);
+						vertices++;
 
-				vertices->color = m_color;
-				vertices->position = origin + widths[x] * Vector3f::Right() + heights[y] * Vector3f::Up();
-				vertices->uv = topLeftUV + Vector2f(texCoordsX[x], texCoordsY[y]);
-				vertices++;
+						vertices->color = m_color;
+						vertices->position = origin + width * Vector3f::Right() + height * Vector3f::Up();
+						vertices->uv = topLeftUV + Vector2f(texCoordsX[x], texCoordsY[y]);
+						vertices++;
 
-				origin.x += widths[x];
-				topLeftUV.x += texCoordsX[x];
+						origin.x += width;
+						m_spriteCount++;
+					}
+
+					topLeftUV.x += texCoordsX[x];
+				}
+
+				origin.y += height;
 			}
 
 			origin.x = 0;
-			origin.y += heights[y];
 
 			topLeftUV.x = m_textureCoords.x;
 			topLeftUV.y += texCoordsY[y];
 		}
 
-		// Reverse texcoords Y
-		for (auto& vertex : m_vertices)
-			vertex.uv.y = m_textureCoords.height - vertex.uv.y;
+		Boxf aabb = Boxf::Zero();
 
-		Boxf aabb;
-		aabb.Set(m_vertices[0].position);
-		for (std::size_t i = 1; i < m_vertices.size(); ++i)
-			aabb.ExtendTo(m_vertices[i].position);
+		std::size_t vertexCount = 4 * m_spriteCount;
+		if (vertexCount > 0)
+		{
+			// Reverse texcoords Y
+			for (std::size_t i = 0; i < vertexCount; ++i)
+				m_vertices[i].uv.y = m_textureCoords.height - m_vertices[i].uv.y;
+
+			aabb.Set(m_vertices[0].position);
+			for (std::size_t i = 1; i < vertexCount; ++i)
+				aabb.ExtendTo(m_vertices[i].position);
+		}
 
 		UpdateAABB(aabb);
 		OnElementInvalidated(this);

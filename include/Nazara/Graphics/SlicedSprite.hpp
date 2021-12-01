@@ -51,8 +51,8 @@ namespace Nz
 
 			struct Corner
 			{
-				Vector2f textureCoords = Vector2f(0.125f, 0.125f);
-				Vector2f size = Vector2f(16.f, 16.f);
+				Vector2f textureCoords = Vector2f(0.15625f, 0.15625f);
+				Vector2f size = Vector2f(10.f, 10.f);
 			};
 
 		private:
@@ -60,6 +60,7 @@ namespace Nz
 
 			std::array<VertexStruct_XYZ_Color_UV, 4 * 9> m_vertices;
 			std::shared_ptr<Material> m_material;
+			std::size_t m_spriteCount;
 			Color m_color;
 			Corner m_topLeftCorner;
 			Corner m_bottomRightCorner;
