@@ -25,8 +25,11 @@ namespace Nz
 
 	inline void InstancedRenderable::UpdateRenderLayer(int renderLayer)
 	{
-		m_renderLayer = renderLayer;
-		OnElementInvalidated(this);
+		if (m_renderLayer != renderLayer)
+		{
+			m_renderLayer = renderLayer;
+			OnElementInvalidated(this);
+		}
 	}
 
 	inline void InstancedRenderable::UpdateAABB(Boxf aabb)

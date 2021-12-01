@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Thirdparty/robin_hood/robin_hood.h>
+#include <set>
 
 namespace Nz
 {
@@ -31,6 +32,8 @@ namespace Nz
 			inline std::size_t FetchVertexBuffer(const AbstractBuffer* vertexBuffer) const;
 			inline std::size_t FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const;
 
+			inline void Finalize();
+
 			inline void RegisterLayer(int renderLayer);
 			inline void RegisterMaterialPass(const MaterialPass* materialPass);
 			inline void RegisterPipeline(const RenderPipeline* pipeline);
@@ -38,6 +41,7 @@ namespace Nz
 			inline void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
 		private:
+			std::set<int> m_renderLayers;
 			robin_hood::unordered_map<int, std::size_t> m_renderLayerRegistry;
 			robin_hood::unordered_map<const MaterialPass*, std::size_t> m_materialPassRegistry;
 			robin_hood::unordered_map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
