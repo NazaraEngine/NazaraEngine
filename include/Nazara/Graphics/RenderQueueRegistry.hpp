@@ -13,6 +13,7 @@
 namespace Nz
 {
 	class AbstractBuffer;
+	class MaterialPass;
 	class RenderPipeline;
 	class VertexDeclaration;
 
@@ -25,17 +26,20 @@ namespace Nz
 			inline void Clear();
 
 			inline std::size_t FetchLayerIndex(int renderLayer) const;
+			inline std::size_t FetchMaterialPassIndex(const MaterialPass* materialPass) const;
 			inline std::size_t FetchPipelineIndex(const RenderPipeline* pipeline) const;
 			inline std::size_t FetchVertexBuffer(const AbstractBuffer* vertexBuffer) const;
 			inline std::size_t FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const;
 
 			inline void RegisterLayer(int renderLayer);
+			inline void RegisterMaterialPass(const MaterialPass* materialPass);
 			inline void RegisterPipeline(const RenderPipeline* pipeline);
 			inline void RegisterVertexBuffer(const AbstractBuffer* vertexBuffer);
 			inline void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
 		private:
 			robin_hood::unordered_map<int, std::size_t> m_renderLayerRegistry;
+			robin_hood::unordered_map<const MaterialPass*, std::size_t> m_materialPassRegistry;
 			robin_hood::unordered_map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
 			robin_hood::unordered_map<const AbstractBuffer*, std::size_t> m_vertexBufferRegistry;
 			robin_hood::unordered_map<const VertexDeclaration*, std::size_t> m_vertexDeclarationRegistry;
