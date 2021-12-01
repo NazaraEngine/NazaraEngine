@@ -91,6 +91,7 @@ namespace Nz
 		{
 			m_backgroundSprite = std::make_shared<Sprite>((m_backgroundColor.IsOpaque()) ? Widgets::Instance()->GetOpaqueMaterial() : Widgets::Instance()->GetTransparentMaterial());
 			m_backgroundSprite->SetColor(m_backgroundColor);
+			m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
 
 			entt::entity backgroundEntity = CreateEntity();
 			m_registry->emplace<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite, GetCanvas()->GetRenderMask());
@@ -107,6 +108,11 @@ namespace Nz
 			DestroyEntity(*m_backgroundEntity);
 			m_backgroundSprite.reset();
 		}
+
+		OnRenderLayerUpdated(GetBaseRenderLayer());
+
+		for (const auto& widgetPtr : m_children)
+			widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 	}
 
 	/*!
@@ -303,6 +309,10 @@ namespace Nz
 	}
 
 	void BaseWidget::OnMouseExit()
+	{
+	}
+
+	void BaseWidget::OnRenderLayerUpdated(int /*firstRenderLayer*/)
 	{
 	}
 

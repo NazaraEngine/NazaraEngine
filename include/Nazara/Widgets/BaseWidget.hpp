@@ -114,6 +114,7 @@ namespace Nz
 			entt::entity CreateEntity();
 			void DestroyEntity(entt::entity entity);
 
+			inline int GetBaseRenderLayer() const;
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
 
@@ -123,6 +124,7 @@ namespace Nz
 
 			virtual bool IsFocusable() const;
 			inline bool IsInside(float x, float y) const;
+
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
 			virtual bool OnKeyPressed(const WindowEvent::KeyEvent& key);
@@ -135,11 +137,14 @@ namespace Nz
 			virtual void OnMouseButtonTriplePress(int x, int y, Mouse::Button button);
 			virtual void OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnMouseExit();
+			virtual void OnRenderLayerUpdated(int baseRenderLayer);
 			virtual void OnParentResized(const Vector2f& newSize);
 			virtual void OnTextEntered(char32_t character, bool repeated);
 			virtual void OnTextEdited(const std::array<char, 32>& characters, int length);
 
+			inline void SetBaseRenderLayer(int baseRenderLayer);
 			inline void SetPreferredSize(const Vector2f& preferredSize);
+			inline void SetRenderLayerCount(int renderLayerCount);
 
 			virtual void ShowChildren(bool show);
 
@@ -179,6 +184,8 @@ namespace Nz
 			Vector2f m_size;
 			BaseWidget* m_widgetParent;
 			bool m_visible;
+			int m_baseRenderLayer;
+			int m_renderLayerCount;
 	};
 }
 

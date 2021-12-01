@@ -15,7 +15,7 @@
 namespace Nz
 {
 	SimpleButtonWidgetStyle::SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, StyleConfig config) :
-	ButtonWidgetStyle(buttonWidget),
+	ButtonWidgetStyle(buttonWidget, 2),
 	m_hoveredMaterial(std::move(config.hoveredMaterial)),
 	m_material(std::move(config.material)),
 	m_pressedMaterial(std::move(config.pressedMaterial)),
@@ -78,6 +78,12 @@ namespace Nz
 		UpdateMaterial(m_isHovered, m_isPressed);
 	}
 
+	void SimpleButtonWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
+	{
+		m_sprite->UpdateRenderLayer(baseRenderLayer);
+		m_textSprite->UpdateRenderLayer(baseRenderLayer + 1);
+	}
+
 	void SimpleButtonWidgetStyle::UpdateText(const AbstractTextDrawer& drawer)
 	{
 		m_textSprite->Update(drawer);
@@ -97,7 +103,7 @@ namespace Nz
 
 
 	SimpleCheckboxWidgetStyle::SimpleCheckboxWidgetStyle(CheckboxWidget* buttonWidget, StyleConfig config) :
-	CheckboxWidgetStyle(buttonWidget),
+	CheckboxWidgetStyle(buttonWidget, 2),
 	m_checkMaterial(std::move(config.checkMaterial)),
 	m_hoveredMaterial(std::move(config.backgroundHoveredMaterial)),
 	m_material(std::move(config.backgroundMaterial)),
@@ -173,6 +179,12 @@ namespace Nz
 		}
 	}
 
+	void SimpleCheckboxWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
+	{
+		m_backgroundSprite->UpdateRenderLayer(baseRenderLayer);
+		m_checkSprite->UpdateRenderLayer(baseRenderLayer + 1);
+	}
+
 	void SimpleCheckboxWidgetStyle::UpdateMaterial(bool hovered)
 	{
 		if (hovered && m_hoveredMaterial)
@@ -183,7 +195,7 @@ namespace Nz
 
 
 	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(LabelWidget* labelWidget, std::shared_ptr<Material> material, std::shared_ptr<Material> hoveredMaterial) :
-	LabelWidgetStyle(labelWidget),
+	LabelWidgetStyle(labelWidget, 1),
 	m_hoveredMaterial(std::move(hoveredMaterial)),
 	m_material(std::move(material))
 	{
@@ -222,6 +234,11 @@ namespace Nz
 			m_textSprite->SetMaterial(m_hoveredMaterial);
 		else
 			m_textSprite->SetMaterial(m_material);
+	}
+
+	void SimpleLabelWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
+	{
+		m_textSprite->UpdateRenderLayer(baseRenderLayer);
 	}
 
 	void SimpleLabelWidgetStyle::UpdateText(const AbstractTextDrawer& drawer)

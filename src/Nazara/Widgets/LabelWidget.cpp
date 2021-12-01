@@ -17,6 +17,7 @@ namespace Nz
 	BaseWidget(parent)
 	{
 		m_style = GetTheme()->CreateStyle(this);
+		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();
 	}
@@ -40,5 +41,10 @@ namespace Nz
 	void LabelWidget::OnMouseExit()
 	{
 		m_style->OnHoverEnd();
+	}
+
+	void LabelWidget::OnRenderLayerUpdated(int baseRenderLayer)
+	{
+		m_style->UpdateRenderLayer(baseRenderLayer);
 	}
 }

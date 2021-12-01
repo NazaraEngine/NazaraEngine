@@ -109,6 +109,7 @@ namespace Nz
 			void OnMouseButtonTriplePress(int x, int y, Mouse::Button button) override;
 			void OnMouseEnter() override;
 			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
+			void OnRenderLayerUpdated(int baseRenderLayer) override;
 			void OnTextEntered(char32_t character, bool repeated) override;
 
 			virtual void PasteFromClipboard(const Vector2ui& targetPosition) = 0;

@@ -22,6 +22,7 @@ namespace Nz
 	m_isTristateEnabled(false)
 	{
 		m_style = GetTheme()->CreateStyle(this);
+		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();
 	}
@@ -67,5 +68,10 @@ namespace Nz
 	void CheckboxWidget::OnMouseExit()
 	{
 		m_style->OnHoverEnd();
+	}
+
+	void CheckboxWidget::OnRenderLayerUpdated(int baseRenderLayer)
+	{
+		m_style->UpdateRenderLayer(baseRenderLayer);
 	}
 }

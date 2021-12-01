@@ -48,6 +48,8 @@ namespace Nz
 			void OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
 			void OnMouseExit() override;
 
+			void OnRenderLayerUpdated(int baseRenderLayer) override;
+
 			std::unique_ptr<CheckboxWidgetStyle> m_style;
 			CheckboxState m_state;
 			bool m_isTristateEnabled;
