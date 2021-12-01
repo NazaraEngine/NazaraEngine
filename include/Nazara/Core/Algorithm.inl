@@ -13,6 +13,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <cassert>
 #include <climits>
+#include <cmath>
 #include <limits>
 #include <utility>
 #include <Nazara/Core/Debug.hpp>
@@ -327,7 +328,7 @@ namespace Nz
 	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To> && std::is_floating_point_v<From>, int>>
 	To SafeCast(From value)
 	{
-		assert(floor(value) == value);
+		assert(std::floor(value) == value);
 
 		assert(value <= static_cast<From>(std::numeric_limits<To>::max()));
 		assert(value >= static_cast<From>(std::numeric_limits<To>::lowest()));
