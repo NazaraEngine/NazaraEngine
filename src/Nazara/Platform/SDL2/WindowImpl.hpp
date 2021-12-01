@@ -79,7 +79,7 @@ namespace Nz
 			static void Uninitialize();
 
 		private:
-			int static SDLCALL HandleEvent(void *userdata, SDL_Event * event);
+			static int SDLCALL HandleEvent(void* userdata, SDL_Event* event);
 
 			void PrepareWindow(bool fullscreen);
 
