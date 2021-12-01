@@ -39,6 +39,7 @@
 #include <Nazara/Widgets/ImageWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Widgets/RichTextAreaWidget.hpp>
+#include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>

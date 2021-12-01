@@ -136,7 +136,7 @@ namespace Nz
 		assert(glyphCount > 0);
 
 		std::size_t startIndex = GetCharacterPosition(m_text, GetGlyphIndex(selectionBegin));
-		std::size_t endIndex = GetCharacterPosition(m_text, std::min(GetGlyphIndex(selectionEnd), glyphCount - 1));
+		std::size_t endIndex = GetCharacterPosition(m_text, std::min(GetGlyphIndex(selectionEnd), glyphCount));
 
 		Clipboard::SetString(m_text.substr(startIndex, endIndex - startIndex));
 	}
