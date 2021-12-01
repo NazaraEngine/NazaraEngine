@@ -20,6 +20,7 @@ namespace Nz
 	BaseWidget(parent)
 	{
 		m_style = GetTheme()->CreateStyle(this);
+		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();
 	}
@@ -68,5 +69,10 @@ namespace Nz
 	void ButtonWidget::OnMouseExit()
 	{
 		m_style->OnHoverEnd();
+	}
+
+	void ButtonWidget::OnRenderLayerUpdated(int baseRenderLayer)
+	{
+		m_style->UpdateRenderLayer(baseRenderLayer);
 	}
 }

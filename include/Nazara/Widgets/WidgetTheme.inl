@@ -3,13 +3,16 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/WidgetTheme.hpp>
+#include <cassert>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
-	inline BaseWidgetStyle::BaseWidgetStyle(BaseWidget* widget) :
-	m_widgetOwner(widget)
+	inline BaseWidgetStyle::BaseWidgetStyle(BaseWidget* widget, int renderLayerCount) :
+	m_widgetOwner(widget),
+	m_renderLayerCount(renderLayerCount)
 	{
+		assert(m_renderLayerCount >= 0);
 	}
 
 	inline entt::entity BaseWidgetStyle::CreateEntity()
@@ -30,6 +33,11 @@ namespace Nz
 	inline const entt::registry& BaseWidgetStyle::GetRegistry() const
 	{
 		return m_widgetOwner->GetRegistry();
+	}
+
+	inline int BaseWidgetStyle::GetRenderLayerCount() const
+	{
+		return m_renderLayerCount;
 	}
 }
 

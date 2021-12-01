@@ -23,12 +23,14 @@ namespace Nz
 	m_preferredSize(-1),
 	m_size(50.f, 50.f),
 	m_widgetParent(nullptr),
-	m_visible(true)
+	m_visible(true),
+	m_baseRenderLayer(0),
+	m_renderLayerCount(1)
 	{
 	}
 
 	template<typename T, typename... Args>
-	inline T* BaseWidget::Add(Args&&... args)
+	T* BaseWidget::Add(Args&&... args)
 	{
 		std::unique_ptr<T> widget = std::make_unique<T>(this, std::forward<Args>(args)...);
 		T* widgetPtr = widget.get();
@@ -39,8 +41,10 @@ namespace Nz
 
 	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
 	{
-		widget->Show(m_visible);
 		widget->SetParent(this);
+		widget->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
+		widget->Show(widget->IsVisible() && m_visible);
+
 		m_children.emplace_back(std::move(widget));
 	}
 
@@ -264,11 +268,9 @@ namespace Nz
 		SetMinimumSize(minimumSize);
 	}
 
-	inline void BaseWidget::SetPreferredSize(const Vector2f& preferredSize)
+	inline int BaseWidget::GetBaseRenderLayer() const
 	{
-		m_preferredSize = preferredSize;
-
-		//Resize(m_preferredSize);
+		return m_baseRenderLayer + ((m_backgroundEntity.has_value()) ? 1 : 0);
 	}
 
 	inline entt::registry& BaseWidget::GetRegistry()
@@ -281,6 +283,38 @@ namespace Nz
 	{
 		assert(m_registry);
 		return *m_registry;
+	}
+
+	inline void BaseWidget::SetBaseRenderLayer(int baseRenderLayer)
+	{
+		if (m_baseRenderLayer != baseRenderLayer)
+		{
+			m_baseRenderLayer = baseRenderLayer;
+			if (m_backgroundSprite)
+				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
+
+			OnRenderLayerUpdated(GetBaseRenderLayer());
+
+			for (const auto& widgetPtr : m_children)
+				widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
+		}
+	}
+
+	inline void BaseWidget::SetPreferredSize(const Vector2f& preferredSize)
+	{
+		m_preferredSize = preferredSize;
+
+		//Resize(m_preferredSize);
+	}
+
+	inline void BaseWidget::SetRenderLayerCount(int renderLayerCount)
+	{
+		if (m_renderLayerCount != renderLayerCount)
+		{
+			m_renderLayerCount = renderLayerCount;
+			for (const auto& widgetPtr : m_children)
+				widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
+		}
 	}
 
 	inline bool BaseWidget::IsRegisteredToCanvas() const

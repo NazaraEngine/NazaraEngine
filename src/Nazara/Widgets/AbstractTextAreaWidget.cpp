@@ -471,6 +471,13 @@ namespace Nz
 			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x), float(y)));
 	}
 
+	void AbstractTextAreaWidget::OnRenderLayerUpdated(int baseRenderLayer)
+	{
+		m_textSprite->UpdateRenderLayer(baseRenderLayer);
+		for (Cursor& cursor : m_cursors)
+			cursor.sprite->UpdateRenderLayer(baseRenderLayer + 1);
+	}
+
 	void AbstractTextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
 	{
 		if (m_readOnly)
@@ -544,9 +551,10 @@ namespace Nz
 			for (std::size_t i = oldSpriteCount; i < m_cursors.size(); ++i)
 			{
 				m_cursors[i].sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
+				m_cursors[i].sprite->UpdateRenderLayer(GetBaseRenderLayer() + 1);
 
 				m_cursors[i].entity = CreateEntity();
-				registry.emplace<GraphicsComponent>(m_cursors[i].entity, HasFocus()).AttachRenderable(m_cursors[i].sprite);
+				registry.emplace<GraphicsComponent>(m_cursors[i].entity, IsVisible() && HasFocus()).AttachRenderable(m_cursors[i].sprite, GetCanvas()->GetRenderMask());
 				registry.emplace<NodeComponent>(m_cursors[i].entity).SetParent(textNode);
 			}
 		}

@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask) :
+	Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer) :
 	BaseWidget(std::make_shared<DefaultWidgetTheme>()),
 	m_renderMask(renderMask),
 	m_keyboardOwner(InvalidCanvasIndex),
@@ -20,6 +20,8 @@ namespace Nz
 	{
 		m_canvas = this;
 		m_widgetParent = nullptr;
+
+		SetBaseRenderLayer(initialRenderLayer);
 
 		// Register ourselves as a widget to handle cursor change
 		RegisterToCanvas();

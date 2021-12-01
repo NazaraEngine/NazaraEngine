@@ -41,6 +41,8 @@ namespace Nz
 			void OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
 			void OnMouseExit() override;
 
+			void OnRenderLayerUpdated(int baseRenderLayer) override;
+
 			std::unique_ptr<ButtonWidgetStyle> m_style;
 	};
 }

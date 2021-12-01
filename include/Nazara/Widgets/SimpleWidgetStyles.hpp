@@ -31,6 +31,7 @@ namespace Nz
 			void OnPress() override;
 			void OnRelease() override;
 
+			void UpdateRenderLayer(int baseRenderLayer) override;
 			void UpdateText(const AbstractTextDrawer& drawer) override;
 
 			SimpleButtonWidgetStyle& operator=(const SimpleButtonWidgetStyle&) = delete;
@@ -78,6 +79,8 @@ namespace Nz
 			void OnHoverEnd() override;
 			void OnNewState(CheckboxState newState) override;
 
+			void UpdateRenderLayer(int baseRenderLayer) override;
+
 			SimpleCheckboxWidgetStyle& operator=(const SimpleCheckboxWidgetStyle&) = delete;
 			SimpleCheckboxWidgetStyle& operator=(SimpleCheckboxWidgetStyle&&) = default;
 
@@ -119,6 +122,7 @@ namespace Nz
 			void OnHoverBegin() override;
 			void OnHoverEnd() override;
 
+			void UpdateRenderLayer(int baseRenderLayer) override;
 			void UpdateText(const AbstractTextDrawer& drawer) override;
 
 			SimpleLabelWidgetStyle& operator=(const SimpleLabelWidgetStyle&) = delete;

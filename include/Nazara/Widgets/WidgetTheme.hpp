@@ -44,7 +44,7 @@ namespace Nz
 	class NAZARA_WIDGETS_API BaseWidgetStyle
 	{
 		public:
-			inline BaseWidgetStyle(BaseWidget* widget);
+			inline BaseWidgetStyle(BaseWidget* widget, int renderLayerCount);
 			BaseWidgetStyle(const BaseWidgetStyle&) = delete;
 			BaseWidgetStyle(BaseWidgetStyle&&) = default;
 			virtual ~BaseWidgetStyle();
@@ -56,12 +56,16 @@ namespace Nz
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
 			UInt32 GetRenderMask() const;
+			inline int GetRenderLayerCount() const;
+
+			virtual void UpdateRenderLayer(int baseRenderLayer) = 0;
 
 			BaseWidgetStyle& operator=(const BaseWidgetStyle&) = delete;
 			BaseWidgetStyle& operator=(BaseWidgetStyle&&) = default;
 
 		private:
 			BaseWidget* m_widgetOwner;
+			int m_renderLayerCount;
 	};
 
 	class NAZARA_WIDGETS_API ButtonWidgetStyle : public BaseWidgetStyle
