@@ -7,6 +7,7 @@
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/Debug.hpp>
@@ -92,6 +93,92 @@ namespace Nz
 			m_sprite->SetMaterial(m_hoveredMaterial);
 		else
 			m_sprite->SetMaterial(m_material);
+	}
+
+
+	SimpleCheckboxWidgetStyle::SimpleCheckboxWidgetStyle(CheckboxWidget* buttonWidget, StyleConfig config) :
+	CheckboxWidgetStyle(buttonWidget),
+	m_checkMaterial(std::move(config.checkMaterial)),
+	m_hoveredMaterial(std::move(config.backgroundHoveredMaterial)),
+	m_material(std::move(config.backgroundMaterial)),
+	m_tristateMaterial(std::move(config.tristateMaterial)),
+	m_isHovered(false)
+	{
+		assert(m_material);
+		assert(m_checkMaterial);
+		assert(m_tristateMaterial);
+
+		auto& registry = GetRegistry();
+		UInt32 renderMask = GetRenderMask();
+
+		SlicedSprite::Corner corner;
+		corner.size.Set(config.backgroundCornerSize);
+		corner.textureCoords.Set(config.backgroundCornerTexCoords);
+
+		m_backgroundSprite = std::make_shared<SlicedSprite>(m_material);
+		m_backgroundSprite->SetCorners(corner, corner);
+
+		m_checkSprite = std::make_shared<Sprite>(m_checkMaterial);
+
+		m_backgroundEntity = CreateGraphicsEntity();
+		registry.get<GraphicsComponent>(m_backgroundEntity).AttachRenderable(m_backgroundSprite, renderMask);
+
+		m_checkEntity = CreateGraphicsEntity();
+		{
+			auto& gfxComponent = registry.get<GraphicsComponent>(m_checkEntity);
+			gfxComponent.AttachRenderable(m_checkSprite, renderMask);
+			gfxComponent.Hide();
+		}
+	}
+
+	void SimpleCheckboxWidgetStyle::Layout(const Vector2f& size)
+	{
+		m_backgroundSprite->SetSize(size);
+
+		Vector2f checkSize = size * 0.66f;
+		m_checkSprite->SetSize(checkSize);
+
+		GetRegistry().get<NodeComponent>(m_checkEntity).SetPosition(size.x / 2.f - checkSize.x / 2.f, size.y / 2.f - checkSize.y / 2.f);
+	}
+
+	void SimpleCheckboxWidgetStyle::OnHoverBegin()
+	{
+		m_isHovered = true;
+		UpdateMaterial(m_isHovered);
+	}
+
+	void SimpleCheckboxWidgetStyle::OnHoverEnd()
+	{
+		m_isHovered = false;
+		UpdateMaterial(m_isHovered);
+	}
+
+	void SimpleCheckboxWidgetStyle::OnNewState(CheckboxState newState)
+	{
+		switch (newState)
+		{
+			case CheckboxState::Unchecked:
+			{
+				GetRegistry().get<GraphicsComponent>(m_checkEntity).Hide();
+				break;
+			}
+
+			case CheckboxState::Tristate:
+			case CheckboxState::Checked:
+			{
+				m_checkSprite->SetMaterial((newState == CheckboxState::Checked) ? m_checkMaterial : m_tristateMaterial);
+				GetRegistry().get<GraphicsComponent>(m_checkEntity).Show();
+				break;
+			}
+		}
+	}
+
+	void SimpleCheckboxWidgetStyle::UpdateMaterial(bool hovered)
+	{
+		if (hovered && m_hoveredMaterial)
+			m_backgroundSprite->SetMaterial(m_hoveredMaterial);
+		else
+			m_backgroundSprite->SetMaterial(m_material);
 	}
 
 

@@ -61,6 +61,50 @@ namespace Nz
 			bool m_isHovered;
 			bool m_isPressed;
 	};
+	
+	class NAZARA_WIDGETS_API SimpleCheckboxWidgetStyle : public CheckboxWidgetStyle
+	{
+		public:
+			struct StyleConfig;
+
+			SimpleCheckboxWidgetStyle(CheckboxWidget* checkboxWidget, StyleConfig config);
+			SimpleCheckboxWidgetStyle(const SimpleCheckboxWidgetStyle&) = delete;
+			SimpleCheckboxWidgetStyle(SimpleCheckboxWidgetStyle&&) = default;
+			~SimpleCheckboxWidgetStyle() = default;
+
+			void Layout(const Vector2f& size) override;
+
+			void OnHoverBegin() override;
+			void OnHoverEnd() override;
+			void OnNewState(CheckboxState newState) override;
+
+			SimpleCheckboxWidgetStyle& operator=(const SimpleCheckboxWidgetStyle&) = delete;
+			SimpleCheckboxWidgetStyle& operator=(SimpleCheckboxWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<Material> backgroundMaterial;
+				std::shared_ptr<Material> backgroundHoveredMaterial;
+				std::shared_ptr<Material> checkMaterial;
+				std::shared_ptr<Material> tristateMaterial;
+				float backgroundCornerSize;
+				float backgroundCornerTexCoords;
+			};
+
+		protected:
+			virtual void UpdateMaterial(bool hovered);
+
+		private:
+			std::shared_ptr<Material> m_checkMaterial;
+			std::shared_ptr<Material> m_hoveredMaterial;
+			std::shared_ptr<Material> m_material;
+			std::shared_ptr<Material> m_tristateMaterial;
+			std::shared_ptr<Sprite> m_checkSprite;
+			std::shared_ptr<SlicedSprite> m_backgroundSprite;
+			entt::entity m_backgroundEntity;
+			entt::entity m_checkEntity;
+			bool m_isHovered;
+	};
 
 	class NAZARA_WIDGETS_API SimpleLabelWidgetStyle : public LabelWidgetStyle
 	{

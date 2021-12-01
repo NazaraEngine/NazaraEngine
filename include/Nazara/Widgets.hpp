@@ -33,6 +33,7 @@
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Widgets/Config.hpp>
 #include <Nazara/Widgets/DefaultWidgetTheme.hpp>
 #include <Nazara/Widgets/Enums.hpp>
