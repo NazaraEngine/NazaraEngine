@@ -8,13 +8,25 @@
 namespace Nz
 {
 	inline InstancedRenderable::InstancedRenderable() :
-	m_aabb(Boxf::Zero())
+	m_aabb(Boxf::Zero()),
+	m_renderLayer(0)
 	{
 	}
 
 	inline const Boxf& InstancedRenderable::GetAABB() const
 	{
 		return m_aabb;
+	}
+
+	inline int InstancedRenderable::GetRenderLayer() const
+	{
+		return m_renderLayer;
+	}
+
+	inline void InstancedRenderable::UpdateRenderLayer(int renderLayer)
+	{
+		m_renderLayer = renderLayer;
+		OnElementInvalidated(this);
 	}
 
 	inline void InstancedRenderable::UpdateAABB(Boxf aabb)

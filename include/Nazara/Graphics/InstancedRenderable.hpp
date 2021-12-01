@@ -33,6 +33,9 @@ namespace Nz
 			inline const Boxf& GetAABB() const;
 			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
+			inline int GetRenderLayer() const;
+
+			inline void UpdateRenderLayer(int renderLayer);
 
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
@@ -46,6 +49,7 @@ namespace Nz
 
 		private:
 			Boxf m_aabb;
+			int m_renderLayer;
 	};
 }
 

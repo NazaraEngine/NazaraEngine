@@ -39,7 +39,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(0, materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data()));
+		elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data()));
 	}
 
 	const std::shared_ptr<Material>& SlicedSprite::GetMaterial(std::size_t i) const
