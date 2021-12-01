@@ -306,157 +306,171 @@ namespace Nz
 		   }*/
 	}
 
-	int SDLCALL WindowImpl::HandleEvent(void *userdata, SDL_Event* event)
+	int WindowImpl::HandleEvent(void *userdata, SDL_Event* event)
 	{
-		try {
-			auto window = static_cast<WindowImpl*>(userdata);
-
-			WindowEvent evt;
-			evt.type = WindowEventType::Max;
+		try
+		{
+			WindowImpl* window = static_cast<WindowImpl*>(userdata);
 
 			switch (event->type)
 			{
 				case SDL_WINDOWEVENT:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->window.windowID)
 						return 0;
 
+					WindowEvent windowEvent;
 					switch (event->window.event)
 					{
 						case SDL_WINDOWEVENT_CLOSE:
-							evt.type = WindowEventType::Quit;
+							windowEvent.type = WindowEventType::Quit;
 							break;
+
 						case SDL_WINDOWEVENT_RESIZED:
-							evt.type = WindowEventType::Resized;
+							windowEvent.type = WindowEventType::Resized;
+							windowEvent.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
+							windowEvent.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
 
-							evt.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
-							evt.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
-
-							window->m_size.Set(evt.size.width, evt.size.height);
-
+							window->m_size.Set(windowEvent.size.width, windowEvent.size.height);
 							break;
-						case SDL_WINDOWEVENT_MOVED:
-							evt.type = WindowEventType::Moved;
 
-							evt.position.x = event->window.data1;
-							evt.position.y = event->window.data2;
+						case SDL_WINDOWEVENT_MOVED:
+							windowEvent.type = WindowEventType::Moved;
+							windowEvent.position.x = event->window.data1;
+							windowEvent.position.y = event->window.data2;
 
 							window->m_position.Set(event->window.data1, event->window.data2);
-
 							break;
+
 						case SDL_WINDOWEVENT_FOCUS_GAINED:
-							evt.type = WindowEventType::GainedFocus;
-
+							windowEvent.type = WindowEventType::GainedFocus;
+							window->RefreshCursor();
 							break;
+
 						case SDL_WINDOWEVENT_FOCUS_LOST:
-							evt.type = WindowEventType::LostFocus;
-
+							windowEvent.type = WindowEventType::LostFocus;
 							break;
+
 						case SDL_WINDOWEVENT_ENTER:
-							evt.type = WindowEventType::MouseEntered;
-
+							windowEvent.type = WindowEventType::MouseEntered;
 							break;
-						case SDL_WINDOWEVENT_LEAVE:
-							evt.type = WindowEventType::MouseLeft;
 
+						case SDL_WINDOWEVENT_LEAVE:
+							windowEvent.type = WindowEventType::MouseLeft;
 							break;
 					}
+
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 
 				case SDL_MOUSEMOTION:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->motion.windowID)
 						return 0;
 
 					if (window->m_ignoreNextMouseMove /*&& event->motion.x == window->m_mousePos.x && event->motion.y == window->m_mousePos.y*/)
 					{
 						window->m_ignoreNextMouseMove = false;
-
 						return 0;
 					}
 
-					evt.type = WindowEventType::MouseMoved;
+					WindowEvent windowEvent;
+					windowEvent.type = WindowEventType::MouseMoved;
+					windowEvent.mouseMove.x = event->motion.x;
+					windowEvent.mouseMove.y = event->motion.y;
+					windowEvent.mouseMove.deltaX = event->motion.xrel;
+					windowEvent.mouseMove.deltaY = event->motion.yrel;
 
-					evt.mouseMove.x = event->motion.x;
-					evt.mouseMove.y = event->motion.y;
-					evt.mouseMove.deltaX = event->motion.xrel;
-					evt.mouseMove.deltaY = event->motion.yrel;
-
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 
 				case SDL_MOUSEBUTTONDOWN:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->button.windowID)
 						return 0;
 
-					evt.mouseButton.button = SDLToNazaraButton(event->button.button);
-					evt.mouseButton.x = event->button.x;
-					evt.mouseButton.y = event->button.y;
-					evt.mouseButton.clickCount = event->button.clicks;
-					evt.type = WindowEventType::MouseButtonPressed;
+					WindowEvent windowEvent;
+					windowEvent.type = WindowEventType::MouseButtonPressed;
+					windowEvent.mouseButton.button = SDLToNazaraButton(event->button.button);
+					windowEvent.mouseButton.x = event->button.x;
+					windowEvent.mouseButton.y = event->button.y;
+					windowEvent.mouseButton.clickCount = event->button.clicks;
 
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 
 				case SDL_MOUSEBUTTONUP:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->button.windowID)
 						return 0;
 
-					evt.mouseButton.button = SDLToNazaraButton(event->button.button);
-					evt.mouseButton.x = event->button.x;
-					evt.mouseButton.y = event->button.y;
+					WindowEvent windowEvent;
+					windowEvent.type = WindowEventType::MouseButtonReleased;
+					windowEvent.mouseButton.button = SDLToNazaraButton(event->button.button);
+					windowEvent.mouseButton.x = event->button.x;
+					windowEvent.mouseButton.y = event->button.y;
 
-					evt.type = WindowEventType::MouseButtonReleased;
-
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 
 				case SDL_MOUSEWHEEL:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->wheel.windowID)
 						return 0;
 
-					evt.type = WindowEventType::MouseWheelMoved;
+					WindowEvent windowEvent;
+					windowEvent.type = WindowEventType::MouseWheelMoved;
+					windowEvent.mouseWheel.delta = event->wheel.y;
 
-					evt.mouseWheel.delta = event->wheel.y;
-
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 
 				case SDL_KEYDOWN:
 					if (SDL_GetWindowID(window->m_handle) != event->key.windowID)
 						return 0;
 
-					evt.type = WindowEventType::KeyPressed;
+					WindowEvent windowEvent;
+					windowEvent.type = WindowEventType::KeyPressed;
+					windowEvent.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
+					windowEvent.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
+					windowEvent.key.repeated = event->key.repeat != 0;
+					windowEvent.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
+					windowEvent.key.shift = (event->key.keysym.mod & KMOD_SHIFT) != 0;
+					windowEvent.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
+					windowEvent.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
 
-					evt.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
-					evt.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
-					evt.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
-					evt.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
-					evt.key.repeated = event->key.repeat != 0;
-					evt.key.shift = (event->key.keysym.mod & KMOD_SHIFT) != 0;
-					evt.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
+					window->m_parent->PushEvent(windowEvent);
 
 					// implements X11/Win32 APIs behavior for Enter and Backspace
-					switch (evt.key.virtualKey) {
+					switch (windowEvent.key.virtualKey)
+					{
 						case Nz::Keyboard::VKey::NumpadReturn:
 						case Nz::Keyboard::VKey::Return:
+						{
 							if (window->m_lastEditEventLength != 0)
 								break;
-							window->m_parent->PushEvent(evt);
 
-							evt.type = WindowEventType::TextEntered;
+							windowEvent.type = WindowEventType::TextEntered;
+							windowEvent.text.character = U'\n';
+							windowEvent.text.repeated = event->key.repeat != 0;
 
-							evt.text.character = U'\n';
-							evt.text.repeated = event->key.repeat != 0;
-
-							window->m_parent->PushEvent(evt);
-
+							window->m_parent->PushEvent(windowEvent);
 							break;
+						}
+
 						case Nz::Keyboard::VKey::Backspace:
-							window->m_parent->PushEvent(evt);
+							windowEvent.type = WindowEventType::TextEntered;
+							windowEvent.text.character = U'\b';
+							windowEvent.text.repeated = event->key.repeat != 0;
 
-							evt.type = WindowEventType::TextEntered;
-
-							evt.text.character = U'\b';
-							evt.text.repeated = event->key.repeat != 0;
-
-							window->m_parent->PushEvent(evt);
-
+							window->m_parent->PushEvent(windowEvent);
 							break;
+
 						default:
 							break;
 					}
@@ -464,67 +478,67 @@ namespace Nz
 					break;
 
 				case SDL_KEYUP:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->key.windowID)
 						return 0;
 
-					evt.type = WindowEventType::KeyReleased;
+					windowEvent.type = WindowEventType::KeyReleased;
+					windowEvent.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
+					windowEvent.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
+					windowEvent.key.repeated = event->key.repeat != 0;
+					windowEvent.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
+					windowEvent.key.shift = (event->key.keysym.mod & KMOD_SHIFT) != 0;
+					windowEvent.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
+					windowEvent.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
 
-					evt.key.scancode = SDLHelper::FromSDL(event->key.keysym.scancode);
-					evt.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
-					evt.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
-					evt.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
-					evt.key.repeated = event->key.repeat != 0;
-					evt.key.shift = (event->key.keysym.mod & KMOD_SHIFT) != 0;
-					evt.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
-
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 
 				case SDL_TEXTINPUT:
 				{
 					if (SDL_GetWindowID(window->m_handle) != event->text.windowID)
 						return 0;
 
-					evt.type = WindowEventType::TextEntered;
-					evt.text.repeated = false;
+					windowEvent.type = WindowEventType::TextEntered;
+					windowEvent.text.repeated = false;
 
 					utf8::unchecked::iterator<const char*> it(event->text.text);
 					do
 					{
-						evt.text.character = *it;
+						windowEvent.text.character = *it;
 
-						window->m_parent->PushEvent(evt);
-					} while (*it++);
-
-					// prevent post switch event
-					evt.type = WindowEventType::Max;
+						window->m_parent->PushEvent(windowEvent);
+					}
+					while (*it++);
 
 					break;
 				}
 
 				case SDL_TEXTEDITING:
+				{
 					if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
 						return 0;
 
-					evt.type = WindowEventType::TextEdited;
-					evt.edit.length = event->edit.length;
-					window->m_lastEditEventLength = evt.edit.length;
+					windowEvent.type = WindowEventType::TextEdited;
+					windowEvent.edit.length = event->edit.length;
+					window->m_lastEditEventLength = windowEvent.edit.length;
 
 					for (std::size_t i = 0; i < 32; i++)
 					{
-						evt.edit.text[i] = event->edit.text[i];
+						windowEvent.edit.text[i] = event->edit.text[i];
 					}
 
+					window->m_parent->PushEvent(windowEvent);
 					break;
+				}
 			}
-
-			if (evt.type != WindowEventType::Max)
-				window->m_parent->PushEvent(evt);
 		}
 		catch (std::exception e)
 		{
 			NazaraError(e.what());
 		}
-		catch (...)     // Don't let any exceptions go thru C calls
+		catch (...) // Don't let any exceptions go through C calls
 		{
 			NazaraError("An unknown error happened");
 		}
