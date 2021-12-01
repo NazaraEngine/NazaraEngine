@@ -116,7 +116,7 @@ int main()
 	spriteMaterialPass->EnableDepthClamp(true);
 	//spriteMaterialPass->EnableFaceCulling(true);
 
-	spriteMaterialPass->EnableFlag(Nz::MaterialPassFlag::Transparent);
+	spriteMaterialPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
 
 	spriteMaterialPass->EnableBlending(true);
 	spriteMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);

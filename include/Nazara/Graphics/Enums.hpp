@@ -32,9 +32,9 @@ namespace Nz
 
 	enum class MaterialPassFlag
 	{
-		Transparent,
+		SortByDistance,
 
-		Max = Transparent
+		Max = SortByDistance
 	};
 
 	template<>
