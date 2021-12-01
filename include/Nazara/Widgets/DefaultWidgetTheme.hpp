@@ -30,9 +30,9 @@ namespace Nz
 
 		private:
 			std::shared_ptr<Material> m_buttonMaterial;
-			std::shared_ptr<Material> m_hoveredButtonMaterial;
-			std::shared_ptr<Material> m_pressedHoveredMaterial;
-			std::shared_ptr<Material> m_pressedButtonMaterial;
+			std::shared_ptr<Material> m_buttonHoveredMaterial;
+			std::shared_ptr<Material> m_buttonPressedHoveredMaterial;
+			std::shared_ptr<Material> m_buttonPressedMaterial;
 	};
 }
 

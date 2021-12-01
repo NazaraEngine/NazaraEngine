@@ -13,12 +13,12 @@
 
 namespace Nz
 {
-	SimpleButtonWidgetStyle::SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, std::shared_ptr<Material> material, std::shared_ptr<Material> hoveredMaterial, std::shared_ptr<Material> pressedMaterial, std::shared_ptr<Material> pressedHoveredMaterial) :
+	SimpleButtonWidgetStyle::SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, StyleConfig config) :
 	ButtonWidgetStyle(buttonWidget),
-	m_hoveredMaterial(std::move(hoveredMaterial)),
-	m_material(std::move(material)),
-	m_pressedMaterial(std::move(pressedMaterial)),
-	m_pressedHoveredMaterial(std::move(pressedHoveredMaterial)),
+	m_hoveredMaterial(std::move(config.hoveredMaterial)),
+	m_material(std::move(config.material)),
+	m_pressedMaterial(std::move(config.pressedMaterial)),
+	m_pressedHoveredMaterial(std::move(config.pressedHoveredMaterial)),
 	m_isHovered(false),
 	m_isPressed(false)
 	{
@@ -27,7 +27,13 @@ namespace Nz
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
 
+		SlicedSprite::Corner corner;
+		corner.size.Set(config.cornerSize);
+		corner.textureCoords.Set(config.cornerTexCoords);
+
 		m_sprite = std::make_shared<SlicedSprite>(m_material);
+		m_sprite->SetCorners(corner, corner);
+
 		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
 
 		m_spriteEntity = CreateGraphicsEntity();
