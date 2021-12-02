@@ -226,11 +226,13 @@ rule("debug_suffix")
 
 -- Builds renderer plugins if linked to NazaraRenderer
 rule("build_rendererplugins")
-	after_load(function (target)
-		if target:kind() == "binary" and target:dep("NazaraRenderer") then
+	on_load(function (target)
+		local deps = table.wrap(target:get("deps"))
+
+		if target:kind() == "binary" and table.find_first(deps, "NazaraRenderer") then
 			for name, _ in pairs(modules) do
 				local depName = "Nazara" .. name
-				if name:match("^.+Renderer$") and target:dep(depName) == nil then -- don't overwrite dependency
+				if name:match("^.+Renderer$") and table.find_first(deps, depName) == nil then -- don't overwrite dependency
 					target:add("deps", depName, {inherit = false})
 				end
 			end
