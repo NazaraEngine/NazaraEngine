@@ -57,6 +57,8 @@ namespace Nz
 			template<typename F> void ProcessRenderQueue(const RenderQueue<RenderElement*>& renderQueue, F&& callback);
 			void UnregisterMaterialPass(MaterialPass* material);
 
+			struct ViewerData;
+
 			struct MaterialData
 			{
 				std::size_t usedCount = 0;
@@ -70,6 +72,13 @@ namespace Nz
 
 				NazaraSlot(InstancedRenderable, OnElementInvalidated, onElementInvalidated);
 				NazaraSlot(InstancedRenderable, OnMaterialInvalidated, onMaterialInvalidated);
+			};
+
+			struct RenderTargetData
+			{
+				std::size_t finalAttachment;
+				std::vector<const ViewerData*> viewers;
+				ShaderBindingPtr blitShaderBinding;
 			};
 
 			struct VisibleRenderable
@@ -102,7 +111,7 @@ namespace Nz
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
 			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
-			std::unordered_map<const RenderTarget*, std::vector<const ViewerData*>> m_viewerPerTarget;
+			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
 			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;

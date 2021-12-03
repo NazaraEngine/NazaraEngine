@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
+#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -351,44 +352,47 @@ namespace Nz
 					}
 				});
 			}
+
+			for (auto&& [_, renderTargetData] : m_renderTargets)
+			{
+				if (renderTargetData.blitShaderBinding)
+					renderFrame.PushForRelease(std::move(renderTargetData.blitShaderBinding));
+
+				renderTargetData.blitShaderBinding = graphics->GetBlitPipelineLayout()->AllocateShaderBinding(0);
+				renderTargetData.blitShaderBinding->Update({
+					{
+						0,
+						ShaderBinding::TextureBinding {
+							m_bakedFrameGraph.GetAttachmentTexture(renderTargetData.finalAttachment).get(),
+							sampler.get()
+						}
+					}
+				});
+			}
 		}
 
 		m_bakedFrameGraph.Execute(renderFrame);
 		m_rebuildFrameGraph = false;
 
-		m_viewerPerTarget.clear();
-		const Vector2ui& frameSize = renderFrame.GetSize();
 		for (auto&& [viewer, viewerData] : m_viewers)
 		{
 			viewerData.rebuildForwardPass = false;
 			viewerData.rebuildDepthPrepass = false;
 			viewerData.prepare = false;
-
-			const RenderTarget& renderTarget = viewer->GetRenderTarget();
-
-			m_viewerPerTarget[&renderTarget].push_back(&viewerData);
 		}
 
-		for (auto&& [renderTargetPtr, viewerDataVec] : m_viewerPerTarget)
+		const Vector2ui& frameSize = renderFrame.GetSize();
+		for (auto&& [renderTargetPtr, renderTargetData] : m_renderTargets)
 		{
 			Recti renderRegion(0, 0, frameSize.x, frameSize.y);
 
 			const RenderTarget& renderTarget = *renderTargetPtr;
-			auto& viewers = viewerDataVec;
-
-			std::sort(viewers.begin(), viewers.end(), [](const ViewerData* lhs, const ViewerData* rhs)
-			{
-				return lhs->renderOrder < rhs->renderOrder;
-			});
-
+			const auto& data = renderTargetData;
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				for (const ViewerData* viewerData : viewers)
-				{
-					const std::shared_ptr<Texture>& sourceTexture = m_bakedFrameGraph.GetAttachmentTexture(viewerData->colorAttachment);
+				const std::shared_ptr<Texture>& sourceTexture = m_bakedFrameGraph.GetAttachmentTexture(data.finalAttachment);
 
-					builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::FragmentShader, MemoryAccess::ColorWrite, MemoryAccess::ShaderRead, TextureLayout::ColorOutput, TextureLayout::ColorInput, *sourceTexture);
-				}
+				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::FragmentShader, MemoryAccess::ColorWrite, MemoryAccess::ShaderRead, TextureLayout::ColorOutput, TextureLayout::ColorInput, *sourceTexture);
 
 				std::array<CommandBufferBuilder::ClearValues, 2> clearValues;
 				clearValues[0].color = Color::Black;
@@ -404,21 +408,8 @@ namespace Nz
 						builder.BindPipeline(*graphics->GetBlitPipeline(false));
 						builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
 
-						bool first = true;
-
-						for (const ViewerData* viewerData : viewers)
-						{
-							const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
-
-							builder.BindShaderBinding(0, *blitShaderBinding);
-							builder.Draw(3);
-
-							if (first)
-							{
-								builder.BindPipeline(*graphics->GetBlitPipeline(true));
-								first = false;
-							}
-						}
+						builder.BindShaderBinding(0, *data.blitShaderBinding);
+						builder.Draw(3);
 					}
 					builder.EndDebugRegion();
 				}
@@ -554,8 +545,74 @@ namespace Nz
 			});
 		}
 
+		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
+
+		StackArray<ViewerPair> viewers = NazaraStackArray(ViewerPair, m_viewers.size());
+		auto viewerIt = viewers.begin();
+
 		for (auto&& [viewer, viewerData] : m_viewers)
-			frameGraph.AddBackbufferOutput(viewerData.colorAttachment);
+		{
+			const RenderTarget& renderTarget = viewer->GetRenderTarget();
+			*viewerIt++ = std::make_pair(&renderTarget, &viewerData);
+		}
+
+		std::sort(viewers.begin(), viewers.end(), [](const ViewerPair& lhs, const ViewerPair& rhs)
+		{
+			return lhs.second->renderOrder < rhs.second->renderOrder;
+		});
+
+		m_renderTargets.clear();
+		for (auto&& [renderTarget, viewerData] : viewers)
+		{
+			auto& renderTargetData = m_renderTargets[renderTarget];
+			renderTargetData.viewers.push_back(viewerData);
+		}
+
+		for (auto&& [renderTarget, renderTargetData] : m_renderTargets)
+		{
+			const auto& targetViewers = renderTargetData.viewers;
+
+			FramePass& forwardPass = frameGraph.AddPass("Merge pass");
+
+			renderTargetData.finalAttachment = frameGraph.AddAttachment({
+				"Viewer output",
+				PixelFormat::RGBA8
+			});
+
+			for (const ViewerData* viewerData : targetViewers)
+				forwardPass.AddInput(viewerData->colorAttachment);
+
+			forwardPass.AddOutput(renderTargetData.finalAttachment);
+			forwardPass.SetClearColor(0, Color::Black);
+
+			forwardPass.SetCommandCallback([this, &targetViewers](CommandBufferBuilder& builder, const Recti& renderRect)
+			{
+				builder.SetScissor(renderRect);
+				builder.SetViewport(renderRect);
+
+				Graphics* graphics = Graphics::Instance();
+				builder.BindPipeline(*graphics->GetBlitPipeline(false));
+				builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
+
+				bool first = true;
+
+				for (const ViewerData* viewerData : targetViewers)
+				{
+					const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
+
+					builder.BindShaderBinding(0, *blitShaderBinding);
+					builder.Draw(3);
+
+					if (first)
+					{
+						builder.BindPipeline(*graphics->GetBlitPipeline(true));
+						first = false;
+					}
+				}
+			});
+
+			frameGraph.AddBackbufferOutput(renderTargetData.finalAttachment);
+		}
 
 		return frameGraph.Bake();
 	}
