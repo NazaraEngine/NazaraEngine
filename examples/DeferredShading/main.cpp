@@ -658,6 +658,7 @@ int main()
 			planeModel.BuildElement(forwardPassIndex, planeInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
