@@ -49,7 +49,7 @@ namespace Nz
 
 			assert(m_cameraEntities.find(entity) == m_cameraEntities.end());
 			auto& cameraEntity = m_cameraEntities[entity];
-			cameraEntity.onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, entity](const Node* node)
+			cameraEntity.onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, entity](const Node* /*node*/)
 			{
 				m_invalidatedCameraNode.insert(entity);
 			});
@@ -71,7 +71,7 @@ namespace Nz
 
 			assert(m_graphicsEntities.find(entity) == m_graphicsEntities.end());
 			auto& graphicsEntity = m_graphicsEntities[entity];
-			graphicsEntity.onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, entity](const Node* node)
+			graphicsEntity.onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, entity](const Node* /*node*/)
 			{
 				m_invalidatedWorldNode.insert(entity);
 			});
