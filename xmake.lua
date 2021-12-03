@@ -229,7 +229,7 @@ rule("build_rendererplugins")
 	on_load(function (target)
 		local deps = table.wrap(target:get("deps"))
 
-		if target:kind() == "binary" and table.find_first(deps, "NazaraRenderer") then
+		if target:kind() == "binary" and (table.find_first(deps, "NazaraRenderer") or table.find_first(deps, "NazaraGraphics")) then
 			for name, _ in pairs(modules) do
 				local depName = "Nazara" .. name
 				if name:match("^.+Renderer$") and table.find_first(deps, depName) == nil then -- don't overwrite dependency
