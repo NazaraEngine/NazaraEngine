@@ -110,6 +110,50 @@ namespace Nz
 		m_commandBuffer.BindVertexBuffer(binding, vkBuffer.GetBuffer(), offset);
 	}
 
+	void VulkanCommandBufferBuilder::BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter)
+	{
+		const VulkanTexture& vkFromTexture = static_cast<const VulkanTexture&>(fromTexture);
+		const VulkanTexture& vkToTexture = static_cast<const VulkanTexture&>(toTexture);
+
+		VkImageSubresourceLayers todo = {
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			1,
+			0,
+			1
+		};
+
+		VkImageBlit region = {
+			todo,
+			{
+				{
+					SafeCast<Int32>(fromBox.x),
+					SafeCast<Int32>(fromBox.y),
+					SafeCast<Int32>(fromBox.z)
+				},
+				{
+					SafeCast<Int32>(fromBox.x + fromBox.width),
+					SafeCast<Int32>(fromBox.y + fromBox.height),
+					SafeCast<Int32>(fromBox.z + fromBox.depth)
+				}
+			},
+			todo,
+			{
+				{
+					SafeCast<Int32>(toBox.x),
+					SafeCast<Int32>(toBox.y),
+					SafeCast<Int32>(toBox.z)
+				},
+				{
+					SafeCast<Int32>(toBox.x + toBox.width),
+					SafeCast<Int32>(toBox.y + toBox.height),
+					SafeCast<Int32>(toBox.z + toBox.depth)
+				}
+			},
+		};
+
+		m_commandBuffer.BlitImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkToTexture.GetImage(), ToVulkan(toLayout), region, ToVulkan(filter));
+	}
+
 	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		VulkanBuffer& sourceBuffer = *static_cast<VulkanBuffer*>(source.GetBuffer());
@@ -124,6 +168,40 @@ namespace Nz
 		VulkanBuffer& targetBuffer = *static_cast<VulkanBuffer*>(target.GetBuffer());
 
 		m_commandBuffer.CopyBuffer(vkAllocation.buffer, targetBuffer.GetBuffer(), size, vkAllocation.offset + sourceOffset, target.GetOffset() + targetOffset);
+	}
+
+	void VulkanCommandBufferBuilder::CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout)
+	{
+		const VulkanTexture& vkFromTexture = static_cast<const VulkanTexture&>(fromTexture);
+		const VulkanTexture& vkToTexture = static_cast<const VulkanTexture&>(toTexture);
+
+		VkImageSubresourceLayers todo = {
+			VK_IMAGE_ASPECT_COLOR_BIT,
+			1,
+			0,
+			1
+		};
+
+		VkImageCopy region = {
+			todo,
+			{
+				SafeCast<Int32>(fromBox.x),
+				SafeCast<Int32>(fromBox.y),
+				SafeCast<Int32>(fromBox.z)
+			},
+			{
+				SafeCast<Int32>(toPos.x),
+				SafeCast<Int32>(toPos.y),
+				SafeCast<Int32>(toPos.z),
+			},
+			{
+				SafeCast<Int32>(fromBox.width),
+				SafeCast<Int32>(fromBox.height),
+				SafeCast<Int32>(fromBox.depth)
+			}
+		};
+
+		m_commandBuffer.CopyImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkToTexture.GetImage(), ToVulkan(toLayout), region);
 	}
 
 	void VulkanCommandBufferBuilder::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)

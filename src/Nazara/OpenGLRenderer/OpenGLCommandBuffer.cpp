@@ -78,6 +78,10 @@ namespace Nz
 					if (context->glPushDebugGroup)
 						context->glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, GLsizei(command.regionName.size()), command.regionName.data());
 				}
+				else if constexpr (std::is_same_v<T, BlitTextureData>)
+				{
+					context->BlitTexture(*command.source, *command.target, command.sourceBox, command.targetBox, command.filter);
+				}
 				else if constexpr (std::is_same_v<T, CopyBufferData>)
 				{
 					context->BindBuffer(GL::BufferTarget::CopyRead, command.source);
@@ -88,6 +92,10 @@ namespace Nz
 				{
 					context->BindBuffer(GL::BufferTarget::CopyWrite, command.target);
 					context->glBufferSubData(GL_COPY_WRITE_BUFFER, command.targetOffset, command.size, command.memory);
+				}
+				else if constexpr (std::is_same_v<T, CopyTextureData>)
+				{
+					context->CopyTexture(*command.source, *command.target, command.sourceBox, command.targetPoint);
 				}
 				else if constexpr (std::is_same_v<T, DrawData>)
 				{

@@ -125,7 +125,7 @@ namespace Nz::GL
 			void BindUniformBuffer(UInt32 uboUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
 			void BindVertexArray(GLuint vertexArray, bool force = false) const;
 
-			bool BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos, SamplerFilter filter) const;
+			bool BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const;
 
 			bool ClearErrorStack() const;
 

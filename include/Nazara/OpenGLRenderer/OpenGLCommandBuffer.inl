@@ -62,6 +62,19 @@ namespace Nz
 		vertexBufferData.vertexBuffer = vertexBuffer;
 	}
 
+	inline void OpenGLCommandBuffer::BlitTexture(const GL::Texture& source, const Boxui& sourceBox, const GL::Texture& target, const Boxui& targetBox, SamplerFilter filter)
+	{
+		BlitTextureData blitTexture = {
+			&source,
+			&target,
+			sourceBox,
+			targetBox,
+			filter
+		};
+
+		m_commands.emplace_back(std::move(blitTexture));
+	}
+
 	inline void OpenGLCommandBuffer::CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		CopyBufferData copyBuffer = {
@@ -85,6 +98,18 @@ namespace Nz
 		};
 
 		m_commands.emplace_back(std::move(copyBuffer));
+	}
+
+	inline void OpenGLCommandBuffer::CopyTexture(const GL::Texture& source, const Boxui& sourceBox, const GL::Texture& target, const Vector3ui& targetPoint)
+	{
+		CopyTextureData copyTexture = {
+			&source,
+			&target,
+			sourceBox,
+			targetPoint
+		};
+
+		m_commands.emplace_back(std::move(copyTexture));
 	}
 
 	inline void OpenGLCommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
