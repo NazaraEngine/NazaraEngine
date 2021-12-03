@@ -41,9 +41,11 @@ namespace Nz
 			inline void BindPipeline(const OpenGLRenderPipeline* pipeline);
 			inline void BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
+			inline void BlitTexture(const GL::Texture& source, const Boxui& sourceBox, const GL::Texture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
 
 			inline void CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 			inline void CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
+			inline void CopyTexture(const GL::Texture& source, const Boxui& sourceBox, const GL::Texture& target, const Vector3ui& targetPoint);
 
 			inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 firstInstance = 0);
@@ -75,6 +77,15 @@ namespace Nz
 				Color color;
 			};
 
+			struct BlitTextureData
+			{
+				const GL::Texture* source;
+				const GL::Texture* target;
+				Boxui sourceBox;
+				Boxui targetBox;
+				SamplerFilter filter;
+			};
+
 			struct CopyBufferData
 			{
 				GLuint source;
@@ -82,6 +93,14 @@ namespace Nz
 				UInt64 size;
 				UInt64 sourceOffset;
 				UInt64 targetOffset;
+			};
+
+			struct CopyTextureData
+			{
+				const GL::Texture* source;
+				const GL::Texture* target;
+				Boxui sourceBox;
+				Vector3ui targetPoint;
 			};
 
 			struct CopyBufferFromMemoryData
@@ -141,8 +160,10 @@ namespace Nz
 
 			using CommandData = std::variant<
 				BeginDebugRegionData,
+				BlitTextureData,
 				CopyBufferData,
 				CopyBufferFromMemoryData,
+				CopyTextureData,
 				DrawData,
 				DrawIndexedData,
 				EndDebugRegionData,

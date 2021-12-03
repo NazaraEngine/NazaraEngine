@@ -184,6 +184,16 @@ namespace Nz
 			return m_pool->GetDevice()->vkCmdBindVertexBuffers(m_handle, firstBinding, bindingCount, buffer, offset);
 		}
 
+		inline void CommandBuffer::BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, const VkImageBlit& region, VkFilter filter)
+		{
+			return BlitImage(srcImage, srcImageLayout, dstImage, dstImageLayout, 1U, &region, filter);
+		}
+
+		inline void CommandBuffer::BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, UInt32 regionCount, const VkImageBlit* regions, VkFilter filter)
+		{
+			return m_pool->GetDevice()->vkCmdBlitImage(m_handle, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, regions, filter);
+		}
+
 		inline void CommandBuffer::ClearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect)
 		{
 			return ClearAttachments(1U, &attachment, 1U, &rect);

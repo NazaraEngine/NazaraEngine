@@ -249,7 +249,7 @@ namespace Nz::GL
 		}
 	}
 
-	bool Context::BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos, SamplerFilter filter) const
+	bool Context::BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
 	{
 		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
 			return false;
@@ -277,7 +277,7 @@ namespace Nz::GL
 			return false;
 		}
 
-		glBlitFramebuffer(srcBox.x, srcBox.y, srcBox.x + srcBox.width, srcBox.y + srcBox.height, dstPos.x, dstPos.y, dstPos.x + srcBox.width, dstPos.y + srcBox.height, GL_COLOR_BUFFER_BIT, ToOpenGL(filter));
+		glBlitFramebuffer(srcBox.x, srcBox.y, srcBox.x + srcBox.width, srcBox.y + srcBox.height, dstBox.x, dstBox.y, dstBox.x + dstBox.width, dstBox.y + srcBox.height, GL_COLOR_BUFFER_BIT, ToOpenGL(filter));
 		return true;
 	}
 
@@ -296,7 +296,7 @@ namespace Nz::GL
 	bool Context::CopyTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos) const
 	{
 		// Use glCopyImageSubData if available
-		if (glCopyImageSubData && false)
+		if (glCopyImageSubData)
 		{
 			GLuint srcImage = source.GetObjectId();
 			GLenum srcTarget = ToOpenGL(source.GetTarget());
@@ -310,7 +310,7 @@ namespace Nz::GL
 		else
 		{
 			// If glCopyImageSubData is not available, fallback to framebuffer blit
-			return BlitTexture(source, destination, srcBox, dstPos, SamplerFilter::Nearest);
+			return BlitTexture(source, destination, srcBox, Boxui(dstPos.x, dstPos.y, dstPos.z, srcBox.width, srcBox.height, srcBox.depth), SamplerFilter::Nearest);
 		}
 	}
 

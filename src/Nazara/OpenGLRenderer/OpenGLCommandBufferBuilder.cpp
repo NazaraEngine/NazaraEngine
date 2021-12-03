@@ -9,6 +9,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
@@ -60,6 +61,14 @@ namespace Nz
 		m_commandBuffer.BindVertexBuffer(binding, glBuffer.GetBuffer().GetObjectId(), offset);
 	}
 
+	void OpenGLCommandBufferBuilder::BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout /*fromLayout*/, const Texture& toTexture, const Boxui& toBox, TextureLayout /*toLayout*/, SamplerFilter filter)
+	{
+		const OpenGLTexture& sourceTexture = static_cast<const OpenGLTexture&>(fromTexture);
+		const OpenGLTexture& targetTexture = static_cast<const OpenGLTexture&>(toTexture);
+
+		m_commandBuffer.BlitTexture(sourceTexture.GetTexture(), fromBox, targetTexture.GetTexture(), toBox, filter);
+	}
+
 	void OpenGLCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		OpenGLBuffer& sourceBuffer = *static_cast<OpenGLBuffer*>(source.GetBuffer());
@@ -73,6 +82,14 @@ namespace Nz
 		OpenGLBuffer& targetBuffer = *static_cast<OpenGLBuffer*>(target.GetBuffer());
 
 		m_commandBuffer.CopyBuffer(allocation, targetBuffer.GetBuffer().GetObjectId(), size, sourceOffset, target.GetOffset() + targetOffset);
+	}
+
+	void OpenGLCommandBufferBuilder::CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout)
+	{
+		const OpenGLTexture& sourceTexture = static_cast<const OpenGLTexture&>(fromTexture);
+		const OpenGLTexture& targetTexture = static_cast<const OpenGLTexture&>(toTexture);
+
+		m_commandBuffer.CopyTexture(sourceTexture.GetTexture(), fromBox, targetTexture.GetTexture(), toPos);
 	}
 
 	void OpenGLCommandBufferBuilder::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
