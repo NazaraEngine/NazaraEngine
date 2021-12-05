@@ -15,7 +15,7 @@ struct ViewerData
 external
 {
 	[set(0), binding(0)] viewerData: uniform<ViewerData>,
-	[set(0), binding(1)] colorTexture: sampler2D<f32>,
+	[set(0), binding(1)] inputTexture: sampler2D<f32>
 }
 
 struct FragIn
@@ -41,20 +41,17 @@ struct VertOut
 [entry(frag)]
 fn main(input: FragIn) -> FragOut
 {
-	let BrightLuminance = 0.8;
-	let BrightMiddleGrey = 0.5;
-	let BrightThreshold  = 0.7;
+	let exposure = 0.8;
 
-	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize * 10.0;
+	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize;
 
-	let color = colorTexture.Sample(fragcoord).rgb;
-	color *= BrightMiddleGrey / BrightLuminance;
-	color *= vec3<f32>(1.0, 1.0, 1.0) + (color / (BrightThreshold*BrightThreshold));
-	color -= vec3<f32>(0.5, 0.5, 0.5);
-	color /= vec3<f32>(1.0, 1.0, 1.0) + color;
+	let hdrColor = inputTexture.Sample(fragcoord).rgb;
+
+	// reinhard tone mapping
+	let mapped = vec3<f32>(1.0, 1.0, 1.0) - exp(-hdrColor * exposure);
 
 	let output: FragOut;
-	output.color = vec4<f32>(max(color, vec3<f32>(0.0, 0.0, 0.0)), 1.0);
+	output.color = vec4<f32>(mapped, 1.0);
 
 	return output;
 }
