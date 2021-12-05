@@ -68,6 +68,7 @@ namespace Nz::ShaderAst
 		{
 			RegisterIntrinsic("cross", IntrinsicType::CrossProduct);
 			RegisterIntrinsic("dot", IntrinsicType::DotProduct);
+			RegisterIntrinsic("exp", IntrinsicType::Exp);
 			RegisterIntrinsic("length", IntrinsicType::Length);
 			RegisterIntrinsic("max", IntrinsicType::Max);
 			RegisterIntrinsic("min", IntrinsicType::Min);
@@ -1389,15 +1390,21 @@ namespace Nz::ShaderAst
 				break;
 			}
 
+			case IntrinsicType::Exp:
+			{
+				if (node.parameters.size() != 1)
+					throw AstError{ "Expected only one parameters" };
+
+				MandatoryExpr(node.parameters.front());
+				break;
+			}
+
 			case IntrinsicType::Length:
 			{
 				if (node.parameters.size() != 1)
 					throw AstError{ "Expected only one parameters" };
 
-				for (auto& param : node.parameters)
-					MandatoryExpr(param);
-
-				const ExpressionType& type = GetExpressionType(*node.parameters.front());
+				const ExpressionType& type = GetExpressionType(MandatoryExpr(node.parameters.front()));
 				if (!IsVectorType(type))
 					throw AstError{ "Expected a vector" };
 
@@ -1438,7 +1445,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::DotProduct:
 			case IntrinsicType::Length:
 			{
-				ExpressionType type = GetExpressionType(*node.parameters.front());
+				const ExpressionType& type = GetExpressionType(*node.parameters.front());
 				if (!IsVectorType(type))
 					throw AstError{ "DotProduct expects vector types" };
 
@@ -1461,6 +1468,7 @@ namespace Nz::ShaderAst
 				break;
 			}
 
+			case IntrinsicType::Exp:
 			case IntrinsicType::Pow:
 			{
 				const ExpressionType& type = GetExpressionType(*node.parameters.front());

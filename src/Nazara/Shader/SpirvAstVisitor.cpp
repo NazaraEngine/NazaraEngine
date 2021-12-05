@@ -743,6 +743,22 @@ namespace Nz
 				break;
 			}
 
+			case ShaderAst::IntrinsicType::Exp:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
+				assert(IsPrimitiveType(parameterType) || IsVectorType(parameterType));
+				UInt32 typeId = m_writer.GetTypeId(parameterType);
+
+				UInt32 param = EvaluateExpression(node.parameters[0]);
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Exp, param);
+				PushResultId(resultId);
+				break;
+			}
+
 			case ShaderAst::IntrinsicType::Length:
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
@@ -814,14 +830,6 @@ namespace Nz
 				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
 				assert(IsPrimitiveType(parameterType) || IsVectorType(parameterType));
 				UInt32 typeId = m_writer.GetTypeId(parameterType);
-
-				ShaderAst::PrimitiveType basicType;
-				if (IsPrimitiveType(parameterType))
-					basicType = std::get<ShaderAst::PrimitiveType>(parameterType);
-				else if (IsVectorType(parameterType))
-					basicType = std::get<ShaderAst::VectorType>(parameterType).type;
-				else
-					throw std::runtime_error("unexpected expression type");
 
 				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
 				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
