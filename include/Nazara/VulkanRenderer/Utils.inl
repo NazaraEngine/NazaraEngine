@@ -263,6 +263,7 @@ namespace Nz
 			case PixelFormat::RGB8_SRGB:        return VK_FORMAT_R8G8B8_SRGB;
 			case PixelFormat::RGBA8:            return VK_FORMAT_R8G8B8A8_UNORM;
 			case PixelFormat::RGBA8_SRGB:       return VK_FORMAT_R8G8B8A8_SRGB;
+			case PixelFormat::RGBA16F:          return VK_FORMAT_R16G16B16A16_SFLOAT;
 			case PixelFormat::RGBA32F:          return VK_FORMAT_R32G32B32A32_SFLOAT;
 			default: break;
 		}
