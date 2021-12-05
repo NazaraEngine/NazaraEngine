@@ -179,23 +179,54 @@ namespace Nz
 
 	void FrameGraph::AssignPhysicalTextures()
 	{
+		std::vector<std::size_t> texturePool;
+
 		auto RegisterTexture = [&](std::size_t attachmentIndex)
 		{
 			if (auto it = m_pending.attachmentToTextures.find(attachmentIndex); it == m_pending.attachmentToTextures.end())
 			{
+				const auto& attachmentData = m_attachments[attachmentIndex];
+
+				// Fetch from reuse pool if possible
+				for (auto it = texturePool.begin(); it != texturePool.end(); ++it)
+				{
+					std::size_t textureId = *it;
+
+					TextureData& data = m_pending.textures[textureId];
+					if (data.format != attachmentData.format ||
+					    data.width != attachmentData.width ||
+					    data.height != attachmentData.height)
+						continue;
+
+					texturePool.erase(it);
+					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+					return textureId;
+				}
+
 				std::size_t textureId = m_pending.textures.size();
 				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
 				TextureData& data = m_pending.textures.emplace_back();
-				data.format = m_attachments[attachmentIndex].format;
-				data.width = m_attachments[attachmentIndex].width;
-				data.height = m_attachments[attachmentIndex].height;
+				data.format = attachmentData.format;
+				data.width = attachmentData.width;
+				data.height = attachmentData.height;
 
 				return textureId;
 			}
 			else
 				return it->second;
 		};
+
+		// Assign last use pass index for every attachment
+		for (std::size_t passIndex : m_pending.passList)
+		{
+			const FramePass& framePass = m_framePasses[passIndex];
+			framePass.ForEachAttachment([&](std::size_t attachmentId)
+			{
+				m_pending.attachmentLastUse[attachmentId] = passIndex;
+			});
+		}
 
 		for (std::size_t passIndex : m_pending.passList)
 		{
@@ -240,6 +271,24 @@ namespace Nz
 				TextureData& attachmentData = m_pending.textures[textureId];
 				attachmentData.usage |= TextureUsage::DepthStencilAttachment;
 			}
+
+			framePass.ForEachAttachment([&](std::size_t attachmentId)
+			{
+				std::size_t lastUsingPassId = Retrieve(m_pending.attachmentLastUse, attachmentId);
+
+				// If this pass is the last one where this attachment is used, push the texture to the reuse pool
+				if (passIndex == lastUsingPassId)
+				{
+					std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+
+					// For input/output depth-stencil buffer, the same texture can be used
+					if (texturePool.empty() || texturePool.back() != textureId)
+					{
+						assert(std::find(texturePool.begin(), texturePool.end(), textureId) == texturePool.end());
+						texturePool.push_back(textureId);
+					}
+				}
+			});
 		}
 
 		// Add TextureUsage::Sampled to backbuffer output
@@ -274,7 +323,6 @@ namespace Nz
 
 				return barrier;
 			}
-
 		};
 
 		for (std::size_t passId : m_pending.passList)
@@ -779,7 +827,6 @@ namespace Nz
 				const FramePass& framePass = m_framePasses[subpass.passIndex];
 				std::size_t dsInputAttachment = framePass.GetDepthStencilInput();
 				std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput();
-				bool depthRead = false;
 
 				if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement != FramePass::InvalidAttachmentId)
 				{

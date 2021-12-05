@@ -45,6 +45,7 @@ namespace Nz
 			using BarrierList = std::vector<PassBarriers>;
 			using PassList = std::vector<std::size_t /*PassIndex*/>;
 			using AttachmentIdToPassMap = std::unordered_map<std::size_t /*resourceIndex*/, PassList /*passIndexes*/>;
+			using AttachmentIdToPassId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*passId*/>;
 			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
 			using TextureTransition = BakedFrameGraph::TextureTransition;
@@ -88,6 +89,7 @@ namespace Nz
 				std::vector<std::shared_ptr<RenderPass>> renderPasses;
 				std::vector<PhysicalPassData> physicalPasses;
 				std::vector<TextureData> textures;
+				AttachmentIdToPassId attachmentLastUse;
 				AttachmentIdToPassMap attachmentReadList;
 				AttachmentIdToPassMap attachmentWriteList;
 				AttachmentIdToTextureId attachmentToTextures;
