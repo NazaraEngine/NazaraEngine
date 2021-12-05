@@ -812,6 +812,10 @@ namespace Nz
 				Append("dot");
 				break;
 
+			case ShaderAst::IntrinsicType::Exp:
+				Append("exp");
+				break;
+
 			case ShaderAst::IntrinsicType::Length:
 				Append("length");
 				break;

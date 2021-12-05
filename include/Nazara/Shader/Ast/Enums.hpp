@@ -98,6 +98,7 @@ namespace Nz
 		{
 			CrossProduct = 0,
 			DotProduct = 1,
+			Exp = 7,
 			Length = 3,
 			Max = 4,
 			Min = 5,

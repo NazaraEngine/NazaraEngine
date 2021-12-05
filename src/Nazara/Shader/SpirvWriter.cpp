@@ -336,6 +336,7 @@ namespace Nz
 					{
 						// Require GLSL.std.450
 						case ShaderAst::IntrinsicType::CrossProduct:
+						case ShaderAst::IntrinsicType::Exp:
 						case ShaderAst::IntrinsicType::Length:
 						case ShaderAst::IntrinsicType::Max:
 						case ShaderAst::IntrinsicType::Min:
