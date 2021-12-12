@@ -20,7 +20,8 @@ external
 
 struct FragIn
 {
-	[builtin(fragcoord)] fragcoord: vec4<f32>
+	[builtin(fragcoord)] fragcoord: vec4<f32>,
+	[location(0)] uv: vec2<f32>
 }
 
 struct FragOut
@@ -30,31 +31,38 @@ struct FragOut
 
 struct VertIn
 {
-	[location(0)] pos: vec3<f32>
+	[location(0)] pos: vec2<f32>,
+	[location(1)] uv: vec2<f32>
 }
 
 struct VertOut
 {
-	[builtin(position)] position: vec4<f32>
+	[builtin(position)] position: vec4<f32>,
+	[location(0)] uv: vec2<f32>
 }
 
 [entry(frag)]
 fn main(input: FragIn) -> FragOut
 {
-	let BrightLuminance = 0.8;
+	/*let BrightLuminance = 0.8;
 	let BrightMiddleGrey = 0.5;
 	let BrightThreshold  = 0.7;
 
-	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize * 10.0;
-
-	let color = colorTexture.Sample(fragcoord).rgb;
+	let color = colorTexture.Sample(input.uv).rgb;
 	color *= BrightMiddleGrey / BrightLuminance;
 	color *= vec3<f32>(1.0, 1.0, 1.0) + (color / (BrightThreshold*BrightThreshold));
 	color -= vec3<f32>(0.5, 0.5, 0.5);
-	color /= vec3<f32>(1.0, 1.0, 1.0) + color;
+	color /= vec3<f32>(1.0, 1.0, 1.0) + color;*/
 
 	let output: FragOut;
-	output.color = vec4<f32>(max(color, vec3<f32>(0.0, 0.0, 0.0)), 1.0);
+	//output.color = vec4<f32>(max(color, vec3<f32>(0.0, 0.0, 0.0)), 1.0);
+
+	let color = colorTexture.Sample(input.uv).rgb;
+	let brightness = dot(color, vec3<f32>(0.2126, 0.7152, 0.0722));
+	if (brightness > 1.0)
+		output.color = vec4<f32>(color, 1.0);
+	else
+		output.color = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 
 	return output;
 }
@@ -63,7 +71,8 @@ fn main(input: FragIn) -> FragOut
 fn main(input: VertIn) -> VertOut
 {
 	let output: VertOut;
-	output.position = vec4<f32>(input.pos, 1.0);
+	output.position = vec4<f32>(input.pos, 0.0, 1.0);
+	output.uv = input.uv;
 
 	return output;
 }
