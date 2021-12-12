@@ -375,6 +375,9 @@ namespace Nz
 		firstCond.statement->Visit(*this);
 
 		SpirvBlock mergeBlock(m_writer);
+
+		previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
+
 		m_functionBlocks.back().Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
 
 		std::optional<std::size_t> nextBlock;
@@ -393,6 +396,8 @@ namespace Nz
 			m_currentBlock = &previousContentBlock;
 
 			statement.statement->Visit(*this);
+
+			previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
 		}
 
 		if (node.elseStatement)

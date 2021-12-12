@@ -458,7 +458,10 @@ namespace Nz::ShaderLang
 		}
 
 		if (Peek().type == TokenType::Else)
+		{
+			Consume();
 			branch->elseStatement = ParseStatement();
+		}
 
 		return branch;
 	}
