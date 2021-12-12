@@ -11,6 +11,8 @@
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
+constexpr std::size_t BloomSubdivisionCount = 5;
+
 /*
 [layout(std140)]
 struct PointLight
@@ -325,7 +327,7 @@ int main()
 	}
 
 
-	const std::shared_ptr<const Nz::VertexDeclaration>& fullscreenVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
+	const std::shared_ptr<const Nz::VertexDeclaration>& fullscreenVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XY_UV);
 
 
 	unsigned int offscreenWidth = windowSize.x;
@@ -353,15 +355,60 @@ int main()
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", {}));
 
 	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding;
-	std::shared_ptr<Nz::ShaderBinding> gaussianBlurShaderBinding;
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
 	// Gaussian Blur
-	fullscreenPipelineInfoViewer.shaderModules.clear();
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", {}));
 
-	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
+	Nz::RenderPipelineLayoutInfo gaussianBlurPipelineLayoutInfo = fullscreenPipelineLayoutInfoViewer;
+
+	gaussianBlurPipelineLayoutInfo.bindings.push_back({
+		0, 2,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType::Fragment,
+	});
+
+	Nz::RenderPipelineInfo gaussianBlurPipelineInfo = fullscreenPipelineInfoViewer;
+	gaussianBlurPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(gaussianBlurPipelineLayoutInfo);
+
+	Nz::FieldOffsets gaussianBlurDataOffsets(Nz::StructLayout::Std140);
+	std::size_t gaussianBlurDataDirection = gaussianBlurDataOffsets.AddField(Nz::StructFieldType::Float2);
+	std::size_t gaussianBlurDataSize = gaussianBlurDataOffsets.AddField(Nz::StructFieldType::Float1);
+
+	gaussianBlurPipelineInfo.shaderModules.clear();
+	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", {}));
+
+	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
+	std::vector<std::shared_ptr<Nz::ShaderBinding>> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
+
+	std::vector<Nz::UInt8> gaussianBlurData(gaussianBlurDataOffsets.GetSize());
+	std::vector<std::shared_ptr<Nz::AbstractBuffer>> gaussianBlurUbos;
+
+	float sizeFactor = 2.f;
+	for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
+	{
+		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(1.f, 0.f);
+		Nz::AccessByOffset<float&>(gaussianBlurData.data(), gaussianBlurDataSize) = sizeFactor;
+
+		std::shared_ptr<Nz::AbstractBuffer> horizontalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform);
+		if (!horizontalBlurData->Initialize(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
+			return __LINE__;
+
+		horizontalBlurData->Fill(gaussianBlurData.data(), 0, gaussianBlurDataOffsets.GetSize());
+
+		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(0.f, 1.f);
+
+		std::shared_ptr<Nz::AbstractBuffer> verticalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform);
+		if (!verticalBlurData->Initialize(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
+			return __LINE__;
+
+		verticalBlurData->Fill(gaussianBlurData.data(), 0, gaussianBlurDataOffsets.GetSize());
+
+		sizeFactor *= 2.f;
+
+		gaussianBlurUbos.push_back(horizontalBlurData);
+		gaussianBlurUbos.push_back(verticalBlurData);
+	}
 
 	// Tone mapping
 	std::shared_ptr<Nz::ShaderBinding> toneMappingShaderBinding;
@@ -373,14 +420,16 @@ int main()
 
 	// Bloom blend
 
+	std::shared_ptr<Nz::ShaderBinding> bloomBlitBinding;
+
 	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
 	Nz::Graphics::FillViewerPipelineLayout(bloomBlendPipelineLayoutInfo, 0);
 
-	bloomBlendPipelineLayoutInfo.bindings.push_back({
+	/*bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 1,
 		Nz::ShaderBindingType::Texture,
 		Nz::ShaderStageType::Fragment,
-	});
+	});*/
 
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 2,
@@ -390,6 +439,9 @@ int main()
 
 
 	Nz::RenderPipelineInfo bloomBlendPipelineInfo;
+	bloomBlendPipelineInfo.blending = true;
+	bloomBlendPipelineInfo.blend.dstColor = Nz::BlendFunc::One;
+	bloomBlendPipelineInfo.blend.srcColor = Nz::BlendFunc::One;
 	bloomBlendPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	bloomBlendPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(bloomBlendPipelineLayoutInfo);
 	bloomBlendPipelineInfo.vertexBuffers.push_back({
@@ -401,7 +453,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBlendShaderBinding;
+	std::vector<std::shared_ptr<Nz::ShaderBinding>> bloomBlendShaderBinding(BloomSubdivisionCount);
 
 	// Fullscreen data
 	
@@ -476,18 +528,18 @@ int main()
 
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> lightingShaderBindings;
 
-	std::array<Nz::VertexStruct_XYZ_UV, 3> vertexData = {
+	std::array<Nz::VertexStruct_XY_UV, 3> vertexData = {
 		{
 			{
-				Nz::Vector3f(-1.f, 1.f, 0.0f),
+				Nz::Vector2f(-1.f, 1.f),
 				Nz::Vector2f(0.0f, 1.0f),
 			},
 			{
-				Nz::Vector3f(-1.f, -3.f, 0.0f),
+				Nz::Vector2f(-1.f, -3.f),
 				Nz::Vector2f(0.0f, -1.0f),
 			},
 			{
-				Nz::Vector3f(3.f, 1.f, 0.0f),
+				Nz::Vector2f(3.f, 1.f),
 				Nz::Vector2f(2.0f, 1.0f),
 			}
 		}
@@ -558,9 +610,9 @@ int main()
 	std::size_t positionTexture;
 	std::size_t depthBuffer1;
 	std::size_t depthBuffer2;
+	std::size_t bloomBrightOutput;
 	std::size_t bloomOutput;
-	std::size_t bloomTextureA;
-	std::size_t bloomTextureB;
+	std::vector<std::size_t> bloomTextures(BloomSubdivisionCount * 2);
 	std::size_t lightOutput;
 
 	std::size_t toneMappingOutput;
@@ -625,19 +677,33 @@ int main()
 			Nz::PixelFormat::RGBA16F
 		});
 
-		bloomTextureA = graph.AddAttachment({
-			"Bloom texture A",
+		unsigned int bloomSize = 50'000;
+		bloomBrightOutput = graph.AddAttachment({
+			"Bloom bright output",
 			Nz::PixelFormat::RGBA16F,
-			10'000,
-			10'000
+			bloomSize,
+			bloomSize
 		});
 
-		bloomTextureB = graph.AddAttachment({
-			"Bloom texture B",
-			Nz::PixelFormat::RGBA16F,
-			10'000,
-			10'000
-		});
+		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
+		{
+			bloomTextures[i * 2 + 0] = graph.AddAttachment({
+				"Bloom texture #" + std::to_string(i),
+				Nz::PixelFormat::RGBA16F,
+				bloomSize,
+				bloomSize
+			});
+
+
+			bloomTextures[i * 2 + 1] = graph.AddAttachment({
+				"Bloom texture #" + std::to_string(i),
+				Nz::PixelFormat::RGBA16F,
+				bloomSize,
+				bloomSize
+			});
+
+			bloomSize /= 2;
+		}
 
 		toneMappingOutput = graph.AddAttachment({
 			"Tone mapping",
@@ -768,39 +834,73 @@ int main()
 		});
 
 		bloomBrightPass.AddInput(lightOutput);
-		bloomBrightPass.AddOutput(bloomTextureA);
+		bloomBrightPass.AddOutput(bloomBrightOutput);
 
-		Nz::FramePass& bloomBlurPass = graph.AddPass("Bloom pass - gaussian blur");
-		bloomBlurPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		std::size_t bloomTextureIndex = 0;
+		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			Nz::FramePass& bloomBlurPassHorizontal = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - horizontal");
+			bloomBlurPassHorizontal.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+			{
+				builder.SetScissor(renderArea);
+				builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, *gaussianBlurShaderBinding);
-			builder.BindPipeline(*gaussianBlurPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
+				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
+				builder.BindPipeline(*gaussianBlurPipeline);
+				builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
-			builder.Draw(3);
-		});
-		bloomBlurPass.SetExecutionCallback([&]
-		{
-			return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
-		});
+				builder.Draw(3);
+			});
 
-		bloomBlurPass.AddInput(bloomTextureA);
-		bloomBlurPass.AddOutput(bloomTextureB);
-		
+			bloomBlurPassHorizontal.SetExecutionCallback([&]
+			{
+				return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
+			});
+
+			bloomBlurPassHorizontal.AddInput((i == 0) ? bloomBrightOutput : bloomTextures[bloomTextureIndex++]);
+			bloomBlurPassHorizontal.AddOutput(bloomTextures[bloomTextureIndex]);
+			
+			Nz::FramePass& bloomBlurPassVertical = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - vertical");
+			bloomBlurPassVertical.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+			{
+				builder.SetScissor(renderArea);
+				builder.SetViewport(renderArea);
+
+				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
+				builder.BindPipeline(*gaussianBlurPipeline);
+				builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
+
+				builder.Draw(3);
+			});
+
+			bloomBlurPassVertical.SetExecutionCallback([&]
+			{
+				return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
+			});
+
+			bloomBlurPassVertical.AddInput(bloomTextures[bloomTextureIndex++]);
+			bloomBlurPassVertical.AddOutput(bloomTextures[bloomTextureIndex]);
+		}
+
 		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
 		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
-
-			builder.BindShaderBinding(0, *bloomBlendShaderBinding);
-			builder.BindPipeline(*bloomBlendPipeline);
 			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
+			// Blit light output
+			builder.BindPipeline(*Nz::Graphics::Instance()->GetBlitPipeline(false));
+			builder.BindShaderBinding(0, *bloomBlitBinding);
 			builder.Draw(3);
+
+			// Blend bloom
+			builder.BindPipeline(*bloomBlendPipeline);
+			for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
+			{
+				builder.BindShaderBinding(0, *bloomBlendShaderBinding[i]);
+				builder.Draw(3);
+			}
 		});
 
 		bloomBlendPass.SetExecutionCallback([&]
@@ -809,7 +909,9 @@ int main()
 		});
 
 		bloomBlendPass.AddInput(lightOutput);
-		bloomBlendPass.AddInput(bloomTextureB);
+		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
+			bloomBlendPass.AddInput(bloomTextures[i * 2 + 1]);
+
 		bloomBlendPass.AddOutput(bloomOutput);
 
 		Nz::FramePass& toneMappingPass = graph.AddPass("Tone mapping");
@@ -1048,48 +1150,75 @@ int main()
 				}
 			});
 
-			frame.PushForRelease(std::move(gaussianBlurShaderBinding));
+			std::size_t bloomTextureIndex = 0;
+			for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
+			{
+				for (std::size_t j = 0; j < 2; ++j)
+				{
+					frame.PushForRelease(std::move(gaussianBlurShaderBinding[i * 2 + j]));
 
-			gaussianBlurShaderBinding = fullscreenPipelineInfoViewer.pipelineLayout->AllocateShaderBinding(0);
-			gaussianBlurShaderBinding->Update({
-				{
-					0,
-					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
-					}
-				},
-				{
-					1,
-					Nz::ShaderBinding::TextureBinding {
-						bakedGraph.GetAttachmentTexture(bloomTextureA).get(),
-						textureSampler.get()
-					}
+					gaussianBlurShaderBinding[i * 2 + j] = gaussianBlurPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
+					gaussianBlurShaderBinding[i * 2 + j]->Update({
+						{
+							0,
+							Nz::ShaderBinding::UniformBufferBinding {
+								viewerInstance.GetViewerBuffer().get(),
+								0, viewerInstance.GetViewerBuffer()->GetSize()
+							}
+						},
+						{
+							1,
+							Nz::ShaderBinding::TextureBinding {
+								bakedGraph.GetAttachmentTexture((i == 0 && j == 0) ? bloomBrightOutput : bloomTextures[bloomTextureIndex++]).get(),
+								textureSampler.get()
+							}
+						},
+						{
+							2,
+							Nz::ShaderBinding::UniformBufferBinding {
+								gaussianBlurUbos[i * 2 + j].get(),
+								0, gaussianBlurUbos[i * 2 + j]->GetSize()
+							}
+						}
+					});
 				}
-			});
 
-			frame.PushForRelease(std::move(bloomBlendShaderBinding));
+				frame.PushForRelease(std::move(bloomBlendShaderBinding[i]));
 
-			bloomBlendShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
-			bloomBlendShaderBinding->Update({
+				bloomBlendShaderBinding[i] = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+				bloomBlendShaderBinding[i]->Update({
+					{
+						0,
+						Nz::ShaderBinding::UniformBufferBinding {
+							viewerInstance.GetViewerBuffer().get(),
+							0, viewerInstance.GetViewerBuffer()->GetSize()
+						}
+					},
+					/*{
+						1,
+						Nz::ShaderBinding::TextureBinding {
+							bakedGraph.GetAttachmentTexture(lightOutput).get(),
+							textureSampler.get()
+						}
+					},*/
+					{
+						2,
+						Nz::ShaderBinding::TextureBinding {
+							bakedGraph.GetAttachmentTexture(bloomTextures[i * 2 + 1]).get(),
+							textureSampler.get()
+						}
+					}
+				});
+			}
+
+			frame.PushForRelease(std::move(bloomBlitBinding));
+
+			bloomBlitBinding = Nz::Graphics::Instance()->GetBlitPipelineLayout()->AllocateShaderBinding(0);
+			bloomBlitBinding->Update({
 				{
 					0,
-					Nz::ShaderBinding::UniformBufferBinding {
-						viewerInstance.GetViewerBuffer().get(),
-						0, viewerInstance.GetViewerBuffer()->GetSize()
-					}
-				},
-				{
-					1,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(lightOutput).get(),
-						textureSampler.get()
-					}
-				},
-				{
-					2,
-					Nz::ShaderBinding::TextureBinding {
-						bakedGraph.GetAttachmentTexture(bloomTextureB).get(),
 						textureSampler.get()
 					}
 				}

@@ -15,7 +15,7 @@ struct ViewerData
 external
 {
 	[set(0), binding(0)] viewerData: uniform<ViewerData>,
-	[set(0), binding(1)] colorTexture: sampler2D<f32>,
+	//[set(0), binding(1)] colorTexture: sampler2D<f32>,
 	[set(0), binding(2)] bloomTexture: sampler2D<f32>,
 }
 
@@ -31,7 +31,7 @@ struct FragOut
 
 struct VertIn
 {
-	[location(0)] pos: vec3<f32>
+	[location(0)] pos: vec2<f32>
 }
 
 struct VertOut
@@ -45,7 +45,7 @@ fn main(input: FragIn) -> FragOut
 	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize;
 	
 	let output: FragOut;
-	output.color = colorTexture.Sample(fragcoord) + bloomTexture.Sample(fragcoord);
+	output.color = /*colorTexture.Sample(fragcoord) + */bloomTexture.Sample(fragcoord);
 
 	return output;
 }
@@ -54,7 +54,7 @@ fn main(input: FragIn) -> FragOut
 fn main(input: VertIn) -> VertOut
 {
 	let output: VertOut;
-	output.position = vec4<f32>(input.pos, 1.0);
+	output.position = vec4<f32>(input.pos, 0.0, 1.0);
 
 	return output;
 }
