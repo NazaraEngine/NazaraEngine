@@ -61,10 +61,10 @@ namespace Nz
 			inline void SetCommandCallback(CommandCallback callback);
 			inline void SetClearColor(std::size_t outputIndex, const std::optional<Color>& color);
 			inline void SetDepthStencilClear(float depth, UInt32 stencil);
-			inline void SetExecutionCallback(ExecutionCallback callback);
-
 			inline void SetDepthStencilInput(std::size_t attachmentId);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);
+			inline void SetExecutionCallback(ExecutionCallback callback);
+			inline void SetReadInput(std::size_t inputIndex, bool doesRead);
 
 			FramePass& operator=(const FramePass&) = delete;
 			FramePass& operator=(FramePass&&) noexcept = default;
@@ -80,6 +80,7 @@ namespace Nz
 			struct Input
 			{
 				std::size_t attachmentId;
+				bool doesRead = true;
 			};
 
 			struct Output
