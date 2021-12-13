@@ -45,6 +45,7 @@ namespace Nz
 		m_pending.physicalPasses.clear();
 		m_pending.renderPasses.clear();
 		m_pending.textures.clear();
+		m_pending.texturePool.clear();
 
 		BuildReadWriteList();
 
@@ -179,51 +180,13 @@ namespace Nz
 
 	void FrameGraph::AssignPhysicalTextures()
 	{
-		std::vector<std::size_t> texturePool;
-
-		auto RegisterTexture = [&](std::size_t attachmentIndex)
-		{
-			if (auto it = m_pending.attachmentToTextures.find(attachmentIndex); it == m_pending.attachmentToTextures.end())
-			{
-				const auto& attachmentData = m_attachments[attachmentIndex];
-
-				// Fetch from reuse pool if possible
-				for (auto it = texturePool.begin(); it != texturePool.end(); ++it)
-				{
-					std::size_t textureId = *it;
-
-					TextureData& data = m_pending.textures[textureId];
-					if (data.format != attachmentData.format ||
-					    data.width != attachmentData.width ||
-					    data.height != attachmentData.height)
-						continue;
-
-					texturePool.erase(it);
-					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
-
-					return textureId;
-				}
-
-				std::size_t textureId = m_pending.textures.size();
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
-
-				TextureData& data = m_pending.textures.emplace_back();
-				data.format = attachmentData.format;
-				data.width = attachmentData.width;
-				data.height = attachmentData.height;
-
-				return textureId;
-			}
-			else
-				return it->second;
-		};
-
 		// Assign last use pass index for every attachment
 		for (std::size_t passIndex : m_pending.passList)
 		{
 			const FramePass& framePass = m_framePasses[passIndex];
 			framePass.ForEachAttachment([&](std::size_t attachmentId)
 			{
+				attachmentId = ResolveAttachmentIndex(attachmentId);
 				m_pending.attachmentLastUse[attachmentId] = passIndex;
 			});
 		}
@@ -274,6 +237,8 @@ namespace Nz
 
 			framePass.ForEachAttachment([&](std::size_t attachmentId)
 			{
+				attachmentId = ResolveAttachmentIndex(attachmentId);
+
 				std::size_t lastUsingPassId = Retrieve(m_pending.attachmentLastUse, attachmentId);
 
 				// If this pass is the last one where this attachment is used, push the texture to the reuse pool
@@ -282,10 +247,10 @@ namespace Nz
 					std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
 
 					// For input/output depth-stencil buffer, the same texture can be used
-					if (texturePool.empty() || texturePool.back() != textureId)
+					if (m_pending.texturePool.empty() || m_pending.texturePool.back() != textureId)
 					{
-						assert(std::find(texturePool.begin(), texturePool.end(), textureId) == texturePool.end());
-						texturePool.push_back(textureId);
+						assert(std::find(m_pending.texturePool.begin(), m_pending.texturePool.end(), textureId) == m_pending.texturePool.end());
+						m_pending.texturePool.push_back(textureId);
 					}
 				}
 			});
@@ -808,9 +773,13 @@ namespace Nz
 
 				for (const auto& output : subpassOutputs)
 				{
-					auto inputIt = std::find_if(subpassInputs.begin(), subpassInputs.end(), [&](const auto& input) { return input.attachmentId == output.attachmentId; });
+					bool shouldLoad = false;
 
-					std::size_t attachmentIndex = RegisterColorOutput(output, inputIt != subpassInputs.end());
+					// load content if read-write
+					if (HasAttachment(subpassInputs, output.attachmentId))
+						shouldLoad = true;
+
+					std::size_t attachmentIndex = RegisterColorOutput(output, shouldLoad);
 
 					colorAttachments.push_back({
 						attachmentIndex,
@@ -946,6 +915,108 @@ namespace Nz
 		}
 	}
 
+	bool FrameGraph::HasAttachment(const std::vector<FramePass::Input>& inputs, std::size_t attachmentIndex) const
+	{
+		attachmentIndex = ResolveAttachmentIndex(attachmentIndex);
+
+		for (const auto& input : inputs)
+		{
+			if (ResolveAttachmentIndex(input.attachmentId) == attachmentIndex)
+				return true;
+		}
+
+		return false;
+	}
+	
+	std::size_t FrameGraph::RegisterTexture(std::size_t attachmentIndex)
+	{
+		if (auto it = m_pending.attachmentToTextures.find(attachmentIndex); it != m_pending.attachmentToTextures.end())
+			return it->second;
+
+		return std::visit([&](auto&& arg) -> std::size_t
+		{
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, FramePassAttachment>)
+			{
+				const FramePassAttachment& attachmentData = arg;
+
+				// Fetch from reuse pool if possible
+				for (auto it = m_pending.texturePool.begin(); it != m_pending.texturePool.end(); ++it)
+				{
+					std::size_t textureId = *it;
+
+					TextureData& data = m_pending.textures[textureId];
+					if (data.format != attachmentData.format ||
+						data.width != attachmentData.width ||
+						data.height != attachmentData.height)
+						continue;
+
+					m_pending.texturePool.erase(it);
+					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+					return textureId;
+				}
+
+				std::size_t textureId = m_pending.textures.size();
+				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				TextureData& data = m_pending.textures.emplace_back();
+				data.format = attachmentData.format;
+				data.width = attachmentData.width;
+				data.height = attachmentData.height;
+
+				return textureId;
+			}
+			else if constexpr (std::is_same_v<T, AttachmentProxy>)
+			{
+				const AttachmentProxy& proxy = arg;
+
+				std::size_t textureId = RegisterTexture(proxy.attachmentId);
+				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				return textureId;
+			}
+			else
+				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+		}, m_attachments[attachmentIndex]);
+	}
+
+	void FrameGraph::RemoveDuplicatePasses()
+	{
+		// A way to remove duplicates from a std::vector without sorting it
+		std::vector<bool> seen(m_framePasses.size());
+
+		auto itRead = m_pending.passList.begin();
+		auto itWrite = m_pending.passList.begin();
+
+		while (itRead != m_pending.passList.end())
+		{
+			std::size_t passIndex = *itRead;
+			if (!seen[passIndex])
+			{
+				seen[passIndex] = true;
+
+				if (itRead != itWrite)
+					*itWrite++ = passIndex;
+				else
+					++itWrite;
+			}
+
+			++itRead;
+		}
+
+		m_pending.passList.erase(itWrite, m_pending.passList.end());
+	}
+
+	std::size_t FrameGraph::ResolveAttachmentIndex(std::size_t attachmentIndex) const
+	{
+		assert(attachmentIndex < m_attachments.size());
+		if (const AttachmentProxy* proxy = std::get_if<AttachmentProxy>(&m_attachments[attachmentIndex]))
+			return proxy->attachmentId;
+
+		return attachmentIndex;
+	}
+
 	void FrameGraph::ReorderPasses()
 	{
 		/* TODO */
@@ -983,32 +1054,5 @@ namespace Nz
 				}
 			}
 		}
-	}
-
-	void FrameGraph::RemoveDuplicatePasses()
-	{
-		// A way to remove duplicates from a std::vector without sorting it
-		std::unordered_set<std::size_t> seen;
-
-		auto itRead = m_pending.passList.begin();
-		auto itWrite = m_pending.passList.begin();
-
-		while (itRead != m_pending.passList.end())
-		{
-			std::size_t passIndex = *itRead;
-			if (seen.find(passIndex) == seen.end())
-			{
-				seen.insert(passIndex);
-
-				if (itRead != itWrite)
-					*itWrite++ = passIndex;
-				else
-					++itWrite;
-			}
-
-			++itRead;
-		}
-
-		m_pending.passList.erase(itWrite, m_pending.passList.end());
 	}
 }

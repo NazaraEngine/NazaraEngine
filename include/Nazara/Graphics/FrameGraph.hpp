@@ -18,6 +18,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
 namespace Nz
@@ -31,6 +32,7 @@ namespace Nz
 			~FrameGraph() = default;
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
+			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
 			inline void AddBackbufferOutput(std::size_t backbufferOutput);
 			inline FramePass& AddPass(std::string name);
 
@@ -49,6 +51,12 @@ namespace Nz
 			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
 			using TextureTransition = BakedFrameGraph::TextureTransition;
+
+			struct AttachmentProxy
+			{
+				std::size_t attachmentId;
+				std::string name;
+			};
 
 			struct Barrier
 			{
@@ -89,6 +97,7 @@ namespace Nz
 				std::vector<std::shared_ptr<RenderPass>> renderPasses;
 				std::vector<PhysicalPassData> physicalPasses;
 				std::vector<TextureData> textures;
+				std::vector<std::size_t> texturePool;
 				AttachmentIdToPassId attachmentLastUse;
 				AttachmentIdToPassMap attachmentReadList;
 				AttachmentIdToPassMap attachmentWriteList;
@@ -105,13 +114,16 @@ namespace Nz
 			void BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<RenderPass::Attachment>& renderPassAttachments, std::vector<RenderPass::SubpassDescription>& subpasses, std::vector<RenderPass::SubpassDependency>& dependencies);
 			void BuildPhysicalPasses();
 			void BuildReadWriteList();
+			bool HasAttachment(const std::vector<FramePass::Input>& inputs, std::size_t attachmentIndex) const;
 			void RemoveDuplicatePasses();
+			std::size_t ResolveAttachmentIndex(std::size_t attachmentIndex) const;
+			std::size_t RegisterTexture(std::size_t attachmentIndex);
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
 			std::vector<std::size_t> m_backbufferOutputs;
 			std::vector<FramePass> m_framePasses;
-			std::vector<FramePassAttachment> m_attachments;
+			std::vector<std::variant<FramePassAttachment, AttachmentProxy>> m_attachments;
 			WorkData m_pending;
 	};
 }
