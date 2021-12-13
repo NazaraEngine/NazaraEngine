@@ -672,10 +672,7 @@ int main()
 			Nz::PixelFormat::RGBA16F
 		});
 
-		bloomOutput = graph.AddAttachment({
-			"Backbuffer",
-			Nz::PixelFormat::RGBA16F
-		});
+		bloomOutput = graph.AddAttachmentProxy("Bloom output", lightOutput);
 
 		unsigned int bloomSize = 50'000;
 		bloomBrightOutput = graph.AddAttachment({
@@ -889,11 +886,6 @@ int main()
 			builder.SetViewport(renderArea);
 			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
-			// Blit light output
-			builder.BindPipeline(*Nz::Graphics::Instance()->GetBlitPipeline(false));
-			builder.BindShaderBinding(0, *bloomBlitBinding);
-			builder.Draw(3);
-
 			// Blend bloom
 			builder.BindPipeline(*bloomBlendPipeline);
 			for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
@@ -909,6 +901,8 @@ int main()
 		});
 
 		bloomBlendPass.AddInput(lightOutput);
+		bloomBlendPass.SetReadInput(0, false);
+
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 			bloomBlendPass.AddInput(bloomTextures[i * 2 + 1]);
 

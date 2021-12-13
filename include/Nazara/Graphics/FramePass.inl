@@ -126,6 +126,12 @@ namespace Nz
 		m_executionCallback = std::move(callback);
 	}
 
+	inline void FramePass::SetReadInput(std::size_t inputIndex, bool doesRead)
+	{
+		assert(inputIndex < m_inputs.size());
+		m_inputs[inputIndex].doesRead = doesRead;
+	}
+
 	inline void FramePass::SetDepthStencilInput(std::size_t attachmentId)
 	{
 		m_depthStencilInput = attachmentId;

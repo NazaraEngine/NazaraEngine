@@ -658,7 +658,7 @@ namespace Nz
 			std::vector<RenderPass::SubpassDescription> subpassesDesc;
 			std::vector<RenderPass::SubpassDependency> subpassesDeps;
 
-			auto RegisterColorInput = [&](const FramePass::Input& input, PhysicalPassData::Subpass& subpass)
+			auto RegisterColorInputRead = [&](const FramePass::Input& input, PhysicalPassData::Subpass& subpass)
 			{
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
 
@@ -769,7 +769,10 @@ namespace Nz
 				colorAttachments.reserve(subpassOutputs.size());
 
 				for (const auto& input : subpassInputs)
-					RegisterColorInput(input, subpass);
+				{
+					if (input.doesRead)
+						RegisterColorInputRead(input, subpass);
+				}
 
 				for (const auto& output : subpassOutputs)
 				{
