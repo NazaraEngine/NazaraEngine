@@ -944,12 +944,6 @@ namespace Nz
 		PushResultId(resultId);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::VariableExpression& node)
-	{
-		SpirvExpressionLoad loadVisitor(m_writer, *this, *m_currentBlock);
-		PushResultId(loadVisitor.Evaluate(node));
-	}
-
 	void SpirvAstVisitor::Visit(ShaderAst::UnaryExpression& node)
 	{
 		const ShaderAst::ExpressionType& resultType = GetExpressionType(node);
@@ -1009,6 +1003,40 @@ namespace Nz
 		}();
 
 		PushResultId(resultId);
+	}
+
+	void SpirvAstVisitor::Visit(ShaderAst::VariableExpression& node)
+	{
+		SpirvExpressionLoad loadVisitor(m_writer, *this, *m_currentBlock);
+		PushResultId(loadVisitor.Evaluate(node));
+	}
+
+	void SpirvAstVisitor::Visit(ShaderAst::WhileStatement& node)
+	{
+		assert(node.condition);
+		assert(node.body);
+
+		SpirvBlock headerBlock(m_writer);
+		SpirvBlock bodyBlock(m_writer);
+		SpirvBlock mergeBlock(m_writer);
+
+		m_currentBlock->Append(SpirvOp::OpBranch, headerBlock.GetLabelId());
+		m_currentBlock = &headerBlock;
+
+		UInt32 expressionId = EvaluateExpression(node.condition);
+
+		m_currentBlock->Append(SpirvOp::OpLoopMerge, mergeBlock.GetLabelId(), bodyBlock.GetLabelId(), SpirvLoopControl::None);
+		m_currentBlock->Append(SpirvOp::OpBranchConditional, expressionId, bodyBlock.GetLabelId(), mergeBlock.GetLabelId());
+
+		m_currentBlock = &bodyBlock;
+		node.body->Visit(*this);
+
+		m_currentBlock->Append(SpirvOp::OpBranch, headerBlock.GetLabelId());
+
+		m_functionBlocks.emplace_back(std::move(headerBlock));
+		m_functionBlocks.emplace_back(std::move(bodyBlock));
+		m_functionBlocks.emplace_back(std::move(mergeBlock));
+		m_currentBlock = &m_functionBlocks.back();
 	}
 
 	void SpirvAstVisitor::PushResultId(UInt32 value)

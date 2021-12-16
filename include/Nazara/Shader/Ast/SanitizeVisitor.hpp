@@ -74,6 +74,7 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(DiscardStatement& node) override;
 			StatementPtr Clone(ExpressionStatement& node) override;
 			StatementPtr Clone(MultiStatement& node) override;
+			StatementPtr Clone(WhileStatement& node) override;
 
 			const Identifier* FindIdentifier(const std::string_view& identifierName) const;
 

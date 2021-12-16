@@ -175,4 +175,13 @@ namespace Nz::ShaderAst
 		if (node.returnExpr)
 			node.returnExpr->Visit(*this);
 	}
+
+	void AstRecursiveVisitor::Visit(WhileStatement& node)
+	{
+		if (node.condition)
+			node.condition->Visit(*this);
+
+		if (node.body)
+			node.body->Visit(*this);
+	}
 }

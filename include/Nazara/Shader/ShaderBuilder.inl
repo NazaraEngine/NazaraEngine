@@ -298,6 +298,15 @@ namespace Nz::ShaderBuilder
 
 		return unaryNode;
 	}
+
+	inline std::unique_ptr<ShaderAst::WhileStatement> Impl::While::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr body) const
+	{
+		auto whileNode = std::make_unique<ShaderAst::WhileStatement>();
+		whileNode->condition = std::move(condition);
+		whileNode->body = std::move(body);
+
+		return whileNode;
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>

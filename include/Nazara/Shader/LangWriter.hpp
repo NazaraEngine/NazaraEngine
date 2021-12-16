@@ -108,6 +108,7 @@ namespace Nz
 			void Visit(ShaderAst::MultiStatement& node) override;
 			void Visit(ShaderAst::NoOpStatement& node) override;
 			void Visit(ShaderAst::ReturnStatement& node) override;
+			void Visit(ShaderAst::WhileStatement& node) override;
 
 			struct State;
 

@@ -67,6 +67,7 @@ namespace Nz::ShaderAst
 			virtual StatementPtr Clone(MultiStatement& node);
 			virtual StatementPtr Clone(NoOpStatement& node);
 			virtual StatementPtr Clone(ReturnStatement& node);
+			virtual StatementPtr Clone(WhileStatement& node);
 
 #define NAZARA_SHADERAST_NODE(NodeType) void Visit(NodeType& node) override;
 #include <Nazara/Shader/Ast/AstNodeList.hpp>

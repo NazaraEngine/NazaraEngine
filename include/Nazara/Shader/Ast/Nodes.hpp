@@ -362,6 +362,15 @@ namespace Nz::ShaderAst
 		ExpressionPtr returnExpr;
 	};
 
+	struct NAZARA_SHADER_API WhileStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		ExpressionPtr condition;
+		StatementPtr body;
+	};
+
 	inline const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr);
 	inline bool IsExpression(NodeType nodeType);
 	inline bool IsStatement(NodeType nodeType);

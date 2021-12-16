@@ -61,8 +61,9 @@ namespace Nz
 			void Visit(ShaderAst::NoOpStatement& node) override;
 			void Visit(ShaderAst::ReturnStatement& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
-			void Visit(ShaderAst::VariableExpression& node) override;
 			void Visit(ShaderAst::UnaryExpression& node) override;
+			void Visit(ShaderAst::VariableExpression& node) override;
+			void Visit(ShaderAst::WhileStatement& node) override;
 
 			SpirvAstVisitor& operator=(const SpirvAstVisitor&) = delete;
 			SpirvAstVisitor& operator=(SpirvAstVisitor&&) = delete;

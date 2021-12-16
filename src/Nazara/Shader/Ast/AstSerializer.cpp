@@ -318,6 +318,12 @@ namespace Nz::ShaderAst
 		Node(node.returnExpr);
 	}
 
+	void AstSerializerBase::Serialize(WhileStatement& node)
+	{
+		Node(node.condition);
+		Node(node.body);
+	}
+
 	void ShaderAstSerializer::Serialize(StatementPtr& shader)
 	{
 		m_stream << s_magicNumber << s_currentVersion;

@@ -742,6 +742,10 @@ namespace Nz::ShaderLang
 				statement = ParseReturnStatement();
 				break;
 
+			case TokenType::While:
+				statement = ParseWhileStatement();
+				break;
+
 			default:
 				throw UnexpectedToken{};
 		}
@@ -903,6 +907,21 @@ namespace Nz::ShaderLang
 		RegisterVariable(variableName);
 
 		return ShaderBuilder::DeclareVariable(std::move(variableName), std::move(variableType), std::move(expression));
+	}
+
+	ShaderAst::StatementPtr Parser::ParseWhileStatement()
+	{
+		Expect(Advance(), TokenType::While);
+
+		Expect(Advance(), TokenType::OpenParenthesis);
+
+		ShaderAst::ExpressionPtr condition = ParseExpression();
+
+		Expect(Advance(), TokenType::ClosingParenthesis);
+
+		ShaderAst::StatementPtr body = ParseStatement();
+
+		return ShaderBuilder::While(std::move(condition), std::move(body));
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs)

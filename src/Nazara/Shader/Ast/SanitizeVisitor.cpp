@@ -460,12 +460,11 @@ namespace Nz::ShaderAst
 		{
 			case Identifier::Type::Constant:
 			{
-				// Replace IdentifierExpression by ConstantExpression
-				auto constantExpr = std::make_unique<ConstantExpression>();
-				constantExpr->cachedExpressionType = GetExpressionType(m_context->constantValues[identifier->index]);
-				constantExpr->constantId = identifier->index;
+				// Replace IdentifierExpression by Constant(Value)Expression
+				ConstantExpression constantExpr;
+				constantExpr.constantId = identifier->index;
 
-				return constantExpr;
+				return Clone(constantExpr); //< Turn ConstantExpression into ConstantValueExpression
 			}
 
 			case Identifier::Type::Variable:
@@ -947,6 +946,19 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<MultiStatement>(AstCloner::Clone(node));
 
 		PopScope();
+
+		return clone;
+	}
+
+	StatementPtr SanitizeVisitor::Clone(WhileStatement& node)
+	{
+		MandatoryExpr(node.condition);
+		MandatoryStatement(node.body);
+
+		auto clone = static_unique_pointer_cast<WhileStatement>(AstCloner::Clone(node));
+
+		if (GetExpressionType(*clone->condition) != ExpressionType{ PrimitiveType::Boolean })
+			throw AstError{ "expected a boolean value" };
 
 		return clone;
 	}
