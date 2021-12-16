@@ -50,7 +50,7 @@ namespace Nz
 
 			BakedFrameGraph(std::vector<PassData> passes, std::vector<TextureData> textures, AttachmentIdToTextureId attachmentIdToTextureMapping, PassIdToPhysicalPassIndex passIdToPhysicalPassMapping);
 
-			struct TextureTransition
+			struct TextureBarrier
 			{
 				std::size_t textureId;
 				MemoryAccessFlags dstAccessMask;
@@ -75,7 +75,7 @@ namespace Nz
 				std::vector<std::size_t> outputTextureIndices;
 				std::vector<CommandBufferBuilder::ClearValues> outputClearValues;
 				std::vector<SubpassData> subpasses;
-				std::vector<TextureTransition> transitions;
+				std::vector<TextureBarrier> invalidationBarriers;
 				FramePass::ExecutionCallback executionCallback;
 				Recti renderRect;
 				bool forceCommandBufferRegeneration = true;

@@ -50,7 +50,7 @@ namespace Nz
 			using AttachmentIdToPassId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*passId*/>;
 			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
-			using TextureTransition = BakedFrameGraph::TextureTransition;
+			using TextureBarrier = BakedFrameGraph::TextureBarrier;
 
 			struct AttachmentProxy
 			{
@@ -80,7 +80,7 @@ namespace Nz
 				};
 
 				std::string name;
-				std::vector<TextureTransition> textureTransitions;
+				std::vector<TextureBarrier> textureBarrier;
 				std::vector<Subpass> passes;
 			};
 
