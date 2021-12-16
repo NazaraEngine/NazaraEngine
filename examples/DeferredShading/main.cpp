@@ -455,7 +455,7 @@ int main()
 
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> bloomBlendShaderBinding(BloomSubdivisionCount);
 
-	// Fullscreen data
+	// Gamma correction
 	
 	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
 
@@ -474,6 +474,71 @@ int main()
 	});
 
 	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gamma.nzsl", {}));
+
+	// God rays
+
+	Nz::RenderPipelineLayoutInfo godraysPipelineLayoutInfo;
+
+	godraysPipelineLayoutInfo.bindings = {
+		{
+			{
+				0, 0,
+				Nz::ShaderBindingType::UniformBuffer,
+				Nz::ShaderStageType::Fragment,
+			},
+			{
+				0, 1,
+				Nz::ShaderBindingType::UniformBuffer,
+				Nz::ShaderStageType::Fragment,
+			},
+			{
+				0, 2,
+				Nz::ShaderBindingType::Texture,
+				Nz::ShaderStageType::Fragment,
+			},
+		}
+	};
+
+	Nz::RenderPipelineInfo godraysPipelineInfo;
+	godraysPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
+	godraysPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(godraysPipelineLayoutInfo);
+	godraysPipelineInfo.vertexBuffers.push_back({
+		0,
+		fullscreenVertexDeclaration
+	});
+
+	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "god_rays.nzsl", {}));
+
+	std::shared_ptr<Nz::RenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
+
+	Nz::FieldOffsets godraysFieldOffsets(Nz::StructLayout::Std140);
+	std::size_t gr_exposureOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t gr_decayOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t gr_densityOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t gr_weightOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
+	std::size_t gr_lightPositionOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float2);
+
+	std::shared_ptr<Nz::ShaderBinding> godRaysShaderBinding = godraysPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+
+	/*
+			uniformExposure = 0.0034f;
+		uniformDecay = 1.0f;
+		uniformDensity = 0.84f;
+		uniformWeight = 5.65f;
+	*/
+
+	std::vector<Nz::UInt8> godRaysData(godraysFieldOffsets.GetSize());
+	Nz::AccessByOffset<float&>(godRaysData.data(), gr_exposureOffset) = 0.0034f;
+	Nz::AccessByOffset<float&>(godRaysData.data(), gr_decayOffset) = 0.9f;
+	Nz::AccessByOffset<float&>(godRaysData.data(), gr_densityOffset) = 0.84f;
+	Nz::AccessByOffset<float&>(godRaysData.data(), gr_weightOffset) = 5.65f;
+	Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset) = Nz::Vector2f(0.5f, 0.1f);
+
+	std::shared_ptr<Nz::AbstractBuffer> godRaysUBO = device->InstantiateBuffer(Nz::BufferType::Uniform);
+	godRaysUBO->Initialize(godRaysData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic);
+	godRaysUBO->Fill(godRaysData.data(), 0, godRaysData.size());
+
+	std::shared_ptr<Nz::ShaderBinding> godRaysBlitShaderBinding;
 
 
 	const std::shared_ptr<const Nz::VertexDeclaration>& lightingVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
@@ -614,6 +679,8 @@ int main()
 	std::size_t bloomOutput;
 	std::vector<std::size_t> bloomTextures(BloomSubdivisionCount * 2);
 	std::size_t lightOutput;
+	std::size_t occluderTexture;
+	std::size_t godRaysTexture;
 
 	std::size_t toneMappingOutput;
 
@@ -669,6 +736,16 @@ int main()
 
 		lightOutput = graph.AddAttachment({
 			"Light output",
+			Nz::PixelFormat::RGBA16F
+		});
+
+		occluderTexture = graph.AddAttachment({
+			"Occluder texture",
+			Nz::PixelFormat::RGBA8,
+		});
+
+		godRaysTexture = graph.AddAttachment({
+			"God rays texture",
 			Nz::PixelFormat::RGBA16F
 		});
 
@@ -812,6 +889,44 @@ int main()
 		forwardPass.SetDepthStencilInput(depthBuffer1);
 		forwardPass.SetDepthStencilOutput(depthBuffer2);
 
+		
+		Nz::FramePass& occluderPass = graph.AddPass("Occluder pass");
+		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		{
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
+
+			builder.BindShaderBinding(0, *skyboxShaderBinding);
+
+			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));
+			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
+			builder.BindPipeline(*skyboxPipeline);
+
+			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
+		});
+
+		occluderPass.AddOutput(occluderTexture);
+		occluderPass.SetClearColor(0, Nz::Color::Black);
+		occluderPass.SetDepthStencilInput(depthBuffer1);
+
+		Nz::FramePass& godraysPass = graph.AddPass("Light scattering pass");
+		godraysPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		{
+			builder.SetScissor(renderArea);
+			builder.SetViewport(renderArea);
+
+			builder.BindShaderBinding(0, *godRaysShaderBinding);
+
+			builder.BindPipeline(*godraysPipeline);
+			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
+
+			builder.Draw(3);
+		});
+
+		godraysPass.AddInput(occluderTexture);
+		godraysPass.AddOutput(godRaysTexture);
+
+
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
 		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
@@ -893,6 +1008,10 @@ int main()
 				builder.BindShaderBinding(0, *bloomBlendShaderBinding[i]);
 				builder.Draw(3);
 			}
+
+			// God rays
+			builder.BindShaderBinding(0, *godRaysBlitShaderBinding);
+			builder.Draw(3);
 		});
 
 		bloomBlendPass.SetExecutionCallback([&]
@@ -901,6 +1020,7 @@ int main()
 		});
 
 		bloomBlendPass.AddInput(lightOutput);
+		bloomBlendPass.AddInput(godRaysTexture);
 		bloomBlendPass.SetReadInput(0, false);
 
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
@@ -1004,6 +1124,7 @@ int main()
 						float rotationSpeed = ComputeLightAnimationSpeed(viewerPos);
 
 						auto& whiteLight = spotLights.emplace_back();
+						whiteLight.color = Nz::Color(100, 100, 255);
 						whiteLight.radius = 5.f;
 						whiteLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedTime);
 						whiteLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedTime);
@@ -1231,6 +1352,33 @@ int main()
 				}
 			});
 
+			frame.PushForRelease(std::move(godRaysShaderBinding));
+
+			godRaysShaderBinding = godraysPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+			godRaysShaderBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::UniformBufferBinding {
+						viewerInstance.GetViewerBuffer().get(),
+						0, viewerInstance.GetViewerBuffer()->GetSize()
+					}
+				},
+				{
+					1,
+					Nz::ShaderBinding::UniformBufferBinding {
+						godRaysUBO.get(),
+						0, godRaysUBO->GetSize()
+					}
+				},
+				{
+					2,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(occluderTexture).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
 			frame.PushForRelease(std::move(toneMappingShaderBinding));
 
 			toneMappingShaderBinding = fullscreenPipelineInfoViewer.pipelineLayout->AllocateShaderBinding(0);
@@ -1246,6 +1394,33 @@ int main()
 					1,
 					Nz::ShaderBinding::TextureBinding {
 						bakedGraph.GetAttachmentTexture(bloomOutput).get(),
+						textureSampler.get()
+					}
+				}
+			});
+
+			frame.PushForRelease(std::move(godRaysBlitShaderBinding));
+
+			godRaysBlitShaderBinding = bloomBlendPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+			godRaysBlitShaderBinding->Update({
+				{
+					0,
+					Nz::ShaderBinding::UniformBufferBinding {
+						viewerInstance.GetViewerBuffer().get(),
+						0, viewerInstance.GetViewerBuffer()->GetSize()
+					}
+				},
+				/*{
+					1,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(lightOutput).get(),
+						textureSampler.get()
+					}
+				},*/
+				{
+					2,
+					Nz::ShaderBinding::TextureBinding {
+						bakedGraph.GetAttachmentTexture(godRaysTexture).get(),
 						textureSampler.get()
 					}
 				}
@@ -1279,6 +1454,7 @@ int main()
 
 				viewerInstance.UpdateBuffers(uploadPool, builder);
 
+				// Update light buffer
 				if (!spotLights.empty() && (lightUpdate || lightAnimation))
 				{
 					auto& lightDataAllocation = uploadPool.Allocate(alignedSpotLightSize * spotLights.size());
@@ -1307,6 +1483,26 @@ int main()
 					}
 
 					builder.CopyBuffer(lightDataAllocation, lightUbo.get());
+				}
+
+				// Update light scattering buffer
+				{
+					Nz::Vector4f pos(0.f, 200.f, 0.f, 1.f);
+					pos = viewerInstance.GetViewMatrix() * pos;
+					pos = viewerInstance.GetProjectionMatrix() * pos;
+					pos /= pos.w;
+
+					Nz::Vector2f& lightPosition = Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset);
+					lightPosition = Nz::Vector2f(pos.x * 0.5f + 0.5f, pos.y * 0.5f + 0.5f);
+					lightPosition.x = Nz::Clamp(std::abs(lightPosition.x), -0.5f, 1.5f);
+					lightPosition.y = Nz::Clamp(std::abs(lightPosition.y), -0.5f, 1.5f);
+
+					auto& lightScatteringAllocation = uploadPool.Allocate(godRaysData.size());
+					Nz::UInt8* dataPtr = static_cast<Nz::UInt8*>(lightScatteringAllocation.mappedPtr);
+
+					std::memcpy(dataPtr, godRaysData.data(), godRaysData.size());
+
+					builder.CopyBuffer(lightScatteringAllocation, godRaysUBO.get());
 				}
 
 				matUpdate = spaceshipMatPass->Update(frame, builder) || matUpdate;

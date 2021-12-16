@@ -1,0 +1,95 @@
+[layout(std140)]
+struct ViewerData
+{
+	projectionMatrix: mat4<f32>,
+	invProjectionMatrix: mat4<f32>,
+	viewMatrix: mat4<f32>,
+	invViewMatrix: mat4<f32>,
+	viewProjMatrix: mat4<f32>,
+	invViewProjMatrix: mat4<f32>,
+	renderTargetSize: vec2<f32>,
+	invRenderTargetSize: vec2<f32>,
+	eyePosition: vec3<f32>
+}
+
+[layout(std140)]
+struct Settings
+{
+	exposure: f32,
+	decay: f32,
+	density: f32,
+	weight: f32,
+	lightPosition: vec2<f32>, //< Switch to world position
+}
+
+const SampleCount: i32 = 200;
+
+external
+{
+	[set(0), binding(0)] viewerData: uniform<ViewerData>,
+	[set(0), binding(1)] settings: uniform<Settings>,
+	[set(0), binding(2)] occluderTexture: sampler2D<f32>
+}
+
+struct FragIn
+{
+	[builtin(fragcoord)] fragcoord: vec4<f32>,
+	[location(0)] uv: vec2<f32>
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4<f32>
+}
+
+struct VertIn
+{
+	[location(0)] pos: vec2<f32>,
+	[location(1)] uv: vec2<f32>
+}
+
+struct VertOut
+{
+	[builtin(position)] position: vec4<f32>,
+	[location(0)] uv: vec2<f32>
+}
+
+[entry(frag)]
+fn main(input: FragIn) -> FragOut
+{
+	let deltaUV = input.uv - settings.lightPosition;
+	deltaUV *= 1.0 / f32(SampleCount) * settings.density;
+	let illuminationDecay = 1.0;
+
+	let uv = input.uv;
+
+	let outputColor = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+
+	let i = 0;
+	while (i < SampleCount)
+	{
+		uv -= deltaUV;
+		let sample = occluderTexture.Sample(uv);
+
+		sample *= illuminationDecay * settings.weight;
+		outputColor += sample;
+
+		illuminationDecay *= settings.decay;
+		i += 1;
+	}
+
+	let output: FragOut;
+	output.color = outputColor;
+
+	return output;
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.position = vec4<f32>(input.pos, 0.0, 1.0);
+	output.uv = input.uv;
+
+	return output;
+}
