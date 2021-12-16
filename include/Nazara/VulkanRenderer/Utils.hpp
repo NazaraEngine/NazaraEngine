@@ -30,6 +30,7 @@ namespace Nz
 	inline VkPipelineStageFlagBits ToVulkan(PipelineStage pipelineStage);
 	inline VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages);
 	inline VkFormat ToVulkan(PixelFormat pixelFormat);
+	inline VkImageAspectFlags ToVulkan(PixelFormatContent pixelFormatContent);
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode);
 	inline VkCompareOp ToVulkan(RendererComparison comparison);
 	inline VkFilter ToVulkan(SamplerFilter samplerFilter);
