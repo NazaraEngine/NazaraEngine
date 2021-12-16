@@ -140,6 +140,11 @@ namespace Nz::ShaderBuilder
 		{
 			inline std::unique_ptr<ShaderAst::UnaryExpression> operator()(ShaderAst::UnaryType op, ShaderAst::ExpressionPtr expression) const;
 		};
+
+		struct While
+		{
+			inline std::unique_ptr<ShaderAst::WhileStatement> operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr body) const;
+		};
 	}
 
 	constexpr Impl::AccessIndex AccessIndex;
@@ -167,6 +172,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Return Return;
 	constexpr Impl::Swizzle Swizzle;
 	constexpr Impl::Unary Unary;
+	constexpr Impl::While While;
 }
 
 #include <Nazara/Shader/ShaderBuilder.inl>

@@ -98,6 +98,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::StatementPtr> ParseStatementList();
 			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseVariableDeclaration();
+			ShaderAst::StatementPtr ParseWhileStatement();
 
 			// Expressions
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);

@@ -930,6 +930,17 @@ namespace Nz
 		node.expression->Visit(*this);
 	}
 
+	void LangWriter::Visit(ShaderAst::WhileStatement& node)
+	{
+		Append("while (");
+		node.condition->Visit(*this);
+		AppendLine(")");
+
+		EnterScope();
+		node.body->Visit(*this);
+		LeaveScope();
+	}
+
 	void LangWriter::AppendHeader()
 	{
 		// Nothing yet

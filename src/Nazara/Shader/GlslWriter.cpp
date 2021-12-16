@@ -1179,6 +1179,17 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Visit(ShaderAst::WhileStatement& node)
+	{
+		Append("while (");
+		node.condition->Visit(*this);
+		AppendLine(")");
+
+		EnterScope();
+		node.body->Visit(*this);
+		LeaveScope();
+	}
+
 	void GlslWriter::Visit(ShaderAst::SwizzleExpression& node)
 	{
 		Visit(node.expression, true);

@@ -52,7 +52,8 @@ namespace Nz::ShaderLang
 			{ "option",       TokenType::Option },
 			{ "return",       TokenType::Return },
 			{ "struct",       TokenType::Struct },
-			{ "true",         TokenType::BoolTrue }
+			{ "true",         TokenType::BoolTrue },
+			{ "while",        TokenType::While }
 		};
 
 		std::size_t currentPos = 0;

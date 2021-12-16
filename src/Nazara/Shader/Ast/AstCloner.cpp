@@ -193,6 +193,15 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	StatementPtr AstCloner::Clone(WhileStatement& node)
+	{
+		auto clone = std::make_unique<WhileStatement>();
+		clone->condition = CloneExpression(node.condition);
+		clone->body = CloneStatement(node.body);
+
+		return clone;
+	}
+
 	ExpressionPtr AstCloner::Clone(AccessIdentifierExpression& node)
 	{
 		auto clone = std::make_unique<AccessIdentifierExpression>();
