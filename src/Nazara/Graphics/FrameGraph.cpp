@@ -829,7 +829,11 @@ namespace Nz
 						{
 							for (std::size_t passIndex : readIt->second)
 							{
-								std::size_t readPhysicalPassIndex = Retrieve(m_pending.passIdToPhysicalPassIndex, passIndex);
+								auto it = m_pending.passIdToPhysicalPassIndex.find(passIndex);
+								if (it == m_pending.passIdToPhysicalPassIndex.end())
+									continue; //< pass may have been discarded
+
+								std::size_t readPhysicalPassIndex = it->second;
 								if (readPhysicalPassIndex > physicalPassIndex) //< Read in a future pass?
 								{
 									// Yes, store it

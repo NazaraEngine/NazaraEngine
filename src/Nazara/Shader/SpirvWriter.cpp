@@ -115,12 +115,12 @@ namespace Nz
 					}
 				}
 
-				void Visit(ShaderAst::ConditionalExpression& node) override
+				void Visit(ShaderAst::ConditionalExpression& /*node*/) override
 				{
 					throw std::runtime_error("unexpected conditional expression, did you forget to sanitize the shader?");
 				}
 
-				void Visit(ShaderAst::ConditionalStatement& node) override
+				void Visit(ShaderAst::ConditionalStatement& /*node*/) override
 				{
 					throw std::runtime_error("unexpected conditional expression, did you forget to sanitize the shader?");
 				}
