@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
@@ -255,6 +256,7 @@ namespace Nz
 	{
 		const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(texture);
 
-		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), VK_IMAGE_ASPECT_COLOR_BIT);
+		VkImageAspectFlags aspectFlags = ToVulkan(PixelFormatInfo::GetContent(vkTexture.GetFormat()));
+		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), aspectFlags);
 	}
 }

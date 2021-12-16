@@ -29,7 +29,7 @@ namespace Nz
 
 		VkImageViewCreateInfo createInfoView = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		createInfoView.subresourceRange = {
-			VK_IMAGE_ASPECT_COLOR_BIT,
+			ToVulkan(PixelFormatInfo::GetContent(params.pixelFormat)),
 			0,
 			1,
 			0,
@@ -350,6 +350,29 @@ namespace Nz
 		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
+			// Regular formats
+			case PixelFormat::BGR8:
+			case PixelFormat::BGR8_SRGB:
+			case PixelFormat::BGRA8:
+			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::Depth16:
+			case PixelFormat::Depth16Stencil8:
+			case PixelFormat::Depth24Stencil8:
+			case PixelFormat::Depth32F:
+			case PixelFormat::Depth32FStencil8:
+			case PixelFormat::RGB8:
+			case PixelFormat::RGB8_SRGB:
+			case PixelFormat::RGBA8:
+			case PixelFormat::RGBA8_SRGB:
+			case PixelFormat::RGBA16F:
+			case PixelFormat::RGBA32F:
+			{
+				createImage.format = ToVulkan(pixelFormat);
+				createImageView.format = createImage.format;
+				break;
+			}
+
+			// "emulated" formats
 			case PixelFormat::A8:
 			{
 				createImage.format = VK_FORMAT_R8_UNORM;
@@ -363,62 +386,6 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormat::BGR8:
-			case PixelFormat::BGR8_SRGB:
-			case PixelFormat::BGRA8:
-			case PixelFormat::BGRA8_SRGB:
-			case PixelFormat::RGB8:
-			case PixelFormat::RGB8_SRGB:
-			case PixelFormat::RGBA8:
-			case PixelFormat::RGBA8_SRGB:
-			case PixelFormat::RGBA16F:
-			case PixelFormat::RGBA32F:
-			{
-				createImage.format = ToVulkan(pixelFormat);
-				createImageView.format = createImage.format;
-				break;
-			}
-
-			case PixelFormat::Depth16:
-			{
-				createImage.format = VK_FORMAT_D16_UNORM;
-				createImageView.format = createImage.format;
-				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-				break;
-			}
-
-			case PixelFormat::Depth16Stencil8:
-			{
-				createImage.format = VK_FORMAT_D16_UNORM_S8_UINT;
-				createImageView.format = createImage.format;
-				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-				break;
-			}
-
-			case PixelFormat::Depth24Stencil8:
-			{
-				createImage.format = VK_FORMAT_D24_UNORM_S8_UINT;
-				createImageView.format = createImage.format;
-				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-				break;
-			}
-
-			case PixelFormat::Depth32F:
-			{
-				createImage.format = VK_FORMAT_D32_SFLOAT;
-				createImageView.format = createImage.format;
-				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-				break;
-			}
-
-			case PixelFormat::Depth32FStencil8:
-			{
-				createImage.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
-				createImageView.format = createImage.format;
-				createImageView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-				break;
-			}
-
 			case PixelFormat::L8:
 			{
 				createImage.format = VK_FORMAT_R8_UNORM;
@@ -427,7 +394,7 @@ namespace Nz
 					VK_COMPONENT_SWIZZLE_R,
 					VK_COMPONENT_SWIZZLE_R,
 					VK_COMPONENT_SWIZZLE_R,
-					VK_COMPONENT_SWIZZLE_A
+					VK_COMPONENT_SWIZZLE_ONE
 				};
 				break;
 			}

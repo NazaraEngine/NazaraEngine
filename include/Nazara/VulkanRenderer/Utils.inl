@@ -272,6 +272,23 @@ namespace Nz
 		return {};
 	}
 
+	VkImageAspectFlags ToVulkan(PixelFormatContent pixelFormatContent)
+	{
+		switch (pixelFormatContent)
+		{
+			case PixelFormatContent::Undefined:
+				break;
+
+			case PixelFormatContent::ColorRGBA:    return VK_IMAGE_ASPECT_COLOR_BIT;
+			case PixelFormatContent::Depth:        return VK_IMAGE_ASPECT_DEPTH_BIT;
+			case PixelFormatContent::DepthStencil: return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+			case PixelFormatContent::Stencil:      return VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+
+		NazaraError("Unhandled PixelFormatContent 0x" + NumberToString(UnderlyingCast(pixelFormatContent), 16));
+		return VK_IMAGE_ASPECT_COLOR_BIT;
+	}
+
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
 	{
 		switch (primitiveMode)
