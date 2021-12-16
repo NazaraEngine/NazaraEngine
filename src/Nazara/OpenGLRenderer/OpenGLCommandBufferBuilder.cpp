@@ -84,7 +84,7 @@ namespace Nz
 		m_commandBuffer.CopyBuffer(allocation, targetBuffer.GetBuffer().GetObjectId(), size, sourceOffset, target.GetOffset() + targetOffset);
 	}
 
-	void OpenGLCommandBufferBuilder::CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout)
+	void OpenGLCommandBufferBuilder::CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout /*fromLayout*/, const Texture& toTexture, const Vector3ui& toPos, TextureLayout /*toLayout*/)
 	{
 		const OpenGLTexture& sourceTexture = static_cast<const OpenGLTexture&>(fromTexture);
 		const OpenGLTexture& targetTexture = static_cast<const OpenGLTexture&>(toTexture);

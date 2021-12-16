@@ -562,7 +562,7 @@ namespace Nz
 			UInt32 resultId = m_writer.AllocateResultId();
 			m_currentBlock->Append(*castOp, m_writer.GetTypeId(targetType), resultId, fromId);
 
-			throw std::runtime_error("toudou");
+			PushResultId(resultId);
 		}
 		else
 		{
