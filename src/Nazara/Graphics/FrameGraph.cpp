@@ -67,8 +67,8 @@ namespace Nz
 		AssignPhysicalTextures();
 		AssignPhysicalPasses();
 		BuildPhysicalPasses();
-		//BuildBarriers();
-		//BuildPhysicalBarriers();
+		BuildBarriers();
+		BuildPhysicalBarriers();
 
 		std::vector<BakedFrameGraph::PassData> bakedPasses;
 		bakedPasses.reserve(m_pending.physicalPasses.size());
@@ -79,7 +79,7 @@ namespace Nz
 			auto& bakedPass = bakedPasses.emplace_back();
 			bakedPass.name = std::move(physicalPass.name);
 			bakedPass.renderPass = std::move(m_pending.renderPasses[renderPassIndex++]);
-			bakedPass.transitions = std::move(physicalPass.textureTransitions);
+			bakedPass.invalidationBarriers = std::move(physicalPass.textureBarrier);
 
 			for (auto& subpass : physicalPass.passes)
 			{
@@ -274,7 +274,7 @@ namespace Nz
 
 		auto GetBarrier = [&](std::vector<Barrier>& barriers, std::size_t attachmentId) -> Barrier&
 		{
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(attachmentId));
 
 			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const Barrier& barrier) { return barrier.textureId == textureId; });
 			if (it != barriers.end())
@@ -335,7 +335,7 @@ namespace Nz
 				invalidationBarrier.access = MemoryAccess::DepthStencilRead | MemoryAccess::DepthStencilWrite;
 				invalidationBarrier.stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
 
-				auto& flushBarrier = GetInvalidationBarrier(dsOutputAttachement);
+				auto& flushBarrier = GetFlushBarrier(dsOutputAttachement);
 				flushBarrier.layout = TextureLayout::DepthStencilReadWrite;
 				flushBarrier.access = MemoryAccess::DepthStencilWrite;
 				flushBarrier.stages = PipelineStage::FragmentTestsLate;
@@ -354,7 +354,7 @@ namespace Nz
 			else if (dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
 				// DS output-only
-				auto& flushBarrier = GetInvalidationBarrier(dsOutputAttachement);
+				auto& flushBarrier = GetFlushBarrier(dsOutputAttachement);
 				if (flushBarrier.layout != TextureLayout::Undefined)
 					throw std::runtime_error("layout mismatch");
 
@@ -367,7 +367,7 @@ namespace Nz
 
 	void FrameGraph::BuildPhysicalBarriers()
 	{
-		struct TextureStates
+		struct PassTextureStates
 		{
 			MemoryAccessFlags invalidatedAccesses;
 			MemoryAccessFlags flushedAccesses;
@@ -377,13 +377,21 @@ namespace Nz
 			TextureLayout finalLayout = TextureLayout::Undefined;
 		};
 
-		std::vector<TextureStates> textureStates;
+		struct TextureStates
+		{
+			MemoryAccessFlags flushedAccesses;
+			PipelineStageFlags flushedStages;
+			TextureLayout currentLayout = TextureLayout::Undefined;
+		};
+
+		std::vector<TextureStates> textureStates(m_pending.textures.size());
+		std::vector<PassTextureStates> passTextureStates;
 
 		auto barriersIt = m_pending.barrierList.begin();
 		for (auto& physicalPass : m_pending.physicalPasses)
 		{
-			textureStates.clear();
-			textureStates.resize(m_pending.textures.size());
+			passTextureStates.clear();
+			passTextureStates.resize(m_pending.textures.size());
 
 			for (auto& subpass : physicalPass.passes)
 			{
@@ -391,9 +399,12 @@ namespace Nz
 
 				for (auto& invalidation : barriers.invalidationBarriers)
 				{
-					auto& states = textureStates[invalidation.textureId];
+					auto& states = passTextureStates[invalidation.textureId];
+
 					if (states.initialLayout == TextureLayout::Undefined)
 					{
+						// First use in this pass
+
 						states.invalidatedAccesses |= invalidation.access;
 						states.invalidatedStages |= invalidation.stages;
 						states.initialLayout = invalidation.layout;
@@ -406,7 +417,7 @@ namespace Nz
 
 				for (auto& flush : barriers.flushBarriers)
 				{
-					auto& states = textureStates[flush.textureId];
+					auto& states = passTextureStates[flush.textureId];
 					states.flushedAccesses |= flush.access;
 					states.flushedStages |= flush.stages;
 					states.finalLayout = flush.layout;
@@ -417,6 +428,11 @@ namespace Nz
 						states.initialLayout = flush.layout;
 						states.invalidatedAccesses = flush.access;
 						states.invalidatedStages = flush.stages;
+
+						textureStates[flush.textureId].currentLayout = flush.layout;
+
+						if (states.invalidatedStages & PipelineStage::FragmentTestsLate)
+							states.invalidatedStages |= PipelineStage::FragmentTestsEarly;
 
 						if (states.invalidatedAccesses & MemoryAccess::ColorWrite)
 							states.invalidatedAccesses |= MemoryAccess::ColorRead;
@@ -433,22 +449,33 @@ namespace Nz
 			}
 
 
-			for (std::size_t textureId = 0; textureId < textureStates.size(); ++textureId)
+			for (std::size_t textureId = 0; textureId < passTextureStates.size(); ++textureId)
 			{
-				const auto& state = textureStates[textureId];
+				const auto& state = passTextureStates[textureId];
 
 				if (state.initialLayout == TextureLayout::Undefined && state.finalLayout == TextureLayout::Undefined)
 					continue; //< Texture wasn't touched in this pass
 
 				assert(state.finalLayout != TextureLayout::Undefined);
 
-				// TODO: Register invalidation
+				if (textureStates[textureId].flushedAccesses != 0)
+				{
+					auto& invalidationBarrier = physicalPass.textureBarrier.emplace_back();
+					invalidationBarrier.textureId = textureId;
+					invalidationBarrier.srcAccessMask = textureStates[textureId].flushedAccesses;
+					invalidationBarrier.srcStageMask = textureStates[textureId].flushedStages;
+					invalidationBarrier.dstAccessMask = state.invalidatedAccesses;
+					invalidationBarrier.dstStageMask = state.invalidatedStages;
+					invalidationBarrier.oldLayout = textureStates[textureId].currentLayout;
+					invalidationBarrier.newLayout = state.initialLayout;
 
-				if (state.flushedAccesses)
-					; // TODO: Register flush
+					textureStates[textureId].flushedAccesses = 0;
+					textureStates[textureId].flushedStages = 0;
+				}
 
-				if (state.invalidatedAccesses)
-					; // TODO: Register flush
+				textureStates[textureId].currentLayout = state.finalLayout;
+				textureStates[textureId].flushedAccesses |= state.flushedAccesses;
+				textureStates[textureId].flushedStages |= state.flushedStages;
 			}
 		}
 	}
@@ -645,7 +672,7 @@ namespace Nz
 	{
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
-		std::unordered_map<std::size_t /*textureId*/, TextureLayout> textureLayouts;
+		std::vector<TextureLayout> textureLayouts(m_pending.textures.size(), TextureLayout::Undefined);
 
 		std::size_t physicalPassIndex = 0;
 		for (auto& physicalPass : m_pending.physicalPasses)
@@ -662,24 +689,8 @@ namespace Nz
 			{
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
 
-				auto it = textureLayouts.find(textureId);
-				assert(it != textureLayouts.end());
-
-				TextureLayout& textureLayout = it->second;
-				if (textureLayout != TextureLayout::ColorInput)
-				{
-					auto& transition = physicalPass.textureTransitions.emplace_back();
-					transition.textureId = textureId;
-
-					transition.srcAccessMask = MemoryAccess::ColorWrite;
-					transition.srcStageMask = PipelineStage::ColorOutput;
-
-					transition.dstStageMask = PipelineStage::ColorOutput;
-					transition.dstAccessMask = MemoryAccess::ColorRead | MemoryAccess::ColorWrite;
-
-					transition.oldLayout = textureLayout;
-					transition.newLayout = TextureLayout::ColorInput;
-				}
+				TextureLayout& textureLayout = textureLayouts[textureId];
+				assert(textureLayouts[textureId] != TextureLayout::Undefined);
 
 				textureLayout = TextureLayout::ColorInput;
 			};
@@ -688,15 +699,8 @@ namespace Nz
 			{
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
 
-				TextureLayout initialLayout = TextureLayout::Undefined;
-				auto layoutIt = textureLayouts.find(textureId);
-				if (layoutIt != textureLayouts.end())
-				{
-					initialLayout = layoutIt->second;
-					layoutIt->second = TextureLayout::ColorOutput;
-				}
-				else
-					textureLayouts.emplace(textureId, TextureLayout::ColorOutput);
+				TextureLayout initialLayout = textureLayouts[textureId];
+				textureLayouts[textureId] = TextureLayout::ColorOutput;
 
 				auto it = usedTextureAttachments.find(textureId);
 				if (it != usedTextureAttachments.end())
@@ -735,15 +739,8 @@ namespace Nz
 
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
 
-				TextureLayout initialLayout = TextureLayout::Undefined;
-				auto layoutIt = textureLayouts.find(textureId);
-				if (layoutIt != textureLayouts.end())
-				{
-					initialLayout = layoutIt->second;
-					layoutIt->second = textureLayout;
-				}
-				else
-					textureLayouts.emplace(textureId, textureLayout);
+				TextureLayout initialLayout = textureLayouts[textureId];
+				textureLayouts[textureId] = textureLayout;
 
 				depthStencilAttachmentId = attachmentId;
 				depthStencilAttachmentIndex = renderPassAttachments.size();
@@ -882,11 +879,8 @@ namespace Nz
 			// Assign final layout (TODO: Use this to perform layouts useful for future passes?)
 			for (const auto& [textureId, attachmentIndex] : usedTextureAttachments)
 			{
-				auto layoutIt = textureLayouts.find(textureId);
-				assert(layoutIt != textureLayouts.end());
-
 				auto& attachment = renderPassAttachments[attachmentIndex];
-				attachment.finalLayout = layoutIt->second;
+				attachment.finalLayout = textureLayouts[textureId];
 			}
 
 			BuildPhysicalPassDependencies(colorAttachmentCount, depthStencilAttachmentIndex.has_value(), renderPassAttachments, subpassesDesc, subpassesDeps);

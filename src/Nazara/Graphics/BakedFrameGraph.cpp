@@ -56,7 +56,7 @@ namespace Nz
 
 			passData.commandBuffer = m_commandPool->BuildCommandBuffer([&](CommandBufferBuilder& builder)
 			{
-				for (auto& textureTransition : passData.transitions)
+				for (auto& textureTransition : passData.invalidationBarriers)
 				{
 					const std::shared_ptr<Texture>& texture = m_textures[textureTransition.textureId].texture;
 					builder.TextureBarrier(textureTransition.srcStageMask, textureTransition.dstStageMask, textureTransition.srcAccessMask, textureTransition.dstAccessMask, textureTransition.oldLayout, textureTransition.newLayout, *texture);
