@@ -357,6 +357,12 @@ namespace Nz
 				{
 					AstRecursiveVisitor::Visit(node);
 
+					for (std::size_t i = 0; i < node.componentCount; ++i)
+					{
+						Int32 indexCount = UnderlyingCast(node.components[i]) - UnderlyingCast(ShaderAst::SwizzleComponent::First);
+						m_constantCache.Register(*m_constantCache.BuildConstant(indexCount));
+					}
+
 					m_constantCache.Register(*m_constantCache.BuildType(node.cachedExpressionType.value()));
 				}
 
