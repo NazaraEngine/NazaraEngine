@@ -75,8 +75,7 @@ fn main(input: FragIn) -> FragOut
 		diffuseColor *= MaterialDiffuseMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
-		// TODO: diffuseColor.w *= MaterialAlphaMap.Sample(input.uv)).x
-		diffuseColor = vec4<f32>(diffuseColor.x, diffuseColor.y, diffuseColor.z, MaterialAlphaMap.Sample(input.uv).x * diffuseColor.w);
+		diffuseColor.w *= MaterialAlphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)
 	{

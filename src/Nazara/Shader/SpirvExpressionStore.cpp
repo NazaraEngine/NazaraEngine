@@ -80,7 +80,36 @@ namespace Nz
 
 	void SpirvExpressionStore::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		throw std::runtime_error("not yet implemented");
+		if (node.componentCount != 1)
+			throw std::runtime_error("swizzle with more than one component is not yet supported");
+
+		node.expression->Visit(*this);
+
+		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
+
+		std::visit(overloaded
+		{
+			[&](const Pointer& pointer)
+			{
+				UInt32 resultId = m_visitor.AllocateResultId();
+				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
+
+				Int32 indexCount = UnderlyingCast(node.components[0]) - UnderlyingCast(ShaderAst::SwizzleComponent::First);
+				UInt32 indexId = m_writer.GetConstantId(indexCount);
+
+				m_block.Append(SpirvOp::OpAccessChain, pointerType, resultId, pointer.pointerId, indexId);
+
+				m_value = Pointer { pointer.storage, resultId };
+			},
+			[&](const LocalVar& value)
+			{
+				throw std::runtime_error("not yet implemented");
+			},
+			[](std::monostate)
+			{
+				throw std::runtime_error("an internal error occurred");
+			}
+		}, m_value);
 	}
 
 	void SpirvExpressionStore::Visit(ShaderAst::VariableExpression& node)
