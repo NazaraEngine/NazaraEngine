@@ -245,9 +245,7 @@ namespace Nz
 				if (passIndex == lastUsingPassId)
 				{
 					std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
-
-					// For input/output depth-stencil buffer, the same texture can be used
-					if (m_pending.texturePool.empty() || m_pending.texturePool.back() != textureId)
+					if (m_pending.texturePool.empty())
 					{
 						assert(std::find(m_pending.texturePool.begin(), m_pending.texturePool.end(), textureId) == m_pending.texturePool.end());
 						m_pending.texturePool.push_back(textureId);
