@@ -46,7 +46,7 @@ namespace Nz
 			inline std::size_t AddInput(std::size_t attachmentId);
 			inline std::size_t AddOutput(std::size_t attachmentId);
 
-			template<typename F> void ForEachAttachment(F&& func) const;
+			template<typename F> void ForEachAttachment(F&& func, bool singleDSInputOutputCall = true) const;
 
 			inline const CommandCallback& GetCommandCallback() const;
 			inline const std::optional<DepthStencilClear>& GetDepthStencilClear() const;

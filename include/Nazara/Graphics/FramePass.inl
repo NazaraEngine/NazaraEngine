@@ -39,7 +39,7 @@ namespace Nz
 		return outputIndex;
 	}
 	template<typename F>
-	void FramePass::ForEachAttachment(F&& func) const
+	void FramePass::ForEachAttachment(F&& func, bool singleDSInputOutputCall) const
 	{
 		for (const auto& input : m_inputs)
 			func(input.attachmentId);
@@ -52,7 +52,10 @@ namespace Nz
 			func(m_depthStencilInput);
 
 			if (m_depthStencilOutput != FramePass::InvalidAttachmentId && m_depthStencilOutput != m_depthStencilInput)
-				func(m_depthStencilOutput);
+			{
+				if (!singleDSInputOutputCall || m_depthStencilOutput != m_depthStencilInput)
+					func(m_depthStencilOutput);
+			}
 		}
 		else if (m_depthStencilOutput != FramePass::InvalidAttachmentId)
 			func(m_depthStencilOutput);
