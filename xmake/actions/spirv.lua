@@ -80,8 +80,8 @@ on_run(function()
 
 #pragma once
 
-#ifndef NAZARA_SPIRVDATA_HPP
-#define NAZARA_SPIRVDATA_HPP
+#ifndef NAZARA_SHADER_SPIRVDATA_HPP
+#define NAZARA_SHADER_SPIRVDATA_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Flags.hpp>
@@ -91,11 +91,16 @@ namespace Nz
 {
 ]])
 
+	local magicNumber = result.magic_number
+	local majorVersion = assert(math.tointeger(result.major_version), "expected integer major version number")
+	local minorVersion = assert(math.tointeger(result.minor_version), "expected integer minor version number")
+	local revision = assert(math.tointeger(result.revision), "expected integer revision number")
+
 	headerFile:write([[
-	constexpr UInt32 SpirvMagicNumber = ]] .. result.magic_number .. [[;
-	constexpr UInt32 SpirvMajorVersion = ]] .. result.major_version .. [[;
-	constexpr UInt32 SpirvMinorVersion = ]] .. result.minor_version .. [[;
-	constexpr UInt32 SpirvRevision = ]] .. result.revision .. [[;
+	constexpr UInt32 SpirvMagicNumber = ]] .. magicNumber .. [[;
+	constexpr UInt32 SpirvMajorVersion = ]] .. majorVersion .. [[;
+	constexpr UInt32 SpirvMinorVersion = ]] .. minorVersion .. [[;
+	constexpr UInt32 SpirvRevision = ]] .. revision .. [[;
 	constexpr UInt32 SpirvVersion = (SpirvMajorVersion << 16) | (SpirvMinorVersion << 8);
 
 ]])
@@ -107,7 +112,8 @@ namespace Nz
 ]])
 
 	for _, instruction in pairs(result.instructions) do
-		headerFile:write("\t\t" .. instruction.opname .. " = " .. instruction.opcode .. ",\n")
+		local value = assert(math.tointeger(instruction.opcode), "unexpected non-integer in opcode")
+		headerFile:write("\t\t" .. instruction.opname .. " = " .. value .. ",\n")
 	end
 
 headerFile:write([[
@@ -144,6 +150,9 @@ headerFile:write([[
 			local maxValue
 			for _, enumerant in pairs(operand.enumerants) do
 				local value = enumerant.value
+				if type(enumerant.value) ~= "string" then -- power of two are written as strings
+					value = assert(math.tointeger(value), "unexpected non-integer in enums")
+				end
 
 				local eName = enumerant.enumerant:match("^%d") and operand.kind .. enumerant.enumerant or enumerant.enumerant
 				headerFile:write([[
@@ -202,7 +211,7 @@ headerFile:write([[
 headerFile:write([[
 }
 
-#endif
+#endif // NAZARA_SHADER_SPIRVDATA_HPP
 ]])
 
 	headerFile:close()
