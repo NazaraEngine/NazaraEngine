@@ -21,10 +21,7 @@ Nz::ShaderAst::NodePtr VecDecomposition::BuildNode(Nz::ShaderAst::ExpressionPtr*
 	assert(count == 1);
 	assert(outputIndex < m_outputs.size());
 
-	using namespace Nz;
-
-	ShaderAst::SwizzleComponent swizzleComponent = static_cast<ShaderAst::SwizzleComponent>(Nz::UnderlyingCast(ShaderAst::SwizzleComponent::First) + outputIndex);
-	return ShaderBuilder::Swizzle(std::move(expressions[0]), { swizzleComponent });
+	return Nz::ShaderBuilder::Swizzle(std::move(expressions[0]), { Nz::SafeCast<Nz::UInt32>(outputIndex) });
 }
 
 QString VecDecomposition::caption() const
