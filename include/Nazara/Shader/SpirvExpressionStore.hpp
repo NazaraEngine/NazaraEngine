@@ -11,6 +11,7 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/SpirvData.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/Enums.hpp>
 
 namespace Nz
 {
@@ -37,21 +38,23 @@ namespace Nz
 			SpirvExpressionStore& operator=(SpirvExpressionStore&&) = delete;
 
 		private:
-			struct LocalVar
-			{
-				std::string varName;
-			};
-
 			struct Pointer
 			{
 				SpirvStorageClass storage;
 				UInt32 pointerId;
 			};
 
+			struct SwizzledPointer : Pointer
+			{
+				ShaderAst::VectorType swizzledType;
+				std::array<UInt32, 4> swizzleIndices;
+				std::size_t componentCount;
+			};
+
 			SpirvAstVisitor& m_visitor;
 			SpirvBlock& m_block;
 			SpirvWriter& m_writer;
-			std::variant<std::monostate, LocalVar, Pointer> m_value;
+			std::variant<std::monostate, Pointer, SwizzledPointer> m_value;
 	};
 }
 

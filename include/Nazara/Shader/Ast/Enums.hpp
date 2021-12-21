@@ -128,14 +128,6 @@ namespace Nz
 			UInt32,  //< ui32
 		};
 
-		enum class SwizzleComponent
-		{
-			First,
-			Second,
-			Third,
-			Fourth
-		};
-
 		enum class UnaryType
 		{
 			LogicalNot, //< !v

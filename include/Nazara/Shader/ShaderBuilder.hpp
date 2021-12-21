@@ -133,7 +133,7 @@ namespace Nz::ShaderBuilder
 
 		struct Swizzle
 		{
-			inline std::unique_ptr<ShaderAst::SwizzleExpression> operator()(ShaderAst::ExpressionPtr expression, std::vector<ShaderAst::SwizzleComponent> swizzleComponents) const;
+			inline std::unique_ptr<ShaderAst::SwizzleExpression> operator()(ShaderAst::ExpressionPtr expression, std::vector<UInt32> swizzleComponents) const;
 		};
 
 		struct Unary
