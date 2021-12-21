@@ -178,7 +178,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		std::array<SwizzleComponent, 4> components;
+		std::array<UInt32, 4> components;
 		std::size_t componentCount;
 		ExpressionPtr expression;
 	};

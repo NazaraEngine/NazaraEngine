@@ -1195,27 +1195,9 @@ namespace Nz
 		Visit(node.expression, true);
 		Append(".");
 
+		const char* componentStr = "xyzw";
 		for (std::size_t i = 0; i < node.componentCount; ++i)
-		{
-			switch (node.components[i])
-			{
-				case ShaderAst::SwizzleComponent::First:
-					Append("x");
-					break;
-
-				case ShaderAst::SwizzleComponent::Second:
-					Append("y");
-					break;
-
-				case ShaderAst::SwizzleComponent::Third:
-					Append("z");
-					break;
-
-				case ShaderAst::SwizzleComponent::Fourth:
-					Append("w");
-					break;
-			}
-		}
+			Append(componentStr[node.components[i]]);
 	}
 
 	void GlslWriter::Visit(ShaderAst::VariableExpression& node)

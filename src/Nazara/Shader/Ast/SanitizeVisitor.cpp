@@ -200,26 +200,29 @@ namespace Nz::ShaderAst
 						case 'r':
 						case 'x':
 						case 's':
-							swizzle->components[j] = SwizzleComponent::First;
+							swizzle->components[j] = 0u;
 							break;
 
 						case 'g':
 						case 'y':
 						case 't':
-							swizzle->components[j] = SwizzleComponent::Second;
+							swizzle->components[j] = 1u;
 							break;
 
 						case 'b':
 						case 'z':
 						case 'p':
-							swizzle->components[j] = SwizzleComponent::Third;
+							swizzle->components[j] = 2u;
 							break;
 
 						case 'a':
 						case 'w':
 						case 'q':
-							swizzle->components[j] = SwizzleComponent::Fourth;
+							swizzle->components[j] = 3u;
 							break;
+
+						default:
+							throw AstError{ "unexpected character '" + std::string(swizzleStr) + "' on swizzle " };
 					}
 				}
 
@@ -303,8 +306,8 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<CallFunctionExpression>();
 
 		clone->parameters.reserve(node.parameters.size());
-		for (std::size_t i = 0; i < node.parameters.size(); ++i)
-			clone->parameters.push_back(CloneExpression(node.parameters[i]));
+		for (const auto& parameter : node.parameters)
+			clone->parameters.push_back(CloneExpression(parameter));
 
 		std::size_t targetFuncIndex;
 		if (std::holds_alternative<std::string>(node.targetFunction))
@@ -494,6 +497,12 @@ namespace Nz::ShaderAst
 	{
 		if (node.componentCount > 4)
 			throw AstError{ "Cannot swizzle more than four elements" };
+
+		for (UInt32 swizzleIndex : node.components)
+		{
+			if (swizzleIndex >= 4)
+				throw AstError{ "invalid swizzle" };
+		}
 
 		MandatoryExpr(node.expression);
 
@@ -1315,12 +1324,10 @@ namespace Nz::ShaderAst
 		}
 
 		ExpressionType exprType = GetExpressionType(*node.expr);
-		for (std::size_t i = 0; i < node.indices.size(); ++i)
+		for (const auto& indexExpr : node.indices)
 		{
 			if (IsStructType(exprType))
 			{
-				auto& indexExpr = node.indices[i];
-
 				const ShaderAst::ExpressionType& indexType = GetExpressionType(*indexExpr);
 				if (indexExpr->GetType() != NodeType::ConstantValueExpression || indexType != ExpressionType{ PrimitiveType::Int32 })
 					throw AstError{ "struct can only be accessed with constant i32 indices" };

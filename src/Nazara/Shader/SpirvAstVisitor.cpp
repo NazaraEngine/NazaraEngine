@@ -906,8 +906,9 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
+		const ShaderAst::ExpressionType& swizzledExpressionType = GetExpressionType(*node.expression);
+
 		UInt32 exprResultId = EvaluateExpression(node.expression);
-		UInt32 resultId = m_writer.AllocateResultId();
 
 		const ShaderAst::ExpressionType& targetExprType = GetExpressionType(node);
 
@@ -917,31 +918,61 @@ namespace Nz
 
 			const ShaderAst::VectorType& targetType = std::get<ShaderAst::VectorType>(targetExprType);
 
-			// Swizzling is implemented via SpirvOp::OpVectorShuffle using the same vector twice as operands
-			m_currentBlock->AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
+			UInt32 resultId = m_writer.AllocateResultId();
+			if (IsVectorType(swizzledExpressionType))
 			{
-				appender(m_writer.GetTypeId(targetType));
-				appender(resultId);
-				appender(exprResultId);
-				appender(exprResultId);
+				// Swizzling a vector is implemented via OpVectorShuffle using the same vector twice as operands
+				m_currentBlock->AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
+				{
+					appender(m_writer.GetTypeId(targetType));
+					appender(resultId);
+					appender(exprResultId);
+					appender(exprResultId);
 
-				for (std::size_t i = 0; i < node.componentCount; ++i)
-					appender(UInt32(node.components[i]));
-			});
+					for (std::size_t i = 0; i < node.componentCount; ++i)
+						appender(node.components[i]);
+				});
+			}
+			else
+			{
+				assert(IsPrimitiveType(swizzledExpressionType));
+
+				// Swizzling a primitive to a vector (a.xxx) can be implemented using OpCompositeConstruct
+				m_currentBlock->AppendVariadic(SpirvOp::OpCompositeConstruct, [&](const auto& appender)
+				{
+					appender(m_writer.GetTypeId(targetType));
+					appender(resultId);
+
+					for (std::size_t i = 0; i < node.componentCount; ++i)
+						appender(exprResultId);
+				});
+			}
+
+			PushResultId(resultId);
 		}
-		else
+		else if (IsVectorType(swizzledExpressionType))
 		{
 			assert(IsPrimitiveType(targetExprType));
-
 			ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
 
 			// Extract a single component from the vector
 			assert(node.componentCount == 1);
 
-			m_currentBlock->Append(SpirvOp::OpCompositeExtract, m_writer.GetTypeId(targetType), resultId, exprResultId, UInt32(node.components[0]) - UInt32(ShaderAst::SwizzleComponent::First) );
-		}
+			UInt32 resultId = m_writer.AllocateResultId();
+			m_currentBlock->Append(SpirvOp::OpCompositeExtract, m_writer.GetTypeId(targetType), resultId, exprResultId, node.components[0]);
 
-		PushResultId(resultId);
+			PushResultId(resultId);
+		}
+		else
+		{
+			// Swizzling a primitive to itself (a.x for example), don't do anything
+			assert(IsPrimitiveType(swizzledExpressionType));
+			assert(IsPrimitiveType(targetExprType));
+			assert(node.componentCount == 1);
+			assert(node.components[0] == 0);
+
+			PushResultId(exprResultId);
+		}
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::UnaryExpression& node)

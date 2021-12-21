@@ -359,7 +359,7 @@ namespace Nz
 
 					for (std::size_t i = 0; i < node.componentCount; ++i)
 					{
-						Int32 indexCount = UnderlyingCast(node.components[i]) - UnderlyingCast(ShaderAst::SwizzleComponent::First);
+						Int32 indexCount = SafeCast<Int32>(node.components[i]);
 						m_constantCache.Register(*m_constantCache.BuildConstant(indexCount));
 					}
 
