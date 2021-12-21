@@ -39,13 +39,13 @@ Nz::ShaderAst::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderAst::Expre
 	}
 	else if (ToComponentCount < fromComponentCount)
 	{
-		std::array<Nz::ShaderAst::SwizzleComponent, ToComponentCount> swizzleComponents;
+		std::array<Nz::UInt32, ToComponentCount> swizzleComponents;
 		for (std::size_t i = 0; i < ToComponentCount; ++i)
-			swizzleComponents[i] = static_cast<Nz::ShaderAst::SwizzleComponent>(static_cast<std::size_t>(Nz::ShaderAst::SwizzleComponent::First) + i);
+			swizzleComponents[i] = Nz::SafeCast<Nz::UInt32>(i);
 
 		return std::apply([&](auto... components)
 		{
-			std::initializer_list<Nz::ShaderAst::SwizzleComponent> componentList{ components... };
+			std::initializer_list<Nz::UInt32> componentList{ components... };
 			return Nz::ShaderBuilder::Swizzle(std::move(expressions[0]), componentList);
 		}, swizzleComponents);
 	}

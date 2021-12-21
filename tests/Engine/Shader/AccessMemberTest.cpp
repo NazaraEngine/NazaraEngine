@@ -77,7 +77,7 @@ SCENARIO("Shader generation", "[Shader]")
 			auto firstAccess = Nz::ShaderBuilder::AccessMember(std::move(ubo), { "s" });
 			auto secondAccess = Nz::ShaderBuilder::AccessMember(std::move(firstAccess), { "field" });
 
-			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(secondAccess), { Nz::ShaderAst::SwizzleComponent::Third });
+			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(secondAccess), { 2u });
 			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::PrimitiveType::Float32, std::move(swizzle));
 
 			statements.push_back(Nz::ShaderBuilder::DeclareFunction("main", std::move(varDecl)));
@@ -113,7 +113,7 @@ OpFunctionEnd)");
 			auto ubo = Nz::ShaderBuilder::Identifier("ubo");
 			auto access = Nz::ShaderBuilder::AccessMember(std::move(ubo), { "s", "field" });
 
-			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(access), { Nz::ShaderAst::SwizzleComponent::Third });
+			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(access), { 2u });
 			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::PrimitiveType::Float32, std::move(swizzle));
 
 			statements.push_back(Nz::ShaderBuilder::DeclareFunction("main", std::move(varDecl)));
