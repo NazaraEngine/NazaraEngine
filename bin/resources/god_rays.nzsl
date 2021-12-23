@@ -19,7 +19,7 @@ struct Settings
 	decay: f32,
 	density: f32,
 	weight: f32,
-	lightPosition: vec2<f32>, //< Switch to world position
+	lightPosition: vec2<f32>, //< TODO: Switch to world position
 }
 
 const SampleCount: i32 = 200;

@@ -570,12 +570,14 @@ namespace Nz
 
 			case ImageType::E1D_Array:
 				imageType.arrayed = true;
+				[[fallthrough]];
 			case ImageType::E1D:
 				imageType.dim = SpirvDim::Dim1D;
 				break;
 
 			case ImageType::E2D_Array:
 				imageType.arrayed = true;
+				[[fallthrough]];
 			case ImageType::E2D:
 				imageType.dim = SpirvDim::Dim2D;
 				break;

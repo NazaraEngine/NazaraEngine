@@ -43,7 +43,12 @@ package("qt5base")
     end)
 
     on_install("windows", "linux", "macosx", "mingw", "android", "iphoneos", function (package)
-        os.vrunv("python", {"-m", "ensurepip"})
+        -- ensurepip is dropped in recent releases
+        try
+        {
+            function () os.vrunv("python", {"-m", "ensurepip"}) end
+        }
+        
         os.vrunv("python", {"-m", "pip", "install", "-U", "pip"})
         os.vrunv("python", {"-m", "pip", "install", "aqtinstall"})
 
