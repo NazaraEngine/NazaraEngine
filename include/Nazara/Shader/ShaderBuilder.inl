@@ -179,16 +179,28 @@ namespace Nz::ShaderBuilder
 		return declareFunctionNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType) const
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::optional<ShaderStageType> entryStage, std::string name, ShaderAst::StatementPtr statement) const
 	{
 		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
+		declareFunctionNode->name = std::move(name);
+		declareFunctionNode->statements.push_back(std::move(statement));
+
 		if (entryStage)
 			declareFunctionNode->entryStage = *entryStage;
 
+		return declareFunctionNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> Impl::DeclareFunction::operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType) const
+	{
+		auto declareFunctionNode = std::make_unique<ShaderAst::DeclareFunctionStatement>();
 		declareFunctionNode->name = std::move(name);
 		declareFunctionNode->parameters = std::move(parameters);
 		declareFunctionNode->returnType = std::move(returnType);
 		declareFunctionNode->statements = std::move(statements);
+
+		if (entryStage)
+			declareFunctionNode->entryStage = *entryStage;
 
 		return declareFunctionNode;
 	}
