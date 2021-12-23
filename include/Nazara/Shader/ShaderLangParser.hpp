@@ -134,7 +134,7 @@ namespace Nz::ShaderLang
 
 	inline ShaderAst::StatementPtr Parse(const std::string_view& source);
 	inline ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens);
-	NAZARA_SHADER_API ShaderAst::StatementPtr Parse(const std::filesystem::path& sourcePath);
+	NAZARA_SHADER_API ShaderAst::StatementPtr ParseFromFile(const std::filesystem::path& sourcePath);
 }
 
 #include <Nazara/Shader/ShaderLangParser.inl>

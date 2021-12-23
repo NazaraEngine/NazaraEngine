@@ -1257,7 +1257,7 @@ namespace Nz::ShaderLang
 		}
 	}
 
-	ShaderAst::StatementPtr Parse(const std::filesystem::path& sourcePath)
+	ShaderAst::StatementPtr ParseFromFile(const std::filesystem::path& sourcePath)
 	{
 		File file(sourcePath);
 		if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
