@@ -18,6 +18,16 @@ namespace Nz
 		return m_cornerColor[UnderlyingCast(corner)];
 	}
 
+	inline const Vector3f& Sprite::GetOrigin() const
+	{
+		return m_origin;
+	}
+
+	inline const Vector2f& Sprite::GetSize() const
+	{
+		return m_size;
+	}
+
 	inline const Rectf& Sprite::GetTextureCoords() const
 	{
 		return m_textureCoords;
@@ -50,6 +60,13 @@ namespace Nz
 		}
 	}
 
+	inline void Sprite::SetOrigin(const Vector3f& origin)
+	{
+		m_origin = origin;
+
+		UpdateVertices();
+	}
+
 	inline void Sprite::SetSize(const Vector2f& size)
 	{
 		m_size = size;
@@ -72,37 +89,26 @@ namespace Nz
 
 	inline void Sprite::UpdateVertices()
 	{
-		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
-
-		Vector3f origin = Vector3f::Zero(); //< TODO
 		Boxf aabb;
 
-		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::LeftBottom)];
-		vertices->position = Vector3f(-origin);
-		vertices->uv = m_textureCoords.GetCorner(RectCorner::LeftBottom);
+		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 
-		aabb.Set(vertices->position);
+		std::array<Vector2f, RectCornerCount> cornerExtent;
+		cornerExtent[UnderlyingCast(RectCorner::LeftBottom)] = Vector2f(0.f, 0.f);
+		cornerExtent[UnderlyingCast(RectCorner::RightBottom)] = Vector2f(1.f, 0.f);
+		cornerExtent[UnderlyingCast(RectCorner::LeftTop)] = Vector2f(0.f, 1.f);
+		cornerExtent[UnderlyingCast(RectCorner::RightTop)] = Vector2f(1.f, 1.f);
 
-		vertices++;
-		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::RightBottom)];
-		vertices->position = m_size.x * Vector3f::Right() - origin;
-		vertices->uv = m_textureCoords.GetCorner(RectCorner::RightBottom);
+		for (RectCorner corner : { RectCorner::LeftBottom, RectCorner::RightBottom, RectCorner::LeftTop, RectCorner::RightTop })
+		{
+			vertices->color = m_color * m_cornerColor[UnderlyingCast(corner)];
+			vertices->position = Vector3f(m_size * cornerExtent[UnderlyingCast(corner)], 0.f) - m_origin;
+			vertices->uv = m_textureCoords.GetCorner(corner);
 
-		aabb.ExtendTo(vertices->position);
+			aabb.Set(vertices->position);
 
-		vertices++;
-		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::LeftTop)];
-		vertices->position = m_size.y * Vector3f::Up() - origin;
-		vertices->uv = m_textureCoords.GetCorner(RectCorner::LeftTop);
-
-		aabb.ExtendTo(vertices->position);
-
-		vertices++;
-		vertices->color = m_color * m_cornerColor[UnderlyingCast(RectCorner::RightTop)];
-		vertices->position = m_size.x * Vector3f::Right() + m_size.y * Vector3f::Up() - origin;
-		vertices->uv = m_textureCoords.GetCorner(RectCorner::RightTop);
-
-		aabb.ExtendTo(vertices->position);
+			vertices++;
+		}
 
 		UpdateAABB(aabb);
 		OnElementInvalidated(this);
