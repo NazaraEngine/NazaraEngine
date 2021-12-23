@@ -87,6 +87,9 @@ namespace Nz
 			if (lhs.name != rhs.name)
 				return false;
 
+			if (lhs.decorations != rhs.decorations)
+				return false;
+
 			if (!Compare(lhs.members, rhs.members))
 				return false;
 
@@ -484,6 +487,14 @@ namespace Nz
 		});
 	}
 
+	auto SpirvConstantCache::BuildPointerType(const TypePtr& type, SpirvStorageClass storageClass) const -> TypePtr
+	{
+		return std::make_shared<Type>(Pointer{
+			type,
+			storageClass
+		});
+	}
+
 	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const -> TypePtr
 	{
 		return std::make_shared<Type>(Pointer{
@@ -583,10 +594,11 @@ namespace Nz
 		return BuildType(m_internal->structCallback(type.structIndex));
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::StructDescription& structDesc) const -> TypePtr
+	auto SpirvConstantCache::BuildType(const ShaderAst::StructDescription& structDesc, std::vector<SpirvDecoration> decorations) const -> TypePtr
 	{
 		Structure sType;
 		sType.name = structDesc.name;
+		sType.decorations = std::move(decorations);
 
 		for (const auto& member : structDesc.members)
 		{
@@ -864,7 +876,8 @@ namespace Nz
 
 		debugInfos.Append(SpirvOp::OpName, resultId, structData.name);
 
-		annotations.Append(SpirvOp::OpDecorate, resultId, SpirvDecoration::Block);
+		for (SpirvDecoration decoration : structData.decorations)
+			annotations.Append(SpirvOp::OpDecorate, resultId, decoration);
 
 		FieldOffsets structOffsets(StructLayout::Std140);
 

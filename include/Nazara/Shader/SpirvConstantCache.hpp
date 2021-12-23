@@ -105,6 +105,7 @@ namespace Nz
 
 				std::string name;
 				std::vector<Member> members;
+				std::vector<SpirvDecoration> decorations;
 			};
 
 			using AnyType = std::variant<Bool, Float, Function, Image, Integer, Matrix, Pointer, SampledImage, Structure, Vector, Void>;
@@ -166,6 +167,7 @@ namespace Nz
 			TypePtr BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) const;
 			TypePtr BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
+			TypePtr BuildPointerType(const TypePtr& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildType(const ShaderAst::ExpressionType& type) const;
 			TypePtr BuildType(const ShaderAst::IdentifierType& type) const;
 			TypePtr BuildType(const ShaderAst::MatrixType& type) const;
@@ -173,7 +175,7 @@ namespace Nz
 			TypePtr BuildType(const ShaderAst::PrimitiveType& type) const;
 			TypePtr BuildType(const ShaderAst::SamplerType& type) const;
 			TypePtr BuildType(const ShaderAst::StructType& type) const;
-			TypePtr BuildType(const ShaderAst::StructDescription& structDesc) const;
+			TypePtr BuildType(const ShaderAst::StructDescription& structDesc, std::vector<SpirvDecoration> decorations = {}) const;
 			TypePtr BuildType(const ShaderAst::VectorType& type) const;
 			TypePtr BuildType(const ShaderAst::UniformType& type) const;
 

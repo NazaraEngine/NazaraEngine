@@ -143,8 +143,24 @@ namespace Nz
 					{
 						SpirvConstantCache::Variable variable;
 						variable.debugName = extVar.name;
-						variable.storageClass = (ShaderAst::IsSamplerType(extVar.type)) ? SpirvStorageClass::UniformConstant : SpirvStorageClass::Uniform;
-						variable.type = m_constantCache.BuildPointerType(extVar.type, variable.storageClass);
+
+						if (ShaderAst::IsSamplerType(extVar.type))
+						{
+							variable.storageClass = SpirvStorageClass::UniformConstant;
+							variable.type = m_constantCache.BuildPointerType(extVar.type, variable.storageClass);
+						}
+						else
+						{
+							assert(ShaderAst::IsUniformType(extVar.type));
+							const auto& uniformType = std::get<ShaderAst::UniformType>(extVar.type);
+							assert(std::holds_alternative<ShaderAst::StructType>(uniformType.containedType));
+							const auto& structType = std::get<ShaderAst::StructType>(uniformType.containedType);
+							assert(structType.structIndex < declaredStructs.size());
+							const auto& type = m_constantCache.BuildType(*declaredStructs[structType.structIndex], { SpirvDecoration::Block });
+
+							variable.storageClass = SpirvStorageClass::Uniform;
+							variable.type = m_constantCache.BuildPointerType(type, variable.storageClass);
+						}
 
 						assert(extVar.bindingIndex.IsResultingValue());
 
