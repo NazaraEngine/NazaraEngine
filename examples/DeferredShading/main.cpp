@@ -197,6 +197,26 @@ int main()
 	}
 	spaceshipMat->AddPass("ForwardPass", spaceshipMatPass);
 
+	std::shared_ptr<Nz::Material> flareMaterial = std::make_shared<Nz::Material>();
+	std::shared_ptr<Nz::MaterialPass> flareMaterialPass;
+	{
+		flareMaterialPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
+		flareMaterialPass->EnableDepthBuffer(true);
+		flareMaterialPass->EnableDepthWrite(false);
+		flareMaterialPass->EnableDepthClamp(true);
+
+		flareMaterialPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
+
+		flareMaterialPass->EnableBlending(true);
+		flareMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
+		flareMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
+
+		Nz::BasicMaterial Osef(*flareMaterialPass);
+		Osef.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "flare1.png", texParams));
+
+		flareMaterial->AddPass("ForwardPass", flareMaterialPass);
+	}
+
 	std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>();
 
 	std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
@@ -529,8 +549,8 @@ int main()
 
 	std::vector<Nz::UInt8> godRaysData(godraysFieldOffsets.GetSize());
 	Nz::AccessByOffset<float&>(godRaysData.data(), gr_exposureOffset) = 0.0034f;
-	Nz::AccessByOffset<float&>(godRaysData.data(), gr_decayOffset) = 0.9f;
-	Nz::AccessByOffset<float&>(godRaysData.data(), gr_densityOffset) = 0.84f;
+	Nz::AccessByOffset<float&>(godRaysData.data(), gr_decayOffset) = 0.99f;
+	Nz::AccessByOffset<float&>(godRaysData.data(), gr_densityOffset) = 0.95f;
 	Nz::AccessByOffset<float&>(godRaysData.data(), gr_weightOffset) = 5.65f;
 	Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset) = Nz::Vector2f(0.5f, 0.1f);
 
@@ -684,10 +704,25 @@ int main()
 
 	std::size_t toneMappingOutput;
 
+	Nz::SpriteChainRenderer spritechainRenderer(*device);
+	std::unique_ptr<Nz::ElementRendererData> spriteRendererData = spritechainRenderer.InstanciateData();
+
+	Nz::Sprite flareSprite(flareMaterial);
+	flareSprite.SetSize({ 128.f, 128.f });
+	flareSprite.SetSize(flareSprite.GetSize() * 0.1f);
+	flareSprite.SetOrigin(flareSprite.GetSize() / 2.f);
+
+	Nz::Vector3f flarePosition = { 0.f, 6.f, 100.f };
+
+	Nz::WorldInstance flareInstance;
+	flareInstance.UpdateWorldMatrix(Nz::Matrix4f::Translate(flarePosition));
+
 	Nz::SubmeshRenderer submeshRenderer;
 	std::unique_ptr<Nz::ElementRendererData> submeshRendererData = submeshRenderer.InstanciateData();
 
 	std::size_t forwardPassIndex = Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
+
+	Nz::RenderFrame* currentFrame = nullptr;
 
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
@@ -746,7 +781,9 @@ int main()
 
 		godRaysTexture = graph.AddAttachment({
 			"God rays texture",
-			Nz::PixelFormat::RGBA16F
+			Nz::PixelFormat::RGBA16F,
+			50'000,
+			50'000
 		});
 
 		bloomOutput = graph.AddAttachmentProxy("Bloom output", lightOutput);
@@ -823,9 +860,7 @@ int main()
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			Nz::RenderFrame dummy;
-
-			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, dummy, elementPointers.data(), elementPointers.size());
+			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
 			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 
@@ -878,6 +913,17 @@ int main()
 			builder.BindPipeline(*skyboxPipeline);
 
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
+
+			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
+
+			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			elementPointers.reserve(elements.size());
+			for (const auto& element : elements)
+				elementPointers.emplace_back(element.get());
+
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 		forwardPass.SetExecutionCallback([&]
 		{
@@ -896,13 +942,16 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			builder.BindShaderBinding(0, *skyboxShaderBinding);
+			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
 
-			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));
-			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
-			builder.BindPipeline(*skyboxPipeline);
+			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			elementPointers.reserve(elements.size());
+			for (const auto& element : elements)
+				elementPointers.emplace_back(element.get());
 
-			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 
 		occluderPass.AddOutput(occluderTexture);
@@ -925,7 +974,6 @@ int main()
 
 		godraysPass.AddInput(occluderTexture);
 		godraysPass.AddOutput(godRaysTexture);
-
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
 		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
@@ -1190,6 +1238,8 @@ int main()
 		if (!frame)
 			continue;
 
+		currentFrame = &frame;
+
 		if (bakedGraph.Resize(frame))
 		{
 			frame.PushForRelease(std::move(gbufferShaderBinding));
@@ -1452,6 +1502,10 @@ int main()
 				modelInstance2.UpdateBuffers(uploadPool, builder);
 				planeInstance.UpdateBuffers(uploadPool, builder);
 
+				Nz::EulerAnglesf flareRotation(0.f, 0.f, elapsedTime * 10.f);
+				flareInstance.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos + flarePosition, flareRotation));
+				flareInstance.UpdateBuffers(uploadPool, builder);
+
 				viewerInstance.UpdateBuffers(uploadPool, builder);
 
 				// Update light buffer
@@ -1487,7 +1541,7 @@ int main()
 
 				// Update light scattering buffer
 				{
-					Nz::Vector4f pos(0.f, 200.f, 0.f, 1.f);
+					Nz::Vector4f pos(flareInstance.GetWorldMatrix().GetTranslation(), 1.f);
 					pos = viewerInstance.GetViewMatrix() * pos;
 					pos = viewerInstance.GetProjectionMatrix() * pos;
 					pos /= pos.w;
@@ -1507,6 +1561,7 @@ int main()
 
 				matUpdate = spaceshipMatPass->Update(frame, builder) || matUpdate;
 				matUpdate = planeMatPass->Update(frame, builder) || matUpdate;
+				matUpdate = flareMaterialPass->Update(frame, builder) || matUpdate;
 
 				builder.PostTransferBarrier();
 			}
