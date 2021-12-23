@@ -180,8 +180,8 @@ int main()
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders.clear();
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::Parse(resourceDir / "deferred_frag.nzsl")));
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::Parse(resourceDir / "deferred_vert.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::ParseFromFile(resourceDir / "deferred_frag.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::ParseFromFile(resourceDir / "deferred_vert.nzsl")));
 
 	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
