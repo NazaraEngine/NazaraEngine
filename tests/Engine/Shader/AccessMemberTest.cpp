@@ -4,7 +4,6 @@
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <catch2/catch.hpp>
-#include <spirv-tools/libspirv.hpp>
 #include <cctype>
 
 SCENARIO("Shader generation", "[Shader]")

@@ -3,14 +3,14 @@ if is_mode("asan") then
 	add_defines("CATCH_CONFIG_NO_POSIX_SIGNALS")
 end
 
-add_requires("catch2", "spirv-tools")
+add_requires("catch2", "glslang", "spirv-tools")
 
 -- Common config
 set_group("Tests")
 set_kind("binary")
 
 add_deps("NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
-add_packages("catch2", "spirv-tools")
+add_packages("catch2", "glslang", "spirv-tools")
 add_headerfiles("Engine/**.hpp")
 add_files("resources.cpp")
 add_files("Engine/**.cpp")
