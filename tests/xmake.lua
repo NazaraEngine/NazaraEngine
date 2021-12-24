@@ -26,5 +26,5 @@ target("NazaraClientUnitTests")
 
 target("NazaraUnitTests")
 	add_files("main.cpp")
-	-- del_headerfiles("Engine/Audio/**")
-	del_files("Engine/Audio/**")
+	remove_headerfiles("Engine/Audio/**")
+	remove_files("Engine/Audio/**")
