@@ -30,8 +30,8 @@ local modules = {
 			end
 
 			if is_plat("linux") then
-				del_files("src/Nazara/Network/Posix/SocketPollerImpl.hpp")
-				del_files("src/Nazara/Network/Posix/SocketPollerImpl.cpp")
+				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.hpp")
+				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.cpp")
 			end
 		end
 	},
@@ -41,12 +41,12 @@ local modules = {
 			if is_plat("windows", "mingw") then
 				add_syslinks("gdi32", "user32")
 			else
-				del_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
-				del_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
 			end
 
 			if not is_plat("linux") then
-				del_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
 		end
 	},
@@ -102,6 +102,10 @@ local modules = {
 		Packages = {"entt", "kiwisolver"}
 	}
 }
+
+-- remove_headerfiles and remove_files were added in xmake 2.6.3, add a fallback for previous versions
+remove_files = remove_files or del_files
+remove_headerfiles = remove_headerfiles or function () end
 
 set_xmakever("2.5.6")
 
@@ -187,7 +191,8 @@ for name, module in pairs(modules) do
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
 
-	for _, ext in ipairs({".h", ".hpp", ".inl", ".natvis"}) do
+	local headerExts = {".h", ".hpp", ".inl", ".natvis"}
+	for _, ext in ipairs(headerExts) do
 		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
 		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext)
 	end
@@ -200,13 +205,25 @@ for name, module in pairs(modules) do
 	end
 
 	if is_plat("windows", "mingw") then
-		del_files("src/Nazara/" .. name .. "/Posix/**.cpp")
+		for _, ext in ipairs(headerExts) do
+			remove_headerfiles("src/Nazara/" .. name .. "/Posix/**" .. ext)
+		end
+
+		remove_files("src/Nazara/" .. name .. "/Posix/**.cpp")
 	else
-		del_files("src/Nazara/" .. name .. "/Win32/**.cpp")
+		for _, ext in ipairs(headerExts) do
+			remove_headerfiles("src/Nazara/" .. name .. "/Posix/**" .. ext)
+		end
+
+		remove_files("src/Nazara/" .. name .. "/Win32/**.cpp")
 	end
 
 	if not is_plat("linux") then
-		del_files("src/Nazara/" .. name .. "/Linux/**.cpp")
+		for _, ext in ipairs(headerExts) do
+			remove_headerfiles("src/Nazara/" .. name .. "/Linux/**" .. ext)
+		end
+
+		remove_files("src/Nazara/" .. name .. "/Linux/**.cpp")
 	end
 end
 
