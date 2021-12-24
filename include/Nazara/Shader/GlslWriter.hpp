@@ -41,7 +41,7 @@ namespace Nz
 				ExtSupportCallback extCallback;
 				unsigned int glMajorVersion = 3;
 				unsigned int glMinorVersion = 0;
-				bool glES = false;
+				bool glES = true;
 				bool flipYPosition = false;
 				bool remapZPosition = false;
 			};
