@@ -22,7 +22,7 @@ namespace Nz
 		Layout();
 	}
 
-	void LabelWidget::UpdateText(const AbstractTextDrawer& drawer, float scale)
+	void LabelWidget::UpdateText(const AbstractTextDrawer& drawer)
 	{
 		m_style->UpdateText(drawer);
 

@@ -206,21 +206,6 @@ namespace Nz::ShaderAst
 			else if (IsPrimitiveType(exprType) || IsVectorType(exprType))
 			{
 				// Swizzle expression
-				PrimitiveType baseType;
-				std::size_t componentCount;
-
-				if (IsVectorType(exprType))
-				{
-					const VectorType& swizzledVec = std::get<VectorType>(exprType);
-					baseType = swizzledVec.type;
-					componentCount = swizzledVec.componentCount;
-				}
-				else
-				{
-					baseType = std::get<PrimitiveType>(exprType);
-					componentCount = 1;
-				}
-
 				std::size_t swizzleComponentCount = identifier.size();
 				if (swizzleComponentCount > 4)
 					throw AstError{ "cannot swizzle more than four elements" };
@@ -238,6 +223,12 @@ namespace Nz::ShaderAst
 
 					// Use a Cast expression to replace swizzle
 					indexedExpr = CacheResult(std::move(indexedExpr)); //< Since we are going to use a value multiple times, cache it if required
+
+					PrimitiveType baseType;
+					if (IsVectorType(exprType))
+						baseType = std::get<VectorType>(exprType).type;
+					else
+						baseType = std::get<PrimitiveType>(exprType);
 
 					auto cast = std::make_unique<CastExpression>();
 					cast->targetType = VectorType{ swizzleComponentCount, baseType };

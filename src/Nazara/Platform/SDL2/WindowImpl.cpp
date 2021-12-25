@@ -534,7 +534,7 @@ namespace Nz
 				}
 			}
 		}
-		catch (std::exception e)
+		catch (const std::exception& e)
 		{
 			NazaraError(e.what());
 		}

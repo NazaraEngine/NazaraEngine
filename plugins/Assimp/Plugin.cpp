@@ -121,7 +121,7 @@ std::shared_ptr<Animation> LoadAnimation(Stream& stream, const AnimationParams& 
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               ~aiComponent_ANIMATIONS);
 
-	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, 0, &fileIO, properties);
+	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
 
 	if (!scene)

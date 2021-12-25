@@ -297,6 +297,12 @@ namespace Nz
 	To SafeCast(From value)
 	{
 #if defined(NAZARA_DEBUG) && !defined(NDEBUG)
+	#ifdef NAZARA_COMPILER_MSVC
+		// Disable unreachable code warnings
+		#pragma warning(push)
+		#pragma warning(disable: 4702)
+	#endif
+
 		if constexpr (std::is_integral_v<To>)
 		{
 			if constexpr (std::is_enum_v<From>)
@@ -368,6 +374,10 @@ namespace Nz
 				}
 			}
 		}
+
+	#ifdef NAZARA_COMPILER_MSVC
+		#pragma warning(pop)
+	#endif
 #endif
 
 		return static_cast<To>(value);

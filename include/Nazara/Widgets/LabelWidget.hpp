@@ -24,7 +24,7 @@ namespace Nz
 			LabelWidget(LabelWidget&&) = default;
 			~LabelWidget() = default;
 
-			void UpdateText(const AbstractTextDrawer& drawer, float scale = 1.f);
+			void UpdateText(const AbstractTextDrawer& drawer);
 
 			LabelWidget& operator=(const LabelWidget&) = delete;
 			LabelWidget& operator=(LabelWidget&&) = default;

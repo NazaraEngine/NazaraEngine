@@ -72,8 +72,8 @@ namespace Nz
 						else
 							UnrecognizedLine();
 #endif
-						break;
 					}
+					break;
 				}
 
 				case 'd':
@@ -471,6 +471,7 @@ namespace Nz
 							UnrecognizedLine();
 #endif
 					}
+					break;
 				}
 
 				default:

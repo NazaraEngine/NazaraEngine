@@ -13,7 +13,8 @@ namespace Nz
 	{
 		ValidateSamplerInfo(device, samplerInfo);
 
-		VkSamplerCreateInfo createInfo = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+		VkSamplerCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 		createInfo.magFilter = ToVulkan(samplerInfo.magFilter);
 		createInfo.minFilter = ToVulkan(samplerInfo.minFilter);
 		createInfo.addressModeU = ToVulkan(samplerInfo.wrapModeU);

@@ -298,7 +298,7 @@ namespace Nz::ShaderBuilder
 		swizzleNode->componentCount = swizzleComponents.size();
 		for (std::size_t i = 0; i < swizzleNode->componentCount; ++i)
 		{
-			assert(swizzleComponents[i] >= 0 && swizzleComponents[i] <= 4);
+			assert(swizzleComponents[i] <= 4);
 			swizzleNode->components[i] = swizzleComponents[i];
 		}
 

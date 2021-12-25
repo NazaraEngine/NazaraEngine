@@ -11,7 +11,6 @@ SCENARIO("PrimitiveList", "[CORE][PRIMITIVELIST]")
 		{
 			float size = 1.f;
 			unsigned int subdivision = 1;
-			unsigned int recursionLevel = 1;
 			Nz::Matrix4f identity = Nz::Matrix4f::Identity();
 
 			primitiveList.AddCubicSphere(size, subdivision, identity);

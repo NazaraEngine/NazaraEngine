@@ -11,12 +11,12 @@ namespace Nz
 {
 	Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer) :
 	BaseWidget(std::make_shared<DefaultWidgetTheme>()),
+	m_cursorController(cursorController),
 	m_renderMask(renderMask),
 	m_keyboardOwner(InvalidCanvasIndex),
 	m_hoveredWidget(InvalidCanvasIndex),
 	m_mouseOwner(InvalidCanvasIndex),
-	m_registry(registry),
-	m_cursorController(cursorController)
+	m_registry(registry)
 	{
 		m_canvas = this;
 		BaseWidget::m_registry = &m_registry;

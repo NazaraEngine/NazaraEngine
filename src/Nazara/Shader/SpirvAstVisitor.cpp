@@ -1023,6 +1023,7 @@ namespace Nz
 						default:
 							break;
 					}
+					break;
 				}
 
 				case ShaderAst::UnaryType::Plus:
