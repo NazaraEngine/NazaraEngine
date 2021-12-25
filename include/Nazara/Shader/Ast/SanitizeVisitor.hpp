@@ -33,6 +33,8 @@ namespace Nz::ShaderAst
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
 
+			static UInt32 ToSwizzleIndex(char c);
+
 			struct Options
 			{
 				std::unordered_set<std::string> reservedIdentifiers;
@@ -40,6 +42,7 @@ namespace Nz::ShaderAst
 				bool makeVariableNameUnique = false;
 				bool removeCompoundAssignments = false;
 				bool removeOptionDeclaration = true;
+				bool removeScalarSwizzling = false;
 			};
 
 		private:
@@ -86,6 +89,8 @@ namespace Nz::ShaderAst
 			void PushScope();
 			void PopScope();
 
+			ExpressionPtr CacheResult(ExpressionPtr expression);
+
 			template<typename T> const T& ComputeAttributeValue(AttributeValue<T>& attribute);
 			ConstantValue ComputeConstantValue(Expression& expr);
 			template<typename T> std::unique_ptr<T> Optimize(T& node);
@@ -112,7 +117,12 @@ namespace Nz::ShaderAst
 
 			void Validate(AccessIndexExpression& node);
 			void Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration);
+			void Validate(CastExpression& node);
+			void Validate(DeclareVariableStatement& node);
 			void Validate(IntrinsicExpression& node);
+			void Validate(SwizzleExpression& node);
+			void Validate(UnaryExpression& node);
+			void Validate(VariableExpression& node);
 			ExpressionType ValidateBinaryOp(BinaryType op, const ExpressionPtr& leftExpr, const ExpressionPtr& rightExpr);
 
 			struct FunctionData

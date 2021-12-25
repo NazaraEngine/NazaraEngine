@@ -84,7 +84,11 @@ namespace Nz::ShaderAst
 
 	void ShaderAstValueCategory::Visit(SwizzleExpression& node)
 	{
-		node.expression->Visit(*this);
+		// Swizzling more than a component on a primitive produces a rvalue (a.xxxx cannot be assigned)
+		if (IsPrimitiveType(GetExpressionType(node)) && node.componentCount > 1)
+			m_expressionCategory = ExpressionCategory::RValue;
+		else
+			node.expression->Visit(*this);
 	}
 
 	void ShaderAstValueCategory::Visit(VariableExpression& /*node*/)
