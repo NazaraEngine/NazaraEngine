@@ -134,7 +134,9 @@ namespace Nz
 				const auto& expressionType = GetExpressionType(*node.expression);
 				assert(IsVectorType(expressionType));
 
-				SwizzledPointer swizzledPointer{ pointer };
+				SwizzledPointer swizzledPointer;
+				swizzledPointer.pointerId = pointer.pointerId;
+				swizzledPointer.storage = pointer.storage;
 				swizzledPointer.swizzledType = std::get<ShaderAst::VectorType>(expressionType);
 				swizzledPointer.componentCount = node.componentCount;
 				swizzledPointer.swizzleIndices = node.components;

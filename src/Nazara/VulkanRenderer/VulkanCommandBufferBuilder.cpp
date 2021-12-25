@@ -55,7 +55,8 @@ namespace Nz
 			}
 		}
 
-		VkRenderPassBeginInfo beginInfo = { VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
+		VkRenderPassBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		beginInfo.renderPass = vkRenderPass.GetRenderPass();
 		beginInfo.framebuffer = vkFramebuffer.GetFramebuffer();
 		beginInfo.renderArea.offset.x = renderRect.x;
@@ -190,15 +191,16 @@ namespace Nz
 				SafeCast<Int32>(fromBox.y),
 				SafeCast<Int32>(fromBox.z)
 			},
+			todo,
 			{
 				SafeCast<Int32>(toPos.x),
 				SafeCast<Int32>(toPos.y),
 				SafeCast<Int32>(toPos.z),
 			},
 			{
-				SafeCast<Int32>(fromBox.width),
-				SafeCast<Int32>(fromBox.height),
-				SafeCast<Int32>(fromBox.depth)
+				SafeCast<UInt32>(fromBox.width),
+				SafeCast<UInt32>(fromBox.height),
+				SafeCast<UInt32>(fromBox.depth)
 			}
 		};
 

@@ -96,7 +96,7 @@ void TextureEditor::OnTextureSelectionUpdate(int textureIndex)
 		m_currentTextureIndex.reset();
 }
 
-void TextureEditor::OnTextureListUpdate(ShaderGraph* graph)
+void TextureEditor::OnTextureListUpdate(ShaderGraph* /*graph*/)
 {
 	RefreshTextures();
 }

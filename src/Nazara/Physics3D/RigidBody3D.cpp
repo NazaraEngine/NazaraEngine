@@ -63,9 +63,9 @@ namespace Nz
 
 	RigidBody3D::RigidBody3D(RigidBody3D&& object) noexcept :
 	m_geom(std::move(object.m_geom)),
+	m_body(std::move(object.m_body)),
 	m_forceAccumulator(std::move(object.m_forceAccumulator)),
 	m_torqueAccumulator(std::move(object.m_torqueAccumulator)),
-	m_body(std::move(object.m_body)),
 	m_world(object.m_world),
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.m_mass)

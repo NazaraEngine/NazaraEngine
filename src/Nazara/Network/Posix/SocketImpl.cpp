@@ -419,7 +419,7 @@ namespace Nz
 		return static_cast<unsigned int>(result);
 	}
 
-	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& address, UInt64 msTimeout, SocketError* error)
+	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& /*address*/, UInt64 msTimeout, SocketError* error)
 	{
 		// Wait until socket is available for writing or an error occurs (ie when connection succeeds or fails)
 		pollfd descriptor;

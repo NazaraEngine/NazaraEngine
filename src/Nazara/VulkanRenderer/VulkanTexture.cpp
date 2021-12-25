@@ -27,7 +27,8 @@ namespace Nz
 		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		createInfo.usage = ToVulkan(params.usageFlags);
 
-		VkImageViewCreateInfo createInfoView = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+		VkImageViewCreateInfo createInfoView = {};
+		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfoView.subresourceRange = {
 			ToVulkan(PixelFormatInfo::GetContent(params.pixelFormat)),
 			0,

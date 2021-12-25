@@ -30,10 +30,10 @@ namespace Nz
 			SpriteChainRenderer(RenderDevice& device, std::size_t maxVertexBufferSize = 32 * 1024);
 			~SpriteChainRenderer() = default;
 
-			std::unique_ptr<ElementRendererData> InstanciateData();
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount);
+			std::unique_ptr<ElementRendererData> InstanciateData() override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
 			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
-			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
+			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
 
 		private:
 			struct BufferCopy

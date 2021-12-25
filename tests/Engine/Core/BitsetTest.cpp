@@ -296,7 +296,6 @@ void CheckRead(const char* title)
 			#define BitVal3 01101010
 			std::array<Nz::UInt8, 3> data = {{NazaraPrefixMacro(BitVal1, 0b), NazaraPrefixMacro(BitVal2, 0b), NazaraPrefixMacro(BitVal3, 0b)}};
 			const char result[] = NazaraStringifyMacro(BitVal3) NazaraStringifyMacro(BitVal2) NazaraStringifyMacro(BitVal1);
-			std::size_t resultLength = Nz::CountOf(result) - 1;
 			std::size_t bitCount = data.size() * 8;
 			#undef BitVal1
 			#undef BitVal2

@@ -269,12 +269,14 @@ namespace Nz
 			}
 		}
 
-		VkInstanceCreateInfo instanceInfo = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
+		VkInstanceCreateInfo instanceInfo = {};
+		instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
 #ifdef NAZARA_DEBUG
 		// Handle VK_LAYER_KHRONOS_validation extended features
 
-		VkValidationFeaturesEXT features = { VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT };
+		VkValidationFeaturesEXT features = {};
+		features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
 
 		std::array<VkValidationFeatureEnableEXT, 1> enabledFeatures = {
 			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,

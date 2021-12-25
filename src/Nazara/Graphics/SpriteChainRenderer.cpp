@@ -15,9 +15,9 @@
 namespace Nz
 {
 	SpriteChainRenderer::SpriteChainRenderer(RenderDevice& device, std::size_t maxVertexBufferSize) :
-	m_device(device),
 	m_maxVertexBufferSize(maxVertexBufferSize),
-	m_maxVertexCount(m_maxVertexBufferSize / (2 * sizeof(float))) // Treat vec2 as the minimum declaration possible
+	m_maxVertexCount(m_maxVertexBufferSize / (2 * sizeof(float))), // Treat vec2 as the minimum declaration possible
+	m_device(device)
 	{
 		m_vertexBufferPool = std::make_shared<VertexBufferPool>();
 

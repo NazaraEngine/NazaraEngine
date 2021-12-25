@@ -110,7 +110,7 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Texture"), textureSelection);
 }
 
-Nz::ShaderAst::NodePtr TextureValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+Nz::ShaderAst::NodePtr TextureValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	if (!m_currentTextureIndex)
 		throw std::runtime_error("invalid texture input");

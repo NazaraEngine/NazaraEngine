@@ -11,6 +11,7 @@
 
 #ifdef NAZARA_COMPILER_MSVC
 	// Bits tricks require us to disable some warnings under VS
+	#pragma warning(push)
 	#pragma warning(disable: 4146)
 	#pragma warning(disable: 4804)
 #endif
@@ -1665,8 +1666,7 @@ namespace std
 
 #ifdef NAZARA_COMPILER_MSVC
 	// Reenable those warnings
-	#pragma warning(default: 4146)
-	#pragma warning(default: 4804)
+	#pragma warning(pop)
 #endif
 
 #include <Nazara/Core/DebugOff.hpp>
