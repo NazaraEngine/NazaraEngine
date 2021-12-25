@@ -296,12 +296,13 @@ namespace Nz
 	template<typename To, typename From>
 	To SafeCast(From value)
 	{
+#ifdef NAZARA_COMPILER_MSVC
+	// Disable unreachable code warnings
+	#pragma warning(push)
+	#pragma warning(disable: 4702)
+#endif
+
 #if defined(NAZARA_DEBUG) && !defined(NDEBUG)
-	#ifdef NAZARA_COMPILER_MSVC
-		// Disable unreachable code warnings
-		#pragma warning(push)
-		#pragma warning(disable: 4702)
-	#endif
 
 		if constexpr (std::is_integral_v<To>)
 		{
@@ -375,12 +376,13 @@ namespace Nz
 			}
 		}
 
-	#ifdef NAZARA_COMPILER_MSVC
-		#pragma warning(pop)
-	#endif
 #endif
 
 		return static_cast<To>(value);
+
+#ifdef NAZARA_COMPILER_MSVC
+	#pragma warning(pop)
+#endif
 	}
 
 	template<typename T>
