@@ -28,6 +28,7 @@ namespace Nz
 		m_opaqueMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
 		m_opaqueMaterialPass->EnableDepthBuffer(true);
 		m_opaqueMaterialPass->EnableDepthWrite(false);
+		m_opaqueMaterialPass->EnableScissorTest(true);
 
 		m_opaqueMaterial = std::make_shared<Material>();
 		m_opaqueMaterial->AddPass("ForwardPass", m_opaqueMaterialPass);
@@ -35,6 +36,7 @@ namespace Nz
 		m_transparentMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
 		m_transparentMaterialPass->EnableDepthBuffer(true);
 		m_transparentMaterialPass->EnableDepthWrite(false);
+		m_transparentMaterialPass->EnableScissorTest(true);
 		m_transparentMaterialPass->EnableBlending(true);
 		m_transparentMaterialPass->SetBlendEquation(BlendEquation::Add, BlendEquation::Add);
 		m_transparentMaterialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::One);
