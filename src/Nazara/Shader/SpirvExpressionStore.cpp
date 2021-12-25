@@ -147,7 +147,7 @@ namespace Nz
 				std::array<UInt32, 4> newIndices;
 				for (std::size_t i = 0; i < node.componentCount; ++i)
 				{
-					assert(node.components[i] < node.componentCount);
+					assert(node.components[i] < swizzledPointer.componentCount);
 					newIndices[i] = swizzledPointer.swizzleIndices[node.components[i]];
 				}
 
