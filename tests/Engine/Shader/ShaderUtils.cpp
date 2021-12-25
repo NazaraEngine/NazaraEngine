@@ -120,14 +120,13 @@ namespace
 	};
 }
 
-void ExpectingGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
+void ExpectGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
-	Nz::GlslWriter writer;
-
 	SECTION("Generating GLSL")
 	{
+		Nz::GlslWriter writer;
 		std::string output = writer.Generate(shader);
 
 		WHEN("Validating expected code")
@@ -156,14 +155,13 @@ void ExpectingGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOu
 	}
 }
 
-void ExpectingNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
+void ExpectNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
-	Nz::LangWriter writer;
-
 	SECTION("Generating NZSL")
 	{
+		Nz::LangWriter writer;
 		std::string output = writer.Generate(shader);
 
 		WHEN("Validating expected code")
@@ -180,19 +178,19 @@ void ExpectingNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOu
 	}
 }
 
-void ExpectingSpirV(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
+void ExpectSpirV(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput, bool outputParameter)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
-	Nz::SpirvWriter writer;
-	Nz::SpirvPrinter printer;
-
-	Nz::SpirvPrinter::Settings settings;
-	settings.printHeader = false;
-	settings.printParameters = false;
-
 	SECTION("Generating SPIRV")
 	{
+		Nz::SpirvWriter writer;
+		Nz::SpirvPrinter printer;
+
+		Nz::SpirvPrinter::Settings settings;
+		settings.printHeader = false;
+		settings.printParameters = outputParameter;
+
 		auto spirv = writer.Generate(shader);
 		std::string output = printer.Print(spirv.data(), spirv.size(), settings);
 

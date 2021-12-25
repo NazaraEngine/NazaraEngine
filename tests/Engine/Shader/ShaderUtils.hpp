@@ -6,8 +6,8 @@
 #include <Nazara/Shader/Ast/Nodes.hpp>
 #include <string>
 
-void ExpectingGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput);
-void ExpectingNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput);
-void ExpectingSpirV(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput);
+void ExpectGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput);
+void ExpectNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput);
+void ExpectSpirV(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput, bool outputParameter = false);
 
 #endif
