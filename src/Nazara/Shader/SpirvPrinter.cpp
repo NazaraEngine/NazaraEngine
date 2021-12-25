@@ -121,13 +121,19 @@ namespace Nz
 						case SpirvOperandKind::RayQueryIntersection:
 						case SpirvOperandKind::RayQueryCommittedIntersectionType:
 						case SpirvOperandKind::RayQueryCandidateIntersectionType:
-						case SpirvOperandKind::LiteralInteger:
 						case SpirvOperandKind::LiteralExtInstInteger:
 						case SpirvOperandKind::LiteralSpecConstantOpInteger:
 						case SpirvOperandKind::LiteralContextDependentNumber: //< FIXME
 						{
 							UInt32 value = ReadWord();
 							instructionStream << " " << operand->name << "(" << value << ")";
+							break;
+						}
+
+						case SpirvOperandKind::LiteralInteger:
+						{
+							UInt32 value = ReadWord();
+							instructionStream << " " << value;
 							break;
 						}
 
