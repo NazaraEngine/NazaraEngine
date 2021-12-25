@@ -6,7 +6,7 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
-SCENARIO("Shader generation", "[Shader]")
+TEST_CASE("structure member access", "[Shader]")
 {
 	SECTION("Nested member loading")
 	{
@@ -42,14 +42,14 @@ external
 
 			multiStatement.statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
 
-			ExpectingGLSL(*shader, R"(
+			ExpectGLSL(*shader, R"(
 void main()
 {
 	float result = ubo.s.field.z;
 }
 )");
 
-			ExpectingNZSL(*shader, R"(
+			ExpectNZSL(*shader, R"(
 [entry(vert)]
 fn main()
 {
@@ -57,7 +57,7 @@ fn main()
 }
 )");
 
-			ExpectingSpirV(*shader, R"(
+			ExpectSpirV(*shader, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -79,14 +79,14 @@ OpFunctionEnd)");
 
 			multiStatement.statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
 
-			ExpectingGLSL(*shader, R"(
+			ExpectGLSL(*shader, R"(
 void main()
 {
 	float result = ubo.s.field.z;
 }
 )");
 
-			ExpectingNZSL(*shader, R"(
+			ExpectNZSL(*shader, R"(
 [entry(vert)]
 fn main()
 {
@@ -94,7 +94,7 @@ fn main()
 }
 )");
 
-			ExpectingSpirV(*shader, R"(
+			ExpectSpirV(*shader, R"(
 OpFunction
 OpLabel
 OpVariable
