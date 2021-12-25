@@ -293,74 +293,85 @@ namespace Nz
 		return reversed;
 	}
 
-#ifdef NAZARA_DEBUG
-	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To> && std::is_integral_v<From>, int>>
-	To SafeCast(From value)
-	{
-		// Type capable of storing the biggest value between the two types
-		using MaxValueType = std::conditional_t<(sizeof(From) > sizeof(To) || (sizeof(From) == sizeof(To) && std::is_signed_v<To>)), From, To>;
-		// Type capable of storing the smallest value between the two types
-		using MinValueType = std::conditional_t<(sizeof(From) > sizeof(To) || (sizeof(From) == sizeof(To) && std::is_signed_v<From>)), From, To>;
-
-		if constexpr (!std::is_signed_v<To>)
-			assert(value >= 0);
-
-		assert(static_cast<MaxValueType>(value) <= static_cast<MaxValueType>(std::numeric_limits<To>::max()));
-		assert(static_cast<MinValueType>(value) >= static_cast<MinValueType>(std::numeric_limits<To>::lowest()));
-
-		return static_cast<To>(value);
-	}
-
-	template<typename To, typename From, std::enable_if_t<std::is_floating_point_v<To> && std::is_floating_point_v<From>, int>>
-	To SafeCast(From value)
-	{
-		// Type capable of storing the biggest value between the two types
-		using MaxValueType = std::conditional_t<(sizeof(From) > sizeof(To)), From, To>;
-		// Type capable of storing the smallest value between the two types
-		using MinValueType = std::conditional_t<(sizeof(From) > sizeof(To)), From, To>;
-
-		assert(static_cast<MaxValueType>(value) <= static_cast<MaxValueType>(std::numeric_limits<To>::max()));
-		assert(static_cast<MinValueType>(value) >= static_cast<MinValueType>(std::numeric_limits<To>::lowest()));
-
-		return static_cast<To>(value);
-	}
-
-	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To> && std::is_floating_point_v<From>, int>>
-	To SafeCast(From value)
-	{
-		assert(std::floor(value) == value);
-
-		assert(value <= static_cast<From>(std::numeric_limits<To>::max()));
-		assert(value >= static_cast<From>(std::numeric_limits<To>::lowest()));
-
-		return static_cast<To>(value);
-	}
-
-	template<typename To, typename From, std::enable_if_t<std::is_floating_point_v<To> && std::is_integral_v<From>, int>>
-	To SafeCast(From value)
-	{
-		return static_cast<To>(value);
-	}
-
-	template<typename To, typename From, std::enable_if_t<std::is_enum_v<To> && std::is_integral_v<From>, int>>
-	To SafeCast(From value)
-	{
-		return static_cast<To>(SafeCast<std::underlying_type_t<To>>(value));
-	}
-
-	template<typename To, typename From, std::enable_if_t<std::is_integral_v<To> && std::is_enum_v<From>, int>>
-	To SafeCast(From value)
-	{
-		return SafeCast<To>(static_cast<std::underlying_type_t<From>>(value));
-	}
-
-#else
 	template<typename To, typename From>
 	To SafeCast(From value)
 	{
+#if defined(NAZARA_DEBUG) && !defined(NDEBUG)
+		if constexpr (std::is_integral_v<To>)
+		{
+			if constexpr (std::is_enum_v<From>)
+			{
+				return SafeCast<To>(static_cast<std::underlying_type_t<From>>(value));
+			}
+			else if constexpr (std::is_floating_point_v<From>)
+			{
+				assert(std::floor(value) == value);
+
+				assert(value <= static_cast<From>(std::numeric_limits<To>::max()));
+				assert(value >= static_cast<From>(std::numeric_limits<To>::lowest()));
+			}
+			else if constexpr (std::is_integral_v<From>)
+			{
+				// Type capable of storing the biggest value between the two types
+				using MaxValueType = std::conditional_t<(sizeof(From) > sizeof(To) || (sizeof(From) == sizeof(To) && std::is_signed_v<To>)), From, To>;
+				// Type capable of storing the smallest value between the two types
+				using MinValueType = std::conditional_t<(sizeof(From) > sizeof(To) || (sizeof(From) == sizeof(To) && std::is_signed_v<From>)), From, To>;
+
+				if constexpr (!std::is_signed_v<To>)
+					assert(value >= 0);
+
+				assert(static_cast<MaxValueType>(value) <= static_cast<MaxValueType>(std::numeric_limits<To>::max()));
+				assert(static_cast<MinValueType>(value) >= static_cast<MinValueType>(std::numeric_limits<To>::lowest()));
+			}
+		}
+		else if constexpr (std::is_enum_v<To>)
+		{
+			return static_cast<To>(SafeCast<std::underlying_type_t<To>>(value));
+		}
+		else if constexpr (std::is_floating_point_v<To>)
+		{
+			if constexpr (std::is_floating_point_v<From>)
+			{
+				// Type capable of storing the biggest value between the two types
+				using MaxValueType = std::conditional_t<(sizeof(From) > sizeof(To)), From, To>;
+				// Type capable of storing the smallest value between the two types
+				using MinValueType = std::conditional_t<(sizeof(From) > sizeof(To)), From, To>;
+
+				assert(static_cast<MaxValueType>(value) <= static_cast<MaxValueType>(std::numeric_limits<To>::max()));
+				assert(static_cast<MinValueType>(value) >= static_cast<MinValueType>(std::numeric_limits<To>::lowest()));
+			}
+		}
+		else if constexpr (std::is_reference_v<To>)
+		{
+			if constexpr (std::is_reference_v<From>)
+			{
+				using BaseFromType = std::remove_reference_t<std::remove_cv_t<From>>;
+				using BaseToType = std::remove_reference_t<std::remove_cv_t<To>>;
+
+				if constexpr (!std::is_same_v<BaseFromType, BaseToType> && std::is_base_of_v<From, To> && std::is_polymorphic_v<From>)
+				{
+					using ToPtr = std::add_pointer_t<std::remove_reference_t<To>>;
+					assert(dynamic_cast<ToPtr>(&value) != nullptr);
+				}
+			}
+		}
+		else if constexpr (std::is_pointer_v<To>)
+		{
+			if constexpr (std::is_pointer_v<From>)
+			{
+				using BaseFromType = std::remove_pointer_t<std::remove_cv_t<From>>;
+				using BaseToType = std::remove_pointer_t<std::remove_cv_t<To>>;
+
+				if constexpr (!std::is_same_v<BaseFromType, BaseToType> && std::is_base_of_v<From, To> && std::is_polymorphic_v<From>)
+				{
+					assert(dynamic_cast<To>(value) != nullptr);
+				}
+			}
+		}
+#endif
+
 		return static_cast<To>(value);
 	}
-#endif
 
 	template<typename T>
 	constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>
