@@ -736,37 +736,6 @@ namespace Nz
 		node.right->Visit(*this);
 	}
 
-	void GlslWriter::Visit(ShaderAst::BranchStatement& node)
-	{
-		assert(!node.isConst);
-
-		bool first = true;
-		for (const auto& statement : node.condStatements)
-		{
-			if (!first)
-				Append("else ");
-
-			Append("if (");
-			statement.condition->Visit(*this);
-			AppendLine(")");
-
-			EnterScope();
-			statement.statement->Visit(*this);
-			LeaveScope();
-
-			first = false;
-		}
-
-		if (node.elseStatement)
-		{
-			AppendLine("else");
-
-			EnterScope();
-			node.elseStatement->Visit(*this);
-			LeaveScope();
-		}
-	}
-
 	void GlslWriter::Visit(ShaderAst::BinaryExpression& node)
 	{
 		Visit(node.left, true);
@@ -853,6 +822,123 @@ namespace Nz
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, node.value);
+	}
+	
+	
+	void GlslWriter::Visit(ShaderAst::IntrinsicExpression& node)
+	{
+		switch (node.intrinsic)
+		{
+			case ShaderAst::IntrinsicType::CrossProduct:
+				Append("cross");
+				break;
+
+			case ShaderAst::IntrinsicType::DotProduct:
+				Append("dot");
+				break;
+
+			case ShaderAst::IntrinsicType::Exp:
+				Append("exp");
+				break;
+
+			case ShaderAst::IntrinsicType::Length:
+				Append("length");
+				break;
+
+			case ShaderAst::IntrinsicType::Max:
+				Append("max");
+				break;
+
+			case ShaderAst::IntrinsicType::Min:
+				Append("min");
+				break;
+
+			case ShaderAst::IntrinsicType::Pow:
+				Append("pow");
+				break;
+
+			case ShaderAst::IntrinsicType::SampleTexture:
+				Append("texture");
+				break;
+		}
+
+		Append("(");
+		for (std::size_t i = 0; i < node.parameters.size(); ++i)
+		{
+			if (i != 0)
+				Append(", ");
+
+			node.parameters[i]->Visit(*this);
+		}
+		Append(")");
+	}
+
+	void GlslWriter::Visit(ShaderAst::SwizzleExpression& node)
+	{
+		Visit(node.expression, true);
+		Append(".");
+
+		const char* componentStr = "xyzw";
+		for (std::size_t i = 0; i < node.componentCount; ++i)
+			Append(componentStr[node.components[i]]);
+	}
+
+	void GlslWriter::Visit(ShaderAst::UnaryExpression& node)
+	{
+		switch (node.op)
+		{
+			case ShaderAst::UnaryType::LogicalNot:
+				Append("!");
+				break;
+
+			case ShaderAst::UnaryType::Minus:
+				Append("-");
+				break;
+
+			case ShaderAst::UnaryType::Plus:
+				Append("+");
+				break;
+		}
+
+		Visit(node.expression);
+	}
+
+	void GlslWriter::Visit(ShaderAst::VariableExpression& node)
+	{
+		const std::string& varName = Retrieve(m_currentState->variableNames, node.variableId);
+		Append(varName);
+	}
+
+
+	void GlslWriter::Visit(ShaderAst::BranchStatement& node)
+	{
+		assert(!node.isConst);
+
+		bool first = true;
+		for (const auto& statement : node.condStatements)
+		{
+			if (!first)
+				Append("else ");
+
+			Append("if (");
+			statement.condition->Visit(*this);
+			AppendLine(")");
+
+			EnterScope();
+			statement.statement->Visit(*this);
+			LeaveScope();
+
+			first = false;
+		}
+
+		if (node.elseStatement)
+		{
+			AppendLine("else");
+
+			EnterScope();
+			node.elseStatement->Visit(*this);
+			LeaveScope();
+		}
 	}
 
 	void GlslWriter::Visit(ShaderAst::DeclareConstStatement& /*node*/)
@@ -1064,54 +1150,6 @@ namespace Nz
 		Append(";");
 	}
 
-	void GlslWriter::Visit(ShaderAst::IntrinsicExpression& node)
-	{
-		switch (node.intrinsic)
-		{
-			case ShaderAst::IntrinsicType::CrossProduct:
-				Append("cross");
-				break;
-
-			case ShaderAst::IntrinsicType::DotProduct:
-				Append("dot");
-				break;
-
-			case ShaderAst::IntrinsicType::Exp:
-				Append("exp");
-				break;
-
-			case ShaderAst::IntrinsicType::Length:
-				Append("length");
-				break;
-
-			case ShaderAst::IntrinsicType::Max:
-				Append("max");
-				break;
-
-			case ShaderAst::IntrinsicType::Min:
-				Append("min");
-				break;
-
-			case ShaderAst::IntrinsicType::Pow:
-				Append("pow");
-				break;
-
-			case ShaderAst::IntrinsicType::SampleTexture:
-				Append("texture");
-				break;
-		}
-
-		Append("(");
-		for (std::size_t i = 0; i < node.parameters.size(); ++i)
-		{
-			if (i != 0)
-				Append(", ");
-
-			node.parameters[i]->Visit(*this);
-		}
-		Append(")");
-	}
-
 	void GlslWriter::Visit(ShaderAst::MultiStatement& node)
 	{
 		AppendStatementList(node.statements);
@@ -1188,42 +1226,6 @@ namespace Nz
 		EnterScope();
 		node.body->Visit(*this);
 		LeaveScope();
-	}
-
-	void GlslWriter::Visit(ShaderAst::SwizzleExpression& node)
-	{
-		Visit(node.expression, true);
-		Append(".");
-
-		const char* componentStr = "xyzw";
-		for (std::size_t i = 0; i < node.componentCount; ++i)
-			Append(componentStr[node.components[i]]);
-	}
-
-	void GlslWriter::Visit(ShaderAst::VariableExpression& node)
-	{
-		const std::string& varName = Retrieve(m_currentState->variableNames, node.variableId);
-		Append(varName);
-	}
-
-	void GlslWriter::Visit(ShaderAst::UnaryExpression& node)
-	{
-		switch (node.op)
-		{
-			case ShaderAst::UnaryType::LogicalNot:
-				Append("!");
-				break;
-
-			case ShaderAst::UnaryType::Minus:
-				Append("-");
-				break;
-
-			case ShaderAst::UnaryType::Plus:
-				Append("+");
-				break;
-		}
-
-		Visit(node.expression);
 	}
 
 	bool GlslWriter::HasExplicitBinding(ShaderAst::StatementPtr& shader)
