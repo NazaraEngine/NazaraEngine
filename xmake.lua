@@ -150,6 +150,10 @@ set_symbols("debug", "hidden")
 set_targetdir("./bin/$(plat)_$(arch)_$(mode)")
 set_warnings("allextra")
 
+if is_mode("debug") then
+	add_defines("NAZARA_DEBUG")
+end
+
 
 if is_plat("windows") then
 	set_runtimes(is_mode("debug") and "MDd" or "MD")
@@ -187,7 +191,6 @@ for name, module in pairs(modules) do
 	add_defines("NAZARA_" .. name:upper() .. "_BUILD")
 
 	if is_mode("debug") then
-		add_defines("NAZARA_DEBUG")
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
 
