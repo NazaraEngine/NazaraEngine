@@ -906,6 +906,8 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
+			flareSprite.UpdateScissorBox(renderArea);
+
 			builder.BindShaderBinding(0, *skyboxShaderBinding);
 
 			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));

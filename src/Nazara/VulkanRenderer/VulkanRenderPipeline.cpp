@@ -122,9 +122,15 @@ namespace Nz
 		return createInfo;
 	}
 
-	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& /*pipelineInfo*/)
+	std::vector<VkDynamicState> VulkanRenderPipeline::BuildDynamicStateList(const RenderPipelineInfo& pipelineInfo)
 	{
-		return { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+		std::vector<VkDynamicState> dynamicStates;
+		dynamicStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+
+		if (pipelineInfo.scissorTest)
+			dynamicStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+
+		return dynamicStates;
 	}
 
 	VkPipelineInputAssemblyStateCreateInfo VulkanRenderPipeline::BuildInputAssemblyInfo(const RenderPipelineInfo& pipelineInfo)
@@ -159,11 +165,14 @@ namespace Nz
 		return createInfo;
 	}
 
-	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& /*pipelineInfo*/)
+	VkPipelineViewportStateCreateInfo VulkanRenderPipeline::BuildViewportInfo(const RenderPipelineInfo& pipelineInfo)
 	{
 		VkPipelineViewportStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		createInfo.scissorCount = createInfo.viewportCount = 1; //< TODO
+		createInfo.viewportCount = 1; //< TODO: Handle multiple viewport regions
+
+		if (pipelineInfo.scissorTest)
+			createInfo.scissorCount = 1; //< TODO: Handle multiple scissor regions
 
 		return createInfo;
 	}
