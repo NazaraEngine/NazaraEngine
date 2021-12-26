@@ -137,8 +137,8 @@ void ExpectGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutpu
 
 		WHEN("Validating full GLSL code (using glslang)")
 		{
-			glslang::TShader shader(EShLangVertex);
-			shader.setEnvInput(glslang::EShSourceGlsl, EShLangVertex, glslang::EShClientOpenGL, 300);
+			glslang::TShader shader(EShLangFragment);
+			shader.setEnvInput(glslang::EShSourceGlsl, EShLangFragment, glslang::EShClientOpenGL, 300);
 			shader.setEnvClient(glslang::EShClientOpenGL, glslang::EShTargetOpenGL_450);
 			shader.setEnvTarget(glslang::EShTargetNone, static_cast<glslang::EShTargetLanguageVersion>(0));
 			shader.setEntryPoint("main");
