@@ -376,7 +376,8 @@ namespace Nz
 
 		SpirvBlock mergeBlock(m_writer);
 
-		previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
+		if (!previousContentBlock.IsTerminated())
+			previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
 
 		m_functionBlocks.back().Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
 
@@ -397,7 +398,8 @@ namespace Nz
 
 			statement.statement->Visit(*this);
 
-			previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
+			if (!previousContentBlock.IsTerminated())
+				previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
 		}
 
 		if (node.elseStatement)
@@ -408,7 +410,8 @@ namespace Nz
 
 			node.elseStatement->Visit(*this);
 
-			elseBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId()); //< FIXME: Shouldn't terminate twice
+			if (!elseBlock.IsTerminated())
+				elseBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
 
 			m_functionBlocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), elseBlock.GetLabelId());
 			m_functionBlocks.emplace_back(std::move(previousContentBlock));

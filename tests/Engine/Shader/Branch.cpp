@@ -8,7 +8,9 @@
 
 TEST_CASE("branching", "[Shader]")
 {
-	std::string_view nzslSource = R"(
+	WHEN("using a simple branch")
+	{
+		std::string_view nzslSource = R"(
 struct inputStruct
 {
 	value: f32
@@ -30,9 +32,9 @@ fn main()
 }
 )";
 
-	Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
 
-	ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shader, R"(
 void main()
 {
 	float value;
@@ -48,7 +50,7 @@ void main()
 }
 )");
 
-	ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shader, R"(
 [entry(frag)]
 fn main()
 {
@@ -65,7 +67,7 @@ fn main()
 }
 )");
 
-	ExpectSpirV(*shader, R"(
+		ExpectSpirV(*shader, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -83,4 +85,66 @@ OpBranch
 OpLabel
 OpReturn
 OpFunctionEnd)");
+	}
+
+	WHEN("discarding in a branch")
+	{
+		std::string_view nzslSource = R"(
+struct inputStruct
+{
+	value: f32
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform<inputStruct>
+}
+
+[entry(frag)]
+fn main()
+{
+	if (data.value > 0.0)
+		discard;
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+
+		ExpectGLSL(*shader, R"(
+void main()
+{
+	if (data.value > (0.000000))
+	{
+		discard;
+	}
+	
+}
+)");
+
+		ExpectNZSL(*shader, R"(
+[entry(frag)]
+fn main()
+{
+	if (data.value > (0.000000))
+	{
+		discard;
+	}
+	
+}
+)");
+
+		ExpectSpirV(*shader, R"(
+OpFunction
+OpLabel
+OpAccessChain
+OpLoad
+OpFOrdGreaterThanEqual
+OpSelectionMerge
+OpBranchConditional
+OpLabel
+OpKill
+OpLabel
+OpReturn
+OpFunctionEnd)");
+	}
 }
