@@ -531,18 +531,35 @@ namespace Nz::ShaderAst
 		if (!m_context->currentFunction)
 			throw AstError{ "non-const branching statements can only exist inside a function" };
 
-		for (auto& cond : node.condStatements)
+		BranchStatement* root = clone.get();
+		for (std::size_t condIndex = 0; condIndex < node.condStatements.size(); ++condIndex)
 		{
+			auto& cond = node.condStatements[condIndex];
+
 			PushScope();
 
-			auto& condStatement = clone->condStatements.emplace_back();
-			condStatement.condition = CloneExpression(MandatoryExpr(cond.condition));
+			auto BuildCondStatement = [&](BranchStatement::ConditionalStatement& condStatement)
+			{
+				condStatement.condition = CloneExpression(MandatoryExpr(cond.condition));
 
-			const ExpressionType& condType = GetExpressionType(*condStatement.condition);
-			if (!IsPrimitiveType(condType) || std::get<PrimitiveType>(condType) != PrimitiveType::Boolean)
-				throw AstError{ "branch expressions must resolve to boolean type" };
+				const ExpressionType& condType = GetExpressionType(*condStatement.condition);
+				if (!IsPrimitiveType(condType) || std::get<PrimitiveType>(condType) != PrimitiveType::Boolean)
+					throw AstError{ "branch expressions must resolve to boolean type" };
 
-			condStatement.statement = CloneStatement(MandatoryStatement(cond.statement));
+				condStatement.statement = CloneStatement(MandatoryStatement(cond.statement));
+			};
+
+			if (m_context->options.splitMultipleBranches && condIndex > 0)
+			{
+				auto currentBranch = std::make_unique<BranchStatement>();
+
+				BuildCondStatement(currentBranch->condStatements.emplace_back());
+
+				root->elseStatement = std::move(currentBranch);
+				root = static_cast<BranchStatement*>(root->elseStatement.get());
+			}
+			else
+				BuildCondStatement(clone->condStatements.emplace_back());
 
 			PopScope();
 		}
@@ -550,7 +567,7 @@ namespace Nz::ShaderAst
 		if (node.elseStatement)
 		{
 			PushScope();
-			clone->elseStatement = CloneStatement(node.elseStatement);
+			root->elseStatement = CloneStatement(node.elseStatement);
 			PopScope();
 		}
 

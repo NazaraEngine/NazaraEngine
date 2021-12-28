@@ -365,66 +365,36 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::BranchStatement& node)
 	{
-		assert(!node.condStatements.empty());
-		auto& firstCond = node.condStatements.front();
-
-		UInt32 previousConditionId = EvaluateExpression(firstCond.condition);
-		SpirvBlock previousContentBlock(m_writer);
-		m_currentBlock = &previousContentBlock;
-
-		firstCond.statement->Visit(*this);
+		assert(node.condStatements.size() == 1); //< sanitization splits multiple branches
+		auto& condStatement = node.condStatements.front();
 
 		SpirvBlock mergeBlock(m_writer);
+		SpirvBlock contentBlock(m_writer);
+		SpirvBlock elseBlock(m_writer);
 
-		if (!previousContentBlock.IsTerminated())
-			previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
+		UInt32 conditionId = EvaluateExpression(condStatement.condition);
+		m_currentBlock->Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
+		// FIXME: Can we use merge block directly in OpBranchConditional if no else statement?
+		m_currentBlock->Append(SpirvOp::OpBranchConditional, conditionId, contentBlock.GetLabelId(), elseBlock.GetLabelId());
 
-		m_functionBlocks.back().Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
+		m_functionBlocks.emplace_back(std::move(contentBlock));
+		m_currentBlock = &m_functionBlocks.back();
 
-		std::optional<std::size_t> nextBlock;
-		for (std::size_t statementIndex = 1; statementIndex < node.condStatements.size(); ++statementIndex)
-		{
-			auto& statement = node.condStatements[statementIndex];
+		condStatement.statement->Visit(*this);
 
-			SpirvBlock contentBlock(m_writer);
+		if (!m_currentBlock->IsTerminated())
+			m_currentBlock->Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
 
-			m_functionBlocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), contentBlock.GetLabelId());
-
-			previousConditionId = EvaluateExpression(statement.condition);
-			m_functionBlocks.emplace_back(std::move(previousContentBlock));
-			previousContentBlock = std::move(contentBlock);
-
-			m_currentBlock = &previousContentBlock;
-
-			statement.statement->Visit(*this);
-
-			if (!previousContentBlock.IsTerminated())
-				previousContentBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
-		}
+		m_functionBlocks.emplace_back(std::move(elseBlock));
+		m_currentBlock = &m_functionBlocks.back();
 
 		if (node.elseStatement)
-		{
-			SpirvBlock elseBlock(m_writer);
-
-			m_currentBlock = &elseBlock;
-
 			node.elseStatement->Visit(*this);
 
-			if (!elseBlock.IsTerminated())
-				elseBlock.Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
-
-			m_functionBlocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), elseBlock.GetLabelId());
-			m_functionBlocks.emplace_back(std::move(previousContentBlock));
-			m_functionBlocks.emplace_back(std::move(elseBlock));
-		}
-		else
-		{
-			m_functionBlocks.back().Append(SpirvOp::OpBranchConditional, previousConditionId, previousContentBlock.GetLabelId(), mergeBlock.GetLabelId());
-			m_functionBlocks.emplace_back(std::move(previousContentBlock));
-		}
+		if (!m_currentBlock->IsTerminated())
+			m_currentBlock->Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
 
 		m_functionBlocks.emplace_back(std::move(mergeBlock));
-
 		m_currentBlock = &m_functionBlocks.back();
 	}
 
