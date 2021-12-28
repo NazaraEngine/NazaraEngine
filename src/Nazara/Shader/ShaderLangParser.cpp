@@ -512,10 +512,16 @@ namespace Nz::ShaderLang
 
 		std::unique_ptr<ShaderAst::DeclareExternalStatement> externalStatement = std::make_unique<ShaderAst::DeclareExternalStatement>();
 
+		ShaderAst::AttributeValue<bool> condition;
+
 		for (auto&& [attributeType, arg] : attributes)
 		{
 			switch (attributeType)
 			{
+				case ShaderAst::AttributeType::Cond:
+					HandleUniqueAttribute("cond", condition, std::move(arg));
+					break;
+
 				case ShaderAst::AttributeType::Set:
 					HandleUniqueAttribute("set", externalStatement->bindingSet, std::move(arg));
 					break;
@@ -577,7 +583,10 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
-		return externalStatement;
+		if (condition.HasValue())
+			return ShaderBuilder::ConditionalStatement(std::move(condition).GetExpression(), std::move(externalStatement));
+		else
+			return externalStatement;
 	}
 
 	std::vector<ShaderAst::StatementPtr> Parser::ParseFunctionBody()
@@ -786,11 +795,17 @@ namespace Nz::ShaderLang
 
 		ShaderAst::StructDescription description;
 		description.name = ParseIdentifierAsName();
+		
+		ShaderAst::AttributeValue<bool> condition;
 
 		for (auto&& [attributeType, attributeParam] : attributes)
 		{
 			switch (attributeType)
 			{
+				case ShaderAst::AttributeType::Cond:
+					HandleUniqueAttribute("cond", condition, std::move(attributeParam));
+					break;
+
 				case ShaderAst::AttributeType::Layout:
 					HandleUniqueStringAttribute("layout", s_layoutMapping, description.layout, std::move(attributeParam));
 					break;
@@ -862,7 +877,10 @@ namespace Nz::ShaderLang
 
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
-		return ShaderBuilder::DeclareStruct(std::move(description));
+		if (condition.HasValue())
+			return ShaderBuilder::ConditionalStatement(std::move(condition).GetExpression(), ShaderBuilder::DeclareStruct(std::move(description)));
+		else
+			return ShaderBuilder::DeclareStruct(std::move(description));
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseVariableAssignation()
