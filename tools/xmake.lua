@@ -10,7 +10,10 @@ rule("qt5.env")
 		if qtbase then
 			qtdir = assert(qtbase:get("qtdir"))
 		else
-			local qtcore = assert(target:pkg("qt5core"), "target does not use qt5")
+			local qtcore = target:pkg("qt5core")
+            if not qtcore then
+                os.raise("target " .. target:name() .. " does not use qt5")
+            end
 			qtdir = assert(qtcore:get("qtdir"))
 		end
 
