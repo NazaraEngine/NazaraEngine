@@ -151,6 +151,7 @@ OpFunctionEnd)");
 fn main()
 {
 	let vec = max(2.0, 1.0).xxx;
+	let vec2 = min(2.0, 1.0).xxx;
 }
 )";
 
@@ -161,6 +162,8 @@ void main()
 {
 	float cachedResult = max(2.000000, 1.000000);
 	vec3 vec = vec3(cachedResult, cachedResult, cachedResult);
+	float cachedResult_2 = min(2.000000, 1.000000);
+	vec3 vec2_ = vec3(cachedResult_2, cachedResult_2, cachedResult_2);
 }
 )");
 
@@ -169,6 +172,7 @@ void main()
 fn main()
 {
 	let vec: vec3<f32> = (max(2.000000, 1.000000)).xxx;
+	let vec2: vec3<f32> = (min(2.000000, 1.000000)).xxx;
 }
 )");
 
@@ -176,6 +180,10 @@ fn main()
 OpFunction
 OpLabel
 OpVariable
+OpVariable
+OpExtInst
+OpCompositeConstruct
+OpStore
 OpExtInst
 OpCompositeConstruct
 OpStore
