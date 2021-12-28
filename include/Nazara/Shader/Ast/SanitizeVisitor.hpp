@@ -43,6 +43,7 @@ namespace Nz::ShaderAst
 				bool removeCompoundAssignments = false;
 				bool removeOptionDeclaration = true;
 				bool removeScalarSwizzling = false;
+				bool splitMultipleBranches = false;
 			};
 
 		private:
