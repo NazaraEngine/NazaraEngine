@@ -20,7 +20,7 @@ void ExpectOptimization(std::string_view sourceCode, std::string_view expectedOp
 
 TEST_CASE("optimizations", "[Shader]")
 {
-	WHEN("propaging constants")
+	WHEN("propagating constants")
 	{
 		ExpectOptimization(R"(
 [entry(frag)]
@@ -36,7 +36,7 @@ fn main()
 )");
 	}
 
-	WHEN("propaging vector constants")
+	WHEN("propagating vector constants")
 	{
 		ExpectOptimization(R"(
 [entry(frag)]
@@ -101,7 +101,7 @@ fn main()
 	}
 
 
-	WHEN("eliminating multiple splitted branches")
+	WHEN("eliminating multiple split branches")
 	{
 		ExpectOptimization(R"(
 [entry(frag)]
