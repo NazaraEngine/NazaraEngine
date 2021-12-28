@@ -289,6 +289,19 @@ namespace Nz::ShaderBuilder
 		return returnNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::array<UInt32, 4> swizzleComponents, std::size_t componentCount) const
+	{
+		assert(componentCount > 0);
+		assert(componentCount <= 4);
+
+		auto swizzleNode = std::make_unique<ShaderAst::SwizzleExpression>();
+		swizzleNode->expression = std::move(expression);
+		swizzleNode->componentCount = componentCount;
+		swizzleNode->components = swizzleComponents;
+
+		return swizzleNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::vector<UInt32> swizzleComponents) const
 	{
 		auto swizzleNode = std::make_unique<ShaderAst::SwizzleExpression>();

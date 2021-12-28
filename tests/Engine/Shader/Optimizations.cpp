@@ -142,4 +142,116 @@ fn main()
 }
 )");
 	}
+
+	WHEN("optimizing out scalar swizzle")
+	{
+		ExpectOptimization(R"(
+[entry(frag)]
+fn main()
+{
+	let value = vec3<f32>(3.0, 0.0, 1.0).z;
+}
+)", R"(
+[entry(frag)]
+fn main()
+{
+	let value: f32 = 1.000000;
+}
+)");
+	}
+
+	WHEN("optimizing out scalar swizzle to vector")
+	{
+		ExpectOptimization(R"(
+[entry(frag)]
+fn main()
+{
+	let value = (42.0).xxxx;
+}
+)", R"(
+[entry(frag)]
+fn main()
+{
+	let value: vec4<f32> = vec4<f32>(42.000000, 42.000000, 42.000000, 42.000000);
+}
+)");
+	}
+
+	WHEN("optimizing out vector swizzle")
+	{
+		ExpectOptimization(R"(
+[entry(frag)]
+fn main()
+{
+	let value = vec4<f32>(3.0, 0.0, 1.0, 2.0).yzwx;
+}
+)", R"(
+[entry(frag)]
+fn main()
+{
+	let value: vec4<f32> = vec4<f32>(0.000000, 1.000000, 2.000000, 3.000000);
+}
+)");
+	}
+
+	WHEN("optimizing out vector swizzle with repetition")
+	{
+		ExpectOptimization(R"(
+[entry(frag)]
+fn main()
+{
+	let value = vec4<f32>(3.0, 0.0, 1.0, 2.0).zzxx;
+}
+)", R"(
+[entry(frag)]
+fn main()
+{
+	let value: vec4<f32> = vec4<f32>(1.000000, 1.000000, 3.000000, 3.000000);
+}
+)");
+	}
+
+	WHEN("optimizing out complex swizzle")
+	{
+		ExpectOptimization(R"(
+[entry(frag)]
+fn main()
+{
+	let value = vec4<f32>(0.0, 1.0, 2.0, 3.0).xyz.yz.y.x.xxxx;
+}
+)", R"(
+[entry(frag)]
+fn main()
+{
+	let value: vec4<f32> = vec4<f32>(2.000000, 2.000000, 2.000000, 2.000000);
+}
+)");
+	}
+
+	WHEN("optimizing out complex swizzle on unknown value")
+	{
+		ExpectOptimization(R"(
+struct inputStruct
+{
+	value: vec4<f32>
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform<inputStruct>
+}
+
+[entry(frag)]
+fn main()
+{
+	let value = data.value.xyz.yz.y.x.xxxx;
+}
+)", R"(
+[entry(frag)]
+fn main()
+{
+	let value: vec4<f32> = data.value.zzzz;
+}
+)");
+	}
 }

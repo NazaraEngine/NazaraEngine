@@ -44,12 +44,14 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(CastExpression& node) override;
 			ExpressionPtr Clone(ConditionalExpression& node) override;
 			ExpressionPtr Clone(ConstantExpression& node) override;
+			ExpressionPtr Clone(SwizzleExpression& node) override;
 			ExpressionPtr Clone(UnaryExpression& node) override;
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
 
 			template<BinaryType Type> ExpressionPtr PropagateBinaryConstant(const ConstantValueExpression& lhs, const ConstantValueExpression& rhs);
 			template<typename TargetType> ExpressionPtr PropagateSingleValueCast(const ConstantValueExpression& operand);
+			template<std::size_t TargetComponentCount> ExpressionPtr PropagateConstantSwizzle(const std::array<UInt32, 4>& components, const ConstantValueExpression& operand);
 			template<UnaryType Type> ExpressionPtr PropagateUnaryConstant(const ConstantValueExpression& operand);
 			template<typename TargetType> ExpressionPtr PropagateVec2Cast(TargetType v1, TargetType v2);
 			template<typename TargetType> ExpressionPtr PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3);
