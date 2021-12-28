@@ -333,7 +333,7 @@ namespace Nz::ShaderAst
 				else if constexpr (TargetComponentCount == 1)
 					return ShaderBuilder::Constant(value);
 				else
-					static_assert(AlwaysFalse<T>, "unexpected TargetComponentCount");
+					static_assert(AlwaysFalse<T>(), "unexpected TargetComponentCount");
 			}
 		};
 
@@ -351,7 +351,7 @@ namespace Nz::ShaderAst
 				else if constexpr (TargetComponentCount == 1)
 					return ShaderBuilder::Constant(value[components[0]]);
 				else
-					static_assert(AlwaysFalse<T>, "unexpected TargetComponentCount");
+					static_assert(AlwaysFalse<T>(), "unexpected TargetComponentCount");
 			}
 		};
 		
@@ -369,7 +369,7 @@ namespace Nz::ShaderAst
 				else if constexpr (TargetComponentCount == 1)
 					return ShaderBuilder::Constant(value[components[0]]);
 				else
-					static_assert(AlwaysFalse<T>, "unexpected TargetComponentCount");
+					static_assert(AlwaysFalse<T>(), "unexpected TargetComponentCount");
 			}
 		};
 
@@ -387,7 +387,7 @@ namespace Nz::ShaderAst
 				else if constexpr (TargetComponentCount == 1)
 					return ShaderBuilder::Constant(value[components[0]]);
 				else
-					static_assert(AlwaysFalse<T>, "unexpected TargetComponentCount");
+					static_assert(AlwaysFalse<T>(), "unexpected TargetComponentCount");
 			}
 		};
 
@@ -1057,7 +1057,7 @@ namespace Nz::ShaderAst
 		{
 			SwizzleExpression& constantExpr = static_cast<SwizzleExpression&>(*expr);
 
-			std::array<UInt32, 4> newComponents;
+			std::array<UInt32, 4> newComponents = {};
 			for (std::size_t i = 0; i < node.componentCount; ++i)
 				newComponents[i] = constantExpr.components[node.components[i]];
 			
