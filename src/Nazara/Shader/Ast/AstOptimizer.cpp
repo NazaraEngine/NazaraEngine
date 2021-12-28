@@ -308,19 +308,13 @@ namespace Nz::ShaderAst
 		template<typename T, typename... Args>
 		struct CastConstant;
 
-		template<typename T, typename... Args>
-		struct CastConstantPropagation
-		{
-			using Op = CastConstant<T, Args...>;
-		};
-
 		/*************************************************************************************************/
 
 		template<typename T, std::size_t TargetComponentCount, std::size_t FromComponentCount>
-		struct SwizzleBase;
+		struct SwizzlePropagationBase;
 
 		template<typename T, std::size_t TargetComponentCount>
-		struct SwizzleBase<T, TargetComponentCount, 1>
+		struct SwizzlePropagationBase<T, TargetComponentCount, 1>
 		{
 			std::unique_ptr<ConstantValueExpression> operator()(const std::array<UInt32, 4>& /*components*/, T value)
 			{
@@ -338,7 +332,7 @@ namespace Nz::ShaderAst
 		};
 
 		template<typename T, std::size_t TargetComponentCount>
-		struct SwizzleBase<T, TargetComponentCount, 2>
+		struct SwizzlePropagationBase<T, TargetComponentCount, 2>
 		{
 			std::unique_ptr<ConstantValueExpression> operator()(const std::array<UInt32, 4>& components, const Vector2<T>& value)
 			{
@@ -356,7 +350,7 @@ namespace Nz::ShaderAst
 		};
 		
 		template<typename T, std::size_t TargetComponentCount>
-		struct SwizzleBase<T, TargetComponentCount, 3>
+		struct SwizzlePropagationBase<T, TargetComponentCount, 3>
 		{
 			std::unique_ptr<ConstantValueExpression> operator()(const std::array<UInt32, 4>& components, const Vector3<T>& value)
 			{
@@ -374,7 +368,7 @@ namespace Nz::ShaderAst
 		};
 
 		template<typename T, std::size_t TargetComponentCount>
-		struct SwizzleBase<T, TargetComponentCount, 4>
+		struct SwizzlePropagationBase<T, TargetComponentCount, 4>
 		{
 			std::unique_ptr<ConstantValueExpression> operator()(const std::array<UInt32, 4>& components, const Vector4<T>& value)
 			{
@@ -392,13 +386,7 @@ namespace Nz::ShaderAst
 		};
 
 		template<typename T, std::size_t... Args>
-		struct Swizzle;
-
-		template<typename T, std::size_t... Args>
-		struct SwizzlePropagation
-		{
-			using Op = Swizzle<T, Args...>;
-		};
+		struct SwizzlePropagation;
 
 		/*************************************************************************************************/
 
@@ -656,65 +644,65 @@ namespace Nz::ShaderAst
 		//EnableOptimisation(CastConstant, Vector4ui32, UInt32, UInt32, UInt32, UInt32);
 
 		// Swizzle
-		EnableOptimisation(Swizzle, double, 1, 1);
-		EnableOptimisation(Swizzle, double, 1, 2);
-		EnableOptimisation(Swizzle, double, 1, 3);
-		EnableOptimisation(Swizzle, double, 1, 4);
+		EnableOptimisation(SwizzlePropagation, double, 1, 1);
+		EnableOptimisation(SwizzlePropagation, double, 1, 2);
+		EnableOptimisation(SwizzlePropagation, double, 1, 3);
+		EnableOptimisation(SwizzlePropagation, double, 1, 4);
 
-		EnableOptimisation(Swizzle, double, 2, 1);
-		EnableOptimisation(Swizzle, double, 2, 2);
-		EnableOptimisation(Swizzle, double, 2, 3);
-		EnableOptimisation(Swizzle, double, 2, 4);
+		EnableOptimisation(SwizzlePropagation, double, 2, 1);
+		EnableOptimisation(SwizzlePropagation, double, 2, 2);
+		EnableOptimisation(SwizzlePropagation, double, 2, 3);
+		EnableOptimisation(SwizzlePropagation, double, 2, 4);
 
-		EnableOptimisation(Swizzle, double, 3, 1);
-		EnableOptimisation(Swizzle, double, 3, 2);
-		EnableOptimisation(Swizzle, double, 3, 3);
-		EnableOptimisation(Swizzle, double, 3, 4);
+		EnableOptimisation(SwizzlePropagation, double, 3, 1);
+		EnableOptimisation(SwizzlePropagation, double, 3, 2);
+		EnableOptimisation(SwizzlePropagation, double, 3, 3);
+		EnableOptimisation(SwizzlePropagation, double, 3, 4);
 
-		EnableOptimisation(Swizzle, double, 4, 1);
-		EnableOptimisation(Swizzle, double, 4, 2);
-		EnableOptimisation(Swizzle, double, 4, 3);
-		EnableOptimisation(Swizzle, double, 4, 4);
+		EnableOptimisation(SwizzlePropagation, double, 4, 1);
+		EnableOptimisation(SwizzlePropagation, double, 4, 2);
+		EnableOptimisation(SwizzlePropagation, double, 4, 3);
+		EnableOptimisation(SwizzlePropagation, double, 4, 4);
 
-		EnableOptimisation(Swizzle, float, 1, 1);
-		EnableOptimisation(Swizzle, float, 1, 2);
-		EnableOptimisation(Swizzle, float, 1, 3);
-		EnableOptimisation(Swizzle, float, 1, 4);
+		EnableOptimisation(SwizzlePropagation, float, 1, 1);
+		EnableOptimisation(SwizzlePropagation, float, 1, 2);
+		EnableOptimisation(SwizzlePropagation, float, 1, 3);
+		EnableOptimisation(SwizzlePropagation, float, 1, 4);
 
-		EnableOptimisation(Swizzle, float, 2, 1);
-		EnableOptimisation(Swizzle, float, 2, 2);
-		EnableOptimisation(Swizzle, float, 2, 3);
-		EnableOptimisation(Swizzle, float, 2, 4);
+		EnableOptimisation(SwizzlePropagation, float, 2, 1);
+		EnableOptimisation(SwizzlePropagation, float, 2, 2);
+		EnableOptimisation(SwizzlePropagation, float, 2, 3);
+		EnableOptimisation(SwizzlePropagation, float, 2, 4);
 
-		EnableOptimisation(Swizzle, float, 3, 1);
-		EnableOptimisation(Swizzle, float, 3, 2);
-		EnableOptimisation(Swizzle, float, 3, 3);
-		EnableOptimisation(Swizzle, float, 3, 4);
+		EnableOptimisation(SwizzlePropagation, float, 3, 1);
+		EnableOptimisation(SwizzlePropagation, float, 3, 2);
+		EnableOptimisation(SwizzlePropagation, float, 3, 3);
+		EnableOptimisation(SwizzlePropagation, float, 3, 4);
 
-		EnableOptimisation(Swizzle, float, 4, 1);
-		EnableOptimisation(Swizzle, float, 4, 2);
-		EnableOptimisation(Swizzle, float, 4, 3);
-		EnableOptimisation(Swizzle, float, 4, 4);
+		EnableOptimisation(SwizzlePropagation, float, 4, 1);
+		EnableOptimisation(SwizzlePropagation, float, 4, 2);
+		EnableOptimisation(SwizzlePropagation, float, 4, 3);
+		EnableOptimisation(SwizzlePropagation, float, 4, 4);
 
-		EnableOptimisation(Swizzle, Int32, 1, 1);
-		EnableOptimisation(Swizzle, Int32, 1, 2);
-		EnableOptimisation(Swizzle, Int32, 1, 3);
-		EnableOptimisation(Swizzle, Int32, 1, 4);
+		EnableOptimisation(SwizzlePropagation, Int32, 1, 1);
+		EnableOptimisation(SwizzlePropagation, Int32, 1, 2);
+		EnableOptimisation(SwizzlePropagation, Int32, 1, 3);
+		EnableOptimisation(SwizzlePropagation, Int32, 1, 4);
 
-		EnableOptimisation(Swizzle, Int32, 2, 1);
-		EnableOptimisation(Swizzle, Int32, 2, 2);
-		EnableOptimisation(Swizzle, Int32, 2, 3);
-		EnableOptimisation(Swizzle, Int32, 2, 4);
+		EnableOptimisation(SwizzlePropagation, Int32, 2, 1);
+		EnableOptimisation(SwizzlePropagation, Int32, 2, 2);
+		EnableOptimisation(SwizzlePropagation, Int32, 2, 3);
+		EnableOptimisation(SwizzlePropagation, Int32, 2, 4);
 
-		EnableOptimisation(Swizzle, Int32, 3, 1);
-		EnableOptimisation(Swizzle, Int32, 3, 2);
-		EnableOptimisation(Swizzle, Int32, 3, 3);
-		EnableOptimisation(Swizzle, Int32, 3, 4);
+		EnableOptimisation(SwizzlePropagation, Int32, 3, 1);
+		EnableOptimisation(SwizzlePropagation, Int32, 3, 2);
+		EnableOptimisation(SwizzlePropagation, Int32, 3, 3);
+		EnableOptimisation(SwizzlePropagation, Int32, 3, 4);
 
-		EnableOptimisation(Swizzle, Int32, 4, 1);
-		EnableOptimisation(Swizzle, Int32, 4, 2);
-		EnableOptimisation(Swizzle, Int32, 4, 3);
-		EnableOptimisation(Swizzle, Int32, 4, 4);
+		EnableOptimisation(SwizzlePropagation, Int32, 4, 1);
+		EnableOptimisation(SwizzlePropagation, Int32, 4, 2);
+		EnableOptimisation(SwizzlePropagation, Int32, 4, 3);
+		EnableOptimisation(SwizzlePropagation, Int32, 4, 4);
 
 		// Unary
 
@@ -1165,14 +1153,10 @@ namespace Nz::ShaderAst
 		std::visit([&](auto&& arg)
 		{
 			using T = std::decay_t<decltype(arg)>;
-			using CCType = CastConstantPropagation<TargetType, T>;
+			using CCType = CastConstant<TargetType, T>;
 
 			if constexpr (is_complete_v<CCType>)
-			{
-				using Op = typename CCType::Op;
-				if constexpr (is_complete_v<Op>)
-					optimized = Op{}(arg);
-			}
+				optimized = CCType{}(arg);
 		}, operand.value);
 
 		return optimized;
@@ -1192,11 +1176,7 @@ namespace Nz::ShaderAst
 			using SPType = SwizzlePropagation<BaseType, TargetComponentCount, FromComponentCount>;
 
 			if constexpr (is_complete_v<SPType>)
-			{
-				using Op = typename SPType::Op;
-				if constexpr (is_complete_v<Op>)
-					optimized = Op{}(components, arg);
-			}
+				optimized = SPType{}(components, arg);
 		}, operand.value);
 
 		return optimized;
@@ -1230,14 +1210,10 @@ namespace Nz::ShaderAst
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
-		using CCType = CastConstantPropagation<Vector2<TargetType>, TargetType, TargetType>;
+		using CCType = CastConstant<Vector2<TargetType>, TargetType, TargetType>;
 
 		if constexpr (is_complete_v<CCType>)
-		{
-			using Op = typename CCType::Op;
-			if constexpr (is_complete_v<Op>)
-				optimized = Op{}(v1, v2);
-		}
+			optimized = CCType{}(v1, v2);
 
 		return optimized;
 	}
@@ -1247,14 +1223,10 @@ namespace Nz::ShaderAst
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
-		using CCType = CastConstantPropagation<Vector3<TargetType>, TargetType, TargetType, TargetType>;
+		using CCType = CastConstant<Vector3<TargetType>, TargetType, TargetType, TargetType>;
 
 		if constexpr (is_complete_v<CCType>)
-		{
-			using Op = typename CCType::Op;
-			if constexpr (is_complete_v<Op>)
-				optimized = Op{}(v1, v2, v3);
-		}
+			optimized = CCType{}(v1, v2, v3);
 
 		return optimized;
 	}
@@ -1264,14 +1236,10 @@ namespace Nz::ShaderAst
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
-		using CCType = CastConstantPropagation<Vector4<TargetType>, TargetType, TargetType, TargetType, TargetType>;
+		using CCType = CastConstant<Vector4<TargetType>, TargetType, TargetType, TargetType, TargetType>;
 
 		if constexpr (is_complete_v<CCType>)
-		{
-			using Op = typename CCType::Op;
-			if constexpr (is_complete_v<Op>)
-				optimized = Op{}(v1, v2, v3, v4);
-		}
+			optimized = CCType{}(v1, v2, v3, v4);
 
 		return optimized;
 	}
