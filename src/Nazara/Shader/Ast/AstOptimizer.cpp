@@ -1014,7 +1014,7 @@ namespace Nz::ShaderAst
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
-		using CCType = CastConstantPropagation<Vector3<TargetType>, TargetType, TargetType, TargetType, TargetType>;
+		using CCType = CastConstantPropagation<Vector4<TargetType>, TargetType, TargetType, TargetType, TargetType>;
 
 		if constexpr (is_complete_v<CCType>)
 		{
