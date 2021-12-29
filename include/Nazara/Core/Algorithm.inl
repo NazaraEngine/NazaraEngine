@@ -49,12 +49,12 @@ namespace Nz
 	template<typename T>
 	decltype(auto) AccessByOffset(void* basePtr, std::size_t offset)
 	{
-		static_assert((std::is_reference_v<T> && !std::is_rvalue_reference_v<T>) || std::is_pointer_v<T>);
-
-		if constexpr (std::is_reference_v<T>)
+		if constexpr (std::is_lvalue_reference_v<T>)
 			return *reinterpret_cast<std::remove_reference_t<T>*>(static_cast<Nz::UInt8*>(basePtr) + offset);
-		else
+		else if constexpr (std::is_pointer_v<T>)
 			return reinterpret_cast<T>(static_cast<Nz::UInt8*>(basePtr) + offset);
+		else
+			static_assert(AlwaysFalse<T>(), "AccessByOffset requires a reference or pointer type");
 	}
 
 	/*!
@@ -68,12 +68,14 @@ namespace Nz
 	template<typename T>
 	decltype(auto) AccessByOffset(const void* basePtr, std::size_t offset)
 	{
-		static_assert((std::is_reference_v<T> && !std::is_rvalue_reference_v<T>) || std::is_pointer_v<T>);
+		static_assert(std::is_lvalue_reference_v<T> || std::is_pointer_v<T>);
 
-		if constexpr (std::is_reference_v<T>)
+		if constexpr (std::is_lvalue_reference_v<T>)
 			return *reinterpret_cast<std::remove_reference_t<T>*>(static_cast<const Nz::UInt8*>(basePtr) + offset);
-		else
+		else if constexpr (std::is_pointer_v<T>)
 			return reinterpret_cast<T>(static_cast<const Nz::UInt8*>(basePtr) + offset);
+		else
+			static_assert(AlwaysFalse<T>(), "AccessByOffset requires a reference or pointer type");
 	}
 
 	/*!
