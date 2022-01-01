@@ -24,6 +24,7 @@ namespace Nz::ShaderAst
 			AstCloner(AstCloner&&) = delete;
 			~AstCloner() = default;
 
+			template<typename T> AttributeValue<T> Clone(const AttributeValue<T>& attribute);
 			ExpressionPtr Clone(Expression& statement);
 			StatementPtr Clone(Statement& statement);
 
@@ -31,7 +32,6 @@ namespace Nz::ShaderAst
 			AstCloner& operator=(AstCloner&&) = delete;
 
 		protected:
-			template<typename T> AttributeValue<T> CloneAttribute(const AttributeValue<T>& attribute);
 			inline ExpressionPtr CloneExpression(const ExpressionPtr& expr);
 			inline StatementPtr CloneStatement(const StatementPtr& statement);
 
@@ -83,6 +83,7 @@ namespace Nz::ShaderAst
 			std::vector<StatementPtr>  m_statementStack;
 	};
 
+	template<typename T> AttributeValue<T> Clone(const AttributeValue<T>& attribute);
 	inline ExpressionPtr Clone(Expression& node);
 	inline StatementPtr Clone(Statement& node);
 }

@@ -79,7 +79,7 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<DeclareExternalStatement>();
 		clone->varIndex = node.varIndex;
 
-		clone->bindingSet = CloneAttribute(node.bindingSet);
+		clone->bindingSet = Clone(node.bindingSet);
 
 		clone->externalVars.reserve(node.externalVars.size());
 		for (const auto& var : node.externalVars)
@@ -87,8 +87,8 @@ namespace Nz::ShaderAst
 			auto& cloneVar = clone->externalVars.emplace_back();
 			cloneVar.name = var.name;
 			cloneVar.type = var.type;
-			cloneVar.bindingIndex = CloneAttribute(var.bindingIndex);
-			cloneVar.bindingSet = CloneAttribute(var.bindingSet);
+			cloneVar.bindingIndex = Clone(var.bindingIndex);
+			cloneVar.bindingSet = Clone(var.bindingSet);
 		}
 
 		return clone;
@@ -97,9 +97,9 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareFunctionStatement& node)
 	{
 		auto clone = std::make_unique<DeclareFunctionStatement>();
-		clone->depthWrite = CloneAttribute(node.depthWrite);
-		clone->earlyFragmentTests = CloneAttribute(node.earlyFragmentTests);
-		clone->entryStage = CloneAttribute(node.entryStage);
+		clone->depthWrite = Clone(node.depthWrite);
+		clone->earlyFragmentTests = Clone(node.earlyFragmentTests);
+		clone->entryStage = Clone(node.entryStage);
 		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;
 		clone->parameters = node.parameters;
@@ -129,7 +129,7 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<DeclareStructStatement>();
 		clone->structIndex = node.structIndex;
 
-		clone->description.layout = CloneAttribute(node.description.layout);
+		clone->description.layout = Clone(node.description.layout);
 		clone->description.name = node.description.name;
 
 		clone->description.members.reserve(node.description.members.size());
@@ -138,9 +138,9 @@ namespace Nz::ShaderAst
 			auto& cloneMember = clone->description.members.emplace_back();
 			cloneMember.name = member.name;
 			cloneMember.type = member.type;
-			cloneMember.builtin = CloneAttribute(member.builtin);
-			cloneMember.cond = CloneAttribute(member.cond);
-			cloneMember.locationIndex = CloneAttribute(member.locationIndex);
+			cloneMember.builtin = Clone(member.builtin);
+			cloneMember.cond = Clone(member.cond);
+			cloneMember.locationIndex = Clone(member.locationIndex);
 		}
 
 		return clone;

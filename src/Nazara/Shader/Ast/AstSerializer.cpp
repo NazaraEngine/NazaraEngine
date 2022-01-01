@@ -409,6 +409,12 @@ namespace Nz::ShaderAst
 				m_stream << UInt32(arg.componentCount);
 				m_stream << UInt32(arg.type);
 			}
+			else if constexpr (std::is_same_v<T, ArrayType>)
+			{
+				m_stream << UInt8(8);
+				Attribute(arg.length);
+				Type(arg.containedType->type);
+			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, type);
@@ -569,40 +575,6 @@ namespace Nz::ShaderAst
 
 		switch (typeIndex)
 		{
-			/*
-			if constexpr (std::is_same_v<T, NoType>)
-				m_stream << UInt8(0);
-			else if constexpr (std::is_same_v<T, PrimitiveType>)
-			{
-				m_stream << UInt8(1);
-				m_stream << UInt32(arg);
-			}
-			else if constexpr (std::is_same_v<T, IdentifierType>)
-			{
-				m_stream << UInt8(2);
-				m_stream << arg.name;
-			}
-			else if constexpr (std::is_same_v<T, MatrixType>)
-			{
-				m_stream << UInt8(3);
-				m_stream << UInt32(arg.columnCount);
-				m_stream << UInt32(arg.rowCount);
-				m_stream << UInt32(arg.type);
-			}
-			else if constexpr (std::is_same_v<T, SamplerType>)
-			{
-				m_stream << UInt8(4);
-				m_stream << UInt32(arg.dim);
-				m_stream << UInt32(arg.sampledType);
-			}
-			else if constexpr (std::is_same_v<T, VectorType>)
-			{
-				m_stream << UInt8(5);
-				m_stream << UInt32(arg.componentCount);
-				m_stream << UInt32(arg.type);
-			}
-			*/
-
 			case 0: //< NoType
 				type = NoType{};
 				break;
@@ -690,6 +662,22 @@ namespace Nz::ShaderAst
 					componentCount,
 					componentType
 				};
+				break;
+			}
+
+			case 8: //< ArrayType
+			{
+				AttributeValue<UInt32> length;
+				ExpressionType containedType;
+				Attribute(length);
+				Type(containedType);
+
+				ArrayType arrayType;
+				arrayType.length = std::move(length);
+				arrayType.containedType = std::make_unique<ContainedType>();
+				arrayType.containedType->type = std::move(containedType);
+
+				type = std::move(arrayType);
 				break;
 			}
 

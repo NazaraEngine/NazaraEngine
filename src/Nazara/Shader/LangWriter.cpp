@@ -120,6 +120,18 @@ namespace Nz
 		m_environment = std::move(environment);
 	}
 
+	void LangWriter::Append(const ShaderAst::ArrayType& type)
+	{
+		Append("[", type.containedType->type, "; ");
+
+		if (type.length.IsResultingValue())
+			Append(type.length.GetResultingValue());
+		else
+			type.length.GetExpression()->Visit(*this);
+
+		Append("]");
+	}
+
 	void LangWriter::Append(const ShaderAst::ExpressionType& type)
 	{
 		std::visit([&](auto&& arg)

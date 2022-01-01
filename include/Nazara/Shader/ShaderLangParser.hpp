@@ -112,6 +112,7 @@ namespace Nz::ShaderLang
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
 			ShaderAst::ExpressionPtr ParseVariableAssignation();
 
+			ShaderAst::ExpressionType ParseArrayType();
 			ShaderAst::AttributeType ParseIdentifierAsAttributeType();
 			const std::string& ParseIdentifierAsName();
 			ShaderAst::PrimitiveType ParsePrimitiveType();
