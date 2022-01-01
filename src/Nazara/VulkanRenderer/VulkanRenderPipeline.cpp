@@ -126,9 +126,7 @@ namespace Nz
 	{
 		std::vector<VkDynamicState> dynamicStates;
 		dynamicStates.push_back(VK_DYNAMIC_STATE_VIEWPORT);
-
-		if (pipelineInfo.scissorTest)
-			dynamicStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
+		dynamicStates.push_back(VK_DYNAMIC_STATE_SCISSOR);
 
 		return dynamicStates;
 	}
@@ -170,9 +168,7 @@ namespace Nz
 		VkPipelineViewportStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		createInfo.viewportCount = 1; //< TODO: Handle multiple viewport regions
-
-		if (pipelineInfo.scissorTest)
-			createInfo.scissorCount = 1; //< TODO: Handle multiple scissor regions
+		createInfo.scissorCount = 1; //< TODO: Handle multiple scissor regions
 
 		return createInfo;
 	}
