@@ -50,6 +50,7 @@ namespace Nz
 			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
 
 		private:
+			void Append(const ShaderAst::ArrayType& type);
 			void Append(const ShaderAst::ExpressionType& type);
 			void Append(ShaderAst::BuiltinEntry builtin);
 			void Append(const ShaderAst::IdentifierType& identifierType);

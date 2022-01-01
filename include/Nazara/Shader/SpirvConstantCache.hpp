@@ -39,6 +39,12 @@ namespace Nz
 			using ConstantPtr = std::shared_ptr<Constant>;
 			using TypePtr = std::shared_ptr<Type>;
 
+			struct Array
+			{
+				TypePtr elementType;
+				UInt32 length;
+			};
+
 			struct Bool {};
 
 			struct Float
@@ -108,7 +114,7 @@ namespace Nz
 				std::vector<SpirvDecoration> decorations;
 			};
 
-			using AnyType = std::variant<Bool, Float, Function, Image, Integer, Matrix, Pointer, SampledImage, Structure, Vector, Void>;
+			using AnyType = std::variant<Array, Bool, Float, Function, Image, Integer, Matrix, Pointer, SampledImage, Structure, Vector, Void>;
 
 			struct ConstantBool
 			{

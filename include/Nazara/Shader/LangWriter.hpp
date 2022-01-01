@@ -46,6 +46,7 @@ namespace Nz
 			struct LocationAttribute;
 			struct SetAttribute;
 
+			void Append(const ShaderAst::ArrayType& type);
 			void Append(const ShaderAst::ExpressionType& type);
 			void Append(const ShaderAst::IdentifierType& identifierType);
 			void Append(const ShaderAst::MatrixType& matrixType);

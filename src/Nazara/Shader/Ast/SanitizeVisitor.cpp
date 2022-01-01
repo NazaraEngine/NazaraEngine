@@ -1156,6 +1156,7 @@ namespace Nz::ShaderAst
 			if constexpr (std::is_same_v<T, IdentifierType> || std::is_same_v<T, StructType> || std::is_same_v<T, UniformType>)
 				return ResolveStruct(arg);
 			else if constexpr (std::is_same_v<T, NoType> ||
+			                   std::is_same_v<T, ArrayType> ||
 			                   std::is_same_v<T, PrimitiveType> ||
 			                   std::is_same_v<T, MatrixType> ||
 			                   std::is_same_v<T, SamplerType> ||
@@ -1205,6 +1206,7 @@ namespace Nz::ShaderAst
 			using T = std::decay_t<decltype(arg)>;
 
 			if constexpr (std::is_same_v<T, NoType> ||
+			              std::is_same_v<T, ArrayType> ||
 			              std::is_same_v<T, PrimitiveType> ||
 			              std::is_same_v<T, MatrixType> ||
 			              std::is_same_v<T, SamplerType> ||
@@ -1267,7 +1269,13 @@ namespace Nz::ShaderAst
 		ExpressionType exprType = GetExpressionType(*node.expr);
 		for (const auto& indexExpr : node.indices)
 		{
-			if (IsStructType(exprType))
+			if (IsArrayType(exprType))
+			{
+				const ArrayType& arrayType = std::get<ArrayType>(exprType);
+
+				exprType = arrayType.containedType->type;
+			}
+			else if (IsStructType(exprType))
 			{
 				const ShaderAst::ExpressionType& indexType = GetExpressionType(*indexExpr);
 				if (indexExpr->GetType() != NodeType::ConstantValueExpression || indexType != ExpressionType{ PrimitiveType::Int32 })

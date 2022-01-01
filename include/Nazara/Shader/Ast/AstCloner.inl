@@ -8,7 +8,7 @@
 namespace Nz::ShaderAst
 {
 	template<typename T>
-	AttributeValue<T> AstCloner::CloneAttribute(const AttributeValue<T>& attribute)
+	AttributeValue<T> AstCloner::Clone(const AttributeValue<T>& attribute)
 	{
 		if (!attribute.HasValue())
 			return {};
@@ -36,6 +36,14 @@ namespace Nz::ShaderAst
 			return nullptr;
 
 		return CloneStatement(*statement);
+	}
+
+
+	template<typename T>
+	AttributeValue<T> Clone(const AttributeValue<T>& attribute)
+	{
+		AstCloner cloner;
+		return cloner.Clone(attribute);
 	}
 
 	inline ExpressionPtr Clone(Expression& node)

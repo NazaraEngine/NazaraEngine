@@ -219,6 +219,18 @@ namespace Nz
 		return ShaderAst::Sanitize(ast, options, error);
 	}
 
+	void GlslWriter::Append(const ShaderAst::ArrayType& type)
+	{
+		Append(type.containedType->type, "[");
+
+		if (type.length.IsResultingValue())
+			Append(type.length.GetResultingValue());
+		else
+			type.length.GetExpression()->Visit(*this);
+
+		Append("]");
+	}
+
 	void GlslWriter::Append(const ShaderAst::ExpressionType& type)
 	{
 		std::visit([&](auto&& arg)
@@ -963,7 +975,7 @@ namespace Nz
 				std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
 				ShaderAst::StructDescription* structInfo = Retrieve(m_currentState->structs, structIndex);
 				if (structInfo->layout.HasValue())
-				isStd140 = structInfo->layout.GetResultingValue() == StructLayout::Std140;
+					isStd140 = structInfo->layout.GetResultingValue() == StructLayout::Std140;
 			}
 
 			if (!m_currentState->bindingMapping.empty() || isStd140)

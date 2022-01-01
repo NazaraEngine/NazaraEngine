@@ -4,6 +4,7 @@
 
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
+#include <Nazara/Shader/Ast/Nodes.hpp>
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <tsl/ordered_map.h>
 #include <stdexcept>
@@ -33,6 +34,11 @@ namespace Nz
 		bool Compare(const ConstantScalar& lhs, const ConstantScalar& rhs) const
 		{
 			return lhs.value == rhs.value;
+		}
+
+		bool Compare(const Array& lhs, const Array& rhs) const
+		{
+			return lhs.length == rhs.length && Compare(lhs.elementType, rhs.elementType);
 		}
 
 		bool Compare(const Bool& /*lhs*/, const Bool& /*rhs*/) const
@@ -225,6 +231,12 @@ namespace Nz
 		DepRegisterer(SpirvConstantCache& c) :
 		cache(c)
 		{
+		}
+
+		void Register(const Array& array)
+		{
+			assert(array.elementType);
+			cache.Register(*array.elementType);
 		}
 
 		void Register(const Bool&) {}
@@ -801,7 +813,9 @@ namespace Nz
 		{
 			using T = std::decay_t<decltype(arg)>;
 
-			if constexpr (std::is_same_v<T, Bool>)
+			if constexpr (std::is_same_v<T, Array>)
+				constants.Append(SpirvOp::OpTypeArray, resultId, GetId(*arg.elementType), arg.length);
+			else if constexpr (std::is_same_v<T, Bool>)
 				constants.Append(SpirvOp::OpTypeBool, resultId);
 			else if constexpr (std::is_same_v<T, Float>)
 				constants.Append(SpirvOp::OpTypeFloat, resultId, arg.width);
@@ -892,7 +906,12 @@ namespace Nz
 			{
 				using T = std::decay_t<decltype(arg)>;
 
-				if constexpr (std::is_same_v<T, Bool>)
+				if constexpr (std::is_same_v<T, Array>)
+				{
+					// TODO
+					throw std::runtime_error("todo");
+				}
+				else if constexpr (std::is_same_v<T, Bool>)
 					return structOffsets.AddField(StructFieldType::Bool1);
 				else if constexpr (std::is_same_v<T, Float>)
 				{

@@ -8,6 +8,12 @@
 
 namespace Nz::ShaderAst
 {
+	inline bool ArrayType::operator!=(const ArrayType& rhs) const
+	{
+		return !operator==(rhs);
+	}
+
+
 	inline bool IdentifierType::operator==(const IdentifierType& rhs) const
 	{
 		return name == rhs.name;
@@ -83,6 +89,11 @@ namespace Nz::ShaderAst
 		return !operator==(rhs);
 	}
 
+
+	bool IsArrayType(const ExpressionType& type)
+	{
+		return std::holds_alternative<ArrayType>(type);
+	}
 
 	inline bool IsIdentifierType(const ExpressionType& type)
 	{
