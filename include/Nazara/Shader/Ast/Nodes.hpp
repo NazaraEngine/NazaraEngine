@@ -340,6 +340,18 @@ namespace Nz::ShaderAst
 		ExpressionPtr expression;
 	};
 
+	struct NAZARA_SHADER_API ForEachStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		std::optional<std::size_t> varIndex;
+		std::string varName;
+		ExpressionPtr expression;
+		StatementPtr statement;
+		bool isConst = false;
+	};
+
 	struct NAZARA_SHADER_API MultiStatement : Statement
 	{
 		NodeType GetType() const override;
@@ -371,7 +383,12 @@ namespace Nz::ShaderAst
 		StatementPtr body;
 	};
 
+#define NAZARA_SHADERAST_NODE(X) using X##Ptr = std::unique_ptr<X>;
+
+#include <Nazara/Shader/Ast/AstNodeList.hpp>
+
 	inline const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr);
+	inline ShaderAst::ExpressionType& GetExpressionTypeMut(ShaderAst::Expression& expr);
 	inline bool IsExpression(NodeType nodeType);
 	inline bool IsStatement(NodeType nodeType);
 }

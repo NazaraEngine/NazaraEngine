@@ -170,7 +170,7 @@ namespace Nz
 			case ShaderAst::PrimitiveType::Boolean: return Append("bool");
 			case ShaderAst::PrimitiveType::Float32: return Append("f32");
 			case ShaderAst::PrimitiveType::Int32:   return Append("i32");
-			case ShaderAst::PrimitiveType::UInt32:  return Append("ui32");
+			case ShaderAst::PrimitiveType::UInt32:  return Append("u32");
 		}
 	}
 
@@ -185,7 +185,7 @@ namespace Nz
 			case ImageType::E2D:       Append("2D");      break;
 			case ImageType::E2D_Array: Append("2DArray"); break;
 			case ImageType::E3D:       Append("3D");      break;
-			case ImageType::Cubemap:  Append("Cube");    break;
+			case ImageType::Cubemap:   Append("Cube");    break;
 		}
 
 		Append("<", samplerType.sampledType, ">");
@@ -653,6 +653,21 @@ namespace Nz
 		node.statement->Visit(*this);
 	}
 
+	void LangWriter::Visit(ShaderAst::DeclareConstStatement& node)
+	{
+		assert(node.constIndex);
+		RegisterConstant(*node.constIndex, node.name);
+
+		Append("const ", node.name, ": ", node.type);
+		if (node.expression)
+		{
+			Append(" = ");
+			node.expression->Visit(*this);
+		}
+
+		Append(";");
+	}
+
 	void LangWriter::Visit(ShaderAst::ConstantValueExpression& node)
 	{
 		std::visit([&](auto&& arg)
@@ -809,6 +824,20 @@ namespace Nz
 	{
 		node.expression->Visit(*this);
 		Append(";");
+	}
+
+	void LangWriter::Visit(ShaderAst::ForEachStatement& node)
+	{
+		assert(node.varIndex);
+		RegisterVariable(*node.varIndex, node.varName);
+
+		Append("for ", node.varName, " in ");
+		node.expression->Visit(*this);
+		AppendLine();
+
+		EnterScope();
+		node.statement->Visit(*this);
+		LeaveScope();
 	}
 
 	void LangWriter::Visit(ShaderAst::IntrinsicExpression& node)

@@ -46,6 +46,7 @@ namespace Nz::ShaderAst
 			void Visit(DeclareVariableStatement& node) override;
 			void Visit(DiscardStatement& node) override;
 			void Visit(ExpressionStatement& node) override;
+			void Visit(ForEachStatement& node) override;
 			void Visit(MultiStatement& node) override;
 			void Visit(NoOpStatement& node) override;
 			void Visit(ReturnStatement& node) override;

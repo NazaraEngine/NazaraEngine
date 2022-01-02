@@ -301,6 +301,14 @@ namespace Nz::ShaderAst
 		Node(node.expression);
 	}
 
+	void AstSerializerBase::Serialize(ForEachStatement& node)
+	{
+		Value(node.isConst);
+		Value(node.varName);
+		Node(node.expression);
+		Node(node.statement);
+	}
+
 	void AstSerializerBase::Serialize(MultiStatement& node)
 	{
 		Container(node.statements);

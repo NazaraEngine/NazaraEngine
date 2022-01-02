@@ -42,7 +42,8 @@ namespace Nz
 			struct Array
 			{
 				TypePtr elementType;
-				UInt32 length;
+				ConstantPtr length;
+				std::optional<UInt32> stride;
 			};
 
 			struct Bool {};
@@ -129,7 +130,7 @@ namespace Nz
 
 			struct ConstantScalar
 			{
-				std::variant<float, double, Nz::Int32, Nz::Int64, Nz::UInt32, Nz::UInt64> value;
+				std::variant<float, double, Int32, Int64, UInt32, UInt64> value;
 			};
 
 			using AnyConstant = std::variant<ConstantBool, ConstantComposite, ConstantScalar>;
@@ -174,6 +175,7 @@ namespace Nz
 			TypePtr BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildPointerType(const TypePtr& type, SpirvStorageClass storageClass) const;
+			TypePtr BuildType(const ShaderAst::ArrayType& type) const;
 			TypePtr BuildType(const ShaderAst::ExpressionType& type) const;
 			TypePtr BuildType(const ShaderAst::IdentifierType& type) const;
 			TypePtr BuildType(const ShaderAst::MatrixType& type) const;

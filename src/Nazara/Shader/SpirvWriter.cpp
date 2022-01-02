@@ -487,7 +487,9 @@ namespace Nz
 		{
 			ShaderAst::SanitizeVisitor::Options options;
 			options.optionValues = states.optionValues;
+			options.reduceLoopsToWhile = true;
 			options.removeCompoundAssignments = true;
+			options.removeOptionDeclaration = true; 
 			options.splitMultipleBranches = true;
 
 			sanitizedAst = ShaderAst::Sanitize(shader, options);

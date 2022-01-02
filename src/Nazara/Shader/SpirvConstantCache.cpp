@@ -38,7 +38,7 @@ namespace Nz
 
 		bool Compare(const Array& lhs, const Array& rhs) const
 		{
-			return lhs.length == rhs.length && Compare(lhs.elementType, rhs.elementType);
+			return Compare(lhs.length, rhs.length) && Compare(lhs.elementType, rhs.elementType) && lhs.stride == rhs.stride;
 		}
 
 		bool Compare(const Bool& /*lhs*/, const Bool& /*rhs*/) const
@@ -237,6 +237,8 @@ namespace Nz
 		{
 			assert(array.elementType);
 			cache.Register(*array.elementType);
+			assert(array.length);
+			cache.Register(*array.length);
 		}
 
 		void Register(const Bool&) {}
@@ -416,6 +418,7 @@ namespace Nz
 		tsl::ordered_map<Structure, FieldOffsets /*fieldOffsets*/, AnyHasher, Eq> structureSizes;
 		StructCallback structCallback;
 		UInt32& nextResultId;
+		bool isInBlockStruct = false;
 	};
 
 	SpirvConstantCache::SpirvConstantCache(UInt32& resultId)
@@ -493,26 +496,59 @@ namespace Nz
 
 	auto SpirvConstantCache::BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const -> TypePtr
 	{
-		return std::make_shared<Type>(Pointer{
+		bool wasInblockStruct = m_internal->isInBlockStruct;
+		if (storageClass == SpirvStorageClass::Uniform)
+			m_internal->isInBlockStruct = true;
+
+		auto typePtr = std::make_shared<Type>(Pointer{
 			BuildType(type),
 			storageClass
 		});
+
+		m_internal->isInBlockStruct = wasInblockStruct;
+
+		return typePtr;
 	}
 
 	auto SpirvConstantCache::BuildPointerType(const TypePtr& type, SpirvStorageClass storageClass) const -> TypePtr
 	{
-		return std::make_shared<Type>(Pointer{
+		bool wasInblockStruct = m_internal->isInBlockStruct;
+		if (storageClass == SpirvStorageClass::Uniform)
+			m_internal->isInBlockStruct = true;
+
+		auto typePtr = std::make_shared<Type>(Pointer{
 			type,
 			storageClass
+			});
+
+		m_internal->isInBlockStruct = wasInblockStruct;
+
+		return typePtr;
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::ArrayType& type) const -> TypePtr
+	{
+		return std::make_shared<Type>(Array{
+			BuildType(type.containedType->type),
+			BuildConstant(type.length.GetResultingValue()),
+			(m_internal->isInBlockStruct) ? std::make_optional<UInt32>(16) : std::nullopt
 		});
 	}
 
 	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const -> TypePtr
 	{
-		return std::make_shared<Type>(Pointer{
+		bool wasInblockStruct = m_internal->isInBlockStruct;
+		if (storageClass == SpirvStorageClass::Uniform)
+			m_internal->isInBlockStruct = true;
+
+		auto typePtr = std::make_shared<Type>(Pointer{
 			BuildType(type),
 			storageClass
 		});
+
+		m_internal->isInBlockStruct = wasInblockStruct;
+
+		return typePtr;
 	}
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) const -> TypePtr
@@ -614,6 +650,10 @@ namespace Nz
 		sType.name = structDesc.name;
 		sType.decorations = std::move(decorations);
 
+		bool wasInBlock = m_internal->isInBlockStruct;
+		if (!wasInBlock)
+			m_internal->isInBlockStruct = std::find(sType.decorations.begin(), sType.decorations.end(), SpirvDecoration::Block) != sType.decorations.end();
+
 		for (const auto& member : structDesc.members)
 		{
 			if (member.cond.HasValue() && !member.cond.GetResultingValue())
@@ -623,6 +663,8 @@ namespace Nz
 			sMembers.name = member.name;
 			sMembers.type = BuildType(member.type);
 		}
+
+		m_internal->isInBlockStruct = wasInBlock;
 
 		return std::make_shared<Type>(std::move(sType));
 	}
@@ -814,7 +856,11 @@ namespace Nz
 			using T = std::decay_t<decltype(arg)>;
 
 			if constexpr (std::is_same_v<T, Array>)
-				constants.Append(SpirvOp::OpTypeArray, resultId, GetId(*arg.elementType), arg.length);
+			{
+				constants.Append(SpirvOp::OpTypeArray, resultId, GetId(*arg.elementType), GetId(*arg.length));
+				if (arg.stride)
+					annotations.Append(SpirvOp::OpDecorate, resultId, SpirvDecoration::ArrayStride, *arg.stride);
+			}
 			else if constexpr (std::is_same_v<T, Bool>)
 				constants.Append(SpirvOp::OpTypeBool, resultId);
 			else if constexpr (std::is_same_v<T, Float>)
@@ -908,8 +954,23 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, Array>)
 				{
-					// TODO
-					throw std::runtime_error("todo");
+					assert(std::holds_alternative<ConstantScalar>(arg.length->constant));
+					const auto& scalar = std::get<ConstantScalar>(arg.length->constant);
+					assert(std::holds_alternative<UInt32>(scalar.value));
+					std::size_t length = std::get<UInt32>(scalar.value);
+
+					if (!std::holds_alternative<Float>(arg.elementType->type))
+						throw std::runtime_error("todo");
+
+					// FIXME: Virer cette implémentation du ghetto
+
+					const Float& fData = std::get<Float>(arg.elementType->type);
+					switch (fData.width)
+					{
+						case 32: return structOffsets.AddFieldArray(StructFieldType::Float1, length);
+						case 64: return structOffsets.AddFieldArray(StructFieldType::Double1, length);
+						default: throw std::runtime_error("unexpected float width " + std::to_string(fData.width));
+					}
 				}
 				else if constexpr (std::is_same_v<T, Bool>)
 					return structOffsets.AddField(StructFieldType::Bool1);

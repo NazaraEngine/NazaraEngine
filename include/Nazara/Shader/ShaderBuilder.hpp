@@ -19,7 +19,9 @@ namespace Nz::ShaderBuilder
 	{
 		struct AccessIndex
 		{
+			inline std::unique_ptr<ShaderAst::AccessIndexExpression> operator()(ShaderAst::ExpressionPtr expr, Int32 index) const;
 			inline std::unique_ptr<ShaderAst::AccessIndexExpression> operator()(ShaderAst::ExpressionPtr expr, const std::vector<Int32>& indexConstants) const;
+			inline std::unique_ptr<ShaderAst::AccessIndexExpression> operator()(ShaderAst::ExpressionPtr expr, ShaderAst::ExpressionPtr indexExpression) const;
 			inline std::unique_ptr<ShaderAst::AccessIndexExpression> operator()(ShaderAst::ExpressionPtr expr, std::vector<ShaderAst::ExpressionPtr> indexExpressions) const;
 		};
 
@@ -106,6 +108,12 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::ExpressionStatement> operator()(ShaderAst::ExpressionPtr expression) const;
 		};
 
+		template<bool Const>
+		struct ForEach
+		{
+			inline std::unique_ptr<ShaderAst::ForEachStatement> operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const;
+		};
+
 		struct Identifier
 		{
 			inline std::unique_ptr<ShaderAst::IdentifierExpression> operator()(std::string name) const;
@@ -143,11 +151,16 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::UnaryExpression> operator()(ShaderAst::UnaryType op, ShaderAst::ExpressionPtr expression) const;
 		};
 
+		struct Variable
+		{
+			inline std::unique_ptr<ShaderAst::VariableExpression> operator()(std::size_t variableId, ShaderAst::ExpressionType expressionType) const;
+		};
+
 		struct While
 		{
 			inline std::unique_ptr<ShaderAst::WhileStatement> operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr body) const;
 		};
-	}
+}
 
 	constexpr Impl::AccessIndex AccessIndex;
 	constexpr Impl::AccessMember AccessMember;
@@ -160,6 +173,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::ConditionalStatement ConditionalStatement;
 	constexpr Impl::Constant Constant;
 	constexpr Impl::Branch<true> ConstBranch;
+	constexpr Impl::ForEach<false> ConstForEach;
 	constexpr Impl::DeclareConst DeclareConst;
 	constexpr Impl::DeclareFunction DeclareFunction;
 	constexpr Impl::DeclareOption DeclareOption;
@@ -167,6 +181,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::DeclareVariable DeclareVariable;
 	constexpr Impl::ExpressionStatement ExpressionStatement;
 	constexpr Impl::NoParam<ShaderAst::DiscardStatement> Discard;
+	constexpr Impl::ForEach<false> ForEach;
 	constexpr Impl::Identifier Identifier;
 	constexpr Impl::Intrinsic Intrinsic;
 	constexpr Impl::Multi MultiStatement;
@@ -174,6 +189,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Return Return;
 	constexpr Impl::Swizzle Swizzle;
 	constexpr Impl::Unary Unary;
+	constexpr Impl::Variable Variable;
 	constexpr Impl::While While;
 }
 

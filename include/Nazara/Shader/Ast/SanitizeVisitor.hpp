@@ -40,8 +40,9 @@ namespace Nz::ShaderAst
 				std::unordered_set<std::string> reservedIdentifiers;
 				std::unordered_map<std::size_t, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;
+				bool reduceLoopsToWhile = false;
 				bool removeCompoundAssignments = false;
-				bool removeOptionDeclaration = true;
+				bool removeOptionDeclaration = false;
 				bool removeScalarSwizzling = false;
 				bool splitMultipleBranches = false;
 			};
@@ -77,6 +78,7 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(DeclareVariableStatement& node) override;
 			StatementPtr Clone(DiscardStatement& node) override;
 			StatementPtr Clone(ExpressionStatement& node) override;
+			StatementPtr Clone(ForEachStatement& node) override;
 			StatementPtr Clone(MultiStatement& node) override;
 			StatementPtr Clone(WhileStatement& node) override;
 
@@ -117,6 +119,8 @@ namespace Nz::ShaderAst
 			void SanitizeIdentifier(std::string& identifier);
 
 			void Validate(AccessIndexExpression& node);
+			void Validate(AssignExpression& node);
+			void Validate(BinaryExpression& node);
 			void Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration);
 			void Validate(CastExpression& node);
 			void Validate(DeclareVariableStatement& node);
