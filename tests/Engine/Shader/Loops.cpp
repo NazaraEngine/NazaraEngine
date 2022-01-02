@@ -8,7 +8,9 @@
 
 TEST_CASE("loops", "[Shader]")
 {
-	std::string_view nzslSource = R"(
+	WHEN("using a while")
+	{
+		std::string_view nzslSource = R"(
 struct inputStruct
 {
 	value: f32
@@ -32,9 +34,9 @@ fn main()
 }
 )";
 
-	Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
 
-	ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shader, R"(
 void main()
 {
 	float value = 0.000000;
@@ -48,7 +50,7 @@ void main()
 }
 )");
 
-	ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shader, R"(
 [entry(frag)]
 fn main()
 {
@@ -63,7 +65,7 @@ fn main()
 }
 )");
 
-	ExpectSpirV(*shader, R"(
+		ExpectSpirV(*shader, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -87,4 +89,93 @@ OpBranch
 OpLabel
 OpReturn
 OpFunctionEnd)");
+	}
+
+	WHEN("using a for-each")
+	{
+		std::string_view nzslSource = R"(
+struct inputStruct
+{
+	value: [f32; 10]
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform<inputStruct>
+}
+
+[entry(frag)]
+fn main()
+{
+	let x = 0.0;
+	for v in data.value
+	{
+		x += v;
+	}
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+
+
+		ExpectGLSL(*shader, R"(
+void main()
+{
+	float x = 0.000000;
+	uint i = 0u;
+	while (i < (10u))
+	{
+		float v = data.value[i];
+		x += v;
+		i += 1u;
+	}
+	
+}
+)");
+
+		ExpectNZSL(*shader, R"(
+[entry(frag)]
+fn main()
+{
+	let x: f32 = 0.000000;
+	for v in data.value
+	{
+		x += v;
+	}
+	
+}
+)");
+
+		ExpectSpirV(*shader, R"(
+OpFunction
+OpLabel
+OpVariable
+OpVariable
+OpVariable
+OpStore
+OpStore
+OpBranch
+OpLabel
+OpLoad
+OpULessThan
+OpLoopMerge
+OpBranchConditional
+OpLabel
+OpAccessChain
+OpLoad
+OpAccessChain
+OpLoad
+OpStore
+OpLoad
+OpLoad
+OpFAdd
+OpStore
+OpLoad
+OpIAdd
+OpStore
+OpBranch
+OpLabel
+OpReturn
+OpFunctionEnd)");
+	}
 }

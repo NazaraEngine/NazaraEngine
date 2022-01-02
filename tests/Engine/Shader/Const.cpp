@@ -109,4 +109,55 @@ fn main()
 )");
 		}
 	}
+
+	WHEN("using const for-each")
+	{
+		std::string_view sourceCode = R"(
+const LightCount = 3;
+
+[layout(std140)]
+struct Light
+{
+	color: vec4<f32>
+}
+
+[layout(std140)]
+struct LightData
+{
+	lights: [Light; LightCount]
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform<LightData>
+}
+
+[entry(frag)]
+fn main()
+{
+	let color = (0.0).xxxx;
+	const for light in data.lights
+	{
+		color += light.color;
+	}
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader;
+		REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+
+		ExpectOutput(*shader, {}, R"(
+[entry(frag)]
+fn main()
+{
+	let color: vec4<f32> = (0.000000).xxxx;
+	let light: Light = data.lights[0];
+	color += light.color;
+	let light: Light = data.lights[1];
+	color += light.color;
+	let light: Light = data.lights[2];
+	color += light.color;
+}
+)");
+	}
 }

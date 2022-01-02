@@ -13,7 +13,7 @@ namespace Nz::ShaderAst
 	{
 		assert(array.containedType);
 		containedType = std::make_unique<ContainedType>(*array.containedType);
-		length = Clone(length);
+		length = Clone(array.length);
 	}
 
 	ArrayType& ArrayType::operator=(const ArrayType& array)
@@ -21,7 +21,7 @@ namespace Nz::ShaderAst
 		assert(array.containedType);
 
 		containedType = std::make_unique<ContainedType>(*array.containedType);
-		length = Clone(length);
+		length = Clone(array.length);
 
 		return *this;
 	}

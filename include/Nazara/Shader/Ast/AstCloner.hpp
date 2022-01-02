@@ -64,6 +64,7 @@ namespace Nz::ShaderAst
 			virtual StatementPtr Clone(DeclareVariableStatement& node);
 			virtual StatementPtr Clone(DiscardStatement& node);
 			virtual StatementPtr Clone(ExpressionStatement& node);
+			virtual StatementPtr Clone(ForEachStatement& node);
 			virtual StatementPtr Clone(MultiStatement& node);
 			virtual StatementPtr Clone(NoOpStatement& node);
 			virtual StatementPtr Clone(ReturnStatement& node);

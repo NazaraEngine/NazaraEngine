@@ -13,6 +13,12 @@ namespace Nz::ShaderAst
 		return expr.cachedExpressionType.value();
 	}
 
+	ShaderAst::ExpressionType& GetExpressionTypeMut(ShaderAst::Expression& expr)
+	{
+		assert(expr.cachedExpressionType);
+		return expr.cachedExpressionType.value();
+	}
+
 	inline bool IsExpression(NodeType nodeType)
 	{
 		switch (nodeType)

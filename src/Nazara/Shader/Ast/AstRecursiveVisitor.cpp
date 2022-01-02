@@ -85,7 +85,8 @@ namespace Nz::ShaderAst
 
 	void AstRecursiveVisitor::Visit(SwizzleExpression& node)
 	{
-		node.expression->Visit(*this);
+		if (node.expression)
+			node.expression->Visit(*this);
 	}
 
 	void AstRecursiveVisitor::Visit(VariableExpression& /*node*/)
@@ -95,7 +96,8 @@ namespace Nz::ShaderAst
 
 	void AstRecursiveVisitor::Visit(UnaryExpression& node)
 	{
-		node.expression->Visit(*this);
+		if (node.expression)
+			node.expression->Visit(*this);
 	}
 
 	void AstRecursiveVisitor::Visit(BranchStatement& node)
@@ -157,6 +159,15 @@ namespace Nz::ShaderAst
 	void AstRecursiveVisitor::Visit(ExpressionStatement& node)
 	{
 		node.expression->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(ForEachStatement& node)
+	{
+		if (node.expression)
+			node.expression->Visit(*this);
+
+		if (node.statement)
+			node.statement->Visit(*this);
 	}
 
 	void AstRecursiveVisitor::Visit(MultiStatement& node)

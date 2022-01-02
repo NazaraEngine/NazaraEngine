@@ -170,6 +170,16 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	StatementPtr AstCloner::Clone(ForEachStatement& node)
+	{
+		auto clone = std::make_unique<ForEachStatement>();
+		clone->isConst = node.isConst;
+		clone->expression = CloneExpression(node.expression);
+		clone->statement = CloneStatement(node.statement);
+
+		return clone;
+	}
+
 	StatementPtr AstCloner::Clone(MultiStatement& node)
 	{
 		auto clone = std::make_unique<MultiStatement>();

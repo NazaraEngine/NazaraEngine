@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <cassert>
@@ -472,6 +473,14 @@ namespace Nz::ShaderLang
 
 		switch (Peek().type)
 		{
+			case TokenType::For:
+			{
+				auto forEach = ParseForDeclaration();
+				SafeCast<ShaderAst::ForEachStatement&>(*forEach).isConst = true;
+
+				return forEach;
+			}
+
 			case TokenType::Identifier:
 			{
 				std::string constName;
@@ -487,7 +496,7 @@ namespace Nz::ShaderLang
 			case TokenType::If:
 			{
 				auto branch = ParseBranchStatement();
-				static_cast<ShaderAst::BranchStatement&>(*branch).isConst = true;
+				SafeCast<ShaderAst::BranchStatement&>(*branch).isConst = true;
 
 				return branch;
 			}
@@ -587,6 +596,21 @@ namespace Nz::ShaderLang
 			return ShaderBuilder::ConditionalStatement(std::move(condition).GetExpression(), std::move(externalStatement));
 		else
 			return externalStatement;
+	}
+
+	ShaderAst::StatementPtr Parser::ParseForDeclaration()
+	{
+		Expect(Advance(), TokenType::For);
+
+		std::string varName = ParseIdentifierAsName();
+
+		Expect(Advance(), TokenType::In);
+
+		ShaderAst::ExpressionPtr expr = ParseExpression();
+
+		ShaderAst::StatementPtr statement = ParseStatement();
+
+		return ShaderBuilder::ForEach(std::move(varName), std::move(expr), std::move(statement));
 	}
 
 	std::vector<ShaderAst::StatementPtr> Parser::ParseFunctionBody()
@@ -732,6 +756,10 @@ namespace Nz::ShaderLang
 
 			case TokenType::Discard:
 				statement = ParseDiscardStatement();
+				break;
+
+			case TokenType::For:
+				statement = ParseForDeclaration();
 				break;
 
 			case TokenType::Let:

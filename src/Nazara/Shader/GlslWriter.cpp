@@ -207,28 +207,23 @@ namespace Nz
 		ShaderAst::SanitizeVisitor::Options options;
 		options.optionValues = std::move(optionValues);
 		options.makeVariableNameUnique = true;
+		options.reduceLoopsToWhile = true;
 		options.removeCompoundAssignments = false;
+		options.removeOptionDeclaration = true;
 		options.removeScalarSwizzling = true;
 		options.reservedIdentifiers = {
 			// All reserved GLSL keywords as of GLSL ES 3.2
 			"active", "asm", "atomic_uint", "attribute", "bool", "break", "buffer", "bvec2", "bvec3", "bvec4", "case", "cast", "centroid", "class", "coherent", "common", "const", "continue", "default", "discard", "dmat2", "dmat2x2", "dmat2x3", "dmat2x4", "dmat3", "dmat3x2", "dmat3x3", "dmat3x4", "dmat4", "dmat4x2", "dmat4x3", "dmat4x4", "do", "double", "dvec2", "dvec3", "dvec4", "else", "enum", "extern", "external", "false", "filter", "fixed", "flat", "float", "for", "fvec2", "fvec3", "fvec4", "goto", "half", "highp", "hvec2", "hvec3", "hvec4", "if", "iimage1D", "iimage1DArray", "iimage2D", "iimage2DArray", "iimage2DMS", "iimage2DMSArray", "iimage2DRect", "iimage3D", "iimageBuffer", "iimageCube", "iimageCubeArray", "image1D", "image1DArray", "image2D", "image2DArray", "image2DMS", "image2DMSArray", "image2DRect", "image3D", "imageBuffer", "imageCube", "imageCubeArray", "in", "inline", "inout", "input", "int", "interface", "invariant", "isampler1D", "isampler1DArray", "isampler2D", "isampler2DArray", "isampler2DMS", "isampler2DMSArray", "isampler2DRect", "isampler3D", "isamplerBuffer", "isamplerCube", "isamplerCubeArray", "isubpassInput", "isubpassInputMS", "itexture2D", "itexture2DArray", "itexture2DMS", "itexture2DMSArray", "itexture3D", "itextureBuffer", "itextureCube", "itextureCubeArray", "ivec2", "ivec3", "ivec4", "layout", "long", "lowp", "mat2", "mat2x2", "mat2x3", "mat2x4", "mat3", "mat3x2", "mat3x3", "mat3x4", "mat4", "mat4x2", "mat4x3", "mat4x4", "mediump", "namespace", "noinline", "noperspective", "out", "output", "partition", "patch", "precise", "precision", "public", "readonly", "resource", "restrict", "return", "sample", "sampler", "sampler1D", "sampler1DArray", "sampler1DArrayShadow", "sampler1DShadow", "sampler2D", "sampler2DArray", "sampler2DArrayShadow", "sampler2DMS", "sampler2DMSArray", "sampler2DRect", "sampler2DRectShadow", "sampler2DShadow", "sampler3D", "sampler3DRect", "samplerBuffer", "samplerCube", "samplerCubeArray", "samplerCubeArrayShadow", "samplerCubeShadow", "samplerShadow", "shared", "short", "sizeof", "smooth", "static", "struct", "subpassInput", "subpassInputMS", "subroutine", "superp", "switch", "template", "texture2D", "texture2DArray", "texture2DMS", "texture2DMSArray", "texture3D", "textureBuffer", "textureCube", "textureCubeArray", "this", "true", "typedef", "uimage1D", "uimage1DArray", "uimage2D", "uimage2DArray", "uimage2DMS", "uimage2DMSArray", "uimage2DRect", "uimage3D", "uimageBuffer", "uimageCube", "uimageCubeArray", "uint", "uniform", "union", "unsigned", "usampler1D", "usampler1DArray", "usampler2D", "usampler2DArray", "usampler2DMS", "usampler2DMSArray", "usampler2DRect", "usampler3D", "usamplerBuffer", "usamplerCube", "usamplerCubeArray", "using", "usubpassInput", "usubpassInputMS", "utexture2D", "utexture2DArray", "utexture2DMS", "utexture2DMSArray", "utexture3D", "utextureBuffer", "utextureCube", "utextureCubeArray", "uvec2", "uvec3", "uvec4", "varying", "vec2", "vec3", "vec4", "void", "volatile", "while", "writeonly"
 			// GLSL functions
-			"cross", "dot", "length", "max", "min", "pow", "texture"
+			"cross", "dot", "exp", "length", "max", "min", "pow", "texture"
 		};
 
 		return ShaderAst::Sanitize(ast, options, error);
 	}
 
-	void GlslWriter::Append(const ShaderAst::ArrayType& type)
+	void GlslWriter::Append(const ShaderAst::ArrayType& /*type*/)
 	{
-		Append(type.containedType->type, "[");
-
-		if (type.length.IsResultingValue())
-			Append(type.length.GetResultingValue());
-		else
-			type.length.GetExpression()->Visit(*this);
-
-		Append("]");
+		throw std::runtime_error("unexpected ArrayType");
 	}
 
 	void GlslWriter::Append(const ShaderAst::ExpressionType& type)
@@ -390,7 +385,7 @@ namespace Nz
 
 			first = false;
 
-			Append(parameter.type, " ", parameter.name);
+			AppendVariableDeclaration(parameter.type, parameter.name);
 		}
 		AppendLine((forward) ? ");" : ")");
 	}
@@ -538,6 +533,40 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::AppendVariableDeclaration(const ShaderAst::ExpressionType& varType, const std::string& varName)
+	{
+		if (ShaderAst::IsArrayType(varType))
+		{
+			std::vector<const ShaderAst::AttributeValue<UInt32>*> lengths;
+
+			const ShaderAst::ExpressionType* exprType = &varType;
+			while (ShaderAst::IsArrayType(*exprType))
+			{
+				const auto& arrayType = std::get<ShaderAst::ArrayType>(*exprType);
+				lengths.push_back(&arrayType.length);
+
+				exprType = &arrayType.containedType->type;
+			}
+
+			assert(!ShaderAst::IsArrayType(*exprType));
+			Append(*exprType, " ", varName);
+
+			for (const auto* lengthAttribute : lengths)
+			{
+				Append("[");
+
+				if (lengthAttribute->IsResultingValue())
+					Append(lengthAttribute->GetResultingValue());
+				else
+					lengthAttribute->GetExpression()->Visit(*this);
+
+				Append("]");
+			}
+		}
+		else
+			Append(varType, " ", varName);
+	}
+
 	void GlslWriter::EnterScope()
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
@@ -632,13 +661,8 @@ namespace Nz
 				{
 					Append("layout(location = ");
 					Append(member.locationIndex.GetResultingValue());
-					Append(") ");
-					Append(keyword);
-					Append(" ");
-					Append(member.type);
-					Append(" ");
-					Append(targetPrefix);
-					Append(member.name);
+					Append(") ", keyword, " ");
+					AppendVariableDeclaration(member.type, targetPrefix + member.name);
 					AppendLine(";");
 
 					fields.push_back({
@@ -824,8 +848,10 @@ namespace Nz
 				throw std::runtime_error("invalid type (value expected)");
 			else if constexpr (std::is_same_v<T, bool>)
 				Append((arg) ? "true" : "false");
-			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
+			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32>)
 				Append(std::to_string(arg));
+			else if constexpr (std::is_same_v<T, UInt32>)
+				Append(std::to_string(arg), "u");
 			else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
 				Append("vec2(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
 			else if constexpr (std::is_same_v<T, Vector3f> || std::is_same_v<T, Vector3i32>)
@@ -1033,19 +1059,18 @@ namespace Nz
 
 						first = false;
 
-						Append(member.type);
-						Append(" ");
-						Append(member.name);
+						AppendVariableDeclaration(member.type, member.name);
 						Append(";");
 					}
 				}
 				LeaveScope(false);
+
+				Append(" ");
+				Append(externalVar.name);
 			}
 			else
-				Append(externalVar.type);
+				AppendVariableDeclaration(externalVar.type, externalVar.name);
 
-			Append(" ");
-			Append(externalVar.name);
 			AppendLine(";");
 
 			if (IsUniformType(externalVar.type))
@@ -1127,9 +1152,7 @@ namespace Nz
 
 				first = false;
 
-				Append(member.type);
-				Append(" ");
-				Append(member.name);
+				AppendVariableDeclaration(member.type, member.name);
 				Append(";");
 			}
 		}
@@ -1142,7 +1165,7 @@ namespace Nz
 		assert(node.varIndex);
 		RegisterVariable(*node.varIndex, node.varName);
 
-		Append(node.varType, " ", node.varName);
+		AppendVariableDeclaration(node.varType, node.varName);
 		if (node.initialExpression)
 		{
 			Append(" = ");

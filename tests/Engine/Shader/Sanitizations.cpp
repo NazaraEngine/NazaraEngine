@@ -78,4 +78,53 @@ fn main()
 )");
 
 	}
+
+	WHEN("reducing for-each to while")
+	{
+		std::string_view nzslSource = R"(
+struct inputStruct
+{
+	value: [f32; 10]
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform<inputStruct>
+}
+
+[entry(frag)]
+fn main()
+{
+	let x = 0.0;
+	for v in data.value
+	{
+		x += v;
+	}
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+
+		Nz::ShaderAst::SanitizeVisitor::Options options;
+		options.reduceLoopsToWhile = true;
+
+		REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader, options));
+
+		ExpectNZSL(*shader, R"(
+[entry(frag)]
+fn main()
+{
+	let x: f32 = 0.000000;
+	let i: u32 = 0;
+	while (i < (10))
+	{
+		let v: f32 = data.value[i];
+		x += v;
+		i += 1;
+	}
+	
+}
+)");
+
+	}
 }

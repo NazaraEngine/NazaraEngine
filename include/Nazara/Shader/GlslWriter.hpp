@@ -71,6 +71,7 @@ namespace Nz
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 			void AppendStatementList(std::vector<ShaderAst::StatementPtr>& statements);
+			void AppendVariableDeclaration(const ShaderAst::ExpressionType& varType, const std::string& varName);
 
 			void EnterScope();
 			void LeaveScope(bool skipLine = true);

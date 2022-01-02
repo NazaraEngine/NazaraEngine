@@ -458,6 +458,23 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const ForEachStatement& lhs, const ForEachStatement& rhs)
+	{
+		if (!Compare(lhs.isConst, rhs.isConst))
+			return false;
+
+		if (!Compare(lhs.varName, rhs.varName))
+			return false;
+
+		if (!Compare(lhs.expression, rhs.expression))
+			return false;
+
+		if (!Compare(lhs.statement, rhs.statement))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const MultiStatement& lhs, const MultiStatement& rhs)
 	{
 		if (!Compare(lhs.statements, rhs.statements))

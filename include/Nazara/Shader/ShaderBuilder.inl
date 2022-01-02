@@ -16,6 +16,15 @@ namespace Nz::ShaderBuilder
 		return accessMemberNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::AccessIndexExpression> Impl::AccessIndex::operator()(ShaderAst::ExpressionPtr expr, Int32 index) const
+	{
+		auto accessMemberNode = std::make_unique<ShaderAst::AccessIndexExpression>();
+		accessMemberNode->expr = std::move(expr);
+		accessMemberNode->indices.push_back(ShaderBuilder::Constant(index));
+
+		return accessMemberNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::AccessIndexExpression> Impl::AccessIndex::operator()(ShaderAst::ExpressionPtr expr, const std::vector<Int32>& indexConstants) const
 	{
 		auto accessMemberNode = std::make_unique<ShaderAst::AccessIndexExpression>();
@@ -24,6 +33,15 @@ namespace Nz::ShaderBuilder
 		accessMemberNode->indices.reserve(indexConstants.size());
 		for (Int32 index : indexConstants)
 			accessMemberNode->indices.push_back(ShaderBuilder::Constant(index));
+
+		return accessMemberNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::AccessIndexExpression> Impl::AccessIndex::operator()(ShaderAst::ExpressionPtr expr, ShaderAst::ExpressionPtr indexExpression) const
+	{
+		auto accessMemberNode = std::make_unique<ShaderAst::AccessIndexExpression>();
+		accessMemberNode->expr = std::move(expr);
+		accessMemberNode->indices.push_back(std::move(indexExpression));
 
 		return accessMemberNode;
 	}
@@ -136,6 +154,7 @@ namespace Nz::ShaderBuilder
 	{
 		auto constantNode = std::make_unique<ShaderAst::ConstantValueExpression>();
 		constantNode->value = std::move(value);
+		constantNode->cachedExpressionType = ShaderAst::GetExpressionType(constantNode->value);
 
 		return constantNode;
 	}
@@ -250,6 +269,18 @@ namespace Nz::ShaderBuilder
 		return expressionStatementNode;
 	}
 
+	template<bool Const>
+	std::unique_ptr<ShaderAst::ForEachStatement> Impl::ForEach<Const>::operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const
+	{
+		auto forEachNode = std::make_unique<ShaderAst::ForEachStatement>();
+		forEachNode->isConst = Const;
+		forEachNode->expression = std::move(expression);
+		forEachNode->statement = std::move(statement);
+		forEachNode->varName = std::move(varName);
+
+		return forEachNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::IdentifierExpression> Impl::Identifier::operator()(std::string name) const
 	{
 		auto identifierNode = std::make_unique<ShaderAst::IdentifierExpression>();
@@ -325,6 +356,15 @@ namespace Nz::ShaderBuilder
 		unaryNode->op = op;
 
 		return unaryNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::VariableExpression> Impl::Variable::operator()(std::size_t variableId, ShaderAst::ExpressionType expressionType) const
+	{
+		auto varNode = std::make_unique<ShaderAst::VariableExpression>();
+		varNode->variableId = variableId;
+		varNode->cachedExpressionType = std::move(expressionType);
+
+		return varNode;
 	}
 
 	inline std::unique_ptr<ShaderAst::WhileStatement> Impl::While::operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr body) const

@@ -99,6 +99,7 @@ namespace Nz
 
 			void Visit(ShaderAst::BranchStatement& node) override;
 			void Visit(ShaderAst::ConditionalStatement& node) override;
+			void Visit(ShaderAst::DeclareConstStatement& node) override;
 			void Visit(ShaderAst::DeclareExternalStatement& node) override;
 			void Visit(ShaderAst::DeclareFunctionStatement& node) override;
 			void Visit(ShaderAst::DeclareOptionStatement& node) override;
@@ -106,6 +107,7 @@ namespace Nz
 			void Visit(ShaderAst::DeclareVariableStatement& node) override;
 			void Visit(ShaderAst::DiscardStatement& node) override;
 			void Visit(ShaderAst::ExpressionStatement& node) override;
+			void Visit(ShaderAst::ForEachStatement& node) override;
 			void Visit(ShaderAst::MultiStatement& node) override;
 			void Visit(ShaderAst::NoOpStatement& node) override;
 			void Visit(ShaderAst::ReturnStatement& node) override;
