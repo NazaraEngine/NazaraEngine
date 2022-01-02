@@ -84,11 +84,33 @@ namespace Nz::ShaderAst
 
 	void ShaderAstValueCategory::Visit(SwizzleExpression& node)
 	{
-		// Swizzling more than a component on a primitive produces a rvalue (a.xxxx cannot be assigned)
 		if (IsPrimitiveType(GetExpressionType(node)) && node.componentCount > 1)
+			// Swizzling more than a component on a primitive produces a rvalue (a.xxxx cannot be assigned)
 			m_expressionCategory = ExpressionCategory::RValue;
 		else
-			node.expression->Visit(*this);
+		{
+			bool isRVaLue = false;
+
+			std::array<bool, 4> used;
+			used.fill(false);
+
+			for (std::size_t i = 0; i < node.componentCount; ++i)
+			{
+				if (used[node.components[i]])
+				{
+					// Swizzling the same component multiple times produces a rvalue (a.xx cannot be assigned)
+					isRVaLue = true;
+					break;
+				}
+
+				used[node.components[i]] = true;
+			}
+
+			if (isRVaLue)
+				m_expressionCategory = ExpressionCategory::RValue;
+			else
+				node.expression->Visit(*this);
+		}
 	}
 
 	void ShaderAstValueCategory::Visit(VariableExpression& /*node*/)
