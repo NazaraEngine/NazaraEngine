@@ -36,7 +36,7 @@ namespace Nz
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> bool IsPowerOfTwo(T value);
 	template<typename T> T ReverseBits(T integer);
-	template<typename To, typename From> To SafeCast(From value);
+	template<typename To, typename From> To SafeCast(From&& value);
 	template<typename T> constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>;
 
 	template<typename T>

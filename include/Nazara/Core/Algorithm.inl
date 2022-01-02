@@ -50,9 +50,9 @@ namespace Nz
 	decltype(auto) AccessByOffset(void* basePtr, std::size_t offset)
 	{
 		if constexpr (std::is_lvalue_reference_v<T>)
-			return *reinterpret_cast<std::remove_reference_t<T>*>(static_cast<Nz::UInt8*>(basePtr) + offset);
+			return *reinterpret_cast<std::remove_reference_t<T>*>(static_cast<UInt8*>(basePtr) + offset);
 		else if constexpr (std::is_pointer_v<T>)
-			return reinterpret_cast<T>(static_cast<Nz::UInt8*>(basePtr) + offset);
+			return reinterpret_cast<T>(static_cast<UInt8*>(basePtr) + offset);
 		else
 			static_assert(AlwaysFalse<T>(), "AccessByOffset requires a reference or pointer type");
 	}
@@ -71,9 +71,9 @@ namespace Nz
 		static_assert(std::is_lvalue_reference_v<T> || std::is_pointer_v<T>);
 
 		if constexpr (std::is_lvalue_reference_v<T>)
-			return *reinterpret_cast<std::remove_reference_t<T>*>(static_cast<const Nz::UInt8*>(basePtr) + offset);
+			return *reinterpret_cast<std::remove_reference_t<T>*>(static_cast<const UInt8*>(basePtr) + offset);
 		else if constexpr (std::is_pointer_v<T>)
-			return reinterpret_cast<T>(static_cast<const Nz::UInt8*>(basePtr) + offset);
+			return reinterpret_cast<T>(static_cast<const UInt8*>(basePtr) + offset);
 		else
 			static_assert(AlwaysFalse<T>(), "AccessByOffset requires a reference or pointer type");
 	}
@@ -296,7 +296,7 @@ namespace Nz
 	}
 
 	template<typename To, typename From>
-	To SafeCast(From value)
+	To SafeCast(From&& value)
 	{
 #ifdef NAZARA_COMPILER_MSVC
 	// Disable unreachable code warnings
