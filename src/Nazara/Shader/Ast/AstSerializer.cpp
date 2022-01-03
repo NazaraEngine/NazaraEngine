@@ -303,7 +303,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ForEachStatement& node)
 	{
-		Value(node.isConst);
+		Attribute(node.unroll);
 		Value(node.varName);
 		Node(node.expression);
 		Node(node.statement);
@@ -328,6 +328,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(WhileStatement& node)
 	{
+		Attribute(node.unroll);
 		Node(node.condition);
 		Node(node.body);
 	}

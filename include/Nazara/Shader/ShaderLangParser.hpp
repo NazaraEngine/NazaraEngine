@@ -88,7 +88,7 @@ namespace Nz::ShaderLang
 			ShaderAst::StatementPtr ParseConstStatement();
 			ShaderAst::StatementPtr ParseDiscardStatement();
 			ShaderAst::StatementPtr ParseExternalBlock(std::vector<ShaderAst::Attribute> attributes = {});
-			ShaderAst::StatementPtr ParseForDeclaration();
+			ShaderAst::StatementPtr ParseForDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
@@ -99,7 +99,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::StatementPtr> ParseStatementList();
 			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<ShaderAst::Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseVariableDeclaration();
-			ShaderAst::StatementPtr ParseWhileStatement();
+			ShaderAst::StatementPtr ParseWhileStatement(std::vector<ShaderAst::Attribute> attributes);
 
 			// Expressions
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);

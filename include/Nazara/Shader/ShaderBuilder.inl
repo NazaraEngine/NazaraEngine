@@ -269,11 +269,9 @@ namespace Nz::ShaderBuilder
 		return expressionStatementNode;
 	}
 
-	template<bool Const>
-	std::unique_ptr<ShaderAst::ForEachStatement> Impl::ForEach<Const>::operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const
+	std::unique_ptr<ShaderAst::ForEachStatement> Impl::ForEach::operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const
 	{
 		auto forEachNode = std::make_unique<ShaderAst::ForEachStatement>();
-		forEachNode->isConst = Const;
 		forEachNode->expression = std::move(expression);
 		forEachNode->statement = std::move(statement);
 		forEachNode->varName = std::move(varName);

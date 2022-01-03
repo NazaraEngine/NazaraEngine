@@ -36,6 +36,7 @@ namespace Nz
 			Layout,             //< Struct layout (struct only) - has argument style
 			Location,           //< Location (struct member only) - has argument index
 			Set,                //< Binding set (external var only) - has argument index
+			Unroll,             //< Unroll (for/for each only) - has argument mode
 		};
 
 		enum class BinaryType
@@ -104,6 +105,13 @@ namespace Nz
 			Min = 5,
 			Pow = 6,
 			SampleTexture = 2,
+		};
+
+		enum class LoopUnroll
+		{
+			Always,
+			Hint,
+			Never
 		};
 
 		enum class MemoryLayout

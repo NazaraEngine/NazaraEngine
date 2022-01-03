@@ -460,10 +460,10 @@ namespace Nz::ShaderAst
 
 	bool Compare(const ForEachStatement& lhs, const ForEachStatement& rhs)
 	{
-		if (!Compare(lhs.isConst, rhs.isConst))
+		if (!Compare(lhs.varName, rhs.varName))
 			return false;
 
-		if (!Compare(lhs.varName, rhs.varName))
+		if (!Compare(lhs.unroll, rhs.unroll))
 			return false;
 
 		if (!Compare(lhs.expression, rhs.expression))
@@ -498,6 +498,9 @@ namespace Nz::ShaderAst
 
 	inline bool Compare(const WhileStatement& lhs, const WhileStatement& rhs)
 	{
+		if (!Compare(lhs.unroll, rhs.unroll))
+			return false;
+
 		if (!Compare(lhs.condition, rhs.condition))
 			return false;
 

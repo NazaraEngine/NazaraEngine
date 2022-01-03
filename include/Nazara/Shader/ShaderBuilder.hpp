@@ -108,7 +108,6 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::ExpressionStatement> operator()(ShaderAst::ExpressionPtr expression) const;
 		};
 
-		template<bool Const>
 		struct ForEach
 		{
 			inline std::unique_ptr<ShaderAst::ForEachStatement> operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const;
@@ -173,7 +172,6 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::ConditionalStatement ConditionalStatement;
 	constexpr Impl::Constant Constant;
 	constexpr Impl::Branch<true> ConstBranch;
-	constexpr Impl::ForEach<false> ConstForEach;
 	constexpr Impl::DeclareConst DeclareConst;
 	constexpr Impl::DeclareFunction DeclareFunction;
 	constexpr Impl::DeclareOption DeclareOption;
@@ -181,7 +179,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::DeclareVariable DeclareVariable;
 	constexpr Impl::ExpressionStatement ExpressionStatement;
 	constexpr Impl::NoParam<ShaderAst::DiscardStatement> Discard;
-	constexpr Impl::ForEach<false> ForEach;
+	constexpr Impl::ForEach ForEach;
 	constexpr Impl::Identifier Identifier;
 	constexpr Impl::Intrinsic Intrinsic;
 	constexpr Impl::Multi MultiStatement;

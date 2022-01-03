@@ -345,11 +345,11 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		AttributeValue<LoopUnroll> unroll;
 		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr expression;
 		StatementPtr statement;
-		bool isConst = false;
 	};
 
 	struct NAZARA_SHADER_API MultiStatement : Statement
@@ -379,6 +379,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		AttributeValue<LoopUnroll> unroll;
 		ExpressionPtr condition;
 		StatementPtr body;
 	};
