@@ -118,6 +118,8 @@ namespace Nz::ShaderAst
 
 			void SanitizeIdentifier(std::string& identifier);
 
+			void Validate(WhileStatement& node);
+
 			void Validate(AccessIndexExpression& node);
 			void Validate(AssignExpression& node);
 			void Validate(BinaryExpression& node);

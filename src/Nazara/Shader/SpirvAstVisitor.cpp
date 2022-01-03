@@ -1030,7 +1030,28 @@ namespace Nz
 
 		UInt32 expressionId = EvaluateExpression(node.condition);
 
-		m_currentBlock->Append(SpirvOp::OpLoopMerge, mergeBlock.GetLabelId(), bodyBlock.GetLabelId(), SpirvLoopControl::None);
+		SpirvLoopControl loopControl;
+		if (node.unroll.HasValue())
+		{
+			switch (node.unroll.GetResultingValue())
+			{
+				case ShaderAst::LoopUnroll::Always:
+					// it shouldn't be possible to have this attribute as the loop gets unrolled in the sanitizer
+					throw std::runtime_error("unexpected unroll attribute");
+
+				case ShaderAst::LoopUnroll::Hint:
+					loopControl = SpirvLoopControl::Unroll;
+					break;
+
+				case ShaderAst::LoopUnroll::Never:
+					loopControl = SpirvLoopControl::DontUnroll;
+					break;
+			}
+		}
+		else
+			loopControl = SpirvLoopControl::None;
+
+		m_currentBlock->Append(SpirvOp::OpLoopMerge, mergeBlock.GetLabelId(), bodyBlock.GetLabelId(), loopControl);
 		m_currentBlock->Append(SpirvOp::OpBranchConditional, expressionId, bodyBlock.GetLabelId(), mergeBlock.GetLabelId());
 
 		m_currentBlock = &bodyBlock;

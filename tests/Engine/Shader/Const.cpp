@@ -110,7 +110,7 @@ fn main()
 		}
 	}
 
-	WHEN("using const for-each")
+	WHEN("using [unroll] attribute on for-each")
 	{
 		std::string_view sourceCode = R"(
 const LightCount = 3;
@@ -136,7 +136,9 @@ external
 fn main()
 {
 	let color = (0.0).xxxx;
-	const for light in data.lights
+
+	[unroll]
+	for light in data.lights
 	{
 		color += light.color;
 	}
