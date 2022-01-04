@@ -1,7 +1,7 @@
 // this file was automatically generated and should not be edited
 // no header guards
 
-// Copyright (C) 2021 Jérôme Leclercq
+// Copyright (C) 2022 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
