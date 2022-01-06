@@ -49,6 +49,7 @@ namespace Nz::ShaderAst
 			void Serialize(DeclareVariableStatement& node);
 			void Serialize(DiscardStatement& node);
 			void Serialize(ExpressionStatement& node);
+			void Serialize(ForStatement& node);
 			void Serialize(ForEachStatement& node);
 			void Serialize(MultiStatement& node);
 			void Serialize(NoOpStatement& node);

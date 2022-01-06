@@ -66,7 +66,6 @@ namespace Nz
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
 			void AppendCommentSection(const std::string& section);
 			void AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, bool forward = false);
-			void AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers);
 			void AppendHeader();
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
@@ -84,6 +83,7 @@ namespace Nz
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
+			void Visit(ShaderAst::AccessIdentifierExpression& node) override;
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;

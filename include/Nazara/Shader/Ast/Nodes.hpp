@@ -340,6 +340,20 @@ namespace Nz::ShaderAst
 		ExpressionPtr expression;
 	};
 
+	struct NAZARA_SHADER_API ForStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		AttributeValue<LoopUnroll> unroll;
+		std::optional<std::size_t> varIndex;
+		std::string varName;
+		ExpressionPtr fromExpr;
+		ExpressionPtr stepExpr;
+		ExpressionPtr toExpr;
+		StatementPtr statement;
+	};
+
 	struct NAZARA_SHADER_API ForEachStatement : Statement
 	{
 		NodeType GetType() const override;

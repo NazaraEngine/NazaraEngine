@@ -491,6 +491,7 @@ namespace Nz
 			options.removeCompoundAssignments = true;
 			options.removeOptionDeclaration = true; 
 			options.splitMultipleBranches = true;
+			options.useIdentifierAccessesForStructs = false;
 
 			sanitizedAst = ShaderAst::Sanitize(shader, options);
 			targetAst = sanitizedAst.get();

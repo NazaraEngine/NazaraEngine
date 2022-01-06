@@ -109,6 +109,63 @@ fn main()
 )");
 		}
 	}
+	
+	WHEN("using [unroll] attribute on numerical for")
+	{
+		std::string_view sourceCode = R"(
+const LightCount = 3;
+
+[layout(std140)]
+struct Light
+{
+	color: vec4<f32>
+}
+
+[layout(std140)]
+struct LightData
+{
+	lights: [Light; LightCount]
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform<LightData>
+}
+
+[entry(frag)]
+fn main()
+{
+	let color = (0.0).xxxx;
+
+	[unroll]
+	for i in 0 -> 10 : 2
+	{
+		color += data.lights[i].color;
+	}
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader;
+		REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+
+		ExpectOutput(*shader, {}, R"(
+[entry(frag)]
+fn main()
+{
+	let color: vec4<f32> = (0.000000).xxxx;
+	let i: i32 = 0;
+	color += data.lights[i].color;
+	let i: i32 = 2;
+	color += data.lights[i].color;
+	let i: i32 = 4;
+	color += data.lights[i].color;
+	let i: i32 = 6;
+	color += data.lights[i].color;
+	let i: i32 = 8;
+	color += data.lights[i].color;
+}
+)");
+	}
 
 	WHEN("using [unroll] attribute on for-each")
 	{

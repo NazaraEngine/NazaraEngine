@@ -90,6 +90,160 @@ OpLabel
 OpReturn
 OpFunctionEnd)");
 	}
+	
+	WHEN("using a for range")
+	{
+		std::string_view nzslSource = R"(
+[entry(frag)]
+fn main()
+{
+	let x = 0;
+	for v in 0 -> 10
+	{
+		x += v;
+	}
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+
+
+		ExpectGLSL(*shader, R"(
+void main()
+{
+	int x = 0;
+	int v = 0;
+	int to = 10;
+	while (v < to)
+	{
+		x += v;
+		v += 1;
+	}
+	
+}
+)");
+
+		ExpectNZSL(*shader, R"(
+[entry(frag)]
+fn main()
+{
+	let x: i32 = 0;
+	for v in 0 -> 10
+	{
+		x += v;
+	}
+	
+}
+)");
+
+		ExpectSpirV(*shader, R"(
+OpFunction
+OpLabel
+OpVariable
+OpVariable
+OpVariable
+OpStore
+OpStore
+OpStore
+OpBranch
+OpLabel
+OpLoad
+OpLoad
+OpSLessThan
+OpLoopMerge
+OpBranchConditional
+OpLabel
+OpLoad
+OpLoad
+OpIAdd
+OpStore
+OpLoad
+OpIAdd
+OpStore
+OpBranch
+OpLabel
+OpReturn
+OpFunctionEnd)");
+	}
+
+	WHEN("using a for range with step")
+	{
+		std::string_view nzslSource = R"(
+[entry(frag)]
+fn main()
+{
+	let x = 0;
+	for v in 0 -> 10 : 2
+	{
+		x += v;
+	}
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+
+
+		ExpectGLSL(*shader, R"(
+void main()
+{
+	int x = 0;
+	int v = 0;
+	int to = 10;
+	int step = 2;
+	while (v < to)
+	{
+		x += v;
+		v += step;
+	}
+	
+}
+)");
+
+		ExpectNZSL(*shader, R"(
+[entry(frag)]
+fn main()
+{
+	let x: i32 = 0;
+	for v in 0 -> 10 : 2
+	{
+		x += v;
+	}
+	
+}
+)");
+
+		ExpectSpirV(*shader, R"(
+OpFunction
+OpLabel
+OpVariable
+OpVariable
+OpVariable
+OpVariable
+OpStore
+OpStore
+OpStore
+OpStore
+OpBranch
+OpLabel
+OpLoad
+OpLoad
+OpSLessThan
+OpLoopMerge
+OpBranchConditional
+OpLabel
+OpLoad
+OpLoad
+OpIAdd
+OpStore
+OpLoad
+OpLoad
+OpIAdd
+OpStore
+OpBranch
+OpLabel
+OpReturn
+OpFunctionEnd)");
+	}
 
 	WHEN("using a for-each")
 	{
