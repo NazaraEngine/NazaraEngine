@@ -45,6 +45,7 @@ namespace Nz::ShaderAst
 				bool removeOptionDeclaration = false;
 				bool removeScalarSwizzling = false;
 				bool splitMultipleBranches = false;
+				bool useIdentifierAccessesForStructs = true;
 			};
 
 		private:
@@ -78,6 +79,7 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(DeclareVariableStatement& node) override;
 			StatementPtr Clone(DiscardStatement& node) override;
 			StatementPtr Clone(ExpressionStatement& node) override;
+			StatementPtr Clone(ForStatement& node) override;
 			StatementPtr Clone(ForEachStatement& node) override;
 			StatementPtr Clone(MultiStatement& node) override;
 			StatementPtr Clone(WhileStatement& node) override;

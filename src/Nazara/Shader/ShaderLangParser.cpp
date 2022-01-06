@@ -614,24 +614,63 @@ namespace Nz::ShaderLang
 
 		ShaderAst::ExpressionPtr expr = ParseExpression();
 
-		ShaderAst::StatementPtr statement = ParseStatement();
-
-		auto forEach = ShaderBuilder::ForEach(std::move(varName), std::move(expr), std::move(statement));
-
-		for (auto&& [attributeType, arg] : attributes)
+		if (Peek().type == TokenType::Arrow)
 		{
-			switch (attributeType)
+			// Numerical for
+			Consume();
+
+			ShaderAst::ExpressionPtr toExpr = ParseExpression();
+
+			ShaderAst::ExpressionPtr stepExpr;
+			if (Peek().type == TokenType::Colon)
 			{
-				case ShaderAst::AttributeType::Unroll:
-					HandleUniqueStringAttribute("unroll", s_unrollModes, forEach->unroll, std::move(arg), std::make_optional(ShaderAst::LoopUnroll::Always));
-					break;
-
-				default:
-					throw AttributeError{ "unhandled attribute for for-each" };
+				Consume();
+				stepExpr = ParseExpression();
 			}
-		}
 
-		return forEach;
+			ShaderAst::StatementPtr statement = ParseStatement();
+
+			auto forNode = ShaderBuilder::For(std::move(varName), std::move(expr), std::move(toExpr), std::move(stepExpr), std::move(statement));
+
+			// TODO: Deduplicate code
+			for (auto&& [attributeType, arg] : attributes)
+			{
+				switch (attributeType)
+				{
+					case ShaderAst::AttributeType::Unroll:
+						HandleUniqueStringAttribute("unroll", s_unrollModes, forNode->unroll, std::move(arg), std::make_optional(ShaderAst::LoopUnroll::Always));
+						break;
+
+					default:
+						throw AttributeError{ "unhandled attribute for numerical for" };
+				}
+			}
+
+			return forNode;
+		}
+		else
+		{
+			// For each
+			ShaderAst::StatementPtr statement = ParseStatement();
+
+			auto forEachNode = ShaderBuilder::ForEach(std::move(varName), std::move(expr), std::move(statement));
+
+			// TODO: Deduplicate code
+			for (auto&& [attributeType, arg] : attributes)
+			{
+				switch (attributeType)
+				{
+					case ShaderAst::AttributeType::Unroll:
+						HandleUniqueStringAttribute("unroll", s_unrollModes, forEachNode->unroll, std::move(arg), std::make_optional(ShaderAst::LoopUnroll::Always));
+						break;
+
+					default:
+						throw AttributeError{ "unhandled attribute for for-each" };
+				}
+			}
+
+			return forEachNode;
+		}
 	}
 
 	std::vector<ShaderAst::StatementPtr> Parser::ParseFunctionBody()
@@ -668,7 +707,7 @@ namespace Nz::ShaderLang
 		Expect(Advance(), TokenType::ClosingParenthesis);
 
 		ShaderAst::ExpressionType returnType;
-		if (Peek().type == TokenType::FunctionReturn)
+		if (Peek().type == TokenType::Arrow)
 		{
 			Consume();
 			returnType = ParseType();

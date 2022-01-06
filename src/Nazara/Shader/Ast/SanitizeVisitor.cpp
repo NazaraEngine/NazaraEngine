@@ -163,19 +163,6 @@ namespace Nz::ShaderAst
 			const ExpressionType& exprType = GetExpressionType(*indexedExpr);
 			if (IsStructType(exprType))
 			{
-				// Transform to AccessIndexExpression
-				AccessIndexExpression* accessIndexPtr;
-				if (indexedExpr->GetType() != NodeType::AccessIndexExpression)
-				{
-					std::unique_ptr<AccessIndexExpression> accessIndex = std::make_unique<AccessIndexExpression>();
-					accessIndex->expr = std::move(indexedExpr);
-
-					accessIndexPtr = accessIndex.get();
-					indexedExpr = std::move(accessIndex);
-				}
-				else
-					accessIndexPtr = static_cast<AccessIndexExpression*>(indexedExpr.get());
-
 				std::size_t structIndex = ResolveStruct(exprType);
 				assert(structIndex < m_context->structs.size());
 				const StructDescription* s = m_context->structs[structIndex];
@@ -200,8 +187,42 @@ namespace Nz::ShaderAst
 				if (!fieldPtr)
 					throw AstError{ "unknown field " + identifier };
 
-				accessIndexPtr->indices.push_back(ShaderBuilder::Constant(fieldIndex));
-				accessIndexPtr->cachedExpressionType = ResolveType(fieldPtr->type);
+				if (m_context->options.useIdentifierAccessesForStructs)
+				{
+					// Use a AccessIdentifierExpression
+					AccessIdentifierExpression* accessIdentifierPtr;
+					if (indexedExpr->GetType() != NodeType::AccessIdentifierExpression)
+					{
+						std::unique_ptr<AccessIdentifierExpression> accessIndex = std::make_unique<AccessIdentifierExpression>();
+						accessIndex->expr = std::move(indexedExpr);
+
+						accessIdentifierPtr = accessIndex.get();
+						indexedExpr = std::move(accessIndex);
+					}
+					else
+						accessIdentifierPtr = static_cast<AccessIdentifierExpression*>(indexedExpr.get());
+
+					accessIdentifierPtr->identifiers.push_back(s->members[fieldIndex].name);
+					accessIdentifierPtr->cachedExpressionType = ResolveType(fieldPtr->type);
+				}
+				else
+				{
+					// Transform to AccessIndexExpression
+					AccessIndexExpression* accessIndexPtr;
+					if (indexedExpr->GetType() != NodeType::AccessIndexExpression)
+					{
+						std::unique_ptr<AccessIndexExpression> accessIndex = std::make_unique<AccessIndexExpression>();
+						accessIndex->expr = std::move(indexedExpr);
+
+						accessIndexPtr = accessIndex.get();
+						indexedExpr = std::move(accessIndex);
+					}
+					else
+						accessIndexPtr = static_cast<AccessIndexExpression*>(indexedExpr.get());
+
+					accessIndexPtr->indices.push_back(ShaderBuilder::Constant(fieldIndex));
+					accessIndexPtr->cachedExpressionType = ResolveType(fieldPtr->type);
+				}
 			}
 			else if (IsPrimitiveType(exprType) || IsVectorType(exprType))
 			{
@@ -268,6 +289,8 @@ namespace Nz::ShaderAst
 
 		auto clone = static_unique_pointer_cast<AccessIndexExpression>(AstCloner::Clone(node));
 		Validate(*clone);
+
+		// TODO: Handle AccessIndex on structs with m_context->options.useIdentifierAccessesForStructs
 
 		return clone;
 	}
@@ -829,9 +852,180 @@ namespace Nz::ShaderAst
 		return AstCloner::Clone(node);
 	}
 
+	StatementPtr SanitizeVisitor::Clone(ForStatement& node)
+	{
+		if (node.varName.empty())
+			throw AstError{ "numerical for variable name cannot be empty" };
+
+		auto fromExpr = CloneExpression(MandatoryExpr(node.fromExpr));
+		auto stepExpr = CloneExpression(node.stepExpr);
+		auto toExpr = CloneExpression(MandatoryExpr(node.toExpr));
+
+		MandatoryStatement(node.statement);
+
+		const ExpressionType& fromExprType = GetExpressionType(*fromExpr);
+		if (!IsPrimitiveType(fromExprType))
+			throw AstError{ "numerical for from expression must be an integer or unsigned integer" };
+
+		PrimitiveType fromType = std::get<PrimitiveType>(fromExprType);
+		if (fromType != PrimitiveType::Int32 && fromType != PrimitiveType::UInt32)
+			throw AstError{ "numerical for from expression must be an integer or unsigned integer" };
+
+		const ExpressionType& toExprType = GetExpressionType(*fromExpr);
+		if (toExprType != fromExprType)
+			throw AstError{ "numerical for to expression type must match from expression type" };
+
+		if (stepExpr)
+		{
+			const ExpressionType& stepExprType = GetExpressionType(*fromExpr);
+			if (stepExprType != fromExprType)
+				throw AstError{ "numerical for step expression type must match from expression type" };
+		}
+
+
+		AttributeValue<LoopUnroll> unrollValue;
+		if (node.unroll.HasValue())
+		{
+			unrollValue = ComputeAttributeValue(node.unroll);
+			if (unrollValue.GetResultingValue() == LoopUnroll::Always)
+			{
+				PushScope();
+
+				auto multi = std::make_unique<MultiStatement>();
+
+				auto Unroll = [&](auto dummy)
+				{
+					using T = std::decay_t<decltype(dummy)>;
+
+					T counter = std::get<T>(ComputeConstantValue(*fromExpr));
+					T to = std::get<T>(ComputeConstantValue(*toExpr));
+					T step = (stepExpr) ? std::get<T>(ComputeConstantValue(*stepExpr)) : T(1);
+
+					for (; counter < to; counter += step)
+					{
+						auto var = ShaderBuilder::DeclareVariable(node.varName, ShaderBuilder::Constant(counter));
+						Validate(*var);
+						multi->statements.emplace_back(std::move(var));
+
+						multi->statements.emplace_back(CloneStatement(node.statement));
+					}
+				};
+
+				switch (fromType)
+				{
+					case PrimitiveType::Int32:
+						Unroll(Int32{});
+						break;
+
+					case PrimitiveType::UInt32:
+						Unroll(UInt32{});
+						break;
+
+					default:
+						throw AstError{ "internal error" };
+				}
+
+				PopScope();
+
+				return multi;
+			}
+		}
+
+		if (m_context->options.reduceLoopsToWhile)
+		{
+			PushScope();
+
+			auto multi = std::make_unique<MultiStatement>();
+
+			// Counter variable
+			auto counterVariable = ShaderBuilder::DeclareVariable(node.varName, std::move(fromExpr));
+			Validate(*counterVariable);
+
+			std::size_t counterVarIndex = counterVariable->varIndex.value();
+			multi->statements.emplace_back(std::move(counterVariable));
+
+			// Target variable
+			auto targetVariable = ShaderBuilder::DeclareVariable("to", std::move(toExpr));
+			Validate(*targetVariable);
+
+			std::size_t targetVarIndex = targetVariable->varIndex.value();
+			multi->statements.emplace_back(std::move(targetVariable));
+
+			// Step variable
+			std::optional<std::size_t> stepVarIndex;
+
+			if (stepExpr)
+			{
+				auto stepVariable = ShaderBuilder::DeclareVariable("step", std::move(stepExpr));
+				Validate(*stepVariable);
+
+				stepVarIndex = stepVariable->varIndex;
+				multi->statements.emplace_back(std::move(stepVariable));
+			}
+
+			// While
+			auto whileStatement = std::make_unique<WhileStatement>();
+			whileStatement->unroll = std::move(unrollValue);
+
+			// While condition
+			auto condition = ShaderBuilder::Binary(BinaryType::CompLt, ShaderBuilder::Variable(counterVarIndex, fromType), ShaderBuilder::Variable(targetVarIndex, fromType));
+			Validate(*condition);
+
+			whileStatement->condition = std::move(condition);
+
+			// While body
+			auto body = std::make_unique<MultiStatement>();
+			body->statements.reserve(2);
+
+			body->statements.emplace_back(CloneStatement(node.statement));
+
+			ExpressionPtr incrExpr;
+			if (stepVarIndex)
+				incrExpr = ShaderBuilder::Variable(*stepVarIndex, fromType);
+			else
+				incrExpr = (fromType == PrimitiveType::Int32) ? ShaderBuilder::Constant(1) : ShaderBuilder::Constant(1u);
+
+			auto incrCounter = ShaderBuilder::Assign(AssignType::CompoundAdd, ShaderBuilder::Variable(counterVarIndex, fromType), std::move(incrExpr));
+			Validate(*incrCounter);
+
+			body->statements.emplace_back(ShaderBuilder::ExpressionStatement(std::move(incrCounter)));
+
+			whileStatement->body = std::move(body);
+
+			multi->statements.emplace_back(std::move(whileStatement));
+
+			PopScope();
+
+			return multi;
+		}
+		else
+		{
+			auto clone = std::make_unique<ForStatement>();
+			clone->fromExpr = std::move(fromExpr);
+			clone->stepExpr = std::move(stepExpr);
+			clone->toExpr = std::move(toExpr);
+			clone->varName = node.varName;
+			clone->unroll = std::move(unrollValue);
+
+			PushScope();
+			{
+				clone->varIndex = RegisterVariable(node.varName, fromExprType);
+				clone->statement = CloneStatement(node.statement);
+			}
+			PopScope();
+
+			SanitizeIdentifier(clone->varName);
+
+			return clone;
+		}
+	}
+
 	StatementPtr SanitizeVisitor::Clone(ForEachStatement& node)
 	{
-		auto expr = CloneExpression(node.expression);
+		auto expr = CloneExpression(MandatoryExpr(node.expression));
+
+		if (node.varName.empty())
+			throw AstError{ "for-each variable name cannot be empty"};
 
 		const ExpressionType& exprType = GetExpressionType(*expr);
 		ExpressionType innerType;
@@ -849,6 +1043,8 @@ namespace Nz::ShaderAst
 			unrollValue = ComputeAttributeValue(node.unroll);
 			if (unrollValue.GetResultingValue() == LoopUnroll::Always)
 			{
+				PushScope();
+
 				// Repeat code
 				auto multi = std::make_unique<MultiStatement>();
 				if (IsArrayType(exprType))
@@ -868,6 +1064,8 @@ namespace Nz::ShaderAst
 						multi->statements.emplace_back(CloneStatement(node.statement));
 					}
 				}
+
+				PopScope();
 
 				return multi;
 			}
@@ -943,7 +1141,7 @@ namespace Nz::ShaderAst
 			}
 			PopScope();
 
-			SanitizeIdentifier(node.varName);
+			SanitizeIdentifier(clone->varName);
 
 			return clone;
 		}

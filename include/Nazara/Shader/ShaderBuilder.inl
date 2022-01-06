@@ -269,6 +269,29 @@ namespace Nz::ShaderBuilder
 		return expressionStatementNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::ForStatement> Nz::ShaderBuilder::Impl::For::operator()(std::string varName, ShaderAst::ExpressionPtr fromExpression, ShaderAst::ExpressionPtr toExpression, ShaderAst::StatementPtr statement) const
+	{
+		auto forNode = std::make_unique<ShaderAst::ForStatement>();
+		forNode->fromExpr = std::move(fromExpression);
+		forNode->statement = std::move(statement);
+		forNode->toExpr = std::move(toExpression);
+		forNode->varName = std::move(varName);
+
+		return forNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::ForStatement> Nz::ShaderBuilder::Impl::For::operator()(std::string varName, ShaderAst::ExpressionPtr fromExpression, ShaderAst::ExpressionPtr toExpression, ShaderAst::ExpressionPtr stepExpression, ShaderAst::StatementPtr statement) const
+	{
+		auto forNode = std::make_unique<ShaderAst::ForStatement>();
+		forNode->fromExpr = std::move(fromExpression);
+		forNode->statement = std::move(statement);
+		forNode->stepExpr = std::move(stepExpression);
+		forNode->toExpr = std::move(toExpression);
+		forNode->varName = std::move(varName);
+
+		return forNode;
+	}
+
 	std::unique_ptr<ShaderAst::ForEachStatement> Impl::ForEach::operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const
 	{
 		auto forEachNode = std::make_unique<ShaderAst::ForEachStatement>();

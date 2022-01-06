@@ -390,41 +390,6 @@ namespace Nz
 		AppendLine((forward) ? ");" : ")");
 	}
 
-	void GlslWriter::AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers)
-	{
-		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
-
-		assert((*memberIndices)->GetType() == ShaderAst::NodeType::ConstantValueExpression);
-		auto& constantValue = static_cast<ShaderAst::ConstantValueExpression&>(**memberIndices);
-		Int32 index = std::get<Int32>(constantValue.value);
-		assert(index >= 0);
-
-		auto it = structDesc->members.begin();
-		for (; it != structDesc->members.end(); ++it)
-		{
-			const auto& member = *it;
-			if (member.cond.HasValue() && !member.cond.GetResultingValue())
-				continue;
-
-			if (index == 0)
-				break;
-
-			index--;
-		}
-
-		assert(it != structDesc->members.end());
-		const auto& member = *it;
-
-		Append(".");
-		Append(member.name);
-
-		if (remainingMembers > 1)
-		{
-			assert(IsStructType(member.type));
-			AppendField(std::get<ShaderAst::StructType>(member.type).structIndex, memberIndices + 1, remainingMembers - 1);
-		}
-	}
-	
 	void GlslWriter::AppendHeader()
 	{
 		unsigned int glslVersion;
@@ -734,24 +699,30 @@ namespace Nz
 			Append(")");
 	}
 
+	void GlslWriter::Visit(ShaderAst::AccessIdentifierExpression& node)
+	{
+		Visit(node.expr, true);
+
+		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
+		assert(IsStructType(exprType));
+
+		for (const std::string& identifier : node.identifiers)
+			Append(".", identifier);
+	}
+
 	void GlslWriter::Visit(ShaderAst::AccessIndexExpression& node)
 	{
 		Visit(node.expr, true);
 
 		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
+		assert(!IsStructType(exprType));
 
-		// For structs, convert indices to field names
-		if (IsStructType(exprType))
-			AppendField(std::get<ShaderAst::StructType>(exprType).structIndex, node.indices.data(), node.indices.size());
-		else
+		// Array access
+		for (ShaderAst::ExpressionPtr& expr : node.indices)
 		{
-			// Array access
-			for (ShaderAst::ExpressionPtr& expr : node.indices)
-			{
-				Append("[");
-				Visit(expr);
-				Append("]");
-			}
+			Append("[");
+			Visit(expr);
+			Append("]");
 		}
 	}
 

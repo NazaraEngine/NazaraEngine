@@ -45,6 +45,7 @@ namespace Nz
 			struct LayoutAttribute;
 			struct LocationAttribute;
 			struct SetAttribute;
+			struct UnrollAttribute;
 
 			void Append(const ShaderAst::ArrayType& type);
 			void Append(const ShaderAst::ExpressionType& type);
@@ -68,9 +69,9 @@ namespace Nz
 			void AppendAttribute(EntryAttribute entry);
 			void AppendAttribute(LayoutAttribute layout);
 			void AppendAttribute(LocationAttribute location);
-			void AppendAttribute(SetAttribute location);
+			void AppendAttribute(SetAttribute set);
+			void AppendAttribute(UnrollAttribute unroll);
 			void AppendCommentSection(const std::string& section);
-			void AppendField(std::size_t structIndex, const ShaderAst::ExpressionPtr* memberIndices, std::size_t remainingMembers);
 			void AppendHeader();
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
@@ -85,6 +86,7 @@ namespace Nz
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
+			void Visit(ShaderAst::AccessIdentifierExpression& node) override;
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
@@ -107,6 +109,7 @@ namespace Nz
 			void Visit(ShaderAst::DeclareVariableStatement& node) override;
 			void Visit(ShaderAst::DiscardStatement& node) override;
 			void Visit(ShaderAst::ExpressionStatement& node) override;
+			void Visit(ShaderAst::ForStatement& node) override;
 			void Visit(ShaderAst::ForEachStatement& node) override;
 			void Visit(ShaderAst::MultiStatement& node) override;
 			void Visit(ShaderAst::NoOpStatement& node) override;

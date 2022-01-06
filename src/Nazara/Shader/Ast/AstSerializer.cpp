@@ -301,6 +301,16 @@ namespace Nz::ShaderAst
 		Node(node.expression);
 	}
 
+	void AstSerializerBase::Serialize(ForStatement& node)
+	{
+		Attribute(node.unroll);
+		Value(node.varName);
+		Node(node.fromExpr);
+		Node(node.toExpr);
+		Node(node.stepExpr);
+		Node(node.statement);
+	}
+
 	void AstSerializerBase::Serialize(ForEachStatement& node)
 	{
 		Attribute(node.unroll);

@@ -161,6 +161,21 @@ namespace Nz::ShaderAst
 		node.expression->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(ForStatement& node)
+	{
+		if (node.fromExpr)
+			node.fromExpr->Visit(*this);
+
+		if (node.toExpr)
+			node.toExpr->Visit(*this);
+
+		if (node.stepExpr)
+			node.stepExpr->Visit(*this);
+
+		if (node.statement)
+			node.statement->Visit(*this);
+	}
+
 	void AstRecursiveVisitor::Visit(ForEachStatement& node)
 	{
 		if (node.expression)

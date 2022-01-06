@@ -113,7 +113,7 @@ namespace Nz::ShaderLang
 					if (next == '>')
 					{
 						currentPos++;
-						tokenType = TokenType::FunctionReturn;
+						tokenType = TokenType::Arrow;
 						break;
 					}
 					else if (next == '=')
