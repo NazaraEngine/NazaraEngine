@@ -31,7 +31,7 @@ namespace Nz
 			~SpriteChainRenderer() = default;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
 			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
 			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
 

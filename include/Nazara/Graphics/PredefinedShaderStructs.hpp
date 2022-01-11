@@ -15,7 +15,7 @@ namespace Nz
 {
 	struct NAZARA_GRAPHICS_API PredefinedLightData
 	{
-		struct InnerStruct
+		struct Light
 		{
 			std::size_t type;
 			std::size_t color;
@@ -24,15 +24,18 @@ namespace Nz
 			std::size_t parameter2;
 			std::size_t parameter3;
 			std::size_t shadowMappingFlag;
-			std::size_t totalSize;
 		};
 
-		InnerStruct innerOffsets;
-		std::array<std::size_t, 3> lightArray;
-		std::size_t lightArraySize;
+		std::size_t lightsOffset;
+		std::size_t lightCountOffset;
+		std::size_t lightSize;
+		std::size_t totalSize;
+		Light lightMemberOffsets;
+
+		static constexpr std::size_t MaxLightCount = 3;
 
 		static PredefinedLightData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock();
+		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages);
 	};
 
 	struct NAZARA_GRAPHICS_API PredefinedInstanceData

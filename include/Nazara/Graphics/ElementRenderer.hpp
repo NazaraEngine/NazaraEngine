@@ -16,6 +16,7 @@
 
 namespace Nz
 {
+	class AbstractBuffer;
 	class CommandBufferBuilder;
 	class RenderElement;
 	class RenderFrame;
@@ -25,13 +26,20 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ElementRenderer
 	{
 		public:
+			struct RenderStates;
+
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
-			virtual void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount);
+			virtual void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount);
 			virtual void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) = 0;
 			virtual void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
+
+			struct RenderStates
+			{
+				std::shared_ptr<AbstractBuffer> lightData;
+			};
 	};
 
 	struct NAZARA_GRAPHICS_API ElementRendererData

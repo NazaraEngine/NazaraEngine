@@ -801,6 +801,25 @@ namespace Nz
 				break;
 			}
 
+			case ShaderAst::IntrinsicType::Normalize:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
+				assert(IsVectorType(vecExprType));
+
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
+				UInt32 typeId = m_writer.GetTypeId(vecType);
+
+				UInt32 vec = EvaluateExpression(node.parameters[0]);
+
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Normalize, vec);
+				PushResultId(resultId);
+				break;
+			}
+
 			case ShaderAst::IntrinsicType::Pow:
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
@@ -814,6 +833,23 @@ namespace Nz
 				UInt32 resultId = m_writer.AllocateResultId();
 
 				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Pow, firstParam, secondParam);
+				PushResultId(resultId);
+				break;
+			}
+
+			case ShaderAst::IntrinsicType::Reflect:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
+				assert(IsVectorType(parameterType));
+				UInt32 typeId = m_writer.GetTypeId(parameterType);
+
+				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
+				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Reflect, firstParam, secondParam);
 				PushResultId(resultId);
 				break;
 			}

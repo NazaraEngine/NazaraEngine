@@ -108,6 +108,7 @@ namespace Nz
 
 			std::size_t m_depthPassIndex;
 			std::size_t m_forwardPassIndex;
+			std::shared_ptr<AbstractBuffer> m_lightDataBuffer;
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
 			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;

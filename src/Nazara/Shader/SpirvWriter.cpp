@@ -356,7 +356,9 @@ namespace Nz
 						case ShaderAst::IntrinsicType::Length:
 						case ShaderAst::IntrinsicType::Max:
 						case ShaderAst::IntrinsicType::Min:
+						case ShaderAst::IntrinsicType::Normalize:
 						case ShaderAst::IntrinsicType::Pow:
+						case ShaderAst::IntrinsicType::Reflect:
 							extInsts.emplace("GLSL.std.450");
 							break;
 
