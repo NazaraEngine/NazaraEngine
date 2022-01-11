@@ -57,10 +57,6 @@ namespace Nz
 				std::array<std::shared_ptr<Texture>, ImageTypeCount> whiteTextures;
 			};
 
-			static void FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
-			static void FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
-			static void FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set);
-
 		private:
 			void BuildBlitPipeline();
 			void BuildDefaultTextures();

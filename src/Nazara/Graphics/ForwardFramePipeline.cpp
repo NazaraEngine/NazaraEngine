@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
@@ -35,6 +36,23 @@ namespace Nz
 		m_elementRenderers.resize(BasicRenderElementCount);
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::SpriteChain)] = std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice());
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
+
+		auto lightOffset = PredefinedLightData::GetOffsets();
+
+		m_lightDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
+		if (!m_lightDataBuffer->Initialize(lightOffset.totalSize, BufferUsage::DeviceLocal))
+			throw std::runtime_error("failed to create light data buffer");
+
+		std::vector<UInt8> staticLightData(lightOffset.totalSize);
+		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
+		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 0;
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, -1.f, 1.f);
+		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;
+
+		if (!m_lightDataBuffer->Fill(staticLightData.data(), 0, staticLightData.size()))
+			throw std::runtime_error("failed to fill light data buffer");
 	}
 
 	void ForwardFramePipeline::InvalidateViewer(AbstractViewer* viewerInstance)
@@ -320,16 +338,19 @@ namespace Nz
 
 			const auto& viewerInstance = viewer->GetViewerInstance();
 
+			ElementRenderer::RenderStates renderStates;
+			renderStates.lightData = m_lightDataBuffer;
+
 			ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elements, elementCount);
+				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, renderStates, elements, elementCount);
 			});
 
 			ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elements, elementCount);
+				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, renderStates, elements, elementCount);
 			});
 		}
 

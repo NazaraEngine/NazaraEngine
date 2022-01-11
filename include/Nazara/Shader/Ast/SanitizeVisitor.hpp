@@ -40,6 +40,7 @@ namespace Nz::ShaderAst
 				std::unordered_set<std::string> reservedIdentifiers;
 				std::unordered_map<std::size_t, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;
+				bool removeConstDeclaration = false;
 				bool reduceLoopsToWhile = false;
 				bool removeCompoundAssignments = false;
 				bool removeOptionDeclaration = false;

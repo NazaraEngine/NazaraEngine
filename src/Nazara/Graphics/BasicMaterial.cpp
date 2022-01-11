@@ -25,30 +25,37 @@ namespace Nz
 	}
 
 	BasicMaterial::BasicMaterial(MaterialPass& material) :
-	m_material(material)
+	BasicMaterial(material, NoInit{})
 	{
 		// Most common case: don't fetch texture indexes as a little optimization
 		const std::shared_ptr<const MaterialSettings>& materialSettings = material.GetSettings();
-		if (materialSettings == s_materialSettings)
+		if (materialSettings == s_basicMaterialSettings)
 		{
-			m_optionIndexes = s_optionIndexes;
-			m_textureIndexes = s_textureIndexes;
+			m_basicOptionIndexes = s_basicOptionIndexes;
+			m_basicTextureIndexes = s_basicTextureIndexes;
 			m_uniformBlockIndex = s_uniformBlockIndex;
-			m_uniformOffsets = s_uniformOffsets;
+			m_basicUniformOffsets = s_basicUniformOffsets;
 		}
 		else
 		{
-			m_optionIndexes.alphaTest = materialSettings->GetOptionIndex("AlphaTest");
-			m_optionIndexes.hasAlphaMap = materialSettings->GetOptionIndex("HasAlphaMap");
-			m_optionIndexes.hasDiffuseMap = materialSettings->GetOptionIndex("HasDiffuseMap");
+			m_basicOptionIndexes.alphaTest = materialSettings->GetOptionIndex("AlphaTest");
+			m_basicOptionIndexes.hasAlphaMap = materialSettings->GetOptionIndex("HasAlphaMap");
+			m_basicOptionIndexes.hasDiffuseMap = materialSettings->GetOptionIndex("HasDiffuseMap");
 
-			m_textureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
-			m_textureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
+			m_basicTextureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
+			m_basicTextureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
 
-			m_uniformBlockIndex = materialSettings->GetUniformBlockIndex("BasicSettings");
-
-			m_uniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "AlphaThreshold");
-			m_uniformOffsets.diffuseColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "DiffuseColor");
+			m_uniformBlockIndex = materialSettings->GetUniformBlockIndex("MaterialSettings");
+			if (m_uniformBlockIndex != MaterialSettings::InvalidIndex)
+			{
+				m_basicUniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "AlphaThreshold");
+				m_basicUniformOffsets.diffuseColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "DiffuseColor");
+			}
+			else
+			{
+				m_basicUniformOffsets.alphaThreshold = MaterialSettings::InvalidIndex;
+				m_basicUniformOffsets.diffuseColor = MaterialSettings::InvalidIndex;
+			}
 		}
 	}
 
@@ -58,7 +65,7 @@ namespace Nz
 
 		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_uniformBlockIndex);
 
-		return AccessByOffset<const float&>(bufferData.data(), m_uniformOffsets.alphaThreshold);
+		return AccessByOffset<const float&>(bufferData.data(), m_basicUniformOffsets.alphaThreshold);
 	}
 
 	Color BasicMaterial::GetDiffuseColor() const
@@ -67,7 +74,7 @@ namespace Nz
 
 		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_uniformBlockIndex);
 
-		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_uniformOffsets.diffuseColor);
+		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_basicUniformOffsets.diffuseColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
@@ -76,7 +83,7 @@ namespace Nz
 		NazaraAssert(HasAlphaTestThreshold(), "Material has no alpha threshold uniform");
 
 		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_uniformBlockIndex);
-		AccessByOffset<float&>(bufferData.data(), m_uniformOffsets.alphaThreshold) = alphaThreshold;
+		AccessByOffset<float&>(bufferData.data(), m_basicUniformOffsets.alphaThreshold) = alphaThreshold;
 	}
 
 	void BasicMaterial::SetDiffuseColor(const Color& diffuse)
@@ -85,44 +92,45 @@ namespace Nz
 
 		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_uniformBlockIndex);
 
-		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_uniformOffsets.diffuseColor);
+		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_basicUniformOffsets.diffuseColor);
 		colorPtr[0] = diffuse.r / 255.f;
 		colorPtr[1] = diffuse.g / 255.f;
 		colorPtr[2] = diffuse.b / 255.f;
 		colorPtr[3] = diffuse.a / 255.f;
 	}
 
-	MaterialSettings::Builder BasicMaterial::Build(const UniformOffsets& offsets, std::vector<UInt8> defaultValues, std::vector<std::shared_ptr<UberShader>> uberShaders, std::size_t* uniformBlockIndex, OptionIndexes* optionIndexes, TextureIndexes* textureIndexes)
+	MaterialSettings::Builder BasicMaterial::Build(BasicBuildOptions& options)
 	{
 		MaterialSettings::Builder settings;
 
 		std::vector<MaterialSettings::UniformVariable> variables;
-		if (offsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
+		if (options.basicOffsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
 		{
 			variables.push_back({
 				"AlphaThreshold",
-				offsets.alphaThreshold
+				options.basicOffsets.alphaThreshold
 			});
 		}
 
-		if (offsets.diffuseColor != std::numeric_limits<std::size_t>::max())
+		if (options.basicOffsets.diffuseColor != std::numeric_limits<std::size_t>::max())
 		{
 			variables.push_back({
 				"DiffuseColor",
-				offsets.diffuseColor
+				options.basicOffsets.diffuseColor
 			});
 		}
 
-		if (offsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
-			AccessByOffset<float&>(defaultValues.data(), offsets.alphaThreshold) = 0.2f;
-
 		static_assert(sizeof(Vector4f) == 4 * sizeof(float), "Vector4f is expected to be exactly 4 floats wide");
-		if (offsets.diffuseColor != std::numeric_limits<std::size_t>::max())
-			AccessByOffset<Vector4f&>(defaultValues.data(), offsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
+
+		if (options.basicOffsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
+			AccessByOffset<float&>(options.defaultValues.data(), options.basicOffsets.alphaThreshold) = 0.2f;
+
+		if (options.basicOffsets.diffuseColor != std::numeric_limits<std::size_t>::max())
+			AccessByOffset<Vector4f&>(options.defaultValues.data(), options.basicOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 
 		// Textures
-		if (textureIndexes)
-			textureIndexes->alpha = settings.textures.size();
+		if (options.basicTextureIndexes)
+			options.basicTextureIndexes->alpha = settings.textures.size();
 
 		settings.textures.push_back({
 			2,
@@ -130,8 +138,8 @@ namespace Nz
 			ImageType::E2D
 		});
 
-		if (textureIndexes)
-			textureIndexes->diffuse = settings.textures.size();
+		if (options.basicTextureIndexes)
+			options.basicTextureIndexes->diffuse = settings.textures.size();
 
 		settings.textures.push_back({
 			1,
@@ -139,15 +147,15 @@ namespace Nz
 			ImageType::E2D
 		});
 
-		if (uniformBlockIndex)
-			*uniformBlockIndex = settings.uniformBlocks.size();
+		if (options.uniformBlockIndex)
+			*options.uniformBlockIndex = settings.uniformBlocks.size();
 
 		settings.uniformBlocks.push_back({
 			0,
-			"BasicSettings",
-			offsets.totalSize,
+			"MaterialSettings",
+			options.basicOffsets.totalSize,
 			std::move(variables),
-			std::move(defaultValues)
+			options.defaultValues
 		});
 
 		// Common data
@@ -164,7 +172,7 @@ namespace Nz
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::OverlayTexture)] = 3;
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::ViewerDataUbo)] = 5;
 
-		settings.shaders = std::move(uberShaders);
+		settings.shaders = options.shaders;
 
 		for (std::shared_ptr<UberShader> uberShader : settings.shaders)
 		{
@@ -230,20 +238,20 @@ namespace Nz
 		// Options
 
 		// HasDiffuseMap
-		if (optionIndexes)
-			optionIndexes->hasDiffuseMap = settings.options.size();
+		if (options.basicOptionIndexes)
+			options.basicOptionIndexes->hasDiffuseMap = settings.options.size();
 
 		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasDiffuseMap", "HasDiffuseTexture");
 
 		// HasAlphaMap
-		if (optionIndexes)
-			optionIndexes->hasAlphaMap = settings.options.size();
+		if (options.basicOptionIndexes)
+			options.basicOptionIndexes->hasAlphaMap = settings.options.size();
 
 		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasAlphaMap", "HasAlphaTexture");
 
 		// AlphaTest
-		if (optionIndexes)
-			optionIndexes->alphaTest = settings.options.size();
+		if (options.basicOptionIndexes)
+			options.basicOptionIndexes->alphaTest = settings.options.size();
 
 		MaterialSettings::BuildOption(settings.options, settings.shaders, "AlphaTest", "AlphaTest");
 
@@ -258,36 +266,46 @@ namespace Nz
 		return { std::move(shader) };
 	}
 
-	auto BasicMaterial::BuildUniformOffsets() -> std::pair<UniformOffsets, FieldOffsets>
+	auto BasicMaterial::BuildUniformOffsets() -> std::pair<BasicUniformOffsets, FieldOffsets>
 	{
 		FieldOffsets fieldOffsets(StructLayout::Std140);
 
-		UniformOffsets uniformOffsets;
+		BasicUniformOffsets uniformOffsets;
 		uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType::Float1);
 		uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType::Float4);
-		uniformOffsets.totalSize = fieldOffsets.GetSize();
+		uniformOffsets.totalSize = fieldOffsets.GetAlignedSize();
 
 		return std::make_pair(std::move(uniformOffsets), std::move(fieldOffsets));
 	}
 
 	bool BasicMaterial::Initialize()
 	{
-		std::tie(s_uniformOffsets, std::ignore) = BuildUniformOffsets();
+		std::tie(s_basicUniformOffsets, std::ignore) = BuildUniformOffsets();
 
-		std::vector<UInt8> defaultValues(s_uniformOffsets.totalSize);
-		s_materialSettings = std::make_shared<MaterialSettings>(Build(s_uniformOffsets, std::move(defaultValues), BuildShaders(), &s_uniformBlockIndex, &s_optionIndexes, &s_textureIndexes));
+		std::vector<UInt8> defaultValues(s_basicUniformOffsets.totalSize);
+
+		BasicBuildOptions options;
+		options.defaultValues.resize(s_basicUniformOffsets.totalSize);
+		options.shaders = BuildShaders();
+
+		options.basicOffsets = s_basicUniformOffsets;
+		options.basicOptionIndexes = &s_basicOptionIndexes;
+		options.basicTextureIndexes = &s_basicTextureIndexes;
+		options.uniformBlockIndex = &s_uniformBlockIndex;
+
+		s_basicMaterialSettings = std::make_shared<MaterialSettings>(Build(options));
 
 		return true;
 	}
 
 	void BasicMaterial::Uninitialize()
 	{
-		s_materialSettings.reset();
+		s_basicMaterialSettings.reset();
 	}
 
-	std::shared_ptr<MaterialSettings> BasicMaterial::s_materialSettings;
+	std::shared_ptr<MaterialSettings> BasicMaterial::s_basicMaterialSettings;
 	std::size_t BasicMaterial::s_uniformBlockIndex;
-	BasicMaterial::OptionIndexes BasicMaterial::s_optionIndexes;
-	BasicMaterial::TextureIndexes BasicMaterial::s_textureIndexes;
-	BasicMaterial::UniformOffsets BasicMaterial::s_uniformOffsets;
+	BasicMaterial::BasicOptionIndexes BasicMaterial::s_basicOptionIndexes;
+	BasicMaterial::BasicTextureIndexes BasicMaterial::s_basicTextureIndexes;
+	BasicMaterial::BasicUniformOffsets BasicMaterial::s_basicUniformOffsets;
 }

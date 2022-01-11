@@ -945,8 +945,16 @@ namespace Nz
 				Append("min");
 				break;
 
+			case ShaderAst::IntrinsicType::Normalize:
+				Append("normalize");
+				break;
+
 			case ShaderAst::IntrinsicType::Pow:
 				Append("pow");
+				break;
+
+			case ShaderAst::IntrinsicType::Reflect:
+				Append("reflect");
 				break;
 
 			case ShaderAst::IntrinsicType::SampleTexture:

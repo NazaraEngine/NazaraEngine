@@ -8,6 +8,11 @@
 
 namespace Nz
 {
+	inline const Vector3f& ViewerInstance::GetEyePosition() const
+	{
+		return m_eyePosition;
+	}
+
 	inline const Matrix4f& ViewerInstance::GetInvProjectionMatrix() const
 	{
 		return m_invProjectionMatrix;
@@ -51,6 +56,12 @@ namespace Nz
 	inline const std::shared_ptr<AbstractBuffer>& ViewerInstance::GetViewerBuffer() const
 	{
 		return m_viewerDataBuffer;
+	}
+
+	inline void ViewerInstance::UpdateEyePosition(const Vector3f& eyePosition)
+	{
+		m_eyePosition = eyePosition;
+		m_dataInvalided = true;
 	}
 
 	inline void ViewerInstance::UpdateProjectionMatrix(const Matrix4f& projectionMatrix)

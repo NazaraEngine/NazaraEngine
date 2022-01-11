@@ -74,7 +74,9 @@ namespace Nz::ShaderAst
 			RegisterIntrinsic("length", IntrinsicType::Length);
 			RegisterIntrinsic("max", IntrinsicType::Max);
 			RegisterIntrinsic("min", IntrinsicType::Min);
+			RegisterIntrinsic("normalize", IntrinsicType::Normalize);
 			RegisterIntrinsic("pow", IntrinsicType::Pow);
+			RegisterIntrinsic("reflect", IntrinsicType::Reflect);
 
 			// Collect function name and their types
 			if (statement.GetType() == NodeType::MultiStatement)
@@ -152,7 +154,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr SanitizeVisitor::Clone(AccessIdentifierExpression& node)
 	{
 		if (node.identifiers.empty())
-			throw AstError{ "accessIdentifierExpression must have at least one identifier" };
+			throw AstError{ "AccessIdentifierExpression must have at least one identifier" };
 
 		ExpressionPtr indexedExpr = CloneExpression(MandatoryExpr(node.expr));
 		for (const std::string& identifier : node.identifiers)
@@ -202,7 +204,7 @@ namespace Nz::ShaderAst
 					else
 						accessIdentifierPtr = static_cast<AccessIdentifierExpression*>(indexedExpr.get());
 
-					accessIdentifierPtr->identifiers.push_back(s->members[fieldIndex].name);
+					accessIdentifierPtr->identifiers.push_back(fieldPtr->name);
 					accessIdentifierPtr->cachedExpressionType = ResolveType(fieldPtr->type);
 				}
 				else
@@ -601,6 +603,9 @@ namespace Nz::ShaderAst
 		clone->type = expressionType;
 
 		clone->constIndex = RegisterConstant(clone->name, value);
+
+		if (m_context->options.removeConstDeclaration)
+			return ShaderBuilder::NoOp();
 
 		return clone;
 	}
@@ -1775,6 +1780,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::Max:
 			case IntrinsicType::Min:
 			case IntrinsicType::Pow:
+			case IntrinsicType::Reflect:
 			{
 				if (node.parameters.size() != 2)
 					throw AstError { "Expected two parameters" };
@@ -1803,6 +1809,7 @@ namespace Nz::ShaderAst
 			}
 
 			case IntrinsicType::Length:
+			case IntrinsicType::Normalize:
 			{
 				if (node.parameters.size() != 1)
 					throw AstError{ "Expected only one parameters" };
@@ -1850,9 +1857,20 @@ namespace Nz::ShaderAst
 			{
 				const ExpressionType& type = GetExpressionType(*node.parameters.front());
 				if (!IsVectorType(type))
-					throw AstError{ "DotProduct expects vector types" };
+					throw AstError{ "DotProduct expects vector types" }; //< FIXME
 
 				node.cachedExpressionType = std::get<VectorType>(type).type;
+				break;
+			}
+
+			case IntrinsicType::Normalize:
+			case IntrinsicType::Reflect:
+			{
+				const ExpressionType& type = GetExpressionType(*node.parameters.front());
+				if (!IsVectorType(type))
+					throw AstError{ "DotProduct expects vector types" }; //< FIXME
+
+				node.cachedExpressionType = type;
 				break;
 			}
 
@@ -1998,17 +2016,18 @@ namespace Nz::ShaderAst
 				case BinaryType::CompGt:
 				case BinaryType::CompLe:
 				case BinaryType::CompLt:
-				{
 					if (leftType == PrimitiveType::Boolean)
 						throw AstError{ "this operation is not supported for booleans" };
 
+					[[fallthrough]];
+				case BinaryType::CompEq:
+				case BinaryType::CompNe:
+				{
 					TypeMustMatch(leftExpr, rightExpr);
 					return PrimitiveType::Boolean;
 				}
 
 				case BinaryType::Add:
-				case BinaryType::CompEq:
-				case BinaryType::CompNe:
 				case BinaryType::Subtract:
 					TypeMustMatch(leftExpr, rightExpr);
 					return leftExprType;

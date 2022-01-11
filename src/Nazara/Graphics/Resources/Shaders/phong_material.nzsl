@@ -1,6 +1,15 @@
+// Basic material options
 option HasDiffuseTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
+
+// Phong material options
+option HasEmissiveTexture: bool = false;
+option HasHeightTexture: bool = false;
+option HasNormalTexture: bool = false;
+option HasSpecularTexture: bool = false;
+
+option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
 
 // Billboard related options
 option Billboard: bool = false;
@@ -10,9 +19,11 @@ option BillboardSizeRotLocation: i32 = -1;
 
 // Vertex declaration related options
 option ColorLocation: i32 = -1;
+option NormalLocation: i32 = -1;
 option PosLocation: i32 = -1;
 option UvLocation: i32 = -1;
 
+const HasNormal = (NormalLocation >= 0);
 const HasVertexColor = (ColorLocation >= 0);
 const HasColor = (HasVertexColor || Billboard);
 const HasUV = (UvLocation >= 0);
@@ -20,8 +31,14 @@ const HasUV = (UvLocation >= 0);
 [layout(std140)]
 struct MaterialSettings
 {
+	// BasicSettings
 	AlphaThreshold: f32,
-	DiffuseColor: vec4<f32>
+	DiffuseColor: vec4<f32>,
+
+	// PhongSettings
+	AmbientColor: vec3<f32>,
+	SpecularColor: vec3<f32>,
+	Shininess: f32,
 }
 
 [layout(std140)]
@@ -29,6 +46,30 @@ struct InstanceData
 {
 	worldMatrix: mat4<f32>,
 	invWorldMatrix: mat4<f32>
+}
+
+// TODO: Add enums
+const DirectionalLight = 0;
+const PointLight = 1;
+const SpotLight = 2;
+
+[layout(std140)]
+struct Light
+{
+	type: i32,
+	color: vec4<f32>,
+	factor: vec2<f32>,
+	parameter1: vec4<f32>,
+	parameter2: vec4<f32>,
+	parameter3: vec4<f32>,
+	hasShadowMapping: bool
+}
+
+[layout(std140)]
+struct LightData
+{
+	lights: [Light; MaxLightCount],
+	lightCount: u32,
 }
 
 [layout(std140)]
@@ -53,13 +94,20 @@ external
 	[binding(3)] TextureOverlay: sampler2D<f32>,
 	[binding(4)] instanceData: uniform<InstanceData>,
 	[binding(5)] viewerData: uniform<ViewerData>,
+	[binding(6)] lightData: uniform<LightData>,
+	[binding(7)] MaterialEmissiveMap: sampler2D<f32>,
+	[binding(8)] MaterialHeightMap: sampler2D<f32>,
+	[binding(9)] MaterialNormalMap: sampler2D<f32>,
+	[binding(10)] MaterialSpecularMap: sampler2D<f32>,
 }
 
 // Fragment stage
 struct FragIn
 {
-	[location(0), cond(HasUV)] uv: vec2<f32>,
-	[location(1), cond(HasColor)] color: vec4<f32>
+	[location(0)] worldPos: vec3<f32>,
+	[location(1), cond(HasUV)] uv: vec2<f32>,
+	[location(2), cond(HasColor)] color: vec4<f32>,
+	[location(3), cond(HasNormal)] normal: vec3<f32>,
 }
 
 struct FragOut
@@ -90,9 +138,65 @@ fn main(input: FragIn) -> FragOut
 			discard;
 	}
 
-	let output: FragOut;
-	output.RenderTarget0 = diffuseColor;
-	return output;
+	const if (HasNormal)
+	{
+		let lightAmbient = vec3<f32>(0.0, 0.0, 0.0);
+		let lightDiffuse = vec3<f32>(0.0, 0.0, 0.0);
+		let lightSpecular = vec3<f32>(0.0, 0.0, 0.0);
+
+		let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
+
+		for i in 0 -> lightData.lightCount
+		{
+			let light = lightData.lights[i];
+
+			let lightAmbientFactor = light.factor.x;
+			let lightDiffuseFactor = light.factor.y;
+
+			// TODO: Add switch instruction
+			if (light.type == DirectionalLight)
+			{
+				let lightDir = -(light.parameter1.xyz); //< FIXME
+
+				lightAmbient += light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+
+				let lambert = max(dot(input.normal, lightDir), 0.0);
+
+				lightDiffuse += lambert * light.color.rgb * lightDiffuseFactor;
+
+				let reflection = reflect(-lightDir, input.normal);
+				let specFactor = max(dot(reflection, eyeVec), 0.0);
+				specFactor = pow(specFactor, settings.Shininess);
+
+				lightSpecular += specFactor * light.color.rgb;
+			}
+			else if (light.type == PointLight)
+			{
+	
+			}
+			else if (light.type == SpotLight)
+			{
+	
+			}
+		}
+
+		lightSpecular *= settings.SpecularColor;
+
+		const if (HasSpecularTexture)
+			lightSpecular *= MaterialSpecularMap.Sample(input.uv).rgb;
+
+		let lightColor = lightAmbient + lightDiffuse + lightSpecular;
+
+		let output: FragOut;
+		output.RenderTarget0 = vec4<f32>(lightColor, 1.0) * diffuseColor;
+		return output;	
+	}
+	else
+	{
+		let output: FragOut;
+		output.RenderTarget0 = diffuseColor.w;
+		return output;	
+	}
 }
 
 // Vertex stage
@@ -107,6 +211,9 @@ struct VertIn
 	[cond(HasUV), location(UvLocation)] 
 	uv: vec2<f32>,
 
+	[cond(HasNormal), location(NormalLocation)]
+	normal: vec3<f32>,
+
 	[cond(Billboard), location(BillboardCenterLocation)]
 	billboardCenter: vec3<f32>,
 
@@ -119,9 +226,11 @@ struct VertIn
 
 struct VertOut
 {
-	[location(0), cond(HasUV)] uv: vec2<f32>,
-	[location(1), cond(HasColor)] color: vec4<f32>,
-	[builtin(position)] position: vec4<f32>
+	[location(0)] worldPos: vec3<f32>,
+	[location(1), cond(HasUV)] uv: vec2<f32>,
+	[location(2), cond(HasColor)] color: vec4<f32>,
+	[location(3), cond(HasNormal)] normal: vec3<f32>,
+	[builtin(position)] position: vec4<f32>,
 }
 
 [entry(vert), cond(Billboard)]
@@ -158,11 +267,17 @@ fn billboardMain(input: VertIn) -> VertOut
 [entry(vert), cond(!Billboard)]
 fn main(input: VertIn) -> VertOut
 {
+	let worldPosition = instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+
 	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+	output.worldPos = worldPosition.xyz;
+	output.position = viewerData.viewProjMatrix * worldPosition;
 
 	const if (HasColor)
 		output.color = input.color;
+
+	const if (HasNormal)
+		output.normal = input.normal;
 
 	const if (HasUV)
 		output.uv = input.uv;

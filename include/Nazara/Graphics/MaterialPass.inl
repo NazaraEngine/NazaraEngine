@@ -391,7 +391,7 @@ namespace Nz
 		return m_uniformBuffers[bufferIndex].buffer;
 	}
 
-	inline const std::vector<UInt8>& MaterialPass::GetUniformBufferConstData(std::size_t bufferIndex)
+	inline const std::vector<UInt8>& MaterialPass::GetUniformBufferConstData(std::size_t bufferIndex) const
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex].data;

@@ -103,7 +103,9 @@ namespace Nz
 			Length = 3,
 			Max = 4,
 			Min = 5,
+			Normalize = 9,
 			Pow = 6,
+			Reflect = 8,
 			SampleTexture = 2,
 		};
 

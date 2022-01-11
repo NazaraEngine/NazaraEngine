@@ -21,13 +21,13 @@ namespace Nz
 	class NAZARA_GRAPHICS_API SubmeshRenderer : public ElementRenderer
 	{
 		public:
-			SubmeshRenderer();
+			SubmeshRenderer() = default;
 			~SubmeshRenderer() = default;
 
-			std::unique_ptr<ElementRendererData> InstanciateData();
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount);
+			std::unique_ptr<ElementRendererData> InstanciateData() override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
 			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
-			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
+			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
 
 		private:
 			std::vector<ShaderBinding::Binding> m_bindingCache;

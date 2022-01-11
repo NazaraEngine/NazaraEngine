@@ -89,7 +89,7 @@ namespace Nz
 
 	inline void Sprite::UpdateVertices()
 	{
-		Boxf aabb;
+		Boxf aabb = Boxf::Zero();
 
 		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 
@@ -105,7 +105,10 @@ namespace Nz
 			vertices->position = Vector3f(m_size * cornerExtent[UnderlyingCast(corner)], 0.f) - m_origin;
 			vertices->uv = m_textureCoords.GetCorner(corner);
 
-			aabb.Set(vertices->position);
+			if (aabb.IsValid())
+				aabb.ExtendTo(vertices->position);
+			else
+				aabb.Set(vertices->position);
 
 			vertices++;
 		}

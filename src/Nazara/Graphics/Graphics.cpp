@@ -113,36 +113,6 @@ namespace Nz
 		m_defaultTextures.whiteTextures.fill(nullptr);
 	}
 
-	void Graphics::FillDrawDataPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
-	{
-		// TextureOverlay
-		layoutInfo.bindings.push_back({
-			set, 0,
-			ShaderBindingType::Texture,
-			ShaderStageType_All
-		});
-	}
-
-	void Graphics::FillViewerPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
-	{
-		// ViewerData
-		layoutInfo.bindings.push_back({
-			set, 0,
-			ShaderBindingType::UniformBuffer,
-			ShaderStageType_All
-		});
-	}
-
-	void Graphics::FillWorldPipelineLayout(RenderPipelineLayoutInfo& layoutInfo, UInt32 set)
-	{
-		// InstanceData
-		layoutInfo.bindings.push_back({
-			set, 0,
-			ShaderBindingType::UniformBuffer,
-			ShaderStageType_All
-		});
-	}
-
 	void Graphics::BuildBlitPipeline()
 	{
 		RenderPipelineLayoutInfo layoutInfo;

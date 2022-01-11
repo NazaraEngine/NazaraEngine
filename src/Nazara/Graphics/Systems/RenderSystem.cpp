@@ -156,8 +156,11 @@ namespace Nz
 			const NodeComponent& entityNode = registry.get<const NodeComponent>(entity);
 			CameraComponent& entityCamera = registry.get<CameraComponent>(entity);
 
+			Vector3f cameraPosition = entityNode.GetPosition(CoordSys::Global);
+			
 			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(entityNode.GetPosition(CoordSys::Global), entityNode.GetRotation(CoordSys::Global)));
+			viewerInstance.UpdateEyePosition(cameraPosition);
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
 
 			m_pipeline->InvalidateViewer(&entityCamera);
 		}

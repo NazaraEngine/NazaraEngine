@@ -53,7 +53,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -207,6 +207,16 @@ namespace Nz
 						bindingEntry.content = ShaderBinding::UniformBufferBinding{
 							instanceBuffer.get(),
 							0, instanceBuffer->GetSize()
+						};
+					}
+
+					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::LightDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+					{
+						auto& bindingEntry = m_bindingCache.emplace_back();
+						bindingEntry.bindingIndex = bindingIndex;
+						bindingEntry.content = ShaderBinding::UniformBufferBinding{
+							renderStates.lightData.get(),
+							0, renderStates.lightData->GetSize()
 						};
 					}
 
