@@ -9,12 +9,13 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
@@ -44,12 +45,28 @@ namespace Nz
 			throw std::runtime_error("failed to create light data buffer");
 
 		std::vector<UInt8> staticLightData(lightOffset.totalSize);
-		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
+		/*AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
 		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 0;
 		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
 		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
 		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, -1.f, 1.f);
+		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;*/
+
+		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
+		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 1;
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, 0.f, 1.f / 3.f);
 		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;
+
+		/*AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
+		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 2;
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, 0.f, 1.f / 3.f);
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter2) = Vector4f(0.f, 0.f, -1.f, 0.f);
+		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter3) = Vector4f(DegreeAnglef(15.f).GetCos(), DegreeAnglef(20.f).GetCos(), 0.f, 0.f);
+		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;*/
 
 		if (!m_lightDataBuffer->Fill(staticLightData.data(), 0, staticLightData.size()))
 			throw std::runtime_error("failed to fill light data buffer");
