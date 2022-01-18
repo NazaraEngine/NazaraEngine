@@ -1,7 +1,7 @@
 option("tests")
-    set_default(true)
-    set_showmenu(true)
-    set_description("Build unit tests")
+	set_default(false)
+	set_showmenu(true)
+	set_description("Build unit tests")
 
 option_end()
 
