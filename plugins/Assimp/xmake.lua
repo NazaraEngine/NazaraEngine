@@ -1,13 +1,22 @@
-add_requires("assimp")
+option("assimp")
+    set_default(true)
+    set_showmenu(true)
+    set_description("Build Assimp plugin")
 
-target("PluginAssimp")
-	set_kind("shared")
-	set_group("Plugins")
+option_end()
 
-	add_deps("NazaraUtility")
-	add_packages("assimp")
+if has_config("assimp") then
+	add_requires("assimp")
 
-	add_headerfiles("**.hpp")
-	add_headerfiles("**.inl")
-	add_includedirs(".")
-	add_files("**.cpp")
+	target("PluginAssimp")
+		set_kind("shared")
+		set_group("Plugins")
+
+		add_deps("NazaraUtility")
+		add_packages("assimp")
+
+		add_headerfiles("**.hpp")
+		add_headerfiles("**.inl")
+		add_includedirs(".")
+		add_files("**.cpp")
+end
