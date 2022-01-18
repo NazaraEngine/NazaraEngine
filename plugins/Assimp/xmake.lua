@@ -1,7 +1,7 @@
 option("assimp")
-    set_default(true)
-    set_showmenu(true)
-    set_description("Build Assimp plugin")
+	set_default(true)
+	set_showmenu(true)
+	set_description("Build Assimp plugin")
 
 option_end()
 
