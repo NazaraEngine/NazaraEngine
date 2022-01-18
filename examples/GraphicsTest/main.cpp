@@ -30,7 +30,7 @@ int main()
 	meshParams.center = true;
 	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -70,10 +70,13 @@ int main()
 
 	material->AddPass("ForwardPass", materialPass);
 
+	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
+
 	Nz::PhongLightingMaterial phongMat(*materialPass);
 	phongMat.EnableAlphaTest(false);
 	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	phongMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
@@ -127,6 +130,18 @@ int main()
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 						phongMat.EnableAlphaTest(!phongMat.IsAlphaTestEnabled());
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::N)
+					{
+						if (phongMat.GetNormalMap())
+							phongMat.SetNormalMap({});
+						else
+							phongMat.SetNormalMap(normalMap);
+					}
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
+					{
+						modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(viewerPos));
+						framePipeline.InvalidateWorldInstance(modelInstance.get());
+					}
 
 					break;
 

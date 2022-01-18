@@ -12,6 +12,7 @@
 #include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <cassert>
+#include <filesystem>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -259,6 +260,7 @@ namespace Nz
 			std::size_t positionLocationIndex = FetchLocationOption("PosLocation");
 			std::size_t colorLocationIndex = FetchLocationOption("ColorLocation");
 			std::size_t normalLocationIndex = FetchLocationOption("NormalLocation");
+			std::size_t tangentLocationIndex = FetchLocationOption("TangentLocation");
 			std::size_t uvLocationIndex = FetchLocationOption("UvLocation");
 
 			uberShader->UpdateConfigCallback([=](UberShader::Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
@@ -289,6 +291,12 @@ namespace Nz
 						case VertexComponent::Normal:
 							if (normalLocationIndex != InvalidOption)
 								config.optionValues[normalLocationIndex] = static_cast<Int32>(locationIndex);
+
+							break;
+
+						case VertexComponent::Tangent:
+							if (tangentLocationIndex != InvalidOption)
+								config.optionValues[tangentLocationIndex] = static_cast<Int32>(locationIndex);
 
 							break;
 
@@ -339,7 +347,26 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> PhongLightingMaterial::BuildShaders()
 	{
-		ShaderAst::StatementPtr shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+		ShaderAst::StatementPtr shaderAst;
+
+#ifdef NAZARA_DEBUG
+		std::filesystem::path shaderPath = "../../src/Nazara/Graphics/Resources/Shaders/phong_material.nzsl";
+		if (std::filesystem::exists(shaderPath))
+		{
+			try
+			{
+				shaderAst = ShaderLang::ParseFromFile(shaderPath);
+			}
+			catch (const std::exception& e)
+			{
+				NazaraError(std::string("failed to load shader from engine folder: ") + e.what());
+			}
+		}
+#endif
+
+		if (!shaderAst)
+			shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+
 		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, shaderAst);
 
 		return { std::move(shader) };
