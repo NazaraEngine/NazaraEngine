@@ -60,6 +60,7 @@ namespace Nz
 			static NAZARA_CORE_API const Color Black;
 			static NAZARA_CORE_API const Color Blue;
 			static NAZARA_CORE_API const Color Cyan;
+			static NAZARA_CORE_API const Color Gray;
 			static NAZARA_CORE_API const Color Green;
 			static NAZARA_CORE_API const Color Magenta;
 			static NAZARA_CORE_API const Color Orange;
