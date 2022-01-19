@@ -1118,6 +1118,9 @@ namespace Nz
 			bool first = true;
 			for (const auto& member : node.description.members)
 			{
+				if (member.cond.HasValue() && !member.cond.GetResultingValue())
+					continue;
+
 				if (!first)
 					AppendLine();
 

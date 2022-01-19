@@ -202,7 +202,7 @@ namespace Nz::ShaderAst
 					else
 						accessIdentifierPtr = static_cast<AccessIdentifierExpression*>(indexedExpr.get());
 
-					accessIdentifierPtr->identifiers.push_back(s->members[fieldIndex].name);
+					accessIdentifierPtr->identifiers.push_back(fieldPtr->name);
 					accessIdentifierPtr->cachedExpressionType = ResolveType(fieldPtr->type);
 				}
 				else
