@@ -57,54 +57,81 @@ namespace Nz
 	std::shared_ptr<Texture> Texture::LoadFromFile(const std::filesystem::path& filePath, const TextureParams& params)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, params);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, params);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadFromMemory(const void* data, std::size_t size, const TextureParams& params)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, params);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, params);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadFromStream(Stream& stream, const TextureParams& params)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromStream(stream, params);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, params);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadArrayFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadArrayFromFile(filePath, textureParams, atlasSize);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, textureParams);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadArrayFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadArrayFromMemory(data, size, textureParams, atlasSize);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, textureParams);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadArrayFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadArrayFromStream(stream, textureParams, atlasSize);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, textureParams);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadCubemapFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<Image> image = Image::LoadCubemapFromFile(filePath, textureParams, cubemapParams);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, textureParams);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadCubemapFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<Image> image = Image::LoadCubemapFromMemory(data, size, textureParams, cubemapParams);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, textureParams);
 	}
 
 	std::shared_ptr<Texture> Texture::LoadCubemapFromStream(Stream& stream, const TextureParams& textureParams, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<Image> image = Image::LoadCubemapFromStream(stream, textureParams, cubemapParams);
+		if (!image)
+			return {};
+
 		return CreateFromImage(*image, textureParams);
 	}
 }
