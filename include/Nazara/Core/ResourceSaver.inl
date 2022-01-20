@@ -72,6 +72,9 @@ namespace Nz
 			return false;
 		}
 
+		if (extension[0] == '.')
+			extension.erase(extension.begin());
+
 		bool found = false;
 		for (const auto& saverPtr : m_savers)
 		{
