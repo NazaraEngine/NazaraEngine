@@ -537,38 +537,44 @@ namespace Nz
 		}
 		EmitLine();
 
-		Emit("# normal count: ");
-		EmitLine(m_normals.size());
-
-		for (const Nz::Vector3f& normal : m_normals)
+		if (!m_normals.empty())
 		{
-			Emit("vn ");
-			Emit(normal.x);
-			Emit(' ');
-			Emit(normal.y);
-			Emit(' ');
-			Emit(normal.y);
-			EmitLine();
-		}
-		EmitLine();
+			Emit("# normal count: ");
+			EmitLine(m_normals.size());
 
-		Emit("# texcoords count: ");
-		EmitLine(m_texCoords.size());
-
-		for (const Nz::Vector3f& uvw : m_texCoords)
-		{
-			Emit("vt ");
-			Emit(uvw.x);
-			Emit(' ');
-			Emit(uvw.y);
-			if (NumberEquals(uvw.z, 0.f))
+			for (const Nz::Vector3f& normal : m_normals)
 			{
+				Emit("vn ");
+				Emit(normal.x);
 				Emit(' ');
-				Emit(uvw.z);
+				Emit(normal.y);
+				Emit(' ');
+				Emit(normal.y);
+				EmitLine();
 			}
 			EmitLine();
 		}
-		EmitLine();
+
+		if (!m_texCoords.empty())
+		{
+			Emit("# texcoords count: ");
+			EmitLine(m_texCoords.size());
+
+			for (const Nz::Vector3f& uvw : m_texCoords)
+			{
+				Emit("vt ");
+				Emit(uvw.x);
+				Emit(' ');
+				Emit(uvw.y);
+				if (NumberEquals(uvw.z, 0.f))
+				{
+					Emit(' ');
+					Emit(uvw.z);
+				}
+				EmitLine();
+			}
+			EmitLine();
+		}
 
 		std::unordered_map<std::size_t /* mesh */, std::vector<std::size_t> /* meshes*/> meshesByMaterials;
 		std::size_t meshIndex = 0;
