@@ -111,6 +111,7 @@ int main()
 	// Plane
 	Nz::MeshParams meshPrimitiveParams;
 	meshPrimitiveParams.storage = Nz::DataStorage::Software;
+	meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
@@ -200,7 +201,7 @@ int main()
 	std::shared_ptr<Nz::Material> flareMaterial = std::make_shared<Nz::Material>();
 	std::shared_ptr<Nz::MaterialPass> flareMaterialPass;
 	{
-		flareMaterialPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
+		flareMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 		flareMaterialPass->EnableDepthBuffer(true);
 		flareMaterialPass->EnableDepthWrite(false);
 		flareMaterialPass->EnableDepthClamp(true);
