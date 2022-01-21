@@ -33,7 +33,6 @@ external
 
 struct FragIn
 {
-	[builtin(fragcoord)] fragcoord: vec4<f32>,
 	[location(0)] uv: vec2<f32>
 }
 
@@ -65,8 +64,7 @@ fn main(input: FragIn) -> FragOut
 
 	let outputColor = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 
-	let i = 0;
-	while (i < SampleCount)
+	for i in 0 -> SampleCount
 	{
 		uv -= deltaUV;
 		let sample = occluderTexture.Sample(uv);
@@ -75,7 +73,6 @@ fn main(input: FragIn) -> FragOut
 		outputColor += sample;
 
 		illuminationDecay *= settings.decay;
-		i += 1;
 	}
 
 	let output: FragOut;
