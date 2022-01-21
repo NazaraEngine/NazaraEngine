@@ -131,7 +131,11 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
 
 	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(skyboxPipelineLayoutInfo, 0);
+	skyboxPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	auto& textureBinding = skyboxPipelineLayoutInfo.bindings.emplace_back();
 	textureBinding.setIndex = 0;
@@ -260,7 +264,11 @@ int main()
 
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(lightingPipelineLayoutInfo, 0);
+	lightingPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	for (unsigned int i = 0; i < 3; ++i)
 	{
@@ -356,7 +364,11 @@ int main()
 	// Bloom data
 
 	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
-	Nz::Graphics::FillViewerPipelineLayout(fullscreenPipelineLayoutInfoViewer, 0);
+	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 1,
@@ -443,7 +455,11 @@ int main()
 	std::shared_ptr<Nz::ShaderBinding> bloomBlitBinding;
 
 	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(bloomBlendPipelineLayoutInfo, 0);
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	/*bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 1,
@@ -860,7 +876,7 @@ int main()
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
+			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, {}, elementPointers.data(), elementPointers.size());
 			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 
@@ -924,7 +940,7 @@ int main()
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, {}, elementPointers.data(), elementPointers.size());
 			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 		forwardPass.SetExecutionCallback([&]
@@ -952,7 +968,7 @@ int main()
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, {}, elementPointers.data(), elementPointers.size());
 			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
 		});
 
