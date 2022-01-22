@@ -25,7 +25,7 @@ namespace Nz
 		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), static_cast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
-	void OpenGLCommandBufferBuilder::BindIndexBuffer(const AbstractBuffer& indexBuffer, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(indexBuffer);
 
@@ -54,7 +54,7 @@ namespace Nz
 		m_commandBuffer.BindShaderBinding(glPipelineLayout, set, &glBinding);
 	}
 
-	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const AbstractBuffer& vertexBuffer, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(vertexBuffer);
 

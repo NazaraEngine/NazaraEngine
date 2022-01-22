@@ -29,8 +29,8 @@ namespace Nz
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
 
-		const AbstractBuffer* currentIndexBuffer = nullptr;
-		const AbstractBuffer* currentVertexBuffer = nullptr;
+		const RenderBuffer* currentIndexBuffer = nullptr;
+		const RenderBuffer* currentVertexBuffer = nullptr;
 		const MaterialPass* currentMaterialPass = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
@@ -69,13 +69,13 @@ namespace Nz
 				currentMaterialPass = materialPass;
 			}
 
-			if (const AbstractBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
+			if (const RenderBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
 			{
 				FlushDrawCall();
 				currentIndexBuffer = indexBuffer;
 			}
 
-			if (const AbstractBuffer* vertexBuffer = submesh.GetVertexBuffer(); currentVertexBuffer != vertexBuffer)
+			if (const RenderBuffer* vertexBuffer = submesh.GetVertexBuffer(); currentVertexBuffer != vertexBuffer)
 			{
 				FlushDrawCall();
 				currentVertexBuffer = vertexBuffer;
@@ -164,8 +164,8 @@ namespace Nz
 		Vector2f targetSize = viewerInstance.GetTargetSize();
 		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
-		const AbstractBuffer* currentIndexBuffer = nullptr;
-		const AbstractBuffer* currentVertexBuffer = nullptr;
+		const RenderBuffer* currentIndexBuffer = nullptr;
+		const RenderBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);

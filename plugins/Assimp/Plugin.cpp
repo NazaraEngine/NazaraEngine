@@ -307,9 +307,9 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 			// Index buffer
 			bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 
-			IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
+			IndexMapper indexMapper(*indexBuffer);
 			IndexIterator index = indexMapper.begin();
 
 			for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
@@ -329,8 +329,8 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 			if (normalTangentMatrix.HasScale())
 				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.storage, parameters.vertexBufferFlags);
-			BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, BufferAccess::ReadWrite);
+			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
+			BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, 0, vertexBuffer->GetVertexCount());
 			SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
 			for (std::size_t vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
@@ -465,9 +465,9 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.storage, parameters.indexBufferFlags);
+				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 
-				IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
+				IndexMapper indexMapper(*indexBuffer);
 				IndexIterator index = indexMapper.begin();
 
 				for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
@@ -489,9 +489,9 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 				if (normalTangentMatrix.HasScale())
 					normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
-				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.storage, parameters.vertexBufferFlags);
+				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
 
-				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
+				VertexMapper vertexMapper(*vertexBuffer);
 
 				// Vertex positions
 				if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))

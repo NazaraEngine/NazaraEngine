@@ -3,16 +3,24 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/RenderBuffer.hpp>
-#include <memory>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
-	inline RenderBuffer::RenderBuffer(Buffer* parent, BufferType type) :
-	m_softwareBuffer(parent, type),
-	m_parent(parent),
-	m_type(type)
+	inline RenderBuffer::RenderBuffer(RenderDevice& renderDevice, BufferType type, UInt64 size, BufferUsageFlags usage) :
+	Buffer(DataStorage::Hardware, type, size, usage),
+	m_renderDevice(renderDevice)
 	{
+	}
+
+	inline RenderDevice& RenderBuffer::GetRenderDevice()
+	{
+		return m_renderDevice;
+	}
+
+	inline const RenderDevice& RenderBuffer::GetRenderDevice() const
+	{
+		return m_renderDevice;
 	}
 }
 

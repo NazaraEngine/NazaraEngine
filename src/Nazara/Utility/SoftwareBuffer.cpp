@@ -10,8 +10,13 @@
 
 namespace Nz
 {
-	SoftwareBuffer::SoftwareBuffer(Buffer* /*parent*/, BufferType /*type*/)
+	SoftwareBuffer::SoftwareBuffer(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) :
+	Buffer(DataStorage::Software, type, size, usage | BufferUsage::DirectMapping | BufferUsage::Dynamic | BufferUsage::PersistentMapping | BufferUsage::Read | BufferUsage::Write),
+	m_mapped(false)
 	{
+		m_buffer = std::make_unique<UInt8[]>(size);
+		if (initialData)
+			std::memcpy(&m_buffer[0], initialData, size);
 	}
 
 	bool SoftwareBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
@@ -22,40 +27,12 @@ namespace Nz
 		return true;
 	}
 
-	bool SoftwareBuffer::Initialize(UInt64 size, BufferUsageFlags /*usage*/)
-	{
-		// Protect the allocation to prevent a memory exception to escape the function
-		try
-		{
-			m_buffer.resize(size);
-		}
-		catch (const std::exception& e)
-		{
-			NazaraError("Failed to allocate software buffer (" + std::string(e.what()) + ')');
-			return false;
-		}
-
-		m_mapped = false;
-
-		return true;
-	}
-
 	const UInt8* SoftwareBuffer::GetData() const
 	{
-		return m_buffer.data();
+		return &m_buffer[0];
 	}
 
-	UInt64 SoftwareBuffer::GetSize() const
-	{
-		return UInt64(m_buffer.size());
-	}
-
-	DataStorage SoftwareBuffer::GetStorage() const
-	{
-		return DataStorage::Software;
-	}
-
-	void* SoftwareBuffer::Map(BufferAccess /*access*/, UInt64 offset, UInt64 /*size*/)
+	void* SoftwareBuffer::Map(UInt64 offset, UInt64 /*size*/)
 	{
 		NazaraAssert(!m_mapped, "Buffer is already mapped");
 
@@ -71,5 +48,10 @@ namespace Nz
 		m_mapped = false;
 
 		return true;
+	}
+
+	std::shared_ptr<Buffer> SoftwareBufferFactory(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData)
+	{
+		return std::make_shared<SoftwareBuffer>(type, size, usage, initialData);
 	}
 }

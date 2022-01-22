@@ -23,20 +23,8 @@
 
 namespace Nz
 {
-	MeshParams::MeshParams()
-	{
-		if (!Buffer::IsStorageSupported(storage))
-			storage = DataStorage::Software;
-	}
-
 	bool MeshParams::IsValid() const
 	{
-		if (!Buffer::IsStorageSupported(storage))
-		{
-			NazaraError("Storage not supported");
-			return false;
-		}
-
 		if (matrix == Matrix4f::Zero())
 		{
 			NazaraError("Invalid matrix");
@@ -112,10 +100,10 @@ namespace Nz
 				std::size_t vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
-				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
+				VertexMapper vertexMapper(*vertexBuffer);
 
 				VertexPointers pointers;
 				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
@@ -123,7 +111,7 @@ namespace Nz
 				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+				IndexMapper indexMapper(*indexBuffer);
 				GenerateBox(primitive.box.lengths, primitive.box.subdivision, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 				break;
 			}
@@ -134,10 +122,10 @@ namespace Nz
 				std::size_t vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
-				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
+				VertexMapper vertexMapper(*vertexBuffer);
 
 				VertexPointers pointers;
 				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
@@ -145,7 +133,7 @@ namespace Nz
 				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+				IndexMapper indexMapper(*indexBuffer);
 				GenerateCone(primitive.cone.length, primitive.cone.radius, primitive.cone.subdivision, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 				break;
 			}
@@ -156,10 +144,10 @@ namespace Nz
 				std::size_t vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
-				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
+				VertexMapper vertexMapper(*vertexBuffer);
 
 				VertexPointers pointers;
 				pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
@@ -167,7 +155,7 @@ namespace Nz
 				pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 				pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+				IndexMapper indexMapper(*indexBuffer);
 				GeneratePlane(primitive.plane.subdivision, primitive.plane.size, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 				break;
 			}
@@ -182,10 +170,10 @@ namespace Nz
 						std::size_t vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
-						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
-						VertexMapper vertexMapper(*vertexBuffer, BufferAccess::ReadWrite);
+						VertexMapper vertexMapper(*vertexBuffer);
 
 						VertexPointers pointers;
 						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
@@ -193,7 +181,7 @@ namespace Nz
 						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-						IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+						IndexMapper indexMapper(*indexBuffer);
 						GenerateCubicSphere(primitive.sphere.size, primitive.sphere.cubic.subdivision, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 						break;
 					}
@@ -204,10 +192,10 @@ namespace Nz
 						std::size_t vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
-						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
-						VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
+						VertexMapper vertexMapper(*vertexBuffer);
 
 						VertexPointers pointers;
 						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
@@ -215,7 +203,7 @@ namespace Nz
 						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-						IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+						IndexMapper indexMapper(*indexBuffer);
 						GenerateIcoSphere(primitive.sphere.size, primitive.sphere.ico.recursionLevel, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 						break;
 					}
@@ -226,10 +214,10 @@ namespace Nz
 						std::size_t vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
-						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.storage, params.indexBufferFlags);
-						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.storage, params.vertexBufferFlags);
+						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
-						VertexMapper vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
+						VertexMapper vertexMapper(*vertexBuffer);
 
 						VertexPointers pointers;
 						pointers.normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
@@ -237,7 +225,7 @@ namespace Nz
 						pointers.tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 						pointers.uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
-						IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+						IndexMapper indexMapper(*indexBuffer);
 						GenerateUvSphere(primitive.sphere.size, primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, matrix, primitive.textureCoords, pointers, indexMapper.begin(), &aabb);
 						break;
 					}
@@ -613,7 +601,7 @@ namespace Nz
 		{
 			StaticMesh& staticMesh = static_cast<StaticMesh&>(*data.subMesh);
 
-			BufferMapper<VertexBuffer> mapper(*staticMesh.GetVertexBuffer(), BufferAccess::ReadWrite);
+			BufferMapper<VertexBuffer> mapper(*staticMesh.GetVertexBuffer(), 0, staticMesh.GetVertexCount());
 			MeshVertex* vertices = static_cast<MeshVertex*>(mapper.GetPointer());
 
 			Boxf aabb(vertices->position.x, vertices->position.y, vertices->position.z, 0.f, 0.f, 0.f);

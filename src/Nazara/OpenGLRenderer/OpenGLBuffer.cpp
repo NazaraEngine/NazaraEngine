@@ -9,34 +9,21 @@
 
 namespace Nz
 {
-	
-	OpenGLBuffer::OpenGLBuffer(OpenGLDevice& device, BufferType type) :
-	m_type(type)
+	OpenGLBuffer::OpenGLBuffer(OpenGLDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) :
+	RenderBuffer(device, type, size, usage)
 	{
 		if (!m_buffer.Create(device))
-			throw std::runtime_error("failed to create buffer"); //< TODO: Handle error
-	}
-
-	bool OpenGLBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
-	{
-		m_buffer.SubData(GLintptr(offset), GLsizeiptr(size), data);
-		return true;
-	}
-
-	bool OpenGLBuffer::Initialize(UInt64 size, BufferUsageFlags usage)
-	{
-		m_size = size;
-		m_usage = usage;
+			throw std::runtime_error("failed to create buffer"); //< TODO: Handle OpenGL error
 
 		GL::BufferTarget target;
-		switch (m_type)
+		switch (type)
 		{
 			case BufferType::Index: target = GL::BufferTarget::ElementArray; break;
 			case BufferType::Uniform: target = GL::BufferTarget::Uniform; break;
 			case BufferType::Vertex: target = GL::BufferTarget::Array; break;
 
 			default:
-				throw std::runtime_error("unknown buffer type 0x" + NumberToString(UnderlyingCast(m_type), 16));
+				throw std::runtime_error("unknown buffer type 0x" + NumberToString(UnderlyingCast(type), 16));
 		}
 
 		GLenum hint = GL_STREAM_COPY;
@@ -49,49 +36,23 @@ namespace Nz
 		if (usage & BufferUsage::DirectMapping)
 			hint = GL_DYNAMIC_COPY;
 
-		m_buffer.Reset(target, size, nullptr, hint);
+		m_buffer.Reset(target, size, initialData, hint);
+	}
+
+	bool OpenGLBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
+	{
+		m_buffer.SubData(GLintptr(offset), GLsizeiptr(size), data);
 		return true;
 	}
 
-	UInt64 OpenGLBuffer::GetSize() const
-	{
-		return m_size;
-	}
-
-	DataStorage OpenGLBuffer::GetStorage() const
-	{
-		return DataStorage::Hardware;
-	}
-
-	void* OpenGLBuffer::Map(BufferAccess access, UInt64 offset, UInt64 size)
+	void* OpenGLBuffer::Map(UInt64 offset, UInt64 size)
 	{
 		GLbitfield accessBit = 0;
-		switch (access)
-		{
-			case BufferAccess::DiscardAndWrite:
-				accessBit |= GL_MAP_WRITE_BIT;
-				if (offset == 0 && size == m_size)
-					accessBit |= GL_MAP_INVALIDATE_BUFFER_BIT;
-				else
-					accessBit |= GL_MAP_INVALIDATE_RANGE_BIT;
+		if (GetUsageFlags() & BufferUsage::Read)
+			accessBit |= GL_MAP_READ_BIT;
 
-				break;
-
-			case BufferAccess::ReadOnly:
-				accessBit |= GL_MAP_READ_BIT;
-				break;
-
-			case BufferAccess::ReadWrite:
-				accessBit |= GL_MAP_READ_BIT | GL_MAP_WRITE_BIT;
-				break;
-
-			case BufferAccess::WriteOnly:
-				accessBit |= GL_MAP_WRITE_BIT;
-				break;
-
-			default:
-				break;
-		}
+		if (GetUsageFlags() & BufferUsage::Write)
+			accessBit |= GL_MAP_WRITE_BIT;
 
 		return m_buffer.MapRange(offset, size, accessBit);
 	}

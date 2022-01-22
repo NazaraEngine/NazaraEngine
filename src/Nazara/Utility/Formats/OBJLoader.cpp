@@ -185,15 +185,15 @@ namespace Nz
 			             texCoords != nullptr && meshes != nullptr && meshCount > 0,
 			             "Invalid OBJParser output");
 
-			// Un conteneur temporaire pour contenir les indices de face avant triangulation
-			std::vector<std::size_t> faceIndices(3); // Comme il y aura au moins trois sommets
+			// Triangulation temporary vector
+			std::vector<UInt32> faceIndices;
 			for (std::size_t i = 0; i < meshCount; ++i)
 			{
 				std::size_t faceCount = meshes[i].faces.size();
 				if (faceCount == 0)
 					continue;
 
-				std::vector<std::size_t> indices;
+				std::vector<UInt32> indices;
 				indices.reserve(faceCount*3); // Pire cas si les faces sont des triangles
 
 				// Afin d'utiliser OBJParser::FaceVertex comme clé dans un unordered_map,
@@ -227,7 +227,7 @@ namespace Nz
 				std::unordered_map<OBJParser::FaceVertex, unsigned int, FaceVertexHasher, FaceVertexComparator> vertices;
 				vertices.reserve(meshes[i].vertices.size());
 
-				unsigned int vertexCount = 0;
+				UInt32 vertexCount = 0;
 				for (unsigned int j = 0; j < faceCount; ++j)
 				{
 					std::size_t faceVertexCount = meshes[i].faces[j].vertexCount;
@@ -254,13 +254,13 @@ namespace Nz
 				}
 
 				// Création des buffers
-				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), std::size_t(indices.size()), parameters.storage, parameters.indexBufferFlags);
-				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, std::size_t(vertexCount), parameters.storage, parameters.vertexBufferFlags);
+				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indices.size(), parameters.indexBufferFlags, parameters.bufferFactory);
+				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
 
 				// Remplissage des indices
-				IndexMapper indexMapper(*indexBuffer, BufferAccess::WriteOnly);
+				IndexMapper indexMapper(*indexBuffer);
 				for (std::size_t j = 0; j < indices.size(); ++j)
-					indexMapper.Set(j, UInt32(indices[j]));
+					indexMapper.Set(j, indices[j]);
 
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
@@ -277,7 +277,7 @@ namespace Nz
 				bool hasNormals = true;
 				bool hasTexCoords = true;
 
-				VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
+				VertexMapper vertexMapper(*vertexBuffer);
 
 				auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
 				auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
@@ -325,8 +325,8 @@ namespace Nz
 				// Official .obj files have no vertex color, fill it with white
 				if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
 				{
-					for (unsigned int i = 0; i < vertexCount; ++i)
-						colorPtr[i] = Color::White;
+					for (UInt32 j = 0; j < vertexCount; ++j)
+						colorPtr[j] = Color::White;
 				}
 
 				vertexMapper.Unmap();

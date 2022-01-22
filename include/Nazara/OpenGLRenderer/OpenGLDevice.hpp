@@ -35,7 +35,7 @@ namespace Nz
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;
 			inline const GL::Context& GetReferenceContext() const;
 
-			std::shared_ptr<AbstractBuffer> InstantiateBuffer(BufferType type) override;
+			std::shared_ptr<RenderBuffer> InstantiateBuffer(BufferType type, UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
 			std::shared_ptr<Framebuffer> InstantiateFramebuffer(unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) override;
 			std::shared_ptr<RenderPass> InstantiateRenderPass(std::vector<RenderPass::Attachment> attachments, std::vector<RenderPass::SubpassDescription> subpassDescriptions, std::vector<RenderPass::SubpassDependency> subpassDependencies) override;

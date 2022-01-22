@@ -92,14 +92,9 @@ int main()
 
 	Nz::Modules<Nz::Renderer> nazara(rendererConfig);
 
-	Nz::RenderWindow window;
-
-	Nz::MeshParams meshParams;
-	meshParams.center = true;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
-
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
+
+	Nz::RenderWindow window;
 
 	std::string windowTitle = "Render Test";
 	if (!window.Create(device, Nz::VideoMode(800, 600, 32), windowTitle))
@@ -117,6 +112,12 @@ int main()
 		std::cout << "Failed to instantiate shader" << std::endl;
 		return __LINE__;
 	}
+
+	Nz::MeshParams meshParams;
+	meshParams.bufferFactory = GetRenderBufferFactory(device);
+	meshParams.center = true;
+	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::Mesh> drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!drfreak)
@@ -180,12 +181,7 @@ int main()
 	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
 	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
 
-	std::shared_ptr<Nz::AbstractBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform);
-	if (!uniformBuffer->Initialize(uniformSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
-	{
-		NazaraError("Failed to create uniform buffer");
-		return __LINE__;
-	}
+	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, uniformSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic);
 
 	viewerShaderBinding->Update({
 		{
@@ -212,33 +208,18 @@ int main()
 	pipelineInfo.depthBuffer = true;
 	pipelineInfo.shaderModules.emplace_back(fragVertShader);
 
-	auto& vertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
-	vertexBuffer.binding = 0;
-	vertexBuffer.declaration = meshVB->GetVertexDeclaration();
+	auto& pipelineVertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
+	pipelineVertexBuffer.binding = 0;
+	pipelineVertexBuffer.declaration = meshVB->GetVertexDeclaration();
 
 	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	Nz::RenderDevice* renderDevice = window.GetRenderDevice().get();
+	const std::shared_ptr<Nz::RenderDevice>& renderDevice = window.GetRenderDevice();
 
 	std::shared_ptr<Nz::CommandPool> commandPool = renderDevice->InstantiateCommandPool(Nz::QueueType::Graphics);
 
-	Nz::RenderBuffer* renderBufferIB = static_cast<Nz::RenderBuffer*>(meshIB->GetBuffer()->GetImpl());
-	Nz::RenderBuffer* renderBufferVB = static_cast<Nz::RenderBuffer*>(meshVB->GetBuffer()->GetImpl());
-
-	if (!renderBufferIB->Synchronize(renderDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
-
-	if (!renderBufferVB->Synchronize(renderDevice))
-	{
-		NazaraError("Failed to synchronize render buffer");
-		return __LINE__;
-	}
-
-	Nz::AbstractBuffer* indexBufferImpl = renderBufferIB->GetHardwareBuffer(renderDevice);
-	Nz::AbstractBuffer* vertexBufferImpl = renderBufferVB->GetHardwareBuffer(renderDevice);
+	Nz::RenderBuffer& renderBufferIB = static_cast<Nz::RenderBuffer&>(*meshIB->GetBuffer());
+	Nz::RenderBuffer& renderBufferVB = static_cast<Nz::RenderBuffer&>(*meshVB->GetBuffer());
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -367,9 +348,9 @@ int main()
 			{
 				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
-					builder.BindIndexBuffer(*indexBufferImpl);
+					builder.BindIndexBuffer(renderBufferIB);
 					builder.BindPipeline(*pipeline);
-					builder.BindVertexBuffer(0, *vertexBufferImpl);
+					builder.BindVertexBuffer(0, renderBufferVB);
 					builder.BindShaderBinding(0, *viewerShaderBinding);
 					builder.BindShaderBinding(1, *textureShaderBinding);
 

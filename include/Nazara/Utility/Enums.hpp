@@ -70,7 +70,9 @@ namespace Nz
 		DeviceLocal,
 		DirectMapping,
 		Dynamic,
+		Read,
 		PersistentMapping,
+		Write,
 
 		Max = DirectMapping
 	};

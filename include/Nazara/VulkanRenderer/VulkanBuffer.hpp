@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
@@ -18,36 +18,30 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanBuffer : public AbstractBuffer
+	class NAZARA_VULKANRENDERER_API VulkanBuffer : public RenderBuffer
 	{
 		public:
-			inline VulkanBuffer(Vk::Device& device, BufferType type);
+			inline VulkanBuffer(VulkanDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 			VulkanBuffer(const VulkanBuffer&) = delete;
 			VulkanBuffer(VulkanBuffer&&) = delete; ///TODO
 			virtual ~VulkanBuffer();
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
 
-			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
-
 			inline VkBuffer GetBuffer() const;
-			UInt64 GetSize() const override;
-			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt64 offset, UInt64 size) override;
+			void* Map(UInt64 offset, UInt64 size) override;
 			bool Unmap() override;
 
 			VulkanBuffer& operator=(const VulkanBuffer&) = delete;
 			VulkanBuffer& operator=(VulkanBuffer&&) = delete; ///TODO
 
 		private:
-			BufferType m_type;
-			BufferUsageFlags m_usage;
-			UInt64 m_size;
 			VkBuffer m_buffer;
 			VkBuffer m_stagingBuffer;
 			VmaAllocation m_allocation;
 			VmaAllocation m_stagingAllocation;
+			UInt64 m_stagingBufferSize;
 			Vk::Device& m_device;
 	};
 }

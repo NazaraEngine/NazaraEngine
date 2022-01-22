@@ -25,9 +25,7 @@ namespace Nz
 	{
 		PredefinedViewerData viewerUboOffsets = PredefinedViewerData::GetOffsets();
 
-		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
-		if (!m_viewerDataBuffer->Initialize(viewerUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic))
-			throw std::runtime_error("failed to initialize viewer data UBO");
+		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, viewerUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 	}
 
 	void ViewerInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)

@@ -42,9 +42,6 @@ namespace Nz
 	{
 		ECS::RegisterComponents();
 
-		if (!Buffer::Initialize())
-			throw std::runtime_error("failed to initialize buffers");
-
 		if (!Font::Initialize())
 			throw std::runtime_error("failed to initialize fonts");
 
@@ -91,7 +88,6 @@ namespace Nz
 		VertexDeclaration::Uninitialize();
 		PixelFormatInfo::Uninitialize();
 		Font::Uninitialize();
-		Buffer::Uninitialize();
 	}
 
 	AnimationLoader& Utility::GetAnimationLoader()

@@ -9,123 +9,94 @@
 
 namespace Nz
 {
-	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer)
+	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer) :
+	m_buffer(std::move(buffer)),
+	m_vertexDeclaration(std::move(vertexDeclaration)),
+	m_startOffset(0)
 	{
-		ErrorFlags(ErrorMode::ThrowException, true);
-		Reset(std::move(vertexDeclaration), std::move(buffer));
+		NazaraAssert(m_buffer, "invalid buffer");
+		NazaraAssert(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
+
+		m_endOffset = m_buffer->GetSize();
+		m_vertexCount = (m_vertexDeclaration) ? m_endOffset / m_vertexDeclaration->GetStride() : 0;
 	}
 
-	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
+	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size) :
+	m_buffer(std::move(buffer)),
+	m_vertexDeclaration(std::move(vertexDeclaration)),
+	m_endOffset(size),
+	m_startOffset(offset)
 	{
-		ErrorFlags(ErrorMode::ThrowException, true);
-		Reset(std::move(vertexDeclaration), std::move(buffer), offset, size);
+		NazaraAssert(m_buffer, "invalid buffer");
+		NazaraAssert(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
+
+		m_vertexCount = (m_vertexDeclaration) ? m_endOffset / m_vertexDeclaration->GetStride() : 0;
 	}
 
-	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
+	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, UInt64 vertexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
+	m_vertexDeclaration(std::move(vertexDeclaration)),
+	m_startOffset(0),
+	m_vertexCount(vertexCount)
 	{
-		ErrorFlags(ErrorMode::ThrowException, true);
-		Reset(std::move(vertexDeclaration), length, storage, usage);
+		NazaraAssert(m_vertexDeclaration, "invalid vertex declaration");
+		NazaraAssert(vertexCount > 0, "invalid vertex count");
+
+		m_endOffset = vertexCount * m_vertexDeclaration->GetStride();
+		m_buffer = bufferFactory(BufferType::Vertex, m_endOffset, usage, initialData);
 	}
 
-	bool VertexBuffer::Fill(const void* data, std::size_t startVertex, std::size_t length)
+	bool VertexBuffer::Fill(const void* data, UInt64 startVertex, UInt64 length)
 	{
-		std::size_t stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
+		UInt64 stride = m_vertexDeclaration->GetStride();
 		return FillRaw(data, startVertex*stride, length*stride);
 	}
 
-	bool VertexBuffer::FillRaw(const void* data, std::size_t offset, std::size_t size)
+	bool VertexBuffer::FillRaw(const void* data, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Fill(data, m_startOffset + offset, size);
 	}
 
-	void* VertexBuffer::Map(BufferAccess access, std::size_t startVertex, std::size_t length)
+	void* VertexBuffer::Map(UInt64 startVertex, UInt64 length)
 	{
-		std::size_t stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
+		UInt64 stride = m_vertexDeclaration->GetStride();
 
-		return MapRaw(access, startVertex*stride, length*stride);
+		return MapRaw(startVertex * stride, length * stride);
 	}
 
-	void* VertexBuffer::Map(BufferAccess access, std::size_t startVertex, std::size_t length) const
+	void* VertexBuffer::Map(UInt64 startVertex, UInt64 length) const
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_vertexDeclaration, "Invalid vertex declaration");
 
-		std::size_t stride = static_cast<std::size_t>(m_vertexDeclaration->GetStride());
+		UInt64 stride = m_vertexDeclaration->GetStride();
 
-		return MapRaw(access, startVertex*stride, length*stride);
+		return MapRaw(startVertex * stride, length * stride);
 	}
 
-	void* VertexBuffer::MapRaw(BufferAccess access, std::size_t offset, std::size_t size)
+	void* VertexBuffer::MapRaw(UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
-		return m_buffer->Map(access, offset, size);
+		return m_buffer->Map(offset, size);
 	}
 
-	void* VertexBuffer::MapRaw(BufferAccess access, std::size_t offset, std::size_t size) const
+	void* VertexBuffer::MapRaw(UInt64 offset, UInt64 size) const
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
-		return m_buffer->Map(access, offset, size);
-	}
-
-	void VertexBuffer::Reset()
-	{
-		m_buffer.reset();
-		m_vertexDeclaration.reset();
-	}
-
-	void VertexBuffer::Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer)
-	{
-		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-		NazaraAssert(buffer->GetType() == BufferType::Vertex, "Buffer must be a vertex buffer");
-
-		std::size_t size = buffer->GetSize();
-		Reset(std::move(vertexDeclaration), std::move(buffer), 0, size);
-	}
-
-	void VertexBuffer::Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size)
-	{
-		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-		NazaraAssert(size > 0, "Invalid size");
-		NazaraAssert(offset + size <= buffer->GetSize(), "Virtual buffer exceed buffer bounds");
-
-		m_buffer = buffer;
-		m_endOffset = offset + size;
-		m_startOffset = offset;
-		m_vertexCount = (vertexDeclaration) ? (size / static_cast<std::size_t>(vertexDeclaration->GetStride())) : 0;
-		m_vertexDeclaration = vertexDeclaration;
-	}
-
-	void VertexBuffer::Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage)
-	{
-		m_endOffset = length * ((vertexDeclaration) ? static_cast<std::size_t>(vertexDeclaration->GetStride()) : 1);
-		m_startOffset = 0;
-		m_vertexCount = length;
-		m_vertexDeclaration = std::move(vertexDeclaration);
-
-		m_buffer = std::make_shared<Buffer>(BufferType::Vertex, m_endOffset, storage, usage);
-	}
-
-	void VertexBuffer::Reset(const VertexBuffer& vertexBuffer)
-	{
-		m_buffer = vertexBuffer.m_buffer;
-		m_endOffset = vertexBuffer.m_endOffset;
-		m_startOffset = vertexBuffer.m_startOffset;
-		m_vertexCount = vertexBuffer.m_vertexCount;
-		m_vertexDeclaration = vertexBuffer.m_vertexDeclaration;
+		return m_buffer->Map(offset, size);
 	}
 
 	void VertexBuffer::SetVertexDeclaration(std::shared_ptr<const VertexDeclaration> vertexDeclaration)
 	{
 		NazaraAssert(vertexDeclaration, "Invalid vertex declaration");
 
-		m_vertexCount = (m_endOffset - m_startOffset) / static_cast<std::size_t>(vertexDeclaration->GetStride());
+		m_vertexCount = (m_endOffset - m_startOffset) / vertexDeclaration->GetStride();
 		m_vertexDeclaration = std::move(vertexDeclaration);
 	}
 

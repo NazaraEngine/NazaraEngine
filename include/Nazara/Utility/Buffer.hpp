@@ -8,68 +8,45 @@
 #define NAZARA_UTILITY_BUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <array>
 #include <functional>
 #include <memory>
 
 namespace Nz
 {
+	class Buffer;
+
+	using BufferFactory = std::function<std::shared_ptr<Buffer>(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData)>;
+
 	class NAZARA_UTILITY_API Buffer
 	{
-		friend class Utility;
-
 		public:
-			using BufferFactory = std::function<std::unique_ptr<AbstractBuffer>(Buffer* parent, BufferType type)>;
-
-			Buffer(BufferType type);
-			Buffer(BufferType type, UInt32 size, DataStorage storage = DataStorage::Software, BufferUsageFlags usage = 0);
+			inline Buffer(DataStorage storage, BufferType type, UInt64 size, BufferUsageFlags usage);
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&&) = delete;
-			~Buffer() = default;
+			virtual ~Buffer();
 
-			bool CopyContent(const Buffer& buffer);
+			std::shared_ptr<Buffer> CopyContent(const BufferFactory& bufferFactory);
 
-			bool Create(UInt32 size, DataStorage storage = DataStorage::Software, BufferUsageFlags usage = 0);
-			void Destroy();
+			virtual bool Fill(const void* data, UInt64 offset, UInt64 size) = 0;
 
-			bool Fill(const void* data, UInt32 offset, UInt32 size);
-
-			inline AbstractBuffer* GetImpl() const;
-			inline UInt32 GetSize() const;
+			inline UInt64 GetSize() const;
 			inline DataStorage GetStorage() const;
 			inline BufferType GetType() const;
-			inline BufferUsageFlags GetUsage() const;
+			inline BufferUsageFlags GetUsageFlags() const;
 
-			inline bool HasStorage(DataStorage storage) const;
-
-			inline bool IsValid() const;
-
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0);
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) const;
-
-			bool SetStorage(DataStorage storage);
-
-			void Unmap() const;
+			virtual void* Map(UInt64 offset, UInt64 size) = 0;
+			virtual bool Unmap() = 0;
 
 			Buffer& operator=(const Buffer&) = delete;
 			Buffer& operator=(Buffer&&) = delete;
 
-			static bool IsStorageSupported(DataStorage storage);
-			static void SetBufferFactory(DataStorage storage, BufferFactory func);
-
 		private:
-			static bool Initialize();
-			static void Uninitialize();
-
-			std::unique_ptr<AbstractBuffer> m_impl;
 			BufferType m_type;
 			BufferUsageFlags m_usage;
-			UInt32 m_size;
-
-			static std::array<BufferFactory, DataStorageCount> s_bufferFactories;
+			DataStorage m_storage;
+			UInt64 m_size;
 	};
 }
 
