@@ -50,14 +50,14 @@ namespace Nz
 
 			SparsePtr& operator=(const SparsePtr& ptr) = default;
 
-			SparsePtr operator+(int count) const;
-			SparsePtr operator+(unsigned int count) const;
-			SparsePtr operator-(int count) const;
-			SparsePtr operator-(unsigned int count) const;
+			SparsePtr operator+(Int64 count) const;
+			SparsePtr operator+(UInt64 count) const;
+			SparsePtr operator-(Int64 count) const;
+			SparsePtr operator-(UInt64 count) const;
 			std::ptrdiff_t operator-(const SparsePtr& ptr) const;
 
-			SparsePtr& operator+=(int count);
-			SparsePtr& operator-=(int count);
+			SparsePtr& operator+=(Int64 count);
+			SparsePtr& operator-=(Int64 count);
 
 			SparsePtr& operator++();
 			SparsePtr operator++(int);

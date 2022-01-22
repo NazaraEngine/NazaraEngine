@@ -8,12 +8,12 @@
 
 namespace Nz
 {
-	inline std::shared_ptr<AbstractBuffer>& WorldInstance::GetInstanceBuffer()
+	inline std::shared_ptr<RenderBuffer>& WorldInstance::GetInstanceBuffer()
 	{
 		return m_instanceDataBuffer;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& WorldInstance::GetInstanceBuffer() const
+	inline const std::shared_ptr<RenderBuffer>& WorldInstance::GetInstanceBuffer() const
 	{
 		return m_instanceDataBuffer;
 	}

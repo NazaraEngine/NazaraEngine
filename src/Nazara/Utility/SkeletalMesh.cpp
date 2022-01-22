@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	SkeletalMesh::SkeletalMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<const IndexBuffer> indexBuffer) :
+	SkeletalMesh::SkeletalMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) :
 	m_aabb(Nz::Boxf::Zero()),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer))
@@ -26,7 +26,7 @@ namespace Nz
 		return AnimationType::Skeletal;
 	}
 
-	const std::shared_ptr<const IndexBuffer>& SkeletalMesh::GetIndexBuffer() const
+	const std::shared_ptr<IndexBuffer>& SkeletalMesh::GetIndexBuffer() const
 	{
 		return m_indexBuffer;
 	}
@@ -58,7 +58,7 @@ namespace Nz
 		OnSubMeshInvalidateAABB(this);
 	}
 
-	void SkeletalMesh::SetIndexBuffer(std::shared_ptr<const IndexBuffer> indexBuffer)
+	void SkeletalMesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 	{
 		m_indexBuffer = std::move(indexBuffer);
 	}

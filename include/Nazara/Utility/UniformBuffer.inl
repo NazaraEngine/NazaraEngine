@@ -13,19 +13,14 @@ namespace Nz
 		return m_buffer;
 	}
 
-	inline UInt32 UniformBuffer::GetEndOffset() const
+	inline UInt64 UniformBuffer::GetEndOffset() const
 	{
 		return m_endOffset;
 	}
 
-	inline UInt32 UniformBuffer::GetStartOffset() const
+	inline UInt64 UniformBuffer::GetStartOffset() const
 	{
 		return m_startOffset;
-	}
-
-	inline bool UniformBuffer::IsValid() const
-	{
-		return m_buffer != nullptr;
 	}
 }
 

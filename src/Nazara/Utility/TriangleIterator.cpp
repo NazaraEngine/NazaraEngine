@@ -8,9 +8,9 @@
 
 namespace Nz
 {
-	TriangleIterator::TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer& indexBuffer) :
+	TriangleIterator::TriangleIterator(PrimitiveMode primitiveMode, IndexBuffer& indexBuffer) :
 	m_primitiveMode(primitiveMode),
-	m_indexMapper(indexBuffer, BufferAccess::ReadOnly)
+	m_indexMapper(indexBuffer)
 	{
 		m_currentIndex = 3;
 		m_triangleIndices[0] = m_indexMapper.Get(0);
@@ -20,9 +20,9 @@ namespace Nz
 		m_indexCount = m_indexMapper.GetIndexCount();
 	}
 
-	TriangleIterator::TriangleIterator(const SubMesh& subMesh) :
+	TriangleIterator::TriangleIterator(SubMesh& subMesh) :
 	m_primitiveMode(subMesh.GetPrimitiveMode()),
-	m_indexMapper(subMesh, BufferAccess::ReadOnly)
+	m_indexMapper(subMesh)
 	{
 		m_currentIndex = 3;
 		m_triangleIndices[0] = m_indexMapper.Get(0);

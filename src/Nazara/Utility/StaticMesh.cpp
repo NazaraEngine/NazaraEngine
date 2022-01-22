@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	StaticMesh::StaticMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<const IndexBuffer> indexBuffer) :
+	StaticMesh::StaticMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer) :
 	m_aabb(Nz::Boxf::Zero()),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer))
@@ -37,7 +37,7 @@ namespace Nz
 	bool StaticMesh::GenerateAABB()
 	{
 		// On lock le buffer pour itérer sur toutes les positions et composer notre AABB
-		VertexMapper mapper(*m_vertexBuffer, BufferAccess::ReadOnly);
+		VertexMapper mapper(*m_vertexBuffer);
 		SetAABB(ComputeAABB(mapper.GetComponentPtr<const Vector3f>(VertexComponent::Position), m_vertexBuffer->GetVertexCount()));
 
 		return true;
@@ -53,7 +53,7 @@ namespace Nz
 		return AnimationType::Static;
 	}
 
-	const std::shared_ptr<const IndexBuffer>& StaticMesh::GetIndexBuffer() const
+	const std::shared_ptr<IndexBuffer>& StaticMesh::GetIndexBuffer() const
 	{
 		return m_indexBuffer;
 	}
@@ -85,7 +85,7 @@ namespace Nz
 		OnSubMeshInvalidateAABB(this);
 	}
 
-	void StaticMesh::SetIndexBuffer(std::shared_ptr<const IndexBuffer> indexBuffer)
+	void StaticMesh::SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer)
 	{
 		m_indexBuffer = std::move(indexBuffer);
 	}

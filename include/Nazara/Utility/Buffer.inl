@@ -8,19 +8,22 @@
 
 namespace Nz
 {
-	inline AbstractBuffer* Buffer::GetImpl() const
+	inline Buffer::Buffer(DataStorage storage, BufferType type, UInt64 size, BufferUsageFlags usage) :
+	m_type(type),
+	m_usage(usage),
+	m_storage(storage),
+	m_size(size)
 	{
-		return m_impl.get();
 	}
 
-	inline UInt32 Buffer::GetSize() const
+	inline UInt64 Nz::Buffer::GetSize() const
 	{
 		return m_size;
 	}
 
 	inline DataStorage Buffer::GetStorage() const
 	{
-		return m_impl->GetStorage();
+		return m_storage;
 	}
 
 	inline BufferType Buffer::GetType() const
@@ -28,19 +31,9 @@ namespace Nz
 		return m_type;
 	}
 
-	inline BufferUsageFlags Buffer::GetUsage() const
+	inline BufferUsageFlags Buffer::GetUsageFlags() const
 	{
 		return m_usage;
-	}
-
-	inline bool Buffer::HasStorage(DataStorage storage) const
-	{
-		return GetStorage() == storage;
-	}
-
-	inline bool Buffer::IsValid() const
-	{
-		return m_impl != nullptr;
 	}
 }
 

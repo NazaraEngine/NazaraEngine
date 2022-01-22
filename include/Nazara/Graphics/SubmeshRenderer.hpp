@@ -37,8 +37,8 @@ namespace Nz
 	{
 		struct DrawCall
 		{
-			const AbstractBuffer* indexBuffer;
-			const AbstractBuffer* vertexBuffer;
+			const RenderBuffer* indexBuffer;
+			const RenderBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
 			const ShaderBinding* shaderBinding;
 			std::size_t indexCount;

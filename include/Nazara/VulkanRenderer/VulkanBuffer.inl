@@ -7,12 +7,6 @@
 
 namespace Nz
 {
-	inline VulkanBuffer::VulkanBuffer(Vk::Device& device, BufferType type) :
-	m_type(type),
-	m_device(device)
-	{
-	}
-
 	inline VkBuffer VulkanBuffer::GetBuffer() const
 	{
 		return m_buffer;

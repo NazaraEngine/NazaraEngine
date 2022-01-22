@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -70,7 +70,7 @@ namespace Nz
 		}
 	}
 
-	inline const AbstractBuffer* RenderSubmesh::GetIndexBuffer() const
+	inline const RenderBuffer* RenderSubmesh::GetIndexBuffer() const
 	{
 		return m_indexBuffer.get();
 	}
@@ -95,7 +95,7 @@ namespace Nz
 		return m_scissorBox;
 	}
 
-	inline const AbstractBuffer* RenderSubmesh::GetVertexBuffer() const
+	inline const RenderBuffer* RenderSubmesh::GetVertexBuffer() const
 	{
 		return m_vertexBuffer.get();
 	}

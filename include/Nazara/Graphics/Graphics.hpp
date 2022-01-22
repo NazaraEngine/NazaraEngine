@@ -37,7 +37,7 @@ namespace Nz
 			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline(bool transparent) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
 			inline const DefaultTextures& GetDefaultTextures() const;
-			inline const std::shared_ptr<AbstractBuffer>& GetFullscreenVertexBuffer() const;
+			inline const std::shared_ptr<RenderBuffer>& GetFullscreenVertexBuffer() const;
 			inline const std::shared_ptr<VertexDeclaration>& GetFullscreenVertexDeclaration() const;
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
 			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
@@ -70,7 +70,7 @@ namespace Nz
 
 			std::optional<RenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
-			std::shared_ptr<AbstractBuffer> m_fullscreenVertexBuffer;
+			std::shared_ptr<RenderBuffer> m_fullscreenVertexBuffer;
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::shared_ptr<RenderPipeline> m_blitPipeline;
 			std::shared_ptr<RenderPipeline> m_blitPipelineTransparent;

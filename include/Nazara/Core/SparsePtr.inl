@@ -260,7 +260,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator+(int count) const
+	SparsePtr<T> SparsePtr<T>::operator+(Int64 count) const
 	{
 		return SparsePtr(m_ptr + count * m_stride, m_stride);
 	}
@@ -273,7 +273,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator+(unsigned int count) const
+	SparsePtr<T> SparsePtr<T>::operator+(UInt64 count) const
 	{
 		return SparsePtr(m_ptr + count * m_stride, m_stride);
 	}
@@ -286,7 +286,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator-(int count) const
+	SparsePtr<T> SparsePtr<T>::operator-(Int64 count) const
 	{
 		return SparsePtr(m_ptr - count * m_stride, m_stride);
 	}
@@ -299,7 +299,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator-(unsigned int count) const
+	SparsePtr<T> SparsePtr<T>::operator-(UInt64 count) const
 	{
 		return SparsePtr(m_ptr - count * m_stride, m_stride);
 	}
@@ -325,7 +325,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T>& SparsePtr<T>::operator+=(int count)
+	SparsePtr<T>& SparsePtr<T>::operator+=(Int64 count)
 	{
 		m_ptr += count * m_stride;
 
@@ -340,7 +340,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T>& SparsePtr<T>::operator-=(int count)
+	SparsePtr<T>& SparsePtr<T>::operator-=(Int64 count)
 	{
 		m_ptr -= count * m_stride;
 

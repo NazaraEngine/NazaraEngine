@@ -9,20 +9,20 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 
 namespace Nz
 {
 	class RenderBufferView
 	{
 		public:
-			inline RenderBufferView(AbstractBuffer* buffer);
-			inline RenderBufferView(AbstractBuffer* buffer, UInt64 offset, UInt64 size);
+			inline RenderBufferView(RenderBuffer* buffer);
+			inline RenderBufferView(RenderBuffer* buffer, UInt64 offset, UInt64 size);
 			RenderBufferView(const RenderBufferView&) = default;
 			RenderBufferView(RenderBufferView&&) = default;
 			~RenderBufferView() = default;
 
-			inline AbstractBuffer* GetBuffer() const;
+			inline RenderBuffer* GetBuffer() const;
 			inline UInt64 GetOffset() const;
 			inline UInt64 GetSize() const;
 
@@ -32,7 +32,7 @@ namespace Nz
 		private:
 			UInt64 m_offset;
 			UInt64 m_size;
-			AbstractBuffer* m_buffer;
+			RenderBuffer* m_buffer;
 	};
 }
 

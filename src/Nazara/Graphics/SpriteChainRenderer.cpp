@@ -24,10 +24,6 @@ namespace Nz
 		std::size_t maxQuadCount = m_maxVertexCount / 4;
 		std::size_t indexCount = 6 * maxQuadCount;
 
-		m_indexBuffer = m_device.InstantiateBuffer(BufferType::Index);
-		if (!m_indexBuffer->Initialize(indexCount * sizeof(UInt16), BufferUsage::DeviceLocal))
-			throw std::runtime_error("failed to initialize index buffer");
-		
 		// Generate indices for quad (0, 1, 2, 2, 1, 3, ...)
 		std::vector<UInt16> indices(indexCount);
 		UInt16* indexPtr = indices.data();
@@ -45,7 +41,7 @@ namespace Nz
 			*indexPtr++ = index * 4 + 3;
 		}
 
-		m_indexBuffer->Fill(indices.data(), 0, indexCount * sizeof(UInt16));
+		m_indexBuffer = m_device.InstantiateBuffer(BufferType::Index, indexCount * sizeof(UInt16), BufferUsage::DeviceLocal | BufferUsage::Write, indices.data());
 	}
 
 	std::unique_ptr<ElementRendererData> SpriteChainRenderer::InstanciateData()
@@ -66,7 +62,7 @@ namespace Nz
 		UploadPool::Allocation* currentAllocation = nullptr;
 		UInt8* currentAllocationMemPtr = nullptr;
 		const VertexDeclaration* currentVertexDeclaration = nullptr;
-		AbstractBuffer* currentVertexBuffer = nullptr;
+		RenderBuffer* currentVertexBuffer = nullptr;
 		const MaterialPass* currentMaterialPass = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
@@ -170,7 +166,7 @@ namespace Nz
 					currentAllocation = &currentFrame.GetUploadPool().Allocate(m_maxVertexBufferSize);
 					currentAllocationMemPtr = static_cast<UInt8*>(currentAllocation->mappedPtr);
 
-					std::shared_ptr<AbstractBuffer> vertexBuffer;
+					std::shared_ptr<RenderBuffer> vertexBuffer;
 
 					// Try to reuse vertex buffers from pool if any
 					if (!m_vertexBufferPool->vertexBuffers.empty())
@@ -179,10 +175,7 @@ namespace Nz
 						m_vertexBufferPool->vertexBuffers.pop_back();
 					}
 					else
-					{
-						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex);
-						vertexBuffer->Initialize(m_maxVertexBufferSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic);
-					}
+						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex, m_maxVertexBufferSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 
 					currentVertexBuffer = vertexBuffer.get();
 
@@ -308,7 +301,7 @@ namespace Nz
 		Vector2f targetSize = viewerInstance.GetTargetSize();
 		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
-		const AbstractBuffer* currentVertexBuffer = nullptr;
+		const RenderBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);

@@ -74,7 +74,7 @@ namespace Nz
 			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
-			inline const std::shared_ptr<AbstractBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
+			inline const std::shared_ptr<RenderBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
 			inline const std::vector<UInt8>& GetUniformBufferConstData(std::size_t bufferIndex);
 			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
 
@@ -101,7 +101,7 @@ namespace Nz
 			inline void SetPrimitiveMode(PrimitiveMode mode);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
-			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer);
+			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<RenderBuffer> uniformBuffer);
 
 			bool Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
 
@@ -125,7 +125,7 @@ namespace Nz
 
 			struct UniformBuffer
 			{
-				std::shared_ptr<AbstractBuffer> buffer;
+				std::shared_ptr<RenderBuffer> buffer;
 				std::vector<UInt8> data;
 				bool dataInvalidated = true;
 			};

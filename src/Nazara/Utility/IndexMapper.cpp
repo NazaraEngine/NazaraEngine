@@ -31,6 +31,12 @@ namespace Nz
 			return ptr[i];
 		}
 
+		UInt32 GetterError(const void*, std::size_t)
+		{
+			NazaraError("index buffer has no read flag");
+			return 0;
+		}
+
 		void Setter16(void* buffer, std::size_t i, UInt32 value)
 		{
 			UInt16* ptr = static_cast<UInt16*>(buffer);
@@ -45,54 +51,29 @@ namespace Nz
 
 		void SetterError(void*, std::size_t, UInt32)
 		{
-			NazaraError("Index buffer opened with read-only access");
+			NazaraError("index buffer has no write flag");
 		}
 	}
 
-	IndexMapper::IndexMapper(IndexBuffer& indexBuffer, BufferAccess access, std::size_t indexCount) :
+	IndexMapper::IndexMapper(IndexBuffer& indexBuffer, std::size_t indexCount) :
 	m_indexCount((indexCount != 0) ? indexCount : indexBuffer.GetIndexCount())
 	{
-		if (!m_mapper.Map(indexBuffer, access))
+		if (!m_mapper.Map(indexBuffer, 0, m_indexCount))
 			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
 
-		if (indexBuffer.HasLargeIndices())
-		{
-			m_getter = Getter32;
-			if (access != BufferAccess::ReadOnly)
-				m_setter = Setter32;
-			else
-				m_setter = SetterError;
-		}
+		if (indexBuffer.GetBuffer()->GetUsageFlags().Test(BufferUsage::Read))
+			m_getter = (indexBuffer.HasLargeIndices()) ? Getter32 : Getter16;
 		else
-		{
-			m_getter = Getter16;
-			if (access != BufferAccess::ReadOnly)
-				m_setter = Setter16;
-			else
-				m_setter = SetterError;
-		}
-	}
+			m_getter = GetterError;
 
-	IndexMapper::IndexMapper(SubMesh& subMesh, BufferAccess access) :
-	IndexMapper(*subMesh.GetIndexBuffer(), access, (subMesh.GetIndexBuffer()) ? 0 : subMesh.GetVertexCount())
-	{
-	}
-
-	IndexMapper::IndexMapper(const IndexBuffer& indexBuffer, BufferAccess access, std::size_t indexCount) :
-	m_setter(SetterError),
-	m_indexCount((indexCount != 0) ? indexCount : indexBuffer.GetIndexCount())
-	{
-		if (!m_mapper.Map(indexBuffer, access))
-			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
-
-		if (indexBuffer.HasLargeIndices())
-			m_getter = Getter32;
+		if (indexBuffer.GetBuffer()->GetUsageFlags().Test(BufferUsage::Write))
+			m_setter = (indexBuffer.HasLargeIndices()) ? Setter32 : Setter16;
 		else
-			m_getter = Getter16;
+			m_setter = SetterError;
 	}
 
-	IndexMapper::IndexMapper(const SubMesh& subMesh, BufferAccess access) :
-	IndexMapper(*subMesh.GetIndexBuffer(), access, (subMesh.GetIndexBuffer()) ? 0 : subMesh.GetVertexCount())
+	IndexMapper::IndexMapper(SubMesh& subMesh) :
+	IndexMapper(*subMesh.GetIndexBuffer(), (subMesh.GetIndexBuffer()) ? 0 : subMesh.GetVertexCount())
 	{
 	}
 
@@ -127,11 +108,11 @@ namespace Nz
 
 	IndexIterator IndexMapper::begin()
 	{
-		return IndexIterator(this, 0);
+		return {this, 0};
 	}
 
 	IndexIterator IndexMapper::end()
 	{
-		return IndexIterator(this, m_indexCount); // Post-end
+		return {this, m_indexCount}; // Post-end
 	}
 }
