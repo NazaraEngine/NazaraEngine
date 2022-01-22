@@ -15,24 +15,24 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a CallOnExit object with a function
+	* \brief Constructs a CallOnExit object with a functor
 	*
 	* \param func Function to call on exit
 	*/
-
-	inline CallOnExit::CallOnExit(Func func) :
-	m_func(func)
+	template<typename F>
+	CallOnExit<F>::CallOnExit(F&& functor) :
+	m_functor(std::move(functor))
 	{
 	}
 
 	/*!
 	* \brief Destructs the object and calls the function
 	*/
-
-	inline CallOnExit::~CallOnExit()
+	template<typename F>
+	CallOnExit<F>::~CallOnExit()
 	{
-		if (m_func)
-			m_func();
+		if (m_functor)
+			(*m_functor)();
 	}
 
 	/*!
@@ -40,13 +40,13 @@ namespace Nz
 	*
 	* \param func Function to call on exit
 	*/
-
-	inline void CallOnExit::CallAndReset(Func func)
+	template<typename F>
+	void CallOnExit<F>::CallAndReset()
 	{
-		if (m_func)
-			m_func();
+		if (m_functor)
+			(*m_functor)();
 
-		Reset(func);
+		m_functor.reset();
 	}
 
 	/*!
@@ -54,10 +54,10 @@ namespace Nz
 	*
 	* \param func Function to call on exit
 	*/
-
-	inline void CallOnExit::Reset(Func func)
+	template<typename F>
+	void CallOnExit<F>::Reset()
 	{
-		m_func = func;
+		m_functor.reset();
 	}
 }
 

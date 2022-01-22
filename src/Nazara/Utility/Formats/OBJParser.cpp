@@ -21,17 +21,16 @@ namespace Nz
 		m_keepLastLine = false;
 		m_lineCount = 0;
 
-		// Force stream in text mode, reset it at the end
-		Nz::CallOnExit resetTextMode;
-		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
+		// force stream in text mode, reset it at the end
+		CallOnExit resetTextMode([&stream]
 		{
-			stream.EnableTextMode(true);
+			stream.EnableTextMode(false);
+		});
 
-			resetTextMode.Reset([&stream] ()
-			{
-				stream.EnableTextMode(false);
-			});
-		}
+		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
+			stream.EnableTextMode(true);
+		else
+			resetTextMode.Reset();
 
 		unsigned int failureCount = 0;
 		while (Advance(false))
@@ -93,17 +92,16 @@ namespace Nz
 		m_keepLastLine = false;
 		m_lineCount = 0;
 
-		// Force stream in text mode, reset it at the end
-		Nz::CallOnExit resetTextMode;
-		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
+		// force stream in text mode, reset it at the end
+		CallOnExit resetTextMode([&stream]
 		{
-			stream.EnableTextMode(true);
+			stream.EnableTextMode(false);
+		});
 
-			resetTextMode.Reset([&stream] ()
-			{
-				stream.EnableTextMode(false);
-			});
-		}
+		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
+			stream.EnableTextMode(true);
+		else
+			resetTextMode.Reset();
 
 		std::string matName, meshName;
 		matName = meshName = "default";
@@ -491,17 +489,16 @@ namespace Nz
 	{
 		m_currentStream = &stream;
 
-		// Force stream in text mode, reset it at the end
-		Nz::CallOnExit resetTextMode;
-		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
+		// force stream in text mode, reset it at the end
+		CallOnExit resetTextMode([&stream]
 		{
-			stream.EnableTextMode(true);
+			stream.EnableTextMode(false);
+		});
 
-			resetTextMode.Reset([&stream] ()
-			{
-				stream.EnableTextMode(false);
-			});
-		}
+		if ((stream.GetStreamOptions() & StreamOption::Text) == 0)
+			stream.EnableTextMode(true);
+		else
+			resetTextMode.Reset();
 
 		m_outputStream.str({});
 
