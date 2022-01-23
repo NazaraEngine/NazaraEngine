@@ -152,7 +152,7 @@ namespace Nz
 			std::unordered_map<std::size_t, ShaderAst::StructDescription*> m_structs;
 			std::unordered_map<std::size_t, Variable> m_variables;
 			std::vector<std::size_t> m_scopeSizes;
-			std::vector<SpirvBlock> m_functionBlocks;
+			std::vector<std::unique_ptr<SpirvBlock>> m_functionBlocks;
 			std::vector<UInt32> m_resultIds;
 			SpirvBlock* m_currentBlock;
 			SpirvSection& m_instructions;
