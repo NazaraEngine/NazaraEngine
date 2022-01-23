@@ -19,8 +19,8 @@ namespace Nz
 	class SparsePtr
 	{
 		public:
-			using BytePtr = typename std::conditional<std::is_const<T>::value, const UInt8*, UInt8*>::type;
-			using VoidPtr = typename std::conditional<std::is_const<T>::value, const void*, void*>::type;
+			using BytePtr = std::conditional_t<std::is_const<T>::value, const UInt8*, UInt8*>;
+			using VoidPtr = std::conditional_t<std::is_const<T>::value, const void*, void*>;
 
 			SparsePtr();
 			SparsePtr(T* ptr);
@@ -46,18 +46,16 @@ namespace Nz
 			explicit operator T*() const;
 			T& operator*() const;
 			T* operator->() const;
-			T& operator[](std::size_t index) const;
+			template<typename U> T& operator[](U index) const;
 
 			SparsePtr& operator=(const SparsePtr& ptr) = default;
 
-			SparsePtr operator+(Int64 count) const;
-			SparsePtr operator+(UInt64 count) const;
-			SparsePtr operator-(Int64 count) const;
-			SparsePtr operator-(UInt64 count) const;
+			template<typename U> SparsePtr operator+(U count) const;
+			template<typename U> SparsePtr operator-(U count) const;
 			std::ptrdiff_t operator-(const SparsePtr& ptr) const;
 
-			SparsePtr& operator+=(Int64 count);
-			SparsePtr& operator-=(Int64 count);
+			template<typename U> SparsePtr& operator+=(U count);
+			template<typename U> SparsePtr& operator-=(U count);
 
 			SparsePtr& operator++();
 			SparsePtr operator++(int);
