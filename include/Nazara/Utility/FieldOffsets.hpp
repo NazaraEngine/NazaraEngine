@@ -29,6 +29,7 @@ namespace Nz
 
 			inline std::size_t GetAlignedSize() const;
 			inline std::size_t GetLargestFieldAlignement() const;
+			inline StructLayout GetLayout() const;
 			inline std::size_t GetSize() const;
 
 			FieldOffsets& operator=(const FieldOffsets&) = default;
