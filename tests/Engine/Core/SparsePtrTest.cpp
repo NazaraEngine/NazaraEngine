@@ -34,13 +34,13 @@ SCENARIO("SparsePtr", "[CORE][SPARSEPTR]")
 
 			THEN("Operator+ and operator-")
 			{
-				auto offsetTwo = sparsePtr + 2;
+				auto offsetTwo = sparsePtr + 2ull;
 				CHECK(4 == *offsetTwo);
 
-				auto offsetZero = offsetTwo - 2;
+				auto offsetZero = offsetTwo - 2ull;
 				CHECK(0 == *offsetZero);
 
-				CHECK((offsetTwo - offsetZero) == 2);
+				CHECK((offsetTwo - offsetZero) == 2ull);
 			}
 		}
 	}
