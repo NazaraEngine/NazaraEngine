@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/ShaderBuilder.hpp>
+#include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderBuilder
@@ -110,6 +111,15 @@ namespace Nz::ShaderBuilder
 		return callFunctionExpression;
 	}
 
+	inline std::unique_ptr<ShaderAst::CastExpression> Impl::Cast::operator()(ShaderAst::ExpressionType targetType, ShaderAst::ExpressionPtr expression) const
+	{
+		auto castNode = std::make_unique<ShaderAst::CastExpression>();
+		castNode->targetType = std::move(targetType);
+		castNode->expressions[0] = std::move(expression);
+
+		return castNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::CastExpression> Impl::Cast::operator()(ShaderAst::ExpressionType targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const
 	{
 		auto castNode = std::make_unique<ShaderAst::CastExpression>();
@@ -157,6 +167,22 @@ namespace Nz::ShaderBuilder
 		constantNode->cachedExpressionType = ShaderAst::GetExpressionType(constantNode->value);
 
 		return constantNode;
+	}
+
+	template<typename T>
+	std::unique_ptr<ShaderAst::ConstantValueExpression> Impl::Constant::operator()(ShaderAst::ExpressionType type, T value) const
+	{
+		assert(IsPrimitiveType(type));
+
+		switch (std::get<ShaderAst::PrimitiveType>(type))
+		{
+			case ShaderAst::PrimitiveType::Boolean: return ShaderBuilder::Constant(value != T(0));
+			case ShaderAst::PrimitiveType::Float32: return ShaderBuilder::Constant(SafeCast<float>(value));
+			case ShaderAst::PrimitiveType::Int32:   return ShaderBuilder::Constant(SafeCast<Int32>(value));
+			case ShaderAst::PrimitiveType::UInt32:  return ShaderBuilder::Constant(SafeCast<UInt32>(value));
+		}
+
+		throw std::runtime_error("unexpected primitive type");
 	}
 
 	inline std::unique_ptr<ShaderAst::DeclareConstStatement> Impl::DeclareConst::operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const

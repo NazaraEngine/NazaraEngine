@@ -235,6 +235,20 @@ namespace Nz::ShaderLang
 
 			return matrixType;
 		}
+		else if (identifier == "mat2")
+		{
+			Consume();
+
+			ShaderAst::MatrixType matrixType;
+			matrixType.columnCount = 2;
+			matrixType.rowCount = 2;
+
+			Expect(Advance(), TokenType::LessThan); //< '<'
+			matrixType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::GreaterThan); //< '>'
+
+			return matrixType;
+		}
 		else if (identifier == "sampler2D")
 		{
 			Consume();
