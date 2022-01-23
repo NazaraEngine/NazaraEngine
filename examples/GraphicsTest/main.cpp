@@ -28,7 +28,6 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
-	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
 
@@ -79,12 +78,14 @@ int main()
 	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
+	model.UpdateScissorBox(Nz::Recti(0, 0, 1920, 1080));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, material);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::Camera camera(window.GetRenderTarget());
+	//camera.UpdateClearColor(Nz::Color::Gray);
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));

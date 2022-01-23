@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
+	class RenderBuffer;
 	class ShaderBinding;
 	class ShaderBindingDeleter;
 	class Texture;
@@ -48,7 +48,7 @@ namespace Nz
 
 			struct UniformBufferBinding
 			{
-				AbstractBuffer* buffer;
+				RenderBuffer* buffer;
 				UInt64 offset;
 				UInt64 range;
 			};

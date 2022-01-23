@@ -108,7 +108,7 @@ namespace Nz
 				}
 			}
 
-			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(false, header.num_tris*3, parameters.storage, parameters.indexBufferFlags);
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(false, 3 * header.num_tris, parameters.indexBufferFlags, parameters.bufferFactory);
 
 			// Extract triangles data
 			std::vector<MD2_Triangle> triangles(header.num_tris);
@@ -117,7 +117,7 @@ namespace Nz
 			stream.Read(&triangles[0], header.num_tris*sizeof(MD2_Triangle));
 
 			// And convert them into an index buffer
-			BufferMapper<IndexBuffer> indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
+			BufferMapper<IndexBuffer> indexMapper(*indexBuffer, 0, indexBuffer->GetIndexCount());
 			UInt16* index = static_cast<UInt16*>(indexMapper.GetPointer());
 
 			for (unsigned int i = 0; i < header.num_tris; ++i)
@@ -159,7 +159,7 @@ namespace Nz
 			}
 			#endif
 
-			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, header.num_vertices, parameters.storage, parameters.vertexBufferFlags);
+			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, header.num_vertices, parameters.vertexBufferFlags, parameters.bufferFactory);
 			std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
 
 			// Extracting vertices
@@ -187,7 +187,7 @@ namespace Nz
 			scale *= ScaleAdjust;
 			translate *= ScaleAdjust;
 
-			VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
+			VertexMapper vertexMapper(*vertexBuffer);
 
 			// Loading texture coordinates
 			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
@@ -247,7 +247,7 @@ namespace Nz
 
 			vertexMapper.Unmap();
 
-			subMesh->SetIndexBuffer(indexBuffer);
+			subMesh->SetIndexBuffer(std::move(indexBuffer));
 			subMesh->SetMaterialIndex(0);
 
 			subMesh->GenerateAABB();

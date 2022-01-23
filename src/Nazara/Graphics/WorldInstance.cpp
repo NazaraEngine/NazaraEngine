@@ -20,9 +20,7 @@ namespace Nz
 	{
 		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
 
-		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
-		if (!m_instanceDataBuffer->Initialize(instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic))
-			throw std::runtime_error("failed to initialize viewer data UBO");
+		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 	}
 
 	void WorldInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)

@@ -80,7 +80,6 @@ int main()
 	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
-	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.center = true;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
@@ -110,7 +109,7 @@ int main()
 
 	// Plane
 	Nz::MeshParams meshPrimitiveParams;
-	meshPrimitiveParams.storage = Nz::DataStorage::Software;
+	meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::Mesh> planeMesh = std::make_shared<Nz::Mesh>();
 	planeMesh->CreateStatic();
@@ -204,7 +203,7 @@ int main()
 	std::shared_ptr<Nz::Material> flareMaterial = std::make_shared<Nz::Material>();
 	std::shared_ptr<Nz::MaterialPass> flareMaterialPass;
 	{
-		flareMaterialPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
+		flareMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 		flareMaterialPass->EnableDepthBuffer(true);
 		flareMaterialPass->EnableDepthWrite(false);
 		flareMaterialPass->EnableDepthClamp(true);
@@ -327,9 +326,7 @@ int main()
 
 	constexpr std::size_t MaxPointLight = 2000;
 
-	std::shared_ptr<Nz::AbstractBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType::Uniform);
-	if (!lightUbo->Initialize(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
-		return __LINE__;
+	std::shared_ptr<Nz::RenderBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType::Uniform, MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write);
 
 	std::vector<SpotLight> spotLights;
 	/*auto& firstSpot = spotLights.emplace_back();
@@ -414,7 +411,7 @@ int main()
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
 
 	std::vector<Nz::UInt8> gaussianBlurData(gaussianBlurDataOffsets.GetSize());
-	std::vector<std::shared_ptr<Nz::AbstractBuffer>> gaussianBlurUbos;
+	std::vector<std::shared_ptr<Nz::RenderBuffer>> gaussianBlurUbos;
 
 	float sizeFactor = 2.f;
 	for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
@@ -422,19 +419,11 @@ int main()
 		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(1.f, 0.f);
 		Nz::AccessByOffset<float&>(gaussianBlurData.data(), gaussianBlurDataSize) = sizeFactor;
 
-		std::shared_ptr<Nz::AbstractBuffer> horizontalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform);
-		if (!horizontalBlurData->Initialize(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
-			return __LINE__;
-
-		horizontalBlurData->Fill(gaussianBlurData.data(), 0, gaussianBlurDataOffsets.GetSize());
+		std::shared_ptr<Nz::RenderBuffer> horizontalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform, gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, gaussianBlurData.data());
 
 		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(0.f, 1.f);
 
-		std::shared_ptr<Nz::AbstractBuffer> verticalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform);
-		if (!verticalBlurData->Initialize(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic))
-			return __LINE__;
-
-		verticalBlurData->Fill(gaussianBlurData.data(), 0, gaussianBlurDataOffsets.GetSize());
+		std::shared_ptr<Nz::RenderBuffer> verticalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform, gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, gaussianBlurData.data());
 
 		sizeFactor *= 2.f;
 
@@ -570,9 +559,7 @@ int main()
 	Nz::AccessByOffset<float&>(godRaysData.data(), gr_weightOffset) = 5.65f;
 	Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset) = Nz::Vector2f(0.5f, 0.1f);
 
-	std::shared_ptr<Nz::AbstractBuffer> godRaysUBO = device->InstantiateBuffer(Nz::BufferType::Uniform);
-	godRaysUBO->Initialize(godRaysData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic);
-	godRaysUBO->Fill(godRaysData.data(), 0, godRaysData.size());
+	std::shared_ptr<Nz::RenderBuffer> godRaysUBO = device->InstantiateBuffer(Nz::BufferType::Uniform, godRaysData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, godRaysData.data());
 
 	std::shared_ptr<Nz::ShaderBinding> godRaysBlitShaderBinding;
 
@@ -667,12 +654,7 @@ int main()
 		}
 	};*/
 
-	std::shared_ptr<Nz::AbstractBuffer> fullscreenVertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex);
-	if (!fullscreenVertexBuffer->Initialize(fullscreenVertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal))
-		return __LINE__;
-
-	if (!fullscreenVertexBuffer->Fill(vertexData.data(), 0, fullscreenVertexBuffer->GetSize()))
-		return __LINE__;
+	std::shared_ptr<Nz::RenderBuffer> fullscreenVertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex, fullscreenVertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Write, vertexData.data());
 
 	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit;
 	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding;

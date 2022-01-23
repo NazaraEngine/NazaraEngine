@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <memory>
@@ -23,9 +24,9 @@ namespace Nz
 			GraphicalMesh(GraphicalMesh&&) noexcept = default;
 			~GraphicalMesh() = default;
 
-			inline const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMesh) const;
+			inline const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMesh) const;
 			inline std::size_t GetIndexCount(std::size_t subMesh) const;
-			inline const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMesh) const;
+			inline const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMesh) const;
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
 
@@ -35,8 +36,8 @@ namespace Nz
 		private:
 			struct GraphicalSubMesh
 			{
-				std::shared_ptr<AbstractBuffer> indexBuffer;
-				std::shared_ptr<AbstractBuffer> vertexBuffer;
+				std::shared_ptr<RenderBuffer> indexBuffer;
+				std::shared_ptr<RenderBuffer> vertexBuffer;
 				std::size_t indexCount;
 				std::shared_ptr<const VertexDeclaration> vertexDeclaration;
 			};

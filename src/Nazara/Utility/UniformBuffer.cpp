@@ -10,85 +10,54 @@
 
 namespace Nz
 {
-	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer)
+	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer) :
+	m_buffer(std::move(buffer)),
+	m_startOffset(0)
 	{
-		ErrorFlags(ErrorMode::ThrowException, true);
-		Reset(std::move(buffer));
+		NazaraAssert(m_buffer, "invalid buffer");
+		NazaraAssert(m_buffer->GetType() == BufferType::Uniform, "buffer must be an uniform buffer");
+
+		m_endOffset = m_buffer->GetSize();
 	}
 
-	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size)
+	UniformBuffer::UniformBuffer(std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size) :
+	m_buffer(std::move(buffer)),
+	m_endOffset(size),
+	m_startOffset(offset)
 	{
-		ErrorFlags(ErrorMode::ThrowException, true);
-		Reset(std::move(buffer), offset, size);
 	}
 
-	UniformBuffer::UniformBuffer(UInt32 length, DataStorage storage, BufferUsageFlags usage)
+	UniformBuffer::UniformBuffer(UInt64 size, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
+	m_endOffset(size),
+	m_startOffset(0)
 	{
-		ErrorFlags(ErrorMode::ThrowException, true);
-		Reset(length, storage, usage);
+		NazaraAssert(size > 0, "invalid size");
+
+		m_buffer = bufferFactory(BufferType::Uniform, size, usage, initialData);
 	}
 
-	bool UniformBuffer::Fill(const void* data, UInt32 offset, UInt32 size)
+	bool UniformBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Fill(data, m_startOffset + offset, size);
 	}
 
-	void* UniformBuffer::Map(BufferAccess access, UInt32 offset, UInt32 size)
+	void* UniformBuffer::Map(UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
-		return m_buffer->Map(access, offset, size);
+		return m_buffer->Map(m_startOffset + offset, size);
 	}
 
-	void* UniformBuffer::Map(BufferAccess access, UInt32 offset, UInt32 size) const
+	void* UniformBuffer::Map(UInt64 offset, UInt64 size) const
 	{
-		NazaraAssert(m_buffer && m_buffer->IsValid(), "Invalid buffer");
+		NazaraAssert(m_buffer, "Invalid buffer");
 		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
-		return m_buffer->Map(access, offset, size);
-	}
-
-	void UniformBuffer::Reset()
-	{
-		m_buffer.reset();
-	}
-
-	void UniformBuffer::Reset(std::shared_ptr<Buffer> buffer)
-	{
-		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-
-		Reset(buffer, 0, buffer->GetSize());
-	}
-
-	void UniformBuffer::Reset(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size)
-	{
-		NazaraAssert(buffer && buffer->IsValid(), "Invalid buffer");
-		NazaraAssert(buffer->GetType() == BufferType::Uniform, "Buffer must be an uniform buffer");
-		NazaraAssert(size > 0, "Invalid size");
-		NazaraAssert(offset + size > buffer->GetSize(), "Virtual buffer exceed buffer bounds");
-
-		m_buffer = buffer;
-		m_endOffset = offset + size;
-		m_startOffset = offset;
-	}
-
-	void UniformBuffer::Reset(UInt32 size, DataStorage storage, BufferUsageFlags usage)
-	{
-		m_endOffset = size;
-		m_startOffset = 0;
-
-		m_buffer = std::make_shared<Buffer>(BufferType::Uniform, m_endOffset, storage, usage);
-	}
-
-	void UniformBuffer::Reset(const UniformBuffer& uniformBuffer)
-	{
-		m_buffer = uniformBuffer.m_buffer;
-		m_endOffset = uniformBuffer.m_endOffset;
-		m_startOffset = uniformBuffer.m_startOffset;
+		return m_buffer->Map(m_startOffset + offset, size);
 	}
 
 	void UniformBuffer::Unmap() const

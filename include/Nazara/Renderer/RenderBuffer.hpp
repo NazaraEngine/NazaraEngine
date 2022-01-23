@@ -7,61 +7,34 @@
 #ifndef NAZARA_RENDERER_RENDERBUFFER_HPP
 #define NAZARA_RENDERER_RENDERBUFFER_HPP
 
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
-#include <Nazara/Utility/SoftwareBuffer.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <memory>
-#include <unordered_map>
 
 namespace Nz
 {
 	class RenderDevice;
 
-	class NAZARA_RENDERER_API RenderBuffer : public AbstractBuffer
+	class NAZARA_RENDERER_API RenderBuffer : public Buffer
 	{
 		public:
-			inline RenderBuffer(Buffer* parent, BufferType type);
+			inline RenderBuffer(RenderDevice& renderDevice, BufferType type, UInt64 size, BufferUsageFlags usage);
 			RenderBuffer(const RenderBuffer&) = delete;
-			RenderBuffer(RenderBuffer&&) = default;
-			~RenderBuffer() = default;
+			RenderBuffer(RenderBuffer&&) = delete;
+			~RenderBuffer();
 
-			bool Fill(const void* data, UInt64 offset, UInt64 size) final;
-
-			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
-
-			AbstractBuffer* GetHardwareBuffer(RenderDevice* device);
-			UInt64 GetSize() const override;
-			DataStorage GetStorage() const override;
-
-			void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) final;
-			bool Unmap() final;
+			inline RenderDevice& GetRenderDevice();
+			inline const RenderDevice& GetRenderDevice() const;
 
 			RenderBuffer& operator=(const RenderBuffer&) = delete;
-			RenderBuffer& operator=(RenderBuffer&&) = default;
-
-		public: //< temp
-			bool Synchronize(RenderDevice* device);
+			RenderBuffer& operator=(RenderBuffer&&) = delete;
 
 		private:
-			struct HardwareBuffer;
-
-			HardwareBuffer* GetHardwareBufferData(RenderDevice* device);
-
-			struct HardwareBuffer
-			{
-				std::shared_ptr<AbstractBuffer> buffer;
-				bool synchronized = false;
-			};
-
-			BufferUsageFlags m_usage;
-			SoftwareBuffer m_softwareBuffer;
-			Buffer* m_parent;
-			BufferType m_type;
-			std::size_t m_size;
-			std::unordered_map<RenderDevice*, HardwareBuffer> m_hardwareBuffers;
+			RenderDevice& m_renderDevice;
 	};
+
+	NAZARA_RENDERER_API BufferFactory GetRenderBufferFactory(std::shared_ptr<RenderDevice> device);
 }
 
 #include <Nazara/Renderer/RenderBuffer.inl>

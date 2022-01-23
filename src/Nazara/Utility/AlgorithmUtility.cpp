@@ -76,32 +76,32 @@ namespace Nz
 					triangles.reserve(20 * IntegralPow(4, recursionLevel));
 
 					// Cinq triangles autour du premier point
-					triangles.push_back({0, 11,  5});
-					triangles.push_back({0,  5,  1});
-					triangles.push_back({0,  1,  7});
-					triangles.push_back({0,  7, 10});
-					triangles.push_back({0, 10, 11});
+					triangles.emplace_back(0, 11,  5);
+					triangles.emplace_back(0,  5,  1);
+					triangles.emplace_back(0,  1,  7);
+					triangles.emplace_back(0,  7, 10);
+					triangles.emplace_back(0, 10, 11);
 
 					// Cinq faces adjaçentes
-					triangles.push_back({ 1,  5,  9});
-					triangles.push_back({ 5, 11,  4});
-					triangles.push_back({11, 10,  2});
-					triangles.push_back({10,  7,  6});
-					triangles.push_back({ 7,  1,  8});
+					triangles.emplace_back(1,  5,  9);
+					triangles.emplace_back(5, 11,  4);
+					triangles.emplace_back(11, 10,  2);
+					triangles.emplace_back(10,  7,  6);
+					triangles.emplace_back(7,  1,  8);
 
 					// Cinq triangles autour du troisième point
-					triangles.push_back({3, 9, 4});
-					triangles.push_back({3, 4, 2});
-					triangles.push_back({3, 2, 6});
-					triangles.push_back({3, 6, 8});
-					triangles.push_back({3, 8, 9});
+					triangles.emplace_back(3, 9, 4);
+					triangles.emplace_back(3, 4, 2);
+					triangles.emplace_back(3, 2, 6);
+					triangles.emplace_back(3, 6, 8);
+					triangles.emplace_back(3, 8, 9);
 
 					// Cinq faces adjaçentes
-					triangles.push_back({4, 9,  5});
-					triangles.push_back({2, 4, 11});
-					triangles.push_back({6, 2, 10});
-					triangles.push_back({8, 6,  7});
-					triangles.push_back({9, 8,  1});
+					triangles.emplace_back(4, 9,  5);
+					triangles.emplace_back(2, 4, 11);
+					triangles.emplace_back(6, 2, 10);
+					triangles.emplace_back(8, 6,  7);
+					triangles.emplace_back(9, 8,  1);
 
 					// Et maintenant on affine la sphère
 					for (unsigned int i = 0; i < recursionLevel; ++i)
@@ -115,11 +115,11 @@ namespace Nz
 							unsigned int b = GetMiddleVertex(triangle.y, triangle.z);
 							unsigned int c = GetMiddleVertex(triangle.z, triangle.x);
 
-							triangles.push_back({triangle.x, a, c});
-							triangles.push_back({triangle.y, b, a});
-							triangles.push_back({triangle.z, c, b});
+							triangles.emplace_back(triangle.x, a, c);
+							triangles.emplace_back(triangle.y, b, a);
+							triangles.emplace_back(triangle.z, c, b);
 
-							triangle.Set(a, b, c); // Réutilisation du triangle
+							triangle.Set(a, b, c); // Reuse triangle
 						}
 					}
 
@@ -175,29 +175,28 @@ namespace Nz
 		///TODO: Déplacer dans un fichier à part ?
 		struct VertexCacheData
 		{
-			int position_in_cache = -1;
-			float current_score = 0.f;
-			int total_valence = 0; // toatl number of triangles using this vertex
-			int remaining_valence = 0; // number of triangles using it but not yet rendered
-			std::vector<int> tri_indices; // indices to the indices that use this vertex
+			int positionInCache = -1;
+			float score = 0.f;
+			int totalValence = 0; // total number of triangles using this vertex
+			int remainingValence = 0; // number of triangles using it but not yet rendered
+			std::vector<int> triIndices; // indices to the indices that use this vertex
 			bool calculated; // was the score calculated during this iteration?
-
 
 			int FindTriangle(int tri)
 			{
-				for (unsigned int i = 0; i < tri_indices.size(); ++i)
-					if (tri_indices[i] == tri) return i;
+				for (unsigned int i = 0; i < triIndices.size(); ++i)
+					if (triIndices[i] == tri) return i;
 
 				return -1;
 			}
 
 			void MoveTriangleToEnd(int tri)
 			{
-				auto it = std::find(tri_indices.begin(), tri_indices.end(), tri);
-				NazaraAssert(it != tri_indices.end(), "Triangle not found");
+				auto it = std::find(triIndices.begin(), triIndices.end(), tri);
+				NazaraAssert(it != triIndices.end(), "Triangle not found");
 
-				tri_indices.erase(it);
-				tri_indices.push_back(tri);
+				triIndices.erase(it);
+				triIndices.push_back(tri);
 			}
 		};
 
@@ -217,18 +216,18 @@ namespace Nz
 					Clear();
 				}
 
-				VertexCache(IndexIterator indices, unsigned int indexCount)
+				VertexCache(IndexIterator indices, UInt32 indexCount)
 				{
 					Clear();
 
-					for (unsigned int i = 0; i < indexCount; ++i)
+					for (UInt32 i = 0; i < indexCount; ++i)
 						AddVertex(*indices++);
 				}
 
 				// the vertex will be placed on top
-				// if the vertex didn't exist previewsly in
-				// the cache, then miss count is incermented
-				void AddVertex(unsigned int v)
+				// if the vertex didn't exist previously in
+				// the cache, then miss count is incremented
+				void AddVertex(UInt32 v)
 				{
 					int w = FindVertex(v);
 					if (w >= 0)
@@ -239,7 +238,7 @@ namespace Nz
 						m_misses++;
 
 					// shift all vertices down (to make room for the new top vertex)
-					for (int i=39; i>0; i--)
+					for (int i = 39; i > 0; i--)
 						m_cache[i] = m_cache[i-1];
 
 					// add the new vertex on top
@@ -248,13 +247,11 @@ namespace Nz
 
 				void Clear()
 				{
-					for (int i=0; i<40; i++)
-						m_cache[i] = -1;
-
+					m_cache.fill(-1);
 					m_misses = 0;
 				}
 
-				int GetMissCount() const
+				UInt64 GetMissCount() const
 				{
 					return m_misses;
 				}
@@ -276,14 +273,14 @@ namespace Nz
 					return -1;
 				}
 
-				void RemoveVertex(int stack_index)
+				void RemoveVertex(int stackIndex)
 				{
-					for (int i=stack_index; i<38; i++)
+					for (int i = stackIndex; i < 38; i++)
 						m_cache[i] = m_cache[i+1];
 				}
 
-				int m_cache[40];
-				int m_misses; // cache miss count
+				std::array<int, 40> m_cache;
+				UInt64 m_misses; // cache miss count
 		};
 
 		class VertexCacheOptimizer
@@ -337,18 +334,19 @@ namespace Nz
 			private:
 				float CalculateVertexScore(VertexCacheData& vertex) const
 				{
-					if (vertex.remaining_valence <= 0)
+					if (vertex.remainingValence <= 0)
 						// No tri needs this vertex!
 						return -1.0f;
 
-					float ret = 0.0f;
-					if (vertex.position_in_cache < 0)
+					float ret;
+					if (vertex.positionInCache < 0)
 					{
 						// Vertex is not in FIFO cache - no score.
+						ret = 0.0f;
 					}
 					else
 					{
-						if (vertex.position_in_cache < 3)
+						if (vertex.positionInCache < 3)
 						{
 							// This vertex was used in the last triangle,
 							// so it has a fixed score, whichever of the three
@@ -361,14 +359,14 @@ namespace Nz
 						{
 							// Points for being high in the cache.
 							const float Scaler = 1.0f / (32  - 3);
-							ret = 1.0f - (vertex.position_in_cache - 3) * Scaler;
+							ret = 1.0f - (vertex.positionInCache - 3) * Scaler;
 							ret = std::pow(ret, m_cacheDecayPower);
 						}
 					}
 
 					// Bonus points for having a low number of tris still to
 					// use the vert, so we get rid of lone verts quickly.
-					float valence_boost = std::pow(static_cast<float>(vertex.remaining_valence), -m_valenceBoostPower);
+					float valence_boost = std::pow(static_cast<float>(vertex.remainingValence), -m_valenceBoostPower);
 					ret += m_valenceBoostScale * valence_boost;
 
 					return ret;
@@ -380,11 +378,11 @@ namespace Nz
 				{
 					// calculate score for all vertices
 					for (VertexCacheData& vertex : m_vertices)
-						vertex.current_score = CalculateVertexScore(vertex);
+						vertex.score = CalculateVertexScore(vertex);
 
 					// calculate scores for all active triangles
-					float max_score = std::numeric_limits<float>::lowest();
-					int max_score_tri = -1;
+					float maxScore = std::numeric_limits<float>::lowest();
+					int maxScoreTri = -1;
 
 					for (unsigned int i = 0; i < m_triangles.size(); ++i)
 					{
@@ -392,20 +390,20 @@ namespace Nz
 							continue;
 
 						// sum the score of all the triangle's vertices
-						float sc = m_vertices[m_triangles[i].verts[0]].current_score +
-								   m_vertices[m_triangles[i].verts[1]].current_score +
-								   m_vertices[m_triangles[i].verts[2]].current_score;
+						float sc = m_vertices[m_triangles[i].verts[0]].score +
+						           m_vertices[m_triangles[i].verts[1]].score +
+						           m_vertices[m_triangles[i].verts[2]].score;
 
 						m_triangles[i].current_score = sc;
 
-						if (sc > max_score)
+						if (sc > maxScore)
 						{
-							max_score = sc;
-							max_score_tri = i;
+							maxScore = sc;
+							maxScoreTri = i;
 						}
 					}
 
-					return max_score_tri;
+					return maxScoreTri;
 				}
 
 				Result InitialPass()
@@ -416,10 +414,10 @@ namespace Nz
 						if (index < 0 || index >= static_cast<int>(m_vertices.size()))
 							return Fail_BadIndex;
 
-						m_vertices[index].total_valence++;
-						m_vertices[index].remaining_valence++;
+						m_vertices[index].totalValence++;
+						m_vertices[index].remainingValence++;
 
-						m_vertices[index].tri_indices.push_back(i/3);
+						m_vertices[index].triIndices.push_back(i/3);
 					}
 
 					m_bestTri = FullScoreRecalculation();
@@ -427,14 +425,14 @@ namespace Nz
 					return Success;
 				}
 
-				Result Init(IndexIterator indices, unsigned int indexCount, int vertex_count)
+				Result Init(IndexIterator indices, unsigned int indexCount, int vertexCount)
 				{
 					// clear the draw list
 					m_drawList.clear();
 
 					// allocate and initialize vertices and triangles
 					m_vertices.clear(); // Pour reconstruire tous les éléments
-					m_vertices.resize(vertex_count);
+					m_vertices.resize(vertexCount);
 
 					m_triangles.clear();
 					for (unsigned int i = 0; i < indexCount; i += 3)
@@ -466,22 +464,22 @@ namespace Nz
 						if (ind < 0)
 							continue;
 
-						m_vertices[ind].position_in_cache = -1;
+						m_vertices[ind].positionInCache = -1;
 					}
 
 					TriangleCacheData* t = &m_triangles[tri];
 					if (t->rendered)
 						return; // triangle is already in the draw list
 
-					for (unsigned int i = 0; i < 3; ++i)
+					for (int vert : t->verts)
 					{
 						// add all triangle vertices to the cache
-						m_vertexCache.AddVertex(t->verts[i]);
+						m_vertexCache.AddVertex(vert);
 
-						VertexCacheData *v = &m_vertices[t->verts[i]];
+						VertexCacheData *v = &m_vertices[vert];
 
-						// decrease remaining velence
-						v->remaining_valence--;
+						// decrease remaining valence
+						v->remainingValence--;
 
 						// move the added triangle to the end of the vertex's
 						// triangle index list, so that the first 'remaining_valence'
@@ -500,11 +498,11 @@ namespace Nz
 						if (ind < 0)
 							continue;
 
-						m_vertices[ind].position_in_cache = i;
+						m_vertices[ind].positionInCache = i;
 					}
 				}
 
-				// Optimization: to avoid duplicate calculations durind the same iteration,
+				// Optimization: to avoid duplicate calculations during the same iteration,
 				// both vertices and triangles have a 'calculated' flag. This flag
 				// must be cleared at the beginning of the iteration to all *active* triangles
 				// that have one or more of their vertices currently cached, and all their
@@ -522,9 +520,9 @@ namespace Nz
 
 						VertexCacheData *v = &m_vertices[vert];
 
-						for (int j = 0; j < v->remaining_valence; j++)
+						for (int j = 0; j < v->remainingValence; j++)
 						{
-							TriangleCacheData *t = &m_triangles[v->tri_indices[j]];
+							TriangleCacheData *t = &m_triangles[v->triIndices[j]];
 
 							// we actually found a triangle to process
 							ret = true;
@@ -533,8 +531,8 @@ namespace Nz
 							t->calculated = false;
 
 							// clear vertex flags
-							for (unsigned int k = 0; k < 3; ++k)
-								m_vertices[t->verts[k]].calculated = false;
+							for (int i : t->verts)
+								m_vertices[i].calculated = false;
 						}
 					}
 
@@ -547,14 +545,14 @@ namespace Nz
 
 					// calculate vertex scores
 					float sum = 0.f;
-					for (unsigned int i = 0; i < 3; ++i)
+					for (int vert : t->verts)
 					{
-						VertexCacheData& v = m_vertices[t->verts[i]];
-						float sc = v.current_score;
+						VertexCacheData& v = m_vertices[vert];
+						float sc = v.score;
 						if (!v.calculated)
 							sc = CalculateVertexScore(v);
 
-						v.current_score = sc;
+						v.score = sc;
 						v.calculated = true;
 						sum += sc;
 					}
@@ -566,8 +564,8 @@ namespace Nz
 				int PartialScoreRecalculation()
 				{
 					// iterate through all the vertices of the cache
-					float max_score = std::numeric_limits<float>::lowest();
-					int max_score_tri = -1;
+					float maxScore = std::numeric_limits<float>::lowest();
+					int maxScoreTri = -1;
 
 					for (unsigned int i = 0; i < 32; ++i)
 					{
@@ -578,9 +576,9 @@ namespace Nz
 						const VertexCacheData* v = &m_vertices[vert];
 
 						// iterate through all *active* triangles of this vertex
-						for (int j = 0; j < v->remaining_valence; j++)
+						for (int j = 0; j < v->remainingValence; j++)
 						{
-							int tri = v->tri_indices[j];
+							int tri = v->triIndices[j];
 							TriangleCacheData* t = &m_triangles[tri];
 							if (!t->calculated)
 								// calculate triangle score
@@ -589,15 +587,15 @@ namespace Nz
 							float sc = t->current_score;
 
 							// we actually found a triangle to process
-							if (sc > max_score)
+							if (sc > maxScore)
 							{
-								max_score = sc;
-								max_score_tri = tri;
+								maxScore = sc;
+								maxScoreTri = tri;
 							}
 						}
 					}
 
-					return max_score_tri;
+					return maxScoreTri;
 				}
 
 				// returns true while there are more steps to take
@@ -667,7 +665,7 @@ namespace Nz
 			*vertexCount = xVertexCount*2 + yVertexCount*2 + zVertexCount*2;
 	}
 
-	unsigned int ComputeCacheMissCount(IndexIterator indices, std::size_t indexCount)
+	UInt64 ComputeCacheMissCount(IndexIterator indices, std::size_t indexCount)
 	{
 		VertexCache cache(indices, indexCount);
 		return cache.GetMissCount();

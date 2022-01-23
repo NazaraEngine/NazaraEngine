@@ -91,16 +91,16 @@ namespace Nz
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 
-					std::size_t indexCount = md5Mesh.triangles.size()*3;
-					std::size_t vertexCount = md5Mesh.vertices.size();
+					UInt64 indexCount = md5Mesh.triangles.size() * 3;
+					UInt64 vertexCount = md5Mesh.vertices.size();
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
-					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
+					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.vertexBufferFlags, parameters.bufferFactory);
 
 					// Index buffer
-					IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
+					IndexMapper indexMapper(*indexBuffer);
 
 					// Le format définit un set de triangles nous permettant de retrouver facilement les indices
 					// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
@@ -128,7 +128,7 @@ namespace Nz
 
 					std::vector<Weight> tempWeights;
 
-					BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, BufferAccess::WriteOnly);
+					BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, 0, vertexBuffer->GetVertexCount());
 					SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
 					for (const MD5MeshParser::Vertex& vertex : md5Mesh.vertices)
@@ -235,15 +235,15 @@ namespace Nz
 				for (UInt32 i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
-					std::size_t indexCount = md5Mesh.triangles.size()*3;
-					std::size_t vertexCount = md5Mesh.vertices.size();
+					UInt64 indexCount = md5Mesh.triangles.size() * 3;
+					UInt64 vertexCount = md5Mesh.vertices.size();
 
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, UInt32(indexCount), parameters.storage, parameters.indexBufferFlags);
+					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 
-					IndexMapper indexMapper(*indexBuffer, BufferAccess::DiscardAndWrite);
+					IndexMapper indexMapper(*indexBuffer);
 					IndexIterator index = indexMapper.begin();
 
 					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
@@ -259,9 +259,9 @@ namespace Nz
 						indexBuffer->Optimize();
 
 					// Vertex buffer
-					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, UInt32(vertexCount), parameters.storage, parameters.vertexBufferFlags);
+					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
 
-					VertexMapper vertexMapper(*vertexBuffer, BufferAccess::DiscardAndWrite);
+					VertexMapper vertexMapper(*vertexBuffer);
 
 					// Vertex positions
 					if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))

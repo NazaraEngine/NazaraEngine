@@ -42,7 +42,7 @@ namespace Nz
 		return it->second;
 	}
 
-	inline std::size_t RenderQueueRegistry::FetchVertexBuffer(const AbstractBuffer* vertexBuffer) const
+	inline std::size_t RenderQueueRegistry::FetchVertexBuffer(const RenderBuffer* vertexBuffer) const
 	{
 		auto it = m_vertexBufferRegistry.find(vertexBuffer);
 		assert(it != m_vertexBufferRegistry.end());
@@ -80,7 +80,7 @@ namespace Nz
 		m_pipelineRegistry.try_emplace(pipeline, m_pipelineRegistry.size());
 	}
 
-	inline void RenderQueueRegistry::RegisterVertexBuffer(const AbstractBuffer* vertexBuffer)
+	inline void RenderQueueRegistry::RegisterVertexBuffer(const RenderBuffer* vertexBuffer)
 	{
 		m_vertexBufferRegistry.try_emplace(vertexBuffer, m_vertexBufferRegistry.size());
 	}

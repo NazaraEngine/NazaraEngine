@@ -18,8 +18,8 @@ namespace Nz
 	class NAZARA_UTILITY_API TriangleIterator
 	{
 		public:
-			TriangleIterator(PrimitiveMode primitiveMode, const IndexBuffer& indexBuffer);
-			TriangleIterator(const SubMesh& subMesh);
+			TriangleIterator(PrimitiveMode primitiveMode, IndexBuffer& indexBuffer);
+			TriangleIterator(SubMesh& subMesh);
 			~TriangleIterator() = default;
 
 			bool Advance();

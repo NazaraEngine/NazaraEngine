@@ -197,12 +197,7 @@ namespace Nz
 			}
 		};
 
-		m_fullscreenVertexBuffer = m_renderDevice->InstantiateBuffer(BufferType::Vertex);
-		if (!m_fullscreenVertexBuffer->Initialize(m_fullscreenVertexDeclaration->GetStride() * vertexData.size(), BufferUsage::DeviceLocal))
-			throw std::runtime_error("failed to initialize fullscreen vertex buffer");
-
-		if (!m_fullscreenVertexBuffer->Fill(vertexData.data(), 0, m_fullscreenVertexDeclaration->GetStride() * vertexData.size()))
-			throw std::runtime_error("failed to fill fullscreen vertex buffer");
+		m_fullscreenVertexBuffer = m_renderDevice->InstantiateBuffer(BufferType::Vertex, m_fullscreenVertexDeclaration->GetStride() * vertexData.size(), BufferUsage::DeviceLocal | BufferUsage::Write, vertexData.data());
 	}
 
 	void Graphics::RegisterMaterialPasses()

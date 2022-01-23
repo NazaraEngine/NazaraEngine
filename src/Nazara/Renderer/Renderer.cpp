@@ -9,7 +9,6 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -35,15 +34,11 @@ namespace Nz
 	ModuleBase("Renderer", this)
 	{
 		LoadBackend(config);
-
-		Buffer::SetBufferFactory(DataStorage::Hardware, [](Buffer* parent, BufferType type) -> std::unique_ptr<AbstractBuffer> { return std::make_unique<RenderBuffer>(parent, type); });
 	}
 
 	Renderer::~Renderer()
 	{
-		// Uninitialize module here
-		Buffer::SetBufferFactory(DataStorage::Hardware, nullptr);
-
+		// reset Renderer impl before unloading library
 		m_rendererImpl.reset();
 	}
 

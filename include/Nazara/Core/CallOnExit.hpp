@@ -8,29 +8,32 @@
 #define NAZARA_CORE_CALLONEXIT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <functional>
+#include <optional>
 
 namespace Nz
 {
+	template<typename F>
 	class CallOnExit
 	{
-		using Func = std::function<void()>;
-
 		public:
-			CallOnExit(Func func = nullptr);
+			CallOnExit() = default;
+			CallOnExit(F&& functor);
 			CallOnExit(const CallOnExit&) = delete;
 			CallOnExit(CallOnExit&&) noexcept = delete;
 			~CallOnExit();
 
-			void CallAndReset(Func func = nullptr);
-			void Reset(Func func = nullptr);
+			void CallAndReset();
+			void Reset();
 
 			CallOnExit& operator=(const CallOnExit&) = delete;
 			CallOnExit& operator=(CallOnExit&&) noexcept = default;
 
 		private:
-			Func m_func;
+			std::optional<F> m_functor;
 	};
+
+	template<typename F>
+	CallOnExit(F) -> CallOnExit<F>;
 }
 
 #include <Nazara/Core/CallOnExit.inl>

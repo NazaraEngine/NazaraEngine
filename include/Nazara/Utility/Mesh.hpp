@@ -18,6 +18,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
+#include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
@@ -28,20 +29,35 @@ namespace Nz
 {
 	struct NAZARA_UTILITY_API MeshParams : ResourceParameters
 	{
-		MeshParams();
+		// How buffer will be allocated (by default in RAM)
+		BufferFactory bufferFactory = &SoftwareBufferFactory;
 
-		BufferUsageFlags indexBufferFlags = 0;      ///< Buffer usage flags used to build the index buffers
-		BufferUsageFlags vertexBufferFlags = 0;     ///< Buffer usage flags used to build the vertex buffers
-		Matrix4f matrix = Matrix4f::Identity();     ///< A matrix which will transform every vertex position
-		DataStorage storage = DataStorage::Hardware; ///< The place where the buffers will be allocated
-		Vector2f texCoordOffset = {0.f, 0.f};       ///< Offset to apply on the texture coordinates (not scaled)
-		Vector2f texCoordScale  = {1.f, 1.f};       ///< Scale to apply on the texture coordinates
-		bool animated = true;                       ///< If true, will load an animated version of the model if possible
-		bool center = false;                        ///< If true, will center the mesh vertices around the origin
+		// Buffer usage flags used to build the index buffers
+		BufferUsageFlags indexBufferFlags = BufferUsage::DirectMapping | BufferUsage::Read | BufferUsage::Write;
+
+		// Buffer usage flags used to build the vertex buffers
+		BufferUsageFlags vertexBufferFlags = BufferUsage::DirectMapping | BufferUsage::Read | BufferUsage::Write;
+
+		// A matrix which will transform every vertex position
+		Matrix4f matrix = Matrix4f::Identity();
+
+		// Offset to apply on the texture coordinates (not scaled)
+		Vector2f texCoordOffset = {0.f, 0.f};
+
+		// Scale to apply on the texture coordinates
+		Vector2f texCoordScale  = {1.f, 1.f};
+
+		// If true, will load an animated version of the model if possible
+		bool animated = true;
+
+		// If true, will center the mesh vertices around the origin
+		bool center = false;
+
+		// Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
 		#ifndef NAZARA_DEBUG
-		bool optimizeIndexBuffers = true;           ///< Optimize the index buffers after loading, improve cache locality (and thus rendering speed) but increase loading time.
+		bool optimizeIndexBuffers = true;
 		#else
-		bool optimizeIndexBuffers = false;          ///< Since this optimization take a lot of time, especially in debug mode, don't enable it by default in debug.
+		bool optimizeIndexBuffers = false;
 		#endif
 
 		/* The declaration must have a Vector3f position component enabled

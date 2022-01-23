@@ -36,8 +36,8 @@ namespace Nz
 			inline const Vector2f& GetTargetSize() const;
 			inline const Matrix4f& GetViewMatrix() const;
 			inline const Matrix4f& GetViewProjMatrix() const;
-			inline std::shared_ptr<AbstractBuffer>& GetViewerBuffer();
-			inline const std::shared_ptr<AbstractBuffer>& GetViewerBuffer() const;
+			inline std::shared_ptr<RenderBuffer>& GetViewerBuffer();
+			inline const std::shared_ptr<RenderBuffer>& GetViewerBuffer() const;
 
 			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
@@ -54,7 +54,7 @@ namespace Nz
 			ViewerInstance& operator=(ViewerInstance&&) noexcept = default;
 
 		private:
-			std::shared_ptr<AbstractBuffer> m_viewerDataBuffer;
+			std::shared_ptr<RenderBuffer> m_viewerDataBuffer;
 			Matrix4f m_invProjectionMatrix;
 			Matrix4f m_invViewProjMatrix;
 			Matrix4f m_invViewMatrix;

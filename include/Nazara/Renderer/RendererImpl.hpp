@@ -12,7 +12,6 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <string>
 #include <vector>

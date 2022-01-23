@@ -34,7 +34,7 @@ namespace Nz
 
 			virtual const Boxf& GetAABB() const = 0;
 			virtual AnimationType GetAnimationType() const = 0;
-			virtual const std::shared_ptr<const IndexBuffer>& GetIndexBuffer() const = 0;
+			virtual const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const = 0;
 			std::size_t GetMaterialIndex() const;
 			PrimitiveMode GetPrimitiveMode() const;
 			std::size_t GetTriangleCount() const;

@@ -11,30 +11,25 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <memory>
 #include <vector>
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public AbstractBuffer
+	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public RenderBuffer
 	{
 		public:
-			OpenGLBuffer(OpenGLDevice& device, BufferType type);
+			OpenGLBuffer(OpenGLDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 			OpenGLBuffer(const OpenGLBuffer&) = delete;
 			OpenGLBuffer(OpenGLBuffer&&) = delete;
 			~OpenGLBuffer() = default;
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
 
-			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
-
 			inline const GL::Buffer& GetBuffer() const;
-			UInt64 GetSize() const override;
-			DataStorage GetStorage() const override;
-			inline BufferType GetType() const;
 
-			void* Map(BufferAccess access, UInt64 offset, UInt64 size) override;
+			void* Map(UInt64 offset, UInt64 size) override;
 			bool Unmap() override;
 
 			OpenGLBuffer& operator=(const OpenGLBuffer&) = delete;
@@ -42,9 +37,6 @@ namespace Nz
 
 		private:
 			GL::Buffer m_buffer;
-			BufferType m_type;
-			BufferUsageFlags m_usage;
-			UInt64 m_size;
 	};
 }
 

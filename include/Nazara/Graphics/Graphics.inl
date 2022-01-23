@@ -22,7 +22,7 @@ namespace Nz
 		return m_defaultTextures;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& Graphics::GetFullscreenVertexBuffer() const
+	inline const std::shared_ptr<RenderBuffer>& Graphics::GetFullscreenVertexBuffer() const
 	{
 		return m_fullscreenVertexBuffer;
 	}

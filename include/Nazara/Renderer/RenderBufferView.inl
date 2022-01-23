@@ -8,19 +8,19 @@
 
 namespace Nz
 {
-	inline RenderBufferView::RenderBufferView(AbstractBuffer* buffer) :
+	inline RenderBufferView::RenderBufferView(RenderBuffer* buffer) :
 	RenderBufferView(buffer, 0, buffer->GetSize())
 	{
 	}
 
-	inline RenderBufferView::RenderBufferView(AbstractBuffer* buffer, UInt64 offset, UInt64 size) :
+	inline RenderBufferView::RenderBufferView(RenderBuffer* buffer, UInt64 offset, UInt64 size) :
 	m_offset(offset),
 	m_size(size),
 	m_buffer(buffer)
 	{
 	}
 
-	inline AbstractBuffer* RenderBufferView::GetBuffer() const
+	inline RenderBuffer* RenderBufferView::GetBuffer() const
 	{
 		return m_buffer;
 	}

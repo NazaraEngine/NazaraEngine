@@ -28,7 +28,7 @@ external
 
 struct FragIn
 {
-	[builtin(fragcoord)] fragcoord: vec4<f32>
+	[location(0)] uv: vec2<f32>
 }
 
 struct FragOut
@@ -38,11 +38,13 @@ struct FragOut
 
 struct VertIn
 {
-	[location(0)] pos: vec2<f32>
+	[location(0)] pos: vec2<f32>,
+	[location(1)] uv: vec2<f32>,
 }
 
 struct VertOut
 {
+	[location(0)] uv: vec2<f32>,
 	[builtin(position)] position: vec4<f32>
 }
 
@@ -50,15 +52,14 @@ struct VertOut
 fn main(input: FragIn) -> FragOut
 {
 	let invTargetSize = viewerData.invRenderTargetSize * blurData.sizeFactor;
-	let fragcoord = input.fragcoord.xy * invTargetSize;
 
-	let color = colorTexture.Sample(fragcoord).rgb * 0.2270270270;
+	let color = colorTexture.Sample(input.uv).rgb * 0.2270270270;
 
-	color += colorTexture.Sample(fragcoord + blurData.direction * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
-	color += colorTexture.Sample(fragcoord - blurData.direction * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
+	color += colorTexture.Sample(input.uv + blurData.direction * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
+	color += colorTexture.Sample(input.uv - blurData.direction * 1.3846153846 * invTargetSize).rgb * 0.3162162162;
 
-	color += colorTexture.Sample(fragcoord + blurData.direction * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
-	color += colorTexture.Sample(fragcoord - blurData.direction * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
+	color += colorTexture.Sample(input.uv + blurData.direction * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
+	color += colorTexture.Sample(input.uv - blurData.direction * 3.2307692308 * invTargetSize).rgb * 0.0702702703;
 
 	let output: FragOut;
 	output.color = vec4<f32>(color, 1.0);
@@ -71,6 +72,7 @@ fn main(input: VertIn) -> VertOut
 {
 	let output: VertOut;
 	output.position = vec4<f32>(input.pos, 0.0, 1.0);
+	output.uv = input.uv;
 
 	return output;
 }
