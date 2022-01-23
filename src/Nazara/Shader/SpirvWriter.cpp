@@ -491,7 +491,8 @@ namespace Nz
 			options.optionValues = states.optionValues;
 			options.reduceLoopsToWhile = true;
 			options.removeCompoundAssignments = true;
-			options.removeOptionDeclaration = true; 
+			options.removeMatrixCast = true;
+			options.removeOptionDeclaration = true;
 			options.splitMultipleBranches = true;
 			options.useIdentifierAccessesForStructs = false;
 

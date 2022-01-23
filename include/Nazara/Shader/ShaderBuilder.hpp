@@ -54,6 +54,7 @@ namespace Nz::ShaderBuilder
 
 		struct Cast
 		{
+			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, ShaderAst::ExpressionPtr expression) const;
 			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const;
 			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const;
 		};
@@ -71,6 +72,7 @@ namespace Nz::ShaderBuilder
 		struct Constant
 		{
 			inline std::unique_ptr<ShaderAst::ConstantValueExpression> operator()(ShaderAst::ConstantValue value) const;
+			template<typename T> std::unique_ptr<ShaderAst::ConstantValueExpression> operator()(ShaderAst::ExpressionType type, T value) const;
 		};
 
 		struct DeclareConst
