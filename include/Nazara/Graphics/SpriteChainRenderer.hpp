@@ -18,7 +18,6 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class RenderDevice;
 	class RenderPipeline;
 	class RenderSpriteChain;

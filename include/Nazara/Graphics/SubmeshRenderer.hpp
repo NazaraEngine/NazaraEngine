@@ -14,7 +14,6 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class RenderPipeline;
 	class ShaderBinding;
 

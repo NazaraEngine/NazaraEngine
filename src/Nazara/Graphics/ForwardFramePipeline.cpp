@@ -40,9 +40,7 @@ namespace Nz
 
 		auto lightOffset = PredefinedLightData::GetOffsets();
 
-		m_lightDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
-		if (!m_lightDataBuffer->Initialize(lightOffset.totalSize, BufferUsage::DeviceLocal))
-			throw std::runtime_error("failed to create light data buffer");
+		m_lightDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightOffset.totalSize, BufferUsage::DeviceLocal | BufferUsage::Write);
 
 		std::vector<UInt8> staticLightData(lightOffset.totalSize);
 		/*AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;

@@ -19,7 +19,7 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
+	class RenderBuffer;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
 	{
