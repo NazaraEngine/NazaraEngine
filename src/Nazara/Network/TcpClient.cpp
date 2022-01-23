@@ -497,7 +497,7 @@ namespace Nz
 				if (newState == SocketState::Connecting)
 					newState = SocketState::NotConnected;
 
-				// Prevent valid stats in non-connected state
+				// Prevent valid data in non-connected state
 				if (newState == SocketState::NotConnected)
 				{
 					m_openMode = OpenMode::NotOpen;
