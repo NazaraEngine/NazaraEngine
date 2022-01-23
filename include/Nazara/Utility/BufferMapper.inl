@@ -17,31 +17,11 @@ namespace Nz
 	}
 
 	template<typename T>
-	BufferMapper<T>::BufferMapper(T* buffer, BufferAccess access, unsigned int offset, unsigned int length) :
+	BufferMapper<T>::BufferMapper(T& buffer, UInt64 offset, UInt64 length) :
 	m_buffer(nullptr)
 	{
-		if (!Map(buffer, access, offset, length))
+		if (!Map(buffer, offset, length))
 			NazaraError("Failed to map buffer"); ///TODO: Unexpected
-	}
-
-	template<typename T>
-	BufferMapper<T>::BufferMapper(T& buffer, BufferAccess access, unsigned int offset, unsigned int length) :
-	BufferMapper(&buffer, access, offset, length)
-	{
-	}
-
-	template<typename T>
-	BufferMapper<T>::BufferMapper(const T* buffer, BufferAccess access, unsigned int offset, unsigned int length) :
-	m_buffer(nullptr)
-	{
-		if (!Map(buffer, access, offset, length))
-			NazaraError("Failed to map buffer"); ///TODO: Unexpected
-	}
-
-	template<typename T>
-	BufferMapper<T>::BufferMapper(const T& buffer, BufferAccess access, unsigned int offset, unsigned int length) :
-	BufferMapper(&buffer, access, offset, length)
-	{
 	}
 
 	template<typename T>
@@ -64,61 +44,19 @@ namespace Nz
 	}
 
 	template<typename T>
-	bool BufferMapper<T>::Map(T* buffer, BufferAccess access, unsigned int offset, unsigned int length)
+	bool BufferMapper<T>::Map(T& buffer, UInt64 offset, UInt64 length)
 	{
 		Unmap();
 
-		#if NAZARA_UTILITY_SAFE
-		if (!buffer)
+		m_buffer = &buffer;
+		m_ptr = buffer.Map(offset, length);
+		if (!m_ptr)
 		{
-			NazaraError("Buffer must be valid");
-			m_ptr = nullptr;
-
+			NazaraError("Failed to map buffer"); ///TODO: Unexpected
 			return false;
 		}
-		#endif
-
-		m_buffer = buffer;
-		m_ptr = buffer->Map(access, offset, length);
-		if (!m_ptr)
-			NazaraError("Failed to map buffer"); ///TODO: Unexpected
 
 		return true;
-	}
-
-	template<typename T>
-	bool BufferMapper<T>::Map(T& buffer, BufferAccess access, unsigned int offset, unsigned int length)
-	{
-		return Map(&buffer, access, offset, length);
-	}
-
-	template<typename T>
-	bool BufferMapper<T>::Map(const T* buffer, BufferAccess access, unsigned int offset, unsigned int length)
-	{
-		Unmap();
-
-		#if NAZARA_UTILITY_SAFE
-		if (!buffer)
-		{
-			NazaraError("Buffer must be valid");
-			m_ptr = nullptr;
-
-			return false;
-		}
-		#endif
-
-		m_buffer = buffer;
-		m_ptr = buffer->Map(access, offset, length);
-		if (!m_ptr)
-			NazaraError("Failed to map buffer"); ///TODO: Unexpected
-
-		return true;
-	}
-
-	template<typename T>
-	bool BufferMapper<T>::Map(const T& buffer, BufferAccess access, unsigned int offset, unsigned int length)
-	{
-		return Map(&buffer, access, offset, length);
 	}
 
 	template<typename T>

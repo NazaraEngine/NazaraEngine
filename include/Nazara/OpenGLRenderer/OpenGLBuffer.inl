@@ -11,11 +11,6 @@ namespace Nz
 	{
 		return m_buffer;
 	}
-
-	inline BufferType OpenGLBuffer::GetType() const
-	{
-		return m_type;
-	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

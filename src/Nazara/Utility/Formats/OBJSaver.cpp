@@ -143,7 +143,7 @@ namespace Nz
 			OBJParser::Mesh* meshes = objFormat.SetMeshCount(meshCount);
 			for (std::size_t i = 0; i < meshCount; ++i)
 			{
-				const StaticMesh& staticMesh = static_cast<const StaticMesh&>(*mesh.GetSubMesh(i));
+				StaticMesh& staticMesh = static_cast<StaticMesh&>(*mesh.GetSubMesh(i));
 
 				std::size_t triangleCount = staticMesh.GetTriangleCount();
 
@@ -160,7 +160,7 @@ namespace Nz
 					SparsePtr<Vector2f> texCoordsPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
 					std::size_t faceIndex = 0;
-					TriangleIterator triangle(staticMesh);
+					TriangleIterator triangleIt(staticMesh);
 					do
 					{
 						OBJParser::Face& face = meshes[i].faces[faceIndex];
@@ -171,15 +171,23 @@ namespace Nz
 						{
 							OBJParser::FaceVertex& vertexIndices = meshes[i].vertices[face.firstVertex + j];
 
-							std::size_t index = triangle[j];
-							vertexIndices.normal = normalCache.Insert(normalPtr[index]);
+							std::size_t index = triangleIt[j];
 							vertexIndices.position = positionCache.Insert(positionPtr[index]);
-							vertexIndices.texCoord = texCoordsCache.Insert(texCoordsPtr[index]);
+
+							if (normalPtr)
+								vertexIndices.normal = normalCache.Insert(normalPtr[index]);
+							else
+								vertexIndices.normal = 0;
+
+							if (texCoordsPtr)
+								vertexIndices.texCoord = texCoordsCache.Insert(texCoordsPtr[index]);
+							else
+								vertexIndices.texCoord = 0;
 						}
 
 						faceIndex++;
 					}
-					while (triangle.Advance());
+					while (triangleIt.Advance());
 				}
 			}
 

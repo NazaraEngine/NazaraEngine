@@ -48,12 +48,12 @@ namespace Nz
 		return m_viewProjMatrix;
 	}
 
-	inline std::shared_ptr<AbstractBuffer>& ViewerInstance::GetViewerBuffer()
+	inline std::shared_ptr<RenderBuffer>& ViewerInstance::GetViewerBuffer()
 	{
 		return m_viewerDataBuffer;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& ViewerInstance::GetViewerBuffer() const
+	inline const std::shared_ptr<RenderBuffer>& ViewerInstance::GetViewerBuffer() const
 	{
 		return m_viewerDataBuffer;
 	}

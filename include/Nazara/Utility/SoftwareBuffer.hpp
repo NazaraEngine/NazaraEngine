@@ -8,34 +8,30 @@
 #define NAZARA_UTILITY_SOFTWAREBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
+#include <Nazara/Utility/Buffer.hpp>
 #include <vector>
 
 namespace Nz
 {
-	class Buffer;
-
-	class NAZARA_UTILITY_API SoftwareBuffer : public AbstractBuffer
+	class NAZARA_UTILITY_API SoftwareBuffer : public Buffer
 	{
 		public:
-			SoftwareBuffer(Buffer* parent, BufferType type);
+			SoftwareBuffer(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData);
 			~SoftwareBuffer() = default;
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
 
-			bool Initialize(UInt64 size, BufferUsageFlags usage) override;
-
 			const UInt8* GetData() const;
-			UInt64 GetSize() const override;
-			DataStorage GetStorage() const override;
 
-			void* Map(BufferAccess access, UInt64 offset = 0, UInt64 size = 0) override;
+			void* Map(UInt64 offset = 0, UInt64 size = 0) override;
 			bool Unmap() override;
 
 		private:
-			std::vector<UInt8> m_buffer;
+			std::unique_ptr<UInt8[]> m_buffer;
 			bool m_mapped;
 	};
+
+	NAZARA_UTILITY_API std::shared_ptr<Buffer> SoftwareBufferFactory(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 }
 
 #endif // NAZARA_UTILITY_SOFTWAREBUFFER_HPP

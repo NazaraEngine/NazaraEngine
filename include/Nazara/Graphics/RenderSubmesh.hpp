@@ -24,24 +24,24 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<AbstractBuffer> indexBuffer, std::shared_ptr<AbstractBuffer> vertexBuffer, const Recti& scissorBox);
+			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox);
 			~RenderSubmesh() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
 
-			inline const AbstractBuffer* GetIndexBuffer() const;
+			inline const RenderBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;
 			inline const MaterialPass& GetMaterialPass() const;
 			inline const RenderPipeline* GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
-			inline const AbstractBuffer* GetVertexBuffer() const;
+			inline const RenderBuffer* GetVertexBuffer() const;
 			inline const WorldInstance& GetWorldInstance() const;
 
 			inline void Register(RenderQueueRegistry& registry) const override;
 
 		private:
-			std::shared_ptr<AbstractBuffer> m_indexBuffer;
-			std::shared_ptr<AbstractBuffer> m_vertexBuffer;
+			std::shared_ptr<RenderBuffer> m_indexBuffer;
+			std::shared_ptr<RenderBuffer> m_vertexBuffer;
 			std::shared_ptr<MaterialPass> m_materialPass;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::size_t m_indexCount;

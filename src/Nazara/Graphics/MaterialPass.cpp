@@ -50,9 +50,7 @@ namespace Nz
 		{
 			auto& uniformBuffer = m_uniformBuffers.emplace_back();
 
-			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform);
-			if (!uniformBuffer.buffer->Initialize(uniformBufferInfo.blockSize, BufferUsage::Dynamic))
-				throw std::runtime_error("failed to initialize UBO memory");
+			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, uniformBufferInfo.blockSize, BufferUsage::Dynamic | BufferUsage::Write);
 
 			assert(uniformBufferInfo.defaultValues.size() <= uniformBufferInfo.blockSize);
 

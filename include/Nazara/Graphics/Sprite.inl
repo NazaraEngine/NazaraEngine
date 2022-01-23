@@ -89,7 +89,7 @@ namespace Nz
 
 	inline void Sprite::UpdateVertices()
 	{
-		Boxf aabb = Boxf::Zero();
+		Boxf aabb(-1.f, -1.f, -1.f);
 
 		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 

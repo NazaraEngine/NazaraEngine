@@ -16,16 +16,10 @@ namespace Nz
 	{
 		public:
 			BufferMapper();
-			BufferMapper(T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-			BufferMapper(T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-			BufferMapper(const T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-			BufferMapper(const T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			BufferMapper(T& buffer, UInt64 offset, UInt64 length);
 			~BufferMapper();
 
-			bool Map(T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-			bool Map(T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-			bool Map(const T* buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
-			bool Map(const T& buffer, BufferAccess access, unsigned int offset = 0, unsigned int length = 0);
+			bool Map(T& buffer, UInt64 offset, UInt64 length);
 
 			const T* GetBuffer() const;
 			void* GetPointer() const;
@@ -33,7 +27,7 @@ namespace Nz
 			void Unmap();
 
 		private:
-			const T* m_buffer;
+			T* m_buffer;
 			void* m_ptr;
 	};
 }

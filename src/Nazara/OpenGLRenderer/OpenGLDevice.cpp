@@ -79,7 +79,7 @@ namespace Nz
 
 	OpenGLDevice::~OpenGLDevice()
 	{
-		// Free context first as it will unregister itself from m_contexts
+		// Free reference context first as it will unregister itself from m_contexts
 		m_referenceContext.reset();
 	}
 
@@ -114,9 +114,9 @@ namespace Nz
 		return m_deviceInfo.features;
 	}
 
-	std::shared_ptr<AbstractBuffer> OpenGLDevice::InstantiateBuffer(BufferType type)
+	std::shared_ptr<RenderBuffer> OpenGLDevice::InstantiateBuffer(BufferType type, UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
 	{
-		return std::make_shared<OpenGLBuffer>(*this, type);
+		return std::make_shared<OpenGLBuffer>(*this, type, size, usageFlags, initialData);
 	}
 
 	std::shared_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)

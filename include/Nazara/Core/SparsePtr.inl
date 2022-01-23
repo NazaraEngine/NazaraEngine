@@ -247,8 +247,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T& SparsePtr<T>::operator[](std::size_t index) const
+	template<typename U>
+	T& SparsePtr<T>::operator[](U index) const
 	{
+		static_assert(std::is_integral_v<U>, "index must be an integral type");
+
 		return *reinterpret_cast<T*>(m_ptr + index * m_stride);
 	}
 
@@ -260,8 +263,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator+(int count) const
+	template<typename U>
+	SparsePtr<T> SparsePtr<T>::operator+(U count) const
 	{
+		static_assert(std::is_integral_v<U>, "count must be an integral type");
+
 		return SparsePtr(m_ptr + count * m_stride, m_stride);
 	}
 
@@ -273,34 +279,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator+(unsigned int count) const
+	template<typename U>
+	SparsePtr<T> SparsePtr<T>::operator-(U count) const
 	{
-		return SparsePtr(m_ptr + count * m_stride, m_stride);
-	}
+		static_assert(std::is_integral_v<U>, "count must be an integral type");
 
-	/*!
-	* \brief Gets the SparsePtr with an offset
-	* \return A SparsePtr with the new stride
-	*
-	* \param count Number of stride to do
-	*/
-
-	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator-(int count) const
-	{
-		return SparsePtr(m_ptr - count * m_stride, m_stride);
-	}
-
-	/*!
-	* \brief Gets the SparsePtr with an offset
-	* \return A SparsePtr with the new stride
-	*
-	* \param count Number of stride to do
-	*/
-
-	template<typename T>
-	SparsePtr<T> SparsePtr<T>::operator-(unsigned int count) const
-	{
 		return SparsePtr(m_ptr - count * m_stride, m_stride);
 	}
 
@@ -325,25 +308,22 @@ namespace Nz
 	*/
 
 	template<typename T>
-	SparsePtr<T>& SparsePtr<T>::operator+=(int count)
+	template<typename U>
+	SparsePtr<T>& SparsePtr<T>::operator+=(U count)
 	{
-		m_ptr += count * m_stride;
+		static_assert(std::is_integral_v<U>, "count must be an integral type");
 
+		m_ptr += count * m_stride;
 		return *this;
 	}
 
-	/*!
-	* \brief Gets the SparsePtr with an offset
-	* \return A reference to this pointer with the new stride
-	*
-	* \param count Number of stride to do
-	*/
-
 	template<typename T>
-	SparsePtr<T>& SparsePtr<T>::operator-=(int count)
+	template<typename U>
+	SparsePtr<T>& SparsePtr<T>::operator-=(U count)
 	{
-		m_ptr -= count * m_stride;
+		static_assert(std::is_integral_v<U>, "count must be an integral type");
 
+		m_ptr -= count * m_stride;
 		return *this;
 	}
 

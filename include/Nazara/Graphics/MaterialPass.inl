@@ -385,7 +385,7 @@ namespace Nz
 		return m_textures[textureIndex].samplerInfo;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& MaterialPass::GetUniformBuffer(std::size_t bufferIndex) const
+	inline const std::shared_ptr<RenderBuffer>& MaterialPass::GetUniformBuffer(std::size_t bufferIndex) const
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
 		return m_uniformBuffers[bufferIndex].buffer;
@@ -624,7 +624,7 @@ namespace Nz
 		}
 	}
 
-	inline void MaterialPass::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<AbstractBuffer> uniformBuffer)
+	inline void MaterialPass::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<RenderBuffer> uniformBuffer)
 	{
 		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
 		if (m_uniformBuffers[bufferIndex].buffer != uniformBuffer)

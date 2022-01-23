@@ -30,7 +30,6 @@
 #define NAZARA_GLOBAL_UTILITY_HPP
 
 #include <Nazara/Utility/AbstractAtlas.hpp>
-#include <Nazara/Utility/AbstractBuffer.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Algorithm.hpp>

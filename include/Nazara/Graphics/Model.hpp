@@ -30,13 +30,13 @@ namespace Nz
 
 			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const override;
 
-			const std::shared_ptr<AbstractBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
+			const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;
 			const std::shared_ptr<Material>& GetMaterial(std::size_t subMeshIndex) const override;
 			std::size_t GetMaterialCount() const override;
 			inline std::size_t GetSubMeshCount() const;
 			const std::vector<RenderPipelineInfo::VertexBufferData>& GetVertexBufferData(std::size_t subMeshIndex) const;
-			const std::shared_ptr<AbstractBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
+			const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 
 			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<Material> material);
 

@@ -18,34 +18,28 @@ namespace Nz
 		public:
 			VertexBuffer() = default;
 			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer);
-			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size);
-			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
+			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size);
+			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, UInt64 vertexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData = nullptr);
 			VertexBuffer(const VertexBuffer&) = default;
 			VertexBuffer(VertexBuffer&&) noexcept = default;
 			~VertexBuffer() = default;
 
-			bool Fill(const void* data, std::size_t startVertex, std::size_t length);
-			bool FillRaw(const void* data, std::size_t offset, std::size_t size);
+			bool Fill(const void* data, UInt64 startVertex, UInt64 length);
+			bool FillRaw(const void* data, UInt64 offset, UInt64 size);
 
 			inline const std::shared_ptr<Buffer>& GetBuffer() const;
-			inline std::size_t GetEndOffset() const;
-			inline std::size_t GetStartOffset() const;
-			inline std::size_t GetStride() const;
-			inline std::size_t GetVertexCount() const;
+			inline UInt64 GetEndOffset() const;
+			inline UInt64 GetStartOffset() const;
+			inline UInt64 GetStride() const;
+			inline UInt64 GetVertexCount() const;
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration() const;
 
 			inline bool IsValid() const;
 
-			void* Map(BufferAccess access, std::size_t startVertex = 0, std::size_t length = 0);
-			void* Map(BufferAccess access, std::size_t startVertex = 0, std::size_t length = 0) const;
-			void* MapRaw(BufferAccess access, std::size_t offset = 0, std::size_t size = 0);
-			void* MapRaw(BufferAccess access, std::size_t offset = 0, std::size_t size = 0) const;
-
-			void Reset();
-			void Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer);
-			void Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, std::size_t offset, std::size_t size);
-			void Reset(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::size_t length, DataStorage storage, BufferUsageFlags usage);
-			void Reset(const VertexBuffer& vertexBuffer);
+			void* Map(UInt64 startVertex, UInt64 length);
+			void* Map(UInt64 startVertex, UInt64 length) const;
+			void* MapRaw(UInt64 offset, UInt64 size);
+			void* MapRaw(UInt64 offset, UInt64 size) const;
 
 			void SetVertexDeclaration(std::shared_ptr<const VertexDeclaration> vertexDeclaration);
 
@@ -57,9 +51,9 @@ namespace Nz
 		private:
 			std::shared_ptr<Buffer> m_buffer;
 			std::shared_ptr<const VertexDeclaration> m_vertexDeclaration;
-			std::size_t m_endOffset;
-			std::size_t m_startOffset;
-			std::size_t m_vertexCount;
+			UInt64 m_endOffset;
+			UInt64 m_startOffset;
+			UInt64 m_vertexCount;
 	};
 }
 

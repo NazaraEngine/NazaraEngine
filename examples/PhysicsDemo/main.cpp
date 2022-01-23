@@ -53,7 +53,6 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
-	meshParams.storage = Nz::DataStorage::Software;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
@@ -136,7 +135,7 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0), Nz::BufferAccess::ReadOnly);
+	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
 	entt::registry registry;
@@ -165,6 +164,7 @@ int main()
 	{
 		registry.emplace<Nz::NodeComponent>(viewer2D);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateClearColor(Nz::Color(0, 0, 0, 0));
 		cameraComponent.UpdateRenderOrder(1);
 		cameraComponent.UpdateRenderMask(2);
 	}

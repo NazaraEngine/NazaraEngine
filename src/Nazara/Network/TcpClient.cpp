@@ -45,15 +45,11 @@ namespace Nz
 		Disconnect();
 		Open(remoteAddress.GetProtocol());
 
-		CallOnExit restoreBlocking;
+		CallOnExit restoreBlocking([this] { SocketImpl::SetBlocking(m_handle, true); });
 		if (m_isBlockingEnabled)
-		{
 			SocketImpl::SetBlocking(m_handle, false);
-			restoreBlocking.Reset([this] ()
-			{
-				SocketImpl::SetBlocking(m_handle, true);
-			});
-		}
+		else
+			restoreBlocking.Reset();
 
 		SocketState state = SocketImpl::Connect(m_handle, remoteAddress, &m_lastError);
 		m_peerAddress = (state != SocketState::NotConnected) ? remoteAddress : IpAddress::Invalid;
@@ -363,14 +359,13 @@ namespace Nz
 
 		std::size_t totalByteSent = 0;
 
-		CallOnExit updateSent;
-		if (sent)
+		CallOnExit updateSent([sent, &totalByteSent]
 		{
-			updateSent.Reset([sent, &totalByteSent] ()
-			{
-				*sent = totalByteSent;
-			});
-		}
+			*sent = totalByteSent;
+		});
+
+		if (!sent)
+			updateSent.Reset();
 
 		while (totalByteSent < size || !IsBlockingEnabled())
 		{
@@ -502,7 +497,7 @@ namespace Nz
 				if (newState == SocketState::Connecting)
 					newState = SocketState::NotConnected;
 
-				// Prevent valid stats in non-connected state
+				// Prevent valid data in non-connected state
 				if (newState == SocketState::NotConnected)
 				{
 					m_openMode = OpenMode::NotOpen;
@@ -582,15 +577,11 @@ namespace Nz
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
-		CallOnExit restoreBlocking;
-		if (!m_isBlockingEnabled)
-		{
-			SocketImpl::SetBlocking(m_handle, true);
-			restoreBlocking.Reset([this] ()
-			{
-				SocketImpl::SetBlocking(m_handle, false);
-			});
-		}
+		CallOnExit restoreBlocking([this] { SocketImpl::SetBlocking(m_handle, true); });
+		if (m_isBlockingEnabled)
+			SocketImpl::SetBlocking(m_handle, false);
+		else
+			restoreBlocking.Reset();
 
 		std::size_t received;
 		if (!Receive(buffer, size, &received))
@@ -630,15 +621,11 @@ namespace Nz
 		NazaraAssert(buffer, "Invalid buffer");
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
-		CallOnExit restoreBlocking;
-		if (!m_isBlockingEnabled)
-		{
-			SocketImpl::SetBlocking(m_handle, true);
-			restoreBlocking.Reset([this] ()
-			{
-				SocketImpl::SetBlocking(m_handle, false);
-			});
-		}
+		CallOnExit restoreBlocking([this] { SocketImpl::SetBlocking(m_handle, true); });
+		if (m_isBlockingEnabled)
+			SocketImpl::SetBlocking(m_handle, false);
+		else
+			restoreBlocking.Reset();
 
 		std::size_t sent;
 		if (!Send(buffer, size, &sent))

@@ -43,14 +43,14 @@ package("qt5base")
     end)
 
     on_install("windows", "linux", "macosx", "mingw", "android", "iphoneos", function (package)
-        -- ensurepip is dropped in recent releases
+        -- ensurepip has been dropped in recent releases
         try
         {
-            function () os.vrunv("python", {"-m", "ensurepip"}) end
+            function () os.vrunv("python3", {"-m", "ensurepip"}) end
         }
-        
-        os.vrunv("python", {"-m", "pip", "install", "-U", "pip"})
-        os.vrunv("python", {"-m", "pip", "install", "aqtinstall"})
+
+        os.vrunv("python3", {"-m", "pip", "install", "-U", "pip"})
+        os.vrunv("python3", {"-m", "pip", "install", "aqtinstall"})
 
         local installdir = package:installdir()
         local version = package:version() or semver.new("5.15.2")
@@ -141,7 +141,7 @@ package("qt5base")
             end
         end
 
-        os.vrunv("python", {"-m", "aqt", "install-qt", "-O", installdir, host, target, version:shortstr(), arch})
+        os.vrunv("python3", {"-m", "aqt", "install-qt", "-O", installdir, host, target, version:shortstr(), arch})
 
         -- move files to root
         local subdirs = {}

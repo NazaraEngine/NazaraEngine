@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	inline const std::shared_ptr<AbstractBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
+	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].indexBuffer;
@@ -20,7 +20,7 @@ namespace Nz
 		return m_subMeshes[subMesh].indexCount;
 	}
 
-	inline const std::shared_ptr<AbstractBuffer>& GraphicalMesh::GetVertexBuffer(std::size_t subMesh) const
+	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetVertexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].vertexBuffer;

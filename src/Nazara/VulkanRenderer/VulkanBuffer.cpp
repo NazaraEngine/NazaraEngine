@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <vma/vk_mem_alloc.h>
@@ -11,30 +12,11 @@
 
 namespace Nz
 {
-	VulkanBuffer::~VulkanBuffer()
+	VulkanBuffer::VulkanBuffer(VulkanDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) :
+	RenderBuffer(device, type, size, usage),
+	m_device(device)
 	{
-		vmaDestroyBuffer(m_device.GetMemoryAllocator(), m_buffer, m_allocation);
-	}
-
-	bool VulkanBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
-	{
-		void* ptr = Map(BufferAccess::WriteOnly, offset, size);
-		if (!ptr)
-			return false;
-
-		Nz::CallOnExit unmapOnExit([this]() { Unmap(); });
-
-		std::memcpy(ptr, data, size);
-
-		return true;
-	}
-
-	bool VulkanBuffer::Initialize(UInt64 size, BufferUsageFlags usage)
-	{
-		m_size = size;
-		m_usage = usage;
-
-		VkBufferUsageFlags bufferUsage = ToVulkan(m_type);
+		VkBufferUsageFlags bufferUsage = ToVulkan(type);
 
 		if ((usage & BufferUsage::DirectMapping) == 0)
 			bufferUsage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -60,27 +42,35 @@ namespace Nz
 
 		VkResult result = vmaCreateBuffer(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &m_buffer, &m_allocation, nullptr);
 		if (result != VK_SUCCESS)
-		{
-			NazaraError("Failed to allocate buffer: " + TranslateVulkanError(result));
-			return false;
-		}
+			throw std::runtime_error("failed to allocate buffer: " + TranslateVulkanError(result));
 
+		if (initialData)
+		{
+			if (!Fill(initialData, 0, size))
+				throw std::runtime_error("failed to fill buffer");
+		}
+	}
+
+	VulkanBuffer::~VulkanBuffer()
+	{
+		vmaDestroyBuffer(m_device.GetMemoryAllocator(), m_buffer, m_allocation);
+	}
+
+	bool VulkanBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
+	{
+		void* ptr = Map(offset, size);
+		if (!ptr)
+			return false;
+
+		CallOnExit unmapOnExit([this]() { Unmap(); });
+
+		std::memcpy(ptr, data, size);
 		return true;
 	}
 
-	UInt64 VulkanBuffer::GetSize() const
+	void* VulkanBuffer::Map(UInt64 offset, UInt64 size)
 	{
-		return m_size;
-	}
-
-	DataStorage VulkanBuffer::GetStorage() const
-	{
-		return DataStorage::Hardware;
-	}
-
-	void* VulkanBuffer::Map(BufferAccess /*access*/, UInt64 offset, UInt64 size)
-	{
-		if (m_usage & BufferUsage::DirectMapping)
+		if (GetUsageFlags() & BufferUsage::DirectMapping)
 		{
 			void* mappedPtr;
 			VkResult result = vmaMapMemory(m_device.GetMemoryAllocator(), m_allocation, &mappedPtr);
@@ -112,13 +102,15 @@ namespace Nz
 				return nullptr;
 			}
 
+			m_stagingBufferSize = size;
+
 			return allocationInfo.pMappedData;
 		}
 	}
 
 	bool VulkanBuffer::Unmap()
 	{
-		if (m_usage & BufferUsage::DirectMapping)
+		if (GetUsageFlags() & BufferUsage::DirectMapping)
 		{
 			vmaUnmapMemory(m_device.GetMemoryAllocator(), m_allocation);
 			return true;
@@ -129,7 +121,7 @@ namespace Nz
 			if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 				return false;
 
-			copyCommandBuffer->CopyBuffer(m_stagingBuffer, m_buffer, m_size);
+			copyCommandBuffer->CopyBuffer(m_stagingBuffer, m_buffer, m_stagingBufferSize);
 			if (!copyCommandBuffer->End())
 				return false;
 

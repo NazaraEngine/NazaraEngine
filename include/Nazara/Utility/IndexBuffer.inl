@@ -13,22 +13,22 @@ namespace Nz
 		return m_buffer;
 	}
 
-	inline std::size_t IndexBuffer::GetEndOffset() const
+	inline UInt64 IndexBuffer::GetEndOffset() const
 	{
 		return m_endOffset;
 	}
 
-	inline std::size_t IndexBuffer::GetIndexCount() const
+	inline UInt64 IndexBuffer::GetIndexCount() const
 	{
 		return m_indexCount;
 	}
 
-	inline std::size_t IndexBuffer::GetStride() const
+	inline UInt64 IndexBuffer::GetStride() const
 	{
-		return static_cast<std::size_t>((m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16));
+		return (m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16);
 	}
 
-	inline std::size_t IndexBuffer::GetStartOffset() const
+	inline UInt64 IndexBuffer::GetStartOffset() const
 	{
 		return m_startOffset;
 	}
@@ -43,16 +43,16 @@ namespace Nz
 		return m_buffer != nullptr;
 	}
 
-	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length)
+	inline void* IndexBuffer::Map(UInt64 startIndex, UInt64 length)
 	{
-		std::size_t stride = GetStride();
-		return MapRaw(access, startIndex*stride, length*stride);
+		UInt64 stride = GetStride();
+		return MapRaw(startIndex * stride, length * stride);
 	}
 
-	inline void* IndexBuffer::Map(BufferAccess access, std::size_t startIndex, std::size_t length) const
+	inline void* IndexBuffer::Map(UInt64 startIndex, UInt64 length) const
 	{
-		std::size_t stride = GetStride();
-		return MapRaw(access, startIndex*stride, length*stride);
+		UInt64 stride = GetStride();
+		return MapRaw(startIndex * stride, length * stride);
 	}
 }
 

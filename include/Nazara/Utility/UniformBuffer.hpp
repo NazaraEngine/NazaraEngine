@@ -15,30 +15,21 @@ namespace Nz
 	class NAZARA_UTILITY_API UniformBuffer
 	{
 		public:
-			UniformBuffer() = default;
 			UniformBuffer(std::shared_ptr<Buffer> buffer);
-			UniformBuffer(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size);
-			UniformBuffer(UInt32 length, DataStorage storage, BufferUsageFlags usage);
+			UniformBuffer(std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size);
+			UniformBuffer(UInt64 size, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData = nullptr);
 			UniformBuffer(const UniformBuffer&) = default;
 			UniformBuffer(UniformBuffer&&) noexcept = default;
 			~UniformBuffer() = default;
 
-			bool Fill(const void* data, UInt32 offset, UInt32 size);
+			bool Fill(const void* data, UInt64 offset, UInt64 size);
 
 			inline const std::shared_ptr<Buffer>& GetBuffer() const;
-			inline UInt32 GetEndOffset() const;
-			inline UInt32 GetStartOffset() const;
+			inline UInt64 GetEndOffset() const;
+			inline UInt64 GetStartOffset() const;
 
-			inline bool IsValid() const;
-
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0);
-			void* Map(BufferAccess access, UInt32 offset = 0, UInt32 size = 0) const;
-
-			void Reset();
-			void Reset(std::shared_ptr<Buffer> buffer);
-			void Reset(std::shared_ptr<Buffer> buffer, UInt32 offset, UInt32 size);
-			void Reset(UInt32 size, DataStorage storage, BufferUsageFlags usage);
-			void Reset(const UniformBuffer& uniformBuffer);
+			void* Map(UInt64 offset = 0, UInt64 size = 0);
+			void* Map(UInt64 offset = 0, UInt64 size = 0) const;
 
 			void Unmap() const;
 
@@ -47,8 +38,8 @@ namespace Nz
 
 		private:
 			std::shared_ptr<Buffer> m_buffer;
-			UInt32 m_endOffset;
-			UInt32 m_startOffset;
+			UInt64 m_endOffset;
+			UInt64 m_startOffset;
 	};
 }
 

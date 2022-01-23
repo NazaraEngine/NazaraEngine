@@ -26,11 +26,11 @@ namespace Nz
 			void BeginDebugRegion(const std::string_view& regionName, const Color& color) override;
 			void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) override;
 
-			void BindIndexBuffer(const AbstractBuffer& indexBuffer, UInt64 offset = 0) override;
+			void BindIndexBuffer(const RenderBuffer& indexBuffer, UInt64 offset = 0) override;
 			void BindPipeline(const RenderPipeline& pipeline) override;
 			void BindShaderBinding(UInt32 set, const ShaderBinding& binding) override;
 			void BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) override;
-			void BindVertexBuffer(UInt32 binding, const AbstractBuffer& vertexBuffer, UInt64 offset = 0) override;
+			void BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset = 0) override;
 
 			void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) override;
 

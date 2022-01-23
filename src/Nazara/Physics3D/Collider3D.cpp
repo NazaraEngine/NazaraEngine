@@ -6,6 +6,7 @@
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <newton/Newton.h>
@@ -168,11 +169,8 @@ namespace Nz
 			}
 		});
 
-		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), colliderVertices.size(), DataStorage::Software, 0);
-		colliderVB->Fill(colliderVertices.data(), 0, colliderVertices.size());
-
-		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(false, colliderIndices.size(), DataStorage::Software, 0);
-		colliderIB->Fill(colliderIndices.data(), 0, colliderIndices.size());
+		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), colliderVertices.size(), BufferUsage::Write, SoftwareBufferFactory, colliderVertices.data());
+		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(false, colliderIndices.size(), BufferUsage::Write, SoftwareBufferFactory, colliderIndices.data());
 
 		std::shared_ptr<StaticMesh> colliderSubMesh = std::make_shared<StaticMesh>(std::move(colliderVB), std::move(colliderIB));
 		colliderSubMesh->GenerateAABB();

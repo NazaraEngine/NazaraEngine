@@ -27,9 +27,9 @@ namespace Nz
 		return m_enabledFeatures;
 	}
 
-	std::shared_ptr<AbstractBuffer> VulkanDevice::InstantiateBuffer(BufferType type)
+	std::shared_ptr<RenderBuffer> VulkanDevice::InstantiateBuffer(BufferType type, UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
 	{
-		return std::make_shared<VulkanBuffer>(*this, type);
+		return std::make_shared<VulkanBuffer>(*this, type, size, usageFlags, initialData);
 	}
 
 	std::shared_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)
@@ -56,7 +56,7 @@ namespace Nz
 	{
 		auto pipelineLayout = std::make_shared<VulkanRenderPipelineLayout>();
 		if (!pipelineLayout->Create(*this, std::move(pipelineLayoutInfo)))
-			throw std::runtime_error("failed to instanciate vulkan render pipeline layout");
+			throw std::runtime_error("failed to instantiate vulkan render pipeline layout");
 
 		return pipelineLayout;
 	}
@@ -65,7 +65,7 @@ namespace Nz
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
 		if (!stage->Create(*this, stages, shaderAst, states))
-			throw std::runtime_error("failed to instanciate vulkan shader module");
+			throw std::runtime_error("failed to instantiate vulkan shader module");
 
 		return stage;
 	}
@@ -74,7 +74,7 @@ namespace Nz
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
 		if (!stage->Create(*this, stages, lang, source, sourceSize, states))
-			throw std::runtime_error("failed to instanciate vulkan shader module");
+			throw std::runtime_error("failed to instantiate vulkan shader module");
 
 		return stage;
 	}

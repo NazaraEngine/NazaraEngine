@@ -38,17 +38,17 @@ namespace Nz
 		private:
 			struct BufferCopy
 			{
-				AbstractBuffer* targetBuffer;
+				RenderBuffer* targetBuffer;
 				UploadPool::Allocation* allocation;
 				std::size_t size;
 			};
 
 			struct VertexBufferPool
 			{
-				std::vector<std::shared_ptr<AbstractBuffer>> vertexBuffers;
+				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
 			};
 
-			std::shared_ptr<AbstractBuffer> m_indexBuffer;
+			std::shared_ptr<RenderBuffer> m_indexBuffer;
 			std::shared_ptr<VertexBufferPool> m_vertexBufferPool;
 			std::size_t m_maxVertexBufferSize;
 			std::size_t m_maxVertexCount;
@@ -61,7 +61,7 @@ namespace Nz
 	{
 		struct DrawCall
 		{
-			const AbstractBuffer* vertexBuffer;
+			const RenderBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
 			const ShaderBinding* shaderBinding;
 			std::size_t firstIndex;
@@ -77,7 +77,7 @@ namespace Nz
 
 		std::unordered_map<const RenderSpriteChain*, DrawCallIndices> drawCallPerElement;
 		std::vector<DrawCall> drawCalls;
-		std::vector<std::shared_ptr<AbstractBuffer>> vertexBuffers;
+		std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
 		std::vector<ShaderBindingPtr> shaderBindings;
 	};
 }

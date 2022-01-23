@@ -31,8 +31,8 @@ namespace Nz
 			WorldInstance(WorldInstance&&) noexcept = default;
 			~WorldInstance() = default;
 
-			inline std::shared_ptr<AbstractBuffer>& GetInstanceBuffer();
-			inline const std::shared_ptr<AbstractBuffer>& GetInstanceBuffer() const;
+			inline std::shared_ptr<RenderBuffer>& GetInstanceBuffer();
+			inline const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const;
 			inline const Matrix4f& GetInvWorldMatrix() const;
 			inline const Matrix4f& GetWorldMatrix() const;
 
@@ -44,7 +44,7 @@ namespace Nz
 			WorldInstance& operator=(WorldInstance&&) noexcept = default;
 
 		private:
-			std::shared_ptr<AbstractBuffer> m_instanceDataBuffer;
+			std::shared_ptr<RenderBuffer> m_instanceDataBuffer;
 			Matrix4f m_invWorldMatrix;
 			Matrix4f m_worldMatrix;
 			bool m_dataInvalided;

@@ -15,7 +15,7 @@ namespace Nz
 	class NAZARA_UTILITY_API StaticMesh final : public SubMesh
 	{
 		public:
-			StaticMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<const IndexBuffer> indexBuffer);
+			StaticMesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer);
 			~StaticMesh() = default;
 
 			void Center();
@@ -24,7 +24,7 @@ namespace Nz
 
 			const Boxf& GetAABB() const override;
 			AnimationType GetAnimationType() const final;
-			const std::shared_ptr<const IndexBuffer>& GetIndexBuffer() const override;
+			const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const override;
 			const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const;
 			std::size_t GetVertexCount() const override;
 
@@ -32,11 +32,11 @@ namespace Nz
 			bool IsValid() const;
 
 			void SetAABB(const Boxf& aabb);
-			void SetIndexBuffer(std::shared_ptr<const IndexBuffer> indexBuffer);
+			void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer);
 
 		private:
 			Boxf m_aabb;
-			std::shared_ptr<const IndexBuffer> m_indexBuffer;
+			std::shared_ptr<IndexBuffer> m_indexBuffer;
 			std::shared_ptr<VertexBuffer> m_vertexBuffer;
 	};
 }
