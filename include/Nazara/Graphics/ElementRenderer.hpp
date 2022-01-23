@@ -12,12 +12,13 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class CommandBufferBuilder;
+	class RenderBuffer;
 	class RenderElement;
 	class RenderFrame;
 	class ViewerInstance;
@@ -38,7 +39,7 @@ namespace Nz
 
 			struct RenderStates
 			{
-				std::shared_ptr<AbstractBuffer> lightData;
+				std::optional<RenderBufferView> lightData;
 			};
 	};
 

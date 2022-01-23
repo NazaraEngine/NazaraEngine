@@ -13,7 +13,6 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class MaterialPass;
 	class RenderPipeline;
 	class VertexDeclaration;
