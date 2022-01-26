@@ -431,7 +431,7 @@ namespace Nz::ShaderAst
 					vectorComponentCount = std::get<VectorType>(GetExpressionType(*vectorExpr)).componentCount;
 				}
 
-				// cast expression (turn fromMatrix[i] to vec3<f32>(fromMatrix[i]))
+				// cast expression (turn fromMatrix[i] to vec3[f32](fromMatrix[i]))
 				ExpressionPtr castExpr;
 				if (vectorComponentCount != targetMatrixType.rowCount)
 				{
@@ -1967,7 +1967,7 @@ namespace Nz::ShaderAst
 			{
 				const ExpressionType& type = GetExpressionType(*node.parameters.front());
 				if (type != ExpressionType{ VectorType{ 3, PrimitiveType::Float32 } })
-					throw AstError{ "CrossProduct only works with vec3<f32> expressions" };
+					throw AstError{ "CrossProduct only works with vec3[f32] expressions" };
 
 				node.cachedExpressionType = type;
 				break;

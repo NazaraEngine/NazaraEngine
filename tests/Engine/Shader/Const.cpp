@@ -37,7 +37,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -73,7 +73,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -97,7 +97,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -118,18 +118,18 @@ const LightCount = 3;
 [layout(std140)]
 struct Light
 {
-	color: vec4<f32>
+	color: vec4[f32]
 }
 
 [layout(std140)]
 struct LightData
 {
-	lights: [Light; LightCount]
+	lights: array[Light, LightCount]
 }
 
 external
 {
-	[set(0), binding(0)] data: uniform<LightData>
+	[set(0), binding(0)] data: uniform[LightData]
 }
 
 [entry(frag)]
@@ -152,7 +152,7 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let color: vec4<f32> = (0.000000).xxxx;
+	let color: vec4[f32] = (0.000000).xxxx;
 	let i: i32 = 0;
 	color += data.lights[i].color;
 	let i: i32 = 2;
@@ -175,18 +175,18 @@ const LightCount = 3;
 [layout(std140)]
 struct Light
 {
-	color: vec4<f32>
+	color: vec4[f32]
 }
 
 [layout(std140)]
 struct LightData
 {
-	lights: [Light; LightCount]
+	lights: array[Light, LightCount]
 }
 
 external
 {
-	[set(0), binding(0)] data: uniform<LightData>
+	[set(0), binding(0)] data: uniform[LightData]
 }
 
 [entry(frag)]
@@ -209,7 +209,7 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let color: vec4<f32> = (0.000000).xxxx;
+	let color: vec4[f32] = (0.000000).xxxx;
 	let light: Light = data.lights[0];
 	color += light.color;
 	let light: Light = data.lights[1];

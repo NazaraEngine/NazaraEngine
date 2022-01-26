@@ -21,50 +21,50 @@ const HasUV = (UvLocation >= 0);
 struct MaterialSettings
 {
 	AlphaThreshold: f32,
-	DiffuseColor: vec4<f32>
+	DiffuseColor: vec4[f32]
 }
 
 [layout(std140)]
 struct InstanceData
 {
-	worldMatrix: mat4<f32>,
-	invWorldMatrix: mat4<f32>
+	worldMatrix: mat4[f32],
+	invWorldMatrix: mat4[f32]
 }
 
 [layout(std140)]
 struct ViewerData
 {
-	projectionMatrix: mat4<f32>,
-	invProjectionMatrix: mat4<f32>,
-	viewMatrix: mat4<f32>,
-	invViewMatrix: mat4<f32>,
-	viewProjMatrix: mat4<f32>,
-	invViewProjMatrix: mat4<f32>,
-	renderTargetSize: vec2<f32>,
-	invRenderTargetSize: vec2<f32>,
-	eyePosition: vec3<f32>
+	projectionMatrix: mat4[f32],
+	invProjectionMatrix: mat4[f32],
+	viewMatrix: mat4[f32],
+	invViewMatrix: mat4[f32],
+	viewProjMatrix: mat4[f32],
+	invViewProjMatrix: mat4[f32],
+	renderTargetSize: vec2[f32],
+	invRenderTargetSize: vec2[f32],
+	eyePosition: vec3[f32]
 }
 
 external
 {
-	[binding(0)] settings: uniform<MaterialSettings>,
-	[binding(1)] MaterialDiffuseMap: sampler2D<f32>,
-	[binding(2)] MaterialAlphaMap: sampler2D<f32>,
-	[binding(3)] TextureOverlay: sampler2D<f32>,
-	[binding(4)] instanceData: uniform<InstanceData>,
-	[binding(5)] viewerData: uniform<ViewerData>,
+	[binding(0)] settings: uniform[MaterialSettings],
+	[binding(1)] MaterialDiffuseMap: sampler2D[f32],
+	[binding(2)] MaterialAlphaMap: sampler2D[f32],
+	[binding(3)] TextureOverlay: sampler2D[f32],
+	[binding(4)] instanceData: uniform[InstanceData],
+	[binding(5)] viewerData: uniform[ViewerData],
 }
 
 // Fragment stage
 struct FragIn
 {
-	[location(0), cond(HasUV)] uv: vec2<f32>,
-	[location(1), cond(HasColor)] color: vec4<f32>
+	[location(0), cond(HasUV)] uv: vec2[f32],
+	[location(1), cond(HasColor)] color: vec4[f32]
 }
 
 struct FragOut
 {
-	[location(0)] RenderTarget0: vec4<f32>
+	[location(0)] RenderTarget0: vec4[f32]
 }
 
 [entry(frag)]
@@ -99,29 +99,29 @@ fn main(input: FragIn) -> FragOut
 struct VertIn
 {
 	[location(PosLocation)] 
-	pos: vec3<f32>,
+	pos: vec3[f32],
 
 	[cond(HasVertexColor), location(ColorLocation)] 
-	color: vec4<f32>,
+	color: vec4[f32],
 
 	[cond(HasUV), location(UvLocation)] 
-	uv: vec2<f32>,
+	uv: vec2[f32],
 
 	[cond(Billboard), location(BillboardCenterLocation)]
-	billboardCenter: vec3<f32>,
+	billboardCenter: vec3[f32],
 
 	[cond(Billboard), location(BillboardSizeRotLocation)]
-	billboardSizeRot: vec4<f32>, //< width,height,sin,cos
+	billboardSizeRot: vec4[f32], //< width,height,sin,cos
 
 	[cond(Billboard), location(BillboardColorLocation)]
-	billboardColor: vec4<f32>
+	billboardColor: vec4[f32]
 }
 
 struct VertOut
 {
-	[location(0), cond(HasUV)] uv: vec2<f32>,
-	[location(1), cond(HasColor)] color: vec4<f32>,
-	[builtin(position)] position: vec4<f32>
+	[location(0), cond(HasUV)] uv: vec2[f32],
+	[location(1), cond(HasColor)] color: vec4[f32],
+	[builtin(position)] position: vec4[f32]
 }
 
 [entry(vert), cond(Billboard)]
@@ -130,27 +130,27 @@ fn billboardMain(input: VertIn) -> VertOut
 	let size = input.billboardSizeRot.xy;
 	let sinCos = input.billboardSizeRot.zw;
 
-	let rotatedPosition = vec2<f32>(
+	let rotatedPosition = vec2[f32](
 		input.pos.x * sinCos.y - input.pos.y * sinCos.x,
 		input.pos.y * sinCos.y + input.pos.x * sinCos.x
 	);
 	rotatedPosition *= size;
 
-	let cameraRight = vec3<f32>(viewerData.viewMatrix[0][0], viewerData.viewMatrix[1][0], viewerData.viewMatrix[2][0]);
-	let cameraUp = vec3<f32>(viewerData.viewMatrix[0][1], viewerData.viewMatrix[1][1], viewerData.viewMatrix[2][1]);
+	let cameraRight = vec3[f32](viewerData.viewMatrix[0][0], viewerData.viewMatrix[1][0], viewerData.viewMatrix[2][0]);
+	let cameraUp = vec3[f32](viewerData.viewMatrix[0][1], viewerData.viewMatrix[1][1], viewerData.viewMatrix[2][1]);
 
 	let vertexPos = input.billboardCenter;
 	vertexPos += cameraRight * rotatedPosition.x;
 	vertexPos += cameraUp * rotatedPosition.y;
 
 	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(vertexPos, 1.0);
+	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](vertexPos, 1.0);
 	
 	const if (HasColor)
 		output.color = input.billboardColor;
 	
 	const if (HasUV)
-		output.uv = input.pos.xy + vec2<f32>(0.5, 0.5);
+		output.uv = input.pos.xy + vec2[f32](0.5, 0.5);
 
 	return output;
 }
@@ -159,7 +159,7 @@ fn billboardMain(input: VertIn) -> VertOut
 fn main(input: VertIn) -> VertOut
 {
 	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 
 	const if (HasColor)
 		output.color = input.color;
