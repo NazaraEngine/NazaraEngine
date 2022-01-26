@@ -17,8 +17,8 @@ constexpr std::size_t BloomSubdivisionCount = 5;
 [layout(std140)]
 struct PointLight
 {
-	color: vec3<f32>,
-	position: vec3<f32>,
+	color: vec3[f32],
+	position: vec3[f32],
 
 	constant: f32,
 	linear: f32,
@@ -28,9 +28,9 @@ struct PointLight
 [layout(std140)]
 struct SpotLight
 {
-	color: vec3<f32>,
-	position: vec3<f32>,
-	direction: vec3<f32>,
+	color: vec3[f32],
+	position: vec3[f32],
+	direction: vec3[f32],
 
 	constant: f32,
 	linear: f32,
@@ -299,9 +299,9 @@ int main()
 	[layout(std140)]
 	struct SpotLight
 	{
-		color: vec3<f32>,
-		position: vec3<f32>,
-		direction: vec3<f32>,
+		color: vec3[f32],
+		position: vec3[f32],
+		direction: vec3[f32],
 
 		constant: f32,
 		linear: f32,

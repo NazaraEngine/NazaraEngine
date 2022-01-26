@@ -2,61 +2,61 @@
 struct BasicSettings
 {
 	AlphaThreshold: f32,
-	DiffuseColor: vec4<f32>
+	DiffuseColor: vec4[f32]
 }
 
 [layout(std140)]
 struct InstanceData
 {
-	worldMatrix: mat4<f32>,
-	invWorldMatrix: mat4<f32>
+	worldMatrix: mat4[f32],
+	invWorldMatrix: mat4[f32]
 }
 
 [layout(std140)]
 struct ViewerData
 {
-	projectionMatrix: mat4<f32>,
-	invProjectionMatrix: mat4<f32>,
-	viewMatrix: mat4<f32>,
-	invViewMatrix: mat4<f32>,
-	viewProjMatrix: mat4<f32>,
-	invViewProjMatrix: mat4<f32>,
-	renderTargetSize: vec2<f32>,
-	invRenderTargetSize: vec2<f32>,
-	eyePosition: vec3<f32>
+	projectionMatrix: mat4[f32],
+	invProjectionMatrix: mat4[f32],
+	viewMatrix: mat4[f32],
+	invViewMatrix: mat4[f32],
+	viewProjMatrix: mat4[f32],
+	invViewProjMatrix: mat4[f32],
+	renderTargetSize: vec2[f32],
+	invRenderTargetSize: vec2[f32],
+	eyePosition: vec3[f32]
 }
 
 external
 {
-	[binding(0)] settings: uniform<BasicSettings>,
-	[binding(4)] instanceData: uniform<InstanceData>,
-	[binding(5)] viewerData: uniform<ViewerData>,
+	[binding(0)] settings: uniform[BasicSettings],
+	[binding(4)] instanceData: uniform[InstanceData],
+	[binding(5)] viewerData: uniform[ViewerData],
 }
 
 struct InputData
 {
-	[location(0)] pos: vec3<f32>,
-	[location(1)] normal: vec3<f32>,
-	[location(2)] uv: vec2<f32>
+	[location(0)] pos: vec3[f32],
+	[location(1)] normal: vec3[f32],
+	[location(2)] uv: vec2[f32]
 }
 
 struct OutputData
 {
-	[location(0)] normal: vec3<f32>,
-	[location(1)] uv: vec2<f32>,
-	[location(2)] pos: vec3<f32>,
-	[builtin(position)] position: vec4<f32>
+	[location(0)] normal: vec3[f32],
+	[location(1)] uv: vec2[f32],
+	[location(2)] pos: vec3[f32],
+	[builtin(position)] position: vec4[f32]
 }
 
 [entry(vert)]
 fn main(input: InputData) -> OutputData
 {
-	let worldPos = instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+	let worldPos = instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 
 	let output: OutputData;
 	output.uv = input.uv;
 	output.normal = input.normal;
 	output.pos = worldPos.xyz;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4<f32>(input.pos, 1.0);
+	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 	return output;
 }
