@@ -18,44 +18,15 @@
 
 namespace Nz
 {
+	class MaterialPass;
 	class RenderDevice;
 	class RenderPipeline;
 	class RenderSpriteChain;
 	class ShaderBinding;
-
-	class NAZARA_GRAPHICS_API SpriteChainRenderer : public ElementRenderer
-	{
-		public:
-			SpriteChainRenderer(RenderDevice& device, std::size_t maxVertexBufferSize = 32 * 1024);
-			~SpriteChainRenderer() = default;
-
-			std::unique_ptr<ElementRendererData> InstanciateData() override;
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
-			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
-			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
-
-		private:
-			struct BufferCopy
-			{
-				RenderBuffer* targetBuffer;
-				UploadPool::Allocation* allocation;
-				std::size_t size;
-			};
-
-			struct VertexBufferPool
-			{
-				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
-			};
-
-			std::shared_ptr<RenderBuffer> m_indexBuffer;
-			std::shared_ptr<VertexBufferPool> m_vertexBufferPool;
-			std::size_t m_maxVertexBufferSize;
-			std::size_t m_maxVertexCount;
-			std::vector<BufferCopy> m_pendingCopies;
-			std::vector<ShaderBinding::Binding> m_bindingCache;
-			RenderDevice& m_device;
-	};
-
+	class Texture;
+	class VertexDeclaration;
+	class WorldInstance;
+	
 	struct SpriteChainRendererData : public ElementRendererData
 	{
 		struct DrawCall
@@ -78,6 +49,62 @@ namespace Nz
 		std::vector<DrawCall> drawCalls;
 		std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
 		std::vector<ShaderBindingPtr> shaderBindings;
+	};
+
+	class NAZARA_GRAPHICS_API SpriteChainRenderer final : public ElementRenderer
+	{
+		public:
+			SpriteChainRenderer(RenderDevice& device, std::size_t maxVertexBufferSize = 32 * 1024);
+			~SpriteChainRenderer() = default;
+
+			std::unique_ptr<ElementRendererData> InstanciateData() override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates) override;
+			void PrepareEnd(RenderFrame& currentFrame, ElementRendererData& rendererData) override;
+			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
+			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
+
+		private:
+			void Flush();
+			void FlushDrawCall();
+			void FlushDrawData();
+
+			struct BufferCopy
+			{
+				RenderBuffer* targetBuffer;
+				UploadPool::Allocation* allocation;
+				std::size_t size;
+			};
+
+			struct PendingData
+			{
+				std::size_t firstQuadIndex = 0;
+				SpriteChainRendererData::DrawCall* currentDrawCall = nullptr;
+				UploadPool::Allocation* currentAllocation = nullptr;
+				UInt8* currentAllocationMemPtr = nullptr;
+				const VertexDeclaration* currentVertexDeclaration = nullptr;
+				RenderBuffer* currentVertexBuffer = nullptr;
+				const MaterialPass* currentMaterialPass = nullptr;
+				const RenderPipeline* currentPipeline = nullptr;
+				const ShaderBinding* currentShaderBinding = nullptr;
+				const Texture* currentTextureOverlay = nullptr;
+				const WorldInstance* currentWorldInstance = nullptr;
+				RenderBufferView currentLightData;
+				Recti currentScissorBox = Recti(-1, -1, -1, -1);
+			};
+
+			struct VertexBufferPool
+			{
+				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
+			};
+
+			std::shared_ptr<RenderBuffer> m_indexBuffer;
+			std::shared_ptr<VertexBufferPool> m_vertexBufferPool;
+			std::size_t m_maxVertexBufferSize;
+			std::size_t m_maxVertexCount;
+			std::vector<BufferCopy> m_pendingCopies;
+			std::vector<ShaderBinding::Binding> m_bindingCache;
+			PendingData m_pendingData;
+			RenderDevice& m_device;
 	};
 }
 

@@ -169,11 +169,28 @@ namespace Nz
 		return *this;
 	}
 
+	template<typename T>
+	bool BoundingVolume<T>::Intersect(const Box<T>& box) const
+	{
+		switch (extend)
+		{
+			case Extend::Infinite:
+				return true;
+
+			case Extend::Finite:
+				return aabb.Intersect(box);
+
+			case Extend::Null:
+				return false;
+		}
+
+		return false;
+	}
+
 	/*!
 	* \brief Checks whether the volume is finite
 	* \return true if extend is Extend::Finite
 	*/
-
 	template<typename T>
 	bool BoundingVolume<T>::IsFinite() const
 	{

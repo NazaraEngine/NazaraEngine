@@ -854,12 +854,14 @@ int main()
 			planeModel.BuildElement(forwardPassIndex, planeInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, {}, elementPointers.data(), elementPointers.size());
-			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.data(), elementPointers.size());
+			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			submeshRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
+			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -918,12 +920,14 @@ int main()
 			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
+
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, {}, elementPointers.data(), elementPointers.size());
-			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 		forwardPass.SetExecutionCallback([&]
 		{
@@ -946,12 +950,15 @@ int main()
 			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
+
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, {}, elementPointers.data(), elementPointers.size());
-			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
+			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 
 		occluderPass.AddOutput(occluderTexture);

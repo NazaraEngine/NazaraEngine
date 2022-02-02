@@ -72,7 +72,7 @@ struct Light
 struct LightData
 {
 	lights: array[Light, MaxLightCount],
-	lightCount: u32
+	lightCount: u32,
 }
 
 [layout(std140)]
@@ -250,7 +250,7 @@ fn main(input: VertToFrag) -> FragOut
 	else
 	{
 		let output: FragOut;
-		output.RenderTarget0 = diffuseColor.w;
+		output.RenderTarget0 = diffuseColor;
 		return output;	
 	}
 }

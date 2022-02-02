@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
@@ -37,37 +38,6 @@ namespace Nz
 		m_elementRenderers.resize(BasicRenderElementCount);
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::SpriteChain)] = std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice());
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
-
-		auto lightOffset = PredefinedLightData::GetOffsets();
-
-		m_lightDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightOffset.totalSize, BufferUsage::DeviceLocal | BufferUsage::Write);
-
-		std::vector<UInt8> staticLightData(lightOffset.totalSize);
-		/*AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
-		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 0;
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
-		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, -1.f, 1.f);
-		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;*/
-
-		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
-		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 1;
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
-		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, 0.f, 1.f / 3.f);
-		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;
-
-		/*AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightCountOffset) = 1;
-		AccessByOffset<UInt32&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.type) = 2;
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.color) = Vector4f(1.f, 1.f, 1.f, 1.f);
-		AccessByOffset<Vector2f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.factor) = Vector2f(0.2f, 1.f);
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter1) = Vector4f(0.f, 0.f, 0.f, 1.f / 3.f);
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter2) = Vector4f(0.f, 0.f, -1.f, 0.f);
-		AccessByOffset<Vector4f&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.parameter3) = Vector4f(DegreeAnglef(15.f).GetCos(), DegreeAnglef(20.f).GetCos(), 0.f, 0.f);
-		AccessByOffset<UInt8&>(staticLightData.data(), lightOffset.lightsOffset + lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;*/
-
-		if (!m_lightDataBuffer->Fill(staticLightData.data(), 0, staticLightData.size()))
-			throw std::runtime_error("failed to fill light data buffer");
 	}
 
 	void ForwardFramePipeline::InvalidateViewer(AbstractViewer* viewerInstance)
@@ -159,6 +129,21 @@ namespace Nz
 		}
 	}
 
+	void ForwardFramePipeline::RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask)
+	{
+		auto& lightData = m_lights[light.get()];
+		lightData.light = std::move(light);
+		lightData.renderMask = renderMask;
+		lightData.onLightInvalidated.Connect(lightData.light->OnLightDataInvalided, [this](Light*)
+		{
+			for (auto&& [viewer, viewerData] : m_viewers)
+			{
+				viewerData.rebuildForwardPass = true;
+				viewerData.prepare = true;
+			}
+		});
+	}
+
 	void ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
 	{
 		auto& viewerData = m_viewers.emplace(viewerInstance, ViewerData{}).first->second;
@@ -225,6 +210,9 @@ namespace Nz
 		{
 			return currentHash * 23 + newHash;
 		};
+
+		PredefinedLightData lightOffsets = PredefinedLightData::GetOffsets();
+		std::size_t lightUboAlignedSize = Align(lightOffsets.totalSize, graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
 
 		// Render queues handling
 		for (auto&& [viewer, data] : m_viewers)
@@ -307,12 +295,104 @@ namespace Nz
 			{
 				renderFrame.PushForRelease(std::move(viewerData.forwardRenderElements));
 				viewerData.forwardRenderElements.clear();
-
-				for (const auto& renderableData : m_visibleRenderables)
-					renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, viewerData.forwardRenderElements);
-
 				viewerData.forwardRegistry.Clear();
 				viewerData.forwardRenderQueue.Clear();
+				viewerData.lightBufferPerLights.clear();
+				viewerData.lightPerRenderElement.clear();
+
+				for (auto& lightDataUbo : m_lightDataBuffers)
+				{
+					lightDataUbo.allocation = nullptr;
+					lightDataUbo.offset = 0;
+				}
+
+				for (const auto& renderableData : m_visibleRenderables)
+				{
+					BoundingVolumef renderableBoundingVolume(renderableData.instancedRenderable->GetAABB());
+					renderableBoundingVolume.Update(renderableData.worldInstance->GetWorldMatrix());
+
+					// Select lights (TODO: Cull lights in frustum)
+					m_visibleLights.clear();
+					for (auto&& [light, lightData] : m_lights)
+					{
+						const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
+						if ((renderMask & lightData.renderMask) && boundingVolume.Intersect(renderableBoundingVolume.aabb))
+							m_visibleLights.push_back(light);
+					}
+
+					// Sort lights
+					std::sort(m_visibleLights.begin(), m_visibleLights.end(), [&](Light* lhs, Light* rhs)
+					{
+						return lhs->ComputeContributionScore(renderableBoundingVolume) < rhs->ComputeContributionScore(renderableBoundingVolume);
+					});
+
+					std::size_t lightCount = std::min(m_visibleLights.size(), MaxLightCountPerDraw);
+
+					LightKey lightKey;
+					lightKey.fill(nullptr);
+					for (std::size_t i = 0; i < lightCount; ++i)
+						lightKey[i] = m_visibleLights[i];
+
+					RenderBufferView lightUboView;
+
+					auto it = viewerData.lightBufferPerLights.find(lightKey);
+					if (it == viewerData.lightBufferPerLights.end())
+					{
+						// Prepare light ubo upload
+
+						// Find light ubo
+						LightDataUbo* targetLightData = nullptr;
+						for (auto& lightUboData : m_lightDataBuffers)
+						{
+							if (lightUboData.offset + lightUboAlignedSize <= lightUboData.renderBuffer->GetSize())
+							{
+								targetLightData = &lightUboData;
+								break;
+							}
+						}
+
+						if (!targetLightData)
+						{
+							// Allocate a new light UBO
+							auto& lightUboData = m_lightDataBuffers.emplace_back();
+							lightUboData.renderBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, 256 * lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+
+							targetLightData = &lightUboData;
+						}
+
+						assert(targetLightData);
+						if (!targetLightData->allocation)
+							targetLightData->allocation = &uploadPool.Allocate(targetLightData->renderBuffer->GetSize());
+
+						void* lightDataPtr = static_cast<UInt8*>(targetLightData->allocation->mappedPtr) + targetLightData->offset;
+						AccessByOffset<UInt32&>(lightDataPtr, lightOffsets.lightCountOffset) = SafeCast<UInt32>(lightCount);
+
+						UInt8* lightPtr = static_cast<UInt8*>(lightDataPtr) + lightOffsets.lightsOffset;
+						for (std::size_t i = 0; i < lightCount; ++i)
+						{
+							m_visibleLights[i]->FillLightData(lightPtr);
+							lightPtr += lightOffsets.lightSize;
+						}
+
+						// Associate render element with light ubo
+						lightUboView = RenderBufferView(targetLightData->renderBuffer.get(), targetLightData->offset, lightUboAlignedSize);
+
+						targetLightData->offset += lightUboAlignedSize;
+
+						viewerData.lightBufferPerLights.emplace(lightKey, lightUboView);
+					}
+					else
+						lightUboView = it->second;
+
+					std::size_t previousCount = viewerData.forwardRenderElements.size();
+					renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, viewerData.forwardRenderElements);
+					for (std::size_t i = previousCount; i < viewerData.forwardRenderElements.size(); ++i)
+					{
+						const RenderElement* element = viewerData.forwardRenderElements[i].get();
+						viewerData.lightPerRenderElement.emplace(element, lightUboView);
+					}
+				}
+
 				for (const auto& renderElement : viewerData.forwardRenderElements)
 				{
 					renderElement->Register(viewerData.forwardRegistry);
@@ -320,6 +400,25 @@ namespace Nz
 				}
 
 				viewerData.forwardRegistry.Finalize();
+
+				renderFrame.Execute([&](CommandBufferBuilder& builder)
+				{
+					builder.BeginDebugRegion("Light UBO Update", Color::Yellow);
+					{
+						builder.PreTransferBarrier();
+
+						for (auto& lightUboData : m_lightDataBuffers)
+						{
+							if (!lightUboData.allocation)
+								continue;
+
+							builder.CopyBuffer(*lightUboData.allocation, RenderBufferView(lightUboData.renderBuffer.get(), 0, lightUboData.offset));
+						}
+
+						builder.PostTransferBarrier();
+					}
+					builder.EndDebugRegion();
+				}, QueueType::Transfer);
 			}
 
 			viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
@@ -353,20 +452,41 @@ namespace Nz
 
 			const auto& viewerInstance = viewer->GetViewerInstance();
 
-			ElementRenderer::RenderStates renderStates;
-			renderStates.lightData = m_lightDataBuffer;
-
 			ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, renderStates, elements, elementCount);
+
+				m_renderStates.clear();
+				m_renderStates.resize(elementCount);
+
+				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
 			});
 
+			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
+				m_elementRenderers[i]->PrepareEnd(renderFrame, *rendererData[i]);
+
+			auto& lightPerRenderElement = viewerData.lightPerRenderElement;
 			ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, renderStates, elements, elementCount);
+
+				m_renderStates.clear();
+
+				m_renderStates.reserve(elementCount);
+				for (std::size_t i = 0; i < elementCount; ++i)
+				{
+					auto it = lightPerRenderElement.find(elements[i]);
+					assert(it != lightPerRenderElement.end());
+
+					auto& renderStates = m_renderStates.emplace_back();
+					renderStates.lightData = it->second;
+				}
+
+				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
 			});
+
+			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
+				m_elementRenderers[i]->PrepareEnd(renderFrame, *rendererData[i]);
 		}
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
@@ -493,6 +613,17 @@ namespace Nz
 		}
 	}
 
+	void ForwardFramePipeline::UnregisterLight(Light* light)
+	{
+		m_lights.erase(light);
+
+		for (auto&& [viewer, viewerData] : m_viewers)
+		{
+			viewerData.rebuildForwardPass = true;
+			viewerData.prepare = true;
+		}
+	}
+
 	void ForwardFramePipeline::UnregisterViewer(AbstractViewer* viewerInstance)
 	{
 		m_viewers.erase(viewerInstance);
@@ -544,7 +675,7 @@ namespace Nz
 				ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 				{
 					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Render(viewerInstance, *viewerData.elementRendererData[elementType], builder, elements, elementCount);
+					elementRenderer.Render(viewerInstance, *viewerData.elementRendererData[elementType], builder, elementCount, elements);
 				});
 			});
 
@@ -576,7 +707,7 @@ namespace Nz
 				ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 				{
 					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Render(viewerInstance , *viewerData.elementRendererData[elementType], builder, elements, elementCount);
+					elementRenderer.Render(viewerInstance, *viewerData.elementRendererData[elementType], builder, elementCount, elements);
 				});
 			});
 		}

@@ -25,7 +25,7 @@ namespace Nz
 			inline RenderElement(UInt8 elementType);
 			virtual ~RenderElement();
 
-			virtual UInt64 ComputeSortingScore(const Nz::Frustumf& frustum, const RenderQueueRegistry& registry) const = 0;
+			virtual UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const = 0;
 
 			inline UInt8 GetElementType() const;
 

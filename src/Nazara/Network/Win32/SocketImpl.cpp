@@ -42,7 +42,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+		nameBuffer.fill(0);
 
 		int bufferLength = static_cast<int>(nameBuffer.size());
 
