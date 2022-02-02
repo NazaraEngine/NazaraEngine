@@ -88,6 +88,11 @@ namespace Nz
 				UploadPool::Allocation* allocation = nullptr;
 			};
 
+			struct LightUboPool
+			{
+				std::vector<std::shared_ptr<RenderBuffer>> lightUboBuffers;
+			};
+
 			struct MaterialData
 			{
 				std::size_t usedCount = 0;
@@ -139,6 +144,7 @@ namespace Nz
 
 			std::size_t m_depthPassIndex;
 			std::size_t m_forwardPassIndex;
+			std::shared_ptr<LightUboPool> m_lightUboPool;
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<Light*, LightData> m_lights;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
