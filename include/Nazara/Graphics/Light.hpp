@@ -31,7 +31,7 @@ namespace Nz
 
 			virtual float ComputeContributionScore(const BoundingVolumef& boundingVolume) const = 0;
 
-			virtual void FillLightData(void* data) = 0;
+			virtual void FillLightData(void* data) const = 0;
 
 			inline const BoundingVolumef& GetBoundingVolume() const;
 

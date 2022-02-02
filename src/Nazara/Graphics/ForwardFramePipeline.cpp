@@ -244,7 +244,7 @@ namespace Nz
 					BoundingVolumef boundingVolume(renderable->GetAABB());
 					boundingVolume.Update(worldInstance->GetWorldMatrix());
 
-					if (!frustum.Contains(boundingVolume.aabb))
+					if (!frustum.Contains(boundingVolume))
 						continue;
 
 					auto& visibleRenderable = m_visibleRenderables.emplace_back();
@@ -257,6 +257,20 @@ namespace Nz
 
 				if (isInstanceVisible)
 					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(worldInstance.get()));
+			}
+
+			// TODO: Lights update shouldn't trigger a rebuild of the depth prepass
+			m_visibleLights.clear();
+			for (auto&& [light, lightData] : m_lights)
+			{
+				const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
+
+				// TODO: Use more precise tests for point lights (frustum/sphere is cheap)
+				if (renderMask & lightData.renderMask && frustum.Contains(boundingVolume))
+				{
+					m_visibleLights.push_back(light);
+					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(light));
+				}
 			}
 
 			if (viewerData.visibilityHash != visibilityHash)
@@ -317,26 +331,26 @@ namespace Nz
 					renderableBoundingVolume.Update(renderableData.worldInstance->GetWorldMatrix());
 
 					// Select lights (TODO: Cull lights in frustum)
-					m_visibleLights.clear();
-					for (auto&& [light, lightData] : m_lights)
+					m_renderableLights.clear();
+					for (const Light* light : m_visibleLights)
 					{
 						const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
-						if ((renderMask & lightData.renderMask) && boundingVolume.Intersect(renderableBoundingVolume.aabb))
-							m_visibleLights.push_back(light);
+						if (boundingVolume.Intersect(renderableBoundingVolume.aabb))
+							m_renderableLights.push_back(light);
 					}
 
 					// Sort lights
-					std::sort(m_visibleLights.begin(), m_visibleLights.end(), [&](Light* lhs, Light* rhs)
+					std::sort(m_renderableLights.begin(), m_renderableLights.end(), [&](const Light* lhs, const Light* rhs)
 					{
 						return lhs->ComputeContributionScore(renderableBoundingVolume) < rhs->ComputeContributionScore(renderableBoundingVolume);
 					});
 
-					std::size_t lightCount = std::min(m_visibleLights.size(), MaxLightCountPerDraw);
+					std::size_t lightCount = std::min(m_renderableLights.size(), MaxLightCountPerDraw);
 
 					LightKey lightKey;
 					lightKey.fill(nullptr);
 					for (std::size_t i = 0; i < lightCount; ++i)
-						lightKey[i] = m_visibleLights[i];
+						lightKey[i] = m_renderableLights[i];
 
 					RenderBufferView lightUboView;
 
@@ -383,7 +397,7 @@ namespace Nz
 						UInt8* lightPtr = static_cast<UInt8*>(lightDataPtr) + lightOffsets.lightsOffset;
 						for (std::size_t i = 0; i < lightCount; ++i)
 						{
-							m_visibleLights[i]->FillLightData(lightPtr);
+							m_renderableLights[i]->FillLightData(lightPtr);
 							lightPtr += lightOffsets.lightSize;
 						}
 

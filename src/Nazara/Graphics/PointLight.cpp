@@ -18,7 +18,7 @@ namespace Nz
 		return Vector3f::SquaredDistance(m_position, boundingVolume.aabb.GetCenter());
 	}
 
-	void PointLight::FillLightData(void* data)
+	void PointLight::FillLightData(void* data) const
 	{
 		auto lightOffset = PredefinedLightData::GetOffsets();
 
