@@ -13,7 +13,7 @@ TEST_CASE("structure member access", "[Shader]")
 		std::string_view nzslSource = R"(
 struct innerStruct
 {
-	field: vec3<f32>
+	field: vec3[f32]
 }
 
 struct outerStruct
@@ -23,7 +23,7 @@ struct outerStruct
 
 external
 {
-	[set(0), binding(0)] ubo: uniform<outerStruct>
+	[set(0), binding(0)] ubo: uniform[outerStruct]
 }
 )";
 

@@ -44,7 +44,7 @@ namespace Nz
 
 	NAZARA_UTILITY_API Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, std::size_t vertexCount);
 	NAZARA_UTILITY_API void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount);
-	NAZARA_UTILITY_API UInt64 ComputeCacheMissCount(IndexIterator indices, std::size_t indexCount);
+	NAZARA_UTILITY_API UInt64 ComputeCacheMissCount(IndexIterator indices, UInt32 indexCount);
 	NAZARA_UTILITY_API void ComputeConeIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount);
 	NAZARA_UTILITY_API void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount);
 	NAZARA_UTILITY_API void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, std::size_t* indexCount, std::size_t* vertexCount);

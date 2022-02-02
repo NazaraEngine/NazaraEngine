@@ -34,6 +34,8 @@ namespace Nz
 
 			BoundingVolume& ExtendTo(const BoundingVolume& volume);
 
+			bool Intersect(const Box<T>& box) const;
+
 			bool IsFinite() const;
 			bool IsInfinite() const;
 			bool IsNull() const;

@@ -9,6 +9,7 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <iostream>
 #include <utility>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -49,7 +50,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -57,103 +58,65 @@ namespace Nz
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
 
-		std::size_t firstQuadIndex = 0;
-		SpriteChainRendererData::DrawCall* currentDrawCall = nullptr;
-		UploadPool::Allocation* currentAllocation = nullptr;
-		UInt8* currentAllocationMemPtr = nullptr;
-		const VertexDeclaration* currentVertexDeclaration = nullptr;
-		RenderBuffer* currentVertexBuffer = nullptr;
-		const MaterialPass* currentMaterialPass = nullptr;
-		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentShaderBinding = nullptr;
-		const Texture* currentTextureOverlay = nullptr;
-		const WorldInstance* currentWorldInstance = nullptr;
-		Recti currentScissorBox = invalidScissorBox;
-
-		auto FlushDrawCall = [&]()
-		{
-			currentDrawCall = nullptr;
-		};
-
-		auto FlushDrawData = [&]()
-		{
-			FlushDrawCall();
-
-			currentShaderBinding = nullptr;
-		};
-
-		auto Flush = [&]()
-		{
-			// changing vertex buffer always mean we have to switch draw calls
-			FlushDrawCall();
-
-			if (currentAllocation)
-			{
-				std::size_t size = currentAllocationMemPtr - static_cast<UInt8*>(currentAllocation->mappedPtr);
-
-				m_pendingCopies.emplace_back(BufferCopy{
-					currentVertexBuffer,
-					currentAllocation,
-					size
-				});
-
-				firstQuadIndex = 0;
-				currentAllocation = nullptr;
-				currentVertexBuffer = nullptr;
-			}
-		};
+		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
-		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
 			assert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::SpriteChain));
 			const RenderSpriteChain& spriteChain = static_cast<const RenderSpriteChain&>(*elements[i]);
+			const RenderStates& renderState = renderStates[i];
 
 			const VertexDeclaration* vertexDeclaration = spriteChain.GetVertexDeclaration();
 			std::size_t stride = vertexDeclaration->GetStride();
 
-			if (currentVertexDeclaration != vertexDeclaration)
+			if (m_pendingData.currentVertexDeclaration != vertexDeclaration)
 			{
 				// TODO: It's be possible to use another vertex declaration with the same vertex buffer but currently very complicated
 				// Wait until buffer rewrite
 				Flush();
-				currentVertexDeclaration = vertexDeclaration;
+				m_pendingData.currentVertexDeclaration = vertexDeclaration;
 			}
 
-			if (const RenderPipeline* pipeline = &spriteChain.GetRenderPipeline(); currentPipeline != pipeline)
+			if (const RenderPipeline* pipeline = &spriteChain.GetRenderPipeline(); m_pendingData.currentPipeline != pipeline)
 			{
 				FlushDrawCall();
-				currentPipeline = pipeline;
+				m_pendingData.currentPipeline = pipeline;
 			}
 
-			if (const MaterialPass* materialPass = &spriteChain.GetMaterialPass(); currentMaterialPass != materialPass)
+			if (const MaterialPass* materialPass = &spriteChain.GetMaterialPass(); m_pendingData.currentMaterialPass != materialPass)
 			{
 				FlushDrawData();
-				currentMaterialPass = materialPass;
+				m_pendingData.currentMaterialPass = materialPass;
 			}
 
-			if (const WorldInstance* worldInstance = &spriteChain.GetWorldInstance(); currentWorldInstance != worldInstance)
+			if (const WorldInstance* worldInstance = &spriteChain.GetWorldInstance(); m_pendingData.currentWorldInstance != worldInstance)
 			{
 				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawData();
-				currentWorldInstance = worldInstance;
+				m_pendingData.currentWorldInstance = worldInstance;
 			}
 
-			if (const Texture* textureOverlay = spriteChain.GetTextureOverlay(); currentTextureOverlay != textureOverlay)
+			if (const Texture* textureOverlay = spriteChain.GetTextureOverlay(); m_pendingData.currentTextureOverlay != textureOverlay)
 			{
 				FlushDrawData();
-				currentTextureOverlay = textureOverlay;
+				m_pendingData.currentTextureOverlay = textureOverlay;
+			}
+
+			if (m_pendingData.currentLightData != renderState.lightData)
+			{
+				FlushDrawData();
+				m_pendingData.currentLightData = renderState.lightData;
 			}
 
 			const Recti& scissorBox = spriteChain.GetScissorBox();
 			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
-			if (currentScissorBox != targetScissorBox)
+			if (m_pendingData.currentScissorBox != targetScissorBox)
 			{
-				FlushDrawData();
-				currentScissorBox = targetScissorBox;
+				FlushDrawCall();
+				m_pendingData.currentScissorBox = targetScissorBox;
 			}
 
 			std::size_t remainingQuads = spriteChain.GetSpriteCount();
@@ -161,10 +124,10 @@ namespace Nz
 
 			while (remainingQuads > 0)
 			{
-				if (!currentAllocation)
+				if (!m_pendingData.currentAllocation)
 				{
-					currentAllocation = &currentFrame.GetUploadPool().Allocate(m_maxVertexBufferSize);
-					currentAllocationMemPtr = static_cast<UInt8*>(currentAllocation->mappedPtr);
+					m_pendingData.currentAllocation = &currentFrame.GetUploadPool().Allocate(m_maxVertexBufferSize);
+					m_pendingData.currentAllocationMemPtr = static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr);
 
 					std::shared_ptr<RenderBuffer> vertexBuffer;
 
@@ -177,12 +140,12 @@ namespace Nz
 					else
 						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex, m_maxVertexBufferSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 
-					currentVertexBuffer = vertexBuffer.get();
+					m_pendingData.currentVertexBuffer = vertexBuffer.get();
 
 					data.vertexBuffers.emplace_back(std::move(vertexBuffer));
 				}
 
-				if (!currentShaderBinding)
+				if (!m_pendingData.currentShaderBinding)
 				{
 					m_bindingCache.clear();
 
@@ -193,13 +156,23 @@ namespace Nz
 					const auto& matSettings = materialPass.GetSettings();
 					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
 					{
-						const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
+						const auto& instanceBuffer = m_pendingData.currentWorldInstance->GetInstanceBuffer();
 
 						auto& bindingEntry = m_bindingCache.emplace_back();
 						bindingEntry.bindingIndex = bindingIndex;
 						bindingEntry.content = ShaderBinding::UniformBufferBinding{
 							instanceBuffer.get(),
 							0, instanceBuffer->GetSize()
+						};
+					}
+
+					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::LightDataUbo); bindingIndex != MaterialSettings::InvalidIndex && m_pendingData.currentLightData)
+					{
+						auto& bindingEntry = m_bindingCache.emplace_back();
+						bindingEntry.bindingIndex = bindingIndex;
+						bindingEntry.content = ShaderBinding::UniformBufferBinding{
+							m_pendingData.currentLightData.GetBuffer(),
+							m_pendingData.currentLightData.GetOffset(), m_pendingData.currentLightData.GetSize()
 						};
 					}
 
@@ -220,33 +193,33 @@ namespace Nz
 						auto& bindingEntry = m_bindingCache.emplace_back();
 						bindingEntry.bindingIndex = bindingIndex;
 						bindingEntry.content = ShaderBinding::TextureBinding{
-							currentTextureOverlay, defaultSampler.get()
+							m_pendingData.currentTextureOverlay, defaultSampler.get()
 						};
 					}
 
-					ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
+					ShaderBindingPtr drawDataBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
 					drawDataBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
-					currentShaderBinding = drawDataBinding.get();
+					m_pendingData.currentShaderBinding = drawDataBinding.get();
 
 					data.shaderBindings.emplace_back(std::move(drawDataBinding));
 				}
 
-				if (!currentDrawCall)
+				if (!m_pendingData.currentDrawCall)
 				{
 					data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
-						currentVertexBuffer,
-						currentPipeline,
-						currentShaderBinding,
-						6 * firstQuadIndex,
+						m_pendingData.currentVertexBuffer,
+						m_pendingData.currentPipeline,
+						m_pendingData.currentShaderBinding,
+						6 * m_pendingData.firstQuadIndex,
 						0,
-						currentScissorBox
+						m_pendingData.currentScissorBox
 					});
 
-					currentDrawCall = &data.drawCalls.back();
+					m_pendingData.currentDrawCall = &data.drawCalls.back();
 				}
 
-				std::size_t remainingSpace = m_maxVertexBufferSize - (currentAllocationMemPtr - static_cast<UInt8*>(currentAllocation->mappedPtr));
+				std::size_t remainingSpace = m_maxVertexBufferSize - (m_pendingData.currentAllocationMemPtr - static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr));
 				std::size_t maxQuads = remainingSpace / (4 * stride);
 				if (maxQuads == 0)
 				{
@@ -257,12 +230,12 @@ namespace Nz
 				std::size_t copiedQuadCount = std::min(maxQuads, remainingQuads);
 				std::size_t copiedSize = 4 * copiedQuadCount * stride;
 
-				std::memcpy(currentAllocationMemPtr, spriteData, copiedSize);
-				currentAllocationMemPtr += copiedSize;
+				std::memcpy(m_pendingData.currentAllocationMemPtr, spriteData, copiedSize);
+				m_pendingData.currentAllocationMemPtr += copiedSize;
 				spriteData += copiedSize;
 
-				firstQuadIndex += copiedQuadCount;
-				currentDrawCall->quadCount += copiedQuadCount;
+				m_pendingData.firstQuadIndex += copiedQuadCount;
+				m_pendingData.currentDrawCall->quadCount += copiedQuadCount;
 				remainingQuads -= copiedQuadCount;
 
 				// If there's still data to copy, it means buffer is full, flush it
@@ -271,12 +244,16 @@ namespace Nz
 			}
 		}
 
-		//TODO: Add Finish()/PrepareEnd() call to allow to reuse buffers/draw calls for multiple Prepare calls
-		Flush();
+		FlushDrawCall();
 
 		const RenderSpriteChain* firstSpriteChain = static_cast<const RenderSpriteChain*>(elements[0]);
 		std::size_t drawCallCount = data.drawCalls.size() - oldDrawCallCount;
 		data.drawCallPerElement[firstSpriteChain] = SpriteChainRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
+	}
+
+	void SpriteChainRenderer::PrepareEnd(RenderFrame& currentFrame, ElementRendererData& /*rendererData*/)
+	{
+		Flush();
 
 		if (!m_pendingCopies.empty())
 		{
@@ -290,9 +267,11 @@ namespace Nz
 
 			m_pendingCopies.clear();
 		}
+
+		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t /*elementCount*/)
+	void SpriteChainRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
@@ -363,5 +342,38 @@ namespace Nz
 		data.shaderBindings.clear();
 
 		data.drawCalls.clear();
+	}
+
+	void SpriteChainRenderer::Flush()
+	{
+		// changing vertex buffer always mean we have to switch draw calls
+		FlushDrawCall();
+
+		if (m_pendingData.currentAllocation)
+		{
+			std::size_t size = m_pendingData.currentAllocationMemPtr - static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr);
+
+			m_pendingCopies.emplace_back(BufferCopy{
+				m_pendingData.currentVertexBuffer,
+				m_pendingData.currentAllocation,
+				size
+			});
+
+			m_pendingData.firstQuadIndex = 0;
+			m_pendingData.currentAllocation = nullptr;
+			m_pendingData.currentVertexBuffer = nullptr;
+		}
+	}
+
+	void SpriteChainRenderer::FlushDrawCall()
+	{
+		m_pendingData.currentDrawCall = nullptr;
+	}
+
+	void SpriteChainRenderer::FlushDrawData()
+	{
+		FlushDrawCall();
+
+		m_pendingData.currentShaderBinding = nullptr;
 	}
 }

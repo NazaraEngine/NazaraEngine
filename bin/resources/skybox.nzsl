@@ -1,32 +1,32 @@
 [layout(std140)]
 struct ViewerData
 {
-	projectionMatrix: mat4<f32>,
-	invProjectionMatrix: mat4<f32>,
-	viewMatrix: mat4<f32>,
-	invViewMatrix: mat4<f32>,
-	viewProjMatrix: mat4<f32>,
-	invViewProjMatrix: mat4<f32>,
-	renderTargetSize: vec2<f32>,
-	invRenderTargetSize: vec2<f32>,
-	eyePosition: vec3<f32>
+	projectionMatrix: mat4[f32],
+	invProjectionMatrix: mat4[f32],
+	viewMatrix: mat4[f32],
+	invViewMatrix: mat4[f32],
+	viewProjMatrix: mat4[f32],
+	invViewProjMatrix: mat4[f32],
+	renderTargetSize: vec2[f32],
+	invRenderTargetSize: vec2[f32],
+	eyePosition: vec3[f32]
 }
 
 external
 {
-	[binding(0)] viewerData: uniform<ViewerData>,
-	[binding(1)] skybox: samplerCube<f32>
+	[binding(0)] viewerData: uniform[ViewerData],
+	[binding(1)] skybox: samplerCube[f32]
 }
 
 struct VertOut
 {
-    [location(0)] uvw: vec3<f32>,
-    [builtin(position)] position: vec4<f32>
+    [location(0)] uvw: vec3[f32],
+    [builtin(position)] position: vec4[f32]
 }
 
 struct FragOut
 {
-    [location(0)] color: vec4<f32>,
+    [location(0)] color: vec4[f32],
     [builtin(fragdepth)] depth: f32
 }
 
@@ -43,7 +43,7 @@ fn main(input: VertOut) -> FragOut
 
 struct VertIn
 {
-	[location(0)] position: vec3<f32>
+	[location(0)] position: vec3[f32]
 }
 
 [entry(vert)]
@@ -51,10 +51,10 @@ fn main(input: VertIn) -> VertOut
 {
     // Set translation part to zero
     let rotationMat = viewerData.viewMatrix;
-    rotationMat[3].xyz = vec3<f32>(0.0, 0.0, 0.0);
+    rotationMat[3].xyz = vec3[f32](0.0, 0.0, 0.0);
 
     let output: VertOut;
-    output.position = viewerData.projectionMatrix * rotationMat * vec4<f32>(input.position, 1.0);
+    output.position = viewerData.projectionMatrix * rotationMat * vec4[f32](input.position, 1.0);
     output.uvw = input.position.xyz;
 
     return output;

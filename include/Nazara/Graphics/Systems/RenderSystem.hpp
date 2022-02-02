@@ -11,6 +11,7 @@
 #include <Nazara/Core/ECS.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
+#include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <memory>
 #include <set>
@@ -39,6 +40,7 @@ namespace Nz
 		private:
 			void OnCameraDestroy(entt::registry& registry, entt::entity entity);
 			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
+			void OnLightDestroy(entt::registry& registry, entt::entity entity);
 			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
 			void UpdateInstances(entt::registry& registry);
 			void UpdateVisibility(entt::registry& registry);
@@ -56,18 +58,32 @@ namespace Nz
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
 			};
 
+			struct LightEntity
+			{
+				NazaraSlot(LightComponent, OnLightAttached, onLightAttached);
+				NazaraSlot(LightComponent, OnLightDetach, onLightDetach);
+				NazaraSlot(LightComponent, OnVisibilityUpdate, onVisibilityUpdate);
+				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
+			};
+
 			entt::connection m_cameraDestroyConnection;
 			entt::connection m_graphicsDestroyConnection;
+			entt::connection m_lightDestroyConnection;
 			entt::connection m_nodeDestroyConnection;
 			entt::observer m_cameraConstructObserver;
 			entt::observer m_graphicsConstructObserver;
+			entt::observer m_lightConstructObserver;
 			std::set<entt::entity> m_invalidatedCameraNode;
-			std::set<entt::entity> m_invalidatedWorldNode;
+			std::set<entt::entity> m_invalidatedGfxWorldNode;
+			std::set<entt::entity> m_invalidatedLightWorldNode;
 			std::unique_ptr<FramePipeline> m_pipeline;
 			std::unordered_map<entt::entity, CameraEntity> m_cameraEntities;
 			std::unordered_map<entt::entity, GraphicsEntity> m_graphicsEntities;
-			std::unordered_set<entt::entity> m_newlyHiddenEntities;
-			std::unordered_set<entt::entity> m_newlyVisibleEntities;
+			std::unordered_map<entt::entity, LightEntity> m_lightEntities;
+			std::unordered_set<entt::entity> m_newlyHiddenGfxEntities;
+			std::unordered_set<entt::entity> m_newlyVisibleGfxEntities;
+			std::unordered_set<entt::entity> m_newlyHiddenLightEntities;
+			std::unordered_set<entt::entity> m_newlyVisibleLightEntities;
 	};
 }
 

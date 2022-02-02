@@ -665,7 +665,7 @@ namespace Nz
 			*vertexCount = xVertexCount*2 + yVertexCount*2 + zVertexCount*2;
 	}
 
-	UInt64 ComputeCacheMissCount(IndexIterator indices, std::size_t indexCount)
+	UInt64 ComputeCacheMissCount(IndexIterator indices, UInt32 indexCount)
 	{
 		VertexCache cache(indices, indexCount);
 		return cache.GetMissCount();

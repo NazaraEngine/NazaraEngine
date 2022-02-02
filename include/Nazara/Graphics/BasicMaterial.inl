@@ -9,6 +9,11 @@
 
 namespace Nz
 {
+	inline BasicMaterial::BasicMaterial(MaterialPass& material, NoInit) :
+	m_material(material)
+	{
+	}
+
 	/*!
 	* \brief Enable/Disable alpha test for this material
 	*
@@ -26,37 +31,37 @@ namespace Nz
 	inline void BasicMaterial::EnableAlphaTest(bool alphaTest)
 	{
 		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
-		m_material.SetOptionValue(m_optionIndexes.alphaTest, alphaTest);
+		m_material.SetOptionValue(m_basicOptionIndexes.alphaTest, alphaTest);
 	}
 
 	inline const std::shared_ptr<Texture>& BasicMaterial::GetAlphaMap() const
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha texture slot");
-		return m_material.GetTexture(m_textureIndexes.alpha);
+		return m_material.GetTexture(m_basicTextureIndexes.alpha);
 	}
 
 	inline const TextureSamplerInfo& BasicMaterial::GetAlphaSampler() const
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha texture slot");
-		return m_material.GetTextureSampler(m_textureIndexes.alpha);
+		return m_material.GetTextureSampler(m_basicTextureIndexes.alpha);
 	}
 
 	inline const std::shared_ptr<Texture>& BasicMaterial::GetDiffuseMap() const
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no alpha texture slot");
-		return m_material.GetTexture(m_textureIndexes.diffuse);
+		return m_material.GetTexture(m_basicTextureIndexes.diffuse);
 	}
 
 	inline const TextureSamplerInfo& BasicMaterial::GetDiffuseSampler() const
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no alpha texture slot");
-		return m_material.GetTextureSampler(m_textureIndexes.diffuse);
+		return m_material.GetTextureSampler(m_basicTextureIndexes.diffuse);
 	}
 
 	inline bool BasicMaterial::IsAlphaTestEnabled() const
 	{
 		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
-		const auto& optionOpt = m_material.GetOptionValue(m_optionIndexes.alphaTest);
+		const auto& optionOpt = m_material.GetOptionValue(m_basicOptionIndexes.alphaTest);
 		if (std::holds_alternative<ShaderAst::NoValue>(optionOpt))
 			return false;
 
@@ -65,69 +70,79 @@ namespace Nz
 
 	inline bool BasicMaterial::HasAlphaMap() const
 	{
-		return m_textureIndexes.alpha != MaterialSettings::InvalidIndex;
+		return m_basicTextureIndexes.alpha != MaterialSettings::InvalidIndex;
 	}
 
 	inline bool BasicMaterial::HasAlphaTest() const
 	{
-		return m_optionIndexes.alphaTest != MaterialSettings::InvalidIndex;
+		return m_basicOptionIndexes.alphaTest != MaterialSettings::InvalidIndex;
 	}
 
 	inline bool BasicMaterial::HasAlphaTestThreshold() const
 	{
-		return m_uniformOffsets.alphaThreshold != MaterialSettings::InvalidIndex;
+		return m_basicUniformOffsets.alphaThreshold != MaterialSettings::InvalidIndex;
 	}
 
 	inline bool BasicMaterial::HasDiffuseColor() const
 	{
-		return m_uniformOffsets.diffuseColor != MaterialSettings::InvalidIndex;
+		return m_basicUniformOffsets.diffuseColor != MaterialSettings::InvalidIndex;
 	}
 
 	inline bool BasicMaterial::HasDiffuseMap() const
 	{
-		return m_textureIndexes.diffuse != MaterialSettings::InvalidIndex;
+		return m_basicTextureIndexes.diffuse != MaterialSettings::InvalidIndex;
 	}
 
 	inline void BasicMaterial::SetAlphaMap(std::shared_ptr<Texture> alphaMap)
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
 		bool hasAlphaMap = (alphaMap != nullptr);
-		m_material.SetTexture(m_textureIndexes.alpha, std::move(alphaMap));
+		m_material.SetTexture(m_basicTextureIndexes.alpha, std::move(alphaMap));
 
-		if (m_optionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.SetOptionValue(m_optionIndexes.hasAlphaMap, hasAlphaMap);
+		if (m_basicOptionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
+			m_material.SetOptionValue(m_basicOptionIndexes.hasAlphaMap, hasAlphaMap);
 	}
 
 	inline void BasicMaterial::SetAlphaSampler(TextureSamplerInfo alphaSampler)
 	{
 		NazaraAssert(HasAlphaMap(), "Material has no alpha map slot");
-		m_material.SetTextureSampler(m_textureIndexes.alpha, std::move(alphaSampler));
+		m_material.SetTextureSampler(m_basicTextureIndexes.alpha, std::move(alphaSampler));
 	}
 
 	inline void BasicMaterial::SetDiffuseMap(std::shared_ptr<Texture> diffuseMap)
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
 		bool hasDiffuseMap = (diffuseMap != nullptr);
-		m_material.SetTexture(m_textureIndexes.diffuse, std::move(diffuseMap));
+		m_material.SetTexture(m_basicTextureIndexes.diffuse, std::move(diffuseMap));
 
-		if (m_optionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.SetOptionValue(m_optionIndexes.hasDiffuseMap, hasDiffuseMap);
+		if (m_basicOptionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
+			m_material.SetOptionValue(m_basicOptionIndexes.hasDiffuseMap, hasDiffuseMap);
 	}
 
 	inline void BasicMaterial::SetDiffuseSampler(TextureSamplerInfo diffuseSampler)
 	{
 		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
-		m_material.SetTextureSampler(m_textureIndexes.diffuse, std::move(diffuseSampler));
+		m_material.SetTextureSampler(m_basicTextureIndexes.diffuse, std::move(diffuseSampler));
+	}
+
+	inline MaterialPass& BasicMaterial::GetMaterial()
+	{
+		return m_material;
+	}
+
+	inline const MaterialPass& BasicMaterial::GetMaterial() const
+	{
+		return m_material;
 	}
 
 	inline const std::shared_ptr<MaterialSettings>& BasicMaterial::GetSettings()
 	{
-		return s_materialSettings;
+		return s_basicMaterialSettings;
 	}
 
-	inline auto BasicMaterial::GetOffsets() -> const UniformOffsets&
+	inline auto BasicMaterial::GetOffsets() -> const BasicUniformOffsets&
 	{
-		return s_uniformOffsets;
+		return s_basicUniformOffsets;
 	}
 }
 

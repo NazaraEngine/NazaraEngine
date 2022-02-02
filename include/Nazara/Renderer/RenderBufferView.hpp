@@ -16,6 +16,7 @@ namespace Nz
 	class RenderBufferView
 	{
 		public:
+			inline RenderBufferView();
 			inline RenderBufferView(RenderBuffer* buffer);
 			inline RenderBufferView(RenderBuffer* buffer, UInt64 offset, UInt64 size);
 			RenderBufferView(const RenderBufferView&) = default;
@@ -25,6 +26,11 @@ namespace Nz
 			inline RenderBuffer* GetBuffer() const;
 			inline UInt64 GetOffset() const;
 			inline UInt64 GetSize() const;
+
+			inline explicit operator bool() const;
+
+			inline bool operator==(const RenderBufferView& rhs) const;
+			inline bool operator!=(const RenderBufferView& rhs) const;
 
 			RenderBufferView& operator=(const RenderBufferView&) = default;
 			RenderBufferView& operator=(RenderBufferView&&) = default;

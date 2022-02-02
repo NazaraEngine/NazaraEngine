@@ -11,7 +11,9 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Renderer/RenderBufferView.hpp>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace Nz
@@ -25,13 +27,21 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ElementRenderer
 	{
 		public:
+			struct RenderStates;
+
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
-			virtual void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const Pointer<const RenderElement>* elements, std::size_t elementCount);
-			virtual void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) = 0;
+			virtual void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates);
+			virtual void PrepareEnd(RenderFrame& currentFrame, ElementRendererData& rendererData);
+			virtual void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
 			virtual void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame);
+
+			struct RenderStates
+			{
+				RenderBufferView lightData;
+			};
 	};
 
 	struct NAZARA_GRAPHICS_API ElementRendererData

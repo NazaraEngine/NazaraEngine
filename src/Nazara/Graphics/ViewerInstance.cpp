@@ -20,7 +20,8 @@ namespace Nz
 	m_projectionMatrix(Matrix4f::Identity()),
 	m_viewProjMatrix(Matrix4f::Identity()),
 	m_viewMatrix(Matrix4f::Identity()),
-	m_targetSize(Vector2f(0.f, 0.f)),
+	m_targetSize(Vector2f::Zero()),
+	m_eyePosition(Vector3f::Zero()),
 	m_dataInvalided(true)
 	{
 		PredefinedViewerData viewerUboOffsets = PredefinedViewerData::GetOffsets();
@@ -35,7 +36,7 @@ namespace Nz
 			PredefinedViewerData viewerDataOffsets = PredefinedViewerData::GetOffsets();
 
 			auto& allocation = uploadPool.Allocate(viewerDataOffsets.totalSize);
-			AccessByOffset<Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_viewMatrix.GetTranslation();
+			AccessByOffset<Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_eyePosition;
 			AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.invTargetSizeOffset) = 1.f / m_targetSize;
 			AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.targetSizeOffset) = m_targetSize;
 

@@ -42,13 +42,13 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let output = vec4<f32>(8.0, 2.0, -7.0, 0.0) * (7.0 + 5.0) * 2.0 / 4.0;
+	let output = vec4[f32](8.0, 2.0, -7.0, 0.0) * (7.0 + 5.0) * 2.0 / 4.0;
 }
 )", R"(
 [entry(frag)]
 fn main()
 {
-	let output: vec4<f32> = vec4<f32>(48.000000, 12.000000, -42.000000, 0.000000);
+	let output: vec4[f32] = vec4[f32](48.000000, 12.000000, -42.000000, 0.000000);
 )");
 	}
 
@@ -149,7 +149,7 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let value = vec3<f32>(3.0, 0.0, 1.0).z;
+	let value = vec3[f32](3.0, 0.0, 1.0).z;
 }
 )", R"(
 [entry(frag)]
@@ -172,7 +172,7 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let value: vec4<f32> = vec4<f32>(42.000000, 42.000000, 42.000000, 42.000000);
+	let value: vec4[f32] = vec4[f32](42.000000, 42.000000, 42.000000, 42.000000);
 }
 )");
 	}
@@ -183,13 +183,13 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let value = vec4<f32>(3.0, 0.0, 1.0, 2.0).yzwx;
+	let value = vec4[f32](3.0, 0.0, 1.0, 2.0).yzwx;
 }
 )", R"(
 [entry(frag)]
 fn main()
 {
-	let value: vec4<f32> = vec4<f32>(0.000000, 1.000000, 2.000000, 3.000000);
+	let value: vec4[f32] = vec4[f32](0.000000, 1.000000, 2.000000, 3.000000);
 }
 )");
 	}
@@ -200,13 +200,13 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let value = vec4<f32>(3.0, 0.0, 1.0, 2.0).zzxx;
+	let value = vec4[f32](3.0, 0.0, 1.0, 2.0).zzxx;
 }
 )", R"(
 [entry(frag)]
 fn main()
 {
-	let value: vec4<f32> = vec4<f32>(1.000000, 1.000000, 3.000000, 3.000000);
+	let value: vec4[f32] = vec4[f32](1.000000, 1.000000, 3.000000, 3.000000);
 }
 )");
 	}
@@ -217,13 +217,13 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let value = vec4<f32>(0.0, 1.0, 2.0, 3.0).xyz.yz.y.x.xxxx;
+	let value = vec4[f32](0.0, 1.0, 2.0, 3.0).xyz.yz.y.x.xxxx;
 }
 )", R"(
 [entry(frag)]
 fn main()
 {
-	let value: vec4<f32> = vec4<f32>(2.000000, 2.000000, 2.000000, 2.000000);
+	let value: vec4[f32] = vec4[f32](2.000000, 2.000000, 2.000000, 2.000000);
 }
 )");
 	}
@@ -233,12 +233,12 @@ fn main()
 		ExpectOptimization(R"(
 struct inputStruct
 {
-	value: vec4<f32>
+	value: vec4[f32]
 }
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -250,7 +250,7 @@ fn main()
 [entry(frag)]
 fn main()
 {
-	let value: vec4<f32> = data.value.zzzz;
+	let value: vec4[f32] = data.value.zzzz;
 }
 )");
 	}
