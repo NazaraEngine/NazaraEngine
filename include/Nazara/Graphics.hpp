@@ -36,6 +36,7 @@
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
@@ -47,6 +48,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
@@ -54,6 +56,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
@@ -61,6 +64,7 @@
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>
+#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/SubmeshRenderer.hpp>

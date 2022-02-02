@@ -17,7 +17,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& /*currentFrame*/, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& /*currentFrame*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -32,6 +32,7 @@ namespace Nz
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox = invalidScissorBox;
+		RenderBufferView currentLightData;
 
 		auto FlushDrawCall = [&]()
 		{
@@ -48,10 +49,13 @@ namespace Nz
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
+		std::size_t oldDrawCallCount = data.drawCalls.size();
+
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
 			assert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
+			const RenderStates& renderState = renderStates[i];
 
 			if (const RenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
 			{
@@ -85,6 +89,12 @@ namespace Nz
 				currentWorldInstance = worldInstance;
 			}
 
+			if (currentLightData != renderState.lightData)
+			{
+				FlushDrawData();
+				currentLightData = renderState.lightData;
+			}
+
 			const Recti& scissorBox = submesh.GetScissorBox();
 			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
 			if (currentScissorBox != targetScissorBox)
@@ -114,13 +124,13 @@ namespace Nz
 					};
 				}
 
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::LightDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::LightDataUbo); bindingIndex != MaterialSettings::InvalidIndex && currentLightData)
 				{
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						renderStates.lightData.get(),
-						0, renderStates.lightData->GetSize()
+						currentLightData.GetBuffer(),
+						currentLightData.GetOffset(), currentLightData.GetSize()
 					};
 				}
 
@@ -154,6 +164,7 @@ namespace Nz
 			}
 
 			auto& drawCall = data.drawCalls.emplace_back();
+			drawCall.firstIndex = 0;
 			drawCall.indexBuffer = currentIndexBuffer;
 			drawCall.indexCount = submesh.GetIndexCount();
 			drawCall.renderPipeline = currentPipeline;
@@ -161,9 +172,13 @@ namespace Nz
 			drawCall.shaderBinding = currentShaderBinding;
 			drawCall.vertexBuffer = currentVertexBuffer;
 		}
+
+		const RenderSubmesh* firstSubmesh = static_cast<const RenderSubmesh*>(elements[0]);
+		std::size_t drawCallCount = data.drawCalls.size() - oldDrawCallCount;
+		data.drawCallPerElement[firstSubmesh] = SubmeshRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
 	}
 
-	void SubmeshRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* /*elements*/, std::size_t /*elementCount*/)
+	void SubmeshRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
 
@@ -176,8 +191,16 @@ namespace Nz
 		const ShaderBinding* currentShaderBinding = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);
 
-		for (const auto& drawData : data.drawCalls)
+		const RenderSubmesh* firstSubmesh = static_cast<const RenderSubmesh*>(elements[0]);
+		auto it = data.drawCallPerElement.find(firstSubmesh);
+		assert(it != data.drawCallPerElement.end());
+
+		const auto& indices = it->second;
+
+		for (std::size_t i = 0; i < indices.count; ++i)
 		{
+			const auto& drawData = data.drawCalls[indices.start + i];
+
 			if (currentPipeline != drawData.renderPipeline)
 			{
 				commandBuffer.BindPipeline(*drawData.renderPipeline);
@@ -210,9 +233,9 @@ namespace Nz
 			}
 
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexed(SafeCast<UInt32>(drawData.indexCount));
+				commandBuffer.DrawIndexed(SafeCast<UInt32>(drawData.indexCount), 1U, SafeCast<UInt32>(drawData.firstIndex));
 			else
-				commandBuffer.Draw(SafeCast<UInt32>(drawData.indexCount));
+				commandBuffer.Draw(SafeCast<UInt32>(drawData.indexCount), 1U, SafeCast<UInt32>(drawData.firstIndex));
 		}
 	}
 

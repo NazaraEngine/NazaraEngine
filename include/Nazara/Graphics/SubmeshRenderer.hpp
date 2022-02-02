@@ -15,6 +15,7 @@
 namespace Nz
 {
 	class RenderPipeline;
+	class RenderSubmesh;
 	class ShaderBinding;
 
 	class NAZARA_GRAPHICS_API SubmeshRenderer : public ElementRenderer
@@ -24,8 +25,8 @@ namespace Nz
 			~SubmeshRenderer() = default;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, const RenderStates& renderStates, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
-			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, const Pointer<const RenderElement>* elements, std::size_t elementCount) override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates) override;
+			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
 			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
 
 		private:
@@ -40,10 +41,18 @@ namespace Nz
 			const RenderBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
 			const ShaderBinding* shaderBinding;
+			std::size_t firstIndex;
 			std::size_t indexCount;
 			Recti scissorBox;
 		};
 
+		struct DrawCallIndices
+		{
+			std::size_t start;
+			std::size_t count;
+		};
+
+		std::unordered_map<const RenderSubmesh*, DrawCallIndices> drawCallPerElement;
 		std::vector<DrawCall> drawCalls;
 		std::vector<ShaderBindingPtr> shaderBindings;
 	};

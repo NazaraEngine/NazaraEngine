@@ -459,17 +459,12 @@ namespace Nz
 	{
 		T left = std::max(x, box.x);
 		T right = std::min(x + width, box.x + box.width);
-		if (left >= right)
-			return false;
-
 		T top = std::max(y, box.y);
 		T bottom = std::min(y + height, box.y + box.height);
-		if (top >= bottom)
-			return false;
-
 		T up = std::max(z, box.z);
 		T down = std::min(z + depth, box.z + box.depth);
-		if (up >= down)
+
+		if (left >= right || top >= bottom || up >= down)
 			return false;
 
 		if (intersection)
