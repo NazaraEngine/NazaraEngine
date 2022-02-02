@@ -104,6 +104,11 @@ int main()
 	framePipeline.RegisterInstancedDrawable(modelInstance, &model, 0xFFFFFFFF);
 	framePipeline.RegisterInstancedDrawable(modelInstance2, &model, 0xFFFFFFFF);
 
+	std::shared_ptr<Nz::PointLight> light = std::make_shared<Nz::PointLight>();
+	light->UpdateColor(Nz::Color::Green);
+
+	framePipeline.RegisterLight(light, 0xFFFFFFFF);
+
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
@@ -202,6 +207,8 @@ int main()
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
+
+			light->UpdatePosition(viewerPos);
 		}
 
 		Nz::RenderFrame frame = window.AcquireFrame();
