@@ -9,7 +9,11 @@ namespace Nz
 {
 	ElementRenderer::~ElementRenderer() = default;
 
-	void ElementRenderer::Prepare(const ViewerInstance& /*viewerInstance*/, ElementRendererData& /*rendererData*/, RenderFrame& /*currentFrame*/, const Pointer<const RenderElement>* /*elements*/, std::size_t /*elementCount*/)
+	void ElementRenderer::Prepare(const ViewerInstance& /*viewerInstance*/, ElementRendererData& /*rendererData*/, RenderFrame& /*currentFrame*/, std::size_t /*elementCount*/, const Pointer<const RenderElement>* /*elements*/, const RenderStates* /*renderStates*/)
+	{
+	}
+
+	void ElementRenderer::PrepareEnd(RenderFrame& /*currentFrame*/, ElementRendererData& /*rendererData*/)
 	{
 	}
 

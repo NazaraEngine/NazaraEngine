@@ -31,5 +31,6 @@
 
 #include <Nazara/Graphics/Components/CameraComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
+#include <Nazara/Graphics/Components/LightComponent.hpp>
 
 #endif // NAZARA_GRAPHICS_COMPONENTS_HPP

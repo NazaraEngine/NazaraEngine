@@ -368,34 +368,34 @@ namespace Nz
 		assert(node.condStatements.size() == 1); //< sanitization splits multiple branches
 		auto& condStatement = node.condStatements.front();
 
-		SpirvBlock mergeBlock(m_writer);
-		SpirvBlock contentBlock(m_writer);
-		SpirvBlock elseBlock(m_writer);
+		auto mergeBlock = std::make_unique<SpirvBlock>(m_writer);
+		auto contentBlock = std::make_unique<SpirvBlock>(m_writer);
+		auto elseBlock = std::make_unique<SpirvBlock>(m_writer);
 
 		UInt32 conditionId = EvaluateExpression(condStatement.condition);
-		m_currentBlock->Append(SpirvOp::OpSelectionMerge, mergeBlock.GetLabelId(), SpirvSelectionControl::None);
+		m_currentBlock->Append(SpirvOp::OpSelectionMerge, mergeBlock->GetLabelId(), SpirvSelectionControl::None);
 		// FIXME: Can we use merge block directly in OpBranchConditional if no else statement?
-		m_currentBlock->Append(SpirvOp::OpBranchConditional, conditionId, contentBlock.GetLabelId(), elseBlock.GetLabelId());
+		m_currentBlock->Append(SpirvOp::OpBranchConditional, conditionId, contentBlock->GetLabelId(), elseBlock->GetLabelId());
 
 		m_functionBlocks.emplace_back(std::move(contentBlock));
-		m_currentBlock = &m_functionBlocks.back();
+		m_currentBlock = m_functionBlocks.back().get();
 
 		condStatement.statement->Visit(*this);
 
 		if (!m_currentBlock->IsTerminated())
-			m_currentBlock->Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
+			m_currentBlock->Append(SpirvOp::OpBranch, mergeBlock->GetLabelId());
 
 		m_functionBlocks.emplace_back(std::move(elseBlock));
-		m_currentBlock = &m_functionBlocks.back();
+		m_currentBlock = m_functionBlocks.back().get();
 
 		if (node.elseStatement)
 			node.elseStatement->Visit(*this);
 
 		if (!m_currentBlock->IsTerminated())
-			m_currentBlock->Append(SpirvOp::OpBranch, mergeBlock.GetLabelId());
+			m_currentBlock->Append(SpirvOp::OpBranch, mergeBlock->GetLabelId());
 
 		m_functionBlocks.emplace_back(std::move(mergeBlock));
-		m_currentBlock = &m_functionBlocks.back();
+		m_currentBlock = m_functionBlocks.back().get();
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::CallFunctionExpression& node)
@@ -609,9 +609,12 @@ namespace Nz
 			}
 		}
 
-		m_functionBlocks.clear();
+		auto contentBlock = std::make_unique<SpirvBlock>(m_writer);
+		m_currentBlock = contentBlock.get();
 
-		m_currentBlock = &m_functionBlocks.emplace_back(m_writer);
+		m_functionBlocks.clear();
+		m_functionBlocks.emplace_back(std::move(contentBlock));
+
 		CallOnExit resetCurrentBlock([&] { m_currentBlock = nullptr; });
 
 		for (auto& var : func.variables)
@@ -647,11 +650,11 @@ namespace Nz
 			statementPtr->Visit(*this);
 
 		// Add implicit return
-		if (!m_functionBlocks.back().IsTerminated())
-			m_functionBlocks.back().Append(SpirvOp::OpReturn);
+		if (!m_functionBlocks.back()->IsTerminated())
+			m_functionBlocks.back()->Append(SpirvOp::OpReturn);
 
-		for (SpirvBlock& block : m_functionBlocks)
-			m_instructions.AppendSection(block);
+		for (std::unique_ptr<SpirvBlock>& block : m_functionBlocks)
+			m_instructions.AppendSection(*block);
 
 		m_instructions.Append(SpirvOp::OpFunctionEnd);
 	}
@@ -702,6 +705,23 @@ namespace Nz
 	{
 		switch (node.intrinsic)
 		{
+			case ShaderAst::IntrinsicType::CrossProduct:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
+				assert(IsVectorType(parameterType));
+				UInt32 typeId = m_writer.GetTypeId(parameterType);
+
+				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
+				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Cross, firstParam, secondParam);
+				PushResultId(resultId);
+				break;
+			}
+
 			case ShaderAst::IntrinsicType::DotProduct:
 			{
 				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
@@ -801,6 +821,25 @@ namespace Nz
 				break;
 			}
 
+			case ShaderAst::IntrinsicType::Normalize:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
+				assert(IsVectorType(vecExprType));
+
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
+				UInt32 typeId = m_writer.GetTypeId(vecType);
+
+				UInt32 vec = EvaluateExpression(node.parameters[0]);
+
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Normalize, vec);
+				PushResultId(resultId);
+				break;
+			}
+
 			case ShaderAst::IntrinsicType::Pow:
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
@@ -818,6 +857,23 @@ namespace Nz
 				break;
 			}
 
+			case ShaderAst::IntrinsicType::Reflect:
+			{
+				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
+
+				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
+				assert(IsVectorType(parameterType));
+				UInt32 typeId = m_writer.GetTypeId(parameterType);
+
+				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
+				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
+				UInt32 resultId = m_writer.AllocateResultId();
+
+				m_currentBlock->Append(SpirvOp::OpExtInst, typeId, resultId, glslInstructionSet, GLSLstd450Reflect, firstParam, secondParam);
+				PushResultId(resultId);
+				break;
+			}
+
 			case ShaderAst::IntrinsicType::SampleTexture:
 			{
 				UInt32 typeId = m_writer.GetTypeId(ShaderAst::VectorType{4, ShaderAst::PrimitiveType::Float32});
@@ -831,7 +887,6 @@ namespace Nz
 				break;
 			}
 
-			case ShaderAst::IntrinsicType::CrossProduct:
 			default:
 				throw std::runtime_error("not yet implemented");
 		}
@@ -1021,12 +1076,12 @@ namespace Nz
 		assert(node.condition);
 		assert(node.body);
 
-		SpirvBlock headerBlock(m_writer);
-		SpirvBlock bodyBlock(m_writer);
-		SpirvBlock mergeBlock(m_writer);
+		auto headerBlock = std::make_unique<SpirvBlock>(m_writer);
+		auto bodyBlock = std::make_unique<SpirvBlock>(m_writer);
+		auto mergeBlock = std::make_unique<SpirvBlock>(m_writer);
 
-		m_currentBlock->Append(SpirvOp::OpBranch, headerBlock.GetLabelId());
-		m_currentBlock = &headerBlock;
+		m_currentBlock->Append(SpirvOp::OpBranch, headerBlock->GetLabelId());
+		m_currentBlock = headerBlock.get();
 
 		UInt32 expressionId = EvaluateExpression(node.condition);
 
@@ -1051,18 +1106,22 @@ namespace Nz
 		else
 			loopControl = SpirvLoopControl::None;
 
-		m_currentBlock->Append(SpirvOp::OpLoopMerge, mergeBlock.GetLabelId(), bodyBlock.GetLabelId(), loopControl);
-		m_currentBlock->Append(SpirvOp::OpBranchConditional, expressionId, bodyBlock.GetLabelId(), mergeBlock.GetLabelId());
+		m_currentBlock->Append(SpirvOp::OpLoopMerge, mergeBlock->GetLabelId(), bodyBlock->GetLabelId(), loopControl);
+		m_currentBlock->Append(SpirvOp::OpBranchConditional, expressionId, bodyBlock->GetLabelId(), mergeBlock->GetLabelId());
 
-		m_currentBlock = &bodyBlock;
-		node.body->Visit(*this);
+		UInt32 headerLabelId = headerBlock->GetLabelId();
 
-		m_currentBlock->Append(SpirvOp::OpBranch, headerBlock.GetLabelId());
-
+		m_currentBlock = bodyBlock.get();
 		m_functionBlocks.emplace_back(std::move(headerBlock));
 		m_functionBlocks.emplace_back(std::move(bodyBlock));
+
+		node.body->Visit(*this);
+
+		// Jump back to header block to test condition
+		m_currentBlock->Append(SpirvOp::OpBranch, headerLabelId);
+
 		m_functionBlocks.emplace_back(std::move(mergeBlock));
-		m_currentBlock = &m_functionBlocks.back();
+		m_currentBlock = m_functionBlocks.back().get();
 	}
 
 	void SpirvAstVisitor::PushResultId(UInt32 value)

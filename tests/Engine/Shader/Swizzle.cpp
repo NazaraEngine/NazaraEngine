@@ -16,7 +16,7 @@ TEST_CASE("swizzle", "[Shader]")
 [entry(frag)]
 fn main()
 {
-	let vec = vec4<f32>(0.0, 1.0, 2.0, 3.0);
+	let vec = vec4[f32](0.0, 1.0, 2.0, 3.0);
 	let value = vec.xyz;
 }
 )";
@@ -35,8 +35,8 @@ void main()
 [entry(frag)]
 fn main()
 {
-	let vec: vec4<f32> = vec4<f32>(0.000000, 1.000000, 2.000000, 3.000000);
-	let value: vec3<f32> = vec.xyz;
+	let vec: vec4[f32] = vec4[f32](0.000000, 1.000000, 2.000000, 3.000000);
+	let value: vec3[f32] = vec.xyz;
 }
 )");
 
@@ -60,8 +60,8 @@ OpFunctionEnd)");
 [entry(frag)]
 fn main()
 {
-	let vec = vec4<f32>(0.0, 0.0, 0.0, 0.0);
-	vec.yzw = vec3<f32>(1.0, 2.0, 3.0);
+	let vec = vec4[f32](0.0, 0.0, 0.0, 0.0);
+	vec.yzw = vec3[f32](1.0, 2.0, 3.0);
 }
 )";
 
@@ -79,8 +79,8 @@ void main()
 [entry(frag)]
 fn main()
 {
-	let vec: vec4<f32> = vec4<f32>(0.000000, 0.000000, 0.000000, 0.000000);
-	vec.yzw = vec3<f32>(1.000000, 2.000000, 3.000000);
+	let vec: vec4[f32] = vec4[f32](0.000000, 0.000000, 0.000000, 0.000000);
+	vec.yzw = vec3[f32](1.000000, 2.000000, 3.000000);
 }
 )");
 
@@ -127,7 +127,7 @@ void main()
 fn main()
 {
 	let value: f32 = 42.000000;
-	let vec: vec3<f32> = value.xxx;
+	let vec: vec3[f32] = value.xxx;
 }
 )");
 
@@ -171,8 +171,8 @@ void main()
 [entry(frag)]
 fn main()
 {
-	let vec: vec3<f32> = (max(2.000000, 1.000000)).xxx;
-	let vec2: vec3<f32> = (min(2.000000, 1.000000)).xxx;
+	let vec: vec3[f32] = (max(2.000000, 1.000000)).xxx;
+	let vec2: vec3[f32] = (min(2.000000, 1.000000)).xxx;
 }
 )");
 
@@ -200,7 +200,7 @@ OpFunctionEnd)");
 [entry(frag)]
 fn main()
 {
-	let vec = vec4<f32>(0.0, 1.0, 2.0, 3.0);
+	let vec = vec4[f32](0.0, 1.0, 2.0, 3.0);
 	let value = vec.xyz.yz.y.x.xxxx;
 }
 )";
@@ -219,8 +219,8 @@ void main()
 [entry(frag)]
 fn main()
 {
-	let vec: vec4<f32> = vec4<f32>(0.000000, 1.000000, 2.000000, 3.000000);
-	let value: vec4<f32> = vec.xyz.yz.y.x.xxxx;
+	let vec: vec4[f32] = vec4[f32](0.000000, 1.000000, 2.000000, 3.000000);
+	let value: vec4[f32] = vec.xyz.yz.y.x.xxxx;
 }
 )");
 
@@ -247,9 +247,9 @@ OpFunctionEnd)");
 [entry(frag)]
 fn main()
 {
-	let vec = vec4<f32>(0.0, 1.0, 2.0, 3.0);
+	let vec = vec4[f32](0.0, 1.0, 2.0, 3.0);
 	vec.wyxz.bra.ts.x = 0.0;
-	vec.zyxw.ar.xy.yx = vec2<f32>(1.0, 0.0);
+	vec.zyxw.ar.xy.yx = vec2[f32](1.0, 0.0);
 }
 )";
 
@@ -268,9 +268,9 @@ void main()
 [entry(frag)]
 fn main()
 {
-	let vec: vec4<f32> = vec4<f32>(0.000000, 1.000000, 2.000000, 3.000000);
+	let vec: vec4[f32] = vec4[f32](0.000000, 1.000000, 2.000000, 3.000000);
 	vec.wyxz.zxw.yx.x = 0.000000;
-	vec.zyxw.wx.xy.yx = vec2<f32>(1.000000, 0.000000);
+	vec.zyxw.wx.xy.yx = vec2[f32](1.000000, 0.000000);
 }
 )");
 

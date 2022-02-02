@@ -19,7 +19,7 @@ namespace Nz
 		friend class MaterialPipeline;
 
 		public:
-			struct UniformOffsets;
+			struct BasicUniformOffsets;
 
 			BasicMaterial(MaterialPass& material);
 			~BasicMaterial() = default;
@@ -48,10 +48,10 @@ namespace Nz
 			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
 			inline void SetDiffuseSampler(TextureSamplerInfo diffuseSampler);
 
-			static inline const UniformOffsets& GetOffsets();
+			static inline const BasicUniformOffsets& GetOffsets();
 			static inline const std::shared_ptr<MaterialSettings>& GetSettings();
 
-			struct UniformOffsets
+			struct BasicUniformOffsets
 			{
 				std::size_t alphaThreshold;
 				std::size_t diffuseColor;
@@ -59,38 +59,59 @@ namespace Nz
 			};
 
 		protected:
-			struct OptionIndexes
+			struct NoInit {};
+
+			inline BasicMaterial(MaterialPass& material, NoInit);
+
+			struct BasicOptionIndexes
 			{
 				std::size_t alphaTest;
 				std::size_t hasAlphaMap;
 				std::size_t hasDiffuseMap;
 			};
 
-			struct TextureIndexes
+			struct BasicTextureIndexes
 			{
 				std::size_t alpha;
 				std::size_t diffuse;
 			};
 
-			static MaterialSettings::Builder Build(const UniformOffsets& offsets, std::vector<UInt8> defaultValues, std::vector<std::shared_ptr<UberShader>> uberShaders, std::size_t* uniformBlockIndex = nullptr, OptionIndexes* optionIndexes = nullptr, TextureIndexes* textureIndexes = nullptr);
+			struct BasicBuildOptions
+			{
+				// Common
+				std::vector<UInt8> defaultValues;
+				std::size_t* uniformBlockIndex = nullptr;
+				std::vector<std::shared_ptr<UberShader>> shaders;
+
+				// Basic
+				BasicUniformOffsets basicOffsets;
+				BasicOptionIndexes* basicOptionIndexes = nullptr;
+				BasicTextureIndexes* basicTextureIndexes = nullptr;
+			};
+
+			inline MaterialPass& GetMaterial();
+			inline const MaterialPass& GetMaterial() const;
+
+			static MaterialSettings::Builder Build(BasicBuildOptions& options);
 			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
-			static std::pair<UniformOffsets, FieldOffsets> BuildUniformOffsets();
+			static std::pair<BasicUniformOffsets, FieldOffsets> BuildUniformOffsets();
+
+			std::size_t m_uniformBlockIndex;
+			BasicOptionIndexes m_basicOptionIndexes;
+			BasicTextureIndexes m_basicTextureIndexes;
+			BasicUniformOffsets m_basicUniformOffsets;
+
+			static std::shared_ptr<MaterialSettings> s_basicMaterialSettings;
+			static std::size_t s_uniformBlockIndex;
+			static BasicOptionIndexes s_basicOptionIndexes;
+			static BasicTextureIndexes s_basicTextureIndexes;
+			static BasicUniformOffsets s_basicUniformOffsets;
 
 		private:
 			static bool Initialize();
 			static void Uninitialize();
 
 			MaterialPass& m_material;
-			std::size_t m_uniformBlockIndex;
-			OptionIndexes m_optionIndexes;
-			TextureIndexes m_textureIndexes;
-			UniformOffsets m_uniformOffsets;
-
-			static std::shared_ptr<MaterialSettings> s_materialSettings;
-			static std::size_t s_uniformBlockIndex;
-			static OptionIndexes s_optionIndexes;
-			static TextureIndexes s_textureIndexes;
-			static UniformOffsets s_uniformOffsets;
 	};
 }
 

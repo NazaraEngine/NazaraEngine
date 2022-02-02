@@ -19,7 +19,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -84,12 +84,12 @@ fn main()
 		std::string_view nzslSource = R"(
 struct inputStruct
 {
-	value: [f32; 10]
+	value: array[f32, 10]
 }
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -123,6 +123,135 @@ fn main()
 		i += 1;
 	}
 	
+}
+)");
+
+	}
+
+	WHEN("removing matrix casts")
+	{
+		std::string_view nzslSource = R"(
+fn testMat2ToMat2(input: mat2[f32]) -> mat2[f32]
+{
+	return mat2[f32](input);
+}
+
+fn testMat2ToMat3(input: mat2[f32]) -> mat3[f32]
+{
+	return mat3[f32](input);
+}
+
+fn testMat2ToMat4(input: mat2[f32]) -> mat4[f32]
+{
+	return mat4[f32](input);
+}
+
+fn testMat3ToMat2(input: mat3[f32]) -> mat2[f32]
+{
+	return mat2[f32](input);
+}
+
+fn testMat3ToMat3(input: mat3[f32]) -> mat3[f32]
+{
+	return mat3[f32](input);
+}
+
+fn testMat3ToMat4(input: mat3[f32]) -> mat4[f32]
+{
+	return mat4[f32](input);
+}
+
+fn testMat4ToMat2(input: mat4[f32]) -> mat2[f32]
+{
+	return mat2[f32](input);
+}
+
+fn testMat4ToMat3(input: mat4[f32]) -> mat3[f32]
+{
+	return mat3[f32](input);
+}
+
+fn testMat4ToMat4(input: mat4[f32]) -> mat4[f32]
+{
+	return mat4[f32](input);
+}
+)";
+
+		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+
+		Nz::ShaderAst::SanitizeVisitor::Options options;
+		options.removeMatrixCast = true;
+
+		REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader, options));
+
+		ExpectNZSL(*shader, R"(
+fn testMat2ToMat2(input: mat2[f32]) -> mat2[f32]
+{
+	return input;
+}
+
+fn testMat2ToMat3(input: mat2[f32]) -> mat3[f32]
+{
+	let temp: mat3[f32];
+	temp[0] = vec3[f32](input[0], 0.000000);
+	temp[1] = vec3[f32](input[1], 0.000000);
+	temp[2] = vec3[f32](input[2], 1.000000);
+	return temp;
+}
+
+fn testMat2ToMat4(input: mat2[f32]) -> mat4[f32]
+{
+	let temp: mat4[f32];
+	temp[0] = vec4[f32](input[0], 0.000000, 0.000000);
+	temp[1] = vec4[f32](input[1], 0.000000, 0.000000);
+	temp[2] = vec4[f32](input[2], 1.000000, 0.000000);
+	temp[3] = vec4[f32](input[3], 0.000000, 1.000000);
+	return temp;
+}
+
+fn testMat3ToMat2(input: mat3[f32]) -> mat2[f32]
+{
+	let temp: mat2[f32];
+	temp[0] = input[0].xy;
+	temp[1] = input[1].xy;
+	return temp;
+}
+
+fn testMat3ToMat3(input: mat3[f32]) -> mat3[f32]
+{
+	return input;
+}
+
+fn testMat3ToMat4(input: mat3[f32]) -> mat4[f32]
+{
+	let temp: mat4[f32];
+	temp[0] = vec4[f32](input[0], 0.000000);
+	temp[1] = vec4[f32](input[1], 0.000000);
+	temp[2] = vec4[f32](input[2], 0.000000);
+	temp[3] = vec4[f32](input[3], 1.000000);
+	return temp;
+}
+
+fn testMat4ToMat2(input: mat4[f32]) -> mat2[f32]
+{
+	let temp: mat2[f32];
+	temp[0] = input[0].xy;
+	temp[1] = input[1].xy;
+	return temp;
+}
+
+fn testMat4ToMat3(input: mat4[f32]) -> mat3[f32]
+{
+	let temp: mat3[f32];
+	temp[0] = input[0].xyz;
+	temp[1] = input[1].xyz;
+	temp[2] = input[2].xyz;
+	return temp;
+}
+
+fn testMat4ToMat4(input: mat4[f32]) -> mat4[f32]
+{
+	return input;
 }
 )");
 

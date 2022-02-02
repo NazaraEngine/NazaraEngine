@@ -17,8 +17,8 @@ constexpr std::size_t BloomSubdivisionCount = 5;
 [layout(std140)]
 struct PointLight
 {
-	color: vec3<f32>,
-	position: vec3<f32>,
+	color: vec3[f32],
+	position: vec3[f32],
 
 	constant: f32,
 	linear: f32,
@@ -28,9 +28,9 @@ struct PointLight
 [layout(std140)]
 struct SpotLight
 {
-	color: vec3<f32>,
-	position: vec3<f32>,
-	direction: vec3<f32>,
+	color: vec3[f32],
+	position: vec3[f32],
+	direction: vec3[f32],
 
 	constant: f32,
 	linear: f32,
@@ -130,7 +130,11 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
 
 	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(skyboxPipelineLayoutInfo, 0);
+	skyboxPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	auto& textureBinding = skyboxPipelineLayoutInfo.bindings.emplace_back();
 	textureBinding.setIndex = 0;
@@ -259,7 +263,11 @@ int main()
 
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(lightingPipelineLayoutInfo, 0);
+	lightingPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	for (unsigned int i = 0; i < 3; ++i)
 	{
@@ -291,9 +299,9 @@ int main()
 	[layout(std140)]
 	struct SpotLight
 	{
-		color: vec3<f32>,
-		position: vec3<f32>,
-		direction: vec3<f32>,
+		color: vec3[f32],
+		position: vec3[f32],
+		direction: vec3[f32],
 
 		constant: f32,
 		linear: f32,
@@ -353,7 +361,11 @@ int main()
 	// Bloom data
 
 	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
-	Nz::Graphics::FillViewerPipelineLayout(fullscreenPipelineLayoutInfoViewer, 0);
+	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 1,
@@ -432,7 +444,11 @@ int main()
 	std::shared_ptr<Nz::ShaderBinding> bloomBlitBinding;
 
 	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
-	Nz::Graphics::FillViewerPipelineLayout(bloomBlendPipelineLayoutInfo, 0);
+	bloomBlendPipelineLayoutInfo.bindings.push_back({
+		0, 0,
+		Nz::ShaderBindingType::UniformBuffer,
+		Nz::ShaderStageType_All
+	});
 
 	/*bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 1,
@@ -838,12 +854,14 @@ int main()
 			planeModel.BuildElement(forwardPassIndex, planeInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
-			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.data(), elementPointers.size());
+			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			submeshRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
+			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -902,12 +920,14 @@ int main()
 			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
+
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
-			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 		forwardPass.SetExecutionCallback([&]
 		{
@@ -930,12 +950,15 @@ int main()
 			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
+
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.get());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.data(), elementPointers.size());
-			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.data(), elementPointers.size());
+			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
+			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 
 		occluderPass.AddOutput(occluderTexture);

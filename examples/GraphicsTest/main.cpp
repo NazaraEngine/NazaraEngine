@@ -29,7 +29,7 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -63,16 +63,19 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
 	materialPass->EnableDepthBuffer(true);
 	materialPass->EnableFaceCulling(true);
 
 	material->AddPass("ForwardPass", materialPass);
 
-	Nz::BasicMaterial basicMat(*materialPass);
-	basicMat.EnableAlphaTest(false);
-	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
+
+	Nz::PhongLightingMaterial phongMat(*materialPass);
+	phongMat.EnableAlphaTest(false);
+	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	phongMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	model.UpdateScissorBox(Nz::Recti(0, 0, 1920, 1080));
@@ -94,10 +97,17 @@ int main()
 	Nz::WorldInstancePtr modelInstance2 = std::make_shared<Nz::WorldInstance>();
 	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
+	model.UpdateScissorBox(Nz::Recti(Nz::Vector2i(window.GetSize())));
+
 	Nz::ForwardFramePipeline framePipeline;
 	framePipeline.RegisterViewer(&camera, 0);
 	framePipeline.RegisterInstancedDrawable(modelInstance, &model, 0xFFFFFFFF);
 	framePipeline.RegisterInstancedDrawable(modelInstance2, &model, 0xFFFFFFFF);
+
+	std::shared_ptr<Nz::PointLight> light = std::make_shared<Nz::PointLight>();
+	light->UpdateColor(Nz::Color::Green);
+
+	framePipeline.RegisterLight(light, 0xFFFFFFFF);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -125,7 +135,19 @@ int main()
 
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
-						basicMat.EnableAlphaTest(!basicMat.IsAlphaTestEnabled());
+						phongMat.EnableAlphaTest(!phongMat.IsAlphaTestEnabled());
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::N)
+					{
+						if (phongMat.GetNormalMap())
+							phongMat.SetNormalMap({});
+						else
+							phongMat.SetNormalMap(normalMap);
+					}
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
+					{
+						modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(viewerPos));
+						framePipeline.InvalidateWorldInstance(modelInstance.get());
+					}
 
 					break;
 
@@ -185,15 +207,17 @@ int main()
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
+
+			light->UpdatePosition(viewerPos);
 		}
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
 			continue;
 
-		Nz::UploadPool& uploadPool = frame.GetUploadPool();
-
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camAngles));
+		viewerInstance.UpdateEyePosition(viewerPos);
+
 		framePipeline.InvalidateViewer(&camera);
 
 		framePipeline.Render(frame);

@@ -13,11 +13,13 @@
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <memory>
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
@@ -25,6 +27,7 @@
 
 namespace Nz
 {
+	class PointLight;
 	class RenderFrame;
 	class RenderTarget;
 
@@ -40,15 +43,19 @@ namespace Nz
 			void InvalidateWorldInstance(WorldInstance* worldInstance) override;
 
 			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) override;
+			void RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
 			void RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
 
 			void Render(RenderFrame& renderFrame) override;
 
 			void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) override;
+			void UnregisterLight(Light* light) override;
 			void UnregisterViewer(AbstractViewer* viewerInstance) override;
 
 			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;
 			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
+
+			static constexpr std::size_t MaxLightCountPerDraw = 3;
 
 		private:
 			BakedFrameGraph BuildFrameGraph();
@@ -58,6 +65,33 @@ namespace Nz
 			void UnregisterMaterialPass(MaterialPass* material);
 
 			struct ViewerData;
+
+			struct LightData
+			{
+				std::shared_ptr<Light> light;
+				UInt32 renderMask;
+
+				NazaraSlot(Light, OnLightDataInvalided, onLightInvalidated);
+			};
+
+			using LightKey = std::array<const Light*, MaxLightCountPerDraw>;
+
+			struct LightKeyHasher
+			{
+				inline std::size_t operator()(const LightKey& lightKey) const;
+			};
+
+			struct LightDataUbo
+			{
+				std::shared_ptr<RenderBuffer> renderBuffer;
+				std::size_t offset = 0;
+				UploadPool::Allocation* allocation = nullptr;
+			};
+
+			struct LightUboPool
+			{
+				std::vector<std::shared_ptr<RenderBuffer>> lightUboBuffers;
+			};
 
 			struct MaterialData
 			{
@@ -92,6 +126,8 @@ namespace Nz
 				std::size_t colorAttachment;
 				std::size_t depthStencilAttachment;
 				std::size_t visibilityHash = 0;
+				std::unordered_map<const RenderElement*, RenderBufferView> lightPerRenderElement;
+				std::unordered_map<LightKey, RenderBufferView, LightKeyHasher> lightBufferPerLights;
 				std::vector<std::unique_ptr<RenderElement>> depthPrepassRenderElements;
 				std::vector<std::unique_ptr<RenderElement>> forwardRenderElements;
 				std::vector<std::unique_ptr<ElementRendererData>> elementRendererData;
@@ -108,7 +144,9 @@ namespace Nz
 
 			std::size_t m_depthPassIndex;
 			std::size_t m_forwardPassIndex;
+			std::shared_ptr<LightUboPool> m_lightUboPool;
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
+			std::unordered_map<Light*, LightData> m_lights;
 			std::unordered_map<MaterialPass*, MaterialData> m_materials;
 			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
@@ -117,6 +155,9 @@ namespace Nz
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
 			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
+			std::vector<ElementRenderer::RenderStates> m_renderStates;
+			std::vector<Light*> m_visibleLights;
+			std::vector<LightDataUbo> m_lightDataBuffers;
 			std::vector<VisibleRenderable> m_visibleRenderables;
 			BakedFrameGraph m_bakedFrameGraph;
 			RenderFrame* m_currentRenderFrame;

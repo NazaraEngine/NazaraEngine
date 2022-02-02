@@ -18,7 +18,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -97,7 +97,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]
@@ -161,7 +161,7 @@ struct inputStruct
 
 external
 {
-	[set(0), binding(0)] data: uniform<inputStruct>
+	[set(0), binding(0)] data: uniform[inputStruct]
 }
 
 [entry(frag)]

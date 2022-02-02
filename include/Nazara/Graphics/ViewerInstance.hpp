@@ -15,9 +15,9 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class CommandBufferBuilder;
 	class MaterialSettings;
+	class RenderBuffer;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API ViewerInstance
@@ -28,6 +28,7 @@ namespace Nz
 			ViewerInstance(ViewerInstance&&) noexcept = default;
 			~ViewerInstance() = default;
 
+			inline const Vector3f& GetEyePosition() const;
 			inline const Matrix4f& GetInvProjectionMatrix() const;
 			inline const Matrix4f& GetInvViewMatrix() const;
 			inline const Matrix4f& GetInvViewProjMatrix() const;
@@ -39,6 +40,7 @@ namespace Nz
 			inline const std::shared_ptr<RenderBuffer>& GetViewerBuffer() const;
 
 			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
+			inline void UpdateEyePosition(const Vector3f& eyePosition);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix);
 			inline void UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& viewMatrix);
@@ -60,6 +62,7 @@ namespace Nz
 			Matrix4f m_viewProjMatrix;
 			Matrix4f m_viewMatrix;
 			Vector2f m_targetSize;
+			Vector3f m_eyePosition;
 			bool m_dataInvalided;
 	};
 }

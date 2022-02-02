@@ -20,6 +20,7 @@
 
 namespace Nz
 {
+	class FieldOffsets;
 	class SpirvSection;
 
 	class NAZARA_SHADER_API SpirvConstantCache
@@ -108,6 +109,7 @@ namespace Nz
 				{
 					std::string name;
 					TypePtr type;
+					mutable std::optional<UInt32> offset;
 				};
 
 				std::string name;
@@ -171,6 +173,7 @@ namespace Nz
 			};
 
 			ConstantPtr BuildConstant(const ShaderAst::ConstantValue& value) const;
+			FieldOffsets BuildFieldOffsets(const Structure& structData) const;
 			TypePtr BuildFunctionType(const ShaderAst::ExpressionType& retType, const std::vector<ShaderAst::ExpressionType>& parameters) const;
 			TypePtr BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
@@ -194,6 +197,20 @@ namespace Nz
 			UInt32 Register(Constant c);
 			UInt32 Register(Type t);
 			UInt32 Register(Variable v);
+
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Array& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Bool& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Float& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Function& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Image& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Integer& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Matrix& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Pointer& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const SampledImage& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Structure& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Type& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Vector& type, std::size_t arrayLength) const;
+			std::size_t RegisterArrayField(FieldOffsets& fieldOffsets, const Void& type, std::size_t arrayLength) const;
 
 			void SetStructCallback(StructCallback callback);
 

@@ -26,19 +26,26 @@ namespace Nz
 
 	bool DepthMaterial::Initialize()
 	{
-		UniformOffsets offsets;
+		BasicUniformOffsets offsets;
 		std::tie(offsets, std::ignore) = BuildUniformOffsets();
 
-		std::vector<UInt8> defaultValues(offsets.totalSize);
-		s_materialSettings = std::make_shared<MaterialSettings>(Build(offsets, std::move(defaultValues), BuildShaders()));
+		BasicBuildOptions options;
+		options.defaultValues.resize(offsets.totalSize);
+		options.shaders = BuildShaders();
+
+		options.basicOffsets = s_basicUniformOffsets;
+		options.basicOptionIndexes = &s_basicOptionIndexes;
+		options.basicTextureIndexes = &s_basicTextureIndexes;
+
+		s_basicMaterialSettings = std::make_shared<MaterialSettings>(Build(options));
 
 		return true;
 	}
 
 	void DepthMaterial::Uninitialize()
 	{
-		s_materialSettings.reset();
+		s_basicMaterialSettings.reset();
 	}
 
-	std::shared_ptr<MaterialSettings> DepthMaterial::s_materialSettings;
+	std::shared_ptr<MaterialSettings> DepthMaterial::s_basicMaterialSettings;
 }

@@ -17,50 +17,50 @@ option red: bool = false;
 [layout(std140)]
 struct Data
 {
-	projectionMatrix: mat4<f32>,
-	worldMatrix: mat4<f32>,
-	viewMatrix: mat4<f32>
+	projectionMatrix: mat4[f32],
+	worldMatrix: mat4[f32],
+	viewMatrix: mat4[f32]
 }
 
 [set(0)]
 external
 {
-	[binding(0)] viewerData: uniform<Data>,
+	[binding(0)] viewerData: uniform[Data],
 }
 
 [set(1)]
 external
 {
-	[binding(0)] tex: sampler2D<f32>
+	[binding(0)] tex: sampler2D[f32]
 }
 
 struct VertIn
 {
-	[location(0)] position: vec3<f32>,
-	[location(1)] normal: vec3<f32>,
-	[location(2)] uv: vec2<f32>
+	[location(0)] position: vec3[f32],
+	[location(1)] normal: vec3[f32],
+	[location(2)] uv: vec2[f32]
 }
 
 struct VertOut
 {
-	[builtin(position)] position: vec4<f32>,
-	[location(0)] normal: vec3<f32>,
-	[location(1)] uv: vec2<f32>
+	[builtin(position)] position: vec4[f32],
+	[location(0)] normal: vec3[f32],
+	[location(1)] uv: vec2[f32]
 }
 
 struct FragOut
 {
-	[location(0)] color: vec4<f32>
+	[location(0)] color: vec4[f32]
 }
 
 [entry(frag)]
 fn main(fragIn: VertOut) -> FragOut
 {
-	let lightDir = vec3<f32>(0.0, 0.707, 0.707);
+	let lightDir = vec3[f32](0.0, 0.707, 0.707);
 	let lightFactor = dot(fragIn.normal, lightDir);
 
 	let fragOut: FragOut;
-	fragOut.color = lightFactor * tex.Sample(fragIn.uv) * const_select(red, vec4<f32>(1.0, 0.0, 0.0, 1.0), vec4<f32>(1.0, 1.0, 1.0, 1.0));
+	fragOut.color = lightFactor * tex.Sample(fragIn.uv) * const_select(red, vec4[f32](1.0, 0.0, 0.0, 1.0), vec4[f32](1.0, 1.0, 1.0, 1.0));
 
 	return fragOut;
 }
@@ -69,7 +69,7 @@ fn main(fragIn: VertOut) -> FragOut
 fn main(vertIn: VertIn) -> VertOut
 {
 	let vertOut: VertOut;
-	vertOut.position = viewerData.projectionMatrix * viewerData.viewMatrix * viewerData.worldMatrix * vec4<f32>(vertIn.position, 1.0);
+	vertOut.position = viewerData.projectionMatrix * viewerData.viewMatrix * viewerData.worldMatrix * vec4[f32](vertIn.position, 1.0);
 	vertOut.normal = vertIn.normal;
 	vertOut.uv = vertIn.uv;
 

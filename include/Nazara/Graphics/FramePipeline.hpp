@@ -15,6 +15,7 @@ namespace Nz
 {
 	class AbstractViewer;
 	class InstancedRenderable;
+	class Light;
 	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API FramePipeline
@@ -29,11 +30,13 @@ namespace Nz
 			virtual void InvalidateWorldInstance(WorldInstance* worldInstance) = 0;
 
 			virtual void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) = 0;
+			virtual void RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) = 0;
 			virtual void RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) = 0;
 
 			virtual void Render(RenderFrame& renderFrame) = 0;
 
 			virtual void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) = 0;
+			virtual void UnregisterLight(Light* light) = 0;
 			virtual void UnregisterViewer(AbstractViewer* viewerInstance) = 0;
 
 			FramePipeline& operator=(const FramePipeline&) = delete;

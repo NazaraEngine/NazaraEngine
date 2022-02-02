@@ -126,7 +126,7 @@ namespace Nz
 
 	void LangWriter::Append(const ShaderAst::ArrayType& type)
 	{
-		Append("[", type.containedType->type, "; ");
+		Append("array[", type.containedType->type, ", ");
 
 		if (type.length.IsResultingValue())
 			Append(type.length.GetResultingValue());
@@ -164,7 +164,7 @@ namespace Nz
 			Append(matrixType.rowCount);
 		}
 
-		Append("<", matrixType.type, ">");
+		Append("[", matrixType.type, "]");
 	}
 
 	void LangWriter::Append(ShaderAst::PrimitiveType type)
@@ -192,7 +192,7 @@ namespace Nz
 			case ImageType::Cubemap:   Append("Cube");    break;
 		}
 
-		Append("<", samplerType.sampledType, ">");
+		Append("[", samplerType.sampledType, "]");
 	}
 
 	void LangWriter::Append(const ShaderAst::StructType& structType)
@@ -203,17 +203,17 @@ namespace Nz
 
 	void LangWriter::Append(const ShaderAst::UniformType& uniformType)
 	{
-		Append("uniform<");
+		Append("uniform[");
 		std::visit([&](auto&& arg)
 		{
 			Append(arg);
 		}, uniformType.containedType);
-		Append(">");
+		Append("]");
 	}
 
 	void LangWriter::Append(const ShaderAst::VectorType& vecType)
 	{
-		Append("vec", vecType.componentCount, "<", vecType.type, ">");
+		Append("vec", vecType.componentCount, "[", vecType.type, "]");
 	}
 
 	void LangWriter::Append(ShaderAst::NoType)
@@ -732,15 +732,15 @@ namespace Nz
 			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 				Append(std::to_string(arg));
 			else if constexpr (std::is_same_v<T, Vector2f>)
-				Append("vec2<f32>(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
+				Append("vec2[f32](" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
 			else if constexpr (std::is_same_v<T, Vector2i32>)
 				Append("vec2<i32>(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
 			else if constexpr (std::is_same_v<T, Vector3f>)
-				Append("vec3<f32>(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ")");
+				Append("vec3[f32](" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ")");
 			else if constexpr (std::is_same_v<T, Vector3i32>)
 				Append("vec3<i32>(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ")");
 			else if constexpr (std::is_same_v<T, Vector4f>)
-				Append("vec4<f32>(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ", " + std::to_string(arg.w) + ")");
+				Append("vec4[f32](" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ", " + std::to_string(arg.w) + ")");
 			else if constexpr (std::is_same_v<T, Vector4i32>)
 				Append("vec4<i32>(" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ", " + std::to_string(arg.z) + ", " + std::to_string(arg.w) + ")");
 			else
@@ -945,8 +945,16 @@ namespace Nz
 				Append("min");
 				break;
 
+			case ShaderAst::IntrinsicType::Normalize:
+				Append("normalize");
+				break;
+
 			case ShaderAst::IntrinsicType::Pow:
 				Append("pow");
+				break;
+
+			case ShaderAst::IntrinsicType::Reflect:
+				Append("reflect");
 				break;
 
 			case ShaderAst::IntrinsicType::SampleTexture:

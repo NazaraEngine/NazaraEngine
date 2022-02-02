@@ -8,38 +8,31 @@
 #define NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API PhongLightingMaterial
+	class NAZARA_GRAPHICS_API PhongLightingMaterial : public BasicMaterial
 	{
 		friend class MaterialPipeline;
 
 		public:
 			PhongLightingMaterial(MaterialPass& material);
 
-			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
-			float GetAlphaThreshold() const;
 			Color GetAmbientColor() const;
-			Color GetDiffuseColor() const;
-			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
-			inline TextureSampler& GetDiffuseSampler();
-			inline const TextureSampler& GetDiffuseSampler() const;
 			inline const std::shared_ptr<Texture>& GetEmissiveMap() const;
+			inline const TextureSamplerInfo& GetEmissiveSampler() const;
 			inline const std::shared_ptr<Texture>& GetHeightMap() const;
+			inline const TextureSamplerInfo& GetHeightSampler() const;
 			inline const std::shared_ptr<Texture>& GetNormalMap() const;
+			inline const TextureSamplerInfo& GetNormalSampler() const;
 			float GetShininess() const;
 			Color GetSpecularColor() const;
 			inline const std::shared_ptr<Texture>& GetSpecularMap() const;
-			inline TextureSampler& GetSpecularSampler();
-			inline const TextureSampler& GetSpecularSampler() const;
+			inline const TextureSamplerInfo& GetSpecularSampler() const;
 
-			inline bool HasAlphaMap() const;
-			inline bool HasAlphaThreshold() const;
 			inline bool HasAmbientColor() const;
-			inline bool HasDiffuseColor() const;
-			inline bool HasDiffuseMap() const;
 			inline bool HasEmissiveMap() const;
 			inline bool HasHeightMap() const;
 			inline bool HasNormalMap() const;
@@ -47,53 +40,68 @@ namespace Nz
 			inline bool HasSpecularColor() const;
 			inline bool HasSpecularMap() const;
 
-			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
-			void SetAlphaThreshold(float alphaThreshold);
 			void SetAmbientColor(const Color& ambient);
-			void SetDiffuseColor(const Color& diffuse);
-			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
-			inline void SetDiffuseSampler(const TextureSampler& sampler);
-			inline void SetEmissiveMap(std::shared_ptr<Texture> textureName);
-			inline void SetHeightMap(std::shared_ptr<Texture> textureName);
-			inline void SetNormalMap(std::shared_ptr<Texture> textureName);
+			inline void SetEmissiveMap(std::shared_ptr<Texture> emissiveMap);
+			inline void SetEmissiveSampler(TextureSamplerInfo emissiveSampler);
+			inline void SetHeightMap(std::shared_ptr<Texture> heightMap);
+			inline void SetHeightSampler(TextureSamplerInfo heightSampler);
+			inline void SetNormalMap(std::shared_ptr<Texture> normalMap);
+			inline void SetNormalSampler(TextureSamplerInfo normalSampler);
 			void SetShininess(float shininess);
 			void SetSpecularColor(const Color& specular);
 			inline void SetSpecularMap(std::shared_ptr<Texture> specularMap);
-			inline void SetSpecularSampler(const TextureSampler& sampler);
+			inline void SetSpecularSampler(TextureSamplerInfo specularSampler);
 
 			static const std::shared_ptr<MaterialSettings>& GetSettings();
 
-		private:
+		protected:
+			struct PhongOptionIndexes
+			{
+				std::size_t hasEmissiveMap;
+				std::size_t hasHeightMap;
+				std::size_t hasNormalMap;
+				std::size_t hasSpecularMap;
+			};
+
 			struct PhongUniformOffsets
 			{
-				std::size_t alphaThreshold;
-				std::size_t shininess;
 				std::size_t ambientColor;
-				std::size_t diffuseColor;
+				std::size_t shininess;
+				std::size_t totalSize;
 				std::size_t specularColor;
 			};
 
-			struct TextureIndexes
+			struct PhongTextureIndexes
 			{
-				std::size_t alpha;
-				std::size_t diffuse;
 				std::size_t emissive;
 				std::size_t height;
 				std::size_t normal;
 				std::size_t specular;
 			};
 
+			struct PhongBuildOptions : BasicBuildOptions
+			{
+				PhongUniformOffsets phongOffsets;
+				PhongOptionIndexes* phongOptionIndexes = nullptr;
+				PhongTextureIndexes* phongTextureIndexes = nullptr;
+			};
+
+			PhongOptionIndexes  m_phongOptionIndexes;
+			PhongTextureIndexes m_phongTextureIndexes;
+			PhongUniformOffsets m_phongUniformOffsets;
+
+			static MaterialSettings::Builder Build(PhongBuildOptions& options);
+			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
+			static std::pair<PhongUniformOffsets, FieldOffsets> BuildUniformOffsets();
+
+		private:
 			static bool Initialize();
 			static void Uninitialize();
 
-			MaterialPass& m_material;
-			std::size_t m_phongUniformIndex;
-			TextureIndexes m_textureIndexes;
-			PhongUniformOffsets m_phongUniformOffsets;
-
-			static std::shared_ptr<MaterialSettings> s_materialSettings;
+			static std::shared_ptr<MaterialSettings> s_phongMaterialSettings;
 			static std::size_t s_phongUniformBlockIndex;
-			static TextureIndexes s_textureIndexes;
+			static PhongOptionIndexes s_phongOptionIndexes;
+			static PhongTextureIndexes s_phongTextureIndexes;
 			static PhongUniformOffsets s_phongUniformOffsets;
 	};
 }

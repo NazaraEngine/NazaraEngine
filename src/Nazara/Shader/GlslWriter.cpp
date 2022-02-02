@@ -209,6 +209,7 @@ namespace Nz
 		options.makeVariableNameUnique = true;
 		options.reduceLoopsToWhile = true;
 		options.removeCompoundAssignments = false;
+		options.removeConstDeclaration = true;
 		options.removeOptionDeclaration = true;
 		options.removeScalarSwizzling = true;
 		options.reservedIdentifiers = {
@@ -489,7 +490,10 @@ namespace Nz
 		bool first = true;
 		for (const ShaderAst::StatementPtr& statement : statements)
 		{
-			if (!first && statement->GetType() != ShaderAst::NodeType::NoOpStatement)
+			if (statement->GetType() == ShaderAst::NodeType::NoOpStatement)
+				continue;
+
+			if (!first)
 				AppendLine();
 
 			statement->Visit(*this);
@@ -863,8 +867,16 @@ namespace Nz
 				Append("min");
 				break;
 
+			case ShaderAst::IntrinsicType::Normalize:
+				Append("normalize");
+				break;
+
 			case ShaderAst::IntrinsicType::Pow:
 				Append("pow");
+				break;
+
+			case ShaderAst::IntrinsicType::Reflect:
+				Append("reflect");
 				break;
 
 			case ShaderAst::IntrinsicType::SampleTexture:

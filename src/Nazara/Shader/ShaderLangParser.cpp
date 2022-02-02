@@ -207,7 +207,25 @@ namespace Nz::ShaderLang
 		}
 
 		//FIXME: Handle this better
-		if (identifier == "mat4")
+		if (identifier == "array")
+		{
+			Consume();
+
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
+
+			ShaderAst::ArrayType arrayType;
+			arrayType.containedType = std::make_unique<ShaderAst::ContainedType>();
+			arrayType.containedType->type = ParseType();
+
+			Expect(Advance(), TokenType::Comma); //< ,
+
+			arrayType.length = ParseExpression();
+
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
+
+			return arrayType;
+		}
+		else if (identifier == "mat4")
 		{
 			Consume();
 
@@ -215,9 +233,9 @@ namespace Nz::ShaderLang
 			matrixType.columnCount = 4;
 			matrixType.rowCount = 4;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			matrixType.type = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return matrixType;
 		}
@@ -229,9 +247,23 @@ namespace Nz::ShaderLang
 			matrixType.columnCount = 3;
 			matrixType.rowCount = 3;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			matrixType.type = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
+
+			return matrixType;
+		}
+		else if (identifier == "mat2")
+		{
+			Consume();
+
+			ShaderAst::MatrixType matrixType;
+			matrixType.columnCount = 2;
+			matrixType.rowCount = 2;
+
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
+			matrixType.type = ParsePrimitiveType();
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return matrixType;
 		}
@@ -242,9 +274,9 @@ namespace Nz::ShaderLang
 			ShaderAst::SamplerType samplerType;
 			samplerType.dim = ImageType::E2D;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			samplerType.sampledType = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return samplerType;
 		}
@@ -255,9 +287,9 @@ namespace Nz::ShaderLang
 			ShaderAst::SamplerType samplerType;
 			samplerType.dim = ImageType::Cubemap;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			samplerType.sampledType = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return samplerType;
 		}
@@ -267,9 +299,9 @@ namespace Nz::ShaderLang
 
 			ShaderAst::UniformType uniformType;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			uniformType.containedType = ShaderAst::IdentifierType{ ParseIdentifierAsName() };
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return uniformType;
 		}
@@ -280,9 +312,9 @@ namespace Nz::ShaderLang
 			ShaderAst::VectorType vectorType;
 			vectorType.componentCount = 2;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			vectorType.type = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return vectorType;
 		}
@@ -293,9 +325,9 @@ namespace Nz::ShaderLang
 			ShaderAst::VectorType vectorType;
 			vectorType.componentCount = 3;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			vectorType.type = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return vectorType;
 		}
@@ -306,9 +338,9 @@ namespace Nz::ShaderLang
 			ShaderAst::VectorType vectorType;
 			vectorType.componentCount = 4;
 
-			Expect(Advance(), TokenType::LessThan); //< '<'
+			Expect(Advance(), TokenType::OpenSquareBracket); //< [
 			vectorType.type = ParsePrimitiveType();
-			Expect(Advance(), TokenType::GreaterThan); //< '>'
+			Expect(Advance(), TokenType::ClosingSquareBracket); //< ]
 
 			return vectorType;
 		}
@@ -1323,24 +1355,6 @@ namespace Nz::ShaderLang
 		}
 	}
 
-	ShaderAst::ExpressionType Parser::ParseArrayType()
-	{
-		ShaderAst::ArrayType arrayType;
-
-		Expect(Advance(), TokenType::OpenSquareBracket);
-
-		arrayType.containedType = std::make_unique<ShaderAst::ContainedType>();
-		arrayType.containedType->type = ParseType();
-
-		Expect(Advance(), TokenType::Semicolon);
-
-		arrayType.length = ParseExpression();
-
-		Expect(Advance(), TokenType::ClosingSquareBracket);
-
-		return arrayType;
-	}
-
 	ShaderAst::AttributeType Parser::ParseIdentifierAsAttributeType()
 	{
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
@@ -1387,9 +1401,6 @@ namespace Nz::ShaderLang
 
 			return ShaderAst::NoType{};
 		}
-
-		if (Peek().type == TokenType::OpenSquareBracket)
-			return ParseArrayType();
 
 		const Token& identifierToken = Expect(Peek(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);

@@ -224,7 +224,7 @@ namespace Nz
 			UInt32 channelCount = 0;
 			UInt64 frameCount = 0;
 			UInt64 sampleCount = 0;
-			UInt64 sampleRate = 0;
+			UInt32 sampleRate = 0;
 
 			ud.metadataCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__StreamMetadata* meta)
 			{

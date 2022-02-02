@@ -12,6 +12,15 @@
 
 namespace Nz
 {
+	enum class BasicLightType
+	{
+		Directional,
+		Point,
+		Spot,
+
+		Max = Spot
+	};
+
 	enum class BasicRenderElement
 	{
 		SpriteChain = 0,
@@ -54,6 +63,7 @@ namespace Nz
 	enum class PredefinedShaderBinding
 	{
 		InstanceDataUbo,
+		LightDataUbo,
 		OverlayTexture,
 		ViewerDataUbo,
 

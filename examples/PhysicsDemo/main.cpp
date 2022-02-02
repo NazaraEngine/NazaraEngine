@@ -54,7 +54,7 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
 
 	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceshipMesh)
@@ -71,10 +71,10 @@ int main()
 
 	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
 	depthPass->EnableDepthBuffer(true);
-	depthPass->EnableDepthClamp(true);
+	//depthPass->EnableDepthClamp(true);
 	depthPass->EnableFaceCulling(true);
 
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
 	materialPass->EnableDepthBuffer(true);
 	materialPass->EnableDepthClamp(true);
 	materialPass->EnableFaceCulling(true);
@@ -91,7 +91,7 @@ int main()
 
 	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
-	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	//basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	basicMat.SetDiffuseSampler(samplerInfo);
 
@@ -143,37 +143,12 @@ int main()
 	Nz::Physics3DSystem physSytem(registry);
 	Nz::RenderSystem renderSystem(registry);
 
-	Nz::Canvas canvas2D(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle(), 2);
-	canvas2D.Resize(Nz::Vector2f(window.GetSize()));
-
-	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
-	labelWidget->SetPosition(0.f, 300.f, 0.f);
-	labelWidget->EnableBackground(true);
-	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Bonjour Paris !", 72));
-
-	Nz::ButtonWidget* buttonWidget = canvas2D.Add<Nz::ButtonWidget>();
-	buttonWidget->SetPosition(200.f, 400.f);
-	buttonWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Press me senpai", 72));
-	buttonWidget->Resize(buttonWidget->GetPreferredSize());
-	buttonWidget->OnButtonTrigger.Connect([](const Nz::ButtonWidget*)
-	{
-		std::cout << "Coucou !" << std::endl;
-	});
-
-	entt::entity viewer2D = registry.create();
-	{
-		registry.emplace<Nz::NodeComponent>(viewer2D);
-		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
-		cameraComponent.UpdateClearColor(Nz::Color(0, 0, 0, 0));
-		cameraComponent.UpdateRenderOrder(1);
-		cameraComponent.UpdateRenderMask(2);
-	}
-
 	entt::entity viewer = registry.create();
 	{
 		registry.emplace<Nz::NodeComponent>(viewer);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget());
 		cameraComponent.UpdateRenderMask(1);
+		//cameraComponent.UpdateClearColor(Nz::Color(127, 127, 127));
 	}
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
@@ -211,6 +186,9 @@ int main()
 
 	entt::entity headingEntity = registry.create();
 	{
+		auto& entityLight = registry.emplace<Nz::LightComponent>(playerEntity);
+		entityLight.AttachLight(std::make_shared<Nz::DirectionalLight>(), 1);
+
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
 		entityGfx.AttachRenderable(model, 1);
 
@@ -287,6 +265,7 @@ int main()
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 					{
+						//canvas2D.Resize({ 1920.f, 1080.f });
 						basicMat.EnableAlphaTest(!basicMat.IsAlphaTestEnabled());
 						basicMatDepth.EnableAlphaTest(!basicMatDepth.IsAlphaTestEnabled());
 					}

@@ -15,9 +15,9 @@
 
 namespace Nz
 {
-	class AbstractBuffer;
 	class CommandBufferBuilder;
 	class MaterialSettings;
+	class RenderBuffer;
 	class UploadPool;
 	class WorldInstance;
 
