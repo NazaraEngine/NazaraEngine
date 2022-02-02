@@ -21,7 +21,7 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanBuffer : public RenderBuffer
 	{
 		public:
-			inline VulkanBuffer(VulkanDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
+			VulkanBuffer(VulkanDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 			VulkanBuffer(const VulkanBuffer&) = delete;
 			VulkanBuffer(VulkanBuffer&&) = delete; ///TODO
 			virtual ~VulkanBuffer();
