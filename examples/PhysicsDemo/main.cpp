@@ -187,7 +187,7 @@ int main()
 	entt::entity headingEntity = registry.create();
 	{
 		auto& entityLight = registry.emplace<Nz::LightComponent>(playerEntity);
-		entityLight.AttachLight(std::make_shared<Nz::DirectionalLight>(), 1);
+		entityLight.AttachLight(std::make_shared<Nz::SpotLight>(), 1);
 
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
 		entityGfx.AttachRenderable(model, 1);

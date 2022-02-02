@@ -18,7 +18,7 @@ namespace Nz
 		return -std::numeric_limits<float>::infinity();
 	}
 
-	void DirectionalLight::FillLightData(void* data)
+	void DirectionalLight::FillLightData(void* data) const
 	{
 		auto lightOffset = PredefinedLightData::GetOffsets();
 

@@ -156,7 +156,8 @@ namespace Nz
 			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
-			std::vector<Light*> m_visibleLights;
+			std::vector<const Light*> m_renderableLights;
+			std::vector<const Light*> m_visibleLights;
 			std::vector<LightDataUbo> m_lightDataBuffers;
 			std::vector<VisibleRenderable> m_visibleRenderables;
 			BakedFrameGraph m_bakedFrameGraph;

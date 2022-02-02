@@ -25,7 +25,7 @@ namespace Nz
 
 			float ComputeContributionScore(const BoundingVolumef& boundingVolume) const override;
 
-			void FillLightData(void* data) override;
+			void FillLightData(void* data) const override;
 
 			inline float GetAmbientFactor() const;
 			inline float GetDiffuseFactor() const;
