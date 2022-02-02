@@ -38,6 +38,8 @@ namespace Nz
 		m_elementRenderers.resize(BasicRenderElementCount);
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::SpriteChain)] = std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice());
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
+
+		m_lightUboPool = std::make_shared<LightUboPool>();
 	}
 
 	void ForwardFramePipeline::InvalidateViewer(AbstractViewer* viewerInstance)
@@ -302,9 +304,12 @@ namespace Nz
 
 				for (auto& lightDataUbo : m_lightDataBuffers)
 				{
-					lightDataUbo.allocation = nullptr;
-					lightDataUbo.offset = 0;
+					renderFrame.PushReleaseCallback([pool = m_lightUboPool, lightUbo = std::move(lightDataUbo.renderBuffer)]()
+					{
+						pool->lightUboBuffers.push_back(std::move(lightUbo));
+					});
 				}
+				m_lightDataBuffers.clear();
 
 				for (const auto& renderableData : m_visibleRenderables)
 				{
@@ -353,9 +358,17 @@ namespace Nz
 
 						if (!targetLightData)
 						{
-							// Allocate a new light UBO
+							// Make a new light UBO
 							auto& lightUboData = m_lightDataBuffers.emplace_back();
-							lightUboData.renderBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, 256 * lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+
+							// Reuse from pool if possible
+							if (!m_lightUboPool->lightUboBuffers.empty())
+							{
+								lightUboData.renderBuffer = m_lightUboPool->lightUboBuffers.back();
+								m_lightUboPool->lightUboBuffers.pop_back();
+							}
+							else
+								lightUboData.renderBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, 256 * lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 
 							targetLightData = &lightUboData;
 						}
@@ -405,8 +418,6 @@ namespace Nz
 				{
 					builder.BeginDebugRegion("Light UBO Update", Color::Yellow);
 					{
-						builder.PreTransferBarrier();
-
 						for (auto& lightUboData : m_lightDataBuffers)
 						{
 							if (!lightUboData.allocation)
