@@ -199,10 +199,9 @@ namespace Nz
 		m_newlyHiddenLightEntities.erase(entity);
 		m_newlyVisibleLightEntities.erase(entity);
 
-		GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
-		const WorldInstancePtr& worldInstance = entityGfx.GetWorldInstance();
-		for (const auto& renderableEntry : entityGfx.GetRenderables())
-			m_pipeline->UnregisterInstancedDrawable(worldInstance, renderableEntry.renderable.get());
+		LightComponent& entityLight = registry.get<LightComponent>(entity);
+		for (const auto& lightEntry : entityLight.GetLights())
+			m_pipeline->UnregisterLight(lightEntry.light.get());
 	}
 
 	void RenderSystem::OnNodeDestroy(entt::registry& registry, entt::entity entity)
