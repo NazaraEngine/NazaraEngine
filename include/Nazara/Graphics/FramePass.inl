@@ -8,12 +8,11 @@
 
 namespace Nz
 {
-	inline FramePass::FramePass(FrameGraph& owner, std::size_t passId, std::string name) :
+	inline FramePass::FramePass(FrameGraph& /*owner*/, std::size_t passId, std::string name) :
 	m_depthStencilInput(InvalidAttachmentId),
 	m_depthStencilOutput(InvalidAttachmentId),
 	m_passId(passId),
-	m_name(std::move(name)),
-	m_owner(owner)
+	m_name(std::move(name))
 	{
 	}
 

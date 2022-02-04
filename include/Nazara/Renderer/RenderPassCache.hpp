@@ -29,7 +29,7 @@ namespace Nz
 			const std::shared_ptr<RenderPass>& Get(const std::vector<RenderPass::Attachment>& attachments, const std::vector<RenderPass::SubpassDescription>& subpassDescriptions, const std::vector<RenderPass::SubpassDependency>& subpassDependencies) const;
 
 			RenderPassCache& operator=(const RenderPassCache&) = delete;
-			RenderPassCache& operator=(RenderPassCache&&) noexcept = default;
+			RenderPassCache& operator=(RenderPassCache&&) = delete;
 
 		private:
 			struct RenderPassData

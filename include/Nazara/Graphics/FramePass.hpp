@@ -67,7 +67,7 @@ namespace Nz
 			inline void SetReadInput(std::size_t inputIndex, bool doesRead);
 
 			FramePass& operator=(const FramePass&) = delete;
-			FramePass& operator=(FramePass&&) noexcept = default;
+			FramePass& operator=(FramePass&&) = delete;
 
 			static constexpr std::size_t InvalidAttachmentId = std::numeric_limits<std::size_t>::max();
 
@@ -97,7 +97,6 @@ namespace Nz
 			std::string m_name;
 			std::vector<Input> m_inputs;
 			std::vector<Output> m_outputs;
-			FrameGraph& m_owner;
 			CommandCallback m_commandCallback;
 			ExecutionCallback m_executionCallback;
 	};

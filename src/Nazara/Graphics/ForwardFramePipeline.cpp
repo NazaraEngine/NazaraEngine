@@ -777,7 +777,7 @@ namespace Nz
 			forwardPass.AddOutput(renderTargetData.finalAttachment);
 			forwardPass.SetClearColor(0, Color::Black);
 
-			forwardPass.SetCommandCallback([this, &targetViewers](CommandBufferBuilder& builder, const Recti& renderRect)
+			forwardPass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const Recti& renderRect)
 			{
 				builder.SetScissor(renderRect);
 				builder.SetViewport(renderRect);
