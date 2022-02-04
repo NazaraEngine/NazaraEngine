@@ -445,7 +445,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Right)] = Plane(plane);
+		planes[UnderlyingCast(FrustumPlane::Right)] = Plane<T>(plane);
 
 		// Extract the numbers for the LEFT plane
 		plane[0] = viewProjMatrix[3] + viewProjMatrix[0];
@@ -460,7 +460,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Left)] = Plane(plane);
+		planes[UnderlyingCast(FrustumPlane::Left)] = Plane<T>(plane);
 
 		// Extract the BOTTOM plane
 		plane[0] = viewProjMatrix[3] + viewProjMatrix[1];
@@ -475,7 +475,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Bottom)] = Plane(plane);
+		planes[UnderlyingCast(FrustumPlane::Bottom)] = Plane<T>(plane);
 
 		// Extract the TOP plane
 		plane[0] = viewProjMatrix[3] - viewProjMatrix[1];
@@ -490,7 +490,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Top)] = Plane(plane);
+		planes[UnderlyingCast(FrustumPlane::Top)] = Plane<T>(plane);
 
 		// Extract the FAR plane
 		plane[0] = viewProjMatrix[3] - viewProjMatrix[2];
@@ -505,7 +505,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Far)] = Plane(plane);
+		planes[UnderlyingCast(FrustumPlane::Far)] = Plane<T>(plane);
 
 		// Extract the NEAR plane
 		plane[0] = viewProjMatrix[3] + viewProjMatrix[2];
@@ -520,7 +520,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Near)] = Plane(plane);
+		planes[UnderlyingCast(FrustumPlane::Near)] = Plane<T>(plane);
 
 		return Frustum(planes);
 	}

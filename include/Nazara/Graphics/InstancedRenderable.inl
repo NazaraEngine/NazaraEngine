@@ -9,6 +9,7 @@ namespace Nz
 {
 	inline InstancedRenderable::InstancedRenderable() :
 	m_aabb(Boxf::Zero()),
+	m_scissorBox(-1, -1, -1, -1),
 	m_renderLayer(0)
 	{
 	}

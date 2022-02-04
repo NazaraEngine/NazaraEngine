@@ -52,8 +52,8 @@ namespace Nz
 
 		private:
 			std::shared_ptr<Buffer> m_buffer;
+			UInt32 m_indexCount;
 			UInt64 m_endOffset;
-			UInt64 m_indexCount;
 			UInt64 m_startOffset;
 			bool m_largeIndices;
 	};
