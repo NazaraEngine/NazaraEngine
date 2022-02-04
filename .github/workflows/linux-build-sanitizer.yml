@@ -36,7 +36,8 @@ jobs:
       run: |
         sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git -y
         sudo apt-get install libunwind8-dev libunwind-dev binutils-dev clang-11 -y
-        
+        sudo apt-get install qtbase5-dev qtdeclarative5-dev
+
         git clone https://github.com/google/honggfuzz
         make -C honggfuzz
         
@@ -74,6 +75,9 @@ jobs:
     # Build the engine
     - name: Build Nazara
       run: xmake -v
+      
+    - name: Run Sanitized Nazaras
+      run: xmake run NazaraUnitTests
 
     # Install the result files
     - name: Install Nazara
