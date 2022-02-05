@@ -39,6 +39,13 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 				CHECK(*vector2 == Nz::Vector2<int>(3, 5));
 				CHECK(vector3->GetSquaredLength() == Approx(61.f));
 			}
+
+			THEN("We can destroy the vector2")
+			{
+				memoryPool.Delete(vector1);
+				memoryPool.Delete(vector2);
+				memoryPool.Delete(vector3);
+			}
 		}
 	}
 }
