@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
+      - '.github/workflows/linux-build-sanitizer.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'

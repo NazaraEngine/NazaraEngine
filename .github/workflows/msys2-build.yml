@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
+      - '.github/workflows/linux-build-sanitizer.yml'
       - '.github/workflows/linux-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
@@ -76,7 +77,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake -v
+      run: xmake
 
     # Install the result files
     - name: Install Nazara
