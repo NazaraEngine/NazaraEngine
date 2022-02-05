@@ -103,11 +103,9 @@ local modules = {
 	}
 }
 
--- remove_headerfiles and remove_files were added in xmake 2.6.3, add a fallback for previous versions
-remove_files = remove_files or del_files
-remove_headerfiles = remove_headerfiles or function () end
+includes("xmake/**.lua")
 
-set_xmakever("2.5.6")
+set_xmakever("2.6.3")
 
 add_repositories("local-repo xmake-repo")
 
@@ -230,7 +228,6 @@ for name, module in pairs(modules) do
 	end
 end
 
-includes("xmake/actions/*.lua")
 includes("tools/xmake.lua")
 includes("tests/xmake.lua")
 includes("plugins/*/xmake.lua")

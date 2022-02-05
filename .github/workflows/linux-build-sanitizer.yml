@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
+      - '.github/workflows/linux-build.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
@@ -19,7 +20,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         arch: [x86_64]
-        mode: [debug, releasedbg]
+        mode: [asan]
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
@@ -35,12 +36,16 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git -y
-        sudo apt-get install libunwind8-dev libunwind-dev binutils-dev clang-11 -y
-        sudo apt-get install qtbase5-dev qtdeclarative5-dev
+        sudo apt-get install libunwind-dev binutils-dev clang-11 -y
 
-        git clone https://github.com/google/honggfuzz
-        make -C honggfuzz
-        
+    # Install Honggfuzz
+    - name: Build and install Hongfuzz
+      run: |
+        wget https://github.com/google/honggfuzz/archive/refs/tags/2.5.tar.gz -O honggfuzz.tar.gz
+        tar -xzvf honggfuzz.tar.gz
+        cd honggfuzz-*/
+        make
+        sudo make install
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -70,21 +75,15 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes --ld=$(pwd)/honggfuzz/hfuzz_cc/hfuzz-clang++ --sh=$(pwd)/honggfuzz/hfuzz_cc/hfuzz-clang++ --ar=$(pwd)/honggfuzz/hfuzz_cc/hfuzz-clang++ --cxx=$(pwd)/honggfuzz/hfuzz_cc/hfuzz-clang++ --cxxflags="-fsanitize=fuzzer-no-link,address" --ldflags=-fsanitize=fuzzer-no-link,address --shflags=-fsanitize=fuzzer-no-link,address --arflags=-fsanitize=fuzzer-no-link,address --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes --verbose
+      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes
+
+    # Configure xmake with honggfuzz to build the engine
+    - name: Configure xmake with honggfuzz
+      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --toolchain=hfuzz-clang
 
     # Build the engine
     - name: Build Nazara
       run: xmake -v
       
-    - name: Run Sanitized Nazaras
+    - name: Run Nazara Unit tests
       run: xmake run NazaraUnitTests
-
-    # Install the result files
-    - name: Install Nazara
-      run: xmake install -vo package
-
-    # Upload artifacts
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
-        path: package
