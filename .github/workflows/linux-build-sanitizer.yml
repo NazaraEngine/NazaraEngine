@@ -84,6 +84,9 @@ jobs:
     # Build the engine
     - name: Build Nazara
       run: xmake -v
+
+    - name: Run Nazara Main Executable
+      run: xmake run
       
     - name: Run Nazara Unit tests
       run: xmake run NazaraUnitTests
