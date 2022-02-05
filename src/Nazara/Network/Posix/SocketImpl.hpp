@@ -44,7 +44,6 @@ namespace Nz
 			static bool Initialize();
 
 			static SocketError GetLastError(SocketHandle handle, SocketError* error = nullptr);
-			static int GetLastErrorCode();
 			static int GetLastErrorCode(SocketHandle handle, SocketError* error = nullptr);
 
 			static SocketState Listen(SocketHandle handle, const IpAddress& address, unsigned int queueSize, SocketError* error);
@@ -78,7 +77,7 @@ namespace Nz
 			static bool SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 			static bool SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error = nullptr);
 
-			static SocketError TranslateErrnoToSocketError(int error);
+			static SocketError TranslateErrorToSocketError(int error);
 			static int TranslateNetProtocolToAF(NetProtocol protocol);
 			static int TranslateSocketTypeToSock(SocketType type);
 

@@ -7,6 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <cstring>
@@ -24,8 +25,6 @@
 
 namespace Nz
 {
-	constexpr int SOCKET_ERROR = -1;
-
 	SocketHandle SocketImpl::Accept(SocketHandle handle, IpAddress* address, SocketError* error)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
@@ -47,7 +46,7 @@ namespace Nz
 		else
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 		}
 
 		return newClient;
@@ -61,10 +60,10 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
 
-		if (bind(handle, reinterpret_cast<const sockaddr*>(&nameBuffer), bufferLength) == SOCKET_ERROR)
+		if (bind(handle, reinterpret_cast<const sockaddr*>(&nameBuffer), bufferLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return SocketState::NotConnected;
 		}
@@ -82,7 +81,7 @@ namespace Nz
 
 		SocketHandle handle = socket(TranslateNetProtocolToAF(protocol), TranslateSocketTypeToSock(type), 0);
 		if (handle == InvalidHandle && error != nullptr)
-			*error = TranslateErrnoToSocketError(GetLastErrorCode());
+			*error = TranslateErrorToSocketError(errno);
 
 		return handle;
 	}
@@ -91,16 +90,17 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		if (close(handle) == SOCKET_ERROR)
-			NazaraWarning("Failed to close socket: " + Error::GetLastSystemError(GetLastErrorCode()));
+		if (close(handle) == -1)
+			NazaraWarning("Failed to close socket: " + Error::GetLastSystemError(errno));
 	}
 
 	void SocketImpl::ClearErrorCode(SocketHandle handle)
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		if (GetLastError(handle, nullptr) != SocketError::Internal)
-			NazaraWarning("Failed to clear socket error code: " + Error::GetLastSystemError(GetLastErrorCode()));
+		SocketError error;
+		if (GetLastError(handle, &error) != SocketError::NoError)
+			NazaraWarning(std::string("Failed to clear socket error code: ") + ErrorToString(error));
 	}
 
 	SocketState SocketImpl::Connect(SocketHandle handle, const IpAddress& address, SocketError* error)
@@ -117,9 +117,9 @@ namespace Nz
 		// Clear socket error status
 		ClearErrorCode(handle);
 
-		if (connect(handle, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength) == SOCKET_ERROR)
+		if (connect(handle, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength) == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			switch (errorCode) //< Check for "normal errors" first
 			{
 				case EALREADY:
@@ -135,7 +135,7 @@ namespace Nz
 				if (errorCode == EADDRNOTAVAIL)
 					*error = SocketError::ConnectionRefused; //< ConnectionRefused seems more legit than AddressNotAvailable in connect case
 				else
-					*error = TranslateErrnoToSocketError(errorCode);
+					*error = TranslateErrorToSocketError(errorCode);
 			}
 
 			return SocketState::NotConnected;
@@ -155,23 +155,18 @@ namespace Nz
 		if (code < 0)
 			return SocketError::Internal;
 
-		return TranslateErrnoToSocketError(code);
-	}
-
-	int SocketImpl::GetLastErrorCode()
-	{
-		return errno;
+		return TranslateErrorToSocketError(code);
 	}
 
 	int SocketImpl::GetLastErrorCode(SocketHandle handle, SocketError* error)
 	{
 		int code;
-		unsigned int codeLength = sizeof(code);
+		socklen_t codeLength = sizeof(code);
 
-		if (getsockopt(handle, SOL_SOCKET, SO_ERROR, &code, &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, SOL_SOCKET, SO_ERROR, &code, &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return -1;
 		}
@@ -190,18 +185,18 @@ namespace Nz
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
 
-		if (bind(handle, reinterpret_cast<const sockaddr*>(&nameBuffer), bufferLength) == SOCKET_ERROR)
+		if (bind(handle, reinterpret_cast<const sockaddr*>(&nameBuffer), bufferLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return SocketState::NotConnected;
 		}
 
-		if (listen(handle, queueSize) == SOCKET_ERROR)
+		if (listen(handle, queueSize) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return SocketState::NotConnected;
 		}
@@ -217,10 +212,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		u_long availableBytes;
-		if (ioctl(handle, FIONREAD, &availableBytes) == SOCKET_ERROR)
+		if (ioctl(handle, FIONREAD, &availableBytes) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return 0;
 		}
@@ -233,13 +228,13 @@ namespace Nz
 
 	bool SocketImpl::QueryBroadcasting(SocketHandle handle, SocketError* error)
 	{
-		bool code;
+		int code;
 		socklen_t codeLength = sizeof(code);
 
-		if (getsockopt(handle, SOL_SOCKET, SO_BROADCAST, &code, &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, SOL_SOCKET, SO_BROADCAST, &code, &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false;
 		}
@@ -252,13 +247,13 @@ namespace Nz
 
 	bool SocketImpl::QueryKeepAlive(SocketHandle handle, SocketError* error)
 	{
-		bool code;
+		int code;
 		socklen_t codeLength = sizeof(code);
 
-		if (getsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, &code, &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, &code, &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false;
 		}
@@ -271,16 +266,16 @@ namespace Nz
 
 	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
-		unsigned int code;
+		int code;
 		socklen_t codeLength = sizeof(code);
 
 #if defined(NAZARA_PLATFORM_MACOSX)
 		return 0; //No IP_MTU on macosx
 #else
-		if (getsockopt(handle, IPPROTO_IP, IP_MTU, &code, &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, IPPROTO_IP, IP_MTU, &code, &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return 0;
 		}
@@ -294,13 +289,13 @@ namespace Nz
 
 	bool SocketImpl::QueryNoDelay(SocketHandle handle, SocketError* error)
 	{
-		bool code;
+		int code;
 		socklen_t codeLength = sizeof(code);
 
-		if (getsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &code, &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &code, &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false;
 		}
@@ -313,13 +308,13 @@ namespace Nz
 
 	std::size_t SocketImpl::QueryReceiveBufferSize(SocketHandle handle, SocketError* error)
 	{
-		unsigned int code;
+		int code;
 		socklen_t codeLength = sizeof(code);
 
-		if (getsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&code), &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return 0;
 		}
@@ -339,10 +334,10 @@ namespace Nz
 
 		socklen_t bufferLength = sizeof(nameBuffer.size());
 
-		if (getpeername(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
+		if (getpeername(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return IpAddress();
 		}
@@ -355,13 +350,13 @@ namespace Nz
 
 	std::size_t SocketImpl::QuerySendBufferSize(SocketHandle handle, SocketError* error)
 	{
-		unsigned int code;
+		int code;
 		socklen_t codeLength = sizeof(code);
 
-		if (getsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&code), &codeLength) == SOCKET_ERROR)
+		if (getsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&code), &codeLength) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return 0;
 		}
@@ -381,15 +376,15 @@ namespace Nz
 
 		socklen_t bufferLength = sizeof(sockaddr_in);
 
-		if (getsockname(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == SOCKET_ERROR)
+		if (getsockname(handle, reinterpret_cast<sockaddr*>(nameBuffer.data()), &bufferLength) == -1)
 		{
 			if (error)
 			{
-				int errorCode = GetLastErrorCode();
+				int errorCode = errno;
 				if (errorCode == EINVAL)
 					*error = SocketError::NoError;
 				else
-					*error = TranslateErrnoToSocketError(errorCode);
+					*error = TranslateErrorToSocketError(errorCode);
 			}
 
 			return IpAddress();
@@ -411,7 +406,7 @@ namespace Nz
 		if (result < 0)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return 0;
 		}
@@ -428,10 +423,10 @@ namespace Nz
 		descriptor.revents = 0;
 
 		int ret = ::poll(&descriptor, 1, (msTimeout != std::numeric_limits<UInt64>::max()) ? int(msTimeout) : -1);
-		if (ret == SOCKET_ERROR)
+		if (ret == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return SocketState::NotConnected;
 		}
@@ -473,9 +468,9 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		int byteRead = recv(handle, reinterpret_cast<char*>(buffer), length, 0);
-		if (byteRead == SOCKET_ERROR)
+		if (byteRead == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			if (errorCode == EAGAIN)
 				errorCode = EWOULDBLOCK;
 
@@ -491,7 +486,7 @@ namespace Nz
 				default:
 				{
 					if (error)
-						*error = TranslateErrnoToSocketError(errorCode);
+						*error = TranslateErrorToSocketError(errorCode);
 
 					return false; //< Error
 				}
@@ -529,7 +524,7 @@ namespace Nz
 		int byteRead = recvfrom(handle, buffer, length, 0, reinterpret_cast<sockaddr*>(&nameBuffer), &bufferLength);
 		if (byteRead == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			if (errorCode == EAGAIN)
 				errorCode = EWOULDBLOCK;
 
@@ -546,7 +541,7 @@ namespace Nz
 				default:
 				{
 					if (error)
-						*error = TranslateErrnoToSocketError(errorCode);
+						*error = TranslateErrorToSocketError(errorCode);
 
 					return false; //< Error
 				}
@@ -609,7 +604,7 @@ namespace Nz
 #endif
 		if (byteRead == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			if (errorCode == EAGAIN)
 				errorCode = EWOULDBLOCK;
 
@@ -626,7 +621,7 @@ namespace Nz
 				default:
 				{
 					if (error)
-						*error = TranslateErrnoToSocketError(errorCode);
+						*error = TranslateErrorToSocketError(errorCode);
 
 					return false; //< Error
 				}
@@ -670,9 +665,9 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		int byteSent = send(handle, reinterpret_cast<const char*>(buffer), length, 0);
-		if (byteSent == SOCKET_ERROR)
+		if (byteSent == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			if (errorCode == EAGAIN)
 				errorCode = EWOULDBLOCK;
 
@@ -685,7 +680,7 @@ namespace Nz
 				default:
 				{
 					if (error)
-						*error = TranslateErrnoToSocketError(errorCode);
+						*error = TranslateErrorToSocketError(errorCode);
 
 					return false; //< Error
 				}
@@ -728,9 +723,9 @@ namespace Nz
 		int byteSent = sendmsg(handle, &msgHdr, 0);
 #endif
 		
-		if (byteSent == SOCKET_ERROR)
+		if (byteSent == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			if (errorCode == EAGAIN)
 				errorCode = EWOULDBLOCK;
 
@@ -743,7 +738,7 @@ namespace Nz
 				default:
 				{
 					if (error)
-						*error = TranslateErrnoToSocketError(errorCode);
+						*error = TranslateErrorToSocketError(errorCode);
 
 					return false; //< Error
 				}
@@ -768,9 +763,9 @@ namespace Nz
 		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
 
 		int byteSent = sendto(handle, reinterpret_cast<const char*>(buffer), length, 0, reinterpret_cast<const sockaddr*>(nameBuffer.data()), bufferLength);
-		if (byteSent == SOCKET_ERROR)
+		if (byteSent == -1)
 		{
-			int errorCode = GetLastErrorCode();
+			int errorCode = errno;
 			if (errorCode == EAGAIN)
 				errorCode = EWOULDBLOCK;
 
@@ -783,7 +778,7 @@ namespace Nz
 				default:
 				{
 					if (error)
-						*error = TranslateErrnoToSocketError(errorCode);
+						*error = TranslateErrorToSocketError(errorCode);
 
 					return false; //< Error
 				}
@@ -804,10 +799,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		u_long block = (blocking) ? 0 : 1;
-		if (ioctl(handle, FIONBIO, &block) == SOCKET_ERROR)
+		if (ioctl(handle, FIONBIO, &block) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -823,10 +818,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = broadcasting;
-		if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -842,10 +837,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = ipv6Only;
-		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -864,26 +859,26 @@ namespace Nz
 		int keepIdle = msTime / 1000; // Linux works with seconds.
 		int keepInterval = msInterval / 1000; // Linux works with seconds.
 
-		if (setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, &keepAlive , sizeof(keepAlive)) == SOCKET_ERROR)
+		if (setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, &keepAlive , sizeof(keepAlive)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
 
-		if (setsockopt(handle, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(keepIdle)) == SOCKET_ERROR)
+		if (setsockopt(handle, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(keepIdle)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
 
-		if (setsockopt(handle, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(keepInterval)) == SOCKET_ERROR)
+		if (setsockopt(handle, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(keepInterval)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -899,10 +894,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = nodelay ? 1 : 0;
-		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &option, sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &option, sizeof(option)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -913,10 +908,10 @@ namespace Nz
 #if not defined(MSG_NOSIGNAL) // -> https://github.com/intel/parameter-framework/pull/133/files
         //There is no MSG_NOSIGNAL on macos
         const int set = 1;
-        if (setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &set, sizeof(set)) == SOCKET_ERROR)
+        if (setsockopt(handle, SOL_SOCKET, SO_NOSIGPIPE, &set, sizeof(set)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -930,10 +925,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = static_cast<int>(size);
-		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -949,10 +944,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		int option = static_cast<int>(size);
-		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == SOCKET_ERROR)
+		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
 		{
 			if (error)
-				*error = TranslateErrnoToSocketError(GetLastErrorCode());
+				*error = TranslateErrorToSocketError(errno);
 
 			return false; //< Error
 		}
@@ -963,7 +958,7 @@ namespace Nz
 		return true;
 	}
 
-	SocketError SocketImpl::TranslateErrnoToSocketError(int error)
+	SocketError SocketImpl::TranslateErrorToSocketError(int error)
 	{
 		switch (error)
 		{

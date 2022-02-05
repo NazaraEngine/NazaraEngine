@@ -19,10 +19,7 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 				REQUIRE(*vector2 == Nz::Vector2<int>(3, 2));
 			}
 
-			THEN("We can destroy the vector2")
-			{
-				memoryPool.Delete(vector2);
-			}
+			memoryPool.Delete(vector2);
 		}
 
 		WHEN("We construct three vectors")
@@ -40,12 +37,9 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 				CHECK(vector3->GetSquaredLength() == Approx(61.f));
 			}
 
-			THEN("We can destroy the vector2")
-			{
-				memoryPool.Delete(vector1);
-				memoryPool.Delete(vector2);
-				memoryPool.Delete(vector3);
-			}
+			memoryPool.Delete(vector1);
+			memoryPool.Delete(vector2);
+			memoryPool.Delete(vector3);
 		}
 	}
 }
