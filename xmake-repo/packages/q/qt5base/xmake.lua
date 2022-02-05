@@ -32,11 +32,19 @@ package("qt5base")
             return
         end
 
+        import("core.base.semver")
         import("detect.sdks.find_qt")
         local qt = find_qt()
         if not qt then
             return
         end
+
+        local qtversion = semver.new(qt.sdkver)
+        if not qtversion:satisfies("5.X") then
+            return
+        end
+
+        qt.version = qt.sdkversion
 
         package:data_set("qtdir", qt)
         return qt
