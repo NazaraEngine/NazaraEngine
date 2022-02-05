@@ -94,7 +94,7 @@ namespace Nz
 		if (activeSockets == -1)
 		{
 			if (error)
-				*error = SocketImpl::TranslateErrnoToSocketError(errno);
+				*error = SocketImpl::TranslateErrorToSocketError(errno);
 
 			return 0;
 		}

@@ -19,6 +19,7 @@ namespace Nz
 	{
 		public:
 			SocketPoller();
+			SocketPoller(const SocketPoller&) = delete;
 			SocketPoller(SocketPoller&&) noexcept = default;
 			~SocketPoller();
 
@@ -33,6 +34,7 @@ namespace Nz
 
 			unsigned int Wait(int msTimeout, SocketError* error = nullptr);
 
+			SocketPoller& operator=(const SocketPoller&) = delete;
 			SocketPoller& operator=(SocketPoller&&) noexcept = default;
 
 		private:

@@ -44,7 +44,6 @@ namespace Nz
 			static bool Initialize();
 
 			static SocketError GetLastError(SocketHandle handle, SocketError* error = nullptr);
-			static int GetLastErrorCode();
 			static int GetLastErrorCode(SocketHandle handle, SocketError* error = nullptr);
 
 			static SocketState Listen(SocketHandle handle, const IpAddress& address, unsigned queueSize, SocketError* error);

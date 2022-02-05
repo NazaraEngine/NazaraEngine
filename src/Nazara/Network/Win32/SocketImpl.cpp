@@ -178,11 +178,6 @@ namespace Nz
 		return TranslateWSAErrorToSocketError(code);
 	}
 
-	int SocketImpl::GetLastErrorCode()
-	{
-		return WSAGetLastError();
-	}
-
 	int SocketImpl::GetLastErrorCode(SocketHandle handle, SocketError* error)
 	{
 		int code;
