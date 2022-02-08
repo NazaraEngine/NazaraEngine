@@ -202,6 +202,12 @@ namespace Nz::ShaderAst
 			node.returnExpr->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(ScopedStatement& node)
+	{
+		if (node.statement)
+			node.statement->Visit(*this);
+	}
+
 	void AstRecursiveVisitor::Visit(WhileStatement& node)
 	{
 		if (node.condition)

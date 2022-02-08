@@ -7,7 +7,7 @@
 
 namespace Nz::ShaderAst
 {
-#define NAZARA_SHADERAST_STATEMENT(Node) void StatementVisitorExcept::Visit(ShaderAst::Node& /*node*/) \
+#define NAZARA_SHADERAST_STATEMENT(Node) void AstStatementVisitorExcept::Visit(ShaderAst::Node& /*node*/) \
 	{ \
 		throw std::runtime_error("unexpected " #Node " node"); \
 	}

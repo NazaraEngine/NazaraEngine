@@ -20,7 +20,7 @@ option BillboardSizeRotLocation: i32 = -1;
 // Vertex declaration related options
 option ColorLocation: i32 = -1;
 option NormalLocation: i32 = -1;
-option PosLocation: i32 = -1;
+option PosLocation: i32;
 option TangentLocation: i32 = -1;
 option UvLocation: i32 = -1;
 

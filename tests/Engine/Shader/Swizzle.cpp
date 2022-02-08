@@ -150,8 +150,8 @@ OpFunctionEnd)");
 [entry(frag)]
 fn main()
 {
-	let vec = max(2.0, 1.0).xxx;
-	let vec2 = min(2.0, 1.0).xxx;
+	let v = max(2.0, 1.0).xxx;
+	let v2 = min(2.0, 1.0).xxx;
 }
 )";
 
@@ -161,9 +161,9 @@ fn main()
 void main()
 {
 	float cachedResult = max(2.000000, 1.000000);
-	vec3 vec = vec3(cachedResult, cachedResult, cachedResult);
+	vec3 v = vec3(cachedResult, cachedResult, cachedResult);
 	float cachedResult_2 = min(2.000000, 1.000000);
-	vec3 vec2_ = vec3(cachedResult_2, cachedResult_2, cachedResult_2);
+	vec3 v2 = vec3(cachedResult_2, cachedResult_2, cachedResult_2);
 }
 )");
 
@@ -171,8 +171,8 @@ void main()
 [entry(frag)]
 fn main()
 {
-	let vec: vec3[f32] = (max(2.000000, 1.000000)).xxx;
-	let vec2: vec3[f32] = (min(2.000000, 1.000000)).xxx;
+	let v: vec3[f32] = (max(2.000000, 1.000000)).xxx;
+	let v2: vec3[f32] = (min(2.000000, 1.000000)).xxx;
 }
 )");
 

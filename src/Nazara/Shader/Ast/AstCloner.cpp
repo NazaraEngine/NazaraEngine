@@ -36,6 +36,20 @@ namespace Nz::ShaderAst
 		return PopStatement();
 	}
 
+	ExpressionValue<ExpressionType> AstCloner::CloneType(const ExpressionValue<ExpressionType>& exprType)
+	{
+		if (!exprType.HasValue())
+			return {};
+
+		if (exprType.IsExpression())
+			return CloneExpression(exprType.GetExpression());
+		else
+		{
+			assert(exprType.IsResultingValue());
+			return exprType.GetResultingValue();
+		}
+	}
+
 	StatementPtr AstCloner::Clone(BranchStatement& node)
 	{
 		auto clone = std::make_unique<BranchStatement>();
@@ -68,7 +82,7 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<DeclareConstStatement>();
 		clone->constIndex = node.constIndex;
 		clone->name = node.name;
-		clone->type = node.type;
+		clone->type = Clone(node.type);
 		clone->expression = CloneExpression(node.expression);
 
 		return clone;
@@ -86,7 +100,7 @@ namespace Nz::ShaderAst
 		{
 			auto& cloneVar = clone->externalVars.emplace_back();
 			cloneVar.name = var.name;
-			cloneVar.type = var.type;
+			cloneVar.type = Clone(var.type);
 			cloneVar.bindingIndex = Clone(var.bindingIndex);
 			cloneVar.bindingSet = Clone(var.bindingSet);
 		}
@@ -102,9 +116,16 @@ namespace Nz::ShaderAst
 		clone->entryStage = Clone(node.entryStage);
 		clone->funcIndex = node.funcIndex;
 		clone->name = node.name;
-		clone->parameters = node.parameters;
-		clone->returnType = node.returnType;
+		clone->returnType = Clone(node.returnType);
 		clone->varIndex = node.varIndex;
+
+		clone->parameters.reserve(node.parameters.size());
+		for (auto& parameter : node.parameters)
+		{
+			auto& cloneParam = clone->parameters.emplace_back();
+			cloneParam.name = parameter.name;
+			cloneParam.type = Clone(parameter.type);
+		}
 
 		clone->statements.reserve(node.statements.size());
 		for (auto& statement : node.statements)
@@ -119,7 +140,7 @@ namespace Nz::ShaderAst
 		clone->defaultValue = CloneExpression(node.defaultValue);
 		clone->optIndex = node.optIndex;
 		clone->optName = node.optName;
-		clone->optType = node.optType;
+		clone->optType = Clone(node.optType);
 
 		return clone;
 	}
@@ -137,7 +158,7 @@ namespace Nz::ShaderAst
 		{
 			auto& cloneMember = clone->description.members.emplace_back();
 			cloneMember.name = member.name;
-			cloneMember.type = member.type;
+			cloneMember.type = Clone(member.type);
 			cloneMember.builtin = Clone(member.builtin);
 			cloneMember.cond = Clone(member.cond);
 			cloneMember.locationIndex = Clone(member.locationIndex);
@@ -151,7 +172,7 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<DeclareVariableStatement>();
 		clone->varIndex = node.varIndex;
 		clone->varName = node.varName;
-		clone->varType = node.varType;
+		clone->varType = Clone(node.varType);
 		clone->initialExpression = CloneExpression(node.initialExpression);
 
 		return clone;
@@ -213,6 +234,14 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<ReturnStatement>();
 		clone->returnExpr = CloneExpression(node.returnExpr);
+
+		return clone;
+	}
+
+	StatementPtr AstCloner::Clone(ScopedStatement& node)
+	{
+		auto clone = std::make_unique<ScopedStatement>();
+		clone->statement = CloneStatement(node.statement);
 
 		return clone;
 	}
@@ -279,7 +308,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr AstCloner::Clone(CallFunctionExpression& node)
 	{
 		auto clone = std::make_unique<CallFunctionExpression>();
-		clone->targetFunction = node.targetFunction;
+		clone->targetFunction = CloneExpression(node.targetFunction);
 
 		clone->parameters.reserve(node.parameters.size());
 		for (auto& parameter : node.parameters)
@@ -309,7 +338,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr AstCloner::Clone(CastExpression& node)
 	{
 		auto clone = std::make_unique<CastExpression>();
-		clone->targetType = node.targetType;
+		clone->targetType = Clone(node.targetType);
 
 		std::size_t expressionCount = 0;
 		for (auto& expr : node.expressions)

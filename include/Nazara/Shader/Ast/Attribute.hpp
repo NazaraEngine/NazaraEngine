@@ -20,15 +20,15 @@ namespace Nz::ShaderAst
 	using ExpressionPtr = std::unique_ptr<Expression>;
 
 	template<typename T>
-	class AttributeValue
+	class ExpressionValue
 	{
 		public:
-			AttributeValue() = default;
-			AttributeValue(T value);
-			AttributeValue(ExpressionPtr expr);
-			AttributeValue(const AttributeValue&) = default;
-			AttributeValue(AttributeValue&&) = default;
-			~AttributeValue() = default;
+			ExpressionValue() = default;
+			ExpressionValue(T value);
+			ExpressionValue(ExpressionPtr expr);
+			ExpressionValue(const ExpressionValue&) = default;
+			ExpressionValue(ExpressionValue&&) noexcept = default;
+			~ExpressionValue() = default;
 
 			ExpressionPtr&& GetExpression() &&;
 			const ExpressionPtr& GetExpression() const &;
@@ -39,14 +39,14 @@ namespace Nz::ShaderAst
 
 			bool HasValue() const;
 
-			AttributeValue& operator=(const AttributeValue&) = default;
-			AttributeValue& operator=(AttributeValue&&) = default;
+			ExpressionValue& operator=(const ExpressionValue&) = default;
+			ExpressionValue& operator=(ExpressionValue&&) noexcept = default;
 
 		private:
 			std::variant<std::monostate, T, ExpressionPtr> m_value;
 	};
 
-	struct Attribute
+	struct ExprValue
 	{
 		using Param = std::optional<ExpressionPtr>;
 

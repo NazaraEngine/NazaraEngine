@@ -21,7 +21,7 @@ namespace Nz::ShaderAst
 	template<typename T> bool Compare(const T& lhs, const T& rhs);
 	template<typename T, std::size_t S> bool Compare(const std::array<T, S>& lhs, const std::array<T, S>& rhs);
 	template<typename T> bool Compare(const std::vector<T>& lhs, const std::vector<T>& rhs);
-	template<typename T> bool Compare(const AttributeValue<T>& lhs, const AttributeValue<T>& rhs);
+	template<typename T> bool Compare(const ExpressionValue<T>& lhs, const ExpressionValue<T>& rhs);
 	inline bool Compare(const BranchStatement::ConditionalStatement& lhs, const BranchStatement::ConditionalStatement& rhs);
 	inline bool Compare(const DeclareExternalStatement::ExternalVar& lhs, const DeclareExternalStatement::ExternalVar& rhs);
 	inline bool Compare(const DeclareFunctionStatement::Parameter& lhs, const DeclareFunctionStatement::Parameter& rhs);
@@ -59,6 +59,7 @@ namespace Nz::ShaderAst
 	inline bool Compare(const MultiStatement& lhs, const MultiStatement& rhs);
 	inline bool Compare(const NoOpStatement& lhs, const NoOpStatement& rhs);
 	inline bool Compare(const ReturnStatement& lhs, const ReturnStatement& rhs);
+	inline bool Compare(const ScopedStatement& lhs, const ScopedStatement& rhs);
 	inline bool Compare(const WhileStatement& lhs, const WhileStatement& rhs);
 }
 

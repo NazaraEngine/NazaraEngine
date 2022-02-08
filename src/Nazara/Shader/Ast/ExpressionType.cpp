@@ -9,11 +9,11 @@
 
 namespace Nz::ShaderAst
 {
-	ArrayType::ArrayType(const ArrayType& array)
+	ArrayType::ArrayType(const ArrayType& array) :
+	length(array.length)
 	{
 		assert(array.containedType);
 		containedType = std::make_unique<ContainedType>(*array.containedType);
-		length = Clone(array.length);
 	}
 
 	ArrayType& ArrayType::operator=(const ArrayType& array)
@@ -21,7 +21,7 @@ namespace Nz::ShaderAst
 		assert(array.containedType);
 
 		containedType = std::make_unique<ContainedType>(*array.containedType);
-		length = Clone(array.length);
+		length = array.length;
 
 		return *this;
 	}
@@ -34,9 +34,34 @@ namespace Nz::ShaderAst
 		if (containedType->type != rhs.containedType->type)
 			return false;
 
-		if (!Compare(length, rhs.length))
+		if (length != rhs.length)
 			return false;
 
 		return true;
+	}
+
+	
+	MethodType::MethodType(const MethodType& methodType) :
+	methodIndex(methodType.methodIndex)
+	{
+		assert(methodType.objectType);
+		objectType = std::make_unique<ContainedType>(*methodType.objectType);
+	}
+
+	MethodType& MethodType::operator=(const MethodType& methodType)
+	{
+		assert(methodType.objectType);
+
+		methodIndex = methodType.methodIndex;
+		objectType = std::make_unique<ContainedType>(*methodType.objectType);
+
+		return *this;
+	}
+
+	bool MethodType::operator==(const MethodType& rhs) const
+	{
+		assert(objectType);
+		assert(rhs.objectType);
+		return objectType->type == rhs.objectType->type && methodIndex == rhs.methodIndex;
 	}
 }

@@ -43,7 +43,7 @@ namespace Nz
 				AstRecursiveVisitor::Visit(node);
 
 				assert(currentFunction);
-				currentFunction->calledFunctions.UnboundedSet(std::get<std::size_t>(node.targetFunction));
+				currentFunction->calledFunctions.UnboundedSet(std::get<ShaderAst::FunctionType>(GetExpressionType(*node.targetFunction)).funcIndex);
 			}
 
 			void Visit(ShaderAst::ConditionalExpression& /*node*/) override
@@ -227,6 +227,24 @@ namespace Nz
 		throw std::runtime_error("unexpected ArrayType");
 	}
 
+	void GlslWriter::Append(ShaderAst::BuiltinEntry builtin)
+	{
+		switch (builtin)
+		{
+		case ShaderAst::BuiltinEntry::FragCoord:
+			Append("gl_FragCoord");
+			break;
+
+		case ShaderAst::BuiltinEntry::FragDepth:
+			Append("gl_FragDepth");
+			break;
+
+		case ShaderAst::BuiltinEntry::VertexPosition:
+			Append("gl_Position");
+			break;
+		}
+	}
+
 	void GlslWriter::Append(const ShaderAst::ExpressionType& type)
 	{
 		std::visit([&](auto&& arg)
@@ -235,27 +253,24 @@ namespace Nz
 		}, type);
 	}
 
-	void GlslWriter::Append(ShaderAst::BuiltinEntry builtin)
+	void GlslWriter::Append(const ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type)
 	{
-		switch (builtin)
-		{
-			case ShaderAst::BuiltinEntry::FragCoord:
-				Append("gl_FragCoord");
-				break;
+		Append(type.GetResultingValue());
+	}
 
-			case ShaderAst::BuiltinEntry::FragDepth:
-				Append("gl_FragDepth");
-				break;
-
-			case ShaderAst::BuiltinEntry::VertexPosition:
-				Append("gl_Position");
-				break;
-		}
+	void GlslWriter::Append(const ShaderAst::FunctionType& /*functionType*/)
+	{
+		throw std::runtime_error("unexpected function type");
 	}
 
 	void GlslWriter::Append(const ShaderAst::IdentifierType& /*identifierType*/)
 	{
 		throw std::runtime_error("unexpected identifier type");
+	}
+
+	void GlslWriter::Append(const ShaderAst::IntrinsicFunctionType& /*intrinsicFunctionType*/)
+	{
+		throw std::runtime_error("unexpected intrinsic function type");
 	}
 
 	void GlslWriter::Append(const ShaderAst::MatrixType& matrixType)
@@ -272,6 +287,11 @@ namespace Nz
 			Append("x");
 			Append(matrixType.rowCount);
 		}
+	}
+
+	void GlslWriter::Append(const ShaderAst::MethodType& methodType)
+	{
+		throw std::runtime_error("unexpected method type");
 	}
 
 	void GlslWriter::Append(ShaderAst::PrimitiveType type)
@@ -314,6 +334,11 @@ namespace Nz
 	{
 		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structType.structIndex);
 		Append(structDesc->name);
+	}
+
+	void GlslWriter::Append(const ShaderAst::Type& /*type*/)
+	{
+		throw std::runtime_error("unexpected Type");
 	}
 
 	void GlslWriter::Append(const ShaderAst::UniformType& /*uniformType*/)
@@ -386,7 +411,7 @@ namespace Nz
 
 			first = false;
 
-			AppendVariableDeclaration(parameter.type, parameter.name);
+			AppendVariableDeclaration(parameter.type.GetResultingValue(), parameter.name);
 		}
 		AppendLine((forward) ? ");" : ")");
 	}
@@ -506,13 +531,13 @@ namespace Nz
 	{
 		if (ShaderAst::IsArrayType(varType))
 		{
-			std::vector<const ShaderAst::AttributeValue<UInt32>*> lengths;
+			std::vector<UInt32> lengths;
 
 			const ShaderAst::ExpressionType* exprType = &varType;
 			while (ShaderAst::IsArrayType(*exprType))
 			{
 				const auto& arrayType = std::get<ShaderAst::ArrayType>(*exprType);
-				lengths.push_back(&arrayType.length);
+				lengths.push_back(arrayType.length);
 
 				exprType = &arrayType.containedType->type;
 			}
@@ -520,17 +545,8 @@ namespace Nz
 			assert(!ShaderAst::IsArrayType(*exprType));
 			Append(*exprType, " ", varName);
 
-			for (const auto* lengthAttribute : lengths)
-			{
-				Append("[");
-
-				if (lengthAttribute->IsResultingValue())
-					Append(lengthAttribute->GetResultingValue());
-				else
-					lengthAttribute->GetExpression()->Visit(*this);
-
-				Append("]");
-			}
+			for (UInt32 lengthAttribute : lengths)
+				Append("[", lengthAttribute, "]");
 		}
 		else
 			Append(varType, " ", varName);
@@ -582,8 +598,8 @@ namespace Nz
 				const std::string& varName = parameter.name;
 				RegisterVariable(*node.varIndex, varName);
 
-				assert(IsStructType(parameter.type));
-				std::size_t structIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
+				assert(IsStructType(parameter.type.GetResultingValue()));
+				std::size_t structIndex = std::get<ShaderAst::StructType>(parameter.type.GetResultingValue()).structIndex;
 				const ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
 
 				AppendLine(structDesc->name, " ", varName, ";");
@@ -631,7 +647,7 @@ namespace Nz
 					Append("layout(location = ");
 					Append(member.locationIndex.GetResultingValue());
 					Append(") ", keyword, " ");
-					AppendVariableDeclaration(member.type, targetPrefix + member.name);
+					AppendVariableDeclaration(member.type.GetResultingValue(), targetPrefix + member.name);
 					AppendLine(";");
 
 					fields.push_back({
@@ -651,9 +667,9 @@ namespace Nz
 		{
 			assert(node.parameters.size() == 1);
 			auto& parameter = node.parameters.front();
-			assert(std::holds_alternative<ShaderAst::StructType>(parameter.type));
+			assert(std::holds_alternative<ShaderAst::StructType>(parameter.type.GetResultingValue()));
 
-			std::size_t inputStructIndex = std::get<ShaderAst::StructType>(parameter.type).structIndex;
+			std::size_t inputStructIndex = std::get<ShaderAst::StructType>(parameter.type.GetResultingValue()).structIndex;
 			inputStruct = Retrieve(m_currentState->structs, inputStructIndex);
 
 			AppendCommentSection("Inputs");
@@ -666,10 +682,10 @@ namespace Nz
 			AppendLine();
 		}
 
-		if (!IsNoType(node.returnType))
+		if (node.returnType.HasValue())
 		{
-			assert(std::holds_alternative<ShaderAst::StructType>(node.returnType));
-			std::size_t outputStructIndex = std::get<ShaderAst::StructType>(node.returnType).structIndex;
+			assert(std::holds_alternative<ShaderAst::StructType>(node.returnType.GetResultingValue()));
+			std::size_t outputStructIndex = std::get<ShaderAst::StructType>(node.returnType.GetResultingValue()).structIndex;
 
 			const ShaderAst::StructDescription* outputStruct = Retrieve(m_currentState->structs, outputStructIndex);
 
@@ -688,6 +704,18 @@ namespace Nz
 	{
 		assert(m_currentState->variableNames.find(varIndex) == m_currentState->variableNames.end());
 		m_currentState->variableNames.emplace(varIndex, std::move(varName));
+	}
+
+	void GlslWriter::ScopeVisit(ShaderAst::Statement& node)
+	{
+		if (node.GetType() != ShaderAst::NodeType::ScopedStatement)
+		{
+			EnterScope();
+			node.Visit(*this);
+			LeaveScope(true);
+		}
+		else
+			node.Visit(*this);
 	}
 
 	void GlslWriter::Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired)
@@ -722,12 +750,10 @@ namespace Nz
 		assert(!IsStructType(exprType));
 
 		// Array access
-		for (ShaderAst::ExpressionPtr& expr : node.indices)
-		{
-			Append("[");
-			Visit(expr);
-			Append("]");
-		}
+		assert(node.indices.size() == 1);
+		Append("[");
+		Visit(node.indices.front());
+		Append("]");
 	}
 
 	void GlslWriter::Visit(ShaderAst::AssignExpression& node)
@@ -775,8 +801,8 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::CallFunctionExpression& node)
 	{
-		assert(std::holds_alternative<std::size_t>(node.targetFunction));
-		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, std::get<std::size_t>(node.targetFunction)).name;
+		std::size_t functionIndex = std::get<ShaderAst::FunctionType>(GetExpressionType(*node.targetFunction)).funcIndex;
+		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, functionIndex).name;
 
 		Append(targetName, "(");
 		for (std::size_t i = 0; i < node.parameters.size(); ++i)
@@ -946,9 +972,7 @@ namespace Nz
 			statement.condition->Visit(*this);
 			AppendLine(")");
 
-			EnterScope();
-			statement.statement->Visit(*this);
-			LeaveScope();
+			ScopeVisit(*statement.statement);
 
 			first = false;
 		}
@@ -957,9 +981,7 @@ namespace Nz
 		{
 			AppendLine("else");
 
-			EnterScope();
-			node.elseStatement->Visit(*this);
-			LeaveScope();
+			ScopeVisit(*node.elseStatement);
 		}
 	}
 
@@ -976,13 +998,10 @@ namespace Nz
 		for (const auto& externalVar : node.externalVars)
 		{
 			bool isStd140 = false;
-			if (IsUniformType(externalVar.type))
+			if (IsUniformType(externalVar.type.GetResultingValue()))
 			{
-				auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type);
-				assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
-
-				std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
-				ShaderAst::StructDescription* structInfo = Retrieve(m_currentState->structs, structIndex);
+				auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type.GetResultingValue());
+				ShaderAst::StructDescription* structInfo = Retrieve(m_currentState->structs, uniform.containedType.structIndex);
 				if (structInfo->layout.HasValue())
 					isStd140 = structInfo->layout.GetResultingValue() == StructLayout::Std140;
 			}
@@ -1018,18 +1037,15 @@ namespace Nz
 
 			Append("uniform ");
 
-			if (IsUniformType(externalVar.type))
+			if (IsUniformType(externalVar.type.GetResultingValue()))
 			{
 				Append("_NzBinding_");
 				AppendLine(externalVar.name);
 
 				EnterScope();
 				{
-					auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type);
-					assert(std::holds_alternative<ShaderAst::StructType>(uniform.containedType));
-
-					std::size_t structIndex = std::get<ShaderAst::StructType>(uniform.containedType).structIndex;
-					auto& structDesc = Retrieve(m_currentState->structs, structIndex);
+					auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type.GetResultingValue());
+					auto& structDesc = Retrieve(m_currentState->structs, uniform.containedType.structIndex);
 
 					bool first = true;
 					for (const auto& member : structDesc->members)
@@ -1042,7 +1058,7 @@ namespace Nz
 
 						first = false;
 
-						AppendVariableDeclaration(member.type, member.name);
+						AppendVariableDeclaration(member.type.GetResultingValue(), member.name);
 						Append(";");
 					}
 				}
@@ -1052,11 +1068,11 @@ namespace Nz
 				Append(externalVar.name);
 			}
 			else
-				AppendVariableDeclaration(externalVar.type, externalVar.name);
+				AppendVariableDeclaration(externalVar.type.GetResultingValue(), externalVar.name);
 
 			AppendLine(";");
 
-			if (IsUniformType(externalVar.type))
+			if (IsUniformType(externalVar.type.GetResultingValue()))
 				AppendLine();
 
 			RegisterVariable(varIndex++, externalVar.name);
@@ -1138,7 +1154,7 @@ namespace Nz
 
 				first = false;
 
-				AppendVariableDeclaration(member.type, member.name);
+				AppendVariableDeclaration(member.type.GetResultingValue(), member.name);
 				Append(";");
 			}
 		}
@@ -1151,7 +1167,7 @@ namespace Nz
 		assert(node.varIndex);
 		RegisterVariable(*node.varIndex, node.varName);
 
-		AppendVariableDeclaration(node.varType, node.varName);
+		AppendVariableDeclaration(node.varType.GetResultingValue(), node.varName);
 		if (node.initialExpression)
 		{
 			Append(" = ");
@@ -1239,15 +1255,20 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Visit(ShaderAst::ScopedStatement& node)
+	{
+		EnterScope();
+		node.statement->Visit(*this);
+		LeaveScope(true);
+	}
+
 	void GlslWriter::Visit(ShaderAst::WhileStatement& node)
 	{
 		Append("while (");
 		node.condition->Visit(*this);
 		AppendLine(")");
 
-		EnterScope();
-		node.body->Visit(*this);
-		LeaveScope();
+		ScopeVisit(*node.body);
 	}
 
 	bool GlslWriter::HasExplicitBinding(ShaderAst::StatementPtr& shader)

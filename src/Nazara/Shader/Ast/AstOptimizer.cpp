@@ -818,13 +818,13 @@ namespace Nz::ShaderAst
 		}
 
 		ExpressionPtr optimized;
-		if (IsPrimitiveType(node.targetType))
+		if (IsPrimitiveType(node.targetType.GetResultingValue()))
 		{
 			if (expressionCount == 1 && expressions.front()->GetType() == NodeType::ConstantValueExpression)
 			{
 				const ConstantValueExpression& constantExpr = static_cast<const ConstantValueExpression&>(*expressions.front());
 
-				switch (std::get<PrimitiveType>(node.targetType))
+				switch (std::get<PrimitiveType>(node.targetType.GetResultingValue()))
 				{
 					case PrimitiveType::Boolean: optimized = PropagateSingleValueCast<bool>(constantExpr); break;
 					case PrimitiveType::Float32: optimized = PropagateSingleValueCast<float>(constantExpr); break;
@@ -833,9 +833,9 @@ namespace Nz::ShaderAst
 				}
 			}
 		}
-		else if (IsVectorType(node.targetType))
+		else if (IsVectorType(node.targetType.GetResultingValue()))
 		{
-			const auto& vecType = std::get<VectorType>(node.targetType);
+			const auto& vecType = std::get<VectorType>(node.targetType.GetResultingValue());
 
 			// Decompose vector into values (cast(vec3, float) => cast(float, float, float, float))
 			std::vector<ConstantValue> constantValues;
@@ -916,7 +916,7 @@ namespace Nz::ShaderAst
 		if (optimized)
 			return optimized;
 		
-		auto cast = ShaderBuilder::Cast(node.targetType, std::move(expressions));
+		auto cast = ShaderBuilder::Cast(node.targetType.GetResultingValue(), std::move(expressions));
 		cast->cachedExpressionType = node.cachedExpressionType;
 
 		return cast;
@@ -946,7 +946,7 @@ namespace Nz::ShaderAst
 				if (statements.empty())
 				{
 					// First condition is true, dismiss the branch
-					return AstCloner::Clone(*condStatement.statement);
+					return Unscope(AstCloner::Clone(*condStatement.statement));
 				}
 				else
 				{
@@ -967,7 +967,7 @@ namespace Nz::ShaderAst
 		{
 			// All conditions have been removed, replace by else statement or no-op
 			if (node.elseStatement)
-				return AstCloner::Clone(*node.elseStatement);
+				return Unscope(AstCloner::Clone(*node.elseStatement));
 			else
 				return ShaderBuilder::NoOp();
 		}
@@ -1242,5 +1242,16 @@ namespace Nz::ShaderAst
 			optimized = CCType{}(v1, v2, v3, v4);
 
 		return optimized;
+	}
+
+
+	StatementPtr AstOptimizer::Unscope(StatementPtr node)
+	{
+		assert(node);
+
+		if (node->GetType() == NodeType::ScopedStatement)
+			return std::move(static_cast<ScopedStatement&>(*node).statement);
+		else
+			return node;
 	}
 }

@@ -11,6 +11,7 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/AstTypes.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -19,6 +20,8 @@ namespace Nz::ShaderAst
 {
 	class NAZARA_SHADER_API SanitizeVisitor final : AstCloner
 	{
+		friend class AstTypeExpressionVisitor;
+
 		public:
 			struct Options;
 
@@ -55,6 +58,7 @@ namespace Nz::ShaderAst
 			struct Identifier;
 
 			using AstCloner::CloneExpression;
+			ExpressionValue<ExpressionType> CloneType(const ExpressionValue<ExpressionType>& exprType) override;
 
 			ExpressionPtr Clone(AccessIdentifierExpression& node) override;
 			ExpressionPtr Clone(AccessIndexExpression& node) override;
@@ -84,50 +88,58 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(ForStatement& node) override;
 			StatementPtr Clone(ForEachStatement& node) override;
 			StatementPtr Clone(MultiStatement& node) override;
+			StatementPtr Clone(ScopedStatement& node) override;
 			StatementPtr Clone(WhileStatement& node) override;
 
 			const Identifier* FindIdentifier(const std::string_view& identifierName) const;
+			template<typename F> const Identifier* FindIdentifier(const std::string_view& identifierName, F&& functor) const;
+			TypeParameter FindTypeParameter(const std::string_view& identifierName) const;
 
-			Expression& MandatoryExpr(const ExpressionPtr& node);
-			Statement& MandatoryStatement(const StatementPtr& node);
-			void TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right);
-			void TypeMustMatch(const ExpressionType& left, const ExpressionType& right);
+			Expression& MandatoryExpr(const ExpressionPtr& node) const;
+			Statement& MandatoryStatement(const StatementPtr& node) const;
 
 			void PushScope();
 			void PopScope();
 
 			ExpressionPtr CacheResult(ExpressionPtr expression);
 
-			template<typename T> const T& ComputeAttributeValue(AttributeValue<T>& attribute);
-			ConstantValue ComputeConstantValue(Expression& expr);
-			template<typename T> std::unique_ptr<T> Optimize(T& node);
-
-			std::size_t DeclareFunction(DeclareFunctionStatement& funcDecl);
+			ConstantValue ComputeConstantValue(Expression& expr) const;
+			template<typename T> const T& ComputeExprValue(ExpressionValue<T>& attribute) const;
+			template<typename T> std::unique_ptr<T> Optimize(T& node) const;
 
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
+			void RegisterBuiltin();
 			std::size_t RegisterConstant(std::string name, ConstantValue value);
-			FunctionData& RegisterFunction(std::size_t functionIndex);
+			std::size_t RegisterFunction(std::string name, FunctionData funcData);
 			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type);
 			std::size_t RegisterStruct(std::string name, StructDescription* description);
+			std::size_t RegisterType(std::string name, ExpressionType expressionType);
+			std::size_t RegisterType(std::string name, PartialType partialType);
 			std::size_t RegisterVariable(std::string name, ExpressionType type);
 
 			void ResolveFunctions();
-
+			const ExpressionPtr& ResolveCondExpression(ConditionalExpression& node);
 			std::size_t ResolveStruct(const ExpressionType& exprType);
 			std::size_t ResolveStruct(const IdentifierType& identifierType);
 			std::size_t ResolveStruct(const StructType& structType);
 			std::size_t ResolveStruct(const UniformType& uniformType);
 			ExpressionType ResolveType(const ExpressionType& exprType);
+			ExpressionType ResolveType(const ExpressionValue<ExpressionType>& exprTypeValue);
 
 			void SanitizeIdentifier(std::string& identifier);
+
+			void TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right) const;
+			void TypeMustMatch(const ExpressionType& left, const ExpressionType& right) const;
+
+			StatementPtr Unscope(StatementPtr node);
 
 			void Validate(WhileStatement& node);
 
 			void Validate(AccessIndexExpression& node);
 			void Validate(AssignExpression& node);
 			void Validate(BinaryExpression& node);
-			void Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration);
+			void Validate(CallFunctionExpression& node);
 			void Validate(CastExpression& node);
 			void Validate(DeclareVariableStatement& node);
 			void Validate(IntrinsicExpression& node);
@@ -141,7 +153,6 @@ namespace Nz::ShaderAst
 				Bitset<> calledByFunctions;
 				DeclareFunctionStatement* node;
 				FunctionFlags flags;
-				bool defined = false;
 			};
 
 			struct Identifier
@@ -153,6 +164,7 @@ namespace Nz::ShaderAst
 					Function,
 					Intrinsic,
 					Struct,
+					Type,
 					Variable
 				};
 

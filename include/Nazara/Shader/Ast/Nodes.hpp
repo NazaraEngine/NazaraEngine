@@ -107,7 +107,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		std::variant<std::string, std::size_t> targetFunction;
+		ExpressionPtr targetFunction;
 		std::vector<ExpressionPtr> parameters;
 	};
 
@@ -126,7 +126,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionType targetType;
+		ExpressionValue<ExpressionType> targetType;
 		std::array<ExpressionPtr, 4> expressions;
 	};
 
@@ -249,10 +249,10 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		ExpressionValue<ExpressionType> type;
 		std::optional<std::size_t> constIndex;
 		std::string name;
 		ExpressionPtr expression;
-		ExpressionType type;
 	};
 
 	struct NAZARA_SHADER_API DeclareExternalStatement : Statement
@@ -262,13 +262,13 @@ namespace Nz::ShaderAst
 
 		struct ExternalVar
 		{
-			AttributeValue<UInt32> bindingIndex;
-			AttributeValue<UInt32> bindingSet;
+			ExpressionValue<UInt32> bindingIndex;
+			ExpressionValue<UInt32> bindingSet;
+			ExpressionValue<ExpressionType> type;
 			std::string name;
-			ExpressionType type;
 		};
 
-		AttributeValue<UInt32> bindingSet;
+		ExpressionValue<UInt32> bindingSet;
 		std::optional<std::size_t> varIndex;
 		std::vector<ExternalVar> externalVars;
 	};
@@ -281,18 +281,18 @@ namespace Nz::ShaderAst
 		struct Parameter
 		{
 			std::string name;
-			ExpressionType type;
+			ExpressionValue<ExpressionType> type;
 		};
 
-		AttributeValue<DepthWriteMode> depthWrite;
-		AttributeValue<bool> earlyFragmentTests;
-		AttributeValue<ShaderStageType> entryStage;
+		ExpressionValue<DepthWriteMode> depthWrite;
+		ExpressionValue<bool> earlyFragmentTests;
+		ExpressionValue<ShaderStageType> entryStage;
+		ExpressionValue<ExpressionType> returnType;
 		std::optional<std::size_t> funcIndex;
 		std::optional<std::size_t> varIndex;
 		std::string name;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
-		ExpressionType returnType;
 	};
 
 	struct NAZARA_SHADER_API DeclareOptionStatement : Statement
@@ -303,7 +303,7 @@ namespace Nz::ShaderAst
 		std::optional<std::size_t> optIndex;
 		std::string optName;
 		ExpressionPtr defaultValue;
-		ExpressionType optType;
+		ExpressionValue<ExpressionType> optType;
 	};
 
 	struct NAZARA_SHADER_API DeclareStructStatement : Statement
@@ -323,7 +323,7 @@ namespace Nz::ShaderAst
 		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr initialExpression;
-		ExpressionType varType;
+		ExpressionValue<ExpressionType> varType;
 	};
 
 	struct NAZARA_SHADER_API DiscardStatement : Statement
@@ -345,7 +345,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		AttributeValue<LoopUnroll> unroll;
+		ExpressionValue<LoopUnroll> unroll;
 		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr fromExpr;
@@ -359,7 +359,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		AttributeValue<LoopUnroll> unroll;
+		ExpressionValue<LoopUnroll> unroll;
 		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr expression;
@@ -388,12 +388,20 @@ namespace Nz::ShaderAst
 		ExpressionPtr returnExpr;
 	};
 
+	struct NAZARA_SHADER_API ScopedStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		StatementPtr statement;
+	};
+
 	struct NAZARA_SHADER_API WhileStatement : Statement
 	{
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		AttributeValue<LoopUnroll> unroll;
+		ExpressionValue<LoopUnroll> unroll;
 		ExpressionPtr condition;
 		StatementPtr body;
 	};

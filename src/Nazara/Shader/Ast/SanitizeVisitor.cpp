@@ -6,6 +6,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
@@ -41,18 +42,31 @@ namespace Nz::ShaderAst
 			FunctionFlags flags;
 		};
 
+		struct PendingFunction
+		{
+			DeclareFunctionStatement* cloneNode;
+			const DeclareFunctionStatement* node;
+		};
+
+		struct Scope
+		{
+			std::size_t previousSize;
+		};
+
 		std::size_t nextOptionIndex = 0;
 		Options options;
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::unordered_set<std::string> declaredExternalVar;
 		std::unordered_set<UInt64> usedBindingIndexes;
-		std::vector<Identifier> identifiersInScope;
 		std::vector<ConstantValue> constantValues;
 		std::vector<FunctionData> functions;
+		std::vector<Identifier> identifiersInScope;
 		std::vector<IntrinsicType> intrinsics;
+		std::vector<PendingFunction> pendingFunctions;
 		std::vector<StructDescription*> structs;
+		std::vector<std::variant<ExpressionType, PartialType>> types;
 		std::vector<ExpressionType> variableTypes;
-		std::vector<std::size_t> scopeSizes;
+		std::vector<Scope> scopes;
 		CurrentFunctionData* currentFunction = nullptr;
 		std::vector<StatementPtr>* currentStatementList = nullptr;
 	};
@@ -69,41 +83,9 @@ namespace Nz::ShaderAst
 
 		PushScope(); //< Global scope
 		{
-			RegisterIntrinsic("cross", IntrinsicType::CrossProduct);
-			RegisterIntrinsic("dot", IntrinsicType::DotProduct);
-			RegisterIntrinsic("exp", IntrinsicType::Exp);
-			RegisterIntrinsic("length", IntrinsicType::Length);
-			RegisterIntrinsic("max", IntrinsicType::Max);
-			RegisterIntrinsic("min", IntrinsicType::Min);
-			RegisterIntrinsic("normalize", IntrinsicType::Normalize);
-			RegisterIntrinsic("pow", IntrinsicType::Pow);
-			RegisterIntrinsic("reflect", IntrinsicType::Reflect);
+			RegisterBuiltin();
 
-			// Collect function name and their types
-			if (statement.GetType() == NodeType::MultiStatement)
-			{
-				const MultiStatement& multiStatement = static_cast<const MultiStatement&>(statement);
-				for (auto& statementPtr : multiStatement.statements)
-				{
-					if (statementPtr->GetType() == NodeType::DeclareFunctionStatement)
-						DeclareFunction(static_cast<DeclareFunctionStatement&>(*statementPtr));
-					else if (statementPtr->GetType() == NodeType::ConditionalStatement)
-					{
-						const ConditionalStatement& condStatement = static_cast<const ConditionalStatement&>(*statementPtr);
-						if (condStatement.statement->GetType() == NodeType::DeclareFunctionStatement)
-							DeclareFunction(static_cast<DeclareFunctionStatement&>(*condStatement.statement));
-					}
-				}
-			}
-			else if (statement.GetType() == NodeType::DeclareFunctionStatement)
-				DeclareFunction(static_cast<DeclareFunctionStatement&>(statement));
-			else if (statement.GetType() == NodeType::ConditionalStatement)
-			{
-				const ConditionalStatement& condStatement = static_cast<const ConditionalStatement&>(statement);
-				if (condStatement.statement->GetType() == NodeType::DeclareFunctionStatement)
-					DeclareFunction(static_cast<DeclareFunctionStatement&>(*condStatement.statement));
-			}
-
+			// First pass, evaluate everything except function code
 			try
 			{
 				clone = AstCloner::Clone(statement);
@@ -114,6 +96,13 @@ namespace Nz::ShaderAst
 					throw std::runtime_error(err.errMsg);
 
 				*error = err.errMsg;
+			}
+			catch (const std::runtime_error& err)
+			{
+				if (!error)
+					throw;
+
+				*error = err.what();
 			}
 
 			ResolveFunctions();
@@ -152,6 +141,14 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	ExpressionValue<ExpressionType> SanitizeVisitor::CloneType(const ExpressionValue<ExpressionType>& exprType)
+	{
+		if (!exprType.HasValue())
+			return {};
+
+		return ResolveType(exprType);
+	}
+
 	ExpressionPtr SanitizeVisitor::Clone(AccessIdentifierExpression& node)
 	{
 		if (node.identifiers.empty())
@@ -164,7 +161,28 @@ namespace Nz::ShaderAst
 				throw AstError{ "empty identifier" };
 
 			const ExpressionType& exprType = GetExpressionType(*indexedExpr);
-			if (IsStructType(exprType))
+			// TODO: Add proper support for methods
+			if (IsSamplerType(exprType))
+			{
+				if (identifier == "Sample")
+				{
+					// TODO: Add a MethodExpression?
+					auto identifierExpr = std::make_unique<AccessIdentifierExpression>();
+					identifierExpr->expr = std::move(indexedExpr);
+					identifierExpr->identifiers.push_back(identifier);
+
+					MethodType methodType;
+					methodType.methodIndex = 0; //< FIXME
+					methodType.objectType = std::make_unique<ContainedType>();
+					methodType.objectType->type = exprType;
+
+					identifierExpr->cachedExpressionType = std::move(methodType);
+					indexedExpr = std::move(identifierExpr);
+				}
+				else
+					throw AstError{ "type has no method " + identifier };
+			}
+			else if (IsStructType(exprType))
 			{
 				std::size_t structIndex = ResolveStruct(exprType);
 				assert(structIndex < m_context->structs.size());
@@ -211,20 +229,12 @@ namespace Nz::ShaderAst
 				else
 				{
 					// Transform to AccessIndexExpression
-					AccessIndexExpression* accessIndexPtr;
-					if (indexedExpr->GetType() != NodeType::AccessIndexExpression)
-					{
-						std::unique_ptr<AccessIndexExpression> accessIndex = std::make_unique<AccessIndexExpression>();
-						accessIndex->expr = std::move(indexedExpr);
+					std::unique_ptr<AccessIndexExpression> accessIndex = std::make_unique<AccessIndexExpression>();
+					accessIndex->expr = std::move(indexedExpr);
+					accessIndex->indices.push_back(ShaderBuilder::Constant(fieldIndex));
+					accessIndex->cachedExpressionType = ResolveType(fieldPtr->type);
 
-						accessIndexPtr = accessIndex.get();
-						indexedExpr = std::move(accessIndex);
-					}
-					else
-						accessIndexPtr = static_cast<AccessIndexExpression*>(indexedExpr.get());
-
-					accessIndexPtr->indices.push_back(ShaderBuilder::Constant(fieldIndex));
-					accessIndexPtr->cachedExpressionType = ResolveType(fieldPtr->type);
+					indexedExpr = std::move(accessIndex);
 				}
 			}
 			else if (IsPrimitiveType(exprType) || IsVectorType(exprType))
@@ -255,7 +265,7 @@ namespace Nz::ShaderAst
 						baseType = std::get<PrimitiveType>(exprType);
 
 					auto cast = std::make_unique<CastExpression>();
-					cast->targetType = VectorType{ swizzleComponentCount, baseType };
+					cast->targetType = ExpressionType{ VectorType{ swizzleComponentCount, baseType } };
 					for (std::size_t j = 0; j < swizzleComponentCount; ++j)
 						cast->expressions[j] = CloneExpression(indexedExpr);
 
@@ -319,67 +329,78 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(CallFunctionExpression& node)
 	{
-		if (!m_context->currentFunction)
-			throw AstError{ "function calls must happen inside a function" };
+		ExpressionPtr targetExpr = CloneExpression(MandatoryExpr(node.targetFunction));
+		const ExpressionType& targetExprType = GetExpressionType(*targetExpr);
 
-		auto clone = std::make_unique<CallFunctionExpression>();
-
-		clone->parameters.reserve(node.parameters.size());
-		for (const auto& parameter : node.parameters)
-			clone->parameters.push_back(CloneExpression(parameter));
-
-		std::size_t targetFuncIndex;
-		if (std::holds_alternative<std::string>(node.targetFunction))
+		if (IsFunctionType(targetExprType))
 		{
-			const std::string& functionName = std::get<std::string>(node.targetFunction);
+			if (!m_context->currentFunction)
+				throw AstError{ "function calls must happen inside a function" };
 
-			const Identifier* identifier = FindIdentifier(functionName);
-			if (identifier)
-			{
-				if (identifier->type == Identifier::Type::Intrinsic)
-				{
-					// Intrinsic function call
-					std::vector<ExpressionPtr> parameters;
-					parameters.reserve(node.parameters.size());
+			std::size_t targetFuncIndex = std::get<FunctionType>(targetExprType).funcIndex;
 
-					for (const auto& param : node.parameters)
-						parameters.push_back(CloneExpression(param));
+			auto clone = std::make_unique<CallFunctionExpression>();
+			clone->targetFunction = std::move(targetExpr);
 
-					auto intrinsic = ShaderBuilder::Intrinsic(m_context->intrinsics[identifier->index], std::move(parameters));
-					Validate(*intrinsic);
+			clone->parameters.reserve(node.parameters.size());
+			for (const auto& parameter : node.parameters)
+				clone->parameters.push_back(CloneExpression(parameter));
 
-					return intrinsic;
-				}
-				else
-				{
-					// Regular function call
-					if (identifier->type != Identifier::Type::Function)
-						throw AstError{ "function expected" };
+			m_context->currentFunction->calledFunctions.UnboundedSet(targetFuncIndex);
 
-					clone->targetFunction = identifier->index;
-					targetFuncIndex = identifier->index;
-				}
-			}
-			else
-			{
-				// Identifier not found, maybe the function is declared later
-				auto it = std::find_if(m_context->functions.begin(), m_context->functions.end(), [&](const auto& funcData) { return funcData.node->name == functionName; });
-				if (it == m_context->functions.end())
-					throw AstError{ "function " + functionName + " does not exist" };
+			Validate(*clone);
 
-				targetFuncIndex = std::distance(m_context->functions.begin(), it);
+			return clone;
+		}
+		else if (IsIntrinsicFunctionType(targetExprType))
+		{
+			std::vector<ExpressionPtr> parameters;
+			parameters.reserve(node.parameters.size());
 
-				clone->targetFunction = targetFuncIndex;
-			}
+			for (const auto& param : node.parameters)
+				parameters.push_back(CloneExpression(param));
+
+			auto intrinsic = ShaderBuilder::Intrinsic(std::get<IntrinsicFunctionType>(targetExprType).intrinsic, std::move(parameters));
+			Validate(*intrinsic);
+
+			return intrinsic;
+		}
+		else if (IsMethodType(targetExprType))
+		{
+			const MethodType& methodType = std::get<MethodType>(targetExprType);
+
+			std::vector<ExpressionPtr> parameters;
+			parameters.reserve(node.parameters.size() + 1);
+
+			// TODO: Add MethodExpression
+			assert(targetExpr->GetType() == NodeType::AccessIdentifierExpression);
+
+			parameters.push_back(std::move(static_cast<AccessIdentifierExpression&>(*targetExpr).expr));
+			for (const auto& param : node.parameters)
+				parameters.push_back(CloneExpression(param));
+
+			assert(IsSamplerType(methodType.objectType->type) && methodType.methodIndex == 0);
+			auto intrinsic = ShaderBuilder::Intrinsic(IntrinsicType::SampleTexture, std::move(parameters));
+			Validate(*intrinsic);
+
+			return intrinsic;
 		}
 		else
-			targetFuncIndex = std::get<std::size_t>(node.targetFunction);
+		{
+			// Calling a type - vec3[f32](0.0, 1.0, 2.0) - it's a cast
+			auto clone = std::make_unique<CastExpression>();
+			clone->targetType = std::move(targetExprType);
 
-		m_context->currentFunction->calledFunctions.UnboundedSet(targetFuncIndex);
+			if (node.parameters.size() > clone->expressions.size())
+				throw AstError{ "component count doesn't match required component count" };
 
-		Validate(*clone, m_context->functions[targetFuncIndex].node);
+			for (std::size_t i = 0; i < node.parameters.size(); ++i)
+				clone->expressions[i] = CloneExpression(node.parameters[i]);
 
-		return clone;
+			Validate(*clone);
+
+			return Clone(*clone); //< Necessary because cast has to be modified (FIXME)
+		}
 	}
 
 	ExpressionPtr SanitizeVisitor::Clone(CastExpression& node)
@@ -387,9 +408,11 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<CastExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
-		if (m_context->options.removeMatrixCast && IsMatrixType(clone->targetType))
+		const ExpressionType& targetType = clone->targetType.GetResultingValue();
+
+		if (m_context->options.removeMatrixCast && IsMatrixType(targetType))
 		{
-			const MatrixType& targetMatrixType = std::get<MatrixType>(clone->targetType);
+			const MatrixType& targetMatrixType = std::get<MatrixType>(targetType);
 
 			const ShaderAst::ExpressionType& frontExprType = GetExpressionType(*clone->expressions.front());
 			bool isMatrixCast = IsMatrixType(frontExprType);
@@ -399,7 +422,7 @@ namespace Nz::ShaderAst
 				return std::move(clone->expressions.front());
 			}
 
-			auto variableDeclaration = ShaderBuilder::DeclareVariable("temp", clone->targetType); //< Validation will prevent name-clash if required
+			auto variableDeclaration = ShaderBuilder::DeclareVariable("temp", targetType); //< Validation will prevent name-clash if required
 			Validate(*variableDeclaration);
 
 			std::size_t variableIndex = *variableDeclaration->varIndex;
@@ -409,7 +432,7 @@ namespace Nz::ShaderAst
 			for (std::size_t i = 0; i < targetMatrixType.columnCount; ++i)
 			{
 				// temp[i]
-				auto columnExpr = ShaderBuilder::AccessIndex(ShaderBuilder::Variable(variableIndex, clone->targetType), ShaderBuilder::Constant(UInt32(i)));
+				auto columnExpr = ShaderBuilder::AccessIndex(ShaderBuilder::Variable(variableIndex, targetType), ShaderBuilder::Constant(UInt32(i)));
 				Validate(*columnExpr);
 
 				// vector expression
@@ -441,9 +464,9 @@ namespace Nz::ShaderAst
 						std::array<ExpressionPtr, 4> expressions;
 						expressions[0] = std::move(vectorExpr);
 						for (std::size_t j = 0; j < targetMatrixType.rowCount - vectorComponentCount; ++j)
-							expressions[j + 1] = ShaderBuilder::Constant(targetMatrixType.type, (i == j + vectorComponentCount) ? 1 : 0); //< set 1 to diagonal
+							expressions[j + 1] = ShaderBuilder::Constant(ExpressionType{ targetMatrixType.type }, (i == j + vectorComponentCount) ? 1 : 0); //< set 1 to diagonal
 
-						vecCast = ShaderBuilder::Cast(VectorType{ targetMatrixType.rowCount, targetMatrixType.type }, std::move(expressions));
+						vecCast = ShaderBuilder::Cast(ExpressionType{ VectorType{ targetMatrixType.rowCount, targetMatrixType.type } }, std::move(expressions));
 						Validate(*vecCast);
 
 						castExpr = std::move(vecCast);
@@ -466,7 +489,7 @@ namespace Nz::ShaderAst
 				m_context->currentStatementList->emplace_back(ShaderBuilder::ExpressionStatement(ShaderBuilder::Assign(AssignType::Simple, std::move(columnExpr), std::move(castExpr))));
 			}
 
-			return ShaderBuilder::Variable(variableIndex, clone->targetType);
+			return ShaderBuilder::Variable(variableIndex, targetType);
 		}
 
 		return clone;
@@ -474,18 +497,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(ConditionalExpression& node)
 	{
-		MandatoryExpr(node.condition);
-		MandatoryExpr(node.truePath);
-		MandatoryExpr(node.falsePath);
-
-		ConstantValue conditionValue = ComputeConstantValue(*AstCloner::Clone(*node.condition));
-		if (GetExpressionType(conditionValue) != ExpressionType{ PrimitiveType::Boolean })
-			throw AstError{ "expected a boolean value" };
-
-		if (std::get<bool>(conditionValue))
-			return AstCloner::Clone(*node.truePath);
-		else
-			return AstCloner::Clone(*node.falsePath);
+		return AstCloner::Clone(*ResolveCondExpression(node));
 	}
 
 	ExpressionPtr SanitizeVisitor::Clone(ConstantValueExpression& node)
@@ -530,6 +542,41 @@ namespace Nz::ShaderAst
 				return Clone(constantExpr); //< Turn ConstantExpression into ConstantValueExpression
 			}
 
+			case Identifier::Type::Function:
+			{
+				auto clone = AstCloner::Clone(node);
+				clone->cachedExpressionType = FunctionType{ identifier->index };
+
+				return clone;
+			}
+
+			case Identifier::Type::Intrinsic:
+			{
+				assert(identifier->index < m_context->intrinsics.size());
+				IntrinsicType intrinsicType = m_context->intrinsics[identifier->index];
+
+				auto clone = AstCloner::Clone(node);
+				clone->cachedExpressionType = IntrinsicFunctionType{ intrinsicType };
+
+				return clone;
+			}
+
+			case Identifier::Type::Struct:
+			{
+				auto clone = AstCloner::Clone(node);
+				clone->cachedExpressionType = StructType{ identifier->index };
+
+				return clone;
+			}
+
+			case Identifier::Type::Type:
+			{
+				auto clone = AstCloner::Clone(node);
+				clone->cachedExpressionType = Type{ identifier->index };
+
+				return clone;
+			}
+
 			case Identifier::Type::Variable:
 			{
 				// Replace IdentifierExpression by VariableExpression
@@ -541,7 +588,7 @@ namespace Nz::ShaderAst
 			}
 
 			default:
-				throw AstError{ "expected constant or variable identifier" };
+				throw AstError{ "unexpected identifier" };
 		}
 	}
 
@@ -591,12 +638,12 @@ namespace Nz::ShaderAst
 					throw AstError{ "expected a boolean value" };
 
 				if (std::get<bool>(conditionValue))
-					return AstCloner::Clone(*cond.statement);
+					return Unscope(AstCloner::Clone(*cond.statement));
 			}
 
 			// Every condition failed, fallback to else if any
 			if (node.elseStatement)
-				return AstCloner::Clone(*node.elseStatement);
+				return Unscope(AstCloner::Clone(*node.elseStatement));
 			else
 				return ShaderBuilder::NoOp();
 		}
@@ -680,7 +727,7 @@ namespace Nz::ShaderAst
 
 		ExpressionType expressionType = ResolveType(GetExpressionType(value));
 
-		if (!IsNoType(clone->type) && ResolveType(clone->type) != expressionType)
+		if (clone->type.HasValue() && ResolveType(clone->type) != expressionType)
 			throw AstError{ "constant expression doesn't match type" };
 
 		clone->type = expressionType;
@@ -701,7 +748,7 @@ namespace Nz::ShaderAst
 
 		UInt32 defaultBlockSet = 0;
 		if (clone->bindingSet.HasValue())
-			defaultBlockSet = ComputeAttributeValue(clone->bindingSet);
+			defaultBlockSet = ComputeExprValue(clone->bindingSet);
 
 		for (auto& extVar : clone->externalVars)
 		{
@@ -709,13 +756,13 @@ namespace Nz::ShaderAst
 				throw AstError{ "external variable " + extVar.name + " requires a binding index" };
 
 			if (extVar.bindingSet.HasValue())
-				ComputeAttributeValue(extVar.bindingSet);
+				ComputeExprValue(extVar.bindingSet);
 			else
 				extVar.bindingSet = defaultBlockSet;
 
 			UInt64 bindingSet = extVar.bindingSet.GetResultingValue();
 
-			UInt64 bindingIndex = ComputeAttributeValue(extVar.bindingIndex);
+			UInt64 bindingIndex = ComputeExprValue(extVar.bindingIndex);
 
 			UInt64 bindingKey = bindingSet << 32 | bindingIndex;
 			if (m_context->usedBindingIndexes.find(bindingKey) != m_context->usedBindingIndexes.end())
@@ -728,15 +775,17 @@ namespace Nz::ShaderAst
 
 			m_context->declaredExternalVar.insert(extVar.name);
 
-			extVar.type = ResolveType(extVar.type);
+			ExpressionType resolvedType = ResolveType(extVar.type);
 
 			ExpressionType varType;
-			if (IsUniformType(extVar.type))
-				varType = std::get<StructType>(std::get<UniformType>(extVar.type).containedType);
-			else if (IsSamplerType(extVar.type))
-				varType = extVar.type;
+			if (IsUniformType(resolvedType))
+				varType = std::get<UniformType>(resolvedType).containedType;
+			else if (IsSamplerType(resolvedType))
+				varType = resolvedType;
 			else
 				throw AstError{ "external variable " + extVar.name + " is of wrong type: only uniform and sampler are allowed in external blocks" };
+
+			extVar.type = std::move(resolvedType);
 
 			std::size_t varIndex = RegisterVariable(extVar.name, std::move(varType));
 			if (!clone->varIndex)
@@ -755,17 +804,26 @@ namespace Nz::ShaderAst
 
 		auto clone = std::make_unique<DeclareFunctionStatement>();
 		clone->name = node.name;
-		clone->parameters = node.parameters;
-		clone->returnType = ResolveType(node.returnType);
+
+		clone->parameters.reserve(node.parameters.size());
+		for (auto& parameter : node.parameters)
+		{
+			auto& cloneParam = clone->parameters.emplace_back();
+			cloneParam.name = parameter.name;
+			cloneParam.type = ResolveType(parameter.type);
+		}
+
+		if (node.returnType.HasValue())
+			clone->returnType = ResolveType(node.returnType);
 
 		if (node.depthWrite.HasValue())
-			clone->depthWrite = ComputeAttributeValue(node.depthWrite);
+			clone->depthWrite = ComputeExprValue(node.depthWrite);
 
 		if (node.earlyFragmentTests.HasValue())
-			clone->earlyFragmentTests = ComputeAttributeValue(node.earlyFragmentTests);
+			clone->earlyFragmentTests = ComputeExprValue(node.earlyFragmentTests);
 
 		if (node.entryStage.HasValue())
-			clone->entryStage = ComputeAttributeValue(node.entryStage);
+			clone->entryStage = ComputeExprValue(node.entryStage);
 
 		if (clone->entryStage.HasValue())
 		{
@@ -789,35 +847,13 @@ namespace Nz::ShaderAst
 			}
 		}
 
-		Context::CurrentFunctionData tempFuncData;
-		if (node.entryStage.HasValue())
-			tempFuncData.stageType = node.entryStage.GetResultingValue();
+		// Function content is resolved in a second pass
+		auto& pendingFunc = m_context->pendingFunctions.emplace_back();
+		pendingFunc.cloneNode = clone.get();
+		pendingFunc.node = &node;
 
-		m_context->currentFunction = &tempFuncData;
-
-		std::vector<StatementPtr>* previousList = m_context->currentStatementList;
-		m_context->currentStatementList = &clone->statements;
-
-		PushScope();
-		{
-			for (auto& parameter : clone->parameters)
-			{
-				parameter.type = ResolveType(parameter.type);
-				std::size_t varIndex = RegisterVariable(parameter.name, parameter.type);
-				if (!clone->varIndex)
-					clone->varIndex = varIndex; //< First parameter variable index is node variable index
-
-				SanitizeIdentifier(parameter.name);
-			}
-
-			clone->statements.reserve(node.statements.size());
-			for (auto& statement : node.statements)
-				clone->statements.push_back(CloneStatement(MandatoryStatement(statement)));
-		}
-		PopScope();
-
-		m_context->currentStatementList = previousList;
-		m_context->currentFunction = nullptr;
+		for (auto& parameter : clone->parameters)
+			parameter.type = ResolveType(parameter.type);
 
 		if (clone->earlyFragmentTests.HasValue() && clone->earlyFragmentTests.GetResultingValue())
 		{
@@ -825,23 +861,11 @@ namespace Nz::ShaderAst
 			throw AstError{ "discard is not compatible with early fragment tests" };
 		}
 
-		auto it = std::find_if(m_context->functions.begin(), m_context->functions.end(), [&](const auto& funcData) { return funcData.node == &node; });
-		assert(it != m_context->functions.end());
-		assert(!it->defined);
+		FunctionData funcData;
+		funcData.node = clone.get(); //< update function node
 
-		std::size_t funcIndex = std::distance(m_context->functions.begin(), it);
-
+		std::size_t funcIndex = RegisterFunction(clone->name, std::move(funcData));
 		clone->funcIndex = funcIndex;
-
-		auto& funcData = RegisterFunction(funcIndex);
-		funcData.flags = tempFuncData.flags;
-
-		for (std::size_t i = tempFuncData.calledFunctions.FindFirst(); i != tempFuncData.calledFunctions.npos; i = tempFuncData.calledFunctions.FindNext(i))
-		{
-			assert(i < m_context->functions.size());
-			auto& targetFunc = m_context->functions[i];
-			targetFunc.calledByFunctions.UnboundedSet(funcIndex);
-		}
 
 		SanitizeIdentifier(clone->name);
 
@@ -854,10 +878,13 @@ namespace Nz::ShaderAst
 			throw AstError{ "options must be declared outside of functions" };
 
 		auto clone = static_unique_pointer_cast<DeclareOptionStatement>(AstCloner::Clone(node));
-		clone->optType = ResolveType(clone->optType);
 
-		if (clone->defaultValue && clone->optType != GetExpressionType(*clone->defaultValue))
+		ExpressionType resolvedType = ResolveType(clone->optType);
+
+		if (clone->defaultValue && resolvedType != GetExpressionType(*clone->defaultValue))
 			throw AstError{ "option " + clone->optName + " default expression must be of the same type than the option" };
+
+		clone->optType = std::move(resolvedType);
 
 		std::size_t optionIndex = m_context->nextOptionIndex++;
 
@@ -886,35 +913,37 @@ namespace Nz::ShaderAst
 		{
 			if (member.cond.HasValue())
 			{
-				member.cond = ComputeAttributeValue(member.cond);
+				member.cond = ComputeExprValue(member.cond);
 				if (!member.cond.GetResultingValue())
 					continue;
 			}
 
 			if (member.builtin.HasValue())
-				member.builtin = ComputeAttributeValue(member.builtin);
+				member.builtin = ComputeExprValue(member.builtin);
 
 			if (member.locationIndex.HasValue())
-				member.locationIndex = ComputeAttributeValue(member.locationIndex);
+				member.locationIndex = ComputeExprValue(member.locationIndex);
 
 			if (declaredMembers.find(member.name) != declaredMembers.end())
 				throw AstError{ "struct member " + member.name + " found multiple time" };
 
 			declaredMembers.insert(member.name);
 
-			member.type = ResolveType(member.type);
+			ExpressionType resolvedType = ResolveType(member.type);
 			if (clone->description.layout.HasValue() && clone->description.layout.GetResultingValue() == StructLayout::Std140)
 			{
-				if (IsPrimitiveType(member.type) && std::get<PrimitiveType>(member.type) == PrimitiveType::Boolean)
+				if (IsPrimitiveType(resolvedType) && std::get<PrimitiveType>(resolvedType) == PrimitiveType::Boolean)
 					throw AstError{ "boolean type is not allowed in std140 layout" };
-				else if (IsStructType(member.type))
+				else if (IsStructType(resolvedType))
 				{
-					std::size_t structIndex = std::get<StructType>(member.type).structIndex;
+					std::size_t structIndex = std::get<StructType>(resolvedType).structIndex;
 					const StructDescription* desc = m_context->structs[structIndex];
 					if (!desc->layout.HasValue() || desc->layout.GetResultingValue() != clone->description.layout.GetResultingValue())
 						throw AstError{ "inner struct layout mismatch" };
 				}
 			}
+
+			member.type = std::move(resolvedType);
 		}
 
 		clone->structIndex = RegisterStruct(clone->description.name, &clone->description);
@@ -983,10 +1012,10 @@ namespace Nz::ShaderAst
 		}
 
 
-		AttributeValue<LoopUnroll> unrollValue;
+		ExpressionValue<LoopUnroll> unrollValue;
 		if (node.unroll.HasValue())
 		{
-			unrollValue = ComputeAttributeValue(node.unroll);
+			unrollValue = ComputeExprValue(node.unroll);
 			if (unrollValue.GetResultingValue() == LoopUnroll::Always)
 			{
 				PushScope();
@@ -1007,7 +1036,7 @@ namespace Nz::ShaderAst
 						Validate(*var);
 						multi->statements.emplace_back(std::move(var));
 
-						multi->statements.emplace_back(CloneStatement(node.statement));
+						multi->statements.emplace_back(Unscope(CloneStatement(node.statement)));
 					}
 				};
 
@@ -1077,7 +1106,7 @@ namespace Nz::ShaderAst
 			auto body = std::make_unique<MultiStatement>();
 			body->statements.reserve(2);
 
-			body->statements.emplace_back(CloneStatement(node.statement));
+			body->statements.emplace_back(Unscope(CloneStatement(node.statement)));
 
 			ExpressionPtr incrExpr;
 			if (stepVarIndex)
@@ -1137,10 +1166,10 @@ namespace Nz::ShaderAst
 		else
 			throw AstError{ "for-each is only supported on arrays and range expressions" };
 
-		AttributeValue<LoopUnroll> unrollValue;
+		ExpressionValue<LoopUnroll> unrollValue;
 		if (node.unroll.HasValue())
 		{
-			unrollValue = ComputeAttributeValue(node.unroll);
+			unrollValue = ComputeExprValue(node.unroll);
 			if (unrollValue.GetResultingValue() == LoopUnroll::Always)
 			{
 				PushScope();
@@ -1150,9 +1179,8 @@ namespace Nz::ShaderAst
 				if (IsArrayType(exprType))
 				{
 					const ArrayType& arrayType = std::get<ArrayType>(exprType);
-					UInt32 length = arrayType.length.GetResultingValue();
 
-					for (UInt32 i = 0; i < length; ++i)
+					for (UInt32 i = 0; i < arrayType.length; ++i)
 					{
 						auto accessIndex = ShaderBuilder::AccessIndex(CloneExpression(expr), ShaderBuilder::Constant(i));
 						Validate(*accessIndex);
@@ -1161,7 +1189,7 @@ namespace Nz::ShaderAst
 						Validate(*elementVariable);
 
 						multi->statements.emplace_back(std::move(elementVariable));
-						multi->statements.emplace_back(CloneStatement(node.statement));
+						multi->statements.emplace_back(Unscope(CloneStatement(node.statement)));
 					}
 				}
 
@@ -1180,7 +1208,6 @@ namespace Nz::ShaderAst
 			if (IsArrayType(exprType))
 			{
 				const ArrayType& arrayType = std::get<ArrayType>(exprType);
-				UInt32 length = arrayType.length.GetResultingValue();
 
 				multi->statements.reserve(2);
 
@@ -1196,7 +1223,7 @@ namespace Nz::ShaderAst
 				whileStatement->unroll = std::move(unrollValue);
 
 				// While condition
-				auto condition = ShaderBuilder::Binary(BinaryType::CompLt, ShaderBuilder::Variable(counterVarIndex, PrimitiveType::UInt32), ShaderBuilder::Constant(length));
+				auto condition = ShaderBuilder::Binary(BinaryType::CompLt, ShaderBuilder::Variable(counterVarIndex, PrimitiveType::UInt32), ShaderBuilder::Constant(arrayType.length));
 				Validate(*condition);
 				whileStatement->condition = std::move(condition);
 
@@ -1211,7 +1238,7 @@ namespace Nz::ShaderAst
 				Validate(*elementVariable);
 				body->statements.emplace_back(std::move(elementVariable));
 
-				body->statements.emplace_back(CloneStatement(node.statement));
+				body->statements.emplace_back(Unscope(CloneStatement(node.statement)));
 
 				auto incrCounter = ShaderBuilder::Assign(AssignType::CompoundAdd, ShaderBuilder::Variable(counterVarIndex, PrimitiveType::UInt32), ShaderBuilder::Constant(1u));
 				Validate(*incrCounter);
@@ -1249,8 +1276,6 @@ namespace Nz::ShaderAst
 
 	StatementPtr SanitizeVisitor::Clone(MultiStatement& node)
 	{
-		PushScope();
-
 		auto clone = std::make_unique<MultiStatement>();
 		clone->statements.reserve(node.statements.size());
 
@@ -1262,9 +1287,20 @@ namespace Nz::ShaderAst
 
 		m_context->currentStatementList = previousList;
 
+		return clone;
+	}
+
+	StatementPtr SanitizeVisitor::Clone(ScopedStatement& node)
+	{
+		MandatoryStatement(node.statement);
+
+		PushScope();
+
+		auto scopedClone = AstCloner::Clone(node);
+
 		PopScope();
 
-		return clone;
+		return scopedClone;
 	}
 
 	StatementPtr SanitizeVisitor::Clone(WhileStatement& node)
@@ -1275,10 +1311,10 @@ namespace Nz::ShaderAst
 		auto clone = static_unique_pointer_cast<WhileStatement>(AstCloner::Clone(node));
 		Validate(*clone);
 
-		AttributeValue<LoopUnroll> unrollValue;
+		ExpressionValue<LoopUnroll> unrollValue;
 		if (node.unroll.HasValue())
 		{
-			clone->unroll = ComputeAttributeValue(node.unroll);
+			clone->unroll = ComputeExprValue(node.unroll);
 			if (clone->unroll.GetResultingValue() == LoopUnroll::Always)
 				throw AstError{ "unroll(always) is not yet supported on while" };
 		}
@@ -1295,7 +1331,56 @@ namespace Nz::ShaderAst
 		return &*it;
 	}
 
-	Expression& SanitizeVisitor::MandatoryExpr(const ExpressionPtr& node)
+	template<typename F>
+	auto SanitizeVisitor::FindIdentifier(const std::string_view& identifierName, F&& functor) const -> const Identifier*
+	{
+		auto it = std::find_if(m_context->identifiersInScope.rbegin(), m_context->identifiersInScope.rend(), [&](const Identifier& identifier)
+		{
+			return identifier.name == identifierName && functor(identifier);
+		});
+		if (it == m_context->identifiersInScope.rend())
+			return nullptr;
+
+		return &*it;
+	}
+
+	TypeParameter SanitizeVisitor::FindTypeParameter(const std::string_view& identifierName) const
+	{
+		const auto* identifier = FindIdentifier(identifierName);
+		if (!identifier)
+			throw std::runtime_error("identifier " + std::string(identifierName) + " not found");
+
+		switch (identifier->type)
+		{
+			case Identifier::Type::Constant:
+				return m_context->constantValues[identifier->index];
+
+			case Identifier::Type::Struct:
+				return StructType{ identifier->index };
+
+			case Identifier::Type::Type:
+				return std::visit([&](auto&& arg) -> TypeParameter
+				{
+					return arg;
+				}, m_context->types[identifier->index]);
+
+			case Identifier::Type::Alias:
+				throw std::runtime_error("TODO");
+
+			case Identifier::Type::Function:
+				throw std::runtime_error("unexpected function identifier");
+
+			case Identifier::Type::Intrinsic:
+				throw std::runtime_error("unexpected intrinsic identifier");
+
+			case Identifier::Type::Variable:
+				throw std::runtime_error("unexpected variable identifier");
+		}
+
+		throw std::runtime_error("internal error");
+	}
+
+	Expression& SanitizeVisitor::MandatoryExpr(const ExpressionPtr& node) const
 	{
 		if (!node)
 			throw AstError{ "Invalid expression" };
@@ -1303,7 +1388,7 @@ namespace Nz::ShaderAst
 		return *node;
 	}
 
-	Statement& SanitizeVisitor::MandatoryStatement(const StatementPtr& node)
+	Statement& SanitizeVisitor::MandatoryStatement(const StatementPtr& node) const
 	{
 		if (!node)
 			throw AstError{ "Invalid statement" };
@@ -1313,14 +1398,16 @@ namespace Nz::ShaderAst
 
 	void SanitizeVisitor::PushScope()
 	{
-		m_context->scopeSizes.push_back(m_context->identifiersInScope.size());
+		auto& scope = m_context->scopes.emplace_back();
+		scope.previousSize = m_context->identifiersInScope.size();
 	}
 
 	void SanitizeVisitor::PopScope()
 	{
-		assert(!m_context->scopeSizes.empty());
-		m_context->identifiersInScope.resize(m_context->scopeSizes.back());
-		m_context->scopeSizes.pop_back();
+		assert(!m_context->scopes.empty());
+		auto& scope = m_context->scopes.back();
+		m_context->identifiersInScope.resize(scope.previousSize);
+		m_context->scopes.pop_back();
 	}
 
 	ExpressionPtr SanitizeVisitor::CacheResult(ExpressionPtr expression)
@@ -1342,11 +1429,21 @@ namespace Nz::ShaderAst
 		return varExpr;
 	}
 
+	ConstantValue SanitizeVisitor::ComputeConstantValue(Expression& expr) const
+	{
+		// Run optimizer on constant value to hopefully retrieve a single constant value
+		ExpressionPtr optimizedExpr = Optimize(expr);
+		if (optimizedExpr->GetType() != NodeType::ConstantValueExpression)
+			throw AstError{"expected a constant expression"};
+
+		return static_cast<ConstantValueExpression&>(*optimizedExpr).value;
+	}
+
 	template<typename T>
-	const T& SanitizeVisitor::ComputeAttributeValue(AttributeValue<T>& attribute)
+	const T& SanitizeVisitor::ComputeExprValue(ExpressionValue<T>& attribute) const
 	{
 		if (!attribute.HasValue())
-			throw AstError{"attribute expected a value"};
+			throw AstError{ "attribute expected a value" };
 
 		if (attribute.IsExpression())
 		{
@@ -1372,18 +1469,8 @@ namespace Nz::ShaderAst
 		return attribute.GetResultingValue();
 	}
 
-	ConstantValue SanitizeVisitor::ComputeConstantValue(Expression& expr)
-	{
-		// Run optimizer on constant value to hopefully retrieve a single constant value
-		ExpressionPtr optimizedExpr = Optimize(expr);
-		if (optimizedExpr->GetType() != NodeType::ConstantValueExpression)
-			throw AstError{"expected a constant expression"};
-
-		return static_cast<ConstantValueExpression&>(*optimizedExpr).value;
-	}
-
 	template<typename T>
-	std::unique_ptr<T> SanitizeVisitor::Optimize(T& node)
+	std::unique_ptr<T> SanitizeVisitor::Optimize(T& node) const
 	{
 		AstOptimizer::Options optimizerOptions;
 		optimizerOptions.constantQueryCallback = [this](std::size_t constantId) -> const ConstantValue&
@@ -1396,28 +1483,180 @@ namespace Nz::ShaderAst
 		return static_unique_pointer_cast<T>(ShaderAst::Optimize(node, optimizerOptions));
 	}
 
-	std::size_t SanitizeVisitor::DeclareFunction(DeclareFunctionStatement& funcDecl)
-	{
-		std::size_t functionIndex = m_context->functions.size();
-		auto& funcData = m_context->functions.emplace_back();
-		funcData.node = &funcDecl;
-
-		return functionIndex;
-	}
-
 	void SanitizeVisitor::PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen)
 	{
 		assert(funcIndex < m_context->functions.size());
 		auto& funcData = m_context->functions[funcIndex];
-		if (!funcData.defined)
-			return;
-
 		funcData.flags |= flags;
 
 		for (std::size_t i = funcData.calledByFunctions.FindFirst(); i != funcData.calledByFunctions.npos; i = funcData.calledByFunctions.FindNext(i))
 			PropagateFunctionFlags(i, funcData.flags, seen);
 	}
 	
+	void SanitizeVisitor::RegisterBuiltin()
+	{
+		// Primitive types
+		RegisterType("bool", PrimitiveType::Boolean);
+		RegisterType("f32", PrimitiveType::Float32);
+		RegisterType("i32", PrimitiveType::Int32);
+		RegisterType("u32", PrimitiveType::UInt32);
+
+		// Partial types
+
+		// Array
+		RegisterType("array", PartialType {
+			{ TypeParameterCategory::FullType, TypeParameterCategory::ConstantValue },
+			[=](const TypeParameter* parameters, std::size_t parameterCount) -> ExpressionType
+			{
+				assert(parameterCount == 2);
+				assert(std::holds_alternative<ExpressionType>(parameters[0]));
+				assert(std::holds_alternative<ConstantValue>(parameters[1]));
+
+				const ExpressionType& exprType = std::get<ExpressionType>(parameters[0]);
+				const ConstantValue& length = std::get<ConstantValue>(parameters[1]);
+
+				UInt32 lengthValue;
+				if (std::holds_alternative<Int32>(length))
+				{
+					Int32 value = std::get<Int32>(length);
+					if (value <= 0)
+						throw AstError{ "array length must a positive integer" };
+
+					lengthValue = SafeCast<UInt32>(value);
+				}
+				else if (std::holds_alternative<UInt32>(length))
+				{
+					lengthValue = std::get<UInt32>(length);
+					if (lengthValue == 0)
+						throw AstError{ "array length must a positive integer" };
+				}
+				else
+					throw AstError{ "array length must a positive integer" };
+
+				ArrayType arrayType;
+				arrayType.containedType = std::make_unique<ContainedType>();
+				arrayType.containedType->type = exprType;
+				arrayType.length = lengthValue;
+
+				return arrayType;
+			}
+		});
+
+		// matX
+		for (std::size_t componentCount = 2; componentCount <= 4; ++componentCount)
+		{
+			RegisterType("mat" + std::to_string(componentCount), PartialType {
+				{ TypeParameterCategory::PrimitiveType },
+				[=](const TypeParameter* parameters, std::size_t parameterCount) -> ExpressionType
+				{
+					assert(parameterCount == 1);
+					assert(std::holds_alternative<ExpressionType>(*parameters));
+
+					const ExpressionType& exprType = std::get<ExpressionType>(*parameters);
+					assert(IsPrimitiveType(exprType));
+
+					return MatrixType {
+						componentCount, componentCount, std::get<PrimitiveType>(exprType)
+					};
+				}
+			});
+		}
+
+		// vecX
+		for (std::size_t componentCount = 2; componentCount <= 4; ++componentCount)
+		{
+			RegisterType("vec" + std::to_string(componentCount), PartialType {
+				{ TypeParameterCategory::PrimitiveType },
+				[=](const TypeParameter* parameters, std::size_t parameterCount) -> ExpressionType
+				{
+					assert(parameterCount == 1);
+					assert(std::holds_alternative<ExpressionType>(*parameters));
+
+					const ExpressionType& exprType = std::get<ExpressionType>(*parameters);
+					assert(IsPrimitiveType(exprType));
+
+					return VectorType {
+						componentCount, std::get<PrimitiveType>(exprType)
+					};
+				}
+			});
+		}
+
+		// samplers
+		struct SamplerInfo
+		{
+			std::string typeName;
+			ImageType imageType;
+		};
+
+		std::array<SamplerInfo, 2> samplerInfos = {
+			{
+				{
+					"sampler2D",
+					ImageType::E2D
+				},
+				{
+					"samplerCube",
+					ImageType::Cubemap
+				}
+			}
+		};
+
+		for (SamplerInfo& sampler : samplerInfos)
+		{
+			RegisterType(std::move(sampler.typeName), PartialType {
+				{ TypeParameterCategory::PrimitiveType },
+				[=](const TypeParameter* parameters, std::size_t parameterCount) -> ExpressionType
+				{
+					assert(parameterCount == 1);
+					assert(std::holds_alternative<ExpressionType>(*parameters));
+
+					const ExpressionType& exprType = std::get<ExpressionType>(*parameters);
+					assert(IsPrimitiveType(exprType));
+
+					PrimitiveType primitiveType = std::get<PrimitiveType>(exprType);
+
+					// TODO: Add support for integer samplers
+					if (primitiveType != PrimitiveType::Float32)
+						throw AstError{ "for now only f32 samplers are supported" };
+
+					return SamplerType {
+						sampler.imageType, primitiveType
+					};
+				}
+			});
+		}
+
+		// uniform
+		RegisterType("uniform", PartialType {
+			{ TypeParameterCategory::StructType },
+			[=](const TypeParameter* parameters, std::size_t parameterCount) -> ExpressionType
+			{
+				assert(parameterCount == 1);
+				assert(std::holds_alternative<ExpressionType>(*parameters));
+
+				const ExpressionType& exprType = std::get<ExpressionType>(*parameters);
+				assert(IsStructType(exprType));
+
+				StructType structType = std::get<StructType>(exprType);
+				return UniformType {
+					structType
+				};
+			}
+		});
+
+		// Intrinsics
+		RegisterIntrinsic("cross", IntrinsicType::CrossProduct);
+		RegisterIntrinsic("dot", IntrinsicType::DotProduct);
+		RegisterIntrinsic("exp", IntrinsicType::Exp);
+		RegisterIntrinsic("length", IntrinsicType::Length);
+		RegisterIntrinsic("max", IntrinsicType::Max);
+		RegisterIntrinsic("min", IntrinsicType::Min);
+		RegisterIntrinsic("normalize", IntrinsicType::Normalize);
+		RegisterIntrinsic("pow", IntrinsicType::Pow);
+		RegisterIntrinsic("reflect", IntrinsicType::Reflect);
+	}
+
 	std::size_t SanitizeVisitor::RegisterConstant(std::string name, ConstantValue value)
 	{
 		if (FindIdentifier(name))
@@ -1435,14 +1674,9 @@ namespace Nz::ShaderAst
 		return constantIndex;
 	}
 
-	auto SanitizeVisitor::RegisterFunction(std::size_t functionIndex) -> FunctionData&
+	std::size_t SanitizeVisitor::RegisterFunction(std::string name, FunctionData funcData)
 	{
-		assert(m_context->functions.size() >= functionIndex);
-		auto& funcData = m_context->functions[functionIndex];
-		assert(!funcData.defined);
-		funcData.defined = true;
-
-		if (auto* identifier = FindIdentifier(funcData.node->name))
+		if (auto* identifier = FindIdentifier(name))
 		{
 			bool duplicate = true;
 
@@ -1458,13 +1692,17 @@ namespace Nz::ShaderAst
 				throw AstError{ funcData.node->name + " is already used" };
 		}
 
+		std::size_t functionIndex = m_context->functions.size();
+
+		m_context->functions.emplace_back(std::move(funcData));
+
 		m_context->identifiersInScope.push_back({
-			funcData.node->name,
+			std::move(name),
 			functionIndex,
 			Identifier::Type::Function
 		});
 
-		return funcData;
+		return functionIndex;
 	}
 
 	std::size_t SanitizeVisitor::RegisterIntrinsic(std::string name, IntrinsicType type)
@@ -1501,11 +1739,48 @@ namespace Nz::ShaderAst
 		return structIndex;
 	}
 
+	std::size_t SanitizeVisitor::RegisterType(std::string name, ExpressionType expressionType)
+	{
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
+
+		std::size_t typeIndex = m_context->types.size();
+		m_context->types.emplace_back(std::move(expressionType));
+
+		m_context->identifiersInScope.push_back({
+			std::move(name),
+			typeIndex,
+			Identifier::Type::Type
+		});
+
+		return typeIndex;
+	}
+
+	std::size_t SanitizeVisitor::RegisterType(std::string name, PartialType partialType)
+	{
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
+
+		std::size_t typeIndex = m_context->types.size();
+		m_context->types.emplace_back(std::move(partialType));
+
+		m_context->identifiersInScope.push_back({
+			std::move(name),
+			typeIndex,
+			Identifier::Type::Type
+		});
+
+		return typeIndex;
+	}
+
 	std::size_t SanitizeVisitor::RegisterVariable(std::string name, ExpressionType type)
 	{
-		// Allow variable shadowing
-		if (auto* identifier = FindIdentifier(name); identifier && identifier->type != Identifier::Type::Variable)
-			throw AstError{ name + " is already used" };
+		if (auto* identifier = FindIdentifier(name))
+		{
+			// Allow variable shadowing
+			if (identifier->type != Identifier::Type::Variable)
+				throw AstError{ name + " is already used" };
+		}
 
 		std::size_t varIndex = m_context->variableTypes.size();
 		m_context->variableTypes.emplace_back(std::move(type));
@@ -1521,7 +1796,46 @@ namespace Nz::ShaderAst
 
 	void SanitizeVisitor::ResolveFunctions()
 	{
-		// Once every function is known, we can propagate flags
+		// Once every function is known, we can evaluate function content
+		for (auto& pendingFunc : m_context->pendingFunctions)
+		{
+			PushScope();
+
+			for (auto& parameter : pendingFunc.cloneNode->parameters)
+			{
+				std::size_t varIndex = RegisterVariable(parameter.name, parameter.type.GetResultingValue());
+				if (!pendingFunc.cloneNode->varIndex)
+					pendingFunc.cloneNode->varIndex = varIndex; //< First parameter variable index is node variable index
+
+				SanitizeIdentifier(parameter.name);
+			}
+
+			Context::CurrentFunctionData tempFuncData;
+			if (pendingFunc.cloneNode->entryStage.HasValue())
+				tempFuncData.stageType = pendingFunc.cloneNode->entryStage.GetResultingValue();
+
+			m_context->currentFunction = &tempFuncData;
+
+			std::vector<StatementPtr>* previousList = m_context->currentStatementList;
+			m_context->currentStatementList = &pendingFunc.cloneNode->statements;
+
+			pendingFunc.cloneNode->statements.reserve(pendingFunc.node->statements.size());
+			for (auto& statement : pendingFunc.node->statements)
+				pendingFunc.cloneNode->statements.push_back(CloneStatement(MandatoryStatement(statement)));
+
+			m_context->currentStatementList = previousList;
+			m_context->currentFunction = nullptr;
+
+			std::size_t funcIndex = *pendingFunc.cloneNode->funcIndex;
+			for (std::size_t i = tempFuncData.calledFunctions.FindFirst(); i != tempFuncData.calledFunctions.npos; i = tempFuncData.calledFunctions.FindNext(i))
+			{
+				assert(i < m_context->functions.size());
+				auto& targetFunc = m_context->functions[i];
+				targetFunc.calledByFunctions.UnboundedSet(funcIndex);
+			}
+
+			PopScope();
+		}
 
 		Bitset<> seen;
 		for (std::size_t funcIndex = 0; funcIndex < m_context->functions.size(); ++funcIndex)
@@ -1539,6 +1853,23 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	const ExpressionPtr& SanitizeVisitor::ResolveCondExpression(ConditionalExpression& node)
+	{
+		MandatoryExpr(node.condition);
+		MandatoryExpr(node.truePath);
+		MandatoryExpr(node.falsePath);
+
+		ConstantValue conditionValue = ComputeConstantValue(*AstCloner::Clone(*node.condition));
+		if (GetExpressionType(conditionValue) != ExpressionType{ PrimitiveType::Boolean })
+			throw AstError{ "expected a boolean value" };
+
+		if (std::get<bool>(conditionValue))
+			return node.truePath;
+		else
+			return node.falsePath;
+
+	}
+
 	std::size_t SanitizeVisitor::ResolveStruct(const ExpressionType& exprType)
 	{
 		return std::visit([&](auto&& arg) -> std::size_t
@@ -1549,9 +1880,13 @@ namespace Nz::ShaderAst
 				return ResolveStruct(arg);
 			else if constexpr (std::is_same_v<T, NoType> ||
 			                   std::is_same_v<T, ArrayType> ||
+			                   std::is_same_v<T, FunctionType> ||
+			                   std::is_same_v<T, IntrinsicFunctionType> ||
 			                   std::is_same_v<T, PrimitiveType> ||
 			                   std::is_same_v<T, MatrixType> ||
+			                   std::is_same_v<T, MethodType> ||
 			                   std::is_same_v<T, SamplerType> ||
+			                   std::is_same_v<T, Type> ||
 			                   std::is_same_v<T, VectorType>)
 			{
 				throw AstError{ "expression is not a structure" };
@@ -1580,72 +1915,40 @@ namespace Nz::ShaderAst
 
 	std::size_t SanitizeVisitor::ResolveStruct(const UniformType& uniformType)
 	{
-		return std::visit([&](auto&& arg) -> std::size_t
-		{
-			using T = std::decay_t<decltype(arg)>;
-
-			if constexpr (std::is_same_v<T, IdentifierType> || std::is_same_v<T, StructType>)
-				return ResolveStruct(arg);
-			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-		}, uniformType.containedType);
+		return uniformType.containedType.structIndex;
 	}
 
 	ExpressionType SanitizeVisitor::ResolveType(const ExpressionType& exprType)
 	{
-		return std::visit([&](auto&& arg) -> ExpressionType
-		{
-			using T = std::decay_t<decltype(arg)>;
+		if (!IsTypeExpression(exprType))
+			return exprType;
 
-			if constexpr (std::is_same_v<T, NoType> ||
-			              std::is_same_v<T, PrimitiveType> ||
-			              std::is_same_v<T, MatrixType> ||
-			              std::is_same_v<T, SamplerType> ||
-			              std::is_same_v<T, StructType> ||
-			              std::is_same_v<T, VectorType>)
-			{
-				return exprType;
-			}
-			else if constexpr (std::is_same_v<T, ArrayType>)
-			{
-				ArrayType resolvedArrayType;
-				if (arg.length.IsExpression())
-				{
-					resolvedArrayType.length = CloneExpression(arg.length.GetExpression());
-					ComputeAttributeValue(resolvedArrayType.length);
-				}
-				else if (arg.length.IsResultingValue())
-					resolvedArrayType.length = arg.length.GetResultingValue();
+		std::size_t typeIndex = std::get<Type>(exprType).typeIndex;
 
-				resolvedArrayType.containedType = std::make_unique<ContainedType>();
-				resolvedArrayType.containedType->type = ResolveType(arg.containedType->type);
+		const auto& type = m_context->types[typeIndex];
+		if (std::holds_alternative<PartialType>(type))
+			throw AstError{ "full type expected" };
 
-				return resolvedArrayType;
-			}
-			else if constexpr (std::is_same_v<T, IdentifierType>)
-			{
-				const Identifier* identifier = FindIdentifier(arg.name);
-				if (!identifier)
-					throw AstError{ "unknown identifier " + arg.name };
+		return std::get<ExpressionType>(type);
+	}
 
-				if (identifier->type != Identifier::Type::Struct)
-					throw AstError{ "expected type identifier" };
+	ExpressionType SanitizeVisitor::ResolveType(const ExpressionValue<ExpressionType>& exprTypeValue)
+	{
+		if (!exprTypeValue.HasValue())
+			return {};
 
-				return StructType{ identifier->index };
-			}
-			else if constexpr (std::is_same_v<T, UniformType>)
-			{
-				return std::visit([&](auto&& containedArg)
-				{
-					ExpressionType resolvedType = ResolveType(containedArg);
-					assert(std::holds_alternative<StructType>(resolvedType));
+		if (exprTypeValue.IsResultingValue())
+			return ResolveType(exprTypeValue.GetResultingValue());
 
-					return UniformType{ std::get<StructType>(resolvedType) };
-				}, arg.containedType);
-			}
-			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-		}, exprType);
+		assert(exprTypeValue.IsExpression());
+		ExpressionPtr expression = CloneExpression(exprTypeValue.GetExpression());
+		assert(expression->cachedExpressionType);
+
+		const ExpressionType& exprType = expression->cachedExpressionType.value();
+		//if (!IsTypeType(exprType))
+		//	throw AstError{ "type expected" };
+
+		return ResolveType(exprType);
 	}
 
 	void SanitizeVisitor::SanitizeIdentifier(std::string& identifier)
@@ -1661,6 +1964,27 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	void SanitizeVisitor::TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right) const
+	{
+		return TypeMustMatch(GetExpressionType(*left), GetExpressionType(*right));
+	}
+
+	void SanitizeVisitor::TypeMustMatch(const ExpressionType& left, const ExpressionType& right) const
+	{
+		if (left != right)
+			throw AstError{ "Left expression type must match right expression type" };
+	}
+
+	StatementPtr SanitizeVisitor::Unscope(StatementPtr node)
+	{
+		assert(node);
+
+		if (node->GetType() == NodeType::ScopedStatement)
+			return std::move(static_cast<ScopedStatement&>(*node).statement);
+		else
+			return node;
+	}
+
 	void SanitizeVisitor::Validate(WhileStatement& node)
 	{
 		if (GetExpressionType(*node.condition) != ExpressionType{ PrimitiveType::Boolean })
@@ -1669,65 +1993,129 @@ namespace Nz::ShaderAst
 
 	void SanitizeVisitor::Validate(AccessIndexExpression& node)
 	{
-		if (node.indices.empty())
-			throw AstError{ "AccessIndexExpression must have at least one index" };
-
-		for (auto& index : node.indices)
-		{
-			const ShaderAst::ExpressionType& indexType = GetExpressionType(*index);
-			if (!IsPrimitiveType(indexType))
-				throw AstError{ "AccessIndex expects integer indices" };
-
-			PrimitiveType primitiveIndexType = std::get<PrimitiveType>(indexType);
-			if (primitiveIndexType != PrimitiveType::Int32 && primitiveIndexType != PrimitiveType::UInt32)
-				throw AstError{ "AccessIndex expects integer indices" };
-		}
-
 		ExpressionType exprType = GetExpressionType(*node.expr);
-		for (const auto& indexExpr : node.indices)
+		if (IsTypeExpression(exprType))
 		{
-			if (IsArrayType(exprType))
+			std::size_t typeIndex = std::get<Type>(exprType).typeIndex;
+			const auto& type = m_context->types[typeIndex];
+
+			if (!std::holds_alternative<PartialType>(type))
+				throw std::runtime_error("only partial types can be specialized");
+
+			const PartialType& partialType = std::get<PartialType>(type);
+			if (partialType.parameters.size() != node.indices.size())
+				throw std::runtime_error("parameter count mismatch");
+
+			StackVector<TypeParameter> parameters = NazaraStackVector(TypeParameter, partialType.parameters.size());
+			for (std::size_t i = 0; i < partialType.parameters.size(); ++i)
 			{
-				const ArrayType& arrayType = std::get<ArrayType>(exprType);
-				ExpressionType containedType = arrayType.containedType->type; //< Don't overwrite exprType directly since it contains arrayType
-				exprType = std::move(containedType);
+				ExpressionPtr indexExpr = CloneExpression(node.indices[i]);
+				switch (partialType.parameters[i])
+				{
+					case TypeParameterCategory::ConstantValue:
+					{
+						parameters.push_back(ComputeConstantValue(*indexExpr));
+						break;
+					}
+
+					case TypeParameterCategory::FullType:
+					case TypeParameterCategory::PrimitiveType:
+					case TypeParameterCategory::StructType:
+					{
+						ExpressionType resolvedType = ResolveType(GetExpressionType(*indexExpr));
+
+						switch (partialType.parameters[i])
+						{
+							case TypeParameterCategory::PrimitiveType:
+							{
+								if (!IsPrimitiveType(resolvedType))
+									throw std::runtime_error("expected a primitive type");
+
+								break;
+							}
+
+							case TypeParameterCategory::StructType:
+							{
+								if (!IsStructType(resolvedType))
+									throw std::runtime_error("expected a struct type");
+
+								break;
+							}
+
+							default:
+								break;
+						}
+
+						parameters.push_back(resolvedType);
+						break;
+					}
+				}
 			}
-			else if (IsStructType(exprType))
-			{
-				const ShaderAst::ExpressionType& indexType = GetExpressionType(*indexExpr);
-				if (indexExpr->GetType() != NodeType::ConstantValueExpression || indexType != ExpressionType{ PrimitiveType::Int32 })
-					throw AstError{ "struct can only be accessed with constant i32 indices" };
 
-				ConstantValueExpression& constantExpr = static_cast<ConstantValueExpression&>(*indexExpr);
-
-				Int32 index = std::get<Int32>(constantExpr.value);
-
-				std::size_t structIndex = ResolveStruct(exprType);
-				assert(structIndex < m_context->structs.size());
-				const StructDescription* s = m_context->structs[structIndex];
-
-				exprType = ResolveType(s->members[index].type);
-			}
-			else if (IsMatrixType(exprType))
-			{
-				// Matrix index (ex: mat[2])
-				MatrixType matrixType = std::get<MatrixType>(exprType);
-
-				//TODO: Handle row-major matrices
-				exprType = VectorType{ matrixType.rowCount, matrixType.type };
-			}
-			else if (IsVectorType(exprType))
-			{
-				// Swizzle expression with one component (ex: vec[2])
-				VectorType swizzledVec = std::get<VectorType>(exprType);
-
-				exprType = swizzledVec.type;
-			}
-			else
-				throw AstError{ "unexpected type (only struct, vectors and matrices can be indexed)" }; //< TODO: Add support for arrays
+			assert(parameters.size() == partialType.parameters.size());
+			node.cachedExpressionType = partialType.buildFunc(parameters.data(), parameters.size());
 		}
+		else
+		{
+			if (node.indices.size() != 1)
+				throw AstError{ "AccessIndexExpression must have at one index" };
 
-		node.cachedExpressionType = std::move(exprType);
+			for (auto& index : node.indices)
+			{
+				const ShaderAst::ExpressionType& indexType = GetExpressionType(*index);
+				if (!IsPrimitiveType(indexType))
+					throw AstError{ "AccessIndex expects integer indices" };
+
+				PrimitiveType primitiveIndexType = std::get<PrimitiveType>(indexType);
+				if (primitiveIndexType != PrimitiveType::Int32 && primitiveIndexType != PrimitiveType::UInt32)
+					throw AstError{ "AccessIndex expects integer indices" };
+			}
+
+			for (const auto& indexExpr : node.indices)
+			{
+				if (IsArrayType(exprType))
+				{
+					const ArrayType& arrayType = std::get<ArrayType>(exprType);
+					ExpressionType containedType = arrayType.containedType->type; //< Don't overwrite exprType directly since it contains arrayType
+					exprType = std::move(containedType);
+				}
+				else if (IsStructType(exprType))
+				{
+					const ShaderAst::ExpressionType& indexType = GetExpressionType(*indexExpr);
+					if (indexExpr->GetType() != NodeType::ConstantValueExpression || indexType != ExpressionType{ PrimitiveType::Int32 })
+						throw AstError{ "struct can only be accessed with constant i32 indices" };
+
+					ConstantValueExpression& constantExpr = static_cast<ConstantValueExpression&>(*indexExpr);
+
+					Int32 index = std::get<Int32>(constantExpr.value);
+
+					std::size_t structIndex = ResolveStruct(exprType);
+					assert(structIndex < m_context->structs.size());
+					const StructDescription* s = m_context->structs[structIndex];
+
+					exprType = ResolveType(s->members[index].type);
+				}
+				else if (IsMatrixType(exprType))
+				{
+					// Matrix index (ex: mat[2])
+					MatrixType matrixType = std::get<MatrixType>(exprType);
+
+					//TODO: Handle row-major matrices
+					exprType = VectorType{ matrixType.rowCount, matrixType.type };
+				}
+				else if (IsVectorType(exprType))
+				{
+					// Swizzle expression with one component (ex: vec[2])
+					VectorType swizzledVec = std::get<VectorType>(exprType);
+
+					exprType = swizzledVec.type;
+				}
+				else
+					throw AstError{ "unexpected type (only struct, vectors and matrices can be indexed)" }; //< TODO: Add support for arrays
+			}
+
+			node.cachedExpressionType = std::move(exprType);
+		}
 	}
 
 	void SanitizeVisitor::Validate(AssignExpression& node)
@@ -1771,35 +2159,43 @@ namespace Nz::ShaderAst
 		node.cachedExpressionType = ValidateBinaryOp(node.op, node.left, node.right);
 	}
 
-	void SanitizeVisitor::Validate(CallFunctionExpression& node, const DeclareFunctionStatement* referenceDeclaration)
+	void SanitizeVisitor::Validate(CallFunctionExpression& node)
 	{
+		const ShaderAst::ExpressionType& targetFuncType = GetExpressionType(*node.targetFunction);
+		assert(std::holds_alternative<FunctionType>(targetFuncType));
+
+		std::size_t targetFuncIndex = std::get<FunctionType>(targetFuncType).funcIndex;
+		assert(targetFuncIndex < m_context->functions.size());
+		auto& funcData = m_context->functions[targetFuncIndex];
+
+		const DeclareFunctionStatement* referenceDeclaration = funcData.node;
+
 		if (referenceDeclaration->entryStage.HasValue())
 			throw AstError{ referenceDeclaration->name + " is an entry function which cannot be called by the program" };
 
 		for (std::size_t i = 0; i < node.parameters.size(); ++i)
 		{
-			if (GetExpressionType(*node.parameters[i]) != referenceDeclaration->parameters[i].type)
+			if (GetExpressionType(*node.parameters[i]) != referenceDeclaration->parameters[i].type.GetResultingValue())
 				throw AstError{ "function " + referenceDeclaration->name + " parameter " + std::to_string(i) + " type mismatch" };
 		}
 
 		if (node.parameters.size() != referenceDeclaration->parameters.size())
 			throw AstError{ "function " + referenceDeclaration->name + " expected " + std::to_string(referenceDeclaration->parameters.size()) + " parameters, got " + std::to_string(node.parameters.size()) };
 
-		node.cachedExpressionType = referenceDeclaration->returnType;
+		node.cachedExpressionType = referenceDeclaration->returnType.GetResultingValue();
 	}
 
 	void SanitizeVisitor::Validate(CastExpression& node)
 	{
-		node.targetType = ResolveType(node.targetType);
-		node.cachedExpressionType = node.targetType;
+		ExpressionType resolvedType = ResolveType(node.targetType);
 
 		const auto& firstExprPtr = node.expressions.front();
 		if (!firstExprPtr)
 			throw AstError{ "expected at least one expression" };
 
-		if (IsMatrixType(node.targetType))
+		if (IsMatrixType(resolvedType))
 		{
-			const MatrixType& targetMatrixType = std::get<MatrixType>(node.targetType);
+			const MatrixType& targetMatrixType = std::get<MatrixType>(resolvedType);
 
 			const ExpressionType& firstExprType = GetExpressionType(*firstExprPtr);
 			if (IsMatrixType(firstExprType))
@@ -1808,7 +2204,6 @@ namespace Nz::ShaderAst
 					throw AstError{ "too many expressions" };
 
 				// Matrix to matrix cast: always valid
-				return;
 			}
 			else
 			{
@@ -1829,48 +2224,54 @@ namespace Nz::ShaderAst
 				}
 			}
 		}
-
-		auto GetComponentCount = [](const ExpressionType& exprType) -> std::size_t
+		else
 		{
-			if (IsVectorType(exprType))
-				return std::get<VectorType>(exprType).componentCount;
-			else
+			auto GetComponentCount = [](const ExpressionType& exprType) -> std::size_t
 			{
-				assert(IsPrimitiveType(exprType));
-				return 1;
+				if (IsVectorType(exprType))
+					return std::get<VectorType>(exprType).componentCount;
+				else
+				{
+					assert(IsPrimitiveType(exprType));
+					return 1;
+				}
+			};
+
+			std::size_t componentCount = 0;
+			std::size_t requiredComponents = GetComponentCount(resolvedType);
+
+			for (auto& exprPtr : node.expressions)
+			{
+				if (!exprPtr)
+					break;
+
+				const ExpressionType& exprType = GetExpressionType(*exprPtr);
+				if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
+					throw AstError{ "incompatible type" };
+
+				componentCount += GetComponentCount(exprType);
 			}
-		};
 
-		std::size_t componentCount = 0;
-		std::size_t requiredComponents = GetComponentCount(node.targetType);
-
-		for (auto& exprPtr : node.expressions)
-		{
-			if (!exprPtr)
-				break;
-
-			const ExpressionType& exprType = GetExpressionType(*exprPtr);
-			if (!IsPrimitiveType(exprType) && !IsVectorType(exprType))
-				throw AstError{ "incompatible type" };
-
-			componentCount += GetComponentCount(exprType);
+			if (componentCount != requiredComponents)
+				throw AstError{ "component count doesn't match required component count" };
 		}
 
-		if (componentCount != requiredComponents)
-			throw AstError{ "component count doesn't match required component count" };
+		node.cachedExpressionType = resolvedType;
+		node.targetType = std::move(resolvedType);
 	}
 
 	void SanitizeVisitor::Validate(DeclareVariableStatement& node)
 	{
-		if (IsNoType(node.varType))
+		ExpressionType resolvedType;
+		if (!node.varType.HasValue())
 		{
 			if (!node.initialExpression)
 				throw AstError{ "variable must either have a type or an initial value" };
 
-			node.varType = ResolveType(GetExpressionType(*node.initialExpression));
+			resolvedType = ResolveType(GetExpressionType(*node.initialExpression));
 		}
 		else
-			node.varType = ResolveType(node.varType);
+			resolvedType = ResolveType(node.varType);
 
 		if (m_context->options.makeVariableNameUnique && FindIdentifier(node.varName) != nullptr)
 		{
@@ -1886,7 +2287,8 @@ namespace Nz::ShaderAst
 			node.varName = std::move(candidateName);
 		}
 
-		node.varIndex = RegisterVariable(node.varName, node.varType);
+		node.varIndex = RegisterVariable(node.varName, resolvedType);
+		node.varType = std::move(resolvedType);
 
 		SanitizeIdentifier(node.varName);
 	}
@@ -2298,16 +2700,5 @@ namespace Nz::ShaderAst
 		}
 
 		throw AstError{ "internal error: unchecked operation" };
-	}
-
-	void SanitizeVisitor::TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right)
-	{
-		return TypeMustMatch(GetExpressionType(*left), GetExpressionType(*right));
-	}
-
-	void SanitizeVisitor::TypeMustMatch(const ExpressionType& left, const ExpressionType& right)
-	{
-		if (left != right)
-			throw AstError{ "Left expression type must match right expression type" };
 	}
 }
