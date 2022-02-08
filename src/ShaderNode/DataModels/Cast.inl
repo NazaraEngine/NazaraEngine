@@ -35,7 +35,7 @@ Nz::ShaderAst::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderAst::Expre
 		for (std::size_t i = 0; i < overflowComponentCount; ++i)
 			params.emplace_back(Nz::ShaderBuilder::Constant(m_overflowComponents[i]));
 
-		return Nz::ShaderBuilder::Cast(Nz::ShaderAst::VectorType{ ToComponentCount, Nz::ShaderAst::PrimitiveType::Float32 }, std::move(params));
+		return Nz::ShaderBuilder::Cast(Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ ToComponentCount, Nz::ShaderAst::PrimitiveType::Float32 } }, std::move(params));
 	}
 	else if (ToComponentCount < fromComponentCount)
 	{
