@@ -5,7 +5,6 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Buffer.hpp>
@@ -40,8 +39,6 @@ namespace Nz
 	Utility::Utility(Config /*config*/) :
 	ModuleBase("Utility", this)
 	{
-		ECS::RegisterComponents();
-
 		if (!Font::Initialize())
 			throw std::runtime_error("failed to initialize fonts");
 

@@ -8,10 +8,10 @@
 #define NAZARA_WIDGETS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Widgets/Config.hpp>
+#include <entt/entt.hpp>
 
 namespace Nz
 {
@@ -23,7 +23,7 @@ namespace Nz
 		friend ModuleBase;
 
 		public:
-			using Dependencies = TypeList<ECS, Graphics>;
+			using Dependencies = TypeList<Graphics>;
 
 			struct Config;
 

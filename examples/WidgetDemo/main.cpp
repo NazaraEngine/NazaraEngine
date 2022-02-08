@@ -1,5 +1,4 @@
 #include <Nazara/Core.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
@@ -38,7 +37,7 @@ int main()
 
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::ECS, Nz::Widgets> nazara(rendererConfig);
+	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::Widgets> nazara(rendererConfig);
 
 	Nz::RenderWindow window;
 

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
@@ -29,8 +28,6 @@ namespace Nz
 	ModuleBase("Graphics", this),
 	m_preferredDepthStencilFormat(PixelFormat::Undefined)
 	{
-		ECS::RegisterComponents();
-
 		Renderer* renderer = Renderer::Instance();
 
 		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();

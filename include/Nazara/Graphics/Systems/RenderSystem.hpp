@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <entt/entt.hpp>
 #include <memory>
 #include <set>
 #include <unordered_map>
