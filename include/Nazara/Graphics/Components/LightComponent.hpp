@@ -8,9 +8,9 @@
 #define NAZARA_GRAPHICS_COMPONENTS_LIGHTCOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
+#include <entt/entt.hpp>
 #include <memory>
 #include <vector>
 

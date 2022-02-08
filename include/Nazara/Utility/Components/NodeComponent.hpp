@@ -8,8 +8,8 @@
 #define NAZARA_UTILITY_COMPONENTS_NODECOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ECS.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <entt/entt.hpp>
 
 namespace Nz
 {

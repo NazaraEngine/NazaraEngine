@@ -15,11 +15,9 @@ namespace Nz
 	* \class Nz::Widgets
 	* \brief Widgets class that represents the module initializer of Widgets
 	*/
-	Widgets::Widgets(Config config) :
+	Widgets::Widgets(Config /*config*/) :
 	ModuleBase("Widgets", this)
 	{
-		ECS::RegisterComponents();
-
 		CreateDefaultMaterials();
 	}
 
