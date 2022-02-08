@@ -32,7 +32,7 @@ namespace Nz::ShaderAst
 			struct Callbacks
 			{
 				std::function<void(ShaderStageType stageType, const std::string& functionName)> onEntryPointDeclaration;
-				std::function<void(const std::string& optionName, const ExpressionType& optionType)> onOptionDeclaration;
+				std::function<void(const std::string& optionName, const ExpressionValue<ExpressionType>& optionType)> onOptionDeclaration;
 			};
 
 		private:

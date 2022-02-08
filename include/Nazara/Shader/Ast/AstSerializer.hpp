@@ -54,12 +54,13 @@ namespace Nz::ShaderAst
 			void Serialize(MultiStatement& node);
 			void Serialize(NoOpStatement& node);
 			void Serialize(ReturnStatement& node);
+			void Serialize(ScopedStatement& node);
 			void Serialize(WhileStatement& node);
 
 		protected:
-			template<typename T> void Attribute(AttributeValue<T>& attribute);
 			template<typename T> void Container(T& container);
 			template<typename T> void Enum(T& enumVal);
+			template<typename T> void ExprValue(ExpressionValue<T>& attribute);
 			template<typename T> void OptEnum(std::optional<T>& optVal);
 			template<typename T> void OptVal(std::optional<T>& optVal);
 

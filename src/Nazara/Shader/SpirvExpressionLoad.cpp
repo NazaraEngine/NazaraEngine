@@ -30,9 +30,46 @@ namespace Nz
 
 				return resultId;
 			},
+			[this](const PointerChainAccess& pointerChainAccess) -> UInt32
+			{
+				UInt32 pointerType = m_writer.RegisterPointerType(*pointerChainAccess.exprType, pointerChainAccess.storage); //< FIXME: We shouldn't register this so late
+
+				UInt32 pointerId = m_visitor.AllocateResultId();
+				
+				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
+				{
+					appender(pointerType);
+					appender(pointerId);
+					appender(pointerChainAccess.pointerId);
+
+					for (UInt32 id : pointerChainAccess.indices)
+						appender(id);
+				});
+
+				UInt32 resultId = m_visitor.AllocateResultId();
+				m_block.Append(SpirvOp::OpLoad, m_writer.GetTypeId(*pointerChainAccess.exprType), resultId, pointerId);
+
+				return resultId;
+			},
 			[](const Value& value) -> UInt32
 			{
-				return value.resultId;
+				return value.valueId;
+			},
+			[this](const ValueExtraction& extractedValue) -> UInt32
+			{
+				UInt32 resultId = m_visitor.AllocateResultId();
+
+				m_block.AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
+				{
+					appender(extractedValue.typeId);
+					appender(resultId);
+					appender(extractedValue.valueId);
+
+					for (UInt32 id : extractedValue.indices)
+						appender(id);
+				});
+
+				return resultId;
 			},
 			[](std::monostate) -> UInt32
 			{
@@ -47,48 +84,42 @@ namespace Nz
 
 		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
 
-		UInt32 resultId = m_visitor.AllocateResultId();
 		UInt32 typeId = m_writer.GetTypeId(exprType);
+
+		assert(node.indices.size() == 1);
+		UInt32 indexId = m_visitor.EvaluateExpression(node.indices.front());
 
 		std::visit(overloaded
 		{
 			[&](const Pointer& pointer)
 			{
-				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
+				PointerChainAccess pointerChainAccess;
+				pointerChainAccess.exprType = &exprType;
+				pointerChainAccess.indices = { indexId };
+				pointerChainAccess.pointedTypeId = pointer.pointedTypeId;
+				pointerChainAccess.pointerId = pointer.pointerId;
+				pointerChainAccess.storage = pointer.storage;
 
-				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
-				for (std::size_t i = 0; i < node.indices.size(); ++i)
-					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
-
-				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
-				{
-					appender(pointerType);
-					appender(resultId);
-					appender(pointer.pointerId);
-
-					for (UInt32 id : indexIds)
-						appender(id);
-				});
-
-				m_value = Pointer { pointer.storage, resultId, typeId };
+				m_value = std::move(pointerChainAccess);
+			},
+			[&](PointerChainAccess& pointerChainAccess)
+			{
+				pointerChainAccess.exprType = &exprType;
+				pointerChainAccess.indices.push_back(indexId);
 			},
 			[&](const Value& value)
 			{
-				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
-				for (std::size_t i = 0; i < node.indices.size(); ++i)
-					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
+				ValueExtraction extractedValue;
+				extractedValue.indices = { indexId };
+				extractedValue.typeId = typeId;
+				extractedValue.valueId = value.valueId;
 
-				m_block.AppendVariadic(SpirvOp::OpCompositeExtract, [&](const auto& appender)
-				{
-					appender(typeId);
-					appender(resultId);
-					appender(value.resultId);
-
-					for (UInt32 id : indexIds)
-						appender(id);
-				});
-
-				m_value = Value { resultId };
+				m_value = std::move(extractedValue);
+			},
+			[&](ValueExtraction& extractedValue)
+			{
+				extractedValue.indices.push_back(indexId);
+				extractedValue.typeId = typeId;
 			},
 			[](std::monostate)
 			{

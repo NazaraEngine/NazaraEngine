@@ -251,8 +251,8 @@ namespace Nz
 				if (!uberShader->HasOption(optionName, &optionPtr))
 					return InvalidOption;
 
-				if (optionPtr->type != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::Int32 })
-					throw std::runtime_error("Location options must be of type i32");
+				//if (optionPtr->type != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::Int32 })
+				//	throw std::runtime_error("Location options must be of type i32");
 
 				return optionPtr->index;
 			};

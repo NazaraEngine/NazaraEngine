@@ -100,19 +100,10 @@ namespace Nz
 				UInt32 resultId = m_visitor.AllocateResultId();
 				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
 
-				StackArray<UInt32> indexIds = NazaraStackArrayNoInit(UInt32, node.indices.size());
-				for (std::size_t i = 0; i < node.indices.size(); ++i)
-					indexIds[i] = m_visitor.EvaluateExpression(node.indices[i]);
+				assert(node.indices.size() == 1);
+				UInt32 indexId = m_visitor.EvaluateExpression(node.indices.front());
 
-				m_block.AppendVariadic(SpirvOp::OpAccessChain, [&](const auto& appender)
-				{
-					appender(pointerType);
-					appender(resultId);
-					appender(pointer.pointerId);
-
-					for (UInt32 id : indexIds)
-						appender(id);
-				});
+				m_block.Append(SpirvOp::OpAccessChain, pointerType, resultId, pointer.pointerId, indexId); 
 
 				m_value = Pointer { pointer.storage, resultId };
 			},
@@ -147,6 +138,8 @@ namespace Nz
 			{
 				// Swizzle the swizzle, keep common components
 				std::array<UInt32, 4> newIndices;
+				newIndices.fill(0); //< keep compiler happy
+
 				for (std::size_t i = 0; i < node.componentCount; ++i)
 				{
 					assert(node.components[i] < swizzledPointer.componentCount);

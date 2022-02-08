@@ -24,7 +24,8 @@ namespace Nz::ShaderAst
 			AstCloner(AstCloner&&) = delete;
 			~AstCloner() = default;
 
-			template<typename T> AttributeValue<T> Clone(const AttributeValue<T>& attribute);
+			template<typename T> ExpressionValue<T> Clone(const ExpressionValue<T>& expressionValue);
+			inline ExpressionValue<ExpressionType> Clone(const ExpressionValue<ExpressionType>& expressionValue);
 			ExpressionPtr Clone(Expression& statement);
 			StatementPtr Clone(Statement& statement);
 
@@ -37,6 +38,7 @@ namespace Nz::ShaderAst
 
 			virtual ExpressionPtr CloneExpression(Expression& expr);
 			virtual StatementPtr CloneStatement(Statement& statement);
+			virtual ExpressionValue<ExpressionType> CloneType(const ExpressionValue<ExpressionType>& exprType);
 
 			virtual ExpressionPtr Clone(AccessIdentifierExpression& node);
 			virtual ExpressionPtr Clone(AccessIndexExpression& node);
@@ -69,6 +71,7 @@ namespace Nz::ShaderAst
 			virtual StatementPtr Clone(MultiStatement& node);
 			virtual StatementPtr Clone(NoOpStatement& node);
 			virtual StatementPtr Clone(ReturnStatement& node);
+			virtual StatementPtr Clone(ScopedStatement& node);
 			virtual StatementPtr Clone(WhileStatement& node);
 
 #define NAZARA_SHADERAST_NODE(NodeType) void Visit(NodeType& node) override;
@@ -85,7 +88,7 @@ namespace Nz::ShaderAst
 			std::vector<StatementPtr>  m_statementStack;
 	};
 
-	template<typename T> AttributeValue<T> Clone(const AttributeValue<T>& attribute);
+	template<typename T> ExpressionValue<T> Clone(const ExpressionValue<T>& attribute);
 	inline ExpressionPtr Clone(Expression& node);
 	inline StatementPtr Clone(Statement& node);
 }

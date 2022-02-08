@@ -50,13 +50,14 @@ namespace Nz::ShaderBuilder
 		struct CallFunction
 		{
 			inline std::unique_ptr<ShaderAst::CallFunctionExpression> operator()(std::string functionName, std::vector<ShaderAst::ExpressionPtr> parameters) const;
+			inline std::unique_ptr<ShaderAst::CallFunctionExpression> operator()(ShaderAst::ExpressionPtr functionExpr, std::vector<ShaderAst::ExpressionPtr> parameters) const;
 		};
 
 		struct Cast
 		{
-			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, ShaderAst::ExpressionPtr expression) const;
-			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const;
-			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionType targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const;
+			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionValue<ShaderAst::ExpressionType> targetType, ShaderAst::ExpressionPtr expression) const;
+			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionValue<ShaderAst::ExpressionType> targetType, std::array<ShaderAst::ExpressionPtr, 4> expressions) const;
+			inline std::unique_ptr<ShaderAst::CastExpression> operator()(ShaderAst::ExpressionValue<ShaderAst::ExpressionType> targetType, std::vector<ShaderAst::ExpressionPtr> expressions) const;
 		};
 
 		struct ConditionalExpression
@@ -78,20 +79,20 @@ namespace Nz::ShaderBuilder
 		struct DeclareConst
 		{
 			inline std::unique_ptr<ShaderAst::DeclareConstStatement> operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const;
-			inline std::unique_ptr<ShaderAst::DeclareConstStatement> operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
+			inline std::unique_ptr<ShaderAst::DeclareConstStatement> operator()(std::string name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType> type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
 		};
 
 		struct DeclareFunction
 		{
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, ShaderAst::StatementPtr statement) const;
-			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionValue<ShaderAst::ExpressionType> returnType = ShaderAst::ExpressionType{ ShaderAst::NoType{} }) const;
 			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::optional<ShaderStageType> entryStage, std::string name, ShaderAst::StatementPtr statement) const;
-			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionType returnType = ShaderAst::NoType{}) const;
+			inline std::unique_ptr<ShaderAst::DeclareFunctionStatement> operator()(std::optional<ShaderStageType> entryStage, std::string name, std::vector<ShaderAst::DeclareFunctionStatement::Parameter> parameters, std::vector<ShaderAst::StatementPtr> statements, ShaderAst::ExpressionValue<ShaderAst::ExpressionType> returnType = ShaderAst::ExpressionType{ ShaderAst::NoType{} }) const;
 		};
 
 		struct DeclareOption
 		{
-			inline std::unique_ptr<ShaderAst::DeclareOptionStatement> operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
+			inline std::unique_ptr<ShaderAst::DeclareOptionStatement> operator()(std::string name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType> type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
 		};
 
 		struct DeclareStruct
@@ -102,7 +103,7 @@ namespace Nz::ShaderBuilder
 		struct DeclareVariable
 		{
 			inline std::unique_ptr<ShaderAst::DeclareVariableStatement> operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const;
-			inline std::unique_ptr<ShaderAst::DeclareVariableStatement> operator()(std::string name, ShaderAst::ExpressionType type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
+			inline std::unique_ptr<ShaderAst::DeclareVariableStatement> operator()(std::string name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType> type, ShaderAst::ExpressionPtr initialValue = nullptr) const;
 		};
 
 		struct ExpressionStatement
@@ -145,6 +146,11 @@ namespace Nz::ShaderBuilder
 		struct Return
 		{
 			inline std::unique_ptr<ShaderAst::ReturnStatement> operator()(ShaderAst::ExpressionPtr expr = nullptr) const;
+		};
+
+		struct Scoped
+		{
+			inline std::unique_ptr<ShaderAst::ScopedStatement> operator()(ShaderAst::StatementPtr statement) const;
 		};
 
 		struct Swizzle
@@ -194,6 +200,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::Multi MultiStatement;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
+	constexpr Impl::Scoped Scoped;
 	constexpr Impl::Swizzle Swizzle;
 	constexpr Impl::Unary Unary;
 	constexpr Impl::Variable Variable;

@@ -20,7 +20,7 @@ namespace Nz
 {
 	class SpirvWriter;
 
-	class NAZARA_SHADER_API SpirvAstVisitor : public ShaderAst::ExpressionVisitorExcept, public ShaderAst::StatementVisitorExcept
+	class NAZARA_SHADER_API SpirvAstVisitor : public ShaderAst::AstExpressionVisitorExcept, public ShaderAst::AstStatementVisitorExcept
 	{
 		public:
 			struct EntryPoint;
@@ -38,8 +38,8 @@ namespace Nz
 
 			const Variable& GetVariable(std::size_t varIndex) const;
 
-			using ExpressionVisitorExcept::Visit;
-			using StatementVisitorExcept::Visit;
+			using AstExpressionVisitorExcept::Visit;
+			using AstStatementVisitorExcept::Visit;
 
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
@@ -60,6 +60,7 @@ namespace Nz
 			void Visit(ShaderAst::MultiStatement& node) override;
 			void Visit(ShaderAst::NoOpStatement& node) override;
 			void Visit(ShaderAst::ReturnStatement& node) override;
+			void Visit(ShaderAst::ScopedStatement& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
 			void Visit(ShaderAst::UnaryExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;

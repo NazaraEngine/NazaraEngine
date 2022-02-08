@@ -315,7 +315,6 @@ OpULessThan
 OpLoopMerge
 OpBranchConditional
 OpLabel
-OpAccessChain
 OpLoad
 OpAccessChain
 OpLoad

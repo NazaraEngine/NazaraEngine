@@ -58,7 +58,6 @@ namespace Nz
 			struct Option
 			{
 				std::size_t index;
-				ShaderAst::ExpressionType type;
 			};
 
 		private:

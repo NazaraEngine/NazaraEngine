@@ -29,19 +29,35 @@ namespace Nz::ShaderAst
 		ArrayType& operator=(const ArrayType& array);
 		ArrayType& operator=(ArrayType&&) noexcept = default;
 
-		AttributeValue<UInt32> length;
+		UInt32 length;
 		std::unique_ptr<ContainedType> containedType;
 
 		bool operator==(const ArrayType& rhs) const;
 		inline bool operator!=(const ArrayType& rhs) const;
 	};
 
-	struct IdentifierType //< Alias or struct
+	struct FunctionType
+	{
+		std::size_t funcIndex;
+
+		inline bool operator==(const FunctionType& rhs) const;
+		inline bool operator!=(const FunctionType& rhs) const;
+	};
+
+	struct IdentifierType
 	{
 		std::string name;
 
 		inline bool operator==(const IdentifierType& rhs) const;
 		inline bool operator!=(const IdentifierType& rhs) const;
+	};
+
+	struct IntrinsicFunctionType
+	{
+		IntrinsicType intrinsic;
+
+		inline bool operator==(const IntrinsicFunctionType& rhs) const;
+		inline bool operator!=(const IntrinsicFunctionType& rhs) const;
 	};
 
 	struct MatrixType
@@ -52,6 +68,22 @@ namespace Nz::ShaderAst
 
 		inline bool operator==(const MatrixType& rhs) const;
 		inline bool operator!=(const MatrixType& rhs) const;
+	};
+
+	struct NAZARA_SHADER_API MethodType
+	{
+		MethodType() = default;
+		MethodType(const MethodType& methodType);
+		MethodType(MethodType&&) noexcept = default;
+
+		MethodType& operator=(const MethodType& methodType);
+		MethodType& operator=(MethodType&&) noexcept = default;
+
+		std::unique_ptr<ContainedType> objectType;
+		std::size_t methodIndex;
+
+		bool operator==(const MethodType& rhs) const;
+		inline bool operator!=(const MethodType& rhs) const;
 	};
 
 	struct NoType
@@ -77,9 +109,17 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const StructType& rhs) const;
 	};
 
+	struct Type
+	{
+		std::size_t typeIndex;
+
+		inline bool operator==(const Type& rhs) const;
+		inline bool operator!=(const Type& rhs) const;
+	};
+
 	struct UniformType
 	{
-		std::variant<IdentifierType, StructType> containedType;
+		StructType containedType;
 
 		inline bool operator==(const UniformType& rhs) const;
 		inline bool operator!=(const UniformType& rhs) const;
@@ -94,7 +134,7 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const VectorType& rhs) const;
 	};
 
-	using ExpressionType = std::variant<NoType, ArrayType, IdentifierType, PrimitiveType, MatrixType, SamplerType, StructType, UniformType, VectorType>;
+	using ExpressionType = std::variant<NoType, ArrayType, FunctionType, IdentifierType, IntrinsicFunctionType, PrimitiveType, MatrixType, MethodType, SamplerType, StructType, Type, UniformType, VectorType>;
 
 	struct ContainedType
 	{
@@ -105,25 +145,29 @@ namespace Nz::ShaderAst
 	{
 		struct StructMember
 		{
-			AttributeValue<BuiltinEntry> builtin;
-			AttributeValue<bool> cond;
-			AttributeValue<UInt32> locationIndex;
+			ExpressionValue<BuiltinEntry> builtin;
+			ExpressionValue<bool> cond;
+			ExpressionValue<UInt32> locationIndex;
+			ExpressionValue<ExpressionType> type;
 			std::string name;
-			ExpressionType type;
 		};
 
-		AttributeValue<StructLayout> layout;
+		ExpressionValue<StructLayout> layout;
 		std::string name;
 		std::vector<StructMember> members;
 	};
 
 	inline bool IsArrayType(const ExpressionType& type);
+	inline bool IsFunctionType(const ExpressionType& type);
 	inline bool IsIdentifierType(const ExpressionType& type);
+	inline bool IsIntrinsicFunctionType(const ExpressionType& type);
 	inline bool IsMatrixType(const ExpressionType& type);
+	inline bool IsMethodType(const ExpressionType& type);
 	inline bool IsNoType(const ExpressionType& type);
 	inline bool IsPrimitiveType(const ExpressionType& type);
 	inline bool IsSamplerType(const ExpressionType& type);
 	inline bool IsStructType(const ExpressionType& type);
+	inline bool IsTypeExpression(const ExpressionType& type);
 	inline bool IsUniformType(const ExpressionType& type);
 	inline bool IsVectorType(const ExpressionType& type);
 }

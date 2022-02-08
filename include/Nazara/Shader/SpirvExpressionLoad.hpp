@@ -19,7 +19,7 @@ namespace Nz
 	class SpirvBlock;
 	class SpirvWriter;
 
-	class NAZARA_SHADER_API SpirvExpressionLoad : public ShaderAst::ExpressionVisitorExcept
+	class NAZARA_SHADER_API SpirvExpressionLoad : public ShaderAst::AstExpressionVisitorExcept
 	{
 		public:
 			inline SpirvExpressionLoad(SpirvWriter& writer, SpirvAstVisitor& visitor, SpirvBlock& block);
@@ -29,7 +29,7 @@ namespace Nz
 
 			UInt32 Evaluate(ShaderAst::Expression& node);
 
-			using ExpressionVisitorExcept::Visit;
+			using AstExpressionVisitorExcept::Visit;
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;
 
@@ -37,6 +37,15 @@ namespace Nz
 			SpirvExpressionLoad& operator=(SpirvExpressionLoad&&) = delete;
 
 		private:
+			struct PointerChainAccess
+			{
+				std::vector<UInt32> indices;
+				const ShaderAst::ExpressionType* exprType;
+				SpirvStorageClass storage;
+				UInt32 pointerId;
+				UInt32 pointedTypeId;
+			};
+
 			struct Pointer
 			{
 				SpirvStorageClass storage;
@@ -46,13 +55,20 @@ namespace Nz
 
 			struct Value
 			{
-				UInt32 resultId;
+				UInt32 valueId;
+			};
+
+			struct ValueExtraction
+			{
+				std::vector<UInt32> indices;
+				UInt32 typeId;
+				UInt32 valueId;
 			};
 
 			SpirvAstVisitor& m_visitor;
 			SpirvBlock& m_block;
 			SpirvWriter& m_writer;
-			std::variant<std::monostate, Pointer, Value> m_value;
+			std::variant<std::monostate, ValueExtraction, Pointer, PointerChainAccess, Value> m_value;
 	};
 }
 

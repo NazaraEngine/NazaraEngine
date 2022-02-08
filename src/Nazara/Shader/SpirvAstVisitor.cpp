@@ -400,8 +400,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::CallFunctionExpression& node)
 	{
-		assert(std::holds_alternative<std::size_t>(node.targetFunction));
-		std::size_t functionIndex = std::get<std::size_t>(node.targetFunction);
+		std::size_t functionIndex = std::get<ShaderAst::FunctionType>(GetExpressionType(*node.targetFunction)).funcIndex;
 
 		UInt32 funcId = 0;
 		for (const auto& [funcIndex, func] : m_funcData)
@@ -443,7 +442,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::CastExpression& node)
 	{
-		const ShaderAst::ExpressionType& targetExprType = node.targetType;
+		const ShaderAst::ExpressionType& targetExprType = node.targetType.GetResultingValue();
 		if (IsPrimitiveType(targetExprType))
 		{
 			ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
@@ -584,7 +583,7 @@ namespace Nz
 
 		std::size_t varIndex = *node.varIndex;
 		for (auto&& extVar : node.externalVars)
-			RegisterExternalVariable(varIndex++, extVar.type);
+			RegisterExternalVariable(varIndex++, extVar.type.GetResultingValue());
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareFunctionStatement& node)
@@ -674,7 +673,7 @@ namespace Nz
 	{
 		const auto& func = m_funcData[m_funcIndex];
 
-		UInt32 typeId = m_writer.GetTypeId(node.varType);
+		UInt32 typeId = m_writer.GetTypeId(node.varType.GetResultingValue());
 
 		assert(node.varIndex);
 		auto varIt = func.varIndexToVarId.find(*node.varIndex);
@@ -930,6 +929,11 @@ namespace Nz
 		}
 		else
 			m_currentBlock->Append(SpirvOp::OpReturn);
+	}
+
+	void SpirvAstVisitor::Visit(ShaderAst::ScopedStatement& node)
+	{
+		node.statement->Visit(*this);
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)

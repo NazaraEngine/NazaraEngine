@@ -57,6 +57,8 @@ namespace Nz::ShaderAst
 			template<typename TargetType> ExpressionPtr PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3);
 			template<typename TargetType> ExpressionPtr PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4);
 
+			StatementPtr Unscope(StatementPtr node);
+
 		private:
 			Options m_options;
 	};
