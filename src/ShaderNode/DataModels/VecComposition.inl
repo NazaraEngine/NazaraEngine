@@ -23,7 +23,7 @@ Nz::ShaderAst::NodePtr VecComposition<ComponentCount>::BuildNode(Nz::ShaderAst::
 	for (std::size_t i = 0; i < count; ++i)
 		params.emplace_back(std::move(expressions[i]));
 
-	return Nz::ShaderBuilder::Cast(Nz::ShaderAst::VectorType{ ComponentCount, Nz::ShaderAst::PrimitiveType::Float32 }, std::move(params));
+	return Nz::ShaderBuilder::Cast(Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ ComponentCount, Nz::ShaderAst::PrimitiveType::Float32 } }, std::move(params));
 }
 
 template<std::size_t ComponentCount>

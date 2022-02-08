@@ -463,7 +463,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 
 	// Declare all options
 	for (const auto& option : m_options)
-		statements.push_back(Nz::ShaderBuilder::DeclareOption(option.name, Nz::ShaderAst::PrimitiveType::Boolean));
+		statements.push_back(Nz::ShaderBuilder::DeclareOption(option.name, Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Boolean }));
 
 	// Declare all structures
 	for (const auto& structInfo : m_structs)
@@ -496,7 +496,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 		extVar.bindingIndex = buffer.bindingIndex;
 		extVar.bindingSet = buffer.setIndex;
 		extVar.name = buffer.name;
-		extVar.type = Nz::ShaderAst::UniformType{ Nz::ShaderAst::IdentifierType{ structInfo.name } };
+		extVar.type = Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::IdentifierType{ structInfo.name } };
 	}
 
 	for (const auto& texture : m_textures)
@@ -546,7 +546,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 			auto& position = structDesc.members.emplace_back();
 			position.builtin = Nz::ShaderAst::BuiltinEntry::VertexPosition;
 			position.name = "position";
-			position.type = Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
+			position.type = Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 } };
 		}
 
 		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
@@ -816,7 +816,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 	{
 		parameters.push_back({
 			"input",
-			Nz::ShaderAst::IdentifierType{ "InputData" }
+			Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::IdentifierType{ "InputData" } }
 		});
 	}
 
