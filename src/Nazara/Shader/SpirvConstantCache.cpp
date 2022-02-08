@@ -513,7 +513,7 @@ namespace Nz
 
 		for (const Structure::Member& member : structData.members)
 		{
-			member.offset = std::visit([&](auto&& arg) -> std::size_t
+			member.offset = SafeCast<UInt32>(std::visit([&](auto&& arg) -> std::size_t
 			{
 				using T = std::decay_t<decltype(arg)>;
 
@@ -601,7 +601,7 @@ namespace Nz
 					throw std::runtime_error("unexpected void as struct member");
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-			}, member.type->type);
+			}, member.type->type));
 		}
 
 		return structOffsets;
@@ -671,7 +671,7 @@ namespace Nz
 
 		return std::make_shared<Type>(Array{
 			builtContainedType,
-			BuildConstant(type.length.GetResultingValue()),
+			BuildConstant(type.length),
 			arrayStride
 		});
 	}
@@ -802,7 +802,7 @@ namespace Nz
 
 			auto& sMembers = sType.members.emplace_back();
 			sMembers.name = member.name;
-			sMembers.type = BuildType(member.type);
+			sMembers.type = BuildType(member.type.GetResultingValue());
 		}
 
 		m_internal->isInBlockStruct = wasInBlock;
@@ -817,8 +817,7 @@ namespace Nz
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::UniformType& type) const -> TypePtr
 	{
-		assert(std::holds_alternative<ShaderAst::StructType>(type.containedType));
-		return BuildType(std::get<ShaderAst::StructType>(type.containedType));
+		return BuildType(type.containedType);
 	}
 
 	UInt32 SpirvConstantCache::GetId(const Constant& c)
@@ -918,12 +917,12 @@ namespace Nz
 		return fieldOffsets.AddFieldArray(TypeToStructFieldType(type), arrayLength);
 	}
 
-	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Function& type, std::size_t arrayLength) const
+	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& /*fieldOffsets*/, const Function& /*type*/, std::size_t /*arrayLength*/) const
 	{
 		throw std::runtime_error("unexpected Function");
 	}
 
-	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Image& type, std::size_t arrayLength) const
+	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& /*fieldOffsets*/, const Image& /*type*/, std::size_t /*arrayLength*/) const
 	{
 		throw std::runtime_error("unexpected Image");
 	}

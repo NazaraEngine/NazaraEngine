@@ -33,6 +33,7 @@ fn main()
 fn main()
 {
 	let output: f32 = 42.000000;
+}
 )");
 	}
 

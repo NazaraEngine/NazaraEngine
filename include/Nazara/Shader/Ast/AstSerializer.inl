@@ -3,12 +3,42 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/Ast/AstSerializer.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
 {
 	template<typename T>
-	void AstSerializerBase::Attribute(AttributeValue<T>& attribute)
+	void AstSerializerBase::Container(T& container)
+	{
+		bool isWriting = IsWriting();
+
+		UInt32 size;
+		if (isWriting)
+			size = SafeCast<UInt32>(container.size());
+
+		Value(size);
+		if (!isWriting)
+			container.resize(size);
+	}
+
+
+	template<typename T>
+	void AstSerializerBase::Enum(T& enumVal)
+	{
+		bool isWriting = IsWriting();
+
+		UInt32 value;
+		if (isWriting)
+			value = SafeCast<UInt32>(enumVal);
+
+		Value(value);
+		if (!isWriting)
+			enumVal = static_cast<T>(value);
+	}
+	
+	template<typename T>
+	void AstSerializerBase::ExprValue(ExpressionValue<T>& attribute)
 	{
 		UInt32 valueType;
 		if (IsWriting())
@@ -55,6 +85,8 @@ namespace Nz::ShaderAst
 					T value;
 					if constexpr (std::is_enum_v<T>)
 						Enum(value);
+					else if constexpr (std::is_same_v<T, ExpressionType>)
+						Type(value);
 					else
 						Value(value);
 
@@ -65,6 +97,8 @@ namespace Nz::ShaderAst
 					T& value = const_cast<T&>(attribute.GetResultingValue()); //< not used for writing
 					if constexpr (std::is_enum_v<T>)
 						Enum(value);
+					else if constexpr (std::is_same_v<T, ExpressionType>)
+						Type(value);
 					else
 						Value(value);
 				}
@@ -72,35 +106,6 @@ namespace Nz::ShaderAst
 				break;
 			}
 		}
-	}
-
-	template<typename T>
-	void AstSerializerBase::Container(T& container)
-	{
-		bool isWriting = IsWriting();
-
-		UInt32 size;
-		if (isWriting)
-			size = UInt32(container.size());
-
-		Value(size);
-		if (!isWriting)
-			container.resize(size);
-	}
-
-
-	template<typename T>
-	void AstSerializerBase::Enum(T& enumVal)
-	{
-		bool isWriting = IsWriting();
-
-		UInt32 value;
-		if (isWriting)
-			value = static_cast<UInt32>(enumVal);
-
-		Value(value);
-		if (!isWriting)
-			enumVal = static_cast<T>(value);
 	}
 
 	template<typename T>
@@ -150,12 +155,12 @@ namespace Nz::ShaderAst
 
 		UInt32 fixedVal;
 		if (isWriting)
-			fixedVal = static_cast<UInt32>(val);
+			fixedVal = SafeCast<UInt32>(val);
 
 		Value(fixedVal);
 
 		if (!isWriting)
-			val = static_cast<std::size_t>(fixedVal);
+			val = SafeCast<std::size_t>(fixedVal);
 	}
 
 	inline ShaderAstSerializer::ShaderAstSerializer(ByteStream& stream) :

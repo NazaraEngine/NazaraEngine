@@ -10,20 +10,20 @@
 namespace Nz::ShaderAst
 {
 	template<typename T>
-	AttributeValue<T>::AttributeValue(T value) :
+	ExpressionValue<T>::ExpressionValue(T value) :
 	m_value(std::move(value))
 	{
 	}
 
 	template<typename T>
-	AttributeValue<T>::AttributeValue(ExpressionPtr expr)
+	ExpressionValue<T>::ExpressionValue(ExpressionPtr expr)
 	{
 		assert(expr);
 		m_value = std::move(expr);
 	}
 
 	template<typename T>
-	ExpressionPtr&& AttributeValue<T>::GetExpression() &&
+	ExpressionPtr&& ExpressionValue<T>::GetExpression() &&
 	{
 		if (!IsExpression())
 			throw std::runtime_error("excepted expression");
@@ -32,7 +32,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename T>
-	const ExpressionPtr& AttributeValue<T>::GetExpression() const &
+	const ExpressionPtr& ExpressionValue<T>::GetExpression() const &
 	{
 		if (!IsExpression())
 			throw std::runtime_error("excepted expression");
@@ -42,7 +42,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename T>
-	const T& AttributeValue<T>::GetResultingValue() const
+	const T& ExpressionValue<T>::GetResultingValue() const
 	{
 		if (!IsResultingValue())
 			throw std::runtime_error("excepted resulting value");
@@ -51,19 +51,19 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename T>
-	bool AttributeValue<T>::IsExpression() const
+	bool ExpressionValue<T>::IsExpression() const
 	{
 		return std::holds_alternative<ExpressionPtr>(m_value);
 	}
 
 	template<typename T>
-	bool AttributeValue<T>::IsResultingValue() const
+	bool ExpressionValue<T>::IsResultingValue() const
 	{
 		return std::holds_alternative<T>(m_value);
 	}
 
 	template<typename T>
-	bool AttributeValue<T>::HasValue() const
+	bool ExpressionValue<T>::HasValue() const
 	{
 		return !std::holds_alternative<std::monostate>(m_value);
 	}

@@ -13,7 +13,7 @@
 
 namespace Nz::ShaderAst
 {
-	class NAZARA_SHADER_API StatementVisitorExcept : public AstStatementVisitor
+	class NAZARA_SHADER_API AstStatementVisitorExcept : public AstStatementVisitor
 	{
 		public:
 			using AstStatementVisitor::Visit;

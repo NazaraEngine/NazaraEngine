@@ -67,27 +67,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(CallFunctionExpression& node)
 	{
-		UInt32 typeIndex;
-		if (IsWriting())
-			typeIndex = UInt32(node.targetFunction.index());
-
-		Value(typeIndex);
-
-		// Waiting for template lambda in C++20
-		auto SerializeValue = [&](auto dummyType)
-		{
-			using T = std::decay_t<decltype(dummyType)>;
-
-			auto& value = (IsWriting()) ? std::get<T>(node.targetFunction) : node.targetFunction.emplace<T>();
-			Value(value);
-		};
-
-		static_assert(std::variant_size_v<decltype(node.targetFunction)> == 2);
-		switch (typeIndex)
-		{
-			case 0: SerializeValue(std::string()); break;
-			case 1: SerializeValue(std::size_t()); break;
-		}
+		Node(node.targetFunction);
 
 		Container(node.parameters);
 		for (auto& param : node.parameters)
@@ -106,7 +86,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(CastExpression& node)
 	{
-		Type(node.targetType);
+		ExprValue(node.targetType);
 		for (auto& expr : node.expressions)
 			Node(expr);
 	}
@@ -215,15 +195,15 @@ namespace Nz::ShaderAst
 	{
 		OptVal(node.varIndex);
 
-		Attribute(node.bindingSet);
+		ExprValue(node.bindingSet);
 
 		Container(node.externalVars);
 		for (auto& extVar : node.externalVars)
 		{
 			Value(extVar.name);
-			Type(extVar.type);
-			Attribute(extVar.bindingIndex);
-			Attribute(extVar.bindingSet);
+			ExprValue(extVar.type);
+			ExprValue(extVar.bindingIndex);
+			ExprValue(extVar.bindingSet);
 		}
 	}
 
@@ -231,17 +211,17 @@ namespace Nz::ShaderAst
 	{
 		OptVal(node.constIndex);
 		Value(node.name);
-		Type(node.type);
+		ExprValue(node.type);
 		Node(node.expression);
 	}
 
 	void AstSerializerBase::Serialize(DeclareFunctionStatement& node)
 	{
 		Value(node.name);
-		Type(node.returnType);
-		Attribute(node.depthWrite);
-		Attribute(node.earlyFragmentTests);
-		Attribute(node.entryStage);
+		ExprValue(node.returnType);
+		ExprValue(node.depthWrite);
+		ExprValue(node.earlyFragmentTests);
+		ExprValue(node.entryStage);
 		OptVal(node.funcIndex);
 		OptVal(node.varIndex);
 
@@ -249,7 +229,7 @@ namespace Nz::ShaderAst
 		for (auto& parameter : node.parameters)
 		{
 			Value(parameter.name);
-			Type(parameter.type);
+			ExprValue(parameter.type);
 		}
 
 		Container(node.statements);
@@ -261,7 +241,7 @@ namespace Nz::ShaderAst
 	{
 		OptVal(node.optIndex);
 		Value(node.optName);
-		Type(node.optType);
+		ExprValue(node.optType);
 		Node(node.defaultValue);
 	}
 
@@ -270,16 +250,16 @@ namespace Nz::ShaderAst
 		OptVal(node.structIndex);
 
 		Value(node.description.name);
-		Attribute(node.description.layout);
+		ExprValue(node.description.layout);
 
 		Container(node.description.members);
 		for (auto& member : node.description.members)
 		{
 			Value(member.name);
-			Type(member.type);
-			Attribute(member.builtin);
-			Attribute(member.cond);
-			Attribute(member.locationIndex);
+			ExprValue(member.type);
+			ExprValue(member.builtin);
+			ExprValue(member.cond);
+			ExprValue(member.locationIndex);
 		}
 	}
 	
@@ -287,7 +267,7 @@ namespace Nz::ShaderAst
 	{
 		OptVal(node.varIndex);
 		Value(node.varName);
-		Type(node.varType);
+		ExprValue(node.varType);
 		Node(node.initialExpression);
 	}
 
@@ -303,7 +283,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ForStatement& node)
 	{
-		Attribute(node.unroll);
+		ExprValue(node.unroll);
 		Value(node.varName);
 		Node(node.fromExpr);
 		Node(node.toExpr);
@@ -313,7 +293,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ForEachStatement& node)
 	{
-		Attribute(node.unroll);
+		ExprValue(node.unroll);
 		Value(node.varName);
 		Node(node.expression);
 		Node(node.statement);
@@ -336,9 +316,14 @@ namespace Nz::ShaderAst
 		Node(node.returnExpr);
 	}
 
+	void AstSerializerBase::Serialize(ScopedStatement& node)
+	{
+		Node(node.statement);
+	}
+
 	void AstSerializerBase::Serialize(WhileStatement& node)
 	{
-		Attribute(node.unroll);
+		ExprValue(node.unroll);
 		Node(node.condition);
 		Node(node.body);
 	}
@@ -392,7 +377,7 @@ namespace Nz::ShaderAst
 			else if constexpr (std::is_same_v<T, PrimitiveType>)
 			{
 				m_stream << UInt8(1);
-				m_stream << UInt32(arg);
+				Enum(arg);
 			}
 			else if constexpr (std::is_same_v<T, IdentifierType>)
 			{
@@ -402,37 +387,58 @@ namespace Nz::ShaderAst
 			else if constexpr (std::is_same_v<T, MatrixType>)
 			{
 				m_stream << UInt8(3);
-				m_stream << UInt32(arg.columnCount);
-				m_stream << UInt32(arg.rowCount);
-				m_stream << UInt32(arg.type);
+				SizeT(arg.columnCount);
+				SizeT(arg.rowCount);
+				Enum(arg.type);
 			}
 			else if constexpr (std::is_same_v<T, SamplerType>)
 			{
 				m_stream << UInt8(4);
-				m_stream << UInt32(arg.dim);
-				m_stream << UInt32(arg.sampledType);
+				Enum(arg.dim);
+				Enum(arg.sampledType);
 			}
 			else if constexpr (std::is_same_v<T, StructType>)
 			{
 				m_stream << UInt8(5);
-				m_stream << UInt32(arg.structIndex);
+				SizeT(arg.structIndex);
 			}
 			else if constexpr (std::is_same_v<T, UniformType>)
 			{
 				m_stream << UInt8(6);
-				m_stream << std::get<IdentifierType>(arg.containedType).name;
+				SizeT(arg.containedType.structIndex);
 			}
 			else if constexpr (std::is_same_v<T, VectorType>)
 			{
 				m_stream << UInt8(7);
-				m_stream << UInt32(arg.componentCount);
-				m_stream << UInt32(arg.type);
+				SizeT(arg.componentCount);
+				Enum(arg.type);
 			}
 			else if constexpr (std::is_same_v<T, ArrayType>)
 			{
 				m_stream << UInt8(8);
-				Attribute(arg.length);
+				Value(arg.length);
 				Type(arg.containedType->type);
+			}
+			else if constexpr (std::is_same_v<T, ShaderAst::Type>)
+			{
+				m_stream << UInt8(9);
+				SizeT(arg.typeIndex);
+			}
+			else if constexpr (std::is_same_v<T, ShaderAst::FunctionType>)
+			{
+				m_stream << UInt8(10);
+				SizeT(arg.funcIndex);
+			}
+			else if constexpr (std::is_same_v<T, ShaderAst::IntrinsicFunctionType>)
+			{
+				m_stream << UInt8(11);
+				Enum(arg.intrinsic);
+			}
+			else if constexpr (std::is_same_v<T, ShaderAst::MethodType>)
+			{
+				m_stream << UInt8(12);
+				Type(arg.objectType->type);
+				SizeT(arg.methodIndex);
 			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
@@ -618,10 +624,10 @@ namespace Nz::ShaderAst
 
 			case 3: //< MatrixType
 			{
-				UInt32 columnCount, rowCount;
+				std::size_t columnCount, rowCount;
 				PrimitiveType primitiveType;
-				Value(columnCount);
-				Value(rowCount);
+				SizeT(columnCount);
+				SizeT(rowCount);
 				Enum(primitiveType);
 
 				type = MatrixType {
@@ -659,12 +665,12 @@ namespace Nz::ShaderAst
 
 			case 6: //< UniformType
 			{
-				std::string containedType;
-				Value(containedType);
+				std::size_t structIndex;
+				SizeT(structIndex);
 
 				type = UniformType {
-					IdentifierType {
-						containedType
+					StructType {
+						structIndex
 					}
 				};
 				break;
@@ -672,9 +678,9 @@ namespace Nz::ShaderAst
 
 			case 7: //< VectorType
 			{
-				UInt32 componentCount;
+				std::size_t componentCount;
 				PrimitiveType componentType;
-				Value(componentCount);
+				SizeT(componentCount);
 				Enum(componentType);
 
 				type = VectorType{
@@ -686,18 +692,64 @@ namespace Nz::ShaderAst
 
 			case 8: //< ArrayType
 			{
-				AttributeValue<UInt32> length;
+				UInt32 length;
 				ExpressionType containedType;
-				Attribute(length);
+				Value(length);
 				Type(containedType);
 
 				ArrayType arrayType;
-				arrayType.length = std::move(length);
+				arrayType.length = length;
 				arrayType.containedType = std::make_unique<ContainedType>();
 				arrayType.containedType->type = std::move(containedType);
 
 				type = std::move(arrayType);
 				break;
+			}
+
+			case 9: //< Type
+			{
+				std::size_t containedTypeIndex;
+				SizeT(containedTypeIndex);
+
+				type = ShaderAst::Type{
+					containedTypeIndex
+				};
+			}
+
+			case 10: //< FunctionType
+			{
+				std::size_t funcIndex;
+				SizeT(funcIndex);
+
+				type = FunctionType {
+					funcIndex
+				};
+			}
+
+			case 11: //< IntrinsicFunctionType
+			{
+				IntrinsicType intrinsicType;
+				Enum(intrinsicType);
+
+				type = IntrinsicFunctionType {
+					intrinsicType
+				};
+			}
+
+			case 12: //< MethodType
+			{
+				ExpressionType objectType;
+				Type(objectType);
+
+				std::size_t methodIndex;
+				SizeT(methodIndex);
+
+				MethodType methodType;
+				methodType.objectType = std::make_unique<ContainedType>();
+				methodType.objectType->type = std::move(objectType);
+				methodType.methodIndex = methodIndex;
+
+				type = std::move(methodType);
 			}
 
 			default:

@@ -13,7 +13,7 @@
 
 namespace Nz::ShaderAst
 {
-	class NAZARA_SHADER_API ExpressionVisitorExcept : public AstExpressionVisitor
+	class NAZARA_SHADER_API AstExpressionVisitorExcept : public AstExpressionVisitor
 	{
 		public:
 			using AstExpressionVisitor::Visit;

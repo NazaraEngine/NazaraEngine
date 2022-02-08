@@ -78,7 +78,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename T>
-	bool Compare(const AttributeValue<T>& lhs, const AttributeValue<T>& rhs)
+	bool Compare(const ExpressionValue<T>& lhs, const ExpressionValue<T>& rhs)
 	{
 		if (!Compare(lhs.HasValue(), rhs.HasValue()))
 			return false;
@@ -514,6 +514,14 @@ namespace Nz::ShaderAst
 	inline bool Compare(const ReturnStatement& lhs, const ReturnStatement& rhs)
 	{
 		if (!Compare(lhs.returnExpr, rhs.returnExpr))
+			return false;
+
+		return true;
+	}
+
+	bool Compare(const ScopedStatement& lhs, const ScopedStatement& rhs)
+	{
+		if (!Compare(lhs.statement, rhs.statement))
 			return false;
 
 		return true;

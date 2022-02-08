@@ -18,7 +18,7 @@
 
 namespace Nz
 {
-	class NAZARA_SHADER_API LangWriter : public ShaderWriter, public ShaderAst::ExpressionVisitorExcept, public ShaderAst::StatementVisitorExcept
+	class NAZARA_SHADER_API LangWriter : public ShaderWriter, public ShaderAst::AstExpressionVisitorExcept, public ShaderAst::AstStatementVisitorExcept
 	{
 		public:
 			struct Environment;
@@ -49,12 +49,17 @@ namespace Nz
 
 			void Append(const ShaderAst::ArrayType& type);
 			void Append(const ShaderAst::ExpressionType& type);
+			void Append(const ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type);
+			void Append(const ShaderAst::FunctionType& functionType);
 			void Append(const ShaderAst::IdentifierType& identifierType);
+			void Append(const ShaderAst::IntrinsicFunctionType& intrinsicFunctionType);
 			void Append(const ShaderAst::MatrixType& matrixType);
+			void Append(const ShaderAst::MethodType& methodType);
 			void Append(ShaderAst::NoType);
 			void Append(ShaderAst::PrimitiveType type);
 			void Append(const ShaderAst::SamplerType& samplerType);
 			void Append(const ShaderAst::StructType& structType);
+			void Append(const ShaderAst::Type& type);
 			void Append(const ShaderAst::UniformType& uniformType);
 			void Append(const ShaderAst::VectorType& vecType);
 			template<typename T> void Append(const T& param);
@@ -83,6 +88,8 @@ namespace Nz
 			void RegisterConstant(std::size_t constantIndex, std::string constantName);
 			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
+
+			void ScopeVisit(ShaderAst::Statement& node);
 
 			void Visit(ShaderAst::ExpressionPtr& expr, bool encloseIfRequired = false);
 
@@ -114,6 +121,7 @@ namespace Nz
 			void Visit(ShaderAst::MultiStatement& node) override;
 			void Visit(ShaderAst::NoOpStatement& node) override;
 			void Visit(ShaderAst::ReturnStatement& node) override;
+			void Visit(ShaderAst::ScopedStatement& node) override;
 			void Visit(ShaderAst::WhileStatement& node) override;
 
 			struct State;

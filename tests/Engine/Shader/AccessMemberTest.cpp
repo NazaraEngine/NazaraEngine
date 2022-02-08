@@ -38,7 +38,7 @@ external
 			auto secondAccess = Nz::ShaderBuilder::AccessMember(std::move(firstAccess), { "field" });
 
 			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(secondAccess), { 2u });
-			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::PrimitiveType::Float32, std::move(swizzle));
+			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Float32 }, std::move(swizzle));
 
 			multiStatement.statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
 
@@ -75,7 +75,7 @@ OpFunctionEnd)");
 			auto access = Nz::ShaderBuilder::AccessMember(std::move(ubo), { "s", "field" });
 
 			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(access), { 2u });
-			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::PrimitiveType::Float32, std::move(swizzle));
+			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Float32 }, std::move(swizzle));
 
 			multiStatement.statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
 
