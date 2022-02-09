@@ -7,6 +7,9 @@ Makefile
 vs*/*
 vsxmake*/*
 
+# Coverage
+coverage.out
+
 # Embed resources
 src/Nazara/*/Resources/**/*.h
 

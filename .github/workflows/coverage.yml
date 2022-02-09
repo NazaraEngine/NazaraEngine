@@ -1,10 +1,11 @@
-name: Linux build With Sanitizer And Fuzzings
+name: Coverage
 
 on:
   pull_request:
   push:
     paths-ignore:
       - '.github/workflows/linux-build.yml'
+      - '.github/workflows/linux-build-sanitizer.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
@@ -20,7 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         arch: [x86_64]
-        mode: [asan]
+        mode: [coverage]
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
@@ -35,17 +36,7 @@ jobs:
     # Install Nazara dependencies
     - name: Install system dependencies
       run: |
-        sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git -y
-        sudo apt-get install libunwind-dev binutils-dev clang-11 -y
-
-    # Install Honggfuzz
-    - name: Build and install Hongfuzz
-      run: |
-        wget https://github.com/google/honggfuzz/archive/refs/tags/2.5.tar.gz -O honggfuzz.tar.gz
-        tar -xzvf honggfuzz.tar.gz
-        cd honggfuzz-*/
-        make
-        sudo make install
+        sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git gcovr -y
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -73,14 +64,20 @@ jobs:
     - name: Configure xmake and install dependencies
       run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes
 
-    # Configure xmake with honggfuzz to build the engine
-    - name: Configure xmake with honggfuzz
-      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --toolchain=hfuzz-clang
-
     # Build the engine
     - name: Build Nazara
-      run: xmake
+      run: xmake -v
 
     # Run unit tests
     - name: Run Nazara Unit tests
       run: xmake run NazaraUnitTests
+
+    # Build coverage file
+    - name: Build coverage output
+      run: gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
+
+    - name: Upload Coverage Report to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        files: ./coverage.out
+        fail_ci_if_error: true
