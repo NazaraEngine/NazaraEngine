@@ -11,6 +11,7 @@ if has_config("assimp") then
 	target("PluginAssimp")
 		set_kind("shared")
 		set_group("Plugins")
+		add_rpathdirs("$ORIGIN")
 
 		add_deps("NazaraUtility")
 		add_packages("assimp")

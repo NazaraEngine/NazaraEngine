@@ -172,6 +172,7 @@ for name, module in pairs(modules) do
 	set_group("Modules")
 
 	add_rules("embed_resources")
+	add_rpathdirs("$ORIGIN")
 
 	if module.Deps then
 		add_deps(table.unpack(module.Deps))
