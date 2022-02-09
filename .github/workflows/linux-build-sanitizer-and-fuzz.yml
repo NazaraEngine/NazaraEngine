@@ -38,6 +38,7 @@ jobs:
       run: |
         sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git -y
         sudo apt-get install libunwind-dev binutils-dev clang-11 -y
+        sudo apt-get install libjpeg-progs -y
 
     # Install Honggfuzz
     - name: Build and install Hongfuzz
@@ -76,11 +77,11 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes
+      run: xmake config --shadernodes=y --tests=y --tests-fuzzing=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes
 
     # Configure xmake with honggfuzz to build the engine
     - name: Configure xmake with honggfuzz
-      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --toolchain=hfuzz-clang
+      run: xmake config --shadernodes=y --tests=y --tests-fuzzing=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --toolchain=hfuzz-clang
 
     # Build the engine
     - name: Build Nazara
@@ -89,3 +90,16 @@ jobs:
     # Run unit tests
     - name: Run unit tests
       run: xmake run NazaraUnitTests
+
+    # Install to fuzz
+    - name: Install Nazara compiled with ASAN
+      run: xmake install -vo package
+
+    # Create corpus dir
+    - name: Create corpus dir
+      run: mkdir input_corpus
+
+    # Fuzz nazara
+    - name: Fuzz nazara targets
+      run: |
+        honggfuzz -i input_corpus --exit_upon_crash --iteration 1000 --run_time 30 -P -- $(pwd)/bin/linux_x86_64_asan/Nazara2DPhysicsUnitTestsFuzzing ___FILE___

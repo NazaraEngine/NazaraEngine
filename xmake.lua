@@ -233,6 +233,7 @@ end
 
 includes("tools/xmake.lua")
 includes("tests/xmake.lua")
+includes("tests-fuzz/xmake.lua")
 includes("plugins/*/xmake.lua")
 includes("examples/*/xmake.lua")
 
