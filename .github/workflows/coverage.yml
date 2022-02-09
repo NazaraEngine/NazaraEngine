@@ -48,6 +48,10 @@ jobs:
       with:
         xmake-version: branch@dev
 
+    # Update xmake repository (in order to have the file that will be cached)
+    - name: Update xmake repository
+      run: xmake repo --update
+
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
       id: dep_hash
@@ -69,7 +73,7 @@ jobs:
       run: xmake -v
 
     # Run unit tests
-    - name: Run Nazara Unit tests
+    - name: Run unit tests
       run: xmake run NazaraUnitTests
 
     # Build coverage file
