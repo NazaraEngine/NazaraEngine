@@ -38,6 +38,10 @@ jobs:
       with:
         xmake-version: branch@dev
 
+    # Update xmake repository (in order to have the file that will be cached)
+    - name: Update xmake repository
+      run: xmake.exe repo --update
+
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
       id: dep_hash
