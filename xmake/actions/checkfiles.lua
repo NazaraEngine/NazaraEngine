@@ -480,20 +480,22 @@ on_run(function ()
 				local shouldReorder = false
 				for i = 1, #inclusions do
 					local order
-					if inclusions[i].path == headerPath or inclusions[i].path == "Nazara/Prerequisites.hpp" then
+					if inclusions[i].path == headerPath then
 						order = 0 -- own include comes first
+					elseif inclusions[i].path == "Nazara/Prerequisites.hpp" then
+						order = 1 -- top engine includes
 					elseif inclusions[i].path == "Nazara/" .. debugIncludeModule .. "/Debug.hpp" then
-						order = 5 -- debug include
+						order = 6 -- debug include
 					elseif inclusions[i].path:match("^Nazara/") then
-						order = 1 -- engine includes
+						order = 2 -- engine includes
 					elseif IsSystemHeader(inclusions[i].path) then
-						order = 4 -- system includes
+						order = 5 -- system includes
 					elseif inclusions[i].path:match(".+%.hp?p?") then
-						order = 2 -- thirdparty includes
+						order = 3 -- thirdparty includes
 					else
-						order = 3 -- standard includes
+						order = 4 -- standard includes
 					end
-					
+
 					table.insert(includeList, {
 						order = order,
 						path = inclusions[i].path,
