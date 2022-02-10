@@ -17,7 +17,7 @@ namespace Nz
 	{
 		public:
 			CRC32Hash(UInt32 polynomial = DefaultPolynomial);
-			virtual ~CRC32Hash();
+			~CRC32Hash();
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
