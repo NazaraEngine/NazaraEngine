@@ -8,27 +8,27 @@
 
 namespace Nz
 {
-	HashSHA1::HashSHA1()
+	SHA1Hash::SHA1Hash()
 	{
 		m_state = new SHA_CTX;
 	}
 
-	HashSHA1::~HashSHA1()
+	SHA1Hash::~SHA1Hash()
 	{
 		delete m_state;
 	}
 
-	void HashSHA1::Append(const UInt8* data, std::size_t len)
+	void SHA1Hash::Append(const UInt8* data, std::size_t len)
 	{
 		SHA1_Update(m_state, data, len);
 	}
 
-	void HashSHA1::Begin()
+	void SHA1Hash::Begin()
 	{
 		SHA1_Init(m_state);
 	}
 
-	ByteArray HashSHA1::End()
+	ByteArray SHA1Hash::End()
 	{
 		UInt8 digest[SHA1_DIGEST_LENGTH];
 
@@ -37,12 +37,12 @@ namespace Nz
 		return ByteArray(digest, SHA1_DIGEST_LENGTH);
 	}
 
-	std::size_t HashSHA1::GetDigestLength() const
+	std::size_t SHA1Hash::GetDigestLength() const
 	{
 		return SHA1_DIGEST_LENGTH;
 	}
 
-	const char* HashSHA1::GetHashName() const
+	const char* SHA1Hash::GetHashName() const
 	{
 		return "SHA1";
 	}

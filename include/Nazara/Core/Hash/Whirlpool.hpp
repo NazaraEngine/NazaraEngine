@@ -13,13 +13,11 @@
 
 namespace Nz
 {
-	struct HashWhirlpool_state;
-
-	class NAZARA_CORE_API HashWhirlpool : public AbstractHash
+	class NAZARA_CORE_API WhirlpoolHash final : public AbstractHash
 	{
 		public:
-			HashWhirlpool();
-			virtual ~HashWhirlpool();
+			WhirlpoolHash() = default;
+			~WhirlpoolHash() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
@@ -29,7 +27,13 @@ namespace Nz
 			const char* GetHashName() const override;
 
 		private:
-			HashWhirlpool_state* m_state;
+			void ProcessBuffer();
+
+			std::size_t m_bufferBits; // current number of bits on the buffer */
+			std::size_t m_bufferPos; // current (possibly incomplete) byte slot on the buffer */
+			UInt8 m_bitLength[32]; // global number of hashed bits (256-bit counter) */
+			UInt8 m_buffer[64]; // buffer of data to hash */
+			UInt64 m_hash[8]; // the hashing state */
 	};
 }
 

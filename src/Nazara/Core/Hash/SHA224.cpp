@@ -8,27 +8,27 @@
 
 namespace Nz
 {
-	HashSHA224::HashSHA224()
+	SHA224Hash::SHA224Hash()
 	{
 		m_state = new SHA_CTX;
 	}
 
-	HashSHA224::~HashSHA224()
+	SHA224Hash::~SHA224Hash()
 	{
 		delete m_state;
 	}
 
-	void HashSHA224::Append(const UInt8* data, std::size_t len)
+	void SHA224Hash::Append(const UInt8* data, std::size_t len)
 	{
 		SHA224_Update(m_state, data, len);
 	}
 
-	void HashSHA224::Begin()
+	void SHA224Hash::Begin()
 	{
 		SHA224_Init(m_state);
 	}
 
-	ByteArray HashSHA224::End()
+	ByteArray SHA224Hash::End()
 	{
 		UInt8 digest[SHA224_DIGEST_LENGTH];
 
@@ -37,12 +37,12 @@ namespace Nz
 		return ByteArray(digest, SHA224_DIGEST_LENGTH);
 	}
 
-	std::size_t HashSHA224::GetDigestLength() const
+	std::size_t SHA224Hash::GetDigestLength() const
 	{
 		return SHA224_DIGEST_LENGTH;
 	}
 
-	const char* HashSHA224::GetHashName() const
+	const char* SHA224Hash::GetHashName() const
 	{
 		return "SHA224";
 	}

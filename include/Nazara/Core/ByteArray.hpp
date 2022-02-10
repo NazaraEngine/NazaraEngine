@@ -129,7 +129,7 @@ namespace Nz
 			Container m_array;
 	};
 
-	inline bool HashAppend(AbstractHash* hash, const ByteArray& byteArray);
+	inline bool HashAppend(AbstractHash& hash, const ByteArray& byteArray);
 }
 
 namespace std

@@ -60,7 +60,7 @@ namespace Nz
 			File& operator=(File&& file) noexcept;
 
 			static inline ByteArray ComputeHash(HashType hash, const std::filesystem::path& filePath);
-			static inline ByteArray ComputeHash(AbstractHash* hash, const std::filesystem::path& filePath);
+			static inline ByteArray ComputeHash(AbstractHash& hash, const std::filesystem::path& filePath);
 
 		private:
 			void FlushStream() override;
@@ -71,7 +71,7 @@ namespace Nz
 			std::unique_ptr<FileImpl> m_impl;
 	};
 
-	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile);
+	NAZARA_CORE_API bool HashAppend(AbstractHash& hash, const File& originalFile);
 }
 
 #include <Nazara/Core/File.inl>

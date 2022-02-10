@@ -13,13 +13,11 @@
 
 namespace Nz
 {
-	struct HashFletcher16_state;
-
-	class NAZARA_CORE_API HashFletcher16 : public AbstractHash
+	class NAZARA_CORE_API Fletcher16Hash final : public AbstractHash
 	{
 		public:
-			HashFletcher16();
-			virtual ~HashFletcher16();
+			Fletcher16Hash() = default;
+			~Fletcher16Hash() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
@@ -29,7 +27,8 @@ namespace Nz
 			const char* GetHashName() const override;
 
 		private:
-			HashFletcher16_state* m_state;
+			UInt16 m_sum1;
+			UInt16 m_sum2;
 	};
 }
 
