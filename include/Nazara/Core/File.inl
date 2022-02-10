@@ -18,7 +18,7 @@ namespace Nz
 
 	inline ByteArray File::ComputeHash(HashType hash, const std::filesystem::path& filePath)
 	{
-		return ComputeHash(AbstractHash::Get(hash).get(), filePath);
+		return ComputeHash(*AbstractHash::Get(hash), filePath);
 	}
 
 	/*!
@@ -29,7 +29,7 @@ namespace Nz
 	* \param filePath Path for the file
 	*/
 
-	inline ByteArray File::ComputeHash(AbstractHash* hash, const std::filesystem::path& filePath)
+	inline ByteArray File::ComputeHash(AbstractHash& hash, const std::filesystem::path& filePath)
 	{
 		return Nz::ComputeHash(hash, File(filePath));
 	}

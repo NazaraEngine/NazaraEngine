@@ -13,13 +13,11 @@
 
 namespace Nz
 {
-	struct HashMD5_state;
-
-	class NAZARA_CORE_API HashMD5 : public AbstractHash
+	class NAZARA_CORE_API MD5Hash final : public AbstractHash
 	{
 		public:
-			HashMD5();
-			virtual ~HashMD5();
+			MD5Hash() = default;
+			~MD5Hash() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
@@ -29,7 +27,11 @@ namespace Nz
 			const char* GetHashName() const override;
 
 		private:
-			HashMD5_state* m_state;
+			void md5_process(const UInt8* data);
+
+			std::size_t m_count[2]; /* message length in bits, lsw first */
+			UInt32 m_abcd[4]; /* digest buffer */
+			UInt8  m_buf[64]; /* accumulate block */
 	};
 }
 

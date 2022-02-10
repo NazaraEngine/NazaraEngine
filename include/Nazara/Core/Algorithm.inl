@@ -178,7 +178,7 @@ namespace Nz
 	template<typename T>
 	ByteArray ComputeHash(HashType hash, const T& v)
 	{
-		return ComputeHash(AbstractHash::Get(hash).get(), v);
+		return ComputeHash(*AbstractHash::Get(hash), v);
 	}
 
 	/*!
@@ -195,15 +195,13 @@ namespace Nz
 	* \see ComputeHash
 	*/
 	template<typename T>
-	ByteArray ComputeHash(AbstractHash* hash, const T& v)
+	ByteArray ComputeHash(AbstractHash& hash, const T& v)
 	{
-		NazaraAssert(hash != nullptr, "Invalid abstracthash pointer");
-
-		hash->Begin();
+		hash.Begin();
 
 		HashAppend(hash, v);
 
-		return hash->End();
+		return hash.End();
 	}
 
 	/*!
@@ -234,9 +232,9 @@ namespace Nz
 		return c.size();
 	}
 
-	inline bool HashAppend(AbstractHash* hash, const std::string_view& v)
+	inline bool HashAppend(AbstractHash& hash, const std::string_view& v)
 	{
-		hash->Append(reinterpret_cast<const UInt8*>(v.data()), v.size());
+		hash.Append(reinterpret_cast<const UInt8*>(v.data()), v.size());
 		return true;
 	}
 

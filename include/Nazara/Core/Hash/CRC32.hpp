@@ -13,13 +13,11 @@
 
 namespace Nz
 {
-	struct HashCRC32_state;
-
-	class NAZARA_CORE_API HashCRC32 : public AbstractHash
+	class NAZARA_CORE_API CRC32Hash final : public AbstractHash
 	{
 		public:
-			HashCRC32(UInt32 polynomial = 0x04c11db7);
-			virtual ~HashCRC32();
+			CRC32Hash(UInt32 polynomial = DefaultPolynomial);
+			virtual ~CRC32Hash();
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;
@@ -28,8 +26,11 @@ namespace Nz
 			std::size_t GetDigestLength() const override;
 			const char* GetHashName() const override;
 
+			static constexpr UInt32 DefaultPolynomial = 0x04C11DB7;
+
 		private:
-			HashCRC32_state* m_state;
+			UInt32 m_crc;
+			const UInt32* m_table;
 	};
 }
 

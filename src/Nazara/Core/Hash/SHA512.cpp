@@ -8,27 +8,27 @@
 
 namespace Nz
 {
-	HashSHA512::HashSHA512()
+	SHA512Hash::SHA512Hash()
 	{
 		m_state = new SHA_CTX;
 	}
 
-	HashSHA512::~HashSHA512()
+	SHA512Hash::~SHA512Hash()
 	{
 		delete m_state;
 	}
 
-	void HashSHA512::Append(const UInt8* data, std::size_t len)
+	void SHA512Hash::Append(const UInt8* data, std::size_t len)
 	{
 		SHA512_Update(m_state, data, len);
 	}
 
-	void HashSHA512::Begin()
+	void SHA512Hash::Begin()
 	{
 		SHA512_Init(m_state);
 	}
 
-	ByteArray HashSHA512::End()
+	ByteArray SHA512Hash::End()
 	{
 		UInt8 digest[SHA512_DIGEST_LENGTH];
 
@@ -37,12 +37,12 @@ namespace Nz
 		return ByteArray(digest, SHA512_DIGEST_LENGTH);
 	}
 
-	std::size_t HashSHA512::GetDigestLength() const
+	std::size_t SHA512Hash::GetDigestLength() const
 	{
 		return SHA512_DIGEST_LENGTH;
 	}
 
-	const char* HashSHA512::GetHashName() const
+	const char* SHA512Hash::GetHashName() const
 	{
 		return "SHA512";
 	}

@@ -46,34 +46,34 @@ namespace Nz
 		switch (type)
 		{
 			case HashType::Fletcher16:
-				return std::make_unique<HashFletcher16>();
+				return std::make_unique<Fletcher16Hash>();
 
 			case HashType::CRC32:
-				return std::make_unique<HashCRC32>();
+				return std::make_unique<CRC32Hash>();
 
 			case HashType::CRC64:
-				return std::make_unique<HashCRC64>();
+				return std::make_unique<CRC64Hash>();
 
 			case HashType::MD5:
-				return std::make_unique<HashMD5>();
+				return std::make_unique<MD5Hash>();
 
 			case HashType::SHA1:
-				return std::make_unique<HashSHA1>();
+				return std::make_unique<SHA1Hash>();
 
 			case HashType::SHA224:
-				return std::make_unique<HashSHA224>();
+				return std::make_unique<SHA224Hash>();
 
 			case HashType::SHA256:
-				return std::make_unique<HashSHA256>();
+				return std::make_unique<SHA256Hash>();
 
 			case HashType::SHA384:
-				return std::make_unique<HashSHA384>();
+				return std::make_unique<SHA384Hash>();
 
 			case HashType::SHA512:
-				return std::make_unique<HashSHA512>();
+				return std::make_unique<SHA512Hash>();
 
 			case HashType::Whirlpool:
-				return std::make_unique<HashWhirlpool>();
+				return std::make_unique<WhirlpoolHash>();
 		}
 
 		NazaraInternalError("Hash type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');

@@ -424,10 +424,8 @@ namespace Nz
 	* \remark Produces a NazaraError if file could not be read
 	*/
 
-	NAZARA_CORE_API bool HashAppend(AbstractHash* hash, const File& originalFile)
+	NAZARA_CORE_API bool HashAppend(AbstractHash& hash, const File& originalFile)
 	{
-		NazaraAssert(hash, "Invalid hash");
-
 		File file(originalFile.GetPath());
 		if (!file.Open(OpenMode::ReadOnly))
 		{
@@ -448,7 +446,7 @@ namespace Nz
 			}
 
 			remainingSize -= size;
-			hash->Append(reinterpret_cast<UInt8*>(&buffer[0]), size);
+			hash.Append(reinterpret_cast<UInt8*>(&buffer[0]), size);
 		}
 
 		return true;

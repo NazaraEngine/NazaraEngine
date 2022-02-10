@@ -8,27 +8,27 @@
 
 namespace Nz
 {
-	HashSHA384::HashSHA384()
+	SHA384Hash::SHA384Hash()
 	{
 		m_state = new SHA_CTX;
 	}
 
-	HashSHA384::~HashSHA384()
+	SHA384Hash::~SHA384Hash()
 	{
 		delete m_state;
 	}
 
-	void HashSHA384::Append(const UInt8* data, std::size_t len)
+	void SHA384Hash::Append(const UInt8* data, std::size_t len)
 	{
 		SHA384_Update(m_state, data, len);
 	}
 
-	void HashSHA384::Begin()
+	void SHA384Hash::Begin()
 	{
 		SHA384_Init(m_state);
 	}
 
-	ByteArray HashSHA384::End()
+	ByteArray SHA384Hash::End()
 	{
 		UInt8 digest[SHA384_DIGEST_LENGTH];
 
@@ -37,12 +37,12 @@ namespace Nz
 		return ByteArray(digest, SHA384_DIGEST_LENGTH);
 	}
 
-	std::size_t HashSHA384::GetDigestLength() const
+	std::size_t SHA384Hash::GetDigestLength() const
 	{
 		return SHA384_DIGEST_LENGTH;
 	}
 
-	const char* HashSHA384::GetHashName() const
+	const char* SHA384Hash::GetHashName() const
 	{
 		return "SHA384";
 	}

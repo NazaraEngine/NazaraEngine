@@ -732,9 +732,9 @@ namespace Nz
 		return m_array >= rhs.m_array;
 	}
 
-	inline bool HashAppend(AbstractHash* hash, const ByteArray& byteArray)
+	inline bool HashAppend(AbstractHash& hash, const ByteArray& byteArray)
 	{
-		hash->Append(byteArray.GetConstBuffer(), byteArray.GetSize());
+		hash.Append(byteArray.GetConstBuffer(), byteArray.GetSize());
 		return true;
 	}
 }

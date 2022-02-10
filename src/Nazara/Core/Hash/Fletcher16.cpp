@@ -8,66 +8,51 @@
 
 namespace Nz
 {
-	struct HashFletcher16_state
+	void Fletcher16Hash::Append(const UInt8* data, std::size_t len)
 	{
-		UInt16 sum1;
-		UInt16 sum2;
-	};
-
-	HashFletcher16::HashFletcher16()
-	{
-		m_state = new HashFletcher16_state;
-	}
-
-	HashFletcher16::~HashFletcher16()
-	{
-		delete m_state;
-	}
-
-	void HashFletcher16::Append(const UInt8* data, std::size_t len)
-	{
-		while (len)
+		while (len > 0)
 		{
-			std::size_t tlen = std::min<std::size_t>(len, 21U);
+			std::size_t tlen = std::min<std::size_t>(len, 20U);
 			len -= tlen;
+
 			do
 			{
-				m_state->sum1 += *data++;
-				m_state->sum2 += m_state->sum1;
+				m_sum1 += *data++;
+				m_sum2 += m_sum1;
 			}
 			while (--tlen);
 
-			m_state->sum1 = (m_state->sum1 & 0xff) + (m_state->sum1 >> 8);
-			m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
+			m_sum1 = (m_sum1 & 0xFF) + (m_sum1 >> 8);
+			m_sum2 = (m_sum2 & 0xFF) + (m_sum2 >> 8);
 		}
 	}
 
-	void HashFletcher16::Begin()
+	void Fletcher16Hash::Begin()
 	{
-		m_state->sum1 = 0xff;
-		m_state->sum2 = 0xff;
+		m_sum1 = 0xFF;
+		m_sum2 = 0xFF;
 	}
 
-	ByteArray HashFletcher16::End()
+	ByteArray Fletcher16Hash::End()
 	{
-		m_state->sum1 = (m_state->sum1 & 0xff) + (m_state->sum1 >> 8);
-		m_state->sum2 = (m_state->sum2 & 0xff) + (m_state->sum2 >> 8);
+		m_sum1 = (m_sum1 & 0xFF) + (m_sum1 >> 8);
+		m_sum2 = (m_sum2 & 0xFF) + (m_sum2 >> 8);
 
-		UInt32 fletcher = (m_state->sum2 << 8) | m_state->sum1;
+		UInt16 fletcher = (m_sum2 << 8) | m_sum1;
 
-		#ifdef NAZARA_BIG_ENDIAN
-		SwapBytes(&fletcher, sizeof(UInt32));
+		#ifdef NAZARA_LITTLE_ENDIAN
+		fletcher = SwapBytes(fletcher);
 		#endif
 
 		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}
 
-	std::size_t HashFletcher16::GetDigestLength() const
+	std::size_t Fletcher16Hash::GetDigestLength() const
 	{
 		return 2;
 	}
 
-	const char* HashFletcher16::GetHashName() const
+	const char* Fletcher16Hash::GetHashName() const
 	{
 		return "Fletcher16";
 	}
