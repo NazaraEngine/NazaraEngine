@@ -104,7 +104,7 @@ namespace Nz
 		m_crc ^= 0xFFFFFFFF;
 
 		#ifdef NAZARA_LITTLE_ENDIAN
-		SwapBytes(&m_crc, sizeof(UInt32));
+		m_crc = SwapBytes(m_crc);
 		#endif
 
 		return ByteArray(reinterpret_cast<UInt8*>(&m_crc), 4);

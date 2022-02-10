@@ -1,8 +1,13 @@
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <catch2/catch.hpp>
 #include <array>
+#include <filesystem>
+#include <variant>
+
+std::filesystem::path GetResourceDir();
 
 TEST_CASE("Apply", "[CORE][ALGORITHM]")
 {
@@ -31,12 +36,17 @@ TEST_CASE("Apply", "[CORE][ALGORITHM]")
 
 TEST_CASE("ComputeHash", "[CORE][ALGORITHM]")
 {
+	std::filesystem::path testFilePath = GetResourceDir() / "Logo.png";
+
 	struct Test
 	{
 		Nz::HashType hashType;
-		const char* input;
+		std::variant<const char*, std::filesystem::path> input;
 		const char* expectedOutput;
 	};
+
+	// https://defuse.ca/checksums.htm
+	// https://toolslick.com/programming/hashing/crc-calculator
 
 	std::array tests{
 		//Test{ Nz::HashType::CRC16,      "Nazara Engine", "9412" },
@@ -62,16 +72,46 @@ TEST_CASE("ComputeHash", "[CORE][ALGORITHM]")
 		Test{ Nz::HashType::SHA384,     "The quick brown fox jumps over the lazy dog", "CA737F1014A48F4C0B6DD43CB177B0AFD9E5169367544C494011E3317DBF9A509CB1E5DC1E85A941BBEE3D7F2AFBC9B1" },
 		Test{ Nz::HashType::SHA512,     "The quick brown fox jumps over the lazy dog", "07E547D9586F6A73F73FBAC0435ED76951218FB7D0C8D788A309D785436BBB642E93A252A954F23912547D1E8A3B5ED6E1BFD7097821233FA0538F3DB854FEE6" },
 		Test{ Nz::HashType::Whirlpool,  "The quick brown fox jumps over the lazy dog", "B97DE512E91E3828B40D2B0FDCE9CEB3C4A71F9BEA8D88E75C4FA854DF36725FD2B52EB6544EDCACD6F8BEDDFEA403CB55AE31F03AD62A5EF54E42EE82C3FB35" },
+
+		//Test{ Nz::HashType::CRC16,      testFilePath, "30A6" },
+		Test{ Nz::HashType::CRC32,      testFilePath, "5A2024CD" },
+		Test{ Nz::HashType::CRC64,      testFilePath, "F92157F70C713EEC" },
+		Test{ Nz::HashType::Fletcher16, testFilePath, "9152" },
+		Test{ Nz::HashType::MD5,        testFilePath, "75B35EDB2DB8B4ED5020821E401B1FA3" },
+		Test{ Nz::HashType::SHA1,       testFilePath, "FD6B51F6E176AA91BDDCFAFB6D65AF97116C3981" },
+		Test{ Nz::HashType::SHA224,     testFilePath, "77F8536DB2AEDDB0B18747EF7907AEFFE019C3EB6C9E64CC31D2E4DA" },
+		Test{ Nz::HashType::SHA256,     testFilePath, "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423" },
+		Test{ Nz::HashType::SHA384,     testFilePath, "BB11F442F14AED77C116C6CA05103C006D40F861D23D272263BBD9F0D260FA5449B728A94F80BB807BD16778C558EF05" },
+		Test{ Nz::HashType::SHA512,     testFilePath, "1EA50E73C1D7D8DFCD51AC2718D7EB953E4B2D1D9EFA06F5B89DC1B0315C6C57A007D733DFA4DA41BFCE0E73446EFAF3413E8C1D38A0C327773AFF49C010F091" },
+		Test{ Nz::HashType::Whirlpool,  testFilePath, "A1598870C7E5C59004CD0A2C7E17248606E2DDD832EED1B0E2D52A9A72842A073CC2F889D2EC71C061A21A86879FF009D4FED1010B454FF8535C401BC9A60F64" },
 	};
 
 	for (const Test& test : tests)
 	{
 		auto hash = Nz::AbstractHash::Get(test.hashType);
 
-		WHEN("We compute " << hash->GetHashName() << " of '" << test.input << '"')
+		if (std::holds_alternative<const char*>(test.input))
 		{
-			auto result = Nz::ComputeHash(*hash, test.input);
-			REQUIRE(Nz::ToUpper(result.ToHex()) == test.expectedOutput);
+			const char* inputStr = std::get<const char*>(test.input);
+			WHEN("We compute " << hash->GetHashName() << " of '" << inputStr << "'")
+			{
+				auto result = Nz::ComputeHash(*hash, inputStr);
+				CHECK(result.GetSize() == hash->GetDigestLength());
+				CHECK(Nz::ToUpper(result.ToHex()) == test.expectedOutput);
+			}
+		}
+		else
+		{
+			assert(std::holds_alternative<std::filesystem::path>(test.input));
+			const std::filesystem::path& filePath = std::get<std::filesystem::path>(test.input);
+			Nz::File file(filePath);
+
+			WHEN("We compute " << hash->GetHashName() << " of " << filePath << " file")
+			{
+				auto result = Nz::ComputeHash(*hash, file);
+				CHECK(result.GetSize() == hash->GetDigestLength());
+				CHECK(Nz::ToUpper(result.ToHex()) == test.expectedOutput);
+			}
 		}
 	}
 }
