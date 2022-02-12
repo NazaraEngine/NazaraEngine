@@ -12,15 +12,15 @@ A special thank you to all those who may have contributed directly or indirectly
 
 This engine also uses different projects, we obviously thank their respective authors and contributors:
 
-- [Assimp](http://www.assimp.org/): Model loader.
-- [Catch2](https://github.com/catchorg/Catch2): Test framework for C++.
-- [Chimpmunk](http://chipmunk-physics.net/): Physics engine for 2D.
-- [Freetype](https://www.freetype.org/): Font rendering library.
-- [Lua](https://www.lua.org/): Scripting library.
-- [Netwon](http://newtondynamics.com/forum/newton.php): Physics engine for 3D.
-- [Sndfile](http://www.mega-nerd.com/libsndfile/): Audio loader.
-- [Stb](https://github.com/nothings/stb): Image loader.
-- [Utfcpp](http://utfcpp.sourceforge.net/): UTF-8 handler.
-- [OpenAL](https://www.openal.org/): Audio API specification.
-- [OpenGL](https://www.khronos.org/opengl/): Graphics API specification.
-- [Vulkan](https://www.khronos.org/vulkan/): New graphics API specification which replaced OpenGL.
+- [chipmunk2d](https://chipmunk-physics.net/): A fast and lightweight 2D game physics library.
+- [dr_wav](https://github.com/mackron/dr_libs): Single file audio decoding libraries for C/C++.
+- [entt](https://github.com/skypjack/entt): Gaming meets modern C++ - a fast and reliable entity component system (ECS) and much more.
+- [freetype](https://www.freetype.org): A freely available software library to render fonts.
+- [kiwisolver](https://kiwisolver.readthedocs.io/en/latest/): Efficient C++ implementation of the Cassowary constraint solving algorithm
+- [libflac](https://xiph.org/flac): Free Lossless Audio Codec
+- [libsdl](https://www.libsdl.org/): Simple DirectMedia Layer
+- [libvorbis](https://xiph.org/vorbis): Reference implementation of the Ogg Vorbis audio format.
+- [minimp3](https://github.com/lieff/minimp3): Minimalistic MP3 decoder single header library
+- [newtondynamics](http://newtondynamics.com): Newton Dynamics is an integrated solution for real time simulation of physics environments.
+- [openal-soft](https://openal-soft.org): OpenAL Soft is a software implementation of the OpenAL 3D audio API.
+- [stb](https://github.com/nothings/stb): single-file public domain (or MIT licensed) libraries for C/C++

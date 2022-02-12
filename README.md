@@ -6,21 +6,26 @@ Linux | [![Linux build status](https://github.com/DigitalPulseSoftware/NazaraEng
 
 # Nazara Engine  
 
-Nazara Engine is a fast, complete, cross-platform, object-oriented API which can help you in your daily developer life.  
-Its goal is to provide a set of useful classes : Its core provides unicode strings, filesystem access, hashs, threads, ...
+Nazara Engine is a cross-platform framework aimed at (but not limited to) real-time applications requiring audio, 2D and 3D rendering, network and more (such as video games).
 
-It also provide a set of libraries, such as audio, network, physics, renderer, 2D and 3D graphics engines, ...
+Features:
+- 2D and 3D rendering using either Vulkan, OpenGL and OpenGL ES (depending on what's available on the target system).
+- Its own renderer-agnostic shader language (NZSL - Nazara Shading Language), no need to write specialized GLSL code anymore!
+- Easy to customize graphics module providing basis for advanced techniques (such as deferred shading, HDR, PBR rendering and more).
+- Audio playback and streaming based on OpenAL.
+- 2D and 3D Physics integration (with [Chipmunk](https://chipmunk-physics.net) and [Newton Dynamics](https://github.com/MADEAPPS/newton-dynamics)).
+- Optional ECS (Entity-Component-System) classes for helping with entity handling (based on the excellent [entt](https://github.com/skypjack/entt)).
+- A [ENet](https://github.com/lsalzman/enet)-based reliable UDP networking protocol.
 
-You can use it in any kind of commercial/non-commercial applications without any restriction ([MIT license](http://opensource.org/licenses/MIT)).
+You can use it in any kind of commercial and non-commercial applications without any restriction ([MIT license](http://opensource.org/licenses/MIT)).
 
 ## Authors
 
 Jérôme "Lynix" Leclercq - main developper (<lynix680@gmail.com>)   
-Full Cycle Games - sponsor and contributor from 2017 to 2020.
 
-## Install
+## Build and install
 
-Use the premake build system in the build directory then compile the engine for your platform.
+See [INSTALL.md](INSTALL.md) for build instructions.
 
 ## How to use
 
@@ -33,21 +38,14 @@ You can find tutorials on installation, compilation and use on the [official wik
 - Submitting a patch to GitHub  
 - Post suggestions/bugs on the forum or the [GitHub tracker](https://github.com/DigitalPulseSoftware/NazaraEngine/issues)    
 - [Fork the project](https://github.com/DigitalPulseSoftware/NazaraEngine/fork) on GitHub and [push your changes](https://github.com/DigitalPulseSoftware/NazaraEngine/pulls)  
-- Talking about Nazara Engine to other people  
+- Talking about Nazara Engine to other people, spread the word!  
 - Doing anything else that might help us
 
 ## Links
 
-[Website](https://nazara.digitalpulsesoftware.net)  
-[Documentation](https://nazara.digitalpulsesoftware.net/doc)  
 [Discord](https://discord.gg/MvwNx73)  
 [Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)  
-[Forum](https://forum.digitalpulsesoftware.net)  
 
 ## Thanks to:
 
-- **RafBill** and **Raakz:** Finding bugs and/or testing.
-- **Fissal "DrFisher" Hannoun**: Helping a lot in architecture design.
-- **Alexandre "Danman" Janniaux**: Helping making the POSIX implementation.
-- **Youri "Gawaboumga" Hubaut**: Improving the whole project by making the documentation, improving the code, and more.
-- **Rémi "overdrivr" Bèges**: Made the Noise module.
+See [THANKS.md](THANKS.md)
