@@ -1,4 +1,14 @@
-# Upcoming version:
+# Nazara-Next (master)
+
+- Switched from premake to [xmake](https://xmake.io) to build the engine or generate project files
+- Remade the renderer and graphics modules with modern techniques and API
+- Added Shader module, bringing a custom shader language to the engine
+- Removed libsndfile dependency (minimp3, dr_wav and libflac are now used instead)
+- Removed NazaraSDK, ECS are now part of regular libraries
+- Removed thirdparty library codes, [xmake](https://xmake.io) is now used to handle them.
+- Way too many changes to list here
+
+# 0.5 (last legacy version, unreleased due to next version):
 
 Miscellaneous:
 - Add possibility to excludes with one commande all tests/examples/tools/etc.

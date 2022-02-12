@@ -1,53 +1,40 @@
-# Installation
+# Install
 
-> **Notice**: For french speakers, a more detailed explanation of the instructions is provided here: [Instructions pour compiler](wiki/(FR)-Compiler-le-moteur).
+## Build
 
-The first step to using the engine is to recover it. This can currently be done in two ways:
-1) This can be don either from the original github (only the development is continuously evolving):
-```git clone https://github.com/DigitalPulseSoftware/NazaraEngine.git```
-2) Or by downloading a [zip file](https://github.com/DigitalPulseSoftware/NazaraEngine/archive/master.zip) containing the entire source code of the engine.
+First, clone or download the project sources as a .zip
 
-All you have to do is go to the "build/" folder. The compilation system uses [premake](https://premake.github.io/) to generate build systems.
+Nazara is based on [XMake](https://xmake.io), a new amazing build system which will download and compile all dependencies it won't find on your computer, even [Qt](https://www.qt.io) if you wish to build the shader nodes editor.
 
-## Windows 
-For Windows users, they can directly use ".bat" files such as: "Build_VS2017.bat". It will generate a solution "NazaraEngine.sln" ready to use that you can directly build to produce the libs or execute the samples.
+Once XMake is installed (note that you can also download a [portable version](https://github.com/xmake-io/xmake/releases) of XMake if you wish not to install it), you'll need to run `xmake config --mode=releasedbg` in the project folder (you can also use `--mode=debug` if you wish to build a debug version of the game).  
+If you wish to include unit tests or the shader nodes editor, you'll need to add `--tests=y` and `--shadernodes=y` respectively to `xmake config` parameters.
 
-## Linux
+XMake will try to find all the project dependencies on your computer and ask you to install the missing ones.
 
-Linux users, can type: "./premake5-linux64 gmake" or with the additional argument "--cc=clang" to configure the C++ compiler used. 
+### Compile using command-line (first method)
 
-Some additional libraries will be required for compilation depending on the modules used:
+Once you're ready to compile the engine itself, run `xmake` (or `xmake -jX` if you wish not to use all your computer threads, with X being the number of threads you wish to use) and watch as the engine compiles.
 
-#### Audio module (OpenAL and libsndfile)
+### Generate a project (second method)
 
--   with apt:  `sudo apt-get install libopenal-dev libsndfile1-dev`
--   with pacman:  `sudo pacman -S openal libsndfile`
+XMake can also generate a project file for another tool:
+- Visual Studio: `xmake project -k vs`
+- CMakeLists.txt (which you can open in CLion and more): `xmake project -k cmake`
+- Makefile: `xmake project -k make`
+- Ninja: `xmake project -k ninja`
+- XCode: `xmake project -k xcode`
 
-#### Platform module (Freetype):
-
--   with apt:  `sudo apt-get install libfreetype6-dev`
--   with pacman:  `sudo pacman -S freetype2`
-
-#### Utility module (XCB + X11):
-
--   with apt:  `sudo apt-get install libxcb-cursor-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libx11-dev`
--   with pacman:  `sudo pacman -S libxcb libx11`
-
-#### OpenGL renderer module:
-
--   with apt:  `sudo apt-get install mesa-common-dev libgl1-mesa-dev`
--   with pacman:  `sudo pacman -S mesa`
-
-#### Plugin Assimp:
-
--   with apt:  `sudo apt-get install libassimp-dev`
--   with pacman:  `sudo pacman -S assimp`
-
-#### The one line command to install everything is:
-
--   with apt:  `sudo apt-get install libopenal-dev libsndfile1-dev libfreetype6-dev libxcb-cursor-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libx11-dev mesa-common-dev libgl1-mesa-dev libassimp-dev`
--   with pacman:  `sudo pacman -S openal libsndfile freetype2 libxcb libx11 mesa assimp`
+You should now be able to the project file with the tool of your choice.
 
 ## Test
 
-One should now be able to execute the samples provided in the folder "NazaraEngine/examples/bin/" or the unit tests within "NazaraEngine/tests/".
+To run the examples, unit tests or tools, you can either run them in the project or by using the command-line:
+
+`xmake run <exe>` with `<exe>` being the name of the executable you wish to run.
+
+Available examples names can be found in the `examples` folder (example: `xmake run PhysicsDemo`).
+You can also run unit tests with `xmake run Nazara(Client)UnitTests`.
+
+## Install
+
+You can also package the engine in a folder by using `xmake install -o target_folder`, on Unix-based system you can also install it system-wide by running `xmake install`.
