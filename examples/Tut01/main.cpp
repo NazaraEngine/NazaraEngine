@@ -1,55 +1,70 @@
 // Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
 
 #include <Nazara/Graphics.hpp>
+#include <Nazara/Graphics/Components.hpp>
+#include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NazaraSDK/Application.hpp>
-#include <NazaraSDK/Components.hpp>
-#include <NazaraSDK/Systems.hpp>
-#include <NazaraSDK/World.hpp>
+#include <Nazara/Utility/Components.hpp>
+#include <entt/entt.hpp>
 #include <iostream>
 
-int main(int argc, char* argv[])
+int main()
 {
-	Ndk::Application application(argc, argv);
+	Nz::Modules<Nz::Graphics> nazara;
 
-	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>();
-	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Test");
+	Nz::RenderWindow mainWindow(Nz::Graphics::Instance()->GetRenderDevice(), Nz::VideoMode(1280, 720, 32), "Test");
 
+	entt::registry registry;
+	Nz::RenderSystem renderSystem(registry);
 
-	Ndk::World& world = application.AddWorld();
-	world.GetSystem<Ndk::RenderSystem>().SetGlobalUp(Nz::Vector3f::Down());
-	world.GetSystem<Ndk::RenderSystem>().SetDefaultBackground(Nz::ColorBackground::New(Nz::Color(117, 122, 214)));
-
-
-	Ndk::EntityHandle viewEntity = world.CreateEntity();
-	viewEntity->AddComponent<Ndk::NodeComponent>();
-
-	Ndk::CameraComponent& viewer = viewEntity->AddComponent<Ndk::CameraComponent>();
-	viewer.SetTarget(&mainWindow);
-	viewer.SetProjectionType(Nz::ProjectionType_Orthogonal);
+	entt::entity cameraEntity = registry.create();
+	{
+		registry.emplace<Nz::NodeComponent>(cameraEntity);
+		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(cameraEntity, mainWindow.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateClearColor(Nz::Color(117, 122, 214, 255));
+	}
 
 	Nz::SimpleTextDrawer textDrawer;
 	textDrawer.SetCharacterSize(72);
 	textDrawer.SetOutlineThickness(4.f);
 	textDrawer.SetText("Hello world !");
 
-	Nz::TextSpriteRef textSprite = Nz::TextSprite::New();
+	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
+
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	materialPass->EnableDepthBuffer(true);
+	materialPass->EnableDepthWrite(false);
+	materialPass->EnableScissorTest(true);
+	materialPass->EnableBlending(true);
+	materialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
+	materialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::One);
+
+	material = std::make_shared<Nz::Material>();
+	material->AddPass("ForwardPass", materialPass);
+
+	std::shared_ptr<Nz::TextSprite> textSprite = std::make_shared<Nz::TextSprite>(material);
 	textSprite->Update(textDrawer);
 
-	Ndk::EntityHandle text = world.CreateEntity();
-	Ndk::NodeComponent& nodeComponent = text->AddComponent<Ndk::NodeComponent>();
-
-	Ndk::GraphicsComponent& graphicsComponent = text->AddComponent<Ndk::GraphicsComponent>();
-	graphicsComponent.Attach(textSprite);
-
-	Nz::Boxf textBox = graphicsComponent.GetAABB();
-	Nz::Vector2ui windowSize = mainWindow.GetSize();
-	nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
-
-	while (application.Run())
+	entt::entity textEntity = registry.create();
 	{
-		mainWindow.Display();
+		auto& nodeComponent = registry.emplace<Nz::NodeComponent>(textEntity);
+		auto& gfxComponent = registry.emplace<Nz::GraphicsComponent>(textEntity);
+		gfxComponent.AttachRenderable(textSprite, 0xFFFFFFFF);
+
+		Nz::Boxf textBox = textSprite->GetAABB();
+		Nz::Vector2ui windowSize = mainWindow.GetSize();
+		nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
+	}
+
+	while (mainWindow.IsOpen())
+	{
+		mainWindow.ProcessEvents();
+
+		Nz::RenderFrame renderFrame = mainWindow.AcquireFrame();
+		renderSystem.Render(registry, renderFrame);
+
+		renderFrame.Present();
 	}
 
 	return EXIT_SUCCESS;
