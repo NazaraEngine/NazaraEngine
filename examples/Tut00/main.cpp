@@ -6,19 +6,13 @@
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <NazaraSDK/Application.hpp>
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
 	// This "example" has only one purpose: Giving an empty project for you to test whatever you want
 	// If you wish to have multiple test projects, you only have to copy/paste this directory and change the name in the build.lua
-	Ndk::Application application(argc, argv);
-
-	// Do what you want here
-	Nz::LuaInstance lua;
-	std::cout << lua.Execute("return {key = 42}") << std::endl;
-	std::cout << lua.DumpStack() << std::endl;
+	Nz::Modules<Nz::Audio, Nz::Core, Nz::Graphics, Nz::Network, Nz::Physics2D, Nz::Physics3D, Nz::Renderer, Nz::Utility> nazara;
 
 	return EXIT_SUCCESS;
 }
