@@ -12,8 +12,12 @@ set_menu({
 
 on_run(function ()
 	import("core.base.option")
+	import("core.base.task")
 	import("core.project.project")
 	import("private.action.require.impl.package")
+
+    task.run("config", {require = false})
+    os.cd(project.directory())
 
 	local requires, requires_extra = project.requires_str()
 	if not requires or #requires == 0 then
@@ -25,6 +29,9 @@ on_run(function ()
 	local targetname = option.get("target")
 	if targetname then
 		local target = project.target(targetname)
+		if not target then
+			os.raise("unknown target " .. targetname)
+		end
 		usedpackages = target:pkgs()
 	else
 		usedpackages = project.required_packages()
