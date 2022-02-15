@@ -103,6 +103,8 @@ local modules = {
 	}
 }
 
+NazaraModules = modules
+
 includes("xmake/**.lua")
 
 set_xmakever("2.6.3")
