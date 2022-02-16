@@ -28,7 +28,6 @@ namespace Nz
 	*/
 	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
-	m_forceCommandBufferRegeneration(false),
 	m_pipelineUpdated(false)
 	{
 		m_pipelineInfo.settings = m_settings;
@@ -109,7 +108,7 @@ namespace Nz
 		}
 	}
 
-	bool MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	void MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
 
@@ -125,11 +124,6 @@ namespace Nz
 				ubo.dataInvalidated = false;
 			}
 		}
-
-		bool shouldRegenerateCommandBuffer = m_forceCommandBufferRegeneration;
-		m_forceCommandBufferRegeneration = false;
-
-		return shouldRegenerateCommandBuffer;
 	}
 
 	void MaterialPass::UpdatePipeline() const

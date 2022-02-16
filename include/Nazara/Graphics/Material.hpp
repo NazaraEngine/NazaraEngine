@@ -16,13 +16,15 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Material : public Resource
 	{
 		public:
-			Material();
+			Material() = default;
 			~Material() = default;
 
 			inline void AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass);
 			inline void AddPass(std::string passName, std::shared_ptr<MaterialPass> pass);
 
 			inline const std::shared_ptr<MaterialPass>& FindPass(const std::string& passName) const;
+
+			template<typename F> void ForEachPass(F&& callback);
 
 			inline const std::shared_ptr<MaterialPass>& GetPass(std::size_t passIndex) const;
 

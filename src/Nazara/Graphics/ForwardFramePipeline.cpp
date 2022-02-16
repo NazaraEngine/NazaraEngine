@@ -12,8 +12,6 @@
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
-#include <Nazara/Graphics/SpriteChainRenderer.hpp>
-#include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Angle.hpp>
@@ -32,14 +30,13 @@ namespace Nz
 	m_rebuildFrameGraph(true)
 	{
 		auto& passRegistry = Graphics::Instance()->GetMaterialPassRegistry();
-		m_depthPassIndex = passRegistry.GetPassIndex("DepthPass");
 		m_forwardPassIndex = passRegistry.GetPassIndex("ForwardPass");
+	}
 
-		m_elementRenderers.resize(BasicRenderElementCount);
-		m_elementRenderers[UnderlyingCast(BasicRenderElement::SpriteChain)] = std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice());
-		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
-
-		m_lightUboPool = std::make_shared<LightUboPool>();
+	ForwardFramePipeline::~ForwardFramePipeline()
+	{
+		// Force viewer passes to unregister their materials
+		m_viewers.clear();
 	}
 
 	void ForwardFramePipeline::InvalidateViewer(AbstractViewer* viewerInstance)
@@ -64,15 +61,21 @@ namespace Nz
 		{
 			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
 			renderableData.renderMask = renderMask;
-
-			renderableData.onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this](InstancedRenderable* /*instancedRenderable*/)
+			
+			renderableData.onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [=](InstancedRenderable* /*instancedRenderable*/)
 			{
-				// TODO: Invalidate only relevant viewers
+				// TODO: Invalidate only relevant viewers and passes
 				for (auto&& [viewer, viewerData] : m_viewers)
 				{
-					viewerData.rebuildDepthPrepass = true;
-					viewerData.rebuildForwardPass = true;
-					viewerData.prepare = true;
+					UInt32 viewerRenderMask = viewer->GetRenderMask();
+
+					if (viewerRenderMask & renderMask)
+					{
+						if (viewerData.depthPrepass)
+							viewerData.depthPrepass->ForceInvalidation();
+
+						viewerData.forwardPass->ForceInvalidation();
+					}
 				}
 			});
 
@@ -80,29 +83,25 @@ namespace Nz
 			{
 				if (newMaterial)
 				{
-					if (const auto& pass = newMaterial->GetPass(m_depthPassIndex))
-						RegisterMaterialPass(pass.get());
+					for (auto&& [viewer, viewerData] : m_viewers)
+					{
+						if (viewerData.depthPrepass)
+							viewerData.depthPrepass->RegisterMaterial(*newMaterial);
 
-					if (const auto& pass = newMaterial->GetPass(m_forwardPassIndex))
-						RegisterMaterialPass(pass.get());
+						viewerData.forwardPass->RegisterMaterial(*newMaterial);
+					}
 				}
 
 				const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
 				if (prevMaterial)
 				{
-					if (const auto& pass = prevMaterial->GetPass(m_depthPassIndex))
-						UnregisterMaterialPass(pass.get());
+					for (auto&& [viewer, viewerData] : m_viewers)
+					{
+						if (viewerData.depthPrepass)
+							viewerData.depthPrepass->UnregisterMaterial(*prevMaterial);
 
-					if (const auto& pass = prevMaterial->GetPass(m_forwardPassIndex))
-						UnregisterMaterialPass(pass.get());
-				}
-
-				// TODO: Invalidate only relevant viewers
-				for (auto&& [viewer, viewerData] : m_viewers)
-				{
-					viewerData.rebuildDepthPrepass = true;
-					viewerData.rebuildForwardPass = true;
-					viewerData.prepare = true;
+						viewerData.forwardPass->UnregisterMaterial(*prevMaterial);
+					}
 				}
 			});
 
@@ -111,21 +110,13 @@ namespace Nz
 			{
 				if (Material* mat = instancedRenderable->GetMaterial(i).get())
 				{
-					if (const auto& pass = mat->GetPass(m_depthPassIndex))
-						RegisterMaterialPass(pass.get());
+					for (auto&& [viewer, viewerData] : m_viewers)
+					{
+						if (viewerData.depthPrepass)
+							viewerData.depthPrepass->RegisterMaterial(*mat);
 
-					if (const auto& pass = mat->GetPass(m_forwardPassIndex))
-						RegisterMaterialPass(pass.get());
-				}
-			}
-
-			for (auto&& [viewer, viewerData] : m_viewers)
-			{
-				if (viewer->GetRenderMask() & renderMask)
-				{
-					viewerData.rebuildDepthPrepass = true;
-					viewerData.rebuildForwardPass = true;
-					viewerData.prepare = true;
+						viewerData.forwardPass->RegisterMaterial(*mat);
+					}
 				}
 			}
 		}
@@ -136,20 +127,42 @@ namespace Nz
 		auto& lightData = m_lights[light.get()];
 		lightData.light = std::move(light);
 		lightData.renderMask = renderMask;
-		lightData.onLightInvalidated.Connect(lightData.light->OnLightDataInvalided, [this](Light*)
+		lightData.onLightInvalidated.Connect(lightData.light->OnLightDataInvalided, [=](Light*)
 		{
+			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
 			for (auto&& [viewer, viewerData] : m_viewers)
 			{
-				viewerData.rebuildForwardPass = true;
-				viewerData.prepare = true;
+				UInt32 viewerRenderMask = viewer->GetRenderMask();
+
+				if (viewerRenderMask & renderMask)
+					viewerData.forwardPass->ForceInvalidation();
 			}
 		});
+	}
+
+	void ForwardFramePipeline::RegisterMaterialPass(MaterialPass* materialPass)
+	{
+		auto it = m_activeMaterialPasses.find(materialPass);
+		if (it == m_activeMaterialPasses.end())
+		{
+			it = m_activeMaterialPasses.emplace(materialPass, MaterialPassData{}).first;
+			it->second.onMaterialPassInvalided.Connect(materialPass->OnMaterialPassInvalidated, [=](const MaterialPass* /*material*/)
+			{
+				m_invalidatedMaterialPasses.insert(materialPass);
+			});
+
+			m_invalidatedMaterialPasses.insert(materialPass);
+		}
+
+		it->second.usedCount++;
 	}
 
 	void ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
 	{
 		auto& viewerData = m_viewers.emplace(viewerInstance, ViewerData{}).first->second;
 		viewerData.renderOrder = renderOrder;
+		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, viewerInstance);
+		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, viewerInstance);
 
 		m_invalidatedViewerInstances.insert(viewerInstance);
 		m_rebuildFrameGraph = true;
@@ -189,19 +202,10 @@ namespace Nz
 
 				m_invalidatedWorldInstances.clear();
 
-				for (MaterialPass* material : m_invalidatedMaterials)
-				{
-					if (material->Update(renderFrame, builder))
-					{
-						for (auto&& [viewer, viewerData] : m_viewers)
-						{
-							viewerData.rebuildDepthPrepass = true;
-							viewerData.rebuildForwardPass = true;
-							viewerData.prepare = true;
-						}
-					}
-				}
-				m_invalidatedMaterials.clear();
+				for (MaterialPass* materialPass : m_invalidatedMaterialPasses)
+					materialPass->Update(renderFrame, builder);
+
+				m_invalidatedMaterialPasses.clear();
 
 				builder.PostTransferBarrier();
 			}
@@ -212,9 +216,6 @@ namespace Nz
 		{
 			return currentHash * 23 + newHash;
 		};
-
-		PredefinedLightData lightOffsets = PredefinedLightData::GetOffsets();
-		std::size_t lightUboAlignedSize = Align(lightOffsets.totalSize, graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
 
 		// Render queues handling
 		for (auto&& [viewer, data] : m_viewers)
@@ -259,7 +260,9 @@ namespace Nz
 					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(worldInstance.get()));
 			}
 
-			// TODO: Lights update shouldn't trigger a rebuild of the depth prepass
+			// Lights update don't trigger a rebuild of the depth pre-pass
+			std::size_t depthVisibilityHash = visibilityHash;
+
 			m_visibleLights.clear();
 			for (auto&& [light, lightData] : m_lights)
 			{
@@ -273,245 +276,10 @@ namespace Nz
 				}
 			}
 
-			if (viewerData.visibilityHash != visibilityHash)
-			{
-				viewerData.rebuildDepthPrepass = true;
-				viewerData.rebuildForwardPass = true;
-				viewerData.prepare = true;
+			if (viewerData.depthPrepass)
+				viewerData.depthPrepass->Prepare(renderFrame, frustum, m_visibleRenderables, depthVisibilityHash);
 
-				viewerData.visibilityHash = visibilityHash;
-			}
-
-			if (viewerData.rebuildDepthPrepass)
-			{
-				renderFrame.PushForRelease(std::move(viewerData.depthPrepassRenderElements));
-				viewerData.depthPrepassRenderElements.clear();
-
-				for (const auto& renderableData : m_visibleRenderables)
-					renderableData.instancedRenderable->BuildElement(m_depthPassIndex, *renderableData.worldInstance, viewerData.depthPrepassRenderElements);
-
-				viewerData.depthPrepassRegistry.Clear();
-				viewerData.depthPrepassRenderQueue.Clear();
-
-				for (const auto& renderElement : viewerData.depthPrepassRenderElements)
-				{
-					renderElement->Register(viewerData.depthPrepassRegistry);
-					viewerData.depthPrepassRenderQueue.Insert(renderElement.get());
-				}
-
-				viewerData.depthPrepassRegistry.Finalize();
-			}
-
-			viewerData.depthPrepassRenderQueue.Sort([&](const RenderElement* element)
-			{
-				return element->ComputeSortingScore(frustum, viewerData.depthPrepassRegistry);
-			});
-
-			if (viewerData.rebuildForwardPass)
-			{
-				renderFrame.PushForRelease(std::move(viewerData.forwardRenderElements));
-				viewerData.forwardRenderElements.clear();
-				viewerData.forwardRegistry.Clear();
-				viewerData.forwardRenderQueue.Clear();
-				viewerData.lightBufferPerLights.clear();
-				viewerData.lightPerRenderElement.clear();
-
-				for (auto& lightDataUbo : m_lightDataBuffers)
-				{
-					renderFrame.PushReleaseCallback([pool = m_lightUboPool, lightUbo = std::move(lightDataUbo.renderBuffer)]()
-					{
-						pool->lightUboBuffers.push_back(std::move(lightUbo));
-					});
-				}
-				m_lightDataBuffers.clear();
-
-				for (const auto& renderableData : m_visibleRenderables)
-				{
-					BoundingVolumef renderableBoundingVolume(renderableData.instancedRenderable->GetAABB());
-					renderableBoundingVolume.Update(renderableData.worldInstance->GetWorldMatrix());
-
-					// Select lights (TODO: Cull lights in frustum)
-					m_renderableLights.clear();
-					for (const Light* light : m_visibleLights)
-					{
-						const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
-						if (boundingVolume.Intersect(renderableBoundingVolume.aabb))
-							m_renderableLights.push_back(light);
-					}
-
-					// Sort lights
-					std::sort(m_renderableLights.begin(), m_renderableLights.end(), [&](const Light* lhs, const Light* rhs)
-					{
-						return lhs->ComputeContributionScore(renderableBoundingVolume) < rhs->ComputeContributionScore(renderableBoundingVolume);
-					});
-
-					std::size_t lightCount = std::min(m_renderableLights.size(), MaxLightCountPerDraw);
-
-					LightKey lightKey;
-					lightKey.fill(nullptr);
-					for (std::size_t i = 0; i < lightCount; ++i)
-						lightKey[i] = m_renderableLights[i];
-
-					RenderBufferView lightUboView;
-
-					auto it = viewerData.lightBufferPerLights.find(lightKey);
-					if (it == viewerData.lightBufferPerLights.end())
-					{
-						// Prepare light ubo upload
-
-						// Find light ubo
-						LightDataUbo* targetLightData = nullptr;
-						for (auto& lightUboData : m_lightDataBuffers)
-						{
-							if (lightUboData.offset + lightUboAlignedSize <= lightUboData.renderBuffer->GetSize())
-							{
-								targetLightData = &lightUboData;
-								break;
-							}
-						}
-
-						if (!targetLightData)
-						{
-							// Make a new light UBO
-							auto& lightUboData = m_lightDataBuffers.emplace_back();
-
-							// Reuse from pool if possible
-							if (!m_lightUboPool->lightUboBuffers.empty())
-							{
-								lightUboData.renderBuffer = m_lightUboPool->lightUboBuffers.back();
-								m_lightUboPool->lightUboBuffers.pop_back();
-							}
-							else
-								lightUboData.renderBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, 256 * lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
-
-							targetLightData = &lightUboData;
-						}
-
-						assert(targetLightData);
-						if (!targetLightData->allocation)
-							targetLightData->allocation = &uploadPool.Allocate(targetLightData->renderBuffer->GetSize());
-
-						void* lightDataPtr = static_cast<UInt8*>(targetLightData->allocation->mappedPtr) + targetLightData->offset;
-						AccessByOffset<UInt32&>(lightDataPtr, lightOffsets.lightCountOffset) = SafeCast<UInt32>(lightCount);
-
-						UInt8* lightPtr = static_cast<UInt8*>(lightDataPtr) + lightOffsets.lightsOffset;
-						for (std::size_t i = 0; i < lightCount; ++i)
-						{
-							m_renderableLights[i]->FillLightData(lightPtr);
-							lightPtr += lightOffsets.lightSize;
-						}
-
-						// Associate render element with light ubo
-						lightUboView = RenderBufferView(targetLightData->renderBuffer.get(), targetLightData->offset, lightUboAlignedSize);
-
-						targetLightData->offset += lightUboAlignedSize;
-
-						viewerData.lightBufferPerLights.emplace(lightKey, lightUboView);
-					}
-					else
-						lightUboView = it->second;
-
-					std::size_t previousCount = viewerData.forwardRenderElements.size();
-					renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, viewerData.forwardRenderElements);
-					for (std::size_t i = previousCount; i < viewerData.forwardRenderElements.size(); ++i)
-					{
-						const RenderElement* element = viewerData.forwardRenderElements[i].get();
-						viewerData.lightPerRenderElement.emplace(element, lightUboView);
-					}
-				}
-
-				for (const auto& renderElement : viewerData.forwardRenderElements)
-				{
-					renderElement->Register(viewerData.forwardRegistry);
-					viewerData.forwardRenderQueue.Insert(renderElement.get());
-				}
-
-				viewerData.forwardRegistry.Finalize();
-
-				renderFrame.Execute([&](CommandBufferBuilder& builder)
-				{
-					builder.BeginDebugRegion("Light UBO Update", Color::Yellow);
-					{
-						for (auto& lightUboData : m_lightDataBuffers)
-						{
-							if (!lightUboData.allocation)
-								continue;
-
-							builder.CopyBuffer(*lightUboData.allocation, RenderBufferView(lightUboData.renderBuffer.get(), 0, lightUboData.offset));
-						}
-
-						builder.PostTransferBarrier();
-					}
-					builder.EndDebugRegion();
-				}, QueueType::Transfer);
-			}
-
-			viewerData.forwardRenderQueue.Sort([&](const RenderElement* element)
-			{
-				return element->ComputeSortingScore(frustum, viewerData.forwardRegistry);
-			});
-		}
-
-		for (auto&& [viewer, viewerData] : m_viewers)
-		{
-			if (!viewerData.prepare)
-				continue;
-
-			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
-			{
-				auto& elementRendererPtr = m_elementRenderers[i];
-
-				if (i >= viewerData.elementRendererData.size() || !viewerData.elementRendererData[i])
-				{
-					if (i >= viewerData.elementRendererData.size())
-						viewerData.elementRendererData.resize(i + 1);
-
-					viewerData.elementRendererData[i] = elementRendererPtr->InstanciateData();
-				}
-
-				if (elementRendererPtr)
-					elementRendererPtr->Reset(*viewerData.elementRendererData[i], renderFrame);
-			}
-
-			auto& rendererData = viewerData.elementRendererData;
-
-			const auto& viewerInstance = viewer->GetViewerInstance();
-
-			ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-			{
-				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-
-				m_renderStates.clear();
-				m_renderStates.resize(elementCount);
-
-				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
-			});
-
-			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
-				m_elementRenderers[i]->PrepareEnd(renderFrame, *rendererData[i]);
-
-			auto& lightPerRenderElement = viewerData.lightPerRenderElement;
-			ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-			{
-				ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-
-				m_renderStates.clear();
-
-				m_renderStates.reserve(elementCount);
-				for (std::size_t i = 0; i < elementCount; ++i)
-				{
-					auto it = lightPerRenderElement.find(elements[i]);
-					assert(it != lightPerRenderElement.end());
-
-					auto& renderStates = m_renderStates.emplace_back();
-					renderStates.lightData = it->second;
-				}
-
-				elementRenderer.Prepare(viewerInstance, *rendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
-			});
-
-			for (std::size_t i = 0; i < m_elementRenderers.size(); ++i)
-				m_elementRenderers[i]->PrepareEnd(renderFrame, *rendererData[i]);
+			viewerData.forwardPass->Prepare(renderFrame, frustum, m_visibleRenderables, m_visibleLights, visibilityHash);
 		}
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
@@ -555,13 +323,7 @@ namespace Nz
 		m_bakedFrameGraph.Execute(renderFrame);
 		m_rebuildFrameGraph = false;
 
-		for (auto&& [viewer, viewerData] : m_viewers)
-		{
-			viewerData.rebuildForwardPass = false;
-			viewerData.rebuildDepthPrepass = false;
-			viewerData.prepare = false;
-		}
-
+		// Final blit (TODO: Make part of frame graph)
 		const Vector2ui& frameSize = renderFrame.GetSize();
 		for (auto&& [renderTargetPtr, renderTargetData] : m_renderTargets)
 		{
@@ -623,30 +385,31 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			if (const auto& pass = instancedRenderable->GetMaterial(i)->GetPass(m_depthPassIndex))
-				UnregisterMaterialPass(pass.get());
+			for (auto&& [viewer, viewerData] : m_viewers)
+			{
+				const auto& material = instancedRenderable->GetMaterial(i);
+				if (viewerData.depthPrepass)
+					viewerData.depthPrepass->UnregisterMaterial(*material);
 
-			if (const auto& pass = instancedRenderable->GetMaterial(i)->GetPass(m_forwardPassIndex))
-				UnregisterMaterialPass(pass.get());
-		}
-
-		for (auto&& [viewer, viewerData] : m_viewers)
-		{
-			viewerData.rebuildDepthPrepass = true;
-			viewerData.rebuildForwardPass = true;
-			viewerData.prepare = true;
+				viewerData.forwardPass->UnregisterMaterial(*material);
+			}
 		}
 	}
 
 	void ForwardFramePipeline::UnregisterLight(Light* light)
 	{
 		m_lights.erase(light);
+	}
 
-		for (auto&& [viewer, viewerData] : m_viewers)
-		{
-			viewerData.rebuildForwardPass = true;
-			viewerData.prepare = true;
-		}
+	void ForwardFramePipeline::UnregisterMaterialPass(MaterialPass* materialPass)
+	{
+		auto it = m_activeMaterialPasses.find(materialPass);
+		assert(it != m_activeMaterialPasses.end());
+
+		MaterialPassData& materialData = it->second;
+		assert(materialData.usedCount > 0);
+		if (--materialData.usedCount == 0)
+			m_activeMaterialPasses.erase(materialPass);
 	}
 
 	void ForwardFramePipeline::UnregisterViewer(AbstractViewer* viewerInstance)
@@ -676,65 +439,10 @@ namespace Nz
 		{
 			auto& viewerData = data;
 
-			FramePass& depthPrepass = frameGraph.AddPass("Depth pre-pass");
-			depthPrepass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
-			depthPrepass.SetDepthStencilClear(1.f, 0);
-			
-			depthPrepass.SetExecutionCallback([&]()
-			{
-				if (viewerData.rebuildDepthPrepass)
-					return FramePassExecution::UpdateAndExecute;
-				else
-					return FramePassExecution::Execute;
-			});
-			
-			depthPrepass.SetCommandCallback([this, viewer = viewer, &viewerData](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
-			{
-				Recti viewport = viewer->GetViewport();
+			if (viewerData.depthPrepass)
+				viewerData.depthPrepass->RegisterToFrameGraph(frameGraph, viewerData.depthStencilAttachment);
 
-				builder.SetScissor(viewport);
-				builder.SetViewport(viewport);
-
-				const auto& viewerInstance = viewer->GetViewerInstance();
-
-				ProcessRenderQueue(viewerData.depthPrepassRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-				{
-					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Render(viewerInstance, *viewerData.elementRendererData[elementType], builder, elementCount, elements);
-				});
-			});
-
-			FramePass& forwardPass = frameGraph.AddPass("Forward pass");
-			forwardPass.AddOutput(viewerData.colorAttachment);
-			forwardPass.SetDepthStencilInput(viewerData.depthStencilAttachment);
-			//forwardPass.SetDepthStencilOutput(viewerData.depthStencilAttachment);
-
-			forwardPass.SetClearColor(0, viewer->GetClearColor());
-			forwardPass.SetDepthStencilClear(1.f, 0);
-
-			forwardPass.SetExecutionCallback([&]()
-			{
-				if (viewerData.rebuildForwardPass)
-					return FramePassExecution::UpdateAndExecute;
-				else
-					return FramePassExecution::Execute;
-			});
-
-			forwardPass.SetCommandCallback([this, viewer = viewer, &viewerData](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
-			{
-				Recti viewport = viewer->GetViewport();
-
-				builder.SetScissor(viewport);
-				builder.SetViewport(viewport);
-
-				const auto& viewerInstance = viewer->GetViewerInstance();
-
-				ProcessRenderQueue(viewerData.forwardRenderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-				{
-					ElementRenderer& elementRenderer = *m_elementRenderers[elementType];
-					elementRenderer.Render(viewerInstance, *viewerData.elementRendererData[elementType], builder, elementCount, elements);
-				});
-			});
+			viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.colorAttachment, viewerData.depthStencilAttachment);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
@@ -807,61 +515,5 @@ namespace Nz
 		}
 
 		return frameGraph.Bake();
-	}
-
-	void ForwardFramePipeline::RegisterMaterialPass(MaterialPass* material)
-	{
-		auto it = m_materials.find(material);
-		if (it == m_materials.end())
-		{
-			it = m_materials.emplace(material, MaterialData{}).first;
-			it->second.onMaterialInvalided.Connect(material->OnMaterialInvalidated, [this, material](const MaterialPass* /*material*/)
-			{
-				m_invalidatedMaterials.insert(material);
-			});
-
-			m_invalidatedMaterials.insert(material);
-		}
-
-		it->second.usedCount++;
-	}
-
-	template<typename F>
-	void ForwardFramePipeline::ProcessRenderQueue(const RenderQueue<RenderElement*>& renderQueue, F&& callback)
-	{
-		if (renderQueue.empty())
-			return;
-
-		auto it = renderQueue.begin();
-		auto itEnd = renderQueue.end();
-		while (it != itEnd)
-		{
-			const RenderElement* element = *it;
-			UInt8 elementType = element->GetElementType();
-
-			const Pointer<RenderElement>* first = it;
-
-			++it;
-			while (it != itEnd && (*it)->GetElementType() == elementType)
-				++it;
-
-			std::size_t count = it - first;
-			
-			if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
-				continue;
-
-			callback(elementType, first, count);
-		}
-	}
-
-	void ForwardFramePipeline::UnregisterMaterialPass(MaterialPass* material)
-	{
-		auto it = m_materials.find(material);
-		assert(it != m_materials.end());
-
-		MaterialData& materialData = it->second;
-		assert(materialData.usedCount > 0);
-		if (--materialData.usedCount == 0)
-			m_materials.erase(material);
 	}
 }

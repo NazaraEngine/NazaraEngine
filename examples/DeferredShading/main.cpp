@@ -660,7 +660,6 @@ int main()
 	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding;
 
 	bool lightUpdate = true;
-	bool matUpdate = false;
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
@@ -838,7 +837,7 @@ int main()
 
 		gbufferPass.SetExecutionCallback([&]
 		{
-			return (matUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
+			return Nz::FramePassExecution::Execute;
 		});
 
 		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
@@ -1566,9 +1565,9 @@ int main()
 					builder.CopyBuffer(lightScatteringAllocation, godRaysUBO.get());
 				}
 
-				matUpdate = spaceshipMatPass->Update(frame, builder) || matUpdate;
-				matUpdate = planeMatPass->Update(frame, builder) || matUpdate;
-				matUpdate = flareMaterialPass->Update(frame, builder) || matUpdate;
+				spaceshipMatPass->Update(frame, builder);
+				planeMatPass->Update(frame, builder);
+				flareMaterialPass->Update(frame, builder);
 
 				builder.PostTransferBarrier();
 			}
@@ -1603,7 +1602,6 @@ int main()
 
 		frame.Present();
 
-		matUpdate = false;
 		lightUpdate = false;
 
 		// On incrémente le compteur de FPS improvisé

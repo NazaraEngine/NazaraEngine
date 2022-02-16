@@ -27,6 +27,16 @@ namespace Nz
 		return GetPass(registry.GetPassIndex(passName));
 	}
 
+	template<typename F>
+	void Material::ForEachPass(F&& callback)
+	{
+		for (std::size_t i = 0; i < m_passes.size(); ++i)
+		{
+			if (m_passes[i])
+				callback(i, m_passes[i]);
+		}
+	}
+
 	inline const std::shared_ptr<MaterialPass>& Material::GetPass(std::size_t passIndex) const
 	{
 		if (passIndex >= m_passes.size())

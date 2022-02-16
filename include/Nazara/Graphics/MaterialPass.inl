@@ -16,7 +16,7 @@ namespace Nz
 	*/
 	inline MaterialPass::~MaterialPass()
 	{
-		OnMaterialRelease(this);
+		OnMaterialPassRelease(this);
 	}
 
 	/*!
@@ -609,7 +609,7 @@ namespace Nz
 		{
 			m_textures[textureIndex].texture = std::move(texture);
 
-			InvalidateCommandBuffer();
+			InvalidateShaderBinding();
 		}
 	}
 
@@ -632,22 +632,20 @@ namespace Nz
 			m_uniformBuffers[bufferIndex].buffer = std::move(uniformBuffer);
 			m_uniformBuffers[bufferIndex].dataInvalidated = true;
 
-			InvalidateCommandBuffer();
+			InvalidateShaderBinding();
 		}
-	}
-
-	inline void MaterialPass::InvalidateCommandBuffer()
-	{
-		m_forceCommandBufferRegeneration = true;
-		OnMaterialInvalidated(this);
 	}
 
 	inline void MaterialPass::InvalidatePipeline()
 	{
-		m_forceCommandBufferRegeneration = true;
 		m_pipelineUpdated = false;
 
-		OnMaterialInvalidated(this);
+		OnMaterialPassPipelineInvalidated(this);
+	}
+
+	inline void MaterialPass::InvalidateShaderBinding()
+	{
+		OnMaterialPassShaderBindingInvalidated(this);
 	}
 
 	inline void MaterialPass::InvalidateTextureSampler(std::size_t textureIndex)
@@ -655,7 +653,7 @@ namespace Nz
 		assert(textureIndex < m_textures.size());
 		m_textures[textureIndex].sampler.reset();
 
-		InvalidateCommandBuffer();
+		InvalidateShaderBinding();
 	}
 
 	inline void MaterialPass::InvalidateUniformData(std::size_t uniformBufferIndex)
@@ -664,7 +662,7 @@ namespace Nz
 		UniformBuffer& uboEntry = m_uniformBuffers[uniformBufferIndex];
 		uboEntry.dataInvalidated = true;
 
-		OnMaterialInvalidated(this);
+		OnMaterialPassInvalidated(this);
 	}
 }
 
