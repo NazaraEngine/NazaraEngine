@@ -10,7 +10,9 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
@@ -37,32 +39,28 @@ namespace Nz
 			ForwardFramePipeline();
 			ForwardFramePipeline(const ForwardFramePipeline&) = delete;
 			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
-			~ForwardFramePipeline() = default;
+			~ForwardFramePipeline();
 
 			void InvalidateViewer(AbstractViewer* viewerInstance) override;
 			void InvalidateWorldInstance(WorldInstance* worldInstance) override;
 
 			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) override;
 			void RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
+			void RegisterMaterialPass(MaterialPass* materialPass) override;
 			void RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
 
 			void Render(RenderFrame& renderFrame) override;
 
 			void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) override;
 			void UnregisterLight(Light* light) override;
+			void UnregisterMaterialPass(MaterialPass* material) override;
 			void UnregisterViewer(AbstractViewer* viewerInstance) override;
 
 			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;
 			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
 
-			static constexpr std::size_t MaxLightCountPerDraw = 3;
-
 		private:
 			BakedFrameGraph BuildFrameGraph();
-
-			void RegisterMaterialPass(MaterialPass* material);
-			template<typename F> void ProcessRenderQueue(const RenderQueue<RenderElement*>& renderQueue, F&& callback);
-			void UnregisterMaterialPass(MaterialPass* material);
 
 			struct ViewerData;
 
@@ -74,30 +72,11 @@ namespace Nz
 				NazaraSlot(Light, OnLightDataInvalided, onLightInvalidated);
 			};
 
-			using LightKey = std::array<const Light*, MaxLightCountPerDraw>;
-
-			struct LightKeyHasher
-			{
-				inline std::size_t operator()(const LightKey& lightKey) const;
-			};
-
-			struct LightDataUbo
-			{
-				std::shared_ptr<RenderBuffer> renderBuffer;
-				std::size_t offset = 0;
-				UploadPool::Allocation* allocation = nullptr;
-			};
-
-			struct LightUboPool
-			{
-				std::vector<std::shared_ptr<RenderBuffer>> lightUboBuffers;
-			};
-
-			struct MaterialData
+			struct MaterialPassData
 			{
 				std::size_t usedCount = 0;
 
-				NazaraSlot(MaterialPass, OnMaterialInvalidated, onMaterialInvalided);
+				NazaraSlot(MaterialPass, OnMaterialPassInvalidated, onMaterialPassInvalided);
 			};
 
 			struct RenderableData
@@ -115,51 +94,31 @@ namespace Nz
 				ShaderBindingPtr blitShaderBinding;
 			};
 
-			struct VisibleRenderable
-			{
-				const InstancedRenderable* instancedRenderable;
-				const WorldInstance* worldInstance;
-			};
-
 			struct ViewerData
 			{
 				std::size_t colorAttachment;
 				std::size_t depthStencilAttachment;
-				std::size_t visibilityHash = 0;
-				std::unordered_map<const RenderElement*, RenderBufferView> lightPerRenderElement;
-				std::unordered_map<LightKey, RenderBufferView, LightKeyHasher> lightBufferPerLights;
-				std::vector<std::unique_ptr<RenderElement>> depthPrepassRenderElements;
-				std::vector<std::unique_ptr<RenderElement>> forwardRenderElements;
-				std::vector<std::unique_ptr<ElementRendererData>> elementRendererData;
+				std::unique_ptr<DepthPipelinePass> depthPrepass;
+				std::unique_ptr<ForwardPipelinePass> forwardPass;
 				Int32 renderOrder = 0;
-				RenderQueueRegistry depthPrepassRegistry;
 				RenderQueueRegistry forwardRegistry;
-				RenderQueue<RenderElement*> depthPrepassRenderQueue;
 				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
-				bool prepare = true;
-				bool rebuildDepthPrepass = true;
-				bool rebuildForwardPass = true;
 			};
 
-			std::size_t m_depthPassIndex;
 			std::size_t m_forwardPassIndex;
-			std::shared_ptr<LightUboPool> m_lightUboPool;
 			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
 			std::unordered_map<Light*, LightData> m_lights;
-			std::unordered_map<MaterialPass*, MaterialData> m_materials;
+			std::unordered_map<MaterialPass*, MaterialPassData> m_activeMaterialPasses;
 			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
-			std::unordered_set<MaterialPass*> m_invalidatedMaterials;
+			std::unordered_set<MaterialPass*> m_invalidatedMaterialPasses;
 			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
 			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
-			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
-			std::vector<const Light*> m_renderableLights;
+			std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<const Light*> m_visibleLights;
-			std::vector<LightDataUbo> m_lightDataBuffers;
-			std::vector<VisibleRenderable> m_visibleRenderables;
 			BakedFrameGraph m_bakedFrameGraph;
 			RenderFrame* m_currentRenderFrame;
 			bool m_rebuildFrameGraph;

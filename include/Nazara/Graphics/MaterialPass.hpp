@@ -103,15 +103,17 @@ namespace Nz
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<RenderBuffer> uniformBuffer);
 
-			bool Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
+			void Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
 
 			// Signals:
-			NazaraSignal(OnMaterialInvalidated, const MaterialPass* /*material*/);
-			NazaraSignal(OnMaterialRelease, const MaterialPass* /*material*/);
+			NazaraSignal(OnMaterialPassInvalidated, const MaterialPass* /*materialPass*/);
+			NazaraSignal(OnMaterialPassPipelineInvalidated, const MaterialPass* /*materialPass*/);
+			NazaraSignal(OnMaterialPassShaderBindingInvalidated, const MaterialPass* /*materialPass*/);
+			NazaraSignal(OnMaterialPassRelease, const MaterialPass* /*materialPass*/);
 
 		private:
-			inline void InvalidateCommandBuffer();
 			inline void InvalidatePipeline();
+			inline void InvalidateShaderBinding();
 			inline void InvalidateTextureSampler(std::size_t textureIndex);
 			inline void InvalidateUniformData(std::size_t uniformBufferIndex);
 			void UpdatePipeline() const;
@@ -137,7 +139,6 @@ namespace Nz
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			MaterialPassFlags m_flags;
-			bool m_forceCommandBufferRegeneration;
 			mutable bool m_pipelineUpdated;
 	};
 }
