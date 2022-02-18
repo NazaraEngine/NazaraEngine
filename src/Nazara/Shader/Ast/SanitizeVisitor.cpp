@@ -849,9 +849,6 @@ namespace Nz::ShaderAst
 		pendingFunc.cloneNode = clone.get();
 		pendingFunc.node = &node;
 
-		for (auto& parameter : clone->parameters)
-			parameter.type = ResolveType(parameter.type);
-
 		if (clone->earlyFragmentTests.HasValue() && clone->earlyFragmentTests.GetResultingValue())
 		{
 			//TODO: warning and disable early fragment tests
@@ -2265,10 +2262,14 @@ namespace Nz::ShaderAst
 			if (!node.initialExpression)
 				throw AstError{ "variable must either have a type or an initial value" };
 
-			resolvedType = ResolveType(GetExpressionType(*node.initialExpression));
+			resolvedType = GetExpressionType(*node.initialExpression);
 		}
 		else
+		{
 			resolvedType = ResolveType(node.varType);
+			if (node.initialExpression)
+				TypeMustMatch(resolvedType, GetExpressionType(*node.initialExpression));
+		}
 
 		if (m_context->options.makeVariableNameUnique && FindIdentifier(node.varName) != nullptr)
 		{

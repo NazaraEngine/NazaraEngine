@@ -78,7 +78,7 @@ int main()
 	materialPass->EnableDepthClamp(true);
 	materialPass->EnableFaceCulling(true);
 
-	//material->AddPass("DepthPass", depthPass);
+	material->AddPass("DepthPass", depthPass);
 	material->AddPass("ForwardPass", materialPass);
 
 	Nz::TextureSamplerInfo samplerInfo;
