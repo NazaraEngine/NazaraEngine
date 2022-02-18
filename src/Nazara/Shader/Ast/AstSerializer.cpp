@@ -193,14 +193,13 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(DeclareExternalStatement& node)
 	{
-		OptVal(node.varIndex);
-
 		ExprValue(node.bindingSet);
 
 		Container(node.externalVars);
 		for (auto& extVar : node.externalVars)
 		{
 			Value(extVar.name);
+			OptVal(extVar.varIndex);
 			ExprValue(extVar.type);
 			ExprValue(extVar.bindingIndex);
 			ExprValue(extVar.bindingSet);

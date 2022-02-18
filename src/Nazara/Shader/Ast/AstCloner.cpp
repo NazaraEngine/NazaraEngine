@@ -91,8 +91,6 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(DeclareExternalStatement& node)
 	{
 		auto clone = std::make_unique<DeclareExternalStatement>();
-		clone->varIndex = node.varIndex;
-
 		clone->bindingSet = Clone(node.bindingSet);
 
 		clone->externalVars.reserve(node.externalVars.size());
@@ -100,6 +98,7 @@ namespace Nz::ShaderAst
 		{
 			auto& cloneVar = clone->externalVars.emplace_back();
 			cloneVar.name = var.name;
+			cloneVar.varIndex = var.varIndex;
 			cloneVar.type = Clone(var.type);
 			cloneVar.bindingIndex = Clone(var.bindingIndex);
 			cloneVar.bindingSet = Clone(var.bindingSet);

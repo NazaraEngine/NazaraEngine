@@ -2,6 +2,7 @@
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
@@ -16,7 +17,7 @@
 enum class OutputLanguage
 {
 	GLSL,
-	Nazalang,
+	NZSL,
 	SpirV
 };
 
@@ -27,7 +28,7 @@ m_shaderGraph(shaderGraph)
 
 	m_outputLang = new QComboBox;
 	m_outputLang->addItem("GLSL", int(OutputLanguage::GLSL));
-	m_outputLang->addItem("Nazalang", int(OutputLanguage::Nazalang));
+	m_outputLang->addItem("NZSL", int(OutputLanguage::NZSL));
 	m_outputLang->addItem("SPIR-V", int(OutputLanguage::SpirV));
 	connect(m_outputLang, qOverload<int>(&QComboBox::currentIndexChanged), [this](int)
 	{
@@ -70,7 +71,8 @@ void CodeOutputWidget::Refresh()
 			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst, sanitizeOptions);
 
 			Nz::ShaderAst::AstOptimizer optimiser;
-			shaderAst = optimiser.Optimise(*shaderAst);
+			shaderAst = Nz::ShaderAst::Optimize(*shaderAst);
+			shaderAst = Nz::ShaderAst::EliminateUnusedPass(*shaderAst);
 		}
 
 		std::string output;
@@ -91,7 +93,7 @@ void CodeOutputWidget::Refresh()
 				break;
 			}
 
-			case OutputLanguage::Nazalang:
+			case OutputLanguage::NZSL:
 			{
 				Nz::LangWriter writer;
 				output = writer.Generate(*shaderAst, states);
