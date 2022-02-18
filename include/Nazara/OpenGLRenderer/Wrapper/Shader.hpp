@@ -26,7 +26,8 @@ namespace Nz::GL
 
 			inline void Compile();
 
-			inline bool GetCompilationStatus(std::string* error = nullptr);
+			inline bool GetCompilationStatus(std::string* error = nullptr) const;
+			inline std::string GetSource() const;
 
 			inline void SetBinarySource(GLenum binaryFormat, const void* binary, GLsizei length);
 			inline void SetSource(const char* source, GLint length);
