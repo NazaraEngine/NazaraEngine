@@ -787,9 +787,6 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::DeclareExternalStatement& node)
 	{
-		assert(node.varIndex);
-		std::size_t varIndex = *node.varIndex;
-
 		AppendLine("external");
 		EnterScope();
 
@@ -804,7 +801,8 @@ namespace Nz
 			AppendAttributes(false, SetAttribute{ externalVar.bindingSet }, BindingAttribute{ externalVar.bindingIndex });
 			Append(externalVar.name, ": ", externalVar.type);
 
-			RegisterVariable(varIndex++, externalVar.name);
+			assert(externalVar.varIndex);
+			RegisterVariable(*externalVar.varIndex, externalVar.name);
 		}
 
 		LeaveScope();

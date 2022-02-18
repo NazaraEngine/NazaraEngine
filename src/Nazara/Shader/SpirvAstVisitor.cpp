@@ -579,11 +579,11 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareExternalStatement& node)
 	{
-		assert(node.varIndex);
-
-		std::size_t varIndex = *node.varIndex;
 		for (auto&& extVar : node.externalVars)
-			RegisterExternalVariable(varIndex++, extVar.type.GetResultingValue());
+		{
+			assert(extVar.varIndex);
+			RegisterExternalVariable(*extVar.varIndex, extVar.type.GetResultingValue());
+		}
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareFunctionStatement& node)

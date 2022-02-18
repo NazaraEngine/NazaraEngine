@@ -12,6 +12,7 @@
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
+#include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <optional>
 #include <set>
@@ -177,7 +178,11 @@ namespace Nz
 		ShaderAst::StatementPtr optimizedAst;
 		if (states.optimize)
 		{
-			optimizedAst = ShaderAst::Optimize(*targetAst);
+			ShaderAst::StatementPtr tempAst;
+
+			tempAst = ShaderAst::Optimize(*targetAst);
+			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst);
+
 			targetAst = optimizedAst.get();
 		}
 
@@ -992,9 +997,6 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::DeclareExternalStatement& node)
 	{
-		assert(node.varIndex);
-		std::size_t varIndex = *node.varIndex;
-
 		for (const auto& externalVar : node.externalVars)
 		{
 			bool isStd140 = false;
@@ -1075,7 +1077,8 @@ namespace Nz
 			if (IsUniformType(externalVar.type.GetResultingValue()))
 				AppendLine();
 
-			RegisterVariable(varIndex++, externalVar.name);
+			assert(externalVar.varIndex);
+			RegisterVariable(*externalVar.varIndex, externalVar.name);
 		}
 	}
 

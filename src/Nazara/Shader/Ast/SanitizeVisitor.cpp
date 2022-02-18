@@ -786,10 +786,7 @@ namespace Nz::ShaderAst
 				throw AstError{ "external variable " + extVar.name + " is of wrong type: only uniform and sampler are allowed in external blocks" };
 
 			extVar.type = std::move(resolvedType);
-
-			std::size_t varIndex = RegisterVariable(extVar.name, std::move(varType));
-			if (!clone->varIndex)
-				clone->varIndex = varIndex; //< First external variable index is node variable index
+			extVar.varIndex = RegisterVariable(extVar.name, std::move(varType));
 
 			SanitizeIdentifier(extVar.name);
 		}

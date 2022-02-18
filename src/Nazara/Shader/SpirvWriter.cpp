@@ -13,6 +13,7 @@
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstOptimizer.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
+#include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <SpirV/GLSL.std.450.h>
 #include <tsl/ordered_map.h>
@@ -137,8 +138,6 @@ namespace Nz
 
 				void Visit(ShaderAst::DeclareExternalStatement& node) override
 				{
-					assert(node.varIndex);
-					std::size_t varIndex = *node.varIndex;
 					for (auto& extVar : node.externalVars)
 					{
 						SpirvConstantCache::Variable variable;
@@ -165,7 +164,8 @@ namespace Nz
 
 						assert(extVar.bindingIndex.IsResultingValue());
 
-						UniformVar& uniformVar = extVars[varIndex++];
+						assert(extVar.varIndex);
+						UniformVar& uniformVar = extVars[*extVar.varIndex];
 						uniformVar.pointerId = m_constantCache.Register(variable);
 						uniformVar.bindingIndex = extVar.bindingIndex.GetResultingValue();
 						uniformVar.descriptorSet = (extVar.bindingSet.HasValue()) ? extVar.bindingSet.GetResultingValue() : 0;
@@ -519,7 +519,11 @@ namespace Nz
 		ShaderAst::StatementPtr optimizedAst;
 		if (states.optimize)
 		{
-			optimizedAst = ShaderAst::Optimize(*targetAst);
+			ShaderAst::StatementPtr tempAst;
+
+			tempAst = ShaderAst::Optimize(*targetAst);
+			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst);
+
 			targetAst = optimizedAst.get();
 		}
 

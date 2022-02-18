@@ -265,11 +265,11 @@ namespace Nz::ShaderAst
 			ExpressionValue<UInt32> bindingIndex;
 			ExpressionValue<UInt32> bindingSet;
 			ExpressionValue<ExpressionType> type;
+			std::optional<std::size_t> varIndex;
 			std::string name;
 		};
 
 		ExpressionValue<UInt32> bindingSet;
-		std::optional<std::size_t> varIndex;
 		std::vector<ExternalVar> externalVars;
 	};
 
