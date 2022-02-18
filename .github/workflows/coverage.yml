@@ -36,7 +36,7 @@ jobs:
     # Install Nazara dependencies
     - name: Install system dependencies
       run: |
-        sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git gcovr -y
+        sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev mesa git gcovr -y
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -74,7 +74,7 @@ jobs:
 
     # Run unit tests
     - name: Run unit tests
-      run: xmake run NazaraUnitTests
+      run: xmake run NazaraClientUnitTests
 
     # Build coverage file
     - name: Build coverage output
