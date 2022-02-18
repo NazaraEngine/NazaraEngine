@@ -816,16 +816,15 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 	{
 		parameters.push_back({
 			"input",
-			Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::IdentifierType{ "InputData" } }
+			Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier("InputData") }
 		});
 	}
 
-	Nz::ShaderAst::ExpressionType returnType;
+	Nz::ShaderAst::ExpressionPtr returnType;
 	if (!m_outputs.empty())
 	{
-		returnType = Nz::ShaderAst::IdentifierType{ "OutputData" };
-
-		statements.push_back(Nz::ShaderBuilder::DeclareVariable("output", returnType));
+		returnType = Nz::ShaderBuilder::Identifier("OutputData");
+		statements.push_back(Nz::ShaderBuilder::DeclareVariable("output", Nz::ShaderAst::Clone(*returnType), nullptr));
 	}
 
 	using Key = QPair<QUuid, std::size_t>;
