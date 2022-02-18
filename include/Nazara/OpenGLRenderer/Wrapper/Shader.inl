@@ -16,7 +16,7 @@ namespace Nz::GL
 		context.glCompileShader(m_objectId);
 	}
 
-	inline bool Shader::GetCompilationStatus(std::string* error)
+	inline bool Shader::GetCompilationStatus(std::string* error) const
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
@@ -43,6 +43,28 @@ namespace Nz::GL
 		}
 
 		return true;
+	}
+
+	inline std::string Shader::GetSource() const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+
+		GLint sourceLength;
+		context.glGetShaderiv(m_objectId, GL_SHADER_SOURCE_LENGTH, &sourceLength);
+
+		if (sourceLength <= 1)
+			return {};
+
+		std::string source;
+		source.resize(sourceLength - 1);
+
+		GLsizei length;
+		context.glGetShaderSource(m_objectId, sourceLength, &length, &source[0]);
+
+		assert(length == sourceLength - 1);
+
+		return source;
 	}
 
 	inline void Shader::SetBinarySource(GLenum binaryFormat, const void* binary, GLsizei length)

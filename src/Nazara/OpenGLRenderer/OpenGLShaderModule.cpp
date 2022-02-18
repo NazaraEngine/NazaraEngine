@@ -159,6 +159,10 @@ namespace Nz
 	{
 		std::string errorLog;
 		if (!shader.GetCompilationStatus(&errorLog))
-			throw std::runtime_error("Failed to compile shader: " + errorLog);
+		{
+			std::string source = shader.GetSource();
+
+			throw std::runtime_error("Failed to compile shader: " + errorLog + "\nSource: " + source);
+		}
 	}
 }
