@@ -311,9 +311,11 @@ namespace Nz
 
 	ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags)
 	{
-		ENetPacketRef enetPacket = m_packetPool.New<ENetPacket>();
+		std::size_t poolIndex;
+		ENetPacketRef enetPacket = m_packetPool.Allocate(poolIndex);
 		enetPacket->flags = flags;
-		enetPacket->owner = &m_packetPool;
+		enetPacket->poolIndex = poolIndex;
+		enetPacket.m_pool = &m_packetPool;
 
 		return enetPacket;
 	}

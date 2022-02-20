@@ -8,6 +8,7 @@
 #define NAZARA_NETWORK_ENETPACKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 
 namespace Nz
@@ -29,13 +30,11 @@ namespace Nz
 
 	constexpr ENetPacketFlags ENetPacketFlag_Unreliable = 0;
 
-	class MemoryPool;
-
 	struct ENetPacket
 	{
-		MemoryPool* owner;
 		ENetPacketFlags flags;
 		NetPacket data;
+		std::size_t poolIndex;
 		std::size_t referenceCount = 0;
 	};
 
@@ -54,7 +53,7 @@ namespace Nz
 			Reset(packet);
 		}
 
-		ENetPacketRef(ENetPacketRef&& packet) :
+		ENetPacketRef(ENetPacketRef&& packet) noexcept :
 		m_packet(packet.m_packet)
 		{
 			packet.m_packet = nullptr;
@@ -91,7 +90,7 @@ namespace Nz
 			return *this;
 		}
 
-		ENetPacketRef& operator=(ENetPacketRef&& packet)
+		ENetPacketRef& operator=(ENetPacketRef&& packet) noexcept
 		{
 			m_packet = packet.m_packet;
 			packet.m_packet = nullptr;
@@ -99,6 +98,7 @@ namespace Nz
 			return *this;
 		}
 
+		MemoryPool<ENetPacket>* m_pool = nullptr;
 		ENetPacket* m_packet = nullptr;
 	};
 }

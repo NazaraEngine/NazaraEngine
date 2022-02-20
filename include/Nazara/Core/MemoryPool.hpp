@@ -8,45 +8,55 @@
 #define NAZARA_CORE_MEMORYPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <atomic>
+#include <Nazara/Core/Bitset.hpp>
 #include <memory>
+#include <vector>
 
 namespace Nz
 {
+	template<typename T, std::size_t Alignment = alignof(T)>
 	class MemoryPool
 	{
 		public:
-			MemoryPool(unsigned int blockSize, unsigned int size = 1024, bool canGrow = true);
+			MemoryPool(std::size_t blockSize);
 			MemoryPool(const MemoryPool&) = delete;
-			MemoryPool(MemoryPool&& pool) noexcept;
-			~MemoryPool() = default;
+			MemoryPool(MemoryPool&&) noexcept = default;
+			~MemoryPool();
 
-			void* Allocate(unsigned int size);
+			template<typename... Args> T* Allocate(std::size_t& index, Args&&... args);
 
-			template<typename T> void Delete(T* ptr);
+			void Clear();
 
-			void Free(void* ptr);
+			void Free(std::size_t index);
 
-			inline unsigned int GetBlockSize() const;
-			inline unsigned int GetFreeBlocks() const;
-			inline unsigned int GetSize() const;
+			std::size_t GetAllocatedEntryCount() const;
+			std::size_t GetBlockCount() const;
+			std::size_t GetBlockSize() const;
+			std::size_t GetFreeEntryCount() const;
 
-			template<typename T, typename... Args> T* New(Args&&... args);
+			void Reset();
+
+			std::size_t RetrieveEntryIndex(const T* data);
 
 			MemoryPool& operator=(const MemoryPool&) = delete;
-			MemoryPool& operator=(MemoryPool&& pool) noexcept;
+			MemoryPool& operator=(MemoryPool&& pool) noexcept = default;
+
+			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
 
 		private:
-			MemoryPool(MemoryPool* pool);
+			void AllocateBlock();
 
-			std::unique_ptr<void* []> m_freeList;
-			std::unique_ptr<UInt8[]> m_pool;
-			std::unique_ptr<MemoryPool> m_next;
-			std::atomic_uint m_freeCount;
-			MemoryPool* m_previous;
-			bool m_canGrow;
-			unsigned int m_blockSize;
-			unsigned int m_size;
+			using AlignedStorage = std::aligned_storage_t<sizeof(T), Alignment>;
+
+			struct Block
+			{
+				std::size_t occupiedEntryCount = 0;
+				std::unique_ptr<AlignedStorage[]> memory;
+				Bitset<UInt64> freeEntries;
+			};
+
+			std::size_t m_blockSize;
+			std::vector<Block> m_blocks;
 	};
 }
 

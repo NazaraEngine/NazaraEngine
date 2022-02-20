@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/MemoryHelper.hpp>
 #include <stdexcept>
 #include <utility>
@@ -20,208 +21,231 @@ namespace Nz
 	* \brief Constructs a MemoryPool object
 	*
 	* \param blockSize Size of blocks that will be allocated
-	* \param size Size of the pool
-	* \param canGrow Determine if the pool can allocate more memory
 	*/
-
-	inline MemoryPool::MemoryPool(unsigned int blockSize, unsigned int size, bool canGrow) :
-	m_freeCount(size),
-	m_previous(nullptr),
-	m_canGrow(canGrow),
-	m_blockSize(blockSize),
-	m_size(size)
+	template<typename T, std::size_t Alignment>
+	MemoryPool<T, Alignment>::MemoryPool(std::size_t blockSize) :
+	m_blockSize(blockSize)
 	{
-		m_pool.reset(new UInt8[blockSize * size]);
-		m_freeList.reset(new void* [size]);
-
-		// Remplissage de la free list
-		for (unsigned int i = 0; i < size; ++i)
-			m_freeList[i] = &m_pool[m_blockSize * (size-i-1)];
+		// Allocate one block by default
+		AllocateBlock();
 	}
 
 	/*!
-	* \brief Constructs a MemoryPool object by move semantic
-	*
-	* \param pool MemoryPool to move into this
+	* \brief Destroy the memory pool, calling the destructor for every allocated object and desallocating blocks
 	*/
-
-	inline MemoryPool::MemoryPool(MemoryPool&& pool) noexcept
+	template<typename T, std::size_t Alignment>
+	MemoryPool<T, Alignment>::~MemoryPool()
 	{
-		operator=(std::move(pool));
-	}
-
-	/*!
-	* \brief Constructs a MemoryPool object by chaining memory pool
-	*
-	* \param pool Previous MemoryPool
-	*/
-
-	inline MemoryPool::MemoryPool(MemoryPool* pool) :
-	MemoryPool(pool->m_blockSize, pool->m_size, pool->m_canGrow)
-	{
-		m_previous = pool;
+		Reset();
 	}
 
 	/*!
 	* \brief Allocates enough memory for the size and returns a pointer to it
 	* \return A pointer to memory allocated
 	*
-	* \param size Size to allocate
+	* \param index Output entry index (which can be used for deallocation)
 	*
-	* \remark If the size is greather than the blockSize of pool, new operator is called
+	* \remark If the size is greater than the blockSize of pool, new operator is called
 	*/
-
-	inline void* MemoryPool::Allocate(unsigned int size)
+	template<typename T, std::size_t Alignment>
+	template<typename... Args>
+	T* MemoryPool<T, Alignment>::Allocate(std::size_t& index, Args&&... args)
 	{
-		if (size <= m_blockSize)
+		std::size_t blockIndex = 0;
+		std::size_t localIndex = InvalidIndex;
+		for (; blockIndex < m_blocks.size(); ++blockIndex)
 		{
-			if (m_freeCount > 0)
-				return m_freeList[--m_freeCount];
-			else if (m_canGrow)
-			{
-				if (!m_next)
-					m_next.reset(new MemoryPool(this));
+			auto& block = m_blocks[blockIndex];
+			if (block.occupiedEntryCount == m_blockSize)
+				continue;
 
-				return m_next->Allocate(size);
-			}
+			localIndex = block.freeEntries.FindFirst();
+			assert(localIndex != block.freeEntries.npos);
+			break;
 		}
 
-		return OperatorNew(size);
+		if (blockIndex == m_blocks.size())
+		{
+			// No more room, allocate a new block
+			blockIndex = m_blocks.size();
+			localIndex = 0;
+
+			AllocateBlock();
+		}
+
+		assert(localIndex != InvalidIndex);
+
+		auto& block = m_blocks[blockIndex];
+		block.freeEntries.Reset(localIndex);
+		block.occupiedEntryCount++;
+
+		T* entry = reinterpret_cast<T*>(&block.memory[localIndex]);
+		PlacementNew(entry, std::forward<Args>(args)...);
+
+		index = blockIndex * m_blockSize + localIndex;
+
+		return entry;
 	}
 
 	/*!
-	* \brief Deletes the memory represented by the poiner
+	* \brief Clears the memory pool
 	*
-	* Calls the destructor of the object before releasing it
+	* This is call the destructor of every active entry and invalidate every entry index, and will free every allocated block
 	*
-	* \remark If ptr is null, nothing is done
+	* \see Reset
 	*/
-	template<typename T>
-	void MemoryPool::Delete(T* ptr)
+	template<typename T, std::size_t Alignment>
+	void MemoryPool<T, Alignment>::Clear()
 	{
-		if (ptr)
-		{
-			ptr->~T();
-			Free(ptr);
-		}
+		Reset();
+
+		m_blocks.clear();
 	}
 
 	/*!
-	* \brief Frees the memory represented by the poiner
+	* \brief Returns an object memory to the memory pool
 	*
-	* If the pool gets empty after the call and we are the child of another pool, we commit suicide. If the pointer does not own to a block of the pool, operator delete is called
+	* Calls the destructor of the target object and returns its memory to the pool
 	*
-	* \remark Throws a std::runtime_error if pointer does not point to an element of the pool with NAZARA_CORE_SAFE defined
-	* \remark If ptr is null, nothing is done
+	* \param index Index of the allocated object
+	*
+	* \see Reset
 	*/
-
-	inline void MemoryPool::Free(void* ptr)
+	template<typename T, std::size_t Alignment>
+	void MemoryPool<T, Alignment>::Free(std::size_t index)
 	{
-		if (ptr)
-		{
-			// Does the pointer belong to us ?
-			UInt8* freePtr = static_cast<UInt8*>(ptr);
-			UInt8* poolPtr = m_pool.get();
-			if (freePtr >= poolPtr && freePtr < poolPtr + m_blockSize*m_size)
-			{
-				#if NAZARA_CORE_SAFE
-				if ((freePtr - poolPtr) % m_blockSize != 0)
-					throw std::runtime_error("Invalid pointer (does not point to an element of the pool)");
-				#endif
+		std::size_t blockIndex = index / m_blockSize;
+		std::size_t localIndex = index % m_blockSize;
 
-				m_freeList[m_freeCount++] = ptr;
+		assert(blockIndex < m_blocks.size());
+		auto& block = m_blocks[blockIndex];
+		assert(!block.freeEntries.Test(localIndex));
 
-				// If we are empty and the extension of another pool, we commit suicide
-				if (m_freeCount == m_size && m_previous && !m_next)
-				{
-					m_previous->m_next.release();
-					delete this; // Suicide
-				}
-			}
-			else
-			{
-				if (m_next)
-					m_next->Free(ptr);
-				else
-					OperatorDelete(ptr);
-			}
-		}
+		assert(block.occupiedEntryCount > 0);
+		block.occupiedEntryCount--;
+
+		T* entry = reinterpret_cast<T*>(&block.memory[localIndex]);
+		PlacementDestroy(entry);
+
+		block.freeEntries.Set(localIndex);
+	}
+
+	/*!
+	* \brief Returns the number of allocated entries
+	* \return How many entries are currently allocated
+	*/
+	template<typename T, std::size_t Alignment>
+	std::size_t MemoryPool<T, Alignment>::GetAllocatedEntryCount() const
+	{
+		std::size_t count = 0;
+		for (auto& block : m_blocks)
+			count += block.occupiedEntryCount;
+
+		return count;
+	}
+
+	/*!
+	* \brief Gets the block count
+	* \return How many block are currently allocated for this memory pool
+	*/
+	template<typename T, std::size_t Alignment>
+	std::size_t MemoryPool<T, Alignment>::GetBlockCount() const
+	{
+		return m_blocks.size();
 	}
 
 	/*!
 	* \brief Gets the block size
-	* \return Size of the blocks
+	* \return Size of each block (i.e. how many items can fit in a block)
 	*/
-
-	inline unsigned int MemoryPool::GetBlockSize() const
+	template<typename T, std::size_t Alignment>
+	std::size_t MemoryPool<T, Alignment>::GetBlockSize() const
 	{
 		return m_blockSize;
 	}
 
 	/*!
-	* \brief Gets the number of free blocks
-	* \return Number of free blocks in the pool
+	* \brief Returns the number of free entries
+	* \return How many entries are currently freed
 	*/
-
-	inline unsigned int MemoryPool::GetFreeBlocks() const
+	template<typename T, std::size_t Alignment>
+	std::size_t MemoryPool<T, Alignment>::GetFreeEntryCount() const
 	{
-		return m_freeCount;
+		std::size_t count = m_blocks.size() * m_blockSize;
+		return count - GetAllocatedEntryCount();
 	}
 
 	/*!
-	* \brief Gets the pool size
-	* \return Size of the pool
-	*/
-
-	inline unsigned int MemoryPool::GetSize() const
-	{
-		return m_size;
-	}
-
-	/*!
-	* \brief Creates a new value of type T with arguments
-	* \return Pointer to the allocated object
+	* \brief Resets the memory pool
 	*
-	* \param args Arguments for the new object
+	* This is call the destructor of every active entry and invalidate every entry index, returning the pool to full capacity
+	* Note that memory is not freed
 	*
-	* \remark Constructs inplace in the pool
+	* \see Clear
 	*/
-
-	template<typename T, typename... Args>
-	inline T* MemoryPool::New(Args&&... args)
+	template<typename T, std::size_t Alignment>
+	void MemoryPool<T, Alignment>::Reset()
 	{
-		T* object = static_cast<T*>(Allocate(sizeof(T)));
-		PlacementNew(object, std::forward<Args>(args)...);
-
-		return object;
-	}
-
-	/*!
-	* \brief Assigns the content of another pool by move semantic
-	* \return A reference to this
-	*
-	* \param pool Other pool to move into this
-	*/
-
-	inline MemoryPool& MemoryPool::operator=(MemoryPool&& pool) noexcept
-	{
-		m_blockSize = pool.m_blockSize;
-		m_canGrow = pool.m_canGrow;
-		m_freeCount = pool.m_freeCount.load(std::memory_order_relaxed);
-		m_freeList = std::move(pool.m_freeList);
-		m_pool = std::move(pool.m_pool);
-		m_previous = pool.m_previous;
-		m_next = std::move(pool.m_next);
-		m_size = pool.m_size;
-
-		// If we have been created by another pool, we must make it point to us again
-		if (m_previous)
+		for (std::size_t blockIndex = 0; blockIndex < m_blocks.size(); ++blockIndex)
 		{
-			m_previous->m_next.release();
-			m_previous->m_next.reset(this);
+			auto& block = m_blocks[blockIndex];
+			if (block.occupiedEntryCount == 0)
+				continue;
+
+			for (std::size_t localIndex = 0; localIndex < m_blockSize; ++localIndex)
+			{
+				if (!block.freeEntries.Test(localIndex))
+				{
+					T* entry = reinterpret_cast<T*>(&m_blocks[blockIndex].memory[localIndex]);
+					PlacementDestroy(entry);
+				}
+			}
+
+			block.freeEntries.Reset();
+			block.occupiedEntryCount = 0;
+		}
+	}
+
+	/*!
+	* \brief Retrieve an entry index based on an allocated pointer
+	*
+	* \param data Allocated entry pointed
+	* 
+	* \return Corresponding index, or InvalidIndex if it's not part of this pool
+	*/
+	template<typename T, std::size_t Alignment>
+	std::size_t MemoryPool<T, Alignment>::RetrieveEntryIndex(const T* data)
+	{
+		std::size_t blockIndex = 0;
+		std::size_t localIndex = InvalidIndex;
+		for (; blockIndex < m_blocks.size(); ++blockIndex)
+		{
+			auto& block = m_blocks[blockIndex];
+			const T* startPtr = reinterpret_cast<const T*>(&block.memory[0]);
+			if (data >= startPtr && data < startPtr + m_blockSize)
+			{
+				// Part of block
+				localIndex = SafeCast<std::size_t>(data - startPtr);
+				assert(data == reinterpret_cast<const T*>(&block.memory[localIndex]));
+
+				break;
+			}
 		}
 
-		return *this;
+		if (blockIndex == m_blocks.size())
+			return InvalidIndex;
+
+		assert(localIndex != InvalidIndex);
+
+		return blockIndex * m_blockSize + localIndex;
+	}
+
+	template<typename T, std::size_t Alignment>
+	void MemoryPool<T, Alignment>::AllocateBlock()
+	{
+		auto& block = m_blocks.emplace_back();
+		block.freeEntries.Resize(m_blockSize, true);
+		block.memory = std::make_unique<AlignedStorage[]>(m_blockSize);
 	}
 }
 

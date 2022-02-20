@@ -14,7 +14,10 @@ namespace Nz
 		if (m_packet)
 		{
 			if (--m_packet->referenceCount == 0)
-				m_packet->owner->Delete(m_packet);
+			{
+				assert(m_pool);
+				m_pool->Free(m_packet->poolIndex);
+			}
 		}
 
 		m_packet = packet;

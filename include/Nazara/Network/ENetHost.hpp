@@ -145,7 +145,7 @@ namespace Nz
 			std::vector<PendingOutgoingPacket> m_pendingOutgoingPackets;
 			MovablePtr<UInt8> m_receivedData;
 			Bitset<UInt64> m_dispatchQueue;
-			MemoryPool m_packetPool;
+			MemoryPool<ENetPacket> m_packetPool;
 			IpAddress m_address;
 			IpAddress m_receivedAddress;
 			SocketPoller m_poller;
