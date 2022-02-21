@@ -28,16 +28,14 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			~InstancedRenderable();
 
-			virtual void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const = 0;
+			virtual void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const = 0;
 
 			inline const Boxf& GetAABB() const;
 			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
 			inline int GetRenderLayer() const;
-			inline const Recti& GetScissorBox() const;
 
 			inline void UpdateRenderLayer(int renderLayer);
-			inline void UpdateScissorBox(const Recti& scissorBox);
 
 			InstancedRenderable& operator=(const InstancedRenderable&) = delete;
 			InstancedRenderable& operator=(InstancedRenderable&&) noexcept = default;
@@ -51,7 +49,6 @@ namespace Nz
 
 		private:
 			Boxf m_aabb;
-			Recti m_scissorBox;
 			int m_renderLayer;
 	};
 }

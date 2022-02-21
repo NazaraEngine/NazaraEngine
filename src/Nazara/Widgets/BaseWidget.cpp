@@ -271,7 +271,7 @@ namespace Nz
 	{
 	}
 
-	bool BaseWidget::OnKeyPressed(const WindowEvent::KeyEvent& key)
+	bool BaseWidget::OnKeyPressed(const WindowEvent::KeyEvent& /*key*/)
 	{
 		return false;
 	}
@@ -390,10 +390,7 @@ namespace Nz
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(widgetEntity.handle))
-			{
-				for (const auto& renderable : gfx->GetRenderables())
-					renderable.renderable->UpdateScissorBox(fullBounds);
-			}
+				gfx->UpdateScissorBox(fullBounds);
 		}
 	}
 }

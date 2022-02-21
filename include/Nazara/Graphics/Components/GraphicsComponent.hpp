@@ -33,6 +33,7 @@ namespace Nz
 			inline void DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable);
 
 			inline const std::vector<Renderable>& GetRenderables() const;
+			inline const Recti& GetScissorBox() const;
 			inline const WorldInstancePtr& GetWorldInstance() const;
 
 			inline void Hide();
@@ -40,6 +41,8 @@ namespace Nz
 			inline bool IsVisible() const;
 
 			inline void Show(bool show = true);
+
+			inline void UpdateScissorBox(const Recti& scissorBox);
 
 			GraphicsComponent& operator=(const GraphicsComponent&) = default;
 			GraphicsComponent& operator=(GraphicsComponent&&) = default;
@@ -56,6 +59,7 @@ namespace Nz
 
 		private:
 			std::vector<Renderable> m_renderables;
+			Recti m_scissorBox;
 			WorldInstancePtr m_worldInstance;
 			bool m_isVisible;
 	};

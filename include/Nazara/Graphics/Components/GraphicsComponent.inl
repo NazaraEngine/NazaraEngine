@@ -8,6 +8,7 @@
 namespace Nz
 {
 	inline GraphicsComponent::GraphicsComponent(bool initialyVisible) :
+	m_scissorBox(-1, -1, -1, -1),
 	m_isVisible(initialyVisible)
 	{
 		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
@@ -46,6 +47,11 @@ namespace Nz
 		return m_renderables;
 	}
 
+	inline const Recti& GraphicsComponent::GetScissorBox() const
+	{
+		return m_scissorBox;
+	}
+
 	inline const WorldInstancePtr& GraphicsComponent::GetWorldInstance() const
 	{
 		return m_worldInstance;
@@ -67,6 +73,15 @@ namespace Nz
 		{
 			OnVisibilityUpdate(this, show);
 			m_isVisible = show;
+		}
+	}
+
+	inline void GraphicsComponent::UpdateScissorBox(const Recti& scissorBox)
+	{
+		if (m_scissorBox != scissorBox)
+		{
+			OnScissorBoxUpdate(this, scissorBox);
+			m_scissorBox = scissorBox;
 		}
 	}
 }

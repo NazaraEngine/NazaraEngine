@@ -9,7 +9,6 @@ namespace Nz
 {
 	inline InstancedRenderable::InstancedRenderable() :
 	m_aabb(Boxf::Zero()),
-	m_scissorBox(-1, -1, -1, -1),
 	m_renderLayer(0)
 	{
 	}
@@ -24,25 +23,11 @@ namespace Nz
 		return m_renderLayer;
 	}
 
-	inline const Recti& InstancedRenderable::GetScissorBox() const
-	{
-		return m_scissorBox;
-	}
-
 	inline void InstancedRenderable::UpdateRenderLayer(int renderLayer)
 	{
 		if (m_renderLayer != renderLayer)
 		{
 			m_renderLayer = renderLayer;
-			OnElementInvalidated(this);
-		}
-	}
-
-	inline void InstancedRenderable::UpdateScissorBox(const Recti& scissorBox)
-	{
-		if (m_scissorBox != scissorBox)
-		{
-			m_scissorBox = scissorBox;
 			OnElementInvalidated(this);
 		}
 	}
