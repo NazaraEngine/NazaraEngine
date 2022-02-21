@@ -63,22 +63,21 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
-	materialPass->EnableDepthBuffer(true);
-	materialPass->EnableFaceCulling(true);
+	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
+	forwardPass->EnableDepthBuffer(true);
+	forwardPass->EnableFaceCulling(true);
 
-	material->AddPass("ForwardPass", materialPass);
+	material->AddPass("ForwardPass", forwardPass);
 
 	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
 
-	Nz::PhongLightingMaterial phongMat(*materialPass);
+	Nz::PhongLightingMaterial phongMat(*forwardPass);
 	phongMat.EnableAlphaTest(false);
 	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	phongMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
-	model.UpdateScissorBox(Nz::Recti(0, 0, 1920, 1080));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, material);
 
@@ -97,12 +96,14 @@ int main()
 	Nz::WorldInstancePtr modelInstance2 = std::make_shared<Nz::WorldInstance>();
 	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
-	model.UpdateScissorBox(Nz::Recti(Nz::Vector2i(window.GetSize())));
+	Nz::Recti scissorBox(Nz::Vector2i(window.GetSize()));
 
 	Nz::ForwardFramePipeline framePipeline;
-	framePipeline.RegisterViewer(&camera, 0);
-	framePipeline.RegisterInstancedDrawable(modelInstance, &model, 0xFFFFFFFF);
-	framePipeline.RegisterInstancedDrawable(modelInstance2, &model, 0xFFFFFFFF);
+	std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
+	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
+	std::size_t worldInstanceIndex2 = framePipeline.RegisterWorldInstance(modelInstance2);
+	framePipeline.RegisterRenderable(worldInstanceIndex1, &model, 0xFFFFFFFF, scissorBox);
+	framePipeline.RegisterRenderable(worldInstanceIndex2, &model, 0xFFFFFFFF, scissorBox);
 
 	std::shared_ptr<Nz::PointLight> light = std::make_shared<Nz::PointLight>();
 	light->UpdateColor(Nz::Color::Green);
@@ -146,7 +147,7 @@ int main()
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
 					{
 						modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(viewerPos));
-						framePipeline.InvalidateWorldInstance(modelInstance.get());
+						framePipeline.InvalidateWorldInstance(worldInstanceIndex1);
 					}
 
 					break;
@@ -218,7 +219,7 @@ int main()
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);
 
-		framePipeline.InvalidateViewer(&camera);
+		framePipeline.InvalidateViewer(cameraIndex);
 
 		framePipeline.Render(frame);
 

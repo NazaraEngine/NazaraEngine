@@ -16,19 +16,31 @@ namespace Nz
 
 	inline void GraphicsComponent::AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask)
 	{
-		auto& entry = m_renderables.emplace_back();
-		entry.renderable = std::move(renderable);
-		entry.renderMask = renderMask;
+		for (std::size_t i = 0; i < m_renderables.size(); ++i)
+		{
+			auto& entry = m_renderables[i];
+			if (entry.renderable)
+				continue;
 
-		OnRenderableAttached(this, m_renderables.back());
+			entry.renderable = std::move(renderable);
+			entry.renderMask = renderMask;
+
+			OnRenderableAttached(this, i);
+			break;
+		}
 	}
 
 	inline void GraphicsComponent::Clear()
 	{
-		for (const auto& renderable : m_renderables)
-			OnRenderableDetach(this, renderable);
+		for (std::size_t i = 0; i < m_renderables.size(); ++i)
+		{
+			auto& entry = m_renderables[i];
+			if (entry.renderable)
+				continue;
 
-		m_renderables.clear();
+			OnRenderableDetach(this, i);
+			entry.renderable.reset();
+		}
 	}
 
 	inline void GraphicsComponent::DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable)
@@ -36,13 +48,19 @@ namespace Nz
 		auto it = std::find_if(m_renderables.begin(), m_renderables.end(), [&](const auto& renderableEntry) { return renderableEntry.renderable == renderable; });
 		if (it != m_renderables.end())
 		{
-			OnRenderableDetach(this, *it);
+			OnRenderableDetach(this, std::distance(m_renderables.begin(), it));
 
-			m_renderables.erase(it);
+			it->renderable.reset();
 		}
 	}
 
-	inline auto GraphicsComponent::GetRenderables() const -> const std::vector<Renderable>&
+	inline auto GraphicsComponent::GetRenderableEntry(std::size_t renderableIndex) const -> const Renderable&
+	{
+		assert(renderableIndex < m_renderables.size());
+		return m_renderables[renderableIndex];
+	}
+
+	inline auto GraphicsComponent::GetRenderables() const -> const std::array<Renderable, MaxRenderableCount>&
 	{
 		return m_renderables;
 	}

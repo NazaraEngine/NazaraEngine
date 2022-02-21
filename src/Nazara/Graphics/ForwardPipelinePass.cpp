@@ -265,11 +265,14 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	void ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex)
+	void ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass)
 	{
 		FramePass& forwardPass = frameGraph.AddPass("Forward pass");
 		forwardPass.AddOutput(colorBufferIndex);
-		forwardPass.SetDepthStencilInput(depthBufferIndex);
+		if (hasDepthPrepass)
+			forwardPass.SetDepthStencilInput(depthBufferIndex);
+		else
+			forwardPass.SetDepthStencilOutput(depthBufferIndex);
 
 		forwardPass.SetClearColor(0, m_viewer->GetClearColor());
 		forwardPass.SetDepthStencilClear(1.f, 0);

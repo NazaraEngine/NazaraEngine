@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <entt/entt.hpp>
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -20,6 +21,7 @@ namespace Nz
 	{
 		public:
 			struct LightEntry;
+			static constexpr std::size_t MaxLightCount = 8;
 
 			inline LightComponent(bool initialyVisible = true);
 			LightComponent(const LightComponent&) = default;
@@ -32,7 +34,8 @@ namespace Nz
 
 			inline void DetachLight(const std::shared_ptr<Light>& renderable);
 
-			inline const std::vector<LightEntry>& GetLights() const;
+			inline const LightEntry& GetLightEntry(std::size_t lightIndex) const;
+			inline const std::array<LightEntry, MaxLightCount>& GetLights() const;
 
 			inline void Hide();
 
@@ -43,8 +46,8 @@ namespace Nz
 			LightComponent& operator=(const LightComponent&) = default;
 			LightComponent& operator=(LightComponent&&) = default;
 
-			NazaraSignal(OnLightAttached, LightComponent* /*graphicsComponent*/, const LightEntry& /*lightEntry*/);
-			NazaraSignal(OnLightDetach, LightComponent* /*graphicsComponent*/, const LightEntry& /*lightEntry*/);
+			NazaraSignal(OnLightAttached, LightComponent* /*graphicsComponent*/, std::size_t /*lightIndex*/);
+			NazaraSignal(OnLightDetach, LightComponent* /*graphicsComponent*/, std::size_t /*lightIndex*/);
 			NazaraSignal(OnVisibilityUpdate, LightComponent* /*graphicsComponent*/, bool /*newVisibilityState*/);
 
 			struct LightEntry
@@ -54,7 +57,7 @@ namespace Nz
 			};
 
 		private:
-			std::vector<LightEntry> m_lightEntries;
+			std::array<LightEntry, MaxLightCount> m_lightEntries;
 			bool m_isVisible;
 	};
 }

@@ -844,13 +844,10 @@ int main()
 		{
 			builder.SetViewport(renderArea);
 
-			spaceshipModel.UpdateScissorBox(renderArea);
-			planeModel.UpdateScissorBox(renderArea);
-
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements);
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements);
-			planeModel.BuildElement(forwardPassIndex, planeInstance, elements);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements, renderArea);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements, renderArea);
+			planeModel.BuildElement(forwardPassIndex, planeInstance, elements, renderArea);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -905,8 +902,6 @@ int main()
 			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
-			flareSprite.UpdateScissorBox(renderArea);
-
 			builder.BindShaderBinding(0, *skyboxShaderBinding);
 
 			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));
@@ -916,7 +911,7 @@ int main()
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, renderArea);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -942,11 +937,10 @@ int main()
 		Nz::FramePass& occluderPass = graph.AddPass("Occluder pass");
 		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
 		{
-			builder.SetScissor(renderArea);
 			builder.SetViewport(renderArea);
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements);
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, renderArea);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());

@@ -37,22 +37,29 @@ namespace Nz
 			inline ElementRenderer& GetElementRenderer(std::size_t elementIndex);
 			inline std::size_t GetElementRendererCount() const;
 
-			virtual void InvalidateViewer(AbstractViewer* viewerInstance) = 0;
-			virtual void InvalidateWorldInstance(WorldInstance* worldInstance) = 0;
+			virtual void InvalidateViewer(std::size_t viewerIndex) = 0;
+			virtual void InvalidateWorldInstance(std::size_t) = 0;
 
 			template<typename F> void ProcessRenderQueue(const RenderQueue<RenderElement*>& renderQueue, F&& callback);
 
-			virtual void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) = 0;
-			virtual void RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) = 0;
+			virtual std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) = 0;
 			virtual void RegisterMaterialPass(MaterialPass* materialPass) = 0;
-			virtual void RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) = 0;
+			virtual std::size_t RegisterRenderable(std::size_t worldInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) = 0;
+			virtual std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) = 0;
+			virtual std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) = 0;
 
 			virtual void Render(RenderFrame& renderFrame) = 0;
 
-			virtual void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) = 0;
-			virtual void UnregisterLight(Light* light) = 0;
+			virtual void UnregisterLight(std::size_t lightIndex) = 0;
 			virtual void UnregisterMaterialPass(MaterialPass* materialPass) = 0;
-			virtual void UnregisterViewer(AbstractViewer* viewerInstance) = 0;
+			virtual void UnregisterRenderable(std::size_t renderableIndex) = 0;
+			virtual void UnregisterViewer(std::size_t viewerIndex) = 0;
+			virtual void UnregisterWorldInstance(std::size_t worldInstance) = 0;
+
+			virtual void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) = 0;
+			virtual void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) = 0;
+			virtual void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) = 0;
+			virtual void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder) = 0;
 
 			FramePipeline& operator=(const FramePipeline&) = delete;
 			FramePipeline& operator=(FramePipeline&&) noexcept = default;

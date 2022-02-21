@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <entt/entt.hpp>
 #include <memory>
 #include <vector>
@@ -20,6 +21,7 @@ namespace Nz
 	{
 		public:
 			struct Renderable;
+			static constexpr std::size_t MaxRenderableCount = 8;
 
 			inline GraphicsComponent(bool initialyVisible = true);
 			GraphicsComponent(const GraphicsComponent&) = default;
@@ -32,7 +34,8 @@ namespace Nz
 
 			inline void DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable);
 
-			inline const std::vector<Renderable>& GetRenderables() const;
+			inline const Renderable& GetRenderableEntry(std::size_t renderableIndex) const;
+			inline const std::array<Renderable, MaxRenderableCount>& GetRenderables() const;
 			inline const Recti& GetScissorBox() const;
 			inline const WorldInstancePtr& GetWorldInstance() const;
 
@@ -47,8 +50,9 @@ namespace Nz
 			GraphicsComponent& operator=(const GraphicsComponent&) = default;
 			GraphicsComponent& operator=(GraphicsComponent&&) = default;
 
-			NazaraSignal(OnRenderableAttached, GraphicsComponent* /*graphicsComponent*/, const Renderable& /*renderable*/);
-			NazaraSignal(OnRenderableDetach, GraphicsComponent* /*graphicsComponent*/, const Renderable& /*renderable*/);
+			NazaraSignal(OnRenderableAttached, GraphicsComponent* /*graphicsComponent*/, std::size_t /*renderableIndex*/);
+			NazaraSignal(OnRenderableDetach, GraphicsComponent* /*graphicsComponent*/, std::size_t /*renderableIndex*/);
+			NazaraSignal(OnScissorBoxUpdate, GraphicsComponent* /*graphicsComponent*/, const Recti& /*newScissorBox*/);
 			NazaraSignal(OnVisibilityUpdate, GraphicsComponent* /*graphicsComponent*/, bool /*newVisibilityState*/);
 
 			struct Renderable
@@ -58,7 +62,7 @@ namespace Nz
 			};
 
 		private:
-			std::vector<Renderable> m_renderables;
+			std::array<Renderable, MaxRenderableCount> m_renderables;
 			Recti m_scissorBox;
 			WorldInstancePtr m_worldInstance;
 			bool m_isVisible;

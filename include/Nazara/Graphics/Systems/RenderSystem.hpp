@@ -8,11 +8,13 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <entt/entt.hpp>
+#include <array>
 #include <memory>
 #include <set>
 #include <unordered_map>
@@ -47,19 +49,33 @@ namespace Nz
 
 			struct CameraEntity
 			{
+				entt::entity entity;
+				std::size_t poolIndex;
+				std::size_t viewerIndex;
+
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
 			};
 
 			struct GraphicsEntity
 			{
+				entt::entity entity;
+				std::array<std::size_t, GraphicsComponent::MaxRenderableCount> renderableIndices;
+				std::size_t poolIndex;
+				std::size_t worldInstanceIndex;
+
 				NazaraSlot(GraphicsComponent, OnRenderableAttached, onRenderableAttached);
 				NazaraSlot(GraphicsComponent, OnRenderableDetach, onRenderableDetach);
+				NazaraSlot(GraphicsComponent, OnScissorBoxUpdate, onScissorBoxUpdate);
 				NazaraSlot(GraphicsComponent, OnVisibilityUpdate, onVisibilityUpdate);
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
 			};
 
 			struct LightEntity
 			{
+				entt::entity entity;
+				std::array<std::size_t, LightComponent::MaxLightCount> lightIndices;
+				std::size_t poolIndex;
+
 				NazaraSlot(LightComponent, OnLightAttached, onLightAttached);
 				NazaraSlot(LightComponent, OnLightDetach, onLightDetach);
 				NazaraSlot(LightComponent, OnVisibilityUpdate, onVisibilityUpdate);
@@ -73,17 +89,20 @@ namespace Nz
 			entt::observer m_cameraConstructObserver;
 			entt::observer m_graphicsConstructObserver;
 			entt::observer m_lightConstructObserver;
-			std::set<entt::entity> m_invalidatedCameraNode;
-			std::set<entt::entity> m_invalidatedGfxWorldNode;
-			std::set<entt::entity> m_invalidatedLightWorldNode;
+			std::set<CameraEntity*> m_invalidatedCameraNode;
+			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
+			std::set<LightEntity*> m_invalidatedLightWorldNode;
 			std::unique_ptr<FramePipeline> m_pipeline;
-			std::unordered_map<entt::entity, CameraEntity> m_cameraEntities;
-			std::unordered_map<entt::entity, GraphicsEntity> m_graphicsEntities;
-			std::unordered_map<entt::entity, LightEntity> m_lightEntities;
-			std::unordered_set<entt::entity> m_newlyHiddenGfxEntities;
-			std::unordered_set<entt::entity> m_newlyVisibleGfxEntities;
-			std::unordered_set<entt::entity> m_newlyHiddenLightEntities;
-			std::unordered_set<entt::entity> m_newlyVisibleLightEntities;
+			std::unordered_map<entt::entity, CameraEntity*> m_cameraEntities;
+			std::unordered_map<entt::entity, GraphicsEntity*> m_graphicsEntities;
+			std::unordered_map<entt::entity, LightEntity*> m_lightEntities;
+			std::unordered_set<GraphicsEntity*> m_newlyHiddenGfxEntities;
+			std::unordered_set<GraphicsEntity*> m_newlyVisibleGfxEntities;
+			std::unordered_set<LightEntity*> m_newlyHiddenLightEntities;
+			std::unordered_set<LightEntity*> m_newlyVisibleLightEntities;
+			MemoryPool<CameraEntity> m_cameraEntityPool;
+			MemoryPool<GraphicsEntity> m_graphicsEntityPool;
+			MemoryPool<LightEntity> m_lightEntityPool;
 	};
 }
 
