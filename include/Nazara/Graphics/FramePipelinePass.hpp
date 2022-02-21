@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Math/Rect.hpp>
 
 namespace Nz
 {
@@ -30,6 +31,7 @@ namespace Nz
 			{
 				const InstancedRenderable* instancedRenderable;
 				const WorldInstance* worldInstance;
+				Recti scissorBox;
 			};
 	};
 }

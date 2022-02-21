@@ -23,7 +23,7 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	void Sprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
+	void Sprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
 		if (!materialPass)
@@ -43,7 +43,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), GetScissorBox()));
+		elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), scissorBox));
 	}
 
 	const std::shared_ptr<Material>& Sprite::GetMaterial(std::size_t i) const

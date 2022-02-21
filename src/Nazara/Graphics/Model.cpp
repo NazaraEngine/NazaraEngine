@@ -32,7 +32,7 @@ namespace Nz
 		UpdateAABB(aabb);
 	}
 
-	void Model::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements) const
+	void Model::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{
@@ -46,7 +46,7 @@ namespace Nz
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
 			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
-			elements.emplace_back(std::make_unique<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, m_graphicalMesh->GetIndexCount(i), indexBuffer, vertexBuffer, GetScissorBox()));
+			elements.emplace_back(std::make_unique<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, m_graphicalMesh->GetIndexCount(i), indexBuffer, vertexBuffer, scissorBox));
 		}
 	}
 
