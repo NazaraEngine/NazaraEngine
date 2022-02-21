@@ -335,7 +335,7 @@ int main()
 					continue;
 
 				Nz::Vector3f spaceshipPos = node.GetPosition(Nz::CoordSys::Global);
-				if (spaceshipPos.GetSquaredLength() > Nz::IntegralPow(200.f, 2))
+				if (spaceshipPos.GetSquaredLength() > Nz::IntegralPow(20.f, 2))
 					registry.destroy(entity);
 			}
 

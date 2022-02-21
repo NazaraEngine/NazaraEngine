@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MemoryPool.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
@@ -41,20 +42,27 @@ namespace Nz
 			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
 			~ForwardFramePipeline();
 
-			void InvalidateViewer(AbstractViewer* viewerInstance) override;
-			void InvalidateWorldInstance(WorldInstance* worldInstance) override;
+			void InvalidateViewer(std::size_t viewerIndex) override;
+			void InvalidateWorldInstance(std::size_t renderableIndex) override;
 
-			void RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask) override;
-			void RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
+			std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
 			void RegisterMaterialPass(MaterialPass* materialPass) override;
-			void RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
+			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
+			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
+			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
 			void Render(RenderFrame& renderFrame) override;
 
-			void UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable) override;
-			void UnregisterLight(Light* light) override;
+			void UnregisterLight(std::size_t lightIndex) override;
 			void UnregisterMaterialPass(MaterialPass* material) override;
-			void UnregisterViewer(AbstractViewer* viewerInstance) override;
+			void UnregisterRenderable(std::size_t renderableIndex) override;
+			void UnregisterViewer(std::size_t viewerIndex) override;
+			void UnregisterWorldInstance(std::size_t worldInstance) override;
+
+			void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask);
+			void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask);
+			void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox);
+			void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder);
 
 			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;
 			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
@@ -81,6 +89,9 @@ namespace Nz
 
 			struct RenderableData
 			{
+				std::size_t worldInstanceIndex;
+				const InstancedRenderable* renderable;
+				Recti scissorBox;
 				UInt32 renderMask = 0;
 
 				NazaraSlot(InstancedRenderable, OnElementInvalidated, onElementInvalidated);
@@ -100,26 +111,27 @@ namespace Nz
 				std::size_t depthStencilAttachment;
 				std::unique_ptr<DepthPipelinePass> depthPrepass;
 				std::unique_ptr<ForwardPipelinePass> forwardPass;
+				AbstractViewer* viewer;
 				Int32 renderOrder = 0;
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
 			};
 
-			std::size_t m_forwardPassIndex;
-			std::unordered_map<AbstractViewer*, ViewerData> m_viewers;
-			std::unordered_map<Light*, LightData> m_lights;
 			std::unordered_map<MaterialPass*, MaterialPassData> m_activeMaterialPasses;
-			std::unordered_map<WorldInstancePtr, std::unordered_map<const InstancedRenderable*, RenderableData>> m_renderables;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
-			std::unordered_set<AbstractViewer*> m_invalidatedViewerInstances;
 			std::unordered_set<MaterialPass*> m_invalidatedMaterialPasses;
-			std::unordered_set<WorldInstance*> m_invalidatedWorldInstances;
-			std::unordered_set<WorldInstancePtr> m_removedWorldInstances;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<const Light*> m_visibleLights;
 			BakedFrameGraph m_bakedFrameGraph;
+			Bitset<UInt64> m_invalidatedViewerInstances;
+			Bitset<UInt64> m_invalidatedWorldInstances;
+			Bitset<UInt64> m_removedWorldInstances;
+			MemoryPool<RenderableData> m_renderablePool;
+			MemoryPool<LightData> m_lightPool;
+			MemoryPool<ViewerData> m_viewerPool;
+			MemoryPool<WorldInstancePtr> m_worldInstances;
 			RenderFrame* m_currentRenderFrame;
 			bool m_rebuildFrameGraph;
 	};

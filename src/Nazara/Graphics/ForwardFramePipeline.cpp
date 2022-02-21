@@ -27,117 +27,49 @@
 namespace Nz
 {
 	ForwardFramePipeline::ForwardFramePipeline() :
+	m_renderablePool(4096),
+	m_lightPool(64),
+	m_viewerPool(8),
+	m_worldInstances(2048),
 	m_rebuildFrameGraph(true)
 	{
-		auto& passRegistry = Graphics::Instance()->GetMaterialPassRegistry();
-		m_forwardPassIndex = passRegistry.GetPassIndex("ForwardPass");
 	}
 
 	ForwardFramePipeline::~ForwardFramePipeline()
 	{
 		// Force viewer passes to unregister their materials
-		m_viewers.clear();
+		m_viewerPool.Clear();
 	}
 
-	void ForwardFramePipeline::InvalidateViewer(AbstractViewer* viewerInstance)
+	void ForwardFramePipeline::InvalidateViewer(std::size_t viewerIndex)
 	{
-		m_invalidatedViewerInstances.insert(viewerInstance);
+		m_invalidatedViewerInstances.Set(viewerIndex);
 	}
 
-	void ForwardFramePipeline::InvalidateWorldInstance(WorldInstance* worldInstance)
+	void ForwardFramePipeline::InvalidateWorldInstance(std::size_t worldInstanceIndex)
 	{
-		m_invalidatedWorldInstances.insert(worldInstance);
+		m_invalidatedWorldInstances.Set(worldInstanceIndex);
 	}
 
-	void ForwardFramePipeline::RegisterInstancedDrawable(WorldInstancePtr worldInstance, const InstancedRenderable* instancedRenderable, UInt32 renderMask)
+	std::size_t ForwardFramePipeline::RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask)
 	{
-		m_removedWorldInstances.erase(worldInstance);
-
-		auto& renderableMap = m_renderables[worldInstance];
-		if (renderableMap.empty())
-			InvalidateWorldInstance(worldInstance.get());
-
-		if (auto it = renderableMap.find(instancedRenderable); it == renderableMap.end())
-		{
-			auto& renderableData = renderableMap.emplace(instancedRenderable, RenderableData{}).first->second;
-			renderableData.renderMask = renderMask;
-			
-			renderableData.onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [=](InstancedRenderable* /*instancedRenderable*/)
-			{
-				// TODO: Invalidate only relevant viewers and passes
-				for (auto&& [viewer, viewerData] : m_viewers)
-				{
-					UInt32 viewerRenderMask = viewer->GetRenderMask();
-
-					if (viewerRenderMask & renderMask)
-					{
-						if (viewerData.depthPrepass)
-							viewerData.depthPrepass->ForceInvalidation();
-
-						viewerData.forwardPass->ForceInvalidation();
-					}
-				}
-			});
-
-			renderableData.onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
-			{
-				if (newMaterial)
-				{
-					for (auto&& [viewer, viewerData] : m_viewers)
-					{
-						if (viewerData.depthPrepass)
-							viewerData.depthPrepass->RegisterMaterial(*newMaterial);
-
-						viewerData.forwardPass->RegisterMaterial(*newMaterial);
-					}
-				}
-
-				const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
-				if (prevMaterial)
-				{
-					for (auto&& [viewer, viewerData] : m_viewers)
-					{
-						if (viewerData.depthPrepass)
-							viewerData.depthPrepass->UnregisterMaterial(*prevMaterial);
-
-						viewerData.forwardPass->UnregisterMaterial(*prevMaterial);
-					}
-				}
-			});
-
-			std::size_t matCount = instancedRenderable->GetMaterialCount();
-			for (std::size_t i = 0; i < matCount; ++i)
-			{
-				if (Material* mat = instancedRenderable->GetMaterial(i).get())
-				{
-					for (auto&& [viewer, viewerData] : m_viewers)
-					{
-						if (viewerData.depthPrepass)
-							viewerData.depthPrepass->RegisterMaterial(*mat);
-
-						viewerData.forwardPass->RegisterMaterial(*mat);
-					}
-				}
-			}
-		}
-	}
-
-	void ForwardFramePipeline::RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask)
-	{
-		auto& lightData = m_lights[light.get()];
-		lightData.light = std::move(light);
-		lightData.renderMask = renderMask;
-		lightData.onLightInvalidated.Connect(lightData.light->OnLightDataInvalided, [=](Light*)
+		std::size_t lightIndex;
+		LightData* lightData = m_lightPool.Allocate(lightIndex);
+		lightData->light = std::move(light);
+		lightData->renderMask = renderMask;
+		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalided, [=](Light*)
 		{
 			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
-			for (auto&& [viewer, viewerData] : m_viewers)
+			for (auto& viewerData : m_viewerPool)
 			{
-				UInt32 viewerRenderMask = viewer->GetRenderMask();
+				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
 
 				if (viewerRenderMask & renderMask)
 					viewerData.forwardPass->ForceInvalidation();
 			}
 		});
+
+		return lightIndex;
 	}
 
 	void ForwardFramePipeline::RegisterMaterialPass(MaterialPass* materialPass)
@@ -156,16 +88,100 @@ namespace Nz
 
 		it->second.usedCount++;
 	}
-
-	void ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
+	
+	std::size_t ForwardFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
 	{
-		auto& viewerData = m_viewers.emplace(viewerInstance, ViewerData{}).first->second;
+		std::size_t renderableIndex;
+		RenderableData* renderableData = m_renderablePool.Allocate(renderableIndex);
+		renderableData->renderable = instancedRenderable;
+		renderableData->renderMask = renderMask;
+		renderableData->scissorBox = scissorBox;
+		renderableData->worldInstanceIndex = worldInstanceIndex;
+
+		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [=](InstancedRenderable* /*instancedRenderable*/)
+		{
+			// TODO: Invalidate only relevant viewers and passes
+			for (auto& viewerData : m_viewerPool)
+			{
+				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
+
+				if (viewerRenderMask & renderMask)
+				{
+					if (viewerData.depthPrepass)
+						viewerData.depthPrepass->ForceInvalidation();
+
+					viewerData.forwardPass->ForceInvalidation();
+				}
+			}
+		});
+
+		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
+		{
+			if (newMaterial)
+			{
+				for (auto& viewerData : m_viewerPool)
+				{
+					if (viewerData.depthPrepass)
+						viewerData.depthPrepass->RegisterMaterial(*newMaterial);
+
+					viewerData.forwardPass->RegisterMaterial(*newMaterial);
+				}
+			}
+
+			const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
+			if (prevMaterial)
+			{
+				for (auto& viewerData : m_viewerPool)
+				{
+					if (viewerData.depthPrepass)
+						viewerData.depthPrepass->UnregisterMaterial(*prevMaterial);
+
+					viewerData.forwardPass->UnregisterMaterial(*prevMaterial);
+				}
+			}
+		});
+
+		std::size_t matCount = instancedRenderable->GetMaterialCount();
+		for (std::size_t i = 0; i < matCount; ++i)
+		{
+			if (Material* mat = instancedRenderable->GetMaterial(i).get())
+			{
+				for (auto& viewerData : m_viewerPool)
+				{
+					if (viewerData.depthPrepass)
+						viewerData.depthPrepass->RegisterMaterial(*mat);
+
+					viewerData.forwardPass->RegisterMaterial(*mat);
+				}
+			}
+		}
+
+		return renderableIndex;
+	}
+
+	std::size_t ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
+	{
+		std::size_t viewerIndex;
+		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
 		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, viewerInstance);
 		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, viewerInstance);
+		viewerData.viewer = viewerInstance;
 
-		m_invalidatedViewerInstances.insert(viewerInstance);
+		m_invalidatedViewerInstances.UnboundedSet(viewerIndex);
 		m_rebuildFrameGraph = true;
+
+		return viewerIndex;
+	}
+
+	std::size_t ForwardFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
+	{
+		std::size_t worldInstanceIndex;
+		m_worldInstances.Allocate(worldInstanceIndex, std::move(worldInstance));
+
+		m_invalidatedWorldInstances.UnboundedSet(worldInstanceIndex);
+
+		return worldInstanceIndex;
 	}
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
@@ -174,8 +190,13 @@ namespace Nz
 
 		Graphics* graphics = Graphics::Instance();
 
-		renderFrame.PushForRelease(std::move(m_removedWorldInstances));
-		m_removedWorldInstances.clear();
+		// Destroy world instances at the end of the frame
+		for (std::size_t worldInstanceIndex = m_removedWorldInstances.FindFirst(); worldInstanceIndex != m_removedWorldInstances.npos; worldInstanceIndex = m_removedWorldInstances.FindNext(worldInstanceIndex))
+		{
+			renderFrame.PushForRelease(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex));
+			m_worldInstances.Free(worldInstanceIndex);
+		}
+		m_removedWorldInstances.Clear();
 
 		if (m_rebuildFrameGraph)
 		{
@@ -192,15 +213,19 @@ namespace Nz
 			{
 				builder.PreTransferBarrier();
 
-				for (AbstractViewer* viewer : m_invalidatedViewerInstances)
-					viewer->GetViewerInstance().UpdateBuffers(uploadPool, builder);
+				for (std::size_t viewerIndex = m_invalidatedViewerInstances.FindFirst(); viewerIndex != m_invalidatedViewerInstances.npos; viewerIndex = m_invalidatedViewerInstances.FindNext(viewerIndex))
+				{
+					ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
+					viewerData->viewer->GetViewerInstance().UpdateBuffers(uploadPool, builder);
+				}
+				m_invalidatedViewerInstances.Reset();
 
-				m_invalidatedViewerInstances.clear();
-
-				for (WorldInstance* worldInstance : m_invalidatedWorldInstances)
+				for (std::size_t worldInstanceIndex = m_invalidatedWorldInstances.FindFirst(); worldInstanceIndex != m_invalidatedWorldInstances.npos; worldInstanceIndex = m_invalidatedWorldInstances.FindNext(worldInstanceIndex))
+				{
+					WorldInstancePtr& worldInstance = *m_worldInstances.RetrieveFromIndex(worldInstanceIndex);
 					worldInstance->UpdateBuffers(uploadPool, builder);
-
-				m_invalidatedWorldInstances.clear();
+				}
+				m_invalidatedWorldInstances.Reset();
 
 				for (MaterialPass* materialPass : m_invalidatedMaterialPasses)
 					materialPass->Update(renderFrame, builder);
@@ -218,61 +243,53 @@ namespace Nz
 		};
 
 		// Render queues handling
-		for (auto&& [viewer, data] : m_viewers)
+		for (auto& viewerData : m_viewerPool)
 		{
-			auto& viewerData = data;
-
-			UInt32 renderMask = viewer->GetRenderMask();
+			UInt32 renderMask = viewerData.viewer->GetRenderMask();
 
 			// Frustum culling
-			const Matrix4f& viewProjMatrix = viewer->GetViewerInstance().GetViewProjMatrix();
+			const Matrix4f& viewProjMatrix = viewerData.viewer->GetViewerInstance().GetViewProjMatrix();
 
 			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
 
 			std::size_t visibilityHash = 5U;
 
 			m_visibleRenderables.clear();
-			for (const auto& [worldInstance, renderables] : m_renderables)
+			for (const RenderableData& renderableData : m_renderablePool)
 			{
-				bool isInstanceVisible = false;
+				if ((renderMask & renderableData.renderMask) == 0)
+					continue;
 
-				for (const auto& [renderable, renderableData] : renderables)
-				{
-					if ((renderMask & renderableData.renderMask) == 0)
-						continue;
+				WorldInstancePtr& worldInstance = *m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex);
 
-					// Get global AABB
-					BoundingVolumef boundingVolume(renderable->GetAABB());
-					boundingVolume.Update(worldInstance->GetWorldMatrix());
+				// Get global AABB
+				BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
+				boundingVolume.Update(worldInstance->GetWorldMatrix());
 
-					if (!frustum.Contains(boundingVolume))
-						continue;
+				if (!frustum.Contains(boundingVolume))
+					continue;
 
-					auto& visibleRenderable = m_visibleRenderables.emplace_back();
-					visibleRenderable.instancedRenderable = renderable;
-					visibleRenderable.worldInstance = worldInstance.get();
+				auto& visibleRenderable = m_visibleRenderables.emplace_back();
+				visibleRenderable.instancedRenderable = renderableData.renderable;
+				visibleRenderable.scissorBox = renderableData.scissorBox;
+				visibleRenderable.worldInstance = worldInstance.get();
 
-					isInstanceVisible = true;
-					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(renderable));
-				}
-
-				if (isInstanceVisible)
-					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(worldInstance.get()));
+				visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
 			}
 
 			// Lights update don't trigger a rebuild of the depth pre-pass
 			std::size_t depthVisibilityHash = visibilityHash;
 
 			m_visibleLights.clear();
-			for (auto&& [light, lightData] : m_lights)
+			for (const LightData& lightData : m_lightPool)
 			{
-				const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
+				const BoundingVolumef& boundingVolume = lightData.light->GetBoundingVolume();
 
 				// TODO: Use more precise tests for point lights (frustum/sphere is cheap)
 				if (renderMask & lightData.renderMask && frustum.Contains(boundingVolume))
 				{
-					m_visibleLights.push_back(light);
-					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(light));
+					m_visibleLights.push_back(lightData.light.get());
+					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(lightData.light.get()));
 				}
 			}
 
@@ -285,7 +302,7 @@ namespace Nz
 		if (m_bakedFrameGraph.Resize(renderFrame))
 		{
 			const std::shared_ptr<TextureSampler>& sampler = graphics->GetSamplerCache().Get({});
-			for (auto&& [_, viewerData] : m_viewers)
+			for (auto& viewerData : m_viewerPool)
 			{
 				if (viewerData.blitShaderBinding)
 					renderFrame.PushForRelease(std::move(viewerData.blitShaderBinding));
@@ -362,43 +379,9 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::UnregisterInstancedDrawable(const WorldInstancePtr& worldInstance, const InstancedRenderable* instancedRenderable)
+	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
-		auto instanceIt = m_renderables.find(worldInstance);
-		if (instanceIt == m_renderables.end())
-			return;
-
-		auto& instancedRenderables = instanceIt->second;
-
-		auto renderableIt = instancedRenderables.find(instancedRenderable);
-		if (renderableIt == instancedRenderables.end())
-			return;
-
-		if (instancedRenderables.size() > 1)
-			instancedRenderables.erase(renderableIt);
-		else
-		{
-			m_removedWorldInstances.insert(worldInstance);
-			m_renderables.erase(instanceIt);
-		}
-
-		std::size_t matCount = instancedRenderable->GetMaterialCount();
-		for (std::size_t i = 0; i < matCount; ++i)
-		{
-			for (auto&& [viewer, viewerData] : m_viewers)
-			{
-				const auto& material = instancedRenderable->GetMaterial(i);
-				if (viewerData.depthPrepass)
-					viewerData.depthPrepass->UnregisterMaterial(*material);
-
-				viewerData.forwardPass->UnregisterMaterial(*material);
-			}
-		}
-	}
-
-	void ForwardFramePipeline::UnregisterLight(Light* light)
-	{
-		m_lights.erase(light);
+		m_lightPool.Free(lightIndex);
 	}
 
 	void ForwardFramePipeline::UnregisterMaterialPass(MaterialPass* materialPass)
@@ -412,17 +395,72 @@ namespace Nz
 			m_activeMaterialPasses.erase(materialPass);
 	}
 
-	void ForwardFramePipeline::UnregisterViewer(AbstractViewer* viewerInstance)
+	void ForwardFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
 	{
-		m_viewers.erase(viewerInstance);
+		RenderableData& renderable = *m_renderablePool.RetrieveFromIndex(renderableIndex);
+
+		std::size_t matCount = renderable.renderable->GetMaterialCount();
+		for (std::size_t i = 0; i < matCount; ++i)
+		{
+			for (auto& viewerData : m_viewerPool)
+			{
+				const auto& material = renderable.renderable->GetMaterial(i);
+				if (viewerData.depthPrepass)
+					viewerData.depthPrepass->UnregisterMaterial(*material);
+
+				viewerData.forwardPass->UnregisterMaterial(*material);
+			}
+		}
+
+		m_renderablePool.Free(renderableIndex);
+	}
+
+	void ForwardFramePipeline::UnregisterViewer(std::size_t viewerIndex)
+	{
+		m_viewerPool.Free(viewerIndex);
+		m_invalidatedViewerInstances.Reset(viewerIndex);
 		m_rebuildFrameGraph = true;
+	}
+
+	void ForwardFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
+	{
+		// Defer world instance release
+		m_removedWorldInstances.UnboundedSet(worldInstance);
+	}
+
+	void ForwardFramePipeline::UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask)
+	{
+		LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
+		lightData->renderMask = renderMask;
+	}
+
+	void ForwardFramePipeline::UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask)
+	{
+		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
+		renderableData->renderMask = renderMask;
+	}
+
+	void ForwardFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
+	{
+		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
+		renderableData->scissorBox = scissorBox;
+	}
+
+	void ForwardFramePipeline::UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder)
+	{
+		ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
+		if (viewerData->renderOrder != renderOrder)
+		{
+			viewerData->renderOrder = renderOrder;
+			m_rebuildFrameGraph = true;
+		}
 	}
 
 	BakedFrameGraph ForwardFramePipeline::BuildFrameGraph()
 	{
 		FrameGraph frameGraph;
 
-		for (auto&& [viewer, viewerData] : m_viewers)
+		for (auto& viewerData : m_viewerPool)
 		{
 			viewerData.colorAttachment = frameGraph.AddAttachment({
 				"Color",
@@ -433,26 +471,21 @@ namespace Nz
 				"Depth-stencil buffer",
 				Graphics::Instance()->GetPreferredDepthStencilFormat()
 			});
-		}
-
-		for (auto&& [viewer, data] : m_viewers)
-		{
-			auto& viewerData = data;
 
 			if (viewerData.depthPrepass)
 				viewerData.depthPrepass->RegisterToFrameGraph(frameGraph, viewerData.depthStencilAttachment);
 
-			viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.colorAttachment, viewerData.depthStencilAttachment);
+			viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.colorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
 
-		StackArray<ViewerPair> viewers = NazaraStackArray(ViewerPair, m_viewers.size());
+		StackArray<ViewerPair> viewers = NazaraStackArray(ViewerPair, m_viewerPool.size());
 		auto viewerIt = viewers.begin();
 
-		for (auto&& [viewer, viewerData] : m_viewers)
+		for (auto& viewerData : m_viewerPool)
 		{
-			const RenderTarget& renderTarget = viewer->GetRenderTarget();
+			const RenderTarget& renderTarget = viewerData.viewer->GetRenderTarget();
 			*viewerIt++ = std::make_pair(&renderTarget, &viewerData);
 		}
 

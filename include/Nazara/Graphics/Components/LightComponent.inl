@@ -14,19 +14,31 @@ namespace Nz
 
 	inline void LightComponent::AttachLight(std::shared_ptr<Light> light, UInt32 renderMask)
 	{
-		auto& entry = m_lightEntries.emplace_back();
-		entry.light = std::move(light);
-		entry.renderMask = renderMask;
+		for (std::size_t i = 0; i < m_lightEntries.size(); ++i)
+		{
+			auto& entry = m_lightEntries[i];
+			if (entry.light)
+				continue;
 
-		OnLightAttached(this, m_lightEntries.back());
+			entry.light = std::move(light);
+			entry.renderMask = renderMask;
+
+			OnLightAttached(this, i);
+			break;
+		}
 	}
 
 	inline void LightComponent::Clear()
 	{
-		for (const auto& lightEntry : m_lightEntries)
-			OnLightDetach(this, lightEntry);
+		for (std::size_t i = 0; i < m_lightEntries.size(); ++i)
+		{
+			auto& entry = m_lightEntries[i];
+			if (entry.light)
+				continue;
 
-		m_lightEntries.clear();
+			OnLightDetach(this, i);
+			entry.light.reset();
+		}
 	}
 
 	inline void LightComponent::DetachLight(const std::shared_ptr<Light>& light)
@@ -34,13 +46,19 @@ namespace Nz
 		auto it = std::find_if(m_lightEntries.begin(), m_lightEntries.end(), [&](const auto& lightEntry) { return lightEntry.light == light; });
 		if (it != m_lightEntries.end())
 		{
-			OnLightDetach(this, *it);
+			OnLightDetach(this, std::distance(m_lightEntries.begin(), it));
 
-			m_lightEntries.erase(it);
+			it->light.reset();
 		}
 	}
 
-	inline auto LightComponent::GetLights() const -> const std::vector<LightEntry>&
+	inline auto LightComponent::GetLightEntry(std::size_t lightIndex) const -> const LightEntry&
+	{
+		assert(lightIndex < m_lightEntries.size());
+		return m_lightEntries[lightIndex];
+	}
+
+	inline auto LightComponent::GetLights() const -> const std::array<LightEntry, MaxLightCount>&
 	{
 		return m_lightEntries;
 	}
