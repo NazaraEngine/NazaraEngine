@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			inline SimpleTextDrawer();
 			inline SimpleTextDrawer(const SimpleTextDrawer& drawer);
-			inline SimpleTextDrawer(SimpleTextDrawer&& drawer);
+			inline SimpleTextDrawer(SimpleTextDrawer&& drawer) noexcept;
 			~SimpleTextDrawer() = default;
 
 			inline void AppendText(const std::string_view& str);
@@ -58,7 +58,7 @@ namespace Nz
 			inline void SetText(std::string str);
 
 			inline SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
-			inline SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer);
+			inline SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer) noexcept;
 
 			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
 			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);

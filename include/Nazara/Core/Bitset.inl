@@ -654,7 +654,7 @@ namespace Nz
 
 		// Activation of the bit without branching
 		// https://graphics.stanford.edu/~seander/bithacks.html#ConditionalSetOrClearBitsWithoutBranching
-		block = (block & ~mask) | (-val & mask);
+		block = (block & ~mask) | (-static_cast<Block>(val) & mask);
 	}
 
 	/*!

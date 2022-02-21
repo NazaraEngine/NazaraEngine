@@ -36,13 +36,8 @@ jobs:
     # Install Nazara dependencies
     - name: Install system dependencies
       run: |
-        sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libglx-mesa0 mesa-vulkan-drivers alsa-base alsa-oss alsa-utils pulseaudio git gcovr -y
-        sudo apt-get -y install linux-modules-extra-$(uname -r)
+        sudo apt-get -y install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev git gcovr
   
-    # Setup dummy audio device
-    - name: Enable snd-dummy
-      run: sudo modprobe snd-dummy
-
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
       run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
@@ -79,7 +74,7 @@ jobs:
 
     # Run unit tests
     - name: Run unit tests
-      run: xmake run NazaraClientUnitTests
+      run: xmake run NazaraUnitTests
 
     # Build coverage file
     - name: Build coverage output

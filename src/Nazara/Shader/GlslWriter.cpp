@@ -1160,6 +1160,10 @@ namespace Nz
 				AppendVariableDeclaration(member.type.GetResultingValue(), member.name);
 				Append(";");
 			}
+
+			// Empty structs are not allowed in GLSL
+			if (first)
+				AppendLine("int dummy;");
 		}
 		LeaveScope(false);
 		AppendLine(";");
