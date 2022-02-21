@@ -97,6 +97,23 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 				CHECK(*vector1 == Nz::Vector2<int>(3, 2));
 				CHECK(*vector2 == Nz::Vector2<int>(3, 5));
 				CHECK(vector3->GetSquaredLength() == Approx(61.f));
+
+				AND_THEN("We iterate on the memory pool")
+				{
+					std::size_t count = 0;
+					int sumX = 0;
+					int sumY = 0;
+					for (T& vec : memoryPool)
+					{
+						count++;
+						sumX += vec.x;
+						sumY += vec.y;
+					}
+
+					CHECK(count == 3);
+					CHECK(sumX == 11);
+					CHECK(sumY == 13);
+				}
 			}
 
 			memoryPool.Reset();
@@ -104,6 +121,12 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 			CHECK(memoryPool.GetAllocatedEntryCount() == 0);
 			CHECK(memoryPool.GetBlockCount() == 2);
 			CHECK(memoryPool.GetFreeEntryCount() == 4);
+
+			bool failure = false;
+			for (T& vec : memoryPool)
+				failure = true;
+
+			CHECK_FALSE(failure);
 
 			memoryPool.Clear();
 			CHECK(allocationCount == 0);
