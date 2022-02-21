@@ -86,8 +86,10 @@ struct VertOut
 [entry(vert)]
 fn main(input: VertIn) -> VertOut
 {
+	let worldPosition = instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
+
 	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
+	output.position = viewerData.viewProjMatrix * worldPosition;
 
 	const if (HasUV)
 		output.uv = input.uv;

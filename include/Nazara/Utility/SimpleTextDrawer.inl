@@ -38,7 +38,7 @@ namespace Nz
 		SetFont(drawer.m_font);
 	}
 
-	inline SimpleTextDrawer::SimpleTextDrawer(SimpleTextDrawer&& drawer)
+	inline SimpleTextDrawer::SimpleTextDrawer(SimpleTextDrawer&& drawer) noexcept
 	{
 		operator=(std::move(drawer));
 	}
@@ -228,7 +228,7 @@ namespace Nz
 		return *this;
 	}
 
-	inline SimpleTextDrawer& SimpleTextDrawer::operator=(SimpleTextDrawer&& drawer)
+	inline SimpleTextDrawer& SimpleTextDrawer::operator=(SimpleTextDrawer&& drawer) noexcept
 	{
 		DisconnectFontSlots();
 
