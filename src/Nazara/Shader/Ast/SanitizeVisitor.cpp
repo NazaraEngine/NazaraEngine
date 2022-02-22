@@ -8,7 +8,7 @@
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <numeric>
@@ -719,7 +719,7 @@ namespace Nz::ShaderAst
 		if (!clone->expression)
 			throw AstError{ "const variables must have an expression" };
 
-		clone->expression = Optimize(*clone->expression);
+		clone->expression = PropagateConstants(*clone->expression);
 		if (clone->expression->GetType() != NodeType::ConstantValueExpression)
 			throw AstError{ "const variable must have constant expressions " };
 
@@ -1426,7 +1426,7 @@ namespace Nz::ShaderAst
 	ConstantValue SanitizeVisitor::ComputeConstantValue(Expression& expr) const
 	{
 		// Run optimizer on constant value to hopefully retrieve a single constant value
-		ExpressionPtr optimizedExpr = Optimize(expr);
+		ExpressionPtr optimizedExpr = PropagateConstants(expr);
 		if (optimizedExpr->GetType() != NodeType::ConstantValueExpression)
 			throw AstError{"expected a constant expression"};
 
@@ -1464,9 +1464,9 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename T>
-	std::unique_ptr<T> SanitizeVisitor::Optimize(T& node) const
+	std::unique_ptr<T> SanitizeVisitor::PropagateConstants(T& node) const
 	{
-		AstOptimizer::Options optimizerOptions;
+		AstConstantPropagationVisitor::Options optimizerOptions;
 		optimizerOptions.constantQueryCallback = [this](std::size_t constantId) -> const ConstantValue&
 		{
 			assert(constantId < m_context->constantValues.size());
@@ -1474,7 +1474,7 @@ namespace Nz::ShaderAst
 		};
 
 		// Run optimizer on constant value to hopefully retrieve a single constant value
-		return static_unique_pointer_cast<T>(ShaderAst::Optimize(node, optimizerOptions));
+		return static_unique_pointer_cast<T>(ShaderAst::PropagateConstants(node, optimizerOptions));
 	}
 
 	void SanitizeVisitor::PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen)

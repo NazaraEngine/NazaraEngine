@@ -9,7 +9,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
-#include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
@@ -180,7 +180,7 @@ namespace Nz
 		{
 			ShaderAst::StatementPtr tempAst;
 
-			tempAst = ShaderAst::Optimize(*targetAst);
+			tempAst = ShaderAst::PropagateConstants(*targetAst);
 			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst);
 
 			targetAst = optimizedAst.get();

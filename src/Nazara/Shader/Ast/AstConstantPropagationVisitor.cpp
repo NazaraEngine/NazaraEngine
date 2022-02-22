@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <cassert>
 #include <stdexcept>
@@ -21,10 +21,14 @@ namespace Nz::ShaderAst
 		template <typename T>
 		struct is_complete_helper
 		{
-			template <typename U> static auto test(U*)->std::integral_constant<bool, sizeof(U) == sizeof(U)>;
+			// SFINAE: sizeof in an incomplete type is an error, but since there's another specialization it won't result in a compilation error
+			template <typename U>
+			static auto test(U*) -> std::bool_constant<sizeof(U) == sizeof(U)>;
+
+			// less specialized overload
 			static auto test(...) -> std::false_type;
 
-			using type = decltype(test((T*)0));
+			using type = decltype(test(static_cast<T*>(nullptr)));
 		};
 
 		template <typename T>
@@ -731,7 +735,7 @@ namespace Nz::ShaderAst
 #undef EnableOptimisation
 	}
 
-	ExpressionPtr AstOptimizer::Clone(BinaryExpression& node)
+	ExpressionPtr AstConstantPropagationVisitor::Clone(BinaryExpression& node)
 	{
 		auto lhs = CloneExpression(node.left);
 		auto rhs = CloneExpression(node.right);
@@ -803,7 +807,7 @@ namespace Nz::ShaderAst
 		return binary;
 	}
 
-	ExpressionPtr AstOptimizer::Clone(CastExpression& node)
+	ExpressionPtr AstConstantPropagationVisitor::Clone(CastExpression& node)
 	{
 		std::array<ExpressionPtr, 4> expressions;
 
@@ -922,7 +926,7 @@ namespace Nz::ShaderAst
 		return cast;
 	}
 
-	StatementPtr AstOptimizer::Clone(BranchStatement& node)
+	StatementPtr AstConstantPropagationVisitor::Clone(BranchStatement& node)
 	{
 		std::vector<BranchStatement::ConditionalStatement> statements;
 		StatementPtr elseStatement;
@@ -978,7 +982,7 @@ namespace Nz::ShaderAst
 		return ShaderBuilder::Branch(std::move(statements), std::move(elseStatement));
 	}
 
-	ExpressionPtr AstOptimizer::Clone(ConditionalExpression& node)
+	ExpressionPtr AstConstantPropagationVisitor::Clone(ConditionalExpression& node)
 	{
 		auto cond = CloneExpression(node.condition);
 		if (cond->GetType() != NodeType::ConstantValueExpression)
@@ -999,7 +1003,7 @@ namespace Nz::ShaderAst
 			return AstCloner::Clone(*node.falsePath);
 	}
 
-	ExpressionPtr AstOptimizer::Clone(ConstantExpression& node)
+	ExpressionPtr AstConstantPropagationVisitor::Clone(ConstantExpression& node)
 	{
 		if (!m_options.constantQueryCallback)
 			return AstCloner::Clone(node);
@@ -1010,7 +1014,7 @@ namespace Nz::ShaderAst
 		return constant;
 	}
 
-	ExpressionPtr AstOptimizer::Clone(SwizzleExpression& node)
+	ExpressionPtr AstConstantPropagationVisitor::Clone(SwizzleExpression& node)
 	{
 		auto expr = CloneExpression(node.expression);
 
@@ -1061,7 +1065,7 @@ namespace Nz::ShaderAst
 		return swizzle;
 	}
 
-	ExpressionPtr AstOptimizer::Clone(UnaryExpression& node)
+	ExpressionPtr AstConstantPropagationVisitor::Clone(UnaryExpression& node)
 	{
 		auto expr = CloneExpression(node.expression);
 
@@ -1095,7 +1099,7 @@ namespace Nz::ShaderAst
 		return unary;
 	}
 
-	StatementPtr AstOptimizer::Clone(ConditionalStatement& node)
+	StatementPtr AstConstantPropagationVisitor::Clone(ConditionalStatement& node)
 	{
 		auto cond = CloneExpression(node.condition);
 		if (cond->GetType() != NodeType::ConstantValueExpression)
@@ -1117,7 +1121,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<BinaryType Type>
-	ExpressionPtr AstOptimizer::PropagateBinaryConstant(const ConstantValueExpression& lhs, const ConstantValueExpression& rhs)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateBinaryConstant(const ConstantValueExpression& lhs, const ConstantValueExpression& rhs)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg1)
@@ -1146,7 +1150,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename TargetType>
-	ExpressionPtr AstOptimizer::PropagateSingleValueCast(const ConstantValueExpression& operand)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateSingleValueCast(const ConstantValueExpression& operand)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
@@ -1163,7 +1167,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<std::size_t TargetComponentCount>
-	ExpressionPtr AstOptimizer::PropagateConstantSwizzle(const std::array<UInt32, 4>& components, const ConstantValueExpression& operand)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateConstantSwizzle(const std::array<UInt32, 4>& components, const ConstantValueExpression& operand)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg)
@@ -1183,7 +1187,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<UnaryType Type>
-	ExpressionPtr AstOptimizer::PropagateUnaryConstant(const ConstantValueExpression& operand)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateUnaryConstant(const ConstantValueExpression& operand)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg)
@@ -1206,7 +1210,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename TargetType>
-	ExpressionPtr AstOptimizer::PropagateVec2Cast(TargetType v1, TargetType v2)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateVec2Cast(TargetType v1, TargetType v2)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
@@ -1219,7 +1223,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename TargetType>
-	ExpressionPtr AstOptimizer::PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
@@ -1232,7 +1236,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<typename TargetType>
-	ExpressionPtr AstOptimizer::PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4)
+	ExpressionPtr AstConstantPropagationVisitor::PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4)
 	{
 		std::unique_ptr<ConstantValueExpression> optimized;
 
@@ -1245,7 +1249,7 @@ namespace Nz::ShaderAst
 	}
 
 
-	StatementPtr AstOptimizer::Unscope(StatementPtr node)
+	StatementPtr AstConstantPropagationVisitor::Unscope(StatementPtr node)
 	{
 		assert(node);
 

@@ -3,7 +3,7 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
-#include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <catch2/catch.hpp>
 #include <cctype>
@@ -13,7 +13,7 @@ void ExpectOptimization(std::string_view sourceCode, std::string_view expectedOp
 	Nz::ShaderAst::StatementPtr shader;
 	REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
 	REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader));
-	REQUIRE_NOTHROW(shader = Nz::ShaderAst::Optimize(*shader));
+	REQUIRE_NOTHROW(shader = Nz::ShaderAst::PropagateConstants(*shader));
 
 	ExpectNZSL(*shader, expectedOptimizedResult);
 }

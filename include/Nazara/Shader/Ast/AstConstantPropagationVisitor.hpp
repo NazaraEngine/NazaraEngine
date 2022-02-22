@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_AST_ASTOPTIMIZER_HPP
-#define NAZARA_SHADER_AST_ASTOPTIMIZER_HPP
+#ifndef NAZARA_SHADER_AST_ASTCONSTANTPROPAGATIONVISITOR_HPP
+#define NAZARA_SHADER_AST_ASTCONSTANTPROPAGATIONVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -16,23 +16,23 @@
 
 namespace Nz::ShaderAst
 {
-	class NAZARA_SHADER_API AstOptimizer : public AstCloner
+	class NAZARA_SHADER_API AstConstantPropagationVisitor : public AstCloner
 	{
 		public:
 			struct Options;
 
-			AstOptimizer() = default;
-			AstOptimizer(const AstOptimizer&) = delete;
-			AstOptimizer(AstOptimizer&&) = delete;
-			~AstOptimizer() = default;
+			AstConstantPropagationVisitor() = default;
+			AstConstantPropagationVisitor(const AstConstantPropagationVisitor&) = delete;
+			AstConstantPropagationVisitor(AstConstantPropagationVisitor&&) = delete;
+			~AstConstantPropagationVisitor() = default;
 
-			inline ExpressionPtr Optimise(Expression& expression);
-			inline ExpressionPtr Optimise(Expression& expression, const Options& options);
-			inline StatementPtr Optimise(Statement& statement);
-			inline StatementPtr Optimise(Statement& statement, const Options& options);
+			inline ExpressionPtr Process(Expression& expression);
+			inline ExpressionPtr Process(Expression& expression, const Options& options);
+			inline StatementPtr Process(Statement& statement);
+			inline StatementPtr Process(Statement& statement, const Options& options);
 
-			AstOptimizer& operator=(const AstOptimizer&) = delete;
-			AstOptimizer& operator=(AstOptimizer&&) = delete;
+			AstConstantPropagationVisitor& operator=(const AstConstantPropagationVisitor&) = delete;
+			AstConstantPropagationVisitor& operator=(AstConstantPropagationVisitor&&) = delete;
 
 			struct Options
 			{
@@ -63,12 +63,12 @@ namespace Nz::ShaderAst
 			Options m_options;
 	};
 
-	inline ExpressionPtr Optimize(Expression& expr);
-	inline ExpressionPtr Optimize(Expression& expr, const AstOptimizer::Options& options);
-	inline StatementPtr Optimize(Statement& ast);
-	inline StatementPtr Optimize(Statement& ast, const AstOptimizer::Options& options);
+	inline ExpressionPtr PropagateConstants(Expression& expr);
+	inline ExpressionPtr PropagateConstants(Expression& expr, const AstConstantPropagationVisitor::Options& options);
+	inline StatementPtr PropagateConstants(Statement& ast);
+	inline StatementPtr PropagateConstants(Statement& ast, const AstConstantPropagationVisitor::Options& options);
 }
 
-#include <Nazara/Shader/Ast/AstOptimizer.inl>
+#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.inl>
 
-#endif // NAZARA_SHADER_AST_ASTOPTIMIZER_HPP
+#endif // NAZARA_SHADER_AST_ASTCONSTANTPROPAGATIONVISITOR_HPP
