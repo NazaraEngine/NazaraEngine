@@ -47,7 +47,7 @@ namespace Nz
 
 			for (auto& lightDataUbo : m_lightDataBuffers)
 			{
-				renderFrame.PushReleaseCallback([pool = m_lightUboPool, lightUbo = std::move(lightDataUbo.renderBuffer)]()
+				renderFrame.PushReleaseCallback([pool = m_lightUboPool, lightUbo = std::move(lightDataUbo.renderBuffer)]() mutable
 				{
 					pool->lightUboBuffers.push_back(std::move(lightUbo));
 				});
