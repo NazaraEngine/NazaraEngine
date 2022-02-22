@@ -65,7 +65,7 @@ namespace Nz
 				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
 
 				if (viewerRenderMask & renderMask)
-					viewerData.forwardPass->ForceInvalidation();
+					viewerData.forwardPass->InvalidateElements();
 			}
 		});
 
@@ -108,9 +108,9 @@ namespace Nz
 				if (viewerRenderMask & renderMask)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->ForceInvalidation();
+						viewerData.depthPrepass->InvalidateElements();
 
-					viewerData.forwardPass->ForceInvalidation();
+					viewerData.forwardPass->InvalidateElements();
 				}
 			}
 		});
@@ -444,6 +444,20 @@ namespace Nz
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->scissorBox = scissorBox;
+
+		// TODO: Invalidate only relevant viewers and passes
+		for (auto& viewerData : m_viewerPool)
+		{
+			UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
+
+			if (viewerRenderMask & renderableData->renderMask)
+			{
+				if (viewerData.depthPrepass)
+					viewerData.depthPrepass->InvalidateElements();
+
+				viewerData.forwardPass->InvalidateElements();
+			}
+		}
 	}
 
 	void ForwardFramePipeline::UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder)
@@ -505,7 +519,7 @@ namespace Nz
 		{
 			const auto& targetViewers = renderTargetData.viewers;
 
-			FramePass& forwardPass = frameGraph.AddPass("Merge pass");
+			FramePass& mergePass = frameGraph.AddPass("Merge pass");
 
 			renderTargetData.finalAttachment = frameGraph.AddAttachment({
 				"Viewer output",
@@ -513,12 +527,12 @@ namespace Nz
 			});
 
 			for (const ViewerData* viewerData : targetViewers)
-				forwardPass.AddInput(viewerData->colorAttachment);
+				mergePass.AddInput(viewerData->colorAttachment);
 
-			forwardPass.AddOutput(renderTargetData.finalAttachment);
-			forwardPass.SetClearColor(0, Color::Black);
+			mergePass.AddOutput(renderTargetData.finalAttachment);
+			mergePass.SetClearColor(0, Color::Black);
 
-			forwardPass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const Recti& renderRect)
+			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const Recti& renderRect)
 			{
 				builder.SetScissor(renderRect);
 				builder.SetViewport(renderRect);

@@ -7,7 +7,12 @@
 
 namespace Nz
 {
-	inline void DepthPipelinePass::ForceInvalidation()
+	inline void DepthPipelinePass::InvalidateCommandBuffers()
+	{
+		m_rebuildCommandBuffer = true;
+	}
+
+	inline void DepthPipelinePass::InvalidateElements()
 	{
 		m_rebuildElements = true;
 	}

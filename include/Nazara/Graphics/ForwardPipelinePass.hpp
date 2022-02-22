@@ -35,7 +35,8 @@ namespace Nz
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
 			~ForwardPipelinePass();
 
-			inline void ForceInvalidation();
+			inline void InvalidateCommandBuffers();
+			inline void InvalidateElements();
 
 			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<const Light*>& visibleLights, std::size_t visibilityHash);
 

@@ -7,7 +7,12 @@
 
 namespace Nz
 {
-	inline void ForwardPipelinePass::ForceInvalidation()
+	inline void ForwardPipelinePass::InvalidateCommandBuffers()
+	{
+		m_rebuildCommandBuffer = true;
+	}
+
+	inline void ForwardPipelinePass::InvalidateElements()
 	{
 		m_rebuildElements = true;
 	}
