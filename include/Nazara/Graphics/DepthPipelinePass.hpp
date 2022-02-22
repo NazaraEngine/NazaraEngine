@@ -32,7 +32,8 @@ namespace Nz
 			DepthPipelinePass(DepthPipelinePass&&) = delete;
 			~DepthPipelinePass();
 
-			inline void ForceInvalidation();
+			inline void InvalidateCommandBuffers();
+			inline void InvalidateElements();
 
 			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash);
 

@@ -59,10 +59,10 @@ namespace Nz
 			void UnregisterViewer(std::size_t viewerIndex) override;
 			void UnregisterWorldInstance(std::size_t worldInstance) override;
 
-			void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask);
-			void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask);
-			void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox);
-			void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder);
+			void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) override;
+			void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) override;
+			void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) override;
+			void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder) override;
 
 			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;
 			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
