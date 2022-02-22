@@ -1,7 +1,7 @@
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/LangWriter.hpp>
-#include <Nazara/Shader/Ast/AstOptimizer.hpp>
+#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Shader/SpirvPrinter.hpp>
@@ -70,8 +70,8 @@ void CodeOutputWidget::Refresh()
 
 			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst, sanitizeOptions);
 
-			Nz::ShaderAst::AstOptimizer optimiser;
-			shaderAst = Nz::ShaderAst::Optimize(*shaderAst);
+			Nz::ShaderAst::AstConstantPropagationVisitor optimiser;
+			shaderAst = Nz::ShaderAst::PropagateConstants(*shaderAst);
 			shaderAst = Nz::ShaderAst::EliminateUnusedPass(*shaderAst);
 		}
 

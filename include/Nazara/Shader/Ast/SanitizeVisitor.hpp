@@ -105,7 +105,7 @@ namespace Nz::ShaderAst
 
 			ConstantValue ComputeConstantValue(Expression& expr) const;
 			template<typename T> const T& ComputeExprValue(ExpressionValue<T>& attribute) const;
-			template<typename T> std::unique_ptr<T> Optimize(T& node) const;
+			template<typename T> std::unique_ptr<T> PropagateConstants(T& node) const;
 
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
