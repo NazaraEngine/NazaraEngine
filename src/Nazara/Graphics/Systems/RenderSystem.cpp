@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Systems/RenderSystem.hpp>
-#include <Nazara/Graphics/DeferredFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -30,7 +29,6 @@ namespace Nz
 		m_lightDestroyConnection = registry.on_destroy<LightComponent>().connect<&RenderSystem::OnLightDestroy>(this);
 		m_nodeDestroyConnection = registry.on_destroy<NodeComponent>().connect<&RenderSystem::OnNodeDestroy>(this);
 
-		//m_pipeline = std::make_unique<DeferredFramePipeline>();
 		m_pipeline = std::make_unique<ForwardFramePipeline>();
 	}
 
