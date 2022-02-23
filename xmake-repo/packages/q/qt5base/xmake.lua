@@ -8,7 +8,7 @@ package("qt5base")
     add_versions("5.15.2", "dummy")
     add_versions("5.12.5", "dummy")
 
-    add_deps("python >=3.6", "7z", {private=true}) -- only required for installation
+    add_deps("aqt", {private=true}) -- only required for installation
 
     on_fetch(function (package, opt)
         local qt = package:data("qtdir")
@@ -51,15 +51,6 @@ package("qt5base")
     end)
 
     on_install("windows", "linux", "macosx", "mingw", "android", "iphoneos", function (package)
-        -- ensurepip has been dropped in recent releases
-        try
-        {
-            function () os.vrunv("python3", {"-m", "ensurepip"}) end
-        }
-
-        os.vrunv("python3", {"-m", "pip", "install", "-U", "pip"})
-        os.vrunv("python3", {"-m", "pip", "install", "aqtinstall"})
-
         local installdir = package:installdir()
         local version = package:version() or semver.new("5.15.2")
 
@@ -149,7 +140,7 @@ package("qt5base")
             end
         end
 
-        os.vrunv("python3", {"-m", "aqt", "install-qt", "-O", installdir, host, target, version:shortstr(), arch})
+        os.vrunv("aqt", {"install-qt", "-O", installdir, host, target, version:shortstr(), arch})
 
         -- move files to root
         local subdirs = {}
