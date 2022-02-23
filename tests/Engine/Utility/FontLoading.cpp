@@ -1,4 +1,6 @@
+#include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <Nazara/Utility/GuillotineImageAtlas.hpp>
 #include <catch2/catch.hpp>
 #include <array>
 #include <filesystem>
@@ -10,6 +12,11 @@ SCENARIO("Fonts", "[Utility][Font]")
 	WHEN("Loading default font")
 	{
 		std::shared_ptr<Nz::Font> font = Nz::Font::GetDefault();
+
+		std::shared_ptr<Nz::GuillotineImageAtlas> imageAtlas = std::make_shared<Nz::GuillotineImageAtlas>();
+		imageAtlas->SetMaxLayerSize(1024);
+
+		font->SetAtlas(imageAtlas);
 
 		CHECK(font->GetFamilyName() == "Open Sans");
 		CHECK(font->GetStyleName() == "Regular");
@@ -72,28 +79,65 @@ SCENARIO("Fonts", "[Utility][Font]")
 				}
 			}
 
-			WHEN("Retrieving a glyph existing in the font")
+			WHEN("Retrieving glyphs")
 			{
-				const auto& glyph = font->GetGlyph(72, Nz::TextStyle_Regular, 0.f, 'L');
-				REQUIRE(glyph.valid);
-				CHECK(glyph.advance == 37);
-				CHECK(glyph.aabb.IsValid());
-				CHECK(glyph.atlasRect.IsValid());
-				CHECK(glyph.fauxOutlineThickness == 0.f);
-				CHECK_FALSE(glyph.requireFauxBold);
-				CHECK_FALSE(glyph.requireFauxItalic);
+				const auto& glyph1 = font->GetGlyph(72, Nz::TextStyle_Regular, 0.f, 'L');
+				REQUIRE(glyph1.valid);
+				CHECK(glyph1.advance == 37);
+				CHECK(glyph1.aabb.IsValid());
+				CHECK(glyph1.atlasRect.IsValid());
+				CHECK(glyph1.fauxOutlineThickness == 0.f);
+				CHECK_FALSE(glyph1.requireFauxBold);
+				CHECK_FALSE(glyph1.requireFauxItalic);
+
+				const auto& glyphYItalic = font->GetGlyph(72, Nz::TextStyle::Italic, 0.f, 'y');
+				REQUIRE(glyphYItalic.valid);
+				CHECK(glyphYItalic.advance == 36);
+				CHECK(glyphYItalic.aabb.IsValid());
+				CHECK(glyphYItalic.atlasRect.IsValid());
+				CHECK(glyphYItalic.fauxOutlineThickness == 0.f);
+				CHECK_FALSE(glyphYItalic.requireFauxBold);
+				CHECK(glyphYItalic.requireFauxItalic);
+
+				const auto& glyphYRegular = font->GetGlyph(72, Nz::TextStyle_Regular, 0.f, 'y');
+				REQUIRE(glyphYRegular.valid);
+				CHECK(glyphYRegular.advance == 36);
+				CHECK(glyphYRegular.aabb == glyphYItalic.aabb);
+				CHECK(glyphYRegular.atlasRect == glyphYItalic.atlasRect);
+				CHECK(glyphYRegular.fauxOutlineThickness == 0.f);
+				CHECK_FALSE(glyphYRegular.requireFauxBold);
+				CHECK_FALSE(glyphYRegular.requireFauxItalic);
+
+				CHECK(font->GetCachedGlyphCount() == 3);
+				CHECK(font->GetAtlas()->GetLayerCount() == 1);
+				CHECK(font->GetAtlas()->GetLayer(0)->GetLevelCount() == 1);
 			}
 
-			WHEN("Retrieving a glyph existing in the font with italic")
+			WHEN("Precaching a lot of glyphs")
 			{
-				const auto& glyph = font->GetGlyph(72, Nz::TextStyle::Italic, 0.f, 'y');
-				REQUIRE(glyph.valid);
-				CHECK(glyph.advance == 36);
-				CHECK(glyph.aabb.IsValid());
-				CHECK(glyph.atlasRect.IsValid());
-				CHECK(glyph.fauxOutlineThickness == 0.f);
-				CHECK_FALSE(glyph.requireFauxBold);
-				CHECK(glyph.requireFauxItalic);
+				std::string characterSet;
+				for (char c = 'a'; c <= 'z'; ++c)
+					characterSet += c;
+
+				for (char c = 'A'; c <= 'Z'; ++c)
+					characterSet += c;
+
+				for (char c = '0'; c <= '9'; ++c)
+					characterSet += c;
+
+				for (unsigned int fontSize : {24, 36, 48, 72, 140})
+				{
+					for (float outlineThickness : { 0.f, 1.f, 2.f, 5.f })
+					{
+						font->Precache(fontSize, Nz::TextStyle_Regular, outlineThickness, characterSet);
+					}
+				}
+
+				CHECK(font->GetAtlas()->GetLayerCount() > 1);
+				for (std::size_t layerIndex = 0; layerIndex < font->GetAtlas()->GetLayerCount(); ++layerIndex)
+				{
+					CHECK(font->GetAtlas()->GetLayer(layerIndex)->GetLevelCount() == 1);
+				}
 			}
 
 			if (i == 1)
