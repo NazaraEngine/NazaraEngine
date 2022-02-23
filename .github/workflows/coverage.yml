@@ -62,7 +62,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}
+        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r2
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
@@ -70,7 +70,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake -v
+      run: xmake
 
     # Run unit tests
     - name: Run unit tests
