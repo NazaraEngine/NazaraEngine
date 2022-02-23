@@ -29,7 +29,7 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			static std::shared_ptr<MaterialSettings> s_basicMaterialSettings;
+			static std::shared_ptr<MaterialSettings> s_depthMaterialSettings;
 	};
 }
 

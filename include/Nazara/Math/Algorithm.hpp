@@ -39,8 +39,8 @@ namespace Nz
 	unsigned int GetNumberLength(float number, UInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
 	unsigned int GetNumberLength(double number, UInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
 	unsigned int GetNumberLength(long double number, UInt8 precision = NAZARA_CORE_DECIMAL_DIGITS);
-	template<typename T> /*constexpr*/ unsigned int IntegralLog2(T number);
-	template<typename T> /*constexpr*/ unsigned int IntegralLog2Pot(T pot);
+	template<typename T> constexpr unsigned int IntegralLog2(T number);
+	template<typename T> constexpr unsigned int IntegralLog2Pot(T pot);
 	template<typename T> constexpr T IntegralPow(T base, unsigned int exponent);
 	template<typename T, typename T2> constexpr T Lerp(const T& from, const T& to, const T2& interpolation);
 	template<typename T> constexpr T MultiplyAdd(T x, T y, T z);

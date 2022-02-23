@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline const std::shared_ptr<MaterialSettings>& DepthMaterial::GetSettings()
 	{
-		return s_basicMaterialSettings;
+		return s_depthMaterialSettings;
 	}
 }
 
