@@ -15,7 +15,8 @@ namespace Nz
 
 	GuillotineImageAtlas::GuillotineImageAtlas() :
 	m_rectChoiceHeuristic(GuillotineBinPack::RectBestAreaFit),
-	m_rectSplitHeuristic(GuillotineBinPack::SplitMinimizeArea)
+	m_rectSplitHeuristic(GuillotineBinPack::SplitMinimizeArea),
+	m_maxLayerSize(16384)
 	{
 	}
 
@@ -40,6 +41,11 @@ namespace Nz
 			m_layers[layers[i]].binPack.FreeRectangle(rects[i]);
 			m_layers[layers[i]].freedRectangles++;
 		}
+	}
+
+	unsigned int GuillotineImageAtlas::GetMaxLayerSize() const
+	{
+		return m_maxLayerSize;
 	}
 
 	GuillotineBinPack::FreeRectChoiceHeuristic GuillotineImageAtlas::GetRectChoiceHeuristic() const
@@ -115,9 +121,10 @@ namespace Nz
 				if (newSize == Vector2ui::Zero())
 					newSize.Set(s_atlasStartSize);
 
-				if (ResizeLayer(layer, newSize))
+				// Limit image atlas size to prevent allocating too much contiguous memory blocks
+				if (newSize.x <= m_maxLayerSize && newSize.y <= m_maxLayerSize && ResizeLayer(layer, newSize))
 				{
-					// Oui on peut !
+					// Yes we can!
 					layer.binPack.Expand(newSize); // On ajuste l'atlas virtuel
 
 					// Et on relance la boucle sur la nouvelle dernière couche
@@ -147,6 +154,11 @@ namespace Nz
 
 		NazaraInternalError("Unknown error"); // Normalement on ne peut pas arriver ici
 		return false;
+	}
+
+	void GuillotineImageAtlas::SetMaxLayerSize(unsigned int maxLayerSize)
+	{
+		m_maxLayerSize = maxLayerSize;
 	}
 
 	void GuillotineImageAtlas::SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic)

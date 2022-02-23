@@ -29,6 +29,7 @@ namespace Nz
 
 			void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count) override;
 
+			unsigned int GetMaxLayerSize() const;
 			GuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
 			GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
 			AbstractImage* GetLayer(unsigned int layerIndex) const override;
@@ -37,6 +38,7 @@ namespace Nz
 
 			bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) override;
 
+			void SetMaxLayerSize(unsigned int maxLayerSize);
 			void SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic);
 			void SetRectSplitHeuristic(GuillotineBinPack::GuillotineSplitHeuristic heuristic);
 
@@ -70,6 +72,7 @@ namespace Nz
 			mutable std::vector<Layer> m_layers;
 			GuillotineBinPack::FreeRectChoiceHeuristic m_rectChoiceHeuristic;
 			GuillotineBinPack::GuillotineSplitHeuristic m_rectSplitHeuristic;
+			unsigned int m_maxLayerSize;
 	};
 }
 
