@@ -142,7 +142,8 @@ namespace Nz
 				if (!option.optionIndexByShader[shaderIndex].has_value())
 					continue;
 
-				m_pipelineInfo.shaders[shaderIndex].optionValues[optionIndex] = m_optionValues[optionIndex];
+				std::size_t shaderOptionIndex = *option.optionIndexByShader[shaderIndex];
+				m_pipelineInfo.shaders[shaderIndex].optionValues[shaderOptionIndex] = m_optionValues[optionIndex];
 			}
 		}
 
