@@ -114,6 +114,7 @@ namespace Nz
 				const auto& matSettings = materialPass.GetSettings();
 				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
 				{
+					assert(currentWorldInstance);
 					const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
 
 					auto& bindingEntry = m_bindingCache.emplace_back();
@@ -155,6 +156,7 @@ namespace Nz
 					};
 				}
 
+				assert(currentPipeline);
 				ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
 				drawDataBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 

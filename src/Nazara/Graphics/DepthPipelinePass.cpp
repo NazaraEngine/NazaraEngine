@@ -134,10 +134,7 @@ namespace Nz
 
 		depthPrepass.SetExecutionCallback([&]()
 		{
-			if (m_rebuildCommandBuffer)
-				return FramePassExecution::UpdateAndExecute;
-			else
-				return FramePassExecution::Execute;
+			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
 		depthPrepass.SetCommandCallback([this](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
