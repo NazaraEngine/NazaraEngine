@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Systems/RenderSystem.hpp>
+#include <Nazara/Graphics/DeferredFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -29,6 +30,7 @@ namespace Nz
 		m_lightDestroyConnection = registry.on_destroy<LightComponent>().connect<&RenderSystem::OnLightDestroy>(this);
 		m_nodeDestroyConnection = registry.on_destroy<NodeComponent>().connect<&RenderSystem::OnNodeDestroy>(this);
 
+		//m_pipeline = std::make_unique<DeferredFramePipeline>();
 		m_pipeline = std::make_unique<ForwardFramePipeline>();
 	}
 
@@ -75,6 +77,7 @@ namespace Nz
 			GraphicsEntity* graphicsEntity = m_graphicsEntityPool.Allocate(poolIndex);
 			graphicsEntity->entity = entity;
 			graphicsEntity->poolIndex = poolIndex;
+			graphicsEntity->renderableIndices.fill(std::numeric_limits<std::size_t>::max());
 			graphicsEntity->worldInstanceIndex = m_pipeline->RegisterWorldInstance(entityGfx.GetWorldInstance());
 			graphicsEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, graphicsEntity](const Node* /*node*/)
 			{
@@ -218,7 +221,7 @@ namespace Nz
 		m_pipeline->Render(renderFrame);
 	}
 
-	void RenderSystem::OnCameraDestroy(entt::registry& registry, entt::entity entity)
+	void RenderSystem::OnCameraDestroy(entt::registry& /*registry*/, entt::entity entity)
 	{
 		auto it = m_cameraEntities.find(entity);
 		if (it == m_cameraEntities.end())
@@ -247,14 +250,18 @@ namespace Nz
 		m_newlyVisibleGfxEntities.erase(graphicsEntity);
 
 		GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
-		for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
+		if (entityGfx.IsVisible())
 		{
-			const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
-			if (!renderableEntry.renderable)
-				continue;
+			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
+			{
+				const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
+				if (!renderableEntry.renderable)
+					continue;
 
-			m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);
+				m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);
+			}
 		}
+
 		m_pipeline->UnregisterWorldInstance(graphicsEntity->worldInstanceIndex);
 
 		m_graphicsEntityPool.Free(graphicsEntity->poolIndex);
@@ -274,13 +281,16 @@ namespace Nz
 		m_newlyVisibleLightEntities.erase(lightEntity);
 
 		LightComponent& entityLight = registry.get<LightComponent>(entity);
-		for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
+		if (entityLight.IsVisible())
 		{
-			const auto& lightEntry = entityLight.GetLightEntry(lightIndex);
-			if (!lightEntry.light)
-				continue;
+			for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
+			{
+				const auto& lightEntry = entityLight.GetLightEntry(lightIndex);
+				if (!lightEntry.light)
+					continue;
 
-			m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
+				m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
+			}
 		}
 
 		m_lightEntityPool.Free(lightEntity->poolIndex);
