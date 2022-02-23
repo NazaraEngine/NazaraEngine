@@ -30,7 +30,6 @@
 
 namespace Nz
 {
-	class PointLight;
 	class RenderFrame;
 	class RenderTarget;
 

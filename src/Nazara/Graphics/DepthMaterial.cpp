@@ -37,15 +37,15 @@ namespace Nz
 		options.basicOptionIndexes = &s_basicOptionIndexes;
 		options.basicTextureIndexes = &s_basicTextureIndexes;
 
-		s_basicMaterialSettings = std::make_shared<MaterialSettings>(Build(options));
+		s_depthMaterialSettings = std::make_shared<MaterialSettings>(Build(options));
 
 		return true;
 	}
 
 	void DepthMaterial::Uninitialize()
 	{
-		s_basicMaterialSettings.reset();
+		s_depthMaterialSettings.reset();
 	}
 
-	std::shared_ptr<MaterialSettings> DepthMaterial::s_basicMaterialSettings;
+	std::shared_ptr<MaterialSettings> DepthMaterial::s_depthMaterialSettings;
 }
