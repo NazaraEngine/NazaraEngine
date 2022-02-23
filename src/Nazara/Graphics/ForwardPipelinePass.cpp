@@ -279,10 +279,7 @@ namespace Nz
 
 		forwardPass.SetExecutionCallback([&]()
 		{
-			if (m_rebuildCommandBuffer)
-				return FramePassExecution::UpdateAndExecute;
-			else
-				return FramePassExecution::Execute;
+			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
 		forwardPass.SetCommandCallback([this](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
