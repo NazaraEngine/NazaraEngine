@@ -57,6 +57,9 @@ namespace Nz
 
 		std::string TranslateCanonicalName(const wchar_t* str)
 		{
+			if (!str)
+				return {};
+
 			return FromWideString(str);
 		}
 		#else
@@ -92,6 +95,9 @@ namespace Nz
 
 		std::string TranslateCanonicalName(const char* str)
 		{
+			if (!str)
+				return {};
+
 			return str;
 		}
 		#endif

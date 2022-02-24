@@ -33,16 +33,20 @@ namespace Nz
 	* \brief Builds the IP from a hostname
 	* \return true If successful
 	*
-	* \remark address C-string symbolizing the IP address or hostname
+	* \remark address C-string symbolizing the IP address
 	*/
-
 	bool IpAddress::BuildFromAddress(const char* address)
 	{
 		m_isValid = false;
 
 		bool isIPv6;
 		UInt8 result[16];
-		if (!ParseIPAddress(address, result, &m_port, &isIPv6, nullptr))
+		const char* endOfRead;
+		if (!ParseIPAddress(address, result, &m_port, &isIPv6, &endOfRead))
+			return false;
+
+		// was everything parsed?
+		if (*endOfRead != '\0')
 			return false;
 
 		m_isValid = true;
@@ -154,20 +158,42 @@ namespace Nz
 					if (m_port != 0)
 						stream << '[';
 
-					for (unsigned int i = 0; i < 8; ++i)
+					// IPv4-mapped IPv6?
+					if (f0 == 0 && l0 == 5 && m_ipv6[5] == 0xFFFF)
 					{
-						if (i == f0)
-						{
-							stream << "::";
-							i = l0;
-							if (i >= 8)
-								break;
-						}
-						else if (i != 0)
-							stream << ':';
+						IPv4 ipv4 = {
+							m_ipv6[6] >> 8,
+							m_ipv6[6] & 0xFF,
+							m_ipv6[7] >> 8,
+							m_ipv6[7] & 0xFF,
+						};
 
-						stream << ToLower(NumberToString(m_ipv6[i], 16));
+						stream << "::ffff:";
+						for (unsigned int i = 0; i < 4; ++i)
+						{
+							stream << int(ipv4[i]);
+							if (i != 3)
+								stream << '.';
+						}
 					}
+					else
+					{
+						for (unsigned int i = 0; i < 8; ++i)
+						{
+							if (i == f0)
+							{
+								stream << "::";
+								i = l0;
+								if (i >= 8)
+									break;
+							}
+							else if (i != 0)
+								stream << ':';
+
+							stream << ToLower(NumberToString(m_ipv6[i], 16));
+						}
+					}
+
 
 					if (m_port != 0)
 						stream << ']';

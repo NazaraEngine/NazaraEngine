@@ -353,7 +353,7 @@ namespace Nz
 			// validation of ipv4 subspace ::ffff:x.x
 			if (mappedIPv4)
 			{
-				static const UInt8 abyPfx[] = {0,0, 0,0, 0,0, 0,0, 0,0, 0xFF,0xFF};
+				const UInt8 abyPfx[] = {0,0, 0,0, 0,0, 0,0, 0,0, 0xFF,0xFF};
 				if (std::memcmp(result, abyPfx, sizeof(abyPfx)) != 0)
 					return false;
 			}
@@ -376,11 +376,10 @@ namespace Nz
 				++addressPtr; // past the colon
 
 				unsigned int portValue;
-				if (!Detail::ParseDecimal(addressPtr, &portValue, nullptr) || portValue > 65535)
+				if (!Detail::ParseDecimal(addressPtr, &portValue, &addressPtr) || portValue > 65535)
 					return false;
 
-				if (port)
-					*port = static_cast<UInt16>(portValue);
+				*port = static_cast<UInt16>(portValue);
 			}
 			else // finished just with IP address
 				*port = 0; // indicate we have no port part
