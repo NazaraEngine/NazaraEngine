@@ -665,6 +665,7 @@ namespace Nz::ShaderLang
 
 				case TokenType::For:
 					statement = ParseForDeclaration(std::move(attributes));
+					attributes.clear();
 					break;
 
 				case TokenType::Let:
@@ -703,6 +704,7 @@ namespace Nz::ShaderLang
 
 				case TokenType::While:
 					statement = ParseWhileStatement(std::move(attributes));
+					attributes.clear();
 					break;
 
 				default:

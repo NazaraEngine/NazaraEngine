@@ -162,10 +162,10 @@ namespace Nz
 					if (f0 == 0 && l0 == 5 && m_ipv6[5] == 0xFFFF)
 					{
 						IPv4 ipv4 = {
-							m_ipv6[6] >> 8,
-							m_ipv6[6] & 0xFF,
-							m_ipv6[7] >> 8,
-							m_ipv6[7] & 0xFF,
+							SafeCast<UInt8>(m_ipv6[6] >> 8),
+							SafeCast<UInt8>(m_ipv6[6] & 0xFF),
+							SafeCast<UInt8>(m_ipv6[7] >> 8),
+							SafeCast<UInt8>(m_ipv6[7] & 0xFF),
 						};
 
 						stream << "::ffff:";
