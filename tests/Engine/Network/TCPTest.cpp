@@ -4,24 +4,18 @@
 #include <Nazara/Network/TcpServer.hpp>
 #include <catch2/catch.hpp>
 #include <chrono>
-#include <random>
 #include <thread>
 
 SCENARIO("TCP", "[NETWORK][TCP]")
 {
 	GIVEN("Two TCP, one client, one server")
 	{
-		std::random_device rd;
-		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
-
-		Nz::UInt16 port = dis(rd);
-
 		Nz::TcpServer server;
 		server.EnableBlocking(false);
 
-		REQUIRE(server.Listen(Nz::NetProtocol::IPv4, port) == Nz::SocketState::Bound);
+		REQUIRE(server.Listen(Nz::NetProtocol::IPv4, 0) == Nz::SocketState::Bound);
 
-		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
+		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), server.GetBoundPort());
 		REQUIRE(serverIP.IsValid());
 
 		Nz::TcpClient client;
