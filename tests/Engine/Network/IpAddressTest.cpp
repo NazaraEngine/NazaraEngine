@@ -54,7 +54,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 		CHECK(Nz::IpAddress("1:2:3:4:5::7:8") == Nz::IpAddress(1, 2, 3, 4, 5, 0, 7, 8));
 		CHECK(Nz::IpAddress("1:2:3:4::7:8") == Nz::IpAddress(1, 2, 3, 4, 0, 0, 7, 8));
 		CHECK(Nz::IpAddress("1:2:3::7:8") == Nz::IpAddress(1, 2, 3, 0, 0, 0, 7, 8));
-		CHECK(Nz::IpAddress("1:2::5:6:7:8") == Nz::IpAddress(1, 2, 0, 0, 0, 6, 7, 8));
+		CHECK(Nz::IpAddress("1:2::5:6:7:8") == Nz::IpAddress(1, 2, 0, 0, 5, 6, 7, 8));
 		CHECK(Nz::IpAddress("1::7:8") == Nz::IpAddress(1, 0, 0, 0, 0, 0, 7, 8));
 		CHECK(Nz::IpAddress("1::8") == Nz::IpAddress(1, 0, 0, 0, 0, 0, 0, 8));
 		CHECK(Nz::IpAddress("::8") == Nz::IpAddress(0, 0, 0, 0, 0, 0, 0, 8));

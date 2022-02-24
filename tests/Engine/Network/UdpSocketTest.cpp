@@ -2,27 +2,22 @@
 #include <Nazara/Network/UdpSocket.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <catch2/catch.hpp>
-#include <random>
 
 SCENARIO("UdpSocket", "[NETWORK][UDPSOCKET]")
 {
 	GIVEN("Two UdpSocket, one client, one server")
 	{
-		std::random_device rd;
-		std::uniform_int_distribution<Nz::UInt16> dis(1025, 65535);
-
-		Nz::UInt16 port = dis(rd);
 		Nz::UdpSocket server(Nz::NetProtocol::IPv4);
-		REQUIRE(server.Bind(port) == Nz::SocketState::Bound);
+		REQUIRE(server.Bind(0) == Nz::SocketState::Bound);
+
+		Nz::UInt16 port = server.GetBoundPort();
 
 		Nz::IpAddress serverIP(Nz::IpAddress::LoopbackIpV4.ToIPv4(), port);
 		REQUIRE(serverIP.IsValid());
 
 		Nz::UdpSocket client(Nz::NetProtocol::IPv4);
-		REQUIRE(client.Bind(port + 1) == Nz::SocketState::Bound);
-
-		Nz::IpAddress clientIP = client.GetBoundAddress();
-		REQUIRE(clientIP.IsValid());
+		CHECK_FALSE(client.IsBroadcastingEnabled());
+		CHECK(client.QueryMaxDatagramSize() > 1500);
 
 		WHEN("We send data from client")
 		{

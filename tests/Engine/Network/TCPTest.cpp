@@ -25,18 +25,27 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 		REQUIRE(serverIP.IsValid());
 
 		Nz::TcpClient client;
+		CHECK(client.WaitForConnected(100) == Nz::SocketState::NotConnected);
 		REQUIRE(client.Connect(serverIP) == Nz::SocketState::Connecting);
 
 		Nz::IpAddress clientIP = client.GetRemoteAddress();
 		CHECK(clientIP.IsValid());
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		REQUIRE(client.WaitForConnected(100) == Nz::SocketState::Connected);
+
+		CHECK(client.IsBlockingEnabled());
+		CHECK_FALSE(client.IsKeepAliveEnabled());
+		CHECK_FALSE(client.IsLowDelayEnabled());
+		CHECK(client.QueryReceiveBufferSize() > 0);
+		CHECK(client.QuerySendBufferSize() > 0);
 
 		Nz::TcpClient serverToClient;
 		REQUIRE(server.AcceptClient(&serverToClient));
 
 		WHEN("We send data from client")
 		{
+			CHECK(serverToClient.EndOfStream());
+
 			Nz::NetPacket packet(1);
 			Nz::Vector3f vector123(1.f, 2.f, 3.f);
 			packet << vector123;
@@ -44,6 +53,8 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 
 			THEN("We should get it on the server")
 			{
+				CHECK(!serverToClient.EndOfStream());
+
 				Nz::NetPacket resultPacket;
 				REQUIRE(serverToClient.ReceivePacket(&resultPacket));
 
