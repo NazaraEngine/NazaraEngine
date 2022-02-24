@@ -57,9 +57,6 @@ namespace Nz
 
 		std::string TranslateCanonicalName(const wchar_t* str)
 		{
-			if (!str)
-				return {};
-
 			return FromWideString(str);
 		}
 		#else
@@ -95,9 +92,6 @@ namespace Nz
 
 		std::string TranslateCanonicalName(const char* str)
 		{
-			if (!str)
-				return {};
-
 			return str;
 		}
 		#endif
@@ -225,13 +219,13 @@ namespace Nz
 
 		for (Detail::addrinfoImpl* p = servinfo; p != nullptr; p = p->ai_next)
 		{
-			HostnameInfo result;
+			HostnameInfo& result = results.emplace_back();
 			result.address = FromAddrinfo(p);
-			result.canonicalName = Detail::TranslateCanonicalName(p->ai_canonname);
 			result.protocol = TranslatePFToNetProtocol(p->ai_family);
 			result.socketType = TranslateSockToNetProtocol(p->ai_socktype);
 
-			results.push_back(result);
+			if (p->ai_canonname)
+				result.canonicalName = Detail::TranslateCanonicalName(p->ai_canonname);
 		}
 
 		if (error)

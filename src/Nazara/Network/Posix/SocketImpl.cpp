@@ -211,8 +211,8 @@ namespace Nz
 	{
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
-		u_long availableBytes;
-		if (ioctl(handle, FIONREAD, &availableBytes) == -1)
+		int availableBytes;
+		if (ioctl(handle, FIONREAD, &availableBytes) != 0)
 		{
 			if (error)
 				*error = TranslateErrorToSocketError(errno);
@@ -223,7 +223,7 @@ namespace Nz
 		if (error)
 			*error = SocketError::NoError;
 
-		return availableBytes;
+		return SafeCast<std::size_t>(availableBytes);
 	}
 
 	bool SocketImpl::QueryBroadcasting(SocketHandle handle, SocketError* error)
@@ -266,25 +266,9 @@ namespace Nz
 
 	std::size_t SocketImpl::QueryMaxDatagramSize(SocketHandle handle, SocketError* error)
 	{
-		int code;
-		socklen_t codeLength = sizeof(code);
-
-#if defined(NAZARA_PLATFORM_MACOSX)
-		return 0; //No IP_MTU on macosx
-#else
-		if (getsockopt(handle, IPPROTO_IP, IP_MTU, &code, &codeLength) == -1)
-		{
-			if (error)
-				*error = TranslateErrorToSocketError(errno);
-
-			return 0;
-		}
-#endif
-
-		if (error)
-			*error = SocketError::NoError;
-
-		return code;
+		// There's no SO_MAX_MSG_SIZE on POSIX
+		// We could use IP_MTU but it requires a connected socket
+		return std::min<std::size_t>(QuerySendBufferSize(handle, error), 65507); //< Max IPv4 value (IPv6 is 65527)
 	}
 
 	bool SocketImpl::QueryNoDelay(SocketHandle handle, SocketError* error)

@@ -13,64 +13,6 @@
 
 namespace Nz
 {
-	namespace Detail
-	{
-		using addrinfoImpl = addrinfo;
-
-		int GetAddressInfo(const std::string& hostname, const std::string& service, const addrinfoImpl* hints, addrinfoImpl** results)
-		{
-			return getaddrinfo(hostname.c_str(), service.c_str(), hints, results);
-		}
-
-		int GetHostnameInfo(sockaddr* socketAddress, socklen_t socketLen, std::string* hostname, std::string* service, int flags)
-		{
-			std::array<char, NI_MAXHOST> hostnameBuffer;
-			std::array<char, NI_MAXSERV> serviceBuffer;
-
-			int result = getnameinfo(socketAddress, socketLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), flags);
-			if (result == 0)
-			{
-				if (hostname)
-					hostname->assign(hostnameBuffer.data());
-
-				if (service)
-					service->assign(serviceBuffer.data());
-			}
-
-			return result;
-		}
-
-		void FreeAddressInfo(addrinfoImpl* results)
-		{
-			freeaddrinfo(results);
-		}
-
-		IpAddress::IPv4 convertSockaddrToIPv4(const in_addr& addr)
-		{
-			union byteToInt
-			{
-				UInt8 b[sizeof(uint32_t)];
-				uint32_t i;
-			};
-
-			byteToInt hostOrder;
-			hostOrder.i = ntohl(addr.s_addr);
-
-			return { {hostOrder.b[3], hostOrder.b[2], hostOrder.b[1], hostOrder.b[0]} };
-		}
-
-		IpAddress::IPv6 convertSockaddr6ToIPv6(const in6_addr& addr)
-		{
-			auto& rawIpV6 = addr.s6_addr;
-
-			IpAddress::IPv6 ipv6;
-			for (unsigned int i = 0; i < 8; ++i)
-				ipv6[i] = Nz::UInt16(rawIpV6[i * 2]) << 8 | rawIpV6[i * 2 + 1];
-
-			return ipv6;
-		}
-	}
-
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfo* info)
 	{
 		switch (info->ai_family)
@@ -109,14 +51,21 @@ namespace Nz
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr_in* addressv4)
 	{
-		IpAddress::IPv4 ip4Address = Detail::convertSockaddrToIPv4(addressv4->sin_addr);
-		return IpAddress(ip4Address, ntohs(addressv4->sin_port));
+		IpAddress::IPv4 ipv4;
+		std::memcpy(&ipv4[0], &addressv4->sin_addr.s_addr, sizeof(uint32_t)); //< addr.s_addr is in big-endian so its already correctly ordered
+
+		return IpAddress(ipv4, ntohs(addressv4->sin_port));
 	}
 
 	IpAddress IpAddressImpl::FromSockAddr(const sockaddr_in6* addressv6)
 	{
-		IpAddress::IPv6 ip6Address = Detail::convertSockaddr6ToIPv6(addressv6->sin6_addr);
-		return IpAddress(ip6Address, ntohs(addressv6->sin6_port));
+		auto& rawIpV6 = addressv6->sin6_addr.s6_addr;
+
+		IpAddress::IPv6 ipv6;
+		for (unsigned int i = 0; i < 8; ++i)
+			ipv6[i] = UInt16(rawIpV6[i * 2]) << 8 | rawIpV6[i * 2 + 1];
+
+		return IpAddress(ipv6, ntohs(addressv6->sin6_port));
 	}
 
 	bool IpAddressImpl::ResolveAddress(const IpAddress& ipAddress, std::string* hostname, std::string* service, ResolveError* error)
@@ -124,13 +73,22 @@ namespace Nz
 		SockAddrBuffer socketAddress;
 		socklen_t socketAddressLen = ToSockAddr(ipAddress, socketAddress.data());
 
-		if (Detail::GetHostnameInfo(reinterpret_cast<sockaddr*>(socketAddress.data()), socketAddressLen, hostname, service, NI_NUMERICSERV) != 0)
+		std::array<char, NI_MAXHOST> hostnameBuffer;
+		std::array<char, NI_MAXSERV> serviceBuffer;
+
+		if (getnameinfo(reinterpret_cast<sockaddr*>(socketAddress.data()), socketAddressLen, hostnameBuffer.data(), hostnameBuffer.size(), serviceBuffer.data(), serviceBuffer.size(), NI_NUMERICSERV) != 0)
 		{
 			if (error)
 				*error = TranslateEAIErrorToResolveError(errno);
 
 			return false;
 		}
+
+		if (hostname)
+			hostname->assign(hostnameBuffer.data());
+
+		if (service)
+			service->assign(serviceBuffer.data());
 
 		if (error)
 			*error = ResolveError::NoError;
@@ -142,14 +100,14 @@ namespace Nz
 	{
 		std::vector<HostnameInfo> results;
 
-		Detail::addrinfoImpl hints;
-		std::memset(&hints, 0, sizeof(Detail::addrinfoImpl));
+		addrinfo hints;
+		std::memset(&hints, 0, sizeof(addrinfo));
 		hints.ai_family = SocketImpl::TranslateNetProtocolToAF(procol);
 		hints.ai_flags = AI_CANONNAME;
 		hints.ai_socktype = SOCK_STREAM;
 
-		Detail::addrinfoImpl* servinfo;
-		if (Detail::GetAddressInfo(hostname, service, &hints, &servinfo) != 0)
+		addrinfo* servinfo;
+		if (getaddrinfo(hostname.c_str(), service.c_str(), &hints, &servinfo) != 0)
 		{
 			if (error)
 				*error = TranslateEAIErrorToResolveError(errno);
@@ -159,17 +117,19 @@ namespace Nz
 
 		CallOnExit onExit([servinfo]()
 		{
-			Detail::FreeAddressInfo(servinfo);
+			freeaddrinfo(servinfo);
 		});
 
 		// loop through all the results and connect to the first we can
-		for (Detail::addrinfoImpl* p = servinfo; p != nullptr; p = p->ai_next)
+		for (addrinfo* p = servinfo; p != nullptr; p = p->ai_next)
 		{
 			HostnameInfo result;
 			result.address = FromAddrinfo(p);
-			result.canonicalName = p->ai_canonname;
 			result.protocol = TranslatePFToNetProtocol(p->ai_family);
 			result.socketType = TranslateSockToNetProtocol(p->ai_socktype);
+
+			if (p->ai_canonname)
+				result.canonicalName = p->ai_canonname;
 
 			results.push_back(result);
 		}
