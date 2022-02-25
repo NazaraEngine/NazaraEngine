@@ -15,11 +15,9 @@ package("qt5widgets")
     end)
 
     on_fetch(function (package)
-        print("on_fetch")
         local base = package:dep("qt5base")
         local qt = base:data("qtdir")
         if not qt then
-            print("nani")
             return
         end
 

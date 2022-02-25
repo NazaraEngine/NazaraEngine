@@ -60,13 +60,15 @@ int main()
 	labelWidget->SetPosition(0.f, 200.f, 0.f);
 	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Je suis un LabelWidget !", 72));
 
+	unsigned int clickCount = 0;
+
 	Nz::ButtonWidget* buttonWidget = canvas2D.Add<Nz::ButtonWidget>();
 	buttonWidget->SetPosition(200.f, 400.f);
 	buttonWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Press me senpai", 72));
 	buttonWidget->Resize(buttonWidget->GetPreferredSize());
-	buttonWidget->OnButtonTrigger.Connect([=](const Nz::ButtonWidget*)
+	buttonWidget->OnButtonTrigger.Connect([&](const Nz::ButtonWidget*)
 	{
-		buttonWidget->Destroy();
+		labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("You clicked the button " + std::to_string(++clickCount) + " times", 72));
 	});
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
