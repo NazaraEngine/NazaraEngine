@@ -6,6 +6,9 @@ package("aqt")
     set_license("MIT")
 
     if is_host("windows") then
+        add_configs("shared", {description = "Download shared binaries.", default = true, type = "boolean", readonly = true})
+        add_configs("vs_runtime", {description = "Set vs compiler runtime.", default = "MD", readonly = true})
+
         if os.arch() == "x86" then
             add_urls("https://github.com/miurahr/aqtinstall/releases/download/v$(version)/aqt_x86.exe")
             add_versions("2.0.6", "b980985cfeb1cefef1d2ebab91ae4e648873a27fae8831deff8144661480c56a")
