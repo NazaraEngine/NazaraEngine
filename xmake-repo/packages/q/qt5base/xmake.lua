@@ -5,6 +5,9 @@ package("qt5base")
     set_description("Qt is the faster, smarter way to create innovative devices, modern UIs & applications for multiple screens. Cross-platform software development at its best.")
     set_license("LGPL-3")
 
+    add_configs("shared", {description = "Download shared binaries.", default = true, type = "boolean", readonly = true})
+    add_configs("vs_runtime", {description = "Set vs compiler runtime.", default = "MD", readonly = true})
+
     add_versions("5.15.2", "dummy")
     add_versions("5.12.5", "dummy")
 
@@ -51,7 +54,6 @@ package("qt5base")
     end)
 
     on_install("windows", "linux", "macosx", "mingw", "android", "iphoneos", function (package)
-        local installdir = package:installdir()
         local version = package:version() or semver.new("5.15.2")
 
         local host
@@ -140,6 +142,7 @@ package("qt5base")
             end
         end
 
+        local installdir = package:installdir()
         os.vrunv("aqt", {"install-qt", "-O", installdir, host, target, version:shortstr(), arch})
 
         -- move files to root
@@ -183,7 +186,7 @@ package("qt5base")
 
         local installeddir
         for _, subdir in pairs(subdirs) do
-            local results = os.dirs(path.join(installdir, version, subdir), function (file, isdir) print(file) print(isdir) return false end)
+            local results = os.dirs(path.join(installdir, version, subdir), function (file, isdir) return false end)
             if results and #results > 0 then
                 installeddir = results[1]
                 break
