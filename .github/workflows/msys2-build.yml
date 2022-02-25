@@ -70,7 +70,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
-        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r2
+        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r3
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
