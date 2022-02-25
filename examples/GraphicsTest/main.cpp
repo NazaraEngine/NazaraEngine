@@ -105,8 +105,9 @@ int main()
 	framePipeline.RegisterRenderable(worldInstanceIndex1, &model, 0xFFFFFFFF, scissorBox);
 	framePipeline.RegisterRenderable(worldInstanceIndex2, &model, 0xFFFFFFFF, scissorBox);
 
-	std::shared_ptr<Nz::PointLight> light = std::make_shared<Nz::PointLight>();
-	light->UpdateColor(Nz::Color::Green);
+	std::shared_ptr<Nz::SpotLight> light = std::make_shared<Nz::SpotLight>();
+	light->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
+	light->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
 
 	framePipeline.RegisterLight(light, 0xFFFFFFFF);
 
@@ -165,6 +166,7 @@ int main()
 					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
+					light->UpdateRotation(camQuat);
 					break;
 				}
 
