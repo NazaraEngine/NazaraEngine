@@ -7,10 +7,10 @@
 
 namespace Nz::ShaderAst
 {
-	inline StatementPtr EliminateUnusedPass(Statement& ast)
+	inline StatementPtr EliminateUnusedPass(Statement& ast, const EliminateUnusedPassVisitor::Config& config)
 	{
 		EliminateUnusedPassVisitor visitor;
-		return visitor.Process(ast);
+		return visitor.Process(ast, config);
 	}
 }
 

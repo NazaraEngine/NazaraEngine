@@ -29,6 +29,11 @@ namespace Nz::ShaderAst
 
 		struct UsageChecker : AstRecursiveVisitor
 		{
+			UsageChecker(const EliminateUnusedPassVisitor::Config& Config) :
+			config(Config)
+			{
+			}
+
 			struct UsageSet;
 
 			void Resolve()
@@ -129,7 +134,11 @@ namespace Nz::ShaderAst
 				}
 
 				if (node.entryStage.HasValue())
-					globalUsage.usedFunctions.UnboundedSet(*node.funcIndex);
+				{
+					ShaderStageType shaderStage = node.entryStage.GetResultingValue();
+					if (shaderStage & config.usedShaderStages)
+						globalUsage.usedFunctions.UnboundedSet(*node.funcIndex);
+				}
 
 				currentFunctionIndex = node.funcIndex;
 				AstRecursiveVisitor::Visit(node);
@@ -195,6 +204,7 @@ namespace Nz::ShaderAst
 				Bitset<> usedVariables;
 			};
 
+			const EliminateUnusedPassVisitor::Config& config;
 			std::optional<std::size_t> currentFunctionIndex;
 			std::optional<std::size_t> currentVariableDeclIndex;
 			std::unordered_map<std::size_t, UsageSet> functionUsages;
@@ -207,12 +217,17 @@ namespace Nz::ShaderAst
 
 	struct EliminateUnusedPassVisitor::Context
 	{
+		Context(const Config& config) :
+		usageChecker(config)
+		{
+		}
+
 		UsageChecker usageChecker;
 	};
 
-	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement)
+	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const Config& config)
 	{
-		Context context;
+		Context context(config);
 		statement.Visit(context.usageChecker);
 		context.usageChecker.Resolve();
 
