@@ -840,14 +840,14 @@ int main()
 			return Nz::FramePassExecution::Execute;
 		});
 
-		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetViewport(renderArea);
+			builder.SetViewport(env.renderRect);
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements, renderArea);
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements, renderArea);
-			planeModel.BuildElement(forwardPassIndex, planeInstance, elements, renderArea);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements, env.renderRect);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements, env.renderRect);
+			planeModel.BuildElement(forwardPassIndex, planeInstance, elements, env.renderRect);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -866,10 +866,10 @@ int main()
 			return (lightUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
 		});
 
-		lightingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		lightingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			builder.SetScissor(env.renderRect);
+			builder.SetViewport(env.renderRect);
 
 			//builder.BindVertexBuffer(0, vertexBuffer.get());
 			builder.BindIndexBuffer(*coneMeshGfx->GetIndexBuffer(0).get());
@@ -897,10 +897,10 @@ int main()
 		lightingPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
-		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			builder.SetScissor(env.renderRect);
+			builder.SetViewport(env.renderRect);
 
 			builder.BindShaderBinding(0, *skyboxShaderBinding);
 
@@ -911,7 +911,7 @@ int main()
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, renderArea);
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, env.renderRect);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -935,12 +935,12 @@ int main()
 
 		
 		Nz::FramePass& occluderPass = graph.AddPass("Occluder pass");
-		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetViewport(renderArea);
+			builder.SetViewport(env.renderRect);
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, renderArea);
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, env.renderRect);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -959,10 +959,10 @@ int main()
 		occluderPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& godraysPass = graph.AddPass("Light scattering pass");
-		godraysPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		godraysPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			builder.SetScissor(env.renderRect);
+			builder.SetViewport(env.renderRect);
 
 			builder.BindShaderBinding(0, *godRaysShaderBinding);
 
@@ -976,10 +976,10 @@ int main()
 		godraysPass.AddOutput(godRaysTexture);
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
-		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			builder.SetScissor(env.renderRect);
+			builder.SetViewport(env.renderRect);
 
 			builder.BindShaderBinding(0, *bloomBrightShaderBinding);
 
@@ -1000,10 +1000,10 @@ int main()
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 		{
 			Nz::FramePass& bloomBlurPassHorizontal = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - horizontal");
-			bloomBlurPassHorizontal.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+			bloomBlurPassHorizontal.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
-				builder.SetScissor(renderArea);
-				builder.SetViewport(renderArea);
+				builder.SetScissor(env.renderRect);
+				builder.SetViewport(env.renderRect);
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
 				builder.BindPipeline(*gaussianBlurPipeline);
@@ -1021,10 +1021,10 @@ int main()
 			bloomBlurPassHorizontal.AddOutput(bloomTextures[bloomTextureIndex]);
 			
 			Nz::FramePass& bloomBlurPassVertical = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - vertical");
-			bloomBlurPassVertical.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+			bloomBlurPassVertical.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
-				builder.SetScissor(renderArea);
-				builder.SetViewport(renderArea);
+				builder.SetScissor(env.renderRect);
+				builder.SetViewport(env.renderRect);
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
 				builder.BindPipeline(*gaussianBlurPipeline);
@@ -1043,10 +1043,10 @@ int main()
 		}
 
 		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
-		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			builder.SetScissor(env.renderRect);
+			builder.SetViewport(env.renderRect);
 			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			// Blend bloom
@@ -1079,10 +1079,10 @@ int main()
 		Nz::FramePass& toneMappingPass = graph.AddPass("Tone mapping");
 		toneMappingPass.AddInput(bloomOutput);
 		toneMappingPass.AddOutput(toneMappingOutput);
-		toneMappingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::Recti& renderArea)
+		toneMappingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetScissor(renderArea);
-			builder.SetViewport(renderArea);
+			builder.SetScissor(env.renderRect);
+			builder.SetViewport(env.renderRect);
 
 			builder.BindShaderBinding(0, *toneMappingShaderBinding);
 			builder.BindPipeline(*toneMappingPipeline);

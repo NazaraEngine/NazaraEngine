@@ -17,9 +17,9 @@ namespace Nz::ShaderAst
 		DependencyCheckerVisitor usageChecker;
 	};
 
-	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement)
+	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const Config& config)
 	{
-		Context context;
+		Context context(config);
 		statement.Visit(context.usageChecker);
 		context.usageChecker.Resolve();
 

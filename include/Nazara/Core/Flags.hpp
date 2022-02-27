@@ -27,10 +27,10 @@ namespace Nz
 
 
 	template<typename, typename = void>
-	struct GetEnumAutoFlag : std::integral_constant<bool, true> {};
+	struct GetEnumAutoFlag : std::bool_constant<true> {};
 
 	template<typename T>
-	struct GetEnumAutoFlag<T, std::void_t<decltype(T::AutoFlag)>> : std::integral_constant<bool, T::AutoFlag> {};
+	struct GetEnumAutoFlag<T, std::void_t<decltype(T::AutoFlag)>> : std::bool_constant<T::AutoFlag> {};
 
 	template<typename E>
 	class Flags

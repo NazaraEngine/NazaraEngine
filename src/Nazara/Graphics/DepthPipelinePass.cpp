@@ -137,7 +137,7 @@ namespace Nz
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		depthPrepass.SetCommandCallback([this](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
+		depthPrepass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 		{
 			Recti viewport = m_viewer->GetViewport();
 

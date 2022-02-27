@@ -67,6 +67,12 @@ namespace Nz
 				if (!passData.name.empty())
 					builder.BeginDebugRegion(passData.name, Color::Green);
 
+				FramePassEnvironment env{
+					*this,
+					passData.renderRect,
+					renderFrame
+				};
+
 				bool first = true;
 				for (auto& subpass : passData.subpasses)
 				{
@@ -75,7 +81,7 @@ namespace Nz
 
 					first = false;
 
-					subpass.commandCallback(builder, passData.renderRect);
+					subpass.commandCallback(builder, env);
 				}
 
 				if (!passData.name.empty())
