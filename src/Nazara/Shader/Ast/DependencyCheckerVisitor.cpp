@@ -24,6 +24,12 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	void DependencyCheckerVisitor::Process(Statement& statement, const Config& config)
+	{
+		m_config = config;
+		statement.Visit(*this);
+	}
+
 	void DependencyCheckerVisitor::Visit(CallFunctionExpression& node)
 	{
 		const auto& targetFuncType = GetExpressionType(node);
@@ -32,8 +38,18 @@ namespace Nz::ShaderAst
 		const auto& funcType = std::get<FunctionType>(targetFuncType);
 
 		assert(m_currentFunctionIndex);
-		UsageSet& usageSet = Retrieve(m_functionUsages, *m_currentFunctionIndex);
-		usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+		if (m_currentVariableDeclIndex)
+		{
+			UsageSet& usageSet = Retrieve(m_variableUsages, *m_currentVariableDeclIndex);
+			usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+		}
+		else
+		{
+			UsageSet& usageSet = Retrieve(m_functionUsages, *m_currentFunctionIndex);
+			usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+		}
+
+		AstRecursiveVisitor::Visit(node);
 	}
 
 	void DependencyCheckerVisitor::Visit(DeclareExternalStatement& node)
@@ -99,7 +115,11 @@ namespace Nz::ShaderAst
 		}
 
 		if (node.entryStage.HasValue())
-			m_globalUsage.usedFunctions.UnboundedSet(*node.funcIndex);
+		{
+			ShaderStageType shaderStage = node.entryStage.GetResultingValue();
+			if (m_config.usedShaderStages & shaderStage)
+				m_globalUsage.usedFunctions.UnboundedSet(*node.funcIndex);
+		}
 
 		m_currentFunctionIndex = node.funcIndex;
 		AstRecursiveVisitor::Visit(node);
