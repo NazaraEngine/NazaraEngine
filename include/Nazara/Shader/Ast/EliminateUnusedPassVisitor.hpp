@@ -24,7 +24,8 @@ namespace Nz::ShaderAst
 			EliminateUnusedPassVisitor(EliminateUnusedPassVisitor&&) = delete;
 			~EliminateUnusedPassVisitor() = default;
 
-			StatementPtr Process(Statement& statement, const Config& config = {});
+			inline StatementPtr Process(Statement& statement);
+			StatementPtr Process(Statement& statement, const Config& config);
 
 			EliminateUnusedPassVisitor& operator=(const EliminateUnusedPassVisitor&) = delete;
 			EliminateUnusedPassVisitor& operator=(EliminateUnusedPassVisitor&&) = delete;
@@ -49,7 +50,8 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr EliminateUnusedPass(Statement& ast, const EliminateUnusedPassVisitor::Config& config = {});
+	inline StatementPtr EliminateUnusedPass(Statement& ast);
+	inline StatementPtr EliminateUnusedPass(Statement& ast, const EliminateUnusedPassVisitor::Config& config);
 }
 
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.inl>
