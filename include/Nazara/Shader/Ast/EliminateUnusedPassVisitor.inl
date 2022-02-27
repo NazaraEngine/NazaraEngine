@@ -7,6 +7,12 @@
 
 namespace Nz::ShaderAst
 {
+	inline StatementPtr EliminateUnusedPass(Statement& ast)
+	{
+		DependencyCheckerVisitor::Config defaultConfig;
+		return EliminateUnusedPass(ast, defaultConfig);
+	}
+
 	inline StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::Config& config)
 	{
 		DependencyCheckerVisitor dependencyVisitor;
