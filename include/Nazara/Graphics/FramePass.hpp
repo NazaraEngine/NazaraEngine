@@ -19,8 +19,10 @@
 
 namespace Nz
 {
+	class BakedFrameGraph;
 	class CommandBufferBuilder;
 	class FrameGraph;
+	class RenderFrame;
 
 	enum class FramePassExecution
 	{
@@ -29,10 +31,17 @@ namespace Nz
 		UpdateAndExecute
 	};
 
+	struct FramePassEnvironment
+	{
+		BakedFrameGraph& frameGraph;
+		Recti renderRect;
+		RenderFrame& renderFrame;
+	};
+
 	class NAZARA_GRAPHICS_API FramePass
 	{
 		public:
-			using CommandCallback = std::function<void(CommandBufferBuilder& builder, const Recti& renderRect)>;
+			using CommandCallback = std::function<void(CommandBufferBuilder& builder, const FramePassEnvironment& env)>;
 			using ExecutionCallback = std::function<FramePassExecution()>;
 			struct DepthStencilClear;
 			struct Input;
