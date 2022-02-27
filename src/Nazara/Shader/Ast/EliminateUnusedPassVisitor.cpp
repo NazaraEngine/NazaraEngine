@@ -61,14 +61,24 @@ namespace Nz::ShaderAst
 
 			void Visit(CallFunctionExpression& node) override
 			{
-				const auto& targetFuncType = GetExpressionType(node);
+				const auto& targetFuncType = GetExpressionType(*node.targetFunction);
 				assert(std::holds_alternative<FunctionType>(targetFuncType));
 
 				const auto& funcType = std::get<FunctionType>(targetFuncType);
 
 				assert(currentFunctionIndex);
-				UsageSet& usageSet = Retrieve(functionUsages, *currentFunctionIndex);
-				usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+				if (currentVariableDeclIndex)
+				{
+					UsageSet& usageSet = Retrieve(variableUsages, *currentVariableDeclIndex);
+					usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+				}
+				else
+				{
+					UsageSet& usageSet = Retrieve(functionUsages, *currentFunctionIndex);
+					usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+				}
+
+				AstRecursiveVisitor::Visit(node);
 			}
 
 			void Visit(DeclareExternalStatement& node) override
