@@ -27,7 +27,8 @@ namespace Nz::ShaderAst
 
 			inline const UsageSet& GetUsage() const;
 
-			void Process(Statement& statement, const Config& config = {});
+			inline void Process(Statement& statement);
+			void Process(Statement& statement, const Config& config);
 
 			inline void Resolve();
 

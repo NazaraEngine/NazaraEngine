@@ -12,6 +12,12 @@ namespace Nz::ShaderAst
 		return m_resolvedUsage;
 	}
 
+	inline void DependencyCheckerVisitor::Process(Statement& statement)
+	{
+		Config defaultConfig;
+		return Process(statement, defaultConfig);
+	}
+
 	void DependencyCheckerVisitor::Resolve()
 	{
 		Resolve(m_globalUsage);
