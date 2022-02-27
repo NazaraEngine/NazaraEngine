@@ -11,28 +11,22 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
+#include <Nazara/Shader/Ast/DependencyCheckerVisitor.hpp>
 
 namespace Nz::ShaderAst
 {
 	class NAZARA_SHADER_API EliminateUnusedPassVisitor : AstCloner
 	{
 		public:
-			struct Config;
-
 			EliminateUnusedPassVisitor() = default;
 			EliminateUnusedPassVisitor(const EliminateUnusedPassVisitor&) = delete;
 			EliminateUnusedPassVisitor(EliminateUnusedPassVisitor&&) = delete;
 			~EliminateUnusedPassVisitor() = default;
 
-			StatementPtr Process(Statement& statement, const Config& config = {});
+			StatementPtr Process(Statement& statement, const DependencyCheckerVisitor::UsageSet& usageSet);
 
 			EliminateUnusedPassVisitor& operator=(const EliminateUnusedPassVisitor&) = delete;
 			EliminateUnusedPassVisitor& operator=(EliminateUnusedPassVisitor&&) = delete;
-
-			struct Config
-			{
-				ShaderStageTypeFlags usedShaderStages = ShaderStageType_All;
-			};
 
 		private:
 			using AstCloner::Clone;
@@ -49,7 +43,8 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr EliminateUnusedPass(Statement& ast, const EliminateUnusedPassVisitor::Config& config = {});
+	inline StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::Config& config = {});
+	inline StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::UsageSet& usageSet);
 }
 
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.inl>

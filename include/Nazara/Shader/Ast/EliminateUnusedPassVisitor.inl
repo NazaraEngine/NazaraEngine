@@ -7,10 +7,19 @@
 
 namespace Nz::ShaderAst
 {
-	inline StatementPtr EliminateUnusedPass(Statement& ast, const EliminateUnusedPassVisitor::Config& config)
+	inline StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::Config& config)
+	{
+		DependencyCheckerVisitor dependencyVisitor;
+		dependencyVisitor.Process(ast, config);
+		dependencyVisitor.Resolve();
+
+		return EliminateUnusedPass(ast, dependencyVisitor.GetUsage());
+	}
+
+	StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::UsageSet& usageSet)
 	{
 		EliminateUnusedPassVisitor visitor;
-		return visitor.Process(ast, config);
+		return visitor.Process(ast, usageSet);
 	}
 }
 

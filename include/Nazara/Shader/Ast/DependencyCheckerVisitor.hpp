@@ -17,6 +17,7 @@ namespace Nz::ShaderAst
 	class NAZARA_SHADER_API DependencyCheckerVisitor : public AstRecursiveVisitor
 	{
 		public:
+			struct Config;
 			struct UsageSet;
 
 			DependencyCheckerVisitor() = default;
@@ -26,20 +27,17 @@ namespace Nz::ShaderAst
 
 			inline const UsageSet& GetUsage() const;
 
+			void Process(Statement& statement, const Config& config = {});
+
 			inline void Resolve();
-
-			using AstRecursiveVisitor::Visit;
-
-			void Visit(CallFunctionExpression& node) override;
-			void Visit(VariableExpression& node) override;
-
-			void Visit(DeclareExternalStatement& node) override;
-			void Visit(DeclareFunctionStatement& node) override;
-			void Visit(DeclareStructStatement& node) override;
-			void Visit(DeclareVariableStatement& node) override;
 
 			DependencyCheckerVisitor& operator=(const DependencyCheckerVisitor&) = delete;
 			DependencyCheckerVisitor& operator=(DependencyCheckerVisitor&&) = delete;
+
+			struct Config
+			{
+				ShaderStageTypeFlags usedShaderStages = ShaderStageType_All;
+			};
 
 			struct UsageSet
 			{
@@ -51,11 +49,22 @@ namespace Nz::ShaderAst
 		private:
 			void Resolve(const UsageSet& usageSet);
 
+			using AstRecursiveVisitor::Visit;
+
+			void Visit(CallFunctionExpression& node) override;
+			void Visit(VariableExpression& node) override;
+
+			void Visit(DeclareExternalStatement& node) override;
+			void Visit(DeclareFunctionStatement& node) override;
+			void Visit(DeclareStructStatement& node) override;
+			void Visit(DeclareVariableStatement& node) override;
+
 			std::optional<std::size_t> m_currentFunctionIndex;
 			std::optional<std::size_t> m_currentVariableDeclIndex;
 			std::unordered_map<std::size_t, UsageSet> m_functionUsages;
 			std::unordered_map<std::size_t, UsageSet> m_structUsages;
 			std::unordered_map<std::size_t, UsageSet> m_variableUsages;
+			Config m_config;
 			UsageSet m_globalUsage;
 			UsageSet m_resolvedUsage;
 	};

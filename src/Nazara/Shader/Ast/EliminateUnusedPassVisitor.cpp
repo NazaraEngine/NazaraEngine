@@ -6,7 +6,6 @@
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
-#include <Nazara/Shader/Ast/DependencyCheckerVisitor.hpp>
 #include <unordered_map>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -14,14 +13,14 @@ namespace Nz::ShaderAst
 {
 	struct EliminateUnusedPassVisitor::Context
 	{
-		DependencyCheckerVisitor usageChecker;
+		const DependencyCheckerVisitor::UsageSet& usageSet;
 	};
 
-	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const Config& config)
+	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const DependencyCheckerVisitor::UsageSet& usageSet)
 	{
-		Context context(config);
-		statement.Visit(context.usageChecker);
-		context.usageChecker.Resolve();
+		Context context{
+			usageSet
+		};
 
 		m_context = &context;
 		CallOnExit onExit([this]()
@@ -98,18 +97,18 @@ namespace Nz::ShaderAst
 	bool EliminateUnusedPassVisitor::IsFunctionUsed(std::size_t varIndex) const
 	{
 		assert(m_context);
-		return m_context->usageChecker.GetUsage().usedFunctions.UnboundedTest(varIndex);
+		return m_context->usageSet.usedFunctions.UnboundedTest(varIndex);
 	}
 
 	bool EliminateUnusedPassVisitor::IsStructUsed(std::size_t varIndex) const
 	{
 		assert(m_context);
-		return m_context->usageChecker.GetUsage().usedStructs.UnboundedTest(varIndex);
+		return m_context->usageSet.usedStructs.UnboundedTest(varIndex);
 	}
 
 	bool EliminateUnusedPassVisitor::IsVariableUsed(std::size_t varIndex) const
 	{
 		assert(m_context);
-		return m_context->usageChecker.GetUsage().usedVariables.UnboundedTest(varIndex);
+		return m_context->usageSet.usedVariables.UnboundedTest(varIndex);
 	}
 }

@@ -180,12 +180,12 @@ namespace Nz
 		{
 			ShaderAst::StatementPtr tempAst;
 
-			ShaderAst::EliminateUnusedPassVisitor::Config eliminateUnunsedConfig;
+			ShaderAst::DependencyCheckerVisitor::Config dependencyConfig;
 			if (shaderStage)
-				eliminateUnunsedConfig.usedShaderStages = *shaderStage;
+				dependencyConfig.usedShaderStages = *shaderStage;
 
 			tempAst = ShaderAst::PropagateConstants(*targetAst);
-			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst, eliminateUnunsedConfig);
+			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst, dependencyConfig);
 
 			targetAst = optimizedAst.get();
 		}
