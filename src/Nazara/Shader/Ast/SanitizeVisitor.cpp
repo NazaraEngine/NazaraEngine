@@ -2271,22 +2271,34 @@ namespace Nz::ShaderAst
 				TypeMustMatch(resolvedType, GetExpressionType(*node.initialExpression));
 		}
 
-		if (m_context->options.makeVariableNameUnique && FindIdentifier(node.varName) != nullptr)
-		{
-			// Try to make variable name unique by appending _X to its name (incrementing X until it's unique) to the variable name until by incrementing X
-			unsigned int cloneIndex = 2;
-			std::string candidateName;
-			do
-			{
-				candidateName = node.varName + "_" + std::to_string(cloneIndex++);
-			}
-			while (FindIdentifier(candidateName) != nullptr);
-
-			node.varName = std::move(candidateName);
-		}
-
 		node.varIndex = RegisterVariable(node.varName, resolvedType);
 		node.varType = std::move(resolvedType);
+
+		if (m_context->options.makeVariableNameUnique)
+		{
+			// Since we are registered, FindIdentifier will find us
+			auto IgnoreOurself = [varIndex = *node.varIndex](const Identifier& identifier)
+			{
+				if (identifier.type == Identifier::Type::Variable && identifier.index == varIndex)
+					return false;
+
+				return true;
+			};
+
+			if (FindIdentifier(node.varName, IgnoreOurself) != nullptr)
+			{
+				// Try to make variable name unique by appending _X to its name (incrementing X until it's unique) to the variable name until by incrementing X
+				unsigned int cloneIndex = 2;
+				std::string candidateName;
+				do
+				{
+					candidateName = node.varName + "_" + std::to_string(cloneIndex++);
+				}
+				while (FindIdentifier(candidateName, IgnoreOurself) != nullptr);
+
+				node.varName = std::move(candidateName);
+			}
+		}
 
 		SanitizeIdentifier(node.varName);
 	}

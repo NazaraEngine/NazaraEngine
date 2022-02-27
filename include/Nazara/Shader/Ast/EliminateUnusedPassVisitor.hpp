@@ -17,15 +17,22 @@ namespace Nz::ShaderAst
 	class NAZARA_SHADER_API EliminateUnusedPassVisitor : AstCloner
 	{
 		public:
+			struct Config;
+
 			EliminateUnusedPassVisitor() = default;
 			EliminateUnusedPassVisitor(const EliminateUnusedPassVisitor&) = delete;
 			EliminateUnusedPassVisitor(EliminateUnusedPassVisitor&&) = delete;
 			~EliminateUnusedPassVisitor() = default;
 
-			StatementPtr Process(Statement& statement);
+			StatementPtr Process(Statement& statement, const Config& config = {});
 
 			EliminateUnusedPassVisitor& operator=(const EliminateUnusedPassVisitor&) = delete;
 			EliminateUnusedPassVisitor& operator=(EliminateUnusedPassVisitor&&) = delete;
+
+			struct Config
+			{
+				ShaderStageTypeFlags usedShaderStages = ShaderStageType_All;
+			};
 
 		private:
 			using AstCloner::Clone;
@@ -42,7 +49,7 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr EliminateUnusedPass(Statement& ast);
+	inline StatementPtr EliminateUnusedPass(Statement& ast, const EliminateUnusedPassVisitor::Config& config = {});
 }
 
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.inl>

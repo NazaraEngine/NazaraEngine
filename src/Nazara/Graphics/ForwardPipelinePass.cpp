@@ -282,7 +282,7 @@ namespace Nz
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		forwardPass.SetCommandCallback([this](CommandBufferBuilder& builder, const Recti& /*renderRect*/)
+		forwardPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 		{
 			Recti viewport = m_viewer->GetViewport();
 

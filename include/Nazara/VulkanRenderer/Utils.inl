@@ -256,6 +256,7 @@ namespace Nz
 			case PixelFormat::BGRA8_SRGB:       return VK_FORMAT_B8G8R8A8_SRGB;
 			case PixelFormat::Depth16:          return VK_FORMAT_D16_UNORM;
 			case PixelFormat::Depth16Stencil8:  return VK_FORMAT_D16_UNORM_S8_UINT;
+			case PixelFormat::Depth24:          return VK_FORMAT_UNDEFINED;
 			case PixelFormat::Depth24Stencil8:  return VK_FORMAT_D24_UNORM_S8_UINT;
 			case PixelFormat::Depth32F:         return VK_FORMAT_D32_SFLOAT;
 			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
@@ -265,11 +266,15 @@ namespace Nz
 			case PixelFormat::RGBA8_SRGB:       return VK_FORMAT_R8G8B8A8_SRGB;
 			case PixelFormat::RGBA16F:          return VK_FORMAT_R16G16B16A16_SFLOAT;
 			case PixelFormat::RGBA32F:          return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case PixelFormat::Stencil1:         return VK_FORMAT_UNDEFINED;
+			case PixelFormat::Stencil4:         return VK_FORMAT_UNDEFINED;
+			case PixelFormat::Stencil8:         return VK_FORMAT_S8_UINT;
+			case PixelFormat::Stencil16:        return VK_FORMAT_UNDEFINED;
 			default: break;
 		}
 
 		NazaraError("Unhandled PixelFormat 0x" + NumberToString(UnderlyingCast(pixelFormat), 16));
-		return {};
+		return VK_FORMAT_UNDEFINED;
 	}
 
 	VkImageAspectFlags ToVulkan(PixelFormatContent pixelFormatContent)

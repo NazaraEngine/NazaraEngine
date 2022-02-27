@@ -91,6 +91,10 @@ namespace Nz
 
 	bool VulkanDevice::IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const
 	{
+		VkFormat vulkanFormat = ToVulkan(format);
+		if (vulkanFormat == VK_FORMAT_UNDEFINED)
+			return false;
+
 		VkFormatFeatureFlags flags = 0;
 		switch (usage)
 		{
@@ -116,7 +120,7 @@ namespace Nz
 				break;
 		}
 
-		VkFormatProperties formatProperties = GetInstance().GetPhysicalDeviceFormatProperties(GetPhysicalDevice(), ToVulkan(format));
+		VkFormatProperties formatProperties = GetInstance().GetPhysicalDeviceFormatProperties(GetPhysicalDevice(), vulkanFormat);
 		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
 	}
 }

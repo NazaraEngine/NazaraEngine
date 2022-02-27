@@ -532,10 +532,10 @@ namespace Nz
 			mergePass.AddOutput(renderTargetData.finalAttachment);
 			mergePass.SetClearColor(0, Color::Black);
 
-			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const Recti& renderRect)
+			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
-				builder.SetScissor(renderRect);
-				builder.SetViewport(renderRect);
+				builder.SetScissor(env.renderRect);
+				builder.SetViewport(env.renderRect);
 
 				Graphics* graphics = Graphics::Instance();
 				builder.BindPipeline(*graphics->GetBlitPipeline(false));
