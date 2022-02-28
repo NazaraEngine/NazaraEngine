@@ -32,7 +32,7 @@ namespace Nz::ShaderAst
 
 	void DependencyCheckerVisitor::Visit(CallFunctionExpression& node)
 	{
-		const auto& targetFuncType = GetExpressionType(node);
+		const auto& targetFuncType = GetExpressionType(*node.targetFunction);
 		assert(std::holds_alternative<FunctionType>(targetFuncType));
 
 		const auto& funcType = std::get<FunctionType>(targetFuncType);

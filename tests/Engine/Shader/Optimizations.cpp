@@ -4,11 +4,12 @@
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
+#include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <catch2/catch.hpp>
 #include <cctype>
 
-void ExpectOptimization(std::string_view sourceCode, std::string_view expectedOptimizedResult)
+void PropagateConstantAndExpect(std::string_view sourceCode, std::string_view expectedOptimizedResult)
 {
 	Nz::ShaderAst::StatementPtr shader;
 	REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
@@ -18,11 +19,21 @@ void ExpectOptimization(std::string_view sourceCode, std::string_view expectedOp
 	ExpectNZSL(*shader, expectedOptimizedResult);
 }
 
+void EliminateUnusedAndExpect(std::string_view sourceCode, std::string_view expectedOptimizedResult)
+{
+	Nz::ShaderAst::StatementPtr shader;
+	REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+	REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader));
+	REQUIRE_NOTHROW(shader = Nz::ShaderAst::EliminateUnusedPass(*shader));
+
+	ExpectNZSL(*shader, expectedOptimizedResult);
+}
+
 TEST_CASE("optimizations", "[Shader]")
 {
 	WHEN("propagating constants")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -39,7 +50,7 @@ fn main()
 
 	WHEN("propagating vector constants")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -55,7 +66,7 @@ fn main()
 
 	WHEN("eliminating simple branch")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -73,7 +84,7 @@ fn main()
 
 	WHEN("eliminating multiple branches")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -104,7 +115,7 @@ fn main()
 
 	WHEN("eliminating multiple split branches")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -146,7 +157,7 @@ fn main()
 
 	WHEN("optimizing out scalar swizzle")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -163,7 +174,7 @@ fn main()
 
 	WHEN("optimizing out scalar swizzle to vector")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -180,7 +191,7 @@ fn main()
 
 	WHEN("optimizing out vector swizzle")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -197,7 +208,7 @@ fn main()
 
 	WHEN("optimizing out vector swizzle with repetition")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -214,7 +225,7 @@ fn main()
 
 	WHEN("optimizing out complex swizzle")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 [entry(frag)]
 fn main()
 {
@@ -231,7 +242,7 @@ fn main()
 
 	WHEN("optimizing out complex swizzle on unknown value")
 	{
-		ExpectOptimization(R"(
+		PropagateConstantAndExpect(R"(
 struct inputStruct
 {
 	value: vec4[f32]
@@ -254,5 +265,67 @@ fn main()
 	let value: vec4[f32] = data.value.zzzz;
 }
 )");
+	}
+
+	WHEN("eliminating unused code")
+	{
+		EliminateUnusedAndExpect(R"(
+struct inputStruct
+{
+	value: vec4[f32]
+}
+
+struct notUsed
+{
+	value: vec4[f32]
+}
+
+external
+{
+	[set(0), binding(0)] unusedData: uniform[notUsed],
+	[set(0), binding(1)] data: uniform[inputStruct]
+}
+
+fn unusedFunction() -> vec4[f32]
+{
+	return unusedData.value;
+}
+
+struct Output
+{
+	value: vec4[f32]
+}
+
+[entry(frag)]
+fn main() -> Output
+{
+	let unusedvalue = unusedFunction();
+
+	let output: Output;
+	output.value = data.value;
+	return output;
+})", R"(
+struct inputStruct
+{
+	value: vec4[f32]
+}
+
+external
+{
+	[set(0), binding(1)] data: uniform[inputStruct]
+}
+
+struct Output
+{
+	value: vec4[f32]
+}
+
+[entry(frag)]
+fn main() -> Output
+{
+	let output: Output;
+	output.value = data.value;
+	return output;
+})");
 	}
 }
