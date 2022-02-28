@@ -527,7 +527,10 @@ namespace Nz
 		bool first = true;
 		for (const ShaderAst::StatementPtr& statement : statements)
 		{
-			if (!first && statement->GetType() != ShaderAst::NodeType::NoOpStatement)
+			if (statement->GetType() == ShaderAst::NodeType::NoOpStatement)
+				continue;
+
+			if (!first)
 				AppendLine();
 
 			statement->Visit(*this);
