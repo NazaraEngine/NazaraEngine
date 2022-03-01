@@ -112,9 +112,10 @@ namespace Nz::ShaderAst
 		std::vector<StatementPtr>* currentStatementList = nullptr;
 	};
 
-	StatementPtr SanitizeVisitor::Sanitize(Statement& statement, const Options& options, std::string* error)
+	ModulePtr SanitizeVisitor::Sanitize(Module& module, const Options& options, std::string* error)
 	{
-		StatementPtr clone;
+		ModulePtr clone = std::make_shared<Module>();
+		clone->shaderLangVersion = module.shaderLangVersion;
 
 		Context currentContext;
 		currentContext.options = options;
@@ -129,7 +130,7 @@ namespace Nz::ShaderAst
 			// First pass, evaluate everything except function code
 			try
 			{
-				clone = AstCloner::Clone(statement);
+				clone->rootNode = static_unique_pointer_cast<MultiStatement>(AstCloner::Clone(*module.rootNode));
 			}
 			catch (const AstError& err)
 			{

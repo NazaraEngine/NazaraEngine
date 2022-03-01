@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <filesystem>
 #include <optional>
 
@@ -29,6 +29,12 @@ namespace Nz::ShaderLang
 	};
 	
 	class DuplicateIdentifier : public std::runtime_error
+	{
+		public:
+			using runtime_error::runtime_error;
+	};
+
+	class DuplicateModule : public std::runtime_error
 	{
 		public:
 			using runtime_error::runtime_error;
@@ -64,7 +70,7 @@ namespace Nz::ShaderLang
 			inline Parser();
 			~Parser() = default;
 
-			ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens);
+			ShaderAst::ModulePtr Parse(const std::vector<Token>& tokens);
 
 		private:
 			// Flow control
@@ -87,6 +93,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::ExprValue> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
+			void ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes);
 			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseReturnStatement();
 			ShaderAst::StatementPtr ParseSingleStatement();
@@ -106,6 +113,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::ExpressionPtr> ParseParameters();
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
+			ShaderAst::ExpressionPtr ParseStringExpression();
 			ShaderAst::ExpressionPtr ParseVariableAssignation();
 
 			ShaderAst::AttributeType ParseIdentifierAsAttributeType();
@@ -118,16 +126,16 @@ namespace Nz::ShaderLang
 			{
 				std::size_t tokenCount;
 				std::size_t tokenIndex = 0;
-				std::unique_ptr<ShaderAst::MultiStatement> root;
+				ShaderAst::ModulePtr module;
 				const Token* tokens;
 			};
 
 			Context* m_context;
 	};
 
-	inline ShaderAst::StatementPtr Parse(const std::string_view& source);
-	inline ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens);
-	NAZARA_SHADER_API ShaderAst::StatementPtr ParseFromFile(const std::filesystem::path& sourcePath);
+	inline ShaderAst::ModulePtr Parse(const std::string_view& source);
+	inline ShaderAst::ModulePtr Parse(const std::vector<Token>& tokens);
+	NAZARA_SHADER_API ShaderAst::ModulePtr ParseFromFile(const std::filesystem::path& sourcePath);
 }
 
 #include <Nazara/Shader/ShaderLangParser.inl>

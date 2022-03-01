@@ -834,6 +834,7 @@ namespace Nz::ShaderAst
 					case PrimitiveType::Float32: optimized = PropagateSingleValueCast<float>(constantExpr); break;
 					case PrimitiveType::Int32:   optimized = PropagateSingleValueCast<Int32>(constantExpr); break;
 					case PrimitiveType::UInt32:  optimized = PropagateSingleValueCast<UInt32>(constantExpr); break;
+					case PrimitiveType::String: break;
 				}
 			}
 		}
@@ -866,7 +867,7 @@ namespace Nz::ShaderAst
 
 					if constexpr (std::is_same_v<T, NoValue>)
 						throw std::runtime_error("invalid type (value expected)");
-					else if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
+					else if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32> || std::is_same_v<T, std::string>)
 						constantValues.push_back(arg);
 					else if constexpr (std::is_same_v<T, Vector2f> || std::is_same_v<T, Vector2i32>)
 					{

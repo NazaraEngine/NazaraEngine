@@ -31,7 +31,8 @@ namespace Nz::ShaderAst
 		Vector4f,
 		Vector2i32,
 		Vector3i32,
-		Vector4i32
+		Vector4i32,
+		std::string
 	>;
 
 	using ConstantValue = TypeListInstantiate<ConstantTypes, std::variant>;

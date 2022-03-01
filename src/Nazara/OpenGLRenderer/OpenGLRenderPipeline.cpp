@@ -47,8 +47,12 @@ namespace Nz
 			{
 				if (!stageFlags.Test(stage))
 				{
-					ShaderAst::StatementPtr dummyAst = ShaderBuilder::DeclareFunction(stage, "main", {}, {});
-					OpenGLShaderModule shaderModule(device, stage, *dummyAst);
+					ShaderAst::Module dummyModule;
+					dummyModule.rootNode = ShaderBuilder::MultiStatement();
+					dummyModule.rootNode->statements.push_back(ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
+					dummyModule.shaderLangVersion = 100;
+
+					OpenGLShaderModule shaderModule(device, stage, dummyModule);
 					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping());
 				}
 			};

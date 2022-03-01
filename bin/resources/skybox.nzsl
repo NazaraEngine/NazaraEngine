@@ -1,3 +1,6 @@
+[nzsl_version("1.0")]
+module;
+
 [layout(std140)]
 struct ViewerData
 {

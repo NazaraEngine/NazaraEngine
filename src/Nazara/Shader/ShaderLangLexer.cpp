@@ -51,6 +51,7 @@ namespace Nz::ShaderLang
 			{ "if",           TokenType::If },
 			{ "in",           TokenType::In },
 			{ "let",          TokenType::Let },
+			{ "module",       TokenType::Module },
 			{ "option",       TokenType::Option },
 			{ "return",       TokenType::Return },
 			{ "struct",       TokenType::Struct },
@@ -65,7 +66,7 @@ namespace Nz::ShaderLang
 			if (currentPos + advance < str.size() && str[currentPos + advance] != '\0')
 				return str[currentPos + advance];
 			else
-				return char(-1);
+				return '\0';
 		};
 
 		auto IsAlphaNum = [&](const char c)
@@ -85,7 +86,7 @@ namespace Nz::ShaderLang
 			token.column = static_cast<unsigned int>(currentPos - lastLineFeed);
 			token.line = lineNumber;
 
-			if (c == -1)
+			if (c == '\0')
 			{
 				token.type = TokenType::EndOfStream;
 				tokens.push_back(std::move(token));
@@ -384,6 +385,55 @@ namespace Nz::ShaderLang
 				case ')': tokenType = TokenType::ClosingParenthesis; break;
 				case '[': tokenType = TokenType::OpenSquareBracket; break;
 				case ']': tokenType = TokenType::ClosingSquareBracket; break;
+
+				case '"':
+				{
+					// string litteral
+					currentPos++;
+
+					std::string litteral;
+
+					char current;
+					while ((current = Peek(0)) != '"')
+					{
+						char character;
+						switch (current)
+						{
+							case '\0':
+							case '\n':
+							case '\r':
+								throw UnfinishedString{};
+
+							case '\\':
+							{
+								currentPos++;
+								char next = Peek();
+								switch (next)
+								{
+									case 'n': character = '\n'; break;
+									case 'r': character = '\r'; break;
+									case 't': character = '\t'; break;
+									case '"': character = '"'; break;
+									case '\\': character = '\\'; break;
+									default:
+										throw UnrecognizedChar{};
+								}
+								break;
+							}
+
+							default:
+								character = current;
+								break;
+						}
+
+						litteral.push_back(character);
+						currentPos++;
+					}
+
+					tokenType = TokenType::StringValue;
+					token.data = std::move(litteral);
+					break;
+				}
 
 				default:
 				{

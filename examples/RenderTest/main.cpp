@@ -11,6 +11,8 @@
 NAZARA_REQUEST_DEDICATED_GPU()
 
 const char shaderSource[] = R"(
+[nzsl_version("1.0")]
+module;
 
 option red: bool = false;
 

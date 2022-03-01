@@ -7,21 +7,21 @@
 
 namespace Nz::ShaderAst
 {
-	inline StatementPtr SanitizeVisitor::Sanitize(Statement& statement, std::string* error)
+	inline ModulePtr SanitizeVisitor::Sanitize(Module& module, std::string* error)
 	{
-		return Sanitize(statement, {}, error);
+		return Sanitize(module, {}, error);
 	}
 
-	inline StatementPtr Sanitize(Statement& ast, std::string* error)
+	inline ModulePtr Sanitize(Module& module, std::string* error)
 	{
 		SanitizeVisitor sanitizer;
-		return sanitizer.Sanitize(ast, error);
+		return sanitizer.Sanitize(module, error);
 	}
 
-	inline StatementPtr Sanitize(Statement& ast, const SanitizeVisitor::Options& options, std::string* error)
+	inline ModulePtr Sanitize(Module& module, const SanitizeVisitor::Options& options, std::string* error)
 	{
 		SanitizeVisitor sanitizer;
-		return sanitizer.Sanitize(ast, options, error);
+		return sanitizer.Sanitize(module, options, error);
 	}
 }
 

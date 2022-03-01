@@ -12,12 +12,12 @@ namespace Nz::ShaderLang
 	{
 	}
 
-	inline ShaderAst::StatementPtr Parse(const std::string_view& source)
+	inline ShaderAst::ModulePtr Parse(const std::string_view& source)
 	{
 		return Parse(Tokenize(source));
 	}
 
-	inline ShaderAst::StatementPtr Parse(const std::vector<Token>& tokens)
+	inline ShaderAst::ModulePtr Parse(const std::vector<Token>& tokens)
 	{
 		Parser parser;
 		return parser.Parse(tokens);

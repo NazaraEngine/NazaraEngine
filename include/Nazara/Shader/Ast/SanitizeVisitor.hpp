@@ -12,6 +12,7 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstTypes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -30,8 +31,8 @@ namespace Nz::ShaderAst
 			SanitizeVisitor(SanitizeVisitor&&) = delete;
 			~SanitizeVisitor() = default;
 
-			inline StatementPtr Sanitize(Statement& statement, std::string* error = nullptr);
-			StatementPtr Sanitize(Statement& statement, const Options& options, std::string* error = nullptr);
+			inline ModulePtr Sanitize(Module& module, std::string* error = nullptr);
+			ModulePtr Sanitize(Module& module, const Options& options, std::string* error = nullptr);
 
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
@@ -177,8 +178,8 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr Sanitize(Statement& ast, std::string* error = nullptr);
-	inline StatementPtr Sanitize(Statement& ast, const SanitizeVisitor::Options& options, std::string* error = nullptr);
+	inline ModulePtr Sanitize(Module& module, std::string* error = nullptr);
+	inline ModulePtr Sanitize(Module& module, const SanitizeVisitor::Options& options, std::string* error = nullptr);
 }
 
 #include <Nazara/Shader/Ast/SanitizeVisitor.inl>

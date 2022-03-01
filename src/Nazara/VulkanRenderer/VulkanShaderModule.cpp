@@ -57,14 +57,14 @@ namespace Nz
 		};
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
 	{
 		SpirvWriter::Environment env;
 
 		SpirvWriter writer;
 		writer.SetEnv(env);
 
-		std::vector<UInt32> code = writer.Generate(shaderAst, states);
+		std::vector<UInt32> code = writer.Generate(shaderModule, states);
 		return Create(device, shaderStages, ShaderLanguage::SpirV, code.data(), code.size() * sizeof(UInt32), {});
 	}
 
@@ -88,8 +88,8 @@ namespace Nz
 				std::vector<ShaderLang::Token> tokens = ShaderLang::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
 
 				ShaderLang::Parser parser;
-				ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
-				return Create(device, shaderStages, *shaderAst, states);
+				ShaderAst::ModulePtr shaderModule = parser.Parse(tokens);
+				return Create(device, shaderStages, *shaderModule, states);
 			}
 
 			case ShaderLanguage::SpirV:

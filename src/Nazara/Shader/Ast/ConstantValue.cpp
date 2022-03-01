@@ -24,6 +24,8 @@ namespace Nz::ShaderAst
 				return PrimitiveType::Int32;
 			else if constexpr (std::is_same_v<T, UInt32>)
 				return PrimitiveType::UInt32;
+			else if constexpr (std::is_same_v<T, std::string>)
+				return PrimitiveType::String;
 			else if constexpr (std::is_same_v<T, Vector2f>)
 				return VectorType{ 2, PrimitiveType::Float32 };
 			else if constexpr (std::is_same_v<T, Vector3f>)

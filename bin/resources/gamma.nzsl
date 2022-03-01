@@ -1,3 +1,6 @@
+[nzsl_version("1.0")]
+module;
+
 external
 {
 	[binding(0)] colorTexture: sampler2D[f32]
