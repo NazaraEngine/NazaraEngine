@@ -496,11 +496,10 @@ namespace Nz
 	{
 	}
 
-	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::Statement& shader, const States& states)
+	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::Module& module, const States& states)
 	{
-		ShaderAst::Statement* targetAst = &shader;
-
-		ShaderAst::StatementPtr sanitizedAst;
+		ShaderAst::ModulePtr sanitizedModule;
+		ShaderAst::Statement* targetAst;
 		if (!states.sanitized)
 		{
 			ShaderAst::SanitizeVisitor::Options options;
@@ -512,9 +511,11 @@ namespace Nz
 			options.splitMultipleBranches = true;
 			options.useIdentifierAccessesForStructs = false;
 
-			sanitizedAst = ShaderAst::Sanitize(shader, options);
-			targetAst = sanitizedAst.get();
+			sanitizedModule = ShaderAst::Sanitize(module, options);
+			targetAst = sanitizedModule->rootNode.get();
 		}
+		else
+			targetAst = module.rootNode.get();
 
 		ShaderAst::StatementPtr optimizedAst;
 		if (states.optimize)

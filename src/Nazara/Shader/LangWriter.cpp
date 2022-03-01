@@ -76,6 +76,13 @@ namespace Nz
 		inline bool HasValue() const { return locationIndex.HasValue(); }
 	};
 
+	struct LangWriter::NzslAttribute
+	{
+		const ShaderAst::ExpressionValue<UInt32>& version;
+
+		inline bool HasValue() const { return version.HasValue(); }
+	};
+
 	struct LangWriter::SetAttribute
 	{
 		const ShaderAst::ExpressionValue<UInt32>& setIndex;
@@ -101,7 +108,7 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string LangWriter::Generate(ShaderAst::Statement& shader, const States& /*states*/)
+	std::string LangWriter::Generate(ShaderAst::Module& module, const States& /*states*/)
 	{
 		State state;
 		m_currentState = &state;
@@ -110,11 +117,11 @@ namespace Nz
 			m_currentState = nullptr;
 		});
 
-		ShaderAst::StatementPtr sanitizedAst = ShaderAst::Sanitize(shader);
+		ShaderAst::ModulePtr sanitizedModule = ShaderAst::Sanitize(module);
 
 		AppendHeader();
 
-		sanitizedAst->Visit(*this);
+		sanitizedModule->rootNode->Visit(*this);
 
 		return state.stream.str();
 	}
@@ -453,6 +460,10 @@ namespace Nz
 		Append(")");
 	}
 
+	void LangWriter::AppendAttribute(NzslAttribute nzslVersion)
+	{
+	}
+
 	void LangWriter::AppendAttribute(SetAttribute set)
 	{
 		if (!set.HasValue())
@@ -766,6 +777,8 @@ namespace Nz
 				Append((arg) ? "true" : "false");
 			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32> || std::is_same_v<T, UInt32>)
 				Append(std::to_string(arg));
+			else if constexpr (std::is_same_v<T, std::string>)
+				Append('"', arg, '"'); //< TODO: Escape string
 			else if constexpr (std::is_same_v<T, Vector2f>)
 				Append("vec2[f32](" + std::to_string(arg.x) + ", " + std::to_string(arg.y) + ")");
 			else if constexpr (std::is_same_v<T, Vector2i32>)

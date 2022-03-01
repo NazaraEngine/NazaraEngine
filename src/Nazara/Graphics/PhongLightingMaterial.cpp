@@ -347,7 +347,7 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> PhongLightingMaterial::BuildShaders()
 	{
-		ShaderAst::StatementPtr shaderAst;
+		ShaderAst::ModulePtr shaderModule;
 
 #ifdef NAZARA_DEBUG
 		std::filesystem::path shaderPath = "../../src/Nazara/Graphics/Resources/Shaders/phong_material.nzsl";
@@ -355,7 +355,7 @@ namespace Nz
 		{
 			try
 			{
-				shaderAst = ShaderLang::ParseFromFile(shaderPath);
+				shaderModule = ShaderLang::ParseFromFile(shaderPath);
 			}
 			catch (const std::exception& e)
 			{
@@ -364,10 +364,10 @@ namespace Nz
 		}
 #endif
 
-		if (!shaderAst)
-			shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+		if (!shaderModule)
+			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
 
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, shaderAst);
+		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
 
 		return { std::move(shader) };
 	}

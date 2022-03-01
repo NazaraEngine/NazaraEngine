@@ -18,8 +18,8 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> DepthMaterial::BuildShaders()
 	{
-		ShaderAst::StatementPtr shaderAst = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, shaderAst);
+		ShaderAst::ModulePtr shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
 
 		return { std::move(shader) };
 	}

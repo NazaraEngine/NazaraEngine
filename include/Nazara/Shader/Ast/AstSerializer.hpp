@@ -11,7 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -94,9 +94,11 @@ namespace Nz::ShaderAst
 			inline ShaderAstSerializer(ByteStream& stream);
 			~ShaderAstSerializer() = default;
 
-			void Serialize(StatementPtr& shader);
+			void Serialize(Module& shader);
 
 		private:
+			using AstSerializerBase::Serialize;
+
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
@@ -125,9 +127,11 @@ namespace Nz::ShaderAst
 			ShaderAstUnserializer(ByteStream& stream);
 			~ShaderAstUnserializer() = default;
 
-			StatementPtr Unserialize();
+			ModulePtr Unserialize();
 
 		private:
+			using AstSerializerBase::Serialize;
+
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
@@ -150,9 +154,9 @@ namespace Nz::ShaderAst
 			ByteStream& m_stream;
 	};
 	
-	NAZARA_SHADER_API ByteArray SerializeShader(StatementPtr& shader);
-	inline StatementPtr UnserializeShader(const void* data, std::size_t size);
-	NAZARA_SHADER_API StatementPtr UnserializeShader(ByteStream& stream);
+	NAZARA_SHADER_API ByteArray SerializeShader(Module& shader);
+	inline ModulePtr UnserializeShader(const void* data, std::size_t size);
+	NAZARA_SHADER_API ModulePtr UnserializeShader(ByteStream& stream);
 }
 
 #include <Nazara/Shader/Ast/AstSerializer.inl>

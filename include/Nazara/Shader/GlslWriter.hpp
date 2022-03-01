@@ -12,6 +12,7 @@
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <set>
 #include <sstream>
 #include <string>
@@ -31,8 +32,8 @@ namespace Nz
 			GlslWriter(GlslWriter&&) = delete;
 			~GlslWriter() = default;
 
-			inline std::string Generate(ShaderAst::Statement& shader, const BindingMapping& bindingMapping = {}, const States& states = {});
-			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping = {}, const States& states = {});
+			inline std::string Generate(ShaderAst::Module& module, const BindingMapping& bindingMapping = {}, const States& states = {});
+			std::string Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Module& module, const BindingMapping& bindingMapping = {}, const States& states = {});
 
 			void SetEnv(Environment environment);
 
@@ -47,7 +48,7 @@ namespace Nz
 			};
 
 			static const char* GetFlipYUniformName();
-			static ShaderAst::StatementPtr Sanitize(ShaderAst::Statement& ast, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
+			static ShaderAst::ModulePtr Sanitize(ShaderAst::Module& module, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
 
 		private:
 			void Append(const ShaderAst::ArrayType& type);

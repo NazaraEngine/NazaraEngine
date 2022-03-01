@@ -14,7 +14,7 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <vector>
 
 namespace Nz
@@ -22,7 +22,7 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderModule : public ShaderModule
 	{
 		public:
-			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states = {});
+			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states = {});
 			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states = {});
 			OpenGLShaderModule(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule(OpenGLShaderModule&&) noexcept = default;
@@ -34,7 +34,7 @@ namespace Nz
 			OpenGLShaderModule& operator=(OpenGLShaderModule&&) noexcept = default;
 
 		private:
-			void Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states);
+			void Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states);
 
 			static void CheckCompilationStatus(GL::Shader& shader);
 
@@ -45,7 +45,7 @@ namespace Nz
 
 			struct ShaderStatement
 			{
-				std::shared_ptr<ShaderAst::Statement> ast;
+				ShaderAst::ModulePtr ast;
 			};
 
 			struct Shader

@@ -41,6 +41,16 @@ namespace Nz::ShaderLang
 		using exception::exception;
 	};
 
+	class UnfinishedString : public std::exception
+	{
+		using exception::exception;
+	};
+
+	class UnrecognizedChar : public std::exception
+	{
+		using exception::exception;
+	};
+
 	class UnrecognizedToken : public std::exception
 	{
 		using exception::exception;

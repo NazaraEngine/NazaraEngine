@@ -12,7 +12,7 @@
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvConstantCache.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -36,7 +36,7 @@ namespace Nz
 			SpirvWriter(SpirvWriter&&) = delete;
 			~SpirvWriter() = default;
 
-			std::vector<UInt32> Generate(ShaderAst::Statement& shader, const States& states = {});
+			std::vector<UInt32> Generate(ShaderAst::Module& module, const States& states = {});
 
 			void SetEnv(Environment environment);
 

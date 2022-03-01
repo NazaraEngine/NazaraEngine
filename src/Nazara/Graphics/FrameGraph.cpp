@@ -668,7 +668,7 @@ namespace Nz
 
 	void FrameGraph::BuildPhysicalPasses()
 	{
-		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		const RenderPassCache& renderPassCache = Graphics::Instance()->GetRenderPassCache();
 
 		std::vector<TextureLayout> textureLayouts(m_pending.textures.size(), TextureLayout::Undefined);
 
@@ -683,7 +683,7 @@ namespace Nz
 			std::vector<RenderPass::SubpassDescription> subpassesDesc;
 			std::vector<RenderPass::SubpassDependency> subpassesDeps;
 
-			auto RegisterColorInputRead = [&](const FramePass::Input& input, PhysicalPassData::Subpass& subpass)
+			auto RegisterColorInputRead = [&](const FramePass::Input& input)
 			{
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
 
@@ -766,7 +766,7 @@ namespace Nz
 				for (const auto& input : subpassInputs)
 				{
 					if (input.doesRead)
-						RegisterColorInputRead(input, subpass);
+						RegisterColorInputRead(input);
 				}
 
 				for (const auto& output : subpassOutputs)
@@ -887,8 +887,7 @@ namespace Nz
 
 			BuildPhysicalPassDependencies(colorAttachmentCount, depthStencilAttachmentIndex.has_value(), renderPassAttachments, subpassesDesc, subpassesDeps);
 
-			m_pending.renderPasses.push_back(Graphics::Instance()->GetRenderPassCache().Get(renderPassAttachments, subpassesDesc, subpassesDeps));
-			//m_pending.renderPasses.push_back(renderDevice->InstantiateRenderPass(std::move(renderPassAttachments), std::move(subpassesDesc), std::move(subpassesDeps)));
+			m_pending.renderPasses.push_back(renderPassCache.Get(renderPassAttachments, subpassesDesc, subpassesDeps));
 
 			physicalPassIndex++;
 		}

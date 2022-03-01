@@ -61,10 +61,10 @@ namespace Nz
 		return pipelineLayout;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
-		if (!stage->Create(*this, stages, shaderAst, states))
+		if (!stage->Create(*this, stages, shaderModule, states))
 			throw std::runtime_error("failed to instantiate vulkan shader module");
 
 		return stage;
