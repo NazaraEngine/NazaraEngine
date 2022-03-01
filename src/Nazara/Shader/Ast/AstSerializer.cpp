@@ -5,6 +5,7 @@
 #include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -120,7 +121,7 @@ namespace Nz::ShaderAst
 			Value(value);
 		};
 
-		static_assert(std::variant_size_v<decltype(node.value)> == 11);
+		static_assert(std::variant_size_v<decltype(node.value)> == 12);
 		switch (typeIndex)
 		{
 			case 0:  break;
@@ -134,6 +135,7 @@ namespace Nz::ShaderAst
 			case 8:  SerializeValue(Vector2i32()); break;
 			case 9:  SerializeValue(Vector3i32()); break;
 			case 10: SerializeValue(Vector4i32()); break;
+			case 11: SerializeValue(std::string()); break;
 			default: throw std::runtime_error("unexpected data type");
 		}
 	}
@@ -327,11 +329,12 @@ namespace Nz::ShaderAst
 		Node(node.body);
 	}
 
-	void ShaderAstSerializer::Serialize(StatementPtr& shader)
+	void ShaderAstSerializer::Serialize(Module& module)
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
-		Node(shader);
+		m_stream << module.shaderLangVersion;
+		Serialize(*module.rootNode);
 
 		m_stream.FlushBits();
 	}
@@ -514,7 +517,7 @@ namespace Nz::ShaderAst
 		m_stream << val;
 	}
 
-	StatementPtr ShaderAstUnserializer::Unserialize()
+	ModulePtr ShaderAstUnserializer::Unserialize()
 	{
 		UInt32 magicNumber;
 		UInt32 version;
@@ -526,13 +529,15 @@ namespace Nz::ShaderAst
 		if (version > s_currentVersion)
 			throw std::runtime_error("unsupported version");
 
-		StatementPtr node;
+		ModulePtr module = std::make_shared<Module>();
 
-		Node(node);
-		if (!node)
-			throw std::runtime_error("functions can only have statements");
+		m_stream >> module->shaderLangVersion;
 
-		return node;
+		module->rootNode = ShaderBuilder::MultiStatement();
+		ShaderSerializerVisitor visitor(*this);
+		module->rootNode->Visit(visitor);
+
+		return module;
 	}
 
 	bool ShaderAstUnserializer::IsWriting() const
@@ -827,18 +832,18 @@ namespace Nz::ShaderAst
 	}
 	
 
-	ByteArray SerializeShader(StatementPtr& shader)
+	ByteArray SerializeShader(Module& module)
 	{
 		ByteArray byteArray;
 		ByteStream stream(&byteArray, OpenModeFlags(OpenMode::WriteOnly));
 
 		ShaderAstSerializer serializer(stream);
-		serializer.Serialize(shader);
+		serializer.Serialize(module);
 
 		return byteArray;
 	}
 
-	StatementPtr UnserializeShader(ByteStream& stream)
+	ModulePtr UnserializeShader(ByteStream& stream)
 	{
 		ShaderAstUnserializer unserializer(stream);
 		return unserializer.Unserialize();

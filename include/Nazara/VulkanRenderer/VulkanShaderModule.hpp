@@ -11,7 +11,7 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
 #include <vector>
 
@@ -27,7 +27,7 @@ namespace Nz
 			VulkanShaderModule(VulkanShaderModule&&) = delete;
 			~VulkanShaderModule() = default;
 
-			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states);
+			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states);
 			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states);
 
 			inline const Vk::ShaderModule& GetHandle() const;

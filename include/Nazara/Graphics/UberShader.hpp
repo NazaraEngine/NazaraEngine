@@ -12,7 +12,7 @@
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <unordered_map>
 
 namespace Nz
@@ -26,7 +26,7 @@ namespace Nz
 			struct Option;
 			using ConfigCallback = std::function<void(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)>;
 
-			UberShader(ShaderStageTypeFlags shaderStages, const ShaderAst::StatementPtr& shaderAst);
+			UberShader(ShaderStageTypeFlags shaderStages, ShaderAst::ModulePtr shaderModule);
 			~UberShader() = default;
 
 			inline ShaderStageTypeFlags GetSupportedStages() const;
@@ -63,7 +63,7 @@ namespace Nz
 		private:
 			std::unordered_map<Config, std::shared_ptr<ShaderModule>, ConfigHasher, ConfigEqual> m_combinations;
 			std::unordered_map<std::string, Option> m_optionIndexByName;
-			ShaderAst::StatementPtr m_shaderAst;
+			ShaderAst::ModulePtr m_shaderModule;
 			ConfigCallback m_configCallback;
 			ShaderStageTypeFlags m_shaderStages;
 	};

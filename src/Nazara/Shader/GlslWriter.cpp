@@ -152,7 +152,7 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states)
+	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Module& module, const BindingMapping& bindingMapping, const States& states)
 	{
 		State state(bindingMapping);
 		state.optionValues = states.optionValues;
@@ -164,15 +164,15 @@ namespace Nz
 			m_currentState = nullptr;
 		});
 
-		ShaderAst::StatementPtr sanitizedAst;
+		ShaderAst::ModulePtr sanitizedModule;
 		ShaderAst::Statement* targetAst;
 		if (!states.sanitized)
 		{
-			sanitizedAst = Sanitize(shader, states.optionValues);
-			targetAst = sanitizedAst.get();
+			sanitizedModule = Sanitize(module, states.optionValues);
+			targetAst = sanitizedModule->rootNode.get();
 		}
 		else
-			targetAst = &shader;
+			targetAst = module.rootNode.get();
 
 
 		ShaderAst::StatementPtr optimizedAst;
@@ -210,7 +210,7 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::StatementPtr GlslWriter::Sanitize(ShaderAst::Statement& ast, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error)
+	ShaderAst::ModulePtr GlslWriter::Sanitize(ShaderAst::Module& module, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error)
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
@@ -228,7 +228,7 @@ namespace Nz
 			"cross", "dot", "exp", "length", "max", "min", "pow", "texture"
 		};
 
-		return ShaderAst::Sanitize(ast, options, error);
+		return ShaderAst::Sanitize(module, options, error);
 	}
 
 	void GlslWriter::Append(const ShaderAst::ArrayType& /*type*/)
@@ -856,6 +856,8 @@ namespace Nz
 
 			if constexpr (std::is_same_v<T, ShaderAst::NoValue>)
 				throw std::runtime_error("invalid type (value expected)");
+			else if constexpr (std::is_same_v<T, std::string>)
+				throw std::runtime_error("unexpected string litteral");
 			else if constexpr (std::is_same_v<T, bool>)
 				Append((arg) ? "true" : "false");
 			else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, Int32>)

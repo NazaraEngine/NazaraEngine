@@ -12,6 +12,7 @@
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitorExcept.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <set>
 #include <sstream>
 #include <string>
@@ -28,7 +29,7 @@ namespace Nz
 			LangWriter(LangWriter&&) = delete;
 			~LangWriter() = default;
 
-			std::string Generate(ShaderAst::Statement& shader, const States& conditions = {});
+			std::string Generate(ShaderAst::Module& module, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 
@@ -44,6 +45,7 @@ namespace Nz
 			struct EntryAttribute;
 			struct LayoutAttribute;
 			struct LocationAttribute;
+			struct NzslAttribute;
 			struct SetAttribute;
 			struct UnrollAttribute;
 
@@ -74,6 +76,7 @@ namespace Nz
 			void AppendAttribute(EntryAttribute entry);
 			void AppendAttribute(LayoutAttribute layout);
 			void AppendAttribute(LocationAttribute location);
+			void AppendAttribute(NzslAttribute nzslVersion);
 			void AppendAttribute(SetAttribute set);
 			void AppendAttribute(UnrollAttribute unroll);
 			void AppendCommentSection(const std::string& section);

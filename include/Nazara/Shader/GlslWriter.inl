@@ -12,7 +12,7 @@ namespace Nz
 	{
 	}
 
-	inline std::string GlslWriter::Generate(ShaderAst::Statement& shader, const BindingMapping& bindingMapping, const States& states)
+	inline std::string GlslWriter::Generate(ShaderAst::Module& shader, const BindingMapping& bindingMapping, const States& states)
 	{
 		return Generate(std::nullopt, shader, bindingMapping, states);
 	}

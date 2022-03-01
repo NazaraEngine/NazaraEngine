@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states) :
+	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states) :
 	m_device(device)
 	{
 		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
-		Create(device, shaderStages, shaderAst, states);
+		Create(device, shaderStages, shaderModule, states);
 	}
 
 	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states) :
@@ -58,7 +58,7 @@ namespace Nz
 				std::vector<Nz::ShaderLang::Token> tokens = Nz::ShaderLang::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
 
 				Nz::ShaderLang::Parser parser;
-				Nz::ShaderAst::StatementPtr shaderAst = parser.Parse(tokens);
+				Nz::ShaderAst::ModulePtr shaderAst = parser.Parse(tokens);
 				Create(device, shaderStages, *shaderAst, states);
 				break;
 			}
@@ -137,11 +137,11 @@ namespace Nz
 		return stageFlags;
 	}
 
-	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, ShaderStageTypeFlags shaderStages, ShaderAst::Statement& shaderAst, const ShaderWriter::States& states)
+	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
 	{
 		m_states = states;
 		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
-		std::shared_ptr<ShaderAst::Statement> sanitized = GlslWriter::Sanitize(shaderAst, states.optionValues);
+		ShaderAst::ModulePtr sanitized = GlslWriter::Sanitize(shaderModule, states.optionValues);
 
 		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
 		{

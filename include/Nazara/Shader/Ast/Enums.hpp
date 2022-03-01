@@ -35,6 +35,7 @@ namespace Nz
 			Entry,              //< Entry point (function only) - has argument type
 			Layout,             //< Struct layout (struct only) - has argument style
 			Location,           //< Location (struct member only) - has argument index
+			LangVersion,        //< NZSL version - has argument version string
 			Set,                //< Binding set (external var only) - has argument index
 			Unroll,             //< Unroll (for/for each only) - has argument mode
 		};
@@ -136,6 +137,7 @@ namespace Nz
 			Float32, //< f32
 			Int32,   //< i32
 			UInt32,  //< ui32
+			String   //< str
 		};
 
 		enum class UnaryType

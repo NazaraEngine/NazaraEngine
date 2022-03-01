@@ -173,7 +173,7 @@ namespace Nz::ShaderAst
 	{
 	}
 
-	inline StatementPtr UnserializeShader(const void* data, std::size_t size)
+	inline ModulePtr UnserializeShader(const void* data, std::size_t size)
 	{
 		ByteStream byteStream(data, size);
 		return UnserializeShader(byteStream);

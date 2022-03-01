@@ -1,3 +1,6 @@
+[nzsl_version("1.0")]
+module;
+
 // Basic material options
 option HasDiffuseTexture: bool = false;
 option HasAlphaTexture: bool = false;
