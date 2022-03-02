@@ -118,87 +118,16 @@ namespace Nz::ShaderLang
 
 		std::vector<ShaderAst::ExprValue> attributes;
 
-		auto EnsureModule = [this]() -> ShaderAst::Module&
+		for (;;)
 		{
+			ShaderAst::StatementPtr statement = ParseRootStatement();
 			if (!m_context->module)
 				throw UnexpectedToken{ "unexpected token before module declaration" };
 
-			return *m_context->module;
-		};
+			if (!statement)
+				break;
 
-		bool reachedEndOfStream = false;
-		while (!reachedEndOfStream)
-		{
-			const Token& nextToken = Peek();
-			switch (nextToken.type)
-			{
-				case TokenType::Const:
-				{
-					if (!attributes.empty())
-						throw UnexpectedToken{};
-
-					const auto& module = EnsureModule();
-					module.rootNode->statements.push_back(ParseConstStatement());
-					break;
-				}
-
-				case TokenType::EndOfStream:
-					if (!attributes.empty())
-						throw UnexpectedToken{};
-
-					reachedEndOfStream = true;
-					break;
-
-				case TokenType::External:
-				{
-					const auto& module = EnsureModule();
-					module.rootNode->statements.push_back(ParseExternalBlock(std::move(attributes)));
-					attributes.clear();
-					break;
-				}
-
-				case TokenType::OpenSquareBracket:
-					assert(attributes.empty());
-					attributes = ParseAttributes();
-					break;
-
-				case TokenType::Module:
-					if (attributes.empty())
-						throw UnexpectedToken{};
-
-					ParseModuleStatement(std::move(attributes));
-					attributes.clear();
-					break;
-
-				case TokenType::Option:
-				{
-					if (!attributes.empty())
-						throw UnexpectedToken{};
-
-					const auto& module = EnsureModule();
-					module.rootNode->statements.push_back(ParseOptionDeclaration());
-					break;
-				}
-
-				case TokenType::FunctionDeclaration:
-				{
-					const auto& module = EnsureModule();
-					module.rootNode->statements.push_back(ParseFunctionDeclaration(std::move(attributes)));
-					attributes.clear();
-					break;
-				}
-
-				case TokenType::Struct:
-				{
-					const auto& module = EnsureModule();
-					module.rootNode->statements.push_back(ParseStructDeclaration(std::move(attributes)));
-					attributes.clear();
-					break;
-				}
-
-				default:
-					throw UnexpectedToken{};
-			}
+			m_context->module->rootNode->statements.push_back(std::move(statement));
 		}
 
 		return std::move(context.module);
@@ -737,6 +666,53 @@ namespace Nz::ShaderLang
 		Expect(Advance(), TokenType::Semicolon);
 
 		return ShaderBuilder::Return(std::move(expr));
+	}
+
+	ShaderAst::StatementPtr Parser::ParseRootStatement(std::vector<ShaderAst::ExprValue> attributes)
+	{
+		const Token& nextToken = Peek();
+		switch (nextToken.type)
+		{
+			case TokenType::Const:
+				if (!attributes.empty())
+					throw UnexpectedToken{};
+
+				return ParseConstStatement();
+
+			case TokenType::EndOfStream:
+				if (!attributes.empty())
+					throw UnexpectedToken{};
+
+				return {};
+
+			case TokenType::External:
+				return ParseExternalBlock(std::move(attributes));
+
+			case TokenType::OpenSquareBracket:
+				assert(attributes.empty());
+				return ParseRootStatement(ParseAttributes());
+
+			case TokenType::Module:
+				ParseModuleStatement(std::move(attributes));
+				return ParseRootStatement();
+
+			case TokenType::Option:
+			{
+				if (!attributes.empty())
+					throw UnexpectedToken{};
+
+				return ParseOptionDeclaration();
+			}
+
+			case TokenType::FunctionDeclaration:
+				return ParseFunctionDeclaration(std::move(attributes));
+
+			case TokenType::Struct:
+				return ParseStructDeclaration(std::move(attributes));
+
+			default:
+				throw UnexpectedToken{};
+		}
 	}
 
 	ShaderAst::StatementPtr Parser::ParseSingleStatement()

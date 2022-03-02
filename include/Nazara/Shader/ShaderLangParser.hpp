@@ -96,6 +96,7 @@ namespace Nz::ShaderLang
 			void ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes);
 			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseReturnStatement();
+			ShaderAst::StatementPtr ParseRootStatement(std::vector<ShaderAst::ExprValue> attributes = {});
 			ShaderAst::StatementPtr ParseSingleStatement();
 			ShaderAst::StatementPtr ParseStatement();
 			std::vector<ShaderAst::StatementPtr> ParseStatementList();
