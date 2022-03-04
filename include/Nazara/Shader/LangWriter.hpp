@@ -45,7 +45,6 @@ namespace Nz
 			struct EntryAttribute;
 			struct LayoutAttribute;
 			struct LocationAttribute;
-			struct NzslAttribute;
 			struct SetAttribute;
 			struct UnrollAttribute;
 
@@ -76,7 +75,6 @@ namespace Nz
 			void AppendAttribute(EntryAttribute entry);
 			void AppendAttribute(LayoutAttribute layout);
 			void AppendAttribute(LocationAttribute location);
-			void AppendAttribute(NzslAttribute nzslVersion);
 			void AppendAttribute(SetAttribute set);
 			void AppendAttribute(UnrollAttribute unroll);
 			void AppendCommentSection(const std::string& section);

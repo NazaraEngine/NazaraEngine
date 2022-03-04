@@ -20,8 +20,13 @@ namespace Nz::ShaderAst
 
 	struct Module
 	{
+		struct Metadata
+		{
+			UInt32 shaderLangVersion;
+		};
+
+		std::shared_ptr<const Metadata> metadata;
 		MultiStatementPtr rootNode;
-		UInt32 shaderLangVersion;
 	};
 }
 

@@ -97,7 +97,7 @@ namespace Nz::ShaderBuilder
 
 		struct DeclareStruct
 		{
-			inline std::unique_ptr<ShaderAst::DeclareStructStatement> operator()(ShaderAst::StructDescription description) const;
+			inline std::unique_ptr<ShaderAst::DeclareStructStatement> operator()(ShaderAst::StructDescription description, ShaderAst::ExpressionValue<bool> isExported) const;
 		};
 
 		struct DeclareVariable

@@ -189,6 +189,7 @@ namespace Nz::ShaderBuilder
 			case ShaderAst::PrimitiveType::Float32: return ShaderBuilder::Constant(SafeCast<float>(value));
 			case ShaderAst::PrimitiveType::Int32:   return ShaderBuilder::Constant(SafeCast<Int32>(value));
 			case ShaderAst::PrimitiveType::UInt32:  return ShaderBuilder::Constant(SafeCast<UInt32>(value));
+			case ShaderAst::PrimitiveType::String:  return ShaderBuilder::Constant(value);
 		}
 
 		throw std::runtime_error("unexpected primitive type");
@@ -269,10 +270,11 @@ namespace Nz::ShaderBuilder
 		return declareOptionNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::DeclareStructStatement> Impl::DeclareStruct::operator()(ShaderAst::StructDescription description) const
+	inline std::unique_ptr<ShaderAst::DeclareStructStatement> Impl::DeclareStruct::operator()(ShaderAst::StructDescription description, ShaderAst::ExpressionValue<bool> isExported) const
 	{
 		auto declareStructNode = std::make_unique<ShaderAst::DeclareStructStatement>();
 		declareStructNode->description = std::move(description);
+		declareStructNode->isExported = std::move(isExported);
 
 		return declareStructNode;
 	}
