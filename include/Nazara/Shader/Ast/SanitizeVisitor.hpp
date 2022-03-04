@@ -88,6 +88,7 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(ExpressionStatement& node) override;
 			StatementPtr Clone(ForStatement& node) override;
 			StatementPtr Clone(ForEachStatement& node) override;
+			StatementPtr Clone(ImportStatement& node) override;
 			StatementPtr Clone(MultiStatement& node) override;
 			StatementPtr Clone(ScopedStatement& node) override;
 			StatementPtr Clone(WhileStatement& node) override;

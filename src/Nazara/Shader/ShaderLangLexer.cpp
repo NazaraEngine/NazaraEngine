@@ -49,6 +49,7 @@ namespace Nz::ShaderLang
 			{ "fn",           TokenType::FunctionDeclaration },
 			{ "for",          TokenType::For },
 			{ "if",           TokenType::If },
+			{ "import",       TokenType::Import },
 			{ "in",           TokenType::In },
 			{ "let",          TokenType::Let },
 			{ "module",       TokenType::Module },
