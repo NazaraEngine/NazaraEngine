@@ -27,6 +27,7 @@ SCENARIO("Uuid", "[CORE][UUID]")
 		std::regex uuidRegex(R"(^\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b$)");
 
 		Nz::Uuid uuid = Nz::Uuid::Generate();
+		INFO(uuid);
 		CHECK_FALSE(uuid.IsNull());
 		CHECK(std::regex_match(uuid.ToString(), uuidRegex));
 		CHECK(uuid == uuid);
