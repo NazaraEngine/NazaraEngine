@@ -106,6 +106,7 @@ namespace Nz
 							return SpirvOp::OpIAdd;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -124,6 +125,7 @@ namespace Nz
 							return SpirvOp::OpISub;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -144,6 +146,7 @@ namespace Nz
 							return SpirvOp::OpUDiv;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -197,7 +200,8 @@ namespace Nz
 						case ShaderAst::PrimitiveType::UInt32:
 							return SpirvOp::OpIMul;
 
-						default:
+						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -217,6 +221,9 @@ namespace Nz
 						case ShaderAst::PrimitiveType::Int32:
 						case ShaderAst::PrimitiveType::UInt32:
 							return SpirvOp::OpIEqual;
+
+						case ShaderAst::PrimitiveType::String:
+							break;
 					}
 
 					break;
@@ -236,6 +243,7 @@ namespace Nz
 							return SpirvOp::OpUGreaterThan;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -256,6 +264,7 @@ namespace Nz
 							return SpirvOp::OpUGreaterThanEqual;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -276,6 +285,7 @@ namespace Nz
 							return SpirvOp::OpULessThanEqual;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -296,6 +306,7 @@ namespace Nz
 							return SpirvOp::OpULessThan;
 
 						case ShaderAst::PrimitiveType::Boolean:
+						case ShaderAst::PrimitiveType::String:
 							break;
 					}
 
@@ -315,6 +326,9 @@ namespace Nz
 						case ShaderAst::PrimitiveType::Int32:
 						case ShaderAst::PrimitiveType::UInt32:
 							return SpirvOp::OpINotEqual;
+
+						case ShaderAst::PrimitiveType::String:
+							break;
 					}
 
 					break;
@@ -482,6 +496,9 @@ namespace Nz
 						case ShaderAst::PrimitiveType::UInt32:
 							castOp = SpirvOp::OpConvertUToF;
 							break;
+
+						case ShaderAst::PrimitiveType::String:
+							throw std::runtime_error("unexpected string type");
 					}
 					break;
 				}
@@ -503,6 +520,9 @@ namespace Nz
 						case ShaderAst::PrimitiveType::UInt32:
 							castOp = SpirvOp::OpSConvert;
 							break;
+
+						case ShaderAst::PrimitiveType::String:
+							throw std::runtime_error("unexpected string type");
 					}
 					break;
 				}
@@ -524,9 +544,15 @@ namespace Nz
 
 						case ShaderAst::PrimitiveType::UInt32:
 							break; //< Already handled
+
+						case ShaderAst::PrimitiveType::String:
+							throw std::runtime_error("unexpected string type");
 					}
 					break;
 				}
+
+				case ShaderAst::PrimitiveType::String:
+					throw std::runtime_error("unexpected string type");
 			}
 
 			assert(castOp);
@@ -809,6 +835,9 @@ namespace Nz
 					case ShaderAst::PrimitiveType::UInt32:
 						op = (node.intrinsic == ShaderAst::IntrinsicType::Max) ? GLSLstd450UMax : GLSLstd450UMin;
 						break;
+
+					case ShaderAst::PrimitiveType::String:
+						throw std::runtime_error("unexpected string type");
 				}
 
 				UInt32 firstParam = EvaluateExpression(node.parameters[0]);

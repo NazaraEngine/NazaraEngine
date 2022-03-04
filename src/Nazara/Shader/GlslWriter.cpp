@@ -298,7 +298,7 @@ namespace Nz
 		}
 	}
 
-	void GlslWriter::Append(const ShaderAst::MethodType& methodType)
+	void GlslWriter::Append(const ShaderAst::MethodType& /*methodType*/)
 	{
 		throw std::runtime_error("unexpected method type");
 	}
@@ -311,6 +311,7 @@ namespace Nz
 			case ShaderAst::PrimitiveType::Float32: return Append("float");
 			case ShaderAst::PrimitiveType::Int32:   return Append("int");
 			case ShaderAst::PrimitiveType::UInt32:  return Append("uint");
+			case ShaderAst::PrimitiveType::String:  throw std::runtime_error("unexpected string constant");
 		}
 	}
 
@@ -324,6 +325,8 @@ namespace Nz
 
 			case ShaderAst::PrimitiveType::Int32:   Append("i"); break;
 			case ShaderAst::PrimitiveType::UInt32:  Append("u"); break;
+
+			case ShaderAst::PrimitiveType::String:  throw std::runtime_error("unexpected string type");
 		}
 
 		Append("sampler");
@@ -363,6 +366,7 @@ namespace Nz
 			case ShaderAst::PrimitiveType::Float32: break;
 			case ShaderAst::PrimitiveType::Int32:   Append("i"); break;
 			case ShaderAst::PrimitiveType::UInt32:  Append("u"); break;
+			case ShaderAst::PrimitiveType::String:  throw std::runtime_error("unexpected string type");
 		}
 
 		Append("vec");
@@ -1199,6 +1203,11 @@ namespace Nz
 	{
 		node.expression->Visit(*this);
 		Append(";");
+	}
+
+	void GlslWriter::Visit(ShaderAst::ImportStatement& /*node*/)
+	{
+		/* nothing to do */
 	}
 
 	void GlslWriter::Visit(ShaderAst::MultiStatement& node)

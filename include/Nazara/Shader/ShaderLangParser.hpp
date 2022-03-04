@@ -82,6 +82,7 @@ namespace Nz::ShaderLang
 			const Token& Peek(std::size_t advance = 0);
 
 			std::vector<ShaderAst::ExprValue> ParseAttributes();
+			void ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes);
 			void ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue);
 
 			// Statements
@@ -93,7 +94,6 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::ExprValue> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
-			void ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes);
 			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseReturnStatement();
 			ShaderAst::StatementPtr ParseRootStatement(std::vector<ShaderAst::ExprValue> attributes = {});

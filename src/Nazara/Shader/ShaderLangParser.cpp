@@ -230,6 +230,78 @@ namespace Nz::ShaderLang
 		return attributes;
 	}
 
+	void Parser::ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes)
+	{
+		Expect(Advance(), TokenType::Module);
+
+		if (m_context->module)
+			throw DuplicateModule{ "you must set one module statement per file" };
+
+		std::optional<UInt32> moduleVersion;
+		
+		for (auto&& [attributeType, arg] : attributes)
+		{
+			switch (attributeType)
+			{
+				case ShaderAst::AttributeType::LangVersion:
+				{
+					// Version parsing
+					if (moduleVersion.has_value())
+						throw AttributeError{ "attribute " + std::string("nzsl_version") + " must be present once" };
+
+					if (!arg)
+						throw AttributeError{ "attribute " + std::string("nzsl_version") + " requires a parameter"};
+
+					const ShaderAst::ExpressionPtr& expr = *arg;
+					if (expr->GetType() != ShaderAst::NodeType::ConstantValueExpression)
+						throw AttributeError{ "attribute " + std::string("nzsl_version") + " expect a single string parameter" };
+
+					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
+					if (ShaderAst::GetExpressionType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
+						throw AttributeError{ "attribute " + std::string("nzsl_version") + " expect a single string parameter" };
+
+					const std::string& versionStr = std::get<std::string>(constantValue.value);
+
+					std::regex versionRegex(R"(^(\d+)(\.(\d+)(\.(\d+))?)?$)", std::regex::ECMAScript);
+
+					std::smatch versionMatch;
+					if (!std::regex_match(versionStr, versionMatch, versionRegex))
+						throw AttributeError("invalid version for attribute nzsl");
+
+					assert(versionMatch.size() == 6);
+
+					std::uint32_t version = 0;
+					version += std::stoi(versionMatch[1]) * 100;
+
+					if (versionMatch.length(3) > 0)
+						version += std::stoi(versionMatch[3]) * 10;
+
+					if (versionMatch.length(5) > 0)
+						version += std::stoi(versionMatch[5]) * 1;
+
+					moduleVersion = version;
+					break;
+				}
+
+				default:
+					throw AttributeError{ "unhandled attribute for module" };
+			}
+		}
+
+		if (!moduleVersion.has_value())
+			throw AttributeError{ "missing module version" };
+
+		m_context->module = std::make_shared<ShaderAst::Module>();
+		m_context->module->rootNode = ShaderBuilder::MultiStatement();
+
+		std::shared_ptr<ShaderAst::Module::Metadata> moduleMetadata = std::make_shared<ShaderAst::Module::Metadata>();
+		moduleMetadata->shaderLangVersion = *moduleVersion;
+
+		m_context->module->metadata = std::move(moduleMetadata);
+
+		Expect(Advance(), TokenType::Semicolon);
+	}
+
 	void Parser::ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue)
 	{
 		name = ParseIdentifierAsName();
@@ -564,70 +636,12 @@ namespace Nz::ShaderLang
 		return { parameterName, std::move(parameterType) };
 	}
 
-	void Parser::ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes)
 	{
-		Expect(Advance(), TokenType::Module);
 
-		if (m_context->module)
-			throw DuplicateModule{ "you must set one module statement per file" };
 
-		std::optional<UInt32> moduleVersion;
-		
-		for (auto&& [attributeType, arg] : attributes)
 		{
-			switch (attributeType)
-			{
-				case ShaderAst::AttributeType::LangVersion:
-				{
-					// Version parsing
-					if (moduleVersion.has_value())
-						throw AttributeError{ "attribute " + std::string("nzsl_version") + " must be present once" };
 
-					if (!arg)
-						throw AttributeError{ "attribute " + std::string("nzsl_version") + " requires a parameter"};
-
-					const ShaderAst::ExpressionPtr& expr = *arg;
-					if (expr->GetType() != ShaderAst::NodeType::ConstantValueExpression)
-						throw AttributeError{ "attribute " + std::string("nzsl_version") + " expect a single string parameter" };
-
-					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
-					if (ShaderAst::GetExpressionType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
-						throw AttributeError{ "attribute " + std::string("nzsl_version") + " expect a single string parameter" };
-
-					const std::string& versionStr = std::get<std::string>(constantValue.value);
-
-					std::regex versionRegex(R"(^(\d+)(\.(\d+)(\.(\d+))?)?$)", std::regex::ECMAScript);
-
-					std::smatch versionMatch;
-					if (!std::regex_match(versionStr, versionMatch, versionRegex))
-						throw AttributeError("invalid version for attribute nzsl");
-
-					assert(versionMatch.size() == 6);
-
-					std::uint32_t version = 0;
-					version += std::stoi(versionMatch[1]) * 100;
-
-					if (versionMatch.length(3) > 0)
-						version += std::stoi(versionMatch[3]) * 10;
-
-					if (versionMatch.length(5) > 0)
-						version += std::stoi(versionMatch[5]) * 1;
-
-					moduleVersion = version;
-					break;
-				}
-
-				default:
-					throw AttributeError{ "unhandled attribute for module" };
-			}
 		}
-
-		if (!moduleVersion.has_value())
-			throw AttributeError{ "missing module version" };
-
-		m_context->module = std::make_shared<ShaderAst::Module>();
-		m_context->module->rootNode = ShaderBuilder::MultiStatement();
-		m_context->module->shaderLangVersion = *moduleVersion;
 
 		Expect(Advance(), TokenType::Semicolon);
 	}

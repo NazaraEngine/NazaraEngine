@@ -725,6 +725,9 @@ namespace Nz
 
 				case ShaderAst::PrimitiveType::UInt32:
 					return Integer{ 32, false };
+
+				case ShaderAst::PrimitiveType::String:
+					break;
 			}
 
 			throw std::runtime_error("unexpected type");

@@ -333,7 +333,7 @@ namespace Nz::ShaderAst
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
-		m_stream << module.shaderLangVersion;
+		m_stream << module.metadata->shaderLangVersion;
 		Serialize(*module.rootNode);
 
 		m_stream.FlushBits();
@@ -531,7 +531,10 @@ namespace Nz::ShaderAst
 
 		ModulePtr module = std::make_shared<Module>();
 
-		m_stream >> module->shaderLangVersion;
+		std::shared_ptr<Module::Metadata> metadata = std::make_shared<Module::Metadata>();
+		m_stream >> metadata->shaderLangVersion;
+
+		module->metadata = std::move(metadata);
 
 		module->rootNode = ShaderBuilder::MultiStatement();
 		ShaderSerializerVisitor visitor(*this);

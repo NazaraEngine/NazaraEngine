@@ -9,6 +9,7 @@
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -50,7 +51,11 @@ namespace Nz
 					ShaderAst::Module dummyModule;
 					dummyModule.rootNode = ShaderBuilder::MultiStatement();
 					dummyModule.rootNode->statements.push_back(ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
-					dummyModule.shaderLangVersion = 100;
+
+					std::shared_ptr<ShaderAst::Module::Metadata> metadata = std::make_shared<ShaderAst::Module::Metadata>();
+					metadata->shaderLangVersion = 100;
+
+					dummyModule.metadata = std::move(metadata);
 
 					OpenGLShaderModule shaderModule(device, stage, dummyModule);
 					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping());
