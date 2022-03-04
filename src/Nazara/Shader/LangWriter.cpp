@@ -75,14 +75,7 @@ namespace Nz
 
 		inline bool HasValue() const { return locationIndex.HasValue(); }
 	};
-
-	struct LangWriter::NzslAttribute
-	{
-		const ShaderAst::ExpressionValue<UInt32>& version;
-
-		inline bool HasValue() const { return version.HasValue(); }
-	};
-
+	
 	struct LangWriter::SetAttribute
 	{
 		const ShaderAst::ExpressionValue<UInt32>& setIndex;
@@ -100,6 +93,7 @@ namespace Nz
 	struct LangWriter::State
 	{
 		const States* states = nullptr;
+		ShaderAst::Module* module;
 		std::stringstream stream;
 		std::unordered_map<std::size_t, std::string> constantNames;
 		std::unordered_map<std::size_t, ShaderAst::StructDescription*> structs;
@@ -118,6 +112,7 @@ namespace Nz
 		});
 
 		ShaderAst::ModulePtr sanitizedModule = ShaderAst::Sanitize(module);
+		state.module = sanitizedModule.get();
 
 		AppendHeader();
 
@@ -195,6 +190,7 @@ namespace Nz
 			case ShaderAst::PrimitiveType::Float32: return Append("f32");
 			case ShaderAst::PrimitiveType::Int32:   return Append("i32");
 			case ShaderAst::PrimitiveType::UInt32:  return Append("u32");
+			case ShaderAst::PrimitiveType::String:  return Append("string");
 		}
 	}
 
@@ -459,11 +455,7 @@ namespace Nz
 
 		Append(")");
 	}
-
-	void LangWriter::AppendAttribute(NzslAttribute nzslVersion)
-	{
-	}
-
+	
 	void LangWriter::AppendAttribute(SetAttribute set)
 	{
 		if (!set.HasValue())
@@ -1101,6 +1093,23 @@ namespace Nz
 
 	void LangWriter::AppendHeader()
 	{
-		// Nothing yet
+		UInt32 shaderLangVersion = m_currentState->module->metadata->shaderLangVersion;
+		UInt32 majorVersion = shaderLangVersion / 100;
+		shaderLangVersion -= majorVersion * 100;
+
+		UInt32 minorVersion = shaderLangVersion / 10;
+		shaderLangVersion -= minorVersion * 100;
+
+		UInt32 patchVersion = shaderLangVersion;
+
+		// nzsl_version
+		Append("[nzsl_version(\"", majorVersion, ".", minorVersion);
+		if (patchVersion != 0)
+			Append(".", patchVersion);
+
+		AppendLine("\")]");
+
+		AppendLine("module;");
+		AppendLine();
 	}
 }
