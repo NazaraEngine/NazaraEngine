@@ -12,8 +12,10 @@ local modules = {
 			-- NazaraMath is header-only, make it part of the core project
 			add_headerfiles("include/(Nazara/Math/**.hpp)", "include/(Nazara/Math/**.inl)")
 
-			if is_plat("linux") then
-				add_syslinks("dl", "pthread")
+			if is_plat("windows") then
+				add_syslinks("ole32")
+			elseif is_plat("linux") then
+				add_syslinks("dl", "pthread", "uuid")
 			end
 		end,
 		Packages = {"entt"}
