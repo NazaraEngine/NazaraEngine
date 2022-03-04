@@ -11,6 +11,9 @@ TEST_CASE("branching", "[Shader]")
 	WHEN("using a simple branch")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: f32
@@ -32,9 +35,9 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float value;
@@ -50,7 +53,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -67,7 +70,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -90,6 +93,9 @@ OpFunctionEnd)");
 	WHEN("discarding in a branch")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: f32
@@ -108,9 +114,9 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	if (data.value > (0.000000))
@@ -121,7 +127,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -133,7 +139,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpAccessChain
@@ -154,6 +160,9 @@ OpFunctionEnd)");
 	WHEN("using a complex branch")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: f32
@@ -179,9 +188,9 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float value;
@@ -205,7 +214,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -230,7 +239,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable

@@ -121,7 +121,7 @@ namespace
 	};
 }
 
-void ExpectGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
+void ExpectGLSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
@@ -140,7 +140,7 @@ void ExpectGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutpu
 		};
 
 		Nz::ShaderAst::AstReflect reflectVisitor;
-		reflectVisitor.Reflect(shader, callbacks);
+		reflectVisitor.Reflect(*shader.rootNode, callbacks);
 
 		INFO("no entry point found");
 		REQUIRE(entryShaderStage.has_value());
@@ -186,7 +186,7 @@ void ExpectGLSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutpu
 	}
 }
 
-void ExpectNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput)
+void ExpectNZSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
@@ -209,7 +209,7 @@ void ExpectNZSL(Nz::ShaderAst::Statement& shader, std::string_view expectedOutpu
 	}
 }
 
-void ExpectSpirV(Nz::ShaderAst::Statement& shader, std::string_view expectedOutput, bool outputParameter)
+void ExpectSPIRV(Nz::ShaderAst::Module& shader, std::string_view expectedOutput, bool outputParameter)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 

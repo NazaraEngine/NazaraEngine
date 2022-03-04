@@ -12,6 +12,9 @@ TEST_CASE("sanitizing", "[Shader]")
 	WHEN("splitting branches")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: f32
@@ -37,14 +40,14 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 		Nz::ShaderAst::SanitizeVisitor::Options options;
 		options.splitMultipleBranches = true;
 
-		REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader, options));
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, options));
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -82,6 +85,9 @@ fn main()
 	WHEN("reducing for-each to while")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: array[f32, 10]
@@ -103,14 +109,14 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 		Nz::ShaderAst::SanitizeVisitor::Options options;
 		options.reduceLoopsToWhile = true;
 
-		REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader, options));
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, options));
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -131,6 +137,9 @@ fn main()
 	WHEN("removing matrix casts")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 fn testMat2ToMat2(input: mat2[f32]) -> mat2[f32]
 {
 	return mat2[f32](input);
@@ -177,14 +186,14 @@ fn testMat4ToMat4(input: mat4[f32]) -> mat4[f32]
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 		Nz::ShaderAst::SanitizeVisitor::Options options;
 		options.removeMatrixCast = true;
 
-		REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader, options));
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, options));
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 fn testMat2ToMat2(input: mat2[f32]) -> mat2[f32]
 {
 	return input;

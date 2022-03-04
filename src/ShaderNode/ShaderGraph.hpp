@@ -5,7 +5,7 @@
 
 #include <Nazara/Core/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
 #include <ShaderNode/Previews/PreviewModel.hpp>
@@ -67,7 +67,7 @@ class ShaderGraph
 		void Load(const QJsonObject& data);
 		QJsonObject Save();
 
-		Nz::ShaderAst::StatementPtr ToAst() const;
+		Nz::ShaderAst::ModulePtr ToModule() const;
 		Nz::ShaderAst::ExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
 		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex);

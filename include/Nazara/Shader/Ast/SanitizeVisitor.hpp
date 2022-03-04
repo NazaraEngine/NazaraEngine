@@ -31,8 +31,8 @@ namespace Nz::ShaderAst
 			SanitizeVisitor(SanitizeVisitor&&) = delete;
 			~SanitizeVisitor() = default;
 
-			inline ModulePtr Sanitize(Module& module, std::string* error = nullptr);
-			ModulePtr Sanitize(Module& module, const Options& options, std::string* error = nullptr);
+			inline ModulePtr Sanitize(const Module& module, std::string* error = nullptr);
+			ModulePtr Sanitize(const Module& module, const Options& options, std::string* error = nullptr);
 
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
@@ -178,8 +178,8 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline ModulePtr Sanitize(Module& module, std::string* error = nullptr);
-	inline ModulePtr Sanitize(Module& module, const SanitizeVisitor::Options& options, std::string* error = nullptr);
+	inline ModulePtr Sanitize(const Module& module, std::string* error = nullptr);
+	inline ModulePtr Sanitize(const Module& module, const SanitizeVisitor::Options& options, std::string* error = nullptr);
 }
 
 #include <Nazara/Shader/Ast/SanitizeVisitor.inl>
