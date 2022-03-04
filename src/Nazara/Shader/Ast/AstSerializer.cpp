@@ -301,6 +301,13 @@ namespace Nz::ShaderAst
 		Node(node.statement);
 	}
 
+	void AstSerializerBase::Serialize(ImportStatement& node)
+	{
+		Container(node.modulePath);
+		for (auto& path : node.modulePath)
+			Value(path);
+	}
+
 	void AstSerializerBase::Serialize(MultiStatement& node)
 	{
 		Container(node.statements);

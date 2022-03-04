@@ -347,6 +347,14 @@ namespace Nz::ShaderBuilder
 		return identifierNode;
 	}
 
+	inline std::unique_ptr<ShaderAst::ImportStatement> Impl::Import::operator()(std::vector<std::string> modulePath) const
+	{
+		auto importNode = std::make_unique<ShaderAst::ImportStatement>();
+		importNode->modulePath = std::move(modulePath);
+
+		return importNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::IntrinsicExpression> Impl::Intrinsic::operator()(ShaderAst::IntrinsicType intrinsicType, std::vector<ShaderAst::ExpressionPtr> parameters) const
 	{
 		auto intrinsicExpression = std::make_unique<ShaderAst::IntrinsicExpression>();

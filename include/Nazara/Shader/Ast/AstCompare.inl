@@ -509,6 +509,14 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const ImportStatement& lhs, const ImportStatement& rhs)
+	{
+		if (!Compare(lhs.modulePath, rhs.modulePath))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const MultiStatement& lhs, const MultiStatement& rhs)
 	{
 		if (!Compare(lhs.statements, rhs.statements))

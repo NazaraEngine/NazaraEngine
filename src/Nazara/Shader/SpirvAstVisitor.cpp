@@ -726,6 +726,11 @@ namespace Nz
 		PopResultId();
 	}
 
+	void SpirvAstVisitor::Visit(ShaderAst::ImportStatement& node)
+	{
+		/* nothing to do */
+	}
+
 	void SpirvAstVisitor::Visit(ShaderAst::IntrinsicExpression& node)
 	{
 		switch (node.intrinsic)

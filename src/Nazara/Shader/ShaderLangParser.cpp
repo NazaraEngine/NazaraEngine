@@ -649,14 +649,23 @@ namespace Nz::ShaderLang
 		return { parameterName, std::move(parameterType) };
 	}
 
+	ShaderAst::StatementPtr Parser::ParseImportStatement()
 	{
+		Expect(Advance(), TokenType::Import);
 
+		std::vector<std::string> modulePath;
+		modulePath.push_back(ParseIdentifierAsName());
 
+		while (Peek().type == TokenType::Divide) //< /
 		{
+			Consume();
 
+			modulePath.push_back(ParseIdentifierAsName());
 		}
 
 		Expect(Advance(), TokenType::Semicolon);
+
+		return ShaderBuilder::Import(std::move(modulePath));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseOptionDeclaration()
@@ -714,6 +723,12 @@ namespace Nz::ShaderLang
 
 			case TokenType::External:
 				return ParseExternalBlock(std::move(attributes));
+
+			case TokenType::Import:
+				if (!attributes.empty())
+					throw UnexpectedToken{};
+
+				return ParseImportStatement();
 
 			case TokenType::OpenSquareBracket:
 				assert(attributes.empty());
