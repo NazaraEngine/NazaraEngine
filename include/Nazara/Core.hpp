@@ -93,5 +93,6 @@
 #include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Updatable.hpp>
+#include <Nazara/Core/Uuid.hpp>
 
 #endif // NAZARA_GLOBAL_CORE_HPP
