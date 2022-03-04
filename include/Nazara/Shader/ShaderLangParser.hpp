@@ -94,6 +94,7 @@ namespace Nz::ShaderLang
 			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
 			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::ExprValue> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
+			ShaderAst::StatementPtr ParseImportStatement();
 			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseReturnStatement();
 			ShaderAst::StatementPtr ParseRootStatement(std::vector<ShaderAst::ExprValue> attributes = {});

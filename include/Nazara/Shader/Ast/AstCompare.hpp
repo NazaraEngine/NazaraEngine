@@ -56,6 +56,7 @@ namespace Nz::ShaderAst
 	inline bool Compare(const ExpressionStatement& lhs, const ExpressionStatement& rhs);
 	inline bool Compare(const ForStatement& lhs, const ForStatement& rhs);
 	inline bool Compare(const ForEachStatement& lhs, const ForEachStatement& rhs);
+	inline bool Compare(const ImportStatement& lhs, const ImportStatement& rhs);
 	inline bool Compare(const MultiStatement& lhs, const MultiStatement& rhs);
 	inline bool Compare(const NoOpStatement& lhs, const NoOpStatement& rhs);
 	inline bool Compare(const ReturnStatement& lhs, const ReturnStatement& rhs);

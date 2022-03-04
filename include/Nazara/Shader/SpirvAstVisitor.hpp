@@ -56,6 +56,7 @@ namespace Nz
 			void Visit(ShaderAst::DeclareVariableStatement& node) override;
 			void Visit(ShaderAst::DiscardStatement& node) override;
 			void Visit(ShaderAst::ExpressionStatement& node) override;
+			void Visit(ShaderAst::ImportStatement& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::MultiStatement& node) override;
 			void Visit(ShaderAst::NoOpStatement& node) override;

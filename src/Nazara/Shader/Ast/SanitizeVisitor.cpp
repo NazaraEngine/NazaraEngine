@@ -1308,6 +1308,11 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	StatementPtr SanitizeVisitor::Clone(ImportStatement& node)
+	{
+			return static_unique_pointer_cast<ImportStatement>(AstCloner::Clone(node));
+	}
+
 	StatementPtr SanitizeVisitor::Clone(MultiStatement& node)
 	{
 		auto clone = std::make_unique<MultiStatement>();

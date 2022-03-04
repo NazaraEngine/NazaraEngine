@@ -127,6 +127,11 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::IdentifierExpression> operator()(std::string name) const;
 		};
 
+		struct Import
+		{
+			inline std::unique_ptr<ShaderAst::ImportStatement> operator()(std::vector<std::string> modulePath) const;
+		};
+
 		struct Intrinsic
 		{
 			inline std::unique_ptr<ShaderAst::IntrinsicExpression> operator()(ShaderAst::IntrinsicType intrinsicType, std::vector<ShaderAst::ExpressionPtr> parameters) const;
@@ -196,6 +201,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::For For;
 	constexpr Impl::ForEach ForEach;
 	constexpr Impl::Identifier Identifier;
+	constexpr Impl::Import Import;
 	constexpr Impl::Intrinsic Intrinsic;
 	constexpr Impl::Multi MultiStatement;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;

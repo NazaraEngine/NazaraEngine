@@ -954,6 +954,20 @@ namespace Nz
 		ScopeVisit(*node.statement);
 	}
 
+	void LangWriter::Visit(ShaderAst::ImportStatement& node)
+	{
+		bool first = true;
+		for (const std::string& path : node.modulePath)
+		{
+			if (!first)
+				Append("/");
+
+			Append(path);
+
+			first = false;
+		}
+	}
+
 	void LangWriter::Visit(ShaderAst::IntrinsicExpression& node)
 	{
 		bool method = false;

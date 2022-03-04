@@ -185,6 +185,11 @@ namespace Nz::ShaderAst
 			node.statement->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(ImportStatement& /*node*/)
+	{
+		/* nothing to do */
+	}
+
 	void AstRecursiveVisitor::Visit(MultiStatement& node)
 	{
 		for (auto& statement : node.statements)
