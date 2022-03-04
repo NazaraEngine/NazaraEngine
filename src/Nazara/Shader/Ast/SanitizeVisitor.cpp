@@ -939,6 +939,9 @@ namespace Nz::ShaderAst
 
 		auto clone = static_unique_pointer_cast<DeclareStructStatement>(AstCloner::Clone(node));
 
+		if (clone->isExported.HasValue())
+			clone->isExported = ComputeExprValue(clone->isExported);
+
 		std::unordered_set<std::string> declaredMembers;
 		for (auto& member : clone->description.members)
 		{

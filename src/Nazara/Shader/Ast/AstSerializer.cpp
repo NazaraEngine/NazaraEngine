@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/Ast/AstSerializer.hpp>
+#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstExpressionVisitor.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitor.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -249,6 +249,7 @@ namespace Nz::ShaderAst
 	void AstSerializerBase::Serialize(DeclareStructStatement& node)
 	{
 		OptVal(node.structIndex);
+		ExprValue(node.isExported);
 
 		Value(node.description.name);
 		ExprValue(node.description.layout);
