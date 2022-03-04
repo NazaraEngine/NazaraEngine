@@ -181,7 +181,7 @@ void MainWindow::OnCompile()
 {
 	try
 	{
-		auto shader = m_shaderGraph.ToAst();
+		auto shaderModule = m_shaderGraph.ToModule();
 
 		QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save shader"), QString(), tr("Shader Files (*.shader)"));
 		if (fileName.isEmpty())
@@ -191,7 +191,7 @@ void MainWindow::OnCompile()
 			fileName += ".shader";
 
 		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
-		file.Write(Nz::ShaderAst::SerializeShader(shader));
+		file.Write(Nz::ShaderAst::SerializeShader(*shaderModule));
 	}
 	catch (const std::exception& e)
 	{

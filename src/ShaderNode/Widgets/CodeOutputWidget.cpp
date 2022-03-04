@@ -61,18 +61,18 @@ void CodeOutputWidget::Refresh()
 		for (std::size_t i = 0; i < m_shaderGraph.GetOptionCount(); ++i)
 			states.optionValues[i] = m_shaderGraph.IsOptionEnabled(i);
 
-		Nz::ShaderAst::StatementPtr shaderAst = m_shaderGraph.ToAst();
+		Nz::ShaderAst::ModulePtr shaderModule = m_shaderGraph.ToModule();
 
 		if (m_optimisationCheckbox->isChecked())
 		{
 			Nz::ShaderAst::SanitizeVisitor::Options sanitizeOptions;
 			sanitizeOptions.optionValues = states.optionValues;
 
-			shaderAst = Nz::ShaderAst::Sanitize(*shaderAst, sanitizeOptions);
+			shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOptions);
 
 			Nz::ShaderAst::AstConstantPropagationVisitor optimiser;
-			shaderAst = Nz::ShaderAst::PropagateConstants(*shaderAst);
-			shaderAst = Nz::ShaderAst::EliminateUnusedPass(*shaderAst);
+			shaderModule = Nz::ShaderAst::PropagateConstants(*shaderModule);
+			shaderModule = Nz::ShaderAst::EliminateUnusedPass(*shaderModule);
 		}
 
 		std::string output;
@@ -89,21 +89,21 @@ void CodeOutputWidget::Refresh()
 					bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), bindingMapping.size());
 
 				Nz::GlslWriter writer;
-				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderAst, bindingMapping, states);
+				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, bindingMapping, states);
 				break;
 			}
 
 			case OutputLanguage::NZSL:
 			{
 				Nz::LangWriter writer;
-				output = writer.Generate(*shaderAst, states);
+				output = writer.Generate(*shaderModule, states);
 				break;
 			}
 
 			case OutputLanguage::SpirV:
 			{
 				Nz::SpirvWriter writer;
-				std::vector<std::uint32_t> spirv = writer.Generate(*shaderAst, states);
+				std::vector<std::uint32_t> spirv = writer.Generate(*shaderModule, states);
 
 				Nz::SpirvPrinter printer;
 				output = printer.Print(spirv.data(), spirv.size());

@@ -10,9 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
-#include <optional>
-#include <unordered_map>
-#include <vector>
+#include <Nazara/Shader/Ast/Module.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -28,6 +26,8 @@ namespace Nz::ShaderAst
 
 			inline ExpressionPtr Process(Expression& expression);
 			inline ExpressionPtr Process(Expression& expression, const Options& options);
+			ModulePtr Process(const Module& shaderModule);
+			ModulePtr Process(const Module& shaderModule, const Options& options);
 			inline StatementPtr Process(Statement& statement);
 			inline StatementPtr Process(Statement& statement, const Options& options);
 
@@ -65,6 +65,8 @@ namespace Nz::ShaderAst
 
 	inline ExpressionPtr PropagateConstants(Expression& expr);
 	inline ExpressionPtr PropagateConstants(Expression& expr, const AstConstantPropagationVisitor::Options& options);
+	inline ModulePtr PropagateConstants(const Module& shaderModule);
+	inline ModulePtr PropagateConstants(const Module& shaderModule, const AstConstantPropagationVisitor::Options& options);
 	inline StatementPtr PropagateConstants(Statement& ast);
 	inline StatementPtr PropagateConstants(Statement& ast, const AstConstantPropagationVisitor::Options& options);
 }

@@ -13,6 +13,9 @@ TEST_CASE("swizzle", "[Shader]")
 		WHEN("reading")
 		{
 			std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -21,9 +24,9 @@ fn main()
 }
 )";
 
-			Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+			Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	vec4 vec = vec4(0.000000, 1.000000, 2.000000, 3.000000);
@@ -31,7 +34,7 @@ void main()
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -40,7 +43,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -57,6 +60,9 @@ OpFunctionEnd)");
 		WHEN("writing")
 		{
 			std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -65,9 +71,9 @@ fn main()
 }
 )";
 
-			Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+			Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	vec4 vec = vec4(0.000000, 0.000000, 0.000000, 0.000000);
@@ -75,7 +81,7 @@ void main()
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -84,7 +90,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -104,6 +110,9 @@ OpFunctionEnd)");
 		GIVEN("a variable")
 		{
 			std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -112,9 +121,9 @@ fn main()
 }
 )";
 
-			Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+			Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float value = 42.000000;
@@ -122,7 +131,7 @@ void main()
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -131,7 +140,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -147,6 +156,9 @@ OpFunctionEnd)");
 		GIVEN("a function value")
 		{
 			std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -155,9 +167,9 @@ fn main()
 }
 )";
 
-			Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+			Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float cachedResult = max(2.000000, 1.000000);
@@ -167,7 +179,7 @@ void main()
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -176,7 +188,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -197,6 +209,9 @@ OpFunctionEnd)");
 		WHEN("reading")
 		{
 			std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -205,9 +220,9 @@ fn main()
 }
 )";
 
-			Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+			Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	vec4 vec = vec4(0.000000, 1.000000, 2.000000, 3.000000);
@@ -215,7 +230,7 @@ void main()
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -224,7 +239,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -244,6 +259,9 @@ OpFunctionEnd)");
 		WHEN("writing")
 		{
 			std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -253,9 +271,9 @@ fn main()
 }
 )";
 
-			Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+			Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	vec4 vec = vec4(0.000000, 1.000000, 2.000000, 3.000000);
@@ -264,7 +282,7 @@ void main()
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -274,7 +292,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable

@@ -43,6 +43,18 @@ namespace Nz::ShaderAst
 		return optimize.Process(ast, options);
 	}
 
+	inline ModulePtr PropagateConstants(const Module& shaderModule)
+	{
+		AstConstantPropagationVisitor optimize;
+		return optimize.Process(shaderModule);
+	}
+
+	inline ModulePtr PropagateConstants(const Module& shaderModule, const AstConstantPropagationVisitor::Options& options)
+	{
+		AstConstantPropagationVisitor optimize;
+		return optimize.Process(shaderModule, options);
+	}
+
 	inline StatementPtr PropagateConstants(Statement& ast)
 	{
 		AstConstantPropagationVisitor optimize;

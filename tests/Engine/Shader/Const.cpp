@@ -8,10 +8,10 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
-void ExpectOutput(Nz::ShaderAst::Statement& shader, const Nz::ShaderAst::SanitizeVisitor::Options& options, std::string_view expectedOptimizedResult)
+void ExpectOutput(Nz::ShaderAst::Module& shaderModule, const Nz::ShaderAst::SanitizeVisitor::Options& options, std::string_view expectedOptimizedResult)
 {
-	Nz::ShaderAst::StatementPtr sanitizedShader;
-	REQUIRE_NOTHROW(sanitizedShader = Nz::ShaderAst::Sanitize(shader, options));
+	Nz::ShaderAst::ModulePtr sanitizedShader;
+	REQUIRE_NOTHROW(sanitizedShader = Nz::ShaderAst::Sanitize(shaderModule, options));
 
 	ExpectNZSL(*sanitizedShader, expectedOptimizedResult);
 }
@@ -21,6 +21,9 @@ TEST_CASE("const", "[Shader]")
 	WHEN("using const if")
 	{
 		std::string_view sourceCode = R"(
+[nzsl_version("1.0")]
+module;
+
 option UseInt: bool = false;
 
 [cond(UseInt)]
@@ -56,8 +59,8 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader;
-		REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+		Nz::ShaderAst::ModulePtr shaderModule;
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
 
 		Nz::ShaderAst::SanitizeVisitor::Options options;
 
@@ -65,7 +68,7 @@ fn main()
 		{
 			options.optionValues[0] = true;
 
-			ExpectOutput(*shader, options, R"(
+			ExpectOutput(*shaderModule, options, R"(
 struct inputStruct
 {
 	value: i32
@@ -89,7 +92,7 @@ fn main()
 		{
 			options.optionValues[0] = false;
 
-			ExpectOutput(*shader, options, R"(
+			ExpectOutput(*shaderModule, options, R"(
 struct inputStruct
 {
 	value: f32
@@ -113,6 +116,9 @@ fn main()
 	WHEN("using [unroll] attribute on numerical for")
 	{
 		std::string_view sourceCode = R"(
+[nzsl_version("1.0")]
+module;
+
 const LightCount = 3;
 
 [layout(std140)]
@@ -145,10 +151,10 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader;
-		REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+		Nz::ShaderAst::ModulePtr shaderModule;
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
 
-		ExpectOutput(*shader, {}, R"(
+		ExpectOutput(*shaderModule, {}, R"(
 [entry(frag)]
 fn main()
 {
@@ -170,6 +176,9 @@ fn main()
 	WHEN("using [unroll] attribute on for-each")
 	{
 		std::string_view sourceCode = R"(
+[nzsl_version("1.0")]
+module;
+
 const LightCount = 3;
 
 [layout(std140)]
@@ -202,10 +211,10 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader;
-		REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+		Nz::ShaderAst::ModulePtr shaderModule;
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
 
-		ExpectOutput(*shader, {}, R"(
+		ExpectOutput(*shaderModule, {}, R"(
 [entry(frag)]
 fn main()
 {
