@@ -285,13 +285,11 @@ namespace Nz
 			{
 				m_atlasClearedSlot.Connect(m_atlas->OnAtlasCleared, this, &Font::OnAtlasCleared);
 				m_atlasLayerChangeSlot.Connect(m_atlas->OnAtlasLayerChange, this, &Font::OnAtlasLayerChange);
-				m_atlasReleaseSlot.Connect(m_atlas->OnAtlasRelease, this, &Font::OnAtlasRelease);
 			}
 			else
 			{
 				m_atlasClearedSlot.Disconnect();
 				m_atlasLayerChangeSlot.Disconnect();
-				m_atlasReleaseSlot.Disconnect();
 			}
 
 			OnFontAtlasChanged(this);
@@ -443,23 +441,6 @@ namespace Nz
 
 		// Pour faciliter le travail des ressources qui nous écoutent
 		OnFontAtlasLayerChanged(this, oldLayer, newLayer);
-	}
-
-	void Font::OnAtlasRelease(const AbstractAtlas* atlas)
-	{
-		NazaraUnused(atlas);
-
-		#ifdef NAZARA_DEBUG
-		// Est-ce qu'il s'agit bien de notre atlas ?
-		if (m_atlas.get() != atlas)
-		{
-			NazaraInternalError("Notified by a non-listening-to resource");
-			return;
-		}
-		#endif
-
-		// Nous ne pouvons pas faire grand chose d'autre que de balancer une erreur à la tête de l'utilisateur avant un potentiel crash...
-		NazaraError("Atlas has been released while in use");
 	}
 
 	const Font::Glyph& Font::PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const
