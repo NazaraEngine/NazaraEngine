@@ -12,6 +12,7 @@
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/DependencyCheckerVisitor.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 
 namespace Nz::ShaderAst
 {
@@ -23,6 +24,7 @@ namespace Nz::ShaderAst
 			EliminateUnusedPassVisitor(EliminateUnusedPassVisitor&&) = delete;
 			~EliminateUnusedPassVisitor() = default;
 
+			ModulePtr Process(const Module& shaderModule, const DependencyCheckerVisitor::UsageSet& usageSet);
 			StatementPtr Process(Statement& statement, const DependencyCheckerVisitor::UsageSet& usageSet);
 
 			EliminateUnusedPassVisitor& operator=(const EliminateUnusedPassVisitor&) = delete;
@@ -42,6 +44,10 @@ namespace Nz::ShaderAst
 			struct Context;
 			Context* m_context;
 	};
+
+	inline ModulePtr EliminateUnusedPass(const Module& shaderModule);
+	inline ModulePtr EliminateUnusedPass(const Module& shaderModule, const DependencyCheckerVisitor::Config& config);
+	inline ModulePtr EliminateUnusedPass(const Module& shaderModule, const DependencyCheckerVisitor::UsageSet& usageSet);
 
 	inline StatementPtr EliminateUnusedPass(Statement& ast);
 	inline StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::Config& config);

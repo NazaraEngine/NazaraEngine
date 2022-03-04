@@ -9,24 +9,33 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
+template<typename T, typename U>
+std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
+{
+	return std::unique_ptr<T>(Nz::SafeCast<T*>(ptr.release()));
+}
+
 void PropagateConstantAndExpect(std::string_view sourceCode, std::string_view expectedOptimizedResult)
 {
-	Nz::ShaderAst::StatementPtr shader;
-	REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
-	REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader));
-	REQUIRE_NOTHROW(shader = Nz::ShaderAst::PropagateConstants(*shader));
+	Nz::ShaderAst::ModulePtr shaderModule;
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule));
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::PropagateConstants(*shaderModule));
 
-	ExpectNZSL(*shader, expectedOptimizedResult);
+	ExpectNZSL(*shaderModule, expectedOptimizedResult);
 }
 
 void EliminateUnusedAndExpect(std::string_view sourceCode, std::string_view expectedOptimizedResult)
 {
-	Nz::ShaderAst::StatementPtr shader;
-	REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
-	REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader));
-	REQUIRE_NOTHROW(shader = Nz::ShaderAst::EliminateUnusedPass(*shader));
+	Nz::ShaderAst::DependencyCheckerVisitor::Config depConfig;
+	depConfig.usedShaderStages = Nz::ShaderStageType_All;
 
-	ExpectNZSL(*shader, expectedOptimizedResult);
+	Nz::ShaderAst::ModulePtr shaderModule;
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule));
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::EliminateUnusedPass(*shaderModule, depConfig));
+
+	ExpectNZSL(*shaderModule, expectedOptimizedResult);
 }
 
 TEST_CASE("optimizations", "[Shader]")
@@ -34,6 +43,9 @@ TEST_CASE("optimizations", "[Shader]")
 	WHEN("propagating constants")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -51,6 +63,9 @@ fn main()
 	WHEN("propagating vector constants")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -67,6 +82,9 @@ fn main()
 	WHEN("eliminating simple branch")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -85,6 +103,9 @@ fn main()
 	WHEN("eliminating multiple branches")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -116,6 +137,9 @@ fn main()
 	WHEN("eliminating multiple split branches")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -158,6 +182,9 @@ fn main()
 	WHEN("optimizing out scalar swizzle")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -175,6 +202,9 @@ fn main()
 	WHEN("optimizing out scalar swizzle to vector")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -192,6 +222,9 @@ fn main()
 	WHEN("optimizing out vector swizzle")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -209,6 +242,9 @@ fn main()
 	WHEN("optimizing out vector swizzle with repetition")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -226,6 +262,9 @@ fn main()
 	WHEN("optimizing out complex swizzle")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -243,6 +282,9 @@ fn main()
 	WHEN("optimizing out complex swizzle on unknown value")
 	{
 		PropagateConstantAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: vec4[f32]
@@ -270,6 +312,9 @@ fn main()
 	WHEN("eliminating unused code")
 	{
 		EliminateUnusedAndExpect(R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: vec4[f32]
@@ -305,6 +350,9 @@ fn main() -> Output
 	output.value = data.value;
 	return output;
 })", R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: vec4[f32]

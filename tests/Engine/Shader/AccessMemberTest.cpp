@@ -11,6 +11,9 @@ TEST_CASE("structure member access", "[Shader]")
 	SECTION("Nested member loading")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct innerStruct
 {
 	field: vec3[f32]
@@ -27,9 +30,7 @@ external
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
-		REQUIRE(shader->GetType() == Nz::ShaderAst::NodeType::MultiStatement);
-		Nz::ShaderAst::MultiStatement& multiStatement = static_cast<Nz::ShaderAst::MultiStatement&>(*shader);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 		SECTION("Nested AccessMember")
 		{
@@ -40,16 +41,16 @@ external
 			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(secondAccess), { 2u });
 			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Float32 }, std::move(swizzle));
 
-			multiStatement.statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
+			shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float result = ubo.s.field.z;
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(vert)]
 fn main()
 {
@@ -57,7 +58,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -77,16 +78,16 @@ OpFunctionEnd)");
 			auto swizzle = Nz::ShaderBuilder::Swizzle(std::move(access), { 2u });
 			auto varDecl = Nz::ShaderBuilder::DeclareVariable("result", Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Float32 }, std::move(swizzle));
 
-			multiStatement.statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
+			shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareFunction(Nz::ShaderStageType::Vertex, "main", std::move(varDecl)));
 
-			ExpectGLSL(*shader, R"(
+			ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float result = ubo.s.field.z;
 }
 )");
 
-			ExpectNZSL(*shader, R"(
+			ExpectNZSL(*shaderModule, R"(
 [entry(vert)]
 fn main()
 {
@@ -94,7 +95,7 @@ fn main()
 }
 )");
 
-			ExpectSpirV(*shader, R"(
+			ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable

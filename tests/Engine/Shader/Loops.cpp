@@ -11,6 +11,9 @@ TEST_CASE("loops", "[Shader]")
 	WHEN("using a while")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: f32
@@ -34,9 +37,9 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float value = 0.000000;
@@ -50,7 +53,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -65,7 +68,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -94,6 +97,9 @@ OpFunctionEnd)");
 	WHEN("using a for range")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -105,10 +111,10 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	int x = 0;
@@ -123,7 +129,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -136,7 +142,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -169,6 +175,9 @@ OpFunctionEnd)");
 	WHEN("using a for range with step")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {
@@ -180,10 +189,10 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	int x = 0;
@@ -199,7 +208,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -212,7 +221,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable
@@ -248,6 +257,9 @@ OpFunctionEnd)");
 	WHEN("using a for-each")
 	{
 		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: array[f32, 10]
@@ -269,10 +281,10 @@ fn main()
 }
 )";
 
-		Nz::ShaderAst::StatementPtr shader = Nz::ShaderLang::Parse(nzslSource);
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
 
 
-		ExpectGLSL(*shader, R"(
+		ExpectGLSL(*shaderModule, R"(
 void main()
 {
 	float x = 0.000000;
@@ -287,7 +299,7 @@ void main()
 }
 )");
 
-		ExpectNZSL(*shader, R"(
+		ExpectNZSL(*shaderModule, R"(
 [entry(frag)]
 fn main()
 {
@@ -300,7 +312,7 @@ fn main()
 }
 )");
 
-		ExpectSpirV(*shader, R"(
+		ExpectSPIRV(*shaderModule, R"(
 OpFunction
 OpLabel
 OpVariable

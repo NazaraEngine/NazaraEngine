@@ -5,16 +5,32 @@
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
-#include <unordered_map>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
 {
+	namespace
+	{
+		template<typename T, typename U>
+		std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
+		{
+			return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
+		}
+	}
+
 	struct EliminateUnusedPassVisitor::Context
 	{
 		const DependencyCheckerVisitor::UsageSet& usageSet;
 	};
+
+	ModulePtr EliminateUnusedPassVisitor::Process(const Module& shaderModule, const DependencyCheckerVisitor::UsageSet& usageSet)
+	{
+		ModulePtr clone = std::make_shared<Module>();
+		clone->metadata = shaderModule.metadata;
+		clone->rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, usageSet));
+
+		return clone;
+	}
 
 	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const DependencyCheckerVisitor::UsageSet& usageSet)
 	{

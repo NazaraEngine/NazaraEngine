@@ -112,7 +112,7 @@ namespace Nz::ShaderAst
 		std::vector<StatementPtr>* currentStatementList = nullptr;
 	};
 
-	ModulePtr SanitizeVisitor::Sanitize(Module& module, const Options& options, std::string* error)
+	ModulePtr SanitizeVisitor::Sanitize(const Module& module, const Options& options, std::string* error)
 	{
 		ModulePtr clone = std::make_shared<Module>();
 		clone->shaderLangVersion = module.shaderLangVersion;

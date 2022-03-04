@@ -457,13 +457,18 @@ QJsonObject ShaderGraph::Save()
 	return sceneJson;
 }
 
-Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
+Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 {
-	std::vector<Nz::ShaderAst::StatementPtr> statements;
+	Nz::ShaderAst::ModulePtr shaderModule = std::make_shared<Nz::ShaderAst::Module>();
+
+	std::shared_ptr<Nz::ShaderAst::Module::Metadata> moduleMetada = std::make_shared<Nz::ShaderAst::Module::Metadata>();
+	moduleMetada->shaderLangVersion = 100;
+
+	shaderModule->metadata = std::move(moduleMetada);
 
 	// Declare all options
 	for (const auto& option : m_options)
-		statements.push_back(Nz::ShaderBuilder::DeclareOption(option.name, Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Boolean }));
+		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareOption(option.name, Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Boolean }));
 
 	// Declare all structures
 	for (const auto& structInfo : m_structs)
@@ -479,7 +484,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 			structMember.type = ToShaderExpressionType(memberInfo.type);
 		}
 
-		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
 	}
 
 	// External block
@@ -509,7 +514,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 	}
 
 	if (!external->externalVars.empty())
-		statements.push_back(std::move(external));
+		shaderModule->rootNode->statements.push_back(std::move(external));
 
 	// Inputs / outputs
 	if (!m_inputs.empty())
@@ -525,7 +530,7 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 			structMember.locationIndex = input.locationIndex;
 		}
 
-		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
 	}
 
 	if (!m_outputs.empty())
@@ -549,13 +554,13 @@ Nz::ShaderAst::StatementPtr ShaderGraph::ToAst() const
 			position.type = Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 } };
 		}
 
-		statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc)));
+		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
 	}
 
 	// Functions
-	statements.push_back(ToFunction());
+	shaderModule->rootNode->statements.push_back(ToFunction());
 
-	return Nz::ShaderBuilder::MultiStatement(std::move(statements));
+	return shaderModule;
 }
 
 Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
