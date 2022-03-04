@@ -130,7 +130,6 @@ namespace Nz
 			UInt64 ComputeKey(unsigned int characterSize, TextStyleFlags style, float outlineThickness) const;
 			void OnAtlasCleared(const AbstractAtlas* atlas);
 			void OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer);
-			void OnAtlasRelease(const AbstractAtlas* atlas);
 			const Glyph& PrecacheGlyph(GlyphMap& glyphMap, unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
 
 			static bool Initialize();
@@ -138,7 +137,6 @@ namespace Nz
 
 			NazaraSlot(AbstractAtlas, OnAtlasCleared, m_atlasClearedSlot);
 			NazaraSlot(AbstractAtlas, OnAtlasLayerChange, m_atlasLayerChangeSlot);
-			NazaraSlot(AbstractAtlas, OnAtlasRelease, m_atlasReleaseSlot);
 
 			std::shared_ptr<AbstractAtlas> m_atlas;
 			std::unique_ptr<FontData> m_data;
