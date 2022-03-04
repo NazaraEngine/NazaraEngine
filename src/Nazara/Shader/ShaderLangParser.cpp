@@ -28,6 +28,7 @@ namespace Nz::ShaderLang
 			{ "depth_write",          ShaderAst::AttributeType::DepthWrite },
 			{ "early_fragment_tests", ShaderAst::AttributeType::EarlyFragmentTests },
 			{ "entry",                ShaderAst::AttributeType::Entry },
+			{ "export",               ShaderAst::AttributeType::Export },
 			{ "layout",               ShaderAst::AttributeType::Layout },
 			{ "location",             ShaderAst::AttributeType::Location },
 			{ "nzsl_version",         ShaderAst::AttributeType::LangVersion },
@@ -66,15 +67,27 @@ namespace Nz::ShaderLang
 		}
 
 		template<typename T>
-		void HandleUniqueAttribute(const std::string_view& attributeName, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param, bool requireValue = true)
+		void HandleUniqueAttribute(const std::string_view& attributeName, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param)
 		{
 			if (targetAttribute.HasValue())
 				throw AttributeError{ "attribute " + std::string(attributeName) + " must be present once" };
 
-			if (!param && requireValue)
+			if (param)
+				targetAttribute = std::move(*param);
+			else
 				throw AttributeError{ "attribute " + std::string(attributeName) + " requires a parameter" };
+		}
 
-			targetAttribute = std::move(*param);
+		template<typename T>
+		void HandleUniqueAttribute(const std::string_view& attributeName, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param, T defaultValue)
+		{
+			if (targetAttribute.HasValue())
+				throw AttributeError{ "attribute " + std::string(attributeName) + " must be present once" };
+
+			if (param)
+				targetAttribute = std::move(*param);
+			else
+				targetAttribute = std::move(defaultValue);
 		}
 
 		template<typename T>
@@ -122,7 +135,7 @@ namespace Nz::ShaderLang
 		{
 			ShaderAst::StatementPtr statement = ParseRootStatement();
 			if (!m_context->module)
-				throw UnexpectedToken{ "unexpected token before module declaration" };
+				throw UnexpectedToken{}; //< "unexpected token before module declaration"
 
 			if (!statement)
 				break;
@@ -611,7 +624,7 @@ namespace Nz::ShaderLang
 					break;
 
 				case ShaderAst::AttributeType::EarlyFragmentTests:
-					HandleUniqueAttribute("early_fragment_tests", func->earlyFragmentTests, std::move(arg), false);
+					HandleUniqueAttribute("early_fragment_tests", func->earlyFragmentTests, std::move(arg), true);
 					break;
 
 				default:
@@ -836,6 +849,7 @@ namespace Nz::ShaderLang
 		description.name = ParseIdentifierAsName();
 		
 		ShaderAst::ExpressionValue<bool> condition;
+		ShaderAst::ExpressionValue<bool> exported;
 
 		for (auto&& [attributeType, attributeParam] : attributes)
 		{
@@ -843,6 +857,10 @@ namespace Nz::ShaderLang
 			{
 				case ShaderAst::AttributeType::Cond:
 					HandleUniqueAttribute("cond", condition, std::move(attributeParam));
+					break;
+
+				case ShaderAst::AttributeType::Export:
+					HandleUniqueAttribute("export", exported, std::move(attributeParam), true);
 					break;
 
 				case ShaderAst::AttributeType::Layout:
@@ -917,9 +935,9 @@ namespace Nz::ShaderLang
 		Expect(Advance(), TokenType::ClosingCurlyBracket);
 
 		if (condition.HasValue())
-			return ShaderBuilder::ConditionalStatement(std::move(condition).GetExpression(), ShaderBuilder::DeclareStruct(std::move(description)));
+			return ShaderBuilder::ConditionalStatement(std::move(condition).GetExpression(), ShaderBuilder::DeclareStruct(std::move(description), std::move(exported)));
 		else
-			return ShaderBuilder::DeclareStruct(std::move(description));
+			return ShaderBuilder::DeclareStruct(std::move(description), std::move(exported));
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseVariableAssignation()

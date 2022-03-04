@@ -33,6 +33,7 @@ namespace Nz
 			DepthWrite,         //< Depth write mode (function only) - has argument type
 			EarlyFragmentTests, //< Entry point (function only) - has argument on/off
 			Entry,              //< Entry point (function only) - has argument type
+			Export,             //< Exported (external block, function and struct only)
 			Layout,             //< Struct layout (struct only) - has argument style
 			Location,           //< Location (struct member only) - has argument index
 			LangVersion,        //< NZSL version - has argument version string

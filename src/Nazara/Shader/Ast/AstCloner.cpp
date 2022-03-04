@@ -148,6 +148,7 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<DeclareStructStatement>();
 		clone->structIndex = node.structIndex;
+		clone->isExported = Clone(node.isExported);
 
 		clone->description.layout = Clone(node.description.layout);
 		clone->description.name = node.description.name;
