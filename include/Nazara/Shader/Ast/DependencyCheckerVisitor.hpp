@@ -27,6 +27,8 @@ namespace Nz::ShaderAst
 
 			inline const UsageSet& GetUsage() const;
 
+			inline void MarkStructAsUsed(std::size_t structIndex);
+
 			inline void Process(Statement& statement);
 			void Process(Statement& statement, const Config& config);
 
@@ -37,7 +39,7 @@ namespace Nz::ShaderAst
 
 			struct Config
 			{
-				ShaderStageTypeFlags usedShaderStages = ShaderStageType_All;
+				ShaderStageTypeFlags usedShaderStages;
 			};
 
 			struct UsageSet

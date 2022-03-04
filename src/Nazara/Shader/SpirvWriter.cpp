@@ -522,8 +522,11 @@ namespace Nz
 		{
 			ShaderAst::StatementPtr tempAst;
 
+			ShaderAst::DependencyCheckerVisitor::Config dependencyConfig;
+			dependencyConfig.usedShaderStages = ShaderStageType_All;
+
 			tempAst = ShaderAst::PropagateConstants(*targetAst);
-			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst);
+			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst, dependencyConfig);
 
 			targetAst = optimizedAst.get();
 		}

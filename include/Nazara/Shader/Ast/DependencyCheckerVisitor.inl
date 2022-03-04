@@ -12,6 +12,11 @@ namespace Nz::ShaderAst
 		return m_resolvedUsage;
 	}
 
+	inline void DependencyCheckerVisitor::MarkStructAsUsed(std::size_t structIndex)
+	{
+		m_globalUsage.usedStructs.UnboundedSet(structIndex);
+	}
+
 	inline void DependencyCheckerVisitor::Process(Statement& statement)
 	{
 		Config defaultConfig;
