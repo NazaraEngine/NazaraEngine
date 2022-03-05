@@ -819,10 +819,9 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 	std::vector<Nz::ShaderAst::DeclareFunctionStatement::Parameter> parameters;
 	if (!m_inputs.empty())
 	{
-		parameters.push_back({
-			"input",
-			Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier("InputData") }
-		});
+		auto& parameter = parameters.emplace_back();
+		parameter.name = "input";
+		parameter.type = Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier("InputData") };
 	}
 
 	Nz::ShaderAst::ExpressionPtr returnType;

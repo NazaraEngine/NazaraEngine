@@ -57,7 +57,7 @@ namespace Nz
 		};
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
 	{
 		SpirvWriter::Environment env;
 

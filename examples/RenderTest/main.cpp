@@ -2,27 +2,44 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Shader.hpp>
-#include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/SpirvPrinter.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <iostream>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
-const char shaderSource[] = R"(
+const char moduleSource[] = R"(
 [nzsl_version("1.0")]
 module;
 
-option red: bool = false;
+fn dummy() {}
 
+[layout(std140)]
+struct Bar
+{
+}
+
+struct Foo {}
+
+[export]
 [layout(std140)]
 struct Data
 {
 	projectionMatrix: mat4[f32],
 	worldMatrix: mat4[f32],
-	viewMatrix: mat4[f32]
+	viewMatrix: mat4[f32],
+	pilier: Bar
 }
+)";
+
+const char shaderSource[] = R"(
+[nzsl_version("1.0")]
+module;
+
+import Test/module_test;
+
+option red: bool = false;
 
 [set(0)]
 external
@@ -105,10 +122,42 @@ int main()
 		return __LINE__;
 	}
 
+	Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(std::string_view(shaderSource, sizeof(shaderSource)));
+	if (!shaderModule)
+	{
+		std::cout << "Failed to parse shader module" << std::endl;
+		return __LINE__;
+	}
+
+	Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
+	sanitizeOpt.moduleCallback = [](const std::vector<std::string>& modulePath) -> Nz::ShaderAst::ModulePtr
+	{
+		if (modulePath.size() != 2)
+			return {};
+
+		if (modulePath[0] != "Test")
+			return {};
+
+		if (modulePath[1] != "module_test")
+			return {};
+
+		return Nz::ShaderLang::Parse(std::string_view(moduleSource, sizeof(moduleSource)));
+	};
+
+	shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt);
+	if (!shaderModule)
+	{
+		std::cout << "Failed to compile shader module" << std::endl;
+		return __LINE__;
+	}
+
+	Nz::LangWriter langWriter;
+	std::cout << langWriter.Generate(*shaderModule) << std::endl;
+
 	Nz::ShaderWriter::States states;
 	states.optimize = true;
 
-	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderSource, sizeof(shaderSource), states);
+	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, *shaderModule, states);
 	if (!fragVertShader)
 	{
 		std::cout << "Failed to instantiate shader" << std::endl;
@@ -116,7 +165,7 @@ int main()
 	}
 
 	Nz::MeshParams meshParams;
-	meshParams.bufferFactory = GetRenderBufferFactory(device);
+	meshParams.bufferFactory = Nz::GetRenderBufferFactory(device);
 	meshParams.center = true;
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
