@@ -624,13 +624,13 @@ namespace Nz
 
 		if (!func.parameters.empty())
 		{
-			std::size_t varIndex = *node.varIndex;
-			for (const auto& param : func.parameters)
+			assert(node.parameters.size() == func.parameters.size());
+			for (std::size_t i = 0; i < func.parameters.size(); ++i)
 			{
 				UInt32 paramResultId = m_writer.AllocateResultId();
-				m_instructions.Append(SpirvOp::OpFunctionParameter, param.pointerTypeId, paramResultId);
+				m_instructions.Append(SpirvOp::OpFunctionParameter, func.parameters[i].pointerTypeId, paramResultId);
 
-				RegisterVariable(varIndex++, param.typeId, paramResultId, SpirvStorageClass::Function);
+				RegisterVariable(*node.parameters[i].varIndex, func.parameters[i].typeId, paramResultId, SpirvStorageClass::Function);
 			}
 		}
 
@@ -655,8 +655,6 @@ namespace Nz
 			{
 				auto& inputStruct = *entryPointData.inputStruct;
 
-				std::size_t varIndex = *node.varIndex;
-
 				UInt32 paramId = m_writer.AllocateResultId();
 				m_currentBlock->Append(SpirvOp::OpVariable, inputStruct.pointerId, paramId, SpirvStorageClass::Function);
 
@@ -667,7 +665,7 @@ namespace Nz
 					m_currentBlock->Append(SpirvOp::OpCopyMemory, resultId, input.varId);
 				}
 
-				RegisterVariable(varIndex, inputStruct.typeId, paramId, SpirvStorageClass::Function);
+				RegisterVariable(*node.parameters.front().varIndex, inputStruct.typeId, paramId, SpirvStorageClass::Function);
 			}
 		}
 

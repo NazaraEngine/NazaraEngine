@@ -27,7 +27,7 @@ namespace Nz
 			VulkanShaderModule(VulkanShaderModule&&) = delete;
 			~VulkanShaderModule() = default;
 
-			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states);
+			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states);
 			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states);
 
 			inline const Vk::ShaderModule& GetHandle() const;

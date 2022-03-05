@@ -13,6 +13,7 @@
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstTypes.hpp>
 #include <Nazara/Shader/Ast/Module.hpp>
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -41,6 +42,7 @@ namespace Nz::ShaderAst
 
 			struct Options
 			{
+				std::function<ModulePtr(const std::vector<std::string>& /*modulePath*/)> moduleCallback;
 				std::unordered_set<std::string> reservedIdentifiers;
 				std::unordered_map<std::size_t, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;
@@ -112,13 +114,13 @@ namespace Nz::ShaderAst
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
 			void RegisterBuiltin();
-			std::size_t RegisterConstant(std::string name, ConstantValue value, std::optional<std::size_t> index = {});
-			std::size_t RegisterFunction(std::string name, FunctionData funcData, std::optional<std::size_t> index = {});
-			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type, std::optional<std::size_t> index = {});
-			std::size_t RegisterStruct(std::string name, StructDescription* description, std::optional<std::size_t> index = {});
-			std::size_t RegisterType(std::string name, ExpressionType expressionType, std::optional<std::size_t> index = {});
-			std::size_t RegisterType(std::string name, PartialType partialType, std::optional<std::size_t> index = {});
-			std::size_t RegisterVariable(std::string name, ExpressionType type, std::optional<std::size_t> index = {});
+			std::size_t RegisterConstant(std::string name, ConstantValue value, bool hidden = false, std::optional<std::size_t> index = {});
+			std::size_t RegisterFunction(std::string name, FunctionData funcData, bool hidden = false, std::optional<std::size_t> index = {});
+			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type, bool hidden = false, std::optional<std::size_t> index = {});
+			std::size_t RegisterStruct(std::string name, StructDescription* description, bool hidden = false, std::optional<std::size_t> index = {});
+			std::size_t RegisterType(std::string name, ExpressionType expressionType, bool hidden = false, std::optional<std::size_t> index = {});
+			std::size_t RegisterType(std::string name, PartialType partialType, bool hidden = false, std::optional<std::size_t> index = {});
+			std::size_t RegisterVariable(std::string name, ExpressionType type, bool hidden = false, std::optional<std::size_t> index = {});
 
 			void ResolveFunctions();
 			const ExpressionPtr& ResolveCondExpression(ConditionalExpression& node);

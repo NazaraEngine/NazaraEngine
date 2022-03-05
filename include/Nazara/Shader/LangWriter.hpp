@@ -29,7 +29,7 @@ namespace Nz
 			LangWriter(LangWriter&&) = delete;
 			~LangWriter() = default;
 
-			std::string Generate(ShaderAst::Module& module, const States& conditions = {});
+			std::string Generate(const ShaderAst::Module& module, const States& conditions = {});
 
 			void SetEnv(Environment environment);
 

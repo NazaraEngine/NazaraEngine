@@ -102,7 +102,7 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string LangWriter::Generate(ShaderAst::Module& module, const States& /*states*/)
+	std::string LangWriter::Generate(const ShaderAst::Module& module, const States& /*states*/)
 	{
 		State state;
 		m_currentState = &state;
@@ -820,22 +820,21 @@ namespace Nz
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
 
-		std::optional<std::size_t> varIndexOpt = node.varIndex;
-
 		AppendAttributes(true, EntryAttribute{ node.entryStage }, EarlyFragmentTestsAttribute{ node.earlyFragmentTests }, DepthWriteAttribute{ node.depthWrite });
 		Append("fn ", node.name, "(");
 		for (std::size_t i = 0; i < node.parameters.size(); ++i)
 		{
+			const auto& parameter = node.parameters[i];
+
 			if (i != 0)
 				Append(", ");
 
-			Append(node.parameters[i].name);
+			Append(parameter.name);
 			Append(": ");
-			Append(node.parameters[i].type);
+			Append(parameter.type);
 
-			assert(varIndexOpt);
-			std::size_t& varIndex = *varIndexOpt;
-			RegisterVariable(varIndex++, node.parameters[i].name);
+			assert(parameter.varIndex);
+			RegisterVariable(*parameter.varIndex, parameter.name);
 		}
 		Append(")");
 		if (node.returnType.HasValue())

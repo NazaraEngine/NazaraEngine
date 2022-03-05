@@ -496,7 +496,7 @@ namespace Nz
 	{
 	}
 
-	std::vector<UInt32> SpirvWriter::Generate(ShaderAst::Module& module, const States& states)
+	std::vector<UInt32> SpirvWriter::Generate(const ShaderAst::Module& module, const States& states)
 	{
 		ShaderAst::ModulePtr sanitizedModule;
 		ShaderAst::Statement* targetAst;

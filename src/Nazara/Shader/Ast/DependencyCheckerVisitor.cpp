@@ -85,13 +85,13 @@ namespace Nz::ShaderAst
 		// Register struct used in parameters or return type
 		if (!node.parameters.empty())
 		{
-			assert(node.varIndex);
-			std::size_t parameterVarIndex = *node.varIndex;
 			for (auto& parameter : node.parameters)
 			{
+				assert(parameter.varIndex);
+
 				// Since parameters must always be defined, their type isn't a dependency of parameter variables
-				assert(m_variableUsages.find(parameterVarIndex) == m_variableUsages.end());
-				m_variableUsages.emplace(parameterVarIndex, UsageSet{});
+				assert(m_variableUsages.find(*parameter.varIndex) == m_variableUsages.end());
+				m_variableUsages.emplace(*parameter.varIndex, UsageSet{});
 
 				const auto& exprType = parameter.type.GetResultingValue();
 				if (IsStructType(exprType))
@@ -99,8 +99,6 @@ namespace Nz::ShaderAst
 					std::size_t structIndex = std::get<ShaderAst::StructType>(exprType).structIndex;
 					usageSet.usedStructs.UnboundedSet(structIndex);
 				}
-
-				++parameterVarIndex;
 			}
 		}
 
