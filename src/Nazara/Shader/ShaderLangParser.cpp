@@ -640,13 +640,15 @@ namespace Nz::ShaderLang
 
 	ShaderAst::DeclareFunctionStatement::Parameter Parser::ParseFunctionParameter()
 	{
-		std::string parameterName = ParseIdentifierAsName();
+		ShaderAst::DeclareFunctionStatement::Parameter parameter;
+
+		parameter.name = ParseIdentifierAsName();
 
 		Expect(Advance(), TokenType::Colon);
 
-		ShaderAst::ExpressionPtr parameterType = ParseType();
+		parameter.type = ParseType();
 
-		return { parameterName, std::move(parameterType) };
+		return parameter;
 	}
 
 	ShaderAst::StatementPtr Parser::ParseImportStatement()

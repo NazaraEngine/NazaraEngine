@@ -250,6 +250,7 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> constIndex;
+		std::optional<bool> hidden;
 		std::string name;
 		ExpressionValue<ExpressionType> type;
 		ExpressionPtr expression;
@@ -269,8 +270,9 @@ namespace Nz::ShaderAst
 			ExpressionValue<ExpressionType> type;
 		};
 
-		ExpressionValue<UInt32> bindingSet;
 		std::vector<ExternalVar> externalVars;
+		std::optional<bool> hidden;
+		ExpressionValue<UInt32> bindingSet;
 	};
 
 	struct NAZARA_SHADER_API DeclareFunctionStatement : Statement
@@ -280,12 +282,13 @@ namespace Nz::ShaderAst
 
 		struct Parameter
 		{
-			std::string name;
 			ExpressionValue<ExpressionType> type;
+			std::optional<std::size_t> varIndex;
+			std::string name;
 		};
 
 		std::optional<std::size_t> funcIndex;
-		std::optional<std::size_t> varIndex;
+		std::optional<bool> hidden;
 		std::string name;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
@@ -301,6 +304,7 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> optIndex;
+		std::optional<bool> hidden;
 		std::string optName;
 		ExpressionPtr defaultValue;
 		ExpressionValue<ExpressionType> optType;
@@ -312,6 +316,7 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> structIndex;
+		std::optional<bool> hidden;
 		ExpressionValue<bool> isExported;
 		StructDescription description;
 	};

@@ -152,7 +152,7 @@ namespace Nz
 		unsigned int indentLevel = 0;
 	};
 
-	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, ShaderAst::Module& module, const BindingMapping& bindingMapping, const States& states)
+	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, const ShaderAst::Module& module, const BindingMapping& bindingMapping, const States& states)
 	{
 		State state(bindingMapping);
 		state.optionValues = states.optionValues;
@@ -210,7 +210,7 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::ModulePtr GlslWriter::Sanitize(ShaderAst::Module& module, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error)
+	ShaderAst::ModulePtr GlslWriter::Sanitize(const ShaderAst::Module& module, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error)
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
@@ -604,12 +604,11 @@ namespace Nz
 		{
 			if (!m_currentState->inputFields.empty())
 			{
-				assert(node.varIndex);
 				assert(!node.parameters.empty());
 
 				auto& parameter = node.parameters.front();
 				const std::string& varName = parameter.name;
-				RegisterVariable(*node.varIndex, varName);
+				RegisterVariable(*parameter.varIndex, varName);
 
 				assert(IsStructType(parameter.type.GetResultingValue()));
 				std::size_t structIndex = std::get<ShaderAst::StructType>(parameter.type.GetResultingValue()).structIndex;
@@ -1123,13 +1122,10 @@ namespace Nz
 		if (node.entryStage.HasValue())
 			return HandleEntryPoint(node);
 
-		std::optional<std::size_t> varIndexOpt = node.varIndex;
-
 		for (const auto& parameter : node.parameters)
 		{
-			assert(varIndexOpt);
-			std::size_t& varIndex = *varIndexOpt;
-			RegisterVariable(varIndex++, parameter.name);
+			assert(parameter.varIndex);
+			RegisterVariable(*parameter.varIndex, parameter.name);
 		}
 
 		AppendFunctionDeclaration(node);

@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states) :
+	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states) :
 	m_device(device)
 	{
 		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
@@ -137,7 +137,7 @@ namespace Nz
 		return stageFlags;
 	}
 
-	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, ShaderStageTypeFlags shaderStages, ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
+	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
 	{
 		m_states = states;
 		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
