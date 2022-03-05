@@ -304,13 +304,7 @@ namespace Nz::ShaderLang
 		if (!moduleVersion.has_value())
 			throw AttributeError{ "missing module version" };
 
-		m_context->module = std::make_shared<ShaderAst::Module>();
-		m_context->module->rootNode = ShaderBuilder::MultiStatement();
-
-		std::shared_ptr<ShaderAst::Module::Metadata> moduleMetadata = std::make_shared<ShaderAst::Module::Metadata>();
-		moduleMetadata->shaderLangVersion = *moduleVersion;
-
-		m_context->module->metadata = std::move(moduleMetadata);
+		m_context->module = std::make_shared<ShaderAst::Module>(*moduleVersion);
 
 		Expect(Advance(), TokenType::Semicolon);
 	}

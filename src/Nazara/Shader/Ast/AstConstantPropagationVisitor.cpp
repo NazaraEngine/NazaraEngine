@@ -737,20 +737,16 @@ namespace Nz::ShaderAst
 
 	ModulePtr AstConstantPropagationVisitor::Process(const Module& shaderModule)
 	{
-		ModulePtr clone = std::make_shared<Module>();
-		clone->metadata = shaderModule.metadata;
-		clone->rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode));
+		auto rootnode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode));
 
-		return clone;
+		return std::make_shared<Module>(shaderModule.metadata, std::move(rootnode));
 	}
 
 	ModulePtr AstConstantPropagationVisitor::Process(const Module& shaderModule, const Options& options)
 	{
-		ModulePtr clone = std::make_shared<Module>();
-		clone->metadata = shaderModule.metadata;
-		clone->rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, options));
+		auto rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, options));
 
-		return clone;
+		return std::make_shared<Module>(shaderModule.metadata, std::move(rootNode));
 	}
 
 	ExpressionPtr AstConstantPropagationVisitor::Clone(BinaryExpression& node)

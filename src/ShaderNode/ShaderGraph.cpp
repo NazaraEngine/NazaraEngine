@@ -459,12 +459,7 @@ QJsonObject ShaderGraph::Save()
 
 Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 {
-	Nz::ShaderAst::ModulePtr shaderModule = std::make_shared<Nz::ShaderAst::Module>();
-
-	std::shared_ptr<Nz::ShaderAst::Module::Metadata> moduleMetada = std::make_shared<Nz::ShaderAst::Module::Metadata>();
-	moduleMetada->shaderLangVersion = 100;
-
-	shaderModule->metadata = std::move(moduleMetada);
+	Nz::ShaderAst::ModulePtr shaderModule = std::make_shared<Nz::ShaderAst::Module>(100);
 
 	// Declare all options
 	for (const auto& option : m_options)

@@ -48,14 +48,9 @@ namespace Nz
 			{
 				if (!stageFlags.Test(stage))
 				{
-					ShaderAst::Module dummyModule;
+					ShaderAst::Module dummyModule(100);
 					dummyModule.rootNode = ShaderBuilder::MultiStatement();
 					dummyModule.rootNode->statements.push_back(ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
-
-					std::shared_ptr<ShaderAst::Module::Metadata> metadata = std::make_shared<ShaderAst::Module::Metadata>();
-					metadata->shaderLangVersion = 100;
-
-					dummyModule.metadata = std::move(metadata);
 
 					OpenGLShaderModule shaderModule(device, stage, dummyModule);
 					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping());

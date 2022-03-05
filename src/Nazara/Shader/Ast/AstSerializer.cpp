@@ -346,6 +346,7 @@ namespace Nz::ShaderAst
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
+		m_stream << module.metadata->moduleId;
 		m_stream << module.metadata->shaderLangVersion;
 		Serialize(*module.rootNode);
 
@@ -542,14 +543,12 @@ namespace Nz::ShaderAst
 		if (version > s_currentVersion)
 			throw std::runtime_error("unsupported version");
 
-		ModulePtr module = std::make_shared<Module>();
-
 		std::shared_ptr<Module::Metadata> metadata = std::make_shared<Module::Metadata>();
+		m_stream >> metadata->moduleId;
 		m_stream >> metadata->shaderLangVersion;
 
-		module->metadata = std::move(metadata);
+		ModulePtr module = std::make_shared<Module>(std::move(metadata));
 
-		module->rootNode = ShaderBuilder::MultiStatement();
 		ShaderSerializerVisitor visitor(*this);
 		module->rootNode->Visit(visitor);
 
