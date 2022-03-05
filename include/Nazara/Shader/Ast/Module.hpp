@@ -8,26 +8,43 @@
 #define NAZARA_SHADER_AST_MODULE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Uuid.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
 #include <memory>
 
 namespace Nz::ShaderAst
 {
-	struct Module;
+	class Module;
 
 	using ModulePtr = std::shared_ptr<Module>;
 
-	struct Module
+	class Module
 	{
-		struct Metadata
-		{
-			UInt32 shaderLangVersion;
-		};
+		public:
+			struct Metadata;
 
-		std::shared_ptr<const Metadata> metadata;
-		MultiStatementPtr rootNode;
+			inline Module(UInt32 shaderLangVersion);
+			inline Module(std::shared_ptr<const Metadata> metadata);
+			inline Module(std::shared_ptr<const Metadata> metadata, MultiStatementPtr rootNode);
+			Module(const Module&) = default;
+			Module(Module&&) noexcept = default;
+			~Module() = default;
+
+			Module& operator=(const Module&) = default;
+			Module& operator=(Module&&) noexcept = default;
+
+			std::shared_ptr<const Metadata> metadata;
+			MultiStatementPtr rootNode;
+
+			struct Metadata
+			{
+				UInt32 shaderLangVersion;
+				Uuid moduleId;
+			};
 	};
 }
+
+#include <Nazara/Shader/Ast/Module.inl>
 
 #endif // NAZARA_SHADER_AST_MODULE_HPP
