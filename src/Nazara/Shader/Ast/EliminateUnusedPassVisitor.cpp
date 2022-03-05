@@ -25,11 +25,9 @@ namespace Nz::ShaderAst
 
 	ModulePtr EliminateUnusedPassVisitor::Process(const Module& shaderModule, const DependencyCheckerVisitor::UsageSet& usageSet)
 	{
-		ModulePtr clone = std::make_shared<Module>();
-		clone->metadata = shaderModule.metadata;
-		clone->rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, usageSet));
-
-		return clone;
+		auto rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, usageSet));
+		
+		return std::make_shared<Module>(shaderModule.metadata, std::move(rootNode));
 	}
 
 	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const DependencyCheckerVisitor::UsageSet& usageSet)
