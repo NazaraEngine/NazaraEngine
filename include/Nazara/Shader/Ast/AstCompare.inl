@@ -15,12 +15,12 @@ namespace Nz::ShaderAst
 
 		switch (lhs.GetType())
 		{
-		case NodeType::None: break;
+			case NodeType::None: break;
 
 #define NAZARA_SHADERAST_EXPRESSION(Node) case NodeType::Node: return Compare(static_cast<const Node&>(lhs), static_cast<const Node&>(lhs));
 #include <Nazara/Shader/Ast/AstNodeList.hpp>
 
-		default: throw std::runtime_error("unexpected node type");
+			default: throw std::runtime_error("unexpected node type");
 		}
 
 		return true;
@@ -33,12 +33,12 @@ namespace Nz::ShaderAst
 
 		switch (lhs.GetType())
 		{
-		case NodeType::None: break;
+			case NodeType::None: break;
 
 #define NAZARA_SHADERAST_STATEMENT(Node) case NodeType::Node: return Compare(static_cast<const Node&>(lhs), static_cast<const Node&>(lhs));
 #include <Nazara/Shader/Ast/AstNodeList.hpp>
 
-		default: throw std::runtime_error("unexpected node type");
+			default: throw std::runtime_error("unexpected node type");
 		}
 
 		return false;
@@ -353,6 +353,17 @@ namespace Nz::ShaderAst
 			return false;
 
 		if (!Compare(lhs.condStatements, rhs.condStatements))
+			return false;
+
+		return true;
+	}
+
+	inline bool Compare(const ConditionalStatement& lhs, const ConditionalStatement& rhs)
+	{
+		if (!Compare(lhs.condition, rhs.condition))
+			return false;
+
+		if (!Compare(lhs.statement, rhs.statement))
 			return false;
 
 		return true;
