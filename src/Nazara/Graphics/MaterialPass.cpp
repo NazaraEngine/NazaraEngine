@@ -128,24 +128,23 @@ namespace Nz
 
 	void MaterialPass::UpdatePipeline() const
 	{
-		for (auto& shader : m_pipelineInfo.shaders)
-			shader.optionValues.fill(ShaderAst::NoValue{});
+		m_pipelineInfo.optionCount = 0;
 
 		const auto& options = m_settings->GetOptions();
 		for (std::size_t optionIndex = 0; optionIndex < options.size(); ++optionIndex)
 		{
-			const auto& option = options[optionIndex];
-			assert(option.optionIndexByShader.size() <= m_pipelineInfo.shaders.size());
-
-			for (std::size_t shaderIndex = 0; shaderIndex < option.optionIndexByShader.size(); ++shaderIndex)
+			if (!std::holds_alternative<ShaderAst::NoValue>(m_optionValues[optionIndex]))
 			{
-				if (!option.optionIndexByShader[shaderIndex].has_value())
-					continue;
+				auto& optionValue = m_pipelineInfo.optionValues[m_pipelineInfo.optionCount];
+				optionValue.hash = options[optionIndex].hash;
+				optionValue.value = m_optionValues[optionIndex];
 
-				std::size_t shaderOptionIndex = *option.optionIndexByShader[shaderIndex];
-				m_pipelineInfo.shaders[shaderIndex].optionValues[shaderOptionIndex] = m_optionValues[optionIndex];
+				m_pipelineInfo.optionCount++;
 			}
 		}
+
+		// make option values consistent (required for hash/equality)
+		std::sort(m_pipelineInfo.optionValues.begin(), m_pipelineInfo.optionValues.end(), [](const auto& lhs, const auto& rhs) { return lhs.hash < rhs.hash; });
 
 		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
 		m_pipelineUpdated = true;

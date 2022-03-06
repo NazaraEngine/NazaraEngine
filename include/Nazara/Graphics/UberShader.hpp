@@ -38,11 +38,9 @@ namespace Nz
 			inline void UpdateConfig(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers);
 			inline void UpdateConfigCallback(ConfigCallback callback);
 
-			static constexpr std::size_t MaximumOptionValue = 32;
-
 			struct Config
 			{
-				std::array<ShaderAst::ConstantValue, MaximumOptionValue> optionValues;
+				std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues;
 			};
 
 			struct ConfigEqual
@@ -57,7 +55,7 @@ namespace Nz
 
 			struct Option
 			{
-				std::size_t index;
+				UInt32 hash;
 			};
 
 		private:

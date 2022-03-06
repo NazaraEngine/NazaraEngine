@@ -122,7 +122,6 @@ namespace Nz::ShaderAst
 
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
 		std::optional<DependencyCheckerVisitor::UsageSet> importUsage;
-		std::size_t nextOptionIndex = 0;
 		std::vector<Identifier> identifiersInScope;
 		std::vector<PendingFunction> pendingFunctions;
 		std::vector<Scope> scopes;
@@ -951,6 +950,8 @@ namespace Nz::ShaderAst
 			throw AstError{ "options must be declared outside of functions" };
 
 		auto clone = static_unique_pointer_cast<DeclareOptionStatement>(AstCloner::Clone(node));
+		if (clone->optName.empty())
+			throw AstError{ "empty option name" };
 
 		ExpressionType resolvedType = ResolveType(clone->optType);
 
@@ -959,12 +960,12 @@ namespace Nz::ShaderAst
 
 		clone->optType = std::move(resolvedType);
 
-		std::size_t optionIndex = m_context->nextOptionIndex++;
+		UInt32 optionHash = CRC32(reinterpret_cast<const UInt8*>(clone->optName.data()), clone->optName.size());
 
 		if (m_context->importUsage.has_value())
 			clone->hidden = true;
 
-		if (auto optionValueIt = m_context->options.optionValues.find(optionIndex); optionValueIt != m_context->options.optionValues.end())
+		if (auto optionValueIt = m_context->options.optionValues.find(optionHash); optionValueIt != m_context->options.optionValues.end())
 			clone->optIndex = RegisterConstant(clone->optName, optionValueIt->second, clone->hidden.value_or(false), clone->optIndex);
 		else if (clone->defaultValue)
 			clone->optIndex = RegisterConstant(clone->optName, ComputeConstantValue(*clone->defaultValue), clone->hidden.value_or(false), clone->optIndex);

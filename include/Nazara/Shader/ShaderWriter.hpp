@@ -27,7 +27,7 @@ namespace Nz
 
 			struct States
 			{
-				std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues;
+				std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues;
 				bool optimize = false;
 				bool sanitized = false;
 			};

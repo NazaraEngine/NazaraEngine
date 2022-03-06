@@ -37,20 +37,17 @@ namespace Nz
 
 	inline bool UberShader::ConfigEqual::operator()(const Config& lhs, const Config& rhs) const
 	{
-		for (std::size_t i = 0; i < lhs.optionValues.size(); ++i)
-		{
-			if (lhs.optionValues[i] != rhs.optionValues[i])
-				return false;
-		}
-
-		return true;
+		return lhs.optionValues == rhs.optionValues;
 	}
 
 	inline std::size_t UberShader::ConfigHasher::operator()(const Config& config) const
 	{
 		std::size_t hash = 0;
-		for (std::size_t i = 0; i < config.optionValues.size(); ++i)
-			HashCombine(hash, config.optionValues[i]);
+		for (auto&& [key, value] : config.optionValues)
+		{
+			HashCombine(hash, key);
+			HashCombine(hash, value);
+		}
 
 		return hash;
 	}

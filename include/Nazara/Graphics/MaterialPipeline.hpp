@@ -22,12 +22,19 @@ namespace Nz
 
 	struct MaterialPipelineInfo : RenderStates
 	{
+		struct Option
+		{
+			UInt32 hash;
+			ShaderAst::ConstantValue value;
+		};
+
 		struct Shader
 		{
-			std::array<ShaderAst::ConstantValue, 32> optionValues;
 			std::shared_ptr<UberShader> uberShader;
 		};
 
+		std::array<Option, 32> optionValues;
+		std::size_t optionCount = 0;
 		std::vector<Shader> shaders;
 		std::shared_ptr<const MaterialSettings> settings;
 	};

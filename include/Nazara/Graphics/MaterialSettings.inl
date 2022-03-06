@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/MaterialSettings.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
@@ -169,31 +170,14 @@ namespace Nz
 		return InvalidIndex;
 	}
 
-	inline void MaterialSettings::BuildOption(std::vector<Option>& options, const std::vector<std::shared_ptr<UberShader>>& uberShaders, std::string optionName, const std::string& shaderOptionName)
+	inline void MaterialSettings::BuildOption(std::vector<Option>& options, std::string optionName, const std::string& shaderOptionName)
 	{
-		std::vector<std::optional<std::size_t>> shaderOptions;
+		UInt32 optionHash = CRC32(shaderOptionName);
 
-		for (std::size_t shaderIndex = 0; shaderIndex < uberShaders.size(); ++shaderIndex)
-		{
-			const auto& uberShader = uberShaders[shaderIndex];
-
-			const UberShader::Option* optionData;
-			if (uberShader->HasOption(shaderOptionName, &optionData))
-			{
-				if (shaderIndex >= shaderOptions.size())
-					shaderOptions.resize(shaderIndex + 1);
-
-				shaderOptions[shaderIndex] = optionData->index;
-			}
-		}
-
-		if (std::any_of(shaderOptions.begin(), shaderOptions.end(), [&](std::optional<std::size_t> optionIndex) { return optionIndex.has_value(); }))
-		{
-			options.push_back({
-				std::move(optionName),
-				shaderOptions
-			});
-		}
+		options.push_back({
+			std::move(optionName),
+			optionHash
+		});
 	}
 
 	inline MaterialSettings::Builder::Builder()

@@ -139,7 +139,6 @@ namespace Nz
 
 		std::optional<ShaderStageType> stage;
 		std::stringstream stream;
-		std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues;
 		std::unordered_map<std::size_t, ShaderAst::StructDescription*> structs;
 		std::unordered_map<std::size_t, std::string> variableNames;
 		std::vector<InOutField> inputFields;
@@ -155,7 +154,6 @@ namespace Nz
 	std::string GlslWriter::Generate(std::optional<ShaderStageType> shaderStage, const ShaderAst::Module& module, const BindingMapping& bindingMapping, const States& states)
 	{
 		State state(bindingMapping);
-		state.optionValues = states.optionValues;
 		state.stage = shaderStage;
 
 		m_currentState = &state;
@@ -210,7 +208,7 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::ModulePtr GlslWriter::Sanitize(const ShaderAst::Module& module, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error)
+	ShaderAst::ModulePtr GlslWriter::Sanitize(const ShaderAst::Module& module, std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues, std::string* error)
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
