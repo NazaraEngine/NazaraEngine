@@ -48,7 +48,7 @@ namespace Nz
 			};
 
 			static const char* GetFlipYUniformName();
-			static ShaderAst::ModulePtr Sanitize(const ShaderAst::Module& module, std::unordered_map<std::size_t, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
+			static ShaderAst::ModulePtr Sanitize(const ShaderAst::Module& module, std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
 
 		private:
 			void Append(const ShaderAst::ArrayType& type);

@@ -49,11 +49,18 @@ namespace Nz
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
+		std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues;
+		for (std::size_t i = 0; i < m_pipelineInfo.optionCount; ++i)
+		{
+			const auto& option = m_pipelineInfo.optionValues[i];
+			optionValues[option.hash] = option.value;
+		}
+
 		for (const auto& shader : m_pipelineInfo.shaders)
 		{
 			if (shader.uberShader)
 			{
-				UberShader::Config config{ shader.optionValues };
+				UberShader::Config config{ optionValues };
 				shader.uberShader->UpdateConfig(config, vertexBuffers);
 
 				renderPipelineInfo.shaderModules.push_back(shader.uberShader->Get(config));

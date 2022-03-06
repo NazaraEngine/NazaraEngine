@@ -66,7 +66,7 @@ fn main()
 
 		WHEN("Enabling option")
 		{
-			options.optionValues[0] = true;
+			options.optionValues[Nz::CRC32("UseInt")] = true;
 
 			ExpectOutput(*shaderModule, options, R"(
 struct inputStruct
@@ -90,7 +90,7 @@ fn main()
 
 		WHEN("Disabling option")
 		{
-			options.optionValues[0] = false;
+			options.optionValues[Nz::CRC32("UseInt")] = false;
 
 			ExpectOutput(*shaderModule, options, R"(
 struct inputStruct

@@ -44,7 +44,7 @@ namespace Nz::ShaderAst
 			{
 				std::function<ModulePtr(const std::vector<std::string>& /*modulePath*/)> moduleCallback;
 				std::unordered_set<std::string> reservedIdentifiers;
-				std::unordered_map<std::size_t, ConstantValue> optionValues;
+				std::unordered_map<UInt32, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;
 				bool reduceLoopsToWhile = false;
 				bool removeConstDeclaration = false;
