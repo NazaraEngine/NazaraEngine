@@ -684,7 +684,12 @@ namespace Nz
 		bool first = true;
 		for (const auto& statement : node.condStatements)
 		{
-			if (!first)
+			if (first)
+			{
+				if (node.isConst)
+					Append("const ");
+			}
+			else
 				Append("else ");
 
 			Append("if (");
