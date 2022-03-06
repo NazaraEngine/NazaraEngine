@@ -976,7 +976,7 @@ namespace Nz
 		return fieldOffsets.AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(TypeToStructFieldType(type.componentType->type)) + type.componentCount), arrayLength);
 	}
 
-	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Void& type, std::size_t arrayLength) const
+	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& /*fieldOffsets*/, const Void& /*type*/, std::size_t /*arrayLength*/) const
 	{
 		throw std::runtime_error("unexpected Void");
 	}

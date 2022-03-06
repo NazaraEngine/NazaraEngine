@@ -69,8 +69,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionPtr expr;
 		std::vector<std::string> identifiers;
+		ExpressionPtr expr;
 	};
 
 	struct NAZARA_SHADER_API AccessIndexExpression : Expression
@@ -78,8 +78,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionPtr expr;
 		std::vector<ExpressionPtr> indices;
+		ExpressionPtr expr;
 	};
 
 	struct NAZARA_SHADER_API AssignExpression : Expression
@@ -107,8 +107,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionPtr targetFunction;
 		std::vector<ExpressionPtr> parameters;
+		ExpressionPtr targetFunction;
 	};
 
 	struct NAZARA_SHADER_API CallMethodExpression : Expression
@@ -116,9 +116,9 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionPtr object;
 		std::string methodName;
 		std::vector<ExpressionPtr> parameters;
+		ExpressionPtr object;
 	};
 
 	struct NAZARA_SHADER_API CastExpression : Expression
@@ -126,8 +126,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ExpressionValue<ExpressionType> targetType;
 		std::array<ExpressionPtr, 4> expressions;
+		ExpressionValue<ExpressionType> targetType;
 	};
 
 	struct NAZARA_SHADER_API ConditionalExpression : Expression
@@ -169,8 +169,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		IntrinsicType intrinsic;
 		std::vector<ExpressionPtr> parameters;
+		IntrinsicType intrinsic;
 	};
 
 	struct NAZARA_SHADER_API SwizzleExpression : Expression
@@ -196,8 +196,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		UnaryType op;
 		ExpressionPtr expression;
+		UnaryType op;
 	};
 
 	// Statements
@@ -252,8 +252,8 @@ namespace Nz::ShaderAst
 		std::optional<std::size_t> constIndex;
 		std::optional<bool> hidden;
 		std::string name;
-		ExpressionValue<ExpressionType> type;
 		ExpressionPtr expression;
+		ExpressionValue<ExpressionType> type;
 	};
 
 	struct NAZARA_SHADER_API DeclareExternalStatement : Statement
@@ -270,8 +270,8 @@ namespace Nz::ShaderAst
 			ExpressionValue<ExpressionType> type;
 		};
 
-		std::vector<ExternalVar> externalVars;
 		std::optional<bool> hidden;
+		std::vector<ExternalVar> externalVars;
 		ExpressionValue<UInt32> bindingSet;
 	};
 
@@ -293,9 +293,9 @@ namespace Nz::ShaderAst
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
 		ExpressionValue<DepthWriteMode> depthWrite;
-		ExpressionValue<bool> earlyFragmentTests;
 		ExpressionValue<ShaderStageType> entryStage;
 		ExpressionValue<ExpressionType> returnType;
+		ExpressionValue<bool> earlyFragmentTests;
 	};
 
 	struct NAZARA_SHADER_API DeclareOptionStatement : Statement
@@ -351,12 +351,12 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		ExpressionValue<LoopUnroll> unroll;
 		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr fromExpr;
 		ExpressionPtr stepExpr;
 		ExpressionPtr toExpr;
+		ExpressionValue<LoopUnroll> unroll;
 		StatementPtr statement;
 	};
 
@@ -365,10 +365,10 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		ExpressionValue<LoopUnroll> unroll;
 		std::optional<std::size_t> varIndex;
 		std::string varName;
 		ExpressionPtr expression;
+		ExpressionValue<LoopUnroll> unroll;
 		StatementPtr statement;
 	};
 
@@ -415,8 +415,8 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		ExpressionValue<LoopUnroll> unroll;
 		ExpressionPtr condition;
+		ExpressionValue<LoopUnroll> unroll;
 		StatementPtr body;
 	};
 
