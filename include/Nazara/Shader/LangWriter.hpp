@@ -77,6 +77,7 @@ namespace Nz
 			void AppendAttribute(LocationAttribute location);
 			void AppendAttribute(SetAttribute set);
 			void AppendAttribute(UnrollAttribute unroll);
+			void AppendComment(const std::string& section);
 			void AppendCommentSection(const std::string& section);
 			void AppendHeader();
 			void AppendLine(const std::string& txt = {});

@@ -231,6 +231,7 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(MultiStatement& node)
 	{
 		auto clone = std::make_unique<MultiStatement>();
+		clone->sectionName = node.sectionName;
 		clone->statements.reserve(node.statements.size());
 		for (auto& statement : node.statements)
 			clone->statements.push_back(CloneStatement(statement));

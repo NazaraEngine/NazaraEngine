@@ -1389,6 +1389,8 @@ namespace Nz::ShaderAst
 		if (!targetModule)
 			throw AstError{ "module " + ModulePathAsString() + " not found" };
 
+		targetModule->rootNode->sectionName = "Module " + targetModule->metadata->moduleId.ToString();
+
 		std::string error;
 		ModulePtr sanitizedModule = ShaderAst::Sanitize(*targetModule, m_context->options, &error);
 		if (!sanitizedModule)
@@ -1462,6 +1464,7 @@ namespace Nz::ShaderAst
 	StatementPtr SanitizeVisitor::Clone(MultiStatement& node)
 	{
 		auto clone = std::make_unique<MultiStatement>();
+		clone->sectionName = node.sectionName;
 		clone->statements.reserve(node.statements.size());
 
 		std::vector<StatementPtr>* previousList = m_context->currentStatementList;
