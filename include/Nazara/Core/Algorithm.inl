@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <array>
 #include <cassert>
 #include <climits>
 #include <cmath>
@@ -36,6 +37,50 @@ namespace Nz
 		}
 
 		NAZARA_CORE_API extern const UInt8 BitReverseTable256[256];
+
+		// https://stackoverflow.com/questions/28675727/using-crc32-algorithm-to-hash-string-at-compile-time
+		// Generates CRC-32 table, algorithm based from this link:
+		// http://www.hackersdelight.org/hdcodetxt/crc.c.txt
+		constexpr auto GenerateCRC32Table(UInt32 polynomial = 0xEDB88320)
+		{
+#ifdef NAZARA_COMPILER_MSVC
+// Disable warning: unary minus operator applied to unsigned type, result still unsigned
+#pragma warning(push)
+#pragma warning(disable: 4146)
+#endif
+
+			constexpr UInt32 byteCount = 256;
+			constexpr UInt32 iterationCount = 8;
+
+			std::array<UInt32, byteCount> crc32Table{};
+			for (UInt32 byte = 0u; byte < byteCount; ++byte)
+			{
+				UInt32 crc = byte;
+
+				for (UInt32 i = 0; i < iterationCount; ++i)
+				{
+					UInt32 mask = static_cast<UInt32>(-(crc & 1));
+					crc = (crc >> 1) ^ (polynomial & mask);
+				}
+
+				crc32Table[byte] = crc;
+			}
+
+			return crc32Table;
+
+#ifdef NAZARA_COMPILER_MSVC
+#pragma warning(pop)
+#endif
+		}
+
+		// Stores CRC-32 table and softly validates it.
+		static constexpr auto crc32Table = GenerateCRC32Table();
+		static_assert(
+			crc32Table.size() == 256 &&
+			crc32Table[1] == 0x77073096 &&
+			crc32Table[255] == 0x2D02EF8D,
+			"gen_crc32_table generated unexpected result."
+		);
 	}
 
 	/*!
@@ -202,6 +247,48 @@ namespace Nz
 		HashAppend(hash, v);
 
 		return hash.End();
+	}
+
+	// From https://stackoverflow.com/questions/28675727/using-crc32-algorithm-to-hash-string-at-compile-time
+	constexpr UInt32 CRC32(const UInt8* input, std::size_t size) noexcept
+	{
+		UInt32 crc = 0xFFFFFFFFu;
+
+		for (std::size_t i = 0u; i < size; ++i)
+			crc = Detail::crc32Table[(crc ^ input[i]) & 0xFF] ^ (crc >> 8);
+
+		return ~crc;
+	}
+
+	constexpr UInt32 CRC32(const char* str) noexcept
+	{
+		UInt32 crc = 0xFFFFFFFFu;
+
+		for (std::size_t i = 0u; auto c = str[i]; ++i)
+			crc = Detail::crc32Table[(crc ^ str[i]) & 0xFF] ^ (crc >> 8);
+
+		return ~crc;
+	}
+
+	constexpr UInt32 CRC32(const std::string_view& str) noexcept
+	{
+		UInt32 crc = 0xFFFFFFFFu;
+
+		for (std::size_t i = 0u; i < str.size(); ++i)
+			crc = Detail::crc32Table[(crc ^ str[i]) & 0xFF] ^ (crc >> 8);
+
+		return ~crc;
+	}
+
+	template<std::size_t N>
+	constexpr UInt32 CRC32(const char (&str)[N]) noexcept
+	{
+		UInt32 crc = 0xFFFFFFFFu;
+
+		for (std::size_t i = 0u; i < N - 1; ++i)
+			crc = Detail::crc32Table[(crc ^ str[i]) & 0xFF] ^ (crc >> 8);
+
+		return ~crc;
 	}
 
 	/*!
