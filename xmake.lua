@@ -126,12 +126,10 @@ add_rules("build_rendererplugins")
 
 set_allowedplats("windows", "mingw", "linux", "macosx")
 set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
+set_allowedmodes("debug", "releasedbg", "asan", "coverage", "fuzz")
 set_defaultmode("debug")
 
-if is_plat("windows") then
-	set_allowedmodes("debug", "releasedbg", "asan")
-else
-	set_allowedmodes("debug", "releasedbg", "asan", "coverage", "fuzz")
+if not is_plat("windows") then
 	add_rules("mode.coverage")
 	add_rules("mode.fuzz")
 end
