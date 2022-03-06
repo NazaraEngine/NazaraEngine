@@ -11,20 +11,20 @@
 
 void ParseSerializeUnserialize(std::string_view sourceCode, bool sanitize)
 {
-	Nz::ShaderAst::StatementPtr shader;
-	REQUIRE_NOTHROW(shader = Nz::ShaderLang::Parse(sourceCode));
+	Nz::ShaderAst::ModulePtr shaderModule;
+	REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
 
 	if (sanitize)
-		REQUIRE_NOTHROW(shader = Nz::ShaderAst::Sanitize(*shader));
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule));
 
-	Nz::ByteArray serializedShader;
-	REQUIRE_NOTHROW(serializedShader = Nz::ShaderAst::SerializeShader(shader));
+	Nz::ByteArray serializedModule;
+	REQUIRE_NOTHROW(serializedModule = Nz::ShaderAst::SerializeShader(*shaderModule));
 
-	Nz::ByteStream byteStream(&serializedShader);
-	Nz::ShaderAst::StatementPtr unserializedShader;
+	Nz::ByteStream byteStream(&serializedModule);
+	Nz::ShaderAst::ModulePtr unserializedShader;
 	REQUIRE_NOTHROW(unserializedShader = Nz::ShaderAst::UnserializeShader(byteStream));
 
-	CHECK(Nz::ShaderAst::Compare(*shader, *unserializedShader));
+	CHECK(Nz::ShaderAst::Compare(*shaderModule, *unserializedShader));
 }
 
 void ParseSerializeUnserialize(std::string_view sourceCode)
@@ -38,6 +38,9 @@ TEST_CASE("serialization", "[Shader]")
 	WHEN("serializing and unserializing a simple shader")
 	{
 		ParseSerializeUnserialize(R"(
+[nzsl_version("1.0")]
+module;
+
 struct Data
 {
 	value: f32
@@ -67,6 +70,9 @@ fn main() -> Output
 	WHEN("serializing and unserializing branches")
 	{
 		ParseSerializeUnserialize(R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: f32
@@ -96,6 +102,9 @@ fn main()
 	WHEN("serializing and unserializing consts")
 	{
 		ParseSerializeUnserialize(R"(
+[nzsl_version("1.0")]
+module;
+
 option UseInt: bool = false;
 
 [cond(UseInt)]
@@ -135,6 +144,9 @@ fn main()
 	WHEN("serializing and unserializing loops")
 	{
 		ParseSerializeUnserialize(R"(
+[nzsl_version("1.0")]
+module;
+
 struct inputStruct
 {
 	value: array[f32, 10]
@@ -174,6 +186,9 @@ fn main()
 	WHEN("serializing and unserializing swizzles")
 	{
 		ParseSerializeUnserialize(R"(
+[nzsl_version("1.0")]
+module;
+
 [entry(frag)]
 fn main()
 {

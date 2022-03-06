@@ -10,17 +10,20 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <vector>
 
 namespace Nz::ShaderAst
 {
 	inline bool Compare(const Expression& lhs, const Expression& rhs);
+	inline bool Compare(const Module& lhs, const Module& rhs);
+	inline bool Compare(const Module::Metadata& lhs, const Module::Metadata& rhs);
 	inline bool Compare(const Statement& lhs, const Statement& rhs);
 
 	template<typename T> bool Compare(const T& lhs, const T& rhs);
 	template<typename T, std::size_t S> bool Compare(const std::array<T, S>& lhs, const std::array<T, S>& rhs);
 	template<typename T> bool Compare(const std::vector<T>& lhs, const std::vector<T>& rhs);
+	template<typename T> bool Compare(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs);
 	template<typename T> bool Compare(const ExpressionValue<T>& lhs, const ExpressionValue<T>& rhs);
 	inline bool Compare(const BranchStatement::ConditionalStatement& lhs, const BranchStatement::ConditionalStatement& rhs);
 	inline bool Compare(const DeclareExternalStatement::ExternalVar& lhs, const DeclareExternalStatement::ExternalVar& rhs);

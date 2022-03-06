@@ -26,6 +26,28 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const Module& lhs, const Module& rhs)
+	{
+		if (!Compare(*lhs.metadata, *rhs.metadata))
+			return false;
+
+		if (!Compare(*lhs.rootNode, *rhs.rootNode))
+			return false;
+
+		return true;
+	}
+
+	bool Compare(const Module::Metadata& lhs, const Module::Metadata& rhs)
+	{
+		if (!Compare(lhs.moduleId, rhs.moduleId))
+			return false;
+
+		if (!Compare(lhs.shaderLangVersion, rhs.shaderLangVersion))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const Statement& lhs, const Statement& rhs)
 	{
 		if (lhs.GetType() != rhs.GetType())
@@ -75,6 +97,17 @@ namespace Nz::ShaderAst
 		}
 
 		return true;
+	}
+
+	template<typename T>
+	bool Compare(const std::unique_ptr<T>& lhs, const std::unique_ptr<T>& rhs)
+	{
+		if (lhs == nullptr)
+			return rhs == nullptr;
+		else if (rhs == nullptr)
+			return false;
+
+		return Compare(*lhs, *rhs);
 	}
 
 	template<typename T>
