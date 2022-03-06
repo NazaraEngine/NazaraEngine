@@ -37,7 +37,7 @@ namespace Nz
 			//TODO: Check optionType
 
 			m_optionIndexByName[optionName] = Option{
-				optionCount
+				CRC32(optionName)
 			};
 
 			optionCount++;
@@ -48,9 +48,6 @@ namespace Nz
 
 		if ((m_shaderStages & supportedStageType) != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");
-
-		if (optionCount >= MaximumOptionValue)
-			throw std::runtime_error("Too many shader options (at most " + std::to_string(MaximumOptionValue) + " are supported)");
 	}
 
 	const std::shared_ptr<ShaderModule>& UberShader::Get(const Config& config)
@@ -59,12 +56,7 @@ namespace Nz
 		if (it == m_combinations.end())
 		{
 			ShaderWriter::States states;
-
-			for (std::size_t i = 0; i < MaximumOptionValue; ++i)
-			{
-				if (!std::holds_alternative<ShaderAst::NoValue>(config.optionValues[i]))
-					states.optionValues[i] = config.optionValues[i];
-			}
+			states.optionValues = config.optionValues;
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
 

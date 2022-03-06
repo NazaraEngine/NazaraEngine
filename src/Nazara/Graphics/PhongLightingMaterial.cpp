@@ -241,28 +241,8 @@ namespace Nz
 
 		settings.shaders = options.shaders;
 
-		for (std::shared_ptr<UberShader> uberShader : settings.shaders)
+		for (const std::shared_ptr<UberShader>& uberShader : settings.shaders)
 		{
-			constexpr std::size_t InvalidOption = std::numeric_limits<std::size_t>::max();
-
-			auto FetchLocationOption = [&](const std::string& optionName)
-			{
-				const UberShader::Option* optionPtr;
-				if (!uberShader->HasOption(optionName, &optionPtr))
-					return InvalidOption;
-
-				//if (optionPtr->type != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::Int32 })
-				//	throw std::runtime_error("Location options must be of type i32");
-
-				return optionPtr->index;
-			};
-
-			std::size_t positionLocationIndex = FetchLocationOption("PosLocation");
-			std::size_t colorLocationIndex = FetchLocationOption("ColorLocation");
-			std::size_t normalLocationIndex = FetchLocationOption("NormalLocation");
-			std::size_t tangentLocationIndex = FetchLocationOption("TangentLocation");
-			std::size_t uvLocationIndex = FetchLocationOption("UvLocation");
-
 			uberShader->UpdateConfigCallback([=](UberShader::Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
 			{
 				if (vertexBuffers.empty())
@@ -271,39 +251,29 @@ namespace Nz
 				const VertexDeclaration& vertexDeclaration = *vertexBuffers.front().declaration;
 				const auto& components = vertexDeclaration.GetComponents();
 
-				std::size_t locationIndex = 0;
+				Int32 locationIndex = 0;
 				for (const auto& component : components)
 				{
 					switch (component.component)
 					{
 						case VertexComponent::Position:
-							if (positionLocationIndex != InvalidOption)
-								config.optionValues[positionLocationIndex] = static_cast<Int32>(locationIndex);
-
+							config.optionValues[CRC32("PosLocation")] = locationIndex;
 							break;
 
 						case VertexComponent::Color:
-							if (colorLocationIndex != InvalidOption)
-								config.optionValues[colorLocationIndex] = static_cast<Int32>(locationIndex);
-
+							config.optionValues[CRC32("ColorLocation")] = locationIndex;
 							break;
 
 						case VertexComponent::Normal:
-							if (normalLocationIndex != InvalidOption)
-								config.optionValues[normalLocationIndex] = static_cast<Int32>(locationIndex);
-
+							config.optionValues[CRC32("NormalLocation")] = locationIndex;
 							break;
 
 						case VertexComponent::Tangent:
-							if (tangentLocationIndex != InvalidOption)
-								config.optionValues[tangentLocationIndex] = static_cast<Int32>(locationIndex);
-
+							config.optionValues[CRC32("TangentLocation")] = locationIndex;
 							break;
 
 						case VertexComponent::TexCoord:
-							if (uvLocationIndex != InvalidOption)
-								config.optionValues[uvLocationIndex] = static_cast<Int32>(locationIndex);
-
+							config.optionValues[CRC32("UvLocation")] = locationIndex;
 							break;
 
 						case VertexComponent::Unused:
@@ -322,25 +292,25 @@ namespace Nz
 		if (options.phongOptionIndexes)
 			options.phongOptionIndexes->hasEmissiveMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasEmissiveMap", "HasEmissiveTexture");
+		MaterialSettings::BuildOption(settings.options, "HasEmissiveMap", "HasEmissiveTexture");
 
 		// HasHeightMap
 		if (options.phongOptionIndexes)
 			options.phongOptionIndexes->hasHeightMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasHeightMap", "HasHeightTexture");
+		MaterialSettings::BuildOption(settings.options, "HasHeightMap", "HasHeightTexture");
 
 		// HasNormalMap
 		if (options.phongOptionIndexes)
 			options.phongOptionIndexes->hasNormalMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasNormalMap", "HasNormalTexture");
+		MaterialSettings::BuildOption(settings.options, "HasNormalMap", "HasNormalTexture");
 
 		// HasSpecularMap
 		if (options.phongOptionIndexes)
 			options.phongOptionIndexes->hasSpecularMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, settings.shaders, "HasSpecularMap", "HasSpecularTexture");
+		MaterialSettings::BuildOption(settings.options, "HasSpecularMap", "HasSpecularTexture");
 
 		return settings;
 	}

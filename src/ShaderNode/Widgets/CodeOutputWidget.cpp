@@ -59,7 +59,10 @@ void CodeOutputWidget::Refresh()
 		Nz::ShaderWriter::States states;
 
 		for (std::size_t i = 0; i < m_shaderGraph.GetOptionCount(); ++i)
-			states.optionValues[i] = m_shaderGraph.IsOptionEnabled(i);
+		{
+			const auto& option = m_shaderGraph.GetOption(i);
+			states.optionValues[Nz::CRC32(option.name)] = m_shaderGraph.IsOptionEnabled(i);
+		}
 
 		Nz::ShaderAst::ModulePtr shaderModule = m_shaderGraph.ToModule();
 

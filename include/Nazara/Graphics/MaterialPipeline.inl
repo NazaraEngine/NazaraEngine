@@ -32,13 +32,20 @@ namespace Nz
 		#define NazaraPipelineMember(field) if (lhs.field != rhs.field) return false
 
 		NazaraPipelineMember(settings);
+		NazaraPipelineMember(optionCount);
 
 		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
 		{
-			if (lhs.shaders[i].optionValues != rhs.shaders[i].optionValues)
+			if (lhs.shaders[i].uberShader != rhs.shaders[i].uberShader)
+				return false;
+		}
+
+		for (std::size_t i = 0; i < lhs.optionCount; ++i)
+		{
+			if (lhs.optionValues[i].hash != rhs.optionValues[i].hash)
 				return false;
 
-			if (lhs.shaders[i].uberShader != rhs.shaders[i].uberShader)
+			if (lhs.optionValues[i].value != rhs.optionValues[i].value)
 				return false;
 		}
 
@@ -72,13 +79,14 @@ namespace std
 
 			NazaraPipelineMember(settings.get()); //< Hash pointer
 
-			for (const auto& shader : pipelineInfo.shaders)
+			for (std::size_t i = 0; i < pipelineInfo.optionCount; ++i)
 			{
-				for (const auto& value : shader.optionValues)
-					Nz::HashCombine(seed, value);
-
-				Nz::HashCombine(seed, shader.uberShader.get());
+				Nz::HashCombine(seed, pipelineInfo.optionValues[i].hash);
+				Nz::HashCombine(seed, pipelineInfo.optionValues[i].value);
 			}
+
+			for (const auto& shader : pipelineInfo.shaders)
+				Nz::HashCombine(seed, shader.uberShader.get());
 
 			NazaraUnused(parameterIndex);
 
