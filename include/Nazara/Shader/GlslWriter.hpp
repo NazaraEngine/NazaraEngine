@@ -70,6 +70,7 @@ namespace Nz
 			void Append(const ShaderAst::VectorType& vecType);
 			template<typename T> void Append(const T& param);
 			template<typename T1, typename T2, typename... Args> void Append(const T1& firstParam, const T2& secondParam, Args&&... params);
+			void AppendComment(const std::string& section);
 			void AppendCommentSection(const std::string& section);
 			void AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, bool forward = false);
 			void AppendHeader();

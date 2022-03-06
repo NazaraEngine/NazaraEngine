@@ -502,6 +502,27 @@ namespace Nz
 			unroll.unroll.GetExpression()->Visit(*this);
 	}
 
+	void LangWriter::AppendComment(const std::string& section)
+	{
+		std::size_t lineFeed = section.find('\n');
+		if (lineFeed != section.npos)
+		{
+			std::size_t previousCut = 0;
+
+			AppendLine("/*");
+			do
+			{
+				AppendLine(section.substr(previousCut, lineFeed - previousCut));
+				previousCut = lineFeed + 1;
+			}
+			while ((lineFeed = section.find('\n', previousCut)) != section.npos);
+			AppendLine(section.substr(previousCut));
+			AppendLine("*/");
+		}
+		else
+			AppendLine("// ", section);
+	}
+
 	void LangWriter::AppendCommentSection(const std::string& section)
 	{
 		NazaraAssert(m_currentState, "This function should only be called while processing an AST");
@@ -1032,7 +1053,13 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::MultiStatement& node)
 	{
+		if (!node.sectionName.empty())
+			AppendComment(node.sectionName);
+
 		AppendStatementList(node.statements);
+
+		if (!node.sectionName.empty())
+			AppendComment("End: " + node.sectionName);
 	}
 
 	void LangWriter::Visit(ShaderAst::NoOpStatement& /*node*/)

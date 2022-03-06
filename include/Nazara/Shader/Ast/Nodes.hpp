@@ -385,6 +385,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
+		std::string sectionName;
 		std::vector<StatementPtr> statements;
 	};
 

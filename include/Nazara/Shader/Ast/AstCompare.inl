@@ -519,6 +519,9 @@ namespace Nz::ShaderAst
 
 	inline bool Compare(const MultiStatement& lhs, const MultiStatement& rhs)
 	{
+		if (!Compare(lhs.sectionName, rhs.sectionName))
+			return false;
+
 		if (!Compare(lhs.statements, rhs.statements))
 			return false;
 
