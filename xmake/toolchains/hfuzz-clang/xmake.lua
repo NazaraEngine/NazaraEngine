@@ -15,11 +15,6 @@ toolchain("hfuzz-clang")
     set_toolset("mxx", "hfuzz-clang++")
     set_toolset("as", "hfuzz-clang")
 
-    add_cxflags("-fsanitize=fuzzer-no-link")
-    add_ldflags("-fsanitize=fuzzer-no-link")
-    add_shflags("-fsanitize=fuzzer-no-link")
-    add_arflags("-fsanitize=fuzzer-no-link")
-
     on_check(function (toolchain)
         return import("lib.detect.find_tool")("hfuzz-clang")
     end)

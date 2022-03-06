@@ -124,21 +124,25 @@ add_rules("mode.asan", "mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build_rendererplugins")
 
-if is_plat("windows") then
-	set_allowedmodes("debug", "releasedbg", "asan")
-else
-	set_allowedmodes("debug", "releasedbg", "asan", "coverage")
-	add_rules("mode.coverage")
-end
-
 set_allowedplats("windows", "mingw", "linux", "macosx")
 set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
 set_defaultmode("debug")
+
+if is_plat("windows") then
+	set_allowedmodes("debug", "releasedbg", "asan")
+else
+	set_allowedmodes("debug", "releasedbg", "asan", "coverage", "fuzz")
+	add_rules("mode.coverage")
+	add_rules("mode.fuzz")
+end
 
 if is_mode("debug") then
 	add_rules("debug_suffix")
 elseif is_mode("asan") then
 	set_optimize("none") -- by default xmake will optimize asan builds
+elseif is_mode("fuzz") then
+	-- we don't want packages to require compilation with fuzz toolchain
+	set_policy("package.inherit_external_configs", false)
 elseif is_mode("coverage") then
 	if not is_plat("windows") then
 		add_links("gcov")
@@ -242,81 +246,3 @@ includes("tools/xmake.lua")
 includes("tests/xmake.lua")
 includes("plugins/*/xmake.lua")
 includes("examples/*/xmake.lua")
-
--- Adds -d as a debug suffix
-rule("debug_suffix")
-	on_load(function (target)
-		if target:kind() ~= "binary" then
-			target:set("basename", target:basename() .. "-d")
-		end
-	end)
-
--- Builds renderer plugins if linked to NazaraRenderer
-rule("build_rendererplugins")
-	on_load(function (target)
-		local deps = table.wrap(target:get("deps"))
-
-		if target:kind() == "binary" and (table.contains(deps, "NazaraRenderer") or table.contains(deps, "NazaraGraphics")) then
-			for name, _ in pairs(modules) do
-				local depName = "Nazara" .. name
-				if name:match("^.+Renderer$") and not table.contains(deps, depName) then -- don't overwrite dependency
-					target:add("deps", depName, {inherit = false})
-				end
-			end
-		end
-	end)
-
--- Turns resources into includables headers
-rule("embed_resources")
-	before_build(function (target, opt)
-		import("core.base.option")
-		if xmake.version():ge("2.5.9") then
-			import("utils.progress")
-		elseif not import("utils.progress", { try = true }) then
-			import("private.utils.progress")
-		end
-
-		local function GenerateEmbedHeader(filepath, targetpath)
-			local bufferSize = 1024 * 1024
-
-			progress.show(opt.progress, "${color.build.object}embedding %s", filepath)
-
-			local resource = assert(io.open(filepath, "rb"))
-			local targetFile = assert(io.open(targetpath, "w+"))
-
-			local resourceSize = resource:size()
-
-			local remainingSize = resourceSize
-			local headerSize = 0
-
-			while remainingSize > 0 do
-				local readSize = math.min(remainingSize, bufferSize)
-				local data = resource:read(readSize)
-				remainingSize = remainingSize - readSize
-
-				local headerContentTable = {}
-				for i = 1, #data do
-					table.insert(headerContentTable, string.format("%d,", data:byte(i)))
-				end
-				local content = table.concat(headerContentTable)
-
-				headerSize = headerSize + #content
-
-				targetFile:write(content)
-			end
-
-			resource:close()
-			targetFile:close()
-		end
-
-		for _, sourcebatch in pairs(target:sourcebatches()) do
-			if sourcebatch.rulename == "embed_resources" then
-				for _, sourcefile in ipairs(sourcebatch.sourcefiles) do
-					local targetpath = sourcefile .. ".h"
-					if option.get("rebuild") or os.mtime(sourcefile) >= os.mtime(targetpath) then
-						GenerateEmbedHeader(sourcefile, targetpath)
-					end
-				end
-			end
-		end
-	end)
