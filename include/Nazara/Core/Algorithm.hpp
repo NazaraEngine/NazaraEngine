@@ -32,6 +32,10 @@ namespace Nz
 	template<typename T> ByteArray ComputeHash(AbstractHash& hash, const T& v);
 	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
 	template<typename T> std::size_t CountOf(const T& c);
+	constexpr UInt32 CRC32(const UInt8* data, std::size_t size) noexcept;
+	constexpr UInt32 CRC32(const char* str) noexcept;
+	constexpr UInt32 CRC32(const std::string_view& str) noexcept;
+	template<std::size_t N> constexpr std::size_t CountOf(const char(&str)[N]) noexcept;
 	inline bool HashAppend(AbstractHash* hash, const std::string_view& v);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> bool IsPowerOfTwo(T value);

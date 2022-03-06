@@ -45,6 +45,12 @@ TEST_CASE("ComputeHash", "[CORE][ALGORITHM]")
 		const char* expectedOutput;
 	};
 
+	static_assert(Nz::CRC32("Nazara Engine") == 0x8A2F5235);
+	static_assert(Nz::CRC32("The quick brown fox jumps over the lazy dog") == 0x414FA339);
+
+	CHECK(Nz::CRC32("Nazara Engine") == 0x8A2F5235);
+	CHECK(Nz::CRC32("The quick brown fox jumps over the lazy dog") == 0x414FA339);
+
 	// https://defuse.ca/checksums.htm
 	// https://toolslick.com/programming/hashing/crc-calculator
 
