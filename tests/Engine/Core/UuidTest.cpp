@@ -13,6 +13,8 @@ SCENARIO("Uuid", "[CORE][UUID]")
 
 		// Testing some invalid cases
 		CHECK(Nz::Uuid::FromString("Nazara Engine") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af_fd4a_43e0_ba4c_e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a_43e0_ba4c_e93341-3b1f1") == Nz::Uuid());
 		CHECK(Nz::Uuid::FromString("Zb0e29af-fd4a-43e0-ba4c-e9334183b1f1") == Nz::Uuid());
 		CHECK(Nz::Uuid::FromString("1b0e29a\t-fd4a-43e0-ba4c-e9334183b1f1") == Nz::Uuid());
 		CHECK(Nz::Uuid::FromString("1b0e29af-fd4\v-43e0-ba4c-e9334183b1f1") == Nz::Uuid());

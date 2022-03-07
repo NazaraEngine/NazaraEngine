@@ -17,6 +17,7 @@ namespace Nz::ShaderAst
 {
 	inline bool Compare(const Expression& lhs, const Expression& rhs);
 	inline bool Compare(const Module& lhs, const Module& rhs);
+	inline bool Compare(const Module::ImportedModule& lhs, const Module::ImportedModule& rhs);
 	inline bool Compare(const Module::Metadata& lhs, const Module::Metadata& rhs);
 	inline bool Compare(const Statement& lhs, const Statement& rhs);
 

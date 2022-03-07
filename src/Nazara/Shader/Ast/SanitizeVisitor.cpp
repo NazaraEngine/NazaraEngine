@@ -37,144 +37,133 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	struct SanitizeVisitor::CurrentFunctionData
+	{
+		std::optional<ShaderStageType> stageType;
+		Bitset<> calledFunctions;
+		DeclareFunctionStatement* statement;
+		FunctionFlags flags;
+	};
+
+	template<typename T>
+	struct SanitizeVisitor::IdentifierData
+	{
+		Bitset<UInt64> availableIndices;
+		Bitset<UInt64> preregisteredIndices;
+		std::unordered_map<std::size_t, T> values;
+
+		template<typename U>
+		std::size_t Register(U&& data, std::optional<std::size_t> index = {})
+		{
+			std::size_t dataIndex;
+			if (index.has_value())
+			{
+				dataIndex = *index;
+
+				if (dataIndex >= availableIndices.GetSize())
+					availableIndices.Resize(dataIndex + 1, true);
+				else if (!availableIndices.Test(dataIndex))
+				{
+					if (preregisteredIndices.UnboundedTest(dataIndex))
+						preregisteredIndices.Reset(dataIndex);
+					else
+						throw AstError{ "index " + std::to_string(dataIndex) + " is already used" };
+				}
+			}
+			else
+				dataIndex = RegisterNewIndex();
+
+			assert(values.find(dataIndex) == values.end());
+
+			availableIndices.Set(dataIndex, false);
+			values.emplace(dataIndex, std::forward<U>(data));
+			return dataIndex;
+		}
+
+		std::size_t RegisterNewIndex(bool preregister = false)
+		{
+			std::size_t index = availableIndices.FindFirst();
+			if (index == availableIndices.npos)
+			{
+				index = availableIndices.GetSize();
+				availableIndices.Resize(index + 1, true);
+			}
+
+			availableIndices.Set(index, false);
+
+			if (preregister)
+				preregisteredIndices.UnboundedSet(index);
+
+			return index;
+		}
+
+		T& Retrieve(std::size_t index)
+		{
+			auto it = values.find(index);
+			if (it == values.end())
+				throw AstError{ "invalid index " + std::to_string(index) };
+
+			return it->second;
+		}
+	};
+
+	struct SanitizeVisitor::Scope
+	{
+		std::size_t previousSize;
+	};
+
+	struct SanitizeVisitor::Environment
+	{
+		std::shared_ptr<Environment> parentEnv;
+		std::vector<Identifier> identifiersInScope;
+		std::vector<Scope> scopes;
+		IdentifierData<ConstantValue> constantValues;
+		IdentifierData<FunctionData> functions;
+		IdentifierData<IntrinsicType> intrinsics;
+		IdentifierData<std::size_t> moduleIndices;
+		IdentifierData<StructDescription*> structs;
+		IdentifierData<std::variant<ExpressionType, PartialType>> types;
+		IdentifierData<ExpressionType> variableTypes;
+	};
+
 	struct SanitizeVisitor::Context
 	{
-		struct CurrentFunctionData
-		{
-			std::optional<ShaderStageType> stageType;
-			Bitset<> calledFunctions;
-			DeclareFunctionStatement* statement;
-			FunctionFlags flags;
-		};
-
-		template<typename T>
-		struct IdentifierData
-		{
-			Bitset<UInt64> availableIndices;
-			Bitset<UInt64> preregisteredIndices;
-			std::unordered_map<std::size_t, T> values;
-
-			template<typename U>
-			std::size_t Register(U&& data, std::optional<std::size_t> index = {})
-			{
-				std::size_t dataIndex;
-				if (index.has_value())
-				{
-					dataIndex = *index;
-
-					if (dataIndex >= availableIndices.GetSize())
-						availableIndices.Resize(dataIndex + 1, true);
-					else if (!availableIndices.Test(dataIndex))
-					{
-						if (preregisteredIndices.UnboundedTest(dataIndex))
-							preregisteredIndices.Reset(dataIndex);
-						else
-							throw AstError{ "index " + std::to_string(dataIndex) + " is already used" };
-					}
-				}
-				else
-					dataIndex = RegisterNewIndex();
-
-				assert(values.find(dataIndex) == values.end());
-
-				availableIndices.Set(dataIndex, false);
-				values.emplace(dataIndex, std::forward<U>(data));
-				return dataIndex;
-			}
-
-			std::size_t RegisterNewIndex(bool preregister = false)
-			{
-				std::size_t index = availableIndices.FindFirst();
-				if (index == availableIndices.npos)
-				{
-					index = availableIndices.GetSize();
-					availableIndices.Resize(index + 1, true);
-				}
-
-				availableIndices.Set(index, false);
-
-				if (preregister)
-					preregisteredIndices.UnboundedSet(index);
-
-				return index;
-			}
-
-			T& Retrieve(std::size_t index)
-			{
-				auto it = values.find(index);
-				if (it == values.end())
-					throw AstError{ "invalid index " + std::to_string(index) };
-
-				return it->second;
-			}
-		};
-
 		struct PendingFunction
 		{
 			DeclareFunctionStatement* cloneNode;
 			const DeclareFunctionStatement* node;
 		};
 
-		struct Scope
-		{
-			std::size_t previousSize;
-		};
-
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
-		std::optional<DependencyCheckerVisitor::UsageSet> importUsage;
-		std::vector<Identifier> identifiersInScope;
+		std::vector<std::shared_ptr<Environment>> moduleEnvironments;
 		std::vector<PendingFunction> pendingFunctions;
-		std::vector<Scope> scopes;
 		std::vector<StatementPtr>* currentStatementList = nullptr;
+		std::unordered_map<Uuid, std::size_t> moduleByUuid;
 		std::unordered_set<std::string> declaredExternalVar;
 		std::unordered_set<UInt64> usedBindingIndexes;
-		IdentifierData<ConstantValue> constantValues;
-		IdentifierData<FunctionData> functions;
-		IdentifierData<IntrinsicType> intrinsics;
-		IdentifierData<StructDescription*> structs;
-		IdentifierData<std::variant<ExpressionType, PartialType>> types;
-		IdentifierData<ExpressionType> variableTypes;
+		std::shared_ptr<Environment> globalEnv;
+		std::shared_ptr<Environment> currentEnv;
 		Options options;
 		CurrentFunctionData* currentFunction = nullptr;
 	};
 
 	ModulePtr SanitizeVisitor::Sanitize(const Module& module, const Options& options, std::string* error)
 	{
-		ModulePtr clone = std::make_shared<Module>(module.metadata);
-
 		Context currentContext;
 		currentContext.options = options;
+
+		ModulePtr clone = std::make_shared<Module>(module.metadata);
+		clone->importedModules = module.importedModules;
 
 		m_context = &currentContext;
 		CallOnExit resetContext([&] { m_context = nullptr; });
 
-		PushScope(); //< Global scope
-		{
-			RegisterBuiltin();
+		m_context->globalEnv = std::make_shared<Environment>();
+		m_context->currentEnv = m_context->globalEnv;
 
-			// First pass, evaluate everything except function code
-			try
-			{
-				clone->rootNode = static_unique_pointer_cast<MultiStatement>(AstCloner::Clone(*module.rootNode));
-			}
-			catch (const AstError& err)
-			{
-				if (!error)
-					throw std::runtime_error(err.errMsg);
-
-				*error = err.errMsg;
-			}
-			catch (const std::runtime_error& err)
-			{
-				if (!error)
-					throw;
-
-				*error = err.what();
-			}
-
-			ResolveFunctions();
-		}
-		PopScope();
+		clone->rootNode = SanitizeInternal(*module.rootNode, error);
+		if (!clone->rootNode)
+			return {};
 
 		return clone;
 	}
@@ -252,7 +241,7 @@ namespace Nz::ShaderAst
 			else if (IsStructType(exprType))
 			{
 				std::size_t structIndex = ResolveStruct(exprType);
-				const StructDescription* s = m_context->structs.Retrieve(structIndex);
+				const StructDescription* s = m_context->currentEnv->structs.Retrieve(structIndex);
 
 				// Retrieve member index (not counting disabled fields)
 				Int32 fieldIndex = 0;
@@ -580,7 +569,7 @@ namespace Nz::ShaderAst
 	ExpressionPtr SanitizeVisitor::Clone(ConstantExpression& node)
 	{
 		// Replace by constant value
-		auto constant = ShaderBuilder::Constant(m_context->constantValues.Retrieve(node.constantId));
+		auto constant = ShaderBuilder::Constant(m_context->currentEnv->constantValues.Retrieve(node.constantId));
 		constant->cachedExpressionType = GetExpressionType(constant->value);
 
 		return constant;
@@ -615,7 +604,7 @@ namespace Nz::ShaderAst
 
 			case Identifier::Type::Intrinsic:
 			{
-				IntrinsicType intrinsicType = m_context->intrinsics.Retrieve(identifier->index);
+				IntrinsicType intrinsicType = m_context->currentEnv->intrinsics.Retrieve(identifier->index);
 
 				auto clone = AstCloner::Clone(node);
 				clone->cachedExpressionType = IntrinsicFunctionType{ intrinsicType };
@@ -643,7 +632,7 @@ namespace Nz::ShaderAst
 			{
 				// Replace IdentifierExpression by VariableExpression
 				auto varExpr = std::make_unique<VariableExpression>();
-				varExpr->cachedExpressionType = m_context->variableTypes.Retrieve(identifier->index);
+				varExpr->cachedExpressionType = m_context->currentEnv->variableTypes.Retrieve(identifier->index);
 				varExpr->variableId = identifier->index;
 
 				return varExpr;
@@ -794,10 +783,7 @@ namespace Nz::ShaderAst
 
 		clone->type = expressionType;
 
-		if (m_context->importUsage.has_value())
-			clone->hidden = true;
-
-		clone->constIndex = RegisterConstant(clone->name, value, clone->hidden.value_or(false), clone->constIndex);
+		clone->constIndex = RegisterConstant(clone->name, value, clone->constIndex);
 
 		if (m_context->options.removeConstDeclaration)
 			return ShaderBuilder::NoOp();
@@ -810,13 +796,6 @@ namespace Nz::ShaderAst
 		assert(m_context);
 
 		auto clone = static_unique_pointer_cast<DeclareExternalStatement>(AstCloner::Clone(node));
-
-		if (m_context->importUsage.has_value())
-		{
-			// Since unused variables have been removed when importing a module, every variable should be used
-			assert(!clone->externalVars.empty());
-			clone->hidden = !m_context->importUsage->usedVariables.UnboundedTest(*clone->externalVars.front().varIndex);
-		}
 
 		UInt32 defaultBlockSet = 0;
 		if (clone->bindingSet.HasValue())
@@ -858,7 +837,7 @@ namespace Nz::ShaderAst
 				throw AstError{ "external variable " + extVar.name + " is of wrong type: only uniform and sampler are allowed in external blocks" };
 
 			extVar.type = std::move(resolvedType);
-			extVar.varIndex = RegisterVariable(extVar.name, std::move(varType), clone->hidden.value_or(false), extVar.varIndex);
+			extVar.varIndex = RegisterVariable(extVar.name, std::move(varType), extVar.varIndex);
 
 			SanitizeIdentifier(extVar.name);
 		}
@@ -916,12 +895,6 @@ namespace Nz::ShaderAst
 			}
 		}
 
-		if (m_context->importUsage.has_value())
-		{
-			assert(clone->funcIndex);
-			clone->hidden = !m_context->importUsage->usedStructs.UnboundedTest(*clone->funcIndex);
-		}
-
 		// Function content is resolved in a second pass
 		auto& pendingFunc = m_context->pendingFunctions.emplace_back();
 		pendingFunc.cloneNode = clone.get();
@@ -936,7 +909,7 @@ namespace Nz::ShaderAst
 		FunctionData funcData;
 		funcData.node = clone.get(); //< update function node
 
-		std::size_t funcIndex = RegisterFunction(clone->name, std::move(funcData), clone->hidden.value_or(false), node.funcIndex);
+		std::size_t funcIndex = RegisterFunction(clone->name, std::move(funcData), node.funcIndex);
 		clone->funcIndex = funcIndex;
 
 		SanitizeIdentifier(clone->name);
@@ -962,13 +935,10 @@ namespace Nz::ShaderAst
 
 		UInt32 optionHash = CRC32(reinterpret_cast<const UInt8*>(clone->optName.data()), clone->optName.size());
 
-		if (m_context->importUsage.has_value())
-			clone->hidden = true;
-
 		if (auto optionValueIt = m_context->options.optionValues.find(optionHash); optionValueIt != m_context->options.optionValues.end())
-			clone->optIndex = RegisterConstant(clone->optName, optionValueIt->second, clone->hidden.value_or(false), clone->optIndex);
+			clone->optIndex = RegisterConstant(clone->optName, optionValueIt->second, clone->optIndex);
 		else if (clone->defaultValue)
-			clone->optIndex = RegisterConstant(clone->optName, ComputeConstantValue(*clone->defaultValue), clone->hidden.value_or(false), clone->optIndex);
+			clone->optIndex = RegisterConstant(clone->optName, ComputeConstantValue(*clone->defaultValue), clone->optIndex);
 		else
 			throw AstError{ "missing option " + clone->optName + " value (has no default value)" };
 
@@ -987,12 +957,6 @@ namespace Nz::ShaderAst
 
 		if (clone->isExported.HasValue())
 			clone->isExported = ComputeExprValue(clone->isExported);
-
-		if (m_context->importUsage.has_value())
-		{
-			assert(clone->structIndex);
-			clone->hidden = !m_context->importUsage->usedStructs.UnboundedTest(*clone->structIndex);
-		}
 
 		std::unordered_set<std::string> declaredMembers;
 		for (auto& member : clone->description.members)
@@ -1023,7 +987,7 @@ namespace Nz::ShaderAst
 				else if (IsStructType(resolvedType))
 				{
 					std::size_t structIndex = std::get<StructType>(resolvedType).structIndex;
-					const StructDescription* desc = m_context->structs.Retrieve(structIndex);
+					const StructDescription* desc = m_context->currentEnv->structs.Retrieve(structIndex);
 					if (!desc->layout.HasValue() || desc->layout.GetResultingValue() != clone->description.layout.GetResultingValue())
 						throw AstError{ "inner struct layout mismatch" };
 				}
@@ -1032,7 +996,7 @@ namespace Nz::ShaderAst
 			member.type = std::move(resolvedType);
 		}
 
-		clone->structIndex = RegisterStruct(clone->description.name, &clone->description, clone->hidden.value_or(false), clone->structIndex);
+		clone->structIndex = RegisterStruct(clone->description.name, &clone->description, clone->structIndex);
 
 		SanitizeIdentifier(clone->description.name);
 
@@ -1362,9 +1326,6 @@ namespace Nz::ShaderAst
 
 	StatementPtr SanitizeVisitor::Clone(ImportStatement& node)
 	{
-		// Nested import is handled separately
-		assert(!m_context->importUsage);
-
 		if (!m_context->options.moduleCallback)
 			return static_unique_pointer_cast<ImportStatement>(AstCloner::Clone(node));
 
@@ -1392,8 +1353,14 @@ namespace Nz::ShaderAst
 
 		targetModule->rootNode->sectionName = "Module " + targetModule->metadata->moduleId.ToString();
 
+		m_context->currentEnv = m_context->moduleEnvironments.emplace_back();
+		m_context->currentEnv->parentEnv = m_context->globalEnv;
+		CallOnExit restoreEnvOnExit([&] { m_context->currentEnv = m_context->globalEnv; });
+
+		ModulePtr sanitizedModule = std::make_shared<Module>(targetModule->metadata);
+
 		std::string error;
-		ModulePtr sanitizedModule = ShaderAst::Sanitize(*targetModule, m_context->options, &error);
+		sanitizedModule->rootNode = SanitizeInternal(*targetModule->rootNode, &error);
 		if (!sanitizedModule)
 			throw AstError{ "module " + ModulePathAsString() + " compilation failed: " + error };
 
@@ -1425,10 +1392,10 @@ namespace Nz::ShaderAst
 		DependencyCheckerVisitor::UsageSet remappedExportedSet;
 
 		IndexRemapperVisitor::Callbacks remapCallbacks;
-		remapCallbacks.constIndexGenerator = [this](std::size_t previousIndex) { return m_context->constantValues.RegisterNewIndex(true); };
+		remapCallbacks.constIndexGenerator = [this](std::size_t previousIndex) { return m_context->currentEnv->constantValues.RegisterNewIndex(true); };
 		remapCallbacks.funcIndexGenerator = [&](std::size_t previousIndex)
 		{
-			std::size_t newIndex = m_context->functions.RegisterNewIndex(true);
+			std::size_t newIndex = m_context->currentEnv->functions.RegisterNewIndex(true);
 			if (exportedSet.usedFunctions.Test(previousIndex))
 				remappedExportedSet.usedFunctions.UnboundedSet(newIndex);
 
@@ -1437,7 +1404,7 @@ namespace Nz::ShaderAst
 
 		remapCallbacks.structIndexGenerator = [&](std::size_t previousIndex)
 		{
-			std::size_t newIndex = m_context->structs.RegisterNewIndex(true);
+			std::size_t newIndex = m_context->currentEnv->structs.RegisterNewIndex(true);
 			if (exportedSet.usedStructs.Test(previousIndex))
 				remappedExportedSet.usedStructs.UnboundedSet(newIndex);
 
@@ -1446,7 +1413,7 @@ namespace Nz::ShaderAst
 
 		remapCallbacks.varIndexGenerator = [&](std::size_t previousIndex)
 		{
-			std::size_t newIndex = m_context->variableTypes.RegisterNewIndex(true);
+			std::size_t newIndex = m_context->currentEnv->variableTypes.RegisterNewIndex(true);
 			if (exportedSet.usedVariables.Test(previousIndex))
 				remappedExportedSet.usedVariables.UnboundedSet(newIndex);
 
@@ -1456,8 +1423,8 @@ namespace Nz::ShaderAst
 		statementPtr = RemapIndices(*statementPtr, remapCallbacks);
 
 		// Register exported variables (FIXME: This shouldn't be necessary and could be handled by the IndexRemapperVisitor)
-		m_context->importUsage = remappedExportedSet;
-		CallOnExit restoreImportOnExit([&] { m_context->importUsage.reset(); });
+		//m_context->importUsage = remappedExportedSet;
+		//CallOnExit restoreImportOnExit([&] { m_context->importUsage.reset(); });
 
 		return AstCloner::Clone(*statementPtr);
 	}
@@ -1513,22 +1480,43 @@ namespace Nz::ShaderAst
 
 	auto SanitizeVisitor::FindIdentifier(const std::string_view& identifierName) const -> const Identifier*
 	{
-		auto it = std::find_if(m_context->identifiersInScope.rbegin(), m_context->identifiersInScope.rend(), [&](const Identifier& identifier) { return identifier.name == identifierName; });
-		if (it == m_context->identifiersInScope.rend())
-			return nullptr;
-
-		return &*it;
+		return FindIdentifier(*m_context->currentEnv, identifierName);
 	}
 
 	template<typename F>
 	auto SanitizeVisitor::FindIdentifier(const std::string_view& identifierName, F&& functor) const -> const Identifier*
 	{
-		auto it = std::find_if(m_context->identifiersInScope.rbegin(), m_context->identifiersInScope.rend(), [&](const Identifier& identifier)
+		return FindIdentifier(*m_context->currentEnv, identifierName, std::forward<F>(functor));
+	}
+
+	auto SanitizeVisitor::FindIdentifier(const Environment& environment, const std::string_view& identifierName) const -> const Identifier*
+	{
+		auto it = std::find_if(environment.identifiersInScope.rbegin(), environment.identifiersInScope.rend(), [&](const Identifier& identifier) { return identifier.name == identifierName; });
+		if (it == environment.identifiersInScope.rend())
+		{
+			if (environment.parentEnv)
+				return FindIdentifier(*environment.parentEnv, identifierName);
+			else
+				return nullptr;
+		}
+
+		return &*it;
+	}
+
+	template<typename F>
+	auto SanitizeVisitor::FindIdentifier(const Environment& environment, const std::string_view& identifierName, F&& functor) const -> const Identifier*
+	{
+		auto it = std::find_if(environment.identifiersInScope.rbegin(), environment.identifiersInScope.rend(), [&](const Identifier& identifier)
 		{
 			return identifier.name == identifierName && functor(identifier);
 		});
-		if (it == m_context->identifiersInScope.rend())
-			return nullptr;
+		if (it == environment.identifiersInScope.rend())
+		{
+			if (environment.parentEnv)
+				return FindIdentifier(*environment.parentEnv, identifierName, std::forward<F>(functor));
+			else
+				return nullptr;
+		}
 
 		return &*it;
 	}
@@ -1542,7 +1530,7 @@ namespace Nz::ShaderAst
 		switch (identifier->type)
 		{
 			case Identifier::Type::Constant:
-				return m_context->constantValues.Retrieve(identifier->index);
+				return m_context->currentEnv->constantValues.Retrieve(identifier->index);
 
 			case Identifier::Type::Struct:
 				return StructType{ identifier->index };
@@ -1551,7 +1539,7 @@ namespace Nz::ShaderAst
 				return std::visit([&](auto&& arg) -> TypeParameter
 				{
 					return arg;
-				}, m_context->types.Retrieve(identifier->index));
+				}, m_context->currentEnv->types.Retrieve(identifier->index));
 
 			case Identifier::Type::Alias:
 				throw std::runtime_error("TODO");
@@ -1587,16 +1575,16 @@ namespace Nz::ShaderAst
 
 	void SanitizeVisitor::PushScope()
 	{
-		auto& scope = m_context->scopes.emplace_back();
-		scope.previousSize = m_context->identifiersInScope.size();
+		auto& scope = m_context->currentEnv->scopes.emplace_back();
+		scope.previousSize = m_context->currentEnv->identifiersInScope.size();
 	}
 
 	void SanitizeVisitor::PopScope()
 	{
-		assert(!m_context->scopes.empty());
-		auto& scope = m_context->scopes.back();
-		m_context->identifiersInScope.resize(scope.previousSize);
-		m_context->scopes.pop_back();
+		assert(!m_context->currentEnv->scopes.empty());
+		auto& scope = m_context->currentEnv->scopes.back();
+		m_context->currentEnv->identifiersInScope.resize(scope.previousSize);
+		m_context->currentEnv->scopes.pop_back();
 	}
 
 	ExpressionPtr SanitizeVisitor::CacheResult(ExpressionPtr expression)
@@ -1664,7 +1652,7 @@ namespace Nz::ShaderAst
 		AstConstantPropagationVisitor::Options optimizerOptions;
 		optimizerOptions.constantQueryCallback = [this](std::size_t constantId) -> const ConstantValue&
 		{
-			return m_context->constantValues.Retrieve(constantId);
+			return m_context->currentEnv->constantValues.Retrieve(constantId);
 		};
 
 		// Run optimizer on constant value to hopefully retrieve a single constant value
@@ -1673,7 +1661,7 @@ namespace Nz::ShaderAst
 
 	void SanitizeVisitor::PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen)
 	{
-		auto& funcData = m_context->functions.Retrieve(funcIndex);
+		auto& funcData = m_context->currentEnv->functions.Retrieve(funcIndex);
 		funcData.flags |= flags;
 
 		for (std::size_t i = funcData.calledByFunctions.FindFirst(); i != funcData.calledByFunctions.npos; i = funcData.calledByFunctions.FindNext(i))
@@ -1844,151 +1832,135 @@ namespace Nz::ShaderAst
 		RegisterIntrinsic("reflect", IntrinsicType::Reflect);
 	}
 
-	std::size_t SanitizeVisitor::RegisterConstant(std::string name, ConstantValue value, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterConstant(std::string name, ConstantValue value, std::optional<std::size_t> index)
 	{
-		std::size_t constantIndex = m_context->constantValues.Register(std::move(value), index);
-		if (!hidden)
-		{
-			if (FindIdentifier(name))
-				throw AstError{ name + " is already used" };
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
 
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				constantIndex,
-				Identifier::Type::Constant
-			});
-		}
+		std::size_t constantIndex = m_context->currentEnv->constantValues.Register(std::move(value), index);
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			constantIndex,
+			Identifier::Type::Constant
+		});
 
 		return constantIndex;
 	}
 
-	std::size_t SanitizeVisitor::RegisterFunction(std::string name, FunctionData funcData, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterFunction(std::string name, FunctionData funcData, std::optional<std::size_t> index)
 	{
-		std::size_t functionIndex = m_context->functions.Register(std::move(funcData), index);
-
-		if (!hidden)
+		if (auto* identifier = FindIdentifier(name))
 		{
-			if (auto* identifier = FindIdentifier(name))
+			bool duplicate = true;
+
+			// Functions cannot be declared twice, except for entry ones if their stages are different
+			if (funcData.node->entryStage.HasValue() && identifier->type == Identifier::Type::Function)
 			{
-				bool duplicate = true;
-
-				// Functions cannot be declared twice, except for entry ones if their stages are different
-				if (funcData.node->entryStage.HasValue() && identifier->type == Identifier::Type::Function)
-				{
-					auto& otherFunction = m_context->functions.Retrieve(identifier->index);
-					if (funcData.node->entryStage.GetResultingValue() != otherFunction.node->entryStage.GetResultingValue())
-						duplicate = false;
-				}
-
-				if (duplicate)
-					throw AstError{ funcData.node->name + " is already used" };
+				auto& otherFunction = m_context->currentEnv->functions.Retrieve(identifier->index);
+				if (funcData.node->entryStage.GetResultingValue() != otherFunction.node->entryStage.GetResultingValue())
+					duplicate = false;
 			}
 
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				functionIndex,
-				Identifier::Type::Function
-			});
+			if (duplicate)
+				throw AstError{ funcData.node->name + " is already used" };
 		}
+
+		std::size_t functionIndex = m_context->currentEnv->functions.Register(std::move(funcData), index);
+
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			functionIndex,
+			Identifier::Type::Function
+		});
 
 		return functionIndex;
 	}
 
-	std::size_t SanitizeVisitor::RegisterIntrinsic(std::string name, IntrinsicType type, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterIntrinsic(std::string name, IntrinsicType type)
 	{
-		std::size_t intrinsicIndex = m_context->intrinsics.Register(std::move(type), index);
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
 
-		if (!hidden)
-		{
-			if (FindIdentifier(name))
-				throw AstError{ name + " is already used" };
+		std::size_t intrinsicIndex = m_context->currentEnv->intrinsics.Register(std::move(type));
 
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				intrinsicIndex,
-				Identifier::Type::Intrinsic
-			});
-		}
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			intrinsicIndex,
+			Identifier::Type::Intrinsic
+		});
 
 		return intrinsicIndex;
 	}
 
-	std::size_t SanitizeVisitor::RegisterStruct(std::string name, StructDescription* description, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterModule(std::string moduleIdentifier, std::size_t moduleIndex)
 	{
-		std::size_t structIndex = m_context->structs.Register(description, index);
+		return std::size_t();
+	}
 
-		if (!hidden)
-		{
-			if (FindIdentifier(name))
-				throw AstError{ name + " is already used" };
+	std::size_t SanitizeVisitor::RegisterStruct(std::string name, StructDescription* description, std::optional<std::size_t> index)
+	{
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
 
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				structIndex,
-				Identifier::Type::Struct
-			});
-		}
+		std::size_t structIndex = m_context->currentEnv->structs.Register(description, index);
+
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			structIndex,
+			Identifier::Type::Struct
+		});
 
 		return structIndex;
 	}
 
-	std::size_t SanitizeVisitor::RegisterType(std::string name, ExpressionType expressionType, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterType(std::string name, ExpressionType expressionType, std::optional<std::size_t> index)
 	{
-		std::size_t typeIndex = m_context->types.Register(std::move(expressionType), index);
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
 
-		if (!hidden)
-		{
-			if (FindIdentifier(name))
-				throw AstError{ name + " is already used" };
+		std::size_t typeIndex = m_context->currentEnv->types.Register(std::move(expressionType), index);
 
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				typeIndex,
-				Identifier::Type::Type
-			});
-		}
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			typeIndex,
+			Identifier::Type::Type
+		});
 
 		return typeIndex;
 	}
 
-	std::size_t SanitizeVisitor::RegisterType(std::string name, PartialType partialType, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterType(std::string name, PartialType partialType, std::optional<std::size_t> index)
 	{
-		std::size_t typeIndex = m_context->types.Register(std::move(partialType), index);
+		if (FindIdentifier(name))
+			throw AstError{ name + " is already used" };
 
-		if (!hidden)
-		{
-			if (FindIdentifier(name))
-				throw AstError{ name + " is already used" };
+		std::size_t typeIndex = m_context->currentEnv->types.Register(std::move(partialType), index);
 
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				typeIndex,
-				Identifier::Type::Type
-			});
-		}
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			typeIndex,
+			Identifier::Type::Type
+		});
 
 		return typeIndex;
 	}
 
-	std::size_t SanitizeVisitor::RegisterVariable(std::string name, ExpressionType type, bool hidden, std::optional<std::size_t> index)
+	std::size_t SanitizeVisitor::RegisterVariable(std::string name, ExpressionType type, std::optional<std::size_t> index)
 	{
-		std::size_t varIndex = m_context->variableTypes.Register(std::move(type), index);
-
-		if (!hidden)
+		if (auto* identifier = FindIdentifier(name))
 		{
-			if (auto* identifier = FindIdentifier(name))
-			{
-				// Allow variable shadowing
-				if (identifier->type != Identifier::Type::Variable)
-					throw AstError{ name + " is already used" };
-			}
-
-			m_context->identifiersInScope.push_back({
-				std::move(name),
-				varIndex,
-				Identifier::Type::Variable
-			});
+			// Allow variable shadowing
+			if (identifier->type != Identifier::Type::Variable)
+				throw AstError{ name + " is already used" };
 		}
+
+		std::size_t varIndex = m_context->currentEnv->variableTypes.Register(std::move(type), index);
+
+		m_context->currentEnv->identifiersInScope.push_back({
+			std::move(name),
+			varIndex,
+			Identifier::Type::Variable
+		});
 
 		return varIndex;
 	}
@@ -2002,11 +1974,11 @@ namespace Nz::ShaderAst
 
 			for (auto& parameter : pendingFunc.cloneNode->parameters)
 			{
-				parameter.varIndex = RegisterVariable(parameter.name, parameter.type.GetResultingValue(), false, parameter.varIndex);
+				parameter.varIndex = RegisterVariable(parameter.name, parameter.type.GetResultingValue(), parameter.varIndex);
 				SanitizeIdentifier(parameter.name);
 			}
 
-			Context::CurrentFunctionData tempFuncData;
+			CurrentFunctionData tempFuncData;
 			if (pendingFunc.cloneNode->entryStage.HasValue())
 				tempFuncData.stageType = pendingFunc.cloneNode->entryStage.GetResultingValue();
 
@@ -2025,21 +1997,22 @@ namespace Nz::ShaderAst
 			std::size_t funcIndex = *pendingFunc.cloneNode->funcIndex;
 			for (std::size_t i = tempFuncData.calledFunctions.FindFirst(); i != tempFuncData.calledFunctions.npos; i = tempFuncData.calledFunctions.FindNext(i))
 			{
-				auto& targetFunc = m_context->functions.Retrieve(i);
+				auto& targetFunc = m_context->currentEnv->functions.Retrieve(i);
 				targetFunc.calledByFunctions.UnboundedSet(funcIndex);
 			}
 
 			PopScope();
 		}
+		m_context->pendingFunctions.clear();
 
 		Bitset<> seen;
-		for (const auto& [funcIndex, funcData] : m_context->functions.values)
+		for (const auto& [funcIndex, funcData] : m_context->currentEnv->functions.values)
 		{
 			PropagateFunctionFlags(funcIndex, funcData.flags, seen);
 			seen.Clear();
 		}
 
-		for (const auto& [funcIndex, funcData] : m_context->functions.values)
+		for (const auto& [funcIndex, funcData] : m_context->currentEnv->functions.values)
 		{
 			if (funcData.flags.Test(ShaderAst::FunctionFlag::DoesDiscard) && funcData.node->entryStage.HasValue() && funcData.node->entryStage.GetResultingValue() != ShaderStageType::Fragment)
 				throw AstError{ "discard can only be used in the fragment stage" };
@@ -2118,7 +2091,7 @@ namespace Nz::ShaderAst
 
 		std::size_t typeIndex = std::get<Type>(exprType).typeIndex;
 
-		const auto& type = m_context->types.Retrieve(typeIndex);
+		const auto& type = m_context->currentEnv->types.Retrieve(typeIndex);
 		if (std::holds_alternative<PartialType>(type))
 			throw AstError{ "full type expected" };
 
@@ -2156,6 +2129,41 @@ namespace Nz::ShaderAst
 			while (FindIdentifier(identifier) != nullptr);
 		}
 	}
+	
+	MultiStatementPtr SanitizeVisitor::SanitizeInternal(MultiStatement& rootNode, std::string* error)
+	{
+		MultiStatementPtr output;
+
+		PushScope(); //< Global scope
+		{
+			RegisterBuiltin();
+
+			// First pass, evaluate everything except function code
+			try
+			{
+				output = static_unique_pointer_cast<MultiStatement>(AstCloner::Clone(rootNode));
+			}
+			catch (const AstError& err)
+			{
+				if (!error)
+					throw std::runtime_error(err.errMsg);
+
+				*error = err.errMsg;
+			}
+			catch (const std::runtime_error& err)
+			{
+				if (!error)
+					throw;
+
+				*error = err.what();
+			}
+
+			ResolveFunctions();
+		}
+		PopScope();
+
+		return output;
+	}
 
 	void SanitizeVisitor::TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right) const
 	{
@@ -2190,7 +2198,7 @@ namespace Nz::ShaderAst
 		if (IsTypeExpression(exprType))
 		{
 			std::size_t typeIndex = std::get<Type>(exprType).typeIndex;
-			const auto& type = m_context->types.Retrieve(typeIndex);
+			const auto& type = m_context->currentEnv->types.Retrieve(typeIndex);
 
 			if (!std::holds_alternative<PartialType>(type))
 				throw std::runtime_error("only partial types can be specialized");
@@ -2283,7 +2291,7 @@ namespace Nz::ShaderAst
 					Int32 index = std::get<Int32>(constantExpr.value);
 
 					std::size_t structIndex = ResolveStruct(exprType);
-					const StructDescription* s = m_context->structs.Retrieve(structIndex);
+					const StructDescription* s = m_context->currentEnv->structs.Retrieve(structIndex);
 
 					exprType = ResolveType(s->members[index].type);
 				}
@@ -2357,7 +2365,7 @@ namespace Nz::ShaderAst
 		assert(std::holds_alternative<FunctionType>(targetFuncType));
 
 		std::size_t targetFuncIndex = std::get<FunctionType>(targetFuncType).funcIndex;
-		auto& funcData = m_context->functions.Retrieve(targetFuncIndex);
+		auto& funcData = m_context->currentEnv->functions.Retrieve(targetFuncIndex);
 
 		const DeclareFunctionStatement* referenceDeclaration = funcData.node;
 
@@ -2468,7 +2476,7 @@ namespace Nz::ShaderAst
 				TypeMustMatch(resolvedType, GetExpressionType(*node.initialExpression));
 		}
 
-		node.varIndex = RegisterVariable(node.varName, resolvedType, false, node.varIndex);
+		node.varIndex = RegisterVariable(node.varName, resolvedType, node.varIndex);
 		node.varType = std::move(resolvedType);
 
 		if (m_context->options.makeVariableNameUnique)
@@ -2720,7 +2728,7 @@ namespace Nz::ShaderAst
 
 	void SanitizeVisitor::Validate(VariableExpression& node)
 	{
-		node.cachedExpressionType = m_context->variableTypes.Retrieve(node.variableId);
+		node.cachedExpressionType = m_context->currentEnv->variableTypes.Retrieve(node.variableId);
 	}
 
 	ExpressionType SanitizeVisitor::ValidateBinaryOp(BinaryType op, const ExpressionPtr& leftExpr, const ExpressionPtr& rightExpr)

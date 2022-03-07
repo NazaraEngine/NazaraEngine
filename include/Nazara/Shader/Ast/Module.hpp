@@ -24,7 +24,7 @@ namespace Nz::ShaderAst
 		public:
 			struct Metadata;
 
-			inline Module(UInt32 shaderLangVersion);
+			inline Module(UInt32 shaderLangVersion, const Uuid& moduleId = Uuid::Generate());
 			inline Module(std::shared_ptr<const Metadata> metadata);
 			inline Module(std::shared_ptr<const Metadata> metadata, MultiStatementPtr rootNode);
 			Module(const Module&) = default;
@@ -34,14 +34,22 @@ namespace Nz::ShaderAst
 			Module& operator=(const Module&) = default;
 			Module& operator=(Module&&) noexcept = default;
 
-			std::shared_ptr<const Metadata> metadata;
-			MultiStatementPtr rootNode;
+			struct ImportedModule
+			{
+				std::string identifier;
+				std::vector<Uuid> dependencies;
+				ModulePtr module;
+			};
 
 			struct Metadata
 			{
 				UInt32 shaderLangVersion;
 				Uuid moduleId;
 			};
+
+			std::shared_ptr<const Metadata> metadata;
+			std::vector<ImportedModule> importedModules;
+			MultiStatementPtr rootNode;
 	};
 }
 
