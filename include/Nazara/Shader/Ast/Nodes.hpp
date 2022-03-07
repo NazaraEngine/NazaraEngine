@@ -250,7 +250,6 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> constIndex;
-		std::optional<bool> hidden;
 		std::string name;
 		ExpressionPtr expression;
 		ExpressionValue<ExpressionType> type;
@@ -270,7 +269,6 @@ namespace Nz::ShaderAst
 			ExpressionValue<ExpressionType> type;
 		};
 
-		std::optional<bool> hidden;
 		std::vector<ExternalVar> externalVars;
 		ExpressionValue<UInt32> bindingSet;
 	};
@@ -288,7 +286,6 @@ namespace Nz::ShaderAst
 		};
 
 		std::optional<std::size_t> funcIndex;
-		std::optional<bool> hidden;
 		std::string name;
 		std::vector<Parameter> parameters;
 		std::vector<StatementPtr> statements;
@@ -304,7 +301,6 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> optIndex;
-		std::optional<bool> hidden;
 		std::string optName;
 		ExpressionPtr defaultValue;
 		ExpressionValue<ExpressionType> optType;
@@ -316,7 +312,6 @@ namespace Nz::ShaderAst
 		void Visit(AstStatementVisitor& visitor) override;
 
 		std::optional<std::size_t> structIndex;
-		std::optional<bool> hidden;
 		ExpressionValue<bool> isExported;
 		StructDescription description;
 	};

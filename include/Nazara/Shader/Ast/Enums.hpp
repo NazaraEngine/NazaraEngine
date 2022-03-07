@@ -39,6 +39,7 @@ namespace Nz
 			LangVersion,        //< NZSL version - has argument version string
 			Set,                //< Binding set (external var only) - has argument index
 			Unroll,             //< Unroll (for/for each only) - has argument mode
+			Uuid,               //< Uuid (module only) - has argument string
 		};
 
 		enum class BinaryType

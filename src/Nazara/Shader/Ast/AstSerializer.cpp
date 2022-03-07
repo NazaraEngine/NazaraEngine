@@ -195,7 +195,6 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(DeclareExternalStatement& node)
 	{
-		OptVal(node.hidden);
 		ExprValue(node.bindingSet);
 
 		Container(node.externalVars);
@@ -212,7 +211,6 @@ namespace Nz::ShaderAst
 	void AstSerializerBase::Serialize(DeclareConstStatement& node)
 	{
 		OptVal(node.constIndex);
-		OptVal(node.hidden);
 		Value(node.name);
 		ExprValue(node.type);
 		Node(node.expression);
@@ -226,7 +224,6 @@ namespace Nz::ShaderAst
 		ExprValue(node.earlyFragmentTests);
 		ExprValue(node.entryStage);
 		OptVal(node.funcIndex);
-		OptVal(node.hidden);
 
 		Container(node.parameters);
 		for (auto& parameter : node.parameters)
@@ -244,7 +241,6 @@ namespace Nz::ShaderAst
 	void AstSerializerBase::Serialize(DeclareOptionStatement& node)
 	{
 		OptVal(node.optIndex);
-		OptVal(node.hidden);
 		Value(node.optName);
 		ExprValue(node.optType);
 		Node(node.defaultValue);
@@ -253,7 +249,6 @@ namespace Nz::ShaderAst
 	void AstSerializerBase::Serialize(DeclareStructStatement& node)
 	{
 		OptVal(node.structIndex);
-		OptVal(node.hidden);
 		ExprValue(node.isExported);
 
 		Value(node.description.name);
