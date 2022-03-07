@@ -20,7 +20,7 @@ namespace Nz
 	{
 		public:
 			inline Uuid();
-			inline Uuid(const std::array<UInt8, 16> guid);
+			inline Uuid(const std::array<UInt8, 16> uuid);
 			Uuid(const Uuid&) = default;
 			Uuid(Uuid&& generator) = default;
 			~Uuid() = default;
@@ -34,13 +34,14 @@ namespace Nz
 			Uuid& operator=(const Uuid&) = default;
 			Uuid& operator=(Uuid&&) = default;
 
+			static Uuid FromString(std::string_view str);
 			static Uuid Generate();
 
 		private:
-			std::array<UInt8, 16> m_guid;
+			std::array<UInt8, 16> m_uuid;
 	};
 
-	NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, const Uuid& guid);
+	NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, const Uuid& uuid);
 	inline bool operator==(const Uuid& lhs, const Uuid& rhs);
 	inline bool operator!=(const Uuid& lhs, const Uuid& rhs);
 	inline bool operator<(const Uuid& lhs, const Uuid& rhs);
