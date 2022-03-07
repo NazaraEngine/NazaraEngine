@@ -6,6 +6,25 @@
 
 SCENARIO("Uuid", "[CORE][UUID]")
 {
+	WHEN("Parsing UUID")
+	{
+		CHECK(Nz::Uuid::FromString("00000000-0000-0000-0000-000000000000") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-43e0-ba4c-e9334183b1f1") == Nz::Uuid({ 0x1B, 0x0E, 0x29, 0xAF, 0xFD, 0x4A, 0x43, 0xE0, 0xBA, 0x4C, 0xE9, 0x33, 0x41, 0x83, 0xB1, 0xF1 }));
+
+		// Testing some invalid cases
+		CHECK(Nz::Uuid::FromString("Nazara Engine") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("Zb0e29af-fd4a-43e0-ba4c-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29a\t-fd4a-43e0-ba4c-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4\v-43e0-ba4c-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-\r3e0-ba4c-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-43e\n-ba4c-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-43e0-\0a4c-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-43e0-ba4\n-e9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-43e0-ba4c-g9334183b1f1") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-fd4a-43e0-ba4c-e9334183b1fG") == Nz::Uuid());
+		CHECK(Nz::Uuid::FromString("1b0e29af-HELL-OWOR-LDDD-e9334183b1f1") == Nz::Uuid());
+	}
+
 	WHEN("Generating a null UUID")
 	{
 		Nz::Uuid nullUuid;
@@ -19,6 +38,7 @@ SCENARIO("Uuid", "[CORE][UUID]")
 		CHECK_FALSE(nullUuid > Nz::Uuid{});
 		CHECK_FALSE(nullUuid < Nz::Uuid{});
 		CHECK(nullUuid != Nz::Uuid::Generate());
+		CHECK(Nz::Uuid::FromString(nullUuid.ToString()) == nullUuid);
 	}
 
 	WHEN("Generating a UUID")
@@ -36,6 +56,7 @@ SCENARIO("Uuid", "[CORE][UUID]")
 		CHECK(uuid <= uuid);
 		CHECK_FALSE(uuid > uuid);
 		CHECK_FALSE(uuid < uuid);
+		CHECK(Nz::Uuid::FromString(uuid.ToString()) == uuid);
 	}
 
 	WHEN("Generating multiple UUID, they are unique")
