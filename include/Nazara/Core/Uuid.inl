@@ -9,30 +9,30 @@ namespace Nz
 {
 	inline Uuid::Uuid()
 	{
-		m_guid.fill(0);
+		m_uuid.fill(0);
 	}
 
-	inline Uuid::Uuid(const std::array<UInt8, 16> guid) :
-	m_guid(guid)
+	inline Uuid::Uuid(const std::array<UInt8, 16> uuid) :
+	m_uuid(uuid)
 	{
 	}
 
 	inline bool Uuid::IsNull() const
 	{
-		Uuid NullGuid;
-		return *this == NullGuid;
+		Uuid nullUuid;
+		return *this == nullUuid;
 	}
 
 	inline const std::array<UInt8, 16>& Uuid::ToArray() const
 	{
-		return m_guid;
+		return m_uuid;
 	}
 
 	inline std::string Uuid::ToString() const
 	{
-		std::array<char, 37> guidStr = ToStringArray();
+		std::array<char, 37> uuidStr = ToStringArray();
 
-		return std::string(guidStr.data(), guidStr.size() - 1);
+		return std::string(uuidStr.data(), uuidStr.size() - 1);
 	}
 
 	bool operator==(const Uuid& lhs, const Uuid& rhs)
@@ -93,12 +93,12 @@ namespace std
 	template <>
 	struct hash<Nz::Uuid>
 	{
-		size_t operator()(const Nz::Uuid& guid) const
+		size_t operator()(const Nz::Uuid& uuid) const
 		{
 			// DJB2 algorithm http://www.cse.yorku.ca/~oz/hash.html
 			size_t h = 5381;
 
-			const array<Nz::UInt8, 16>& data = guid.ToArray();
+			const array<Nz::UInt8, 16>& data = uuid.ToArray();
 			for (size_t i = 0; i < data.size(); ++i)
 				h = ((h << 5) + h) + data[i];
 
