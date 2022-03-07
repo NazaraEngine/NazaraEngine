@@ -34,6 +34,7 @@ namespace Nz::ShaderLang
 			{ "nzsl_version",         ShaderAst::AttributeType::LangVersion },
 			{ "set",                  ShaderAst::AttributeType::Set },
 			{ "unroll",               ShaderAst::AttributeType::Unroll },
+			{ "uuid",                 ShaderAst::AttributeType::Uuid },
 		};
 
 		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
@@ -247,10 +248,8 @@ namespace Nz::ShaderLang
 	{
 		Expect(Advance(), TokenType::Module);
 
-		if (m_context->module)
-			throw DuplicateModule{ "you must set one module statement per file" };
-
 		std::optional<UInt32> moduleVersion;
+		std::optional<Uuid> moduleId;
 		
 		for (auto&& [attributeType, arg] : attributes)
 		{
@@ -296,6 +295,32 @@ namespace Nz::ShaderLang
 					break;
 				}
 
+				case ShaderAst::AttributeType::Uuid:
+				{
+					if (moduleId.has_value())
+						throw AttributeError{ "attribute" + std::string("uuid") + " can only be present once" };
+
+					if (!arg)
+						throw AttributeError{ "attribute " + std::string("uuid") + " requires a parameter" };
+
+					const ShaderAst::ExpressionPtr& expr = *arg;
+					if (expr->GetType() != ShaderAst::NodeType::ConstantValueExpression)
+						throw AttributeError{ "attribute " + std::string("uuid") + " expect a single string parameter" };
+
+					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
+					if (ShaderAst::GetExpressionType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
+						throw AttributeError{ "attribute " + std::string("uuid") + " expect a single string parameter" };
+
+					const std::string& uuidStr = std::get<std::string>(constantValue.value);
+
+					Uuid uuid = Uuid::FromString(uuidStr);
+					if (uuid.IsNull())
+						throw AttributeError{ "attribute " + std::string("uuid") + " value is not a valid UUID" };
+
+					moduleId = uuid;
+					break;
+				}
+
 				default:
 					throw AttributeError{ "unhandled attribute for module" };
 			}
@@ -304,9 +329,34 @@ namespace Nz::ShaderLang
 		if (!moduleVersion.has_value())
 			throw AttributeError{ "missing module version" };
 
-		m_context->module = std::make_shared<ShaderAst::Module>(*moduleVersion);
+		if (!moduleId)
+			moduleId = Uuid::Generate();
 
-		Expect(Advance(), TokenType::Semicolon);
+		auto module = std::make_shared<ShaderAst::Module>(*moduleVersion, *moduleId);
+
+		if (Peek().type == TokenType::Identifier)
+		{
+			// Imported module
+			if (!m_context->module)
+				throw UnexpectedToken{}; //< "unexpected token before module declaration"
+
+			const std::string& identifier = std::get<std::string>(Peek().data);
+			Consume();
+
+			module->rootNode->statements = ParseStatementList();
+
+			auto& importedModule = m_context->module->importedModules.emplace_back();
+			importedModule.module = std::move(module);
+		}
+		else
+		{
+			Expect(Advance(), TokenType::Semicolon);
+
+			if (m_context->module)
+				throw DuplicateModule{ "you must set one module statement per file" };
+
+			m_context->module = std::move(module);
+		}
 	}
 
 	void Parser::ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue)

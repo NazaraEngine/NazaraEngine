@@ -31,10 +31,27 @@ namespace Nz::ShaderAst
 		if (!Compare(*lhs.metadata, *rhs.metadata))
 			return false;
 
+		if (!Compare(lhs.importedModules, rhs.importedModules))
+			return false;
+
 		if (!Compare(*lhs.rootNode, *rhs.rootNode))
 			return false;
 
 		return true;
+	}
+
+	bool Compare(const Module::ImportedModule& lhs, const Module::ImportedModule& rhs)
+	{
+		if (!Compare(lhs.identifier, rhs.identifier))
+			return false;
+
+		if (!Compare(lhs.dependencies, rhs.dependencies))
+			return false;
+
+		if (!Compare(*lhs.module, *rhs.module))
+			return false;
+
+		return false;
 	}
 
 	bool Compare(const Module::Metadata& lhs, const Module::Metadata& rhs)
