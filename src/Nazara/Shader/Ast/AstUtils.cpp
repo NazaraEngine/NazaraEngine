@@ -72,6 +72,11 @@ namespace Nz::ShaderAst
 		m_expressionCategory = ExpressionCategory::LValue;
 	}
 
+	void ShaderAstValueCategory::Visit(FunctionExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::LValue;
+	}
+
 	void ShaderAstValueCategory::Visit(IdentifierExpression& /*node*/)
 	{
 		m_expressionCategory = ExpressionCategory::LValue;
@@ -80,6 +85,16 @@ namespace Nz::ShaderAst
 	void ShaderAstValueCategory::Visit(IntrinsicExpression& /*node*/)
 	{
 		m_expressionCategory = ExpressionCategory::RValue;
+	}
+
+	void ShaderAstValueCategory::Visit(IntrinsicFunctionExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::LValue;
+	}
+
+	void ShaderAstValueCategory::Visit(StructTypeExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::LValue;
 	}
 
 	void ShaderAstValueCategory::Visit(SwizzleExpression& node)

@@ -41,8 +41,11 @@ namespace Nz::ShaderAst
 			void Visit(ConditionalExpression& node) override;
 			void Visit(ConstantValueExpression& node) override;
 			void Visit(ConstantExpression& node) override;
+			void Visit(FunctionExpression& node) override;
 			void Visit(IdentifierExpression& node) override;
 			void Visit(IntrinsicExpression& node) override;
+			void Visit(IntrinsicFunctionExpression& node) override;
+			void Visit(StructTypeExpression& node) override;
 			void Visit(SwizzleExpression& node) override;
 			void Visit(VariableExpression& node) override;
 			void Visit(UnaryExpression& node) override;

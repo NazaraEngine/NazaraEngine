@@ -315,7 +315,7 @@ namespace Nz::ShaderBuilder
 		return expressionStatementNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ForStatement> Nz::ShaderBuilder::Impl::For::operator()(std::string varName, ShaderAst::ExpressionPtr fromExpression, ShaderAst::ExpressionPtr toExpression, ShaderAst::StatementPtr statement) const
+	inline std::unique_ptr<ShaderAst::ForStatement> Impl::For::operator()(std::string varName, ShaderAst::ExpressionPtr fromExpression, ShaderAst::ExpressionPtr toExpression, ShaderAst::StatementPtr statement) const
 	{
 		auto forNode = std::make_unique<ShaderAst::ForStatement>();
 		forNode->fromExpr = std::move(fromExpression);
@@ -326,7 +326,7 @@ namespace Nz::ShaderBuilder
 		return forNode;
 	}
 
-	inline std::unique_ptr<ShaderAst::ForStatement> Nz::ShaderBuilder::Impl::For::operator()(std::string varName, ShaderAst::ExpressionPtr fromExpression, ShaderAst::ExpressionPtr toExpression, ShaderAst::ExpressionPtr stepExpression, ShaderAst::StatementPtr statement) const
+	inline std::unique_ptr<ShaderAst::ForStatement> Impl::For::operator()(std::string varName, ShaderAst::ExpressionPtr fromExpression, ShaderAst::ExpressionPtr toExpression, ShaderAst::ExpressionPtr stepExpression, ShaderAst::StatementPtr statement) const
 	{
 		auto forNode = std::make_unique<ShaderAst::ForStatement>();
 		forNode->fromExpr = std::move(fromExpression);
@@ -346,6 +346,15 @@ namespace Nz::ShaderBuilder
 		forEachNode->varName = std::move(varName);
 
 		return forEachNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::FunctionExpression> Impl::Function::operator()(std::size_t funcId) const
+	{
+		auto intrinsicTypeExpr = std::make_unique<ShaderAst::FunctionExpression>();
+		intrinsicTypeExpr->cachedExpressionType = ShaderAst::FunctionType{ funcId };
+		intrinsicTypeExpr->funcId = funcId;
+
+		return intrinsicTypeExpr;
 	}
 
 	inline std::unique_ptr<ShaderAst::IdentifierExpression> Impl::Identifier::operator()(std::string name) const
@@ -371,6 +380,15 @@ namespace Nz::ShaderBuilder
 		intrinsicExpression->parameters = std::move(parameters);
 
 		return intrinsicExpression;
+	}
+
+	inline std::unique_ptr<ShaderAst::IntrinsicFunctionExpression> Impl::IntrinsicFunction::operator()(std::size_t intrinsicFunctionId, ShaderAst::IntrinsicType intrinsicType) const
+	{
+		auto intrinsicTypeExpr = std::make_unique<ShaderAst::IntrinsicFunctionExpression>();
+		intrinsicTypeExpr->cachedExpressionType = ShaderAst::IntrinsicFunctionType{ intrinsicType };
+		intrinsicTypeExpr->intrinsicId = intrinsicFunctionId;
+
+		return intrinsicTypeExpr;
 	}
 
 	inline std::unique_ptr<ShaderAst::MultiStatement> Impl::Multi::operator()(std::vector<ShaderAst::StatementPtr> statements) const
@@ -401,6 +419,15 @@ namespace Nz::ShaderBuilder
 		scopedNode->statement = std::move(statement);
 
 		return scopedNode;
+	}
+
+	inline std::unique_ptr<ShaderAst::StructTypeExpression> Impl::StructType::operator()(std::size_t structTypeId) const
+	{
+		auto structTypeExpr = std::make_unique<ShaderAst::StructTypeExpression>();
+		structTypeExpr->cachedExpressionType = ShaderAst::StructType{ structTypeId };
+		structTypeExpr->structTypeId = structTypeId;
+
+		return structTypeExpr;
 	}
 
 	inline std::unique_ptr<ShaderAst::SwizzleExpression> Impl::Swizzle::operator()(ShaderAst::ExpressionPtr expression, std::array<UInt32, 4> swizzleComponents, std::size_t componentCount) const

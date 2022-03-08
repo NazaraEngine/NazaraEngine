@@ -137,9 +137,16 @@ namespace Nz
 			std::string targetName;
 		};
 
+		struct StructData
+		{
+			std::string nameOverride;
+			const ShaderAst::StructDescription* desc;
+		};
+
 		std::optional<ShaderStageType> stage;
+		std::string moduleSuffix;
 		std::stringstream stream;
-		std::unordered_map<std::size_t, ShaderAst::StructDescription*> structs;
+		std::unordered_map<std::size_t, StructData> structs;
 		std::unordered_map<std::size_t, std::string> variableNames;
 		std::vector<InOutField> inputFields;
 		std::vector<InOutField> outputFields;
@@ -172,6 +179,7 @@ namespace Nz
 		else
 			targetAst = module.rootNode.get();
 
+		const ShaderAst::Module& targetModule = (sanitizedModule) ? *sanitizedModule : module;
 
 		ShaderAst::StatementPtr optimizedAst;
 		if (states.optimize)
@@ -193,6 +201,15 @@ namespace Nz
 
 		AppendHeader();
 
+		for (const auto& importedModule : targetModule.importedModules)
+		{
+			m_currentState->moduleSuffix = importedModule.identifier;
+
+			importedModule.module->rootNode->Visit(state.previsitor);
+			importedModule.module->rootNode->Visit(*this);
+		}
+
+		m_currentState->moduleSuffix = {};
 		targetAst->Visit(*this);
 
 		return state.stream.str();
@@ -342,8 +359,8 @@ namespace Nz
 
 	void GlslWriter::Append(const ShaderAst::StructType& structType)
 	{
-		ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structType.structIndex);
-		Append(structDesc->name);
+		const auto& structData = Retrieve(m_currentState->structs, structType.structIndex);
+		Append(structData.nameOverride);
 	}
 
 	void GlslWriter::Append(const ShaderAst::Type& /*type*/)
@@ -630,9 +647,9 @@ namespace Nz
 
 				assert(IsStructType(parameter.type.GetResultingValue()));
 				std::size_t structIndex = std::get<ShaderAst::StructType>(parameter.type.GetResultingValue()).structIndex;
-				const ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
+				const auto& structData = Retrieve(m_currentState->structs, structIndex);
 
-				AppendLine(structDesc->name, " ", varName, ";");
+				AppendLine(structData.nameOverride, " ", varName, ";");
 				for (const auto& [memberName, targetName] : m_currentState->inputFields)
 					AppendLine(varName, ".", memberName, " = ", targetName, ";");
 
@@ -651,9 +668,9 @@ namespace Nz
 
 	void GlslWriter::HandleInOut()
 	{
-		auto AppendInOut = [this](const ShaderAst::StructDescription& structDesc, std::vector<State::InOutField>& fields, const char* keyword, const char* targetPrefix)
+		auto AppendInOut = [this](const State::StructData& structData, std::vector<State::InOutField>& fields, const char* keyword, const char* targetPrefix)
 		{
-			for (const auto& member : structDesc.members)
+			for (const auto& member : structData.desc->members)
 			{
 				if (member.cond.HasValue() && !member.cond.GetResultingValue())
 					continue;
@@ -691,8 +708,6 @@ namespace Nz
 
 		const ShaderAst::DeclareFunctionStatement& node = *m_currentState->previsitor.entryPoint;
 
-		const ShaderAst::StructDescription* inputStruct = nullptr;
-
 		if (!node.parameters.empty())
 		{
 			assert(node.parameters.size() == 1);
@@ -700,10 +715,10 @@ namespace Nz
 			assert(std::holds_alternative<ShaderAst::StructType>(parameter.type.GetResultingValue()));
 
 			std::size_t inputStructIndex = std::get<ShaderAst::StructType>(parameter.type.GetResultingValue()).structIndex;
-			inputStruct = Retrieve(m_currentState->structs, inputStructIndex);
+			const auto& inputStruct = Retrieve(m_currentState->structs, inputStructIndex);
 
 			AppendCommentSection("Inputs");
-			AppendInOut(*inputStruct, m_currentState->inputFields, "in", s_inputPrefix);
+			AppendInOut(inputStruct, m_currentState->inputFields, "in", s_inputPrefix);
 		}
 
 		if (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition)
@@ -717,17 +732,21 @@ namespace Nz
 			assert(std::holds_alternative<ShaderAst::StructType>(node.returnType.GetResultingValue()));
 			std::size_t outputStructIndex = std::get<ShaderAst::StructType>(node.returnType.GetResultingValue()).structIndex;
 
-			const ShaderAst::StructDescription* outputStruct = Retrieve(m_currentState->structs, outputStructIndex);
+			const auto& outputStruct = Retrieve(m_currentState->structs, outputStructIndex);
 
 			AppendCommentSection("Outputs");
-			AppendInOut(*outputStruct, m_currentState->outputFields, "out", s_outputPrefix);
+			AppendInOut(outputStruct, m_currentState->outputFields, "out", s_outputPrefix);
 		}
 	}
 
-	void GlslWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc)
+	void GlslWriter::RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc, std::string structName)
 	{
 		assert(m_currentState->structs.find(structIndex) == m_currentState->structs.end());
-		m_currentState->structs.emplace(structIndex, desc);
+		State::StructData structData;
+		structData.desc = desc;
+		structData.nameOverride = std::move(structName);
+
+		m_currentState->structs.emplace(structIndex, std::move(structData));
 	}
 
 	void GlslWriter::RegisterVariable(std::size_t varIndex, std::string varName)
@@ -1035,10 +1054,12 @@ namespace Nz
 			if (IsUniformType(externalVar.type.GetResultingValue()))
 			{
 				auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type.GetResultingValue());
-				ShaderAst::StructDescription* structInfo = Retrieve(m_currentState->structs, uniform.containedType.structIndex);
-				if (structInfo->layout.HasValue())
-					isStd140 = structInfo->layout.GetResultingValue() == StructLayout::Std140;
+				const auto& structInfo = Retrieve(m_currentState->structs, uniform.containedType.structIndex);
+				if (structInfo.desc->layout.HasValue())
+					isStd140 = structInfo.desc->layout.GetResultingValue() == StructLayout::Std140;
 			}
+
+			std::string varName = externalVar.name + m_currentState->moduleSuffix;
 
 			if (!m_currentState->bindingMapping.empty() || isStd140)
 				Append("layout(");
@@ -1074,15 +1095,15 @@ namespace Nz
 			if (IsUniformType(externalVar.type.GetResultingValue()))
 			{
 				Append("_NzBinding_");
-				AppendLine(externalVar.name);
+				AppendLine(varName);
 
 				EnterScope();
 				{
-					auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type.GetResultingValue());
-					auto& structDesc = Retrieve(m_currentState->structs, uniform.containedType.structIndex);
+					const auto& uniform = std::get<ShaderAst::UniformType>(externalVar.type.GetResultingValue());
+					const auto& structData = Retrieve(m_currentState->structs, uniform.containedType.structIndex);
 
 					bool first = true;
-					for (const auto& member : structDesc->members)
+					for (const auto& member : structData.desc->members)
 					{
 						if (member.cond.HasValue() && !member.cond.GetResultingValue())
 							continue;
@@ -1099,10 +1120,10 @@ namespace Nz
 				LeaveScope(false);
 
 				Append(" ");
-				Append(externalVar.name);
+				Append(varName);
 			}
 			else
-				AppendVariableDeclaration(externalVar.type.GetResultingValue(), externalVar.name);
+				AppendVariableDeclaration(externalVar.type.GetResultingValue(), varName);
 
 			AppendLine(";");
 
@@ -1110,7 +1131,7 @@ namespace Nz
 				AppendLine();
 
 			assert(externalVar.varIndex);
-			RegisterVariable(*externalVar.varIndex, externalVar.name);
+			RegisterVariable(*externalVar.varIndex, varName);
 		}
 	}
 
@@ -1168,11 +1189,13 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::DeclareStructStatement& node)
 	{
+		std::string structName = node.description.name + m_currentState->moduleSuffix;
+
 		assert(node.structIndex);
-		RegisterStruct(*node.structIndex, &node.description);
+		RegisterStruct(*node.structIndex, &node.description, structName);
 
 		Append("struct ");
-		AppendLine(node.description.name);
+		AppendLine(structName);
 		EnterScope();
 		{
 			bool first = true;
@@ -1224,9 +1247,9 @@ namespace Nz
 		Append(";");
 	}
 
-	void GlslWriter::Visit(ShaderAst::ImportStatement& /*node*/)
+	void GlslWriter::Visit(ShaderAst::ImportStatement& node)
 	{
-		/* nothing to do */
+		throw std::runtime_error("unexpected import statement, is the shader sanitized properly?");
 	}
 
 	void GlslWriter::Visit(ShaderAst::MultiStatement& node)
@@ -1254,7 +1277,7 @@ namespace Nz
 			const ShaderAst::ExpressionType& returnType = GetExpressionType(*node.returnExpr);
 			assert(IsStructType(returnType));
 			std::size_t structIndex = std::get<ShaderAst::StructType>(returnType).structIndex;
-			const ShaderAst::StructDescription* structDesc = Retrieve(m_currentState->structs, structIndex);
+			const auto& structData = Retrieve(m_currentState->structs, structIndex);
 
 			std::string outputStructVarName;
 			if (node.returnExpr->GetType() == ShaderAst::NodeType::VariableExpression)
@@ -1262,7 +1285,7 @@ namespace Nz
 			else
 			{
 				AppendLine();
-				Append(structDesc->name, " ", s_outputVarName, " = ");
+				Append(structData.nameOverride, " ", s_outputVarName, " = ");
 				node.returnExpr->Visit(*this);
 				AppendLine(";");
 

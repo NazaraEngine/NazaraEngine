@@ -9,16 +9,26 @@
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
-const char moduleSource[] = R"(
+const char barModuleSource[] = R"(
 [nzsl_version("1.0")]
+[uuid("4BB09DEE-F70A-442E-859F-E8F2F3F8583D")]
 module;
 
 fn dummy() {}
 
+[export]
 [layout(std140)]
 struct Bar
 {
 }
+)";
+
+const char dataModuleSource[] = R"(
+[nzsl_version("1.0")]
+[uuid("E49DC9AD-469C-462C-9719-A6F012372029")]
+module;
+
+import Test/Bar;
 
 struct Foo {}
 
@@ -37,14 +47,15 @@ const char shaderSource[] = R"(
 [nzsl_version("1.0")]
 module;
 
-import Test/module_test;
+import Test/Data;
+import Test/Bar;
 
 option red: bool = false;
 
 [set(0)]
 external
 {
-	[binding(0)] viewerData: uniform[Data],
+	[binding(0)] viewerData: uniform[Data]
 }
 
 [set(1)]
@@ -138,10 +149,12 @@ int main()
 		if (modulePath[0] != "Test")
 			return {};
 
-		if (modulePath[1] != "module_test")
+		if (modulePath[1] == "Bar")
+			return Nz::ShaderLang::Parse(std::string_view(barModuleSource, sizeof(barModuleSource)));
+		else if (modulePath[1] == "Data")
+			return Nz::ShaderLang::Parse(std::string_view(dataModuleSource, sizeof(dataModuleSource)));
+		else
 			return {};
-
-		return Nz::ShaderLang::Parse(std::string_view(moduleSource, sizeof(moduleSource)));
 	};
 
 	shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt);
@@ -152,10 +165,12 @@ int main()
 	}
 
 	Nz::LangWriter langWriter;
-	std::cout << langWriter.Generate(*shaderModule) << std::endl;
+	std::string output = langWriter.Generate(*shaderModule);
+	std::cout << output << std::endl;
+	assert(Nz::ShaderAst::Sanitize(*Nz::ShaderLang::Parse(output)));
 
 	Nz::ShaderWriter::States states;
-	states.optimize = true;
+	states.optimize = false;
 
 	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, *shaderModule, states);
 	if (!fragVertShader)

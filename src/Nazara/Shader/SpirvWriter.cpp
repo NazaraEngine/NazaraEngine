@@ -517,6 +517,8 @@ namespace Nz
 		else
 			targetAst = module.rootNode.get();
 
+		const ShaderAst::Module& targetModule = (sanitizedModule) ? *sanitizedModule : module;
+
 		ShaderAst::StatementPtr optimizedAst;
 		if (states.optimize)
 		{
@@ -542,6 +544,9 @@ namespace Nz
 
 		// Register all extended instruction sets
 		PreVisitor preVisitor(state.constantTypeCache, state.funcs);
+		for (const auto& importedModule : targetModule.importedModules)
+			importedModule.module->rootNode->Visit(preVisitor);
+
 		targetAst->Visit(preVisitor);
 
 		m_currentState->preVisitor = &preVisitor;
@@ -554,6 +559,9 @@ namespace Nz
 			func.funcId = AllocateResultId();
 
 		SpirvAstVisitor visitor(*this, state.instructions, state.funcs);
+		for (const auto& importedModule : targetModule.importedModules)
+			importedModule.module->rootNode->Visit(visitor);
+
 		targetAst->Visit(visitor);
 
 		AppendHeader();
