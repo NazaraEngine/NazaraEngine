@@ -45,7 +45,8 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(DeclareStructStatement& node) override;
 			StatementPtr Clone(DeclareVariableStatement& node) override;
 
-			ExpressionPtr Clone(CallFunctionExpression& node) override;
+			ExpressionPtr Clone(FunctionExpression& node) override;
+			ExpressionPtr Clone(StructTypeExpression& node) override;
 			ExpressionPtr Clone(VariableExpression& node) override;
 
 			void HandleType(ExpressionValue<ExpressionType>& exprType);

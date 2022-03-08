@@ -72,6 +72,11 @@ namespace Nz::ShaderAst
 		/* Nothing to do */
 	}
 
+	void AstRecursiveVisitor::Visit(FunctionExpression& /*node*/)
+	{
+		/* Nothing to do */
+	}
+
 	void AstRecursiveVisitor::Visit(IdentifierExpression& /*node*/)
 	{
 		/* Nothing to do */
@@ -81,6 +86,16 @@ namespace Nz::ShaderAst
 	{
 		for (auto& param : node.parameters)
 			param->Visit(*this);
+	}
+
+	void AstRecursiveVisitor::Visit(IntrinsicFunctionExpression& /*node*/)
+	{
+		/* Nothing to do */
+	}
+
+	void AstRecursiveVisitor::Visit(StructTypeExpression& /*node*/)
+	{
+		/* Nothing to do */
 	}
 
 	void AstRecursiveVisitor::Visit(SwizzleExpression& node)

@@ -108,6 +108,8 @@ namespace Nz::ShaderAst
 			template<typename F> const IdentifierData* FindIdentifier(const Environment& environment, const std::string_view& identifierName, F&& functor) const;
 			TypeParameter FindTypeParameter(const std::string_view& identifierName) const;
 
+			ExpressionPtr HandleIdentifier(const IdentifierData* identifierData);
+
 			Expression& MandatoryExpr(const ExpressionPtr& node) const;
 			Statement& MandatoryStatement(const StatementPtr& node) const;
 

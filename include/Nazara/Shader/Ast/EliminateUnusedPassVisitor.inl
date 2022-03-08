@@ -16,6 +16,9 @@ namespace Nz::ShaderAst
 	inline ModulePtr EliminateUnusedPass(const Module& shaderModule, const DependencyCheckerVisitor::Config& config)
 	{
 		DependencyCheckerVisitor dependencyVisitor;
+		for (const auto& importedModule : shaderModule.importedModules)
+			dependencyVisitor.Process(*importedModule.module->rootNode, config);
+
 		dependencyVisitor.Process(*shaderModule.rootNode, config);
 		dependencyVisitor.Resolve();
 

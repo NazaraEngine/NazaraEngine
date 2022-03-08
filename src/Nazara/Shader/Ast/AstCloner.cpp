@@ -405,6 +405,16 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr AstCloner::Clone(FunctionExpression& node)
+	{
+		auto clone = std::make_unique<FunctionExpression>();
+		clone->funcId = node.funcId;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
 	ExpressionPtr AstCloner::Clone(IdentifierExpression& node)
 	{
 		auto clone = std::make_unique<IdentifierExpression>();
@@ -423,6 +433,26 @@ namespace Nz::ShaderAst
 		clone->parameters.reserve(node.parameters.size());
 		for (auto& parameter : node.parameters)
 			clone->parameters.push_back(CloneExpression(parameter));
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(IntrinsicFunctionExpression& node)
+	{
+		auto clone = std::make_unique<IntrinsicFunctionExpression>();
+		clone->intrinsicId = node.intrinsicId;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
+	ExpressionPtr AstCloner::Clone(StructTypeExpression& node)
+	{
+		auto clone = std::make_unique<StructTypeExpression>();
+		clone->structTypeId = node.structTypeId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
 

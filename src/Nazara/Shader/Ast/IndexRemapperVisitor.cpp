@@ -137,20 +137,22 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr IndexRemapperVisitor::Clone(CallFunctionExpression& node)
+	ExpressionPtr IndexRemapperVisitor::Clone(FunctionExpression& node)
 	{
-		CallFunctionExpressionPtr clone = static_unique_pointer_cast<CallFunctionExpression>(AstCloner::Clone(node));
+		FunctionExpressionPtr clone = static_unique_pointer_cast<FunctionExpression>(AstCloner::Clone(node));
 
-		const auto& targetFuncType = GetExpressionType(*node.targetFunction);
-		if (std::holds_alternative<FunctionType>(targetFuncType))
-		{
-			const auto& funcType = std::get<FunctionType>(targetFuncType);
+		assert(clone->funcId);
+		clone->funcId = Retrieve(m_context->newFuncIndices, clone->funcId);
 
-			FunctionType newFunc;
-			newFunc.funcIndex = Retrieve(m_context->newFuncIndices, funcType.funcIndex);
-			clone->cachedExpressionType = ExpressionType{ newFunc }; //< FIXME We should add FunctionExpression like VariableExpression to handle this
-		}
+		return clone;
+	}
 
+	ExpressionPtr IndexRemapperVisitor::Clone(StructTypeExpression& node)
+	{
+		StructTypeExpressionPtr clone = static_unique_pointer_cast<StructTypeExpression>(AstCloner::Clone(node));
+
+		assert(clone->structTypeId);
+		clone->structTypeId = Retrieve(m_context->newStructIndices, clone->structTypeId);
 
 		return clone;
 	}
