@@ -76,6 +76,11 @@ namespace Nz::ShaderBuilder
 			template<typename T> std::unique_ptr<ShaderAst::ConstantValueExpression> operator()(ShaderAst::ExpressionType type, T value) const;
 		};
 
+		struct DeclareAlias
+		{
+			inline std::unique_ptr<ShaderAst::DeclareAliasStatement> operator()(std::string name, ShaderAst::ExpressionPtr expression) const;
+		};
+
 		struct DeclareConst
 		{
 			inline std::unique_ptr<ShaderAst::DeclareConstStatement> operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const;
@@ -191,6 +196,7 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::ConditionalStatement ConditionalStatement;
 	constexpr Impl::Constant Constant;
 	constexpr Impl::Branch<true> ConstBranch;
+	constexpr Impl::DeclareAlias DeclareAlias;
 	constexpr Impl::DeclareConst DeclareConst;
 	constexpr Impl::DeclareFunction DeclareFunction;
 	constexpr Impl::DeclareOption DeclareOption;

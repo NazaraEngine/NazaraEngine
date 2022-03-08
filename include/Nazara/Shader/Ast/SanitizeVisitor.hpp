@@ -57,11 +57,13 @@ namespace Nz::ShaderAst
 			};
 
 		private:
+			enum class IdentifierCategory;
 			struct CurrentFunctionData;
 			struct Environment;
 			struct FunctionData;
 			struct Identifier;
-			template<typename T> struct IdentifierData;
+			struct IdentifierData;
+			template<typename T> struct IdentifierList;
 			struct Scope;
 
 			using AstCloner::CloneExpression;
@@ -84,6 +86,7 @@ namespace Nz::ShaderAst
 
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
+			StatementPtr Clone(DeclareAliasStatement& node) override;
 			StatementPtr Clone(DeclareConstStatement& node) override;
 			StatementPtr Clone(DeclareExternalStatement& node) override;
 			StatementPtr Clone(DeclareFunctionStatement& node) override;
@@ -99,10 +102,10 @@ namespace Nz::ShaderAst
 			StatementPtr Clone(ScopedStatement& node) override;
 			StatementPtr Clone(WhileStatement& node) override;
 
-			const Identifier* FindIdentifier(const std::string_view& identifierName) const;
-			template<typename F> const Identifier* FindIdentifier(const std::string_view& identifierName, F&& functor) const;
-			const Identifier* FindIdentifier(const Environment& environment, const std::string_view& identifierName) const;
-			template<typename F> const Identifier* FindIdentifier(const Environment& environment, const std::string_view& identifierName, F&& functor) const;
+			const IdentifierData* FindIdentifier(const std::string_view& identifierName) const;
+			template<typename F> const IdentifierData* FindIdentifier(const std::string_view& identifierName, F&& functor) const;
+			const IdentifierData* FindIdentifier(const Environment& environment, const std::string_view& identifierName) const;
+			template<typename F> const IdentifierData* FindIdentifier(const Environment& environment, const std::string_view& identifierName, F&& functor) const;
 			TypeParameter FindTypeParameter(const std::string_view& identifierName) const;
 
 			Expression& MandatoryExpr(const ExpressionPtr& node) const;
@@ -120,6 +123,8 @@ namespace Nz::ShaderAst
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
 			void RegisterBuiltin();
+
+			std::size_t RegisterAlias(std::string name, IdentifierData aliasData, std::optional<std::size_t> index = {});
 			std::size_t RegisterConstant(std::string name, ConstantValue value, std::optional<std::size_t> index = {});
 			std::size_t RegisterFunction(std::string name, FunctionData funcData, std::optional<std::size_t> index = {});
 			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type);
@@ -129,6 +134,7 @@ namespace Nz::ShaderAst
 			std::size_t RegisterType(std::string name, PartialType partialType, std::optional<std::size_t> index = {});
 			std::size_t RegisterVariable(std::string name, ExpressionType type, std::optional<std::size_t> index = {});
 
+			const IdentifierData* ResolveAlias(const IdentifierData* identifier) const;
 			void ResolveFunctions();
 			const ExpressionPtr& ResolveCondExpression(ConditionalExpression& node);
 			std::size_t ResolveStruct(const ExpressionType& exprType);
@@ -146,6 +152,7 @@ namespace Nz::ShaderAst
 
 			StatementPtr Unscope(StatementPtr node);
 
+			void Validate(DeclareAliasStatement& node);
 			void Validate(WhileStatement& node);
 
 			void Validate(AccessIndexExpression& node);
@@ -160,6 +167,18 @@ namespace Nz::ShaderAst
 			void Validate(VariableExpression& node);
 			ExpressionType ValidateBinaryOp(BinaryType op, const ExpressionPtr& leftExpr, const ExpressionPtr& rightExpr);
 
+			enum class IdentifierCategory
+			{
+				Alias,
+				Constant,
+				Function,
+				Intrinsic,
+				Module,
+				Struct,
+				Type,
+				Variable
+			};
+
 			struct FunctionData
 			{
 				Bitset<> calledByFunctions;
@@ -167,23 +186,16 @@ namespace Nz::ShaderAst
 				FunctionFlags flags;
 			};
 
+			struct IdentifierData
+			{
+				std::size_t index;
+				IdentifierCategory category;
+			};
+
 			struct Identifier
 			{
-				enum class Type
-				{
-					Alias,
-					Constant,
-					Function,
-					Intrinsic,
-					Module,
-					Struct,
-					Type,
-					Variable
-				};
-
 				std::string name;
-				std::size_t index;
-				Type type;
+				IdentifierData data;
 			};
 
 			struct Context;

@@ -1017,6 +1017,11 @@ namespace Nz
 		}
 	}
 
+	void GlslWriter::Visit(ShaderAst::DeclareAliasStatement& /*node*/)
+	{
+		/* nothing to do */
+	}
+
 	void GlslWriter::Visit(ShaderAst::DeclareConstStatement& /*node*/)
 	{
 		/* nothing to do */
