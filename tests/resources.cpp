@@ -4,11 +4,11 @@ std::filesystem::path GetResourceDir()
 {
 	static std::filesystem::path resourceDir = []
 	{
-		std::filesystem::path resourceDir = "resources";
-		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
-			return ".." / resourceDir;
+		std::filesystem::path dir = "resources";
+		if (!std::filesystem::is_directory(dir) && std::filesystem::is_directory(".." / dir))
+			return ".." / dir;
 		else
-			return resourceDir;
+			return dir;
 
 	}();
 	return resourceDir;

@@ -117,6 +117,12 @@ namespace Nz::ShaderAst
 		node.statement->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(DeclareAliasStatement& node)
+	{
+		if (node.expression)
+			node.expression->Visit(*this);
+	}
+
 	void AstRecursiveVisitor::Visit(DeclareConstStatement& node)
 	{
 		if (node.expression)

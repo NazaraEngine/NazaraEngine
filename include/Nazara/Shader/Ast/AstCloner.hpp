@@ -58,6 +58,7 @@ namespace Nz::ShaderAst
 
 			virtual StatementPtr Clone(BranchStatement& node);
 			virtual StatementPtr Clone(ConditionalStatement& node);
+			virtual StatementPtr Clone(DeclareAliasStatement& node);
 			virtual StatementPtr Clone(DeclareConstStatement& node);
 			virtual StatementPtr Clone(DeclareExternalStatement& node);
 			virtual StatementPtr Clone(DeclareFunctionStatement& node);

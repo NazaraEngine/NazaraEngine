@@ -419,6 +419,17 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const DeclareAliasStatement& lhs, const DeclareAliasStatement& rhs)
+	{
+		if (!Compare(lhs.name, rhs.name))
+			return false;
+
+		if (!Compare(lhs.expression, rhs.expression))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const DeclareConstStatement& lhs, const DeclareConstStatement& rhs)
 	{
 		if (!Compare(lhs.name, rhs.name))

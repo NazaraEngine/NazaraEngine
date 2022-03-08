@@ -50,6 +50,7 @@ namespace Nz::ShaderAst
 
 	inline bool Compare(const BranchStatement& lhs, const BranchStatement& rhs);
 	inline bool Compare(const ConditionalStatement& lhs, const ConditionalStatement& rhs);
+	inline bool Compare(const DeclareAliasStatement& lhs, const DeclareAliasStatement& rhs);
 	inline bool Compare(const DeclareConstStatement& lhs, const DeclareConstStatement& rhs);
 	inline bool Compare(const DeclareExternalStatement& lhs, const DeclareExternalStatement& rhs);
 	inline bool Compare(const DeclareFunctionStatement& lhs, const DeclareFunctionStatement& rhs);

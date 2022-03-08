@@ -347,6 +347,7 @@ namespace Nz::ShaderLang
 
 			auto& importedModule = m_context->module->importedModules.emplace_back();
 			importedModule.module = std::move(module);
+			importedModule.identifier = identifier;
 		}
 		else
 		{

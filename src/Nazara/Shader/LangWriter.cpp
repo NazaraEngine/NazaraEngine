@@ -768,6 +768,18 @@ namespace Nz
 		node.statement->Visit(*this);
 	}
 
+	void LangWriter::Visit(ShaderAst::DeclareAliasStatement& node)
+	{
+		throw std::runtime_error("TODO"); //< missing registering
+
+		assert(node.aliasIndex);
+
+		Append("alias ", node.name, " = ");
+		assert(node.expression);
+		node.expression->Visit(*this);
+		AppendLine(";");
+	}
+
 	void LangWriter::Visit(ShaderAst::DeclareConstStatement& node)
 	{
 		assert(node.constIndex);
@@ -780,7 +792,7 @@ namespace Nz
 			node.expression->Visit(*this);
 		}
 
-		Append(";");
+		AppendLine(";");
 	}
 
 	void LangWriter::Visit(ShaderAst::ConstantValueExpression& node)

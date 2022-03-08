@@ -41,6 +41,7 @@ namespace Nz::ShaderAst
 
 			void Serialize(BranchStatement& node);
 			void Serialize(ConditionalStatement& node);
+			void Serialize(DeclareAliasStatement& node);
 			void Serialize(DeclareConstStatement& node);
 			void Serialize(DeclareExternalStatement& node);
 			void Serialize(DeclareFunctionStatement& node);
