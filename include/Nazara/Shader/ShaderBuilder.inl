@@ -195,6 +195,15 @@ namespace Nz::ShaderBuilder
 		throw std::runtime_error("unexpected primitive type");
 	}
 
+	inline std::unique_ptr<ShaderAst::DeclareAliasStatement> Impl::DeclareAlias::operator()(std::string name, ShaderAst::ExpressionPtr expression) const
+	{
+		auto declareAliasNode = std::make_unique<ShaderAst::DeclareAliasStatement>();
+		declareAliasNode->name = std::move(name);
+		declareAliasNode->expression = std::move(expression);
+
+		return declareAliasNode;
+	}
+
 	inline std::unique_ptr<ShaderAst::DeclareConstStatement> Impl::DeclareConst::operator()(std::string name, ShaderAst::ExpressionPtr initialValue) const
 	{
 		auto declareConstNode = std::make_unique<ShaderAst::DeclareConstStatement>();

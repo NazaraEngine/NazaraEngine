@@ -193,6 +193,13 @@ namespace Nz::ShaderAst
 		Node(node.statement);
 	}
 
+	void AstSerializerBase::Serialize(DeclareAliasStatement& node)
+	{
+		OptVal(node.aliasIndex);
+		Value(node.name);
+		Node(node.expression);
+	}
+
 	void AstSerializerBase::Serialize(DeclareExternalStatement& node)
 	{
 		ExprValue(node.bindingSet);

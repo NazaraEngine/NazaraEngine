@@ -244,6 +244,16 @@ namespace Nz::ShaderAst
 		StatementPtr statement;
 	};
 
+	struct NAZARA_SHADER_API DeclareAliasStatement : Statement
+	{
+		NodeType GetType() const override;
+		void Visit(AstStatementVisitor& visitor) override;
+
+		std::optional<std::size_t> aliasIndex;
+		std::string name;
+		ExpressionPtr expression;
+	};
+
 	struct NAZARA_SHADER_API DeclareConstStatement : Statement
 	{
 		NodeType GetType() const override;
