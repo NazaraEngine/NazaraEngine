@@ -43,10 +43,12 @@ namespace Nz
 			struct DepthWriteAttribute;
 			struct EarlyFragmentTestsAttribute;
 			struct EntryAttribute;
+			struct LangVersionAttribute;
 			struct LayoutAttribute;
 			struct LocationAttribute;
 			struct SetAttribute;
 			struct UnrollAttribute;
+			struct UuidAttribute;
 
 			void Append(const ShaderAst::ArrayType& type);
 			void Append(const ShaderAst::ExpressionType& type);
@@ -68,18 +70,21 @@ namespace Nz
 			template<typename... Args> void AppendAttributes(bool appendLine, Args&&... params);
 			template<typename T> void AppendAttributesInternal(bool& first, const T& param);
 			template<typename T1, typename T2, typename... Rest> void AppendAttributesInternal(bool& first, const T1& firstParam, const T2& secondParam, Rest&&... params);
-			void AppendAttribute(BindingAttribute binding);
-			void AppendAttribute(BuiltinAttribute builtin);
-			void AppendAttribute(DepthWriteAttribute depthWrite);
-			void AppendAttribute(EarlyFragmentTestsAttribute earlyFragmentTests);
-			void AppendAttribute(EntryAttribute entry);
-			void AppendAttribute(LayoutAttribute layout);
-			void AppendAttribute(LocationAttribute location);
-			void AppendAttribute(SetAttribute set);
-			void AppendAttribute(UnrollAttribute unroll);
+			void AppendAttribute(BindingAttribute attribute);
+			void AppendAttribute(BuiltinAttribute attribute);
+			void AppendAttribute(DepthWriteAttribute attribute);
+			void AppendAttribute(EarlyFragmentTestsAttribute attribute);
+			void AppendAttribute(EntryAttribute attribute);
+			void AppendAttribute(LangVersionAttribute attribute);
+			void AppendAttribute(LayoutAttribute attribute);
+			void AppendAttribute(LocationAttribute attribute);
+			void AppendAttribute(SetAttribute seattributet);
+			void AppendAttribute(UnrollAttribute attribute);
+			void AppendAttribute(UuidAttribute attribute);
 			void AppendComment(const std::string& section);
 			void AppendCommentSection(const std::string& section);
 			void AppendHeader();
+			template<typename T> void AppendIdentifier(const T& map, std::size_t id);
 			void AppendLine(const std::string& txt = {});
 			template<typename... Args> void AppendLine(Args&&... params);
 			void AppendStatementList(std::vector<ShaderAst::StatementPtr>& statements);
@@ -88,7 +93,7 @@ namespace Nz
 			void LeaveScope(bool skipLine = true);
 
 			void RegisterConstant(std::size_t constantIndex, std::string constantName);
-			void RegisterStruct(std::size_t structIndex, ShaderAst::StructDescription* desc);
+			void RegisterStruct(std::size_t structIndex, std::string structName);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
 			void ScopeVisit(ShaderAst::Statement& node);
@@ -104,6 +109,7 @@ namespace Nz
 			void Visit(ShaderAst::ConstantValueExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
+			void Visit(ShaderAst::StructTypeExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
 			void Visit(ShaderAst::VariableExpression& node) override;
 			void Visit(ShaderAst::UnaryExpression& node) override;

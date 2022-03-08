@@ -153,6 +153,21 @@ namespace Nz::ShaderAst
 			Node(param);
 	}
 
+	void AstSerializerBase::Serialize(IntrinsicFunctionExpression& node)
+	{
+		SizeT(node.intrinsicId);
+	}
+
+	void AstSerializerBase::Serialize(StructTypeExpression& node)
+	{
+		SizeT(node.structTypeId);
+	}
+
+	void AstSerializerBase::Serialize(FunctionExpression& node)
+	{
+		SizeT(node.funcId);
+	}
+
 	void AstSerializerBase::Serialize(SwizzleExpression& node)
 	{
 		SizeT(node.componentCount);

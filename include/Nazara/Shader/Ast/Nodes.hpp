@@ -156,6 +156,14 @@ namespace Nz::ShaderAst
 		ShaderAst::ConstantValue value;
 	};
 
+	struct NAZARA_SHADER_API FunctionExpression : Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::size_t funcId;
+	};
+
 	struct NAZARA_SHADER_API IdentifierExpression : Expression
 	{
 		NodeType GetType() const override;
@@ -171,6 +179,22 @@ namespace Nz::ShaderAst
 
 		std::vector<ExpressionPtr> parameters;
 		IntrinsicType intrinsic;
+	};
+
+	struct NAZARA_SHADER_API IntrinsicFunctionExpression : Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::size_t intrinsicId;
+	};
+
+	struct NAZARA_SHADER_API StructTypeExpression : Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::size_t structTypeId;
 	};
 
 	struct NAZARA_SHADER_API SwizzleExpression : Expression

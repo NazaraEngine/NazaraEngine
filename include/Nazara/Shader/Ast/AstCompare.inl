@@ -342,6 +342,14 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	inline bool Compare(const FunctionExpression& lhs, const FunctionExpression& rhs)
+	{
+		if (!Compare(lhs.funcId, rhs.funcId))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const IdentifierExpression& lhs, const IdentifierExpression& rhs)
 	{
 		if (!Compare(lhs.identifier, rhs.identifier))
@@ -356,6 +364,22 @@ namespace Nz::ShaderAst
 			return false;
 
 		if (!Compare(lhs.parameters, rhs.parameters))
+			return false;
+
+		return true;
+	}
+
+	inline bool Compare(const IntrinsicFunctionExpression& lhs, const IntrinsicFunctionExpression& rhs)
+	{
+		if (!Compare(lhs.intrinsicId, rhs.intrinsicId))
+			return false;
+
+		return true;
+	}
+
+	inline bool Compare(const StructTypeExpression& lhs, const StructTypeExpression& rhs)
+	{
+		if (!Compare(lhs.structTypeId, rhs.structTypeId))
 			return false;
 
 		return true;

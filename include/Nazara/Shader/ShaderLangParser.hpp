@@ -86,6 +86,7 @@ namespace Nz::ShaderLang
 			void ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue);
 
 			// Statements
+			ShaderAst::StatementPtr ParseAliasDeclaration();
 			ShaderAst::StatementPtr ParseBranchStatement();
 			ShaderAst::StatementPtr ParseConstStatement();
 			ShaderAst::StatementPtr ParseDiscardStatement();
@@ -130,6 +131,7 @@ namespace Nz::ShaderLang
 				std::size_t tokenIndex = 0;
 				ShaderAst::ModulePtr module;
 				const Token* tokens;
+				bool parsingImportedModule = false;
 			};
 
 			Context* m_context;

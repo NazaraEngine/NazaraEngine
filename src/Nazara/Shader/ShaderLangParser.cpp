@@ -246,6 +246,9 @@ namespace Nz::ShaderLang
 
 	void Parser::ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes)
 	{
+		if (m_context->parsingImportedModule)
+			throw UnexpectedToken{};
+
 		Expect(Advance(), TokenType::Module);
 
 		std::optional<UInt32> moduleVersion;
@@ -343,7 +346,21 @@ namespace Nz::ShaderLang
 			const std::string& identifier = std::get<std::string>(Peek().data);
 			Consume();
 
-			module->rootNode->statements = ParseStatementList();
+			Expect(Advance(), TokenType::OpenCurlyBracket);
+
+			m_context->parsingImportedModule = true;
+
+			while (Peek().type != TokenType::ClosingCurlyBracket)
+			{
+				ShaderAst::StatementPtr statement = ParseRootStatement();
+				if (!statement)
+					throw UnexpectedToken{}; //< "unexpected end of file"
+
+				module->rootNode->statements.push_back(std::move(statement));
+			}
+			Consume(); //< Consume ClosingCurlyBracket
+
+			m_context->parsingImportedModule = false;
 
 			auto& importedModule = m_context->module->importedModules.emplace_back();
 			importedModule.module = std::move(module);
@@ -378,6 +395,21 @@ namespace Nz::ShaderLang
 		}
 
 		Expect(Advance(), TokenType::Semicolon);
+	}
+
+	ShaderAst::StatementPtr Parser::ParseAliasDeclaration()
+	{
+		Expect(Advance(), TokenType::Alias);
+
+		std::string name = ParseIdentifierAsName();
+
+		Expect(Advance(), TokenType::Assign);
+
+		ShaderAst::ExpressionPtr expr = ParseExpression();
+
+		Expect(Advance(), TokenType::Semicolon);
+
+		return ShaderBuilder::DeclareAlias(std::move(name), std::move(expr));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseBranchStatement()
@@ -756,6 +788,12 @@ namespace Nz::ShaderLang
 		const Token& nextToken = Peek();
 		switch (nextToken.type)
 		{
+			case TokenType::Alias:
+				if (!attributes.empty())
+					throw UnexpectedToken{};
+
+				return ParseAliasDeclaration();
+
 			case TokenType::Const:
 				if (!attributes.empty())
 					throw UnexpectedToken{};

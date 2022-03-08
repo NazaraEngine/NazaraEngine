@@ -127,6 +127,11 @@ namespace Nz::ShaderBuilder
 			inline std::unique_ptr<ShaderAst::ForEachStatement> operator()(std::string varName, ShaderAst::ExpressionPtr expression, ShaderAst::StatementPtr statement) const;
 		};
 
+		struct Function
+		{
+			inline std::unique_ptr<ShaderAst::FunctionExpression> operator()(std::size_t funcId) const;
+		};
+
 		struct Identifier
 		{
 			inline std::unique_ptr<ShaderAst::IdentifierExpression> operator()(std::string name) const;
@@ -140,6 +145,11 @@ namespace Nz::ShaderBuilder
 		struct Intrinsic
 		{
 			inline std::unique_ptr<ShaderAst::IntrinsicExpression> operator()(ShaderAst::IntrinsicType intrinsicType, std::vector<ShaderAst::ExpressionPtr> parameters) const;
+		};
+
+		struct IntrinsicFunction
+		{
+			inline std::unique_ptr<ShaderAst::IntrinsicFunctionExpression> operator()(std::size_t intrinsicFunctionId, ShaderAst::IntrinsicType intrinsicType) const;
 		};
 
 		struct Multi
@@ -161,6 +171,11 @@ namespace Nz::ShaderBuilder
 		struct Scoped
 		{
 			inline std::unique_ptr<ShaderAst::ScopedStatement> operator()(ShaderAst::StatementPtr statement) const;
+		};
+
+		struct StructType
+		{
+			inline std::unique_ptr<ShaderAst::StructTypeExpression> operator()(std::size_t structTypeId) const;
 		};
 
 		struct Swizzle
@@ -206,13 +221,16 @@ namespace Nz::ShaderBuilder
 	constexpr Impl::NoParam<ShaderAst::DiscardStatement> Discard;
 	constexpr Impl::For For;
 	constexpr Impl::ForEach ForEach;
+	constexpr Impl::Function Function;
 	constexpr Impl::Identifier Identifier;
+	constexpr Impl::IntrinsicFunction IntrinsicFunction;
 	constexpr Impl::Import Import;
 	constexpr Impl::Intrinsic Intrinsic;
 	constexpr Impl::Multi MultiStatement;
 	constexpr Impl::NoParam<ShaderAst::NoOpStatement> NoOp;
 	constexpr Impl::Return Return;
 	constexpr Impl::Scoped Scoped;
+	constexpr Impl::StructType StructType;
 	constexpr Impl::Swizzle Swizzle;
 	constexpr Impl::Unary Unary;
 	constexpr Impl::Variable Variable;

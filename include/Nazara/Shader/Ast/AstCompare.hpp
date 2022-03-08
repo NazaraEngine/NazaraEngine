@@ -42,8 +42,11 @@ namespace Nz::ShaderAst
 	inline bool Compare(const ConditionalExpression& lhs, const ConditionalExpression& rhs);
 	inline bool Compare(const ConstantExpression& lhs, const ConstantExpression& rhs);
 	inline bool Compare(const ConstantValueExpression& lhs, const ConstantValueExpression& rhs);
+	inline bool Compare(const FunctionExpression& lhs, const FunctionExpression& rhs);
 	inline bool Compare(const IdentifierExpression& lhs, const IdentifierExpression& rhs);
 	inline bool Compare(const IntrinsicExpression& lhs, const IntrinsicExpression& rhs);
+	inline bool Compare(const IntrinsicFunctionExpression& lhs, const IntrinsicFunctionExpression& rhs);
+	inline bool Compare(const StructTypeExpression& lhs, const StructTypeExpression& rhs);
 	inline bool Compare(const SwizzleExpression& lhs, const SwizzleExpression& rhs);
 	inline bool Compare(const VariableExpression& lhs, const VariableExpression& rhs);
 	inline bool Compare(const UnaryExpression& lhs, const UnaryExpression& rhs);
