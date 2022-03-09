@@ -727,7 +727,7 @@ namespace Nz
 			AppendLine();
 		}
 
-		if (node.returnType.HasValue())
+		if (node.returnType.HasValue() && !IsNoType(node.returnType.GetResultingValue()))
 		{
 			assert(std::holds_alternative<ShaderAst::StructType>(node.returnType.GetResultingValue()));
 			std::size_t outputStructIndex = std::get<ShaderAst::StructType>(node.returnType.GetResultingValue()).structIndex;
