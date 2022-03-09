@@ -109,6 +109,12 @@ NazaraModules = modules
 
 includes("xmake/**.lua")
 
+option("usepch")
+	set_default(false)
+	set_showmenu(true)
+	set_description("Use precompiled headers to speedup compilation")
+option_end()
+
 set_project("NazaraEngine")
 set_xmakever("2.6.3")
 
@@ -184,6 +190,10 @@ for name, module in pairs(modules) do
 
 	add_rules("embed_resources")
 	add_rpathdirs("$ORIGIN")
+
+	if has_config("usepch") then
+		set_pcxxheader("include/Nazara/" .. name .. ".hpp")
+	end
 
 	if module.Deps then
 		add_deps(table.unpack(module.Deps))
