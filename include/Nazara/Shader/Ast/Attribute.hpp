@@ -39,6 +39,8 @@ namespace Nz::ShaderAst
 
 			bool HasValue() const;
 
+			void Reset();
+
 			ExpressionValue& operator=(const ExpressionValue&) = default;
 			ExpressionValue& operator=(ExpressionValue&&) noexcept = default;
 

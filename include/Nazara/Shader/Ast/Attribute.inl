@@ -67,6 +67,12 @@ namespace Nz::ShaderAst
 	{
 		return !std::holds_alternative<std::monostate>(m_value);
 	}
+
+	template<typename T>
+	void ExpressionValue<T>::Reset()
+	{
+		m_value = {};
+	}
 }
 
 #include <Nazara/Shader/DebugOff.hpp>
