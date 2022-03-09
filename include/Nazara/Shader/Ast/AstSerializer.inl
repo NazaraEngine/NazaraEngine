@@ -126,6 +126,23 @@ namespace Nz::ShaderAst
 			Enum(optVal.value());
 	}
 
+	inline void AstSerializerBase::OptType(std::optional<ExpressionType>& optType)
+	{
+		bool isWriting = IsWriting();
+
+		bool hasValue;
+		if (isWriting)
+			hasValue = optType.has_value();
+
+		Value(hasValue);
+
+		if (!isWriting && hasValue)
+			optType.emplace();
+
+		if (optType.has_value())
+			Type(optType.value());
+	}
+
 	template<typename T>
 	void AstSerializerBase::OptVal(std::optional<T>& optVal)
 	{

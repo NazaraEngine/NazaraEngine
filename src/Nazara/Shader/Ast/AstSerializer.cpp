@@ -23,7 +23,13 @@ namespace Nz::ShaderAst
 				{
 				}
 
-#define NAZARA_SHADERAST_NODE(Node) void Visit(Node& node) override \
+#define NAZARA_SHADERAST_EXPRESSION(Node) void Visit(Node& node) override \
+				{ \
+					m_serializer.Serialize(node); \
+					m_serializer.SerializeExpressionCommon(node); \
+				}
+
+#define NAZARA_SHADERAST_STATEMENT(Node) void Visit(Node& node) override \
 				{ \
 					m_serializer.Serialize(node); \
 				}
@@ -188,6 +194,10 @@ namespace Nz::ShaderAst
 		Node(node.expression);
 	}
 
+	void AstSerializerBase::SerializeExpressionCommon(Expression& expr)
+	{
+		OptType(expr.cachedExpressionType);
+	}
 
 	void AstSerializerBase::Serialize(BranchStatement& node)
 	{
