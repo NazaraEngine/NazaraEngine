@@ -280,7 +280,7 @@ namespace Nz
 
 						std::optional<UInt32> outputStructId;
 						std::vector<EntryPoint::Output> outputs;
-						if (node.returnType.HasValue())
+						if (node.returnType.HasValue() && !IsNoType(node.returnType.GetResultingValue()))
 						{
 							const ShaderAst::ExpressionType& returnType = node.returnType.GetResultingValue();
 
