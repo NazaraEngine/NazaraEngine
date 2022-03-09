@@ -887,11 +887,9 @@ namespace Nz::ShaderAst
 		}
 
 		if (node.returnType.HasValue())
-		{
 			clone->returnType = ResolveType(node.returnType);
-			if (clone->returnType.HasValue() && IsNoType(clone->returnType.GetResultingValue()))
-				clone->returnType.Reset(); //< handle void as no return type
-		}
+		else
+			clone->returnType = ExpressionType{ NoType{} };
 
 		if (node.depthWrite.HasValue())
 			clone->depthWrite = ComputeExprValue(node.depthWrite);
