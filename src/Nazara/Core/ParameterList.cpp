@@ -641,7 +641,7 @@ namespace Nz
 					ss << "Boolean(" << parameter.value.boolVal << ")";
 					break;
 				case ParameterType::Color:
-					ss << "Color(" << parameter.value.colorVal << ")";
+					ss << "Color(" << parameter.value.colorVal.ToString() << ")";
 					break;
 				case ParameterType::Double:
 					ss << "Double(" << parameter.value.doubleVal << ")";
