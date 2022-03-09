@@ -20,6 +20,22 @@ namespace Nz::ShaderAst
 {
 	struct ContainedType;
 
+	struct NAZARA_SHADER_API AliasType
+	{
+		AliasType() = default;
+		AliasType(const AliasType& alias);
+		AliasType(AliasType&&) noexcept = default;
+
+		AliasType& operator=(const AliasType& alias);
+		AliasType& operator=(AliasType&&) noexcept = default;
+
+		std::size_t aliasIndex;
+		std::unique_ptr<ContainedType> targetType;
+
+		bool operator==(const AliasType& rhs) const;
+		inline bool operator!=(const AliasType& rhs) const;
+	};
+
 	struct NAZARA_SHADER_API ArrayType
 	{
 		ArrayType() = default;
@@ -134,7 +150,7 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const VectorType& rhs) const;
 	};
 
-	using ExpressionType = std::variant<NoType, ArrayType, FunctionType, IdentifierType, IntrinsicFunctionType, PrimitiveType, MatrixType, MethodType, SamplerType, StructType, Type, UniformType, VectorType>;
+	using ExpressionType = std::variant<NoType, AliasType, ArrayType, FunctionType, IdentifierType, IntrinsicFunctionType, PrimitiveType, MatrixType, MethodType, SamplerType, StructType, Type, UniformType, VectorType>;
 
 	struct ContainedType
 	{
@@ -157,6 +173,7 @@ namespace Nz::ShaderAst
 		std::vector<StructMember> members;
 	};
 
+	inline bool IsAliasType(const ExpressionType& type);
 	inline bool IsArrayType(const ExpressionType& type);
 	inline bool IsFunctionType(const ExpressionType& type);
 	inline bool IsIdentifierType(const ExpressionType& type);

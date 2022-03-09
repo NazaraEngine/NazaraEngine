@@ -232,6 +232,7 @@ namespace Nz
 		options.optionValues = std::move(optionValues);
 		options.makeVariableNameUnique = true;
 		options.reduceLoopsToWhile = true;
+		options.removeAliases = true;
 		options.removeCompoundAssignments = false;
 		options.removeConstDeclaration = true;
 		options.removeOptionDeclaration = true;
@@ -244,6 +245,11 @@ namespace Nz
 		};
 
 		return ShaderAst::Sanitize(module, options, error);
+	}
+
+	void GlslWriter::Append(const ShaderAst::AliasType& /*aliasType*/)
+	{
+		throw std::runtime_error("unexpected AliasType");
 	}
 
 	void GlslWriter::Append(const ShaderAst::ArrayType& /*type*/)
@@ -689,11 +695,16 @@ namespace Nz
 						builtin.identifier
 					});
 				}
-				else if (member.locationIndex.HasValue())
+				else
 				{
-					Append("layout(location = ");
-					Append(member.locationIndex.GetResultingValue());
-					Append(") ", keyword, " ");
+					if (member.locationIndex.HasValue())
+					{
+						Append("layout(location = ");
+						Append(member.locationIndex.GetResultingValue());
+						Append(") ");
+					}
+
+					Append(keyword, " ");
 					AppendVariableDeclaration(member.type.GetResultingValue(), targetPrefix + member.name);
 					AppendLine(";");
 
@@ -803,6 +814,12 @@ namespace Nz
 		Append("[");
 		Visit(node.indices.front());
 		Append("]");
+	}
+
+	void GlslWriter::Visit(ShaderAst::AliasValueExpression& /*node*/)
+	{
+		// all aliases should have been handled by sanitizer
+		throw std::runtime_error("unexpected alias value, is shader sanitized?");
 	}
 
 	void GlslWriter::Visit(ShaderAst::AssignExpression& node)
@@ -1038,12 +1055,14 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::DeclareAliasStatement& /*node*/)
 	{
-		/* nothing to do */
+		// all aliases should have been handled by sanitizer
+		throw std::runtime_error("unexpected alias declaration, is shader sanitized?");
 	}
 
 	void GlslWriter::Visit(ShaderAst::DeclareConstStatement& /*node*/)
 	{
-		/* nothing to do */
+		// all consts should have been handled by sanitizer
+		throw std::runtime_error("unexpected const declaration, is shader sanitized?");
 	}
 
 	void GlslWriter::Visit(ShaderAst::DeclareExternalStatement& node)
@@ -1184,7 +1203,8 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::DeclareOptionStatement& /*node*/)
 	{
-		/* nothing to do */
+		// all options should have been handled by sanitizer
+		throw std::runtime_error("unexpected option declaration, is shader sanitized?");
 	}
 
 	void GlslWriter::Visit(ShaderAst::DeclareStructStatement& node)
@@ -1247,7 +1267,7 @@ namespace Nz
 		Append(";");
 	}
 
-	void GlslWriter::Visit(ShaderAst::ImportStatement& node)
+	void GlslWriter::Visit(ShaderAst::ImportStatement& /*node*/)
 	{
 		throw std::runtime_error("unexpected import statement, is the shader sanitized properly?");
 	}
@@ -1280,8 +1300,8 @@ namespace Nz
 			const auto& structData = Retrieve(m_currentState->structs, structIndex);
 
 			std::string outputStructVarName;
-			if (node.returnExpr->GetType() == ShaderAst::NodeType::VariableExpression)
-				outputStructVarName = Retrieve(m_currentState->variableNames, static_cast<ShaderAst::VariableExpression&>(*node.returnExpr).variableId);
+			if (node.returnExpr->GetType() == ShaderAst::NodeType::VariableValueExpression)
+				outputStructVarName = Retrieve(m_currentState->variableNames, static_cast<ShaderAst::VariableValueExpression&>(*node.returnExpr).variableId);
 			else
 			{
 				AppendLine();

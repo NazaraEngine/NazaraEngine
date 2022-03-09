@@ -34,6 +34,7 @@ namespace Nz::ShaderAst
 
 	inline bool Compare(const AccessIdentifierExpression& lhs, const AccessIdentifierExpression& rhs);
 	inline bool Compare(const AccessIndexExpression& lhs, const AccessIndexExpression& rhs);
+	inline bool Compare(const AliasValueExpression& lhs, const AliasValueExpression& rhs);
 	inline bool Compare(const AssignExpression& lhs, const AssignExpression& rhs);
 	inline bool Compare(const BinaryExpression& lhs, const BinaryExpression& rhs);
 	inline bool Compare(const CallFunctionExpression& lhs, const CallFunctionExpression& rhs);

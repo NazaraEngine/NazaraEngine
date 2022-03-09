@@ -300,6 +300,16 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr AstCloner::Clone(AliasValueExpression& node)
+	{
+		auto clone = std::make_unique<AliasValueExpression>();
+		clone->aliasId = node.aliasId;
+
+		clone->cachedExpressionType = node.cachedExpressionType;
+
+		return clone;
+	}
+
 	ExpressionPtr AstCloner::Clone(AssignExpression& node)
 	{
 		auto clone = std::make_unique<AssignExpression>();

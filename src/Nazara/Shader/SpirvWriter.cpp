@@ -505,6 +505,7 @@ namespace Nz
 			ShaderAst::SanitizeVisitor::Options options;
 			options.optionValues = states.optionValues;
 			options.reduceLoopsToWhile = true;
+			options.removeAliases = true;
 			options.removeCompoundAssignments = true;
 			options.removeMatrixCast = true;
 			options.removeOptionDeclaration = true;

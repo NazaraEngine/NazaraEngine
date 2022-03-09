@@ -51,6 +51,7 @@ namespace Nz
 			static ShaderAst::ModulePtr Sanitize(const ShaderAst::Module& module, std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
 
 		private:
+			void Append(const ShaderAst::AliasType& aliasType);
 			void Append(const ShaderAst::ArrayType& type);
 			void Append(ShaderAst::BuiltinEntry builtin);
 			void Append(const ShaderAst::ExpressionType& type);
@@ -94,6 +95,7 @@ namespace Nz
 
 			void Visit(ShaderAst::AccessIdentifierExpression& node) override;
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
+			void Visit(ShaderAst::AliasValueExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::CallFunctionExpression& node) override;

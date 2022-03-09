@@ -19,6 +19,11 @@ namespace Nz::ShaderAst
 			index->Visit(*this);
 	}
 
+	void AstRecursiveVisitor::Visit(AliasValueExpression& /*node*/)
+	{
+		/* nothing to do */
+	}
+
 	void AstRecursiveVisitor::Visit(AssignExpression& node)
 	{
 		node.left->Visit(*this);

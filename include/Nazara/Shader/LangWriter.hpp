@@ -50,6 +50,7 @@ namespace Nz
 			struct UnrollAttribute;
 			struct UuidAttribute;
 
+			void Append(const ShaderAst::AliasType& type);
 			void Append(const ShaderAst::ArrayType& type);
 			void Append(const ShaderAst::ExpressionType& type);
 			void Append(const ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type);
@@ -92,6 +93,7 @@ namespace Nz
 			void EnterScope();
 			void LeaveScope(bool skipLine = true);
 
+			void RegisterAlias(std::size_t aliasIndex, std::string aliasName);
 			void RegisterConstant(std::size_t constantIndex, std::string constantName);
 			void RegisterStruct(std::size_t structIndex, std::string structName);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
@@ -102,6 +104,7 @@ namespace Nz
 
 			void Visit(ShaderAst::AccessIdentifierExpression& node) override;
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
+			void Visit(ShaderAst::AliasValueExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;

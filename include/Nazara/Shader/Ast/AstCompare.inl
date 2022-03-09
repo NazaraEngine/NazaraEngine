@@ -248,6 +248,14 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const AliasValueExpression& lhs, const AliasValueExpression& rhs)
+	{
+		if (!Compare(lhs.aliasId, rhs.aliasId))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const AssignExpression& lhs, const AssignExpression& rhs)
 	{
 		if (!Compare(lhs.op, rhs.op))
