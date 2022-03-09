@@ -41,6 +41,7 @@ namespace Nz::ShaderAst
 			void Serialize(SwizzleExpression& node);
 			void Serialize(VariableValueExpression& node);
 			void Serialize(UnaryExpression& node);
+			void SerializeExpressionCommon(Expression& expr);
 
 			void Serialize(BranchStatement& node);
 			void Serialize(ConditionalStatement& node);
@@ -67,6 +68,7 @@ namespace Nz::ShaderAst
 			template<typename T> void Enum(T& enumVal);
 			template<typename T> void ExprValue(ExpressionValue<T>& attribute);
 			template<typename T> void OptEnum(std::optional<T>& optVal);
+			inline void OptType(std::optional<ExpressionType>& optType);
 			template<typename T> void OptVal(std::optional<T>& optVal);
 
 			virtual bool IsWriting() const = 0;
