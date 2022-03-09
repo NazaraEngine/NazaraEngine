@@ -142,8 +142,10 @@ void ExpectGLSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 		Nz::ShaderAst::AstReflect reflectVisitor;
 		reflectVisitor.Reflect(*shader.rootNode, callbacks);
 
-		INFO("no entry point found");
-		REQUIRE(entryShaderStage.has_value());
+		{
+			INFO("no entry point found");
+			REQUIRE(entryShaderStage.has_value());
+		}
 
 		Nz::GlslWriter writer;
 		std::string output = writer.Generate(entryShaderStage, shader);

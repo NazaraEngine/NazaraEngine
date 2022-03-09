@@ -23,6 +23,11 @@ namespace Nz::ShaderAst
 		node.expr->Visit(*this);
 	}
 
+	void ShaderAstValueCategory::Visit(AliasValueExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::LValue;
+	}
+
 	void ShaderAstValueCategory::Visit(AssignExpression& /*node*/)
 	{
 		m_expressionCategory = ExpressionCategory::RValue;

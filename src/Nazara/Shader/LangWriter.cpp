@@ -116,6 +116,7 @@ namespace Nz
 		ShaderAst::Module* module;
 		std::size_t currentModuleIndex;
 		std::stringstream stream;
+		std::unordered_map<std::size_t, Identifier> aliases;
 		std::unordered_map<std::size_t, Identifier> constants;
 		std::unordered_map<std::size_t, Identifier> structs;
 		std::unordered_map<std::size_t, Identifier> variables;
@@ -162,6 +163,11 @@ namespace Nz
 	void LangWriter::SetEnv(Environment environment)
 	{
 		m_environment = std::move(environment);
+	}
+
+	void LangWriter::Append(const ShaderAst::AliasType& type)
+	{
+		AppendIdentifier(m_currentState->aliases, type.aliasIndex);
 	}
 
 	void LangWriter::Append(const ShaderAst::ArrayType& type)
@@ -655,6 +661,16 @@ namespace Nz
 			Append("}");
 	}
 
+	void LangWriter::RegisterAlias(std::size_t aliasIndex, std::string aliasName)
+	{
+		State::Identifier identifier;
+		identifier.moduleIndex = m_currentState->currentModuleIndex;
+		identifier.name = std::move(aliasName);
+
+		assert(m_currentState->aliases.find(aliasIndex) == m_currentState->aliases.end());
+		m_currentState->aliases.emplace(aliasIndex, std::move(identifier));
+	}
+
 	void LangWriter::RegisterConstant(std::size_t constantIndex, std::string constantName)
 	{
 		State::Identifier identifier;
@@ -714,7 +730,7 @@ namespace Nz
 	{
 		Visit(node.expr, true);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
+		const ShaderAst::ExpressionType& exprType = ResolveAlias(GetExpressionType(*node.expr));
 		assert(IsStructType(exprType));
 
 		for (const std::string& identifier : node.identifiers)
@@ -725,7 +741,7 @@ namespace Nz
 	{
 		Visit(node.expr, true);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
+		const ShaderAst::ExpressionType& exprType = ResolveAlias(GetExpressionType(*node.expr));
 		assert(!IsStructType(exprType));
 
 		// Array access
@@ -742,6 +758,11 @@ namespace Nz
 		}
 
 		Append("]");
+	}
+
+	void LangWriter::Visit(ShaderAst::AliasValueExpression& node)
+	{
+		AppendIdentifier(m_currentState->aliases, node.aliasId);
 	}
 
 	void LangWriter::Visit(ShaderAst::AssignExpression& node)
@@ -840,7 +861,13 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::ConditionalExpression& node)
 	{
-		throw std::runtime_error("fixme");
+		Append("const_select(");
+		node.condition->Visit(*this);
+		Append(", ");
+		node.truePath->Visit(*this);
+		Append(", ");
+		node.falsePath->Visit(*this);
+		Append(")");
 	}
 
 	void LangWriter::Visit(ShaderAst::ConditionalStatement& node)
@@ -853,9 +880,8 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::DeclareAliasStatement& node)
 	{
-		//throw std::runtime_error("TODO"); //< missing registering
-
 		assert(node.aliasIndex);
+		RegisterAlias(*node.aliasIndex, node.name);
 
 		Append("alias ", node.name, " = ");
 		assert(node.expression);

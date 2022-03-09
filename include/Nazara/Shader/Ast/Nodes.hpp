@@ -82,6 +82,14 @@ namespace Nz::ShaderAst
 		ExpressionPtr expr;
 	};
 
+	struct NAZARA_SHADER_API AliasValueExpression : Expression
+	{
+		NodeType GetType() const override;
+		void Visit(AstExpressionVisitor& visitor) override;
+
+		std::size_t aliasId;
+	};
+
 	struct NAZARA_SHADER_API AssignExpression : Expression
 	{
 		NodeType GetType() const override;
@@ -153,7 +161,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		ShaderAst::ConstantValue value;
+		ConstantValue value;
 	};
 
 	struct NAZARA_SHADER_API FunctionExpression : Expression
@@ -207,7 +215,6 @@ namespace Nz::ShaderAst
 		ExpressionPtr expression;
 	};
 
-	struct NAZARA_SHADER_API VariableExpression : Expression
 	struct NAZARA_SHADER_API VariableValueExpression : Expression
 	{
 		NodeType GetType() const override;
@@ -455,10 +462,12 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/AstNodeList.hpp>
 
-	inline const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr);
-	inline ShaderAst::ExpressionType& GetExpressionTypeMut(ShaderAst::Expression& expr);
+	inline const ExpressionType& GetExpressionType(Expression& expr);
+	inline ExpressionType& GetExpressionTypeMut(Expression& expr);
 	inline bool IsExpression(NodeType nodeType);
 	inline bool IsStatement(NodeType nodeType);
+
+	inline const ExpressionType& ResolveAlias(const ExpressionType& exprType);
 }
 
 #include <Nazara/Shader/Ast/Nodes.inl>

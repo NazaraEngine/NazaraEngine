@@ -58,6 +58,11 @@ namespace Nz::ShaderAst
 			Node(identifier);
 	}
 
+	void AstSerializerBase::Serialize(AliasValueExpression& node)
+	{
+		SizeT(node.aliasId);
+	}
+
 	void AstSerializerBase::Serialize(AssignExpression& node)
 	{
 		Enum(node.op);
@@ -485,6 +490,12 @@ namespace Nz::ShaderAst
 				Type(arg.objectType->type);
 				SizeT(arg.methodIndex);
 			}
+			else if constexpr (std::is_same_v<T, ShaderAst::AliasType>)
+			{
+				m_stream << UInt8(13);
+				SizeT(arg.aliasIndex);
+				Type(arg.targetType->type);
+			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, type);
@@ -798,6 +809,22 @@ namespace Nz::ShaderAst
 				methodType.methodIndex = methodIndex;
 
 				type = std::move(methodType);
+			}
+
+			case 13: //< AliasType
+			{
+				std::size_t aliasIndex;
+				ExpressionType containedType;
+				SizeT(aliasIndex);
+				Type(containedType);
+
+				AliasType aliasType;
+				aliasType.aliasIndex = aliasIndex;
+				aliasType.targetType = std::make_unique<ContainedType>();
+				aliasType.targetType->type = std::move(containedType);
+
+				type = std::move(aliasType);
+				break;
 			}
 
 			default:

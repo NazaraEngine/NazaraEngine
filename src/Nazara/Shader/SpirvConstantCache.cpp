@@ -655,6 +655,28 @@ namespace Nz
 		return typePtr;
 	}
 
+	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const -> TypePtr
+	{
+		bool wasInblockStruct = m_internal->isInBlockStruct;
+		if (storageClass == SpirvStorageClass::Uniform)
+			m_internal->isInBlockStruct = true;
+
+		auto typePtr = std::make_shared<Type>(Pointer{
+			BuildType(type),
+			storageClass
+			});
+
+		m_internal->isInBlockStruct = wasInblockStruct;
+
+		return typePtr;
+	}
+
+	auto SpirvConstantCache::BuildType(const ShaderAst::AliasType& /*type*/) const -> TypePtr
+	{
+		// No AliasType is expected (as they should have been resolved by now)
+		throw std::runtime_error("unexpected alias");
+	}
+
 	auto SpirvConstantCache::BuildType(const ShaderAst::ArrayType& type) const -> TypePtr
 	{
 		const auto& containedType = type.containedType->type;
@@ -676,22 +698,6 @@ namespace Nz
 			BuildConstant(type.length),
 			arrayStride
 		});
-	}
-
-	auto SpirvConstantCache::BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const -> TypePtr
-	{
-		bool wasInblockStruct = m_internal->isInBlockStruct;
-		if (storageClass == SpirvStorageClass::Uniform)
-			m_internal->isInBlockStruct = true;
-
-		auto typePtr = std::make_shared<Type>(Pointer{
-			BuildType(type),
-			storageClass
-		});
-
-		m_internal->isInBlockStruct = wasInblockStruct;
-
-		return typePtr;
 	}
 
 	auto SpirvConstantCache::BuildType(const ShaderAst::ExpressionType& type) const -> TypePtr
