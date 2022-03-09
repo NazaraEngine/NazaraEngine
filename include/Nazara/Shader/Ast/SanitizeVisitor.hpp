@@ -47,6 +47,7 @@ namespace Nz::ShaderAst
 				std::unordered_map<UInt32, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;
 				bool reduceLoopsToWhile = false;
+				bool removeAliases = false;
 				bool removeConstDeclaration = false;
 				bool removeCompoundAssignments = false;
 				bool removeMatrixCast = false;
@@ -71,6 +72,7 @@ namespace Nz::ShaderAst
 
 			ExpressionPtr Clone(AccessIdentifierExpression& node) override;
 			ExpressionPtr Clone(AccessIndexExpression& node) override;
+			ExpressionPtr Clone(AliasValueExpression& node) override;
 			ExpressionPtr Clone(AssignExpression& node) override;
 			ExpressionPtr Clone(BinaryExpression& node) override;
 			ExpressionPtr Clone(CallFunctionExpression& node) override;
@@ -136,15 +138,16 @@ namespace Nz::ShaderAst
 			std::size_t RegisterType(std::string name, PartialType partialType, std::optional<std::size_t> index = {});
 			std::size_t RegisterVariable(std::string name, ExpressionType type, std::optional<std::size_t> index = {});
 
-			const IdentifierData* ResolveAlias(const IdentifierData* identifier) const;
+			const IdentifierData* ResolveAliasIdentifier(const IdentifierData* identifier) const;
 			void ResolveFunctions();
 			const ExpressionPtr& ResolveCondExpression(ConditionalExpression& node);
+			std::size_t ResolveStruct(const AliasType& aliasType);
 			std::size_t ResolveStruct(const ExpressionType& exprType);
 			std::size_t ResolveStruct(const IdentifierType& identifierType);
 			std::size_t ResolveStruct(const StructType& structType);
 			std::size_t ResolveStruct(const UniformType& uniformType);
-			ExpressionType ResolveType(const ExpressionType& exprType);
-			ExpressionType ResolveType(const ExpressionValue<ExpressionType>& exprTypeValue);
+			ExpressionType ResolveType(const ExpressionType& exprType, bool resolveAlias = false);
+			ExpressionType ResolveType(const ExpressionValue<ExpressionType>& exprTypeValue, bool resolveAlias = false);
 
 			void SanitizeIdentifier(std::string& identifier);
 			MultiStatementPtr SanitizeInternal(MultiStatement& rootNode, std::string* error);

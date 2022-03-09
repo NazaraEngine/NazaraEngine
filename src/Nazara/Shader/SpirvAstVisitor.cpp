@@ -598,16 +598,6 @@ namespace Nz
 		}, node.value);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::DeclareAliasStatement& /*node*/)
-	{
-		/* nothing to do */
-	}
-
-	void SpirvAstVisitor::Visit(ShaderAst::DeclareConstStatement& /*node*/)
-	{
-		/* nothing to do */
-	}
-
 	void SpirvAstVisitor::Visit(ShaderAst::DeclareExternalStatement& node)
 	{
 		for (auto&& extVar : node.externalVars)
@@ -727,11 +717,6 @@ namespace Nz
 		node.expression->Visit(*this);
 
 		PopResultId();
-	}
-
-	void SpirvAstVisitor::Visit(ShaderAst::ImportStatement& node)
-	{
-		/* nothing to do */
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::IntrinsicExpression& node)

@@ -7,16 +7,27 @@
 
 namespace Nz::ShaderAst
 {
-	const ShaderAst::ExpressionType& GetExpressionType(ShaderAst::Expression& expr)
+	inline const ExpressionType& GetExpressionType(Expression& expr)
 	{
 		assert(expr.cachedExpressionType);
 		return expr.cachedExpressionType.value();
 	}
 
-	ShaderAst::ExpressionType& GetExpressionTypeMut(ShaderAst::Expression& expr)
+	inline ExpressionType& GetExpressionTypeMut(Expression& expr)
 	{
 		assert(expr.cachedExpressionType);
 		return expr.cachedExpressionType.value();
+	}
+
+	inline const ExpressionType& ResolveAlias(const ExpressionType& exprType)
+	{
+		if (IsAliasType(exprType))
+		{
+			const AliasType& alias = std::get<AliasType>(exprType);
+			return alias.targetType->type;
+		}
+		else
+			return exprType;
 	}
 
 	inline bool IsExpression(NodeType nodeType)

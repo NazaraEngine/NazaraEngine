@@ -25,6 +25,7 @@ namespace Nz::ShaderAst
 
 			void Serialize(AccessIdentifierExpression& node);
 			void Serialize(AccessIndexExpression& node);
+			void Serialize(AliasValueExpression& node);
 			void Serialize(AssignExpression& node);
 			void Serialize(BinaryExpression& node);
 			void Serialize(CallFunctionExpression& node);

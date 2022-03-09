@@ -8,6 +8,11 @@
 
 namespace Nz::ShaderAst
 {
+	inline bool AliasType::operator!=(const AliasType& rhs) const
+	{
+		return !operator==(rhs);
+	}
+
 	inline bool ArrayType::operator!=(const ArrayType& rhs) const
 	{
 		return !operator==(rhs);
@@ -129,6 +134,11 @@ namespace Nz::ShaderAst
 		return !operator==(rhs);
 	}
 
+
+	inline bool IsAliasType(const ExpressionType& type)
+	{
+		return std::holds_alternative<AliasType>(type);
+	}
 
 	inline bool IsArrayType(const ExpressionType& type)
 	{

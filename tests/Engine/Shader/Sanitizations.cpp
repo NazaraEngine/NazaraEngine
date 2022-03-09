@@ -265,4 +265,45 @@ fn testMat4ToMat4(input: mat4[f32]) -> mat4[f32]
 )");
 
 	}
+
+	WHEN("removing aliases")
+	{
+		std::string_view nzslSource = R"(
+[nzsl_version("1.0")]
+module;
+
+struct inputStruct
+{
+	value: f32
+}
+
+alias Input = inputStruct;
+alias In = Input;
+
+external
+{
+	[set(0), binding(0)] data: uniform[In]
+}
+)";
+
+		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
+
+		Nz::ShaderAst::SanitizeVisitor::Options options;
+		options.removeAliases = true;
+
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, options));
+
+		ExpectNZSL(*shaderModule, R"(
+struct inputStruct
+{
+	value: f32
+}
+
+external
+{
+	[set(0), binding(0)] data: uniform[inputStruct]
+}
+)");
+
+	}
 }

@@ -9,6 +9,37 @@
 
 namespace Nz::ShaderAst
 {
+	AliasType::AliasType(const AliasType& alias) :
+	aliasIndex(alias.aliasIndex)
+	{
+		assert(alias.targetType);
+		targetType = std::make_unique<ContainedType>(*alias.targetType);
+	}
+
+	AliasType& AliasType::operator=(const AliasType& alias)
+	{
+		aliasIndex = alias.aliasIndex;
+
+		assert(alias.targetType);
+		targetType = std::make_unique<ContainedType>(*alias.targetType);
+
+		return *this;
+	}
+
+	bool AliasType::operator==(const AliasType& rhs) const
+	{
+		assert(targetType);
+		assert(rhs.targetType);
+
+		if (aliasIndex != rhs.aliasIndex)
+			return false;
+
+		if (targetType->type != rhs.targetType->type)
+			return false;
+
+		return true;
+	}
+	
 	ArrayType::ArrayType(const ArrayType& array) :
 	length(array.length)
 	{
@@ -31,10 +62,10 @@ namespace Nz::ShaderAst
 		assert(containedType);
 		assert(rhs.containedType);
 
-		if (containedType->type != rhs.containedType->type)
+		if (length != rhs.length)
 			return false;
 
-		if (length != rhs.length)
+		if (containedType->type != rhs.containedType->type)
 			return false;
 
 		return true;

@@ -178,6 +178,7 @@ namespace Nz
 			TypePtr BuildPointerType(const ShaderAst::PrimitiveType& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildPointerType(const ShaderAst::ExpressionType& type, SpirvStorageClass storageClass) const;
 			TypePtr BuildPointerType(const TypePtr& type, SpirvStorageClass storageClass) const;
+			TypePtr BuildType(const ShaderAst::AliasType& type) const;
 			TypePtr BuildType(const ShaderAst::ArrayType& type) const;
 			TypePtr BuildType(const ShaderAst::ExpressionType& type) const;
 			TypePtr BuildType(const ShaderAst::IdentifierType& type) const;
