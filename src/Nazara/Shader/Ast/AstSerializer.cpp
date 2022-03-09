@@ -177,7 +177,7 @@ namespace Nz::ShaderAst
 			Enum(node.components[i]);
 	}
 
-	void AstSerializerBase::Serialize(VariableExpression& node)
+	void AstSerializerBase::Serialize(VariableValueExpression& node)
 	{
 		SizeT(node.variableId);
 	}

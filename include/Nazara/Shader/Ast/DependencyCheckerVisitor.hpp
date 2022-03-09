@@ -55,7 +55,7 @@ namespace Nz::ShaderAst
 			using AstRecursiveVisitor::Visit;
 
 			void Visit(CallFunctionExpression& node) override;
-			void Visit(VariableExpression& node) override;
+			void Visit(VariableValueExpression& node) override;
 
 			void Visit(DeclareExternalStatement& node) override;
 			void Visit(DeclareFunctionStatement& node) override;

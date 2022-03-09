@@ -161,7 +161,7 @@ namespace Nz::ShaderAst
 		m_currentVariableDeclIndex = {};
 	}
 
-	void DependencyCheckerVisitor::Visit(VariableExpression& node)
+	void DependencyCheckerVisitor::Visit(VariableValueExpression& node)
 	{
 		assert(m_currentFunctionIndex);
 		if (m_currentVariableDeclIndex)
