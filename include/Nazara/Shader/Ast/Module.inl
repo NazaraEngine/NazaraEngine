@@ -18,13 +18,14 @@ namespace Nz::ShaderAst
 		rootNode = ShaderBuilder::MultiStatement();
 	}
 
-	inline Module::Module(std::shared_ptr<const Metadata> metadata) :
-	Module(std::move(metadata), ShaderBuilder::MultiStatement())
+	inline Module::Module(std::shared_ptr<const Metadata> metadata, std::vector<ImportedModule> importedModules) :
+	Module(std::move(metadata), ShaderBuilder::MultiStatement(), std::move(importedModules))
 	{
 	}
 
-	inline Module::Module(std::shared_ptr<const Metadata> Metadata, MultiStatementPtr RootNode) :
+	inline Module::Module(std::shared_ptr<const Metadata> Metadata, MultiStatementPtr RootNode, std::vector<ImportedModule> ImportedModules) :
 	metadata(std::move(Metadata)),
+	importedModules(std::move(ImportedModules)),
 	rootNode(std::move(RootNode))
 	{
 	}

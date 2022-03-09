@@ -170,7 +170,7 @@ int main()
 	assert(Nz::ShaderAst::Sanitize(*Nz::ShaderLang::Parse(output)));
 
 	Nz::ShaderWriter::States states;
-	states.optimize = false;
+	states.optimize = true;
 
 	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, *shaderModule, states);
 	if (!fragVertShader)

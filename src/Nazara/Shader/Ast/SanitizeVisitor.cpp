@@ -163,8 +163,7 @@ namespace Nz::ShaderAst
 
 	ModulePtr SanitizeVisitor::Sanitize(const Module& module, const Options& options, std::string* error)
 	{
-		ModulePtr clone = std::make_shared<Module>(module.metadata);
-		clone->importedModules = module.importedModules;
+		ModulePtr clone = std::make_shared<Module>(module.metadata, module.importedModules);
 
 		Context currentContext;
 		currentContext.options = options;
