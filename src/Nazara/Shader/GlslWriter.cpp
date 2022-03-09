@@ -170,18 +170,16 @@ namespace Nz
 		});
 
 		ShaderAst::ModulePtr sanitizedModule;
-		ShaderAst::Statement* targetAst;
+		const ShaderAst::Module* targetModule;
 		if (!states.sanitized)
 		{
 			sanitizedModule = Sanitize(module, states.optionValues);
-			targetAst = sanitizedModule->rootNode.get();
+			targetModule = sanitizedModule.get();
 		}
 		else
-			targetAst = module.rootNode.get();
+			targetModule = &module;
 
-		const ShaderAst::Module& targetModule = (sanitizedModule) ? *sanitizedModule : module;
-
-		ShaderAst::StatementPtr optimizedAst;
+		ShaderAst::ModulePtr optimizedModule;
 		if (states.optimize)
 		{
 			ShaderAst::StatementPtr tempAst;
@@ -190,27 +188,31 @@ namespace Nz
 			if (shaderStage)
 				dependencyConfig.usedShaderStages = *shaderStage;
 
-			tempAst = ShaderAst::PropagateConstants(*targetAst);
-			optimizedAst = ShaderAst::EliminateUnusedPass(*tempAst, dependencyConfig);
+			optimizedModule = ShaderAst::PropagateConstants(*targetModule);
+			optimizedModule = ShaderAst::EliminateUnusedPass(*optimizedModule, dependencyConfig);
 
-			targetAst = optimizedAst.get();
+			targetModule = optimizedModule.get();
 		}
 
+		// Previsitor
 		state.previsitor.selectedStage = shaderStage;
-		targetAst->Visit(state.previsitor);
 
+		for (const auto& importedModule : targetModule->importedModules)
+			importedModule.module->rootNode->Visit(state.previsitor);
+
+		targetModule->rootNode->Visit(state.previsitor);
+
+		// Code generation
 		AppendHeader();
 
-		for (const auto& importedModule : targetModule.importedModules)
+		for (const auto& importedModule : targetModule->importedModules)
 		{
 			m_currentState->moduleSuffix = importedModule.identifier;
-
-			importedModule.module->rootNode->Visit(state.previsitor);
 			importedModule.module->rootNode->Visit(*this);
 		}
 
 		m_currentState->moduleSuffix = {};
-		targetAst->Visit(*this);
+		targetModule->rootNode->Visit(*this);
 
 		return state.stream.str();
 	}

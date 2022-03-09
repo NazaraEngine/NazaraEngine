@@ -45,9 +45,6 @@ namespace Nz::ShaderAst
 		if (!Compare(lhs.identifier, rhs.identifier))
 			return false;
 
-		if (!Compare(lhs.dependencies, rhs.dependencies))
-			return false;
-
 		if (!Compare(*lhs.module, *rhs.module))
 			return false;
 

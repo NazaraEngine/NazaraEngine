@@ -27,7 +27,7 @@ namespace Nz::ShaderAst
 	{
 		auto rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, usageSet));
 		
-		return std::make_shared<Module>(shaderModule.metadata, std::move(rootNode));
+		return std::make_shared<Module>(shaderModule.metadata, std::move(rootNode), shaderModule.importedModules);
 	}
 
 	StatementPtr EliminateUnusedPassVisitor::Process(Statement& statement, const DependencyCheckerVisitor::UsageSet& usageSet)
