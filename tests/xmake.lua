@@ -24,16 +24,20 @@ if has_config("tests") then
 	add_files("Engine/**.cpp")
 	add_includedirs(".")
 
-	--[[if xmake.version():ge("2.5.9") then
-		add_rules("c++.unity_build")
-	end]]
-
 	target("NazaraClientUnitTests")
 		add_deps("NazaraAudio")
 		add_files("main_client.cpp")
+
+		if has_config("usepch") then
+			set_pcxxheader("Engine/ClientModules.hpp")
+		end
 
 	target("NazaraUnitTests")
 		add_files("main.cpp")
 		remove_headerfiles("Engine/Audio/**")
 		remove_files("Engine/Audio/**")
+
+		if has_config("usepch") then
+			set_pcxxheader("Engine/Modules.hpp")
+		end
 end
