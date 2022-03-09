@@ -1106,7 +1106,7 @@ namespace Nz
 		PushResultId(resultId);
 	}
 
-	void SpirvAstVisitor::Visit(ShaderAst::VariableExpression& node)
+	void SpirvAstVisitor::Visit(ShaderAst::VariableValueExpression& node)
 	{
 		SpirvExpressionLoad loadVisitor(m_writer, *this, *m_currentBlock);
 		PushResultId(loadVisitor.Evaluate(node));

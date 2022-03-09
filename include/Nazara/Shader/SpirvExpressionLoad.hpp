@@ -31,7 +31,7 @@ namespace Nz
 
 			using AstExpressionVisitorExcept::Visit;
 			void Visit(ShaderAst::AccessIndexExpression& node) override;
-			void Visit(ShaderAst::VariableExpression& node) override;
+			void Visit(ShaderAst::VariableValueExpression& node) override;
 
 			SpirvExpressionLoad& operator=(const SpirvExpressionLoad&) = delete;
 			SpirvExpressionLoad& operator=(SpirvExpressionLoad&&) = delete;

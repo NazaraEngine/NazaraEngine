@@ -47,7 +47,7 @@ namespace Nz::ShaderAst
 
 			ExpressionPtr Clone(FunctionExpression& node) override;
 			ExpressionPtr Clone(StructTypeExpression& node) override;
-			ExpressionPtr Clone(VariableExpression& node) override;
+			ExpressionPtr Clone(VariableValueExpression& node) override;
 
 			void HandleType(ExpressionValue<ExpressionType>& exprType);
 

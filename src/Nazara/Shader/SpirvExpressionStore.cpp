@@ -156,7 +156,7 @@ namespace Nz
 		}, m_value);
 	}
 
-	void SpirvExpressionStore::Visit(ShaderAst::VariableExpression& node)
+	void SpirvExpressionStore::Visit(ShaderAst::VariableValueExpression& node)
 	{
 		const auto& var = m_visitor.GetVariable(node.variableId);
 		m_value = Pointer{ var.storage, var.pointerId };

@@ -684,9 +684,9 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr SanitizeVisitor::Clone(VariableExpression& node)
+	ExpressionPtr SanitizeVisitor::Clone(VariableValueExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<VariableExpression>(AstCloner::Clone(node));
+		auto clone = static_unique_pointer_cast<VariableValueExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -1678,7 +1678,7 @@ namespace Nz::ShaderAst
 			case IdentifierCategory::Variable:
 			{
 				// Replace IdentifierExpression by VariableExpression
-				auto varExpr = std::make_unique<VariableExpression>();
+				auto varExpr = std::make_unique<VariableValueExpression>();
 				varExpr->cachedExpressionType = m_context->variableTypes.Retrieve(identifierData->index);
 				varExpr->variableId = identifierData->index;
 
@@ -1731,7 +1731,7 @@ namespace Nz::ShaderAst
 		auto variableDeclaration = ShaderBuilder::DeclareVariable("cachedResult", std::move(expression)); //< Validation will prevent name-clash if required
 		Validate(*variableDeclaration);
 
-		auto varExpr = std::make_unique<VariableExpression>();
+		auto varExpr = std::make_unique<VariableValueExpression>();
 		varExpr->variableId = *variableDeclaration->varIndex;
 
 		m_context->currentStatementList->push_back(std::move(variableDeclaration));
@@ -2903,7 +2903,7 @@ namespace Nz::ShaderAst
 		node.cachedExpressionType = exprType;
 	}
 
-	void SanitizeVisitor::Validate(VariableExpression& node)
+	void SanitizeVisitor::Validate(VariableValueExpression& node)
 	{
 		node.cachedExpressionType = m_context->variableTypes.Retrieve(node.variableId);
 	}

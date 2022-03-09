@@ -56,7 +56,7 @@ namespace Nz::ShaderAst
 			virtual ExpressionPtr Clone(IntrinsicFunctionExpression& node);
 			virtual ExpressionPtr Clone(StructTypeExpression& node);
 			virtual ExpressionPtr Clone(SwizzleExpression& node);
-			virtual ExpressionPtr Clone(VariableExpression& node);
+			virtual ExpressionPtr Clone(VariableValueExpression& node);
 			virtual ExpressionPtr Clone(UnaryExpression& node);
 
 			virtual StatementPtr Clone(BranchStatement& node);

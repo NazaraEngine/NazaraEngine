@@ -208,6 +208,7 @@ namespace Nz::ShaderAst
 	};
 
 	struct NAZARA_SHADER_API VariableExpression : Expression
+	struct NAZARA_SHADER_API VariableValueExpression : Expression
 	{
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
