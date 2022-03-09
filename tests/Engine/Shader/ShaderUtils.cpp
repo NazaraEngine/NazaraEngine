@@ -6,6 +6,7 @@
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
 #include <Nazara/Shader/Ast/AstReflect.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <catch2/catch.hpp>
 #include <glslang/Public/ShaderLang.h>
 #include <spirv-tools/libspirv.hpp>
@@ -121,12 +122,19 @@ namespace
 	};
 }
 
-void ExpectGLSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
+void ExpectGLSL(const Nz::ShaderAst::Module& shaderModule, std::string_view expectedOutput)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
 	SECTION("Generating GLSL")
 	{
+		Nz::ShaderAst::ModulePtr sanitizedModule;
+		WHEN("Sanitizing a second time")
+		{
+			CHECK_NOTHROW(sanitizedModule = Nz::ShaderAst::Sanitize(shaderModule));
+		}
+		const Nz::ShaderAst::Module& targetModule = (sanitizedModule) ? *sanitizedModule : shaderModule;
+
 		// Retrieve entry-point to get shader type
 		std::optional<Nz::ShaderStageType> entryShaderStage;
 
@@ -140,7 +148,7 @@ void ExpectGLSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 		};
 
 		Nz::ShaderAst::AstReflect reflectVisitor;
-		reflectVisitor.Reflect(*shader.rootNode, callbacks);
+		reflectVisitor.Reflect(*targetModule.rootNode, callbacks);
 
 		{
 			INFO("no entry point found");
@@ -148,7 +156,7 @@ void ExpectGLSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 		}
 
 		Nz::GlslWriter writer;
-		std::string output = writer.Generate(entryShaderStage, shader);
+		std::string output = writer.Generate(entryShaderStage, targetModule);
 
 		WHEN("Validating expected code")
 		{
@@ -188,14 +196,21 @@ void ExpectGLSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 	}
 }
 
-void ExpectNZSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
+void ExpectNZSL(const Nz::ShaderAst::Module& shaderModule, std::string_view expectedOutput)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
 	SECTION("Generating NZSL")
 	{
+		Nz::ShaderAst::ModulePtr sanitizedModule;
+		WHEN("Sanitizing a second time")
+		{
+			CHECK_NOTHROW(sanitizedModule = Nz::ShaderAst::Sanitize(shaderModule));
+		}
+		const Nz::ShaderAst::Module& targetModule = (sanitizedModule) ? *sanitizedModule : shaderModule;
+
 		Nz::LangWriter writer;
-		std::string output = writer.Generate(shader);
+		std::string output = writer.Generate(targetModule);
 
 		WHEN("Validating expected code")
 		{
@@ -211,12 +226,19 @@ void ExpectNZSL(Nz::ShaderAst::Module& shader, std::string_view expectedOutput)
 	}
 }
 
-void ExpectSPIRV(Nz::ShaderAst::Module& shader, std::string_view expectedOutput, bool outputParameter)
+void ExpectSPIRV(const Nz::ShaderAst::Module& shaderModule, std::string_view expectedOutput, bool outputParameter)
 {
 	expectedOutput = Nz::Trim(expectedOutput);
 
 	SECTION("Generating SPIRV")
 	{
+		Nz::ShaderAst::ModulePtr sanitizedModule;
+		WHEN("Sanitizing a second time")
+		{
+			CHECK_NOTHROW(sanitizedModule = Nz::ShaderAst::Sanitize(shaderModule));
+		}
+		const Nz::ShaderAst::Module& targetModule = (sanitizedModule) ? *sanitizedModule : shaderModule;
+
 		Nz::SpirvWriter writer;
 		Nz::SpirvPrinter printer;
 
@@ -224,7 +246,7 @@ void ExpectSPIRV(Nz::ShaderAst::Module& shader, std::string_view expectedOutput,
 		settings.printHeader = false;
 		settings.printParameters = outputParameter;
 
-		auto spirv = writer.Generate(shader);
+		auto spirv = writer.Generate(targetModule);
 		std::string output = printer.Print(spirv.data(), spirv.size(), settings);
 
 		WHEN("Validating expected code")
