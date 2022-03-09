@@ -9,7 +9,7 @@ namespace Nz
 {
 	namespace Detail
 	{
-		bool SortByteArrayByCapacity(const ByteArray& byteArray, std::size_t refCapacity)
+		inline bool SortByteArrayByCapacity(const ByteArray& byteArray, std::size_t refCapacity)
 		{
 			return refCapacity > byteArray.GetCapacity();
 		}
