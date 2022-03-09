@@ -128,7 +128,7 @@ namespace Nz::ShaderAst
 		}
 	}
 
-	void ShaderAstValueCategory::Visit(VariableExpression& /*node*/)
+	void ShaderAstValueCategory::Visit(VariableValueExpression& /*node*/)
 	{
 		m_expressionCategory = ExpressionCategory::LValue;
 	}

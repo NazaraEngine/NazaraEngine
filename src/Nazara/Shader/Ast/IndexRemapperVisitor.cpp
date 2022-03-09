@@ -157,9 +157,9 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
-	ExpressionPtr IndexRemapperVisitor::Clone(VariableExpression& node)
+	ExpressionPtr IndexRemapperVisitor::Clone(VariableValueExpression& node)
 	{
-		VariableExpressionPtr clone = static_unique_pointer_cast<VariableExpression>(AstCloner::Clone(node));
+		VariableValueExpressionPtr clone = static_unique_pointer_cast<VariableValueExpression>(AstCloner::Clone(node));
 
 		assert(clone->variableId);
 		clone->variableId = Retrieve(m_context->newVarIndices, clone->variableId);

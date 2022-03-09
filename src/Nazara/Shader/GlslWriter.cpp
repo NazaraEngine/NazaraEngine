@@ -1002,7 +1002,7 @@ namespace Nz
 		Visit(node.expression);
 	}
 
-	void GlslWriter::Visit(ShaderAst::VariableExpression& node)
+	void GlslWriter::Visit(ShaderAst::VariableValueExpression& node)
 	{
 		const std::string& varName = Retrieve(m_currentState->variableNames, node.variableId);
 		Append(varName);

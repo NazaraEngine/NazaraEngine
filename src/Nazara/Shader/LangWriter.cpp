@@ -116,9 +116,9 @@ namespace Nz
 		ShaderAst::Module* module;
 		std::size_t currentModuleIndex;
 		std::stringstream stream;
-		std::unordered_map<std::size_t, Identifier> constantNames;
+		std::unordered_map<std::size_t, Identifier> constants;
 		std::unordered_map<std::size_t, Identifier> structs;
-		std::unordered_map<std::size_t, Identifier> variableNames;
+		std::unordered_map<std::size_t, Identifier> variables;
 		std::vector<std::string> moduleNames;
 		bool isInEntryPoint = false;
 		unsigned int indentLevel = 0;
@@ -661,8 +661,8 @@ namespace Nz
 		identifier.moduleIndex = m_currentState->currentModuleIndex;
 		identifier.name = std::move(constantName);
 
-		assert(m_currentState->constantNames.find(constantIndex) == m_currentState->constantNames.end());
-		m_currentState->constantNames.emplace(constantIndex, std::move(identifier));
+		assert(m_currentState->constants.find(constantIndex) == m_currentState->constants.end());
+		m_currentState->constants.emplace(constantIndex, std::move(identifier));
 	}
 
 	void LangWriter::RegisterStruct(std::size_t structIndex, std::string structName)
@@ -681,8 +681,8 @@ namespace Nz
 		identifier.moduleIndex = m_currentState->currentModuleIndex;
 		identifier.name = std::move(varName);
 
-		assert(m_currentState->variableNames.find(varIndex) == m_currentState->variableNames.end());
-		m_currentState->variableNames.emplace(varIndex, std::move(identifier));
+		assert(m_currentState->variables.find(varIndex) == m_currentState->variables.end());
+		m_currentState->variables.emplace(varIndex, std::move(identifier));
 	}
 
 	void LangWriter::ScopeVisit(ShaderAst::Statement& node)
@@ -911,7 +911,7 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::ConstantExpression& node)
 	{
-		AppendIdentifier(m_currentState->constantNames, node.constantId);
+		AppendIdentifier(m_currentState->constants, node.constantId);
 	}
 
 	void LangWriter::Visit(ShaderAst::DeclareExternalStatement& node)
@@ -1201,9 +1201,9 @@ namespace Nz
 			Append(componentStr[node.components[i]]);
 	}
 
-	void LangWriter::Visit(ShaderAst::VariableExpression& node)
+	void LangWriter::Visit(ShaderAst::VariableValueExpression& node)
 	{
-		AppendIdentifier(m_currentState->variableNames, node.variableId);
+		AppendIdentifier(m_currentState->variables, node.variableId);
 	}
 
 	void LangWriter::Visit(ShaderAst::UnaryExpression& node)

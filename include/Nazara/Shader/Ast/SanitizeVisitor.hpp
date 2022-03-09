@@ -82,7 +82,7 @@ namespace Nz::ShaderAst
 			ExpressionPtr Clone(IntrinsicExpression& node) override;
 			ExpressionPtr Clone(SwizzleExpression& node) override;
 			ExpressionPtr Clone(UnaryExpression& node) override;
-			ExpressionPtr Clone(VariableExpression& node) override;
+			ExpressionPtr Clone(VariableValueExpression& node) override;
 
 			StatementPtr Clone(BranchStatement& node) override;
 			StatementPtr Clone(ConditionalStatement& node) override;
@@ -166,7 +166,7 @@ namespace Nz::ShaderAst
 			void Validate(IntrinsicExpression& node);
 			void Validate(SwizzleExpression& node);
 			void Validate(UnaryExpression& node);
-			void Validate(VariableExpression& node);
+			void Validate(VariableValueExpression& node);
 			ExpressionType ValidateBinaryOp(BinaryType op, const ExpressionPtr& leftExpr, const ExpressionPtr& rightExpr);
 
 			enum class IdentifierCategory
