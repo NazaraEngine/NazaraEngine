@@ -30,12 +30,14 @@
 #define NAZARA_GLOBAL_SHADER_HPP
 
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/DirectoryModuleResolver.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Shader.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Shader/ShaderModuleResolver.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>

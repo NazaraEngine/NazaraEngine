@@ -62,6 +62,11 @@ namespace Nz
 	{
 		return *m_samplerCache;
 	}
+
+	inline const std::shared_ptr<DirectoryModuleResolver>& Graphics::GetShaderModuleResolver() const
+	{
+		return m_shaderModuleResolver;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

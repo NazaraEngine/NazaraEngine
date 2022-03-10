@@ -57,6 +57,7 @@ namespace Nz
 		{
 			ShaderWriter::States states;
 			states.optionValues = config.optionValues;
+			states.shaderModuleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
 

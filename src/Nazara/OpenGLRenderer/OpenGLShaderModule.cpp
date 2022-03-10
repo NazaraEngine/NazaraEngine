@@ -141,7 +141,12 @@ namespace Nz
 	{
 		m_states = states;
 		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
-		ShaderAst::ModulePtr sanitized = GlslWriter::Sanitize(shaderModule, states.optionValues);
+
+		ShaderAst::SanitizeVisitor::Options options = GlslWriter::GetSanitizeOptions();
+		options.optionValues = states.optionValues;
+		options.moduleResolver = states.shaderModuleResolver;
+
+		ShaderAst::ModulePtr sanitized = ShaderAst::Sanitize(shaderModule, options);
 
 		for (std::size_t i = 0; i < ShaderStageTypeCount; ++i)
 		{
