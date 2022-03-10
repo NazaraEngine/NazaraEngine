@@ -18,7 +18,7 @@ void ParseSerializeUnserialize(std::string_view sourceCode, bool sanitize)
 		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule));
 
 	Nz::ByteArray serializedModule;
-	REQUIRE_NOTHROW(serializedModule = Nz::ShaderAst::SerializeShader(*shaderModule));
+	REQUIRE_NOTHROW(serializedModule = Nz::ShaderAst::SerializeShader(shaderModule));
 
 	Nz::ByteStream byteStream(&serializedModule);
 	Nz::ShaderAst::ModulePtr unserializedShader;

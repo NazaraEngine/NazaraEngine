@@ -191,7 +191,7 @@ void MainWindow::OnCompile()
 			fileName += ".shader";
 
 		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
-		file.Write(Nz::ShaderAst::SerializeShader(*shaderModule));
+		file.Write(Nz::ShaderAst::SerializeShader(shaderModule));
 	}
 	catch (const std::exception& e)
 	{

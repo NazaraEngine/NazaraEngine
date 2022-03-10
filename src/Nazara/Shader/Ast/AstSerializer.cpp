@@ -376,17 +376,31 @@ namespace Nz::ShaderAst
 		Node(node.body);
 	}
 
-	void ShaderAstSerializer::Serialize(Module& module)
+	void ShaderAstSerializer::Serialize(ModulePtr& module)
 	{
 		m_stream << s_magicNumber << s_currentVersion;
 
-		m_stream << module.metadata->moduleId;
-		m_stream << module.metadata->shaderLangVersion;
-		Serialize(*module.rootNode);
+		SerializeModule(module);
 
 		m_stream.FlushBits();
 	}
 	
+	void ShaderAstSerializer::SerializeModule(ModulePtr& module)
+	{
+		m_stream << module->metadata->moduleId;
+		m_stream << module->metadata->shaderLangVersion;
+
+		Container(module->importedModules);
+		for (auto& importedModule : module->importedModules)
+		{
+			Value(importedModule.identifier);
+			SerializeModule(importedModule.module);
+		}
+
+		ShaderSerializerVisitor visitor(*this);
+		module->rootNode->Visit(visitor);
+	}
+
 	bool ShaderAstSerializer::IsWriting() const
 	{
 		return true;
@@ -583,16 +597,32 @@ namespace Nz::ShaderAst
 		if (version > s_currentVersion)
 			throw std::runtime_error("unsupported version");
 
+		ModulePtr module;
+		SerializeModule(module);
+
+		return module;
+	}
+
+	void ShaderAstUnserializer::SerializeModule(ModulePtr& module)
+	{
 		std::shared_ptr<Module::Metadata> metadata = std::make_shared<Module::Metadata>();
 		m_stream >> metadata->moduleId;
 		m_stream >> metadata->shaderLangVersion;
 
-		ModulePtr module = std::make_shared<Module>(std::move(metadata));
+		std::vector<Module::ImportedModule> importedModules;
+		Container(importedModules);
+		for (auto& importedModule : importedModules)
+		{
+			Value(const_cast<std::string&>(importedModule.identifier)); //< not used for writing
+			SerializeModule(importedModule.module);
+		}
+
+		MultiStatementPtr rootNode = std::make_unique<MultiStatement>();
 
 		ShaderSerializerVisitor visitor(*this);
-		module->rootNode->Visit(visitor);
+		rootNode->Visit(visitor);
 
-		return module;
+		module = std::make_shared<Module>(std::move(metadata), std::move(rootNode), std::move(importedModules));
 	}
 
 	bool ShaderAstUnserializer::IsWriting() const
@@ -903,7 +933,7 @@ namespace Nz::ShaderAst
 	}
 	
 
-	ByteArray SerializeShader(Module& module)
+	ByteArray SerializeShader(ModulePtr& module)
 	{
 		ByteArray byteArray;
 		ByteStream stream(&byteArray, OpenModeFlags(OpenMode::WriteOnly));
