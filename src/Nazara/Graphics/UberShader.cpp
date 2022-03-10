@@ -32,12 +32,12 @@ namespace Nz
 			supportedStageType |= stageType;
 		};
 
-		callbacks.onOptionDeclaration = [&](const std::string& optionName, const ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& optionType)
+		callbacks.onOptionDeclaration = [&](const ShaderAst::DeclareOptionStatement& option)
 		{
 			//TODO: Check optionType
 
-			m_optionIndexByName[optionName] = Option{
-				CRC32(optionName)
+			m_optionIndexByName[option.optName] = Option{
+				CRC32(option.optName)
 			};
 
 			optionCount++;
