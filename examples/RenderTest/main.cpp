@@ -140,22 +140,12 @@ int main()
 		return __LINE__;
 	}
 
+	auto directoryModuleResolver = std::make_shared<Nz::DirectoryModuleResolver>();
+	directoryModuleResolver->RegisterModuleFile("Test/Bar", barModuleSource, sizeof(barModuleSource));
+	directoryModuleResolver->RegisterModuleFile("Test/Data", dataModuleSource, sizeof(dataModuleSource));
+
 	Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
-	sanitizeOpt.moduleCallback = [](const std::vector<std::string>& modulePath) -> Nz::ShaderAst::ModulePtr
-	{
-		if (modulePath.size() != 2)
-			return {};
-
-		if (modulePath[0] != "Test")
-			return {};
-
-		if (modulePath[1] == "Bar")
-			return Nz::ShaderLang::Parse(std::string_view(barModuleSource, sizeof(barModuleSource)));
-		else if (modulePath[1] == "Data")
-			return Nz::ShaderLang::Parse(std::string_view(dataModuleSource, sizeof(dataModuleSource)));
-		else
-			return {};
-	};
+	sanitizeOpt.moduleResolver = directoryModuleResolver;
 
 	shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt);
 	if (!shaderModule)

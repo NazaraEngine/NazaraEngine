@@ -10,11 +10,14 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
 namespace Nz
 {
+	class ShaderModuleResolver;
+
 	class NAZARA_SHADER_API ShaderWriter
 	{
 		public:
@@ -27,6 +30,7 @@ namespace Nz
 
 			struct States
 			{
+				std::shared_ptr<ShaderModuleResolver> shaderModuleResolver;
 				std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues;
 				bool optimize = false;
 				bool sanitized = false;

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_AST_INDEXREMAPPER_HPP
-#define NAZARA_SHADER_AST_INDEXREMAPPER_HPP
+#ifndef NAZARA_SHADER_AST_INDEXREMAPPERVISITOR_HPP
+#define NAZARA_SHADER_AST_INDEXREMAPPERVISITOR_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
@@ -60,4 +60,4 @@ namespace Nz::ShaderAst
 
 #include <Nazara/Shader/Ast/IndexRemapperVisitor.inl>
 
-#endif // NAZARA_SHADER_AST_INDEXREMAPPER_HPP
+#endif // NAZARA_SHADER_AST_INDEXREMAPPERVISITOR_HPP

@@ -1,6 +1,9 @@
 [nzsl_version("1.0")]
 module;
 
+import Engine/InstanceData;
+import Engine/ViewerData;
+
 // Basic material options
 option HasDiffuseTexture: bool = false;
 option HasAlphaTexture: bool = false;
@@ -47,13 +50,6 @@ struct MaterialSettings
 	Shininess: f32,
 }
 
-[layout(std140)]
-struct InstanceData
-{
-	worldMatrix: mat4[f32],
-	invWorldMatrix: mat4[f32]
-}
-
 // TODO: Add enums
 const DirectionalLight = 0;
 const PointLight = 1;
@@ -76,20 +72,6 @@ struct LightData
 {
 	lights: array[Light, MaxLightCount],
 	lightCount: u32,
-}
-
-[layout(std140)]
-struct ViewerData
-{
-	projectionMatrix: mat4[f32],
-	invProjectionMatrix: mat4[f32],
-	viewMatrix: mat4[f32],
-	invViewMatrix: mat4[f32],
-	viewProjMatrix: mat4[f32],
-	invViewProjMatrix: mat4[f32],
-	renderTargetSize: vec2[f32],
-	invRenderTargetSize: vec2[f32],
-	eyePosition: vec3[f32]
 }
 
 external

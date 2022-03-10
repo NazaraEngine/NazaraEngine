@@ -1398,7 +1398,7 @@ namespace Nz::ShaderAst
 
 	StatementPtr SanitizeVisitor::Clone(ImportStatement& node)
 	{
-		if (!m_context->options.moduleCallback)
+		if (!m_context->options.moduleResolver)
 			return static_unique_pointer_cast<ImportStatement>(AstCloner::Clone(node));
 
 		auto ModulePathAsString = [&]() -> std::string
@@ -1419,7 +1419,7 @@ namespace Nz::ShaderAst
 			return ss.str();
 		};
 
-		ModulePtr targetModule = m_context->options.moduleCallback(node.modulePath);
+		ModulePtr targetModule = m_context->options.moduleResolver->Resolve(node.modulePath);
 		if (!targetModule)
 			throw AstError{ "module " + ModulePathAsString() + " not found" };
 
@@ -1506,16 +1506,20 @@ namespace Nz::ShaderAst
 		AstExportVisitor exportVisitor;
 		exportVisitor.Visit(*m_context->currentModule->importedModules[moduleIndex].module->rootNode, callbacks);
 
-		if (aliasStatements.empty() || m_context->options.removeAliases)
+		if (aliasStatements.empty())
 			return ShaderBuilder::NoOp();
 
-		// Register module and aliases
+		// Register aliases
+		for (auto& aliasPtr : aliasStatements)
+			Validate(*aliasPtr);
+
+		if (m_context->options.removeAliases)
+			return ShaderBuilder::NoOp();
+
+		// Generate alias statements
 		MultiStatementPtr aliasBlock = std::make_unique<MultiStatement>();
 		for (auto& aliasPtr : aliasStatements)
-		{
-			Validate(*aliasPtr);
 			aliasBlock->statements.push_back(std::move(aliasPtr));
-		}
 
 		return aliasBlock;
 	}
