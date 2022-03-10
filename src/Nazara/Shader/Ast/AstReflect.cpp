@@ -14,9 +14,55 @@ namespace Nz::ShaderAst
 		statement.Visit(*this);
 	}
 
+	void AstReflect::Visit(DeclareAliasStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onAliasDeclaration)
+			m_callbacks->onAliasDeclaration(node);
+
+		if (m_callbacks->onAliasIndex && node.aliasIndex)
+			m_callbacks->onAliasIndex(node.name, *node.aliasIndex);
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
+	void AstReflect::Visit(DeclareConstStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onConstDeclaration)
+			m_callbacks->onConstDeclaration(node);
+
+		if (m_callbacks->onConstIndex && node.constIndex)
+			m_callbacks->onConstIndex(node.name, *node.constIndex);
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
+	void AstReflect::Visit(DeclareExternalStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onExternalDeclaration)
+			m_callbacks->onExternalDeclaration(node);
+
+		if (m_callbacks->onVariableIndex)
+		{
+			for (const auto& extVar : node.externalVars)
+			{
+				if (extVar.varIndex)
+					m_callbacks->onVariableIndex(extVar.name, *extVar.varIndex);
+			}
+		}
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
 	void AstReflect::Visit(DeclareFunctionStatement& node)
 	{
 		assert(m_callbacks);
+
+		if (m_callbacks->onFunctionDeclaration)
+			m_callbacks->onFunctionDeclaration(node);
+
 		if (m_callbacks->onEntryPointDeclaration)
 		{
 			if (!node.entryStage.HasValue())
@@ -24,12 +70,70 @@ namespace Nz::ShaderAst
 
 			m_callbacks->onEntryPointDeclaration(node.entryStage.GetResultingValue(), node.name);
 		}
+
+		if (m_callbacks->onVariableIndex)
+		{
+			for (const auto& parameter : node.parameters)
+			{
+				if (parameter.varIndex)
+					m_callbacks->onVariableIndex(parameter.name, *parameter.varIndex);
+			}
+		}
+
+		AstRecursiveVisitor::Visit(node);
 	}
 
 	void AstReflect::Visit(DeclareOptionStatement& node)
 	{
 		assert(m_callbacks);
 		if (m_callbacks->onOptionDeclaration)
-			m_callbacks->onOptionDeclaration(node.optName, node.optType);
+			m_callbacks->onOptionDeclaration(node);
+
+		if (m_callbacks->onOptionIndex && node.optIndex)
+			m_callbacks->onOptionIndex(node.optName, *node.optIndex);
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
+	void AstReflect::Visit(DeclareStructStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onStructDeclaration)
+			m_callbacks->onStructDeclaration(node);
+
+		if (m_callbacks->onStructIndex && node.structIndex)
+			m_callbacks->onStructIndex(node.description.name, *node.structIndex);
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
+	void AstReflect::Visit(DeclareVariableStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onVariableDeclaration)
+			m_callbacks->onVariableDeclaration(node);
+
+		if (m_callbacks->onVariableIndex && node.varIndex)
+			m_callbacks->onVariableIndex(node.varName, *node.varIndex);
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
+	void AstReflect::Visit(ForStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onVariableIndex && node.varIndex)
+			m_callbacks->onVariableIndex(node.varName, *node.varIndex);
+
+		AstRecursiveVisitor::Visit(node);
+	}
+
+	void AstReflect::Visit(ForEachStatement& node)
+	{
+		assert(m_callbacks);
+		if (m_callbacks->onVariableIndex && node.varIndex)
+			m_callbacks->onVariableIndex(node.varName, *node.varIndex);
+
+		AstRecursiveVisitor::Visit(node);
 	}
 }

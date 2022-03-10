@@ -12,6 +12,7 @@
 #include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/Ast/AstExportVisitor.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
+#include <Nazara/Shader/Ast/AstReflect.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/DependencyCheckerVisitor.hpp>
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
@@ -52,6 +53,20 @@ namespace Nz::ShaderAst
 		Bitset<UInt64> availableIndices;
 		Bitset<UInt64> preregisteredIndices;
 		std::unordered_map<std::size_t, T> values;
+
+		void PreregisterIndex(std::size_t index)
+		{
+			if (index < availableIndices.GetSize())
+			{
+				if (!availableIndices.Test(index))
+					throw AstError{ "cannot preregister used index  " + std::to_string(index) + " as its already used" };
+			}
+			else if (index >= availableIndices.GetSize())
+				availableIndices.Resize(index + 1, true);
+
+			availableIndices.Set(index, false);
+			preregisteredIndices.UnboundedSet(index);
+		}
 
 		template<typename U>
 		std::size_t Register(U&& data, std::optional<std::size_t> index = {})
@@ -171,6 +186,8 @@ namespace Nz::ShaderAst
 
 		m_context = &currentContext;
 		CallOnExit resetContext([&] { m_context = nullptr; });
+
+		PreregisterIndices(module);
 
 		// Register builtin env
 		m_context->builtinEnv = std::make_shared<Environment>();
@@ -906,6 +923,7 @@ namespace Nz::ShaderAst
 			auto& cloneParam = clone->parameters.emplace_back();
 			cloneParam.name = parameter.name;
 			cloneParam.type = ResolveType(parameter.type);
+			cloneParam.varIndex = parameter.varIndex;
 		}
 
 		if (node.returnType.HasValue())
@@ -1170,6 +1188,7 @@ namespace Nz::ShaderAst
 
 			// Counter variable
 			auto counterVariable = ShaderBuilder::DeclareVariable(node.varName, std::move(fromExpr));
+			counterVariable->varIndex = node.varIndex;
 			Validate(*counterVariable);
 
 			std::size_t counterVarIndex = counterVariable->varIndex.value();
@@ -1240,7 +1259,7 @@ namespace Nz::ShaderAst
 
 			PushScope();
 			{
-				clone->varIndex = RegisterVariable(node.varName, fromExprType);
+				clone->varIndex = RegisterVariable(node.varName, fromExprType, node.varIndex);
 				clone->statement = CloneStatement(node.statement);
 			}
 			PopScope();
@@ -1337,6 +1356,7 @@ namespace Nz::ShaderAst
 				Validate(*accessIndex);
 
 				auto elementVariable = ShaderBuilder::DeclareVariable(node.varName, std::move(accessIndex));
+				elementVariable->varIndex = node.varIndex; //< Preserve var index
 				Validate(*elementVariable);
 				body->statements.emplace_back(std::move(elementVariable));
 
@@ -1365,7 +1385,7 @@ namespace Nz::ShaderAst
 
 			PushScope();
 			{
-				clone->varIndex = RegisterVariable(node.varName, innerType);
+				clone->varIndex = RegisterVariable(node.varName, innerType, node.varIndex);
 				clone->statement = CloneStatement(node.statement);
 			}
 			PopScope();
@@ -1823,6 +1843,27 @@ namespace Nz::ShaderAst
 
 		// Run optimizer on constant value to hopefully retrieve a single constant value
 		return static_unique_pointer_cast<T>(ShaderAst::PropagateConstants(node, optimizerOptions));
+	}
+
+	void SanitizeVisitor::PreregisterIndices(const Module& module)
+	{
+		// If AST has been sanitized before and is sanitized again but with differents options that may introduce new variables (for example reduceLoopsToWhile)
+		// we have to make sure we won't override variable indices. This is done by visiting the AST a first time and preregistering all indices.
+		// TODO: Only do this is the AST has been already sanitized, maybe using a flag stored in the module?
+
+		AstReflect::Callbacks registerCallbacks;
+		registerCallbacks.onAliasIndex = [this](const std::string& /*name*/, std::size_t index) { m_context->aliases.PreregisterIndex(index); };
+		registerCallbacks.onConstIndex = [this](const std::string& /*name*/, std::size_t index) { m_context->constantValues.PreregisterIndex(index); };
+		registerCallbacks.onFunctionIndex = [this](const std::string& /*name*/, std::size_t index) { m_context->functions.PreregisterIndex(index); };
+		registerCallbacks.onOptionIndex = [this](const std::string& /*name*/, std::size_t index) { m_context->constantValues.PreregisterIndex(index); };
+		registerCallbacks.onStructIndex = [this](const std::string& /*name*/, std::size_t index) { m_context->structs.PreregisterIndex(index); };
+		registerCallbacks.onVariableIndex = [this](const std::string& /*name*/, std::size_t index) { m_context->variableTypes.PreregisterIndex(index); };
+
+		AstReflect reflectVisitor;
+		for (const auto& importedModule : module.importedModules)
+			reflectVisitor.Reflect(*importedModule.module->rootNode, registerCallbacks);
+
+		reflectVisitor.Reflect(*module.rootNode, registerCallbacks);
 	}
 
 	void SanitizeVisitor::PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen)

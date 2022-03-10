@@ -32,12 +32,33 @@ namespace Nz::ShaderAst
 			struct Callbacks
 			{
 				std::function<void(ShaderStageType stageType, const std::string& functionName)> onEntryPointDeclaration;
-				std::function<void(const std::string& optionName, const ExpressionValue<ExpressionType>& optionType)> onOptionDeclaration;
+
+				std::function<void(const DeclareAliasStatement& aliasDecl)> onAliasDeclaration;
+				std::function<void(const DeclareConstStatement& constDecl)> onConstDeclaration;
+				std::function<void(const DeclareExternalStatement& extDecl)> onExternalDeclaration;
+				std::function<void(const DeclareFunctionStatement& funcDecl)> onFunctionDeclaration;
+				std::function<void(const DeclareOptionStatement& optionDecl)> onOptionDeclaration;
+				std::function<void(const DeclareStructStatement& structDecl)> onStructDeclaration;
+				std::function<void(const DeclareVariableStatement& variableDecl)> onVariableDeclaration;
+
+				std::function<void(const std::string& name, std::size_t aliasIndex)> onAliasIndex;
+				std::function<void(const std::string& name, std::size_t constIndex)> onConstIndex;
+				std::function<void(const std::string& name, std::size_t funcIndex)> onFunctionIndex;
+				std::function<void(const std::string& name, std::size_t optIndex)> onOptionIndex;
+				std::function<void(const std::string& name, std::size_t structIndex)> onStructIndex;
+				std::function<void(const std::string& name, std::size_t varIndex)> onVariableIndex;
 			};
 
 		private:
+			void Visit(DeclareAliasStatement& node) override;
+			void Visit(DeclareConstStatement& node) override;
+			void Visit(DeclareExternalStatement& node) override;
 			void Visit(DeclareFunctionStatement& node) override;
 			void Visit(DeclareOptionStatement& node) override;
+			void Visit(DeclareStructStatement& node) override;
+			void Visit(DeclareVariableStatement& node) override;
+			void Visit(ForStatement& node) override;
+			void Visit(ForEachStatement& node) override;
 
 			const Callbacks* m_callbacks;
 	};
