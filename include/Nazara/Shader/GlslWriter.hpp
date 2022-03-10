@@ -13,6 +13,7 @@
 #include <Nazara/Shader/Ast/AstExpressionVisitorExcept.hpp>
 #include <Nazara/Shader/Ast/AstStatementVisitorExcept.hpp>
 #include <Nazara/Shader/Ast/Module.hpp>
+#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <set>
 #include <sstream>
 #include <string>
@@ -48,7 +49,7 @@ namespace Nz
 			};
 
 			static const char* GetFlipYUniformName();
-			static ShaderAst::ModulePtr Sanitize(const ShaderAst::Module& module, std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues, std::string* error = nullptr);
+			static ShaderAst::SanitizeVisitor::Options GetSanitizeOptions();
 
 		private:
 			void Append(const ShaderAst::AliasType& aliasType);

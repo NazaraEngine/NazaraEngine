@@ -503,10 +503,12 @@ namespace Nz
 		if (!states.sanitized)
 		{
 			ShaderAst::SanitizeVisitor::Options options;
+			options.moduleResolver = states.shaderModuleResolver;
 			options.optionValues = states.optionValues;
 			options.reduceLoopsToWhile = true;
 			options.removeAliases = true;
 			options.removeCompoundAssignments = true;
+			options.removeConstDeclaration = true;
 			options.removeMatrixCast = true;
 			options.removeOptionDeclaration = true;
 			options.splitMultipleBranches = true;

@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderModuleResolver.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstTypes.hpp>
 #include <Nazara/Shader/Ast/Module.hpp>
@@ -42,7 +43,7 @@ namespace Nz::ShaderAst
 
 			struct Options
 			{
-				std::function<ModulePtr(const std::vector<std::string>& /*modulePath*/)> moduleCallback;
+				std::shared_ptr<ShaderModuleResolver> moduleResolver;
 				std::unordered_set<std::string> reservedIdentifiers;
 				std::unordered_map<UInt32, ConstantValue> optionValues;
 				bool makeVariableNameUnique = false;

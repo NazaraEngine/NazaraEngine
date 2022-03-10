@@ -13,7 +13,6 @@
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
-#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <optional>
 #include <set>
 #include <stdexcept>
@@ -173,7 +172,11 @@ namespace Nz
 		const ShaderAst::Module* targetModule;
 		if (!states.sanitized)
 		{
-			sanitizedModule = Sanitize(module, states.optionValues);
+			ShaderAst::SanitizeVisitor::Options options = GetSanitizeOptions();
+			options.optionValues = states.optionValues;
+			options.moduleResolver = states.shaderModuleResolver;
+
+			sanitizedModule = ShaderAst::Sanitize(module, options);
 			targetModule = sanitizedModule.get();
 		}
 		else
@@ -227,11 +230,10 @@ namespace Nz
 		return s_flipYUniformName;
 	}
 
-	ShaderAst::ModulePtr GlslWriter::Sanitize(const ShaderAst::Module& module, std::unordered_map<UInt32, ShaderAst::ConstantValue> optionValues, std::string* error)
+	ShaderAst::SanitizeVisitor::Options GlslWriter::GetSanitizeOptions()
 	{
 		// Always sanitize for reserved identifiers
 		ShaderAst::SanitizeVisitor::Options options;
-		options.optionValues = std::move(optionValues);
 		options.makeVariableNameUnique = true;
 		options.reduceLoopsToWhile = true;
 		options.removeAliases = true;
@@ -246,7 +248,7 @@ namespace Nz
 			"cross", "dot", "exp", "length", "max", "min", "pow", "texture"
 		};
 
-		return ShaderAst::Sanitize(module, options, error);
+		return options;
 	}
 
 	void GlslWriter::Append(const ShaderAst::AliasType& /*aliasType*/)

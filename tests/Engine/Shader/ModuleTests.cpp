@@ -1,6 +1,7 @@
 #include <Engine/Shader/ShaderUtils.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/Shader/DirectoryModuleResolver.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
@@ -29,8 +30,6 @@ struct OutputData
 }
 )";
 
-		Nz::ShaderAst::ModulePtr importedModule = Nz::ShaderLang::Parse(importedSource);
-
 		std::string_view shaderSource = R"(
 [nzsl_version("1.0")]
 module;
@@ -48,14 +47,11 @@ fn main(input: InputData) -> OutputData
 
 		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(shaderSource);
 
-		Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
-		sanitizeOpt.moduleCallback = [&](const std::vector<std::string>& modulePath) -> Nz::ShaderAst::ModulePtr
-		{
-			REQUIRE(modulePath.size() == 1);
-			REQUIRE(modulePath[0] == "SimpleModule");
+		auto directoryModuleResolver = std::make_shared<Nz::DirectoryModuleResolver>();
+		directoryModuleResolver->RegisterModuleFile("SimpleModule", importedSource.data(), importedSource.size());
 
-			return importedModule;
-		};
+		Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
+		sanitizeOpt.moduleResolver = directoryModuleResolver;
 
 		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt));
 

@@ -94,5 +94,6 @@
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Core/Uuid.hpp>
+#include <Nazara/Core/VirtualDirectory.hpp>
 
 #endif // NAZARA_GLOBAL_CORE_HPP

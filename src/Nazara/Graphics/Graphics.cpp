@@ -17,6 +17,14 @@ namespace Nz
 		const UInt8 r_blitShader[] = {
 			#include <Nazara/Graphics/Resources/Shaders/blit.nzsl.h>
 		};
+
+		const UInt8 r_instanceDataModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzsl.h>
+		};
+
+		const UInt8 r_viewerDataModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzsl.h>
+		};
 	}
 
 	/*!
@@ -66,6 +74,7 @@ namespace Nz
 
 		BuildDefaultTextures();
 		BuildFullscreenVertexBuffer();
+		RegisterShaderModules();
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
 		SelectDepthStencilFormats();
@@ -125,7 +134,10 @@ namespace Nz
 		if (!m_blitPipelineLayout)
 			throw std::runtime_error("failed to instantiate fullscreen renderpipeline layout");
 
-		auto blitShader = m_renderDevice->InstantiateShaderModule(ShaderStageType::Fragment | ShaderStageType::Vertex, ShaderLanguage::NazaraShader, r_blitShader, sizeof(r_blitShader), {});
+		ShaderWriter::States states;
+		states.shaderModuleResolver = m_shaderModuleResolver;
+
+		auto blitShader = m_renderDevice->InstantiateShaderModule(ShaderStageType::Fragment | ShaderStageType::Vertex, ShaderLanguage::NazaraShader, r_blitShader, sizeof(r_blitShader), states);
 		if (!blitShader)
 			throw std::runtime_error("failed to instantiate blit shader");
 
@@ -201,6 +213,13 @@ namespace Nz
 	{
 		m_materialPassRegistry.RegisterPass("ForwardPass");
 		m_materialPassRegistry.RegisterPass("DepthPass");
+	}
+
+	void Graphics::RegisterShaderModules()
+	{
+		m_shaderModuleResolver = std::make_shared<DirectoryModuleResolver>();
+		m_shaderModuleResolver->RegisterModuleFile("Engine/InstanceData", r_instanceDataModule, sizeof(r_instanceDataModule));
+		m_shaderModuleResolver->RegisterModuleFile("Engine/ViewerData", r_viewerDataModule, sizeof(r_viewerDataModule));
 	}
 
 	void Graphics::SelectDepthStencilFormats()

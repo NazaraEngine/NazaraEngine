@@ -1,0 +1,10 @@
+[nzsl_version("1.0")]
+module;
+
+[export]
+[layout(std140)]
+struct InstanceData
+{
+	worldMatrix: mat4[f32],
+	invWorldMatrix: mat4[f32]
+}
