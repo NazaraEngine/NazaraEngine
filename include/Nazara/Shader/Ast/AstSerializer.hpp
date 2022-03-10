@@ -74,6 +74,8 @@ namespace Nz::ShaderAst
 
 			virtual bool IsWriting() const = 0;
 
+			virtual void SerializeModule(ModulePtr& module) = 0;
+
 			virtual void Node(ExpressionPtr& node) = 0;
 			virtual void Node(StatementPtr& node) = 0;
 
@@ -102,10 +104,12 @@ namespace Nz::ShaderAst
 			inline ShaderAstSerializer(ByteStream& stream);
 			~ShaderAstSerializer() = default;
 
-			void Serialize(Module& shader);
+			void Serialize(ModulePtr& shader);
 
 		private:
 			using AstSerializerBase::Serialize;
+
+			void SerializeModule(ModulePtr& module) override;
 
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
@@ -140,6 +144,8 @@ namespace Nz::ShaderAst
 		private:
 			using AstSerializerBase::Serialize;
 
+			void SerializeModule(ModulePtr& module) override;
+
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
@@ -162,7 +168,7 @@ namespace Nz::ShaderAst
 			ByteStream& m_stream;
 	};
 	
-	NAZARA_SHADER_API ByteArray SerializeShader(Module& shader);
+	NAZARA_SHADER_API ByteArray SerializeShader(ModulePtr& shader);
 	inline ModulePtr UnserializeShader(const void* data, std::size_t size);
 	NAZARA_SHADER_API ModulePtr UnserializeShader(ByteStream& stream);
 }
