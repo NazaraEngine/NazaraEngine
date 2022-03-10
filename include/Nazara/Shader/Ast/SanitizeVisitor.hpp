@@ -124,6 +124,7 @@ namespace Nz::ShaderAst
 			template<typename T> const T& ComputeExprValue(ExpressionValue<T>& attribute) const;
 			template<typename T> std::unique_ptr<T> PropagateConstants(T& node) const;
 
+			void PreregisterIndices(const Module& module);
 			void PropagateFunctionFlags(std::size_t funcIndex, FunctionFlags flags, Bitset<>& seen);
 
 			void RegisterBuiltin();
