@@ -26,26 +26,25 @@ namespace Nz
 		if (auto it = m_knownModules.find(fullPath); it != m_knownModules.end())
 			return it->second;
 
-		VirtualDirectory::Entry entry;
-		if (!m_searchDirectory->GetEntry(fullPath, &entry))
-			return {};
-
 		ShaderAst::ModulePtr shaderModule;
-		if (std::holds_alternative<VirtualDirectory::DataPointerEntry>(entry))
+		m_searchDirectory->GetEntry(fullPath, [&](const VirtualDirectory::Entry& entry)
 		{
-			const auto& content = std::get<VirtualDirectory::DataPointerEntry>(entry);
-			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(content.data), content.size));
-		}
-		else if (std::holds_alternative<VirtualDirectory::FileContentEntry>(entry))
-		{
-			const auto& content = std::get<VirtualDirectory::FileContentEntry>(entry);
-			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(content.data->data()), content.data->size()));
-		}
-		else if (std::holds_alternative<VirtualDirectory::PhysicalFileEntry>(entry))
-		{
-			const auto& filePath = std::get<VirtualDirectory::PhysicalFileEntry>(entry);
-			shaderModule = ShaderLang::ParseFromFile(filePath);
-		}
+			if (std::holds_alternative<VirtualDirectory::DataPointerEntry>(entry))
+			{
+				const auto& dataContent = std::get<VirtualDirectory::DataPointerEntry>(entry);
+				shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(dataContent.data), dataContent.size));
+			}
+			else if (std::holds_alternative<VirtualDirectory::FileContentEntry>(entry))
+			{
+				const auto& fileContent = std::get<VirtualDirectory::FileContentEntry>(entry);
+				shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(fileContent.data.data()), fileContent.data.size()));
+			}
+			else if (std::holds_alternative<VirtualDirectory::PhysicalFileEntry>(entry))
+			{
+				const auto& physicalEntry = std::get<VirtualDirectory::PhysicalFileEntry>(entry);
+				shaderModule = ShaderLang::ParseFromFile(physicalEntry.filePath);
+			}
+		});
 
 		if (!shaderModule)
 			return {};
