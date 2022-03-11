@@ -78,11 +78,11 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			}));
 		}
 
-		WHEN("Storing a file")
+		std::mt19937 randGen(std::random_device{}());
+		auto GenerateRandomData = [&]
 		{
-			std::mt19937 randGen(std::random_device{}());
 			std::vector<Nz::UInt8> randomData;
-			for (std::size_t i = 0; i < 1024; ++i)
+			for (std::size_t i = 0; i < 256; ++i)
 			{
 				unsigned int data = randGen();
 				randomData.push_back(Nz::SafeCast<Nz::UInt8>((data & 0x000000FF) >> 0));
@@ -91,22 +91,80 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 				randomData.push_back(Nz::SafeCast<Nz::UInt8>((data & 0xFF000000) >> 24));
 			}
 
+			return randomData;
+		};
+
+		auto CheckFile = [&](std::string_view path, const std::vector<Nz::UInt8>& expectedData)
+		{
+			return virtualDir->GetEntry(path, [&](const Nz::VirtualDirectory::Entry& entry)
+			{
+				if (!std::holds_alternative<Nz::VirtualDirectory::FileContentEntry>(entry))
+				{
+					FAIL("Target is not a file");
+					return false;
+				}
+
+				const auto& contentEntry = std::get<Nz::VirtualDirectory::FileContentEntry>(entry);
+				CHECK(std::equal(expectedData.begin(), expectedData.end(), contentEntry.data.begin(), contentEntry.data.end()));
+				return true;
+			});
+		};
+
+		WHEN("Storing a file")
+		{
+			auto randomData = GenerateRandomData();
 			virtualDir->StoreFile("File.bin", randomData);
 
 			WHEN("We retrieve it")
 			{
-				CHECK(virtualDir->GetEntry("File.bin", [&](const Nz::VirtualDirectory::Entry& entry)
-				{
-					if (!std::holds_alternative<Nz::VirtualDirectory::FileContentEntry>(entry))
-					{
-						FAIL("Target is not a file");
-						return false;
-					}
+				CHECK(CheckFile("File.bin", randomData));
+			}
+		}
 
-					const auto& contentEntry = std::get<Nz::VirtualDirectory::FileContentEntry>(entry);
-					CHECK(std::equal(randomData.begin(), randomData.end(), contentEntry.data.begin(), contentEntry.data.end()));
-					return true;
-				}));
+		WHEN("Storing multiples files")
+		{
+			std::array paths = {
+				"Abc",
+				"Ab/cd",
+				"po/mme\\de/terre.o",
+				"Nazara",
+				"Engine.exe",
+				"Un/Deux/Trois",
+				"Gnocchi.fromage",
+				"Karmeliet.triple",
+				"Mogwai.gremlins"
+			};
+
+			struct File
+			{
+				std::string path;
+				std::vector<Nz::UInt8> data;
+			};
+
+			std::vector<File> files;
+			std::unordered_map<std::string, std::size_t> filePathToIndex;
+
+			for (const char* path : paths)
+			{
+				auto& file = files.emplace_back();
+				file.data = GenerateRandomData();
+				file.path = path;
+
+				filePathToIndex[file.path] = files.size() - 1;
+			}
+
+			// Insert files into the virtual directory
+			for (const File& file : files)
+			{
+				INFO("Storing " << file.path);
+				CHECK_NOTHROW(virtualDir->StoreFile(file.path, file.data));
+			}
+
+			// Try to retrieve them
+			for (const File& file : files)
+			{
+				INFO("Retrieving " << file.path);
+				CHECK(CheckFile(file.path, file.data));
 			}
 		}
 	}

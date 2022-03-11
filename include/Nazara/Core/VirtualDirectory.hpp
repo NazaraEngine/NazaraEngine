@@ -39,6 +39,8 @@ namespace Nz
 			VirtualDirectory(VirtualDirectory&&) = delete;
 			~VirtualDirectory() = default;
 
+			bool Exists(std::string_view path);
+
 			template<typename F> void Foreach(F&& callback, bool includeDots = false);
 
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);
@@ -80,7 +82,7 @@ namespace Nz
 
 		private:
 			template<typename F> bool GetEntryInternal(std::string_view name, F&& callback);
-			inline bool RetrieveDirectory(std::string_view path, bool allowCreation, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName);
+			inline bool CreateOrRetrieveDirectory(std::string_view path, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName);
 
 			template<typename T> T& StoreInternal(std::string name, T value);
 
