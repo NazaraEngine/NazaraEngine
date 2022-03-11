@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/VirtualDirectory.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <algorithm>
 #include <cassert>
 #include <Nazara/Core/Debug.hpp>
@@ -18,6 +19,11 @@ namespace Nz
 	m_physicalPath(std::move(physicalPath)),
 	m_parent(std::move(parentDirectory))
 	{
+	}
+
+	inline bool VirtualDirectory::Exists(std::string_view path)
+	{
+		return GetEntry(path, [](const auto&) {});
 	}
 
 	template<typename F>
@@ -75,10 +81,14 @@ namespace Nz
 	
 	template<typename F> bool VirtualDirectory::GetEntry(std::string_view path, F&& callback)
 	{
+		assert(!path.empty());
+
 		VirtualDirectoryPtr currentDir = shared_from_this();
 		std::vector<std::string> physicalDirectoryParts;
 		return SplitPath(path, [&](std::string_view dirName)
 		{
+			assert(!dirName.empty());
+
 			if (!physicalDirectoryParts.empty())
 			{
 				// Special case when traversing directory
@@ -115,13 +125,6 @@ namespace Nz
 		{
 			if (!physicalDirectoryParts.empty())
 			{
-				if (physicalDirectoryParts.empty() && (name == "." || name == ".."))
-				{
-					// Prevent escaping the virtual directory
-					Entry ourselves = DirectoryEntry{ shared_from_this() };
-					return CallbackReturn(callback, ourselves);
-				}
-
 				assert(m_physicalPath);
 				std::filesystem::path filePath = *m_physicalPath;
 				for (const auto& part : physicalDirectoryParts)
@@ -148,9 +151,11 @@ namespace Nz
 
 	inline auto VirtualDirectory::StoreDirectory(std::string_view path, VirtualDirectoryPtr directory) -> DirectoryEntry&
 	{
+		assert(!path.empty());
+
 		std::shared_ptr<VirtualDirectory> dir;
 		std::string_view entryName;
-		if (!RetrieveDirectory(path, true, dir, entryName))
+		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
 		return dir->StoreInternal(std::string(entryName), DirectoryEntry{ std::move(directory) });
@@ -158,9 +163,11 @@ namespace Nz
 
 	inline auto VirtualDirectory::StoreDirectory(std::string_view path, std::filesystem::path directoryPath) -> PhysicalDirectoryEntry&
 	{
+		assert(!path.empty());
+
 		std::shared_ptr<VirtualDirectory> dir;
 		std::string_view entryName;
-		if (!RetrieveDirectory(path, true, dir, entryName))
+		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
 		return dir->StoreInternal(std::string(entryName), PhysicalDirectoryEntry{ std::move(directoryPath) });
@@ -168,9 +175,11 @@ namespace Nz
 
 	inline auto VirtualDirectory::StoreFile(std::string_view path, std::vector<UInt8> file) -> FileContentEntry&
 	{
+		assert(!path.empty());
+
 		std::shared_ptr<VirtualDirectory> dir;
 		std::string_view entryName;
-		if (!RetrieveDirectory(path, true, dir, entryName))
+		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
 		return dir->StoreInternal(std::string(entryName), FileContentEntry{ std::move(file) });
@@ -178,9 +187,11 @@ namespace Nz
 
 	inline auto VirtualDirectory::StoreFile(std::string_view path, std::filesystem::path filePath) -> PhysicalFileEntry&
 	{
+		assert(!path.empty());
+
 		std::shared_ptr<VirtualDirectory> dir;
 		std::string_view entryName;
-		if (!RetrieveDirectory(path, true, dir, entryName))
+		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
 		return dir->StoreInternal(std::string(entryName), PhysicalFileEntry{ std::move(filePath) });
@@ -188,9 +199,11 @@ namespace Nz
 
 	inline auto VirtualDirectory::StoreFile(std::string_view path, const void* data, std::size_t size) -> DataPointerEntry&
 	{
+		assert(!path.empty());
+
 		std::shared_ptr<VirtualDirectory> dir;
 		std::string_view entryName;
-		if (!RetrieveDirectory(path, true, dir, entryName))
+		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
 		return dir->StoreInternal(std::string(entryName), DataPointerEntry{ data, size });
@@ -245,12 +258,15 @@ namespace Nz
 		}
 	}
 
-	inline bool VirtualDirectory::RetrieveDirectory(std::string_view path, bool allowCreation, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName)
-	{
+	inline bool VirtualDirectory::CreateOrRetrieveDirectory(std::string_view path, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName)
+{
 		directory = shared_from_this();
 
+		bool allowCreation = true;
 		return SplitPath(path, [&](std::string_view dirName)
 		{
+			assert(!dirName.empty());
+
 			bool dirFound = directory->GetEntryInternal(dirName, [&](const Entry& entry)
 			{
 				if (auto dirEntry = std::get_if<DirectoryEntry>(&entry))
@@ -274,20 +290,26 @@ namespace Nz
 		}, 
 		[&](std::string_view name)
 		{
+			if (name.empty())
+				return false;
+
 			entryName = name;
+			return true;
 		});
 	}
 
 	template<typename T>
 	T& VirtualDirectory::StoreInternal(std::string name, T value)
 	{
+		assert(!name.empty());
+
 		auto it = std::lower_bound(m_content.begin(), m_content.end(), name, [](const ContentEntry& entry, std::string_view name)
 		{
 			return entry.name < name;
 		});
 
 		ContentEntry* entryPtr;
-		if (it == m_content.end() || it->name == name)
+		if (it == m_content.end() || it->name != name)
 			entryPtr = &*m_content.emplace(it);
 		else
 			entryPtr = &*it;
@@ -317,16 +339,20 @@ namespace Nz
 	template<typename F1, typename F2>
 	bool VirtualDirectory::SplitPath(std::string_view path, F1&& dirCB, F2&& lastCB)
 	{
-		std::size_t pos;
-		while ((pos = path.find_first_of("\\/:")) != std::string::npos)
+		std::string_view nextPart;
+		auto HandlePart = [&](std::string_view part)
 		{
-			if (!dirCB(path.substr(0, pos)))
+			if (part.empty())
+				return true; //< "a//b" == "a/b"
+
+			if (!nextPart.empty() && !CallbackReturn(dirCB, nextPart))
 				return false;
 
-			path = path.substr(pos + 1);
-		}
+			nextPart = part;
+			return true;
+		};
 
-		return CallbackReturn(lastCB, path);
+		return SplitStringAny(path, R"(\/:)", HandlePart) && CallbackReturn(lastCB, nextPart);
 	}
 }
 
