@@ -160,9 +160,9 @@ namespace Nz::ShaderAst
 		std::unordered_map<Uuid, std::size_t> moduleByUuid;
 		std::unordered_set<std::string> declaredExternalVar;
 		std::unordered_set<UInt64> usedBindingIndexes;
-		std::shared_ptr<Environment> builtinEnv;
-		std::shared_ptr<Environment> currentEnv;
 		std::shared_ptr<Environment> globalEnv;
+		std::shared_ptr<Environment> currentEnv;
+		std::shared_ptr<Environment> moduleEnv;
 		IdentifierList<ConstantValue> constantValues;
 		IdentifierList<FunctionData> functions;
 		IdentifierList<IdentifierData> aliases;
@@ -189,26 +189,22 @@ namespace Nz::ShaderAst
 
 		PreregisterIndices(module);
 
-		// Register builtin env
-		m_context->builtinEnv = std::make_shared<Environment>();
-		m_context->currentEnv = m_context->builtinEnv;
+		// Register global env
+		m_context->globalEnv = std::make_shared<Environment>();
+		m_context->currentEnv = m_context->globalEnv;
 		RegisterBuiltin();
 
-		m_context->globalEnv = std::make_shared<Environment>();
-		m_context->globalEnv->moduleId = clone->metadata->moduleId;
-		m_context->globalEnv->parentEnv = m_context->builtinEnv;
+		m_context->moduleEnv = std::make_shared<Environment>();
+		m_context->moduleEnv->moduleId = clone->metadata->moduleId;
+		m_context->moduleEnv->parentEnv = m_context->globalEnv;
 
 		for (std::size_t moduleId = 0; moduleId < clone->importedModules.size(); ++moduleId)
 		{
-			auto moduleEnv = std::make_shared<Environment>();
-			moduleEnv->moduleId = clone->importedModules[moduleId].module->metadata->moduleId;
-			moduleEnv->parentEnv = m_context->builtinEnv;
+			auto importedModuleEnv = std::make_shared<Environment>();
+			importedModuleEnv->moduleId = clone->importedModules[moduleId].module->metadata->moduleId;
+			importedModuleEnv->parentEnv = m_context->globalEnv;
 
-			m_context->currentEnv = moduleEnv;
-
-			// Previous modules are visibles
-			for (std::size_t previousModuleId = 0; previousModuleId < moduleId; ++previousModuleId)
-				RegisterModule(clone->importedModules[previousModuleId].identifier, previousModuleId);
+			m_context->currentEnv = importedModuleEnv;
 
 			auto& importedModule = clone->importedModules[moduleId];
 			importedModule.module->rootNode = SanitizeInternal(*importedModule.module->rootNode, error);
@@ -217,13 +213,13 @@ namespace Nz::ShaderAst
 
 			m_context->moduleByUuid[importedModule.module->metadata->moduleId] = moduleId;
 			auto& moduleData = m_context->modules.emplace_back();
-			moduleData.environment = std::move(moduleEnv);
+			moduleData.environment = std::move(importedModuleEnv);
 
 			m_context->currentEnv = m_context->globalEnv;
 			RegisterModule(importedModule.identifier, moduleId);
 		}
 
-		m_context->currentEnv = m_context->globalEnv;
+		m_context->currentEnv = m_context->moduleEnv;
 
 		clone->rootNode = SanitizeInternal(*module.rootNode, error);
 		if (!clone->rootNode)
@@ -1443,7 +1439,7 @@ namespace Nz::ShaderAst
 
 			// Load new module
 			auto moduleEnvironment = std::make_shared<Environment>();
-			moduleEnvironment->parentEnv = m_context->builtinEnv;
+			moduleEnvironment->parentEnv = m_context->globalEnv;
 
 			auto previousEnv = m_context->currentEnv;
 			m_context->currentEnv = moduleEnvironment;
