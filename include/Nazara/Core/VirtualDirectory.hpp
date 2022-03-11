@@ -18,28 +18,33 @@
 
 namespace Nz
 {
+	class VirtualDirectory;
+
+	using VirtualDirectoryPtr = std::shared_ptr<VirtualDirectory>;
+
 	class VirtualDirectory : public std::enable_shared_from_this<VirtualDirectory>
 	{
 		public:
 			struct DataPointerEntry;
+			struct DirectoryEntry;
 			struct FileContentEntry;
-			using PhysicalFileEntry = std::filesystem::path;
-			using VirtualDirectoryEntry = std::shared_ptr<VirtualDirectory>;
+			struct PhysicalDirectoryEntry;
+			struct PhysicalFileEntry;
 
-			using Entry = std::variant<DataPointerEntry, FileContentEntry, PhysicalFileEntry, VirtualDirectoryEntry>;
+			using Entry = std::variant<DataPointerEntry, DirectoryEntry, FileContentEntry, PhysicalDirectoryEntry, PhysicalFileEntry>;
 
-			inline VirtualDirectory(VirtualDirectoryEntry parentDirectory = nullptr);
-			inline VirtualDirectory(std::filesystem::path physicalPath, VirtualDirectoryEntry parentDirectory = nullptr);
+			inline VirtualDirectory(std::weak_ptr<VirtualDirectory> parentDirectory = {});
+			inline VirtualDirectory(std::filesystem::path physicalPath, std::weak_ptr<VirtualDirectory> parentDirectory = {});
 			VirtualDirectory(const VirtualDirectory&) = delete;
 			VirtualDirectory(VirtualDirectory&&) = delete;
 			~VirtualDirectory() = default;
 
-			template<typename F> void Foreach(F&& cb, bool includeDots = false);
+			template<typename F> void Foreach(F&& callback, bool includeDots = false);
 
-			inline bool GetEntry(std::string_view path, Entry* entry);
+			template<typename F> bool GetEntry(std::string_view path, F&& callback);
 
-			inline VirtualDirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryEntry directory);
-			inline VirtualDirectoryEntry& StoreDirectory(std::string_view path, std::filesystem::path directoryPath);
+			inline DirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
+			inline PhysicalDirectoryEntry& StoreDirectory(std::string_view path, std::filesystem::path directoryPath);
 			inline FileContentEntry& StoreFile(std::string_view path, std::vector<UInt8> file);
 			inline PhysicalFileEntry& StoreFile(std::string_view path, std::filesystem::path filePath);
 			inline DataPointerEntry& StoreFile(std::string_view path, const void* data, std::size_t size);
@@ -53,28 +58,44 @@ namespace Nz
 				std::size_t size;
 			};
 
+			struct DirectoryEntry
+			{
+				VirtualDirectoryPtr directory;
+			};
+
 			struct FileContentEntry
 			{
-				std::shared_ptr<std::vector<UInt8>> data;
+				std::vector<UInt8> data;
+			};
+
+			struct PhysicalDirectoryEntry
+			{
+				std::filesystem::path filePath;
+			};
+
+			struct PhysicalFileEntry
+			{
+				std::filesystem::path filePath;
 			};
 
 		private:
-			inline void EnsureDots();
-			inline bool GetEntryInternal(std::string_view name, Entry* entry);
+			template<typename F> bool GetEntryInternal(std::string_view name, F&& callback);
 			inline bool RetrieveDirectory(std::string_view path, bool allowCreation, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName);
 
-			inline VirtualDirectoryEntry& StoreDirectoryInternal(std::string name, std::filesystem::path directoryPath);
-			inline VirtualDirectoryEntry& StoreDirectoryInternal(std::string name, VirtualDirectoryEntry directory);
-			inline FileContentEntry& StoreFileInternal(std::string name, std::vector<UInt8> fileContent);
-			inline PhysicalFileEntry& StoreFileInternal(std::string name, std::filesystem::path filePath);
-			inline DataPointerEntry& StoreFileInternal(std::string name, const void* data, std::size_t size);
+			template<typename T> T& StoreInternal(std::string name, T value);
 
+			template<typename F, typename... Args> static bool CallbackReturn(F&& callback, Args&&... args);
 			template<typename F1, typename F2> static bool SplitPath(std::string_view path, F1&& dirCB, F2&& fileCB);
 
-			std::map<std::string /*name*/, Entry, std::less<>> m_content;
+			struct ContentEntry
+			{
+				std::string name;
+				Entry entry;
+			};
+
 			std::optional<std::filesystem::path> m_physicalPath;
-			VirtualDirectoryEntry m_parent;
-			bool m_wereDotRegistered;
+			std::vector<ContentEntry> m_content;
+			std::weak_ptr<VirtualDirectory> m_parent;
 	};
 }
 
