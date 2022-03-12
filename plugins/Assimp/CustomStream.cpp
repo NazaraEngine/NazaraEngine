@@ -23,7 +23,7 @@ void StreamFlush(aiFile* file)
 size_t StreamRead(aiFile* file, char* buffer, size_t size, size_t count)
 {
 	Stream* stream = reinterpret_cast<Stream*>(file->UserData);
-	return stream->Read(buffer, size * count);
+	return stream->Read(buffer, size * count) / size;
 }
 
 aiReturn StreamSeek(aiFile* file, size_t offset, aiOrigin origin)
@@ -71,12 +71,15 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 	FileIOUserdata* fileIOUserdata = reinterpret_cast<FileIOUserdata*>(fileIO->UserData);
 
 	bool isOriginalStream = (std::strcmp(filePath, fileIOUserdata->originalFilePath) == 0);
-	if (!isOriginalStream && strstr(filePath, StreamPath) != 0)
+	if (!isOriginalStream && strstr(filePath, StreamPath) != nullptr)
 		return nullptr;
 
 	aiUserData stream;
 	if (isOriginalStream)
+	{
 		stream = reinterpret_cast<aiUserData>(fileIOUserdata->originalStream);
+		fileIOUserdata->originalStream->SetCursorPos(0);
+	}
 	else
 	{
 		ErrorFlags errFlags(ErrorMode::ThrowExceptionDisabled, true);
