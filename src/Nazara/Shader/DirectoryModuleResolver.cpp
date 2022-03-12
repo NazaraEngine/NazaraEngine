@@ -49,7 +49,7 @@ namespace Nz
 		if (!shaderModule)
 			return {};
 
-		m_knownModules.emplace(fullPath, shaderModule);
+		m_knownModules.emplace(std::move(fullPath), shaderModule);
 
 		return shaderModule;
 	}

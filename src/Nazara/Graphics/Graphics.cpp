@@ -22,6 +22,10 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzsl.h>
 		};
 
+		const UInt8 r_lightDataModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightData.nzsl.h>
+		};
+
 		const UInt8 r_viewerDataModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzsl.h>
 		};
@@ -219,7 +223,26 @@ namespace Nz
 	{
 		m_shaderModuleResolver = std::make_shared<DirectoryModuleResolver>();
 		m_shaderModuleResolver->RegisterModuleFile("Engine/InstanceData", r_instanceDataModule, sizeof(r_instanceDataModule));
+		m_shaderModuleResolver->RegisterModuleFile("Engine/LightData", r_lightDataModule, sizeof(r_lightDataModule));
 		m_shaderModuleResolver->RegisterModuleFile("Engine/ViewerData", r_viewerDataModule, sizeof(r_viewerDataModule));
+
+#ifdef NAZARA_DEBUG
+		// Override embed files with dev files in debug
+		std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders/Modules";
+		if (std::filesystem::is_directory(modulePath))
+		{
+			for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(modulePath))
+			{
+				if (!dirEntry.is_regular_file())
+					continue;
+
+				std::filesystem::path filePath = std::filesystem::relative(dirEntry.path(), modulePath);
+				filePath.replace_extension();
+
+				m_shaderModuleResolver->RegisterModuleFile(filePath.generic_u8string(), dirEntry.path());
+			}
+		}
+#endif
 	}
 
 	void Graphics::SelectDepthStencilFormats()
