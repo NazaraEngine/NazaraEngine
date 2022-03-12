@@ -84,12 +84,13 @@ namespace Nz
 		assert(!path.empty());
 
 		VirtualDirectoryPtr currentDir = shared_from_this();
+		std::optional<std::filesystem::path> physicalPathBase;
 		std::vector<std::string> physicalDirectoryParts;
 		return SplitPath(path, [&](std::string_view dirName)
 		{
 			assert(!dirName.empty());
 
-			if (!physicalDirectoryParts.empty())
+			if (physicalPathBase)
 			{
 				// Special case when traversing directory
 				if (dirName == "..")
@@ -97,6 +98,8 @@ namespace Nz
 					// Don't allow to escape virtual directory
 					if (!physicalDirectoryParts.empty())
 						physicalDirectoryParts.pop_back();
+					else
+						physicalPathBase.reset();
 				}
 				else if (dirName != ".")
 					physicalDirectoryParts.emplace_back(dirName);
@@ -113,8 +116,10 @@ namespace Nz
 				}
 				else if (auto physDirEntry = std::get_if<PhysicalDirectoryEntry>(&entry))
 				{
+					assert(!physicalPathBase);
+
 					// We're traversing a physical directory
-					physicalDirectoryParts.emplace_back(dirName);
+					physicalPathBase = physDirEntry->filePath;
 					return true;
 				}
 
@@ -123,10 +128,9 @@ namespace Nz
 		}, 
 		[&](std::string_view name)
 		{
-			if (!physicalDirectoryParts.empty())
+			if (physicalPathBase)
 			{
-				assert(m_physicalPath);
-				std::filesystem::path filePath = *m_physicalPath;
+				std::filesystem::path filePath = *physicalPathBase;
 				for (const auto& part : physicalDirectoryParts)
 					filePath /= part;
 
