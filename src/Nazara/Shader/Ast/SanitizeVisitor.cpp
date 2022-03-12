@@ -1536,7 +1536,6 @@ namespace Nz::ShaderAst
 	StatementPtr SanitizeVisitor::Clone(MultiStatement& node)
 	{
 		auto clone = std::make_unique<MultiStatement>();
-		clone->sectionName = node.sectionName;
 		clone->statements.reserve(node.statements.size());
 
 		std::vector<StatementPtr>* previousList = m_context->currentStatementList;
