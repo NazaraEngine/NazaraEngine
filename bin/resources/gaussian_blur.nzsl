@@ -1,19 +1,7 @@
 [nzsl_version("1.0")]
 module;
 
-[layout(std140)]
-struct ViewerData
-{
-	projectionMatrix: mat4[f32],
-	invProjectionMatrix: mat4[f32],
-	viewMatrix: mat4[f32],
-	invViewMatrix: mat4[f32],
-	viewProjMatrix: mat4[f32],
-	invViewProjMatrix: mat4[f32],
-	renderTargetSize: vec2[f32],
-	invRenderTargetSize: vec2[f32],
-	eyePosition: vec3[f32]
-}
+import Engine/ViewerData;
 
 [layout(std140)]
 struct BlurData
