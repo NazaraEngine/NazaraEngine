@@ -51,6 +51,7 @@ fn main(input: In) -> FragOut
 )";
 
 		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
+		shaderModule = SanitizeModule(*shaderModule);
 
 		ExpectGLSL(*shaderModule, R"(
 void main()

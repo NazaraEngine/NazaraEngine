@@ -309,9 +309,10 @@ namespace Nz
 		Append(type.GetResultingValue());
 	}
 
-	void GlslWriter::Append(const ShaderAst::FunctionType& /*functionType*/)
+	void GlslWriter::Append(const ShaderAst::FunctionType& functionType)
 	{
-		throw std::runtime_error("unexpected function type");
+		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, functionType.funcIndex).name;
+		Append(targetName);
 	}
 
 	void GlslWriter::Append(const ShaderAst::IdentifierType& /*identifierType*/)
@@ -903,10 +904,9 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::CallFunctionExpression& node)
 	{
-		std::size_t functionIndex = std::get<ShaderAst::FunctionType>(GetExpressionType(*node.targetFunction)).funcIndex;
-		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, functionIndex).name;
+		node.targetFunction->Visit(*this);
 
-		Append(targetName, "(");
+		Append("(");
 		for (std::size_t i = 0; i < node.parameters.size(); ++i)
 		{
 			if (i != 0)
