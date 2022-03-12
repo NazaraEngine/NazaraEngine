@@ -225,6 +225,19 @@ namespace Nz::ShaderAst
 		if (!clone->rootNode)
 			return {};
 
+		// Remove unused statements of imported modules
+		for (std::size_t moduleId = 0; moduleId < clone->importedModules.size(); ++moduleId)
+		{
+			auto& moduleData = m_context->modules[moduleId];
+			auto& importedModule = clone->importedModules[moduleId];
+
+			if (moduleData.dependenciesVisitor)
+			{
+				moduleData.dependenciesVisitor->Resolve();
+				importedModule.module = EliminateUnusedPass(*importedModule.module, moduleData.dependenciesVisitor->GetUsage());
+			}
+		}
+
 		return clone;
 	}
 	
