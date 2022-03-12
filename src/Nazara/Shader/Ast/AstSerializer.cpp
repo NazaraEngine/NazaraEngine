@@ -347,8 +347,6 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(MultiStatement& node)
 	{
-		Value(node.sectionName);
-
 		Container(node.statements);
 		for (auto& statement : node.statements)
 			Node(statement);
