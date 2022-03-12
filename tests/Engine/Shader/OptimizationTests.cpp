@@ -19,7 +19,7 @@ void PropagateConstantAndExpect(std::string_view sourceCode, std::string_view ex
 {
 	Nz::ShaderAst::ModulePtr shaderModule;
 	REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
-	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule));
+	shaderModule = SanitizeModule(*shaderModule);
 	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::PropagateConstants(*shaderModule));
 
 	ExpectNZSL(*shaderModule, expectedOptimizedResult);
@@ -32,7 +32,7 @@ void EliminateUnusedAndExpect(std::string_view sourceCode, std::string_view expe
 
 	Nz::ShaderAst::ModulePtr shaderModule;
 	REQUIRE_NOTHROW(shaderModule = Nz::ShaderLang::Parse(sourceCode));
-	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule));
+	shaderModule = SanitizeModule(*shaderModule);
 	REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::EliminateUnusedPass(*shaderModule, depConfig));
 
 	ExpectNZSL(*shaderModule, expectedOptimizedResult);

@@ -272,3 +272,31 @@ void ExpectSPIRV(const Nz::ShaderAst::Module& shaderModule, std::string_view exp
 		}
 	}
 }
+
+Nz::ShaderAst::ModulePtr SanitizeModule(const Nz::ShaderAst::Module& module)
+{
+	Nz::ShaderAst::SanitizeVisitor::Options defaultOptions;
+	return SanitizeModule(module, defaultOptions);
+}
+
+Nz::ShaderAst::ModulePtr SanitizeModule(const Nz::ShaderAst::Module& module, const Nz::ShaderAst::SanitizeVisitor::Options& options)
+{
+	Nz::ShaderAst::ModulePtr shaderModule;
+	WHEN("We sanitize the shader")
+	{
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(module, options));
+	}
+
+	WHEN("We output NZSL and try to parse it again")
+	{
+		Nz::LangWriter langWriter;
+		std::string outputCode = langWriter.Generate((shaderModule) ? *shaderModule : module);
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*Nz::ShaderLang::Parse(outputCode), options));
+	}
+
+	// Ensure sanitization
+	if (!shaderModule)
+		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(module, options));
+
+	return shaderModule;
+}

@@ -11,7 +11,7 @@
 void ExpectOutput(Nz::ShaderAst::Module& shaderModule, const Nz::ShaderAst::SanitizeVisitor::Options& options, std::string_view expectedOptimizedResult)
 {
 	Nz::ShaderAst::ModulePtr sanitizedShader;
-	REQUIRE_NOTHROW(sanitizedShader = Nz::ShaderAst::Sanitize(shaderModule, options));
+	sanitizedShader = SanitizeModule(shaderModule, options);
 
 	ExpectNZSL(*sanitizedShader, expectedOptimizedResult);
 }
