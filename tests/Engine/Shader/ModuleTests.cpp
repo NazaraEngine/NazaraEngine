@@ -77,6 +77,8 @@ fn main(input: InputData) -> OutputData
 		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt));
 
 		ExpectGLSL(*shaderModule, R"(
+// Module ad3aed6e-0619-4a26-b5ce-abc2ec0836c4
+
 struct Data__181c45e9
 {
 	float value;
@@ -96,6 +98,9 @@ struct OutputData__181c45e9
 {
 	float value;
 };
+
+// Main file
+
 
 layout(std140) uniform _NzBinding_block
 {
@@ -277,15 +282,23 @@ fn main(input: InputData) -> OutputData
 		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt));
 
 		ExpectGLSL(*shaderModule, R"(
+// Module ad3aed6e-0619-4a26-b5ce-abc2ec0836c4
+
 struct Data__181c45e9
 {
 	float value;
 };
 
+// Module 7a548506-89e6-4944-897f-4f695a8bca01
+
+
 struct Block__e528265d
 {
 	Data__181c45e9 data;
 };
+
+// Module e66c6e98-fc37-4390-a7e1-c81508ff8e49
+
 struct InputData__26cce136
 {
 	float value;
@@ -295,6 +308,9 @@ struct OutputData__26cce136
 {
 	float value;
 };
+
+// Main file
+
 
 
 layout(std140) uniform _NzBinding_block

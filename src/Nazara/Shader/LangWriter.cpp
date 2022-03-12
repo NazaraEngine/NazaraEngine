@@ -1184,13 +1184,7 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::MultiStatement& node)
 	{
-		if (!node.sectionName.empty())
-			AppendComment(node.sectionName);
-
 		AppendStatementList(node.statements);
-
-		if (!node.sectionName.empty())
-			AppendComment("End: " + node.sectionName);
 	}
 
 	void LangWriter::Visit(ShaderAst::NoOpStatement& /*node*/)
