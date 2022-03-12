@@ -31,6 +31,7 @@ external
 )";
 
 		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(nzslSource);
+		shaderModule = SanitizeModule(*shaderModule);
 
 		SECTION("Nested AccessMember")
 		{

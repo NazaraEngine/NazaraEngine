@@ -2,6 +2,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Shader/DirectoryModuleResolver.hpp>
+#include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
@@ -74,7 +75,7 @@ fn main(input: InputData) -> OutputData
 		Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
 		sanitizeOpt.moduleResolver = directoryModuleResolver;
 
-		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt));
+		shaderModule = SanitizeModule(*shaderModule, sanitizeOpt);
 
 		ExpectGLSL(*shaderModule, R"(
 // Module ad3aed6e-0619-4a26-b5ce-abc2ec0836c4
@@ -279,7 +280,7 @@ fn main(input: InputData) -> OutputData
 		Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
 		sanitizeOpt.moduleResolver = directoryModuleResolver;
 
-		REQUIRE_NOTHROW(shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt));
+		shaderModule = SanitizeModule(*shaderModule, sanitizeOpt);
 
 		ExpectGLSL(*shaderModule, R"(
 // Module ad3aed6e-0619-4a26-b5ce-abc2ec0836c4

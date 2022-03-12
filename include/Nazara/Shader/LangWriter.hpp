@@ -95,6 +95,7 @@ namespace Nz
 
 			void RegisterAlias(std::size_t aliasIndex, std::string aliasName);
 			void RegisterConstant(std::size_t constantIndex, std::string constantName);
+			void RegisterFunction(std::size_t funcIndex, std::string functionName);
 			void RegisterStruct(std::size_t structIndex, std::string structName);
 			void RegisterVariable(std::size_t varIndex, std::string varName);
 
@@ -107,10 +108,12 @@ namespace Nz
 			void Visit(ShaderAst::AliasValueExpression& node) override;
 			void Visit(ShaderAst::AssignExpression& node) override;
 			void Visit(ShaderAst::BinaryExpression& node) override;
+			void Visit(ShaderAst::CallFunctionExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
 			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConstantValueExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
+			void Visit(ShaderAst::IdentifierExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::StructTypeExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;

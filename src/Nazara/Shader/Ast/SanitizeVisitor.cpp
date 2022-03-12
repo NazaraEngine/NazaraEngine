@@ -714,10 +714,48 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(SwizzleExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<SwizzleExpression>(AstCloner::Clone(node));
-		Validate(*clone);
+		auto expression = CloneExpression(MandatoryExpr(node.expression));
 
-		return clone;
+		const ExpressionType& exprType = GetExpressionType(*expression);
+		if (m_context->options.removeScalarSwizzling && IsPrimitiveType(exprType))
+		{
+			for (std::size_t i = 0; i < node.componentCount; ++i)
+			{
+				if (node.components[i] != 0)
+					throw AstError{ "invalid swizzle" };
+
+			}
+			if (node.componentCount == 1)
+				return expression; //< ignore this swizzle (a.x == a)
+
+			// Use a Cast expression to replace swizzle
+			expression = CacheResult(std::move(expression)); //< Since we are going to use a value multiple times, cache it if required
+
+			PrimitiveType baseType;
+			if (IsVectorType(exprType))
+				baseType = std::get<VectorType>(exprType).type;
+			else
+				baseType = std::get<PrimitiveType>(exprType);
+
+			auto cast = std::make_unique<CastExpression>();
+			cast->targetType = ExpressionType{ VectorType{ node.componentCount, baseType } };
+			for (std::size_t j = 0; j < node.componentCount; ++j)
+				cast->expressions[j] = CloneExpression(expression);
+
+			Validate(*cast);
+
+			return cast;
+		}
+		else
+		{
+			auto clone = std::make_unique<SwizzleExpression>();
+			clone->componentCount = node.componentCount;
+			clone->components = node.components;
+			clone->expression = std::move(expression);
+			Validate(*clone);
+
+			return clone;
+		}
 	}
 
 	ExpressionPtr SanitizeVisitor::Clone(UnaryExpression& node)
@@ -1787,7 +1825,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::CacheResult(ExpressionPtr expression)
 	{
-		// No need to cache LValues (variables/constants) (TODO: Improve this, as constants doesn't need to be cached as well)
+		// No need to cache LValues (variables/constants) (TODO: Improve this, as constants don't need to be cached as well)
 		if (GetExpressionCategory(*expression) == ExpressionCategory::LValue)
 			return expression;
 
@@ -2940,6 +2978,9 @@ namespace Nz::ShaderAst
 		std::size_t componentCount;
 		if (IsPrimitiveType(exprType))
 		{
+			if (m_context->options.removeScalarSwizzling)
+				throw AstError{ "internal error" }; //< scalar swizzling should have been removed by then
+
 			baseType = std::get<PrimitiveType>(exprType);
 			componentCount = 1;
 		}
