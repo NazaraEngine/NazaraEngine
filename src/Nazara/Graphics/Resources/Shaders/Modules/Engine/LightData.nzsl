@@ -1,0 +1,25 @@
+[nzsl_version("1.0")]
+module;
+
+option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
+
+[export]
+[layout(std140)]
+struct Light
+{
+	type: i32,
+	color: vec4[f32],
+	factor: vec2[f32],
+	parameter1: vec4[f32],
+	parameter2: vec4[f32],
+	parameter3: vec4[f32],
+	hasShadowMapping: u32
+}
+
+[export]
+[layout(std140)]
+struct LightData
+{
+	lights: array[Light, MaxLightCount],
+	lightCount: u32,
+}

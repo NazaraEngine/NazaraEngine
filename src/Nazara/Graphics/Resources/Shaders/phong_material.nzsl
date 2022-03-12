@@ -2,6 +2,7 @@
 module;
 
 import Engine/InstanceData;
+import Engine/LightData;
 import Engine/ViewerData;
 
 // Basic material options
@@ -14,8 +15,6 @@ option HasEmissiveTexture: bool = false;
 option HasHeightTexture: bool = false;
 option HasNormalTexture: bool = false;
 option HasSpecularTexture: bool = false;
-
-option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
 
 // Billboard related options
 option Billboard: bool = false;
@@ -54,25 +53,6 @@ struct MaterialSettings
 const DirectionalLight = 0;
 const PointLight = 1;
 const SpotLight = 2;
-
-[layout(std140)]
-struct Light
-{
-	type: i32,
-	color: vec4[f32],
-	factor: vec2[f32],
-	parameter1: vec4[f32],
-	parameter2: vec4[f32],
-	parameter3: vec4[f32],
-	hasShadowMapping: u32
-}
-
-[layout(std140)]
-struct LightData
-{
-	lights: array[Light, MaxLightCount],
-	lightCount: u32,
-}
 
 external
 {
