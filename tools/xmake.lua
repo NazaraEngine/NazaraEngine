@@ -110,8 +110,13 @@ if has_config("shadernodes") then
 			add_cxflags("-fPIC")
 		end
 
+		if has_config("unitybuild") then
+			add_rules("c++.unity_build")
+		end
+
 		add_includedirs("../src")
 		add_headerfiles("../src/ShaderNode/**.hpp", "../src/ShaderNode/**.inl")
 		add_files("../src/ShaderNode/**.cpp")
+		add_files("../src/ShaderNode/Previews/PreviewValues.cpp", {unity_ignored = true}) -- fixes an issue with MSVC and operator*
 
 end
