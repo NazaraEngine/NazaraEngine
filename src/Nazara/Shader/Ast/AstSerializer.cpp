@@ -340,9 +340,7 @@ namespace Nz::ShaderAst
 
 	void AstSerializerBase::Serialize(ImportStatement& node)
 	{
-		Container(node.modulePath);
-		for (auto& path : node.modulePath)
-			Value(path);
+		Value(node.moduleName);
 	}
 
 	void AstSerializerBase::Serialize(MultiStatement& node)
@@ -385,6 +383,7 @@ namespace Nz::ShaderAst
 	
 	void ShaderAstSerializer::SerializeModule(ModulePtr& module)
 	{
+		m_stream << module->metadata->moduleName;
 		m_stream << module->metadata->moduleId;
 		m_stream << module->metadata->shaderLangVersion;
 
@@ -604,6 +603,7 @@ namespace Nz::ShaderAst
 	void ShaderAstUnserializer::SerializeModule(ModulePtr& module)
 	{
 		std::shared_ptr<Module::Metadata> metadata = std::make_shared<Module::Metadata>();
+		m_stream >> metadata->moduleName;
 		m_stream >> metadata->moduleId;
 		m_stream >> metadata->shaderLangVersion;
 

@@ -1448,27 +1448,9 @@ namespace Nz::ShaderAst
 		if (!m_context->options.moduleResolver)
 			return static_unique_pointer_cast<ImportStatement>(AstCloner::Clone(node));
 
-		auto ModulePathAsString = [&]() -> std::string
-		{
-			std::ostringstream ss;
-
-			bool first = true;
-			for (const std::string& part : node.modulePath)
-			{
-				if (!first)
-					ss << "/";
-
-				ss << part;
-
-				first = false;
-			}
-
-			return ss.str();
-		};
-
-		ModulePtr targetModule = m_context->options.moduleResolver->Resolve(node.modulePath);
+		ModulePtr targetModule = m_context->options.moduleResolver->Resolve(node.moduleName);
 		if (!targetModule)
-			throw AstError{ "module " + ModulePathAsString() + " not found" };
+			throw AstError{ "module " + node.moduleName + " not found" };
 
 		std::size_t moduleIndex;
 
@@ -1500,7 +1482,7 @@ namespace Nz::ShaderAst
 			std::string error;
 			sanitizedModule->rootNode = SanitizeInternal(*targetModule->rootNode, &error);
 			if (!sanitizedModule)
-				throw AstError{ "module " + ModulePathAsString() + " compilation failed: " + error };
+				throw AstError{ "module " + node.moduleName + " compilation failed: " + error };
 
 			moduleIndex = m_context->modules.size();
 

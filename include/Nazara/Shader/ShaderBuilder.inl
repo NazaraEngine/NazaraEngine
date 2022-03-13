@@ -365,10 +365,10 @@ namespace Nz::ShaderBuilder
 		return identifierNode;
 	}
 
-	inline ShaderAst::ImportStatementPtr Impl::Import::operator()(std::vector<std::string> modulePath) const
+	inline ShaderAst::ImportStatementPtr Impl::Import::operator()(std::string moduleName) const
 	{
 		auto importNode = std::make_unique<ShaderAst::ImportStatement>();
-		importNode->modulePath = std::move(modulePath);
+		importNode->moduleName = std::move(moduleName);
 
 		return importNode;
 	}

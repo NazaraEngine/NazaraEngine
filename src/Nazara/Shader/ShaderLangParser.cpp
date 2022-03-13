@@ -335,17 +335,12 @@ namespace Nz::ShaderLang
 		if (!moduleId)
 			moduleId = Uuid::Generate();
 
-		auto module = std::make_shared<ShaderAst::Module>(*moduleVersion, *moduleId);
-
-		if (Peek().type == TokenType::Identifier)
+		if (m_context->module)
 		{
+			std::string moduleName = ParseModuleName();
+			auto module = std::make_shared<ShaderAst::Module>(*moduleVersion, std::move(moduleName), *moduleId);
+
 			// Imported module
-			if (!m_context->module)
-				throw UnexpectedToken{}; //< "unexpected token before module declaration"
-
-			const std::string& identifier = std::get<std::string>(Peek().data);
-			Consume();
-
 			Expect(Advance(), TokenType::OpenCurlyBracket);
 
 			m_context->parsingImportedModule = true;
@@ -364,10 +359,17 @@ namespace Nz::ShaderLang
 
 			auto& importedModule = m_context->module->importedModules.emplace_back();
 			importedModule.module = std::move(module);
-			importedModule.identifier = identifier;
+			importedModule.identifier = importedModule.module->metadata->moduleName;
 		}
 		else
 		{
+			std::string moduleName;
+			if (Peek().type == TokenType::Identifier)
+				moduleName = ParseModuleName();
+
+			auto module = std::make_shared<ShaderAst::Module>(*moduleVersion, std::move(moduleName), *moduleId);
+
+			// First declaration
 			Expect(Advance(), TokenType::Semicolon);
 
 			if (m_context->module)
@@ -732,19 +734,11 @@ namespace Nz::ShaderLang
 	{
 		Expect(Advance(), TokenType::Import);
 
-		std::vector<std::string> modulePath;
-		modulePath.push_back(ParseIdentifierAsName());
-
-		while (Peek().type == TokenType::Divide) //< /
-		{
-			Consume();
-
-			modulePath.push_back(ParseIdentifierAsName());
-		}
+		std::string moduleName = ParseModuleName();
 
 		Expect(Advance(), TokenType::Semicolon);
 
-		return ShaderBuilder::Import(std::move(modulePath));
+		return ShaderBuilder::Import(std::move(moduleName));
 	}
 
 	ShaderAst::StatementPtr Parser::ParseOptionDeclaration()
@@ -1369,6 +1363,19 @@ namespace Nz::ShaderLang
 	{
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		return std::get<std::string>(identifierToken.data);
+	}
+
+	std::string Parser::ParseModuleName()
+	{
+		std::string moduleName = ParseIdentifierAsName();
+		while (Peek().type == TokenType::Dot)
+		{
+			Consume();
+			moduleName += '.';
+			moduleName += ParseIdentifierAsName();
+		}
+
+		return moduleName;
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseType()

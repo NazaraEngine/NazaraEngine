@@ -414,7 +414,7 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstStatementVisitor& visitor) override;
 
-		std::vector<std::string> modulePath;
+		std::string moduleName;
 	};
 
 	struct NAZARA_SHADER_API MultiStatement : Statement

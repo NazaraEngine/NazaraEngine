@@ -12,7 +12,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 const char barModuleSource[] = R"(
 [nzsl_version("1.0")]
 [uuid("4BB09DEE-F70A-442E-859F-E8F2F3F8583D")]
-module;
+module Test.Bar;
 
 fn dummy() {}
 
@@ -26,9 +26,9 @@ struct Bar
 const char dataModuleSource[] = R"(
 [nzsl_version("1.0")]
 [uuid("E49DC9AD-469C-462C-9719-A6F012372029")]
-module;
+module Test.Data;
 
-import Test/Bar;
+import Test.Bar;
 
 struct Foo {}
 
@@ -47,8 +47,8 @@ const char shaderSource[] = R"(
 [nzsl_version("1.0")]
 module;
 
-import Test/Data;
-import Test/Bar;
+import Test.Data;
+import Test.Bar;
 
 option red: bool = false;
 
@@ -140,9 +140,9 @@ int main()
 		return __LINE__;
 	}
 
-	auto directoryModuleResolver = std::make_shared<Nz::DirectoryModuleResolver>();
-	directoryModuleResolver->RegisterModuleFile("Test/Bar", barModuleSource, sizeof(barModuleSource));
-	directoryModuleResolver->RegisterModuleFile("Test/Data", dataModuleSource, sizeof(dataModuleSource));
+	auto directoryModuleResolver = std::make_shared<Nz::FilesystemModuleResolver>();
+	directoryModuleResolver->RegisterModule(std::string_view(barModuleSource));
+	directoryModuleResolver->RegisterModule(std::string_view(dataModuleSource));
 
 	Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
 	sanitizeOpt.moduleResolver = directoryModuleResolver;

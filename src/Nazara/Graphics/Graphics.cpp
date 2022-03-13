@@ -221,27 +221,18 @@ namespace Nz
 
 	void Graphics::RegisterShaderModules()
 	{
-		m_shaderModuleResolver = std::make_shared<DirectoryModuleResolver>();
-		m_shaderModuleResolver->RegisterModuleFile("Engine/InstanceData", r_instanceDataModule, sizeof(r_instanceDataModule));
-		m_shaderModuleResolver->RegisterModuleFile("Engine/LightData", r_lightDataModule, sizeof(r_lightDataModule));
-		m_shaderModuleResolver->RegisterModuleFile("Engine/ViewerData", r_viewerDataModule, sizeof(r_viewerDataModule));
+		m_shaderModuleResolver = std::make_shared<FilesystemModuleResolver>();
+		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(r_instanceDataModule), sizeof(r_instanceDataModule)));
+		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(r_lightDataModule), sizeof(r_lightDataModule)));
+		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(r_viewerDataModule), sizeof(r_viewerDataModule)));
+
+		if (std::filesystem::path shaderPath = "Shaders/Modules"; std::filesystem::is_directory(shaderPath))
+			m_shaderModuleResolver->RegisterModuleDirectory(shaderPath);
 
 #ifdef NAZARA_DEBUG
 		// Override embed files with dev files in debug
-		std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders/Modules";
-		if (std::filesystem::is_directory(modulePath))
-		{
-			for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(modulePath))
-			{
-				if (!dirEntry.is_regular_file())
-					continue;
-
-				std::filesystem::path filePath = std::filesystem::relative(dirEntry.path(), modulePath);
-				filePath.replace_extension();
-
-				m_shaderModuleResolver->RegisterModuleFile(filePath.generic_u8string(), dirEntry.path());
-			}
-		}
+		if (std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders/Modules"; std::filesystem::is_directory(modulePath))
+			m_shaderModuleResolver->RegisterModuleDirectory(modulePath);
 #endif
 	}
 

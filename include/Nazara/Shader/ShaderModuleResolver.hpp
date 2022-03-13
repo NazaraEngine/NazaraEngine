@@ -28,7 +28,7 @@ namespace Nz
 			ShaderModuleResolver(ShaderModuleResolver&&) = default;
 			virtual ~ShaderModuleResolver();
 
-			virtual ShaderAst::ModulePtr Resolve(const std::vector<std::string>& /*modulePath*/) = 0;
+			virtual ShaderAst::ModulePtr Resolve(const std::string& /*moduleName*/) = 0;
 
 			ShaderModuleResolver& operator=(const ShaderModuleResolver&) = default;
 			ShaderModuleResolver& operator=(ShaderModuleResolver&&) = default;
