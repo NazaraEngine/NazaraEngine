@@ -35,6 +35,10 @@ local modules = {
 				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.hpp")
 				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.cpp")
 			end
+			
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
 		end
 	},
 	OpenGLRenderer = {
@@ -50,15 +54,29 @@ local modules = {
 			if not is_plat("linux") then
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
+			
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
 		end
 	},
 	Physics2D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"chipmunk2d"}
+		Packages = {"chipmunk2d"},
+		Custom = function()
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
+		end
 	},
 	Physics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"entt", "newtondynamics"}
+		Packages = {"entt", "newtondynamics"},
+		Custom = function()
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
+		end
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
@@ -75,7 +93,12 @@ local modules = {
 		end
 	},
 	Renderer = {
-		Deps = {"NazaraPlatform", "NazaraShader"}
+		Deps = {"NazaraPlatform", "NazaraShader"},
+		Custom = function()
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
+		end
 	},
 	Shader = {
 		Deps = {"NazaraUtility"}
@@ -97,11 +120,20 @@ local modules = {
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_MACOS_MVK")
 			end
+
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
 		end
 	},
 	Widgets = {
 		Deps = {"NazaraGraphics"},
-		Packages = {"entt", "kiwisolver"}
+		Packages = {"entt", "kiwisolver"},
+		Custom = function()
+			if has_config("unitybuild") then
+				add_rules("c++.unity_build")
+			end
+		end
 	}
 }
 
@@ -113,6 +145,12 @@ option("usepch")
 	set_default(false)
 	set_showmenu(true)
 	set_description("Use precompiled headers to speedup compilation")
+option_end()
+
+option("unitybuild")
+	set_default(false)
+	set_showmenu(true)
+	set_description("Build the engine using unity build")
 option_end()
 
 set_project("NazaraEngine")
