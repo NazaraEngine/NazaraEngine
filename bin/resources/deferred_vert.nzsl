@@ -1,8 +1,8 @@
 [nzsl_version("1.0")]
 module;
 
-import Engine/InstanceData;
-import Engine/ViewerData;
+import Engine.InstanceData;
+import Engine.ViewerData;
 
 [layout(std140)]
 struct BasicSettings

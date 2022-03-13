@@ -30,7 +30,7 @@
 #define NAZARA_GLOBAL_SHADER_HPP
 
 #include <Nazara/Shader/Config.hpp>
-#include <Nazara/Shader/DirectoryModuleResolver.hpp>
+#include <Nazara/Shader/FilesystemModuleResolver.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Shader.hpp>

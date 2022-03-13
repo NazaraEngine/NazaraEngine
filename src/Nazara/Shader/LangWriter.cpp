@@ -1144,20 +1144,7 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::ImportStatement& node)
 	{
-		Append("import ");
-
-		bool first = true;
-		for (const std::string& path : node.modulePath)
-		{
-			if (!first)
-				Append("/");
-
-			Append(path);
-
-			first = false;
-		}
-
-		AppendLine(";");
+		Append("import ", node.moduleName, ";");
 	}
 
 	void LangWriter::Visit(ShaderAst::IntrinsicExpression& node)
