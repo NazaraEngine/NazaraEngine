@@ -113,6 +113,7 @@ namespace Nz
 			void Visit(ShaderAst::ConditionalExpression& node) override;
 			void Visit(ShaderAst::ConstantValueExpression& node) override;
 			void Visit(ShaderAst::ConstantExpression& node) override;
+			void Visit(ShaderAst::FunctionExpression& node) override;
 			void Visit(ShaderAst::IdentifierExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::StructTypeExpression& node) override;

@@ -969,6 +969,11 @@ namespace Nz
 		AppendIdentifier(m_currentState->constants, node.constantId);
 	}
 
+	void LangWriter::Visit(ShaderAst::FunctionExpression& node)
+	{
+		Append(Retrieve(m_currentState->functions, node.funcId).name);
+	}
+
 	void LangWriter::Visit(ShaderAst::IdentifierExpression& node)
 	{
 		Append(node.identifier);
