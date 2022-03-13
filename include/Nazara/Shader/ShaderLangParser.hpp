@@ -121,6 +121,7 @@ namespace Nz::ShaderLang
 
 			ShaderAst::AttributeType ParseIdentifierAsAttributeType();
 			const std::string& ParseIdentifierAsName();
+			std::string ParseModuleName();
 			ShaderAst::ExpressionPtr ParseType();
 
 			static int GetTokenPrecedence(TokenType token);

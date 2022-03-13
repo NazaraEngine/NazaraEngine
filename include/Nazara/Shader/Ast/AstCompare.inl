@@ -56,6 +56,9 @@ namespace Nz::ShaderAst
 		if (!Compare(lhs.moduleId, rhs.moduleId))
 			return false;
 
+		if (!Compare(lhs.moduleName, rhs.moduleName))
+			return false;
+
 		if (!Compare(lhs.shaderLangVersion, rhs.shaderLangVersion))
 			return false;
 
@@ -601,7 +604,7 @@ namespace Nz::ShaderAst
 
 	bool Compare(const ImportStatement& lhs, const ImportStatement& rhs)
 	{
-		if (!Compare(lhs.modulePath, rhs.modulePath))
+		if (!Compare(lhs.moduleName, rhs.moduleName))
 			return false;
 
 		return true;

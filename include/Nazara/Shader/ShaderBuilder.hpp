@@ -139,7 +139,7 @@ namespace Nz::ShaderBuilder
 
 		struct Import
 		{
-			inline ShaderAst::ImportStatementPtr operator()(std::vector<std::string> modulePath) const;
+			inline ShaderAst::ImportStatementPtr operator()(std::string modulePath) const;
 		};
 
 		struct Intrinsic

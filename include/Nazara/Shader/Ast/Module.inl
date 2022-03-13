@@ -8,10 +8,11 @@
 
 namespace Nz::ShaderAst
 {
-	inline Module::Module(UInt32 shaderLangVersion, const Uuid& uuid)
+	inline Module::Module(UInt32 shaderLangVersion, std::string moduleName, const Uuid& uuid)
 	{
 		auto mutMetadata = std::make_shared<Metadata>();
 		mutMetadata->moduleId = uuid;
+		mutMetadata->moduleName = std::move(moduleName);
 		mutMetadata->shaderLangVersion = shaderLangVersion;
 
 		metadata = std::move(mutMetadata);

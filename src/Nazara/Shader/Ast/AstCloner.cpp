@@ -228,7 +228,7 @@ namespace Nz::ShaderAst
 	StatementPtr AstCloner::Clone(ImportStatement& node)
 	{
 		auto clone = std::make_unique<ImportStatement>();
-		clone->modulePath = node.modulePath;
+		clone->moduleName = node.moduleName;
 
 		return clone;
 	}

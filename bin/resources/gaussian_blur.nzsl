@@ -1,7 +1,7 @@
 [nzsl_version("1.0")]
 module;
 
-import Engine/ViewerData;
+import Engine.ViewerData;
 
 [layout(std140)]
 struct BlurData

@@ -1,7 +1,7 @@
 #include <Engine/Shader/ShaderUtils.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Shader/DirectoryModuleResolver.hpp>
+#include <Nazara/Shader/FilesystemModuleResolver.hpp>
 #include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
@@ -17,7 +17,7 @@ TEST_CASE("Modules", "[Shader]")
 		std::string_view importedSource = R"(
 [nzsl_version("1.0")]
 [uuid("ad3aed6e-0619-4a26-b5ce-abc2ec0836c4")]
-module;
+module SimpleModule;
 
 [layout(std140)]
 struct Data
@@ -69,8 +69,8 @@ fn main(input: InputData) -> OutputData
 
 		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(shaderSource);
 
-		auto directoryModuleResolver = std::make_shared<Nz::DirectoryModuleResolver>();
-		directoryModuleResolver->RegisterModuleFile("SimpleModule", importedSource.data(), importedSource.size());
+		auto directoryModuleResolver = std::make_shared<Nz::FilesystemModuleResolver>();
+		directoryModuleResolver->RegisterModule(importedSource);
 
 		Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
 		sanitizeOpt.moduleResolver = directoryModuleResolver;
@@ -202,7 +202,7 @@ OpFunctionEnd)");
 		std::string_view dataModule = R"(
 [nzsl_version("1.0")]
 [uuid("ad3aed6e-0619-4a26-b5ce-abc2ec0836c4")]
-module;
+module Modules.Data;
 
 fn dummy() {}
 
@@ -217,9 +217,9 @@ struct Data
 		std::string_view blockModule = R"(
 [nzsl_version("1.0")]
 [uuid("7a548506-89e6-4944-897f-4f695a8bca01")]
-module;
+module Modules.Block;
 
-import Modules/Data;
+import Modules.Data;
 
 [export]
 [layout(std140)]
@@ -234,7 +234,7 @@ struct Unused {}
 		std::string_view inputOutputModule = R"(
 [nzsl_version("1.0")]
 [uuid("e66c6e98-fc37-4390-a7e1-c81508ff8e49")]
-module;
+module Modules.InputOutput;
 
 [export]
 struct InputData
@@ -253,8 +253,8 @@ struct OutputData
 [nzsl_version("1.0")]
 module;
 
-import Modules/Block;
-import Modules/InputOutput;
+import Modules.Block;
+import Modules.InputOutput;
 
 external
 {
@@ -272,10 +272,10 @@ fn main(input: InputData) -> OutputData
 		
 		Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(shaderSource);
 
-		auto directoryModuleResolver = std::make_shared<Nz::DirectoryModuleResolver>();
-		directoryModuleResolver->RegisterModuleFile("Modules/Data", dataModule.data(), dataModule.size());
-		directoryModuleResolver->RegisterModuleFile("Modules/Block", blockModule.data(), blockModule.size());
-		directoryModuleResolver->RegisterModuleFile("Modules/InputOutput", inputOutputModule.data(), inputOutputModule.size());
+		auto directoryModuleResolver = std::make_shared<Nz::FilesystemModuleResolver>();
+		directoryModuleResolver->RegisterModule(dataModule);
+		directoryModuleResolver->RegisterModule(blockModule);
+		directoryModuleResolver->RegisterModule(inputOutputModule);
 
 		Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
 		sanitizeOpt.moduleResolver = directoryModuleResolver;
