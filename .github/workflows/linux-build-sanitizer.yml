@@ -79,7 +79,7 @@ jobs:
 
     # Configure xmake with honggfuzz to build the engine
     - name: Configure xmake with honggfuzz
-      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=fuzz --verbose --toolchain=hfuzz-clang
+      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=fuzz --verbose --toolchain=hfuzz-clang
 
     # Build the engine
     - name: Build Nazara

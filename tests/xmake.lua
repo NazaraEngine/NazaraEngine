@@ -24,16 +24,20 @@ if has_config("tests") then
 	add_files("Engine/**.cpp")
 	add_includedirs(".")
 
+	if has_config("unitybuild") then
+		add_rules("c++.unity_build")
+	end
+
 	target("NazaraClientUnitTests")
 		add_deps("NazaraAudio")
-		add_files("main_client.cpp")
+		add_files("main_client.cpp", {unity_ignored = true})
 
 		if has_config("usepch") then
 			set_pcxxheader("Engine/ClientModules.hpp")
 		end
 
 	target("NazaraUnitTests")
-		add_files("main.cpp")
+		add_files("main.cpp", {unity_ignored = true})
 		remove_headerfiles("Engine/Audio/**")
 		remove_files("Engine/Audio/**")
 
