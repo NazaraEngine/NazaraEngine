@@ -102,6 +102,7 @@ namespace Nz
 			void Visit(ShaderAst::CallFunctionExpression& node) override;
 			void Visit(ShaderAst::CastExpression& node) override;
 			void Visit(ShaderAst::ConstantValueExpression& node) override;
+			void Visit(ShaderAst::FunctionExpression& node) override;
 			void Visit(ShaderAst::IntrinsicExpression& node) override;
 			void Visit(ShaderAst::SwizzleExpression& node) override;
 			void Visit(ShaderAst::VariableValueExpression& node) override;
