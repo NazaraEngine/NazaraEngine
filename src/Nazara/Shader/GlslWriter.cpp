@@ -967,7 +967,12 @@ namespace Nz
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, node.value);
 	}
-	
+
+	void GlslWriter::Visit(ShaderAst::FunctionExpression& node)
+	{
+		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, node.funcId).name;
+		Append(targetName);
+	}
 	
 	void GlslWriter::Visit(ShaderAst::IntrinsicExpression& node)
 	{
