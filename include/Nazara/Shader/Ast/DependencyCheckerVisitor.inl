@@ -12,6 +12,11 @@ namespace Nz::ShaderAst
 		return m_resolvedUsage;
 	}
 
+	inline void DependencyCheckerVisitor::MarkFunctionAsUsed(std::size_t funcIndex)
+	{
+		m_globalUsage.usedFunctions.UnboundedSet(funcIndex);
+	}
+
 	inline void DependencyCheckerVisitor::MarkStructAsUsed(std::size_t structIndex)
 	{
 		m_globalUsage.usedStructs.UnboundedSet(structIndex);

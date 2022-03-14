@@ -14,6 +14,15 @@ namespace Nz::ShaderAst
 		statement.Visit(*this);
 	}
 
+	void AstExportVisitor::Visit(DeclareFunctionStatement& node)
+	{
+		if (!node.isExported.HasValue() || !node.isExported.GetResultingValue())
+			return;
+
+		if (m_callbacks->onExportedFunc)
+			m_callbacks->onExportedFunc(node);
+	}
+
 	void AstExportVisitor::Visit(DeclareStructStatement& node)
 	{
 		if (!node.isExported.HasValue() || !node.isExported.GetResultingValue())

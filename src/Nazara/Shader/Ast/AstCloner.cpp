@@ -124,6 +124,7 @@ namespace Nz::ShaderAst
 		clone->earlyFragmentTests = Clone(node.earlyFragmentTests);
 		clone->entryStage = Clone(node.entryStage);
 		clone->funcIndex = node.funcIndex;
+		clone->isExported = Clone(node.isExported);
 		clone->name = node.name;
 		clone->returnType = Clone(node.returnType);
 

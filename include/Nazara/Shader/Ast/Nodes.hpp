@@ -335,6 +335,7 @@ namespace Nz::ShaderAst
 		ExpressionValue<ShaderStageType> entryStage;
 		ExpressionValue<ExpressionType> returnType;
 		ExpressionValue<bool> earlyFragmentTests;
+		ExpressionValue<bool> isExported;
 	};
 
 	struct NAZARA_SHADER_API DeclareOptionStatement : Statement

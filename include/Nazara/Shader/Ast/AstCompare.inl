@@ -498,6 +498,9 @@ namespace Nz::ShaderAst
 		if (!Compare(lhs.entryStage, rhs.entryStage))
 			return false;
 
+		if (!Compare(lhs.isExported, rhs.isExported))
+			return false;
+
 		if (!Compare(lhs.name, rhs.name))
 			return false;
 

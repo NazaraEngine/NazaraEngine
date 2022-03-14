@@ -194,8 +194,7 @@ namespace Nz
 
 	void LangWriter::Append(const ShaderAst::FunctionType& functionType)
 	{
-		const std::string& targetName = Retrieve(m_currentState->functions, functionType.funcIndex).name;
-		Append(targetName);
+		throw std::runtime_error("unexpected function type");
 	}
 
 	void LangWriter::Append(const ShaderAst::IdentifierType& identifierType)
@@ -971,7 +970,7 @@ namespace Nz
 
 	void LangWriter::Visit(ShaderAst::FunctionExpression& node)
 	{
-		Append(Retrieve(m_currentState->functions, node.funcId).name);
+		AppendIdentifier(m_currentState->functions, node.funcId);
 	}
 
 	void LangWriter::Visit(ShaderAst::IdentifierExpression& node)
