@@ -32,6 +32,12 @@ struct Block
 	data: Data
 }
 
+[export]
+fn GetDataValue(data: Data) -> f32
+{
+	return data.value;
+}
+
 struct Unused {}
 
 [export]
@@ -62,7 +68,7 @@ external
 fn main(input: InputData) -> OutputData
 {
 	let output: OutputData;
-	output.value = block.data.value * input.value;
+	output.value = GetDataValue(block.data) * input.value;
 	return output;
 }
 )";
@@ -78,24 +84,29 @@ fn main(input: InputData) -> OutputData
 		shaderModule = SanitizeModule(*shaderModule, sanitizeOpt);
 
 		ExpectGLSL(*shaderModule, R"(
-// Module ad3aed6e-0619-4a26-b5ce-abc2ec0836c4
+// Module SimpleModule
 
-struct Data__181c45e9
+struct Data_181c45e9
 {
 	float value;
 };
 
-struct Block__181c45e9
+struct Block_181c45e9
 {
-	Data__181c45e9 data;
+	Data_181c45e9 data;
 };
 
-struct InputData__181c45e9
+float GetDataValue_181c45e9(Data_181c45e9 data)
+{
+	return data.value;
+}
+
+struct InputData_181c45e9
 {
 	float value;
 };
 
-struct OutputData__181c45e9
+struct OutputData_181c45e9
 {
 	float value;
 };
@@ -105,7 +116,7 @@ struct OutputData__181c45e9
 
 layout(std140) uniform _NzBinding_block
 {
-	Data__181c45e9 data;
+	Data_181c45e9 data;
 } block;
 
 
@@ -117,11 +128,11 @@ out float _NzOut_value;
 
 void main()
 {
-	InputData__181c45e9 input_;
+	InputData_181c45e9 input_;
 	input_.value = _NzIn_value;
 	
-	OutputData__181c45e9 output_;
-	output_.value = block.data.value * input_.value;
+	OutputData_181c45e9 output_;
+	output_.value = (GetDataValue_181c45e9(block.data)) * input_.value;
 	
 	_NzOut_value = output_.value;
 	return;
@@ -134,7 +145,7 @@ module;
 
 [nzsl_version("1.0")]
 [uuid("ad3aed6e-0619-4a26-b5ce-abc2ec0836c4")]
-module __181c45e9
+module _181c45e9
 {
 	[layout(std140)]
 	struct Data
@@ -148,6 +159,11 @@ module __181c45e9
 		data: Data
 	}
 	
+	fn GetDataValue(data: Data) -> f32
+	{
+		return data.value;
+	}
+	
 	struct InputData
 	{
 		value: f32
@@ -159,33 +175,45 @@ module __181c45e9
 	}
 	
 }
-alias Block = __181c45e9.Block;
+alias Block = _181c45e9.Block;
 
-alias InputData = __181c45e9.InputData;
+alias GetDataValue = _181c45e9.GetDataValue;
 
-alias OutputData = __181c45e9.OutputData;
+alias InputData = _181c45e9.InputData;
+
+alias OutputData = _181c45e9.OutputData;
 
 external
 {
-	[set(0), binding(0)] block: uniform[__181c45e9.Block]
+	[set(0), binding(0)] block: uniform[_181c45e9.Block]
 }
 
 [entry(frag)]
 fn main(input: InputData) -> OutputData
 {
 	let output: OutputData;
-	output.value = block.data.value * input.value;
+	output.value = (GetDataValue(block.data)) * input.value;
 	return output;
 }
 )");
 
 		ExpectSPIRV(*shaderModule, R"(
 OpFunction
+OpFunctionParameter
 OpLabel
+OpAccessChain
+OpLoad
+OpReturnValue
+OpFunctionEnd
+OpFunction
+OpLabel
+OpVariable
 OpVariable
 OpVariable
 OpAccessChain
 OpLoad
+OpStore
+OpFunctionCall
 OpAccessChain
 OpLoad
 OpFMul
@@ -283,29 +311,29 @@ fn main(input: InputData) -> OutputData
 		shaderModule = SanitizeModule(*shaderModule, sanitizeOpt);
 
 		ExpectGLSL(*shaderModule, R"(
-// Module ad3aed6e-0619-4a26-b5ce-abc2ec0836c4
+// Module Modules.Data
 
-struct Data__181c45e9
+struct Data_181c45e9
 {
 	float value;
 };
 
-// Module 7a548506-89e6-4944-897f-4f695a8bca01
+// Module Modules.Block
 
 
-struct Block__e528265d
+struct Block_e528265d
 {
-	Data__181c45e9 data;
+	Data_181c45e9 data;
 };
 
-// Module e66c6e98-fc37-4390-a7e1-c81508ff8e49
+// Module Modules.InputOutput
 
-struct InputData__26cce136
+struct InputData_26cce136
 {
 	float value;
 };
 
-struct OutputData__26cce136
+struct OutputData_26cce136
 {
 	float value;
 };
@@ -316,7 +344,7 @@ struct OutputData__26cce136
 
 layout(std140) uniform _NzBinding_block
 {
-	Data__181c45e9 data;
+	Data_181c45e9 data;
 } block;
 
 
@@ -328,10 +356,10 @@ out float _NzOut_value;
 
 void main()
 {
-	InputData__26cce136 input_;
+	InputData_26cce136 input_;
 	input_.value = _NzIn_value;
 	
-	OutputData__26cce136 output_;
+	OutputData_26cce136 output_;
 	output_.value = block.data.value * input_.value;
 	
 	_NzOut_value = output_.value;
@@ -345,7 +373,7 @@ module;
 
 [nzsl_version("1.0")]
 [uuid("ad3aed6e-0619-4a26-b5ce-abc2ec0836c4")]
-module __181c45e9
+module _181c45e9
 {
 	[layout(std140)]
 	struct Data
@@ -356,9 +384,9 @@ module __181c45e9
 }
 [nzsl_version("1.0")]
 [uuid("7a548506-89e6-4944-897f-4f695a8bca01")]
-module __e528265d
+module _e528265d
 {
-	alias Data = __181c45e9.Data;
+	alias Data = _181c45e9.Data;
 	
 	[layout(std140)]
 	struct Block
@@ -369,7 +397,7 @@ module __e528265d
 }
 [nzsl_version("1.0")]
 [uuid("e66c6e98-fc37-4390-a7e1-c81508ff8e49")]
-module __26cce136
+module _26cce136
 {
 	struct InputData
 	{
@@ -382,15 +410,15 @@ module __26cce136
 	}
 	
 }
-alias Block = __e528265d.Block;
+alias Block = _e528265d.Block;
 
-alias InputData = __26cce136.InputData;
+alias InputData = _26cce136.InputData;
 
-alias OutputData = __26cce136.OutputData;
+alias OutputData = _26cce136.OutputData;
 
 external
 {
-	[set(0), binding(0)] block: uniform[__e528265d.Block]
+	[set(0), binding(0)] block: uniform[_e528265d.Block]
 }
 
 [entry(frag)]

@@ -260,6 +260,7 @@ namespace Nz::ShaderAst
 		ExprValue(node.depthWrite);
 		ExprValue(node.earlyFragmentTests);
 		ExprValue(node.entryStage);
+		ExprValue(node.isExported);
 		OptVal(node.funcIndex);
 
 		Container(node.parameters);

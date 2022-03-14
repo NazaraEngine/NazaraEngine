@@ -31,10 +31,12 @@ namespace Nz::ShaderAst
 
 			struct Callbacks
 			{
+				std::function<void(DeclareFunctionStatement& funcNode)> onExportedFunc;
 				std::function<void(DeclareStructStatement& structNode)> onExportedStruct;
 			};
 
 		private:
+			void Visit(DeclareFunctionStatement& node) override;
 			void Visit(DeclareStructStatement& node) override;
 
 			const Callbacks* m_callbacks;

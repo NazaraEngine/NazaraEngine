@@ -85,7 +85,7 @@ namespace Nz
 				assert(node.funcIndex);
 				assert(functions.find(node.funcIndex.value()) == functions.end());
 				FunctionData& funcData = functions[node.funcIndex.value()];
-				funcData.name = node.name;
+				funcData.name = node.name + moduleSuffix;
 				funcData.node = &node;
 
 				currentFunction = &funcData;
@@ -105,6 +105,7 @@ namespace Nz
 			FunctionData* currentFunction = nullptr;
 
 			std::optional<ShaderStageType> selectedStage;
+			std::string moduleSuffix;
 			std::unordered_map<std::size_t, FunctionData> functions;
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
 		};
@@ -201,8 +202,12 @@ namespace Nz
 		state.previsitor.selectedStage = shaderStage;
 
 		for (const auto& importedModule : targetModule->importedModules)
+		{
+			state.previsitor.moduleSuffix = importedModule.identifier;
 			importedModule.module->rootNode->Visit(state.previsitor);
+		}
 
+		state.previsitor.moduleSuffix = {};
 		targetModule->rootNode->Visit(state.previsitor);
 
 		if (!state.previsitor.entryPoint)
@@ -216,7 +221,7 @@ namespace Nz
 
 		for (const auto& importedModule : targetModule->importedModules)
 		{
-			AppendComment("Module " + importedModule.module->metadata->moduleId.ToString());
+			AppendComment("Module " + importedModule.module->metadata->moduleName);
 			AppendLine();
 
 			m_currentState->moduleSuffix = importedModule.identifier;
@@ -311,8 +316,7 @@ namespace Nz
 
 	void GlslWriter::Append(const ShaderAst::FunctionType& functionType)
 	{
-		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, functionType.funcIndex).name;
-		Append(targetName);
+		throw std::runtime_error("unexpected FunctionType");
 	}
 
 	void GlslWriter::Append(const ShaderAst::IdentifierType& /*identifierType*/)
@@ -475,9 +479,9 @@ namespace Nz
 		AppendLine();
 	}
 
-	void GlslWriter::AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, bool forward)
+	void GlslWriter::AppendFunctionDeclaration(const ShaderAst::DeclareFunctionStatement& node, const std::string& nameOverride, bool forward)
 	{
-		Append(node.returnType, " ", node.name, "(");
+		Append(node.returnType, " ", nameOverride, "(");
 
 		bool first = true;
 		for (const auto& parameter : node.parameters)
@@ -970,8 +974,8 @@ namespace Nz
 
 	void GlslWriter::Visit(ShaderAst::FunctionExpression& node)
 	{
-		const std::string& targetName = Retrieve(m_currentState->previsitor.functions, node.funcId).name;
-		Append(targetName);
+		const auto& funcData = Retrieve(m_currentState->previsitor.functions, node.funcId);
+		Append(funcData.name);
 	}
 	
 	void GlslWriter::Visit(ShaderAst::IntrinsicExpression& node)
@@ -1214,7 +1218,7 @@ namespace Nz
 				hasPredeclaration = true;
 
 				auto& targetFunc = Retrieve(m_currentState->previsitor.functions, i);
-				AppendFunctionDeclaration(*targetFunc.node, true);
+				AppendFunctionDeclaration(*targetFunc.node, targetFunc.name, true);
 
 				m_currentState->declaredFunctions.UnboundedSet(i);
 			}
@@ -1232,7 +1236,7 @@ namespace Nz
 			RegisterVariable(*parameter.varIndex, parameter.name);
 		}
 
-		AppendFunctionDeclaration(node);
+		AppendFunctionDeclaration(node, funcData.name);
 		EnterScope();
 		{
 			AppendStatementList(node.statements);
