@@ -686,24 +686,28 @@ namespace Nz::ShaderLang
 
 		ShaderAst::ExpressionValue<bool> condition;
 
-		for (auto&& [attributeType, arg] : attributes)
+		for (auto&& [attributeType, attributeParam] : attributes)
 		{
 			switch (attributeType)
 			{
 				case ShaderAst::AttributeType::Cond:
-					HandleUniqueAttribute("cond", condition, std::move(arg));
+					HandleUniqueAttribute("cond", condition, std::move(attributeParam));
 					break;
 
 				case ShaderAst::AttributeType::Entry:
-					HandleUniqueStringAttribute("entry", s_entryPoints, func->entryStage, std::move(arg));
+					HandleUniqueStringAttribute("entry", s_entryPoints, func->entryStage, std::move(attributeParam));
+					break;
+
+				case ShaderAst::AttributeType::Export:
+					HandleUniqueAttribute("export", func->isExported, std::move(attributeParam), true);
 					break;
 
 				case ShaderAst::AttributeType::DepthWrite:
-					HandleUniqueStringAttribute("depth_write", s_depthWriteModes, func->depthWrite, std::move(arg));
+					HandleUniqueStringAttribute("depth_write", s_depthWriteModes, func->depthWrite, std::move(attributeParam));
 					break;
 
 				case ShaderAst::AttributeType::EarlyFragmentTests:
-					HandleUniqueAttribute("early_fragment_tests", func->earlyFragmentTests, std::move(arg), true);
+					HandleUniqueAttribute("early_fragment_tests", func->earlyFragmentTests, std::move(attributeParam), true);
 					break;
 
 				default:

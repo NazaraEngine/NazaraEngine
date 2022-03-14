@@ -27,6 +27,7 @@ namespace Nz::ShaderAst
 
 			inline const UsageSet& GetUsage() const;
 
+			inline void MarkFunctionAsUsed(std::size_t funcIndex);
 			inline void MarkStructAsUsed(std::size_t structIndex);
 
 			inline void Process(Statement& statement);
