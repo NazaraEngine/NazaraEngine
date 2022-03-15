@@ -9,35 +9,9 @@
 
 namespace Nz
 {
-	namespace
-	{
-		const UInt8 r_depthMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/depth_material.nzsl.h>
-		};
-	}
-
 	std::vector<std::shared_ptr<UberShader>> DepthMaterial::BuildShaders()
 	{
-		ShaderAst::ModulePtr shaderModule;
-
-#ifdef NAZARA_DEBUG
-		std::filesystem::path shaderPath = "../../src/Nazara/Graphics/Resources/Shaders/depth_material.nzsl";
-		if (std::filesystem::exists(shaderPath))
-		{
-			try
-			{
-				shaderModule = ShaderLang::ParseFromFile(shaderPath);
-			}
-			catch (const std::exception& e)
-			{
-				NazaraError(std::string("failed to load shader from engine folder: ") + e.what());
-			}
-		}
-#endif
-
-		if (!shaderModule)
-			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_depthMaterialShader), sizeof(r_depthMaterialShader)));
-
+		ShaderAst::ModulePtr shaderModule = Graphics::Instance()->GetShaderModuleResolver()->Resolve("DepthMaterial");
 		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
 
 		return { std::move(shader) };

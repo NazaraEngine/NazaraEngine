@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <array>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -15,7 +16,19 @@ namespace Nz
 	namespace
 	{
 		const UInt8 r_blitShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/blit.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/Blit.nzsl.h>
+		};
+
+		const UInt8 r_basicMaterialShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/BasicMaterial.nzsl.h>
+		};
+
+		const UInt8 r_depthMaterialShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/DepthMaterial.nzsl.h>
+		};
+
+		const UInt8 r_phongMaterialShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/PhongMaterial.nzsl.h>
 		};
 
 		const UInt8 r_instanceDataModule[] = {
@@ -74,14 +87,14 @@ namespace Nz
 		m_renderPassCache.emplace(*m_renderDevice);
 		m_samplerCache.emplace(m_renderDevice);
 
-		MaterialPipeline::Initialize();
-
 		BuildDefaultTextures();
 		BuildFullscreenVertexBuffer();
 		RegisterShaderModules();
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
 		SelectDepthStencilFormats();
+
+		MaterialPipeline::Initialize();
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 	}
@@ -222,18 +235,29 @@ namespace Nz
 	void Graphics::RegisterShaderModules()
 	{
 		m_shaderModuleResolver = std::make_shared<FilesystemModuleResolver>();
-		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(r_instanceDataModule), sizeof(r_instanceDataModule)));
-		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(r_lightDataModule), sizeof(r_lightDataModule)));
-		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(r_viewerDataModule), sizeof(r_viewerDataModule)));
-
-		if (std::filesystem::path shaderPath = "Shaders/Modules"; std::filesystem::is_directory(shaderPath))
-			m_shaderModuleResolver->RegisterModuleDirectory(shaderPath);
+		RegisterEmbedShaderModule(r_basicMaterialShader);
+		RegisterEmbedShaderModule(r_depthMaterialShader);
+		RegisterEmbedShaderModule(r_phongMaterialShader);
+		RegisterEmbedShaderModule(r_blitShader);
+		RegisterEmbedShaderModule(r_instanceDataModule);
+		RegisterEmbedShaderModule(r_lightDataModule);
+		RegisterEmbedShaderModule(r_viewerDataModule);
 
 #ifdef NAZARA_DEBUG
 		// Override embed files with dev files in debug
-		if (std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders/Modules"; std::filesystem::is_directory(modulePath))
+		if (std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders"; std::filesystem::is_directory(modulePath))
 			m_shaderModuleResolver->RegisterModuleDirectory(modulePath);
 #endif
+
+		// Let application register their own shaders
+		if (std::filesystem::path shaderPath = "Shaders"; std::filesystem::is_directory(shaderPath))
+			m_shaderModuleResolver->RegisterModuleDirectory(shaderPath);
+	}
+
+	template<std::size_t N>
+	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
+	{
+		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(content), N));
 	}
 
 	void Graphics::SelectDepthStencilFormats()

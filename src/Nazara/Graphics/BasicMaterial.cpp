@@ -17,13 +17,6 @@
 
 namespace Nz
 {
-	namespace
-	{
-		const UInt8 r_basicMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/basic_material.nzsl.h>
-		};
-	}
-
 	BasicMaterial::BasicMaterial(MaterialPass& material) :
 	BasicMaterial(material, NoInit{})
 	{
@@ -236,26 +229,7 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> BasicMaterial::BuildShaders()
 	{
-		ShaderAst::ModulePtr shaderModule;
-
-#ifdef NAZARA_DEBUG
-		std::filesystem::path shaderPath = "../../src/Nazara/Graphics/Resources/Shaders/basic_material.nzsl";
-		if (std::filesystem::exists(shaderPath))
-		{
-			try
-			{
-				shaderModule = ShaderLang::ParseFromFile(shaderPath);
-			}
-			catch (const std::exception& e)
-			{
-				NazaraError(std::string("failed to load shader from engine folder: ") + e.what());
-			}
-		}
-#endif
-
-		if (!shaderModule)
-			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_basicMaterialShader), sizeof(r_basicMaterialShader)));
-
+		ShaderAst::ModulePtr shaderModule = Graphics::Instance()->GetShaderModuleResolver()->Resolve("BasicMaterial");
 		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
 
 		return { std::move(shader) };
