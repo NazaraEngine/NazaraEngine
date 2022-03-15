@@ -210,13 +210,13 @@ fn main(input: VertToFrag) -> FragOut
 
 		let output: FragOut;
 		output.RenderTarget0 = vec4[f32](lightColor, 1.0) * diffuseColor;
-		return output;	
+		return output;
 	}
 	else
 	{
 		let output: FragOut;
 		output.RenderTarget0 = diffuseColor;
-		return output;	
+		return output;
 	}
 }
 
