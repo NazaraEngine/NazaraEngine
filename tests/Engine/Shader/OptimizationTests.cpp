@@ -9,12 +9,6 @@
 #include <catch2/catch.hpp>
 #include <cctype>
 
-template<typename T, typename U>
-std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
-{
-	return std::unique_ptr<T>(Nz::SafeCast<T*>(ptr.release()));
-}
-
 void PropagateConstantAndExpect(std::string_view sourceCode, std::string_view expectedOptimizedResult)
 {
 	Nz::ShaderAst::ModulePtr shaderModule;
