@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	void FilesystemModuleResolver::RegisterModule(std::filesystem::path realPath)
+	void FilesystemModuleResolver::RegisterModule(const std::filesystem::path& realPath)
 	{
 		return RegisterModule(ShaderLang::ParseFromFile(realPath));
 	}
@@ -32,11 +32,11 @@ namespace Nz
 		m_modules.emplace(std::move(moduleName), std::move(module));
 	}
 
-	void FilesystemModuleResolver::RegisterModuleDirectory(std::filesystem::path realPath)
+	void FilesystemModuleResolver::RegisterModuleDirectory(const std::filesystem::path& realPath)
 	{
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(realPath))
 		{
-			if (entry.is_regular_file() && StringEqual(entry.path().extension().generic_u8string(), "nzsl", Nz::CaseIndependent{}))
+			if (entry.is_regular_file() && StringEqual(entry.path().extension().generic_u8string(), ".nzsl", Nz::CaseIndependent{}))
 			{
 				try
 				{
