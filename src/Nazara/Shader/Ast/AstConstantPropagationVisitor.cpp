@@ -731,14 +731,14 @@ namespace Nz::ShaderAst
 
 	ModulePtr AstConstantPropagationVisitor::Process(const Module& shaderModule)
 	{
-		auto rootnode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode));
+		auto rootnode = StaticUniquePointerCast<MultiStatement>(Process(*shaderModule.rootNode));
 
 		return std::make_shared<Module>(shaderModule.metadata, std::move(rootnode), shaderModule.importedModules);
 	}
 
 	ModulePtr AstConstantPropagationVisitor::Process(const Module& shaderModule, const Options& options)
 	{
-		auto rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, options));
+		auto rootNode = StaticUniquePointerCast<MultiStatement>(Process(*shaderModule.rootNode, options));
 
 		return std::make_shared<Module>(shaderModule.metadata, std::move(rootNode), shaderModule.importedModules);
 	}

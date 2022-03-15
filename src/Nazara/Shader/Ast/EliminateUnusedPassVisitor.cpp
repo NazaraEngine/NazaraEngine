@@ -9,15 +9,6 @@
 
 namespace Nz::ShaderAst
 {
-	namespace
-	{
-		template<typename T, typename U>
-		std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
-		{
-			return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
-		}
-	}
-
 	struct EliminateUnusedPassVisitor::Context
 	{
 		const DependencyCheckerVisitor::UsageSet& usageSet;
@@ -25,7 +16,7 @@ namespace Nz::ShaderAst
 
 	ModulePtr EliminateUnusedPassVisitor::Process(const Module& shaderModule, const DependencyCheckerVisitor::UsageSet& usageSet)
 	{
-		auto rootNode = static_unique_pointer_cast<MultiStatement>(Process(*shaderModule.rootNode, usageSet));
+		auto rootNode = StaticUniquePointerCast<MultiStatement>(Process(*shaderModule.rootNode, usageSet));
 		
 		return std::make_shared<Module>(shaderModule.metadata, std::move(rootNode), shaderModule.importedModules);
 	}

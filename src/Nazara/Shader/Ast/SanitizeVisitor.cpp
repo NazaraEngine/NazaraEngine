@@ -458,7 +458,7 @@ namespace Nz::ShaderAst
 		aliasType.targetType = std::make_unique<ContainedType>();
 		aliasType.targetType->type = *targetExpr->cachedExpressionType;
 
-		auto clone = static_unique_pointer_cast<AliasValueExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<AliasValueExpression>(AstCloner::Clone(node));
 		clone->cachedExpressionType = std::move(aliasType);
 
 		return clone;
@@ -709,7 +709,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(IntrinsicExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<IntrinsicExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<IntrinsicExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -867,7 +867,7 @@ namespace Nz::ShaderAst
 
 	StatementPtr SanitizeVisitor::Clone(DeclareAliasStatement& node)
 	{
-		auto clone = static_unique_pointer_cast<DeclareAliasStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<DeclareAliasStatement>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		if (m_context->options.removeAliases)
@@ -1452,7 +1452,7 @@ namespace Nz::ShaderAst
 	StatementPtr SanitizeVisitor::Clone(ImportStatement& node)
 	{
 		if (!m_context->options.moduleResolver)
-			return static_unique_pointer_cast<ImportStatement>(AstCloner::Clone(node));
+			return StaticUniquePointerCast<ImportStatement>(AstCloner::Clone(node));
 
 		ModulePtr targetModule = m_context->options.moduleResolver->Resolve(node.moduleName);
 		if (!targetModule)
@@ -2439,7 +2439,7 @@ namespace Nz::ShaderAst
 			// First pass, evaluate everything except function code
 			try
 			{
-				output = static_unique_pointer_cast<MultiStatement>(AstCloner::Clone(rootNode));
+				output = StaticUniquePointerCast<MultiStatement>(AstCloner::Clone(rootNode));
 			}
 			catch (const AstError& err)
 			{

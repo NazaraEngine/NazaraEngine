@@ -1,4 +1,5 @@
 #include <ShaderNode/ShaderGraph.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
@@ -46,12 +47,6 @@ namespace
 	{
 		auto creator = [&] { return std::make_unique<T>(graph); };
 		registry->registerModel<T>(category, std::move(creator));
-	}
-
-	template<typename T, typename U>
-	std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
-	{
-		return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
 	}
 }
 
@@ -897,7 +892,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 				if (!Nz::ShaderAst::IsExpression(inputNode->GetType()))
 					throw std::runtime_error("unexpected statement");
 
-				expressions[i] = static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(inputNode));
+				expressions[i] = Nz::StaticUniquePointerCast<Nz::ShaderAst::Expression>(std::move(inputNode));
 				i++;
 			}
 		}
@@ -906,7 +901,7 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 		if (!Nz::ShaderAst::IsExpression(astNode->GetType()))
 			return astNode;
 
-		Nz::ShaderAst::ExpressionPtr expression = static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(astNode));
+		Nz::ShaderAst::ExpressionPtr expression = Nz::StaticUniquePointerCast<Nz::ShaderAst::Expression>(std::move(astNode));
 
 		const std::string& variableName = shaderNode->GetVariableName();
 		if (it->second > 1 || !variableName.empty())
@@ -952,9 +947,9 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 	{
 		auto astNode = HandleNode(node, 0);
 		if (!Nz::ShaderAst::IsStatement(astNode->GetType()))
-			statements.emplace_back(Nz::ShaderBuilder::ExpressionStatement(static_unique_pointer_cast<Nz::ShaderAst::Expression>(std::move(astNode))));
+			statements.emplace_back(Nz::ShaderBuilder::ExpressionStatement(Nz::StaticUniquePointerCast<Nz::ShaderAst::Expression>(std::move(astNode))));
 		else
-			statements.emplace_back(static_unique_pointer_cast<Nz::ShaderAst::Statement>(std::move(astNode)));
+			statements.emplace_back(Nz::StaticUniquePointerCast<Nz::ShaderAst::Statement>(std::move(astNode)));
 	}
 
 	if (!m_outputs.empty())
