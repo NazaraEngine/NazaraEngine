@@ -24,10 +24,10 @@ namespace Nz
 			FilesystemModuleResolver(FilesystemModuleResolver&&) = default;
 			~FilesystemModuleResolver() = default;
 
-			void RegisterModule(std::filesystem::path realPath);
+			void RegisterModule(const std::filesystem::path& realPath);
 			void RegisterModule(std::string_view moduleSource);
 			void RegisterModule(ShaderAst::ModulePtr module);
-			void RegisterModuleDirectory(std::filesystem::path realPath);
+			void RegisterModuleDirectory(const std::filesystem::path& realPath);
 
 			ShaderAst::ModulePtr Resolve(const std::string& moduleName) override;
 
