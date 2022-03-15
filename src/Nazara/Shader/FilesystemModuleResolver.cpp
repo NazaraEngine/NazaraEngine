@@ -29,7 +29,7 @@ namespace Nz
 		if (moduleName.empty())
 			throw std::runtime_error("cannot register anonymous module");
 
-		m_modules.emplace(std::move(moduleName), std::move(module));
+		m_modules.insert_or_assign(std::move(moduleName), std::move(module));
 	}
 
 	void FilesystemModuleResolver::RegisterModuleDirectory(const std::filesystem::path& realPath)

@@ -15,8 +15,8 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_blitShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Blit.nzsl.h>
+		const UInt8 r_textureBlitShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/TextureBlit.nzsl.h>
 		};
 
 		const UInt8 r_basicMaterialShader[] = {
@@ -151,10 +151,12 @@ namespace Nz
 		if (!m_blitPipelineLayout)
 			throw std::runtime_error("failed to instantiate fullscreen renderpipeline layout");
 
+		ShaderAst::ModulePtr blitShaderModule = m_shaderModuleResolver->Resolve("TextureBlit");
+
 		ShaderWriter::States states;
 		states.shaderModuleResolver = m_shaderModuleResolver;
 
-		auto blitShader = m_renderDevice->InstantiateShaderModule(ShaderStageType::Fragment | ShaderStageType::Vertex, ShaderLanguage::NazaraShader, r_blitShader, sizeof(r_blitShader), states);
+		auto blitShader = m_renderDevice->InstantiateShaderModule(ShaderStageType::Fragment | ShaderStageType::Vertex, *blitShaderModule, states);
 		if (!blitShader)
 			throw std::runtime_error("failed to instantiate blit shader");
 
@@ -238,7 +240,7 @@ namespace Nz
 		RegisterEmbedShaderModule(r_basicMaterialShader);
 		RegisterEmbedShaderModule(r_depthMaterialShader);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
-		RegisterEmbedShaderModule(r_blitShader);
+		RegisterEmbedShaderModule(r_textureBlitShader);
 		RegisterEmbedShaderModule(r_instanceDataModule);
 		RegisterEmbedShaderModule(r_lightDataModule);
 		RegisterEmbedShaderModule(r_viewerDataModule);
