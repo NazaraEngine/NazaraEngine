@@ -605,7 +605,7 @@ namespace Nz
 	template<typename T>
 	void LangWriter::AppendIdentifier(const T& map, std::size_t id)
 	{
-		const auto& structIdentifier = RetrieveConst(map, id);
+		const auto& structIdentifier = Retrieve(map, id);
 		if (structIdentifier.moduleIndex != m_currentState->currentModuleIndex)
 			Append(m_currentState->moduleNames[structIdentifier.moduleIndex], '.');
 
