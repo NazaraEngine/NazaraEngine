@@ -31,7 +31,7 @@ namespace Nz
 
 	auto SpirvAstVisitor::GetVariable(std::size_t varIndex) const -> const Variable&
 	{
-		return Retrieve(m_variables, varIndex);
+		return RetrieveConst(m_variables, varIndex);
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::AccessIndexExpression& node)
