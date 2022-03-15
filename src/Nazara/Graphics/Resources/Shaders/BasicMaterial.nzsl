@@ -1,5 +1,5 @@
 [nzsl_version("1.0")]
-module;
+module BasicMaterial;
 
 import Engine.InstanceData;
 import Engine.ViewerData;
