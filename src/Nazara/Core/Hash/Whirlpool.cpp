@@ -73,7 +73,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		const UInt64 C0[256] = {
 			0X18186018C07830D8ULL, 0X23238C2305AF4626ULL, 0XC6C63FC67EF991B8ULL, 0XE8E887E8136FCDFBULL,
@@ -788,6 +788,8 @@ namespace Nz
 	
 	void WhirlpoolHash::ProcessBuffer()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		int i, r;
 		UInt64 K[8];	 // the round key
 		UInt64 block[8]; // mu(buffer)
@@ -1020,3 +1022,8 @@ namespace Nz
 		m_hash[7] ^= state[7] ^ block[7];
 	}
 }
+
+#undef ONE64
+#undef ROTR64
+#undef R
+#undef T64

@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		constexpr unsigned int s_allocatedId = 0xDEADB33FUL;
 		constexpr unsigned int s_freedId = 0x4B1DUL;
@@ -102,6 +102,8 @@ namespace Nz
 
 	void* MemoryManager::Allocate(std::size_t size, bool multi, const char* file, unsigned int line)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!s_initialized)
 			Initialize();
 
@@ -182,6 +184,8 @@ namespace Nz
 
 	void MemoryManager::EnableAllocationFilling(bool allocationFilling)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		s_allocationFilling = allocationFilling;
 	}
 
@@ -193,6 +197,8 @@ namespace Nz
 
 	void MemoryManager::EnableAllocationLogging(bool logAllocations)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		s_allocationLogging = logAllocations;
 	}
 
@@ -207,6 +213,8 @@ namespace Nz
 
 	void MemoryManager::Free(void* pointer, bool multi)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!pointer)
 			return;
 
@@ -282,6 +290,8 @@ namespace Nz
 
 	unsigned int MemoryManager::GetAllocatedBlockCount()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_allocatedBlock;
 	}
 
@@ -292,6 +302,8 @@ namespace Nz
 
 	std::size_t MemoryManager::GetAllocatedSize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_allocatedSize;
 	}
 
@@ -302,6 +314,8 @@ namespace Nz
 
 	unsigned int MemoryManager::GetAllocationCount()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_allocationCount;
 	}
 
@@ -312,6 +326,8 @@ namespace Nz
 
 	bool MemoryManager::IsAllocationFillingEnabled()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_allocationFilling;
 	}
 
@@ -322,6 +338,8 @@ namespace Nz
 
 	bool MemoryManager::IsAllocationLoggingEnabled()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_allocationLogging;
 	}
 
@@ -334,6 +352,8 @@ namespace Nz
 
 	void MemoryManager::NextFree(const char* file, unsigned int line)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		s_nextFreeFile = file;
 		s_nextFreeLine = line;
 	}
@@ -344,6 +364,8 @@ namespace Nz
 
 	void MemoryManager::Initialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		char timeStr[23];
 		TimeInfo(timeStr);
 
@@ -384,6 +406,8 @@ namespace Nz
 
 	void MemoryManager::Uninitialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		#ifdef NAZARA_PLATFORM_WINDOWS
 		DeleteCriticalSection(&s_mutex);
 		#elif defined(NAZARA_PLATFORM_POSIX)
@@ -430,3 +454,7 @@ namespace Nz
 		std::fclose(log);
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

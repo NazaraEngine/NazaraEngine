@@ -35,10 +35,6 @@ local modules = {
 				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.hpp")
 				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.cpp")
 			end
-			
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
-			end
 		end
 	},
 	OpenGLRenderer = {
@@ -51,32 +47,20 @@ local modules = {
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
 			end
 
-			if not is_plat("linux") then
+			if is_plat("linux") then
+				add_defines("EGL_NO_X11")
+			else
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
-			end
-			
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
 			end
 		end
 	},
 	Physics2D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"chipmunk2d"},
-		Custom = function()
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
-			end
-		end
+		Packages = {"chipmunk2d"}
 	},
 	Physics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"entt", "newtondynamics"},
-		Custom = function()
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
-			end
-		end
+		Packages = {"entt", "newtondynamics"}
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
@@ -93,12 +77,7 @@ local modules = {
 		end
 	},
 	Renderer = {
-		Deps = {"NazaraPlatform", "NazaraShader"},
-		Custom = function()
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
-			end
-		end
+		Deps = {"NazaraPlatform", "NazaraShader"}
 	},
 	Shader = {
 		Deps = {"NazaraUtility"}
@@ -120,20 +99,11 @@ local modules = {
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_MACOS_MVK")
 			end
-
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
-			end
 		end
 	},
 	Widgets = {
 		Deps = {"NazaraGraphics"},
-		Packages = {"entt", "kiwisolver"},
-		Custom = function()
-			if has_config("unitybuild") then
-				add_rules("c++.unity_build")
-			end
-		end
+		Packages = {"entt", "kiwisolver"}
 	}
 }
 
@@ -229,10 +199,6 @@ for name, module in pairs(modules) do
 	add_rules("embed_resources")
 	add_rpathdirs("$ORIGIN")
 
-	if has_config("usepch") then
-		set_pcxxheader("include/Nazara/" .. name .. ".hpp")
-	end
-
 	if module.Deps then
 		add_deps(table.unpack(module.Deps))
 	end
@@ -245,6 +211,15 @@ for name, module in pairs(modules) do
 		module.Custom()
 	end
 
+	if has_config("usepch") then
+		set_pcxxheader("include/Nazara/" .. name .. ".hpp")
+	end
+
+	if has_config("unitybuild") then
+		add_defines("NAZARA_UNITY_BUILD")
+		add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID"})
+	end
+
 	add_defines("NAZARA_BUILD")
 	add_defines("NAZARA_" .. name:upper() .. "_BUILD")
 
@@ -252,6 +227,7 @@ for name, module in pairs(modules) do
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
 
+	-- Add header and source files
 	local headerExts = {".h", ".hpp", ".inl", ".natvis"}
 	for _, ext in ipairs(headerExts) do
 		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
@@ -265,6 +241,7 @@ for name, module in pairs(modules) do
 		add_files(filepath, {rule = "embed_resources"})
 	end
 
+	-- Remove platform-specific files
 	if is_plat("windows", "mingw") then
 		for _, ext in ipairs(headerExts) do
 			remove_headerfiles("src/Nazara/" .. name .. "/Posix/**" .. ext)

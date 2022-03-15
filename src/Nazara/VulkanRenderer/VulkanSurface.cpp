@@ -77,3 +77,7 @@ namespace Nz
 		m_surface.Destroy();
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

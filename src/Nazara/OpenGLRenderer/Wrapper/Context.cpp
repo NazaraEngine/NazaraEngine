@@ -18,7 +18,7 @@
 
 namespace Nz::GL
 {
-	thread_local const Context* s_currentContext = nullptr;
+	thread_local const Context* s_currentGLContext = nullptr;
 
 	namespace
 	{
@@ -32,7 +32,7 @@ namespace Nz::GL
 			{
 				return [](Args... args) -> Ret
 				{
-					const Context* context = s_currentContext; //< pay TLS cost once
+					const Context* context = s_currentGLContext; //< pay TLS cost once
 					assert(context);
 
 					FuncType funcPtr = reinterpret_cast<FuncType>(context->GetFunctionByIndex(FuncIndex));
@@ -755,12 +755,12 @@ namespace Nz::GL
 
 	const Context* Context::GetCurrentContext()
 	{
-		return s_currentContext;
+		return s_currentGLContext;
 	}
 
 	bool Context::SetCurrentContext(const Context* context)
 	{
-		const Context*& currentContext = s_currentContext; //< Pay TLS cost once
+		const Context*& currentContext = s_currentGLContext; //< Pay TLS cost once
 		if (currentContext == context)
 			return true;
 
@@ -810,7 +810,7 @@ namespace Nz::GL
 
 	void Context::NotifyContextDestruction(Context* context)
 	{
-		const Context*& currentContext = s_currentContext; //< Pay TLS cost only once
+		const Context*& currentContext = s_currentGLContext; //< Pay TLS cost only once
 		if (currentContext == context)
 			currentContext = nullptr;
 	}

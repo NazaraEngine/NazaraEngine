@@ -26,40 +26,13 @@ namespace Nz
 {
 	namespace
 	{
-		std::optional<AudioFormat> GuessFormat(UInt32 channelCount)
-		{
-			switch (channelCount)
-			{
-				case 1:
-					return AudioFormat::I16_Mono;
-
-				case 2:
-					return AudioFormat::I16_Stereo;
-
-				case 4:
-					return AudioFormat::I16_Quad;
-
-				case 6:
-					return AudioFormat::I16_5_1;
-
-				case 7:
-					return AudioFormat::I16_6_1;
-
-				case 8:
-					return AudioFormat::I16_7_1;
-
-				default:
-					return std::nullopt;
-			}
-		}
-
-		std::size_t ReadCallback(void* ptr, size_t size, size_t nmemb, void* datasource)
+		std::size_t VorbisReadCallback(void* ptr, size_t size, size_t nmemb, void* datasource)
 		{
 			Stream* stream = static_cast<Stream*>(datasource);
 			return static_cast<std::size_t>(stream->Read(ptr, size * nmemb));
 		}
 
-		int SeekCallback(void* datasource, ogg_int64_t offset, int whence)
+		int VorbisSeekCallback(void* datasource, ogg_int64_t offset, int whence)
 		{
 			Stream* stream = static_cast<Stream*>(datasource);
 			switch (whence)
@@ -84,21 +57,21 @@ namespace Nz
 			return 0;
 		}
 
-		long TellCallback(void* datasource)
+		long VorbisTellCallback(void* datasource)
 		{
 			Stream* stream = static_cast<Stream*>(datasource);
 			return static_cast<long>(stream->GetCursorPos());
 		}
 
-		static ov_callbacks s_callbacks = {
-			&ReadCallback,
-			&SeekCallback,
+		static ov_callbacks s_vorbisCallbacks = {
+			&VorbisReadCallback,
+			&VorbisSeekCallback,
 			nullptr,
-			&TellCallback
+			&VorbisTellCallback
 		};
 
 
-		std::string ErrToString(int errCode)
+		std::string VorbisErrToString(int errCode)
 		{
 			switch (errCode)
 			{
@@ -129,7 +102,7 @@ namespace Nz
 
 				if (readBytes < 0)
 				{
-					NazaraError("an error occurred while reading file: " + ErrToString(readBytes));
+					NazaraError("an error occurred while reading file: " + VorbisErrToString(readBytes));
 					return 0;
 				}
 
@@ -143,7 +116,7 @@ namespace Nz
 			return sampleCount - remainingBytes / sizeof(Int16);
 		}
 
-		bool IsSupported(const std::string_view& extension)
+		bool IsVorbisSupported(const std::string_view& extension)
 		{
 			static std::set<std::string_view> supportedExtensions = {
 				"oga", "ogg", "ogm", "ogv", "ogx", "opus", "spx"
@@ -159,20 +132,20 @@ namespace Nz
 				return Ternary::False;
 
 			OggVorbis_File file;
-			if (ov_test_callbacks(&stream, &file, nullptr, 0, s_callbacks) != 0)
+			if (ov_test_callbacks(&stream, &file, nullptr, 0, s_vorbisCallbacks) != 0)
 				return Ternary::False;
 
 			ov_clear(&file);
 			return Ternary::True;
 		}
 
-		std::shared_ptr<SoundBuffer> LoadSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		std::shared_ptr<SoundBuffer> LoadVorbisSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			OggVorbis_File file;
-			int err = ov_open_callbacks(&stream, &file, nullptr, 0, s_callbacks);
+			int err = ov_open_callbacks(&stream, &file, nullptr, 0, s_vorbisCallbacks);
 			if (err != 0)
 			{
-				NazaraError(ErrToString(err));
+				NazaraError(VorbisErrToString(err));
 				return {};
 			}
 
@@ -181,7 +154,7 @@ namespace Nz
 			vorbis_info* info = ov_info(&file, -1);
 			assert(info);
 
-			std::optional<AudioFormat> formatOpt = GuessFormat(info->channels);
+			std::optional<AudioFormat> formatOpt = GuessAudioFormat(info->channels);
 			if (!formatOpt)
 			{
 				NazaraError("unexpected channel count: " + std::to_string(info->channels));
@@ -278,10 +251,10 @@ namespace Nz
 
 				bool Open(Stream& stream, bool forceMono)
 				{
-					int err = ov_open_callbacks(&stream, &m_decoder, nullptr, 0, s_callbacks);
+					int err = ov_open_callbacks(&stream, &m_decoder, nullptr, 0, s_vorbisCallbacks);
 					if (err != 0)
 					{
-						NazaraError(ErrToString(err));
+						NazaraError(VorbisErrToString(err));
 						return {};
 					}
 
@@ -294,7 +267,7 @@ namespace Nz
 					vorbis_info* info = ov_info(&m_decoder, -1);
 					assert(info);
 
-					std::optional<AudioFormat> formatOpt = GuessFormat(info->channels);
+					std::optional<AudioFormat> formatOpt = GuessAudioFormat(info->channels);
 					if (!formatOpt)
 					{
 						NazaraError("unexpected channel count: " + std::to_string(info->channels));
@@ -374,7 +347,7 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		std::shared_ptr<SoundStream> LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadVorbisSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
 			if (!soundStream->Open(filePath, parameters.forceMono))
@@ -386,7 +359,7 @@ namespace Nz
 			return soundStream;
 		}
 
-		std::shared_ptr<SoundStream> LoadSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadVorbisSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
 			if (!soundStream->Open(data, size, parameters.forceMono))
@@ -398,7 +371,7 @@ namespace Nz
 			return soundStream;
 		}
 
-		std::shared_ptr<SoundStream> LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadVorbisSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
 			if (!soundStream->Open(stream, parameters.forceMono))
@@ -416,9 +389,9 @@ namespace Nz
 		SoundBufferLoader::Entry GetSoundBufferLoader_libvorbis()
 		{
 			SoundBufferLoader::Entry loaderEntry;
-			loaderEntry.extensionSupport = IsSupported;
+			loaderEntry.extensionSupport = IsVorbisSupported;
 			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckOgg(stream, parameters); };
-			loaderEntry.streamLoader = LoadSoundBuffer;
+			loaderEntry.streamLoader = LoadVorbisSoundBuffer;
 
 			return loaderEntry;
 		}
@@ -426,11 +399,11 @@ namespace Nz
 		SoundStreamLoader::Entry GetSoundStreamLoader_libvorbis()
 		{
 			SoundStreamLoader::Entry loaderEntry;
-			loaderEntry.extensionSupport = IsSupported;
+			loaderEntry.extensionSupport = IsVorbisSupported;
 			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckOgg(stream, parameters); };
-			loaderEntry.fileLoader = LoadSoundStreamFile;
-			loaderEntry.memoryLoader = LoadSoundStreamMemory;
-			loaderEntry.streamLoader = LoadSoundStreamStream;
+			loaderEntry.fileLoader = LoadVorbisSoundStreamFile;
+			loaderEntry.memoryLoader = LoadVorbisSoundStreamMemory;
+			loaderEntry.streamLoader = LoadVorbisSoundStreamStream;
 
 			return loaderEntry;
 		}

@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		using PluginLoad = int (*)();
 		using PluginUnload = void (*)();
@@ -78,6 +78,8 @@ namespace Nz
 
 	bool PluginManager::Mount(Plugin plugin)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::filesystem::path pluginName = s_pluginFiles[UnderlyingCast(plugin)];
 
 		#ifdef NAZARA_DEBUG
@@ -107,6 +109,8 @@ namespace Nz
 
 	bool PluginManager::Mount(const std::filesystem::path& pluginPath, bool appendExtension)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!Initialize())
 		{
 			NazaraError("Failed to initialize PluginManager");
@@ -176,6 +180,8 @@ namespace Nz
 
 	void PluginManager::RemoveDirectory(const std::filesystem::path& directoryPath)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!Initialize())
 		{
 			NazaraError("Failed to initialize PluginManager");
@@ -196,6 +202,8 @@ namespace Nz
 
 	void PluginManager::Unmount(Plugin plugin)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		Unmount(s_pluginFiles[UnderlyingCast(plugin)]);
 	}
 
@@ -210,6 +218,8 @@ namespace Nz
 
 	void PluginManager::Unmount(const std::filesystem::path& pluginPath)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!Initialize())
 		{
 			NazaraError("Failed to initialize PluginManager");
@@ -237,6 +247,8 @@ namespace Nz
 
 	void PluginManager::Uninitialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!s_initialized)
 			return;
 

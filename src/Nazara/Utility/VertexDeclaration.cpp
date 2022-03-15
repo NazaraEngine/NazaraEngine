@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		std::size_t s_componentStride[ComponentTypeCount] =
 		{
@@ -37,6 +37,8 @@ namespace Nz
 	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components) :
 	m_inputRate(inputRate)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		ErrorFlags errFlags(ErrorMode::ThrowException);
 		std::size_t offset = 0;
 

@@ -60,6 +60,7 @@ namespace Nz::ShaderAst
 
 		private:
 			enum class IdentifierCategory;
+			struct AstError;
 			struct CurrentFunctionData;
 			struct Environment;
 			struct FunctionData;

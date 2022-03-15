@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		static const UInt64 crc64_table[] = {
 			0x0000000000000000ULL, 0x42F0E1EBA9EA3693ULL, 0x85E1C3D753D46D26ULL, 0xC711223CFA3E5BB5ULL,
@@ -80,6 +80,8 @@ namespace Nz
 
 	void CRC64Hash::Append(const UInt8* data, std::size_t len)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		while (len--)
 			m_crc = (m_crc << 8) ^ crc64_table[((m_crc >> 56) ^ *data++) & 0xFF];
 	}

@@ -23,7 +23,7 @@ namespace Nz
 {
 	namespace
 	{
-		static std::size_t s_commandSizes[ENetProtocolCommand_Count] =
+		static std::size_t s_enetCommandSizes[ENetProtocolCommand_Count] =
 		{
 			0,
 			sizeof(ENetProtocolAcknowledge),
@@ -567,7 +567,7 @@ namespace Nz
 			if (commandNumber >= ENetProtocolCommand_Count)
 				break;
 
-			std::size_t commandSize = s_commandSizes[commandNumber];
+			std::size_t commandSize = s_enetCommandSizes[commandNumber];
 			if (commandSize == 0 || currentData + commandSize > &m_receivedData[m_receivedDataLength])
 				break;
 
@@ -893,7 +893,7 @@ namespace Nz
 			canPing = false;
 
 			assert((outgoingCommand->command.header.command & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
-			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
+			std::size_t commandSize = s_enetCommandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->GetMtu() - m_packetSize < commandSize ||
 			    (outgoingCommand->packet && UInt16(peer->GetMtu() - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
 			{
@@ -1146,7 +1146,7 @@ namespace Nz
 			auto outgoingCommand = currentCommand;
 
 			assert((outgoingCommand->command.header.command & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
-			std::size_t commandSize = s_commandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
+			std::size_t commandSize = s_enetCommandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
 
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
 			    (outgoingCommand->packet && peer->m_mtu - m_packetSize < commandSize + outgoingCommand->fragmentLength))
@@ -1360,7 +1360,7 @@ namespace Nz
 	std::size_t ENetHost::GetCommandSize(UInt8 commandNumber)
 	{
 		assert((commandNumber & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
-		return s_commandSizes[commandNumber & ENetProtocolCommand_Mask];
+		return s_enetCommandSizes[commandNumber & ENetProtocolCommand_Mask];
 	}
 
 	bool ENetHost::Initialize()

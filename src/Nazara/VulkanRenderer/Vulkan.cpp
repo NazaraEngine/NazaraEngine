@@ -18,14 +18,14 @@ namespace Nz
 {
 	namespace
 	{
-		struct AvailableLayer
+		struct AvailableVulkanLayer
 		{
 			VkLayerProperties layerProperties;
 			std::unordered_map<std::string, std::size_t> extensionByName;
 			std::vector<VkExtensionProperties> extensionList;
 		};
 
-		void EnumerateLayers(std::vector<AvailableLayer>& availableLayers, std::unordered_map<std::string, std::size_t>& layerByName)
+		void EnumerateVulkanLayers(std::vector<AvailableVulkanLayer>& availableLayers, std::unordered_map<std::string, std::size_t>& layerByName)
 		{
 			std::vector<VkLayerProperties> layerList;
 			if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
@@ -175,9 +175,9 @@ namespace Nz
 
 		std::vector<const char*> enabledLayers;
 
-		std::vector<AvailableLayer> availableLayers;
+		std::vector<AvailableVulkanLayer> availableLayers;
 		std::unordered_map<std::string, std::size_t> availableLayerByName;
-		EnumerateLayers(availableLayers, availableLayerByName);
+		EnumerateVulkanLayers(availableLayers, availableLayerByName);
 
 		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
 		{
@@ -627,3 +627,7 @@ namespace Nz
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

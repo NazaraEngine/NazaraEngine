@@ -9,10 +9,12 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <optional>
 
 namespace Nz
 {
 	inline UInt32 GetChannelCount(AudioFormat format);
+	inline std::optional<AudioFormat> GuessAudioFormat(UInt32 channelCount);
 	template<typename T> void MixToMono(T* input, T* output, UInt32 channelCount, UInt64 frameCount);
 }
 

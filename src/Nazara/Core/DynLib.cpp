@@ -99,3 +99,8 @@ namespace Nz
 
 	DynLib& DynLib::operator=(DynLib&&) noexcept = default;
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif
+

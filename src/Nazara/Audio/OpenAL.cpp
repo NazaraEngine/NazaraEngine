@@ -18,23 +18,15 @@ namespace Nz
 {
 	namespace
 	{
-		DynLib s_library;
-		std::string s_deviceName;
-		std::string s_rendererName;
-		std::string s_vendorName;
-		ALCdevice* s_device = nullptr;
-		ALCcontext* s_context = nullptr;
-		unsigned int s_version;
+		DynLib s_openalLbrary;
+		std::string s_openalDeviceName;
+		std::string s_openalRndererName;
+		std::string s_openalVendorName;
+		ALCdevice* s_openalDevice = nullptr;
+		ALCcontext* s_openalContext = nullptr;
+		unsigned int s_openalVersion;
 
-		/*!
-		* \brief Parses the devices
-		* \return Number of devices
-		*
-		* \param deviceString String for the device (input / output)
-		* \param devices List of names of the devices
-		*/
-
-		std::size_t ParseDevices(const char* deviceString, std::vector<std::string>& devices)
+		std::size_t ParseOpenALDevices(const char* deviceString, std::vector<std::string>& devices)
 		{
 			if (!deviceString)
 				return 0;
@@ -81,7 +73,7 @@ namespace Nz
 
 	std::string OpenAL::GetRendererName()
 	{
-		return s_rendererName;
+		return s_openalRndererName;
 	}
 
 	/*!
@@ -91,7 +83,7 @@ namespace Nz
 
 	std::string OpenAL::GetVendorName()
 	{
-		return s_vendorName;
+		return s_openalVendorName;
 	}
 
 	/*!
@@ -101,7 +93,7 @@ namespace Nz
 
 	unsigned int OpenAL::GetVersion()
 	{
-		return s_version;
+		return s_openalVersion;
 	}
 
 	/*!
@@ -149,7 +141,7 @@ namespace Nz
 		{
 			ErrorFlags errFlags(ErrorMode::Silent);
 			std::filesystem::path libPath(path);
-			if (!s_library.Load(libPath))
+			if (!s_openalLbrary.Load(libPath))
 				continue;
 
 			errFlags.SetFlags(0);
@@ -284,7 +276,7 @@ namespace Nz
 
 	bool OpenAL::IsInitialized()
 	{
-		return s_library.IsLoaded();
+		return s_openalLbrary.IsLoaded();
 	}
 
 	/*!
@@ -300,7 +292,7 @@ namespace Nz
 		if (!deviceString)
 			return 0;
 
-		return ParseDevices(deviceString, devices);
+		return ParseOpenALDevices(deviceString, devices);
 	}
 
 	/*!
@@ -316,7 +308,7 @@ namespace Nz
 		if (!deviceString)
 			return 0;
 
-		return ParseDevices(deviceString, devices);
+		return ParseOpenALDevices(deviceString, devices);
 	}
 
 	/*!
@@ -328,7 +320,7 @@ namespace Nz
 
 	bool OpenAL::SetDevice(const std::string& deviceName)
 	{
-		s_deviceName = deviceName;
+		s_openalDeviceName = deviceName;
 		if (IsInitialized())
 		{
 			CloseDevice();
@@ -347,9 +339,9 @@ namespace Nz
 	{
 		CloseDevice();
 
-		s_rendererName.clear();
-		s_vendorName.clear();
-		s_library.Unload();
+		s_openalRndererName.clear();
+		s_openalVendorName.clear();
+		s_openalLbrary.Unload();
 	}
 
 	ALenum OpenAL::AudioFormat[AudioFormatCount] = {0}; // Added values with loading of OpenAL
@@ -362,20 +354,20 @@ namespace Nz
 
 	void OpenAL::CloseDevice()
 	{
-		if (s_device)
+		if (s_openalDevice)
 		{
-			if (s_context)
+			if (s_openalContext)
 			{
 				alcMakeContextCurrent(nullptr);
-				alcDestroyContext(s_context);
-				s_context = nullptr;
+				alcDestroyContext(s_openalContext);
+				s_openalContext = nullptr;
 			}
 
-			if (!alcCloseDevice(s_device))
+			if (!alcCloseDevice(s_openalDevice))
 				// We could not close the close, this means that it's still in use
 				NazaraWarning("Failed to close device");
 
-			s_device = nullptr;
+			s_openalDevice = nullptr;
 		}
 	}
 
@@ -389,29 +381,29 @@ namespace Nz
 	bool OpenAL::OpenDevice()
 	{
 		// Initialisation of the module
-		s_device = alcOpenDevice(s_deviceName.empty() ? nullptr : s_deviceName.data()); // We choose the default device
-		if (!s_device)
+		s_openalDevice = alcOpenDevice(s_openalDeviceName.empty() ? nullptr : s_openalDeviceName.data()); // We choose the default device
+		if (!s_openalDevice)
 		{
 			NazaraError("Failed to open default device");
 			return false;
 		}
 
 		// One context is enough
-		s_context = alcCreateContext(s_device, nullptr);
-		if (!s_context)
+		s_openalContext = alcCreateContext(s_openalDevice, nullptr);
+		if (!s_openalContext)
 		{
 			NazaraError("Failed to create context");
 			return false;
 		}
 
-		if (!alcMakeContextCurrent(s_context))
+		if (!alcMakeContextCurrent(s_openalContext))
 		{
 			NazaraError("Failed to activate context");
 			return false;
 		}
 
-		s_rendererName = reinterpret_cast<const char*>(alGetString(AL_RENDERER));
-		s_vendorName = reinterpret_cast<const char*>(alGetString(AL_VENDOR));
+		s_openalRndererName = reinterpret_cast<const char*>(alGetString(AL_RENDERER));
+		s_openalVendorName = reinterpret_cast<const char*>(alGetString(AL_VENDOR));
 
 		const ALchar* version = alGetString(AL_VERSION);
 		if (version)
@@ -427,20 +419,20 @@ namespace Nz
 					minor = 0;
 				}
 
-				s_version = major*100 + minor*10;
+				s_openalVersion = major*100 + minor*10;
 
 				NazaraDebug("OpenAL version: " + NumberToString(major) + '.' + NumberToString(minor));
 			}
 			else
 			{
 				NazaraDebug("Unable to retrieve OpenAL major version");
-				s_version = 0;
+				s_openalVersion = 0;
 			}
 		}
 		else
 		{
 			NazaraDebug("Unable to retrieve OpenAL version");
-			s_version = 0;
+			s_openalVersion = 0;
 		}
 
 		// We complete the formats table
@@ -473,7 +465,7 @@ namespace Nz
 
 	OpenALFunc OpenAL::LoadEntry(const char* name, bool throwException)
 	{
-		OpenALFunc entry = reinterpret_cast<OpenALFunc>(s_library.GetSymbol(name));
+		OpenALFunc entry = reinterpret_cast<OpenALFunc>(s_openalLbrary.GetSymbol(name));
 		if (!entry && throwException)
 		{
 			std::ostringstream oss;

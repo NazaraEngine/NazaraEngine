@@ -73,3 +73,7 @@ namespace Nz
 		m_owner.Release(*this);
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

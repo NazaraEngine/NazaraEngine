@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Core/StackVector.hpp>
@@ -15,16 +16,6 @@
 
 namespace Nz
 {
-	namespace
-	{
-		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
-		{
-			auto it = map.find(id);
-			assert(it != map.end());
-			return it->second;
-		}
-	}
-
 	UInt32 SpirvAstVisitor::AllocateResultId()
 	{
 		return m_writer.AllocateResultId();

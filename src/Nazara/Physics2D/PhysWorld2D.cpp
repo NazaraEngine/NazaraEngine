@@ -22,23 +22,21 @@ namespace Nz
 			return cpSpaceDebugColor{ c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f };
 		}
 
-		void DrawCircle(cpVect pos, cpFloat angle, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
+		void CpCircleCallback(cpVect pos, cpFloat angle, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->circleCallback)
 				drawOptions->circleCallback(Vector2f(float(pos.x), float(pos.y)), RadianAnglef(float(angle)), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 		}
 
-		void DrawDot(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer userdata)
+		void CpDotCallback(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->dotCallback)
 				drawOptions->dotCallback(Vector2f(float(pos.x), float(pos.y)), float(size), CpDebugColorToColor(color), drawOptions->userdata);
 		}
 
-		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
-
-		void DrawPolygon(int vertexCount, const cpVect* vertices, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
+		void CpPolygonCallback(int vertexCount, const cpVect* vertices, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->polygonCallback)
@@ -53,21 +51,21 @@ namespace Nz
 			}
 		}
 
-		void DrawSegment(cpVect a, cpVect b, cpSpaceDebugColor color, cpDataPointer userdata)
+		void CpSegmentCallback(cpVect a, cpVect b, cpSpaceDebugColor color, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->segmentCallback)
 				drawOptions->segmentCallback(Vector2f(float(a.x), float(a.y)), Vector2f(float(b.x), float(b.y)), CpDebugColorToColor(color), drawOptions->userdata);
 		}
 
-		void DrawThickSegment(cpVect a, cpVect b, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
+		void CpThickSegmentCallback(cpVect a, cpVect b, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->thickSegmentCallback)
 				drawOptions->thickSegmentCallback(Vector2f(float(a.x), float(a.y)), Vector2f(float(b.x), float(b.y)), float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 		}
 
-		cpSpaceDebugColor GetColorForShape(cpShape* shape, cpDataPointer userdata)
+		cpSpaceDebugColor CpShapeColorCallback(cpShape* shape, cpDataPointer userdata)
 		{
 			auto drawOptions = static_cast<PhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->colorCallback)
@@ -120,12 +118,12 @@ namespace Nz
 		drawOptions.flags = static_cast<cpSpaceDebugDrawFlags>(drawFlags);
 
 		// Callback trampoline
-		drawOptions.colorForShape = GetColorForShape;
-		drawOptions.drawCircle = DrawCircle;
-		drawOptions.drawDot = DrawDot;
-		drawOptions.drawFatSegment = DrawThickSegment;
-		drawOptions.drawPolygon = DrawPolygon;
-		drawOptions.drawSegment = DrawSegment;
+		drawOptions.colorForShape = CpShapeColorCallback;
+		drawOptions.drawCircle = CpCircleCallback;
+		drawOptions.drawDot = CpDotCallback;
+		drawOptions.drawFatSegment = CpThickSegmentCallback;
+		drawOptions.drawPolygon = CpPolygonCallback;
+		drawOptions.drawSegment = CpSegmentCallback;
 
 		cpSpaceDebugDraw(m_handle, &drawOptions);
 	}

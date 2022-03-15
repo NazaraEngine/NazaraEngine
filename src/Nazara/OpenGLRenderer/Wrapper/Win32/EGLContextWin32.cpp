@@ -83,3 +83,5 @@ namespace Nz::GL
 		m_ownedWindow.reset();
 	}
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

@@ -203,3 +203,7 @@ namespace Nz
 	const char* Error::s_lastErrorFile = "";
 	unsigned int Error::s_lastErrorLine = 0;
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

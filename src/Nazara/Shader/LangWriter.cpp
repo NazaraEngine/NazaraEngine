@@ -17,16 +17,6 @@
 
 namespace Nz
 {
-	namespace
-	{
-		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
-		{
-			auto it = map.find(id);
-			assert(it != map.end());
-			return it->second;
-		}
-	}
-
 	struct LangWriter::BindingAttribute
 	{
 		const ShaderAst::ExpressionValue<UInt32>& bindingIndex;

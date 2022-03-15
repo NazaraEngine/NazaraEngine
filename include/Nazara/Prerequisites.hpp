@@ -149,6 +149,16 @@
 	#define NAZARA_PLATFORM_x64
 #endif
 
+#ifdef NAZARA_UNITY_BUILD
+	#define NAZARA_ANONYMOUS_NAMESPACE NAZARA_UNITY_ID
+	#define NAZARA_USE_ANONYMOUS_NAMESPACE using namespace NAZARA_UNITY_ID;
+	#define NAZARA_ANONYMOUS_NAMESPACE_PREFIX(a) NAZARA_UNITY_ID::a
+#else
+	#define NAZARA_ANONYMOUS_NAMESPACE
+	#define NAZARA_USE_ANONYMOUS_NAMESPACE
+	#define NAZARA_ANONYMOUS_NAMESPACE_PREFIX(a) a
+#endif
+
 // A bunch of useful macros
 #define NazaraPrefix(a, prefix) prefix ## a
 #define NazaraPrefixMacro(a, prefix) NazaraPrefix(a, prefix)

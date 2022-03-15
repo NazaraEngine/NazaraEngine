@@ -17,7 +17,7 @@ namespace Nz
 {
 	namespace
 	{
-		constexpr cpSpaceDebugColor white = { 1.f, 1.f, 1.f, 1.f };
+		constexpr cpSpaceDebugColor s_chipmunkWhite = { 1.f, 1.f, 1.f, 1.f };
 
 		Vector2f FromChipmunk(const cpVect& v)
 		{
@@ -54,14 +54,14 @@ namespace Nz
 		using CallbackType = std::decay_t<decltype(callback)>;
 
 		cpSpaceDebugDrawOptions drawOptions;
-		drawOptions.collisionPointColor = white;
-		drawOptions.constraintColor = white;
-		drawOptions.shapeOutlineColor = white;
+		drawOptions.collisionPointColor = s_chipmunkWhite;
+		drawOptions.constraintColor = s_chipmunkWhite;
+		drawOptions.shapeOutlineColor = s_chipmunkWhite;
 		drawOptions.data = const_cast<void*>(static_cast<const void*>(&callback));
 		drawOptions.flags = CP_SPACE_DEBUG_DRAW_SHAPES;
 
 		// Callback trampoline
-		drawOptions.colorForShape = [](cpShape* /*shape*/, cpDataPointer /*userdata*/) { return white; };
+		drawOptions.colorForShape = [](cpShape* /*shape*/, cpDataPointer /*userdata*/) { return s_chipmunkWhite; };
 		drawOptions.drawCircle = [](cpVect pos, cpFloat /*angle*/, cpFloat radius, cpSpaceDebugColor /*outlineColor*/, cpSpaceDebugColor /*fillColor*/, cpDataPointer userdata)
 		{
 			const auto& callback = *static_cast<const CallbackType*>(userdata);

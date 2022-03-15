@@ -615,3 +615,7 @@ namespace Nz
 		return true;
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

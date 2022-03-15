@@ -29,34 +29,20 @@ namespace Nz
 {
 	namespace
 	{
-		struct Builtin
+		struct SpirvBuiltin
 		{
 			const char* debugName;
 			ShaderStageTypeFlags compatibleStages;
 			SpirvBuiltIn decoration;
 		};
 
-		template<typename T> T& Retrieve(std::unordered_map<std::size_t, T>& map, std::size_t id)
-		{
-			auto it = map.find(id);
-			assert(it != map.end());
-			return it->second;
-		}
-
-		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
-		{
-			auto it = map.find(id);
-			assert(it != map.end());
-			return it->second;
-		}
-
-		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
+		std::unordered_map<ShaderAst::BuiltinEntry, SpirvBuiltin> s_spirvBuiltinMapping = {
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "FragmentCoordinates", ShaderStageType::Fragment, SpirvBuiltIn::FragCoord } },
 			{ ShaderAst::BuiltinEntry::FragDepth,      { "FragmentDepth",       ShaderStageType::Fragment, SpirvBuiltIn::FragDepth } },
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition",      ShaderStageType::Vertex,   SpirvBuiltIn::Position } }
 		};
 
-		class PreVisitor : public ShaderAst::AstRecursiveVisitor
+		class SpirvPreVisitor : public ShaderAst::AstRecursiveVisitor
 		{
 			public:
 				struct UniformVar
@@ -74,7 +60,7 @@ namespace Nz
 				using FunctionContainer = std::vector<std::reference_wrapper<ShaderAst::DeclareFunctionStatement>>;
 				using StructContainer = std::vector<ShaderAst::StructDescription*>;
 
-				PreVisitor(SpirvConstantCache& constantCache, std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& funcs) :
+				SpirvPreVisitor(SpirvConstantCache& constantCache, std::unordered_map<std::size_t, SpirvAstVisitor::FuncData>& funcs) :
 				m_constantCache(constantCache),
 				m_funcs(funcs)
 				{
@@ -411,10 +397,10 @@ namespace Nz
 				{
 					if (member.builtin.HasValue())
 					{
-						auto it = s_builtinMapping.find(member.builtin.GetResultingValue());
-						assert(it != s_builtinMapping.end());
+						auto it = s_spirvBuiltinMapping.find(member.builtin.GetResultingValue());
+						assert(it != s_spirvBuiltinMapping.end());
 
-						Builtin& builtin = it->second;
+						SpirvBuiltin& builtin = it->second;
 						if ((builtin.compatibleStages & entryPointType) == 0)
 							return 0;
 
@@ -481,7 +467,7 @@ namespace Nz
 		std::vector<UInt32> resultIds;
 		UInt32 nextVarIndex = 1;
 		SpirvConstantCache constantTypeCache; //< init after nextVarIndex
-		PreVisitor* previsitor;
+		SpirvPreVisitor* previsitor;
 
 		// Output
 		SpirvSection header;
@@ -546,7 +532,7 @@ namespace Nz
 		});
 
 		// Register all extended instruction sets
-		PreVisitor previsitor(state.constantTypeCache, state.funcs);
+		SpirvPreVisitor previsitor(state.constantTypeCache, state.funcs);
 		for (const auto& importedModule : targetModule->importedModules)
 			importedModule.module->rootNode->Visit(previsitor);
 

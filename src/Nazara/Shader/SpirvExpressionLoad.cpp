@@ -11,17 +11,11 @@
 
 namespace Nz
 {
-	namespace
-	{
-		template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-		template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-	}
-
 	UInt32 SpirvExpressionLoad::Evaluate(ShaderAst::Expression& node)
 	{
 		node.Visit(*this);
 
-		return std::visit(overloaded
+		return std::visit(Overloaded
 		{
 			[this](const Pointer& pointer) -> UInt32
 			{
@@ -89,7 +83,7 @@ namespace Nz
 		assert(node.indices.size() == 1);
 		UInt32 indexId = m_visitor.EvaluateExpression(node.indices.front());
 
-		std::visit(overloaded
+		std::visit(Overloaded
 		{
 			[&](const Pointer& pointer)
 			{

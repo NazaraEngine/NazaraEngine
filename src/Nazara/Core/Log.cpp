@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		StdLogger s_stdLogger;
 	}
@@ -60,6 +60,8 @@ namespace Nz
 
 	void Log::SetLogger(AbstractLogger* logger)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (s_logger != &s_stdLogger)
 			delete s_logger;
 
@@ -111,6 +113,8 @@ namespace Nz
 
 	bool Log::Initialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (s_logger == &s_stdLogger)
 			SetLogger(new FileLogger());
 
@@ -129,6 +133,6 @@ namespace Nz
 	NazaraStaticSignalImpl(Log, OnLogWrite);
 	NazaraStaticSignalImpl(Log, OnLogWriteError);
 
-	AbstractLogger* Log::s_logger = &s_stdLogger;
+	AbstractLogger* Log::s_logger = &NAZARA_ANONYMOUS_NAMESPACE_PREFIX(s_stdLogger);
 	bool Log::s_enabled = true;
 }

@@ -22,12 +22,12 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const std::string_view& extension)
+		bool IsOBJSupported(const std::string_view& extension)
 		{
 			return (extension == "obj");
 		}
 
-		Ternary Check(Stream& stream, const MeshParams& parameters)
+		Ternary CheckOBJ(Stream& stream, const MeshParams& parameters)
 		{
 			NazaraUnused(stream);
 
@@ -157,7 +157,7 @@ namespace Nz
 			return true;
 		}
 
-		std::shared_ptr<Mesh> Load(Stream& stream, const MeshParams& parameters)
+		std::shared_ptr<Mesh> LoadOBJ(Stream& stream, const MeshParams& parameters)
 		{
 			long long reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
@@ -367,9 +367,9 @@ namespace Nz
 		MeshLoader::Entry GetMeshLoader_OBJ()
 		{
 			MeshLoader::Entry loader;
-			loader.extensionSupport = IsSupported;
-			loader.streamChecker = Check;
-			loader.streamLoader = Load;
+			loader.extensionSupport = IsOBJSupported;
+			loader.streamChecker = CheckOBJ;
+			loader.streamLoader = LoadOBJ;
 
 			return loader;
 		}

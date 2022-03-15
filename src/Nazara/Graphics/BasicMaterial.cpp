@@ -19,7 +19,7 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_shader[] = {
+		const UInt8 r_basicMaterialShader[] = {
 			#include <Nazara/Graphics/Resources/Shaders/basic_material.nzsl.h>
 		};
 	}
@@ -254,7 +254,7 @@ namespace Nz
 #endif
 
 		if (!shaderModule)
-			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_shader), sizeof(r_shader)));
+			shaderModule = ShaderLang::Parse(std::string_view(reinterpret_cast<const char*>(r_basicMaterialShader), sizeof(r_basicMaterialShader)));
 
 		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
 
