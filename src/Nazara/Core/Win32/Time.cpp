@@ -26,3 +26,5 @@ namespace Nz
 		return std::mktime(&timeinfo);
 	}
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

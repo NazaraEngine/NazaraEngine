@@ -365,6 +365,38 @@ namespace Nz
 
 	/*!
 	* \ingroup core
+	* \brief Helper function to retrieve a key in a map which has to exist
+	* \return Value associated with key
+	*
+	* \param map Map
+	* \param key Key, has to exist in map
+	*/
+	template<typename K, typename V>
+	V& Retrieve(std::unordered_map<K, V>& map, const K& key)
+	{
+		auto it = map.find(key);
+		assert(it != map.end());
+		return it->second;
+	}
+
+	/*!
+	* \ingroup core
+	* \brief Helper function to retrieve a key in a map which has to exist
+	* \return Value associated with key
+	*
+	* \param map Map
+	* \param key Key, has to exist in map
+	*/
+	template<typename K, typename V>
+	const V& Retrieve(const std::unordered_map<K, V>& map, const K& key)
+	{
+		auto it = map.find(key);
+		assert(it != map.end());
+		return it->second;
+	}
+
+	/*!
+	* \ingroup core
 	* \brief Reverse the bit order of the integer
 	* \return integer with reversed bits
 	*
@@ -470,6 +502,12 @@ namespace Nz
 #ifdef NAZARA_COMPILER_MSVC
 	#pragma warning(pop)
 #endif
+	}
+
+	template<typename T, typename U>
+	std::unique_ptr<T> StaticUniquePointerCast(std::unique_ptr<U>&& ptr)
+	{
+		return std::unique_ptr<T>(SafeCast<T*>(ptr.release()));
 	}
 
 	template<typename T>

@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		struct VendorString
 		{
@@ -108,6 +108,8 @@ namespace Nz
 
 	std::string_view HardwareInfo::GetProcessorBrandString()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");
 
@@ -136,6 +138,8 @@ namespace Nz
 
 	ProcessorVendor HardwareInfo::GetProcessorVendor()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");
 
@@ -151,6 +155,8 @@ namespace Nz
 
 	std::string_view HardwareInfo::GetProcessorVendorName()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!Initialize())
 			NazaraError("Failed to initialize HardwareInfo");
 
@@ -179,6 +185,8 @@ namespace Nz
 
 	bool HardwareInfo::HasCapability(ProcessorCap capability)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_capabilities[UnderlyingCast(capability)];
 	}
 
@@ -191,6 +199,8 @@ namespace Nz
 
 	bool HardwareInfo::Initialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (IsInitialized())
 			return true;
 
@@ -294,6 +304,8 @@ namespace Nz
 
 	bool HardwareInfo::IsInitialized()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_initialized;
 	}
 
@@ -303,6 +315,8 @@ namespace Nz
 
 	void HardwareInfo::Uninitialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		// Nothing to do
 		s_initialized = false;
 	}

@@ -128,3 +128,5 @@ namespace Nz::GL
 		return func;
 	}
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

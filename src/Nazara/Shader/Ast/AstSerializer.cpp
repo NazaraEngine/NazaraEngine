@@ -12,8 +12,8 @@ namespace Nz::ShaderAst
 {
 	namespace
 	{
-		constexpr UInt32 s_magicNumber = 0x4E534852;
-		constexpr UInt32 s_currentVersion = 1;
+		constexpr UInt32 s_shaderAstMagicNumber = 0x4E534852;
+		constexpr UInt32 s_shaderAstCurrentVersion = 1;
 
 		class ShaderSerializerVisitor : public AstExpressionVisitor, public AstStatementVisitor
 		{
@@ -375,7 +375,7 @@ namespace Nz::ShaderAst
 
 	void ShaderAstSerializer::Serialize(ModulePtr& module)
 	{
-		m_stream << s_magicNumber << s_currentVersion;
+		m_stream << s_shaderAstMagicNumber << s_shaderAstCurrentVersion;
 
 		SerializeModule(module);
 
@@ -588,11 +588,11 @@ namespace Nz::ShaderAst
 		UInt32 magicNumber;
 		UInt32 version;
 		m_stream >> magicNumber;
-		if (magicNumber != s_magicNumber)
+		if (magicNumber != s_shaderAstMagicNumber)
 			throw std::runtime_error("invalid shader file");
 
 		m_stream >> version;
-		if (version > s_currentVersion)
+		if (version > s_shaderAstCurrentVersion)
 			throw std::runtime_error("unsupported version");
 
 		ModulePtr module;

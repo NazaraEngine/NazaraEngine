@@ -1062,3 +1062,35 @@ namespace Nz
 		}
 	}
 }
+
+#undef ADDINC128
+#undef K1_0_TO_19
+#undef K1_20_TO_39
+#undef K1_40_TO_59
+#undef K1_60_TO_79
+#undef REVERSE32
+#undef REVERSE64
+#undef ROUND1_0_TO_15
+#undef ROUND1_16_TO_19
+#undef ROUND1_20_TO_39
+#undef ROUND1_40_TO_59
+#undef ROUND1_60_TO_79
+#undef ROUND256
+#undef ROUND256_0_TO_15
+#undef ROUND512
+#undef ROUND512_0_TO_15
+#undef SHR
+#undef ROTL32
+#undef ROTR32
+#undef ROTR64
+#undef Ch
+#undef Maj
+#undef Parity
+#undef Sigma0_256
+#undef Sigma1_256
+#undef sigma0_256
+#undef sigma1_256
+#undef Sigma0_512
+#undef Sigma1_512
+#undef sigma0_512
+#undef sigma1_512

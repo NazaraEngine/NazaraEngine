@@ -52,12 +52,12 @@ namespace Nz
 				T* m_buffer;
 		};
 
-		bool IsSupported(const std::string_view& extension)
+		bool IsOBJSupportedSave(const std::string_view& extension)
 		{
 			return (extension == "obj");
 		}
 
-		bool SaveToStream(const Mesh& mesh, const std::string& format, Stream& stream, const MeshParams& parameters)
+		bool SaveOBJToStream(const Mesh& mesh, const std::string& format, Stream& stream, const MeshParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -213,8 +213,8 @@ namespace Nz
 		MeshSaver::Entry GetMeshSaver_OBJ()
 		{
 			MeshSaver::Entry entry;
-			entry.formatSupport = IsSupported;
-			entry.streamSaver = SaveToStream;
+			entry.formatSupport = IsOBJSupportedSave;
+			entry.streamSaver = SaveOBJToStream;
 
 			return entry;
 		}

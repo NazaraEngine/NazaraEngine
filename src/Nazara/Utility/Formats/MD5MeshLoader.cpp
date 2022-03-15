@@ -20,12 +20,12 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const std::string_view& extension)
+		bool IsMD5MeshSupported(const std::string_view& extension)
 		{
 			return (extension == "md5mesh");
 		}
 
-		Ternary Check(Stream& stream, const MeshParams& parameters)
+		Ternary CheckMD5Mesh(Stream& stream, const MeshParams& parameters)
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD5MeshLoader", &skip) && skip)
@@ -35,7 +35,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		std::shared_ptr<Mesh> Load(Stream& stream, const MeshParams& parameters)
+		std::shared_ptr<Mesh> LoadMD5Mesh(Stream& stream, const MeshParams& parameters)
 		{
 			MD5MeshParser parser(stream);
 			if (!parser.Parse())
@@ -334,9 +334,9 @@ namespace Nz
 		MeshLoader::Entry GetMeshLoader_MD5Mesh()
 		{
 			MeshLoader::Entry loader;
-			loader.extensionSupport = IsSupported;
-			loader.streamChecker = Check;
-			loader.streamLoader = Load;
+			loader.extensionSupport = IsMD5MeshSupported;
+			loader.streamChecker = CheckMD5Mesh;
+			loader.streamLoader = LoadMD5Mesh;
 
 			return loader;
 		}

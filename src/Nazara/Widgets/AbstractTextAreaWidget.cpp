@@ -16,8 +16,8 @@ namespace Nz
 {
 	namespace
 	{
-		constexpr float paddingWidth = 5.f;
-		constexpr float paddingHeight = 3.f;
+		constexpr float s_textAreaPaddingWidth = 5.f;
+		constexpr float s_textAreaPaddingHeight = 3.f;
 	}
 
 	AbstractTextAreaWidget::AbstractTextAreaWidget(BaseWidget* parent) :
@@ -43,7 +43,7 @@ namespace Nz
 
 		auto& textNode = GetRegistry().emplace<NodeComponent>(m_textEntity);
 		textNode.SetParent(this);
-		textNode.SetPosition(paddingWidth, GetHeight() - paddingHeight);
+		textNode.SetPosition(s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight);
 
 		SetCursor(SystemCursor::Text);
 
@@ -528,7 +528,7 @@ namespace Nz
 		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
 
 		auto& textNode = registry.get<NodeComponent>(m_textEntity);
-		float textPosition = textNode.GetPosition(CoordSys::Local).x - paddingWidth;
+		float textPosition = textNode.GetPosition(CoordSys::Local).x - s_textAreaPaddingWidth;
 		float cursorPosition = glyphPos + textPosition;
 		float width = GetWidth();
 
@@ -619,6 +619,6 @@ namespace Nz
 		SetPreferredSize(textSize);
 
 		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		textNode.SetPosition(paddingWidth, GetHeight() - paddingHeight - textSize.y);
+		textNode.SetPosition(s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight - textSize.y);
 	}
 }

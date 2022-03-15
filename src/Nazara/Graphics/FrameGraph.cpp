@@ -6,6 +6,7 @@
 // https://themaister.net/blog/2017/08/15/render-graphs-and-vulkan-a-deep-dive/
 
 #include <Nazara/Graphics/FrameGraph.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <stdexcept>
@@ -16,13 +17,6 @@ namespace Nz
 {
 	namespace
 	{
-		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
-		{
-			auto it = map.find(id);
-			assert(it != map.end());
-			return it->second;
-		}
-
 		template<typename T> void UniquePushBack(std::vector<T>& vec, const T& value)
 		{
 			auto it = std::find(vec.begin(), vec.end(), value);

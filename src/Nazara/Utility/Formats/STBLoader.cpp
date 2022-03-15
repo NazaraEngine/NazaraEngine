@@ -17,52 +17,52 @@ namespace Nz
 {
 	namespace
 	{
-		int Eof(void* userdata)
+		int StbiEof(void* userdata)
 		{
 			Stream* stream = static_cast<Stream*>(userdata);
 			return stream->GetCursorPos() >= stream->GetSize();
 		}
 
-		int Read(void* userdata, char* data, int size)
+		int StbiRead(void* userdata, char* data, int size)
 		{
 			Stream* stream = static_cast<Stream*>(userdata);
 			return static_cast<int>(stream->Read(data, size));
 		}
 
-		void Skip(void* userdata, int size)
+		void StbiSkip(void* userdata, int size)
 		{
 			Stream* stream = static_cast<Stream*>(userdata);
 			stream->SetCursorPos(static_cast<Int64>(stream->GetCursorPos()) + static_cast<Int64>(size));
 		}
 
-		static stbi_io_callbacks callbacks = {Read, Skip, Eof};
+		static stbi_io_callbacks s_stbiCallbacks = { StbiRead, StbiSkip, StbiEof };
 
-		bool IsSupported(const std::string_view& extension)
+		bool IsSTBSupported(const std::string_view& extension)
 		{
 			static std::unordered_set<std::string_view> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary Check(Stream& stream, const ImageParams& parameters)
+		Ternary CheckSTB(Stream& stream, const ImageParams& parameters)
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeSTBLoader", &skip) && skip)
 				return Ternary::False;
 
 			int width, height, bpp;
-			if (stbi_info_from_callbacks(&callbacks, &stream, &width, &height, &bpp))
+			if (stbi_info_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp))
 				return Ternary::True;
 			else
 				return Ternary::False;
 		}
 
-		std::shared_ptr<Image> Load(Stream& stream, const ImageParams& parameters)
+		std::shared_ptr<Image> LoadSTB(Stream& stream, const ImageParams& parameters)
 		{
 			// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
 			// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
 
 			int width, height, bpp;
-			UInt8* ptr = stbi_load_from_callbacks(&callbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
+			UInt8* ptr = stbi_load_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 			if (!ptr)
 			{
 				NazaraError("Failed to load image: " + std::string(stbi_failure_reason()));
@@ -103,9 +103,9 @@ namespace Nz
 		ImageLoader::Entry GetImageLoader_STB()
 		{
 			ImageLoader::Entry loaderEntry;
-			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = Check;
-			loaderEntry.streamLoader = Load;
+			loaderEntry.extensionSupport = IsSTBSupported;
+			loaderEntry.streamChecker = CheckSTB;
+			loaderEntry.streamLoader = LoadSTB;
 
 			return loaderEntry;
 		}

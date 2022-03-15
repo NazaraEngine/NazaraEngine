@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		UInt32 crc32_reflect(UInt32 ref, unsigned int j)
 		{
@@ -63,6 +63,8 @@ namespace Nz
 
 	CRC32Hash::CRC32Hash(UInt32 polynomial)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (polynomial == DefaultPolynomial)
 			m_table = crc32_table;
 		else
@@ -84,6 +86,8 @@ namespace Nz
 
 	CRC32Hash::~CRC32Hash()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (m_table != crc32_table)
 			delete[] m_table;
 	}

@@ -124,3 +124,7 @@ namespace Nz
 		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

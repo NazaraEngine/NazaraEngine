@@ -47,3 +47,5 @@ namespace Nz
 		}
 	}
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

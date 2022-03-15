@@ -23,8 +23,6 @@ namespace Nz
 {
 	namespace
 	{
-		WindowImpl* fullscreenWindow = nullptr;
-
 		Mouse::Button SDLToNazaraButton(Uint8 sdlButton)
 		{
 			switch (sdlButton)
@@ -88,8 +86,6 @@ namespace Nz
 		{
 			x = 0;
 			y = 0;
-
-			fullscreenWindow = this;
 		}
 		else
 		{

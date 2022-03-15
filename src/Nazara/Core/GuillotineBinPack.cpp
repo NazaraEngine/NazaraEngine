@@ -21,7 +21,7 @@ namespace Nz
 	* \brief Core class that represents the "Guillotine problem", combination of the "Bin packing problem" and the "cutting stock"
 	*/
 
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		/*!
 		* \brief Gets the score for fitting the area
@@ -635,6 +635,8 @@ namespace Nz
 
 	int GuillotineBinPack::ScoreByHeuristic(int width, int height, const Rectui& freeRect, FreeRectChoiceHeuristic rectChoice)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		switch (rectChoice)
 		{
 			case RectBestAreaFit:

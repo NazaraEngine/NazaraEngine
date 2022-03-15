@@ -134,3 +134,7 @@ namespace Nz
 		OnRenderPassRelease(this);
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

@@ -110,3 +110,5 @@ namespace Nz
 	#endif
 	}
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

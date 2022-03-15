@@ -246,3 +246,5 @@ namespace Nz
 	std::unique_ptr<HANDLE[]> TaskSchedulerImpl::s_workerThreads; // Doivent être contigus
 	DWORD TaskSchedulerImpl::s_workerCount;
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

@@ -45,3 +45,5 @@ namespace Nz
 }
 
 #endif // NAZARA_CORE_WIN32_FILEIMPL_HPP
+
+#include <Nazara/Core/AntiWindows.hpp>

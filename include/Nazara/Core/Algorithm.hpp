@@ -39,12 +39,23 @@ namespace Nz
 	inline bool HashAppend(AbstractHash* hash, const std::string_view& v);
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> bool IsPowerOfTwo(T value);
+	template<typename K, typename V> V& Retrieve(std::unordered_map<K, V>& map, const K& key);
+	template<typename K, typename V> const V& Retrieve(const std::unordered_map<K, V>& map, const K& key);
 	template<typename T> T ReverseBits(T integer);
 	template<typename To, typename From> To SafeCast(From&& value);
+	template<typename T, typename U>std::unique_ptr<T> StaticUniquePointerCast(std::unique_ptr<U>&& ptr);
 	template<typename T> constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>;
 
 	template<typename T>
 	struct AlwaysFalse : std::false_type {};
+
+	// Helper for std::visit
+	template<typename... Ts> struct Overloaded : Ts...
+	{
+		using Ts::operator()...;
+	};
+
+	template<typename... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
 
 	template<typename... Args>
 	struct OverloadResolver

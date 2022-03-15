@@ -10,14 +10,8 @@
 
 namespace Nz::ShaderAst
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		template<typename T, typename U>
-		std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
-		{
-			return std::unique_ptr<T>(static_cast<T*>(ptr.release()));
-		}
-
 		template <typename T>
 		struct is_complete_helper
 		{
@@ -1138,6 +1132,8 @@ namespace Nz::ShaderAst
 	template<BinaryType Type>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateBinaryConstant(const ConstantValueExpression& lhs, const ConstantValueExpression& rhs)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg1)
 		{
@@ -1167,6 +1163,8 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateSingleValueCast(const ConstantValueExpression& operand)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 
 		std::visit([&](auto&& arg)
@@ -1184,6 +1182,8 @@ namespace Nz::ShaderAst
 	template<std::size_t TargetComponentCount>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateConstantSwizzle(const std::array<UInt32, 4>& components, const ConstantValueExpression& operand)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg)
 		{
@@ -1204,6 +1204,8 @@ namespace Nz::ShaderAst
 	template<UnaryType Type>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateUnaryConstant(const ConstantValueExpression& operand)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 		std::visit([&](auto&& arg)
 		{
@@ -1227,6 +1229,8 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateVec2Cast(TargetType v1, TargetType v2)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 
 		using CCType = CastConstant<Vector2<TargetType>, TargetType, TargetType>;
@@ -1240,6 +1244,8 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateVec3Cast(TargetType v1, TargetType v2, TargetType v3)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 
 		using CCType = CastConstant<Vector3<TargetType>, TargetType, TargetType, TargetType>;
@@ -1253,6 +1259,8 @@ namespace Nz::ShaderAst
 	template<typename TargetType>
 	ExpressionPtr AstConstantPropagationVisitor::PropagateVec4Cast(TargetType v1, TargetType v2, TargetType v3, TargetType v4)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::unique_ptr<ConstantValueExpression> optimized;
 
 		using CCType = CastConstant<Vector4<TargetType>, TargetType, TargetType, TargetType, TargetType>;

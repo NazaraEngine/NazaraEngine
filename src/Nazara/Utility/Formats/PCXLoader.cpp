@@ -16,7 +16,7 @@ namespace Nz
 {
 	namespace
 	{
-		struct pcx_header
+		struct PCXHeader
 		{
 			UInt8 manufacturer;
 			UInt8 version;
@@ -38,14 +38,14 @@ namespace Nz
 			UInt8 padding[54];
 		};
 
-		static_assert(sizeof(pcx_header) == (6+48+54)*sizeof(UInt8) + 10*sizeof(UInt16), "pcx_header struct must be packed");
+		static_assert(sizeof(PCXHeader) == (6+48+54)*sizeof(UInt8) + 10*sizeof(UInt16), "pcx_header struct must be packed");
 
-		bool IsSupported(const std::string_view& extension)
+		bool IsPCXSupported(const std::string_view& extension)
 		{
 			return (extension == "pcx");
 		}
 
-		Ternary Check(Stream& stream, const ImageParams& parameters)
+		Ternary CheckPCX(Stream& stream, const ImageParams& parameters)
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativePCXLoader", &skip) && skip)
@@ -61,12 +61,12 @@ namespace Nz
 			return Ternary::False;
 		}
 
-		std::shared_ptr<Image> Load(Stream& stream, const ImageParams& parameters)
+		std::shared_ptr<Image> LoadPCX(Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
-			pcx_header header;
-			if (stream.Read(&header, sizeof(pcx_header)) != sizeof(pcx_header))
+			PCXHeader header;
+			if (stream.Read(&header, sizeof(PCXHeader)) != sizeof(PCXHeader))
 			{
 				NazaraError("Failed to read header");
 				return nullptr;
@@ -345,9 +345,9 @@ namespace Nz
 		ImageLoader::Entry GetImageLoader_PCX()
 		{
 			ImageLoader::Entry loaderEntry;
-			loaderEntry.extensionSupport = IsSupported;
-			loaderEntry.streamChecker = Check;
-			loaderEntry.streamLoader = Load;
+			loaderEntry.extensionSupport = IsPCXSupported;
+			loaderEntry.streamChecker = CheckPCX;
+			loaderEntry.streamLoader = LoadPCX;
 
 			return loaderEntry;
 		}

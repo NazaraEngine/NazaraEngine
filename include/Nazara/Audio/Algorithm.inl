@@ -11,11 +11,13 @@ namespace Nz
 	/*!
 	* \ingroup audio
 	* \brief Get the number of channels occupied by an audio format
-	* \returns The number of channels occupied by an audio format (mono returns 1, stero returns 2, etc.)
+	* \returns The number of channels occupied by an audio format (mono returns 1, stereo returns 2, etc.)
 	*
 	* \param format A valid audio format
 	* 
-	* \remark The format must be valid (using AudioFormat::Unknown will trigger an error)
+	* \remark format cannot be AudioFormat::Unknown
+	*
+	* \see GuessAudioFormat
 	*/
 	UInt32 GetChannelCount(AudioFormat format)
 	{
@@ -46,6 +48,42 @@ namespace Nz
 		}
 
 		return 0;
+	}
+
+	/*!
+	* \ingroup audio
+	* \brief Gets the common audio format associated with a specific channel count
+	* \returns AudioFormat associated with channel count or empty optional if none match
+	*
+	* \param channelCount Channel count
+	*
+	* \see GetChannelCount
+	*/
+	inline std::optional<AudioFormat> GuessAudioFormat(UInt32 channelCount)
+	{
+		switch (channelCount)
+		{
+			case 1:
+				return AudioFormat::I16_Mono;
+
+			case 2:
+				return AudioFormat::I16_Stereo;
+
+			case 4:
+				return AudioFormat::I16_Quad;
+
+			case 6:
+				return AudioFormat::I16_5_1;
+
+			case 7:
+				return AudioFormat::I16_6_1;
+
+			case 8:
+				return AudioFormat::I16_7_1;
+
+			default:
+				return std::nullopt;
+		}
 	}
 
 	/*!

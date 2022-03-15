@@ -33,3 +33,7 @@ namespace Nz
 			throw std::runtime_error("Failed to create sampler: " + TranslateVulkanError(m_sampler.GetLastErrorCode()));
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif

@@ -22,19 +22,12 @@ namespace Nz
 {
 	namespace
 	{
-		static const char* s_flipYUniformName = "_NzFlipYValue";
-		static const char* s_inputPrefix = "_NzIn_";
-		static const char* s_outputPrefix = "_NzOut_";
-		static const char* s_outputVarName = "_nzOutput";
+		static const char* s_glslWriterFlipYUniformName = "_NzFlipYValue";
+		static const char* s_glslWriterInputPrefix = "_NzIn_";
+		static const char* s_glslWriterOutputPrefix = "_NzOut_";
+		static const char* s_glslWriterOutputVarName = "_nzOutput";
 
-		template<typename T> const T& Retrieve(const std::unordered_map<std::size_t, T>& map, std::size_t id)
-		{
-			auto it = map.find(id);
-			assert(it != map.end());
-			return it->second;
-		}
-
-		struct PreVisitor : ShaderAst::AstRecursiveVisitor
+		struct GlslWriterPreVisitor : ShaderAst::AstRecursiveVisitor
 		{
 			using AstRecursiveVisitor::Visit;
 
@@ -110,13 +103,13 @@ namespace Nz
 			ShaderAst::DeclareFunctionStatement* entryPoint = nullptr;
 		};
 
-		struct Builtin
+		struct GlslBuiltin
 		{
 			std::string identifier;
 			ShaderStageTypeFlags stageFlags;
 		};
 
-		std::unordered_map<ShaderAst::BuiltinEntry, Builtin> s_builtinMapping = {
+		std::unordered_map<ShaderAst::BuiltinEntry, GlslBuiltin> s_glslBuiltinMapping = {
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "gl_FragCoord", ShaderStageType::Fragment } },
 			{ ShaderAst::BuiltinEntry::FragDepth,      { "gl_FragDepth", ShaderStageType::Fragment } },
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "gl_Position", ShaderStageType::Vertex } }
@@ -152,7 +145,7 @@ namespace Nz
 		std::vector<InOutField> outputFields;
 		Bitset<> declaredFunctions;
 		const GlslWriter::BindingMapping& bindingMapping;
-		PreVisitor previsitor;
+		GlslWriterPreVisitor previsitor;
 		const States* states = nullptr;
 		bool isInEntryPoint = false;
 		unsigned int indentLevel = 0;
@@ -249,7 +242,7 @@ namespace Nz
 
 	const char* GlslWriter::GetFlipYUniformName()
 	{
-		return s_flipYUniformName;
+		return s_glslWriterFlipYUniformName;
 	}
 
 	ShaderAst::SanitizeVisitor::Options GlslWriter::GetSanitizeOptions()
@@ -724,10 +717,10 @@ namespace Nz
 
 				if (member.builtin.HasValue())
 				{
-					auto it = s_builtinMapping.find(member.builtin.GetResultingValue());
-					assert(it != s_builtinMapping.end());
+					auto it = s_glslBuiltinMapping.find(member.builtin.GetResultingValue());
+					assert(it != s_glslBuiltinMapping.end());
 
-					const Builtin& builtin = it->second;
+					const GlslBuiltin& builtin = it->second;
 					if (m_currentState->stage && !builtin.stageFlags.Test(*m_currentState->stage))
 						continue; //< This builtin is not active in this stage, skip it
 
@@ -770,12 +763,12 @@ namespace Nz
 			const auto& inputStruct = Retrieve(m_currentState->structs, inputStructIndex);
 
 			AppendCommentSection("Inputs");
-			AppendInOut(inputStruct, m_currentState->inputFields, "in", s_inputPrefix);
+			AppendInOut(inputStruct, m_currentState->inputFields, "in", s_glslWriterInputPrefix);
 		}
 
 		if (m_currentState->stage == ShaderStageType::Vertex && m_environment.flipYPosition)
 		{
-			AppendLine("uniform float ", s_flipYUniformName, ";");
+			AppendLine("uniform float ", s_glslWriterFlipYUniformName, ";");
 			AppendLine();
 		}
 
@@ -787,7 +780,7 @@ namespace Nz
 			const auto& outputStruct = Retrieve(m_currentState->structs, outputStructIndex);
 
 			AppendCommentSection("Outputs");
-			AppendInOut(outputStruct, m_currentState->outputFields, "out", s_outputPrefix);
+			AppendInOut(outputStruct, m_currentState->outputFields, "out", s_glslWriterOutputPrefix);
 		}
 	}
 
@@ -1344,11 +1337,11 @@ namespace Nz
 			else
 			{
 				AppendLine();
-				Append(structData.nameOverride, " ", s_outputVarName, " = ");
+				Append(structData.nameOverride, " ", s_glslWriterOutputVarName, " = ");
 				node.returnExpr->Visit(*this);
 				AppendLine(";");
 
-				outputStructVarName = s_outputVarName;
+				outputStructVarName = s_glslWriterOutputVarName;
 			}
 
 			AppendLine();
@@ -1362,7 +1355,7 @@ namespace Nz
 				{
 					// https://veldrid.dev/articles/backend-differences.html
 					if (m_environment.flipYPosition)
-						AppendLine(targetName, ".y *= ", s_flipYUniformName, ";");
+						AppendLine(targetName, ".y *= ", s_glslWriterFlipYUniformName, ";");
 
 					if (m_environment.remapZPosition)
 						AppendLine(targetName, ".z = ", targetName, ".z * 2.0 - ", targetName, ".w; ");
