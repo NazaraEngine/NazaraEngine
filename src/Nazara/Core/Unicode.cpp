@@ -33,7 +33,7 @@ namespace Nz
 
 #include <Nazara/Core/UnicodeData.hpp>
 
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		const UnicodeCharacter* GetCharacter(Nz::UInt32 codepoint)
 		{
@@ -74,6 +74,8 @@ namespace Nz
 	*/
 	Unicode::Category Unicode::GetCategory(char32_t character)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (const UnicodeCharacter* characterData = GetCharacter(character))
 			return characterData->category;
 		else
@@ -89,6 +91,8 @@ namespace Nz
 
 	Unicode::Direction Unicode::GetDirection(char32_t character)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (const UnicodeCharacter* characterData = GetCharacter(character))
 			return characterData->direction;
 		else
@@ -104,6 +108,8 @@ namespace Nz
 
 	char32_t Unicode::GetLowercase(char32_t character)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (const UnicodeCharacterSimpleMapping* characterMapping = GetCharacterMapping(character, unicodeLower))
 			return characterMapping->character;
 		else
@@ -118,6 +124,8 @@ namespace Nz
 	*/
 	char32_t Unicode::GetTitlecase(char32_t character)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (const UnicodeCharacterSimpleMapping* characterMapping = GetCharacterMapping(character, unicodeTitle))
 			return characterMapping->character;
 		else
@@ -132,6 +140,8 @@ namespace Nz
 	*/
 	char32_t Unicode::GetUppercase(char32_t character)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (const UnicodeCharacterSimpleMapping* characterMapping = GetCharacterMapping(character, unicodeUpper))
 			return characterMapping->character;
 		else

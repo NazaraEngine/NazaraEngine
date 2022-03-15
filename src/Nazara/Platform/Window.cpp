@@ -12,9 +12,9 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		Window* fullscreenWindow = nullptr;
+		Window* s_fullscreenWindow = nullptr;
 	}
 
 	Window::Window() :
@@ -52,6 +52,8 @@ namespace Nz
 
 	bool Window::Create(VideoMode mode, const std::string& title, WindowStyleFlags style)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		// If the window is already open, we keep its position
 		bool opened = IsOpen();
 		Vector2i position;
@@ -63,9 +65,9 @@ namespace Nz
 		// Inspired by the code of the SFML by Laurent Gomila (and its team)
 		if (style & WindowStyle::Fullscreen)
 		{
-			if (fullscreenWindow)
+			if (s_fullscreenWindow)
 			{
-				NazaraError("Window " + PointerToString(fullscreenWindow) + " already in fullscreen mode");
+				NazaraError("Window " + PointerToString(s_fullscreenWindow) + " already in fullscreen mode");
 				style &= ~WindowStyle::Fullscreen;
 			}
 			else
@@ -76,7 +78,7 @@ namespace Nz
 					mode = VideoMode::GetFullscreenModes()[0];
 				}
 
-				fullscreenWindow = this;
+				s_fullscreenWindow = this;
 			}
 		}
 		else if (style & WindowStyle::Closable || style & WindowStyle::Resizable)
@@ -152,6 +154,8 @@ namespace Nz
 
 	void Window::Destroy()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		m_cursor.reset();
 
 		if (m_impl)
@@ -162,8 +166,8 @@ namespace Nz
 			delete m_impl;
 			m_impl = nullptr;
 
-			if (fullscreenWindow == this)
-				fullscreenWindow = nullptr;
+			if (s_fullscreenWindow == this)
+				s_fullscreenWindow = nullptr;
 		}
 	}
 

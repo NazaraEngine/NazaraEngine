@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		UInt32 GetterSequential(const void* buffer, std::size_t i)
 		{
@@ -58,6 +58,8 @@ namespace Nz
 	IndexMapper::IndexMapper(IndexBuffer& indexBuffer, std::size_t indexCount) :
 	m_indexCount((indexCount != 0) ? indexCount : indexBuffer.GetIndexCount())
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (!m_mapper.Map(indexBuffer, 0, m_indexCount))
 			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
 

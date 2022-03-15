@@ -26,7 +26,7 @@ namespace Nz::GL
 		if (!ChooseConfig(configs.data(), configs.size(), &configCount))
 			return false;
 
-		::Window winHandle = static_cast<::Window>(window.x11.window);
+		::NativeWindowType winHandle = static_cast<::NativeWindowType>(window.x11.window);
 
 		std::size_t configIndex = 0;
 		for (; configIndex < configCount; ++configIndex)

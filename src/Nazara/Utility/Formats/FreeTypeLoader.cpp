@@ -26,14 +26,13 @@ namespace Nz
 	{
 		class FreeTypeLibrary;
 
-		FT_Library s_library = nullptr;
-		FT_Stroker s_stroker = nullptr;
-		std::shared_ptr<FreeTypeLibrary> s_libraryOwner;
-		constexpr float s_scaleFactor = 1 << 6;
-		constexpr float s_invScaleFactor = 1.f / s_scaleFactor;
+		FT_Library s_freetypeLibrary = nullptr;
+		FT_Stroker s_freetypeStroker = nullptr;
+		std::shared_ptr<FreeTypeLibrary> s_freetypeLibraryOwner;
+		constexpr float s_freetypeScaleFactor = 1 << 6;
+		constexpr float s_freetypeInvScaleFactor = 1.f / s_freetypeScaleFactor;
 
-		extern "C"
-		unsigned long FT_StreamRead(FT_Stream stream, unsigned long offset, unsigned char* buffer, unsigned long count)
+		extern "C" unsigned long FT_StreamRead(FT_Stream stream, unsigned long offset, unsigned char* buffer, unsigned long count)
 		{
 			// http://www.freetype.org/freetype2/docs/reference/ft2-system_interface.html#FT_Stream_IoFunc
 			Stream& inputStream = *static_cast<Stream*>(stream->descriptor.pointer);
@@ -73,23 +72,23 @@ namespace Nz
 			public:
 				FreeTypeLibrary()
 				{
-					if (FT_Stroker_New(s_library, &s_stroker) != 0)
+					if (FT_Stroker_New(s_freetypeLibrary, &s_freetypeStroker) != 0)
 					{
 						NazaraWarning("Failed to load FreeType stroker, outline will not be possible");
-						s_stroker = nullptr; //< Just in case
+						s_freetypeStroker = nullptr; //< Just in case
 					}
 				}
 
 				~FreeTypeLibrary()
 				{
-					if (s_stroker)
+					if (s_freetypeStroker)
 					{
-						FT_Stroker_Done(s_stroker);
-						s_stroker = nullptr;
+						FT_Stroker_Done(s_freetypeStroker);
+						s_freetypeStroker = nullptr;
 					}
 
-					FT_Done_FreeType(s_library);
-					s_library = nullptr;
+					FT_Done_FreeType(s_freetypeLibrary);
+					s_freetypeLibrary = nullptr;
 				}
 		};
 
@@ -98,7 +97,7 @@ namespace Nz
 			public:
 				FreeTypeStream() :
 				m_face(nullptr),
-				m_library(s_libraryOwner),
+				m_library(s_freetypeLibraryOwner),
 				m_characterSize(0)
 				{
 				}
@@ -112,7 +111,7 @@ namespace Nz
 				bool Check()
 				{
 					// Test d'ouverture (http://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_Open_Face)
-					return FT_Open_Face(s_library, &m_args, -1, nullptr) == 0;
+					return FT_Open_Face(s_freetypeLibrary, &m_args, -1, nullptr) == 0;
 				}
 
 				bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* dst) override
@@ -165,8 +164,8 @@ namespace Nz
 
 						if (outlineThickness > 0.f)
 						{
-							FT_Stroker_Set(s_stroker, static_cast<FT_Fixed>(s_scaleFactor * outlineThickness), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
-							if (FT_Glyph_Stroke(&glyph, s_stroker, 1) != 0)
+							FT_Stroker_Set(s_freetypeStroker, static_cast<FT_Fixed>(s_freetypeScaleFactor * outlineThickness), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+							if (FT_Glyph_Stroke(&glyph, s_freetypeStroker, 1) != 0)
 							{
 								NazaraError("Failed to outline glyph");
 								return false;
@@ -187,7 +186,7 @@ namespace Nz
 					if (embolden)
 					{
 						// http://www.freetype.org/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
-						FT_Bitmap_Embolden(s_library, &bitmap, boldStrength, boldStrength);
+						FT_Bitmap_Embolden(s_freetypeLibrary, &bitmap, boldStrength, boldStrength);
 					}
 
 					int outlineThicknessInt = static_cast<int>(outlineThickness * 2.f + 0.5f); //< round it
@@ -266,7 +265,7 @@ namespace Nz
 
 				bool Open()
 				{
-					return FT_Open_Face(s_library, &m_args, 0, &m_face) == 0;
+					return FT_Open_Face(s_freetypeLibrary, &m_args, 0, &m_face) == 0;
 				}
 
 				int QueryKerning(unsigned int characterSize, char32_t first, char32_t second) const override
@@ -302,7 +301,7 @@ namespace Nz
 						SetCharacterSize(characterSize);
 
 						// http://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_FaceRec
-						return static_cast<float>(FT_MulFix(m_face->underline_position, m_face->size->metrics.y_scale)) * s_invScaleFactor;
+						return static_cast<float>(FT_MulFix(m_face->underline_position, m_face->size->metrics.y_scale)) * s_freetypeInvScaleFactor;
 					}
 					else
 						return characterSize / 10.f; // Joker ?
@@ -315,7 +314,7 @@ namespace Nz
 						SetCharacterSize(characterSize);
 
 						// http://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_FaceRec
-						return static_cast<float>(FT_MulFix(m_face->underline_thickness, m_face->size->metrics.y_scale)) * s_invScaleFactor;
+						return static_cast<float>(FT_MulFix(m_face->underline_thickness, m_face->size->metrics.y_scale)) * s_freetypeInvScaleFactor;
 					}
 					else
 						return characterSize/15.f; // Joker ?
@@ -357,7 +356,7 @@ namespace Nz
 
 				bool SupportsOutline(float /*outlineThickness*/) const override
 				{
-					return s_stroker != nullptr;
+					return s_freetypeStroker != nullptr;
 				}
 
 				bool SupportsStyle(TextStyleFlags style) const override
@@ -384,7 +383,7 @@ namespace Nz
 				mutable unsigned int m_characterSize;
 		};
 
-		bool IsSupported(const std::string_view& extension)
+		bool IsFreetypeSupported(const std::string_view& extension)
 		{
 			///FIXME: Je suppose qu'il en manque quelques unes..
 			static std::set<std::string_view> supportedExtensions = {
@@ -394,7 +393,7 @@ namespace Nz
 			return supportedExtensions.find(extension) != supportedExtensions.end();
 		}
 
-		Ternary Check(Stream& stream, const FontParams& parameters)
+		Ternary CheckFreetype(Stream& stream, const FontParams& parameters)
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeFreeTypeLoader", &skip) && skip)
@@ -409,7 +408,7 @@ namespace Nz
 				return Ternary::False;
 		}
 
-		std::shared_ptr<Font> LoadFile(const std::filesystem::path& filePath, const FontParams& parameters)
+		std::shared_ptr<Font> LoadFreetypeFile(const std::filesystem::path& filePath, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -433,7 +432,7 @@ namespace Nz
 			return font;
 		}
 
-		std::shared_ptr<Font> LoadMemory(const void* data, std::size_t size, const FontParams& parameters)
+		std::shared_ptr<Font> LoadFreetypeMemory(const void* data, std::size_t size, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -453,7 +452,7 @@ namespace Nz
 			return font;
 		}
 
-		std::shared_ptr<Font> LoadStream(Stream& stream, const FontParams& parameters)
+		std::shared_ptr<Font> LoadFreetypeStream(Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -478,34 +477,34 @@ namespace Nz
 	{
 		bool InitializeFreeType()
 		{
-			NazaraAssert(!s_libraryOwner, "double initialization for FreeType");
-			if (FT_Init_FreeType(&s_library) != 0)
+			NazaraAssert(!s_freetypeLibraryOwner, "double initialization for FreeType");
+			if (FT_Init_FreeType(&s_freetypeLibrary) != 0)
 			{
 				NazaraWarning("failed to initialize FreeType library");
 				return false;
 			}
 
-			s_libraryOwner = std::make_shared<FreeTypeLibrary>();
+			s_freetypeLibraryOwner = std::make_shared<FreeTypeLibrary>();
 			return true;
 		}
 
 		FontLoader::Entry GetFontLoader_FreeType()
 		{
-			NazaraAssert(s_libraryOwner, "FreeType has not been initialized");
+			NazaraAssert(s_freetypeLibraryOwner, "FreeType has not been initialized");
 
 			FontLoader::Entry entry;
-			entry.extensionSupport = IsSupported;
-			entry.fileLoader = LoadFile;
-			entry.memoryLoader = LoadMemory;
-			entry.streamChecker = Check;
-			entry.streamLoader = LoadStream;
+			entry.extensionSupport = IsFreetypeSupported;
+			entry.fileLoader = LoadFreetypeFile;
+			entry.memoryLoader = LoadFreetypeMemory;
+			entry.streamChecker = CheckFreetype;
+			entry.streamLoader = LoadFreetypeStream;
 
 			return entry;
 		}
 
 		void UninitializeFreeType()
 		{
-			s_libraryOwner.reset();
+			s_freetypeLibraryOwner.reset();
 		}
 	}
 }

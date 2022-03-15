@@ -26,40 +26,13 @@ namespace Nz
 {
 	namespace
 	{
-		std::optional<AudioFormat> GuessFormat(UInt32 channelCount)
-		{
-			switch (channelCount)
-			{
-				case 1:
-					return AudioFormat::I16_Mono;
-
-				case 2:
-					return AudioFormat::I16_Stereo;
-
-				case 4:
-					return AudioFormat::I16_Quad;
-
-				case 6:
-					return AudioFormat::I16_5_1;
-
-				case 7:
-					return AudioFormat::I16_6_1;
-
-				case 8:
-					return AudioFormat::I16_7_1;
-
-				default:
-					return std::nullopt;
-			}
-		}
-
-		std::size_t ReadCallback(void* pUserData, void* pBufferOut, size_t bytesToRead)
+		std::size_t ReadWavCallback(void* pUserData, void* pBufferOut, size_t bytesToRead)
 		{
 			Stream* stream = static_cast<Stream*>(pUserData);
 			return static_cast<std::size_t>(stream->Read(pBufferOut, bytesToRead));
 		}
 
-		drwav_bool32 SeekCallback(void* pUserData, int offset, drwav_seek_origin origin)
+		drwav_bool32 SeekWavCallback(void* pUserData, int offset, drwav_seek_origin origin)
 		{
 			Stream* stream = static_cast<Stream*>(pUserData);
 			switch (origin)
@@ -76,7 +49,7 @@ namespace Nz
 			}
 		}
 
-		bool IsSupported(const std::string_view& extension)
+		bool IsWavSupported(const std::string_view& extension)
 		{
 			return extension == "riff" || extension == "rf64" || extension == "wav" || extension == "w64";
 		}
@@ -88,17 +61,17 @@ namespace Nz
 				return Ternary::False;
 
 			drwav wav;
-			if (!drwav_init(&wav, &ReadCallback, &SeekCallback, &stream, nullptr))
+			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
 				return Ternary::False;
 
 			drwav_uninit(&wav);
 			return Ternary::True;
 		}
 
-		std::shared_ptr<SoundBuffer> LoadSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		std::shared_ptr<SoundBuffer> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			drwav wav;
-			if (!drwav_init(&wav, &ReadCallback, &SeekCallback, &stream, nullptr))
+			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
 			{
 				NazaraError("failed to decode wav stream");
 				return {};
@@ -106,7 +79,7 @@ namespace Nz
 
 			CallOnExit uninitOnExit([&] { drwav_uninit(&wav); });
 
-			std::optional<AudioFormat> formatOpt = GuessFormat(wav.channels);
+			std::optional<AudioFormat> formatOpt = GuessAudioFormat(wav.channels);
 			if (!formatOpt)
 			{
 				NazaraError("unexpected channel count: " + std::to_string(wav.channels));
@@ -198,7 +171,7 @@ namespace Nz
 
 				bool Open(Stream& stream, bool forceMono)
 				{
-					if (!drwav_init(&m_decoder, &ReadCallback, &SeekCallback, &stream, nullptr))
+					if (!drwav_init(&m_decoder, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
 					{
 						NazaraError("failed to decode wav stream");
 						return {};
@@ -210,7 +183,7 @@ namespace Nz
 						std::memset(&m_decoder, 0, sizeof(m_decoder));
 					});
 
-					std::optional<AudioFormat> formatOpt = GuessFormat(m_decoder.channels);
+					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_decoder.channels);
 					if (!formatOpt)
 					{
 						NazaraError("unexpected channel count: " + std::to_string(m_decoder.channels));
@@ -284,7 +257,7 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		std::shared_ptr<SoundStream> LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadWavSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
 			if (!soundStream->Open(filePath, parameters.forceMono))
@@ -296,7 +269,7 @@ namespace Nz
 			return soundStream;
 		}
 
-		std::shared_ptr<SoundStream> LoadSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadWavSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
 			if (!soundStream->Open(data, size, parameters.forceMono))
@@ -308,7 +281,7 @@ namespace Nz
 			return soundStream;
 		}
 
-		std::shared_ptr<SoundStream> LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		std::shared_ptr<SoundStream> LoadWavSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
 			if (!soundStream->Open(stream, parameters.forceMono))
@@ -326,9 +299,9 @@ namespace Nz
 		SoundBufferLoader::Entry GetSoundBufferLoader_drwav()
 		{
 			SoundBufferLoader::Entry loaderEntry;
-			loaderEntry.extensionSupport = IsSupported;
+			loaderEntry.extensionSupport = IsWavSupported;
 			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckWav(stream, parameters); };
-			loaderEntry.streamLoader = LoadSoundBuffer;
+			loaderEntry.streamLoader = LoadWavSoundBuffer;
 
 			return loaderEntry;
 		}
@@ -336,11 +309,11 @@ namespace Nz
 		SoundStreamLoader::Entry GetSoundStreamLoader_drwav()
 		{
 			SoundStreamLoader::Entry loaderEntry;
-			loaderEntry.extensionSupport = IsSupported;
+			loaderEntry.extensionSupport = IsWavSupported;
 			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckWav(stream, parameters); };
-			loaderEntry.fileLoader = LoadSoundStreamFile;
-			loaderEntry.memoryLoader = LoadSoundStreamMemory;
-			loaderEntry.streamLoader = LoadSoundStreamStream;
+			loaderEntry.fileLoader = LoadWavSoundStreamFile;
+			loaderEntry.memoryLoader = LoadWavSoundStreamMemory;
+			loaderEntry.streamLoader = LoadWavSoundStreamStream;
 
 			return loaderEntry;
 		}

@@ -136,3 +136,9 @@ namespace Nz
 		}
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#elif defined(NAZARA_PLATFORM_LINUX)
+#include <Nazara/Core/AntiX11.hpp>
+#endif

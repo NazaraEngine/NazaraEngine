@@ -254,6 +254,7 @@ namespace Nz
 		SET(c, d, a, b, 14, 17, T15);
 		SET(b, c, d, a, 15, 22, T16);
 #undef SET
+#undef F
 
 		/* Round 2. */
 		/* Let [abcd k s i] denote the operation
@@ -280,6 +281,7 @@ namespace Nz
 		SET(c, d, a, b, 7, 14, T31);
 		SET(b, c, d, a, 12, 20, T32);
 #undef SET
+#undef G
 
 		/* Round 3. */
 		/* Let [abcd k s t] denote the operation
@@ -306,6 +308,7 @@ namespace Nz
 		SET(c, d, a, b, 15, 16, T47);
 		SET(b, c, d, a, 2, 23, T48);
 #undef SET
+#undef H
 
 		/* Round 4. */
 		/* Let [abcd k s t] denote the operation
@@ -332,6 +335,9 @@ namespace Nz
 		SET(c, d, a, b, 2, 15, T63);
 		SET(b, c, d, a, 9, 21, T64);
 #undef SET
+#undef I
+
+#undef ROTATE_LEFT
 
 		/* Then perform the following additions. (That is increment each
 		   of the four registers by the value it had before this block
@@ -342,3 +348,69 @@ namespace Nz
 		m_abcd[3] += d;
 	}
 }
+
+#undef T_MASK
+#undef T1
+#undef T2
+#undef T3
+#undef T4
+#undef T5
+#undef T6
+#undef T7
+#undef T8
+#undef T9
+#undef T10
+#undef T11
+#undef T12
+#undef T13
+#undef T14
+#undef T15
+#undef T16
+#undef T17
+#undef T18
+#undef T19
+#undef T20
+#undef T21
+#undef T22
+#undef T23
+#undef T24
+#undef T25
+#undef T26
+#undef T27
+#undef T28
+#undef T29
+#undef T30
+#undef T31
+#undef T32
+#undef T33
+#undef T34
+#undef T35
+#undef T36
+#undef T37
+#undef T38
+#undef T39
+#undef T40
+#undef T41
+#undef T42
+#undef T43
+#undef T44
+#undef T45
+#undef T46
+#undef T47
+#undef T48
+#undef T49
+#undef T50
+#undef T51
+#undef T52
+#undef T53
+#undef T54
+#undef T55
+#undef T56
+#undef T57
+#undef T58
+#undef T59
+#undef T60
+#undef T61
+#undef T62
+#undef T63
+#undef T64

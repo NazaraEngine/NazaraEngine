@@ -21,12 +21,12 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const std::string_view& extension)
+		bool IsMD2Supported(const std::string_view& extension)
 		{
 			return (extension == "md2");
 		}
 
-		Ternary Check(Stream& stream, const MeshParams& parameters)
+		Ternary CheckMD2(Stream& stream, const MeshParams& parameters)
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD2Loader", &skip) && skip)
@@ -47,7 +47,7 @@ namespace Nz
 			return Ternary::False;
 		}
 
-		std::shared_ptr<Mesh> Load(Stream& stream, const MeshParams& parameters)
+		std::shared_ptr<Mesh> LoadMD2(Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
@@ -269,9 +269,9 @@ namespace Nz
 		MeshLoader::Entry GetMeshLoader_MD2()
 		{
 			MeshLoader::Entry loader;
-			loader.extensionSupport = IsSupported;
-			loader.streamChecker = Check;
-			loader.streamLoader = Load;
+			loader.extensionSupport = IsMD2Supported;
+			loader.streamChecker = CheckMD2;
+			loader.streamLoader = LoadMD2;
 
 			return loader;
 		}

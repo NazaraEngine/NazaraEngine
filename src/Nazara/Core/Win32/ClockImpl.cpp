@@ -10,18 +10,22 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		LARGE_INTEGER s_frequency; // La fréquence ne varie pas pas au cours de l'exécution
 	}
 
 	bool ClockImplInitializeHighPrecision()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return QueryPerformanceFrequency(&s_frequency) != 0;
 	}
 
 	UInt64 ClockImplGetElapsedMicroseconds()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx
 		//HANDLE thread = GetCurrentThread();
 		//DWORD oldMask = SetThreadAffinityMask(thread, 1);
@@ -43,3 +47,5 @@ namespace Nz
 		#endif
 	}
 }
+
+#include <Nazara/Core/AntiWindows.hpp>

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvExpressionStore.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
@@ -12,17 +13,11 @@
 
 namespace Nz
 {
-	namespace
-	{
-		template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-		template<class... Ts> overloaded(Ts...)->overloaded<Ts...>;
-	}
-
 	void SpirvExpressionStore::Store(ShaderAst::ExpressionPtr& node, UInt32 resultId)
 	{
 		node->Visit(*this);
 		
-		std::visit(overloaded
+		std::visit(Overloaded
 		{
 			[&](const Pointer& pointer)
 			{
@@ -93,7 +88,7 @@ namespace Nz
 
 		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
 
-		std::visit(overloaded
+		std::visit(Overloaded
 		{
 			[&](const Pointer& pointer)
 			{
@@ -118,7 +113,7 @@ namespace Nz
 	{
 		node.expression->Visit(*this);
 
-		std::visit(overloaded
+		std::visit(Overloaded
 		{
 			[&](const Pointer& pointer)
 			{

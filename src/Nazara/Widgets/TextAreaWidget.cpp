@@ -12,7 +12,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		bool IsSpace(char32_t character)
 		{
@@ -249,6 +249,8 @@ namespace Nz
 
 	void TextAreaWidget::HandleWordSelection(const Vector2ui& position)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::size_t index = GetGlyphIndex(m_cursorPositionEnd);
 
 		// FIXME: Handle Unicode properly

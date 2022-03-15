@@ -12,7 +12,7 @@
 
 namespace Nz::ShaderLang
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		std::unordered_map<std::string, ShaderAst::DepthWriteMode> s_depthWriteModes = {
 			{ "greater",   ShaderAst::DepthWriteMode::Greater },
@@ -57,15 +57,6 @@ namespace Nz::ShaderLang
 			{ "hint",   ShaderAst::LoopUnroll::Hint },
 			{ "never",  ShaderAst::LoopUnroll::Never }
 		};
-
-		template<typename T, typename U>
-		std::optional<T> BoundCast(U val)
-		{
-			if (val < std::numeric_limits<T>::min() || val > std::numeric_limits<T>::max())
-				return std::nullopt;
-
-			return static_cast<T>(val);
-		}
 
 		template<typename T>
 		void HandleUniqueAttribute(const std::string_view& attributeName, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param)
@@ -491,6 +482,8 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<ShaderAst::ExprValue> attributes)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		Expect(Advance(), TokenType::External);
 		Expect(Advance(), TokenType::OpenCurlyBracket);
 
@@ -573,6 +566,8 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseForDeclaration(std::vector<ShaderAst::ExprValue> attributes)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		Expect(Advance(), TokenType::For);
 
 		std::string varName = ParseIdentifierAsName();
@@ -647,6 +642,8 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseFunctionDeclaration(std::vector<ShaderAst::ExprValue> attributes)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		Expect(Advance(), TokenType::FunctionDeclaration);
 
 		std::string functionName = ParseIdentifierAsName();
@@ -941,6 +938,8 @@ namespace Nz::ShaderLang
 	
 	ShaderAst::StatementPtr Parser::ParseStructDeclaration(std::vector<ShaderAst::ExprValue> attributes)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		Expect(Advance(), TokenType::Struct);
 
 		ShaderAst::StructDescription description;
@@ -1083,6 +1082,8 @@ namespace Nz::ShaderLang
 
 	ShaderAst::StatementPtr Parser::ParseWhileStatement(std::vector<ShaderAst::ExprValue> attributes)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		Expect(Advance(), TokenType::While);
 
 		Expect(Advance(), TokenType::OpenParenthesis);
@@ -1353,6 +1354,8 @@ namespace Nz::ShaderLang
 
 	ShaderAst::AttributeType Parser::ParseIdentifierAsAttributeType()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
 		const std::string& identifier = std::get<std::string>(identifierToken.data);
 

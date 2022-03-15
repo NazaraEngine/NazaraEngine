@@ -14,35 +14,35 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 ButtonImage[] = {
+		const UInt8 s_defaultThemeButtonImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/Button.png.h>
 		};
 
-		const UInt8 ButtonHoveredImage[] = {
+		const UInt8 s_defaultThemeButtonHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonHovered.png.h>
 		};
 
-		const UInt8 ButtonPressedImage[] = {
+		const UInt8 s_defaultThemeButtonPressedImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonPressed.png.h>
 		};
 
-		const UInt8 ButtonPressedHoveredImage[] = {
+		const UInt8 s_defaultThemeButtonPressedHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonPressedHovered.png.h>
 		};
 
-		const UInt8 CheckboxBackgroundImage[] = {
+		const UInt8 s_defaultThemeCheckboxBackgroundImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxBackground.png.h>
 		};
 
-		const UInt8 CheckboxBackgroundHoveredImage[] = {
+		const UInt8 s_defaultThemeCheckboxBackgroundHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxBackgroundHovered.png.h>
 		};
 
-		const UInt8 CheckboxCheckImage[] = {
+		const UInt8 s_defaultThemeCheckboxCheckImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxCheck.png.h>
 		};
 
-		const UInt8 CheckboxTristateImage[] = {
+		const UInt8 s_defaultThemeCheckboxTristateImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/CheckboxTristate.png.h>
 		};
 	}
@@ -72,16 +72,16 @@ namespace Nz
 		};
 		
 		// Button material
-		m_buttonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonImage, sizeof(ButtonImage), texParams));
-		m_buttonHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonHoveredImage, sizeof(ButtonHoveredImage), texParams));
-		m_buttonPressedMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedImage, sizeof(ButtonPressedImage), texParams));
-		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(ButtonPressedHoveredImage, sizeof(ButtonPressedHoveredImage), texParams));
+		m_buttonMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeButtonImage, sizeof(s_defaultThemeButtonImage), texParams));
+		m_buttonHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeButtonHoveredImage, sizeof(s_defaultThemeButtonHoveredImage), texParams));
+		m_buttonPressedMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeButtonPressedImage, sizeof(s_defaultThemeButtonPressedImage), texParams));
+		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeButtonPressedHoveredImage, sizeof(s_defaultThemeButtonPressedHoveredImage), texParams));
 
 		// Checkbox material
-		m_checkboxBackgroundMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxBackgroundImage, sizeof(CheckboxBackgroundImage), texParams));
-		m_checkboxBackgroundHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxBackgroundHoveredImage, sizeof(CheckboxBackgroundHoveredImage), texParams));
-		m_checkboxCheckMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxCheckImage, sizeof(CheckboxCheckImage), texParams));
-		m_checkboxTristateMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(CheckboxTristateImage, sizeof(CheckboxTristateImage), texParams));
+		m_checkboxBackgroundMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeCheckboxBackgroundImage, sizeof(s_defaultThemeCheckboxBackgroundImage), texParams));
+		m_checkboxBackgroundHoveredMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeCheckboxBackgroundHoveredImage, sizeof(s_defaultThemeCheckboxBackgroundHoveredImage), texParams));
+		m_checkboxCheckMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeCheckboxCheckImage, sizeof(s_defaultThemeCheckboxCheckImage), texParams));
+		m_checkboxTristateMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeCheckboxTristateImage, sizeof(s_defaultThemeCheckboxTristateImage), texParams));
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const

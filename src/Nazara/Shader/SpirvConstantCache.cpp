@@ -15,11 +15,7 @@ namespace Nz
 {
 	namespace
 	{
-		template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-
-		template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
-		StructFieldType TypeToStructFieldType(const SpirvConstantCache::AnyType& type)
+		StructFieldType SpirvTypeToStructFieldType(const SpirvConstantCache::AnyType& type)
 		{
 			if (std::holds_alternative<SpirvConstantCache::Bool>(type))
 				return StructFieldType::Bool1;
@@ -920,12 +916,12 @@ namespace Nz
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Bool& type, std::size_t arrayLength) const
 	{
-		return fieldOffsets.AddFieldArray(TypeToStructFieldType(type), arrayLength);
+		return fieldOffsets.AddFieldArray(SpirvTypeToStructFieldType(type), arrayLength);
 	}
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Float& type, std::size_t arrayLength) const
 	{
-		return fieldOffsets.AddFieldArray(TypeToStructFieldType(type), arrayLength);
+		return fieldOffsets.AddFieldArray(SpirvTypeToStructFieldType(type), arrayLength);
 	}
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& /*fieldOffsets*/, const Function& /*type*/, std::size_t /*arrayLength*/) const
@@ -940,7 +936,7 @@ namespace Nz
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Integer& type, std::size_t arrayLength) const
 	{
-		return fieldOffsets.AddFieldArray(TypeToStructFieldType(type), arrayLength);
+		return fieldOffsets.AddFieldArray(SpirvTypeToStructFieldType(type), arrayLength);
 	}
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Matrix& type, std::size_t arrayLength) const
@@ -949,7 +945,7 @@ namespace Nz
 			throw std::runtime_error("unexpected column type");
 
 		const Vector& vecType = std::get<Vector>(type.columnType->type);
-		return fieldOffsets.AddMatrixArray(TypeToStructFieldType(vecType.componentType->type), type.columnCount, vecType.componentCount, true, arrayLength);
+		return fieldOffsets.AddMatrixArray(SpirvTypeToStructFieldType(vecType.componentType->type), type.columnCount, vecType.componentCount, true, arrayLength);
 	}
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& /*fieldOffsets*/, const Pointer& /*type*/, std::size_t /*arrayLength*/) const
@@ -979,7 +975,7 @@ namespace Nz
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& fieldOffsets, const Vector& type, std::size_t arrayLength) const
 	{
 		assert(type.componentCount > 0 && type.componentCount <= 4);
-		return fieldOffsets.AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(TypeToStructFieldType(type.componentType->type)) + type.componentCount), arrayLength);
+		return fieldOffsets.AddFieldArray(static_cast<StructFieldType>(UnderlyingCast(SpirvTypeToStructFieldType(type.componentType->type)) + type.componentCount), arrayLength);
 	}
 
 	std::size_t SpirvConstantCache::RegisterArrayField(FieldOffsets& /*fieldOffsets*/, const Void& /*type*/, std::size_t /*arrayLength*/) const
@@ -998,7 +994,7 @@ namespace Nz
 		{
 			UInt32 resultId = id;
 
-			std::visit(overloaded
+			std::visit(Overloaded
 			{
 				[&](const AnyConstant& constant) { Write(constant, resultId, constants); },
 				[&](const AnyType& type) { Write(type, resultId, annotations, constants, debugInfos); },

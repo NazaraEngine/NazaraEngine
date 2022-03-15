@@ -25,19 +25,10 @@
 
 namespace Nz::ShaderAst
 {
-	namespace
+	struct SanitizeVisitor::AstError
 	{
-		struct AstError
-		{
-			std::string errMsg;
-		};
-
-		template<typename T, typename U>
-		std::unique_ptr<T> static_unique_pointer_cast(std::unique_ptr<U>&& ptr)
-		{
-			return std::unique_ptr<T>(SafeCast<T*>(ptr.release()));
-		}
-	}
+		std::string errMsg;
+	};
 
 	struct SanitizeVisitor::CurrentFunctionData
 	{
@@ -446,7 +437,7 @@ namespace Nz::ShaderAst
 		for (auto& index : node.indices)
 			MandatoryExpr(index);
 
-		auto clone = static_unique_pointer_cast<AccessIndexExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<AccessIndexExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		// TODO: Handle AccessIndex on structs with m_context->options.useIdentifierAccessesForStructs
@@ -478,7 +469,7 @@ namespace Nz::ShaderAst
 		MandatoryExpr(node.left);
 		MandatoryExpr(node.right);
 
-		auto clone = static_unique_pointer_cast<AssignExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<AssignExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -486,7 +477,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(BinaryExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<BinaryExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<BinaryExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -590,7 +581,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(CastExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<CastExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<CastExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		const ExpressionType& targetType = clone->targetType.GetResultingValue();
@@ -690,7 +681,7 @@ namespace Nz::ShaderAst
 		if (std::holds_alternative<NoValue>(node.value))
 			throw std::runtime_error("expected a value");
 
-		auto clone = static_unique_pointer_cast<ConstantValueExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<ConstantValueExpression>(AstCloner::Clone(node));
 		clone->cachedExpressionType = GetExpressionType(clone->value);
 
 		return clone;
@@ -772,7 +763,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(UnaryExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<UnaryExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<UnaryExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -780,7 +771,7 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(VariableValueExpression& node)
 	{
-		auto clone = static_unique_pointer_cast<VariableValueExpression>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<VariableValueExpression>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -887,7 +878,7 @@ namespace Nz::ShaderAst
 
 	StatementPtr SanitizeVisitor::Clone(DeclareConstStatement& node)
 	{
-		auto clone = static_unique_pointer_cast<DeclareConstStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<DeclareConstStatement>(AstCloner::Clone(node));
 
 		if (!clone->expression)
 			throw AstError{ "const variables must have an expression" };
@@ -917,7 +908,7 @@ namespace Nz::ShaderAst
 	{
 		assert(m_context);
 
-		auto clone = static_unique_pointer_cast<DeclareExternalStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<DeclareExternalStatement>(AstCloner::Clone(node));
 
 		UInt32 defaultBlockSet = 0;
 		if (clone->bindingSet.HasValue())
@@ -1051,7 +1042,7 @@ namespace Nz::ShaderAst
 		if (m_context->currentFunction)
 			throw AstError{ "options must be declared outside of functions" };
 
-		auto clone = static_unique_pointer_cast<DeclareOptionStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<DeclareOptionStatement>(AstCloner::Clone(node));
 		if (clone->optName.empty())
 			throw AstError{ "empty option name" };
 
@@ -1083,7 +1074,7 @@ namespace Nz::ShaderAst
 		if (m_context->currentFunction)
 			throw AstError{ "structs must be declared outside of functions" };
 
-		auto clone = static_unique_pointer_cast<DeclareStructStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<DeclareStructStatement>(AstCloner::Clone(node));
 
 		if (clone->isExported.HasValue())
 			clone->isExported = ComputeExprValue(clone->isExported);
@@ -1140,7 +1131,7 @@ namespace Nz::ShaderAst
 		if (!m_context->currentFunction)
 			throw AstError{ "global variables outside of external blocks are forbidden" };
 
-		auto clone = static_unique_pointer_cast<DeclareVariableStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<DeclareVariableStatement>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		return clone;
@@ -1615,7 +1606,7 @@ namespace Nz::ShaderAst
 		MandatoryExpr(node.condition);
 		MandatoryStatement(node.body);
 
-		auto clone = static_unique_pointer_cast<WhileStatement>(AstCloner::Clone(node));
+		auto clone = StaticUniquePointerCast<WhileStatement>(AstCloner::Clone(node));
 		Validate(*clone);
 
 		ExpressionValue<LoopUnroll> unrollValue;
@@ -1902,7 +1893,7 @@ namespace Nz::ShaderAst
 		};
 
 		// Run optimizer on constant value to hopefully retrieve a single constant value
-		return static_unique_pointer_cast<T>(ShaderAst::PropagateConstants(node, optimizerOptions));
+		return StaticUniquePointerCast<T>(ShaderAst::PropagateConstants(node, optimizerOptions));
 	}
 
 	void SanitizeVisitor::PreregisterIndices(const Module& module)

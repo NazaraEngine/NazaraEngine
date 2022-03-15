@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		inline UInt8 c4to5(UInt8 c)
 		{
@@ -1412,6 +1412,8 @@ namespace Nz
 
 	bool PixelFormatInfo::Initialize()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		auto SetupPixelFormat = [](PixelFormat format, PixelFormatDescription&& desc)
 		{
 			s_pixelFormatInfos[UnderlyingCast(format)] = std::move(desc);

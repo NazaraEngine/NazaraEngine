@@ -12,12 +12,12 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsSupported(const std::string_view& extension)
+		bool IsMD5AnimSupported(const std::string_view& extension)
 		{
 			return (extension == "md5anim");
 		}
 
-		Ternary Check(Stream& stream, const AnimationParams& parameters)
+		Ternary CheckMD5Anim(Stream& stream, const AnimationParams& parameters)
 		{
 			bool skip;
 			if (parameters.custom.GetBooleanParameter("SkipNativeMD5AnimLoader", &skip) && skip)
@@ -27,7 +27,7 @@ namespace Nz
 			return parser.Check();
 		}
 
-		std::shared_ptr<Animation> Load(Stream& stream, const AnimationParams& /*parameters*/)
+		std::shared_ptr<Animation> LoadMD5Anim(Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			///TODO: Utiliser les paramètres
 			MD5AnimParser parser(stream);
@@ -93,9 +93,9 @@ namespace Nz
 		AnimationLoader::Entry GetAnimationLoader_MD5Anim()
 		{
 			AnimationLoader::Entry loader;
-			loader.extensionSupport = IsSupported;
-			loader.streamChecker = Check;
-			loader.streamLoader = Load;
+			loader.extensionSupport = IsMD5AnimSupported;
+			loader.streamChecker = CheckMD5Anim;
+			loader.streamLoader = LoadMD5Anim;
 
 			return loader;
 		}

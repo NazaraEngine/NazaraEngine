@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		inline unsigned int GetLevelSize(unsigned int size, UInt8 level)
+		inline unsigned int GetImageLevelSize(unsigned int size, UInt8 level)
 		{
 			if (size == 0) // Possible dans le cas d'une image invalide
 				return 0;
@@ -576,7 +576,7 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int width = GetLevelSize(m_sharedImage->width, level);
+		unsigned int width = GetImageLevelSize(m_sharedImage->width, level);
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
@@ -585,7 +585,7 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int height = GetLevelSize(m_sharedImage->height, level);
+		unsigned int height = GetImageLevelSize(m_sharedImage->height, level);
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
@@ -593,7 +593,7 @@ namespace Nz
 			return nullptr;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
 			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
@@ -614,7 +614,7 @@ namespace Nz
 		}
 		#endif
 
-		return GetLevelSize(m_sharedImage->depth, level);
+		return GetImageLevelSize(m_sharedImage->depth, level);
 	}
 
 	PixelFormat Image::GetFormat() const
@@ -632,7 +632,7 @@ namespace Nz
 		}
 		#endif
 
-		return GetLevelSize(m_sharedImage->height, level);
+		return GetImageLevelSize(m_sharedImage->height, level);
 	}
 
 	UInt8 Image::GetLevelCount() const
@@ -674,7 +674,7 @@ namespace Nz
 
 	std::size_t Image::GetMemoryUsage(UInt8 level) const
 	{
-		return PixelFormatInfo::ComputeSize(m_sharedImage->format, GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level)));
+		return PixelFormatInfo::ComputeSize(m_sharedImage->format, GetImageLevelSize(m_sharedImage->width, level), GetImageLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level)));
 	}
 
 	Color Image::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
@@ -737,7 +737,7 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int width = GetLevelSize(m_sharedImage->width, level);
+		unsigned int width = GetImageLevelSize(m_sharedImage->width, level);
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
@@ -746,7 +746,7 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int height = GetLevelSize(m_sharedImage->height, level);
+		unsigned int height = GetImageLevelSize(m_sharedImage->height, level);
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
@@ -754,7 +754,7 @@ namespace Nz
 			return nullptr;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
 			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
@@ -783,7 +783,7 @@ namespace Nz
 		}
 		#endif
 
-		return Vector3ui(GetLevelSize(m_sharedImage->width, level), GetLevelSize(m_sharedImage->height, level), GetLevelSize(m_sharedImage->depth, level));
+		return Vector3ui(GetImageLevelSize(m_sharedImage->width, level), GetImageLevelSize(m_sharedImage->height, level), GetImageLevelSize(m_sharedImage->depth, level));
 	}
 
 	ImageType Image::GetType() const
@@ -801,7 +801,7 @@ namespace Nz
 		}
 		#endif
 
-		return GetLevelSize(m_sharedImage->width, level);
+		return GetImageLevelSize(m_sharedImage->width, level);
 	}
 
 	bool Image::HasAlpha() const
@@ -1270,8 +1270,8 @@ namespace Nz
 		}
 		#endif
 
-		unsigned int width = GetLevelSize(m_sharedImage->width, level);
-		unsigned int height = GetLevelSize(m_sharedImage->height, level);
+		unsigned int width = GetImageLevelSize(m_sharedImage->width, level);
+		unsigned int height = GetImageLevelSize(m_sharedImage->height, level);
 
 		#if NAZARA_UTILITY_SAFE
 		if (!box.IsValid())
@@ -1280,7 +1280,7 @@ namespace Nz
 			return false;
 		}
 
-		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetLevelSize(m_sharedImage->depth, level);
+		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
 		if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > depth ||
 			(m_sharedImage->type == ImageType::Cubemap && box.depth > 1)) // Nous n'autorisons pas de modifier plus d'une face du cubemap à la fois
 		{

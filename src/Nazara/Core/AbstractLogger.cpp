@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		const char* errorType[] = {
 			"Assert failed: ",  // ErrorType::AssertFailed
@@ -41,6 +41,8 @@ namespace Nz
 	*/
 	void AbstractLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::ostringstream ss;
 		ss << errorType[UnderlyingCast(type)] << error;
 

@@ -36,7 +36,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		class IcoSphereBuilder
 		{
@@ -667,6 +667,8 @@ namespace Nz
 
 	UInt64 ComputeCacheMissCount(IndexIterator indices, UInt32 indexCount)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		VertexCache cache(indices, indexCount);
 		return cache.GetMissCount();
 	}
@@ -731,6 +733,8 @@ namespace Nz
 
 	void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::size_t xIndexCount, yIndexCount, zIndexCount;
 		std::size_t xVertexCount, yVertexCount, zVertexCount;
 
@@ -926,6 +930,8 @@ namespace Nz
 
 	void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		IcoSphereBuilder builder(matrix);
 		builder.Generate(size, recursionLevel, textureCoords, vertexPointers, indices, aabb, indexOffset);
 	}
@@ -1043,6 +1049,8 @@ namespace Nz
 
 	void OptimizeIndices(IndexIterator indices, unsigned int indexCount)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		VertexCacheOptimizer optimizer;
 		if (optimizer.Optimize(indices, indexCount) != VertexCacheOptimizer::Success)
 			NazaraWarning("Indices optimizer failed");

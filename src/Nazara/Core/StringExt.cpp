@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		bool IsSpace(char32_t character)
 		{
@@ -115,6 +115,8 @@ namespace Nz
 
 	std::string FromWideString(const std::wstring_view& wstr)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return WideConverter<sizeof(wchar_t)>::From(wstr.data(), wstr.size());
 	}
 
@@ -163,6 +165,8 @@ namespace Nz
 
 	std::string_view GetWord(const std::string_view& str, std::size_t wordIndex, UnicodeAware)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		utf8::unchecked::iterator<const char*> it(str.data());
 		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
 
@@ -254,6 +258,8 @@ namespace Nz
 
 	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (rhs.size() > lhs.size())
 			return false;
 
@@ -343,6 +349,8 @@ namespace Nz
 
 	std::string ToLower(const std::string_view& str)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::string result;
 		result.reserve(str.size());
 		std::transform(str.begin(), str.end(), std::back_inserter(result), Overload<char>(ToLower));
@@ -368,6 +376,8 @@ namespace Nz
 
 	std::string ToUpper(const std::string_view& str)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::string result;
 		result.reserve(str.size());
 		std::transform(str.begin(), str.end(), std::back_inserter(result), Overload<char>(ToUpper));
@@ -409,11 +419,15 @@ namespace Nz
 
 	std::wstring ToWideString(const std::string_view& str)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return WideConverter<sizeof(wchar_t)>::To(str);
 	}
 
 	std::string_view TrimLeft(std::string_view str)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		while (!str.empty() && IsSpace(str.front()))
 			str.remove_prefix(1);
 
@@ -422,6 +436,8 @@ namespace Nz
 
 	std::string_view TrimLeft(std::string_view str, UnicodeAware)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		utf8::unchecked::iterator<const char*> it(str.data());
 		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
 		while (it != end && IsSpace(*it))
@@ -465,6 +481,8 @@ namespace Nz
 
 	std::string_view TrimRight(std::string_view str)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		while (!str.empty() && IsSpace(str.back()))
 			str.remove_suffix(1);
 
@@ -473,6 +491,8 @@ namespace Nz
 
 	std::string_view TrimRight(std::string_view str, UnicodeAware)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (str.empty())
 			return str;
 

@@ -236,3 +236,7 @@ namespace Nz::GL
 		return false;
 	}
 }
+
+#if defined(NAZARA_PLATFORM_WINDOWS)
+#include <Nazara/Core/AntiWindows.hpp>
+#endif
