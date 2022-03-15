@@ -40,7 +40,7 @@ namespace Nz
 	template<typename T> void HashCombine(std::size_t& seed, const T& v);
 	template<typename T> bool IsPowerOfTwo(T value);
 	template<typename K, typename V> V& Retrieve(std::unordered_map<K, V>& map, const K& key);
-	template<typename K, typename V> const V& RetrieveConst(const std::unordered_map<K, V>& map, const K& key);
+	template<typename K, typename V> const V& Retrieve(const std::unordered_map<K, V>& map, const K& key);
 	template<typename T> T ReverseBits(T integer);
 	template<typename To, typename From> To SafeCast(From&& value);
 	template<typename T, typename U>std::unique_ptr<T> StaticUniquePointerCast(std::unique_ptr<U>&& ptr);

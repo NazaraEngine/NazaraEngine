@@ -388,7 +388,7 @@ namespace Nz
 	* \param key Key, has to exist in map
 	*/
 	template<typename K, typename V>
-	const V& RetrieveConst(const std::unordered_map<K, V>& map, const K& key)
+	const V& Retrieve(const std::unordered_map<K, V>& map, const K& key)
 	{
 		auto it = map.find(key);
 		assert(it != map.end());
