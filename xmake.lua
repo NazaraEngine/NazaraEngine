@@ -56,7 +56,7 @@ local modules = {
 	},
 	Physics2D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"chipmunk2d"}
+		Packages = {"entt", "chipmunk2d"}
 	},
 	Physics3D = {
 		Deps = {"NazaraUtility"},
@@ -217,7 +217,7 @@ for name, module in pairs(modules) do
 
 	if has_config("unitybuild") then
 		add_defines("NAZARA_UNITY_BUILD")
-		add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID"})
+		add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID", batchsize = 12})
 	end
 
 	add_defines("NAZARA_BUILD")
