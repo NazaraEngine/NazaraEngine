@@ -14,7 +14,6 @@
 #include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
-#include <Nazara/Widgets.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <iostream>
@@ -37,7 +36,7 @@ int main()
 
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::Widgets> nazara(rendererConfig);
+	Nz::Modules<Nz::Graphics, Nz::Physics3D> nazara(rendererConfig);
 
 	Nz::RenderWindow window;
 
@@ -70,7 +69,7 @@ int main()
 
 	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
 	depthPass->EnableDepthBuffer(true);
-	//depthPass->EnableDepthClamp(true);
+	depthPass->EnableDepthClamp(true);
 	depthPass->EnableFaceCulling(true);
 
 	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
@@ -90,7 +89,7 @@ int main()
 
 	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
-	//basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	basicMat.SetDiffuseSampler(samplerInfo);
 
@@ -103,16 +102,10 @@ int main()
 
 	std::shared_ptr<Nz::Material> spriteMaterial = std::make_shared<Nz::Material>();
 
-	/*std::shared_ptr<Nz::MaterialPass> spriteDepthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
-	spriteDepthPass->EnableDepthBuffer(true);
-	spriteDepthPass->EnableDepthClamp(true);
-	//spriteDepthPass->EnableFaceCulling(true);*/
-
 	std::shared_ptr<Nz::MaterialPass> spriteMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
 	spriteMaterialPass->EnableDepthBuffer(true);
 	spriteMaterialPass->EnableDepthWrite(false);
 	spriteMaterialPass->EnableDepthClamp(true);
-	//spriteMaterialPass->EnableFaceCulling(true);
 
 	spriteMaterialPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
 
@@ -120,17 +113,10 @@ int main()
 	spriteMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
 	spriteMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
 
-	//Nz::BasicMaterial basicSpriteMat(*spriteMaterialPass);
-	//basicSpriteMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
-
-	//spriteMaterial->AddPass("DepthPass", spriteDepthPass);
 	spriteMaterial->AddPass("ForwardPass", spriteMaterialPass);
 
 	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(spriteMaterial);
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72), 0.01f);
-
-	//for (std::size_t i = 16; i < 200; i += 3)
-	//	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", i), 0.01f);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
@@ -215,7 +201,6 @@ int main()
 				entt::entity entity = registry.create();
 				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
 				entityGfx.AttachRenderable(model, 1);
-				//entityGfx.AttachRenderable(sprite);
 
 				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
@@ -237,7 +222,7 @@ int main()
 	Nz::Clock secondClock;
 	unsigned int fps = 0;
 
-	//Nz::Mouse::SetRelativeMouseMode(true);
+	Nz::Mouse::SetRelativeMouseMode(true);
 
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
