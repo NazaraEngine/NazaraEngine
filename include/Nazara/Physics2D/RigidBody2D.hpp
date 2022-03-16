@@ -110,9 +110,11 @@ namespace Nz
 
 			static constexpr std::size_t InvalidShapeIndex = std::numeric_limits<std::size_t>::max();
 
+		protected:
+			void Destroy();
+
 		private:
 			cpBody* Create(float mass = 1.f, float moment = 1.f);
-			void Destroy();
 			void RegisterToSpace();
 			void UnregisterFromSpace();
 

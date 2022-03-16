@@ -620,6 +620,22 @@ namespace Nz
 		return *this;
 	}
 
+	void RigidBody2D::Destroy()
+	{
+		UnregisterFromSpace();
+
+		for (cpShape* shape : m_shapes)
+			cpShapeFree(shape);
+
+		if (m_handle)
+		{
+			cpBodyFree(m_handle);
+			m_handle = nullptr;
+		}
+
+		m_shapes.clear();
+	}
+
 	cpBody* RigidBody2D::Create(float mass, float moment)
 	{
 		cpBody* handle;
@@ -636,19 +652,6 @@ namespace Nz
 		cpBodySetUserData(handle, this);
 
 		return handle;
-	}
-
-	void RigidBody2D::Destroy()
-	{
-		UnregisterFromSpace();
-
-		for (cpShape* shape : m_shapes)
-			cpShapeFree(shape);
-
-		if (m_handle)
-			cpBodyFree(m_handle);
-
-		m_shapes.clear();
 	}
 
 	void RigidBody2D::RegisterToSpace()
