@@ -8,6 +8,7 @@
 #define NAZARA_SHADER_SHADERMODULERESOLVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <memory>
 #include <string>
@@ -32,6 +33,8 @@ namespace Nz
 
 			ShaderModuleResolver& operator=(const ShaderModuleResolver&) = default;
 			ShaderModuleResolver& operator=(ShaderModuleResolver&&) = default;
+
+			NazaraSignal(OnModuleUpdated, ShaderModuleResolver* /*resolver*/, const std::string& /*moduleName*/);
 	};
 }
 

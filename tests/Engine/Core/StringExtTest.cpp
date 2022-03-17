@@ -5,6 +5,15 @@ SCENARIO("String", "[CORE][STRING]")
 {
 	std::string unicodeString(u8"\u00E0\u00E9\u00E7\u0153\u00C2\u5B98\u46E1");
 
+	WHEN("Checking if string ends with")
+	{
+		CHECK(Nz::EndsWith("Nazara Engine", "Engine"));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", " ngine"));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "NazaraEngine"));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "Nazara"));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "Sir Nazara van Engine"));
+	}
+
 	WHEN("Converting string back and forth")
 	{
 		CHECK(Nz::FromUtf16String(Nz::ToUtf16String(unicodeString)) == unicodeString);

@@ -10,6 +10,20 @@
 
 namespace Nz
 {
+	inline bool EndsWith(const std::string_view& str, const std::string_view& s)
+	{
+		//FIXME: Replace with proper C++20 value once it's available
+#if __cplusplus > 201703L
+		// C++20
+		return str.ends_with(s);
+#else
+		if (s.size() > str.size())
+			return false;
+
+		return str.compare(str.size() - s.size(), s.size(), s.data()) == 0;
+#endif
+	}
+
 	inline bool IsNumber(std::string_view str)
 	{
 		if (str.empty())

@@ -35,6 +35,8 @@ namespace Nz
 	{
 		public:
 			MaterialPass(std::shared_ptr<const MaterialSettings> settings);
+			MaterialPass(const MaterialPass&) = delete;
+			MaterialPass(MaterialPass&&) = delete;
 			inline ~MaterialPass();
 
 			inline void Configure(std::shared_ptr<MaterialPipeline> pipeline);
@@ -105,6 +107,9 @@ namespace Nz
 
 			void Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
 
+			MaterialPass& operator=(const MaterialPass&) = delete;
+			MaterialPass& operator=(MaterialPass&&) = delete;
+
 			// Signals:
 			NazaraSignal(OnMaterialPassInvalidated, const MaterialPass* /*materialPass*/);
 			NazaraSignal(OnMaterialPassPipelineInvalidated, const MaterialPass* /*materialPass*/);
@@ -125,6 +130,11 @@ namespace Nz
 				TextureSamplerInfo samplerInfo;
 			};
 
+			struct ShaderEntry
+			{
+				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
+			};
+
 			struct UniformBuffer
 			{
 				std::shared_ptr<RenderBuffer> buffer;
@@ -135,6 +145,7 @@ namespace Nz
 			std::array<ShaderAst::ConstantValue, 64> m_optionValues;
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
+			std::vector<ShaderEntry> m_shaders;
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;

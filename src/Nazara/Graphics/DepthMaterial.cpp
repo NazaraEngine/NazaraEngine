@@ -11,8 +11,7 @@ namespace Nz
 {
 	std::vector<std::shared_ptr<UberShader>> DepthMaterial::BuildShaders()
 	{
-		ShaderAst::ModulePtr shaderModule = Graphics::Instance()->GetShaderModuleResolver()->Resolve("DepthMaterial");
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
+		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, "DepthMaterial");
 
 		return { std::move(shader) };
 	}
