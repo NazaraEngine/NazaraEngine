@@ -13,8 +13,6 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Core.hpp>
-#include <Nazara/Math/Quaternion.hpp>
-#include <Nazara/Math/Vector3.hpp>
 
 namespace Nz
 {
@@ -32,35 +30,23 @@ namespace Nz
 			Audio(Audio&&) = delete;
 			~Audio();
 
-			float GetDopplerFactor() const;
-			float GetGlobalVolume() const;
-			Vector3f GetListenerDirection() const;
-			Vector3f GetListenerPosition() const;
-			Quaternionf GetListenerRotation() const;
-			Vector3f GetListenerVelocity() const;
+			const std::shared_ptr<AudioDevice>& GetDefaultDevice() const;
+
 			SoundBufferLoader& GetSoundBufferLoader();
 			const SoundBufferLoader& GetSoundBufferLoader() const;
 			SoundStreamLoader& GetSoundStreamLoader();
 			const SoundStreamLoader& GetSoundStreamLoader() const;
-			float GetSpeedOfSound() const;
 
-			bool IsFormatSupported(AudioFormat format) const;
+			std::shared_ptr<AudioDevice> OpenOutputDevice(const std::string& deviceName);
 
-			void SetDopplerFactor(float dopplerFactor);
-			void SetGlobalVolume(float volume);
-			void SetListenerDirection(const Vector3f& direction);
-			void SetListenerDirection(float dirX, float dirY, float dirZ);
-			void SetListenerPosition(const Vector3f& position);
-			void SetListenerPosition(float x, float y, float z);
-			void SetListenerRotation(const Quaternionf& rotation);
-			void SetListenerVelocity(const Vector3f& velocity);
-			void SetListenerVelocity(float velX, float velY, float velZ);
-			void SetSpeedOfSound(float speed);
+			std::vector<std::string> QueryInputDevices() const;
+			std::vector<std::string> QueryOutputDevices() const;
 
 			Audio& operator=(const Audio&) = delete;
 			Audio& operator=(Audio&&) = delete;
 
 		private:
+			std::shared_ptr<AudioDevice> m_defaultDevice;
 			SoundBufferLoader m_soundBufferLoader;
 			SoundStreamLoader m_soundStreamLoader;
 

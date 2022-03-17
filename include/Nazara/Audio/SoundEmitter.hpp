@@ -17,10 +17,15 @@
 
 namespace Nz
 {
+	class AudioDevice;
+	class AudioSource;
+
 	class NAZARA_AUDIO_API SoundEmitter
 	{
 		public:
-			SoundEmitter(SoundEmitter&& emitter) noexcept;
+			SoundEmitter(AudioDevice& audioDevice);
+			SoundEmitter(const SoundEmitter&) = delete;
+			SoundEmitter(SoundEmitter&&) noexcept = default;
 			virtual ~SoundEmitter();
 
 			virtual void EnableLooping(bool loop) = 0;
@@ -38,7 +43,7 @@ namespace Nz
 
 			virtual bool IsLooping() const = 0;
 			inline bool IsPlaying() const;
-			bool IsSpatialized() const;
+			bool IsSpatializationEnabled() const;
 
 			virtual void Pause() = 0;
 			virtual void Play() = 0;
@@ -47,25 +52,16 @@ namespace Nz
 			void SetMinDistance(float minDistance);
 			void SetPitch(float pitch);
 			void SetPosition(const Vector3f& position);
-			void SetPosition(float x, float y, float z);
 			void SetVelocity(const Vector3f& velocity);
-			void SetVelocity(float velX, float velY, float velZ);
 			void SetVolume(float volume);
 
 			virtual void Stop() = 0;
 
 			SoundEmitter& operator=(const SoundEmitter&) = delete;
-			SoundEmitter& operator=(SoundEmitter&&) noexcept;
+			SoundEmitter& operator=(SoundEmitter&&) noexcept = default;
 
 		protected:
-			SoundEmitter();
-			SoundEmitter(const SoundEmitter& emitter);
-
-			SoundStatus GetInternalStatus() const;
-
-			static constexpr unsigned int InvalidSource = std::numeric_limits<unsigned int>::max();
-
-			unsigned int m_source;
+			std::shared_ptr<AudioSource> m_source;
 	};
 }
 

@@ -11,20 +11,24 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <atomic>
 #include <condition_variable>
-#include <exception>
+#include <memory>
 #include <mutex>
+#include <thread>
+#include <vector>
 
 namespace Nz
 {
-	struct MusicImpl;
+	class AudioBuffer;
 
 	class NAZARA_AUDIO_API Music : public Resource, public SoundEmitter
 	{
 		public:
 			Music();
+			Music(AudioDevice& device);
 			Music(const Music&) = delete;
-			Music(Music&&) noexcept;
+			Music(Music&&) noexcept = default;
 			~Music();
 
 			bool Create(std::shared_ptr<SoundStream> soundStream);
@@ -53,12 +57,22 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) noexcept;
+			Music& operator=(Music&&) noexcept = default;
 
 		private:
-			std::unique_ptr<MusicImpl> m_impl;
+			AudioFormat m_audioFormat;
+			std::atomic_bool m_streaming;
+			std::atomic<UInt64> m_processedSamples;
+			mutable std::mutex m_bufferLock;
+			std::size_t m_bufferCount;
+			std::shared_ptr<SoundStream> m_stream;
+			std::thread m_thread;
+			std::vector<Int16> m_chunkSamples;
+			UInt32 m_sampleRate;
+			UInt64 m_streamOffset;
+			bool m_looping;
 
-			bool FillAndQueueBuffer(unsigned int buffer);
+			bool FillAndQueueBuffer(std::shared_ptr<AudioBuffer> buffer);
 			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err);
 			void StopThread();
 	};

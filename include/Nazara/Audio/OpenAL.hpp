@@ -7,13 +7,9 @@
 #ifndef NAZARA_AUDIO_OPENAL_HPP
 #define NAZARA_AUDIO_OPENAL_HPP
 
-#if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
+// no include reordering
 
-#include <Nazara/Prerequisites.hpp>
-#include <Nazara/Audio/Config.hpp>
-#include <Nazara/Audio/Enums.hpp>
-#include <string>
-#include <vector>
+#if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
 // Inclusion of OpenAL headers
 
@@ -57,135 +53,102 @@ using OpenALDetail::ALCuint;
 using OpenALDetail::ALCushort;
 using OpenALDetail::ALCvoid;
 
-namespace Nz
-{
-	using OpenALFunc = void(*)();
+#define NAZARA_AUDIO_FOREACH_AL_FUNC(cb) \
+	cb(alBuffer3f,             OpenALDetail::LPALBUFFER3F) \
+	cb(alBuffer3i,             OpenALDetail::LPALBUFFER3I) \
+	cb(alBufferData,           OpenALDetail::LPALBUFFERDATA) \
+	cb(alBufferf,              OpenALDetail::LPALBUFFERF) \
+	cb(alBufferfv,             OpenALDetail::LPALBUFFERFV) \
+	cb(alBufferi,              OpenALDetail::LPALBUFFERI) \
+	cb(alBufferiv,             OpenALDetail::LPALBUFFERIV) \
+	cb(alDeleteBuffers,        OpenALDetail::LPALDELETEBUFFERS) \
+	cb(alDeleteSources,        OpenALDetail::LPALDELETESOURCES) \
+	cb(alDisable,              OpenALDetail::LPALDISABLE) \
+	cb(alDistanceModel,        OpenALDetail::LPALDISTANCEMODEL) \
+	cb(alDopplerFactor,        OpenALDetail::LPALDOPPLERFACTOR) \
+	cb(alDopplerVelocity,      OpenALDetail::LPALDOPPLERVELOCITY) \
+	cb(alEnable,               OpenALDetail::LPALENABLE) \
+	cb(alGenBuffers,           OpenALDetail::LPALGENBUFFERS) \
+	cb(alGenSources,           OpenALDetail::LPALGENSOURCES) \
+	cb(alGetBoolean,           OpenALDetail::LPALGETBOOLEAN) \
+	cb(alGetBooleanv,          OpenALDetail::LPALGETBOOLEANV) \
+	cb(alGetBuffer3f,          OpenALDetail::LPALGETBUFFER3F) \
+	cb(alGetBuffer3i,          OpenALDetail::LPALGETBUFFER3I) \
+	cb(alGetBufferf,           OpenALDetail::LPALGETBUFFERF) \
+	cb(alGetBufferfv,          OpenALDetail::LPALGETBUFFERFV) \
+	cb(alGetBufferi,           OpenALDetail::LPALGETBUFFERI) \
+	cb(alGetBufferiv,          OpenALDetail::LPALGETBUFFERIV) \
+	cb(alGetDouble,            OpenALDetail::LPALGETDOUBLE) \
+	cb(alGetDoublev,           OpenALDetail::LPALGETDOUBLEV) \
+	cb(alGetEnumValue,         OpenALDetail::LPALGETENUMVALUE) \
+	cb(alGetError,             OpenALDetail::LPALGETERROR) \
+	cb(alGetFloat,             OpenALDetail::LPALGETFLOAT) \
+	cb(alGetFloatv,            OpenALDetail::LPALGETFLOATV) \
+	cb(alGetInteger,           OpenALDetail::LPALGETINTEGER) \
+	cb(alGetIntegerv,          OpenALDetail::LPALGETINTEGERV) \
+	cb(alGetListener3f,        OpenALDetail::LPALGETLISTENER3F) \
+	cb(alGetListener3i,        OpenALDetail::LPALGETLISTENER3I) \
+	cb(alGetListenerf,         OpenALDetail::LPALGETLISTENERF) \
+	cb(alGetListenerfv,        OpenALDetail::LPALGETLISTENERFV) \
+	cb(alGetListeneri,         OpenALDetail::LPALGETLISTENERI) \
+	cb(alGetListeneriv,        OpenALDetail::LPALGETLISTENERIV) \
+	cb(alGetProcAddress,       OpenALDetail::LPALGETPROCADDRESS) \
+	cb(alGetSource3f,          OpenALDetail::LPALGETSOURCE3F) \
+	cb(alGetSource3i,          OpenALDetail::LPALGETSOURCE3I) \
+	cb(alGetSourcef,           OpenALDetail::LPALGETSOURCEF) \
+	cb(alGetSourcefv,          OpenALDetail::LPALGETSOURCEFV) \
+	cb(alGetSourcei,           OpenALDetail::LPALGETSOURCEI) \
+	cb(alGetSourceiv,          OpenALDetail::LPALGETSOURCEIV) \
+	cb(alGetString,            OpenALDetail::LPALGETSTRING) \
+	cb(alIsBuffer,             OpenALDetail::LPALISBUFFER) \
+	cb(alIsEnabled,            OpenALDetail::LPALISENABLED) \
+	cb(alIsExtensionPresent,   OpenALDetail::LPALISEXTENSIONPRESENT) \
+	cb(alIsSource,             OpenALDetail::LPALISSOURCE) \
+	cb(alListener3f,           OpenALDetail::LPALLISTENER3F) \
+	cb(alListener3i,           OpenALDetail::LPALLISTENER3I) \
+	cb(alListenerf,            OpenALDetail::LPALLISTENERF) \
+	cb(alListenerfv,           OpenALDetail::LPALLISTENERFV) \
+	cb(alListeneri,            OpenALDetail::LPALLISTENERI) \
+	cb(alListeneriv,           OpenALDetail::LPALLISTENERIV) \
+	cb(alSource3f,             OpenALDetail::LPALSOURCE3F) \
+	cb(alSource3i,             OpenALDetail::LPALSOURCE3I) \
+	cb(alSourcef,              OpenALDetail::LPALSOURCEF) \
+	cb(alSourcefv,             OpenALDetail::LPALSOURCEFV) \
+	cb(alSourcei,              OpenALDetail::LPALSOURCEI) \
+	cb(alSourceiv,             OpenALDetail::LPALSOURCEIV) \
+	cb(alSourcePause,          OpenALDetail::LPALSOURCEPAUSE) \
+	cb(alSourcePausev,         OpenALDetail::LPALSOURCEPAUSEV) \
+	cb(alSourcePlay,           OpenALDetail::LPALSOURCEPLAY) \
+	cb(alSourcePlayv,          OpenALDetail::LPALSOURCEPLAYV) \
+	cb(alSourceQueueBuffers,   OpenALDetail::LPALSOURCEQUEUEBUFFERS) \
+	cb(alSourceRewind,         OpenALDetail::LPALSOURCEREWIND) \
+	cb(alSourceRewindv,        OpenALDetail::LPALSOURCEREWINDV) \
+	cb(alSourceStop,           OpenALDetail::LPALSOURCESTOP) \
+	cb(alSourceStopv,          OpenALDetail::LPALSOURCESTOPV) \
+	cb(alSourceUnqueueBuffers, OpenALDetail::LPALSOURCEUNQUEUEBUFFERS) \
+	cb(alSpeedOfSound,         OpenALDetail::LPALSPEEDOFSOUND)
 
-	class NAZARA_AUDIO_API OpenAL
-	{
-		public:
-			static OpenALFunc GetEntry(const std::string& entryPoint);
-			static std::string GetRendererName();
-			static std::string GetVendorName();
-			static unsigned int GetVersion();
-
-			static bool Initialize(bool openDevice = true);
-
-			static bool IsInitialized();
-
-			static std::size_t QueryInputDevices(std::vector<std::string>& devices);
-			static std::size_t QueryOutputDevices(std::vector<std::string>& devices);
-
-			static bool SetDevice(const std::string& deviceName);
-
-			static void Uninitialize();
-
-			static ALenum AudioFormat[AudioFormatCount];
-
-		private:
-			static void CloseDevice();
-			static bool OpenDevice();
-			static OpenALFunc LoadEntry(const char* name, bool throwException = false);
-	};
-
-// al
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFER3F             alBuffer3f;
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFER3I             alBuffer3i;
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFERDATA           alBufferData;
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFERF              alBufferf;
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFERFV             alBufferfv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFERI              alBufferi;
-NAZARA_AUDIO_API extern OpenALDetail::LPALBUFFERIV             alBufferiv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALDELETEBUFFERS        alDeleteBuffers;
-NAZARA_AUDIO_API extern OpenALDetail::LPALDELETESOURCES        alDeleteSources;
-NAZARA_AUDIO_API extern OpenALDetail::LPALDISABLE              alDisable;
-NAZARA_AUDIO_API extern OpenALDetail::LPALDISTANCEMODEL        alDistanceModel;
-NAZARA_AUDIO_API extern OpenALDetail::LPALDOPPLERFACTOR        alDopplerFactor;
-NAZARA_AUDIO_API extern OpenALDetail::LPALDOPPLERVELOCITY      alDopplerVelocity;
-NAZARA_AUDIO_API extern OpenALDetail::LPALENABLE               alEnable;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGENBUFFERS           alGenBuffers;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGENSOURCES           alGenSources;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBOOLEAN           alGetBoolean;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBOOLEANV          alGetBooleanv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBUFFER3F          alGetBuffer3f;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBUFFER3I          alGetBuffer3i;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBUFFERF           alGetBufferf;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBUFFERFV          alGetBufferfv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBUFFERI           alGetBufferi;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETBUFFERIV          alGetBufferiv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETDOUBLE            alGetDouble;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETDOUBLEV           alGetDoublev;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETENUMVALUE         alGetEnumValue;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETERROR             alGetError;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETFLOAT             alGetFloat;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETFLOATV            alGetFloatv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETINTEGER           alGetInteger;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETINTEGERV          alGetIntegerv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETLISTENER3F        alGetListener3f;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETLISTENER3I        alGetListener3i;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETLISTENERF         alGetListenerf;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETLISTENERFV        alGetListenerfv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETLISTENERI         alGetListeneri;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETLISTENERIV        alGetListeneriv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETPROCADDRESS       alGetProcAddress;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSOURCE3F          alGetSource3f;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSOURCE3I          alGetSource3i;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSOURCEF           alGetSourcef;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSOURCEFV          alGetSourcefv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSOURCEI           alGetSourcei;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSOURCEIV          alGetSourceiv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALGETSTRING            alGetString;
-NAZARA_AUDIO_API extern OpenALDetail::LPALISBUFFER             alIsBuffer;
-NAZARA_AUDIO_API extern OpenALDetail::LPALISENABLED            alIsEnabled;
-NAZARA_AUDIO_API extern OpenALDetail::LPALISEXTENSIONPRESENT   alIsExtensionPresent;
-NAZARA_AUDIO_API extern OpenALDetail::LPALISSOURCE             alIsSource;
-NAZARA_AUDIO_API extern OpenALDetail::LPALLISTENER3F           alListener3f;
-NAZARA_AUDIO_API extern OpenALDetail::LPALLISTENER3I           alListener3i;
-NAZARA_AUDIO_API extern OpenALDetail::LPALLISTENERF            alListenerf;
-NAZARA_AUDIO_API extern OpenALDetail::LPALLISTENERFV           alListenerfv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALLISTENERI            alListeneri;
-NAZARA_AUDIO_API extern OpenALDetail::LPALLISTENERIV           alListeneriv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCE3F             alSource3f;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCE3I             alSource3i;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEF              alSourcef;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEFV             alSourcefv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEI              alSourcei;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEIV             alSourceiv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEPAUSE          alSourcePause;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEPAUSEV         alSourcePausev;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEPLAY           alSourcePlay;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEPLAYV          alSourcePlayv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEQUEUEBUFFERS   alSourceQueueBuffers;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEREWIND         alSourceRewind;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEREWINDV        alSourceRewindv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCESTOP           alSourceStop;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCESTOPV          alSourceStopv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSOURCEUNQUEUEBUFFERS alSourceUnqueueBuffers;
-NAZARA_AUDIO_API extern OpenALDetail::LPALSPEEDOFSOUND         alSpeedOfSound;
-
-// alc
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCAPTURECLOSEDEVICE alcCaptureCloseDevice;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCAPTUREOPENDEVICE  alcCaptureOpenDevice;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCAPTURESAMPLES     alcCaptureSamples;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCAPTURESTART       alcCaptureStart;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCAPTURESTOP        alcCaptureStop;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCLOSEDEVICE        alcCloseDevice;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCCREATECONTEXT      alcCreateContext;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCDESTROYCONTEXT     alcDestroyContext;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETCONTEXTSDEVICE  alcGetContextsDevice;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETCURRENTCONTEXT  alcGetCurrentContext;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETENUMVALUE       alcGetEnumValue;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETERROR           alcGetError;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETINTEGERV        alcGetIntegerv;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETPROCADDRESS     alcGetProcAddress;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCGETSTRING          alcGetString;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCISEXTENSIONPRESENT alcIsExtensionPresent;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCMAKECONTEXTCURRENT alcMakeContextCurrent;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCOPENDEVICE         alcOpenDevice;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCPROCESSCONTEXT     alcProcessContext;
-NAZARA_AUDIO_API extern OpenALDetail::LPALCSUSPENDCONTEXT     alcSuspendContext;
-
-}
+#define NAZARA_AUDIO_FOREACH_ALC_FUNC(cb) \
+	cb(alcCaptureCloseDevice, OpenALDetail::LPALCCAPTURECLOSEDEVICE) \
+	cb(alcCaptureOpenDevice,  OpenALDetail::LPALCCAPTUREOPENDEVICE) \
+	cb(alcCaptureSamples,     OpenALDetail::LPALCCAPTURESAMPLES) \
+	cb(alcCaptureStart,       OpenALDetail::LPALCCAPTURESTART) \
+	cb(alcCaptureStop,        OpenALDetail::LPALCCAPTURESTOP) \
+	cb(alcCloseDevice,        OpenALDetail::LPALCCLOSEDEVICE) \
+	cb(alcCreateContext,      OpenALDetail::LPALCCREATECONTEXT) \
+	cb(alcDestroyContext,     OpenALDetail::LPALCDESTROYCONTEXT) \
+	cb(alcGetContextsDevice,  OpenALDetail::LPALCGETCONTEXTSDEVICE) \
+	cb(alcGetCurrentContext,  OpenALDetail::LPALCGETCURRENTCONTEXT) \
+	cb(alcGetEnumValue,       OpenALDetail::LPALCGETENUMVALUE) \
+	cb(alcGetError,           OpenALDetail::LPALCGETERROR) \
+	cb(alcGetIntegerv,        OpenALDetail::LPALCGETINTEGERV) \
+	cb(alcGetProcAddress,     OpenALDetail::LPALCGETPROCADDRESS) \
+	cb(alcGetString,          OpenALDetail::LPALCGETSTRING) \
+	cb(alcIsExtensionPresent, OpenALDetail::LPALCISEXTENSIONPRESENT) \
+	cb(alcMakeContextCurrent, OpenALDetail::LPALCMAKECONTEXTCURRENT) \
+	cb(alcOpenDevice,         OpenALDetail::LPALCOPENDEVICE) \
+	cb(alcProcessContext,     OpenALDetail::LPALCPROCESSCONTEXT) \
+	cb(alcSuspendContext,     OpenALDetail::LPALCSUSPENDCONTEXT) \
 
 #endif // NAZARA_AUDIO_OPENAL
 

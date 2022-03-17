@@ -19,7 +19,7 @@ SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 				sound.SetPosition(Nz::Vector3f::Zero());
 				sound.SetVelocity(Nz::Vector3f::UnitX());
 
-				REQUIRE(sound.IsSpatialized());
+				REQUIRE(sound.IsSpatializationEnabled());
 				REQUIRE(sound.GetPosition() == Nz::Vector3f::Zero());
 				REQUIRE(sound.GetVelocity() == Nz::Vector3f::UnitX());
 			}
