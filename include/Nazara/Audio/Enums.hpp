@@ -7,6 +7,8 @@
 #ifndef NAZARA_AUDIO_ENUMS_HPP
 #define NAZARA_AUDIO_ENUMS_HPP
 
+#include <cstdint>
+
 namespace Nz
 {
 	enum class AudioFormat

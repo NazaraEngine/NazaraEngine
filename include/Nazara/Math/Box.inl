@@ -13,7 +13,7 @@
 namespace Nz
 {
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::Box
 	* \brief Math class that represents a three dimensional box
 	*/

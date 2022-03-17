@@ -31,7 +31,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 			THEN("We can play it and get the time offset")
 			{
-				Nz::Audio::Instance()->SetGlobalVolume(0.f);
+				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(0.f);
 
 				music.Play();
 				std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -44,7 +44,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 				music.SetPlayingOffset(3500);
 				REQUIRE(music.GetPlayingOffset() >= 3500);
 
-				Nz::Audio::Instance()->SetGlobalVolume(100.f);
+				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(100.f);
 			}
 		}
 	}

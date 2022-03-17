@@ -40,9 +40,6 @@
 // Activate the security tests based on the code (Advised for development)
 #define NAZARA_AUDIO_SAFE 1
 
-// The number of buffers used for audio streaming (At least two)
-#define NAZARA_AUDIO_STREAMED_BUFFER_COUNT 2
-
 /// Checking the values and types of certain constants
 #include <Nazara/Audio/ConfigCheck.hpp>
 

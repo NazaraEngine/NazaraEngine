@@ -31,10 +31,17 @@
 
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/AudioBuffer.hpp>
+#include <Nazara/Audio/AudioDevice.hpp>
+#include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
+#include <Nazara/Audio/OpenALBuffer.hpp>
+#include <Nazara/Audio/OpenALDevice.hpp>
+#include <Nazara/Audio/OpenALLibrary.hpp>
+#include <Nazara/Audio/OpenALSource.hpp>
 #include <Nazara/Audio/Sound.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>
