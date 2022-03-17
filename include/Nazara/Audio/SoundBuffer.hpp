@@ -50,7 +50,7 @@ namespace Nz
 			SoundBuffer(SoundBuffer&&) = delete;
 			~SoundBuffer() = default;
 
-			const std::shared_ptr<AudioBuffer>& GetBuffer(AudioDevice* device);
+			const std::shared_ptr<AudioBuffer>& GetAudioBuffer(AudioDevice* device);
 
 			inline UInt32 GetDuration() const;
 			inline AudioFormat GetFormat() const;

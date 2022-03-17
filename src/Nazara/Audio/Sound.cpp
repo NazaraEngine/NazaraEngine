@@ -219,7 +219,7 @@ namespace Nz
 		Stop();
 
 		m_buffer = std::move(buffer);
-		m_source->SetBuffer(m_buffer->GetBuffer(m_source->GetAudioDevice().get()));
+		m_source->SetBuffer(m_buffer->GetAudioBuffer(m_source->GetAudioDevice().get()));
 	}
 
 	/*!

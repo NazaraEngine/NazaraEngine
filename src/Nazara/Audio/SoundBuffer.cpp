@@ -58,14 +58,32 @@ namespace Nz
 		std::memcpy(&m_samples[0], samples, sampleCount * sizeof(Int16));
 	}
 
-	const std::shared_ptr<AudioBuffer>& SoundBuffer::GetBuffer(AudioDevice* device)
+	const std::shared_ptr<AudioBuffer>& SoundBuffer::GetAudioBuffer(AudioDevice* device)
 	{
+		NazaraAssert(device, "invalid device");
+
 		auto it = m_audioBufferByDevice.find(device);
 		if (it == m_audioBufferByDevice.end())
 		{
-			auto audioBuffer = device->CreateBuffer();
-			if (!audioBuffer->Reset(m_format, m_sampleCount, m_sampleRate, m_samples.get()))
-				throw std::runtime_error("failed to initialize audio buffer");
+			// Try to find an existing compatible buffer
+			std::shared_ptr<AudioBuffer> audioBuffer;
+			for (it = m_audioBufferByDevice.begin(); it != m_audioBufferByDevice.end(); ++it)
+			{
+				const auto& entry = it->second;
+				if (entry.audioBuffer->IsCompatibleWith(*device))
+				{
+					audioBuffer = entry.audioBuffer;
+					break;
+				}
+			}
+
+			if (!audioBuffer)
+			{
+				// Create a new buffer
+				audioBuffer = device->CreateBuffer();
+				if (!audioBuffer->Reset(m_format, m_sampleCount, m_sampleRate, m_samples.get()))
+					throw std::runtime_error("failed to initialize audio buffer");
+			}
 
 			it = m_audioBufferByDevice.emplace(device, AudioDeviceEntry{}).first;
 

@@ -39,9 +39,10 @@ namespace Nz
 			float GetGlobalVolume() const override;
 			Vector3f GetListenerDirection(Vector3f* up = nullptr) const override;
 			Vector3f GetListenerPosition() const override;
-			Quaternionf GetListenerRotation(Vector3f* up = nullptr) const override;
+			Quaternionf GetListenerRotation() const override;
 			Vector3f GetListenerVelocity() const override;
 			float GetSpeedOfSound() const override;
+			const void* GetSubSystemIdentifier() const override;
 
 			bool IsFormatSupported(AudioFormat format) const override;
 
