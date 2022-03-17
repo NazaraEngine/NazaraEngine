@@ -83,6 +83,7 @@ namespace Nz
 
 			static Quaternion Identity();
 			static Quaternion Lerp(const Quaternion& from, const Quaternion& to, T interpolation);
+			static Quaternion LookAt(const Vector3<T>& forward, const Vector3<T>& up);
 			static Quaternion Normalize(const Quaternion& quat, T* length = nullptr);
 			static Quaternion RotationBetween(const Vector3<T>& from, const Vector3<T>& to);
 			static Quaternion Slerp(const Quaternion& from, const Quaternion& to, T interpolation);

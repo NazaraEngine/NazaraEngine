@@ -35,7 +35,7 @@ namespace Nz
 			virtual float GetGlobalVolume() const = 0;
 			virtual Vector3f GetListenerDirection(Vector3f* up = nullptr) const = 0;
 			virtual Vector3f GetListenerPosition() const = 0;
-			virtual Quaternionf GetListenerRotation(Vector3f* up = nullptr) const = 0;
+			virtual Quaternionf GetListenerRotation() const = 0;
 			virtual Vector3f GetListenerVelocity() const = 0;
 			virtual float GetSpeedOfSound() const = 0;
 

@@ -157,7 +157,7 @@ namespace Nz
 	*
 	* \see GetListenerDirection
 	*/
-	Quaternionf OpenALDevice::GetListenerRotation(Vector3f* up) const
+	Quaternionf OpenALDevice::GetListenerRotation() const
 	{
 		MakeContextCurrent();
 
@@ -165,11 +165,9 @@ namespace Nz
 		m_library.alGetListenerfv(AL_ORIENTATION, orientation);
 
 		Vector3f forward(orientation[0], orientation[1], orientation[2]);
+		Vector3f up(orientation[3], orientation[4], orientation[5]);
 
-		if (up)
-			up->Set(orientation[3], orientation[4], orientation[5]);
-
-		return Quaternionf::RotationBetween(Vector3f::Forward(), forward);
+		return Quaternionf::LookAt(forward, up);
 	}
 
 	/*!
