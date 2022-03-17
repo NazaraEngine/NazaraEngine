@@ -705,7 +705,6 @@ namespace Nz
 	*
 	* \see Lerp, Slerp
 	*/
-
 	template<typename T>
 	Quaternion<T> Quaternion<T>::Lerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
@@ -724,6 +723,33 @@ namespace Nz
 		interpolated.z = Nz::Lerp(from.z, to.z, interpolation);
 
 		return interpolated;
+	}
+
+	template<typename T>
+	Quaternion<T> Quaternion<T>::LookAt(const Vector3<T>& forward, const Vector3<T>& up)
+	{
+		// From https://gamedev.stackexchange.com/questions/53129/quaternion-look-at-with-up-vector
+
+		Vector3<T> forward_w(1, 0, 0);
+		Vector3<T> axis = Vector3<T>::CrossProduct(forward, forward_w);
+		RadianAngle<T> angle = std::acos(Vector3<T>::DotProduct(forward, forward_w));
+
+		Vector3<T> third = Vector3<T>::CrossProduct(axis, forward_w);
+		if (Vector3<T>::DotProduct(third, forward) < 0)
+			angle = -angle;
+
+		Quaternion<T> q1 = Quaternion(angle, axis);
+
+		Vector3<T> up_l = q1 * up;
+		Vector3<T> right = Vector3<T>::Normalize(Vector3<T>::CrossProduct(forward, up));
+		Vector3<T> up_w = Vector3<T>::Normalize(Vector3<T>::CrossProduct(right, forward));
+
+		Vector3<T> axis2 = Vector3<T>::CrossProduct(up_l, up_w);
+		RadianAngle<T> angle2 = std::acos(Vector3<T>::DotProduct(forward, forward_w));
+
+		Quaternion<T> q2 = Quaternion(angle2, axis2);
+
+		return q2 * q1;
 	}
 
 	/*!

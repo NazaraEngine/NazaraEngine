@@ -381,6 +381,27 @@ namespace Nz
 		return ToRadianAngle();
 	}*/
 
+
+	/*!
+	* \brief Helps to represent the sign of the angle
+	* \return A constant reference to this angle
+	*/
+	template<AngleUnit Unit, typename T>
+	constexpr const Angle<Unit, T>& Angle<Unit, T>::operator+() const
+	{
+		return *this;
+	}
+
+	/*!
+	* \brief Negates the angle
+	* \return An angle with a negated value
+	*/
+	template<AngleUnit Unit, typename T>
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator-() const
+	{
+		return Angle(-value);
+	}
+
 	/*!
 	* \brief Addition operator
 	* \return Adds two angles together
