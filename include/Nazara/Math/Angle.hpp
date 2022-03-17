@@ -55,6 +55,9 @@ namespace Nz
 
 			constexpr Angle& operator=(const Angle&) = default;
 
+			constexpr const Angle& operator+() const;
+			constexpr Angle operator-() const;
+
 			constexpr Angle operator+(const Angle& other) const;
 			constexpr Angle operator-(const Angle& other) const;
 			constexpr Angle operator*(T scalar) const;
