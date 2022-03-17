@@ -1432,11 +1432,13 @@ namespace Nz::ShaderLang
 		}
 
 		std::size_t length = static_cast<std::size_t>(file.GetSize());
+		if (length == 0)
+			return {};
 
 		std::vector<Nz::UInt8> source(length);
 		if (file.Read(&source[0], length) != length)
 		{
-			NazaraError("Failed to read program file");
+			NazaraError("Failed to read shader file");
 			return {};
 		}
 

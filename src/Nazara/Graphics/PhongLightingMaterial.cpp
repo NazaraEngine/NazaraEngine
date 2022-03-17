@@ -310,8 +310,7 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> PhongLightingMaterial::BuildShaders()
 	{
-		ShaderAst::ModulePtr shaderModule = Graphics::Instance()->GetShaderModuleResolver()->Resolve("PhongMaterial");
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
+		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, "PhongMaterial");
 
 		return { std::move(shader) };
 	}

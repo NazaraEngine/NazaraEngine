@@ -10,8 +10,10 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Shader/ShaderModuleResolver.hpp>
 #include <Nazara/Shader/Ast/Module.hpp>
 #include <unordered_map>
 
@@ -26,6 +28,8 @@ namespace Nz
 			struct Option;
 			using ConfigCallback = std::function<void(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)>;
 
+			UberShader(ShaderStageTypeFlags shaderStages, std::string moduleName);
+			UberShader(ShaderStageTypeFlags shaderStages, ShaderModuleResolver& moduleResolver, std::string moduleName);
 			UberShader(ShaderStageTypeFlags shaderStages, ShaderAst::ModulePtr shaderModule);
 			~UberShader() = default;
 
@@ -58,7 +62,13 @@ namespace Nz
 				UInt32 hash;
 			};
 
+			NazaraSignal(OnShaderUpdated, UberShader* /*uberShader*/);
+
 		private:
+			void Validate(ShaderAst::Module& module);
+
+			NazaraSlot(ShaderModuleResolver, OnModuleUpdated, m_onShaderModuleUpdated);
+
 			std::unordered_map<Config, std::shared_ptr<ShaderModule>, ConfigHasher, ConfigEqual> m_combinations;
 			std::unordered_map<std::string, Option> m_optionIndexByName;
 			ShaderAst::ModulePtr m_shaderModule;

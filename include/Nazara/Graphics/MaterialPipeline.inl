@@ -12,6 +12,15 @@ namespace Nz
 	inline MaterialPipeline::MaterialPipeline(const MaterialPipelineInfo& pipelineInfo, Token) :
 	m_pipelineInfo(pipelineInfo)
 	{
+		m_uberShaderEntries.resize(m_pipelineInfo.shaders.size());
+		for (std::size_t i = 0; i < m_uberShaderEntries.size(); ++i)
+		{
+			m_uberShaderEntries[i].onShaderUpdated.Connect(m_pipelineInfo.shaders[i].uberShader->OnShaderUpdated, [this](UberShader*)
+			{
+				// Clear cache
+				m_renderPipelines.clear();
+			});
+		}
 	}
 
 	/*!

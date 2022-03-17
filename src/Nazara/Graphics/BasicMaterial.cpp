@@ -229,8 +229,7 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> BasicMaterial::BuildShaders()
 	{
-		ShaderAst::ModulePtr shaderModule = Graphics::Instance()->GetShaderModuleResolver()->Resolve("BasicMaterial");
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, std::move(shaderModule));
+		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, "BasicMaterial");
 
 		return { std::move(shader) };
 	}

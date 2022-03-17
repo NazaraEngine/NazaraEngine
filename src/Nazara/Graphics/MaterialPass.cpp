@@ -33,10 +33,17 @@ namespace Nz
 		m_pipelineInfo.settings = m_settings;
 
 		const auto& shaders = m_settings->GetShaders();
-		for (const auto& shader : shaders)
+
+		m_shaders.resize(shaders.size());
+		for (std::size_t i = 0; i < m_shaders.size(); ++i)
 		{
 			auto& shaderData = m_pipelineInfo.shaders.emplace_back();
-			shaderData.uberShader = shader;
+			shaderData.uberShader = shaders[i];
+
+			m_shaders[i].onShaderUpdated.Connect(shaders[i]->OnShaderUpdated, [this](UberShader*)
+			{
+				InvalidatePipeline();
+			});
 		}
 
 		const auto& textureSettings = m_settings->GetTextures();

@@ -8,9 +8,11 @@
 #define NAZARA_SHADER_FILESYSTEMMODULERESOLVER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderModuleResolver.hpp>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -19,23 +21,32 @@ namespace Nz
 	class NAZARA_SHADER_API FilesystemModuleResolver : public ShaderModuleResolver
 	{
 		public:
-			FilesystemModuleResolver() = default;
-			FilesystemModuleResolver(const FilesystemModuleResolver&) = default;
-			FilesystemModuleResolver(FilesystemModuleResolver&&) = default;
-			~FilesystemModuleResolver() = default;
+			FilesystemModuleResolver();
+			FilesystemModuleResolver(const FilesystemModuleResolver&) = delete;
+			FilesystemModuleResolver(FilesystemModuleResolver&&) noexcept = delete;
+			~FilesystemModuleResolver();
 
 			void RegisterModule(const std::filesystem::path& realPath);
 			void RegisterModule(std::string_view moduleSource);
 			void RegisterModule(ShaderAst::ModulePtr module);
-			void RegisterModuleDirectory(const std::filesystem::path& realPath);
+			void RegisterModuleDirectory(const std::filesystem::path& realPath, bool watchDirectory = true);
 
 			ShaderAst::ModulePtr Resolve(const std::string& moduleName) override;
 
-			FilesystemModuleResolver& operator=(const FilesystemModuleResolver&) = default;
-			FilesystemModuleResolver& operator=(FilesystemModuleResolver&&) = default;
+			FilesystemModuleResolver& operator=(const FilesystemModuleResolver&) = delete;
+			FilesystemModuleResolver& operator=(FilesystemModuleResolver&&) noexcept = delete;
+
+			static constexpr const char* ModuleExtension = ".nzsl";
 
 		private:
+			void OnFileAdded(std::string_view directory, std::string_view filename);
+			void OnFileRemoved(std::string_view directory, std::string_view filename);
+			void OnFileMoved(std::string_view directory, std::string_view filename, std::string_view oldFilename);
+			void OnFileUpdated(std::string_view directory, std::string_view filename);
+
+			std::unordered_map<std::string, std::string> m_moduleByFilepath;
 			std::unordered_map<std::string, ShaderAst::ModulePtr> m_modules;
+			MovablePtr<void> m_fileWatcher;
 	};
 }
 

@@ -67,7 +67,13 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
+			struct UberShaderEntry
+			{
+				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
+			};
+
 			mutable std::vector<std::shared_ptr<RenderPipeline>> m_renderPipelines;
+			std::vector<UberShaderEntry> m_uberShaderEntries;
 			MaterialPipelineInfo m_pipelineInfo;
 
 			using PipelineCache = std::unordered_map<MaterialPipelineInfo, std::shared_ptr<MaterialPipeline>>;
