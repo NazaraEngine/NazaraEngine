@@ -38,6 +38,7 @@ namespace Nz
 			virtual Quaternionf GetListenerRotation() const = 0;
 			virtual Vector3f GetListenerVelocity() const = 0;
 			virtual float GetSpeedOfSound() const = 0;
+			virtual const void* GetSubSystemIdentifier() const = 0;
 
 			virtual bool IsFormatSupported(AudioFormat format) const = 0;
 
