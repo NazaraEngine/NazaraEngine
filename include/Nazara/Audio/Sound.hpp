@@ -17,15 +17,16 @@ namespace Nz
 	class NAZARA_AUDIO_API Sound : public SoundEmitter
 	{
 		public:
-			Sound() = default;
-			Sound(std::shared_ptr<const SoundBuffer> soundBuffer);
+			using SoundEmitter::SoundEmitter;
+			Sound();
+			Sound(AudioDevice& audioDevice, std::shared_ptr<SoundBuffer> soundBuffer);
 			Sound(const Sound&) = default;
-			Sound(Sound&&) noexcept = default;
+			Sound(Sound&&) = default;
 			~Sound();
 
 			void EnableLooping(bool loop) override;
 
-			const std::shared_ptr<const SoundBuffer>& GetBuffer() const;
+			const std::shared_ptr<SoundBuffer>& GetBuffer() const;
 			UInt32 GetDuration() const override;
 			UInt32 GetPlayingOffset() const override;
 			SoundStatus GetStatus() const override;
@@ -40,16 +41,16 @@ namespace Nz
 			void Pause() override;
 			void Play() override;
 
-			void SetBuffer(std::shared_ptr<const SoundBuffer> soundBuffer);
+			void SetBuffer(std::shared_ptr<SoundBuffer> soundBuffer);
 			void SetPlayingOffset(UInt32 offset);
 
 			void Stop() override;
 
-			Sound& operator=(const Sound&) = delete; ///TODO?
-			Sound& operator=(Sound&&) noexcept = default;
+			Sound& operator=(const Sound&) = default;
+			Sound& operator=(Sound&&) = default;
 
 		private:
-			std::shared_ptr<const SoundBuffer> m_buffer;
+			std::shared_ptr<SoundBuffer> m_buffer;
 	};
 }
 

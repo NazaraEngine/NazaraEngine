@@ -3,8 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Sound.hpp>
+#include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
-#include <Nazara/Audio/OpenAL.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -18,12 +20,18 @@ namespace Nz
 	* \remark Module Audio needs to be initialized to use this class
 	*/
 
+	Sound::Sound() :
+	Sound(*Audio::Instance()->GetDefaultDevice())
+	{
+	}
+
 	/*!
 	* \brief Constructs a Sound object
 	*
 	* \param soundBuffer Buffer to read sound from
 	*/
-	Sound::Sound(std::shared_ptr<const SoundBuffer> soundBuffer)
+	Sound::Sound(AudioDevice& audioDevice, std::shared_ptr<SoundBuffer> soundBuffer) :
+	Sound(audioDevice)
 	{
 		SetBuffer(std::move(soundBuffer));
 	}
@@ -45,16 +53,14 @@ namespace Nz
 	*/
 	void Sound::EnableLooping(bool loop)
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-
-		alSourcei(m_source, AL_LOOPING, loop);
+		m_source->EnableLooping(loop);
 	}
 
 	/*!
 	* \brief Gets the internal buffer
 	* \return Internal buffer
 	*/
-	const std::shared_ptr<const SoundBuffer>& Sound::GetBuffer() const
+	const std::shared_ptr<SoundBuffer>& Sound::GetBuffer() const
 	{
 		return m_buffer;
 	}
@@ -78,12 +84,8 @@ namespace Nz
 	*/
 	UInt32 Sound::GetPlayingOffset() const
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-
-		ALint samples = 0;
-		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
-
-		return static_cast<UInt32>(1000ULL * samples / m_buffer->GetSampleRate());
+		UInt32 sampleCount = m_source->GetSampleOffset();
+		return SafeCast<UInt32>(1000ULL * sampleCount / m_buffer->GetSampleRate());
 	}
 
 	/*!
@@ -92,7 +94,7 @@ namespace Nz
 	*/
 	SoundStatus Sound::GetStatus() const
 	{
-		return GetInternalStatus();
+		return m_source->GetStatus();
 	}
 
 	/*!
@@ -101,19 +103,13 @@ namespace Nz
 	*/
 	bool Sound::IsLooping() const
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-
-		ALint loop;
-		alGetSourcei(m_source, AL_LOOPING, &loop);
-
-		return loop != AL_FALSE;
+		return m_source->IsLooping();
 	}
 
 	/*!
 	* \brief Checks whether the sound is playable
 	* \return true if it is the case
 	*/
-
 	bool Sound::IsPlayable() const
 	{
 		return m_buffer != nullptr;
@@ -137,7 +133,7 @@ namespace Nz
 			return false;
 		}
 
-		SetBuffer(buffer);
+		SetBuffer(std::move(buffer));
 		return true;
 	}
 
@@ -160,7 +156,7 @@ namespace Nz
 			return false;
 		}
 
-		SetBuffer(buffer);
+		SetBuffer(std::move(buffer));
 		return true;
 	}
 
@@ -182,7 +178,7 @@ namespace Nz
 			return false;
 		}
 
-		SetBuffer(buffer);
+		SetBuffer(std::move(buffer));
 		return true;
 	}
 
@@ -191,9 +187,7 @@ namespace Nz
 	*/
 	void Sound::Pause()
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-
-		alSourcePause(m_source);
+		m_source->Pause();
 	}
 
 	/*!
@@ -203,10 +197,9 @@ namespace Nz
 	*/
 	void Sound::Play()
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-		NazaraAssert(IsPlayable(), "Music is not playable");
+		NazaraAssert(IsPlayable(), "Sound is not playable");
 
-		alSourcePlay(m_source);
+		m_source->Play();
 	}
 
 	/*!
@@ -216,10 +209,9 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if buffer is invalid with NAZARA_AUDIO_SAFE defined
 	*/
-	void Sound::SetBuffer(std::shared_ptr<const SoundBuffer> buffer)
+	void Sound::SetBuffer(std::shared_ptr<SoundBuffer> buffer)
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-		NazaraAssert(!buffer || buffer->IsValid(), "Invalid sound buffer");
+		NazaraAssert(buffer, "Invalid sound buffer");
 
 		if (m_buffer == buffer)
 			return;
@@ -227,11 +219,7 @@ namespace Nz
 		Stop();
 
 		m_buffer = std::move(buffer);
-
-		if (m_buffer)
-			alSourcei(m_source, AL_BUFFER, m_buffer->GetOpenALBuffer());
-		else
-			alSourcei(m_source, AL_BUFFER, AL_NONE);
+		m_source->SetBuffer(m_buffer->GetBuffer(m_source->GetAudioDevice().get()));
 	}
 
 	/*!
@@ -241,9 +229,7 @@ namespace Nz
 	*/
 	void Sound::SetPlayingOffset(UInt32 offset)
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-
-		alSourcei(m_source, AL_SAMPLE_OFFSET, static_cast<ALint>(offset/1000.f * m_buffer->GetSampleRate()));
+		m_source->SetSampleOffset(SafeCast<UInt32>(UInt64(offset) * m_buffer->GetSampleRate() / 1000));
 	}
 
 	/*!
@@ -253,7 +239,6 @@ namespace Nz
 	*/
 	void Sound::Stop()
 	{
-		if (m_source != InvalidSource)
-			alSourceStop(m_source);
+		m_source->Stop();
 	}
 }

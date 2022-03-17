@@ -4,15 +4,14 @@
 
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
-#include <Nazara/Audio/OpenAL.hpp>
+#include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/AudioBuffer.hpp>
+#include <Nazara/Audio/AudioDevice.hpp>
+#include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <array>
-#include <atomic>
 #include <chrono>
-#include <memory>
-#include <thread>
-#include <vector>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
@@ -25,22 +24,18 @@ namespace Nz
 	* \remark Module Audio needs to be initialized to use this class
 	*/
 
-	struct MusicImpl
+	Music::Music() :
+	Music(*Audio::Instance()->GetDefaultDevice())
 	{
-		ALenum audioFormat;
-		std::atomic_bool streaming = false;
-		std::atomic<UInt64> processedSamples;
-		std::vector<Int16> chunkSamples;
-		std::mutex bufferLock;
-		std::shared_ptr<SoundStream> stream;
-		std::thread thread;
-		UInt64 streamOffset;
-		bool loop = false;
-		unsigned int sampleRate;
-	};
-
-	Music::Music() = default;
-	Music::Music(Music&&) noexcept = default;
+	}
+	
+	Music::Music(AudioDevice& device) :
+	SoundEmitter(device),
+	m_streaming(false),
+	m_bufferCount(2),
+	m_looping(false)
+	{
+	}
 
 	/*!
 	* \brief Destructs the object and calls Destroy
@@ -54,11 +49,10 @@ namespace Nz
 
 	/*!
 	* \brief Creates a music with a sound stream
-	* \return true if creation was succesful
+	* \return true if creation was successful
 	*
 	* \param soundStream Sound stream which is the source for the music
 	*/
-
 	bool Music::Create(std::shared_ptr<SoundStream> soundStream)
 	{
 		NazaraAssert(soundStream, "Invalid stream");
@@ -67,11 +61,10 @@ namespace Nz
 
 		AudioFormat format = soundStream->GetFormat();
 
-		m_impl = std::make_unique<MusicImpl>();
-		m_impl->sampleRate = soundStream->GetSampleRate();
-		m_impl->audioFormat = OpenAL::AudioFormat[UnderlyingCast(format)];
-		m_impl->chunkSamples.resize(GetChannelCount(format) * m_impl->sampleRate); // One second of samples
-		m_impl->stream = std::move(soundStream);
+		m_sampleRate = soundStream->GetSampleRate();
+		m_audioFormat = soundStream->GetFormat();
+		m_chunkSamples.resize(GetChannelCount(format) * m_sampleRate); // One second of samples
+		m_stream = std::move(soundStream);
 
 		SetPlayingOffset(0);
 
@@ -85,12 +78,7 @@ namespace Nz
 	*/
 	void Music::Destroy()
 	{
-		if (m_impl)
-		{
-			StopThread();
-
-			m_impl.reset();
-		}
+		StopThread();
 	}
 
 	/*!
@@ -102,9 +90,7 @@ namespace Nz
 	*/
 	void Music::EnableLooping(bool loop)
 	{
-		NazaraAssert(m_impl, "Music not created");
-
-		m_impl->loop = loop;
+		m_looping = loop;
 	}
 
 	/*!
@@ -115,9 +101,9 @@ namespace Nz
 	*/
 	UInt32 Music::GetDuration() const
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		return m_impl->stream->GetDuration();
+		return m_stream->GetDuration();
 	}
 
 	/*!
@@ -128,9 +114,9 @@ namespace Nz
 	*/
 	AudioFormat Music::GetFormat() const
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		return m_impl->stream->GetFormat();
+		return m_stream->GetFormat();
 	}
 
 	/*!
@@ -141,15 +127,14 @@ namespace Nz
 	*/
 	UInt32 Music::GetPlayingOffset() const
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		// Prevent music thread from enqueing new buffers while we're getting the count
-		std::lock_guard<std::mutex> lock(m_impl->bufferLock);
+		// Prevent music thread from enqueuing new buffers while we're getting the count
+		std::lock_guard<std::mutex> lock(m_bufferLock);
 
-		ALint samples = 0;
-		alGetSourcei(m_source, AL_SAMPLE_OFFSET, &samples);
+		UInt32 sampleOffset = m_source->GetSampleOffset();
 
-		return static_cast<UInt32>((1000ULL * (samples + (m_impl->processedSamples / GetChannelCount(m_impl->stream->GetFormat())))) / m_impl->sampleRate);
+		return static_cast<UInt32>((1000ULL * (sampleOffset + (m_processedSamples / GetChannelCount(m_stream->GetFormat())))) / m_sampleRate);
 	}
 
 	/*!
@@ -160,9 +145,9 @@ namespace Nz
 	*/
 	UInt64 Music::GetSampleCount() const
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		return m_impl->stream->GetSampleCount();
+		return m_stream->GetSampleCount();
 	}
 
 	/*!
@@ -173,9 +158,9 @@ namespace Nz
 	*/
 	UInt32 Music::GetSampleRate() const
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		return m_impl->sampleRate;
+		return m_sampleRate;
 	}
 
 	/*!
@@ -186,12 +171,12 @@ namespace Nz
 	*/
 	SoundStatus Music::GetStatus() const
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		SoundStatus status = GetInternalStatus();
+		SoundStatus status = m_source->GetStatus();
 
 		// To compensate any delays (or the timelaps between Play() and the thread startup)
-		if (m_impl->streaming && status == SoundStatus::Stopped)
+		if (m_streaming && status == SoundStatus::Stopped)
 			status = SoundStatus::Playing;
 
 		return status;
@@ -205,9 +190,7 @@ namespace Nz
 	*/
 	bool Music::IsLooping() const
 	{
-		NazaraAssert(m_impl, "Music not created");
-
-		return m_impl->loop;
+		return m_looping;
 	}
 
 	/*!
@@ -267,9 +250,7 @@ namespace Nz
 	*/
 	void Music::Pause()
 	{
-		NazaraAssert(m_source != InvalidSource, "Invalid sound emitter");
-
-		alSourcePause(m_source);
+		m_source->Pause();
 	}
 
 	/*!
@@ -284,10 +265,10 @@ namespace Nz
 	*/
 	void Music::Play()
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
 		// Maybe we are already playing
-		if (m_impl->streaming)
+		if (m_streaming)
 		{
 			switch (GetStatus())
 			{
@@ -296,7 +277,7 @@ namespace Nz
 					break;
 
 				case SoundStatus::Paused:
-					alSourcePlay(m_source);
+					m_source->Play();
 					break;
 
 				default:
@@ -309,12 +290,12 @@ namespace Nz
 			std::condition_variable cv;
 
 			// Starting streaming thread
-			m_impl->streaming = true;
+			m_streaming = true;
 
 			std::exception_ptr exceptionPtr;
 
 			std::unique_lock<std::mutex> lock(mutex);
-			m_impl->thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr));
+			m_thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr));
 
 			// Wait until thread signal it has properly started (or an error occurred)
 			cv.wait(lock);
@@ -335,17 +316,17 @@ namespace Nz
 	*/
 	void Music::SetPlayingOffset(UInt32 offset)
 	{
-		NazaraAssert(m_impl, "Music not created");
+		NazaraAssert(m_stream, "Music not created");
 
-		bool isPlaying = m_impl->streaming;
+		bool isPlaying = m_streaming;
 
 		if (isPlaying)
 			Stop();
 
-		UInt64 sampleOffset = UInt64(offset) * m_impl->sampleRate * GetChannelCount(m_impl->stream->GetFormat()) / 1000ULL;
+		UInt64 sampleOffset = UInt64(offset) * m_sampleRate * GetChannelCount(m_stream->GetFormat()) / 1000ULL;
 
-		m_impl->processedSamples = sampleOffset;
-		m_impl->streamOffset = sampleOffset;
+		m_processedSamples = sampleOffset;
+		m_streamOffset = sampleOffset;
 
 		if (isPlaying)
 			Play();
@@ -358,31 +339,27 @@ namespace Nz
 	*/
 	void Music::Stop()
 	{
-		NazaraAssert(m_impl, "Music not created");
-
 		StopThread();
 		SetPlayingOffset(0);
 	}
 
-	Music& Music::operator=(Music&&) noexcept = default;
-
-	bool Music::FillAndQueueBuffer(unsigned int buffer)
+	bool Music::FillAndQueueBuffer(std::shared_ptr<AudioBuffer> buffer)
 	{
-		std::size_t sampleCount = m_impl->chunkSamples.size();
+		std::size_t sampleCount = m_chunkSamples.size();
 		std::size_t sampleRead = 0;
 		{
-			std::lock_guard<std::mutex> lock(m_impl->stream->GetMutex());
+			std::lock_guard<std::mutex> lock(m_stream->GetMutex());
 
-			m_impl->stream->Seek(m_impl->streamOffset);
+			m_stream->Seek(m_streamOffset);
 
 			// Fill the buffer by reading from the stream
 			for (;;)
 			{
-				sampleRead += m_impl->stream->Read(&m_impl->chunkSamples[sampleRead], sampleCount - sampleRead);
-				if (sampleRead < sampleCount && m_impl->loop)
+				sampleRead += m_stream->Read(&m_chunkSamples[sampleRead], sampleCount - sampleRead);
+				if (sampleRead < sampleCount && m_looping)
 				{
 					// In case we read less than expected, assume we reached the end of the stream and seek back to the beginning
-					m_impl->stream->Seek(0);
+					m_stream->Seek(0);
 					continue;
 				}
 
@@ -390,14 +367,14 @@ namespace Nz
 				break;
 			}
 
-			m_impl->streamOffset = m_impl->stream->Tell();
+			m_streamOffset = m_stream->Tell();
 		}
 
-		// Update the buffer (send it to OpenAL) and queue it if we got any data
+		// Update the buffer on the AudioDevice and queue it if we got any data
 		if (sampleRead > 0)
 		{
-			alBufferData(buffer, m_impl->audioFormat, &m_impl->chunkSamples[0], static_cast<ALsizei>(sampleRead*sizeof(Int16)), static_cast<ALsizei>(m_impl->sampleRate));
-			alSourceQueueBuffers(m_source, 1, &buffer);
+			buffer->Reset(m_audioFormat, sampleRead, m_sampleRate, &m_chunkSamples[0]);
+			m_source->QueueBuffer(buffer);
 		}
 
 		return sampleRead != sampleCount; // End of stream (Does not happen when looping)
@@ -406,20 +383,18 @@ namespace Nz
 	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err)
 	{
 		// Allocation of streaming buffers
-		std::array<ALuint, NAZARA_AUDIO_STREAMED_BUFFER_COUNT> buffers;
-		alGenBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
-
-		CallOnExit freebuffers([&]
+		CallOnExit unqueueBuffers([&]
 		{
-			alDeleteBuffers(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, buffers.data());
+			m_source->UnqueueAllBuffers();
 		});
-
 
 		try
 		{
-			for (ALuint buffer : buffers)
+			for (std::size_t i = 0; i < m_bufferCount; ++i)
 			{
-				if (FillAndQueueBuffer(buffer))
+				std::shared_ptr<AudioBuffer> buffer = m_source->GetAudioDevice()->CreateBuffer();
+
+				if (FillAndQueueBuffer(std::move(buffer)))
 					break; // We have reached the end of the stream, there is no use to add new buffers
 			}
 		}
@@ -432,23 +407,12 @@ namespace Nz
 			return;
 		}
 		
-		CallOnExit unqueueBuffers([&]
-		{
-			// We delete buffers from the stream
-			ALint queuedBufferCount;
-			alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queuedBufferCount);
+		m_source->Play();
 
-			ALuint buffer;
-			for (ALint i = 0; i < queuedBufferCount; ++i)
-				alSourceUnqueueBuffers(m_source, 1, &buffer);
-		});
-
-		alSourcePlay(m_source);
-		
 		CallOnExit stopSource([&]
 		{
 			// Stop playing of the sound (in the case where it has not been already done)
-			alSourceStop(m_source);
+			m_source->Stop();
 		});
 
 		// Signal we're good
@@ -458,35 +422,25 @@ namespace Nz
 		} // m & cv no longer exists from here
 
 		// Reading loop (Filling new buffers as playing)
-		while (m_impl->streaming)
+		while (m_streaming)
 		{
-			// The reading has stopped, we have reached the end of the stream
-			SoundStatus status = GetInternalStatus();
+			SoundStatus status = m_source->GetStatus();
 			if (status == SoundStatus::Stopped)
 			{
-				m_impl->streaming = false;
+				// The reading has stopped, we have reached the end of the stream
+				m_streaming = false;
 				break;
 			}
 
 			{
-				std::lock_guard<std::mutex> lock(m_impl->bufferLock);
+				std::lock_guard<std::mutex> lock(m_bufferLock);
 
 				// We treat read buffers
-				ALint processedCount = 0;
-				alGetSourcei(m_source, AL_BUFFERS_PROCESSED, &processedCount);
-				while (processedCount--)
+				while (std::shared_ptr<AudioBuffer> buffer = m_source->TryUnqueueProcessedBuffer())
 				{
-					ALuint buffer;
-					alSourceUnqueueBuffers(m_source, 1, &buffer);
+					m_processedSamples += buffer->GetSampleCount();
 
-					ALint bits, size;
-					alGetBufferi(buffer, AL_BITS, &bits);
-					alGetBufferi(buffer, AL_SIZE, &size);
-
-					if (bits != 0)
-						m_impl->processedSamples += (8 * size) / bits;
-
-					if (FillAndQueueBuffer(buffer))
+					if (FillAndQueueBuffer(std::move(buffer)))
 						break;
 				}
 			}
@@ -498,10 +452,10 @@ namespace Nz
 
 	void Music::StopThread()
 	{
-		if (m_impl->streaming)
-			m_impl->streaming = false;
+		if (m_streaming)
+			m_streaming = false;
 
-		if (m_impl->thread.joinable())
-			m_impl->thread.join();
+		if (m_thread.joinable())
+			m_thread.join();
 	}
 }

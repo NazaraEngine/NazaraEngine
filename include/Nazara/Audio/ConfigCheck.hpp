@@ -18,8 +18,6 @@
 	#define NAZARA_AUDIO_MANAGE_MEMORY 0
 #endif
 
-NazaraCheckTypeAndVal(NAZARA_AUDIO_STREAMED_BUFFER_COUNT, integral, >, 0, " shall be a strictly positive integer");
-
 #undef NazaraCheckTypeAndVal
 
 #endif // NAZARA_AUDIO_CONFIGCHECK_HPP

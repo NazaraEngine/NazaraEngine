@@ -5,16 +5,13 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/AudioBuffer.hpp>
 #include <Nazara/Audio/Config.hpp>
-#include <Nazara/Audio/OpenAL.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
-
-///FIXME: Adapt the creation
 
 namespace Nz
 {
@@ -36,18 +33,6 @@ namespace Nz
 		return true;
 	}
 
-	struct SoundBufferImpl
-	{
-		ALuint buffer;
-		AudioFormat format;
-		UInt32 duration;
-		std::unique_ptr<Int16[]> samples;
-		UInt64 sampleCount;
-		UInt32 sampleRate;
-	};
-
-	SoundBuffer::SoundBuffer() = default;
-
 	/*!
 	* \brief Constructs a SoundBuffer object
 	*
@@ -58,197 +43,41 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if creation went wrong with NAZARA_AUDIO_SAFE defined
 	* \remark Produces a std::runtime_error if creation went wrong with NAZARA_AUDIO_SAFE defined
-	*
-	* \see Create
 	*/
 	SoundBuffer::SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples)
 	{
-		Create(format, sampleCount, sampleRate, samples);
+		NazaraAssert(sampleCount > 0, "sample count must be different from zero");
+		NazaraAssert(sampleRate > 0, "sample rate must be different from zero");
+		NazaraAssert(samples, "invalid samples");
 
-		#ifdef NAZARA_DEBUG
-		if (!m_impl)
-		{
-			NazaraError("Failed to create sound buffer");
-			throw std::runtime_error("Constructor failed");
-		}
-		#endif
+		m_duration = SafeCast<UInt32>((1000ULL*sampleCount / (GetChannelCount(format) * sampleRate)));
+		m_format = format;
+		m_sampleCount = sampleCount;
+		m_sampleRate = sampleRate;
+		m_samples = std::make_unique<Int16[]>(sampleCount);
+		std::memcpy(&m_samples[0], samples, sampleCount * sizeof(Int16));
 	}
 
-	SoundBuffer::~SoundBuffer() = default;
-
-	/*!
-	* \brief Creates the SoundBuffer object
-	* \return true if creation is successful
-	*
-	* \param format Format for the audio
-	* \param sampleCount Number of samples
-	* \param sampleRate Rate of samples
-	* \param samples Samples raw data
-	*
-	* \remark Produces a NazaraError if creation went wrong with NAZARA_AUDIO_SAFE defined,
-	* this could happen if parameters are invalid or creation of OpenAL buffers failed
-	*/
-	bool SoundBuffer::Create(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples)
+	const std::shared_ptr<AudioBuffer>& SoundBuffer::GetBuffer(AudioDevice* device)
 	{
-		Destroy();
-
-		#if NAZARA_AUDIO_SAFE
-		if (!IsFormatSupported(format))
+		auto it = m_audioBufferByDevice.find(device);
+		if (it == m_audioBufferByDevice.end())
 		{
-			NazaraError("Audio format is not supported");
-			return false;
+			auto audioBuffer = device->CreateBuffer();
+			if (!audioBuffer->Reset(m_format, m_sampleCount, m_sampleRate, m_samples.get()))
+				throw std::runtime_error("failed to initialize audio buffer");
+
+			it = m_audioBufferByDevice.emplace(device, AudioDeviceEntry{}).first;
+
+			AudioDeviceEntry& entry = it->second;
+			entry.audioBuffer = std::move(audioBuffer);
+			entry.audioDeviceReleaseSlot.Connect(device->OnAudioDeviceRelease, [this](AudioDevice* device)
+			{
+				m_audioBufferByDevice.erase(device);
+			});
 		}
 
-		if (sampleCount == 0)
-		{
-			NazaraError("Sample rate must be different from zero");
-			return false;
-		}
-
-		if (sampleRate == 0)
-		{
-			NazaraError("Sample rate must be different from zero");
-			return false;
-		}
-
-		if (!samples)
-		{
-			NazaraError("Invalid sample source");
-			return false;
-		}
-		#endif
-
-		// We empty the error stack
-		while (alGetError() != AL_NO_ERROR);
-
-		ALuint buffer;
-		alGenBuffers(1, &buffer);
-		if (alGetError() != AL_NO_ERROR)
-		{
-			NazaraError("Failed to create OpenAL buffer");
-			return false;
-		}
-
-		CallOnExit clearBufferOnExit([buffer] () { alDeleteBuffers(1, &buffer); });
-
-		alBufferData(buffer, OpenAL::AudioFormat[UnderlyingCast(format)], samples, static_cast<ALsizei>(sampleCount*sizeof(Int16)), static_cast<ALsizei>(sampleRate));
-
-		if (alGetError() != AL_NO_ERROR)
-		{
-			NazaraError("Failed to set OpenAL buffer");
-			return false;
-		}
-
-		m_impl = std::make_unique<SoundBufferImpl>();
-		m_impl->buffer = buffer;
-		m_impl->duration = static_cast<UInt32>((1000ULL*sampleCount / (GetChannelCount(format) * sampleRate)));
-		m_impl->format = format;
-		m_impl->sampleCount = sampleCount;
-		m_impl->sampleRate = sampleRate;
-		m_impl->samples = std::make_unique<Int16[]>(sampleCount);
-		std::memcpy(&m_impl->samples[0], samples, sampleCount*sizeof(Int16));
-
-		clearBufferOnExit.Reset();
-
-		return true;
-	}
-
-	/*!
-	* \brief Destroys the current sound buffer and frees resources
-	*/
-	void SoundBuffer::Destroy()
-	{
-		m_impl.reset();
-	}
-
-	/*!
-	* \brief Gets the duration of the sound buffer
-	* \return Duration of the sound buffer in milliseconds
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
-	*/
-	UInt32 SoundBuffer::GetDuration() const
-	{
-		NazaraAssert(m_impl, "Sound buffer not created");
-
-		return m_impl->duration;
-	}
-
-	/*!
-	* \brief Gets the format of the sound buffer
-	* \return Enumeration of type AudioFormat (mono, stereo, ...)
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
-	*/
-
-	AudioFormat SoundBuffer::GetFormat() const
-	{
-		NazaraAssert(m_impl, "Sound buffer not created");
-
-		return m_impl->format;
-	}
-
-	/*!
-	* \brief Gets the internal raw samples
-	* \return Pointer to raw data
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
-	*/
-	const Int16* SoundBuffer::GetSamples() const
-	{
-		NazaraAssert(m_impl, "Sound buffer not created");
-
-		return m_impl->samples.get();
-	}
-
-	/*!
-	* \brief Gets the number of samples in the sound buffer
-	* \return Count of samples (number of seconds * sample rate * channel count)
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
-	*/
-	UInt64 SoundBuffer::GetSampleCount() const
-	{
-		NazaraAssert(m_impl, "Sound buffer not created");
-
-		return m_impl->sampleCount;
-	}
-
-	/*!
-	* \brief Gets the rates of sample in the sound buffer
-	* \return Rate of sample in Hertz (Hz)
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
-	*/
-	UInt32 SoundBuffer::GetSampleRate() const
-	{
-		NazaraAssert(m_impl, "Sound buffer not created");
-
-		return m_impl->sampleRate;
-	}
-
-	/*!
-	* \brief Checks whether the sound buffer is valid
-	* \return true if it is the case
-	*/
-
-	bool SoundBuffer::IsValid() const
-	{
-		return m_impl != nullptr;
-	}
-
-	/*!
-	* \brief Checks whether the format is supported by the engine
-	* \return true if it is the case
-	*
-	* \param format Format to check
-	*/
-	bool SoundBuffer::IsFormatSupported(AudioFormat format)
-	{
-		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
-
-		return audio->IsFormatSupported(format);
+		return it->second.audioBuffer;
 	}
 
 	/*!
@@ -295,24 +124,5 @@ namespace Nz
 		NazaraAssert(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundBufferLoader().LoadFromStream(stream, params);
-	}
-
-	/*!
-	* \brief Gets the internal OpenAL buffer
-	* \return The index of the OpenAL buffer
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
-	*/
-	unsigned int SoundBuffer::GetOpenALBuffer() const
-	{
-		#ifdef NAZARA_DEBUG
-		if (!m_impl)
-		{
-			NazaraInternalError("Sound buffer not created");
-			return AL_NONE;
-		}
-		#endif
-
-		return m_impl->buffer;
 	}
 }
