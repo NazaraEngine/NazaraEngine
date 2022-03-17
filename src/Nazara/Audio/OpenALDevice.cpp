@@ -206,6 +206,11 @@ namespace Nz
 		return m_library.alGetFloat(AL_SPEED_OF_SOUND);
 	}
 
+	const void* OpenALDevice::GetSubSystemIdentifier() const
+	{
+		return &m_library;
+	}
+
 	/*!
 	* \brief Checks whether the format is supported by the engine
 	* \return true if it is the case

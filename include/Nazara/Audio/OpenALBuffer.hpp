@@ -32,6 +32,8 @@ namespace Nz
 			UInt32 GetSize() const override;
 			UInt32 GetSampleRate() const override;
 
+			bool IsCompatibleWith(const AudioDevice& device) const override;
+
 			bool Reset(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const void* samples) override;
 
 			OpenALBuffer& operator=(const OpenALBuffer&) = delete;

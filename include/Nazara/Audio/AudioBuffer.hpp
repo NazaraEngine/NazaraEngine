@@ -29,6 +29,8 @@ namespace Nz
 			virtual UInt32 GetSize() const = 0;
 			virtual UInt32 GetSampleRate() const = 0;
 
+			virtual bool IsCompatibleWith(const AudioDevice& device) const = 0;
+
 			virtual bool Reset(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const void* samples) = 0;
 
 			AudioBuffer& operator=(const AudioBuffer&) = default;

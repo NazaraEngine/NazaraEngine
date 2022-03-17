@@ -150,7 +150,7 @@ namespace Nz
 	void OpenALSource::QueueBuffer(std::shared_ptr<AudioBuffer> audioBuffer)
 	{
 		NazaraAssert(audioBuffer, "invalid buffer");
-		NazaraAssert(audioBuffer->GetAudioDevice() == GetAudioDevice(), "incompatible buffer");
+		NazaraAssert(audioBuffer->IsCompatibleWith(*GetAudioDevice()), "incompatible buffer");
 
 		std::shared_ptr<OpenALBuffer> newBuffer = std::static_pointer_cast<OpenALBuffer>(std::move(audioBuffer));
 
@@ -185,7 +185,7 @@ namespace Nz
 
 	void OpenALSource::SetBuffer(std::shared_ptr<AudioBuffer> audioBuffer)
 	{
-		NazaraAssert(audioBuffer->GetAudioDevice() == GetAudioDevice(), "incompatible buffer");
+		NazaraAssert(audioBuffer->IsCompatibleWith(*GetAudioDevice()), "incompatible buffer");
 
 		std::shared_ptr<OpenALBuffer> newBuffer = std::static_pointer_cast<OpenALBuffer>(std::move(audioBuffer));
 

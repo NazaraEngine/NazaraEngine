@@ -52,6 +52,12 @@ namespace Nz
 		return SafeCast<UInt32>(sampleRate);
 	}
 
+	bool OpenALBuffer::IsCompatibleWith(const AudioDevice& device) const
+	{
+		// OpenAL buffers are shared among contexts and thus devices
+		return device.GetSubSystemIdentifier() == &m_library;
+	}
+
 	bool OpenALBuffer::Reset(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const void* samples)
 	{
 		OpenALDevice& device = GetDevice();
