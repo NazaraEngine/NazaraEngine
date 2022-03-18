@@ -4,6 +4,7 @@
 
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -19,6 +20,8 @@ namespace Nz
 	bool OpenALLibrary::Load()
 	{
 		Unload();
+
+		CallOnExit unloadOnFailure([this] { Unload(); });
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 		std::array libs{
@@ -69,8 +72,11 @@ namespace Nz
 				continue;
 			}
 
+			unloadOnFailure.Reset();
 			return true;
 		}
+
+		m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
 
 		NazaraError("failed to load OpenAL library");
 		return false;
@@ -78,6 +84,9 @@ namespace Nz
 
 	std::vector<std::string> OpenALLibrary::QueryInputDevices()
 	{
+		if (!m_hasCaptureSupport)
+			return {};
+
 		return ParseDevices(alcGetString(nullptr, ALC_CAPTURE_DEVICE_SPECIFIER));
 	}
 

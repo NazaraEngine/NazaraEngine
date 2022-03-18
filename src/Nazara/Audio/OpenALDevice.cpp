@@ -100,7 +100,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets the global volume
-	* \return Float between [0, inf) with 100.f being the default
+	* \return Float between [0, inf) with 1.f being the default
 	*/
 	float OpenALDevice::GetGlobalVolume() const
 	{
@@ -109,7 +109,7 @@ namespace Nz
 		ALfloat gain = 0.f;
 		m_library.alGetListenerf(AL_GAIN, &gain);
 
-		return gain * 100.f;
+		return gain;
 	}
 
 	/*!

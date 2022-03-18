@@ -131,10 +131,10 @@ namespace Nz
 	{
 		GetDevice().MakeContextCurrent();
 
-		ALint relative;
-		m_library.alGetSourcei(m_sourceId, AL_LOOPING, &relative);
+		ALint looping;
+		m_library.alGetSourcei(m_sourceId, AL_LOOPING, &looping);
 
-		return relative == AL_FALSE;
+		return looping == AL_TRUE;
 	}
 
 	bool OpenALSource::IsSpatializationEnabled() const

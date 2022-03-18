@@ -73,7 +73,8 @@ namespace Nz
 			bool m_looping;
 
 			bool FillAndQueueBuffer(std::shared_ptr<AudioBuffer> buffer);
-			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err);
+			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err, bool startPaused);
+			void StartThread(bool startPaused);
 			void StopThread();
 	};
 }

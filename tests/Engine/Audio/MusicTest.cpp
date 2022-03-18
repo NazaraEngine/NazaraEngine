@@ -34,15 +34,24 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(0.f);
 
 				music.Play();
+				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
 				std::this_thread::sleep_for(std::chrono::seconds(1));
-				REQUIRE(music.GetPlayingOffset() >= 950);
+				CHECK(music.GetPlayingOffset() >= 950);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-				REQUIRE(music.GetPlayingOffset() <= 1300);
+				CHECK(music.GetPlayingOffset() <= 1300);
+
+				music.SetPlayingOffset(4200);
+				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
+				CHECK(music.GetPlayingOffset() >= 4150);
+				CHECK(music.GetPlayingOffset() < 4500);
+				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
+
 				music.Pause();
-				REQUIRE(music.GetStatus() == Nz::SoundStatus::Paused);
+				CHECK(music.GetStatus() == Nz::SoundStatus::Paused);
 
 				music.SetPlayingOffset(3500);
-				REQUIRE(music.GetPlayingOffset() >= 3500);
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+				CHECK(music.GetPlayingOffset() == 3500);
 
 				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(100.f);
 			}

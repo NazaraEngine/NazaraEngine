@@ -28,6 +28,8 @@ namespace Nz
 			OpenALLibrary(OpenALLibrary&&) = delete;
 			inline ~OpenALLibrary();
 
+			inline bool IsLoaded() const;
+
 			bool Load();
 
 			std::vector<std::string> QueryInputDevices();
@@ -49,6 +51,7 @@ namespace Nz
 			std::vector<std::string> ParseDevices(const char* deviceString);
 
 			DynLib m_library;
+			bool m_hasCaptureSupport;
 	};
 }
 

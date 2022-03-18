@@ -24,7 +24,10 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
 		resourceDir = ".." / resourceDir;
 
-	Nz::Modules<Nz::Audio, Nz::Platform> audio;
+	Nz::Audio::Config config;
+	config.noAudio = true;
+
+	Nz::Modules<Nz::Audio, Nz::Platform> audio(config);
 
 	Nz::Sound sound;
 	if (!sound.LoadFromFile(resourceDir / "siren.wav"))

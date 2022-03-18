@@ -6,6 +6,7 @@
 #include <Nazara/Audio/AudioBuffer.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
+#include <Nazara/Audio/DummyAudioDevice.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
@@ -32,11 +33,12 @@ namespace Nz
 	* \brief Audio class that represents the module initializer of Audio
 	*/
 
-	Audio::Audio(Config /*config*/) :
-	ModuleBase("Audio", this)
+	Audio::Audio(Config config) :
+	ModuleBase("Audio", this),
+	m_hasDummyDevice(config.allowDummyDevice)
 	{
 		// Load OpenAL
-		if (!s_openalLibrary.Load())
+		if (!config.noAudio && !s_openalLibrary.Load())
 			throw std::runtime_error("failed to load OpenAL");
 
 		// Loaders
@@ -49,7 +51,10 @@ namespace Nz
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 
-		m_defaultDevice = s_openalLibrary.OpenDevice();
+		if (s_openalLibrary.IsLoaded())
+			m_defaultDevice = s_openalLibrary.OpenDevice();
+		else
+			m_defaultDevice = std::make_shared<DummyAudioDevice>();
 	}
 
 	Audio::~Audio()
@@ -101,17 +106,30 @@ namespace Nz
 
 	std::shared_ptr<AudioDevice> Audio::OpenOutputDevice(const std::string& deviceName)
 	{
+		if (deviceName == "dummy")
+			return std::make_shared<DummyAudioDevice>();
+
 		return s_openalLibrary.OpenDevice(deviceName.c_str());
 	}
 
 	std::vector<std::string> Audio::QueryInputDevices() const
 	{
+		if (!s_openalLibrary.IsLoaded())
+			return {};
+
 		return s_openalLibrary.QueryInputDevices();
 	}
 
 	std::vector<std::string> Audio::QueryOutputDevices() const
 	{
-		return s_openalLibrary.QueryOutputDevices();
+		std::vector<std::string> outputDevices;
+		if (s_openalLibrary.IsLoaded())
+			outputDevices = s_openalLibrary.QueryOutputDevices();
+
+		if (m_hasDummyDevice)
+			outputDevices.push_back("dummy");
+
+		return outputDevices;
 	}
 
 	Audio* Audio::s_instance = nullptr;

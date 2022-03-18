@@ -43,7 +43,7 @@ namespace Nz
 
 			struct Config
 			{
-				Nz::RenderAPI preferredAPI = RenderAPI::Unknown;
+				RenderAPI preferredAPI = RenderAPI::Unknown;
 			};
 
 		private:
