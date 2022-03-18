@@ -133,7 +133,6 @@ namespace Nz
 		std::lock_guard<std::mutex> lock(m_bufferLock);
 
 		UInt32 sampleOffset = m_source->GetSampleOffset();
-
 		return static_cast<UInt32>((1000ULL * (sampleOffset + (m_processedSamples / GetChannelCount(m_stream->GetFormat())))) / m_sampleRate);
 	}
 
@@ -172,6 +171,8 @@ namespace Nz
 	SoundStatus Music::GetStatus() const
 	{
 		NazaraAssert(m_stream, "Music not created");
+
+		std::lock_guard<std::mutex> lock(m_bufferLock);
 
 		SoundStatus status = m_source->GetStatus();
 
@@ -250,6 +251,8 @@ namespace Nz
 	*/
 	void Music::Pause()
 	{
+		std::lock_guard<std::mutex> lock(m_bufferLock);
+
 		m_source->Pause();
 	}
 
@@ -285,24 +288,7 @@ namespace Nz
 			}
 		}
 		else
-		{
-			std::mutex mutex;
-			std::condition_variable cv;
-
-			// Starting streaming thread
-			m_streaming = true;
-
-			std::exception_ptr exceptionPtr;
-
-			std::unique_lock<std::mutex> lock(mutex);
-			m_thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr));
-
-			// Wait until thread signal it has properly started (or an error occurred)
-			cv.wait(lock);
-
-			if (exceptionPtr)
-				std::rethrow_exception(exceptionPtr);
-		}
+			StartThread(false);
 	}
 
 	/*!
@@ -319,9 +305,10 @@ namespace Nz
 		NazaraAssert(m_stream, "Music not created");
 
 		bool isPlaying = m_streaming;
+		bool isPaused = GetStatus() == SoundStatus::Paused;
 
 		if (isPlaying)
-			Stop();
+			StopThread();
 
 		UInt64 sampleOffset = UInt64(offset) * m_sampleRate * GetChannelCount(m_stream->GetFormat()) / 1000ULL;
 
@@ -329,7 +316,7 @@ namespace Nz
 		m_streamOffset = sampleOffset;
 
 		if (isPlaying)
-			Play();
+			StartThread(isPaused);
 	}
 
 	/*!
@@ -380,7 +367,7 @@ namespace Nz
 		return sampleRead != sampleCount; // End of stream (Does not happen when looping)
 	}
 
-	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err)
+	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err, bool startPaused)
 	{
 		// Allocation of streaming buffers
 		CallOnExit unqueueBuffers([&]
@@ -406,8 +393,14 @@ namespace Nz
 			cv.notify_all();
 			return;
 		}
-		
+
 		m_source->Play();
+		if (startPaused)
+		{
+			// little hack to start paused (required by SetPlayingOffset)
+			m_source->Pause();
+			m_source->SetSampleOffset(0);
+		}
 
 		CallOnExit stopSource([&]
 		{
@@ -424,6 +417,11 @@ namespace Nz
 		// Reading loop (Filling new buffers as playing)
 		while (m_streaming)
 		{
+			// Wait until buffers are processed
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+			std::lock_guard<std::mutex> lock(m_bufferLock);
+
 			SoundStatus status = m_source->GetStatus();
 			if (status == SoundStatus::Stopped)
 			{
@@ -432,22 +430,35 @@ namespace Nz
 				break;
 			}
 
+			// We treat read buffers
+			while (std::shared_ptr<AudioBuffer> buffer = m_source->TryUnqueueProcessedBuffer())
 			{
-				std::lock_guard<std::mutex> lock(m_bufferLock);
+				m_processedSamples += buffer->GetSampleCount();
 
-				// We treat read buffers
-				while (std::shared_ptr<AudioBuffer> buffer = m_source->TryUnqueueProcessedBuffer())
-				{
-					m_processedSamples += buffer->GetSampleCount();
-
-					if (FillAndQueueBuffer(std::move(buffer)))
-						break;
-				}
+				if (FillAndQueueBuffer(std::move(buffer)))
+					break;
 			}
-
-			// We go back to sleep
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
+	}
+
+	void Music::StartThread(bool startPaused)
+	{
+		std::mutex mutex;
+		std::condition_variable cv;
+
+		// Starting streaming thread
+		m_streaming = true;
+
+		std::exception_ptr exceptionPtr;
+
+		std::unique_lock<std::mutex> lock(mutex);
+		m_thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr), startPaused);
+
+		// Wait until thread signal it has properly started (or an error occurred)
+		cv.wait(lock);
+
+		if (exceptionPtr)
+			std::rethrow_exception(exceptionPtr);
 	}
 
 	void Music::StopThread()

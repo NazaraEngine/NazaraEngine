@@ -125,7 +125,7 @@ namespace Nz
 	* Restarts the clock, putting it's time counter back to zero (as if the clock got constructed).
 	* It also compute the elapsed microseconds since the last Restart() call without any time loss (a problem that the combination of GetElapsedMicroseconds and Restart have).
 	*/
-	UInt64 Clock::Restart()
+	UInt64 Clock::Restart(UInt64 startingValue, bool paused)
 	{
 		Nz::UInt64 now = GetElapsedMicroseconds();
 
@@ -133,9 +133,9 @@ namespace Nz
 		if (!m_paused)
 			elapsedTime += (now - m_refTime);
 
-		m_elapsedTime = 0;
+		m_elapsedTime = startingValue;
 		m_refTime = now;
-		m_paused = false;
+		m_paused = paused;
 
 		return elapsedTime;
 	}

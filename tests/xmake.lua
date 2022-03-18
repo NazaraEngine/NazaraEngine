@@ -17,7 +17,7 @@ if has_config("tests") then
 	set_group("Tests")
 	set_kind("binary")
 
-	add_deps("NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
+	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
 	add_packages("catch2", "entt", "glslang", "spirv-tools")
 	add_headerfiles("Engine/**.hpp")
 	add_files("resources.cpp")
@@ -28,18 +28,8 @@ if has_config("tests") then
 		add_rules("c++.unity_build")
 	end
 
-	target("NazaraClientUnitTests")
-		add_deps("NazaraAudio")
-		add_files("main_client.cpp", {unity_ignored = true})
-
-		if has_config("usepch") then
-			set_pcxxheader("Engine/ClientModules.hpp")
-		end
-
 	target("NazaraUnitTests")
 		add_files("main.cpp", {unity_ignored = true})
-		remove_headerfiles("Engine/Audio/**")
-		remove_files("Engine/Audio/**")
 
 		if has_config("usepch") then
 			set_pcxxheader("Engine/Modules.hpp")

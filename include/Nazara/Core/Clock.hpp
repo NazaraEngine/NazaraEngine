@@ -26,7 +26,7 @@ namespace Nz
 			bool IsPaused() const;
 
 			void Pause();
-			UInt64 Restart();
+			UInt64 Restart(UInt64 startingValue = 0, bool paused = false);
 			void Unpause();
 
 			Clock& operator=(const Clock& clock) = default;

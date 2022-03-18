@@ -17,7 +17,7 @@ namespace Nz
 		m_library.alDeleteBuffers(1, &m_bufferId);
 	}
 
-	UInt32 OpenALBuffer::GetSampleCount() const
+	UInt64 OpenALBuffer::GetSampleCount() const
 	{
 		GetDevice().MakeContextCurrent();
 
@@ -25,21 +25,21 @@ namespace Nz
 		m_library.alGetBufferi(m_bufferId, AL_BITS, &bits);
 		m_library.alGetBufferi(m_bufferId, AL_SIZE, &size);
 
-		UInt32 sampleCount = 0;
+		UInt64 sampleCount = 0;
 		if (bits != 0)
-			sampleCount += (8 * SafeCast<UInt32>(size)) / SafeCast<UInt32>(bits);
+			sampleCount += (8 * SafeCast<UInt64>(size)) / SafeCast<UInt64>(bits);
 
 		return sampleCount;
 	}
 
-	UInt32 OpenALBuffer::GetSize() const
+	UInt64 OpenALBuffer::GetSize() const
 	{
 		GetDevice().MakeContextCurrent();
 
 		ALint size;
 		m_library.alGetBufferi(m_bufferId, AL_SIZE, &size);
 
-		return SafeCast<UInt32>(size);
+		return SafeCast<UInt64>(size);
 	}
 
 	UInt32 OpenALBuffer::GetSampleRate() const
@@ -49,7 +49,7 @@ namespace Nz
 		ALint sampleRate;
 		m_library.alGetBufferi(m_bufferId, AL_FREQUENCY, &sampleRate);
 
-		return SafeCast<UInt32>(sampleRate);
+		return SafeCast<UInt64>(sampleRate);
 	}
 
 	bool OpenALBuffer::IsCompatibleWith(const AudioDevice& device) const

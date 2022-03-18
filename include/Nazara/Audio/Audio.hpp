@@ -23,9 +23,9 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			struct Config {};
+			struct Config;
 
-			Audio(Config /*config*/);
+			Audio(Config config);
 			Audio(const Audio&) = delete;
 			Audio(Audio&&) = delete;
 			~Audio();
@@ -45,10 +45,17 @@ namespace Nz
 			Audio& operator=(const Audio&) = delete;
 			Audio& operator=(Audio&&) = delete;
 
+			struct Config
+			{
+				bool allowDummyDevice = true;
+				bool noAudio = false;
+			};
+
 		private:
 			std::shared_ptr<AudioDevice> m_defaultDevice;
 			SoundBufferLoader m_soundBufferLoader;
 			SoundStreamLoader m_soundStreamLoader;
+			bool m_hasDummyDevice;
 
 			static Audio* s_instance;
 	};

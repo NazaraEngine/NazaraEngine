@@ -28,8 +28,8 @@ namespace Nz
 			~OpenALBuffer();
 
 			inline ALuint GetBufferId() const;
-			UInt32 GetSampleCount() const override;
-			UInt32 GetSize() const override;
+			UInt64 GetSampleCount() const override;
+			UInt64 GetSize() const override;
 			UInt32 GetSampleRate() const override;
 
 			bool IsCompatibleWith(const AudioDevice& device) const override;

@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_RUNNER
 #include <catch2/catch.hpp>
 
+#include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Modules.hpp>
@@ -12,7 +13,7 @@
 
 int main(int argc, char* argv[])
 {
-	Nz::Modules<Nz::Network, Nz::Physics2D, Nz::Shader, Nz::Utility> nazaza;
+	Nz::Modules<Nz::Audio, Nz::Network, Nz::Physics2D, Nz::Shader, Nz::Utility> nazaza;
 
 	if (!glslang::InitializeProcess())
 		return EXIT_FAILURE;

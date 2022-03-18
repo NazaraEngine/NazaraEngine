@@ -1,0 +1,50 @@
+// Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Audio module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#include <Nazara/Audio/DummyAudioBuffer.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
+#include <Nazara/Audio/AudioDevice.hpp>
+#include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Audio/Debug.hpp>
+
+namespace Nz
+{
+	AudioFormat DummyAudioBuffer::GetAudioFormat() const
+	{
+		return m_format;
+	}
+
+	UInt32 DummyAudioBuffer::GetDuration() const
+	{
+		return SafeCast<UInt32>((1000ULL * m_sampleCount / (GetChannelCount(m_format) * m_sampleRate)));
+	}
+
+	UInt64 DummyAudioBuffer::GetSampleCount() const
+	{
+		return m_sampleCount;
+	}
+
+	UInt64 DummyAudioBuffer::GetSize() const
+	{
+		return m_sampleCount * sizeof(Int16);
+	}
+
+	UInt32 DummyAudioBuffer::GetSampleRate() const
+	{
+		return m_sampleRate;
+	}
+
+	bool DummyAudioBuffer::IsCompatibleWith(const AudioDevice& device) const
+	{
+		return GetAudioDevice()->GetSubSystemIdentifier() == device.GetSubSystemIdentifier();
+	}
+
+	bool DummyAudioBuffer::Reset(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const void* /*samples*/)
+	{
+		m_format = format;
+		m_sampleCount = sampleCount;
+		m_sampleRate = sampleRate;
+		return true;
+	}
+}

@@ -25,8 +25,8 @@ namespace Nz
 			virtual ~AudioBuffer();
 
 			inline const std::shared_ptr<AudioDevice>& GetAudioDevice() const;
-			virtual UInt32 GetSampleCount() const = 0;
-			virtual UInt32 GetSize() const = 0;
+			virtual UInt64 GetSampleCount() const = 0;
+			virtual UInt64 GetSize() const = 0;
 			virtual UInt32 GetSampleRate() const = 0;
 
 			virtual bool IsCompatibleWith(const AudioDevice& device) const = 0;
