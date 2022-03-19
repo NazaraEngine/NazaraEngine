@@ -53,11 +53,11 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
-        key: MSVC-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r3
+        key: MSVC-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake.exe config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes
+      run: xmake.exe config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
 
     # Build the engine
     - name: Build Nazara

@@ -29,13 +29,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # Install Nazara dependencies
-    - name: Update apt repositories
-      run: sudo apt-get update
-
-    # Install Nazara dependencies
+    # Install system dependencies
     - name: Install system dependencies
-      run: sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev -y
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -61,11 +59,11 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r3
+        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --verbose --yes
+      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
 
     # Build the engine
     - name: Build Nazara
