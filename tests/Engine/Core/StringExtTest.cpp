@@ -7,11 +7,32 @@ SCENARIO("String", "[CORE][STRING]")
 
 	WHEN("Checking if string ends with")
 	{
+		CHECK(Nz::EndsWith("", ""));
+		CHECK(Nz::EndsWith("Nazara Engine", ""));
 		CHECK(Nz::EndsWith("Nazara Engine", "Engine"));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "engine"));
 		CHECK_FALSE(Nz::EndsWith("Nazara Engine", " ngine"));
 		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "NazaraEngine"));
 		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "Nazara"));
 		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "Sir Nazara van Engine"));
+
+		CHECK(Nz::EndsWith("", "", Nz::CaseIndependent{}));
+		CHECK(Nz::EndsWith("Nazara Engine", "", Nz::CaseIndependent{}));
+		CHECK(Nz::EndsWith("Nazara Engine", "Engine", Nz::CaseIndependent{}));
+		CHECK(Nz::EndsWith("Nazara Engine", "engine", Nz::CaseIndependent{}));
+		CHECK(Nz::EndsWith("Nazara engine", "EnGiNe", Nz::CaseIndependent{}));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", " ngine", Nz::CaseIndependent{}));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "NazaraEngine", Nz::CaseIndependent{}));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "Nazara", Nz::CaseIndependent{}));
+		CHECK_FALSE(Nz::EndsWith("Nazara Engine", "Sir Nazara van Engine", Nz::CaseIndependent{}));
+
+		CHECK(Nz::EndsWith(u8"L'\u00CEle de R\u00E9", u8"", Nz::UnicodeAware{}));
+		CHECK(Nz::EndsWith(u8"L'\u00CEle de R\u00E9", u8"R\u00E9", Nz::UnicodeAware{}));
+		CHECK_FALSE(Nz::EndsWith(u8"L'\u00CEle de R\u00E9", u8"Long long j\u00F4hnson", Nz::UnicodeAware{}));
+
+		CHECK(Nz::EndsWith(u8"L'\u00CEle de R\u00E9", u8"", Nz::CaseIndependent{}, Nz::UnicodeAware{}));
+		CHECK(Nz::EndsWith(u8"L'\u00CEle de R\u00E9", u8"R\u00C9", Nz::CaseIndependent{}, Nz::UnicodeAware{}));
+		CHECK_FALSE(Nz::EndsWith(u8"L'\u00CEle de R\u00E9", u8"Long long j\u00F4hnson", Nz::CaseIndependent{}, Nz::UnicodeAware{}));
 	}
 
 	WHEN("Converting string back and forth")
@@ -90,9 +111,25 @@ SCENARIO("String", "[CORE][STRING]")
 
 	WHEN("Checking if string starts with")
 	{
+		CHECK(Nz::StartsWith("Nazara Engine", ""));
 		CHECK(Nz::StartsWith("Nazara Engine", "Nazara"));
+		CHECK_FALSE(Nz::StartsWith("Nazara Engine", "Navara"));
+		CHECK_FALSE(Nz::StartsWith("Nazara Engine", "NaZaRa"));
+		CHECK_FALSE(Nz::StartsWith("Nazara Engine", "Long long johnson"));
+
+		CHECK(Nz::StartsWith("NAZARA Engine", "", Nz::CaseIndependent{}));
+		CHECK(Nz::StartsWith("NAZARA Engine", "Nazara", Nz::CaseIndependent{}));
 		CHECK(Nz::StartsWith("NAZARA Engine", "NaZaRa", Nz::CaseIndependent{}));
+		CHECK_FALSE(Nz::StartsWith("NAZARA Engine", "NavaRa", Nz::CaseIndependent{}));
+		CHECK_FALSE(Nz::StartsWith("NAZARA Engine", "Long long johnson", Nz::CaseIndependent{}));
+
+		CHECK(Nz::StartsWith(u8"L'\u00CEle de R\u00E9", u8"", Nz::UnicodeAware{}));
+		CHECK(Nz::StartsWith(u8"L'\u00CEle de R\u00E9", u8"L'\u00CEle", Nz::UnicodeAware{}));
+		CHECK_FALSE(Nz::StartsWith(u8"L'\u00CEle de R\u00E9", u8"Long long j\u00F4hnson", Nz::UnicodeAware{}));
+
+		CHECK(Nz::StartsWith(u8"L'\u00CEle de R\u00E9", u8"", Nz::CaseIndependent{}, Nz::UnicodeAware{}));
 		CHECK(Nz::StartsWith(u8"L'\u00CEle de R\u00E9", u8"l'\u00EEle", Nz::CaseIndependent{}, Nz::UnicodeAware{}));
+		CHECK_FALSE(Nz::StartsWith(u8"L'\u00CEle de R\u00E9", u8"Long long j\u00F4hnson", Nz::CaseIndependent{}, Nz::UnicodeAware{}));
 	}
 
 	WHEN("Converting between lower and upper")

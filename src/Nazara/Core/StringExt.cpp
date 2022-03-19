@@ -96,6 +96,67 @@ namespace Nz
 	{
 		return utf8::distance(str.data(), str.data() + str.size());
 	}
+	
+	bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		if (rhs.size() > lhs.size())
+			return false;
+
+		return std::equal(lhs.end() - rhs.size(), lhs.end(), rhs.begin(), rhs.end(), [](char c1, char c2)
+		{
+			return ToLower(c1) == ToLower(c2);
+		});
+	}
+
+	bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
+	{
+		if (lhs.empty())
+			return lhs == rhs;
+		else if (rhs.empty())
+			return true;
+
+		utf8::iterator<const char*> it(lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size());
+		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
+		do
+		{
+			if (it2.base() >= rhs.data() + rhs.size())
+				return true;
+
+			if (*it != *it2)
+				return false;
+
+			++it2;
+		}
+		while (*it++);
+
+		return true;
+	}
+
+	bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
+	{
+		if (lhs.empty())
+			return lhs == rhs;
+		else if (rhs.empty())
+			return true;
+
+		utf8::iterator<const char*> it(lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size());
+		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
+		do
+		{
+			if (it2.base() >= rhs.data() + rhs.size())
+				return true;
+
+			if (Unicode::GetLowercase(*it) != Unicode::GetLowercase(*it2))
+				return false;
+
+			++it2;
+		}
+		while (*it++);
+
+		return true;
+	}
 
 	std::string FromUtf16String(const std::u16string_view& u16str)
 	{
@@ -271,8 +332,10 @@ namespace Nz
 
 	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
 	{
-		if (lhs.empty() || rhs.empty())
+		if (lhs.empty())
 			return lhs == rhs;
+		else if (rhs.empty())
+			return true;
 
 		utf8::iterator<const char*> it(lhs.data(), lhs.data(), lhs.data() + lhs.size());
 		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
@@ -293,8 +356,10 @@ namespace Nz
 
 	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
 	{
-		if (lhs.empty() || rhs.empty())
+		if (lhs.empty())
 			return lhs == rhs;
+		else if (rhs.empty())
+			return true;
 
 		utf8::iterator<const char*> it(lhs.data(), lhs.data(), lhs.data() + lhs.size());
 		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());

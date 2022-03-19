@@ -21,6 +21,9 @@ namespace Nz
 	NAZARA_CORE_API std::size_t ComputeCharacterCount(const std::string_view& str);
 
 	inline bool EndsWith(const std::string_view& str, const std::string_view& s);
+	NAZARA_CORE_API bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent);
+	NAZARA_CORE_API bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware);
+	NAZARA_CORE_API bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware);
 
 	NAZARA_CORE_API std::string FromUtf16String(const std::u16string_view& u16str);
 	NAZARA_CORE_API std::string FromUtf32String(const std::u32string_view& u32str);
