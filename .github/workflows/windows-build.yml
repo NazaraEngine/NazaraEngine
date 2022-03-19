@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - '.github/workflows/coverage.yml'
       - '.github/workflows/linux-build.yml'
+      - '.github/workflows/macos-build.yml'
       - '.github/workflows/msys2-build.yml'
       - '.gitignore'
       - 'LICENSE'
@@ -64,6 +65,7 @@ jobs:
 
     # Run unit tests
     - name: Run unit tests
+      if: matrix.type.name != 'releasedbg'
       run: xmake.exe run NazaraUnitTests
 
     # Install the result files

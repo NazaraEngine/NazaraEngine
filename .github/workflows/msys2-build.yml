@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - '.github/workflows/coverage.yml'
       - '.github/workflows/linux-build.yml'
+      - '.github/workflows/macos-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
       - 'LICENSE'
