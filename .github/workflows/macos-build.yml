@@ -1,10 +1,11 @@
-name: Linux build
+name: macOS build
 
 on:
   pull_request:
   push:
     paths-ignore:
       - '.github/workflows/coverage.yml'
+      - '.github/workflows/linux-build.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
