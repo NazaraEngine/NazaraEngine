@@ -192,7 +192,7 @@ namespace Nz
 
 					m_format = *formatOpt;
 
-					m_duration = static_cast<UInt32>(1000ULL * m_decoder.totalPCMFrameCount / (m_decoder.sampleRate * m_decoder.channels));
+					m_duration = static_cast<UInt32>(1000ULL * m_decoder.totalPCMFrameCount / m_decoder.sampleRate);
 					m_sampleCount = m_decoder.totalPCMFrameCount * m_decoder.channels;
 					m_sampleRate = m_decoder.sampleRate;
 
