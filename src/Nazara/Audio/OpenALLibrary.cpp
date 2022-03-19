@@ -35,7 +35,7 @@ namespace Nz
 			"libopenal.so.0",
 			"libopenal.so"
 		};
-#elif defined(NAZARA_PLATFORM_MACOSX)
+#elif defined(NAZARA_PLATFORM_MACOS)
 		std::array libs {
 			"libopenal.dylib",
 			"libopenal.1.dylib",

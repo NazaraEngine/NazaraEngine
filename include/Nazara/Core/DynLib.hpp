@@ -15,7 +15,7 @@
 	#define NAZARA_DYNLIB_EXTENSION ".dll"
 #elif defined(NAZARA_PLATFORM_LINUX)
 	#define NAZARA_DYNLIB_EXTENSION ".so"
-#elif defined(NAZARA_PLATFORM_MACOSX)
+#elif defined(NAZARA_PLATFORM_MACOS)
 	#define NAZARA_DYNLIB_EXTENSION ".dynlib"
 #else
 	#error OS not handled
