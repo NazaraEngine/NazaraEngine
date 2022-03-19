@@ -28,15 +28,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # Install Nazara dependencies
-    - name: Update apt repositories
-      run: sudo apt-get update
-
-    # Install Nazara dependencies
+    # Install system dependencies
     - name: Install system dependencies
       run: |
-        sudo apt-get install libsndfile1-dev libfreetype6-dev libsdl2-dev mesa-common-dev libxcb-ewmh-dev libxcb-randr0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libgl1-mesa-dev git -y
-        sudo apt-get install libunwind-dev binutils-dev clang-11 -y
+        sudo apt-get update
+        sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev
+        sudo apt-get -y install libunwind-dev binutils-dev clang-11
 
     # Install Honggfuzz
     - name: Build and install Hongfuzz
@@ -71,15 +68,15 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r3
+        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=fuzz --verbose --yes
+      run: xmake config --shadernodes=y --tests=y --arch=${{ matrix.arch }} --mode=fuzz --yes
 
     # Configure xmake with honggfuzz to build the engine
     - name: Configure xmake with honggfuzz
-      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=fuzz --verbose --toolchain=hfuzz-clang
+      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=fuzz --toolchain=hfuzz-clang
 
     # Build the engine
     - name: Build Nazara
