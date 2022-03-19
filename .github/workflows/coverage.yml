@@ -5,7 +5,7 @@ on:
   push:
     paths-ignore:
       - '.github/workflows/linux-build.yml'
-      - '.github/workflows/linux-build-sanitizer.yml'
+      - '.github/workflows/macos-build.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
