@@ -18,10 +18,7 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
 		resourceDir = ".." / resourceDir;
 
-	Nz::Audio::Config config;
-	config.noAudio = true;
-
-	Nz::Modules<Nz::Audio> audio(config);
+	Nz::Modules<Nz::Audio> audio;
 
 	Nz::SoundStreamParams streamParams;
 	streamParams.forceMono = false;

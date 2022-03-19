@@ -38,8 +38,16 @@ namespace Nz
 	m_hasDummyDevice(config.allowDummyDevice)
 	{
 		// Load OpenAL
-		if (!config.noAudio && !s_openalLibrary.Load())
-			throw std::runtime_error("failed to load OpenAL");
+		if (!config.noAudio)
+		{
+			if (!s_openalLibrary.Load())
+			{
+				if (!config.allowDummyDevice)
+					throw std::runtime_error("failed to load OpenAL");
+
+				NazaraError("failed to load OpenAL");
+			}
+		}
 
 		// Loaders
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
@@ -52,8 +60,21 @@ namespace Nz
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 
 		if (s_openalLibrary.IsLoaded())
-			m_defaultDevice = s_openalLibrary.OpenDevice();
-		else
+		{
+			try
+			{
+				m_defaultDevice = s_openalLibrary.OpenDevice();
+			}
+			catch (const std::exception& e)
+			{
+				if (!config.allowDummyDevice)
+					throw;
+
+				NazaraError(std::string("failed to open default OpenAL device: ") + e.what());
+			}
+		}
+
+		if (!m_defaultDevice)
 			m_defaultDevice = std::make_shared<DummyAudioDevice>();
 	}
 
