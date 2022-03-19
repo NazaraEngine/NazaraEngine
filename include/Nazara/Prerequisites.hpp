@@ -132,7 +132,7 @@
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
 #elif defined(__APPLE__) && defined(__MACH__)
 	#define NAZARA_PLATFORM_DESKTOP
-	#define NAZARA_PLATFORM_MACOSX
+	#define NAZARA_PLATFORM_MACOS
 	#define NAZARA_PLATFORM_POSIX
 	
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
