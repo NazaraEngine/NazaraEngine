@@ -116,6 +116,8 @@ NazaraModules = modules
 
 includes("xmake/**.lua")
 
+add_repositories("local-repo xmake-repo")
+
 option("usepch")
 	set_default(false)
 	set_showmenu(true)
