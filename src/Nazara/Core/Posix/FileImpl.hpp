@@ -16,7 +16,7 @@
 #include <ctime>
 #include <filesystem>
 
-#if defined(NAZARA_PLATFORM_MACOSX)
+#if defined(NAZARA_PLATFORM_MACOS)
 	#define Stat stat
 	#define Fstat fstat
 	#define Off_t off_t
