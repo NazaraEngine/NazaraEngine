@@ -65,7 +65,7 @@ jobs:
 
     # Run unit tests
     - name: Run unit tests
-      if: matrix.type.name != 'releasedbg'
+      if: matrix.mode.name != 'releasedbg'
       run: xmake.exe run NazaraUnitTests
 
     # Install the result files
