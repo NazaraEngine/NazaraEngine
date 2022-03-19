@@ -133,7 +133,7 @@ add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
-add_rules("mode.asan", "mode.debug", "mode.releasedbg")
+add_rules("mode.asan", "mode.coverage", "mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build_rendererplugins")
 
@@ -142,18 +142,10 @@ set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
 set_allowedmodes("debug", "releasedbg", "asan", "coverage", "fuzz")
 set_defaultmode("debug")
 
-if not is_plat("windows") then
-	add_rules("mode.coverage")
-	add_rules("mode.fuzz")
-end
-
 if is_mode("debug") then
 	add_rules("debug_suffix")
 elseif is_mode("asan") then
 	set_optimize("none") -- by default xmake will optimize asan builds
-elseif is_mode("fuzz") then
-	-- we don't want packages to require compilation with fuzz toolchain
-	set_policy("package.inherit_external_configs", false)
 elseif is_mode("coverage") then
 	if not is_plat("windows") then
 		add_links("gcov")
