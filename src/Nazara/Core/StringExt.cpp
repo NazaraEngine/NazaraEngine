@@ -116,6 +116,8 @@ namespace Nz
 			return lhs == rhs;
 		else if (rhs.empty())
 			return true;
+		else if (rhs.size() > lhs.size())
+			return false;
 
 		utf8::iterator<const char*> it(lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size());
 		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
@@ -140,6 +142,8 @@ namespace Nz
 			return lhs == rhs;
 		else if (rhs.empty())
 			return true;
+		else if (rhs.size() > lhs.size())
+			return false;
 
 		utf8::iterator<const char*> it(lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size() - rhs.size(), lhs.data() + lhs.size());
 		utf8::iterator<const char*> it2(rhs.data(), rhs.data(), rhs.data() + rhs.size());
