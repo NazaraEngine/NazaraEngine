@@ -5,7 +5,6 @@ on:
   push:
     paths-ignore:
       - '.github/workflows/coverage.yml'
-      - '.github/workflows/macos-build.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
@@ -19,21 +18,15 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [macOS-latest]
         arch: [x86_64]
-        mode: [asan, debug, releasedbg]
+        mode: [debug, releasedbg]
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
 
     steps:
     - uses: actions/checkout@v2
-
-    # Install system dependencies
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -59,7 +52,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
+        key: macOS-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
