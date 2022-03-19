@@ -80,6 +80,10 @@ jobs:
     - name: Build Nazara
       run: xmake
 
+    # Run unit tests
+    - name: Run unit tests
+      run: xmake run NazaraUnitTests
+
     # Install the result files
     - name: Install Nazara
       run: xmake install -vo package
