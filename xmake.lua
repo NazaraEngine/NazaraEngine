@@ -81,7 +81,11 @@ local modules = {
 	},
 	Shader = {
 		Deps = {"NazaraUtility"},
-		Packages = {"efsw"}
+		Packages = {"efsw"},
+		Custom = function()
+			-- Set precise floating-points models to ensure shader optimization leads to correct results
+			set_fpmodels("precise")
+		end
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
