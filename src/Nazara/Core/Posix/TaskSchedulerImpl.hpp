@@ -13,7 +13,7 @@
 #include <queue>
 #include <pthread.h>
 
-#if defined(NAZARA_PLATFORM_MACOSX)
+#if defined(NAZARA_PLATFORM_MACOS)
 	typedef int pthread_barrierattr_t;
 	typedef struct
 	{
@@ -57,7 +57,7 @@ namespace Nz
 			static pthread_cond_t s_cvNotEmpty;
 			static pthread_barrier_t s_barrier;
 
-#if defined(NAZARA_PLATFORM_MACOSX)
+#if defined(NAZARA_PLATFORM_MACOS)
 			static int pthread_barrier_init(pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, unsigned int count);
 			static int pthread_barrier_destroy(pthread_barrier_t *barrier);
 			static int pthread_barrier_wait(pthread_barrier_t *barrier);
