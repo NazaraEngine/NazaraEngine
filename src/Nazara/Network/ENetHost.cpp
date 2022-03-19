@@ -1110,7 +1110,26 @@ namespace Nz
 					std::size_t sentLength = 0;
 
 					if (!m_socket.SendMultiple(currentPeer->GetAddress(), m_buffers.data(), m_bufferCount, &sentLength))
-						return -1;
+					{
+						switch (m_socket.GetLastError())
+						{
+							case SocketError::NetworkError:
+							case SocketError::UnreachableHost:
+							{
+								if (!currentPeer->IsConnected())
+								{
+									//< Network is down or unreachable (ex: IPv6 address when not supported), fails peer connection immediately
+									NotifyDisconnect(currentPeer, event);
+									return 1;
+								}
+
+								[[fallthrough]];
+							}
+
+							default:
+								return -1;
+						}
+					}
 
 					m_totalSentData += sentLength;
 				}
