@@ -61,7 +61,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake build NazaraAudio ; xmake build NazaraPlatform ; xmake build NazaraPhysics2D ; xmake build NazaraPhysics3D ; xmake build NazaraRenderer ; xmake build NazaraShaderNodes
+      run: xmake build xmake build NazaraPhysics2D & xmake build NazaraPhysics3D & xmake build NazaraAudio & xmake build NazaraRenderer & xmake build NazaraShaderNodes & xmake build NazaraPlatform
 
     # Run unit tests
     #- name: Run unit tests
