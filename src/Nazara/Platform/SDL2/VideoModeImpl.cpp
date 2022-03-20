@@ -5,7 +5,7 @@
 #include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
-#include <SDL2/SDL_video.h>
+#include <SDL_video.h>
 #include <algorithm>
 #include <Nazara/Platform/Debug.hpp>
 

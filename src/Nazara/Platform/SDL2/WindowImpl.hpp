@@ -17,9 +17,9 @@
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keyboard.h>
-#include <SDL2/SDL_video.h>
+#include <SDL_events.h>
+#include <SDL_keyboard.h>
+#include <SDL_video.h>
 #include <string>
 
 namespace Nz

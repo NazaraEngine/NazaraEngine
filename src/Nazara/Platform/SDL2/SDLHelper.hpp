@@ -8,8 +8,8 @@
 #define NAZARA_PLATFORM_SDL2_SDLHELPER_HPP
 
 #include <Nazara/Platform/Keyboard.hpp>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_scancode.h>
+#include <SDL_keycode.h>
+#include <SDL_scancode.h>
 
 namespace Nz
 {

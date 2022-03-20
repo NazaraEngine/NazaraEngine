@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <SDL2/SDL_surface.h>
+#include <SDL_surface.h>
 
 namespace Nz
 {
