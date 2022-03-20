@@ -21,7 +21,7 @@ namespace Nz::GL
 			EGLContextWin32(EGLContextWin32&&) = default;
 			~EGLContextWin32() = default;
 
-			bool Create(const ContextParams& params, const EGLContextBase* shareContext = nullptr);
+			bool Create(const ContextParams& params, const EGLContextBase* shareContext = nullptr) override;
 			bool Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext = nullptr) override;
 			void Destroy() override;
 

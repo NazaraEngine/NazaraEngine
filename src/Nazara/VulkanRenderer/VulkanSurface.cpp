@@ -59,6 +59,7 @@ namespace Nz
 				}
 			}
 		}
+		#elif defined(NAZARA_PLATFORM_MACOS)
 		#else
 		#error This OS is not supported by Vulkan
 		#endif
