@@ -103,7 +103,6 @@ local modules = {
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
-				add_packages("moltenvk")
 			end
 		end
 	},
@@ -139,7 +138,7 @@ add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
 if is_plat("macosx") then
-	add_requires("libx11", "moltenvk")
+	add_requires("libx11")
 end
 
 add_rules("mode.asan", "mode.coverage", "mode.debug", "mode.releasedbg")
