@@ -70,6 +70,12 @@ jobs:
         xmake build -v NazaraRenderer
         xmake build -v NazaraPhysics2D
         xmake build -v NazaraPhysics3D
+        xmake build -v NazaraGraphics
+        xmake build -v NazaraWidgets
+        xmake build -v NazaraAudio
+        xmake build -v NazaraNetwork
+        xmake build -v NazaraShaderNodes
+        xmake build -v PluginAssimp
 
     # Run unit tests
     #- name: Run unit tests
