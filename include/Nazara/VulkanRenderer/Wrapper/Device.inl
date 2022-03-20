@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -59,7 +60,12 @@ namespace Nz::Vk
 
 	inline PFN_vkVoidFunction Device::GetProcAddr(const char* name, bool allowInstanceFallback)
 	{
-		PFN_vkVoidFunction func = m_instance.GetDeviceProcAddr(m_device, name);
+		PFN_vkVoidFunction func;
+		{
+			ErrorFlags errFlags(ErrorMode::ThrowExceptionDisabled);
+			func = m_instance.GetDeviceProcAddr(m_device, name);
+		}
+
 		if (!func)
 		{
 			if (allowInstanceFallback)
