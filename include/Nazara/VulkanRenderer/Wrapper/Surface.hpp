@@ -12,6 +12,11 @@
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 
+#ifdef VK_USE_PLATFORM_METAL_EXT
+#include <objc/runtime.h>
+#include <vulkan/vulkan_metal.h>
+#endif
+
 namespace Nz 
 {
 	namespace Vk
@@ -52,6 +57,11 @@ namespace Nz
 				// VK_KHR_win32_surface
 				inline bool Create(const VkWin32SurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 				inline bool Create(HINSTANCE instance, HWND handle, VkWin32SurfaceCreateFlagsKHR flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+				#endif
+
+				#ifdef VK_USE_PLATFORM_METAL_EXT
+				inline bool Create(const VkMetalSurfaceCreateInfoEXT& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(id layer, const VkAllocationCallbacks* allocator = nullptr);
 				#endif
 
 				inline void Destroy();

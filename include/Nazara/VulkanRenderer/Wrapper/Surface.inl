@@ -140,6 +140,27 @@ namespace Nz
 		}
 		#endif
 
+		#ifdef VK_USE_PLATFORM_METAL_EXT
+		inline bool Surface::Create(const VkMetalSurfaceCreateInfoEXT& createInfo, const VkAllocationCallbacks* allocator)
+		{
+			m_lastErrorCode = m_instance.vkCreateMetalSurfaceEXT(m_instance, &createInfo, allocator, &m_surface);
+			return Create(allocator);
+		}
+
+		inline bool Surface::Create(id layer, const VkAllocationCallbacks* allocator)
+		{
+			VkMetalSurfaceCreateInfoEXT createInfo =
+			{
+				VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT,
+				nullptr,
+				0,
+				layer
+			};
+
+			return Create(createInfo, allocator);
+		}
+		#endif
+
 		inline void Surface::Destroy()
 		{
 			if (m_surface != VK_NULL_HANDLE)
@@ -262,6 +283,10 @@ namespace Nz
 				return true;
 #endif
 
+#ifdef VK_USE_PLATFORM_METAL_EXT
+			if (instance.IsExtensionLoaded(VK_EXT_METAL_SURFACE_EXTENSION_NAME))
+				return true;
+#endif
 			return false;
 		}
 
