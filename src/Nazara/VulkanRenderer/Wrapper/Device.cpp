@@ -88,16 +88,17 @@ namespace Nz
 
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_BEGIN(ext) if (IsExtensionLoaded(#ext)) {
 #define NAZARA_VULKANRENDERER_DEVICE_EXT_END() }
-#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));
+#define NAZARA_VULKANRENDERER_DEVICE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, false));
+#define NAZARA_VULKANRENDERER_DEVICE_OR_INSTANCE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, true));
 
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext) if (m_instance.IsExtensionLoaded(#ext)) {
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_END() }
 
 #define NAZARA_VULKANRENDERER_DEVICE_CORE_EXT_FUNCTION(func, coreVersion, suffix, extName)   \
 				if (deviceVersion >= coreVersion)                                            \
-					func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));                 \
+					func = reinterpret_cast<PFN_##func>(GetProcAddr(#func, false));                 \
 				else if (IsExtensionLoaded("VK_" #suffix "_" #extName))                      \
-					func = reinterpret_cast<PFN_##func##suffix>(GetProcAddr(#func #suffix));
+					func = reinterpret_cast<PFN_##func##suffix>(GetProcAddr(#func #suffix, false));
 
 #include <Nazara/VulkanRenderer/Wrapper/DeviceFunctions.hpp>
 			}

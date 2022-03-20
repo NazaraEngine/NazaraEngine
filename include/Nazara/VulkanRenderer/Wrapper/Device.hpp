@@ -58,6 +58,7 @@ namespace Nz
 				inline VmaAllocator GetMemoryAllocator() const;
 				inline VkPhysicalDevice GetPhysicalDevice() const;
 				inline const Vk::PhysicalDevice& GetPhysicalDeviceInfo() const;
+				inline PFN_vkVoidFunction GetProcAddr(const char* name, bool allowInstanceFallback);
 				QueueHandle GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 
 				inline bool IsExtensionLoaded(const std::string& extensionName);
@@ -97,8 +98,6 @@ namespace Nz
 			private:
 				void ResetPointers();
 				void WaitAndDestroyDevice();
-
-				inline PFN_vkVoidFunction GetProcAddr(const char* name);
 
 				struct InternalData;
 

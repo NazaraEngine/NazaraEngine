@@ -57,6 +57,20 @@ namespace Nz::Vk
 		return *m_physicalDevice;
 	}
 
+	inline PFN_vkVoidFunction Device::GetProcAddr(const char* name, bool allowInstanceFallback)
+	{
+		PFN_vkVoidFunction func = m_instance.GetDeviceProcAddr(m_device, name);
+		if (!func)
+		{
+			if (allowInstanceFallback)
+				return m_instance.GetProcAddr(name);
+
+			NazaraError("Failed to get " + std::string(name) + " address");
+		}
+
+		return func;
+	}
+
 	inline bool Device::IsExtensionLoaded(const std::string& extensionName)
 	{
 		return m_loadedExtensions.count(extensionName) > 0;
@@ -82,15 +96,6 @@ namespace Nz::Vk
 	inline Device::operator VkDevice()
 	{
 		return m_device;
-	}
-
-	inline PFN_vkVoidFunction Device::GetProcAddr(const char* name)
-	{
-		PFN_vkVoidFunction func = m_instance.GetDeviceProcAddr(m_device, name);
-		if (!func)
-			NazaraError("Failed to get " + std::string(name) + " address");
-			
-		return func;
 	}
 }
 
