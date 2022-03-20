@@ -68,6 +68,8 @@ namespace Nz
 			s_vulkanLib.Load("vulkan-1.dll");
 			#elif defined(NAZARA_PLATFORM_LINUX)
 			s_vulkanLib.Load("libvulkan.so");
+			#elif defined(NAZARA_PLATFORM_MACOS)
+			s_vulkanLib.Load("libMoltenVK.dylib");
 			#else
 			#error Unhandled platform
 			#endif
