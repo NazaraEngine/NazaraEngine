@@ -395,6 +395,9 @@ namespace Nz
 			return 0;
 		}
 
+		if (error)
+			*error = SocketError::NoError;
+
 		return static_cast<unsigned int>(result);
 	}
 
