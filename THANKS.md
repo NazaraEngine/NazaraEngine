@@ -3,10 +3,11 @@
 A special thank you to all those who may have contributed directly or indirectly to this project. We can mention:
 
 - **RafBill** and **Raakz:** Finding bugs and/or testing.
-- **Fissal "DrFisher" Hannoun**: Helping a lot in architecture design.
-- **Alexandre "Danman" Janniaux**: Helping making the POSIX implementation.
+- **Fissal "DrFisher" Hannoun**: Helped a lot in architecture design.
+- **Alexandre "Danman" Janniaux**: Helped making the POSIX implementation and macOS port.
 - **Youri "Gawaboumga" Hubaut**: Improving the whole project by making the documentation, improving the code, and more.
-- **Rémi "overdrivr" Bèges**: Made the Noise module.
+- **Rémi "overdrivr" Bèges**: Made the (now-removed) Noise module.
+- **ImperatorS79**: Helped with macOS and MinGW port.
 
 ## Additional thanks
 
