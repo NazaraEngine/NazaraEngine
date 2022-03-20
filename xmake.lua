@@ -103,6 +103,8 @@ local modules = {
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
+				add_files("src/Nazara/VulkanRenderer/**.mm")
+				add_frameworks("quartzcore", "AppKit")
 			end
 		end
 	},

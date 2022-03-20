@@ -244,6 +244,10 @@ namespace Nz
 			enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 			#endif
 
+			#ifdef VK_USE_PLATFORM_METAL_EXT
+			enabledExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+			#endif
+
 			if (availableExtensions.count(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
 				enabledExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 

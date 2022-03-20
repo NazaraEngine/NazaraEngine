@@ -34,6 +34,10 @@
 #include <vulkan/vulkan_xcb.h>
 #endif
 
+#ifdef VK_USE_PLATFORM_METAL_EXT
+#include <vulkan/vulkan_metal.h>
+#endif
+
 #ifdef VK_USE_PLATFORM_XLIB_KHR
 typedef struct _XDisplay Display;
 typedef unsigned long XID;
