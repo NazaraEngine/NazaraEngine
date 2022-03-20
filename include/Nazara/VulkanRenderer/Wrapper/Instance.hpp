@@ -73,6 +73,7 @@ namespace Nz
 				inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device) const;
 				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device) const;
 				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const;
+				inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
 
 				void InstallDebugMessageCallback();
 
@@ -94,8 +95,6 @@ namespace Nz
 			private:
 				void DestroyInstance();
 				void ResetPointers();
-
-				inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
 
 				struct InternalData;
 

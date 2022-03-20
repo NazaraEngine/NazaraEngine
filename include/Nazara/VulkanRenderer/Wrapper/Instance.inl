@@ -68,6 +68,15 @@ namespace Nz
 			return m_lastErrorCode;
 		}
 
+		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name) const
+		{
+			PFN_vkVoidFunction func = Loader::GetInstanceProcAddr(m_instance, name);
+			if (!func)
+				NazaraError("Failed to get " + std::string(name) + " address");
+
+			return func;
+		}
+
 		inline bool Instance::IsExtensionLoaded(const std::string& extensionName) const
 		{
 			return m_loadedExtensions.count(extensionName) > 0;
@@ -130,15 +139,6 @@ namespace Nz
 			vkGetPhysicalDeviceProperties(device, &properties);
 
 			return properties;
-		}
-
-		inline PFN_vkVoidFunction Instance::GetProcAddr(const char* name) const
-		{
-			PFN_vkVoidFunction func = Loader::GetInstanceProcAddr(m_instance, name);
-			if (!func)
-				NazaraError("Failed to get " + std::string(name) + " address");
-			
-			return func;
 		}
 	}
 }
