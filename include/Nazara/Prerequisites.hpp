@@ -25,10 +25,6 @@
 #ifndef NAZARA_PREREQUISITES_HPP
 #define NAZARA_PREREQUISITES_HPP
 
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
 // Try to identify the compiler
 #if defined(__BORLANDC__)
 	#define NAZARA_COMPILER_BORDLAND
@@ -134,9 +130,14 @@
 
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
 	#define NAZARA_IMPORT __attribute__((visibility ("default")))
-#elif defined(__APPLE__) && !TARGET_OS_IPHONE
-	#define NAZARA_PLATFORM_DESKTOP
-	#define NAZARA_PLATFORM_MACOS
+#elif defined(__APPLE__)
+	#include <TargetConditionals.h>
+	#if TARGET_OS_IPHONE
+		#define NAZARA_PLATFORM_IOS
+	#else
+		#define NAZARA_PLATFORM_DESKTOP
+		#define NAZARA_PLATFORM_MACOS
+	#endif
 	#define NAZARA_PLATFORM_POSIX
 
 	#define NAZARA_EXPORT __attribute__((visibility ("default")))
