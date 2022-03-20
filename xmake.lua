@@ -17,8 +17,7 @@ local modules = {
 			elseif is_plat("linux") then
 				add_syslinks("dl", "pthread", "uuid")
 			end
-		end,
-		Packages = {"entt"}
+		end
 	},
 	Graphics = {
 		Deps = {"NazaraRenderer"},
