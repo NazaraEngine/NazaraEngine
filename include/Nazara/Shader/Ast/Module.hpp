@@ -28,11 +28,11 @@ namespace Nz::ShaderAst
 			inline Module(UInt32 shaderLangVersion, std::string moduleName = std::string(), const Uuid& moduleId = Uuid::Generate());
 			inline Module(std::shared_ptr<const Metadata> metadata, std::vector<ImportedModule> importedModules = {});
 			inline Module(std::shared_ptr<const Metadata> metadata, MultiStatementPtr rootNode, std::vector<ImportedModule> importedModules = {});
-			Module(const Module&) = default;
+			Module(const Module&) = delete;
 			Module(Module&&) noexcept = default;
 			~Module() = default;
 
-			Module& operator=(const Module&) = default;
+			Module& operator=(const Module&) = delete;
 			Module& operator=(Module&&) noexcept = default;
 
 			struct ImportedModule
