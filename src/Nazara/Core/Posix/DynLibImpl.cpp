@@ -45,12 +45,8 @@ namespace Nz
 
 	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
 	{
-		std::filesystem::path path = libraryPath;
-		if (path.extension() != ".so")
-			path += ".so";
-
 		dlerror(); // Clear error flag
-		m_handle = dlopen(path.generic_u8string().data(), RTLD_LAZY | RTLD_GLOBAL);
+		m_handle = dlopen(libraryPath.generic_u8string().data(), RTLD_LAZY | RTLD_GLOBAL);
 
 		if (m_handle)
 			return true;
