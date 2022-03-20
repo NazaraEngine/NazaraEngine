@@ -16,7 +16,7 @@
 #elif defined(NAZARA_PLATFORM_LINUX)
 	#define NAZARA_DYNLIB_EXTENSION ".so"
 #elif defined(NAZARA_PLATFORM_MACOS)
-	#define NAZARA_DYNLIB_EXTENSION ".dynlib"
+	#define NAZARA_DYNLIB_EXTENSION ".dylib"
 #else
 	#error OS not handled
 #endif
@@ -40,7 +40,7 @@ namespace Nz
 
 			bool IsLoaded() const;
 
-			bool Load(const std::filesystem::path& libraryPath);
+			bool Load(std::filesystem::path libraryPath);
 			void Unload();
 
 			DynLib& operator=(const DynLib&) = delete;

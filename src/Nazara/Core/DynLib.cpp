@@ -74,9 +74,12 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if library is could not be loaded
 	*/
-	bool DynLib::Load(const std::filesystem::path& libraryPath)
+	bool DynLib::Load(std::filesystem::path libraryPath)
 	{
 		Unload();
+
+		if (libraryPath.extension() != NAZARA_DYNLIB_EXTENSION)
+			libraryPath += NAZARA_DYNLIB_EXTENSION;
 
 		auto impl = std::make_unique<DynLibImpl>(this);
 		if (!impl->Load(libraryPath, &m_lastError))
