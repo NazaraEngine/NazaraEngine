@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <functional>
+#include <vector>
 
 namespace Nz
 {
