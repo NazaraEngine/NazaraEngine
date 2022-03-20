@@ -7,8 +7,17 @@
 #include <vulkan/vk_sdk_platform.h>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
+#ifdef VK_USE_PLATFORM_METAL_EXT
+#include <objc/runtime.h>
+#include <vulkan/vulkan_metal.h>
+#endif
+
 namespace Nz
 {
+	#ifdef VK_USE_PLATFORM_METAL_EXT
+	id CreateAndAttachMetalLayer(void* window);
+	#endif
+
 	VulkanSurface::VulkanSurface() :
 	m_surface(Vulkan::GetInstance())
 	{
@@ -60,6 +69,11 @@ namespace Nz
 			}
 		}
 		#elif defined(NAZARA_PLATFORM_MACOS)
+		{
+			NazaraAssert(handle.type == WindowBackend::Cocoa, "expected cocoa window");
+			id layer = CreateAndAttachMetalLayer(handle.cocoa.window);
+			success = m_surface.Create(layer);
+		}
 		#else
 		#error This OS is not supported by Vulkan
 		#endif
