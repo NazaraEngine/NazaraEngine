@@ -13,6 +13,7 @@
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_config.h>
 #include <SDL2/SDL_syswm.h>
 #include <Utfcpp/utf8.h>
 #include <cstdio>
