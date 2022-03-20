@@ -18,10 +18,17 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 			THEN("We can ask the informations of the file")
 			{
-				REQUIRE(sound.GetDuration() <= 8500); // 8s = 8000ms
-				REQUIRE(sound.GetDuration() >= 8000);
-				REQUIRE(sound.GetStatus() == Nz::SoundStatus::Stopped);
-				REQUIRE(sound.IsLooping() == false);
+				CHECK(sound.GetDuration() == 8192);
+				CHECK(sound.GetStatus() == Nz::SoundStatus::Stopped);
+				CHECK_FALSE(sound.IsLooping());
+				CHECK(sound.IsPlayable());
+				CHECK(sound.IsSpatializationEnabled());
+				CHECK(sound.GetMinDistance() == 1.f);
+				CHECK(sound.GetPitch() == 1.f);
+				CHECK(sound.GetPlayingOffset() == 0);
+				CHECK(sound.GetPosition() == Nz::Vector3f::Zero());
+				CHECK(sound.GetVelocity() == Nz::Vector3f::Zero());
+				CHECK(sound.GetVolume() == 1.f);
 			}
 
 			THEN("We can play it and get the time offset")
@@ -30,14 +37,14 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 				sound.Play();
 				std::this_thread::sleep_for(std::chrono::seconds(1));
-				REQUIRE(sound.GetPlayingOffset() >= 950);
+				CHECK(sound.GetPlayingOffset() >= 950);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-				REQUIRE(sound.GetPlayingOffset() <= 1300);
+				CHECK(sound.GetPlayingOffset() <= 1500);
 				sound.Pause();
-				REQUIRE(sound.GetStatus() == Nz::SoundStatus::Paused);
+				CHECK(sound.GetStatus() == Nz::SoundStatus::Paused);
 
 				sound.SetPlayingOffset(3500);
-				REQUIRE(sound.GetPlayingOffset() >= 3500);
+				CHECK(sound.GetPlayingOffset() == 3500);
 
 				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(100.f);
 			}
