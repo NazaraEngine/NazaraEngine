@@ -110,8 +110,6 @@ local modules = {
 	Widgets = {
 		Deps = {"NazaraGraphics"},
 		Packages = {"entt", "kiwisolver"}
-		end
-
 	}
 }
 
