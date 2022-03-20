@@ -8,10 +8,10 @@
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
-#include <SDL2/SDL_clipboard.h>
-#include <SDL2/SDL_keyboard.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mouse.h>
+#include <SDL_clipboard.h>
+#include <SDL_keyboard.h>
+#include <SDL_keycode.h>
+#include <SDL_mouse.h>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
