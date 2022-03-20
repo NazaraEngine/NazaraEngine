@@ -72,7 +72,7 @@ local modules = {
 				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
-				add_packages("libx11")
+				add_packages("libx11", { links = {} }) -- we only need X11 headers
 			end
 		end
 	},
