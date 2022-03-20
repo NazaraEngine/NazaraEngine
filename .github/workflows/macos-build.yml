@@ -66,7 +66,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake build -v NazaraRenderer
+      run: xmake build -v NazaraRenderer && xmake build -v NazaraPhysics2D && xmake build -v NazaraPhysics3D && xmake build -v NazaraGraphics && xmake build -v NazaraAudio && xmake build -v NazaraNetwork
 
     # Run unit tests
     #- name: Run unit tests
@@ -74,11 +74,11 @@ jobs:
     #  run: xmake run NazaraUnitTests
 
     # Install the result files
-    - name: Install Nazara
-      run: xmake install -vo package
+    # - name: Install Nazara
+    #  run: xmake install -vo package
 
     # Upload artifacts
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
-        path: package
+    # - uses: actions/upload-artifact@v2
+    #  with:
+    #    name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
+    #    path: package
