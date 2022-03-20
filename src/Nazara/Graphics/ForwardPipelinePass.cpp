@@ -57,7 +57,7 @@ namespace Nz
 			Graphics* graphics = Graphics::Instance();
 
 			PredefinedLightData lightOffsets = PredefinedLightData::GetOffsets();
-			std::size_t lightUboAlignedSize = AlignPow2(lightOffsets.totalSize, graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
+			std::size_t lightUboAlignedSize = AlignPow2(lightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
 
 			UploadPool& uploadPool = renderFrame.GetUploadPool();
 
