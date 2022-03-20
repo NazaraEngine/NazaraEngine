@@ -85,6 +85,9 @@ local modules = {
 		Custom = function()
 			-- Set precise floating-points models to ensure shader optimization leads to correct results
 			set_fpmodels("precise")
+			if is_plat("macosx") then
+				add_packages("molten-vk")
+			end
 		end
 	},
 	Utility = {
@@ -103,12 +106,19 @@ local modules = {
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
+				add_packages("molten-vk")
 			end
 		end
 	},
 	Widgets = {
 		Deps = {"NazaraGraphics"},
-		Packages = {"entt", "kiwisolver"}
+		Packages = {"entt", "kiwisolver"},
+		Custom = function()
+			if is_plat("macosx") then
+				add_packages("molten-vk")
+			end
+		end
+
 	}
 }
 
@@ -139,6 +149,7 @@ add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug")
 
 if is_plat("macosx") then
 	add_requires("libx11")
+	add_requires("molten-vk")
 end
 
 add_rules("mode.asan", "mode.coverage", "mode.debug", "mode.releasedbg")
