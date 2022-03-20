@@ -13,7 +13,6 @@
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_config.h>
 #include <SDL2/SDL_syswm.h>
 #include <Utfcpp/utf8.h>
 #include <cstdio>
@@ -202,6 +201,14 @@ namespace Nz
 
 		switch (wmInfo.subsystem)
 		{
+#if defined(SDL_VIDEO_DRIVER_COCOA)
+			case SDL_SYSWM_COCOA:
+			{
+				handle.type = WindowManager::Cocoa;
+				handle.cocoa.window = wmInfo.info.cocoa.window;
+				break;
+			}
+#endif
 #if defined(SDL_VIDEO_DRIVER_X11)
 			case SDL_SYSWM_X11:
 			{

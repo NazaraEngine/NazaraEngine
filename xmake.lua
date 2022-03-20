@@ -72,6 +72,7 @@ local modules = {
 				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
+				add_sysincludedirs("/opt/X11/include")
 			end
 		end
 	},
@@ -101,7 +102,7 @@ local modules = {
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 			elseif is_plat("macosx") then
-				add_defines("VK_USE_PLATFORM_MACOS_MVK")
+				add_defines("VK_USE_PLATFORM_METAL_EXT")
 			end
 		end
 	},

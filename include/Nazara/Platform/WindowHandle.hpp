@@ -16,6 +16,7 @@ namespace Nz
 	{
 		Invalid,
 
+		Cocoa,
 		X11,
 		Wayland,
 		Windows
@@ -27,6 +28,11 @@ namespace Nz
 
 		union
 		{
+			struct
+			{
+				void* window; //< NSWindow*
+			} cocoa;
+
 			struct
 			{
 				void* display; //< Display*
