@@ -28,7 +28,7 @@ fn GetValue() -> f32
 fn main() -> FragOut
 {
 	let output: FragOut;
-	output.value = GetValue();
+	output.value = -GetValue();
 
 	return output;
 }
@@ -49,7 +49,7 @@ layout(location = 0) out float _NzOut_value;
 void main()
 {
 	FragOut output_;
-	output_.value = GetValue();
+	output_.value = -GetValue();
 	
 	_NzOut_value = output_.value;
 	return;
@@ -66,7 +66,7 @@ fn GetValue() -> f32
 fn main() -> FragOut
 {
 	let output: FragOut;
-	output.value = GetValue();
+	output.value = -GetValue();
 	return output;
 }
 )");
@@ -80,6 +80,7 @@ OpFunction
 OpLabel
 OpVariable
 OpFunctionCall
+OpFNegate
 OpAccessChain
 OpStore
 OpLoad
