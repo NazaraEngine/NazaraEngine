@@ -390,6 +390,24 @@ namespace Nz::ShaderLang
 		Expect(Advance(), TokenType::Semicolon);
 	}
 
+	ShaderAst::ExpressionPtr Parser::BuildIdentifierAccess(ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs)
+	{
+		if (rhs->GetType() == ShaderAst::NodeType::IdentifierExpression)
+			return ShaderBuilder::AccessMember(std::move(lhs), { std::move(SafeCast<ShaderAst::IdentifierExpression&>(*rhs).identifier) });
+		else
+			return BuildIndexAccess(std::move(lhs), std::move(rhs));
+	}
+
+	ShaderAst::ExpressionPtr Parser::BuildIndexAccess(ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs)
+	{
+		return ShaderBuilder::AccessIndex(std::move(lhs), std::move(rhs));
+	}
+
+	ShaderAst::ExpressionPtr Parser::BuildBinary(ShaderAst::BinaryType binaryType, ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs)
+	{
+		return ShaderBuilder::Binary(binaryType, std::move(lhs), std::move(rhs));
+	}
+
 	ShaderAst::StatementPtr Parser::ParseAliasDeclaration()
 	{
 		Expect(Advance(), TokenType::Alias);
@@ -1124,59 +1142,25 @@ namespace Nz::ShaderLang
 			if (tokenPrecedence < exprPrecedence)
 				return lhs;
 
-			bool c = false;
-			while (currentTokenType == TokenType::Dot || currentTokenType == TokenType::OpenSquareBracket)
-			{
-				c = true;
-
-				if (currentTokenType == TokenType::Dot)
-				{
-					std::unique_ptr<ShaderAst::AccessIdentifierExpression> accessMemberNode = std::make_unique<ShaderAst::AccessIdentifierExpression>();
-					accessMemberNode->expr = std::move(lhs);
-
-					do
-					{
-						Consume();
-
-						accessMemberNode->identifiers.push_back(ParseIdentifierAsName());
-					} while (Peek().type == TokenType::Dot);
-
-					lhs = std::move(accessMemberNode);
-				}
-				else
-				{
-					assert(currentTokenType == TokenType::OpenSquareBracket);
-
-					std::unique_ptr<ShaderAst::AccessIndexExpression> indexNode = std::make_unique<ShaderAst::AccessIndexExpression>();
-					indexNode->expr = std::move(lhs);
-
-					do
-					{
-						Consume();
-
-						indexNode->indices.push_back(ParseExpression());
-					}
-					while (Peek().type == TokenType::Comma);
-
-					Expect(Advance(), TokenType::ClosingSquareBracket);
-
-					lhs = std::move(indexNode);
-				}
-
-				currentTokenType = Peek().type;
-			}
-
 			if (currentTokenType == TokenType::OpenParenthesis)
 			{
-				// Function call
-				auto parameters = ParseParameters();
-				lhs = ShaderBuilder::CallFunction(std::move(lhs), std::move(parameters));
+				Consume();
 
-				c = true;
+				// Function call
+				auto parameters = ParseExpressionList(TokenType::ClosingParenthesis);
+				lhs = ShaderBuilder::CallFunction(std::move(lhs), std::move(parameters));
+				continue;
 			}
 
-			if (c)
+			if (currentTokenType == TokenType::OpenSquareBracket)
+			{
+				Consume();
+
+				// Indices
+				auto parameters = ParseExpressionList(TokenType::ClosingSquareBracket);
+				lhs = ShaderBuilder::AccessIndex(std::move(lhs), std::move(parameters));
 				continue;
+			}
 
 			Consume();
 			ShaderAst::ExpressionPtr rhs = ParsePrimaryExpression();
@@ -1187,28 +1171,30 @@ namespace Nz::ShaderLang
 			if (tokenPrecedence < nextTokenPrecedence)
 				rhs = ParseBinOpRhs(tokenPrecedence + 1, std::move(rhs));
 
-			ShaderAst::BinaryType binaryType;
+			lhs = [&]
 			{
 				switch (currentTokenType)
 				{
-					case TokenType::Divide:           binaryType = ShaderAst::BinaryType::Divide; break;
-					case TokenType::Equal:            binaryType = ShaderAst::BinaryType::CompEq; break;
-					case TokenType::LessThan:         binaryType = ShaderAst::BinaryType::CompLt; break;
-					case TokenType::LessThanEqual:    binaryType = ShaderAst::BinaryType::CompLe; break;
-					case TokenType::LogicalAnd:       binaryType = ShaderAst::BinaryType::LogicalAnd; break;
-					case TokenType::LogicalOr:        binaryType = ShaderAst::BinaryType::LogicalOr; break;
-					case TokenType::GreaterThan:      binaryType = ShaderAst::BinaryType::CompGt; break;
-					case TokenType::GreaterThanEqual: binaryType = ShaderAst::BinaryType::CompGe; break;
-					case TokenType::Minus:            binaryType = ShaderAst::BinaryType::Subtract; break;
-					case TokenType::Multiply:         binaryType = ShaderAst::BinaryType::Multiply; break;
-					case TokenType::NotEqual:         binaryType = ShaderAst::BinaryType::CompNe; break;
-					case TokenType::Plus:             binaryType = ShaderAst::BinaryType::Add; break;
+					case TokenType::Dot:
+						return BuildIdentifierAccess(std::move(lhs), std::move(rhs));
+
+					case TokenType::Divide:            return BuildBinary(ShaderAst::BinaryType::Divide,     std::move(lhs), std::move(rhs));
+					case TokenType::Equal:             return BuildBinary(ShaderAst::BinaryType::CompEq,     std::move(lhs), std::move(rhs));
+					case TokenType::LessThan:          return BuildBinary(ShaderAst::BinaryType::CompLt,     std::move(lhs), std::move(rhs));
+					case TokenType::LessThanEqual:     return BuildBinary(ShaderAst::BinaryType::CompLe,     std::move(lhs), std::move(rhs));
+					case TokenType::LogicalAnd:        return BuildBinary(ShaderAst::BinaryType::LogicalAnd, std::move(lhs), std::move(rhs));
+					case TokenType::LogicalOr:         return BuildBinary(ShaderAst::BinaryType::LogicalOr,  std::move(lhs), std::move(rhs));
+					case TokenType::GreaterThan:       return BuildBinary(ShaderAst::BinaryType::CompGt,     std::move(lhs), std::move(rhs));
+					case TokenType::GreaterThanEqual:  return BuildBinary(ShaderAst::BinaryType::CompGe,     std::move(lhs), std::move(rhs));
+					case TokenType::Minus:             return BuildBinary(ShaderAst::BinaryType::Subtract,   std::move(lhs), std::move(rhs));
+					case TokenType::Multiply:          return BuildBinary(ShaderAst::BinaryType::Multiply,   std::move(lhs), std::move(rhs));
+					case TokenType::NotEqual:          return BuildBinary(ShaderAst::BinaryType::CompNe,     std::move(lhs), std::move(rhs));
+					case TokenType::Plus:              return BuildBinary(ShaderAst::BinaryType::Add,        std::move(lhs), std::move(rhs));
 					default:
 						throw UnexpectedToken{};
-				}
-			}
 
-			lhs = ShaderBuilder::Binary(binaryType, std::move(lhs), std::move(rhs));
+				}
+			}();
 		}
 	}
 
@@ -1237,6 +1223,24 @@ namespace Nz::ShaderLang
 		return ParseBinOpRhs(0, ParsePrimaryExpression());
 	}
 
+	std::vector<ShaderAst::ExpressionPtr> Parser::ParseExpressionList(TokenType terminationToken)
+	{
+		std::vector<ShaderAst::ExpressionPtr> parameters;
+		bool first = true;
+		while (Peek().type != terminationToken)
+		{
+			if (!first)
+				Expect(Advance(), TokenType::Comma);
+
+			first = false;
+			parameters.push_back(ParseExpression());
+		}
+
+		Expect(Advance(), terminationToken);
+
+		return parameters;
+	}
+
 	ShaderAst::ExpressionPtr Parser::ParseFloatingPointExpression()
 	{
 		const Token& floatingPointToken = Expect(Advance(), TokenType::FloatingPointValue);
@@ -1255,26 +1259,6 @@ namespace Nz::ShaderLang
 	{
 		const Token& integerToken = Expect(Advance(), TokenType::IntegerValue);
 		return ShaderBuilder::Constant(SafeCast<Int32>(std::get<long long>(integerToken.data))); //< FIXME
-	}
-
-	std::vector<ShaderAst::ExpressionPtr> Parser::ParseParameters()
-	{
-		Expect(Advance(), TokenType::OpenParenthesis);
-
-		std::vector<ShaderAst::ExpressionPtr> parameters;
-		bool first = true;
-		while (Peek().type != TokenType::ClosingParenthesis)
-		{
-			if (!first)
-				Expect(Advance(), TokenType::Comma);
-
-			first = false;
-			parameters.push_back(ParseExpression());
-		}
-
-		Expect(Advance(), TokenType::ClosingParenthesis);
-
-		return parameters;
 	}
 
 	ShaderAst::ExpressionPtr Parser::ParseParenthesisExpression()
@@ -1314,7 +1298,7 @@ namespace Nz::ShaderLang
 			case TokenType::Minus:
 			{
 				Consume();
-				ShaderAst::ExpressionPtr expr = ParsePrimaryExpression();
+				ShaderAst::ExpressionPtr expr = ParseExpression();
 
 				return ShaderBuilder::Unary(ShaderAst::UnaryType::Minus, std::move(expr));
 			}
@@ -1322,7 +1306,7 @@ namespace Nz::ShaderLang
 			case TokenType::Plus:
 			{
 				Consume();
-				ShaderAst::ExpressionPtr expr = ParsePrimaryExpression();
+				ShaderAst::ExpressionPtr expr = ParseExpression();
 
 				return ShaderBuilder::Unary(ShaderAst::UnaryType::Plus, std::move(expr));
 			}
@@ -1330,7 +1314,7 @@ namespace Nz::ShaderLang
 			case TokenType::Not:
 			{
 				Consume();
-				ShaderAst::ExpressionPtr expr = ParsePrimaryExpression();
+				ShaderAst::ExpressionPtr expr = ParseExpression();
 
 				return ShaderBuilder::Unary(ShaderAst::UnaryType::LogicalNot, std::move(expr));
 			}
@@ -1404,12 +1388,12 @@ namespace Nz::ShaderLang
 		switch (token)
 		{
 			case TokenType::Divide:            return 80;
-			case TokenType::Dot:               return 100;
+			case TokenType::Dot:               return 150;
 			case TokenType::Equal:             return 50;
 			case TokenType::LessThan:          return 40;
 			case TokenType::LessThanEqual:     return 40;
-			case TokenType::LogicalAnd:        return 120;
-			case TokenType::LogicalOr:         return 140;
+			case TokenType::LogicalAnd:        return 20;
+			case TokenType::LogicalOr:         return 10;
 			case TokenType::GreaterThan:       return 40;
 			case TokenType::GreaterThanEqual:  return 40;
 			case TokenType::Multiply:          return 80;

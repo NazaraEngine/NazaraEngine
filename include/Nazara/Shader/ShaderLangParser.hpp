@@ -85,6 +85,10 @@ namespace Nz::ShaderLang
 			void ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes);
 			void ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue);
 
+			ShaderAst::ExpressionPtr BuildIdentifierAccess(ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs);
+			ShaderAst::ExpressionPtr BuildIndexAccess(ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs);
+			ShaderAst::ExpressionPtr BuildBinary(ShaderAst::BinaryType binaryType, ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs);
+
 			// Statements
 			ShaderAst::StatementPtr ParseAliasDeclaration();
 			ShaderAst::StatementPtr ParseBranchStatement();
@@ -110,10 +114,10 @@ namespace Nz::ShaderLang
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);
 			ShaderAst::ExpressionPtr ParseConstSelectExpression();
 			ShaderAst::ExpressionPtr ParseExpression();
+			std::vector<ShaderAst::ExpressionPtr> ParseExpressionList(TokenType terminationToken);
 			ShaderAst::ExpressionPtr ParseFloatingPointExpression();
 			ShaderAst::ExpressionPtr ParseIdentifier();
 			ShaderAst::ExpressionPtr ParseIntegerExpression();
-			std::vector<ShaderAst::ExpressionPtr> ParseParameters();
 			ShaderAst::ExpressionPtr ParseParenthesisExpression();
 			ShaderAst::ExpressionPtr ParsePrimaryExpression();
 			ShaderAst::ExpressionPtr ParseStringExpression();
