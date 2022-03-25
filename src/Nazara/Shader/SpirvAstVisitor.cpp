@@ -655,8 +655,7 @@ namespace Nz
 			}
 		}
 
-		for (auto& statementPtr : node.statements)
-			statementPtr->Visit(*this);
+		HandleStatementList(node.statements);
 
 		// Add implicit return
 		if (!m_functionBlocks.back()->IsTerminated())
@@ -920,8 +919,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::MultiStatement& node)
 	{
-		for (auto& statement : node.statements)
-			statement->Visit(*this);
+		HandleStatementList(node.statements);
 	}
 
 	void SpirvAstVisitor::Visit(ShaderAst::ReturnStatement& node)
@@ -1153,6 +1151,25 @@ namespace Nz
 
 		m_functionBlocks.emplace_back(std::move(mergeBlock));
 		m_currentBlock = m_functionBlocks.back().get();
+	}
+
+	void SpirvAstVisitor::HandleStatementList(const std::vector<ShaderAst::StatementPtr>& statements)
+	{
+		for (auto& statement : statements)
+		{
+			// Handle termination statements
+			switch (statement->GetType())
+			{
+				case ShaderAst::NodeType::DiscardStatement:
+				case ShaderAst::NodeType::ReturnStatement:
+					statement->Visit(*this);
+					return; //< stop processing statements after this one
+
+				default:
+					statement->Visit(*this);
+					break;
+			}
+		}
 	}
 
 	void SpirvAstVisitor::PushResultId(UInt32 value)

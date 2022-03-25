@@ -138,6 +138,8 @@ namespace Nz
 			};
 
 		private:
+			void HandleStatementList(const std::vector<ShaderAst::StatementPtr>& statements);
+
 			void PushResultId(UInt32 value);
 			UInt32 PopResultId();
 
