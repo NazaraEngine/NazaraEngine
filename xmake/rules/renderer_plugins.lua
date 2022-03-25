@@ -1,3 +1,5 @@
+local modules = NazaraModules
+
 -- Builds renderer plugins if linked to NazaraRenderer
 rule("build_rendererplugins")
 	on_load(function (target)
