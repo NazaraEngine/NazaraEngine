@@ -25,7 +25,7 @@ namespace Nz
 		m_shaderModule = moduleResolver.Resolve(moduleName);
 		NazaraAssert(m_shaderModule, "invalid shader module");
 
-		Validate(*m_shaderModule);
+		m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
 
 		m_onShaderModuleUpdated.Connect(moduleResolver.OnModuleUpdated, [this, name = std::move(moduleName)](ShaderModuleResolver* resolver, const std::string& updatedModuleName)
 		{
@@ -41,16 +41,13 @@ namespace Nz
 
 			try
 			{
-				// FIXME: Validate is destructive, in case of failure it can invalidate the shader
-				Validate(*newShaderModule);
+				m_shaderModule = Validate(*newShaderModule, &m_optionIndexByName);
 			}
 			catch (const std::exception& e)
 			{
 				NazaraError("failed to retrieve updated shader module " + name + ": " + e.what());
 				return;
 			}
-
-			m_shaderModule = std::move(newShaderModule);
 
 			// Clear cache
 			m_combinations.clear();
@@ -65,7 +62,7 @@ namespace Nz
 	{
 		NazaraAssert(m_shaderModule, "invalid shader module");
 
-		Validate(*m_shaderModule);
+		Validate(*m_shaderModule, &m_optionIndexByName);
 	}
 
 	const std::shared_ptr<ShaderModule>& UberShader::Get(const Config& config)
@@ -85,13 +82,17 @@ namespace Nz
 		return it->second;
 	}
 
-	void UberShader::Validate(ShaderAst::Module& module)
+	ShaderAst::ModulePtr UberShader::Validate(const ShaderAst::Module& module, std::unordered_map<std::string, Option>* options)
 	{
 		NazaraAssert(m_shaderStages != 0, "there must be at least one shader stage");
+		assert(options);
 
-		//TODO: Try to partially sanitize shader?
+		// Try to partially sanitize shader
 
-		std::size_t optionCount = 0;
+		ShaderAst::SanitizeVisitor::Options sanitizeOptions;
+		sanitizeOptions.allowPartialSanitization = true;
+
+		ShaderAst::ModulePtr sanitizedModule = ShaderAst::Sanitize(module, sanitizeOptions);
 
 		ShaderStageTypeFlags supportedStageType;
 
@@ -101,21 +102,24 @@ namespace Nz
 			supportedStageType |= stageType;
 		};
 
+		std::unordered_map<std::string, Option> optionByName;
 		callbacks.onOptionDeclaration = [&](const ShaderAst::DeclareOptionStatement& option)
 		{
 			//TODO: Check optionType
 
-			m_optionIndexByName[option.optName] = Option{
+			optionByName[option.optName] = Option{
 				CRC32(option.optName)
 			};
-
-			optionCount++;
 		};
 
 		ShaderAst::AstReflect reflect;
-		reflect.Reflect(*module.rootNode, callbacks);
+		reflect.Reflect(*sanitizedModule->rootNode, callbacks);
 
 		if ((m_shaderStages & supportedStageType) != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");
+
+		*options = std::move(optionByName);
+
+		return sanitizedModule;
 	}
 }

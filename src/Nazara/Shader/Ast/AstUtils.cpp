@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/Ast/AstUtils.hpp>
+#include <cassert>
 #include <Nazara/Shader/Debug.hpp>
 
 namespace Nz::ShaderAst
@@ -104,7 +105,10 @@ namespace Nz::ShaderAst
 
 	void ShaderAstValueCategory::Visit(SwizzleExpression& node)
 	{
-		if (IsPrimitiveType(GetExpressionType(node)) && node.componentCount > 1)
+		const ExpressionType* exprType = GetExpressionType(node);
+		assert(exprType);
+
+		if (IsPrimitiveType(*exprType) && node.componentCount > 1)
 			// Swizzling more than a component on a primitive produces a rvalue (a.xxxx cannot be assigned)
 			m_expressionCategory = ExpressionCategory::RValue;
 		else
@@ -131,6 +135,11 @@ namespace Nz::ShaderAst
 			else
 				node.expression->Visit(*this);
 		}
+	}
+
+	void ShaderAstValueCategory::Visit(TypeExpression& /*node*/)
+	{
+		m_expressionCategory = ExpressionCategory::LValue;
 	}
 
 	void ShaderAstValueCategory::Visit(VariableValueExpression& /*node*/)

@@ -76,9 +76,10 @@ namespace Nz
 	{
 		node.expr->Visit(*this);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
+		const ShaderAst::ExpressionType* exprType = GetExpressionType(node);
+		assert(exprType);
 
-		UInt32 typeId = m_writer.GetTypeId(exprType);
+		UInt32 typeId = m_writer.GetTypeId(*exprType);
 
 		assert(node.indices.size() == 1);
 		UInt32 indexId = m_visitor.EvaluateExpression(node.indices.front());
@@ -88,7 +89,7 @@ namespace Nz
 			[&](const Pointer& pointer)
 			{
 				PointerChainAccess pointerChainAccess;
-				pointerChainAccess.exprType = &exprType;
+				pointerChainAccess.exprType = exprType;
 				pointerChainAccess.indices = { indexId };
 				pointerChainAccess.pointedTypeId = pointer.pointedTypeId;
 				pointerChainAccess.pointerId = pointer.pointerId;
@@ -98,7 +99,7 @@ namespace Nz
 			},
 			[&](PointerChainAccess& pointerChainAccess)
 			{
-				pointerChainAccess.exprType = &exprType;
+				pointerChainAccess.exprType = exprType;
 				pointerChainAccess.indices.push_back(indexId);
 			},
 			[&](const Value& value)

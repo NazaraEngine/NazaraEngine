@@ -37,7 +37,7 @@ namespace Nz::ShaderAst
 
 	using ConstantValue = TypeListInstantiate<ConstantTypes, std::variant>;
 
-	NAZARA_SHADER_API ExpressionType GetExpressionType(const ConstantValue& constant);
+	NAZARA_SHADER_API ExpressionType GetConstantType(const ConstantValue& constant);
 }
 
 #endif // NAZARA_SHADER_AST_CONSTANTVALUE_HPP

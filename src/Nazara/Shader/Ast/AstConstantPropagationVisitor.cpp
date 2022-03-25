@@ -862,7 +862,7 @@ namespace Nz::ShaderAst
 
 				const auto& constantExpr = static_cast<ConstantValueExpression&>(*expressions[i]);
 
-				if (!constantValues.empty() && GetExpressionType(constantValues.front()) != GetExpressionType(constantExpr.value))
+				if (!constantValues.empty() && GetConstantType(constantValues.front()) != GetConstantType(constantExpr.value))
 				{
 					// Unhandled case, all cast parameters are expected to be of the same type
 					constantValues.clear();
@@ -940,16 +940,24 @@ namespace Nz::ShaderAst
 		std::vector<BranchStatement::ConditionalStatement> statements;
 		StatementPtr elseStatement;
 
+		bool continuePropagation = true;
 		for (auto& condStatement : node.condStatements)
 		{
 			auto cond = CloneExpression(condStatement.condition);
 
-			if (cond->GetType() == NodeType::ConstantValueExpression)
+			if (continuePropagation && cond->GetType() == NodeType::ConstantValueExpression)
 			{
 				auto& constant = static_cast<ConstantValueExpression&>(*cond);
 
-				const ExpressionType& constantType = GetExpressionType(constant);
-				if (!IsPrimitiveType(constantType) || std::get<PrimitiveType>(constantType) != PrimitiveType::Boolean)
+				const ExpressionType* constantType = GetExpressionType(constant);
+				if (!constantType)
+				{
+					// unresolved type, can't continue propagating this branch
+					continuePropagation = false;
+					continue;
+				}
+
+				if (!IsPrimitiveType(*constantType) || std::get<PrimitiveType>(*constantType) != PrimitiveType::Boolean)
 					continue;
 
 				bool cValue = std::get<bool>(constant.value);
@@ -1017,8 +1025,12 @@ namespace Nz::ShaderAst
 		if (!m_options.constantQueryCallback)
 			return AstCloner::Clone(node);
 
-		auto constant = ShaderBuilder::Constant(m_options.constantQueryCallback(node.constantId));
-		constant->cachedExpressionType = GetExpressionType(constant->value);
+		const ConstantValue* constantValue = m_options.constantQueryCallback(node.constantId);
+		if (!constantValue)
+			return AstCloner::Clone(node);
+
+		auto constant = ShaderBuilder::Constant(*constantValue);
+		constant->cachedExpressionType = GetConstantType(constant->value);
 
 		return constant;
 	}
@@ -1155,7 +1167,7 @@ namespace Nz::ShaderAst
 		}, lhs.value);
 
 		if (optimized)
-			optimized->cachedExpressionType = GetExpressionType(optimized->value);
+			optimized->cachedExpressionType = GetConstantType(optimized->value);
 
 		return optimized;
 	}
@@ -1221,7 +1233,7 @@ namespace Nz::ShaderAst
 		}, operand.value);
 
 		if (optimized)
-			optimized->cachedExpressionType = GetExpressionType(optimized->value);
+			optimized->cachedExpressionType = GetConstantType(optimized->value);
 
 		return optimized;
 	}

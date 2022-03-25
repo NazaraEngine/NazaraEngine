@@ -8,7 +8,7 @@
 
 namespace Nz::ShaderAst
 {
-	ExpressionType GetExpressionType(const ConstantValue& constant)
+	ExpressionType GetConstantType(const ConstantValue& constant)
 	{
 		return std::visit([&](auto&& arg) -> ShaderAst::ExpressionType
 		{

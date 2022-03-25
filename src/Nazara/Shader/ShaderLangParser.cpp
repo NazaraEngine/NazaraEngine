@@ -263,7 +263,7 @@ namespace Nz::ShaderLang
 						throw AttributeError{ "attribute " + std::string("nzsl_version") + " expect a single string parameter" };
 
 					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
-					if (ShaderAst::GetExpressionType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
+					if (ShaderAst::GetConstantType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
 						throw AttributeError{ "attribute " + std::string("nzsl_version") + " expect a single string parameter" };
 
 					const std::string& versionStr = std::get<std::string>(constantValue.value);
@@ -302,7 +302,7 @@ namespace Nz::ShaderLang
 						throw AttributeError{ "attribute " + std::string("uuid") + " expect a single string parameter" };
 
 					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
-					if (ShaderAst::GetExpressionType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
+					if (ShaderAst::GetConstantType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
 						throw AttributeError{ "attribute " + std::string("uuid") + " expect a single string parameter" };
 
 					const std::string& uuidStr = std::get<std::string>(constantValue.value);

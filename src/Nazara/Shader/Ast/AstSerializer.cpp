@@ -174,6 +174,11 @@ namespace Nz::ShaderAst
 		SizeT(node.structTypeId);
 	}
 
+	void AstSerializerBase::Serialize(TypeExpression& node)
+	{
+		SizeT(node.typeId);
+	}
+
 	void AstSerializerBase::Serialize(FunctionExpression& node)
 	{
 		SizeT(node.funcId);

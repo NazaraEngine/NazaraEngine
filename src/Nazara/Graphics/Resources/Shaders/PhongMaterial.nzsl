@@ -249,7 +249,7 @@ struct VertIn
 }
 
 [entry(vert), cond(Billboard)]
-fn billboardMain(input: VertIn) -> VertOut
+fn billboardMain(input: VertIn) -> VertToFrag
 {
 	let size = input.billboardSizeRot.xy;
 	let sinCos = input.billboardSizeRot.zw;

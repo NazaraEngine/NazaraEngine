@@ -36,7 +36,7 @@ namespace Nz
 				AstRecursiveVisitor::Visit(node);
 
 				assert(currentFunction);
-				currentFunction->calledFunctions.UnboundedSet(std::get<ShaderAst::FunctionType>(GetExpressionType(*node.targetFunction)).funcIndex);
+				currentFunction->calledFunctions.UnboundedSet(std::get<ShaderAst::FunctionType>(*GetExpressionType(*node.targetFunction)).funcIndex);
 			}
 
 			void Visit(ShaderAst::ConditionalExpression& /*node*/) override
@@ -307,7 +307,7 @@ namespace Nz
 		Append(type.GetResultingValue());
 	}
 
-	void GlslWriter::Append(const ShaderAst::FunctionType& functionType)
+	void GlslWriter::Append(const ShaderAst::FunctionType& /*functionType*/)
 	{
 		throw std::runtime_error("unexpected FunctionType");
 	}
@@ -829,8 +829,9 @@ namespace Nz
 	{
 		Visit(node.expr, true);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
-		assert(IsStructType(exprType));
+		const ShaderAst::ExpressionType* exprType = GetExpressionType(*node.expr);
+		assert(exprType);
+		assert(IsStructType(*exprType));
 
 		for (const std::string& identifier : node.identifiers)
 			Append(".", identifier);
@@ -840,8 +841,9 @@ namespace Nz
 	{
 		Visit(node.expr, true);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expr);
-		assert(!IsStructType(exprType));
+		const ShaderAst::ExpressionType* exprType = GetExpressionType(*node.expr);
+		assert(exprType);
+		assert(!IsStructType(*exprType));
 
 		// Array access
 		assert(node.indices.size() == 1);
@@ -1326,9 +1328,10 @@ namespace Nz
 		{
 			assert(node.returnExpr);
 
-			const ShaderAst::ExpressionType& returnType = GetExpressionType(*node.returnExpr);
-			assert(IsStructType(returnType));
-			std::size_t structIndex = std::get<ShaderAst::StructType>(returnType).structIndex;
+			const ShaderAst::ExpressionType* returnType = GetExpressionType(*node.returnExpr);
+			assert(returnType);
+			assert(IsStructType(*returnType));
+			std::size_t structIndex = std::get<ShaderAst::StructType>(*returnType).structIndex;
 			const auto& structData = Retrieve(m_currentState->structs, structIndex);
 
 			std::string outputStructVarName;

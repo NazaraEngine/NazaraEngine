@@ -407,6 +407,14 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const TypeExpression& lhs, const TypeExpression& rhs)
+	{
+		if (!Compare(lhs.typeId, rhs.typeId))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const VariableValueExpression& lhs, const VariableValueExpression& rhs)
 	{
 		if (!Compare(lhs.variableId, rhs.variableId))
