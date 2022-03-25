@@ -98,7 +98,7 @@ namespace Nz
 					for (const auto& parameter : node.parameters)
 					{
 						auto& var = func.variables.emplace_back();
-						var.typeId = m_constantCache.Register(*m_constantCache.BuildPointerType(GetExpressionType(*parameter), SpirvStorageClass::Function));
+						var.typeId = m_constantCache.Register(*m_constantCache.BuildPointerType(*GetExpressionType(*parameter), SpirvStorageClass::Function));
 					}
 				}
 

@@ -40,6 +40,7 @@ namespace Nz::ShaderAst
 			void Serialize(IntrinsicFunctionExpression& node);
 			void Serialize(StructTypeExpression& node);
 			void Serialize(SwizzleExpression& node);
+			void Serialize(TypeExpression& node);
 			void Serialize(VariableValueExpression& node);
 			void Serialize(UnaryExpression& node);
 			void SerializeExpressionCommon(Expression& expr);

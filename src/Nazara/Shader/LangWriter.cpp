@@ -182,7 +182,7 @@ namespace Nz
 			type.GetExpression()->Visit(*this);
 	}
 
-	void LangWriter::Append(const ShaderAst::FunctionType& functionType)
+	void LangWriter::Append(const ShaderAst::FunctionType& /*functionType*/)
 	{
 		throw std::runtime_error("unexpected function type");
 	}

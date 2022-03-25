@@ -67,9 +67,9 @@ namespace Nz
 				throw std::runtime_error("unexpected type");
 		};
 
-		const ShaderAst::ExpressionType& resultType = GetExpressionType(node);
-		const ShaderAst::ExpressionType& leftType = GetExpressionType(*node.left);
-		const ShaderAst::ExpressionType& rightType = GetExpressionType(*node.right);
+		const ShaderAst::ExpressionType& resultType = *GetExpressionType(node);
+		const ShaderAst::ExpressionType& leftType = *GetExpressionType(*node.left);
+		const ShaderAst::ExpressionType& rightType = *GetExpressionType(*node.right);
 
 		ShaderAst::PrimitiveType leftTypeBase = RetrieveBaseType(leftType);
 		//ShaderAst::PrimitiveType rightTypeBase = RetrieveBaseType(rightType);
@@ -405,7 +405,7 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::CallFunctionExpression& node)
 	{
-		std::size_t functionIndex = std::get<ShaderAst::FunctionType>(GetExpressionType(*node.targetFunction)).funcIndex;
+		std::size_t functionIndex = std::get<ShaderAst::FunctionType>(*GetExpressionType(*node.targetFunction)).funcIndex;
 
 		UInt32 funcId = 0;
 		for (const auto& [funcIndex, func] : m_funcData)
@@ -434,7 +434,7 @@ namespace Nz
 		UInt32 resultId = AllocateResultId();
 		m_currentBlock->AppendVariadic(SpirvOp::OpFunctionCall, [&](auto&& appender)
 		{
-			appender(m_writer.GetTypeId(ShaderAst::GetExpressionType(node)));
+			appender(m_writer.GetTypeId(*ShaderAst::GetExpressionType(node)));
 			appender(resultId);
 			appender(funcId);
 
@@ -718,9 +718,11 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
-				assert(IsVectorType(parameterType));
-				UInt32 typeId = m_writer.GetTypeId(parameterType);
+				const ShaderAst::ExpressionType* parameterType = GetExpressionType(*node.parameters[0]);
+				assert(parameterType);
+				assert(IsVectorType(*parameterType));
+
+				UInt32 typeId = m_writer.GetTypeId(*parameterType);
 
 				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
 				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
@@ -733,10 +735,11 @@ namespace Nz
 
 			case ShaderAst::IntrinsicType::DotProduct:
 			{
-				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
-				assert(IsVectorType(vecExprType));
+				const ShaderAst::ExpressionType* vecExprType = GetExpressionType(*node.parameters[0]);
+				assert(vecExprType);
+				assert(IsVectorType(*vecExprType));
 
-				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(*vecExprType);
 
 				UInt32 typeId = m_writer.GetTypeId(vecType.type);
 
@@ -754,9 +757,10 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
-				assert(IsPrimitiveType(parameterType) || IsVectorType(parameterType));
-				UInt32 typeId = m_writer.GetTypeId(parameterType);
+				const ShaderAst::ExpressionType* parameterType = GetExpressionType(*node.parameters[0]);
+				assert(parameterType);
+				assert(IsPrimitiveType(*parameterType) || IsVectorType(*parameterType));
+				UInt32 typeId = m_writer.GetTypeId(*parameterType);
 
 				UInt32 param = EvaluateExpression(node.parameters[0]);
 				UInt32 resultId = m_writer.AllocateResultId();
@@ -770,10 +774,11 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
-				assert(IsVectorType(vecExprType));
+				const ShaderAst::ExpressionType* vecExprType = GetExpressionType(*node.parameters[0]);
+				assert(vecExprType);
+				assert(IsVectorType(*vecExprType));
 
-				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(*vecExprType);
 				UInt32 typeId = m_writer.GetTypeId(vecType.type);
 
 				UInt32 vec = EvaluateExpression(node.parameters[0]);
@@ -790,15 +795,16 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
-				assert(IsPrimitiveType(parameterType) || IsVectorType(parameterType));
-				UInt32 typeId = m_writer.GetTypeId(parameterType);
+				const ShaderAst::ExpressionType* parameterType = GetExpressionType(*node.parameters[0]);
+				assert(parameterType);
+				assert(IsPrimitiveType(*parameterType) || IsVectorType(*parameterType));
+				UInt32 typeId = m_writer.GetTypeId(*parameterType);
 
 				ShaderAst::PrimitiveType basicType;
-				if (IsPrimitiveType(parameterType))
-					basicType = std::get<ShaderAst::PrimitiveType>(parameterType);
-				else if (IsVectorType(parameterType))
-					basicType = std::get<ShaderAst::VectorType>(parameterType).type;
+				if (IsPrimitiveType(*parameterType))
+					basicType = std::get<ShaderAst::PrimitiveType>(*parameterType);
+				else if (IsVectorType(*parameterType))
+					basicType = std::get<ShaderAst::VectorType>(*parameterType).type;
 				else
 					throw std::runtime_error("unexpected expression type");
 
@@ -837,10 +843,11 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& vecExprType = GetExpressionType(*node.parameters[0]);
-				assert(IsVectorType(vecExprType));
+				const ShaderAst::ExpressionType* vecExprType = GetExpressionType(*node.parameters[0]);
+				assert(vecExprType);
+				assert(IsVectorType(*vecExprType));
 
-				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(vecExprType);
+				const ShaderAst::VectorType& vecType = std::get<ShaderAst::VectorType>(*vecExprType);
 				UInt32 typeId = m_writer.GetTypeId(vecType);
 
 				UInt32 vec = EvaluateExpression(node.parameters[0]);
@@ -856,9 +863,10 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
-				assert(IsPrimitiveType(parameterType) || IsVectorType(parameterType));
-				UInt32 typeId = m_writer.GetTypeId(parameterType);
+				const ShaderAst::ExpressionType* parameterType = GetExpressionType(*node.parameters[0]);
+				assert(parameterType);
+				assert(IsPrimitiveType(*parameterType) || IsVectorType(*parameterType));
+				UInt32 typeId = m_writer.GetTypeId(*parameterType);
 
 				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
 				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
@@ -873,9 +881,10 @@ namespace Nz
 			{
 				UInt32 glslInstructionSet = m_writer.GetExtendedInstructionSet("GLSL.std.450");
 
-				const ShaderAst::ExpressionType& parameterType = GetExpressionType(*node.parameters[0]);
-				assert(IsVectorType(parameterType));
-				UInt32 typeId = m_writer.GetTypeId(parameterType);
+				const ShaderAst::ExpressionType* parameterType = GetExpressionType(*node.parameters[0]);
+				assert(parameterType);
+				assert(IsVectorType(*parameterType));
+				UInt32 typeId = m_writer.GetTypeId(*parameterType);
 
 				UInt32 firstParam = EvaluateExpression(node.parameters[0]);
 				UInt32 secondParam = EvaluateExpression(node.parameters[1]);
@@ -951,20 +960,22 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::SwizzleExpression& node)
 	{
-		const ShaderAst::ExpressionType& swizzledExpressionType = GetExpressionType(*node.expression);
+		const ShaderAst::ExpressionType* swizzledExpressionType = GetExpressionType(*node.expression);
+		assert(swizzledExpressionType);
 
 		UInt32 exprResultId = EvaluateExpression(node.expression);
 
-		const ShaderAst::ExpressionType& targetExprType = GetExpressionType(node);
+		const ShaderAst::ExpressionType* targetExprType = GetExpressionType(node);
+		assert(targetExprType);
 
 		if (node.componentCount > 1)
 		{
-			assert(IsVectorType(targetExprType));
+			assert(IsVectorType(*targetExprType));
 
-			const ShaderAst::VectorType& targetType = std::get<ShaderAst::VectorType>(targetExprType);
+			const ShaderAst::VectorType& targetType = std::get<ShaderAst::VectorType>(*targetExprType);
 
 			UInt32 resultId = m_writer.AllocateResultId();
-			if (IsVectorType(swizzledExpressionType))
+			if (IsVectorType(*swizzledExpressionType))
 			{
 				// Swizzling a vector is implemented via OpVectorShuffle using the same vector twice as operands
 				m_currentBlock->AppendVariadic(SpirvOp::OpVectorShuffle, [&](const auto& appender)
@@ -980,7 +991,7 @@ namespace Nz
 			}
 			else
 			{
-				assert(IsPrimitiveType(swizzledExpressionType));
+				assert(IsPrimitiveType(*swizzledExpressionType));
 
 				// Swizzling a primitive to a vector (a.xxx) can be implemented using OpCompositeConstruct
 				m_currentBlock->AppendVariadic(SpirvOp::OpCompositeConstruct, [&](const auto& appender)
@@ -995,10 +1006,10 @@ namespace Nz
 
 			PushResultId(resultId);
 		}
-		else if (IsVectorType(swizzledExpressionType))
+		else if (IsVectorType(*swizzledExpressionType))
 		{
-			assert(IsPrimitiveType(targetExprType));
-			ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(targetExprType);
+			assert(IsPrimitiveType(*targetExprType));
+			ShaderAst::PrimitiveType targetType = std::get<ShaderAst::PrimitiveType>(*targetExprType);
 
 			// Extract a single component from the vector
 			assert(node.componentCount == 1);
@@ -1011,8 +1022,8 @@ namespace Nz
 		else
 		{
 			// Swizzling a primitive to itself (a.x for example), don't do anything
-			assert(IsPrimitiveType(swizzledExpressionType));
-			assert(IsPrimitiveType(targetExprType));
+			assert(IsPrimitiveType(*swizzledExpressionType));
+			assert(IsPrimitiveType(*targetExprType));
 			assert(node.componentCount == 1);
 			assert(node.components[0] == 0);
 
@@ -1022,8 +1033,11 @@ namespace Nz
 
 	void SpirvAstVisitor::Visit(ShaderAst::UnaryExpression& node)
 	{
-		const ShaderAst::ExpressionType& resultType = GetExpressionType(node);
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(*node.expression);
+		const ShaderAst::ExpressionType* resultType = GetExpressionType(node);
+		assert(resultType);
+
+		const ShaderAst::ExpressionType* exprType = GetExpressionType(*node.expression);
+		assert(exprType);
 
 		UInt32 operand = EvaluateExpression(node.expression);
 
@@ -1033,11 +1047,11 @@ namespace Nz
 			{
 				case ShaderAst::UnaryType::LogicalNot:
 				{
-					assert(IsPrimitiveType(exprType));
-					assert(std::get<ShaderAst::PrimitiveType>(resultType) == ShaderAst::PrimitiveType::Boolean);
+					assert(IsPrimitiveType(*exprType));
+					assert(std::get<ShaderAst::PrimitiveType>(*resultType) == ShaderAst::PrimitiveType::Boolean);
 
 					UInt32 resultId = m_writer.AllocateResultId();
-					m_currentBlock->Append(SpirvOp::OpLogicalNot, m_writer.GetTypeId(resultType), resultId, operand);
+					m_currentBlock->Append(SpirvOp::OpLogicalNot, m_writer.GetTypeId(*resultType), resultId, operand);
 
 					return resultId;
 				}
@@ -1045,10 +1059,10 @@ namespace Nz
 				case ShaderAst::UnaryType::Minus:
 				{
 					ShaderAst::PrimitiveType basicType;
-					if (IsPrimitiveType(exprType))
-						basicType = std::get<ShaderAst::PrimitiveType>(exprType);
-					else if (IsVectorType(exprType))
-						basicType = std::get<ShaderAst::VectorType>(exprType).type;
+					if (IsPrimitiveType(*exprType))
+						basicType = std::get<ShaderAst::PrimitiveType>(*exprType);
+					else if (IsVectorType(*exprType))
+						basicType = std::get<ShaderAst::VectorType>(*exprType).type;
 					else
 						throw std::runtime_error("unexpected expression type");
 
@@ -1057,12 +1071,12 @@ namespace Nz
 					switch (basicType)
 					{
 						case ShaderAst::PrimitiveType::Float32:
-							m_currentBlock->Append(SpirvOp::OpFNegate, m_writer.GetTypeId(resultType), resultId, operand);
+							m_currentBlock->Append(SpirvOp::OpFNegate, m_writer.GetTypeId(*resultType), resultId, operand);
 							return resultId;
 
 						case ShaderAst::PrimitiveType::Int32:
 						case ShaderAst::PrimitiveType::UInt32:
-							m_currentBlock->Append(SpirvOp::OpSNegate, m_writer.GetTypeId(resultType), resultId, operand);
+							m_currentBlock->Append(SpirvOp::OpSNegate, m_writer.GetTypeId(*resultType), resultId, operand);
 							return resultId;
 
 						default:

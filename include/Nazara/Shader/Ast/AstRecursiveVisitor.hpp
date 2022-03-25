@@ -37,6 +37,7 @@ namespace Nz::ShaderAst
 			void Visit(IntrinsicFunctionExpression& node) override;
 			void Visit(StructTypeExpression& node) override;
 			void Visit(SwizzleExpression& node) override;
+			void Visit(TypeExpression& node) override;
 			void Visit(VariableValueExpression& node) override;
 			void Visit(UnaryExpression& node) override;
 

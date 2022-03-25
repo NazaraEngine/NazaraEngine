@@ -173,7 +173,7 @@ namespace Nz::ShaderBuilder
 	{
 		auto constantNode = std::make_unique<ShaderAst::ConstantValueExpression>();
 		constantNode->value = std::move(value);
-		constantNode->cachedExpressionType = ShaderAst::GetExpressionType(constantNode->value);
+		constantNode->cachedExpressionType = ShaderAst::GetConstantType(constantNode->value);
 
 		return constantNode;
 	}

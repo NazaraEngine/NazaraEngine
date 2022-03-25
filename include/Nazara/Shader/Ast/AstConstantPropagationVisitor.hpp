@@ -36,7 +36,7 @@ namespace Nz::ShaderAst
 
 			struct Options
 			{
-				std::function<const ConstantValue&(std::size_t constantId)> constantQueryCallback;
+				std::function<const ConstantValue*(std::size_t constantId)> constantQueryCallback;
 			};
 
 		protected:

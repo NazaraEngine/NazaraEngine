@@ -8,6 +8,7 @@
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
 #include <Nazara/Shader/SpirvBlock.hpp>
 #include <Nazara/Shader/SpirvWriter.hpp>
+#include <cassert>
 #include <numeric>
 #include <Nazara/Shader/Debug.hpp>
 
@@ -61,11 +62,12 @@ namespace Nz
 				}
 				else
 				{
-					const ShaderAst::ExpressionType& exprType = GetExpressionType(*node);
-
 					assert(swizzledPointer.componentCount == 1);
 
-					UInt32 pointerType = m_writer.RegisterPointerType(exprType, swizzledPointer.storage); //< FIXME
+					const ShaderAst::ExpressionType* exprType = GetExpressionType(*node);
+					assert(exprType);
+
+					UInt32 pointerType = m_writer.RegisterPointerType(*exprType, swizzledPointer.storage); //< FIXME
 
 					// Access chain
 					UInt32 indexId = m_writer.GetConstantId(SafeCast<Int32>(swizzledPointer.swizzleIndices[0]));
@@ -86,14 +88,15 @@ namespace Nz
 	{
 		node.expr->Visit(*this);
 
-		const ShaderAst::ExpressionType& exprType = GetExpressionType(node);
+		const ShaderAst::ExpressionType* exprType = GetExpressionType(node);
+		assert(exprType);
 
 		std::visit(Overloaded
 		{
 			[&](const Pointer& pointer)
 			{
 				UInt32 resultId = m_visitor.AllocateResultId();
-				UInt32 pointerType = m_writer.RegisterPointerType(exprType, pointer.storage); //< FIXME
+				UInt32 pointerType = m_writer.RegisterPointerType(*exprType, pointer.storage); //< FIXME
 
 				assert(node.indices.size() == 1);
 				UInt32 indexId = m_visitor.EvaluateExpression(node.indices.front());
@@ -117,13 +120,14 @@ namespace Nz
 		{
 			[&](const Pointer& pointer)
 			{
-				const auto& expressionType = GetExpressionType(*node.expression);
-				assert(IsVectorType(expressionType));
+				const ShaderAst::ExpressionType* expressionType = GetExpressionType(*node.expression);
+				assert(expressionType);
+				assert(IsVectorType(*expressionType));
 
 				SwizzledPointer swizzledPointer;
 				swizzledPointer.pointerId = pointer.pointerId;
 				swizzledPointer.storage = pointer.storage;
-				swizzledPointer.swizzledType = std::get<ShaderAst::VectorType>(expressionType);
+				swizzledPointer.swizzledType = std::get<ShaderAst::VectorType>(*expressionType);
 				swizzledPointer.componentCount = node.componentCount;
 				swizzledPointer.swizzleIndices = node.components;
 
