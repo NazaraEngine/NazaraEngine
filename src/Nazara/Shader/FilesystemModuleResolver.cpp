@@ -26,9 +26,18 @@ namespace Nz
 
 	void FilesystemModuleResolver::RegisterModule(const std::filesystem::path& realPath)
 	{
-		ShaderAst::ModulePtr module = ShaderLang::ParseFromFile(realPath);
-		if (!module)
+		ShaderAst::ModulePtr module;
+		try
+		{
+			module = ShaderLang::ParseFromFile(realPath);
+			if (!module)
+				return;
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("failed to register module from file " + realPath.generic_u8string() + ": " + e.what());
 			return;
+		}
 
 		std::string moduleName = module->metadata->moduleName;
 		RegisterModule(std::move(module));
