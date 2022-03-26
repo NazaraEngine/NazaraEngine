@@ -9,6 +9,7 @@
 #include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Core/Hash/SHA256.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderLangErrors.hpp>
 #include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
 #include <Nazara/Shader/Ast/AstExportVisitor.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
@@ -420,6 +421,7 @@ namespace Nz::ShaderAst
 					{
 						if (ToSwizzleIndex(identifier[j]) != 0)
 							throw AstError{ "invalid swizzle" };
+							//throw ShaderLang::CompilerInvalidSwizzleError{};
 					}
 
 					if (swizzleComponentCount == 1)
@@ -1249,6 +1251,9 @@ namespace Nz::ShaderAst
 
 			if (member.locationIndex.HasValue())
 				ComputeExprValue(member.locationIndex);
+
+			if (member.builtin.HasValue() && member.locationIndex.HasValue())
+				throw AstError{ "A struct field cannot have both builtin and location attributes" };
 
 			if (declaredMembers.find(member.name) != declaredMembers.end())
 			{
@@ -3195,7 +3200,7 @@ namespace Nz::ShaderAst
 		}
 
 		node.cachedExpressionType = targetType;
-		node.targetType = std::move(targetType);
+		node.targetType = targetType;
 
 		return ValidationResult::Validated;
 	}

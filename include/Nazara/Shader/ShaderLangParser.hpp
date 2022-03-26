@@ -16,54 +16,6 @@
 
 namespace Nz::ShaderLang
 {
-	class AttributeError : public std::runtime_error
-	{
-		public:
-			using runtime_error::runtime_error;
-	};
-	
-	class ExpectedToken : public std::exception
-	{
-		public:
-			using exception::exception;
-	};
-	
-	class DuplicateIdentifier : public std::runtime_error
-	{
-		public:
-			using runtime_error::runtime_error;
-	};
-
-	class DuplicateModule : public std::runtime_error
-	{
-		public:
-			using runtime_error::runtime_error;
-	};
-
-	class ReservedKeyword : public std::exception
-	{
-		public:
-			using exception::exception;
-	};
-	
-	class UnknownAttribute : public std::exception
-	{
-		public:
-			using exception::exception;
-	};
-
-	class UnknownType : public std::exception
-	{
-		public:
-			using exception::exception;
-	};
-
-	class UnexpectedToken : public std::exception
-	{
-		public:
-			using exception::exception;
-	};
-
 	class NAZARA_SHADER_API Parser
 	{
 		public:
@@ -142,7 +94,7 @@ namespace Nz::ShaderLang
 			Context* m_context;
 	};
 
-	inline ShaderAst::ModulePtr Parse(const std::string_view& source);
+	inline ShaderAst::ModulePtr Parse(const std::string_view& source, const std::string& filePath = std::string{});
 	inline ShaderAst::ModulePtr Parse(const std::vector<Token>& tokens);
 	NAZARA_SHADER_API ShaderAst::ModulePtr ParseFromFile(const std::filesystem::path& sourcePath);
 }

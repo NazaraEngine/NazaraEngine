@@ -12,9 +12,9 @@ namespace Nz::ShaderLang
 	{
 	}
 
-	inline ShaderAst::ModulePtr Parse(const std::string_view& source)
+	inline ShaderAst::ModulePtr Parse(const std::string_view& source, const std::string& filePath)
 	{
-		return Parse(Tokenize(source));
+		return Parse(Tokenize(source, filePath));
 	}
 
 	inline ShaderAst::ModulePtr Parse(const std::vector<Token>& tokens)
