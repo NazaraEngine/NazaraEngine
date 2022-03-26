@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/ShaderLangLexer.hpp>
+#include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Shader/ShaderLangErrors.hpp>
 #include <cctype>
 #include <charconv>
 #include <locale>
@@ -34,7 +36,7 @@ namespace Nz::ShaderLang
 		};
 	}
 
-	std::vector<Token> Tokenize(const std::string_view& str)
+	std::vector<Token> Tokenize(const std::string_view& str, const std::string& filePath)
 	{
 		// Can't use std::from_chars for double, thanks to libc++ and libstdc++ developers for being lazy, so we have to force C locale
 		ForceCLocale forceCLocale;
@@ -76,9 +78,13 @@ namespace Nz::ShaderLang
 			return std::isalnum(c) || c == '_';
 		};
 
-		unsigned int lineNumber = 0;
+		unsigned int lineNumber = 1;
 		std::size_t lastLineFeed = 0;
 		std::vector<Token> tokens;
+
+		std::shared_ptr<const std::string> currentFile;
+		if (!filePath.empty())
+			currentFile = std::make_shared<std::string>(filePath);
 
 		for (;;)
 		{
@@ -86,6 +92,7 @@ namespace Nz::ShaderLang
 
 			Token token;
 			token.column = static_cast<unsigned int>(currentPos - lastLineFeed);
+			token.file = currentFile;
 			token.line = lineNumber;
 
 			if (c == '\0')
@@ -227,7 +234,10 @@ namespace Nz::ShaderLang
 						char* end;
 						double value = std::strtod(ptr, &end);
 						if (end != &ptr[valueStr.size()])
-							throw BadNumber{};
+						{
+							unsigned int columnOffset = SafeCast<unsigned int>(end - ptr);
+							throw LexerBadNumberError{ SourceLocation{ token.line, token.column + columnOffset, token.file } };
+						}
 
 						token.data = value;
 					}
@@ -239,10 +249,11 @@ namespace Nz::ShaderLang
 						std::from_chars_result r = std::from_chars(&str[start], &str[currentPos + 1], value);
 						if (r.ptr != &str[currentPos + 1])
 						{
+							unsigned int columnOffset = SafeCast<unsigned int>(r.ptr - &str[start]);
 							if (r.ec == std::errc::result_out_of_range)
-								throw NumberOutOfRange{};
+								throw LexerNumberOutOfRangeError{ SourceLocation{ token.line, token.column, token.column + columnOffset, token.file } };
 
-							throw BadNumber{};
+							throw LexerBadNumberError{ SourceLocation{ token.line, token.column, token.column + columnOffset, token.file } };
 						}
 
 						token.data = value;
@@ -281,7 +292,7 @@ namespace Nz::ShaderLang
 							tokenType = TokenType::LogicalOr;
 					}
 					else
-						throw UnrecognizedToken{}; //< TODO: Add BOR (a | b)
+						throw LexerUnrecognizedTokenError{ SourceLocation{ token.line, token.column, token.file } }; //< TODO: Add BOR (a | b)
 
 					break;
 				}
@@ -302,7 +313,7 @@ namespace Nz::ShaderLang
 							tokenType = TokenType::LogicalAnd;
 					}
 					else
-						throw UnrecognizedToken{}; //< TODO: Add BAND (a & b)
+						throw LexerUnrecognizedTokenError{ SourceLocation{ token.line, token.column, token.file } }; //< TODO: Add BAND (a & b)
 
 					break;
 				}
@@ -404,7 +415,7 @@ namespace Nz::ShaderLang
 							case '\0':
 							case '\n':
 							case '\r':
-								throw UnfinishedString{};
+								throw LexerUnfinishedStringError{ SourceLocation{ token.line, SafeCast<unsigned int>(currentPos - lastLineFeed), token.file } };
 
 							case '\\':
 							{
@@ -418,7 +429,7 @@ namespace Nz::ShaderLang
 									case '"': character = '"'; break;
 									case '\\': character = '\\'; break;
 									default:
-										throw UnrecognizedChar{};
+										throw LexerUnrecognizedCharError{ SourceLocation{ token.line, SafeCast<unsigned int>(currentPos - lastLineFeed), token.file } };
 								}
 								break;
 							}
@@ -458,7 +469,7 @@ namespace Nz::ShaderLang
 						break;
 					}
 					else
-						throw UnrecognizedToken{};
+						throw LexerUnrecognizedTokenError{ SourceLocation{ token.line, token.column, token.file } };
 				}
 			}
 

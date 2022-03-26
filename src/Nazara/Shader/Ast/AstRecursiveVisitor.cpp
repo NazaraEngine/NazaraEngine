@@ -109,7 +109,7 @@ namespace Nz::ShaderAst
 			node.expression->Visit(*this);
 	}
 
-	void AstRecursiveVisitor::Visit(TypeExpression& node)
+	void AstRecursiveVisitor::Visit(TypeExpression& /*node*/)
 	{
 		/* Nothing to do */
 	}
