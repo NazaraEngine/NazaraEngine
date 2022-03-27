@@ -306,16 +306,16 @@ namespace Nz::ShaderAst
 				std::size_t moduleIndex = m_context->moduleIndices.Retrieve(identifierData->index);
 
 				const auto& env = *m_context->modules[moduleIndex].environment;
-				identifierData = FindIdentifier(env, node.identifiers.front());
+				identifierData = FindIdentifier(env, node.identifiers.front().identifier);
 				if (identifierData)
 					return HandleIdentifier(identifierData);
 			}
 		}
 
 		ExpressionPtr indexedExpr = CloneExpression(node.expr);
-		for (const std::string& identifier : node.identifiers)
+		for (const auto& identifierEntry : node.identifiers)
 		{
-			if (identifier.empty())
+			if (identifierEntry.identifier.empty())
 				throw AstError{ "empty identifier" };
 
 			const ExpressionType* exprType = GetExpressionType(*indexedExpr);
@@ -326,12 +326,12 @@ namespace Nz::ShaderAst
 			// TODO: Add proper support for methods
 			if (IsSamplerType(resolvedType))
 			{
-				if (identifier == "Sample")
+				if (identifierEntry.identifier == "Sample")
 				{
 					// TODO: Add a MethodExpression?
 					auto identifierExpr = std::make_unique<AccessIdentifierExpression>();
 					identifierExpr->expr = std::move(indexedExpr);
-					identifierExpr->identifiers.push_back(identifier);
+					identifierExpr->identifiers.emplace_back().identifier = identifierEntry.identifier;
 
 					MethodType methodType;
 					methodType.methodIndex = 0; //< FIXME
@@ -342,7 +342,7 @@ namespace Nz::ShaderAst
 					indexedExpr = std::move(identifierExpr);
 				}
 				else
-					throw AstError{ "type has no method " + identifier };
+					throw AstError{ "type has no method " + identifierEntry.identifier };
 			}
 			else if (IsStructType(resolvedType))
 			{
@@ -367,7 +367,7 @@ namespace Nz::ShaderAst
 							continue;
 					}
 
-					if (field.name == identifier)
+					if (field.name == identifierEntry.identifier)
 					{
 						fieldPtr = &field;
 						break;
@@ -377,7 +377,7 @@ namespace Nz::ShaderAst
 				}
 
 				if (!fieldPtr)
-					throw AstError{ "unknown field " + identifier };
+					throw AstError{ "unknown field " + identifierEntry.identifier };
 
 				if (m_context->options.useIdentifierAccessesForStructs)
 				{
@@ -394,8 +394,9 @@ namespace Nz::ShaderAst
 					else
 						accessIdentifierPtr = static_cast<AccessIdentifierExpression*>(indexedExpr.get());
 
-					accessIdentifierPtr->identifiers.push_back(fieldPtr->name);
 					accessIdentifierPtr->cachedExpressionType = ResolveTypeExpr(fieldPtr->type);
+
+					accessIdentifierPtr->identifiers.emplace_back().identifier = fieldPtr->name;
 				}
 				else
 				{
@@ -411,7 +412,7 @@ namespace Nz::ShaderAst
 			else if (IsPrimitiveType(resolvedType) || IsVectorType(resolvedType))
 			{
 				// Swizzle expression
-				std::size_t swizzleComponentCount = identifier.size();
+				std::size_t swizzleComponentCount = identifierEntry.identifier.size();
 				if (swizzleComponentCount > 4)
 					throw AstError{ "cannot swizzle more than four elements" };
 
@@ -419,7 +420,7 @@ namespace Nz::ShaderAst
 				{
 					for (std::size_t j = 0; j < swizzleComponentCount; ++j)
 					{
-						if (ToSwizzleIndex(identifier[j]) != 0)
+						if (ToSwizzleIndex(identifierEntry.identifier[j]) != 0)
 							throw AstError{ "invalid swizzle" };
 							//throw ShaderLang::CompilerInvalidSwizzleError{};
 					}
@@ -452,7 +453,7 @@ namespace Nz::ShaderAst
 
 					swizzle->componentCount = swizzleComponentCount;
 					for (std::size_t j = 0; j < swizzleComponentCount; ++j)
-						swizzle->components[j] = ToSwizzleIndex(identifier[j]);
+						swizzle->components[j] = ToSwizzleIndex(identifierEntry.identifier[j]);
 
 					Validate(*swizzle);
 

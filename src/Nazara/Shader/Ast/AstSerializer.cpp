@@ -26,12 +26,14 @@ namespace Nz::ShaderAst
 #define NAZARA_SHADERAST_EXPRESSION(Node) void Visit(Node& node) override \
 				{ \
 					m_serializer.Serialize(node); \
+					m_serializer.SerializeNodeCommon(node); \
 					m_serializer.SerializeExpressionCommon(node); \
 				}
 
 #define NAZARA_SHADERAST_STATEMENT(Node) void Visit(Node& node) override \
 				{ \
 					m_serializer.Serialize(node); \
+					m_serializer.SerializeNodeCommon(node); \
 				}
 #include <Nazara/Shader/Ast/AstNodeList.hpp>
 
@@ -45,8 +47,11 @@ namespace Nz::ShaderAst
 		Node(node.expr);
 
 		Container(node.identifiers);
-		for (std::string& identifier : node.identifiers)
-			Value(identifier);
+		for (auto& identifier : node.identifiers)
+		{
+			Value(identifier.identifier);
+			SourceLoc(identifier.sourceLocation);
+		}
 	}
 
 	void AstSerializerBase::Serialize(AccessIndexExpression& node)
@@ -204,11 +209,6 @@ namespace Nz::ShaderAst
 		Node(node.expression);
 	}
 
-	void AstSerializerBase::SerializeExpressionCommon(Expression& expr)
-	{
-		OptType(expr.cachedExpressionType);
-	}
-
 	void AstSerializerBase::Serialize(BranchStatement& node)
 	{
 		Container(node.condStatements);
@@ -235,6 +235,14 @@ namespace Nz::ShaderAst
 		Node(node.expression);
 	}
 
+	void AstSerializerBase::Serialize(DeclareConstStatement& node)
+	{
+		OptVal(node.constIndex);
+		Value(node.name);
+		ExprValue(node.type);
+		Node(node.expression);
+	}
+
 	void AstSerializerBase::Serialize(DeclareExternalStatement& node)
 	{
 		ExprValue(node.bindingSet);
@@ -247,15 +255,8 @@ namespace Nz::ShaderAst
 			ExprValue(extVar.type);
 			ExprValue(extVar.bindingIndex);
 			ExprValue(extVar.bindingSet);
+			SourceLoc(extVar.sourceLocation);
 		}
-	}
-
-	void AstSerializerBase::Serialize(DeclareConstStatement& node)
-	{
-		OptVal(node.constIndex);
-		Value(node.name);
-		ExprValue(node.type);
-		Node(node.expression);
 	}
 
 	void AstSerializerBase::Serialize(DeclareFunctionStatement& node)
@@ -274,6 +275,7 @@ namespace Nz::ShaderAst
 			Value(parameter.name);
 			ExprValue(parameter.type);
 			OptVal(parameter.varIndex);
+			SourceLoc(parameter.sourceLocation);
 		}
 
 		Container(node.statements);
@@ -305,6 +307,7 @@ namespace Nz::ShaderAst
 			ExprValue(member.builtin);
 			ExprValue(member.cond);
 			ExprValue(member.locationIndex);
+			SourceLoc(member.sourceLocation);
 		}
 	}
 	
@@ -378,6 +381,16 @@ namespace Nz::ShaderAst
 		Node(node.body);
 	}
 
+	void AstSerializerBase::SerializeExpressionCommon(Expression& expr)
+	{
+		OptType(expr.cachedExpressionType);
+	}
+
+	void AstSerializerBase::SerializeNodeCommon(ShaderAst::Node& node)
+	{
+		SourceLoc(node.sourceLocation);
+	}
+
 	void ShaderAstSerializer::Serialize(ModulePtr& module)
 	{
 		m_stream << s_shaderAstMagicNumber << s_shaderAstCurrentVersion;
@@ -387,23 +400,6 @@ namespace Nz::ShaderAst
 		m_stream.FlushBits();
 	}
 	
-	void ShaderAstSerializer::SerializeModule(ModulePtr& module)
-	{
-		m_stream << module->metadata->moduleName;
-		m_stream << module->metadata->moduleId;
-		m_stream << module->metadata->shaderLangVersion;
-
-		Container(module->importedModules);
-		for (auto& importedModule : module->importedModules)
-		{
-			Value(importedModule.identifier);
-			SerializeModule(importedModule.module);
-		}
-
-		ShaderSerializerVisitor visitor(*this);
-		module->rootNode->Visit(visitor);
-	}
-
 	bool ShaderAstSerializer::IsWriting() const
 	{
 		return true;
@@ -430,6 +426,44 @@ namespace Nz::ShaderAst
 		{
 			ShaderSerializerVisitor visitor(*this);
 			node->Visit(visitor);
+		}
+	}
+	
+	void ShaderAstSerializer::SerializeModule(ModulePtr& module)
+	{
+		m_stream << module->metadata->moduleName;
+		m_stream << module->metadata->moduleId;
+		m_stream << module->metadata->shaderLangVersion;
+
+		Container(module->importedModules);
+		for (auto& importedModule : module->importedModules)
+		{
+			Value(importedModule.identifier);
+			SerializeModule(importedModule.module);
+		}
+
+		ShaderSerializerVisitor visitor(*this);
+		module->rootNode->Visit(visitor);
+	}
+
+	void ShaderAstSerializer::SharedString(std::shared_ptr<const std::string>& val)
+	{
+		bool hasValue = (val != nullptr);
+		Value(hasValue);
+
+		if (hasValue)
+		{
+			auto it = m_stringIndices.find(*val);
+			bool newString = (it == m_stringIndices.end());
+			Value(newString);
+
+			if (newString)
+			{
+				Value(const_cast<std::string&>(*val)); //< won't be used for writing
+				m_stringIndices.emplace(*val, m_stringIndices.size());
+			}
+			else
+				Value(it->second); //< string index
 		}
 	}
 
@@ -606,29 +640,6 @@ namespace Nz::ShaderAst
 		return module;
 	}
 
-	void ShaderAstUnserializer::SerializeModule(ModulePtr& module)
-	{
-		std::shared_ptr<Module::Metadata> metadata = std::make_shared<Module::Metadata>();
-		m_stream >> metadata->moduleName;
-		m_stream >> metadata->moduleId;
-		m_stream >> metadata->shaderLangVersion;
-
-		std::vector<Module::ImportedModule> importedModules;
-		Container(importedModules);
-		for (auto& importedModule : importedModules)
-		{
-			Value(const_cast<std::string&>(importedModule.identifier)); //< not used for writing
-			SerializeModule(importedModule.module);
-		}
-
-		MultiStatementPtr rootNode = std::make_unique<MultiStatement>();
-
-		ShaderSerializerVisitor visitor(*this);
-		rootNode->Visit(visitor);
-
-		module = std::make_shared<Module>(std::move(metadata), std::move(rootNode), std::move(importedModules));
-	}
-
 	bool ShaderAstUnserializer::IsWriting() const
 	{
 		return false;
@@ -683,6 +694,58 @@ namespace Nz::ShaderAst
 		{
 			ShaderSerializerVisitor visitor(*this);
 			node->Visit(visitor);
+		}
+	}
+
+	void ShaderAstUnserializer::SerializeModule(ModulePtr& module)
+	{
+		std::shared_ptr<Module::Metadata> metadata = std::make_shared<Module::Metadata>();
+		m_stream >> metadata->moduleName;
+		m_stream >> metadata->moduleId;
+		m_stream >> metadata->shaderLangVersion;
+
+		std::vector<Module::ImportedModule> importedModules;
+		Container(importedModules);
+		for (auto& importedModule : importedModules)
+		{
+			Value(const_cast<std::string&>(importedModule.identifier)); //< not used for writing
+			SerializeModule(importedModule.module);
+		}
+
+		MultiStatementPtr rootNode = std::make_unique<MultiStatement>();
+
+		ShaderSerializerVisitor visitor(*this);
+		rootNode->Visit(visitor);
+
+		module = std::make_shared<Module>(std::move(metadata), std::move(rootNode), std::move(importedModules));
+	}
+
+	void ShaderAstUnserializer::SharedString(std::shared_ptr<const std::string>& val)
+	{
+		bool hasValue;
+		Value(hasValue);
+
+		if (hasValue)
+		{
+			bool newString;
+			Value(newString);
+
+			if (newString)
+			{
+				std::string newStr;
+				Value(newStr);
+
+				val = std::make_shared<const std::string>(std::move(newStr));
+				m_strings.emplace_back(val);
+			}
+			else
+			{
+				UInt32 strIndex;
+				Value(strIndex);
+
+				assert(strIndex < m_strings.size());
+				val = m_strings[strIndex];
+			}
 		}
 	}
 

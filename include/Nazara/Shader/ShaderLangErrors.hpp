@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
 #include <exception>
 #include <memory>
@@ -18,22 +19,6 @@
 
 namespace Nz::ShaderLang
 {
-	struct SourceLocation
-	{
-		inline SourceLocation();
-		inline SourceLocation(unsigned int line, unsigned int column, std::shared_ptr<const std::string> file);
-		inline SourceLocation(unsigned int line, unsigned int startColumn, unsigned int endColumn, std::shared_ptr<const std::string> file);
-		inline SourceLocation(unsigned int startLine, unsigned int endLine, unsigned int startColumn, unsigned int endColumn, std::shared_ptr<const std::string> file);
-
-		inline bool IsValid() const;
-
-		std::shared_ptr<const std::string> file; //< Since the same file will be used for every node, prevent holding X time the same path
-		unsigned int endColumn;
-		unsigned int endLine;
-		unsigned int startColumn;
-		unsigned int startLine;
-	};
-
 	enum class ErrorCategory
 	{
 		Ast,
