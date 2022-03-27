@@ -13,6 +13,9 @@ namespace Nz::ShaderAst
 		if (lhs.GetType() != rhs.GetType())
 			return false;
 
+		if (!Compare(lhs.sourceLocation, rhs.sourceLocation))
+			return false;
+
 		switch (lhs.GetType())
 		{
 			case NodeType::None: break;
@@ -70,6 +73,9 @@ namespace Nz::ShaderAst
 		if (lhs.GetType() != rhs.GetType())
 			return false;
 
+		if (!Compare(lhs.sourceLocation, rhs.sourceLocation))
+			return false;
+
 		switch (lhs.GetType())
 		{
 			case NodeType::None: break;
@@ -99,6 +105,17 @@ namespace Nz::ShaderAst
 		}
 
 		return true;
+	}
+
+	template<typename T>
+	bool Compare(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs)
+	{
+		if (lhs == nullptr)
+			return rhs == nullptr;
+		else if (rhs == nullptr)
+			return false;
+
+		return Compare(*lhs, *rhs);
 	}
 
 	template<typename T>
@@ -153,6 +170,17 @@ namespace Nz::ShaderAst
 		return true;
 	}
 
+	bool Compare(const AccessIdentifierExpression::Identifier& lhs, const AccessIdentifierExpression::Identifier& rhs)
+	{
+		if (!Compare(lhs.identifier, rhs.identifier))
+			return false;
+
+		if (!Compare(lhs.sourceLocation, rhs.sourceLocation))
+			return false;
+
+		return true;
+	}
+
 	inline bool Compare(const BranchStatement::ConditionalStatement& lhs, const BranchStatement::ConditionalStatement& rhs)
 	{
 		if (!Compare(lhs.condition, rhs.condition))
@@ -178,6 +206,9 @@ namespace Nz::ShaderAst
 		if (!Compare(lhs.type, rhs.type))
 			return false;
 
+		if (!Compare(lhs.sourceLocation, rhs.sourceLocation))
+			return false;
+
 		return true;
 	}
 
@@ -187,6 +218,29 @@ namespace Nz::ShaderAst
 			return false;
 
 		if (!Compare(lhs.type, rhs.type))
+			return false;
+
+		if (!Compare(lhs.sourceLocation, rhs.sourceLocation))
+			return false;
+
+		return true;
+	}
+
+	bool Compare(const ShaderLang::SourceLocation& lhs, const ShaderLang::SourceLocation& rhs)
+	{
+		if (!Compare(lhs.endColumn, rhs.endColumn))
+			return false;
+
+		if (!Compare(lhs.endLine, rhs.endLine))
+			return false;
+
+		if (!Compare(lhs.startColumn, rhs.startColumn))
+			return false;
+
+		if (!Compare(lhs.startLine, rhs.startLine))
+			return false;
+
+		if (!Compare(lhs.file, rhs.file))
 			return false;
 
 		return true;
@@ -221,6 +275,9 @@ namespace Nz::ShaderAst
 			return false;
 
 		if (!Compare(lhs.type, rhs.type))
+			return false;
+
+		if (!Compare(lhs.sourceLocation, rhs.sourceLocation))
 			return false;
 
 		return true;

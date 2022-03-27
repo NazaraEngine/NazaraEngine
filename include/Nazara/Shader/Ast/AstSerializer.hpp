@@ -11,6 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/Module.hpp>
 
 namespace Nz::ShaderAst
@@ -43,7 +44,6 @@ namespace Nz::ShaderAst
 			void Serialize(TypeExpression& node);
 			void Serialize(VariableValueExpression& node);
 			void Serialize(UnaryExpression& node);
-			void SerializeExpressionCommon(Expression& expr);
 
 			void Serialize(BranchStatement& node);
 			void Serialize(ConditionalStatement& node);
@@ -65,6 +65,9 @@ namespace Nz::ShaderAst
 			void Serialize(ScopedStatement& node);
 			void Serialize(WhileStatement& node);
 
+			void SerializeExpressionCommon(Expression& expr);
+			void SerializeNodeCommon(ShaderAst::Node& node);
+
 		protected:
 			template<typename T> void Container(T& container);
 			template<typename T> void Enum(T& enumVal);
@@ -75,10 +78,13 @@ namespace Nz::ShaderAst
 
 			virtual bool IsWriting() const = 0;
 
-			virtual void SerializeModule(ModulePtr& module) = 0;
-
 			virtual void Node(ExpressionPtr& node) = 0;
 			virtual void Node(StatementPtr& node) = 0;
+
+			virtual void SerializeModule(ModulePtr& module) = 0;
+			virtual void SharedString(std::shared_ptr<const std::string>& val) = 0;
+
+			inline void SourceLoc(ShaderLang::SourceLocation& sourceLoc);
 
 			virtual void Type(ExpressionType& type) = 0;
 
@@ -110,11 +116,11 @@ namespace Nz::ShaderAst
 		private:
 			using AstSerializerBase::Serialize;
 
-			void SerializeModule(ModulePtr& module) override;
-
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
+			void SerializeModule(ModulePtr& module) override;
+			void SharedString(std::shared_ptr<const std::string>& val) override;
 			void Type(ExpressionType& type) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
@@ -131,6 +137,7 @@ namespace Nz::ShaderAst
 			void Value(UInt32& val) override;
 			void Value(UInt64& val) override;
 
+			std::unordered_map<std::string, UInt32> m_stringIndices;
 			ByteStream& m_stream;
 	};
 
@@ -145,11 +152,11 @@ namespace Nz::ShaderAst
 		private:
 			using AstSerializerBase::Serialize;
 
-			void SerializeModule(ModulePtr& module) override;
-
 			bool IsWriting() const override;
 			void Node(ExpressionPtr& node) override;
 			void Node(StatementPtr& node) override;
+			void SerializeModule(ModulePtr& module) override;
+			void SharedString(std::shared_ptr<const std::string>& val) override;
 			void Type(ExpressionType& type) override;
 			void Value(bool& val) override;
 			void Value(float& val) override;
@@ -166,6 +173,7 @@ namespace Nz::ShaderAst
 			void Value(UInt32& val) override;
 			void Value(UInt64& val) override;
 
+			std::vector<std::shared_ptr<const std::string>> m_strings;
 			ByteStream& m_stream;
 	};
 	

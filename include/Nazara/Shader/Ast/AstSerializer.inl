@@ -166,6 +166,15 @@ namespace Nz::ShaderAst
 		}
 	}
 
+	inline void AstSerializerBase::SourceLoc(ShaderLang::SourceLocation& sourceLoc)
+	{
+		SharedString(sourceLoc.file);
+		Value(sourceLoc.endColumn);
+		Value(sourceLoc.endLine);
+		Value(sourceLoc.startColumn);
+		Value(sourceLoc.startLine);
+	}
+
 	inline void AstSerializerBase::SizeT(std::size_t& val)
 	{
 		bool isWriting = IsWriting();

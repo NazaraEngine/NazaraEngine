@@ -736,8 +736,8 @@ namespace Nz
 	{
 		Visit(node.expr, true);
 
-		for (const std::string& identifier : node.identifiers)
-			Append(".", identifier);
+		for (const auto& identifierEntry : node.identifiers)
+			Append(".", identifierEntry.identifier);
 	}
 
 	void LangWriter::Visit(ShaderAst::AccessIndexExpression& node)
