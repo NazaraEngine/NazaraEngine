@@ -8,6 +8,7 @@
 #define NAZARA_SHADER_AST_EXPRESSIONTYPE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -166,6 +167,7 @@ namespace Nz::ShaderAst
 			ExpressionValue<UInt32> locationIndex;
 			ExpressionValue<ExpressionType> type;
 			std::string name;
+			ShaderLang::SourceLocation sourceLocation;
 		};
 
 		ExpressionValue<StructLayout> layout;

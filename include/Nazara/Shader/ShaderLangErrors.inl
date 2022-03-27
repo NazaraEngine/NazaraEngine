@@ -7,46 +7,6 @@
 
 namespace Nz::ShaderLang
 {
-	inline SourceLocation::SourceLocation() :
-	endColumn(0),
-	endLine(0),
-	startColumn(0),
-	startLine(0)
-	{
-	}
-
-	inline SourceLocation::SourceLocation(unsigned int Line, unsigned int Column, std::shared_ptr<const std::string> File) :
-	file(std::move(File)),
-	endColumn(Column),
-	endLine(Line),
-	startColumn(Column),
-	startLine(Line)
-	{
-	}
-
-	inline SourceLocation::SourceLocation(unsigned int Line, unsigned int StartColumn, unsigned int EndColumn, std::shared_ptr<const std::string> File) :
-	file(std::move(File)),
-	endColumn(EndColumn),
-	endLine(Line),
-	startColumn(StartColumn),
-	startLine(Line)
-	{
-	}
-
-	inline SourceLocation::SourceLocation(unsigned int StartLine, unsigned int EndLine, unsigned int StartColumn, unsigned int EndColumn, std::shared_ptr<const std::string> File) :
-	file(std::move(File)),
-	endColumn(EndColumn),
-	endLine(EndLine),
-	startColumn(StartColumn),
-	startLine(StartLine)
-	{
-	}
-
-	inline bool SourceLocation::IsValid() const
-	{
-		return startLine != 0 && endLine != 0 && endColumn != 0 && startColumn != 0;
-	}
-
 	inline Error::Error(SourceLocation sourceLocation, ErrorCategory errorCategory, unsigned int errorType) noexcept :
 	m_errorCategory(errorCategory),
 	m_sourceLocation(std::move(sourceLocation)),

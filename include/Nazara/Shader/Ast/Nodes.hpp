@@ -12,6 +12,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
@@ -41,6 +42,8 @@ namespace Nz::ShaderAst
 
 		Node& operator=(const Node&) = delete;
 		Node& operator=(Node&&) noexcept = default;
+
+		ShaderLang::SourceLocation sourceLocation;
 	};
 
 	// Expressions
@@ -69,7 +72,13 @@ namespace Nz::ShaderAst
 		NodeType GetType() const override;
 		void Visit(AstExpressionVisitor& visitor) override;
 
-		std::vector<std::string> identifiers;
+		struct Identifier
+		{
+			std::string identifier;
+			ShaderLang::SourceLocation sourceLocation;
+		};
+
+		std::vector<Identifier> identifiers;
 		ExpressionPtr expr;
 	};
 
@@ -317,6 +326,7 @@ namespace Nz::ShaderAst
 			ExpressionValue<UInt32> bindingIndex;
 			ExpressionValue<UInt32> bindingSet;
 			ExpressionValue<ExpressionType> type;
+			ShaderLang::SourceLocation sourceLocation;
 		};
 
 		std::vector<ExternalVar> externalVars;
@@ -330,9 +340,10 @@ namespace Nz::ShaderAst
 
 		struct Parameter
 		{
-			ExpressionValue<ExpressionType> type;
 			std::optional<std::size_t> varIndex;
 			std::string name;
+			ExpressionValue<ExpressionType> type;
+			ShaderLang::SourceLocation sourceLocation;
 		};
 
 		std::optional<std::size_t> funcIndex;

@@ -12,7 +12,12 @@ namespace Nz::ShaderBuilder
 	{
 		auto accessMemberNode = std::make_unique<ShaderAst::AccessIdentifierExpression>();
 		accessMemberNode->expr = std::move(expr);
-		accessMemberNode->identifiers = std::move(memberIdentifiers);
+		accessMemberNode->identifiers.reserve(memberIdentifiers.size());
+		for (std::string& identifier : memberIdentifiers)
+		{
+			auto& identifierEntry = accessMemberNode->identifiers.emplace_back();
+			identifierEntry.identifier = std::move(identifier);
+		}
 
 		return accessMemberNode;
 	}
