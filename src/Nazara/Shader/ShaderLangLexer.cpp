@@ -91,9 +91,9 @@ namespace Nz::ShaderLang
 			char c = Peek(0);
 
 			Token token;
-			token.column = static_cast<unsigned int>(currentPos - lastLineFeed);
-			token.file = currentFile;
-			token.line = lineNumber;
+			token.location.startColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+			token.location.startLine = lineNumber;
+			token.location.file = currentFile;
 
 			if (c == '\0')
 			{
@@ -223,6 +223,8 @@ namespace Nz::ShaderLang
 						currentPos++;
 					}
 
+					token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+
 					if (floatingPoint)
 					{
 						tokenType = TokenType::FloatingPointValue;
@@ -234,10 +236,7 @@ namespace Nz::ShaderLang
 						char* end;
 						double value = std::strtod(ptr, &end);
 						if (end != &ptr[valueStr.size()])
-						{
-							unsigned int columnOffset = SafeCast<unsigned int>(end - ptr);
-							throw LexerBadNumberError{ SourceLocation{ token.line, token.column + columnOffset, token.file } };
-						}
+							throw LexerBadNumberError{ token.location };
 
 						token.data = value;
 					}
@@ -249,11 +248,10 @@ namespace Nz::ShaderLang
 						std::from_chars_result r = std::from_chars(&str[start], &str[currentPos + 1], value);
 						if (r.ptr != &str[currentPos + 1])
 						{
-							unsigned int columnOffset = SafeCast<unsigned int>(r.ptr - &str[start]);
 							if (r.ec == std::errc::result_out_of_range)
-								throw LexerNumberOutOfRangeError{ SourceLocation{ token.line, token.column, token.column + columnOffset, token.file } };
+								throw LexerNumberOutOfRangeError{ token.location };
 
-							throw LexerBadNumberError{ SourceLocation{ token.line, token.column, token.column + columnOffset, token.file } };
+							throw LexerBadNumberError{ token.location };
 						}
 
 						token.data = value;
@@ -292,7 +290,7 @@ namespace Nz::ShaderLang
 							tokenType = TokenType::LogicalOr;
 					}
 					else
-						throw LexerUnrecognizedTokenError{ SourceLocation{ token.line, token.column, token.file } }; //< TODO: Add BOR (a | b)
+						throw LexerUnrecognizedTokenError{ token.location }; //< TODO: Add BOR (a | b)
 
 					break;
 				}
@@ -313,7 +311,7 @@ namespace Nz::ShaderLang
 							tokenType = TokenType::LogicalAnd;
 					}
 					else
-						throw LexerUnrecognizedTokenError{ SourceLocation{ token.line, token.column, token.file } }; //< TODO: Add BAND (a & b)
+						throw LexerUnrecognizedTokenError{ token.location }; //< TODO: Add BAND (a & b)
 
 					break;
 				}
@@ -415,7 +413,8 @@ namespace Nz::ShaderLang
 							case '\0':
 							case '\n':
 							case '\r':
-								throw LexerUnfinishedStringError{ SourceLocation{ token.line, SafeCast<unsigned int>(currentPos - lastLineFeed), token.file } };
+								token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+								throw LexerUnfinishedStringError{ token.location };
 
 							case '\\':
 							{
@@ -429,7 +428,8 @@ namespace Nz::ShaderLang
 									case '"': character = '"'; break;
 									case '\\': character = '\\'; break;
 									default:
-										throw LexerUnrecognizedCharError{ SourceLocation{ token.line, SafeCast<unsigned int>(currentPos - lastLineFeed), token.file } };
+										token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+										throw LexerUnrecognizedCharError{ token.location };
 								}
 								break;
 							}
@@ -469,12 +469,14 @@ namespace Nz::ShaderLang
 						break;
 					}
 					else
-						throw LexerUnrecognizedTokenError{ SourceLocation{ token.line, token.column, token.file } };
+						throw LexerUnrecognizedTokenError{ token.location };
 				}
 			}
 
 			if (tokenType)
 			{
+				token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+				token.location.endLine = lineNumber;
 				token.type = *tokenType;
 
 				tokens.push_back(std::move(token));
@@ -503,16 +505,16 @@ namespace Nz::ShaderLang
 		if (tokens.empty())
 			return {};
 
-		unsigned int lastLineNumber = tokens.front().line;
+		unsigned int lastLineNumber = tokens.front().location.startLine;
 
 		std::stringstream ss;
 		bool empty = true;
 
 		for (const Token& token : tokens)
 		{
-			if (token.line != lastLineNumber && pretty)
+			if (token.location.startLine != lastLineNumber && pretty)
 			{
-				lastLineNumber = token.line;
+				lastLineNumber = token.location.startLine;
 				if (!empty)
 					ss << '\n';
 			}
@@ -532,6 +534,10 @@ namespace Nz::ShaderLang
 
 				case TokenType::IntegerValue:
 					ss << "(" << std::get<long long>(token.data) << ")";
+					break;
+
+				case TokenType::StringValue:
+					ss << "(\"" << std::get<std::string>(token.data) << "\")";
 					break;
 
 				default:

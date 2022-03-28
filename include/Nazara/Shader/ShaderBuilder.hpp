@@ -198,7 +198,7 @@ namespace Nz::ShaderBuilder
 		{
 			inline ShaderAst::WhileStatementPtr operator()(ShaderAst::ExpressionPtr condition, ShaderAst::StatementPtr body) const;
 		};
-}
+	}
 
 	constexpr Impl::AccessIndex AccessIndex;
 	constexpr Impl::AccessMember AccessMember;

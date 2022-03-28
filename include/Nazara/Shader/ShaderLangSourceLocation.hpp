@@ -21,7 +21,12 @@ namespace Nz::ShaderLang
 		inline SourceLocation(unsigned int line, unsigned int startColumn, unsigned int endColumn, std::shared_ptr<const std::string> file);
 		inline SourceLocation(unsigned int startLine, unsigned int endLine, unsigned int startColumn, unsigned int endColumn, std::shared_ptr<const std::string> file);
 
+		inline void ExtendToLeft(const SourceLocation& leftLocation);
+		inline void ExtendToRight(const SourceLocation& rightLocation);
+
 		inline bool IsValid() const;
+
+		static inline SourceLocation BuildFromTo(const SourceLocation& leftSource, const SourceLocation& rightSource);
 
 		std::shared_ptr<const std::string> file; //< Since the same file will be used for every node, prevent holding X time the same path
 		UInt32 endColumn;

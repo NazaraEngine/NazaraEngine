@@ -25,6 +25,13 @@ namespace Nz::ShaderLang
 			ShaderAst::ModulePtr Parse(const std::vector<Token>& tokens);
 
 		private:
+			struct Attribute
+			{
+				ShaderAst::AttributeType type;
+				ShaderAst::ExpressionPtr args;
+				SourceLocation sourceLocation;
+			};
+
 			// Flow control
 			const Token& Advance();
 			void Consume(std::size_t count = 1);
@@ -33,9 +40,9 @@ namespace Nz::ShaderLang
 			const Token& Expect(TokenType type);
 			const Token& Peek(std::size_t advance = 0);
 
-			std::vector<ShaderAst::ExprValue> ParseAttributes();
-			void ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes);
-			void ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue);
+			std::vector<Attribute> ParseAttributes();
+			void ParseModuleStatement(std::vector<Attribute> attributes);
+			void ParseVariableDeclaration(std::string& name, ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type, ShaderAst::ExpressionPtr& initialValue, SourceLocation& sourceLocation);
 
 			ShaderAst::ExpressionPtr BuildIdentifierAccess(ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs);
 			ShaderAst::ExpressionPtr BuildIndexAccess(ShaderAst::ExpressionPtr lhs, ShaderAst::ExpressionPtr rhs);
@@ -46,27 +53,26 @@ namespace Nz::ShaderLang
 			ShaderAst::StatementPtr ParseBranchStatement();
 			ShaderAst::StatementPtr ParseConstStatement();
 			ShaderAst::StatementPtr ParseDiscardStatement();
-			ShaderAst::StatementPtr ParseExternalBlock(std::vector<ShaderAst::ExprValue> attributes = {});
-			ShaderAst::StatementPtr ParseForDeclaration(std::vector<ShaderAst::ExprValue> attributes = {});
-			std::vector<ShaderAst::StatementPtr> ParseFunctionBody();
-			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<ShaderAst::ExprValue> attributes = {});
+			ShaderAst::StatementPtr ParseExternalBlock(std::vector<Attribute> attributes = {});
+			ShaderAst::StatementPtr ParseForDeclaration(std::vector<Attribute> attributes = {});
+			ShaderAst::StatementPtr ParseFunctionDeclaration(std::vector<Attribute> attributes = {});
 			ShaderAst::DeclareFunctionStatement::Parameter ParseFunctionParameter();
 			ShaderAst::StatementPtr ParseImportStatement();
 			ShaderAst::StatementPtr ParseOptionDeclaration();
 			ShaderAst::StatementPtr ParseReturnStatement();
-			ShaderAst::StatementPtr ParseRootStatement(std::vector<ShaderAst::ExprValue> attributes = {});
+			ShaderAst::StatementPtr ParseRootStatement(std::vector<Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseSingleStatement();
 			ShaderAst::StatementPtr ParseStatement();
-			std::vector<ShaderAst::StatementPtr> ParseStatementList();
-			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<ShaderAst::ExprValue> attributes = {});
+			std::vector<ShaderAst::StatementPtr> ParseStatementList(SourceLocation* sourceLocation);
+			ShaderAst::StatementPtr ParseStructDeclaration(std::vector<Attribute> attributes = {});
 			ShaderAst::StatementPtr ParseVariableDeclaration();
-			ShaderAst::StatementPtr ParseWhileStatement(std::vector<ShaderAst::ExprValue> attributes);
+			ShaderAst::StatementPtr ParseWhileStatement(std::vector<Attribute> attributes);
 
 			// Expressions
 			ShaderAst::ExpressionPtr ParseBinOpRhs(int exprPrecedence, ShaderAst::ExpressionPtr lhs);
 			ShaderAst::ExpressionPtr ParseConstSelectExpression();
 			ShaderAst::ExpressionPtr ParseExpression();
-			std::vector<ShaderAst::ExpressionPtr> ParseExpressionList(TokenType terminationToken);
+			std::vector<ShaderAst::ExpressionPtr> ParseExpressionList(TokenType terminationToken, SourceLocation* terminationLocation);
 			ShaderAst::ExpressionPtr ParseFloatingPointExpression();
 			ShaderAst::ExpressionPtr ParseIdentifier();
 			ShaderAst::ExpressionPtr ParseIntegerExpression();
@@ -75,8 +81,7 @@ namespace Nz::ShaderLang
 			ShaderAst::ExpressionPtr ParseStringExpression();
 			ShaderAst::ExpressionPtr ParseVariableAssignation();
 
-			ShaderAst::AttributeType ParseIdentifierAsAttributeType();
-			const std::string& ParseIdentifierAsName();
+			const std::string& ParseIdentifierAsName(SourceLocation* sourceLocation);
 			std::string ParseModuleName();
 			ShaderAst::ExpressionPtr ParseType();
 

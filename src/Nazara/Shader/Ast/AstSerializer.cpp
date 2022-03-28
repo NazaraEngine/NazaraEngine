@@ -460,7 +460,7 @@ namespace Nz::ShaderAst
 			if (newString)
 			{
 				Value(const_cast<std::string&>(*val)); //< won't be used for writing
-				m_stringIndices.emplace(*val, m_stringIndices.size());
+				m_stringIndices.emplace(*val, SafeCast<UInt32>(m_stringIndices.size()));
 			}
 			else
 				Value(it->second); //< string index
