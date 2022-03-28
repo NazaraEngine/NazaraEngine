@@ -1018,7 +1018,7 @@ namespace Nz::ShaderAst
 		std::optional<UInt32> defaultBlockSet = 0;
 		if (clone->bindingSet.HasValue())
 		{
-			if (ComputeExprValue(clone->bindingSet) == ValidationResult::Unresolved)
+			if (ComputeExprValue(clone->bindingSet) == ValidationResult::Validated)
 				defaultBlockSet = clone->bindingSet.GetResultingValue();
 			else
 				defaultBlockSet.reset(); //< Unresolved value
