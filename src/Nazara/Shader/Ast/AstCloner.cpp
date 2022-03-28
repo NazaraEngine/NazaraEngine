@@ -65,6 +65,8 @@ namespace Nz::ShaderAst
 
 		clone->elseStatement = CloneStatement(node.elseStatement);
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
@@ -73,6 +75,8 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<ConditionalStatement>();
 		clone->condition = CloneExpression(node.condition);
 		clone->statement = CloneStatement(node.statement);
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -84,6 +88,8 @@ namespace Nz::ShaderAst
 		clone->name = node.name;
 		clone->expression = CloneExpression(node.expression);
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
@@ -94,6 +100,8 @@ namespace Nz::ShaderAst
 		clone->name = node.name;
 		clone->type = Clone(node.type);
 		clone->expression = CloneExpression(node.expression);
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -112,7 +120,11 @@ namespace Nz::ShaderAst
 			cloneVar.type = Clone(var.type);
 			cloneVar.bindingIndex = Clone(var.bindingIndex);
 			cloneVar.bindingSet = Clone(var.bindingSet);
+
+			cloneVar.sourceLocation = var.sourceLocation;
 		}
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -135,11 +147,15 @@ namespace Nz::ShaderAst
 			cloneParam.name = parameter.name;
 			cloneParam.type = Clone(parameter.type);
 			cloneParam.varIndex = parameter.varIndex;
+
+			cloneParam.sourceLocation = parameter.sourceLocation;
 		}
 
 		clone->statements.reserve(node.statements.size());
 		for (auto& statement : node.statements)
 			clone->statements.push_back(CloneStatement(statement));
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -151,6 +167,8 @@ namespace Nz::ShaderAst
 		clone->optIndex = node.optIndex;
 		clone->optName = node.optName;
 		clone->optType = Clone(node.optType);
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -173,7 +191,11 @@ namespace Nz::ShaderAst
 			cloneMember.builtin = Clone(member.builtin);
 			cloneMember.cond = Clone(member.cond);
 			cloneMember.locationIndex = Clone(member.locationIndex);
+
+			cloneMember.sourceLocation = member.sourceLocation;
 		}
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -186,18 +208,26 @@ namespace Nz::ShaderAst
 		clone->varName = node.varName;
 		clone->varType = Clone(node.varType);
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
-	StatementPtr AstCloner::Clone(DiscardStatement& /*node*/)
+	StatementPtr AstCloner::Clone(DiscardStatement& node)
 	{
-		return std::make_unique<DiscardStatement>();
+		auto clone = std::make_unique<DiscardStatement>();
+
+		clone->sourceLocation = node.sourceLocation;
+
+		return clone;
 	}
 
 	StatementPtr AstCloner::Clone(ExpressionStatement& node)
 	{
 		auto clone = std::make_unique<ExpressionStatement>();
 		clone->expression = CloneExpression(node.expression);
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -212,6 +242,8 @@ namespace Nz::ShaderAst
 		clone->unroll = Clone(node.unroll);
 		clone->varName = node.varName;
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
@@ -223,6 +255,8 @@ namespace Nz::ShaderAst
 		clone->unroll = Clone(node.unroll);
 		clone->varName = node.varName;
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
@@ -230,6 +264,8 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<ImportStatement>();
 		clone->moduleName = node.moduleName;
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -241,18 +277,26 @@ namespace Nz::ShaderAst
 		for (auto& statement : node.statements)
 			clone->statements.push_back(CloneStatement(statement));
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
-	StatementPtr AstCloner::Clone(NoOpStatement& /*node*/)
+	StatementPtr AstCloner::Clone(NoOpStatement& node)
 	{
-		return std::make_unique<NoOpStatement>();
+		auto clone = std::make_unique<NoOpStatement>();
+
+		clone->sourceLocation = node.sourceLocation;
+
+		return clone;
 	}
 
 	StatementPtr AstCloner::Clone(ReturnStatement& node)
 	{
 		auto clone = std::make_unique<ReturnStatement>();
 		clone->returnExpr = CloneExpression(node.returnExpr);
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -261,6 +305,8 @@ namespace Nz::ShaderAst
 	{
 		auto clone = std::make_unique<ScopedStatement>();
 		clone->statement = CloneStatement(node.statement);
+
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -272,6 +318,8 @@ namespace Nz::ShaderAst
 		clone->body = CloneStatement(node.body);
 		clone->unroll = Clone(node.unroll);
 
+		clone->sourceLocation = node.sourceLocation;
+
 		return clone;
 	}
 
@@ -282,6 +330,7 @@ namespace Nz::ShaderAst
 		clone->expr = CloneExpression(node.expr);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -296,6 +345,7 @@ namespace Nz::ShaderAst
 			clone->indices.push_back(CloneExpression(parameter));
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -306,6 +356,7 @@ namespace Nz::ShaderAst
 		clone->aliasId = node.aliasId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -318,6 +369,7 @@ namespace Nz::ShaderAst
 		clone->right = CloneExpression(node.right);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -330,6 +382,7 @@ namespace Nz::ShaderAst
 		clone->right = CloneExpression(node.right);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -344,6 +397,7 @@ namespace Nz::ShaderAst
 			clone->parameters.push_back(CloneExpression(parameter));
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -360,6 +414,7 @@ namespace Nz::ShaderAst
 			clone->parameters.push_back(CloneExpression(parameter));
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -369,16 +424,18 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<CastExpression>();
 		clone->targetType = Clone(node.targetType);
 
-		std::size_t expressionCount = 0;
 		for (auto& expr : node.expressions)
+		for (std::size_t expressionIndex = 0; expressionIndex < node.expressions.size(); ++expressionIndex)
 		{
+			auto& expr = node.expressions[expressionIndex];
 			if (!expr)
 				break;
 
-			clone->expressions[expressionCount++] = CloneExpression(expr);
+			clone->expressions[expressionIndex] = CloneExpression(expr);
 		}
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -391,6 +448,7 @@ namespace Nz::ShaderAst
 		clone->truePath = CloneExpression(node.truePath);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -401,6 +459,7 @@ namespace Nz::ShaderAst
 		clone->constantId = node.constantId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -411,6 +470,7 @@ namespace Nz::ShaderAst
 		clone->value = node.value;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -421,6 +481,7 @@ namespace Nz::ShaderAst
 		clone->funcId = node.funcId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -431,6 +492,7 @@ namespace Nz::ShaderAst
 		clone->identifier = node.identifier;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -445,6 +507,7 @@ namespace Nz::ShaderAst
 			clone->parameters.push_back(CloneExpression(parameter));
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -455,6 +518,7 @@ namespace Nz::ShaderAst
 		clone->intrinsicId = node.intrinsicId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -465,6 +529,7 @@ namespace Nz::ShaderAst
 		clone->structTypeId = node.structTypeId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -477,6 +542,7 @@ namespace Nz::ShaderAst
 		clone->expression = CloneExpression(node.expression);
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -487,6 +553,7 @@ namespace Nz::ShaderAst
 		clone->typeId = node.typeId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -497,6 +564,7 @@ namespace Nz::ShaderAst
 		clone->variableId = node.variableId;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
@@ -508,6 +576,7 @@ namespace Nz::ShaderAst
 		clone->op = node.op;
 
 		clone->cachedExpressionType = node.cachedExpressionType;
+		clone->sourceLocation = node.sourceLocation;
 
 		return clone;
 	}
