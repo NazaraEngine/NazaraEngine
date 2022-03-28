@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -26,10 +27,8 @@ namespace Nz::ShaderLang
 
 	struct Token
 	{
-		unsigned int column;
-		unsigned int line;
+		SourceLocation location;
 		TokenType type;
-		std::shared_ptr<const std::string> file;
 		std::variant<double, long long, std::string> data;
 	};
 
