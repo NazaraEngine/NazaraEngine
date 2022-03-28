@@ -115,9 +115,6 @@ namespace Nz
 
 		for (auto&& rendererImpl : implementations)
 		{
-			if (!std::filesystem::exists(rendererImpl.fileName))
-				continue;
-
 			std::string fileNameStr = rendererImpl.fileName.generic_u8string();
 
 			DynLib implLib;
