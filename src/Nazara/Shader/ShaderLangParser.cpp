@@ -59,55 +59,73 @@ namespace Nz::ShaderLang
 			{ "never",  ShaderAst::LoopUnroll::Never }
 		};
 
-		template<typename T>
-		void HandleUniqueAttribute(const Token& token, ShaderAst::AttributeType attributeType, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param)
+		SourceLocation TokenLocation(const Token& token)
 		{
-			if (targetAttribute.HasValue())
-				throw ParserAttributeMultipleUniqueError{ SourceLocation{ token.line, token.column, token.file }, attributeType }; //< TODO: Improve source location for attributes
+			SourceLocation sourceLoc;
+			sourceLoc.file = token.file;
+			sourceLoc.startColumn = sourceLoc.endColumn = token.column;
+			sourceLoc.startLine = sourceLoc.endLine = token.line;
 
-			if (param)
-				targetAttribute = std::move(*param);
-			else
-				throw ParserAttributeMissingParameterError{ SourceLocation{ token.line, token.column, token.file }, attributeType }; //< TODO: Improve source location for attributes
+			return sourceLoc;
+		}
+
+		void ExtendLocationToToken(SourceLocation& location, const Token& token)
+		{
+			assert(location.file == token.file);
+			assert(token.line >= location.startLine);
+			location.endLine = token.line;
+			assert(token.column >= location.startColumn);
+			location.endColumn = location.endColumn;
 		}
 
 		template<typename T>
-		void HandleUniqueAttribute(const Token& token, ShaderAst::AttributeType attributeType, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param, T defaultValue)
+		void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute)
 		{
 			if (targetAttribute.HasValue())
-				throw ParserAttributeMultipleUniqueError{ SourceLocation{ token.line, token.column, token.file }, attributeType }; //< TODO: Improve source location for attributes
+				throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
 
-			if (param)
-				targetAttribute = std::move(*param);
+			if (!attribute.args)
+				throw ParserAttributeMissingParameterError{ attribute.sourceLocation, attribute.type };
+
+			targetAttribute = std::move(attribute.args);
+		}
+
+		template<typename T>
+		void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, T defaultValue)
+		{
+			if (targetAttribute.HasValue())
+				throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
+
+			if (attribute.args)
+				targetAttribute = std::move(attribute.args);
 			else
 				targetAttribute = std::move(defaultValue);
 		}
 
 		template<typename T>
-		void HandleUniqueStringAttribute(const Token& token, ShaderAst::AttributeType attributeType, const std::unordered_map<std::string, T>& map, ShaderAst::ExpressionValue<T>& targetAttribute, ShaderAst::ExprValue::Param&& param, std::optional<T> defaultValue = {})
+		void HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, const std::unordered_map<std::string, T>& map, std::optional<T> defaultValue = {})
 		{
 			if (targetAttribute.HasValue())
-				throw ParserAttributeMultipleUniqueError{ SourceLocation{ token.line, token.column, token.file }, attributeType }; //< TODO: Improve source location for attributes
+				throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
 
 			//FIXME: This should be handled with global values at sanitization stage
-			if (param)
+			if (attribute.args)
 			{
-				const ShaderAst::ExpressionPtr& expr = *param;
-				if (expr->GetType() != ShaderAst::NodeType::IdentifierExpression)
-					throw ParserAttributeParameterIdentifierError{ SourceLocation{ token.line, token.column, token.file }, attributeType };
+				if (attribute.args->GetType() != ShaderAst::NodeType::IdentifierExpression)
+					throw ParserAttributeParameterIdentifierError{ attribute.args->sourceLocation, attribute.type };
 
-				const std::string& exprStr = static_cast<ShaderAst::IdentifierExpression&>(*expr).identifier;
+				const std::string& exprStr = static_cast<ShaderAst::IdentifierExpression&>(*attribute.args).identifier;
 
 				auto it = map.find(exprStr);
 				if (it == map.end())
-					throw ParserAttributeInvalidParameterError{ SourceLocation{ token.line, token.column, token.file }, exprStr, attributeType };
+					throw ParserAttributeInvalidParameterError{ attribute.args->sourceLocation, exprStr, attribute.type };
 
 				targetAttribute = it->second;
 			}
 			else
 			{
 				if (!defaultValue)
-					throw ParserAttributeMissingParameterError{ SourceLocation{ token.line, token.column, token.file }, attributeType }; //< TODO: Improve source location for attributes
+					throw ParserAttributeMissingParameterError{ attribute.sourceLocation, attribute.type };
 
 				targetAttribute = defaultValue.value();
 			}
@@ -122,7 +140,7 @@ namespace Nz::ShaderLang
 
 		m_context = &context;
 
-		std::vector<ShaderAst::ExprValue> attributes;
+		std::vector<Attribute> attributes;
 
 		for (;;)
 		{
@@ -130,7 +148,7 @@ namespace Nz::ShaderLang
 			if (!m_context->module)
 			{
 				const Token& nextToken = Peek();
-				throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file } };
+				throw ParserUnexpectedTokenError{ TokenLocation(nextToken) };
 			}
 
 			if (!statement)
@@ -159,7 +177,7 @@ namespace Nz::ShaderLang
 	const Token& Parser::Expect(const Token& token, TokenType type)
 	{
 		if (token.type != type)
-			throw ParserExpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, type, token.type };
+			throw ParserExpectedTokenError{ TokenLocation(token), type, token.type };
 
 		return token;
 	}
@@ -167,7 +185,7 @@ namespace Nz::ShaderLang
 	const Token& Parser::ExpectNot(const Token& token, TokenType type)
 	{
 		if (token.type == type)
-			throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, type };
+			throw ParserUnexpectedTokenError{ TokenLocation(token), type };
 
 		return token;
 	}
@@ -186,9 +204,9 @@ namespace Nz::ShaderLang
 		return m_context->tokens[m_context->tokenIndex + advance];
 	}
 
-	std::vector<ShaderAst::ExprValue> Parser::ParseAttributes()
+	std::vector<Parser::Attribute> Parser::ParseAttributes()
 	{
-		std::vector<ShaderAst::ExprValue> attributes;
+		std::vector<Parser::Attribute> attributes;
 
 		Expect(Advance(), TokenType::OpenSquareBracket);
 
@@ -214,23 +232,34 @@ namespace Nz::ShaderLang
 			if (expectComma)
 				Expect(Advance(), TokenType::Comma);
 
-			ShaderAst::AttributeType attributeType = ParseIdentifierAsAttributeType();
+			const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
+			const std::string& identifier = std::get<std::string>(identifierToken.data);
 
-			ShaderAst::ExprValue::Param arg;
+			SourceLocation attributeLocation = TokenLocation(identifierToken);
+
+			auto it = s_identifierToAttributeType.find(identifier);
+			if (it == s_identifierToAttributeType.end())
+				throw ParserUnknownAttributeError{ attributeLocation };
+
+			ShaderAst::AttributeType attributeType = it->second;
+
+			ShaderAst::ExpressionPtr arg;
 			if (Peek().type == TokenType::OpenParenthesis)
 			{
 				Consume();
 
 				arg = ParseExpression();
 
-				Expect(Advance(), TokenType::ClosingParenthesis);
+				const Token& closeToken = Expect(Advance(), TokenType::ClosingParenthesis);
+				ExtendLocationToToken(attributeLocation, closeToken);
 			}
 
 			expectComma = true;
 
 			attributes.push_back({
 				attributeType,
-				std::move(arg)
+				std::move(arg),
+				attributeLocation
 			});
 		}
 
@@ -239,12 +268,12 @@ namespace Nz::ShaderLang
 		return attributes;
 	}
 
-	void Parser::ParseModuleStatement(std::vector<ShaderAst::ExprValue> attributes)
+	void Parser::ParseModuleStatement(std::vector<Attribute> attributes)
 	{
 		if (m_context->parsingImportedModule)
 		{
 			const Token& token = Peek();
-			throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+			throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 		}
 
 		const Token& moduleToken = Expect(Advance(), TokenType::Module);
@@ -252,7 +281,7 @@ namespace Nz::ShaderLang
 		std::optional<UInt32> moduleVersion;
 		std::optional<Uuid> moduleId;
 		
-		for (auto&& [attributeType, arg] : attributes)
+		for (auto&& [attributeType, expr, location] : attributes)
 		{
 			switch (attributeType)
 			{
@@ -260,18 +289,17 @@ namespace Nz::ShaderLang
 				{
 					// Version parsing
 					if (moduleVersion.has_value())
-						throw ParserAttributeMultipleUniqueError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType }; //< TODO: Improve source location for attributes
+						throw ParserAttributeMultipleUniqueError{ location, attributeType };
 
-					if (!arg)
-						throw ParserAttributeMissingParameterError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType }; //< TODO: Improve source location for attributes
+					if (!expr)
+						throw ParserAttributeMissingParameterError{ location, attributeType };
 
-					const ShaderAst::ExpressionPtr& expr = *arg;
 					if (expr->GetType() != ShaderAst::NodeType::ConstantValueExpression)
-						throw ParserAttributeExpectStringError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType };
+						throw ParserAttributeExpectStringError{ location, attributeType };
 
 					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
 					if (ShaderAst::GetConstantType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
-						throw ParserAttributeExpectStringError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType };
+						throw ParserAttributeExpectStringError{ location, attributeType };
 
 					const std::string& versionStr = std::get<std::string>(constantValue.value);
 
@@ -279,7 +307,7 @@ namespace Nz::ShaderLang
 
 					std::smatch versionMatch;
 					if (!std::regex_match(versionStr, versionMatch, versionRegex))
-						throw ParserInvalidVersionError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, versionStr };
+						throw ParserInvalidVersionError{ location, versionStr };
 
 					assert(versionMatch.size() == 6);
 
@@ -299,36 +327,35 @@ namespace Nz::ShaderLang
 				case ShaderAst::AttributeType::Uuid:
 				{
 					if (moduleId.has_value())
-						throw ParserAttributeMultipleUniqueError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType }; //< TODO: Improve source location for attributes
+						throw ParserAttributeMultipleUniqueError{ location, attributeType };
 
-					if (!arg)
-						throw ParserAttributeMissingParameterError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType }; //< TODO: Improve source location for attributes
+					if (!expr)
+						throw ParserAttributeMissingParameterError{ location, attributeType };
 
-					const ShaderAst::ExpressionPtr& expr = *arg;
 					if (expr->GetType() != ShaderAst::NodeType::ConstantValueExpression)
-						throw ParserAttributeExpectStringError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType };
+						throw ParserAttributeExpectStringError{ location, attributeType };
 
 					auto& constantValue = SafeCast<ShaderAst::ConstantValueExpression&>(*expr);
 					if (ShaderAst::GetConstantType(constantValue.value) != ShaderAst::ExpressionType{ ShaderAst::PrimitiveType::String })
-						throw ParserAttributeExpectStringError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType };
+						throw ParserAttributeExpectStringError{ location, attributeType };
 
 					const std::string& uuidStr = std::get<std::string>(constantValue.value);
 
 					Uuid uuid = Uuid::FromString(uuidStr);
 					if (uuid.IsNull())
-						throw ParserInvalidUuidError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, uuidStr };
+						throw ParserInvalidUuidError{ location, uuidStr };
 
 					moduleId = uuid;
 					break;
 				}
 
 				default:
-					throw ParserUnexpectedAttributeError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file }, attributeType };
+					throw ParserUnexpectedAttributeError{ location, attributeType };
 			}
 		}
 
 		if (!moduleVersion.has_value())
-			throw ParserMissingAttributeError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file } };
+			throw ParserMissingAttributeError{ TokenLocation(moduleToken) };
 
 		if (!moduleId)
 			moduleId = Uuid::Generate();
@@ -349,7 +376,7 @@ namespace Nz::ShaderLang
 				if (!statement)
 				{
 					const Token& token = Peek();
-					throw ParserUnexpectedEndOfFileError{ SourceLocation{ token.line, token.column, token.file } };
+					throw ParserUnexpectedEndOfFileError{ TokenLocation(token) };
 				}
 
 				module->rootNode->statements.push_back(std::move(statement));
@@ -374,7 +401,7 @@ namespace Nz::ShaderLang
 			Expect(Advance(), TokenType::Semicolon);
 
 			if (m_context->module)
-				throw ParserDuplicateModuleError{ SourceLocation{ moduleToken.line, moduleToken.column, moduleToken.file } };
+				throw ParserDuplicateModuleError{ TokenLocation(moduleToken) };
 
 			m_context->module = std::move(module);
 		}
@@ -497,7 +524,7 @@ namespace Nz::ShaderLang
 			}
 
 			default:
-				throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+				throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 		}
 	}
 
@@ -509,7 +536,7 @@ namespace Nz::ShaderLang
 		return ShaderBuilder::Discard();
 	}
 
-	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<ShaderAst::ExprValue> attributes)
+	ShaderAst::StatementPtr Parser::ParseExternalBlock(std::vector<Attribute> attributes)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -517,23 +544,26 @@ namespace Nz::ShaderLang
 		Expect(Advance(), TokenType::OpenCurlyBracket);
 
 		std::unique_ptr<ShaderAst::DeclareExternalStatement> externalStatement = std::make_unique<ShaderAst::DeclareExternalStatement>();
+		externalStatement->sourceLocation.startColumn = externalToken.column;
+		externalStatement->sourceLocation.startLine = externalToken.line;
+		externalStatement->sourceLocation.file = externalToken.file;
 
 		ShaderAst::ExpressionValue<bool> condition;
 
-		for (auto&& [attributeType, arg] : attributes)
+		for (auto&& attribute : attributes)
 		{
-			switch (attributeType)
+			switch (attribute.type)
 			{
 				case ShaderAst::AttributeType::Cond:
-					HandleUniqueAttribute(externalToken, attributeType, condition, std::move(arg));
+					HandleUniqueAttribute(condition, std::move(attribute));
 					break;
 
 				case ShaderAst::AttributeType::Set:
-					HandleUniqueAttribute(externalToken, attributeType, externalStatement->bindingSet, std::move(arg));
+					HandleUniqueAttribute(externalStatement->bindingSet, std::move(attribute));
 					break;
 
 				default:
-					throw ParserUnexpectedAttributeError{ SourceLocation{ externalToken.line, externalToken.column, externalToken.file }, attributeType };
+					throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 			}
 		}
 
@@ -562,20 +592,20 @@ namespace Nz::ShaderLang
 
 			if (token.type == TokenType::OpenSquareBracket)
 			{
-				for (auto&& [attributeType, arg] : ParseAttributes())
+				for (auto&& attribute : ParseAttributes())
 				{
-					switch (attributeType)
+					switch (attribute.type)
 					{
 						case ShaderAst::AttributeType::Binding:
-							HandleUniqueAttribute(externalToken, attributeType, extVar.bindingIndex, std::move(arg));
+							HandleUniqueAttribute(extVar.bindingIndex, std::move(attribute));
 							break;
 
 						case ShaderAst::AttributeType::Set:
-							HandleUniqueAttribute(externalToken, attributeType, extVar.bindingSet, std::move(arg));
+							HandleUniqueAttribute(extVar.bindingSet, std::move(attribute));
 							break;
 
 						default:
-							throw ParserUnexpectedAttributeError{ SourceLocation{ token.line, token.column, token.file }, attributeType };
+							throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 					}
 				}
 			}
@@ -593,7 +623,7 @@ namespace Nz::ShaderLang
 			return externalStatement;
 	}
 
-	ShaderAst::StatementPtr Parser::ParseForDeclaration(std::vector<ShaderAst::ExprValue> attributes)
+	ShaderAst::StatementPtr Parser::ParseForDeclaration(std::vector<Attribute> attributes)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -624,16 +654,16 @@ namespace Nz::ShaderLang
 			auto forNode = ShaderBuilder::For(std::move(varName), std::move(expr), std::move(toExpr), std::move(stepExpr), std::move(statement));
 
 			// TODO: Deduplicate code
-			for (auto&& [attributeType, arg] : attributes)
+			for (auto&& attribute : attributes)
 			{
-				switch (attributeType)
+				switch (attribute.type)
 				{
 					case ShaderAst::AttributeType::Unroll:
-						HandleUniqueStringAttribute(forToken, attributeType, s_unrollModes, forNode->unroll, std::move(arg), std::make_optional(ShaderAst::LoopUnroll::Always));
+						HandleUniqueStringAttribute(forNode->unroll, std::move(attribute), s_unrollModes, std::make_optional(ShaderAst::LoopUnroll::Always));
 						break;
 
 					default:
-						throw ParserUnexpectedAttributeError{ SourceLocation{ forToken.line, forToken.column, forToken.file }, attributeType };
+						throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 				}
 			}
 
@@ -647,16 +677,16 @@ namespace Nz::ShaderLang
 			auto forEachNode = ShaderBuilder::ForEach(std::move(varName), std::move(expr), std::move(statement));
 
 			// TODO: Deduplicate code
-			for (auto&& [attributeType, arg] : attributes)
+			for (auto&& attribute : attributes)
 			{
-				switch (attributeType)
+				switch (attribute.type)
 				{
 					case ShaderAst::AttributeType::Unroll:
-						HandleUniqueStringAttribute(forToken, attributeType, s_unrollModes, forEachNode->unroll, std::move(arg), std::make_optional(ShaderAst::LoopUnroll::Always));
+						HandleUniqueStringAttribute(forEachNode->unroll, std::move(attribute), s_unrollModes, std::make_optional(ShaderAst::LoopUnroll::Always));
 						break;
 
 					default:
-						throw ParserUnexpectedAttributeError{ SourceLocation{ forToken.line, forToken.column, forToken.file }, attributeType };
+						throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 				}
 			}
 
@@ -669,7 +699,7 @@ namespace Nz::ShaderLang
 		return ParseStatementList();
 	}
 
-	ShaderAst::StatementPtr Parser::ParseFunctionDeclaration(std::vector<ShaderAst::ExprValue> attributes)
+	ShaderAst::StatementPtr Parser::ParseFunctionDeclaration(std::vector<Attribute> attributes)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -712,32 +742,32 @@ namespace Nz::ShaderLang
 
 		ShaderAst::ExpressionValue<bool> condition;
 
-		for (auto&& [attributeType, attributeParam] : attributes)
+		for (auto&& attribute : attributes)
 		{
-			switch (attributeType)
+			switch (attribute.type)
 			{
 				case ShaderAst::AttributeType::Cond:
-					HandleUniqueAttribute(funcToken, attributeType, condition, std::move(attributeParam));
+					HandleUniqueAttribute(condition, std::move(attribute));
 					break;
 
 				case ShaderAst::AttributeType::Entry:
-					HandleUniqueStringAttribute(funcToken, attributeType, s_entryPoints, func->entryStage, std::move(attributeParam));
+					HandleUniqueStringAttribute(func->entryStage, std::move(attribute), s_entryPoints);
 					break;
 
 				case ShaderAst::AttributeType::Export:
-					HandleUniqueAttribute(funcToken, attributeType, func->isExported, std::move(attributeParam), true);
+					HandleUniqueAttribute(func->isExported, std::move(attribute), true);
 					break;
 
 				case ShaderAst::AttributeType::DepthWrite:
-					HandleUniqueStringAttribute(funcToken, attributeType, s_depthWriteModes, func->depthWrite, std::move(attributeParam));
+					HandleUniqueStringAttribute(func->depthWrite, std::move(attribute), s_depthWriteModes);
 					break;
 
 				case ShaderAst::AttributeType::EarlyFragmentTests:
-					HandleUniqueAttribute(funcToken, attributeType, func->earlyFragmentTests, std::move(attributeParam), true);
+					HandleUniqueAttribute(func->earlyFragmentTests, std::move(attribute));
 					break;
 
 				default:
-					throw ParserUnexpectedAttributeError{ SourceLocation{ funcToken.line, funcToken.column, funcToken.file }, attributeType };
+					throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 			}
 		}
 
@@ -807,26 +837,26 @@ namespace Nz::ShaderLang
 		return ShaderBuilder::Return(std::move(expr));
 	}
 
-	ShaderAst::StatementPtr Parser::ParseRootStatement(std::vector<ShaderAst::ExprValue> attributes)
+	ShaderAst::StatementPtr Parser::ParseRootStatement(std::vector<Attribute> attributes)
 	{
 		const Token& nextToken = Peek();
 		switch (nextToken.type)
 		{
 			case TokenType::Alias:
 				if (!attributes.empty())
-					throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file }, nextToken.type };
+					throw ParserUnexpectedTokenError{ TokenLocation(nextToken), nextToken.type };
 
 				return ParseAliasDeclaration();
 
 			case TokenType::Const:
 				if (!attributes.empty())
-					throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file }, nextToken.type };
+					throw ParserUnexpectedTokenError{ TokenLocation(nextToken), nextToken.type };
 
 				return ParseConstStatement();
 
 			case TokenType::EndOfStream:
 				if (!attributes.empty())
-					throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file }, nextToken.type };
+					throw ParserUnexpectedTokenError{ TokenLocation(nextToken), nextToken.type };
 
 				return {};
 
@@ -835,7 +865,7 @@ namespace Nz::ShaderLang
 
 			case TokenType::Import:
 				if (!attributes.empty())
-					throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file }, nextToken.type };
+					throw ParserUnexpectedTokenError{ TokenLocation(nextToken), nextToken.type };
 
 				return ParseImportStatement();
 
@@ -850,7 +880,7 @@ namespace Nz::ShaderLang
 			case TokenType::Option:
 			{
 				if (!attributes.empty())
-					throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file }, nextToken.type };
+					throw ParserUnexpectedTokenError{ TokenLocation(nextToken), nextToken.type };
 
 				return ParseOptionDeclaration();
 			}
@@ -862,13 +892,13 @@ namespace Nz::ShaderLang
 				return ParseStructDeclaration(std::move(attributes));
 
 			default:
-				throw ParserUnexpectedTokenError{ SourceLocation{ nextToken.line, nextToken.column, nextToken.file }, nextToken.type };
+				throw ParserUnexpectedTokenError{ TokenLocation(nextToken), nextToken.type };
 		}
 	}
 
 	ShaderAst::StatementPtr Parser::ParseSingleStatement()
 	{
-		std::vector<ShaderAst::ExprValue> attributes;
+		std::vector<Attribute> attributes;
 		ShaderAst::StatementPtr statement;
 		do 
 		{
@@ -877,14 +907,14 @@ namespace Nz::ShaderLang
 			{
 				case TokenType::Const:
 					if (!attributes.empty())
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 					statement = ParseConstStatement();
 					break;
 
 				case TokenType::Discard:
 					if (!attributes.empty())
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 					statement = ParseDiscardStatement();
 					break;
@@ -896,14 +926,14 @@ namespace Nz::ShaderLang
 
 				case TokenType::Let:
 					if (!attributes.empty())
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 					statement = ParseVariableDeclaration();
 					break;
 
 				case TokenType::Identifier:
 					if (!attributes.empty())
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 					statement = ShaderBuilder::ExpressionStatement(ParseVariableAssignation());
 					Expect(Advance(), TokenType::Semicolon);
@@ -911,7 +941,7 @@ namespace Nz::ShaderLang
 
 				case TokenType::If:
 					if (!attributes.empty())
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 					statement = ParseBranchStatement();
 					break;
@@ -923,7 +953,7 @@ namespace Nz::ShaderLang
 
 				case TokenType::Return:
 					if (!attributes.empty())
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 					statement = ParseReturnStatement();
 					break;
@@ -934,7 +964,7 @@ namespace Nz::ShaderLang
 					break;
 
 				default:
-					throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+					throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 			}
 		}
 		while (!statement); //< small trick to repeat parsing once we got attributes
@@ -965,7 +995,7 @@ namespace Nz::ShaderLang
 		return statements;
 	}
 	
-	ShaderAst::StatementPtr Parser::ParseStructDeclaration(std::vector<ShaderAst::ExprValue> attributes)
+	ShaderAst::StatementPtr Parser::ParseStructDeclaration(std::vector<Attribute> attributes)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -977,24 +1007,24 @@ namespace Nz::ShaderLang
 		ShaderAst::ExpressionValue<bool> condition;
 		ShaderAst::ExpressionValue<bool> exported;
 
-		for (auto&& [attributeType, attributeParam] : attributes)
+		for (auto&& attribute : attributes)
 		{
-			switch (attributeType)
+			switch (attribute.type)
 			{
 				case ShaderAst::AttributeType::Cond:
-					HandleUniqueAttribute(structToken, attributeType, condition, std::move(attributeParam));
+					HandleUniqueAttribute(condition, std::move(attribute));
 					break;
 
 				case ShaderAst::AttributeType::Export:
-					HandleUniqueAttribute(structToken, attributeType, exported, std::move(attributeParam), true);
+					HandleUniqueAttribute(exported, std::move(attribute), true);
 					break;
 
 				case ShaderAst::AttributeType::Layout:
-					HandleUniqueStringAttribute(structToken, attributeType, s_layoutMapping, description.layout, std::move(attributeParam));
+					HandleUniqueStringAttribute(description.layout, std::move(attribute), s_layoutMapping);
 					break;
 
 				default:
-					throw ParserUnexpectedAttributeError{ SourceLocation{ structToken.line, structToken.column, structToken.file }, attributeType };
+					throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 			}
 		}
 
@@ -1026,24 +1056,24 @@ namespace Nz::ShaderLang
 
 			if (token.type == TokenType::OpenSquareBracket)
 			{
-				for (auto&& [attributeType, arg] : ParseAttributes())
+				for (auto&& attribute : ParseAttributes())
 				{
-					switch (attributeType)
+					switch (attribute.type)
 					{
 						case ShaderAst::AttributeType::Builtin:
-							HandleUniqueStringAttribute(token, attributeType, s_builtinMapping, structField.builtin, std::move(arg));
+							HandleUniqueStringAttribute(structField.builtin, std::move(attribute), s_builtinMapping);
 							break;
 
 						case ShaderAst::AttributeType::Cond:
-							HandleUniqueAttribute(token, attributeType, structField.cond, std::move(arg));
+							HandleUniqueAttribute(structField.cond, std::move(attribute));
 							break;
 
 						case ShaderAst::AttributeType::Location:
-							HandleUniqueAttribute(token, attributeType, structField.locationIndex, std::move(arg));
+							HandleUniqueAttribute(structField.locationIndex, std::move(attribute));
 							break;
 
 						default:
-							throw ParserUnexpectedAttributeError{ SourceLocation{ token.line, token.column, token.file }, attributeType };
+							throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 					}
 				}
 			}
@@ -1083,7 +1113,7 @@ namespace Nz::ShaderLang
 			case TokenType::PlusAssign: assignType = ShaderAst::AssignType::CompoundAdd; break;
 
 			default:
-				throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file } };
+				throw ParserUnexpectedTokenError{ TokenLocation(token) };
 		}
 
 		Consume();
@@ -1107,7 +1137,7 @@ namespace Nz::ShaderLang
 		return ShaderBuilder::DeclareVariable(std::move(variableName), std::move(variableType), std::move(expression));
 	}
 
-	ShaderAst::StatementPtr Parser::ParseWhileStatement(std::vector<ShaderAst::ExprValue> attributes)
+	ShaderAst::StatementPtr Parser::ParseWhileStatement(std::vector<Attribute> attributes)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -1123,16 +1153,16 @@ namespace Nz::ShaderLang
 
 		auto whileStatement = ShaderBuilder::While(std::move(condition), std::move(body));
 
-		for (auto&& [attributeType, arg] : attributes)
+		for (auto&& attribute : attributes)
 		{
-			switch (attributeType)
+			switch (attribute.type)
 			{
 				case ShaderAst::AttributeType::Unroll:
-					HandleUniqueStringAttribute(whileToken, attributeType, s_unrollModes, whileStatement->unroll, std::move(arg), std::make_optional(ShaderAst::LoopUnroll::Always));
+					HandleUniqueStringAttribute(whileStatement->unroll, std::move(attribute), s_unrollModes, std::make_optional(ShaderAst::LoopUnroll::Always));
 					break;
 
 				default:
-					throw ParserUnexpectedAttributeError{ SourceLocation{ whileToken.line, whileToken.column, whileToken.file }, attributeType };
+					throw ParserUnexpectedAttributeError{ attribute.sourceLocation, attribute.type };
 			}
 		}
 
@@ -1146,7 +1176,7 @@ namespace Nz::ShaderLang
 			const Token& token = Peek();
 			TokenType currentTokenType = token.type;
 			if (currentTokenType == TokenType::EndOfStream)
-				throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+				throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 
 			int tokenPrecedence = GetTokenPrecedence(currentTokenType);
 			if (tokenPrecedence < exprPrecedence)
@@ -1201,7 +1231,7 @@ namespace Nz::ShaderLang
 					case TokenType::NotEqual:          return BuildBinary(ShaderAst::BinaryType::CompNe,     std::move(lhs), std::move(rhs));
 					case TokenType::Plus:              return BuildBinary(ShaderAst::BinaryType::Add,        std::move(lhs), std::move(rhs));
 					default:
-						throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+						throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 				}
 			}();
 		}
@@ -1335,7 +1365,7 @@ namespace Nz::ShaderLang
 				return ParseStringExpression();
 
 			default:
-				throw ParserUnexpectedTokenError{ SourceLocation{ token.line, token.column, token.file }, token.type };
+				throw ParserUnexpectedTokenError{ TokenLocation(token), token.type };
 		}
 	}
 
@@ -1343,20 +1373,6 @@ namespace Nz::ShaderLang
 	{
 		const Token& litteralToken = Expect(Advance(), TokenType::StringValue);
 		return ShaderBuilder::Constant(std::get<std::string>(litteralToken.data));
-	}
-
-	ShaderAst::AttributeType Parser::ParseIdentifierAsAttributeType()
-	{
-		NAZARA_USE_ANONYMOUS_NAMESPACE
-
-		const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
-		const std::string& identifier = std::get<std::string>(identifierToken.data);
-
-		auto it = s_identifierToAttributeType.find(identifier);
-		if (it == s_identifierToAttributeType.end())
-			throw ParserUnknownAttributeError{ SourceLocation{ identifierToken.line, identifierToken.column, identifierToken.file } };
-
-		return it->second;
 	}
 
 	const std::string& Parser::ParseIdentifierAsName()
