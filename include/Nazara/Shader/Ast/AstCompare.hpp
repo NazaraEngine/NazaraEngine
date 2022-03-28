@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangSourceLocation.hpp>
-#include <Nazara/Shader/Ast/Attribute.hpp>
+#include <Nazara/Shader/Ast/ExpressionValue.hpp>
 #include <Nazara/Shader/Ast/Module.hpp>
 #include <vector>
 

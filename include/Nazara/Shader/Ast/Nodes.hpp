@@ -13,10 +13,10 @@
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Shader/Config.hpp>
 #include <Nazara/Shader/ShaderLangSourceLocation.hpp>
-#include <Nazara/Shader/Ast/Attribute.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/ExpressionType.hpp>
+#include <Nazara/Shader/Ast/ExpressionValue.hpp>
 #include <array>
 #include <memory>
 #include <optional>
