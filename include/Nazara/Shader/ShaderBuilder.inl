@@ -315,6 +315,7 @@ namespace Nz::ShaderBuilder
 	inline ShaderAst::ExpressionStatementPtr Impl::ExpressionStatement::operator()(ShaderAst::ExpressionPtr expression) const
 	{
 		auto expressionStatementNode = std::make_unique<ShaderAst::ExpressionStatement>();
+		expressionStatementNode->sourceLocation = expression->sourceLocation;
 		expressionStatementNode->expression = std::move(expression);
 
 		return expressionStatementNode;
@@ -421,6 +422,7 @@ namespace Nz::ShaderBuilder
 	inline ShaderAst::ScopedStatementPtr Impl::Scoped::operator()(ShaderAst::StatementPtr statement) const
 	{
 		auto scopedNode = std::make_unique<ShaderAst::ScopedStatement>();
+		scopedNode->sourceLocation = statement->sourceLocation;
 		scopedNode->statement = std::move(statement);
 
 		return scopedNode;

@@ -34,7 +34,7 @@ namespace Nz::ShaderLang
 		public:
 			inline Error(SourceLocation sourceLocation, ErrorCategory errorCategory, unsigned int errorType) noexcept;
 			Error(const Error&) = delete;
-			Error(Error&&) = delete;
+			Error(Error&&) noexcept = default;
 			~Error() = default;
 
 			inline ErrorCategory GetErrorCategory() const;
@@ -45,7 +45,7 @@ namespace Nz::ShaderLang
 			const char* what() const noexcept override;
 
 			Error& operator=(const Error&) = delete;
-			Error& operator=(Error&&) = delete;
+			Error& operator=(Error&&) noexcept = default;
 
 		protected:
 			virtual std::string BuildErrorMessage() const = 0;
@@ -82,7 +82,7 @@ namespace Nz::ShaderLang
 	};
 
 #define NAZARA_SHADERLANG_NEWERRORTYPE(Prefix, BaseClass, ErrorType, ErrorName, ErrorString, ...) \
-	class Prefix ## ErrorName ## Error : public BaseClass \
+	class Prefix ## ErrorName ## Error final : public BaseClass \
 	{ \
 		public: \
 			template<typename... Args> Prefix ## ErrorName ## Error(SourceLocation sourceLocation, Args&&... args) : \
