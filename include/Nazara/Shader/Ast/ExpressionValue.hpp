@@ -4,13 +4,11 @@
 
 #pragma once
 
-#ifndef NAZARA_SHADER_AST_ATTRIBUTE_HPP
-#define NAZARA_SHADER_AST_ATTRIBUTE_HPP
+#ifndef NAZARA_SHADER_AST_EXPRESSIONVALUE_HPP
+#define NAZARA_SHADER_AST_EXPRESSIONVALUE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
-#include <memory>
-#include <optional>
 #include <variant>
 
 namespace Nz::ShaderAst
@@ -47,16 +45,8 @@ namespace Nz::ShaderAst
 		private:
 			std::variant<std::monostate, T, ExpressionPtr> m_value;
 	};
-
-	struct ExprValue
-	{
-		using Param = std::optional<ExpressionPtr>;
-
-		AttributeType type;
-		Param args;
-	};
 }
 
-#include <Nazara/Shader/Ast/Attribute.inl>
+#include <Nazara/Shader/Ast/ExpressionValue.inl>
 
-#endif // NAZARA_SHADER_AST_ATTRIBUTE_HPP
+#endif // NAZARA_SHADER_AST_EXPRESSIONVALUE_HPP

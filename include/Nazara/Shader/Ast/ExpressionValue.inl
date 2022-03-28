@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Shader module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Shader/Ast/Attribute.hpp>
+#include <Nazara/Shader/Ast/ExpressionValue.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/Shader/Debug.hpp>
