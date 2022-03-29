@@ -870,6 +870,7 @@ namespace Nz::ShaderAst
 				type = ShaderAst::Type{
 					containedTypeIndex
 				};
+				break;
 			}
 
 			case 10: //< FunctionType
@@ -880,6 +881,7 @@ namespace Nz::ShaderAst
 				type = FunctionType {
 					funcIndex
 				};
+				break;
 			}
 
 			case 11: //< IntrinsicFunctionType
@@ -890,6 +892,7 @@ namespace Nz::ShaderAst
 				type = IntrinsicFunctionType {
 					intrinsicType
 				};
+				break;
 			}
 
 			case 12: //< MethodType
@@ -906,6 +909,7 @@ namespace Nz::ShaderAst
 				methodType.methodIndex = methodIndex;
 
 				type = std::move(methodType);
+				break;
 			}
 
 			case 13: //< AliasType

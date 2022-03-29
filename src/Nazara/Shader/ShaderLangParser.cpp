@@ -58,59 +58,6 @@ namespace Nz::ShaderLang
 			{ "hint",   ShaderAst::LoopUnroll::Hint },
 			{ "never",  ShaderAst::LoopUnroll::Never }
 		};
-
-		template<typename T>
-		void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute)
-		{
-			if (targetAttribute.HasValue())
-				throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
-
-			if (!attribute.args)
-				throw ParserAttributeMissingParameterError{ attribute.sourceLocation, attribute.type };
-
-			targetAttribute = std::move(attribute.args);
-		}
-
-		template<typename T>
-		void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, T defaultValue)
-		{
-			if (targetAttribute.HasValue())
-				throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
-
-			if (attribute.args)
-				targetAttribute = std::move(attribute.args);
-			else
-				targetAttribute = std::move(defaultValue);
-		}
-
-		template<typename T>
-		void HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, const std::unordered_map<std::string, T>& map, std::optional<T> defaultValue = {})
-		{
-			if (targetAttribute.HasValue())
-				throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
-
-			//FIXME: This should be handled with global values at sanitization stage
-			if (attribute.args)
-			{
-				if (attribute.args->GetType() != ShaderAst::NodeType::IdentifierExpression)
-					throw ParserAttributeParameterIdentifierError{ attribute.args->sourceLocation, attribute.type };
-
-				const std::string& exprStr = static_cast<ShaderAst::IdentifierExpression&>(*attribute.args).identifier;
-
-				auto it = map.find(exprStr);
-				if (it == map.end())
-					throw ParserAttributeInvalidParameterError{ attribute.args->sourceLocation, exprStr, attribute.type };
-
-				targetAttribute = it->second;
-			}
-			else
-			{
-				if (!defaultValue)
-					throw ParserAttributeMissingParameterError{ attribute.sourceLocation, attribute.type };
-
-				targetAttribute = defaultValue.value();
-			}
-		}
 	}
 
 	ShaderAst::ModulePtr Parser::Parse(const std::vector<Token>& tokens)
@@ -1522,6 +1469,59 @@ namespace Nz::ShaderLang
 		}
 
 		return ParseExpression();
+	}
+
+	template<typename T>
+	void Parser::HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute)
+	{
+		if (targetAttribute.HasValue())
+			throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
+
+		if (!attribute.args)
+			throw ParserAttributeMissingParameterError{ attribute.sourceLocation, attribute.type };
+
+		targetAttribute = std::move(attribute.args);
+	}
+
+	template<typename T>
+	void Parser::HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, T defaultValue)
+	{
+		if (targetAttribute.HasValue())
+			throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
+
+		if (attribute.args)
+			targetAttribute = std::move(attribute.args);
+		else
+			targetAttribute = std::move(defaultValue);
+	}
+
+	template<typename T>
+	void Parser::HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, const std::unordered_map<std::string, T>& map, std::optional<T> defaultValue)
+	{
+		if (targetAttribute.HasValue())
+			throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
+
+		//FIXME: This should be handled with global values at sanitization stage
+		if (attribute.args)
+		{
+			if (attribute.args->GetType() != ShaderAst::NodeType::IdentifierExpression)
+				throw ParserAttributeParameterIdentifierError{ attribute.args->sourceLocation, attribute.type };
+
+			const std::string& exprStr = static_cast<ShaderAst::IdentifierExpression&>(*attribute.args).identifier;
+
+			auto it = map.find(exprStr);
+			if (it == map.end())
+				throw ParserAttributeInvalidParameterError{ attribute.args->sourceLocation, exprStr, attribute.type };
+
+			targetAttribute = it->second;
+		}
+		else
+		{
+			if (!defaultValue)
+				throw ParserAttributeMissingParameterError{ attribute.sourceLocation, attribute.type };
+
+			targetAttribute = defaultValue.value();
+		}
 	}
 
 	int Parser::GetTokenPrecedence(TokenType token)
