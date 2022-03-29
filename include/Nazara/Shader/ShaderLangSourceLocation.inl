@@ -58,7 +58,7 @@ namespace Nz::ShaderLang
 		assert(rightLocation.endLine >= startLine);
 		endLine = rightLocation.endLine;
 		assert(rightLocation.endLine > startLine || rightLocation.endColumn >= startColumn);
-		endColumn = endColumn;
+		endColumn = rightLocation.endColumn;
 	}
 
 	inline SourceLocation SourceLocation::BuildFromTo(const SourceLocation& leftSource, const SourceLocation& rightSource)
