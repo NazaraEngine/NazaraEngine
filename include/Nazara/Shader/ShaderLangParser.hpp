@@ -85,6 +85,10 @@ namespace Nz::ShaderLang
 			std::string ParseModuleName();
 			ShaderAst::ExpressionPtr ParseType();
 
+			template<typename T> void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute);
+			template<typename T> void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute, T defaultValue);
+			template<typename T> void HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute, const std::unordered_map<std::string, T>& map, std::optional<T> defaultValue = {});
+
 			static int GetTokenPrecedence(TokenType token);
 
 			struct Context

@@ -424,7 +424,6 @@ namespace Nz::ShaderAst
 		auto clone = std::make_unique<CastExpression>();
 		clone->targetType = Clone(node.targetType);
 
-		for (auto& expr : node.expressions)
 		for (std::size_t expressionIndex = 0; expressionIndex < node.expressions.size(); ++expressionIndex)
 		{
 			auto& expr = node.expressions[expressionIndex];
