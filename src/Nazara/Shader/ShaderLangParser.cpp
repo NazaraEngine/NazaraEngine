@@ -187,6 +187,8 @@ namespace Nz::ShaderLang
 
 	std::vector<Parser::Attribute> Parser::ParseAttributes()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::vector<Parser::Attribute> attributes;
 
 		Expect(Advance(), TokenType::OpenSquareBracket);
