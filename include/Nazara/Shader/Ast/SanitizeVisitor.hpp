@@ -39,8 +39,6 @@ namespace Nz::ShaderAst
 			SanitizeVisitor& operator=(const SanitizeVisitor&) = delete;
 			SanitizeVisitor& operator=(SanitizeVisitor&&) = delete;
 
-			static UInt32 ToSwizzleIndex(char c);
-
 			struct Options
 			{
 				std::shared_ptr<ShaderModuleResolver> moduleResolver;
@@ -113,13 +111,10 @@ namespace Nz::ShaderAst
 			const IdentifierData* FindIdentifier(const Environment& environment, const std::string_view& identifierName) const;
 			template<typename F> const IdentifierData* FindIdentifier(const Environment& environment, const std::string_view& identifierName, F&& functor) const;
 
-			ExpressionPtr HandleIdentifier(const IdentifierData* identifierData);
-
 			const ExpressionType* GetExpressionType(Expression& expr) const;
 			const ExpressionType& GetExpressionTypeSecure(Expression& expr) const;
 
-			Expression& MandatoryExpr(const ExpressionPtr& node) const;
-			Statement& MandatoryStatement(const StatementPtr& node) const;
+			ExpressionPtr HandleIdentifier(const IdentifierData* identifierData, const ShaderLang::SourceLocation& sourceLocation);
 
 			void PushScope();
 			void PopScope();
@@ -136,34 +131,31 @@ namespace Nz::ShaderAst
 
 			void RegisterBuiltin();
 
-			std::size_t RegisterAlias(std::string name, std::optional<IdentifierData> aliasData, std::optional<std::size_t> index = {});
-			std::size_t RegisterConstant(std::string name, std::optional<ConstantValue> value, std::optional<std::size_t> index = {});
-			std::size_t RegisterFunction(std::string name, std::optional<FunctionData> funcData, std::optional<std::size_t> index = {});
+			std::size_t RegisterAlias(std::string name, std::optional<IdentifierData> aliasData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t RegisterConstant(std::string name, std::optional<ConstantValue> value, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t RegisterFunction(std::string name, std::optional<FunctionData> funcData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type);
 			std::size_t RegisterModule(std::string moduleIdentifier, std::size_t moduleIndex);
-			std::size_t RegisterStruct(std::string name, std::optional<StructDescription*> description, std::optional<std::size_t> index = {});
-			std::size_t RegisterType(std::string name, std::optional<ExpressionType> expressionType, std::optional<std::size_t> index = {});
-			std::size_t RegisterType(std::string name, std::optional<PartialType> partialType, std::optional<std::size_t> index = {});
+			std::size_t RegisterStruct(std::string name, std::optional<StructDescription*> description, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t RegisterType(std::string name, std::optional<ExpressionType> expressionType, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t RegisterType(std::string name, std::optional<PartialType> partialType, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 			void RegisterUnresolved(std::string name);
-			std::size_t RegisterVariable(std::string name, std::optional<ExpressionType> type, std::optional<std::size_t> index = {});
+			std::size_t RegisterVariable(std::string name, std::optional<ExpressionType> type, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 
-			const IdentifierData* ResolveAliasIdentifier(const IdentifierData* identifier) const;
+			const IdentifierData* ResolveAliasIdentifier(const IdentifierData* identifier, const ShaderLang::SourceLocation& sourceLocation) const;
 			void ResolveFunctions();
 			std::size_t ResolveStruct(const AliasType& aliasType);
 			std::size_t ResolveStruct(const ExpressionType& exprType);
 			std::size_t ResolveStruct(const IdentifierType& identifierType);
 			std::size_t ResolveStruct(const StructType& structType);
 			std::size_t ResolveStruct(const UniformType& uniformType);
-			ExpressionType ResolveType(const ExpressionType& exprType, bool resolveAlias = false);
-			std::optional<ExpressionType> ResolveTypeExpr(const ExpressionValue<ExpressionType>& exprTypeValue, bool resolveAlias = false);
+			ExpressionType ResolveType(const ExpressionType& exprType, bool resolveAlias, const ShaderLang::SourceLocation& sourceLocation);
+			std::optional<ExpressionType> ResolveTypeExpr(const ExpressionValue<ExpressionType>& exprTypeValue, bool resolveAlias, const ShaderLang::SourceLocation& sourceLocation);
 
 			void SanitizeIdentifier(std::string& identifier);
 			MultiStatementPtr SanitizeInternal(MultiStatement& rootNode, std::string* error);
 
-			ValidationResult TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right) const;
-			void TypeMustMatch(const ExpressionType& left, const ExpressionType& right) const;
-
-			StatementPtr Unscope(StatementPtr node);
+			ValidationResult TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right, const ShaderLang::SourceLocation& sourceLocation);
 
 			ValidationResult Validate(DeclareAliasStatement& node);
 			ValidationResult Validate(WhileStatement& node);
@@ -178,7 +170,21 @@ namespace Nz::ShaderAst
 			ValidationResult Validate(SwizzleExpression& node);
 			ValidationResult Validate(UnaryExpression& node);
 			ValidationResult Validate(VariableValueExpression& node);
-			ExpressionType ValidateBinaryOp(BinaryType op, const ExpressionType& leftExprType, const ExpressionType& rightExprType);
+			ExpressionType ValidateBinaryOp(BinaryType op, const ExpressionType& leftExprType, const ExpressionType& rightExprType, const ShaderLang::SourceLocation& sourceLocation);
+
+			template<std::size_t N> ValidationResult ValidateIntrinsicParamCount(IntrinsicExpression& node);
+			ValidationResult ValidateIntrinsicParamMatchingType(IntrinsicExpression& node);
+			template<std::size_t N, typename F> ValidationResult ValidateIntrinsicParameter(IntrinsicExpression& node, F&& func);
+			template<std::size_t N, typename F> ValidationResult ValidateIntrinsicParameterType(IntrinsicExpression& node, F&& func);
+
+			static Expression& MandatoryExpr(const ExpressionPtr& node, const ShaderLang::SourceLocation& sourceLocation);
+			static Statement& MandatoryStatement(const StatementPtr& node, const ShaderLang::SourceLocation& sourceLocation);
+
+			static void TypeMustMatch(const ExpressionType& left, const ExpressionType& right, const ShaderLang::SourceLocation& sourceLocation);
+
+			static StatementPtr Unscope(StatementPtr node);
+
+			static UInt32 ToSwizzleIndex(char c, const ShaderLang::SourceLocation& sourceLocation);
 
 			enum class IdentifierCategory
 			{

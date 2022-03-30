@@ -811,6 +811,7 @@ namespace Nz::ShaderAst
 
 		auto binary = ShaderBuilder::Binary(node.op, std::move(lhs), std::move(rhs));
 		binary->cachedExpressionType = node.cachedExpressionType;
+		binary->sourceLocation = node.sourceLocation;
 
 		return binary;
 	}
@@ -931,6 +932,7 @@ namespace Nz::ShaderAst
 		
 		auto cast = ShaderBuilder::Cast(node.targetType.GetResultingValue(), std::move(expressions));
 		cast->cachedExpressionType = node.cachedExpressionType;
+		cast->sourceLocation = node.sourceLocation;
 
 		return cast;
 	}
@@ -996,7 +998,10 @@ namespace Nz::ShaderAst
 		if (!elseStatement)
 			elseStatement = CloneStatement(node.elseStatement);
 
-		return ShaderBuilder::Branch(std::move(statements), std::move(elseStatement));
+		auto branchStatement = ShaderBuilder::Branch(std::move(statements), std::move(elseStatement));
+		branchStatement->sourceLocation = node.sourceLocation;
+
+		return branchStatement;
 	}
 
 	ExpressionPtr AstConstantPropagationVisitor::Clone(ConditionalExpression& node)
@@ -1031,6 +1036,7 @@ namespace Nz::ShaderAst
 
 		auto constant = ShaderBuilder::Constant(*constantValue);
 		constant->cachedExpressionType = GetConstantType(constant->value);
+		constant->sourceLocation = node.sourceLocation;
 
 		return constant;
 	}
@@ -1082,6 +1088,7 @@ namespace Nz::ShaderAst
 
 		auto swizzle = ShaderBuilder::Swizzle(std::move(expr), node.components, node.componentCount);
 		swizzle->cachedExpressionType = node.cachedExpressionType;
+		swizzle->sourceLocation = node.sourceLocation;
 
 		return swizzle;
 	}
@@ -1116,6 +1123,7 @@ namespace Nz::ShaderAst
 
 		auto unary = ShaderBuilder::Unary(node.op, std::move(expr));
 		unary->cachedExpressionType = node.cachedExpressionType;
+		unary->sourceLocation = node.sourceLocation;
 
 		return unary;
 	}

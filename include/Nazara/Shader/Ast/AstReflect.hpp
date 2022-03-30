@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <vector>
 
@@ -41,12 +42,12 @@ namespace Nz::ShaderAst
 				std::function<void(const DeclareStructStatement& structDecl)> onStructDeclaration;
 				std::function<void(const DeclareVariableStatement& variableDecl)> onVariableDeclaration;
 
-				std::function<void(const std::string& name, std::size_t aliasIndex)> onAliasIndex;
-				std::function<void(const std::string& name, std::size_t constIndex)> onConstIndex;
-				std::function<void(const std::string& name, std::size_t funcIndex)> onFunctionIndex;
-				std::function<void(const std::string& name, std::size_t optIndex)> onOptionIndex;
-				std::function<void(const std::string& name, std::size_t structIndex)> onStructIndex;
-				std::function<void(const std::string& name, std::size_t varIndex)> onVariableIndex;
+				std::function<void(const std::string& name, std::size_t aliasIndex, const ShaderLang::SourceLocation& sourceLocation)> onAliasIndex;
+				std::function<void(const std::string& name, std::size_t constIndex, const ShaderLang::SourceLocation& sourceLocation)> onConstIndex;
+				std::function<void(const std::string& name, std::size_t funcIndex, const ShaderLang::SourceLocation& sourceLocation)> onFunctionIndex;
+				std::function<void(const std::string& name, std::size_t optIndex, const ShaderLang::SourceLocation& sourceLocation)> onOptionIndex;
+				std::function<void(const std::string& name, std::size_t structIndex, const ShaderLang::SourceLocation& sourceLocation)> onStructIndex;
+				std::function<void(const std::string& name, std::size_t varIndex, const ShaderLang::SourceLocation& sourceLocation)> onVariableIndex;
 			};
 
 		private:
