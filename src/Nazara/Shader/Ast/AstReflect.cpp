@@ -21,7 +21,7 @@ namespace Nz::ShaderAst
 			m_callbacks->onAliasDeclaration(node);
 
 		if (m_callbacks->onAliasIndex && node.aliasIndex)
-			m_callbacks->onAliasIndex(node.name, *node.aliasIndex);
+			m_callbacks->onAliasIndex(node.name, *node.aliasIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -33,7 +33,7 @@ namespace Nz::ShaderAst
 			m_callbacks->onConstDeclaration(node);
 
 		if (m_callbacks->onConstIndex && node.constIndex)
-			m_callbacks->onConstIndex(node.name, *node.constIndex);
+			m_callbacks->onConstIndex(node.name, *node.constIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -49,7 +49,7 @@ namespace Nz::ShaderAst
 			for (const auto& extVar : node.externalVars)
 			{
 				if (extVar.varIndex)
-					m_callbacks->onVariableIndex(extVar.name, *extVar.varIndex);
+					m_callbacks->onVariableIndex(extVar.name, *extVar.varIndex, extVar.sourceLocation);
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace Nz::ShaderAst
 			for (const auto& parameter : node.parameters)
 			{
 				if (parameter.varIndex)
-					m_callbacks->onVariableIndex(parameter.name, *parameter.varIndex);
+					m_callbacks->onVariableIndex(parameter.name, *parameter.varIndex, parameter.sourceLocation);
 			}
 		}
 
@@ -90,7 +90,7 @@ namespace Nz::ShaderAst
 			m_callbacks->onOptionDeclaration(node);
 
 		if (m_callbacks->onOptionIndex && node.optIndex)
-			m_callbacks->onOptionIndex(node.optName, *node.optIndex);
+			m_callbacks->onOptionIndex(node.optName, *node.optIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -102,7 +102,7 @@ namespace Nz::ShaderAst
 			m_callbacks->onStructDeclaration(node);
 
 		if (m_callbacks->onStructIndex && node.structIndex)
-			m_callbacks->onStructIndex(node.description.name, *node.structIndex);
+			m_callbacks->onStructIndex(node.description.name, *node.structIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -114,7 +114,7 @@ namespace Nz::ShaderAst
 			m_callbacks->onVariableDeclaration(node);
 
 		if (m_callbacks->onVariableIndex && node.varIndex)
-			m_callbacks->onVariableIndex(node.varName, *node.varIndex);
+			m_callbacks->onVariableIndex(node.varName, *node.varIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -123,7 +123,7 @@ namespace Nz::ShaderAst
 	{
 		assert(m_callbacks);
 		if (m_callbacks->onVariableIndex && node.varIndex)
-			m_callbacks->onVariableIndex(node.varName, *node.varIndex);
+			m_callbacks->onVariableIndex(node.varName, *node.varIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
@@ -132,7 +132,7 @@ namespace Nz::ShaderAst
 	{
 		assert(m_callbacks);
 		if (m_callbacks->onVariableIndex && node.varIndex)
-			m_callbacks->onVariableIndex(node.varName, *node.varIndex);
+			m_callbacks->onVariableIndex(node.varName, *node.varIndex, node.sourceLocation);
 
 		AstRecursiveVisitor::Visit(node);
 	}
