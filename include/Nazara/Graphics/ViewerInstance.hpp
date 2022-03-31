@@ -63,7 +63,7 @@ namespace Nz
 			Matrix4f m_viewMatrix;
 			Vector2f m_targetSize;
 			Vector3f m_eyePosition;
-			bool m_dataInvalided;
+			bool m_dataInvalidated;
 	};
 }
 
