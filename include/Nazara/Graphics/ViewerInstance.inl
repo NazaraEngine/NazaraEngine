@@ -61,7 +61,7 @@ namespace Nz
 	inline void ViewerInstance::UpdateEyePosition(const Vector3f& eyePosition)
 	{
 		m_eyePosition = eyePosition;
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateProjectionMatrix(const Matrix4f& projectionMatrix)
@@ -70,7 +70,7 @@ namespace Nz
 		if (!m_projectionMatrix.GetInverse(&m_invProjectionMatrix))
 			NazaraError("failed to inverse projection matrix");
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix)
@@ -78,7 +78,7 @@ namespace Nz
 		m_projectionMatrix = projectionMatrix;
 		m_invProjectionMatrix = invProjectionMatrix;
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& viewMatrix)
@@ -95,7 +95,7 @@ namespace Nz
 		if (!m_viewProjMatrix.GetInverse(&m_invViewProjMatrix))
 			NazaraError("failed to inverse view proj matrix");
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix, const Matrix4f& viewMatrix, const Matrix4f& invViewMatrix)
@@ -108,7 +108,7 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix, const Matrix4f& viewMatrix, const Matrix4f& invViewMatrix, const Matrix4f& viewProjMatrix, const Matrix4f& invViewProjMatrix)
@@ -121,14 +121,14 @@ namespace Nz
 		m_viewProjMatrix = viewProjMatrix;
 		m_invViewProjMatrix = invViewProjMatrix;
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateTargetSize(const Vector2f& targetSize)
 	{
 		m_targetSize = targetSize;
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateViewMatrix(const Matrix4f& viewMatrix)
@@ -140,7 +140,7 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 
 	inline void ViewerInstance::UpdateViewMatrix(const Matrix4f& viewMatrix, const Matrix4f& invViewMatrix)
@@ -151,7 +151,7 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 	}
 }
 

@@ -22,7 +22,7 @@ namespace Nz
 	m_viewMatrix(Matrix4f::Identity()),
 	m_targetSize(Vector2f::Zero()),
 	m_eyePosition(Vector3f::Zero()),
-	m_dataInvalided(true)
+	m_dataInvalidated(true)
 	{
 		PredefinedViewerData viewerUboOffsets = PredefinedViewerData::GetOffsets();
 
@@ -31,7 +31,7 @@ namespace Nz
 
 	void ViewerInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
 	{
-		if (m_dataInvalided)
+		if (m_dataInvalidated)
 		{
 			PredefinedViewerData viewerDataOffsets = PredefinedViewerData::GetOffsets();
 
@@ -49,7 +49,7 @@ namespace Nz
 
 			builder.CopyBuffer(allocation, m_viewerDataBuffer.get());
 
-			m_dataInvalided = false;
+			m_dataInvalidated = false;
 		}
 	}
 }
