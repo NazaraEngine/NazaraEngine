@@ -7,6 +7,7 @@
 #ifndef NAZARA_SHADER_AST_ASTTYPES_HPP
 #define NAZARA_SHADER_AST_ASTTYPES_HPP
 
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/ConstantValue.hpp>
 #include <Nazara/Shader/Ast/ExpressionType.hpp>
 #include <functional>
@@ -28,7 +29,7 @@ namespace Nz::ShaderAst
 	struct PartialType
 	{
 		std::vector<TypeParameterCategory> parameters;
-		std::function<ExpressionType(const TypeParameter* parameters, std::size_t parameterCount)> buildFunc;
+		std::function<ExpressionType(const TypeParameter* parameters, std::size_t parameterCount, const ShaderLang::SourceLocation& sourceLocation)> buildFunc;
 	};
 
 }

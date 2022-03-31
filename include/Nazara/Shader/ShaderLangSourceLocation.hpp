@@ -28,7 +28,7 @@ namespace Nz::ShaderLang
 
 		static inline SourceLocation BuildFromTo(const SourceLocation& leftSource, const SourceLocation& rightSource);
 
-		std::shared_ptr<const std::string> file; //< Since the same file will be used for every node, prevent holding X time the same path
+		std::shared_ptr<const std::string> file; //< Since the same file will be used for every node, prevent storing X time the same path
 		UInt32 endColumn;
 		UInt32 endLine;
 		UInt32 startColumn;

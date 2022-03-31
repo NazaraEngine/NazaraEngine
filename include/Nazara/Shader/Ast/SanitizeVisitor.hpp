@@ -60,7 +60,6 @@ namespace Nz::ShaderAst
 		private:
 			enum class IdentifierCategory;
 			enum class ValidationResult;
-			struct AstError;
 			struct CurrentFunctionData;
 			struct Environment;
 			struct FunctionData;
@@ -122,8 +121,8 @@ namespace Nz::ShaderAst
 			ExpressionPtr CacheResult(ExpressionPtr expression);
 
 			std::optional<ConstantValue> ComputeConstantValue(Expression& expr) const;
-			template<typename T> ValidationResult ComputeExprValue(ExpressionValue<T>& attribute) const;
-			template<typename T> ValidationResult ComputeExprValue(const ExpressionValue<T>& attribute, ExpressionValue<T>& targetAttribute);
+			template<typename T> ValidationResult ComputeExprValue(ExpressionValue<T>& attribute, const ShaderLang::SourceLocation& sourceLocation) const;
+			template<typename T> ValidationResult ComputeExprValue(const ExpressionValue<T>& attribute, ExpressionValue<T>& targetAttribute, const ShaderLang::SourceLocation& sourceLocation);
 			template<typename T> std::unique_ptr<T> PropagateConstants(T& node) const;
 
 			void PreregisterIndices(const Module& module);
@@ -144,11 +143,11 @@ namespace Nz::ShaderAst
 
 			const IdentifierData* ResolveAliasIdentifier(const IdentifierData* identifier, const ShaderLang::SourceLocation& sourceLocation) const;
 			void ResolveFunctions();
-			std::size_t ResolveStruct(const AliasType& aliasType);
-			std::size_t ResolveStruct(const ExpressionType& exprType);
-			std::size_t ResolveStruct(const IdentifierType& identifierType);
-			std::size_t ResolveStruct(const StructType& structType);
-			std::size_t ResolveStruct(const UniformType& uniformType);
+			std::size_t ResolveStruct(const AliasType& aliasType, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t ResolveStruct(const ExpressionType& exprType, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t ResolveStruct(const IdentifierType& identifierType, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t ResolveStruct(const StructType& structType, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t ResolveStruct(const UniformType& uniformType, const ShaderLang::SourceLocation& sourceLocation);
 			ExpressionType ResolveType(const ExpressionType& exprType, bool resolveAlias, const ShaderLang::SourceLocation& sourceLocation);
 			std::optional<ExpressionType> ResolveTypeExpr(const ExpressionValue<ExpressionType>& exprTypeValue, bool resolveAlias, const ShaderLang::SourceLocation& sourceLocation);
 

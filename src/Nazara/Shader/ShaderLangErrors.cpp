@@ -59,6 +59,24 @@ struct fmt::formatter<Nz::ShaderLang::ErrorCategory> : formatter<string_view>
 };
 
 template <>
+struct fmt::formatter<Nz::ShaderStageType> : formatter<string_view>
+{
+	template <typename FormatContext>
+	auto format(const Nz::ShaderStageType& p, FormatContext& ctx) -> decltype(ctx.out())
+	{
+		// TODO: Add ToString
+		std::string_view name = "<unhandled shader stage>";
+		switch (p)
+		{
+			case Nz::ShaderStageType::Fragment: name = "fragment"; break;
+			case Nz::ShaderStageType::Vertex:   name = "vertex"; break;
+		}
+
+		return formatter<string_view>::format(name, ctx);
+	}
+};
+
+template <>
 struct fmt::formatter<Nz::ShaderLang::TokenType> : formatter<string_view>
 {
 	template <typename FormatContext>
