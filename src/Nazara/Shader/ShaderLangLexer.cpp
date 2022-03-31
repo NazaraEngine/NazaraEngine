@@ -530,8 +530,6 @@ namespace Nz::ShaderLang
 			empty = false;
 		}
 
-		ss << '\n';
-
 		return std::move(ss).str();
 	}
 }
