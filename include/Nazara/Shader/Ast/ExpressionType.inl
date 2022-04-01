@@ -30,17 +30,6 @@ namespace Nz::ShaderAst
 	}
 
 
-	inline bool IdentifierType::operator==(const IdentifierType& rhs) const
-	{
-		return name == rhs.name;
-	}
-
-	inline bool IdentifierType::operator!=(const IdentifierType& rhs) const
-	{
-		return !operator==(rhs);
-	}
-
-
 	inline bool IntrinsicFunctionType::operator==(const IntrinsicFunctionType& rhs) const
 	{
 		return intrinsic == rhs.intrinsic;
@@ -148,11 +137,6 @@ namespace Nz::ShaderAst
 	inline bool IsFunctionType(const ExpressionType& type)
 	{
 		return std::holds_alternative<FunctionType>(type);
-	}
-
-	inline bool IsIdentifierType(const ExpressionType& type)
-	{
-		return std::holds_alternative<IdentifierType>(type);
 	}
 
 	inline bool IsIntrinsicFunctionType(const ExpressionType& type)
