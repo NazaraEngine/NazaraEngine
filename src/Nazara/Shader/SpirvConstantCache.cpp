@@ -704,12 +704,6 @@ namespace Nz
 		}, type);
 	}
 
-	auto SpirvConstantCache::BuildType(const ShaderAst::IdentifierType& /*type*/) const -> TypePtr
-	{
-		// No IdentifierType is expected (as they should have been resolved by now)
-		throw std::runtime_error("unexpected identifier");
-	}
-
 	auto SpirvConstantCache::BuildType(const ShaderAst::PrimitiveType& type) const -> TypePtr
 	{
 		return std::make_shared<Type>([&]() -> AnyType

@@ -61,14 +61,6 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const FunctionType& rhs) const;
 	};
 
-	struct IdentifierType
-	{
-		std::string name;
-
-		inline bool operator==(const IdentifierType& rhs) const;
-		inline bool operator!=(const IdentifierType& rhs) const;
-	};
-
 	struct IntrinsicFunctionType
 	{
 		IntrinsicType intrinsic;
@@ -151,7 +143,7 @@ namespace Nz::ShaderAst
 		inline bool operator!=(const VectorType& rhs) const;
 	};
 
-	using ExpressionType = std::variant<NoType, AliasType, ArrayType, FunctionType, IdentifierType, IntrinsicFunctionType, PrimitiveType, MatrixType, MethodType, SamplerType, StructType, Type, UniformType, VectorType>;
+	using ExpressionType = std::variant<NoType, AliasType, ArrayType, FunctionType, IntrinsicFunctionType, MatrixType, MethodType, PrimitiveType, SamplerType, StructType, Type, UniformType, VectorType>;
 
 	struct ContainedType
 	{
@@ -178,7 +170,6 @@ namespace Nz::ShaderAst
 	inline bool IsAliasType(const ExpressionType& type);
 	inline bool IsArrayType(const ExpressionType& type);
 	inline bool IsFunctionType(const ExpressionType& type);
-	inline bool IsIdentifierType(const ExpressionType& type);
 	inline bool IsIntrinsicFunctionType(const ExpressionType& type);
 	inline bool IsMatrixType(const ExpressionType& type);
 	inline bool IsMethodType(const ExpressionType& type);
@@ -189,6 +180,28 @@ namespace Nz::ShaderAst
 	inline bool IsTypeExpression(const ExpressionType& type);
 	inline bool IsUniformType(const ExpressionType& type);
 	inline bool IsVectorType(const ExpressionType& type);
+
+	struct Stringifier
+	{
+		std::function<std::string(std::size_t aliasIndex)> aliasStringifier;
+		std::function<std::string(std::size_t structIndex)> structStringifier;
+		std::function<std::string(std::size_t typeIndex)> typeStringifier;
+	};
+
+	std::string ToString(const AliasType& type, const Stringifier& stringifier = {});
+	std::string ToString(const ArrayType& type, const Stringifier& stringifier = {});
+	std::string ToString(const ExpressionType& type, const Stringifier& stringifier = {});
+	std::string ToString(const FunctionType& type, const Stringifier& stringifier = {});
+	std::string ToString(const IntrinsicFunctionType& type, const Stringifier& stringifier = {});
+	std::string ToString(const MatrixType& type, const Stringifier& stringifier = {});
+	std::string ToString(const MethodType& type, const Stringifier& stringifier = {});
+	std::string ToString(NoType type, const Stringifier& stringifier = {});
+	std::string ToString(PrimitiveType type, const Stringifier& stringifier = {});
+	std::string ToString(const SamplerType& type, const Stringifier& stringifier = {});
+	std::string ToString(const StructType& type, const Stringifier& stringifier = {});
+	std::string ToString(const Type& type, const Stringifier& stringifier = {});
+	std::string ToString(const UniformType& type, const Stringifier& stringifier = {});
+	std::string ToString(const VectorType& type, const Stringifier& stringifier = {});
 }
 
 #include <Nazara/Shader/Ast/ExpressionType.inl>

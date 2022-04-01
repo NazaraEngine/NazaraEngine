@@ -68,7 +68,7 @@ class ShaderGraph
 		QJsonObject Save();
 
 		Nz::ShaderAst::ModulePtr ToModule() const;
-		Nz::ShaderAst::ExpressionType ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
+		Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType> ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
 		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex);
 		void UpdateOption(std::size_t optionIndex, std::string option);

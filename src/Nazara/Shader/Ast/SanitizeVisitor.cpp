@@ -137,6 +137,12 @@ namespace Nz::ShaderAst
 		std::vector<Scope> scopes;
 	};
 
+	struct SanitizeVisitor::NamedPartialType
+	{
+		std::string name;
+		PartialType type;
+	};
+
 	struct SanitizeVisitor::Context
 	{
 		struct ModuleData
@@ -166,11 +172,11 @@ namespace Nz::ShaderAst
 		std::shared_ptr<Environment> moduleEnv;
 		IdentifierList<ConstantValue> constantValues;
 		IdentifierList<FunctionData> functions;
-		IdentifierList<IdentifierData> aliases;
+		IdentifierList<Identifier> aliases;
 		IdentifierList<IntrinsicType> intrinsics;
 		IdentifierList<std::size_t> moduleIndices;
 		IdentifierList<StructDescription*> structs;
-		IdentifierList<std::variant<ExpressionType, PartialType>> types;
+		IdentifierList<std::variant<ExpressionType, NamedPartialType>> types;
 		IdentifierList<ExpressionType> variableTypes;
 		ModulePtr currentModule;
 		Options options;
@@ -455,8 +461,8 @@ namespace Nz::ShaderAst
 
 	ExpressionPtr SanitizeVisitor::Clone(AliasValueExpression& node)
 	{
-		const IdentifierData* targetIdentifier = ResolveAliasIdentifier(&m_context->aliases.Retrieve(node.aliasId, node.sourceLocation), node.sourceLocation);
-		ExpressionPtr targetExpr = HandleIdentifier(targetIdentifier, node.sourceLocation);
+		const Identifier* targetIdentifier = ResolveAliasIdentifier(&m_context->aliases.Retrieve(node.aliasId, node.sourceLocation), node.sourceLocation);
+		ExpressionPtr targetExpr = HandleIdentifier(&targetIdentifier->target, node.sourceLocation);
 
 		if (m_context->options.removeAliases)
 			return targetExpr;
@@ -512,11 +518,11 @@ namespace Nz::ShaderAst
 			{
 				const auto& alias = static_cast<AliasValueExpression&>(*targetExpr);
 
-				const IdentifierData* targetIdentifier = ResolveAliasIdentifier(&m_context->aliases.Retrieve(alias.aliasId, node.sourceLocation), targetExpr->sourceLocation);
-				if (targetIdentifier->category != IdentifierCategory::Function)
+				const Identifier* aliasIdentifier = ResolveAliasIdentifier(&m_context->aliases.Retrieve(alias.aliasId, node.sourceLocation), targetExpr->sourceLocation);
+				if (aliasIdentifier->target.category != IdentifierCategory::Function)
 					throw ShaderLang::CompilerExpectedFunctionError{ targetExpr->sourceLocation };
 
-				targetFuncIndex = targetIdentifier->index;
+				targetFuncIndex = aliasIdentifier->target.index;
 			}
 			else
 				throw ShaderLang::CompilerExpectedFunctionError{ targetExpr->sourceLocation };
@@ -714,7 +720,7 @@ namespace Nz::ShaderAst
 		}
 
 		if (GetConstantType(*conditionValue) != ExpressionType{ PrimitiveType::Boolean })
-			throw ShaderLang::CompilerConditionExpectedBoolError{ cloneCondition->sourceLocation };
+			throw ShaderLang::CompilerConditionExpectedBoolError{ cloneCondition->sourceLocation, ToString(GetConstantType(*conditionValue), cloneCondition->sourceLocation) };
 
 		if (std::get<bool>(*conditionValue))
 			return AstCloner::Clone(*node.truePath);
@@ -868,7 +874,7 @@ namespace Nz::ShaderAst
 					return AstCloner::Clone(node); //< Unresolvable condition
 
 				if (GetConstantType(*conditionValue) != ExpressionType{ PrimitiveType::Boolean })
-					throw ShaderLang::CompilerConditionExpectedBoolError{ cond.condition->sourceLocation };
+					throw ShaderLang::CompilerConditionExpectedBoolError{ cond.condition->sourceLocation, ToString(GetConstantType(*conditionValue), cond.condition->sourceLocation) };
 
 				if (std::get<bool>(*conditionValue))
 					return Unscope(AstCloner::Clone(*cond.statement));
@@ -903,7 +909,7 @@ namespace Nz::ShaderAst
 					return ValidationResult::Unresolved;
 
 				if (!IsPrimitiveType(*condType) || std::get<PrimitiveType>(*condType) != PrimitiveType::Boolean)
-					throw ShaderLang::CompilerConditionExpectedBoolError{ condStatement.condition->sourceLocation };
+					throw ShaderLang::CompilerConditionExpectedBoolError{ condStatement.condition->sourceLocation, ToString(*condType, condStatement.condition->sourceLocation)};
 
 				condStatement.statement = CloneStatement(MandatoryStatement(cond.statement, node.sourceLocation));
 				return ValidationResult::Validated;
@@ -956,7 +962,7 @@ namespace Nz::ShaderAst
 		}
 
 		if (GetConstantType(*conditionValue) != ExpressionType{ PrimitiveType::Boolean })
-			throw ShaderLang::CompilerConditionExpectedBoolError{ cloneCondition->sourceLocation };
+			throw ShaderLang::CompilerConditionExpectedBoolError{ cloneCondition->sourceLocation, ToString(GetConstantType(*conditionValue), cloneCondition->sourceLocation) };
 
 		if (std::get<bool>(*conditionValue))
 			return AstCloner::Clone(*node.statement);
@@ -999,7 +1005,7 @@ namespace Nz::ShaderAst
 		std::optional<ExpressionType> constType = ResolveTypeExpr(clone->type, true, node.sourceLocation);
 
 		if (clone->type.HasValue() && constType.has_value() && *constType != ResolveAlias(expressionType))
-			throw ShaderLang::CompilerVarDeclarationTypeUnmatchingError{ clone->expression->sourceLocation };
+			throw ShaderLang::CompilerVarDeclarationTypeUnmatchingError{ clone->expression->sourceLocation, ToString(expressionType, clone->expression->sourceLocation), ToString(*constType, node.sourceLocation) };
 
 		clone->type = expressionType;
 
@@ -1070,7 +1076,7 @@ namespace Nz::ShaderAst
 			else if (IsSamplerType(targetType))
 				varType = targetType;
 			else
-				throw ShaderLang::CompilerExtTypeNotAllowedError{ extVar.sourceLocation, extVar.name };
+				throw ShaderLang::CompilerExtTypeNotAllowedError{ extVar.sourceLocation, extVar.name, ToString(*resolvedType, extVar.sourceLocation) };
 
 			extVar.type = std::move(resolvedType).value();
 			extVar.varIndex = RegisterVariable(extVar.name, std::move(varType), extVar.varIndex, extVar.sourceLocation);
@@ -1123,7 +1129,7 @@ namespace Nz::ShaderAst
 			if (!m_context->options.allowPartialSanitization)
 			{
 				if (m_context->entryFunctions[UnderlyingCast(stageType)])
-					throw ShaderLang::CompilerEntryPointAlreadyDefinedError{ clone->sourceLocation };
+					throw ShaderLang::CompilerEntryPointAlreadyDefinedError{ clone->sourceLocation, stageType };
 
 				m_context->entryFunctions[UnderlyingCast(stageType)] = &node;
 			}
@@ -1342,7 +1348,7 @@ namespace Nz::ShaderAst
 		MandatoryStatement(node.statement, node.sourceLocation);
 
 		const ExpressionType* fromExprType = GetExpressionType(*fromExpr);
-		const ExpressionType* toExprType = GetExpressionType(*fromExpr);
+		const ExpressionType* toExprType = GetExpressionType(*toExpr);
 
 		ExpressionValue<LoopUnroll> unrollValue;
 
@@ -1381,15 +1387,15 @@ namespace Nz::ShaderAst
 
 		const ExpressionType& resolvedFromExprType = ResolveAlias(*fromExprType);
 		if (!IsPrimitiveType(resolvedFromExprType))
-			throw ShaderLang::CompilerForFromTypeExpectIntegerTypeError{ fromExpr->sourceLocation };
+			throw ShaderLang::CompilerForFromTypeExpectIntegerTypeError{ fromExpr->sourceLocation, ToString(*fromExprType, fromExpr->sourceLocation) };
 
 		PrimitiveType counterType = std::get<PrimitiveType>(resolvedFromExprType);
 		if (counterType != PrimitiveType::Int32 && counterType != PrimitiveType::UInt32)
-			throw ShaderLang::CompilerForFromTypeExpectIntegerTypeError{ fromExpr->sourceLocation };
+			throw ShaderLang::CompilerForFromTypeExpectIntegerTypeError{ fromExpr->sourceLocation, ToString(*fromExprType, fromExpr->sourceLocation) };
 
 		const ExpressionType& resolvedToExprType = ResolveAlias(*toExprType);
 		if (resolvedToExprType != resolvedFromExprType)
-			throw ShaderLang::CompilerForToUnmatchingTypeError{ toExpr->sourceLocation };
+			throw ShaderLang::CompilerForToUnmatchingTypeError{ toExpr->sourceLocation, ToString(*toExprType, toExpr->sourceLocation), ToString(*fromExprType, fromExpr->sourceLocation) };
 
 		if (stepExpr)
 		{
@@ -1399,7 +1405,7 @@ namespace Nz::ShaderAst
 
 			const ExpressionType& resolvedStepExprType = ResolveAlias(*stepExprType);
 			if (resolvedStepExprType != resolvedFromExprType)
-				throw ShaderLang::CompilerForStepUnmatchingTypeError{ stepExpr->sourceLocation };
+				throw ShaderLang::CompilerForStepUnmatchingTypeError{ stepExpr->sourceLocation, ToString(*stepExprType, stepExpr->sourceLocation), ToString(*fromExprType, fromExpr->sourceLocation) };
 		}
 
 		if (unrollValue.HasValue())
@@ -1570,7 +1576,7 @@ namespace Nz::ShaderAst
 			innerType = arrayType.containedType->type;
 		}
 		else
-			throw ShaderLang::CompilerForEachUnsupportedTypeError{ node.sourceLocation };
+			throw ShaderLang::CompilerForEachUnsupportedTypeError{ node.sourceLocation, ToString(*exprType, node.sourceLocation) };
 
 		ExpressionValue<LoopUnroll> unrollValue;
 		if (node.unroll.HasValue())
@@ -1896,7 +1902,7 @@ namespace Nz::ShaderAst
 				return nullptr;
 		}
 
-		return &it->data;
+		return &it->target;
 	}
 
 	template<typename F>
@@ -1906,7 +1912,7 @@ namespace Nz::ShaderAst
 		{
 			if (identifier.name == identifierName)
 			{
-				if (functor(identifier.data))
+				if (functor(identifier.target))
 					return true;
 			}
 
@@ -1920,7 +1926,7 @@ namespace Nz::ShaderAst
 				return nullptr;
 		}
 
-		return &it->data;
+		return &it->target;
 	}
 
 	const ExpressionType* SanitizeVisitor::GetExpressionType(Expression& expr) const
@@ -2228,7 +2234,7 @@ namespace Nz::ShaderAst
 				{
 					Int32 value = std::get<Int32>(length);
 					if (value <= 0)
-						throw ShaderLang::CompilerArrayLengthError{ sourceLocation };
+						throw ShaderLang::CompilerArrayLengthError{ sourceLocation, std::to_string(value) };
 
 					lengthValue = SafeCast<UInt32>(value);
 				}
@@ -2236,10 +2242,10 @@ namespace Nz::ShaderAst
 				{
 					lengthValue = std::get<UInt32>(length);
 					if (lengthValue == 0)
-						throw ShaderLang::CompilerArrayLengthError{ sourceLocation };
+						throw ShaderLang::CompilerArrayLengthError{ sourceLocation, std::to_string(lengthValue) };
 				}
 				else
-					throw ShaderLang::CompilerArrayLengthError{ sourceLocation };
+					throw ShaderLang::CompilerArrayLengthError{ sourceLocation, ToString(GetConstantType(length), sourceLocation) };
 
 				ArrayType arrayType;
 				arrayType.containedType = std::make_unique<ContainedType>();
@@ -2326,7 +2332,7 @@ namespace Nz::ShaderAst
 
 					// TODO: Add support for integer samplers
 					if (primitiveType != PrimitiveType::Float32)
-						throw ShaderLang::CompilerSamplerUnexpectedTypeError{ sourceLocation };
+						throw ShaderLang::CompilerSamplerUnexpectedTypeError{ sourceLocation, ToString(exprType, sourceLocation) };
 
 					return SamplerType {
 						sampler.imageType, primitiveType
@@ -2365,7 +2371,7 @@ namespace Nz::ShaderAst
 		RegisterIntrinsic("reflect", IntrinsicType::Reflect);
 	}
 
-	std::size_t SanitizeVisitor::RegisterAlias(std::string name, std::optional<IdentifierData> aliasData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation)
+	std::size_t SanitizeVisitor::RegisterAlias(std::string name, std::optional<Identifier> aliasData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation)
 	{
 		if (FindIdentifier(name))
 			throw ShaderLang::CompilerIdentifierAlreadyUsedError{ sourceLocation, name };
@@ -2553,7 +2559,13 @@ namespace Nz::ShaderAst
 
 		std::size_t typeIndex;
 		if (partialType)
-			typeIndex = m_context->types.Register(std::move(*partialType), index, sourceLocation);
+		{
+			NamedPartialType namedPartial;
+			namedPartial.name = name;
+			namedPartial.type = std::move(*partialType);
+
+			typeIndex = m_context->types.Register(std::move(namedPartial), index, sourceLocation);
+		}
 		else if (index)
 		{
 			m_context->types.PreregisterIndex(*index, sourceLocation);
@@ -2609,10 +2621,10 @@ namespace Nz::ShaderAst
 		return varIndex;
 	}
 
-	auto SanitizeVisitor::ResolveAliasIdentifier(const IdentifierData* identifier, const ShaderLang::SourceLocation& sourceLocation) const -> const IdentifierData*
+	auto SanitizeVisitor::ResolveAliasIdentifier(const Identifier* identifier, const ShaderLang::SourceLocation& sourceLocation) const -> const Identifier*
 	{
-		while (identifier->category == IdentifierCategory::Alias)
-			identifier = &m_context->aliases.Retrieve(identifier->index, sourceLocation);
+		while (identifier->target.category == IdentifierCategory::Alias)
+			identifier = &m_context->aliases.Retrieve(identifier->target.index, sourceLocation);
 
 		return identifier;
 	}
@@ -2682,7 +2694,7 @@ namespace Nz::ShaderAst
 		{
 			using T = std::decay_t<decltype(arg)>;
 
-			if constexpr (std::is_same_v<T, IdentifierType> || std::is_same_v<T, StructType> || std::is_same_v<T, UniformType> || std::is_same_v<T, AliasType>)
+			if constexpr (std::is_same_v<T, StructType> || std::is_same_v<T, UniformType> || std::is_same_v<T, AliasType>)
 				return ResolveStruct(arg, sourceLocation);
 			else if constexpr (std::is_same_v<T, NoType> ||
 			                   std::is_same_v<T, ArrayType> ||
@@ -2695,23 +2707,11 @@ namespace Nz::ShaderAst
 			                   std::is_same_v<T, Type> ||
 			                   std::is_same_v<T, VectorType>)
 			{
-				throw ShaderLang::CompilerStructExpectedError{ sourceLocation };
+				throw ShaderLang::CompilerStructExpectedError{ sourceLocation, ToString(exprType, sourceLocation) };
 			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
 		}, exprType);
-	}
-
-	std::size_t SanitizeVisitor::ResolveStruct(const IdentifierType& identifierType, const ShaderLang::SourceLocation& sourceLocation)
-	{
-		const IdentifierData* identifierData = FindIdentifier(identifierType.name);
-		if (!identifierData)
-			throw ShaderLang::CompilerUnknownIdentifierError{ sourceLocation, identifierType.name };
-
-		if (identifierData->category != IdentifierCategory::Struct)
-			throw ShaderLang::CompilerStructExpectedError{ sourceLocation };
-
-		return identifierData->index;
 	}
 
 	std::size_t SanitizeVisitor::ResolveStruct(const StructType& structType, const ShaderLang::SourceLocation& /*sourceLocation*/)
@@ -2737,8 +2737,8 @@ namespace Nz::ShaderAst
 		std::size_t typeIndex = std::get<Type>(exprType).typeIndex;
 
 		const auto& type = m_context->types.Retrieve(typeIndex, sourceLocation);
-		if (std::holds_alternative<PartialType>(type))
-			throw ShaderLang::CompilerFullTypeExpectedError{ sourceLocation };
+		if (!std::holds_alternative<ExpressionType>(type))
+			throw ShaderLang::CompilerFullTypeExpectedError{ sourceLocation, ToString(type, sourceLocation) };
 
 		return std::get<ExpressionType>(type);
 	}
@@ -2799,6 +2799,47 @@ namespace Nz::ShaderAst
 		return output;
 	}
 
+	std::string SanitizeVisitor::ToString(const ExpressionType& exprType, const ShaderLang::SourceLocation& sourceLocation) const
+	{
+		Stringifier stringifier;
+		stringifier.aliasStringifier = [&](std::size_t aliasIndex)
+		{
+			return m_context->aliases.Retrieve(aliasIndex, sourceLocation).name;
+		};
+
+		stringifier.structStringifier = [&](std::size_t structIndex)
+		{
+			return m_context->structs.Retrieve(structIndex, sourceLocation)->name;
+		};
+
+		stringifier.typeStringifier = [&](std::size_t typeIndex)
+		{
+			return ToString(m_context->types.Retrieve(typeIndex, sourceLocation), sourceLocation);
+		};
+
+		return ShaderAst::ToString(exprType, stringifier);
+	}
+
+	std::string SanitizeVisitor::ToString(const NamedPartialType& partialType, const ShaderLang::SourceLocation& /*sourceLocation*/) const
+	{
+		return partialType.name + " (partial)";
+	}
+
+	template<typename... Args>
+	std::string SanitizeVisitor::ToString(const std::variant<Args...>& value, const ShaderLang::SourceLocation& sourceLocation) const
+	{
+		return std::visit([&](auto&& arg)
+		{
+			return ToString(arg, sourceLocation);
+		}, value);
+	}
+
+	void SanitizeVisitor::TypeMustMatch(const ExpressionType& left, const ExpressionType& right, const ShaderLang::SourceLocation& sourceLocation) const
+	{
+		if (ResolveAlias(left) != ResolveAlias(right))
+			throw ShaderLang::CompilerUnmatchingTypesError{ sourceLocation, ToString(left, sourceLocation), ToString(right, sourceLocation) };
+	}
+
 	auto SanitizeVisitor::TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right, const ShaderLang::SourceLocation& sourceLocation) -> ValidationResult
 	{
 		const ExpressionType* leftType = GetExpressionType(*left);
@@ -2821,26 +2862,29 @@ namespace Nz::ShaderAst
 
 		const ExpressionType& resolvedType = ResolveAlias(*exprType);
 
-		IdentifierData targetIdentifier;
+		Identifier aliasIdentifier;
+		aliasIdentifier.name = node.name;
+
 		if (IsStructType(resolvedType))
 		{
 			std::size_t structIndex = ResolveStruct(resolvedType, node.expression->sourceLocation);
-			targetIdentifier = { structIndex, IdentifierCategory::Struct };
+			aliasIdentifier.target = { structIndex, IdentifierCategory::Struct };
 		}
 		else if (IsFunctionType(resolvedType))
 		{
 			std::size_t funcIndex = std::get<FunctionType>(resolvedType).funcIndex;
-			targetIdentifier = { funcIndex, IdentifierCategory::Function };
+			aliasIdentifier.target = { funcIndex, IdentifierCategory::Function };
 		}
 		else if (IsAliasType(resolvedType))
 		{
 			const AliasType& alias = std::get<AliasType>(resolvedType);
-			targetIdentifier = { alias.aliasIndex, IdentifierCategory::Alias };
+			aliasIdentifier.target = { alias.aliasIndex, IdentifierCategory::Alias };
 		}
 		else
-			throw ShaderLang::CompilerAliasUnexpectedTypeError{ node.sourceLocation };
+			throw ShaderLang::CompilerAliasUnexpectedTypeError{ node.sourceLocation, ToString(*exprType, node.expression->sourceLocation) };
 
-		node.aliasIndex = RegisterAlias(node.name, targetIdentifier, node.aliasIndex, node.sourceLocation);
+
+		node.aliasIndex = RegisterAlias(node.name, std::move(aliasIdentifier), node.aliasIndex, node.sourceLocation);
 		return ValidationResult::Validated;
 	}
 
@@ -2853,7 +2897,7 @@ namespace Nz::ShaderAst
 			return ValidationResult::Unresolved;
 
 		if (ResolveAlias(*conditionType) != ExpressionType{ PrimitiveType::Boolean })
-			throw ShaderLang::CompilerConditionExpectedBoolError{ node.condition->sourceLocation };
+			throw ShaderLang::CompilerConditionExpectedBoolError{ node.condition->sourceLocation, ToString(*conditionType, node.condition->sourceLocation) };
 
 		return ValidationResult::Validated;
 	}
@@ -2871,18 +2915,18 @@ namespace Nz::ShaderAst
 			std::size_t typeIndex = std::get<Type>(resolvedExprType).typeIndex;
 			const auto& type = m_context->types.Retrieve(typeIndex, node.sourceLocation);
 
-			if (!std::holds_alternative<PartialType>(type))
-				throw ShaderLang::CompilerExpectedPartialTypeError{ node.sourceLocation };
+			if (!std::holds_alternative<NamedPartialType>(type))
+				throw ShaderLang::CompilerExpectedPartialTypeError{ node.sourceLocation, ToString(std::get<ExpressionType>(type), node.sourceLocation) };
 
-			const PartialType& partialType = std::get<PartialType>(type);
-			if (partialType.parameters.size() != node.indices.size())
-				throw ShaderLang::CompilerPartialTypeParameterCountMismatchError{ node.sourceLocation, SafeCast<UInt32>(partialType.parameters.size()), SafeCast<UInt32>(node.indices.size()) };
+			const auto& partialType = std::get<NamedPartialType>(type);
+			if (partialType.type.parameters.size() != node.indices.size())
+				throw ShaderLang::CompilerPartialTypeParameterCountMismatchError{ node.sourceLocation, SafeCast<UInt32>(partialType.type.parameters.size()), SafeCast<UInt32>(node.indices.size()) };
 
-			StackVector<TypeParameter> parameters = NazaraStackVector(TypeParameter, partialType.parameters.size());
-			for (std::size_t i = 0; i < partialType.parameters.size(); ++i)
+			StackVector<TypeParameter> parameters = NazaraStackVector(TypeParameter, partialType.type.parameters.size());
+			for (std::size_t i = 0; i < partialType.type.parameters.size(); ++i)
 			{
 				const ExpressionPtr& indexExpr = node.indices[i];
-				switch (partialType.parameters[i])
+				switch (partialType.type.parameters[i])
 				{
 					case TypeParameterCategory::ConstantValue:
 					{
@@ -2904,7 +2948,7 @@ namespace Nz::ShaderAst
 
 						ExpressionType resolvedType = ResolveType(*indexExprType, true, node.sourceLocation);
 
-						switch (partialType.parameters[i])
+						switch (partialType.type.parameters[i])
 						{
 							case TypeParameterCategory::PrimitiveType:
 							{
@@ -2932,8 +2976,8 @@ namespace Nz::ShaderAst
 				}
 			}
 
-			assert(parameters.size() == partialType.parameters.size());
-			node.cachedExpressionType = partialType.buildFunc(parameters.data(), parameters.size(), node.sourceLocation);
+			assert(parameters.size() == partialType.type.parameters.size());
+			node.cachedExpressionType = partialType.type.buildFunc(parameters.data(), parameters.size(), node.sourceLocation);
 		}
 		else
 		{
@@ -2947,11 +2991,11 @@ namespace Nz::ShaderAst
 					return ValidationResult::Unresolved;
 
 				if (!IsPrimitiveType(*indexType))
-					throw ShaderLang::CompilerIndexRequiresIntegerIndicesError{ node.sourceLocation };
+					throw ShaderLang::CompilerIndexRequiresIntegerIndicesError{ node.sourceLocation, ToString(*indexType, indexExpr->sourceLocation) };
 
 				PrimitiveType primitiveIndexType = std::get<PrimitiveType>(*indexType);
 				if (primitiveIndexType != PrimitiveType::Int32 && primitiveIndexType != PrimitiveType::UInt32)
-					throw ShaderLang::CompilerIndexRequiresIntegerIndicesError{ node.sourceLocation };
+					throw ShaderLang::CompilerIndexRequiresIntegerIndicesError{ node.sourceLocation, ToString(*indexType, indexExpr->sourceLocation) };
 
 				if (IsArrayType(resolvedExprType))
 				{
@@ -2962,7 +3006,7 @@ namespace Nz::ShaderAst
 				else if (IsStructType(resolvedExprType))
 				{
 					if (primitiveIndexType != PrimitiveType::Int32)
-						throw ShaderLang::CompilerIndexStructRequiresInt32IndicesError{ node.sourceLocation };
+						throw ShaderLang::CompilerIndexStructRequiresInt32IndicesError{ node.sourceLocation, ToString(*indexType, indexExpr->sourceLocation) };
 
 					ConstantValueExpression& constantExpr = static_cast<ConstantValueExpression&>(*indexExpr);
 
@@ -2993,7 +3037,7 @@ namespace Nz::ShaderAst
 					resolvedExprType = swizzledVec.type;
 				}
 				else
-					throw ShaderLang::CompilerIndexUnexpectedTypeError{ node.sourceLocation };
+					throw ShaderLang::CompilerIndexUnexpectedTypeError{ node.sourceLocation, ToString(*indexType, indexExpr->sourceLocation) };
 			}
 
 			node.cachedExpressionType = std::move(resolvedExprType);
@@ -3072,11 +3116,11 @@ namespace Nz::ShaderAst
 		{
 			const auto& alias = static_cast<AliasValueExpression&>(*node.targetFunction);
 
-			const IdentifierData* targetIdentifier = ResolveAliasIdentifier(&m_context->aliases.Retrieve(alias.aliasId, node.sourceLocation), node.sourceLocation);
-			if (targetIdentifier->category != IdentifierCategory::Function)
+			const Identifier* aliasIdentifier = ResolveAliasIdentifier(&m_context->aliases.Retrieve(alias.aliasId, node.sourceLocation), node.sourceLocation);
+			if (aliasIdentifier->target.category != IdentifierCategory::Function)
 				throw ShaderLang::CompilerFunctionCallExpectedFunctionError{ node.sourceLocation };
 
-			targetFuncIndex = targetIdentifier->index;
+			targetFuncIndex = aliasIdentifier->target.index;
 		}
 		else
 			throw ShaderLang::CompilerFunctionCallExpectedFunctionError{ node.sourceLocation };
@@ -3095,7 +3139,7 @@ namespace Nz::ShaderAst
 				return ValidationResult::Unresolved;
 
 			if (ResolveAlias(*parameterType) != ResolveAlias(referenceDeclaration->parameters[i].type.GetResultingValue()))
-				throw ShaderLang::CompilerFunctionCallUnmatchingParameterTypeError{ node.sourceLocation, referenceDeclaration->name, SafeCast<UInt32>(i) };
+				throw ShaderLang::CompilerFunctionCallUnmatchingParameterTypeError{ node.sourceLocation, referenceDeclaration->name, SafeCast<UInt32>(i), ToString(referenceDeclaration->parameters[i].type.GetResultingValue(), referenceDeclaration->parameters[i].sourceLocation), ToString(*parameterType, node.parameters[i]->sourceLocation) };
 		}
 
 		if (node.parameters.size() != referenceDeclaration->parameters.size())
@@ -3126,18 +3170,21 @@ namespace Nz::ShaderAst
 			if (IsMatrixType(ResolveAlias(*firstExprType)))
 			{
 				if (node.expressions[1])
-					throw ShaderLang::CompilerCastComponentMismatchError{ node.expressions[1]->sourceLocation };
+					throw ShaderLang::CompilerCastComponentMismatchError{ node.expressions[1]->sourceLocation, 2, 1 }; //< get real component count
 
 				// Matrix to matrix cast: always valid
 			}
 			else
 			{
 				assert(targetMatrixType.columnCount <= 4);
+				UInt32 expressionCount = 0;
 				for (std::size_t i = 0; i < targetMatrixType.columnCount; ++i)
 				{
 					const auto& exprPtr = node.expressions[i];
 					if (!exprPtr)
-						throw ShaderLang::CompilerCastComponentMismatchError{ node.sourceLocation };
+						throw ShaderLang::CompilerCastComponentMismatchError{ node.sourceLocation, expressionCount, SafeCast<UInt32>(targetMatrixType.columnCount) };
+
+					expressionCount++;
 
 					const ExpressionType* exprType = GetExpressionType(*exprPtr);
 					if (!exprType)
@@ -3145,7 +3192,7 @@ namespace Nz::ShaderAst
 
 					const ExpressionType& resolvedExprType = ResolveAlias(*exprType);
 					if (!IsVectorType(resolvedExprType))
-						throw ShaderLang::CompilerCastMatrixExpectedVectorError{ node.sourceLocation };
+						throw ShaderLang::CompilerCastMatrixExpectedVectorError{ node.sourceLocation, ToString(resolvedExprType, node.expressions[i]->sourceLocation) };
 
 					const VectorType& vecType = std::get<VectorType>(resolvedExprType);
 					if (vecType.componentCount != targetMatrixType.rowCount)
@@ -3180,13 +3227,13 @@ namespace Nz::ShaderAst
 
 				const ExpressionType& resolvedExprType = ResolveAlias(*exprType);
 				if (!IsPrimitiveType(resolvedExprType) && !IsVectorType(resolvedExprType))
-					throw ShaderLang::CompilerCastIncompatibleTypesError{ exprPtr->sourceLocation };
+					throw ShaderLang::CompilerCastIncompatibleTypesError{ exprPtr->sourceLocation, ToString(targetType, node.sourceLocation), ToString(resolvedExprType, exprPtr->sourceLocation) };
 
 				componentCount += GetComponentCount(resolvedExprType);
 			}
 
 			if (componentCount != requiredComponents)
-				throw ShaderLang::CompilerCastComponentMismatchError{ node.sourceLocation };
+				throw ShaderLang::CompilerCastComponentMismatchError{ node.sourceLocation, SafeCast<UInt32>(componentCount), SafeCast<UInt32>(requiredComponents) };
 		}
 
 		node.cachedExpressionType = targetType;
@@ -3309,7 +3356,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::CrossProduct:
 				if (IsUnresolved(ValidateIntrinsicParamCount<2>(node))
 				 || IsUnresolved(ValidateIntrinsicParamMatchingType(node))
-				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector)))
+				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector, "floating-point vector")))
 					return ValidationResult::Unresolved;
 
 				return SetReturnTypeToFirstParameterType();
@@ -3317,7 +3364,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::DotProduct:
 				if (IsUnresolved(ValidateIntrinsicParamCount<2>(node))
 				 || IsUnresolved(ValidateIntrinsicParamMatchingType(node))
-				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector)))
+				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector, "floating-point vector")))
 					return ValidationResult::Unresolved;
 
 				return SetReturnTypeToFirstParameterInnerType();
@@ -3331,7 +3378,7 @@ namespace Nz::ShaderAst
 
 			case IntrinsicType::Length:
 				if (IsUnresolved(ValidateIntrinsicParamCount<1>(node))
-				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector)))
+				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector, "floating-point vector")))
 					return ValidationResult::Unresolved;
 
 				return SetReturnTypeToFirstParameterInnerType();
@@ -3347,7 +3394,7 @@ namespace Nz::ShaderAst
 
 			case IntrinsicType::Normalize:
 				if (IsUnresolved(ValidateIntrinsicParamCount<1>(node))
-				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector)))
+				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector, "floating-point vector")))
 					return ValidationResult::Unresolved;
 
 				return SetReturnTypeToFirstParameterType();
@@ -3363,7 +3410,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::Reflect:
 				if (IsUnresolved(ValidateIntrinsicParamCount<2>(node))
 				 || IsUnresolved(ValidateIntrinsicParamMatchingType(node))
-				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector)))
+				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsFloatingPointVector, "floating-point vector")))
 					return ValidationResult::Unresolved;
 
 				return SetReturnTypeToFirstParameterType();
@@ -3371,7 +3418,7 @@ namespace Nz::ShaderAst
 			case IntrinsicType::SampleTexture:
 			{
 				if (IsUnresolved(ValidateIntrinsicParamCount<2>(node))
-				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsSamplerType)))
+				 || IsUnresolved(ValidateIntrinsicParameterType<0>(node, IsSamplerType, "sampler type")))
 					return ValidationResult::Unresolved;
 
 				// Special check: vector dimensions must match sample type
@@ -3403,7 +3450,7 @@ namespace Nz::ShaderAst
 					return type == ExpressionType{ VectorType{ requiredComponentCount, PrimitiveType::Float32 } };
 				};
 
-				if (IsUnresolved(ValidateIntrinsicParameterType<1>(node, IsRightType)))
+				if (IsUnresolved(ValidateIntrinsicParameterType<1>(node, IsRightType, "sampler of requirement components")))
 					return ValidationResult::Unresolved;
 
 				node.cachedExpressionType = VectorType{ 4, samplerType.sampledType };
@@ -3423,7 +3470,7 @@ namespace Nz::ShaderAst
 		const ExpressionType& resolvedExprType = ResolveAlias(*exprType);
 
 		if (!IsPrimitiveType(resolvedExprType) && !IsVectorType(resolvedExprType))
-			throw ShaderLang::CompilerSwizzleUnexpectedTypeError{ node.sourceLocation };
+			throw ShaderLang::CompilerSwizzleUnexpectedTypeError{ node.sourceLocation, ToString(*exprType, node.expression->sourceLocation) };
 
 		PrimitiveType baseType;
 		std::size_t componentCount;
@@ -3477,7 +3524,7 @@ namespace Nz::ShaderAst
 			case UnaryType::LogicalNot:
 			{
 				if (resolvedExprType != ExpressionType(PrimitiveType::Boolean))
-					throw ShaderLang::CompilerUnaryUnsupportedError{ node.sourceLocation };
+					throw ShaderLang::CompilerUnaryUnsupportedError{ node.sourceLocation, ToString(*exprType, node.sourceLocation) };
 
 				break;
 			}
@@ -3491,10 +3538,10 @@ namespace Nz::ShaderAst
 				else if (IsVectorType(resolvedExprType))
 					basicType = std::get<VectorType>(resolvedExprType).type;
 				else
-					throw ShaderLang::CompilerUnaryUnsupportedError{ node.sourceLocation };
+					throw ShaderLang::CompilerUnaryUnsupportedError{ node.sourceLocation, ToString(*exprType, node.sourceLocation) };
 
 				if (basicType != PrimitiveType::Float32 && basicType != PrimitiveType::Int32 && basicType != PrimitiveType::UInt32)
-					throw ShaderLang::CompilerUnaryUnsupportedError{ node.sourceLocation };
+					throw ShaderLang::CompilerUnaryUnsupportedError{ node.sourceLocation, ToString(*exprType, node.sourceLocation) };
 
 				break;
 			}
@@ -3513,10 +3560,10 @@ namespace Nz::ShaderAst
 	ExpressionType SanitizeVisitor::ValidateBinaryOp(BinaryType op, const ExpressionType& leftExprType, const ExpressionType& rightExprType, const ShaderLang::SourceLocation& sourceLocation)
 	{
 		if (!IsPrimitiveType(leftExprType) && !IsMatrixType(leftExprType) && !IsVectorType(leftExprType))
-			throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left" };
+			throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left", ToString(leftExprType, sourceLocation) };
 
 		if (!IsPrimitiveType(rightExprType) && !IsMatrixType(rightExprType) && !IsVectorType(rightExprType))
-			throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "right" };
+			throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "right", ToString(rightExprType, sourceLocation) };
 
 		if (IsPrimitiveType(leftExprType))
 		{
@@ -3528,7 +3575,7 @@ namespace Nz::ShaderAst
 				case BinaryType::CompLe:
 				case BinaryType::CompLt:
 					if (leftType == PrimitiveType::Boolean)
-						throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left" };
+						throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left", ToString(leftExprType, sourceLocation) };
 
 					[[fallthrough]];
 				case BinaryType::CompEq:
@@ -3568,16 +3615,16 @@ namespace Nz::ShaderAst
 								return rightExprType;
 							}
 							else
-								throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation };
+								throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation, ToString(leftExprType, sourceLocation), ToString(rightExprType, sourceLocation) };
 
 							break;
 						}
 
 						case PrimitiveType::Boolean:
-							throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left" };
+							throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left", ToString(leftExprType, sourceLocation) };
 
 						default:
-							throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation };
+							throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation, ToString(leftExprType, sourceLocation), ToString(rightExprType, sourceLocation) };
 					}
 				}
 
@@ -3585,7 +3632,7 @@ namespace Nz::ShaderAst
 				case BinaryType::LogicalOr:
 				{
 					if (leftType != PrimitiveType::Boolean)
-						throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left" };
+						throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left", ToString(leftExprType, sourceLocation) };
 
 					TypeMustMatch(leftExprType, rightExprType, sourceLocation);
 					return PrimitiveType::Boolean;
@@ -3630,17 +3677,17 @@ namespace Nz::ShaderAst
 						TypeMustMatch(leftType.type, rightType.type, sourceLocation);
 
 						if (leftType.columnCount != rightType.componentCount)
-							throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation };
+							throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation, ToString(leftExprType, sourceLocation), ToString(rightExprType, sourceLocation) };
 
 						return rightExprType;
 					}
 					else
-						throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation };
+						throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation, ToString(leftExprType, sourceLocation), ToString(rightExprType, sourceLocation) };
 				}
 
 				case BinaryType::LogicalAnd:
 				case BinaryType::LogicalOr:
-					throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left" };
+					throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left", ToString(leftExprType, sourceLocation) };
 			}
 		}
 		else if (IsVectorType(leftExprType))
@@ -3676,20 +3723,21 @@ namespace Nz::ShaderAst
 						return rightExprType;
 					}
 					else
-						throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation };
+						throw ShaderLang::CompilerBinaryIncompatibleTypesError{ sourceLocation, ToString(leftExprType, sourceLocation), ToString(rightExprType, sourceLocation) };
 
 					break;
 				}
 
 				case BinaryType::LogicalAnd:
 				case BinaryType::LogicalOr:
-					throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left" };
+					throw ShaderLang::CompilerBinaryUnsupportedError{ sourceLocation, "left", ToString(leftExprType, sourceLocation) };
 			}
 		}
 
 		throw ShaderLang::AstInternalError{ sourceLocation, "unchecked operation" };
 	}
 
+	
 	template<std::size_t N>
 	auto SanitizeVisitor::ValidateIntrinsicParamCount(IntrinsicExpression& node) -> ValidationResult
 	{
@@ -3737,7 +3785,7 @@ namespace Nz::ShaderAst
 	}
 
 	template<std::size_t N, typename F>
-	auto SanitizeVisitor::ValidateIntrinsicParameterType(IntrinsicExpression& node, F&& func) -> ValidationResult
+	auto SanitizeVisitor::ValidateIntrinsicParameterType(IntrinsicExpression& node, F&& func, const char* typeStr) -> ValidationResult
 	{
 		assert(node.parameters.size() > N);
 		auto& parameter = MandatoryExpr(node.parameters[N], node.sourceLocation);
@@ -3748,7 +3796,7 @@ namespace Nz::ShaderAst
 
 		const ExpressionType& resolvedType = ResolveAlias(*type);
 		if (!func(resolvedType))
-			throw ShaderLang::CompilerIntrinsicExpectedTypeError{ parameter.sourceLocation, SafeCast<UInt32>(N) };
+			throw ShaderLang::CompilerIntrinsicExpectedTypeError{ parameter.sourceLocation, SafeCast<UInt32>(N), typeStr, ToString(*type, parameter.sourceLocation)};
 
 		return ValidationResult::Validated;
 	}
@@ -3767,12 +3815,6 @@ namespace Nz::ShaderAst
 			throw ShaderLang::AstMissingStatementError{ sourceLocation };
 
 		return *node;
-	}
-
-	void SanitizeVisitor::TypeMustMatch(const ExpressionType& left, const ExpressionType& right, const ShaderLang::SourceLocation& sourceLocation)
-	{
-		if (ResolveAlias(left) != ResolveAlias(right))
-			throw ShaderLang::CompilerUnmatchingTypesError{ sourceLocation };
 	}
 
 	StatementPtr SanitizeVisitor::Unscope(StatementPtr node)

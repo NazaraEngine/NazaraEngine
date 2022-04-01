@@ -7,7 +7,7 @@
 
 namespace Nz::ShaderLang
 {
-	inline Error::Error(SourceLocation sourceLocation, ErrorCategory errorCategory, unsigned int errorType) noexcept :
+	inline Error::Error(SourceLocation sourceLocation, ErrorCategory errorCategory, ErrorType errorType) noexcept :
 	m_errorCategory(errorCategory),
 	m_sourceLocation(std::move(sourceLocation)),
 	m_errorType(errorType)
@@ -19,7 +19,7 @@ namespace Nz::ShaderLang
 		return m_errorCategory;
 	}
 
-	inline unsigned int Error::GetErrorType() const
+	inline ErrorType Error::GetErrorType() const
 	{
 		return m_errorType;
 	}
@@ -30,22 +30,22 @@ namespace Nz::ShaderLang
 	}
 
 
-	inline AstError::AstError(SourceLocation sourceLocation, unsigned int errorType) noexcept :
+	inline AstError::AstError(SourceLocation sourceLocation, ErrorType errorType) noexcept :
 	Error(std::move(sourceLocation), ErrorCategory::Ast, errorType)
 	{
 	}
 
-	inline CompilationError::CompilationError(SourceLocation sourceLocation, unsigned int errorType) noexcept :
+	inline CompilationError::CompilationError(SourceLocation sourceLocation, ErrorType errorType) noexcept :
 	Error(std::move(sourceLocation), ErrorCategory::Compilation, errorType)
 	{
 	}
 
-	inline ParsingError::ParsingError(SourceLocation sourceLocation, unsigned int errorType) noexcept :
+	inline ParsingError::ParsingError(SourceLocation sourceLocation, ErrorType errorType) noexcept :
 	Error(std::move(sourceLocation), ErrorCategory::Parsing, errorType)
 	{
 	}
 
-	inline LexingError::LexingError(SourceLocation sourceLocation, unsigned int errorType) noexcept :
+	inline LexingError::LexingError(SourceLocation sourceLocation, ErrorType errorType) noexcept :
 	Error(std::move(sourceLocation), ErrorCategory::Lexing, errorType)
 	{
 	}

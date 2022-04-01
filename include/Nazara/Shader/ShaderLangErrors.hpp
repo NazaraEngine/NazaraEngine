@@ -29,17 +29,24 @@ namespace Nz::ShaderLang
 		Max = Parsing
 	};
 
+	enum class ErrorType
+	{
+#define NAZARA_SHADERLANG_ERROR(ErrorPrefix, ErrorName, ...) ErrorPrefix ## ErrorName,
+
+#include <Nazara/Shader/ShaderLangErrorList.hpp>
+	};
+
 	class Error : public std::exception
 	{
 		public:
-			inline Error(SourceLocation sourceLocation, ErrorCategory errorCategory, unsigned int errorType) noexcept;
+			inline Error(SourceLocation sourceLocation, ErrorCategory errorCategory, ErrorType errorType) noexcept;
 			Error(const Error&) = delete;
 			Error(Error&&) noexcept = default;
 			~Error() = default;
 
 			inline ErrorCategory GetErrorCategory() const;
 			const std::string& GetErrorMessage() const;
-			inline unsigned int GetErrorType() const;
+			inline ErrorType GetErrorType() const;
 			inline const SourceLocation& GetSourceLocation() const;
 
 			const char* what() const noexcept override;
@@ -54,39 +61,39 @@ namespace Nz::ShaderLang
 			mutable std::string m_errorMessage;
 			ErrorCategory m_errorCategory;
 			SourceLocation m_sourceLocation;
-			unsigned int m_errorType;
+			ErrorType m_errorType;
 	};
 
 	class AstError : public Error
 	{
 		public:
-			inline AstError(SourceLocation sourceLocation, unsigned int errorType) noexcept;
+			inline AstError(SourceLocation sourceLocation, ErrorType errorType) noexcept;
 	};
 
 	class CompilationError : public Error
 	{
 		public:
-			inline CompilationError(SourceLocation sourceLocation, unsigned int errorType) noexcept;
+			inline CompilationError(SourceLocation sourceLocation, ErrorType errorType) noexcept;
 	};
 
 	class LexingError : public Error
 	{
 		public:
-			inline LexingError(SourceLocation sourceLocation, unsigned int errorType) noexcept;
+			inline LexingError(SourceLocation sourceLocation, ErrorType errorType) noexcept;
 	};
 	
 	class ParsingError : public Error
 	{
 		public:
-			inline ParsingError(SourceLocation sourceLocation, unsigned int errorType) noexcept;
+			inline ParsingError(SourceLocation sourceLocation, ErrorType errorType) noexcept;
 	};
 
-#define NAZARA_SHADERLANG_NEWERRORTYPE(Prefix, BaseClass, ErrorType, ErrorName, ErrorString, ...) \
+#define NAZARA_SHADERLANG_NEWERRORTYPE(Prefix, BaseClass, ErrorPrefix, ErrorName, ErrorString, ...) \
 	class Prefix ## ErrorName ## Error final : public BaseClass \
 	{ \
 		public: \
 			template<typename... Args> Prefix ## ErrorName ## Error(SourceLocation sourceLocation, Args&&... args) : \
-			BaseClass(std::move(sourceLocation), ErrorType), \
+			BaseClass(std::move(sourceLocation), ErrorType:: ErrorPrefix ## ErrorName), \
 			m_parameters(std::forward<Args>(args)...) \
 			{ \
 			} \
@@ -97,10 +104,10 @@ namespace Nz::ShaderLang
 			std::tuple<__VA_ARGS__> m_parameters; \
 	};
 
-#define NAZARA_SHADERLANG_AST_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Ast, AstError, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
-#define NAZARA_SHADERLANG_LEXER_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Lexer, LexingError, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
-#define NAZARA_SHADERLANG_PARSER_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Parser, ParsingError, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
-#define NAZARA_SHADERLANG_COMPILER_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Compiler, CompilationError, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_AST_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Ast, AstError, A, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_LEXER_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Lexer, LexingError, L, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_PARSER_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Parser, ParsingError, P, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_COMPILER_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Compiler, CompilationError, C, ErrorName, ErrorString, __VA_ARGS__)
 
 #include <Nazara/Shader/ShaderLangErrorList.hpp>
 

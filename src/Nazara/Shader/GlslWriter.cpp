@@ -312,11 +312,6 @@ namespace Nz
 		throw std::runtime_error("unexpected FunctionType");
 	}
 
-	void GlslWriter::Append(const ShaderAst::IdentifierType& /*identifierType*/)
-	{
-		throw std::runtime_error("unexpected identifier type");
-	}
-
 	void GlslWriter::Append(const ShaderAst::IntrinsicFunctionType& /*intrinsicFunctionType*/)
 	{
 		throw std::runtime_error("unexpected intrinsic function type");
