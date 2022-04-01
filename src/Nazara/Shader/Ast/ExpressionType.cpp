@@ -124,7 +124,7 @@ namespace Nz::ShaderAst
 		return str;
 	}
 
-	std::string ShaderAst::ToString(const ExpressionType& type, const Stringifier& stringifier)
+	std::string ToString(const ExpressionType& type, const Stringifier& stringifier)
 	{
 		return std::visit([&](auto&& arg)
 		{
