@@ -187,11 +187,6 @@ namespace Nz
 		throw std::runtime_error("unexpected function type");
 	}
 
-	void LangWriter::Append(const ShaderAst::IdentifierType& identifierType)
-	{
-		Append(identifierType.name);
-	}
-
 	void LangWriter::Append(const ShaderAst::IntrinsicFunctionType& /*functionType*/)
 	{
 		throw std::runtime_error("unexpected intrinsic function type");

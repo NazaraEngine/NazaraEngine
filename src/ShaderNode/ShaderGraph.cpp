@@ -491,7 +491,7 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 		extVar.bindingIndex = buffer.bindingIndex;
 		extVar.bindingSet = buffer.setIndex;
 		extVar.name = buffer.name;
-		extVar.type = Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::IdentifierType{ structInfo.name } };
+		extVar.type = Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier(structInfo.name) };
 	}
 
 	for (const auto& texture : m_textures)
@@ -553,9 +553,9 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 	return shaderModule;
 }
 
-Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
+Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType> ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
 {
-	return std::visit([&](auto&& arg) -> Nz::ShaderAst::ExpressionType
+	return std::visit([&](auto&& arg) -> Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType>
 	{
 		using T = std::decay_t<decltype(arg)>;
 		if constexpr (std::is_same_v<T, PrimitiveType>)
@@ -564,7 +564,7 @@ Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(const std::var
 		{
 			assert(arg < m_structs.size());
 			const auto& s = m_structs[arg];
-			return Nz::ShaderAst::IdentifierType{ s.name };
+			return Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier(s.name) };
 		}
 		else
 			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");

@@ -480,11 +480,6 @@ namespace Nz::ShaderAst
 				m_stream << UInt8(1);
 				Enum(arg);
 			}
-			else if constexpr (std::is_same_v<T, IdentifierType>)
-			{
-				m_stream << UInt8(2);
-				m_stream << arg.name;
-			}
 			else if constexpr (std::is_same_v<T, MatrixType>)
 			{
 				m_stream << UInt8(3);
@@ -766,15 +761,6 @@ namespace Nz::ShaderAst
 				Enum(primitiveType);
 
 				type = primitiveType;
-				break;
-			}
-
-			case 2: //< Identifier
-			{
-				std::string identifier;
-				Value(identifier);
-
-				type = IdentifierType{ std::move(identifier) };
 				break;
 			}
 

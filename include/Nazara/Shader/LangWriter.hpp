@@ -55,7 +55,6 @@ namespace Nz
 			void Append(const ShaderAst::ExpressionType& type);
 			void Append(const ShaderAst::ExpressionValue<ShaderAst::ExpressionType>& type);
 			void Append(const ShaderAst::FunctionType& functionType);
-			void Append(const ShaderAst::IdentifierType& identifierType);
 			void Append(const ShaderAst::IntrinsicFunctionType& intrinsicFunctionType);
 			void Append(const ShaderAst::MatrixType& matrixType);
 			void Append(const ShaderAst::MethodType& methodType);

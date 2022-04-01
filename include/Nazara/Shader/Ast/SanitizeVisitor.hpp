@@ -66,6 +66,7 @@ namespace Nz::ShaderAst
 			struct Identifier;
 			struct IdentifierData;
 			template<typename T> struct IdentifierList;
+			struct NamedPartialType;
 			struct Scope;
 
 			using AstCloner::CloneExpression;
@@ -130,7 +131,7 @@ namespace Nz::ShaderAst
 
 			void RegisterBuiltin();
 
-			std::size_t RegisterAlias(std::string name, std::optional<IdentifierData> aliasData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
+			std::size_t RegisterAlias(std::string name, std::optional<Identifier> aliasData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t RegisterConstant(std::string name, std::optional<ConstantValue> value, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t RegisterFunction(std::string name, std::optional<FunctionData> funcData, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t RegisterIntrinsic(std::string name, IntrinsicType type);
@@ -141,11 +142,10 @@ namespace Nz::ShaderAst
 			void RegisterUnresolved(std::string name);
 			std::size_t RegisterVariable(std::string name, std::optional<ExpressionType> type, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation);
 
-			const IdentifierData* ResolveAliasIdentifier(const IdentifierData* identifier, const ShaderLang::SourceLocation& sourceLocation) const;
+			const Identifier* ResolveAliasIdentifier(const Identifier* identifier, const ShaderLang::SourceLocation& sourceLocation) const;
 			void ResolveFunctions();
 			std::size_t ResolveStruct(const AliasType& aliasType, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t ResolveStruct(const ExpressionType& exprType, const ShaderLang::SourceLocation& sourceLocation);
-			std::size_t ResolveStruct(const IdentifierType& identifierType, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t ResolveStruct(const StructType& structType, const ShaderLang::SourceLocation& sourceLocation);
 			std::size_t ResolveStruct(const UniformType& uniformType, const ShaderLang::SourceLocation& sourceLocation);
 			ExpressionType ResolveType(const ExpressionType& exprType, bool resolveAlias, const ShaderLang::SourceLocation& sourceLocation);
@@ -154,6 +154,11 @@ namespace Nz::ShaderAst
 			void SanitizeIdentifier(std::string& identifier);
 			MultiStatementPtr SanitizeInternal(MultiStatement& rootNode, std::string* error);
 
+			std::string ToString(const ExpressionType& exprType, const ShaderLang::SourceLocation& sourceLocation) const;
+			std::string ToString(const NamedPartialType& partialType, const ShaderLang::SourceLocation& sourceLocation) const;
+			template<typename... Args> std::string ToString(const std::variant<Args...>& value, const ShaderLang::SourceLocation& sourceLocation) const;
+
+			void TypeMustMatch(const ExpressionType& left, const ExpressionType& right, const ShaderLang::SourceLocation& sourceLocation) const;
 			ValidationResult TypeMustMatch(const ExpressionPtr& left, const ExpressionPtr& right, const ShaderLang::SourceLocation& sourceLocation);
 
 			ValidationResult Validate(DeclareAliasStatement& node);
@@ -174,12 +179,10 @@ namespace Nz::ShaderAst
 			template<std::size_t N> ValidationResult ValidateIntrinsicParamCount(IntrinsicExpression& node);
 			ValidationResult ValidateIntrinsicParamMatchingType(IntrinsicExpression& node);
 			template<std::size_t N, typename F> ValidationResult ValidateIntrinsicParameter(IntrinsicExpression& node, F&& func);
-			template<std::size_t N, typename F> ValidationResult ValidateIntrinsicParameterType(IntrinsicExpression& node, F&& func);
+			template<std::size_t N, typename F> ValidationResult ValidateIntrinsicParameterType(IntrinsicExpression& node, F&& func, const char* typeStr);
 
 			static Expression& MandatoryExpr(const ExpressionPtr& node, const ShaderLang::SourceLocation& sourceLocation);
 			static Statement& MandatoryStatement(const StatementPtr& node, const ShaderLang::SourceLocation& sourceLocation);
-
-			static void TypeMustMatch(const ExpressionType& left, const ExpressionType& right, const ShaderLang::SourceLocation& sourceLocation);
 
 			static StatementPtr Unscope(StatementPtr node);
 
@@ -220,7 +223,7 @@ namespace Nz::ShaderAst
 			struct Identifier
 			{
 				std::string name;
-				IdentifierData data;
+				IdentifierData target;
 			};
 
 			struct Context;

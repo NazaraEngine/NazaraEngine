@@ -181,7 +181,6 @@ namespace Nz
 			TypePtr BuildType(const ShaderAst::AliasType& type) const;
 			TypePtr BuildType(const ShaderAst::ArrayType& type) const;
 			TypePtr BuildType(const ShaderAst::ExpressionType& type) const;
-			TypePtr BuildType(const ShaderAst::IdentifierType& type) const;
 			TypePtr BuildType(const ShaderAst::MatrixType& type) const;
 			TypePtr BuildType(const ShaderAst::NoType& type) const;
 			TypePtr BuildType(const ShaderAst::PrimitiveType& type) const;

@@ -59,6 +59,25 @@ struct fmt::formatter<Nz::ShaderLang::ErrorCategory> : formatter<string_view>
 };
 
 template <>
+struct fmt::formatter<Nz::ShaderLang::ErrorType> : formatter<string_view>
+{
+	template <typename FormatContext>
+	auto format(const Nz::ShaderLang::ErrorType& p, FormatContext& ctx) -> decltype(ctx.out())
+	{
+		// TODO: Add ToString
+		std::string_view name = "<unhandled error type>";
+		switch (p)
+		{
+#define NAZARA_SHADERLANG_ERROR(ErrorPrefix, ErrorName, ...) case Nz::ShaderLang::ErrorType:: ErrorPrefix ## ErrorName: name = #ErrorPrefix #ErrorName; break;
+
+#include <Nazara/Shader/ShaderLangErrorList.hpp>
+		}
+
+		return formatter<string_view>::format(name, ctx);
+	}
+};
+
+template <>
 struct fmt::formatter<Nz::ShaderStageType> : formatter<string_view>
 {
 	template <typename FormatContext>
@@ -123,10 +142,10 @@ namespace Nz::ShaderLang
 		return std::apply([&](const auto... args) { return fmt::format(ErrorString, args...); }, m_parameters); \
 	}
 
-#define NAZARA_SHADERLANG_AST_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Ast, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
-#define NAZARA_SHADERLANG_LEXER_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Lexer, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
-#define NAZARA_SHADERLANG_PARSER_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Parser, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
-#define NAZARA_SHADERLANG_COMPILER_ERROR(ErrorType, ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Compiler, ErrorType, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_AST_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Ast, A, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_LEXER_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Lexer, L, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_PARSER_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Parser, P, ErrorName, ErrorString, __VA_ARGS__)
+#define NAZARA_SHADERLANG_COMPILER_ERROR(ErrorName, ErrorString, ...) NAZARA_SHADERLANG_NEWERRORTYPE(Compiler, C, ErrorName, ErrorString, __VA_ARGS__)
 
 #include <Nazara/Shader/ShaderLangErrorList.hpp>
 
