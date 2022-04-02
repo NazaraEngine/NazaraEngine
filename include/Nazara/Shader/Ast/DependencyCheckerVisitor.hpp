@@ -45,26 +45,33 @@ namespace Nz::ShaderAst
 
 			struct UsageSet
 			{
+				Bitset<> usedAliases;
 				Bitset<> usedFunctions;
 				Bitset<> usedStructs;
 				Bitset<> usedVariables;
 			};
 
 		private:
+			UsageSet& GetContextUsageSet();
 			void Resolve(const UsageSet& usageSet);
 
 			using AstRecursiveVisitor::Visit;
 
-			void Visit(CallFunctionExpression& node) override;
+			void Visit(AliasValueExpression& node) override;
+			void Visit(FunctionExpression& node) override;
+			void Visit(StructTypeExpression& node) override;
 			void Visit(VariableValueExpression& node) override;
 
+			void Visit(DeclareAliasStatement& node) override;
 			void Visit(DeclareExternalStatement& node) override;
 			void Visit(DeclareFunctionStatement& node) override;
 			void Visit(DeclareStructStatement& node) override;
 			void Visit(DeclareVariableStatement& node) override;
 
+			std::optional<std::size_t> m_currentAliasDeclIndex;
 			std::optional<std::size_t> m_currentFunctionIndex;
 			std::optional<std::size_t> m_currentVariableDeclIndex;
+			std::unordered_map<std::size_t, UsageSet> m_aliasUsages;
 			std::unordered_map<std::size_t, UsageSet> m_functionUsages;
 			std::unordered_map<std::size_t, UsageSet> m_structUsages;
 			std::unordered_map<std::size_t, UsageSet> m_variableUsages;

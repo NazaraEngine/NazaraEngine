@@ -13,27 +13,48 @@ namespace Nz::ShaderAst
 		statement.Visit(*this);
 	}
 
-	void DependencyCheckerVisitor::Visit(CallFunctionExpression& node)
+	auto DependencyCheckerVisitor::GetContextUsageSet() -> UsageSet&
 	{
-		const ExpressionType* targetFuncType = GetExpressionType(*node.targetFunction);
-		assert(targetFuncType);
-		assert(std::holds_alternative<FunctionType>(*targetFuncType));
-
-		const auto& funcType = std::get<FunctionType>(*targetFuncType);
-
-		assert(m_currentFunctionIndex);
-		if (m_currentVariableDeclIndex)
-		{
-			UsageSet& usageSet = Retrieve(m_variableUsages, *m_currentVariableDeclIndex);
-			usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
-		}
+		if (m_currentAliasDeclIndex)
+			return Retrieve(m_aliasUsages, *m_currentAliasDeclIndex);
+		else if (m_currentVariableDeclIndex)
+			return Retrieve(m_variableUsages, *m_currentVariableDeclIndex);
 		else
 		{
-			UsageSet& usageSet = Retrieve(m_functionUsages, *m_currentFunctionIndex);
-			usageSet.usedFunctions.UnboundedSet(funcType.funcIndex);
+			assert(m_currentFunctionIndex);
+			return Retrieve(m_functionUsages, *m_currentFunctionIndex);
 		}
+	}
 
+	void DependencyCheckerVisitor::Resolve(const UsageSet& usageSet)
+	{
+		m_resolvedUsage.usedFunctions |= usageSet.usedFunctions;
+		m_resolvedUsage.usedStructs |= usageSet.usedStructs;
+		m_resolvedUsage.usedVariables |= usageSet.usedVariables;
+
+		for (std::size_t aliasIndex = usageSet.usedAliases.FindFirst(); aliasIndex != usageSet.usedAliases.npos; aliasIndex = usageSet.usedAliases.FindNext(aliasIndex))
+			Resolve(Retrieve(m_aliasUsages, aliasIndex));
+
+		for (std::size_t funcIndex = usageSet.usedFunctions.FindFirst(); funcIndex != usageSet.usedFunctions.npos; funcIndex = usageSet.usedFunctions.FindNext(funcIndex))
+			Resolve(Retrieve(m_functionUsages, funcIndex));
+
+		for (std::size_t structIndex = usageSet.usedStructs.FindFirst(); structIndex != usageSet.usedStructs.npos; structIndex = usageSet.usedStructs.FindNext(structIndex))
+			Resolve(Retrieve(m_structUsages, structIndex));
+
+		for (std::size_t varIndex = usageSet.usedVariables.FindFirst(); varIndex != usageSet.usedVariables.npos; varIndex = usageSet.usedVariables.FindNext(varIndex))
+			Resolve(Retrieve(m_variableUsages, varIndex));
+	}
+
+	void DependencyCheckerVisitor::Visit(DeclareAliasStatement& node)
+	{
+		assert(node.aliasIndex);
+		assert(m_aliasUsages.find(*node.aliasIndex) == m_aliasUsages.end());
+		m_aliasUsages.emplace(*node.aliasIndex, UsageSet{});
+
+		assert(node.aliasIndex);
+		m_currentAliasDeclIndex = *node.aliasIndex;
 		AstRecursiveVisitor::Visit(node);
+		m_currentAliasDeclIndex = {};
 	}
 
 	void DependencyCheckerVisitor::Visit(DeclareExternalStatement& node)
@@ -145,34 +166,27 @@ namespace Nz::ShaderAst
 		m_currentVariableDeclIndex = {};
 	}
 
-	void DependencyCheckerVisitor::Visit(VariableValueExpression& node)
+	void DependencyCheckerVisitor::Visit(AliasValueExpression& node)
 	{
-		assert(m_currentFunctionIndex);
-		if (m_currentVariableDeclIndex)
-		{
-			UsageSet& usageSet = Retrieve(m_variableUsages, *m_currentVariableDeclIndex);
-			usageSet.usedVariables.UnboundedSet(node.variableId);
-		}
-		else
-		{
-			UsageSet& usageSet = Retrieve(m_functionUsages, *m_currentFunctionIndex);
-			usageSet.usedVariables.UnboundedSet(node.variableId);
-		}
+		UsageSet& usageSet = GetContextUsageSet();
+		usageSet.usedAliases.UnboundedSet(node.aliasId);
 	}
 
-	void DependencyCheckerVisitor::Resolve(const UsageSet& usageSet)
+	void DependencyCheckerVisitor::Visit(FunctionExpression& node)
 	{
-		m_resolvedUsage.usedFunctions |= usageSet.usedFunctions;
-		m_resolvedUsage.usedStructs |= usageSet.usedStructs;
-		m_resolvedUsage.usedVariables |= usageSet.usedVariables;
+		UsageSet& usageSet = GetContextUsageSet();
+		usageSet.usedFunctions.UnboundedSet(node.funcId);
+	}
 
-		for (std::size_t funcIndex = usageSet.usedFunctions.FindFirst(); funcIndex != usageSet.usedFunctions.npos; funcIndex = usageSet.usedFunctions.FindNext(funcIndex))
-			Resolve(Retrieve(m_functionUsages, funcIndex));
+	void DependencyCheckerVisitor::Visit(StructTypeExpression& node)
+	{
+		UsageSet& usageSet = GetContextUsageSet();
+		usageSet.usedStructs.UnboundedSet(node.structTypeId);
+	}
 
-		for (std::size_t structIndex = usageSet.usedStructs.FindFirst(); structIndex != usageSet.usedStructs.npos; structIndex = usageSet.usedStructs.FindNext(structIndex))
-			Resolve(Retrieve(m_structUsages, structIndex));
-
-		for (std::size_t varIndex = usageSet.usedVariables.FindFirst(); varIndex != usageSet.usedVariables.npos; varIndex = usageSet.usedVariables.FindNext(varIndex))
-			Resolve(Retrieve(m_variableUsages, varIndex));
+	void DependencyCheckerVisitor::Visit(VariableValueExpression& node)
+	{
+		UsageSet& usageSet = GetContextUsageSet();
+		usageSet.usedVariables.UnboundedSet(node.variableId);
 	}
 }
