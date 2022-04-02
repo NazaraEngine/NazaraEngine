@@ -28,6 +28,7 @@ namespace Nz::ShaderAst
 
 	void DependencyCheckerVisitor::Resolve(const UsageSet& usageSet)
 	{
+		m_resolvedUsage.usedAliases |= usageSet.usedAliases;
 		m_resolvedUsage.usedFunctions |= usageSet.usedFunctions;
 		m_resolvedUsage.usedStructs |= usageSet.usedStructs;
 		m_resolvedUsage.usedVariables |= usageSet.usedVariables;
