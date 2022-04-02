@@ -37,6 +37,10 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/PhongMaterial.nzslb.h>
 		};
 
+		const UInt8 r_physicallyBasedMaterialShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/PhysicallyBasedMaterial.nzsl.h>
+		};
+
 		const UInt8 r_instanceDataModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzslb.h>
 		};
@@ -215,6 +219,7 @@ namespace Nz
 		RegisterEmbedShaderModule(r_depthMaterialShader);
 		RegisterEmbedShaderModule(r_fullscreenVertexShader);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
+		RegisterEmbedShaderModule(r_physicallyBasedMaterialShader);
 		RegisterEmbedShaderModule(r_textureBlitShader);
 		RegisterEmbedShaderModule(r_instanceDataModule);
 		RegisterEmbedShaderModule(r_lightDataModule);
