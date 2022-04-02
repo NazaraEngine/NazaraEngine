@@ -118,14 +118,14 @@ namespace Nz::ShaderLang
 					sourceFile = *m_sourceLocation.file;
 
 				if (m_sourceLocation.startLine != m_sourceLocation.endLine)
-					m_errorMessage = fmt::format("{}({} -> {},{} -> {}): {} error {}: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.endLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorCategory, m_errorType, BuildErrorMessage());
+					m_errorMessage = fmt::format("{}({} -> {},{} -> {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.endLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorType, BuildErrorMessage());
 				else if (m_sourceLocation.startColumn != m_sourceLocation.endColumn)
-					m_errorMessage = fmt::format("{}({},{} -> {}): {} error {}: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorCategory, m_errorType, BuildErrorMessage());
+					m_errorMessage = fmt::format("{}({},{} -> {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorType, BuildErrorMessage());
 				else
-					m_errorMessage = fmt::format("{}({}, {}): {} error {}: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_errorCategory, m_errorType, BuildErrorMessage());
+					m_errorMessage = fmt::format("{}({}, {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_errorType, BuildErrorMessage());
 			}
 			else
-				m_errorMessage = fmt::format("?: {} error {}: {}", m_errorCategory, m_errorType, BuildErrorMessage());
+				m_errorMessage = fmt::format("?: {} error: {}", m_errorType, BuildErrorMessage());
 		}
 
 		return m_errorMessage;

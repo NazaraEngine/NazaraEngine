@@ -40,7 +40,7 @@ namespace Nz::ShaderLang
 	{
 		public:
 			inline Error(SourceLocation sourceLocation, ErrorCategory errorCategory, ErrorType errorType) noexcept;
-			Error(const Error&) = delete;
+			Error(const Error&) = default;
 			Error(Error&&) noexcept = default;
 			~Error() = default;
 
@@ -51,7 +51,7 @@ namespace Nz::ShaderLang
 
 			const char* what() const noexcept override;
 
-			Error& operator=(const Error&) = delete;
+			Error& operator=(const Error&) = default;
 			Error& operator=(Error&&) noexcept = default;
 
 		protected:
