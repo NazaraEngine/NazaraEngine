@@ -21,7 +21,7 @@ namespace Nz
 		{
 			number = 0;
 
-			for (UInt8 mul : { 0x10, 1 })
+			for (UInt8 mul : { UInt8(0x10), UInt8(1) })
 			{
 				if (*str >= '0' && *str <= '9')
 					number += (*str - '0') * mul;

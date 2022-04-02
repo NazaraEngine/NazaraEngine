@@ -49,7 +49,7 @@ namespace Nz
 		ALint sampleRate;
 		m_library.alGetBufferi(m_bufferId, AL_FREQUENCY, &sampleRate);
 
-		return SafeCast<UInt64>(sampleRate);
+		return SafeCast<UInt32>(sampleRate);
 	}
 
 	bool OpenALBuffer::IsCompatibleWith(const AudioDevice& device) const

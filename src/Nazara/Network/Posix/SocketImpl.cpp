@@ -30,7 +30,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+		nameBuffer.fill(0);
 
 		socklen_t bufferLength = sizeof(sockaddr_in);
 
@@ -314,7 +314,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+		nameBuffer.fill(0);
 
 		socklen_t bufferLength = sizeof(nameBuffer.size());
 
@@ -356,7 +356,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+		nameBuffer.fill(0);
 
 		socklen_t bufferLength = sizeof(sockaddr_in);
 
@@ -502,7 +502,7 @@ namespace Nz
 		NazaraAssert(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+		nameBuffer.fill(0);
 
 		socklen_t bufferLength = static_cast<socklen_t>(nameBuffer.size());
 
@@ -575,7 +575,7 @@ namespace Nz
 		msgHdr.msg_iovlen = static_cast<int>(bufferCount);
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
-		std::fill(nameBuffer.begin(), nameBuffer.end(), 0);
+		nameBuffer.fill(0);
 
 		if (from)
 		{
