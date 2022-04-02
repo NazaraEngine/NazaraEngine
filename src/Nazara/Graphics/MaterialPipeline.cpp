@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -94,6 +95,7 @@ namespace Nz
 		BasicMaterial::Initialize();
 		DepthMaterial::Initialize();
 		PhongLightingMaterial::Initialize();
+		PhysicallyBasedMaterial::Initialize();
 
 		return true;
 	}
@@ -101,6 +103,7 @@ namespace Nz
 	void MaterialPipeline::Uninitialize()
 	{
 		s_pipelineCache.clear();
+		PhysicallyBasedMaterial::Uninitialize();
 		PhongLightingMaterial::Uninitialize();
 		DepthMaterial::Uninitialize();
 		BasicMaterial::Uninitialize();
