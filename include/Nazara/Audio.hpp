@@ -35,6 +35,9 @@
 #include <Nazara/Audio/AudioDevice.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
+#include <Nazara/Audio/DummyAudioBuffer.hpp>
+#include <Nazara/Audio/DummyAudioDevice.hpp>
+#include <Nazara/Audio/DummyAudioSource.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/OpenAL.hpp>

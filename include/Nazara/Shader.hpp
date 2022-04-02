@@ -35,8 +35,10 @@
 #include <Nazara/Shader/LangWriter.hpp>
 #include <Nazara/Shader/Shader.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
+#include <Nazara/Shader/ShaderLangErrors.hpp>
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/ShaderModuleResolver.hpp>
 #include <Nazara/Shader/ShaderWriter.hpp>
 #include <Nazara/Shader/SpirvAstVisitor.hpp>
