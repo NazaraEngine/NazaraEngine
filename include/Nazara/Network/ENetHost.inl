@@ -44,7 +44,7 @@ namespace Nz
 
 			case NetProtocol::Any:
 				m_isUsingDualStack = true;
-				// fallthrough
+				[[fallthrough]];
 			case NetProtocol::IPv6:
 				any = IpAddress::AnyIpV6;
 				break;
