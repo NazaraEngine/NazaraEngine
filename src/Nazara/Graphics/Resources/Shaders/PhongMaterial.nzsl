@@ -122,7 +122,7 @@ fn main(input: VertToFrag) -> FragOut
 		else
 			normal = normalize(input.normal);
 
-		for i in 0 -> lightData.lightCount
+		for i in u32(0) -> lightData.lightCount
 		{
 			let light = lightData.lights[i];
 
