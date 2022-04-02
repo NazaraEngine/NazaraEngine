@@ -509,8 +509,7 @@ namespace Nz
 							break; //< Already handled
 
 						case ShaderAst::PrimitiveType::UInt32:
-							castOp = SpirvOp::OpSConvert;
-							break;
+							throw std::runtime_error("unsupported cast from int32");
 
 						case ShaderAst::PrimitiveType::String:
 							throw std::runtime_error("unexpected string type");
@@ -530,7 +529,7 @@ namespace Nz
 							break;
 
 						case ShaderAst::PrimitiveType::Int32:
-							castOp = SpirvOp::OpUConvert;
+							castOp = SpirvOp::OpBitcast;
 							break;
 
 						case ShaderAst::PrimitiveType::UInt32:
