@@ -224,6 +224,7 @@ namespace Nz::ShaderLang
 					}
 
 					token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+					token.location.endLine = currentLine;
 
 					if (floatingPoint)
 					{
@@ -244,17 +245,18 @@ namespace Nz::ShaderLang
 					{
 						tokenType = TokenType::IntegerValue;
 
+						// avoid std::string_view operator[] assertions (if &str[currentPos + 1] is out of the string)
+						const char* first = &str[start];
+						const char* last = first + (currentPos - start + 1);
+
 						long long value;
-						std::from_chars_result r = std::from_chars(&str[start], &str[currentPos + 1], value);
-						if (r.ptr != &str[currentPos + 1])
-						{
-							if (r.ec == std::errc::result_out_of_range)
-								throw LexerNumberOutOfRangeError{ token.location };
-
+						std::from_chars_result r = std::from_chars(first, last, value);
+						if (r.ptr == last && r.ec == std::errc{})
+							token.data = value;
+						else if (r.ec == std::errc::result_out_of_range)
+							throw LexerNumberOutOfRangeError{ token.location };
+						else
 							throw LexerBadNumberError{ token.location };
-						}
-
-						token.data = value;
 					}
 
 					break;
@@ -414,12 +416,13 @@ namespace Nz::ShaderLang
 							case '\n':
 							case '\r':
 								token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+								token.location.endLine = currentLine;
 								throw LexerUnfinishedStringError{ token.location };
 
 							case '\\':
 							{
 								currentPos++;
-								char next = Peek();
+								char next = Peek(0);
 								switch (next)
 								{
 									case 'n': character = '\n'; break;
@@ -429,6 +432,7 @@ namespace Nz::ShaderLang
 									case '\\': character = '\\'; break;
 									default:
 										token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+										token.location.endLine = currentLine;
 										throw LexerUnrecognizedCharError{ token.location };
 								}
 								break;
@@ -469,7 +473,11 @@ namespace Nz::ShaderLang
 						break;
 					}
 					else
+					{
+						token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+						token.location.endLine = currentLine;
 						throw LexerUnrecognizedTokenError{ token.location };
+					}
 				}
 			}
 

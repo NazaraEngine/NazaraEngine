@@ -285,7 +285,7 @@ namespace Nz::ShaderLang
 		}
 
 		if (!moduleVersion.has_value())
-			throw ParserMissingAttributeError{ moduleToken.location };
+			throw ParserMissingAttributeError{ moduleToken.location, ShaderAst::AttributeType::LangVersion };
 
 		if (!moduleId)
 			moduleId = Uuid::Generate();
