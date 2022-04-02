@@ -79,7 +79,7 @@ namespace Nz::ShaderLang
 
 	inline bool SourceLocation::IsValid() const
 	{
-		return startLine != 0 && endLine != 0 && endColumn != 0 && startColumn != 0;
+		return startLine != 0 || endLine != 0 || endColumn != 0 || startColumn != 0;
 	}
 }
 

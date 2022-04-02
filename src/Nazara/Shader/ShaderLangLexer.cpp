@@ -78,7 +78,7 @@ namespace Nz::ShaderLang
 			return std::isalnum(c) || c == '_';
 		};
 
-		unsigned int lineNumber = 1;
+		UInt32 currentLine = 1;
 		std::size_t lastLineFeed = 0;
 		std::vector<Token> tokens;
 
@@ -91,8 +91,8 @@ namespace Nz::ShaderLang
 			char c = Peek(0);
 
 			Token token;
-			token.location.startColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
-			token.location.startLine = lineNumber;
+			token.location.startColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+			token.location.startLine = currentLine;
 			token.location.file = currentFile;
 
 			if (c == '\0')
@@ -112,7 +112,7 @@ namespace Nz::ShaderLang
 
 				case '\n':
 				{
-					lineNumber++;
+					currentLine++;
 					lastLineFeed = currentPos;
 					break;
 				}
@@ -169,7 +169,7 @@ namespace Nz::ShaderLang
 							}
 							else if (next == '\n')
 							{
-								lineNumber++;
+								currentLine++;
 								lastLineFeed = currentPos + 1;
 							}
 						}
@@ -223,7 +223,7 @@ namespace Nz::ShaderLang
 						currentPos++;
 					}
 
-					token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+					token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
 
 					if (floatingPoint)
 					{
@@ -413,7 +413,7 @@ namespace Nz::ShaderLang
 							case '\0':
 							case '\n':
 							case '\r':
-								token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+								token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
 								throw LexerUnfinishedStringError{ token.location };
 
 							case '\\':
@@ -428,7 +428,7 @@ namespace Nz::ShaderLang
 									case '"': character = '"'; break;
 									case '\\': character = '\\'; break;
 									default:
-										token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
+										token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
 										throw LexerUnrecognizedCharError{ token.location };
 								}
 								break;
@@ -475,8 +475,8 @@ namespace Nz::ShaderLang
 
 			if (tokenType)
 			{
-				token.location.endColumn = static_cast<unsigned int>(currentPos - lastLineFeed);
-				token.location.endLine = lineNumber;
+				token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+				token.location.endLine = currentLine;
 				token.type = *tokenType;
 
 				tokens.push_back(std::move(token));
