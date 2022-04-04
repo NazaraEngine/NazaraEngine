@@ -72,11 +72,11 @@ namespace Nz
 		m_currentSubpassIndex = 0;
 	}
 
-	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, UInt64 offset)
+	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(indexBuffer);
 
-		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, VK_INDEX_TYPE_UINT16); //< Fuck me right?
+		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, ToVulkan(indexType));
 	}
 
 	void VulkanCommandBufferBuilder::BindPipeline(const RenderPipeline& pipeline)

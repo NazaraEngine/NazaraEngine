@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -17,6 +17,7 @@ namespace Nz
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_worldInstance(worldInstance),
+	m_indexType(indexType),
 	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
@@ -78,6 +79,11 @@ namespace Nz
 	inline std::size_t RenderSubmesh::GetIndexCount() const
 	{
 		return m_indexCount;
+	}
+
+	inline IndexType RenderSubmesh::GetIndexType() const
+	{
+		return m_indexType;
 	}
 
 	inline const MaterialPass& RenderSubmesh::GetMaterialPass() const

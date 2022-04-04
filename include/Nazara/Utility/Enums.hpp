@@ -180,6 +180,15 @@ namespace Nz
 
 	constexpr std::size_t ImageTypeCount = static_cast<std::size_t>(ImageType::Max) + 1;
 
+	enum class IndexType
+	{
+		U8,
+		U16,
+		U32,
+
+		Max = U32
+	};
+
 	enum class NodeType
 	{
 		Default,  // Node

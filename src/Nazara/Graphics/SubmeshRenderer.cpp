@@ -169,6 +169,7 @@ namespace Nz
 			drawCall.firstIndex = 0;
 			drawCall.indexBuffer = currentIndexBuffer;
 			drawCall.indexCount = submesh.GetIndexCount();
+			drawCall.indexType = submesh.GetIndexType();
 			drawCall.renderPipeline = currentPipeline;
 			drawCall.scissorBox = currentScissorBox;
 			drawCall.shaderBinding = currentShaderBinding;
@@ -217,7 +218,7 @@ namespace Nz
 
 			if (currentIndexBuffer != drawData.indexBuffer)
 			{
-				commandBuffer.BindIndexBuffer(*drawData.indexBuffer);
+				commandBuffer.BindIndexBuffer(*drawData.indexBuffer, drawData.indexType);
 				currentIndexBuffer = drawData.indexBuffer;
 			}
 

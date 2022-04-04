@@ -37,7 +37,7 @@ namespace Nz
 
 			inline void BeginDebugRegion(const std::string_view& regionName, const Color& color);
 
-			inline void BindIndexBuffer(GLuint indexBuffer, UInt64 offset = 0);
+			inline void BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset = 0);
 			inline void BindPipeline(const OpenGLRenderPipeline* pipeline);
 			inline void BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
@@ -122,6 +122,7 @@ namespace Nz
 				GLuint indexBuffer = 0;
 				const OpenGLRenderPipeline* pipeline = nullptr;
 				UInt64 indexBufferOffset;
+				IndexType indexBufferType;
 				std::optional<Recti> scissorRegion;
 				std::optional<Recti> viewportRegion;
 				std::vector<std::pair<const OpenGLRenderPipelineLayout*, const OpenGLShaderBinding*>> shaderBindings;

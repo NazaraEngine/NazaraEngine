@@ -25,11 +25,11 @@ namespace Nz
 		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), static_cast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
-	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, UInt64 offset)
+	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(indexBuffer);
 
-		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId(), offset);
+		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId(), indexType, offset);
 	}
 
 	void OpenGLCommandBufferBuilder::BindPipeline(const RenderPipeline& pipeline)

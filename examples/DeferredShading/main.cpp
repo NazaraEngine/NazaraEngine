@@ -875,7 +875,7 @@ int main()
 			builder.SetViewport(env.renderRect);
 
 			//builder.BindVertexBuffer(0, vertexBuffer.get());
-			builder.BindIndexBuffer(*coneMeshGfx->GetIndexBuffer(0).get());
+			builder.BindIndexBuffer(*coneMeshGfx->GetIndexBuffer(0).get(), Nz::IndexType::U16);
 			builder.BindVertexBuffer(0, *coneMeshGfx->GetVertexBuffer(0).get());
 
 			builder.BindShaderBinding(0, *gbufferShaderBinding);
@@ -907,7 +907,7 @@ int main()
 
 			builder.BindShaderBinding(0, *skyboxShaderBinding);
 
-			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0));
+			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0), Nz::IndexType::U16);
 			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
 			builder.BindPipeline(*skyboxPipeline);
 

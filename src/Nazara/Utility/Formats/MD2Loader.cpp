@@ -108,7 +108,7 @@ namespace Nz
 				}
 			}
 
-			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(false, 3 * header.num_tris, parameters.indexBufferFlags, parameters.bufferFactory);
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(IndexType::U16, 3 * header.num_tris, parameters.indexBufferFlags, parameters.bufferFactory);
 
 			// Extract triangles data
 			std::vector<MD2_Triangle> triangles(header.num_tris);

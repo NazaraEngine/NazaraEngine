@@ -169,6 +169,19 @@ namespace Nz
 		return {};
 	}
 
+	inline VkIndexType ToVulkan(IndexType indexType)
+	{
+		switch (indexType)
+		{
+			case IndexType::U8:  return VK_INDEX_TYPE_UINT8_EXT;
+			case IndexType::U16: return VK_INDEX_TYPE_UINT16;
+			case IndexType::U32: return VK_INDEX_TYPE_UINT32;
+		}
+
+		NazaraError("Unhandled IndexType 0x" + NumberToString(UnderlyingCast(indexType), 16));
+		return {};
+	}
+
 	inline VkAccessFlagBits ToVulkan(MemoryAccess memoryAccess)
 	{
 		switch (memoryAccess)

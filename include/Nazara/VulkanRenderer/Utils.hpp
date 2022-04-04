@@ -25,6 +25,7 @@ namespace Nz
 	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide);
 	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);
 	inline VkFrontFace ToVulkan(FrontFace frontFace);
+	inline VkIndexType ToVulkan(IndexType indexType);
 	inline VkAccessFlagBits ToVulkan(MemoryAccess memoryAccess);
 	inline VkAccessFlags ToVulkan(MemoryAccessFlags memoryAccessFlags);
 	inline VkPipelineStageFlagBits ToVulkan(PipelineStage pipelineStage);

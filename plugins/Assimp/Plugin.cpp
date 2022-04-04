@@ -307,7 +307,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 			// Index buffer
 			bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 
 			IndexMapper indexMapper(*indexBuffer);
 			IndexIterator index = indexMapper.begin();
@@ -465,7 +465,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 
 				IndexMapper indexMapper(*indexBuffer);
 				IndexIterator index = indexMapper.begin();

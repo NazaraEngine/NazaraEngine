@@ -26,6 +26,7 @@ namespace Nz
 
 			inline const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMesh) const;
 			inline std::size_t GetIndexCount(std::size_t subMesh) const;
+			inline IndexType GetIndexType(std::size_t subMesh) const;
 			inline const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMesh) const;
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
@@ -40,6 +41,7 @@ namespace Nz
 				std::shared_ptr<RenderBuffer> vertexBuffer;
 				std::size_t indexCount;
 				std::shared_ptr<const VertexDeclaration> vertexDeclaration;
+				IndexType indexType;
 			};
 
 			std::vector<GraphicalSubMesh> m_subMeshes;

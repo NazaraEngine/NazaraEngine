@@ -170,7 +170,7 @@ namespace Nz
 		});
 
 		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), colliderVertices.size(), BufferUsage::Write, SoftwareBufferFactory, colliderVertices.data());
-		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(false, colliderIndices.size(), BufferUsage::Write, SoftwareBufferFactory, colliderIndices.data());
+		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(IndexType::U16, colliderIndices.size(), BufferUsage::Write, SoftwareBufferFactory, colliderIndices.data());
 
 		std::shared_ptr<StaticMesh> colliderSubMesh = std::make_shared<StaticMesh>(std::move(colliderVB), std::move(colliderIB));
 		colliderSubMesh->GenerateAABB();

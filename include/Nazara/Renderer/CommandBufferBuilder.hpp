@@ -42,7 +42,7 @@ namespace Nz
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect);
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
-			virtual void BindIndexBuffer(const RenderBuffer& indexBuffer, UInt64 offset = 0) = 0;
+			virtual void BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset = 0) = 0;
 			virtual void BindPipeline(const RenderPipeline& pipeline) = 0;
 			virtual void BindShaderBinding(UInt32 set, const ShaderBinding& binding) = 0;
 			virtual void BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) = 0;

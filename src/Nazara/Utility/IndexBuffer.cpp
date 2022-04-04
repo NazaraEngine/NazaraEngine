@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	IndexBuffer::IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer) :
+	IndexBuffer::IndexBuffer(IndexType indexType, std::shared_ptr<Buffer> buffer) :
 	m_buffer(std::move(buffer)),
+	m_indexType(indexType),
 	m_endOffset(m_buffer->GetSize()),
-	m_startOffset(0),
-	m_largeIndices(largeIndices)
+	m_startOffset(0)
 	{
 		NazaraAssert(m_buffer, "invalid buffer");
 		NazaraAssert(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
@@ -26,23 +26,23 @@ namespace Nz
 		m_indexCount = m_endOffset / GetStride();
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size) :
+	IndexBuffer::IndexBuffer(IndexType indexType, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size) :
 	m_buffer(std::move(buffer)),
+	m_indexType(indexType),
 	m_endOffset(offset + size),
-	m_startOffset(offset),
-	m_largeIndices(largeIndices)
+	m_startOffset(offset)
 	{
 		NazaraAssert(m_buffer, "invalid buffer");
 		NazaraAssert(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
-		NazaraAssert(size > 0, "invalid size");
+		NazaraAssert(size > 0, "invalid buffer size");
 
 		m_indexCount = size / GetStride();
 	}
 
-	IndexBuffer::IndexBuffer(bool largeIndices, UInt64 indexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
+	IndexBuffer::IndexBuffer(IndexType indexType, UInt64 indexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
+	m_indexType(indexType),
 	m_indexCount(indexCount),
-	m_startOffset(0),
-	m_largeIndices(largeIndices)
+	m_startOffset(0)
 	{
 		NazaraAssert(indexCount > 0, "invalid index count");
 
