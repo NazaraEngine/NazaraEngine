@@ -2,7 +2,7 @@
 #include <Nazara/OpenGLRenderer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility/FieldOffsets.hpp>
+#include <Nazara/Shader/FieldOffsets.hpp>
 #include <iostream>
 #include <numeric>
 

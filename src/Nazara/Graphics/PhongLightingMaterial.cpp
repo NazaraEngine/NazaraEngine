@@ -7,9 +7,9 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Shader/FieldOffsets.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <cassert>
 #include <filesystem>

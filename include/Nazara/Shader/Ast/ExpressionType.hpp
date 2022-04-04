@@ -8,10 +8,11 @@
 #define NAZARA_SHADER_AST_EXPRESSIONTYPE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
+#include <Nazara/Shader/Enums.hpp>
 #include <Nazara/Shader/ShaderLangSourceLocation.hpp>
 #include <Nazara/Shader/Ast/Enums.hpp>
 #include <Nazara/Shader/Ast/ExpressionValue.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <optional>
 #include <string>
 #include <variant>

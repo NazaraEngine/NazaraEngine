@@ -6,6 +6,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include <Nazara/Shader/Enums.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/Ast/AstCloner.hpp>
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>

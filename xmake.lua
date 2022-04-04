@@ -80,8 +80,8 @@ local modules = {
 		Deps = {"NazaraPlatform", "NazaraShader"}
 	},
 	Shader = {
-		Deps = {"NazaraUtility"},
 		Packages = {"efsw", "fmt"},
+		Deps = {"NazaraCore"},
 		Custom = function()
 			-- Set precise floating-points models to ensure shader optimization leads to correct results
 			set_fpmodels("precise")

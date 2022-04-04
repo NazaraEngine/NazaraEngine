@@ -8,9 +8,9 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Shader/FieldOffsets.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
