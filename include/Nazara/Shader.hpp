@@ -30,6 +30,8 @@
 #define NAZARA_GLOBAL_SHADER_HPP
 
 #include <Nazara/Shader/Config.hpp>
+#include <Nazara/Shader/Enums.hpp>
+#include <Nazara/Shader/FieldOffsets.hpp>
 #include <Nazara/Shader/FilesystemModuleResolver.hpp>
 #include <Nazara/Shader/GlslWriter.hpp>
 #include <Nazara/Shader/LangWriter.hpp>

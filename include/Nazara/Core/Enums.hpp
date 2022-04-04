@@ -70,6 +70,20 @@ namespace Nz
 
 	constexpr std::size_t ErrorTypeCount = static_cast<std::size_t>(ErrorType::Max) + 1;
 
+	enum class ImageType
+	{
+		E1D,
+		E1D_Array,
+		E2D,
+		E2D_Array,
+		E3D,
+		Cubemap,
+
+		Max = Cubemap
+	};
+
+	constexpr std::size_t ImageTypeCount = static_cast<std::size_t>(ImageType::Max) + 1;
+
 	enum class HashType
 	{
 		CRC32,

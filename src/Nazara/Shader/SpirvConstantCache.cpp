@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Shader/SpirvConstantCache.hpp>
+#include <Nazara/Shader/FieldOffsets.hpp>
 #include <Nazara/Shader/SpirvSection.hpp>
 #include <Nazara/Shader/Ast/Nodes.hpp>
-#include <Nazara/Utility/FieldOffsets.hpp>
 #include <tsl/ordered_map.h>
 #include <cassert>
 #include <stdexcept>
