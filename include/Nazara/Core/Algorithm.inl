@@ -264,7 +264,7 @@ namespace Nz
 	{
 		UInt32 crc = 0xFFFFFFFFu;
 
-		for (std::size_t i = 0u; auto c = str[i]; ++i)
+		for (std::size_t i = 0u; str[i]; ++i)
 			crc = Detail::crc32Table[(crc ^ str[i]) & 0xFF] ^ (crc >> 8);
 
 		return ~crc;

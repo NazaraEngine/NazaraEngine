@@ -30,7 +30,7 @@ QImage PreviewValues::GenerateImage() const
 		for (std::size_t y = 0; y < 4; ++y)
 			*ptr++ = static_cast<Nz::UInt8>(std::clamp((*src)[y] * 0xFF, 0.f, 255.f));
 
-		*src++;
+		src++;
 	}
 
 	return preview;

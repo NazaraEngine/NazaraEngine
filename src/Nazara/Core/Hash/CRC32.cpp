@@ -75,7 +75,7 @@ namespace Nz
 			{
 				table[i] = crc32_reflect(i, 8) << 24;
 				for (unsigned int j = 0; j < 8; ++j)
-					table[i] = (table[i] << 1) ^ (table[i] & ((1 << 31) ? polynomial : 0));
+					table[i] = (table[i] << 1) ^ ((table[i] & (1 << 31)) ? polynomial : 0);
 
 				table[i] = crc32_reflect(table[i], 32);
 			}

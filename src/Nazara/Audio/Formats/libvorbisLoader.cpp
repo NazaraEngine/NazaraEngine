@@ -106,7 +106,7 @@ namespace Nz
 					return 0;
 				}
 
-				assert(readBytes > 0 && readBytes <= remainingBytes);
+				assert(readBytes > 0 && UInt64(readBytes) <= remainingBytes);
 
 				ptr += readBytes;
 				remainingBytes -= readBytes;
