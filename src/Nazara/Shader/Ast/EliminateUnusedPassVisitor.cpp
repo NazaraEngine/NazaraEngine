@@ -36,6 +36,15 @@ namespace Nz::ShaderAst
 		return Clone(statement);
 	}
 
+	StatementPtr EliminateUnusedPassVisitor::Clone(DeclareAliasStatement& node)
+	{
+		assert(node.aliasIndex);
+		if (!IsAliasUsed(*node.aliasIndex))
+			return ShaderBuilder::NoOp();
+
+		return AstCloner::Clone(node);
+	}
+
 	StatementPtr EliminateUnusedPassVisitor::Clone(DeclareExternalStatement& node)
 	{
 		bool isUsed = false;
@@ -99,16 +108,22 @@ namespace Nz::ShaderAst
 		return AstCloner::Clone(node);
 	}
 
-	bool EliminateUnusedPassVisitor::IsFunctionUsed(std::size_t varIndex) const
+	bool EliminateUnusedPassVisitor::IsAliasUsed(std::size_t aliasIndex) const
 	{
 		assert(m_context);
-		return m_context->usageSet.usedFunctions.UnboundedTest(varIndex);
+		return m_context->usageSet.usedAliases.UnboundedTest(aliasIndex);
 	}
 
-	bool EliminateUnusedPassVisitor::IsStructUsed(std::size_t varIndex) const
+	bool EliminateUnusedPassVisitor::IsFunctionUsed(std::size_t funcIndex) const
 	{
 		assert(m_context);
-		return m_context->usageSet.usedStructs.UnboundedTest(varIndex);
+		return m_context->usageSet.usedFunctions.UnboundedTest(funcIndex);
+	}
+
+	bool EliminateUnusedPassVisitor::IsStructUsed(std::size_t structIndex) const
+	{
+		assert(m_context);
+		return m_context->usageSet.usedStructs.UnboundedTest(structIndex);
 	}
 
 	bool EliminateUnusedPassVisitor::IsVariableUsed(std::size_t varIndex) const
