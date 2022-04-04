@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/IndexBuffer.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 
