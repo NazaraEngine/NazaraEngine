@@ -275,7 +275,7 @@ namespace Nz
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
-		commandBuffer.BindIndexBuffer(*m_indexBuffer);
+		commandBuffer.BindIndexBuffer(*m_indexBuffer, Nz::IndexType::U16);
 
 		Vector2f targetSize = viewerInstance.GetTargetSize();
 		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));

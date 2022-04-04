@@ -100,7 +100,9 @@ namespace Nz
 				std::size_t vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+				indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, params.indexBufferFlags, params.bufferFactory);
 				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
 				VertexMapper vertexMapper(*vertexBuffer);
@@ -122,7 +124,9 @@ namespace Nz
 				std::size_t vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+				indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, params.indexBufferFlags, params.bufferFactory);
 				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
 				VertexMapper vertexMapper(*vertexBuffer);
@@ -144,7 +148,9 @@ namespace Nz
 				std::size_t vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
-				indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+				indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, params.indexBufferFlags, params.bufferFactory);
 				vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
 				VertexMapper vertexMapper(*vertexBuffer);
@@ -170,7 +176,9 @@ namespace Nz
 						std::size_t vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
-						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+						indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, params.indexBufferFlags, params.bufferFactory);
 						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
 						VertexMapper vertexMapper(*vertexBuffer);
@@ -192,7 +200,9 @@ namespace Nz
 						std::size_t vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
-						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+						indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, params.indexBufferFlags, params.bufferFactory);
 						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
 						VertexMapper vertexMapper(*vertexBuffer);
@@ -214,7 +224,9 @@ namespace Nz
 						std::size_t vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
-						indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indexCount, params.indexBufferFlags, params.bufferFactory);
+						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+						indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, params.indexBufferFlags, params.bufferFactory);
 						vertexBuffer = std::make_shared<VertexBuffer>(declaration, vertexCount, params.vertexBufferFlags, params.bufferFactory);
 
 						VertexMapper vertexMapper(*vertexBuffer);

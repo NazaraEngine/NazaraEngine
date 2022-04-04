@@ -23,19 +23,32 @@ namespace Nz
 		return m_indexCount;
 	}
 
+	inline IndexType IndexBuffer::GetIndexType() const
+	{
+		return m_indexType;
+	}
+
 	inline UInt64 IndexBuffer::GetStride() const
 	{
-		return (m_largeIndices) ? sizeof(UInt32) : sizeof(UInt16);
+		switch (m_indexType)
+		{
+			case IndexType::U8:
+				return sizeof(UInt8);
+
+			case IndexType::U16:
+				return sizeof(UInt16);
+
+			case IndexType::U32:
+				return sizeof(UInt32);
+		}
+
+		NazaraError("invalid index size");
+		return 0;
 	}
 
 	inline UInt64 IndexBuffer::GetStartOffset() const
 	{
 		return m_startOffset;
-	}
-
-	inline bool IndexBuffer::HasLargeIndices() const
-	{
-		return m_largeIndices;
 	}
 
 	inline bool IndexBuffer::IsValid() const

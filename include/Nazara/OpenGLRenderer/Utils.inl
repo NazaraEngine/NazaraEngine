@@ -120,6 +120,19 @@ namespace Nz
 		return {};
 	}
 
+	inline GLenum ToOpenGL(IndexType indexType)
+	{
+		switch (indexType)
+		{
+			case IndexType::U8:  return GL_UNSIGNED_BYTE;
+			case IndexType::U16: return GL_UNSIGNED_SHORT;
+			case IndexType::U32: return GL_UNSIGNED_INT;
+		}
+
+		NazaraError("Unhandled IndexType 0x" + NumberToString(UnderlyingCast(indexType), 16));
+		return {};
+	}
+
 	inline GLenum ToOpenGL(PrimitiveMode primitiveMode)
 	{
 		switch (primitiveMode)

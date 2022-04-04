@@ -43,6 +43,7 @@ namespace Nz
 			const ShaderBinding* shaderBinding;
 			std::size_t firstIndex;
 			std::size_t indexCount;
+			IndexType indexType;
 			Recti scissorBox;
 		};
 

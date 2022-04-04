@@ -254,7 +254,9 @@ namespace Nz
 				}
 
 				// Création des buffers
-				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(vertexCount > std::numeric_limits<UInt16>::max(), indices.size(), parameters.indexBufferFlags, parameters.bufferFactory);
+				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+				std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indices.size(), parameters.indexBufferFlags, parameters.bufferFactory);
 				std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
 
 				// Remplissage des indices

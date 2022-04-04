@@ -404,7 +404,7 @@ int main()
 			{
 				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
-					builder.BindIndexBuffer(renderBufferIB);
+					builder.BindIndexBuffer(renderBufferIB, Nz::IndexType::U16);
 					builder.BindPipeline(*pipeline);
 					builder.BindVertexBuffer(0, renderBufferVB);
 					builder.BindShaderBinding(0, *viewerShaderBinding);

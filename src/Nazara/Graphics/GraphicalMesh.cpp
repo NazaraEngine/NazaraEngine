@@ -39,6 +39,7 @@ namespace Nz
 				throw std::runtime_error("failed to fill index buffer");
 
 			submeshData.indexCount = indexBuffer->GetIndexCount();
+			submeshData.indexType = indexBuffer->GetIndexType();
 
 			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(BufferType::Vertex, vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
 			if (!submeshData.vertexBuffer->Fill(vertexBufferContent->GetData() + vertexBuffer->GetStartOffset(), 0, vertexBuffer->GetEndOffset() - vertexBuffer->GetStartOffset()))

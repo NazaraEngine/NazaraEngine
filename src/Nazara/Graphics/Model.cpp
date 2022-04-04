@@ -46,7 +46,10 @@ namespace Nz
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
 			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
 
-			elements.emplace_back(std::make_unique<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, m_graphicalMesh->GetIndexCount(i), indexBuffer, vertexBuffer, scissorBox));
+			std::size_t indexCount = m_graphicalMesh->GetIndexCount(i);
+			IndexType indexType = m_graphicalMesh->GetIndexType(i);
+
+			elements.emplace_back(std::make_unique<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, indexCount, indexType, indexBuffer, vertexBuffer, scissorBox));
 		}
 	}
 

@@ -19,6 +19,12 @@ namespace Nz
 			return static_cast<UInt32>(i);
 		}
 
+		UInt32 Getter8(const void* buffer, std::size_t i)
+		{
+			const UInt8* ptr = static_cast<const UInt8*>(buffer);
+			return ptr[i];
+		}
+
 		UInt32 Getter16(const void* buffer, std::size_t i)
 		{
 			const UInt16* ptr = static_cast<const UInt16*>(buffer);
@@ -37,10 +43,16 @@ namespace Nz
 			return 0;
 		}
 
+		void Setter8(void* buffer, std::size_t i, UInt32 value)
+		{
+			UInt8* ptr = static_cast<UInt8*>(buffer);
+			ptr[i] = SafeCast<UInt8>(value);
+		}
+
 		void Setter16(void* buffer, std::size_t i, UInt32 value)
 		{
 			UInt16* ptr = static_cast<UInt16*>(buffer);
-			ptr[i] = static_cast<UInt16>(value);
+			ptr[i] = SafeCast<UInt16>(value);
 		}
 
 		void Setter32(void* buffer, std::size_t i, UInt32 value)
@@ -63,13 +75,37 @@ namespace Nz
 		if (!m_mapper.Map(indexBuffer, 0, m_indexCount))
 			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
 
+		Getter rightGetter = nullptr;
+		Setter rightSetter = nullptr;
+
+		switch (indexBuffer.GetIndexType())
+		{
+			case IndexType::U8:
+				rightGetter = Getter8;
+				rightSetter = Setter8;
+				break;
+
+			case IndexType::U16:
+				rightGetter = Getter16;
+				rightSetter = Setter16;
+				break;
+
+			case IndexType::U32:
+				rightGetter = Getter32;
+				rightSetter = Setter32;
+				break;
+		}
+
+		if (!rightGetter)
+			NazaraError("unexpected index size"); ///TODO: Unexcepted
+
 		if (indexBuffer.GetBuffer()->GetUsageFlags().Test(BufferUsage::Read))
-			m_getter = (indexBuffer.HasLargeIndices()) ? Getter32 : Getter16;
+			m_getter = rightGetter;
 		else
 			m_getter = GetterError;
 
 		if (indexBuffer.GetBuffer()->GetUsageFlags().Test(BufferUsage::Write))
-			m_setter = (indexBuffer.HasLargeIndices()) ? Setter32 : Setter16;
+			m_setter = rightSetter;
 		else
 			m_setter = SetterError;
 	}

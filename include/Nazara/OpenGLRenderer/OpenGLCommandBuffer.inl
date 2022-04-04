@@ -33,10 +33,11 @@ namespace Nz
 		m_commands.emplace_back(std::move(beginDebugRegion));
 	}
 
-	inline void OpenGLCommandBuffer::BindIndexBuffer(GLuint indexBuffer, UInt64 offset)
+	inline void OpenGLCommandBuffer::BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		m_currentStates.indexBuffer = indexBuffer;
 		m_currentStates.indexBufferOffset = offset;
+		m_currentStates.indexBufferType = indexType;
 	}
 
 	inline void OpenGLCommandBuffer::BindPipeline(const OpenGLRenderPipeline* pipeline)

@@ -20,6 +20,12 @@ namespace Nz
 		return m_subMeshes[subMesh].indexCount;
 	}
 
+	inline IndexType GraphicalMesh::GetIndexType(std::size_t subMesh) const
+	{
+		assert(subMesh < m_subMeshes.size());
+		return m_subMeshes[subMesh].indexType;
+	}
+
 	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetVertexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());

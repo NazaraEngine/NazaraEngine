@@ -96,7 +96,7 @@ namespace Nz
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 					std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), UInt32(vertexCount), parameters.vertexBufferFlags, parameters.bufferFactory);
 
 					// Index buffer
@@ -241,7 +241,7 @@ namespace Nz
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
-					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>(largeIndices, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+					std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
 
 					IndexMapper indexMapper(*indexBuffer);
 					IndexIterator index = indexMapper.begin();
@@ -293,7 +293,7 @@ namespace Nz
 					// Vertex colors (.md5mesh files have no vertex color)
 					if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
 					{
-						for (std::size_t i = 0; i < md5Mesh.vertices.size(); ++i)
+						for (std::size_t j = 0; j < md5Mesh.vertices.size(); ++j)
 							*colorPtr++ = Color::White;
 					}
 

@@ -34,6 +34,7 @@ namespace Nz
 	inline GLenum ToOpenGL(FaceFilling filling);
 	inline GLenum ToOpenGL(FaceSide side);
 	inline GLenum ToOpenGL(FrontFace face);
+	inline GLenum ToOpenGL(IndexType indexType);
 	inline GLenum ToOpenGL(PrimitiveMode primitiveMode);
 	inline GLenum ToOpenGL(SamplerFilter filter);
 	inline GLenum ToOpenGL(SamplerFilter minFilter, SamplerMipmapMode mipmapFilter);
