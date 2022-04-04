@@ -32,13 +32,15 @@ namespace Nz::ShaderAst
 
 		private:
 			using AstCloner::Clone;
+			StatementPtr Clone(DeclareAliasStatement& node) override;
 			StatementPtr Clone(DeclareExternalStatement& node) override;
 			StatementPtr Clone(DeclareFunctionStatement& node) override;
 			StatementPtr Clone(DeclareStructStatement& node) override;
 			StatementPtr Clone(DeclareVariableStatement& node) override;
 
-			bool IsFunctionUsed(std::size_t varIndex) const;
-			bool IsStructUsed(std::size_t varIndex) const;
+			bool IsAliasUsed(std::size_t aliasIndex) const;
+			bool IsFunctionUsed(std::size_t funcIndex) const;
+			bool IsStructUsed(std::size_t structIndex) const;
 			bool IsVariableUsed(std::size_t varIndex) const;
 
 			struct Context;
