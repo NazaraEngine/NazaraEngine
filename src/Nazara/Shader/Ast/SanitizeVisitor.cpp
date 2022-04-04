@@ -3257,6 +3257,7 @@ namespace Nz::ShaderAst
 						{
 							case PrimitiveType::Boolean:
 							case PrimitiveType::String:
+							case PrimitiveType::UInt32:
 								return false;
 
 							case PrimitiveType::Float32:
@@ -3280,6 +3281,8 @@ namespace Nz::ShaderAst
 						}
 					}
 				}
+
+				throw ShaderLang::AstInternalError{ node.sourceLocation, "unexpected cast from " + ShaderAst::ToString(fromPrimitiveType) + " to " + ShaderAst::ToString(targetPrimitiveType) };
 			}();
 
 			if (!areTypeCompatibles)

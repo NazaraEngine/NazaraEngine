@@ -71,7 +71,7 @@ namespace Nz
 			{
 				// Material should always have textures but we're better safe than sorry
 				if (const auto& texture = mat.GetDiffuseMap())
-					return mat.GetDiffuseMap()->GetSize();
+					return texture->GetSize();
 			}
 		}
 

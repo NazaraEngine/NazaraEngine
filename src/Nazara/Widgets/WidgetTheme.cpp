@@ -56,7 +56,7 @@ namespace Nz
 	{
 	}
 
-	void CheckboxWidgetStyle::OnNewState(CheckboxState newState)
+	void CheckboxWidgetStyle::OnNewState(CheckboxState /*newState*/)
 	{
 	}
 

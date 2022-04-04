@@ -29,7 +29,7 @@ namespace Nz
 	{
 		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(indexBuffer);
 
-		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId());
+		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId(), offset);
 	}
 
 	void OpenGLCommandBufferBuilder::BindPipeline(const RenderPipeline& pipeline)

@@ -44,13 +44,7 @@ namespace Nz
 		inline bool QueueHandle::Present(const VkPresentInfoKHR& presentInfo) const
 		{
 			m_lastErrorCode = m_device->vkQueuePresentKHR(m_handle, &presentInfo);
-			if (m_lastErrorCode != VkResult::VK_SUCCESS)
-			{
-				NazaraError("Failed to present queue: " + TranslateVulkanError(m_lastErrorCode));
-				return false;
-			}
-
-			return true;
+			return (m_lastErrorCode != VkResult::VK_SUCCESS);
 		}
 
 		inline bool QueueHandle::Present(VkSwapchainKHR swapchain, UInt32 imageIndex, VkSemaphore waitSemaphore) const
