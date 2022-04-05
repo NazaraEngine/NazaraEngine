@@ -17,9 +17,9 @@ namespace Nz::ShaderAst
 	{
 		DependencyCheckerVisitor dependencyVisitor;
 		for (const auto& importedModule : shaderModule.importedModules)
-			dependencyVisitor.Process(*importedModule.module->rootNode, config);
+			dependencyVisitor.Register(*importedModule.module->rootNode, config);
 
-		dependencyVisitor.Process(*shaderModule.rootNode, config);
+		dependencyVisitor.Register(*shaderModule.rootNode, config);
 		dependencyVisitor.Resolve();
 
 		return EliminateUnusedPass(shaderModule, dependencyVisitor.GetUsage());
@@ -40,7 +40,7 @@ namespace Nz::ShaderAst
 	inline StatementPtr EliminateUnusedPass(Statement& ast, const DependencyCheckerVisitor::Config& config)
 	{
 		DependencyCheckerVisitor dependencyVisitor;
-		dependencyVisitor.Process(ast, config);
+		dependencyVisitor.Register(ast, config);
 		dependencyVisitor.Resolve();
 
 		return EliminateUnusedPass(ast, dependencyVisitor.GetUsage());

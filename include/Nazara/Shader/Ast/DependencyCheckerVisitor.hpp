@@ -30,10 +30,10 @@ namespace Nz::ShaderAst
 			inline void MarkFunctionAsUsed(std::size_t funcIndex);
 			inline void MarkStructAsUsed(std::size_t structIndex);
 
-			inline void Process(Statement& statement);
-			void Process(Statement& statement, const Config& config);
+			inline void Register(Statement& statement);
+			void Register(Statement& statement, const Config& config);
 
-			inline void Resolve();
+			inline void Resolve(bool allowUnknownId = false);
 
 			DependencyCheckerVisitor& operator=(const DependencyCheckerVisitor&) = delete;
 			DependencyCheckerVisitor& operator=(DependencyCheckerVisitor&&) = delete;
@@ -53,7 +53,8 @@ namespace Nz::ShaderAst
 
 		private:
 			UsageSet& GetContextUsageSet();
-			void Resolve(const UsageSet& usageSet);
+			void RegisterType(UsageSet& usageSet, const ExpressionType& exprType);
+			void Resolve(const UsageSet& usageSet, bool allowUnknownId);
 
 			using AstRecursiveVisitor::Visit;
 
