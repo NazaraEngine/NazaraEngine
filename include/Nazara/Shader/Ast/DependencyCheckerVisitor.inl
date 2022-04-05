@@ -22,15 +22,15 @@ namespace Nz::ShaderAst
 		m_globalUsage.usedStructs.UnboundedSet(structIndex);
 	}
 
-	inline void DependencyCheckerVisitor::Process(Statement& statement)
+	inline void DependencyCheckerVisitor::Register(Statement& statement)
 	{
 		Config defaultConfig;
-		return Process(statement, defaultConfig);
+		return Register(statement, defaultConfig);
 	}
 
-	void DependencyCheckerVisitor::Resolve()
+	inline void DependencyCheckerVisitor::Resolve(bool allowUnknownId)
 	{
-		Resolve(m_globalUsage);
+		Resolve(m_globalUsage, allowUnknownId);
 	}
 }
 

@@ -7,7 +7,7 @@
 
 namespace Nz::ShaderAst
 {
-	void DependencyCheckerVisitor::Process(Statement& statement, const Config& config)
+	void DependencyCheckerVisitor::Register(Statement& statement, const Config& config)
 	{
 		m_config = config;
 		statement.Visit(*this);
@@ -26,7 +26,23 @@ namespace Nz::ShaderAst
 		}
 	}
 
-	void DependencyCheckerVisitor::Resolve(const UsageSet& usageSet)
+	void DependencyCheckerVisitor::RegisterType(UsageSet& usageSet, const ExpressionType& exprType)
+	{
+		std::visit([&](auto&& arg)
+		{
+			using T = std::decay_t<decltype(arg)>;
+
+			if constexpr (std::is_same_v<T, AliasType>)
+				usageSet.usedAliases.UnboundedSet(arg.aliasIndex);
+			else if constexpr (std::is_same_v<T, StructType>)
+				usageSet.usedStructs.UnboundedSet(arg.structIndex);
+			else if constexpr (std::is_same_v<T, UniformType>)
+				usageSet.usedStructs.UnboundedSet(arg.containedType.structIndex);
+
+		}, exprType);
+	}
+
+	void DependencyCheckerVisitor::Resolve(const UsageSet& usageSet, bool allowUnknownId)
 	{
 		m_resolvedUsage.usedAliases |= usageSet.usedAliases;
 		m_resolvedUsage.usedFunctions |= usageSet.usedFunctions;
@@ -34,16 +50,40 @@ namespace Nz::ShaderAst
 		m_resolvedUsage.usedVariables |= usageSet.usedVariables;
 
 		for (std::size_t aliasIndex = usageSet.usedAliases.FindFirst(); aliasIndex != usageSet.usedAliases.npos; aliasIndex = usageSet.usedAliases.FindNext(aliasIndex))
-			Resolve(Retrieve(m_aliasUsages, aliasIndex));
+		{
+			auto it = m_aliasUsages.find(aliasIndex);
+			if (it != m_aliasUsages.end())
+				Resolve(it->second, allowUnknownId);
+			else if (!allowUnknownId)
+				throw std::runtime_error("unknown alias #" + std::to_string(aliasIndex));
+		}
 
 		for (std::size_t funcIndex = usageSet.usedFunctions.FindFirst(); funcIndex != usageSet.usedFunctions.npos; funcIndex = usageSet.usedFunctions.FindNext(funcIndex))
-			Resolve(Retrieve(m_functionUsages, funcIndex));
+		{
+			auto it = m_functionUsages.find(funcIndex);
+			if (it != m_functionUsages.end())
+				Resolve(it->second, allowUnknownId);
+			else if (!allowUnknownId)
+				throw std::runtime_error("unknown func #" + std::to_string(funcIndex));
+		}
 
 		for (std::size_t structIndex = usageSet.usedStructs.FindFirst(); structIndex != usageSet.usedStructs.npos; structIndex = usageSet.usedStructs.FindNext(structIndex))
-			Resolve(Retrieve(m_structUsages, structIndex));
+		{
+			auto it = m_structUsages.find(structIndex);
+			if (it != m_structUsages.end())
+				Resolve(it->second, allowUnknownId);
+			else if (!allowUnknownId)
+				throw std::runtime_error("unknown struct #" + std::to_string(structIndex));
+		}
 
 		for (std::size_t varIndex = usageSet.usedVariables.FindFirst(); varIndex != usageSet.usedVariables.npos; varIndex = usageSet.usedVariables.FindNext(varIndex))
-			Resolve(Retrieve(m_variableUsages, varIndex));
+		{
+			auto it = m_variableUsages.find(varIndex);
+			if (it != m_variableUsages.end())
+				Resolve(it->second, allowUnknownId);
+			else if (!allowUnknownId)
+				throw std::runtime_error("unknown var #" + std::to_string(varIndex));
+		}
 	}
 
 	void DependencyCheckerVisitor::Visit(DeclareAliasStatement& node)
@@ -69,12 +109,7 @@ namespace Nz::ShaderAst
 			UsageSet& usageSet = m_variableUsages[varIndex];
 
 			const auto& exprType = externalVar.type.GetResultingValue();
-
-			if (IsUniformType(exprType))
-			{
-				const UniformType& uniformType = std::get<UniformType>(exprType);
-				usageSet.usedStructs.UnboundedSet(uniformType.containedType.structIndex);
-			}
+			RegisterType(usageSet, exprType);
 
 			++varIndex;
 		}
@@ -100,22 +135,14 @@ namespace Nz::ShaderAst
 				m_variableUsages.emplace(*parameter.varIndex, UsageSet{});
 
 				const auto& exprType = parameter.type.GetResultingValue();
-				if (IsStructType(exprType))
-				{
-					std::size_t structIndex = std::get<ShaderAst::StructType>(exprType).structIndex;
-					usageSet.usedStructs.UnboundedSet(structIndex);
-				}
+				RegisterType(usageSet, exprType);
 			}
 		}
 
 		if (node.returnType.HasValue())
 		{
 			const auto& returnExprType = node.returnType.GetResultingValue();
-			if (IsStructType(returnExprType))
-			{
-				std::size_t structIndex = std::get<ShaderAst::StructType>(returnExprType).structIndex;
-				usageSet.usedStructs.UnboundedSet(structIndex);
-			}
+			RegisterType(usageSet, returnExprType);
 		}
 
 		if (node.entryStage.HasValue())
@@ -139,11 +166,7 @@ namespace Nz::ShaderAst
 		for (const auto& structMember : node.description.members)
 		{
 			const auto& memberExprType = structMember.type.GetResultingValue();
-			if (IsStructType(memberExprType))
-			{
-				std::size_t structIndex = std::get<ShaderAst::StructType>(memberExprType).structIndex;
-				usageSet.usedStructs.UnboundedSet(structIndex);
-			}
+			RegisterType(usageSet, memberExprType);
 		}
 
 		AstRecursiveVisitor::Visit(node);
@@ -156,11 +179,7 @@ namespace Nz::ShaderAst
 		UsageSet& usageSet = m_variableUsages[*node.varIndex];
 
 		const auto& varType = node.varType.GetResultingValue();
-		if (IsStructType(varType))
-		{
-			const auto& structType = std::get<StructType>(varType);
-			usageSet.usedStructs.UnboundedSet(structType.structIndex);
-		}
+		RegisterType(usageSet, varType);
 
 		m_currentVariableDeclIndex = node.varIndex;
 		AstRecursiveVisitor::Visit(node);

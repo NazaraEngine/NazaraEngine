@@ -241,7 +241,8 @@ namespace Nz::ShaderAst
 
 			if (moduleData.dependenciesVisitor)
 			{
-				moduleData.dependenciesVisitor->Resolve();
+				moduleData.dependenciesVisitor->Resolve(true); //< allow unknown identifiers since we may be referencing other modules
+
 				importedModule.module = EliminateUnusedPass(*importedModule.module, moduleData.dependenciesVisitor->GetUsage());
 			}
 		}
@@ -1750,7 +1751,7 @@ namespace Nz::ShaderAst
 			if (!m_context->options.allowPartialSanitization)
 			{
 				moduleData.dependenciesVisitor = std::make_unique<DependencyCheckerVisitor>();
-				moduleData.dependenciesVisitor->Process(*sanitizedModule->rootNode);
+				moduleData.dependenciesVisitor->Register(*sanitizedModule->rootNode);
 			}
 
 			moduleData.environment = std::move(moduleEnvironment);
