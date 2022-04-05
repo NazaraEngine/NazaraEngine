@@ -5,6 +5,8 @@
 #include <Nazara/Shader/ShaderLangLexer.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Shader/ShaderLangErrors.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_map.h>
 #include <cctype>
 #include <charconv>
 #include <locale>
@@ -34,14 +36,8 @@ namespace Nz::ShaderLang
 			private:
 				std::locale m_previousLocale;
 		};
-	}
 
-	std::vector<Token> Tokenize(const std::string_view& str, const std::string& filePath)
-	{
-		// Can't use std::from_chars for double, thanks to libc++ and libstdc++ developers for being lazy, so we have to force C locale
-		ForceCLocale forceCLocale;
-
-		std::unordered_map<std::string, TokenType> reservedKeywords = {
+		constexpr auto s_reservedKeywords = frozen::make_unordered_map<frozen::string, TokenType>({
 			{ "alias",        TokenType::Alias },
 			{ "const",        TokenType::Const },
 			{ "const_select", TokenType::ConstSelect },
@@ -61,7 +57,13 @@ namespace Nz::ShaderLang
 			{ "struct",       TokenType::Struct },
 			{ "true",         TokenType::BoolTrue },
 			{ "while",        TokenType::While }
-		};
+		});
+	}
+
+	std::vector<Token> Tokenize(const std::string_view& str, const std::string& filePath)
+	{
+		// Can't use std::from_chars for double, thanks to libc++ and libstdc++ developers for being lazy, so we have to force C locale
+		ForceCLocale forceCLocale;
 
 		std::size_t currentPos = 0;
 
@@ -461,11 +463,11 @@ namespace Nz::ShaderLang
 						while (IsAlphaNum(Peek()))
 							currentPos++;
 
-						std::string identifier(str.substr(start, currentPos - start + 1));
-						if (auto it = reservedKeywords.find(identifier); it == reservedKeywords.end())
+						std::string_view identifier = str.substr(start, currentPos - start + 1);
+						if (auto it = s_reservedKeywords.find(identifier); it == s_reservedKeywords.end())
 						{
 							tokenType = TokenType::Identifier;
-							token.data = std::move(identifier);
+							token.data = std::string(identifier);
 						}
 						else
 							tokenType = it->second;

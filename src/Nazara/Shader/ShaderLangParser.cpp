@@ -7,6 +7,8 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Shader/ShaderBuilder.hpp>
 #include <Nazara/Shader/ShaderLangErrors.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_map.h>
 #include <cassert>
 #include <regex>
 #include <Nazara/Shader/Debug.hpp>
@@ -15,14 +17,14 @@ namespace Nz::ShaderLang
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		std::unordered_map<std::string, ShaderAst::DepthWriteMode> s_depthWriteModes = {
+		constexpr auto s_depthWriteModes = frozen::make_unordered_map<frozen::string, ShaderAst::DepthWriteMode>({
 			{ "greater",   ShaderAst::DepthWriteMode::Greater },
 			{ "less",      ShaderAst::DepthWriteMode::Less },
 			{ "replace",   ShaderAst::DepthWriteMode::Replace },
 			{ "unchanged", ShaderAst::DepthWriteMode::Unchanged },
-		};
+		});
 
-		std::unordered_map<std::string, ShaderAst::AttributeType> s_identifierToAttributeType = {
+		constexpr auto s_identifierToAttributeType = frozen::make_unordered_map<frozen::string, ShaderAst::AttributeType>({
 			{ "binding",              ShaderAst::AttributeType::Binding },
 			{ "builtin",              ShaderAst::AttributeType::Builtin },
 			{ "cond",                 ShaderAst::AttributeType::Cond },
@@ -36,28 +38,28 @@ namespace Nz::ShaderLang
 			{ "set",                  ShaderAst::AttributeType::Set },
 			{ "unroll",               ShaderAst::AttributeType::Unroll },
 			{ "uuid",                 ShaderAst::AttributeType::Uuid },
-		};
+		});
 
-		std::unordered_map<std::string, ShaderStageType> s_entryPoints = {
+		constexpr auto s_entryPoints = frozen::make_unordered_map<frozen::string, ShaderStageType>({
 			{ "frag", ShaderStageType::Fragment },
 			{ "vert", ShaderStageType::Vertex },
-		};
+		});
 
-		std::unordered_map<std::string, ShaderAst::BuiltinEntry> s_builtinMapping = {
+		constexpr auto s_builtinMapping = frozen::make_unordered_map<frozen::string, ShaderAst::BuiltinEntry>({
 			{ "fragcoord", ShaderAst::BuiltinEntry::FragCoord },
 			{ "fragdepth", ShaderAst::BuiltinEntry::FragDepth },
 			{ "position", ShaderAst::BuiltinEntry::VertexPosition }
-		};
+		});
 
-		std::unordered_map<std::string, StructLayout> s_layoutMapping = {
+		constexpr auto s_layoutMapping = frozen::make_unordered_map<frozen::string, StructLayout>({
 			{ "std140", StructLayout::Std140 }
-		};
+		});
 
-		std::unordered_map<std::string, ShaderAst::LoopUnroll> s_unrollModes = {
+		constexpr auto s_unrollModes = frozen::make_unordered_map<frozen::string, ShaderAst::LoopUnroll>({
 			{ "always", ShaderAst::LoopUnroll::Always },
 			{ "hint",   ShaderAst::LoopUnroll::Hint },
 			{ "never",  ShaderAst::LoopUnroll::Never }
-		};
+		});
 	}
 
 	ShaderAst::ModulePtr Parser::Parse(const std::vector<Token>& tokens)
@@ -163,7 +165,7 @@ namespace Nz::ShaderLang
 				Expect(Advance(), TokenType::Comma);
 
 			const Token& identifierToken = Expect(Advance(), TokenType::Identifier);
-			const std::string& identifier = std::get<std::string>(identifierToken.data);
+			std::string_view identifier = std::get<std::string>(identifierToken.data);
 
 			SourceLocation attributeLocation = identifierToken.location;
 
@@ -1495,8 +1497,8 @@ namespace Nz::ShaderLang
 			targetAttribute = std::move(defaultValue);
 	}
 
-	template<typename T>
-	void Parser::HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, const std::unordered_map<std::string, T>& map, std::optional<T> defaultValue)
+	template<typename T, typename M>
+	void Parser::HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Parser::Attribute&& attribute, const M& map, std::optional<T> defaultValue)
 	{
 		if (targetAttribute.HasValue())
 			throw ParserAttributeMultipleUniqueError{ attribute.sourceLocation, attribute.type };
@@ -1507,7 +1509,7 @@ namespace Nz::ShaderLang
 			if (attribute.args->GetType() != ShaderAst::NodeType::IdentifierExpression)
 				throw ParserAttributeParameterIdentifierError{ attribute.args->sourceLocation, attribute.type };
 
-			const std::string& exprStr = static_cast<ShaderAst::IdentifierExpression&>(*attribute.args).identifier;
+			std::string_view exprStr = static_cast<ShaderAst::IdentifierExpression&>(*attribute.args).identifier;
 
 			auto it = map.find(exprStr);
 			if (it == map.end())
