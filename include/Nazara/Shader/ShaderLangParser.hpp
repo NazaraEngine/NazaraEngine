@@ -87,7 +87,7 @@ namespace Nz::ShaderLang
 
 			template<typename T> void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute);
 			template<typename T> void HandleUniqueAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute, T defaultValue);
-			template<typename T> void HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute, const std::unordered_map<std::string, T>& map, std::optional<T> defaultValue = {});
+			template<typename T, typename M> void HandleUniqueStringAttribute(ShaderAst::ExpressionValue<T>& targetAttribute, Attribute&& attribute, const M& map, std::optional<T> defaultValue = {});
 
 			static int GetTokenPrecedence(TokenType token);
 

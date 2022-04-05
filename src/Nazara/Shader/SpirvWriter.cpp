@@ -16,6 +16,7 @@
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
 #include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
 #include <SpirV/GLSL.std.450.h>
+#include <frozen/unordered_map.h>
 #include <tsl/ordered_map.h>
 #include <tsl/ordered_set.h>
 #include <cassert>
@@ -36,11 +37,11 @@ namespace Nz
 			SpirvBuiltIn decoration;
 		};
 
-		std::unordered_map<ShaderAst::BuiltinEntry, SpirvBuiltin> s_spirvBuiltinMapping = {
+		constexpr auto s_spirvBuiltinMapping = frozen::make_unordered_map<ShaderAst::BuiltinEntry, SpirvBuiltin>({
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "FragmentCoordinates", ShaderStageType::Fragment, SpirvBuiltIn::FragCoord } },
 			{ ShaderAst::BuiltinEntry::FragDepth,      { "FragmentDepth",       ShaderStageType::Fragment, SpirvBuiltIn::FragDepth } },
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "VertexPosition",      ShaderStageType::Vertex,   SpirvBuiltIn::Position } }
-		};
+		});
 
 		class SpirvPreVisitor : public ShaderAst::AstRecursiveVisitor
 		{
@@ -400,7 +401,7 @@ namespace Nz
 						auto it = s_spirvBuiltinMapping.find(member.builtin.GetResultingValue());
 						assert(it != s_spirvBuiltinMapping.end());
 
-						SpirvBuiltin& builtin = it->second;
+						const SpirvBuiltin& builtin = it->second;
 						if ((builtin.compatibleStages & entryPointType) == 0)
 							return 0;
 

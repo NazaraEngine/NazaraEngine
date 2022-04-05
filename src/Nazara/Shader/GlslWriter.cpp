@@ -14,6 +14,7 @@
 #include <Nazara/Shader/Ast/AstRecursiveVisitor.hpp>
 #include <Nazara/Shader/Ast/AstUtils.hpp>
 #include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
+#include <frozen/unordered_map.h>
 #include <optional>
 #include <set>
 #include <stdexcept>
@@ -106,15 +107,15 @@ namespace Nz
 
 		struct GlslBuiltin
 		{
-			std::string identifier;
+			std::string_view identifier;
 			ShaderStageTypeFlags stageFlags;
 		};
 
-		std::unordered_map<ShaderAst::BuiltinEntry, GlslBuiltin> s_glslBuiltinMapping = {
+		constexpr auto s_glslBuiltinMapping = frozen::make_unordered_map<ShaderAst::BuiltinEntry, GlslBuiltin>({
 			{ ShaderAst::BuiltinEntry::FragCoord,      { "gl_FragCoord", ShaderStageType::Fragment } },
 			{ ShaderAst::BuiltinEntry::FragDepth,      { "gl_FragDepth", ShaderStageType::Fragment } },
 			{ ShaderAst::BuiltinEntry::VertexPosition, { "gl_Position", ShaderStageType::Vertex } }
-		};
+		});
 	}
 
 
@@ -722,7 +723,7 @@ namespace Nz
 
 					fields.push_back({
 						member.name,
-						builtin.identifier
+						std::string(builtin.identifier)
 					});
 				}
 				else
