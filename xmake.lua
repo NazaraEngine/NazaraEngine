@@ -195,7 +195,6 @@ for name, module in pairs(modules) do
 	set_kind("shared")
 	set_group("Modules")
 
-	add_rules("embed_resources")
 	add_rpathdirs("$ORIGIN")
 
 	if module.Deps then
@@ -236,8 +235,24 @@ for name, module in pairs(modules) do
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
-	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h")) do
+	local embedResourceRule = false
+	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
+		if not embedResourceRule then
+			add_rules("embed_resources")
+			embedResourceRule = true
+		end
+
 		add_files(filepath, {rule = "embed_resources"})
+	end
+
+	local compileShaderRule = false
+	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
+		if not compileShaderRule then
+			add_rules("compile_shaders")
+			compileShaderRule = true
+		end
+
+		add_files(filepath, {rule = "compile_shaders"})
 	end
 
 	-- Remove platform-specific files
@@ -264,7 +279,7 @@ for name, module in pairs(modules) do
 	end
 end
 
-includes("tools/xmake.lua")
-includes("tests/xmake.lua")
+includes("tools/*.lua")
+includes("tests/*.lua")
 includes("plugins/*/xmake.lua")
 includes("examples/*/xmake.lua")

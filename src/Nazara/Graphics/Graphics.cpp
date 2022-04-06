@@ -6,6 +6,8 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
+#include <Nazara/Shader/Ast/Module.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <array>
 #include <stdexcept>
@@ -16,31 +18,31 @@ namespace Nz
 	namespace
 	{
 		const UInt8 r_textureBlitShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/TextureBlit.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/TextureBlit.nzslb.h>
 		};
 
 		const UInt8 r_basicMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/BasicMaterial.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/BasicMaterial.nzslb.h>
 		};
 
 		const UInt8 r_depthMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/DepthMaterial.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/DepthMaterial.nzslb.h>
 		};
 
 		const UInt8 r_phongMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/PhongMaterial.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/PhongMaterial.nzslb.h>
 		};
 
 		const UInt8 r_instanceDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzslb.h>
 		};
 
 		const UInt8 r_lightDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightData.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightData.nzslb.h>
 		};
 
 		const UInt8 r_viewerDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzslb.h>
 		};
 	}
 
@@ -259,7 +261,7 @@ namespace Nz
 	template<std::size_t N>
 	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
 	{
-		m_shaderModuleResolver->RegisterModule(std::string_view(reinterpret_cast<const char*>(content), N));
+		m_shaderModuleResolver->RegisterModule(ShaderAst::UnserializeShader(content, N));
 	}
 
 	void Graphics::SelectDepthStencilFormats()

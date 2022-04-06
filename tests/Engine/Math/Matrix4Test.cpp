@@ -132,7 +132,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 			{
 				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion());
 				Nz::Matrix4f rotation45Z( std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
-				                          -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
+				                         -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                          0.f,                  0.f,                  1.f, 0.f,
 				                          0.f,                  0.f,                  0.f, 1.f);
 
