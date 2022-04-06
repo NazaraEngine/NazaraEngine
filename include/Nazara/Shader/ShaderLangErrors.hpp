@@ -36,7 +36,7 @@ namespace Nz::ShaderLang
 #include <Nazara/Shader/ShaderLangErrorList.hpp>
 	};
 
-	class Error : public std::exception
+	class NAZARA_SHADER_API Error : public std::exception
 	{
 		public:
 			inline Error(SourceLocation sourceLocation, ErrorCategory errorCategory, ErrorType errorType) noexcept;

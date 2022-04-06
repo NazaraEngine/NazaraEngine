@@ -184,6 +184,7 @@ if is_plat("windows") then
 	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:externConstexpr", "/Zc:inline", "/Zc:lambda", "/Zc:preprocessor", "/Zc:referenceBinding", "/Zc:strictStrings", "/Zc:throwingNew")
 	add_cxflags("/w44062") -- Enable warning: switch case not handled
 	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
+	add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
 elseif is_plat("mingw") then
 	add_cxflags("-Og", "-Wa,-mbig-obj")
 	add_ldflags("-Wa,-mbig-obj")

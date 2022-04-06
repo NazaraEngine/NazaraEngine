@@ -81,8 +81,14 @@ namespace Nz::ShaderLang
 		};
 
 		UInt32 currentLine = 1;
-		std::size_t lastLineFeed = 0;
+		std::size_t lineStartPos = 0;
 		std::vector<Token> tokens;
+
+		auto HandleNewLine = [&]
+		{
+			currentLine++;
+			lineStartPos = currentPos + 1;
+		};
 
 		std::shared_ptr<const std::string> currentFile;
 		if (!filePath.empty())
@@ -93,7 +99,7 @@ namespace Nz::ShaderLang
 			char c = Peek(0);
 
 			Token token;
-			token.location.startColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+			token.location.startColumn = SafeCast<UInt32>(currentPos - lineStartPos) + 1;
 			token.location.startLine = currentLine;
 			token.location.file = currentFile;
 
@@ -113,11 +119,8 @@ namespace Nz::ShaderLang
 					break; //< Ignore blank spaces
 
 				case '\n':
-				{
-					currentLine++;
-					lastLineFeed = currentPos;
+					HandleNewLine();
 					break;
-				}
 
 				case '-':
 				{
@@ -170,10 +173,7 @@ namespace Nz::ShaderLang
 								}
 							}
 							else if (next == '\n')
-							{
-								currentLine++;
-								lastLineFeed = currentPos + 1;
-							}
+								HandleNewLine();
 						}
 						while (next != -1);
 					}
@@ -225,7 +225,7 @@ namespace Nz::ShaderLang
 						currentPos++;
 					}
 
-					token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+					token.location.endColumn = SafeCast<UInt32>(currentPos - lineStartPos) + 1;
 					token.location.endLine = currentLine;
 
 					if (floatingPoint)
@@ -417,7 +417,7 @@ namespace Nz::ShaderLang
 							case '\0':
 							case '\n':
 							case '\r':
-								token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+								token.location.endColumn = SafeCast<UInt32>(currentPos - lineStartPos) + 1;
 								token.location.endLine = currentLine;
 								throw LexerUnfinishedStringError{ token.location };
 
@@ -433,7 +433,7 @@ namespace Nz::ShaderLang
 									case '"': character = '"'; break;
 									case '\\': character = '\\'; break;
 									default:
-										token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+										token.location.endColumn = SafeCast<UInt32>(currentPos - lineStartPos) + 1;
 										token.location.endLine = currentLine;
 										throw LexerUnrecognizedCharError{ token.location };
 								}
@@ -476,7 +476,7 @@ namespace Nz::ShaderLang
 					}
 					else
 					{
-						token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+						token.location.endColumn = SafeCast<UInt32>(currentPos - lineStartPos) + 1;
 						token.location.endLine = currentLine;
 						throw LexerUnrecognizedTokenError{ token.location };
 					}
@@ -485,7 +485,7 @@ namespace Nz::ShaderLang
 
 			if (tokenType)
 			{
-				token.location.endColumn = SafeCast<UInt32>(currentPos - lastLineFeed) + 1;
+				token.location.endColumn = SafeCast<UInt32>(currentPos - lineStartPos) + 1;
 				token.location.endLine = currentLine;
 				token.type = *tokenType;
 
