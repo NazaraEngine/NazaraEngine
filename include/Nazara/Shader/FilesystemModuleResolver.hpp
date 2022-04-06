@@ -36,6 +36,7 @@ namespace Nz
 			FilesystemModuleResolver& operator=(const FilesystemModuleResolver&) = delete;
 			FilesystemModuleResolver& operator=(FilesystemModuleResolver&&) noexcept = delete;
 
+			static constexpr const char* CompiledModuleExtension = ".nzslb";
 			static constexpr const char* ModuleExtension = ".nzsl";
 
 		private:
@@ -43,6 +44,8 @@ namespace Nz
 			void OnFileRemoved(std::string_view directory, std::string_view filename);
 			void OnFileMoved(std::string_view directory, std::string_view filename, std::string_view oldFilename);
 			void OnFileUpdated(std::string_view directory, std::string_view filename);
+
+			static bool CheckExtension(std::string_view filename);
 
 			std::unordered_map<std::string, std::string> m_moduleByFilepath;
 			std::unordered_map<std::string, ShaderAst::ModulePtr> m_modules;

@@ -4,8 +4,10 @@
 
 #include <Nazara/Shader/FilesystemModuleResolver.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Shader/ShaderLangParser.hpp>
+#include <Nazara/Shader/Ast/AstSerializer.hpp>
 #include <efsw/efsw.h>
 #include <cassert>
 #include <Nazara/Shader/Debug.hpp>
@@ -29,15 +31,34 @@ namespace Nz
 		ShaderAst::ModulePtr module;
 		try
 		{
-			module = ShaderLang::ParseFromFile(realPath);
-			if (!module)
-				return;
+			std::string ext = realPath.extension().generic_u8string();
+			if (ext == CompiledModuleExtension)
+			{
+				Nz::File file(realPath);
+				if (!file.Open(Nz::OpenMode::ReadOnly | Nz::OpenMode::Text))
+					throw std::runtime_error("failed to open " + realPath.generic_u8string());
+
+				std::size_t length = static_cast<std::size_t>(file.GetSize());
+
+				std::vector<Nz::UInt8> content(length);
+				if (length > 0 && file.Read(&content[0], length) != length)
+					throw std::runtime_error("failed to read " + realPath.generic_u8string());
+
+				module = ShaderAst::UnserializeShader(content.data(), content.size());
+			}
+			else if (ext == ModuleExtension)
+				module = ShaderLang::ParseFromFile(realPath);
+			else
+				throw std::runtime_error("unknown extension " + ext);
 		}
 		catch (const std::exception& e)
 		{
 			NazaraError("failed to register module from file " + realPath.generic_u8string() + ": " + e.what());
 			return;
 		}
+
+		if (!module)
+			return;
 
 		std::string moduleName = module->metadata->moduleName;
 		RegisterModule(std::move(module));
@@ -108,7 +129,7 @@ namespace Nz
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(realPath))
 		{
-			if (entry.is_regular_file() && StringEqual(entry.path().extension().generic_u8string(), ModuleExtension, Nz::CaseIndependent{}))
+			if (entry.is_regular_file() && CheckExtension(entry.path().generic_u8string()))
 			{
 				try
 				{
@@ -133,7 +154,7 @@ namespace Nz
 
 	void FilesystemModuleResolver::OnFileAdded(std::string_view directory, std::string_view filename)
 	{
-		if (!EndsWith(filename, ModuleExtension))
+		if (!CheckExtension(filename))
 			return;
 
 		RegisterModule(std::filesystem::path(directory) / filename);
@@ -141,7 +162,7 @@ namespace Nz
 
 	void FilesystemModuleResolver::OnFileRemoved(std::string_view directory, std::string_view filename)
 	{
-		if (!EndsWith(filename, ModuleExtension))
+		if (!CheckExtension(filename))
 			return;
 
 		std::filesystem::path canonicalPath = std::filesystem::canonical(std::filesystem::path(directory) / filename);
@@ -156,7 +177,7 @@ namespace Nz
 
 	void FilesystemModuleResolver::OnFileMoved(std::string_view directory, std::string_view filename, std::string_view oldFilename)
 	{
-		if (oldFilename.empty() || !EndsWith(oldFilename, ModuleExtension))
+		if (oldFilename.empty() || !CheckExtension(oldFilename))
 			return;
 
 		std::filesystem::path canonicalPath = std::filesystem::canonical(std::filesystem::path(directory) / oldFilename);
@@ -174,9 +195,14 @@ namespace Nz
 
 	void FilesystemModuleResolver::OnFileUpdated(std::string_view directory, std::string_view filename)
 	{
-		if (!EndsWith(filename, ModuleExtension))
+		if (!CheckExtension(filename))
 			return;
 
 		RegisterModule(std::filesystem::path(directory) / filename);
+	}
+	
+	bool FilesystemModuleResolver::CheckExtension(std::string_view filename)
+	{
+		return EndsWith(filename, ModuleExtension, Nz::CaseIndependent{}) || EndsWith(filename, CompiledModuleExtension, Nz::CaseIndependent{});
 	}
 }
