@@ -45,7 +45,7 @@ namespace Nz::ShaderAst
 		{
 			if (index < availableIndices.GetSize())
 			{
-				if (!availableIndices.Test(index))
+				if (!availableIndices.Test(index) && !preregisteredIndices.UnboundedTest(index))
 					throw ShaderLang::AstAlreadyUsedIndexPreregisterError{ sourceLocation, index };
 			}
 			else if (index >= availableIndices.GetSize())
@@ -1258,16 +1258,16 @@ namespace Nz::ShaderAst
 		{
 			if (member.cond.HasValue())
 			{
-				ComputeExprValue(member.cond, node.sourceLocation);
+				ComputeExprValue(member.cond, member.sourceLocation);
 				if (member.cond.IsResultingValue() && !member.cond.GetResultingValue())
 					continue;
 			}
 
 			if (member.builtin.HasValue())
-				ComputeExprValue(member.builtin, node.sourceLocation);
+				ComputeExprValue(member.builtin, member.sourceLocation);
 
 			if (member.locationIndex.HasValue())
-				ComputeExprValue(member.locationIndex, node.sourceLocation);
+				ComputeExprValue(member.locationIndex, member.sourceLocation);
 
 			if (member.builtin.HasValue() && member.locationIndex.HasValue())
 				throw ShaderLang::CompilerStructFieldBuiltinLocationError{ member.sourceLocation };
@@ -2097,7 +2097,9 @@ namespace Nz::ShaderAst
 
 		if (attribute.IsExpression())
 		{
-			std::optional<ConstantValue> value = ComputeConstantValue(*attribute.GetExpression());
+			auto& expr = *attribute.GetExpression();
+
+			std::optional<ConstantValue> value = ComputeConstantValue(expr);
 			if (!value)
 				return ValidationResult::Unresolved;
 
@@ -2109,13 +2111,13 @@ namespace Nz::ShaderAst
 					if (std::holds_alternative<Int32>(*value) && std::is_same_v<T, UInt32>)
 						attribute = static_cast<UInt32>(std::get<Int32>(*value));
 					else
-						throw ShaderLang::CompilerAttributeUnexpectedTypeError{ sourceLocation };
+						throw ShaderLang::CompilerAttributeUnexpectedTypeError{ expr.sourceLocation };
 				}
 				else
 					attribute = std::get<T>(*value);
 			}
 			else
-				throw ShaderLang::CompilerAttributeUnexpectedExpressionError{ sourceLocation };
+				throw ShaderLang::CompilerAttributeUnexpectedExpressionError{ expr.sourceLocation };
 		}
 
 		return ValidationResult::Validated;
@@ -2129,6 +2131,8 @@ namespace Nz::ShaderAst
 
 		if (attribute.IsExpression())
 		{
+			auto& expr = *attribute.GetExpression();
+
 			std::optional<ConstantValue> value = ComputeConstantValue(*attribute.GetExpression());
 			if (!value)
 			{
@@ -2144,13 +2148,13 @@ namespace Nz::ShaderAst
 					if (std::holds_alternative<Int32>(*value) && std::is_same_v<T, UInt32>)
 						targetAttribute = static_cast<UInt32>(std::get<Int32>(*value));
 					else
-						throw ShaderLang::CompilerAttributeUnexpectedTypeError{ sourceLocation };
+						throw ShaderLang::CompilerAttributeUnexpectedTypeError{ expr.sourceLocation };
 				}
 				else
 					targetAttribute = std::get<T>(*value);
 			}
 			else
-				throw ShaderLang::CompilerAttributeUnexpectedExpressionError{ sourceLocation };
+				throw ShaderLang::CompilerAttributeUnexpectedExpressionError{ expr.sourceLocation };
 		}
 		else
 		{

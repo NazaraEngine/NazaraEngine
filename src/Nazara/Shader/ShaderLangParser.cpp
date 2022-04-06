@@ -1195,8 +1195,10 @@ namespace Nz::ShaderLang
 				// Function call
 				SourceLocation closingLocation;
 				auto parameters = ParseExpressionList(TokenType::ClosingParenthesis, &closingLocation);
+
+				const SourceLocation& lhsLoc = lhs->sourceLocation;
 				lhs = ShaderBuilder::CallFunction(std::move(lhs), std::move(parameters));
-				lhs->sourceLocation = SourceLocation::BuildFromTo(token.location, closingLocation);
+				lhs->sourceLocation = SourceLocation::BuildFromTo(lhsLoc, closingLocation);
 				continue;
 			}
 
@@ -1208,8 +1210,9 @@ namespace Nz::ShaderLang
 				SourceLocation closingLocation;
 				auto parameters = ParseExpressionList(TokenType::ClosingSquareBracket, &closingLocation);
 
+				const SourceLocation& lhsLoc = lhs->sourceLocation;
 				lhs = ShaderBuilder::AccessIndex(std::move(lhs), std::move(parameters));
-				lhs->sourceLocation = SourceLocation::BuildFromTo(token.location, closingLocation);
+				lhs->sourceLocation = SourceLocation::BuildFromTo(lhsLoc, closingLocation);
 				continue;
 			}
 
