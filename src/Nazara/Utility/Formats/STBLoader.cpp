@@ -8,7 +8,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <unordered_set>
+#include <frozen/string.h>
+#include <frozen/unordered_set.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <Nazara/Utility/Debug.hpp>
@@ -37,10 +38,11 @@ namespace Nz
 
 		static stbi_io_callbacks s_stbiCallbacks = { StbiRead, StbiSkip, StbiEof };
 
+		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ "bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga" });
+
 		bool IsSTBSupported(const std::string_view& extension)
 		{
-			static std::unordered_set<std::string_view> supportedExtensions = {"bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga"};
-			return supportedExtensions.find(extension) != supportedExtensions.end();
+			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
 		Ternary CheckSTB(Stream& stream, const ImageParams& parameters)
