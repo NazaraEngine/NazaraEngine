@@ -89,7 +89,7 @@ local modules = {
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
-		Packages = {"entt", "freetype", "stb"}
+		Packages = {"entt", "freetype", "frozen", "stb"}
 	},
 	VulkanRenderer = {
 		Deps = {"NazaraRenderer"},
