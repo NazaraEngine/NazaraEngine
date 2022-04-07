@@ -11,13 +11,18 @@ A special thank you to all those who may have contributed directly or indirectly
 
 ## Additional thanks
 
-Nazara uses the following libraries at its core and for external tools, we thank their respective authors and contributors:
+Nazara renderer is based on [Vulkan](https://www.vulkan.org) and [OpenGL](https://www.opengl.org) (as a fallback).
+
+Nazara also uses the following libraries at its core and for external tools, we thank their respective authors and contributors:
 
 **Nazara modules**:
 - [chipmunk2d](https://chipmunk-physics.net/): A fast and lightweight 2D game physics library.
+- [cxxopts](https://github.com/jarro2783/cxxopts): Lightweight C++ command line option parser
 - [dr_wav](https://github.com/mackron/dr_libs): Single file audio decoding libraries for C/C++.
 - [entt](https://github.com/skypjack/entt): Gaming meets modern C++ - a fast and reliable entity component system (ECS) and much more.
+- [fmt](https://fmt.dev): fmt is an open-source formatting library for C++. It can be used as a safe and fast alternative to (s)printf and iostreams.
 - [freetype](https://www.freetype.org): A freely available software library to render fonts.
+- [frozen](https://github.com/serge-sans-paille/frozen): A header-only, constexpr alternative to gperf for C++14 users
 - [kiwisolver](https://kiwisolver.readthedocs.io/en/latest/): Efficient C++ implementation of the Cassowary constraint solving algorithm
 - [libflac](https://xiph.org/flac): Free Lossless Audio Codec
 - [libsdl](https://www.libsdl.org/): Simple DirectMedia Layer
@@ -26,6 +31,8 @@ Nazara uses the following libraries at its core and for external tools, we thank
 - [newtondynamics](http://newtondynamics.com): Newton Dynamics is an integrated solution for real time simulation of physics environments.
 - [openal-soft](https://openal-soft.org): OpenAL Soft is a software implementation of the OpenAL 3D audio API.
 - [stb](https://github.com/nothings/stb): single-file public domain (or MIT licensed) libraries for C/C++
+- [utfcpp](https://github.com/nemtrif/utfcpp): UTF-8 with C++ in a Portable Way
+- [vma](https://gpuopen.com/vulkan-memory-allocator/): The industry-leading, open source, memory allocation library for the Vulkan® API.
 
 **Assimp plugin**:
 - [assimp](https://assimp.org): Portable Open-Source library to import various well-known 3D model formats in a uniform manner.
