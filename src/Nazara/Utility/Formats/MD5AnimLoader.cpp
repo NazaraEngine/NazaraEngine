@@ -20,7 +20,7 @@ namespace Nz
 		Ternary CheckMD5Anim(Stream& stream, const AnimationParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeMD5AnimLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5AnimLoader", &skip) && skip)
 				return Ternary::False;
 
 			MD5AnimParser parser(stream);

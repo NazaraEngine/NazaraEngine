@@ -59,7 +59,7 @@ namespace Nz
 		Ternary CheckMP3(Stream& stream, const ResourceParameters& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeMP3Loader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader", &skip) && skip)
 				return Ternary::False;
 
 			mp3dec_io_t io;

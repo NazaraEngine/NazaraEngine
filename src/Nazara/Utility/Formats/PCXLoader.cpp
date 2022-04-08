@@ -48,7 +48,7 @@ namespace Nz
 		Ternary CheckPCX(Stream& stream, const ImageParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativePCXLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinPCXLoader", &skip) && skip)
 				return Ternary::False;
 
 			UInt8 manufacturer;

@@ -29,7 +29,7 @@ namespace Nz
 		Ternary CheckMD2(Stream& stream, const MeshParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeMD2Loader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinMD2Loader", &skip) && skip)
 				return Ternary::False;
 
 			UInt32 magic[2];
