@@ -26,7 +26,7 @@ namespace Nz
 			static Ternary Check(Stream& stream, const ImageParams& parameters)
 			{
 				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipNativeDDSLoader", &skip) && skip)
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinDDSLoader", &skip) && skip)
 					return Ternary::False;
 
 				ByteStream byteStream(&stream);

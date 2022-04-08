@@ -57,7 +57,7 @@ namespace Nz
 		Ternary CheckWav(Stream& stream, const ResourceParameters& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeWavLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader", &skip) && skip)
 				return Ternary::False;
 
 			drwav wav;

@@ -144,7 +144,7 @@ namespace Nz
 		Ternary CheckFlac(Stream& stream, const ResourceParameters& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeFlacLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader", &skip) && skip)
 				return Ternary::False;
 
 			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();

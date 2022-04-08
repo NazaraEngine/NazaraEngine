@@ -396,7 +396,7 @@ namespace Nz
 		Ternary CheckFreetype(Stream& stream, const FontParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeFreeTypeLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinFreeTypeLoader", &skip) && skip)
 				return Ternary::False;
 
 			FreeTypeStream face;

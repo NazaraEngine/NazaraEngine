@@ -28,7 +28,7 @@ namespace Nz
 		Ternary CheckMD5Mesh(Stream& stream, const MeshParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeMD5MeshLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5MeshLoader", &skip) && skip)
 				return Ternary::False;
 
 			MD5MeshParser parser(stream);

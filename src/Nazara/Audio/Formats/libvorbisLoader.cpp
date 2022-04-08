@@ -128,7 +128,7 @@ namespace Nz
 		Ternary CheckOgg(Stream& stream, const ResourceParameters& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeVorbisLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader", &skip) && skip)
 				return Ternary::False;
 
 			OggVorbis_File file;

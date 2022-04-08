@@ -48,7 +48,7 @@ namespace Nz
 		Ternary CheckSTB(Stream& stream, const ImageParams& parameters)
 		{
 			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipNativeSTBLoader", &skip) && skip)
+			if (parameters.custom.GetBooleanParameter("SkipBuiltinSTBLoader", &skip) && skip)
 				return Ternary::False;
 
 			int width, height, bpp;
