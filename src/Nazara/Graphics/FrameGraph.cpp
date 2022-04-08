@@ -297,8 +297,8 @@ namespace Nz
 				if (barrier.layout != TextureLayout::Undefined)
 					throw std::runtime_error("layout mismatch");
 
-				barrier.access |= MemoryAccess::ColorRead | MemoryAccess::ColorWrite;
-				barrier.stages |= PipelineStage::ColorOutput;
+				barrier.access |= MemoryAccess::ShaderRead;
+				barrier.stages |= PipelineStage::FragmentShader;
 				barrier.layout = TextureLayout::ColorInput;
 			}
 
@@ -308,7 +308,7 @@ namespace Nz
 				if (barrier.layout != TextureLayout::Undefined)
 					throw std::runtime_error("layout mismatch");
 
-				barrier.access |= MemoryAccess::ColorRead | MemoryAccess::ColorWrite;
+				barrier.access |= MemoryAccess::ColorWrite;
 				barrier.stages |= PipelineStage::ColorOutput;
 				barrier.layout = TextureLayout::ColorOutput;
 			}
