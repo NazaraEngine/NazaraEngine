@@ -187,7 +187,6 @@ if is_plat("windows") then
 	add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
 elseif is_plat("mingw") then
 	add_cxflags("-Og", "-Wa,-mbig-obj")
-	add_ldflags("-static")
 	add_ldflags("-Wa,-mbig-obj")
 end
 
