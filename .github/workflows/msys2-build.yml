@@ -29,7 +29,7 @@ jobs:
 
     defaults:
       run:
-        shell: msys2 {0}
+        shell: mingw64 {0}
 
     steps:
     - uses: actions/checkout@v2
@@ -47,7 +47,6 @@ jobs:
 
     # Install xmake
     - name: Setup xmake
-      shell: msys2 {0}
       run: |
         git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev xmake_git
         cd xmake_git
@@ -74,12 +73,10 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      shell: msys2 {0}
       run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
 
     # Build the engine
     - name: Build Nazara
-      shell: msys2 {0}
       run: xmake -v
 
     # Run unit tests
