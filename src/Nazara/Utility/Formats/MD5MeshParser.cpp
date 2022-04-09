@@ -324,7 +324,7 @@ namespace Nz
 					}
 
 					if (shader.back() == '"')
-						shader.remove_prefix(1);
+						shader.remove_suffix(1);
 
 					m_meshes[m_meshIndex].shader = shader;
 					break;
