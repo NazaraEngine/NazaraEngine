@@ -74,10 +74,12 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
+      shell: msys2 {0}
       run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
 
     # Build the engine
     - name: Build Nazara
+      shell: msys2 {0}
       run: xmake -v
 
     # Run unit tests
