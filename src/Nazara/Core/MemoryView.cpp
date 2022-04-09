@@ -60,16 +60,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the position of the cursor
-	* \return Position of the cursor
-	*/
-
-	UInt64 MemoryView::GetCursorPos() const
-	{
-		return m_pos;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory
 	* \return Size of the memory
 	*/
@@ -77,20 +67,6 @@ namespace Nz
 	UInt64 MemoryView::GetSize() const
 	{
 		return m_size;
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true
-	*
-	* \param offset Offset according to the beginning of the stream
-	*/
-
-	bool MemoryView::SetCursorPos(UInt64 offset)
-	{
-		m_pos = std::min(offset, m_size);
-
-		return true;
 	}
 
 	/*!
@@ -119,6 +95,28 @@ namespace Nz
 
 		m_pos += readSize;
 		return readSize;
+	}
+
+	/*!
+	* \brief Sets the position of the cursor
+	* \return true
+	*
+	* \param offset Offset according to the beginning of the stream
+	*/
+	bool MemoryView::SeekStreamCursor(UInt64 offset)
+	{
+		m_pos = std::min(offset, m_size);
+
+		return true;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return Position of the cursor
+	*/
+	UInt64 MemoryView::TellStreamCursor() const
+	{
+		return m_pos;
 	}
 
 	/*!

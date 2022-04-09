@@ -40,7 +40,6 @@ namespace Nz
 
 			bool Exists() const;
 
-			UInt64 GetCursorPos() const override;
 			std::filesystem::path GetDirectory() const override;
 			std::filesystem::path GetFileName() const;
 			std::filesystem::path GetPath() const override;
@@ -51,8 +50,6 @@ namespace Nz
 			bool Open(OpenModeFlags openMode = OpenMode::NotOpen);
 			bool Open(const std::filesystem::path& filePath, OpenModeFlags openMode = OpenMode::NotOpen);
 
-			bool SetCursorPos(CursorPosition pos, Int64 offset = 0);
-			bool SetCursorPos(UInt64 offset) override;
 			bool SetFile(const std::filesystem::path& filePath);
 			bool SetSize(UInt64 size);
 
@@ -65,6 +62,8 @@ namespace Nz
 		private:
 			void FlushStream() override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			bool SeekStreamCursor(UInt64 offset) override;
+			UInt64 TellStreamCursor() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			std::filesystem::path m_filePath;

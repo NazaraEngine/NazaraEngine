@@ -37,7 +37,6 @@ namespace Nz
 
 			bool EndOfStream() const override;
 
-			UInt64 GetCursorPos() const override;
 			inline UInt64 GetKeepAliveInterval() const;
 			inline UInt64 GetKeepAliveTime() const;
 			inline IpAddress GetRemoteAddress() const;
@@ -55,8 +54,6 @@ namespace Nz
 			bool SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
 			bool SendPacket(const NetPacket& packet);
 
-			bool SetCursorPos(UInt64 offset) override;
-
 			SocketState WaitForConnected(UInt64 msTimeout = 3000);
 
 			inline TcpClient& operator=(TcpClient&& tcpClient) = default;
@@ -69,6 +66,8 @@ namespace Nz
 
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			void Reset(SocketHandle handle, const IpAddress& peerAddress);
+			bool SeekStreamCursor(UInt64 offset) override;
+			UInt64 TellStreamCursor() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			struct PendingPacket
