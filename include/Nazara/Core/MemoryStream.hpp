@@ -30,11 +30,9 @@ namespace Nz
 
 			inline ByteArray& GetBuffer();
 			inline const ByteArray& GetBuffer() const;
-			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
 
 			void SetBuffer(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
-			bool SetCursorPos(UInt64 offset) override;
 
 			MemoryStream& operator=(const MemoryStream&) = default;
 			MemoryStream& operator=(MemoryStream&&) noexcept = default;
@@ -42,6 +40,8 @@ namespace Nz
 		private:
 			void FlushStream() override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			bool SeekStreamCursor(UInt64 offset) override;
+			UInt64 TellStreamCursor() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			MovablePtr<ByteArray> m_buffer;

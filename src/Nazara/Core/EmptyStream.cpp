@@ -33,32 +33,12 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the position of the cursor (which is always zero)
-	* \return Always zero
-	*/
-	UInt64 EmptyStream::GetCursorPos() const
-	{
-		return 0;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory (how many bytes would have been written on a regular stream)
 	* \return Size occupied until now
 	*/
 	UInt64 EmptyStream::GetSize() const
 	{
 		return m_size;
-	}
-
-	/*!
-	* \brief Does nothing
-	* \return true
-	*
-	* \param offset Offset according to the beginning of the stream
-	*/
-	bool EmptyStream::SetCursorPos(UInt64 /*offset*/)
-	{
-		return true;
 	}
 
 	/*!
@@ -79,6 +59,26 @@ namespace Nz
 	* \param size Size of the read and thus of the buffer
 	*/
 	std::size_t EmptyStream::ReadBlock(void* /*buffer*/, std::size_t /*size*/)
+	{
+		return 0;
+	}
+
+	/*!
+	* \brief Does nothing
+	* \return true
+	*
+	* \param offset Offset according to the beginning of the stream
+	*/
+	bool EmptyStream::SeekStreamCursor(UInt64 /*offset*/)
+	{
+		return true;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor (which is always zero)
+	* \return Always zero
+	*/
+	UInt64 EmptyStream::TellStreamCursor() const
 	{
 		return 0;
 	}

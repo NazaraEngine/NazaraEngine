@@ -155,20 +155,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the position of the cursor in the file
-	* \return Position of the cursor
-	*
-	* \remark Produces a NazaraAssert if file is not open
-	*/
-
-	UInt64 File::GetCursorPos() const
-	{
-		NazaraAssert(IsOpen(), "File is not open");
-
-		return m_impl->GetCursorPos();
-	}
-
-	/*!
 	* \brief Gets the directory of the file
 	* \return Directory of the file
 	*/
@@ -240,6 +226,8 @@ namespace Nz
 		m_openMode = openMode;
 		m_impl = std::move(impl);
 
+		EnableBuffering(!m_openMode.Test(OpenMode::Unbuffered));
+
 		if (m_openMode & OpenMode::Text)
 			m_streamOptions |= StreamOption::Text;
 		else
@@ -264,39 +252,6 @@ namespace Nz
 
 		SetFile(filePath);
 		return Open(openMode);
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true if cursor is successfully positioned
-	*
-	* \param pos Position of the cursor
-	* \param offset Offset according to the cursor position
-	*
-	* \remark Produces a NazaraAssert if file is not open
-	*/
-
-	bool File::SetCursorPos(CursorPosition pos, Int64 offset)
-	{
-		NazaraAssert(IsOpen(), "File is not open");
-
-		return m_impl->SetCursorPos(pos, offset);
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true if cursor is successfully positioned
-	*
-	* \param offset Offset according to the cursor begin position
-	*
-	* \remark Produces a NazaraAssert if file is not open
-	*/
-
-	bool File::SetCursorPos(UInt64 offset)
-	{
-		NazaraAssert(IsOpen(), "File is not open");
-
-		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
 	}
 
 	/*!
@@ -387,6 +342,35 @@ namespace Nz
 
 			return static_cast<std::size_t>(m_impl->GetCursorPos() - currentPos);
 		}
+	}
+
+	/*!
+	* \brief Sets the position of the cursor
+	* \return true if cursor is successfully positioned
+	*
+	* \param offset Offset according to the cursor begin position
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+
+	bool File::SeekStreamCursor(UInt64 offset)
+	{
+		NazaraAssert(IsOpen(), "File is not open");
+
+		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
+	}
+
+	/*!
+	* \brief Gets the position of the cursor in the file
+	* \return Position of the cursor
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+	UInt64 File::TellStreamCursor() const
+	{
+		NazaraAssert(IsOpen(), "File is not open");
+
+		return m_impl->GetCursorPos();
 	}
 
 	/*!

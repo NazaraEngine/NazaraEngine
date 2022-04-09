@@ -37,16 +37,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the position of the cursor
-	* \return Position of the cursor
-	*/
-
-	UInt64 MemoryStream::GetCursorPos() const
-	{
-		return m_pos;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory
 	* \return Size of the memory
 	*/
@@ -71,20 +61,6 @@ namespace Nz
 
 		m_buffer = byteArray;
 		m_openMode = openMode;
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true
-	*
-	* \param offset Offset according to the beginning of the stream
-	*/
-
-	bool MemoryStream::SetCursorPos(UInt64 offset)
-	{
-		m_pos = offset;
-
-		return true;
 	}
 
 	/*!
@@ -119,6 +95,28 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the position of the cursor
+	* \return true
+	*
+	* \param offset Offset according to the beginning of the stream
+	*/
+	bool MemoryStream::SeekStreamCursor(UInt64 offset)
+	{
+		m_pos = offset;
+
+		return true;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return Position of the cursor
+	*/
+	UInt64 MemoryStream::TellStreamCursor() const
+	{
+		return m_pos;
+	}
+
+	/*!
 	* \brief Writes blocks
 	* \return Number of blocks written
 	*
@@ -127,7 +125,6 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	*/
-
 	std::size_t MemoryStream::WriteBlock(const void* buffer, std::size_t size)
 	{
 		if (size > 0)
