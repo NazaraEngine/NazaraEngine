@@ -572,9 +572,8 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Resets the bitset to zero bits
+	* \brief Reset all bits value to zero
 	*/
-
 	template<typename Block, class Allocator>
 	void Bitset<Block, Allocator>::Reset()
 	{
