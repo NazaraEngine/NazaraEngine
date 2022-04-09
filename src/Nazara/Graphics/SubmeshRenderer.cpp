@@ -65,7 +65,7 @@ namespace Nz
 
 			if (const MaterialPass* materialPass = &submesh.GetMaterialPass(); currentMaterialPass != materialPass)
 			{
-				FlushDrawCall();
+				FlushDrawData();
 				currentMaterialPass = materialPass;
 			}
 
@@ -99,19 +99,19 @@ namespace Nz
 			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
 			if (currentScissorBox != targetScissorBox)
 			{
-				FlushDrawData();
+				FlushDrawCall();
 				currentScissorBox = targetScissorBox;
 			}
 
 			if (!currentShaderBinding)
 			{
-				m_bindingCache.clear();
+				assert(currentMaterialPass);
 
-				const MaterialPass& materialPass = submesh.GetMaterialPass();
-				materialPass.FillShaderBinding(m_bindingCache);
+				m_bindingCache.clear();
+				currentMaterialPass->FillShaderBinding(m_bindingCache);
 
 				// Predefined shader bindings
-				const auto& matSettings = materialPass.GetSettings();
+				const auto& matSettings = currentMaterialPass->GetSettings();
 				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
 				{
 					assert(currentWorldInstance);
