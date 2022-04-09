@@ -13,6 +13,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/ImageStream.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 
 namespace Nz
@@ -39,6 +40,8 @@ namespace Nz
 			const ImageLoader& GetImageLoader() const;
 			ImageSaver& GetImageSaver();
 			const ImageSaver& GetImageSaver() const;
+			ImageStreamLoader& GetImageStreamLoader();
+			const ImageStreamLoader& GetImageStreamLoader() const;
 			MeshLoader& GetMeshLoader();
 			const MeshLoader& GetMeshLoader() const;
 			MeshSaver& GetMeshSaver();
@@ -52,6 +55,7 @@ namespace Nz
 			FontLoader m_fontLoader;
 			ImageLoader m_imageLoader;
 			ImageSaver m_imageSaver;
+			ImageStreamLoader m_imageStreamLoader;
 			MeshLoader m_meshLoader;
 			MeshSaver m_meshSaver;
 

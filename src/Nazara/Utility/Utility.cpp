@@ -17,6 +17,7 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/Formats/DDSLoader.hpp>
 #include <Nazara/Utility/Formats/FreeTypeLoader.hpp>
+#include <Nazara/Utility/Formats/GIFLoader.hpp>
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
 #include <Nazara/Utility/Formats/MD5AnimLoader.hpp>
 #include <Nazara/Utility/Formats/MD5MeshLoader.hpp>
@@ -59,6 +60,9 @@ namespace Nz
 		// Image
 		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_STB()); // Generic loader (STB)
 		m_imageSaver.RegisterSaver(Loaders::GetImageSaver_STB()); // Generic saver (STB)
+
+		// ImageStream
+		m_imageStreamLoader.RegisterLoader(Loaders::GetImageStreamLoader_GIF()); // GIF loader
 
 		/// Loaders spécialisés
 		// Animation
@@ -115,6 +119,16 @@ namespace Nz
 	const ImageLoader& Utility::GetImageLoader() const
 	{
 		return m_imageLoader;
+	}
+
+	ImageStreamLoader& Utility::GetImageStreamLoader()
+	{
+		return m_imageStreamLoader;
+	}
+
+	const ImageStreamLoader& Utility::GetImageStreamLoader() const
+	{
+		return m_imageStreamLoader;
 	}
 
 	ImageSaver& Utility::GetImageSaver()
