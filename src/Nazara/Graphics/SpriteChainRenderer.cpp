@@ -81,7 +81,7 @@ namespace Nz
 
 			if (const RenderPipeline* pipeline = &spriteChain.GetRenderPipeline(); m_pendingData.currentPipeline != pipeline)
 			{
-				FlushDrawCall();
+				FlushDrawData();
 				m_pendingData.currentPipeline = pipeline;
 			}
 
