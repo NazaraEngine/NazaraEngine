@@ -1428,6 +1428,7 @@ namespace Nz::ShaderAst
 				}
 
 				auto multi = std::make_unique<MultiStatement>();
+				multi->sourceLocation = node.sourceLocation;
 
 				auto Unroll = [&](auto dummy)
 				{
@@ -1442,6 +1443,7 @@ namespace Nz::ShaderAst
 						PushScope();
 
 						auto innerMulti = std::make_unique<MultiStatement>();
+						innerMulti->sourceLocation = node.sourceLocation;
 
 						auto constant = ShaderBuilder::Constant(counter);
 						constant->sourceLocation = node.sourceLocation;
@@ -1603,14 +1605,23 @@ namespace Nz::ShaderAst
 
 					for (UInt32 i = 0; i < arrayType.length; ++i)
 					{
+						PushScope();
+
+						auto innerMulti = std::make_unique<MultiStatement>();
+						innerMulti->sourceLocation = node.sourceLocation;
+
 						auto accessIndex = ShaderBuilder::AccessIndex(CloneExpression(expr), ShaderBuilder::Constant(i));
 						Validate(*accessIndex);
 
 						auto elementVariable = ShaderBuilder::DeclareVariable(node.varName, std::move(accessIndex));
 						Validate(*elementVariable);
 
-						multi->statements.emplace_back(std::move(elementVariable));
-						multi->statements.emplace_back(Unscope(CloneStatement(node.statement)));
+						innerMulti->statements.emplace_back(std::move(elementVariable));
+						innerMulti->statements.emplace_back(Unscope(CloneStatement(node.statement)));
+
+						multi->statements.emplace_back(ShaderBuilder::Scoped(std::move(innerMulti)));
+
+						PopScope();
 					}
 				}
 
