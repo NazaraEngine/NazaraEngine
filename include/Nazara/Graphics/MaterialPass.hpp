@@ -65,8 +65,8 @@ namespace Nz
 			inline BlendFunc GetBlendSrcColorFunc() const;
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
-			inline float GetLineWidth() const;
 			inline MaterialPassFlags GetFlags() const;
+			inline float GetLineWidth() const;
 			inline const ShaderAst::ConstantValue& GetOptionValue(std::size_t optionIndex) const;
 			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
