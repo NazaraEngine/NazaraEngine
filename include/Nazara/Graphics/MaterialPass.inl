@@ -305,6 +305,11 @@ namespace Nz
 		return m_pipelineInfo.faceFilling;
 	}
 
+	inline MaterialPassFlags MaterialPass::GetFlags() const
+	{
+		return m_flags;
+	}
+
 	/*!
 	* \brief Gets the line width of this material
 	* \return Line width
@@ -312,11 +317,6 @@ namespace Nz
 	inline float MaterialPass::GetLineWidth() const
 	{
 		return m_pipelineInfo.lineWidth;
-	}
-
-	inline MaterialPassFlags MaterialPass::GetFlags() const
-	{
-		return m_flags;
 	}
 
 	inline const ShaderAst::ConstantValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
