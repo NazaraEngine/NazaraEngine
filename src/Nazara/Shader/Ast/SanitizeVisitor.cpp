@@ -1427,8 +1427,6 @@ namespace Nz::ShaderAst
 						return CloneFor(); //< can't resolve step value
 				}
 
-				PushScope();
-
 				auto multi = std::make_unique<MultiStatement>();
 
 				auto Unroll = [&](auto dummy)
@@ -1441,6 +1439,10 @@ namespace Nz::ShaderAst
 
 					for (; counter < to; counter += step)
 					{
+						PushScope();
+
+						auto innerMulti = std::make_unique<MultiStatement>();
+
 						auto constant = ShaderBuilder::Constant(counter);
 						constant->sourceLocation = node.sourceLocation;
 
@@ -1448,9 +1450,13 @@ namespace Nz::ShaderAst
 						var->sourceLocation = node.sourceLocation;
 
 						Validate(*var);
-						multi->statements.emplace_back(std::move(var));
+						innerMulti->statements.emplace_back(std::move(var));
 
-						multi->statements.emplace_back(Unscope(CloneStatement(node.statement)));
+						innerMulti->statements.emplace_back(Unscope(CloneStatement(node.statement)));
+
+						multi->statements.emplace_back(ShaderBuilder::Scoped(std::move(innerMulti)));
+
+						PopScope();
 					}
 				};
 
@@ -1467,8 +1473,6 @@ namespace Nz::ShaderAst
 					default:
 						throw ShaderLang::AstInternalError{ node.sourceLocation, "unexpected counter type <TODO>" };
 				}
-
-				PopScope();
 
 				return multi;
 			}
