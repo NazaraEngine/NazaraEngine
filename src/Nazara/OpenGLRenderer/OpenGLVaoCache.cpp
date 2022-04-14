@@ -41,7 +41,27 @@ namespace Nz::GL
 						m_context.BindBuffer(BufferTarget::Array, attrib.vertexBuffer, true);
 
 						m_context.glEnableVertexAttribArray(bindingIndex);
-						m_context.glVertexAttribPointer(bindingIndex, attrib.size, attrib.type, attrib.normalized, attrib.stride, attrib.pointer);
+
+						switch (attrib.type)
+						{
+							case GL_BYTE:
+							case GL_UNSIGNED_BYTE:
+							case GL_SHORT:
+							case GL_UNSIGNED_SHORT:
+							case GL_INT:
+							case GL_UNSIGNED_INT:
+								if (!attrib.normalized)
+								{
+									m_context.glVertexAttribIPointer(bindingIndex, attrib.size, attrib.type, attrib.stride, attrib.pointer);
+									break;
+								}
+								else
+									[[fallthrough]];
+
+							default:
+								m_context.glVertexAttribPointer(bindingIndex, attrib.size, attrib.type, attrib.normalized, attrib.stride, attrib.pointer);
+								break;
+						}
 					}
 
 					bindingIndex++;
