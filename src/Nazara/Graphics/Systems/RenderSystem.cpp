@@ -319,7 +319,7 @@ namespace Nz
 			
 			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
 			viewerInstance.UpdateEyePosition(cameraPosition);
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
 
 			m_pipeline->InvalidateViewer(cameraEntity->viewerIndex);
 		}

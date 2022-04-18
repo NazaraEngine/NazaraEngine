@@ -45,15 +45,13 @@ namespace Nz
 			Matrix4& ApplyTranslation(const Vector3<T>& translation);
 
 			Matrix4& Concatenate(const Matrix4& matrix);
-			Matrix4& ConcatenateAffine(const Matrix4& matrix);
-
-			void Decompose(Vector3<T>& translation, Quaternion<T>& rotation, Vector3<T>& scale);
+			Matrix4& ConcatenateTransform(const Matrix4& matrix);
 
 			Vector4<T> GetColumn(unsigned int column) const;
 			T GetDeterminant() const;
-			T GetDeterminantAffine() const;
+			T GetDeterminantTransform() const;
 			bool GetInverse(Matrix4* dest) const;
-			bool GetInverseAffine(Matrix4* dest) const;
+			bool GetInverseTransform(Matrix4* dest) const;
 			Quaternion<T> GetRotation() const;
 			//Matrix3 GetRotationMatrix() const;
 			Vector4<T> GetRow(unsigned int row) const;
@@ -66,9 +64,9 @@ namespace Nz
 			bool HasScale() const;
 
 			Matrix4& Inverse(bool* succeeded = nullptr);
-			Matrix4& InverseAffine(bool* succeeded = nullptr);
+			Matrix4& InverseTransform(bool* succeeded = nullptr);
 
-			bool IsAffine() const;
+			bool IsTransformMatrix() const;
 			bool IsIdentity() const;
 
 			Matrix4& MakeIdentity();
@@ -80,7 +78,7 @@ namespace Nz
 			Matrix4& MakeTranslation(const Vector3<T>& translation);
 			Matrix4& MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation);
 			Matrix4& MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			Matrix4& MakeViewMatrix(const Vector3<T>& translation, const Quaternion<T>& rotation);
+			Matrix4& MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
 			Matrix4& MakeZero();
 
 			Matrix4& Set(T r11, T r12, T r13, T r14,
@@ -122,7 +120,7 @@ namespace Nz
 			bool operator!=(const Matrix4& mat) const;
 
 			static Matrix4 Concatenate(const Matrix4& left, const Matrix4& right);
-			static Matrix4 ConcatenateAffine(const Matrix4& left, const Matrix4& right);
+			static Matrix4 ConcatenateTransform(const Matrix4& left, const Matrix4& right);
 			static Matrix4 Identity();
 			static Matrix4 LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 			static Matrix4 Ortho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
@@ -132,13 +130,13 @@ namespace Nz
 			static Matrix4 Translate(const Vector3<T>& translation);
 			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation);
 			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			static Matrix4 ViewMatrix(const Vector3<T>& translation, const Quaternion<T>& rotation);
+			static Matrix4 TransformInverse(const Vector3<T>&translation, const Quaternion<T>&rotation);
 			static Matrix4 Zero();
 
 			T m11, m12, m13, m14,
-			 m21, m22, m23, m24,
-			 m31, m32, m33, m34,
-			 m41, m42, m43, m44;
+			  m21, m22, m23, m24,
+			  m31, m32, m33, m34,
+			  m41, m42, m43, m44;
 	};
 
 	using Matrix4d = Matrix4<double>;

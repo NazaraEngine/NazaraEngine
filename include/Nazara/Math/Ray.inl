@@ -335,7 +335,7 @@ namespace Nz
 		                  width.z, height.z, depth.z, corner.z,
 		                  T(0.0),  T(0.0),   T(0.0),  T(1.0));
 
-		matrix.InverseAffine();
+		matrix.InverseTransform();
 
 		corner = matrix.Transform(corner);
 		oppositeCorner = matrix.Transform(oppositeCorner);
