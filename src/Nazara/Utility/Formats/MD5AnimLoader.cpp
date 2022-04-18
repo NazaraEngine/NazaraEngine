@@ -62,22 +62,27 @@ namespace Nz
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
 
-			for (UInt32 i = 0; i < jointCount; ++i)
-			{
-				int parent = joints[i].parent;
-				for (UInt32 j = 0; j < frameCount; ++j)
-				{
-					SequenceJoint& sequenceJoint = sequenceJoints[j*jointCount + i];
+			//Matrix4f matrix = Matrix4f::Transform(Nz::Vector3f::Zero(), rotationQuat, Vector3f(1.f / 40.f));
+			//matrix *= parameters.matrix;
 
-					if (parent >= 0)
+			rotationQuat = Quaternionf::Identity();
+
+			for (UInt32 frameIndex = 0; frameIndex < frameCount; ++frameIndex)
+			{
+				for (UInt32 jointIndex = 0; jointIndex < jointCount; ++jointIndex)
+				{
+					SequenceJoint& sequenceJoint = sequenceJoints[frameIndex * jointCount + jointIndex];
+
+					Int32 parentId = joints[jointIndex].parent;
+					if (parentId >= 0)
 					{
-						sequenceJoint.position = frames[j].joints[i].pos;
-						sequenceJoint.rotation = frames[j].joints[i].orient;
+						sequenceJoint.position = frames[frameIndex].joints[jointIndex].pos;
+						sequenceJoint.rotation = frames[frameIndex].joints[jointIndex].orient;
 					}
 					else
 					{
-						sequenceJoint.position = rotationQuat * frames[j].joints[i].pos;
-						sequenceJoint.rotation = rotationQuat * frames[j].joints[i].orient;
+						sequenceJoint.position = rotationQuat * frames[frameIndex].joints[jointIndex].pos;
+						sequenceJoint.rotation = rotationQuat * frames[frameIndex].joints[jointIndex].orient;
 					}
 
 					sequenceJoint.scale.Set(1.f);

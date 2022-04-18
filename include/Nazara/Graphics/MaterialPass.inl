@@ -602,6 +602,32 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
+	inline void MaterialPass::SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer)
+	{
+		if (uniformBuffer)
+		{
+			UInt64 size = uniformBuffer->GetSize();
+			return SetSharedUniformBuffer(sharedUboIndex, std::move(uniformBuffer), 0, size);
+		}
+		else
+			return SetSharedUniformBuffer(sharedUboIndex, std::move(uniformBuffer), 0, 0);
+	}
+
+	inline void MaterialPass::SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer, UInt64 offset, UInt64 size)
+	{
+		NazaraAssert(sharedUboIndex < m_sharedUniformBuffers.size(), "Invalid shared uniform buffer index");
+
+		RenderBufferView bufferView(uniformBuffer.get(), offset, size);
+
+		if (m_sharedUniformBuffers[sharedUboIndex].bufferView != bufferView)
+		{
+			m_sharedUniformBuffers[sharedUboIndex].bufferView = bufferView;
+			m_sharedUniformBuffers[sharedUboIndex].buffer = std::move(uniformBuffer);
+
+			InvalidateShaderBinding();
+		}
+	}
+
 	inline void MaterialPass::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
@@ -621,18 +647,6 @@ namespace Nz
 			m_textures[textureIndex].samplerInfo = std::move(samplerInfo);
 
 			InvalidateTextureSampler(textureIndex);
-		}
-	}
-
-	inline void MaterialPass::SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<RenderBuffer> uniformBuffer)
-	{
-		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid shared uniform buffer index");
-		if (m_uniformBuffers[bufferIndex].buffer != uniformBuffer)
-		{
-			m_uniformBuffers[bufferIndex].buffer = std::move(uniformBuffer);
-			m_uniformBuffers[bufferIndex].dataInvalidated = true;
-
-			InvalidateShaderBinding();
 		}
 	}
 

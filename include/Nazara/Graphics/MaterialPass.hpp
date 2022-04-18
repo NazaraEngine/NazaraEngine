@@ -17,6 +17,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/UniformBuffer.hpp>
@@ -101,9 +102,10 @@ namespace Nz
 			inline void SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantSingleValue value);
 			inline void SetPointSize(float pointSize);
 			inline void SetPrimitiveMode(PrimitiveMode mode);
+			inline void SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer);
+			inline void SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer, UInt64 offset, UInt64 size);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
-			inline void SetUniformBuffer(std::size_t bufferIndex, std::shared_ptr<RenderBuffer> uniformBuffer);
 
 			void Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
 
@@ -135,6 +137,12 @@ namespace Nz
 				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
 			};
 
+			struct ShaderUniformBuffer
+			{
+				std::shared_ptr<RenderBuffer> buffer; //< kept for ownership
+				RenderBufferView bufferView;
+			};
+
 			struct UniformBuffer
 			{
 				std::shared_ptr<RenderBuffer> buffer;
@@ -146,6 +154,7 @@ namespace Nz
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<ShaderEntry> m_shaders;
+			std::vector<ShaderUniformBuffer> m_sharedUniformBuffers;
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;

@@ -47,9 +47,11 @@ namespace Nz
 		}
 
 		const auto& textureSettings = m_settings->GetTextures();
+		const auto& sharedUboSettings = m_settings->GetSharedUniformBlocks();
 		const auto& uboSettings = m_settings->GetUniformBlocks();
 
 		m_textures.resize(textureSettings.size());
+		m_sharedUniformBuffers.resize(sharedUboSettings.size());
 
 		m_uniformBuffers.reserve(uboSettings.size());
 		for (const auto& uniformBufferInfo : uboSettings)
@@ -68,6 +70,7 @@ namespace Nz
 	void MaterialPass::FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const
 	{
 		const auto& textureSettings = m_settings->GetTextures();
+		const auto& sharedUboSettings = m_settings->GetSharedUniformBlocks();
 		const auto& uboSettings = m_settings->GetUniformBlocks();
 
 		// Textures
@@ -98,7 +101,22 @@ namespace Nz
 			});
 		}
 
-		// Shared UBO (TODO)
+		// Shared UBO
+		for (std::size_t i = 0; i < m_sharedUniformBuffers.size(); ++i)
+		{
+			const auto& sharedUboSlot = m_sharedUniformBuffers[i];
+			if (!sharedUboSlot.bufferView)
+				continue;
+
+			const auto& sharedUboSetting = sharedUboSettings[i];
+
+			bindings.push_back({
+				sharedUboSetting.bindingIndex,
+				ShaderBinding::UniformBufferBinding {
+					sharedUboSlot.bufferView.GetBuffer(), sharedUboSlot.bufferView.GetOffset(), sharedUboSlot.bufferView.GetSize()
+				}
+			});
+		}
 
 		// Owned UBO
 		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)

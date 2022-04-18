@@ -41,6 +41,7 @@ namespace Nz
 			struct RenderStates
 			{
 				RenderBufferView lightData;
+				RenderBufferView skeletalData;
 			};
 	};
 

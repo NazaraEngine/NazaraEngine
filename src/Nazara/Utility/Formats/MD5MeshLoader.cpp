@@ -44,6 +44,19 @@ namespace Nz
 				return nullptr;
 			}
 
+			UInt32 maxWeightCount = 4;
+			long long customMaxWeightCount;
+			if (parameters.custom.GetIntegerParameter("MaxWeightCount", &customMaxWeightCount))
+			{
+				maxWeightCount = SafeCast<UInt32>(customMaxWeightCount);
+				if (maxWeightCount > 4)
+				{
+					NazaraWarning("MaxWeightCount cannot be over 4");
+					maxWeightCount = 4;
+				}
+			}
+
+
 			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
 			                           Quaternionf::RotationBetween(Vector3f::UnitZ(), Vector3f::Up());
@@ -54,6 +67,8 @@ namespace Nz
 			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
 			Matrix4f matrix = Matrix4f::Transform(Nz::Vector3f::Zero(), rotationQuat, Vector3f(1.f / 40.f));
 			matrix *= parameters.matrix;
+
+			rotationQuat = Quaternionf::Identity();
 
 			const MD5MeshParser::Joint* joints = parser.GetJoints();
 			const MD5MeshParser::Mesh* meshes = parser.GetMeshes();
@@ -120,8 +135,12 @@ namespace Nz
 
 					std::vector<Weight> tempWeights;
 
-					BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, 0, vertexBuffer->GetVertexCount());
-					SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
+					VertexMapper vertexMapper(*vertexBuffer);
+
+					auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+					auto jointIndicesPtr = vertexMapper.GetComponentPtr<Vector4i32>(VertexComponent::JointIndices);
+					auto jointWeightPtr = vertexMapper.GetComponentPtr<Vector4f>(VertexComponent::JointWeights);
+					auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
 
 					for (const MD5MeshParser::Vertex& vertex : md5Mesh.vertices)
 					{
@@ -130,21 +149,21 @@ namespace Nz
 
 						// On stocke tous les poids dans le tableau temporaire en même temps qu'on calcule la position finale du sommet.
 						tempWeights.resize(vertex.weightCount);
-						for (unsigned int j = 0; j < vertex.weightCount; ++j)
+						for (unsigned int weightIndex = 0; weightIndex < vertex.weightCount; ++weightIndex)
 						{
-							const MD5MeshParser::Weight& weight = md5Mesh.weights[vertex.startWeight + j];
+							const MD5MeshParser::Weight& weight = md5Mesh.weights[vertex.startWeight + weightIndex];
 							const MD5MeshParser::Joint& joint = joints[weight.joint];
 
-							finalPos += (joint.bindPos + joint.bindOrient*weight.pos) * weight.bias;
+							finalPos += (joint.bindPos + joint.bindOrient * weight.pos) * weight.bias;
 
 							// Avant d'ajouter les poids, il faut s'assurer qu'il n'y en ait pas plus que le maximum supporté
 							// et dans le cas contraire, garder les poids les plus importants et les renormaliser
-							tempWeights[j] = {weight.bias, weight.joint};
+							tempWeights[weightIndex] = {weight.bias, weight.joint};
 						}
 
 						// Avons nous plus de poids que le moteur ne peut en supporter ?
-						unsigned int weightCount = vertex.weightCount;
-						if (weightCount > NAZARA_UTILITY_SKINNING_MAX_WEIGHTS)
+						UInt32 weightCount = vertex.weightCount;
+						if (weightCount > maxWeightCount)
 						{
 							// Pour augmenter la qualité du skinning tout en ne gardant que X poids, on ne garde que les poids
 							// les plus importants, ayant le plus d'impact sur le sommet final
@@ -154,36 +173,43 @@ namespace Nz
 
 							// Sans oublier bien sûr de renormaliser les poids (que leur somme soit 1)
 							float weightSum = 0.f;
-							for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+							for (UInt32 j = 0; j < maxWeightCount; ++j)
 								weightSum += tempWeights[j].bias;
 
-							for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+							for (UInt32 j = 0; j < maxWeightCount; ++j)
 								tempWeights[j].bias /= weightSum;
 
-							weightCount = NAZARA_UTILITY_SKINNING_MAX_WEIGHTS;
+							weightCount = maxWeightCount;
 						}
 
-						vertices->weightCount = weightCount;
-						for (unsigned int j = 0; j < NAZARA_UTILITY_SKINNING_MAX_WEIGHTS; ++j)
+						if (posPtr)
+							*posPtr++ = /*finalPos * */Vector3f(1.f / 40.f);
+
+						if (uvPtr)
+							*uvPtr++ = Vector2f(parameters.texCoordOffset + vertex.uv * parameters.texCoordScale);
+
+						if (jointIndicesPtr)
 						{
-							if (j < weightCount)
-							{
-								// On donne une valeur aux poids présents
-								vertices->weights[j] = tempWeights[j].bias;
-								vertices->jointIndexes[j] = tempWeights[j].jointIndex;
-							}
-							else
-							{
-								// Et un poids de 0 sur le joint 0 pour les autres (nécessaire pour le GPU Skinning)
-								// La raison est que le GPU ne tiendra pas compte du nombre de poids pour des raisons de performances.
-								vertices->weights[j] = 0.f;
-								vertices->jointIndexes[j] = 0;
-							}
+							Vector4i32& jointIndices = *jointIndicesPtr++;
+
+							for (UInt32 j = 0; j < maxWeightCount; ++j)
+								jointIndices[j] = (j < weightCount) ? tempWeights[j].jointIndex : 0;
 						}
 
-						vertices->position = finalPos;
-						vertices->uv.Set(parameters.texCoordOffset + vertex.uv * parameters.texCoordScale);
-						vertices++;
+						if (jointWeightPtr)
+						{
+							Vector4f& jointWeights = *jointWeightPtr++;
+
+							for (UInt32 j = 0; j < maxWeightCount; ++j)
+								jointWeights[j] = (j < weightCount) ? tempWeights[j].bias : 0;
+						}
+					}
+
+					// Vertex colors (.md5mesh files have no vertex color)
+					if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+					{
+						for (std::size_t j = 0; j < md5Mesh.vertices.size(); ++j)
+							*colorPtr++ = Color::White;
 					}
 
 					vertexMapper.Unmap();
@@ -196,7 +222,15 @@ namespace Nz
 
 					// Submesh
 					std::shared_ptr<SkeletalMesh> subMesh = std::make_shared<SkeletalMesh>(vertexBuffer, indexBuffer);
-					subMesh->GenerateNormalsAndTangents();
+
+					if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Normal))
+					{
+						if (parameters.vertexDeclaration->HasComponentOfType<Vector3f>(VertexComponent::Tangent))
+							subMesh->GenerateNormalsAndTangents();
+						else
+							subMesh->GenerateNormals();
+					}
+
 					subMesh->SetMaterialIndex(i);
 
 					mesh->AddSubMesh(subMesh);

@@ -62,11 +62,11 @@ external
 	[binding(3)] TextureOverlay: sampler2D[f32],
 	[binding(4)] instanceData: uniform[InstanceData],
 	[binding(5)] viewerData: uniform[ViewerData],
-	[binding(6)] lightData: uniform[LightData],
-	[binding(7)] MaterialEmissiveMap: sampler2D[f32],
-	[binding(8)] MaterialHeightMap: sampler2D[f32],
-	[binding(9)] MaterialNormalMap: sampler2D[f32],
-	[binding(10)] MaterialSpecularMap: sampler2D[f32],
+	[binding(7)] lightData: uniform[LightData],
+	[binding(8)] MaterialEmissiveMap: sampler2D[f32],
+	[binding(9)] MaterialHeightMap: sampler2D[f32],
+	[binding(10)] MaterialNormalMap: sampler2D[f32],
+	[binding(11)] MaterialSpecularMap: sampler2D[f32],
 }
 
 struct VertToFrag
