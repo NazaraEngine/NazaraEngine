@@ -13,7 +13,7 @@ namespace Nz
 	PhysWorld3D::PhysWorld3D() :
 	m_maxStepCount(50),
 	m_gravity(Vector3f::Zero()),
-	m_stepSize(0.005f),
+	m_stepSize(1.f / 120.f),
 	m_timestepAccumulator(0.f)
 	{
 		m_world = NewtonCreate();
