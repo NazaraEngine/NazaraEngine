@@ -312,9 +312,6 @@ namespace Nz
 						break;
 					}
 
-					if (shader.front() == '"')
-						shader.remove_prefix(1);
-
 					if (shader.empty())
 					{
 #if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
@@ -323,8 +320,11 @@ namespace Nz
 						break;
 					}
 
-					if (shader.back() == '"')
+					if (shader.front() == '"' && shader.back() == '"')
+					{
+						shader.remove_prefix(1);
 						shader.remove_suffix(1);
+					}
 
 					m_meshes[m_meshIndex].shader = shader;
 					break;
