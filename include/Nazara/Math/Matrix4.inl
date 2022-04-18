@@ -5,6 +5,7 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
@@ -136,17 +137,19 @@ namespace Nz
 	*
 	* \param matrix Matrix to multiply with
 	*
-	* \remark if NAZARA_MATH_MATRIX4_CHECK_AFFINE is defined, ConcatenateAffine is called
+	* \remark if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM is defined, will print a message if both matrices are transform matrices (and will call ConcatenateTransform)
 	*
-	* \see ConcatenateAffine
+	* \see ConcatenateTransform
 	*/
-
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::Concatenate(const Matrix4& matrix)
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_AFFINE
-		if (IsAffine() && matrix.IsAffine())
-			return ConcatenateAffine(matrix);
+		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		if (IsTransformMatrix() && matrix.IsTransformMatrix())
+		{
+			NazaraDebug("Matrix4::Concatenate was called on transform matrices, use Matrix4::ConcatenateTransform");
+			return ConcatenateTransform(matrix);
+		}
 		#endif
 
 		return Set(m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31 + m14*matrix.m41,
@@ -176,24 +179,23 @@ namespace Nz
 	*
 	* \param matrix Matrix to multiply with
 	*
-	* \remark if NAZARA_DEBUG is defined and matrices are not affine, a NazaraWarning is produced and Concatenate is called
+	* \remark if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM is defined and matrices are not transform matrices, a NazaraWarning is produced and Concatenate is called
 	*
 	* \see Concatenate
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::ConcatenateAffine(const Matrix4& matrix)
+	Matrix4<T>& Matrix4<T>::ConcatenateTransform(const Matrix4& matrix)
 	{
-		#ifdef NAZARA_DEBUG
-		if (!IsAffine())
+		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		if (!IsTransformMatrix())
 		{
-			NazaraWarning("First matrix not affine");
+			NazaraDebug("Matrix4::ConcatenateTransform first matrix is not a transform matrix");
 			return Concatenate(matrix);
 		}
 
-		if (!matrix.IsAffine())
+		if (!matrix.IsTransformMatrix())
 		{
-			NazaraWarning("Second matrix not affine");
+			NazaraDebug("Matrix4::ConcatenateTransform second matrix is not a transform matrix");
 			return Concatenate(matrix);
 		}
 		#endif
@@ -218,25 +220,6 @@ namespace Nz
 		           m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
 		           T(1.0));
 	}
-
-	template<typename T>
-	void Matrix4<T>::Decompose(Vector3<T>& translation, Quaternion<T>& rotation, Vector3<T>& scale)
-	{
-		Matrix4f localMat(*this);
-
-		translation = localMat.GetTranslation();
-		scale = localMat.GetScale();
-
-		Vector3<T> invScale;
-		invScale.x = T(1) / scale.x;
-		invScale.y = T(1) / scale.y;
-		invScale.z = T(1) / scale.z;
-
-		localMat.ApplyScale(invScale);
-
-		rotation = localMat.GetRotation();
-	}
-
 
 	/*!
 	* \brief Gets the ith column of the matrix
@@ -268,20 +251,22 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Calcultes the determinant of this matrix
+	* \brief Computes the determinant of this matrix
 	* \return The value of the determinant
 	*
-	* \remark if NAZARA_MATH_MATRIX4_CHECK_AFFINE is defined, GetDeterminantAffine is called
+	* \remark if NAZARA_MATH_MATRIX4_CHECK_AFFINE is defined, GetDeterminantTransform is called
 	*
-	* \see GetDeterminantAffine
+	* \see GetDeterminantTransform
 	*/
-
 	template<typename T>
 	T Matrix4<T>::GetDeterminant() const
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_AFFINE
-		if (IsAffine())
-			return GetDeterminantAffine();
+		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		if (IsTransformMatrix())
+		{
+			NazaraDebug("Matrix4::GetDeterminant was called on a transform matrix, use Matrix4::GetDeterminantTransform");
+			return GetDeterminantTransform();
+		}
 		#endif
 
 		T A = m22*(m33*m44 - m43*m34) - m32*(m23*m44 - m43*m24) + m42*(m23*m34 - m33*m24);
@@ -293,21 +278,20 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Calcultes the determinant of this matrix
+	* \brief Computes the determinant of this matrix
 	* \return The value of the determinant
 	*
 	* \remark if NAZARA_DEBUG is defined and matrix is not affine, a NazaraWarning is produced and GetDeterminant is called
 	*
 	* \see GetDeterminant
 	*/
-
 	template<typename T>
-	T Matrix4<T>::GetDeterminantAffine() const
+	T Matrix4<T>::GetDeterminantTransform() const
 	{
-		#ifdef NAZARA_DEBUG
-		if (!IsAffine())
+		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		if (!IsTransformMatrix())
 		{
-			NazaraWarning("First matrix not affine");
+			NazaraDebug("matrix is not a transform matrix");
 			return GetDeterminant();
 		}
 		#endif
@@ -335,145 +319,140 @@ namespace Nz
 	template<typename T>
 	bool Matrix4<T>::GetInverse(Matrix4* dest) const
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_AFFINE
-		if (IsAffine())
-			return GetInverseAffine(dest);
-		#endif
+		NazaraAssert(dest, "destination matrix must be valid");
 
-		#ifdef NAZARA_DEBUG
-		if (!dest)
+		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		if (IsTransformMatrix())
 		{
-			NazaraError("Destination matrix must be valid");
-			return false;
+			NazaraDebug("Matrix4::GetInverse was called on a transform matrix, use Matrix4::GetInverseTransform");
+			return GetInverseTransform(dest);
 		}
 		#endif
 
 		T det = GetDeterminant();
-		if (det != T(0.0))
-		{
-			// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
-			T inv[16];
-			inv[0] = m22 * m33 * m44 -
-			         m22 * m34 * m43 -
-			         m32 * m23 * m44 +
-			         m32 * m24 * m43 +
-			         m42 * m23 * m34 -
-			         m42 * m24 * m33;
-
-			inv[1] = -m12 * m33 * m44 +
-			         m12 * m34 * m43 +
-			         m32 * m13 * m44 -
-			         m32 * m14 * m43 -
-			         m42 * m13 * m34 +
-			         m42 * m14 * m33;
-
-			inv[2] = m12 * m23 * m44 -
-			         m12 * m24 * m43 -
-			         m22 * m13 * m44 +
-			         m22 * m14 * m43 +
-			         m42 * m13 * m24 -
-			         m42 * m14 * m23;
-
-			inv[3] = -m12 * m23 * m34 +
-			         m12 * m24 * m33 +
-			         m22 * m13 * m34 -
-			         m22 * m14 * m33 -
-			         m32 * m13 * m24 +
-			         m32 * m14 * m23;
-
-			inv[4] = -m21 * m33 * m44 +
-			         m21 * m34 * m43 +
-			         m31 * m23 * m44 -
-			         m31 * m24 * m43 -
-			         m41 * m23 * m34 +
-			         m41 * m24 * m33;
-
-			inv[5] = m11 * m33 * m44 -
-			         m11 * m34 * m43 -
-			         m31 * m13 * m44 +
-			         m31 * m14 * m43 +
-			         m41 * m13 * m34 -
-			         m41 * m14 * m33;
-
-			inv[6] = -m11 * m23 * m44 +
-			         m11 * m24 * m43 +
-			         m21 * m13 * m44 -
-			         m21 * m14 * m43 -
-			         m41 * m13 * m24 +
-			         m41 * m14 * m23;
-
-			inv[7] = m11 * m23 * m34 -
-			         m11 * m24 * m33 -
-			         m21 * m13 * m34 +
-			         m21 * m14 * m33 +
-			         m31 * m13 * m24 -
-			         m31 * m14 * m23;
-
-			inv[8] = m21 * m32 * m44 -
-			         m21 * m34 * m42 -
-			         m31 * m22 * m44 +
-			         m31 * m24 * m42 +
-			         m41 * m22 * m34 -
-			         m41 * m24 * m32;
-
-			inv[9] = -m11 * m32 * m44 +
-			         m11 * m34 * m42 +
-			         m31 * m12 * m44 -
-			         m31 * m14 * m42 -
-			         m41 * m12 * m34 +
-			         m41 * m14 * m32;
-
-			inv[10] = m11 * m22 * m44 -
-			          m11 * m24 * m42 -
-			          m21 * m12 * m44 +
-			          m21 * m14 * m42 +
-			          m41 * m12 * m24 -
-			          m41 * m14 * m22;
-
-			inv[11] = -m11 * m22 * m34 +
-			          m11 * m24 * m32 +
-			          m21 * m12 * m34 -
-			          m21 * m14 * m32 -
-			          m31 * m12 * m24 +
-			          m31 * m14 * m22;
-
-			inv[12] = -m21 * m32 * m43 +
-			          m21 * m33 * m42 +
-			          m31 * m22 * m43 -
-			          m31 * m23 * m42 -
-			          m41 * m22 * m33 +
-			          m41 * m23 * m32;
-
-			inv[13] = m11 * m32 * m43 -
-			          m11 * m33 * m42 -
-			          m31 * m12 * m43 +
-			          m31 * m13 * m42 +
-			          m41 * m12 * m33 -
-			          m41 * m13 * m32;
-
-			inv[14] = -m11 * m22 * m43 +
-			          m11 * m23 * m42 +
-			          m21 * m12 * m43 -
-			          m21 * m13 * m42 -
-			          m41 * m12 * m23 +
-			          m41 * m13 * m22;
-
-			inv[15] = m11 * m22 * m33 -
-			          m11 * m23 * m32 -
-			          m21 * m12 * m33 +
-			          m21 * m13 * m32 +
-			          m31 * m12 * m23 -
-			          m31 * m13 * m22;
-
-			T invDet = T(1.0) / det;
-			for (unsigned int i = 0; i < 16; ++i)
-				inv[i] *= invDet;
-
-			*dest = inv;
-			return true;
-		}
-		else
+		if (det == T(0.0))
 			return false;
+
+		// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
+		T inv[16];
+		inv[0] = m22 * m33 * m44 -
+		         m22 * m34 * m43 -
+		         m32 * m23 * m44 +
+		         m32 * m24 * m43 +
+		         m42 * m23 * m34 -
+		         m42 * m24 * m33;
+
+		inv[1] = -m12 * m33 * m44 +
+		          m12 * m34 * m43 +
+		          m32 * m13 * m44 -
+		          m32 * m14 * m43 -
+		          m42 * m13 * m34 +
+		          m42 * m14 * m33;
+
+		inv[2] = m12 * m23 * m44 -
+		         m12 * m24 * m43 -
+		         m22 * m13 * m44 +
+		         m22 * m14 * m43 +
+		         m42 * m13 * m24 -
+		         m42 * m14 * m23;
+
+		inv[3] = -m12 * m23 * m34 +
+		          m12 * m24 * m33 +
+		          m22 * m13 * m34 -
+		          m22 * m14 * m33 -
+		          m32 * m13 * m24 +
+		          m32 * m14 * m23;
+
+		inv[4] = -m21 * m33 * m44 +
+		          m21 * m34 * m43 +
+		          m31 * m23 * m44 -
+		          m31 * m24 * m43 -
+		          m41 * m23 * m34 +
+		          m41 * m24 * m33;
+
+		inv[5] = m11 * m33 * m44 -
+		         m11 * m34 * m43 -
+		         m31 * m13 * m44 +
+		         m31 * m14 * m43 +
+		         m41 * m13 * m34 -
+		         m41 * m14 * m33;
+
+		inv[6] = -m11 * m23 * m44 +
+		          m11 * m24 * m43 +
+		          m21 * m13 * m44 -
+		          m21 * m14 * m43 -
+		          m41 * m13 * m24 +
+		          m41 * m14 * m23;
+
+		inv[7] = m11 * m23 * m34 -
+		         m11 * m24 * m33 -
+		         m21 * m13 * m34 +
+		         m21 * m14 * m33 +
+		         m31 * m13 * m24 -
+		         m31 * m14 * m23;
+
+		inv[8] = m21 * m32 * m44 -
+		         m21 * m34 * m42 -
+		         m31 * m22 * m44 +
+		         m31 * m24 * m42 +
+		         m41 * m22 * m34 -
+		         m41 * m24 * m32;
+
+		inv[9] = -m11 * m32 * m44 +
+		          m11 * m34 * m42 +
+		          m31 * m12 * m44 -
+		          m31 * m14 * m42 -
+		          m41 * m12 * m34 +
+		          m41 * m14 * m32;
+
+		inv[10] = m11 * m22 * m44 -
+		          m11 * m24 * m42 -
+		          m21 * m12 * m44 +
+		          m21 * m14 * m42 +
+		          m41 * m12 * m24 -
+		          m41 * m14 * m22;
+
+		inv[11] = -m11 * m22 * m34 +
+		           m11 * m24 * m32 +
+		           m21 * m12 * m34 -
+		           m21 * m14 * m32 -
+		           m31 * m12 * m24 +
+		           m31 * m14 * m22;
+
+		inv[12] = -m21 * m32 * m43 +
+		           m21 * m33 * m42 +
+		           m31 * m22 * m43 -
+		           m31 * m23 * m42 -
+		           m41 * m22 * m33 +
+		           m41 * m23 * m32;
+
+		inv[13] = m11 * m32 * m43 -
+		          m11 * m33 * m42 -
+		          m31 * m12 * m43 +
+		          m31 * m13 * m42 +
+		          m41 * m12 * m33 -
+		          m41 * m13 * m32;
+
+		inv[14] = -m11 * m22 * m43 +
+		           m11 * m23 * m42 +
+		           m21 * m12 * m43 -
+		           m21 * m13 * m42 -
+		           m41 * m12 * m23 +
+		           m41 * m13 * m22;
+
+		inv[15] = m11 * m22 * m33 -
+		          m11 * m23 * m32 -
+		          m21 * m12 * m33 +
+		          m21 * m13 * m32 +
+		          m31 * m12 * m23 -
+		          m31 * m13 * m22;
+
+		T invDet = T(1.0) / det;
+		for (unsigned int i = 0; i < 16; ++i)
+			inv[i] *= invDet;
+
+		*dest = inv;
+		return true;
 	}
 
 	/*!
@@ -488,94 +467,88 @@ namespace Nz
 	*
 	* \see GetInverse
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::GetInverseAffine(Matrix4* dest) const
+	bool Matrix4<T>::GetInverseTransform(Matrix4* dest) const
 	{
-		#ifdef NAZARA_DEBUG
-		if (!IsAffine())
-		{
-			NazaraWarning("Matrix is not affine");
-			return GetInverse(dest);
-		}
+		NazaraAssert(dest, "destination matrix must be valid");
 
-		if (!dest)
+		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		if (!IsTransformMatrix())
 		{
-			NazaraError("Destination matrix must be valid");
-			return false;
+			NazaraDebug("matrix is not a transform matrix");
+			return GetInverse(dest);
 		}
 		#endif
 
-		T det = GetDeterminantAffine();
-		if (det != T(0.0))
-		{
-			// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
-			T inv[16];
-			inv[0] = m22 * m33 -
-			         m32 * m23;
-
-			inv[1] = -m12 * m33 +
-			         m32 * m13;
-
-			inv[2] = m12 * m23 -
-			         m22 * m13;
-
-			inv[3] = T(0.0);
-
-			inv[4] = -m21 * m33 +
-			         m31 * m23;
-
-			inv[5] = m11 * m33 -
-			         m31 * m13;
-
-			inv[6] = -m11 * m23 +
-			         m21 * m13;
-
-			inv[7] = T(0.0);
-
-			inv[8] = m21 * m32 -
-			         m31 * m22;
-
-			inv[9] = -m11 * m32 +
-			         m31 * m12;
-
-			inv[10] = m11 * m22 -
-			          m21 * m12;
-
-			inv[11] = T(0.0);
-
-			inv[12] = -m21 * m32 * m43 +
-			          m21 * m33 * m42 +
-			          m31 * m22 * m43 -
-			          m31 * m23 * m42 -
-			          m41 * m22 * m33 +
-			          m41 * m23 * m32;
-
-			inv[13] = m11 * m32 * m43 -
-			          m11 * m33 * m42 -
-			          m31 * m12 * m43 +
-			          m31 * m13 * m42 +
-			          m41 * m12 * m33 -
-			          m41 * m13 * m32;
-
-			inv[14] = -m11 * m22 * m43 +
-			          m11 * m23 * m42 +
-			          m21 * m12 * m43 -
-			          m21 * m13 * m42 -
-			          m41 * m12 * m23 +
-			          m41 * m13 * m22;
-
-			T invDet = T(1.0) / det;
-			for (unsigned int i = 0; i < 16; ++i)
-				inv[i] *= invDet;
-
-			inv[15] = T(1.0);
-
-			*dest = inv;
-			return true;
-		}
-		else
+		T det = GetDeterminantTransform();
+		if (det == T(0.0))
 			return false;
+
+		
+		// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
+		T inv[16];
+		inv[0] = m22 * m33 -
+		         m32 * m23;
+
+		inv[1] = -m12 * m33 +
+		          m32 * m13;
+
+		inv[2] = m12 * m23 -
+		         m22 * m13;
+
+		inv[3] = T(0.0);
+
+		inv[4] = -m21 * m33 +
+		          m31 * m23;
+
+		inv[5] = m11 * m33 -
+		         m31 * m13;
+
+		inv[6] = -m11 * m23 +
+		          m21 * m13;
+
+		inv[7] = T(0.0);
+
+		inv[8] = m21 * m32 -
+		         m31 * m22;
+
+		inv[9] = -m11 * m32 +
+		          m31 * m12;
+
+		inv[10] = m11 * m22 -
+		          m21 * m12;
+
+		inv[11] = T(0.0);
+
+		inv[12] = -m21 * m32 * m43 +
+		           m21 * m33 * m42 +
+		           m31 * m22 * m43 -
+		           m31 * m23 * m42 -
+		           m41 * m22 * m33 +
+		           m41 * m23 * m32;
+
+		inv[13] = m11 * m32 * m43 -
+		          m11 * m33 * m42 -
+		          m31 * m12 * m43 +
+		          m31 * m13 * m42 +
+		          m41 * m12 * m33 -
+		          m41 * m13 * m32;
+
+		inv[14] = -m11 * m22 * m43 +
+		           m11 * m23 * m42 +
+		           m21 * m12 * m43 -
+		           m21 * m13 * m42 -
+		           m41 * m12 * m23 +
+		           m41 * m13 * m22;
+
+		T invDet = T(1.0) / det;
+		for (unsigned int i = 0; i < 16; ++i)
+			inv[i] *= invDet;
+
+		inv[15] = T(1.0);
+
+		*dest = inv;
+		return true;
 	}
 
 	/*!
@@ -773,9 +746,8 @@ namespace Nz
 	*
 	* \param succeeded Optional argument to know if matrix has been successfully inverted
 	*
-	* \see InverseAffine
+	* \see InverseTransform
 	*/
-
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::Inverse(bool* succeeded)
 	{
@@ -794,11 +766,10 @@ namespace Nz
 	*
 	* \see Inverse
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::InverseAffine(bool* succeeded)
+	Matrix4<T>& Matrix4<T>::InverseTransform(bool* succeeded)
 	{
-		bool result = GetInverseAffine(this);
+		bool result = GetInverseTransform(this);
 		if (succeeded)
 			*succeeded = result;
 
@@ -811,7 +782,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	bool Matrix4<T>::IsAffine() const
+	bool Matrix4<T>::IsTransformMatrix() const
 	{
 		return NumberEquals(m14, T(0.0)) && NumberEquals(m24, T(0.0)) && NumberEquals(m34, T(0.0)) && NumberEquals(m44, T(1.0));
 	}
@@ -858,7 +829,6 @@ namespace Nz
 	*
 	* \see LookAt
 	*/
-
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakeLookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
 	{
@@ -1039,22 +1009,21 @@ namespace Nz
 	{
 		MakeTransform(translation, rotation);
 
-		// Then we apply the homothety to current values
+		// Then we apply the scale to current values
 		return ApplyScale(scale);
 	}
 
 	/*!
-	* \brief Makes the matrix a 'view matrix'
-	* \return A reference to this matrix transformed in 'view matrix'
+	* \brief Makes the matrix an inverse transform matrix (aka view matrix)
+	* \return A reference to this matrix
 	*
 	* \param translation Vector3 representing the translation
 	* \param rotation Quaternion representing a rotation of space
 	*
-	* \see ViewMatrix
+	* \see InverseTransformMatrix
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeViewMatrix(const Vector3<T>& translation, const Quaternion<T>& rotation)
+	Matrix4<T>& Matrix4<T>::MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation)
 	{
 		// A view matrix must apply an inverse transformation of the 'world' matrix
 		Quaternion<T> invRot = rotation.GetConjugate(); // Inverse of the rotation
@@ -1068,7 +1037,6 @@ namespace Nz
 	*
 	* \see Zero
 	*/
-
 	template<typename T>
 	Matrix4<T>& Matrix4<T>::MakeZero()
 	{
@@ -1503,14 +1471,13 @@ namespace Nz
 	* \param left Left-hand side matrix
 	* \param right Right-hand side matrix
 	*
-	* \see ConcatenateAffine
+	* \see ConcatenateTransform
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::ConcatenateAffine(const Matrix4& left, const Matrix4& right)
+	Matrix4<T> Matrix4<T>::ConcatenateTransform(const Matrix4& left, const Matrix4& right)
 	{
 		Matrix4 matrix(left); // Copy of left-hand side matrix
-		matrix.ConcatenateAffine(right); // Affine concatenation with right-hand side
+		matrix.ConcatenateTransform(right); // Affine concatenation with right-hand side
 
 		return matrix;
 	}
@@ -1617,7 +1584,7 @@ namespace Nz
 	* \brief Shorthand for the 'scale' matrix
 	* \return A Matrix4 which is is the scale
 	*
-	* \param scale Vector3 representing the homothety
+	* \param scale Vector3 representing the scale
 	*
 	* \see MakeScale
 	*/
@@ -1699,14 +1666,13 @@ namespace Nz
 	* \param translation Vector3 representing the translation
 	* \param rotation Quaternion representing a rotation of space
 	*
-	* \see MakeViewMatrix
+	* \see MakeInverseTransformMatrix
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::ViewMatrix(const Vector3<T>& translation, const Quaternion<T>& rotation)
+	Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation)
 	{
 		Matrix4 mat;
-		mat.MakeViewMatrix(translation, rotation);
+		mat.MakeTransformInverse(translation, rotation);
 
 		return mat;
 	}

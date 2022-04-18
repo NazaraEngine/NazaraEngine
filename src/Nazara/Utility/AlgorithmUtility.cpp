@@ -747,7 +747,7 @@ namespace Nz
 
 		// Face +X
 		transform.MakeTransform(Vector3f::UnitX() * halfLengths.x, EulerAnglesf(-90.f, -90.f, 180.f));
-		GeneratePlane(Vector2ui(subdivision.z, subdivision.y), Vector2f(lengths.z, lengths.y), Matrix4f::ConcatenateAffine(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
+		GeneratePlane(Vector2ui(subdivision.z, subdivision.y), Vector2f(lengths.z, lengths.y), Matrix4f::ConcatenateTransform(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
 		indexOffset += xVertexCount;
 		indices += xIndexCount;
 
@@ -764,7 +764,7 @@ namespace Nz
 
 		// Face +Y
 		transform.MakeTransform(Vector3f::UnitY() * halfLengths.y, EulerAnglesf(0.f, 0.f, 0.f));
-		GeneratePlane(Vector2ui(subdivision.x, subdivision.z), Vector2f(lengths.x, lengths.z), Matrix4f::ConcatenateAffine(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
+		GeneratePlane(Vector2ui(subdivision.x, subdivision.z), Vector2f(lengths.x, lengths.z), Matrix4f::ConcatenateTransform(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
 		indexOffset += yVertexCount;
 		indices += yIndexCount;
 
@@ -781,7 +781,7 @@ namespace Nz
 
 		// Face +Z
 		transform.MakeTransform(Vector3f::UnitZ() * halfLengths.z, EulerAnglesf(90.f, 0.f, 0.f));
-		GeneratePlane(Vector2ui(subdivision.x, subdivision.y), Vector2f(lengths.x, lengths.y), Matrix4f::ConcatenateAffine(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
+		GeneratePlane(Vector2ui(subdivision.x, subdivision.y), Vector2f(lengths.x, lengths.y), Matrix4f::ConcatenateTransform(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
 		indexOffset += zVertexCount;
 		indices += zIndexCount;
 
@@ -798,7 +798,7 @@ namespace Nz
 
 		// Face -X
 		transform.MakeTransform(-Vector3f::UnitX() * halfLengths.x, EulerAnglesf(-90.f, 90.f, 180.f));
-		GeneratePlane(Vector2ui(subdivision.z, subdivision.y), Vector2f(lengths.z, lengths.y), Matrix4f::ConcatenateAffine(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
+		GeneratePlane(Vector2ui(subdivision.z, subdivision.y), Vector2f(lengths.z, lengths.y), Matrix4f::ConcatenateTransform(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
 		indexOffset += xVertexCount;
 		indices += xIndexCount;
 
@@ -815,7 +815,7 @@ namespace Nz
 
 		// Face -Y
 		transform.MakeTransform(-Vector3f::UnitY() * halfLengths.y, EulerAnglesf(0.f, 180.f, 180.f));
-		GeneratePlane(Vector2ui(subdivision.x, subdivision.z), Vector2f(lengths.x, lengths.z), Matrix4f::ConcatenateAffine(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
+		GeneratePlane(Vector2ui(subdivision.x, subdivision.z), Vector2f(lengths.x, lengths.z), Matrix4f::ConcatenateTransform(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
 		indexOffset += yVertexCount;
 		indices += yIndexCount;
 
@@ -832,7 +832,7 @@ namespace Nz
 
 		// Face -Z
 		transform.MakeTransform(-Vector3f::UnitZ() * halfLengths.z, EulerAnglesf(90.f, 180.f, 0.f));
-		GeneratePlane(Vector2ui(subdivision.x, subdivision.y), Vector2f(lengths.x, lengths.y), Matrix4f::ConcatenateAffine(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
+		GeneratePlane(Vector2ui(subdivision.x, subdivision.y), Vector2f(lengths.x, lengths.y), Matrix4f::ConcatenateTransform(matrix, transform), textureCoords, vertexPointers, indices, nullptr, indexOffset);
 		indexOffset += zVertexCount;
 		indices += zIndexCount;
 

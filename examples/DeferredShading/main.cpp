@@ -1234,7 +1234,7 @@ int main()
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camQuat));
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camQuat));
 		}
 
 		Nz::RenderFrame frame = window.AcquireFrame();
