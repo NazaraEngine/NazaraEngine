@@ -218,7 +218,7 @@ int main()
 		if (!frame)
 			continue;
 
-		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::ViewMatrix(viewerPos, camAngles));
+		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);
 
 		framePipeline.InvalidateViewer(cameraIndex);
