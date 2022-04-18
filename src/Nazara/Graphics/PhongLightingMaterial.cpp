@@ -186,7 +186,7 @@ namespace Nz
 			options.phongTextureIndexes->emissive = settings.textures.size();
 
 		settings.textures.push_back({
-			7,
+			8,
 			"Emissive",
 			ImageType::E2D
 		});
@@ -195,7 +195,7 @@ namespace Nz
 			options.phongTextureIndexes->height = settings.textures.size();
 
 		settings.textures.push_back({
-			8,
+			9,
 			"Height",
 			ImageType::E2D
 		});
@@ -204,7 +204,7 @@ namespace Nz
 			options.phongTextureIndexes->normal = settings.textures.size();
 
 		settings.textures.push_back({
-			9,
+			10,
 			"Normal",
 			ImageType::E2D
 		});
@@ -213,7 +213,7 @@ namespace Nz
 			options.phongTextureIndexes->specular = settings.textures.size();
 
 		settings.textures.push_back({
-			10,
+			11,
 			"Specular",
 			ImageType::E2D
 		});
@@ -229,8 +229,8 @@ namespace Nz
 			options.defaultValues
 		});
 
-		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock(6, nzsl::ShaderStageType::Fragment));
-		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::LightDataUbo)] = 6;
+		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock(7, nzsl::ShaderStageType::Fragment));
+		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::LightDataUbo)] = 7;
 
 		settings.shaders = options.shaders;
 

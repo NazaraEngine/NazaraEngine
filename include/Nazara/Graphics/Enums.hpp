@@ -67,6 +67,7 @@ namespace Nz
 		InstanceDataUbo,
 		LightDataUbo,
 		OverlayTexture,
+		SkeletalDataUbo,
 		ViewerDataUbo,
 
 		Max = ViewerDataUbo

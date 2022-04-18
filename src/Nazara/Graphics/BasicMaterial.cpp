@@ -151,6 +151,16 @@ namespace Nz
 			options.defaultValues
 		});
 
+		FieldOffsets skeletalOffsets(StructLayout::Std140);
+		skeletalOffsets.AddMatrixArray(StructFieldType::Float1, 4, 4, true, 100);
+
+		settings.sharedUniformBlocks.push_back({
+			6,
+			"SkeletalData",
+			{},
+			ShaderStageType::Vertex
+		});
+
 		// Common data
 		settings.textures.push_back({
 			3,
@@ -160,9 +170,11 @@ namespace Nz
 
 		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock(4, nzsl::ShaderStageType::Vertex));
 		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock(5, nzsl::ShaderStageType_All));
+		//settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock(6, nzsl::ShaderStageType::Vertex));
 
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::InstanceDataUbo)] = 4;
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::OverlayTexture)] = 3;
+		//settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::SkeletalDataUbo)] = 6;
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::ViewerDataUbo)] = 5;
 
 		settings.shaders = options.shaders;
@@ -192,6 +204,14 @@ namespace Nz
 
 						case VertexComponent::TexCoord:
 							config.optionValues[CRC32("UvLocation")] = locationIndex;
+							break;
+
+						case VertexComponent::JointIndices:
+							config.optionValues[CRC32("JointIndicesLocation")] = locationIndex;
+							break;
+
+						case VertexComponent::JointWeights:
+							config.optionValues[CRC32("JointWeightsLocation")] = locationIndex;
 							break;
 
 						case VertexComponent::Unused:

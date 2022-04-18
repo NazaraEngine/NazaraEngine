@@ -280,19 +280,14 @@ namespace Nz
 					0
 				},
 				{
-					VertexComponent::Userdata,
-					ComponentType::Int1,
-					0 // Weight count
-				},
-				{
-					VertexComponent::Userdata,
+					VertexComponent::JointWeights,
 					ComponentType::Float4,
-					1 // Weights
+					0
 				},
 				{
-					VertexComponent::Userdata,
+					VertexComponent::JointIndices,
 					ComponentType::Int4,
-					2 // Joint indexes
+					0
 				},
 			});
 

@@ -33,9 +33,9 @@ namespace Nz
 
 			struct Joint
 			{
+				std::string name;
 				Int32 parent;
 				Quaternionf bindOrient;
-				std::string name;
 				Vector3f bindPos;
 				UInt32 flags;
 				UInt32 index;

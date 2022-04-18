@@ -33,6 +33,7 @@ namespace Nz
 		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox = invalidScissorBox;
 		RenderBufferView currentLightData;
+		RenderBufferView currentSkeletalData;
 
 		auto FlushDrawCall = [&]()
 		{
@@ -95,6 +96,12 @@ namespace Nz
 				currentLightData = renderState.lightData;
 			}
 
+			if (currentSkeletalData != renderState.skeletalData)
+			{
+				FlushDrawData();
+				currentSkeletalData = renderState.skeletalData;
+			}
+
 			const Recti& scissorBox = submesh.GetScissorBox();
 			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
 			if (currentScissorBox != targetScissorBox)
@@ -132,6 +139,16 @@ namespace Nz
 					bindingEntry.content = ShaderBinding::UniformBufferBinding{
 						currentLightData.GetBuffer(),
 						currentLightData.GetOffset(), currentLightData.GetSize()
+					};
+				}
+
+				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::SkeletalDataUbo); bindingIndex != MaterialSettings::InvalidIndex && currentSkeletalData)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::UniformBufferBinding{
+						currentSkeletalData.GetBuffer(),
+						currentSkeletalData.GetOffset(), currentSkeletalData.GetSize()
 					};
 				}
 

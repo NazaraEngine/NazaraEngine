@@ -13,8 +13,6 @@ namespace Nz
 {
 	std::shared_ptr<GraphicalMesh> GraphicalMesh::BuildFromMesh(const Mesh& mesh)
 	{
-		assert(mesh.GetAnimationType() == AnimationType::Static);
-
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		std::shared_ptr<GraphicalMesh> gfxMesh = std::make_shared<GraphicalMesh>();

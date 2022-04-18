@@ -76,8 +76,6 @@ namespace Nz
 
 	struct VertexStruct_XYZ_Normal_UV_Tangent_Skinning : VertexStruct_XYZ_Normal_UV_Tangent
 	{
-		Int32 weightCount;
-
 		Vector4f weights;
 		Vector4i32 jointIndexes;
 	};

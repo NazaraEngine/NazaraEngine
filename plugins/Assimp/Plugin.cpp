@@ -43,32 +43,29 @@ SOFTWARE.
 #include <assimp/mesh.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <set>
+#include <unordered_set>
 
 using namespace Nz;
 
-void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<std::string>& joints)
+void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::unordered_set<std::string_view>& joints)
 {
-	std::string jointName(node->mName.data, node->mName.length);
+	std::string_view jointName(node->mName.data, node->mName.length);
 	if (joints.count(jointName))
 	{
 		Joint* joint = skeleton->GetJoint(jointName);
-		if (joint)
-		{
-			if (node->mParent)
-				joint->SetParent(skeleton->GetJoint(node->mParent->mName.C_Str()));
 
-			Matrix4f transformMatrix(node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3, node->mTransformation.a4,
-			                         node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3, node->mTransformation.b4,
-			                         node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3, node->mTransformation.c4,
-			                         node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3, node->mTransformation.d4);
+		if (node->mParent)
+			joint->SetParent(skeleton->GetJoint(node->mParent->mName.C_Str()));
 
-			transformMatrix.Transpose();
+		Matrix4f transformMatrix(node->mTransformation.a1, node->mTransformation.a2, node->mTransformation.a3, node->mTransformation.a4,
+		                         node->mTransformation.b1, node->mTransformation.b2, node->mTransformation.b3, node->mTransformation.b4,
+		                         node->mTransformation.c1, node->mTransformation.c2, node->mTransformation.c3, node->mTransformation.c4,
+		                         node->mTransformation.d1, node->mTransformation.d2, node->mTransformation.d3, node->mTransformation.d4);
 
-			transformMatrix.InverseTransform();
+		transformMatrix.Transpose();
+		transformMatrix.InverseTransform();
 
-			joint->SetInverseBindMatrix(transformMatrix);
-		}
+		joint->SetInverseBindMatrix(transformMatrix);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
@@ -118,8 +115,8 @@ std::shared_ptr<Animation> LoadAnimation(Stream& stream, const AnimationParams& 
 	                         | aiProcess_TransformUVCoords | aiProcess_Triangulate;
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               ~aiComponent_ANIMATIONS);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,       ~aiComponent_ANIMATIONS);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
@@ -259,7 +256,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 		return nullptr;
 	}
 
-	std::set<std::string> joints;
+	std::unordered_set<std::string_view> joints;
 
 	bool animatedMesh = false;
 	if (parameters.animated)
@@ -285,8 +282,8 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 
 		// First, assign names
 		unsigned int jointIndex = 0;
-		for (const std::string& jointName : joints)
-			skeleton->GetJoint(jointIndex++)->SetName(jointName);
+		for (std::string_view jointName : joints)
+			skeleton->GetJoint(jointIndex++)->SetName(std::string(jointName));
 
 		ProcessJoints(scene->mRootNode, skeleton, joints);
 
@@ -330,34 +327,51 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
 
 			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
-			BufferMapper<VertexBuffer> vertexMapper(*vertexBuffer, 0, vertexBuffer->GetVertexCount());
-			SkeletalMeshVertex* vertices = static_cast<SkeletalMeshVertex*>(vertexMapper.GetPointer());
 
-			for (std::size_t vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+			VertexMapper vertexMapper(*vertexBuffer);
+
+			auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
+			auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
+			auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+			auto jointIndicesPtr = vertexMapper.GetComponentPtr<Vector4i32>(VertexComponent::JointIndices);
+			auto jointWeightPtr = vertexMapper.GetComponentPtr<Vector4f>(VertexComponent::JointWeights);
+			auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
+
+			for (std::size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
 			{
-				aiVector3D normal = iMesh->mNormals[vertexIdx];
-				aiVector3D position = iMesh->mVertices[vertexIdx];
-				aiVector3D tangent = iMesh->mTangents[vertexIdx];
-				aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
+				aiVector3D normal = iMesh->mNormals[vertexIndex];
+				aiVector3D position = iMesh->mVertices[vertexIndex];
+				aiVector3D tangent = iMesh->mTangents[vertexIndex];
+				aiVector3D uv = iMesh->mTextureCoords[0][vertexIndex];
 
-				vertices[vertexIdx].weightCount = 0;
-				vertices[vertexIdx].normal = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
-				vertices[vertexIdx].position = parameters.matrix * Vector3f(position.x, position.y, position.z);
-				vertices[vertexIdx].tangent = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
-				vertices[vertexIdx].uv = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+				if (posPtr)
+					posPtr[vertexIndex] = parameters.matrix * Vector3f(position.x, position.y, position.z);
+
+				if (normalPtr)
+					normalPtr[vertexIndex] = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
+
+				if (tangentPtr)
+					tangentPtr[vertexIndex] = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
+
+				if (uvPtr)
+					uvPtr[vertexIndex] = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
 			}
 
-			for (unsigned int boneIdx = 0; boneIdx < iMesh->mNumBones; ++boneIdx)
+			if (jointIndicesPtr || jointWeightPtr)
 			{
-				aiBone* bone = iMesh->mBones[boneIdx];
-				for (unsigned int weightIdx = 0; weightIdx < bone->mNumWeights; ++weightIdx)
+				for (unsigned int boneIndex = 0; boneIndex < iMesh->mNumBones; ++boneIndex)
 				{
-					aiVertexWeight& vertexWeight = bone->mWeights[weightIdx];
-					SkeletalMeshVertex& vertex = vertices[vertexWeight.mVertexId];
+					aiBone* bone = iMesh->mBones[boneIndex];
+					for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
+					{
+						aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
 
-					std::size_t weightIndex = vertex.weightCount++;
-					vertex.jointIndexes[weightIndex] = boneIdx;
-					vertex.weights[weightIndex] = vertexWeight.mWeight;
+						if (jointIndicesPtr)
+							jointIndicesPtr[vertexWeight.mVertexId][weightIndex] = boneIndex;
+
+						if (jointWeightPtr)
+							jointWeightPtr[vertexWeight.mVertexId][weightIndex] = vertexWeight.mWeight;
+					}
 				}
 			}
 

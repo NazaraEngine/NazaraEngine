@@ -30,8 +30,12 @@ namespace Nz
 	struct SkinningData
 	{
 		const Joint* joints;
-		const SkeletalMeshVertex* inputVertex;
-		MeshVertex* outputVertex;
+		SparsePtr<const Vector3f> inputPositions;
+		SparsePtr<const Vector4i32> inputJointIndices;
+		SparsePtr<const Vector4f> inputJointWeights;
+		SparsePtr<const Vector2f> inputUv;
+		SparsePtr<Vector3f> outputPositions;
+		SparsePtr<Vector2f> outputUv;
 	};
 
 	struct VertexPointers
