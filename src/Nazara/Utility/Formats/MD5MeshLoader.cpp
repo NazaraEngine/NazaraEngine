@@ -74,16 +74,8 @@ namespace Nz
 					if (parent >= 0)
 						joint->SetParent(skeleton->GetJoint(parent));
 
+					joint->SetInverseBindMatrix(Matrix4f::TransformInverse(joints[i].bindPos, joints[i].bindOrient));
 					joint->SetName(joints[i].name);
-
-					Matrix4f bindMatrix;
-
-					if (parent >= 0)
-						bindMatrix.MakeTransform(joints[i].bindPos, joints[i].bindOrient);
-					else
-						bindMatrix.MakeTransform(rotationQuat * joints[i].bindPos, rotationQuat * joints[i].bindOrient);
-
-					joint->SetInverseBindMatrix(bindMatrix.InverseAffine());
 				}
 
 				mesh->SetMaterialCount(meshCount);

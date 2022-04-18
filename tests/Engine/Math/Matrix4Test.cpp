@@ -33,10 +33,10 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 			THEN("It keeps being a identity")
 			{
 				CHECK(firstIdentity.Concatenate(secondIdentity) == firstIdentity);
-				CHECK(firstIdentity.ConcatenateAffine(secondIdentity) == firstIdentity);
+				CHECK(firstIdentity.ConcatenateTransform(secondIdentity) == firstIdentity);
 				CHECK((firstIdentity * secondIdentity) == firstIdentity);
 				CHECK((1.f * firstIdentity) == firstIdentity);
-				CHECK(firstIdentity.Inverse() == secondIdentity.InverseAffine());
+				CHECK(firstIdentity.Inverse() == secondIdentity.InverseTransform());
 			}
 		}
 

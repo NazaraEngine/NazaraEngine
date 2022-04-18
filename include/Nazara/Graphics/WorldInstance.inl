@@ -31,7 +31,7 @@ namespace Nz
 	inline void WorldInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix)
 	{
 		m_worldMatrix = worldMatrix;
-		if (!m_worldMatrix.GetInverseAffine(&m_invWorldMatrix))
+		if (!m_worldMatrix.GetInverseTransform(&m_invWorldMatrix))
 			NazaraError("failed to inverse world matrix");
 
 		m_dataInvalided = true;

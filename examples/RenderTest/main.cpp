@@ -368,7 +368,7 @@ int main()
 		if (!frame)
 			continue;
 
-		ubo.viewMatrix = Nz::Matrix4f::ViewMatrix(viewerPos, camAngles);
+		ubo.viewMatrix = Nz::Matrix4f::TransformInverse(viewerPos, camAngles);
 
 		if (uboUpdate)
 		{

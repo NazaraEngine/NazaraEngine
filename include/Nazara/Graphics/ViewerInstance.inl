@@ -88,7 +88,7 @@ namespace Nz
 			NazaraError("failed to inverse projection matrix");
 
 		m_viewMatrix = viewMatrix;
-		if (!m_viewMatrix.GetInverseAffine(&m_invViewMatrix))
+		if (!m_viewMatrix.GetInverseTransform(&m_invViewMatrix))
 			NazaraError("failed to inverse view matrix");
 
 		m_viewProjMatrix = m_projectionMatrix * m_viewMatrix;
@@ -134,7 +134,7 @@ namespace Nz
 	inline void ViewerInstance::UpdateViewMatrix(const Matrix4f& viewMatrix)
 	{
 		m_viewMatrix = viewMatrix;
-		if (!m_viewMatrix.GetInverseAffine(&m_invViewMatrix))
+		if (!m_viewMatrix.GetInverseTransform(&m_invViewMatrix))
 			NazaraError("failed to inverse view matrix");
 
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;

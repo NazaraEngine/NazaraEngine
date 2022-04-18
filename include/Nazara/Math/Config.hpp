@@ -33,12 +33,13 @@
 *  2D/3D mathematics module including matrix, vector, box, sphere, quaternion, ...
 */
 
-/// Each modification of a paramater of the module needs a recompilation of the unit
+/// Each modification of a parameter of the module needs a recompilation of the unit
 
-// Optimize automatically the operation on affine matrices (Ask several comparisons to determine if the matrix is affine)
-#define NAZARA_MATH_MATRIX4_CHECK_AFFINE 0
+// Checks for transform matrix on common operations (Concatenate, Inverse, ...) and warns if the operation could be optimized
+// also checks if transform calls are called on transform matrices
+#define NAZARA_MATH_MATRIX4_CHECK_TRANSFORM 0
 
-// Enable tests of security based on the code (Advised for the developpement)
+// Enable tests of security based on the code (Advised for the development)
 #define NAZARA_MATH_SAFE 1
 
 #endif // NAZARA_MATH_CONFIG_HPP

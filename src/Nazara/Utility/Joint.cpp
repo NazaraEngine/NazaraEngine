@@ -82,8 +82,7 @@ namespace Nz
 		if (!m_transformMatrixUpdated)
 			UpdateTransformMatrix();
 
-		m_skinningMatrix.Set(m_inverseBindMatrix);
-		m_skinningMatrix.ConcatenateAffine(m_transformMatrix);
+		m_skinningMatrix = Matrix4f::ConcatenateTransform(m_inverseBindMatrix, m_transformMatrix);
 		m_skinningMatrixUpdated = true;
 	}
 }
