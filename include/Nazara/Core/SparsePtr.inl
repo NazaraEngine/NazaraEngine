@@ -165,7 +165,7 @@ namespace Nz
 	template<typename U>
 	void SparsePtr<T>::Reset(const SparsePtr<U>& ptr)
 	{
-		static_assert(std::is_convertible<U*, T*>::value, "Source type pointer cannot be implicitely converted to target type pointer");
+		static_assert(std::is_convertible<U*, T*>::value, "Source type pointer cannot be implicitly converted to target type pointer");
 
 		SetPtr(static_cast<T*>(ptr.GetPtr()));
 		SetStride(ptr.GetStride());
