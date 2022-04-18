@@ -65,7 +65,7 @@ void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::set<std::string>
 
 			transformMatrix.Transpose();
 
-			transformMatrix.InverseAffine();
+			transformMatrix.InverseTransform();
 
 			joint->SetInverseBindMatrix(transformMatrix);
 		}
