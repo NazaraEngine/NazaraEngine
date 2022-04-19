@@ -31,6 +31,7 @@ namespace Nz::ShaderAst
 
 			struct Callbacks
 			{
+				std::function<std::size_t(std::size_t previousIndex)> aliasIndexGenerator;
 				std::function<std::size_t(std::size_t previousIndex)> constIndexGenerator;
 				std::function<std::size_t(std::size_t previousIndex)> funcIndexGenerator;
 				std::function<std::size_t(std::size_t previousIndex) > structIndexGenerator;
@@ -39,17 +40,21 @@ namespace Nz::ShaderAst
 			};
 
 		private:
+			StatementPtr Clone(DeclareAliasStatement& node) override;
 			StatementPtr Clone(DeclareConstStatement& node) override;
 			StatementPtr Clone(DeclareExternalStatement& node) override;
 			StatementPtr Clone(DeclareFunctionStatement& node) override;
 			StatementPtr Clone(DeclareStructStatement& node) override;
 			StatementPtr Clone(DeclareVariableStatement& node) override;
 
+			ExpressionPtr Clone(AliasValueExpression& node) override;
+			ExpressionPtr Clone(ConstantExpression& node) override;
 			ExpressionPtr Clone(FunctionExpression& node) override;
 			ExpressionPtr Clone(StructTypeExpression& node) override;
 			ExpressionPtr Clone(VariableValueExpression& node) override;
 
 			void HandleType(ExpressionValue<ExpressionType>& exprType);
+			ExpressionType RemapType(const ExpressionType& exprType);
 
 			struct Context;
 			Context* m_context;
