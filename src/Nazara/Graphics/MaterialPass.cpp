@@ -151,7 +151,7 @@ namespace Nz
 		}
 
 		// make option values consistent (required for hash/equality)
-		std::sort(m_pipelineInfo.optionValues.begin(), m_pipelineInfo.optionValues.end(), [](const auto& lhs, const auto& rhs) { return lhs.hash < rhs.hash; });
+		std::sort(m_pipelineInfo.optionValues.begin(), m_pipelineInfo.optionValues.begin() + m_pipelineInfo.optionCount, [](const auto& lhs, const auto& rhs) { return lhs.hash < rhs.hash; });
 
 		m_pipeline = MaterialPipeline::Get(m_pipelineInfo);
 		m_pipelineUpdated = true;
