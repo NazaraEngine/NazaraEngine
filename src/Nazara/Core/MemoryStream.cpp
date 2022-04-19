@@ -27,16 +27,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return true if cursor is at the end of the stream
-	*/
-
-	bool MemoryStream::EndOfStream() const
-	{
-		return m_pos >= m_buffer->size();
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory
 	* \return Size of the memory
 	*/
@@ -82,7 +72,7 @@ namespace Nz
 
 	std::size_t MemoryStream::ReadBlock(void* buffer, std::size_t size)
 	{
-		if (EndOfStream())
+		if (TestStreamEnd())
 			return 0;
 
 		std::size_t readSize = std::min<std::size_t>(size, static_cast<std::size_t>(m_buffer->GetSize() - m_pos));
@@ -114,6 +104,15 @@ namespace Nz
 	UInt64 MemoryStream::TellStreamCursor() const
 	{
 		return m_pos;
+	}
+
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if cursor is at the end of the stream
+	*/
+	bool MemoryStream::TestStreamEnd() const
+	{
+		return m_pos >= m_buffer->size();
 	}
 
 	/*!

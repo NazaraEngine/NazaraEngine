@@ -35,8 +35,6 @@ namespace Nz
 			void EnableLowDelay(bool lowDelay);
 			void EnableKeepAlive(bool keepAlive, UInt64 msTime = 10000, UInt64 msInterval = 1000);
 
-			bool EndOfStream() const override;
-
 			inline UInt64 GetKeepAliveInterval() const;
 			inline UInt64 GetKeepAliveTime() const;
 			inline IpAddress GetRemoteAddress() const;
@@ -68,6 +66,7 @@ namespace Nz
 			void Reset(SocketHandle handle, const IpAddress& peerAddress);
 			bool SeekStreamCursor(UInt64 offset) override;
 			UInt64 TellStreamCursor() const override;
+			bool TestStreamEnd() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			struct PendingPacket

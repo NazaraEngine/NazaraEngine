@@ -108,40 +108,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the file has reached the end
-	* \return true if cursor is at the end of the file
-	*
-	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
-	*/
-
-	bool File::EndOfFile() const
-	{
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not open");
-			return false;
-		}
-		#endif
-
-		return m_impl->EndOfFile();
-	}
-
-	/*!
-	* \brief Checks whether the file has reached the end of the stream
-	* \return true if cursor is at the end of the file
-	*
-	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
-	*
-	* \see EndOfFile
-	*/
-
-	bool File::EndOfStream() const
-	{
-		return EndOfFile();
-	}
-
-	/*!
 	* \brief Checks whether the file exists
 	* \return true if file exists
 	*/
@@ -374,6 +340,21 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Checks whether the file has reached the end of the stream
+	* \return true if cursor is at the end of the file
+	*
+	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
+	*
+	* \see EndOfFile
+	*/
+	bool File::TestStreamEnd() const
+	{
+		NazaraAssert(IsOpen(), "File is not open");
+
+		return m_impl->EndOfFile();
+	}
+
+	/*!
 	* \brief Writes blocks
 	* \return Number of blocks written
 	*
@@ -383,7 +364,6 @@ namespace Nz
 	* \remark Produces a NazaraAssert if file is not open
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	*/
-
 	std::size_t File::WriteBlock(const void* buffer, std::size_t size)
 	{
 		NazaraAssert(IsOpen(), "File is not open");

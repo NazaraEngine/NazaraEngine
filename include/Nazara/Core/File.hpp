@@ -35,9 +35,6 @@ namespace Nz
 
 			bool Delete();
 
-			bool EndOfFile() const;
-			bool EndOfStream() const override;
-
 			bool Exists() const;
 
 			std::filesystem::path GetDirectory() const override;
@@ -64,6 +61,7 @@ namespace Nz
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			bool SeekStreamCursor(UInt64 offset) override;
 			UInt64 TellStreamCursor() const override;
+			bool TestStreamEnd() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			std::filesystem::path m_filePath;

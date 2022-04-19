@@ -138,16 +138,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return true if there is no more available bytes
-	*/
-
-	bool TcpClient::EndOfStream() const
-	{
-		return QueryAvailableBytes() == 0;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory available
 	* \return Size of the memory available
 	*/
@@ -604,6 +594,15 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if there is no more available bytes
+	*/
+	bool TcpClient::TestStreamEnd() const
+	{
+		return QueryAvailableBytes() == 0;
+	}
+
+	/*!
 	* \brief Writes blocks
 	* \return Number of blocks written
 	*
@@ -613,7 +612,6 @@ namespace Nz
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	* \remark Produces a NazaraAssert if socket is invalid
 	*/
-
 	std::size_t TcpClient::WriteBlock(const void* buffer, std::size_t size)
 	{
 		NazaraAssert(buffer, "Invalid buffer");
