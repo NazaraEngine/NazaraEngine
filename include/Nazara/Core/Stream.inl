@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <cassert>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -138,29 +139,6 @@ namespace Nz
 	inline bool Stream::IsWritable() const
 	{
 		return (m_openMode & OpenMode::WriteOnly) != 0;
-	}
-
-	inline bool Stream::SetCursorPos(UInt64 offset)
-	{
-		if (m_bufferCapacity == 0)
-			return SeekStreamCursor(offset);
-		else
-		{
-			if (offset >= m_bufferCursor && offset - m_bufferCursor < m_bufferSize)
-				m_bufferOffset += offset - m_bufferCursor;
-			else
-			{
-				// Out of buffer
-				if (!SeekStreamCursor(offset))
-					return false;
-
-				m_bufferCursor = offset;
-				m_bufferOffset = 0;
-				m_bufferSize = 0;
-			}
-
-			return true;
-		}
 	}
 
 	/*!

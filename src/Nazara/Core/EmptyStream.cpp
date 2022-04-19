@@ -24,15 +24,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return Always false
-	*/
-	bool EmptyStream::EndOfStream() const
-	{
-		return false;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory (how many bytes would have been written on a regular stream)
 	* \return Size occupied until now
 	*/
@@ -81,6 +72,15 @@ namespace Nz
 	UInt64 EmptyStream::TellStreamCursor() const
 	{
 		return 0;
+	}
+
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return Always false
+	*/
+	bool EmptyStream::TestStreamEnd() const
+	{
+		return false;
 	}
 
 	/*!

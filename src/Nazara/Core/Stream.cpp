@@ -23,6 +23,17 @@ namespace Nz
 
 	Stream::~Stream() = default;
 
+	bool Stream::EndOfStream() const
+	{
+		if (m_bufferCapacity > 0)
+		{
+			if (m_bufferOffset < m_bufferSize)
+				return false;
+		}
+
+		return TestStreamEnd();
+	}
+
 	/*!
 	* \brief Gets the directory of the stream
 	* \return Empty string (meant to be virtual)
@@ -91,6 +102,7 @@ namespace Nz
 		if (size > m_bufferCapacity)
 		{
 			// Unbuffered read
+			m_bufferOffset = 0;
 			m_bufferSize = 0;
 			std::size_t blockSize = ReadBlock(ptr, size);
 			m_bufferCursor += blockSize;
@@ -199,6 +211,30 @@ namespace Nz
 		}
 
 		return line;
+	}
+
+	bool Stream::SetCursorPos(UInt64 offset)
+	{
+		if (m_bufferCapacity == 0)
+			return SeekStreamCursor(offset);
+		else
+		{
+			assert(m_bufferCursor >= m_bufferSize);
+			if (offset < m_bufferCursor && offset >= m_bufferCursor - m_bufferSize)
+				m_bufferOffset = offset - (m_bufferCursor - m_bufferSize);
+			else
+			{
+				// Out of buffer
+				if (!SeekStreamCursor(offset))
+					return false;
+
+				m_bufferCursor = offset;
+				m_bufferOffset = 0;
+				m_bufferSize = 0;
+			}
+
+			return true;
+		}
 	}
 
 	/*!

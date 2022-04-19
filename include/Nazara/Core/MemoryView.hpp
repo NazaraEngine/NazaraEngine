@@ -21,8 +21,6 @@ namespace Nz
 			MemoryView(MemoryView&&) = delete; ///TODO
 			~MemoryView() = default;
 
-			bool EndOfStream() const override;
-
 			UInt64 GetSize() const override;
 
 			MemoryView& operator=(const MemoryView&) = delete;
@@ -33,6 +31,7 @@ namespace Nz
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			bool SeekStreamCursor(UInt64 offset) override;
 			UInt64 TellStreamCursor() const override;
+			bool TestStreamEnd() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			UInt8* m_ptr;

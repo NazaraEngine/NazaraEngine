@@ -5,7 +5,7 @@ SCENARIO("Buffering", "[CORE][BUFFERING]")
 {
 	const char mem[] = "abcdefghijklmnopqrstuvwxyz";
 
-	for (std::size_t bufferSize : { 1, 2, 3, 4, 7, 0xFFFF })
+	for (std::size_t bufferSize : { 1, 2, 3, 4, 6, 7, 0xFFFF })
 	{
 		Nz::MemoryView memView(mem, sizeof(mem));
 		memView.EnableBuffering(true, bufferSize);
@@ -45,6 +45,7 @@ SCENARIO("Buffering", "[CORE][BUFFERING]")
 					AND_WHEN("Seeking at 10")
 					{
 						memView.SetCursorPos(10);
+						CHECK(memView.GetCursorPos() == 10);
 
 						readBuffer.resize(2);
 						REQUIRE(memView.Read(readBuffer.data(), readBuffer.size()) == readBuffer.size());
@@ -55,6 +56,7 @@ SCENARIO("Buffering", "[CORE][BUFFERING]")
 					AND_WHEN("Seeking at 6 and reading")
 					{
 						memView.SetCursorPos(6);
+						CHECK(memView.GetCursorPos() == 6);
 
 						readBuffer.resize(2);
 						REQUIRE(memView.Read(readBuffer.data(), readBuffer.size()) == readBuffer.size());

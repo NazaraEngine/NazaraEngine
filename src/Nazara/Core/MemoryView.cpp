@@ -50,16 +50,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return true if cursor is at the end of the stream
-	*/
-
-	bool MemoryView::EndOfStream() const
-	{
-		return m_pos >= m_size;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory
 	* \return Size of the memory
 	*/
@@ -117,6 +107,15 @@ namespace Nz
 	UInt64 MemoryView::TellStreamCursor() const
 	{
 		return m_pos;
+	}
+
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if cursor is at the end of the stream
+	*/
+	bool MemoryView::TestStreamEnd() const
+	{
+		return m_pos >= m_size;
 	}
 
 	/*!

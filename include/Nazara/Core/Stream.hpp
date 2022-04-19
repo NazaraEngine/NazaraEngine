@@ -25,7 +25,7 @@ namespace Nz
 			Stream(Stream&&) noexcept = default;
 			virtual ~Stream();
 
-			virtual bool EndOfStream() const = 0;
+			bool EndOfStream() const;
 
 			inline void EnableBuffering(bool buffering, std::size_t bufferSize = DefaultBufferSize);
 			inline void EnableTextMode(bool textMode);
@@ -67,6 +67,7 @@ namespace Nz
 			virtual std::size_t ReadBlock(void* buffer, std::size_t size) = 0;
 			virtual bool SeekStreamCursor(UInt64 offset) = 0;
 			virtual UInt64 TellStreamCursor() const = 0;
+			virtual bool TestStreamEnd() const = 0;
 			virtual std::size_t WriteBlock(const void* buffer, std::size_t size) = 0;
 
 			std::size_t m_bufferCapacity;
