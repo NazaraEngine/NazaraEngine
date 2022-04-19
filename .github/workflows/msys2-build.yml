@@ -43,7 +43,9 @@ jobs:
         update: true
 
     - name: Set mingw64 binaries in path
-      run: echo "${MINGW_PREFIX}/bin" >> $GITHUB_PATH
+      run: |
+        echo "${MINGW_PREFIX}/bin"
+        echo "D:/msys64/mingw64/bin" >> $GITHUB_PATH
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -51,13 +53,9 @@ jobs:
 
     # Install xmake
     - name: Setup xmake
-      run: |
-        git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev xmake_git
-        cd xmake_git
-        make build
-        make install PREFIX=/${{ matrix.msystem }}
-        xmake --version
-        cd ..
+      uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: branch@dev
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
