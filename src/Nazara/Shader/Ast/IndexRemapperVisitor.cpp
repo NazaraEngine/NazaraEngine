@@ -21,6 +21,7 @@ namespace Nz::ShaderAst
 	struct IndexRemapperVisitor::Context
 	{
 		const IndexRemapperVisitor::Callbacks* callbacks;
+		std::unordered_map<std::size_t, std::size_t> newAliasIndices;
 		std::unordered_map<std::size_t, std::size_t> newConstIndices;
 		std::unordered_map<std::size_t, std::size_t> newFuncIndices;
 		std::unordered_map<std::size_t, std::size_t> newStructIndices;
@@ -29,6 +30,7 @@ namespace Nz::ShaderAst
 
 	StatementPtr IndexRemapperVisitor::Clone(Statement& statement, const Callbacks& callbacks)
 	{
+		assert(callbacks.aliasIndexGenerator);
 		assert(callbacks.constIndexGenerator);
 		assert(callbacks.funcIndexGenerator);
 		assert(callbacks.structIndexGenerator);
@@ -40,6 +42,20 @@ namespace Nz::ShaderAst
 		m_context = &context;
 
 		return AstCloner::Clone(statement);
+	}
+
+	StatementPtr IndexRemapperVisitor::Clone(DeclareAliasStatement& node)
+	{
+		DeclareAliasStatementPtr clone = StaticUniquePointerCast<DeclareAliasStatement>(AstCloner::Clone(node));
+
+		if (clone->aliasIndex)
+		{
+			std::size_t newAliasIndex = m_context->callbacks->aliasIndexGenerator(*clone->aliasIndex);
+			UniqueInsert(m_context->newAliasIndices, *clone->aliasIndex, newAliasIndex);
+			clone->aliasIndex = newAliasIndex;
+		}
+
+		return clone;
 	}
 
 	StatementPtr IndexRemapperVisitor::Clone(DeclareConstStatement& node)
@@ -134,6 +150,26 @@ namespace Nz::ShaderAst
 		return clone;
 	}
 
+	ExpressionPtr IndexRemapperVisitor::Clone(AliasValueExpression& node)
+	{
+		AliasValueExpressionPtr clone = StaticUniquePointerCast<AliasValueExpression>(AstCloner::Clone(node));
+
+		if (clone->aliasId)
+			clone->aliasId = Retrieve(m_context->newAliasIndices, clone->aliasId);
+
+		return clone;
+	}
+
+	ExpressionPtr IndexRemapperVisitor::Clone(ConstantExpression& node)
+	{
+		ConstantExpressionPtr clone = StaticUniquePointerCast<ConstantExpression>(AstCloner::Clone(node));
+
+		if (clone->constantId)
+			clone->constantId = Retrieve(m_context->newConstIndices, clone->constantId);
+
+		return clone;
+	}
+
 	ExpressionPtr IndexRemapperVisitor::Clone(FunctionExpression& node)
 	{
 		FunctionExpressionPtr clone = StaticUniquePointerCast<FunctionExpression>(AstCloner::Clone(node));
@@ -170,10 +206,59 @@ namespace Nz::ShaderAst
 			return;
 
 		const auto& resultingType = exprType.GetResultingValue();
-		if (IsStructType(resultingType))
+		exprType = RemapType(resultingType);
+	}
+
+	ExpressionType IndexRemapperVisitor::RemapType(const ExpressionType& exprType)
+	{
+		if (IsAliasType(exprType))
 		{
-			std::size_t newStructIndex = Retrieve(m_context->newStructIndices, std::get<StructType>(resultingType).structIndex);
-			exprType = ExpressionType{ StructType{ newStructIndex } };
+			const AliasType& aliasType = std::get<AliasType>(exprType);
+
+			AliasType remappedAliasType;
+			remappedAliasType.aliasIndex = Retrieve(m_context->newAliasIndices, aliasType.aliasIndex);
+			remappedAliasType.targetType = std::make_unique<ContainedType>();
+			remappedAliasType.targetType->type = RemapType(aliasType.targetType->type);
+
+			return remappedAliasType;
+		}
+		else if (IsArrayType(exprType))
+		{
+			const ArrayType& arrayType = std::get<ArrayType>(exprType);
+
+			ArrayType remappedArrayType;
+			remappedArrayType.containedType = std::make_unique<ContainedType>();
+			remappedArrayType.containedType->type = RemapType(arrayType.containedType->type);
+			remappedArrayType.length = arrayType.length;
+
+			return remappedArrayType;
+		}
+		else if (IsFunctionType(exprType))
+		{
+			std::size_t newFuncIndex = Retrieve(m_context->newFuncIndices, std::get<FunctionType>(exprType).funcIndex);
+			return FunctionType{ newFuncIndex };
+		}
+		else if (IsMethodType(exprType))
+		{
+			const MethodType& methodType = std::get<MethodType>(exprType);
+
+			MethodType remappedMethodType;
+			remappedMethodType.methodIndex = methodType.methodIndex;
+			remappedMethodType.objectType = std::make_unique<ContainedType>();
+			remappedMethodType.objectType->type = RemapType(methodType.objectType->type);
+
+			return remappedMethodType;
+		}
+		else if (IsStructType(exprType))
+		{
+			std::size_t newStructIndex = Retrieve(m_context->newStructIndices, std::get<StructType>(exprType).structIndex);
+			return StructType{ newStructIndex };
+		}
+		else if (IsUniformType(exprType))
+		{
+			UniformType uniformType;
+			uniformType.containedType.structIndex = Retrieve(m_context->newStructIndices, std::get<UniformType>(exprType).containedType.structIndex);
+			return uniformType;
 		}
 	}
 }
