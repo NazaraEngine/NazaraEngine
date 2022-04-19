@@ -104,15 +104,16 @@ namespace Nz
 
 	enum class OpenMode
 	{
-		NotOpen,   // Use the current mod of opening
+		NotOpen,    // Use the current mod of opening
 
-		Append,    // Disable writing on existing parts and put the cursor at the end
-		Lock,      // Disable modifying the file before it is open
-		MustExist, // Fail if the file doesn't exists, even if opened in write mode
-		ReadOnly,  // Open in read only
-		Text,      // Open in text mod
-		Truncate,  // Create the file if it doesn't exist and empty it if it exists
-		WriteOnly, // Open in write only, create the file if it doesn't exist
+		Append,     // Disable writing on existing parts and put the cursor at the end
+		Lock,       // Disable modifying the file before it is open
+		MustExist,  // Fail if the file doesn't exists, even if opened in write mode
+		ReadOnly,   // Open in read only
+		Text,       // Open in text mod
+		Truncate,   // Create the file if it doesn't exist and empty it if it exists
+		Unbuffered, // Each read/write operation is equivalent to a read or write system call (slow)
+		WriteOnly,  // Open in write only, create the file if it doesn't exist
 
 		Max = WriteOnly
 	};
@@ -224,8 +225,9 @@ namespace Nz
 
 		Sequential,
 		Text,
+		Unbuffered,
 
-		Max = Text
+		Max = Unbuffered
 	};
 
 	template<>

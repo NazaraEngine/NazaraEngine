@@ -50,26 +50,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return true if cursor is at the end of the stream
-	*/
-
-	bool MemoryView::EndOfStream() const
-	{
-		return m_pos >= m_size;
-	}
-
-	/*!
-	* \brief Gets the position of the cursor
-	* \return Position of the cursor
-	*/
-
-	UInt64 MemoryView::GetCursorPos() const
-	{
-		return m_pos;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory
 	* \return Size of the memory
 	*/
@@ -77,20 +57,6 @@ namespace Nz
 	UInt64 MemoryView::GetSize() const
 	{
 		return m_size;
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true
-	*
-	* \param offset Offset according to the beginning of the stream
-	*/
-
-	bool MemoryView::SetCursorPos(UInt64 offset)
-	{
-		m_pos = std::min(offset, m_size);
-
-		return true;
 	}
 
 	/*!
@@ -119,6 +85,37 @@ namespace Nz
 
 		m_pos += readSize;
 		return readSize;
+	}
+
+	/*!
+	* \brief Sets the position of the cursor
+	* \return true
+	*
+	* \param offset Offset according to the beginning of the stream
+	*/
+	bool MemoryView::SeekStreamCursor(UInt64 offset)
+	{
+		m_pos = std::min(offset, m_size);
+
+		return true;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return Position of the cursor
+	*/
+	UInt64 MemoryView::TellStreamCursor() const
+	{
+		return m_pos;
+	}
+
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if cursor is at the end of the stream
+	*/
+	bool MemoryView::TestStreamEnd() const
+	{
+		return m_pos >= m_size;
 	}
 
 	/*!

@@ -21,6 +21,7 @@ namespace Nz::ShaderAst
 	struct IndexRemapperVisitor::Context
 	{
 		const IndexRemapperVisitor::Callbacks* callbacks;
+		std::unordered_map<std::size_t, std::size_t> newAliasIndices;
 		std::unordered_map<std::size_t, std::size_t> newConstIndices;
 		std::unordered_map<std::size_t, std::size_t> newFuncIndices;
 		std::unordered_map<std::size_t, std::size_t> newStructIndices;
@@ -29,6 +30,7 @@ namespace Nz::ShaderAst
 
 	StatementPtr IndexRemapperVisitor::Clone(Statement& statement, const Callbacks& callbacks)
 	{
+		assert(callbacks.aliasIndexGenerator);
 		assert(callbacks.constIndexGenerator);
 		assert(callbacks.funcIndexGenerator);
 		assert(callbacks.structIndexGenerator);
@@ -42,14 +44,30 @@ namespace Nz::ShaderAst
 		return AstCloner::Clone(statement);
 	}
 
+	StatementPtr IndexRemapperVisitor::Clone(DeclareAliasStatement& node)
+	{
+		DeclareAliasStatementPtr clone = StaticUniquePointerCast<DeclareAliasStatement>(AstCloner::Clone(node));
+
+		if (clone->aliasIndex)
+		{
+			std::size_t newAliasIndex = m_context->callbacks->aliasIndexGenerator(*clone->aliasIndex);
+			UniqueInsert(m_context->newAliasIndices, *clone->aliasIndex, newAliasIndex);
+			clone->aliasIndex = newAliasIndex;
+		}
+
+		return clone;
+	}
+
 	StatementPtr IndexRemapperVisitor::Clone(DeclareConstStatement& node)
 	{
 		DeclareConstStatementPtr clone = StaticUniquePointerCast<DeclareConstStatement>(AstCloner::Clone(node));
 
-		assert(clone->constIndex);
-		std::size_t newConstIndex = m_context->callbacks->constIndexGenerator(*clone->constIndex);
-		UniqueInsert(m_context->newConstIndices, *clone->constIndex, newConstIndex);
-		clone->constIndex = newConstIndex;
+		if (clone->constIndex)
+		{
+			std::size_t newConstIndex = m_context->callbacks->constIndexGenerator(*clone->constIndex);
+			UniqueInsert(m_context->newConstIndices, *clone->constIndex, newConstIndex);
+			clone->constIndex = newConstIndex;
+		}
 
 		return clone;
 	}
@@ -60,10 +78,12 @@ namespace Nz::ShaderAst
 
 		for (auto& extVar : clone->externalVars)
 		{
-			assert(extVar.varIndex);
-			std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*extVar.varIndex);
-			UniqueInsert(m_context->newVarIndices, *extVar.varIndex, newVarIndex);
-			extVar.varIndex = newVarIndex;
+			if (extVar.varIndex)
+			{
+				std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*extVar.varIndex);
+				UniqueInsert(m_context->newVarIndices, *extVar.varIndex, newVarIndex);
+				extVar.varIndex = newVarIndex;
+			}
 		}
 
 		return clone;
@@ -73,17 +93,19 @@ namespace Nz::ShaderAst
 	{
 		DeclareFunctionStatementPtr clone = StaticUniquePointerCast<DeclareFunctionStatement>(AstCloner::Clone(node));
 
-		assert(clone->funcIndex);
-		std::size_t newFuncIndex = m_context->callbacks->funcIndexGenerator(*clone->funcIndex);
-		UniqueInsert(m_context->newFuncIndices, *clone->funcIndex, newFuncIndex);
-		clone->funcIndex = newFuncIndex;
+		if (clone->funcIndex)
+		{
+			std::size_t newFuncIndex = m_context->callbacks->funcIndexGenerator(*clone->funcIndex);
+			UniqueInsert(m_context->newFuncIndices, *clone->funcIndex, newFuncIndex);
+			clone->funcIndex = newFuncIndex;
+		}
 
 		if (!clone->parameters.empty())
 		{
 			for (auto& parameter : node.parameters)
 			{
-				assert(parameter.varIndex);
-				parameter.varIndex = Retrieve(m_context->newVarIndices, *parameter.varIndex);
+				if (parameter.varIndex)
+					parameter.varIndex = Retrieve(m_context->newVarIndices, *parameter.varIndex);
 
 				HandleType(parameter.type);
 			}
@@ -99,10 +121,12 @@ namespace Nz::ShaderAst
 	{
 		DeclareStructStatementPtr clone = StaticUniquePointerCast<DeclareStructStatement>(AstCloner::Clone(node));
 
-		assert(clone->structIndex);
-		std::size_t newStructIndex = m_context->callbacks->structIndexGenerator(*clone->structIndex);
-		UniqueInsert(m_context->newStructIndices, *clone->structIndex, newStructIndex);
-		clone->structIndex = newStructIndex;
+		if (clone->structIndex)
+		{
+			std::size_t newStructIndex = m_context->callbacks->structIndexGenerator(*clone->structIndex);
+			UniqueInsert(m_context->newStructIndices, *clone->structIndex, newStructIndex);
+			clone->structIndex = newStructIndex;
+		}
 
 		for (auto& structMember : clone->description.members)
 			HandleType(structMember.type);
@@ -114,12 +138,34 @@ namespace Nz::ShaderAst
 	{
 		DeclareVariableStatementPtr clone = StaticUniquePointerCast<DeclareVariableStatement>(AstCloner::Clone(node));
 
-		assert(clone->varIndex);
-		std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*clone->varIndex);
-		UniqueInsert(m_context->newConstIndices, *clone->varIndex, newVarIndex);
-		clone->varIndex = newVarIndex;
+		if (clone->varIndex)
+		{
+			std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*clone->varIndex);
+			UniqueInsert(m_context->newConstIndices, *clone->varIndex, newVarIndex);
+			clone->varIndex = newVarIndex;
+		}
 
 		HandleType(node.varType);
+
+		return clone;
+	}
+
+	ExpressionPtr IndexRemapperVisitor::Clone(AliasValueExpression& node)
+	{
+		AliasValueExpressionPtr clone = StaticUniquePointerCast<AliasValueExpression>(AstCloner::Clone(node));
+
+		if (clone->aliasId)
+			clone->aliasId = Retrieve(m_context->newAliasIndices, clone->aliasId);
+
+		return clone;
+	}
+
+	ExpressionPtr IndexRemapperVisitor::Clone(ConstantExpression& node)
+	{
+		ConstantExpressionPtr clone = StaticUniquePointerCast<ConstantExpression>(AstCloner::Clone(node));
+
+		if (clone->constantId)
+			clone->constantId = Retrieve(m_context->newConstIndices, clone->constantId);
 
 		return clone;
 	}
@@ -128,8 +174,8 @@ namespace Nz::ShaderAst
 	{
 		FunctionExpressionPtr clone = StaticUniquePointerCast<FunctionExpression>(AstCloner::Clone(node));
 
-		assert(clone->funcId);
-		clone->funcId = Retrieve(m_context->newFuncIndices, clone->funcId);
+		if (clone->funcId)
+			clone->funcId = Retrieve(m_context->newFuncIndices, clone->funcId);
 
 		return clone;
 	}
@@ -138,8 +184,8 @@ namespace Nz::ShaderAst
 	{
 		StructTypeExpressionPtr clone = StaticUniquePointerCast<StructTypeExpression>(AstCloner::Clone(node));
 
-		assert(clone->structTypeId);
-		clone->structTypeId = Retrieve(m_context->newStructIndices, clone->structTypeId);
+		if (clone->structTypeId)
+			clone->structTypeId = Retrieve(m_context->newStructIndices, clone->structTypeId);
 
 		return clone;
 	}
@@ -148,19 +194,71 @@ namespace Nz::ShaderAst
 	{
 		VariableValueExpressionPtr clone = StaticUniquePointerCast<VariableValueExpression>(AstCloner::Clone(node));
 
-		assert(clone->variableId);
-		clone->variableId = Retrieve(m_context->newVarIndices, clone->variableId);
+		if (clone->variableId)
+			clone->variableId = Retrieve(m_context->newVarIndices, clone->variableId);
 
 		return clone;
 	}
 
 	void IndexRemapperVisitor::HandleType(ExpressionValue<ExpressionType>& exprType)
 	{
+		if (!exprType.IsResultingValue())
+			return;
+
 		const auto& resultingType = exprType.GetResultingValue();
-		if (IsStructType(resultingType))
+		exprType = RemapType(resultingType);
+	}
+
+	ExpressionType IndexRemapperVisitor::RemapType(const ExpressionType& exprType)
+	{
+		if (IsAliasType(exprType))
 		{
-			std::size_t newStructIndex = Retrieve(m_context->newStructIndices, std::get<StructType>(resultingType).structIndex);
-			exprType = ExpressionType{ StructType{ newStructIndex } };
+			const AliasType& aliasType = std::get<AliasType>(exprType);
+
+			AliasType remappedAliasType;
+			remappedAliasType.aliasIndex = Retrieve(m_context->newAliasIndices, aliasType.aliasIndex);
+			remappedAliasType.targetType = std::make_unique<ContainedType>();
+			remappedAliasType.targetType->type = RemapType(aliasType.targetType->type);
+
+			return remappedAliasType;
+		}
+		else if (IsArrayType(exprType))
+		{
+			const ArrayType& arrayType = std::get<ArrayType>(exprType);
+
+			ArrayType remappedArrayType;
+			remappedArrayType.containedType = std::make_unique<ContainedType>();
+			remappedArrayType.containedType->type = RemapType(arrayType.containedType->type);
+			remappedArrayType.length = arrayType.length;
+
+			return remappedArrayType;
+		}
+		else if (IsFunctionType(exprType))
+		{
+			std::size_t newFuncIndex = Retrieve(m_context->newFuncIndices, std::get<FunctionType>(exprType).funcIndex);
+			return FunctionType{ newFuncIndex };
+		}
+		else if (IsMethodType(exprType))
+		{
+			const MethodType& methodType = std::get<MethodType>(exprType);
+
+			MethodType remappedMethodType;
+			remappedMethodType.methodIndex = methodType.methodIndex;
+			remappedMethodType.objectType = std::make_unique<ContainedType>();
+			remappedMethodType.objectType->type = RemapType(methodType.objectType->type);
+
+			return remappedMethodType;
+		}
+		else if (IsStructType(exprType))
+		{
+			std::size_t newStructIndex = Retrieve(m_context->newStructIndices, std::get<StructType>(exprType).structIndex);
+			return StructType{ newStructIndex };
+		}
+		else if (IsUniformType(exprType))
+		{
+			UniformType uniformType;
+			uniformType.containedType.structIndex = Retrieve(m_context->newStructIndices, std::get<UniformType>(exprType).containedType.structIndex);
+			return uniformType;
 		}
 	}
 }

@@ -27,26 +27,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return true if cursor is at the end of the stream
-	*/
-
-	bool MemoryStream::EndOfStream() const
-	{
-		return m_pos >= m_buffer->size();
-	}
-
-	/*!
-	* \brief Gets the position of the cursor
-	* \return Position of the cursor
-	*/
-
-	UInt64 MemoryStream::GetCursorPos() const
-	{
-		return m_pos;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory
 	* \return Size of the memory
 	*/
@@ -74,20 +54,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor
-	* \return true
-	*
-	* \param offset Offset according to the beginning of the stream
-	*/
-
-	bool MemoryStream::SetCursorPos(UInt64 offset)
-	{
-		m_pos = offset;
-
-		return true;
-	}
-
-	/*!
 	* \brief Flushes the stream
 	*/
 
@@ -106,7 +72,7 @@ namespace Nz
 
 	std::size_t MemoryStream::ReadBlock(void* buffer, std::size_t size)
 	{
-		if (EndOfStream())
+		if (TestStreamEnd())
 			return 0;
 
 		std::size_t readSize = std::min<std::size_t>(size, static_cast<std::size_t>(m_buffer->GetSize() - m_pos));
@@ -119,6 +85,37 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the position of the cursor
+	* \return true
+	*
+	* \param offset Offset according to the beginning of the stream
+	*/
+	bool MemoryStream::SeekStreamCursor(UInt64 offset)
+	{
+		m_pos = offset;
+
+		return true;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return Position of the cursor
+	*/
+	UInt64 MemoryStream::TellStreamCursor() const
+	{
+		return m_pos;
+	}
+
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if cursor is at the end of the stream
+	*/
+	bool MemoryStream::TestStreamEnd() const
+	{
+		return m_pos >= m_buffer->size();
+	}
+
+	/*!
 	* \brief Writes blocks
 	* \return Number of blocks written
 	*
@@ -127,7 +124,6 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	*/
-
 	std::size_t MemoryStream::WriteBlock(const void* buffer, std::size_t size)
 	{
 		if (size > 0)

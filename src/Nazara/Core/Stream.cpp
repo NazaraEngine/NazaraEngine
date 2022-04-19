@@ -23,6 +23,17 @@ namespace Nz
 
 	Stream::~Stream() = default;
 
+	bool Stream::EndOfStream() const
+	{
+		if (m_bufferCapacity > 0)
+		{
+			if (m_bufferOffset < m_bufferSize)
+				return false;
+		}
+
+		return TestStreamEnd();
+	}
+
 	/*!
 	* \brief Gets the directory of the stream
 	* \return Empty string (meant to be virtual)
@@ -30,7 +41,7 @@ namespace Nz
 
 	std::filesystem::path Stream::GetDirectory() const
 	{
-		return std::filesystem::path();
+		return {};
 	}
 
 	/*!
@@ -40,7 +51,82 @@ namespace Nz
 
 	std::filesystem::path Stream::GetPath() const
 	{
-		return std::filesystem::path();
+		return {};
+	}
+
+	UInt64 Stream::GetCursorPos() const
+	{
+		if (m_bufferCapacity == 0)
+			return TellStreamCursor();
+		else
+		{
+			assert(m_bufferCursor >= m_bufferSize);
+			return m_bufferCursor - m_bufferSize + m_bufferOffset;
+		}
+	}
+
+	/*!
+	* \brief Reads the stream and puts the result in a buffer
+	* \return Size of the read
+	*
+	* \param buffer Buffer to stock data
+	* \param size Size meant to be read
+	*
+	* \remark Produces a NazaraAssert if stream is not readable
+	* \remark If preallocated space of buffer is less than the size, the behavior is undefined
+	*/
+	std::size_t Stream::Read(void* buffer, std::size_t size)
+	{
+		NazaraAssert(IsReadable(), "Stream is not readable");
+
+		if (m_bufferCapacity == 0)
+			return ReadBlock(buffer, size);
+
+		UInt8* ptr = static_cast<UInt8*>(buffer);
+
+		std::size_t readSize = 0;
+		if (m_bufferOffset < m_bufferSize)
+		{
+			std::size_t availableSize = std::min(size, m_bufferSize - m_bufferOffset);
+			if (ptr)
+			{
+				std::memcpy(ptr, &m_buffer[m_bufferOffset], availableSize);
+				ptr += availableSize;
+			}
+
+			m_bufferOffset += availableSize;
+			readSize += availableSize;
+			size -= availableSize;
+		}
+
+		if (size > m_bufferCapacity)
+		{
+			// Unbuffered read
+			m_bufferOffset = 0;
+			m_bufferSize = 0;
+			std::size_t blockSize = ReadBlock(ptr, size);
+			m_bufferCursor += blockSize;
+			readSize += blockSize;
+		}
+		else if (size > 0)
+		{
+			m_bufferOffset = 0;
+			m_bufferSize = ReadBlock(&m_buffer[0], m_bufferCapacity);
+			m_bufferCursor += m_bufferSize;
+
+			std::size_t remainingSize = std::min(m_bufferSize, size);
+			if (ptr)
+			{
+				std::memcpy(ptr, &m_buffer[m_bufferOffset], remainingSize);
+				ptr += remainingSize;
+			}
+
+			m_bufferOffset += remainingSize;
+			readSize += remainingSize;
+			size -= remainingSize;
+		}
+
+		return readSize;
 	}
 
 	/*!
@@ -125,6 +211,30 @@ namespace Nz
 		}
 
 		return line;
+	}
+
+	bool Stream::SetCursorPos(UInt64 offset)
+	{
+		if (m_bufferCapacity == 0)
+			return SeekStreamCursor(offset);
+		else
+		{
+			assert(m_bufferCursor >= m_bufferSize);
+			if (offset < m_bufferCursor && offset >= m_bufferCursor - m_bufferSize)
+				m_bufferOffset = offset - (m_bufferCursor - m_bufferSize);
+			else
+			{
+				// Out of buffer
+				if (!SeekStreamCursor(offset))
+					return false;
+
+				m_bufferCursor = offset;
+				m_bufferOffset = 0;
+				m_bufferSize = 0;
+			}
+
+			return true;
+		}
 	}
 
 	/*!

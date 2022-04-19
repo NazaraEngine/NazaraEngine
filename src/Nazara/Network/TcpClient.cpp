@@ -138,29 +138,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the stream reached the end of the stream
-	* \return true if there is no more available bytes
-	*/
-
-	bool TcpClient::EndOfStream() const
-	{
-		return QueryAvailableBytes() == 0;
-	}
-
-	/*!
-	* \brief Gets the position of the cursor
-	* \return 0
-	*
-	* \remark Produces a NazaraError because it is a special stream
-	*/
-
-	UInt64 TcpClient::GetCursorPos() const
-	{
-		NazaraError("GetCursorPos() cannot be used on sequential streams");
-		return 0;
-	}
-
-	/*!
 	* \brief Gets the size of the raw memory available
 	* \return Size of the memory available
 	*/
@@ -457,21 +434,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the position of the cursor
-	* \return false
-	*
-	* \param offset Offset according to the beginning of the stream
-	*
-	* \remark Produces a NazaraError because it is a special stream
-	*/
-
-	bool TcpClient::SetCursorPos(UInt64 /*offset*/)
-	{
-		NazaraError("SetCursorPos() cannot be used on sequential streams");
-		return false;
-	}
-
-	/*!
 	* \brief Waits for being connected before time out
 	* \return The new socket state, either Connected if connection did succeed or NotConnected if an error occurred
 	*
@@ -606,6 +568,41 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the position of the cursor
+	* \return false
+	*
+	* \param offset Offset according to the beginning of the stream
+	*
+	* \remark Produces a NazaraError because it is a special stream
+	*/
+	bool TcpClient::SeekStreamCursor(UInt64 /*offset*/)
+	{
+		NazaraError("SeekStreamCursor() cannot be used on sequential streams");
+		return false;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return 0
+	*
+	* \remark Produces a NazaraError because it is a special stream
+	*/
+	UInt64 TcpClient::TellStreamCursor() const
+	{
+		NazaraError("TellStreamCursor() cannot be used on sequential streams");
+		return 0;
+	}
+
+	/*!
+	* \brief Checks whether the stream reached the end of the stream
+	* \return true if there is no more available bytes
+	*/
+	bool TcpClient::TestStreamEnd() const
+	{
+		return QueryAvailableBytes() == 0;
+	}
+
+	/*!
 	* \brief Writes blocks
 	* \return Number of blocks written
 	*
@@ -615,7 +612,6 @@ namespace Nz
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	* \remark Produces a NazaraAssert if socket is invalid
 	*/
-
 	std::size_t TcpClient::WriteBlock(const void* buffer, std::size_t size)
 	{
 		NazaraAssert(buffer, "Invalid buffer");

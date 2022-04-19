@@ -108,40 +108,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether the file has reached the end
-	* \return true if cursor is at the end of the file
-	*
-	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
-	*/
-
-	bool File::EndOfFile() const
-	{
-		#if NAZARA_CORE_SAFE
-		if (!IsOpen())
-		{
-			NazaraError("File not open");
-			return false;
-		}
-		#endif
-
-		return m_impl->EndOfFile();
-	}
-
-	/*!
-	* \brief Checks whether the file has reached the end of the stream
-	* \return true if cursor is at the end of the file
-	*
-	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
-	*
-	* \see EndOfFile
-	*/
-
-	bool File::EndOfStream() const
-	{
-		return EndOfFile();
-	}
-
-	/*!
 	* \brief Checks whether the file exists
 	* \return true if file exists
 	*/
@@ -152,20 +118,6 @@ namespace Nz
 			return true; // Le fichier est ouvert, donc il existe
 		else
 			return std::filesystem::exists(m_filePath);
-	}
-
-	/*!
-	* \brief Gets the position of the cursor in the file
-	* \return Position of the cursor
-	*
-	* \remark Produces a NazaraAssert if file is not open
-	*/
-
-	UInt64 File::GetCursorPos() const
-	{
-		NazaraAssert(IsOpen(), "File is not open");
-
-		return m_impl->GetCursorPos();
 	}
 
 	/*!
@@ -240,6 +192,8 @@ namespace Nz
 		m_openMode = openMode;
 		m_impl = std::move(impl);
 
+		EnableBuffering(!m_openMode.Test(OpenMode::Unbuffered));
+
 		if (m_openMode & OpenMode::Text)
 			m_streamOptions |= StreamOption::Text;
 		else
@@ -264,39 +218,6 @@ namespace Nz
 
 		SetFile(filePath);
 		return Open(openMode);
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true if cursor is successfully positioned
-	*
-	* \param pos Position of the cursor
-	* \param offset Offset according to the cursor position
-	*
-	* \remark Produces a NazaraAssert if file is not open
-	*/
-
-	bool File::SetCursorPos(CursorPosition pos, Int64 offset)
-	{
-		NazaraAssert(IsOpen(), "File is not open");
-
-		return m_impl->SetCursorPos(pos, offset);
-	}
-
-	/*!
-	* \brief Sets the position of the cursor
-	* \return true if cursor is successfully positioned
-	*
-	* \param offset Offset according to the cursor begin position
-	*
-	* \remark Produces a NazaraAssert if file is not open
-	*/
-
-	bool File::SetCursorPos(UInt64 offset)
-	{
-		NazaraAssert(IsOpen(), "File is not open");
-
-		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
 	}
 
 	/*!
@@ -390,6 +311,50 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets the position of the cursor
+	* \return true if cursor is successfully positioned
+	*
+	* \param offset Offset according to the cursor begin position
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+
+	bool File::SeekStreamCursor(UInt64 offset)
+	{
+		NazaraAssert(IsOpen(), "File is not open");
+
+		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
+	}
+
+	/*!
+	* \brief Gets the position of the cursor in the file
+	* \return Position of the cursor
+	*
+	* \remark Produces a NazaraAssert if file is not open
+	*/
+	UInt64 File::TellStreamCursor() const
+	{
+		NazaraAssert(IsOpen(), "File is not open");
+
+		return m_impl->GetCursorPos();
+	}
+
+	/*!
+	* \brief Checks whether the file has reached the end of the stream
+	* \return true if cursor is at the end of the file
+	*
+	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
+	*
+	* \see EndOfFile
+	*/
+	bool File::TestStreamEnd() const
+	{
+		NazaraAssert(IsOpen(), "File is not open");
+
+		return m_impl->EndOfFile();
+	}
+
+	/*!
 	* \brief Writes blocks
 	* \return Number of blocks written
 	*
@@ -399,7 +364,6 @@ namespace Nz
 	* \remark Produces a NazaraAssert if file is not open
 	* \remark Produces a NazaraAssert if buffer is nullptr
 	*/
-
 	std::size_t File::WriteBlock(const void* buffer, std::size_t size)
 	{
 		NazaraAssert(IsOpen(), "File is not open");

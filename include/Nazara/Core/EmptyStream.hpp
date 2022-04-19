@@ -22,12 +22,7 @@ namespace Nz
 
 			void Clear();
 
-			bool EndOfStream() const override;
-
-			UInt64 GetCursorPos() const override;
 			UInt64 GetSize() const override;
-
-			bool SetCursorPos(UInt64 offset) override;
 
 			EmptyStream& operator=(const EmptyStream&) = default;
 			EmptyStream& operator=(EmptyStream&&) noexcept = default;
@@ -35,6 +30,9 @@ namespace Nz
 		private:
 			void FlushStream() override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
+			bool SeekStreamCursor(UInt64 offset) override;
+			UInt64 TellStreamCursor() const override;
+			bool TestStreamEnd() const override;
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			UInt64 m_size;

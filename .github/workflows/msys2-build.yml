@@ -42,6 +42,11 @@ jobs:
         location: D:\
         update: true
 
+    - name: Set mingw64 binaries in path
+      run: |
+        echo "${MINGW_PREFIX}/bin"
+        echo "D:/msys64/mingw64/bin" >> $GITHUB_PATH
+
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
       run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV

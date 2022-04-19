@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <cassert>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -17,8 +18,12 @@ namespace Nz
 	*/
 
 	inline Stream::Stream(StreamOptionFlags streamOptions, OpenModeFlags openMode) :
+	m_bufferCapacity(0),
+	m_bufferOffset(0),
+	m_bufferSize(0),
 	m_openMode(openMode),
-	m_streamOptions(streamOptions)
+	m_streamOptions(streamOptions),
+	m_bufferCursor(0)
 	{
 	}
 
@@ -27,6 +32,28 @@ namespace Nz
 	*
 	* \param textMode Enables the mode or disables
 	*/
+
+	inline void Stream::EnableBuffering(bool buffering, std::size_t bufferSize)
+	{
+		if (buffering)
+		{
+			m_streamOptions &= ~StreamOption::Unbuffered;
+			if (m_bufferCapacity != bufferSize)
+			{
+				m_buffer = std::make_unique<UInt8[]>(bufferSize);
+				m_bufferCursor = TellStreamCursor();
+				m_bufferOffset = 0;
+				m_bufferSize = 0;
+				m_bufferCapacity = bufferSize;
+			}
+		}
+		else
+		{
+			m_streamOptions |= StreamOption::Unbuffered;
+			m_buffer.reset();
+			m_bufferCapacity = 0;
+		}
+	}
 
 	inline void Stream::EnableTextMode(bool textMode)
 	{
@@ -74,6 +101,11 @@ namespace Nz
 	* \return true if it is the case
 	*/
 
+	inline bool Stream::IsBufferingEnabled() const
+	{
+		return (m_streamOptions & StreamOption::Unbuffered) == 0;
+	}
+
 	inline bool Stream::IsReadable() const
 	{
 		return (m_openMode & OpenMode::ReadOnly) != 0;
@@ -110,24 +142,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Reads the stream and puts the result in a buffer
-	* \return Size of the read
-	*
-	* \param buffer Buffer to stock data
-	* \param size Size meant to be read
-	*
-	* \remark Produces a NazaraAssert if stream is not readable
-	* \remark If preallocated space of buffer is less than the size, the behavior is undefined
-	*/
-
-	inline std::size_t Stream::Read(void* buffer, std::size_t size)
-	{
-		NazaraAssert(IsReadable(), "Stream is not readable");
-
-		return ReadBlock(buffer, size);
-	}
-
-	/*!
 	* \brief Writes in the stream the content of a buffer
 	* \return Size of the writing
 	*
@@ -137,12 +151,17 @@ namespace Nz
 	* \remark Produces a NazaraAssert if stream is not writable
 	* \remark If preallocated space of buffer is less than the size, the behavior is undefined
 	*/
-
 	inline std::size_t Stream::Write(const void* buffer, std::size_t size)
 	{
 		NazaraAssert(IsWritable(), "Stream is not writable");
 
-		return WriteBlock(buffer, size);
+		std::size_t writeSize = WriteBlock(buffer, size);
+
+		// For now, don't buffer writes
+		m_bufferCursor += writeSize;
+		m_bufferSize = 0;
+
+		return writeSize;
 	}
 }
 
