@@ -188,6 +188,16 @@ if is_plat("windows") then
 elseif is_plat("mingw") then
 	add_cxflags("-Og", "-Wa,-mbig-obj")
 	add_ldflags("-Wa,-mbig-obj")
+
+	rule("mingw_fix")
+	    set_kind("project")
+		before_build(function (target)
+			import("detect.sdks.find_mingw")
+			os.addenv("PATH", find_mingw().bindir)
+		end)
+	rule_end()
+
+	add_rules("mingw_fix")
 end
 
 for name, module in pairs(modules) do
