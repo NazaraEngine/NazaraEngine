@@ -46,10 +46,12 @@ namespace Nz::ShaderAst
 	{
 		DeclareConstStatementPtr clone = StaticUniquePointerCast<DeclareConstStatement>(AstCloner::Clone(node));
 
-		assert(clone->constIndex);
-		std::size_t newConstIndex = m_context->callbacks->constIndexGenerator(*clone->constIndex);
-		UniqueInsert(m_context->newConstIndices, *clone->constIndex, newConstIndex);
-		clone->constIndex = newConstIndex;
+		if (clone->constIndex)
+		{
+			std::size_t newConstIndex = m_context->callbacks->constIndexGenerator(*clone->constIndex);
+			UniqueInsert(m_context->newConstIndices, *clone->constIndex, newConstIndex);
+			clone->constIndex = newConstIndex;
+		}
 
 		return clone;
 	}
@@ -60,10 +62,12 @@ namespace Nz::ShaderAst
 
 		for (auto& extVar : clone->externalVars)
 		{
-			assert(extVar.varIndex);
-			std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*extVar.varIndex);
-			UniqueInsert(m_context->newVarIndices, *extVar.varIndex, newVarIndex);
-			extVar.varIndex = newVarIndex;
+			if (extVar.varIndex)
+			{
+				std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*extVar.varIndex);
+				UniqueInsert(m_context->newVarIndices, *extVar.varIndex, newVarIndex);
+				extVar.varIndex = newVarIndex;
+			}
 		}
 
 		return clone;
@@ -73,17 +77,19 @@ namespace Nz::ShaderAst
 	{
 		DeclareFunctionStatementPtr clone = StaticUniquePointerCast<DeclareFunctionStatement>(AstCloner::Clone(node));
 
-		assert(clone->funcIndex);
-		std::size_t newFuncIndex = m_context->callbacks->funcIndexGenerator(*clone->funcIndex);
-		UniqueInsert(m_context->newFuncIndices, *clone->funcIndex, newFuncIndex);
-		clone->funcIndex = newFuncIndex;
+		if (clone->funcIndex)
+		{
+			std::size_t newFuncIndex = m_context->callbacks->funcIndexGenerator(*clone->funcIndex);
+			UniqueInsert(m_context->newFuncIndices, *clone->funcIndex, newFuncIndex);
+			clone->funcIndex = newFuncIndex;
+		}
 
 		if (!clone->parameters.empty())
 		{
 			for (auto& parameter : node.parameters)
 			{
-				assert(parameter.varIndex);
-				parameter.varIndex = Retrieve(m_context->newVarIndices, *parameter.varIndex);
+				if (parameter.varIndex)
+					parameter.varIndex = Retrieve(m_context->newVarIndices, *parameter.varIndex);
 
 				HandleType(parameter.type);
 			}
@@ -99,10 +105,12 @@ namespace Nz::ShaderAst
 	{
 		DeclareStructStatementPtr clone = StaticUniquePointerCast<DeclareStructStatement>(AstCloner::Clone(node));
 
-		assert(clone->structIndex);
-		std::size_t newStructIndex = m_context->callbacks->structIndexGenerator(*clone->structIndex);
-		UniqueInsert(m_context->newStructIndices, *clone->structIndex, newStructIndex);
-		clone->structIndex = newStructIndex;
+		if (clone->structIndex)
+		{
+			std::size_t newStructIndex = m_context->callbacks->structIndexGenerator(*clone->structIndex);
+			UniqueInsert(m_context->newStructIndices, *clone->structIndex, newStructIndex);
+			clone->structIndex = newStructIndex;
+		}
 
 		for (auto& structMember : clone->description.members)
 			HandleType(structMember.type);
@@ -114,10 +122,12 @@ namespace Nz::ShaderAst
 	{
 		DeclareVariableStatementPtr clone = StaticUniquePointerCast<DeclareVariableStatement>(AstCloner::Clone(node));
 
-		assert(clone->varIndex);
-		std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*clone->varIndex);
-		UniqueInsert(m_context->newConstIndices, *clone->varIndex, newVarIndex);
-		clone->varIndex = newVarIndex;
+		if (clone->varIndex)
+		{
+			std::size_t newVarIndex = m_context->callbacks->varIndexGenerator(*clone->varIndex);
+			UniqueInsert(m_context->newConstIndices, *clone->varIndex, newVarIndex);
+			clone->varIndex = newVarIndex;
+		}
 
 		HandleType(node.varType);
 
@@ -128,8 +138,8 @@ namespace Nz::ShaderAst
 	{
 		FunctionExpressionPtr clone = StaticUniquePointerCast<FunctionExpression>(AstCloner::Clone(node));
 
-		assert(clone->funcId);
-		clone->funcId = Retrieve(m_context->newFuncIndices, clone->funcId);
+		if (clone->funcId)
+			clone->funcId = Retrieve(m_context->newFuncIndices, clone->funcId);
 
 		return clone;
 	}
@@ -138,8 +148,8 @@ namespace Nz::ShaderAst
 	{
 		StructTypeExpressionPtr clone = StaticUniquePointerCast<StructTypeExpression>(AstCloner::Clone(node));
 
-		assert(clone->structTypeId);
-		clone->structTypeId = Retrieve(m_context->newStructIndices, clone->structTypeId);
+		if (clone->structTypeId)
+			clone->structTypeId = Retrieve(m_context->newStructIndices, clone->structTypeId);
 
 		return clone;
 	}
@@ -148,14 +158,17 @@ namespace Nz::ShaderAst
 	{
 		VariableValueExpressionPtr clone = StaticUniquePointerCast<VariableValueExpression>(AstCloner::Clone(node));
 
-		assert(clone->variableId);
-		clone->variableId = Retrieve(m_context->newVarIndices, clone->variableId);
+		if (clone->variableId)
+			clone->variableId = Retrieve(m_context->newVarIndices, clone->variableId);
 
 		return clone;
 	}
 
 	void IndexRemapperVisitor::HandleType(ExpressionValue<ExpressionType>& exprType)
 	{
+		if (!exprType.IsResultingValue())
+			return;
+
 		const auto& resultingType = exprType.GetResultingValue();
 		if (IsStructType(resultingType))
 		{
