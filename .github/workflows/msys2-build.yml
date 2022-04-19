@@ -48,4 +48,4 @@ jobs:
       
     - name: Debug
       run: |
-        echo "${{ env.PATH }}"
+        echo "$PATH"
