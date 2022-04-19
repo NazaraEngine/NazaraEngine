@@ -11,9 +11,9 @@ rule("compile_shaders")
 		local bindir = mingw:bindir()
 		local targetdir = target:targetdir()
 		if bindir then
-			os.vcp(path.join(bindir, "libgcc_s_seh-1.dll"), targetdir)
-			os.vcp(path.join(bindir, "libstdc++-6.dll"), targetdir)
-			os.vcp(path.join(bindir, "libwinpthread-1.dll"), targetdir)
+			os.trycp(path.join(bindir, "libgcc_s_seh-1.dll"), targetdir)
+			os.trycp(path.join(bindir, "libstdc++-6.dll"), targetdir)
+			os.trycp(path.join(bindir, "libwinpthread-1.dll"), targetdir)
 		end
     end)
 
