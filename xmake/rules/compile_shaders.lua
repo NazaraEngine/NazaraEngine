@@ -5,6 +5,18 @@ rule("compile_shaders")
 		target:set("policy", "build.across_targets_in_parallel", false)
 	end)
 
+	-- temporary fix
+    before_build("mingw", function (target)
+		local mingw = target:toolchain("mingw")
+		local bindir = mingw:bindir()
+		local targetdir = target:targetdir()
+		if bindir then
+			os.trycp(path.join(bindir, "libgcc_s_seh-1.dll"), targetdir)
+			os.trycp(path.join(bindir, "libstdc++-6.dll"), targetdir)
+			os.trycp(path.join(bindir, "libwinpthread-1.dll"), targetdir)
+		end
+    end)
+
 	before_buildcmd_file(function (target, batchcmds, shaderfile, opt)
 		local nzslc = target:dep("NazaraShaderCompiler")
 
