@@ -288,7 +288,11 @@ namespace Nz
 			}
 		}
 		else
+		{
+			// Ensure we're restarting
+			Stop();
 			StartThread(false);
+		}
 	}
 
 	/*!
