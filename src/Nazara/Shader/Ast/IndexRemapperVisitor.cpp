@@ -260,5 +260,7 @@ namespace Nz::ShaderAst
 			uniformType.containedType.structIndex = Retrieve(m_context->newStructIndices, std::get<UniformType>(exprType).containedType.structIndex);
 			return uniformType;
 		}
+		else
+			return exprType;
 	}
 }
