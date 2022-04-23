@@ -42,29 +42,29 @@ namespace Nz
 		SparsePtr<Vector2f> uvPtr;
 	};
 
-	NAZARA_UTILITY_API Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, std::size_t vertexCount);
-	NAZARA_UTILITY_API void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount);
-	NAZARA_UTILITY_API UInt64 ComputeCacheMissCount(IndexIterator indices, UInt32 indexCount);
-	NAZARA_UTILITY_API void ComputeConeIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount);
-	NAZARA_UTILITY_API void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount);
-	NAZARA_UTILITY_API void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, std::size_t* indexCount, std::size_t* vertexCount);
-	NAZARA_UTILITY_API void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount);
-	NAZARA_UTILITY_API void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, std::size_t* indexCount, std::size_t* vertexCount);
+	NAZARA_UTILITY_API Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, UInt64 vertexCount);
+	NAZARA_UTILITY_API void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, UInt64* indexCount, UInt64* vertexCount);
+	NAZARA_UTILITY_API UInt64 ComputeCacheMissCount(IndexIterator indices, UInt64 indexCount);
+	NAZARA_UTILITY_API void ComputeConeIndexVertexCount(unsigned int subdivision, UInt64* indexCount, UInt64* vertexCount);
+	NAZARA_UTILITY_API void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, UInt64* indexCount, UInt64* vertexCount);
+	NAZARA_UTILITY_API void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, UInt64* indexCount, UInt64* vertexCount);
+	NAZARA_UTILITY_API void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, UInt64* indexCount, UInt64* vertexCount);
+	NAZARA_UTILITY_API void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, UInt64* indexCount, UInt64* vertexCount);
 
-	NAZARA_UTILITY_API void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
-	NAZARA_UTILITY_API void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
-	NAZARA_UTILITY_API void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
-	NAZARA_UTILITY_API void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
-	NAZARA_UTILITY_API void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
-	NAZARA_UTILITY_API void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, unsigned int indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, UInt64 indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, UInt64 indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, UInt64 indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, UInt64 indexOffset = 0);
+	NAZARA_UTILITY_API void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, UInt64 indexOffset = 0);
+	NAZARA_UTILITY_API void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb = nullptr, UInt64 indexOffset = 0);
 
-	NAZARA_UTILITY_API void OptimizeIndices(IndexIterator indices, unsigned int indexCount);
+	NAZARA_UTILITY_API void OptimizeIndices(IndexIterator indices, UInt64 indexCount);
 
-	NAZARA_UTILITY_API void SkinPosition(const SkinningData& data, std::size_t startVertex, std::size_t vertexCount);
-	NAZARA_UTILITY_API void SkinPositionNormal(const SkinningData& data, std::size_t startVertex, std::size_t vertexCount);
-	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, std::size_t startVertex, std::size_t vertexCount);
+	NAZARA_UTILITY_API void SkinPosition(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
+	NAZARA_UTILITY_API void SkinPositionNormal(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
+	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
 
-	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, std::size_t vertexCount, const Matrix4f& matrix);
+	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix);
 
 	template<typename T> constexpr ComponentType ComponentTypeId();
 	template<typename T> constexpr ComponentType GetComponentTypeOf();
