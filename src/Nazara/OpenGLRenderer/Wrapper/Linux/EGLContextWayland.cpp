@@ -10,7 +10,7 @@ namespace Nz::GL
 {
 	bool EGLContextWayland::Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext)
 	{
-		assert(window.type == WindowManager::Wayland);
+		assert(window.type == WindowBackend::Wayland);
 
 		NazaraError("Wayland is not yet supported");
 		return false;

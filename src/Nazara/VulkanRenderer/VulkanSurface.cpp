@@ -19,7 +19,7 @@ namespace Nz
 		bool success = false;
 		#if defined(NAZARA_PLATFORM_WINDOWS)
 		{
-			NazaraAssert(handle.type == WindowManager::Windows, "expected Windows window");
+			NazaraAssert(handle.type == WindowBackend::Windows, "expected Windows window");
 
 			HWND winHandle = reinterpret_cast<HWND>(handle.windows.window);
 			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
@@ -31,7 +31,7 @@ namespace Nz
 			switch (handle.type)
 			{
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
-			case WindowManager::Wayland:
+			case WindowBackend::Wayland:
 				{
 					wl_display* display = static_cast<wl_display*>(handle.wayland.display);
 					wl_surface* surface = static_cast<wl_surface*>(handle.wayland.surface);
@@ -42,7 +42,7 @@ namespace Nz
 #endif
 
 #ifdef VK_USE_PLATFORM_XLIB_KHR
-				case WindowManager::X11:
+				case WindowBackend::X11:
 				{
 					Display* display = static_cast<Display*>(handle.x11.display);
 					::Window window = static_cast<::Window>(handle.x11.window);

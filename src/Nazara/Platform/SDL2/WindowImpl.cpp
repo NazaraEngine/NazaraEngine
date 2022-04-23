@@ -204,7 +204,7 @@ namespace Nz
 #if defined(SDL_VIDEO_DRIVER_COCOA)
 			case SDL_SYSWM_COCOA:
 			{
-				handle.type = WindowManager::Cocoa;
+				handle.type = WindowBackend::Cocoa;
 				handle.cocoa.window = wmInfo.info.cocoa.window;
 				break;
 			}
@@ -212,7 +212,7 @@ namespace Nz
 #if defined(SDL_VIDEO_DRIVER_X11)
 			case SDL_SYSWM_X11:
 			{
-				handle.type = WindowManager::X11;
+				handle.type = WindowBackend::X11;
 				handle.x11.display = wmInfo.info.x11.display;
 				handle.x11.window = wmInfo.info.x11.window;
 				break;
@@ -221,7 +221,7 @@ namespace Nz
 #if defined(SDL_VIDEO_DRIVER_WAYLAND)
 			case SDL_SYSWM_WAYLAND:
 			{
-				handle.type = WindowManager::Wayland;
+				handle.type = WindowBackend::Wayland;
 				handle.wayland.display = wmInfo.info.wl.display;
 				handle.wayland.surface = wmInfo.info.wl.surface;
 				handle.wayland.shellSurface = wmInfo.info.wl.shell_surface;
@@ -231,7 +231,7 @@ namespace Nz
 #if defined(SDL_VIDEO_DRIVER_WINDOWS)
 			case SDL_SYSWM_WINDOWS:
 			{
-				handle.type = WindowManager::Windows;
+				handle.type = WindowBackend::Windows;
 				handle.windows.window = wmInfo.info.win.window;
 				break;
 			}

@@ -12,7 +12,7 @@
 
 namespace Nz
 {
-	enum class WindowManager
+	enum class WindowBackend
 	{
 		Invalid,
 
@@ -24,7 +24,7 @@ namespace Nz
 
 	struct WindowHandle
 	{
-		WindowManager type = WindowManager::Invalid;
+		WindowBackend type = WindowBackend::Invalid;
 
 		union
 		{
