@@ -25,8 +25,8 @@ namespace Nz
 		VertexMapper mapper(*m_vertexBuffer);
 		SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 
-		std::size_t vertexCount = m_vertexBuffer->GetVertexCount();
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		UInt64 vertexCount = m_vertexBuffer->GetVertexCount();
+		for (UInt64 i = 0; i < vertexCount; ++i)
 			*position++ -= offset;
 
 		m_aabb.x -= offset.x;
@@ -63,7 +63,7 @@ namespace Nz
 		return m_vertexBuffer;
 	}
 
-	std::size_t StaticMesh::GetVertexCount() const
+	UInt64 StaticMesh::GetVertexCount() const
 	{
 		return m_vertexBuffer->GetVertexCount();
 	}

@@ -26,7 +26,7 @@ namespace Nz
 		return m_mapper.GetBuffer();
 	}
 
-	inline std::size_t VertexMapper::GetVertexCount() const
+	inline UInt64 VertexMapper::GetVertexCount() const
 	{
 		return GetVertexBuffer()->GetVertexCount();
 	}

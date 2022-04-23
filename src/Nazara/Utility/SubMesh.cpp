@@ -22,14 +22,14 @@ namespace Nz
 	void SubMesh::GenerateNormals()
 	{
 		VertexMapper mapper(*this);
-		std::size_t vertexCount = mapper.GetVertexCount();
+		UInt64 vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 		if (!normals || !positions)
 			return;
 
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		for (UInt64 i = 0; i < vertexCount; ++i)
 			normals[i].MakeZero();
 
 		TriangleIterator iterator(*this);
@@ -48,14 +48,14 @@ namespace Nz
 		}
 		while (iterator.Advance());
 
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		for (UInt64 i = 0; i < vertexCount; ++i)
 			normals[i].Normalize();
 	}
 
 	void SubMesh::GenerateNormalsAndTangents()
 	{
 		VertexMapper mapper(*this);
-		std::size_t vertexCount = mapper.GetVertexCount();
+		UInt64 vertexCount = mapper.GetVertexCount();
 
 		SparsePtr<Vector3f> normals = mapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
@@ -64,7 +64,7 @@ namespace Nz
 		if (!normals || !positions || !tangents || !texCoords)
 			return;
 
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		for (UInt64 i = 0; i < vertexCount; ++i)
 		{
 			normals[i].MakeZero();
 			tangents[i].MakeZero();
@@ -159,10 +159,10 @@ namespace Nz
 		return m_primitiveMode;
 	}
 
-	std::size_t SubMesh::GetTriangleCount() const
+	UInt64 SubMesh::GetTriangleCount() const
 	{
 		const std::shared_ptr<const IndexBuffer>& indexBuffer = GetIndexBuffer();
-		std::size_t indexCount;
+		UInt64 indexCount;
 		if (indexBuffer)
 			indexCount = indexBuffer->GetIndexCount();
 		else

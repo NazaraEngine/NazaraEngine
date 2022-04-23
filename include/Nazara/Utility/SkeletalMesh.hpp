@@ -24,7 +24,7 @@ namespace Nz
 			AnimationType GetAnimationType() const final;
 			const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const override;
 			const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const;
-			std::size_t GetVertexCount() const override;
+			UInt64 GetVertexCount() const override;
 
 			bool IsAnimated() const final;
 			bool IsValid() const;
