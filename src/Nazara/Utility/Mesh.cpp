@@ -446,22 +446,22 @@ namespace Nz
 		return it->second;
 	}
 
-	std::size_t Mesh::GetTriangleCount() const
+	UInt64 Mesh::GetTriangleCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		std::size_t triangleCount = 0;
+		UInt64 triangleCount = 0;
 		for (const SubMeshData& data : m_subMeshes)
 			triangleCount += data.subMesh->GetTriangleCount();
 
 		return triangleCount;
 	}
 
-	std::size_t Mesh::GetVertexCount() const
+	UInt64 Mesh::GetVertexCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		std::size_t vertexCount = 0;
+		UInt64 vertexCount = 0;
 		for (const SubMeshData& data : m_subMeshes)
 			vertexCount += data.subMesh->GetVertexCount();
 
