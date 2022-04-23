@@ -30,10 +30,7 @@ namespace Nz::GL
 		template<typename FuncType, typename Func>
 		bool Load(Func& func, const char* funcName, bool mandatory, bool implementFallback = true)
 		{
-			FuncType funcPtr = LoadRaw<FuncType>(funcName);
-			if (funcPtr)
-				func = funcPtr;
-
+			func = LoadRaw<FuncType>(funcName);
 			if (!func)
 			{
 				if (!implementFallback || (!loader.ImplementFallback(funcName) && !func)) //< double-check
@@ -151,22 +148,22 @@ namespace Nz::GL
 		std::unique_ptr<EGLContextBase> context;
 		switch (handle.type)
 		{
-			case WindowManager::Invalid:
+			case WindowBackend::Invalid:
 				break;
 
-			case WindowManager::X11:
+			case WindowBackend::X11:
 #ifdef NAZARA_PLATFORM_LINUX
 				context = std::make_unique<EGLContextX11>(device, *this);
 #endif
 				break;
 
-			case WindowManager::Windows:
+			case WindowBackend::Windows:
 #ifdef NAZARA_PLATFORM_WINDOWS
 				context = std::make_unique<EGLContextWin32>(device, *this);
 #endif
 				break;
 
-			case WindowManager::Wayland:
+			case WindowBackend::Wayland:
 #ifdef NAZARA_PLATFORM_LINUX
 				context = std::make_unique<EGLContextWayland>(device, *this);
 #endif

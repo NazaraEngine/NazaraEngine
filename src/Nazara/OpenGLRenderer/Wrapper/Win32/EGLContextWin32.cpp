@@ -21,7 +21,7 @@ namespace Nz::GL
 		::ShowWindow(window.get(), FALSE);
 
 		WindowHandle windowHandle;
-		windowHandle.type = WindowManager::Windows;
+		windowHandle.type = WindowBackend::Windows;
 		windowHandle.windows.window = window.get();
 
 		if (!Create(params, windowHandle, shareContext))
@@ -34,7 +34,7 @@ namespace Nz::GL
 
 	bool EGLContextWin32::Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext)
 	{
-		assert(window.type == WindowManager::Windows);
+		assert(window.type == WindowBackend::Windows);
 
 		Destroy(); //< In case a previous display or surface hasn't been released
 
