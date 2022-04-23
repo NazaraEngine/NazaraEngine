@@ -21,7 +21,7 @@ namespace Nz
 	class NAZARA_CORE_API Stream
 	{
 		public:
-			Stream(const Stream&) = default;
+			Stream(const Stream&) = delete;
 			Stream(Stream&&) noexcept = default;
 			virtual ~Stream();
 
@@ -55,7 +55,7 @@ namespace Nz
 			bool Write(const std::string_view& string);
 			inline std::size_t Write(const void* buffer, std::size_t size);
 
-			Stream& operator=(const Stream&) = default;
+			Stream& operator=(const Stream&) = delete;
 			Stream& operator=(Stream&&) noexcept = default;
 
 			static constexpr std::size_t DefaultBufferSize = 0xFFFF;
