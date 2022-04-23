@@ -183,7 +183,7 @@ namespace Nz
 						}
 
 						if (posPtr)
-							*posPtr++ = /*finalPos * */Vector3f(1.f / 40.f);
+							*posPtr++ = finalPos;
 
 						if (uvPtr)
 							*uvPtr++ = Vector2f(parameters.texCoordOffset + vertex.uv * parameters.texCoordScale);
