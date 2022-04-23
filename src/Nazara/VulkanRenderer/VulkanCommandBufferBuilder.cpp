@@ -43,10 +43,10 @@ namespace Nz
 
 			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
 			{
-				vkValues.color.float32[0] = values.color.r / 255.f;
-				vkValues.color.float32[1] = values.color.g / 255.f;
-				vkValues.color.float32[2] = values.color.b / 255.f;
-				vkValues.color.float32[3] = values.color.a / 255.f;
+				vkValues.color.float32[0] = values.color.r;
+				vkValues.color.float32[1] = values.color.g;
+				vkValues.color.float32[2] = values.color.b;
+				vkValues.color.float32[3] = values.color.a;
 			}
 			else
 			{

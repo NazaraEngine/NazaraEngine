@@ -80,7 +80,7 @@ namespace Nz
 		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.ambientColor);
-		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
+		return Color(colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3]);
 	}
 
 	float Nz::PhongLightingMaterial::GetShininess() const
@@ -98,7 +98,7 @@ namespace Nz
 		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.specularColor);
-		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
+		return Color(colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3]);
 	}
 
 	void PhongLightingMaterial::SetAmbientColor(const Color& ambient)
@@ -107,10 +107,10 @@ namespace Nz
 
 		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.ambientColor);
-		colorPtr[0] = ambient.r / 255.f;
-		colorPtr[1] = ambient.g / 255.f;
-		colorPtr[2] = ambient.b / 255.f;
-		colorPtr[3] = ambient.a / 255.f;
+		colorPtr[0] = ambient.r;
+		colorPtr[1] = ambient.g;
+		colorPtr[2] = ambient.b;
+		colorPtr[3] = ambient.a;
 	}
 
 	void PhongLightingMaterial::SetShininess(float shininess)
@@ -127,10 +127,10 @@ namespace Nz
 
 		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.specularColor);
-		colorPtr[0] = diffuse.r / 255.f;
-		colorPtr[1] = diffuse.g / 255.f;
-		colorPtr[2] = diffuse.b / 255.f;
-		colorPtr[3] = diffuse.a / 255.f;
+		colorPtr[0] = diffuse.r;
+		colorPtr[1] = diffuse.g;
+		colorPtr[2] = diffuse.b;
+		colorPtr[3] = diffuse.a;
 	}
 
 	const std::shared_ptr<MaterialSettings>& PhongLightingMaterial::GetSettings()

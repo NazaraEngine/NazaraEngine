@@ -117,7 +117,7 @@ int main()
 	{
 		registry.emplace<Nz::NodeComponent>(viewer2D);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
-		cameraComponent.UpdateClearColor(Nz::Color(173, 216, 230, 255));
+		cameraComponent.UpdateClearColor(Nz::Color(0.678f, 0.847f, 0.9f, 1.f));
 	}
 
 	window.EnableEventPolling(true);

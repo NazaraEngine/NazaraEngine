@@ -156,7 +156,7 @@ namespace Nz
 							if (!currentMaterial)
 								currentMaterial = AddMaterial("default");
 
-							currentMaterial->ambient = Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+							currentMaterial->ambient = Color(r, g, b);
 						}
 #if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else
@@ -171,7 +171,7 @@ namespace Nz
 							if (!currentMaterial)
 								currentMaterial = AddMaterial("default");
 
-							currentMaterial->diffuse = Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+							currentMaterial->diffuse = Color(r, g, b);
 						}
 #if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else
@@ -186,7 +186,7 @@ namespace Nz
 							if (!currentMaterial)
 								currentMaterial = AddMaterial("default");
 
-							currentMaterial->specular = Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+							currentMaterial->specular = Color(r, g, b);
 						}
 #if NAZARA_UTILITY_STRICT_RESOURCE_PARSING
 						else
@@ -518,27 +518,27 @@ namespace Nz
 			EmitLine();
 
 			Emit("Ka ");
-			Emit(mat.ambient.r / 255.f);
+			Emit(mat.ambient.r);
 			Emit(' ');
-			Emit(mat.ambient.g / 255.f);
+			Emit(mat.ambient.g);
 			Emit(' ');
-			Emit(mat.ambient.b / 255.f);
+			Emit(mat.ambient.b);
 			EmitLine();
 
 			Emit("Kd ");
-			Emit(mat.diffuse.r / 255.f);
+			Emit(mat.diffuse.r);
 			Emit(' ');
-			Emit(mat.diffuse.g / 255.f);
+			Emit(mat.diffuse.g);
 			Emit(' ');
-			Emit(mat.diffuse.b / 255.f);
+			Emit(mat.diffuse.b);
 			EmitLine();
 
 			Emit("Ks ");
-			Emit(mat.specular.r / 255.f);
+			Emit(mat.specular.r);
 			Emit(' ');
-			Emit(mat.specular.g / 255.f);
+			Emit(mat.specular.g);
 			Emit(' ');
-			Emit(mat.specular.b / 255.f);
+			Emit(mat.specular.b);
 			EmitLine();
 
 			if (!NumberEquals(mat.alpha, 1.f))

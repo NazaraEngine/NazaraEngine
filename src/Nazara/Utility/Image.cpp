@@ -715,7 +715,7 @@ namespace Nz
 		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 		Color color;
-		if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA8, pixel, &color.r))
+		if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA32F, pixel, &color.r))
 			NazaraError("Failed to convert image's format to RGBA8");
 
 		return color;

@@ -120,7 +120,7 @@ namespace Nz
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label)
 		{
-			return BeginDebugRegion(label, Color(0, 0, 0, 0));
+			return BeginDebugRegion(label, Color::Black);
 		}
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label, Color color)
@@ -133,10 +133,10 @@ namespace Nz
 					nullptr,
 					label,
 					{
-						color.r / 255.f,
-						color.g / 255.f,
-						color.b / 255.f,
-						color.a / 255.f
+						color.r,
+						color.g,
+						color.b,
+						color.a
 					}
 				};
 
@@ -374,7 +374,7 @@ namespace Nz
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label)
 		{
-			return InsertDebugLabel(label, Color(0, 0, 0, 0));
+			return InsertDebugLabel(label, Color::Black);
 		}
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label, Color color)
@@ -387,10 +387,10 @@ namespace Nz
 					nullptr,
 					label,
 					{
-						color.r / 255.f,
-						color.g / 255.f,
-						color.b / 255.f,
-						color.a / 255.f
+						color.r,
+						color.g,
+						color.b,
+						color.a
 					}
 				};
 

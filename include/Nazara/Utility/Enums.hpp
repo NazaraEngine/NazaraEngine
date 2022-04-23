@@ -100,9 +100,8 @@ namespace Nz
 		Int2,
 		Int3,
 		Int4,
-		Quaternion,
 
-		Max = Quaternion
+		Max = Int4
 	};
 
 	constexpr std::size_t ComponentTypeCount = static_cast<std::size_t>(ComponentType::Max) + 1;

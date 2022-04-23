@@ -18,7 +18,7 @@ namespace Nz
 	{
 		std::size_t s_componentStride[ComponentTypeCount] =
 		{
-			4 * sizeof(UInt8),    // ComponentType::Color
+			4 * sizeof(float),    // ComponentType::Color
 			1 * sizeof(double),   // ComponentType::Double1
 			2 * sizeof(double),   // ComponentType::Double2
 			3 * sizeof(double),   // ComponentType::Double3
@@ -31,7 +31,6 @@ namespace Nz
 			2 * sizeof(UInt32),   // ComponentType::Int2
 			3 * sizeof(UInt32),   // ComponentType::Int3
 			4 * sizeof(UInt32),   // ComponentType::Int4
-			4 * sizeof(float)     // ComponentType::Quaternion
 		};
 	}
 	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components) :
@@ -74,7 +73,6 @@ namespace Nz
 	{
 		switch (type)
 		{
-			case ComponentType::Color:
 			case ComponentType::Double1:
 			case ComponentType::Double2:
 			case ComponentType::Double3:
@@ -88,9 +86,6 @@ namespace Nz
 			case ComponentType::Int3:
 			case ComponentType::Int4:
 				return true;
-
-			case ComponentType::Quaternion:
-				return false;
 		}
 
 		NazaraError("Component type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
@@ -127,7 +122,7 @@ namespace Nz
 				},
 				{
 					VertexComponent::Color,
-					ComponentType::Color,
+					ComponentType::Float4,
 					0
 				},
 			});
@@ -170,7 +165,7 @@ namespace Nz
 				},
 				{
 					VertexComponent::Color,
-					ComponentType::Color,
+					ComponentType::Float4,
 					0
 				}
 			});
@@ -186,7 +181,7 @@ namespace Nz
 				},
 				{
 					VertexComponent::Color,
-					ComponentType::Color,
+					ComponentType::Float4,
 					0
 				},
 				{

@@ -19,7 +19,6 @@ namespace Nz
 	/*!
 	* \brief Constructs a Color object by default
 	*/
-
 	inline Color::Color()
 	{
 	}
@@ -33,7 +32,7 @@ namespace Nz
 	* \param alpha Alpha value
 	*/
 
-	inline Color::Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha) :
+	inline Color::Color(float red, float green, float blue, float alpha) :
 	r(red),
 	g(green),
 	b(blue),
@@ -47,26 +46,11 @@ namespace Nz
 	* \param lightness Value for r, g and b
 	*/
 
-	inline Color::Color(UInt8 lightness) :
+	inline Color::Color(float lightness) :
 	r(lightness),
 	g(lightness),
 	b(lightness),
-	a(255)
-	{
-	}
-
-	/*!
-	* \brief Constructs a Color object with values
-	*
-	* \param vec[3] vec[0] = red value, vec[1] = green value, vec[2] = blue value
-	* \param alpha Alpha value
-	*/
-
-	inline Color::Color(UInt8 vec[3], UInt8 alpha) :
-	r(vec[0]),
-	g(vec[1]),
-	b(vec[2]),
-	a(alpha)
+	a(1.f)
 	{
 	}
 
@@ -76,7 +60,7 @@ namespace Nz
 	*/
 	inline bool Color::IsOpaque() const
 	{
-		return a == 255;
+		return a >= 1.f;
 	}
 
 	/*!
@@ -87,10 +71,10 @@ namespace Nz
 	inline std::string Color::ToString() const
 	{
 		std::ostringstream ss;
-		ss << "Color(" << static_cast<int>(r) << ", " << static_cast<int>(g) << ", " << static_cast<int>(b);
+		ss << "Color(" << r << ", " << g << ", " << b;
 
-		if (a != 255)
-			ss << ", " << static_cast<int>(a);
+		if (!IsOpaque())
+			ss << ", " << a;
 
 		ss << ')';
 
@@ -106,12 +90,11 @@ namespace Nz
 
 	inline Color Color::operator+(const Color& color) const
 	{
-		///TODO: Improve this shit
 		Color c;
-		c.r = static_cast<UInt8>(std::min(static_cast<unsigned int>(r) + static_cast<unsigned int>(color.r), 255U));
-		c.g = static_cast<UInt8>(std::min(static_cast<unsigned int>(g) + static_cast<unsigned int>(color.g), 255U));
-		c.b = static_cast<UInt8>(std::min(static_cast<unsigned int>(b) + static_cast<unsigned int>(color.b), 255U));
-		c.a = static_cast<UInt8>(std::min(static_cast<unsigned int>(a) + static_cast<unsigned int>(color.a), 255U));
+		c.r = r + color.r;
+		c.g = g + color.g;
+		c.b = b + color.b;
+		c.a = a + color.a;
 
 		return c;
 	}
@@ -125,12 +108,11 @@ namespace Nz
 
 	inline Color Color::operator*(const Color& color) const
 	{
-		///TODO: Improve this shit
 		Color c;
-		c.r = static_cast<UInt8>((static_cast<unsigned int>(r) * static_cast<unsigned int>(color.r)) / 255U);
-		c.g = static_cast<UInt8>((static_cast<unsigned int>(g) * static_cast<unsigned int>(color.g)) / 255U);
-		c.b = static_cast<UInt8>((static_cast<unsigned int>(b) * static_cast<unsigned int>(color.b)) / 255U);
-		c.a = static_cast<UInt8>((static_cast<unsigned int>(a) * static_cast<unsigned int>(color.a)) / 255U);
+		c.r = r * color.r;
+		c.g = g * color.g;
+		c.b = b * color.b;
+		c.a = a * color.a;
 
 		return c;
 	}
@@ -168,7 +150,10 @@ namespace Nz
 
 	inline bool Color::operator==(const Color& color) const
 	{
-		return r == color.r && g == color.g && b == color.b && a == color.a;
+		return NumberEquals(r, color.r) &&
+		       NumberEquals(g, color.g) &&
+		       NumberEquals(b, color.b) &&
+		       NumberEquals(a, color.a);
 	}
 
 	/*!
@@ -193,10 +178,9 @@ namespace Nz
 	* \param magenta Magenta component
 	* \param yellow Yellow component
 	*/
-
 	inline Color Color::FromCMY(float cyan, float magenta, float yellow)
 	{
-		return Color(static_cast<UInt8>((1.f-cyan)*255.f), static_cast<UInt8>((1.f-magenta)*255.f), static_cast<UInt8>((1.f-yellow)*255.f));
+		return Color(1.f - cyan, 1.f - magenta, 1.f - yellow);
 	}
 
 	/*!
@@ -208,7 +192,6 @@ namespace Nz
 	* \param yellow Yellow component
 	* \param black Black component
 	*/
-
 	inline Color Color::FromCMYK(float cyan, float magenta, float yellow, float black)
 	{
 		return FromCMY(cyan * (1.f - black) + black,
@@ -224,14 +207,10 @@ namespace Nz
 	* \param saturation Saturation component [0, 1]
 	* \param lightness Lightness component [0, 1]
 	*/
-
 	inline Color Color::FromHSL(float hue, float saturation, float lightness)
 	{
 		if (NumberEquals(saturation, 0.f))
-		{
-			// RGB results from 0 to 255
-			return Color(static_cast<UInt8>(lightness * 255.f));
-		}
+			return Color(lightness);
 		else
 		{
 			float v2;
@@ -243,9 +222,9 @@ namespace Nz
 			float v1 = 2.f * lightness - v2;
 
 			float h = hue / 360.f;
-			return Color(static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h + (1.f/3.f))),
-			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h)),
-			             static_cast<UInt8>(255.f * Hue2RGB(v1, v2, h - (1.f/3.f))));
+			return Color(Hue2RGB(v1, v2, h + (1.f/3.f)),
+			             Hue2RGB(v1, v2, h),
+			             Hue2RGB(v1, v2, h - (1.f/3.f)));
 		}
 	}
 
@@ -257,11 +236,10 @@ namespace Nz
 	* \param saturation Saturation component in [0, 1]
 	* \param value Value component in [0, 1]
 	*/
-
 	inline Color Color::FromHSV(float hue, float saturation, float value)
 	{
 		if (NumberEquals(saturation, 0.f))
-			return Color(static_cast<UInt8>(value * 255.f));
+			return Color(value);
 		else
 		{
 			float h = (hue / 360.f) * 6.f;
@@ -314,9 +292,35 @@ namespace Nz
 					break;
 			}
 
-			// RGB results from 0 to 255
-			return Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+			return Color(r, g, b);
 		}
+	}
+
+	/*!
+	* \brief Converts RGB8 representation to Color (RGBA32F)
+	* \return Color resulting
+	*
+	* \param r Red value
+	* \param g Green value
+	* \param b Blue value
+	*/
+	inline Color Color::FromRGB8(UInt8 r, UInt8 g, UInt8 b)
+	{
+		return Color(r / 255.f, g / 255.f, b / 255.f);
+	}
+	
+	/*!
+	* \brief Converts RGBA8 representation to Color (RGBA32F)
+	* \return Color resulting
+	*
+	* \param r Red value
+	* \param g Green value
+	* \param b Blue value
+	* \param a Alpha value
+	*/
+	inline Color Color::FromRGBA8(UInt8 r, UInt8 g, UInt8 b, UInt8 a)
+	{
+		return Color(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 	}
 
 	/*!
@@ -325,7 +329,6 @@ namespace Nz
 	*
 	* \param vec Vector3 representing the space color
 	*/
-
 	inline Color Color::FromXYZ(const Vector3f& vec)
 	{
 		return FromXYZ(vec.x, vec.y, vec.z);
@@ -339,7 +342,6 @@ namespace Nz
 	* \param y Y component
 	* \param z Z component
 	*/
-
 	inline Color Color::FromXYZ(float x, float y, float z)
 	{
 		x /= 100.f; // X from 0 to  95.047
@@ -365,7 +367,7 @@ namespace Nz
 		else
 			b *= 12.92f;
 
-		return Color(static_cast<UInt8>(r * 255.f), static_cast<UInt8>(g * 255.f), static_cast<UInt8>(b * 255.f));
+		return Color(r, g, b);
 	}
 
 	/*!
@@ -376,12 +378,11 @@ namespace Nz
 	* \param magenta Magenta component
 	* \param yellow Yellow component
 	*/
-
 	inline void Color::ToCMY(const Color& color, float* cyan, float* magenta, float* yellow)
 	{
-		*cyan = 1.f - color.r/255.f;
-		*magenta = 1.f - color.g/255.f;
-		*yellow = 1.f - color.b/255.f;
+		*cyan = 1.f - color.r;
+		*magenta = 1.f - color.g;
+		*yellow = 1.f - color.b;
 	}
 
 	/*!
@@ -425,12 +426,11 @@ namespace Nz
 	* \param saturation Saturation component in [0, 1]
 	* \param lightness Lightness component in [0, 1]
 	*/
-
 	inline void Color::ToHSL(const Color& color, float* hue, float* saturation, float* lightness)
 	{
-		float r = color.r / 255.f;
-		float g = color.g / 255.f;
-		float b = color.b / 255.f;
+		float r = color.r;
+		float g = color.g;
+		float b = color.b;
 
 		float min = std::min({r, g, b}); // Min. value of RGB
 		float max = std::max({r, g, b}); // Max. value of RGB
@@ -483,12 +483,11 @@ namespace Nz
 	* \param saturation Saturation component
 	* \param value Value component
 	*/
-
 	inline void Color::ToHSV(const Color& color, float* hue, float* saturation, float* value)
 	{
-		float r = color.r / 255.f;
-		float g = color.g / 255.f;
-		float b = color.b / 255.f;
+		float r = color.r;
+		float g = color.g;
+		float b = color.b;
 
 		float min = std::min({r, g, b});    //Min. value of RGB
 		float max = std::max({r, g, b});    //Max. value of RGB
@@ -531,12 +530,47 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Converts Color representation (RGBA32F) to RGB8
+	*
+	* \param color Color to transform
+	* \param r Red component
+	* \param g Green component
+	* \param b Blue component
+	*
+	* \remark Values are clamped to [0;255]
+	*/
+	static inline void ToRGB8(const Color& color, UInt8* r, UInt8* g, UInt8* b)
+	{
+		*r = static_cast<UInt8>(Clamp(color.r * 255.f, 0.f, 255.f));
+		*g = static_cast<UInt8>(Clamp(color.g * 255.f, 0.f, 255.f));
+		*b = static_cast<UInt8>(Clamp(color.b * 255.f, 0.f, 255.f));
+	}
+
+	/*!
+	* \brief Converts Color representation (RGBA32F) to RGBA8
+	*
+	* \param color Color to transform
+	* \param r Red component
+	* \param g Green component
+	* \param b Blue component
+	* \param a Alpha component
+	*
+	* \remark Values are clamped to [0;255]
+	*/
+	static inline void ToRGBA8(const Color& color, UInt8* r, UInt8* g, UInt8* b, UInt8* a)
+	{
+		*r = static_cast<UInt8>(Clamp(color.r * 255.f, 0.f, 255.f));
+		*g = static_cast<UInt8>(Clamp(color.g * 255.f, 0.f, 255.f));
+		*b = static_cast<UInt8>(Clamp(color.b * 255.f, 0.f, 255.f));
+		*a = static_cast<UInt8>(Clamp(color.a * 255.f, 0.f, 255.f));
+	}
+
+	/*!
 	* \brief Converts RGB representation to XYZ
 	*
 	* \param color Color to transform
 	* \param vec Vector3 representing the space color
 	*/
-
 	inline void Color::ToXYZ(const Color& color, Vector3f* vec)
 	{
 		return ToXYZ(color, &vec->x, &vec->y, &vec->z);
@@ -550,12 +584,11 @@ namespace Nz
 	* \param y Y component
 	* \param z Z component
 	*/
-
 	inline void Color::ToXYZ(const Color& color, float* x, float* y, float* z)
 	{
-		float r = color.r/255.f;        //R from 0 to 255
-		float g = color.g/255.f;        //G from 0 to 255
-		float b = color.b/255.f;        //B from 0 to 255
+		float r = color.r; //< R from 0 to 255
+		float g = color.g; //< G from 0 to 255
+		float b = color.b; //< B from 0 to 255
 
 		if (r > 0.04045f)
 			r = std::pow((r + 0.055f)/1.055f, 2.4f);
@@ -590,7 +623,6 @@ namespace Nz
 	* \param v2 V2 component
 	* \param vH VH component
 	*/
-
 	inline float Color::Hue2RGB(float v1, float v2, float vH)
 	{
 		if (vH < 0.f)

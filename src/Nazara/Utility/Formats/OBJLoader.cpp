@@ -75,7 +75,7 @@ namespace Nz
 				{
 					ParameterList data;
 
-					UInt8 alphaValue = static_cast<UInt8>(mtlMat->alpha*255.f);
+					float alphaValue = mtlMat->alpha;
 
 					Color ambientColor(mtlMat->ambient);
 					Color diffuseColor(mtlMat->diffuse);

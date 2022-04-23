@@ -62,7 +62,7 @@ int main()
 		registry.emplace<Nz::NodeComponent>(viewer);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
 		cameraComponent.UpdateRenderMask(1);
-		cameraComponent.UpdateClearColor(Nz::Color(127, 127, 127));
+		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();

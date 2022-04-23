@@ -22,9 +22,9 @@ namespace Nz
 			switch (component)
 			{
 				case ComponentType::Color:
-					attrib.normalized = GL_TRUE;
+					attrib.normalized = GL_FALSE;
 					attrib.size = 4;
-					attrib.type = GL_UNSIGNED_BYTE;
+					attrib.type = GL_FLOAT;
 					return;
 
 				case ComponentType::Float1:
@@ -49,7 +49,6 @@ namespace Nz
 				case ComponentType::Double2:
 				case ComponentType::Double3:
 				case ComponentType::Double4:
-				case ComponentType::Quaternion:
 					break;
 			}
 
@@ -182,7 +181,7 @@ namespace Nz
 							std::size_t attachmentIndex = colorIndexes[i];
 
 							Color color = command.clearValues[attachmentIndex].color;
-							std::array<GLfloat, 4> clearColor = { color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f };
+							std::array<GLfloat, 4> clearColor = { color.r, color.g, color.b, color.a };
 
 							const auto& attachmentInfo = command.renderpass->GetAttachment(attachmentIndex);
 							if (attachmentInfo.loadOp == AttachmentLoadOp::Clear)
@@ -253,7 +252,7 @@ namespace Nz
 								context->ResetColorWriteMasks();
 
 								Color color = command.clearValues[colorAttachmentIndex].color;
-								context->glClearColor(color.r / 255.f, color.g / 255.f, color.b / 255.f, color.a / 255.f);
+								context->glClearColor(color.r, color.g, color.b, color.a);
 
 								clearFields |= GL_COLOR_BUFFER_BIT;
 							}

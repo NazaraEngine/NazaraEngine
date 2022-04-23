@@ -19,9 +19,8 @@ namespace Nz
 	{
 		public:
 			inline Color();
-			inline Color(UInt8 red, UInt8 green, UInt8 blue, UInt8 alpha = 255);
-			inline explicit Color(UInt8 lightness);
-			inline Color(UInt8 color[3], UInt8 alpha = 255);
+			inline Color(float red, float green, float blue, float alpha = 1.f);
+			inline explicit Color(float lightness);
 			inline Color(const Color& color) = default;
 			inline Color(Color&& color) = default;
 			inline ~Color() = default;
@@ -46,16 +45,20 @@ namespace Nz
 			static inline Color FromCMYK(float cyan, float magenta, float yellow, float black);
 			static inline Color FromHSL(float hue, float saturation, float lightness);
 			static inline Color FromHSV(float hue, float saturation, float value);
+			static inline Color FromRGB8(UInt8 r, UInt8 g, UInt8 b);
+			static inline Color FromRGBA8(UInt8 r, UInt8 g, UInt8 b, UInt8 a);
 			static inline Color FromXYZ(const Vector3f& vec);
 			static inline Color FromXYZ(float x, float y, float z);
 			static inline void ToCMY(const Color& color, float* cyan, float* magenta, float* yellow);
 			static inline void ToCMYK(const Color& color, float* cyan, float* magenta, float* yellow, float* black);
 			static inline void ToHSL(const Color& color, float* hue, float* saturation, float* lightness);
 			static inline void ToHSV(const Color& color, float* hue, float* saturation, float* value);
+			static inline void ToRGB8(const Color& color, UInt8* r, UInt8* g, UInt8* b);
+			static inline void ToRGBA8(const Color& color, UInt8* r, UInt8* g, UInt8* b, UInt8* a = nullptr);
 			static inline void ToXYZ(const Color& color, Vector3f* vec);
 			static inline void ToXYZ(const Color& color, float* x, float* y, float* z);
 
-			UInt8 r, g, b, a;
+			float r, g, b, a;
 
 			static NAZARA_CORE_API const Color Black;
 			static NAZARA_CORE_API const Color Blue;

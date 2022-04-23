@@ -269,6 +269,23 @@ namespace Nz
 			return dst;
 		}
 
+		template<>
+		UInt8* ConvertPixels<PixelFormat::BGR8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			float* ptr = reinterpret_cast<float*>(dst);
+			while (start < end)
+			{
+				*ptr++ = start[2] / 255.f;
+				*ptr++ = start[1] / 255.f;
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = 1.f;
+
+				start += 3;
+			}
+
+			return dst;
+		}
+
 		/**********************************BGRA8**********************************/
 		template<>
 		UInt8* ConvertPixels<PixelFormat::BGRA8, PixelFormat::A8>(const UInt8* start, const UInt8* end, UInt8* dst)
@@ -409,6 +426,23 @@ namespace Nz
 			return dst;
 		}
 
+		template<>
+		UInt8* ConvertPixels<PixelFormat::BGRA8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			float* ptr = reinterpret_cast<float*>(dst);
+			while (start < end)
+			{
+				*ptr++ = start[2] / 255.f;
+				*ptr++ = start[1] / 255.f;
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[3] / 255.f;
+
+				start += 4;
+			}
+
+			return dst;
+		}
+
 		/***********************************L8************************************/
 		template<>
 		UInt8* ConvertPixels<PixelFormat::L8, PixelFormat::BGR8>(const UInt8* start, const UInt8* end, UInt8* dst)
@@ -527,6 +561,23 @@ namespace Nz
 				*dst++ = start[0];
 				*dst++ = start[0];
 				*dst++ = 0xFF;
+
+				start += 1;
+			}
+
+			return dst;
+		}
+
+		template<>
+		UInt8* ConvertPixels<PixelFormat::L8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			float* ptr = reinterpret_cast<float*>(dst);
+			while (start < end)
+			{
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = 1.f;
 
 				start += 1;
 			}
@@ -658,6 +709,23 @@ namespace Nz
 				*dst++ = start[0];
 				*dst++ = start[0];
 				*dst++ = start[1];
+
+				start += 2;
+			}
+
+			return dst;
+		}
+
+		template<>
+		UInt8* ConvertPixels<PixelFormat::LA8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			float* ptr = reinterpret_cast<float*>(dst);
+			while (start < end)
+			{
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[1] / 255.f;
 
 				start += 2;
 			}
@@ -1158,6 +1226,23 @@ namespace Nz
 			return dst;
 		}
 
+		template<>
+		UInt8* ConvertPixels<PixelFormat::RGB8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			float* ptr = reinterpret_cast<float*>(dst);
+			while (start < end)
+			{
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[1] / 255.f;
+				*ptr++ = start[2] / 255.f;
+				*ptr++ = 1.f;
+
+				start += 3;
+			}
+
+			return dst;
+		}
+
 		/**********************************RGBA8**********************************/
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::A8>(const UInt8* start, const UInt8* end, UInt8* dst)
@@ -1298,6 +1383,22 @@ namespace Nz
 			return dst + count;
 		}
 
+		template<>
+		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			float* ptr = reinterpret_cast<float*>(dst);
+			while (start < end)
+			{
+				*ptr++ = start[0] / 255.f;
+				*ptr++ = start[1] / 255.f;
+				*ptr++ = start[2] / 255.f;
+				*ptr++ = start[3] / 255.f;
+
+				start += 4;
+			}
+
+			return dst;
+		}
 
 		template<PixelFormat Format1, PixelFormat Format2>
 		void RegisterConverter()
@@ -1515,6 +1616,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::BGR8, PixelFormat::RGB8>();
 		RegisterConverter<PixelFormat::BGR8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::BGR8, PixelFormat::RGBA8>();
+		RegisterConverter<PixelFormat::BGR8, PixelFormat::RGBA32F>();
 
 		/**********************************BGRA8**********************************/
 		RegisterConverter<PixelFormat::BGRA8, PixelFormat::A8>();
@@ -1534,6 +1636,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::BGRA8, PixelFormat::RGB8>();
 		RegisterConverter<PixelFormat::BGRA8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::BGRA8, PixelFormat::RGBA8>();
+		RegisterConverter<PixelFormat::BGRA8, PixelFormat::RGBA32F>();
 
 		/**********************************DXT1***********************************/
 		///TODO: Décompresseur DXT1
@@ -1620,6 +1723,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::L8, PixelFormat::RGB8>();
 		RegisterConverter<PixelFormat::L8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::L8, PixelFormat::RGBA8>();
+		RegisterConverter<PixelFormat::L8, PixelFormat::RGBA32F>();
 
 		/***********************************LA8***********************************/
 		RegisterConverter<PixelFormat::LA8, PixelFormat::A8>();
@@ -1638,6 +1742,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::LA8, PixelFormat::RGB8>();
 		RegisterConverter<PixelFormat::LA8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::LA8, PixelFormat::RGBA8>();
+		RegisterConverter<PixelFormat::LA8, PixelFormat::RGBA32F>();
 
 		/**********************************RGBA4**********************************/
 		RegisterConverter<PixelFormat::RGBA4, PixelFormat::A8>();
@@ -1692,6 +1797,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGB8_SRGB>();
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA8>();
+		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA32F>();
 
 		/**********************************RGBA8**********************************/
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::A8>();
@@ -1711,6 +1817,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB8>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA8_SRGB>();
+		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA32F>();
 
 		return true;
 	}

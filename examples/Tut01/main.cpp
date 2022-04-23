@@ -22,7 +22,7 @@ int main()
 	{
 		registry.emplace<Nz::NodeComponent>(cameraEntity);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(cameraEntity, mainWindow.GetRenderTarget(), Nz::ProjectionType::Orthographic);
-		cameraComponent.UpdateClearColor(Nz::Color(117, 122, 214, 255));
+		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
 	}
 
 	Nz::SimpleTextDrawer textDrawer;

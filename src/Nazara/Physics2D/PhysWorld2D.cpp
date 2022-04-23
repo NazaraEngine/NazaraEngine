@@ -14,12 +14,12 @@ namespace Nz
 	{
 		Color CpDebugColorToColor(cpSpaceDebugColor c)
 		{
-			return Color{ static_cast<Nz::UInt8>(c.r * 255.f), static_cast<Nz::UInt8>(c.g * 255.f), static_cast<Nz::UInt8>(c.b * 255.f), static_cast<Nz::UInt8>(c.a * 255.f) };
+			return Color{ c.r, c.g, c.b, c.a };
 		}
 
 		cpSpaceDebugColor ColorToCpDebugColor(Color c)
 		{
-			return cpSpaceDebugColor{ c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f };
+			return cpSpaceDebugColor{ c.r, c.g, c.b, c.a };
 		}
 
 		void CpCircleCallback(cpVect pos, cpFloat angle, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer userdata)
@@ -74,7 +74,7 @@ namespace Nz
 				return ColorToCpDebugColor(drawOptions->colorCallback(rigidBody, rigidBody.GetShapeIndex(shape), drawOptions->userdata));
 			}
 			else
-				return cpSpaceDebugColor{255.f, 0.f, 0.f, 255.f};
+				return cpSpaceDebugColor{1.f, 0.f, 0.f, 1.f};
 		}
 	}
 
@@ -96,7 +96,7 @@ namespace Nz
 	{
 		auto ColorToCpDebugColor = [](Color c) -> cpSpaceDebugColor
 		{
-			return cpSpaceDebugColor{ c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f };
+			return cpSpaceDebugColor{ c.r, c.g, c.b, c.a };
 		};
 
 		cpSpaceDebugDrawOptions drawOptions;
