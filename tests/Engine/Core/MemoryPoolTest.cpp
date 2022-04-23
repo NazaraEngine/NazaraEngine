@@ -124,7 +124,10 @@ SCENARIO("MemoryPool", "[CORE][MEMORYPOOL]")
 
 			bool failure = false;
 			for (T& vec : memoryPool)
+			{
+				NazaraUnused(vec);
 				failure = true;
+			}
 
 			CHECK_FALSE(failure);
 

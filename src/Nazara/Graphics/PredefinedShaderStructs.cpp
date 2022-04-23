@@ -36,11 +36,10 @@ namespace Nz
 	{
 		PredefinedLightData lightData = GetOffsets();
 
-		std::vector<MaterialSettings::UniformVariable> variables = {
-			{
-				{ "Lights", lightData.lightsOffset }
-			}
-		};
+		std::vector<MaterialSettings::UniformVariable> variables;
+		auto& var = variables.emplace_back();
+		var.name = "Lights";
+		var.offset = lightData.lightsOffset;
 
 		MaterialSettings::SharedUniformBlock uniformBlock = {
 			bindingIndex,
