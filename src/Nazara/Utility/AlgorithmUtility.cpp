@@ -652,8 +652,8 @@ namespace Nz
 
 	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, UInt64* indexCount, UInt64* vertexCount)
 	{
-		std::size_t xIndexCount, yIndexCount, zIndexCount;
-		std::size_t xVertexCount, yVertexCount, zVertexCount;
+		UInt64 xIndexCount, yIndexCount, zIndexCount;
+		UInt64 xVertexCount, yVertexCount, zVertexCount;
 
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.y, subdivision.z), &xIndexCount, &xVertexCount);
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
@@ -736,8 +736,8 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		std::size_t xIndexCount, yIndexCount, zIndexCount;
-		std::size_t xVertexCount, yVertexCount, zVertexCount;
+		UInt64 xIndexCount, yIndexCount, zIndexCount;
+		UInt64 xVertexCount, yVertexCount, zVertexCount;
 
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.y, subdivision.z), &xIndexCount, &xVertexCount);
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
@@ -906,7 +906,7 @@ namespace Nz
 	void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		///DOC: Cette fonction va accéder aux pointeurs en écriture ET en lecture
-		std::size_t vertexCount;
+		UInt64 vertexCount;
 		ComputeBoxIndexVertexCount(Vector3ui(subdivision), nullptr, &vertexCount);
 
 		// On envoie une matrice identité de sorte à ce que la boîte ne subisse aucune transformation (rendant plus facile l'étape suivante)
