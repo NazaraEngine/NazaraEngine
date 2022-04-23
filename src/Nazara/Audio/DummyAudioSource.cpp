@@ -187,6 +187,7 @@ namespace Nz
 	void DummyAudioSource::Stop()
 	{
 		m_playClock.Restart(0, true);
+		m_status = SoundStatus::Stopped;
 	}
 
 	std::shared_ptr<AudioBuffer> DummyAudioSource::TryUnqueueProcessedBuffer()
