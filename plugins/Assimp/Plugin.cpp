@@ -52,7 +52,7 @@ void ProcessJoints(aiNode* node, Skeleton* skeleton, const std::unordered_set<st
 	std::string_view jointName(node->mName.data, node->mName.length);
 	if (joints.count(jointName))
 	{
-		Joint* joint = skeleton->GetJoint(jointName);
+		Joint* joint = skeleton->GetJoint(std::string(jointName));
 
 		if (node->mParent)
 			joint->SetParent(skeleton->GetJoint(node->mParent->mName.C_Str()));
@@ -116,7 +116,7 @@ std::shared_ptr<Animation> LoadAnimation(Stream& stream, const AnimationParams& 
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,       ~aiComponent_ANIMATIONS);
+	//aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,       ~aiComponent_ANIMATIONS);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	aiReleasePropertyStore(properties);
@@ -261,14 +261,17 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 	bool animatedMesh = false;
 	if (parameters.animated)
 	{
-		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
+		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 		{
-			aiMesh* currentMesh = scene->mMeshes[meshIdx];
+			aiMesh* currentMesh = scene->mMeshes[meshIndex];
 			if (currentMesh->HasBones()) // Inline functions can be safely called
 			{
 				animatedMesh = true;
-				for (unsigned int boneIdx = 0; boneIdx < currentMesh->mNumBones; ++boneIdx)
-					joints.insert(currentMesh->mBones[boneIdx]->mName.C_Str());
+				for (unsigned int boneIndex = 0; boneIndex < currentMesh->mNumBones; ++boneIndex)
+				{
+					aiBone* bone = currentMesh->mBones[boneIndex];
+					joints.insert(bone->mName.C_Str());
+				}
 			}
 		}
 	}
@@ -290,13 +293,11 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 		// aiMaterial index in scene => Material index and data in Mesh
 		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
-		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
+		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 		{
-			aiMesh* iMesh = scene->mMeshes[meshIdx];
+			aiMesh* iMesh = scene->mMeshes[meshIndex];
 			if (iMesh->HasBones())
-			{
-				// For now, process only skeletal meshes
-			}
+				continue;
 
 			unsigned int indexCount = iMesh->mNumFaces * 3;
 			unsigned int vertexCount = iMesh->mNumVertices;
@@ -309,9 +310,9 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 			IndexMapper indexMapper(*indexBuffer);
 			IndexIterator index = indexMapper.begin();
 
-			for (unsigned int faceIdx = 0; faceIdx < iMesh->mNumFaces; ++faceIdx)
+			for (unsigned int faceIndex = 0; faceIndex < iMesh->mNumFaces; ++faceIndex)
 			{
-				aiFace& face = iMesh->mFaces[faceIdx];
+				const aiFace& face = iMesh->mFaces[faceIndex];
 				if (face.mNumIndices != 3)
 					NazaraWarning("Assimp plugin: This face is not a triangle!");
 
@@ -330,35 +331,85 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 
 			VertexMapper vertexMapper(*vertexBuffer);
 
-			auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
-			auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal);
-			auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
+			// Vertex positions
+			if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))
+			{
+				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+				{
+					aiVector3D position = iMesh->mVertices[vertexIdx];
+					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
+				}
+			}
+
+			// Vertex normals
+			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
+			{
+				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+				{
+					aiVector3D normal = iMesh->mNormals[vertexIdx];
+					*normalPtr++ = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
+				}
+			}
+
+			// Vertex tangents
+			bool generateTangents = false;
+			if (auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent))
+			{
+				if (iMesh->HasTangentsAndBitangents())
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiVector3D tangent = iMesh->mTangents[vertexIdx];
+						*tangentPtr++ = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
+					}
+				}
+				else
+					generateTangents = true;
+			}
+
+			// Vertex UVs
+			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
+			{
+				if (iMesh->HasTextureCoords(0))
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
+						*uvPtr++ = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+					}
+				}
+				else
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+						*uvPtr++ = Vector2f::Zero();
+				}
+			}
+
+			// Vertex colors
+			if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+			{
+				if (iMesh->HasVertexColors(0))
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiColor4D color = iMesh->mColors[0][vertexIdx];
+						*colorPtr++ = Color(UInt8(color.r * 255.f), UInt8(color.g * 255.f), UInt8(color.b * 255.f), UInt8(color.a * 255.f));
+					}
+				}
+				else
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+						*colorPtr++ = Color::White;
+				}
+			}
+
 			auto jointIndicesPtr = vertexMapper.GetComponentPtr<Vector4i32>(VertexComponent::JointIndices);
 			auto jointWeightPtr = vertexMapper.GetComponentPtr<Vector4f>(VertexComponent::JointWeights);
-			auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
-
-			for (std::size_t vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-			{
-				aiVector3D normal = iMesh->mNormals[vertexIndex];
-				aiVector3D position = iMesh->mVertices[vertexIndex];
-				aiVector3D tangent = iMesh->mTangents[vertexIndex];
-				aiVector3D uv = iMesh->mTextureCoords[0][vertexIndex];
-
-				if (posPtr)
-					posPtr[vertexIndex] = parameters.matrix * Vector3f(position.x, position.y, position.z);
-
-				if (normalPtr)
-					normalPtr[vertexIndex] = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
-
-				if (tangentPtr)
-					tangentPtr[vertexIndex] = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
-
-				if (uvPtr)
-					uvPtr[vertexIndex] = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
-			}
 
 			if (jointIndicesPtr || jointWeightPtr)
 			{
+				std::vector<std::size_t> weightIndices(iMesh->mNumVertices, 0);
+
 				for (unsigned int boneIndex = 0; boneIndex < iMesh->mNumBones; ++boneIndex)
 				{
 					aiBone* bone = iMesh->mBones[boneIndex];
@@ -366,11 +417,13 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					{
 						aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
 
+						std::size_t vertexWeightIndex = weightIndices[vertexWeight.mVertexId]++;
+
 						if (jointIndicesPtr)
-							jointIndicesPtr[vertexWeight.mVertexId][weightIndex] = boneIndex;
+							jointIndicesPtr[vertexWeight.mVertexId][vertexWeightIndex] = boneIndex;
 
 						if (jointWeightPtr)
-							jointWeightPtr[vertexWeight.mVertexId][weightIndex] = vertexWeight.mWeight;
+							jointWeightPtr[vertexWeight.mVertexId][vertexWeightIndex] = vertexWeight.mWeight;
 					}
 				}
 			}
@@ -482,13 +535,28 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 		// aiMaterial index in scene => Material index and data in Mesh
 		std::unordered_map<unsigned int, std::pair<UInt32, ParameterList>> materials;
 
-		for (unsigned int meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
+		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 		{
-			aiMesh* iMesh = scene->mMeshes[meshIdx];
-			if (!iMesh->HasBones()) // Don't process skeletal meshs
+			aiMesh* iMesh = scene->mMeshes[meshIndex];
+			if (iMesh->HasBones())
+				continue; // Don't process skeletal meshes
+
+			unsigned int indexCount = iMesh->mNumFaces * 3;
+			unsigned int vertexCount = iMesh->mNumVertices;
+
+			// Index buffer
+			bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
+
+			std::shared_ptr<IndexBuffer> indexBuffer = std::make_shared<IndexBuffer>((largeIndices) ? IndexType::U32 : IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+
+			IndexMapper indexMapper(*indexBuffer);
+			IndexIterator index = indexMapper.begin();
+
+			for (unsigned int faceIndex = 0; faceIndex < iMesh->mNumFaces; ++faceIndex)
 			{
-				unsigned int indexCount = iMesh->mNumFaces * 3;
-				unsigned int vertexCount = iMesh->mNumVertices;
+				const aiFace& face = iMesh->mFaces[faceIndex];
+				if (face.mNumIndices != 3)
+					NazaraWarning("Assimp plugin: This face is not a triangle!");
 
 				// Index buffer
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -680,6 +748,178 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 
 				mesh->AddSubMesh(subMesh);
 			}
+			indexMapper.Unmap();
+
+			// Vertex buffer
+
+			// Make sure the normal/tangent matrix won't rescale our vectors
+			Nz::Matrix4f normalTangentMatrix = parameters.matrix;
+			if (normalTangentMatrix.HasScale())
+				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
+
+			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
+
+			VertexMapper vertexMapper(*vertexBuffer);
+
+			// Vertex positions
+			if (auto posPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Position))
+			{
+				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+				{
+					aiVector3D position = iMesh->mVertices[vertexIdx];
+					*posPtr++ = parameters.matrix * Vector3f(position.x, position.y, position.z);
+				}
+			}
+
+			// Vertex normals
+			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
+			{
+				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+				{
+					aiVector3D normal = iMesh->mNormals[vertexIdx];
+					*normalPtr++ = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
+				}
+			}
+
+			// Vertex tangents
+			bool generateTangents = false;
+			if (auto tangentPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent))
+			{
+				if (iMesh->HasTangentsAndBitangents())
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiVector3D tangent = iMesh->mTangents[vertexIdx];
+						*tangentPtr++ = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
+					}
+				}
+				else
+					generateTangents = true;
+			}
+
+			// Vertex UVs
+			if (auto uvPtr = vertexMapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord))
+			{
+				if (iMesh->HasTextureCoords(0))
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
+						*uvPtr++ = parameters.texCoordOffset + Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+					}
+				}
+				else
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+						*uvPtr++ = Vector2f::Zero();
+				}
+			}
+
+			// Vertex colors
+			if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
+			{
+				if (iMesh->HasVertexColors(0))
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+					{
+						aiColor4D color = iMesh->mColors[0][vertexIdx];
+						*colorPtr++ = Color(UInt8(color.r * 255.f), UInt8(color.g * 255.f), UInt8(color.b * 255.f), UInt8(color.a * 255.f));
+					}
+				}
+				else
+				{
+					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
+						*colorPtr++ = Color::White;
+				}
+			}
+
+			vertexMapper.Unmap();
+
+			// Submesh
+			std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
+			subMesh->GenerateAABB();
+			subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
+
+			if (generateTangents)
+				subMesh->GenerateTangents();
+
+			auto matIt = materials.find(iMesh->mMaterialIndex);
+			if (matIt == materials.end())
+			{
+				ParameterList matData;
+				aiMaterial* aiMat = scene->mMaterials[iMesh->mMaterialIndex];
+
+				auto ConvertColor = [&] (const char* aiKey, unsigned int aiType, unsigned int aiIndex, const char* colorKey)
+				{
+					aiColor4D color;
+					if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
+					{
+						matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
+					}
+				};
+
+				auto ConvertTexture = [&] (aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
+				{
+					aiString path;
+					aiTextureMapMode mapMode[3];
+					if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
+					{
+						matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
+
+						if (wrapKey)
+						{
+							SamplerWrap wrap = SamplerWrap::Clamp;
+							switch (mapMode[0])
+							{
+								case aiTextureMapMode_Clamp:
+								case aiTextureMapMode_Decal:
+									wrap = SamplerWrap::Clamp;
+									break;
+
+								case aiTextureMapMode_Mirror:
+									wrap = SamplerWrap::MirroredRepeat;
+									break;
+
+								case aiTextureMapMode_Wrap:
+									wrap = SamplerWrap::Repeat;
+									break;
+
+								default:
+									NazaraWarning("Assimp texture map mode 0x" + NumberToString(mapMode[0], 16) + " not handled");
+									break;
+							}
+
+							matData.SetParameter(wrapKey, static_cast<long long>(wrap));
+						}
+					}
+				};
+
+				ConvertColor(AI_MATKEY_COLOR_AMBIENT, MaterialData::AmbientColor);
+				ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::DiffuseColor);
+				ConvertColor(AI_MATKEY_COLOR_SPECULAR, MaterialData::SpecularColor);
+
+				ConvertTexture(aiTextureType_DIFFUSE, MaterialData::DiffuseTexturePath, MaterialData::DiffuseWrap);
+				ConvertTexture(aiTextureType_EMISSIVE, MaterialData::EmissiveTexturePath);
+				ConvertTexture(aiTextureType_HEIGHT, MaterialData::HeightTexturePath);
+				ConvertTexture(aiTextureType_NORMALS, MaterialData::NormalTexturePath);
+				ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
+				ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
+
+				aiString name;
+				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
+					matData.SetParameter(MaterialData::Name, std::string(name.data, name.length));
+
+				int iValue;
+				if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
+					matData.SetParameter(MaterialData::FaceCulling, !iValue);
+
+				matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(UInt32(materials.size()), std::move(matData)))).first;
+			}
+
+			subMesh->SetMaterialIndex(matIt->first);
+
+			mesh->AddSubMesh(subMesh);
+			
 
 			mesh->SetMaterialCount(std::max<UInt32>(UInt32(materials.size()), 1));
 			for (const auto& pair : materials)
