@@ -1,16 +1,17 @@
 #include <Nazara/Core/Color.hpp>
 #include <catch2/catch.hpp>
 
-const float epsilon = 1.f;
-
 void CompareColor(const Nz::Color& lhs, const Nz::Color& rhs)
 {
-	Nz::UInt8 tolerance = 3;
-	REQUIRE(Nz::NumberEquals(lhs.r, rhs.r, tolerance));
-	REQUIRE(Nz::NumberEquals(lhs.g, rhs.g, tolerance));
-	REQUIRE(Nz::NumberEquals(lhs.b, rhs.b, tolerance));
-	REQUIRE(Nz::NumberEquals(lhs.a, rhs.a, tolerance));
+	constexpr float epsilon = 0.1f;
+
+	REQUIRE(lhs.r == Approx(rhs.r).margin(epsilon));
+	REQUIRE(lhs.g == Approx(rhs.g).margin(epsilon));
+	REQUIRE(lhs.b == Approx(rhs.b).margin(epsilon));
+	REQUIRE(lhs.a == Approx(rhs.a).margin(epsilon));
 }
+
+constexpr float epsilon = 1.f;
 
 void CompareCMY(const Nz::Color& color, float cyan, float magenta, float yellow)
 {
@@ -62,17 +63,18 @@ SCENARIO("Color", "[CORE][COLOR]")
 {
 	GIVEN("Two colors, one red (255) and one gray (128)")
 	{
-		Nz::Color red(255, 0, 0);
-		Nz::Color grey(128);
+		Nz::Color red(1.f, 0.f, 0.f);
+		Nz::Color grey(0.5f);
 
 		WHEN("We do operations")
 		{
 			THEN("These results are expected")
 			{
 				red += Nz::Color(0, 0, 0);
-				grey *= Nz::Color(255);
-				REQUIRE((red + grey) == Nz::Color(255, 128, 128));
-				REQUIRE((red * grey) == Nz::Color(128, 0, 0));
+				grey *= Nz::Color(1.f);
+
+				CompareColor(red + grey, Nz::Color(1.5f, 0.5f, 0.5f, 3.f));
+				CompareColor(red * grey, Nz::Color(0.5f, 0.f, 0.f, 2.f));
 			}
 		}
 	}
@@ -94,7 +96,7 @@ SCENARIO("Color", "[CORE][COLOR]")
 
 		colors.push_back({
 			"blue",
-			Nz::Color(0, 0, 255),
+			Nz::Color(0.f, 0.f, 1.f),
 			1.f, 1.f, 0.f, // cmy
 			1.f, 1.f, 0.f, 0.f, // cmyk
 			240.f, 1.f, 0.5f, // hsl
@@ -104,7 +106,7 @@ SCENARIO("Color", "[CORE][COLOR]")
 
 		colors.push_back({
 			"white",
-			Nz::Color(255, 255, 255),
+			Nz::Color(1.f, 1.f, 1.f),
 			0.f, 0.f, 0.f, // cmy
 			0.f, 0.f, 0.f, 0.f, // cmyk
 			0.f, 0.f, 1.f, // hsl
@@ -114,7 +116,7 @@ SCENARIO("Color", "[CORE][COLOR]")
 
 		colors.push_back({
 			"greenish",
-			Nz::Color(5, 191, 25),
+			Nz::Color(5 / 255.f, 191.f / 255.f, 25.f / 255.f),
 			0.980f, 0.251f, 0.902f, // cmy
 			0.974f, 0.000f, 0.869f, 0.251f, // cmyk
 			126.f, 0.95f, 0.38f, // hsl

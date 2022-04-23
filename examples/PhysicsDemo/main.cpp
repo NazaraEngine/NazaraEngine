@@ -133,7 +133,7 @@ int main()
 		registry.emplace<Nz::NodeComponent>(viewer);
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget());
 		cameraComponent.UpdateRenderMask(1);
-		cameraComponent.UpdateClearColor(Nz::Color(127, 127, 127));
+		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);

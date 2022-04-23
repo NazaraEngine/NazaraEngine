@@ -376,7 +376,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					aiColor4D color;
 					if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
 					{
-						matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
+						matData.SetParameter(colorKey, Color(color.r, color.g, color.b, color.a));
 					}
 				};
 
@@ -555,7 +555,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 						for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
 						{
 							aiColor4D color = iMesh->mColors[0][vertexIdx];
-							*colorPtr++ = Color(UInt8(color.r * 255.f), UInt8(color.g * 255.f), UInt8(color.b * 255.f), UInt8(color.a * 255.f));
+							*colorPtr++ = Color(color.r, color.g, color.b, color.a);
 						}
 					}
 					else
@@ -586,7 +586,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 						aiColor4D color;
 						if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(colorKey, Color(static_cast<UInt8>(color.r * 255), static_cast<UInt8>(color.g * 255), static_cast<UInt8>(color.b * 255), static_cast<UInt8>(color.a * 255)));
+							matData.SetParameter(colorKey, Color(color.r, color.g, color.b, color.a));
 						}
 					};
 

@@ -15,7 +15,7 @@ namespace Nz
 	m_theme(std::move(theme)),
 	m_registry(nullptr),
 	m_canvas(nullptr),
-	m_backgroundColor(Color(230, 230, 230, 255)),
+	m_backgroundColor(Color(0.9f, 0.9f, 0.9f, 1.f)),
 	m_renderingRect(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()),
 	m_cursor(SystemCursor::Default),
 	m_maximumSize(std::numeric_limits<float>::infinity()),

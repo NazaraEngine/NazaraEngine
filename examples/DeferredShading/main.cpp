@@ -338,7 +338,7 @@ int main()
 
 	std::random_device rng;
 	std::mt19937 randomEngine(rng());
-	std::uniform_int_distribution<unsigned int> colorDis(0, 255);
+	std::uniform_real_distribution<float> colorDis(0.f, 1.f);
 	std::uniform_real_distribution<float> heightDis(0.15f, 1.f);
 	std::uniform_real_distribution<float> posDis(-10.f, 10.f);
 	std::uniform_real_distribution<float> dirDis(-1.f, 1.f);
@@ -1174,11 +1174,11 @@ int main()
 					{
 						float rotationSpeed = ComputeLightAnimationSpeed(viewerPos);
 
-						auto& whiteLight = spotLights.emplace_back();
-						whiteLight.color = Nz::Color(100, 100, 255);
-						whiteLight.radius = 5.f;
-						whiteLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedTime);
-						whiteLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedTime);
+						auto& spotLight = spotLights.emplace_back();
+						spotLight.color = Nz::Color(0.4f, 0.4f, 1.f);
+						spotLight.radius = 5.f;
+						spotLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedTime);
+						spotLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedTime);
 
 						lightUpdate = true;
 					}
@@ -1524,7 +1524,7 @@ int main()
 						Nz::Vector3f position = AnimateLightPosition(spotLight.position, rotationSpeed, elapsedTime);
 						Nz::Vector3f direction = AnimateLightDirection(spotLight.direction, rotationSpeed, elapsedTime);
 
-						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r / 255.f, spotLight.color.g / 255.f, spotLight.color.b / 255.f);
+						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r, spotLight.color.g, spotLight.color.b);
 						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
 						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, directionOffset) = direction;
 						Nz::AccessByOffset<float&>(lightDataPtr, radiusOffset) = spotLight.radius;

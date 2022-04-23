@@ -68,7 +68,7 @@ namespace Nz
 		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_basicUniformOffsets.diffuseColor);
-		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
+		return Color(colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3]);
 	}
 
 	void BasicMaterial::SetAlphaTestThreshold(float alphaThreshold)
@@ -86,10 +86,10 @@ namespace Nz
 		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_uniformBlockIndex);
 
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_basicUniformOffsets.diffuseColor);
-		colorPtr[0] = diffuse.r / 255.f;
-		colorPtr[1] = diffuse.g / 255.f;
-		colorPtr[2] = diffuse.b / 255.f;
-		colorPtr[3] = diffuse.a / 255.f;
+		colorPtr[0] = diffuse.r;
+		colorPtr[1] = diffuse.g;
+		colorPtr[2] = diffuse.b;
+		colorPtr[3] = diffuse.a;
 	}
 
 	MaterialSettings::Builder BasicMaterial::Build(BasicBuildOptions& options)

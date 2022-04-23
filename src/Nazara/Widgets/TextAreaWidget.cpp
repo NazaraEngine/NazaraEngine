@@ -18,15 +18,15 @@ namespace Nz
 		{
 			switch (character)
 			{
-			case '\f':
-			case '\n':
-			case '\r':
-			case '\t':
-			case '\v':
-				return true;
+				case '\f':
+				case '\n':
+				case '\r':
+				case '\t':
+				case '\v':
+					return true;
 
-			default:
-				return Unicode::GetCategory(character) & Unicode::Category_Separator;
+				default:
+					return Unicode::GetCategory(character) & Unicode::Category_Separator;
 			}
 		}
 	}

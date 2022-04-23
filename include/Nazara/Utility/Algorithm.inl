@@ -27,7 +27,6 @@ namespace Nz
 	template<> constexpr ComponentType ComponentTypeId<Vector2i>()    { return ComponentType::Int2; }
 	template<> constexpr ComponentType ComponentTypeId<Vector3i>()    { return ComponentType::Int3; }
 	template<> constexpr ComponentType ComponentTypeId<Vector4i>()    { return ComponentType::Int4; }
-	template<> constexpr ComponentType ComponentTypeId<Quaternionf>() { return ComponentType::Quaternion; }
 
 	template<typename T>
 	constexpr ComponentType GetComponentTypeOf()
