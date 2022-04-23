@@ -26,6 +26,7 @@
  */
 
 #include <Nazara/Utility/Algorithm.hpp>
+#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -216,11 +217,11 @@ namespace Nz
 					Clear();
 				}
 
-				VertexCache(IndexIterator indices, UInt32 indexCount)
+				VertexCache(IndexIterator indices, UInt64 indexCount)
 				{
 					Clear();
 
-					for (UInt32 i = 0; i < indexCount; ++i)
+					for (UInt64 i = 0; i < indexCount; ++i)
 						AddVertex(*indices++);
 				}
 
@@ -305,7 +306,7 @@ namespace Nz
 				}
 
 				// stores new indices in place
-				Result Optimize(IndexIterator indices, unsigned int indexCount)
+				Result Optimize(IndexIterator indices, UInt64 indexCount)
 				{
 					if (indexCount == 0)
 						return Fail_NoVerts;
@@ -408,16 +409,16 @@ namespace Nz
 
 				Result InitialPass()
 				{
-					for (unsigned int i = 0; i < m_indices.size(); ++i)
+					for (std::size_t i = 0; i < m_indices.size(); ++i)
 					{
-						int index = m_indices[i];
-						if (index < 0 || index >= static_cast<int>(m_vertices.size()))
+						UInt32 index = m_indices[i];
+						if (index >= m_vertices.size())
 							return Fail_BadIndex;
 
 						m_vertices[index].totalValence++;
 						m_vertices[index].remainingValence++;
 
-						m_vertices[index].triIndices.push_back(i/3);
+						m_vertices[index].triIndices.push_back(i / 3);
 					}
 
 					m_bestTri = FullScoreRecalculation();
@@ -425,17 +426,17 @@ namespace Nz
 					return Success;
 				}
 
-				Result Init(IndexIterator indices, unsigned int indexCount, int vertexCount)
+				Result Init(IndexIterator indices, UInt64 indexCount, UInt64 vertexCount)
 				{
 					// clear the draw list
 					m_drawList.clear();
 
 					// allocate and initialize vertices and triangles
-					m_vertices.clear(); // Pour reconstruire tous les éléments
+					m_vertices.clear(); // to force rebuild every element
 					m_vertices.resize(vertexCount);
 
 					m_triangles.clear();
-					for (unsigned int i = 0; i < indexCount; i += 3)
+					for (UInt64 i = 0; i < indexCount; i += 3)
 					{
 						TriangleCacheData dat;
 						for (unsigned int j = 0; j < 3; ++j)
@@ -446,7 +447,7 @@ namespace Nz
 
 					// copy the indices
 					m_indices.resize(indexCount);
-					for (unsigned int i = 0; i < indexCount; ++i)
+					for (UInt64 i = 0; i < indexCount; ++i)
 						m_indices[i] = indices[i];
 
 					m_vertexCache.Clear();
@@ -617,10 +618,10 @@ namespace Nz
 
 				std::vector<VertexCacheData> m_vertices;
 				std::vector<TriangleCacheData> m_triangles;
-				std::vector<int> m_indices;
-				int m_bestTri; // the next triangle to add to the render list
-				VertexCache m_vertexCache;
+				std::vector<UInt32> m_indices;
 				std::vector<int> m_drawList;
+				VertexCache m_vertexCache;
+				int m_bestTri; // the next triangle to add to the render list
 
 				// CalculateVertexScore constants
 				float m_cacheDecayPower;
@@ -632,7 +633,7 @@ namespace Nz
 
 	/**********************************Compute**********************************/
 
-	Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, std::size_t vertexCount)
+	Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, UInt64 vertexCount)
 	{
 		Boxf aabb;
 		if (vertexCount > 0)
@@ -640,7 +641,7 @@ namespace Nz
 			aabb.Set(positionPtr->x, positionPtr->y, positionPtr->z, 0.f, 0.f, 0.f);
 			++positionPtr;
 
-			for (unsigned int i = 1; i < vertexCount; ++i)
+			for (UInt64 i = 1; i < vertexCount; ++i)
 				aabb.ExtendTo(*positionPtr++);
 		}
 		else
@@ -649,7 +650,7 @@ namespace Nz
 		return aabb;
 	}
 
-	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount)
+	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, UInt64* indexCount, UInt64* vertexCount)
 	{
 		std::size_t xIndexCount, yIndexCount, zIndexCount;
 		std::size_t xVertexCount, yVertexCount, zVertexCount;
@@ -665,7 +666,7 @@ namespace Nz
 			*vertexCount = xVertexCount*2 + yVertexCount*2 + zVertexCount*2;
 	}
 
-	UInt64 ComputeCacheMissCount(IndexIterator indices, UInt32 indexCount)
+	UInt64 ComputeCacheMissCount(IndexIterator indices, UInt64 indexCount)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -673,7 +674,7 @@ namespace Nz
 		return cache.GetMissCount();
 	}
 
-	void ComputeConeIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount)
+	void ComputeConeIndexVertexCount(unsigned int subdivision, UInt64* indexCount, UInt64* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = (subdivision-1)*6;
@@ -682,7 +683,7 @@ namespace Nz
 			*vertexCount = subdivision + 2;
 	}
 
-	void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, std::size_t* indexCount, std::size_t* vertexCount)
+	void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, UInt64* indexCount, UInt64* vertexCount)
 	{
 		// Comme tous nos plans sont identiques, on peut optimiser un peu
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision), indexCount, vertexCount);
@@ -694,7 +695,7 @@ namespace Nz
 			*vertexCount *= 6;
 	}
 
-	void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, std::size_t* indexCount, std::size_t* vertexCount)
+	void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, UInt64* indexCount, UInt64* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = 3 * 20 * IntegralPow(4, recursionLevel);
@@ -703,7 +704,7 @@ namespace Nz
 			*vertexCount = IntegralPow(4, recursionLevel)*10 + 2;
 	}
 
-	void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, std::size_t* indexCount, std::size_t* vertexCount)
+	void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, UInt64* indexCount, UInt64* vertexCount)
 	{
 		// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 		unsigned int horizontalFaceCount = (1 << subdivision.x);
@@ -720,7 +721,7 @@ namespace Nz
 			*vertexCount = horizontalVertexCount*verticalVertexCount;
 	}
 
-	void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, std::size_t* indexCount, std::size_t* vertexCount)
+	void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, UInt64* indexCount, UInt64* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = (sliceCount-1) * (stackCount-1) * 6;
@@ -731,7 +732,7 @@ namespace Nz
 
 	/**********************************Generate*********************************/
 
-	void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+	void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -854,7 +855,7 @@ namespace Nz
 		}
 	}
 
-	void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+	void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		constexpr float round = 2.f * Pi<float>;
 		float delta = round/subdivision;
@@ -866,8 +867,10 @@ namespace Nz
 
 		for (unsigned int i = 0; i < subdivision; ++i)
 		{
-			float angle = delta*i;
-			*vertexPointers.positionPtr++ = matrix.Transform(Vector3f(radius*std::sin(angle), -length, radius*std::cos(angle)));
+			RadianAnglef angle = delta*i;
+			auto [angleSin, angleCos] = angle.GetSinCos();
+
+			*vertexPointers.positionPtr++ = matrix.Transform(Vector3f(radius * angleSin, -length, radius * angleCos));
 
 			*indices++ = indexOffset + 0;
 			*indices++ = indexOffset + i+1;
@@ -900,7 +903,7 @@ namespace Nz
 		}
 	}
 
-	void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+	void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		///DOC: Cette fonction va accéder aux pointeurs en écriture ET en lecture
 		std::size_t vertexCount;
@@ -928,7 +931,7 @@ namespace Nz
 		}
 	}
 
-	void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+	void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -936,7 +939,7 @@ namespace Nz
 		builder.Generate(size, recursionLevel, textureCoords, vertexPointers, indices, aabb, indexOffset);
 	}
 
-	void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+	void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		// Pour plus de facilité, on va construire notre plan en considérant que la normale est de 0,1,0
 		// Et appliquer ensuite une matrice "finissant le travail"
@@ -995,7 +998,7 @@ namespace Nz
 			aabb->Set(matrix.Transform(Vector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(Vector3f(halfSizeX, 0.f, halfSizeY), 0.f));
 	}
 
-	void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+	void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
 	{
 		// http://stackoverflow.com/questions/14080932/implementing-opengl-sphere-example-code
 		float invSliceCount = 1.f / (sliceCount-1);
@@ -1004,18 +1007,22 @@ namespace Nz
 		for (unsigned int stack = 0; stack < stackCount; ++stack)
 		{
 			float stackVal = stack * invStackCount;
-			float stackValPi = stackVal * Pi<float>;
-			float sinStackValPi = std::sin(stackValPi);
+			RadianAnglef stackValPi = stackVal * Pi<float>;
+			float sinStackValPi = stackValPi.GetSin();
+
+			stackValPi -= HalfPi<float>;
+			float normalY = stackValPi.GetSin();
 
 			for (unsigned int slice = 0; slice < sliceCount; ++slice)
 			{
 				float sliceVal = slice * invSliceCount;
-				float sliceValPi2 = sliceVal * 2.f * Pi<float>;
+				RadianAnglef sliceValPi2 = sliceVal * 2.f * Pi<float>;
+				auto sincos = sliceValPi2.GetSinCos();
 
 				Vector3f normal;
-				normal.y = std::sin(-HalfPi<float> + stackValPi);
-				normal.x = std::cos(sliceValPi2) * sinStackValPi;
-				normal.z = std::sin(sliceValPi2) * sinStackValPi;
+				normal.y = normalY;
+				normal.x = sincos.second * sinStackValPi;
+				normal.z = sincos.first * sinStackValPi;
 
 				*vertexPointers.positionPtr++ = matrix.Transform(size * normal);
 
@@ -1047,7 +1054,7 @@ namespace Nz
 
 	/**********************************Optimize*********************************/
 
-	void OptimizeIndices(IndexIterator indices, unsigned int indexCount)
+	void OptimizeIndices(IndexIterator indices, UInt64 indexCount)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -1058,13 +1065,13 @@ namespace Nz
 
 	/************************************Skin***********************************/
 
-	void SkinPosition(const SkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
+	void SkinPosition(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
 	{
 		const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
-		std::size_t endVertex = startVertex + vertexCount - 1;
-		for (std::size_t i = startVertex; i <= endVertex; ++i)
+		UInt64 endVertex = startVertex + vertexCount - 1;
+		for (UInt64 i = startVertex; i <= endVertex; ++i)
 		{
 			Vector3f finalPosition(Vector3f::Zero());
 
@@ -1084,13 +1091,13 @@ namespace Nz
 		}
 	}
 
-	void SkinPositionNormal(const SkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
+	void SkinPositionNormal(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
 	{
 		const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
-		std::size_t endVertex = startVertex + vertexCount - 1;
-		for (std::size_t i = startVertex; i <= endVertex; ++i)
+		UInt64 endVertex = startVertex + vertexCount - 1;
+		for (UInt64 i = startVertex; i <= endVertex; ++i)
 		{
 			Vector3f finalPosition(Vector3f::Zero());
 			Vector3f finalNormal(Vector3f::Zero());
@@ -1115,13 +1122,13 @@ namespace Nz
 		}
 	}
 
-	void SkinPositionNormalTangent(const SkinningData& skinningInfos, unsigned int startVertex, unsigned int vertexCount)
+	void SkinPositionNormalTangent(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
 	{
 		const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
 		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
 
-		unsigned int endVertex = startVertex + vertexCount - 1;
-		for (unsigned int i = startVertex; i <= endVertex; ++i)
+		UInt64 endVertex = startVertex + vertexCount - 1;
+		for (UInt64 i = startVertex; i <= endVertex; ++i)
 		{
 			Vector3f finalPosition(Vector3f::Zero());
 			Vector3f finalNormal(Vector3f::Zero());
@@ -1152,20 +1159,29 @@ namespace Nz
 
 	/*********************************Transform*********************************/
 
-	void TransformVertices(VertexPointers vertexPointers, unsigned int vertexCount, const Matrix4f& matrix)
+	void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix)
 	{
-		///DOC: Pointeur read/write
-		Vector3f scale = matrix.GetScale();
-
-		for (unsigned int i = 0; i < vertexCount; ++i)
+		if (vertexPointers.positionPtr)
 		{
-			*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
+			for (UInt64 i = 0; i < vertexCount; ++i)
+				*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
+		}
+
+		if (vertexPointers.normalPtr || vertexPointers.tangentPtr)
+		{
+			Vector3f scale = matrix.GetScale();
 
 			if (vertexPointers.normalPtr)
-				*vertexPointers.normalPtr++ = matrix.Transform(*vertexPointers.normalPtr, 0.f) / scale;
+			{
+				for (UInt64 i = 0; i < vertexCount; ++i)
+					*vertexPointers.normalPtr++ = matrix.Transform(*vertexPointers.normalPtr, 0.f) / scale;
+			}
 
 			if (vertexPointers.tangentPtr)
-				*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
+			{
+				for (UInt64 i = 0; i < vertexCount; ++i)
+					*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
+			}
 		}
 	}
 }
