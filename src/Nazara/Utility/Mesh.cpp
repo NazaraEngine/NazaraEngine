@@ -96,8 +96,8 @@ namespace Nz
 		{
 			case PrimitiveType::Box:
 			{
-				std::size_t indexCount;
-				std::size_t vertexCount;
+				UInt64 indexCount;
+				UInt64 vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -120,8 +120,8 @@ namespace Nz
 
 			case PrimitiveType::Cone:
 			{
-				std::size_t indexCount;
-				std::size_t vertexCount;
+				UInt64 indexCount;
+				UInt64 vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -144,8 +144,8 @@ namespace Nz
 
 			case PrimitiveType::Plane:
 			{
-				std::size_t indexCount;
-				std::size_t vertexCount;
+				UInt64 indexCount;
+				UInt64 vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -172,8 +172,8 @@ namespace Nz
 				{
 					case SphereType::Cubic:
 					{
-						std::size_t indexCount;
-						std::size_t vertexCount;
+						UInt64 indexCount;
+						UInt64 vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
 						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -196,8 +196,8 @@ namespace Nz
 
 					case SphereType::Ico:
 					{
-						std::size_t indexCount;
-						std::size_t vertexCount;
+						UInt64 indexCount;
+						UInt64 vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
 						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -220,8 +220,8 @@ namespace Nz
 
 					case SphereType::UV:
 					{
-						std::size_t indexCount;
-						std::size_t vertexCount;
+						UInt64 indexCount;
+						UInt64 vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
 						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
