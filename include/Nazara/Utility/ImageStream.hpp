@@ -34,14 +34,11 @@ namespace Nz
 			ImageStream() = default;
 			virtual ~ImageStream();
 
-			virtual bool DecodeNextFrame(void* buffer) = 0;
+			virtual bool DecodeNextFrame(void* frameBuffer, UInt64* frameTime) = 0;
 
 			virtual UInt64 GetFrameCount() const = 0;
-			virtual UInt64 GetFrameDelay(std::size_t frameIndex) const = 0;
 			virtual PixelFormat GetPixelFormat() const = 0;
 			virtual Vector2ui GetSize() const = 0;
-
-			virtual bool HasConstantRate() const = 0;
 
 			virtual void Seek(UInt64 frameIndex) = 0;
 

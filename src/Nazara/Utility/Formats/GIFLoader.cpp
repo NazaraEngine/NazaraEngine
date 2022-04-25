@@ -21,6 +21,9 @@ namespace Nz
 {
 	namespace
 	{
+		constexpr UInt8 DisposeToBackground = 2;
+		constexpr UInt8 DisposeToPrevious = 3;
+
 		class GIFImageStream : public ImageStream
 		{
 			public:
@@ -48,10 +51,21 @@ namespace Nz
 					return true;
 				}
 
-				bool DecodeNextFrame(void* buffer) override
+				bool DecodeNextFrame(void* frameBuffer, UInt64* frameTime) override
 				{
-					UInt8* outputImage = static_cast<UInt8*>(buffer);
+					if (m_currentFrame >= m_frames.size())
+					{
+						if (frameTime)
+							*frameTime = m_endFrameTime;
+
+						return false;
+					}
+
+					UInt8* outputImage = static_cast<UInt8*>(frameBuffer);
 					auto& frameData = m_frames[m_currentFrame];
+
+					if (frameTime)
+						*frameTime = frameData.time;
 
 					UInt16 left;
 					UInt16 top;
@@ -59,6 +73,7 @@ namespace Nz
 					UInt16 height;
 					UInt8 flag;
 
+					m_byteStream.GetStream()->SetCursorPos(frameData.streamOffset);
 					m_byteStream >> left >> top >> width >> height >> flag;
 
 					ImageDecodingData decodingData;
@@ -69,10 +84,60 @@ namespace Nz
 					decodingData.maxY = decodingData.startY + decodingData.lineSize * height;
 					decodingData.currentX = decodingData.startX;
 					decodingData.currentY = decodingData.startY;
-					decodingData.outputImage = outputImage;
 
-					//if (m_currentFrame == 0)
-						std::memset(decodingData.outputImage, 0, m_header.width * m_header.height * 4);
+					// Render to previous frame if frame history is required
+					if (m_requiresFrameHistory)
+						decodingData.outputImage = m_previousFrame.get();
+					else
+						decodingData.outputImage = outputImage;
+
+					std::size_t pixelCount = m_header.width * m_header.height;
+
+					if (m_currentFrame == 0)
+					{
+						if (m_requiresFrameHistory)
+							std::memset(m_previousFrame.get(), 0, pixelCount * 4);
+						else if (outputImage)
+							std::memset(outputImage, 0, pixelCount * 4);
+
+						if (m_disposedRendering)
+							std::memset(m_disposedRendering.get(), 0, pixelCount * 4);
+					}
+					else if (m_requiresFrameHistory)
+					{
+						if (m_frames[m_currentFrame - 1].disposalMethod == DisposeToBackground)
+						{
+							// FIXME: Is background color something else than transparent?
+							std::array<UInt8, 4> backgroundColor;
+							backgroundColor.fill(0);
+
+							// restore affected pixels to background
+							for (std::size_t i = 0; i < pixelCount; ++i)
+							{
+								if (m_affectedPixels[i])
+									std::memcpy(&m_previousFrame[i * 4], &backgroundColor[0], 4);
+							}
+						}
+						else if (m_frames[m_currentFrame - 1].disposalMethod == DisposeToPrevious)
+						{
+							// restore affected pixels to frame N - 2
+							for (std::size_t i = 0; i < pixelCount; ++i)
+							{
+								if (m_affectedPixels[i])
+									std::memcpy(&m_previousFrame[i * 4], &m_disposedRendering[i * 4], 4);
+							}
+						}
+
+						if (m_disposedRendering)
+							std::memcpy(&m_disposedRendering[0], &m_previousFrame[0], pixelCount * 4);
+					}
+					else if (m_frames[m_currentFrame - 1].disposalMethod == DisposeToBackground)
+					{
+						// Special case where each frame dispose to background but does full rendering
+						// simply clear to transparent
+						if (outputImage)
+							std::memset(outputImage, 0, pixelCount * 4);
+					}
 
 					// if the width of the specified rectangle is 0, that means
 					// we may not see *any* pixels or the image is malformed;
@@ -101,13 +166,17 @@ namespace Nz
 						for (std::size_t i = 0; i < numEntries; ++i)
 						{
 							m_byteStream >> m_localColorTable[i].r >> m_localColorTable[i].g >> m_localColorTable[i].b;
-							m_localColorTable[i].a = (i == frameData.transparentIndex) ? 0 : 0xFF;
+							m_localColorTable[i].a = 0xFF;
 						}
 
 						decodingData.colorTable = &m_localColorTable[0];
+						decodingData.transparentColorIndex = frameData.transparentIndex;
 					}
 					else if (!m_globalColorTable.empty())
+					{
 						decodingData.colorTable = &m_globalColorTable[0];
+						decodingData.transparentColorIndex = frameData.transparentIndex;
+					}
 					else
 					{
 						// this error should have been caught already when loading
@@ -123,6 +192,292 @@ namespace Nz
 						return false;
 					}
 
+					if (decodingData.outputImage)
+					{
+						if (!DecodeImageDescriptor(minimumCodeSize, decodingData))
+							return false;
+					}
+					else
+						SkipUntilTerminationBlock();
+
+					if (m_currentFrame == 0)
+					{
+						// if first frame, any pixel not drawn to gets the background color
+						if (!m_globalColorTable.empty())
+						{
+							for (std::size_t i = 0; i < pixelCount; ++i)
+							{
+								if (!m_affectedPixels[i])
+								{
+									UInt8* outputPixel = &outputImage[i * 4];
+									outputPixel[0] = m_globalColorTable[m_header.backgroundPaletteIndex].r;
+									outputPixel[1] = m_globalColorTable[m_header.backgroundPaletteIndex].g;
+									outputPixel[2] = m_globalColorTable[m_header.backgroundPaletteIndex].b;
+									outputPixel[3] = m_globalColorTable[m_header.backgroundPaletteIndex].a;
+								}
+							}
+						}
+					}
+
+					if (outputImage && decodingData.outputImage != outputImage)
+						std::memcpy(outputImage, decodingData.outputImage, pixelCount * 4);
+
+					m_currentFrame++;
+					return true;
+				}
+
+				UInt64 GetFrameCount() const override
+				{
+					return m_frames.size();
+				}
+
+				PixelFormat GetPixelFormat() const override
+				{
+					return PixelFormat::RGBA8; //< TODO: Set SRGB
+				}
+
+				Vector2ui GetSize() const override
+				{
+					return Vector2ui(m_header.width, m_header.height);
+				}
+
+				void Seek(UInt64 frameIndex) override
+				{
+					assert(frameIndex < m_frames.size());
+
+					if (m_requiresFrameHistory)
+					{
+						if (m_currentFrame > frameIndex)
+							m_currentFrame = 0;
+
+						while (m_currentFrame < frameIndex)
+							DecodeNextFrame(nullptr, nullptr);
+					}
+					else
+						m_currentFrame = frameIndex;
+				}
+
+				UInt64 Tell() override
+				{
+					return m_currentFrame;
+				}
+
+				bool Open()
+				{
+					if (!Check())
+					{
+						NazaraError("stream has invalid GIF header");
+						return false;
+					}
+
+					m_byteStream >> m_header.width >> m_header.height;
+					m_byteStream >> m_header.flags >> m_header.backgroundPaletteIndex >> m_header.ratio;
+
+					bool hasGlobalColorTable = (m_header.flags & 0b1000'0000);
+					if (hasGlobalColorTable)
+					{
+						std::size_t numEntries = 2ULL << (m_header.flags & 0b0000'0111);
+						m_globalColorTable.resize(numEntries);
+						for (std::size_t i = 0; i < numEntries; ++i)
+						{
+							m_byteStream >> m_globalColorTable[i].r >> m_globalColorTable[i].g >> m_globalColorTable[i].b;
+							m_globalColorTable[i].a = 0xFF;
+						}
+					}
+
+					m_frames.clear();
+					m_requiresFrameHistory = false;
+					bool hasDisposeToPrevious = false;
+					bool hasPartialRendering = false;
+					bool terminated = false;
+
+					UInt64 frameTime = 0;
+
+					FrameMetadata nextFrame;
+					while (!terminated)
+					{
+						UInt8 tag;
+						m_byteStream >> tag;
+
+						switch (tag)
+						{
+							case 0: //< empty block?
+								break;
+
+							case 0x2C: //< image descriptor tag
+							{
+								nextFrame.streamOffset = m_byteStream.GetStream()->GetCursorPos();
+
+								m_frames.push_back(nextFrame);
+								nextFrame = {};
+
+								UInt16 left;
+								UInt16 top;
+								UInt16 width;
+								UInt16 height;
+								UInt8 flag;
+
+								m_byteStream >> left >> top >> width >> height >> flag;
+
+								if (left + width > m_header.width)
+								{
+									NazaraError("corrupt gif (out of range)");
+									return false;
+								}
+
+								if (top + height > m_header.height)
+								{
+									NazaraError("corrupt gif (out of range)");
+									return false;
+								}
+
+								if (left != 0 || top != 0 || width < m_header.width || height < m_header.height)
+									hasPartialRendering = true;
+
+								if (flag & 0b1000'0000)
+								{
+									// has local color table
+									UInt16 colorTableSize = 2ULL << (flag & 0b0000'0111);
+									m_byteStream.Read(nullptr, colorTableSize * 3);
+								}
+								else if (!hasGlobalColorTable)
+								{
+									NazaraError("corrupt gif (no color table for image #" + std::to_string(m_frames.size() - 1) + ")");
+									return false;
+								}
+
+								UInt8 minimumCodeSize;
+								m_byteStream >> minimumCodeSize;
+								if (minimumCodeSize > 12)
+								{
+									NazaraError("unexpected LZW Minimum Code Size (" + std::to_string(minimumCodeSize) + ")");
+									return false;
+								}
+
+								SkipUntilTerminationBlock();
+								break;
+							}
+
+							case 0x3B: //< end of file
+								terminated = true;
+								break;
+
+							case 0x21: //< extension tag
+							{
+								UInt8 label;
+								m_byteStream >> label;
+								switch (label)
+								{
+									case 0xF9: //< graphic control extension
+									{
+										UInt8 blockSize;
+										UInt8 flags;
+										UInt16 delay;
+
+										m_byteStream >> blockSize >> flags >> delay;
+
+										if (delay == 0)
+											delay = 10;
+
+										if (blockSize != 4)
+										{
+											NazaraError("corrupt gif (invalid block size for graphic control extension)");
+											return false;
+										}
+
+										nextFrame.disposalMethod = (flags & 0b0001'1100) >> 2;
+										nextFrame.time = frameTime;
+										frameTime += delay * 10;
+
+										if (flags & 0b0000'0001)
+										{
+											UInt8 transparentIndex;
+											m_byteStream >> transparentIndex;
+
+											nextFrame.transparentIndex = transparentIndex;
+										}
+
+										if (nextFrame.disposalMethod == DisposeToPrevious)
+											hasDisposeToPrevious = true;
+
+										break;
+									}
+
+									case 0xFE: //< comment extension
+										break;
+
+									case 0x01: //< plain text extension
+										break;
+
+									case 0xFF: //< application extension
+										break;
+
+									default:
+										NazaraWarning("unrecognized extension label (unknown tag 0x" + NumberToString(label, 16) + ")");
+										break;
+								}
+
+								SkipUntilTerminationBlock();
+								break;
+							}
+
+							default:
+								NazaraError("corrupt gif (unknown tag 0x" + NumberToString(tag, 16) + ")");
+								return false;
+						}
+					}
+
+					if (hasDisposeToPrevious || hasPartialRendering)
+						m_requiresFrameHistory = true;
+
+					m_endFrameTime = frameTime;
+
+					m_affectedPixels.Resize(m_header.width * m_header.height);
+					if (m_requiresFrameHistory)
+						m_previousFrame = std::make_unique<UInt8[]>(m_header.width * m_header.height * 4);
+					else
+						m_previousFrame.reset();
+
+					if (hasDisposeToPrevious)
+						m_disposedRendering = std::make_unique<UInt8[]>(m_header.width * m_header.height * 4);
+					else
+						m_disposedRendering.reset();
+
+					m_currentFrame = 0;
+
+					return true;
+				}
+
+				bool SetFile(const std::filesystem::path& filePath)
+				{
+					std::unique_ptr<File> file = std::make_unique<File>();
+					if (!file->Open(filePath, OpenMode::ReadOnly))
+					{
+						NazaraError("Failed to open stream from file: " + Error::GetLastError());
+						return false;
+					}
+					m_ownedStream = std::move(file);
+
+					SetStream(*m_ownedStream);
+					return true;
+				}
+
+				void SetMemory(const void* data, std::size_t size)
+				{
+					m_ownedStream = std::make_unique<MemoryView>(data, size);
+					SetStream(*m_ownedStream);
+				}
+
+				void SetStream(Stream& stream)
+				{
+					m_byteStream.SetStream(&stream);
+				}
+
+			private:
+				struct ImageDecodingData;
+
+				bool DecodeImageDescriptor(UInt8 minimumCodeSize, ImageDecodingData& decodingData)
+				{
 					Int32 clear = 1 << minimumCodeSize;
 					UInt32 first = 1;
 					Int32 codeSize = minimumCodeSize + 1;
@@ -172,7 +527,8 @@ namespace Nz
 							validBits -= codeSize;
 							// @OPTIMIZE: is there some way we can accelerate the non-clear path?
 							if (code == clear)
-							{  // clear code
+							{
+								// clear code
 								codeSize = minimumCodeSize + 1;
 								codeMask = (1 << codeSize) - 1;
 								avail = clear + 2;
@@ -230,247 +586,8 @@ namespace Nz
 						}
 					}
 
-					// if this was the first frame
-					if (m_currentFrame == 0 && m_header.backgroundPaletteIndex > 0)
-					{
-						std::size_t pixelCount = m_header.width * m_header.height;
-						// if first frame, any pixel not drawn to gets the background color
-						for (std::size_t i = 0; i < pixelCount; ++i)
-						{
-							if (!m_affectedPixels[i])
-							{
-								UInt8* outputPixel = &outputImage[i * 4];
-								outputPixel[0] = m_globalColorTable[m_header.backgroundPaletteIndex].r;
-								outputPixel[1] = m_globalColorTable[m_header.backgroundPaletteIndex].g;
-								outputPixel[2] = m_globalColorTable[m_header.backgroundPaletteIndex].b;
-								outputPixel[3] = m_globalColorTable[m_header.backgroundPaletteIndex].a;
-							}
-						}
-					}
-
-					if (m_currentFrame + 1 < m_frames.size())
-						Seek(m_currentFrame + 1);
-
 					return true;
 				}
-
-				UInt64 GetFrameCount() const override
-				{
-					return m_frames.size();
-				}
-
-				UInt64 GetFrameDelay(std::size_t frameIndex) const override
-				{
-					assert(frameIndex < m_frames.size());
-					return m_frames[frameIndex].delay;
-				}
-
-				PixelFormat GetPixelFormat() const override
-				{
-					return PixelFormat::RGBA8; //< TODO: Set SRGB
-				}
-
-				Vector2ui GetSize() const override
-				{
-					return Vector2ui(m_header.width, m_header.height);
-				}
-
-				bool HasConstantRate() const override
-				{
-					return m_hasConstantRate;
-				}
-
-				void Seek(UInt64 frameIndex) override
-				{
-					assert(frameIndex < m_frames.size());
-
-					m_currentFrame = frameIndex;
-					m_byteStream.GetStream()->SetCursorPos(m_frames[m_currentFrame].streamOffset);
-				}
-
-				UInt64 Tell() override
-				{
-					return m_currentFrame;
-				}
-
-				bool Open()
-				{
-					if (!Check())
-					{
-						NazaraError("stream has invalid GIF header");
-						return false;
-					}
-
-					m_byteStream >> m_header.width >> m_header.height;
-					m_byteStream >> m_header.flags >> m_header.backgroundPaletteIndex >> m_header.ratio;
-
-					bool hasGlobalColorTable = (m_header.flags & 0b1000'0000);
-					if (hasGlobalColorTable)
-					{
-						std::size_t numEntries = 2ULL << (m_header.flags & 0b0000'0111);
-						m_globalColorTable.resize(numEntries);
-						for (std::size_t i = 0; i < numEntries; ++i)
-						{
-							m_byteStream >> m_globalColorTable[i].r >> m_globalColorTable[i].g >> m_globalColorTable[i].b;
-							m_globalColorTable[i].a = 0xFF;
-						}
-					}
-
-					m_frames.clear();
-					bool terminated = false;
-					UInt16 nextFrameDelay = 0;
-					UInt8 nextFrameTransparentIndex = 0xFF;
-					while (!terminated)
-					{
-						UInt8 tag;
-						m_byteStream >> tag;
-
-						switch (tag)
-						{
-							case 0x2C: //< image descriptor tag
-							{
-								auto& frame = m_frames.emplace_back();
-								frame.delay = nextFrameDelay;
-								frame.streamOffset = m_byteStream.GetStream()->GetCursorPos();
-								frame.transparentIndex = nextFrameTransparentIndex;
-
-								UInt16 left;
-								UInt16 top;
-								UInt16 width;
-								UInt16 height;
-								UInt8 flag;
-
-								m_byteStream >> left >> top >> width >> height >> flag;
-
-								if (left + width > m_header.width)
-								{
-									NazaraError("corrupt gif (out of range)");
-									return false;
-								}
-
-								if (top + height > m_header.height)
-								{
-									NazaraError("corrupt gif (out of range)");
-									return false;
-								}
-
-								if (flag & 0b1000'0000)
-								{
-									// has local color table
-									UInt16 colorTableSize = 2ULL << (flag & 0b0000'0111);
-									m_byteStream.Read(nullptr, colorTableSize * 3);
-								}
-								else if (!hasGlobalColorTable)
-								{
-									NazaraError("corrupt gif (no color table for image #" + std::to_string(m_frames.size() - 1) + ")");
-									return false;
-								}
-
-								UInt8 minimumCodeSize;
-								m_byteStream >> minimumCodeSize;
-								if (minimumCodeSize > 12)
-								{
-									NazaraError("unexpected LZW Minimum Code Size (" + std::to_string(minimumCodeSize) + ")");
-									return false;
-								}
-
-								SkipUntilTerminationBlock();
-								break;
-							}
-
-							case 0x3B: //< end of file
-								terminated = true;
-								break;
-
-							case 0x21: //< extension tag
-							{
-								UInt8 label;
-								m_byteStream >> label;
-								switch (label)
-								{
-									case 0xF9: //< graphic control extension
-									{
-										UInt8 blockSize;
-										UInt8 flags;
-										UInt16 delay;
-
-										m_byteStream >> blockSize >> flags >> delay;
-
-										if (blockSize != 4)
-										{
-											NazaraError("corrupt gif (invalid block size for graphic control extension)");
-											return false;
-										}
-
-										UInt8 disposalMethod = (flags & 0b0001'1100) >> 2;
-										nextFrameDelay = delay * 10;
-
-										if (flags & 0b0000'0001)
-											m_byteStream >> nextFrameTransparentIndex;
-										else
-											nextFrameTransparentIndex = 0xFFFF;
-
-										break;
-									}
-
-									case 0xFE: //< comment extension
-										break;
-
-									case 0x01: //< plain text extension
-										break;
-
-									case 0xFF: //< application extension
-										break;
-
-									default:
-										NazaraWarning("unrecognized extension label (unknown tag 0x" + NumberToString(label, 16) + ")");
-										break;
-								}
-
-								SkipUntilTerminationBlock();
-								break;
-							}
-
-							default:
-								NazaraError("corrupt gif (unknown tag 0x" + NumberToString(tag, 16) + ")");
-								return false;
-						}
-					}
-
-					m_affectedPixels.Resize(m_header.width* m_header.height);
-
-					Seek(0);
-
-					return true;
-				}
-
-				bool SetFile(const std::filesystem::path& filePath)
-				{
-					std::unique_ptr<File> file = std::make_unique<File>();
-					if (!file->Open(filePath, OpenMode::ReadOnly))
-					{
-						NazaraError("Failed to open stream from file: " + Error::GetLastError());
-						return false;
-					}
-					m_ownedStream = std::move(file);
-
-					SetStream(*m_ownedStream);
-					return true;
-				}
-
-				void SetMemory(const void* data, std::size_t size)
-				{
-					m_ownedStream = std::make_unique<MemoryView>(data, size);
-					SetStream(*m_ownedStream);
-				}
-
-				void SetStream(Stream& stream)
-				{
-					m_byteStream.SetStream(&stream);
-				}
-
-			private:
-				struct ImageDecodingData;
 
 				void DecodeGIF(UInt16 code, ImageDecodingData& decodingData)
 				{
@@ -486,10 +603,13 @@ namespace Nz
 					UInt8* p = &decodingData.outputImage[idx];
 					m_affectedPixels[idx / 4] = true;
 
-					const Color* c = &decodingData.colorTable[m_lzwEntries[code].suffix];
-					if (c->a > 128)
+					std::size_t colorIndex = m_lzwEntries[code].suffix;
+
+					const Color* c = &decodingData.colorTable[colorIndex];
+
+					// don't render transparent pixels
+					if (colorIndex != decodingData.transparentColorIndex)
 					{
-						// don't render transparent pixels;
 						p[0] = c->r;
 						p[1] = c->g;
 						p[2] = c->b;
@@ -531,11 +651,12 @@ namespace Nz
 					UInt8 r, g, b, a;
 				};
 
-				struct FrameData
+				struct FrameMetadata
 				{
-					UInt64 delay;
+					std::size_t transparentIndex = std::numeric_limits<std::size_t>::max();
+					UInt64 time;
 					UInt64 streamOffset;
-					UInt8 transparentIndex;
+ 					UInt8 disposalMethod = 0;
 				};
 
 				struct ImageDecodingData
@@ -549,6 +670,7 @@ namespace Nz
 					std::size_t startX;
 					std::size_t startY;
 					std::size_t step;
+					std::size_t transparentColorIndex;
 					Color* colorTable;
 					UInt8* outputImage;
 				};
@@ -573,13 +695,16 @@ namespace Nz
 				std::size_t m_currentFrame;
 				std::vector<Color> m_globalColorTable;
 				std::vector<Color> m_localColorTable;
-				std::vector<FrameData> m_frames;
+				std::vector<FrameMetadata> m_frames;
 				std::vector<LZWEntry> m_lzwEntries;
 				std::unique_ptr<Stream> m_ownedStream;
+				std::unique_ptr<UInt8[]> m_disposedRendering;
+				std::unique_ptr<UInt8[]> m_previousFrame;
 				Bitset<UInt64> m_affectedPixels;
 				ByteStream m_byteStream;
 				LogicalScreenDescriptor m_header;
-				bool m_hasConstantRate;
+				UInt64 m_endFrameTime;
+				bool m_requiresFrameHistory;
 		};
 
 		bool CheckGIFExtension(const std::string_view& extension)
