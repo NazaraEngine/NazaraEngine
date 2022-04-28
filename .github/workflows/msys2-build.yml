@@ -50,8 +50,8 @@ jobs:
       uses: actions/cache@v3
       id: xmake_cache
       with:
-        path: ${{ runner.workspace }}/xmake_git
-        key: MinGW-XMake-r1
+        path: ${{ github.workspace }}/xmake_git
+        key: MinGW-XMake-r2
 
     # Build xmake
     - name: Setup xmake
