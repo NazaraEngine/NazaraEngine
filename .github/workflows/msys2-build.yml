@@ -39,27 +39,33 @@ jobs:
       with:
         msystem: ${{ matrix.msystem }}
         install: base-devel git unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain
-        location: D:\
         update: true
-
-    - name: Set mingw64 binaries in path
-      run: |
-        echo "${MINGW_PREFIX}/bin"
-        echo "D:/msys64/mingw64/bin" >> $GITHUB_PATH
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
       run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
 
-    # Install xmake
+    # Cache xmake build
+    - name: Retrieve cached xmake build
+      uses: actions/cache@v2
+      id: xmake_cache
+      with:
+        path: ${{ runner.workspace }}/xmake_git
+        key: MinGW-XMake-r1
+
+    # Build xmake
     - name: Setup xmake
+      if: steps.xmake_cache.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev xmake_git
         cd xmake_git
         make build
+
+    # Install xmake
+    - name: Install xmake
+      run: |
         make install PREFIX=/${{ matrix.msystem }}
         xmake --version
-        cd ..
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
@@ -74,7 +80,7 @@ jobs:
     - name: Retrieve cached xmake dependencies
       uses: actions/cache@v2
       with:
-        path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
