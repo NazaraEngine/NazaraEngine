@@ -64,6 +64,7 @@ jobs:
     # Install xmake
     - name: Install xmake
       run: |
+        cd xmake_git
         make install PREFIX=/${{ matrix.msystem }}
         xmake --version
 
