@@ -21,7 +21,7 @@ jobs:
       matrix:
         config:
         - { name: "Windows x64", os: windows-latest, arch: x64 }
-        - { name: "Ubuntu 20.04 x86_64", os: ubuntu-latest, arch: x86_64 }
+        - { name: "Ubuntu x86_64", os: ubuntu-latest, arch: x86_64 }
 
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
@@ -87,7 +87,7 @@ jobs:
     - name: Run unit tests and generate coverage output
       if: runner.os == 'Windows'
       run: |
-        OpenCppCoverage --export_type cobertura:coverage.out --sources "include/Nazara" --sources "src/Nazara" -- xmake run NazaraUnitTests
+        OpenCppCoverage.exe --export_type cobertura:coverage.out --sources "include/Nazara" --sources "src/Nazara" -- xmake run NazaraUnitTests
         gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
 
     - name: Upload Coverage Report to Codecov
