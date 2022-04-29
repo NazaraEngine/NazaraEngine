@@ -41,7 +41,6 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         choco install -y OpenCppCoverage
-        echo "C:\Program Files\OpenCppCoverage" >> $GITHUB_PATH
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
@@ -86,8 +85,9 @@ jobs:
 
     - name: Run unit tests and generate coverage output
       if: runner.os == 'Windows'
+      shell: cmd
       run: |
-        OpenCppCoverage.exe --export_type cobertura:coverage.out --sources "include/Nazara" --sources "src/Nazara" -- xmake run NazaraUnitTests
+        C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe --export_type cobertura:coverage.out --sources "include/Nazara" --sources "src/Nazara" -- xmake run NazaraUnitTests
         gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
 
     - name: Upload Coverage Report to Codecov
