@@ -19,11 +19,12 @@ jobs:
   build:
     strategy:
       matrix:
+        config:
         - { name: "Windows x64", os: windows-latest, arch: x64 }
-        - { name: "Ubuntu 20.04 x86_64", os: ubuntu-20.04, arch: x86_64 }
+        - { name: "Ubuntu 20.04 x86_64", os: ubuntu-latest, arch: x86_64 }
 
-    name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
     if: "!contains(github.event.head_commit.message, 'coverage skip')"
 
     steps:
@@ -66,11 +67,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: ${{ matrix.os }}-${{ matrix.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-r4
+        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=coverage --yes
+      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.config.arch }} --mode=coverage --yes
 
     # Build the engine
     - name: Build Nazara
