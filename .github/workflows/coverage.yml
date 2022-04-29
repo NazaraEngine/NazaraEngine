@@ -19,22 +19,29 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-20.04]
-        arch: [x86_64]
-        mode: [coverage]
+        - { name: "Windows x64", os: windows-latest, arch: x64 }
+        - { name: "Ubuntu 20.04 x86_64", os: ubuntu-20.04, arch: x86_64 }
 
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    if: "!contains(github.event.head_commit.message, 'coverage skip')"
 
     steps:
     - uses: actions/checkout@v2
 
     # Install system dependencies
     - name: Install system dependencies
+      if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev gcovr
-  
+
+    - name: Install OpenCppCoverage
+      if: runner.os == 'Windows'
+      run: |
+        choco install -y OpenCppCoverage
+        echo "C:\Program Files\OpenCppCoverage" >> $GITHUB_PATH
+
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
       run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
@@ -59,23 +66,28 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-r4
+        key: ${{ matrix.os }}-${{ matrix.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-r4
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
+      run: xmake config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=coverage --yes
 
     # Build the engine
     - name: Build Nazara
       run: xmake
 
-    # Run unit tests
-    - name: Run unit tests
-      run: xmake run NazaraUnitTests
+    # Run unit tests to generate coverage reports
+    - name: Run unit tests and generate coverage output
+      if: runner.os == 'Linux'
+      run: |
+        xmake run NazaraUnitTests
+        gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
 
-    # Build coverage file
-    - name: Build coverage output
-      run: gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
+    - name: Run unit tests and generate coverage output
+      if: runner.os == 'Windows'
+      run: |
+        OpenCppCoverage --export_type cobertura:coverage.out --sources "include/Nazara" --sources "src/Nazara" -- xmake run NazaraUnitTests
+        gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
 
     - name: Upload Coverage Report to Codecov
       uses: codecov/codecov-action@v2
