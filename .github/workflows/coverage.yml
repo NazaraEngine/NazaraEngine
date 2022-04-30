@@ -31,13 +31,13 @@ jobs:
     - uses: actions/checkout@v2
 
     # Install system dependencies
-    - name: Install system dependencies
+    - name: Install system dependencies (Linux)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev gcovr
 
-    - name: Install OpenCppCoverage
+    - name: Install OpenCppCoverage (Windows)
       if: runner.os == 'Windows'
       run: |
         choco install -y OpenCppCoverage
@@ -62,11 +62,20 @@ jobs:
       run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
 
     # Cache xmake dependencies
-    - name: Retrieve cached xmake dependencies
+    - name: Retrieve cached xmake dependencies (Linux)
+      if: runner.os == 'Linux'
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-r4
+        key: Linux-${{ matrix.config.arch }}-debug-${{ steps.dep_hash.outputs.hash }}-$(date +'%w')
+
+    # Cache xmake dependencies
+    - name: Retrieve cached xmake dependencies (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+        key: MSVC-${{ matrix.config.arch }}-releasedbg-${{ steps.dep_hash.outputs.hash }}-$(date +'%w')
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
@@ -77,17 +86,17 @@ jobs:
       run: xmake
 
     # Run unit tests to generate coverage reports
-    - name: Run unit tests and generate coverage output
+    - name: Run unit tests and generate coverage output (Linux)
       if: runner.os == 'Linux'
       run: |
         xmake run NazaraUnitTests
         gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
 
-    - name: Run unit tests and generate coverage output
+    - name: Run unit tests and generate coverage output (Windows)
       if: runner.os == 'Windows'
       shell: cmd
       run: |
-        "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe" --export_type cobertura:coverage.out --sources "include\Nazara\*" --sources "src\Nazara\*" --modules "bin\*" --cover_children -- xmake run NazaraUnitTests
+        "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe" --export_type cobertura:coverage.out --sources "NazaraEngine\include\Nazara\*" --sources "NazaraEngine\src\Nazara\*" --modules "NazaraEngine\bin\*" --cover_children -- xmake run NazaraUnitTests
 
     - name: Upload Coverage Report to Codecov
       uses: codecov/codecov-action@v2
