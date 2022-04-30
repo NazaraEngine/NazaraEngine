@@ -34,7 +34,7 @@ jobs:
     steps:
     - name: Get current date as package key
       id: pkg_key
-      run: echo "::set-output name=key::$(date +'%w')"
+      run: echo "::set-output name=key::$(date +'%W')"
 
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
       id: xmake_cache
       with:
         path: ${{ github.workspace }}/xmake_git
-        key: MinGW-XMake-${{ steps.pkg_key.outputs.key }}
+        key: MinGW-XMake-W${{ steps.pkg_key.outputs.key }}
 
     # Build xmake
     - name: Setup xmake
@@ -87,7 +87,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-${{ steps.pkg_key.outputs.key }}
+        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
