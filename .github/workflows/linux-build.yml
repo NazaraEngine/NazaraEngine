@@ -27,7 +27,12 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Get current date as package key
+      id: pkg_key
+      run: echo "::set-output name=key::$(date +'%w')"
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     # Install system dependencies
     - name: Install system dependencies
@@ -59,7 +64,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-$(date +'%w')
+        key: Linux-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-${{ steps.pkg_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies

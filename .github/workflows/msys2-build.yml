@@ -32,7 +32,12 @@ jobs:
         shell: msys2 {0}
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Get current date as package key
+      id: pkg_key
+      run: echo "::set-output name=key::$(date +'%w')"
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
     # Setup MSYS2
     - uses: msys2/setup-msys2@v2
@@ -51,7 +56,7 @@ jobs:
       id: xmake_cache
       with:
         path: ${{ github.workspace }}/xmake_git
-        key: MinGW-XMake-$(date +'%w')
+        key: MinGW-XMake-${{ steps.pkg_key.outputs.key }}
 
     # Build xmake
     - name: Setup xmake
@@ -82,7 +87,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-$(date +'%w')
+        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-${{ steps.pkg_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
