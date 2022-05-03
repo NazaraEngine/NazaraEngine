@@ -77,7 +77,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.config.arch }}-debug-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: Linux-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
 
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies (Windows)
@@ -85,7 +85,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
-        key: MSVC-${{ matrix.config.arch }}-releasedbg-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: MSVC-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
