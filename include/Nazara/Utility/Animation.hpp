@@ -21,12 +21,16 @@
 
 namespace Nz
 {
+	class Skeleton;
+
 	struct NAZARA_UTILITY_API AnimationParams : ResourceParameters
 	{
 		// La frame de fin à charger
 		std::size_t endFrame = 0xFFFFFFFF;
 		// La frame de début à charger
 		std::size_t startFrame = 0;
+		// Reference skeleton
+		const Skeleton* skeleton = nullptr;
 
 		bool IsValid() const;
 	};
@@ -34,7 +38,6 @@ namespace Nz
 	class Animation;
 	struct Sequence;
 	struct SequenceJoint;
-	class Skeleton;
 
 	using AnimationLibrary = ObjectLibrary<Animation>;
 	using AnimationLoader = ResourceLoader<Animation, AnimationParams>;

@@ -140,7 +140,8 @@ namespace Nz
 			UpdateJointMap();
 
 		auto it = m_impl->jointMap.find(jointName);
-		NazaraAssert(it != m_impl->jointMap.end(), "joint not found");
+		if (it == m_impl->jointMap.end())
+			return InvalidJointIndex;
 
 		return it->second;
 	}

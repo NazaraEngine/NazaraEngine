@@ -256,7 +256,7 @@ namespace Nz
 	Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
 	{
 		#if NAZARA_MATH_SAFE
-		if (i > BoxCornerCount)
+		if (i >= BoxCornerCount)
 		{
 			std::ostringstream ss;
 			ss << "Index out of range: (" << i << " >= " << BoxCornerCount << ")";
@@ -281,7 +281,7 @@ namespace Nz
 	Vector3<T> OrientedBox<T>::operator()(unsigned int i) const
 	{
 #if NAZARA_MATH_SAFE
-		if (i > BoxCornerCount)
+		if (i >= BoxCornerCount)
 		{
 			std::ostringstream ss;
 			ss << "Index out of range: (" << i << " >= " << BoxCornerCount << ")";

@@ -34,6 +34,12 @@ namespace Nz
 			return false;
 		}
 
+		if (!skeleton)
+		{
+			NazaraError("You must set a valid skeleton to load an animation");
+			return false;
+		}
+
 		return true;
 	}
 
