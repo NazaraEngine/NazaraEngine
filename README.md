@@ -3,6 +3,7 @@
 Windows | [![Windows build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/windows-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/windows-build.yml)
 MSYS2 (MinGW64) | [![Windows build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/msys2-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/msys2-build.yml)
 Linux | [![Linux build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/linux-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/linux-build.yml)
+macOS | [![macOS build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/macos-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/macos-build.yml)
 
 # Nazara Engine  
 
