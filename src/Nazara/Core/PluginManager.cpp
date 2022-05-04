@@ -211,7 +211,16 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		Unmount(s_pluginFiles[UnderlyingCast(plugin)]);
+		std::filesystem::path pluginName = s_pluginFiles[UnderlyingCast(plugin)];
+
+#ifdef NAZARA_DEBUG
+		std::filesystem::path debugPath = pluginName;
+		debugPath += "-d";
+
+		Unmount(debugPath);
+#endif
+
+		Unmount(pluginName);
 	}
 
 	/*!
@@ -233,7 +242,14 @@ namespace Nz
 			return;
 		}
 
-		std::filesystem::path canonicalPath = std::filesystem::canonical(pluginPath);
+		std::filesystem::path path = pluginPath;
+		if (path.extension() != NAZARA_DYNLIB_EXTENSION)
+			path += NAZARA_DYNLIB_EXTENSION;
+
+		if (!std::filesystem::exists(path))
+			return;
+
+		std::filesystem::path canonicalPath = std::filesystem::canonical(path);
 		auto it = s_plugins.find(canonicalPath);
 		if (it == s_plugins.end())
 		{

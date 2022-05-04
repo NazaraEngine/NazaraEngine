@@ -33,6 +33,10 @@ int main()
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
 	Nz::PluginManager::Mount(Nz::Plugin::Assimp);
+	Nz::CallOnExit unmountAssimp([]
+	{
+		Nz::PluginManager::Unmount(Nz::Plugin::Assimp);
+	});
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -55,19 +59,27 @@ int main()
 	texParams.renderDevice = device;
 
 	entt::entity playerEntity = registry.create();
+	entt::entity playerRotation = registry.create();
+	entt::entity playerCamera = registry.create();
 	{
 		auto& playerNode = registry.emplace<Nz::NodeComponent>(playerEntity);
 		playerNode.SetPosition(0.f, 1.8f, 1.f);
-		playerNode.SetRotation(Nz::EulerAnglesf(-30.f, 0.f, 0.f));
 
 		auto& playerBody = registry.emplace<Nz::RigidBody3DComponent>(playerEntity, &physSytem.GetPhysWorld());
-		playerBody.SetMass(0.f);
-		playerBody.SetGeom(std::make_shared<Nz::CapsuleCollider3D>(1.8f, 0.5f));
+		playerBody.SetMass(42.f);
+		playerBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f::Unit()));
 
-		auto& playerComponent = registry.emplace<Nz::CameraComponent>(playerEntity, window.GetRenderTarget());
-		playerComponent.UpdateZNear(0.2f);
-		playerComponent.UpdateRenderMask(1);
-		playerComponent.UpdateClearColor(Nz::Color(127, 127, 127));
+		auto& playerRotNode = registry.emplace<Nz::NodeComponent>(playerRotation);
+		playerRotNode.SetParent(playerNode);
+
+		auto& cameraNode = registry.emplace<Nz::NodeComponent>(playerCamera);
+		cameraNode.SetParent(playerRotNode);
+
+		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(playerCamera, window.GetRenderTarget());
+		cameraComponent.UpdateZNear(0.2f);
+		cameraComponent.UpdateZFar(10000.f);
+		cameraComponent.UpdateRenderMask(1);
+		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
 	Nz::FieldOffsets skeletalOffsets(Nz::StructLayout::Std140);
@@ -76,16 +88,11 @@ int main()
 	std::vector<Nz::UInt8> skeletalBufferMem(skeletalOffsets.GetAlignedSize());
 	Nz::Matrix4f* matrices = Nz::AccessByOffset<Nz::Matrix4f*>(skeletalBufferMem.data(), arrayOffset);
 
-	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "hellknight/idle2.md5anim");
-	if (!bobAnim)
-	{
-		NazaraError("Failed to load bob anim");
-		return __LINE__;
-	}
-
 	Nz::MeshParams meshParams;
 	meshParams.animated = true;
-	//meshParams.center = true;
+	meshParams.center = true;
+	meshParams.texCoordScale = Nz::Vector2f(1.f, -1.f);
+	meshParams.texCoordOffset = Nz::Vector2f(0.f, 1.f);
 	//meshParams.matrix = Nz::Matrix4f::Scale(Nz::Vector3f(10.f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent_Skinning);
 
@@ -96,9 +103,22 @@ int main()
 		return __LINE__;
 	}
 
+	Nz::AnimationParams matParams;
+	matParams.skeleton = bobMesh->GetSkeleton();
+
+	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "hellknight/idle.md5anim", matParams);
+	if (!bobAnim)
+	{
+		NazaraError("Failed to load bob anim");
+		return __LINE__;
+	}
+
 	Nz::Skeleton skeleton = *bobMesh->GetSkeleton();
 
-	bobAnim->AnimateSkeleton(&skeleton, 0, 1, 0.5f);
+	std::cout << "joint count: " << skeleton.GetJointCount() << std::endl;
+	//std::cout << "anim joint count: " << bobAnim->GetJointCount() << std::endl;
+
+	//bobAnim->AnimateSkeleton(&skeleton, 0, 1, 0.5f);
 
 	/*for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
 	{
@@ -114,42 +134,70 @@ int main()
 		Nz::SkinPosition(skinningData, 0, mapper.GetVertexCount());
 	}*/
 
-	for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
-		matrices[i] = skeleton.GetJoint(i)->GetSkinningMatrix();
+	/*for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
+		matrices[i] = skeleton.GetJoint(i)->GetSkinningMatrix();*/
 
 	std::shared_ptr<Nz::RenderBuffer> renderBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, skeletalBufferMem.size(), Nz::BufferUsage::Write, skeletalBufferMem.data());
 
-	entt::entity bobEntity = registry.create();
+	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
+	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = std::make_shared<Nz::GraphicalMesh>(*bobMesh);
+
+	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
+	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
-		const Nz::Boxf& bobAABB = bobMesh->GetAABB();
-		std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = std::make_shared<Nz::GraphicalMesh>(*bobMesh);
+		std::string matPath;
+		bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::DiffuseTexturePath, &matPath);
 
-		std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
-		for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
+		std::shared_ptr<Nz::Material> bobMat = std::make_shared<Nz::Material>();
+
+		std::shared_ptr<Nz::MaterialPass> bobMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+		bobMatPass->SetSharedUniformBuffer(0, renderBuffer);
+
+		bobMatPass->EnableDepthBuffer(true);
 		{
-			std::string matPath;
-			bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::FilePath, &matPath);
-
-			std::shared_ptr<Nz::Material> bobMat = std::make_shared<Nz::Material>();
-
-			std::shared_ptr<Nz::MaterialPass> bobMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-			bobMatPass->SetSharedUniformBuffer(0, renderBuffer);
-
-			bobMatPass->EnableDepthBuffer(true);
+			Nz::BasicMaterial basicMat(*bobMatPass);
+			if (matPath.find("gob") != matPath.npos)
 			{
-				Nz::BasicMaterial basicMat(*bobMatPass);
-				basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(matPath + ".tga", texParams));
-			}
-			if (i == 0 || i == 3)
-			bobMat->AddPass("ForwardPass", bobMatPass);
+				bobMatPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
 
-			bobModel->SetMaterial(i, bobMat);
+				basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(matPath, texParams));
+				bobMatPass->EnableDepthWrite(false);
+
+				bobMatPass->EnableBlending(true);
+				bobMatPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
+				bobMatPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
+			}
+			else
+				basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(matPath, texParams));
 		}
 
+		bobMat->AddPass("ForwardPass", bobMatPass);
+
+		bobModel->SetMaterial(i, bobMat);
+	}
+
+	/*for (std::size_t y = 0; y < 50; ++y)
+	{
+		for (std::size_t x = 0; x < 50; ++x)
+		{
+			entt::entity bobEntity = registry.create();
+
+			auto& bobNode = registry.emplace<Nz::NodeComponent>(bobEntity);
+			bobNode.SetPosition(Nz::Vector3f(x - 25.f, bobAABB.height / 2.f, -float(y)));
+			bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
+			bobNode.SetScale(1.f / 40.f * 0.5f);
+
+			auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
+			bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
+		}
+	}*/
+
+	entt::entity bobEntity = registry.create();
+	{
 		auto& bobNode = registry.emplace<Nz::NodeComponent>(bobEntity);
-		bobNode.SetPosition(Nz::Vector3f(0.f, bobAABB.height / 2.f, 0.f));
-		bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
+		bobNode.SetRotation(Nz::EulerAnglesf(90.f, -90.f, 0.f));
 		bobNode.SetScale(1.f / 40.f * 0.5f);
+		bobNode.SetPosition(bobNode.GetScale() * Nz::Vector3f(0.f, bobAABB.height / 2.f, 0.f));
 
 		auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
 		bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
@@ -197,10 +245,13 @@ int main()
 		planeGfx.AttachRenderable(planeModel, 0xFFFFFFFF);
 	}
 
+	window.EnableEventPolling(true);
+
 	Nz::Clock fpsClock, updateClock;
 	float incr = 0.f;
 	unsigned int currentFrame = 0;
 	unsigned int nextFrame = 1;
+	Nz::EulerAnglesf camAngles = Nz::EulerAnglesf(-30.f, 0.f, 0.f);
 	Nz::UInt64 lastTime = Nz::GetElapsedMicroseconds();
 	Nz::UInt64 fps = 0;
 	while (window.IsOpen())
@@ -222,7 +273,21 @@ int main()
 					break;
 
 				case Nz::WindowEventType::MouseMoved:
+				{
+					// Gestion de la caméra free-fly (Rotation)
+					float sensitivity = 0.3f; // Sensibilité de la souris
+
+					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
+					camAngles.yaw.Normalize();
+
+					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY * sensitivity, -89.f, 89.f);
+
+					auto& playerRotNode = registry.get<Nz::NodeComponent>(playerRotation);
+					playerRotNode.SetRotation(camAngles);
 					break;
+				}
 
 				default:
 					break;
@@ -237,8 +302,22 @@ int main()
 
 			auto& playerBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 
+			float mass = playerBody.GetMass();
+
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
-				playerBody.AddForce(Nz::Vector3f(0.f, playerBody.GetMass() * 50.f, 0.f));
+				playerBody.AddForce(Nz::Vector3f(0.f, mass * 50.f, 0.f));
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
+				playerBody.AddForce(Nz::Vector3f::Forward() * 25.f * mass, Nz::CoordSys::Local);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
+				playerBody.AddForce(Nz::Vector3f::Backward() * 25.f * mass, Nz::CoordSys::Local);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
+				playerBody.AddForce(Nz::Vector3f::Left() * 25.f * mass, Nz::CoordSys::Local);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
+				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);
 
 			incr += 1.f / 60.f * 30.f;
 			if (incr >= 1.f)
@@ -250,6 +329,8 @@ int main()
 				if (nextFrame >= bobAnim->GetFrameCount())
 					nextFrame = 0;
 			}
+
+			std::cout << currentFrame << std::endl;
 
 			bobAnim->AnimateSkeleton(&skeleton, currentFrame, nextFrame, incr);
 			for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)

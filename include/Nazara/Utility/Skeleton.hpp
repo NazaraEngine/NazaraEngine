@@ -57,6 +57,8 @@ namespace Nz
 			// Signals:
 			NazaraSignal(OnSkeletonJointsInvalidated, const Skeleton* /*skeleton*/);
 
+			static constexpr std::size_t InvalidJointIndex = std::numeric_limits<std::size_t>::max();
+
 		private:
 			void InvalidateJoints();
 			void InvalidateJointMap();

@@ -23,9 +23,9 @@ namespace Nz
 
 	struct SequenceJoint
 	{
-		Quaternionf rotation;
-		Vector3f position;
-		Vector3f scale;
+		Quaternionf rotation = Quaternionf::Identity();
+		Vector3f position = Vector3f::Zero();
+		Vector3f scale = Vector3f::Unit();
 	};
 }
 
