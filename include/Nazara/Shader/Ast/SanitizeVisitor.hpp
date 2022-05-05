@@ -218,6 +218,7 @@ namespace Nz::ShaderAst
 			{
 				std::size_t index;
 				IdentifierCategory category;
+				bool isConditional = false;
 			};
 
 			struct Identifier

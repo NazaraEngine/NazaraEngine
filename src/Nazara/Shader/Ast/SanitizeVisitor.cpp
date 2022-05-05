@@ -158,6 +158,11 @@ namespace Nz::ShaderAst
 			const DeclareFunctionStatement* node;
 		};
 
+		struct UsedExternalData
+		{
+			bool isConditional;
+		};
+
 		static constexpr std::size_t ModuleIdSentinel = std::numeric_limits<std::size_t>::max();
 
 		std::array<DeclareFunctionStatement*, ShaderStageTypeCount> entryFunctions = {};
@@ -165,8 +170,8 @@ namespace Nz::ShaderAst
 		std::vector<PendingFunction> pendingFunctions;
 		std::vector<StatementPtr>* currentStatementList = nullptr;
 		std::unordered_map<Uuid, std::size_t> moduleByUuid;
-		std::unordered_set<std::string> declaredExternalVar;
-		std::unordered_set<UInt64> usedBindingIndexes;
+		std::unordered_map<UInt64, UsedExternalData> usedBindingIndexes;
+		std::unordered_map<std::string, UsedExternalData> declaredExternalVar;
 		std::shared_ptr<Environment> globalEnv;
 		std::shared_ptr<Environment> currentEnv;
 		std::shared_ptr<Environment> moduleEnv;
@@ -182,6 +187,7 @@ namespace Nz::ShaderAst
 		Options options;
 		CurrentFunctionData* currentFunction = nullptr;
 		bool allowUnknownIdentifiers = false;
+		bool inConditionalStatement = false;
 	};
 
 	ModulePtr SanitizeVisitor::Sanitize(const Module& module, const Options& options, std::string* error)
@@ -350,7 +356,12 @@ namespace Nz::ShaderAst
 				}
 
 				if (!fieldPtr)
+				{
+					if (s->isConditional)
+						return AstCloner::Clone(node); //< unresolved
+
 					throw ShaderLang::CompilerUnknownFieldError{ indexedExpr->sourceLocation, identifierEntry.identifier };
+				}
 
 				if (m_context->options.useIdentifierAccessesForStructs)
 				{
@@ -953,6 +964,11 @@ namespace Nz::ShaderAst
 		ExpressionPtr cloneCondition = AstCloner::Clone(*node.condition);
 
 		std::optional<ConstantValue> conditionValue = ComputeConstantValue(*cloneCondition);
+
+		bool wasInConditionalStatement = m_context->inConditionalStatement;
+		m_context->inConditionalStatement = true;
+		CallOnExit restoreCond([=] { m_context->inConditionalStatement = wasInConditionalStatement; });
+
 		if (!conditionValue.has_value())
 		{
 			// Unresolvable condition
@@ -1045,22 +1061,31 @@ namespace Nz::ShaderAst
 
 			ComputeExprValue(extVar.bindingIndex, node.sourceLocation);
 
+			Context::UsedExternalData usedBindingData;
+			usedBindingData.isConditional = m_context->inConditionalStatement;
+
 			if (extVar.bindingSet.IsResultingValue() && extVar.bindingIndex.IsResultingValue())
 			{
 				UInt64 bindingSet = extVar.bindingSet.GetResultingValue();
 				UInt64 bindingIndex = extVar.bindingIndex.GetResultingValue();
 
 				UInt64 bindingKey = bindingSet << 32 | bindingIndex;
-				if (m_context->usedBindingIndexes.find(bindingKey) != m_context->usedBindingIndexes.end())
-					throw ShaderLang::CompilerExtBindingAlreadyUsedError{ extVar.sourceLocation, UInt32(bindingSet), UInt32(bindingIndex) };
+				if (auto it = m_context->usedBindingIndexes.find(bindingKey); it != m_context->usedBindingIndexes.end())
+				{
+					if (!it->second.isConditional || !usedBindingData.isConditional)
+						throw ShaderLang::CompilerExtBindingAlreadyUsedError{ extVar.sourceLocation, UInt32(bindingSet), UInt32(bindingIndex) };
+				}
 
-				m_context->usedBindingIndexes.insert(bindingKey);
+				m_context->usedBindingIndexes.emplace(bindingKey, usedBindingData);
 			}
 
-			if (m_context->declaredExternalVar.find(extVar.name) != m_context->declaredExternalVar.end())
-				throw ShaderLang::CompilerExtAlreadyDeclaredError{ extVar.sourceLocation, extVar.name };
+			if (auto it = m_context->declaredExternalVar.find(extVar.name); it != m_context->declaredExternalVar.end())
+			{
+				if (!it->second.isConditional || !usedBindingData.isConditional)
+					throw ShaderLang::CompilerExtAlreadyDeclaredError{ extVar.sourceLocation, extVar.name };
+			}
 
-			m_context->declaredExternalVar.insert(extVar.name);
+			m_context->declaredExternalVar.emplace(extVar.name, usedBindingData);
 
 			std::optional<ExpressionType> resolvedType = ResolveTypeExpr(extVar.type, false, node.sourceLocation);
 			if (!resolvedType.has_value())
@@ -1302,6 +1327,8 @@ namespace Nz::ShaderAst
 				}
 			}
 		}
+
+		clone->description.isConditional = m_context->inConditionalStatement;
 
 		clone->structIndex = RegisterStruct(clone->description.name, &clone->description, clone->structIndex, clone->sourceLocation);
 
@@ -2420,7 +2447,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			aliasIndex,
-			IdentifierCategory::Alias
+			IdentifierCategory::Alias,
+			m_context->inConditionalStatement
 		});
 
 		return aliasIndex;
@@ -2445,7 +2473,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			constantIndex,
-			IdentifierCategory::Constant
+			IdentifierCategory::Constant,
+			m_context->inConditionalStatement
 		});
 
 		return constantIndex;
@@ -2494,7 +2523,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			functionIndex,
-			IdentifierCategory::Function
+			IdentifierCategory::Function,
+			m_context->inConditionalStatement
 		});
 
 		return functionIndex;
@@ -2510,7 +2540,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			intrinsicIndex,
-			IdentifierCategory::Intrinsic
+			IdentifierCategory::Intrinsic,
+			m_context->inConditionalStatement
 		});
 
 		return intrinsicIndex;
@@ -2526,7 +2557,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(moduleIdentifier),
 			moduleIndex,
-			IdentifierCategory::Module
+			IdentifierCategory::Module,
+			m_context->inConditionalStatement
 		});
 
 		return moduleIndex;
@@ -2534,8 +2566,14 @@ namespace Nz::ShaderAst
 
 	std::size_t SanitizeVisitor::RegisterStruct(std::string name, std::optional<StructDescription*> description, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation)
 	{
-		if (FindIdentifier(name))
-			throw ShaderLang::CompilerIdentifierAlreadyUsedError{ sourceLocation, name };
+		bool unresolved = false;
+		if (const IdentifierData* identifierData = FindIdentifier(name))
+		{
+			if (!m_context->inConditionalStatement || !identifierData->isConditional)
+				throw ShaderLang::CompilerIdentifierAlreadyUsedError{ sourceLocation, name };
+			else
+				unresolved = true;
+		}
 
 		std::size_t structIndex;
 		if (description)
@@ -2548,11 +2586,19 @@ namespace Nz::ShaderAst
 		else
 			structIndex = m_context->structs.RegisterNewIndex(true);
 
-		m_context->currentEnv->identifiersInScope.push_back({
-			std::move(name),
-			structIndex,
-			IdentifierCategory::Struct
-		});
+		if (!unresolved)
+		{
+			m_context->currentEnv->identifiersInScope.push_back({
+				std::move(name),
+				{
+					structIndex,
+					IdentifierCategory::Struct,
+					m_context->inConditionalStatement
+				}
+			});
+		}
+		else
+			RegisterUnresolved(std::move(name));
 
 		return structIndex;
 	}
@@ -2576,7 +2622,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			typeIndex,
-			IdentifierCategory::Type
+			IdentifierCategory::Type,
+			m_context->inConditionalStatement
 		});
 
 		return typeIndex;
@@ -2607,7 +2654,8 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			typeIndex,
-			IdentifierCategory::Type
+			IdentifierCategory::Type,
+			m_context->inConditionalStatement
 		});
 
 		return typeIndex;
@@ -2618,17 +2666,21 @@ namespace Nz::ShaderAst
 		m_context->currentEnv->identifiersInScope.push_back({
 			std::move(name),
 			std::numeric_limits<std::size_t>::max(),
-			IdentifierCategory::Unresolved
+			IdentifierCategory::Unresolved,
+			m_context->inConditionalStatement
 		});
 	}
 
 	std::size_t SanitizeVisitor::RegisterVariable(std::string name, std::optional<ExpressionType> type, std::optional<std::size_t> index, const ShaderLang::SourceLocation& sourceLocation)
 	{
+		bool unresolved = false;
 		if (auto* identifier = FindIdentifier(name))
 		{
 			// Allow variable shadowing
 			if (identifier->category != IdentifierCategory::Variable)
 				throw ShaderLang::CompilerIdentifierAlreadyUsedError{ sourceLocation, name };
+			else if (identifier->isConditional && m_context->inConditionalStatement)
+				unresolved = true; //< right variable isn't know from this point
 		}
 
 		std::size_t varIndex;
@@ -2642,11 +2694,19 @@ namespace Nz::ShaderAst
 		else
 			varIndex = m_context->variableTypes.RegisterNewIndex(true);
 
-		m_context->currentEnv->identifiersInScope.push_back({
-			std::move(name),
-			varIndex,
-			IdentifierCategory::Variable
-		});
+		if (!unresolved)
+		{
+			m_context->currentEnv->identifiersInScope.push_back({
+				std::move(name),
+				{
+					varIndex,
+					IdentifierCategory::Variable,
+					m_context->inConditionalStatement
+				}
+			});
+		}
+		else
+			RegisterUnresolved(std::move(name));
 
 		return varIndex;
 	}
@@ -2668,8 +2728,13 @@ namespace Nz::ShaderAst
 
 			for (auto& parameter : pendingFunc.cloneNode->parameters)
 			{
-				parameter.varIndex = RegisterVariable(parameter.name, parameter.type.GetResultingValue(), parameter.varIndex, parameter.sourceLocation);
-				SanitizeIdentifier(parameter.name);
+				if (!m_context->options.allowPartialSanitization || parameter.type.IsResultingValue())
+				{
+					parameter.varIndex = RegisterVariable(parameter.name, parameter.type.GetResultingValue(), parameter.varIndex, parameter.sourceLocation);
+					SanitizeIdentifier(parameter.name);
+				}
+				else
+					RegisterUnresolved(parameter.name);
 			}
 
 			CurrentFunctionData tempFuncData;

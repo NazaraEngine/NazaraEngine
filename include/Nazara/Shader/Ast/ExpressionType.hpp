@@ -166,6 +166,7 @@ namespace Nz::ShaderAst
 		ExpressionValue<StructLayout> layout;
 		std::string name;
 		std::vector<StructMember> members;
+		bool isConditional;
 	};
 
 	inline bool IsAliasType(const ExpressionType& type);
