@@ -118,6 +118,18 @@ NazaraModules = modules
 
 includes("xmake/**.lua")
 
+option("compile-shaders")
+	set_default(true)
+	set_showmenu(true)
+	set_description("Compile nzsl shaders into an includable binary version")
+option_end()
+
+option("embed-resources")
+	set_default(true)
+	set_showmenu(true)
+	set_description("Turn builtin resources into includable headers")
+option_end()
+
 option("usepch")
 	set_default(false)
 	set_showmenu(true)
@@ -238,24 +250,28 @@ for name, module in pairs(modules) do
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
-	local embedResourceRule = false
-	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
-		if not embedResourceRule then
-			add_rules("embed_resources")
-			embedResourceRule = true
-		end
+	if has_config("embed-resources") then
+		local embedResourceRule = false
+		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
+			if not embedResourceRule then
+				add_rules("embed_resources")
+				embedResourceRule = true
+			end
 
-		add_files(filepath, {rule = "embed_resources"})
+			add_files(filepath, {rule = "embed_resources"})
+		end
 	end
 
-	local compileShaderRule = false
-	for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
-		if not compileShaderRule then
-			add_rules("compile_shaders")
-			compileShaderRule = true
-		end
+	if has_config("compile-shaders") then
+		local compileShaderRule = false
+		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
+			if not compileShaderRule then
+				add_rules("compile_shaders")
+				compileShaderRule = true
+			end
 
-		add_files(filepath, {rule = "compile_shaders"})
+			add_files(filepath, {rule = "compile_shaders"})
+		end
 	end
 
 	-- Remove platform-specific files
