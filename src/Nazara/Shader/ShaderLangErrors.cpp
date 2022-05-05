@@ -44,17 +44,7 @@ struct fmt::formatter<Nz::ShaderLang::ErrorCategory> : formatter<string_view>
 	template <typename FormatContext>
 	auto format(const Nz::ShaderLang::ErrorCategory& p, FormatContext& ctx) -> decltype(ctx.out())
 	{
-		// TODO: Add ToString
-		std::string_view name = "<unhandled error category>";
-		switch (p)
-		{
-			case Nz::ShaderLang::ErrorCategory::Ast:         name = "Ast"; break;
-			case Nz::ShaderLang::ErrorCategory::Compilation: name = "Compilation"; break;
-			case Nz::ShaderLang::ErrorCategory::Lexing:      name = "Lexing"; break;
-			case Nz::ShaderLang::ErrorCategory::Parsing:     name = "Parsing"; break;
-		}
-
-		return formatter<string_view>::format(name, ctx);
+		return formatter<string_view>::format(ToString(p), ctx);
 	}
 };
 
@@ -64,16 +54,7 @@ struct fmt::formatter<Nz::ShaderLang::ErrorType> : formatter<string_view>
 	template <typename FormatContext>
 	auto format(const Nz::ShaderLang::ErrorType& p, FormatContext& ctx) -> decltype(ctx.out())
 	{
-		// TODO: Add ToString
-		std::string_view name = "<unhandled error type>";
-		switch (p)
-		{
-#define NAZARA_SHADERLANG_ERROR(ErrorPrefix, ErrorName, ...) case Nz::ShaderLang::ErrorType:: ErrorPrefix ## ErrorName: name = #ErrorPrefix #ErrorName; break;
-
-#include <Nazara/Shader/ShaderLangErrorList.hpp>
-		}
-
-		return formatter<string_view>::format(name, ctx);
+		return formatter<string_view>::format(ToString(p), ctx);
 	}
 };
 
@@ -107,9 +88,42 @@ struct fmt::formatter<Nz::ShaderLang::TokenType> : formatter<string_view>
 
 namespace Nz::ShaderLang
 {
+	std::string_view ToString(ErrorCategory errorCategory)
+	{
+		switch (errorCategory)
+		{
+			case ErrorCategory::Ast:         return "Ast";
+			case ErrorCategory::Compilation: return "Compilation";
+			case ErrorCategory::Lexing:      return "Lexing";
+			case ErrorCategory::Parsing:     return "Parsing";
+		}
+
+		return "<unhandled error category>";
+	}
+
+	std::string_view ToString(ErrorType errorType)
+	{
+		switch (errorType)
+		{
+#define NAZARA_SHADERLANG_ERROR(ErrorPrefix, ErrorName, ...) case ErrorType:: ErrorPrefix ## ErrorName: return #ErrorPrefix #ErrorName;
+
+#include <Nazara/Shader/ShaderLangErrorList.hpp>
+		}
+
+		return "<unhandled error type>";
+	}
+
 	const std::string& Error::GetErrorMessage() const
 	{
 		if (m_errorMessage.empty())
+			m_errorMessage = BuildErrorMessage();
+
+		return m_errorMessage;
+	}
+
+	const std::string& Error::GetFullErrorMessage() const
+	{
+		if (m_fullErrorMessage.empty())
 		{
 			if (m_sourceLocation.IsValid())
 			{
@@ -118,22 +132,22 @@ namespace Nz::ShaderLang
 					sourceFile = *m_sourceLocation.file;
 
 				if (m_sourceLocation.startLine != m_sourceLocation.endLine)
-					m_errorMessage = fmt::format("{}({} -> {},{} -> {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.endLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorType, BuildErrorMessage());
+					m_fullErrorMessage = fmt::format("{}({} -> {},{} -> {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.endLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorType, GetErrorMessage());
 				else if (m_sourceLocation.startColumn != m_sourceLocation.endColumn)
-					m_errorMessage = fmt::format("{}({},{} -> {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorType, BuildErrorMessage());
+					m_fullErrorMessage = fmt::format("{}({},{} -> {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_sourceLocation.endColumn, m_errorType, GetErrorMessage());
 				else
-					m_errorMessage = fmt::format("{}({}, {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_errorType, BuildErrorMessage());
+					m_fullErrorMessage = fmt::format("{}({}, {}): {} error: {}", sourceFile, m_sourceLocation.startLine, m_sourceLocation.startColumn, m_errorType, GetErrorMessage());
 			}
 			else
-				m_errorMessage = fmt::format("?: {} error: {}", m_errorType, BuildErrorMessage());
+				m_fullErrorMessage = fmt::format("?: {} error: {}", m_errorType, GetErrorMessage());
 		}
 
-		return m_errorMessage;
+		return m_fullErrorMessage;
 	}
 
 	const char* Error::what() const noexcept
 	{
-		return GetErrorMessage().c_str();
+		return GetFullErrorMessage().c_str();
 	}
 
 #define NAZARA_SHADERLANG_NEWERRORTYPE(Prefix, ErrorType, ErrorName, ErrorString, ...) \

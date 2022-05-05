@@ -1,4 +1,4 @@
--- Turns resources into includables headers
+-- Compile shaders to includables headers
 rule("compile_shaders")
 	on_load(function (target)
 		target:add("deps", "NazaraShaderCompiler")
@@ -22,7 +22,7 @@ rule("compile_shaders")
 
 		-- add commands
 		batchcmds:show_progress(opt.progress, "${color.build.object}compiling shader %s", shaderfile)
-		local argv = {"--compile", "--partial", "--header-file", shaderfile}
+		local argv = {"--compile", "--partial", "--header-file", "--log-format=vs", shaderfile}
 		batchcmds:vrunv(nzslc:targetfile(), argv, { curdir = "." })
 
 		local outputFile = path.join(path.directory(shaderfile), path.basename(shaderfile) .. ".nzslb.h")

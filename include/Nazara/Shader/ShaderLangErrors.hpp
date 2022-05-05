@@ -36,6 +36,9 @@ namespace Nz::ShaderLang
 #include <Nazara/Shader/ShaderLangErrorList.hpp>
 	};
 
+	NAZARA_SHADER_API std::string_view ToString(ErrorCategory errorCategory);
+	NAZARA_SHADER_API std::string_view ToString(ErrorType errorType);
+
 	class NAZARA_SHADER_API Error : public std::exception
 	{
 		public:
@@ -47,6 +50,7 @@ namespace Nz::ShaderLang
 			inline ErrorCategory GetErrorCategory() const;
 			const std::string& GetErrorMessage() const;
 			inline ErrorType GetErrorType() const;
+			const std::string& GetFullErrorMessage() const;
 			inline const SourceLocation& GetSourceLocation() const;
 
 			const char* what() const noexcept override;
@@ -58,6 +62,7 @@ namespace Nz::ShaderLang
 			virtual std::string BuildErrorMessage() const = 0;
 
 		private:
+			mutable std::string m_fullErrorMessage;
 			mutable std::string m_errorMessage;
 			ErrorCategory m_errorCategory;
 			SourceLocation m_sourceLocation;

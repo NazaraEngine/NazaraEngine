@@ -13,6 +13,12 @@
 #include <sstream>
 #include <stdexcept>
 
+enum class LogFormat
+{
+	Classic,
+	VisualStudio
+};
+
 std::vector<Nz::UInt8> ReadFileContent(const std::filesystem::path& filePath)
 {
 	Nz::File file(filePath);
@@ -53,6 +59,7 @@ int main(int argc, char* argv[])
 		("c,compile", "Compile input shader")
 		("output-nzsl", "Output shader as NZSL to stdout")
 		("header-file", "Generate an includable header file")
+		("log-format", "Set log format (classic, vs)", cxxopts::value<std::string>())
 		("i,input", "Input file(s)", cxxopts::value<std::string>())
 		("o,output", "Output path", cxxopts::value<std::string>()->default_value("."), "path")
 		("p,partial", "Allow partial compilation")
@@ -74,14 +81,27 @@ int main(int argc, char* argv[])
 
 		if (result.count("input") == 0)
 		{
-			fmt::print("no input file\n{}\n", options.help());
+			fmt::print(stderr, "no input file\n{}\n", options.help());
 			return EXIT_SUCCESS;
+		}
+
+		LogFormat logFormat = LogFormat::Classic;
+		if (result.count("log-format") != 0)
+		{
+			const std::string& formatStr = result["log-format"].as<std::string>();
+			if (formatStr == "vs")
+				logFormat = LogFormat::VisualStudio;
+			else if (formatStr != "classic")
+			{
+				fmt::print(stderr, "{} is not a file\n", formatStr);
+				return EXIT_FAILURE;
+			}
 		}
 
 		std::filesystem::path inputPath = result["input"].as<std::string>();
 		if (!std::filesystem::is_regular_file(inputPath))
 		{
-			fmt::print("{} is not a file\n", inputPath.generic_u8string());
+			fmt::print(stderr, "{} is not a file\n", inputPath.generic_u8string());
 			return EXIT_FAILURE;
 		}
 
@@ -153,62 +173,76 @@ int main(int argc, char* argv[])
 		}
 		catch (const Nz::ShaderLang::Error& error)
 		{
-			fmt::print(stderr, (fmt::emphasis::bold | fg(fmt::color::red)), "{}\n", error.what());
-
-			Nz::ShaderLang::SourceLocation errorLocation = error.GetSourceLocation();
+			const Nz::ShaderLang::SourceLocation& errorLocation = error.GetSourceLocation();
 			if (errorLocation.IsValid())
 			{
-				try
+				if (logFormat == LogFormat::Classic)
 				{
-					// Retrieve line
-					std::string sourceContent = ReadSourceFileContent(*errorLocation.file);
+					fmt::print(stderr, (fmt::emphasis::bold | fg(fmt::color::red)), "{}\n", error.what());
 
-					std::size_t lineStartOffset = 0;
-					if (errorLocation.startLine > 1)
+					try
 					{
-						lineStartOffset = sourceContent.find('\n') + 1;
-						for (std::size_t i = 0; i < errorLocation.startLine - 2; ++i) //< remember startLine is 1-based
+						// Retrieve line
+						std::string sourceContent = ReadSourceFileContent(*errorLocation.file);
+
+						std::size_t lineStartOffset = 0;
+						if (errorLocation.startLine > 1)
 						{
-							lineStartOffset = sourceContent.find('\n', lineStartOffset);
-							if (lineStartOffset == std::string::npos)
-								throw std::runtime_error("file content doesn't match original source");
+							lineStartOffset = sourceContent.find('\n') + 1;
+							for (std::size_t i = 0; i < errorLocation.startLine - 2; ++i) //< remember startLine is 1-based
+							{
+								lineStartOffset = sourceContent.find('\n', lineStartOffset);
+								if (lineStartOffset == std::string::npos)
+									throw std::runtime_error("file content doesn't match original source");
 
-							++lineStartOffset;
+								++lineStartOffset;
+							}
 						}
+						std::size_t lineEndOffset = sourceContent.find('\n', lineStartOffset);
+
+						std::string errorLine = sourceContent.substr(lineStartOffset, lineEndOffset - lineStartOffset);
+
+						// handle tabs
+						Nz::UInt32 startColumn = errorLocation.startColumn - 1;
+						std::size_t startPos = 0;
+						while ((startPos = errorLine.find('\t', startPos)) != std::string::npos)
+						{
+							if (startPos < startColumn)
+								startColumn += 3;
+
+							errorLine.replace(startPos, 1, "    ");
+							startPos += 4;
+						}
+
+						std::size_t columnSize;
+						if (errorLocation.startLine == errorLocation.endLine)
+							columnSize = errorLocation.endColumn - errorLocation.startColumn + 1;
+						else
+							columnSize = 1;
+
+						std::string lineStr = std::to_string(errorLocation.startLine);
+
+						fmt::print(stderr, " {} | {}\n", lineStr, errorLine);
+						fmt::print(stderr, " {} | {}", std::string(lineStr.size(), ' '), std::string(startColumn, ' '));
+						fmt::print(stderr, fg(fmt::color::green), "{}\n", std::string(columnSize, '^'));
 					}
-					std::size_t lineEndOffset = sourceContent.find('\n', lineStartOffset);
-
-					std::string errorLine = sourceContent.substr(lineStartOffset, lineEndOffset - lineStartOffset);
-
-					// handle tabs
-					Nz::UInt32 startColumn = errorLocation.startColumn - 1;
-					std::size_t startPos = 0;
-					while ((startPos = errorLine.find("\t", startPos)) != std::string::npos)
+					catch (const std::exception& e)
 					{
-						if (startPos < startColumn)
-							startColumn += 3;
-
-						errorLine.replace(startPos, 1, "    ");
-						startPos += 4;
+						fmt::print(stderr, "failed to print error line: {}\n", e.what());
 					}
-
-					std::size_t columnSize;
-					if (errorLocation.startLine == errorLocation.endLine)
-						columnSize = errorLocation.endColumn - errorLocation.startColumn + 1;
-					else
-						columnSize = 1;
-
-					std::string lineStr = std::to_string(errorLocation.startLine);
-
-					fmt::print(stderr, " {} | {}\n", lineStr, errorLine);
-					fmt::print(stderr, " {} | {}", std::string(lineStr.size(), ' '), std::string(startColumn, ' '));
-					fmt::print(stderr, fg(fmt::color::green), "{}\n", std::string(columnSize, '^'));
 				}
-				catch (const std::exception& e)
+				else if (logFormat == LogFormat::VisualStudio)
 				{
-					fmt::print(stderr, "failed to print error line: {}\n", e.what());
+					// VS requires absolute path
+					std::filesystem::path fullPath;
+					if (errorLocation.file)
+						fullPath = std::filesystem::absolute(*errorLocation.file);
+
+					fmt::print(stderr, "{}({},{}): error {}: {}\n", fullPath.generic_u8string(), errorLocation.startLine, errorLocation.startColumn, ToString(error.GetErrorType()), error.GetErrorMessage());
 				}
 			}
+			else
+				fmt::print(stderr, (fmt::emphasis::bold | fg(fmt::color::red)), "{}\n", error.what());
 		}
 	}
 	catch (const cxxopts::OptionException& e)
