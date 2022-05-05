@@ -78,7 +78,7 @@ namespace Nz::ShaderLang
 			if (!m_context->module)
 			{
 				const Token& nextToken = Peek();
-				throw ParserUnexpectedTokenError{ nextToken.location };
+				throw ParserUnexpectedTokenError{ nextToken.location, nextToken.type };
 			}
 
 			if (!statement)
@@ -1110,7 +1110,7 @@ namespace Nz::ShaderLang
 			case TokenType::PlusAssign: assignType = ShaderAst::AssignType::CompoundAdd; break;
 
 			default:
-				throw ParserUnexpectedTokenError{ token.location };
+				throw ParserUnexpectedTokenError{ token.location, token.type };
 		}
 
 		Consume();

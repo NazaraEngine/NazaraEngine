@@ -73,6 +73,7 @@ namespace Nz
 	{
 		switch (type)
 		{
+			case ComponentType::Color:
 			case ComponentType::Double1:
 			case ComponentType::Double2:
 			case ComponentType::Double3:

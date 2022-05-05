@@ -23,7 +23,7 @@ namespace Nz
 			IndexBuffer(IndexBuffer&&) noexcept = default;
 			~IndexBuffer() = default;
 
-			unsigned int ComputeCacheMissCount();
+			UInt64 ComputeCacheMissCount();
 
 			bool Fill(const void* data, UInt64 startIndex, UInt64 length);
 			bool FillRaw(const void* data, UInt64 offset, UInt64 size);
@@ -52,7 +52,7 @@ namespace Nz
 		private:
 			std::shared_ptr<Buffer> m_buffer;
 			IndexType m_indexType;
-			UInt32 m_indexCount;
+			UInt64 m_indexCount;
 			UInt64 m_endOffset;
 			UInt64 m_startOffset;
 	};
