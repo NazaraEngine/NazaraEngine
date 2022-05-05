@@ -159,7 +159,7 @@ namespace Nz
 		std::size_t processedBufferIndex = 0;
 		for (; processedBufferIndex < m_queuedBuffers.size(); ++processedBufferIndex)
 		{
-			UInt32 bufferFrameCount = m_queuedBuffers[processedBufferIndex]->GetSampleCount() / GetChannelCount(m_queuedBuffers[processedBufferIndex]->GetAudioFormat());
+			UInt32 bufferFrameCount = SafeCast<UInt32>(m_queuedBuffers[processedBufferIndex]->GetSampleCount() / GetChannelCount(m_queuedBuffers[processedBufferIndex]->GetAudioFormat()));
 			if (offset < bufferFrameCount)
 				break;
 

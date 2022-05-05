@@ -50,7 +50,7 @@ namespace Nz
 		m_buffer = bufferFactory(BufferType::Index, m_endOffset, usage, initialData);
 	}
 
-	unsigned int IndexBuffer::ComputeCacheMissCount()
+	UInt64 IndexBuffer::ComputeCacheMissCount()
 	{
 		IndexMapper mapper(*this);
 
