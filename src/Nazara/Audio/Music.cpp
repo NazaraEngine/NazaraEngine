@@ -90,6 +90,8 @@ namespace Nz
 	*/
 	void Music::EnableLooping(bool loop)
 	{
+		std::lock_guard<std::mutex> lock(m_bufferLock);
+
 		m_looping = loop;
 	}
 
@@ -129,11 +131,24 @@ namespace Nz
 	{
 		NazaraAssert(m_stream, "Music not created");
 
+		if (!m_streaming)
+			return 0;
+
 		// Prevent music thread from enqueuing new buffers while we're getting the count
 		std::lock_guard<std::mutex> lock(m_bufferLock);
 
 		UInt32 sampleOffset = m_source->GetSampleOffset();
-		return static_cast<UInt32>((1000ULL * (sampleOffset + (m_processedSamples / GetChannelCount(m_stream->GetFormat())))) / m_sampleRate);
+		UInt32 playingOffset = SafeCast<UInt32>((1000ULL * (sampleOffset + (m_processedSamples / GetChannelCount(m_stream->GetFormat())))) / m_sampleRate);
+		UInt32 duration = m_stream->GetDuration();
+		if (playingOffset > duration)
+		{
+			if (m_looping)
+				playingOffset %= duration;
+			else
+				playingOffset = 0; //< stopped
+		}
+
+		return playingOffset;
 	}
 
 	/*!
@@ -191,6 +206,8 @@ namespace Nz
 	*/
 	bool Music::IsLooping() const
 	{
+		std::lock_guard<std::mutex> lock(m_bufferLock);
+
 		return m_looping;
 	}
 
@@ -290,7 +307,12 @@ namespace Nz
 		else
 		{
 			// Ensure we're restarting
-			Stop();
+			StopThread();
+
+			// Special case of SetPlayingOffset(end) before Play(), restart from beginning
+			if (m_streamOffset >= m_stream->GetSampleCount())
+				m_streamOffset = 0;
+
 			StartThread(false);
 		}
 	}

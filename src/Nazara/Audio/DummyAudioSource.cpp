@@ -46,6 +46,9 @@ namespace Nz
 
 	UInt32 DummyAudioSource::GetSampleOffset() const
 	{
+		if (m_status == SoundStatus::Stopped)
+			return 0; //< Always return 0 when stopped, to mimic OpenAL behavior
+
 		UInt64 bufferTime = UpdateTime();
 
 		UInt64 sampleOffset = 0;
@@ -114,7 +117,12 @@ namespace Nz
 		{
 			// playing or stopped, restart
 			RequeueBuffers();
-			m_playClock.Restart();
+
+			// special case, we are stopped but SetSampleOffset has been called
+			if (m_status == SoundStatus::Stopped && m_playClock.GetMilliseconds() != 0)
+				m_playClock.Unpause();
+			else
+				m_playClock.Restart(); //< already playing or stopped, restart from beginning
 		}
 
 		m_status = SoundStatus::Playing;
@@ -168,10 +176,13 @@ namespace Nz
 		}
 		m_queuedBuffers.erase(m_queuedBuffers.begin(), m_queuedBuffers.begin() + processedBufferIndex);
 
-		assert(!m_queuedBuffers.empty());
-
-		UInt64 timeOffset = 1'000'000ULL * offset / m_queuedBuffers.front()->GetSampleRate();
-		m_playClock.Restart(timeOffset, m_playClock.IsPaused());
+		if (!m_queuedBuffers.empty())
+		{
+			UInt64 timeOffset = 1'000'000ULL * offset / m_queuedBuffers.front()->GetSampleRate();
+			m_playClock.Restart(timeOffset, m_playClock.IsPaused());
+		}
+		else
+			Stop();
 	}
 
 	void DummyAudioSource::SetVelocity(const Vector3f& velocity)
@@ -216,7 +227,11 @@ namespace Nz
 		if (!m_processedBuffers.empty())
 		{
 			m_queuedBuffers.resize(m_processedBuffers.size() + m_queuedBuffers.size());
-			std::move(m_queuedBuffers.begin(), m_queuedBuffers.begin() + m_processedBuffers.size(), m_queuedBuffers.begin() + m_processedBuffers.size());
+
+			// Move currently queued buffers to the end of the queue
+			if (m_queuedBuffers.size() > m_processedBuffers.size())
+				std::move(m_queuedBuffers.begin(), m_queuedBuffers.begin() + m_processedBuffers.size(), m_queuedBuffers.begin() + m_processedBuffers.size());
+
 			std::move(m_processedBuffers.begin(), m_processedBuffers.end(), m_queuedBuffers.begin());
 			m_processedBuffers.clear();
 		}
