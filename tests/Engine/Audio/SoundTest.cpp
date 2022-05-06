@@ -41,10 +41,51 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				CHECK(sound.GetPlayingOffset() <= 1500);
 				sound.Pause();
+				Nz::UInt32 playingOffset = sound.GetPlayingOffset();
 				CHECK(sound.GetStatus() == Nz::SoundStatus::Paused);
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+				CHECK(sound.GetStatus() == Nz::SoundStatus::Paused);
+				CHECK(sound.GetPlayingOffset() == playingOffset);
 
 				sound.SetPlayingOffset(3500);
 				CHECK(sound.GetPlayingOffset() == 3500);
+
+				sound.Play();
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+				CHECK(sound.GetPlayingOffset() >= 1650);
+
+				AND_WHEN("We let the sound stop by itself")
+				{
+					REQUIRE(sound.GetDuration() == 8192);
+
+					sound.SetPlayingOffset(8000);
+					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					CHECK(sound.GetStatus() == Nz::SoundStatus::Stopped);
+					CHECK(sound.GetPlayingOffset() == 0);
+
+					sound.SetPlayingOffset(9000);
+					sound.Play();
+					std::this_thread::sleep_for(std::chrono::milliseconds(50));
+					CHECK(sound.GetStatus() == Nz::SoundStatus::Playing);
+
+					sound.Stop();
+					sound.SetPlayingOffset(8000);
+					std::this_thread::sleep_for(std::chrono::milliseconds(50));
+					CHECK(sound.GetStatus() == Nz::SoundStatus::Stopped);
+					CHECK(sound.GetPlayingOffset() == 0); //< playing offset has no effect until Play()
+
+					AND_WHEN("We enable looping")
+					{
+						sound.EnableLooping(true);
+						CHECK(sound.IsLooping());
+						sound.Play();
+						CHECK(sound.GetStatus() == Nz::SoundStatus::Playing);
+						CHECK(sound.GetPlayingOffset() >= 8000);
+						std::this_thread::sleep_for(std::chrono::milliseconds(300));
+						CHECK(sound.GetStatus() == Nz::SoundStatus::Playing);
+						CHECK(sound.GetPlayingOffset() < 300);
+					}
+				}
 
 				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(100.f);
 			}
