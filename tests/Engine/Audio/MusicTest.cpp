@@ -65,6 +65,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 				music.Play();
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
 				CHECK(music.GetPlayingOffset() >= 3650);
 
 				AND_WHEN("We let the sound stop by itself")
@@ -72,7 +73,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 					REQUIRE(music.GetDuration() == 63059);
 
 					music.SetPlayingOffset(62900);
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
+					std::this_thread::sleep_for(std::chrono::milliseconds(300));
 					CHECK(music.GetStatus() == Nz::SoundStatus::Stopped);
 					CHECK(music.GetPlayingOffset() == 0);
 
