@@ -170,6 +170,8 @@ int main(int argc, char* argv[])
 				Nz::LangWriter nzslWriter;
 				fmt::print("{}", nzslWriter.Generate(*shaderModule));
 			}
+
+			return EXIT_SUCCESS;
 		}
 		catch (const Nz::ShaderLang::Error& error)
 		{
@@ -243,16 +245,18 @@ int main(int argc, char* argv[])
 			}
 			else
 				fmt::print(stderr, (fmt::emphasis::bold | fg(fmt::color::red)), "{}\n", error.what());
+
+			return EXIT_FAILURE;
 		}
 	}
 	catch (const cxxopts::OptionException& e)
 	{
 		fmt::print(stderr, "{}\n{}\n", e.what(), options.help());
+		return EXIT_FAILURE;
 	}
 	catch (const std::exception& e)
 	{
 		fmt::print(stderr, "{}\n", e.what());
+		return EXIT_FAILURE;
 	}
-
-	return EXIT_SUCCESS;
 }
