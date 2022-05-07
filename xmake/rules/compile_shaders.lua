@@ -22,7 +22,16 @@ rule("compile_shaders")
 
 		-- add commands
 		batchcmds:show_progress(opt.progress, "${color.build.object}compiling shader %s", shaderfile)
-		local argv = {"--compile", "--partial", "--header-file", "--log-format=vs", shaderfile}
+		local argv = {"--compile", "--partial", "--header-file"}
+
+		-- handle --log-format
+		local kind = target:data("plugin.project.kind") or ""
+		if kind:match("vs") then
+			table.insert(argv, "--log-format=vs")
+		end
+
+		table.insert(argv, shaderfile)
+
 		batchcmds:vrunv(nzslc:targetfile(), argv, { curdir = "." })
 
 		local outputFile = path.join(path.directory(shaderfile), path.basename(shaderfile) .. ".nzslb.h")
