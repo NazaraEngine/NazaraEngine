@@ -29,13 +29,13 @@ namespace Nz
 		{
 			switch (errCode)
 			{
-				case 0: return "no error";
-				case MP3D_E_PARAM: return "wrong parameters";
-				case MP3D_E_MEMORY: return "not enough memory";
+				case 0:              return "no error";
+				case MP3D_E_PARAM:   return "wrong parameters";
+				case MP3D_E_MEMORY:  return "not enough memory";
 				case MP3D_E_IOERROR: return "I/O error";
-				case MP3D_E_USER: return "aborted";
-				case MP3D_E_DECODE: return "decoding error";
-				default: return "unknown error";
+				case MP3D_E_USER:    return "aborted";
+				case MP3D_E_DECODE:  return "decoding error";
+				default:             return "unknown error";
 			}
 		}
 

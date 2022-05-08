@@ -78,7 +78,7 @@ namespace Nz
 		if (ext[0] == '.')
 			ext.erase(ext.begin());
 
-		File file(filePath.generic_u8string()); // Open only if needed
+		File file(filePath); // Open only if needed
 
 		bool found = false;
 		for (auto& loaderPtr : m_loaders)
