@@ -26,8 +26,8 @@ namespace Nz
 #if defined(NAZARA_PLATFORM_WINDOWS)
 		std::array libs{
 			"soft_oal.dll",
-			"wrap_oal.dll",
-			"openal32.dll"
+			"openal32.dll",
+			"wrap_oal.dll"
 		};
 #elif defined(NAZARA_PLATFORM_LINUX)
 		std::array libs {
@@ -53,7 +53,7 @@ namespace Nz
 			auto LoadSymbol = [this](const char* name, bool optional)
 			{
 				DynLibFunc funcPtr = m_library.GetSymbol(name);
-				if (!funcPtr)
+				if (!funcPtr && !optional)
 					throw std::runtime_error(std::string("failed to load ") + name);
 
 				return funcPtr;
@@ -74,11 +74,11 @@ namespace Nz
 				continue;
 			}
 
+			m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
+
 			unloadOnFailure.Reset();
 			return true;
 		}
-
-		m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
 
 		NazaraError("failed to load OpenAL library");
 		return false;
