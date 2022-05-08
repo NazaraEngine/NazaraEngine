@@ -75,23 +75,33 @@ namespace Nz
 	{
 		GetDevice().MakeContextCurrent();
 
+		ALint samples = 0;
+		m_library.alGetSourcei(m_sourceId, AL_SAMPLE_OFFSET, &samples);
+
+		return SafeCast<UInt32>(samples);
+	}
+
+	auto OpenALSource::GetSampleOffsetAndLatency() const -> OffsetWithLatency
+	{
+		OffsetWithLatency offsetWithLatency;
 		if (GetDevice().IsExtensionSupported(OpenALExtension::SourceLatency))
 		{
+			GetDevice().MakeContextCurrent();
+
 			std::array<ALint64SOFT, 2> values;
 			m_library.alGetSourcei64vSOFT(m_sourceId, AL_SAMPLE_OFFSET_LATENCY_SOFT, values.data());
 
-			ALint64SOFT sampleOffset = (values[0] & 0xFFFFFFFF00000000) >> 32;
-			ALint64SOFT latency = values[1] / 1'000'000;
+			offsetWithLatency.sampleOffset = ((values[0] & 0xFFFFFFFF00000000) >> 32) * 1'000;
+			offsetWithLatency.sourceLatency = values[1] / 1'000;
 
-			return SafeCast<UInt32>(sampleOffset + latency);
 		}
 		else
 		{
-			ALint samples = 0;
-			m_library.alGetSourcei(m_sourceId, AL_SAMPLE_OFFSET, &samples);
-
-			return SafeCast<UInt32>(samples);
+			offsetWithLatency.sampleOffset = GetSampleOffset() * 1'000;
+			offsetWithLatency.sourceLatency = 0;
 		}
+
+		return offsetWithLatency;
 	}
 
 	Vector3f OpenALSource::GetVelocity() const

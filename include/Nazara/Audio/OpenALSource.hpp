@@ -36,6 +36,7 @@ namespace Nz
 			float GetPitch() const override;
 			Vector3f GetPosition() const override;
 			UInt32 GetSampleOffset() const override;
+			OffsetWithLatency GetSampleOffsetAndLatency() const override;
 			Vector3f GetVelocity() const override;
 			SoundStatus GetStatus() const override;
 			float GetVolume() const override;
