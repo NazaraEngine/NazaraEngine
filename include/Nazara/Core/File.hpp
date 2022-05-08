@@ -15,6 +15,7 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 
 namespace Nz
 {
@@ -55,6 +56,7 @@ namespace Nz
 
 			static inline ByteArray ComputeHash(HashType hash, const std::filesystem::path& filePath);
 			static inline ByteArray ComputeHash(AbstractHash& hash, const std::filesystem::path& filePath);
+			static std::optional<std::vector<UInt8>> ReadWhole(const std::filesystem::path& path);
 
 		private:
 			void FlushStream() override;

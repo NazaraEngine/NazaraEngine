@@ -1554,24 +1554,10 @@ namespace Nz::ShaderLang
 
 	ShaderAst::ModulePtr ParseFromFile(const std::filesystem::path& sourcePath)
 	{
-		File file(sourcePath);
-		if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
-		{
-			NazaraError("Failed to open \"" + sourcePath.generic_u8string() + '"');
-			return {};
-		}
-
-		std::size_t length = static_cast<std::size_t>(file.GetSize());
-		if (length == 0)
+		std::optional<std::vector<UInt8>> source = File::ReadWhole(sourcePath);
+		if (!source.has_value())
 			return {};
 
-		std::vector<Nz::UInt8> source(length);
-		if (file.Read(&source[0], length) != length)
-		{
-			NazaraError("Failed to read shader file");
-			return {};
-		}
-
-		return Parse(std::string_view(reinterpret_cast<const char*>(source.data()), source.size()), sourcePath.generic_u8string());
+		return Parse(std::string_view(reinterpret_cast<const char*>(source->data()), source->size()), sourcePath.generic_u8string());
 	}
 }

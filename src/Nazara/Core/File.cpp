@@ -267,6 +267,26 @@ namespace Nz
 
 	File& File::operator=(File&& file) noexcept = default;
 
+	std::optional<std::vector<UInt8>> File::ReadWhole(const std::filesystem::path& path)
+	{
+		File file(path);
+		if (!file.Open(OpenMode::ReadOnly | OpenMode::Unbuffered)) //< unbuffered since we will read all the file at once
+		{
+			NazaraError("Failed to open \"" + path.generic_u8string() + '"');
+			return std::nullopt;
+		}
+
+		std::size_t size = static_cast<std::size_t>(file.GetSize());
+		std::vector<UInt8> content(size);
+		if (size > 0 && file.Read(&content[0], size) != size)
+		{
+			NazaraError("Failed to read file");
+			return std::nullopt;
+		}
+
+		return content;
+	}
+
 	/*!
 	* \brief Flushes the stream
 	*
