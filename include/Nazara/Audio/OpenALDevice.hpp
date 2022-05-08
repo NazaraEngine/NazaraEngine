@@ -14,6 +14,7 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
+#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/MovablePtr.hpp>
 #include <array>
 #include <string>
@@ -21,6 +22,15 @@
 namespace Nz
 {
 	class OpenALLibrary;
+
+	enum class OpenALExtension
+	{
+		SourceLatency,
+
+		Max = SourceLatency
+	};
+
+	constexpr std::size_t OpenALExtensionCount = static_cast<std::size_t>(OpenALExtension::Max) + 1;
 
 	class NAZARA_AUDIO_API OpenALDevice : public AudioDevice
 	{
@@ -44,6 +54,7 @@ namespace Nz
 			float GetSpeedOfSound() const override;
 			const void* GetSubSystemIdentifier() const override;
 
+			inline bool IsExtensionSupported(OpenALExtension extension) const;
 			bool IsFormatSupported(AudioFormat format) const override;
 
 			void MakeContextCurrent() const;
@@ -62,6 +73,7 @@ namespace Nz
 
 		private:
 			std::array<ALenum, AudioFormatCount> m_audioFormatValues;
+			std::array<bool, OpenALExtensionCount> m_extensionStatus;
 			std::string m_renderer;
 			std::string m_vendor;
 			OpenALLibrary& m_library;

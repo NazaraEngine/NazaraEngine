@@ -47,6 +47,10 @@ namespace Nz
 		else if (library.alIsExtensionPresent("AL_LOKI_quadriphonic"))
 			m_audioFormatValues[UnderlyingCast(AudioFormat::I16_Quad)] = m_library.alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
+		m_extensionStatus.fill(false);
+		if (library.alIsExtensionPresent("AL_SOFT_source_latency"))
+			m_extensionStatus[UnderlyingCast(OpenALExtension::SourceLatency)] = true;
+
 		SetListenerDirection(Vector3f::Forward());
 	}
 
