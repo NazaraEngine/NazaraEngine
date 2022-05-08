@@ -20,6 +20,8 @@ namespace Nz
 	class NAZARA_AUDIO_API AudioSource
 	{
 		public:
+			struct OffsetWithLatency;
+
 			inline AudioSource(std::shared_ptr<AudioDevice> device);
 			AudioSource(const AudioSource&) = delete;
 			AudioSource(AudioSource&&) = delete;
@@ -34,6 +36,7 @@ namespace Nz
 			virtual float GetPitch() const = 0;
 			virtual Vector3f GetPosition() const = 0;
 			virtual UInt32 GetSampleOffset() const = 0;
+			virtual OffsetWithLatency GetSampleOffsetAndLatency() const = 0;
 			virtual Vector3f GetVelocity() const = 0;
 			virtual SoundStatus GetStatus() const = 0;
 			virtual float GetVolume() const = 0;
@@ -63,6 +66,12 @@ namespace Nz
 
 			AudioSource& operator=(const AudioSource&) = delete;
 			AudioSource& operator=(AudioSource&&) = delete;
+
+			struct OffsetWithLatency
+			{
+				UInt64 sampleOffset;
+				UInt64 sourceLatency;
+			};
 
 		private:
 			std::shared_ptr<AudioDevice> m_device;

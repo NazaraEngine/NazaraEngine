@@ -68,6 +68,15 @@ namespace Nz
 		return SafeCast<UInt32>(sampleOffset);
 	}
 
+	auto DummyAudioSource::GetSampleOffsetAndLatency() const -> OffsetWithLatency
+	{
+		OffsetWithLatency info;
+		info.sampleOffset = GetSampleOffset() * 1000;
+		info.sourceLatency = 0;
+
+		return info;
+	}
+
 	Vector3f DummyAudioSource::GetVelocity() const
 	{
 		return m_velocity;
