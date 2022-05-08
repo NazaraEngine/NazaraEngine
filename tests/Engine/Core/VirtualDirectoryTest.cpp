@@ -105,8 +105,21 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 				}
 
 				const auto& contentEntry = std::get<Nz::VirtualDirectory::FileContentEntry>(entry);
-				CHECK(std::equal(expectedData.begin(), expectedData.end(), contentEntry.data.begin(), contentEntry.data.end()));
-				return true;
+				return std::equal(expectedData.begin(), expectedData.end(), contentEntry.data.begin(), contentEntry.data.end());
+			});
+		};
+
+		auto CheckFileContent = [&](std::string_view path, const std::vector<Nz::UInt8>& expectedData)
+		{
+			return virtualDir->GetFileContent(path, [&](const void* data, std::size_t size)
+			{
+				if (expectedData.size() != size)
+				{
+					FAIL("size doesn't match");
+					return false;
+				}
+
+				return std::memcmp(expectedData.data(), data, expectedData.size()) == 0;
 			});
 		};
 
@@ -118,6 +131,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			WHEN("We retrieve it")
 			{
 				CHECK(CheckFile("File.bin", randomData));
+				CHECK(CheckFileContent("File.bin", randomData));
 			}
 		}
 
@@ -165,6 +179,8 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			{
 				INFO("Retrieving " << file.path);
 				CHECK(CheckFile(file.path, file.data));
+				INFO("Retrieving " << file.path << " using GetFileContent");
+				CHECK(CheckFileContent(file.path, file.data));
 			}
 		}
 	}
@@ -208,6 +224,20 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			});
 		};
 
+		auto CheckFileContentHash = [&](const char* filepath, const char* expectedHash)
+		{
+			return virtualDir->GetFileContent(filepath, [&](const void* data, std::size_t size)
+			{
+				Nz::SHA256Hash hash;
+				WHEN("We compute " << hash.GetHashName() << " of " << filepath << " file")
+				{
+					hash.Begin();
+					hash.Append(static_cast<const Nz::UInt8*>(data), size);
+					CHECK(Nz::ToUpper(hash.End().ToHex()) == expectedHash);
+				}
+			});
+		};
+
 		WHEN("Accessing files")
 		{
 			CHECK(CheckFileHash("Logo.png", "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423"));
@@ -244,6 +274,8 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			virtualDir->StoreFile("Logo.png", GetResourceDir() / "ambience.ogg");
 			CHECK(CheckFileHash("ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileHash("Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
+			CHECK(CheckFileContentHash("ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
+			CHECK(CheckFileContentHash("Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 		}
 	}
 }

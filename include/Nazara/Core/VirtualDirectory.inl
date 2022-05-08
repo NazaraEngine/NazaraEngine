@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/VirtualDirectory.hpp>
+#include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <algorithm>
 #include <cassert>
@@ -150,6 +151,45 @@ namespace Nz
 			}
 			else
 				return currentDir->GetEntryInternal(name, callback);
+		});
+	}
+
+	template<typename F>
+	bool VirtualDirectory::GetFileContent(std::string_view path, F&& callback)
+	{
+		return GetEntry(path, [&](const Entry& entry)
+		{
+			return std::visit([&](auto&& entry)
+			{
+				using T = std::decay_t<decltype(entry)>;
+
+				using P1 = const void*;
+				using P2 = std::size_t;
+
+				if constexpr (std::is_same_v<T, DataPointerEntry>)
+				{
+					return CallbackReturn(callback, static_cast<P1>(entry.data), SafeCast<P2>(entry.size));
+				}
+				else if constexpr (std::is_same_v<T, FileContentEntry>)
+				{
+					return CallbackReturn(callback, static_cast<P1>(entry.data.data()), SafeCast<P2>(entry.data.size()));
+				}
+				else if constexpr (std::is_same_v<T, PhysicalFileEntry>)
+				{
+					std::optional<std::vector<UInt8>> source = File::ReadWhole(entry.filePath);
+					if (!source.has_value())
+						return false;
+
+					return CallbackReturn(callback, static_cast<P1>(source->data()), SafeCast<P2>(source->size()));
+				}
+				else if constexpr (std::is_same_v<T, DirectoryEntry> || std::is_same_v<T, PhysicalDirectoryEntry>)
+				{
+					NazaraError("entry is a directory");
+					return false;
+				}
+				else
+					static_assert(AlwaysFalse<T>(), "incomplete visitor");
+			}, entry);
 		});
 	}
 

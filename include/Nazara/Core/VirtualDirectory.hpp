@@ -44,6 +44,7 @@ namespace Nz
 			template<typename F> void Foreach(F&& callback, bool includeDots = false);
 
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);
+			template<typename F> bool GetFileContent(std::string_view path, F&& callback);
 
 			inline DirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
 			inline PhysicalDirectoryEntry& StoreDirectory(std::string_view path, std::filesystem::path directoryPath);
