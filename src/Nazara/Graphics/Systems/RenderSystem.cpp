@@ -216,7 +216,8 @@ namespace Nz
 		UpdateVisibility(registry);
 		UpdateInstances(registry);
 
-		m_pipeline->Render(renderFrame);
+		if (!m_cameraEntities.empty())
+			m_pipeline->Render(renderFrame);
 	}
 
 	void RenderSystem::OnCameraDestroy(entt::registry& /*registry*/, entt::entity entity)
