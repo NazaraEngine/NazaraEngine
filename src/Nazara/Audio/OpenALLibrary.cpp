@@ -50,7 +50,7 @@ namespace Nz
 			if (!m_library.Load(libname))
 				continue;
 
-			auto LoadSymbol = [this](const char* name)
+			auto LoadSymbol = [this](const char* name, bool optional)
 			{
 				DynLibFunc funcPtr = m_library.GetSymbol(name);
 				if (!funcPtr)
@@ -61,10 +61,12 @@ namespace Nz
 
 			try
 			{
-#define NAZARA_AUDIO_FUNC(name, sig) name = reinterpret_cast<sig>(LoadSymbol(#name));
-				NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC)
-				NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC)
+#define NAZARA_AUDIO_FUNC(name, sig) name = reinterpret_cast<sig>(LoadSymbol(#name, false));
+#define NAZARA_AUDIO_EXT_FUNC(name, sig) name = reinterpret_cast<sig>(LoadSymbol(#name, true));
+				NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_EXT_FUNC)
+				NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_EXT_FUNC)
 #undef NAZARA_AUDIO_FUNC
+#undef NAZARA_AUDIO_EXT_FUNC
 			}
 			catch (const std::exception& e)
 			{
@@ -110,8 +112,8 @@ namespace Nz
 			return;
 
 #define NAZARA_AUDIO_FUNC(name, sig) name = nullptr;
-		NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC)
-		NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC)
+		NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_FUNC)
+		NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_FUNC)
 #undef NAZARA_AUDIO_FUNC
 
 		m_library.Unload();

@@ -20,6 +20,7 @@ namespace OpenALDetail
 {
 	#include <AL/al.h>
 	#include <AL/alc.h>
+	#include <AL/alext.h>
 }
 
 // If someone has a better idea ...
@@ -37,6 +38,10 @@ using OpenALDetail::ALuint;
 using OpenALDetail::ALushort;
 using OpenALDetail::ALvoid;
 
+// SOFT_source_latency
+using OpenALDetail::ALint64SOFT;
+using OpenALDetail::ALuint64SOFT;
+
 using OpenALDetail::ALCboolean;
 using OpenALDetail::ALCbyte;
 using OpenALDetail::ALCchar;
@@ -53,7 +58,7 @@ using OpenALDetail::ALCuint;
 using OpenALDetail::ALCushort;
 using OpenALDetail::ALCvoid;
 
-#define NAZARA_AUDIO_FOREACH_AL_FUNC(cb) \
+#define NAZARA_AUDIO_FOREACH_AL_FUNC(cb, extCb) \
 	cb(alBuffer3f,             OpenALDetail::LPALBUFFER3F) \
 	cb(alBuffer3i,             OpenALDetail::LPALBUFFER3I) \
 	cb(alBufferData,           OpenALDetail::LPALBUFFERDATA) \
@@ -126,9 +131,22 @@ using OpenALDetail::ALCvoid;
 	cb(alSourceStop,           OpenALDetail::LPALSOURCESTOP) \
 	cb(alSourceStopv,          OpenALDetail::LPALSOURCESTOPV) \
 	cb(alSourceUnqueueBuffers, OpenALDetail::LPALSOURCEUNQUEUEBUFFERS) \
-	cb(alSpeedOfSound,         OpenALDetail::LPALSPEEDOFSOUND)
+	cb(alSpeedOfSound,         OpenALDetail::LPALSPEEDOFSOUND) \
+	/* AL_SOFT_source_latency */ \
+	extCb(alGetSource3dSOFT,   OpenALDetail::LPALGETSOURCE3DSOFT) \
+	extCb(alGetSource3i64SOFT, OpenALDetail::LPALGETSOURCE3I64SOFT) \
+	extCb(alGetSourcedSOFT,    OpenALDetail::LPALGETSOURCEDSOFT) \
+	extCb(alGetSourcedvSOFT,   OpenALDetail::LPALGETSOURCEDVSOFT) \
+	extCb(alGetSourcei64SOFT,  OpenALDetail::LPALGETSOURCEI64SOFT) \
+	extCb(alGetSourcei64vSOFT, OpenALDetail::LPALGETSOURCEI64VSOFT) \
+	extCb(alSource3dSOFT,      OpenALDetail::LPALSOURCE3DSOFT) \
+	extCb(alSource3i64SOFT,    OpenALDetail::LPALSOURCE3I64SOFT) \
+	extCb(alSourcedSOFT,       OpenALDetail::LPALSOURCEDSOFT) \
+	extCb(alSourcedvSOFT,      OpenALDetail::LPALSOURCEDVSOFT) \
+	extCb(alSourcei64SOFT,     OpenALDetail::LPALSOURCEI64SOFT) \
+	extCb(alSourcei64vSOFT,    OpenALDetail::LPALSOURCEI64VSOFT) \
 
-#define NAZARA_AUDIO_FOREACH_ALC_FUNC(cb) \
+#define NAZARA_AUDIO_FOREACH_ALC_FUNC(cb, extCb) \
 	cb(alcCaptureCloseDevice, OpenALDetail::LPALCCAPTURECLOSEDEVICE) \
 	cb(alcCaptureOpenDevice,  OpenALDetail::LPALCCAPTUREOPENDEVICE) \
 	cb(alcCaptureSamples,     OpenALDetail::LPALCCAPTURESAMPLES) \
