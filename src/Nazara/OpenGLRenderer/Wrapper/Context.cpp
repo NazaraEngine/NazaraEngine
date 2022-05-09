@@ -804,6 +804,11 @@ namespace Nz::GL
 
 			return loader.Load<PFNGLPOLYGONMODENVPROC, functionIndex>(glPolygonMode, "glPolygonModeNV", false); //< from GL_NV_polygon_mode
 		}
+		else if (function == "glSpecializeShader")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glSpecializeShader);
+			return loader.Load<PFNGLSPECIALIZESHADERPROC, functionIndex>(glSpecializeShader, "glSpecializeShaderARB", false); //< from GL_ARB_spirv_extensions
+		}
 
 		return false;
 	}

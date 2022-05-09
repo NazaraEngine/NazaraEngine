@@ -90,9 +90,9 @@ namespace Nz::GL
 	{
 		assert(m_objectId);
 		const Context& context = EnsureDeviceContext();
-		assert(context.glSpecializeShaderARB);
+		assert(context.glSpecializeShader);
 
-		context.glSpecializeShaderARB(m_objectId, pEntryPoint, numSpecializationConstants, pConstantIndex, pConstantValue);
+		context.glSpecializeShader(m_objectId, pEntryPoint, numSpecializationConstants, pConstantIndex, pConstantValue);
 	}
 
 	inline GLuint Shader::CreateHelper(OpenGLDevice& /*device*/, const Context& context, GLenum shaderStage)
