@@ -9,6 +9,12 @@
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
 
+#ifdef NAZARA_PLATFORM_WINDOWS
+#define NAZARA_DYNLIB_PREFIX ""
+#else
+#define NAZARA_DYNLIB_PREFIX "lib"
+#endif
+
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
@@ -18,7 +24,8 @@ namespace Nz
 
 		const char* s_pluginFiles[] =
 		{
-			"PluginAssimp",  // Plugin::Assimp
+			NAZARA_DYNLIB_PREFIX "PluginAssimp",  // Plugin::Assimp
+			NAZARA_DYNLIB_PREFIX "PluginFFmpeg",  // Plugin::FFmpeg
 		};
 	}
 
