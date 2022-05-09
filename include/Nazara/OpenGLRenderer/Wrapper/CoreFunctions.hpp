@@ -19,9 +19,9 @@
 #define GL_FILL                            0x1B02
 #define GL_SHADER_BINARY_FORMAT_SPIR_V_ARB 0x9551
 #define GL_SPIR_V_BINARY_ARB               0x9552
-typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
-typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERARBPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
 typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
+typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
+typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
 
 // OpenGL core
 #define NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(cb, extCb) \
@@ -169,22 +169,19 @@ typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
 	cb(glVertexAttribIPointer, PFNGLVERTEXATTRIBIPOINTERPROC) \
 	cb(glVertexAttribPointer, PFNGLVERTEXATTRIBPOINTERPROC) \
 	cb(glViewport, PFNGLVIEWPORTPROC) \
-	\
-	extCb(glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC) \
-	\
-	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
-	\
+	/* Core OpenGL (extension in OpenGL ES) */ \
 	extCb(glDrawBuffer, PFNGLDRAWBUFFERPROC) \
-	\
 	extCb(glPolygonMode, PFNGLPOLYGONMODEPROC) \
-	\
+	/* OpenGL 4.2 - OpenGL ES 3.1 */\
 	extCb(glMemoryBarrier, PFNGLMEMORYBARRIERPROC) \
 	extCb(glMemoryBarrierByRegion, PFNGLMEMORYBARRIERBYREGIONPROC) \
-	\
+	/* OpenGL 4.3 - OpenGL ES 3.2 */\
+	extCb(glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC) \
+	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \
 	extCb(glObjectLabel, PFNGLOBJECTLABELPROC) \
 	extCb(glPopDebugGroup, PFNGLPOPDEBUGGROUPPROC) \
 	extCb(glPushDebugGroup, PFNGLPUSHDEBUGGROUPPROC) \
-	\
-	extCb(glSpecializeShaderARB, PFNGLSPECIALIZESHADERARBPROC) \
+	/* OpenGL 4.6 - GL_ARB_spirv_extensions */\
+	extCb(glSpecializeShader, PFNGLSPECIALIZESHADERPROC) \
 
 #endif // NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
