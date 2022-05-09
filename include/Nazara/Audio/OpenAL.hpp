@@ -11,6 +11,8 @@
 
 #if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
+#include <cstddef>
+
 // Inclusion of OpenAL headers
 
 // OpenAL headers does not allow us to only get the signatures without the pointers to the functions

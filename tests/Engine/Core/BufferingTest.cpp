@@ -1,5 +1,6 @@
 #include <Nazara/Core/MemoryView.hpp>
 #include <catch2/catch.hpp>
+#include <cstring>
 
 SCENARIO("Buffering", "[CORE][BUFFERING]")
 {
