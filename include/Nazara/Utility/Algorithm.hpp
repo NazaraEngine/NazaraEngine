@@ -31,10 +31,14 @@ namespace Nz
 	{
 		const Joint* joints;
 		SparsePtr<const Vector3f> inputPositions;
+		SparsePtr<const Vector3f> inputNormals;
+		SparsePtr<const Vector3f> inputTangents;
 		SparsePtr<const Vector4i32> inputJointIndices;
 		SparsePtr<const Vector4f> inputJointWeights;
 		SparsePtr<const Vector2f> inputUv;
+		SparsePtr<Vector3f> outputNormals;
 		SparsePtr<Vector3f> outputPositions;
+		SparsePtr<Vector3f> outputTangents;
 		SparsePtr<Vector2f> outputUv;
 	};
 
@@ -64,9 +68,7 @@ namespace Nz
 
 	NAZARA_UTILITY_API void OptimizeIndices(IndexIterator indices, UInt64 indexCount);
 
-	NAZARA_UTILITY_API void SkinPosition(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
-	NAZARA_UTILITY_API void SkinPositionNormal(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
-	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
+	NAZARA_UTILITY_API void SkinLinearBlend(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
 
 	inline Vector3f TransformPositionTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position);
 	inline Vector3f TransformNormalTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal);
