@@ -1065,30 +1065,61 @@ namespace Nz
 
 	/************************************Skin***********************************/
 
-	void SkinPosition(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
+	void SkinLinearBlend(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
 	{
 		NazaraAssert(skinningInfos.inputJointIndices, "missing input joint indices");
 		NazaraAssert(skinningInfos.inputJointWeights, "missing input joint weights");
 
 		UInt64 endVertex = startVertex + vertexCount - 1;
-		if (skinningInfos.outputPositions)
+		if (skinningInfos.outputPositions || skinningInfos.outputNormals || skinningInfos.outputTangents)
 		{
-			NazaraAssert(skinningInfos.inputPositions, "missing input positions");
 			NazaraAssert(skinningInfos.joints, "missing skeleton joints");
+
+			if (skinningInfos.outputPositions)
+				NazaraAssert(skinningInfos.inputPositions, "missing input positions");
+
+			if (skinningInfos.outputNormals)
+				NazaraAssert(skinningInfos.inputNormals, "missing input positions");
+
+			if (skinningInfos.outputTangents)
+				NazaraAssert(skinningInfos.inputTangents, "missing input positions");
+
+			bool hasPositions = skinningInfos.inputPositions && skinningInfos.outputPositions;
+			bool hasNormals = skinningInfos.inputNormals && skinningInfos.outputNormals;
+			bool hasTangents = skinningInfos.inputTangents && skinningInfos.outputTangents;
 
 			for (UInt64 i = startVertex; i <= endVertex; ++i)
 			{
-				Vector3f finalPosition(Vector3f::Zero());
+				Vector3f finalPosition = Vector3f::Zero();
+				Vector3f finalNormal = Vector3f::Zero();
+				Vector3f finalTangent = Vector3f::Zero();
 
 				for (Int32 j = 0; j < 4; ++j)
 				{
-					Matrix4f mat(skinningInfos.joints[skinningInfos.inputJointIndices[i][j]].GetSkinningMatrix());
+					Int32 jointIndex = skinningInfos.inputJointIndices[i][j];
+
+					Matrix4f mat = skinningInfos.joints[jointIndex].GetSkinningMatrix();
 					mat *= skinningInfos.inputJointWeights[i][j];
 
-					finalPosition += mat.Transform(skinningInfos.inputPositions[i]);
+					// Hopefully the branch predictor will help here
+					if (hasPositions)
+						finalPosition += mat.Transform(skinningInfos.inputPositions[i]);
+
+					if (hasNormals)
+						finalNormal += mat.Transform(skinningInfos.inputNormals[i], 0.f);
+
+					if (hasTangents)
+						finalTangent += mat.Transform(skinningInfos.inputTangents[i], 0.f);
 				}
 
-				skinningInfos.outputPositions[i] = finalPosition;
+				if (hasPositions)
+					skinningInfos.outputPositions[i] = finalPosition;
+
+				if (hasNormals)
+					skinningInfos.outputNormals[i] = finalNormal.GetNormal();
+
+				if (hasTangents)
+					skinningInfos.outputTangents[i] = finalTangent.GetNormal();
 			}
 		}
 
@@ -1101,69 +1132,31 @@ namespace Nz
 		}
 	}
 
-	void SkinPositionNormal(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
+	/*********************************Transform*********************************/
+
+	void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix)
 	{
-		/*const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
-		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
-
-		UInt64 endVertex = startVertex + vertexCount - 1;
-		for (UInt64 i = startVertex; i <= endVertex; ++i)
+		if (vertexPointers.positionPtr)
 		{
-			Vector3f finalPosition(Vector3f::Zero());
-			Vector3f finalNormal(Vector3f::Zero());
+			for (UInt64 i = 0; i < vertexCount; ++i)
+				*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
+		}
 
-			for (Int32 j = 0; j < 4; ++j)
+		if (vertexPointers.normalPtr || vertexPointers.tangentPtr)
+		{
+			Vector3f scale = matrix.GetScale();
+
+			if (vertexPointers.normalPtr)
 			{
-				Matrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
-				mat *= inputVertex->weights[j];
-
-				finalPosition += mat.Transform(inputVertex->position);
-				finalNormal += mat.Transform(inputVertex->normal, 0.f);
+				for (UInt64 i = 0; i < vertexCount; ++i)
+					*vertexPointers.normalPtr++ = matrix.Transform(*vertexPointers.normalPtr, 0.f) / scale;
 			}
 
-			finalNormal.Normalize();
-
-			outputVertex->normal = finalNormal;
-			outputVertex->position = finalPosition;
-			outputVertex->uv = inputVertex->uv;
-
-			inputVertex++;
-			outputVertex++;
-		}*/
-	}
-
-	void SkinPositionNormalTangent(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
-	{
-		/*const SkeletalMeshVertex* inputVertex = &skinningInfos.inputVertex[startVertex];
-		MeshVertex* outputVertex = &skinningInfos.outputVertex[startVertex];
-
-		UInt64 endVertex = startVertex + vertexCount - 1;
-		for (UInt64 i = startVertex; i <= endVertex; ++i)
-		{
-			Vector3f finalPosition(Vector3f::Zero());
-			Vector3f finalNormal(Vector3f::Zero());
-			Vector3f finalTangent(Vector3f::Zero());
-
-			for (int j = 0; j < 4; ++j)
+			if (vertexPointers.tangentPtr)
 			{
-				Matrix4f mat(skinningInfos.joints[inputVertex->jointIndexes[j]].GetSkinningMatrix());
-				mat *= inputVertex->weights[j];
-
-				finalPosition += mat.Transform(inputVertex->position);
-				finalNormal += mat.Transform(inputVertex->normal, 0.f);
-				finalTangent += mat.Transform(inputVertex->tangent, 0.f);
+				for (UInt64 i = 0; i < vertexCount; ++i)
+					*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
 			}
-
-			finalNormal.Normalize();
-			finalTangent.Normalize();
-
-			outputVertex->normal = finalNormal;
-			outputVertex->position = finalPosition;
-			outputVertex->tangent = finalTangent;
-			outputVertex->uv = inputVertex->uv;
-
-			inputVertex++;
-			outputVertex++;
-		}*/
+		}
 	}
 }
