@@ -24,7 +24,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Light
 	{
 		public:
-			inline Light();
+			inline Light(UInt8 lightType);
 			Light(const Light&) = delete;
 			Light(Light&&) noexcept = default;
 			virtual ~Light();
@@ -34,6 +34,7 @@ namespace Nz
 			virtual void FillLightData(void* data) const = 0;
 
 			inline const BoundingVolumef& GetBoundingVolume() const;
+			inline UInt8 GetLightType() const;
 
 			virtual void UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale) = 0;
 
@@ -47,6 +48,7 @@ namespace Nz
 
 		private:
 			BoundingVolumef m_boundingVolume;
+			UInt8 m_lightType;
 	};
 }
 

@@ -8,14 +8,20 @@
 
 namespace Nz
 {
-	inline Light::Light() :
-	m_boundingVolume(BoundingVolumef::Null())
+	inline Light::Light(UInt8 lightType) :
+	m_boundingVolume(BoundingVolumef::Null()),
+	m_lightType(lightType)
 	{
 	}
 
 	inline const BoundingVolumef& Light::GetBoundingVolume() const
 	{
 		return m_boundingVolume;
+	}
+
+	inline UInt8 Light::GetLightType() const
+	{
+		return m_lightType;
 	}
 
 	inline void Light::UpdateBoundingVolume(const BoundingVolumef& boundingVolume)
