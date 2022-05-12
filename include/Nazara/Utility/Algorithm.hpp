@@ -64,11 +64,17 @@ namespace Nz
 	NAZARA_UTILITY_API void SkinPositionNormal(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
 	NAZARA_UTILITY_API void SkinPositionNormalTangent(const SkinningData& data, UInt64 startVertex, UInt64 vertexCount);
 
-	NAZARA_UTILITY_API void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix);
+	inline Vector3f TransformPositionTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position);
+	inline Vector3f TransformNormalTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal);
+	inline Quaternionf TransformRotationTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation);
+	inline Vector3f TransformScaleTRS(const Vector3f& transformScale, const Vector3f& scale);
+	inline void TransformTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, Vector3f& position, Quaternionf& rotation, Vector3f& scale);
+	inline void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix);
 
 	template<typename T> constexpr ComponentType ComponentTypeId();
 	template<typename T> constexpr ComponentType GetComponentTypeOf();
 }
+
 #include <Nazara/Utility/Algorithm.inl>
 
 #endif // NAZARA_UTILITY_ALGORITHM_HPP

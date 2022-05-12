@@ -108,8 +108,6 @@ namespace Nz
 			virtual void UpdateDerived() const;
 			virtual void UpdateTransformMatrix() const;
 
-			static Quaternionf ScaleQuaternion(const Vector3f& scale, Quaternionf quaternion);
-
 			mutable std::vector<Node*> m_childs;
 			mutable Matrix4f m_transformMatrix;
 			mutable Quaternionf m_derivedRotation;
