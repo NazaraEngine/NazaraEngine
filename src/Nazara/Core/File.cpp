@@ -272,7 +272,7 @@ namespace Nz
 		File file(path);
 		if (!file.Open(OpenMode::ReadOnly | OpenMode::Unbuffered)) //< unbuffered since we will read all the file at once
 		{
-			NazaraError("Failed to open \"" + path.generic_u8string() + '"');
+			NazaraError("failed to open \"" + path.generic_u8string() + '"');
 			return std::nullopt;
 		}
 
@@ -280,11 +280,29 @@ namespace Nz
 		std::vector<UInt8> content(size);
 		if (size > 0 && file.Read(&content[0], size) != size)
 		{
-			NazaraError("Failed to read file");
+			NazaraError("failed to read file");
 			return std::nullopt;
 		}
 
 		return content;
+	}
+
+	bool File::WriteWhole(const std::filesystem::path& path, const void* data, std::size_t size)
+	{
+		File file(path);
+		if (!file.Open(OpenMode::WriteOnly | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
+		{
+			NazaraError("failed to open \"" + path.generic_u8string() + '"');
+			return false;
+		}
+
+		if (file.Write(data, size) != size)
+		{
+			NazaraError("failed to write file");
+			return false;
+		}
+
+		return true;
 	}
 
 	/*!

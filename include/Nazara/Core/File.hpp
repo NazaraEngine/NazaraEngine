@@ -57,6 +57,7 @@ namespace Nz
 			static inline ByteArray ComputeHash(HashType hash, const std::filesystem::path& filePath);
 			static inline ByteArray ComputeHash(AbstractHash& hash, const std::filesystem::path& filePath);
 			static std::optional<std::vector<UInt8>> ReadWhole(const std::filesystem::path& path);
+			static bool WriteWhole(const std::filesystem::path& path, const void* data, std::size_t size);
 
 		private:
 			void FlushStream() override;
