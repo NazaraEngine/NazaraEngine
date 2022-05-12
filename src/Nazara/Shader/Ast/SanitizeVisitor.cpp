@@ -1780,12 +1780,13 @@ namespace Nz::ShaderAst
 			ModulePtr sanitizedModule = std::make_shared<Module>(targetModule->metadata);
 
 			// Remap already used indices 
-			IndexRemapperVisitor::Callbacks indexCallbacks;
+			IndexRemapperVisitor::Options indexCallbacks;
 			indexCallbacks.aliasIndexGenerator = [this](std::size_t /*previousIndex*/) { return m_context->aliases.RegisterNewIndex(true); };
 			indexCallbacks.constIndexGenerator = [this](std::size_t /*previousIndex*/) { return m_context->constantValues.RegisterNewIndex(true); };
 			indexCallbacks.funcIndexGenerator = [this](std::size_t /*previousIndex*/) { return m_context->functions.RegisterNewIndex(true); };
 			indexCallbacks.structIndexGenerator = [this](std::size_t /*previousIndex*/) { return m_context->structs.RegisterNewIndex(true); };
 			indexCallbacks.varIndexGenerator = [this](std::size_t /*previousIndex*/) { return m_context->variableTypes.RegisterNewIndex(true); };
+			indexCallbacks.forceIndexGeneration = true;
 
 			sanitizedModule->rootNode = StaticUniquePointerCast<MultiStatement>(RemapIndices(*targetModule->rootNode, indexCallbacks));
 
