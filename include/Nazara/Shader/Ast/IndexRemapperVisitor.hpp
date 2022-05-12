@@ -17,19 +17,19 @@ namespace Nz::ShaderAst
 	class NAZARA_SHADER_API IndexRemapperVisitor : public AstCloner
 	{
 		public:
-			struct Callbacks;
+			struct Options;
 
 			IndexRemapperVisitor() = default;
 			IndexRemapperVisitor(const IndexRemapperVisitor&) = delete;
 			IndexRemapperVisitor(IndexRemapperVisitor&&) = delete;
 			~IndexRemapperVisitor() = default;
 
-			StatementPtr Clone(Statement& statement, const Callbacks& callbacks);
+			StatementPtr Clone(Statement& statement, const Options& options);
 
 			IndexRemapperVisitor& operator=(const IndexRemapperVisitor&) = delete;
 			IndexRemapperVisitor& operator=(IndexRemapperVisitor&&) = delete;
 
-			struct Callbacks
+			struct Options
 			{
 				std::function<std::size_t(std::size_t previousIndex)> aliasIndexGenerator;
 				std::function<std::size_t(std::size_t previousIndex)> constIndexGenerator;
@@ -37,6 +37,7 @@ namespace Nz::ShaderAst
 				std::function<std::size_t(std::size_t previousIndex) > structIndexGenerator;
 				//std::function<std::size_t()> typeIndexGenerator;
 				std::function<std::size_t(std::size_t previousIndex)> varIndexGenerator;
+				bool forceIndexGeneration = false;
 			};
 
 		private:
@@ -60,7 +61,7 @@ namespace Nz::ShaderAst
 			Context* m_context;
 	};
 
-	inline StatementPtr RemapIndices(Statement& statement, const IndexRemapperVisitor::Callbacks& callbacks);
+	inline StatementPtr RemapIndices(Statement& statement, const IndexRemapperVisitor::Options& options);
 }
 
 #include <Nazara/Shader/Ast/IndexRemapperVisitor.inl>

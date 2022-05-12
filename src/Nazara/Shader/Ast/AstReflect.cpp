@@ -63,6 +63,9 @@ namespace Nz::ShaderAst
 		if (m_callbacks->onFunctionDeclaration)
 			m_callbacks->onFunctionDeclaration(node);
 
+		if (node.funcIndex && m_callbacks->onFunctionIndex)
+			m_callbacks->onFunctionIndex(node.name, *node.funcIndex, node.sourceLocation);
+
 		if (m_callbacks->onEntryPointDeclaration)
 		{
 			if (!node.entryStage.HasValue())

@@ -7,10 +7,10 @@
 
 namespace Nz::ShaderAst
 {
-	StatementPtr RemapIndices(Statement& statement, const IndexRemapperVisitor::Callbacks& callbacks)
+	StatementPtr RemapIndices(Statement& statement, const IndexRemapperVisitor::Options& options)
 	{
 		IndexRemapperVisitor visitor;
-		return visitor.Clone(statement, callbacks);
+		return visitor.Clone(statement, options);
 	}
 }
 
