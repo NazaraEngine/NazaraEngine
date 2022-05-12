@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
@@ -610,7 +611,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return m_derivedPosition + (m_derivedScale * (ScaleQuaternion(m_derivedScale, m_derivedRotation) * localPosition));
+		return TransformPositionTRS(m_derivedPosition, m_derivedRotation, m_derivedScale, localPosition);
 	}
 
 	Quaternionf Node::ToGlobalRotation(const Quaternionf& localRotation) const
@@ -618,7 +619,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return ScaleQuaternion(m_derivedScale, m_derivedRotation) * localRotation;
+		return TransformRotationTRS(m_derivedRotation, m_derivedScale, localRotation);
 	}
 
 	Vector3f Node::ToGlobalScale(const Vector3f& localScale) const
@@ -626,7 +627,7 @@ namespace Nz
 		if (!m_derivedUpdated)
 			UpdateDerived();
 
-		return m_derivedScale * localScale;
+		return TransformScaleTRS(m_derivedScale, localScale);
 	}
 
 	Vector3f Node::ToLocalPosition(const Vector3f& globalPosition) const
@@ -762,7 +763,7 @@ namespace Nz
 			{
 				Quaternionf rotation = m_initialRotation * m_rotation;
 				if (m_inheritScale)
-					rotation = ScaleQuaternion(m_parent->m_derivedScale, rotation);
+					rotation = Quaternionf::Mirror(rotation, m_parent->m_derivedScale);
 
 				m_derivedRotation = m_parent->m_derivedRotation * rotation;
 				m_derivedRotation.Normalize();
@@ -791,28 +792,5 @@ namespace Nz
 
 		m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 		m_transformMatrixUpdated = true;
-	}
-
-	Quaternionf Node::ScaleQuaternion(const Vector3f& scale, Quaternionf quaternion)
-	{
-		if (std::signbit(scale.x))
-		{
-			quaternion.z = -quaternion.z;
-			quaternion.y = -quaternion.y;
-		}
-
-		if (std::signbit(scale.y))
-		{
-			quaternion.x = -quaternion.x;
-			quaternion.z = -quaternion.z;
-		}
-
-		if (std::signbit(scale.z))
-		{
-			quaternion.x = -quaternion.x;
-			quaternion.y = -quaternion.y;
-		}
-
-		return quaternion;
 	}
 }

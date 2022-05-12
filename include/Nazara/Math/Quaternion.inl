@@ -787,6 +787,20 @@ namespace Nz
 		return quaternion;
 	}
 
+	template<typename T>
+	Quaternion<T> Quaternion<T>::Mirror(Quaternion quat, const Vector3<T>& axis)
+	{
+		float x = std::copysign(T(1.0), axis.x);
+		float y = std::copysign(T(1.0), axis.y);
+		float z = std::copysign(T(1.0), axis.z);
+
+		quat.x = y * z * quat.x;
+		quat.y = x * z * quat.y;
+		quat.z = x * y * quat.z;
+
+		return quat;
+	}
+
 	/*!
 	* \brief Interpolates spherically the quaternion to other one with a factor of interpolation
 	* \return A new quaternion which is the interpolation of two quaternions
