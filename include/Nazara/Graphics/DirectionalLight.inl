@@ -3,12 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DirectionalLight.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
 	inline DirectionalLight::DirectionalLight() :
+	Light(SafeCast<UInt8>(BasicLightType::Directional)),
 	m_color(Color::White),
 	m_ambientFactor(0.2f),
 	m_diffuseFactor(1.f)

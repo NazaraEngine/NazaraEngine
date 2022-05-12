@@ -21,6 +21,8 @@ namespace Nz
 		Max = Spot
 	};
 
+	constexpr std::size_t BasicLightTypeCount = UnderlyingCast(BasicLightType::Max) + 1;
+
 	enum class BasicRenderElement
 	{
 		SpriteChain = 0,

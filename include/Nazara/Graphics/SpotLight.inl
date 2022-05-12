@@ -3,12 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/SpotLight.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
 	inline SpotLight::SpotLight() :
+	Light(SafeCast<UInt8>(BasicLightType::Spot)),
 	m_color(Color::White),
 	m_position(Vector3f::Zero()),
 	m_ambientFactor(0.2f),

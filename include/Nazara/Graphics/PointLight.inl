@@ -3,12 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
 	inline PointLight::PointLight() :
+	Light(SafeCast<UInt8>(BasicLightType::Point)),
 	m_color(Color::White),
 	m_position(Vector3f::Zero()),
 	m_ambientFactor(0.2f),
