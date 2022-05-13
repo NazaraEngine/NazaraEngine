@@ -25,12 +25,6 @@ namespace Nz
 {
 	bool MeshParams::IsValid() const
 	{
-		if (matrix == Matrix4f::Zero())
-		{
-			NazaraError("Invalid matrix");
-			return false;
-		}
-
 		if (!vertexDeclaration)
 		{
 			NazaraError("The vertex declaration can't be null");
@@ -87,8 +81,7 @@ namespace Nz
 		std::shared_ptr<IndexBuffer> indexBuffer;
 		std::shared_ptr<VertexBuffer> vertexBuffer;
 
-		Matrix4f matrix(primitive.matrix);
-		matrix *= params.matrix;
+		Matrix4f matrix = Matrix4f::ConcatenateTransform(primitive.matrix, Matrix4f::Transform(params.vertexOffset, params.vertexRotation, params.vertexScale));
 
 		const std::shared_ptr<VertexDeclaration>& declaration = params.vertexDeclaration;
 

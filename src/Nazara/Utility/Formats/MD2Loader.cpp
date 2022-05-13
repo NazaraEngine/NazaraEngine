@@ -185,7 +185,14 @@ namespace Nz
 			constexpr float ScaleAdjust = 1.f / 27.8f; // Make a 50 Quake 2 units character a 1.8 unit long
 
 			scale *= ScaleAdjust;
+			scale *= parameters.vertexScale;
+
 			translate *= ScaleAdjust;
+			translate += parameters.vertexOffset;
+
+			// Align the model to our coordinates system
+			Quaternionf rotation = EulerAnglesf(-90.f, 90.f, 0.f);
+			rotation *= parameters.vertexRotation;
 
 			VertexMapper vertexMapper(*vertexBuffer);
 
@@ -208,22 +215,14 @@ namespace Nz
 				}
 			}
 
-			// Align the model to our coordinates system
-			Quaternionf rotationQuat = EulerAnglesf(-90.f, 90.f, 0.f);
-			Nz::Matrix4f matrix = Matrix4f::Transform(translate, rotationQuat, scale);
-			matrix *= parameters.matrix;
-
 			// Vertex normals
 			if (auto normalPtr = vertexMapper.GetComponentPtr<Vector3f>(VertexComponent::Normal))
 			{
-				Nz::Matrix4f normalMatrix = Matrix4f::Rotate(rotationQuat);
-				normalMatrix *= parameters.matrix;
-
 				for (UInt32 v = 0; v < header.num_vertices; ++v)
 				{
 					const MD2_Vertex& vert = vertices[v];
 
-					*normalPtr++ = normalMatrix.Transform(md2Normals[vert.n], 0.f);
+					*normalPtr++ = TransformNormalTRS(rotation, scale, md2Normals[vert.n]);
 				}
 			}
 
@@ -234,7 +233,7 @@ namespace Nz
 				{
 					const MD2_Vertex& vert = vertices[v];
 
-					*posPtr++ = matrix * Vector3f(vert.x, vert.y, vert.z);
+					*posPtr++ = TransformPositionTRS(translate, rotation, scale, Vector3f(vert.x, vert.y, vert.z));
 				}
 			}
 

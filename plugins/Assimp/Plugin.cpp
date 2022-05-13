@@ -1,7 +1,7 @@
 /*
 Nazara Engine - Assimp Plugin
 
-Copyright (C) 2015 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,14 +23,17 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/SkeletalMesh.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -48,6 +51,26 @@ SOFTWARE.
 #include <unordered_set>
 #include <vector>
 
+constexpr unsigned int AssimpFlags = aiProcess_CalcTangentSpace      | aiProcess_FixInfacingNormals | aiProcess_FlipWindingOrder
+                                   | aiProcess_FlipUVs               | aiProcess_GenSmoothNormals   | aiProcess_GenUVCoords
+                                   | aiProcess_JoinIdenticalVertices | aiProcess_RemoveComponent    | aiProcess_SortByPType
+                                   | aiProcess_TransformUVCoords     | aiProcess_Triangulate;
+
+Nz::Color FromAssimp(const aiColor4D& color)
+{
+	return Nz::Color(color.r, color.g, color.b, color.a);
+}
+
+Nz::Vector3f FromAssimp(const aiVector3D& vec)
+{
+	return Nz::Vector3f(vec.x, vec.y, vec.z);
+}
+
+Nz::Quaternionf FromAssimp(const aiQuaternion& quat)
+{
+	return Nz::Quaternionf(quat.w, quat.x, quat.y, quat.z);
+}
+
 struct SceneInfo
 {
 	struct Node
@@ -60,7 +83,6 @@ struct SceneInfo
 	{
 		const aiMesh* mesh;
 		std::size_t nodeIndex;
-		std::size_t skeletonRootIndex;
 		std::unordered_map<std::string, unsigned int> bones;
 	};
 
@@ -70,6 +92,8 @@ struct SceneInfo
 		std::size_t nodeIndex;
 	};
 
+	std::size_t skeletonRootIndex;
+	std::unordered_map<const aiBone*, unsigned int> assimpBoneToJointIndex;
 	std::unordered_multimap<std::string, std::size_t> nodeByName;
 	std::vector<Node> nodes;
 	std::vector<SkeletalMesh> skeletalMeshes;
@@ -113,66 +137,102 @@ void VisitNodes(SceneInfo& sceneInfo, const aiScene* scene, const aiNode* node)
 	sceneInfo.nodes[nodeIndex].totalChildrenCount = sceneInfo.nodes.size() - prevNodeCount;
 }
 
-bool FindSkeletonRoot(SceneInfo& sceneInfo, SceneInfo::SkeletalMesh& skeletalMesh, const aiNode* node)
+bool FindSkeletonRoot(SceneInfo& sceneInfo, const aiNode* node)
 {
-	if (skeletalMesh.bones.find(node->mName.C_Str()) != skeletalMesh.bones.end())
+	for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
 	{
-		// Get to parents until there's only one child
-		while (node->mParent && node->mParent->mNumChildren != 1)
-			node = node->mParent;
-
-		/*if (!node->mParent && node->mNumChildren > 1)
+		if (skeletalMesh.bones.find(node->mName.C_Str()) != skeletalMesh.bones.end())
 		{
-			NazaraError("failed to identify skeleton root node");
-			return false;
-		}*/
+			// Get to parents until there's only one child
+			while (node->mParent && node->mParent->mNumChildren != 1)
+				node = node->mParent;
 
-		auto range = sceneInfo.nodeByName.equal_range(node->mName.C_Str());
-		if (std::distance(range.first, range.second) != 1)
-		{
-			NazaraError("failed to identify skeleton root node: " + std::to_string(std::distance(range.first, range.second)) + " node(s) matched");
-			return false;
+			/*if (!node->mParent && node->mNumChildren > 1)
+			{
+				NazaraError("failed to identify skeleton root node");
+				return false;
+			}*/
+
+			auto range = sceneInfo.nodeByName.equal_range(node->mName.C_Str());
+			if (std::distance(range.first, range.second) != 1)
+			{
+				NazaraError("failed to identify skeleton root node: " + std::to_string(std::distance(range.first, range.second)) + " node(s) matched");
+				return false;
+			}
+
+			sceneInfo.skeletonRootIndex = range.first->second;
+			return true;
 		}
-
-		skeletalMesh.skeletonRootIndex = range.first->second;
-		return true;
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
 	{
-		if (FindSkeletonRoot(sceneInfo, skeletalMesh, node->mChildren[i]))
+		if (FindSkeletonRoot(sceneInfo, node->mChildren[i]))
 			return true;
 	}
 
 	return false;
 }
 
-void ProcessJoints(const SceneInfo::SkeletalMesh& skeletalMesh, Nz::Skeleton* skeleton, const aiNode* node, std::size_t& jointIndex)
+void ProcessJoints(const Nz::MeshParams& parameters, const Nz::Matrix4f& transformMatrix, const Nz::Matrix4f& invTransformMatrix, SceneInfo::SkeletalMesh& skeletalMesh, Nz::Skeleton* skeleton, const aiNode* node, unsigned int& nextJointIndex, std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, std::unordered_set<const aiNode*>& seenNodes)
 {
-	Nz::Joint* joint = skeleton->GetJoint(jointIndex);
-	joint->SetName(node->mName.C_Str());
+	Nz::Joint* joint;
+	unsigned int currentJointIndex;
 
-	if (jointIndex != 0)
-		joint->SetParent(skeleton->GetJoint(node->mParent->mName.C_Str()));
+	if (seenNodes.find(node) != seenNodes.end())
+	{
+		currentJointIndex = Nz::SafeCast<unsigned int>(skeleton->GetJointIndex(node->mName.C_Str()));
+		joint = skeleton->GetJoint(currentJointIndex);
+	}
+	else
+	{
+		seenNodes.insert(node);
 
-	jointIndex++;
+		currentJointIndex = nextJointIndex++;
+
+		joint = skeleton->GetJoint(currentJointIndex);
+		joint->SetName(node->mName.C_Str());
+		joint->SetInverseBindMatrix(Nz::Matrix4f::Identity());
+
+		aiQuaternion rotation;
+		aiVector3D position;
+		aiVector3D scaling;
+
+		node->mTransformation.Decompose(scaling, rotation, position);
+
+		if (currentJointIndex == 0)
+		{
+			// Root joint gets transformations
+			joint->SetPosition(Nz::TransformPositionTRS(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(position)));
+			joint->SetRotation(Nz::TransformRotationTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(rotation)));
+			joint->SetScale(Nz::TransformScaleTRS(parameters.vertexScale, FromAssimp(scaling)));
+		}
+		else
+		{
+			joint->SetPosition(Nz::TransformPositionTRS({}, {}, parameters.vertexScale, FromAssimp(position)));
+			joint->SetRotation(Nz::TransformRotationTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(rotation)));
+			joint->SetScale(FromAssimp(scaling));
+		}
+
+		if (currentJointIndex != 0)
+			joint->SetParent(skeleton->GetJoint(node->mParent->mName.C_Str()));
+	}
 
 	if (auto it = skeletalMesh.bones.find(node->mName.C_Str()); it != skeletalMesh.bones.end())
 	{
 		const aiBone* bone = skeletalMesh.mesh->mBones[it->second];
+		boneToJointIndex.emplace(bone, currentJointIndex);
 
 		Nz::Matrix4f offsetMatrix(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
 		                          bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
 		                          bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
 		                          bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
 
-		joint->SetInverseBindMatrix(offsetMatrix);
+		joint->SetInverseBindMatrix(Nz::Matrix4f::ConcatenateTransform(Nz::Matrix4f::ConcatenateTransform(invTransformMatrix, offsetMatrix), transformMatrix));
 	}
-	else
-		joint->SetInverseBindMatrix(Nz::Matrix4f::Identity());
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		ProcessJoints(skeletalMesh, skeleton, node->mChildren[i], jointIndex);
+		ProcessJoints(parameters, transformMatrix, invTransformMatrix, skeletalMesh, skeleton, node->mChildren[i], nextJointIndex, boneToJointIndex, seenNodes);
 }
 
 bool IsSupported(const std::string_view& extension)
@@ -184,6 +244,10 @@ bool IsSupported(const std::string_view& extension)
 
 	return (aiIsExtensionSupported(dotExt.data()) == AI_TRUE);
 }
+
+/************************************************************************/
+/*                           Material loading                           */
+/************************************************************************/
 
 Nz::Ternary CheckAnimation(Nz::Stream& /*stream*/, const Nz::AnimationParams& parameters)
 {
@@ -209,25 +273,8 @@ std::shared_ptr<Nz::Animation> LoadAnimation(Nz::Stream& stream, const Nz::Anima
 	fileIO.OpenProc = StreamOpener;
 	fileIO.UserData = reinterpret_cast<char*>(&userdata);
 
-	unsigned int postProcess = aiProcess_CalcTangentSpace  /*| aiProcess_Debone*/
-	                         | aiProcess_FindInvalidData   | aiProcess_FixInfacingNormals
-	                         | aiProcess_FlipWindingOrder  | aiProcess_GenSmoothNormals
-	                         | aiProcess_GenUVCoords       | aiProcess_JoinIdenticalVertices
-	                         | aiProcess_LimitBoneWeights  | aiProcess_MakeLeftHanded
-	                         /*| aiProcess_OptimizeGraph     | aiProcess_OptimizeMeshes*/
-	                         | aiProcess_RemoveComponent   | aiProcess_RemoveRedundantMaterials
-	                         | aiProcess_SortByPType       | aiProcess_SplitLargeMeshes
-	                         | aiProcess_TransformUVCoords | aiProcess_Triangulate;
-
-	aiPropertyStore* properties = aiCreatePropertyStore();
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE, ~aiPrimitiveType_TRIANGLE); //< We only want triangles
-	Nz::CallOnExit releaseProperties([&] { aiReleasePropertyStore(properties); });
-
-	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
+	const aiScene* scene = aiImportFileEx(userdata.originalFilePath, AssimpFlags, &fileIO);
 	Nz::CallOnExit releaseScene([&] { aiReleaseImport(scene); });
-
-	releaseProperties.CallAndReset();
 
 	if (!scene)
 	{
@@ -261,9 +308,11 @@ std::shared_ptr<Nz::Animation> LoadAnimation(Nz::Stream& stream, const Nz::Anima
 	Nz::Sequence sequence;
 	sequence.firstFrame = 0;
 	sequence.frameCount = maxFrameCount;
-	sequence.frameRate = (animation->mTicksPerSecond != 0.0) ? animation->mTicksPerSecond : 24.0;
+	sequence.frameRate = static_cast<Nz::UInt32>((animation->mTicksPerSecond != 0.0) ? animation->mTicksPerSecond : 24.0);
 
 	anim->AddSequence(sequence);
+
+	Nz::Bitset<> identityJoints(parameters.skeleton->GetJointCount(), true);
 
 	for (unsigned int i = 0; i < animation->mNumChannels; ++i)
 	{
@@ -271,92 +320,440 @@ std::shared_ptr<Nz::Animation> LoadAnimation(Nz::Stream& stream, const Nz::Anima
 
 		std::size_t jointIndex = parameters.skeleton->GetJointIndex(nodeAnim->mNodeName.C_Str());
 		if (jointIndex == Nz::Skeleton::InvalidJointIndex)
+		{
+			NazaraError("animation references joint " + std::string(nodeAnim->mNodeName.C_Str()) + " which is not part of the skeleton");
 			continue;
+		}
 
-		Nz::Vector3f currentPosition = Nz::Vector3f::Zero();
-		Nz::Vector3f currentScale = Nz::Vector3f::Unit();
-		Nz::Quaternionf currentRotation = Nz::Quaternionf::Identity();
+		identityJoints.Set(jointIndex, false);
 
-		unsigned int positionKeyIndex = std::numeric_limits<unsigned int>::max();
-		unsigned int rotationKeyIndex = std::numeric_limits<unsigned int>::max();
-		unsigned int scaleKeyIndex = std::numeric_limits<unsigned int>::max();
+		// First key time is assumed to be 0
+		unsigned int currentPosKey = 0;
+		unsigned int currentRotKey = 0;
+		unsigned int currentScaleKey = 0;
 
 		for (unsigned int frameIndex = 0; frameIndex < maxFrameCount; ++frameIndex)
 		{
-			double frameTime = frameIndex;
-
-			for (unsigned int nextPos = positionKeyIndex + 1; nextPos < nodeAnim->mNumPositionKeys; ++nextPos)
-			{
-				if (nodeAnim->mPositionKeys[nextPos].mTime > frameTime)
-				{
-					if (--nextPos != positionKeyIndex)
-					{
-						const aiVector3D& vec = nodeAnim->mPositionKeys[nextPos].mValue;
-						currentPosition = Nz::Vector3f(vec.x, vec.y, vec.z);
-						positionKeyIndex = nextPos;
-					}
-					break;
-				}
-			}
-
-			for (unsigned int nextRot = rotationKeyIndex + 1; nextRot < nodeAnim->mNumRotationKeys; ++nextRot)
-			{
-				if (nodeAnim->mRotationKeys[nextRot].mTime > frameTime)
-				{
-					if (--nextRot != rotationKeyIndex)
-					{
-						const aiQuaternion& rot = nodeAnim->mRotationKeys[nextRot].mValue;
-						currentRotation = Nz::Quaternionf(rot.w, rot.x, rot.y, rot.z);
-						rotationKeyIndex = nextRot;
-					}
-					break;
-				}
-			}
-
-			// TODO: Scale
-
 			Nz::SequenceJoint* sequenceJoints = anim->GetSequenceJoints(frameIndex);
-			sequenceJoints[jointIndex].position = currentPosition;
-			sequenceJoints[jointIndex].rotation = currentRotation;
-			sequenceJoints[jointIndex].scale = currentScale;
+
+			double frameTime = frameIndex * animation->mDuration / maxFrameCount;
+
+			auto HandleAnimAdvance = [frameTime](unsigned int& currentKey, unsigned int& nextKey, unsigned int numKeys, const auto& keys) -> float
+			{
+				float delta = 0.f;
+				while (currentKey + 1 < numKeys && keys[currentKey + 1].mTime < frameTime)
+					currentKey++;
+
+				nextKey = currentKey + 1;
+
+				if (nextKey < numKeys)
+					delta = static_cast<float>((frameTime - keys[currentKey].mTime) / (keys[currentKey + 1].mTime - keys[currentKey].mTime));
+				else
+				{
+					nextKey = currentKey;
+					delta = 1.f;
+				}
+
+				return delta;
+			};
+
+			unsigned int nextPosKey, nextRotKey, nextScaleKey;
+
+			float posDelta   = HandleAnimAdvance(currentPosKey,   nextPosKey,   nodeAnim->mNumPositionKeys, nodeAnim->mPositionKeys);
+			float rotDelta   = HandleAnimAdvance(currentRotKey,   nextRotKey,   nodeAnim->mNumRotationKeys, nodeAnim->mRotationKeys);
+			float scaleDelta = HandleAnimAdvance(currentScaleKey, nextScaleKey, nodeAnim->mNumScalingKeys,  nodeAnim->mScalingKeys);
+
+			Nz::Vector3f interpolatedPosition    = Nz::Vector3f::Lerp(FromAssimp(nodeAnim->mPositionKeys[currentPosKey].mValue), FromAssimp(nodeAnim->mPositionKeys[nextPosKey].mValue), posDelta);
+			Nz::Quaternionf interpolatedRotation = Nz::Quaternionf::Slerp(FromAssimp(nodeAnim->mRotationKeys[currentRotKey].mValue), FromAssimp(nodeAnim->mRotationKeys[nextRotKey].mValue), rotDelta).Normalize();
+			Nz::Vector3f interpolatedScale       = Nz::Vector3f::Lerp(FromAssimp(nodeAnim->mScalingKeys[currentScaleKey].mValue), FromAssimp(nodeAnim->mScalingKeys[nextScaleKey].mValue), scaleDelta);
+
+			if (jointIndex == 0)
+			{
+				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS({}, parameters.jointRotation, parameters.jointScale, interpolatedPosition);
+				sequenceJoints[jointIndex].rotation = Nz::TransformRotationTRS(parameters.jointRotation, parameters.jointScale, interpolatedRotation);
+				sequenceJoints[jointIndex].scale = Nz::TransformScaleTRS(parameters.jointScale, interpolatedScale);
+			}
+			else
+			{
+				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS({}, {}, parameters.jointScale, interpolatedPosition);
+				sequenceJoints[jointIndex].rotation = interpolatedRotation;
+				sequenceJoints[jointIndex].scale = interpolatedScale;
+			}
 		}
 	}
 
-	Nz::Quaternionf rotationQuat = Nz::Quaternionf::Identity();
-
-	/*for (unsigned int i = 0; i < animation->mNumChannels; ++i)
+	for (std::size_t jointIndex = identityJoints.FindFirst(); jointIndex != identityJoints.npos; jointIndex = identityJoints.FindNext(jointIndex))
 	{
-		const aiNodeAnim* nodeAnim = animation->mChannels[i];
+		const Nz::Joint* joint = parameters.skeleton->GetJoint(jointIndex);
 
-		unsigned int keyCount = std::max({ nodeAnim->mNumPositionKeys, nodeAnim->mNumRotationKeys, nodeAnim->mNumScalingKeys });
-		if (nodeAnim->mNumPositionKeys != keyCount && nodeAnim->mNumPositionKeys != 0)
-			NazaraWarning("expected at least one position key, got 0");
-
-		if (nodeAnim->mNumRotationKeys != keyCount && nodeAnim->mNumRotationKeys != 0)
-			NazaraWarning("expected at least one rotation key, got 0");
-
-		if (nodeAnim->mNumScalingKeys != keyCount && nodeAnim->mNumScalingKeys != 0)
-			NazaraWarning("expected at least one scaling key, got 0");
-
-		for (unsigned int j = 0; j < keyCount; ++j)
+		for (unsigned int frameIndex = 0; frameIndex < maxFrameCount; ++frameIndex)
 		{
-			unsigned int posKey = std::min(j, nodeAnim->mNumPositionKeys - 1);
-			unsigned int rotKey = std::min(j, nodeAnim->mNumRotationKeys - 1);
-			unsigned int scaleKey = std::min(j, nodeAnim->mNumScalingKeys - 1);
-
-			aiQuaternion rotation = nodeAnim->mRotationKeys[posKey].mValue;
-			aiVector3D position = nodeAnim->mPositionKeys[rotKey].mValue;
-			aiVector3D scaling = nodeAnim->mScalingKeys[scaleKey].mValue;
-
-			Nz::SequenceJoint& sequenceJoint = sequenceJoints[i*animation->mNumChannels + j];
-
-			sequenceJoint.position = Nz::Vector3f(position.x, position.y, position.z);
-			sequenceJoint.rotation = Nz::Quaternionf(rotation.w, rotation.x, rotation.y, rotation.z);
-			sequenceJoint.scale = Nz::Vector3f(scaling.x, scaling.y, scaling.z);
+			Nz::SequenceJoint* sequenceJoints = anim->GetSequenceJoints(frameIndex);
+			sequenceJoints[jointIndex].position = joint->GetPosition();
+			sequenceJoints[jointIndex].rotation = joint->GetRotation();
+			sequenceJoints[jointIndex].scale    = joint->GetScale();
 		}
-	}*/
+	}
 
 	return anim;
+}
+
+/************************************************************************/
+/*                             Mesh loading                             */
+/************************************************************************/
+
+using EmbeddedTextures = std::unordered_map<const aiTexture*, std::filesystem::path>;
+using MaterialData = std::unordered_map<unsigned int, std::pair<Nz::UInt32, Nz::ParameterList>>;
+
+std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originPath, const Nz::MeshParams& parameters, const aiScene* scene, const aiMesh* meshData, bool isSkeletalMesh, MaterialData& materialData, const std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, EmbeddedTextures& embeddedTextures)
+{
+	unsigned int indexCount = meshData->mNumFaces * 3;
+	unsigned int vertexCount = meshData->mNumVertices;
+
+	// Index buffer
+	bool largeIndices = (vertexCount > std::numeric_limits<Nz::UInt16>::max());
+
+	std::shared_ptr<Nz::IndexBuffer> indexBuffer = std::make_shared<Nz::IndexBuffer>((largeIndices) ? Nz::IndexType::U32 : Nz::IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
+
+	Nz::IndexMapper indexMapper(*indexBuffer);
+	Nz::IndexIterator index = indexMapper.begin();
+
+	for (unsigned int faceIndex = 0; faceIndex < meshData->mNumFaces; ++faceIndex)
+	{
+		const aiFace& face = meshData->mFaces[faceIndex];
+		if (face.mNumIndices != 3)
+			NazaraWarning("Assimp plugin: This face is not a triangle!");
+
+		*index++ = face.mIndices[0];
+		*index++ = face.mIndices[1];
+		*index++ = face.mIndices[2];
+	}
+	indexMapper.Unmap();
+
+	std::shared_ptr<Nz::VertexBuffer> vertexBuffer = std::make_shared<Nz::VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
+
+	Nz::VertexMapper vertexMapper(*vertexBuffer);
+
+	Nz::Boxf aabb = Nz::Boxf::Zero();
+
+	// Vertex positions
+	if (auto posPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position))
+	{
+		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+			posPtr[vertexIndex] = Nz::TransformPositionTRS(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mVertices[vertexIndex]));
+
+		aabb = Nz::ComputeAABB(posPtr, vertexCount);
+	}
+
+	// Vertex normals
+	if (auto normalPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal))
+	{
+		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+			*normalPtr++ = Nz::TransformNormalTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
+	}
+
+	// Vertex tangents
+	bool generateTangents = false;
+	if (auto tangentPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Tangent))
+	{
+		if (meshData->HasTangentsAndBitangents())
+		{
+			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+				*tangentPtr++ = Nz::TransformNormalTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
+		}
+		else
+			generateTangents = true;
+	}
+
+	// Vertex UVs
+	if (auto uvPtr = vertexMapper.GetComponentPtr<Nz::Vector2f>(Nz::VertexComponent::TexCoord))
+	{
+		if (meshData->HasTextureCoords(0))
+		{
+			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+			{
+				const aiVector3D& uv = meshData->mTextureCoords[0][vertexIndex];
+				*uvPtr++ = parameters.texCoordOffset + Nz::Vector2f(uv.x, uv.y) * parameters.texCoordScale;
+			}
+		}
+		else
+		{
+			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+				*uvPtr++ = Nz::Vector2f::Zero();
+		}
+	}
+
+	// Vertex colors
+	if (auto colorPtr = vertexMapper.GetComponentPtr<Nz::Color>(Nz::VertexComponent::Color))
+	{
+		if (meshData->HasVertexColors(0))
+		{
+			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+			{
+				aiColor4D color = meshData->mColors[0][vertexIndex];
+				*colorPtr++ = FromAssimp(meshData->mColors[0][vertexIndex]);
+			}
+		}
+		else
+		{
+			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+				*colorPtr++ = Nz::Color::White;
+		}
+	}
+
+	if (isSkeletalMesh)
+	{
+		auto jointIndicesPtr = vertexMapper.GetComponentPtr<Nz::Vector4i32>(Nz::VertexComponent::JointIndices);
+		auto jointWeightPtr = vertexMapper.GetComponentPtr<Nz::Vector4f>(Nz::VertexComponent::JointWeights);
+
+		if (jointIndicesPtr || jointWeightPtr)
+		{
+			constexpr std::size_t MaxJointPerVertex = 4;
+
+			struct VertexJoint
+			{
+				Nz::Int32 jointIndex;
+				float weight = 0.f;
+			};
+
+			// Use temporary vector to re-normalize if needed
+			std::vector<std::vector<VertexJoint>> weightIndices(vertexCount);
+
+			for (unsigned int boneIndex = 0; boneIndex < meshData->mNumBones; ++boneIndex)
+			{
+				const aiBone* bone = meshData->mBones[boneIndex];
+				unsigned int jointIndex = Nz::Retrieve(boneToJointIndex, bone);
+
+				for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
+				{
+					const aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
+
+					VertexJoint& vertexJoint = weightIndices[vertexWeight.mVertexId].emplace_back();
+					vertexJoint.jointIndex = jointIndex;
+					vertexJoint.weight = vertexWeight.mWeight;
+				}
+			}
+
+			for (auto& indices : weightIndices)
+			{
+				if (indices.size() > MaxJointPerVertex)
+				{
+					std::sort(indices.begin(), indices.end(), [](const VertexJoint& lhs, const VertexJoint& rhs)
+					{
+						return lhs.weight > rhs.weight;
+					});
+
+					float invTotalWeight = 0.f;
+					for (unsigned int i = 0; i < MaxJointPerVertex; ++i)
+						invTotalWeight += indices[i].weight;
+
+					invTotalWeight = 1.f / invTotalWeight;
+
+					for (std::size_t i = 0; i < MaxJointPerVertex; ++i)
+						indices[i].weight *= invTotalWeight;
+				}
+
+				// Always use MaxJointPerVertex indices
+				indices.resize(MaxJointPerVertex);
+			}
+
+			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+			{
+				for (unsigned int i = 0; i < MaxJointPerVertex; ++i)
+				{
+					const VertexJoint& vertexJoint = weightIndices[vertexIndex][i];
+
+					if (jointIndicesPtr)
+						jointIndicesPtr[vertexIndex][i] = vertexJoint.jointIndex;
+
+					if (jointWeightPtr)
+						jointWeightPtr[vertexIndex][i] = vertexJoint.weight;
+				}
+			}
+		}
+	}
+
+	vertexMapper.Unmap();
+
+	// Submesh
+	std::shared_ptr<Nz::SubMesh> subMesh;
+	if (isSkeletalMesh)
+	{
+		std::shared_ptr<Nz::SkeletalMesh> skeletalMesh = std::make_shared<Nz::SkeletalMesh>(std::move(vertexBuffer), std::move(indexBuffer));
+		skeletalMesh->SetAABB(aabb);
+
+		subMesh = std::move(skeletalMesh);
+	}
+	else
+	{
+		std::shared_ptr<Nz::StaticMesh> staticMesh = std::make_shared<Nz::StaticMesh>(std::move(vertexBuffer), std::move(indexBuffer));
+		staticMesh->SetAABB(aabb);
+
+		subMesh = std::move(staticMesh);
+	}
+
+	if (generateTangents)
+		subMesh->GenerateTangents();
+
+	subMesh->SetMaterialIndex(meshData->mMaterialIndex);
+
+	auto matIt = materialData.find(meshData->mMaterialIndex);
+	if (matIt == materialData.end())
+	{
+		Nz::ParameterList matData;
+		const aiMaterial* aiMat = scene->mMaterials[meshData->mMaterialIndex];
+
+		auto ConvertColor = [&] (const char* aiKey, unsigned int aiType, unsigned int aiIndex, const char* colorKey)
+		{
+			aiColor4D color;
+			if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
+			{
+				matData.SetParameter(colorKey, Nz::Color(color.r, color.g, color.b, color.a));
+			}
+		};
+
+		auto SaveEmbeddedTextureToFile = [](const aiTexture* embeddedTexture, const std::filesystem::path& basePath, const char* filename) -> std::filesystem::path
+		{
+			if (basePath.empty())
+			{
+				NazaraError("can't create embedded resource folder (empty base path)");
+				return {};
+			}
+
+			std::filesystem::path targetPath = basePath / "embedded";
+
+			if (!std::filesystem::is_directory(targetPath))
+			{
+				if (!std::filesystem::create_directory(targetPath))
+				{
+					NazaraError("can't create embedded resource folder (folder creation failed)");
+					return {};
+				}
+			}
+
+			targetPath /= std::filesystem::u8path(filename);
+
+			if (embeddedTexture->mHeight == 0)
+			{
+				// Compressed data (PNG, JPG, etc.)
+				if (!embeddedTexture->achFormatHint[0])
+				{
+					NazaraError("can't create embedded texture file (no format hint)");
+					return {};
+				}
+
+				targetPath.replace_extension(std::filesystem::u8path(embeddedTexture->achFormatHint));
+
+				if (!Nz::File::WriteWhole(targetPath, embeddedTexture->pcData, embeddedTexture->mWidth))
+					return {};
+
+				return targetPath;
+			}
+			else
+			{
+				// Uncompressed data (always ARGB8 it seems)
+				Nz::Image uncompressedData(Nz::ImageType::E2D, Nz::PixelFormat::RGBA8_SRGB, embeddedTexture->mWidth, embeddedTexture->mHeight);
+				const aiTexel* sourceData = embeddedTexture->pcData;
+				Nz::UInt8* imageData = uncompressedData.GetPixels();
+				for (unsigned int y = 0; y < embeddedTexture->mHeight; ++y)
+				{
+					for (unsigned int x = 0; x < embeddedTexture->mWidth; ++x)
+					{
+						*imageData++ = sourceData->r;
+						*imageData++ = sourceData->g;
+						*imageData++ = sourceData->b;
+						*imageData++ = sourceData->a;
+
+						++sourceData;
+					}
+				}
+
+				// Compress to PNG
+				targetPath.replace_extension(".png");
+
+				if (!uncompressedData.SaveToFile(targetPath))
+					return {};
+
+				return targetPath;
+			}
+		};
+
+		auto ConvertTexture = [&] (aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
+		{
+			aiString path;
+			aiTextureMapMode mapMode[3];
+			if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
+			{
+				if (const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(path.C_Str()))
+				{
+					std::filesystem::path embeddedTexturePath;
+					if (auto it = embeddedTextures.find(embeddedTexture); it == embeddedTextures.end())
+					{
+						embeddedTexturePath = SaveEmbeddedTextureToFile(embeddedTexture, originPath, aiScene::GetShortFilename(path.C_Str()));
+						if (embeddedTexturePath.empty())
+							NazaraError("failed to save embedded texture to file");
+
+						embeddedTextures.emplace(embeddedTexture, embeddedTexturePath);
+					}
+					else
+						embeddedTexturePath = it->second;
+
+					matData.SetParameter(textureKey, embeddedTexturePath.generic_u8string());
+				}
+				else
+					matData.SetParameter(textureKey, (originPath / std::filesystem::u8path(path.data, path.data + path.length)).generic_u8string());
+
+				if (wrapKey)
+				{
+					Nz::SamplerWrap wrap = Nz::SamplerWrap::Clamp;
+					switch (mapMode[0])
+					{
+						case aiTextureMapMode_Clamp:
+						case aiTextureMapMode_Decal:
+							wrap = Nz::SamplerWrap::Clamp;
+							break;
+
+						case aiTextureMapMode_Mirror:
+							wrap = Nz::SamplerWrap::MirroredRepeat;
+							break;
+
+						case aiTextureMapMode_Wrap:
+							wrap = Nz::SamplerWrap::Repeat;
+							break;
+
+						default:
+							NazaraWarning("Assimp texture map mode 0x" + Nz::NumberToString(mapMode[0], 16) + " not handled");
+							break;
+					}
+
+					matData.SetParameter(wrapKey, static_cast<long long>(wrap));
+				}
+			}
+		};
+
+		ConvertColor(AI_MATKEY_COLOR_AMBIENT,  Nz::MaterialData::AmbientColor);
+		ConvertColor(AI_MATKEY_COLOR_DIFFUSE,  Nz::MaterialData::DiffuseColor);
+		ConvertColor(AI_MATKEY_COLOR_SPECULAR, Nz::MaterialData::SpecularColor);
+
+		ConvertTexture(aiTextureType_DIFFUSE,  Nz::MaterialData::DiffuseTexturePath, Nz::MaterialData::DiffuseWrap);
+		ConvertTexture(aiTextureType_EMISSIVE, Nz::MaterialData::EmissiveTexturePath);
+		ConvertTexture(aiTextureType_HEIGHT,   Nz::MaterialData::HeightTexturePath);
+		ConvertTexture(aiTextureType_NORMALS,  Nz::MaterialData::NormalTexturePath);
+		ConvertTexture(aiTextureType_OPACITY,  Nz::MaterialData::AlphaTexturePath);
+		ConvertTexture(aiTextureType_SPECULAR, Nz::MaterialData::SpecularTexturePath, Nz::MaterialData::SpecularWrap);
+
+		aiString name;
+		if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
+			matData.SetParameter(Nz::MaterialData::Name, std::string(name.data, name.length));
+
+		int iValue;
+		if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
+			matData.SetParameter(Nz::MaterialData::FaceCulling, !iValue);
+
+		matIt = materialData.insert(std::make_pair(meshData->mMaterialIndex, std::make_pair(Nz::UInt32(materialData.size()), std::move(matData)))).first;
+	}
+
+	return subMesh;
 }
 
 Nz::Ternary CheckMesh(Nz::Stream& /*stream*/, const Nz::MeshParams& parameters)
@@ -381,15 +778,7 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 	fileIO.OpenProc = StreamOpener;
 	fileIO.UserData = reinterpret_cast<char*>(&userdata);
 
-	unsigned int postProcess = aiProcess_CalcTangentSpace  /*| aiProcess_Debone*/
-	                         | aiProcess_FindInvalidData   | aiProcess_FixInfacingNormals
-	                         | aiProcess_FlipWindingOrder  | aiProcess_GenSmoothNormals
-	                         | aiProcess_GenUVCoords       | aiProcess_JoinIdenticalVertices
-	                         | aiProcess_LimitBoneWeights  | aiProcess_MakeLeftHanded
-	                         /*| aiProcess_OptimizeGraph     | aiProcess_OptimizeMeshes*/
-	                         | aiProcess_RemoveComponent   | aiProcess_RemoveRedundantMaterials
-	                         | aiProcess_SortByPType       | aiProcess_SplitLargeMeshes
-	                         | aiProcess_TransformUVCoords | aiProcess_Triangulate;
+	unsigned int postProcess = AssimpFlags;
 
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
@@ -421,11 +810,10 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 	Nz::CallOnExit releaseProperties([&] { aiReleasePropertyStore(properties); });
 
 	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_LBW_MAX_WEIGHTS,         4);
-	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SBP_REMOVE,              ~aiPrimitiveType_TRIANGLE); //< We only want triangles
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      int(triangleLimit));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_VERTEX_LIMIT,        int(vertexLimit));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_RVC_FLAGS,               excludedComponents);
+	aiSetImportPropertyInteger(properties, AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
 	Nz::CallOnExit releaseScene([&] { aiReleaseImport(scene); });
@@ -441,458 +829,47 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 	SceneInfo sceneInfo;
 	VisitNodes(sceneInfo, scene, scene->mRootNode);
 
-	for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
-	{
-		if (!FindSkeletonRoot(sceneInfo, skeletalMesh, scene->mRootNode))
-			return nullptr;
-	}
+	bool handleSkeletalMeshes = parameters.animated && !sceneInfo.skeletalMeshes.empty();
+	if (handleSkeletalMeshes && !FindSkeletonRoot(sceneInfo, scene->mRootNode))
+		return nullptr;
 
 	std::shared_ptr<Nz::Mesh> mesh = std::make_shared<Nz::Mesh>();
-	if (parameters.animated && !sceneInfo.skeletalMeshes.empty())
+
+	EmbeddedTextures embeddedTextures;
+	MaterialData materialData;
+
+	if (handleSkeletalMeshes)
 	{
-		auto& skeletalMesh = sceneInfo.skeletalMeshes.front();
-		auto& skeletalRoot = sceneInfo.nodes[skeletalMesh.skeletonRootIndex];
+		auto& skeletalRoot = sceneInfo.nodes[sceneInfo.skeletonRootIndex];
+
+		unsigned int jointIndex = 0;
+		std::unordered_set<const aiNode*> seenNodes;
+
+		Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform({}, parameters.vertexRotation, parameters.vertexScale);
+		//Nz::Matrix4f invTransformMatrix = Nz::Matrix4f::TransformInverse(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale);
+		Nz::Matrix4f invTransformMatrix;
+		transformMatrix.GetInverseTransform(&invTransformMatrix);
 
 		mesh->CreateSkeletal(Nz::SafeCast<Nz::UInt32>(skeletalRoot.totalChildrenCount + 1));
+		for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
+			ProcessJoints(parameters, transformMatrix, invTransformMatrix, skeletalMesh, mesh->GetSkeleton(), sceneInfo.nodes[sceneInfo.skeletonRootIndex].node, jointIndex, sceneInfo.assimpBoneToJointIndex, seenNodes);
 
-		Nz::Skeleton* skeleton = mesh->GetSkeleton();
-
-		std::size_t jointIndex = 0;
-		ProcessJoints(skeletalMesh, skeleton, skeletalRoot.node, jointIndex);
-
-		// aiMaterial index in scene => Material index and data in Mesh
-		std::unordered_map<unsigned int, std::pair<Nz::UInt32, Nz::ParameterList>> materials;
-
-		const aiMesh* iMesh = skeletalMesh.mesh;
-
-		unsigned int indexCount = iMesh->mNumFaces * 3;
-		unsigned int vertexCount = iMesh->mNumVertices;
-
-		// Index buffer
-		bool largeIndices = (vertexCount > std::numeric_limits<Nz::UInt16>::max());
-
-		std::shared_ptr<Nz::IndexBuffer> indexBuffer = std::make_shared<Nz::IndexBuffer>((largeIndices) ? Nz::IndexType::U32 : Nz::IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
-
-		Nz::IndexMapper indexMapper(*indexBuffer);
-		Nz::IndexIterator index = indexMapper.begin();
-
-		for (unsigned int faceIndex = 0; faceIndex < iMesh->mNumFaces; ++faceIndex)
-		{
-			const aiFace& face = iMesh->mFaces[faceIndex];
-			if (face.mNumIndices != 3)
-				NazaraWarning("Assimp plugin: This face is not a triangle!");
-
-			*index++ = face.mIndices[0];
-			*index++ = face.mIndices[1];
-			*index++ = face.mIndices[2];
-		}
-		indexMapper.Unmap();
-
-		// Make sure the normal/tangent matrix won't rescale our vectors
-		Nz::Matrix4f normalTangentMatrix = parameters.matrix;
-		if (normalTangentMatrix.HasScale())
-			normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
-
-		std::shared_ptr<Nz::VertexBuffer> vertexBuffer = std::make_shared<Nz::VertexBuffer>(Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent_Skinning), vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
-
-		Nz::VertexMapper vertexMapper(*vertexBuffer);
-
-		// Vertex positions
-		if (auto posPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position))
-		{
-			for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-			{
-				aiVector3D position = iMesh->mVertices[vertexIdx];
-				*posPtr++ = parameters.matrix * Nz::Vector3f(position.x, position.y, position.z);
-			}
-		}
-
-		// Vertex normals
-		if (auto normalPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal))
-		{
-			for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-			{
-				aiVector3D normal = iMesh->mNormals[vertexIdx];
-				*normalPtr++ = normalTangentMatrix.Transform({ normal.x, normal.y, normal.z }, 0.f);
-			}
-		}
-
-		// Vertex tangents
-		bool generateTangents = false;
-		if (auto tangentPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Tangent))
-		{
-			if (iMesh->HasTangentsAndBitangents())
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-				{
-					aiVector3D tangent = iMesh->mTangents[vertexIdx];
-					*tangentPtr++ = normalTangentMatrix.Transform({ tangent.x, tangent.y, tangent.z }, 0.f);
-				}
-			}
-			else
-				generateTangents = true;
-		}
-
-		// Vertex UVs
-		if (auto uvPtr = vertexMapper.GetComponentPtr<Nz::Vector2f>(Nz::VertexComponent::TexCoord))
-		{
-			if (iMesh->HasTextureCoords(0))
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-				{
-					aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
-					*uvPtr++ = parameters.texCoordOffset + Nz::Vector2f(uv.x, uv.y) * parameters.texCoordScale;
-				}
-			}
-			else
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-					*uvPtr++ = Nz::Vector2f::Zero();
-			}
-		}
-
-		// Vertex colors
-		if (auto colorPtr = vertexMapper.GetComponentPtr<Nz::Color>(Nz::VertexComponent::Color))
-		{
-			if (iMesh->HasVertexColors(0))
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-				{
-					aiColor4D color = iMesh->mColors[0][vertexIdx];
-					*colorPtr++ = Nz::Color(color.r, color.g, color.b, color.a);
-				}
-			}
-			else
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-					*colorPtr++ = Nz::Color::White;
-			}
-		}
-
-		auto jointIndicesPtr = vertexMapper.GetComponentPtr<Vector4i32>(VertexComponent::JointIndices);
-		auto jointWeightPtr = vertexMapper.GetComponentPtr<Vector4f>(VertexComponent::JointWeights);
-
-		if (jointIndicesPtr || jointWeightPtr)
-		{
-			std::vector<std::size_t> weightIndices(iMesh->mNumVertices, 0);
-
-			for (unsigned int boneIndex = 0; boneIndex < iMesh->mNumBones; ++boneIndex)
-			{
-				aiBone* bone = iMesh->mBones[boneIndex];
-				for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
-				{
-					aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
-
-					std::size_t vertexWeightIndex = weightIndices[vertexWeight.mVertexId]++;
-
-					if (jointIndicesPtr)
-						jointIndicesPtr[vertexWeight.mVertexId][vertexWeightIndex] = boneIndex;
-
-					if (jointWeightPtr)
-						jointWeightPtr[vertexWeight.mVertexId][vertexWeightIndex] = vertexWeight.mWeight;
-				}
-			}
-		}
-
-		// Submesh
-		std::shared_ptr<Nz::SkeletalMesh> subMesh = std::make_shared<Nz::SkeletalMesh>(vertexBuffer, indexBuffer);
-		subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
-
-		auto matIt = materials.find(iMesh->mMaterialIndex);
-		if (matIt == materials.end())
-		{
-			Nz::ParameterList matData;
-			aiMaterial* aiMat = scene->mMaterials[iMesh->mMaterialIndex];
-
-			auto ConvertColor = [&](const char* aiKey, unsigned int aiType, unsigned int aiIndex, const char* colorKey)
-			{
-				aiColor4D color;
-				if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
-				{
-					matData.SetParameter(colorKey, Nz::Color(color.r, color.g, color.b, color.a));
-				}
-			};
-
-			auto ConvertTexture = [&](aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
-			{
-				aiString path;
-				aiTextureMapMode mapMode[3];
-				if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
-				{
-					matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
-
-					if (wrapKey)
-					{
-						Nz::SamplerWrap wrap = Nz::SamplerWrap::Clamp;
-						switch (mapMode[0])
-						{
-							case aiTextureMapMode_Clamp:
-							case aiTextureMapMode_Decal:
-								wrap = Nz::SamplerWrap::Clamp;
-								break;
-
-							case aiTextureMapMode_Mirror:
-								wrap = Nz::SamplerWrap::MirroredRepeat;
-								break;
-
-							case aiTextureMapMode_Wrap:
-								wrap = Nz::SamplerWrap::Repeat;
-								break;
-
-							default:
-								NazaraWarning("Assimp texture map mode 0x" + Nz::NumberToString(mapMode[0], 16) + " not handled");
-								break;
-						}
-
-						matData.SetParameter(wrapKey, static_cast<long long>(wrap));
-					}
-				}
-			};
-
-			ConvertColor(AI_MATKEY_COLOR_AMBIENT, Nz::MaterialData::AmbientColor);
-			ConvertColor(AI_MATKEY_COLOR_DIFFUSE, Nz::MaterialData::DiffuseColor);
-			ConvertColor(AI_MATKEY_COLOR_SPECULAR, Nz::MaterialData::SpecularColor);
-
-			ConvertTexture(aiTextureType_DIFFUSE, Nz::MaterialData::DiffuseTexturePath, Nz::MaterialData::DiffuseWrap);
-			ConvertTexture(aiTextureType_EMISSIVE, Nz::MaterialData::EmissiveTexturePath);
-			ConvertTexture(aiTextureType_HEIGHT, Nz::MaterialData::HeightTexturePath);
-			ConvertTexture(aiTextureType_NORMALS, Nz::MaterialData::NormalTexturePath);
-			ConvertTexture(aiTextureType_OPACITY, Nz::MaterialData::AlphaTexturePath);
-			ConvertTexture(aiTextureType_SPECULAR, Nz::MaterialData::SpecularTexturePath, Nz::MaterialData::SpecularWrap);
-
-			aiString name;
-			if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
-				matData.SetParameter(Nz::MaterialData::Name, std::string(name.data, name.length));
-
-			int iValue;
-			if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
-				matData.SetParameter(Nz::MaterialData::FaceCulling, !iValue);
-
-			matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(Nz::UInt32(materials.size()), std::move(matData)))).first;
-		}
-
-		subMesh->SetMaterialIndex(matIt->first);
-
-		mesh->AddSubMesh(subMesh);
-
-		mesh->SetMaterialCount(std::max<Nz::UInt32>(Nz::SafeCast<Nz::UInt32>(materials.size()), 1));
-		for (const auto& pair : materials)
-			mesh->SetMaterialData(pair.second.first, pair.second.second);
+		for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
+			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, skeletalMesh.mesh, true, materialData, sceneInfo.assimpBoneToJointIndex, embeddedTextures));
 	}
 	else
 	{
 		mesh->CreateStatic();
-
-		// aiMaterial index in scene => Material index and data in Mesh
-		std::unordered_map<unsigned int, std::pair<Nz::UInt32, Nz::ParameterList>> materials;
-
 		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
-		{
-			aiMesh* iMesh = scene->mMeshes[meshIndex];
-
-			unsigned int indexCount = iMesh->mNumFaces * 3;
-			unsigned int vertexCount = iMesh->mNumVertices;
-
-			// Index buffer
-			bool largeIndices = (vertexCount > std::numeric_limits<Nz::UInt16>::max());
-
-			std::shared_ptr<Nz::IndexBuffer> indexBuffer = std::make_shared<Nz::IndexBuffer>((largeIndices) ? Nz::IndexType::U32 : Nz::IndexType::U16, indexCount, parameters.indexBufferFlags, parameters.bufferFactory);
-
-			Nz::IndexMapper indexMapper(*indexBuffer);
-			Nz::IndexIterator index = indexMapper.begin();
-
-			for (unsigned int faceIndex = 0; faceIndex < iMesh->mNumFaces; ++faceIndex)
-			{
-				const aiFace& face = iMesh->mFaces[faceIndex];
-				if (face.mNumIndices != 3)
-					NazaraWarning("Assimp plugin: This face is not a triangle!");
-
-				// Index buffer
-				*index++ = face.mIndices[0];
-				*index++ = face.mIndices[1];
-				*index++ = face.mIndices[2];
-
-				indexMapper.Unmap();
-			}
-
-			// Vertex buffer
-
-			// Make sure the normal/tangent matrix won't rescale our vectors
-			Nz::Matrix4f normalTangentMatrix = parameters.matrix;
-			if (normalTangentMatrix.HasScale())
-				normalTangentMatrix.ApplyScale(1.f / normalTangentMatrix.GetScale());
-
-			std::shared_ptr<Nz::VertexBuffer> vertexBuffer = std::make_shared<Nz::VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);
-
-			Nz::VertexMapper vertexMapper(*vertexBuffer);
-
-			// Vertex positions
-			if (auto posPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position))
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-				{
-					aiVector3D position = iMesh->mVertices[vertexIdx];
-					*posPtr++ = parameters.matrix * Nz::Vector3f(position.x, position.y, position.z);
-				}
-			}
-
-			// Vertex normals
-			if (auto normalPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal))
-			{
-				for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-				{
-					aiVector3D normal = iMesh->mNormals[vertexIdx];
-					*normalPtr++ = normalTangentMatrix.Transform({normal.x, normal.y, normal.z}, 0.f);
-				}
-			}
-
-			// Vertex tangents
-			bool generateTangents = false;
-			if (auto tangentPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Tangent))
-			{
-				if (iMesh->HasTangentsAndBitangents())
-				{
-					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-					{
-						aiVector3D tangent = iMesh->mTangents[vertexIdx];
-						*tangentPtr++ = normalTangentMatrix.Transform({tangent.x, tangent.y, tangent.z}, 0.f);
-					}
-				}
-				else
-					generateTangents = true;
-			}
-
-			// Vertex UVs
-			if (auto uvPtr = vertexMapper.GetComponentPtr<Nz::Vector2f>(Nz::VertexComponent::TexCoord))
-			{
-				if (iMesh->HasTextureCoords(0))
-				{
-					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-					{
-						aiVector3D uv = iMesh->mTextureCoords[0][vertexIdx];
-						*uvPtr++ = parameters.texCoordOffset + Nz::Vector2f(uv.x, uv.y) * parameters.texCoordScale;
-					}
-				}
-				else
-				{
-					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-						*uvPtr++ = Nz::Vector2f::Zero();
-				}
-			}
-
-			// Vertex colors
-			if (auto colorPtr = vertexMapper.GetComponentPtr<Nz::Color>(Nz::VertexComponent::Color))
-			{
-				if (iMesh->HasVertexColors(0))
-				{
-					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-					{
-						aiColor4D color = iMesh->mColors[0][vertexIdx];
-						*colorPtr++ = Nz::Color(color.r, color.g, color.b, color.a);
-					}
-				}
-				else
-				{
-					for (unsigned int vertexIdx = 0; vertexIdx < vertexCount; ++vertexIdx)
-						*colorPtr++ = Nz::Color::White;
-				}
-			}
-
-			vertexMapper.Unmap();
-
-			// Submesh
-			std::shared_ptr<Nz::StaticMesh> subMesh = std::make_shared<Nz::StaticMesh>(vertexBuffer, indexBuffer);
-			subMesh->GenerateAABB();
-			subMesh->SetMaterialIndex(iMesh->mMaterialIndex);
-
-			if (generateTangents)
-				subMesh->GenerateTangents();
-
-			auto matIt = materials.find(iMesh->mMaterialIndex);
-			if (matIt == materials.end())
-			{
-				Nz::ParameterList matData;
-				aiMaterial* aiMat = scene->mMaterials[iMesh->mMaterialIndex];
-
-				auto ConvertColor = [&] (const char* aiKey, unsigned int aiType, unsigned int aiIndex, const char* colorKey)
-				{
-					aiColor4D color;
-					if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
-					{
-						matData.SetParameter(colorKey, Nz::Color(color.r, color.g, color.b, color.a));
-					}
-				};
-
-				auto ConvertTexture = [&] (aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
-				{
-					aiString path;
-					aiTextureMapMode mapMode[3];
-					if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
-					{
-						matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
-
-						if (wrapKey)
-						{
-							Nz::SamplerWrap wrap = Nz::SamplerWrap::Clamp;
-							switch (mapMode[0])
-							{
-								case aiTextureMapMode_Clamp:
-								case aiTextureMapMode_Decal:
-									wrap = Nz::SamplerWrap::Clamp;
-									break;
-
-								case aiTextureMapMode_Mirror:
-									wrap = Nz::SamplerWrap::MirroredRepeat;
-									break;
-
-								case aiTextureMapMode_Wrap:
-									wrap = Nz::SamplerWrap::Repeat;
-									break;
-
-								default:
-									NazaraWarning("Assimp texture map mode 0x" + Nz::NumberToString(mapMode[0], 16) + " not handled");
-									break;
-							}
-
-							matData.SetParameter(wrapKey, static_cast<long long>(wrap));
-						}
-					}
-				};
-
-				ConvertColor(AI_MATKEY_COLOR_AMBIENT, Nz::MaterialData::AmbientColor);
-				ConvertColor(AI_MATKEY_COLOR_DIFFUSE, Nz::MaterialData::DiffuseColor);
-				ConvertColor(AI_MATKEY_COLOR_SPECULAR, Nz::MaterialData::SpecularColor);
-
-				ConvertTexture(aiTextureType_DIFFUSE, Nz::MaterialData::DiffuseTexturePath, Nz::MaterialData::DiffuseWrap);
-				ConvertTexture(aiTextureType_EMISSIVE, Nz::MaterialData::EmissiveTexturePath);
-				ConvertTexture(aiTextureType_HEIGHT, Nz::MaterialData::HeightTexturePath);
-				ConvertTexture(aiTextureType_NORMALS, Nz::MaterialData::NormalTexturePath);
-				ConvertTexture(aiTextureType_OPACITY, Nz::MaterialData::AlphaTexturePath);
-				ConvertTexture(aiTextureType_SPECULAR, Nz::MaterialData::SpecularTexturePath, Nz::MaterialData::SpecularWrap);
-
-				aiString name;
-				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
-					matData.SetParameter(Nz::MaterialData::Name, std::string(name.data, name.length));
-
-				int iValue;
-				if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
-					matData.SetParameter(Nz::MaterialData::FaceCulling, !iValue);
-
-				matIt = materials.insert(std::make_pair(iMesh->mMaterialIndex, std::make_pair(Nz::UInt32(materials.size()), std::move(matData)))).first;
-			}
-
-			subMesh->SetMaterialIndex(matIt->first);
-
-			mesh->AddSubMesh(subMesh);
-
-			mesh->SetMaterialCount(std::max<Nz::UInt32>(Nz::UInt32(materials.size()), 1));
-			for (const auto& pair : materials)
-				mesh->SetMaterialData(pair.second.first, pair.second.second);
-		}
+			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, scene->mMeshes[meshIndex], false, materialData, {}, embeddedTextures));
 
 		if (parameters.center)
 			mesh->Recenter();
 	}
+
+	mesh->SetMaterialCount(std::max(Nz::UInt32(materialData.size()), Nz::UInt32(1)));
+	for (const auto& pair : materialData)
+		mesh->SetMaterialData(pair.second.first, pair.second.second);
 
 	return mesh;
 }

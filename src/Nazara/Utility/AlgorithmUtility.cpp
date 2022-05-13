@@ -1131,32 +1131,4 @@ namespace Nz
 				skinningInfos.outputUv[i] = skinningInfos.inputUv[i];
 		}
 	}
-
-	/*********************************Transform*********************************/
-
-	void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix)
-	{
-		if (vertexPointers.positionPtr)
-		{
-			for (UInt64 i = 0; i < vertexCount; ++i)
-				*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
-		}
-
-		if (vertexPointers.normalPtr || vertexPointers.tangentPtr)
-		{
-			Vector3f scale = matrix.GetScale();
-
-			if (vertexPointers.normalPtr)
-			{
-				for (UInt64 i = 0; i < vertexCount; ++i)
-					*vertexPointers.normalPtr++ = matrix.Transform(*vertexPointers.normalPtr, 0.f) / scale;
-			}
-
-			if (vertexPointers.tangentPtr)
-			{
-				for (UInt64 i = 0; i < vertexCount; ++i)
-					*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
-			}
-		}
-	}
 }

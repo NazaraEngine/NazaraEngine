@@ -13,6 +13,8 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utils/MovablePtr.hpp>
@@ -31,6 +33,13 @@ namespace Nz
 		std::size_t startFrame = 0;
 		// Reference skeleton
 		const Skeleton* skeleton = nullptr;
+
+		// Transform joints by these transformations
+		Vector3f jointOffset = Vector3f::Zero();
+
+		Quaternionf jointRotation = Quaternionf::Identity();
+
+		Vector3f jointScale = Vector3f::Unit();
 
 		bool IsValid() const;
 	};

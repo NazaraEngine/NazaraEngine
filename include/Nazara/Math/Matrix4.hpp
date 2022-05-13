@@ -132,7 +132,7 @@ namespace Nz
 			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation);
 			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
 			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
-			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>&scale);
+			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
 			static Matrix4 Zero();
 
 			T m11, m12, m13, m14,

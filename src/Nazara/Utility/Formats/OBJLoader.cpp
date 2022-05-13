@@ -271,11 +271,6 @@ namespace Nz
 
 				// Remplissage des vertices
 
-				// Make sure the normal matrix won't rescale our normals
-				Nz::Matrix4f normalMatrix = parameters.matrix;
-				if (normalMatrix.HasScale())
-					normalMatrix.ApplyScale(1.f / normalMatrix.GetScale());
-
 				bool hasNormals = true;
 				bool hasTexCoords = true;
 
@@ -299,13 +294,13 @@ namespace Nz
 					if (posPtr)
 					{
 						const Vector4f& vec = positions[vertexIndices.position - 1];
-						posPtr[index] = Vector3f(parameters.matrix * vec);
+						posPtr[index] = TransformPositionTRS(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, Vector3f(vec));
 					}
 
 					if (hasNormals)
 					{
 						if (vertexIndices.normal > 0)
-							normalPtr[index] = normalMatrix.Transform(normals[vertexIndices.normal - 1], 0.f);
+							normalPtr[index] = TransformNormalTRS(parameters.vertexRotation, parameters.vertexScale, normals[vertexIndices.normal - 1]);
 						else
 							hasNormals = false;
 					}
