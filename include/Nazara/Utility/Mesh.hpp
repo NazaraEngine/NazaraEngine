@@ -38,8 +38,12 @@ namespace Nz
 		// Buffer usage flags used to build the vertex buffers
 		BufferUsageFlags vertexBufferFlags = BufferUsage::DirectMapping | BufferUsage::Read | BufferUsage::Write;
 
-		// A matrix which will transform every vertex position
-		Matrix4f matrix = Matrix4f::Identity();
+		// Transform vertices and joints by these transformations
+		Vector3f vertexOffset = Vector3f::Zero();
+
+		Quaternionf vertexRotation = Quaternionf::Identity();
+
+		Vector3f vertexScale = Vector3f::Unit();
 
 		// Offset to apply on the texture coordinates (not scaled)
 		Vector2f texCoordOffset = {0.f, 0.f};

@@ -66,7 +66,6 @@ namespace Nz
 			// Le hellknight de Doom 3 fait ~120 unités, et il est dit qu'il fait trois mètres
 			// Nous réduisons donc la taille générale des fichiers MD5 de 1/40
 			Matrix4f matrix = Matrix4f::Transform(Nz::Vector3f::Zero(), rotationQuat, Vector3f(1.f / 40.f));
-			matrix *= parameters.matrix;
 
 			rotationQuat = Quaternionf::Identity();
 
@@ -216,7 +215,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::FilePath, (baseDir / md5Mesh.shader).generic_u8string());
+					matData.SetParameter(MaterialData::DiffuseTexturePath, (baseDir / md5Mesh.shader).generic_u8string());
 
 					mesh->SetMaterialData(i, std::move(matData));
 
@@ -342,7 +341,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::FilePath, (baseDir / md5Mesh.shader).generic_u8string());
+					matData.SetParameter(MaterialData::DiffuseTexturePath, (baseDir / md5Mesh.shader).generic_u8string());
 
 					mesh->SetMaterialData(i, std::move(matData));
 				}

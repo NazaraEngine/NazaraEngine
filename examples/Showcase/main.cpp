@@ -31,7 +31,7 @@ int main()
 	//rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
-
+	
 	Nz::PluginManager::Mount(Nz::Plugin::Assimp);
 	Nz::CallOnExit unmountAssimp([]
 	{
@@ -91,22 +91,25 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.animated = true;
 	meshParams.center = true;
-	meshParams.texCoordScale = Nz::Vector2f(1.f, -1.f);
-	meshParams.texCoordOffset = Nz::Vector2f(0.f, 1.f);
-	//meshParams.matrix = Nz::Matrix4f::Scale(Nz::Vector3f(10.f));
+	meshParams.vertexOffset = Nz::Vector3f(3.f, 0.f, 0.f);
+	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, 0.f, 0.f);
+	meshParams.vertexScale = Nz::Vector3f(0.1f, 0.1f, 0.1f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent_Skinning);
 
-	std::shared_ptr<Nz::Mesh> bobMesh = Nz::Mesh::LoadFromFile(resourceDir / "hellknight/hellknight.md5mesh", meshParams);
+	std::shared_ptr<Nz::Mesh> bobMesh = Nz::Mesh::LoadFromFile(resourceDir / "character/Gangnam Style.fbx", meshParams);
 	if (!bobMesh)
 	{
 		NazaraError("Failed to load bob mesh");
 		return __LINE__;
 	}
 
-	Nz::AnimationParams matParams;
-	matParams.skeleton = bobMesh->GetSkeleton();
+	Nz::AnimationParams animParam;
+	animParam.skeleton = bobMesh->GetSkeleton();
+	animParam.jointRotation = meshParams.vertexRotation;
+	animParam.jointScale = meshParams.vertexScale;
+	animParam.jointOffset = meshParams.vertexOffset;
 
-	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "hellknight/idle.md5anim", matParams);
+	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "character/Wave Hip Hop Dance.fbx", animParam);
 	if (!bobAnim)
 	{
 		NazaraError("Failed to load bob anim");
@@ -143,6 +146,7 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = std::make_shared<Nz::GraphicalMesh>(*bobMesh);
 
 	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
+	std::vector<std::shared_ptr<Nz::Material>> materials(bobMesh->GetMaterialCount());
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
 		std::string matPath;
@@ -155,12 +159,15 @@ int main()
 
 		bobMatPass->EnableDepthBuffer(true);
 		{
+			std::filesystem::path path(matPath);
+			//path.replace_extension(".bmp");
+
 			Nz::BasicMaterial basicMat(*bobMatPass);
 			if (matPath.find("gob") != matPath.npos)
 			{
 				bobMatPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
 
-				basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(matPath, texParams));
+				basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(path, texParams));
 				bobMatPass->EnableDepthWrite(false);
 
 				bobMatPass->EnableBlending(true);
@@ -168,13 +175,16 @@ int main()
 				bobMatPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
 			}
 			else
-				basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(matPath, texParams));
+				basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(path, texParams));
 		}
 
 		bobMat->AddPass("ForwardPass", bobMatPass);
 
-		bobModel->SetMaterial(i, bobMat);
+		materials[i] = bobMat;
 	}
+
+	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
+		bobModel->SetMaterial(i, materials[bobMesh->GetSubMesh(i)->GetMaterialIndex()]);
 
 	/*for (std::size_t y = 0; y < 50; ++y)
 	{
@@ -195,9 +205,9 @@ int main()
 	entt::entity bobEntity = registry.create();
 	{
 		auto& bobNode = registry.emplace<Nz::NodeComponent>(bobEntity);
-		bobNode.SetRotation(Nz::EulerAnglesf(90.f, -90.f, 0.f));
-		bobNode.SetScale(1.f / 40.f * 0.5f);
-		bobNode.SetPosition(bobNode.GetScale() * Nz::Vector3f(0.f, bobAABB.height / 2.f, 0.f));
+		//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
+		//bobNode.SetScale(1.f / 40.f * 0.5f);
+		//bobNode.SetPosition(bobNode.GetScale() * Nz::Vector3f(0.f, -bobAABB.height / 2.f + bobAABB.y, 0.f));
 
 		auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
 		bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
