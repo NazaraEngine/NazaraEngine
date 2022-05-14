@@ -12,14 +12,21 @@
 namespace Nz
 {
 	inline VirtualDirectory::VirtualDirectory(std::weak_ptr<VirtualDirectory> parentDirectory) :
-	m_parent(std::move(parentDirectory))
+	m_parent(std::move(parentDirectory)),
+	m_isUprootAllowed(false)
 	{
 	}
 
 	inline VirtualDirectory::VirtualDirectory(std::filesystem::path physicalPath, std::weak_ptr<VirtualDirectory> parentDirectory) :
 	m_physicalPath(std::move(physicalPath)),
-	m_parent(std::move(parentDirectory))
+	m_parent(std::move(parentDirectory)),
+	m_isUprootAllowed(false)
 	{
+	}
+
+	inline void VirtualDirectory::AllowUproot(bool uproot)
+	{
+		m_isUprootAllowed = uproot;
 	}
 
 	inline bool VirtualDirectory::Exists(std::string_view path)
@@ -94,7 +101,7 @@ namespace Nz
 			if (physicalPathBase)
 			{
 				// Special case when traversing directory
-				if (dirName == "..")
+				if (dirName == ".." && !m_isUprootAllowed)
 				{
 					// Don't allow to escape virtual directory
 					if (!physicalDirectoryParts.empty())
@@ -193,6 +200,11 @@ namespace Nz
 		});
 	}
 
+	inline bool VirtualDirectory::IsUprootAllowed() const
+	{
+		return m_isUprootAllowed;
+	}
+
 	inline auto VirtualDirectory::StoreDirectory(std::string_view path, VirtualDirectoryPtr directory) -> DirectoryEntry&
 	{
 		assert(!path.empty());
@@ -260,46 +272,49 @@ namespace Nz
 			Entry entry{ DirectoryEntry{ shared_from_this() } };
 			return CallbackReturn(callback, entry);
 		}
-		else if (name == "..")
+
+		if (name == "..")
 		{
-			Entry entry;
+			VirtualDirectoryPtr parentEntry;
 			if (VirtualDirectoryPtr parent = m_parent.lock())
-				entry = DirectoryEntry{ std::move(parent) };
-			else
-				entry = DirectoryEntry{ shared_from_this() };
+				parentEntry = std::move(parent);
+			else if (!m_isUprootAllowed)
+				parentEntry = shared_from_this();
 
-			return CallbackReturn(callback, entry);
+			if (parentEntry)
+			{
+				Entry entry = DirectoryEntry{ std::move(parentEntry) };
+				return CallbackReturn(callback, entry);
+			}
 		}
-		else
+
+		auto it = std::lower_bound(m_content.begin(), m_content.end(), name, [](const ContentEntry& entry, std::string_view name)
 		{
-			auto it = std::lower_bound(m_content.begin(), m_content.end(), name, [](const ContentEntry& entry, std::string_view name)
+			return entry.name < name;
+		});
+		if (it == m_content.end() || it->name != name)
+		{
+			// Virtual file not found, check if it has a physical one
+			if (m_physicalPath)
 			{
-				return entry.name < name;
-			});
-			if (it == m_content.end() || it->name != name)
-			{
-				// Virtual file not found, check if it has a physical one
-				if (m_physicalPath)
-				{
-					std::filesystem::path filePath = *m_physicalPath / name;
-					std::filesystem::file_status status = std::filesystem::status(filePath); //< FIXME: This will follow symlink, is this the intended behavior? (see symlink_status)
+				std::filesystem::path filePath = *m_physicalPath / name;
+				std::filesystem::file_status status = std::filesystem::status(filePath); //< FIXME: This will follow symlink, is this the intended behavior? (see symlink_status)
 
-					Entry entry;
-					if (std::filesystem::is_regular_file(status))
-						entry = PhysicalFileEntry{ std::move(filePath) };
-					else if (std::filesystem::is_directory(status))
-						entry = PhysicalDirectoryEntry{ std::move(filePath) };
-					else
-						return false; //< either not known or of a special type
+				Entry entry;
+				if (std::filesystem::is_regular_file(status))
+					entry = PhysicalFileEntry{ std::move(filePath) };
+				else if (std::filesystem::is_directory(status))
+					entry = PhysicalDirectoryEntry{ std::move(filePath) };
+				else
+					return false; //< either not known or of a special type
 
-					return CallbackReturn(callback, entry);
-				}
-
-				return false;
+				return CallbackReturn(callback, entry);
 			}
 
-			return CallbackReturn(callback, it->entry);
+			return false;
 		}
+
+		return CallbackReturn(callback, it->entry);
 	}
 
 	inline bool VirtualDirectory::CreateOrRetrieveDirectory(std::string_view path, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName)

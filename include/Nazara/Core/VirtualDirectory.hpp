@@ -39,12 +39,16 @@ namespace Nz
 			VirtualDirectory(VirtualDirectory&&) = delete;
 			~VirtualDirectory() = default;
 
-			bool Exists(std::string_view path);
+			inline void AllowUproot(bool uproot = true);
+
+			inline bool Exists(std::string_view path);
 
 			template<typename F> void Foreach(F&& callback, bool includeDots = false);
 
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetFileContent(std::string_view path, F&& callback);
+
+			inline bool IsUprootAllowed() const;
 
 			inline DirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
 			inline PhysicalDirectoryEntry& StoreDirectory(std::string_view path, std::filesystem::path directoryPath);
@@ -99,6 +103,7 @@ namespace Nz
 			std::optional<std::filesystem::path> m_physicalPath;
 			std::vector<ContentEntry> m_content;
 			std::weak_ptr<VirtualDirectory> m_parent;
+			bool m_isUprootAllowed;
 	};
 }
 
