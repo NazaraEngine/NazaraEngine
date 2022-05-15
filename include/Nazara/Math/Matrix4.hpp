@@ -79,6 +79,7 @@ namespace Nz
 			Matrix4& MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation);
 			Matrix4& MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
 			Matrix4& MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
+			Matrix4& MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
 			Matrix4& MakeZero();
 
 			Matrix4& Set(T r11, T r12, T r13, T r14,
@@ -130,7 +131,8 @@ namespace Nz
 			static Matrix4 Translate(const Vector3<T>& translation);
 			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation);
 			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			static Matrix4 TransformInverse(const Vector3<T>&translation, const Quaternion<T>&rotation);
+			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
+			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>&scale);
 			static Matrix4 Zero();
 
 			T m11, m12, m13, m14,
