@@ -1032,6 +1032,25 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Makes the matrix an inverse transform matrix (aka view matrix)
+	* \return A reference to this matrix
+	*
+	* \param translation Vector3 representing the translation
+	* \param rotation Quaternion representing a rotation of space
+	* \param scale Vector3 representing the scale
+	*
+	* \see InverseTransformMatrix
+	*/
+	template<typename T>
+	Matrix4<T>& Matrix4<T>::MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
+	{
+		MakeTransformInverse(translation, rotation);
+		ConcatenateTransform(Scale(T(1.0) / scale));
+
+		return *this;
+	}
+
+	/*!
 	* \brief Makes the matrix zero (with 0 everywhere)
 	* \return A reference to this matrix with components (0 everywhere)
 	*
@@ -1673,6 +1692,25 @@ namespace Nz
 	{
 		Matrix4 mat;
 		mat.MakeTransformInverse(translation, rotation);
+
+		return mat;
+	}
+
+	/*!
+	* \brief Shorthand for the 'view' matrix
+	* \return A Matrix4 which is the 'view matrix'
+	*
+	* \param translation Vector3 representing the translation
+	* \param rotation Quaternion representing a rotation of space
+	* \param scale Vector3 representing the scale
+	*
+	* \see MakeInverseTransformMatrix
+	*/
+	template<typename T>
+	Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
+	{
+		Matrix4 mat;
+		mat.MakeTransformInverse(translation, rotation, scale);
 
 		return mat;
 	}
