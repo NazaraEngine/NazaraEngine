@@ -214,6 +214,9 @@ namespace Nz
 		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
+		if (entryName == "." || entryName == "..")
+			throw std::runtime_error("invalid entry name");
+
 		return dir->StoreInternal(std::string(entryName), DirectoryEntry{ std::move(directory) });
 	}
 
@@ -225,6 +228,9 @@ namespace Nz
 		std::string_view entryName;
 		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
+
+		if (entryName == "." || entryName == "..")
+			throw std::runtime_error("invalid entry name");
 
 		return dir->StoreInternal(std::string(entryName), PhysicalDirectoryEntry{ std::move(directoryPath) });
 	}
@@ -238,6 +244,9 @@ namespace Nz
 		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
+		if (entryName == "." || entryName == "..")
+			throw std::runtime_error("invalid entry name");
+
 		return dir->StoreInternal(std::string(entryName), FileContentEntry{ std::move(file) });
 	}
 
@@ -250,6 +259,9 @@ namespace Nz
 		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
 
+		if (entryName == "." || entryName == "..")
+			throw std::runtime_error("invalid entry name");
+
 		return dir->StoreInternal(std::string(entryName), PhysicalFileEntry{ std::move(filePath) });
 	}
 
@@ -261,6 +273,9 @@ namespace Nz
 		std::string_view entryName;
 		if (!CreateOrRetrieveDirectory(path, dir, entryName))
 			throw std::runtime_error("invalid path");
+
+		if (entryName == "." || entryName == "..")
+			throw std::runtime_error("invalid entry name");
 
 		return dir->StoreInternal(std::string(entryName), DataPointerEntry{ data, size });
 	}
