@@ -45,28 +45,10 @@ namespace Nz
 		};
 
 
-		template<typename... First>
-		struct ListConcat<TypeList<First...>, TypeList<>>
+		template<typename... First, typename... Second>
+		struct ListConcat<TypeList<First...>, TypeList<Second...>>
 		{
-			using Result = TypeList<First...>;
-		};
-
-		template<typename... Second>
-		struct ListConcat<TypeList<>, TypeList<Second...>>
-		{
-			using Result = TypeList<Second...>;
-		};
-
-		template<typename... First, typename T>
-		struct ListConcat<TypeList<First...>, TypeList<T>>
-		{
-			using Result = TypeList<First..., T>;
-		};
-
-		template<typename... First, typename T1, typename T2, typename... Second>
-		struct ListConcat<TypeList<First...>, TypeList<T1, T2, Second...>>
-		{
-			using Result = typename ListConcat<TypeList<First..., T1>, TypeList<T2, Second...>>::Result;
+			using Result = TypeList<First..., Second...>;
 		};
 
 
