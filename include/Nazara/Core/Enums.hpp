@@ -135,6 +135,7 @@ namespace Nz
 	enum class Plugin
 	{
 		Assimp,
+		FFmpeg,
 
 		Max = Assimp
 	};
