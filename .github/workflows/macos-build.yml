@@ -62,7 +62,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --ccache=n --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
 
     # Build the engine
     - name: Build Nazara
@@ -73,12 +73,16 @@ jobs:
       if: matrix.mode != 'releasedbg'
       run: xmake run NazaraUnitTests
 
+    # Setup installation configuration
+    - name: Configure xmake for installation
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ffmpeg=n --shadernodes=y --tests=y --yes
+
     # Install the result files
-    # - name: Install Nazara
-    #  run: xmake install -vo package
+    - name: Install Nazara
+      run: xmake install -vo package
 
     # Upload artifacts
-    # - uses: actions/upload-artifact@v2
-    #  with:
-    #    name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
-    #    path: package
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
+        path: package
