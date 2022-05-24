@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_MATRIXDATA_HPP
 #define NAZARA_SHADERNODES_MATRIXDATA_HPP
 
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <NZSL/Ast/Nodes.hpp>
 #include <ShaderNode/Previews/PreviewValues.hpp>
 #include <nodes/NodeData>
 

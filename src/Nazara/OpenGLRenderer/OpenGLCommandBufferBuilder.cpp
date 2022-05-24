@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>

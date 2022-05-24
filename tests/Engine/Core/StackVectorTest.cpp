@@ -1,5 +1,5 @@
-#include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/StackVector.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <catch2/catch.hpp>
 #include <array>
 #include <numeric>

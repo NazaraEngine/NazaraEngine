@@ -1,7 +1,7 @@
 #include <ShaderNode/Widgets/MainWindow.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/Ast/AstSerializer.hpp>
+#include <NZSL/GlslWriter.hpp>
+#include <NZSL/Ast/AstSerializer.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/Widgets/BufferEditor.hpp>
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
@@ -183,15 +183,19 @@ void MainWindow::OnCompile()
 	{
 		auto shaderModule = m_shaderGraph.ToModule();
 
-		QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save shader"), QString(), tr("Shader Files (*.shader)"));
+		QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Save shader"), QString(), tr("Shader Files (*.nzslb)"));
 		if (fileName.isEmpty())
 			return;
 
-		if (!fileName.endsWith("shader", Qt::CaseInsensitive))
-			fileName += ".shader";
+		if (!fileName.endsWith("nzslb", Qt::CaseInsensitive))
+			fileName += ".nzslb";
 
 		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
-		file.Write(Nz::ShaderAst::SerializeShader(shaderModule));
+		nzsl::Serializer serializer;
+		nzsl::Ast::SerializeShader(serializer, shaderModule);
+
+		const std::vector<std::uint8_t>& data = serializer.GetData();
+		file.Write(data.data(), data.size());
 	}
 	catch (const std::exception& e)
 	{

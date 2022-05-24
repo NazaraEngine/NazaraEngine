@@ -62,7 +62,7 @@ namespace Nz
 	{
 		NazaraAssert(HasAlphaTest(), "Material has no alpha test option");
 		const auto& optionOpt = m_material.GetOptionValue(m_basicOptionIndexes.alphaTest);
-		if (std::holds_alternative<ShaderAst::NoValue>(optionOpt))
+		if (std::holds_alternative<nzsl::Ast::NoValue>(optionOpt))
 			return false;
 
 		return std::get<bool>(optionOpt);

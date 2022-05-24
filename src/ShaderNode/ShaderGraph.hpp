@@ -3,9 +3,9 @@
 #ifndef NAZARA_SHADERNODES_SHADERGRAPH_HPP
 #define NAZARA_SHADERNODES_SHADERGRAPH_HPP
 
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Shader/Ast/Module.hpp>
+#include <NZSL/Ast/Module.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>
 #include <ShaderNode/Previews/PreviewModel.hpp>
@@ -67,8 +67,8 @@ class ShaderGraph
 		void Load(const QJsonObject& data);
 		QJsonObject Save();
 
-		Nz::ShaderAst::ModulePtr ToModule() const;
-		Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType> ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
+		nzsl::Ast::ModulePtr ToModule() const;
+		nzsl::Ast::ExpressionValue<nzsl::Ast::ExpressionType> ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const;
 
 		void UpdateBuffer(std::size_t bufferIndex, std::string name, BufferType bufferType, std::size_t structIndex, std::size_t setIndex, std::size_t bindingIndex);
 		void UpdateOption(std::size_t optionIndex, std::string option);
@@ -148,13 +148,13 @@ class ShaderGraph
 		NazaraSignal(OnTypeUpdated, ShaderGraph*);
 
 		static QtNodes::NodeDataType ToNodeDataType(PrimitiveType type);
-		static Nz::ShaderAst::ExpressionType ToShaderExpressionType(PrimitiveType type);
-		static Nz::ShaderAst::ExpressionType ToShaderExpressionType(TextureType type);
-		static Nz::ShaderStageType ToShaderStageType(ShaderType type);
+		static nzsl::Ast::ExpressionType ToShaderExpressionType(PrimitiveType type);
+		static nzsl::Ast::ExpressionType ToShaderExpressionType(TextureType type);
+		static nzsl::ShaderStageType ToShaderStageType(ShaderType type);
 
 	private:
 		std::shared_ptr<QtNodes::DataModelRegistry> BuildRegistry();
-		std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ToFunction() const;
+		std::unique_ptr<nzsl::Ast::DeclareFunctionStatement> ToFunction() const;
 
 		mutable std::optional<QtNodes::FlowScene> m_flowScene;
 		std::vector<BufferEntry> m_buffers;

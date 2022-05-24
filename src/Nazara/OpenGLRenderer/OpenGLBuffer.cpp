@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

@@ -44,7 +44,7 @@ SCENARIO("Vector4", "[MATH][VECTOR4]")
 		{
 			THEN("Compilation should be fine")
 			{
-				Nz::Vector4f zero = Nz::Vector4f::Zero();
+				Nz::Vector4f zero = Nz::Vector4f(0.f, 0.f, 0.f, 0.f);
 				Nz::Vector4f unitX = Nz::Vector4f::UnitX();
 				REQUIRE(Nz::Vector4f::Lerp(zero, unitX, 0.5f) == Nz::Vector4f(Nz::Vector3f::UnitX() * 0.5f, 1.f));
 			}

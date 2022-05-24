@@ -10,7 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <memory>

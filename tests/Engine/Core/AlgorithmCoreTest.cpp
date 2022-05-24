@@ -9,31 +9,6 @@
 
 std::filesystem::path GetResourceDir();
 
-TEST_CASE("Apply", "[CORE][ALGORITHM]")
-{
-	SECTION("Apply lambda to two vector2")
-	{
-		Nz::Vector2<int> vector = Nz::Vector2<int>::Unit();
-		auto lambda = [](const Nz::Vector2<int>& vec1, const Nz::Vector2<int>& vec2)
-		{
-			return vec1 + vec2;
-		};
-
-		Nz::Vector2<int> result = Nz::Apply(lambda, std::make_tuple(vector, vector));
-
-		REQUIRE(result == (Nz::Vector2<int>::Unit() * 2));
-	}
-
-	/*SECTION("Apply member function to vector2")
-	{
-		Nz::Vector2<int> vector = Nz::Vector2<int>::Unit();
-
-		int result = Nz::Apply(vector, (int(Nz::Vector2<int>::*)(const Nz::Vector2<int>&)) &Nz::Vector2<int>::Distance<int>, std::make_tuple(vector));
-
-		REQUIRE(result == 0);
-	}*/
-}
-
 TEST_CASE("ComputeHash", "[CORE][ALGORITHM]")
 {
 	std::filesystem::path testFilePath = GetResourceDir() / "Logo.png";

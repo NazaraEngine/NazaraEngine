@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <atomic>
 #include <string>
 #include <unordered_map>

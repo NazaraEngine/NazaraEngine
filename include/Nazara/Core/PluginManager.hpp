@@ -8,6 +8,7 @@
 #define NAZARA_CORE_PLUGINMANAGER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <filesystem>
 #include <set>

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Physics2D/Arbiter2D.hpp>
 #include <chipmunk/chipmunk.h>
 #include <Nazara/Physics2D/Debug.hpp>

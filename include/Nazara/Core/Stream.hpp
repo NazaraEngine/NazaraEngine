@@ -8,8 +8,9 @@
 #define NAZARA_CORE_STREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <filesystem>
 #include <memory>
 #include <string>

@@ -140,7 +140,7 @@ namespace Nz
 		const auto& options = m_settings->GetOptions();
 		for (std::size_t optionIndex = 0; optionIndex < options.size(); ++optionIndex)
 		{
-			if (!std::holds_alternative<ShaderAst::NoValue>(m_optionValues[optionIndex]))
+			if (!std::holds_alternative<nzsl::Ast::NoValue>(m_optionValues[optionIndex]))
 			{
 				auto& optionValue = m_pipelineInfo.optionValues[m_pipelineInfo.optionCount];
 				optionValue.hash = options[optionIndex].hash;

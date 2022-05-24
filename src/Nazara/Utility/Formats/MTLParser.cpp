@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MTLParser.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <cstdio>

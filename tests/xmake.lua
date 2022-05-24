@@ -17,7 +17,7 @@ if has_config("tests") then
 	set_group("Tests")
 	set_kind("binary")
 
-	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
+	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D")
 	add_packages("catch2", "entt", "glslang", "spirv-tools")
 	add_headerfiles("Engine/**.hpp")
 	add_files("resources.cpp")

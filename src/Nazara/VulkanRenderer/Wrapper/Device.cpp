@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>

@@ -8,7 +8,7 @@
 #define NAZARA_MATH_VECTOR4_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Utils/TypeTag.hpp>
 #include <functional>
 #include <string>
 

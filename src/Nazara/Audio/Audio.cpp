@@ -13,7 +13,7 @@
 #include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
 #include <Nazara/Audio/Formats/minimp3Loader.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>

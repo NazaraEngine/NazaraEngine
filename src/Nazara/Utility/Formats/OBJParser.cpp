@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/OBJParser.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <tsl/ordered_map.h>
@@ -515,7 +515,7 @@ namespace Nz
 		Emit("# position count: ");
 		EmitLine(m_positions.size());
 
-		for (const Nz::Vector4f& position : m_positions)
+		for (const Vector4f& position : m_positions)
 		{
 			Emit("v ");
 			Emit(position.x);

@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_ENUMS_HPP
 #define NAZARA_AUDIO_ENUMS_HPP
 
-#include <cstdint>
+#include <cstddef>
 
 namespace Nz
 {

@@ -84,7 +84,7 @@ namespace Nz
 		return m_pipelineLayout;
 	}
 
-	inline const std::shared_ptr<UberShader>& MaterialSettings::GetShader(ShaderStageType stage) const
+	inline const std::shared_ptr<UberShader>& MaterialSettings::GetShader(nzsl::ShaderStageType stage) const
 	{
 		return m_data.shaders[UnderlyingCast(stage)];
 	}

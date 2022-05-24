@@ -3,41 +3,41 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
-#include <Nazara/Shader/ShaderLangLexer.hpp>
-#include <Nazara/Shader/ShaderLangParser.hpp>
-#include <Nazara/Shader/SpirvDecoder.hpp>
-#include <Nazara/Shader/SpirvWriter.hpp>
-#include <Nazara/Shader/Ast/AstSerializer.hpp>
+#include <NZSL/ShaderLangLexer.hpp>
+#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/SpirvDecoder.hpp>
+#include <NZSL/SpirvWriter.hpp>
+#include <NZSL/Ast/AstSerializer.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
 	namespace
 	{
-		struct SpirvEntryPointExtractor : SpirvDecoder
+		struct SpirvEntryPointExtractor : nzsl::SpirvDecoder
 		{
 			struct EntryPoint
 			{
-				SpirvExecutionModel executionModel;
+				nzsl::SpirvExecutionModel executionModel;
 				std::string name;
 			};
 
 			std::vector<EntryPoint> entryPoints;
 
-			bool HandleOpcode(const SpirvInstruction& instruction, UInt32 /*wordCount*/) override
+			bool HandleOpcode(const nzsl::SpirvInstruction& instruction, UInt32 /*wordCount*/) override
 			{
 				switch (instruction.op)
 				{
 					// All instructions that can appear before OpEntryPoint
-					case SpirvOp::OpCapability:
-					case SpirvOp::OpExtension:
-					case SpirvOp::OpExtInstImport:
-					case SpirvOp::OpMemoryModel:
+					case nzsl::SpirvOp::OpCapability:
+					case nzsl::SpirvOp::OpExtension:
+					case nzsl::SpirvOp::OpExtInstImport:
+					case nzsl::SpirvOp::OpMemoryModel:
 						return true;
 
-					case SpirvOp::OpEntryPoint:
+					case nzsl::SpirvOp::OpEntryPoint:
 					{
-						SpirvExecutionModel executionModel = static_cast<SpirvExecutionModel>(ReadWord());
+						nzsl::SpirvExecutionModel executionModel = static_cast<nzsl::SpirvExecutionModel>(ReadWord());
 						ReadWord(); // func id
 						std::string name = ReadString();
 
@@ -57,18 +57,18 @@ namespace Nz
 		};
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)
 	{
-		SpirvWriter::Environment env;
+		nzsl::SpirvWriter::Environment env;
 
-		SpirvWriter writer;
+		nzsl::SpirvWriter writer;
 		writer.SetEnv(env);
 
 		std::vector<UInt32> code = writer.Generate(shaderModule, states);
 		return Create(device, shaderStages, ShaderLanguage::SpirV, code.data(), code.size() * sizeof(UInt32), {});
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states)
 	{
 		switch (lang)
 		{
@@ -79,16 +79,17 @@ namespace Nz
 
 			case ShaderLanguage::NazaraBinary:
 			{
-				auto shader = ShaderAst::UnserializeShader(source, sourceSize);
+				nzsl::Unserializer unserializer(source, sourceSize);
+				auto shader = nzsl::Ast::UnserializeShader(unserializer);
 				return Create(device, shaderStages, *shader, {});
 			}
 
 			case ShaderLanguage::NazaraShader:
 			{
-				std::vector<ShaderLang::Token> tokens = ShaderLang::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
+				std::vector<nzsl::Token> tokens = nzsl::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
 
-				ShaderLang::Parser parser;
-				ShaderAst::ModulePtr shaderModule = parser.Parse(tokens);
+				nzsl::Parser parser;
+				nzsl::Ast::ModulePtr shaderModule = parser.Parse(tokens);
 				return Create(device, shaderStages, *shaderModule, states);
 			}
 
@@ -97,18 +98,18 @@ namespace Nz
 				SpirvEntryPointExtractor extractor;
 				extractor.Decode(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32));
 
-				ShaderStageTypeFlags remainingStages = shaderStages;
+				nzsl::ShaderStageTypeFlags remainingStages = shaderStages;
 				for (auto& entryPoint : extractor.entryPoints)
 				{
-					ShaderStageType stageType;
+					nzsl::ShaderStageType stageType;
 					switch (entryPoint.executionModel)
 					{
-						case SpirvExecutionModel::Fragment:
-							stageType = ShaderStageType::Fragment;
+						case nzsl::SpirvExecutionModel::Fragment:
+							stageType = nzsl::ShaderStageType::Fragment;
 							break;
 
-						case SpirvExecutionModel::Vertex:
-							stageType = ShaderStageType::Vertex;
+						case nzsl::SpirvExecutionModel::Vertex:
+							stageType = nzsl::ShaderStageType::Vertex;
 							break;
 
 						default:

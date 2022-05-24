@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/VecFloatMul.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <NZSL/ShaderBuilder.hpp>
+#include <NZSL/Ast/Nodes.hpp>
 
 VecFloatMul::VecFloatMul(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -8,12 +8,12 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderAst::NodePtr VecFloatMul::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr VecFloatMul::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Binary(Nz::ShaderAst::BinaryType::Multiply, std::move(expressions[0]), std::move(expressions[1]));
+	return nzsl::ShaderBuilder::Binary(nzsl::Ast::BinaryType::Multiply, std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString VecFloatMul::caption() const
@@ -142,7 +142,7 @@ void VecFloatMul::UpdateOutput()
 	{
 		m_output = std::make_shared<VecData>(4);
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview.Fill(Nz::Vector4f::Zero());
+		m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -164,9 +164,9 @@ void VecFloatMul::UpdateOutput()
 
 	m_output->preview = PreviewValues(maxWidth, maxHeight);
 
-	const Nz::Vector4f* left = leftResized.GetData();
-	const Nz::Vector4f* right = rightPreview.GetData();
-	Nz::Vector4f* output = m_output->preview.GetData();
+	const nzsl::Vector4f* left = leftResized.GetData();
+	const nzsl::Vector4f* right = rightPreview.GetData();
+	nzsl::Vector4f* output = m_output->preview.GetData();
 
 	std::size_t pixelCount = maxWidth * maxHeight;
 	for (std::size_t i = 0; i < pixelCount; ++i)

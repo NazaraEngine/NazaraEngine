@@ -8,7 +8,8 @@
 #define NAZARA_UTILITY_PIXELFORMAT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <array>

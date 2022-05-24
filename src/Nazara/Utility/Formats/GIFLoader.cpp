@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/GIFLoader.hpp>
-#include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/Core/ByteStream.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>

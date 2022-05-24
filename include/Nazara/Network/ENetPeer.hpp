@@ -18,8 +18,8 @@
 #define NAZARA_NETWORK_ENETPEER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/Flags.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>

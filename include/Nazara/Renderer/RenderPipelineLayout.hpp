@@ -7,10 +7,10 @@
 #ifndef NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
 #define NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
 
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Shader/Enums.hpp>
+#include <NZSL/Enums.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -24,7 +24,7 @@ namespace Nz
 			UInt32 setIndex = 0;
 			UInt32 bindingIndex;
 			ShaderBindingType type;
-			ShaderStageTypeFlags shaderStageFlags;
+			nzsl::ShaderStageTypeFlags shaderStageFlags;
 		};
 
 		std::vector<Binding> bindings;

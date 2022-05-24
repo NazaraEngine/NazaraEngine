@@ -4,7 +4,7 @@
 
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>

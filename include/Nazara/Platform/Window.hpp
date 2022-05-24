@@ -10,7 +10,7 @@
 #define NAZARA_PLATFORM_WINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>

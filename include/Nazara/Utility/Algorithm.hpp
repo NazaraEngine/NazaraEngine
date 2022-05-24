@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>

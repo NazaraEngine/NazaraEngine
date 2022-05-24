@@ -8,7 +8,7 @@
 #define NAZARA_GRAPHICS_LIGHT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Quaternion.hpp>

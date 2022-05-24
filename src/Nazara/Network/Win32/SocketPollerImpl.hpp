@@ -10,7 +10,7 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
-#include <winsock2.h>
+#include <WinSock2.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>

@@ -44,6 +44,7 @@
 #include <Nazara/Utility/FontGlyph.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utility/ImageStream.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>

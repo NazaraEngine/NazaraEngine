@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>

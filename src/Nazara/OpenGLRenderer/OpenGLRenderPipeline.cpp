@@ -7,9 +7,9 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/Ast/Module.hpp>
+#include <NZSL/GlslWriter.hpp>
+#include <NZSL/ShaderBuilder.hpp>
+#include <NZSL/Ast/Module.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -33,7 +33,7 @@ namespace Nz
 		// Enable pipeline states before compiling and linking the program, for drivers which embed some pipeline states into the shader binary (to avoid recompilation later)
 		activeContext->UpdateStates(m_pipelineInfo, false);
 
-		ShaderStageTypeFlags stageFlags;
+		nzsl::ShaderStageTypeFlags stageFlags;
 
 		for (const auto& shaderModulePtr : m_pipelineInfo.shaderModules)
 		{
@@ -44,21 +44,21 @@ namespace Nz
 		// OpenGL ES programs must have both vertex and fragment shaders or a compute shader or a mesh and fragment shader.
 		if (device.GetReferenceContext().GetParams().type == GL::ContextType::OpenGL_ES)
 		{
-			auto GenerateIfMissing = [&](ShaderStageType stage)
+			auto GenerateIfMissing = [&](nzsl::ShaderStageType stage)
 			{
 				if (!stageFlags.Test(stage))
 				{
-					ShaderAst::Module dummyModule(100);
-					dummyModule.rootNode = ShaderBuilder::MultiStatement();
-					dummyModule.rootNode->statements.push_back(ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
+					nzsl::Ast::Module dummyModule(100);
+					dummyModule.rootNode = nzsl::ShaderBuilder::MultiStatement();
+					dummyModule.rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
 
 					OpenGLShaderModule shaderModule(device, stage, dummyModule);
 					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping());
 				}
 			};
 
-			GenerateIfMissing(ShaderStageType::Fragment);
-			GenerateIfMissing(ShaderStageType::Vertex);
+			GenerateIfMissing(nzsl::ShaderStageType::Fragment);
+			GenerateIfMissing(nzsl::ShaderStageType::Vertex);
 		}
 
 		m_program.Link();
@@ -67,7 +67,7 @@ namespace Nz
 		if (!m_program.GetLinkStatus(&errLog))
 			throw std::runtime_error("failed to link program: " + errLog);
 
-		m_flipYUniformLocation = m_program.GetUniformLocation(GlslWriter::GetFlipYUniformName());
+		m_flipYUniformLocation = m_program.GetUniformLocation(nzsl::GlslWriter::GetFlipYUniformName());
 		if (m_flipYUniformLocation != -1)
 			m_program.Uniform(m_flipYUniformLocation, 1.f);
 	}

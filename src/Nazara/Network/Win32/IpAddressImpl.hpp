@@ -8,8 +8,8 @@
 #define NAZARA_NETWORK_WIN32_IPADDRESSIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <string>
 
 namespace Nz
@@ -23,7 +23,7 @@ namespace Nz
 			~IpAddressImpl() = delete;
 
 			static IpAddress FromAddrinfo(const addrinfo* info);
-			#if NAZARA_CORE_WINDOWS_NT6
+			#if NAZARA_UTILS_WINDOWS_NT6
 			static IpAddress FromAddrinfo(const addrinfoW* info);
 			#endif
 			static IpAddress FromSockAddr(const sockaddr* address);

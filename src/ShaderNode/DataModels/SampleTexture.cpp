@@ -1,6 +1,6 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataModels/SampleTexture.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 
 SampleTexture::SampleTexture(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -28,7 +28,7 @@ void SampleTexture::UpdateOutput()
 	if (!m_texture || !m_uv)
 	{
 		output = PreviewValues(1, 1);
-		output.Fill(Nz::Vector4f::Zero());
+		output.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -48,12 +48,12 @@ void SampleTexture::UpdateOutput()
 	{
 		for (std::size_t x = 0; x < uvWidth; ++x)
 		{
-			Nz::Vector4f uvValue = uv(x, y);
+			nzsl::Vector4f uvValue = uv(x, y);
 
 			if (textureWidth > 0 && textureHeight > 0)
-				output(x, y) = texturePreview.Sample(uvValue.x, uvValue.y);
+				output(x, y) = texturePreview.Sample(uvValue.x(), uvValue.y());
 			else
-				output(x, y) = Nz::Vector4f(0.f, 0.f, 0.f, 1.f);
+				output(x, y) = nzsl::Vector4f(0.f, 0.f, 0.f, 1.f);
 		}
 	}
 
@@ -71,18 +71,18 @@ bool SampleTexture::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-Nz::ShaderAst::NodePtr SampleTexture::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr SampleTexture::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(m_texture);
 	assert(m_uv);
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	std::vector<Nz::ShaderAst::ExpressionPtr> params;
+	std::vector<nzsl::Ast::ExpressionPtr> params;
 	params.push_back(std::move(expressions[0]));
 	params.push_back(std::move(expressions[1]));
 
-	return Nz::ShaderBuilder::Intrinsic(Nz::ShaderAst::IntrinsicType::SampleTexture, std::move(params));
+	return nzsl::ShaderBuilder::Intrinsic(nzsl::Ast::IntrinsicType::SampleTexture, std::move(params));
 }
 
 auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType

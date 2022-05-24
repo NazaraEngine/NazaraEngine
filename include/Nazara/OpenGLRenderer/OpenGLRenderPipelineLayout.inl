@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline const GlslWriter::BindingMapping& OpenGLRenderPipelineLayout::GetBindingMapping() const
+	inline const nzsl::GlslWriter::BindingMapping& OpenGLRenderPipelineLayout::GetBindingMapping() const
 	{
 		return m_bindingMapping;
 	}

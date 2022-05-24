@@ -7,8 +7,10 @@
 #ifndef NAZARA_CORE_HANDLEDOBJECT_HPP
 #define NAZARA_CORE_HANDLEDOBJECT_HPP
 
-#include <Nazara/Core/Bitset.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Utils/Bitset.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <memory>
 #include <vector>
 

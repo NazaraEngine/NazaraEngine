@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
-#include <Nazara/Shader/ShaderWriter.hpp>
-#include <Nazara/Shader/Ast/Module.hpp>
+#include <NZSL/ShaderWriter.hpp>
+#include <NZSL/Ast/Module.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
 #include <vector>
 
@@ -27,8 +27,8 @@ namespace Nz
 			VulkanShaderModule(VulkanShaderModule&&) = delete;
 			~VulkanShaderModule() = default;
 
-			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states);
-			bool Create(Vk::Device& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states);
+			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states);
+			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states);
 
 			inline const Vk::ShaderModule& GetHandle() const;
 			inline const std::vector<Stage>& GetStages() const;
@@ -38,7 +38,7 @@ namespace Nz
 
 			struct Stage
 			{
-				ShaderStageType stage;
+				nzsl::ShaderStageType stage;
 				std::string name;
 			};
 

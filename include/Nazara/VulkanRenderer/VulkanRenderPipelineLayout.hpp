@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>

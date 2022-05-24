@@ -3,8 +3,9 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Shader.hpp>
 #include <Nazara/Utility.hpp>
+#include <NZSL/FieldOffsets.hpp>
+#include <NZSL/ShaderLangParser.hpp>
 #include <array>
 #include <iostream>
 #include <random>
@@ -77,7 +78,7 @@ int main()
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
-	Nz::ShaderWriter::States states;
+	nzsl::ShaderWriter::States states;
 	states.shaderModuleResolver = Nz::Graphics::Instance()->GetShaderModuleResolver();
 
 	Nz::RenderWindow window;
@@ -136,13 +137,13 @@ int main()
 	skyboxPipelineLayoutInfo.bindings.push_back({
 		0, 0,
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType_All
+		nzsl::ShaderStageType_All
 	});
 
 	auto& textureBinding = skyboxPipelineLayoutInfo.bindings.emplace_back();
 	textureBinding.setIndex = 0;
 	textureBinding.bindingIndex = 1;
-	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
+	textureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
@@ -153,7 +154,7 @@ int main()
 	skyboxPipelineInfo.faceCulling = true;
 	skyboxPipelineInfo.cullingSide = Nz::FaceSide::Front;
 	skyboxPipelineInfo.pipelineLayout = skyboxPipelineLayout;
-	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "skybox.nzsl", states));
+	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "skybox.nzsl", states));
 	skyboxPipelineInfo.vertexBuffers.push_back({
 		0,
 		meshPrimitiveParams.vertexDeclaration
@@ -186,8 +187,8 @@ int main()
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders.clear();
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Fragment, Nz::ShaderLang::ParseFromFile(resourceDir / "deferred_frag.nzsl")));
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(Nz::ShaderStageType::Vertex, Nz::ShaderLang::ParseFromFile(resourceDir / "deferred_vert.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(resourceDir / "deferred_frag.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(resourceDir / "deferred_vert.nzsl")));
 
 	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
@@ -269,7 +270,7 @@ int main()
 	lightingPipelineLayoutInfo.bindings.push_back({
 		0, 0,
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType_All
+		nzsl::ShaderStageType_All
 	});
 
 	for (unsigned int i = 0; i < 3; ++i)
@@ -278,7 +279,7 @@ int main()
 			0,
 			i + 1,
 			Nz::ShaderBindingType::Texture,
-			Nz::ShaderStageType::Fragment,
+			nzsl::ShaderStageType::Fragment,
 		});
 	}
 
@@ -286,15 +287,15 @@ int main()
 		1,
 		0,
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex,
+		nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex,
 	});
 
-	/*Nz::FieldOffsets pointLightOffsets(Nz::StructLayout::Std140);
-	std::size_t colorOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float3);
-	std::size_t positionOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float3);
-	std::size_t constantOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t linearOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t quadraticOffset = pointLightOffsets.AddField(Nz::StructFieldType::Float1);
+	/*nzsl::FieldOffsets pointLightOffsets(nzsl::StructLayout::Std140);
+	std::size_t colorOffset = pointLightOffsets.AddField(nzsl::StructFieldType::Float3);
+	std::size_t positionOffset = pointLightOffsets.AddField(nzsl::StructFieldType::Float3);
+	std::size_t constantOffset = pointLightOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t linearOffset = pointLightOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t quadraticOffset = pointLightOffsets.AddField(nzsl::StructFieldType::Float1);
 
 	std::size_t alignedPointLightSize = Nz::Align(pointLightOffsets.GetSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));*/
 
@@ -315,15 +316,15 @@ int main()
 	}
 	*/
 
-	Nz::FieldOffsets spotLightOffsets(Nz::StructLayout::Std140);
-	std::size_t transformMatrixOffset = spotLightOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true);
-	std::size_t colorOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
-	std::size_t positionOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
-	std::size_t directionOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float3);
-	std::size_t radiusOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t invRadiusOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t innerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t outerAngleOffset = spotLightOffsets.AddField(Nz::StructFieldType::Float1);
+	nzsl::FieldOffsets spotLightOffsets(nzsl::StructLayout::Std140);
+	std::size_t transformMatrixOffset = spotLightOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+	std::size_t colorOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float3);
+	std::size_t positionOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float3);
+	std::size_t directionOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float3);
+	std::size_t radiusOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t invRadiusOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t innerAngleOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t outerAngleOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float1);
 
 	std::size_t alignedSpotLightSize = Nz::Align(spotLightOffsets.GetAlignedSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
 
@@ -367,13 +368,13 @@ int main()
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 0,
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType_All
+		nzsl::ShaderStageType_All
 	});
 
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 1,
 		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
+		nzsl::ShaderStageType::Fragment,
 	});
 
 	Nz::RenderPipelineInfo fullscreenPipelineInfoViewer;
@@ -384,7 +385,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", states));
+	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", states));
 
 	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding;
 
@@ -397,18 +398,18 @@ int main()
 	gaussianBlurPipelineLayoutInfo.bindings.push_back({
 		0, 2,
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType::Fragment,
+		nzsl::ShaderStageType::Fragment,
 	});
 
 	Nz::RenderPipelineInfo gaussianBlurPipelineInfo = fullscreenPipelineInfoViewer;
 	gaussianBlurPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(gaussianBlurPipelineLayoutInfo);
 
-	Nz::FieldOffsets gaussianBlurDataOffsets(Nz::StructLayout::Std140);
-	std::size_t gaussianBlurDataDirection = gaussianBlurDataOffsets.AddField(Nz::StructFieldType::Float2);
-	std::size_t gaussianBlurDataSize = gaussianBlurDataOffsets.AddField(Nz::StructFieldType::Float1);
+	nzsl::FieldOffsets gaussianBlurDataOffsets(nzsl::StructLayout::Std140);
+	std::size_t gaussianBlurDataDirection = gaussianBlurDataOffsets.AddField(nzsl::StructFieldType::Float2);
+	std::size_t gaussianBlurDataSize = gaussianBlurDataOffsets.AddField(nzsl::StructFieldType::Float1);
 
 	gaussianBlurPipelineInfo.shaderModules.clear();
-	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", states));
+	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
@@ -438,7 +439,7 @@ int main()
 	std::shared_ptr<Nz::ShaderBinding> toneMappingShaderBinding;
 
 	fullscreenPipelineInfoViewer.shaderModules.clear();
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "tone_mapping.nzsl", states));
+	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "tone_mapping.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
@@ -450,19 +451,19 @@ int main()
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 0,
 		Nz::ShaderBindingType::UniformBuffer,
-		Nz::ShaderStageType_All
+		nzsl::ShaderStageType_All
 	});
 
 	/*bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 1,
 		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
+		nzsl::ShaderStageType::Fragment,
 	});*/
 
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 2,
 		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
+		nzsl::ShaderStageType::Fragment,
 	});
 
 
@@ -477,7 +478,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_final.nzsl", states));
+	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_final.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
@@ -490,7 +491,7 @@ int main()
 	fullscreenPipelineLayoutInfo.bindings.push_back({
 		0, 0,
 		Nz::ShaderBindingType::Texture,
-		Nz::ShaderStageType::Fragment,
+		nzsl::ShaderStageType::Fragment,
 	});
 
 	Nz::RenderPipelineInfo fullscreenPipelineInfo;
@@ -501,7 +502,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gamma.nzsl", states));
+	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gamma.nzsl", states));
 
 	// God rays
 
@@ -512,17 +513,17 @@ int main()
 			{
 				0, 0,
 				Nz::ShaderBindingType::UniformBuffer,
-				Nz::ShaderStageType::Fragment,
+				nzsl::ShaderStageType::Fragment,
 			},
 			{
 				0, 1,
 				Nz::ShaderBindingType::UniformBuffer,
-				Nz::ShaderStageType::Fragment,
+				nzsl::ShaderStageType::Fragment,
 			},
 			{
 				0, 2,
 				Nz::ShaderBindingType::Texture,
-				Nz::ShaderStageType::Fragment,
+				nzsl::ShaderStageType::Fragment,
 			},
 		}
 	};
@@ -535,16 +536,16 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "god_rays.nzsl", states));
+	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "god_rays.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
 
-	Nz::FieldOffsets godraysFieldOffsets(Nz::StructLayout::Std140);
-	std::size_t gr_exposureOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t gr_decayOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t gr_densityOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t gr_weightOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float1);
-	std::size_t gr_lightPositionOffset = godraysFieldOffsets.AddField(Nz::StructFieldType::Float2);
+	nzsl::FieldOffsets godraysFieldOffsets(nzsl::StructLayout::Std140);
+	std::size_t gr_exposureOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t gr_decayOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t gr_densityOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t gr_weightOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
+	std::size_t gr_lightPositionOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float2);
 
 	std::shared_ptr<Nz::ShaderBinding> godRaysShaderBinding = godraysPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 
@@ -590,7 +591,7 @@ int main()
 	lightingPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Zero;
 	lightingPipelineInfo.stencilBack.pass = Nz::StencilOperation::Zero;
 
-	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", states));
+	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
 
@@ -612,7 +613,7 @@ int main()
 	stencilPipelineInfo.stencilBack.compare = Nz::RendererComparison::Always;
 	stencilPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Invert;
 
-	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(Nz::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", states));
+	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
 

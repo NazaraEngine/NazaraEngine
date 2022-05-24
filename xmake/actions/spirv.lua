@@ -84,8 +84,8 @@ on_run(function()
 #define NAZARA_SHADER_SPIRVDATA_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Flags.hpp>
-#include <Nazara/Shader/Config.hpp>
+#include <Nazara/Utils/Bitset.hpp>
+#include <NZSL/Config.hpp>
 
 namespace Nz
 {
@@ -226,11 +226,11 @@ headerFile:write([[
 
 // this file was automatically generated and should not be edited
 
-#include <Nazara/Shader/SpirvData.hpp>
+#include <NZSL/SpirvData.hpp>
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <Nazara/Shader/Debug.hpp>
+#include <NZSL/Debug.hpp>
 
 namespace Nz
 {

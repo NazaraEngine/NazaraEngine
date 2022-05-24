@@ -1,4 +1,4 @@
-#include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <catch2/catch.hpp>
 
 #include <Nazara/Math/Vector2.hpp>

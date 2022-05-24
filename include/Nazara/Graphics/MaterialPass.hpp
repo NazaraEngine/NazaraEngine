@@ -14,13 +14,13 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Shader/Ast/ConstantValue.hpp>
+#include <NZSL/Ast/ConstantValue.hpp>
 #include <Nazara/Utility/UniformBuffer.hpp>
 #include <array>
 #include <string>
@@ -67,13 +67,13 @@ namespace Nz
 			inline FaceFilling GetFaceFilling() const;
 			inline MaterialPassFlags GetFlags() const;
 			inline float GetLineWidth() const;
-			inline const ShaderAst::ConstantValue& GetOptionValue(std::size_t optionIndex) const;
+			inline const nzsl::Ast::ConstantValue& GetOptionValue(std::size_t optionIndex) const;
 			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
 			inline PrimitiveMode GetPrimitiveMode() const;
 			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
-			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType shaderStage) const;
+			inline const std::shared_ptr<UberShader>& GetShader(nzsl::ShaderStageType shaderStage) const;
 			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
 			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
 			inline const std::shared_ptr<RenderBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
@@ -98,7 +98,7 @@ namespace Nz
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
-			inline void SetOptionValue(std::size_t optionIndex, ShaderAst::ConstantValue value);
+			inline void SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantValue value);
 			inline void SetPointSize(float pointSize);
 			inline void SetPrimitiveMode(PrimitiveMode mode);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
@@ -142,7 +142,7 @@ namespace Nz
 				bool dataInvalidated = true;
 			};
 
-			std::array<ShaderAst::ConstantValue, 64> m_optionValues;
+			std::array<nzsl::Ast::ConstantValue, 64> m_optionValues;
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<ShaderEntry> m_shaders;

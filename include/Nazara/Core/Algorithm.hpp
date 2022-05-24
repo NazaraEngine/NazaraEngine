@@ -11,7 +11,8 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
-#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Utils/Algorithm.hpp>
+#include <Nazara/Utils/TypeTag.hpp>
 #include <functional>
 #include <string>
 #include <tuple>
@@ -22,74 +23,10 @@ namespace Nz
 {
 	class ByteArray;
 
-	template<typename T> decltype(auto) AccessByOffset(void* basePtr, std::size_t offset);
-	template<typename T> decltype(auto) AccessByOffset(const void* basePtr, std::size_t offset);
-	template<typename T> constexpr T Align(T offset, T alignment);
-	template<typename T> constexpr T AlignPow2(T offset, T alignment);
-	template<typename F, typename Tuple> decltype(auto) Apply(F&& fn, Tuple&& t);
-	template<typename O, typename F, typename Tuple> decltype(auto) Apply(O& object, F&& fn, Tuple&& t);
-	template<typename T> constexpr std::size_t BitCount();
 	template<typename T> ByteArray ComputeHash(HashType hash, const T& v);
 	template<typename T> ByteArray ComputeHash(AbstractHash& hash, const T& v);
-	template<typename T, std::size_t N> constexpr std::size_t CountOf(T(&name)[N]) noexcept;
-	template<typename T> std::size_t CountOf(const T& c);
-	constexpr UInt32 CRC32(const UInt8* data, std::size_t size) noexcept;
-	constexpr UInt32 CRC32(const char* str) noexcept;
-	constexpr UInt32 CRC32(const std::string_view& str) noexcept;
-	template<std::size_t N> constexpr std::size_t CountOf(const char(&str)[N]) noexcept;
+
 	inline bool HashAppend(AbstractHash* hash, const std::string_view& v);
-	template<typename T> void HashCombine(std::size_t& seed, const T& v);
-	template<typename T> bool IsPowerOfTwo(T value);
-	template<typename K, typename V> V& Retrieve(std::unordered_map<K, V>& map, const K& key);
-	template<typename K, typename V> const V& Retrieve(const std::unordered_map<K, V>& map, const K& key);
-	template<typename T> T ReverseBits(T integer);
-	template<typename To, typename From> To SafeCast(From&& value);
-	template<typename T, typename U>std::unique_ptr<T> StaticUniquePointerCast(std::unique_ptr<U>&& ptr);
-	template<typename T> constexpr auto UnderlyingCast(T value) -> std::underlying_type_t<T>;
-
-	template<typename T>
-	struct AlwaysFalse : std::false_type {};
-
-	// Helper for std::visit
-	template<typename... Ts> struct Overloaded : Ts...
-	{
-		using Ts::operator()...;
-	};
-
-	template<typename... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
-
-	template<typename... Args>
-	struct OverloadResolver
-	{
-		template<typename R, typename T>
-		constexpr auto operator()(R(T::* ptr)(Args...)) const noexcept
-		{
-			return ptr;
-		}
-
-		template<typename R, typename T>
-		constexpr auto operator()(R(T::* ptr)(Args...) const) const noexcept
-		{
-			return ptr;
-		}
-
-		template<typename R>
-		constexpr auto operator()(R(*ptr)(Args...)) const noexcept
-		{
-			return ptr;
-		}
-	};
-
-	template<typename... Args> constexpr OverloadResolver<Args...> Overload = {};
-
-	template<typename T>
-	struct PointedType
-	{
-		using type = void; //< FIXME: I can't make SFINAE work
-	};
-
-	template<typename T>
-	using Pointer = T*;
 
 	template<typename T>
 	bool Serialize(SerializationContext& context, T&& value);

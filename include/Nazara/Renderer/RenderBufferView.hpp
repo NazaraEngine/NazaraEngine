@@ -8,7 +8,7 @@
 #define NAZARA_RENDERER_RENDERBUFFERVIEW_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 
 namespace Nz

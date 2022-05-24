@@ -1,5 +1,5 @@
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/Bitset.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <catch2/catch.hpp>
 #include <array>
 #include <string>

@@ -8,7 +8,7 @@
 #define NAZARA_NETWORK_ENETPACKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 
 namespace Nz

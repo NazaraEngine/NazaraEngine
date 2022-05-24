@@ -8,7 +8,10 @@
 #define NAZARA_CORE_LOG_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <string>
 
 #ifdef NAZARA_DEBUG

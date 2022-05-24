@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>

@@ -8,13 +8,13 @@
 #define NAZARA_UTILITY_ANIMATION_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <string>

@@ -8,7 +8,7 @@
 #define NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>

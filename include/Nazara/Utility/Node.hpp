@@ -8,7 +8,8 @@
 #define NAZARA_UTILITY_NODE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Error.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>

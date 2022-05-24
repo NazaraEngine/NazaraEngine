@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_ENUMS_HPP
 #define NAZARA_UTILITY_ENUMS_HPP
 
-#include <Nazara/Core/Flags.hpp>
+#include <Nazara/Utils/Flags.hpp>
 
 namespace Nz
 {

@@ -4,7 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StackVector.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>

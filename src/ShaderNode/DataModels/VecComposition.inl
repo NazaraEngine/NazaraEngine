@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/VecComposition.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 #include <stdexcept>
@@ -14,16 +14,16 @@ ShaderNode(graph)
 }
 
 template<std::size_t ComponentCount>
-Nz::ShaderAst::NodePtr VecComposition<ComponentCount>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr VecComposition<ComponentCount>::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == ComponentCount);
 	assert(outputIndex == 0);
 
-	std::vector<Nz::ShaderAst::ExpressionPtr> params;
+	std::vector<nzsl::Ast::ExpressionPtr> params;
 	for (std::size_t i = 0; i < count; ++i)
 		params.emplace_back(std::move(expressions[i]));
 
-	return Nz::ShaderBuilder::Cast(Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ ComponentCount, Nz::ShaderAst::PrimitiveType::Float32 } }, std::move(params));
+	return nzsl::ShaderBuilder::Cast(nzsl::Ast::ExpressionType{ nzsl::Ast::VectorType{ ComponentCount, nzsl::Ast::PrimitiveType::Float32 } }, std::move(params));
 }
 
 template<std::size_t ComponentCount>
@@ -147,7 +147,7 @@ void VecComposition<ComponentCount>::UpdateOutput()
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview(0, 0) = Nz::Vector4f::Zero();
+		m_output->preview(0, 0) = nzsl::Vector4f(0.f, 0.f, 0.f, 0.f);
 		return;
 	}
 
@@ -177,7 +177,7 @@ void VecComposition<ComponentCount>::UpdateOutput()
 	{
 		for (std::size_t x = 0; x < maxInputWidth; ++x)
 		{
-			Nz::Vector4f color(0.f, 0.f, 0.f, 1.f);
+			nzsl::Vector4f color(0.f, 0.f, 0.f, 1.f);
 			for (std::size_t i = 0; i < ComponentCount; ++i)
 				color[i] = previewResized[i](x, y)[0];
 

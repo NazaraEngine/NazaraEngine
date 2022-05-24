@@ -9,8 +9,8 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Signal.hpp>
-#include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Utils/Signal.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>

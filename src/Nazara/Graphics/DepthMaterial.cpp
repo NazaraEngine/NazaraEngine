@@ -3,15 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DepthMaterial.hpp>
-#include <Nazara/Shader/FieldOffsets.hpp>
-#include <Nazara/Shader/ShaderLangParser.hpp>
+#include <NZSL/FieldOffsets.hpp>
+#include <NZSL/ShaderLangParser.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
 	std::vector<std::shared_ptr<UberShader>> DepthMaterial::BuildShaders()
 	{
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, "DepthMaterial");
+		auto shader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "DepthMaterial");
 
 		return { std::move(shader) };
 	}

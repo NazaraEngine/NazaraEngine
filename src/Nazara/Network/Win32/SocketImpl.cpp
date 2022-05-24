@@ -6,7 +6,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 
@@ -30,8 +30,6 @@ struct tcp_keepalive
 
 #define SIO_KEEPALIVE_VALS    _WSAIOW(IOC_VENDOR,4)
 #endif
-
-#include <WinSock2.h>
 
 #include <Nazara/Network/Debug.hpp>
 
@@ -824,7 +822,7 @@ namespace Nz
 
 	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
 	{
-#if NAZARA_CORE_WINDOWS_NT6
+#if NAZARA_UTILS_WINDOWS_NT6
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		DWORD option = ipv6Only;

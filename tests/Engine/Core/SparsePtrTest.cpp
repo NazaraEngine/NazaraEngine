@@ -1,4 +1,4 @@
-#include <Nazara/Core/SparsePtr.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 #include <catch2/catch.hpp>
 
 #include <array>

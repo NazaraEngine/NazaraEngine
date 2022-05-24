@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Algorithm.hpp>
-#include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz

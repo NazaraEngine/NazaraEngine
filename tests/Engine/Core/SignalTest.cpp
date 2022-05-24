@@ -1,4 +1,4 @@
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <catch2/catch.hpp>
 
 struct Incrementer

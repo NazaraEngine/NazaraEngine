@@ -7,7 +7,7 @@
 
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <stdexcept>
 #include <unordered_set>

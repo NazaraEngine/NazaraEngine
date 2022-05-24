@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.hpp>
 #include <array>

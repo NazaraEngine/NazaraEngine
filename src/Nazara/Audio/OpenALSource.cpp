@@ -7,7 +7,7 @@
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

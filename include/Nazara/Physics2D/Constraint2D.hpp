@@ -9,7 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Physics2D/Config.hpp>

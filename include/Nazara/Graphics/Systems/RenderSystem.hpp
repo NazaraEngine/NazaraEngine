@@ -8,7 +8,7 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MemoryPool.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>

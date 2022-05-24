@@ -225,15 +225,15 @@ namespace Nz
 		return {};
 	}
 
-	inline GLenum ToOpenGL(ShaderStageType stageType)
+	inline GLenum ToOpenGL(nzsl::ShaderStageType stageType)
 	{
 		switch (stageType)
 		{
-			case ShaderStageType::Fragment: return GL_FRAGMENT_SHADER;
-			case ShaderStageType::Vertex:   return GL_VERTEX_SHADER;
+			case nzsl::ShaderStageType::Fragment: return GL_FRAGMENT_SHADER;
+			case nzsl::ShaderStageType::Vertex:   return GL_VERTEX_SHADER;
 		}
 
-		NazaraError("Unhandled ShaderStageType 0x" + NumberToString(UnderlyingCast(stageType), 16));
+		NazaraError("Unhandled nzsl::ShaderStageType 0x" + NumberToString(UnderlyingCast(stageType), 16));
 		return {};
 	}
 

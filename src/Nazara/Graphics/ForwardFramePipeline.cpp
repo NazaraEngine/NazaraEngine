@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>

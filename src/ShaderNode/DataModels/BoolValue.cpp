@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/BoolValue.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QCheckBox>
 #include <cassert>
 
@@ -53,7 +53,7 @@ std::shared_ptr<QtNodes::NodeData> BoolValue::outData(QtNodes::PortIndex port)
 	float c = (m_value) ? 1.f : 0.f;
 
 	auto out = std::make_shared<BoolData>();
-	out->preview(0, 0) = Nz::Vector4f(c, c, c, 1.f);
+	out->preview(0, 0) = nzsl::Vector4f(c, c, c, 1.f);
 
 	return out;
 }
@@ -89,12 +89,12 @@ void BoolValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), checkbox);
 }
 
-Nz::ShaderAst::NodePtr BoolValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr BoolValue::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Constant(m_value);
+	return nzsl::ShaderBuilder::Constant(m_value);
 }
 
 bool BoolValue::ComputePreview(QPixmap& pixmap)

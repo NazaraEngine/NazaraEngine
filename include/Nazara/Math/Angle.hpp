@@ -7,7 +7,7 @@
 #ifndef NAZARA_MATH_ANGLE_HPP
 #define NAZARA_MATH_ANGLE_HPP
 
-#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Utils/TypeTag.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <ostream>

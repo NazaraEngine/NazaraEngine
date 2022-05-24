@@ -389,24 +389,24 @@ namespace Nz
 		return VK_DESCRIPTOR_TYPE_SAMPLER;
 	}
 
-	inline VkShaderStageFlagBits ToVulkan(ShaderStageType stageType)
+	inline VkShaderStageFlagBits ToVulkan(nzsl::ShaderStageType stageType)
 	{
 		switch (stageType)
 		{
-			case ShaderStageType::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
-			case ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
+			case nzsl::ShaderStageType::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
+			case nzsl::ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
 		}
 
-		NazaraError("Unhandled ShaderStageType 0x" + NumberToString(UnderlyingCast(stageType), 16));
+		NazaraError("Unhandled nzsl::ShaderStageType 0x" + NumberToString(UnderlyingCast(stageType), 16));
 		return {};
 	}
 
-	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType)
+	inline VkShaderStageFlags ToVulkan(nzsl::ShaderStageTypeFlags stageType)
 	{
 		VkShaderStageFlags shaderStageBits = 0;
-		for (int i = 0; i <= UnderlyingCast(ShaderStageType::Max); ++i)
+		for (int i = 0; i <= UnderlyingCast(nzsl::ShaderStageType::Max); ++i)
 		{
-			ShaderStageType shaderStage = static_cast<ShaderStageType>(i);
+			nzsl::ShaderStageType shaderStage = static_cast<nzsl::ShaderStageType>(i);
 			if (stageType.Test(shaderStage))
 				shaderStageBits |= ToVulkan(shaderStage);
 		}

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Utils/MemoryHelper.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
-#include <Nazara/Core/Endianness.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Math/Quaternion.hpp>

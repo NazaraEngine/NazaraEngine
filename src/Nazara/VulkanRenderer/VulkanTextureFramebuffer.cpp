@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
-#include <Nazara/Core/StackArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <stdexcept>

@@ -92,7 +92,7 @@ namespace Nz
 
 			static MaterialSettings::Builder Build(PhongBuildOptions& options);
 			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
-			static std::pair<PhongUniformOffsets, FieldOffsets> BuildUniformOffsets();
+			static std::pair<PhongUniformOffsets, nzsl::FieldOffsets> BuildUniformOffsets();
 
 		private:
 			static bool Initialize();

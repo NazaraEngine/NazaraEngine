@@ -8,7 +8,7 @@
 #define NAZARA_VULKANRENDERER_WRAPPER_DEVICEOBJECT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <vulkan/vulkan_core.h>
 #include <string>

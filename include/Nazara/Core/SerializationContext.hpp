@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/TypeTag.hpp>
+#include <Nazara/Utils/Endianness.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
+#include <Nazara/Utils/TypeTag.hpp>
 
 namespace Nz
 {
