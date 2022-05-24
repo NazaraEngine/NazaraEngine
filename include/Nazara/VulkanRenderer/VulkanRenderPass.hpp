@@ -8,10 +8,10 @@
 #define NAZARA_VULKANRENDERER_VULKANRENDERPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/RenderPass.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <vector>
 
 namespace Nz

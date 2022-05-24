@@ -18,9 +18,7 @@
 #define NAZARA_NETWORK_ENETHOST_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/Flags.hpp>
 #include <Nazara/Core/Clock.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
 #include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
@@ -29,6 +27,8 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
+#include <Nazara/Utils/Flags.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <random>
 
 namespace Nz

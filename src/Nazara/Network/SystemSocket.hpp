@@ -5,8 +5,8 @@
 // no header guards
 
 #ifdef NAZARA_PLATFORM_WINDOWS
-#include <WinSock2.h>
 #include <WS2tcpip.h>
+#include <WinSock2.h>
 #elif defined(NAZARA_PLATFORM_POSIX)
 #include <sys/socket.h>
 #endif

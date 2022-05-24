@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <array>
 #include <cassert>
 #include <Nazara/OpenGLRenderer/Debug.hpp>

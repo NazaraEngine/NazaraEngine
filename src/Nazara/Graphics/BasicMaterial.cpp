@@ -8,10 +8,10 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <NZSL/FieldOffsets.hpp>
-#include <NZSL/ShaderLangParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <NZSL/FieldOffsets.hpp>
+#include <NZSL/ShaderLangParser.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 

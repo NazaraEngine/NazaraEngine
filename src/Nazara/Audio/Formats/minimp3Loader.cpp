@@ -8,11 +8,11 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <optional>
 
 #define MINIMP3_IMPLEMENTATION

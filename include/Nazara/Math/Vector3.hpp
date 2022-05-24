@@ -8,8 +8,8 @@
 #define NAZARA_MATH_VECTOR3_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/TypeTag.hpp>
 #include <Nazara/Math/Angle.hpp>
+#include <Nazara/Utils/TypeTag.hpp>
 #include <functional>
 #include <string>
 

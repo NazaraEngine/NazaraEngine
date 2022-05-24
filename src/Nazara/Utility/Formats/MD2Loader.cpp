@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/MD2Loader.hpp>
-#include <Nazara/Utils/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -12,6 +11,7 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Formats/MD2Constants.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <array>
 #include <cassert>
 #include <memory>

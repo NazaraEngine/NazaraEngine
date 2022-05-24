@@ -8,9 +8,9 @@
 #define NAZARA_PHYSICS2D_ARBITER2D_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 
 struct cpArbiter;
 

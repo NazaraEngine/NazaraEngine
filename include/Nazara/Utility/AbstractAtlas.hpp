@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/Signal.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utils/Signal.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 
 namespace Nz
 {

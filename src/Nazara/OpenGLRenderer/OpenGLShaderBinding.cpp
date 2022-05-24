@@ -4,11 +4,11 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz

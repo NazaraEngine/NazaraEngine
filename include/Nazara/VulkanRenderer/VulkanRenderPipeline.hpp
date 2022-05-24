@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <vector>
 
 namespace Nz

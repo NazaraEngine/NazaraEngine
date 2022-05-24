@@ -8,10 +8,10 @@
 #define NAZARA_UTILITY_VERTEXMAPPER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 
 namespace Nz
 {

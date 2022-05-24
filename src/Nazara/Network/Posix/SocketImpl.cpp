@@ -5,11 +5,11 @@
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <cstring>
 #include <poll.h>
 #include <unistd.h>

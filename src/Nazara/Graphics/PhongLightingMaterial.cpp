@@ -7,10 +7,10 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <NZSL/FieldOffsets.hpp>
-#include <NZSL/ShaderLangParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <NZSL/FieldOffsets.hpp>
+#include <NZSL/ShaderLangParser.hpp>
 #include <cassert>
 #include <filesystem>
 #include <Nazara/Graphics/Debug.hpp>

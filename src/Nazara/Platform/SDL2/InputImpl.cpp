@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/SDL2/InputImpl.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <SDL_clipboard.h>
 #include <SDL_keyboard.h>
 #include <SDL_keycode.h>

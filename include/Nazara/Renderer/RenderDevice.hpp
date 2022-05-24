@@ -18,9 +18,9 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Utility/PixelFormat.hpp>
 #include <NZSL/ShaderWriter.hpp>
 #include <NZSL/Ast/Module.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <memory>
 #include <string>
 

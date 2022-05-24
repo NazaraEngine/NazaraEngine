@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
 #include <Nazara/Physics2D/Config.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <functional>
 #include <limits>
 

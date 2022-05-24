@@ -8,8 +8,8 @@
 #define NAZARA_PLATFORM_SDL2_ICONIMPL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <SDL_surface.h>
 
 namespace Nz

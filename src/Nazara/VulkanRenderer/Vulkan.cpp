@@ -3,13 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <array>
 #include <unordered_set>
 #include <Nazara/VulkanRenderer/Debug.hpp>

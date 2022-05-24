@@ -5,11 +5,11 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utils/OffsetOf.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <Nazara/Utils/OffsetOf.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

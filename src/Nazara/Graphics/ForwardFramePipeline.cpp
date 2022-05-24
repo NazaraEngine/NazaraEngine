@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
-#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -21,6 +20,7 @@
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <array>
 #include <Nazara/Graphics/Debug.hpp>
 

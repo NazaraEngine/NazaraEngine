@@ -7,9 +7,9 @@
 #ifndef NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
 #define NAZARA_RENDERER_RENDERPIPELINELAYOUT_HPP
 
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <NZSL/Enums.hpp>
 #include <memory>
 #include <string>

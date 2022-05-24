@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <string>
 
 namespace Nz

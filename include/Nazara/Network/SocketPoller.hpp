@@ -8,8 +8,8 @@
 #define NAZARA_NETWORK_SOCKETPOLLER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 
 namespace Nz
 {

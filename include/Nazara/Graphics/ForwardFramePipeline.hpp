@@ -8,7 +8,6 @@
 #define NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
@@ -22,6 +21,7 @@
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <memory>
 #include <optional>
 #include <unordered_map>

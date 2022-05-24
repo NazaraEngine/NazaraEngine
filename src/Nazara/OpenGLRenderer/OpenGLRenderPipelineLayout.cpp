@@ -4,9 +4,9 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/Utils/MemoryHelper.hpp>
 #include <Nazara/Utils/StackVector.hpp>
-#include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>

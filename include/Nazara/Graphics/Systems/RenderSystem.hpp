@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <Nazara/Utils/MemoryPool.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <memory>

@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <NZSL/ShaderModuleResolver.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <unordered_map>

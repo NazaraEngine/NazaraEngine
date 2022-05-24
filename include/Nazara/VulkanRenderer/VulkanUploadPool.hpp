@@ -8,10 +8,10 @@
 #define NAZARA_VULKANRENDERER_VULKANUPLOADPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceMemory.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <optional>
 #include <vector>
 

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Utility.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
@@ -26,6 +25,7 @@
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 

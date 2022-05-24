@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
-#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

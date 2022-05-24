@@ -10,9 +10,9 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Event.hpp>
+#include <Nazara/Utils/Signal.hpp>
 
 namespace Nz
 {

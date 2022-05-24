@@ -5,7 +5,6 @@
 #include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -13,6 +12,7 @@
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanSurface.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <array>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>

@@ -6,9 +6,9 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Utility/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
-#include <Nazara/Utility/Font.hpp>
 #include <array>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>

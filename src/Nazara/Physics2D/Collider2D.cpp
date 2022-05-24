@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics2D/Collider2D.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
-#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_structs.h>
 #include <array>

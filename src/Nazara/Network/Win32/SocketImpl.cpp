@@ -6,9 +6,9 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
 #if defined(__has_include)

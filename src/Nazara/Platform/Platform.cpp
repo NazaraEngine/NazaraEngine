@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Platform.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Window.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

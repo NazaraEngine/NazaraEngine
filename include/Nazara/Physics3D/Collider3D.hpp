@@ -9,13 +9,13 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Utils/Signal.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
+#include <Nazara/Utils/Signal.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 #include <unordered_map>
 
 class NewtonCollision;

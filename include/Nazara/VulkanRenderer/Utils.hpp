@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <NZSL/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <NZSL/Enums.hpp>
 #include <optional>
 #include <string>
 

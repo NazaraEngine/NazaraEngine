@@ -14,14 +14,14 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <NZSL/Ast/ConstantValue.hpp>
 #include <Nazara/Utility/UniformBuffer.hpp>
+#include <Nazara/Utils/Signal.hpp>
+#include <NZSL/Ast/ConstantValue.hpp>
 #include <array>
 #include <string>
 #include <vector>

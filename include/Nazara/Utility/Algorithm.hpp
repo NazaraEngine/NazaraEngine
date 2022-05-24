@@ -9,7 +9,6 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -17,6 +16,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
+#include <Nazara/Utils/SparsePtr.hpp>
 
 namespace Nz
 {

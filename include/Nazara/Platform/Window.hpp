@@ -10,7 +10,6 @@
 #define NAZARA_PLATFORM_WINDOW_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
@@ -20,6 +19,7 @@
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <condition_variable>
 #include <mutex>
 #include <queue>

@@ -8,8 +8,8 @@
 #define NAZARA_VULKANRENDERER_WRAPPER_QUEUEHANDLE_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <vulkan/vulkan_core.h>
 
 namespace Nz 

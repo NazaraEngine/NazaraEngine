@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <cstdlib>
 #include <stdexcept>
 

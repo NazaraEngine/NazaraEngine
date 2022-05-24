@@ -8,8 +8,8 @@
 #define NAZARA_CORE_MEMORYSTREAM_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 
 namespace Nz
 {

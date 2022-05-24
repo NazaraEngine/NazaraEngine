@@ -9,11 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <functional>
 #include <memory>
 #include <unordered_map>

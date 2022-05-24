@@ -4,10 +4,10 @@
 
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 

@@ -10,9 +10,9 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
 #include <NZSL/ShaderWriter.hpp>
 #include <NZSL/Ast/Module.hpp>
-#include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
 #include <vector>
 
 namespace Nz

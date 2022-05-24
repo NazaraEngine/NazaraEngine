@@ -9,16 +9,16 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <atomic>
 
 ///TODO: Filtres

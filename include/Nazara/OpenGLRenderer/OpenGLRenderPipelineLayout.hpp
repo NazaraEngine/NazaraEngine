@@ -8,12 +8,12 @@
 #define NAZARA_OPENGLRENDERER_OPENGLRENDERPIPELINELAYOUT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <NZSL/GlslWriter.hpp>
 #include <memory>
 #include <type_traits>
