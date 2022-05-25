@@ -1,28 +1,17 @@
 -- Compile shaders to includables headers
 rule("compile_shaders")
 	on_load(function (target)
-		target:add("deps", "NazaraShaderCompiler")
-		target:set("policy", "build.across_targets_in_parallel", false)
+		target:add("packages", "nzsl")
 	end)
 
-	-- temporary fix
-    before_build("mingw", function (target)
-		local mingw = target:toolchain("mingw")
-		local bindir = mingw:bindir()
-		local targetdir = target:targetdir()
-		if bindir then
-			os.trycp(path.join(bindir, "libgcc_s_seh-1.dll"), targetdir)
-			os.trycp(path.join(bindir, "libstdc++-6.dll"), targetdir)
-			os.trycp(path.join(bindir, "libwinpthread-1.dll"), targetdir)
-		end
-    end)
-
 	before_buildcmd_file(function (target, batchcmds, shaderfile, opt)
-		local nzslc = target:dep("NazaraShaderCompiler")
+		import("core.tool.toolchain")
+
+		local nzsl = path.join(target:pkg("nzsl"):installdir(), "bin", "nzslc")
 
 		-- add commands
 		batchcmds:show_progress(opt.progress, "${color.build.object}compiling shader %s", shaderfile)
-		local argv = {"--compile", "--partial", "--header-file"}
+		local argv = {"--compile=nzslb", "--partial", "--header-file"}
 
 		-- handle --log-format
 		local kind = target:data("plugin.project.kind") or ""
@@ -32,7 +21,15 @@ rule("compile_shaders")
 
 		table.insert(argv, shaderfile)
 
-		batchcmds:vrunv(nzslc:targetfile(), argv, { curdir = "." })
+		local envs
+		if is_plat("mingw") then
+			local mingw = toolchain.load("mingw")
+			if mingw and mingw:check() then
+				envs = mingw:runenvs()
+			end
+		end
+		
+		batchcmds:vrunv(nzsl, argv, { curdir = ".", envs = envs })
 
 		local outputFile = path.join(path.directory(shaderfile), path.basename(shaderfile) .. ".nzslb.h")
 

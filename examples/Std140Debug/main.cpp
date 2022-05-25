@@ -2,7 +2,7 @@
 #include <Nazara/OpenGLRenderer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Shader/FieldOffsets.hpp>
+#include <NZSL/FieldOffsets.hpp>
 #include <iostream>
 #include <numeric>
 
@@ -136,16 +136,16 @@ int main()
 
 	std::vector<std::size_t> computedOffsets;
 	
-	Nz::FieldOffsets fieldOffsets(Nz::StructLayout::Std140);
-	computedOffsets.push_back(fieldOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true));
-	computedOffsets.push_back(fieldOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true));
-	computedOffsets.push_back(fieldOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true));
-	computedOffsets.push_back(fieldOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true));
-	computedOffsets.push_back(fieldOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true));
-	computedOffsets.push_back(fieldOffsets.AddMatrix(Nz::StructFieldType::Float1, 4, 4, true));
-	computedOffsets.push_back(fieldOffsets.AddField(Nz::StructFieldType::Float2));
-	computedOffsets.push_back(fieldOffsets.AddField(Nz::StructFieldType::Float2));
-	computedOffsets.push_back(fieldOffsets.AddField(Nz::StructFieldType::Float3));
+	nzsl::FieldOffsets fieldOffsets(nzsl::StructLayout::Std140);
+	computedOffsets.push_back(fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true));
+	computedOffsets.push_back(fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true));
+	computedOffsets.push_back(fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true));
+	computedOffsets.push_back(fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true));
+	computedOffsets.push_back(fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true));
+	computedOffsets.push_back(fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true));
+	computedOffsets.push_back(fieldOffsets.AddField(nzsl::StructFieldType::Float2));
+	computedOffsets.push_back(fieldOffsets.AddField(nzsl::StructFieldType::Float2));
+	computedOffsets.push_back(fieldOffsets.AddField(nzsl::StructFieldType::Float3));
 
 
 	GLint dataSize;

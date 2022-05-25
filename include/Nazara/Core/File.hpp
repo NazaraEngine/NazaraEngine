@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
-#include <Nazara/Core/Endianness.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <Nazara/Utils/Endianness.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <ctime>
 #include <filesystem>
 #include <fstream>

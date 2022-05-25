@@ -8,13 +8,13 @@
 #define NAZARA_OPENGLRENDERER_OPENGLRENDERPIPELINELAYOUT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
-#include <Nazara/Shader/GlslWriter.hpp>
+#include <Nazara/Utils/Bitset.hpp>
+#include <NZSL/GlslWriter.hpp>
 #include <memory>
 #include <type_traits>
 #include <vector>
@@ -33,7 +33,7 @@ namespace Nz
 
 			ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) override;
 
-			inline const GlslWriter::BindingMapping& GetBindingMapping() const;
+			inline const nzsl::GlslWriter::BindingMapping& GetBindingMapping() const;
 			inline const RenderPipelineLayoutInfo& GetLayoutInfo() const;
 
 			OpenGLRenderPipelineLayout& operator=(const OpenGLRenderPipelineLayout&) = delete;
@@ -79,7 +79,7 @@ namespace Nz
 
 			std::size_t m_maxDescriptorCount;
 			std::vector<DescriptorPool> m_descriptorPools;
-			GlslWriter::BindingMapping m_bindingMapping;
+			nzsl::GlslWriter::BindingMapping m_bindingMapping;
 			RenderPipelineLayoutInfo m_layoutInfo;
 	};
 }

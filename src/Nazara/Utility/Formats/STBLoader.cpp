@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Formats/STBLoader.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
-#include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
 #define STB_IMAGE_IMPLEMENTATION

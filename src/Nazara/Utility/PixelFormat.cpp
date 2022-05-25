@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/Endianness.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Math/Algorithm.hpp>
+#include <Nazara/Utils/Endianness.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz

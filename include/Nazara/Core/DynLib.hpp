@@ -8,7 +8,8 @@
 #define NAZARA_CORE_DYNLIB_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
+#include <Nazara/Core/Config.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <filesystem>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

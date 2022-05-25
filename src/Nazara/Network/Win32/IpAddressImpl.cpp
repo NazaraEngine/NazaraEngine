@@ -4,10 +4,10 @@
 
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 
@@ -24,7 +24,7 @@ namespace Nz
 {
 	namespace Detail
 	{
-		#if NAZARA_CORE_WINDOWS_NT6
+		#if NAZARA_UTILS_WINDOWS_NT6
 		using addrinfoImpl = addrinfoW;
 
 		int GetAddressInfo(const std::string& hostname, const std::string& service, const addrinfoImpl* hints, addrinfoImpl** results)
@@ -119,7 +119,7 @@ namespace Nz
 		return IpAddress::Invalid;
 	}
 
-	#if NAZARA_CORE_WINDOWS_NT6
+	#if NAZARA_UTILS_WINDOWS_NT6
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfoW* info)
 	{
 		switch (info->ai_family)

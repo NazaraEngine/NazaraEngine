@@ -13,7 +13,7 @@ m_width(width)
 	m_values.resize(m_width * m_height); //< RGBA
 }
 
-void PreviewValues::Fill(const Nz::Vector4f& value)
+void PreviewValues::Fill(const nzsl::Vector4f& value)
 {
 	std::fill(m_values.begin(), m_values.end(), value);
 }
@@ -24,7 +24,7 @@ QImage PreviewValues::GenerateImage() const
 
 	Nz::UInt8* ptr = preview.bits();
 
-	const Nz::Vector4f* src = m_values.data();
+	const nzsl::Vector4f* src = m_values.data();
 	for (std::size_t i = 0; i < m_values.size(); ++i)
 	{
 		for (std::size_t y = 0; y < 4; ++y)
@@ -52,7 +52,7 @@ PreviewValues PreviewValues::Resized(std::size_t newWidth, std::size_t newHeight
 	return resizedPreview;
 }
 
-Nz::Vector4f PreviewValues::Sample(float u, float v) const
+nzsl::Vector4f PreviewValues::Sample(float u, float v) const
 {
 	// Bilinear filtering
 	float x = std::clamp(u * m_width, 0.f, m_width - 1.f);
@@ -64,7 +64,7 @@ Nz::Vector4f PreviewValues::Sample(float u, float v) const
 	float dX = x - iX;
 	float dY = y - iY;
 
-	auto ColorAt = [&](std::size_t x, std::size_t y) -> Nz::Vector4f
+	auto ColorAt = [&](std::size_t x, std::size_t y) -> nzsl::Vector4f
 	{
 		x = std::min(x, m_width - 1);
 		y = std::min(y, m_height - 1);
@@ -72,22 +72,22 @@ Nz::Vector4f PreviewValues::Sample(float u, float v) const
 		return m_values[y * m_width + x];
 	};
 
-	Nz::Vector4f d00 = ColorAt(iX, iY);
-	Nz::Vector4f d10 = ColorAt(iX + 1, iY);
-	Nz::Vector4f d01 = ColorAt(iX, iY + 1);
-	Nz::Vector4f d11 = ColorAt(iX + 1, iY + 1);
+	nzsl::Vector4f d00 = ColorAt(iX, iY);
+	nzsl::Vector4f d10 = ColorAt(iX + 1, iY);
+	nzsl::Vector4f d01 = ColorAt(iX, iY + 1);
+	nzsl::Vector4f d11 = ColorAt(iX + 1, iY + 1);
 
 	return Nz::Lerp(Nz::Lerp(d00, d10, dX), Nz::Lerp(d01, d11, dX), dY);
 }
 
-Nz::Vector4f& PreviewValues::operator()(std::size_t x, std::size_t y)
+nzsl::Vector4f& PreviewValues::operator()(std::size_t x, std::size_t y)
 {
 	assert(x < m_width);
 	assert(y < m_height);
 	return m_values[y * m_width + x];
 }
 
-Nz::Vector4f PreviewValues::operator()(std::size_t x, std::size_t y) const
+nzsl::Vector4f PreviewValues::operator()(std::size_t x, std::size_t y) const
 {
 	assert(x < m_width);
 	assert(y < m_height);

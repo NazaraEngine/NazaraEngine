@@ -3,12 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/WorldInstance.hpp>
-#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

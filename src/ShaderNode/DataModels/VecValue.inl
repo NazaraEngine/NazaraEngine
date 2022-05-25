@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/VecValue.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <QtCore/QJsonArray>
 #include <array>
@@ -12,12 +12,8 @@ ShaderNode(graph)
 {
 	static_assert(ComponentCount <= s_vectorComponents.size());
 
-	std::array<float, ComponentCount> defaultValues;
-
 	for (std::size_t i = 0; i < ComponentCount; ++i)
-		defaultValues[i] = (i == 3) ? 1.f : 0.f;
-
-	m_value.Set(defaultValues.data());
+		m_value[i] = (i == 3) ? 1.f : 0.f;
 
 	UpdatePreview();
 }
@@ -70,7 +66,7 @@ std::shared_ptr<QtNodes::NodeData> VecValue<ComponentCount>::outData(QtNodes::Po
 		values[i] = m_value[i];
 
 	out->preview = PreviewValues(1, 1);
-	out->preview(0, 0) = Nz::Vector4f(values[0], values[1], values[2], values[3]);
+	out->preview(0, 0) = nzsl::Vector4f(values[0], values[1], values[2], values[3]);
 
 	return out;
 }
@@ -127,12 +123,12 @@ void VecValue<ComponentCount>::BuildNodeEdition(QFormLayout* layout)
 }
 
 template<std::size_t ComponentCount>
-Nz::ShaderAst::NodePtr VecValue<ComponentCount>::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr VecValue<ComponentCount>::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Constant(m_value);
+	return nzsl::ShaderBuilder::Constant(m_value);
 }
 
 template<std::size_t ComponentCount>

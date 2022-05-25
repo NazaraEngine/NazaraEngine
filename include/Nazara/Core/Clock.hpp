@@ -8,6 +8,7 @@
 #define NAZARA_CORE_CLOCK_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Config.hpp>
 
 namespace Nz
 {

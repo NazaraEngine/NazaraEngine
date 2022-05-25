@@ -61,7 +61,7 @@ namespace Nz
 		return pipelineLayout;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
 		if (!stage->Create(*this, stages, shaderModule, states))
@@ -70,7 +70,7 @@ namespace Nz
 		return stage;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states)
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
 		if (!stage->Create(*this, stages, lang, source, sourceSize, states))

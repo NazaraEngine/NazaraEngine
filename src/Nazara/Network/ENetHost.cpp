@@ -13,10 +13,11 @@
 */
 
 #include <Nazara/Network/ENetHost.hpp>
-#include <Nazara/Core/OffsetOf.hpp>
+#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
+#include <Nazara/Utils/OffsetOf.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz

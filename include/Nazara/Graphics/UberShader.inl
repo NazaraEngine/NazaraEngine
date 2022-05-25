@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline ShaderStageTypeFlags UberShader::GetSupportedStages() const
+	inline nzsl::ShaderStageTypeFlags UberShader::GetSupportedStages() const
 	{
 		return m_shaderStages;
 	}

@@ -3,13 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 
 #define VMA_IMPLEMENTATION
 #define VMA_USE_STL_CONTAINERS 1

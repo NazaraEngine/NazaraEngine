@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/PositionOutputValue.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
@@ -14,15 +14,15 @@ ShaderNode(graph)
 	DisableCustomVariableName();
 }
 
-Nz::ShaderAst::NodePtr PositionOutputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr PositionOutputValue::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	using namespace Nz;
 
 	assert(count == 1);
 	assert(outputIndex == 0);
 
-	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("output"), { "position" });
-	return ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(output), std::move(expressions[0]));
+	auto output = nzsl::ShaderBuilder::AccessMember(nzsl::ShaderBuilder::Identifier("output"), { "position" });
+	return nzsl::ShaderBuilder::Assign(nzsl::Ast::AssignType::Simple, std::move(output), std::move(expressions[0]));
 }
 
 QtNodes::NodeDataType PositionOutputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const

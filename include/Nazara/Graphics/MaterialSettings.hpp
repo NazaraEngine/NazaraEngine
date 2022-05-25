@@ -41,7 +41,7 @@ namespace Nz
 			inline std::size_t GetOptionIndex(const std::string_view& name) const;
 			inline std::size_t GetPredefinedBinding(PredefinedShaderBinding shaderBinding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
-			inline const std::shared_ptr<UberShader>& GetShader(ShaderStageType stage) const;
+			inline const std::shared_ptr<UberShader>& GetShader(nzsl::ShaderStageType stage) const;
 			inline const std::vector<std::shared_ptr<UberShader>>& GetShaders() const;
 			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
 			inline std::size_t GetSharedUniformBlockIndex(const std::string_view& name) const;
@@ -88,7 +88,7 @@ namespace Nz
 				UInt32 bindingIndex;
 				std::string name;
 				std::vector<UniformVariable> uniforms;
-				ShaderStageTypeFlags shaderStages = ShaderStageType_All;
+				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
 			};
 
 			struct Texture
@@ -96,7 +96,7 @@ namespace Nz
 				UInt32 bindingIndex;
 				std::string name;
 				ImageType type;
-				ShaderStageTypeFlags shaderStages = ShaderStageType_All;
+				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
 			};
 
 			struct UniformBlock
@@ -106,7 +106,7 @@ namespace Nz
 				std::size_t blockSize;
 				std::vector<UniformVariable> uniforms;
 				std::vector<UInt8> defaultValues;
-				ShaderStageTypeFlags shaderStages = ShaderStageType_All;
+				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
 			};
 
 		private:

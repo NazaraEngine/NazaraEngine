@@ -13,8 +13,8 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
-#include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/Ast/Module.hpp>
+#include <NZSL/GlslWriter.hpp>
+#include <NZSL/Ast/Module.hpp>
 #include <vector>
 
 namespace Nz
@@ -22,19 +22,19 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderModule : public ShaderModule
 	{
 		public:
-			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states = {});
-			OpenGLShaderModule(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const ShaderWriter::States& states = {});
+			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states = {});
+			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states = {});
 			OpenGLShaderModule(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule(OpenGLShaderModule&&) noexcept = default;
 			~OpenGLShaderModule() = default;
 
-			ShaderStageTypeFlags Attach(GL::Program& program, const GlslWriter::BindingMapping& bindingMapping) const;
+			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping) const;
 
 			OpenGLShaderModule& operator=(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule& operator=(OpenGLShaderModule&&) noexcept = default;
 
 		private:
-			void Create(OpenGLDevice& device, ShaderStageTypeFlags shaderStages, const ShaderAst::Module& shaderModule, const ShaderWriter::States& states);
+			void Create(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states);
 
 			static void CheckCompilationStatus(GL::Shader& shader);
 
@@ -45,17 +45,17 @@ namespace Nz
 
 			struct ShaderStatement
 			{
-				ShaderAst::ModulePtr ast;
+				nzsl::Ast::ModulePtr ast;
 			};
 
 			struct Shader
 			{
-				ShaderStageType stage;
+				nzsl::ShaderStageType stage;
 				std::variant<GlslShader, ShaderStatement> shader;
 			};
 
 			OpenGLDevice& m_device;
-			ShaderWriter::States m_states;
+			nzsl::ShaderWriter::States m_states;
 			std::vector<Shader> m_shaders;
 	};
 }

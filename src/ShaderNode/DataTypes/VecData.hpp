@@ -3,8 +3,11 @@
 #ifndef NAZARA_SHADERNODES_VECDATA_HPP
 #define NAZARA_SHADERNODES_VECDATA_HPP
 
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 #include <ShaderNode/Previews/PreviewValues.hpp>
+#include <NZSL/Ast/Nodes.hpp>
 #include <nodes/NodeData>
 
 struct VecData : public QtNodes::NodeData
@@ -19,43 +22,7 @@ struct VecData : public QtNodes::NodeData
 	PreviewValues preview;
 };
 
-
-struct VecTypeDummy {};
-
-template<std::size_t N>
-struct VecTypeHelper;
-
-template<>
-struct VecTypeHelper<0>
-{
-	using Type = VecTypeDummy;
-};
-
-template<>
-struct VecTypeHelper<1>
-{
-	using Type = std::array<float, 1>; //< To allow [0]
-};
-
-template<>
-struct VecTypeHelper<2>
-{
-	using Type = Nz::Vector2f;
-};
-
-template<>
-struct VecTypeHelper<3>
-{
-	using Type = Nz::Vector3f;
-};
-
-template<>
-struct VecTypeHelper<4>
-{
-	using Type = Nz::Vector4f;
-};
-
-template<std::size_t N> using VecType = typename VecTypeHelper<N>::Type;
+template<std::size_t N> using VecType = nzsl::Vector<float, N>;
 
 constexpr std::array<char, 4> s_vectorComponents = { 'X', 'Y', 'Z', 'W' };
 

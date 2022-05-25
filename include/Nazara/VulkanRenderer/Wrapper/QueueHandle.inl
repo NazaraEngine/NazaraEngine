@@ -4,8 +4,8 @@
 
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

@@ -8,10 +8,10 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Shader/FieldOffsets.hpp>
-#include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <NZSL/FieldOffsets.hpp>
+#include <NZSL/ShaderLangParser.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -158,8 +158,8 @@ namespace Nz
 			ImageType::E2D
 		});
 
-		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock(4, ShaderStageType::Vertex));
-		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock(5, ShaderStageType_All));
+		settings.sharedUniformBlocks.push_back(PredefinedInstanceData::GetUniformBlock(4, nzsl::ShaderStageType::Vertex));
+		settings.sharedUniformBlocks.push_back(PredefinedViewerData::GetUniformBlock(5, nzsl::ShaderStageType_All));
 
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::InstanceDataUbo)] = 4;
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::OverlayTexture)] = 3;
@@ -229,18 +229,18 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> BasicMaterial::BuildShaders()
 	{
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, "BasicMaterial");
+		auto shader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "BasicMaterial");
 
 		return { std::move(shader) };
 	}
 
-	auto BasicMaterial::BuildUniformOffsets() -> std::pair<BasicUniformOffsets, FieldOffsets>
+	auto BasicMaterial::BuildUniformOffsets() -> std::pair<BasicUniformOffsets, nzsl::FieldOffsets>
 	{
-		FieldOffsets fieldOffsets(StructLayout::Std140);
+		nzsl::FieldOffsets fieldOffsets(nzsl::StructLayout::Std140);
 
 		BasicUniformOffsets uniformOffsets;
-		uniformOffsets.alphaThreshold = fieldOffsets.AddField(StructFieldType::Float1);
-		uniformOffsets.diffuseColor = fieldOffsets.AddField(StructFieldType::Float4);
+		uniformOffsets.alphaThreshold = fieldOffsets.AddField(nzsl::StructFieldType::Float1);
+		uniformOffsets.diffuseColor = fieldOffsets.AddField(nzsl::StructFieldType::Float4);
 		uniformOffsets.totalSize = fieldOffsets.GetAlignedSize();
 
 		return std::make_pair(std::move(uniformOffsets), std::move(fieldOffsets));

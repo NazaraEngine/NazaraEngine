@@ -25,8 +25,8 @@
  * THE SOFTWARE.
  */
 
-#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Math/Angle.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/IndexIterator.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Mesh.hpp>

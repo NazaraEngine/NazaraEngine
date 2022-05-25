@@ -8,9 +8,9 @@
 #define NAZARA_RENDERER_RENDERTARGET_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Utils/Signal.hpp>
 
 namespace Nz
 {

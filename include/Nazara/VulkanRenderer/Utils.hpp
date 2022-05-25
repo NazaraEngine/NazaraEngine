@@ -9,9 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Shader/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <NZSL/Enums.hpp>
 #include <optional>
 #include <string>
 
@@ -39,8 +39,8 @@ namespace Nz
 	inline VkSamplerMipmapMode ToVulkan(SamplerMipmapMode samplerMipmap);
 	inline VkSamplerAddressMode ToVulkan(SamplerWrap samplerWrap);
 	inline VkDescriptorType ToVulkan(ShaderBindingType bindingType);
-	inline VkShaderStageFlagBits ToVulkan(ShaderStageType stageType);
-	inline VkShaderStageFlags ToVulkan(ShaderStageTypeFlags stageType);
+	inline VkShaderStageFlagBits ToVulkan(nzsl::ShaderStageType stageType);
+	inline VkShaderStageFlags ToVulkan(nzsl::ShaderStageTypeFlags stageType);
 	inline VkStencilOp ToVulkan(StencilOperation stencilOp);
 	inline VkImageLayout ToVulkan(TextureLayout textureLayout);
 	inline VkImageUsageFlagBits ToVulkan(TextureUsage textureLayout);

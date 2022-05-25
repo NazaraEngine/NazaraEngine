@@ -4,7 +4,7 @@
 
 #include <Nazara/Renderer/RenderImage.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/MemoryHelper.hpp>
+#include <Nazara/Utils/MemoryHelper.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz

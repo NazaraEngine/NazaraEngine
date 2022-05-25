@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Shader/FieldOffsets.hpp>
+#include <NZSL/FieldOffsets.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -12,27 +12,27 @@ namespace Nz
 	{
 		PredefinedLightData lightData;
 
-		FieldOffsets lightStruct(StructLayout::Std140);
-		lightData.lightMemberOffsets.type = lightStruct.AddField(StructFieldType::Int1);
-		lightData.lightMemberOffsets.color = lightStruct.AddField(StructFieldType::Float4); 
-		lightData.lightMemberOffsets.factor = lightStruct.AddField(StructFieldType::Float2); 
-		lightData.lightMemberOffsets.parameter1 = lightStruct.AddField(StructFieldType::Float4);
-		lightData.lightMemberOffsets.parameter2 = lightStruct.AddField(StructFieldType::Float4);
-		lightData.lightMemberOffsets.parameter3 = lightStruct.AddField(StructFieldType::Float4);
-		lightData.lightMemberOffsets.shadowMappingFlag = lightStruct.AddField(StructFieldType::Bool1);
+		nzsl::FieldOffsets lightStruct(nzsl::StructLayout::Std140);
+		lightData.lightMemberOffsets.type = lightStruct.AddField(nzsl::StructFieldType::Int1);
+		lightData.lightMemberOffsets.color = lightStruct.AddField(nzsl::StructFieldType::Float4); 
+		lightData.lightMemberOffsets.factor = lightStruct.AddField(nzsl::StructFieldType::Float2); 
+		lightData.lightMemberOffsets.parameter1 = lightStruct.AddField(nzsl::StructFieldType::Float4);
+		lightData.lightMemberOffsets.parameter2 = lightStruct.AddField(nzsl::StructFieldType::Float4);
+		lightData.lightMemberOffsets.parameter3 = lightStruct.AddField(nzsl::StructFieldType::Float4);
+		lightData.lightMemberOffsets.shadowMappingFlag = lightStruct.AddField(nzsl::StructFieldType::Bool1);
 
 		lightData.lightSize = lightStruct.GetAlignedSize();
 
-		FieldOffsets lightDataStruct(StructLayout::Std140);
+		nzsl::FieldOffsets lightDataStruct(nzsl::StructLayout::Std140);
 		lightData.lightsOffset = lightDataStruct.AddStructArray(lightStruct, MaxLightCount);
-		lightData.lightCountOffset = lightDataStruct.AddField(StructFieldType::UInt1);
+		lightData.lightCountOffset = lightDataStruct.AddField(nzsl::StructFieldType::UInt1);
 
 		lightData.totalSize = lightDataStruct.GetAlignedSize();
 
 		return lightData;
 	}
 
-	MaterialSettings::SharedUniformBlock PredefinedLightData::GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages)
+	MaterialSettings::SharedUniformBlock PredefinedLightData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
 	{
 		PredefinedLightData lightData = GetOffsets();
 
@@ -53,18 +53,18 @@ namespace Nz
 
 	PredefinedInstanceData PredefinedInstanceData::GetOffsets()
 	{
-		FieldOffsets viewerStruct(StructLayout::Std140);
+		nzsl::FieldOffsets viewerStruct(nzsl::StructLayout::Std140);
 
 		PredefinedInstanceData instanceData;
-		instanceData.worldMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		instanceData.invWorldMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
+		instanceData.worldMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		instanceData.invWorldMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 
 		instanceData.totalSize = viewerStruct.GetAlignedSize();
 
 		return instanceData;
 	}
 
-	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages)
+	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
 	{
 		PredefinedInstanceData instanceData = GetOffsets();
 
@@ -87,25 +87,25 @@ namespace Nz
 
 	PredefinedViewerData PredefinedViewerData::GetOffsets()
 	{
-		FieldOffsets viewerStruct(StructLayout::Std140);
+		nzsl::FieldOffsets viewerStruct(nzsl::StructLayout::Std140);
 
 		PredefinedViewerData viewerData;
-		viewerData.projMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		viewerData.invProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		viewerData.viewMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		viewerData.invViewMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		viewerData.viewProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		viewerData.invViewProjMatrixOffset = viewerStruct.AddMatrix(StructFieldType::Float1, 4, 4, true);
-		viewerData.targetSizeOffset = viewerStruct.AddField(StructFieldType::Float2);
-		viewerData.invTargetSizeOffset = viewerStruct.AddField(StructFieldType::Float2);
-		viewerData.eyePositionOffset = viewerStruct.AddField(StructFieldType::Float3);
+		viewerData.projMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.invProjMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.viewMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.invViewMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.viewProjMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.invViewProjMatrixOffset = viewerStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.targetSizeOffset = viewerStruct.AddField(nzsl::StructFieldType::Float2);
+		viewerData.invTargetSizeOffset = viewerStruct.AddField(nzsl::StructFieldType::Float2);
+		viewerData.eyePositionOffset = viewerStruct.AddField(nzsl::StructFieldType::Float3);
 
 		viewerData.totalSize = viewerStruct.GetAlignedSize();
 
 		return viewerData;
 	}
 
-	MaterialSettings::SharedUniformBlock PredefinedViewerData::GetUniformBlock(UInt32 bindingIndex, ShaderStageTypeFlags shaderStages)
+	MaterialSettings::SharedUniformBlock PredefinedViewerData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
 	{
 		PredefinedViewerData viewerData = GetOffsets();
 

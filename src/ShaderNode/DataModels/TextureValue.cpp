@@ -2,7 +2,7 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/TextureData.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QFormLayout>
 
 TextureValue::TextureValue(ShaderGraph& graph) :
@@ -110,7 +110,7 @@ void TextureValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Texture"), textureSelection);
 }
 
-Nz::ShaderAst::NodePtr TextureValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr TextureValue::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	if (!m_currentTextureIndex)
 		throw std::runtime_error("invalid texture input");
@@ -119,7 +119,7 @@ Nz::ShaderAst::NodePtr TextureValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*e
 	assert(outputIndex == 0);
 
 	const auto& textureEntry = GetGraph().GetTexture(*m_currentTextureIndex);
-	return Nz::ShaderBuilder::Identifier(textureEntry.name);
+	return nzsl::ShaderBuilder::Identifier(textureEntry.name);
 }
 
 auto TextureValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
@@ -160,7 +160,7 @@ std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port
 		{
 			QColor pixelColor = previewImage.pixelColor(int(x), int(y));
 
-			textureData->preview(x, y) = Nz::Vector4f(pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF(), pixelColor.alphaF());
+			textureData->preview(x, y) = nzsl::Vector4f(pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF(), pixelColor.alphaF());
 		}
 	}
 

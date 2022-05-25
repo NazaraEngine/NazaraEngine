@@ -4,8 +4,8 @@
 #define NAZARA_SHADERNODES_PREVIEWVALUES_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Math/Vector4.hpp>
 #include <ShaderNode/Enums.hpp>
+#include <NZSL/Vector.hpp>
 #include <array>
 #include <vector>
 
@@ -20,21 +20,21 @@ class PreviewValues
 		PreviewValues(PreviewValues&&) = default;
 		~PreviewValues() = default;
 
-		void Fill(const Nz::Vector4f& value);
+		void Fill(const nzsl::Vector4f& value);
 
 		QImage GenerateImage() const;
 
-		inline Nz::Vector4f* GetData();
-		inline const Nz::Vector4f* GetData() const;
+		inline nzsl::Vector4f* GetData();
+		inline const nzsl::Vector4f* GetData() const;
 		inline std::size_t GetHeight() const;
 		inline std::size_t GetWidth() const;
 
 		PreviewValues Resized(std::size_t newWidth, std::size_t newHeight) const;
 
-		Nz::Vector4f Sample(float u, float v) const;
+		nzsl::Vector4f Sample(float u, float v) const;
 
-		Nz::Vector4f& operator()(std::size_t x, std::size_t y);
-		Nz::Vector4f operator()(std::size_t x, std::size_t y) const;
+		nzsl::Vector4f& operator()(std::size_t x, std::size_t y);
+		nzsl::Vector4f operator()(std::size_t x, std::size_t y) const;
 
 		PreviewValues& operator=(const PreviewValues&) = default;
 		PreviewValues& operator=(PreviewValues&&) = default;
@@ -42,7 +42,7 @@ class PreviewValues
 	private:
 		std::size_t m_height;
 		std::size_t m_width;
-		std::vector<Nz::Vector4f> m_values;
+		std::vector<nzsl::Vector4f> m_values;
 };
 
 #include <ShaderNode/Previews/PreviewValues.inl>

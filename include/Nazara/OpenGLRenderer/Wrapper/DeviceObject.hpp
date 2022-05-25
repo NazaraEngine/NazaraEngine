@@ -8,9 +8,9 @@
 #define NAZARA_OPENGLRENDERER_WRAPPER_DEVICEOBJECT_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
-#include <Nazara/Core/MovableValue.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
+#include <Nazara/Utils/MovableValue.hpp>
 #include <string>
 
 namespace Nz::GL

@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <vma/vk_mem_alloc.h>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>

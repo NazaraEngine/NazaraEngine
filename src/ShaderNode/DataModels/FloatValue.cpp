@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/FloatValue.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <cassert>
 
 FloatValue::FloatValue(ShaderGraph& graph) :
@@ -50,7 +50,7 @@ std::shared_ptr<QtNodes::NodeData> FloatValue::outData(QtNodes::PortIndex port)
 	assert(port == 0);
 
 	auto out = std::make_shared<FloatData>();
-	out->preview(0, 0) = Nz::Vector4f(m_value, m_value, m_value, 1.f);
+	out->preview(0, 0) = nzsl::Vector4f(m_value, m_value, m_value, 1.f);
 
 	return out;
 }
@@ -89,12 +89,12 @@ void FloatValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), spinbox);
 }
 
-Nz::ShaderAst::NodePtr FloatValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr FloatValue::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Constant(m_value);
+	return nzsl::ShaderBuilder::Constant(m_value);
 }
 
 bool FloatValue::ComputePreview(QPixmap& pixmap)

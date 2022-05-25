@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERNODE_HPP
 
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <NZSL/Ast/Nodes.hpp>
 #include <nodes/NodeDataModel>
 #include <QtGui/QPixmap>
 #include <optional>
@@ -18,7 +18,7 @@ class ShaderNode : public QtNodes::NodeDataModel
 	public:
 		ShaderNode(ShaderGraph& graph);
 
-		virtual Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const = 0;
+		virtual nzsl::Ast::NodePtr BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const = 0;
 		virtual void BuildNodeEdition(QFormLayout* layout);
 
 		inline void DisablePreview();

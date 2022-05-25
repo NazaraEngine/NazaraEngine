@@ -1,11 +1,11 @@
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
-#include <Nazara/Shader/GlslWriter.hpp>
-#include <Nazara/Shader/LangWriter.hpp>
-#include <Nazara/Shader/Ast/AstConstantPropagationVisitor.hpp>
-#include <Nazara/Shader/Ast/EliminateUnusedPassVisitor.hpp>
-#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
-#include <Nazara/Shader/SpirvPrinter.hpp>
-#include <Nazara/Shader/SpirvWriter.hpp>
+#include <NZSL/GlslWriter.hpp>
+#include <NZSL/LangWriter.hpp>
+#include <NZSL/Ast/ConstantPropagationVisitor.hpp>
+#include <NZSL/Ast/EliminateUnusedPassVisitor.hpp>
+#include <NZSL/Ast/SanitizeVisitor.hpp>
+#include <NZSL/SpirvPrinter.hpp>
+#include <NZSL/SpirvWriter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
@@ -56,7 +56,7 @@ void CodeOutputWidget::Refresh()
 {
 	try
 	{
-		Nz::ShaderWriter::States states;
+		nzsl::ShaderWriter::States states;
 
 		for (std::size_t i = 0; i < m_shaderGraph.GetOptionCount(); ++i)
 		{
@@ -64,18 +64,18 @@ void CodeOutputWidget::Refresh()
 			states.optionValues[Nz::CRC32(option.name)] = m_shaderGraph.IsOptionEnabled(i);
 		}
 
-		Nz::ShaderAst::ModulePtr shaderModule = m_shaderGraph.ToModule();
+		nzsl::Ast::ModulePtr shaderModule = m_shaderGraph.ToModule();
 
 		if (m_optimisationCheckbox->isChecked())
 		{
-			Nz::ShaderAst::SanitizeVisitor::Options sanitizeOptions;
+			nzsl::Ast::SanitizeVisitor::Options sanitizeOptions;
 			sanitizeOptions.optionValues = states.optionValues;
 
-			shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOptions);
+			shaderModule = nzsl::Ast::Sanitize(*shaderModule, sanitizeOptions);
 
-			Nz::ShaderAst::AstConstantPropagationVisitor optimiser;
-			shaderModule = Nz::ShaderAst::PropagateConstants(*shaderModule);
-			shaderModule = Nz::ShaderAst::EliminateUnusedPass(*shaderModule);
+			nzsl::Ast::ConstantPropagationVisitor optimiser;
+			shaderModule = nzsl::Ast::PropagateConstants(*shaderModule);
+			shaderModule = nzsl::Ast::EliminateUnusedPass(*shaderModule);
 		}
 
 		std::string output;
@@ -84,31 +84,31 @@ void CodeOutputWidget::Refresh()
 		{
 			case OutputLanguage::GLSL:
 			{
-				Nz::GlslWriter::BindingMapping bindingMapping;
+				nzsl::GlslWriter::BindingMapping bindingMapping;
 				for (const auto& buffer : m_shaderGraph.GetBuffers())
 					bindingMapping.emplace(Nz::UInt64(buffer.setIndex) << 32 | Nz::UInt64(buffer.bindingIndex), bindingMapping.size());
 
 				for (const auto& texture : m_shaderGraph.GetTextures())
 					bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), bindingMapping.size());
 
-				Nz::GlslWriter writer;
+				nzsl::GlslWriter writer;
 				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, bindingMapping, states);
 				break;
 			}
 
 			case OutputLanguage::NZSL:
 			{
-				Nz::LangWriter writer;
+				nzsl::LangWriter writer;
 				output = writer.Generate(*shaderModule, states);
 				break;
 			}
 
 			case OutputLanguage::SpirV:
 			{
-				Nz::SpirvWriter writer;
+				nzsl::SpirvWriter writer;
 				std::vector<std::uint32_t> spirv = writer.Generate(*shaderModule, states);
 
-				Nz::SpirvPrinter printer;
+				nzsl::SpirvPrinter printer;
 				output = printer.Print(spirv.data(), spirv.size());
 				break;
 			}

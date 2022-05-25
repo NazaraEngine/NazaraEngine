@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <vector>
 
 struct cpConstraint;

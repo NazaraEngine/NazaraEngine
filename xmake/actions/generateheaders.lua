@@ -74,8 +74,6 @@ on_run(function ()
 
 	paths["Core"].Excludes["ECS.hpp"] = true
 	paths["OpenGLRenderer"].Excludes["Wrapper.hpp"] = true
-	paths["Shader"].Excludes["ShaderLangErrorList.hpp"] = true
-	paths["Shader"].Excludes["ShaderLangTokenList.hpp"] = true
 	paths["VulkanRenderer"].Excludes["Wrapper.hpp"] = true
 
 	-- OpenGL renderer wrapper

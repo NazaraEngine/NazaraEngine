@@ -2,9 +2,8 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Shader.hpp>
-#include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/SpirvPrinter.hpp>
+#include <NZSL/SpirvConstantCache.hpp>
+#include <NZSL/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <iostream>

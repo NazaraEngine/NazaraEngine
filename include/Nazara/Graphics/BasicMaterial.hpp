@@ -10,10 +10,13 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 
-namespace Nz
+namespace nzsl
 {
 	class FieldOffsets;
+}
 
+namespace Nz
+{
 	class NAZARA_GRAPHICS_API BasicMaterial
 	{
 		friend class MaterialPipeline;
@@ -94,7 +97,7 @@ namespace Nz
 
 			static MaterialSettings::Builder Build(BasicBuildOptions& options);
 			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
-			static std::pair<BasicUniformOffsets, FieldOffsets> BuildUniformOffsets();
+			static std::pair<BasicUniformOffsets, nzsl::FieldOffsets> BuildUniformOffsets();
 
 			std::size_t m_uniformBlockIndex;
 			BasicOptionIndexes m_basicOptionIndexes;

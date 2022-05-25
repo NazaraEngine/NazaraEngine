@@ -14,7 +14,7 @@ class Discard : public ShaderNode
 	public:
 		Discard(ShaderGraph& graph);
 
-		Nz::ShaderAst::NodePtr BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
+		nzsl::Ast::NodePtr BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 		int GetOutputOrder() const;
 
 		QString caption() const override { return "Discard"; }

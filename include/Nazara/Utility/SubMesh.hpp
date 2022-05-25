@@ -8,11 +8,12 @@
 #define NAZARA_UTILITY_SUBMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
+#include <Nazara/Utils/Signal.hpp>
 
 namespace Nz
 {

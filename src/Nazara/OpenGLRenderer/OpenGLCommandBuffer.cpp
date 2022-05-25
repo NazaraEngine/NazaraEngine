@@ -3,14 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
-#include <Nazara/Core/StackArray.hpp>
-#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
+#include <Nazara/Utils/StackArray.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz

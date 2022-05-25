@@ -8,10 +8,10 @@
 #define NAZARA_NETWORK_ABSTRACTSOCKET_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Signal.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
+#include <Nazara/Utils/Signal.hpp>
 
 namespace Nz
 {

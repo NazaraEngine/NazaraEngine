@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/VecDecomposition.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
@@ -16,12 +16,12 @@ ShaderNode(graph)
 	DisableCustomVariableName();
 }
 
-Nz::ShaderAst::NodePtr VecDecomposition::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr VecDecomposition::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 1);
 	assert(outputIndex < m_outputs.size());
 
-	return Nz::ShaderBuilder::Swizzle(std::move(expressions[0]), { Nz::SafeCast<Nz::UInt32>(outputIndex) });
+	return nzsl::ShaderBuilder::Swizzle(std::move(expressions[0]), { Nz::SafeCast<Nz::UInt32>(outputIndex) });
 }
 
 QString VecDecomposition::caption() const
@@ -139,7 +139,7 @@ void VecDecomposition::UpdateOutputs()
 	{
 		auto dummy = std::make_shared<FloatData>();
 		dummy->preview = PreviewValues(1, 1);
-		dummy->preview.Fill(Nz::Vector4f::Zero());
+		dummy->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
 
 		m_outputs.fill(dummy);
 		return;
@@ -154,13 +154,13 @@ void VecDecomposition::UpdateOutputs()
 		m_outputs[i] = std::make_shared<FloatData>();
 		m_outputs[i]->preview = PreviewValues(previewWidth, previewHeight);
 
-		const Nz::Vector4f* inputData = m_input->preview.GetData();
-		Nz::Vector4f* outputData = m_outputs[i]->preview.GetData();
+		const nzsl::Vector4f* inputData = m_input->preview.GetData();
+		nzsl::Vector4f* outputData = m_outputs[i]->preview.GetData();
 		for (std::size_t j = 0; j < pixelCount; ++j)
 		{
-			const Nz::Vector4f& input = *inputData++;
+			const nzsl::Vector4f& input = *inputData++;
 
-			*outputData++ = Nz::Vector4f(input[i], input[i], input[i], input[i]);
+			*outputData++ = nzsl::Vector4f(input[i], input[i], input[i], input[i]);
 		}
 
 		Q_EMIT dataUpdated(i);

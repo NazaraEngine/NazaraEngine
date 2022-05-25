@@ -319,7 +319,7 @@ namespace Nz
 		return m_pipelineInfo.lineWidth;
 	}
 
-	inline const ShaderAst::ConstantValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
+	inline const nzsl::Ast::ConstantValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
 	{
 		assert(optionIndex < m_optionValues.size());
 		return m_optionValues[optionIndex];
@@ -368,7 +368,7 @@ namespace Nz
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
 	*/
-	inline const std::shared_ptr<UberShader>& MaterialPass::GetShader(ShaderStageType shaderStage) const
+	inline const std::shared_ptr<UberShader>& MaterialPass::GetShader(nzsl::ShaderStageType shaderStage) const
 	{
 		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
 	}
@@ -566,7 +566,7 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void MaterialPass::SetOptionValue(std::size_t optionIndex, ShaderAst::ConstantValue value)
+	inline void MaterialPass::SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantValue value)
 	{
 		assert(optionIndex < m_optionValues.size());
 		if (m_optionValues[optionIndex] != value)

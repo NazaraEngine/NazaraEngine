@@ -15,7 +15,7 @@
 #include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Shader/FilesystemModuleResolver.hpp>
+#include <NZSL/FilesystemModuleResolver.hpp>
 #include <optional>
 
 namespace Nz
@@ -46,7 +46,7 @@ namespace Nz
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
 			inline TextureSamplerCache& GetSamplerCache();
-			inline const std::shared_ptr<FilesystemModuleResolver>& GetShaderModuleResolver() const;
+			inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver() const;
 
 			struct Config
 			{
@@ -70,7 +70,7 @@ namespace Nz
 
 			std::optional<RenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
-			std::shared_ptr<FilesystemModuleResolver> m_shaderModuleResolver;
+			std::shared_ptr<nzsl::FilesystemModuleResolver> m_shaderModuleResolver;
 			std::shared_ptr<RenderBuffer> m_fullscreenVertexBuffer;
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::shared_ptr<RenderPipeline> m_blitPipeline;

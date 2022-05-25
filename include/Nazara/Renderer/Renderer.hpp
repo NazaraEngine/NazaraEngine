@@ -13,7 +13,6 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
-#include <Nazara/Shader/Shader.hpp>
 
 namespace Nz
 {
@@ -24,7 +23,7 @@ namespace Nz
 		friend ModuleBase;
 
 		public:
-			using Dependencies = TypeList<Platform, Shader>;
+			using Dependencies = TypeList<Platform>;
 
 			struct Config;
 

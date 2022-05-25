@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
-#include <Nazara/Core/StackArray.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
@@ -14,6 +13,7 @@
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

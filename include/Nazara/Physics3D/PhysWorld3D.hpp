@@ -8,10 +8,10 @@
 #define NAZARA_PHYSICS3D_PHYSWORLD3D_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 #include <string>
 #include <unordered_map>
 

@@ -103,7 +103,8 @@ if has_config("shadernodes") then
 		set_kind("binary")
 		add_rules("qt5.moc")
 
-		add_deps("NazaraShader")
+		add_deps("NazaraCore")
+		add_packages("nzsl")
 		add_packages("nodeeditor")
 		add_packages("qt5core", "qt5gui", "qt5widgets")
 		if not is_plat("windows") then

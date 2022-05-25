@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/Cast.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 #include <QtCore/QJsonArray>
@@ -18,7 +18,7 @@ ShaderNode(graph)
 }
 
 template<std::size_t ToComponentCount>
-Nz::ShaderAst::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr CastVec<ToComponentCount>::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(m_input);
 	assert(count == 1);
@@ -30,12 +30,12 @@ Nz::ShaderAst::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderAst::Expre
 	{
 		std::size_t overflowComponentCount = ToComponentCount - fromComponentCount;
 
-		std::vector<Nz::ShaderAst::ExpressionPtr> params;
+		std::vector<nzsl::Ast::ExpressionPtr> params;
 		params.emplace_back(std::move(expressions[0]));
 		for (std::size_t i = 0; i < overflowComponentCount; ++i)
-			params.emplace_back(Nz::ShaderBuilder::Constant(m_overflowComponents[i]));
+			params.emplace_back(nzsl::ShaderBuilder::Constant(m_overflowComponents[i]));
 
-		return Nz::ShaderBuilder::Cast(Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ ToComponentCount, Nz::ShaderAst::PrimitiveType::Float32 } }, std::move(params));
+		return nzsl::ShaderBuilder::Cast(nzsl::Ast::ExpressionType{ nzsl::Ast::VectorType{ ToComponentCount, nzsl::Ast::PrimitiveType::Float32 } }, std::move(params));
 	}
 	else if (ToComponentCount < fromComponentCount)
 	{
@@ -46,7 +46,7 @@ Nz::ShaderAst::NodePtr CastVec<ToComponentCount>::BuildNode(Nz::ShaderAst::Expre
 		return std::apply([&](auto... components)
 		{
 			std::initializer_list<Nz::UInt32> componentList{ components... };
-			return Nz::ShaderBuilder::Swizzle(std::move(expressions[0]), componentList);
+			return nzsl::ShaderBuilder::Swizzle(std::move(expressions[0]), componentList);
 		}, swizzleComponents);
 	}
 	else
@@ -187,7 +187,7 @@ void CastVec<ToComponentCount>::UpdateOutput()
 	if (!m_input)
 	{
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview(0, 0) = Nz::Vector4f::Zero();
+		m_output->preview(0, 0) = nzsl::Vector4f(0.f, 0.f, 0.f, 0.f);
 		return;
 	}
 
@@ -208,9 +208,9 @@ void CastVec<ToComponentCount>::UpdateOutput()
 	{
 		for (std::size_t x = 0; x < inputWidth; ++x)
 		{
-			Nz::Vector4f color = input(x, y);
+			nzsl::Vector4f color = input(x, y);
 
-			float* colorPtr = &color.x;
+			float* colorPtr = &color[0];
 			for (std::size_t i = 0; i < overflowComponentCount; ++i)
 				*colorPtr++ = m_overflowComponents[i];
 

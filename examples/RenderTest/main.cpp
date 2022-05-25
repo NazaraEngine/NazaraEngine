@@ -1,8 +1,11 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Math.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Shader.hpp>
-#include <Nazara/Shader/Ast/SanitizeVisitor.hpp>
+#include <NZSL/FilesystemModuleResolver.hpp>
+#include <NZSL/LangWriter.hpp>
+#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <iostream>
@@ -11,7 +14,6 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 const char barModuleSource[] = R"(
 [nzsl_version("1.0")]
-[uuid("4BB09DEE-F70A-442E-859F-E8F2F3F8583D")]
 module Test.Bar;
 
 fn dummy() {}
@@ -25,7 +27,6 @@ struct Bar
 
 const char dataModuleSource[] = R"(
 [nzsl_version("1.0")]
-[uuid("E49DC9AD-469C-462C-9719-A6F012372029")]
 module Test.Data;
 
 import Test.Bar;
@@ -133,36 +134,36 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::ShaderAst::ModulePtr shaderModule = Nz::ShaderLang::Parse(std::string_view(shaderSource, sizeof(shaderSource)));
+	nzsl::Ast::ModulePtr shaderModule = nzsl::Parse(std::string_view(shaderSource, sizeof(shaderSource)));
 	if (!shaderModule)
 	{
 		std::cout << "Failed to parse shader module" << std::endl;
 		return __LINE__;
 	}
 
-	auto directoryModuleResolver = std::make_shared<Nz::FilesystemModuleResolver>();
+	auto directoryModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 	directoryModuleResolver->RegisterModule(std::string_view(barModuleSource));
 	directoryModuleResolver->RegisterModule(std::string_view(dataModuleSource));
 
-	Nz::ShaderAst::SanitizeVisitor::Options sanitizeOpt;
+	nzsl::Ast::SanitizeVisitor::Options sanitizeOpt;
 	sanitizeOpt.moduleResolver = directoryModuleResolver;
 
-	shaderModule = Nz::ShaderAst::Sanitize(*shaderModule, sanitizeOpt);
+	shaderModule = nzsl::Ast::Sanitize(*shaderModule, sanitizeOpt);
 	if (!shaderModule)
 	{
 		std::cout << "Failed to compile shader module" << std::endl;
 		return __LINE__;
 	}
 
-	Nz::LangWriter langWriter;
+	nzsl::LangWriter langWriter;
 	std::string output = langWriter.Generate(*shaderModule);
 	std::cout << output << std::endl;
-	assert(Nz::ShaderAst::Sanitize(*Nz::ShaderLang::Parse(output)));
+	assert(nzsl::Ast::Sanitize(*nzsl::Parse(output)));
 
-	Nz::ShaderWriter::States states;
+	nzsl::ShaderWriter::States states;
 	states.optimize = true;
 
-	auto fragVertShader = device->InstantiateShaderModule(Nz::ShaderStageType::Fragment | Nz::ShaderStageType::Vertex, *shaderModule, states);
+	auto fragVertShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);
 	if (!fragVertShader)
 	{
 		std::cout << "Failed to instantiate shader" << std::endl;
@@ -221,7 +222,7 @@ int main()
 	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
 	uboBinding.setIndex = 0;
 	uboBinding.bindingIndex = 0;
-	uboBinding.shaderStageFlags = Nz::ShaderStageType::Vertex;
+	uboBinding.shaderStageFlags = nzsl::ShaderStageType::Vertex;
 	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
@@ -229,7 +230,7 @@ int main()
 	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
 	textureBinding.setIndex = 1;
 	textureBinding.bindingIndex = 0;
-	textureBinding.shaderStageFlags = Nz::ShaderStageType::Fragment;
+	textureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
 	textureBinding.type = Nz::ShaderBindingType::Texture;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));

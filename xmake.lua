@@ -17,7 +17,8 @@ local modules = {
 			elseif is_plat("linux") then
 				add_syslinks("dl", "pthread", "uuid")
 			end
-		end
+		end,
+		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
 		Deps = {"NazaraRenderer"},
@@ -77,19 +78,12 @@ local modules = {
 		end
 	},
 	Renderer = {
-		Deps = {"NazaraPlatform", "NazaraShader"}
-	},
-	Shader = {
-		Deps = {"NazaraCore"},
-		Packages = {"efsw", "fmt", "frozen"},
-		Custom = function()
-			-- Set precise floating-points models to ensure shader optimization leads to correct results
-			set_fpmodels("precise")
-		end
+		Deps = {"NazaraPlatform"},
+		PublicPackages = { "nazarautils", "nzsl" }
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
-		Packages = {"entt", "freetype", "frozen", "stb"}
+		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"}
 	},
 	VulkanRenderer = {
 		Deps = {"NazaraRenderer"},
@@ -145,11 +139,14 @@ option_end()
 set_project("NazaraEngine")
 set_xmakever("2.6.3")
 
-add_requires("chipmunk2d", "dr_wav", "efsw", "entt >=3.9", "fmt", "frozen", "kiwisolver", "libflac", "libsdl", "minimp3", "stb")
+add_requires("chipmunk2d", "dr_wav", "efsw", "entt >=3.9", "fmt", "frozen", "kiwisolver", "libflac", "libsdl", "minimp3", "ordered_map", "stb")
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+
+add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
+add_requires("nazarautils", "nzsl", { debug = is_mode("debug") })
 
 if is_plat("macosx") then
 	add_requires("libx11")
@@ -220,6 +217,12 @@ for name, module in pairs(modules) do
 		add_packages(table.unpack(module.Packages))
 	end
 
+	if module.PublicPackages then
+		for _, pkg in ipairs(module.PublicPackages) do
+			add_packages(pkg, { public = true })
+		end
+	end
+
 	if module.Custom then
 		module.Custom()
 	end
@@ -235,6 +238,7 @@ for name, module in pairs(modules) do
 
 	add_defines("NAZARA_BUILD")
 	add_defines("NAZARA_" .. name:upper() .. "_BUILD")
+	add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
 
 	if is_mode("debug") then
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")

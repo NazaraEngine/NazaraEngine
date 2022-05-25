@@ -1,6 +1,6 @@
 #include <ShaderNode/DataModels/VecDot.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
-#include <Nazara/Shader/Ast/Nodes.hpp>
+#include <NZSL/ShaderBuilder.hpp>
+#include <NZSL/Ast/Nodes.hpp>
 
 VecDot::VecDot(ShaderGraph& graph) :
 ShaderNode(graph)
@@ -9,16 +9,16 @@ ShaderNode(graph)
 	UpdateOutput();
 }
 
-Nz::ShaderAst::NodePtr VecDot::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr VecDot::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	std::vector<Nz::ShaderAst::ExpressionPtr> params;
+	std::vector<nzsl::Ast::ExpressionPtr> params;
 	params.push_back(std::move(expressions[0]));
 	params.push_back(std::move(expressions[1]));
 
-	return Nz::ShaderBuilder::Intrinsic(Nz::ShaderAst::IntrinsicType::DotProduct, std::move(params));
+	return nzsl::ShaderBuilder::Intrinsic(nzsl::Ast::IntrinsicType::DotProduct, std::move(params));
 }
 
 QString VecDot::caption() const
@@ -126,7 +126,7 @@ void VecDot::UpdateOutput()
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview.Fill(Nz::Vector4f::Zero());
+		m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -146,9 +146,9 @@ void VecDot::UpdateOutput()
 
 	m_output->preview = PreviewValues(maxWidth, maxHeight);
 
-	const Nz::Vector4f* left = leftResized.GetData();
-	const Nz::Vector4f* right = rightPreview.GetData();
-	Nz::Vector4f* output = m_output->preview.GetData();
+	const nzsl::Vector4f* left = leftResized.GetData();
+	const nzsl::Vector4f* right = rightPreview.GetData();
+	nzsl::Vector4f* output = m_output->preview.GetData();
 
 	std::size_t pixelCount = maxWidth * maxHeight;
 	for (std::size_t i = 0; i < pixelCount; ++i)

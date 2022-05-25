@@ -1,11 +1,11 @@
 #include <ShaderNode/DataModels/ConditionalExpression.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
 #include <ShaderNode/DataTypes/Matrix4Data.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
 #include <iostream>
@@ -35,7 +35,7 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-Nz::ShaderAst::NodePtr ConditionalExpression::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr ConditionalExpression::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
@@ -46,7 +46,7 @@ Nz::ShaderAst::NodePtr ConditionalExpression::BuildNode(Nz::ShaderAst::Expressio
 	const ShaderGraph& graph = GetGraph();
 
 	const auto& optionEntry = graph.GetOption(*m_currentOptionIndex);
-	return Nz::ShaderBuilder::ConditionalExpression(Nz::ShaderBuilder::Identifier(optionEntry.name), std::move(expressions[0]), std::move(expressions[1]));
+	return nzsl::ShaderBuilder::ConditionalExpression(nzsl::ShaderBuilder::Identifier(optionEntry.name), std::move(expressions[0]), std::move(expressions[1]));
 }
 
 QString ConditionalExpression::caption() const

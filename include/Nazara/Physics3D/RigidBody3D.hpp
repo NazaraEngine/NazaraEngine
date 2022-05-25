@@ -9,12 +9,12 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/MovablePtr.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 
 class NewtonBody;
 

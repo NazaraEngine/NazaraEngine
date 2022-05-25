@@ -1,23 +1,23 @@
 #include <ShaderNode/DataModels/CompOp.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 CompOp<DataType, Op>::CompOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	UpdateOutput();
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
-Nz::ShaderAst::NodePtr CompOp<DataType, Op>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+template<typename DataType, nzsl::Ast::BinaryType Op>
+nzsl::Ast::NodePtr CompOp<DataType, Op>::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
+	return nzsl::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 QtNodes::NodeDataType CompOp<DataType, Op>::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {	
 	switch (portType)
@@ -41,7 +41,7 @@ QtNodes::NodeDataType CompOp<DataType, Op>::dataType(QtNodes::PortType portType,
 	throw std::runtime_error("invalid port type");
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 unsigned int CompOp<DataType, Op>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -55,14 +55,14 @@ unsigned int CompOp<DataType, Op>::nPorts(QtNodes::PortType portType) const
 	throw std::runtime_error("invalid port type");
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 std::shared_ptr<QtNodes::NodeData> CompOp<DataType, Op>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 QString CompOp<DataType, Op>::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	switch (portType)
@@ -95,14 +95,14 @@ QString CompOp<DataType, Op>::portCaption(QtNodes::PortType portType, QtNodes::P
 	return QString{};
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 bool CompOp<DataType, Op>::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
 	return portType == QtNodes::PortType::In || portType == QtNodes::PortType::Out;
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 void CompOp<DataType, Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
@@ -119,7 +119,7 @@ void CompOp<DataType, Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, i
 	UpdateOutput();
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 QtNodes::NodeValidationState CompOp<DataType, Op>::validationState() const
 {
 	if (!m_lhs || !m_rhs)
@@ -134,7 +134,7 @@ QtNodes::NodeValidationState CompOp<DataType, Op>::validationState() const
 	return QtNodes::NodeValidationState::Valid;
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 QString CompOp<DataType, Op>::validationMessage() const
 {
 	if (!m_lhs || !m_rhs)
@@ -149,7 +149,7 @@ QString CompOp<DataType, Op>::validationMessage() const
 	return QString();
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 bool CompOp<DataType, Op>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
@@ -159,14 +159,14 @@ bool CompOp<DataType, Op>::ComputePreview(QPixmap& pixmap)
 	return true;
 }
 
-template<typename DataType, Nz::ShaderAst::BinaryType Op>
+template<typename DataType, nzsl::Ast::BinaryType Op>
 void CompOp<DataType, Op>::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
 		m_output = std::make_shared<BoolData>();
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview.Fill(Nz::Vector4f::Zero());
+		m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -195,12 +195,12 @@ void CompOp<DataType, Op>::UpdateOutput()
 }
 
 template<typename DataType>
-void CompEq<DataType>::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
+void CompEq<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i] == right[i]) ? 1.f : 0.f;
-		output[i] = Nz::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f(r, r, r, r);
 	}
 }
 
@@ -211,12 +211,12 @@ QString CompEq<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompGe<DataType>::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
+void CompGe<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
-		float r = (left[i] >= right[i]) ? 1.f : 0.f;
-		output[i] = Nz::Vector4f(r, r, r, r);
+		float r = (left[i][0] >= right[i][0]) ? 1.f : 0.f;
+		output[i] = nzsl::Vector4f(r, r, r, r);
 	}
 }
 
@@ -227,12 +227,12 @@ QString CompGe<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompGt<DataType>::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
+void CompGt<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
-		float r = (left[i] > right[i]) ? 1.f : 0.f;
-		output[i] = Nz::Vector4f(r, r, r, r);
+		float r = (left[i][0] > right[i][0]) ? 1.f : 0.f;
+		output[i] = nzsl::Vector4f(r, r, r, r);
 	}
 }
 
@@ -243,12 +243,12 @@ QString CompGt<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompLe<DataType>::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
+void CompLe<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
-		float r = (left[i] >= right[i]) ? 1.f : 0.f;
-		output[i] = Nz::Vector4f(r, r, r, r);
+		float r = (left[i][0] <= right[i][0]) ? 1.f : 0.f;
+		output[i] = nzsl::Vector4f(r, r, r, r);
 	}
 }
 
@@ -259,12 +259,12 @@ QString CompLe<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompLt<DataType>::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
+void CompLt<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
-		float r = (left[i] > right[i]) ? 1.f : 0.f;
-		output[i] = Nz::Vector4f(r, r, r, r);
+		float r = (left[i][0] < right[i][0]) ? 1.f : 0.f;
+		output[i] = nzsl::Vector4f(r, r, r, r);
 	}
 }
 
@@ -275,12 +275,12 @@ QString CompLt<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompNe<DataType>::ApplyOp(const Nz::Vector4f* left, const Nz::Vector4f* right, Nz::Vector4f* output, std::size_t pixelCount)
+void CompNe<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i] != right[i]) ? 1.f : 0.f;
-		output[i] = Nz::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f(r, r, r, r);
 	}
 }
 

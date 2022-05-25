@@ -11,14 +11,14 @@ if has_config("tests") then
 		add_defines("CATCH_CONFIG_NO_POSIX_SIGNALS")
 	end
 
-	add_requires("catch2", "glslang", "spirv-tools")
+	add_requires("catch2")
 
 	-- Common config
 	set_group("Tests")
 	set_kind("binary")
 
-	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D", "NazaraShader")
-	add_packages("catch2", "entt", "glslang", "spirv-tools")
+	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D")
+	add_packages("catch2", "entt")
 	add_headerfiles("Engine/**.hpp")
 	add_files("resources.cpp")
 	add_files("Engine/**.cpp")

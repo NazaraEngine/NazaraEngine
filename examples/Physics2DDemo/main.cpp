@@ -9,9 +9,8 @@
 #include <Nazara/Physics2D/Components.hpp>
 #include <Nazara/Physics2D/Systems.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Shader.hpp>
-#include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/SpirvPrinter.hpp>
+#include <NZSL/SpirvConstantCache.hpp>
+#include <NZSL/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
 #include <Nazara/Widgets.hpp>
@@ -91,7 +90,8 @@ int main()
 				sprite->SetSize({ 32.f, 32.f });
 				sprite->SetOrigin({ 16.f, 16.f, 0.f });
 
-				registry.emplace<Nz::NodeComponent>(spriteEntity).SetPosition(1920 / 2 + x * 36.f, 1080 / 2 + y * 36.f);
+				registry.emplace<Nz::NodeComponent>(spriteEntity).SetPosition(1920 / 2 + x * 36.f, 1080 / 2 + y * 36.f);
+
 				registry.emplace<Nz::GraphicsComponent>(spriteEntity).AttachRenderable(sprite, 1);
 				auto& rigidBody = registry.emplace<Nz::RigidBody2DComponent>(spriteEntity, physSytem.CreateRigidBody(50.f, std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(32.f, 32.f))));
 				rigidBody.SetElasticity(0.99f);

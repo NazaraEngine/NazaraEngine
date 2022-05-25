@@ -1,11 +1,11 @@
 #include <ShaderNode/Previews/PreviewValues.hpp>
 
-inline Nz::Vector4f* PreviewValues::GetData()
+inline nzsl::Vector4f* PreviewValues::GetData()
 {
 	return m_values.data();
 }
 
-inline const Nz::Vector4f* PreviewValues::GetData() const
+inline const nzsl::Vector4f* PreviewValues::GetData() const
 {
 	return m_values.data();
 }

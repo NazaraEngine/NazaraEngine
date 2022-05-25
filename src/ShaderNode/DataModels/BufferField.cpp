@@ -1,11 +1,11 @@
 #include <ShaderNode/DataModels/BufferField.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
 #include <ShaderNode/DataTypes/Matrix4Data.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
 #include <iostream>
@@ -49,7 +49,7 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-Nz::ShaderAst::NodePtr BufferField::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr BufferField::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
@@ -65,7 +65,7 @@ Nz::ShaderAst::NodePtr BufferField::BuildNode(Nz::ShaderAst::ExpressionPtr* expr
 	assert(m_currentFieldIndex);
 	const CurrentField& currentField = *m_currentFieldIndex;
 
-	Nz::ShaderAst::ExpressionPtr sourceExpr = Nz::ShaderBuilder::Identifier(bufferEntry.name);
+	nzsl::Ast::ExpressionPtr sourceExpr = nzsl::ShaderBuilder::Identifier(bufferEntry.name);
 
 	std::vector<std::string> memberIdentifiers;
 	memberIdentifiers.reserve(currentField.nestedFields.size() + 1);
@@ -89,8 +89,7 @@ Nz::ShaderAst::NodePtr BufferField::BuildNode(Nz::ShaderAst::ExpressionPtr* expr
 
 	memberIdentifiers.push_back(memberEntry.name);
 
-	using namespace Nz;
-	return ShaderBuilder::AccessMember(std::move(sourceExpr), std::move(memberIdentifiers));
+	return nzsl::ShaderBuilder::AccessMember(std::move(sourceExpr), std::move(memberIdentifiers));
 }
 
 unsigned int BufferField::nPorts(QtNodes::PortType portType) const

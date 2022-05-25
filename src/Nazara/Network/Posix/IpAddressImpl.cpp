@@ -4,10 +4,10 @@
 
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Posix/SocketImpl.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 

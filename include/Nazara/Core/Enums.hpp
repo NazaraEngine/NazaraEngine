@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_ENUMS_HPP
 #define NAZARA_CORE_ENUMS_HPP
 
-#include <Nazara/Core/Flags.hpp>
+#include <Nazara/Utils/Flags.hpp>
 
 namespace Nz
 {
@@ -26,16 +26,6 @@ namespace Nz
 		AtEnd,     // End of the file
 
 		Max = AtEnd
-	};
-
-	enum class Endianness
-	{
-		Unknown = -1,
-
-		BigEndian,
-		LittleEndian,
-
-		Max = LittleEndian
 	};
 
 	enum class ErrorMode

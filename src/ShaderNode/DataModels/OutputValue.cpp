@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/OutputValue.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>
@@ -54,7 +54,7 @@ void OutputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Output"), outputSelection);
 }
 
-Nz::ShaderAst::NodePtr OutputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr OutputValue::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 1);
 	assert(outputIndex == 0);
@@ -63,10 +63,10 @@ Nz::ShaderAst::NodePtr OutputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* expr
 		throw std::runtime_error("no output");
 
 	const auto& outputEntry = GetGraph().GetOutput(*m_currentOutputIndex);
-	auto output = Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("output"), { outputEntry.name });
+	auto output = nzsl::ShaderBuilder::AccessMember(nzsl::ShaderBuilder::Identifier("output"), { outputEntry.name });
 
 	using namespace Nz;
-	return Nz::ShaderBuilder::Assign(ShaderAst::AssignType::Simple, std::move(output), std::move(expressions[0]));
+	return nzsl::ShaderBuilder::Assign(nzsl::Ast::AssignType::Simple, std::move(output), std::move(expressions[0]));
 }
 
 std::shared_ptr<QtNodes::NodeData> OutputValue::outData(QtNodes::PortIndex /*port*/)

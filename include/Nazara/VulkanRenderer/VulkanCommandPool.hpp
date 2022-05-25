@@ -8,11 +8,11 @@
 #define NAZARA_VULKANRENDERER_VULKANCOMMANDPOOL_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Bitset.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <vector>
 
 namespace Nz

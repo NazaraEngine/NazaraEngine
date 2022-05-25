@@ -1,9 +1,9 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/StackArray.hpp>
-#include <Nazara/Shader/Ast/AstCloner.hpp>
-#include <Nazara/Shader/Ast/AstUtils.hpp>
-#include <Nazara/Shader/Ast/ExpressionType.hpp>
+#include <Nazara/Utils/StackArray.hpp>
+#include <NZSL/Ast/Cloner.hpp>
+#include <NZSL/Ast/Utils.hpp>
+#include <NZSL/Ast/ExpressionType.hpp>
 #include <ShaderNode/DataModels/BinOp.hpp>
 #include <ShaderNode/DataModels/BoolValue.hpp>
 #include <ShaderNode/DataModels/BufferField.hpp>
@@ -452,19 +452,19 @@ QJsonObject ShaderGraph::Save()
 	return sceneJson;
 }
 
-Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
+nzsl::Ast::ModulePtr ShaderGraph::ToModule() const
 {
-	Nz::ShaderAst::ModulePtr shaderModule = std::make_shared<Nz::ShaderAst::Module>(100);
+	nzsl::Ast::ModulePtr shaderModule = std::make_shared<nzsl::Ast::Module>(100);
 
 	// Declare all options
 	for (const auto& option : m_options)
-		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareOption(option.name, Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::PrimitiveType::Boolean }));
+		shaderModule->rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareOption(option.name, nzsl::Ast::ExpressionType{ nzsl::Ast::PrimitiveType::Boolean }));
 
 	// Declare all structures
 	for (const auto& structInfo : m_structs)
 	{
-		Nz::ShaderAst::StructDescription structDesc;
-		structDesc.layout = Nz::StructLayout::Std140;
+		nzsl::Ast::StructDescription structDesc;
+		structDesc.layout = nzsl::StructLayout::Std140;
 		structDesc.name = structInfo.name;
 
 		for (const auto& memberInfo : structInfo.members)
@@ -474,11 +474,11 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 			structMember.type = ToShaderExpressionType(memberInfo.type);
 		}
 
-		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
+		shaderModule->rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
 	}
 
 	// External block
-	auto external = std::make_unique<Nz::ShaderAst::DeclareExternalStatement>();
+	auto external = std::make_unique<nzsl::Ast::DeclareExternalStatement>();
 
 	for (const auto& buffer : m_buffers)
 	{
@@ -491,7 +491,7 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 		extVar.bindingIndex = buffer.bindingIndex;
 		extVar.bindingSet = buffer.setIndex;
 		extVar.name = buffer.name;
-		extVar.type = Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier(structInfo.name) };
+		extVar.type = nzsl::Ast::ExpressionPtr{ nzsl::ShaderBuilder::Identifier(structInfo.name) };
 	}
 
 	for (const auto& texture : m_textures)
@@ -509,7 +509,7 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 	// Inputs / outputs
 	if (!m_inputs.empty())
 	{
-		Nz::ShaderAst::StructDescription structDesc;
+		nzsl::Ast::StructDescription structDesc;
 		structDesc.name = "InputData";
 
 		for (const auto& input : m_inputs)
@@ -520,12 +520,12 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 			structMember.locationIndex = input.locationIndex;
 		}
 
-		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
+		shaderModule->rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
 	}
 
 	if (!m_outputs.empty())
 	{
-		Nz::ShaderAst::StructDescription structDesc;
+		nzsl::Ast::StructDescription structDesc;
 		structDesc.name = "OutputData";
 
 		for (const auto& output : m_outputs)
@@ -539,12 +539,12 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 		if (m_type == ShaderType::Vertex)
 		{
 			auto& position = structDesc.members.emplace_back();
-			position.builtin = Nz::ShaderAst::BuiltinEntry::VertexPosition;
+			position.builtin = nzsl::Ast::BuiltinEntry::VertexPosition;
 			position.name = "position";
-			position.type = Nz::ShaderAst::ExpressionType{ Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 } };
+			position.type = nzsl::Ast::ExpressionType{ nzsl::Ast::VectorType{ 4, nzsl::Ast::PrimitiveType::Float32 } };
 		}
 
-		shaderModule->rootNode->statements.push_back(Nz::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
+		shaderModule->rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareStruct(std::move(structDesc), false));
 	}
 
 	// Functions
@@ -553,9 +553,9 @@ Nz::ShaderAst::ModulePtr ShaderGraph::ToModule() const
 	return shaderModule;
 }
 
-Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType> ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
+nzsl::Ast::ExpressionValue<nzsl::Ast::ExpressionType> ShaderGraph::ToShaderExpressionType(const std::variant<PrimitiveType, std::size_t>& type) const
 {
-	return std::visit([&](auto&& arg) -> Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType>
+	return std::visit([&](auto&& arg) -> nzsl::Ast::ExpressionValue<nzsl::Ast::ExpressionType>
 	{
 		using T = std::decay_t<decltype(arg)>;
 		if constexpr (std::is_same_v<T, PrimitiveType>)
@@ -564,7 +564,7 @@ Nz::ShaderAst::ExpressionValue<Nz::ShaderAst::ExpressionType> ShaderGraph::ToSha
 		{
 			assert(arg < m_structs.size());
 			const auto& s = m_structs[arg];
-			return Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier(s.name) };
+			return nzsl::Ast::ExpressionPtr{ nzsl::ShaderBuilder::Identifier(s.name) };
 		}
 		else
 			static_assert(Nz::AlwaysFalse<T>::value, "non-exhaustive visitor");
@@ -685,42 +685,42 @@ QtNodes::NodeDataType ShaderGraph::ToNodeDataType(PrimitiveType type)
 	throw std::runtime_error("Unhandled input type");
 }
 
-Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
+nzsl::Ast::ExpressionType ShaderGraph::ToShaderExpressionType(PrimitiveType type)
 {
 	switch (type)
 	{
-		case PrimitiveType::Bool:   return Nz::ShaderAst::PrimitiveType::Boolean;
-		case PrimitiveType::Float1: return Nz::ShaderAst::PrimitiveType::Float32;
-		case PrimitiveType::Float2: return Nz::ShaderAst::VectorType{ 2, Nz::ShaderAst::PrimitiveType::Float32 };
-		case PrimitiveType::Float3: return Nz::ShaderAst::VectorType{ 3, Nz::ShaderAst::PrimitiveType::Float32 };
-		case PrimitiveType::Float4: return Nz::ShaderAst::VectorType{ 4, Nz::ShaderAst::PrimitiveType::Float32 };
-		case PrimitiveType::Mat4x4: return Nz::ShaderAst::MatrixType{ 4, 4, Nz::ShaderAst::PrimitiveType::Float32 };
+		case PrimitiveType::Bool:   return nzsl::Ast::PrimitiveType::Boolean;
+		case PrimitiveType::Float1: return nzsl::Ast::PrimitiveType::Float32;
+		case PrimitiveType::Float2: return nzsl::Ast::VectorType{ 2, nzsl::Ast::PrimitiveType::Float32 };
+		case PrimitiveType::Float3: return nzsl::Ast::VectorType{ 3, nzsl::Ast::PrimitiveType::Float32 };
+		case PrimitiveType::Float4: return nzsl::Ast::VectorType{ 4, nzsl::Ast::PrimitiveType::Float32 };
+		case PrimitiveType::Mat4x4: return nzsl::Ast::MatrixType{ 4, 4, nzsl::Ast::PrimitiveType::Float32 };
 	}
 
 	assert(false);
 	throw std::runtime_error("Unhandled primitive type");
 }
 
-Nz::ShaderAst::ExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
+nzsl::Ast::ExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
 {
 	switch (type)
 	{
-		case TextureType::Sampler2D: return Nz::ShaderAst::SamplerType{ Nz::ImageType::E2D, Nz::ShaderAst::PrimitiveType::Float32 };
+		case TextureType::Sampler2D: return nzsl::Ast::SamplerType{ nzsl::ImageType::E2D, nzsl::Ast::PrimitiveType::Float32 };
 	}
 
 	assert(false);
 	throw std::runtime_error("Unhandled texture type");
 }
 
-Nz::ShaderStageType ShaderGraph::ToShaderStageType(ShaderType type)
+nzsl::ShaderStageType ShaderGraph::ToShaderStageType(ShaderType type)
 {
 	switch (type)
 	{
 		case ShaderType::NotSet:
 			throw std::runtime_error("Invalid shader type");
 
-		case ShaderType::Fragment: return Nz::ShaderStageType::Fragment;
-		case ShaderType::Vertex: return Nz::ShaderStageType::Vertex;
+		case ShaderType::Fragment: return nzsl::ShaderStageType::Fragment;
+		case ShaderType::Vertex: return nzsl::ShaderStageType::Vertex;
 	}
 
 	assert(false);
@@ -802,23 +802,23 @@ std::shared_ptr<QtNodes::DataModelRegistry> ShaderGraph::BuildRegistry()
 	return registry;
 }
 
-std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction() const
+std::unique_ptr<nzsl::Ast::DeclareFunctionStatement> ShaderGraph::ToFunction() const
 {
-	std::vector<Nz::ShaderAst::StatementPtr> statements;
+	std::vector<nzsl::Ast::StatementPtr> statements;
 
-	std::vector<Nz::ShaderAst::DeclareFunctionStatement::Parameter> parameters;
+	std::vector<nzsl::Ast::DeclareFunctionStatement::Parameter> parameters;
 	if (!m_inputs.empty())
 	{
 		auto& parameter = parameters.emplace_back();
 		parameter.name = "input";
-		parameter.type = Nz::ShaderAst::ExpressionPtr{ Nz::ShaderBuilder::Identifier("InputData") };
+		parameter.type = nzsl::Ast::ExpressionPtr{ nzsl::ShaderBuilder::Identifier("InputData") };
 	}
 
-	Nz::ShaderAst::ExpressionPtr returnType;
+	nzsl::Ast::ExpressionPtr returnType;
 	if (!m_outputs.empty())
 	{
-		returnType = Nz::ShaderBuilder::Identifier("OutputData");
-		statements.push_back(Nz::ShaderBuilder::DeclareVariable("output", Nz::ShaderAst::Clone(*returnType), nullptr));
+		returnType = nzsl::ShaderBuilder::Identifier("OutputData");
+		statements.push_back(nzsl::ShaderBuilder::DeclareVariable("output", nzsl::Ast::Clone(*returnType), nullptr));
 	}
 
 	using Key = QPair<QUuid, std::size_t>;
@@ -860,13 +860,13 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 		}
 	});
 
-	std::map<Key, Nz::ShaderAst::ExpressionPtr> variableExpressions;
+	std::map<Key, nzsl::Ast::ExpressionPtr> variableExpressions;
 
 	unsigned int varCount = 0;
 	std::unordered_set<std::string> usedVariableNames;
 
-	std::function<Nz::ShaderAst::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
-	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> Nz::ShaderAst::NodePtr
+	std::function<nzsl::Ast::NodePtr(QtNodes::Node*, std::size_t portIndex)> HandleNode;
+	HandleNode = [&](QtNodes::Node* node, std::size_t portIndex) -> nzsl::Ast::NodePtr
 	{
 		ShaderNode* shaderNode = static_cast<ShaderNode*>(node->nodeDataModel());
 		if (shaderNode->validationState() != QtNodes::NodeValidationState::Valid)
@@ -874,13 +874,13 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 
 		qDebug() << shaderNode->name() << node->id();
 		if (auto it = variableExpressions.find(BuildKey(node->id(), portIndex)); it != variableExpressions.end())
-			return Nz::ShaderAst::Clone(*it->second);
+			return nzsl::Ast::Clone(*it->second);
 
 		auto it = usageCount.find(BuildKey(node->id(), portIndex));
 		assert(it != usageCount.end());
 
 		std::size_t inputCount = shaderNode->nPorts(QtNodes::PortType::In);
-		Nz::StackArray<Nz::ShaderAst::ExpressionPtr> expressions = NazaraStackArray(Nz::ShaderAst::ExpressionPtr, inputCount);
+		Nz::StackArray<nzsl::Ast::ExpressionPtr> expressions = NazaraStackArray(nzsl::Ast::ExpressionPtr, inputCount);
 		std::size_t i = 0;
 
 		for (const auto& connectionSet : node->nodeState().getEntries(QtNodes::PortType::In))
@@ -888,26 +888,26 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 			for (const auto& [uuid, conn] : connectionSet)
 			{
 				assert(i < expressions.size());
-				Nz::ShaderAst::NodePtr inputNode = HandleNode(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
-				if (!Nz::ShaderAst::IsExpression(inputNode->GetType()))
+				nzsl::Ast::NodePtr inputNode = HandleNode(conn->getNode(QtNodes::PortType::Out), conn->getPortIndex(QtNodes::PortType::Out));
+				if (!nzsl::Ast::IsExpression(inputNode->GetType()))
 					throw std::runtime_error("unexpected statement");
 
-				expressions[i] = Nz::StaticUniquePointerCast<Nz::ShaderAst::Expression>(std::move(inputNode));
+				expressions[i] = Nz::StaticUniquePointerCast<nzsl::Ast::Expression>(std::move(inputNode));
 				i++;
 			}
 		}
 
 		auto astNode = shaderNode->BuildNode(expressions.data(), expressions.size(), portIndex);
-		if (!Nz::ShaderAst::IsExpression(astNode->GetType()))
+		if (!nzsl::Ast::IsExpression(astNode->GetType()))
 			return astNode;
 
-		Nz::ShaderAst::ExpressionPtr expression = Nz::StaticUniquePointerCast<Nz::ShaderAst::Expression>(std::move(astNode));
+		nzsl::Ast::ExpressionPtr expression = Nz::StaticUniquePointerCast<nzsl::Ast::Expression>(std::move(astNode));
 
 		const std::string& variableName = shaderNode->GetVariableName();
 		if (it->second > 1 || !variableName.empty())
 		{
-			Nz::ShaderAst::ExpressionPtr varExpression;
-			if (Nz::ShaderAst::GetExpressionCategory(*expression) == Nz::ShaderAst::ExpressionCategory::RValue)
+			nzsl::Ast::ExpressionPtr varExpression;
+			if (nzsl::Ast::GetExpressionCategory(*expression) == nzsl::Ast::ExpressionCategory::RValue)
 			{
 				std::string name;
 				if (variableName.empty())
@@ -920,14 +920,14 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 
 				usedVariableNames.insert(name);
 
-				statements.emplace_back(Nz::ShaderBuilder::DeclareVariable(name, std::move(expression)));
+				statements.emplace_back(nzsl::ShaderBuilder::DeclareVariable(name, std::move(expression)));
 
-				varExpression = Nz::ShaderBuilder::Identifier(name);
+				varExpression = nzsl::ShaderBuilder::Identifier(name);
 			}
 			else
 				varExpression = std::move(expression);
 
-			variableExpressions[BuildKey(node->id(), portIndex)] = Nz::ShaderAst::Clone(*varExpression);
+			variableExpressions[BuildKey(node->id(), portIndex)] = nzsl::Ast::Clone(*varExpression);
 
 			return varExpression;
 		}
@@ -946,14 +946,14 @@ std::unique_ptr<Nz::ShaderAst::DeclareFunctionStatement> ShaderGraph::ToFunction
 	for (QtNodes::Node* node : outputNodes)
 	{
 		auto astNode = HandleNode(node, 0);
-		if (!Nz::ShaderAst::IsStatement(astNode->GetType()))
-			statements.emplace_back(Nz::ShaderBuilder::ExpressionStatement(Nz::StaticUniquePointerCast<Nz::ShaderAst::Expression>(std::move(astNode))));
+		if (!nzsl::Ast::IsStatement(astNode->GetType()))
+			statements.emplace_back(nzsl::ShaderBuilder::ExpressionStatement(Nz::StaticUniquePointerCast<nzsl::Ast::Expression>(std::move(astNode))));
 		else
-			statements.emplace_back(Nz::StaticUniquePointerCast<Nz::ShaderAst::Statement>(std::move(astNode)));
+			statements.emplace_back(Nz::StaticUniquePointerCast<nzsl::Ast::Statement>(std::move(astNode)));
 	}
 
 	if (!m_outputs.empty())
-		statements.push_back(Nz::ShaderBuilder::Return(Nz::ShaderBuilder::Identifier("output")));
+		statements.push_back(nzsl::ShaderBuilder::Return(nzsl::ShaderBuilder::Identifier("output")));
 
-	return Nz::ShaderBuilder::DeclareFunction(ToShaderStageType(m_type), "main", std::move(parameters), std::move(statements), std::move(returnType));
+	return nzsl::ShaderBuilder::DeclareFunction(ToShaderStageType(m_type), "main", std::move(parameters), std::move(statements), std::move(returnType));
 }

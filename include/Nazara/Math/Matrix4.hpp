@@ -9,9 +9,9 @@
 
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
-#include <Nazara/Core/TypeTag.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Config.hpp>
+#include <Nazara/Utils/TypeTag.hpp>
 #include <cstddef>
 #include <string>
 

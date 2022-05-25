@@ -19,7 +19,7 @@ namespace Nz
 	ModuleBase<T>::ModuleBase(std::string moduleName, T* pointer, NoLog) :
 	m_moduleName(std::move(moduleName))
 	{
-		NazaraAssert(T::s_instance == nullptr, "only one instance of " + m_moduleName + " must exist at a given time");
+		NazaraAssert(T::s_instance == nullptr, "only one instance of " + m_moduleName + " can exist at a given time");
 		T::s_instance = pointer;
 	}
 

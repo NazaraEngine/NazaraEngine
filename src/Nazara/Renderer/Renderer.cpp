@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
@@ -12,6 +11,7 @@
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <filesystem>
 #include <stdexcept>
 #include <Nazara/Renderer/Debug.hpp>

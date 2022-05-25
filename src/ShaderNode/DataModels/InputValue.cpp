@@ -4,7 +4,7 @@
 #include <ShaderNode/DataTypes/FloatData.hpp>
 #include <ShaderNode/DataTypes/Matrix4Data.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 #include <QtWidgets/QFormLayout>
 
 InputValue::InputValue(ShaderGraph& graph) :
@@ -109,7 +109,7 @@ void InputValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Input"), inputSelection);
 }
 
-Nz::ShaderAst::NodePtr InputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr InputValue::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);
@@ -118,7 +118,7 @@ Nz::ShaderAst::NodePtr InputValue::BuildNode(Nz::ShaderAst::ExpressionPtr* /*exp
 		throw std::runtime_error("no input");
 
 	const auto& inputEntry = GetGraph().GetInput(*m_currentInputIndex);
-	return Nz::ShaderBuilder::AccessMember(Nz::ShaderBuilder::Identifier("input"), { inputEntry.name });
+	return nzsl::ShaderBuilder::AccessMember(nzsl::ShaderBuilder::Identifier("input"), { inputEntry.name });
 }
 
 auto InputValue::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType

@@ -1,23 +1,23 @@
 #include <ShaderNode/DataModels/Mat4BinOp.hpp>
-#include <Nazara/Shader/ShaderBuilder.hpp>
+#include <NZSL/ShaderBuilder.hpp>
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 Mat4BinOp<Op>::Mat4BinOp(ShaderGraph& graph) :
 ShaderNode(graph)
 {
 	UpdateOutput();
 }
 
-template<Nz::ShaderAst::BinaryType Op>
-Nz::ShaderAst::NodePtr Mat4BinOp<Op>::BuildNode(Nz::ShaderAst::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+template<nzsl::Ast::BinaryType Op>
+nzsl::Ast::NodePtr Mat4BinOp<Op>::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 2);
 	assert(outputIndex == 0);
 
-	return Nz::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
+	return nzsl::ShaderBuilder::Binary(Op, std::move(expressions[0]), std::move(expressions[1]));
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 QtNodes::NodeDataType Mat4BinOp<Op>::dataType(QtNodes::PortType /*portType*/, QtNodes::PortIndex portIndex) const
 {
 	assert(portIndex == 0 || portIndex == 1);
@@ -25,7 +25,7 @@ QtNodes::NodeDataType Mat4BinOp<Op>::dataType(QtNodes::PortType /*portType*/, Qt
 	return Matrix4Data::Type();
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 unsigned int Mat4BinOp<Op>::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
@@ -39,14 +39,14 @@ unsigned int Mat4BinOp<Op>::nPorts(QtNodes::PortType portType) const
 	throw std::runtime_error("invalid port type");
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 std::shared_ptr<QtNodes::NodeData> Mat4BinOp<Op>::outData(QtNodes::PortIndex port)
 {
 	assert(port == 0);
 	return m_output;
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 void Mat4BinOp<Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, int index)
 {
 	assert(index == 0 || index == 1);
@@ -66,7 +66,7 @@ void Mat4BinOp<Op>::setInData(std::shared_ptr<QtNodes::NodeData> value, int inde
 	UpdateOutput();
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 QtNodes::NodeValidationState Mat4BinOp<Op>::validationState() const
 {
 	if (!m_lhs || !m_rhs)
@@ -75,7 +75,7 @@ QtNodes::NodeValidationState Mat4BinOp<Op>::validationState() const
 	return QtNodes::NodeValidationState::Valid;
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 QString Mat4BinOp<Op>::validationMessage() const
 {
 	if (!m_lhs || !m_rhs)
@@ -84,7 +84,7 @@ QString Mat4BinOp<Op>::validationMessage() const
 	return QString();
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 bool Mat4BinOp<Op>::ComputePreview(QPixmap& pixmap)
 {
 	if (!m_lhs || !m_rhs)
@@ -96,7 +96,7 @@ bool Mat4BinOp<Op>::ComputePreview(QPixmap& pixmap)
 	//return true;
 }
 
-template<Nz::ShaderAst::BinaryType Op>
+template<nzsl::Ast::BinaryType Op>
 void Mat4BinOp<Op>::UpdateOutput()
 {
 	if (validationState() != QtNodes::NodeValidationState::Valid)

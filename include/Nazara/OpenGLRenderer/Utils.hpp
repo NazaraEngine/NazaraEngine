@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Shader/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <NZSL/Enums.hpp>
 #include <optional>
 #include <string>
 
@@ -40,7 +40,7 @@ namespace Nz
 	inline GLenum ToOpenGL(SamplerFilter filter);
 	inline GLenum ToOpenGL(SamplerFilter minFilter, SamplerMipmapMode mipmapFilter);
 	inline GLenum ToOpenGL(SamplerWrap wrapMode);
-	inline GLenum ToOpenGL(ShaderStageType stageType);
+	inline GLenum ToOpenGL(nzsl::ShaderStageType stageType);
 	inline GLenum ToOpenGL(StencilOperation stencilOp);
 	inline GLenum ToOpenGL(GL::BufferTarget bufferTarget);
 	inline GLenum ToOpenGL(GL::TextureTarget bufferTarget);

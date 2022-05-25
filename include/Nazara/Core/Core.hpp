@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/Modules.hpp>
-#include <Nazara/Core/TypeList.hpp>
+#include <Nazara/Utils/TypeList.hpp>
 
 namespace Nz
 {

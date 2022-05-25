@@ -61,9 +61,6 @@
 // Number of spinlocks to use with the Windows critical sections (0 to disable)
 #define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
 
-// Optimize the Windows implementation with technologies of Windows NT 6.0 (and greater) (Breaks the compatibility with Windows XP)
-#define NAZARA_CORE_WINDOWS_NT6 1
-
 
 /*
 // Sets the time between waking thread timers and activating a timer (in milliseconds)

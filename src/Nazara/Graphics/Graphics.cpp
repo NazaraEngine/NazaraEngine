@@ -6,9 +6,9 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Shader/Ast/AstSerializer.hpp>
-#include <Nazara/Shader/Ast/Module.hpp>
 #include <Nazara/Utility/Font.hpp>
+#include <NZSL/Ast/AstSerializer.hpp>
+#include <NZSL/Ast/Module.hpp>
 #include <array>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
@@ -145,7 +145,7 @@ namespace Nz
 			{
 				0, 0,
 				ShaderBindingType::Texture,
-				ShaderStageType::Fragment
+				nzsl::ShaderStageType::Fragment
 			}
 		});
 
@@ -153,12 +153,12 @@ namespace Nz
 		if (!m_blitPipelineLayout)
 			throw std::runtime_error("failed to instantiate fullscreen renderpipeline layout");
 
-		ShaderAst::ModulePtr blitShaderModule = m_shaderModuleResolver->Resolve("TextureBlit");
+		nzsl::Ast::ModulePtr blitShaderModule = m_shaderModuleResolver->Resolve("TextureBlit");
 
-		ShaderWriter::States states;
+		nzsl::ShaderWriter::States states;
 		states.shaderModuleResolver = m_shaderModuleResolver;
 
-		auto blitShader = m_renderDevice->InstantiateShaderModule(ShaderStageType::Fragment | ShaderStageType::Vertex, *blitShaderModule, states);
+		auto blitShader = m_renderDevice->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *blitShaderModule, states);
 		if (!blitShader)
 			throw std::runtime_error("failed to instantiate blit shader");
 
@@ -238,7 +238,7 @@ namespace Nz
 
 	void Graphics::RegisterShaderModules()
 	{
-		m_shaderModuleResolver = std::make_shared<FilesystemModuleResolver>();
+		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 		RegisterEmbedShaderModule(r_basicMaterialShader);
 		RegisterEmbedShaderModule(r_depthMaterialShader);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
@@ -261,7 +261,8 @@ namespace Nz
 	template<std::size_t N>
 	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
 	{
-		m_shaderModuleResolver->RegisterModule(ShaderAst::UnserializeShader(content, N));
+		nzsl::Unserializer unserializer(content, N);
+		m_shaderModuleResolver->RegisterModule(nzsl::Ast::UnserializeShader(unserializer));
 	}
 
 	void Graphics::SelectDepthStencilFormats()

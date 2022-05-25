@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Core/CallOnExit.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

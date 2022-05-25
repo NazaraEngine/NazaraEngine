@@ -8,7 +8,7 @@
 #include FT_BITMAP_H
 #include FT_STROKER_H
 #include FT_OUTLINE_H
-#include <Nazara/Core/CallOnExit.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>

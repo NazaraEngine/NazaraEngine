@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
-#include <Nazara/Core/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 

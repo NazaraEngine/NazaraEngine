@@ -11,9 +11,9 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
-#include <winsock2.h>
+#include <WinSock2.h>
 
-#define NAZARA_NETWORK_POLL_SUPPORT NAZARA_CORE_WINDOWS_NT6
+#define NAZARA_NETWORK_POLL_SUPPORT NAZARA_UTILS_WINDOWS_NT6
 
 namespace Nz
 {
