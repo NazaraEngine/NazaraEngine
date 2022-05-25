@@ -62,7 +62,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake.exe config --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
+      run: xmake.exe config --ccache=n --shadernodes=y --tests=y --unitybuild=y --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
 
     # Build the engine
     - name: Build Nazara
