@@ -1,5 +1,5 @@
 -- Turns resources into includables headers
-rule("embed_resources")
+rule("embed.resources")
 	before_build(function (target, opt)
 		import("core.base.option")
 		if xmake.version():ge("2.5.9") then
@@ -42,7 +42,7 @@ rule("embed_resources")
 		end
 
 		for _, sourcebatch in pairs(target:sourcebatches()) do
-			if sourcebatch.rulename == "embed_resources" then
+			if sourcebatch.rulename == "embed.resources" then
 				for _, sourcefile in ipairs(sourcebatch.sourcefiles) do
 					local targetpath = sourcefile .. ".h"
 					if option.get("rebuild") or os.mtime(sourcefile) >= os.mtime(targetpath) then

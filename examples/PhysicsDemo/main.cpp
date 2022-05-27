@@ -22,9 +22,9 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main()
 {
-	std::filesystem::path resourceDir = "resources";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
-		resourceDir = ".." / resourceDir;
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;

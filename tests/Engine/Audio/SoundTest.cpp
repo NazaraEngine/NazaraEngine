@@ -4,7 +4,7 @@
 #include <chrono>
 #include <thread>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("Sound", "[AUDIO][SOUND]")
 {
@@ -14,7 +14,7 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 		WHEN("We load our sound")
 		{
-			REQUIRE(sound.LoadFromFile(GetResourceDir() / "Engine/Audio/Cat.flac"));
+			REQUIRE(sound.LoadFromFile(GetAssetDir() / "Audio/Cat.flac"));
 
 			THEN("We can ask the informations of the file")
 			{

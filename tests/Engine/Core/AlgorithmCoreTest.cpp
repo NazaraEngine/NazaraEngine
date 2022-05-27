@@ -7,11 +7,11 @@
 #include <filesystem>
 #include <variant>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 TEST_CASE("ComputeHash", "[CORE][ALGORITHM]")
 {
-	std::filesystem::path testFilePath = GetResourceDir() / "Logo.png";
+	std::filesystem::path testFilePath = GetAssetDir() / "Logo.png";
 
 	struct Test
 	{

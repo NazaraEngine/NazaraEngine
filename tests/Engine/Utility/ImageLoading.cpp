@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 #include <filesystem>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("Images", "[Utility][Image]")
 {
@@ -10,7 +10,7 @@ SCENARIO("Images", "[Utility][Image]")
 	{
 		GIVEN("Logo.png")
 		{
-			std::shared_ptr<Nz::Image> logo = Nz::Image::LoadFromFile(GetResourceDir() / "Logo.png");
+			std::shared_ptr<Nz::Image> logo = Nz::Image::LoadFromFile(GetAssetDir() / "Logo.png");
 			REQUIRE(logo);
 
 			CHECK(logo->GetWidth() == 765);
@@ -26,7 +26,7 @@ SCENARIO("Images", "[Utility][Image]")
 	{
 		GIVEN("stars-background.jpg")
 		{
-			std::shared_ptr<Nz::Image> background = Nz::Image::LoadFromFile(GetResourceDir() / "stars-background.jpg");
+			std::shared_ptr<Nz::Image> background = Nz::Image::LoadFromFile(GetAssetDir() / "Utility/stars-background.jpg");
 			REQUIRE(background);
 
 			CHECK(background->GetWidth() == 1920);

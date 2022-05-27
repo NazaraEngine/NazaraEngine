@@ -6,7 +6,7 @@
 #include <catch2/catch.hpp>
 #include <random>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 {
@@ -187,7 +187,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 	SECTION("Accessing filesystem using a VirtualDirectory")
 	{
-		std::shared_ptr<Nz::VirtualDirectory> resourceDir = std::make_shared<Nz::VirtualDirectory>(GetResourceDir());
+		std::shared_ptr<Nz::VirtualDirectory> resourceDir = std::make_shared<Nz::VirtualDirectory>(GetAssetDir());
 
 		WHEN("Iterating, it's not empty")
 		{
@@ -242,18 +242,18 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		{
 			CHECK(CheckFileHash(resourceDir, "Logo.png", "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423"));
 			CHECK(CheckFileHash(resourceDir, "./Logo.png", "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423"));
-			CHECK(CheckFileHash(resourceDir, "Engine/Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
-			CHECK(CheckFileHash(resourceDir, "Engine/Audio/./The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK(CheckFileHash(resourceDir, "Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK(CheckFileHash(resourceDir, "Audio/./The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
 			CHECK_FALSE(CheckFileHash(resourceDir, "The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
-			CHECK_FALSE(CheckFileHash(resourceDir, "Engine/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
-			CHECK_FALSE(CheckFileHash(resourceDir, "Engine/Audio/../The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK_FALSE(CheckFileHash(resourceDir, "The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK_FALSE(CheckFileHash(resourceDir, "Audio/../The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
 
 			// We can't escape the virtual directory
 			CHECK(CheckFileHash(resourceDir, "../Logo.png", "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423"));
 			CHECK(CheckFileHash(resourceDir, "../../Logo.png", "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423"));
-			CHECK(CheckFileHash(resourceDir, "Engine/../Engine/Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
-			CHECK(CheckFileHash(resourceDir, "../Engine/./Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
-			CHECK_FALSE(CheckFileHash(resourceDir, "../Engine/Engine/Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK(CheckFileHash(resourceDir, "../../Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK(CheckFileHash(resourceDir, ".././Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK_FALSE(CheckFileHash(resourceDir, "../Tests/Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
 
 			auto CheckOurselves = [&](const auto& entry)
 			{
@@ -266,37 +266,38 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			CHECK(resourceDir->GetEntry("../..", CheckOurselves));
 			CHECK(resourceDir->GetEntry("./..", CheckOurselves));
 			CHECK(resourceDir->GetEntry("./..", CheckOurselves));
-			CHECK(resourceDir->GetEntry("Engine/../..", CheckOurselves));
-			CHECK(resourceDir->GetEntry("Engine/../Engine/Audio/../../..", CheckOurselves));
+			CHECK(resourceDir->GetEntry("Audio/../..", CheckOurselves));
+			CHECK(resourceDir->GetEntry("Core/../Audio/../../..", CheckOurselves));
 		}
 		AND_THEN("Overriding the physical file with another one")
 		{
-			resourceDir->StoreFile("Logo.png", GetResourceDir() / "ambience.ogg");
-			CHECK(CheckFileHash(resourceDir, "ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
+			resourceDir->StoreFile("Logo.png", GetAssetDir() / "Audio/ambience.ogg");
+
+			CHECK(CheckFileHash(resourceDir, "Audio/ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileHash(resourceDir, "Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
-			CHECK(CheckFileContentHash(resourceDir, "ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
+			CHECK(CheckFileContentHash(resourceDir, "Audio/ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileContentHash(resourceDir, "Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 		}
 
 		WHEN("Testing uproot escape")
 		{
-			std::shared_ptr<Nz::VirtualDirectory> engineDir = std::make_shared<Nz::VirtualDirectory>(GetResourceDir() / "Engine");
+			std::shared_ptr<Nz::VirtualDirectory> engineDir = std::make_shared<Nz::VirtualDirectory>(GetAssetDir() / "Audio");
 
 			CHECK_FALSE(engineDir->IsUprootAllowed());
 
 			// We can't escape the virtual directory
 			CHECK_FALSE(engineDir->Exists("../Logo.png"));
 			CHECK_FALSE(engineDir->Exists("../../Logo.png"));
-			CHECK_FALSE(engineDir->Exists("../Engine/Audio/Audio/The_Brabanconne.ogg"));
-			CHECK(CheckFileHash(engineDir, "Audio/../../Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
-			CHECK(CheckFileHash(engineDir, "../Audio/./The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK_FALSE(engineDir->Exists("../Tests/Audio/Audio/The_Brabanconne.ogg"));
+			CHECK(CheckFileHash(engineDir, "../../The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK(CheckFileHash(engineDir, ".././The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
 
 			engineDir->AllowUproot(true);
 			CHECK(engineDir->IsUprootAllowed());
 
-			// Now we're able to access the resource folder beneath
+			// Now we're able to access the asset folder beneath
 			CHECK(CheckFileHash(engineDir, "../Logo.png", "5C4B9387327C039A6CE9ED51983D6C2ADA9F9DD01D024C2D5D588237ADFC7423"));
-			CHECK(CheckFileHash(engineDir, "../Engine/Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
+			CHECK(CheckFileHash(engineDir, "../Audio/The_Brabanconne.ogg", "E07706E0BEEC7770CDE36008826743AF9EEE5C80CA0BD83C37771CBC8B52E738"));
 		}
 	}
 }

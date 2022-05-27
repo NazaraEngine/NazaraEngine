@@ -1,15 +1,15 @@
 #include <filesystem>
 
-std::filesystem::path GetResourceDir()
+std::filesystem::path GetAssetDir()
 {
 	static std::filesystem::path resourceDir = []
 	{
-		std::filesystem::path dir = "resources";
-		if (!std::filesystem::is_directory(dir) && std::filesystem::is_directory(".." / dir))
-			return ".." / dir;
-		else
-			return dir;
+		std::filesystem::path dir = "assets";
+		if (!std::filesystem::is_directory(dir) && std::filesystem::is_directory("../.." / dir))
+			dir = "../.." / dir;
 
+		return dir / "tests";
 	}();
+
 	return resourceDir;
 }

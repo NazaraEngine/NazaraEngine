@@ -5,7 +5,7 @@
 #include <array>
 #include <filesystem>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("Fonts", "[Utility][Font]")
 {

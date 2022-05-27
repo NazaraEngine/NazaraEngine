@@ -1,7 +1,7 @@
 local modules = NazaraModules
 
 -- Builds renderer plugins if linked to NazaraRenderer
-rule("build_rendererplugins")
+rule("build.rendererplugins")
 	on_load(function (target)
 		local deps = table.wrap(target:get("deps"))
 

@@ -4,7 +4,7 @@
 #include <catch2/catch.hpp>
 #include <filesystem>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 void CompareFrames(const Nz::ImageStream& gif, std::vector<Nz::UInt8>& frameData, const Nz::Image& referenceImage)
 {
@@ -26,7 +26,7 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 		Nz::UInt64 time;
 	};
 
-	std::filesystem::path resourcePath = GetResourceDir();
+	std::filesystem::path resourcePath = GetAssetDir();
 
 	WHEN("Loading GIF files")
 	{
@@ -34,28 +34,28 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 		{
 			std::array expectedFrames = {
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_bgnd/0.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/0.png"),
 					0
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_bgnd/1.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/1.png"),
 					1000
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_bgnd/2.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/2.png"),
 					2000
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_bgnd/3.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/3.png"),
 					3000
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_bgnd/4.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/4.png"),
 					4000
 				}
 			};
 
-			std::shared_ptr<Nz::ImageStream> gif = Nz::ImageStream::OpenFromFile(resourcePath / "Tests/GIF/canvas_bgnd.gif");
+			std::shared_ptr<Nz::ImageStream> gif = Nz::ImageStream::OpenFromFile(resourcePath / "Utility/GIF/canvas_bgnd.gif");
 			REQUIRE(gif);
 
 			Nz::Vector2ui size = gif->GetSize();
@@ -100,28 +100,28 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 		{
 			std::array expectedFrames = {
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_prev/0.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/0.png"),
 					0
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_prev/1.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/1.png"),
 					100
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_prev/2.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/2.png"),
 					1100
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_prev/3.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/3.png"),
 					2100
 				},
 				ExpectedFrame{
-					Nz::Image::LoadFromFile(resourcePath / "Tests/GIF/canvas_prev/4.png"),
+					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/4.png"),
 					3100
 				}
 			};
 
-			std::shared_ptr<Nz::ImageStream> gif = Nz::ImageStream::OpenFromFile(resourcePath / "Tests/GIF/canvas_prev.gif");
+			std::shared_ptr<Nz::ImageStream> gif = Nz::ImageStream::OpenFromFile(resourcePath / "Utility/GIF/canvas_prev.gif");
 			REQUIRE(gif);
 
 			Nz::Vector2ui size = gif->GetSize();

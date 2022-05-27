@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 #include <filesystem>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("Meshes", "[Utility][Mesh]")
 {
@@ -10,7 +10,7 @@ SCENARIO("Meshes", "[Utility][Mesh]")
 	{
 		GIVEN("Spaceship/spaceship.obj")
 		{
-			std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(GetResourceDir() / "Spaceship/spaceship.obj");
+			std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(GetAssetDir() / "Utility/Spaceship/spaceship.obj");
 			REQUIRE(spaceship);
 
 			CHECK(!spaceship->IsAnimable());
@@ -22,7 +22,7 @@ SCENARIO("Meshes", "[Utility][Mesh]")
 
 		GIVEN("SpaceStation/space_station.obj")
 		{
-			std::shared_ptr<Nz::Mesh> spacestation = Nz::Mesh::LoadFromFile(GetResourceDir() / "SpaceStation/space_station.obj");
+			std::shared_ptr<Nz::Mesh> spacestation = Nz::Mesh::LoadFromFile(GetAssetDir() / "Utility/SpaceStation/space_station.obj");
 			REQUIRE(spacestation);
 
 			CHECK(!spacestation->IsAnimable());
@@ -37,7 +37,7 @@ SCENARIO("Meshes", "[Utility][Mesh]")
 	{
 		GIVEN("drfreak.md2")
 		{
-			std::shared_ptr<Nz::Mesh> drfreak = Nz::Mesh::LoadFromFile(GetResourceDir() / "drfreak.md2");
+			std::shared_ptr<Nz::Mesh> drfreak = Nz::Mesh::LoadFromFile(GetAssetDir() / "Utility/drfreak/drfreak.md2");
 			CHECK(drfreak);
 
 			CHECK(!drfreak->IsAnimable()); //< non-skeletal animations are not supported

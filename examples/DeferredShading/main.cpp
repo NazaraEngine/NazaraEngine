@@ -65,9 +65,13 @@ struct SpotLight
 
 int main()
 {
-	std::filesystem::path resourceDir = "resources";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
-		resourceDir = ".." / resourceDir;
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
+
+	std::filesystem::path shaderDir = "assets/shaders";
+	if (!std::filesystem::is_directory(shaderDir) && std::filesystem::is_directory("../.." / shaderDir))
+		shaderDir = "../.." / shaderDir;
 
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
@@ -154,7 +158,7 @@ int main()
 	skyboxPipelineInfo.faceCulling = true;
 	skyboxPipelineInfo.cullingSide = Nz::FaceSide::Front;
 	skyboxPipelineInfo.pipelineLayout = skyboxPipelineLayout;
-	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "skybox.nzsl", states));
+	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "skybox.nzsl", states));
 	skyboxPipelineInfo.vertexBuffers.push_back({
 		0,
 		meshPrimitiveParams.vertexDeclaration
@@ -187,8 +191,8 @@ int main()
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders.clear();
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(resourceDir / "deferred_frag.nzsl")));
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(resourceDir / "deferred_vert.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl")));
+	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(shaderDir / "deferred_vert.nzsl")));
 
 	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
 
@@ -385,7 +389,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_bright.nzsl", states));
+	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_bright.nzsl", states));
 
 	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding;
 
@@ -409,7 +413,7 @@ int main()
 	std::size_t gaussianBlurDataSize = gaussianBlurDataOffsets.AddField(nzsl::StructFieldType::Float1);
 
 	gaussianBlurPipelineInfo.shaderModules.clear();
-	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gaussian_blur.nzsl", states));
+	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gaussian_blur.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
@@ -439,7 +443,7 @@ int main()
 	std::shared_ptr<Nz::ShaderBinding> toneMappingShaderBinding;
 
 	fullscreenPipelineInfoViewer.shaderModules.clear();
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "tone_mapping.nzsl", states));
+	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "tone_mapping.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
@@ -478,7 +482,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "bloom_final.nzsl", states));
+	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_final.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
@@ -502,7 +506,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "gamma.nzsl", states));
+	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gamma.nzsl", states));
 
 	// God rays
 
@@ -536,7 +540,7 @@ int main()
 		fullscreenVertexDeclaration
 	});
 
-	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "god_rays.nzsl", states));
+	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "god_rays.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
 
@@ -591,7 +595,7 @@ int main()
 	lightingPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Zero;
 	lightingPipelineInfo.stencilBack.pass = Nz::StencilOperation::Zero;
 
-	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", states));
+	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "lighting.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
 
@@ -613,7 +617,7 @@ int main()
 	stencilPipelineInfo.stencilBack.compare = Nz::RendererComparison::Always;
 	stencilPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Invert;
 
-	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, resourceDir / "lighting.nzsl", states));
+	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "lighting.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
 

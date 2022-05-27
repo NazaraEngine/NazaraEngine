@@ -4,7 +4,7 @@
 #include <chrono>
 #include <thread>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("Music", "[AUDIO][MUSIC]")
 {
@@ -14,7 +14,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 		WHEN("We load our music")
 		{
-			REQUIRE(music.OpenFromFile(GetResourceDir() / "Engine/Audio/The_Brabanconne.ogg"));
+			REQUIRE(music.OpenFromFile(GetAssetDir() / "Audio/The_Brabanconne.ogg"));
 
 			THEN("We can ask the informations of the file")
 			{

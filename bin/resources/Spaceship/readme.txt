@@ -1,1 +1,0 @@
-http://thefree3dmodels.com/stuff/aircraft/spaceship/15-1-0-1415

@@ -1,5 +1,5 @@
 -- Compile shaders to includables headers
-rule("compile_shaders")
+rule("nzsl.compile.shaders")
 	on_load(function (target)
 		target:add("packages", "nzsl")
 	end)

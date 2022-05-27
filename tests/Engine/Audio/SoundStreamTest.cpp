@@ -1,7 +1,7 @@
 #include <Nazara/Audio/SoundStream.hpp>
 #include <catch2/catch.hpp>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 {
@@ -9,7 +9,7 @@ SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 	{
 		WHEN("We load a .flac file")
 		{
-			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetResourceDir() / "Engine/Audio/Cat.flac");
+			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetAssetDir() / "Audio/Cat.flac");
 			REQUIRE(soundStream);
 
 			THEN("We can ask the informations of the file")
@@ -22,7 +22,7 @@ SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 
 		WHEN("We load a .mp3 file")
 		{
-			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetResourceDir() / "file_example_MP3_700KB.mp3");
+			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetAssetDir() / "Audio/file_example_MP3_700KB.mp3");
 			REQUIRE(soundStream);
 
 			THEN("We can ask the informations of the file")
@@ -35,7 +35,7 @@ SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 
 		WHEN("We load a .ogg file")
 		{
-			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetResourceDir() / "Engine/Audio/The_Brabanconne.ogg");
+			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetAssetDir() / "Audio/The_Brabanconne.ogg");
 			REQUIRE(soundStream);
 
 			THEN("We can ask the informations of the file")
@@ -48,14 +48,14 @@ SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 
 		WHEN("We load a .wav file")
 		{
-			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetResourceDir() / "explosion.wav");
+			std::shared_ptr<Nz::SoundStream> soundStream = Nz::SoundStream::OpenFromFile(GetAssetDir() / "Audio/explosion1.wav");
 			REQUIRE(soundStream);
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundStream->GetDuration() == 2064);
-				CHECK(soundStream->GetFormat() == Nz::AudioFormat::I16_Stereo);
-				CHECK(soundStream->GetSampleRate() == 48000);
+				CHECK(soundStream->GetDuration() == 2490);
+				CHECK(soundStream->GetFormat() == Nz::AudioFormat::I16_Mono);
+				CHECK(soundStream->GetSampleRate() == 44100);
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 #include <Nazara/Audio/Sound.hpp>
 #include <catch2/catch.hpp>
 
-std::filesystem::path GetResourceDir();
+std::filesystem::path GetAssetDir();
 
 SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 {
@@ -11,7 +11,7 @@ SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 
 		WHEN("We load our sound")
 		{
-			REQUIRE(sound.LoadFromFile(GetResourceDir() / "Engine/Audio/Cat.flac"));
+			REQUIRE(sound.LoadFromFile(GetAssetDir() / "Audio/Cat.flac"));
 
 			THEN("We can ask information about position and velocity")
 			{

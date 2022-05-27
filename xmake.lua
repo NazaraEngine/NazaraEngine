@@ -154,7 +154,12 @@ end
 
 add_rules("mode.asan", "mode.coverage", "mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
-add_rules("build_rendererplugins")
+add_rules("build.rendererplugins")
+add_rules("download.assets.examples")
+
+if has_config("tests") then
+	add_rules("download.assets.tests")
+end
 
 set_allowedplats("windows", "mingw", "linux", "macosx")
 set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
@@ -162,7 +167,7 @@ set_allowedmodes("debug", "releasedbg", "asan", "coverage")
 set_defaultmode("debug")
 
 if is_mode("debug") then
-	add_rules("debug_suffix")
+	add_rules("debug.suffix")
 elseif is_mode("asan") then
 	set_optimize("none") -- by default xmake will optimize asan builds
 elseif is_mode("coverage") then
@@ -258,11 +263,11 @@ for name, module in pairs(modules) do
 		local embedResourceRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
 			if not embedResourceRule then
-				add_rules("embed_resources")
+				add_rules("embed.resources")
 				embedResourceRule = true
 			end
 
-			add_files(filepath, {rule = "embed_resources"})
+			add_files(filepath, {rule = "embed.resources"})
 		end
 	end
 
@@ -270,11 +275,11 @@ for name, module in pairs(modules) do
 		local compileShaderRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
 			if not compileShaderRule then
-				add_rules("compile_shaders")
+				add_rules("nzsl.compile.shaders")
 				compileShaderRule = true
 			end
 
-			add_files(filepath, {rule = "compile_shaders"})
+			add_files(filepath, {rule = "nzsl.compile.shaders"})
 		end
 	end
 

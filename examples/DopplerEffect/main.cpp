@@ -20,14 +20,14 @@
 
 int main()
 {
-	std::filesystem::path resourceDir = "resources";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
-		resourceDir = ".." / resourceDir;
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
 
 	Nz::Modules<Nz::Audio> audio;
 
 	Nz::Sound sound;
-	if (!sound.LoadFromFile(resourceDir / "siren.wav"))
+	if (!sound.LoadFromFile(resourceDir / "Audio/siren.wav"))
 	{
 		std::cout << "Failed to load sound" << std::endl;
 		std::getchar();
