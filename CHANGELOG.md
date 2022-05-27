@@ -344,8 +344,8 @@ Build system:
 
 Nazara Engine:
 - Improved Particle Demo
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/126 File locking now works properly on Linux
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/136 Fixed std::getline with Nz::String not setting eofbit.
+- https://github.com/NazaraEngine/NazaraEngine/pull/126 File locking now works properly on Linux
+- https://github.com/NazaraEngine/NazaraEngine/pull/136 Fixed std::getline with Nz::String not setting eofbit.
 - Added support for CRC64
 - Added MovablePtr utility class
 - ⚠️ StackAllocation class has been replaced with much-more user-friendly StackArray class.
@@ -362,7 +362,7 @@ Nazara Engine:
 - ⚠️ SocketPoller::Wait() has now support for infinite waiting (-1)
 - Added UdpSocket::ReceiveMultiple method
 - **Added WIP shader build (based on AST, with support for GLSL)**
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/127 Fixed RigidBody2D::GetAABB() wrong AABB
+- https://github.com/NazaraEngine/NazaraEngine/pull/127 Fixed RigidBody2D::GetAABB() wrong AABB
 - **Added basic support for constraints**
 - Added support for collision callbacks
 - Added support for raycast
@@ -370,8 +370,8 @@ Nazara Engine:
 - Added support for debug draw
 - Added support for damping
 - ⚠️ RigidBody2D created without mass are now kinematic by default instead of statics
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/128 ⚠️ **Platform-specific classes were moved to a new module: Platform** (this means Utility module no longer needs to be linked to X11/xcb or gdi32).
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/135 ⚠️ Improved vertex declarations (they now checks template type with real type)
+- https://github.com/NazaraEngine/NazaraEngine/pull/128 ⚠️ **Platform-specific classes were moved to a new module: Platform** (this means Utility module no longer needs to be linked to X11/xcb or gdi32).
+- https://github.com/NazaraEngine/NazaraEngine/pull/135 ⚠️ Improved vertex declarations (they now checks template type with real type)
 - Mesh index buffer optimization is now disabled by default in debug mode
 - It is now possible to set the vertex declaration wanted when building/loading a mesh
 - It is now possible to set index/vertex buffer usage flags when building/loading a mesh
@@ -397,10 +397,10 @@ Nazara Development Kit:
 - ⚠️EntityList were remade to take less memory and are easier to use but can only be iterated from front to back
 - Entities are now automatically removed from EntityLists when destroyed.
 - It is no longer required for a component to have a default constructor to be binded to Lua.
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/123 StateMachine can now handle multiple states at once
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/132 Added ProgressBarWidget
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/133 ButtonWidget color and texture can now be customized
-- https://github.com/DigitalPulseSoftware/NazaraEngine/pull/130 Added CheckboxWidget
+- https://github.com/NazaraEngine/NazaraEngine/pull/123 StateMachine can now handle multiple states at once
+- https://github.com/NazaraEngine/NazaraEngine/pull/132 Added ProgressBarWidget
+- https://github.com/NazaraEngine/NazaraEngine/pull/133 ButtonWidget color and texture can now be customized
+- https://github.com/NazaraEngine/NazaraEngine/pull/130 Added CheckboxWidget
 - Added OnEntityDestruction() event on components in order to let them do better cleanup.
 
 # 0.3

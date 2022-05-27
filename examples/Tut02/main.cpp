@@ -1,4 +1,4 @@
-// Sources pour https://github.com/DigitalPulseSoftware/NazaraEngine/wiki/(FR)-Tutoriel:-%5B02%5D-Gestion-des-événements
+// Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B02%5D-Gestion-des-événements
 
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/Components.hpp>

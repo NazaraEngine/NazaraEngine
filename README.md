@@ -1,9 +1,9 @@
 ﻿Platform | Build Status
 ------------ | -------------
-Windows | [![Windows build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/windows-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/windows-build.yml)
-MSYS2 (MinGW64) | [![Windows build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/msys2-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/msys2-build.yml)
-Linux | [![Linux build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/linux-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/linux-build.yml)
-macOS | [![macOS build status](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/macos-build.yml/badge.svg)](https://github.com/DigitalPulseSoftware/NazaraEngine/actions/workflows/macos-build.yml)
+Windows | [![Windows build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/windows-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/windows-build.yml)
+MSYS2 (MinGW64) | [![Windows build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/msys2-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/msys2-build.yml)
+Linux | [![Linux build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/linux-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/linux-build.yml)
+macOS | [![macOS build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/macos-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/macos-build.yml)
 
 # Nazara Engine  
 
@@ -30,22 +30,22 @@ See [INSTALL.md](INSTALL.md) for build instructions.
 
 ## How to use
 
-You can find tutorials on installation, compilation and use on the [official wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)
+You can find tutorials on installation, compilation and use on the [official wiki](https://github.com/NazaraEngine/NazaraEngine/wiki)
 
 ## Contribute
 
 ##### Don't hesitate to contribute to Nazara Engine by:
-- Extending the [wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)
+- Extending the [wiki](https://github.com/NazaraEngine/NazaraEngine/wiki)
 - Submitting a patch to GitHub  
-- Post suggestions/bugs on the forum or the [GitHub tracker](https://github.com/DigitalPulseSoftware/NazaraEngine/issues)    
-- [Fork the project](https://github.com/DigitalPulseSoftware/NazaraEngine/fork) on GitHub and [push your changes](https://github.com/DigitalPulseSoftware/NazaraEngine/pulls)  
+- Post suggestions/bugs on the forum or the [GitHub tracker](https://github.com/NazaraEngine/NazaraEngine/issues)    
+- [Fork the project](https://github.com/NazaraEngine/NazaraEngine/fork) on GitHub and [push your changes](https://github.com/NazaraEngine/NazaraEngine/pulls)  
 - Talking about Nazara Engine to other people, spread the word!  
 - Doing anything else that might help us
 
 ## Links
 
 [Discord](https://discord.gg/MvwNx73)  
-[Wiki](https://github.com/DigitalPulseSoftware/NazaraEngine/wiki)  
+[Wiki](https://github.com/NazaraEngine/NazaraEngine/wiki)  
 
 ## Thanks to:
 
