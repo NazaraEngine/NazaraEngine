@@ -93,7 +93,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake
+      run: xmake --yes
 
     # Run unit tests to generate coverage reports
     - name: Run unit tests and generate coverage output (Linux)
