@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         arch: [x86_64]
-        mode: [asan, debug, releasedbg]
+        mode: [asan, tsan, debug, releasedbg]
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"

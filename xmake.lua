@@ -152,7 +152,7 @@ if is_plat("macosx") then
 	add_requires("libx11")
 end
 
-add_rules("mode.asan", "mode.coverage", "mode.debug", "mode.releasedbg")
+add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build.rendererplugins")
 add_rules("download.assets.examples")
@@ -163,12 +163,14 @@ end
 
 set_allowedplats("windows", "mingw", "linux", "macosx")
 set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
-set_allowedmodes("debug", "releasedbg", "asan", "coverage")
+set_allowedmodes("debug", "releasedbg", "asan", "tsan", "coverage")
 set_defaultmode("debug")
 
 if is_mode("debug") then
 	add_rules("debug.suffix")
 elseif is_mode("asan") then
+	set_optimize("none") -- by default xmake will optimize asan builds
+elseif is_mode("tsan") then
 	set_optimize("none") -- by default xmake will optimize asan builds
 elseif is_mode("coverage") then
 	if not is_plat("windows") then
