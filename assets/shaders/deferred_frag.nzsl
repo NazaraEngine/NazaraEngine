@@ -1,8 +1,8 @@
 [nzsl_version("1.0")]
 module;
 
-import Engine.InstanceData;
-import Engine.ViewerData;
+import InstanceData from Engine.InstanceData;
+import ViewerData from Engine.ViewerData;
 
 option HasDiffuseTexture: bool = false;
 option HasAlphaTexture: bool = false;
