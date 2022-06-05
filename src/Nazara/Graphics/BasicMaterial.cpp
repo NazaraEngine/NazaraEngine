@@ -151,14 +151,14 @@ namespace Nz
 			options.defaultValues
 		});
 
-		FieldOffsets skeletalOffsets(StructLayout::Std140);
-		skeletalOffsets.AddMatrixArray(StructFieldType::Float1, 4, 4, true, 100);
+		nzsl::FieldOffsets skeletalOffsets(nzsl::StructLayout::Std140);
+		skeletalOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, 100);
 
 		settings.sharedUniformBlocks.push_back({
 			6,
 			"SkeletalData",
 			{},
-			ShaderStageType::Vertex
+			nzsl::ShaderStageType::Vertex
 		});
 
 		// Common data

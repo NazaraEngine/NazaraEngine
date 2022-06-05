@@ -1031,16 +1031,6 @@ namespace Nz
 		return MakeTransform(-(invRot * translation), invRot);
 	}
 
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
-	{
-		// A view matrix must apply an inverse transformation of the 'world' matrix
-		Quaternion<T> invRot = rotation.GetConjugate(); // Inverse of the rotation
-		Vector3<T> invScale = T(1.0) / scale;
-
-		return MakeTransform(-(invScale * (invRot * translation)), invRot, invScale);
-	}
-
 	/*!
 	* \brief Makes the matrix an inverse transform matrix (aka view matrix)
 	* \return A reference to this matrix
@@ -1702,15 +1692,6 @@ namespace Nz
 	{
 		Matrix4 mat;
 		mat.MakeTransformInverse(translation, rotation);
-
-		return mat;
-	}
-
-	template<typename T>
-	Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
-	{
-		Matrix4 mat;
-		mat.MakeTransformInverse(translation, rotation, scale);
 
 		return mat;
 	}
