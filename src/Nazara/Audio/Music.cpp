@@ -90,7 +90,7 @@ namespace Nz
 	*/
 	void Music::EnableLooping(bool loop)
 	{
-		std::lock_guard<std::mutex> lock(m_bufferLock);
+		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
 		m_looping = loop;
 	}
@@ -135,7 +135,7 @@ namespace Nz
 			return 0;
 
 		// Prevent music thread from enqueuing new buffers while we're getting the count
-		std::lock_guard<std::mutex> lock(m_bufferLock);
+		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
 		UInt32 sampleOffset = m_source->GetSampleOffset();
 		UInt32 playingOffset = SafeCast<UInt32>((1000ULL * (sampleOffset + (m_processedSamples / GetChannelCount(m_stream->GetFormat())))) / m_sampleRate);
@@ -187,7 +187,7 @@ namespace Nz
 	{
 		NazaraAssert(m_stream, "Music not created");
 
-		std::lock_guard<std::mutex> lock(m_bufferLock);
+		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
 		SoundStatus status = m_source->GetStatus();
 
@@ -206,7 +206,7 @@ namespace Nz
 	*/
 	bool Music::IsLooping() const
 	{
-		std::lock_guard<std::mutex> lock(m_bufferLock);
+		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
 		return m_looping;
 	}
@@ -268,7 +268,7 @@ namespace Nz
 	*/
 	void Music::Pause()
 	{
-		std::lock_guard<std::mutex> lock(m_bufferLock);
+		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
 		m_source->Pause();
 	}
@@ -290,6 +290,8 @@ namespace Nz
 		// Maybe we are already playing
 		if (m_streaming)
 		{
+			std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
+
 			switch (GetStatus())
 			{
 				case SoundStatus::Playing:
@@ -446,7 +448,7 @@ namespace Nz
 			// Wait until buffers are processed
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-			std::lock_guard<std::mutex> lock(m_bufferLock);
+			std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
 			SoundStatus status = m_source->GetStatus();
 			if (status == SoundStatus::Stopped)

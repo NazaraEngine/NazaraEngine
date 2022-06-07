@@ -63,7 +63,7 @@ namespace Nz
 			AudioFormat m_audioFormat;
 			std::atomic_bool m_streaming;
 			std::atomic<UInt64> m_processedSamples;
-			mutable std::mutex m_bufferLock;
+			mutable std::recursive_mutex m_sourceLock;
 			std::size_t m_bufferCount;
 			std::shared_ptr<SoundStream> m_stream;
 			std::thread m_thread;
