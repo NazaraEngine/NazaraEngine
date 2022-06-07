@@ -78,7 +78,7 @@ void CodeOutputWidget::Refresh()
 			shaderModule = nzsl::Ast::EliminateUnusedPass(*shaderModule);
 		}
 
-		std::string output;
+		std::string codeOutput;
 		OutputLanguage outputLang = static_cast<OutputLanguage>(m_outputLang->currentIndex());
 		switch (outputLang)
 		{
@@ -92,14 +92,15 @@ void CodeOutputWidget::Refresh()
 					bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), bindingMapping.size());
 
 				nzsl::GlslWriter writer;
-				output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, bindingMapping, states);
+				nzsl::GlslWriter::Output output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, bindingMapping, states);
+				codeOutput = std::move(output.code);
 				break;
 			}
 
 			case OutputLanguage::NZSL:
 			{
 				nzsl::LangWriter writer;
-				output = writer.Generate(*shaderModule, states);
+				codeOutput = writer.Generate(*shaderModule, states);
 				break;
 			}
 
@@ -109,13 +110,13 @@ void CodeOutputWidget::Refresh()
 				std::vector<std::uint32_t> spirv = writer.Generate(*shaderModule, states);
 
 				nzsl::SpirvPrinter printer;
-				output = printer.Print(spirv.data(), spirv.size());
+				codeOutput = printer.Print(spirv.data(), spirv.size());
 				break;
 			}
 		}
 
 		int scrollValue = m_textOutput->verticalScrollBar()->value();
-		m_textOutput->setText(QString::fromStdString(output));
+		m_textOutput->setText(QString::fromStdString(codeOutput));
 		m_textOutput->verticalScrollBar()->setValue(scrollValue);
 	}
 	catch (const std::exception& e)
