@@ -12,6 +12,7 @@
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <array>
 #include <chrono>
+#include <optional>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
@@ -397,6 +398,8 @@ namespace Nz
 
 	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err, bool startPaused)
 	{
+		std::optional<std::lock_guard<std::recursive_mutex>> exitLock;
+
 		// Allocation of streaming buffers
 		CallOnExit unqueueBuffers([&]
 		{
@@ -441,6 +444,12 @@ namespace Nz
 			std::unique_lock<std::mutex> lock(m);
 			cv.notify_all();
 		} // m & cv no longer exists from here
+
+		// From now, the source can be accessed from another thread, lock it before others destructors
+		CallOnExit lockSource([&]
+		{
+			exitLock.emplace(m_sourceLock);
+		});
 
 		// Reading loop (Filling new buffers as playing)
 		while (m_streaming)
