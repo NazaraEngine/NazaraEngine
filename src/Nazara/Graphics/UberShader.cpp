@@ -19,7 +19,7 @@ namespace Nz
 	{
 	}
 
-	UberShader::UberShader(nzsl::ShaderStageTypeFlags shaderStages, nzsl::ShaderModuleResolver& moduleResolver, std::string moduleName) :
+	UberShader::UberShader(nzsl::ShaderStageTypeFlags shaderStages, nzsl::ModuleResolver& moduleResolver, std::string moduleName) :
 	m_shaderStages(shaderStages)
 	{
 		m_shaderModule = moduleResolver.Resolve(moduleName);
@@ -27,7 +27,7 @@ namespace Nz
 
 		m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
 
-		m_onShaderModuleUpdated.Connect(moduleResolver.OnModuleUpdated, [this, name = std::move(moduleName)](nzsl::ShaderModuleResolver* resolver, const std::string& updatedModuleName)
+		m_onShaderModuleUpdated.Connect(moduleResolver.OnModuleUpdated, [this, name = std::move(moduleName)](nzsl::ModuleResolver* resolver, const std::string& updatedModuleName)
 		{
 			if (updatedModuleName != name)
 				return;

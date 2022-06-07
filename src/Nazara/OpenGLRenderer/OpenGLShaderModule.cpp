@@ -5,8 +5,8 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
-#include <NZSL/ShaderLangLexer.hpp>
-#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Lexer.hpp>
+#include <NZSL/Parser.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -117,8 +117,17 @@ namespace Nz
 					shader.SetSource(arg.sourceCode.data(), GLint(arg.sourceCode.size()));
 				else if constexpr (std::is_same_v<T, ShaderStatement>)
 				{
-					std::string code = writer.Generate(shaderEntry.stage, *arg.ast, bindingMapping, m_states);
-					shader.SetSource(code.data(), GLint(code.size()));
+					nzsl::GlslWriter::Output output = writer.Generate(shaderEntry.stage, *arg.ast, bindingMapping, m_states);
+					shader.SetSource(output.code.data(), GLint(output.code.size()));
+
+					for (const auto& [name, bindingPoint] : output.explicitUniformBlockBinding)
+					{
+						GLuint blockIndex = program.GetUniformBlockIndex(name);
+						if (blockIndex == GL_INVALID_INDEX)
+							continue;
+
+						program.UniformBlockBinding(blockIndex, bindingPoint);
+					}
 				}
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");

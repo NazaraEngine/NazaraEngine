@@ -4,7 +4,7 @@
 #include <Nazara/Renderer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
 #include <NZSL/LangWriter.hpp>
-#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Parser.hpp>
 #include <NZSL/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>

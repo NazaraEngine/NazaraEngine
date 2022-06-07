@@ -67,7 +67,7 @@ namespace Nz
 		if (!m_program.GetLinkStatus(&errLog))
 			throw std::runtime_error("failed to link program: " + errLog);
 
-		m_flipYUniformLocation = m_program.GetUniformLocation(nzsl::GlslWriter::GetFlipYUniformName());
+		m_flipYUniformLocation = m_program.GetUniformLocation(nzsl::GlslWriter::GetFlipYUniformName().data());
 		if (m_flipYUniformLocation != -1)
 			m_program.Uniform(m_flipYUniformLocation, 1.f);
 	}

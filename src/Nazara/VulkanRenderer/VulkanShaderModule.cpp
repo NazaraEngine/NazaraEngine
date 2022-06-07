@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
-#include <NZSL/ShaderLangLexer.hpp>
-#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Lexer.hpp>
+#include <NZSL/Parser.hpp>
 #include <NZSL/SpirvDecoder.hpp>
 #include <NZSL/SpirvWriter.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>

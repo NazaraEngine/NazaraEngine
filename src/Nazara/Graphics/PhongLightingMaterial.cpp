@@ -10,7 +10,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
 #include <NZSL/FieldOffsets.hpp>
-#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Parser.hpp>
 #include <cassert>
 #include <filesystem>
 #include <Nazara/Graphics/Debug.hpp>

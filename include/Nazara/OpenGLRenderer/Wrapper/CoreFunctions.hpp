@@ -160,6 +160,7 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glUniform3iv, PFNGLUNIFORM3IVPROC) \
 	cb(glUniform4fv, PFNGLUNIFORM4FVPROC) \
 	cb(glUniform4iv, PFNGLUNIFORM4IVPROC) \
+	cb(glUniformBlockBinding, PFNGLUNIFORMBLOCKBINDINGPROC) \
 	cb(glUniformMatrix4fv, PFNGLUNIFORMMATRIX4FVPROC) \
 	cb(glUnmapBuffer, PFNGLUNMAPBUFFERPROC) \
 	cb(glUseProgram, PFNGLUSEPROGRAMPROC) \

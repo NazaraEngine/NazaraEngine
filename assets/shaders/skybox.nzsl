@@ -18,7 +18,7 @@ struct VertOut
 struct FragOut
 {
     [location(0)] color: vec4[f32],
-    [builtin(fragdepth)] depth: f32
+    [builtin(frag_depth)] depth: f32
 }
 
 [entry(frag)]

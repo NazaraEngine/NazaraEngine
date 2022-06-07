@@ -203,6 +203,14 @@ namespace Nz::GL
 		context.glUniform1f(uniformLocation, value);
 	}
 
+	inline void Program::UniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBlockBinding) const
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.glUniformBlockBinding(m_objectId, uniformBlockIndex, uniformBlockBinding);
+	}
+
 	inline GLuint Program::CreateHelper(OpenGLDevice& /*device*/, const Context& context)
 	{
 		return context.glCreateProgram();

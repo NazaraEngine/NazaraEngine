@@ -12,7 +12,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utils/Signal.hpp>
-#include <NZSL/ShaderModuleResolver.hpp>
+#include <NZSL/ModuleResolver.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <unordered_map>
 
@@ -28,7 +28,7 @@ namespace Nz
 			using ConfigCallback = std::function<void(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)>;
 
 			UberShader(nzsl::ShaderStageTypeFlags shaderStages, std::string moduleName);
-			UberShader(nzsl::ShaderStageTypeFlags shaderStages, nzsl::ShaderModuleResolver& moduleResolver, std::string moduleName);
+			UberShader(nzsl::ShaderStageTypeFlags shaderStages, nzsl::ModuleResolver& moduleResolver, std::string moduleName);
 			UberShader(nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::ModulePtr shaderModule);
 			~UberShader() = default;
 
@@ -66,7 +66,7 @@ namespace Nz
 		private:
 			nzsl::Ast::ModulePtr Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option>* options);
 
-			NazaraSlot(nzsl::ShaderModuleResolver, OnModuleUpdated, m_onShaderModuleUpdated);
+			NazaraSlot(nzsl::ModuleResolver, OnModuleUpdated, m_onShaderModuleUpdated);
 
 			std::unordered_map<Config, std::shared_ptr<ShaderModule>, ConfigHasher, ConfigEqual> m_combinations;
 			std::unordered_map<std::string, Option> m_optionIndexByName;

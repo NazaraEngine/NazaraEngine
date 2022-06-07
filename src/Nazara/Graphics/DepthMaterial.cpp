@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/DepthMaterial.hpp>
 #include <NZSL/FieldOffsets.hpp>
-#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Parser.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

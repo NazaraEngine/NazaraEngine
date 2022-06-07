@@ -46,7 +46,7 @@ external
 
 struct FragIn
 {
-	[builtin(fragcoord)] fragcoord: vec4[f32]
+	[builtin(frag_coord)] fragcoord: vec4[f32]
 }
 
 struct FragOut

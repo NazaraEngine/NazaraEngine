@@ -5,7 +5,7 @@
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <NZSL/FieldOffsets.hpp>
-#include <NZSL/ShaderLangParser.hpp>
+#include <NZSL/Parser.hpp>
 #include <array>
 #include <iostream>
 #include <random>
