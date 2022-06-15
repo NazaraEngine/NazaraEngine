@@ -11,7 +11,7 @@ rule("nzsl.compile.shaders")
 
 		-- add commands
 		batchcmds:show_progress(opt.progress, "${color.build.object}compiling shader %s", shaderfile)
-		local argv = {"--compile=nzslb", "--partial", "--header-file"}
+		local argv = {"--compile=nzslb-header", "--partial"}
 
 		-- handle --log-format
 		local kind = target:data("plugin.project.kind") or ""

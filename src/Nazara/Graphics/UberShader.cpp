@@ -71,7 +71,14 @@ namespace Nz
 		if (it == m_combinations.end())
 		{
 			nzsl::ShaderWriter::States states;
-			states.optionValues = config.optionValues;
+			// TODO: Remove this when arrays are accepted as config values
+			for (const auto& [optionHash, optionValue] : config.optionValues)
+			{
+				std::visit([&](auto&& arg)
+				{
+					states.optionValues[optionHash] = arg;
+				}, optionValue);
+			}
 			states.shaderModuleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));

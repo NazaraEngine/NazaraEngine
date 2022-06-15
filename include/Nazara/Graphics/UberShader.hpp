@@ -43,7 +43,7 @@ namespace Nz
 
 			struct Config
 			{
-				std::unordered_map<UInt32, nzsl::Ast::ConstantValue> optionValues;
+				std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> optionValues;
 			};
 
 			struct ConfigEqual
