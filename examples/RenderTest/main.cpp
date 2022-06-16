@@ -12,51 +12,24 @@
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
-const char barModuleSource[] = R"(
+const char shaderSource[] = R"(
 [nzsl_version("1.0")]
-module Test.Bar;
+module;
 
-fn dummy() {}
+option red: bool = false;
 
-[export]
-[layout(std140)]
-struct Bar
-{
-}
-)";
-
-const char dataModuleSource[] = R"(
-[nzsl_version("1.0")]
-module Test.Data;
-
-import Test.Bar;
-
-struct Foo {}
-
-[export]
 [layout(std140)]
 struct Data
 {
 	projectionMatrix: mat4[f32],
 	worldMatrix: mat4[f32],
-	viewMatrix: mat4[f32],
-	pilier: Bar
+	viewMatrix: mat4[f32]
 }
-)";
-
-const char shaderSource[] = R"(
-[nzsl_version("1.0")]
-module;
-
-import Test.Data;
-import Test.Bar;
-
-option red: bool = false;
 
 [set(0)]
 external
 {
-	[binding(0)] viewerData: uniform[Data]
+	[binding(0)] data: uniform[Data]
 }
 
 [set(1)]
@@ -100,7 +73,7 @@ fn main(fragIn: VertOut) -> FragOut
 fn main(vertIn: VertIn) -> VertOut
 {
 	let vertOut: VertOut;
-	vertOut.position = viewerData.projectionMatrix * viewerData.viewMatrix * viewerData.worldMatrix * vec4[f32](vertIn.position, 1.0);
+	vertOut.position = data.projectionMatrix * data.viewMatrix * data.worldMatrix * vec4[f32](vertIn.position, 1.0);
 	vertOut.normal = vertIn.normal;
 	vertOut.uv = vertIn.uv;
 
@@ -110,9 +83,9 @@ fn main(vertIn: VertIn) -> VertOut
 
 int main()
 {
-	std::filesystem::path resourceDir = "resources";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
-		resourceDir = ".." / resourceDir;
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
@@ -141,26 +114,8 @@ int main()
 		return __LINE__;
 	}
 
-	auto directoryModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
-	directoryModuleResolver->RegisterModule(std::string_view(barModuleSource));
-	directoryModuleResolver->RegisterModule(std::string_view(dataModuleSource));
-
-	nzsl::Ast::SanitizeVisitor::Options sanitizeOpt;
-	sanitizeOpt.moduleResolver = directoryModuleResolver;
-
-	shaderModule = nzsl::Ast::Sanitize(*shaderModule, sanitizeOpt);
-	if (!shaderModule)
-	{
-		std::cout << "Failed to compile shader module" << std::endl;
-		return __LINE__;
-	}
-
-	nzsl::LangWriter langWriter;
-	std::string output = langWriter.Generate(*shaderModule);
-	std::cout << output << std::endl;
-	assert(nzsl::Ast::Sanitize(*nzsl::Parse(output)));
-
 	nzsl::ShaderWriter::States states;
+	states.optionValues[Nz::CRC32("red")] = false; //< Try enabling this!
 	states.optimize = true;
 
 	auto fragVertShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);
@@ -176,14 +131,14 @@ int main()
 	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
-	std::shared_ptr<Nz::Mesh> drfreak = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
-	if (!drfreak)
+	std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
+	if (!spaceship)
 	{
 		NazaraError("Failed to load model");
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::StaticMesh> spaceshipMesh = std::static_pointer_cast<Nz::StaticMesh>(drfreak->GetSubMesh(0));
+	std::shared_ptr<Nz::StaticMesh> spaceshipMesh = std::static_pointer_cast<Nz::StaticMesh>(spaceship->GetSubMesh(0));
 
 	const std::shared_ptr<Nz::VertexBuffer>& meshVB = spaceshipMesh->GetVertexBuffer();
 	const std::shared_ptr<const Nz::IndexBuffer>& meshIB = spaceshipMesh->GetIndexBuffer();

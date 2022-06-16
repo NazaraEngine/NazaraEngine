@@ -38,8 +38,6 @@ namespace Nz
 			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline(bool transparent) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
 			inline const DefaultTextures& GetDefaultTextures() const;
-			inline const std::shared_ptr<RenderBuffer>& GetFullscreenVertexBuffer() const;
-			inline const std::shared_ptr<VertexDeclaration>& GetFullscreenVertexDeclaration() const;
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
 			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
@@ -62,7 +60,6 @@ namespace Nz
 		private:
 			void BuildBlitPipeline();
 			void BuildDefaultTextures();
-			void BuildFullscreenVertexBuffer();
 			void RegisterMaterialPasses();
 			void RegisterShaderModules();
 			template<std::size_t N> void RegisterEmbedShaderModule(const UInt8(&content)[N]);
@@ -71,12 +68,10 @@ namespace Nz
 			std::optional<RenderPassCache> m_renderPassCache;
 			std::optional<TextureSamplerCache> m_samplerCache;
 			std::shared_ptr<nzsl::FilesystemModuleResolver> m_shaderModuleResolver;
-			std::shared_ptr<RenderBuffer> m_fullscreenVertexBuffer;
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::shared_ptr<RenderPipeline> m_blitPipeline;
 			std::shared_ptr<RenderPipeline> m_blitPipelineTransparent;
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
-			std::shared_ptr<VertexDeclaration> m_fullscreenVertexDeclaration;
 			DefaultTextures m_defaultTextures;
 			MaterialPassRegistry m_materialPassRegistry;
 			PixelFormat m_preferredDepthStencilFormat;

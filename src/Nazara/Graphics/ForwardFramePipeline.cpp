@@ -366,7 +366,6 @@ namespace Nz
 						builder.SetScissor(renderRegion);
 						builder.SetViewport(renderRegion);
 						builder.BindPipeline(*graphics->GetBlitPipeline(false));
-						builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
 
 						builder.BindShaderBinding(0, *data.blitShaderBinding);
 						builder.Draw(3);
@@ -539,7 +538,6 @@ namespace Nz
 
 				Graphics* graphics = Graphics::Instance();
 				builder.BindPipeline(*graphics->GetBlitPipeline(false));
-				builder.BindVertexBuffer(0, *graphics->GetFullscreenVertexBuffer());
 
 				bool first = true;
 

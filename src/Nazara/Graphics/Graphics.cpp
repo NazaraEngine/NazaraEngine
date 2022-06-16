@@ -29,6 +29,10 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/DepthMaterial.nzslb.h>
 		};
 
+		const UInt8 r_fullscreenVertexShader[] = {
+			#include <Nazara/Graphics/Resources/Shaders/FullscreenVertex.nzslb.h>
+		};
+
 		const UInt8 r_phongMaterialShader[] = {
 			#include <Nazara/Graphics/Resources/Shaders/PhongMaterial.nzslb.h>
 		};
@@ -90,7 +94,6 @@ namespace Nz
 		m_samplerCache.emplace(m_renderDevice);
 
 		BuildDefaultTextures();
-		BuildFullscreenVertexBuffer();
 		RegisterShaderModules();
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
@@ -131,8 +134,6 @@ namespace Nz
 		MaterialPipeline::Uninitialize();
 		m_renderPassCache.reset();
 		m_samplerCache.reset();
-		m_fullscreenVertexBuffer.reset();
-		m_fullscreenVertexDeclaration.reset();
 		m_blitPipeline.reset();
 		m_blitPipelineLayout.reset();
 		m_defaultTextures.whiteTextures.fill(nullptr);
@@ -166,12 +167,6 @@ namespace Nz
 
 		pipelineInfo.pipelineLayout = m_blitPipelineLayout;
 		pipelineInfo.shaderModules.push_back(std::move(blitShader));
-		pipelineInfo.vertexBuffers.assign({
-			{
-				0,
-				m_fullscreenVertexDeclaration
-			}
-		});
 
 		m_blitPipeline = m_renderDevice->InstantiateRenderPipeline(pipelineInfo);
 
@@ -207,29 +202,6 @@ namespace Nz
 		}
 	}
 
-	void Graphics::BuildFullscreenVertexBuffer()
-	{
-		m_fullscreenVertexDeclaration = VertexDeclaration::Get(VertexLayout::XY_UV);
-		std::array<Nz::VertexStruct_XY_UV, 3> vertexData = {
-			{
-				{
-					Nz::Vector2f(-1.f, 1.f),
-					Nz::Vector2f(0.0f, 1.0f),
-				},
-				{
-					Nz::Vector2f(-1.f, -3.f),
-					Nz::Vector2f(0.0f, -1.0f),
-				},
-				{
-					Nz::Vector2f(3.f, 1.f),
-					Nz::Vector2f(2.0f, 1.0f),
-				}
-			}
-		};
-
-		m_fullscreenVertexBuffer = m_renderDevice->InstantiateBuffer(BufferType::Vertex, m_fullscreenVertexDeclaration->GetStride() * vertexData.size(), BufferUsage::DeviceLocal | BufferUsage::Write, vertexData.data());
-	}
-
 	void Graphics::RegisterMaterialPasses()
 	{
 		m_materialPassRegistry.RegisterPass("ForwardPass");
@@ -241,6 +213,7 @@ namespace Nz
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 		RegisterEmbedShaderModule(r_basicMaterialShader);
 		RegisterEmbedShaderModule(r_depthMaterialShader);
+		RegisterEmbedShaderModule(r_fullscreenVertexShader);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
 		RegisterEmbedShaderModule(r_textureBlitShader);
 		RegisterEmbedShaderModule(r_instanceDataModule);

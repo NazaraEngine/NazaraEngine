@@ -359,10 +359,6 @@ int main()
 		light.radius = radiusDis(randomEngine);
 	}
 
-
-	const std::shared_ptr<const Nz::VertexDeclaration>& fullscreenVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XY_UV);
-
-
 	unsigned int offscreenWidth = windowSize.x;
 	unsigned int offscreenHeight = windowSize.y;
 
@@ -384,10 +380,6 @@ int main()
 	Nz::RenderPipelineInfo fullscreenPipelineInfoViewer;
 	fullscreenPipelineInfoViewer.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfoViewer.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfoViewer);
-	fullscreenPipelineInfoViewer.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_bright.nzsl", states));
 
@@ -477,10 +469,6 @@ int main()
 	bloomBlendPipelineInfo.blend.srcColor = Nz::BlendFunc::One;
 	bloomBlendPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	bloomBlendPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(bloomBlendPipelineLayoutInfo);
-	bloomBlendPipelineInfo.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_final.nzsl", states));
 
@@ -501,10 +489,6 @@ int main()
 	Nz::RenderPipelineInfo fullscreenPipelineInfo;
 	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfo);
-	fullscreenPipelineInfo.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gamma.nzsl", states));
 
@@ -535,10 +519,6 @@ int main()
 	Nz::RenderPipelineInfo godraysPipelineInfo;
 	godraysPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	godraysPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(godraysPipelineLayoutInfo);
-	godraysPipelineInfo.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "god_rays.nzsl", states));
 
@@ -621,46 +601,6 @@ int main()
 
 
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> lightingShaderBindings;
-
-	std::array<Nz::VertexStruct_XY_UV, 3> vertexData = {
-		{
-			{
-				Nz::Vector2f(-1.f, 1.f),
-				Nz::Vector2f(0.0f, 1.0f),
-			},
-			{
-				Nz::Vector2f(-1.f, -3.f),
-				Nz::Vector2f(0.0f, -1.0f),
-			},
-			{
-				Nz::Vector2f(3.f, 1.f),
-				Nz::Vector2f(2.0f, 1.0f),
-			}
-		}
-	};
-
-	/*std::array<Nz::VertexStruct_XYZ_UV, 4> vertexData = {
-		{
-			{
-				Nz::Vector3f(-1.f, -1.f, 0.0f),
-				Nz::Vector2f(0.0f, 0.0f),
-			},
-			{
-				Nz::Vector3f(1.f, -1.f, 0.0f),
-				Nz::Vector2f(1.0f, 0.0f),
-			},
-			{
-				Nz::Vector3f(-1.f, 1.f, 0.0f),
-				Nz::Vector2f(0.0f, 1.0f),
-			},
-			{
-				Nz::Vector3f(1.f, 1.f, 0.0f),
-				Nz::Vector2f(1.0f, 1.0f),
-			},
-		}
-	};*/
-
-	std::shared_ptr<Nz::RenderBuffer> fullscreenVertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex, fullscreenVertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Write, vertexData.data());
 
 	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit;
 	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding;
@@ -973,7 +913,6 @@ int main()
 			builder.BindShaderBinding(0, *godRaysShaderBinding);
 
 			builder.BindPipeline(*godraysPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -990,7 +929,6 @@ int main()
 			builder.BindShaderBinding(0, *bloomBrightShaderBinding);
 
 			builder.BindPipeline(*bloomBrightPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -1013,7 +951,6 @@ int main()
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
 				builder.BindPipeline(*gaussianBlurPipeline);
-				builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 				builder.Draw(3);
 			});
@@ -1034,7 +971,6 @@ int main()
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
 				builder.BindPipeline(*gaussianBlurPipeline);
-				builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 				builder.Draw(3);
 			});
@@ -1053,7 +989,6 @@ int main()
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			// Blend bloom
 			builder.BindPipeline(*bloomBlendPipeline);
@@ -1092,7 +1027,6 @@ int main()
 
 			builder.BindShaderBinding(0, *toneMappingShaderBinding);
 			builder.BindPipeline(*toneMappingPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -1592,7 +1526,7 @@ int main()
 
 					builder.BindShaderBinding(0, *finalBlitBinding);
 					builder.BindPipeline(*fullscreenPipeline);
-					builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
+
 					builder.Draw(3);
 				}
 				builder.EndDebugRegion();
