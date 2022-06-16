@@ -8,7 +8,9 @@
 #include <NZSL/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -322,7 +324,10 @@ int main()
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
+		}
 
 		ubo.viewMatrix = Nz::Matrix4f::TransformInverse(viewerPos, camAngles);
 

@@ -7,8 +7,10 @@
 #include <NZSL/FieldOffsets.hpp>
 #include <NZSL/Parser.hpp>
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <random>
+#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -1176,7 +1178,10 @@ int main()
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
+		}
 
 		currentFrame = &frame;
 

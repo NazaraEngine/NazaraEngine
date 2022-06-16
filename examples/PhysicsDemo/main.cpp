@@ -15,8 +15,10 @@
 #include <Nazara/Utility/Components.hpp>
 #include <entt/entt.hpp>
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <limits>
+#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -360,7 +362,10 @@ int main()
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
+		}
 
 		renderSystem.Render(registry, frame);
 
