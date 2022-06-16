@@ -109,7 +109,7 @@ int main()
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceship);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceship);
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
@@ -125,7 +125,7 @@ int main()
 	//planeMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
 	planeMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*planeMesh);
+	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*planeMesh);
 
 	// Skybox
 	meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ);
@@ -135,7 +135,7 @@ int main()
 	cubeMesh->BuildSubMesh(Nz::Primitive::Box(Nz::Vector3f::Unit(), Nz::Vector3ui(0), Nz::Matrix4f::Scale({ 1.f, -1.f, 1.f })), meshPrimitiveParams);
 	cubeMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
+	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*cubeMesh);
 
 	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
 	skyboxPipelineLayoutInfo.bindings.push_back({
@@ -187,7 +187,7 @@ int main()
 	coneMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
 	coneMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = std::make_shared<Nz::GraphicalMesh>(*coneMesh);
+	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*coneMesh);
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders.clear();
@@ -571,8 +571,6 @@ int main()
 
 	std::shared_ptr<Nz::ShaderBinding> godRaysBlitShaderBinding;
 
-
-	const std::shared_ptr<const Nz::VertexDeclaration>& lightingVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 	std::shared_ptr<Nz::RenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
 
@@ -1201,8 +1199,8 @@ int main()
 
 				case Nz::WindowEventType::Resized:
 				{
-					Nz::Vector2ui windowSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
+					Nz::Vector2ui newSize = window.GetSize();
+					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newSize.x) / newSize.y, 0.1f, 1000.f));
 					break;
 				}
 

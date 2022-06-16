@@ -11,16 +11,17 @@
 
 namespace Nz
 {
-	GraphicalMesh::GraphicalMesh(const Mesh& mesh)
+	std::shared_ptr<GraphicalMesh> GraphicalMesh::BuildFromMesh(const Mesh& mesh)
 	{
 		assert(mesh.GetAnimationType() == AnimationType::Static);
 
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
-		m_subMeshes.reserve(mesh.GetSubMeshCount());
+		std::shared_ptr<GraphicalMesh> gfxMesh = std::make_shared<GraphicalMesh>();
+
 		for (std::size_t i = 0; i < mesh.GetSubMeshCount(); ++i)
 		{
-			const SubMesh& subMesh = *mesh.GetSubMesh(i);
+			const Nz::SubMesh& subMesh = *mesh.GetSubMesh(i);
 
 			const StaticMesh& staticMesh = static_cast<const StaticMesh&>(subMesh);
 
@@ -33,7 +34,7 @@ namespace Nz
 			assert(vertexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
 			const SoftwareBuffer* vertexBufferContent = static_cast<const SoftwareBuffer*>(vertexBuffer->GetBuffer().get());
 
-			auto& submeshData = m_subMeshes.emplace_back();
+			GraphicalMesh::SubMesh submeshData;
 			submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType::Index, indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
 			if (!submeshData.indexBuffer->Fill(indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
 				throw std::runtime_error("failed to fill index buffer");
@@ -46,6 +47,10 @@ namespace Nz
 				throw std::runtime_error("failed to fill vertex buffer");
 
 			submeshData.vertexDeclaration = vertexBuffer->GetVertexDeclaration();
+
+			gfxMesh->AddSubMesh(std::move(submeshData));
 		}
+
+		return gfxMesh;
 	}
 }
