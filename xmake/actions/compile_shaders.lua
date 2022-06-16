@@ -33,6 +33,6 @@ task("compile-shaders")
 			if option.get("benchmark-iteration") then
 				table.insert(argv, "--benchmark-iteration=" .. option.get("benchmark-iteration"))
 			end
-			os.execv(nzsl, argv, { envs = envs })
+			os.vrunv(nzsl, argv, { envs = envs })
 		end
 	end)
