@@ -12,7 +12,11 @@ task("compile-shaders")
 
 	on_run(function ()
 		import("core.base.option")
+		import("core.base.task")
 		import("core.project.project")
+
+		task.run("config", {}, {disable_dump = true})
+
 		local nzsl = path.join(project.required_package("nzsl"):installdir(), "bin", "nzslc")
 
 		local envs
