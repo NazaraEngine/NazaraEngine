@@ -136,6 +136,7 @@ namespace Nz
 
 	enum class ShaderBindingType
 	{
+		StorageBuffer,
 		Texture,
 		UniformBuffer,
 

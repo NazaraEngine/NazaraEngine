@@ -265,6 +265,7 @@ namespace Nz
 			case GL::BufferTarget::ElementArray:      return GL_ELEMENT_ARRAY_BUFFER;
 			case GL::BufferTarget::PixelPack:         return GL_PIXEL_PACK_BUFFER;
 			case GL::BufferTarget::PixelUnpack:       return GL_PIXEL_UNPACK_BUFFER;
+			case GL::BufferTarget::Storage:           return GL_SHADER_STORAGE_BUFFER;
 			case GL::BufferTarget::TransformFeedback: return GL_TRANSFORM_FEEDBACK_BUFFER;
 			case GL::BufferTarget::Uniform:           return GL_UNIFORM_BUFFER;
 		}

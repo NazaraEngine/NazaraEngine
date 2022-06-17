@@ -18,11 +18,14 @@ namespace Nz
 		bool anisotropicFiltering = false;
 		bool depthClamping = false;
 		bool nonSolidFaceFilling = false;
+		bool storageBuffers = false;
 	};
 
 	struct RenderDeviceLimits
 	{
 		UInt64 minUniformBufferOffsetAlignment;
+		UInt64 maxStorageBufferSize;
+		UInt64 maxUniformBufferSize;
 	};
 
 	struct RenderDeviceInfo

@@ -32,7 +32,20 @@ namespace Nz
 			{
 				using T = std::decay_t<decltype(arg)>;
 
-				if constexpr (std::is_same_v<T, TextureBinding>)
+				if constexpr (std::is_same_v<T, StorageBufferBinding>)
+				{
+					VulkanBuffer* vkBuffer = static_cast<VulkanBuffer*>(arg.buffer);
+
+					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
+					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;
+					bufferInfo.offset = arg.offset;
+					bufferInfo.range = arg.range;
+
+					writeOp.descriptorCount = 1;
+					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+					writeOp.pBufferInfo = &bufferInfo;
+				}
+				else if constexpr (std::is_same_v<T, TextureBinding>)
 				{
 					const VulkanTexture* vkTexture = static_cast<const VulkanTexture*>(arg.texture);
 					const VulkanTextureSampler* vkSampler = static_cast<const VulkanTextureSampler*>(arg.sampler);
@@ -60,7 +73,7 @@ namespace Nz
 					writeOp.pBufferInfo = &bufferInfo;
 				}
 				else
-					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
 
 			}, binding.content);
 		}

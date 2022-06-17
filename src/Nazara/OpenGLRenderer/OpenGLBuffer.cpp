@@ -19,6 +19,7 @@ namespace Nz
 		switch (type)
 		{
 			case BufferType::Index: target = GL::BufferTarget::ElementArray; break;
+			case BufferType::Storage: target = GL::BufferTarget::Storage; break;
 			case BufferType::Uniform: target = GL::BufferTarget::Uniform; break;
 			case BufferType::Vertex: target = GL::BufferTarget::Array; break;
 

@@ -34,7 +34,14 @@ namespace Nz
 
 			UInt32 bindingPoint = bindingMappingIt->second;
 
-			if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::TextureDescriptor>)
+			if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::StorageBufferDescriptor>)
+			{
+				if (bindingInfo.type != ShaderBindingType::StorageBuffer)
+					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a storage buffer");
+
+				context.BindStorageBuffer(bindingPoint, descriptor.buffer, descriptor.offset, descriptor.size);
+			}
+			else if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::TextureDescriptor>)
 			{
 				if (bindingInfo.type != ShaderBindingType::Texture)
 					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a texture");
@@ -63,8 +70,24 @@ namespace Nz
 			std::visit([&](auto&& arg)
 			{
 				using T = std::decay_t<decltype(arg)>;
+				
+				if constexpr (std::is_same_v<T, StorageBufferBinding>)
+				{
+					auto& storageDescriptor = m_owner.GetStorageBufferDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
+					storageDescriptor.offset = arg.offset;
+					storageDescriptor.size = arg.range;
 
-				if constexpr (std::is_same_v<T, TextureBinding>)
+					if (OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(arg.buffer))
+					{
+						if (glBuffer->GetType() != BufferType::Storage)
+							throw std::runtime_error("expected storage buffer");
+
+						storageDescriptor.buffer = glBuffer->GetBuffer().GetObjectId();
+					}
+					else
+						storageDescriptor.buffer = 0;
+				}
+				else if constexpr (std::is_same_v<T, TextureBinding>)
 				{
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 
@@ -103,7 +126,7 @@ namespace Nz
 						uboDescriptor.buffer = 0;
 				}
 				else
-					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
+					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
 
 			}, binding.content);
 		}
