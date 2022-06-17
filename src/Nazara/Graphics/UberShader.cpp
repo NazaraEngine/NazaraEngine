@@ -100,6 +100,7 @@ namespace Nz
 
 		nzsl::Ast::SanitizeVisitor::Options sanitizeOptions;
 		sanitizeOptions.allowPartialSanitization = true;
+		sanitizeOptions.moduleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(module, sanitizeOptions);
 
@@ -122,7 +123,7 @@ namespace Nz
 		};
 
 		nzsl::Ast::ReflectVisitor reflect;
-		reflect.Reflect(*sanitizedModule->rootNode, callbacks);
+		reflect.Reflect(*sanitizedModule, callbacks);
 
 		if ((m_shaderStages & supportedStageType) != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");
