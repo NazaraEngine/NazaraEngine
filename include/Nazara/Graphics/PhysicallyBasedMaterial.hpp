@@ -106,7 +106,7 @@ namespace Nz
 
 			static MaterialSettings::Builder Build(PbrBuildOptions& options);
 			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
-			static std::pair<PbrUniformOffsets, FieldOffsets> BuildUniformOffsets();
+			static std::pair<PbrUniformOffsets, nzsl::FieldOffsets> BuildUniformOffsets();
 
 		private:
 			static bool Initialize();

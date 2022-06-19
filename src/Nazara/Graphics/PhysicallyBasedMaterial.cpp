@@ -7,10 +7,10 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Shader/ShaderLangParser.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
-#include <Nazara/Utility/FieldOffsets.hpp>
 #include <Nazara/Utility/MaterialData.hpp>
+#include <NZSL/FieldOffsets.hpp>
+#include <NZSL/Parser.hpp>
 #include <cassert>
 #include <filesystem>
 #include <Nazara/Graphics/Debug.hpp>
@@ -249,7 +249,7 @@ namespace Nz
 			options.defaultValues
 		});
 
-		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock(6, ShaderStageType::Fragment));
+		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock(6, nzsl::ShaderStageType::Fragment));
 		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::LightDataUbo)] = 6;
 
 		settings.shaders = options.shaders;
@@ -342,20 +342,20 @@ namespace Nz
 
 	std::vector<std::shared_ptr<UberShader>> PhysicallyBasedMaterial::BuildShaders()
 	{
-		auto shader = std::make_shared<UberShader>(ShaderStageType::Fragment | ShaderStageType::Vertex, "PhysicallyBasedMaterial");
+		auto shader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhysicallyBasedMaterial");
 
 		return { std::move(shader) };
 	}
 
-	auto PhysicallyBasedMaterial::BuildUniformOffsets() -> std::pair<PbrUniformOffsets, FieldOffsets>
+	auto PhysicallyBasedMaterial::BuildUniformOffsets() -> std::pair<PbrUniformOffsets, nzsl::FieldOffsets>
 	{
 		auto basicOffsets = BasicMaterial::BuildUniformOffsets();
-		FieldOffsets fieldOffsets = basicOffsets.second;
+		nzsl::FieldOffsets fieldOffsets = basicOffsets.second;
 
 		PbrUniformOffsets uniformOffsets;
-		uniformOffsets.ambientColor = fieldOffsets.AddField(StructFieldType::Float3);
-		uniformOffsets.specularColor = fieldOffsets.AddField(StructFieldType::Float3);
-		uniformOffsets.shininess = fieldOffsets.AddField(StructFieldType::Float1);
+		uniformOffsets.ambientColor = fieldOffsets.AddField(nzsl::StructFieldType::Float3);
+		uniformOffsets.specularColor = fieldOffsets.AddField(nzsl::StructFieldType::Float3);
+		uniformOffsets.shininess = fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 
 		uniformOffsets.totalSize = fieldOffsets.GetAlignedSize();
 

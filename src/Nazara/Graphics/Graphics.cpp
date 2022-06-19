@@ -38,7 +38,7 @@ namespace Nz
 		};
 
 		const UInt8 r_physicallyBasedMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/PhysicallyBasedMaterial.nzsl.h>
+			#include <Nazara/Graphics/Resources/Shaders/PhysicallyBasedMaterial.nzslb.h>
 		};
 
 		const UInt8 r_instanceDataModule[] = {
