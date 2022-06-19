@@ -258,6 +258,8 @@ for name, module in pairs(modules) do
 		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext)
 	end
 
+	remove_headerfiles("src/Nazara/" .. name .. "/Resources/**.h")
+
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 

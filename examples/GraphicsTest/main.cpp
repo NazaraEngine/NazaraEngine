@@ -6,7 +6,9 @@
 #include <NZSL/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 int main()
 {
@@ -46,7 +48,7 @@ int main()
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceshipMesh);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
 
 	// Texture
 	std::shared_ptr<Nz::Image> diffuseImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
@@ -215,7 +217,10 @@ int main()
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
+		}
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);

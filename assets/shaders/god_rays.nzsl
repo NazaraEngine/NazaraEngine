@@ -1,6 +1,7 @@
 [nzsl_version("1.0")]
 module;
 
+import VertOut, VertexShader from Engine.FullscreenVertex;
 import ViewerData from Engine.ViewerData;
 
 [layout(std140)]
@@ -22,30 +23,13 @@ external
 	[set(0), binding(2)] occluderTexture: sampler2D[f32]
 }
 
-struct FragIn
-{
-	[location(0)] uv: vec2[f32]
-}
-
 struct FragOut
 {
 	[location(0)] color: vec4[f32]
 }
 
-struct VertIn
-{
-	[location(0)] pos: vec2[f32],
-	[location(1)] uv: vec2[f32]
-}
-
-struct VertOut
-{
-	[builtin(position)] position: vec4[f32],
-	[location(0)] uv: vec2[f32]
-}
-
 [entry(frag)]
-fn main(input: FragIn) -> FragOut
+fn main(input: VertOut) -> FragOut
 {
 	let deltaUV = input.uv - settings.lightPosition;
 	deltaUV *= 1.0 / f32(SampleCount) * settings.density;
@@ -68,16 +52,6 @@ fn main(input: FragIn) -> FragOut
 
 	let output: FragOut;
 	output.color = outputColor;
-
-	return output;
-}
-
-[entry(vert)]
-fn main(input: VertIn) -> VertOut
-{
-	let output: VertOut;
-	output.position = vec4[f32](input.pos, 0.0, 1.0);
-	output.uv = input.uv;
 
 	return output;
 }

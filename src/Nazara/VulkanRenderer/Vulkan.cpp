@@ -56,8 +56,10 @@ namespace Nz
 		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
 		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
+		deviceInfo.features.storageBuffers = true;
 
-		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
+		deviceInfo.limits.maxStorageBufferSize = physDevice.properties.limits.maxStorageBufferRange;
+		deviceInfo.limits.maxUniformBufferSize = physDevice.properties.limits.maxUniformBufferRange;
 
 		switch (physDevice.properties.deviceType)
 		{

@@ -71,7 +71,16 @@ namespace Nz
 		if (it == m_combinations.end())
 		{
 			nzsl::ShaderWriter::States states;
-			states.optionValues = config.optionValues;
+			// TODO: Remove this when arrays are accepted as config values
+			for (const auto& [optionHash, optionValue] : config.optionValues)
+			{
+				std::uint32_t hash = optionHash;
+				
+				std::visit([&](auto&& arg)
+				{
+					states.optionValues[hash] = arg;
+				}, optionValue);
+			}
 			states.shaderModuleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
@@ -91,6 +100,7 @@ namespace Nz
 
 		nzsl::Ast::SanitizeVisitor::Options sanitizeOptions;
 		sanitizeOptions.allowPartialSanitization = true;
+		sanitizeOptions.moduleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(module, sanitizeOptions);
 
@@ -113,7 +123,7 @@ namespace Nz
 		};
 
 		nzsl::Ast::ReflectVisitor reflect;
-		reflect.Reflect(*sanitizedModule->rootNode, callbacks);
+		reflect.Reflect(*sanitizedModule, callbacks);
 
 		if ((m_shaderStages & supportedStageType) != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");

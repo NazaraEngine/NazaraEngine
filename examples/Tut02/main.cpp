@@ -7,7 +7,9 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
 #include <entt/entt.hpp>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 int main()
 {
@@ -79,6 +81,12 @@ int main()
 		mainWindow.ProcessEvents();
 
 		Nz::RenderFrame renderFrame = mainWindow.AcquireFrame();
+		if (!renderFrame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			continue;
+		}
+		
 		renderSystem.Render(registry, renderFrame);
 
 		renderFrame.Present();

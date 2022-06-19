@@ -8,13 +8,30 @@
 
 namespace Nz
 {
+	inline std::size_t GraphicalMesh::AddSubMesh(SubMesh subMesh)
+	{
+		std::size_t subMeshIndex = m_subMeshes.size();
+		m_subMeshes.emplace_back(std::move(subMesh));
+
+		OnInvalidated(this);
+
+		return subMeshIndex;
+	}
+
+	inline void GraphicalMesh::Clear()
+	{
+		m_subMeshes.clear();
+
+		OnInvalidated(this);
+	}
+
 	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].indexBuffer;
 	}
 
-	inline std::size_t GraphicalMesh::GetIndexCount(std::size_t subMesh) const
+	inline UInt32 GraphicalMesh::GetIndexCount(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
 		return m_subMeshes[subMesh].indexCount;
@@ -41,6 +58,14 @@ namespace Nz
 	inline std::size_t GraphicalMesh::GetSubMeshCount() const
 	{
 		return m_subMeshes.size();
+	}
+
+	inline void GraphicalMesh::UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount)
+	{
+		NazaraAssert(subMeshIndex < m_subMeshes.size(), "invalid submesh index");
+		m_subMeshes[subMeshIndex].indexCount = indexCount;
+
+		OnInvalidated(this);
 	}
 }
 

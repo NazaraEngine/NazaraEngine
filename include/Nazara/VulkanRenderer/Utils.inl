@@ -98,6 +98,7 @@ namespace Nz
 		switch (bufferType)
 		{
 			case BufferType::Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferType::Storage: return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 			case BufferType::Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 			case BufferType::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
@@ -381,6 +382,7 @@ namespace Nz
 	{
 		switch (bindingType)
 		{
+			case ShaderBindingType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			case ShaderBindingType::Texture:       return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			case ShaderBindingType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		}

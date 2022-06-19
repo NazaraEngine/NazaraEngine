@@ -64,6 +64,9 @@ namespace Nz
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::DepthClamp))
 			m_deviceInfo.features.depthClamping = true;
 
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::StorageBuffers))
+			m_deviceInfo.features.storageBuffers = true;
+
 		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
 			m_deviceInfo.features.nonSolidFaceFilling = true;
 
@@ -73,6 +76,23 @@ namespace Nz
 
 		assert(minUboOffsetAlignment >= 1);
 		m_deviceInfo.limits.minUniformBufferOffsetAlignment = static_cast<UInt64>(minUboOffsetAlignment);
+
+		GLint maxUboBlockSize;
+		m_referenceContext->glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUboBlockSize);
+
+		assert(maxUboBlockSize >= 1);
+		m_deviceInfo.limits.maxUniformBufferSize = static_cast<UInt64>(maxUboBlockSize);
+
+		if (m_deviceInfo.features.storageBuffers)
+		{
+			GLint maxStorageBlockSize;
+			m_referenceContext->glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &maxStorageBlockSize);
+
+			assert(maxStorageBlockSize >= 1);
+			m_deviceInfo.limits.maxStorageBufferSize = static_cast<UInt64>(maxStorageBlockSize);
+		}
+		else
+			m_deviceInfo.limits.maxStorageBufferSize = 0;
 
 		m_contexts.insert(m_referenceContext.get());
 	}

@@ -36,6 +36,7 @@ namespace Nz::GL
 		ElementArray,
 		PixelPack,
 		PixelUnpack,
+		Storage,
 		TransformFeedback,
 		Uniform,
 
@@ -52,6 +53,7 @@ namespace Nz::GL
 	{
 		DepthClamp,
 		SpirV,
+		StorageBuffers,
 		TextureCompressionS3tc,
 		TextureFilterAnisotropic,
 
@@ -120,6 +122,7 @@ namespace Nz::GL
 			void BindFramebuffer(FramebufferTarget target, GLuint fbo) const;
 			void BindProgram(GLuint program) const;
 			void BindSampler(UInt32 textureUnit, GLuint sampler) const;
+			void BindStorageBuffer(UInt32 storageUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
 			void BindTexture(TextureTarget target, GLuint texture) const;
 			void BindTexture(UInt32 textureUnit, TextureTarget target, GLuint texture) const;
 			void BindUniformBuffer(UInt32 uboUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
@@ -212,22 +215,23 @@ namespace Nz::GL
 					GLsizei width, height;
 				};
 
-				struct TextureUnit
-				{
-					GLuint sampler = 0;
-					std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> textureTargets = { 0 };
-				};
-
-				struct UniformBufferUnit
+				struct BufferBinding
 				{
 					GLuint buffer = 0;
 					GLintptr offset = 0;
 					GLsizeiptr size = 0;
 				};
 
+				struct TextureUnit
+				{
+					GLuint sampler = 0;
+					std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> textureTargets = { 0 };
+				};
+
 				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
 				std::vector<TextureUnit> textureUnits;
-				std::vector<UniformBufferUnit> uboUnits;
+				std::vector<BufferBinding> storageUnits;
+				std::vector<BufferBinding> uboUnits;
 				Box scissorBox;
 				Box viewport;
 				GLuint boundProgram = 0;

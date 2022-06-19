@@ -67,7 +67,7 @@ namespace Nz
 			inline FaceFilling GetFaceFilling() const;
 			inline MaterialPassFlags GetFlags() const;
 			inline float GetLineWidth() const;
-			inline const nzsl::Ast::ConstantValue& GetOptionValue(std::size_t optionIndex) const;
+			inline const nzsl::Ast::ConstantSingleValue& GetOptionValue(std::size_t optionIndex) const;
 			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
@@ -98,7 +98,7 @@ namespace Nz
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
-			inline void SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantValue value);
+			inline void SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantSingleValue value);
 			inline void SetPointSize(float pointSize);
 			inline void SetPrimitiveMode(PrimitiveMode mode);
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
@@ -142,7 +142,7 @@ namespace Nz
 				bool dataInvalidated = true;
 			};
 
-			std::array<nzsl::Ast::ConstantValue, 64> m_optionValues;
+			std::array<nzsl::Ast::ConstantSingleValue, 64> m_optionValues;
 			std::shared_ptr<const MaterialSettings> m_settings;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<ShaderEntry> m_shaders;

@@ -7,8 +7,10 @@
 #include <NZSL/FieldOffsets.hpp>
 #include <NZSL/Parser.hpp>
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <random>
+#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -109,7 +111,7 @@ int main()
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceship);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceship);
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
@@ -125,7 +127,7 @@ int main()
 	//planeMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), planeParams);
 	planeMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*planeMesh);
+	std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*planeMesh);
 
 	// Skybox
 	meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ);
@@ -135,7 +137,7 @@ int main()
 	cubeMesh->BuildSubMesh(Nz::Primitive::Box(Nz::Vector3f::Unit(), Nz::Vector3ui(0), Nz::Matrix4f::Scale({ 1.f, -1.f, 1.f })), meshPrimitiveParams);
 	cubeMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = std::make_shared<Nz::GraphicalMesh>(*cubeMesh);
+	std::shared_ptr<Nz::GraphicalMesh> cubeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*cubeMesh);
 
 	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
 	skyboxPipelineLayoutInfo.bindings.push_back({
@@ -187,7 +189,7 @@ int main()
 	coneMesh->BuildSubMesh(Nz::Primitive::Cone(1.f, 1.f, 16, Nz::Matrix4f::Rotate(Nz::EulerAnglesf(90.f, 0.f, 0.f))), meshPrimitiveParams);
 	coneMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = std::make_shared<Nz::GraphicalMesh>(*coneMesh);
+	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*coneMesh);
 
 	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
 	customSettings.shaders.clear();
@@ -359,10 +361,6 @@ int main()
 		light.radius = radiusDis(randomEngine);
 	}
 
-
-	const std::shared_ptr<const Nz::VertexDeclaration>& fullscreenVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XY_UV);
-
-
 	unsigned int offscreenWidth = windowSize.x;
 	unsigned int offscreenHeight = windowSize.y;
 
@@ -384,10 +382,6 @@ int main()
 	Nz::RenderPipelineInfo fullscreenPipelineInfoViewer;
 	fullscreenPipelineInfoViewer.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfoViewer.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfoViewer);
-	fullscreenPipelineInfoViewer.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_bright.nzsl", states));
 
@@ -477,10 +471,6 @@ int main()
 	bloomBlendPipelineInfo.blend.srcColor = Nz::BlendFunc::One;
 	bloomBlendPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	bloomBlendPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(bloomBlendPipelineLayoutInfo);
-	bloomBlendPipelineInfo.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_final.nzsl", states));
 
@@ -501,10 +491,6 @@ int main()
 	Nz::RenderPipelineInfo fullscreenPipelineInfo;
 	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfo);
-	fullscreenPipelineInfo.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gamma.nzsl", states));
 
@@ -535,10 +521,6 @@ int main()
 	Nz::RenderPipelineInfo godraysPipelineInfo;
 	godraysPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	godraysPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(godraysPipelineLayoutInfo);
-	godraysPipelineInfo.vertexBuffers.push_back({
-		0,
-		fullscreenVertexDeclaration
-	});
 
 	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "god_rays.nzsl", states));
 
@@ -571,8 +553,6 @@ int main()
 
 	std::shared_ptr<Nz::ShaderBinding> godRaysBlitShaderBinding;
 
-
-	const std::shared_ptr<const Nz::VertexDeclaration>& lightingVertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_UV);
 
 	std::shared_ptr<Nz::RenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
 
@@ -623,46 +603,6 @@ int main()
 
 
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> lightingShaderBindings;
-
-	std::array<Nz::VertexStruct_XY_UV, 3> vertexData = {
-		{
-			{
-				Nz::Vector2f(-1.f, 1.f),
-				Nz::Vector2f(0.0f, 1.0f),
-			},
-			{
-				Nz::Vector2f(-1.f, -3.f),
-				Nz::Vector2f(0.0f, -1.0f),
-			},
-			{
-				Nz::Vector2f(3.f, 1.f),
-				Nz::Vector2f(2.0f, 1.0f),
-			}
-		}
-	};
-
-	/*std::array<Nz::VertexStruct_XYZ_UV, 4> vertexData = {
-		{
-			{
-				Nz::Vector3f(-1.f, -1.f, 0.0f),
-				Nz::Vector2f(0.0f, 0.0f),
-			},
-			{
-				Nz::Vector3f(1.f, -1.f, 0.0f),
-				Nz::Vector2f(1.0f, 0.0f),
-			},
-			{
-				Nz::Vector3f(-1.f, 1.f, 0.0f),
-				Nz::Vector2f(0.0f, 1.0f),
-			},
-			{
-				Nz::Vector3f(1.f, 1.f, 0.0f),
-				Nz::Vector2f(1.0f, 1.0f),
-			},
-		}
-	};*/
-
-	std::shared_ptr<Nz::RenderBuffer> fullscreenVertexBuffer = device->InstantiateBuffer(Nz::BufferType::Vertex, fullscreenVertexDeclaration->GetStride() * vertexData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Write, vertexData.data());
 
 	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit;
 	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding;
@@ -975,7 +915,6 @@ int main()
 			builder.BindShaderBinding(0, *godRaysShaderBinding);
 
 			builder.BindPipeline(*godraysPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -992,7 +931,6 @@ int main()
 			builder.BindShaderBinding(0, *bloomBrightShaderBinding);
 
 			builder.BindPipeline(*bloomBrightPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -1015,7 +953,6 @@ int main()
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
 				builder.BindPipeline(*gaussianBlurPipeline);
-				builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 				builder.Draw(3);
 			});
@@ -1036,7 +973,6 @@ int main()
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
 				builder.BindPipeline(*gaussianBlurPipeline);
-				builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 				builder.Draw(3);
 			});
@@ -1055,7 +991,6 @@ int main()
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			// Blend bloom
 			builder.BindPipeline(*bloomBlendPipeline);
@@ -1094,7 +1029,6 @@ int main()
 
 			builder.BindShaderBinding(0, *toneMappingShaderBinding);
 			builder.BindPipeline(*toneMappingPipeline);
-			builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
 
 			builder.Draw(3);
 		});
@@ -1201,8 +1135,8 @@ int main()
 
 				case Nz::WindowEventType::Resized:
 				{
-					Nz::Vector2ui windowSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f));
+					Nz::Vector2ui newSize = window.GetSize();
+					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newSize.x) / newSize.y, 0.1f, 1000.f));
 					break;
 				}
 
@@ -1244,7 +1178,10 @@ int main()
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
+		}
 
 		currentFrame = &frame;
 
@@ -1594,7 +1531,7 @@ int main()
 
 					builder.BindShaderBinding(0, *finalBlitBinding);
 					builder.BindPipeline(*fullscreenPipeline);
-					builder.BindVertexBuffer(0, *fullscreenVertexBuffer);
+
 					builder.Draw(3);
 				}
 				builder.EndDebugRegion();

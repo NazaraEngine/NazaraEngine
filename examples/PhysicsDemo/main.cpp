@@ -15,8 +15,10 @@
 #include <Nazara/Utility/Components.hpp>
 #include <entt/entt.hpp>
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <limits>
+#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -61,7 +63,7 @@ int main()
 	}
 
 	const Nz::Boxf& spaceshipAABB = spaceshipMesh->GetAABB();
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = std::make_shared<Nz::GraphicalMesh>(*spaceshipMesh);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
 
 	// Texture
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
@@ -151,7 +153,7 @@ int main()
 	std::shared_ptr<Nz::Model> colliderModel;
 	{
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateMesh());
-		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = std::make_shared<Nz::GraphicalMesh>(*colliderMesh);
+		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh, spaceshipAABB);
 		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
@@ -360,7 +362,10 @@ int main()
 
 		Nz::RenderFrame frame = window.AcquireFrame();
 		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			continue;
+		}
 
 		renderSystem.Render(registry, frame);
 

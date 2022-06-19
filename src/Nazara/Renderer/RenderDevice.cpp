@@ -51,5 +51,11 @@ namespace Nz
 			NazaraWarning("non-solid face filling was enabled but device doesn't support it, disabling...");
 			enabledFeatures.nonSolidFaceFilling = false;
 		}
+
+		if (enabledFeatures.storageBuffers && !supportedFeatures.storageBuffers)
+		{
+			NazaraWarning("storage buffers support was enabled but device doesn't support it, disabling...");
+			enabledFeatures.storageBuffers = false;
+		}
 	}
 }

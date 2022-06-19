@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_GRAPHICALMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -19,32 +20,44 @@ namespace Nz
 	class NAZARA_GRAPHICS_API GraphicalMesh
 	{
 		public:
-			GraphicalMesh(const Mesh& mesh);
+			struct SubMesh;
+
+			GraphicalMesh() = default;
 			GraphicalMesh(const GraphicalMesh&) = delete;
 			GraphicalMesh(GraphicalMesh&&) noexcept = default;
 			~GraphicalMesh() = default;
 
+			inline std::size_t AddSubMesh(SubMesh subMesh);
+
+			inline void Clear();
+
 			inline const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMesh) const;
-			inline std::size_t GetIndexCount(std::size_t subMesh) const;
+			inline UInt32 GetIndexCount(std::size_t subMesh) const;
 			inline IndexType GetIndexType(std::size_t subMesh) const;
 			inline const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMesh) const;
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
 
-			GraphicalMesh& operator=(const GraphicalMesh&) = delete;
-			GraphicalMesh& operator=(GraphicalMesh&&) noexcept = default;
+			inline void UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount);
 
-		private:
-			struct GraphicalSubMesh
+			GraphicalMesh& operator=(const GraphicalMesh&) = delete;
+			GraphicalMesh& operator=(GraphicalMesh&&) = delete;
+
+			struct SubMesh
 			{
 				std::shared_ptr<RenderBuffer> indexBuffer;
 				std::shared_ptr<RenderBuffer> vertexBuffer;
-				std::size_t indexCount;
 				std::shared_ptr<const VertexDeclaration> vertexDeclaration;
 				IndexType indexType;
+				UInt32 indexCount;
 			};
 
-			std::vector<GraphicalSubMesh> m_subMeshes;
+			static std::shared_ptr<GraphicalMesh> BuildFromMesh(const Mesh& mesh);
+
+			NazaraSignal(OnInvalidated, GraphicalMesh* /*gfxMesh*/);
+
+		private:
+			std::vector<SubMesh> m_subMeshes;
 	};
 }
 

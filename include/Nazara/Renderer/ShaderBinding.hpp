@@ -40,6 +40,13 @@ namespace Nz
 			ShaderBinding& operator=(const ShaderBinding&) = delete;
 			ShaderBinding& operator=(ShaderBinding&&) = delete;
 
+			struct StorageBufferBinding
+			{
+				RenderBuffer* buffer;
+				UInt64 offset;
+				UInt64 range;
+			};
+
 			struct TextureBinding
 			{
 				const Texture* texture;
@@ -56,7 +63,7 @@ namespace Nz
 			struct Binding
 			{
 				std::size_t bindingIndex;
-				std::variant<TextureBinding, UniformBufferBinding> content;
+				std::variant<StorageBufferBinding, TextureBinding, UniformBufferBinding> content;
 			};
 
 		protected:

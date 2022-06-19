@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -17,7 +18,6 @@
 
 namespace Nz
 {
-	class GraphicalMesh;
 	class Material;
 
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
@@ -49,6 +49,8 @@ namespace Nz
 				std::shared_ptr<Material> material;
 				std::vector<RenderPipelineInfo::VertexBufferData> vertexBufferData;
 			};
+
+			NazaraSlot(GraphicalMesh, OnInvalidated, m_onInvalidated);
 
 			std::shared_ptr<GraphicalMesh> m_graphicalMesh;
 			std::vector<SubMeshData> m_submeshes;

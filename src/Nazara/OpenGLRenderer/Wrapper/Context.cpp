@@ -191,6 +191,28 @@ namespace Nz::GL
 		}
 	}
 
+	void Context::BindStorageBuffer(UInt32 storageUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const
+	{
+		if (storageUnit >= m_state.storageUnits.size())
+			throw std::runtime_error("unsupported storage buffer unit #" + std::to_string(storageUnit));
+
+		auto& unit = m_state.storageUnits[storageUnit];
+		if (unit.buffer != buffer || unit.offset != offset || unit.size != size)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			glBindBufferRange(GL_SHADER_STORAGE_BUFFER, storageUnit, buffer, offset, size);
+
+			unit.buffer = buffer;
+			unit.offset = offset;
+			unit.size = size;
+
+			// glBindBufferRange does replace the currently bound buffer
+			m_state.bufferTargets[UnderlyingCast(BufferTarget::Storage)] = buffer;
+		}
+	}
+
 	void Context::BindTexture(TextureTarget target, GLuint texture) const
 	{
 		BindTexture(m_state.currentTextureUnit, target, texture);
@@ -375,6 +397,12 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
 
+		// Storage buffers (SSBO)
+		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
+			m_extensionStatus[UnderlyingCast(Extension::StorageBuffers)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_shader_storage_buffer_object"))
+			m_extensionStatus[UnderlyingCast(Extension::StorageBuffers)] = ExtensionStatus::ARB;
+
 		// Texture compression (S3tc)
 		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureCompressionS3tc)] = ExtensionStatus::EXT;
@@ -449,7 +477,7 @@ namespace Nz::GL
 		GLint maxTextureUnits = -1;
 		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
 		if (maxTextureUnits < 32) //< OpenGL ES 3.0 requires at least 32 textures units
-			NazaraWarning("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is " + std::to_string(maxTextureUnits) + ", >= 32 expected");
+			NazaraWarning("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is " + std::to_string(maxTextureUnits) + ", expected >= 32");
 
 		assert(maxTextureUnits > 0);
 		m_state.textureUnits.resize(maxTextureUnits);
@@ -457,10 +485,21 @@ namespace Nz::GL
 		GLint maxUniformBufferUnits = -1;
 		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBufferUnits);
 		if (maxUniformBufferUnits < 24) //< OpenGL ES 3.0 requires at least 24 uniform buffers units
-			NazaraWarning("GL_MAX_UNIFORM_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", >= 24 expected");
+			NazaraWarning("GL_MAX_UNIFORM_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", expected >= 24");
 
 		assert(maxUniformBufferUnits > 0);
 		m_state.uboUnits.resize(maxUniformBufferUnits);
+
+		if (IsExtensionSupported(Extension::StorageBuffers))
+		{
+			GLint maxStorageBufferUnits = -1;
+			glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxStorageBufferUnits);
+			if (maxStorageBufferUnits < 24) //< OpenGL ES 3.1 requires at least 8 storage buffers units
+				NazaraWarning("GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", expected >= 8");
+
+			assert(maxStorageBufferUnits > 0);
+			m_state.storageUnits.resize(maxStorageBufferUnits);
+		}
 
 		std::array<GLint, 4> res;
 

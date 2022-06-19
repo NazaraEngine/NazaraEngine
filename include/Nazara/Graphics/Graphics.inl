@@ -22,16 +22,6 @@ namespace Nz
 		return m_defaultTextures;
 	}
 
-	inline const std::shared_ptr<RenderBuffer>& Graphics::GetFullscreenVertexBuffer() const
-	{
-		return m_fullscreenVertexBuffer;
-	}
-
-	inline const std::shared_ptr<VertexDeclaration>& Graphics::GetFullscreenVertexDeclaration() const
-	{
-		return m_fullscreenVertexDeclaration;
-	}
-
 	inline MaterialPassRegistry& Graphics::GetMaterialPassRegistry()
 	{
 		return m_materialPassRegistry;

@@ -319,7 +319,7 @@ namespace Nz
 		return m_pipelineInfo.lineWidth;
 	}
 
-	inline const nzsl::Ast::ConstantValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
+	inline const nzsl::Ast::ConstantSingleValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
 	{
 		assert(optionIndex < m_optionValues.size());
 		return m_optionValues[optionIndex];
@@ -566,7 +566,7 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void MaterialPass::SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantValue value)
+	inline void MaterialPass::SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantSingleValue value)
 	{
 		assert(optionIndex < m_optionValues.size());
 		if (m_optionValues[optionIndex] != value)

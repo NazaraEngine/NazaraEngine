@@ -49,10 +49,11 @@ namespace Nz
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
 
-		std::unordered_map<UInt32, nzsl::Ast::ConstantValue> optionValues;
+		std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> optionValues;
 		for (std::size_t i = 0; i < m_pipelineInfo.optionCount; ++i)
 		{
 			const auto& option = m_pipelineInfo.optionValues[i];
+
 			optionValues[option.hash] = option.value;
 		}
 

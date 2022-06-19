@@ -12,7 +12,11 @@ task("compile-shaders")
 
 	on_run(function ()
 		import("core.base.option")
+		import("core.base.task")
 		import("core.project.project")
+
+		task.run("config", {}, {disable_dump = true})
+
 		local nzsl = path.join(project.required_package("nzsl"):installdir(), "bin", "nzslc")
 
 		local envs
@@ -26,13 +30,13 @@ task("compile-shaders")
 		print("Compiling shaders...")
 		for _, filepath in pairs(os.files("src/Nazara/*/Resources/**.nzsl")) do
 			print(" - Compiling " .. filepath)
-			local argv = {"--compile=nzslb", "--partial", "--header-file", filepath }
+			local argv = {"--compile=nzslb-header", "--partial", filepath }
 			if option.get("measure") then
 				table.insert(argv, "--measure")
 			end
 			if option.get("benchmark-iteration") then
 				table.insert(argv, "--benchmark-iteration=" .. option.get("benchmark-iteration"))
 			end
-			os.execv(nzsl, argv, { envs = envs })
+			os.vrunv(nzsl, argv, { envs = envs })
 		end
 	end)

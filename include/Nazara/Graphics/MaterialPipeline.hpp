@@ -25,7 +25,7 @@ namespace Nz
 		struct Option
 		{
 			UInt32 hash;
-			nzsl::Ast::ConstantValue value;
+			nzsl::Ast::ConstantSingleValue value;
 		};
 
 		struct Shader

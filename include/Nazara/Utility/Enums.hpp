@@ -60,6 +60,7 @@ namespace Nz
 	{
 		Index,
 		Vertex,
+		Storage,
 		Uniform,
 
 		Max = Uniform

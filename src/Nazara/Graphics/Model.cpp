@@ -29,6 +29,11 @@ namespace Nz
 			};
 		}
 
+		m_onInvalidated.Connect(m_graphicalMesh->OnInvalidated, [this](GraphicalMesh*)
+		{
+			OnElementInvalidated(this);
+		});
+
 		UpdateAABB(aabb);
 	}
 
