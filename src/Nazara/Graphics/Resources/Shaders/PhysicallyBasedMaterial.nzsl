@@ -1,9 +1,9 @@
 [nzsl_version("1.0")]
 module PhysicallyBasedMaterial;
 
-import Engine.InstanceData;
-import Engine.LightData;
-import Engine.ViewerData;
+import InstanceData from Engine.InstanceData;
+import LightData from Engine.LightData;
+import ViewerData from Engine.ViewerData;
 
 // Basic material options
 option HasDiffuseTexture: bool = false;
