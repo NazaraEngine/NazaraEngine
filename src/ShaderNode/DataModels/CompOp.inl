@@ -166,7 +166,7 @@ void CompOp<DataType, Op>::UpdateOutput()
 	{
 		m_output = std::make_shared<BoolData>();
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
+		m_output->preview.Fill(nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -195,12 +195,12 @@ void CompOp<DataType, Op>::UpdateOutput()
 }
 
 template<typename DataType>
-void CompEq<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void CompEq<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i] == right[i]) ? 1.f : 0.f;
-		output[i] = nzsl::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f32(r, r, r, r);
 	}
 }
 
@@ -211,12 +211,12 @@ QString CompEq<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompGe<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void CompGe<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i][0] >= right[i][0]) ? 1.f : 0.f;
-		output[i] = nzsl::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f32(r, r, r, r);
 	}
 }
 
@@ -227,12 +227,12 @@ QString CompGe<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompGt<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void CompGt<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i][0] > right[i][0]) ? 1.f : 0.f;
-		output[i] = nzsl::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f32(r, r, r, r);
 	}
 }
 
@@ -243,12 +243,12 @@ QString CompGt<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompLe<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void CompLe<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i][0] <= right[i][0]) ? 1.f : 0.f;
-		output[i] = nzsl::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f32(r, r, r, r);
 	}
 }
 
@@ -259,12 +259,12 @@ QString CompLe<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompLt<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void CompLt<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i][0] < right[i][0]) ? 1.f : 0.f;
-		output[i] = nzsl::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f32(r, r, r, r);
 	}
 }
 
@@ -275,12 +275,12 @@ QString CompLt<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void CompNe<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void CompNe<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 	{
 		float r = (left[i] != right[i]) ? 1.f : 0.f;
-		output[i] = nzsl::Vector4f(r, r, r, r);
+		output[i] = nzsl::Vector4f32(r, r, r, r);
 	}
 }
 

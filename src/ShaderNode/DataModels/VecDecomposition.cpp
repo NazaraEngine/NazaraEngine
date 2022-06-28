@@ -139,7 +139,7 @@ void VecDecomposition::UpdateOutputs()
 	{
 		auto dummy = std::make_shared<FloatData>();
 		dummy->preview = PreviewValues(1, 1);
-		dummy->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
+		dummy->preview.Fill(nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f));
 
 		m_outputs.fill(dummy);
 		return;
@@ -154,13 +154,13 @@ void VecDecomposition::UpdateOutputs()
 		m_outputs[i] = std::make_shared<FloatData>();
 		m_outputs[i]->preview = PreviewValues(previewWidth, previewHeight);
 
-		const nzsl::Vector4f* inputData = m_input->preview.GetData();
-		nzsl::Vector4f* outputData = m_outputs[i]->preview.GetData();
+		const nzsl::Vector4f32* inputData = m_input->preview.GetData();
+		nzsl::Vector4f32* outputData = m_outputs[i]->preview.GetData();
 		for (std::size_t j = 0; j < pixelCount; ++j)
 		{
-			const nzsl::Vector4f& input = *inputData++;
+			const nzsl::Vector4f32& input = *inputData++;
 
-			*outputData++ = nzsl::Vector4f(input[i], input[i], input[i], input[i]);
+			*outputData++ = nzsl::Vector4f32(input[i], input[i], input[i], input[i]);
 		}
 
 		Q_EMIT dataUpdated(i);

@@ -33,7 +33,7 @@ class BinOp : public ShaderNode
 		QString validationMessage() const override;
 
 	private:
-		virtual void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) = 0;
+		virtual void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) = 0;
 
 		bool ComputePreview(QPixmap& pixmap) override;
 		void UpdateOutput();
@@ -50,7 +50,7 @@ class BinAdd : public BinOp<DataType, nzsl::Ast::BinaryType::Add>
 	public:
 		using BinOp<DataType, nzsl::Ast::BinaryType::Add>::BinOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -60,7 +60,7 @@ class BinMul : public BinOp<DataType, nzsl::Ast::BinaryType::Multiply>
 	public:
 		using BinOp<DataType, nzsl::Ast::BinaryType::Multiply>::BinOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -70,7 +70,7 @@ class BinSub : public BinOp<DataType, nzsl::Ast::BinaryType::Subtract>
 	public:
 		using BinOp<DataType, nzsl::Ast::BinaryType::Subtract>::BinOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -80,7 +80,7 @@ class BinDiv : public BinOp<DataType, nzsl::Ast::BinaryType::Divide>
 	public:
 		using BinOp<DataType, nzsl::Ast::BinaryType::Divide>::BinOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 

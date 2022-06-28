@@ -148,13 +148,13 @@ void Mat4VecMul::UpdateOutput()
 	{
 		m_output = std::make_shared<VecData>(4);
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
+		m_output->preview.Fill(nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
 	m_output = std::make_shared<VecData>(4);
 	m_output->preview = PreviewValues(1, 1);
-	m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
+	m_output->preview.Fill(nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f));
 
 	/*m_output = std::make_shared<VecData>(m_rhs->componentCount);
 
@@ -174,9 +174,9 @@ void Mat4VecMul::UpdateOutput()
 
 	m_output->preview = PreviewValues(maxWidth, maxHeight);
 
-	const nzsl::Vector4f* left = leftResized.GetData();
-	const nzsl::Vector4f* right = rightPreview.GetData();
-	nzsl::Vector4f* output = m_output->preview.GetData();
+	const nzsl::Vector4f32* left = leftResized.GetData();
+	const nzsl::Vector4f32* right = rightPreview.GetData();
+	nzsl::Vector4f32* output = m_output->preview.GetData();
 
 	std::size_t pixelCount = maxWidth * maxHeight;
 	for (std::size_t i = 0; i < pixelCount; ++i)

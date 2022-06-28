@@ -33,7 +33,7 @@ nzsl::Ast::NodePtr CastVec<ToComponentCount>::BuildNode(nzsl::Ast::ExpressionPtr
 		std::vector<nzsl::Ast::ExpressionPtr> params;
 		params.emplace_back(std::move(expressions[0]));
 		for (std::size_t i = 0; i < overflowComponentCount; ++i)
-			params.emplace_back(nzsl::ShaderBuilder::Constant(m_overflowComponents[i]));
+			params.emplace_back(nzsl::ShaderBuilder::ConstantValue(m_overflowComponents[i]));
 
 		return nzsl::ShaderBuilder::Cast(nzsl::Ast::ExpressionType{ nzsl::Ast::VectorType{ ToComponentCount, nzsl::Ast::PrimitiveType::Float32 } }, std::move(params));
 	}
@@ -187,7 +187,7 @@ void CastVec<ToComponentCount>::UpdateOutput()
 	if (!m_input)
 	{
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview(0, 0) = nzsl::Vector4f(0.f, 0.f, 0.f, 0.f);
+		m_output->preview(0, 0) = nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f);
 		return;
 	}
 
@@ -208,7 +208,7 @@ void CastVec<ToComponentCount>::UpdateOutput()
 	{
 		for (std::size_t x = 0; x < inputWidth; ++x)
 		{
-			nzsl::Vector4f color = input(x, y);
+			nzsl::Vector4f32 color = input(x, y);
 
 			float* colorPtr = &color[0];
 			for (std::size_t i = 0; i < overflowComponentCount; ++i)

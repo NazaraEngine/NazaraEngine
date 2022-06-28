@@ -34,7 +34,7 @@ class CompOp : public ShaderNode
 		QString validationMessage() const override;
 
 	private:
-		virtual void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) = 0;
+		virtual void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) = 0;
 
 		bool ComputePreview(QPixmap& pixmap) override;
 		void UpdateOutput();
@@ -51,7 +51,7 @@ class CompEq : public CompOp<DataType, nzsl::Ast::BinaryType::CompEq>
 	public:
 		using CompOp<DataType, nzsl::Ast::BinaryType::CompEq>::CompOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -61,7 +61,7 @@ class CompGe : public CompOp<DataType, nzsl::Ast::BinaryType::CompGe>
 	public:
 		using CompOp<DataType, nzsl::Ast::BinaryType::CompGe>::CompOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -71,7 +71,7 @@ class CompGt : public CompOp<DataType, nzsl::Ast::BinaryType::CompGt>
 	public:
 		using CompOp<DataType, nzsl::Ast::BinaryType::CompGt>::CompOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -81,7 +81,7 @@ class CompLe : public CompOp<DataType, nzsl::Ast::BinaryType::CompLe>
 	public:
 		using CompOp<DataType, nzsl::Ast::BinaryType::CompLe>::CompOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -91,7 +91,7 @@ class CompLt : public CompOp<DataType, nzsl::Ast::BinaryType::CompLt>
 	public:
 		using CompOp<DataType, nzsl::Ast::BinaryType::CompLt>::CompOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 
@@ -101,7 +101,7 @@ class CompNe : public CompOp<DataType, nzsl::Ast::BinaryType::CompNe>
 	public:
 		using CompOp<DataType, nzsl::Ast::BinaryType::CompNe>::CompOp;
 
-		void ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount) override;
+		void ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount) override;
 		QString GetOperationString() const final;
 };
 

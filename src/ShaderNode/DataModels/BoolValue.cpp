@@ -53,7 +53,7 @@ std::shared_ptr<QtNodes::NodeData> BoolValue::outData(QtNodes::PortIndex port)
 	float c = (m_value) ? 1.f : 0.f;
 
 	auto out = std::make_shared<BoolData>();
-	out->preview(0, 0) = nzsl::Vector4f(c, c, c, 1.f);
+	out->preview(0, 0) = nzsl::Vector4f32(c, c, c, 1.f);
 
 	return out;
 }
@@ -94,7 +94,7 @@ nzsl::Ast::NodePtr BoolValue::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*
 	assert(count == 0);
 	assert(outputIndex == 0);
 
-	return nzsl::ShaderBuilder::Constant(m_value);
+	return nzsl::ShaderBuilder::ConstantValue(m_value);
 }
 
 bool BoolValue::ComputePreview(QPixmap& pixmap)

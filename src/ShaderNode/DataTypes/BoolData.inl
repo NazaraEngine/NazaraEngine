@@ -3,5 +3,5 @@
 inline BoolData::BoolData() :
 preview(1, 1)
 {
-	preview(0, 0) = nzsl::Vector4f(1.f, 1.f, 1.f, 0.f);
+	preview(0, 0) = nzsl::Vector4f32(1.f, 1.f, 1.f, 0.f);
 }

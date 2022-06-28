@@ -23,7 +23,7 @@ nzsl::Ast::NodePtr Discard::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std
 
 	using namespace nzsl;
 
-	auto condition = ShaderBuilder::Binary(nzsl::Ast::BinaryType::CompEq, std::move(expressions[0]), ShaderBuilder::Constant(true));
+	auto condition = ShaderBuilder::Binary(nzsl::Ast::BinaryType::CompEq, std::move(expressions[0]), ShaderBuilder::ConstantValue(true));
 	return ShaderBuilder::Branch(std::move(condition), ShaderBuilder::Discard());
 }
 

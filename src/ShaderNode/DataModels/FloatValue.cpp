@@ -50,7 +50,7 @@ std::shared_ptr<QtNodes::NodeData> FloatValue::outData(QtNodes::PortIndex port)
 	assert(port == 0);
 
 	auto out = std::make_shared<FloatData>();
-	out->preview(0, 0) = nzsl::Vector4f(m_value, m_value, m_value, 1.f);
+	out->preview(0, 0) = nzsl::Vector4f32(m_value, m_value, m_value, 1.f);
 
 	return out;
 }
@@ -94,7 +94,7 @@ nzsl::Ast::NodePtr FloatValue::BuildNode(nzsl::Ast::ExpressionPtr* expressions, 
 	assert(count == 0);
 	assert(outputIndex == 0);
 
-	return nzsl::ShaderBuilder::Constant(m_value);
+	return nzsl::ShaderBuilder::ConstantValue(m_value);
 }
 
 bool FloatValue::ComputePreview(QPixmap& pixmap)

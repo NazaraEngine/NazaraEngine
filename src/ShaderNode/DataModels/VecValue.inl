@@ -66,7 +66,7 @@ std::shared_ptr<QtNodes::NodeData> VecValue<ComponentCount>::outData(QtNodes::Po
 		values[i] = m_value[i];
 
 	out->preview = PreviewValues(1, 1);
-	out->preview(0, 0) = nzsl::Vector4f(values[0], values[1], values[2], values[3]);
+	out->preview(0, 0) = nzsl::Vector4f32(values[0], values[1], values[2], values[3]);
 
 	return out;
 }
@@ -128,7 +128,7 @@ nzsl::Ast::NodePtr VecValue<ComponentCount>::BuildNode(nzsl::Ast::ExpressionPtr*
 	assert(count == 0);
 	assert(outputIndex == 0);
 
-	return nzsl::ShaderBuilder::Constant(m_value);
+	return nzsl::ShaderBuilder::ConstantValue(m_value);
 }
 
 template<std::size_t ComponentCount>

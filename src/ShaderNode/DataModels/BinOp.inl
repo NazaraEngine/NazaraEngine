@@ -154,7 +154,7 @@ void BinOp<DataType, Op>::UpdateOutput()
 			m_output = std::make_shared<DataType>();
 
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
+		m_output->preview.Fill(nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -186,7 +186,7 @@ void BinOp<DataType, Op>::UpdateOutput()
 }
 
 template<typename DataType>
-void BinAdd<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void BinAdd<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 		output[i] = left[i] + right[i];
@@ -199,7 +199,7 @@ QString BinAdd<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void BinMul<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void BinMul<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 		output[i] = left[i] * right[i];
@@ -212,7 +212,7 @@ QString BinMul<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void BinSub<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void BinSub<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 		output[i] = left[i] - right[i];
@@ -225,7 +225,7 @@ QString BinSub<DataType>::GetOperationString() const
 }
 
 template<typename DataType>
-void BinDiv<DataType>::ApplyOp(const nzsl::Vector4f* left, const nzsl::Vector4f* right, nzsl::Vector4f* output, std::size_t pixelCount)
+void BinDiv<DataType>::ApplyOp(const nzsl::Vector4f32* left, const nzsl::Vector4f32* right, nzsl::Vector4f32* output, std::size_t pixelCount)
 {
 	for (std::size_t i = 0; i < pixelCount; ++i)
 		output[i] = left[i] / right[i];

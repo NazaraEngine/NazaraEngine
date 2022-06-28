@@ -147,7 +147,7 @@ void VecComposition<ComponentCount>::UpdateOutput()
 	if (validationState() != QtNodes::NodeValidationState::Valid)
 	{
 		m_output->preview = PreviewValues(1, 1);
-		m_output->preview(0, 0) = nzsl::Vector4f(0.f, 0.f, 0.f, 0.f);
+		m_output->preview(0, 0) = nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f);
 		return;
 	}
 
@@ -177,7 +177,7 @@ void VecComposition<ComponentCount>::UpdateOutput()
 	{
 		for (std::size_t x = 0; x < maxInputWidth; ++x)
 		{
-			nzsl::Vector4f color(0.f, 0.f, 0.f, 1.f);
+			nzsl::Vector4f32 color(0.f, 0.f, 0.f, 1.f);
 			for (std::size_t i = 0; i < ComponentCount; ++i)
 				color[i] = previewResized[i](x, y)[0];
 

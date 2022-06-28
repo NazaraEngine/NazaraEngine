@@ -160,7 +160,7 @@ std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port
 		{
 			QColor pixelColor = previewImage.pixelColor(int(x), int(y));
 
-			textureData->preview(x, y) = nzsl::Vector4f(pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF(), pixelColor.alphaF());
+			textureData->preview(x, y) = nzsl::Vector4f32(pixelColor.redF(), pixelColor.greenF(), pixelColor.blueF(), pixelColor.alphaF());
 		}
 	}
 

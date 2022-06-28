@@ -28,7 +28,7 @@ void SampleTexture::UpdateOutput()
 	if (!m_texture || !m_uv)
 	{
 		output = PreviewValues(1, 1);
-		output.Fill(nzsl::Vector4f(0.f, 0.f, 0.f, 0.f));
+		output.Fill(nzsl::Vector4f32(0.f, 0.f, 0.f, 0.f));
 		return;
 	}
 
@@ -48,12 +48,12 @@ void SampleTexture::UpdateOutput()
 	{
 		for (std::size_t x = 0; x < uvWidth; ++x)
 		{
-			nzsl::Vector4f uvValue = uv(x, y);
+			nzsl::Vector4f32 uvValue = uv(x, y);
 
 			if (textureWidth > 0 && textureHeight > 0)
 				output(x, y) = texturePreview.Sample(uvValue.x(), uvValue.y());
 			else
-				output(x, y) = nzsl::Vector4f(0.f, 0.f, 0.f, 1.f);
+				output(x, y) = nzsl::Vector4f32(0.f, 0.f, 0.f, 1.f);
 		}
 	}
 
