@@ -1,0 +1,5 @@
+[nzsl_version("1.0")]
+module Engine.Constants;
+
+[export]
+const Pi: f32 = 3.1415926535897932384626433832795;
