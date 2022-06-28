@@ -223,7 +223,7 @@ namespace Nz
 #ifdef NAZARA_DEBUG
 		// Override embed files with dev files in debug
 		if (std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders"; std::filesystem::is_directory(modulePath))
-			m_shaderModuleResolver->RegisterModuleDirectory(modulePath);
+			m_shaderModuleResolver->RegisterModuleDirectory(modulePath, true);
 #endif
 
 		// Let application register their own shaders
