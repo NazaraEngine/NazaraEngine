@@ -30,13 +30,14 @@ task("compile-shaders")
 		print("Compiling shaders...")
 		for _, filepath in pairs(os.files("src/Nazara/*/Resources/**.nzsl")) do
 			print(" - Compiling " .. filepath)
-			local argv = {"--compile=nzslb-header", "--partial", filepath }
+			local argv = {"--compile=nzslb-header", "--partial", "--optimize" }
 			if option.get("measure") then
 				table.insert(argv, "--measure")
 			end
 			if option.get("benchmark-iteration") then
 				table.insert(argv, "--benchmark-iteration=" .. option.get("benchmark-iteration"))
 			end
+			table.insert(argv, filepath)
 			os.vrunv(nzsl, argv, { envs = envs })
 		end
 	end)
