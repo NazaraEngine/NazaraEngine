@@ -87,12 +87,12 @@ namespace Nz
 			duv[0] = texCoords[iterator[1]] - uv0;
 			duv[1] = texCoords[iterator[2]] - uv0;
 
-			float coef = 1.f / (duv[0].x*duv[1].y - duv[1].x*duv[0].y);
+			float coef = 1.f / (duv[0].x * duv[1].y - duv[1].x * duv[0].y);
 
 			Vector3f tangent;
-			tangent.x = coef * (dv[0].x*duv[1].y + dv[1].x*(-duv[0].y));
-			tangent.y = coef * (dv[0].y*duv[1].y + dv[1].y*(-duv[0].y));
-			tangent.z = coef * (dv[0].z*duv[1].y + dv[1].z*(-duv[0].y));
+			tangent.x = coef * (dv[0].x * duv[1].y - dv[1].x * duv[0].y);
+			tangent.y = coef * (dv[0].y * duv[1].y - dv[1].y * duv[0].y);
+			tangent.z = coef * (dv[0].z * duv[1].y - dv[1].z * duv[0].y);
 
 			for (unsigned int i = 0; i < 3; ++i)
 			{
