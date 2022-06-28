@@ -25,22 +25,27 @@ namespace Nz
 
 			const StaticMesh& staticMesh = static_cast<const StaticMesh&>(subMesh);
 
-			const std::shared_ptr<const IndexBuffer>& indexBuffer = staticMesh.GetIndexBuffer();
 			const std::shared_ptr<VertexBuffer>& vertexBuffer = staticMesh.GetVertexBuffer();
-
-			assert(indexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
-			const SoftwareBuffer* indexBufferContent = static_cast<const SoftwareBuffer*>(indexBuffer->GetBuffer().get());
-
 			assert(vertexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
 			const SoftwareBuffer* vertexBufferContent = static_cast<const SoftwareBuffer*>(vertexBuffer->GetBuffer().get());
 
 			GraphicalMesh::SubMesh submeshData;
-			submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType::Index, indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
-			if (!submeshData.indexBuffer->Fill(indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
-				throw std::runtime_error("failed to fill index buffer");
 
-			submeshData.indexCount = indexBuffer->GetIndexCount();
-			submeshData.indexType = indexBuffer->GetIndexType();
+			const std::shared_ptr<const IndexBuffer>& indexBuffer = staticMesh.GetIndexBuffer();
+			if (indexBuffer)
+			{
+				assert(indexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
+				const SoftwareBuffer* indexBufferContent = static_cast<const SoftwareBuffer*>(indexBuffer->GetBuffer().get());
+
+				submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType::Index, indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
+				if (!submeshData.indexBuffer->Fill(indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
+					throw std::runtime_error("failed to fill index buffer");
+
+				submeshData.indexCount = indexBuffer->GetIndexCount();
+				submeshData.indexType = indexBuffer->GetIndexType();
+			}
+			else
+				submeshData.indexCount = vertexBuffer->GetVertexCount();
 
 			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(BufferType::Vertex, vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
 			if (!submeshData.vertexBuffer->Fill(vertexBufferContent->GetData() + vertexBuffer->GetStartOffset(), 0, vertexBuffer->GetEndOffset() - vertexBuffer->GetStartOffset()))

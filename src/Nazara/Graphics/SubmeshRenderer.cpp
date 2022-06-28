@@ -218,7 +218,9 @@ namespace Nz
 
 			if (currentIndexBuffer != drawData.indexBuffer)
 			{
-				commandBuffer.BindIndexBuffer(*drawData.indexBuffer, drawData.indexType);
+				if (drawData.indexBuffer)
+					commandBuffer.BindIndexBuffer(*drawData.indexBuffer, drawData.indexType);
+
 				currentIndexBuffer = drawData.indexBuffer;
 			}
 
