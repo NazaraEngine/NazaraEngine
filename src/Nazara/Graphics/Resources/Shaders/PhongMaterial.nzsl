@@ -75,7 +75,7 @@ struct VertToFrag
 	[location(1), cond(HasUV)] uv: vec2[f32],
 	[location(2), cond(HasColor)] color: vec4[f32],
 	[location(3), cond(HasNormal)] normal: vec3[f32],
-	[location(4), cond(HasNormalMapping)] tbnMatrix: mat3[f32],
+	[location(4), cond(HasNormalMapping)] tangent: vec3[f32],
 	[builtin(position)] position: vec4[f32],
 }
 
@@ -118,7 +118,14 @@ fn main(input: VertToFrag) -> FragOut
 
 		let normal: vec3[f32];
 		const if (HasNormalMapping)
-			normal = normalize(input.tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		{
+			let N = normalize(input.normal);
+			let T = normalize(input.tangent);
+			let B = cross(N, T);
+			let tbnMatrix = mat3[f32](T, B, N);
+
+			normal = normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		}
 		else
 			normal = normalize(input.normal);
 
@@ -288,7 +295,7 @@ fn main(input: VertIn) -> VertToFrag
 	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 
-	let rotationMatrix = mat3[f32](instanceData.worldMatrix);
+	let rotationMatrix = transpose(inverse(mat3[f32](instanceData.worldMatrix)));
 
 	const if (HasColor)
 		output.color = input.color;
@@ -300,12 +307,7 @@ fn main(input: VertIn) -> VertToFrag
 		output.uv = input.uv;
 
 	const if (HasNormalMapping)
-	{
-		let binormal = cross(input.normal, input.tangent);
-		output.tbnMatrix[0] = normalize(rotationMatrix * input.tangent);
-		output.tbnMatrix[1] = normalize(rotationMatrix * binormal);
-		output.tbnMatrix[2] = normalize(rotationMatrix * input.normal);
-	}
+		output.tangent = rotationMatrix * input.tangent;
 
 	return output;
 }
