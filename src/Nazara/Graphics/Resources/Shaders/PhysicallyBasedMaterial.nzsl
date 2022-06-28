@@ -79,12 +79,12 @@ struct VertToFrag
 	[location(1), cond(HasUV)] uv: vec2[f32],
 	[location(2), cond(HasColor)] color: vec4[f32],
 	[location(3), cond(HasNormal)] normal: vec3[f32],
-	[location(4), cond(HasNormalMapping)] tbnMatrix: mat3[f32],
+	[location(4), cond(HasNormalMapping)] tangent: vec3[f32],
 	[builtin(position)] position: vec4[f32],
 }
 
 // Fragment stage
-const PI: f32 = 3.1415926535897932384626433832795;
+import Pi from Engine.Constants;
 
 fn DistributionGGX(N: vec3[f32], H: vec3[f32], roughness: f32) -> f32
 {
@@ -96,7 +96,7 @@ fn DistributionGGX(N: vec3[f32], H: vec3[f32], roughness: f32) -> f32
 
 	let num = a2;
 	let denom = (NdotH2 * (a2 - 1.0) + 1.0);
-	denom = PI * denom * denom;
+	denom = Pi * denom * denom;
 
 	return num / denom;
 }
@@ -158,15 +158,20 @@ fn main(input: VertToFrag) -> FragOut
 
 	const if (HasNormal)
 	{
-		let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
-		let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
-		let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
+		let lightRadiance = vec3[f32](0.0, 0.0, 0.0);
 
 		let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
 
 		let normal: vec3[f32];
-		const if (HasNormalMapping && false)
-			normal = normalize(input.tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		const if (HasNormalMapping)
+		{
+			let N = normalize(input.normal);
+			let T = normalize(input.tangent);
+			let B = cross(N, T);
+			let tbnMatrix = mat3[f32](T, B, N);
+
+			normal = normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		}
 		else
 			normal = normalize(input.normal);
 
@@ -187,101 +192,72 @@ fn main(input: VertToFrag) -> FragOut
 		let F0 = vec3[f32](0.04, 0.04, 0.04);
 		F0 = albedo * metallic + F0 * (1.0 - metallic);
 
+		let albedoFactor = albedo / Pi;
+
 		for i in u32(0) -> lightData.lightCount
 		{
 			let light = lightData.lights[i];
 
-			let lightAmbientFactor = light.factor.x;
-			let lightDiffuseFactor = light.factor.y;
+			let attenuation = 1.0;
 
 			// TODO: Add switch instruction
+			let lightToPosNorm: vec3[f32];
 			if (light.type == DirectionalLight)
+				lightToPosNorm = -light.parameter1.xyz;
+			else
 			{
-				let lightDir = -light.parameter1.xyz;
-				let H = normalize(lightDir + eyeVec);
-
-				// cook-torrance brdf
-				let NDF = DistributionGGX(normal, H, roughness);
-				let G = GeometrySmith(normal, eyeVec, lightDir, roughness);
-				let F = FresnelSchlick(max(dot(H, eyeVec), 0.0), F0);
-
-				let kS = F;
-				let kD = vec3[f32](1.0, 1.0, 1.0) - kS;
-				kD *= 1.0 - metallic;
-
-				let numerator = NDF * G * F;
-				let denominator = 4.0 * max(dot(normal, eyeVec), 0.0) * max(dot(normal, lightDir), 0.0);
-				let specular = numerator / max(denominator, 0.0001);
-
-				let NdotL = max(dot(normal, -lightDir), 0.0);
-				lightDiffuse += (kD * albedo / PI + specular) * light.color.rgb * NdotL;
-
-				//lightDiffuse = specular;
-			}
-			else if (light.type == PointLight)
-			{
+				// PointLight | SpotLight
 				let lightPos = light.parameter1.xyz;
 				let lightInvRadius = light.parameter1.w;
 
 				let lightToPos = input.worldPos - lightPos;
 				let dist = length(lightToPos);
-				let lightToPosNorm = lightToPos / max(dist, 0.0001);
 
-				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
+				attenuation = max(1.0 - dist * lightInvRadius, 0.0);
+				lightToPosNorm = lightToPos / max(dist, 0.0001);
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				if (light.type == SpotLight)
+				{
+					let lightDir = light.parameter2.xyz;
+					let lightInnerAngle = light.parameter3.x;
+					let lightOuterAngle = light.parameter3.y;
 
-				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
-
-				lightDiffuse += attenuationFactor * lambert * light.color.rgb * lightDiffuseFactor;
-
-				let reflection = reflect(lightToPosNorm, normal);
-				let specFactor = max(dot(reflection, eyeVec), 0.0);
-				specFactor = pow(specFactor, settings.Shininess);
-
-				lightSpecular += attenuationFactor * specFactor * light.color.rgb;
+					let curAngle = dot(lightDir, lightToPosNorm);
+					let innerMinusOuterAngle = lightInnerAngle - lightOuterAngle;
+	
+					attenuation *= max((curAngle - lightOuterAngle) / innerMinusOuterAngle, 0.0);			
+				}
 			}
-			else if (light.type == SpotLight)
-			{
-				let lightPos = light.parameter1.xyz;
-				let lightDir = light.parameter2.xyz;
-				let lightInvRadius = light.parameter1.w;
-				let lightInnerAngle = light.parameter3.x;
-				let lightOuterAngle = light.parameter3.y;
 
-				let lightToPos = input.worldPos - lightPos;
-				let dist = length(lightToPos);
-				let lightToPosNorm = lightToPos / max(dist, 0.0001);
+			let radiance = light.color.rgb * attenuation;
 
-				let curAngle = dot(lightDir, lightToPosNorm);
-				let innerMinusOuterAngle = lightInnerAngle - lightOuterAngle;
+			let halfDir = normalize(lightToPosNorm + eyeVec);
 
-				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
-				attenuationFactor *= max((curAngle - lightOuterAngle) / innerMinusOuterAngle, 0.0);			
+			// cook-torrance brdf
+			let NDF = DistributionGGX(normal, halfDir, roughness);
+			let G = GeometrySmith(normal, eyeVec, lightToPosNorm, roughness);
+			let F = FresnelSchlick(max(dot(halfDir, eyeVec), 0.0), F0);
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+			let kS = F;
+			let diffuse = vec3[f32](1.0, 1.0, 1.0) - kS;
+			diffuse *= 1.0 - metallic;
 
-				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
+			let numerator = NDF * G * F;
+			let denominator = 4.0 * max(dot(normal, eyeVec), 0.0) * max(dot(normal, lightToPosNorm), 0.0);
+			let specular = numerator / max(denominator, 0.0001);
 
-				lightDiffuse += attenuationFactor * lambert * light.color.rgb * lightDiffuseFactor;
-
-				let reflection = reflect(lightToPosNorm, normal);
-				let specFactor = max(dot(reflection, eyeVec), 0.0);
-				specFactor = pow(specFactor, settings.Shininess);
-
-				lightSpecular += attenuationFactor * specFactor * light.color.rgb;
-			}
+			let NdotL = max(dot(normal, lightToPosNorm), 0.0);
+			lightRadiance += (diffuse * albedoFactor + specular) * radiance * NdotL;
 		}
 
-		lightSpecular *= settings.SpecularColor;
+		let ambient = (0.03).rrr * albedo;
 
-		const if (HasSpecularTexture)
-			lightSpecular *= MaterialSpecularMap.Sample(input.uv).rgb;
-
-		let lightColor = lightAmbient + lightDiffuse + lightSpecular;
+		let color = ambient + lightRadiance * diffuseColor.rgb;
+		color = color / (color + vec3[f32](1.0, 1.0, 1.0));
+		color = pow(color, (1.0 / 2.2).xxx);
 
 		let output: FragOut;
-		output.RenderTarget0 = vec4[f32](lightColor, 1.0) * diffuseColor;
+		output.RenderTarget0 = vec4[f32](color, 1.0);
 		return output;
 	}
 	else
@@ -360,7 +336,7 @@ fn main(input: VertIn) -> VertToFrag
 	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 
-	let rotationMatrix = mat3[f32](instanceData.worldMatrix);
+	let rotationMatrix = transpose(inverse(mat3[f32](instanceData.worldMatrix)));
 
 	const if (HasColor)
 		output.color = input.color;
@@ -372,12 +348,7 @@ fn main(input: VertIn) -> VertToFrag
 		output.uv = input.uv;
 
 	const if (HasNormalMapping)
-	{
-		let binormal = cross(input.normal, input.tangent);
-		output.tbnMatrix[0] = normalize(rotationMatrix * input.tangent);
-		output.tbnMatrix[1] = normalize(rotationMatrix * binormal);
-		output.tbnMatrix[2] = normalize(rotationMatrix * input.normal);
-	}
+		output.tangent = rotationMatrix * input.tangent;
 
 	return output;
 }
