@@ -18,6 +18,7 @@ local modules = {
 				add_syslinks("dl", "pthread", "uuid")
 			end
 		end,
+		Packages = { "entt" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
