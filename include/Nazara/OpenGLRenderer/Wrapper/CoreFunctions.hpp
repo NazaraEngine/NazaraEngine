@@ -19,6 +19,7 @@
 #define GL_FILL                            0x1B02
 #define GL_SHADER_BINARY_FORMAT_SPIR_V_ARB 0x9551
 #define GL_SPIR_V_BINARY_ARB               0x9552
+#define GL_TEXTURE_CUBE_MAP_SEAMLESS       0x884F
 typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
 typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);

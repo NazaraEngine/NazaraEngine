@@ -421,6 +421,10 @@ namespace Nz::GL
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
 
+		// Always enable cubemap sampling (as it's the guaranteed behavior on Vulkan and OpenGL ES 3.0)
+		if (m_params.type == ContextType::OpenGL && (glVersion >= 320 || m_supportedExtensions.count("GL_ARB_seamless_cube_map")))
+			glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 		// If we requested an OpenGL ES context but couldn't create one, check for some compatibility extensions
 		if (params.type == ContextType::OpenGL_ES && m_params.type != params.type)
 		{
