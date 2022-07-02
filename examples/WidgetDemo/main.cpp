@@ -1,4 +1,5 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
@@ -43,14 +44,11 @@ int main()
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Widget Test";
-	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
 
 	entt::registry registry;
-	Nz::RenderSystem renderSystem(registry);
+	Nz::SystemGraph systemGraph(registry);
+	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
+	Nz::RenderWindow& mainWindow = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080), windowTitle);
 
 	Nz::Canvas canvas2D(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle(), 0xFFFFFFFF);
 	canvas2D.Resize(Nz::Vector2f(window.GetSize()));
@@ -148,13 +146,7 @@ int main()
 			}
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
-		if (!frame)
-			continue;
-
-		renderSystem.Render(registry, frame);
-
-		frame.Present();
+		systemGraph.Update();
 
 		fps++;
 

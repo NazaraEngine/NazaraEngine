@@ -1,4 +1,5 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
@@ -39,16 +40,7 @@ int main()
 
 	Nz::Modules<Nz::Graphics, Nz::Physics3D> nazara(rendererConfig);
 
-	Nz::RenderWindow window;
-
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
-
-	std::string windowTitle = "Graphics Test";
-	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
@@ -119,15 +111,19 @@ int main()
 	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(spriteMaterial);
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72), 0.01f);
 
-	Nz::Vector2ui windowSize = window.GetSize();
-
 	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
 	entt::registry registry;
 
-	Nz::Physics3DSystem physSytem(registry);
-	Nz::RenderSystem renderSystem(registry);
+	Nz::SystemGraph systemGraph(registry);
+	Nz::Physics3DSystem& physSytem = systemGraph.AddSystem<Nz::Physics3DSystem>();
+	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
+
+	std::string windowTitle = "Graphics Test";
+	Nz::RenderWindow& window = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080, 32), windowTitle);
+
+	Nz::Vector2ui windowSize = window.GetSize();
 
 	entt::entity viewer = registry.create();
 	{
@@ -187,10 +183,10 @@ int main()
 
 		auto& headingNode = registry.emplace<Nz::NodeComponent>(headingEntity);
 		headingNode.SetInheritRotation(false);
-		headingNode.SetParent(registry, playerEntity);
+		headingNode.SetParent(entityNode);
 	}
 
-	registry.get<Nz::NodeComponent>(viewer).SetParent(registry, headingEntity);
+	registry.get<Nz::NodeComponent>(viewer).SetParent(entt::handle(registry, headingEntity));
 	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
 	for (std::size_t x = 0; x < 3; ++x)
@@ -310,10 +306,6 @@ int main()
 
 		if (updateClock.GetMilliseconds() > 1000 / 60)
 		{
-			float updateTime = updateClock.Restart() / 1'000'000.f;
-
-			physSytem.Update(registry, 1000.f / 60.f);
-
 			auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
@@ -360,16 +352,7 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
-		if (!frame)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
-		}
-
-		renderSystem.Render(registry, frame);
-
-		frame.Present();
+		systemGraph.Update();
 
 		fps++;
 

@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_GRAPHICALMESH_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utils/Signal.hpp>
 #include <memory>
 
 namespace Nz

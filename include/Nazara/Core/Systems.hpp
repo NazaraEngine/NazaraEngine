@@ -30,5 +30,6 @@
 #define NAZARA_CORE_SYSTEMS_HPP
 
 #include <Nazara/Core/Systems/LifetimeSystem.hpp>
+#include <Nazara/Core/Systems/SystemGraph.hpp>
 
 #endif // NAZARA_CORE_SYSTEMS_HPP

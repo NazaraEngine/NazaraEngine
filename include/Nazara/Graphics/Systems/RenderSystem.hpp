@@ -24,17 +24,23 @@ namespace Nz
 	class CommandBufferBuilder;
 	class FramePipeline;
 	class RenderFrame;
+	class RenderWindow;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API RenderSystem
 	{
 		public:
+			static constexpr bool AllowConcurrent = false;
+			static constexpr Int64 ExecutionOrder = 1'000;
+
 			RenderSystem(entt::registry& registry);
 			RenderSystem(const RenderSystem&) = delete;
 			RenderSystem(RenderSystem&&) = delete;
 			~RenderSystem();
 
-			void Render(entt::registry& registry, RenderFrame& renderFrame);
+			template<typename T = RenderWindow, typename... Args> T& CreateWindow(Args&&... args);
+
+			void Update(float elapsedTime);
 
 			RenderSystem& operator=(const RenderSystem&) = delete;
 			RenderSystem& operator=(RenderSystem&&) = delete;
@@ -44,8 +50,9 @@ namespace Nz
 			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
 			void OnLightDestroy(entt::registry& registry, entt::entity entity);
 			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
-			void UpdateInstances(entt::registry& registry);
-			void UpdateVisibility(entt::registry& registry);
+			void UpdateInstances();
+			void UpdateObservers();
+			void UpdateVisibility();
 
 			struct CameraEntity
 			{
@@ -89,6 +96,7 @@ namespace Nz
 			entt::observer m_cameraConstructObserver;
 			entt::observer m_graphicsConstructObserver;
 			entt::observer m_lightConstructObserver;
+			entt::registry& m_registry;
 			std::set<CameraEntity*> m_invalidatedCameraNode;
 			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
 			std::set<LightEntity*> m_invalidatedLightWorldNode;
@@ -100,6 +108,7 @@ namespace Nz
 			std::unordered_set<GraphicsEntity*> m_newlyVisibleGfxEntities;
 			std::unordered_set<LightEntity*> m_newlyHiddenLightEntities;
 			std::unordered_set<LightEntity*> m_newlyVisibleLightEntities;
+			std::vector<std::unique_ptr<RenderWindow>> m_renderWindows;
 			MemoryPool<CameraEntity> m_cameraEntityPool;
 			MemoryPool<GraphicsEntity> m_graphicsEntityPool;
 			MemoryPool<LightEntity> m_lightEntityPool;

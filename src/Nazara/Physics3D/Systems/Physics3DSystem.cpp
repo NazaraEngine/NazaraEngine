@@ -24,12 +24,12 @@ namespace Nz
 		m_constructConnection.release();
 	}
 
-	void Physics3DSystem::Update(entt::registry& registry, float elapsedTime)
+	void Physics3DSystem::Update(float elapsedTime)
 	{
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
-		auto view = registry.view<NodeComponent, const RigidBody3DComponent>();
+		auto view = m_registry.view<NodeComponent, const RigidBody3DComponent>();
 		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
 		{
 			if (rigidBodyComponent.IsSleeping())

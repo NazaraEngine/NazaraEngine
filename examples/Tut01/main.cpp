@@ -1,5 +1,6 @@
 // Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
 
+#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/Components.hpp>
 #include <Nazara/Graphics/Systems.hpp>
@@ -15,10 +16,10 @@ int main()
 {
 	Nz::Modules<Nz::Graphics> nazara;
 
-	Nz::RenderWindow mainWindow(Nz::Graphics::Instance()->GetRenderDevice(), Nz::VideoMode(1280, 720, 32), "Test");
-
 	entt::registry registry;
-	Nz::RenderSystem renderSystem(registry);
+	Nz::SystemGraph systemGraph(registry);
+	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
+	Nz::RenderWindow& mainWindow = renderSystem.CreateWindow(Nz::Graphics::Instance()->GetRenderDevice(), Nz::VideoMode(1280, 720), "Tut01 - Hello world");
 
 	entt::entity cameraEntity = registry.create();
 	{
@@ -62,17 +63,7 @@ int main()
 	while (mainWindow.IsOpen())
 	{
 		mainWindow.ProcessEvents();
-
-		Nz::RenderFrame renderFrame = mainWindow.AcquireFrame();
-		if (!renderFrame)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
-		}
-
-		renderSystem.Render(registry, renderFrame);
-
-		renderFrame.Present();
+		systemGraph.Update();
 	}
 
 	return EXIT_SUCCESS;

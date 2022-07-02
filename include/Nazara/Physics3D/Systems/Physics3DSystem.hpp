@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/Components/RigidBody3DComponent.hpp>
+#include <Nazara/Utils/TypeList.hpp>
 #include <entt/entt.hpp>
 
 namespace Nz
@@ -17,6 +18,9 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API Physics3DSystem
 	{
 		public:
+			static constexpr Int64 ExecutionOrder = 0;
+			using Components = TypeList<RigidBody3DComponent, class NodeComponent>;
+
 			Physics3DSystem(entt::registry& registry);
 			Physics3DSystem(const Physics3DSystem&) = delete;
 			Physics3DSystem(Physics3DSystem&&) = delete;
@@ -27,7 +31,7 @@ namespace Nz
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
 
-			void Update(entt::registry& registry, float elapsedTime);
+			void Update(float elapsedTime);
 
 			Physics3DSystem& operator=(const Physics3DSystem&) = delete;
 			Physics3DSystem& operator=(Physics3DSystem&&) = delete;

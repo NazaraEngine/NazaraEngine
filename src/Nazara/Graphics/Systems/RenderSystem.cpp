@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
+#include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -20,6 +21,7 @@ namespace Nz
 	m_cameraConstructObserver(registry, entt::collector.group<CameraComponent, NodeComponent>()),
 	m_graphicsConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent>()),
 	m_lightConstructObserver(registry, entt::collector.group<LightComponent, NodeComponent>()),
+	m_registry(registry),
 	m_cameraEntityPool(8),
 	m_graphicsEntityPool(1024),
 	m_lightEntityPool(32)
@@ -43,12 +45,181 @@ namespace Nz
 		m_nodeDestroyConnection.release();
 	}
 
-	void RenderSystem::Render(entt::registry& registry, RenderFrame& renderFrame)
+	void RenderSystem::Update(float /*elapsedTime*/)
+	{
+		UpdateObservers();
+		UpdateVisibility();
+		UpdateInstances();
+
+		for (auto& windowPtr : m_renderWindows)
+		{
+			RenderFrame frame = windowPtr->AcquireFrame();
+			if (!frame)
+				continue;
+
+			if (!m_cameraEntities.empty())
+				m_pipeline->Render(frame);
+
+			frame.Present();
+		}
+	}
+
+	void RenderSystem::OnCameraDestroy([[maybe_unused]] entt::registry& registry, entt::entity entity)
+	{
+		assert(&m_registry == &registry);
+
+		auto it = m_cameraEntities.find(entity);
+		if (it == m_cameraEntities.end())
+			return;
+
+		CameraEntity* cameraEntity = it->second;
+
+		m_cameraEntities.erase(it);
+		m_invalidatedCameraNode.erase(cameraEntity);
+		m_pipeline->UnregisterViewer(cameraEntity->viewerIndex);
+
+		m_cameraEntityPool.Free(cameraEntity->poolIndex);
+	}
+
+	void RenderSystem::OnGraphicsDestroy([[maybe_unused]] entt::registry& registry, entt::entity entity)
+	{
+		assert(&m_registry == &registry);
+
+		auto it = m_graphicsEntities.find(entity);
+		if (it == m_graphicsEntities.end())
+			return;
+
+		GraphicsEntity* graphicsEntity = it->second;
+
+		m_graphicsEntities.erase(entity);
+		m_invalidatedGfxWorldNode.erase(graphicsEntity);
+		m_newlyHiddenGfxEntities.erase(graphicsEntity);
+		m_newlyVisibleGfxEntities.erase(graphicsEntity);
+
+		GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(entity);
+		if (entityGfx.IsVisible())
+		{
+			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
+			{
+				const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
+				if (!renderableEntry.renderable)
+					continue;
+
+				m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);
+			}
+		}
+
+		m_pipeline->UnregisterWorldInstance(graphicsEntity->worldInstanceIndex);
+
+		m_graphicsEntityPool.Free(graphicsEntity->poolIndex);
+	}
+
+	void RenderSystem::OnLightDestroy([[maybe_unused]] entt::registry& registry, entt::entity entity)
+	{
+		assert(&m_registry == &registry);
+
+		auto it = m_lightEntities.find(entity);
+		if (it == m_lightEntities.end())
+			return;
+
+		LightEntity* lightEntity = it->second;
+
+		m_lightEntities.erase(entity);
+		m_invalidatedLightWorldNode.erase(lightEntity);
+		m_newlyHiddenLightEntities.erase(lightEntity);
+		m_newlyVisibleLightEntities.erase(lightEntity);
+
+		LightComponent& entityLight = m_registry.get<LightComponent>(entity);
+		if (entityLight.IsVisible())
+		{
+			for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
+			{
+				const auto& lightEntry = entityLight.GetLightEntry(lightIndex);
+				if (!lightEntry.light)
+					continue;
+
+				m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
+			}
+		}
+
+		m_lightEntityPool.Free(lightEntity->poolIndex);
+	}
+
+	void RenderSystem::OnNodeDestroy(entt::registry& registry, entt::entity entity)
+	{
+		assert(&m_registry == &registry);
+
+		if (m_registry.try_get<CameraComponent>(entity))
+			OnCameraDestroy(registry, entity);
+
+		if (m_registry.try_get<GraphicsComponent>(entity))
+			OnGraphicsDestroy(registry, entity);
+
+		if (m_registry.try_get<LightComponent>(entity))
+			OnLightDestroy(registry, entity);
+	}
+
+	void RenderSystem::UpdateInstances()
+	{
+		for (CameraEntity* cameraEntity : m_invalidatedCameraNode)
+		{
+			entt::entity entity = cameraEntity->entity;
+
+			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
+			CameraComponent& entityCamera = m_registry.get<CameraComponent>(entity);
+
+			Vector3f cameraPosition = entityNode.GetPosition(CoordSys::Global);
+			
+			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
+			viewerInstance.UpdateEyePosition(cameraPosition);
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
+
+			m_pipeline->InvalidateViewer(cameraEntity->viewerIndex);
+		}
+		m_invalidatedCameraNode.clear();
+
+		for (GraphicsEntity* graphicsEntity : m_invalidatedGfxWorldNode)
+		{
+			entt::entity entity = graphicsEntity->entity;
+
+			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
+			GraphicsComponent& entityGraphics = m_registry.get<GraphicsComponent>(entity);
+
+			const WorldInstancePtr& worldInstance = entityGraphics.GetWorldInstance();
+			worldInstance->UpdateWorldMatrix(entityNode.GetTransformMatrix());
+
+			m_pipeline->InvalidateWorldInstance(graphicsEntity->worldInstanceIndex);
+		}
+		m_invalidatedGfxWorldNode.clear();
+
+		for (LightEntity* lightEntity : m_invalidatedLightWorldNode)
+		{
+			entt::entity entity = lightEntity->entity;
+
+			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
+			LightComponent& entityLight = m_registry.get<LightComponent>(entity);
+
+			const Vector3f& position = entityNode.GetPosition(CoordSys::Global);
+			const Quaternionf& rotation = entityNode.GetRotation(CoordSys::Global);
+			const Vector3f& scale = entityNode.GetScale(CoordSys::Global);
+
+			for (const auto& lightEntry : entityLight.GetLights())
+			{
+				if (!lightEntry.light)
+					continue;
+
+				lightEntry.light->UpdateTransform(position, rotation, scale);
+			}
+		}
+		m_invalidatedLightWorldNode.clear();
+	}
+
+	void RenderSystem::UpdateObservers()
 	{
 		m_cameraConstructObserver.each([&](entt::entity entity)
 		{
-			CameraComponent& entityCamera = registry.get<CameraComponent>(entity);
-			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
+			CameraComponent& entityCamera = m_registry.get<CameraComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
 			std::size_t poolIndex;
 			CameraEntity* cameraEntity = m_cameraEntityPool.Allocate(poolIndex);
@@ -68,8 +239,8 @@ namespace Nz
 		
 		m_graphicsConstructObserver.each([&](entt::entity entity)
 		{
-			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
-			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
+			GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
 			std::size_t poolIndex;
 			GraphicsEntity* graphicsEntity = m_graphicsEntityPool.Allocate(poolIndex);
@@ -147,8 +318,8 @@ namespace Nz
 
 		m_lightConstructObserver.each([&](entt::entity entity)
 		{
-			LightComponent& entityLight = registry.get<LightComponent>(entity);
-			NodeComponent& entityNode = registry.get<NodeComponent>(entity);
+			LightComponent& entityLight = m_registry.get<LightComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
 			std::size_t poolIndex;
 			LightEntity* lightEntity = m_lightEntityPool.Allocate(poolIndex);
@@ -212,162 +383,14 @@ namespace Nz
 			assert(m_lightEntities.find(entity) == m_lightEntities.end());
 			m_lightEntities.emplace(entity, lightEntity);
 		});
-
-		UpdateVisibility(registry);
-		UpdateInstances(registry);
-
-		if (!m_cameraEntities.empty())
-			m_pipeline->Render(renderFrame);
 	}
 
-	void RenderSystem::OnCameraDestroy(entt::registry& /*registry*/, entt::entity entity)
-	{
-		auto it = m_cameraEntities.find(entity);
-		if (it == m_cameraEntities.end())
-			return;
-
-		CameraEntity* cameraEntity = it->second;
-
-		m_cameraEntities.erase(it);
-		m_invalidatedCameraNode.erase(cameraEntity);
-		m_pipeline->UnregisterViewer(cameraEntity->viewerIndex);
-
-		m_cameraEntityPool.Free(cameraEntity->poolIndex);
-	}
-
-	void RenderSystem::OnGraphicsDestroy(entt::registry& registry, entt::entity entity)
-	{
-		auto it = m_graphicsEntities.find(entity);
-		if (it == m_graphicsEntities.end())
-			return;
-
-		GraphicsEntity* graphicsEntity = it->second;
-
-		m_graphicsEntities.erase(entity);
-		m_invalidatedGfxWorldNode.erase(graphicsEntity);
-		m_newlyHiddenGfxEntities.erase(graphicsEntity);
-		m_newlyVisibleGfxEntities.erase(graphicsEntity);
-
-		GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(entity);
-		if (entityGfx.IsVisible())
-		{
-			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
-			{
-				const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
-				if (!renderableEntry.renderable)
-					continue;
-
-				m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);
-			}
-		}
-
-		m_pipeline->UnregisterWorldInstance(graphicsEntity->worldInstanceIndex);
-
-		m_graphicsEntityPool.Free(graphicsEntity->poolIndex);
-	}
-
-	void RenderSystem::OnLightDestroy(entt::registry& registry, entt::entity entity)
-	{
-		auto it = m_lightEntities.find(entity);
-		if (it == m_lightEntities.end())
-			return;
-
-		LightEntity* lightEntity = it->second;
-
-		m_lightEntities.erase(entity);
-		m_invalidatedLightWorldNode.erase(lightEntity);
-		m_newlyHiddenLightEntities.erase(lightEntity);
-		m_newlyVisibleLightEntities.erase(lightEntity);
-
-		LightComponent& entityLight = registry.get<LightComponent>(entity);
-		if (entityLight.IsVisible())
-		{
-			for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
-			{
-				const auto& lightEntry = entityLight.GetLightEntry(lightIndex);
-				if (!lightEntry.light)
-					continue;
-
-				m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
-			}
-		}
-
-		m_lightEntityPool.Free(lightEntity->poolIndex);
-	}
-
-	void RenderSystem::OnNodeDestroy(entt::registry& registry, entt::entity entity)
-	{
-		if (registry.try_get<CameraComponent>(entity))
-			OnCameraDestroy(registry, entity);
-
-		if (registry.try_get<GraphicsComponent>(entity))
-			OnGraphicsDestroy(registry, entity);
-
-		if (registry.try_get<LightComponent>(entity))
-			OnLightDestroy(registry, entity);
-	}
-
-	void RenderSystem::UpdateInstances(entt::registry& registry)
-	{
-		for (CameraEntity* cameraEntity : m_invalidatedCameraNode)
-		{
-			entt::entity entity = cameraEntity->entity;
-
-			const NodeComponent& entityNode = registry.get<const NodeComponent>(entity);
-			CameraComponent& entityCamera = registry.get<CameraComponent>(entity);
-
-			Vector3f cameraPosition = entityNode.GetPosition(CoordSys::Global);
-			
-			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
-			viewerInstance.UpdateEyePosition(cameraPosition);
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
-
-			m_pipeline->InvalidateViewer(cameraEntity->viewerIndex);
-		}
-		m_invalidatedCameraNode.clear();
-
-		for (GraphicsEntity* graphicsEntity : m_invalidatedGfxWorldNode)
-		{
-			entt::entity entity = graphicsEntity->entity;
-
-			const NodeComponent& entityNode = registry.get<const NodeComponent>(entity);
-			GraphicsComponent& entityGraphics = registry.get<GraphicsComponent>(entity);
-
-			const WorldInstancePtr& worldInstance = entityGraphics.GetWorldInstance();
-			worldInstance->UpdateWorldMatrix(entityNode.GetTransformMatrix());
-
-			m_pipeline->InvalidateWorldInstance(graphicsEntity->worldInstanceIndex);
-		}
-		m_invalidatedGfxWorldNode.clear();
-
-		for (LightEntity* lightEntity : m_invalidatedLightWorldNode)
-		{
-			entt::entity entity = lightEntity->entity;
-
-			const NodeComponent& entityNode = registry.get<const NodeComponent>(entity);
-			LightComponent& entityLight = registry.get<LightComponent>(entity);
-
-			const Vector3f& position = entityNode.GetPosition(CoordSys::Global);
-			const Quaternionf& rotation = entityNode.GetRotation(CoordSys::Global);
-			const Vector3f& scale = entityNode.GetScale(CoordSys::Global);
-
-			for (const auto& lightEntry : entityLight.GetLights())
-			{
-				if (!lightEntry.light)
-					continue;
-
-				lightEntry.light->UpdateTransform(position, rotation, scale);
-			}
-		}
-		m_invalidatedLightWorldNode.clear();
-	}
-
-	void RenderSystem::UpdateVisibility(entt::registry& registry)
+	void RenderSystem::UpdateVisibility()
 	{
 		// Unregister drawable for hidden entities
 		for (GraphicsEntity* graphicsEntity : m_newlyHiddenGfxEntities)
 		{
-			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(graphicsEntity->entity);
+			GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(graphicsEntity->entity);
 
 			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
 			{
@@ -383,7 +406,7 @@ namespace Nz
 		// Register drawable for newly visible entities
 		for (GraphicsEntity* graphicsEntity : m_newlyVisibleGfxEntities)
 		{
-			GraphicsComponent& entityGfx = registry.get<GraphicsComponent>(graphicsEntity->entity);
+			GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(graphicsEntity->entity);
 
 			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
 			{
@@ -399,7 +422,7 @@ namespace Nz
 		// Unregister lights for hidden entities
 		for (LightEntity* lightEntity : m_newlyHiddenLightEntities)
 		{
-			LightComponent& entityLights = registry.get<LightComponent>(lightEntity->entity);
+			LightComponent& entityLights = m_registry.get<LightComponent>(lightEntity->entity);
 
 			for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
 			{
@@ -415,7 +438,7 @@ namespace Nz
 		// Register lights for newly visible entities
 		for (LightEntity* lightEntity : m_newlyVisibleLightEntities)
 		{
-			LightComponent& entityLights = registry.get<LightComponent>(lightEntity->entity);
+			LightComponent& entityLights = m_registry.get<LightComponent>(lightEntity->entity);
 
 			for (std::size_t renderableIndex = 0; renderableIndex < LightComponent::MaxLightCount; ++renderableIndex)
 			{

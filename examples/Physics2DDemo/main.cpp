@@ -1,4 +1,5 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
@@ -40,23 +41,20 @@ int main()
 
 	Nz::Modules<Nz::Graphics, Nz::Physics2D> nazara(rendererConfig);
 
-	Nz::RenderWindow window;
-
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
-
-	std::string windowTitle = "Graphics Test";
-	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
 
 	entt::registry registry;
 
-	Nz::Physics2DSystem physSytem(registry);
-	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f });
+	Nz::SystemGraph systemGraph(registry);
+	Nz::Physics2DSystem& physSytem = systemGraph.AddSystem<Nz::Physics2DSystem>();
+	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
 
-	Nz::RenderSystem renderSystem(registry);
+	std::string windowTitle = "Graphics Test";
+	Nz::RenderWindow& window = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080), windowTitle);
+
+	Nz::Vector2ui windowSize = window.GetSize();
+
+	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f });
 
 	entt::entity viewer = registry.create();
 	{
@@ -166,19 +164,10 @@ int main()
 		{
 			float updateTime = updateClock.Restart() / 1'000'000.f;
 
-			physSytem.Update(registry, 1000.f / 60.f);
+			physSytem.Update(1000.f / 60.f);
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
-		if (!frame)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
-		}
-
-		renderSystem.Render(registry, frame);
-
-		frame.Present();
+		systemGraph.Update();
 
 		fps++;
 
