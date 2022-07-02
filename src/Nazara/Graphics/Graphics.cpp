@@ -41,6 +41,7 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/PhysicallyBasedMaterial.nzslb.h>
 		};
 
+		// Modules
 		const UInt8 r_instanceDataModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzslb.h>
 		};
@@ -51,6 +52,14 @@ namespace Nz
 
 		const UInt8 r_viewerDataModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzslb.h>
+		};
+
+		const UInt8 r_mathConstantsModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Constants.nzslb.h>
+		};
+
+		const UInt8 r_mathCookTorrancePBRModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/CookTorrancePBR.nzslb.h>
 		};
 	}
 
@@ -218,11 +227,13 @@ namespace Nz
 		RegisterEmbedShaderModule(r_basicMaterialShader);
 		RegisterEmbedShaderModule(r_depthMaterialShader);
 		RegisterEmbedShaderModule(r_fullscreenVertexShader);
+		RegisterEmbedShaderModule(r_instanceDataModule);
+		RegisterEmbedShaderModule(r_lightDataModule);
+		RegisterEmbedShaderModule(r_mathConstantsModule);
+		RegisterEmbedShaderModule(r_mathCookTorrancePBRModule);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
 		RegisterEmbedShaderModule(r_physicallyBasedMaterialShader);
 		RegisterEmbedShaderModule(r_textureBlitShader);
-		RegisterEmbedShaderModule(r_instanceDataModule);
-		RegisterEmbedShaderModule(r_lightDataModule);
 		RegisterEmbedShaderModule(r_viewerDataModule);
 
 #ifdef NAZARA_DEBUG

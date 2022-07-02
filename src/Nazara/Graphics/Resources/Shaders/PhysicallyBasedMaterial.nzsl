@@ -84,49 +84,8 @@ struct VertToFrag
 }
 
 // Fragment stage
-import Pi from Engine.Constants;
-
-fn DistributionGGX(N: vec3[f32], H: vec3[f32], roughness: f32) -> f32
-{
-	let a = roughness * roughness;
-	let a2 = a * a;
-
-	let NdotH = max(dot(N, H), 0.0);
-	let NdotH2 = NdotH * NdotH;
-
-	let num = a2;
-	let denom = (NdotH2 * (a2 - 1.0) + 1.0);
-	denom = Pi * denom * denom;
-
-	return num / denom;
-}
-
-fn GeometrySchlickGGX(NdotV: f32, roughness: f32) -> f32
-{
-	let r = (roughness + 1.0);
-	let k = (r * r) / 8.0;
-
-	let num = NdotV;
-	let denom = NdotV * (1.0 - k) + k;
-
-	return num / denom;
-}
-
-fn GeometrySmith(N: vec3[f32], V: vec3[f32], L: vec3[f32], roughness: f32) -> f32
-{
-	let NdotV = max(dot(N, V), 0.0);
-	let NdotL = max(dot(N, L), 0.0);
-	let ggx2  = GeometrySchlickGGX(NdotV, roughness);
-	let ggx1  = GeometrySchlickGGX(NdotL, roughness);
-
-	return ggx1 * ggx2;
-}
-
-fn FresnelSchlick(cosTheta: f32, F0: vec3[f32]) -> vec3[f32]
-{
-	// TODO: Clamp
-    return F0 + (vec3[f32](1.0, 1.0, 1.0) - F0) * pow(min(max(1.0 - cosTheta, 0.0), 1.0), 5.0);
-}  
+import DistributionGGX, GeometrySmith, FresnelSchlick from Math.CookTorrancePBR;
+import Pi from Math.Constants;
 
 struct FragOut
 {
@@ -233,7 +192,7 @@ fn main(input: VertToFrag) -> FragOut
 
 			let halfDir = normalize(lightToPosNorm + eyeVec);
 
-			// cook-torrance brdf
+			// Cook-Torrance BRDF
 			let NDF = DistributionGGX(normal, halfDir, roughness);
 			let G = GeometrySmith(normal, eyeVec, lightToPosNorm, roughness);
 			let F = FresnelSchlick(max(dot(halfDir, eyeVec), 0.0), F0);
