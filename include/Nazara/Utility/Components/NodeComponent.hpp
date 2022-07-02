@@ -21,7 +21,7 @@ namespace Nz
 			NodeComponent(NodeComponent&&) noexcept = default;
 			~NodeComponent() = default;
 
-			void SetParent(entt::registry& registry, entt::entity entity, bool keepDerived = false);
+			void SetParent(entt::handle entity, bool keepDerived = false);
 			using Node::SetParent;
 
 			NodeComponent& operator=(const NodeComponent&) = default;

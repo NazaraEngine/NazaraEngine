@@ -8,9 +8,9 @@
 
 namespace Nz
 {
-	void NodeComponent::SetParent(entt::registry& registry, entt::entity entity, bool keepDerived)
+	void NodeComponent::SetParent(entt::handle entity, bool keepDerived)
 	{
-		NodeComponent* nodeComponent = registry.try_get<NodeComponent>(entity);
+		NodeComponent* nodeComponent = entity.try_get<NodeComponent>();
 		NazaraAssert(nodeComponent, "entity doesn't have a NodeComponent");
 
 		Node::SetParent(nodeComponent, keepDerived);
