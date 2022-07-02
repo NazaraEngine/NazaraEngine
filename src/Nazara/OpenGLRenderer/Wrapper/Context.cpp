@@ -391,7 +391,7 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_NV_depth_clamp"))
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
 
-		// SpirV
+		// SPIR-V support
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
 			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
@@ -494,7 +494,7 @@ namespace Nz::GL
 		{
 			GLint maxStorageBufferUnits = -1;
 			glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxStorageBufferUnits);
-			if (maxStorageBufferUnits < 24) //< OpenGL ES 3.1 requires at least 8 storage buffers units
+			if (maxStorageBufferUnits < 8) //< OpenGL ES 3.1 requires at least 8 storage buffers units
 				NazaraWarning("GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", expected >= 8");
 
 			assert(maxStorageBufferUnits > 0);
