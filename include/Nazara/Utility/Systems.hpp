@@ -26,10 +26,9 @@
 
 #pragma once
 
-#ifndef NAZARA_UTILITY_COMPONENTS_HPP
-#define NAZARA_UTILITY_COMPONENTS_HPP
+#ifndef NAZARA_UTILITY_SYSTEMS_HPP
+#define NAZARA_UTILITY_SYSTEMS_HPP
 
-#include <Nazara/Utility/Components/NodeComponent.hpp>
-#include <Nazara/Utility/Components/VelocityComponent.hpp>
+#include <Nazara/Utility/Systems/VelocitySystem.hpp>
 
-#endif // NAZARA_UTILITY_COMPONENTS_HPP
+#endif // NAZARA_UTILITY_SYSTEMS_HPP
