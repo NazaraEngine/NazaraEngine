@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Utils/MemoryPool.hpp>
+#include <Nazara/Utils/MovablePtr.hpp>
 
 namespace Nz
 {
@@ -42,7 +43,8 @@ namespace Nz
 	{
 		ENetPacketRef() = default;
 
-		ENetPacketRef(ENetPacket* packet)
+		ENetPacketRef(MemoryPool<ENetPacket>* pool, ENetPacket* packet) :
+		m_pool(pool)
 		{
 			Reset(packet);
 		}
@@ -51,13 +53,10 @@ namespace Nz
 		ENetPacketRef()
 		{
 			Reset(packet);
+			m_pool = packet.m_pool;
 		}
 
-		ENetPacketRef(ENetPacketRef&& packet) noexcept :
-		m_packet(packet.m_packet)
-		{
-			packet.m_packet = nullptr;
-		}
+		ENetPacketRef(ENetPacketRef&&) noexcept = default;
 
 		~ENetPacketRef()
 		{
@@ -76,30 +75,17 @@ namespace Nz
 			return m_packet;
 		}
 
-		ENetPacketRef& operator=(ENetPacket* packet)
-		{
-			Reset(packet);
-
-			return *this;
-		}
-
 		ENetPacketRef& operator=(const ENetPacketRef& packet)
 		{
 			Reset(packet);
-
+			m_pool = packet.m_pool;
 			return *this;
 		}
 
-		ENetPacketRef& operator=(ENetPacketRef&& packet) noexcept
-		{
-			m_packet = packet.m_packet;
-			packet.m_packet = nullptr;
+		ENetPacketRef& operator=(ENetPacketRef&&) noexcept = default;
 
-			return *this;
-		}
-
-		MemoryPool<ENetPacket>* m_pool = nullptr;
-		ENetPacket* m_packet = nullptr;
+		MovablePtr<MemoryPool<ENetPacket>> m_pool;
+		MovablePtr<ENetPacket> m_packet;
 	};
 }
 

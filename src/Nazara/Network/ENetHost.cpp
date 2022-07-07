@@ -210,7 +210,7 @@ namespace Nz
 		{
 			event->type = ENetEventType::None;
 			event->peer = nullptr;
-			event->packet = nullptr;
+			event->packet.Reset();
 
 			if (DispatchIncomingCommands(event))
 				return 1;
@@ -313,7 +313,10 @@ namespace Nz
 	ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags)
 	{
 		std::size_t poolIndex;
-		ENetPacketRef enetPacket = m_packetPool.Allocate(poolIndex);
+
+		ENetPacket* packet = m_packetPool.Allocate(poolIndex);
+
+		ENetPacketRef enetPacket(&m_packetPool, packet);
 		enetPacket->flags = flags;
 		enetPacket->poolIndex = poolIndex;
 		enetPacket.m_pool = &m_packetPool;
