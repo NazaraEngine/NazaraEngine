@@ -53,7 +53,10 @@ namespace Nz
 
 		T& system = nodePtr->system;
 
+		std::size_t nodeIndex = m_nodes.size();
+
 		m_nodes.emplace_back(std::move(nodePtr));
+		m_systemToNodes.emplace(entt::type_hash<T>(), nodeIndex);
 		m_systemOrderUpdated = false;
 
 		return system;
