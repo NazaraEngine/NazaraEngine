@@ -609,9 +609,12 @@ namespace Nz
 		m_velocityFunc        = std::move(object.m_velocityFunc);
 		m_world               = object.m_world;
 
-		cpBodySetUserData(m_handle, this);
-		for (cpShape* shape : m_shapes)
-			cpShapeSetUserData(shape, this);
+		if (m_handle)
+		{
+			cpBodySetUserData(m_handle, this);
+			for (cpShape* shape : m_shapes)
+				cpShapeSetUserData(shape, this);
+		}
 
 		object.m_handle = nullptr;
 
