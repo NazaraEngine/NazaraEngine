@@ -41,65 +41,26 @@ int main()
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
-	sphereMesh->CreateStatic();
-
-	std::shared_ptr<Nz::SubMesh> sphereSubmesh = sphereMesh->BuildSubMesh(Nz::Primitive::UVSphere(1.f, 50, 50));
-	sphereMesh->SetMaterialCount(1);
-	sphereMesh->GenerateNormalsAndTangents();
-
-	std::shared_ptr<Nz::Mesh> debugMesh = std::make_shared<Nz::Mesh>();
-	debugMesh->CreateStatic();
+	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
+	if (!spaceshipMesh)
 	{
-		Nz::VertexMapper sphereMapper(*sphereSubmesh);
-		std::size_t vertexCount = sphereMapper.GetVertexCount();
-
-		Nz::SparsePtr<Nz::Vector3f> positionPtr = sphereMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
-		Nz::SparsePtr<Nz::Vector3f> normalPtr = sphereMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal);
-		Nz::SparsePtr<Nz::Vector3f> tangentPtr = sphereMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Tangent);
-
-		std::shared_ptr<Nz::VertexDeclaration> debugDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Color);
-
-		std::vector<Nz::VertexStruct_XYZ_Color> debugVertices(vertexCount * 6);
-		for (std::size_t i = 0; i < vertexCount; ++i)
-		{
-			debugVertices[i * 6 + 0].position = positionPtr[i];
-			debugVertices[i * 6 + 0].color = Nz::Color::Red;
-
-			debugVertices[i * 6 + 1].position = positionPtr[i] + normalPtr[i] * 0.05f;
-			debugVertices[i * 6 + 1].color = Nz::Color::Red;
-
-			debugVertices[i * 6 + 2].position = positionPtr[i];
-			debugVertices[i * 6 + 2].color = Nz::Color::Blue;
-
-			debugVertices[i * 6 + 3].position = positionPtr[i] + tangentPtr[i] * 0.05f;
-			debugVertices[i * 6 + 3].color = Nz::Color::Blue;
-
-			Nz::Vector3f bitangent = Nz::Vector3f::CrossProduct(normalPtr[i], tangentPtr[i]);
-
-			debugVertices[i * 6 + 4].position = positionPtr[i];
-			debugVertices[i * 6 + 4].color = Nz::Color::Cyan;
-
-			debugVertices[i * 6 + 5].position = positionPtr[i] + bitangent * 0.05f;
-			debugVertices[i * 6 + 5].color = Nz::Color::Cyan;
-		}
-
-		std::shared_ptr<Nz::VertexBuffer> normalBuffer = std::make_shared<Nz::VertexBuffer>(debugDeclaration, vertexCount * 6, Nz::BufferUsage::Write, Nz::SoftwareBufferFactory, debugVertices.data());
-
-		std::shared_ptr<Nz::StaticMesh> staticMesh = std::make_shared<Nz::StaticMesh>(normalBuffer, nullptr);
-		staticMesh->GenerateAABB();
-		staticMesh->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
-
-		debugMesh->AddSubMesh(std::move(staticMesh));
+		NazaraError("Failed to load model");
+		return __LINE__;
 	}
-	debugMesh->SetMaterialCount(1);
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
-	std::shared_ptr<Nz::GraphicalMesh> gfxDebugMesh = Nz::GraphicalMesh::BuildFromMesh(*debugMesh);
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
 
-	// Textures
+	// Texture
+	std::shared_ptr<Nz::Image> diffuseImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
+	if (!diffuseImage || !diffuseImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
+	{
+		NazaraError("Failed to load image");
+		return __LINE__;
+	}
+
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
@@ -109,34 +70,17 @@ int main()
 
 	material->AddPass("ForwardPass", forwardPass);
 
-	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
-
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
-	std::shared_ptr<Nz::Material> debugMaterial = std::make_shared<Nz::Material>();
-	std::shared_ptr<Nz::MaterialPass> debugMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	debugMaterialPass->EnableDepthBuffer(true);
-	debugMaterialPass->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
-
-	debugMaterial->AddPass("ForwardPass", debugMaterialPass);
-
-	Nz::BasicMaterial debugMat(*std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings()));
+	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
 
 	Nz::PhongLightingMaterial phongMat(*forwardPass);
 	phongMat.EnableAlphaTest(false);
 	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	phongMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", texParams));
-	//pbrMat.SetMetallicMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_metallic.png", texParams));
-	//pbrMat.SetRoughnessMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_roughness.png", texParams));
-	phongMat.SetNormalMap(normalMap);
+	phongMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
 
-	Nz::Model model(std::move(gfxMesh), sphereMesh->GetAABB());
+	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, material);
-
-	Nz::Model debugModel(std::move(gfxDebugMesh), debugMesh->GetAABB());
-	for (std::size_t i = 0; i < debugModel.GetSubMeshCount(); ++i)
-		debugModel.SetMaterial(i, debugMaterial);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
@@ -160,12 +104,11 @@ int main()
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
 	std::size_t worldInstanceIndex2 = framePipeline.RegisterWorldInstance(modelInstance2);
 	framePipeline.RegisterRenderable(worldInstanceIndex1, &model, 0xFFFFFFFF, scissorBox);
-	//framePipeline.RegisterRenderable(worldInstanceIndex1, &debugModel, 0xFFFFFFFF, scissorBox);
 	framePipeline.RegisterRenderable(worldInstanceIndex2, &model, 0xFFFFFFFF, scissorBox);
-	//framePipeline.RegisterRenderable(worldInstanceIndex2, &debugModel, 0xFFFFFFFF, scissorBox);
 
-	std::shared_ptr<Nz::DirectionalLight> light = std::make_shared<Nz::DirectionalLight>();
-	light->UpdateRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));
+	std::shared_ptr<Nz::SpotLight> light = std::make_shared<Nz::SpotLight>();
+	light->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
+	light->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
 
 	framePipeline.RegisterLight(light, 0xFFFFFFFF);
 
@@ -224,7 +167,7 @@ int main()
 					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
 					camQuat = camAngles;
-					//light->UpdateRotation(camQuat);
+					light->UpdateRotation(camQuat);
 					break;
 				}
 
@@ -269,7 +212,7 @@ int main()
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
 
-			//light->UpdatePosition(viewerPos);
+			light->UpdatePosition(viewerPos);
 		}
 
 		Nz::RenderFrame frame = window.AcquireFrame();
