@@ -64,12 +64,12 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 			CHECK(virtualDir->GetEntry("Foo", [](const Nz::VirtualDirectory::Entry& entry)
 			{
-				return std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry);
+				return std::holds_alternative<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry);
 			}));
 		
 			CHECK(virtualDir->GetEntry("Foo/Bar", [](const Nz::VirtualDirectory::Entry& entry)
 			{
-				return std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry);
+				return std::holds_alternative<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry);
 			}));
 		
 			CHECK_FALSE(virtualDir->GetEntry("Foo/Bar/File.bin", [](const Nz::VirtualDirectory::Entry& /*entry*/)
@@ -257,8 +257,8 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 			auto CheckOurselves = [&](const auto& entry)
 			{
-				REQUIRE(std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry));
-				const auto& dirEntry = std::get<Nz::VirtualDirectory::DirectoryEntry>(entry);
+				REQUIRE(std::holds_alternative<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry));
+				const auto& dirEntry = std::get<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry);
 				return dirEntry.directory == resourceDir;
 			};
 
@@ -277,6 +277,24 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			CHECK(CheckFileHash(resourceDir, "Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileContentHash(resourceDir, "Audio/ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileContentHash(resourceDir, "Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
+		}
+
+		WHEN("Accessing physical folder as a virtual folder")
+		{
+			CHECK(resourceDir->GetDirectoryEntry("Utility", [&](const Nz::VirtualDirectory::DirectoryEntry& directoryEntry)
+			{
+				bool found = false;
+				directoryEntry.directory->Foreach([&](std::string_view entryName, const Nz::VirtualDirectory::Entry& entry)
+				{
+					if (entryName == "GIF")
+					{
+						CHECK(std::holds_alternative<Nz::VirtualDirectory::PhysicalDirectoryEntry>(entry));
+						found = true;
+					}
+				});
+
+				return found;
+			}));
 		}
 
 		WHEN("Testing uproot escape")

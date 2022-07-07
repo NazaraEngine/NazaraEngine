@@ -30,8 +30,9 @@ namespace Nz
 			struct FileContentEntry;
 			struct PhysicalDirectoryEntry;
 			struct PhysicalFileEntry;
+			struct VirtualDirectoryEntry;
 
-			using Entry = std::variant<DataPointerEntry, DirectoryEntry, FileContentEntry, PhysicalDirectoryEntry, PhysicalFileEntry>;
+			using Entry = std::variant<DataPointerEntry, FileContentEntry, PhysicalDirectoryEntry, PhysicalFileEntry, VirtualDirectoryEntry>;
 
 			inline VirtualDirectory(std::weak_ptr<VirtualDirectory> parentDirectory = {});
 			inline VirtualDirectory(std::filesystem::path physicalPath, std::weak_ptr<VirtualDirectory> parentDirectory = {});
@@ -45,12 +46,13 @@ namespace Nz
 
 			template<typename F> void Foreach(F&& callback, bool includeDots = false);
 
+			template<typename F> bool GetDirectoryEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetFileContent(std::string_view path, F&& callback);
 
 			inline bool IsUprootAllowed() const;
 
-			inline DirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
+			inline VirtualDirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
 			inline PhysicalDirectoryEntry& StoreDirectory(std::string_view path, std::filesystem::path directoryPath);
 			inline FileContentEntry& StoreFile(std::string_view path, std::vector<UInt8> file);
 			inline PhysicalFileEntry& StoreFile(std::string_view path, std::filesystem::path filePath);
@@ -59,15 +61,11 @@ namespace Nz
 			VirtualDirectory& operator=(const VirtualDirectory&) = delete;
 			VirtualDirectory& operator=(VirtualDirectory&&) = delete;
 
+			// File entries
 			struct DataPointerEntry
 			{
 				const void* data;
 				std::size_t size;
-			};
-
-			struct DirectoryEntry
-			{
-				VirtualDirectoryPtr directory;
 			};
 
 			struct FileContentEntry
@@ -75,14 +73,24 @@ namespace Nz
 				std::vector<UInt8> data;
 			};
 
-			struct PhysicalDirectoryEntry
+			struct PhysicalFileEntry
 			{
 				std::filesystem::path filePath;
 			};
 
-			struct PhysicalFileEntry
+			// Directory entries
+			struct DirectoryEntry
+			{
+				VirtualDirectoryPtr directory;
+			};
+
+			struct PhysicalDirectoryEntry : DirectoryEntry
 			{
 				std::filesystem::path filePath;
+			};
+
+			struct VirtualDirectoryEntry : DirectoryEntry
+			{
 			};
 
 		private:

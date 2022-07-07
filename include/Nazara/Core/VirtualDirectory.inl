@@ -39,11 +39,11 @@ namespace Nz
 	{
 		if (includeDots)
 		{
-			Entry ourselves = DirectoryEntry{ shared_from_this() };
+			Entry ourselves = VirtualDirectoryEntry{ shared_from_this() };
 			callback(std::string_view("."), ourselves);
 			if (VirtualDirectoryPtr parent = m_parent.lock())
 			{
-				Entry parentEntry = DirectoryEntry{ parent };
+				Entry parentEntry = VirtualDirectoryEntry{ parent };
 				if (!CallbackReturn(callback, std::string_view(".."), parentEntry))
 					return;
 			}
@@ -77,7 +77,10 @@ namespace Nz
 				if (std::filesystem::is_regular_file(status))
 					entry = PhysicalFileEntry{ physicalEntry.path() };
 				else if (std::filesystem::is_directory(status))
-					entry = PhysicalDirectoryEntry{ physicalEntry.path() };
+				{
+					VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(physicalEntry.path(), weak_from_this());
+					entry = PhysicalDirectoryEntry{ std::move(virtualDir), physicalEntry.path() };
+				}
 				else
 					continue;
 
@@ -87,6 +90,30 @@ namespace Nz
 		}
 	}
 	
+	template<typename F>
+	bool VirtualDirectory::GetDirectoryEntry(std::string_view path, F&& callback)
+	{
+		return GetEntry(path, [&](const Entry& entry)
+		{
+			return std::visit([&](auto&& entry)
+			{
+				using T = std::decay_t<decltype(entry)>;
+
+				if constexpr (std::is_same_v<T, VirtualDirectoryEntry> || std::is_same_v<T, PhysicalDirectoryEntry>)
+				{
+					return CallbackReturn(callback, static_cast<const DirectoryEntry&>(entry));
+				}
+				else if constexpr (std::is_same_v<T, DataPointerEntry> || std::is_same_v<T, FileContentEntry> || std::is_same_v<T, PhysicalFileEntry>)
+				{
+					NazaraError("entry is a file");
+					return false;
+				}
+				else
+					static_assert(AlwaysFalse<T>(), "incomplete visitor");
+			}, entry);
+		});
+	}
+
 	template<typename F> bool VirtualDirectory::GetEntry(std::string_view path, F&& callback)
 	{
 		assert(!path.empty());
@@ -117,7 +144,7 @@ namespace Nz
 
 			return currentDir->GetEntryInternal(dirName, [&](const Entry& entry)
 			{
-				if (auto dirEntry = std::get_if<DirectoryEntry>(&entry))
+				if (auto dirEntry = std::get_if<VirtualDirectoryEntry>(&entry))
 				{
 					currentDir = dirEntry->directory;
 					return true;
@@ -150,7 +177,10 @@ namespace Nz
 				if (std::filesystem::is_regular_file(status))
 					entry = PhysicalFileEntry{ std::move(filePath) };
 				else if (std::filesystem::is_directory(status))
-					entry = PhysicalDirectoryEntry{ std::move(filePath) };
+				{
+					VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(filePath, weak_from_this());
+					entry = PhysicalDirectoryEntry{ std::move(virtualDir), std::move(filePath) };
+				}
 				else
 					return false; //< either not known or of a special type
 
@@ -189,7 +219,7 @@ namespace Nz
 
 					return CallbackReturn(callback, static_cast<P1>(source->data()), SafeCast<P2>(source->size()));
 				}
-				else if constexpr (std::is_same_v<T, DirectoryEntry> || std::is_same_v<T, PhysicalDirectoryEntry>)
+				else if constexpr (std::is_same_v<T, VirtualDirectoryEntry> || std::is_same_v<T, PhysicalDirectoryEntry>)
 				{
 					NazaraError("entry is a directory");
 					return false;
@@ -205,7 +235,7 @@ namespace Nz
 		return m_isUprootAllowed;
 	}
 
-	inline auto VirtualDirectory::StoreDirectory(std::string_view path, VirtualDirectoryPtr directory) -> DirectoryEntry&
+	inline auto VirtualDirectory::StoreDirectory(std::string_view path, VirtualDirectoryPtr directory) -> VirtualDirectoryEntry&
 	{
 		assert(!path.empty());
 
@@ -217,7 +247,7 @@ namespace Nz
 		if (entryName == "." || entryName == "..")
 			throw std::runtime_error("invalid entry name");
 
-		return dir->StoreInternal(std::string(entryName), DirectoryEntry{ std::move(directory) });
+		return dir->StoreInternal(std::string(entryName), VirtualDirectoryEntry{ std::move(directory) });
 	}
 
 	inline auto VirtualDirectory::StoreDirectory(std::string_view path, std::filesystem::path directoryPath) -> PhysicalDirectoryEntry&
@@ -232,7 +262,11 @@ namespace Nz
 		if (entryName == "." || entryName == "..")
 			throw std::runtime_error("invalid entry name");
 
-		return dir->StoreInternal(std::string(entryName), PhysicalDirectoryEntry{ std::move(directoryPath) });
+		PhysicalDirectoryEntry entry;
+		entry.directory = std::make_shared<VirtualDirectory>(directoryPath, dir);
+		entry.filePath = std::move(directoryPath);
+
+		return dir->StoreInternal(std::string(entryName), std::move(entry));
 	}
 
 	inline auto VirtualDirectory::StoreFile(std::string_view path, std::vector<UInt8> file) -> FileContentEntry&
@@ -284,7 +318,7 @@ namespace Nz
 	{
 		if (name == ".")
 		{
-			Entry entry{ DirectoryEntry{ shared_from_this() } };
+			Entry entry{ VirtualDirectoryEntry{ shared_from_this() } };
 			return CallbackReturn(callback, entry);
 		}
 
@@ -298,7 +332,7 @@ namespace Nz
 
 			if (parentEntry)
 			{
-				Entry entry = DirectoryEntry{ std::move(parentEntry) };
+				Entry entry = VirtualDirectoryEntry{ std::move(parentEntry) };
 				return CallbackReturn(callback, entry);
 			}
 		}
@@ -319,7 +353,10 @@ namespace Nz
 				if (std::filesystem::is_regular_file(status))
 					entry = PhysicalFileEntry{ std::move(filePath) };
 				else if (std::filesystem::is_directory(status))
-					entry = PhysicalDirectoryEntry{ std::move(filePath) };
+				{
+					VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(filePath, weak_from_this());
+					entry = PhysicalDirectoryEntry{ std::move(virtualDir), std::move(filePath) };
+				}
 				else
 					return false; //< either not known or of a special type
 
@@ -343,7 +380,7 @@ namespace Nz
 
 			bool dirFound = directory->GetEntryInternal(dirName, [&](const Entry& entry)
 			{
-				if (auto dirEntry = std::get_if<DirectoryEntry>(&entry))
+				if (auto dirEntry = std::get_if<VirtualDirectoryEntry>(&entry))
 					directory = dirEntry->directory;
 				else
 					allowCreation = false; //< does exist but is not a directory
