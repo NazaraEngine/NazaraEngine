@@ -1,0 +1,91 @@
+// Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Graphics module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
+
+#ifndef NAZARA_GRAPHICS_LINEARSLICEDSPRITE_HPP
+#define NAZARA_GRAPHICS_LINEARSLICEDSPRITE_HPP
+
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <Nazara/Utility/VertexDeclaration.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
+#include <array>
+
+namespace Nz
+{
+	class NAZARA_GRAPHICS_API LinearSlicedSprite : public InstancedRenderable
+	{
+		public:
+			enum class Orientation;
+			struct Section;
+
+			LinearSlicedSprite(std::shared_ptr<Material> material, Orientation orientation);
+			LinearSlicedSprite(const LinearSlicedSprite&) = delete;
+			LinearSlicedSprite(LinearSlicedSprite&&) noexcept = default;
+			~LinearSlicedSprite() = default;
+
+			inline void AddSection(float size, float textureCoord);
+
+			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
+
+			inline void Clear();
+
+			inline const Color& GetColor() const;
+			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			std::size_t GetMaterialCount() const override;
+			inline Orientation GetOrientation() const;
+			inline const Section& GetSection(std::size_t sectionIndex) const;
+			std::size_t GetSectionCount() const;
+			inline const Rectf& GetTextureCoords() const;
+			Vector3ui GetTextureSize() const;
+
+			inline void RemoveSection(std::size_t sectionIndex);
+
+			inline void SetColor(const Color& color);
+			inline void SetMaterial(std::shared_ptr<Material> material);
+			inline void SetSection(std::size_t sectionIndex, float size, float textureCoord);
+			inline void SetSectionSize(std::size_t sectionIndex, float size);
+			inline void SetSectionTextureCoord(std::size_t sectionIndex, float textureCoord);
+			inline void SetSize(const Vector2f& size);
+			inline void SetTextureCoords(const Rectf& textureCoords);
+			inline void SetTextureRect(const Rectf& textureRect);
+
+			LinearSlicedSprite& operator=(const LinearSlicedSprite&) = delete;
+			LinearSlicedSprite& operator=(LinearSlicedSprite&&) noexcept = default;
+
+			enum class Orientation
+			{
+				Horizontal,
+				Vertical
+			};
+
+			struct Section
+			{
+				float size;
+				float textureCoord;
+			};
+
+			static constexpr std::size_t MaxSection = 5;
+
+		private:
+			void UpdateVertices();
+
+			std::array<Section, MaxSection> m_sections;
+			std::array<VertexStruct_XYZ_Color_UV, 4 * MaxSection> m_vertices;
+			std::shared_ptr<Material> m_material;
+			std::size_t m_sectionCount;
+			std::size_t m_spriteCount;
+			Color m_color;
+			Orientation m_orientation;
+			Rectf m_textureCoords;
+			Vector2f m_size;
+	};
+}
+
+#include <Nazara/Graphics/LinearSlicedSprite.inl>
+
+#endif // NAZARA_GRAPHICS_LINEARSLICEDSPRITE_HPP
