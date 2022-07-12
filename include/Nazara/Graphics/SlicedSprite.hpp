@@ -51,7 +51,7 @@ namespace Nz
 
 			struct Corner
 			{
-				Vector2f textureCoords = Vector2f(0.15625f, 0.15625f);
+				Vector2f textureCoords = Vector2f(10.f / 64.f, 10.f / 64.f);
 				Vector2f size = Vector2f(10.f, 10.f);
 			};
 

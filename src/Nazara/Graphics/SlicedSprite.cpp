@@ -55,11 +55,6 @@ namespace Nz
 		return 1;
 	}
 
-	inline auto SlicedSprite::GetTopLeftCorner() const -> const Corner&
-	{
-		return m_topLeftCorner;
-	}
-
 	Vector3ui SlicedSprite::GetTextureSize() const
 	{
 		assert(m_material);

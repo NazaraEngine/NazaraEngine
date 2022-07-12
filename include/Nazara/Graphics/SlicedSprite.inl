@@ -23,6 +23,11 @@ namespace Nz
 		return m_textureCoords;
 	}
 
+	inline auto SlicedSprite::GetTopLeftCorner() const -> const Corner&
+	{
+		return m_topLeftCorner;
+	}
+
 	inline void SlicedSprite::SetColor(const Color& color)
 	{
 		m_color = color;
