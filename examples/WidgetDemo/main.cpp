@@ -39,8 +39,6 @@ int main()
 
 	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::Widgets> nazara(rendererConfig);
 
-	Nz::RenderWindow window;
-
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Widget Test";
@@ -50,8 +48,8 @@ int main()
 	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
 	Nz::RenderWindow& mainWindow = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080), windowTitle);
 
-	Nz::Canvas canvas2D(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle(), 0xFFFFFFFF);
-	canvas2D.Resize(Nz::Vector2f(window.GetSize()));
+	Nz::Canvas canvas2D(registry, mainWindow.GetEventHandler(), mainWindow.GetCursorController().CreateHandle(), 0xFFFFFFFF);
+	canvas2D.Resize(Nz::Vector2f(mainWindow.GetSize()));
 
 	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
 	labelWidget->SetPosition(0.f, 200.f, 0.f);
@@ -113,11 +111,11 @@ int main()
 	entt::entity viewer2D = registry.create();
 	{
 		registry.emplace<Nz::NodeComponent>(viewer2D);
-		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, window.GetRenderTarget(), Nz::ProjectionType::Orthographic);
+		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, mainWindow.GetRenderTarget(), Nz::ProjectionType::Orthographic);
 		cameraComponent.UpdateClearColor(Nz::Color(0.678f, 0.847f, 0.9f, 1.f));
 	}
 
-	window.EnableEventPolling(true);
+	mainWindow.EnableEventPolling(true);
 
 	Nz::Clock updateClock;
 	Nz::Clock secondClock;
@@ -126,19 +124,19 @@ int main()
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
 
-	while (window.IsOpen())
+	while (mainWindow.IsOpen())
 	{
 		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
 		elapsedTime = (now - time) / 1'000'000.f;
 		time = now;
 
 		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
+		while (mainWindow.PollEvent(&event))
 		{
 			switch (event.type)
 			{
 				case Nz::WindowEventType::Quit:
-					window.Close();
+					mainWindow.Close();
 					break;
 
 				default:
@@ -152,7 +150,7 @@ int main()
 
 		if (secondClock.GetMilliseconds() >= 1000)
 		{
-			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
+			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
 
 			fps = 0;
 
