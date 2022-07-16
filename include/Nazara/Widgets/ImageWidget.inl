@@ -30,7 +30,23 @@ namespace Nz
 	inline void ImageWidget::SetMaterial(const std::shared_ptr<Material>& texture)
 	{
 		m_sprite->SetMaterial(texture);
+		UpdatePreferredSize();
+	}
 
+	inline void ImageWidget::SetTextureCoords(const Rectf& coords)
+	{
+		m_sprite->SetTextureCoords(coords);
+		UpdatePreferredSize();
+	}
+
+	inline void ImageWidget::SetTextureRect(const Rectf& rect)
+	{
+		m_sprite->SetTextureRect(rect);
+		UpdatePreferredSize();
+	}
+
+	inline void ImageWidget::UpdatePreferredSize()
+	{
 		const Rectf& textureCoords = GetTextureCoords();
 
 		Vector2f textureSize = Vector2f(Vector2ui(m_sprite->GetTextureSize()));
@@ -38,16 +54,6 @@ namespace Nz
 		textureSize.y *= textureCoords.height;
 
 		SetPreferredSize(textureSize);
-	}
-
-	inline void ImageWidget::SetTextureCoords(const Rectf& coords)
-	{
-		m_sprite->SetTextureCoords(coords);
-	}
-
-	inline void ImageWidget::SetTextureRect(const Rectf& rect)
-	{
-		m_sprite->SetTextureRect(rect);
 	}
 }
 

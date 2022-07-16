@@ -20,25 +20,60 @@ namespace Nz
 	class ButtonWidgetStyle;
 	class CheckboxWidget;
 	class CheckboxWidgetStyle;
+	class ImageButtonWidget;
+	class ImageButtonWidgetStyle;
 	class LabelWidget;
 	class LabelWidgetStyle;
+	class ScrollAreaWidget;
+	class ScrollAreaWidgetStyle;
+	class ScrollbarWidget;
+	class ScrollbarWidgetStyle;
+	class ScrollbarButtonWidget;
+	class ScrollbarButtonWidgetStyle;
 
 	class NAZARA_WIDGETS_API WidgetTheme
 	{
 		public:
+			struct Config;
+
 			WidgetTheme() = default;
 			WidgetTheme(const WidgetTheme&) = delete;
 			WidgetTheme(WidgetTheme&&) = default;
 			virtual ~WidgetTheme();
 
 			virtual std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const = 0;
-			virtual std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* buttonWidget) const = 0;
-			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* buttonWidget) const = 0;
+			virtual std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* checkboxWidget) const = 0;
+			virtual std::unique_ptr<ImageButtonWidgetStyle> CreateStyle(ImageButtonWidget* imageButtonWidget) const = 0;
+			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* labelWidget) const = 0;
+			virtual std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollareaWidget) const = 0;
+			virtual std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const = 0;
+			virtual std::unique_ptr<ScrollbarButtonWidgetStyle> CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const = 0;
+
+			inline const Config& GetConfig() const;
 
 			WidgetTheme& operator=(const WidgetTheme&) = delete;
 			WidgetTheme& operator=(WidgetTheme&&) = default;
 
-		private:
+			struct Config
+			{
+				std::shared_ptr<Material> scrollbarButtonDownMaterial;
+				std::shared_ptr<Material> scrollbarButtonDownHoveredMaterial;
+				std::shared_ptr<Material> scrollbarButtonDownPressedMaterial;
+				std::shared_ptr<Material> scrollbarButtonLeftMaterial;
+				std::shared_ptr<Material> scrollbarButtonLeftHoveredMaterial;
+				std::shared_ptr<Material> scrollbarButtonLeftPressedMaterial;
+				std::shared_ptr<Material> scrollbarButtonRightMaterial;
+				std::shared_ptr<Material> scrollbarButtonRightHoveredMaterial;
+				std::shared_ptr<Material> scrollbarButtonRightPressedMaterial;
+				std::shared_ptr<Material> scrollbarButtonUpMaterial;
+				std::shared_ptr<Material> scrollbarButtonUpHoveredMaterial;
+				std::shared_ptr<Material> scrollbarButtonUpPressedMaterial;
+				float scrollbarButtonCornerSize;
+				float scrollbarButtonCornerTexcoords;
+			};
+
+		protected:
+			Config m_config;
 	};
 
 	class NAZARA_WIDGETS_API BaseWidgetStyle
@@ -53,6 +88,7 @@ namespace Nz
 			entt::entity CreateGraphicsEntity();
 			inline void DestroyEntity(entt::entity entity);
 
+			template<typename T> T* GetOwnerWidget() const;
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
 			UInt32 GetRenderMask() const;
@@ -88,7 +124,7 @@ namespace Nz
 			ButtonWidgetStyle& operator=(const ButtonWidgetStyle&) = delete;
 			ButtonWidgetStyle& operator=(ButtonWidgetStyle&&) = default;
 	};
-
+	
 	class NAZARA_WIDGETS_API CheckboxWidgetStyle : public BaseWidgetStyle
 	{
 		public:
@@ -108,6 +144,26 @@ namespace Nz
 			CheckboxWidgetStyle& operator=(const CheckboxWidgetStyle&) = delete;
 			CheckboxWidgetStyle& operator=(CheckboxWidgetStyle&&) = default;
 	};
+	
+	class NAZARA_WIDGETS_API ImageButtonWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			ImageButtonWidgetStyle(const ImageButtonWidgetStyle&) = delete;
+			ImageButtonWidgetStyle(ImageButtonWidgetStyle&&) = default;
+			~ImageButtonWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			virtual void OnHoverBegin();
+			virtual void OnHoverEnd();
+			virtual void OnPress();
+			virtual void OnRelease();
+			virtual void OnUpdate() = 0;
+
+			ImageButtonWidgetStyle& operator=(const ImageButtonWidgetStyle&) = delete;
+			ImageButtonWidgetStyle& operator=(ImageButtonWidgetStyle&&) = default;
+	};
 
 	class NAZARA_WIDGETS_API LabelWidgetStyle : public BaseWidgetStyle
 	{
@@ -126,6 +182,58 @@ namespace Nz
 
 			LabelWidgetStyle& operator=(const LabelWidgetStyle&) = delete;
 			LabelWidgetStyle& operator=(LabelWidgetStyle&&) = default;
+	};
+
+	class NAZARA_WIDGETS_API ScrollAreaWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			ScrollAreaWidgetStyle(const ScrollAreaWidgetStyle&) = delete;
+			ScrollAreaWidgetStyle(ScrollAreaWidgetStyle&&) = default;
+			~ScrollAreaWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			ScrollAreaWidgetStyle& operator=(const ScrollAreaWidgetStyle&) = delete;
+			ScrollAreaWidgetStyle& operator=(ScrollAreaWidgetStyle&&) = default;
+	};
+
+	class NAZARA_WIDGETS_API ScrollbarWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			ScrollbarWidgetStyle(const ScrollbarWidgetStyle&) = delete;
+			ScrollbarWidgetStyle(ScrollbarWidgetStyle&&) = default;
+			~ScrollbarWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			virtual void OnButtonGrab();
+			virtual void OnButtonRelease();
+			virtual void OnHoverBegin();
+			virtual void OnHoverEnd();
+
+			ScrollbarWidgetStyle& operator=(const ScrollbarWidgetStyle&) = delete;
+			ScrollbarWidgetStyle& operator=(ScrollbarWidgetStyle&&) = default;
+	};
+	
+	class NAZARA_WIDGETS_API ScrollbarButtonWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			ScrollbarButtonWidgetStyle(const ScrollbarButtonWidgetStyle&) = delete;
+			ScrollbarButtonWidgetStyle(ScrollbarButtonWidgetStyle&&) = default;
+			~ScrollbarButtonWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			virtual void OnHoverBegin();
+			virtual void OnHoverEnd();
+			virtual void OnGrab();
+			virtual void OnRelease();
+
+			ScrollbarButtonWidgetStyle& operator=(const ScrollbarButtonWidgetStyle&) = delete;
+			ScrollbarButtonWidgetStyle& operator=(ScrollbarButtonWidgetStyle&&) = default;
 	};
 }
 

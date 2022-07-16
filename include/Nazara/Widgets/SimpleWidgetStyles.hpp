@@ -7,6 +7,7 @@
 #ifndef NAZARA_WIDGETS_SIMPLEWIDGETSTYLES_HPP
 #define NAZARA_WIDGETS_SIMPLEWIDGETSTYLES_HPP
 
+#include <Nazara/Graphics/LinearSlicedSprite.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
@@ -108,7 +109,48 @@ namespace Nz
 			entt::entity m_checkEntity;
 			bool m_isHovered;
 	};
+	
+	class NAZARA_WIDGETS_API SimpleImageButtonWidgetStyle : public ImageButtonWidgetStyle
+	{
+		public:
+			struct StyleConfig;
 
+			SimpleImageButtonWidgetStyle(ImageButtonWidget* imageButtonWidget, StyleConfig config);
+			SimpleImageButtonWidgetStyle(const SimpleImageButtonWidgetStyle&) = delete;
+			SimpleImageButtonWidgetStyle(SimpleImageButtonWidgetStyle&&) = default;
+			~SimpleImageButtonWidgetStyle() = default;
+
+			void Layout(const Vector2f& size) override;
+
+			void OnHoverBegin() override;
+			void OnHoverEnd() override;
+			void OnPress() override;
+			void OnRelease() override;
+			void OnUpdate() override;
+
+			void UpdateRenderLayer(int baseRenderLayer) override;
+
+			SimpleImageButtonWidgetStyle& operator=(const SimpleImageButtonWidgetStyle&) = delete;
+			SimpleImageButtonWidgetStyle& operator=(SimpleImageButtonWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<Material> hoveredMaterial;
+				float hoveredCornerSize;
+				float hoveredCornerTexCoords;
+			};
+
+		protected:
+			virtual void Update(bool hovered, bool pressed);
+
+		private:
+			std::shared_ptr<SlicedSprite> m_hoveredSprite;
+			std::shared_ptr<SlicedSprite> m_sprite;
+			entt::entity m_entity;
+			bool m_isHovered;
+			bool m_isPressed;
+	};
+	
 	class NAZARA_WIDGETS_API SimpleLabelWidgetStyle : public LabelWidgetStyle
 	{
 		public:
@@ -136,6 +178,106 @@ namespace Nz
 			std::shared_ptr<Material> m_material;
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_entity;
+	};
+
+	class NAZARA_WIDGETS_API SimpleScrollAreaWidgetStyle : public ScrollAreaWidgetStyle
+	{
+		public:
+			SimpleScrollAreaWidgetStyle(ScrollAreaWidget* scrollAreaWidget);
+			SimpleScrollAreaWidgetStyle(const SimpleScrollAreaWidgetStyle&) = delete;
+			SimpleScrollAreaWidgetStyle(SimpleScrollAreaWidgetStyle&&) = default;
+			~SimpleScrollAreaWidgetStyle() = default;
+
+			void Layout(const Vector2f& size) override;
+
+			void UpdateRenderLayer(int baseRenderLayer) override;
+
+			SimpleScrollAreaWidgetStyle& operator=(const SimpleScrollAreaWidgetStyle&) = delete;
+			SimpleScrollAreaWidgetStyle& operator=(SimpleScrollAreaWidgetStyle&&) = default;
+
+		private:
+			std::shared_ptr<Material> m_hoveredMaterial;
+			std::shared_ptr<Material> m_material;
+			std::shared_ptr<TextSprite> m_textSprite;
+			entt::entity m_entity;
+	};
+
+	class NAZARA_WIDGETS_API SimpleScrollbarWidgetStyle : public ScrollbarWidgetStyle
+	{
+		public:
+			struct StyleConfig;
+
+			SimpleScrollbarWidgetStyle(ScrollbarWidget* scrollBarWidget, StyleConfig config);
+			SimpleScrollbarWidgetStyle(const SimpleScrollbarWidgetStyle&) = delete;
+			SimpleScrollbarWidgetStyle(SimpleScrollbarWidgetStyle&&) = default;
+			~SimpleScrollbarWidgetStyle() = default;
+
+			void Layout(const Vector2f& size) override;
+
+			void UpdateRenderLayer(int baseRenderLayer) override;
+
+			SimpleScrollbarWidgetStyle& operator=(const SimpleScrollbarWidgetStyle&) = delete;
+			SimpleScrollbarWidgetStyle& operator=(SimpleScrollbarWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<Material> backgroundHorizontalMaterial;
+				std::shared_ptr<Material> backgroundVerticalMaterial;
+			};
+
+		private:
+			StyleConfig m_config;
+			std::shared_ptr<Sprite> m_backgroundScrollbarSprite;
+			std::shared_ptr<SlicedSprite> m_scrollbarSprite;
+			entt::entity m_backgroundScrollbarSpriteEntity;
+			entt::entity m_scrollbarSpriteEntity;
+	};
+
+	class NAZARA_WIDGETS_API SimpleScrollbarButtonWidgetStyle : public ScrollbarButtonWidgetStyle
+	{
+		public:
+			struct StyleConfig;
+
+			SimpleScrollbarButtonWidgetStyle(ScrollbarButtonWidget* scrollbarButtonWidget, StyleConfig config);
+			SimpleScrollbarButtonWidgetStyle(const SimpleScrollbarWidgetStyle&) = delete;
+			SimpleScrollbarButtonWidgetStyle(SimpleScrollbarButtonWidgetStyle&&) = default;
+			~SimpleScrollbarButtonWidgetStyle() = default;
+
+			void Layout(const Vector2f& size) override;
+
+			void OnHoverBegin() override;
+			void OnHoverEnd() override;
+			void OnGrab() override;
+			void OnRelease() override;
+
+			void UpdateRenderLayer(int baseRenderLayer) override;
+
+			SimpleScrollbarButtonWidgetStyle& operator=(const SimpleScrollbarButtonWidgetStyle&) = delete;
+			SimpleScrollbarButtonWidgetStyle& operator=(SimpleScrollbarButtonWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<Material> material;
+				std::shared_ptr<Material> grabbedMaterial;
+				std::shared_ptr<Material> grabbedHoveredMaterial;
+				std::shared_ptr<Material> hoveredMaterial;
+				float cornerSize;
+				float cornerTexCoords;
+			};
+
+		protected:
+			virtual void Update(bool hovered, bool pressed);
+
+		private:
+			StyleConfig m_config;
+			std::shared_ptr<Material> m_hoveredMaterial;
+			std::shared_ptr<Material> m_material;
+			std::shared_ptr<Material> m_pressedMaterial;
+			std::shared_ptr<Material> m_pressedHoveredMaterial;
+			std::shared_ptr<SlicedSprite> m_sprite;
+			entt::entity m_entity;
+			bool m_isHovered;
+			bool m_isPressed;
 	};
 }
 

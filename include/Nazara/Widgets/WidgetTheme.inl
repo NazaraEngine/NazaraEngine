@@ -3,11 +3,18 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/WidgetTheme.hpp>
+#include <Nazara/Utils/Algorithm.hpp>
 #include <cassert>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
+	inline auto WidgetTheme::GetConfig() const -> const Config&
+	{
+		return m_config;
+	}
+
+
 	inline BaseWidgetStyle::BaseWidgetStyle(BaseWidget* widget, int renderLayerCount) :
 	m_widgetOwner(widget),
 	m_renderLayerCount(renderLayerCount)
@@ -23,6 +30,12 @@ namespace Nz
 	inline void BaseWidgetStyle::DestroyEntity(entt::entity entity)
 	{
 		m_widgetOwner->DestroyEntity(entity);
+	}
+
+	template<typename T>
+	T* BaseWidgetStyle::GetOwnerWidget() const
+	{
+		return SafeCast<T*>(m_widgetOwner);
 	}
 
 	inline entt::registry& BaseWidgetStyle::GetRegistry()

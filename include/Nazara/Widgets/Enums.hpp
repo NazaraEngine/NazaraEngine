@@ -32,6 +32,12 @@ namespace Nz
 
 		Max = Normal
 	};
+
+	enum class ScrollbarOrientation
+	{
+		Horizontal,
+		Vertical
+	};
 }
 
 #endif // NAZARA_WIDGETS_ENUMS_HPP
