@@ -5,9 +5,9 @@
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
 #include <NZSL/Lexer.hpp>
 #include <NZSL/Parser.hpp>
-#include <NZSL/SpirvDecoder.hpp>
 #include <NZSL/SpirvWriter.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
+#include <NZSL/SpirV/SpirvDecoder.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

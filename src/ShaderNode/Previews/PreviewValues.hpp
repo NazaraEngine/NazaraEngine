@@ -5,7 +5,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <ShaderNode/Enums.hpp>
-#include <NZSL/Vector.hpp>
+#include <NZSL/Math/Vector.hpp>
 #include <array>
 #include <vector>
 

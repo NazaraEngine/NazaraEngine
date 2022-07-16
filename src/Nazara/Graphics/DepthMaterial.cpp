@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/DepthMaterial.hpp>
-#include <NZSL/FieldOffsets.hpp>
 #include <NZSL/Parser.hpp>
+#include <NZSL/Math/FieldOffsets.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

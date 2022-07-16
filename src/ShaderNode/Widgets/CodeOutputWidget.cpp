@@ -4,8 +4,8 @@
 #include <NZSL/Ast/ConstantPropagationVisitor.hpp>
 #include <NZSL/Ast/EliminateUnusedPassVisitor.hpp>
 #include <NZSL/Ast/SanitizeVisitor.hpp>
-#include <NZSL/SpirvPrinter.hpp>
 #include <NZSL/SpirvWriter.hpp>
+#include <NZSL/SpirV/SpirvPrinter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
@@ -36,7 +36,7 @@ m_shaderGraph(shaderGraph)
 	});
 
 	m_optimisationCheckbox = new QCheckBox;
-	m_optimisationCheckbox->setText("Enable optimisation");
+	m_optimisationCheckbox->setText("Enable optimization");
 	connect(m_optimisationCheckbox, &QCheckBox::stateChanged, [this](int)
 	{
 		Refresh();

@@ -10,8 +10,6 @@
 #include <Nazara/Physics3D/Components.hpp>
 #include <Nazara/Physics3D/Systems.hpp>
 #include <Nazara/Renderer.hpp>
-#include <NZSL/SpirvConstantCache.hpp>
-#include <NZSL/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
 #include <Nazara/Widgets.hpp>
