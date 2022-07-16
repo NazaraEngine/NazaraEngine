@@ -69,11 +69,62 @@ namespace Nz
 	}
 
 
+	void ImageButtonWidgetStyle::OnHoverBegin()
+	{
+	}
+
+	void ImageButtonWidgetStyle::OnHoverEnd()
+	{
+	}
+
+	void ImageButtonWidgetStyle::OnPress()
+	{
+	}
+
+	void ImageButtonWidgetStyle::OnRelease()
+	{
+	}
+
+
 	void LabelWidgetStyle::OnHoverBegin()
 	{
 	}
 
 	void LabelWidgetStyle::OnHoverEnd()
+	{
+	}
+
+
+	void ScrollbarWidgetStyle::OnButtonGrab()
+	{
+	}
+
+	void ScrollbarWidgetStyle::OnButtonRelease()
+	{
+	}
+
+	void ScrollbarWidgetStyle::OnHoverBegin()
+	{
+	}
+
+	void ScrollbarWidgetStyle::OnHoverEnd()
+	{
+	}
+
+
+	void ScrollbarButtonWidgetStyle::OnHoverBegin()
+	{
+	}
+
+	void ScrollbarButtonWidgetStyle::OnHoverEnd()
+	{
+	}
+
+	void ScrollbarButtonWidgetStyle::OnGrab()
+	{
+	}
+
+	void ScrollbarButtonWidgetStyle::OnRelease()
 	{
 	}
 }

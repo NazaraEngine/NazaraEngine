@@ -13,6 +13,8 @@
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
 #include <Nazara/Widgets.hpp>
+#include <Nazara/Widgets/ImageButtonWidget.hpp>
+#include <Nazara/Widgets/ScrollbarWidget.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <iostream>
@@ -80,10 +82,13 @@ int main()
 	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	basicMat.SetBaseColorSampler(samplerInfo);
 
-	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>();
+	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(material);
 	imageWidget->SetPosition(1200.f, 200.f);
-	imageWidget->SetMaterial(material);
 	imageWidget->Resize(imageWidget->GetPreferredSize() / 4.f);
+
+	Nz::ImageButtonWidget* imageButtonWidget = canvas2D.Add<Nz::ImageButtonWidget>(material);
+	imageButtonWidget->SetPosition(1400, 500.f);
+	imageButtonWidget->Resize(imageButtonWidget->GetPreferredSize() / 4.f);
 
 	Nz::TextAreaWidget* textAreaWidget = canvas2D.Add<Nz::TextAreaWidget>();
 	textAreaWidget->SetPosition(800.f, 500.f);
@@ -98,6 +103,10 @@ int main()
 	checkboxWidget->SetPosition(800.f, 800.f);
 	checkboxWidget->Resize({ 256.f, 256.f });
 	checkboxWidget->SetState(true);
+
+	Nz::ScrollbarWidget* scrollBarWidget = canvas2D.Add<Nz::ScrollbarWidget>(Nz::ScrollbarOrientation::Vertical);
+	scrollBarWidget->SetPosition(1400.f, 800.f);
+	scrollBarWidget->Resize({ 32.f, 256.f });
 
 	/*Nz::TextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::TextAreaWidget>();
 	textAreaWidget2->SetPosition(800.f, 700.f);

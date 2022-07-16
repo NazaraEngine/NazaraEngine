@@ -23,8 +23,12 @@ namespace Nz
 			~DefaultWidgetTheme() = default;
 
 			std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const override;
-			std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* buttonWidget) const override;
-			std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* buttonWidget) const override;
+			std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* checkboxWidget) const override;
+			std::unique_ptr<ImageButtonWidgetStyle> CreateStyle(ImageButtonWidget* imageButtonWidget) const override;
+			std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* labelWidget) const override;
+			std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollAreaWidget) const override;
+			std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const override;
+			std::unique_ptr<ScrollbarButtonWidgetStyle> CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const override;
 
 			DefaultWidgetTheme& operator=(const DefaultWidgetTheme&) = delete;
 			DefaultWidgetTheme& operator=(DefaultWidgetTheme&&) = default;
@@ -38,6 +42,12 @@ namespace Nz
 			std::shared_ptr<Material> m_checkboxBackgroundHoveredMaterial;
 			std::shared_ptr<Material> m_checkboxCheckMaterial;
 			std::shared_ptr<Material> m_checkboxTristateMaterial;
+			std::shared_ptr<Material> m_hoveredMaterial;
+			std::shared_ptr<Material> m_scrollbarBackgroundHorizontalMaterial;
+			std::shared_ptr<Material> m_scrollbarBackgroundVerticalMaterial;
+			std::shared_ptr<Material> m_scrollbarButtonMaterial;
+			std::shared_ptr<Material> m_scrollbarButtonHoveredMaterial;
+			std::shared_ptr<Material> m_scrollbarButtonGrabbedMaterial;
 	};
 }
 

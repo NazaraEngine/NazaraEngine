@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	ImageWidget::ImageWidget(BaseWidget* parent) :
+	ImageWidget::ImageWidget(BaseWidget* parent, std::shared_ptr<Material> material) :
 	BaseWidget(parent)
 	{
 		m_sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
@@ -25,6 +25,8 @@ namespace Nz
 
 		auto& nodeComponent = registry.emplace<NodeComponent>(m_entity);
 		nodeComponent.SetParent(this);
+
+		SetMaterial(std::move(material));
 	}
 
 	void ImageWidget::Layout()

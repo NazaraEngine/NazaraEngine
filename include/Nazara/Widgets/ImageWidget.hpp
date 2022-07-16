@@ -17,7 +17,7 @@ namespace Nz
 	class NAZARA_WIDGETS_API ImageWidget : public BaseWidget
 	{
 		public:
-			ImageWidget(BaseWidget* parent);
+			ImageWidget(BaseWidget* parent, std::shared_ptr<Material> material);
 			ImageWidget(const ImageWidget&) = delete;
 			ImageWidget(ImageWidget&&) = default;
 			~ImageWidget() = default;
@@ -36,6 +36,7 @@ namespace Nz
 
 		private:
 			void Layout() override;
+			inline void UpdatePreferredSize();
 
 			entt::entity m_entity;
 			std::shared_ptr<Sprite> m_sprite;

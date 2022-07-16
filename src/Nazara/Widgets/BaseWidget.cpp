@@ -15,8 +15,8 @@
 namespace Nz
 {
 	/*!
-	* \ingroup NDK
-	* \class Ndk::BaseWidget
+	* \ingroup Widgets
+	* \class BaseWidget
 	* \brief Abstract class serving as a base class for all widgets
 	*/
 
@@ -288,8 +288,9 @@ namespace Nz
 	{
 	}
 
-	void BaseWidget::OnMouseButtonDoublePress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
+	void BaseWidget::OnMouseButtonDoublePress(int x, int y, Mouse::Button button)
 	{
+		return OnMouseButtonPress(x, y, button);
 	}
 
 	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
@@ -300,8 +301,9 @@ namespace Nz
 	{
 	}
 
-	void BaseWidget::OnMouseButtonTriplePress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
+	void BaseWidget::OnMouseButtonTriplePress(int x, int y, Mouse::Button button)
 	{
+		return OnMouseButtonPress(x, y, button);
 	}
 
 	void BaseWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float /*delta*/)
