@@ -521,9 +521,9 @@ namespace Nz
 
 						VertexCacheData *v = &m_vertices[vert];
 
-						for (int j = 0; j < v->remainingValence; j++)
+						for (int triIndex = 0; triIndex < v->remainingValence; triIndex++)
 						{
-							TriangleCacheData *t = &m_triangles[v->triIndices[j]];
+							TriangleCacheData* t = &m_triangles[v->triIndices[triIndex]];
 
 							// we actually found a triangle to process
 							ret = true;
@@ -532,8 +532,8 @@ namespace Nz
 							t->calculated = false;
 
 							// clear vertex flags
-							for (int i : t->verts)
-								m_vertices[i].calculated = false;
+							for (int vertIndex : t->verts)
+								m_vertices[vertIndex].calculated = false;
 						}
 					}
 
