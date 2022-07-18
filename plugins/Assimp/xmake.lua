@@ -16,8 +16,7 @@ if has_config("assimp") then
 		add_deps("NazaraUtility")
 		add_packages("assimp")
 
-		add_headerfiles("**.hpp")
-		add_headerfiles("**.inl")
+		add_headerfiles("**.hpp", "**.inl", { prefixdir = "private" })
 		add_includedirs(".")
 		add_files("**.cpp")
 end

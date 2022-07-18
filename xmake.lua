@@ -257,7 +257,7 @@ for name, module in pairs(modules) do
 	local headerExts = {".h", ".hpp", ".inl", ".natvis"}
 	for _, ext in ipairs(headerExts) do
 		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
-		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext)
+		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext, { prefixdir = "private" })
 	end
 
 	remove_headerfiles("src/Nazara/" .. name .. "/Resources/**.h")
