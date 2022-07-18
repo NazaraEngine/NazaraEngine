@@ -2,8 +2,6 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
-#include <NZSL/SpirvConstantCache.hpp>
-#include <NZSL/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <chrono>
