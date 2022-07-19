@@ -13,6 +13,7 @@ namespace Nz
 	{
 		static constexpr const char* AlphaTest                = "MatAlphaTest";
 		static constexpr const char* AlphaTexturePath         = "MatAlphaTexturePath";
+		static constexpr const char* AlphaWrap                = "MatAlphaWrap";
 		static constexpr const char* AlphaThreshold           = "MatAlphaThreshold";
 		static constexpr const char* AmbientColor             = "MatAmbientColor";
 		static constexpr const char* BackFaceStencilCompare   = "MatBackFaceStencilCompare";
@@ -40,15 +41,22 @@ namespace Nz
 		static constexpr const char* DiffuseAnisotropyLevel   = "MatDiffuseAnisotropyLevel";
 		static constexpr const char* DiffuseFilter            = "MatDiffuseFilter";
 		static constexpr const char* EmissiveTexturePath      = "MatEmissiveTexturePath";
+		static constexpr const char* EmissiveWrap             = "MatEmissiveWrap";
 		static constexpr const char* FaceCulling              = "MatFaceCulling";
 		static constexpr const char* FaceFilling              = "MatFaceFilling";
 		static constexpr const char* FilePath                 = "MatFilePath";
 		static constexpr const char* HeightTexturePath        = "MatHeightTexturePath";
+		static constexpr const char* HeightWrap               = "MatHeightWrap";
 		static constexpr const char* Lighting                 = "MatLighting";
 		static constexpr const char* LineWidth                = "MatLineWidth";
+		static constexpr const char* MetallicTexturePath      = "MatMetallicTexturePath";
+		static constexpr const char* MetallicWrap             = "MatMetallicWrap";
 		static constexpr const char* Name                     = "MatName";
 		static constexpr const char* NormalTexturePath        = "MatNormalTexturePath";
+		static constexpr const char* NormalWrap               = "MatNormalTextureWrap";
 		static constexpr const char* PointSize                = "MatPointSize";
+		static constexpr const char* RoughnessTexturePath     = "MatRoughnessTexturePath";
+		static constexpr const char* RoughnessWrap            = "MatRoughnessWrap";
 		static constexpr const char* ScissorTest              = "MatScissorTest";
 		static constexpr const char* Shininess                = "MatShininess";
 		static constexpr const char* SpecularAnisotropyLevel  = "MatSpecularAnisotropyLevel";

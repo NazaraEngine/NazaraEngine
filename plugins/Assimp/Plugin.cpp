@@ -430,13 +430,16 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 
 				ConvertColor(AI_MATKEY_COLOR_SPECULAR, MaterialData::SpecularColor);
 
-				ConvertTexture(aiTextureType_EMISSIVE, MaterialData::EmissiveTexturePath);
-				ConvertTexture(aiTextureType_HEIGHT, MaterialData::HeightTexturePath);
-				ConvertTexture(aiTextureType_NORMALS, MaterialData::NormalTexturePath);
-				ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
-				ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
 				if (!ConvertTexture(aiTextureType_BASE_COLOR, MaterialData::BaseColorTexturePath, MaterialData::BaseColorWrap))
 					ConvertTexture(aiTextureType_DIFFUSE, MaterialData::BaseColorTexturePath, MaterialData::BaseColorWrap);
+
+				ConvertTexture(aiTextureType_DIFFUSE_ROUGHNESS, MaterialData::RoughnessTexturePath, MaterialData::RoughnessWrap);
+				ConvertTexture(aiTextureType_EMISSIVE,          MaterialData::EmissiveTexturePath,  MaterialData::EmissiveWrap);
+				ConvertTexture(aiTextureType_HEIGHT,            MaterialData::HeightTexturePath,    MaterialData::HeightWrap);
+				ConvertTexture(aiTextureType_METALNESS,         MaterialData::MetallicTexturePath,  MaterialData::MetallicWrap);
+				ConvertTexture(aiTextureType_NORMALS,           MaterialData::NormalTexturePath,    MaterialData::NormalWrap);
+				ConvertTexture(aiTextureType_OPACITY,           MaterialData::AlphaTexturePath,     MaterialData::AlphaWrap);
+				ConvertTexture(aiTextureType_SPECULAR,          MaterialData::SpecularTexturePath,  MaterialData::SpecularWrap);
 
 				aiString name;
 				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
