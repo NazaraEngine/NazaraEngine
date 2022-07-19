@@ -377,7 +377,10 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
 					{
 						matData.SetParameter(colorKey, Color(color.r, color.g, color.b, color.a));
+						return true;
 					}
+
+					return false;
 				};
 
 				auto ConvertTexture = [&](aiTextureType aiType, const char* textureKey, const char* wrapKey = nullptr)
@@ -413,19 +416,27 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 
 							matData.SetParameter(wrapKey, static_cast<long long>(wrap));
 						}
+
+						return true;
 					}
+
+					return false;
 				};
 
 				ConvertColor(AI_MATKEY_COLOR_AMBIENT, MaterialData::AmbientColor);
-				ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::DiffuseColor);
+
+				if (!ConvertColor(AI_MATKEY_BASE_COLOR, MaterialData::BaseColor))
+					ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::BaseColor);
+
 				ConvertColor(AI_MATKEY_COLOR_SPECULAR, MaterialData::SpecularColor);
 
-				ConvertTexture(aiTextureType_DIFFUSE, MaterialData::DiffuseTexturePath, MaterialData::DiffuseWrap);
 				ConvertTexture(aiTextureType_EMISSIVE, MaterialData::EmissiveTexturePath);
 				ConvertTexture(aiTextureType_HEIGHT, MaterialData::HeightTexturePath);
 				ConvertTexture(aiTextureType_NORMALS, MaterialData::NormalTexturePath);
 				ConvertTexture(aiTextureType_OPACITY, MaterialData::AlphaTexturePath);
 				ConvertTexture(aiTextureType_SPECULAR, MaterialData::SpecularTexturePath, MaterialData::SpecularWrap);
+				if (!ConvertTexture(aiTextureType_BASE_COLOR, MaterialData::BaseColorTexturePath, MaterialData::BaseColorWrap))
+					ConvertTexture(aiTextureType_DIFFUSE, MaterialData::BaseColorTexturePath, MaterialData::BaseColorWrap);
 
 				aiString name;
 				if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
@@ -627,10 +638,10 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					};
 
 					ConvertColor(AI_MATKEY_COLOR_AMBIENT, MaterialData::AmbientColor);
-					ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::DiffuseColor);
+					ConvertColor(AI_MATKEY_COLOR_DIFFUSE, MaterialData::BaseColor);
 					ConvertColor(AI_MATKEY_COLOR_SPECULAR, MaterialData::SpecularColor);
 
-					ConvertTexture(aiTextureType_DIFFUSE, MaterialData::DiffuseTexturePath, MaterialData::DiffuseWrap);
+					ConvertTexture(aiTextureType_DIFFUSE, MaterialData::BaseColorTexturePath, MaterialData::BaseColorWrap);
 					ConvertTexture(aiTextureType_EMISSIVE, MaterialData::EmissiveTexturePath);
 					ConvertTexture(aiTextureType_HEIGHT, MaterialData::HeightTexturePath);
 					ConvertTexture(aiTextureType_NORMALS, MaterialData::NormalTexturePath);

@@ -32,24 +32,24 @@ namespace Nz
 			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
 			inline const TextureSamplerInfo& GetAlphaSampler() const;
 			float GetAlphaTestThreshold() const;
-			Color GetDiffuseColor() const;
-			inline const std::shared_ptr<Texture>& GetDiffuseMap() const;
-			inline const TextureSamplerInfo& GetDiffuseSampler() const;
+			Color GetBaseColor() const;
+			inline const std::shared_ptr<Texture>& GetBaseColorMap() const;
+			inline const TextureSamplerInfo& GetBaseColorSampler() const;
 
 			inline bool IsAlphaTestEnabled() const;
 
 			inline bool HasAlphaMap() const;
 			inline bool HasAlphaTest() const;
 			inline bool HasAlphaTestThreshold() const;
-			inline bool HasDiffuseColor() const;
-			inline bool HasDiffuseMap() const;
+			inline bool HasBaseColor() const;
+			inline bool HasBaseColorMap() const;
 
 			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
 			inline void SetAlphaSampler(TextureSamplerInfo alphaSampler);
 			void SetAlphaTestThreshold(float alphaThreshold);
-			void SetDiffuseColor(const Color& diffuse);
-			inline void SetDiffuseMap(std::shared_ptr<Texture> diffuseMap);
-			inline void SetDiffuseSampler(TextureSamplerInfo diffuseSampler);
+			void SetBaseColor(const Color& baseColor);
+			inline void SetBaseColorMap(std::shared_ptr<Texture> baseColorMap);
+			inline void SetBaseColorSampler(TextureSamplerInfo baseColorSampler);
 
 			static inline const BasicUniformOffsets& GetOffsets();
 			static inline const std::shared_ptr<MaterialSettings>& GetSettings();
@@ -57,7 +57,7 @@ namespace Nz
 			struct BasicUniformOffsets
 			{
 				std::size_t alphaThreshold;
-				std::size_t diffuseColor;
+				std::size_t baseColor;
 				std::size_t totalSize;
 			};
 
@@ -70,13 +70,13 @@ namespace Nz
 			{
 				std::size_t alphaTest;
 				std::size_t hasAlphaMap;
-				std::size_t hasDiffuseMap;
+				std::size_t hasBaseColorMap;
 			};
 
 			struct BasicTextureIndexes
 			{
 				std::size_t alpha;
-				std::size_t diffuse;
+				std::size_t baseColor;
 			};
 
 			struct BasicBuildOptions

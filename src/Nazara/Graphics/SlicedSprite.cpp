@@ -63,10 +63,10 @@ namespace Nz
 		if (const auto& material = m_material->FindPass("ForwardPass"))
 		{
 			BasicMaterial mat(*material);
-			if (mat.HasDiffuseMap())
+			if (mat.HasBaseColorMap())
 			{
 				// Material should always have textures but we're better safe than sorry
-				if (const auto& texture = mat.GetDiffuseMap())
+				if (const auto& texture = mat.GetBaseColorMap())
 					return texture->GetSize();
 			}
 		}

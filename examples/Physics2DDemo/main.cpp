@@ -75,8 +75,8 @@ int main()
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	Nz::BasicMaterial basicMat(*materialPass);
-	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	basicMat.SetDiffuseSampler(samplerInfo);
+	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	basicMat.SetBaseColorSampler(samplerInfo);
 
 	for (std::size_t y = 0; y < 10; ++y)
 	{

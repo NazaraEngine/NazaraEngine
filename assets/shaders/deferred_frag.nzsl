@@ -4,7 +4,7 @@ module;
 import InstanceData from Engine.InstanceData;
 import ViewerData from Engine.ViewerData;
 
-option HasDiffuseTexture: bool = false;
+option HasBaseColorTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
 
@@ -12,13 +12,13 @@ option AlphaTest: bool = false;
 struct BasicSettings
 {
 	AlphaThreshold: f32,
-	DiffuseColor: vec4[f32]
+	BaseColor: vec4[f32]
 }
 
 external
 {
 	[binding(0)] settings: uniform[BasicSettings],
-	[binding(1)] MaterialDiffuseMap: sampler2D[f32],
+	[binding(1)] MaterialBaseColorMap: sampler2D[f32],
 	[binding(2)] MaterialAlphaMap: sampler2D[f32],
 	[binding(3)] TextureOverlay: sampler2D[f32],
 	[binding(4)] instanceData: uniform[InstanceData],
@@ -34,7 +34,7 @@ struct InputData
 
 struct OutputData
 {
-	[location(0)] diffuseMap: vec4[f32],
+	[location(0)] baseColorMap: vec4[f32],
 	[location(1)] normalMap: vec4[f32],
 	[location(2)] positionMap: vec4[f32]
 }
@@ -42,21 +42,21 @@ struct OutputData
 [entry(frag)]
 fn main(input: InputData) -> OutputData
 {
-	let diffuseColor = settings.DiffuseColor;
-	const if (HasDiffuseTexture)
-		diffuseColor *= MaterialDiffuseMap.Sample(input.uv);
+	let color = settings.BaseColor;
+	const if (HasBaseColorTexture)
+		color *= MaterialBaseColorMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
-		diffuseColor.w *= MaterialAlphaMap.Sample(input.uv).x;
+		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)
 	{
-		if (diffuseColor.w < settings.AlphaThreshold)
+		if (color.w < settings.AlphaThreshold)
 			discard;
 	}
 
 	let output: OutputData;
-	output.diffuseMap = diffuseColor;
+	output.baseColorMap = color;
 	output.normalMap = vec4[f32]((vec3[f32](1.0, 1.0, 1.0) + input.normal) * 0.5, 1.0);
 	output.positionMap = vec4[f32](input.pos, 1.0);
 	return output;

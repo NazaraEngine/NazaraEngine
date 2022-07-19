@@ -4,23 +4,23 @@ module DepthMaterial;
 import InstanceData from Engine.InstanceData;
 import ViewerData from Engine.ViewerData;
 
-option HasDiffuseTexture: bool = false;
+option HasBaseColorTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
 
-const HasUV = AlphaTest && (HasDiffuseTexture || HasAlphaTexture);
+const HasUV = AlphaTest && (HasBaseColorTexture || HasAlphaTexture);
 
 [layout(std140)]
 struct BasicSettings
 {
 	AlphaThreshold: f32,
-	DiffuseColor: vec4[f32]
+	BaseColor: vec4[f32]
 }
 
 external
 {
 	[binding(0)] settings: uniform[BasicSettings],
-	[binding(1)] MaterialDiffuseMap: sampler2D[f32],
+	[binding(1)] MaterialBaseColorMap: sampler2D[f32],
 	[binding(2)] MaterialAlphaMap: sampler2D[f32],
 	[binding(3)] TextureOverlay: sampler2D[f32],
 	[binding(4)] instanceData: uniform[InstanceData],
@@ -36,13 +36,13 @@ struct FragIn
 [entry(frag), cond(AlphaTest)]
 fn main(input: FragIn)
 {
-	let alpha = settings.DiffuseColor.a;
+	let alpha = settings.BaseColor.a;
 
 	const if (HasUV)
 		alpha *= TextureOverlay.Sample(input.uv).a;
 
-	const if (HasDiffuseTexture)
-		alpha *= MaterialDiffuseMap.Sample(input.uv).a;
+	const if (HasBaseColorTexture)
+		alpha *= MaterialBaseColorMap.Sample(input.uv).a;
 
 	const if (HasAlphaTexture)
 		alpha *= MaterialAlphaMap.Sample(input.uv).x;

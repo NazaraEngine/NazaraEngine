@@ -77,8 +77,8 @@ int main()
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	Nz::BasicMaterial basicMat(*materialPass);
-	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	basicMat.SetDiffuseSampler(samplerInfo);
+	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	basicMat.SetBaseColorSampler(samplerInfo);
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>();
 	imageWidget->SetPosition(1200.f, 200.f);

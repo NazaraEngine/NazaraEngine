@@ -36,7 +36,7 @@ namespace Nz
 		{
 			m_basicOptionIndexes.alphaTest = materialSettings->GetOptionIndex("AlphaTest");
 			m_basicOptionIndexes.hasAlphaMap = materialSettings->GetOptionIndex("HasAlphaMap");
-			m_basicOptionIndexes.hasDiffuseMap = materialSettings->GetOptionIndex("HasDiffuseMap");
+			m_basicOptionIndexes.hasBaseColorMap = materialSettings->GetOptionIndex("HasBaseColorMap");
 
 			m_pbrOptionIndexes.hasEmissiveMap = materialSettings->GetOptionIndex("HasEmissiveMap");
 			m_pbrOptionIndexes.hasHeightMap = materialSettings->GetOptionIndex("HasHeightMap");
@@ -46,7 +46,7 @@ namespace Nz
 			m_pbrOptionIndexes.hasSpecularMap = materialSettings->GetOptionIndex("HasSpecularMap");
 
 			m_basicTextureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
-			m_basicTextureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
+			m_basicTextureIndexes.baseColor = materialSettings->GetTextureIndex("BaseColor");
 
 			m_pbrTextureIndexes.emissive = materialSettings->GetTextureIndex("Emissive");
 			m_pbrTextureIndexes.height = materialSettings->GetTextureIndex("Height");
@@ -57,7 +57,7 @@ namespace Nz
 			if (m_uniformBlockIndex != MaterialSettings::InvalidIndex)
 			{
 				m_basicUniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "AlphaThreshold");
-				m_basicUniformOffsets.diffuseColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "DiffuseColor");
+				m_basicUniformOffsets.baseColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "BaseColor");
 
 				m_pbrUniformOffsets.ambientColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "AmbientColor");
 				m_pbrUniformOffsets.shininess = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "Shininess");
@@ -66,7 +66,7 @@ namespace Nz
 			else
 			{
 				m_basicUniformOffsets.alphaThreshold = MaterialSettings::InvalidIndex;
-				m_basicUniformOffsets.diffuseColor = MaterialSettings::InvalidIndex;
+				m_basicUniformOffsets.baseColor = MaterialSettings::InvalidIndex;
 
 				m_pbrUniformOffsets.ambientColor = MaterialSettings::InvalidIndex;
 				m_pbrUniformOffsets.shininess = MaterialSettings::InvalidIndex;
@@ -123,7 +123,7 @@ namespace Nz
 		AccessByOffset<float&>(bufferData.data(), m_pbrUniformOffsets.shininess) = shininess;
 	}
 
-	void PhysicallyBasedMaterial::SetSpecularColor(const Color& diffuse)
+	void PhysicallyBasedMaterial::SetSpecularColor(const Color& specular)
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 

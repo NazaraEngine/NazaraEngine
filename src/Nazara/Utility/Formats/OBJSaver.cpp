@@ -123,7 +123,7 @@ namespace Nz
 					if (matData.GetColorParameter(MaterialData::AmbientColor, &colorVal))
 						material->ambient = colorVal;
 
-					if (matData.GetColorParameter(MaterialData::DiffuseColor, &colorVal))
+					if (matData.GetColorParameter(MaterialData::BaseColor, &colorVal))
 						material->diffuse = colorVal;
 
 					if (matData.GetColorParameter(MaterialData::SpecularColor, &colorVal))
@@ -133,7 +133,7 @@ namespace Nz
 						material->shininess = float(dValue);
 
 					matData.GetStringParameter(MaterialData::AlphaTexturePath, &material->alphaMap);
-					matData.GetStringParameter(MaterialData::DiffuseTexturePath, &material->diffuseMap);
+					matData.GetStringParameter(MaterialData::BaseColorTexturePath, &material->diffuseMap);
 					matData.GetStringParameter(MaterialData::SpecularTexturePath, &material->specularMap);
 				}
 			}

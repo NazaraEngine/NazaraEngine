@@ -67,7 +67,7 @@ int main()
 	Nz::PhysicallyBasedMaterial pbrMat(*forwardPass);
 	pbrMat.EnableAlphaTest(false);
 	pbrMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	pbrMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
+	pbrMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
 	pbrMat.SetMetallicMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_metallic.png", texParams));
 	pbrMat.SetRoughnessMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_roughness.png", texParams));
 	pbrMat.SetNormalMap(normalMap);

@@ -8,7 +8,7 @@ import ViewerData from Engine.ViewerData;
 struct BasicSettings
 {
 	AlphaThreshold: f32,
-	DiffuseColor: vec4[f32]
+	BaseColor: vec4[f32]
 }
 
 external

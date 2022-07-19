@@ -206,7 +206,7 @@ int main()
 		Nz::BasicMaterial basicMat(*spaceshipMatPass);
 		basicMat.EnableAlphaTest(false);
 		basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+		basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	}
 	spaceshipMat->AddPass("ForwardPass", spaceshipMatPass);
 
@@ -225,7 +225,7 @@ int main()
 		flareMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
 
 		Nz::BasicMaterial Osef(*flareMaterialPass);
-		Osef.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "flare1.png", texParams));
+		Osef.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "flare1.png", texParams));
 
 		flareMaterial->AddPass("ForwardPass", flareMaterialPass);
 	}
@@ -236,13 +236,13 @@ int main()
 	planeMatPass->EnableDepthBuffer(true);
 	{
 		Nz::BasicMaterial basicMat(*planeMatPass);
-		basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
+		basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
 
 		Nz::TextureSamplerInfo planeSampler;
 		planeSampler.anisotropyLevel = 16;
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
-		basicMat.SetDiffuseSampler(planeSampler);
+		basicMat.SetBaseColorSampler(planeSampler);
 	}
 	planeMat->AddPass("ForwardPass", planeMatPass);
 

@@ -21,6 +21,9 @@ namespace Nz
 		static constexpr const char* BackFaceStencilPass      = "MatBackFaceStencilPass";
 		static constexpr const char* BackFaceStencilReference = "MatBackFaceStencilReference";
 		static constexpr const char* BackFaceStencilZFail     = "MatBackFaceStencilZFail";
+		static constexpr const char* BaseColor                = "MatBaseColor";
+		static constexpr const char* BaseColorTexturePath     = "MatBaseColorTexturePath";
+		static constexpr const char* BaseColorWrap            = "MatBaseColorWrap";
 		static constexpr const char* Blending                 = "MatBlending";
 		static constexpr const char* BlendModeAlpha           = "MatBlendModeAlpha";
 		static constexpr const char* BlendModeColor           = "MatBlendModeColor";
@@ -35,10 +38,7 @@ namespace Nz
 		static constexpr const char* DepthSorting             = "MatDepthSorting";
 		static constexpr const char* DepthWrite               = "MatDepthWrite";
 		static constexpr const char* DiffuseAnisotropyLevel   = "MatDiffuseAnisotropyLevel";
-		static constexpr const char* DiffuseColor             = "MatDiffuseColor";
 		static constexpr const char* DiffuseFilter            = "MatDiffuseFilter";
-		static constexpr const char* DiffuseTexturePath       = "MatDiffuseTexturePath";
-		static constexpr const char* DiffuseWrap              = "MatDiffuseWrap";
 		static constexpr const char* EmissiveTexturePath      = "MatEmissiveTexturePath";
 		static constexpr const char* FaceCulling              = "MatFaceCulling";
 		static constexpr const char* FaceFilling              = "MatFaceFilling";

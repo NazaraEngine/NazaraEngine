@@ -4,7 +4,7 @@ module BasicMaterial;
 import InstanceData from Engine.InstanceData;
 import ViewerData from Engine.ViewerData;
 
-option HasDiffuseTexture: bool = false;
+option HasBaseColorTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
 
@@ -27,13 +27,13 @@ const HasUV = (UvLocation >= 0);
 struct MaterialSettings
 {
 	AlphaThreshold: f32,
-	DiffuseColor: vec4[f32]
+	BaseColor: vec4[f32]
 }
 
 external
 {
 	[binding(0)] settings: uniform[MaterialSettings],
-	[binding(1)] MaterialDiffuseMap: sampler2D[f32],
+	[binding(1)] MaterialBaseColorMap: sampler2D[f32],
 	[binding(2)] MaterialAlphaMap: sampler2D[f32],
 	[binding(3)] TextureOverlay: sampler2D[f32],
 	[binding(4)] instanceData: uniform[InstanceData],
@@ -55,28 +55,28 @@ struct FragOut
 [entry(frag)]
 fn main(input: FragIn) -> FragOut
 {
-	let diffuseColor = settings.DiffuseColor;
+	let color = settings.BaseColor;
 
 	const if (HasUV)
-		diffuseColor *= TextureOverlay.Sample(input.uv);
+		color *= TextureOverlay.Sample(input.uv);
 
 	const if (HasColor)
-		diffuseColor *= input.color;
+		color *= input.color;
 
-	const if (HasDiffuseTexture)
-		diffuseColor *= MaterialDiffuseMap.Sample(input.uv);
+	const if (HasBaseColorTexture)
+		color *= MaterialBaseColorMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
-		diffuseColor.w *= MaterialAlphaMap.Sample(input.uv).x;
+		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)
 	{
-		if (diffuseColor.w < settings.AlphaThreshold)
+		if (color.w < settings.AlphaThreshold)
 			discard;
 	}
 
 	let output: FragOut;
-	output.RenderTarget0 = diffuseColor;
+	output.RenderTarget0 = color;
 	return output;
 }
 

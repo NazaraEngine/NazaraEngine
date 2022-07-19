@@ -66,7 +66,7 @@ namespace Nz
 			material->AddPass("ForwardPass", buttonMaterialPass);
 
 			BasicMaterial buttonBasicMat(*buttonMaterialPass);
-			buttonBasicMat.SetDiffuseMap(texture);
+			buttonBasicMat.SetBaseColorMap(texture);
 
 			return material;
 		};

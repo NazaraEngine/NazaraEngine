@@ -78,14 +78,14 @@ namespace Nz
 					float alphaValue = mtlMat->alpha;
 
 					Color ambientColor(mtlMat->ambient);
-					Color diffuseColor(mtlMat->diffuse);
+					Color baseColor(mtlMat->diffuse);
 					Color specularColor(mtlMat->specular);
 					ambientColor.a = alphaValue;
-					diffuseColor.a = alphaValue;
+					baseColor.a = alphaValue;
 					specularColor.a = alphaValue;
 
 					data.SetParameter(MaterialData::AmbientColor, ambientColor);
-					data.SetParameter(MaterialData::DiffuseColor, diffuseColor);
+					data.SetParameter(MaterialData::BaseColor, baseColor);
 					data.SetParameter(MaterialData::Shininess, mtlMat->shininess);
 					data.SetParameter(MaterialData::SpecularColor, specularColor);
 
@@ -104,7 +104,7 @@ namespace Nz
 						if (!fullPath.is_absolute())
 							fullPath = baseDir / fullPath;
 
-						data.SetParameter(MaterialData::DiffuseTexturePath, fullPath.generic_u8string());
+						data.SetParameter(MaterialData::BaseColorTexturePath, fullPath.generic_u8string());
 					}
 
 					if (!mtlMat->emissiveMap.empty())

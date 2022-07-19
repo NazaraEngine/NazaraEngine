@@ -73,7 +73,7 @@ int main()
 	Nz::PhongLightingMaterial phongMat(*forwardPass);
 	phongMat.EnableAlphaTest(false);
 	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	phongMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	phongMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());

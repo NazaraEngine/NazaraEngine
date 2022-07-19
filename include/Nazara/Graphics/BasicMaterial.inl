@@ -46,16 +46,16 @@ namespace Nz
 		return m_material.GetTextureSampler(m_basicTextureIndexes.alpha);
 	}
 
-	inline const std::shared_ptr<Texture>& BasicMaterial::GetDiffuseMap() const
+	inline const std::shared_ptr<Texture>& BasicMaterial::GetBaseColorMap() const
 	{
-		NazaraAssert(HasDiffuseMap(), "Material has no alpha texture slot");
-		return m_material.GetTexture(m_basicTextureIndexes.diffuse);
+		NazaraAssert(HasBaseColorMap(), "Material has no alpha texture slot");
+		return m_material.GetTexture(m_basicTextureIndexes.baseColor);
 	}
 
-	inline const TextureSamplerInfo& BasicMaterial::GetDiffuseSampler() const
+	inline const TextureSamplerInfo& BasicMaterial::GetBaseColorSampler() const
 	{
-		NazaraAssert(HasDiffuseMap(), "Material has no alpha texture slot");
-		return m_material.GetTextureSampler(m_basicTextureIndexes.diffuse);
+		NazaraAssert(HasBaseColorMap(), "Material has no alpha texture slot");
+		return m_material.GetTextureSampler(m_basicTextureIndexes.baseColor);
 	}
 
 	inline bool BasicMaterial::IsAlphaTestEnabled() const
@@ -83,14 +83,14 @@ namespace Nz
 		return m_basicUniformOffsets.alphaThreshold != MaterialSettings::InvalidIndex;
 	}
 
-	inline bool BasicMaterial::HasDiffuseColor() const
+	inline bool BasicMaterial::HasBaseColor() const
 	{
-		return m_basicUniformOffsets.diffuseColor != MaterialSettings::InvalidIndex;
+		return m_basicUniformOffsets.baseColor != MaterialSettings::InvalidIndex;
 	}
 
-	inline bool BasicMaterial::HasDiffuseMap() const
+	inline bool BasicMaterial::HasBaseColorMap() const
 	{
-		return m_basicTextureIndexes.diffuse != MaterialSettings::InvalidIndex;
+		return m_basicTextureIndexes.baseColor != MaterialSettings::InvalidIndex;
 	}
 
 	inline void BasicMaterial::SetAlphaMap(std::shared_ptr<Texture> alphaMap)
@@ -99,7 +99,7 @@ namespace Nz
 		bool hasAlphaMap = (alphaMap != nullptr);
 		m_material.SetTexture(m_basicTextureIndexes.alpha, std::move(alphaMap));
 
-		if (m_basicOptionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
+		if (m_basicOptionIndexes.hasBaseColorMap != MaterialSettings::InvalidIndex)
 			m_material.SetOptionValue(m_basicOptionIndexes.hasAlphaMap, hasAlphaMap);
 	}
 
@@ -109,20 +109,20 @@ namespace Nz
 		m_material.SetTextureSampler(m_basicTextureIndexes.alpha, std::move(alphaSampler));
 	}
 
-	inline void BasicMaterial::SetDiffuseMap(std::shared_ptr<Texture> diffuseMap)
+	inline void BasicMaterial::SetBaseColorMap(std::shared_ptr<Texture> baseColorMap)
 	{
-		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
-		bool hasDiffuseMap = (diffuseMap != nullptr);
-		m_material.SetTexture(m_basicTextureIndexes.diffuse, std::move(diffuseMap));
+		NazaraAssert(HasBaseColorMap(), "Material has no diffuse map slot");
+		bool hasBaseColorMap = (baseColorMap != nullptr);
+		m_material.SetTexture(m_basicTextureIndexes.baseColor, std::move(baseColorMap));
 
-		if (m_basicOptionIndexes.hasDiffuseMap != MaterialSettings::InvalidIndex)
-			m_material.SetOptionValue(m_basicOptionIndexes.hasDiffuseMap, hasDiffuseMap);
+		if (m_basicOptionIndexes.hasBaseColorMap != MaterialSettings::InvalidIndex)
+			m_material.SetOptionValue(m_basicOptionIndexes.hasBaseColorMap, hasBaseColorMap);
 	}
 
-	inline void BasicMaterial::SetDiffuseSampler(TextureSamplerInfo diffuseSampler)
+	inline void BasicMaterial::SetBaseColorSampler(TextureSamplerInfo diffuseSampler)
 	{
-		NazaraAssert(HasDiffuseMap(), "Material has no diffuse map slot");
-		m_material.SetTextureSampler(m_basicTextureIndexes.diffuse, std::move(diffuseSampler));
+		NazaraAssert(HasBaseColorMap(), "Material has no diffuse map slot");
+		m_material.SetTextureSampler(m_basicTextureIndexes.baseColor, std::move(diffuseSampler));
 	}
 
 	inline MaterialPass& BasicMaterial::GetMaterial()

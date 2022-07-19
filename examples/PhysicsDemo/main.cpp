@@ -81,8 +81,8 @@ int main()
 	Nz::BasicMaterial basicMat(*materialPass);
 	basicMat.EnableAlphaTest(false);
 	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	basicMat.SetDiffuseSampler(samplerInfo);
+	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	basicMat.SetBaseColorSampler(samplerInfo);
 
 	Nz::DepthMaterial basicMatDepth(*depthPass);
 	basicMatDepth.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
@@ -142,7 +142,7 @@ int main()
 	colliderMat->AddPass("ForwardPass", colliderMatPass);
 
 	Nz::BasicMaterial colliderBasicMat(*colliderMatPass);
-	colliderBasicMat.SetDiffuseColor(Nz::Color::Green);
+	colliderBasicMat.SetBaseColor(Nz::Color::Green);
 
 	std::shared_ptr<Nz::Model> colliderModel;
 	{

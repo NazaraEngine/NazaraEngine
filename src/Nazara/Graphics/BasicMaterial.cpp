@@ -33,21 +33,21 @@ namespace Nz
 		{
 			m_basicOptionIndexes.alphaTest = materialSettings->GetOptionIndex("AlphaTest");
 			m_basicOptionIndexes.hasAlphaMap = materialSettings->GetOptionIndex("HasAlphaMap");
-			m_basicOptionIndexes.hasDiffuseMap = materialSettings->GetOptionIndex("HasDiffuseMap");
+			m_basicOptionIndexes.hasBaseColorMap = materialSettings->GetOptionIndex("HasBaseColorMap");
 
 			m_basicTextureIndexes.alpha = materialSettings->GetTextureIndex("Alpha");
-			m_basicTextureIndexes.diffuse = materialSettings->GetTextureIndex("Diffuse");
+			m_basicTextureIndexes.baseColor = materialSettings->GetTextureIndex("BaseColor");
 
 			m_uniformBlockIndex = materialSettings->GetUniformBlockIndex("MaterialSettings");
 			if (m_uniformBlockIndex != MaterialSettings::InvalidIndex)
 			{
 				m_basicUniformOffsets.alphaThreshold = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "AlphaThreshold");
-				m_basicUniformOffsets.diffuseColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "DiffuseColor");
+				m_basicUniformOffsets.baseColor = materialSettings->GetUniformBlockVariableOffset(m_uniformBlockIndex, "BaseColor");
 			}
 			else
 			{
 				m_basicUniformOffsets.alphaThreshold = MaterialSettings::InvalidIndex;
-				m_basicUniformOffsets.diffuseColor = MaterialSettings::InvalidIndex;
+				m_basicUniformOffsets.baseColor = MaterialSettings::InvalidIndex;
 			}
 		}
 	}
@@ -61,13 +61,13 @@ namespace Nz
 		return AccessByOffset<const float&>(bufferData.data(), m_basicUniformOffsets.alphaThreshold);
 	}
 
-	Color BasicMaterial::GetDiffuseColor() const
+	Color BasicMaterial::GetBaseColor() const
 	{
-		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
+		NazaraAssert(HasBaseColor(), "Material has no base color uniform");
 
 		const std::vector<UInt8>& bufferData = m_material.GetUniformBufferConstData(m_uniformBlockIndex);
 
-		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_basicUniformOffsets.diffuseColor);
+		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_basicUniformOffsets.baseColor);
 		return Color(colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3]);
 	}
 
@@ -79,17 +79,17 @@ namespace Nz
 		AccessByOffset<float&>(bufferData.data(), m_basicUniformOffsets.alphaThreshold) = alphaThreshold;
 	}
 
-	void BasicMaterial::SetDiffuseColor(const Color& diffuse)
+	void BasicMaterial::SetBaseColor(const Color& baseColor)
 	{
-		NazaraAssert(HasDiffuseColor(), "Material has no diffuse color uniform");
+		NazaraAssert(HasBaseColor(), "Material has no base color uniform");
 
 		std::vector<UInt8>& bufferData = m_material.GetUniformBufferData(m_uniformBlockIndex);
 
-		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_basicUniformOffsets.diffuseColor);
-		colorPtr[0] = diffuse.r;
-		colorPtr[1] = diffuse.g;
-		colorPtr[2] = diffuse.b;
-		colorPtr[3] = diffuse.a;
+		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_basicUniformOffsets.baseColor);
+		colorPtr[0] = baseColor.r;
+		colorPtr[1] = baseColor.g;
+		colorPtr[2] = baseColor.b;
+		colorPtr[3] = baseColor.a;
 	}
 
 	MaterialSettings::Builder BasicMaterial::Build(BasicBuildOptions& options)
@@ -105,11 +105,11 @@ namespace Nz
 			});
 		}
 
-		if (options.basicOffsets.diffuseColor != std::numeric_limits<std::size_t>::max())
+		if (options.basicOffsets.baseColor != std::numeric_limits<std::size_t>::max())
 		{
 			variables.push_back({
-				"DiffuseColor",
-				options.basicOffsets.diffuseColor
+				"BaseColor",
+				options.basicOffsets.baseColor
 			});
 		}
 
@@ -118,8 +118,8 @@ namespace Nz
 		if (options.basicOffsets.alphaThreshold != std::numeric_limits<std::size_t>::max())
 			AccessByOffset<float&>(options.defaultValues.data(), options.basicOffsets.alphaThreshold) = 0.2f;
 
-		if (options.basicOffsets.diffuseColor != std::numeric_limits<std::size_t>::max())
-			AccessByOffset<Vector4f&>(options.defaultValues.data(), options.basicOffsets.diffuseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
+		if (options.basicOffsets.baseColor != std::numeric_limits<std::size_t>::max())
+			AccessByOffset<Vector4f&>(options.defaultValues.data(), options.basicOffsets.baseColor) = Vector4f(1.f, 1.f, 1.f, 1.f);
 
 		// Textures
 		if (options.basicTextureIndexes)
@@ -132,11 +132,11 @@ namespace Nz
 		});
 
 		if (options.basicTextureIndexes)
-			options.basicTextureIndexes->diffuse = settings.textures.size();
+			options.basicTextureIndexes->baseColor = settings.textures.size();
 
 		settings.textures.push_back({
 			1,
-			"Diffuse",
+			"BaseColor",
 			ImageType::E2D
 		});
 
@@ -206,11 +206,11 @@ namespace Nz
 
 		// Options
 
-		// HasDiffuseMap
+		// HasBaseColorMap
 		if (options.basicOptionIndexes)
-			options.basicOptionIndexes->hasDiffuseMap = settings.options.size();
+			options.basicOptionIndexes->hasBaseColorMap = settings.options.size();
 
-		MaterialSettings::BuildOption(settings.options, "HasDiffuseMap", "HasDiffuseTexture");
+		MaterialSettings::BuildOption(settings.options, "HasBaseColorMap", "HasBaseColorTexture");
 
 		// HasAlphaMap
 		if (options.basicOptionIndexes)
@@ -240,7 +240,7 @@ namespace Nz
 
 		BasicUniformOffsets uniformOffsets;
 		uniformOffsets.alphaThreshold = fieldOffsets.AddField(nzsl::StructFieldType::Float1);
-		uniformOffsets.diffuseColor = fieldOffsets.AddField(nzsl::StructFieldType::Float4);
+		uniformOffsets.baseColor = fieldOffsets.AddField(nzsl::StructFieldType::Float4);
 		uniformOffsets.totalSize = fieldOffsets.GetAlignedSize();
 
 		return std::make_pair(std::move(uniformOffsets), std::move(fieldOffsets));
