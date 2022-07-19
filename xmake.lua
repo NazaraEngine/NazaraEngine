@@ -210,10 +210,7 @@ elseif is_plat("mingw") then
 	add_ldflags("-Wa,-mbig-obj")
 
 	if is_subhost("msys", "cygwin") then
-		-- disable -isystem for packages as it's broken on msys2 (see https://github.com/msys2/MINGW-packages/issues/10761)
-		if project.policy("package.include_external_headers") == nil then
-			set_policy("package.include_external_headers", false)
-		end
+		add_rules("msys2.isystem.fix")
 	end
 end
 
