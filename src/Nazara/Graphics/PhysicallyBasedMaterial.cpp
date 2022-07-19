@@ -109,10 +109,10 @@ namespace Nz
 
 		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_pbrUniformOffsets.ambientColor);
-		colorPtr[0] = ambient.r / 255.f;
-		colorPtr[1] = ambient.g / 255.f;
-		colorPtr[2] = ambient.b / 255.f;
-		colorPtr[3] = ambient.a / 255.f;
+		colorPtr[0] = ambient.r;
+		colorPtr[1] = ambient.g;
+		colorPtr[2] = ambient.b;
+		colorPtr[3] = ambient.a;
 	}
 
 	void PhysicallyBasedMaterial::SetShininess(float shininess)
@@ -129,10 +129,10 @@ namespace Nz
 
 		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_pbrUniformOffsets.specularColor);
-		colorPtr[0] = diffuse.r / 255.f;
-		colorPtr[1] = diffuse.g / 255.f;
-		colorPtr[2] = diffuse.b / 255.f;
-		colorPtr[3] = diffuse.a / 255.f;
+		colorPtr[0] = specular.r;
+		colorPtr[1] = specular.g;
+		colorPtr[2] = specular.b;
+		colorPtr[3] = specular.a;
 	}
 
 	const std::shared_ptr<MaterialSettings>& PhysicallyBasedMaterial::GetSettings()
