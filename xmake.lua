@@ -208,6 +208,13 @@ if is_plat("windows") then
 elseif is_plat("mingw") then
 	add_cxflags("-Og", "-Wa,-mbig-obj")
 	add_ldflags("-Wa,-mbig-obj")
+
+	if is_subhost("msys", "cygwin") then
+		-- disable -isystem for packages as it's broken on msys2 (see https://github.com/msys2/MINGW-packages/issues/10761)
+		if project.policy("package.include_external_headers") == nil then
+			set_policy("package.include_external_headers", false)
+		end
+	end
 end
 
 for name, module in pairs(modules) do
