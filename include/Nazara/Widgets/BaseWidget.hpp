@@ -82,12 +82,12 @@ namespace Nz
 			inline void Hide();
 			inline bool IsVisible() const;
 
+			std::unique_ptr<BaseWidget> ReleaseFromParent();
 			void Resize(const Vector2f& size);
 
 			void SetBackgroundColor(const Color& color);
 			void SetCursor(SystemCursor systemCursor);
 			void SetFocus();
-			void SetParent(BaseWidget* widget);
 
 			inline void SetFixedHeight(float fixedHeight);
 			inline void SetFixedSize(const Vector2f& fixedSize);

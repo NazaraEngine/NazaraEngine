@@ -14,7 +14,7 @@
 #include <Nazara/Utility/Components.hpp>
 #include <Nazara/Widgets.hpp>
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
-#include <Nazara/Widgets/ScrollbarWidget.hpp>
+#include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <iostream>
@@ -101,12 +101,19 @@ int main()
 	Nz::CheckboxWidget* checkboxWidget = canvas2D.Add<Nz::CheckboxWidget>();
 	//checkboxWidget->EnableTristate(true);
 	checkboxWidget->SetPosition(800.f, 800.f);
-	checkboxWidget->Resize({ 256.f, 256.f });
+	checkboxWidget->Resize({ 256.f, 256 });
 	checkboxWidget->SetState(true);
 
-	Nz::ScrollbarWidget* scrollBarWidget = canvas2D.Add<Nz::ScrollbarWidget>(Nz::ScrollbarOrientation::Vertical);
+	Nz::TextAreaWidget* longTextArea = canvas2D.Add<Nz::TextAreaWidget>();
+	longTextArea->EnableLineWrap(true);
+	longTextArea->EnableMultiline(true);
+	longTextArea->SetBackgroundColor(Nz::Color::White);
+	longTextArea->SetTextColor(Nz::Color::Black);
+	longTextArea->SetText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum");
+	
+	Nz::ScrollAreaWidget* scrollBarWidget = canvas2D.Add<Nz::ScrollAreaWidget>(longTextArea);
 	scrollBarWidget->SetPosition(1400.f, 800.f);
-	scrollBarWidget->Resize({ 32.f, 256.f });
+	scrollBarWidget->Resize({ 512.f, 256.f });
 
 	/*Nz::TextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::TextAreaWidget>();
 	textAreaWidget2->SetPosition(800.f, 700.f);

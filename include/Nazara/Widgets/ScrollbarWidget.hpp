@@ -32,6 +32,8 @@ namespace Nz
 			ScrollbarWidget& operator=(const ScrollbarWidget&) = delete;
 			ScrollbarWidget& operator=(ScrollbarWidget&&) = default;
 
+			NazaraSignal(OnScrollbarValueUpdate, ScrollbarWidget* /*emitter*/, float /*newValue*/);
+
 		private:
 			void Layout() override;
 

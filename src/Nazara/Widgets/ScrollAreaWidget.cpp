@@ -2,47 +2,35 @@
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#if 0
-
 #include <Nazara/Widgets/ScrollAreaWidget.hpp>
+#include <Nazara/Widgets/ScrollbarWidget.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
-	namespace
-	{
-		constexpr float scrollbarPadding = 5.f;
-	}
-
 	ScrollAreaWidget::ScrollAreaWidget(BaseWidget* parent, BaseWidget* content) :
 	BaseWidget(parent),
 	m_content(content),
-	m_isGrabbed(false),
 	m_isScrollbarEnabled(true),
-	m_scrollRatio(0.f)
+	m_hasScrollbar(false)
 	{
-		m_content->SetParent(this);
+		AddChild(m_content->ReleaseFromParent());
 		m_content->SetPosition(Nz::Vector3f::Zero());
 
-		m_style = GetTheme()->CreateStyle(this);
-		SetRenderLayerCount(m_style->GetRenderLayerCount());
+		//m_style = GetTheme()->CreateStyle(this);
+		//SetRenderLayerCount(m_style->GetRenderLayerCount());
+
+		m_horizontalScrollbar = Add<ScrollbarWidget>(ScrollbarOrientation::Vertical);
+		m_horizontalScrollbar->OnScrollbarValueUpdate.Connect([this](ScrollbarWidget*, float newValue)
+		{
+			float contentPosition = (GetHeight() - m_content->GetHeight()) * (1.f - newValue);
+
+			m_content->SetPosition(0.f, contentPosition);
+			m_content->SetRenderingRect(Nz::Rectf(-std::numeric_limits<float>::infinity(), -contentPosition, std::numeric_limits<float>::infinity(), GetHeight()));
+		});
 
 		Resize(m_content->GetSize()); //< will automatically layout
-
-		m_scrollbarBackgroundSprite = Nz::Sprite::New();
-		m_scrollbarBackgroundSprite->SetColor(Nz::Color(62, 62, 62));
-
-		m_scrollbarBackgroundEntity = CreateEntity();
-		m_scrollbarBackgroundEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_scrollbarBackgroundEntity->AddComponent<GraphicsComponent>().Attach(m_scrollbarBackgroundSprite, 1);
-
-		m_scrollbarSprite = Nz::Sprite::New();
-		m_scrollbarSprite->SetColor(Nz::Color(104, 104, 104));
-
-		m_scrollbarEntity = CreateEntity();
-		m_scrollbarEntity->AddComponent<NodeComponent>().SetParent(this);
-		m_scrollbarEntity->AddComponent<GraphicsComponent>().Attach(m_scrollbarSprite);
 	}
 
 	void ScrollAreaWidget::EnableScrollbar(bool enable)
@@ -52,64 +40,49 @@ namespace Nz
 			m_isScrollbarEnabled = enable;
 
 			bool isVisible = IsScrollbarVisible();
-			m_scrollbarEntity->Enable(isVisible);
-			m_scrollbarBackgroundEntity->Enable(isVisible);
+			m_horizontalScrollbar->Show(isVisible);
 		}
+	}
+
+	float ScrollAreaWidget::GetScrollHeight() const
+	{
+		return m_horizontalScrollbar->GetValue() * m_content->GetHeight();
+	}
+
+	float ScrollAreaWidget::GetScrollRatio() const
+	{
+		return m_horizontalScrollbar->GetValue();
 	}
 
 	void ScrollAreaWidget::ScrollToRatio(float ratio)
 	{
-		m_scrollRatio = Nz::Clamp(ratio, 0.f, 1.f);
-
-		float widgetHeight = GetHeight();
-		float maxHeight = widgetHeight - m_scrollbarSprite->GetSize().y - 2.f * scrollbarPadding;
-
-		auto& scrollbarNode = m_scrollbarEntity->GetComponent<NodeComponent>();
-		scrollbarNode.SetPosition(Nz::Vector2f(scrollbarNode.GetPosition(Nz::CoordSys_Local).x, scrollbarPadding + m_scrollRatio * maxHeight));
-
-		float contentPosition = m_scrollRatio * (widgetHeight - m_content->GetHeight());
-
-		m_content->SetPosition(0.f, contentPosition);
-		m_content->SetRenderingRect(Nz::Rectf(-std::numeric_limits<float>::infinity(), -contentPosition, std::numeric_limits<float>::infinity(), widgetHeight));
-	}
-
-	Nz::Rectf ScrollAreaWidget::GetScrollbarRect() const
-	{
-		Nz::Vector2f scrollBarPosition = Nz::Vector2f(m_scrollbarEntity->GetComponent<NodeComponent>().GetPosition(Nz::CoordSys_Local));
-		Nz::Vector2f scrollBarSize = m_scrollbarSprite->GetSize();
-		return Nz::Rectf(scrollBarPosition.x, scrollBarPosition.y, scrollBarSize.x, scrollBarSize.y);
+		m_horizontalScrollbar->SetValue(ratio);
 	}
 
 	void ScrollAreaWidget::Layout()
 	{
-		constexpr float scrollBarBackgroundWidth = 20.f;
-		constexpr float scrollBarWidth = scrollBarBackgroundWidth - 2.f * scrollbarPadding;
+		float scrollBarWidth = m_horizontalScrollbar->GetPreferredWidth();
 
+		float areaWidth = GetWidth();
 		float areaHeight = GetHeight();
-		float contentHeight = m_content->GetHeight();
+
+		m_content->Resize({ areaWidth, areaHeight }); //< setting width with line wrap adjust preferred height
+		float contentHeight = m_content->GetPreferredHeight();
 
 		if (contentHeight > areaHeight)
 		{
 			m_hasScrollbar = true;
 
-			Nz::Vector2f contentSize(GetWidth() - scrollBarBackgroundWidth, contentHeight);
+			Nz::Vector2f contentSize(areaWidth - scrollBarWidth, contentHeight);
 			m_content->Resize(contentSize);
 
 			if (m_isScrollbarEnabled)
-			{
-				m_scrollbarEntity->Enable();
-				m_scrollbarBackgroundEntity->Enable();
-			}
+				m_horizontalScrollbar->Show();
 
- 			float scrollBarHeight = std::max(std::floor(areaHeight * (areaHeight / contentHeight)), 20.f);
+			m_horizontalScrollbar->SetPosition(contentSize.x, 0.f);
+			m_horizontalScrollbar->Resize({ scrollBarWidth, GetHeight() });
 
-			m_scrollbarBackgroundSprite->SetSize(scrollBarBackgroundWidth, areaHeight);
-			m_scrollbarSprite->SetSize(scrollBarWidth, scrollBarHeight);
-
-			m_scrollbarBackgroundEntity->GetComponent<NodeComponent>().SetPosition(contentSize.x, 0.f);
-			m_scrollbarEntity->GetComponent<NodeComponent>().SetPosition(contentSize.x + (scrollBarBackgroundWidth - scrollBarWidth) / 2.f, 0.f);
-
-			ScrollToRatio(m_scrollRatio);
+			ScrollToRatio(m_horizontalScrollbar->GetValue());
 		}
 		else
 		{
@@ -117,8 +90,7 @@ namespace Nz
 
 			m_content->Resize(GetSize());
 
-			m_scrollbarEntity->Disable();
-			m_scrollbarBackgroundEntity->Disable();
+			m_horizontalScrollbar->Hide();
 
 			ScrollToRatio(0.f);
 		}
@@ -126,79 +98,11 @@ namespace Nz
 		BaseWidget::Layout();
 	}
 
-	void ScrollAreaWidget::OnMouseButtonPress(int x, int y, Nz::Mouse::Button button)
-	{
-		if (button != Nz::Mouse::Left)
-			return;
-
-		if (!m_isGrabbed)
-		{
-			m_style->OnGrab();
-
-			auto& scrollbarNode = m_scrollbarEntity->GetComponent<NodeComponent>();
-
-			m_grabbedDelta.Set(x, int(y - scrollbarNode.GetPosition(Nz::CoordSys_Local).y));
-		}
-	}
-
-	void ScrollAreaWidget::OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button)
-	{
-		if (button != Nz::Mouse::Left)
-			return;
-
-		if (m_scrollbarStatus == ScrollBarStatus::Grabbed)
-		{
-			Nz::Rectf scrollBarRect = GetScrollbarRect();
-			UpdateScrollbarStatus((scrollBarRect.Contains(Nz::Vector2f(float(x), float(y)))) ? ScrollBarStatus::Hovered : ScrollBarStatus::None);
-		}
-	}
-
-	void ScrollAreaWidget::OnMouseExit()
-	{
-		//if (m_scrollbarStatus == ScrollBarStatus::Hovered)
-			UpdateScrollbarStatus(ScrollBarStatus::None);
-	}
-
-	void ScrollAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
-	{
-		if (m_scrollbarStatus == ScrollBarStatus::Grabbed)
-		{
-			float height = GetHeight();
-			float maxHeight = height - m_scrollbarSprite->GetSize().y;
-			float newHeight = Nz::Clamp(float(y - m_grabbedDelta.y), 0.f, maxHeight);
-
-			ScrollToHeight(newHeight / maxHeight * m_content->GetHeight());
-		}
-		else
-		{
-			Nz::Rectf scrollBarRect = GetScrollbarRect();
-			UpdateScrollbarStatus((scrollBarRect.Contains(Nz::Vector2f(float(x), float(y)))) ? ScrollBarStatus::Hovered : ScrollBarStatus::None);
-		}
-	}
-
-	void ScrollAreaWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float delta)
+	bool ScrollAreaWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float delta)
 	{
 		constexpr float scrollStep = 100.f;
 
 		ScrollToHeight(GetScrollHeight() - scrollStep * delta);
-	}
-
-	void ScrollAreaWidget::UpdateScrollbarStatus(ScrollBarStatus status)
-	{
-		if (m_scrollbarStatus != status)
-		{
-			Nz::Color newColor;
-			switch (status)
-			{
-				case ScrollBarStatus::Grabbed: newColor = Nz::Color(235, 235, 235); break;
-				case ScrollBarStatus::Hovered: newColor = Nz::Color(152, 152, 152); break;
-				case ScrollBarStatus::None:    newColor = Nz::Color(104, 104, 104); break;
-			}
-
-			m_scrollbarSprite->SetColor(newColor);
-			m_scrollbarStatus = status;
-		}
+		return true;
 	}
 }
-
-#endif

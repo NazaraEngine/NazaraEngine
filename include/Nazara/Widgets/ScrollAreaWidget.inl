@@ -3,21 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ScrollAreaWidget.hpp>
-#include <NDK/Widgets/ScrollAreaWidget.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
-	inline float ScrollAreaWidget::GetScrollHeight() const
-	{
-		return m_scrollRatio * m_content->GetHeight();
-	}
-
-	inline float ScrollAreaWidget::GetScrollRatio() const
-	{
-		return m_scrollRatio;
-	}
-
 	inline bool ScrollAreaWidget::HasScrollbar() const
 	{
 		return m_hasScrollbar;
