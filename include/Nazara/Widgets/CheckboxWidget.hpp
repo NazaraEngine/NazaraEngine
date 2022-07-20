@@ -44,8 +44,8 @@ namespace Nz
 			void Layout() override;
 
 			void OnMouseEnter() override;
-			void OnMouseButtonPress(int x, int y, Mouse::Button button) override;
-			void OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
+			bool OnMouseButtonPress(int x, int y, Mouse::Button button) override;
+			bool OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
 			void OnMouseExit() override;
 
 			void OnRenderLayerUpdated(int baseRenderLayer) override;

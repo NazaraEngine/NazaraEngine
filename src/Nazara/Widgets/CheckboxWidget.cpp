@@ -41,13 +41,18 @@ namespace Nz
 		m_style->Layout(GetSize());
 	}
 
-	void CheckboxWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button)
+	bool CheckboxWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
+		{
 			m_style->OnPress();
+			return true;
+		}
+
+		return false;
 	}
 
-	void CheckboxWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
+	bool CheckboxWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -57,7 +62,11 @@ namespace Nz
 			// we don't want this to trigger the button, so double-check
 			if (IsInside(x, y))
 				SwitchToNextState();
+
+			return true;
 		}
+
+		return false;
 	}
 
 	void CheckboxWidget::OnMouseEnter()

@@ -90,23 +90,40 @@ namespace Nz
 		m_widgetEntries.pop_back();
 	}
 
+	template<typename F>
+	void Canvas::DispatchEvent(std::size_t widgetIndex, F&& functor)
+	{
+		for (;;)
+		{
+			WidgetEntry& targetWidget = m_widgetEntries[widgetIndex];
+			if (functor(targetWidget))
+				return;
+
+			if (!targetWidget.widget->m_widgetParent)
+				return;
+
+			widgetIndex = targetWidget.widget->m_widgetParent->m_canvasIndex;
+		}
+	}
+
 	void Canvas::OnEventMouseButtonPressed(const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
 	{
 		UpdateHoveredWidget(event.x, event.y);
 
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
+			DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
+			{
+				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
+				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
 
-			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
-
-			if (event.clickCount == 2)
-				targetWidget.widget->OnMouseButtonDoublePress(x, y, event.button);
-			else if (event.clickCount == 3)
-				targetWidget.widget->OnMouseButtonTriplePress(x, y, event.button);
-			else
-				targetWidget.widget->OnMouseButtonPress(x, y, event.button);
+				if (event.clickCount == 2)
+					return widgetEntry.widget->OnMouseButtonDoublePress(x, y, event.button);
+				else if (event.clickCount == 3)
+					return widgetEntry.widget->OnMouseButtonTriplePress(x, y, event.button);
+				else
+					return widgetEntry.widget->OnMouseButtonPress(x, y, event.button);
+			});
 		}
 
 		SetMouseOwner(m_hoveredWidget);
@@ -117,12 +134,13 @@ namespace Nz
 	{
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
+			DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
+			{
+				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
+				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
 
-			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
-
-			targetWidget.widget->OnMouseButtonRelease(x, y, event.button);
+				return widgetEntry.widget->OnMouseButtonRelease(x, y, event.button);
+			});
 		}
 
 		m_mouseOwnerButtons[event.button] = false;
@@ -187,12 +205,13 @@ namespace Nz
 	{
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
+			DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
+			{
+				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
+				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
 
-			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
-
-			targetWidget.widget->OnMouseWheelMoved(x, y, event.delta);
+				return widgetEntry.widget->OnMouseWheelMoved(x, y, event.delta);
+			});
 		}
 	}
 
@@ -278,19 +297,22 @@ namespace Nz
 	{
 		std::size_t bestEntry = InvalidCanvasIndex;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
+		int bestEntryLayer = std::numeric_limits<int>::min();
 
 		Vector3f mousePos(float(x), m_size.y - float(y), 0.f);
 		for (std::size_t i = 0; i < m_widgetEntries.size(); ++i)
 		{
 			const Boxf& box = m_widgetEntries[i].box;
+			int layer = m_widgetEntries[i].widget->GetBaseRenderLayer();
 
 			if (box.Contains(mousePos))
 			{
 				float area = box.width * box.height;
-				if (area < bestEntryArea)
+				if (area < bestEntryArea && layer >= bestEntryLayer)
 				{
 					bestEntry = i;
 					bestEntryArea = area;
+					bestEntryLayer = layer;
 				}
 			}
 		}

@@ -276,38 +276,43 @@ namespace Nz
 		return false;
 	}
 
-	void BaseWidget::OnKeyReleased(const WindowEvent::KeyEvent& /*key*/)
+	bool BaseWidget::OnKeyReleased(const WindowEvent::KeyEvent& /*key*/)
 	{
+		return false;
 	}
 
 	void BaseWidget::OnMouseEnter()
 	{
 	}
 
-	void BaseWidget::OnMouseMoved(int /*x*/, int /*y*/, int /*deltaX*/, int /*deltaY*/)
+	bool BaseWidget::OnMouseMoved(int /*x*/, int /*y*/, int /*deltaX*/, int /*deltaY*/)
 	{
+		return false;
 	}
 
-	void BaseWidget::OnMouseButtonDoublePress(int x, int y, Mouse::Button button)
+	bool BaseWidget::OnMouseButtonDoublePress(int x, int y, Mouse::Button button)
 	{
 		return OnMouseButtonPress(x, y, button);
 	}
 
-	void BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
+	bool BaseWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button /*button*/)
 	{
+		return false;
 	}
 
-	void BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button /*button*/)
+	bool BaseWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button /*button*/)
 	{
+		return false;
 	}
 
-	void BaseWidget::OnMouseButtonTriplePress(int x, int y, Mouse::Button button)
+	bool BaseWidget::OnMouseButtonTriplePress(int x, int y, Mouse::Button button)
 	{
 		return OnMouseButtonPress(x, y, button);
 	}
 
-	void BaseWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float /*delta*/)
+	bool BaseWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float /*delta*/)
 	{
+		return false;
 	}
 
 	void BaseWidget::OnMouseExit()
@@ -322,12 +327,14 @@ namespace Nz
 	{
 	}
 
-	void BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
+	bool BaseWidget::OnTextEntered(char32_t /*character*/, bool /*repeated*/)
 	{
+		return false;
 	}
 
-	void BaseWidget::OnTextEdited(const std::array<char, 32>& /*characters*/, int /*length*/)
+	bool BaseWidget::OnTextEdited(const std::array<char, 32>& /*characters*/, int /*length*/)
 	{
+		return false;
 	}
 
 	void BaseWidget::ShowChildren(bool show)
@@ -358,6 +365,20 @@ namespace Nz
 		NazaraAssert(!IsRegisteredToCanvas(), "Widget is already registered to canvas");
 
 		m_canvasIndex = m_canvas->RegisterWidget(this);
+	}
+
+	void BaseWidget::SetParent(BaseWidget* widget)
+	{
+		Canvas* oldCanvas = m_canvas;
+		Canvas* newCanvas = widget->GetCanvas();
+
+		// Changing a widget canvas is a problem because of the canvas entities
+		NazaraAssert(oldCanvas == newCanvas, "Transferring a widget between canvas is not yet supported");
+
+		Node::SetParent(widget);
+		m_widgetParent = widget;
+
+		Layout();
 	}
 
 	void BaseWidget::UnregisterFromCanvas()

@@ -394,11 +394,7 @@ namespace Nz
 		return false;
 	}
 
-	void AbstractTextAreaWidget::OnKeyReleased(const WindowEvent::KeyEvent& /*key*/)
-	{
-	}
-
-	void AbstractTextAreaWidget::OnMouseButtonDoublePress(int x, int y, Mouse::Button button)
+	bool AbstractTextAreaWidget::OnMouseButtonDoublePress(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -412,10 +408,13 @@ namespace Nz
 			HandleWordSelection(hoveredGlyph);
 
 			m_isMouseButtonDown = true;
+			return true;
 		}
+
+		return false;
 	}
 
-	void AbstractTextAreaWidget::OnMouseButtonPress(int x, int y, Mouse::Button button)
+	bool AbstractTextAreaWidget::OnMouseButtonPress(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -433,16 +432,24 @@ namespace Nz
 			}
 
 			m_isMouseButtonDown = true;
+			return true;
 		}
+
+		return false;
 	}
 
-	void AbstractTextAreaWidget::OnMouseButtonRelease(int, int, Mouse::Button button)
+	bool AbstractTextAreaWidget::OnMouseButtonRelease(int, int, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
+		{
 			m_isMouseButtonDown = false;
+			return true;
+		}
+
+		return false;
 	}
 
-	void AbstractTextAreaWidget::OnMouseButtonTriplePress(int x, int y, Mouse::Button button)
+	bool AbstractTextAreaWidget::OnMouseButtonTriplePress(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -456,7 +463,10 @@ namespace Nz
 			SetSelection(Vector2ui(0, hoveredGlyph.y), Vector2ui(std::numeric_limits<unsigned int>::max(), hoveredGlyph.y));
 
 			m_isMouseButtonDown = true;
+			return true;
 		}
+
+		return false;
 	}
 
 	void AbstractTextAreaWidget::OnMouseEnter()
@@ -465,10 +475,15 @@ namespace Nz
 			m_isMouseButtonDown = false;
 	}
 
-	void AbstractTextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
+	bool AbstractTextAreaWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
 	{
 		if (m_isMouseButtonDown)
+		{
 			SetSelection(m_selectionCursor, GetHoveredGlyph(float(x), float(y)));
+			return true;
+		}
+
+		return false;
 	}
 
 	void AbstractTextAreaWidget::OnRenderLayerUpdated(int baseRenderLayer)
@@ -478,18 +493,19 @@ namespace Nz
 			cursor.sprite->UpdateRenderLayer(baseRenderLayer + 1);
 	}
 
-	void AbstractTextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
+	bool AbstractTextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
 	{
 		if (m_readOnly)
-			return;
+			return false;
 
 		if (Unicode::GetCategory(character) == Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
-			return;
+			return false;
 
 		if (HasSelection())
 			EraseSelection();
 
 		Write(FromUtf32String(std::u32string_view(&character, 1)));
+		return true;
 	}
 
 	void AbstractTextAreaWidget::RefreshCursor()
