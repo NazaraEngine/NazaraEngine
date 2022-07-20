@@ -55,6 +55,8 @@ namespace Nz
 			void UnregisterWidget(std::size_t index);
 
 		private:
+			template<typename F> void DispatchEvent(std::size_t widgetIndex, F&& functor);
+			
 			void OnEventMouseButtonPressed(const EventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
 			void OnEventMouseButtonRelease(const EventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
 			void OnEventMouseEntered(const EventHandler* eventHandler);

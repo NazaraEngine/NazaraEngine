@@ -128,19 +128,19 @@ namespace Nz
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
 			virtual bool OnKeyPressed(const WindowEvent::KeyEvent& key);
-			virtual void OnKeyReleased(const WindowEvent::KeyEvent& key);
+			virtual bool OnKeyReleased(const WindowEvent::KeyEvent& key);
 			virtual void OnMouseEnter();
-			virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
-			virtual void OnMouseButtonDoublePress(int x, int y, Mouse::Button button);
-			virtual void OnMouseButtonPress(int x, int y, Mouse::Button button);
-			virtual void OnMouseButtonRelease(int x, int y, Mouse::Button button);
-			virtual void OnMouseButtonTriplePress(int x, int y, Mouse::Button button);
-			virtual void OnMouseWheelMoved(int x, int y, float delta);
+			virtual bool OnMouseMoved(int x, int y, int deltaX, int deltaY);
+			virtual bool OnMouseButtonDoublePress(int x, int y, Mouse::Button button);
+			virtual bool OnMouseButtonPress(int x, int y, Mouse::Button button);
+			virtual bool OnMouseButtonRelease(int x, int y, Mouse::Button button);
+			virtual bool OnMouseButtonTriplePress(int x, int y, Mouse::Button button);
+			virtual bool OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnMouseExit();
 			virtual void OnRenderLayerUpdated(int baseRenderLayer);
 			virtual void OnParentResized(const Vector2f& newSize);
-			virtual void OnTextEntered(char32_t character, bool repeated);
-			virtual void OnTextEdited(const std::array<char, 32>& characters, int length);
+			virtual bool OnTextEntered(char32_t character, bool repeated);
+			virtual bool OnTextEdited(const std::array<char, 32>& characters, int length);
 
 			inline void SetBaseRenderLayer(int baseRenderLayer);
 			inline void SetPreferredSize(const Vector2f& preferredSize);
@@ -156,6 +156,7 @@ namespace Nz
 			inline bool IsRegisteredToCanvas() const;
 			inline void NotifyParentResized(const Vector2f& newSize);
 			void RegisterToCanvas();
+			void SetParent(BaseWidget* widget);
 			inline void UpdateCanvasIndex(std::size_t index);
 			void UnregisterFromCanvas();
 			void UpdatePositionAndSize();

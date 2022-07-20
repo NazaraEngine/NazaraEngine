@@ -34,13 +34,18 @@ namespace Nz
 		m_style->Layout(GetSize());
 	}
 
-	void ButtonWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button)
+	bool ButtonWidget::OnMouseButtonPress(int /*x*/, int /*y*/, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
+		{
 			m_style->OnPress();
+			return true;
+		}
+
+		return false;
 	}
 
-	void ButtonWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
+	bool ButtonWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -50,7 +55,11 @@ namespace Nz
 			// we don't want this to trigger the button, so double-check
 			if (IsInside(float(x), float(y)))
 				OnButtonTrigger(this);
+
+			return true;
 		}
+
+		return false;
 	}
 
 	void ButtonWidget::OnMouseEnter()

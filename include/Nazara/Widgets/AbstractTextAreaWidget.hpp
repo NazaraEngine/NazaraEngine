@@ -102,15 +102,14 @@ namespace Nz
 			void OnFocusLost() override;
 			void OnFocusReceived() override;
 			bool OnKeyPressed(const WindowEvent::KeyEvent& key) override;
-			void OnKeyReleased(const WindowEvent::KeyEvent& key) override;
-			void OnMouseButtonDoublePress(int x, int y, Mouse::Button button) override;
-			void OnMouseButtonPress(int x, int y, Mouse::Button button) override;
-			void OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
-			void OnMouseButtonTriplePress(int x, int y, Mouse::Button button) override;
+			bool OnMouseButtonDoublePress(int x, int y, Mouse::Button button) override;
+			bool OnMouseButtonPress(int x, int y, Mouse::Button button) override;
+			bool OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
+			bool OnMouseButtonTriplePress(int x, int y, Mouse::Button button) override;
 			void OnMouseEnter() override;
-			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
+			bool OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
 			void OnRenderLayerUpdated(int baseRenderLayer) override;
-			void OnTextEntered(char32_t character, bool repeated) override;
+			bool OnTextEntered(char32_t character, bool repeated) override;
 
 			virtual void PasteFromClipboard(const Vector2ui& targetPosition) = 0;
 

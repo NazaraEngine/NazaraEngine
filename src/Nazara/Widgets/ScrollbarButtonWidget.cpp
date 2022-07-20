@@ -23,7 +23,7 @@ namespace Nz
 		m_style->Layout(GetSize());
 	}
 
-	void ScrollbarButtonWidget::OnMouseButtonPress(int x, int y, Mouse::Button button)
+	bool ScrollbarButtonWidget::OnMouseButtonPress(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -31,10 +31,13 @@ namespace Nz
 			OnButtonGrabbed(this, x, y);
 
 			m_style->OnGrab();
+			return true;
 		}
+
+		return false;
 	}
 
-	void ScrollbarButtonWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
+	bool ScrollbarButtonWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{
@@ -42,7 +45,10 @@ namespace Nz
 			OnButtonReleased(this);
 
 			m_style->OnRelease();
+			return true;
 		}
+
+		return false;
 	}
 
 	void ScrollbarButtonWidget::OnMouseEnter()
@@ -55,10 +61,15 @@ namespace Nz
 		m_style->OnHoverEnd();
 	}
 
-	void ScrollbarButtonWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
+	bool ScrollbarButtonWidget::OnMouseMoved(int x, int y, int /*deltaX*/, int /*deltaY*/)
 	{
 		if (m_isGrabbed)
+		{
 			OnButtonMoved(this, x, y);
+			return true;
+		}
+
+		return false;
 	}
 
 	void ScrollbarButtonWidget::OnRenderLayerUpdated(int baseRenderLayer)
