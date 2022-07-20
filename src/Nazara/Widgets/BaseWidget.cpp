@@ -127,6 +127,20 @@ namespace Nz
 		return m_canvas->IsKeyboardOwner(m_canvasIndex);
 	}
 
+	std::unique_ptr<BaseWidget> BaseWidget::ReleaseFromParent()
+	{
+		if (!m_widgetParent)
+			return {};
+
+		auto it = std::find_if(m_widgetParent->m_children.begin(), m_widgetParent->m_children.end(), [&](const std::unique_ptr<BaseWidget>& widgetPtr) { return widgetPtr.get() == this; });
+		assert(it != m_widgetParent->m_children.end());
+
+		std::unique_ptr<BaseWidget> ownerPtr = std::move(*it);
+		m_widgetParent->m_children.erase(it);
+
+		return ownerPtr;
+	}
+
 	void BaseWidget::Resize(const Vector2f& size)
 	{
 		// Adjust new size
@@ -163,20 +177,6 @@ namespace Nz
 	{
 		if (IsRegisteredToCanvas())
 			m_canvas->SetKeyboardOwner(m_canvasIndex);
-	}
-
-	void BaseWidget::SetParent(BaseWidget* widget)
-	{
-		Canvas* oldCanvas = m_canvas;
-		Canvas* newCanvas = widget->GetCanvas();
-
-		// Changing a widget canvas is a problem because of the canvas entities
-		NazaraAssert(oldCanvas == newCanvas, "Transferring a widget between canvas is not yet supported");
-
-		Node::SetParent(widget);
-		m_widgetParent = widget;
-
-		Layout();
 	}
 
 	void BaseWidget::SetRenderingRect(const Rectf& renderingRect)

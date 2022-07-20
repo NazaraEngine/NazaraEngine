@@ -22,6 +22,8 @@ namespace Nz
 		m_style = GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
+		SetPreferredSize({ 32.f, 32.f });
+
 		const WidgetTheme::Config& themeConfig = GetTheme()->GetConfig();
 
 		m_scrollCenterButton = Add<ScrollbarButtonWidget>();

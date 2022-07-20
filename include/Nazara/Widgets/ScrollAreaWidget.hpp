@@ -13,6 +13,8 @@
 
 namespace Nz
 {
+	class ScrollbarWidget;
+
 	class NAZARA_WIDGETS_API ScrollAreaWidget : public BaseWidget
 	{
 		public:
@@ -23,8 +25,8 @@ namespace Nz
 
 			void EnableScrollbar(bool enable);
 
-			inline float GetScrollHeight() const;
-			inline float GetScrollRatio() const;
+			float GetScrollHeight() const;
+			float GetScrollRatio() const;
 
 			inline bool HasScrollbar() const;
 			inline bool IsScrollbarEnabled() const;
@@ -37,27 +39,15 @@ namespace Nz
 			ScrollAreaWidget& operator=(ScrollAreaWidget&&) = default;
 
 		private:
-			Nz::Rectf GetScrollbarRect() const;
-
 			void Layout() override;
 
-			void OnMouseButtonPress(int x, int y, Nz::Mouse::Button button) override;
-			void OnMouseButtonRelease(int x, int y, Nz::Mouse::Button button) override;
-			void OnMouseExit() override;
-			void OnMouseMoved(int x, int y, int deltaX, int deltaY) override;
-			void OnMouseWheelMoved(int x, int y, float delta) override;
+			bool OnMouseWheelMoved(int x, int y, float delta) override;
 
 			std::unique_ptr<ScrollAreaWidgetStyle> m_style;
 			BaseWidget* m_content;
-			EntityHandle m_scrollbarBackgroundEntity;
-			EntityHandle m_scrollbarEntity;
-			Nz::SpriteRef m_scrollbarBackgroundSprite;
-			Nz::SpriteRef m_scrollbarSprite;
-			Nz::Vector2i m_grabbedDelta;
-			bool m_isGrabbed;
+			ScrollbarWidget* m_horizontalScrollbar;
 			bool m_isScrollbarEnabled;
 			bool m_hasScrollbar;
-			float m_scrollRatio;
 	};
 }
 

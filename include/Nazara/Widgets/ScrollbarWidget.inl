@@ -36,6 +36,7 @@ namespace Nz
 	inline void ScrollbarWidget::SetValue(float newValue)
 	{
 		m_value = Clamp(newValue, m_minimumValue, m_maximumValue);
+		OnScrollbarValueUpdate(this, m_value);
 
 		Layout();
 	}
