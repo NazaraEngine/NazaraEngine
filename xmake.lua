@@ -312,5 +312,5 @@ end
 
 includes("tools/*.lua")
 includes("tests/*.lua")
+includes("examples/*.lua")
 includes("plugins/*/xmake.lua")
-includes("examples/*/xmake.lua")

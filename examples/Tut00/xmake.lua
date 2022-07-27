@@ -1,5 +1,3 @@
 target("Tut00_EmptyProject")
-	set_group("Examples")
-	set_kind("binary")
 	add_deps("NazaraAudio", "NazaraGraphics", "NazaraNetwork", "NazaraPhysics2D", "NazaraPhysics3D", "NazaraRenderer", "NazaraUtility")
 	add_files("main.cpp")

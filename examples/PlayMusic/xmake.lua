@@ -1,5 +1,3 @@
 target("PlayMusic")
-	set_group("Examples")
-	set_kind("binary")
 	add_deps("NazaraAudio")
 	add_files("main.cpp")

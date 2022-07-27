@@ -1,6 +1,4 @@
 target("WidgetDemo")
-	set_group("Examples")
-	set_kind("binary")
 	add_deps("NazaraGraphics", "NazaraPhysics3D", "NazaraWidgets")
 	add_packages("entt")
 	add_files("main.cpp")

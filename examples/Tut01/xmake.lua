@@ -1,6 +1,4 @@
 target("Tut01_HelloWorld")
-	set_group("Examples")
-	set_kind("binary")
 	add_deps("NazaraGraphics")
 	add_packages("entt")
 	add_files("main.cpp")

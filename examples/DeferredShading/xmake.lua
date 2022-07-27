@@ -1,5 +1,3 @@
 target("DeferredShading")
-	set_group("Examples")
-	set_kind("binary")
 	add_deps("NazaraGraphics")
 	add_files("main.cpp")
