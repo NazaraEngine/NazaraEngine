@@ -19,7 +19,7 @@ if has_config("tests") then
 
 	add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D")
 	add_packages("catch2", "entt")
-	add_headerfiles("Engine/**.hpp", { prefixdir = "private" })
+	add_headerfiles("Engine/**.hpp", { prefixdir = "private", install = false })
 	add_files("resources.cpp")
 	add_files("Engine/**.cpp")
 	add_includedirs(".")

@@ -116,8 +116,8 @@ if has_config("shadernodes") then
 		end
 
 		add_includedirs("../src")
-		add_headerfiles("../src/ShaderNode/**.hpp", "../src/ShaderNode/**.inl")
+		add_headerfiles("../src/ShaderNode/**.hpp", "../src/ShaderNode/**.inl", { prefixdir = "private", install = false })
 		add_files("../src/ShaderNode/**.cpp")
-		add_files("../src/ShaderNode/Previews/PreviewValues.cpp", {unity_ignored = true}) -- fixes an issue with MSVC and operator*
+		add_files("../src/ShaderNode/Previews/PreviewValues.cpp", { unity_ignored = true }) -- fixes an issue with MSVC and operator*
 
 end
