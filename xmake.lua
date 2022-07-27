@@ -205,10 +205,6 @@ if is_plat("windows") then
 elseif is_plat("mingw") then
 	add_cxflags("-Og", "-Wa,-mbig-obj")
 	add_ldflags("-Wa,-mbig-obj")
-
-	if is_subhost("msys", "cygwin") then
-		add_rules("msys2.isystem.fix")
-	end
 end
 
 for name, module in pairs(modules) do
