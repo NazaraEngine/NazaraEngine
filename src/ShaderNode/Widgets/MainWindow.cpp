@@ -192,7 +192,7 @@ void MainWindow::OnCompile()
 
 		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
 		nzsl::Serializer serializer;
-		nzsl::Ast::SerializeShader(serializer, shaderModule);
+		nzsl::Ast::SerializeShader(serializer, *shaderModule);
 
 		const std::vector<std::uint8_t>& data = serializer.GetData();
 		file.Write(data.data(), data.size());

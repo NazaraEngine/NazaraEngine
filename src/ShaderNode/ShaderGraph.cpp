@@ -464,7 +464,7 @@ nzsl::Ast::ModulePtr ShaderGraph::ToModule() const
 	for (const auto& structInfo : m_structs)
 	{
 		nzsl::Ast::StructDescription structDesc;
-		structDesc.layout = nzsl::StructLayout::Std140;
+		structDesc.layout = nzsl::Ast::MemoryLayout::Std140;
 		structDesc.name = structInfo.name;
 
 		for (const auto& memberInfo : structInfo.members)
