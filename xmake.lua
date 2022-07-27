@@ -125,6 +125,12 @@ option("embed-resources")
 	set_description("Turn builtin resources into includable headers")
 option_end()
 
+option("override_runtime")
+	set_default(true)
+	set_showmenu(true)
+	set_description("Override vs runtime to MD in release and MDd in debug")
+option_end()
+
 option("usepch")
 	set_default(false)
 	set_showmenu(true)
@@ -197,6 +203,10 @@ end
 
 
 if is_plat("windows") then
+	if has_config("override_runtime") then
+		set_runtimes(is_mode("debug") and "MDd" or "MD")
+	end
+
 	add_defines("_CRT_SECURE_NO_WARNINGS")
 	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:externConstexpr", "/Zc:inline", "/Zc:lambda", "/Zc:preprocessor", "/Zc:referenceBinding", "/Zc:strictStrings", "/Zc:throwingNew")
 	add_cxflags("/w44062") -- Enable warning: switch case not handled
