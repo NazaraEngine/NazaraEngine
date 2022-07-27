@@ -154,7 +154,7 @@ if is_plat("macosx") then
 	add_requires("libx11")
 end
 
-add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg")
+add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build.rendererplugins")
 add_rules("download.assets.examples")
@@ -164,8 +164,7 @@ if has_config("tests") then
 end
 
 set_allowedplats("windows", "mingw", "linux", "macosx")
-set_allowedarchs("windows|x64", "mingw|x86_64", "linux|x86_64", "macosx|x86_64")
-set_allowedmodes("debug", "releasedbg", "asan", "tsan", "coverage")
+set_allowedmodes("debug", "releasedbg", "release", "asan", "tsan", "coverage")
 set_defaultmode("debug")
 
 if is_mode("debug") then
@@ -178,7 +177,7 @@ elseif is_mode("coverage") then
 	if not is_plat("windows") then
 		add_links("gcov")
 	end
-elseif is_mode("releasedbg") then
+elseif is_mode("releasedbg", "release") then
 	set_fpmodels("fast")
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
