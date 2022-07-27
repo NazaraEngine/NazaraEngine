@@ -113,13 +113,13 @@ NazaraModules = modules
 
 includes("xmake/**.lua")
 
-option("compile-shaders")
+option("compile_shaders")
 	set_default(true)
 	set_showmenu(true)
 	set_description("Compile nzsl shaders into an includable binary version")
 option_end()
 
-option("embed-resources")
+option("embed_resources")
 	set_default(true)
 	set_showmenu(true)
 	set_description("Turn builtin resources into includable headers")
@@ -152,6 +152,7 @@ add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
+add_repositories("local-repo xmake-repo")
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
@@ -163,7 +164,10 @@ end
 add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build.rendererplugins")
-add_rules("download.assets.examples")
+
+if has_config("examples") then
+	add_rules("download.assets.examples")
+end
 
 if has_config("tests") then
 	add_rules("download.assets.tests")
@@ -200,7 +204,6 @@ set_warnings("allextra")
 if is_mode("debug") then
 	add_defines("NAZARA_DEBUG")
 end
-
 
 if is_plat("windows") then
 	if has_config("override_runtime") then
@@ -272,7 +275,7 @@ for name, module in pairs(modules) do
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	add_includedirs("src")
 
-	if has_config("embed-resources") then
+	if has_config("embed_resources") then
 		local embedResourceRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
 			if not embedResourceRule then
@@ -284,7 +287,7 @@ for name, module in pairs(modules) do
 		end
 	end
 
-	if has_config("compile-shaders") then
+	if has_config("compile_shaders") then
 		local compileShaderRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
 			if not compileShaderRule then
