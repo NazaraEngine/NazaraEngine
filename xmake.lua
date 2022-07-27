@@ -197,8 +197,6 @@ end
 
 
 if is_plat("windows") then
-	set_runtimes(is_mode("debug") and "MDd" or "MD")
-
 	add_defines("_CRT_SECURE_NO_WARNINGS")
 	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:externConstexpr", "/Zc:inline", "/Zc:lambda", "/Zc:preprocessor", "/Zc:referenceBinding", "/Zc:strictStrings", "/Zc:throwingNew")
 	add_cxflags("/w44062") -- Enable warning: switch case not handled
