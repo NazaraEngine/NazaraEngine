@@ -40,7 +40,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev gcovr
+        sudo apt-get -y install mesa-common-dev gcovr
 
     - name: Install OpenCppCoverage (Windows)
       if: runner.os == 'Windows'

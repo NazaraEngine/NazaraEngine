@@ -15,7 +15,9 @@ local modules = {
 			if is_plat("windows", "mingw") then
 				add_syslinks("ole32")
 			elseif is_plat("linux") then
-				add_syslinks("dl", "pthread", "uuid")
+				add_packages("wayland", { links = {} }) -- we only need wayland headers
+				add_packages("libuuid")
+				add_syslinks("dl", "pthread")
 			end
 		end,
 		Packages = { "entt" },
@@ -156,7 +158,9 @@ add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo"
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
 
-if is_plat("macosx") then
+if is_plat("linux") then
+	add_requires("libuuid", "wayland")
+elseif is_plat("macosx") then
 	add_requires("libx11")
 end
 

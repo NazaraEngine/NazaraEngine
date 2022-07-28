@@ -39,7 +39,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get -y install mesa-common-dev libwayland-dev uuid-dev
+        sudo apt-get -y install mesa-common-dev
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
