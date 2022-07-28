@@ -15,7 +15,6 @@ local modules = {
 			if is_plat("windows", "mingw") then
 				add_syslinks("ole32")
 			elseif is_plat("linux") then
-				add_packages("wayland", { links = {} }) -- we only need wayland headers
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
 			end
@@ -52,6 +51,7 @@ local modules = {
 
 			if is_plat("linux") then
 				add_defines("EGL_NO_X11")
+				add_packages("wayland", { links = {} }) -- we only need wayland headers
 			else
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
@@ -98,6 +98,7 @@ local modules = {
 			elseif is_plat("linux") then
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
+				add_packages("wayland", { links = {} }) -- we only need wayland headers
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
 				add_files("src/Nazara/VulkanRenderer/**.mm")
